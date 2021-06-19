@@ -154,15 +154,13 @@ class ReplayBuffer():
 
 class TrainingSession():
     def __init__(self, env: gym.Env, model: Model,
-                 value_optimizer: torch.optim.Optimizer,
-                 policy_optimizer: torch.optim.Optimizer,
+                 optimizer: torch.optim.Optimizer,
                  replay_capacity: int, reward_horizon: int, max_steps: int,
                  value_loss_coef: float,
                  weight_decay: float):
         self.env = env
         self.model = model
-        self.value_optimizer = value_optimizer
-        self.policy_optimizer = policy_optimizer
+        self.optimizer = optimizer
         self.reward_horizon = reward_horizon
         self.value_loss_coef = value_loss_coef
         self.weight_decay = weight_decay
@@ -199,20 +197,20 @@ class TrainingSession():
         advantage = value2.detach() - value1.detach()
         p_log_action = p_log[torch.arange(batch_size), action]
         policy_loss = -torch.dot(p_log_action, advantage)
-        # loss = (policy_loss + value_loss) / batch_size
-        # self.optimizer.zero_grad()
-        # loss.backward()
-        # self.optimizer.step()
-
-        self.policy_optimizer.zero_grad()
-        policy_loss.backward()
-        self.policy_optimizer.step()
-
         value_err = mean_reward - value1
         value_loss = self.value_loss_coef * torch.dot(value_err, value_err)
-        self.value_optimizer.zero_grad()
-        value_loss.backward()
-        self.value_optimizer.step()
+        loss = (policy_loss + value_loss)# / batch_size
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
+
+        # self.policy_optimizer.zero_grad()
+        # policy_loss.backward()
+        # self.policy_optimizer.step()
+        #
+        # self.value_optimizer.zero_grad()
+        # value_loss.backward()
+        # self.value_optimizer.step()
 
         self.model.weight_decay(self.weight_decay)
         return policy_loss.item(), value_loss.item()
@@ -222,19 +220,17 @@ max_steps = 1000
 env._max_episode_steps = max_steps
 env.env.theta_threshold_radians = math.pi / 4
 model = Model([4, 64], 2)
-value_optimizer = torch.optim.Adam(model.value_layer.parameters(), lr=0.0002, betas=(0.9, 0.9), eps=1e-15)
-policy_optimizer = torch.optim.Adam(model.policy_layer.parameters(), lr=0.0002, betas=(0.9, 0.9), eps=1e-15)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.0002, betas=(0.9, 0.9), eps=1e-15)
 # optimizer = torch.optim.SGD(model.parameters(), lr=0.05)
 batch_size = 64
 train_freq = 4
 print_freq = 100
 display_freq = 5
 session = TrainingSession(env, model,
-                          value_optimizer,
-                          policy_optimizer,
+                          optimizer,
                           replay_capacity=2048, reward_horizon=200,
                           max_steps=max_steps, value_loss_coef=1.0,
-                          weight_decay=0.0 * value_optimizer.param_groups[0]['lr'])
+                          weight_decay=0.0 * optimizer.param_groups[0]['lr'])
 total_policy_loss = 0.0
 total_value_loss = 0.0
 
