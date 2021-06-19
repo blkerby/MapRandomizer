@@ -52,7 +52,7 @@ class MainNetwork(torch.nn.Module):
 class Model(torch.nn.Module):
     def __init__(self, widths, num_actions):
         super().__init__()
-        # self.main_network = MainNetwork(widths)
+        # self.main_network = torch.nn.Sequential(MainNetwork(widths), torch.nn.ReLU())
         # self.policy_layer = torch.nn.Linear(widths[-1], num_actions)
         # self.value_layer = torch.nn.Linear(widths[-1], 1)
         self.main_network = torch.nn.Sequential()
@@ -199,7 +199,7 @@ class TrainingSession():
         policy_loss = -torch.dot(p_log_action, advantage)
         value_err = mean_reward - value1
         value_loss = self.value_loss_coef * torch.dot(value_err, value_err)
-        loss = (policy_loss + value_loss)# / batch_size
+        loss = (policy_loss + value_loss) / batch_size
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
@@ -228,7 +228,7 @@ print_freq = 100
 display_freq = 5
 session = TrainingSession(env, model,
                           optimizer,
-                          replay_capacity=2048, reward_horizon=200,
+                          replay_capacity=2048, reward_horizon=150,
                           max_steps=max_steps, value_loss_coef=1.0,
                           weight_decay=0.0 * optimizer.param_groups[0]['lr'])
 total_policy_loss = 0.0
