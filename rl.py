@@ -2,6 +2,12 @@ import gym
 import numpy as np
 import torch
 import collections
+import logging
+
+logging.basicConfig(format='%(asctime)s %(message)s',
+                    level=logging.INFO,
+                    handlers=[logging.FileHandler("cartpole.log"),
+                              logging.StreamHandler()])
 
 class MinOut(torch.nn.Module):
     def __init__(self, arity):
@@ -74,25 +80,30 @@ class Model(torch.nn.Module):
 
 
 class ReplayBuffer():
-    def __init__(self, capacity, observation_size, reward_horizon):
+    def __init__(self, capacity, observation_size, reward_horizon, max_steps):
         self.size = 0
         self.capacity = capacity
         self.reward_horizon = reward_horizon
         self.deque = collections.deque(maxlen=reward_horizon)
         self.deque_total_reward = 0.0
-        self.state1 = torch.empty([capacity, observation_size + 1], dtype=torch.float32)
-        self.state2 = torch.empty([capacity, observation_size + 1], dtype=torch.float32)
+        self.state1 = torch.empty([capacity, observation_size], dtype=torch.float32)
+        self.state2 = torch.empty([capacity, observation_size], dtype=torch.float32)
         self.action = torch.empty(capacity, dtype=torch.int64)
         self.mean_reward = torch.empty(capacity, dtype=torch.float32)
         self.done = torch.empty(capacity, dtype=torch.float32)
-
-    def _extend_state(self, state, val):
-        return np.concatenate([state, np.array([val], dtype=np.float)])
+        self.max_steps = max_steps
+        # self.highest_step_number = 0
 
     def append(self, state1: np.array, state2: np.array, action: int, reward: float, done: bool, step_number: int):
+        if step_number == self.max_steps - 1:
+            # Don't use current data in deque: total rewards would be invalid since game was artificially ended
+            self.deque.clear()
+            self.deque_total_reward = 0.0
+            return
+        # if step_number >= self.highest_step_number:
+        #     self.highest_step_number = step_number
+        #     print("highest: ", step_number)
         assert len(self.deque) < self.reward_horizon
-        state1 = self._extend_state(state1, step_number)
-        state2 = self._extend_state(state2, step_number)
         self.deque.append((state1, state2, action, reward, done))
         self.deque_total_reward += reward
         if len(self.deque) == self.reward_horizon:
@@ -141,7 +152,8 @@ class ReplayBuffer():
 
 class TrainingSession():
     def __init__(self, env: gym.Env, model: Model, optimizer: torch.optim.Optimizer,
-                 replay_capacity: int, reward_horizon: int, value_loss_coef: float,
+                 replay_capacity: int, reward_horizon: int, max_steps: int,
+                 value_loss_coef: float,
                  weight_decay: float):
         self.env = env
         self.model = model
@@ -149,25 +161,26 @@ class TrainingSession():
         self.reward_horizon = reward_horizon
         self.value_loss_coef = value_loss_coef
         self.weight_decay = weight_decay
+        self.episode_number = 0
         self.step_number = 0
         self.replay = ReplayBuffer(replay_capacity,
                                    observation_size=np.prod(env.observation_space.shape),
-                                   reward_horizon=reward_horizon)
+                                   reward_horizon=reward_horizon,
+                                   max_steps=max_steps)
         self.observation = env.reset()
 
     def play_step(self):
-        X = torch.from_numpy(self.replay._extend_state(self.observation, self.step_number)).view(1, -1).to(torch.float32)
+        X = torch.from_numpy(self.observation).view(1, -1).to(torch.float32)
         with torch.no_grad():
             p_raw = model.forward_policy(X)
         dist = torch.distributions.Categorical(logits=p_raw[0, :])
         action = dist.sample().item()
         observation, reward, done, _ = env.step(action)
-        # reward = 0.0 if not done else -1.0
-        # # reward = 0.0 if not done else 1.0
         self.replay.append(self.observation, observation, action, reward, done, self.step_number)
         if done:
             self.observation = env.reset()
             self.step_number = 0
+            self.episode_number += 1
         else:
             self.observation = observation
             self.step_number += 1
@@ -191,22 +204,26 @@ class TrainingSession():
         return policy_loss.item(), value_loss.item()
 
 env = gym.make('CartPole-v0')
-env._max_episode_steps = 1000
-model = Model([5, 64, 64], 2)
+max_steps = 1000
+env._max_episode_steps = max_steps
+model = Model([4, 128], 2)
 optimizer = torch.optim.Adam(model.parameters(), lr=0.0001, betas=(0.9, 0.9), eps=1e-15)
 # optimizer = torch.optim.SGD(model.parameters(), lr=0.05)
-batch_size = 1024
-train_freq = 64
-print_freq = 10
-session = TrainingSession(env, model, optimizer, replay_capacity=4096, reward_horizon=200, value_loss_coef=10.0,
-                          weight_decay=0.001 * optimizer.param_groups[0]['lr'])
+batch_size = 64
+train_freq = 4
+print_freq = 100
+display_freq = 5
+session = TrainingSession(env, model, optimizer, replay_capacity=2048, reward_horizon=200,
+                          max_steps=max_steps, value_loss_coef=1.0,
+                          weight_decay=0.0 * optimizer.param_groups[0]['lr'])
 total_policy_loss = 0.0
 total_value_loss = 0.0
 
 print_ctr = 0
 for i in range(1000000):
     session.play_step()
-    # env.render()
+    if session.episode_number % display_freq == 0:
+        env.render()
     if session.replay.size >= batch_size and i % train_freq == 0:
         policy_loss, value_loss = session.train_step(batch_size)
         total_policy_loss += policy_loss
@@ -215,8 +232,9 @@ for i in range(1000000):
         if print_ctr == print_freq:
             print_ctr = 0
             mean_reward = torch.mean(session.replay.mean_reward[:session.replay.size])
-            print("{}: policy_loss={:.5f}, value_loss={:.5f}, reward={:.5f}".format(
-                i, total_policy_loss / print_freq, total_value_loss / print_freq, mean_reward))
+            logging.info("{}: episode={}, step={}, policy_loss={:.5f}, value_loss={:.5f}, reward={:.5f}".format(
+                i, session.episode_number, session.step_number,
+                total_policy_loss / print_freq, total_value_loss / print_freq, mean_reward))
             total_policy_loss = 0
             total_value_loss = 0
 env.close()
