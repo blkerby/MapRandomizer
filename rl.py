@@ -228,7 +228,7 @@ print_freq = 100
 display_freq = 5
 session = TrainingSession(env, model,
                           optimizer,
-                          replay_capacity=2048, reward_horizon=150,
+                          replay_capacity=2048, reward_horizon=200,
                           max_steps=max_steps, value_loss_coef=1.0,
                           weight_decay=0.0 * optimizer.param_groups[0]['lr'])
 total_policy_loss = 0.0
@@ -237,8 +237,8 @@ total_value_loss = 0.0
 print_ctr = 0
 for i in range(1000000):
     session.play_step()
-    # if session.episode_number % display_freq == 0:
-    #     env.render()
+    if session.episode_number % display_freq == 0:
+        env.render()
     if session.replay.size >= batch_size and i % train_freq == 0:
         policy_loss, value_loss = session.train_step(batch_size)
         total_policy_loss += policy_loss
