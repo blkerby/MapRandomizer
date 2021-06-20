@@ -82,7 +82,7 @@ class Model(torch.nn.Module):
 
 
 class ReplayBuffer():
-    def __init__(self, capacity, observation_size, reward_horizon, max_steps):
+    def __init__(self, capacity, observation_size, reward_horizon):
         self.size = 0
         self.capacity = capacity
         self.reward_horizon = reward_horizon
@@ -92,21 +92,15 @@ class ReplayBuffer():
         self.state2 = torch.empty([capacity, observation_size], dtype=torch.float32)
         self.action = torch.empty(capacity, dtype=torch.int64)
         self.mean_reward = torch.empty(capacity, dtype=torch.float32)
-        self.done = torch.empty(capacity, dtype=torch.float32)
-        self.max_steps = max_steps
-        # self.highest_step_number = 0
 
-    def append(self, state1: np.array, state2: np.array, action: int, reward: float, done: bool, step_number: int):
-        if step_number == self.max_steps - 1:
+    def append(self, state1: np.array, state2: np.array, action: int, reward: float, done: bool, artificial_end: bool):
+        if artificial_end and not done:
             # Don't use current data in deque: total rewards would be invalid since game was artificially ended
             self.deque.clear()
             self.deque_total_reward = 0.0
             return
-        # if step_number >= self.highest_step_number:
-        #     self.highest_step_number = step_number
-        #     print("highest: ", step_number)
         assert len(self.deque) < self.reward_horizon
-        self.deque.append((state1, state2, action, reward, done))
+        self.deque.append((state1, state2, action, reward))
         self.deque_total_reward += reward
         if len(self.deque) == self.reward_horizon:
             self._process_oldest()
@@ -116,18 +110,17 @@ class ReplayBuffer():
 
     def _process_oldest(self):
         # Process the oldest element of the deque
-        state1, state2, action, reward, done = self.deque.popleft()
-        self._append(state1, state2, action, self.deque_total_reward / self.reward_horizon, done)
+        state1, state2, action, reward = self.deque.popleft()
+        self._append(state1, state2, action, self.deque_total_reward / self.reward_horizon)
         self.deque_total_reward -= reward
 
-    def _append(self, state1: np.array, state2: np.array, action: int, mean_reward: float, done: bool):
+    def _append(self, state1: np.array, state2: np.array, action: int, mean_reward: float):
         if self.size == self.capacity:
             self.downsize()
         self.state1[self.size, :] = torch.from_numpy(state1)
         self.state2[self.size, :] = torch.from_numpy(state2)
         self.action[self.size] = action
         self.mean_reward[self.size] = mean_reward
-        self.done[self.size] = done
         self.size += 1
 
     def downsize(self):
@@ -139,7 +132,6 @@ class ReplayBuffer():
         self.state2[:size, :] = self.state2[start:end, :]
         self.action[:size] = self.action[start:end]
         self.mean_reward[:size] = self.mean_reward[start:end]
-        self.done[:size] = self.done[start:end]
         self.size = size
 
     def sample(self, sample_size):
@@ -148,8 +140,7 @@ class ReplayBuffer():
         state2 = self.state2[ind, :]
         action = self.action[ind]
         total_reward = self.mean_reward[ind]
-        done = self.done[ind]
-        return state1, state2, action, total_reward, done
+        return state1, state2, action, total_reward
 
 
 class TrainingSession():
@@ -162,14 +153,14 @@ class TrainingSession():
         self.model = model
         self.optimizer = optimizer
         self.reward_horizon = reward_horizon
+        self.max_steps = max_steps
         self.value_loss_coef = value_loss_coef
         self.weight_decay = weight_decay
         self.episode_number = 0
         self.step_number = 0
         self.replay = ReplayBuffer(replay_capacity,
                                    observation_size=np.prod(env.observation_space.shape),
-                                   reward_horizon=reward_horizon,
-                                   max_steps=max_steps)
+                                   reward_horizon=reward_horizon)
         self.observation = env.reset()
 
     def play_step(self):
@@ -179,17 +170,18 @@ class TrainingSession():
         dist = torch.distributions.Categorical(logits=p_raw[0, :])
         action = dist.sample().item()
         observation, reward, done, _ = env.step(action)
-        self.replay.append(self.observation, observation, action, reward, done, self.step_number)
-        if done:
+        self.step_number += 1
+        artificial_end = self.step_number == self.max_steps
+        self.replay.append(self.observation, observation, action, reward, done, artificial_end)
+        if done or artificial_end:
             self.observation = env.reset()
             self.step_number = 0
             self.episode_number += 1
         else:
             self.observation = observation
-            self.step_number += 1
 
     def train_step(self, batch_size):
-        state1, state2, action, mean_reward, done = self.replay.sample(batch_size)
+        state1, state2, action, mean_reward = self.replay.sample(batch_size)
         p_raw, value1 = self.model.forward_full(state1)
         with torch.no_grad():
             value2 = self.model.forward_value(state2)
@@ -215,10 +207,8 @@ class TrainingSession():
         self.model.weight_decay(self.weight_decay)
         return policy_loss.item(), value_loss.item()
 
-env = gym.make('CartPole-v0')
-max_steps = 1000
-env._max_episode_steps = max_steps
-env.env.theta_threshold_radians = math.pi / 4
+env = gym.make('CartPole-v0').unwrapped
+env.theta_threshold_radians = math.pi / 4
 model = Model([4, 64], 2)
 optimizer = torch.optim.Adam(model.parameters(), lr=0.0002, betas=(0.9, 0.9), eps=1e-15)
 # optimizer = torch.optim.SGD(model.parameters(), lr=0.05)
@@ -229,7 +219,7 @@ display_freq = 5
 session = TrainingSession(env, model,
                           optimizer,
                           replay_capacity=2048, reward_horizon=200,
-                          max_steps=max_steps, value_loss_coef=1.0,
+                          max_steps=1000, value_loss_coef=1.0,
                           weight_decay=0.0 * optimizer.param_groups[0]['lr'])
 total_policy_loss = 0.0
 total_value_loss = 0.0

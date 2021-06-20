@@ -27,8 +27,6 @@ class MapDisplay:
         self.canvas = tkinter.Canvas(self.root, bg="white", width=self.width, height=self.height)
         self.canvas.pack()
         self.font = tkinter.font.Font(root=self.root, font=('TkDefaultFont', self.font_size, 'normal'))
-        # default_font = tkinter.font.nametofont("TkDefaultFont")
-        # default_font.configure(size=self.font_size)
 
     def _display_room_borders(self, room: Room, x: int, y: int):
         for i in range(room.height):

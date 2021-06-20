@@ -12,6 +12,7 @@ logging.basicConfig(format='%(asctime)s %(message)s',
                     handlers=[logging.FileHandler("cartpole.log"),
                               logging.StreamHandler()])
 torch.autograd.set_detect_anomaly(True)
+
 class MinOut(torch.nn.Module):
     def __init__(self, arity):
         super().__init__()

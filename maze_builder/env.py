@@ -63,11 +63,11 @@ class MazeBuilderEnv(gym.Env):
     def close(self):
         pass
 
-import maze_builder.crateria
-env = MazeBuilderEnv(maze_builder.crateria.rooms, map_x=40, map_y=20, action_radius=2)
-obs = env.reset()
-for i in range(100000):
-    env.render()
-    action = env.action_space.sample()
-    state, reward, done, _ = env.step(action)
-# env.map_display.root.mainloop()
+# import maze_builder.crateria
+# env = MazeBuilderEnv(maze_builder.crateria.rooms, map_x=40, map_y=20, action_radius=2)
+# obs = env.reset()
+# for i in range(100000):
+#     env.render()
+#     action = env.action_space.sample()
+#     state, reward, done, _ = env.step(action)
+# # env.map_display.root.mainloop()
