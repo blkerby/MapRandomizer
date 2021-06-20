@@ -28,7 +28,7 @@ class MazeBuilderEnv(gym.Env):
         self.action_radius = action_radius
         self.action_width = 2 * action_radius + 1
 
-        self.action_space = gym.spaces.Discrete(len(rooms) * self.action_width ** 2)
+        self.action_space = gym.spaces.Discrete(len(rooms) * (self.action_width ** 2 - 1))
         self.observation_space = gym.spaces.Box(low=0, high=max(map_x, map_y), shape=[len(rooms), 2], dtype=int)
         self.state = None
         self.map_display = None
@@ -39,8 +39,10 @@ class MazeBuilderEnv(gym.Env):
         return self.state
 
     def step(self, action: int):
-        room_index = action // self.action_width ** 2
-        displacement = action % self.action_width ** 2
+        room_index = action // (self.action_width ** 2 - 1)
+        displacement = action % (self.action_width ** 2 - 1)
+        if displacement >= (self.action_width ** 2 - 1) // 2:
+            displacement += 1
         displacement_x = displacement % self.action_width - self.action_radius
         displacement_y = displacement // self.action_width - self.action_radius
         self.state[room_index, 0] += displacement_x
@@ -48,8 +50,8 @@ class MazeBuilderEnv(gym.Env):
         self.state[room_index, 0] = max(0, min(self.cap_x[room_index], self.state[room_index, 0]))
         self.state[room_index, 1] = max(0, min(self.cap_y[room_index], self.state[room_index, 1]))
 
-        reward = maze_builder.reward.compute_reward(self.room_arrays, self.state, self.map_x, self.map_y)
-        done = (reward == 0)
+        reward = compute_reward(self.room_arrays, self.state, self.map_x, self.map_y)
+        done = False  # (reward == 0)
         return self.state, reward, done, {}
 
     def render(self, mode='human'):

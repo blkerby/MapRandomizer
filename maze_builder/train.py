@@ -9,7 +9,7 @@ import maze_builder.crateria
 
 logging.basicConfig(format='%(asctime)s %(message)s',
                     level=logging.INFO,
-                    handlers=[logging.FileHandler("cartpole.log"),
+                    handlers=[logging.FileHandler("train.log"),
                               logging.StreamHandler()])
 torch.autograd.set_detect_anomaly(True)
 
@@ -29,6 +29,18 @@ class MinOut(torch.nn.Module):
         return 0.0
 
 
+class PReLU:
+    def __init__(self, num_inputs, dtype=torch.float32, device=None):
+        super().__init__()
+        self.num_inputs = num_inputs
+        self.slope_left = torch.nn.Parameter(torch.zeros([num_inputs], dtype=dtype, device=device))
+        self.slope_right = torch.nn.Parameter(torch.ones([num_inputs], dtype=dtype, device=device))
+
+    def forward(self, X):
+        out = self.slope_right * torch.clamp(X, min=0.0) + self.slope_left * torch.clamp(X, max=0.0)
+        return out
+
+
 class MainNetwork(torch.nn.Module):
     def __init__(self, widths):
         super().__init__()
@@ -41,6 +53,7 @@ class MainNetwork(torch.nn.Module):
                 self.lin_layers.append(torch.nn.Linear(widths[i], widths[i + 1] * arity))
                 # self.act_layers.append(MinOut(arity))
                 self.act_layers.append(torch.nn.ReLU())
+                # self.act_layers.append(torch.nn.PReLU(widths[i + 1]))
             else:
                 self.lin_layers.append(torch.nn.Linear(widths[i], widths[i + 1]))
 
@@ -85,7 +98,7 @@ class Model(torch.nn.Module):
 
 
 class ReplayBuffer():
-    def __init__(self, capacity, observation_size, reward_horizon, max_steps):
+    def __init__(self, capacity, observation_size, reward_horizon):
         self.size = 0
         self.capacity = capacity
         self.reward_horizon = reward_horizon
@@ -95,21 +108,15 @@ class ReplayBuffer():
         self.state2 = torch.empty([capacity, observation_size], dtype=torch.float32)
         self.action = torch.empty(capacity, dtype=torch.int64)
         self.mean_reward = torch.empty(capacity, dtype=torch.float32)
-        self.done = torch.empty(capacity, dtype=torch.float32)
-        self.max_steps = max_steps
-        # self.highest_step_number = 0
 
-    def append(self, state1: np.array, state2: np.array, action: int, reward: float, done: bool, step_number: int):
-        if step_number == self.max_steps - 1:
+    def append(self, state1: np.array, state2: np.array, action: int, reward: float, done: bool, artificial_end: bool):
+        if artificial_end and not done:
             # Don't use current data in deque: total rewards would be invalid since game was artificially ended
             self.deque.clear()
             self.deque_total_reward = 0.0
             return
-        # if step_number >= self.highest_step_number:
-        #     self.highest_step_number = step_number
-        #     print("highest: ", step_number)
         assert len(self.deque) < self.reward_horizon
-        self.deque.append((state1, state2, action, reward, done))
+        self.deque.append((state1, state2, action, reward))
         self.deque_total_reward += reward
         if len(self.deque) == self.reward_horizon:
             self._process_oldest()
@@ -119,18 +126,17 @@ class ReplayBuffer():
 
     def _process_oldest(self):
         # Process the oldest element of the deque
-        state1, state2, action, reward, done = self.deque.popleft()
-        self._append(state1, state2, action, self.deque_total_reward / self.reward_horizon, done)
+        state1, state2, action, reward = self.deque.popleft()
+        self._append(state1, state2, action, self.deque_total_reward / self.reward_horizon)
         self.deque_total_reward -= reward
 
-    def _append(self, state1: np.array, state2: np.array, action: int, mean_reward: float, done: bool):
+    def _append(self, state1: np.array, state2: np.array, action: int, mean_reward: float):
         if self.size == self.capacity:
             self.downsize()
         self.state1[self.size, :] = torch.from_numpy(state1)
         self.state2[self.size, :] = torch.from_numpy(state2)
         self.action[self.size] = action
         self.mean_reward[self.size] = mean_reward
-        self.done[self.size] = done
         self.size += 1
 
     def downsize(self):
@@ -142,7 +148,6 @@ class ReplayBuffer():
         self.state2[:size, :] = self.state2[start:end, :]
         self.action[:size] = self.action[start:end]
         self.mean_reward[:size] = self.mean_reward[start:end]
-        self.done[:size] = self.done[start:end]
         self.size = size
 
     def sample(self, sample_size):
@@ -151,8 +156,7 @@ class ReplayBuffer():
         state2 = self.state2[ind, :]
         action = self.action[ind]
         total_reward = self.mean_reward[ind]
-        done = self.done[ind]
-        return state1, state2, action, total_reward, done
+        return state1, state2, action, total_reward
 
 
 class TrainingSession():
@@ -160,20 +164,26 @@ class TrainingSession():
                  optimizer: torch.optim.Optimizer,
                  replay_capacity: int, reward_horizon: int, max_steps: int,
                  value_loss_coef: float,
+                 entropy_penalty: float,
                  weight_decay: float):
         self.env = env
         self.model = model
         self.optimizer = optimizer
         self.reward_horizon = reward_horizon
+        self.max_steps = max_steps
         self.value_loss_coef = value_loss_coef
+        self.entropy_penalty = entropy_penalty
         self.weight_decay = weight_decay
         self.episode_number = 0
         self.step_number = 0
+        self.total_steps = 0
         self.replay = ReplayBuffer(replay_capacity,
                                    observation_size=np.prod(env.observation_space.shape),
-                                   reward_horizon=reward_horizon,
-                                   max_steps=max_steps)
-        self.observation = env.reset()
+                                   reward_horizon=reward_horizon)
+        self.observation = self.convert_observation(env.reset())
+
+    def convert_observation(self, observation):
+        return observation.reshape(-1).astype(np.float32)
 
     def play_step(self):
         X = torch.from_numpy(self.observation).view(1, -1).to(torch.float32)
@@ -182,17 +192,20 @@ class TrainingSession():
         dist = torch.distributions.Categorical(logits=p_raw[0, :])
         action = dist.sample().item()
         observation, reward, done, _ = env.step(action)
-        self.replay.append(self.observation, observation, action, reward, done, self.step_number)
-        if done:
-            self.observation = env.reset()
+        observation = self.convert_observation(observation)
+        self.step_number += 1
+        self.total_steps += 1
+        artificial_end = self.step_number == self.max_steps
+        self.replay.append(self.observation, observation, action, reward, done, artificial_end)
+        if done or artificial_end:
+            self.observation = self.convert_observation(env.reset())
             self.step_number = 0
             self.episode_number += 1
         else:
             self.observation = observation
-            self.step_number += 1
 
     def train_step(self, batch_size):
-        state1, state2, action, mean_reward, done = self.replay.sample(batch_size)
+        state1, state2, action, mean_reward = self.replay.sample(batch_size)
         p_raw, value1 = self.model.forward_full(state1)
         with torch.no_grad():
             value2 = self.model.forward_value(state2)
@@ -202,7 +215,10 @@ class TrainingSession():
         policy_loss = -torch.dot(p_log_action, advantage)
         value_err = mean_reward - value1
         value_loss = self.value_loss_coef * torch.dot(value_err, value_err)
-        loss = (policy_loss + value_loss) / batch_size
+        # entropy = -torch.sum(p_log * torch.exp(p_log))
+        entropy = torch.sum(torch.mean(p_raw ** 2, dim=1))
+        entropy_loss = self.entropy_penalty * entropy
+        loss = (policy_loss + value_loss + entropy_loss) / batch_size
         self.optimizer.zero_grad()
         loss.backward()
         self.optimizer.step()
@@ -216,45 +232,63 @@ class TrainingSession():
         # self.value_optimizer.step()
 
         self.model.weight_decay(self.weight_decay)
-        return policy_loss.item(), value_loss.item()
+        return policy_loss.item(), value_loss.item(), entropy.item()
 
-# env = gym.make('CartPole-v0')
-env = MazeBuilderEnv(maze_builder.crateria.rooms, map_x=30, map_y=20, action_radius=2)
-
-max_steps = 1000
-env._max_episode_steps = max_steps
-env.env.theta_threshold_radians = math.pi / 4
-model = Model([4, 64], 2)
-optimizer = torch.optim.Adam(model.parameters(), lr=0.0002, betas=(0.9, 0.9), eps=1e-15)
+# env = gym.make('CartPole-v0').unwrapped
+env = MazeBuilderEnv(maze_builder.crateria.rooms[:20], map_x=20, map_y=20, action_radius=1)
+observation_dim = np.prod(env.observation_space.shape)
+action_dim = env.action_space.n
+model = Model([observation_dim, 512], action_dim)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.0001, betas=(0.9, 0.9), eps=1e-15)
+print(model)
 # optimizer = torch.optim.SGD(model.parameters(), lr=0.05)
-batch_size = 64
-train_freq = 4
-print_freq = 100
-display_freq = 5
+batch_size = 2048
+train_freq = 64
+print_freq = 50
+display_freq = 30
 session = TrainingSession(env, model,
                           optimizer,
-                          replay_capacity=2048, reward_horizon=200,
-                          max_steps=max_steps, value_loss_coef=1.0,
-                          weight_decay=0.0 * optimizer.param_groups[0]['lr'])
+                          replay_capacity=5000, reward_horizon=10,
+                          max_steps=200, value_loss_coef=1.0,
+                          weight_decay=0.0 * optimizer.param_groups[0]['lr'],
+                          entropy_penalty=0.05)
+
+entropy_penalty0 = 0.01
+entropy_penalty1 = 0.01
+lr0 = 0.001
+lr1 = 0.0001
+transition_time = 200000
 total_policy_loss = 0.0
 total_value_loss = 0.0
+total_entropy = 0.0
 
 print_ctr = 0
-for i in range(1000000):
+while True:
     session.play_step()
     if session.episode_number % display_freq == 0:
         env.render()
-    if session.replay.size >= batch_size and i % train_freq == 0:
-        policy_loss, value_loss = session.train_step(batch_size)
+    if session.replay.size >= batch_size and session.total_steps % train_freq == 0:
+        lr = np.interp(session.total_steps, [0, transition_time], [lr0, lr1])
+        entropy_penalty = np.interp(session.total_steps, [0, transition_time], [entropy_penalty0, entropy_penalty1])
+        session.optimizer.param_groups[0]['lr'] = lr
+        session.entropy_penalty = entropy_penalty
+
+        policy_loss, value_loss, entropy = session.train_step(batch_size)
         total_policy_loss += policy_loss
         total_value_loss += value_loss
+        total_entropy += entropy
         print_ctr += 1
         if print_ctr == print_freq:
             print_ctr = 0
             mean_reward = torch.mean(session.replay.mean_reward[:session.replay.size])
-            logging.info("{}: episode={}, step={}, policy_loss={:.5f}, value_loss={:.5f}, reward={:.5f}".format(
-                i, session.episode_number, session.step_number,
-                total_policy_loss / print_freq, total_value_loss / print_freq, mean_reward))
+            # mean_reward = session.replay.mean_reward[session.replay.size - 1]
+            logging.info("{}: episode={}, policy_loss={:.5f}, value_loss={:.5f}, entropy={:.5f}, reward={:.5f}, pen={:.3g}".format(
+                session.total_steps, session.episode_number,
+                total_policy_loss / print_freq / batch_size,
+                total_value_loss / print_freq / batch_size,
+                total_entropy / print_freq / batch_size,
+                mean_reward, session.entropy_penalty))
             total_policy_loss = 0
             total_value_loss = 0
+            total_entropy = 0
 env.close()

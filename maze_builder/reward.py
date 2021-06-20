@@ -17,13 +17,4 @@ def compute_intersection_cost(room_arrays: List[np.array], state: np.array, map_
 def compute_reward(room_arrays: List[np.array], state: np.array, map_x: int, map_y: int) -> int:
     intersection_cost = compute_intersection_cost(room_arrays, state, map_x, map_y)
     total_cost = intersection_cost
-    print(total_cost)
     return -total_cost
-    #
-    #     for i in range(room.height):
-    #         for j in range(room.width):
-    #             x = state[k, i]
-    #             multiplicity[state[]]
-    #             if room.map[i][j] == 1:
-    #                 c = inverted_colors[ys[k] + i][xs[k] + j]
-    return 0
