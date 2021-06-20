@@ -95,25 +95,13 @@ class Map:
                 y0 = self.margin + y * self.tile_width
                 x1 = x0 + self.tile_width
                 y1 = y0 + self.tile_width
-                if room.map[i][j] == 1:
-                    self.canvas.create_rectangle(x0, y0, x1, y1, fill=color, outline=color)
+                self.canvas.create_rectangle(x0, y0, x1, y1, fill=color, outline=color)
 
     def display_rooms(self, rooms: List[Room], xs: List[int], ys: List[int]):
         self.display_rooms_interior(rooms, xs, ys)
         for k, room in enumerate(rooms):
-            # self.display_room_interior(room, xs[k], ys[k])
             self.display_room_borders(room, xs[k], ys[k])
             self.display_room_doors(room, xs[k], ys[k])
-
-# canvas.create_rectangle(40, 20, 70, 50, fill='#f88')
-# canvas.create_rectangle(20, 20, 50, 50)
-#
-# canvas.create_text(35, 35, text=RIGHT_ARROW)
-# canvas.create_text(35, 35, text=LEFT_ARROW)
-#
-# canvas.pack()
-#
-# root.mainloop()
 
 map_width = 60
 map_height = 40
