@@ -1,3 +1,13 @@
+from enum import Enum
+
+class Area(Enum):
+    CRATERIA = 0
+    BRINSTAR = 1
+    NORFAIR = 2
+    WRECKED_SHIP = 3
+    MARIDIA = 4
+    TOURIAN = 5
+
 room_ptrs = [
     0x91F8,
     0x92B3,

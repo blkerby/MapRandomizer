@@ -1,4 +1,4 @@
-from maze_builder.types import Room 
+from maze_builder.types import Room
 
 rooms = [
     Room(
@@ -469,3 +469,6 @@ rooms = [
         door_down=[[1]],
     )
 ]
+
+for room in rooms:
+    room.area = 0
