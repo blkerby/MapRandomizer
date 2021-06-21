@@ -259,10 +259,10 @@ session = TrainingSession(env, model,
                           weight_decay=0.0 * optimizer.param_groups[0]['lr'],
                           entropy_penalty=0.05)
 
-entropy_penalty0 = 0.1
-entropy_penalty1 = 0.01
-lr0 = 0.002
-lr1 = 0.002
+entropy_penalty0 = 0.05
+entropy_penalty1 = 0.05
+lr0 = 0.0002
+lr1 = 0.0002
 transition_time = 200000
 total_policy_loss = 0.0
 total_value_loss = 0.0

@@ -47,10 +47,11 @@ class MazeBuilderEnv(gym.Env):
         displacement_y = displacement // self.action_width - self.action_radius
         self.state[room_index, 0] += displacement_x
         self.state[room_index, 1] += displacement_y
+        moved_outside = self.state[room_index, 0] < 0 or self.state[room_index, 0] > self.cap_x[room_index] or \
+                        self.state[room_index, 1] < 0 or self.state[room_index, 1] > self.cap_y[room_index]
         self.state[room_index, 0] = max(0, min(self.cap_x[room_index], self.state[room_index, 0]))
         self.state[room_index, 1] = max(0, min(self.cap_y[room_index], self.state[room_index, 1]))
-
-        reward = compute_reward(self.room_arrays, self.state, self.map_x, self.map_y)
+        reward = compute_reward(self.room_arrays, self.state, self.map_x, self.map_y, moved_outside)
         done = False  # (reward == 0)
         return self.state, reward, done, {}
 
