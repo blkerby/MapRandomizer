@@ -50,14 +50,14 @@ class MainNetwork(torch.nn.Module):
 
 
 class Model(torch.nn.Module):
-    def __init__(self, widths, num_actions):
+    def __init__(self, widths, num_actions, reward_horizon):
         super().__init__()
         # self.main_network = torch.nn.Sequential(MainNetwork(widths), torch.nn.ReLU())
         # self.policy_layer = torch.nn.Linear(widths[-1], num_actions)
         # self.value_layer = torch.nn.Linear(widths[-1], 1)
         self.main_network = torch.nn.Sequential()
         self.policy_layer = MainNetwork(widths + [num_actions])
-        self.value_layer = MainNetwork(widths + [1])
+        self.value_layer = MainNetwork(widths + [reward_horizon])
 
     def weight_decay(self, decay):
         for mod in self.modules():
@@ -67,7 +67,7 @@ class Model(torch.nn.Module):
     def forward_full(self, X):
         main = self.main_network(X)
         p_raw = self.policy_layer(main)
-        value = self.value_layer(main)[:, 0]
+        value = self.value_layer(main)
         return p_raw, value
 
     def forward_policy(self, X):
@@ -77,7 +77,7 @@ class Model(torch.nn.Module):
 
     def forward_value(self, X):
         main = self.main_network(X)
-        value = self.value_layer(main)[:, 0]
+        value = self.value_layer(main)
         return value
 
 
@@ -87,21 +87,18 @@ class ReplayBuffer():
         self.capacity = capacity
         self.reward_horizon = reward_horizon
         self.deque = collections.deque(maxlen=reward_horizon)
-        self.deque_total_reward = 0.0
         self.state1 = torch.empty([capacity, observation_size], dtype=torch.float32)
         self.state2 = torch.empty([capacity, observation_size], dtype=torch.float32)
         self.action = torch.empty(capacity, dtype=torch.int64)
-        self.mean_reward = torch.empty(capacity, dtype=torch.float32)
+        self.reward = torch.empty([capacity, reward_horizon], dtype=torch.float32)
 
     def append(self, state1: np.array, state2: np.array, action: int, reward: float, done: bool, artificial_end: bool):
         if artificial_end and not done:
-            # Don't use current data in deque: total rewards would be invalid since game was artificially ended
+            # Don't use current data in deque: rewards would be invalid since game was artificially ended
             self.deque.clear()
-            self.deque_total_reward = 0.0
             return
         assert len(self.deque) < self.reward_horizon
         self.deque.append((state1, state2, action, reward))
-        self.deque_total_reward += reward
         if len(self.deque) == self.reward_horizon:
             self._process_oldest()
         if done:
@@ -110,17 +107,19 @@ class ReplayBuffer():
 
     def _process_oldest(self):
         # Process the oldest element of the deque
-        state1, state2, action, reward = self.deque.popleft()
-        self._append(state1, state2, action, self.deque_total_reward / self.reward_horizon)
-        self.deque_total_reward -= reward
+        reward = np.array([r for _, _, _, r in self.deque])
+        if len(reward) < self.reward_horizon:
+            reward = np.concatenate([reward, np.zeros([self.reward_horizon - len(reward)], dtype=np.float32)])
+        state1, state2, action, _ = self.deque.popleft()
+        self._append(state1, state2, action, reward)
 
-    def _append(self, state1: np.array, state2: np.array, action: int, mean_reward: float):
+    def _append(self, state1: np.array, state2: np.array, action: int, reward: np.array):
         if self.size == self.capacity:
             self.downsize()
         self.state1[self.size, :] = torch.from_numpy(state1)
         self.state2[self.size, :] = torch.from_numpy(state2)
         self.action[self.size] = action
-        self.mean_reward[self.size] = mean_reward
+        self.reward[self.size, :] = torch.from_numpy(reward)
         self.size += 1
 
     def downsize(self):
@@ -131,7 +130,7 @@ class ReplayBuffer():
         self.state1[:size, :] = self.state1[start:end, :]
         self.state2[:size, :] = self.state2[start:end, :]
         self.action[:size] = self.action[start:end]
-        self.mean_reward[:size] = self.mean_reward[start:end]
+        self.reward[:size, :] = self.reward[start:end, :]
         self.size = size
 
     def sample(self, sample_size):
@@ -139,8 +138,8 @@ class ReplayBuffer():
         state1 = self.state1[ind, :]
         state2 = self.state2[ind, :]
         action = self.action[ind]
-        total_reward = self.mean_reward[ind]
-        return state1, state2, action, total_reward
+        reward = self.reward[ind, :]
+        return state1, state2, action, reward
 
 
 class TrainingSession():
@@ -181,16 +180,16 @@ class TrainingSession():
             self.observation = observation
 
     def train_step(self, batch_size):
-        state1, state2, action, mean_reward = self.replay.sample(batch_size)
+        state1, state2, action, reward = self.replay.sample(batch_size)
         p_raw, value1 = self.model.forward_full(state1)
         with torch.no_grad():
             value2 = self.model.forward_value(state2)
         p_log = p_raw - torch.logsumexp(p_raw, dim=1, keepdim=True)
-        advantage = value2.detach() - value1.detach()
+        advantage = torch.mean(value2.detach() - value1.detach(), dim=1)
         p_log_action = p_log[torch.arange(batch_size), action]
         policy_loss = -torch.dot(p_log_action, advantage)
-        value_err = mean_reward - value1
-        value_loss = self.value_loss_coef * torch.dot(value_err, value_err)
+        value_err = torch.mean((reward - value1) ** 2, dim=1)
+        value_loss = self.value_loss_coef * torch.sum(value_err)
         loss = (policy_loss + value_loss) / batch_size
         self.optimizer.zero_grad()
         loss.backward()
@@ -209,8 +208,9 @@ class TrainingSession():
 
 env = gym.make('CartPole-v0').unwrapped
 env.theta_threshold_radians = math.pi / 4
-model = Model([4, 64], 2)
-optimizer = torch.optim.Adam(model.parameters(), lr=0.0002, betas=(0.9, 0.9), eps=1e-15)
+reward_horizon = 200
+model = Model([4, 256], 2, reward_horizon=reward_horizon)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.00001, betas=(0.9, 0.9), eps=1e-15)
 # optimizer = torch.optim.SGD(model.parameters(), lr=0.05)
 batch_size = 64
 train_freq = 4
@@ -218,7 +218,7 @@ print_freq = 100
 display_freq = 5
 session = TrainingSession(env, model,
                           optimizer,
-                          replay_capacity=2048, reward_horizon=200,
+                          replay_capacity=2048, reward_horizon=reward_horizon,
                           max_steps=1000, value_loss_coef=1.0,
                           weight_decay=0.0 * optimizer.param_groups[0]['lr'])
 total_policy_loss = 0.0
@@ -236,7 +236,7 @@ for i in range(1000000):
         print_ctr += 1
         if print_ctr == print_freq:
             print_ctr = 0
-            mean_reward = torch.mean(session.replay.mean_reward[:session.replay.size])
+            mean_reward = torch.mean(session.replay.reward[:session.replay.size, :])
             logging.info("{}: episode={}, step={}, policy_loss={:.5f}, value_loss={:.5f}, reward={:.5f}".format(
                 i, session.episode_number, session.step_number,
                 total_policy_loss / print_freq, total_value_loss / print_freq, mean_reward))

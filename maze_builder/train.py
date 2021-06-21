@@ -1,3 +1,8 @@
+# TODO:
+# - add cost for moving off edge of map
+# - try using L!Linear in policy network, to avoid premature large outputs which can block off exploration
+#   - or try clamping the output of the network as-is
+# - try using DQN
 import gym
 import numpy as np
 import torch
@@ -221,6 +226,7 @@ class TrainingSession():
         loss = (policy_loss + value_loss + entropy_loss) / batch_size
         self.optimizer.zero_grad()
         loss.backward()
+        torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1e-5)
         self.optimizer.step()
 
         # self.policy_optimizer.zero_grad()
@@ -235,7 +241,7 @@ class TrainingSession():
         return policy_loss.item(), value_loss.item(), entropy.item()
 
 # env = gym.make('CartPole-v0').unwrapped
-env = MazeBuilderEnv(maze_builder.crateria.rooms[:20], map_x=20, map_y=20, action_radius=1)
+env = MazeBuilderEnv(maze_builder.crateria.rooms[:10], map_x=12, map_y=12, action_radius=1)
 observation_dim = np.prod(env.observation_space.shape)
 action_dim = env.action_space.n
 model = Model([observation_dim, 512], action_dim)
@@ -253,10 +259,10 @@ session = TrainingSession(env, model,
                           weight_decay=0.0 * optimizer.param_groups[0]['lr'],
                           entropy_penalty=0.05)
 
-entropy_penalty0 = 0.01
+entropy_penalty0 = 0.1
 entropy_penalty1 = 0.01
-lr0 = 0.001
-lr1 = 0.0001
+lr0 = 0.002
+lr1 = 0.002
 transition_time = 200000
 total_policy_loss = 0.0
 total_value_loss = 0.0
@@ -291,4 +297,3 @@ while True:
             total_policy_loss = 0
             total_value_loss = 0
             total_entropy = 0
-env.close()
