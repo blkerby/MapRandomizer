@@ -1,8 +1,23 @@
 # TODO:
-# - add cost for moving off edge of map
-# - try using L!Linear in policy network, to avoid premature large outputs which can block off exploration
+# - try using L1Linear in policy network, to avoid premature large outputs which can block off exploration
 #   - or try clamping the output of the network as-is
-# - try using DQN
+#   - or try using different scale instead of logits, for fatter tails than exponential
+# - try restructuring training into epochs each of which consist of 3 phases:
+#   1. Generate experience data using fixed policy
+#   2. Sample from accumulated experience to improve the value network
+#      - Retain some percentage of experiences from previous epochs
+#         - Ideally, do this selectively based on the magnitude of their last training error. But if so, weight
+#           them appropriately.
+#      - Don't touch the policy network in this step. The idea is to get an accurate-enough estimate of the value
+#        function first, to avoid instability or premature shutting off of exploration; also we wouldn't want to
+#        use old experiences to update the policy.
+#      - Depending on the hyperparameters (batch size and number of batches per phase) it may happen that the same
+#        experiences are sampled many times in this phase. This may or may not be necessary but would improve the
+#        accuracy of the value network more.
+#   3. Update the policy function using only the new experience data generated in part 1 of the current phase.
+# - try again sharing a subnetwork between value and policy networks, but be sure to let only the policy network
+#   drive its updates.
+# - try TD(lambda)
 import gym
 import numpy as np
 import torch
