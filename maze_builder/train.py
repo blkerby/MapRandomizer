@@ -179,6 +179,14 @@ class ReplayBuffer():
         return state1, state2, action, total_reward
 
 
+
+def softer_max(X, dim):
+    # These two branches are for numerical stability (they are mathematically equivalent to each other):
+    Y = torch.where(X > 0,
+                    torch.sqrt(1 + X ** 2) + X,
+                    1 / (torch.sqrt(1 + X ** 2) - X))
+    return Y / torch.sum(Y, dim=dim, keepdim=True)
+
 class TrainingSession():
     def __init__(self, env: gym.Env, model: Model,
                  optimizer: torch.optim.Optimizer,
@@ -229,7 +237,8 @@ class TrainingSession():
         p_raw, value1 = self.model.forward_full(state1)
         with torch.no_grad():
             value2 = self.model.forward_value(state2)
-        p_log = p_raw - torch.logsumexp(p_raw, dim=1, keepdim=True)
+        # p_log = p_raw - torch.logsumexp(p_raw, dim=1, keepdim=True)
+        p_log = torch.log(softer_max(p_raw, dim=1))
         advantage = value2.detach() - value1.detach()
         p_log_action = p_log[torch.arange(batch_size), action]
         policy_loss = -torch.dot(p_log_action, advantage)
@@ -261,6 +270,8 @@ observation_dim = np.prod(env.observation_space.shape)
 action_dim = env.action_space.n
 model = Model([observation_dim, 512], action_dim)
 optimizer = torch.optim.Adam(model.parameters(), lr=0.0001, betas=(0.9, 0.9), eps=1e-15)
+model.policy_layer.lin_layers[-1].weight.data[:, :] = 0.0
+model.value_layer.lin_layers[-1].weight.data[:, :] = 0.0
 print(model)
 # optimizer = torch.optim.SGD(model.parameters(), lr=0.05)
 batch_size = 2048
@@ -272,12 +283,12 @@ session = TrainingSession(env, model,
                           replay_capacity=5000, reward_horizon=10,
                           max_steps=200, value_loss_coef=1.0,
                           weight_decay=0.0 * optimizer.param_groups[0]['lr'],
-                          entropy_penalty=0.05)
+                          entropy_penalty=0.0)
 
-entropy_penalty0 = 0.05
-entropy_penalty1 = 0.05
-lr0 = 0.0002
-lr1 = 0.0002
+entropy_penalty0 = 0.01
+entropy_penalty1 = 0.01
+lr0 = 0.00005
+lr1 = 0.00005
 transition_time = 200000
 total_policy_loss = 0.0
 total_value_loss = 0.0
