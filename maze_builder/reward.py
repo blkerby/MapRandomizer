@@ -16,7 +16,7 @@ def compute_intersection_cost(room_arrays: List[np.array], state: np.array, map_
 
 def compute_reward(room_arrays: List[np.array], state: np.array, map_x: int, map_y: int, moved_outside: bool) -> int:
     intersection_cost = compute_intersection_cost(room_arrays, state, map_x, map_y)
-    moved_outside_cost = 1 if moved_outside else 0
-    total_cost = intersection_cost + moved_outside_cost
+    # moved_outside_cost = 1 if moved_outside else 0
+    total_cost = intersection_cost #+ moved_outside_cost
     # print(moved_outside_cost)
     return -total_cost
