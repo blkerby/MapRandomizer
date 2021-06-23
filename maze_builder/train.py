@@ -222,36 +222,41 @@ class TrainingSession():
                 state1[e, i, :] = X1
         return state0, action, reward, state1
 
-    def train_round(self, num_episodes: int, episode_length: int, num_passes, batch_size: int, gamma: float):
+    def train_round(self, num_episodes: int, episode_length: int, num_passes, batch_size: int, horizon: int):
         # Generate sample data using current policy
         state0, action, reward, state1 = self.generate_data(num_episodes, episode_length)
-        logging.info("round={}, reward={:.3f} (average of {} episodes of length {})".format(
-            self.round_number, float(torch.mean(reward)), num_episodes, episode_length))
+        cumul_reward = torch.cumsum(reward, dim=1)
+        horizon_reward = (cumul_reward[:, horizon:] - cumul_reward[:, :-horizon]) / horizon
+        logging.info("round={}, reward={:.3f}, horizon_reward={:.3f} (episodes={}, length={}, horizon={})".format(
+            self.round_number, torch.mean(reward), torch.mean(horizon_reward), num_episodes, episode_length, horizon))
+
+        # print(state0.shape, action.shape, reward.shape, state1.shape, horizon_reward.shape)
 
         # Shuffle the data
-        num_rows = num_episodes * episode_length
+        num_rows = num_episodes * (episode_length - horizon)
         perm = torch.randperm(num_rows)
-        state0 = state0.view(num_rows, self.state_width)[perm, :]
-        action = action.view(num_rows)[perm]
-        reward = reward.view(num_rows)[perm]
-        state1 = state1.view(num_rows, self.state_width)[perm, :]
+        state0 = state0[:, :-horizon, :].reshape(num_rows, self.state_width)[perm, :]
+        action = action[:, :-horizon].reshape(num_rows)[perm]
+        reward = horizon_reward.reshape(num_rows)[perm]
+        state1 = state1[:, :-horizon].reshape(num_rows, self.state_width)[perm, :]
 
+        # print(state0.shape, action.shape, reward.shape, state1.shape)
         # Train the value network
         for i in range(num_passes):
             num_batches = num_rows // batch_size  # Round down, to discard any remaining partial batch
 
-            # Compute target values
-            target = torch.empty_like(reward)
-            for j in range(num_batches):
-                start = j * batch_size
-                end = (j + 1) * batch_size
-                reward_batch = reward[start:end]
-                state1_batch = state1[start:end, :]
-                with torch.no_grad():
-                    value1_batch = self.value_network(state1_batch)[:, 0]
-                target_batch = (1 - gamma) * reward_batch + gamma * value1_batch
-                target[start:end] = target_batch
-            # logging.info("mean target={:.3f}".format(torch.mean(target)))
+            # # Compute target values
+            # target = torch.empty_like(reward)
+            # for j in range(num_batches):
+            #     start = j * batch_size
+            #     end = (j + 1) * batch_size
+            #     reward_batch = reward[start:end]
+            #     state1_batch = state1[start:end, :]
+            #     with torch.no_grad():
+            #         value1_batch = self.value_network(state1_batch)[:, 0]
+            #     target_batch = (1 - gamma) * reward_batch + gamma * value1_batch
+            #     target[start:end] = target_batch
+            # # logging.info("mean target={:.3f}".format(torch.mean(target)))
 
             total_loss = 0.0
             total_mean_value = 0.0
@@ -267,7 +272,8 @@ class TrainingSession():
                 # with torch.no_grad():
                 #     value1_batch = self.value_network(state1_batch)
                 # target_batch = (1 - gamma) * reward_batch + gamma * value1_batch
-                target_batch = target[start:end]
+                # target_batch = target[start:end]
+                target_batch = reward[start:end]
                 loss = torch.mean((value0_batch - target_batch) ** 2)
                 self.value_optimizer.zero_grad()
                 loss.backward()
@@ -335,11 +341,11 @@ session = TrainingSession(env,
                           policy_optimizer=policy_optimizer)
 logging.info("Starting training")
 for rnd in range(100):
-    session.train_round(num_episodes=1000,
+    session.train_round(num_episodes=4000,
                         episode_length=100,
-                        num_passes=10,
+                        num_passes=20,
                         batch_size=1024,
-                        gamma=0.99)
+                        horizon=20)
 # # optimizer = torch.optim.SGD(model.parameters(), lr=0.05)
 # batch_size = 2048
 # train_freq = 64
