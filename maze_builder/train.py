@@ -248,10 +248,10 @@ class TrainingSession():
                 reward_batch = reward[start:end]
                 state1_batch = state1[start:end, :]
                 with torch.no_grad():
-                    value1_batch = self.value_network(state1_batch)[0, :]
+                    value1_batch = self.value_network(state1_batch)[:, 0]
                 target_batch = (1 - gamma) * reward_batch + gamma * value1_batch
                 target[start:end] = target_batch
-            logging.info("mean target={:.3f}".format(torch.mean(target)))
+            # logging.info("mean target={:.3f}".format(torch.mean(target)))
 
             total_loss = 0.0
             total_mean_value = 0.0
@@ -263,10 +263,10 @@ class TrainingSession():
                 # reward_batch = reward[start:end]
                 # state1_batch = state1[start:end, :]
 
-                value0_batch = self.value_network(state0_batch)[0, :]
+                value0_batch = self.value_network(state0_batch)[:, 0]
                 # with torch.no_grad():
                 #     value1_batch = self.value_network(state1_batch)
-                # target = (1 - gamma) * reward_batch + gamma * value1_batch
+                # target_batch = (1 - gamma) * reward_batch + gamma * value1_batch
                 target_batch = target[start:end]
                 loss = torch.mean((value0_batch - target_batch) ** 2)
                 self.value_optimizer.zero_grad()
@@ -319,7 +319,11 @@ value_network = MainNetwork([observation_dim, 64, 1])
 policy_network = MainNetwork([observation_dim, 64, action_dim])
 value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.001, betas=(0.9, 0.999), eps=1e-15)
 policy_optimizer = torch.optim.Adam(policy_network.parameters(), lr=0.0001, betas=(0.9, 0.9), eps=1e-15)
+
+value_network.lin_layers[-1].weight.data[:, :] = 0.0
+value_network.lin_layers[-1].bias.data[:] = 0.0
 policy_network.lin_layers[-1].weight.data[:, :] = 0.0
+policy_network.lin_layers[-1].bias.data[:] = 0.0
 print(value_network)
 print(value_optimizer)
 print(policy_network)
@@ -335,7 +339,7 @@ for rnd in range(100):
                         episode_length=100,
                         num_passes=10,
                         batch_size=1024,
-                        gamma=0.9)
+                        gamma=0.99)
 # # optimizer = torch.optim.SGD(model.parameters(), lr=0.05)
 # batch_size = 2048
 # train_freq = 64
