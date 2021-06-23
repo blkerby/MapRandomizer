@@ -239,6 +239,20 @@ class TrainingSession():
         # Train the value network
         for i in range(num_passes):
             num_batches = num_rows // batch_size  # Round down, to discard any remaining partial batch
+
+            # Compute target values
+            target = torch.empty_like(reward)
+            for j in range(num_batches):
+                start = j * batch_size
+                end = (j + 1) * batch_size
+                reward_batch = reward[start:end]
+                state1_batch = state1[start:end, :]
+                with torch.no_grad():
+                    value1_batch = self.value_network(state1_batch)[0, :]
+                target_batch = (1 - gamma) * reward_batch + gamma * value1_batch
+                target[start:end] = target_batch
+            logging.info("mean target={:.3f}".format(torch.mean(target)))
+
             total_loss = 0.0
             total_mean_value = 0.0
             for j in range(num_batches):
@@ -246,14 +260,15 @@ class TrainingSession():
                 end = (j + 1) * batch_size
 
                 state0_batch = state0[start:end, :]
-                reward_batch = reward[start:end]
-                state1_batch = state1[start:end, :]
+                # reward_batch = reward[start:end]
+                # state1_batch = state1[start:end, :]
 
-                value0_batch = self.value_network(state0_batch)
-                with torch.no_grad():
-                    value1_batch = self.value_network(state1_batch)
-                target = (1 - gamma) * reward_batch + gamma * value1_batch
-                loss = torch.mean((value0_batch - target) ** 2)
+                value0_batch = self.value_network(state0_batch)[0, :]
+                # with torch.no_grad():
+                #     value1_batch = self.value_network(state1_batch)
+                # target = (1 - gamma) * reward_batch + gamma * value1_batch
+                target_batch = target[start:end]
+                loss = torch.mean((value0_batch - target_batch) ** 2)
                 self.value_optimizer.zero_grad()
                 loss.backward()
                 self.value_optimizer.step()
@@ -314,6 +329,7 @@ session = TrainingSession(env,
                           policy_network=policy_network,
                           value_optimizer=value_optimizer,
                           policy_optimizer=policy_optimizer)
+logging.info("Starting training")
 for rnd in range(100):
     session.train_round(num_episodes=1000,
                         episode_length=100,
