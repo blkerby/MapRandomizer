@@ -26,6 +26,7 @@ import logging
 import math
 from maze_builder.env import MazeBuilderEnv
 import maze_builder.crateria
+from maze_builder.model_components import L1LinearScaled
 
 logging.basicConfig(format='%(asctime)s %(message)s',
                     level=logging.INFO,
@@ -71,11 +72,13 @@ class MainNetwork(torch.nn.Module):
         for i in range(self.depth):
             if i != self.depth - 1:
                 self.lin_layers.append(torch.nn.Linear(widths[i], widths[i + 1] * arity))
+                # self.lin_layers.append(L1LinearScaled(widths[i], widths[i + 1] * arity))
                 # self.act_layers.append(MinOut(arity))
                 self.act_layers.append(torch.nn.ReLU())
                 # self.act_layers.append(torch.nn.PReLU(widths[i + 1]))
             else:
                 self.lin_layers.append(torch.nn.Linear(widths[i], widths[i + 1]))
+                # self.lin_layers.append(L1LinearScaled(widths[i], widths[i + 1]))
 
     def forward(self, X):
         for i in range(self.depth):
@@ -83,6 +86,17 @@ class MainNetwork(torch.nn.Module):
             if i != self.depth - 1:
                 X = self.act_layers[i](X)
         return X
+
+    def decay(self, decay):
+        if decay == 0.0:
+            return
+        for mod in self.modules():
+            if isinstance(mod, torch.nn.Linear):
+                mod.weight.data *= 1 - decay
+
+    # def project(self):
+    #     for layer in self.lin_layers:
+    #         layer.project()
 
 
 class Model(torch.nn.Module):
@@ -193,12 +207,14 @@ class TrainingSession():
                  policy_network: torch.nn.Module,
                  value_optimizer: torch.optim.Optimizer,
                  policy_optimizer: torch.optim.Optimizer,
+                 weight_decay: float = 0.0
                  ):
         self.env = env
         self.value_network = value_network
         self.policy_network = policy_network
         self.value_optimizer = value_optimizer
         self.policy_optimizer = policy_optimizer
+        self.weight_decay = weight_decay
         self.state_width = np.prod(env.observation_space.shape)
         self.round_number = 0
 
@@ -222,113 +238,140 @@ class TrainingSession():
                 state1[e, i, :] = X1
         return state0, action, reward, state1
 
-    def train_round(self, num_episodes: int, episode_length: int, num_passes, batch_size: int, horizon: int):
-        # Generate sample data using current policy
-        state0, action, reward, state1 = self.generate_data(num_episodes, episode_length)
-        cumul_reward = torch.cumsum(reward, dim=1)
-        horizon_reward = (cumul_reward[:, horizon:] - cumul_reward[:, :-horizon]) / horizon
-        logging.info("round={}, reward={:.3f}, horizon_reward={:.3f} (episodes={}, length={}, horizon={})".format(
-            self.round_number, torch.mean(reward), torch.mean(horizon_reward), num_episodes, episode_length, horizon))
+    def train_value(self, state0, action, reward, state1, batch_size: int, horizon: int, eval: bool):
+        assert len(state0.shape) == 2
+        num_rows = state0.shape[0]
+        num_batches = num_rows // batch_size  # Round down, to discard any remaining partial batch
 
-        # print(state0.shape, action.shape, reward.shape, state1.shape, horizon_reward.shape)
+        total_loss = 0.0
+        total_mean_value = 0.0
+        for j in range(num_batches):
+            start = j * batch_size
+            end = (j + 1) * batch_size
 
-        # Shuffle the data
-        num_rows = num_episodes * (episode_length - horizon)
-        perm = torch.randperm(num_rows)
-        state0 = state0[:, :-horizon, :].reshape(num_rows, self.state_width)[perm, :]
-        action = action[:, :-horizon].reshape(num_rows)[perm]
-        reward = horizon_reward.reshape(num_rows)[perm]
-        state1 = state1[:, :-horizon].reshape(num_rows, self.state_width)[perm, :]
+            state0_batch = state0[start:end, :]
+            # reward_batch = reward[start:end]
+            # state1_batch = state1[start:end, :]
 
-        # print(state0.shape, action.shape, reward.shape, state1.shape)
-        # Train the value network
-        for i in range(num_passes):
-            num_batches = num_rows // batch_size  # Round down, to discard any remaining partial batch
-
-            # # Compute target values
-            # target = torch.empty_like(reward)
-            # for j in range(num_batches):
-            #     start = j * batch_size
-            #     end = (j + 1) * batch_size
-            #     reward_batch = reward[start:end]
-            #     state1_batch = state1[start:end, :]
-            #     with torch.no_grad():
-            #         value1_batch = self.value_network(state1_batch)[:, 0]
-            #     target_batch = (1 - gamma) * reward_batch + gamma * value1_batch
-            #     target[start:end] = target_batch
-            # # logging.info("mean target={:.3f}".format(torch.mean(target)))
-
-            total_loss = 0.0
-            total_mean_value = 0.0
-            for j in range(num_batches):
-                start = j * batch_size
-                end = (j + 1) * batch_size
-
-                state0_batch = state0[start:end, :]
-                # reward_batch = reward[start:end]
-                # state1_batch = state1[start:end, :]
-
+            if eval:
+                with torch.no_grad():
+                    value0_batch = self.value_network(state0_batch)[:, 0]
+            else:
                 value0_batch = self.value_network(state0_batch)[:, 0]
-                # with torch.no_grad():
-                #     value1_batch = self.value_network(state1_batch)
-                # target_batch = (1 - gamma) * reward_batch + gamma * value1_batch
-                # target_batch = target[start:end]
-                target_batch = reward[start:end]
-                loss = torch.mean((value0_batch - target_batch) ** 2)
+            # with torch.no_grad():
+            #     value1_batch = self.value_network(state1_batch)
+            # target_batch = (1 - gamma) * reward_batch + gamma * value1_batch
+            # target_batch = target[start:end]
+            target_batch = reward[start:end]
+            loss = torch.mean((value0_batch - target_batch) ** 2)
+
+            if not eval:
                 self.value_optimizer.zero_grad()
                 loss.backward()
                 self.value_optimizer.step()
-                total_loss += loss.item()
-                total_mean_value += torch.mean(value0_batch)
-            logging.info("pass={}, loss={:.3f}, mean_value={:.3f}".format(
-                i, total_loss / num_batches, total_mean_value / num_batches))
+                lr = self.value_optimizer.param_groups[0]['lr']
+                self.value_network.decay(self.weight_decay * lr)
+            total_loss += loss.item()
+            total_mean_value += torch.mean(value0_batch).item()
+        return total_loss / num_batches, total_mean_value / num_batches
+
+    def flatten_data(self, state0, action, reward, state1, horizon: int):
+        # Reshape the data to collapse the episode and step dimensions into one, and compute rolling mean rewards
+        cumul_reward = torch.cumsum(reward, dim=1)
+        horizon_reward = (cumul_reward[:, horizon:] - cumul_reward[:, :-horizon]) / horizon
+        num_episodes = state0.shape[0]
+        episode_length = state0.shape[1]
+        num_rows = num_episodes * (episode_length - horizon)
+        state0 = state0[:, :-horizon, :].reshape(num_rows, self.state_width)
+        action = action[:, :-horizon].reshape(num_rows)
+        horizon_reward = horizon_reward.reshape(num_rows)
+        state1 = state1[:, :-horizon].reshape(num_rows, self.state_width)
+        return state0, action, horizon_reward, state1
+
+    def shuffle_flat_data(self, state0, action, reward, state1):
+        num_rows = state0.shape[0]
+        perm = torch.randperm(num_rows)
+        state0 = state0[perm, :]
+        action = action[perm]
+        reward = reward[perm]
+        state1 = state1[perm, :]
+        return state0, action, reward, state1
+
+    def train_round(self, num_episodes: int, episode_length: int, num_passes, batch_size: int, horizon: int):
+        # Generate sample data using current policy
+        train_state0, train_action, train_reward, train_state1 = self.generate_data(
+            num_episodes=num_episodes,
+            episode_length=episode_length)
+        train_state0, train_action, train_horizon_reward, train_state1 = self.flatten_data(
+            train_state0, train_action, train_reward, train_state1, horizon=horizon)
+        # train_state0, train_action, train_horizon_reward, train_state1 = self.shuffle_flat_data(
+        #     train_state0, train_action, train_horizon_reward, train_state1)
+
+        # Train the value network
+        # for i in range(num_passes):
+        loss, mean_value = self.train_value(train_state0, train_action, train_horizon_reward, train_state1,
+                         batch_size=batch_size, horizon=horizon, eval=False)
+            # logging.info("pass={}, loss={:.3f}, mean_value={:.3f}".format(
+            #     i, loss, mean_value))
+
+        logging.info(
+            "round={}, reward={:.3f}, horizon_reward={:.3f}, loss={:.5f}, mean_value={:.3f}".format(
+                self.round_number, torch.mean(train_reward), torch.mean(train_horizon_reward), loss, mean_value,
+                num_episodes, episode_length, horizon, batch_size))
+
+
+        # # Evaluate the value network
+        # test_state0, test_action, test_reward, test_state1 = self.generate_data(
+        #     num_episodes=eval_episodes, episode_length=episode_length)
+        # test_state0, test_action, test_horizon_reward, test_state1 = self.flatten_data(
+        #     test_state0, test_action, test_reward, test_state1, horizon=horizon)
+        # loss, mean_value = self.train_value(test_state0, test_action, test_horizon_reward, test_state1,
+        #                                     batch_size=batch_size, horizon=horizon, eval=True)
+        # logging.info("eval: loss={:.3f}, mean_value={:.3f}".format(loss, mean_value))
+
+        # state0, action, reward, state1 = self.generate_data(eval_episodes, episode_length)
+        # cumul_reward = torch.cumsum(reward, dim=1)
+        # horizon_reward = (cumul_reward[:, horizon:] - cumul_reward[:, :-horizon]) / horizon
+        # logging.info("eval: reward={:.3f}, horizon_reward={:.3f} (episodes={}, length={}, horizon={}, batch={})".format(
+        #     torch.mean(reward), torch.mean(horizon_reward), eval_episodes, episode_length, horizon, batch_size))
+        # num_rows = eval_episodes * (episode_length - horizon)
+        # num_batches = num_rows // batch_size  # Round down, to discard any remaining partial batch
+        # state0 = state0[:, :-horizon, :].reshape(num_rows, self.state_width)
+        # action = action[:, :-horizon].reshape(num_rows)
+        # reward = horizon_reward.reshape(num_rows)
+        # state1 = state1[:, :-horizon].reshape(num_rows, self.state_width)
+        # total_loss = 0.0
+        # total_mean_value = 0.0
+        # for j in range(num_batches):
+        #     start = j * batch_size
+        #     end = (j + 1) * batch_size
+        #
+        #     state0_batch = state0[start:end, :]
+        #     value0_batch = self.value_network(state0_batch)[:, 0]
+        #     target_batch = reward[start:end]
+        #     loss = torch.mean((value0_batch - target_batch) ** 2)
+        #     total_loss += loss.item()
+        #     total_mean_value += torch.mean(value0_batch)
+        # logging.info("eval: loss={:.3f}, mean_value={:.3f}".format(
+        #     total_loss / num_batches, total_mean_value / num_batches))
 
         self.round_number += 1
 
-    def train_step(self, batch_size):
-        state1, state2, action, mean_reward = self.replay.sample(batch_size)
-        p_raw, value1 = self.model.forward_full(state1)
-        with torch.no_grad():
-            value2 = self.model.forward_value(state2)
-        p_log = p_raw - torch.logsumexp(p_raw, dim=1, keepdim=True)
-        # p_log = torch.log(softer_max(p_raw, dim=1))
-        advantage = value2.detach() - value1.detach()
-        p_log_action = p_log[torch.arange(batch_size), action]
-        policy_loss = -torch.dot(p_log_action, advantage)
-        value_err = mean_reward - value1
-        value_loss = self.value_loss_coef * torch.dot(value_err, value_err)
-        # entropy = -torch.sum(p_log * torch.exp(p_log))
-        entropy = torch.sum(torch.mean(p_raw ** 2, dim=1))
-        entropy_loss = self.entropy_penalty * entropy
-        loss = (policy_loss + value_loss + entropy_loss) / batch_size
-        self.optimizer.zero_grad()
-        loss.backward()
-        torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1e-5)
-        self.optimizer.step()
-
-        # self.policy_optimizer.zero_grad()
-        # policy_loss.backward()
-        # self.policy_optimizer.step()
-        #
-        # self.value_optimizer.zero_grad()
-        # value_loss.backward()
-        # self.value_optimizer.step()
-
-        self.model.weight_decay(self.weight_decay)
-        return policy_loss.item(), value_loss.item(), entropy.item()
 
 # env = gym.make('CartPole-v0').unwrapped
 env = MazeBuilderEnv(maze_builder.crateria.rooms[:10], map_x=12, map_y=12, action_radius=1)
 observation_dim = np.prod(env.observation_space.shape)
 action_dim = env.action_space.n
-value_network = MainNetwork([observation_dim, 64, 1])
-policy_network = MainNetwork([observation_dim, 64, action_dim])
-value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.001, betas=(0.9, 0.999), eps=1e-15)
-policy_optimizer = torch.optim.Adam(policy_network.parameters(), lr=0.0001, betas=(0.9, 0.9), eps=1e-15)
+value_network = MainNetwork([observation_dim, 256, 256, 1])
+policy_network = MainNetwork([observation_dim, 1, action_dim])  # TODO: change this
+value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.01, betas=(0.9, 0.999), eps=1e-15)
+policy_optimizer = torch.optim.Adam(policy_network.parameters(), lr=0.0001, betas=(0.9, 0.999), eps=1e-15)
 
 value_network.lin_layers[-1].weight.data[:, :] = 0.0
-value_network.lin_layers[-1].bias.data[:] = 0.0
 policy_network.lin_layers[-1].weight.data[:, :] = 0.0
+# value_network.lin_layers[-1].weights_pos_neg.param.data[:, :] = 0.0
+# policy_network.lin_layers[-1].weights_pos_neg.param.data[:, :] = 0.0
+value_network.lin_layers[-1].bias.data[:] = 0.0
 policy_network.lin_layers[-1].bias.data[:] = 0.0
 print(value_network)
 print(value_optimizer)
@@ -338,14 +381,22 @@ session = TrainingSession(env,
                           value_network=value_network,
                           policy_network=policy_network,
                           value_optimizer=value_optimizer,
-                          policy_optimizer=policy_optimizer)
+                          policy_optimizer=policy_optimizer,
+                          weight_decay=0.0)
+num_episodes = 1024
+episode_length = 128
+horizon = 20
+batch_size = 256
+print('episodes per cycle={}, episode length={}, horizon={}, batch size={}'.format(
+    num_episodes, episode_length, horizon, batch_size))
 logging.info("Starting training")
 for rnd in range(100):
-    session.train_round(num_episodes=4000,
-                        episode_length=100,
-                        num_passes=20,
-                        batch_size=1024,
-                        horizon=20)
+    session.train_round(num_episodes=num_episodes,
+                        episode_length=episode_length,
+                        num_passes=1,
+                        batch_size=batch_size,
+                        horizon=horizon)
+
 # # optimizer = torch.optim.SGD(model.parameters(), lr=0.05)
 # batch_size = 2048
 # train_freq = 64
