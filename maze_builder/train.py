@@ -26,7 +26,9 @@ import logging
 import math
 from maze_builder.env import MazeBuilderEnv
 import maze_builder.crateria
+import time
 from maze_builder.model_components import L1LinearScaled
+from concurrent.futures import ProcessPoolExecutor
 
 logging.basicConfig(format='%(asctime)s %(message)s',
                     level=logging.INFO,
@@ -99,99 +101,6 @@ class MainNetwork(torch.nn.Module):
     #         layer.project()
 
 
-class Model(torch.nn.Module):
-    def __init__(self, widths, num_actions):
-        super().__init__()
-        # self.main_network = torch.nn.Sequential(MainNetwork(widths), torch.nn.ReLU())
-        # self.policy_layer = torch.nn.Linear(widths[-1], num_actions)
-        # self.value_layer = torch.nn.Linear(widths[-1], 1)
-        self.main_network = torch.nn.Sequential()
-        self.policy_layer = MainNetwork(widths + [num_actions])
-        self.value_layer = MainNetwork(widths + [1])
-
-    def weight_decay(self, decay):
-        for mod in self.modules():
-            if isinstance(mod, torch.nn.Linear):
-                mod.weight.data *= 1 - decay
-
-    def forward_full(self, X):
-        main = self.main_network(X)
-        p_raw = self.policy_layer(main)
-        value = self.value_layer(main)[:, 0]
-        return p_raw, value
-
-    def forward_policy(self, X):
-        main = self.main_network(X)
-        p_raw = self.policy_layer(main)
-        return p_raw
-
-    def forward_value(self, X):
-        main = self.main_network(X)
-        value = self.value_layer(main)[:, 0]
-        return value
-
-
-class ReplayBuffer():
-    def __init__(self, capacity, observation_size, reward_horizon):
-        self.size = 0
-        self.capacity = capacity
-        self.reward_horizon = reward_horizon
-        self.deque = collections.deque(maxlen=reward_horizon)
-        self.deque_total_reward = 0.0
-        self.state1 = torch.empty([capacity, observation_size], dtype=torch.float32)
-        self.state2 = torch.empty([capacity, observation_size], dtype=torch.float32)
-        self.action = torch.empty(capacity, dtype=torch.int64)
-        self.mean_reward = torch.empty(capacity, dtype=torch.float32)
-
-    def append(self, state1: np.array, state2: np.array, action: int, reward: float, done: bool, artificial_end: bool):
-        if artificial_end and not done:
-            # Don't use current data in deque: total rewards would be invalid since game was artificially ended
-            self.deque.clear()
-            self.deque_total_reward = 0.0
-            return
-        assert len(self.deque) < self.reward_horizon
-        self.deque.append((state1, state2, action, reward))
-        self.deque_total_reward += reward
-        if len(self.deque) == self.reward_horizon:
-            self._process_oldest()
-        if done:
-            while len(self.deque) > 0:
-                self._process_oldest()
-
-    def _process_oldest(self):
-        # Process the oldest element of the deque
-        state1, state2, action, reward = self.deque.popleft()
-        self._append(state1, state2, action, self.deque_total_reward / self.reward_horizon)
-        self.deque_total_reward -= reward
-
-    def _append(self, state1: np.array, state2: np.array, action: int, mean_reward: float):
-        if self.size == self.capacity:
-            self.downsize()
-        self.state1[self.size, :] = torch.from_numpy(state1)
-        self.state2[self.size, :] = torch.from_numpy(state2)
-        self.action[self.size] = action
-        self.mean_reward[self.size] = mean_reward
-        self.size += 1
-
-    def downsize(self):
-        # Keep the most recent half of observations.
-        start = self.size // 2
-        end = self.capacity
-        size = end - start
-        self.state1[:size, :] = self.state1[start:end, :]
-        self.state2[:size, :] = self.state2[start:end, :]
-        self.action[:size] = self.action[start:end]
-        self.mean_reward[:size] = self.mean_reward[start:end]
-        self.size = size
-
-    def sample(self, sample_size):
-        ind = np.random.choice(self.size, sample_size, replace=False)
-        state1 = self.state1[ind, :]
-        state2 = self.state2[ind, :]
-        action = self.action[ind]
-        total_reward = self.mean_reward[ind]
-        return state1, state2, action, total_reward
-
 
 
 def softer_max(X, dim):
@@ -207,7 +116,8 @@ class TrainingSession():
                  policy_network: torch.nn.Module,
                  value_optimizer: torch.optim.Optimizer,
                  policy_optimizer: torch.optim.Optimizer,
-                 weight_decay: float = 0.0
+                 num_workers: int = 4,
+                 weight_decay: float = 0.0,
                  ):
         self.env = env
         self.value_network = value_network
@@ -217,6 +127,7 @@ class TrainingSession():
         self.weight_decay = weight_decay
         self.state_width = np.prod(env.observation_space.shape)
         self.round_number = 0
+        self.executor = ProcessPoolExecutor(num_workers)
 
     def generate_data(self, num_episodes: int, episode_length: int):
         state0 = torch.empty([num_episodes, episode_length, self.state_width], dtype=torch.float32)
@@ -298,6 +209,8 @@ class TrainingSession():
         return state0, action, reward, state1
 
     def train_round(self, num_episodes: int, episode_length: int, num_passes, batch_size: int, horizon: int):
+        start_time = time.perf_counter()
+
         # Generate sample data using current policy
         train_state0, train_action, train_reward, train_state1 = self.generate_data(
             num_episodes=num_episodes,
@@ -307,17 +220,21 @@ class TrainingSession():
         # train_state0, train_action, train_horizon_reward, train_state1 = self.shuffle_flat_data(
         #     train_state0, train_action, train_horizon_reward, train_state1)
 
+
         # Train the value network
         # for i in range(num_passes):
+        train_time = time.perf_counter()
         loss, mean_value = self.train_value(train_state0, train_action, train_horizon_reward, train_state1,
                          batch_size=batch_size, horizon=horizon, eval=False)
             # logging.info("pass={}, loss={:.3f}, mean_value={:.3f}".format(
             #     i, loss, mean_value))
 
+        end_time = time.perf_counter()
+        train_frac = int((end_time - train_time) / (end_time - start_time) * 100)
         logging.info(
-            "round={}, reward={:.3f}, horizon_reward={:.3f}, loss={:.5f}, mean_value={:.3f}".format(
+            "round={}, reward={:.3f}, horizon_reward={:.3f}, loss={:.5f}, mean_value={:.3f}, train_frac={}%".format(
                 self.round_number, torch.mean(train_reward), torch.mean(train_horizon_reward), loss, mean_value,
-                num_episodes, episode_length, horizon, batch_size))
+                train_frac))
 
 
         # # Evaluate the value network
@@ -364,7 +281,7 @@ observation_dim = np.prod(env.observation_space.shape)
 action_dim = env.action_space.n
 value_network = MainNetwork([observation_dim, 256, 256, 1])
 policy_network = MainNetwork([observation_dim, 1, action_dim])  # TODO: change this
-value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.01, betas=(0.9, 0.999), eps=1e-15)
+value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.002, betas=(0.9, 0.999), eps=1e-15)
 policy_optimizer = torch.optim.Adam(policy_network.parameters(), lr=0.0001, betas=(0.9, 0.999), eps=1e-15)
 
 value_network.lin_layers[-1].weight.data[:, :] = 0.0
@@ -382,7 +299,7 @@ session = TrainingSession(env,
                           policy_network=policy_network,
                           value_optimizer=value_optimizer,
                           policy_optimizer=policy_optimizer,
-                          weight_decay=0.0)
+                          weight_decay=0.02)
 num_episodes = 1024
 episode_length = 128
 horizon = 20
