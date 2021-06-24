@@ -111,7 +111,7 @@ def softer_max(X, dim):
     return Y / torch.sum(Y, dim=dim, keepdim=True)
 
 class TrainingSession():
-    def __init__(self, env: gym.Env,
+    def __init__(self, env_fn,
                  value_network: torch.nn.Module,
                  policy_network: torch.nn.Module,
                  value_optimizer: torch.optim.Optimizer,
@@ -119,7 +119,6 @@ class TrainingSession():
                  num_workers: int = 4,
                  weight_decay: float = 0.0,
                  ):
-        self.env = env
         self.value_network = value_network
         self.policy_network = policy_network
         self.value_optimizer = value_optimizer
@@ -127,14 +126,21 @@ class TrainingSession():
         self.weight_decay = weight_decay
         self.state_width = np.prod(env.observation_space.shape)
         self.round_number = 0
+        self.env_fn = env_fn
         self.executor = ProcessPoolExecutor(num_workers)
 
     def generate_data(self, num_episodes: int, episode_length: int):
-        state0 = torch.empty([num_episodes, episode_length, self.state_width], dtype=torch.float32)
-        action = torch.empty([num_episodes, episode_length], dtype=torch.int64)
-        reward = torch.empty([num_episodes, episode_length], dtype=torch.float32)
-        state1 = torch.empty([num_episodes, episode_length, self.state_width], dtype=torch.float32)
-        for e in range(num_episodes):
+
+        # state0 = torch.empty([num_episodes, episode_length, self.state_width], dtype=torch.float32)
+        # action = torch.empty([num_episodes, episode_length], dtype=torch.int64)
+        # reward = torch.empty([num_episodes, episode_length], dtype=torch.float32)
+        # state1 = torch.empty([num_episodes, episode_length, self.state_width], dtype=torch.float32)
+        def generate_episode():
+            env = self.env_fn()
+            state0 = torch.empty([episode_length, self.state_width], dtype=torch.float32)
+            action = torch.empty([episode_length], dtype=torch.int64)
+            reward = torch.empty([episode_length], dtype=torch.float32)
+            state1 = torch.empty([episode_length, self.state_width], dtype=torch.float32)
             X0 = torch.from_numpy(env.reset()).view(1, -1).to(torch.float32)
             for i in range(episode_length):
                 with torch.no_grad():
@@ -143,11 +149,18 @@ class TrainingSession():
                 a = dist.sample().item()
                 observation, r, _, _ = env.step(a)
                 X1 = torch.from_numpy(observation).view(1, -1).to(torch.float32)
-                state0[e, i, :] = X0
-                reward[e, i] = r
-                action[e, i] = a
-                state1[e, i, :] = X1
-        return state0, action, reward, state1
+                state0[i, :] = X0
+                reward[i] = r
+                action[i] = a
+                state1[i, :] = X1
+            return state0, reward, action, state1
+
+        results = self.executor.map(generate_episode, num_episodes * [()])
+        stacked_state0 = torch.stack([r[0] for r in results], dim=0)
+        stacked_action = torch.stack([r[1] for r in results], dim=0)
+        stacked_reward = torch.stack([r[2] for r in results], dim=0)
+        stacked_state1 = torch.stack([r[3] for r in results], dim=0)
+        return stacked_state0, stacked_action, stacked_reward, stacked_state1
 
     def train_value(self, state0, action, reward, state1, batch_size: int, horizon: int, eval: bool):
         assert len(state0.shape) == 2
@@ -276,7 +289,7 @@ class TrainingSession():
 
 
 # env = gym.make('CartPole-v0').unwrapped
-env = MazeBuilderEnv(maze_builder.crateria.rooms[:10], map_x=12, map_y=12, action_radius=1)
+env_fn = lambda: MazeBuilderEnv(maze_builder.crateria.rooms[:10], map_x=12, map_y=12, action_radius=1)
 observation_dim = np.prod(env.observation_space.shape)
 action_dim = env.action_space.n
 value_network = MainNetwork([observation_dim, 256, 256, 1])
@@ -294,7 +307,7 @@ print(value_network)
 print(value_optimizer)
 print(policy_network)
 print(policy_optimizer)
-session = TrainingSession(env,
+session = TrainingSession(env_fn,
                           value_network=value_network,
                           policy_network=policy_network,
                           value_optimizer=value_optimizer,
