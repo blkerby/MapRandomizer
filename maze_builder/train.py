@@ -9,7 +9,9 @@ import torch
 import collections
 import logging
 import math
+from typing import List
 from maze_builder.env import MazeBuilderEnv
+from maze_builder.types import Room
 import maze_builder.crateria
 
 logging.basicConfig(format='%(asctime)s %(message)s',
@@ -46,39 +48,103 @@ class PReLU:
         return out
 
 
+class GlobalAvgPool2d(torch.nn.Module):
+    def forward(self, X):
+        return torch.mean(X, dim=[2, 3])
+
+
 class MainNetwork(torch.nn.Module):
-    def __init__(self, widths):
+    def __init__(self, conv_channels: List[int], kernel_size: List[int],
+                 fc_hidden_widths: List[int],
+                 room_embedding_width: int, rooms: List[Room],
+                 map_x: int, map_y: int, output_width: int):
         super().__init__()
-        self.depth = len(widths) - 1
-        self.lin_layers = torch.nn.ModuleList([])
-        self.act_layers = torch.nn.ModuleList([])
-        arity = 1
-        for i in range(self.depth):
-            if i != self.depth - 1:
-                self.lin_layers.append(torch.nn.Linear(widths[i], widths[i + 1] * arity))
-                # self.act_layers.append(MinOut(arity))
-                self.act_layers.append(torch.nn.ReLU())
-                # self.act_layers.append(torch.nn.PReLU(widths[i + 1]))
-            else:
-                self.lin_layers.append(torch.nn.Linear(widths[i], widths[i + 1]))
+        self.rooms = rooms
+        self.map_x = map_x
+        self.map_y = map_y
+        self.room_embedding_width = room_embedding_width
+        self.room_embedding = torch.nn.Parameter(torch.randn([len(rooms), room_embedding_width], dtype=torch.float32))
+        self.conv_widths = [1 + room_embedding_width] + conv_channels
+        self.fc_widths = [conv_channels[-1]] + fc_hidden_widths
+        layers = []
+        for i in range(len(conv_channels)):
+            layers.append(torch.nn.Conv2d(self.conv_widths[i], self.conv_widths[i + 1],
+                                          kernel_size=(kernel_size[i], kernel_size[i]), padding=kernel_size[i] // 2))
+            layers.append(torch.nn.ReLU())
+            layers.append(torch.nn.MaxPool2d(3, stride=2))
+        layers.append(GlobalAvgPool2d())
+        for i in range(len(fc_hidden_widths)):
+            layers.append(torch.nn.Linear(self.fc_widths[i], self.fc_widths[i + 1]))
+            layers.append(torch.nn.ReLU())
+        layers.append(torch.nn.Linear(self.fc_widths[-1], output_width))
+        self.sequential = torch.nn.Sequential(*layers)
+
+    def encode_map(self, room_positions):
+        n = room_positions.shape[0]
+        room_positions = room_positions.view(n, -1, 2)
+        room_positions_x = room_positions[:, :, 0]
+        room_positions_y = room_positions[:, :, 1]
+        map = torch.zeros([n, self.map_x, self.map_y], dtype=torch.float32)
+        embeddings = torch.zeros([n, self.map_x, self.map_y, self.room_embedding_width], dtype=torch.float32)
+        for i, room in enumerate(self.rooms):
+            room_map = torch.transpose(torch.tensor(room.map), 0, 1).unsqueeze(0)
+            room_index_x = torch.arange(room.width).view(1, -1, 1)
+            room_index_y = torch.arange(room.height).view(1, 1, -1)
+            room_x = room_positions_x[:, i].view(-1, 1, 1)
+            room_y = room_positions_y[:, i].view(-1, 1, 1)
+            index_x = room_index_x + room_x
+            index_y = room_index_y + room_y
+            map[torch.arange(n).view(-1, 1, 1), index_x, index_y] += room_map
+
+            room_embedding = self.room_embedding[i, :].view(1, 1, 1, -1)
+            filter_room_embedding = room_embedding * room_map.unsqueeze(3)
+            embedding_index = torch.arange(self.room_embedding_width).view(1, 1, 1, -1)
+            embeddings[torch.arange(n).view(-1, 1, 1, 1), index_x.unsqueeze(3), index_y.unsqueeze(3), embedding_index] += filter_room_embedding
+
+        out = torch.cat([map.unsqueeze(3), embeddings], dim=3)
+        out = torch.transpose(out, 1, 3)  # TODO: Clean this up (channel dim was in Tensorflow-style last position)
+        return out
 
     def forward(self, X):
-        for i in range(self.depth):
-            X = self.lin_layers[i](X)
-            if i != self.depth - 1:
-                X = self.act_layers[i](X)
+        X = self.encode_map(X)
+        for layer in self.sequential:
+            X = layer(X)
+            # print(layer, X)
+        # out = self.sequential(E)
         return X
 
 
+# rooms = maze_builder.crateria.rooms[:10]
+# env = MazeBuilderEnv(maze_builder.crateria.rooms[:10], map_x=12, map_y=12, action_radius=1)
+# # num_actions = 8
+# model = MainNetwork(conv_channels=[16, 32, 64],
+#                     kernel_size=[3, 3, 2], fc_hidden_widths=[128],
+#                     room_embedding_width=3,
+#                     rooms=rooms, map_x=12, map_y=12,
+#                     output_width=1)
+# state = torch.from_numpy(env.reset()).view(1, -1)
+# # E = model.encode_map(state)
+# Y = model.forward(state)
+# env.render()
+
 class Model(torch.nn.Module):
-    def __init__(self, widths, num_actions):
+    def __init__(self, num_actions, rooms: List[Room]):
         super().__init__()
         # self.main_network = torch.nn.Sequential(MainNetwork(widths), torch.nn.ReLU())
         # self.policy_layer = torch.nn.Linear(widths[-1], num_actions)
         # self.value_layer = torch.nn.Linear(widths[-1], 1)
         self.main_network = torch.nn.Sequential()
-        self.policy_layer = MainNetwork(widths + [num_actions])
-        self.value_layer = MainNetwork(widths + [1])
+        self.policy_layer = MainNetwork(conv_channels=[16, 32, 64],
+                            kernel_size=[3, 3, 2], fc_hidden_widths=[128],
+                            room_embedding_width=3,
+                            rooms=rooms, map_x=12, map_y=12,
+                            output_width=num_actions)
+        self.value_layer = MainNetwork(conv_channels=[16, 32, 64],
+                            kernel_size=[3, 3, 2], fc_hidden_widths=[64],
+                            room_embedding_width=3,
+                            rooms=rooms, map_x=12, map_y=12,
+                            output_width=1)
+
 
     def weight_decay(self, decay):
         for mod in self.modules():
@@ -109,8 +175,8 @@ class ReplayBuffer():
         self.reward_horizon = reward_horizon
         self.deque = collections.deque(maxlen=reward_horizon)
         self.deque_total_reward = 0.0
-        self.state1 = torch.empty([capacity, observation_size], dtype=torch.float32)
-        self.state2 = torch.empty([capacity, observation_size], dtype=torch.float32)
+        self.state1 = torch.empty([capacity, observation_size], dtype=torch.int64)
+        self.state2 = torch.empty([capacity, observation_size], dtype=torch.int64)
         self.action = torch.empty(capacity, dtype=torch.int64)
         self.mean_reward = torch.empty(capacity, dtype=torch.float32)
 
@@ -185,25 +251,23 @@ class TrainingSession():
         self.replay = ReplayBuffer(replay_capacity,
                                    observation_size=np.prod(env.observation_space.shape),
                                    reward_horizon=reward_horizon)
-        self.observation = self.convert_observation(env.reset())
-
-    def convert_observation(self, observation):
-        return observation.reshape(-1).astype(np.float32)
+        self.observation = env.reset().reshape(-1)
 
     def play_step(self):
-        X = torch.from_numpy(self.observation).view(1, -1).to(torch.float32)
+        X = torch.from_numpy(self.observation).unsqueeze(0).view(1, -1)
         with torch.no_grad():
             p_raw = model.forward_policy(X)
         dist = torch.distributions.Categorical(logits=p_raw[0, :])
         action = dist.sample().item()
-        observation, reward, done, _ = env.step(action)
-        observation = self.convert_observation(observation)
+        observation, reward, done, _ = self.env.step(action)
+        observation = observation.reshape(-1)
         self.step_number += 1
         self.total_steps += 1
         artificial_end = self.step_number == self.max_steps
+        # print("after: self.o=", self.observation, "o=", observation)
         self.replay.append(self.observation, observation, action, reward, done, artificial_end)
         if done or artificial_end:
-            self.observation = self.convert_observation(env.reset())
+            self.observation = self.env.reset().reshape(-1)
             self.step_number = 0
             self.episode_number += 1
         else:
@@ -240,18 +304,22 @@ class TrainingSession():
         self.model.weight_decay(self.weight_decay)
         return policy_loss.item(), value_loss.item(), entropy.item()
 
+
+
 # env = gym.make('CartPole-v0').unwrapped
 env = MazeBuilderEnv(maze_builder.crateria.rooms[:10], map_x=12, map_y=12, action_radius=1)
 observation_dim = np.prod(env.observation_space.shape)
 action_dim = env.action_space.n
-model = Model([observation_dim, 512], action_dim)
+model = Model(action_dim, env.rooms)
 optimizer = torch.optim.Adam(model.parameters(), lr=0.0001, betas=(0.9, 0.9), eps=1e-15)
 print(model)
 # optimizer = torch.optim.SGD(model.parameters(), lr=0.05)
-batch_size = 2048
+# batch_size = 2048
+# train_freq = 64
+batch_size = 256
 train_freq = 64
-print_freq = 50
-display_freq = 30
+print_freq = 64
+display_freq = 64
 session = TrainingSession(env, model,
                           optimizer,
                           replay_capacity=5000, reward_horizon=10,

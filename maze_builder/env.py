@@ -53,7 +53,7 @@ class MazeBuilderEnv(gym.Env):
         self.state[room_index, 1] = max(0, min(self.cap_y[room_index], self.state[room_index, 1]))
         reward = compute_reward(self.room_arrays, self.state, self.map_x, self.map_y, moved_outside)
         done = False  # (reward == 0)
-        return self.state, reward, done, {}
+        return np.copy(self.state), reward, done, {}
 
     def render(self, mode='human'):
         if self.map_display is None:
