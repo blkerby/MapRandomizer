@@ -9,7 +9,7 @@ import torch
 import collections
 import logging
 import math
-from typing import List
+from typing import List, Optional
 from maze_builder.env import MazeBuilderEnv
 from maze_builder.types import Room
 import maze_builder.crateria
@@ -53,22 +53,55 @@ class GlobalAvgPool2d(torch.nn.Module):
         return torch.mean(X, dim=[2, 3])
 
 
-class RoomEncoder(torch.nn.Module):
-    def __init__(self, rooms, room_embedding_width, map_x, map_y):
+class MainNetwork(torch.nn.Module):
+    def __init__(self, map_channels: List[int], kernel_size: List[int],
+                 room_channels: List[int],
+                 fc_channels: Optional[List[int]],
+                 room_embedding_width: int, rooms: List[Room],
+                 map_x: int, map_y: int, output_width: int):
         super().__init__()
         self.rooms = rooms
         self.map_x = map_x
         self.map_y = map_y
         self.room_embedding_width = room_embedding_width
         self.room_embedding = torch.nn.Parameter(torch.randn([len(rooms), room_embedding_width], dtype=torch.float32))
+        self.conv_widths = [2 + room_embedding_width] + map_channels
+        self.room_channels = [map_channels[-1]] + room_channels
 
-    def forward(self, room_positions):
+        map_layers = []
+        for i in range(len(map_channels)):
+            map_layers.append(torch.nn.Conv2d(self.conv_widths[i], self.conv_widths[i + 1],
+                                          kernel_size=(kernel_size[i], kernel_size[i]), padding=kernel_size[i] // 2))
+            map_layers.append(torch.nn.ReLU())
+
+        room_layers = []
+        for i in range(len(room_channels)):
+            room_layers.append(torch.nn.Conv1d(self.room_channels[i], self.room_channels[i + 1], kernel_size=(1,)))
+            room_layers.append(torch.nn.ReLU())
+
+        if fc_channels is not None:
+            fc_layers = []
+            fc_widths = [room_channels[-1]] + fc_channels
+            for i in range(len(fc_channels)):
+                fc_layers.append(torch.nn.Linear(fc_widths[i], fc_widths[i + 1]))
+                fc_layers.append(torch.nn.ReLU())
+            fc_layers.append(torch.nn.Linear(fc_widths[-1], output_width))
+            self.fc_sequential = torch.nn.Sequential(*fc_layers)
+        else:
+            self.fc_sequential = None
+            room_layers.append(torch.nn.Conv1d(self.room_channels[-1], output_width, kernel_size=(1,)))
+
+        self.map_sequential = torch.nn.Sequential(*map_layers)
+        self.room_sequential = torch.nn.Sequential(*room_layers)
+
+    def encode_map(self, room_positions):
         n = room_positions.shape[0]
         room_positions = room_positions.view(n, -1, 2)
         room_positions_x = room_positions[:, :, 0]
         room_positions_y = room_positions[:, :, 1]
         map = torch.zeros([n, self.map_x, self.map_y], dtype=torch.float32)
         embeddings = torch.zeros([n, self.room_embedding_width, self.map_x, self.map_y], dtype=torch.float32)
+        room_info = []
         for i, room in enumerate(self.rooms):
             room_map = torch.transpose(torch.tensor(room.map), 0, 1).unsqueeze(0)
             room_index_x = torch.arange(room.width).view(1, -1, 1)
@@ -78,56 +111,42 @@ class RoomEncoder(torch.nn.Module):
             index_x = room_index_x + room_x
             index_y = room_index_y + room_y
             map[torch.arange(n).view(-1, 1, 1), index_x, index_y] += room_map
+            room_info.append((room_map, index_x, index_y))
 
             room_embedding = self.room_embedding[i, :].view(1, -1, 1, 1)
             filter_room_embedding = room_embedding * room_map.unsqueeze(1)
             embedding_index = torch.arange(self.room_embedding_width).view(1, -1, 1, 1)
             embeddings[torch.arange(n).view(-1, 1, 1, 1), embedding_index, index_x.unsqueeze(1), index_y.unsqueeze(1)] += filter_room_embedding
 
-        out = torch.cat([map.unsqueeze(1), embeddings], dim=1)
+        out = torch.cat([map.unsqueeze(1), torch.ones_like(map.unsqueeze(1)), embeddings], dim=1)
         # out = torch.transpose(out, 1, 3)  # TODO: Clean this up (channel dim was in Tensorflow-style last position)
+        return out, room_info
+
+    def decode_map(self, X, room_info):
+        n = X.shape[0]
+        room_data_list = []
+        for (room_map, index_x, index_y) in room_info:
+            channel_index = torch.arange(X.shape[1]).view(1, -1, 1, 1)
+            room_data = X[torch.arange(n).view(-1, 1, 1, 1), channel_index, index_x.unsqueeze(1), index_y.unsqueeze(1)]
+            room_data_list.append(torch.sum(room_data, dim=[2, 3]))
+        out = torch.stack(room_data_list, dim=2)
         return out
 
-
-class MainNetwork(torch.nn.Module):
-    def __init__(self, conv_channels: List[int], kernel_size: List[int],
-                 fc_hidden_widths: List[int],
-                 room_embedding_width: int, rooms: List[Room],
-                 map_x: int, map_y: int, output_width: int):
-        super().__init__()
-        self.rooms = rooms
-        self.map_x = map_x
-        self.map_y = map_y
-        self.room_embedding_width = room_embedding_width
-        self.conv_widths = [1 + room_embedding_width] + conv_channels
-        self.fc_widths = [conv_channels[-1]] + fc_hidden_widths
-        layers = []
-        layers.append(RoomEncoder(rooms, room_embedding_width, map_x, map_y))
-        for i in range(len(conv_channels)):
-            layers.append(torch.nn.Conv2d(self.conv_widths[i], self.conv_widths[i + 1],
-                                          kernel_size=(kernel_size[i], kernel_size[i]), padding=kernel_size[i] // 2))
-            layers.append(torch.nn.ReLU())
-            # layers.append(torch.nn.BatchNorm2d(self.conv_widths[i + 1]))
-            layers.append(torch.nn.MaxPool2d(3, stride=2))
-        layers.append(GlobalAvgPool2d())
-        for i in range(len(fc_hidden_widths)):
-            layers.append(torch.nn.Linear(self.fc_widths[i], self.fc_widths[i + 1]))
-            layers.append(torch.nn.ReLU())
-            # layers.append(torch.nn.BatchNorm1d(self.fc_widths[i + 1]))
-        layers.append(torch.nn.Linear(self.fc_widths[-1], output_width))
-        self.sequential = torch.nn.Sequential(*layers)
-
-
-    # def decode_map(self, X, room_positions):
-    #     for i, room in enumerate(self.rooms):
-    #
-
-    def forward(self, X):
-        # X = self.encode_map(room_positions)
-        for layer in self.sequential:
-            X = layer(X)
+    def forward(self, room_positions):
+        X, room_info = self.encode_map(room_positions)
+        for layer in self.map_sequential:
             # print(X.shape, layer)
-        # out = self.sequential(E)
+            X = layer(X)
+        X = self.decode_map(X, room_info)
+        for layer in self.room_sequential:
+            # print(X.shape, layer)
+            X = layer(X)
+        if self.fc_sequential is not None:
+            X = torch.sum(X, dim=2)
+            for layer in self.fc_sequential:
+                X = layer(X)
+        else:
+            X = X.view(X.shape[0], -1)
         return X
 
 
@@ -145,22 +164,25 @@ class MainNetwork(torch.nn.Module):
 # env.render()
 
 class Model(torch.nn.Module):
-    def __init__(self, num_actions, rooms: List[Room]):
+    def __init__(self, actions_radius, rooms: List[Room]):
         super().__init__()
         # self.main_network = torch.nn.Sequential(MainNetwork(widths), torch.nn.ReLU())
         # self.policy_layer = torch.nn.Linear(widths[-1], num_actions)
         # self.value_layer = torch.nn.Linear(widths[-1], 1)
         self.main_network = torch.nn.Sequential()
-        self.policy_layer = MainNetwork(conv_channels=[8],
-                            kernel_size=[3], fc_hidden_widths=[64],
-                            room_embedding_width=3,
-                            rooms=rooms, map_x=12, map_y=12,
-                            output_width=num_actions)
-        self.value_layer = MainNetwork(conv_channels=[8],
-                            kernel_size=[3], fc_hidden_widths=[64],
-                            room_embedding_width=3,
-                            rooms=rooms, map_x=12, map_y=12,
-                            output_width=1)
+        self.actions_per_room = (2 * actions_radius + 1) ** 2 - 1
+        self.policy_layer = MainNetwork(map_channels=[8],
+                                        kernel_size=[5], room_channels=[16],
+                                        fc_channels=None,
+                                        room_embedding_width=3,
+                                        rooms=rooms, map_x=12, map_y=12,
+                                        output_width=self.actions_per_room)
+        self.value_layer = MainNetwork(map_channels=[8],
+                                       kernel_size=[5], room_channels=[16],
+                                       fc_channels=[32],
+                                       room_embedding_width=3,
+                                       rooms=rooms, map_x=12, map_y=12,
+                                       output_width=1)
 
 
     def weight_decay(self, decay):
@@ -328,29 +350,30 @@ class TrainingSession():
 
 
 # env = gym.make('CartPole-v0').unwrapped
-env = MazeBuilderEnv(maze_builder.crateria.rooms[:10], map_x=12, map_y=12, action_radius=1)
+action_radius = 1
+env = MazeBuilderEnv(maze_builder.crateria.rooms[:10], map_x=12, map_y=12, action_radius=action_radius)
 observation_dim = np.prod(env.observation_space.shape)
-action_dim = env.action_space.n
-model = Model(action_dim, env.rooms)
-model.policy_layer.sequential[-1].weight.data[:, :] *= 0.01
-model.policy_layer.sequential[-1].bias.data[:] = 0.0
-model.value_layer.sequential[-1].weight.data[:, :] *= 0.01
-model.value_layer.sequential[-1].bias.data[:] = 0.0
-value_optimizer = torch.optim.Adam(model.value_layer.parameters(), lr=0.002, betas=(0.9, 0.999), eps=1e-15)
-policy_optimizer = torch.optim.Adam(model.policy_layer.parameters(), lr=0.00005, betas=(0.9, 0.999), eps=1e-15)
-print(model)
+# action_dim = env.action_space.n
+model = Model(action_radius, env.rooms)
+model.policy_layer.room_sequential[-1].weight.data[:, :] *= 0.01
+model.policy_layer.room_sequential[-1].bias.data[:] = 0.0
+model.value_layer.fc_sequential[-1].weight.data[:, :] *= 0.01
+model.value_layer.fc_sequential[-1].bias.data[:] = 0.0
+value_optimizer = torch.optim.Adam(model.value_layer.parameters(), lr=0.0002, betas=(0.9, 0.999), eps=1e-15)
+policy_optimizer = torch.optim.Adam(model.policy_layer.parameters(), lr=0.0001, betas=(0.9, 0.999), eps=1e-15)
+logging.info("{}".format(model))
 # optimizer = torch.optim.SGD(model.parameters(), lr=0.05)
 batch_size = 2048
 train_freq = 64
 print_freq = 64
-display_freq = 64
+display_freq = 20
 session = TrainingSession(env, model,
                           value_optimizer,
                           policy_optimizer,
                           replay_capacity=5000, reward_horizon=10,
                           max_steps=200, value_loss_coef=1.0,
                           weight_decay=0.0, # * value_optimizer.param_groups[0]['lr'],
-                          entropy_penalty=0.02)
+                          entropy_penalty=0.01)
 
 # entropy_penalty0 = 0.05
 # entropy_penalty1 = 0.05
