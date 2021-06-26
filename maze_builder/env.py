@@ -34,10 +34,10 @@ class MazeBuilderEnv:
         self.actions_per_room = self.action_width ** 2 - 1
         self.num_actions = len(rooms) * self.actions_per_room
 
-        self.state = torch.zeros([num_envs, history_size, len(rooms), 2], dtype=torch.int64)
-        self.action = torch.zeros([num_envs, history_size - 1], dtype=torch.int64)
-        self.reward = torch.zeros([num_envs, history_size - 1], dtype=torch.float32)
-        self.mask = torch.zeros([num_envs, history_size - 1], dtype=torch.bool)
+        self.state = torch.zeros([num_envs, history_size + 1, len(rooms), 2], dtype=torch.int64)
+        self.action = torch.zeros([num_envs, history_size], dtype=torch.int64)
+        self.reward = torch.zeros([num_envs, history_size], dtype=torch.float32)
+        self.mask = torch.zeros([num_envs, history_size], dtype=torch.bool)
         self.step_number = 1
         self.partial_reset(0, num_envs)
 
@@ -52,7 +52,6 @@ class MazeBuilderEnv:
     def staggered_reset(self):
         start = int(self.step_number / self.episode_length * self.num_envs)
         end = int((self.step_number + 1) / self.episode_length * self.num_envs)
-        print(start, end)
         self.partial_reset(start, end)
 
     def step(self, action: torch.tensor):
