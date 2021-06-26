@@ -8,7 +8,7 @@ import torch
 
 class MazeBuilderEnv:
     def __init__(self, rooms: List[Room], map_x: int, map_y: int, action_radius: int,
-                 num_envs: int, history_size: int, episode_length: int):
+                 num_envs: int, episode_length: int):
         for room in rooms:
             room.populate()
 
@@ -17,7 +17,6 @@ class MazeBuilderEnv:
         self.map_y = map_y
         self.action_radius = action_radius
         self.num_envs = num_envs
-        self.history_size = history_size
         self.episode_length = episode_length
 
         self.room_tensors = [torch.stack([torch.tensor(room.map).t(),
@@ -34,33 +33,18 @@ class MazeBuilderEnv:
         self.actions_per_room = self.action_width ** 2 - 1
         self.num_actions = len(rooms) * self.actions_per_room
 
-        self.state = torch.zeros([num_envs, history_size + 1, len(rooms), 2], dtype=torch.int64)
-        self.action = torch.zeros([num_envs, history_size], dtype=torch.int64)
-        self.reward = torch.zeros([num_envs, history_size], dtype=torch.float32)
-        self.mask = torch.zeros([num_envs, history_size], dtype=torch.bool)
+        self.state = torch.empty([num_envs, len(rooms), 2], dtype=torch.int64)
+        self.reset()
         self.step_number = 0
-        self.partial_reset(0, num_envs)
 
         self.map_display = None
         self.color_map = {0: (0xd0, 0x90, 0x90)}
 
-    def partial_reset(self, start, end):
-        rand_state = torch.randint(2 ** 30, [end - start, len(self.rooms), 2]) % self.cap.unsqueeze(0)
-        self.state[start:end, 0, :, :] = rand_state
-        self.mask[start:end, :] = False
-
-    def staggered_reset(self):
-        start = int(self.step_number / self.episode_length * self.num_envs)
-        end = int((self.step_number + 1) / self.episode_length * self.num_envs)
-        self.partial_reset(start, end)
+    def reset(self):
+        self.state = torch.randint(2 ** 30, [self.num_envs, len(self.rooms), 2]) % self.cap.unsqueeze(0)
+        return self.state
 
     def step(self, action: torch.tensor):
-        # Shift existing history back a time step, to make room for the new data
-        self.state[:, 1:, :, :] = self.state[:, :-1, :, :]
-        self.action[:, 1:] = self.action[:, :-1]
-        self.reward[:, 1:] = self.reward[:, :-1]
-        self.mask[:, 1:] = self.mask[:, :-1]
-
         # Decompose the raw action into its components (room_index and displacement):
         room_index = action // self.actions_per_room
         displacement_raw = action % self.actions_per_room
@@ -72,17 +56,18 @@ class MazeBuilderEnv:
         displacement = torch.stack([displacement_x, displacement_y], dim=1)
 
         # Update the state
-        old_state = self.state[torch.arange(self.num_envs), 0, room_index, :]
-        new_state = torch.minimum(torch.clamp(old_state + displacement, min=0), self.cap[room_index, :])
-        self.state[torch.arange(self.num_envs), 0, room_index, :] = new_state
-        self.action[:, 0] = action
-        self.reward[:, 0] = self._compute_reward(self.state[:, 0, :, :], action)
-        self.mask[torch.arange(self.num_envs), 0] = True
-
+        old_room_state = self.state[torch.arange(self.num_envs), room_index, :]
+        new_room_state = torch.minimum(torch.clamp(old_room_state + displacement, min=0), self.cap[room_index, :])
+        old_state = self.state
+        new_state = old_state.clone()
+        new_state[torch.arange(self.num_envs), room_index, :] = new_room_state
+        self.state = new_state
+        reward = self._compute_reward(old_state, new_state, action)
         self.step_number = (self.step_number + 1) % self.episode_length
+        return reward, self.state
 
     def _compute_map(self, state: torch.tensor) -> torch.tensor:
-        full_map = torch.zeros([self.num_envs, self.map_x, self.map_y], dtype=torch.int64)
+        full_map = torch.zeros([self.num_envs, self.map_x, self.map_y], dtype=torch.float32)
         for k, room_tensor in enumerate(self.room_tensors):
             room_map = room_tensor[0, :, :]
             room_x = state[:, k, 0]
@@ -99,16 +84,16 @@ class MazeBuilderEnv:
         intersection_cost = torch.sum(torch.clamp(full_map - 1, min=0), dim=(1, 2))
         return intersection_cost
 
-    def _compute_reward(self, state, action):
-        intersection_cost = self._compute_intersection_cost(state)
+    def _compute_reward(self, old_state, new_state, action):
+        intersection_cost = self._compute_intersection_cost(new_state)
         total_cost = intersection_cost
         return -total_cost
 
     def render(self, env_index=0):
         if self.map_display is None:
             self.map_display = MapDisplay(self.map_x, self.map_y)
-        xs = self.state[env_index, 0, :, 0].tolist()
-        ys = self.state[env_index, 0, :, 1].tolist()
+        xs = self.state[env_index, :, 0].tolist()
+        ys = self.state[env_index, :, 1].tolist()
         colors = [self.color_map[room.area] for room in self.rooms]
         self.map_display.display(self.rooms, xs, ys, colors)
 
@@ -128,10 +113,10 @@ class MazeBuilderEnv:
 #                      episode_length=100)
 # for i in range(200):
 #     print(i)
-#     env.render(2)
+#     env.render(1)
 #     import time
 #     time.sleep(0.1)
-#     env.staggered_reset()
+#     # env.staggered_reset()
 #     action = torch.randint(env.num_actions, [num_envs])
 #     env.step(action)
 #
