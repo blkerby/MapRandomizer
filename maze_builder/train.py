@@ -79,7 +79,7 @@ class TrainingSession():
         self.value_optimizer = value_optimizer
         self.policy_optimizer = policy_optimizer
 
-    def generate_round(self, num_episodes, episode_length):
+    def generate_round(self, num_episodes, episode_length, render=False):
         state_list = []
         action_list = []
         reward_list = []
@@ -89,6 +89,8 @@ class TrainingSession():
             episode_action_list = []
             episode_reward_list = []
             for j in range(episode_length):
+                if render:
+                    self.env.render()
                 with torch.no_grad():
                     raw_p = self.policy_network(state)
                 log_p = raw_p - torch.logsumexp(raw_p, dim=1, keepdim=True)
@@ -115,10 +117,12 @@ class TrainingSession():
                     batch_size: int,
                     weight_decay: float = 0.0,
                     policy_variation_penalty: float = 0.0,
+                    render: bool = False,
                     ):
         # Generate data using the current policy
         state, action, reward = self.generate_round(num_episodes=num_episodes,
-                                                    episode_length=episode_length)
+                                                    episode_length=episode_length,
+                                                    render=render)
 
         # Compute windowed rewards and trim off the end of episodes where they are not determined.
         cumul_reward = torch.cat([torch.zeros_like(reward[:, 0:1, :]), torch.cumsum(reward, dim=1)], dim=1)
@@ -157,6 +161,7 @@ class TrainingSession():
             value_loss.backward()
             torch.nn.utils.clip_grad_norm_(self.value_network.parameters(), 1e-5)
             self.value_optimizer.step()
+            self.value_network.decay(weight_decay * self.value_optimizer.param_groups[0]['lr'])
             total_value_loss += value_loss.item()
 
         # Make a second pass through the data, updating the policy network
@@ -182,6 +187,7 @@ class TrainingSession():
             (policy_loss + policy_variation_loss).backward()
             torch.nn.utils.clip_grad_norm_(self.policy_network.parameters(), 1e-5)
             self.policy_optimizer.step()
+            self.policy_network.decay(weight_decay * self.policy_optimizer.param_groups[0]['lr'])
             total_policy_loss += policy_loss.item()
             total_policy_variation += policy_variation.item()
 
@@ -191,21 +197,21 @@ class TrainingSession():
 
 import maze_builder.crateria
 num_envs = 1024
-rooms = maze_builder.crateria.rooms[:10]
+rooms = maze_builder.crateria.rooms[:5]
 action_radius = 1
 episode_length = 128
-display_freq = 2
+display_freq = 3
 env = MazeBuilderEnv(rooms,
-                     map_x=12,
-                     map_y=12,
+                     map_x=15,
+                     map_y=15,
                      action_radius=action_radius,
                      num_envs=num_envs,
                      episode_length=episode_length)
 
 value_network = MainNetwork([len(rooms) * 2, 256, 256, 1])
 policy_network = MainNetwork([len(rooms) * 2, 64, 64, env.num_actions])
-value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.01, betas=(0.9, 0.999), eps=1e-15)
-policy_optimizer = torch.optim.Adam(policy_network.parameters(), lr=0.00002, betas=(0.9, 0.999), eps=1e-15)
+value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.0002, betas=(0.9, 0.999), eps=1e-15)
+policy_optimizer = torch.optim.Adam(policy_network.parameters(), lr=0.00001, betas=(0.9, 0.999), eps=1e-15)
 
 value_network.lin_layers[-1].weight.data[:, :] = 0.0
 policy_network.lin_layers[-1].weight.data[:, :] = 0.0
@@ -225,34 +231,29 @@ session = TrainingSession(env,
                           value_optimizer=value_optimizer,
                           policy_optimizer=policy_optimizer)
 
+# session.policy_optimizer.param_groups[0]['lr'] = 0.00001
+# session.value_optimizer.param_groups[0]['lr'] = 0.0002
 for i in range(10000):
     reward, value_loss, policy_loss, policy_variation = session.train_round(
         num_episodes=1,
         episode_length=episode_length,
-        horizon=10,
-        batch_size=256,
+        horizon=32,
+        batch_size=1024,
         weight_decay=0.0,
-        policy_variation_penalty=0.01)
+        policy_variation_penalty=0.0001,
+        render=i % display_freq == 0)
     logging.info("{}: reward={:.3f}, value_loss={:.3f}, policy_loss={:.5f}, policy_variation={:.5f}".format(
         i, reward, value_loss, policy_loss, policy_variation))
-# for i in range(1000):
-#     total_loss = 0.0
-#     total_reward = 0.0
-#     total_policy_variation = 0.0
-#     for j in range(episode_length):
-#         env.staggered_reset()
-#         if i % display_freq == 0:
-#             env.render()
-#         loss, policy_variation = session.train_step(update_policy=(i >= 2))
-#         total_loss += loss
-#         total_reward += torch.mean(env.reward[:, 0])
-#         total_policy_variation += policy_variation
-#     logging.info("episode={}, reward={:.2f}, value_loss={:.2f}, policy_variation={:.5f}".format(
-#         i, total_reward / episode_length, total_loss / episode_length, total_policy_variation / episode_length))
-# #     env.render(2)
-# #     import time
-# #     time.sleep(0.1)
-# #     env.staggered_reset()
-# #     action = torch.randint(env.num_actions, [num_envs])
-# #     env.step(action)
-# #
+
+
+state = env.reset()
+for j in range(episode_length):
+    with torch.no_grad():
+        raw_p = session.policy_network(state)
+    log_p = raw_p - torch.logsumexp(raw_p, dim=1, keepdim=True)
+    p = torch.exp(log_p)
+    cumul_p = torch.cumsum(p, dim=1)
+    rnd = torch.rand([session.env.num_envs, 1])
+    action = torch.clamp(torch.searchsorted(cumul_p, rnd), max=session.env.num_actions - 1)
+    reward, state = session.env.step(action.squeeze(1))
+    session.env.render()
