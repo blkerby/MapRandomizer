@@ -73,21 +73,19 @@ class TrainingSession():
                  value_optimizer: torch.optim.Optimizer,
                  policy_optimizer: torch.optim.Optimizer,
                  gamma: float,
-                 eps: float,
                  weight_decay: float = 0.0,
-                 entropy_penalty: float = 0.0,
+                 policy_variation_penalty: float = 0.0,
                  ):
         self.value_network = value_network
         self.policy_network = policy_network
         self.value_optimizer = value_optimizer
         self.policy_optimizer = policy_optimizer
         self.gamma = gamma
-        self.eps = eps
         self.weight_decay = weight_decay
-        self.entropy_penalty = entropy_penalty
+        self.policy_variation_penalty = policy_variation_penalty
         self.env = env
 
-    def train_step(self, policy_iterations: int):
+    def train_step(self, update_policy: bool):
         n = self.env.history_size
         state_0 = self.env.state[:, -1, :, :].view(self.env.num_envs, -1)
         action_0 = self.env.action[:, -1]
@@ -106,35 +104,36 @@ class TrainingSession():
         self.mean_target = torch.mean(target)
         self.value_optimizer.zero_grad()
         value_loss.backward()
+        torch.nn.utils.clip_grad_norm_(self.value_network.parameters(), 1e-5)
         self.value_optimizer.step()
 
-        # Update the policy network (with method similar to PPO)
-        for i in range(policy_iterations):
-            raw_p = self.policy_network(state_0)
-            log_p = raw_p - torch.logsumexp(raw_p, dim=1, keepdim=True)
-            log_p_action = log_p[torch.arange(self.env.num_envs), action_0]
-            if i == 0:
-                log_p_start = log_p_action.detach()
-            advantage = target - value_0.detach()
-            clipped_log_p_action = torch.minimum(torch.maximum(log_p_action,
-                                                               log_p_start - self.eps),
-                                                 log_p_start + self.eps)
-            policy_loss = -torch.mean(advantage * clipped_log_p_action)
+        # Update the policy network
+        raw_p = self.policy_network(state_0)
+        log_p = raw_p - torch.logsumexp(raw_p, dim=1, keepdim=True)
+        log_p_action = log_p[torch.arange(self.env.num_envs), action_0]
+        advantage = target - value_0.detach()
+        policy_loss = -torch.mean(advantage * log_p_action)
+        policy_variation = torch.mean(raw_p ** 2)
+        policy_variation_loss = self.policy_variation_penalty * policy_variation
+        if update_policy:
             self.policy_optimizer.zero_grad()
-            policy_loss.backward()
+            (policy_loss + policy_variation_loss).backward()
+            torch.nn.utils.clip_grad_norm_(self.policy_network.parameters(), 1e-5)
             self.policy_optimizer.step()
 
         # Take an action (for each parallel environment)
         with torch.no_grad():
             raw_p = self.policy_network(state_n)
-        p = torch.exp(raw_p)
-        p = p / torch.sum(p, dim=1, keepdim=True)
+        log_p = raw_p - torch.logsumexp(raw_p, dim=1, keepdim=True)
+        p = torch.exp(log_p)
+        # p = torch.exp(raw_p)
+        # p = p / torch.sum(p, dim=1, keepdim=True)
         cumul_p = torch.cumsum(p, dim=1)
         rnd = torch.rand([self.env.num_envs, 1])
         action = torch.clamp(torch.searchsorted(cumul_p, rnd), max=self.env.num_actions - 1)
         self.env.step(action.squeeze(1))
 
-        return value_loss.detach()
+        return value_loss.detach(), policy_variation
     # def train_policy(self, state0, action, state1, batch_size):
     #     assert len(state0.shape) == 2
     #     num_rows = state0.shape[0]
@@ -178,9 +177,9 @@ num_envs = 1024
 rooms = maze_builder.crateria.rooms[:10]
 action_radius = 1
 gamma = 0.9
-history_size = 10
+history_size = 20
 episode_length = 128
-display_freq = 5
+display_freq = 2
 env = MazeBuilderEnv(rooms,
                      map_x=12,
                      map_y=12,
@@ -191,7 +190,7 @@ env = MazeBuilderEnv(rooms,
 
 value_network = MainNetwork([len(rooms) * 2, 256, 256, 1])
 policy_network = MainNetwork([len(rooms) * 2, 64, 64, env.num_actions])
-value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.005, betas=(0.9, 0.999), eps=1e-15)
+value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.01, betas=(0.9, 0.999), eps=1e-15)
 policy_optimizer = torch.optim.Adam(policy_network.parameters(), lr=0.0001, betas=(0.9, 0.999), eps=1e-15)
 
 value_network.lin_layers[-1].weight.data[:, :] = 0.0
@@ -212,25 +211,22 @@ session = TrainingSession(env,
                           value_optimizer=value_optimizer,
                           policy_optimizer=policy_optimizer,
                           gamma=gamma,
-                          eps=0.1,
                           weight_decay=0.0,
-                          entropy_penalty=0.0)
+                          policy_variation_penalty=0.0001)
 for i in range(1000):
     total_loss = 0.0
     total_reward = 0.0
+    total_policy_variation = 0.0
     for j in range(episode_length):
         env.staggered_reset()
-        # if i % display_freq == 0:
-        #     env.render()
-        if i < 10:
-            policy_iterations = 0
-        else:
-            policy_iterations = 5
-        loss = session.train_step(policy_iterations=policy_iterations)
+        if i % display_freq == 0:
+            env.render()
+        loss, policy_variation = session.train_step(update_policy=(i >= 2))
         total_loss += loss
         total_reward += torch.mean(env.reward[:, 0])
-    logging.info("episode={}, reward={:.2f}, value_loss={:.2f}".format(
-        i, total_reward / episode_length, total_loss / episode_length))
+        total_policy_variation += policy_variation
+    logging.info("episode={}, reward={:.2f}, value_loss={:.2f}, policy_variation={:.5f}".format(
+        i, total_reward / episode_length, total_loss / episode_length, total_policy_variation / episode_length))
 #     env.render(2)
 #     import time
 #     time.sleep(0.1)
