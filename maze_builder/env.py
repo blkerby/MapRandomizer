@@ -38,7 +38,7 @@ class MazeBuilderEnv:
         self.action = torch.zeros([num_envs, history_size], dtype=torch.int64)
         self.reward = torch.zeros([num_envs, history_size], dtype=torch.float32)
         self.mask = torch.zeros([num_envs, history_size], dtype=torch.bool)
-        self.step_number = 1
+        self.step_number = 0
         self.partial_reset(0, num_envs)
 
         self.map_display = None
