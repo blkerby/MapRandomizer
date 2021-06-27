@@ -24,8 +24,7 @@ from maze_builder.model_components import L1LinearScaled
 import multiprocessing as mp
 import queue
 import os
-from typing import List
-
+from typing import List, Optional
 
 logging.basicConfig(format='%(asctime)s %(message)s',
                     level=logging.INFO,
@@ -40,8 +39,9 @@ class GlobalAvgPool2d(torch.nn.Module):
 
 
 class MainNetwork(torch.nn.Module):
-    def __init__(self, conv_channels: List[int], kernel_size: List[int],
-                 fc_hidden_widths: List[int],
+    def __init__(self, map_channels: List[int], kernel_size: List[int],
+                 room_channels: List[int],
+                 fc_channels: Optional[List[int]],
                  room_embedding_width: int, rooms: List[Room],
                  map_x: int, map_y: int, output_width: int):
         super().__init__()
@@ -50,54 +50,116 @@ class MainNetwork(torch.nn.Module):
         self.map_y = map_y
         self.room_embedding_width = room_embedding_width
         self.room_embedding = torch.nn.Parameter(torch.randn([len(rooms), room_embedding_width], dtype=torch.float32))
-        self.conv_widths = [5 + room_embedding_width] + conv_channels
-        self.fc_widths = [conv_channels[-1]] + fc_hidden_widths
-        layers = []
-        for i in range(len(conv_channels)):
-            layers.append(torch.nn.Conv2d(self.conv_widths[i], self.conv_widths[i + 1],
-                                          kernel_size=(kernel_size[i], kernel_size[i]), padding=kernel_size[i] // 2))
-            layers.append(torch.nn.ReLU())
-            layers.append(torch.nn.MaxPool2d(3, stride=2))
-        layers.append(GlobalAvgPool2d())
-        for i in range(len(fc_hidden_widths)):
-            layers.append(torch.nn.Linear(self.fc_widths[i], self.fc_widths[i + 1]))
-            layers.append(torch.nn.ReLU())
-        layers.append(torch.nn.Linear(self.fc_widths[-1], output_width))
-        self.sequential = torch.nn.Sequential(*layers)
+        self.conv_widths = [10 + room_embedding_width] + map_channels
+        self.room_channels = [map_channels[-1]] + room_channels
+
+        map_layers = []
+        for i in range(len(map_channels)):
+            map_layers.append(torch.nn.Conv2d(self.conv_widths[i], self.conv_widths[i + 1],
+                                              kernel_size=(kernel_size[i], kernel_size[i]),
+                                              padding=kernel_size[i] // 2))
+            map_layers.append(torch.nn.ReLU())
+
+        room_layers = []
+        for i in range(len(room_channels)):
+            room_layers.append(torch.nn.Conv1d(self.room_channels[i], self.room_channels[i + 1], kernel_size=(1,)))
+            room_layers.append(torch.nn.ReLU())
+
+        if fc_channels is not None:
+            fc_layers = []
+            fc_widths = [room_channels[-1]] + fc_channels
+            for i in range(len(fc_channels)):
+                fc_layers.append(torch.nn.Linear(fc_widths[i], fc_widths[i + 1]))
+                fc_layers.append(torch.nn.ReLU())
+            fc_layers.append(torch.nn.Linear(fc_widths[-1], output_width))
+            self.fc_sequential = torch.nn.Sequential(*fc_layers)
+        else:
+            self.fc_sequential = None
+            room_layers.append(torch.nn.Conv1d(self.room_channels[-1], output_width, kernel_size=(1,)))
+
+        self.map_sequential = torch.nn.Sequential(*map_layers)
+        self.room_sequential = torch.nn.Sequential(*room_layers)
+
+    def _compute_room_boundaries(self, room_map):
+        left = torch.zeros_like(room_map)
+        left[0, :] = room_map[0, :]
+        left[1:, :] = torch.clamp(room_map[1:, :] - room_map[:-1, :], min=0)
+
+        right = torch.zeros_like(room_map)
+        right[-1, :] = room_map[-1, :]
+        right[:-1, :] = torch.clamp(room_map[:-1, :] - room_map[1:, :], min=0)
+
+        up = torch.zeros_like(room_map)
+        up[:, 0] = room_map[:, 0]
+        up[:, 1:] = torch.clamp(room_map[:, 1:] - room_map[:, :-1], min=0)
+
+        down = torch.zeros_like(room_map)
+        down[:, -1] = room_map[:, -1]
+        down[:, :-1] = torch.clamp(room_map[:, :-1] - room_map[:, 1:], min=0)
+
+        return torch.stack([left, right, up, down], dim=0)
 
     def encode_map(self, room_positions):
         n = room_positions.shape[0]
         room_positions = room_positions.view(n, -1, 2)
-        full_map = torch.zeros([n, 5, self.map_x, self.map_y], dtype=torch.float32)
+        full_map = torch.zeros([n, 10, self.map_x, self.map_y], dtype=torch.float32)
         embeddings = torch.zeros([n, self.room_embedding_width, self.map_x, self.map_y], dtype=torch.float32)
+        room_infos = []
+        full_map[:, 9, :, :] = 1.0
         for i, room in enumerate(self.rooms):
             room_tensor = torch.stack([torch.tensor(room.map).t(),
-                         torch.tensor(room.door_left).t(),
-                         torch.tensor(room.door_right).t(),
-                         torch.tensor(room.door_down).t(),
-                         torch.tensor(room.door_up).t()], dim=0)
+                                       torch.tensor(room.door_left).t(),
+                                       torch.tensor(room.door_right).t(),
+                                       torch.tensor(room.door_down).t(),
+                                       torch.tensor(room.door_up).t()], dim=0)
+            room_boundaries = self._compute_room_boundaries(room_tensor[0, :, :])
+            room_tensor = torch.cat([room_tensor, room_boundaries], dim=0)
             room_x = room_positions[:, i, 0]
             room_y = room_positions[:, i, 1]
             width = room_tensor.shape[1]
             height = room_tensor.shape[2]
             index_x = torch.arange(width).view(1, 1, -1, 1) + room_x.view(-1, 1, 1, 1)
             index_y = torch.arange(height).view(1, 1, 1, -1) + room_y.view(-1, 1, 1, 1)
-            full_map[torch.arange(n).view(-1, 1, 1, 1), torch.arange(5).view(1, -1, 1, 1), index_x, index_y] += room_tensor.unsqueeze(0)
+            full_map[torch.arange(n).view(-1, 1, 1, 1), torch.arange(9).view(1, -1, 1,
+                                                                             1), index_x, index_y] += room_tensor.unsqueeze(
+                0)
 
             room_embedding = self.room_embedding[i, :].view(1, -1, 1, 1)
             filter_room_embedding = room_embedding * room_tensor[0, :, :].unsqueeze(0).unsqueeze(1)
             embedding_index = torch.arange(self.room_embedding_width).view(1, -1, 1, 1)
             embeddings[torch.arange(n).view(-1, 1, 1, 1), embedding_index, index_x, index_y] += filter_room_embedding
 
+            room_infos.append((room_tensor, index_x, index_y))
+
         out = torch.cat([full_map, embeddings], dim=1)
+        return out, room_infos
+
+    def decode_map(self, X, room_info):
+        n = X.shape[0]
+        room_data_list = []
+        for (room_tensor, index_x, index_y) in room_info:
+            channel_index = torch.arange(X.shape[1]).view(1, -1, 1, 1)
+            room_data = X[torch.arange(n).view(-1, 1, 1, 1), channel_index, index_x, index_y] * room_tensor[0, :, :]
+            # room_data_list.append(torch.sum(room_data, dim=[2, 3]))
+            room_data_list.append(torch.sum(room_data, dim=[2, 3]) / torch.sum(room_tensor[0, :, :]))
+        out = torch.stack(room_data_list, dim=2)
         return out
 
-    def forward(self, X):
-        X = self.encode_map(X)
-        for layer in self.sequential:
+    def forward(self, room_positions):
+        X, room_info = self.encode_map(room_positions)
+        for layer in self.map_sequential:
+            # print(X.shape, layer)
             X = layer(X)
-            # print(layer, X)
-        # out = self.sequential(E)
+        X = self.decode_map(X, room_info)
+        for layer in self.room_sequential:
+            # print(X.shape, layer)
+            X = layer(X)
+        if self.fc_sequential is not None:
+            X = torch.sum(X, dim=2)
+            for layer in self.fc_sequential:
+                X = layer(X)
+        else:
+            X = torch.transpose(X, 1, 2).reshape(X.shape[0], -1)
         return X
 
 
@@ -231,30 +293,40 @@ class TrainingSession():
 
 
 import maze_builder.crateria
-num_envs = 128
-rooms = maze_builder.crateria.rooms[:5]
-action_radius = 1
+
+# num_envs = 1
+num_envs = 256
+rooms = maze_builder.crateria.rooms[6:9]
+action_radius = 2
 episode_length = 128
-display_freq = 3
+display_freq = 1
+map_x = 8
+map_y = 5
 env = MazeBuilderEnv(rooms,
-                     map_x=15,
-                     map_y=15,
+                     map_x=map_x,
+                     map_y=map_y,
                      action_radius=action_radius,
                      num_envs=num_envs,
                      episode_length=episode_length)
 
-policy_network = MainNetwork(conv_channels=[16, 32, 64],
-                                kernel_size=[5, 5, 5], fc_hidden_widths=[128],
-                                room_embedding_width=0,
-                                rooms=rooms, map_x=15, map_y=15,
-                                output_width=env.num_actions)
-value_network = MainNetwork(conv_channels=[16, 32, 64],
-                               kernel_size=[5, 5, 5], fc_hidden_widths=[64],
-                               room_embedding_width=0,
-                               rooms=rooms, map_x=15, map_y=15,
-                               output_width=1)
-value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.001, betas=(0.9, 0.999), eps=1e-15)
-policy_optimizer = torch.optim.Adam(policy_network.parameters(), lr=0.00005, betas=(0.9, 0.999), eps=1e-15)
+policy_network = MainNetwork(map_channels=[32, 32],
+                             kernel_size=[7, 7], room_channels=[32],
+                             fc_channels=None,
+                             room_embedding_width=0,
+                             rooms=rooms, map_x=map_x, map_y=map_y,
+                             output_width=env.actions_per_room)
+value_network = MainNetwork(map_channels=[32, 32],
+                            kernel_size=[7, 7], room_channels=[32],
+                            fc_channels=[32],
+                            room_embedding_width=0,
+                            rooms=rooms, map_x=map_x, map_y=map_y,
+                            output_width=1)
+policy_network.room_sequential[-1].weight.data[:, :] = 0.0
+policy_network.room_sequential[-1].bias.data[:] = 0.0
+value_network.fc_sequential[-1].weight.data[:, :] = 0.0
+value_network.fc_sequential[-1].bias.data[:] = 0.0
+value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.0002, betas=(0.1, 0.999), eps=1e-15)
+policy_optimizer = torch.optim.Adam(policy_network.parameters(), lr=0.00002, betas=(0.1, 0.999), eps=1e-15)
 
 # value_network.lin_layers[-1].weight.data[:, :] = 0.0
 # policy_network.lin_layers[-1].weight.data[:, :] = 0.0
@@ -274,20 +346,19 @@ session = TrainingSession(env,
                           value_optimizer=value_optimizer,
                           policy_optimizer=policy_optimizer)
 
-# session.policy_optimizer.param_groups[0]['lr'] = 0.00001
-# session.value_optimizer.param_groups[0]['lr'] = 0.0002
+session.policy_optimizer.param_groups[0]['lr'] = 0.00001
+# session.value_optimizer.param_groups[0]['lr'] = 0.0001
 for i in range(10000):
     reward, value_loss, policy_loss, policy_variation = session.train_round(
         num_episodes=1,
         episode_length=episode_length,
-        horizon=32,
+        horizon=8,
         batch_size=256,
         weight_decay=0.0,
         policy_variation_penalty=0.002,
         render=i % display_freq == 0)
     logging.info("{}: reward={:.3f}, value_loss={:.3f}, policy_loss={:.5f}, policy_variation={:.5f}".format(
         i, reward, value_loss, policy_loss, policy_variation))
-
 
 state = env.reset()
 for j in range(episode_length):
@@ -300,3 +371,13 @@ for j in range(episode_length):
     action = torch.clamp(torch.searchsorted(cumul_p, rnd), max=session.env.num_actions - 1)
     reward, state = session.env.step(action.squeeze(1))
     session.env.render()
+
+#
+session.env.render()
+out, room_infos = value_network.encode_map(env.state)
+# r = value_network.decode_map(out, room_infos)
+
+# session.env.render()
+# b = value_network._compute_room_boundaries(env.room_tensors[1][0, :, :])
+# print(env.room_tensors[1][0,:, :].t())
+# print(b[3, :, :].t())
