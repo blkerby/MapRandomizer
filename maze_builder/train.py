@@ -17,6 +17,7 @@ import collections
 import logging
 import math
 from maze_builder.env import MazeBuilderEnv
+from maze_builder.types import Room
 import maze_builder.crateria
 import time
 from maze_builder.model_components import L1LinearScaled
@@ -32,38 +33,72 @@ logging.basicConfig(format='%(asctime)s %(message)s',
                               logging.StreamHandler()])
 torch.autograd.set_detect_anomaly(True)
 
+
+class GlobalAvgPool2d(torch.nn.Module):
+    def forward(self, X):
+        return torch.mean(X, dim=[2, 3])
+
+
 class MainNetwork(torch.nn.Module):
-    def __init__(self, widths):
+    def __init__(self, conv_channels: List[int], kernel_size: List[int],
+                 fc_hidden_widths: List[int],
+                 room_embedding_width: int, rooms: List[Room],
+                 map_x: int, map_y: int, output_width: int):
         super().__init__()
-        self.depth = len(widths) - 1
-        self.lin_layers = torch.nn.ModuleList([])
-        self.act_layers = torch.nn.ModuleList([])
-        arity = 1
-        for i in range(self.depth):
-            if i != self.depth - 1:
-                self.lin_layers.append(torch.nn.Linear(widths[i], widths[i + 1] * arity))
-                # self.lin_layers.append(L1LinearScaled(widths[i], widths[i + 1] * arity))
-                # self.act_layers.append(MinOut(arity))
-                self.act_layers.append(torch.nn.ReLU())
-                # self.act_layers.append(torch.nn.PReLU(widths[i + 1]))
-            else:
-                self.lin_layers.append(torch.nn.Linear(widths[i], widths[i + 1]))
-                # self.lin_layers.append(L1LinearScaled(widths[i], widths[i + 1]))
+        self.rooms = rooms
+        self.map_x = map_x
+        self.map_y = map_y
+        self.room_embedding_width = room_embedding_width
+        self.room_embedding = torch.nn.Parameter(torch.randn([len(rooms), room_embedding_width], dtype=torch.float32))
+        self.conv_widths = [5 + room_embedding_width] + conv_channels
+        self.fc_widths = [conv_channels[-1]] + fc_hidden_widths
+        layers = []
+        for i in range(len(conv_channels)):
+            layers.append(torch.nn.Conv2d(self.conv_widths[i], self.conv_widths[i + 1],
+                                          kernel_size=(kernel_size[i], kernel_size[i]), padding=kernel_size[i] // 2))
+            layers.append(torch.nn.ReLU())
+            layers.append(torch.nn.MaxPool2d(3, stride=2))
+        layers.append(GlobalAvgPool2d())
+        for i in range(len(fc_hidden_widths)):
+            layers.append(torch.nn.Linear(self.fc_widths[i], self.fc_widths[i + 1]))
+            layers.append(torch.nn.ReLU())
+        layers.append(torch.nn.Linear(self.fc_widths[-1], output_width))
+        self.sequential = torch.nn.Sequential(*layers)
+
+    def encode_map(self, room_positions):
+        n = room_positions.shape[0]
+        room_positions = room_positions.view(n, -1, 2)
+        full_map = torch.zeros([n, 5, self.map_x, self.map_y], dtype=torch.float32)
+        embeddings = torch.zeros([n, self.room_embedding_width, self.map_x, self.map_y], dtype=torch.float32)
+        for i, room in enumerate(self.rooms):
+            room_tensor = torch.stack([torch.tensor(room.map).t(),
+                         torch.tensor(room.door_left).t(),
+                         torch.tensor(room.door_right).t(),
+                         torch.tensor(room.door_down).t(),
+                         torch.tensor(room.door_up).t()], dim=0)
+            room_x = room_positions[:, i, 0]
+            room_y = room_positions[:, i, 1]
+            width = room_tensor.shape[1]
+            height = room_tensor.shape[2]
+            index_x = torch.arange(width).view(1, 1, -1, 1) + room_x.view(-1, 1, 1, 1)
+            index_y = torch.arange(height).view(1, 1, 1, -1) + room_y.view(-1, 1, 1, 1)
+            full_map[torch.arange(n).view(-1, 1, 1, 1), torch.arange(5).view(1, -1, 1, 1), index_x, index_y] += room_tensor.unsqueeze(0)
+
+            room_embedding = self.room_embedding[i, :].view(1, -1, 1, 1)
+            filter_room_embedding = room_embedding * room_tensor[0, :, :].unsqueeze(0).unsqueeze(1)
+            embedding_index = torch.arange(self.room_embedding_width).view(1, -1, 1, 1)
+            embeddings[torch.arange(n).view(-1, 1, 1, 1), embedding_index, index_x, index_y] += filter_room_embedding
+
+        out = torch.cat([full_map, embeddings], dim=1)
+        return out
 
     def forward(self, X):
-        X = X.to(torch.float32).view(X.shape[0], -1)
-        for i in range(self.depth):
-            X = self.lin_layers[i](X)
-            if i != self.depth - 1:
-                X = self.act_layers[i](X)
+        X = self.encode_map(X)
+        for layer in self.sequential:
+            X = layer(X)
+            # print(layer, X)
+        # out = self.sequential(E)
         return X
-
-    def decay(self, decay):
-        if decay == 0.0:
-            return
-        for mod in self.modules():
-            if isinstance(mod, torch.nn.Linear):
-                mod.weight.data *= 1 - decay
 
 
 class TrainingSession():
@@ -161,7 +196,7 @@ class TrainingSession():
             value_loss.backward()
             torch.nn.utils.clip_grad_norm_(self.value_network.parameters(), 1e-5)
             self.value_optimizer.step()
-            self.value_network.decay(weight_decay * self.value_optimizer.param_groups[0]['lr'])
+            # self.value_network.decay(weight_decay * self.value_optimizer.param_groups[0]['lr'])
             total_value_loss += value_loss.item()
 
         # Make a second pass through the data, updating the policy network
@@ -187,7 +222,7 @@ class TrainingSession():
             (policy_loss + policy_variation_loss).backward()
             torch.nn.utils.clip_grad_norm_(self.policy_network.parameters(), 1e-5)
             self.policy_optimizer.step()
-            self.policy_network.decay(weight_decay * self.policy_optimizer.param_groups[0]['lr'])
+            # self.policy_network.decay(weight_decay * self.policy_optimizer.param_groups[0]['lr'])
             total_policy_loss += policy_loss.item()
             total_policy_variation += policy_variation.item()
 
@@ -196,7 +231,7 @@ class TrainingSession():
 
 
 import maze_builder.crateria
-num_envs = 1024
+num_envs = 128
 rooms = maze_builder.crateria.rooms[:5]
 action_radius = 1
 episode_length = 128
@@ -208,17 +243,25 @@ env = MazeBuilderEnv(rooms,
                      num_envs=num_envs,
                      episode_length=episode_length)
 
-value_network = MainNetwork([len(rooms) * 2, 256, 256, 1])
-policy_network = MainNetwork([len(rooms) * 2, 64, 64, env.num_actions])
-value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.0002, betas=(0.9, 0.999), eps=1e-15)
-policy_optimizer = torch.optim.Adam(policy_network.parameters(), lr=0.00001, betas=(0.9, 0.999), eps=1e-15)
+policy_network = MainNetwork(conv_channels=[16, 32, 64],
+                                kernel_size=[5, 5, 5], fc_hidden_widths=[128],
+                                room_embedding_width=0,
+                                rooms=rooms, map_x=15, map_y=15,
+                                output_width=env.num_actions)
+value_network = MainNetwork(conv_channels=[16, 32, 64],
+                               kernel_size=[5, 5, 5], fc_hidden_widths=[64],
+                               room_embedding_width=0,
+                               rooms=rooms, map_x=15, map_y=15,
+                               output_width=1)
+value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.001, betas=(0.9, 0.999), eps=1e-15)
+policy_optimizer = torch.optim.Adam(policy_network.parameters(), lr=0.00005, betas=(0.9, 0.999), eps=1e-15)
 
-value_network.lin_layers[-1].weight.data[:, :] = 0.0
-policy_network.lin_layers[-1].weight.data[:, :] = 0.0
-# value_network.lin_layers[-1].weights_pos_neg.param.data[:, :] = 0.0
-# policy_network.lin_layers[-1].weights_pos_neg.param.data[:, :] = 0.0
-value_network.lin_layers[-1].bias.data[:] = 0.0
-policy_network.lin_layers[-1].bias.data[:] = 0.0
+# value_network.lin_layers[-1].weight.data[:, :] = 0.0
+# policy_network.lin_layers[-1].weight.data[:, :] = 0.0
+# # value_network.lin_layers[-1].weights_pos_neg.param.data[:, :] = 0.0
+# # policy_network.lin_layers[-1].weights_pos_neg.param.data[:, :] = 0.0
+# value_network.lin_layers[-1].bias.data[:] = 0.0
+# policy_network.lin_layers[-1].bias.data[:] = 0.0
 print(value_network)
 print(value_optimizer)
 print(policy_network)
@@ -238,9 +281,9 @@ for i in range(10000):
         num_episodes=1,
         episode_length=episode_length,
         horizon=32,
-        batch_size=1024,
+        batch_size=256,
         weight_decay=0.0,
-        policy_variation_penalty=0.0001,
+        policy_variation_penalty=0.002,
         render=i % display_freq == 0)
     logging.info("{}: reward={:.3f}, value_loss={:.3f}, policy_loss={:.5f}, policy_variation={:.5f}".format(
         i, reward, value_loss, policy_loss, policy_variation))
