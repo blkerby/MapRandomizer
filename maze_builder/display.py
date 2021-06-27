@@ -36,22 +36,22 @@ class MapDisplay:
                 x1 = x0 + self.tile_width
                 y1 = y0 + self.tile_width
                 if room.map[i][j] == 1:
-                    if room.door_left is not None and room.door_left[i][j] == 1:
-                        self.canvas.create_line(x0 + 1, y0, x0 + 1, y1, fill='#000', dash=(3, 5), width=2, dashoffset=2)
+                    if room.door_left[i][j] == 1:
+                        self.canvas.create_line(x0 + 1, y0, x0 + 1, y1, fill='#fff', width=3)
                     elif j == 0 or room.map[i][j - 1] == 0:
-                        self.canvas.create_line(x0, y0, x0, y1, fill='#000', width=1)
-                    if room.door_right is not None and room.door_right[i][j] == 1:
-                        self.canvas.create_line(x1, y0, x1, y1, fill='#000', dash=(3, 5), width=2, dashoffset=2)
+                        self.canvas.create_line(x0 + 1, y0, x0 + 1, y1, fill='#000', width=3)
+                    if room.door_right[i][j] == 1:
+                        self.canvas.create_line(x1 - 2, y0, x1 - 2, y1, fill='#fff', width=3)
                     elif j == room.width - 1 or room.map[i][j + 1] == 0:
-                        self.canvas.create_line(x1, y0, x1, y1, fill='#000', width=1)
-                    if room.door_up is not None and room.door_up[i][j] == 1:
-                        self.canvas.create_line(x0, y0 + 1, x1, y0 + 1, fill='#000', dash=(3, 5), width=2, dashoffset=2)
+                        self.canvas.create_line(x1 - 2, y0, x1 - 2, y1, fill='#000', width=3)
+                    if room.door_up[i][j] == 1:
+                        self.canvas.create_line(x0, y0 + 1, x1, y0 + 1, fill='#fff', width=3)
                     elif i == 0 or room.map[i - 1][j] == 0:
-                        self.canvas.create_line(x0, y0, x1, y0, fill='#000', width=1)
-                    if room.door_down is not None and room.door_down[i][j] == 1:
-                        self.canvas.create_line(x0, y1, x1, y1, fill='#000', dash=(3, 5), width=2, dashoffset=2)
+                        self.canvas.create_line(x0, y0 + 1, x1, y0 + 1, fill='#000', width=3)
+                    if room.door_down[i][j] == 1:
+                        self.canvas.create_line(x0, y1 - 2, x1, y1 - 2, fill='#fff', width=3)
                     elif i == room.height - 1 or room.map[i + 1][j] == 0:
-                        self.canvas.create_line(x0, y1, x1, y1, fill='#000', width=1)
+                        self.canvas.create_line(x0, y1 - 2, x1, y1 - 2, fill='#000', width=3)
 
 
     def _display_rooms_interior(self, rooms: List[Room], xs: List[int], ys: List[int], colors):
@@ -74,9 +74,11 @@ class MapDisplay:
                 y0 = self.margin + y * self.tile_width
                 x1 = x0 + self.tile_width
                 y1 = y0 + self.tile_width
-                self.canvas.create_rectangle(x0, y0, x1, y1, fill=color, outline=color)
+                self.canvas.create_rectangle(x0, y0, x1 - 1, y1 - 1, fill=color, outline=color)
 
     def display(self, rooms: List[Room], xs: List[int], ys: List[int], colors: List[Tuple[int, int, int]]):
+        for room in rooms:
+            room.populate()
         self.canvas.delete("all")
         self.canvas.create_rectangle(self.margin, self.margin, self.width - self.margin, self.height - self.margin,
                                      outline='#ccc')

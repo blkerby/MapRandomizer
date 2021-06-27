@@ -325,8 +325,8 @@ policy_network.room_sequential[-1].weight.data[:, :] = 0.0
 policy_network.room_sequential[-1].bias.data[:] = 0.0
 value_network.fc_sequential[-1].weight.data[:, :] = 0.0
 value_network.fc_sequential[-1].bias.data[:] = 0.0
-value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.0002, betas=(0.1, 0.999), eps=1e-15)
-policy_optimizer = torch.optim.Adam(policy_network.parameters(), lr=0.00002, betas=(0.1, 0.999), eps=1e-15)
+value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.0005, betas=(0.1, 0.999), eps=1e-15)
+policy_optimizer = torch.optim.Adam(policy_network.parameters(), lr=0.00005, betas=(0.1, 0.999), eps=1e-15)
 
 # value_network.lin_layers[-1].weight.data[:, :] = 0.0
 # policy_network.lin_layers[-1].weight.data[:, :] = 0.0
@@ -346,7 +346,7 @@ session = TrainingSession(env,
                           value_optimizer=value_optimizer,
                           policy_optimizer=policy_optimizer)
 
-session.policy_optimizer.param_groups[0]['lr'] = 0.00002
+# session.policy_optimizer.param_groups[0]['lr'] = 0.00002
 # session.value_optimizer.param_groups[0]['lr'] = 0.0001
 for i in range(10000):
     reward, value_loss, policy_loss, policy_variation = session.train_round(
@@ -355,7 +355,7 @@ for i in range(10000):
         horizon=8,
         batch_size=256,
         weight_decay=0.0,
-        policy_variation_penalty=0.002,
+        policy_variation_penalty=0.01,
         render=i % display_freq == 0)
     logging.info("{}: reward={:.3f}, value_loss={:.3f}, policy_loss={:.5f}, policy_variation={:.5f}".format(
         i, reward, value_loss, policy_loss, policy_variation))

@@ -38,7 +38,7 @@ class MazeBuilderEnv:
         self.step_number = 0
 
         self.map_display = None
-        self.color_map = {0: (0xd0, 0x90, 0x90)}
+        self.color_map = {0: (0xff, 0xc0, 0xc0)}
 
     def reset(self):
         self.state = torch.randint(2 ** 30, [self.num_envs, len(self.rooms), 2]) % self.cap.unsqueeze(0)
