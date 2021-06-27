@@ -36,28 +36,23 @@ class MapDisplay:
                 x1 = x0 + self.tile_width
                 y1 = y0 + self.tile_width
                 if room.map[i][j] == 1:
-                    if i == 0 or room.map[i - 1][j] == 0:
-                        self.canvas.create_line(x0, y0, x1, y0, fill='#000')
-                    if j == 0 or room.map[i][j - 1] == 0:
-                        self.canvas.create_line(x0, y0, x0, y1, fill='#000')
-                    if i == room.height - 1 or room.map[i + 1][j] == 0:
-                        self.canvas.create_line(x0, y1, x1, y1, fill='#000')
-                    if j == room.width - 1 or room.map[i][j + 1] == 0:
-                        self.canvas.create_line(x1, y0, x1, y1, fill='#000')
+                    if room.door_left is not None and room.door_left[i][j] == 1:
+                        self.canvas.create_line(x0 + 1, y0, x0 + 1, y1, fill='#000', dash=(3, 5), width=2, dashoffset=2)
+                    elif j == 0 or room.map[i][j - 1] == 0:
+                        self.canvas.create_line(x0, y0, x0, y1, fill='#000', width=1)
+                    if room.door_right is not None and room.door_right[i][j] == 1:
+                        self.canvas.create_line(x1, y0, x1, y1, fill='#000', dash=(3, 5), width=2, dashoffset=2)
+                    elif j == room.width - 1 or room.map[i][j + 1] == 0:
+                        self.canvas.create_line(x1, y0, x1, y1, fill='#000', width=1)
+                    if room.door_up is not None and room.door_up[i][j] == 1:
+                        self.canvas.create_line(x0, y0 + 1, x1, y0 + 1, fill='#000', dash=(3, 5), width=2, dashoffset=2)
+                    elif i == 0 or room.map[i - 1][j] == 0:
+                        self.canvas.create_line(x0, y0, x1, y0, fill='#000', width=1)
+                    if room.door_down is not None and room.door_down[i][j] == 1:
+                        self.canvas.create_line(x0, y1, x1, y1, fill='#000', dash=(3, 5), width=2, dashoffset=2)
+                    elif i == room.height - 1 or room.map[i + 1][j] == 0:
+                        self.canvas.create_line(x0, y1, x1, y1, fill='#000', width=1)
 
-    def _display_room_doors(self, room: Room, x: int, y: int):
-        for i in range(room.height):
-            for j in range(room.width):
-                x0 = self.margin + (x + j + 0.5) * self.tile_width
-                y0 = self.margin + (y + i + 0.5) * self.tile_width
-                if room.door_left is not None and room.door_left[i][j] == 1:
-                    self.canvas.create_text(x0, y0, text=LEFT_ARROW, font=self.font)
-                if room.door_right is not None and room.door_right[i][j] == 1:
-                    self.canvas.create_text(x0, y0, text=RIGHT_ARROW, font=self.font)
-                if room.door_up is not None and room.door_up[i][j] == 1:
-                    self.canvas.create_text(x0, y0, text=UP_ARROW, font=self.font)
-                if room.door_down is not None and room.door_down[i][j] == 1:
-                    self.canvas.create_text(x0, y0, text=DOWN_ARROW, font=self.font)
 
     def _display_rooms_interior(self, rooms: List[Room], xs: List[int], ys: List[int], colors):
         inverted_colors = [[[0, 0, 0] for _ in range(self.tile_x)] for _ in range(self.tile_y)]
@@ -88,7 +83,6 @@ class MapDisplay:
         self._display_rooms_interior(rooms, xs, ys, colors)
         for k, room in enumerate(rooms):
             self._display_room_borders(room, xs[k], ys[k])
-            self._display_room_doors(room, xs[k], ys[k])
         self.root.update_idletasks()
 
 # map_width = 60

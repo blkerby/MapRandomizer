@@ -296,12 +296,12 @@ import maze_builder.crateria
 
 # num_envs = 1
 num_envs = 256
-rooms = maze_builder.crateria.rooms[6:9]
+rooms = maze_builder.crateria.rooms[:10]
 action_radius = 2
 episode_length = 128
 display_freq = 1
-map_x = 8
-map_y = 5
+map_x = 15
+map_y = 15
 env = MazeBuilderEnv(rooms,
                      map_x=map_x,
                      map_y=map_y,
@@ -309,14 +309,14 @@ env = MazeBuilderEnv(rooms,
                      num_envs=num_envs,
                      episode_length=episode_length)
 
-policy_network = MainNetwork(map_channels=[32, 32],
-                             kernel_size=[7, 7], room_channels=[32],
+policy_network = MainNetwork(map_channels=[16],
+                             kernel_size=[5], room_channels=[32],
                              fc_channels=None,
                              room_embedding_width=0,
                              rooms=rooms, map_x=map_x, map_y=map_y,
                              output_width=env.actions_per_room)
-value_network = MainNetwork(map_channels=[32, 32],
-                            kernel_size=[7, 7], room_channels=[32],
+value_network = MainNetwork(map_channels=[16],
+                            kernel_size=[5], room_channels=[32],
                             fc_channels=[32],
                             room_embedding_width=0,
                             rooms=rooms, map_x=map_x, map_y=map_y,
@@ -346,7 +346,7 @@ session = TrainingSession(env,
                           value_optimizer=value_optimizer,
                           policy_optimizer=policy_optimizer)
 
-session.policy_optimizer.param_groups[0]['lr'] = 0.00001
+session.policy_optimizer.param_groups[0]['lr'] = 0.00002
 # session.value_optimizer.param_groups[0]['lr'] = 0.0001
 for i in range(10000):
     reward, value_loss, policy_loss, policy_variation = session.train_round(
