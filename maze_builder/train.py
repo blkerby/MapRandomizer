@@ -222,8 +222,8 @@ class TrainingSession():
                                                     render=render)
 
         # Compute windowed rewards and trim off the end of episodes where they are not determined.
-        cumul_reward = torch.cat([torch.zeros_like(reward[:, 0:1, :]), torch.cumsum(reward, dim=1)], dim=1)
-        windowed_reward = (cumul_reward[:, horizon:, :] - cumul_reward[:, :-horizon, :]) / horizon
+        cumul_reward = torch.cat([torch.zeros_like(reward[:, 0:1, :, :]), torch.cumsum(reward, dim=1)], dim=1)
+        windowed_reward = (cumul_reward[:, horizon:, :, :] - cumul_reward[:, :-horizon, :, :]) / horizon
         state0 = state[:, :-horizon, :, :]
         state1 = state[:, 1:(-horizon + 1), :, :, :]
         action = action[:, :(-horizon + 1), :]

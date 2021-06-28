@@ -1,14 +1,12 @@
 from typing import List
 import numpy as np
-from maze_builder.reward import compute_reward
 from maze_builder.types import Room
 from maze_builder.display import MapDisplay
 import torch
 
 
 class MazeBuilderEnv:
-    def __init__(self, rooms: List[Room], map_x: int, map_y: int, action_radius: int,
-                 num_envs: int, episode_length: int):
+    def __init__(self, rooms: List[Room], map_x: int, map_y: int, action_radius: int, num_envs: int):
         for room in rooms:
             room.populate()
 
@@ -17,7 +15,6 @@ class MazeBuilderEnv:
         self.map_y = map_y
         self.action_radius = action_radius
         self.num_envs = num_envs
-        self.episode_length = episode_length
 
         self.room_tensors = [torch.stack([torch.tensor(room.map).t(),
                                           torch.tensor(room.door_left).t(),
@@ -28,10 +25,9 @@ class MazeBuilderEnv:
         self.cap_x = torch.tensor([map_x - room.width for room in rooms])
         self.cap_y = torch.tensor([map_y - room.height for room in rooms])
         self.cap = torch.stack([self.cap_x, self.cap_y], dim=1)
-        assert torch.all(self.cap > 0)  # Ensure map is big enough for largest room in each direction
+        assert torch.all(self.cap >= 0)  # Ensure map is big enough for largest room in each direction
         self.action_width = 2 * action_radius + 1
-        self.actions_per_room = self.action_width ** 2 - 1
-        self.num_actions = len(rooms) * self.actions_per_room
+        self.actions_per_room = self.action_width ** 2
 
         self.state = torch.empty([num_envs, len(rooms), 2], dtype=torch.int64)
         self.reset()
@@ -41,29 +37,22 @@ class MazeBuilderEnv:
         self.color_map = {0: (0xd0, 0x90, 0x90)}
 
     def reset(self):
-        self.state = torch.randint(2 ** 30, [self.num_envs, len(self.rooms), 2]) % self.cap.unsqueeze(0)
+        self.state = torch.randint(2 ** 30, [self.num_envs, len(self.rooms), 2]) % (self.cap.unsqueeze(0) + 1)
+        self.step_number = 0
         return self.state
 
     def step(self, action: torch.tensor):
         # Decompose the raw action into its components (room_index and displacement):
-        room_index = action // self.actions_per_room
-        displacement_raw = action % self.actions_per_room
-        displacement_coded = torch.where(displacement_raw >= (self.action_width ** 2 - 1) // 2,
-                                   displacement_raw + 1,
-                                   displacement_raw)
-        displacement_x = displacement_coded % self.action_width - self.action_radius
-        displacement_y = displacement_coded // self.action_width - self.action_radius
-        displacement = torch.stack([displacement_x, displacement_y], dim=1)
+        displacement_x = action % self.action_width - self.action_radius
+        displacement_y = action // self.action_width - self.action_radius
+        displacement = torch.stack([displacement_x, displacement_y], dim=2)
 
         # Update the state
-        old_room_state = self.state[torch.arange(self.num_envs), room_index, :]
-        new_room_state = torch.minimum(torch.clamp(old_room_state + displacement, min=0), self.cap[room_index, :])
         old_state = self.state
-        new_state = old_state.clone()
-        new_state[torch.arange(self.num_envs), room_index, :] = new_room_state
+        new_state = torch.minimum(torch.clamp(self.state + displacement, min=0), self.cap.unsqueeze(0))
         self.state = new_state
-        reward = self._compute_reward(old_state, new_state, action)
-        self.step_number = (self.step_number + 1) % self.episode_length
+        reward = self._compute_reward_by_room(old_state, new_state, action)
+        self.step_number += 1
         return reward, self.state
 
     def _compute_map(self, state: torch.tensor) -> torch.tensor:
@@ -167,11 +156,10 @@ class MazeBuilderEnv:
 
     def _compute_reward_by_room(self, old_state, new_state, action):
         full_map = self._compute_map(new_state)
-        intersection_cost = self._compute_intersection_cost_by_room(full_map)
-        # door_cost = self._compute_door_cost(full_map)
-        total_cost = intersection_cost #+ door_cost
+        intersection_cost = self._compute_intersection_cost_by_room(full_map, new_state)
+        door_cost = self._compute_door_cost_by_room(full_map, new_state)
+        total_cost = intersection_cost + door_cost
         return -total_cost
-
 
     def render(self, env_index=0):
         if self.map_display is None:
@@ -184,37 +172,32 @@ class MazeBuilderEnv:
     def close(self):
         pass
 
-import maze_builder.crateria
-num_envs = 1
-rooms = maze_builder.crateria.rooms[:3]
-action_radius = 2
-
+# import maze_builder.crateria
+# import time
+# num_envs = 1
+# rooms = maze_builder.crateria.rooms[:3]
+# action_radius = 1
+#
+# env = MazeBuilderEnv(rooms,
+#                      map_x=10,
+#                      map_y=10,
+#                      action_radius=action_radius,
+#                      num_envs=num_envs)
+#
+# for _ in range(100):
+#     env.render()
+#     action = torch.randint(env.actions_per_room, [num_envs, len(rooms)])
+#     env.step(action)
+#     time.sleep(0.5)
 # while True:
-    env = MazeBuilderEnv(rooms,
-                         map_x=12,
-                         map_y=12,
-                         action_radius=action_radius,
-                         num_envs=num_envs,
-                         episode_length=100)
-    m = env._compute_map(env.state)
-# print(env._compute_intersection_cost(m))
-# print(env._compute_intersection_cost_by_room(m, env.state))
-#     if env._compute_door_cost(m) not in (6, 8):
+#     m = env._compute_map(env.state)
+#     # print(env.state[0, 2, :])
+# # print(env._compute_intersection_cost(m))
+# # print(env._compute_intersection_cost_by_room(m, env.state))
+#     if env._compute_door_cost(m) < 8:
 #         break
-print(env._compute_door_cost(m))
-print(env._compute_door_cost_by_room(m, env.state))
-
-env.render()
-
+#
+# m = env._compute_map(env.state)
 # print(env._compute_door_cost(m))
-# env.map_display.root.mainloop()
-
-# # for i in range(200):
-# #     print(i)
-# #     env.render(1)
-# #     import time
-# #     time.sleep(0.1)
-# #     # env.staggered_reset()
-# #     action = torch.randint(env.num_actions, [num_envs])
-# #     env.step(action)
-# #
+# print(env._compute_door_cost_by_room(m, env.state))
+# env.render()
