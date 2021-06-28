@@ -41,7 +41,6 @@ class GlobalAvgPool2d(torch.nn.Module):
 class MainNetwork(torch.nn.Module):
     def __init__(self, map_channels: List[int], kernel_size: List[int],
                  room_channels: List[int],
-                 fc_channels: Optional[List[int]],
                  room_embedding_width: int, rooms: List[Room],
                  map_x: int, map_y: int, output_width: int):
         super().__init__()
@@ -55,6 +54,7 @@ class MainNetwork(torch.nn.Module):
 
         map_layers = []
         for i in range(len(map_channels)):
+            assert kernel_size[i] % 2 == 1
             map_layers.append(torch.nn.Conv2d(self.conv_widths[i], self.conv_widths[i + 1],
                                               kernel_size=(kernel_size[i], kernel_size[i]),
                                               padding=kernel_size[i] // 2))
@@ -64,18 +64,7 @@ class MainNetwork(torch.nn.Module):
         for i in range(len(room_channels)):
             room_layers.append(torch.nn.Conv1d(self.room_channels[i], self.room_channels[i + 1], kernel_size=(1,)))
             room_layers.append(torch.nn.ReLU())
-
-        if fc_channels is not None:
-            fc_layers = []
-            fc_widths = [room_channels[-1]] + fc_channels
-            for i in range(len(fc_channels)):
-                fc_layers.append(torch.nn.Linear(fc_widths[i], fc_widths[i + 1]))
-                fc_layers.append(torch.nn.ReLU())
-            fc_layers.append(torch.nn.Linear(fc_widths[-1], output_width))
-            self.fc_sequential = torch.nn.Sequential(*fc_layers)
-        else:
-            self.fc_sequential = None
-            room_layers.append(torch.nn.Conv1d(self.room_channels[-1], output_width, kernel_size=(1,)))
+        room_layers.append(torch.nn.Conv1d(self.room_channels[-1], output_width, kernel_size=(1,)))
 
         self.map_sequential = torch.nn.Sequential(*map_layers)
         self.room_sequential = torch.nn.Sequential(*room_layers)
@@ -148,18 +137,11 @@ class MainNetwork(torch.nn.Module):
     def forward(self, room_positions):
         X, room_info = self.encode_map(room_positions)
         for layer in self.map_sequential:
-            # print(X.shape, layer)
             X = layer(X)
         X = self.decode_map(X, room_info)
         for layer in self.room_sequential:
-            # print(X.shape, layer)
             X = layer(X)
-        if self.fc_sequential is not None:
-            X = torch.sum(X, dim=2)
-            for layer in self.fc_sequential:
-                X = layer(X)
-        else:
-            X = torch.transpose(X, 1, 2).reshape(X.shape[0], -1)
+        X = torch.transpose(X, 1, 2)
         return X
 
 
@@ -190,12 +172,12 @@ class TrainingSession():
                     self.env.render()
                 with torch.no_grad():
                     raw_p = self.policy_network(state)
-                log_p = raw_p - torch.logsumexp(raw_p, dim=1, keepdim=True)
+                log_p = raw_p - torch.logsumexp(raw_p, dim=2, keepdim=True)
                 p = torch.exp(log_p)
-                cumul_p = torch.cumsum(p, dim=1)
-                rnd = torch.rand([self.env.num_envs, 1])
-                action = torch.clamp(torch.searchsorted(cumul_p, rnd), max=self.env.num_actions - 1)
-                reward, state = self.env.step(action.squeeze(1))
+                cumul_p = torch.cumsum(p, dim=2)
+                rnd = torch.rand([self.env.num_envs, len(self.env.rooms), 1])
+                action = torch.clamp(torch.searchsorted(cumul_p, rnd), max=self.env.actions_per_room - 1)
+                reward, state = self.env.step(action.squeeze(2))
                 episode_state_list.append(state)
                 episode_action_list.append(action)
                 episode_reward_list.append(reward)
@@ -224,23 +206,23 @@ class TrainingSession():
         # Compute windowed rewards and trim off the end of episodes where they are not determined.
         cumul_reward = torch.cat([torch.zeros_like(reward[:, 0:1, :, :]), torch.cumsum(reward, dim=1)], dim=1)
         windowed_reward = (cumul_reward[:, horizon:, :, :] - cumul_reward[:, :-horizon, :, :]) / horizon
-        state0 = state[:, :-horizon, :, :]
+        state0 = state[:, :-horizon, :, :, :]
         state1 = state[:, 1:(-horizon + 1), :, :, :]
-        action = action[:, :(-horizon + 1), :]
+        action = action[:, :(-horizon + 1), :, :]
 
         # Flatten the data
         n = num_episodes * (episode_length - horizon + 1) * self.env.num_envs
         state0 = state0.view(n, len(self.env.rooms), 2)
         state1 = state1.view(n, len(self.env.rooms), 2)
-        action = action.view(n)
-        windowed_reward = windowed_reward.view(n)
+        action = action.view(n, len(self.env.rooms))
+        windowed_reward = windowed_reward.view(n, len(self.env.rooms))
 
         # Shuffle the data
         perm = torch.randperm(n)
         state0 = state0[perm, :, :]
         state1 = state1[perm, :, :]
-        action = action[perm]
-        windowed_reward = windowed_reward[perm]
+        action = action[perm, :]
+        windowed_reward = windowed_reward[perm, :]
 
         num_batches = n // batch_size
 
@@ -250,8 +232,8 @@ class TrainingSession():
             start = i * batch_size
             end = (i + 1) * batch_size
             state0_batch = state0[start:end, :, :]
-            windowed_reward_batch = windowed_reward[start:end]
-            value0 = self.value_network(state0_batch)[:, 0]
+            windowed_reward_batch = windowed_reward[start:end, :]
+            value0 = self.value_network(state0_batch)[:, :, 0]
             value_err = value0 - windowed_reward_batch
             value_loss = torch.mean(value_err ** 2)
             self.value_optimizer.zero_grad()
@@ -269,14 +251,14 @@ class TrainingSession():
             end = (i + 1) * batch_size
             state0_batch = state0[start:end, :, :]
             state1_batch = state1[start:end, :, :]
-            action_batch = action[start:end]
+            action_batch = action[start:end, :]
             with torch.no_grad():
-                value0 = self.value_network(state0_batch)[:, 0]
-                value1 = self.value_network(state1_batch)[:, 0]
+                value0 = self.value_network(state0_batch)[:, :, 0]
+                value1 = self.value_network(state1_batch)[:, :, 0]
             advantage = value1 - value0
             raw_p = self.policy_network(state0_batch)
-            log_p = raw_p - torch.logsumexp(raw_p, dim=1, keepdim=True)
-            log_p_action = log_p[torch.arange(batch_size), action_batch]
+            log_p = raw_p - torch.logsumexp(raw_p, dim=2, keepdim=True)
+            log_p_action = log_p[torch.arange(batch_size).view(-1, 1), torch.arange(len(self.env.rooms)).view(1, -1), action_batch]
             policy_loss = -torch.mean(advantage * log_p_action)
             policy_variation = torch.mean(raw_p ** 2)
             policy_variation_loss = policy_variation_penalty * policy_variation
@@ -295,38 +277,35 @@ class TrainingSession():
 import maze_builder.crateria
 
 # num_envs = 1
-num_envs = 256
-rooms = maze_builder.crateria.rooms[6:9]
-action_radius = 2
-episode_length = 128
+num_envs = 128
+rooms = maze_builder.crateria.rooms
+action_radius = 1
+episode_length = 64
 display_freq = 1
-map_x = 8
-map_y = 5
+map_x = 32
+map_y = 24
 env = MazeBuilderEnv(rooms,
                      map_x=map_x,
                      map_y=map_y,
                      action_radius=action_radius,
-                     num_envs=num_envs,
-                     episode_length=episode_length)
+                     num_envs=num_envs)
 
-policy_network = MainNetwork(map_channels=[16],
-                             kernel_size=[5], room_channels=[32],
-                             fc_channels=None,
+policy_network = MainNetwork(map_channels=[16, 16],
+                             kernel_size=[3, 3], room_channels=[16],
                              room_embedding_width=0,
                              rooms=rooms, map_x=map_x, map_y=map_y,
                              output_width=env.actions_per_room)
-value_network = MainNetwork(map_channels=[16],
-                            kernel_size=[5], room_channels=[32],
-                            fc_channels=[32],
+value_network = MainNetwork(map_channels=[32, 32],
+                            kernel_size=[3, 3], room_channels=[32],
                             room_embedding_width=0,
                             rooms=rooms, map_x=map_x, map_y=map_y,
                             output_width=1)
 policy_network.room_sequential[-1].weight.data[:, :] = 0.0
 policy_network.room_sequential[-1].bias.data[:] = 0.0
-value_network.fc_sequential[-1].weight.data[:, :] = 0.0
-value_network.fc_sequential[-1].bias.data[:] = 0.0
-value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.0002, betas=(0.1, 0.999), eps=1e-15)
-policy_optimizer = torch.optim.Adam(policy_network.parameters(), lr=0.00002, betas=(0.1, 0.999), eps=1e-15)
+value_network.room_sequential[-1].weight.data[:, :] = 0.0
+value_network.room_sequential[-1].bias.data[:] = 0.0
+value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.0002, betas=(0.9, 0.999), eps=1e-15)
+policy_optimizer = torch.optim.Adam(policy_network.parameters(), lr=0.00002, betas=(0.9, 0.999), eps=1e-15)
 
 # value_network.lin_layers[-1].weight.data[:, :] = 0.0
 # policy_network.lin_layers[-1].weight.data[:, :] = 0.0
@@ -346,8 +325,9 @@ session = TrainingSession(env,
                           value_optimizer=value_optimizer,
                           policy_optimizer=policy_optimizer)
 
-# session.policy_optimizer.param_groups[0]['lr'] = 0.00001
-# session.value_optimizer.param_groups[0]['lr'] = 0.0001
+session.policy_optimizer.param_groups[0]['lr'] = 5e-5
+session.value_optimizer.param_groups[0]['lr'] = 1e-4
+# session.value_optimizer.param_groups[0]['betas'] = (0.8, 0.999)
 for i in range(10000):
     reward, value_loss, policy_loss, policy_variation = session.train_round(
         num_episodes=1,
@@ -355,22 +335,23 @@ for i in range(10000):
         horizon=8,
         batch_size=256,
         weight_decay=0.0,
-        policy_variation_penalty=0.002,
-        render=i % display_freq == 0)
-    logging.info("{}: reward={:.3f}, value_loss={:.3f}, policy_loss={:.5f}, policy_variation={:.5f}".format(
+        policy_variation_penalty=5e-4,
+        render=False)
+        # render=i % display_freq == 0)
+    logging.info("{}: reward={:.3f}, value_loss={:.5f}, policy_loss={:.5f}, policy_variation={:.5f}".format(
         i, reward, value_loss, policy_loss, policy_variation))
 
-state = env.reset()
-for j in range(episode_length):
-    with torch.no_grad():
-        raw_p = session.policy_network(state)
-    log_p = raw_p - torch.logsumexp(raw_p, dim=1, keepdim=True)
-    p = torch.exp(log_p)
-    cumul_p = torch.cumsum(p, dim=1)
-    rnd = torch.rand([session.env.num_envs, 1])
-    action = torch.clamp(torch.searchsorted(cumul_p, rnd), max=session.env.num_actions - 1)
-    reward, state = session.env.step(action.squeeze(1))
-    session.env.render()
+# state = env.reset()
+# for j in range(episode_length):
+#     with torch.no_grad():
+#         raw_p = session.policy_network(state)
+#     log_p = raw_p - torch.logsumexp(raw_p, dim=1, keepdim=True)
+#     p = torch.exp(log_p)
+#     cumul_p = torch.cumsum(p, dim=1)
+#     rnd = torch.rand([session.env.num_envs, 1])
+#     action = torch.clamp(torch.searchsorted(cumul_p, rnd), max=session.env.num_actions - 1)
+#     reward, state = session.env.step(action.squeeze(1))
+#     session.env.render()
 
 #
 session.env.render()
@@ -381,3 +362,6 @@ out, room_infos = value_network.encode_map(env.state)
 # b = value_network._compute_room_boundaries(env.room_tensors[1][0, :, :])
 # print(env.room_tensors[1][0,:, :].t())
 # print(b[3, :, :].t())
+
+# torch.save(policy_network, "crateria_policy.pt")
+# torch.save(value_network, "crateria_value.pt")
