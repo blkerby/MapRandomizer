@@ -140,8 +140,8 @@ class MainNetwork(torch.nn.Module):
         for (room_tensor, index_x, index_y) in room_info:
             channel_index = torch.arange(X.shape[1]).view(1, -1, 1, 1)
             room_data = X[torch.arange(n).view(-1, 1, 1, 1), channel_index, index_x, index_y] * room_tensor[0, :, :]
-            # room_data_list.append(torch.sum(room_data, dim=[2, 3]))
-            room_data_list.append(torch.sum(room_data, dim=[2, 3]) / torch.sum(room_tensor[0, :, :]))
+            room_data_list.append(torch.sum(room_data, dim=[2, 3]))
+            # room_data_list.append(torch.sum(room_data, dim=[2, 3]) / torch.sum(room_tensor[0, :, :]))
         out = torch.stack(room_data_list, dim=2)
         return out
 
@@ -309,14 +309,14 @@ env = MazeBuilderEnv(rooms,
                      num_envs=num_envs,
                      episode_length=episode_length)
 
-policy_network = MainNetwork(map_channels=[32, 32],
-                             kernel_size=[7, 7], room_channels=[32],
+policy_network = MainNetwork(map_channels=[16],
+                             kernel_size=[5], room_channels=[32],
                              fc_channels=None,
                              room_embedding_width=0,
                              rooms=rooms, map_x=map_x, map_y=map_y,
                              output_width=env.actions_per_room)
-value_network = MainNetwork(map_channels=[32, 32],
-                            kernel_size=[7, 7], room_channels=[32],
+value_network = MainNetwork(map_channels=[16],
+                            kernel_size=[5], room_channels=[32],
                             fc_channels=[32],
                             room_embedding_width=0,
                             rooms=rooms, map_x=map_x, map_y=map_y,
@@ -346,7 +346,7 @@ session = TrainingSession(env,
                           value_optimizer=value_optimizer,
                           policy_optimizer=policy_optimizer)
 
-session.policy_optimizer.param_groups[0]['lr'] = 0.00001
+# session.policy_optimizer.param_groups[0]['lr'] = 0.00001
 # session.value_optimizer.param_groups[0]['lr'] = 0.0001
 for i in range(10000):
     reward, value_loss, policy_loss, policy_variation = session.train_round(

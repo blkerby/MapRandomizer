@@ -105,6 +105,74 @@ class MazeBuilderEnv:
         total_cost = intersection_cost + door_cost
         return -total_cost
 
+    def _compute_intersection_cost_by_room(self, full_map, state):
+        intersection_cost_list = []
+        for i, room in enumerate(self.rooms):
+            room_tensor = self.room_tensors[i]
+            room_x = state[:, i, 0]
+            room_y = state[:, i, 1]
+            width = room_tensor.shape[1]
+            height = room_tensor.shape[2]
+            index_x = torch.arange(width).view(1, 1, -1, 1) + room_x.view(-1, 1, 1, 1)
+            index_y = torch.arange(height).view(1, 1, 1, -1) + room_y.view(-1, 1, 1, 1)
+            room_data = full_map[torch.arange(self.num_envs).view(-1, 1, 1, 1), torch.arange(5).view(1, -1, 1, 1), index_x, index_y]
+            filtered_room_data = room_tensor[0:1, :, :].unsqueeze(0) * room_data
+            intersection_cost = torch.sum(torch.clamp(filtered_room_data[:, 0, :, :] - 1, min=0), dim=(1, 2))
+            intersection_cost_list.append(intersection_cost)
+        intersection_cost_tensor = torch.stack(intersection_cost_list, dim=1)
+        return intersection_cost_tensor
+
+    def _compute_door_cost_by_room(self, full_map, state):
+        # Replace map with padded map
+        full_map = torch.nn.functional.pad(full_map, pad=(1, 1, 1, 1))
+
+        door_cost_list = []
+        for i, room in enumerate(self.rooms):
+            room_tensor = torch.nn.functional.pad(self.room_tensors[i], pad=(1, 1, 1, 1))
+            room_x = state[:, i, 0]
+            room_y = state[:, i, 1]
+            width = room_tensor.shape[1]
+            height = room_tensor.shape[2]
+            index_x = torch.arange(width).view(1, 1, -1, 1) + room_x.view(-1, 1, 1, 1)
+            index_y = torch.arange(height).view(1, 1, 1, -1) + room_y.view(-1, 1, 1, 1)
+            room_data = full_map[torch.arange(self.num_envs).view(-1, 1, 1, 1), torch.arange(5).view(1, -1, 1, 1), index_x, index_y]
+            # filtered_room_data = room_tensor[0:1, :, :].unsqueeze(0) * room_data
+            # print("filtered:", filtered_room_data[0, 0, :, :].t(),
+            #       "left:", filtered_room_data[0, 1, :, :].t(),
+            #       "right:", filtered_room_data[0, 2, :, :].t(),
+            #       "up:", filtered_room_data[0, 3, :, :].t(),
+            #       "down:", filtered_room_data[0, 4, :, :].t())
+
+            left = room_data[:, 1, :, :]
+            right = room_data[:, 2, :, :]
+            down = room_data[:, 3, :, :]
+            up = room_data[:, 4, :, :]
+
+            left_room = room_tensor[1, :, :].unsqueeze(0)
+            right_room = room_tensor[2, :, :].unsqueeze(0)
+            down_room = room_tensor[3, :, :].unsqueeze(0)
+            up_room = room_tensor[4, :, :].unsqueeze(0)
+
+            left_cost = torch.sum(torch.clamp(left_room[:, 1:, :] - right[:, :-1, :], min=0, max=1), dim=(1, 2))
+            right_cost = torch.sum(torch.clamp(right_room[:, :-1, :] - left[:, 1:, :], min=0, max=1), dim=(1, 2))
+            down_cost = torch.sum(torch.clamp(down_room[:, :, :-1] - up[:, :, 1:], min=0, max=1), dim=(1, 2))
+            up_cost = torch.sum(torch.clamp(up_room[:, :, 1:] - down[:, :, :-1], min=0, max=1), dim=(1, 2))
+
+            # print(left_cost, right_cost, down_cost, up_cost)
+            door_cost = left_cost + right_cost + down_cost + up_cost
+            door_cost_list.append(door_cost)
+
+        door_cost_tensor = torch.stack(door_cost_list, dim=1)
+        return door_cost_tensor
+
+    def _compute_reward_by_room(self, old_state, new_state, action):
+        full_map = self._compute_map(new_state)
+        intersection_cost = self._compute_intersection_cost_by_room(full_map)
+        # door_cost = self._compute_door_cost(full_map)
+        total_cost = intersection_cost #+ door_cost
+        return -total_cost
+
+
     def render(self, env_index=0):
         if self.map_display is None:
             self.map_display = MapDisplay(self.map_x, self.map_y)
@@ -118,17 +186,28 @@ class MazeBuilderEnv:
 
 import maze_builder.crateria
 num_envs = 1
-rooms = maze_builder.crateria.rooms[1:2]
+rooms = maze_builder.crateria.rooms[:3]
 action_radius = 2
-env = MazeBuilderEnv(rooms,
-                     map_x=10,
-                     map_y=10,
-                     action_radius=action_radius,
-                     num_envs=num_envs,
-                     episode_length=100)
 
-m = env._compute_map(env.state)
+# while True:
+    env = MazeBuilderEnv(rooms,
+                         map_x=12,
+                         map_y=12,
+                         action_radius=action_radius,
+                         num_envs=num_envs,
+                         episode_length=100)
+    m = env._compute_map(env.state)
+# print(env._compute_intersection_cost(m))
+# print(env._compute_intersection_cost_by_room(m, env.state))
+#     if env._compute_door_cost(m) not in (6, 8):
+#         break
 print(env._compute_door_cost(m))
+print(env._compute_door_cost_by_room(m, env.state))
+
+env.render()
+
+# print(env._compute_door_cost(m))
+# env.map_display.root.mainloop()
 
 # # for i in range(200):
 # #     print(i)
