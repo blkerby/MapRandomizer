@@ -279,8 +279,8 @@ import maze_builder.crateria
 device = torch.device('cpu')
 # device = torch.device('cuda:0')
 
-# num_envs = 1
-num_envs = 1024
+num_envs = 8
+# num_envs = 1024
 rooms = maze_builder.crateria.rooms
 action_radius = 1
 episode_length = 64
@@ -329,25 +329,25 @@ logging.info("Starting training")
 #                           value_optimizer=value_optimizer,
 #                           policy_optimizer=policy_optimizer)
 
-session = pickle.load(open('models/crateria-2021-06-29T13:35:06.399214.pkl', 'rb'))
+# session = pickle.load(open('models/crateria-2021-06-29T13:35:06.399214.pkl', 'rb'))
 
-# import io
-# class CPU_Unpickler(pickle.Unpickler):
-#     def find_class(self, module, name):
-#         if module == 'torch.storage' and name == '_load_from_bytes':
-#             return lambda b: torch.load(io.BytesIO(b), map_location='cpu')
-#         else:
-#             return super().find_class(module, name)
-#
-# session = CPU_Unpickler(open('models/crateria-2021-06-29T12:30:22.754523.pkl', 'rb')).load()
-# session.policy_optimizer.param_groups[0]['lr'] = 5e-6
-# session.value_optimizer.param_groups[0]['lr'] = 5e-4
+import io
+class CPU_Unpickler(pickle.Unpickler):
+    def find_class(self, module, name):
+        if module == 'torch.storage' and name == '_load_from_bytes':
+            return lambda b: torch.load(io.BytesIO(b), map_location='cpu')
+        else:
+            return super().find_class(module, name)
+
+session = CPU_Unpickler(open('models/crateria-2021-06-29T12:30:22.754523.pkl', 'rb')).load()
+session.value_optimizer.param_groups[0]['lr'] = 1e-4
+session.policy_optimizer.param_groups[0]['lr'] = 5e-6
 # session.value_optimizer.param_groups[0]['betas'] = (0.8, 0.999)
 horizon = 8
-batch_size = 2 ** 12
+batch_size = 2 ** 8 # 2 ** 12
 policy_variation_penalty = 0.0001
 # session.env = env
-print("num_envs={}, batch_size={}, horizon={}, policy_variation_penalty={}".format(session.env.num_envs, batch_size, horizon, policy_variation_penalty))
+logging.info("num_envs={}, batch_size={}, horizon={}, policy_variation_penalty={}".format(session.env.num_envs, batch_size, horizon, policy_variation_penalty))
 for i in range(10000):
     reward, value_loss, policy_loss, policy_variation = session.train_round(
         num_episodes=1,
@@ -356,8 +356,8 @@ for i in range(10000):
         batch_size=batch_size,
         weight_decay=0.0,
         policy_variation_penalty=policy_variation_penalty,
-        render=False)
-        # render=i % display_freq == 0)
+        # render=False)
+        render=i % display_freq == 0)
     logging.info("{}: reward={:.3f}, value_loss={:.5f}, policy_loss={:.5f}, policy_variation={:.5f}".format(
         i, reward, value_loss, policy_loss, policy_variation))
     pickle.dump(session, open(pickle_name, 'wb'))
