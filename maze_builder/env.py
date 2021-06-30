@@ -6,7 +6,8 @@ import torch
 
 
 class MazeBuilderEnv:
-    def __init__(self, rooms: List[Room], map_x: int, map_y: int, action_radius: int, num_envs: int):
+    def __init__(self, rooms: List[Room], map_x: int, map_y: int, action_radius: int, num_envs: int,
+                 device):
         for room in rooms:
             room.populate()
 
@@ -20,16 +21,16 @@ class MazeBuilderEnv:
                                           torch.tensor(room.door_left).t(),
                                           torch.tensor(room.door_right).t(),
                                           torch.tensor(room.door_down).t(),
-                                          torch.tensor(room.door_up).t()])
+                                          torch.tensor(room.door_up).t()]).to(device)
                             for room in rooms]
-        self.cap_x = torch.tensor([map_x - room.width for room in rooms])
-        self.cap_y = torch.tensor([map_y - room.height for room in rooms])
+        self.cap_x = torch.tensor([map_x - room.width for room in rooms], device=device)
+        self.cap_y = torch.tensor([map_y - room.height for room in rooms], device=device)
         self.cap = torch.stack([self.cap_x, self.cap_y], dim=1)
         assert torch.all(self.cap >= 0)  # Ensure map is big enough for largest room in each direction
         self.action_width = 2 * action_radius + 1
         self.actions_per_room = self.action_width ** 2
 
-        self.state = torch.empty([num_envs, len(rooms), 2], dtype=torch.int64)
+        self.state = torch.empty([num_envs, len(rooms), 2], dtype=torch.int64, device=device)
         self.reset()
         self.step_number = 0
 
@@ -37,7 +38,7 @@ class MazeBuilderEnv:
         self.color_map = {0: (0xd0, 0x90, 0x90)}
 
     def reset(self):
-        self.state = torch.randint(2 ** 30, [self.num_envs, len(self.rooms), 2]) % (self.cap.unsqueeze(0) + 1)
+        self.state = torch.randint(2 ** 30, [self.num_envs, len(self.rooms), 2], device=self.state.device) % (self.cap.unsqueeze(0) + 1)
         self.step_number = 0
         return self.state
 
@@ -56,16 +57,17 @@ class MazeBuilderEnv:
         return reward, self.state
 
     def _compute_map(self, state: torch.tensor) -> torch.tensor:
-        full_map = torch.zeros([self.num_envs, 5, self.map_x, self.map_y], dtype=torch.float32)
+        device = state.device
+        full_map = torch.zeros([self.num_envs, 5, self.map_x, self.map_y], dtype=torch.float32, device=device)
         for k, room_tensor in enumerate(self.room_tensors):
             room_x = state[:, k, 0]
             room_y = state[:, k, 1]
             width = room_tensor.shape[1]
             height = room_tensor.shape[2]
-            index_x = torch.arange(width).view(1, 1, -1, 1) + room_x.view(-1, 1, 1, 1)
-            index_y = torch.arange(height).view(1, 1, 1, -1) + room_y.view(-1, 1, 1, 1)
+            index_x = torch.arange(width, device=device).view(1, 1, -1, 1) + room_x.view(-1, 1, 1, 1)
+            index_y = torch.arange(height, device=device).view(1, 1, 1, -1) + room_y.view(-1, 1, 1, 1)
             # print(torch.arange(self.num_envs).view(-1, 1, 1, 1).shape, index_x.shape, index_y.shape, room_tensor.unsqueeze(0).shape)
-            full_map[torch.arange(self.num_envs).view(-1, 1, 1, 1), torch.arange(5).view(1, -1, 1, 1), index_x, index_y] += room_tensor.unsqueeze(0)
+            full_map[torch.arange(self.num_envs, device=device).view(-1, 1, 1, 1), torch.arange(5, device=device).view(1, -1, 1, 1), index_x, index_y] += room_tensor.unsqueeze(0)
         return full_map
 
     def _compute_intersection_cost(self, full_map):
@@ -95,6 +97,7 @@ class MazeBuilderEnv:
         return -total_cost
 
     def _compute_intersection_cost_by_room(self, full_map, state):
+        device = state.device
         intersection_cost_list = []
         for i, room in enumerate(self.rooms):
             room_tensor = self.room_tensors[i]
@@ -102,9 +105,9 @@ class MazeBuilderEnv:
             room_y = state[:, i, 1]
             width = room_tensor.shape[1]
             height = room_tensor.shape[2]
-            index_x = torch.arange(width).view(1, 1, -1, 1) + room_x.view(-1, 1, 1, 1)
-            index_y = torch.arange(height).view(1, 1, 1, -1) + room_y.view(-1, 1, 1, 1)
-            room_data = full_map[torch.arange(self.num_envs).view(-1, 1, 1, 1), torch.arange(5).view(1, -1, 1, 1), index_x, index_y]
+            index_x = torch.arange(width, device=device).view(1, 1, -1, 1) + room_x.view(-1, 1, 1, 1)
+            index_y = torch.arange(height, device=device).view(1, 1, 1, -1) + room_y.view(-1, 1, 1, 1)
+            room_data = full_map[torch.arange(self.num_envs, device=device).view(-1, 1, 1, 1), torch.arange(5, device=device).view(1, -1, 1, 1), index_x, index_y]
             filtered_room_data = room_tensor[0:1, :, :].unsqueeze(0) * room_data
             intersection_cost = torch.sum(torch.clamp(filtered_room_data[:, 0, :, :] - 1, min=0), dim=(1, 2))
             intersection_cost_list.append(intersection_cost)
@@ -115,6 +118,7 @@ class MazeBuilderEnv:
         # Replace map with padded map
         full_map = torch.nn.functional.pad(full_map, pad=(1, 1, 1, 1))
 
+        device = state.device
         door_cost_list = []
         for i, room in enumerate(self.rooms):
             room_tensor = torch.nn.functional.pad(self.room_tensors[i], pad=(1, 1, 1, 1))
@@ -122,9 +126,9 @@ class MazeBuilderEnv:
             room_y = state[:, i, 1]
             width = room_tensor.shape[1]
             height = room_tensor.shape[2]
-            index_x = torch.arange(width).view(1, 1, -1, 1) + room_x.view(-1, 1, 1, 1)
-            index_y = torch.arange(height).view(1, 1, 1, -1) + room_y.view(-1, 1, 1, 1)
-            room_data = full_map[torch.arange(self.num_envs).view(-1, 1, 1, 1), torch.arange(5).view(1, -1, 1, 1), index_x, index_y]
+            index_x = torch.arange(width, device=device).view(1, 1, -1, 1) + room_x.view(-1, 1, 1, 1)
+            index_y = torch.arange(height, device=device).view(1, 1, 1, -1) + room_y.view(-1, 1, 1, 1)
+            room_data = full_map[torch.arange(self.num_envs, device=device).view(-1, 1, 1, 1), torch.arange(5, device=device).view(1, -1, 1, 1), index_x, index_y]
             # filtered_room_data = room_tensor[0:1, :, :].unsqueeze(0) * room_data
             # print("filtered:", filtered_room_data[0, 0, :, :].t(),
             #       "left:", filtered_room_data[0, 1, :, :].t(),
@@ -157,7 +161,7 @@ class MazeBuilderEnv:
     def _compute_reward_by_room(self, old_state, new_state, action):
         full_map = self._compute_map(new_state)
         intersection_cost = self._compute_intersection_cost_by_room(full_map, new_state)
-        door_cost = self._compute_door_cost_by_room(full_map, new_state)
+        door_cost = 3 * self._compute_door_cost_by_room(full_map, new_state)
         total_cost = intersection_cost + door_cost
         return -total_cost
 
