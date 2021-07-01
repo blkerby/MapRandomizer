@@ -52,7 +52,7 @@ class MazeBuilderEnv:
         old_state = self.state
         new_state = torch.minimum(torch.clamp(self.state + displacement, min=0), self.cap.unsqueeze(0))
         self.state = new_state
-        reward = self._compute_reward_by_room(old_state, new_state, action)
+        reward = self._compute_reward_by_room_tile(old_state, new_state, action)
         self.step_number += 1
         return reward, self.state
 
@@ -96,10 +96,11 @@ class MazeBuilderEnv:
             down_room = room_tensor[3, :, :].unsqueeze(0)
             up_room = room_tensor[4, :, :].unsqueeze(0)
 
-            left_cost = torch.clamp(left_room - right[:, :-2, 1:-1], min=0, max=1)
-            right_cost = torch.clamp(right_room - left[:, 2:, 1:-1], min=0, max=1)
-            down_cost = torch.clamp(down_room - up[:, 1:-1, 2:], min=0, max=1)
-            up_cost = torch.clamp(up_room - down[:, 1:-1, :-2], min=0, max=1)
+            door_cost_factor = 100
+            left_cost = door_cost_factor * torch.clamp(left_room - right[:, :-2, 1:-1], min=0, max=1)
+            right_cost = door_cost_factor * torch.clamp(right_room - left[:, 2:, 1:-1], min=0, max=1)
+            down_cost = door_cost_factor * torch.clamp(down_room - up[:, 1:-1, 2:], min=0, max=1)
+            up_cost = door_cost_factor * torch.clamp(up_room - down[:, 1:-1, :-2], min=0, max=1)
 
             filtered_room_data = room_tensor[0, :, :].unsqueeze(0) * room_data[:, 0, 1:-1, 1:-1]
             intersection_cost = torch.clamp(filtered_room_data[:, :, :] - 1, min=0)
