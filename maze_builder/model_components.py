@@ -9,6 +9,7 @@ from typing import List
 import logging
 import math
 import abc
+from typing import List
 
 logging.basicConfig(format='%(asctime)s %(message)s',
                     level=logging.INFO,
@@ -16,22 +17,34 @@ logging.basicConfig(format='%(asctime)s %(message)s',
                               logging.StreamHandler()])
 
 
-def approx_simplex_projection(x: torch.tensor, dim: int, num_iters: int) -> torch.tensor:
+def approx_simplex_projection(x: torch.tensor, dims: List[int], num_iters: int) -> torch.tensor:
     mask = torch.ones(list(x.shape), dtype=x.dtype, device=x.device)
     with torch.no_grad():
         for i in range(num_iters - 1):
-            n_act = torch.sum(mask, dim=dim)
-            x_sum = torch.sum(x * mask, dim=dim)
+            n_act = torch.sum(mask, dim=dims, keepdim=True)
+            x_sum = torch.sum(x * mask, dim=dims, keepdim=True)
             t = (x_sum - 1.0) / n_act
-            x1 = x - t.unsqueeze(dim=dim)
+            x1 = x - t
             mask = (x1 >= 0).to(x.dtype)
-        n_act = torch.sum(mask, dim=dim)
-    x_sum = torch.sum(x * mask, dim=dim)
+        n_act = torch.sum(mask, dim=dims, keepdim=True)
+    x_sum = torch.sum(x * mask, dim=dims, keepdim=True)
     t = (x_sum - 1.0) / n_act
-    x1 = torch.clamp(x - t.unsqueeze(dim=dim), min=0.0)
-    # logging.info(torch.mean(torch.sum(x1, dim=1)))
-    return x1  # / torch.sum(torch.abs(x1), dim=dim).unsqueeze(dim=dim)
+    x1 = torch.clamp(x - t, min=0.0)
+    return x1
 
+
+def approx_l1_projection(x: torch.tensor, dims: List[int], num_iters: int) -> torch.tensor:
+    x_abs = torch.abs(x)
+    x_sgn = torch.sgn(x)
+    x_sum = torch.sum(x_abs, dim=dims, keepdim=True)
+    x_p = approx_simplex_projection(x_abs, dims, num_iters)
+    return torch.where(x_sum > 1.0, x_p * x_sgn, x)
+
+def init_l1(x: torch.tensor, dims: List[int]) -> torch.tensor:
+    x0 = torch.rand_like(x.data) + 1e-15
+    x1 = torch.log(x0)
+    s = torch.sgn(torch.randn_like(x.data))
+    x.data = s * x1 / torch.sum(x1, dim=dims, keepdim=True)
 
 class ManifoldModule(torch.nn.Module):
     @abc.abstractmethod

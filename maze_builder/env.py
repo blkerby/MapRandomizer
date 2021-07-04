@@ -161,7 +161,7 @@ class MazeBuilderEnv:
     def _compute_reward_by_room(self, old_state, new_state, action):
         full_map = self._compute_map(new_state)
         intersection_cost = self._compute_intersection_cost_by_room(full_map, new_state)
-        door_cost = 3 * self._compute_door_cost_by_room(full_map, new_state)
+        door_cost = self._compute_door_cost_by_room(full_map, new_state)
         total_cost = intersection_cost + door_cost
         return -total_cost
 
