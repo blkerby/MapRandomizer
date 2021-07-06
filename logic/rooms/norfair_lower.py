@@ -1,3 +1,4 @@
+from logic.areas import Area
 from maze_builder.types import Room
 
 rooms = [
@@ -334,5 +335,7 @@ rooms = [
         door_left=[[1, 0, 0]],
         door_right=[[0, 0, 1]],
     ),
-
 ]
+
+for room in rooms:
+    room.area = Area.NORFAIR

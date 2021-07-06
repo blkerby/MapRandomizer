@@ -1,3 +1,4 @@
+from logic.areas import Area
 from maze_builder.types import Room
 
 rooms = [
@@ -449,3 +450,6 @@ rooms = [
         ],
     ),
 ]
+
+for room in rooms:
+    room.area = Area.MARIDIA

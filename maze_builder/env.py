@@ -1,3 +1,4 @@
+from logic.areas import Area
 from typing import List
 from maze_builder.types import Room
 from maze_builder.display import MapDisplay
@@ -64,7 +65,13 @@ class MazeBuilderEnv:
         assert torch.all(self.cap >= 0)  # Ensure map is big enough for largest room in each direction
 
         self.map_display = None
-        self.color_map = {0: (0xd0, 0x90, 0x90)}
+        self.color_map = {
+            Area.CRATERIA: (0xa0, 0xa0, 0xa0),
+            Area.BRINSTAR: (0x80, 0xff, 0x80),
+            Area.NORFAIR: (0xff, 0x80, 0x80),
+            Area.MARIDIA: (0x80, 0x80, 0xff),
+            Area.WRECKED_SHIP: (0xff, 0xff, 0x80),
+        }
 
     def reset(self):
         self.map[:, :, 1:(1 + self.map_x), 1:(1 + self.map_y)].zero_()
@@ -174,29 +181,29 @@ class MazeBuilderEnv:
         rooms = [self.rooms[i] for i in ind]
         xs = (self.room_position_x[env_index, :][ind] - 1).tolist()
         ys = (self.room_position_y[env_index, :][ind] - 1).tolist()
-        colors = [self.color_map[room.area] for room in self.rooms]
+        colors = [self.color_map[room.area] for room in rooms]
         self.map_display.display(rooms, xs, ys, colors)
     #
     # def close(self):
     #     pass
 
 
-import logic.rooms.crateria
+import logic.rooms.all_rooms
 
 num_envs = 1
-rooms = logic.rooms.crateria.rooms
+rooms = logic.rooms.all_rooms.rooms
 action_radius = 1
 
 env = MazeBuilderEnv(rooms,
-                     map_x=30,
-                     map_y=30,
+                     map_x=60,
+                     map_y=45,
                      num_envs=num_envs,
                      device='cpu')
 
-torch.manual_seed(36)
-# torch.manual_seed(40)
+# torch.manual_seed(36)
+torch.manual_seed(0)
 env.reset()
-for i in range(100000):
+for i in range(1000000):
     room_index = torch.randint(high=len(rooms), size=[num_envs])
     room_x = torch.randint(high=2**30, size=[num_envs]) % (env.cap_x[room_index] + 1) + 1
     room_y = torch.randint(high=2**30, size=[num_envs]) % (env.cap_y[room_index] + 1) + 1

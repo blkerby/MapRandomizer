@@ -1,3 +1,4 @@
+from logic.areas import Area
 from maze_builder.types import Room
 
 rooms = [
@@ -97,3 +98,7 @@ rooms = [
         door_left=[[1]],
     ),
 ]
+
+
+for room in rooms:
+    room.area = Area.BRINSTAR
