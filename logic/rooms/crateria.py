@@ -463,7 +463,7 @@ rooms = [
         # TODO: add door down when we're ready to connect to other areas
     ),
     Room(
-        name='Forgotten Highway Small Room',  # Pick better name, and add to wiki.supermetroid.run
+        name='Forgotten Highway Elbow',  # Add to list on wiki.supermetroid.run
         map=[[1]],
         door_right=[[1]],
         door_down=[[1]],

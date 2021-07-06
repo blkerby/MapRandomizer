@@ -1,9 +1,7 @@
 import tkinter
 import tkinter.font
 from typing import List, Tuple
-import numpy as np
 from maze_builder.types import Room
-from maze_builder.crateria import rooms
 
 LEFT_ARROW = '\u2190'
 UP_ARROW = '\u2191'

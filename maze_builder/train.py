@@ -3,8 +3,7 @@ import torch
 import logging
 from maze_builder.env import MazeBuilderEnv
 from maze_builder.types import Room
-import maze_builder.crateria
-import time
+import logic.rooms.crateria
 from datetime import datetime
 from typing import List, Optional
 import pickle
@@ -295,14 +294,14 @@ class TrainingSession():
                total_policy_variation / num_batches
 
 
-import maze_builder.crateria
+import logic.rooms.crateria
 
 # device = torch.device('cpu')
 device = torch.device('cuda:0')
 
 num_envs = 128
 # num_envs = 1024
-rooms = maze_builder.crateria.rooms
+rooms = logic.rooms.crateria.rooms
 action_radius = 1
 episode_length = 64
 display_freq = 1

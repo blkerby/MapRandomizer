@@ -1,5 +1,4 @@
 from typing import List
-import numpy as np
 from maze_builder.types import Room
 from maze_builder.display import MapDisplay
 import torch
@@ -82,36 +81,32 @@ class MazeBuilderEnv:
         index_y = room_y.view(-1, 1, 1, 1) + torch.arange(self.room_max_y).view(1, 1, 1, -1)
         map[index_e, index_c, index_x, index_y] += self.room_tensor[room_index, :, :, :]
 
-
-        # Check that at least one door connection is made: TODO: change this to assert or remove since this should be
-        # automatically satisfied.
         room_has_door = self.room_tensor[room_index, 1:, :, :] != 0
         map_has_no_door = map[index_e, index_c[:, 1:, :, :], index_x, index_y] == 0
         door_connects = room_has_door & map_has_no_door
-        some_door_connects = torch.max(door_connects.view(self.num_envs, -1), dim=1)[0]
+        num_door_connects = torch.sum(door_connects.view(self.num_envs, -1), dim=1)[0]
         map_empty = torch.logical_not(torch.max(self.room_mask, dim=1)[0])
 
         is_room_unused = self.room_mask[torch.arange(self.num_envs), room_index] == 0
-        valid = _is_map_valid(map) & is_room_unused & (some_door_connects | map_empty)
-        # print(_is_map_valid(map), map_empty, is_room_unused, some_door_connects, valid)
+        valid = _is_map_valid(map) & is_room_unused & (map_empty | (num_door_connects > 0))
+        # TODO: change the check `map_empty | (num_door_connects > 0)` to an assert or remove, since this
+        # should be automatically satisfied.
 
         self.map[valid, :, :, :] = map[valid, :, :, :]
         self.room_position_x[torch.arange(self.num_envs), room_index[valid]] = room_x[valid]
         self.room_position_y[torch.arange(self.num_envs), room_index[valid]] = room_y[valid]
         self.room_mask[torch.arange(self.num_envs), room_index[valid]] = True
-    #     # Decompose the raw action into its components (room_index and displacement):
-    #     displacement_x = action % self.action_width - self.action_radius
-    #     displacement_y = action // self.action_width - self.action_radius
-    #     displacement = torch.stack([displacement_x, displacement_y], dim=2)
-    #
-    #     # Update the state
-    #     old_state = self.state
-    #     new_state = torch.minimum(torch.clamp(self.state + displacement, min=0), self.cap.unsqueeze(0))
-    #     self.state = new_state
-    #     reward = self._compute_reward_by_room_tile(old_state, new_state, action)
-    #     self.step_number += 1
-    #     return reward, self.state
-    #
+
+        reward = num_door_connects * valid
+        return reward, self.map, self.room_mask
+
+    def map_door_locations(self):
+        left_door = torch.nonzero(self.map[:, 1, :, :] == 1)
+        right_door = torch.nonzero(self.map[:, 1, :, :] == -1)
+        down_door = torch.nonzero(self.map[:, 2, :, :] == -1)
+        up_door = torch.nonzero(self.map[:, 2, :, :] == 1)
+        return left_door, right_door, down_door, up_door
+
     # def _compute_map(self, state: torch.tensor) -> torch.tensor:
     #     device = state.device
     #     full_map = torch.zeros([self.num_envs, 5, self.map_x, self.map_y], dtype=torch.float32, device=device)
@@ -186,10 +181,10 @@ class MazeBuilderEnv:
     #     pass
 
 
-import maze_builder.crateria
-import time
+import logic.rooms.crateria
+
 num_envs = 1
-rooms = maze_builder.crateria.rooms
+rooms = logic.rooms.crateria.rooms
 action_radius = 1
 
 env = MazeBuilderEnv(rooms,
@@ -199,18 +194,18 @@ env = MazeBuilderEnv(rooms,
                      device='cpu')
 
 torch.manual_seed(36)
-# torch.manual_seed(1)
-# torch.manual_seed(6)
+# torch.manual_seed(40)
 env.reset()
 for i in range(100000):
     room_index = torch.randint(high=len(rooms), size=[num_envs])
     room_x = torch.randint(high=2**30, size=[num_envs]) % (env.cap_x[room_index] + 1) + 1
     room_y = torch.randint(high=2**30, size=[num_envs]) % (env.cap_y[room_index] + 1) + 1
-    env.step(room_index, room_x, room_y)
-    if i % 1000 == 0:
-        print(torch.sum(env.room_mask))
+    reward, _, _ = env.step(room_index, room_x, room_y)
+    # if i % 1000 == 0:
+    if reward.item() != 0:
+        print(reward, torch.sum(env.room_mask))
         env.render()
-    # time.sleep(0.5)
+        # time.sleep(0.1)
 
 # m = env._compute_map(env.state)
 # c = env._compute_cost_by_room_tile(m, env.state)
@@ -238,3 +233,5 @@ for i in range(100000):
 # print(env._compute_door_cost(m))
 # print(env._compute_door_cost_by_room(m, env.state))
 # env.render()
+
+
