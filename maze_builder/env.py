@@ -91,7 +91,7 @@ class MazeBuilderEnv:
         room_has_door = self.room_tensor[room_index, 1:, :, :] != 0
         map_has_no_door = map[index_e, index_c[:, 1:, :, :], index_x, index_y] == 0
         door_connects = room_has_door & map_has_no_door
-        num_door_connects = torch.sum(door_connects.view(self.num_envs, -1), dim=1)[0]
+        num_door_connects = torch.sum(door_connects.view(self.num_envs, -1), dim=1)
         map_empty = torch.logical_not(torch.max(self.room_mask, dim=1)[0])
 
         is_room_unused = self.room_mask[torch.arange(self.num_envs), room_index] == 0
@@ -100,9 +100,9 @@ class MazeBuilderEnv:
         # should be automatically satisfied.
 
         self.map[valid, :, :, :] = map[valid, :, :, :]
-        self.room_position_x[torch.arange(self.num_envs), room_index[valid]] = room_x[valid]
-        self.room_position_y[torch.arange(self.num_envs), room_index[valid]] = room_y[valid]
-        self.room_mask[torch.arange(self.num_envs), room_index[valid]] = True
+        self.room_position_x[torch.arange(self.num_envs)[valid], room_index[valid]] = room_x[valid]
+        self.room_position_y[torch.arange(self.num_envs)[valid], room_index[valid]] = room_y[valid]
+        self.room_mask[torch.arange(self.num_envs)[valid], room_index[valid]] = True
 
         reward = num_door_connects * valid
         return reward, self.map, self.room_mask
@@ -113,6 +113,22 @@ class MazeBuilderEnv:
         down_door = torch.nonzero(self.map[:, 2, :, :] == -1)
         up_door = torch.nonzero(self.map[:, 2, :, :] == 1)
         return left_door, right_door, down_door, up_door
+
+    def choose_random_door(self):
+        left_door, right_door, down_door, up_door = self.map_door_locations()
+        all_doors = torch.cat([
+            torch.cat([left_door, torch.full_like(left_door[:, :1], 0)], dim=1),
+            torch.cat([right_door, torch.full_like(right_door[:, :1], 1)], dim=1),
+            torch.cat([down_door, torch.full_like(down_door[:, :1], 2)], dim=1),
+            torch.cat([up_door, torch.full_like(up_door[:, :1], 3)], dim=1),
+        ], dim=0)
+        env_id = all_doors[:, 0]
+        perm = torch.randperm(env_id.shape[0])
+        shuffled_env_id = env_id[perm]
+        selected_row_ids = torch.zeros([self.num_envs], dtype=torch.int64, device=all_doors.device)
+        selected_row_ids.scatter_(dim=0, index=shuffled_env_id, src=perm)
+        out = all_doors[selected_row_ids, 1:]
+        return all_doors, out
 
     # def _compute_map(self, state: torch.tensor) -> torch.tensor:
     #     device = state.device
@@ -190,29 +206,37 @@ class MazeBuilderEnv:
 
 import logic.rooms.all_rooms
 
-num_envs = 1
+num_envs = 3
 rooms = logic.rooms.all_rooms.rooms
 action_radius = 1
 
 env = MazeBuilderEnv(rooms,
-                     map_x=60,
-                     map_y=45,
+                     map_x=13,
+                     map_y=13,
+                     # map_x=60,
+                     # map_y=45,
                      num_envs=num_envs,
                      device='cpu')
 
+torch.set_printoptions(linewidth=120, threshold=10000)
 # torch.manual_seed(36)
 torch.manual_seed(0)
 env.reset()
-for i in range(1000000):
+for i in range(100):
     room_index = torch.randint(high=len(rooms), size=[num_envs])
     room_x = torch.randint(high=2**30, size=[num_envs]) % (env.cap_x[room_index] + 1) + 1
     room_y = torch.randint(high=2**30, size=[num_envs]) % (env.cap_y[room_index] + 1) + 1
     reward, _, _ = env.step(room_index, room_x, room_y)
     # if i % 1000 == 0:
-    if reward.item() != 0:
-        print(reward, torch.sum(env.room_mask))
-        env.render()
+    # print(reward)
+    if max(reward) != 0:
+        # pass
+        print(reward, torch.sum(env.room_mask, dim=1))
+        # env.render()
         # time.sleep(0.1)
+
+env.render(0)
+env.choose_random_door()
 
 # m = env._compute_map(env.state)
 # c = env._compute_cost_by_room_tile(m, env.state)
@@ -242,3 +266,10 @@ for i in range(1000000):
 # env.render()
 
 
+
+# A = torch.tensor([
+#     [1, 3],
+#     [1, 3],
+#     [2, 6]
+# ])
+# print(torch.unique(A, dim=1))
