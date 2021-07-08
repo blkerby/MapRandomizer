@@ -79,10 +79,22 @@ class MapDisplay:
                 y1 = y0 + self.tile_width
                 self.canvas.create_rectangle(x0, y0, x1, y1, fill=color, outline=color)
 
+    def _display_grid(self):
+        for i in range(self.tile_x + 1):
+            x = self.margin + i * self.tile_width
+            y1 = self.margin + self.tile_y * self.tile_width
+            self.canvas.create_line(x, self.margin, x, y1, fill='#ccc')
+
+        for i in range(self.tile_y + 1):
+            y = self.margin + i * self.tile_width
+            x1 = self.margin + self.tile_x * self.tile_width
+            self.canvas.create_line(self.margin, y, x1, y, fill='#ccc')
+
     def display(self, rooms: List[Room], xs: List[int], ys: List[int], colors: List[Tuple[int, int, int]]):
         self.canvas.delete("all")
-        self.canvas.create_rectangle(self.margin, self.margin, self.width - self.margin, self.height - self.margin,
-                                     outline='#ccc')
+        # self.canvas.create_rectangle(self.margin, self.margin, self.width - self.margin, self.height - self.margin,
+        #                              outline='#ccc')
+        self._display_grid()
         self._display_rooms_interior(rooms, xs, ys, colors)
         for k, room in enumerate(rooms):
             self._display_room_borders(room, xs[k], ys[k])

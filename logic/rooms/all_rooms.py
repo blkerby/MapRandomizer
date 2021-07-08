@@ -11,12 +11,12 @@ from logic.rooms import norfair_upper
 from logic.rooms import wrecked_ship
 
 rooms = (
+    crateria.rooms +
     brinstar_red.rooms +
     brinstar_blue.rooms +
     brinstar_green.rooms +
     brinstar_pink.rooms +
     brinstar_warehouse.rooms +
-    crateria.rooms +
     maridia_lower.rooms +
     maridia_upper.rooms +
     norfair_lower.rooms +
