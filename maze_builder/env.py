@@ -296,41 +296,32 @@ rooms = logic.rooms.all_rooms.rooms
 action_radius = 1
 
 env = MazeBuilderEnv(rooms,
-                     map_x=15,
-                     map_y=15,
-                     # map_x=60,
-                     # map_y=45,
+                     # map_x=15,
+                     # map_y=15,
+                     map_x=60,
+                     map_y=45,
                      num_envs=num_envs,
                      device='cpu')
 
 torch.set_printoptions(linewidth=120, threshold=10000)
 # torch.manual_seed(36)
-torch.manual_seed(1)
+torch.manual_seed(0)
 env.reset()
 env.place_first_room()
-# for i in range(100):
-#     env.place_first_room()
-#     door_choice = env.choose_random_door()
-#     # env_left =
-#
-#     # reward, _, _ = env.step(room_index, room_x, room_y)
-#     # if i % 1000 == 0:
-#     # print(reward)
-#     # if max(reward) != 0:
-#     #     print(reward, torch.sum(env.room_mask, dim=1))
-#     env.render()
+for i in range(10000):
+    positions, left_ids, right_ids, down_ids, up_ids = env.choose_random_door()
+    left_probs = torch.zeros([left_ids.shape[0], env.right_door_tensor.shape[0]], dtype=torch.float32)
+    right_probs = torch.zeros([right_ids.shape[0], env.left_door_tensor.shape[0]], dtype=torch.float32)
+    down_probs = torch.zeros([down_ids.shape[0], env.up_door_tensor.shape[0]], dtype=torch.float32)
+    up_probs = torch.zeros([up_ids.shape[0], env.down_door_tensor.shape[0]], dtype=torch.float32)
+
+    room_index, room_x, room_y = env.random_step(positions, left_ids, right_ids, down_ids, up_ids, left_probs, right_probs, down_probs, up_probs)
+    reward, _, _ = env.step(room_index, room_x, room_y)
+    if reward[0].item() != 0:
+        print("step={}, reward={}, rooms={} of {}".format(i, reward[0].item(), torch.sum(env.room_mask, dim=1).tolist(), env.room_mask.shape[1]))
+        env.render(0)
 #         # time.sleep(0.1)
 #
-env.render(2)
-positions, left_ids, right_ids, down_ids, up_ids = env.choose_random_door()
-left_probs = torch.zeros([left_ids.shape[0], env.right_door_tensor.shape[0]], dtype=torch.float32)
-right_probs = torch.zeros([right_ids.shape[0], env.left_door_tensor.shape[0]], dtype=torch.float32)
-down_probs = torch.zeros([down_ids.shape[0], env.up_door_tensor.shape[0]], dtype=torch.float32)
-up_probs = torch.zeros([up_ids.shape[0], env.down_door_tensor.shape[0]], dtype=torch.float32)
-
-room_index, room_x, room_y = env.random_step(positions, left_ids, right_ids, down_ids, up_ids, left_probs, right_probs, down_probs, up_probs)
-env.step(room_index, room_x, room_y)
-env.render(6)
 
 # m = env._compute_map(env.state)
 # c = env._compute_cost_by_room_tile(m, env.state)
