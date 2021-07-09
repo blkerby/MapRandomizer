@@ -48,7 +48,7 @@ class PolicyNetwork(torch.nn.Module):
 
 
 class ValueNetwork(torch.nn.Module):
-    def __init__(self, room_tensor, map_channels, map_kernel_size, room_channels, room_kernel_size, fc_widths):
+    def __init__(self, room_tensor, map_channels, map_kernel_size, fc_widths):
         super().__init__()
         self.room_tensor = room_tensor
 
@@ -63,22 +63,8 @@ class ValueNetwork(torch.nn.Module):
         map_layers.append(GlobalAvgPool2d())
         self.map_sequential = torch.nn.Sequential(*map_layers)
 
-        room_layers = []
-        room_channels = [3] + room_channels
-        for i in range(len(room_channels) - 1):
-            room_layers.append(torch.nn.Conv2d(room_channels[i], room_channels[i + 1],
-                                              kernel_size=(room_kernel_size[i], room_kernel_size[i]),
-                                              padding=room_kernel_size[i] // 2))
-            room_layers.append(torch.nn.ReLU())
-            # room_layers.append(torch.nn.MaxPool2d(3, stride=2))
-        room_layers.append(GlobalAvgPool2d())
-        self.room_sequential = torch.nn.Sequential(*room_layers)
-
         fc_layers = []
-        # fc_widths = [map_channels[-1] + 1 + room_tensor.shape[0]] + fc_widths
-        # fc_widths = [1 + room_tensor.shape[0]] + fc_widths
-        # fc_widths = [room_tensor.shape[0]] + fc_widths
-        fc_widths = [room_channels[-1]] + fc_widths
+        fc_widths = [map_channels[-1] + 1 + room_tensor.shape[0]] + fc_widths
         for i in range(len(fc_widths) - 1):
             fc_layers.append(torch.nn.Linear(fc_widths[i], fc_widths[i + 1]))
             fc_layers.append(torch.nn.ReLU())
@@ -88,20 +74,14 @@ class ValueNetwork(torch.nn.Module):
         # self.dummy_param = torch.nn.Parameter(torch.zeros([]))
 
     def forward(self, map, room_mask, steps_remaining):
-        # X = map.to(torch.float32)
-        # for layer in self.map_sequential:
-        #     # print(X.shape, layer)
-        #     X = layer(X)
+        X = map.to(torch.float32)
+        for layer in self.map_sequential:
+            # print(X.shape, layer)
+            X = layer(X)
 
-        room_out = self.room_sequential(self.room_tensor.to(torch.float32))
-        X = torch.matmul(room_mask.to(torch.float32), room_out)
-
-        # X = torch.cat([X, steps_remaining.view(-1, 1), room_mask], dim=1)
-        # X = torch.cat([steps_remaining.view(-1, 1), room_mask.to(torch.float32)], dim=1)
-        # X = room_mask.to(torch.float32)
+        X = torch.cat([X, steps_remaining.view(-1, 1), room_mask], dim=1)
         for layer in self.fc_sequential:
             X = layer(X)
-        # out = self.lin(X)
         return X[:, 0]
 
 
@@ -274,8 +254,6 @@ env = MazeBuilderEnv(rooms,
 value_network = ValueNetwork(env.room_tensor,
                              map_channels=[32, 32, 32],
                              map_kernel_size=[9, 9, 9],
-                             room_channels=[32, 32],
-                             room_kernel_size=[5, 5],
                              fc_widths=[128, 128],
                              ).to(device)
 policy_network = PolicyNetwork(env.room_tensor, env.left_door_tensor, env.right_door_tensor,
