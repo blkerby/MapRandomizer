@@ -59,6 +59,7 @@ class ValueNetwork(torch.nn.Module):
                                               kernel_size=(map_kernel_size[i], map_kernel_size[i]),
                                               padding=map_kernel_size[i] // 2))
             map_layers.append(torch.nn.ReLU())
+            map_layers.append(torch.nn.BatchNorm2d(map_channels[i + 1]))
             # map_layers.append(torch.nn.MaxPool2d(3, stride=2))
         map_layers.append(GlobalAvgPool2d())
         self.map_sequential = torch.nn.Sequential(*map_layers)
