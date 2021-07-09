@@ -68,6 +68,7 @@ class ValueNetwork(torch.nn.Module):
         for i in range(len(fc_widths) - 1):
             fc_layers.append(torch.nn.Linear(fc_widths[i], fc_widths[i + 1]))
             fc_layers.append(torch.nn.ReLU())
+            fc_layers.append(torch.nn.BatchNorm1d(fc_widths[i + 1]))
         fc_layers.append(torch.nn.Linear(fc_widths[-1], 1))
         self.fc_sequential = torch.nn.Sequential(*fc_layers)
         # self.lin = torch.nn.Linear(1, 1)
@@ -254,11 +255,11 @@ env = MazeBuilderEnv(rooms,
 value_network = ValueNetwork(env.room_tensor,
                              map_channels=[32, 32, 32],
                              map_kernel_size=[9, 9, 9],
-                             fc_widths=[128, 128],
+                             fc_widths=[128, 128, 128],
                              ).to(device)
 policy_network = PolicyNetwork(env.room_tensor, env.left_door_tensor, env.right_door_tensor,
                                env.down_door_tensor, env.up_door_tensor).to(device)
-value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.005, betas=(0.5, 0.5), eps=1e-15)
+value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.02, betas=(0.5, 0.5), eps=1e-15)
 policy_optimizer = torch.optim.Adam(policy_network.parameters(), lr=1e-5, betas=(0.9, 0.9), eps=1e-15)
 
 print(value_network)
