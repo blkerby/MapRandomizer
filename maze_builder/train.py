@@ -53,12 +53,16 @@ class PolicyNetwork(torch.nn.Module):
 
 
 class ValueNetwork(torch.nn.Module):
-    def __init__(self, room_tensor, map_channels, map_kernel_size, fc_widths, batch_norm_momentum):
+    def __init__(self, room_tensor, map_x, map_y, map_channels, map_kernel_size, fc_widths, batch_norm_momentum):
         super().__init__()
+        self.map_x = map_x
+        self.map_y = map_y
         self.room_tensor = room_tensor
 
         map_layers = []
         map_channels = [3] + map_channels
+        width = map_x
+        height = map_y
         for i in range(len(map_channels) - 1):
             map_layers.append(torch.nn.Conv2d(map_channels[i], map_channels[i + 1],
                                               kernel_size=(map_kernel_size[i], map_kernel_size[i]),
@@ -66,12 +70,15 @@ class ValueNetwork(torch.nn.Module):
             map_layers.append(torch.nn.ReLU())
             map_layers.append(torch.nn.BatchNorm2d(map_channels[i + 1], momentum=batch_norm_momentum))
             map_layers.append(torch.nn.MaxPool2d(3, stride=2, padding=1))
+            width //= 2
+            height //= 2
         # map_layers.append(GlobalAvgPool2d())
-        map_layers.append(GlobalMaxPool2d())
+        # map_layers.append(GlobalMaxPool2d())
+        map_layers.append(torch.nn.Flatten())
         self.map_sequential = torch.nn.Sequential(*map_layers)
 
         fc_layers = []
-        fc_widths = [map_channels[-1] + 1 + room_tensor.shape[0]] + fc_widths
+        fc_widths = [(width * height * map_channels[-1]) + 1 + room_tensor.shape[0]] + fc_widths
         for i in range(len(fc_widths) - 1):
             fc_layers.append(torch.nn.Linear(fc_widths[i], fc_widths[i + 1]))
             fc_layers.append(torch.nn.ReLU())
@@ -260,8 +267,10 @@ env = MazeBuilderEnv(rooms,
                      device=device)
 
 value_network = ValueNetwork(env.room_tensor,
+                             map_x=map_x,
+                             map_y=map_y,
                              map_channels=[32, 64, 128],
-                             map_kernel_size=[11, 11, 11],
+                             map_kernel_size=[11, 9, 7],
                              fc_widths=[128, 128, 128],
                              batch_norm_momentum=0.1,
                              ).to(device)
