@@ -61,8 +61,8 @@ class ValueNetwork(torch.nn.Module):
 
         map_layers = []
         map_channels = [3] + map_channels
-        width = map_x
-        height = map_y
+        width = map_x + 1
+        height = map_y + 1
         for i in range(len(map_channels) - 1):
             map_layers.append(torch.nn.Conv2d(map_channels[i], map_channels[i + 1],
                                               kernel_size=(map_kernel_size[i], map_kernel_size[i]),
@@ -70,8 +70,8 @@ class ValueNetwork(torch.nn.Module):
             map_layers.append(torch.nn.ReLU())
             map_layers.append(torch.nn.BatchNorm2d(map_channels[i + 1], momentum=batch_norm_momentum))
             map_layers.append(torch.nn.MaxPool2d(3, stride=2, padding=1))
-            width //= 2
-            height //= 2
+            width = (width + 1) // 2
+            height = (height + 1) // 2
         # map_layers.append(GlobalAvgPool2d())
         # map_layers.append(GlobalMaxPool2d())
         map_layers.append(torch.nn.Flatten())
@@ -90,6 +90,16 @@ class ValueNetwork(torch.nn.Module):
 
     def forward(self, map, room_mask, steps_remaining):
         X = map.to(torch.float32)
+        X0 = torch.nn.functional.pad(X[:, 0:1, :, :], pad=(1, 1, 1, 1), value=1.0)
+        X1 = torch.nn.functional.pad(X[:, 1:, :, :], pad=(1, 1, 1, 1), value=0.0)
+        X = torch.cat([X0, X1], dim=1)
+        # X = torch.cat([X, torch.ones_like(X[:, :1, :, :])], dim=1)
+        # X = torch.cat([X[:, 0:1, :, :],
+        #                torch.clamp(X[:, 1:2, :, :], min=0.0),
+        #                torch.clamp(X[:, 1:2, :, :], max=0.0),
+        #                torch.clamp(X[:, 2:3, :, :], min=0.0),
+        #                torch.clamp(X[:, 2:3, :, :], max=0.0),
+        #                ], dim=1)
         for layer in self.map_sequential:
             # print(X.shape, layer)
             X = layer(X)
@@ -250,7 +260,7 @@ import logic.rooms.crateria
 # device = torch.device('cpu')
 device = torch.device('cuda:0')
 
-num_envs = 512
+num_envs = 1024
 # num_envs = 1024
 rooms = logic.rooms.crateria.rooms
 action_radius = 1
@@ -276,7 +286,7 @@ value_network = ValueNetwork(env.room_tensor,
                              ).to(device)
 policy_network = PolicyNetwork(env.room_tensor, env.left_door_tensor, env.right_door_tensor,
                                env.down_door_tensor, env.up_door_tensor).to(device)
-value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.01, betas=(0.5, 0.5), eps=1e-15)
+value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.001, betas=(0.5, 0.5), eps=1e-15)
 policy_optimizer = torch.optim.Adam(policy_network.parameters(), lr=1e-5, betas=(0.5, 0.5), eps=1e-15)
 
 print(value_network)
