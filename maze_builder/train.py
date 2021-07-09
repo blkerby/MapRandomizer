@@ -254,7 +254,7 @@ env = MazeBuilderEnv(rooms,
                      device=device)
 
 value_network = ValueNetwork(env.room_tensor,
-                             map_channels=[32, 32, 32],
+                             map_channels=[32, 64, 128],
                              map_kernel_size=[11, 11, 11],
                              fc_widths=[128, 128, 128],
                              batch_norm_momentum=0.1,
