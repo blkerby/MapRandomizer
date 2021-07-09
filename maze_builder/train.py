@@ -48,7 +48,7 @@ class PolicyNetwork(torch.nn.Module):
 
 
 class ValueNetwork(torch.nn.Module):
-    def __init__(self, room_tensor, map_channels, map_kernel_size, fc_widths):
+    def __init__(self, room_tensor, map_channels, map_kernel_size, fc_widths, batch_norm_momentum):
         super().__init__()
         self.room_tensor = room_tensor
 
@@ -59,8 +59,8 @@ class ValueNetwork(torch.nn.Module):
                                               kernel_size=(map_kernel_size[i], map_kernel_size[i]),
                                               padding=map_kernel_size[i] // 2))
             map_layers.append(torch.nn.ReLU())
-            map_layers.append(torch.nn.BatchNorm2d(map_channels[i + 1]))
-            # map_layers.append(torch.nn.MaxPool2d(3, stride=2))
+            map_layers.append(torch.nn.BatchNorm2d(map_channels[i + 1], momentum=batch_norm_momentum))
+            map_layers.append(torch.nn.MaxPool2d(3, stride=2))
         map_layers.append(GlobalAvgPool2d())
         self.map_sequential = torch.nn.Sequential(*map_layers)
 
@@ -69,7 +69,7 @@ class ValueNetwork(torch.nn.Module):
         for i in range(len(fc_widths) - 1):
             fc_layers.append(torch.nn.Linear(fc_widths[i], fc_widths[i + 1]))
             fc_layers.append(torch.nn.ReLU())
-            fc_layers.append(torch.nn.BatchNorm1d(fc_widths[i + 1]))
+            fc_layers.append(torch.nn.BatchNorm1d(fc_widths[i + 1], momentum=batch_norm_momentum))
         fc_layers.append(torch.nn.Linear(fc_widths[-1], 1))
         self.fc_sequential = torch.nn.Sequential(*fc_layers)
         # self.lin = torch.nn.Linear(1, 1)
@@ -255,13 +255,14 @@ env = MazeBuilderEnv(rooms,
 
 value_network = ValueNetwork(env.room_tensor,
                              map_channels=[32, 32, 32],
-                             map_kernel_size=[9, 9, 9],
+                             map_kernel_size=[11, 11, 11],
                              fc_widths=[128, 128, 128],
+                             batch_norm_momentum=0.1,
                              ).to(device)
 policy_network = PolicyNetwork(env.room_tensor, env.left_door_tensor, env.right_door_tensor,
                                env.down_door_tensor, env.up_door_tensor).to(device)
-value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.02, betas=(0.5, 0.5), eps=1e-15)
-policy_optimizer = torch.optim.Adam(policy_network.parameters(), lr=1e-5, betas=(0.9, 0.9), eps=1e-15)
+value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.01, betas=(0.5, 0.5), eps=1e-15)
+policy_optimizer = torch.optim.Adam(policy_network.parameters(), lr=1e-5, betas=(0.5, 0.5), eps=1e-15)
 
 print(value_network)
 print(value_optimizer)
