@@ -24,6 +24,11 @@ class GlobalAvgPool2d(torch.nn.Module):
         return torch.mean(X, dim=[2, 3])
 
 
+class GlobalMaxPool2d(torch.nn.Module):
+    def forward(self, X):
+        return torch.max(X.view(X.shape[0], X.shape[1], X.shape[2] * X.shape[3]), dim=2)[0]
+
+
 class PolicyNetwork(torch.nn.Module):
     def __init__(self, room_tensor, left_door_tensor, right_door_tensor, down_door_tensor, up_door_tensor):
         super().__init__()
@@ -60,8 +65,9 @@ class ValueNetwork(torch.nn.Module):
                                               padding=map_kernel_size[i] // 2))
             map_layers.append(torch.nn.ReLU())
             map_layers.append(torch.nn.BatchNorm2d(map_channels[i + 1], momentum=batch_norm_momentum))
-            map_layers.append(torch.nn.MaxPool2d(3, stride=2))
-        map_layers.append(GlobalAvgPool2d())
+            map_layers.append(torch.nn.MaxPool2d(3, stride=2, padding=1))
+        # map_layers.append(GlobalAvgPool2d())
+        map_layers.append(GlobalMaxPool2d())
         self.map_sequential = torch.nn.Sequential(*map_layers)
 
         fc_layers = []
