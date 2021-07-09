@@ -48,7 +48,7 @@ class PolicyNetwork(torch.nn.Module):
 
 
 class ValueNetwork(torch.nn.Module):
-    def __init__(self, room_tensor, map_channels, map_kernel_size, fc_widths):
+    def __init__(self, room_tensor, map_channels, map_kernel_size, room_channels, room_kernel_size, fc_widths):
         super().__init__()
         self.room_tensor = room_tensor
 
@@ -63,8 +63,22 @@ class ValueNetwork(torch.nn.Module):
         map_layers.append(GlobalAvgPool2d())
         self.map_sequential = torch.nn.Sequential(*map_layers)
 
+        room_layers = []
+        room_channels = [3] + room_channels
+        for i in range(len(room_channels) - 1):
+            room_layers.append(torch.nn.Conv2d(room_channels[i], room_channels[i + 1],
+                                              kernel_size=(room_kernel_size[i], room_kernel_size[i]),
+                                              padding=room_kernel_size[i] // 2))
+            room_layers.append(torch.nn.ReLU())
+            # room_layers.append(torch.nn.MaxPool2d(3, stride=2))
+        room_layers.append(GlobalAvgPool2d())
+        self.room_sequential = torch.nn.Sequential(*room_layers)
+
         fc_layers = []
-        fc_widths = [map_channels[-1]] + fc_widths
+        # fc_widths = [map_channels[-1] + 1 + room_tensor.shape[0]] + fc_widths
+        # fc_widths = [1 + room_tensor.shape[0]] + fc_widths
+        # fc_widths = [room_tensor.shape[0]] + fc_widths
+        fc_widths = [room_channels[-1]] + fc_widths
         for i in range(len(fc_widths) - 1):
             fc_layers.append(torch.nn.Linear(fc_widths[i], fc_widths[i + 1]))
             fc_layers.append(torch.nn.ReLU())
@@ -74,15 +88,17 @@ class ValueNetwork(torch.nn.Module):
         # self.dummy_param = torch.nn.Parameter(torch.zeros([]))
 
     def forward(self, map, room_mask, steps_remaining):
-        device = map.device
-        # out = torch.zeros([map.shape[0]], dtype=torch.float32, device=device) + self.dummy_param
-        # X = steps_remaining.unsqueeze(1).to(torch.float32)
+        # X = map.to(torch.float32)
+        # for layer in self.map_sequential:
+        #     # print(X.shape, layer)
+        #     X = layer(X)
 
-        X = map.to(torch.float32)
-        for layer in self.map_sequential:
-            # print(X.shape, layer)
-            X = layer(X)
+        room_out = self.room_sequential(self.room_tensor.to(torch.float32))
+        X = torch.matmul(room_mask.to(torch.float32), room_out)
 
+        # X = torch.cat([X, steps_remaining.view(-1, 1), room_mask], dim=1)
+        # X = torch.cat([steps_remaining.view(-1, 1), room_mask.to(torch.float32)], dim=1)
+        # X = room_mask.to(torch.float32)
         for layer in self.fc_sequential:
             X = layer(X)
         # out = self.lin(X)
@@ -151,7 +167,7 @@ class TrainingSession():
         map1 = map[1:, :, :, :, :]
         room_mask0 = room_mask[:-1, :, :]
         room_mask1 = room_mask[1:, :, :]
-        steps_remaining = (episode_length - torch.arange(episode_length)).view(-1, 1).repeat(1, env.num_envs)
+        steps_remaining = (episode_length - torch.arange(episode_length, device=map.device)).view(-1, 1).repeat(1, env.num_envs)
 
         # Flatten the data
         n = episode_length * self.env.num_envs
@@ -256,13 +272,15 @@ env = MazeBuilderEnv(rooms,
                      device=device)
 
 value_network = ValueNetwork(env.room_tensor,
-                             map_channels=[32, 32],
-                             map_kernel_size=[9, 9],
+                             map_channels=[32, 32, 32],
+                             map_kernel_size=[9, 9, 9],
+                             room_channels=[32, 32],
+                             room_kernel_size=[5, 5],
                              fc_widths=[128, 128],
                              ).to(device)
 policy_network = PolicyNetwork(env.room_tensor, env.left_door_tensor, env.right_door_tensor,
                                env.down_door_tensor, env.up_door_tensor).to(device)
-value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.01, betas=(0.5, 0.5), eps=1e-15)
+value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.005, betas=(0.5, 0.5), eps=1e-15)
 policy_optimizer = torch.optim.Adam(policy_network.parameters(), lr=1e-5, betas=(0.9, 0.9), eps=1e-15)
 
 print(value_network)
@@ -302,7 +320,7 @@ batch_size = 2 ** 8
 # batch_size = 2 ** 13  # 2 ** 12
 policy_variation_penalty = 0.005
 # session.env = env
-# session.value_optimizer.param_groups[0]['lr'] = 0.01
+# session.value_optimizer.param_groups[0]['lr'] = 0.005
 # session.value_optimizer.param_groups[0]['betas'] = (0.5, 0.9)
 logging.info(
     "num_envs={}, batch_size={}, policy_variation_penalty={}".format(session.env.num_envs, batch_size,
@@ -316,7 +334,7 @@ for i in range(10000):
     # render=i % display_freq == 0)
     logging.info("{}: reward={:.3f} value_loss={:.5f}, policy_loss={:.5f}, policy_variation={:.5f}".format(
         i, reward, value_loss, policy_loss, policy_variation))
-    pickle.dump(session, open(pickle_name, 'wb'))
+    # pickle.dump(session, open(pickle_name, 'wb'))
 #
 # # session.policy_optimizer.param_groups[0]['lr'] = 2e-5
 # # horizon = 8
