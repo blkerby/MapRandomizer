@@ -42,13 +42,13 @@ class PolicyNetwork(torch.nn.Module):
     def forward(self, map, room_mask, position, left_ids, right_ids, down_ids, up_ids, steps_remaining):
         device = map.device
         left_raw_logprobs = torch.zeros([left_ids.shape[0], self.right_door_tensor.shape[0]], dtype=torch.float32,
-                                        device=device)
+                                        device=device) + self.dummy_param
         right_raw_logprobs = torch.zeros([right_ids.shape[0], self.left_door_tensor.shape[0]], dtype=torch.float32,
-                                         device=device)
+                                         device=device) + self.dummy_param
         down_raw_logprobs = torch.zeros([down_ids.shape[0], self.up_door_tensor.shape[0]], dtype=torch.float32,
-                                        device=device)
+                                        device=device) + self.dummy_param
         up_raw_logprobs = torch.zeros([up_ids.shape[0], self.down_door_tensor.shape[0]], dtype=torch.float32,
-                                      device=device)
+                                      device=device) + self.dummy_param
         return left_raw_logprobs, right_raw_logprobs, down_raw_logprobs, up_raw_logprobs
 
 
@@ -61,8 +61,8 @@ class ValueNetwork(torch.nn.Module):
 
         map_layers = []
         map_channels = [3] + map_channels
-        width = map_x + 1
-        height = map_y + 1
+        width = map_x
+        height = map_y
         for i in range(len(map_channels) - 1):
             map_layers.append(torch.nn.Conv2d(map_channels[i], map_channels[i + 1],
                                               kernel_size=(map_kernel_size[i], map_kernel_size[i]),
@@ -90,16 +90,6 @@ class ValueNetwork(torch.nn.Module):
 
     def forward(self, map, room_mask, steps_remaining):
         X = map.to(torch.float32)
-        X0 = torch.nn.functional.pad(X[:, 0:1, :, :], pad=(1, 1, 1, 1), value=1.0)
-        X1 = torch.nn.functional.pad(X[:, 1:, :, :], pad=(1, 1, 1, 1), value=0.0)
-        X = torch.cat([X0, X1], dim=1)
-        # X = torch.cat([X, torch.ones_like(X[:, :1, :, :])], dim=1)
-        # X = torch.cat([X[:, 0:1, :, :],
-        #                torch.clamp(X[:, 1:2, :, :], min=0.0),
-        #                torch.clamp(X[:, 1:2, :, :], max=0.0),
-        #                torch.clamp(X[:, 2:3, :, :], min=0.0),
-        #                torch.clamp(X[:, 2:3, :, :], max=0.0),
-        #                ], dim=1)
         for layer in self.map_sequential:
             # print(X.shape, layer)
             X = layer(X)
@@ -172,7 +162,8 @@ class TrainingSession():
         map1 = map[1:, :, :, :, :]
         room_mask0 = room_mask[:-1, :, :]
         room_mask1 = room_mask[1:, :, :]
-        steps_remaining = (episode_length - torch.arange(episode_length, device=map.device)).view(-1, 1).repeat(1, env.num_envs)
+        steps_remaining = (episode_length - torch.arange(episode_length, device=map.device)).view(-1, 1).repeat(1,
+                                                                                                                env.num_envs)
 
         # Flatten the data
         n = episode_length * self.env.num_envs
@@ -220,37 +211,61 @@ class TrainingSession():
             # self.value_network.decay(weight_decay * self.value_optimizer.param_groups[0]['lr'])
             total_value_loss += value_loss.item()
 
-        # # Make a second pass through the data, updating the policy network
-        # total_policy_loss = 0.0
-        # total_policy_variation = 0.0
-        # for i in range(num_batches):
-        #     start = i * batch_size
-        #     end = (i + 1) * batch_size
-        #     state0_batch = state0[start:end, :, :]
-        #     state1_batch = state1[start:end, :, :]
-        #     action_batch = action[start:end, :]
-        #     with torch.no_grad():
-        #         value0 = decode_map(self.value_network(state0_batch), state0_batch, self.env.room_tensors, aggregate=True, filter_by_channel=True)
-        #         value1 = decode_map(self.value_network(state1_batch), state1_batch, self.env.room_tensors, aggregate=True, filter_by_channel=True)
-        #     advantage = torch.sum(value1 - value0, dim=1)
-        #     raw_p = self.policy_network(state0_batch)
-        #     log_p = raw_p - torch.logsumexp(raw_p, dim=2, keepdim=True)
-        #     log_p_action = log_p[
-        #         torch.arange(batch_size).view(-1, 1), torch.arange(len(self.env.rooms)).view(1, -1), action_batch]
-        #     policy_loss = -torch.mean(advantage * log_p_action)
-        #     policy_variation = torch.mean(raw_p ** 2)
-        #     policy_variation_loss = policy_variation_penalty * policy_variation
-        #     self.policy_optimizer.zero_grad()
-        #     (policy_loss + policy_variation_loss).backward()
-        #     torch.nn.utils.clip_grad_norm_(self.policy_network.parameters(), 1e-5)
-        #     self.policy_optimizer.step()
-        #     # self.policy_network.decay(weight_decay * self.policy_optimizer.param_groups[0]['lr'])
-        #     total_policy_loss += policy_loss.item()
-        #     total_policy_variation += policy_variation.item()
-
-        mean_reward = torch.sum(reward) / self.env.num_envs
+        # Make a second pass through the data, updating the policy network
         total_policy_loss = 0.0
         total_policy_variation = 0.0
+        for i in range(num_batches):
+            start = i * batch_size
+            end = (i + 1) * batch_size
+            map0_batch = map0[start:end, :, :, :]
+            map1_batch = map1[start:end, :, :, :]
+            room_mask0_batch = room_mask0[start:end, :]
+            room_mask1_batch = room_mask1[start:end, :]
+            steps_remaining_batch = steps_remaining[start:end]
+            reward_batch = reward[start:end]
+            action_batch = action[start:end]
+            position_batch = position[start:end, :]
+            direction_batch = direction[start:end]
+            with torch.no_grad():
+                value0 = self.value_network(map0_batch, room_mask0_batch, steps_remaining_batch)
+                value1 = self.value_network(map1_batch, room_mask1_batch, steps_remaining_batch - 1)
+            advantage = value1 + reward_batch - value0
+            left_ids = torch.nonzero(direction_batch == 0)[:, 0]
+            right_ids = torch.nonzero(direction_batch == 1)[:, 0]
+            down_ids = torch.nonzero(direction_batch == 2)[:, 0]
+            up_ids = torch.nonzero(direction_batch == 3)[:, 0]
+            policy_out = self.policy_network(map0_batch, room_mask0_batch, position_batch,
+                                             left_ids, right_ids, down_ids, up_ids, steps_remaining_batch)
+            left_raw_logprobs, right_raw_logprobs, down_raw_logprobs, up_raw_logprobs = policy_out
+            left_logprobs = left_raw_logprobs - torch.logsumexp(left_raw_logprobs, dim=1, keepdim=True)
+            right_logprobs = right_raw_logprobs - torch.logsumexp(right_raw_logprobs, dim=1, keepdim=True)
+            down_logprobs = down_raw_logprobs - torch.logsumexp(down_raw_logprobs, dim=1, keepdim=True)
+            up_logprobs = up_raw_logprobs - torch.logsumexp(up_raw_logprobs, dim=1, keepdim=True)
+            left_logprobs_action = left_logprobs[torch.arange(len(left_ids), device=device), action_batch[left_ids]]
+            right_logprobs_action = right_logprobs[torch.arange(len(right_ids), device=device), action_batch[right_ids]]
+            down_logprobs_action = down_logprobs[torch.arange(len(down_ids), device=device), action_batch[down_ids]]
+            up_logprobs_action = up_logprobs[torch.arange(len(up_ids), device=device), action_batch[up_ids]]
+            policy_loss = -(torch.sum(advantage[left_ids] * left_logprobs_action) +
+                            torch.sum(advantage[right_ids] * right_logprobs_action) +
+                            torch.sum(advantage[down_ids] * down_logprobs_action) +
+                            torch.sum(advantage[up_ids] * up_logprobs_action)) / batch_size
+            policy_variation = (torch.sum(left_raw_logprobs ** 2) +
+                                torch.sum(right_raw_logprobs ** 2) +
+                                torch.sum(down_raw_logprobs ** 2) +
+                                torch.sum(up_raw_logprobs ** 2)) / batch_size
+            policy_variation_loss = policy_variation_penalty * policy_variation
+            self.policy_optimizer.zero_grad()
+            (policy_loss + policy_variation_loss).backward()
+            torch.nn.utils.clip_grad_norm_(self.policy_network.parameters(), 1e-5)
+            self.policy_optimizer.step()
+            # self.policy_network.decay(weight_decay * self.policy_optimizer.param_groups[0]['lr'])
+            total_policy_loss += policy_loss.item()
+            total_policy_variation += policy_variation.item()
+
+            total_policy_loss = 0.0
+            total_policy_variation = 0.0
+
+        mean_reward = torch.sum(reward) / self.env.num_envs
         return mean_reward, total_value_loss / num_batches, total_policy_loss / num_batches, \
                total_policy_variation / num_batches
 
