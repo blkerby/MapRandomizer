@@ -122,10 +122,14 @@ class PolicyNetwork(torch.nn.Module):
         X_down = X[down_ids, :]
         X_up = X[up_ids, :]
 
-        left_raw_logprobs = torch.matmul(X_left, self.right_door_embedding)
-        right_raw_logprobs = torch.matmul(X_right, self.left_door_embedding)
-        down_raw_logprobs = torch.matmul(X_down, self.up_door_embedding)
-        up_raw_logprobs = torch.matmul(X_up, self.down_door_embedding)
+        # left_raw_logprobs = torch.matmul(X_left, self.right_door_embedding)
+        # right_raw_logprobs = torch.matmul(X_right, self.left_door_embedding)
+        # down_raw_logprobs = torch.matmul(X_down, self.up_door_embedding)
+        # up_raw_logprobs = torch.matmul(X_up, self.down_door_embedding)
+        left_raw_logprobs = torch.matmul(X_left, self.left_door_embedding)
+        right_raw_logprobs = torch.matmul(X_right, self.right_door_embedding)
+        down_raw_logprobs = torch.matmul(X_down, self.down_door_embedding)
+        up_raw_logprobs = torch.matmul(X_up, self.up_door_embedding)
 
         return left_raw_logprobs, right_raw_logprobs, down_raw_logprobs, up_raw_logprobs
 
@@ -302,7 +306,7 @@ class TrainingSession():
                 target = torch.where(steps_remaining_batch == 1, reward_batch.to(torch.float32), reward_batch + value1)
             value_loss_bs = torch.mean((value0 - target) ** 2)
             value_loss_mc = torch.mean((value0 - cumul_reward_batch) ** 2)
-            value_loss = value_loss_bs + mc_weight * value_loss_mc
+            value_loss = (1 - mc_weight) * value_loss_bs + mc_weight * value_loss_mc
 
             self.value_optimizer.zero_grad()
             value_loss.backward()
@@ -387,12 +391,12 @@ import logic.rooms.maridia_upper
 device = torch.device('cpu')
 # device = torch.device('cuda:0')
 
-num_envs = 256
-# num_envs = 1
-# rooms = logic.rooms.crateria.rooms
+# num_envs = 256
+num_envs = 1
+rooms = logic.rooms.crateria.rooms
 # rooms = logic.rooms.crateria.rooms + logic.rooms.wrecked_ship.rooms
 # rooms = logic.rooms.wrecked_ship.rooms
-rooms = logic.rooms.norfair_lower.rooms + logic.rooms.norfair_upper.rooms
+# rooms = logic.rooms.norfair_lower.rooms + logic.rooms.norfair_upper.rooms
 # rooms = logic.rooms.brinstar_warehouse.rooms
 # rooms = logic.rooms.brinstar_pink.rooms
 # rooms = logic.rooms.brinstar_red.rooms
@@ -460,14 +464,14 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 #
 # # session = pickle.load(open('models/crateria-2021-06-29T13:35:06.399214.pkl', 'rb'))
 #
-# import io
-# class CPU_Unpickler(pickle.Unpickler):
-#     def find_class(self, module, name):
-#         if module == 'torch.storage' and name =='_load_from_bytes':
-#             return lambda b: torch.load(io.BytesIO(b), map_location='cpu')
-#         else:
-#             return super().find_class(module, name)
-# session = CPU_Unpickler(open('models/crateria-2021-07-09T20:58:34.290741.pkl', 'rb')).load()
+import io
+class CPU_Unpickler(pickle.Unpickler):
+    def find_class(self, module, name):
+        if module == 'torch.storage' and name =='_load_from_bytes':
+            return lambda b: torch.load(io.BytesIO(b), map_location='cpu')
+        else:
+            return super().find_class(module, name)
+session = CPU_Unpickler(open('models/bk2-crateria-2021-07-10T03:19:24.260557.pkl', 'rb')).load()
 # session.policy_optimizer.param_groups[0]['lr'] = 5e-6
 # # session.value_optimizer.param_groups[0]['betas'] = (0.8, 0.999)
 batch_size = 2 ** 8
@@ -478,29 +482,29 @@ session.env = env
 # session.policy_optimizer.param_groups[0]['lr'] = 0.00001
 # session.value_optimizer.param_groups[0]['betas'] = (0.5, 0.9)
 
-logging.info(
-    "num_envs={}, batch_size={}, policy_variation_penalty={}".format(session.env.num_envs, batch_size,
-                                                                     policy_variation_penalty))
-for i in range(10000):
-    mean_reward, max_reward, cnt_max_reward, value_loss_bs, value_loss_mc, policy_loss, policy_variation = session.train_round(
-        episode_length=episode_length,
-        batch_size=batch_size,
-        policy_variation_penalty=policy_variation_penalty,
-        mc_weight=5.0,
-        # render=True)
-        render=False)
-    # render=i % display_freq == 0)
-    logging.info("{}: reward={:.3f} (max={:d}, cnt={:d}), value_loss={:.5f} (mc={:.5f}), policy_loss={:.5f}, policy_variation={:.5f}".format(
-        session.num_rounds, mean_reward, max_reward, cnt_max_reward, value_loss_bs, value_loss_mc, policy_loss, policy_variation))
-    pickle.dump(session, open(pickle_name, 'wb'))
+# logging.info(
+#     "num_envs={}, batch_size={}, policy_variation_penalty={}".format(session.env.num_envs, batch_size,
+#                                                                      policy_variation_penalty))
+# for i in range(10000):
+#     mean_reward, max_reward, cnt_max_reward, value_loss_bs, value_loss_mc, policy_loss, policy_variation = session.train_round(
+#         episode_length=episode_length,
+#         batch_size=batch_size,
+#         policy_variation_penalty=policy_variation_penalty,
+#         mc_weight=5.0,
+#         # render=True)
+#         render=False)
+#     # render=i % display_freq == 0)
+#     logging.info("{}: reward={:.3f} (max={:d}, cnt={:d}), value_loss={:.5f} (mc={:.5f}), policy_loss={:.5f}, policy_variation={:.5f}".format(
+#         session.num_rounds, mean_reward, max_reward, cnt_max_reward, value_loss_bs, value_loss_mc, policy_loss, policy_variation))
+#     pickle.dump(session, open(pickle_name, 'wb'))
 
 
-# while True:
-#     map_tensor, room_mask_tensor, position_tensor, direction_tensor, action_tensor, reward_tensor = session.generate_round(64, render=False)
-#     print(torch.sum(reward_tensor), torch.sum(room_mask_tensor[-1, 0, :]))
-#     if torch.sum(reward_tensor) >= 32:
-#         break
-# session.env.render()
+while True:
+    map_tensor, room_mask_tensor, position_tensor, direction_tensor, action_tensor, reward_tensor = session.generate_round(64, render=False)
+    print(torch.sum(reward_tensor), torch.sum(room_mask_tensor[-1, 0, :]))
+    if torch.sum(reward_tensor) >= 33:
+        break
+session.env.render()
 
 
 
