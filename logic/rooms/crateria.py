@@ -100,7 +100,7 @@ rooms = [
             [0, 0, 0],
             [0, 0, 0],
             [0, 0, 0],
-            [1, 0, 0],
+            [0, 0, 0],   # TODO: add this door back when we add Tourian
         ],
         door_right=[
             [0, 0, 1],
@@ -286,6 +286,23 @@ rooms = [
             [1],
         ],
         door_up=[
+            [1],
+            [0],
+            [0],
+            [0],
+        ],
+        # TODO: add door down when we're ready to connect to other areas
+    ),
+    Room(
+        # TODO: add this to wiki.supermetroid.run/List_of_rooms because it is missing.
+        name='Blue Brinstar Elevator Room',
+        map=[
+            [1],
+            [1],
+            [1],
+            [1],
+        ],
+        door_left=[
             [1],
             [0],
             [0],

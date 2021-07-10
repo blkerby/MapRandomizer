@@ -132,6 +132,12 @@ rooms = [
         ],
     ),
     Room(
+        # TODO: add this to wiki.supermetroid.run/List_of_rooms because it is missing.
+        name='Red Kihunter Shaft Save Room',
+        map=[[1]],
+        door_left=[[1]],
+    ),
+    Room(
         name='Wasteland',
         map=[
             [1, 1, 1, 1, 1, 1],
@@ -335,6 +341,7 @@ rooms = [
         door_left=[[1, 0, 0]],
         door_right=[[0, 0, 1]],
     ),
+
 ]
 
 for room in rooms:

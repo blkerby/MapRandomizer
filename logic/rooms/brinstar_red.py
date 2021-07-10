@@ -152,6 +152,12 @@ rooms = [
             [0, 0],
         ]
     ),
+    Room(
+        # TODO: add this to wiki.supermetroid.run/List_of_rooms because it is missing.
+        name='Red Brinstar Save Room',
+        map=[[1]],
+        door_left=[[1]],
+    ),
 ]
 
 

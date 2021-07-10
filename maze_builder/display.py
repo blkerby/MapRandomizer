@@ -15,8 +15,8 @@ class MapDisplay:
     def __init__(self, tile_x, tile_y):
         self.tile_x = tile_x
         self.tile_y = tile_y
-        self.tile_width = 20
-        self.margin = 20
+        self.tile_width = 30
+        self.margin = self.tile_width
         self.font_size = int(self.tile_width * 0.8)
         self.width = tile_x * self.tile_width + 2 * self.margin
         self.height = tile_y * self.tile_width + 2 * self.margin

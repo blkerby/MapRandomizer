@@ -187,7 +187,7 @@ class MazeBuilderEnv:
         positions = positions + 1
 
         # Prevent already-placed rooms from being selected again
-        neginf = torch.tensor(float('-infinity'), device=self.device)
+        neginf = torch.tensor(float('-infinity'), device=positions.device)
         left_logprobs = torch.where(self.room_mask[left_ids.view(-1, 1), self.right_door_tensor[:, 0].view(1, -1)], neginf, left_logprobs)
         right_logprobs = torch.where(self.room_mask[right_ids.view(-1, 1), self.left_door_tensor[:, 0].view(1, -1)], neginf, right_logprobs)
         down_logprobs = torch.where(self.room_mask[down_ids.view(-1, 1), self.up_door_tensor[:, 0].view(1, -1)], neginf, down_logprobs)

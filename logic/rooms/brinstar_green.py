@@ -94,6 +94,24 @@ rooms = [
         ],
     ),
     Room(
+        # TODO: add this to wiki.supermetroid.run/List_of_rooms because it is missing.
+        name='Green Brinstar Missile Refill Room',
+        map=[[1]],
+        door_right=[[1]],
+    ),
+    Room(
+        # TODO: add this to wiki.supermetroid.run/List_of_rooms because it is missing.
+        name='Green Brinstar Main Shaft Save Room',
+        map=[[1]],
+        door_right=[[1]],
+    ),
+    Room(
+        # TODO: add this to wiki.supermetroid.run/List_of_rooms because it is missing.
+        name='Etecoon Save Room',
+        map=[[1]],
+        door_right=[[1]],
+    ),
+    Room(
         name='Green Brinstar Beetom Room',
         map=[[1]],
         door_left=[[1]],

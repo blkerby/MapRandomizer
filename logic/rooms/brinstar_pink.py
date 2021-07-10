@@ -33,6 +33,12 @@ rooms = [
         ],
     ),
     Room(
+        # TODO: add this to wiki.supermetroid.run/List_of_rooms because it is missing.
+        name='Dachora Energy Refill Room',
+        map=[[1]],
+        door_right=[[1]],
+    ),
+    Room(
         name='Big Pink',
         map=[
             [0, 1, 1, 1, 0],
@@ -70,6 +76,12 @@ rooms = [
             [0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0],
         ],
+    ),
+    Room(
+        # TODO: add this to wiki.supermetroid.run/List_of_rooms because it is missing.
+        name='Big Pink Save Room',
+        map=[[1]],
+        door_right=[[1]],
     ),
     Room(
         name='Pink Brinstar Power Bomb Room',

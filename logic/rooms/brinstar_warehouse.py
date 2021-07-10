@@ -57,6 +57,12 @@ rooms = [
         ]
     ),
     Room(
+        # TODO: add this to wiki.supermetroid.run/List_of_rooms because it is missing.
+        name='Warehouse Save Room',
+        map=[[1]],
+        door_left=[[1]],
+    ),
+    Room(
         name='Baby Kraid Room',
         map=[[1, 1, 1, 1, 1, 1]],
         door_left=[[1, 0, 0, 0, 0, 0]],
@@ -76,6 +82,12 @@ rooms = [
             [1, 0],
             [0, 1],
         ],
+    ),
+    Room(
+        # TODO: add this to wiki.supermetroid.run/List_of_rooms because it is missing.
+        name='Kraid Refill Room',
+        map=[[1]],
+        door_left=[[1]],
     ),
     Room(
         name='Kraid Room',

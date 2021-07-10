@@ -30,25 +30,107 @@ class GlobalMaxPool2d(torch.nn.Module):
 
 
 class PolicyNetwork(torch.nn.Module):
-    def __init__(self, room_tensor, left_door_tensor, right_door_tensor, down_door_tensor, up_door_tensor):
+    def __init__(self, room_tensor, left_door_tensor, right_door_tensor, down_door_tensor, up_door_tensor,
+                 map_x, map_y, map_channels, map_kernel_size, fc_widths, door_embedding_width, batch_norm_momentum):
         super().__init__()
         self.room_tensor = room_tensor
         self.left_door_tensor = left_door_tensor
         self.right_door_tensor = right_door_tensor
         self.down_door_tensor = down_door_tensor
         self.up_door_tensor = up_door_tensor
-        self.dummy_param = torch.nn.Parameter(torch.zeros([]))
+        # self.local_radius = local_radius
 
-    def forward(self, map, room_mask, position, left_ids, right_ids, down_ids, up_ids, steps_remaining):
+        map_layers = []
+        map_channels = [4] + map_channels
+        width = map_x
+        height = map_y
+        for i in range(len(map_channels) - 1):
+            map_layers.append(torch.nn.Conv2d(map_channels[i], map_channels[i + 1],
+                                              kernel_size=(map_kernel_size[i], map_kernel_size[i]),
+                                              padding=map_kernel_size[i] // 2))
+            map_layers.append(torch.nn.ReLU())
+            map_layers.append(torch.nn.BatchNorm2d(map_channels[i + 1], momentum=batch_norm_momentum))
+            map_layers.append(torch.nn.MaxPool2d(3, stride=2, padding=1))
+            width = (width + 1) // 2
+            height = (height + 1) // 2
+        # map_layers.append(GlobalAvgPool2d())
+        # map_layers.append(GlobalMaxPool2d())
+        map_layers.append(torch.nn.Flatten())
+        self.map_sequential = torch.nn.Sequential(*map_layers)
+
+        # map_layers = []
+        # map_channels = [3] + map_channels
+        # width = 2 * local_radius + 1
+        # height = 2 * local_radius + 1
+        # for i in range(len(map_channels) - 1):
+        #     map_layers.append(torch.nn.Conv2d(map_channels[i], map_channels[i + 1],
+        #                                       kernel_size=(map_kernel_size[i], map_kernel_size[i]),
+        #                                       padding=map_kernel_size[i] // 2))
+        #     map_layers.append(torch.nn.ReLU())
+        #     map_layers.append(torch.nn.BatchNorm2d(map_channels[i + 1], momentum=batch_norm_momentum))
+        #     map_layers.append(torch.nn.MaxPool2d(3, stride=2, padding=1))
+        #     width = (width + 1) // 2
+        #     height = (height + 1) // 2
+        # # map_layers.append(GlobalAvgPool2d())
+        # # map_layers.append(GlobalMaxPool2d())
+        # map_layers.append(torch.nn.Flatten())
+        # self.map_sequential = torch.nn.Sequential(*map_layers)
+
+        fc_layers = []
+        fc_widths = [(width * height * map_channels[-1]) + 1 + room_tensor.shape[0]] + fc_widths
+        for i in range(len(fc_widths) - 1):
+            fc_layers.append(torch.nn.Linear(fc_widths[i], fc_widths[i + 1]))
+            fc_layers.append(torch.nn.ReLU())
+            fc_layers.append(torch.nn.BatchNorm1d(fc_widths[i + 1], momentum=batch_norm_momentum))
+        fc_layers.append(torch.nn.Linear(fc_widths[-1], door_embedding_width))
+        self.fc_sequential = torch.nn.Sequential(*fc_layers)
+
+        self.left_door_embedding = torch.nn.Parameter(torch.randn([door_embedding_width, left_door_tensor.shape[0]]))
+        self.right_door_embedding = torch.nn.Parameter(torch.randn([door_embedding_width, right_door_tensor.shape[0]]))
+        self.down_door_embedding = torch.nn.Parameter(torch.randn([door_embedding_width, down_door_tensor.shape[0]]))
+        self.up_door_embedding = torch.nn.Parameter(torch.randn([door_embedding_width, up_door_tensor.shape[0]]))
+
+        # self.left_raw_logprobs = torch.nn.Parameter(torch.zeros([self.right_door_tensor.shape[0]], dtype=torch.float32))
+        # self.right_raw_logprobs = torch.nn.Parameter(torch.zeros([self.left_door_tensor.shape[0]], dtype=torch.float32))
+        # self.down_raw_logprobs = torch.nn.Parameter(torch.zeros([self.up_door_tensor.shape[0]], dtype=torch.float32))
+        # self.up_raw_logprobs = torch.nn.Parameter(torch.zeros([self.down_door_tensor.shape[0]], dtype=torch.float32))
+
+
+    def forward(self, map, room_mask, position, direction, left_ids, right_ids, down_ids, up_ids, steps_remaining):
         device = map.device
-        left_raw_logprobs = torch.zeros([left_ids.shape[0], self.right_door_tensor.shape[0]], dtype=torch.float32,
-                                        device=device) + self.dummy_param
-        right_raw_logprobs = torch.zeros([right_ids.shape[0], self.left_door_tensor.shape[0]], dtype=torch.float32,
-                                         device=device) + self.dummy_param
-        down_raw_logprobs = torch.zeros([down_ids.shape[0], self.up_door_tensor.shape[0]], dtype=torch.float32,
-                                        device=device) + self.dummy_param
-        up_raw_logprobs = torch.zeros([up_ids.shape[0], self.down_door_tensor.shape[0]], dtype=torch.float32,
-                                      device=device) + self.dummy_param
+
+        # padded_map = torch.nn.functional.pad(map, pad=(self.local_radius, self.local_radius, self.local_radius, self.local_radius))
+        # index_x = torch.arange(-self.local_radius, self.local_radius + 1, device=device).view(1, 1, -1, 1) + position[:, 0].view(-1, 1, 1, 1)
+        # index_y = torch.arange(-self.local_radius, self.local_radius + 1, device=device).view(1, 1, 1, -1) + position[:, 1].view(-1, 1, 1, 1)
+        # local_map = padded_map[torch.arange(map.shape[0], device=device).view(-1, 1, 1, 1),
+        #                        torch.arange(3, device=device).view(1, -1, 1, 1), index_x, index_y]
+        # X = local_map
+        X = map.to(torch.float32)
+        pos_layer = torch.zeros_like(X[:, :1, :, :])
+        pos_layer[torch.arange(map.shape[0], device=device), 0, position[:, 0], position[:, 1]] = (direction + 1).to(torch.float32)
+        X = torch.cat([X, pos_layer], dim=1)
+        for layer in self.map_sequential:
+            # print(X.shape, layer)
+            X = layer(X)
+
+        X = torch.cat([X, steps_remaining.view(-1, 1), room_mask], dim=1)
+        for layer in self.fc_sequential:
+            X = layer(X)
+
+        X_left = X[left_ids, :]
+        X_right = X[right_ids, :]
+        X_down = X[down_ids, :]
+        X_up = X[up_ids, :]
+
+        left_raw_logprobs = torch.matmul(X_left, self.left_door_embedding)
+        right_raw_logprobs = torch.matmul(X_right, self.right_door_embedding)
+        down_raw_logprobs = torch.matmul(X_down, self.down_door_embedding)
+        up_raw_logprobs = torch.matmul(X_up, self.up_door_embedding)
+
+        # left_raw_logprobs = self.left_raw_logprobs.view(1, -1).repeat(left_ids.shape[0], 1)
+        # right_raw_logprobs = self.right_raw_logprobs.view(1, -1).repeat(right_ids.shape[0], 1)
+        # down_raw_logprobs = self.down_raw_logprobs.view(1, -1).repeat(down_ids.shape[0], 1)
+        # up_raw_logprobs = self.up_raw_logprobs.view(1, -1).repeat(up_ids.shape[0], 1)
         return left_raw_logprobs, right_raw_logprobs, down_raw_logprobs, up_raw_logprobs
 
 
@@ -91,7 +173,6 @@ class ValueNetwork(torch.nn.Module):
     def forward(self, map, room_mask, steps_remaining):
         X = map.to(torch.float32)
         for layer in self.map_sequential:
-            # print(X.shape, layer)
             X = layer(X)
 
         X = torch.cat([X, steps_remaining.view(-1, 1), room_mask], dim=1)
@@ -112,6 +193,7 @@ class TrainingSession():
         self.policy_network = policy_network
         self.value_optimizer = value_optimizer
         self.policy_optimizer = policy_optimizer
+        self.num_rounds = 0
 
     def generate_round(self, episode_length, render=False):
         map, room_mask = self.env.reset()
@@ -121,14 +203,15 @@ class TrainingSession():
         direction_list = []
         action_list = []
         reward_list = []
+        self.policy_network.eval()
         for j in range(episode_length):
             if render:
                 self.env.render()
             position, direction, left_ids, right_ids, down_ids, up_ids = env.choose_random_door()
-            steps_remaining = episode_length - j
+            steps_remaining = torch.full_like(direction, episode_length - j)
             with torch.no_grad():
-                policy_out = self.policy_network(map, room_mask, position, left_ids, right_ids, down_ids, up_ids,
-                                                 steps_remaining)
+                policy_out = self.policy_network(map, room_mask, position, direction,
+                                                 left_ids, right_ids, down_ids, up_ids, steps_remaining)
             left_raw_logprobs, right_raw_logprobs, down_raw_logprobs, up_raw_logprobs = policy_out
             reward, map, room_mask, action = self.env.random_step(
                 position, left_ids, right_ids, down_ids, up_ids,
@@ -151,6 +234,7 @@ class TrainingSession():
                     episode_length: int,
                     batch_size: int,
                     policy_variation_penalty: float = 0.0,
+                    mc_weight: float = 0.0,
                     render: bool = False,
                     ):
         # Generate data using the current policy
@@ -164,6 +248,10 @@ class TrainingSession():
         room_mask1 = room_mask[1:, :, :]
         steps_remaining = (episode_length - torch.arange(episode_length, device=map.device)).view(-1, 1).repeat(1,
                                                                                                                 env.num_envs)
+        total_reward = cumul_reward[0, :]
+        mean_reward = torch.mean(total_reward.to(torch.float32))
+        max_reward = torch.max(total_reward).item()
+        cnt_max_reward = torch.sum(total_reward == max_reward)
 
         # Flatten the data
         n = episode_length * self.env.num_envs
@@ -194,26 +282,44 @@ class TrainingSession():
         num_batches = n // batch_size
 
         # Make one pass through the data, updating the value network
-        total_value_loss = 0.0
+        total_value_loss_bs = 0.0
+        total_value_loss_mc = 0.0
         for i in range(num_batches):
             start = i * batch_size
             end = (i + 1) * batch_size
+            # map0_batch = map0[start:end, :, :, :]
+            # room_mask0_batch = room_mask0[start:end, :]
+            # cumul_reward_batch = cumul_reward[start:end]
+            # steps_remaining_batch = steps_remaining[start:end]
+            # value0 = self.value_network(map0_batch, room_mask0_batch, steps_remaining_batch)
+            # value_loss = torch.mean((value0 - cumul_reward_batch) ** 2)
             map0_batch = map0[start:end, :, :, :]
+            map1_batch = map1[start:end, :, :, :]
             room_mask0_batch = room_mask0[start:end, :]
+            room_mask1_batch = room_mask1[start:end, :]
+            reward_batch = reward[start:end]
             cumul_reward_batch = cumul_reward[start:end]
             steps_remaining_batch = steps_remaining[start:end]
             value0 = self.value_network(map0_batch, room_mask0_batch, steps_remaining_batch)
-            value_loss = torch.mean((value0 - cumul_reward_batch) ** 2)
+            with torch.no_grad():
+                value1 = self.value_network(map1_batch, room_mask1_batch, steps_remaining_batch - 1)
+                target = torch.where(steps_remaining_batch == 1, reward_batch.to(torch.float32), reward_batch + value1)
+            value_loss_bs = torch.mean((value0 - target) ** 2)
+            value_loss_mc = torch.mean((value0 - cumul_reward_batch) ** 2)
+            value_loss = value_loss_bs + mc_weight * value_loss_mc
+
             self.value_optimizer.zero_grad()
             value_loss.backward()
             torch.nn.utils.clip_grad_norm_(self.value_network.parameters(), 1e-5)
             self.value_optimizer.step()
             # self.value_network.decay(weight_decay * self.value_optimizer.param_groups[0]['lr'])
-            total_value_loss += value_loss.item()
+            total_value_loss_bs += value_loss_bs.item()
+            total_value_loss_mc += value_loss_mc.item()
 
         # Make a second pass through the data, updating the policy network
         total_policy_loss = 0.0
         total_policy_variation = 0.0
+        self.policy_network.train()
         for i in range(num_batches):
             start = i * batch_size
             end = (i + 1) * batch_size
@@ -234,7 +340,7 @@ class TrainingSession():
             right_ids = torch.nonzero(direction_batch == 1)[:, 0]
             down_ids = torch.nonzero(direction_batch == 2)[:, 0]
             up_ids = torch.nonzero(direction_batch == 3)[:, 0]
-            policy_out = self.policy_network(map0_batch, room_mask0_batch, position_batch,
+            policy_out = self.policy_network(map0_batch, room_mask0_batch, position_batch, direction_batch,
                                              left_ids, right_ids, down_ids, up_ids, steps_remaining_batch)
             left_raw_logprobs, right_raw_logprobs, down_raw_logprobs, up_raw_logprobs = policy_out
             left_logprobs = left_raw_logprobs - torch.logsumexp(left_raw_logprobs, dim=1, keepdim=True)
@@ -249,10 +355,12 @@ class TrainingSession():
                             torch.sum(advantage[right_ids] * right_logprobs_action) +
                             torch.sum(advantage[down_ids] * down_logprobs_action) +
                             torch.sum(advantage[up_ids] * up_logprobs_action)) / batch_size
+            num_doors = (self.env.left_door_tensor.shape[0] + self.env.right_door_tensor.shape[0] +
+                         self.env.down_door_tensor.shape[0] + self.env.up_door_tensor.shape[0])
             policy_variation = (torch.sum(left_raw_logprobs ** 2) +
                                 torch.sum(right_raw_logprobs ** 2) +
                                 torch.sum(down_raw_logprobs ** 2) +
-                                torch.sum(up_raw_logprobs ** 2)) / batch_size
+                                torch.sum(up_raw_logprobs ** 2)) / batch_size / num_doors
             policy_variation_loss = policy_variation_penalty * policy_variation
             self.policy_optimizer.zero_grad()
             (policy_loss + policy_variation_loss).backward()
@@ -262,23 +370,28 @@ class TrainingSession():
             total_policy_loss += policy_loss.item()
             total_policy_variation += policy_variation.item()
 
-            total_policy_loss = 0.0
-            total_policy_variation = 0.0
+        self.num_rounds += 1
 
-        mean_reward = torch.sum(reward) / self.env.num_envs
-        return mean_reward, total_value_loss / num_batches, total_policy_loss / num_batches, \
-               total_policy_variation / num_batches
+        return mean_reward, max_reward, cnt_max_reward, total_value_loss_bs / num_batches, \
+               total_value_loss_mc / num_batches, total_policy_loss / num_batches, total_policy_variation / num_batches
 
 
 import logic.rooms.crateria
+import logic.rooms.wrecked_ship
+import logic.rooms.norfair_lower
+import logic.rooms.norfair_upper
+import logic.rooms.all_rooms
 
-# device = torch.device('cpu')
-device = torch.device('cuda:0')
+device = torch.device('cpu')
+# device = torch.device('cuda:0')
 
-num_envs = 1024
-# num_envs = 1024
+num_envs = 256
+# num_envs = 1
 rooms = logic.rooms.crateria.rooms
-action_radius = 1
+# rooms = logic.rooms.crateria.rooms + logic.rooms.wrecked_ship.rooms
+# rooms = logic.rooms.wrecked_ship.rooms
+# rooms = logic.rooms.norfair_lower.rooms + logic.rooms.norfair_upper.rooms
+# rooms = logic.rooms.all_rooms.rooms
 episode_length = 64
 display_freq = 1
 map_x = 32
@@ -290,6 +403,8 @@ env = MazeBuilderEnv(rooms,
                      map_y=map_y,
                      num_envs=num_envs,
                      device=device)
+print(env.left_door_tensor.shape, env.right_door_tensor.shape, env.down_door_tensor.shape, env.up_door_tensor.shape)
+
 
 value_network = ValueNetwork(env.room_tensor,
                              map_x=map_x,
@@ -300,9 +415,20 @@ value_network = ValueNetwork(env.room_tensor,
                              batch_norm_momentum=0.1,
                              ).to(device)
 policy_network = PolicyNetwork(env.room_tensor, env.left_door_tensor, env.right_door_tensor,
-                               env.down_door_tensor, env.up_door_tensor).to(device)
-value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.001, betas=(0.5, 0.5), eps=1e-15)
-policy_optimizer = torch.optim.Adam(policy_network.parameters(), lr=1e-5, betas=(0.5, 0.5), eps=1e-15)
+                               env.down_door_tensor, env.up_door_tensor,
+                               map_x=map_x,
+                               map_y=map_y,
+                               # local_radius=5,
+                               map_channels=[32, 64, 128],
+                               map_kernel_size=[11, 5, 3],
+                               fc_widths=[128, 128, 128],
+                               door_embedding_width=128,
+                               batch_norm_momentum=0.1,
+                               ).to(device)
+policy_network.fc_sequential[-1].weight.data[:, :] = 0.0
+policy_network.fc_sequential[-1].bias.data[:] = 0.0
+value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.0001, betas=(0.5, 0.5), eps=1e-15)
+policy_optimizer = torch.optim.Adam(policy_network.parameters(), lr=0.00002, betas=(0.5, 0.5), eps=1e-15)
 
 print(value_network)
 print(value_optimizer)
@@ -325,57 +451,50 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 #
 # # session = pickle.load(open('models/crateria-2021-06-29T13:35:06.399214.pkl', 'rb'))
 #
-# # import io
-# #
-# #
-# # class CPU_Unpickler(pickle.Unpickler):
-# #     def find_class(self, module, name):
-# #         if module == 'torch.storage' and name == '_load_from_bytes':
-# #             return lambda b: torch.load(io.BytesIO(b), map_location='cpu')
-# #         else:
-# #             return super().find_class(module, name)
-# # session = CPU_Unpickler(open('models/crateria-2021-06-29T12:30:22.754523.pkl', 'rb')).load()
+# import io
+# class CPU_Unpickler(pickle.Unpickler):
+#     def find_class(self, module, name):
+#         if module == 'torch.storage' and name =='_load_from_bytes':
+#             return lambda b: torch.load(io.BytesIO(b), map_location='cpu')
+#         else:
+#             return super().find_class(module, name)
+# session = CPU_Unpickler(open('models/crateria-2021-07-09T20:58:34.290741.pkl', 'rb')).load()
 # session.policy_optimizer.param_groups[0]['lr'] = 5e-6
 # # session.value_optimizer.param_groups[0]['betas'] = (0.8, 0.999)
 batch_size = 2 ** 8
 # batch_size = 2 ** 13  # 2 ** 12
-policy_variation_penalty = 0.005
-# session.env = env
-# session.value_optimizer.param_groups[0]['lr'] = 0.005
+policy_variation_penalty = 0.01
+session.env = env
+# session.value_optimizer.param_groups[0]['lr'] = 0.00005
+# session.policy_optimizer.param_groups[0]['lr'] = 0.00001
 # session.value_optimizer.param_groups[0]['betas'] = (0.5, 0.9)
+
 logging.info(
     "num_envs={}, batch_size={}, policy_variation_penalty={}".format(session.env.num_envs, batch_size,
                                                                      policy_variation_penalty))
 for i in range(10000):
-    reward, value_loss, policy_loss, policy_variation = session.train_round(
+    mean_reward, max_reward, cnt_max_reward, value_loss_bs, value_loss_mc, policy_loss, policy_variation = session.train_round(
         episode_length=episode_length,
         batch_size=batch_size,
         policy_variation_penalty=policy_variation_penalty,
+        mc_weight=0.4,
+        # render=True)
         render=False)
     # render=i % display_freq == 0)
-    logging.info("{}: reward={:.3f} value_loss={:.5f}, policy_loss={:.5f}, policy_variation={:.5f}".format(
-        i, reward, value_loss, policy_loss, policy_variation))
-    # pickle.dump(session, open(pickle_name, 'wb'))
-#
-# # session.policy_optimizer.param_groups[0]['lr'] = 2e-5
-# # horizon = 8
-# # batch_size = 256
-# # policy_variation_penalty = 5e-4
-# # print("num_envs={}, batch_size={}, horizon={}, policy_variation_penalty={}".format(env.num_envs, batch_size, horizon, policy_variation_penalty))
-# # for i in range(10000):
-# #     reward, value_loss, policy_loss, policy_variation = session.train_round(
-# #         num_episodes=1,
-# #         episode_length=episode_length,
-# #         horizon=horizon,
-# #         batch_size=batch_size,
-# #         weight_decay=0.0,
-# #         policy_variation_penalty=policy_variation_penalty,
-# #         render=False)
-# #         # render=i % display_freq == 0)
-# #     logging.info("{}: reward={:.3f}, value_loss={:.5f}, policy_loss={:.5f}, policy_variation={:.5f}".format(
-# #         i, reward, value_loss, policy_loss, policy_variation))
-#
-#
+    logging.info("{}: reward={:.3f} (max={:d}, cnt={:d}), value_loss={:.5f} (mc={:.5f}), policy_loss={:.5f}, policy_variation={:.5f}".format(
+        session.num_rounds, mean_reward, max_reward, cnt_max_reward, value_loss_bs, value_loss_mc, policy_loss, policy_variation))
+    pickle.dump(session, open(pickle_name, 'wb'))
+
+
+# while True:
+#     map_tensor, room_mask_tensor, position_tensor, direction_tensor, action_tensor, reward_tensor = session.generate_round(64, render=False)
+#     print(torch.sum(reward_tensor), torch.sum(room_mask_tensor[-1, 0, :]))
+#     if torch.sum(reward_tensor) >= 32:
+#         break
+# session.env.render()
+
+
+
 # # state = env.reset()
 # # for j in range(episode_length):
 # #     with torch.no_grad():
@@ -388,15 +507,3 @@ for i in range(10000):
 # #     reward, state = session.env.step(action.squeeze(1))
 # #     session.env.render()
 #
-# #
-# # session.env.render()
-# # out, room_infos = value_network.encode_map(env.state)
-# # r = value_network.decode_map(out, room_infos)
-#
-# # session.env.render()
-# # b = value_network._compute_room_boundaries(env.room_tensors[1][0, :, :])
-# # print(env.room_tensors[1][0,:, :].t())
-# # print(b[3, :, :].t())
-#
-# # torch.save(policy_network, "crateria_policy.pt")
-# # torch.save(value_network, "crateria_value.pt")
