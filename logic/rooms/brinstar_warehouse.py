@@ -24,7 +24,7 @@ rooms = [
     Room(
         name='Warehouse Zeela Room',
         map=[
-            [1, 1],
+            [1, 0],
             [1, 1],
         ],
         door_left=[

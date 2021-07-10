@@ -21,9 +21,8 @@ def _is_map_valid(map: torch.tensor):
     blocked_down_door = (map[:, 2, :, :] == -1) & (map[:, 0, :, :] == 1)
     some_blocked_down_door = torch.max(blocked_down_door.view(num_envs, -1), dim=1)[0]
 
-    # print(blocked_left_door, blocked_right_door, blocked_up_door, blocked_down_door)
-    # print("doors", some_blocked_left_door, some_blocked_right_door, some_blocked_up_door, some_blocked_down_door)
     some_blocked_door = some_blocked_left_door | some_blocked_right_door | some_blocked_up_door | some_blocked_down_door
+
     return no_overlapping_room & torch.logical_not(some_blocked_door)
 
 def _rand_choice(p):
@@ -59,6 +58,7 @@ class MazeBuilderEnv:
         self.cap = torch.stack([self.cap_x, self.cap_y], dim=1)
         assert torch.all(self.cap >= 2)  # Ensure map is big enough for largest room in each direction
 
+        print(self.room_tensor.shape, self.cap_x, self.cap_y)
         self.reset()
 
         self.map_display = None

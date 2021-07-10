@@ -246,7 +246,12 @@ rooms = [
             [0],
             [0],
         ],
-        # TODO: add door down when we're ready to connect to other areas
+        door_down=[
+            [0],
+            [0],
+            [0],
+            [1],
+        ],
     ),
     Room(
         name='Crateria Kihunter Room',
@@ -291,7 +296,12 @@ rooms = [
             [0],
             [0],
         ],
-        # TODO: add door down when we're ready to connect to other areas
+        door_down=[
+            [0],
+            [0],
+            [0],
+            [1],
+        ],
     ),
     Room(
         # TODO: add this to wiki.supermetroid.run/List_of_rooms because it is missing.
@@ -308,7 +318,12 @@ rooms = [
             [0],
             [0],
         ],
-        # TODO: add door down when we're ready to connect to other areas
+        door_down=[
+            [0],
+            [0],
+            [0],
+            [1],
+        ],
     ),
     Room(
         name='Statues Room',
@@ -325,8 +340,14 @@ rooms = [
             [0],
             [0],
             [0],
-        ]
-        # TODO: add door down when we're ready to connect to other areas
+        ],
+        door_down=[
+            [0],
+            [0],
+            [0],
+            [0],
+            [1],
+        ],
     ),
     Room(
         name='Crateria Power Bomb Room',
@@ -368,33 +389,33 @@ rooms = [
         door_left=[[1, 0, 0, 0, 0, 0]],
         door_right=[[0, 0, 0, 0, 0, 1]],
     ),
-    # Room(
-    #     name='West Ocean',
-    #     map=[
-    #         [1, 1, 1, 1, 1, 1, 1, 1],
-    #         [1, 1, 1, 1, 1, 1, 1, 1],
-    #         [1, 1, 1, 0, 0, 1, 0, 0],
-    #         [1, 1, 1, 1, 1, 1, 0, 0],
-    #         [1, 1, 1, 1, 1, 1, 1, 1],
-    #         [1, 1, 1, 1, 1, 1, 1, 1],
-    #     ],
-    #     door_right=[
-    #         [0, 0, 0, 0, 0, 0, 0, 1],
-    #         [0, 0, 0, 0, 0, 0, 0, 1],
-    #         [0, 0, 1, 0, 0, 1, 0, 0],
-    #         [0, 0, 0, 0, 0, 1, 0, 0],
-    #         [0, 0, 0, 0, 0, 0, 0, 1],
-    #         [0, 0, 0, 0, 0, 0, 0, 0],
-    #     ],
-    #     door_left=[
-    #         [0, 0, 0, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 0, 1, 0, 0],
-    #         [0, 0, 0, 0, 0, 0, 0, 0],
-    #         [1, 0, 0, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 0, 0, 0, 0],
-    #     ],
-    # ),
+    Room(
+        name='West Ocean',
+        map=[
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 0, 0, 1, 0, 0],
+            [1, 1, 1, 1, 1, 1, 0, 0],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+        ],
+        door_right=[
+            [0, 0, 0, 0, 0, 0, 0, 1],
+            [0, 0, 0, 0, 0, 0, 0, 1],
+            [0, 0, 1, 0, 0, 1, 0, 0],
+            [0, 0, 0, 0, 0, 1, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 1],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+        ],
+        door_left=[
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 1, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+        ],
+    ),
     Room(
         name='Bowling Alley Path',
         map=[[1, 1]],
@@ -478,7 +499,12 @@ rooms = [
             [0],
             [0],
         ],
-        # TODO: add door down when we're ready to connect to other areas
+        door_down=[
+            [0],
+            [0],
+            [0],
+            [1],
+        ],
     ),
     Room(
         name='Forgotten Highway Elbow',  # Add to list on wiki.supermetroid.run

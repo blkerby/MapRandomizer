@@ -122,15 +122,11 @@ class PolicyNetwork(torch.nn.Module):
         X_down = X[down_ids, :]
         X_up = X[up_ids, :]
 
-        left_raw_logprobs = torch.matmul(X_left, self.left_door_embedding)
-        right_raw_logprobs = torch.matmul(X_right, self.right_door_embedding)
-        down_raw_logprobs = torch.matmul(X_down, self.down_door_embedding)
-        up_raw_logprobs = torch.matmul(X_up, self.up_door_embedding)
+        left_raw_logprobs = torch.matmul(X_left, self.right_door_embedding)
+        right_raw_logprobs = torch.matmul(X_right, self.left_door_embedding)
+        down_raw_logprobs = torch.matmul(X_down, self.up_door_embedding)
+        up_raw_logprobs = torch.matmul(X_up, self.down_door_embedding)
 
-        # left_raw_logprobs = self.left_raw_logprobs.view(1, -1).repeat(left_ids.shape[0], 1)
-        # right_raw_logprobs = self.right_raw_logprobs.view(1, -1).repeat(right_ids.shape[0], 1)
-        # down_raw_logprobs = self.down_raw_logprobs.view(1, -1).repeat(down_ids.shape[0], 1)
-        # up_raw_logprobs = self.up_raw_logprobs.view(1, -1).repeat(up_ids.shape[0], 1)
         return left_raw_logprobs, right_raw_logprobs, down_raw_logprobs, up_raw_logprobs
 
 
@@ -381,16 +377,29 @@ import logic.rooms.wrecked_ship
 import logic.rooms.norfair_lower
 import logic.rooms.norfair_upper
 import logic.rooms.all_rooms
+import logic.rooms.brinstar_pink
+import logic.rooms.brinstar_green
+import logic.rooms.brinstar_red
+import logic.rooms.brinstar_blue
+import logic.rooms.maridia_lower
+import logic.rooms.maridia_upper
 
 device = torch.device('cpu')
 # device = torch.device('cuda:0')
 
 num_envs = 256
 # num_envs = 1
-rooms = logic.rooms.crateria.rooms
+# rooms = logic.rooms.crateria.rooms
 # rooms = logic.rooms.crateria.rooms + logic.rooms.wrecked_ship.rooms
 # rooms = logic.rooms.wrecked_ship.rooms
-# rooms = logic.rooms.norfair_lower.rooms + logic.rooms.norfair_upper.rooms
+rooms = logic.rooms.norfair_lower.rooms + logic.rooms.norfair_upper.rooms
+# rooms = logic.rooms.brinstar_warehouse.rooms
+# rooms = logic.rooms.brinstar_pink.rooms
+# rooms = logic.rooms.brinstar_red.rooms
+# rooms = logic.rooms.brinstar_blue.rooms
+# rooms = logic.rooms.brinstar_green.rooms
+# rooms = logic.rooms.maridia_lower.rooms
+# rooms = logic.rooms.maridia_upper.rooms
 # rooms = logic.rooms.all_rooms.rooms
 episode_length = 64
 display_freq = 1
@@ -477,7 +486,7 @@ for i in range(10000):
         episode_length=episode_length,
         batch_size=batch_size,
         policy_variation_penalty=policy_variation_penalty,
-        mc_weight=0.4,
+        mc_weight=5.0,
         # render=True)
         render=False)
     # render=i % display_freq == 0)
