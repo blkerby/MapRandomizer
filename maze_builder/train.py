@@ -236,9 +236,9 @@ class TrainingSession():
     def train_round(self,
                     episode_length: int,
                     batch_size: int,
-                    # td_lambda: float = 0.0,
+                    td_lambda: float = 0.0,
                     policy_variation_penalty: float = 0.0,
-                    mc_weight: float = 0.0,
+                    # mc_weight: float = 0.0,
                     render: bool = False,
                     ):
         # Generate data using the current policy
@@ -261,7 +261,9 @@ class TrainingSession():
         target_list = []
         total_target_err = 0.0
         self.value_network.eval()
-        for i in reversed(range(episode_length)):
+        target_batch = reward[-1, :]
+        target_list.append(target_batch)
+        for i in reversed(range(episode_length - 1)):
             map1_batch = map1[i, :, :, :, :]
             room_mask1_batch = room_mask1[i, :, :]
             reward_batch = reward[i, :]
@@ -269,21 +271,22 @@ class TrainingSession():
             steps_remaining_batch = steps_remaining[i, :]
             with torch.no_grad():
                 value1 = self.value_network(map1_batch, room_mask1_batch, steps_remaining_batch - 1)
-            target_batch = torch.where(steps_remaining_batch == 1, reward_batch.to(torch.float32), reward_batch + value1)
+            # target_batch = torch.where(steps_remaining_batch == 1, reward_batch.to(torch.float32), reward_batch + value1)
+            target_batch = td_lambda * target_batch + (1 - td_lambda) * value1 + reward_batch
             target_list.append(target_batch)
-            total_target_err += torch.mean((target_batch - cumul_reward_batch) ** 2).item()
+            total_target_err += torch.mean((value1 - cumul_reward_batch) ** 2).item()
         target = torch.stack(list(reversed(target_list)), dim=0)
 
         # Flatten the data
         n = episode_length * self.env.num_envs
         map0 = map0.view(n, 3, self.env.map_x, self.env.map_y)
-        map1 = map1.view(n, 3, self.env.map_x, self.env.map_y)
+        # map1 = map1.view(n, 3, self.env.map_x, self.env.map_y)
         room_mask0 = room_mask0.view(n, len(self.env.rooms))
-        room_mask1 = room_mask1.view(n, len(self.env.rooms))
+        # room_mask1 = room_mask1.view(n, len(self.env.rooms))
         position = position.view(n, 2)
         direction = direction.view(n)
         action = action.view(n)
-        reward = reward.view(n)
+        # reward = reward.view(n)
         cumul_reward = cumul_reward.view(n)
         steps_remaining = steps_remaining.view(n)
         target = target.view(n)
@@ -291,13 +294,13 @@ class TrainingSession():
         # Shuffle the data
         perm = torch.randperm(n)
         map0 = map0[perm, :, :, :]
-        map1 = map1[perm, :, :, :]
+        # map1 = map1[perm, :, :, :]
         room_mask0 = room_mask0[perm, :]
-        room_mask1 = room_mask1[perm, :]
+        # room_mask1 = room_mask1[perm, :]
         position = position[perm]
         direction = direction[perm]
         action = action[perm]
-        reward = reward[perm]
+        # reward = reward[perm]
         cumul_reward = cumul_reward[perm]
         steps_remaining = steps_remaining[perm]
         target = target[perm]
@@ -318,7 +321,7 @@ class TrainingSession():
             room_mask0_batch = room_mask0[start:end, :]
             # room_mask1_batch = room_mask1[start:end, :]
             # reward_batch = reward[start:end]
-            cumul_reward_batch = cumul_reward[start:end]
+            # cumul_reward_batch = cumul_reward[start:end]
             steps_remaining_batch = steps_remaining[start:end]
             action_batch = action[start:end]
             position_batch = position[start:end, :]
@@ -332,17 +335,18 @@ class TrainingSession():
             #     target = torch.where(steps_remaining_batch == 1, reward_batch.to(torch.float32), reward_batch + value1)
             # target = targets[i]
             value_loss_bs = torch.mean((value0 - target_batch) ** 2)
-            value_loss_mc = torch.mean((value0 - cumul_reward_batch) ** 2)
-            value_loss = (1 - mc_weight) * value_loss_bs + mc_weight * value_loss_mc
+            # value_loss_mc = torch.mean((value0 - cumul_reward_batch) ** 2)
+            # value_loss = (1 - mc_weight) * value_loss_bs + mc_weight * value_loss_mc
             self.value_optimizer.zero_grad()
-            value_loss.backward()
+            value_loss_bs.backward()
             torch.nn.utils.clip_grad_norm_(self.value_network.parameters(), 1e-5)
             self.value_optimizer.step()
             # self.value_network.decay(weight_decay * self.value_optimizer.param_groups[0]['lr'])
             total_value_loss_bs += value_loss_bs.item()
 
             # Update the policy network
-            advantage = (1 - mc_weight) * target_batch + mc_weight * cumul_reward_batch - value0.detach()
+            # advantage = (1 - mc_weight) * target_batch + mc_weight * cumul_reward_batch - value0.detach()
+            advantage = target_batch - value0.detach()
             left_ids = torch.nonzero(direction_batch == 0)[:, 0]
             right_ids = torch.nonzero(direction_batch == 1)[:, 0]
             down_ids = torch.nonzero(direction_batch == 2)[:, 0]
@@ -451,8 +455,8 @@ policy_network = PolicyNetwork(env.room_tensor, env.left_door_tensor, env.right_
                                ).to(device)
 policy_network.fc_sequential[-1].weight.data[:, :] = 0.0
 policy_network.fc_sequential[-1].bias.data[:] = 0.0
-value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.0005, betas=(0.5, 0.5), eps=1e-15)
-policy_optimizer = torch.optim.Adam(policy_network.parameters(), lr=0.00001, betas=(0.5, 0.5), eps=1e-15)
+value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.0005, betas=(0.9, 0.99), eps=1e-15)
+policy_optimizer = torch.optim.Adam(policy_network.parameters(), lr=0.00001, betas=(0.9, 0.99), eps=1e-15)
 
 print(value_network)
 print(value_optimizer)
@@ -487,21 +491,24 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 # # session.value_optimizer.param_groups[0]['betas'] = (0.8, 0.999)
 batch_size = 2 ** 8
 # batch_size = 2 ** 13  # 2 ** 12
-policy_variation_penalty = 0.01
+policy_variation_penalty = 0.05
+td_lambda = 0.9
 session.env = env
-# session.value_optimizer.param_groups[0]['lr'] = 0.00005
-# session.policy_optimizer.param_groups[0]['lr'] = 0.00001
-# session.value_optimizer.param_groups[0]['betas'] = (0.5, 0.9)
+# session.value_optimizer.param_groups[0]['lr'] = 0.0001
+session.policy_optimizer.param_groups[0]['lr'] = 2e-6
+session.value_optimizer.param_groups[0]['betas'] = (0.5, 0.5)
+session.policy_optimizer.param_groups[0]['betas'] = (0.5, 0.5)
 
 logging.info(
-    "num_envs={}, batch_size={}, policy_variation_penalty={}".format(session.env.num_envs, batch_size,
-                                                                     policy_variation_penalty))
+    "num_envs={}, batch_size={}, policy_variation_penalty={}, td_lambda={}".format(session.env.num_envs, batch_size,
+                                                                     policy_variation_penalty, td_lambda))
 for i in range(10000):
     mean_reward, max_reward, cnt_max_reward, value_loss_bs, target_err, policy_loss, policy_variation = session.train_round(
         episode_length=episode_length,
         batch_size=batch_size,
         policy_variation_penalty=policy_variation_penalty,
-        mc_weight=0.1,
+        td_lambda=td_lambda,
+        # mc_weight=0.1,
         # render=True)
         render=False)
     # render=i % display_freq == 0)
