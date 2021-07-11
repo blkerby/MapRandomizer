@@ -30,7 +30,17 @@ rooms = [
             [0],
             [1],
             [1],
-        ]
+        ],
+        # TODO: put this back when we're ready to connect to other areas
+        # door_up=[
+        #     [1],
+        #     [0],
+        #     [0],
+        #     [0],
+        #     [0],
+        #     [0],
+        #     [0],
+        # ],
     ),
     Room(
         name='Norfair Map Room',
@@ -169,6 +179,11 @@ rooms = [
             [0, 0],
             [1, 0],
         ],
+    ),
+    Room(
+        name='Bubble Mountain Save Room',
+        map=[[1]],
+        door_right=[[1]],
     ),
     Room(
         name='Green Bubbles Missile Room',
@@ -609,6 +624,23 @@ rooms = [
         map=[[1]],
         door_left=[[1]],
     ),
+    Room(
+        name='Post Crocomire Save Room',
+        map=[[1]],
+        door_left=[[1]],
+    ),
+    Room(
+        name='Lower Norfair Elevator',
+        map=[[1]],
+        door_left=[[1]],
+        door_right=[[1]],
+        door_down=[[1]],  # TODO: elevator
+    ),
+    Room(
+        name='Lower Norfair Elevator Save Room',
+        map=[[1]],
+        door_right=[[1]],
+    )
 ]
 
 for room in rooms:

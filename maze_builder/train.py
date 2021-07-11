@@ -15,7 +15,7 @@ logging.basicConfig(format='%(asctime)s %(message)s',
 torch.autograd.set_detect_anomaly(True)
 
 start_time = datetime.now()
-pickle_name = 'models/crateria-{}.pkl'.format(start_time.isoformat())
+pickle_name = 'models/norfair-{}.pkl'.format(start_time.isoformat())
 logging.info("Checkpoint path: {}".format(pickle_name))
 
 
@@ -302,7 +302,7 @@ class TrainingSession():
                 target = torch.where(steps_remaining_batch == 1, reward_batch.to(torch.float32), reward_batch + value1)
             value_loss_bs = torch.mean((value0 - target) ** 2)
             value_loss_mc = torch.mean((value0 - cumul_reward_batch) ** 2)
-            value_loss = value_loss_bs + mc_weight * value_loss_mc
+            value_loss = (1 - mc_weight) * value_loss_bs + mc_weight * value_loss_mc
 
             self.value_optimizer.zero_grad()
             value_loss.backward()
@@ -373,6 +373,7 @@ class TrainingSession():
 
 
 import logic.rooms.crateria
+import logic.rooms.crateria_isolated
 import logic.rooms.wrecked_ship
 import logic.rooms.norfair_lower
 import logic.rooms.norfair_upper
@@ -384,15 +385,18 @@ import logic.rooms.brinstar_blue
 import logic.rooms.maridia_lower
 import logic.rooms.maridia_upper
 
-device = torch.device('cpu')
-# device = torch.device('cuda:0')
+# device = torch.device('cpu')
+device = torch.device('cuda:0')
 
 num_envs = 256
 # num_envs = 1
+rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.crateria.rooms
 # rooms = logic.rooms.crateria.rooms + logic.rooms.wrecked_ship.rooms
 # rooms = logic.rooms.wrecked_ship.rooms
-rooms = logic.rooms.norfair_lower.rooms + logic.rooms.norfair_upper.rooms
+# rooms = logic.rooms.norfair_lower.rooms + logic.rooms.norfair_upper.rooms
+# rooms = logic.rooms.norfair_upper.rooms
+# rooms = logic.rooms.norfair_lower.rooms
 # rooms = logic.rooms.brinstar_warehouse.rooms
 # rooms = logic.rooms.brinstar_pink.rooms
 # rooms = logic.rooms.brinstar_red.rooms
@@ -412,14 +416,14 @@ env = MazeBuilderEnv(rooms,
                      map_y=map_y,
                      num_envs=num_envs,
                      device=device)
-print(env.left_door_tensor.shape, env.right_door_tensor.shape, env.down_door_tensor.shape, env.up_door_tensor.shape)
+print(env.room_tensor.shape, env.left_door_tensor.shape, env.right_door_tensor.shape, env.down_door_tensor.shape, env.up_door_tensor.shape)
 
 
 value_network = ValueNetwork(env.room_tensor,
                              map_x=map_x,
                              map_y=map_y,
-                             map_channels=[32, 64, 128],
-                             map_kernel_size=[11, 9, 7],
+                             map_channels=[64, 64, 128],
+                             map_kernel_size=[11, 9, 5],
                              fc_widths=[128, 128, 128],
                              batch_norm_momentum=0.1,
                              ).to(device)
@@ -428,15 +432,15 @@ policy_network = PolicyNetwork(env.room_tensor, env.left_door_tensor, env.right_
                                map_x=map_x,
                                map_y=map_y,
                                # local_radius=5,
-                               map_channels=[32, 64, 128],
-                               map_kernel_size=[11, 5, 3],
+                               map_channels=[64, 64, 128],
+                               map_kernel_size=[11, 9, 5],
                                fc_widths=[128, 128, 128],
                                door_embedding_width=128,
                                batch_norm_momentum=0.1,
                                ).to(device)
 policy_network.fc_sequential[-1].weight.data[:, :] = 0.0
 policy_network.fc_sequential[-1].bias.data[:] = 0.0
-value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.0001, betas=(0.5, 0.5), eps=1e-15)
+value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.0002, betas=(0.5, 0.5), eps=1e-15)
 policy_optimizer = torch.optim.Adam(policy_network.parameters(), lr=0.00002, betas=(0.5, 0.5), eps=1e-15)
 
 print(value_network)
@@ -486,7 +490,7 @@ for i in range(10000):
         episode_length=episode_length,
         batch_size=batch_size,
         policy_variation_penalty=policy_variation_penalty,
-        mc_weight=5.0,
+        mc_weight=0.2,
         # render=True)
         render=False)
     # render=i % display_freq == 0)

@@ -58,7 +58,6 @@ class MazeBuilderEnv:
         self.cap = torch.stack([self.cap_x, self.cap_y], dim=1)
         assert torch.all(self.cap >= 2)  # Ensure map is big enough for largest room in each direction
 
-        print(self.room_tensor.shape, self.cap_x, self.cap_y)
         self.reset()
 
         self.map_display = None
