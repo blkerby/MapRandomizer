@@ -1,4 +1,11 @@
 # TODO:
+#  - try computing targets all at once at start of round
+#  - try TD(lambda)
+#  - try using EMA of value network for
+#    1) computing targets for training the value network
+#    2) computing advantages for training the policy network
+#  - also maybe try using EMA of policy network to generate data
+#  - new environment setup using random sampling of valid room placements
 import torch
 import logging
 from maze_builder.env import MazeBuilderEnv
@@ -277,9 +284,25 @@ class TrainingSession():
 
         num_batches = n // batch_size
 
+        # Compute the TD targets
+        targets = []
+        total_target_err = 0.0
+        for i in range(num_batches):
+            start = i * batch_size
+            end = (i + 1) * batch_size
+            map1_batch = map1[start:end, :, :, :]
+            room_mask1_batch = room_mask1[start:end, :]
+            reward_batch = reward[start:end]
+            cumul_reward_batch = cumul_reward[start:end]
+            steps_remaining_batch = steps_remaining[start:end]
+            with torch.no_grad():
+                value1 = self.value_network(map1_batch, room_mask1_batch, steps_remaining_batch - 1)
+                target = torch.where(steps_remaining_batch == 1, reward_batch.to(torch.float32), reward_batch + value1)
+            targets.append(target)
+            total_target_err += torch.mean((target - cumul_reward_batch) ** 2).item()
+
         # Make one pass through the data, updating the value network
         total_value_loss_bs = 0.0
-        total_value_loss_mc = 0.0
         total_policy_loss = 0.0
         total_policy_variation = 0.0
         self.policy_network.train()
@@ -287,10 +310,10 @@ class TrainingSession():
             start = i * batch_size
             end = (i + 1) * batch_size
             map0_batch = map0[start:end, :, :, :]
-            map1_batch = map1[start:end, :, :, :]
+            # map1_batch = map1[start:end, :, :, :]
             room_mask0_batch = room_mask0[start:end, :]
-            room_mask1_batch = room_mask1[start:end, :]
-            reward_batch = reward[start:end]
+            # room_mask1_batch = room_mask1[start:end, :]
+            # reward_batch = reward[start:end]
             cumul_reward_batch = cumul_reward[start:end]
             steps_remaining_batch = steps_remaining[start:end]
             action_batch = action[start:end]
@@ -299,9 +322,10 @@ class TrainingSession():
 
             # Update the value network
             value0 = self.value_network(map0_batch, room_mask0_batch, steps_remaining_batch)
-            with torch.no_grad():
-                value1 = self.value_network(map1_batch, room_mask1_batch, steps_remaining_batch - 1)
-                target = torch.where(steps_remaining_batch == 1, reward_batch.to(torch.float32), reward_batch + value1)
+            # with torch.no_grad():
+            #     value1 = self.value_network(map1_batch, room_mask1_batch, steps_remaining_batch - 1)
+            #     target = torch.where(steps_remaining_batch == 1, reward_batch.to(torch.float32), reward_batch + value1)
+            target = targets[i]
             value_loss_bs = torch.mean((value0 - target) ** 2)
             value_loss_mc = torch.mean((value0 - cumul_reward_batch) ** 2)
             value_loss = (1 - mc_weight) * value_loss_bs + mc_weight * value_loss_mc
@@ -311,10 +335,9 @@ class TrainingSession():
             self.value_optimizer.step()
             # self.value_network.decay(weight_decay * self.value_optimizer.param_groups[0]['lr'])
             total_value_loss_bs += value_loss_bs.item()
-            total_value_loss_mc += value_loss_mc.item()
 
             # Update the policy network
-            advantage = target - value0.detach()
+            advantage = (1 - mc_weight) * target + mc_weight * cumul_reward_batch - value0.detach()
             left_ids = torch.nonzero(direction_batch == 0)[:, 0]
             right_ids = torch.nonzero(direction_batch == 1)[:, 0]
             down_ids = torch.nonzero(direction_batch == 2)[:, 0]
@@ -352,7 +375,7 @@ class TrainingSession():
         self.num_rounds += 1
 
         return mean_reward, max_reward, cnt_max_reward, total_value_loss_bs / num_batches, \
-               total_value_loss_mc / num_batches, total_policy_loss / num_batches, total_policy_variation / num_batches
+               total_target_err / num_batches, total_policy_loss / num_batches, total_policy_variation / num_batches
 
 
 import logic.rooms.crateria
@@ -423,8 +446,8 @@ policy_network = PolicyNetwork(env.room_tensor, env.left_door_tensor, env.right_
                                ).to(device)
 policy_network.fc_sequential[-1].weight.data[:, :] = 0.0
 policy_network.fc_sequential[-1].bias.data[:] = 0.0
-value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.0002, betas=(0.5, 0.5), eps=1e-15)
-policy_optimizer = torch.optim.Adam(policy_network.parameters(), lr=0.00002, betas=(0.5, 0.5), eps=1e-15)
+value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.0005, betas=(0.5, 0.5), eps=1e-15)
+policy_optimizer = torch.optim.Adam(policy_network.parameters(), lr=0.00001, betas=(0.5, 0.5), eps=1e-15)
 
 print(value_network)
 print(value_optimizer)
@@ -469,16 +492,16 @@ logging.info(
     "num_envs={}, batch_size={}, policy_variation_penalty={}".format(session.env.num_envs, batch_size,
                                                                      policy_variation_penalty))
 for i in range(10000):
-    mean_reward, max_reward, cnt_max_reward, value_loss_bs, value_loss_mc, policy_loss, policy_variation = session.train_round(
+    mean_reward, max_reward, cnt_max_reward, value_loss_bs, target_err, policy_loss, policy_variation = session.train_round(
         episode_length=episode_length,
         batch_size=batch_size,
         policy_variation_penalty=policy_variation_penalty,
-        mc_weight=0.6,
+        mc_weight=0.1,
         # render=True)
         render=False)
     # render=i % display_freq == 0)
-    logging.info("{}: reward={:.3f} (max={:d}, cnt={:d}), value_loss={:.5f} (mc={:.5f}), policy_loss={:.5f}, policy_variation={:.5f}".format(
-        session.num_rounds, mean_reward, max_reward, cnt_max_reward, value_loss_bs, value_loss_mc, policy_loss, policy_variation))
+    logging.info("{}: reward={:.3f} (max={:d}, cnt={:d}), value={:.5f}, target={:.5f}, policy_loss={:.5f}, policy_variation={:.5f}".format(
+        session.num_rounds, mean_reward, max_reward, cnt_max_reward, value_loss_bs, target_err, policy_loss, policy_variation))
     pickle.dump(session, open(pickle_name, 'wb'))
 
 
