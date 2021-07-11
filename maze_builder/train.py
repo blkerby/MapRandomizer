@@ -249,17 +249,55 @@ class TrainingSession():
         max_reward = torch.max(total_reward).item()
         cnt_max_reward = torch.sum(total_reward == max_reward)
 
+        # Flatten the data
+        n = episode_length * self.env.num_envs
+        map0 = map0.view(n, 3, self.env.map_x, self.env.map_y)
+        map1 = map1.view(n, 3, self.env.map_x, self.env.map_y)
+        room_mask0 = room_mask0.view(n, len(self.env.rooms))
+        room_mask1 = room_mask1.view(n, len(self.env.rooms))
+        position = position.view(n, 2)
+        direction = direction.view(n)
+        action = action.view(n)
+        reward = reward.view(n)
+        cumul_reward = cumul_reward.view(n)
+        steps_remaining = steps_remaining.view(n)
+
+        # Shuffle the data
+        perm = torch.randperm(n)
+        map0 = map0[perm, :, :, :]
+        map1 = map1[perm, :, :, :]
+        room_mask0 = room_mask0[perm, :]
+        room_mask1 = room_mask1[perm, :]
+        position = position[perm]
+        direction = direction[perm]
+        action = action[perm]
+        reward = reward[perm]
+        cumul_reward = cumul_reward[perm]
+        steps_remaining = steps_remaining[perm]
+
+        num_batches = n // batch_size
+
         # Make one pass through the data, updating the value network
         total_value_loss_bs = 0.0
         total_value_loss_mc = 0.0
-        for i in reversed(range(episode_length)):
-            map0_batch = map0[i, :, :, :, :]
-            map1_batch = map1[i, :, :, :]
-            room_mask0_batch = room_mask0[i, :, :]
-            room_mask1_batch = room_mask1[i, :, :]
-            reward_batch = reward[i, :]
-            cumul_reward_batch = cumul_reward[i, :]
-            steps_remaining_batch = steps_remaining[i, :]
+        total_policy_loss = 0.0
+        total_policy_variation = 0.0
+        self.policy_network.train()
+        for i in range(num_batches):
+            start = i * batch_size
+            end = (i + 1) * batch_size
+            map0_batch = map0[start:end, :, :, :]
+            map1_batch = map1[start:end, :, :, :]
+            room_mask0_batch = room_mask0[start:end, :]
+            room_mask1_batch = room_mask1[start:end, :]
+            reward_batch = reward[start:end]
+            cumul_reward_batch = cumul_reward[start:end]
+            steps_remaining_batch = steps_remaining[start:end]
+            action_batch = action[start:end]
+            position_batch = position[start:end, :]
+            direction_batch = direction[start:end]
+
+            # Update the value network
             value0 = self.value_network(map0_batch, room_mask0_batch, steps_remaining_batch)
             with torch.no_grad():
                 value1 = self.value_network(map1_batch, room_mask1_batch, steps_remaining_batch - 1)
@@ -267,7 +305,6 @@ class TrainingSession():
             value_loss_bs = torch.mean((value0 - target) ** 2)
             value_loss_mc = torch.mean((value0 - cumul_reward_batch) ** 2)
             value_loss = (1 - mc_weight) * value_loss_bs + mc_weight * value_loss_mc
-
             self.value_optimizer.zero_grad()
             value_loss.backward()
             torch.nn.utils.clip_grad_norm_(self.value_network.parameters(), 1e-5)
@@ -276,24 +313,8 @@ class TrainingSession():
             total_value_loss_bs += value_loss_bs.item()
             total_value_loss_mc += value_loss_mc.item()
 
-        # Make a second pass through the data, updating the policy network
-        total_policy_loss = 0.0
-        total_policy_variation = 0.0
-        self.policy_network.train()
-        for i in reversed(range(episode_length)):
-            map0_batch = map0[i, :, :, :, :]
-            map1_batch = map1[i, :, :, :, :]
-            room_mask0_batch = room_mask0[i, :, :]
-            room_mask1_batch = room_mask1[i, :, :]
-            steps_remaining_batch = steps_remaining[i, :]
-            reward_batch = reward[i, :]
-            action_batch = action[i, :]
-            position_batch = position[i, :, :]
-            direction_batch = direction[i, :]
-            with torch.no_grad():
-                value0 = self.value_network(map0_batch, room_mask0_batch, steps_remaining_batch)
-                value1 = self.value_network(map1_batch, room_mask1_batch, steps_remaining_batch - 1)
-            advantage = value1 + reward_batch - value0
+            # Update the policy network
+            advantage = target - value0.detach()
             left_ids = torch.nonzero(direction_batch == 0)[:, 0]
             right_ids = torch.nonzero(direction_batch == 1)[:, 0]
             down_ids = torch.nonzero(direction_batch == 2)[:, 0]
@@ -329,7 +350,7 @@ class TrainingSession():
             total_policy_variation += policy_variation.item()
 
         self.num_rounds += 1
-        num_batches = episode_length
+
         return mean_reward, max_reward, cnt_max_reward, total_value_loss_bs / num_batches, \
                total_value_loss_mc / num_batches, total_policy_loss / num_batches, total_policy_variation / num_batches
 
@@ -452,7 +473,7 @@ for i in range(10000):
         episode_length=episode_length,
         batch_size=batch_size,
         policy_variation_penalty=policy_variation_penalty,
-        mc_weight=0.2,
+        mc_weight=0.6,
         # render=True)
         render=False)
     # render=i % display_freq == 0)
