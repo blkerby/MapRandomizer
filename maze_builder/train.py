@@ -260,6 +260,7 @@ class TrainingSession():
         # Compute the TD targets
         target_list = []
         total_target_err = 0.0
+        self.value_network.eval()
         for i in reversed(range(episode_length)):
             map1_batch = map1[i, :, :, :, :]
             room_mask1_batch = room_mask1[i, :, :]
@@ -307,6 +308,7 @@ class TrainingSession():
         total_value_loss_bs = 0.0
         total_policy_loss = 0.0
         total_policy_variation = 0.0
+        self.value_network.train()
         self.policy_network.train()
         for i in range(num_batches):
             start = i * batch_size
