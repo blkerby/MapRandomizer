@@ -1,6 +1,4 @@
 # TODO:
-#  - try computing targets all at once at start of round
-#  - try TD(lambda)
 #  - try using EMA of value network for
 #    1) computing targets for training the value network
 #    2) computing advantages for training the policy network
@@ -14,6 +12,7 @@ import logic.rooms.crateria
 from datetime import datetime
 from typing import List, Optional
 import pickle
+from model_average import SimpleAverage
 
 logging.basicConfig(format='%(asctime)s %(message)s',
                     level=logging.INFO,
@@ -22,7 +21,7 @@ logging.basicConfig(format='%(asctime)s %(message)s',
 torch.autograd.set_detect_anomaly(True)
 
 start_time = datetime.now()
-pickle_name = 'models/norfair-{}.pkl'.format(start_time.isoformat())
+pickle_name = 'models/crateria-{}.pkl'.format(start_time.isoformat())
 logging.info("Checkpoint path: {}".format(pickle_name))
 
 
@@ -196,6 +195,7 @@ class TrainingSession():
         self.policy_network = policy_network
         self.value_optimizer = value_optimizer
         self.policy_optimizer = policy_optimizer
+        self.average_value_parameters = SimpleAverage(value_network.parameters())
         self.num_rounds = 0
 
     def generate_round(self, episode_length, render=False):
@@ -258,24 +258,25 @@ class TrainingSession():
         cnt_max_reward = torch.sum(total_reward == max_reward)
 
         # Compute the TD targets
-        target_list = []
-        total_target_err = 0.0
-        self.value_network.eval()
-        target_batch = reward[-1, :]
-        target_list.append(target_batch)
-        for i in reversed(range(episode_length - 1)):
-            map1_batch = map1[i, :, :, :, :]
-            room_mask1_batch = room_mask1[i, :, :]
-            reward_batch = reward[i, :]
-            cumul_reward_batch = cumul_reward[i, :]
-            steps_remaining_batch = steps_remaining[i, :]
-            with torch.no_grad():
-                value1 = self.value_network(map1_batch, room_mask1_batch, steps_remaining_batch - 1)
-            # target_batch = torch.where(steps_remaining_batch == 1, reward_batch.to(torch.float32), reward_batch + value1)
-            target_batch = td_lambda * target_batch + (1 - td_lambda) * value1 + reward_batch
+        with self.average_value_parameters.average_parameters():
+            target_list = []
+            total_target_err = 0.0
+            self.value_network.eval()
+            target_batch = reward[-1, :]
             target_list.append(target_batch)
-            total_target_err += torch.mean((value1 - cumul_reward_batch) ** 2).item()
-        target = torch.stack(list(reversed(target_list)), dim=0)
+            for i in reversed(range(episode_length - 1)):
+                map1_batch = map1[i, :, :, :, :]
+                room_mask1_batch = room_mask1[i, :, :]
+                reward_batch = reward[i, :]
+                cumul_reward_batch = cumul_reward[i, :]
+                steps_remaining_batch = steps_remaining[i, :]
+                with torch.no_grad():
+                    value1 = self.value_network(map1_batch, room_mask1_batch, steps_remaining_batch - 1)
+                # target_batch = torch.where(steps_remaining_batch == 1, reward_batch.to(torch.float32), reward_batch + value1)
+                target_batch = td_lambda * target_batch + (1 - td_lambda) * value1 + reward_batch
+                target_list.append(target_batch)
+                total_target_err += torch.mean((value1 - cumul_reward_batch) ** 2).item()
+            target = torch.stack(list(reversed(target_list)), dim=0)
 
         # Flatten the data
         n = episode_length * self.env.num_envs
@@ -301,7 +302,7 @@ class TrainingSession():
         direction = direction[perm]
         action = action[perm]
         # reward = reward[perm]
-        cumul_reward = cumul_reward[perm]
+        # cumul_reward = cumul_reward[perm]
         steps_remaining = steps_remaining[perm]
         target = target[perm]
 
@@ -313,6 +314,7 @@ class TrainingSession():
         total_policy_variation = 0.0
         self.value_network.train()
         self.policy_network.train()
+        self.average_value_parameters.reset()
         for i in range(num_batches):
             start = i * batch_size
             end = (i + 1) * batch_size
@@ -341,6 +343,7 @@ class TrainingSession():
             value_loss_bs.backward()
             torch.nn.utils.clip_grad_norm_(self.value_network.parameters(), 1e-5)
             self.value_optimizer.step()
+            self.average_value_parameters.update()
             # self.value_network.decay(weight_decay * self.value_optimizer.param_groups[0]['lr'])
             total_value_loss_bs += value_loss_bs.item()
 
@@ -453,6 +456,8 @@ policy_network = PolicyNetwork(env.room_tensor, env.left_door_tensor, env.right_
                                door_embedding_width=128,
                                batch_norm_momentum=0.1,
                                ).to(device)
+value_network.fc_sequential[-1].weight.data[:, :] = 0.0
+value_network.fc_sequential[-1].bias.data[:] = 0.0
 policy_network.fc_sequential[-1].weight.data[:, :] = 0.0
 policy_network.fc_sequential[-1].bias.data[:] = 0.0
 value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.0005, betas=(0.5, 0.5), eps=1e-15)
@@ -492,7 +497,7 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 batch_size = 2 ** 8
 # batch_size = 2 ** 13  # 2 ** 12
 policy_variation_penalty = 0.05
-td_lambda = 0.0
+td_lambda = 0.5
 session.env = env
 # session.value_optimizer.param_groups[0]['lr'] = 0.0001
 # session.policy_optimizer.param_groups[0]['lr'] = 2e-6
