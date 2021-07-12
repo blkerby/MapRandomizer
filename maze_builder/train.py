@@ -153,7 +153,7 @@ class ValueNetwork(torch.nn.Module):
                                               kernel_size=(map_kernel_size[i], map_kernel_size[i]),
                                               padding=map_kernel_size[i] // 2))
             map_layers.append(torch.nn.ReLU())
-            map_layers.append(torch.nn.BatchNorm2d(map_channels[i + 1], momentum=batch_norm_momentum))
+            # map_layers.append(torch.nn.BatchNorm2d(map_channels[i + 1], momentum=batch_norm_momentum))
             map_layers.append(torch.nn.MaxPool2d(3, stride=2, padding=1))
             width = (width + 1) // 2
             height = (height + 1) // 2
@@ -167,7 +167,7 @@ class ValueNetwork(torch.nn.Module):
         for i in range(len(fc_widths) - 1):
             fc_layers.append(torch.nn.Linear(fc_widths[i], fc_widths[i + 1]))
             fc_layers.append(torch.nn.ReLU())
-            fc_layers.append(torch.nn.BatchNorm1d(fc_widths[i + 1], momentum=batch_norm_momentum))
+            # fc_layers.append(torch.nn.BatchNorm1d(fc_widths[i + 1], momentum=batch_norm_momentum))
         fc_layers.append(torch.nn.Linear(fc_widths[-1], 1))
         self.fc_sequential = torch.nn.Sequential(*fc_layers)
         # self.lin = torch.nn.Linear(1, 1)
@@ -455,8 +455,8 @@ policy_network = PolicyNetwork(env.room_tensor, env.left_door_tensor, env.right_
                                ).to(device)
 policy_network.fc_sequential[-1].weight.data[:, :] = 0.0
 policy_network.fc_sequential[-1].bias.data[:] = 0.0
-value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.0005, betas=(0.9, 0.99), eps=1e-15)
-policy_optimizer = torch.optim.Adam(policy_network.parameters(), lr=0.00001, betas=(0.9, 0.99), eps=1e-15)
+value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.0005, betas=(0.5, 0.5), eps=1e-15)
+policy_optimizer = torch.optim.Adam(policy_network.parameters(), lr=0.00001, betas=(0.5, 0.5), eps=1e-15)
 
 print(value_network)
 print(value_optimizer)
@@ -492,12 +492,12 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 batch_size = 2 ** 8
 # batch_size = 2 ** 13  # 2 ** 12
 policy_variation_penalty = 0.05
-td_lambda = 0.9
+td_lambda = 0.0
 session.env = env
 # session.value_optimizer.param_groups[0]['lr'] = 0.0001
-session.policy_optimizer.param_groups[0]['lr'] = 2e-6
-session.value_optimizer.param_groups[0]['betas'] = (0.5, 0.5)
-session.policy_optimizer.param_groups[0]['betas'] = (0.5, 0.5)
+# session.policy_optimizer.param_groups[0]['lr'] = 2e-6
+# session.value_optimizer.param_groups[0]['betas'] = (0.5, 0.5)
+# session.policy_optimizer.param_groups[0]['betas'] = (0.5, 0.5)
 
 logging.info(
     "num_envs={}, batch_size={}, policy_variation_penalty={}, td_lambda={}".format(session.env.num_envs, batch_size,
