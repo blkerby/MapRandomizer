@@ -49,7 +49,7 @@ class SimpleAverage:
         """
         Save the current parameters for restoring later.
         """
-        self.stored_params = [param.clone() for param in self.params]
+        self.stored_params = [param.data.clone() for param in self.params]
 
     def restore(self):
         """

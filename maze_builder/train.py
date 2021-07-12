@@ -196,6 +196,7 @@ class TrainingSession():
         self.value_optimizer = value_optimizer
         self.policy_optimizer = policy_optimizer
         self.average_value_parameters = SimpleAverage(value_network.parameters())
+        self.average_policy_parameters = SimpleAverage(policy_network.parameters())
         self.num_rounds = 0
 
     def generate_round(self, episode_length, render=False):
@@ -207,24 +208,25 @@ class TrainingSession():
         action_list = []
         reward_list = []
         self.policy_network.eval()
-        for j in range(episode_length):
-            if render:
-                self.env.render()
-            position, direction, left_ids, right_ids, down_ids, up_ids = env.choose_random_door()
-            steps_remaining = torch.full_like(direction, episode_length - j)
-            with torch.no_grad():
-                policy_out = self.policy_network(map, room_mask, position, direction,
-                                                 left_ids, right_ids, down_ids, up_ids, steps_remaining)
-            left_raw_logprobs, right_raw_logprobs, down_raw_logprobs, up_raw_logprobs = policy_out
-            reward, map, room_mask, action = self.env.random_step(
-                position, left_ids, right_ids, down_ids, up_ids,
-                left_raw_logprobs, right_raw_logprobs, down_raw_logprobs, up_raw_logprobs)
-            map_list.append(map)
-            room_mask_list.append(room_mask)
-            position_list.append(position)
-            direction_list.append(direction)
-            action_list.append(action)
-            reward_list.append(reward)
+        with self.average_policy_parameters.average_parameters():
+            for j in range(episode_length):
+                if render:
+                    self.env.render()
+                position, direction, left_ids, right_ids, down_ids, up_ids = env.choose_random_door()
+                steps_remaining = torch.full_like(direction, episode_length - j)
+                with torch.no_grad():
+                    policy_out = self.policy_network(map, room_mask, position, direction,
+                                                     left_ids, right_ids, down_ids, up_ids, steps_remaining)
+                left_raw_logprobs, right_raw_logprobs, down_raw_logprobs, up_raw_logprobs = policy_out
+                reward, map, room_mask, action = self.env.random_step(
+                    position, left_ids, right_ids, down_ids, up_ids,
+                    left_raw_logprobs, right_raw_logprobs, down_raw_logprobs, up_raw_logprobs)
+                map_list.append(map)
+                room_mask_list.append(room_mask)
+                position_list.append(position)
+                direction_list.append(direction)
+                action_list.append(action)
+                reward_list.append(reward)
         map_tensor = torch.stack(map_list, dim=0)
         room_mask_tensor = torch.stack(room_mask_list, dim=0)
         position_tensor = torch.stack(position_list, dim=0)
@@ -315,6 +317,7 @@ class TrainingSession():
         self.value_network.train()
         self.policy_network.train()
         self.average_value_parameters.reset()
+        self.average_policy_parameters.reset()
         for i in range(num_batches):
             start = i * batch_size
             end = (i + 1) * batch_size
@@ -380,6 +383,7 @@ class TrainingSession():
             (policy_loss + policy_variation_loss).backward()
             torch.nn.utils.clip_grad_norm_(self.policy_network.parameters(), 1e-5)
             self.policy_optimizer.step()
+            self.average_policy_parameters.update()
             # self.policy_network.decay(weight_decay * self.policy_optimizer.param_groups[0]['lr'])
             total_policy_loss += policy_loss.item()
             total_policy_variation += policy_variation.item()
@@ -460,7 +464,7 @@ value_network.fc_sequential[-1].weight.data[:, :] = 0.0
 value_network.fc_sequential[-1].bias.data[:] = 0.0
 policy_network.fc_sequential[-1].weight.data[:, :] = 0.0
 policy_network.fc_sequential[-1].bias.data[:] = 0.0
-value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.0005, betas=(0.5, 0.5), eps=1e-15)
+value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.001, betas=(0.5, 0.5), eps=1e-15)
 policy_optimizer = torch.optim.Adam(policy_network.parameters(), lr=0.00001, betas=(0.5, 0.5), eps=1e-15)
 
 print(value_network)
@@ -496,11 +500,11 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 # # session.value_optimizer.param_groups[0]['betas'] = (0.8, 0.999)
 batch_size = 2 ** 8
 # batch_size = 2 ** 13  # 2 ** 12
-policy_variation_penalty = 0.05
+policy_variation_penalty = 0.1
 td_lambda = 0.5
 session.env = env
 # session.value_optimizer.param_groups[0]['lr'] = 0.0001
-# session.policy_optimizer.param_groups[0]['lr'] = 2e-6
+session.policy_optimizer.param_groups[0]['lr'] = 2e-5
 # session.value_optimizer.param_groups[0]['betas'] = (0.5, 0.5)
 # session.policy_optimizer.param_groups[0]['betas'] = (0.5, 0.5)
 
