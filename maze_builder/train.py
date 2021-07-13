@@ -1,9 +1,16 @@
 # TODO:
-#  - try using EMA of value network for
-#    1) computing targets for training the value network
-#    2) computing advantages for training the policy network
-#  - also maybe try using EMA of policy network to generate data
 #  - new environment setup using random sampling of valid room placements
+#  - try implementing DQN, architecture similar to dueling network:
+#    - single network with two heads: one for state-value and one for action-value (or action-advantages)
+#    - target for both state-values and action-values is the estimate state-value n steps later,
+#      - for stability/accuracy, target computed using an averaged version of the network (EMA or simple average
+#        from the last round)
+#  - noisy nets: for strategic/coordinated exploration?
+#      - instead of randomizing weights/biases, maybe just add noise (with tunable scale) to activations
+#        in certain layer(s) (same noise across all time steps of an episode)
+#  - distributional DQN: split space of rewards into buckets and predict probabilities
+#  - prioritized replay
+#  - try some of the new ideas on Atari benchmarks (variation of dueling network, and variation of noisy nets)
 import torch
 import logging
 from maze_builder.env import MazeBuilderEnv
@@ -55,7 +62,7 @@ class PolicyNetwork(torch.nn.Module):
                                               kernel_size=(map_kernel_size[i], map_kernel_size[i]),
                                               padding=map_kernel_size[i] // 2))
             map_layers.append(torch.nn.ReLU())
-            map_layers.append(torch.nn.BatchNorm2d(map_channels[i + 1], momentum=batch_norm_momentum))
+            # map_layers.append(torch.nn.BatchNorm2d(map_channels[i + 1], momentum=batch_norm_momentum))
             map_layers.append(torch.nn.MaxPool2d(3, stride=2, padding=1))
             width = (width + 1) // 2
             height = (height + 1) // 2
@@ -87,7 +94,7 @@ class PolicyNetwork(torch.nn.Module):
         for i in range(len(fc_widths) - 1):
             fc_layers.append(torch.nn.Linear(fc_widths[i], fc_widths[i + 1]))
             fc_layers.append(torch.nn.ReLU())
-            fc_layers.append(torch.nn.BatchNorm1d(fc_widths[i + 1], momentum=batch_norm_momentum))
+            # fc_layers.append(torch.nn.BatchNorm1d(fc_widths[i + 1], momentum=batch_norm_momentum))
         fc_layers.append(torch.nn.Linear(fc_widths[-1], door_embedding_width))
         self.fc_sequential = torch.nn.Sequential(*fc_layers)
 
@@ -407,11 +414,11 @@ import logic.rooms.brinstar_blue
 import logic.rooms.maridia_lower
 import logic.rooms.maridia_upper
 
-# device = torch.device('cpu')
-device = torch.device('cuda:0')
+device = torch.device('cpu')
+# device = torch.device('cuda:0')
 
-num_envs = 256
-# num_envs = 1
+# num_envs = 256
+num_envs = 32
 rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.crateria.rooms
 # rooms = logic.rooms.crateria.rooms + logic.rooms.wrecked_ship.rooms
@@ -429,8 +436,8 @@ rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.all_rooms.rooms
 episode_length = 64
 display_freq = 1
-map_x = 32
-map_y = 24
+map_x = 40
+map_y = 30
 # map_x = 10
 # map_y = 10
 env = MazeBuilderEnv(rooms,
@@ -444,7 +451,7 @@ print(env.room_tensor.shape, env.left_door_tensor.shape, env.right_door_tensor.s
 value_network = ValueNetwork(env.room_tensor,
                              map_x=map_x,
                              map_y=map_y,
-                             map_channels=[64, 64, 128],
+                             map_channels=[32, 64, 128],
                              map_kernel_size=[11, 9, 5],
                              fc_widths=[128, 128, 128],
                              batch_norm_momentum=0.1,
@@ -454,7 +461,7 @@ policy_network = PolicyNetwork(env.room_tensor, env.left_door_tensor, env.right_
                                map_x=map_x,
                                map_y=map_y,
                                # local_radius=5,
-                               map_channels=[64, 64, 128],
+                               map_channels=[32, 64, 128],
                                map_kernel_size=[11, 9, 5],
                                fc_widths=[128, 128, 128],
                                door_embedding_width=128,
@@ -464,8 +471,8 @@ value_network.fc_sequential[-1].weight.data[:, :] = 0.0
 value_network.fc_sequential[-1].bias.data[:] = 0.0
 policy_network.fc_sequential[-1].weight.data[:, :] = 0.0
 policy_network.fc_sequential[-1].bias.data[:] = 0.0
-value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.001, betas=(0.5, 0.5), eps=1e-15)
-policy_optimizer = torch.optim.Adam(policy_network.parameters(), lr=0.00001, betas=(0.5, 0.5), eps=1e-15)
+value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.0005, betas=(0.5, 0.5), eps=1e-15)
+policy_optimizer = torch.optim.Adam(policy_network.parameters(), lr=5e-6, betas=(0.5, 0.5), eps=1e-15)
 
 print(value_network)
 print(value_optimizer)
@@ -488,14 +495,14 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 #
 # # session = pickle.load(open('models/crateria-2021-06-29T13:35:06.399214.pkl', 'rb'))
 #
-# import io
-# class CPU_Unpickler(pickle.Unpickler):
-#     def find_class(self, module, name):
-#         if module == 'torch.storage' and name =='_load_from_bytes':
-#             return lambda b: torch.load(io.BytesIO(b), map_location='cpu')
-#         else:
-#             return super().find_class(module, name)
-# session = CPU_Unpickler(open('models/crateria-2021-07-09T20:58:34.290741.pkl', 'rb')).load()
+import io
+class CPU_Unpickler(pickle.Unpickler):
+    def find_class(self, module, name):
+        if module == 'torch.storage' and name =='_load_from_bytes':
+            return lambda b: torch.load(io.BytesIO(b), map_location='cpu')
+        else:
+            return super().find_class(module, name)
+session = CPU_Unpickler(open('models/crateria-2021-07-12T15:28:23.905530.pkl', 'rb')).load()
 # session.policy_optimizer.param_groups[0]['lr'] = 5e-6
 # # session.value_optimizer.param_groups[0]['betas'] = (0.8, 0.999)
 batch_size = 2 ** 8
@@ -504,46 +511,34 @@ policy_variation_penalty = 0.1
 td_lambda = 0.5
 session.env = env
 # session.value_optimizer.param_groups[0]['lr'] = 0.0001
-session.policy_optimizer.param_groups[0]['lr'] = 2e-5
+# session.policy_optimizer.param_groups[0]['lr'] = 2e-5
 # session.value_optimizer.param_groups[0]['betas'] = (0.5, 0.5)
 # session.policy_optimizer.param_groups[0]['betas'] = (0.5, 0.5)
 
 logging.info(
     "num_envs={}, batch_size={}, policy_variation_penalty={}, td_lambda={}".format(session.env.num_envs, batch_size,
                                                                      policy_variation_penalty, td_lambda))
-for i in range(10000):
-    mean_reward, max_reward, cnt_max_reward, value_loss_bs, target_err, policy_loss, policy_variation = session.train_round(
-        episode_length=episode_length,
-        batch_size=batch_size,
-        policy_variation_penalty=policy_variation_penalty,
-        td_lambda=td_lambda,
-        # mc_weight=0.1,
-        # render=True)
-        render=False)
-    # render=i % display_freq == 0)
-    logging.info("{}: reward={:.3f} (max={:d}, cnt={:d}), value={:.5f}, target={:.5f}, policy_loss={:.5f}, policy_variation={:.5f}".format(
-        session.num_rounds, mean_reward, max_reward, cnt_max_reward, value_loss_bs, target_err, policy_loss, policy_variation))
-    pickle.dump(session, open(pickle_name, 'wb'))
+# for i in range(100000):
+#     mean_reward, max_reward, cnt_max_reward, value_loss_bs, target_err, policy_loss, policy_variation = session.train_round(
+#         episode_length=episode_length,
+#         batch_size=batch_size,
+#         policy_variation_penalty=policy_variation_penalty,
+#         td_lambda=td_lambda,
+#         # mc_weight=0.1,
+#         # render=True)
+#         render=False)
+#     # render=i % display_freq == 0)
+#     logging.info("{}: reward={:.3f} (max={:d}, cnt={:d}), value={:.5f}, target={:.5f}, policy_loss={:.5f}, policy_variation={:.5f}".format(
+#         session.num_rounds, mean_reward, max_reward, cnt_max_reward, value_loss_bs, target_err, policy_loss, policy_variation))
+#     pickle.dump(session, open(pickle_name, 'wb'))
 
 
-# while True:
-#     map_tensor, room_mask_tensor, position_tensor, direction_tensor, action_tensor, reward_tensor = session.generate_round(64, render=False)
-#     print(torch.sum(reward_tensor), torch.sum(room_mask_tensor[-1, 0, :]))
-#     if torch.sum(reward_tensor) >= 32:
-#         break
-# session.env.render()
-
-
-
-# # state = env.reset()
-# # for j in range(episode_length):
-# #     with torch.no_grad():
-# #         raw_p = session.policy_network(state)
-# #     log_p = raw_p - torch.logsumexp(raw_p, dim=1, keepdim=True)
-# #     p = torch.exp(log_p)
-# #     cumul_p = torch.cumsum(p, dim=1)
-# #     rnd = torch.rand([session.env.num_envs, 1])
-# #     action = torch.clamp(torch.searchsorted(cumul_p, rnd), max=session.env.num_actions - 1)
-# #     reward, state = session.env.step(action.squeeze(1))
-# #     session.env.render()
-#
+while True:
+    map_tensor, room_mask_tensor, position_tensor, direction_tensor, action_tensor, reward_tensor = session.generate_round(episode_length, render=False)
+    sum_reward = torch.sum(reward_tensor, dim=0)
+    max_reward, max_reward_ind = torch.max(sum_reward, dim=0)
+    logging.info("{}: {}".format(max_reward, sum_reward.tolist()))
+    if max_reward.item() >= 33:
+        break
+# session.env.render(0)
+session.env.render(max_reward_ind.item())
