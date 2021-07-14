@@ -46,8 +46,6 @@ class MazeBuilderEnv:
         self.max_room_width = max_room_width
         self.num_envs = num_envs
 
-        self.room_max_x = max(room.width for room in rooms) + 1
-        self.room_max_y = max(room.height for room in rooms) + 1
         self.map_padding_left = (max_room_width - 1) // 2
         self.map_padding_up = (max_room_width - 1) // 2
         self.map_padding_right = max_room_width // 2
@@ -56,13 +54,13 @@ class MazeBuilderEnv:
         self.map = torch.zeros([num_envs, 5, map_x + self.map_padding_left + self.map_padding_right,
                                 map_y + self.map_padding_up + self.map_padding_down],
                                dtype=torch.int8, device=device)
-        self.map[:, 0, :, :] = 1
-        self.map[:, 0, self.map_padding_left:-self.map_padding_right, self.map_padding_up:-self.map_padding_down] = 0
+        self.init_map()
         self.room_mask = torch.zeros([num_envs, len(rooms)], dtype=torch.bool, device=device)
         self.room_position_x = torch.zeros([num_envs, len(rooms)], dtype=torch.int64, device=device)
         self.room_position_y = torch.zeros([num_envs, len(rooms)], dtype=torch.int64, device=device)
 
         self.init_room_data()
+        self.init_placement_kernel()
         self.step_number = 0
         # self.cap_x = torch.tensor([map_x - room.width for room in rooms], device=device)
         # self.cap_y = torch.tensor([map_y - room.height for room in rooms], device=device)
@@ -70,17 +68,27 @@ class MazeBuilderEnv:
         # assert torch.all(self.cap >= 2)  # Ensure map is big enough for largest room in each direction
         #
         #
-        # self.map_display = None
-        # self.color_map = {
-        #     Area.CRATERIA: (0xa0, 0xa0, 0xa0),
-        #     Area.BRINSTAR: (0x80, 0xff, 0x80),
-        #     Area.NORFAIR: (0xff, 0x80, 0x80),
-        #     Area.MARIDIA: (0x80, 0x80, 0xff),
-        #     Area.WRECKED_SHIP: (0xff, 0xff, 0x80),
-        # }
+        self.map_display = None
+        self.color_map = {
+            Area.CRATERIA: (0xa0, 0xa0, 0xa0),
+            Area.BRINSTAR: (0x80, 0xff, 0x80),
+            Area.NORFAIR: (0xff, 0x80, 0x80),
+            Area.MARIDIA: (0x80, 0x80, 0xff),
+            Area.WRECKED_SHIP: (0xff, 0xff, 0x80),
+        }
+
+    def init_map(self):
+        self.map.zero_()
+        self.map[:, 0, :, :] = 1
+        self.map[:, 0, self.map_padding_left:-self.map_padding_right, self.map_padding_up:-self.map_padding_down] = 0
+        self.map[:, 3, self.map_padding_left - 1, self.map_padding_up:-self.map_padding_down] = 1
+        self.map[:, 3, -(self.map_padding_right + 1), self.map_padding_up:-self.map_padding_down] = 1
+        self.map[:, 4, self.map_padding_left:-self.map_padding_right, self.map_padding_up - 1] = 1
+        self.map[:, 4, self.map_padding_left:-self.map_padding_right, -(self.map_padding_down + 1)] = 1
 
     def init_room_data(self):
-        room_tensors = []
+        room_tensor_list = []
+        room_padding_list = []
         num_map_channels = 5
         for room in self.rooms:
             width = room.width
@@ -90,6 +98,7 @@ class MazeBuilderEnv:
             pad_right = self.max_room_width - (width + pad_left)
             pad_up = (self.max_room_width - height) // 2
             pad_down = self.max_room_width - (height + pad_up)
+            room_padding_list.append(torch.tensor([pad_left, pad_right, pad_up, pad_down]))
 
             def pad(A):
                 return F.pad(A, pad=(pad_up, pad_down, pad_left, pad_right))
@@ -115,8 +124,9 @@ class MazeBuilderEnv:
             room_tensor[3, :-1, :] = wall_horizontal
             room_tensor[4, :, :-1] = wall_vertical
 
-            room_tensors.append(room_tensor)
-        self.room_tensor = torch.stack(room_tensors, dim=0).to(torch.int8)
+            room_tensor_list.append(room_tensor)
+        self.room_tensor = torch.stack(room_tensor_list, dim=0).to(torch.int8)
+        self.room_padding = torch.stack(room_padding_list, dim=0)
 
     def init_placement_kernel(self):
         kernel = torch.zeros([2, len(self.rooms), 5, self.max_room_width, self.max_room_width],
@@ -145,46 +155,29 @@ class MazeBuilderEnv:
         if self.step_number == 0:
             valid = (A_collision == 0)
         else:
-            valid = (A_collision == 0) & (A_connection > 0)
-        return valid, A_collision, A_connection
+            valid = (A_collision == 0) & (A_connection > 0) & ~self.room_mask.unsqueeze(2).unsqueeze(3)
+        candidates = torch.nonzero(valid)
+        return candidates  #, valid, A_collision, A_connection
 
     def reset(self):
-        self.map[:, :, 1:(1 + self.map_x), 1:(1 + self.map_y)].zero_()
+        self.init_map()
         self.room_mask.zero_()
         self.room_position_x.zero_()
         self.room_position_y.zero_()
-        self.place_first_room()
-        unpadded_map = self.map[:, :, 1:(1 + self.map_x), 1:(1 + self.map_y)]
-        return unpadded_map.clone(), self.room_mask.clone()
+        return self.map.clone(), self.room_mask.clone()
 
     def step(self, room_index: torch.tensor, room_x: torch.tensor, room_y: torch.tensor):
         device = room_index.device
-        map = self.map.clone()
         index_e = torch.arange(self.num_envs, device=device).view(-1, 1, 1, 1)
-        index_c = torch.arange(3, device=device).view(1, -1, 1, 1)
-        index_x = room_x.view(-1, 1, 1, 1) + torch.arange(self.room_max_x, device=device).view(1, 1, -1, 1)
-        index_y = room_y.view(-1, 1, 1, 1) + torch.arange(self.room_max_y, device=device).view(1, 1, 1, -1)
-        map[index_e, index_c, index_x, index_y] += self.room_tensor[room_index, :, :, :]
-
-        room_has_door = self.room_tensor[room_index, 1:, :, :] != 0
-        map_has_no_door = map[index_e, index_c[:, 1:, :, :], index_x, index_y] == 0
-        door_connects = room_has_door & map_has_no_door
-        num_door_connects = torch.sum(door_connects.view(self.num_envs, -1), dim=1)
-        map_empty = torch.logical_not(torch.max(self.room_mask, dim=1)[0])
-
-        is_room_unused = self.room_mask[torch.arange(self.num_envs, device=device), room_index] == 0
-        valid = _is_map_valid(map) & is_room_unused & (map_empty | (num_door_connects > 0))
-        # TODO: change the check `map_empty | (num_door_connects > 0)` to an assert or remove, since this
-        # should be automatically satisfied.
-
-        self.map[valid, :, :, :] = map[valid, :, :, :]
-        self.room_position_x[torch.arange(self.num_envs, device=device)[valid], room_index[valid]] = room_x[valid]
-        self.room_position_y[torch.arange(self.num_envs, device=device)[valid], room_index[valid]] = room_y[valid]
-        self.room_mask[torch.arange(self.num_envs, device=device)[valid], room_index[valid]] = True
-
-        unpadded_map = self.map[:, :, 1:(1 + self.map_x), 1:(1 + self.map_y)]
-        reward = num_door_connects * valid
-        return reward, unpadded_map.clone(), self.room_mask.clone()
+        index_c = torch.arange(5, device=device).view(1, -1, 1, 1)
+        index_x = room_x.view(-1, 1, 1, 1) + torch.arange(self.max_room_width, device=device).view(1, 1, -1, 1)
+        index_y = room_y.view(-1, 1, 1, 1) + torch.arange(self.max_room_width, device=device).view(1, 1, 1, -1)
+        self.map[index_e, index_c, index_x, index_y] += self.room_tensor[room_index, :, :, :]
+        self.room_position_x[torch.arange(self.num_envs, device=device), room_index] = room_x
+        self.room_position_y[torch.arange(self.num_envs, device=device), room_index] = room_y
+        self.room_mask[torch.arange(self.num_envs, device=device), room_index] = True
+        self.step_number += 1
+        return self.map.clone(), self.room_mask.clone()
 
     def map_door_locations(self):
         left_door = torch.nonzero(self.map[:, 1, :, :] == 1)
@@ -285,35 +278,57 @@ class MazeBuilderEnv:
         ind = torch.tensor([i for i in range(len(self.rooms)) if self.room_mask[env_index, i]],
                            dtype=torch.int64, device=self.map.device)
         rooms = [self.rooms[i] for i in ind]
-        xs = (self.room_position_x[env_index, :][ind] - 1).tolist()
-        ys = (self.room_position_y[env_index, :][ind] - 1).tolist()
+        room_padding_left = self.room_padding[ind, 0]
+        room_padding_up = self.room_padding[ind, 2]
+        xs = (self.room_position_x[env_index, :][ind] - self.map_padding_left + room_padding_left).tolist()
+        ys = (self.room_position_y[env_index, :][ind] - self.map_padding_up + room_padding_up).tolist()
         colors = [self.color_map[room.area] for room in rooms]
         self.map_display.display(rooms, xs, ys, colors)
 
 
 import logic.rooms.all_rooms
+import logic.rooms.crateria_isolated
 
-num_envs = 8
-rooms = logic.rooms.all_rooms.rooms
-action_radius = 1
+num_envs = 1
+rooms = logic.rooms.crateria_isolated.rooms
 
 env = MazeBuilderEnv(rooms,
                      # map_x=15,
                      # map_y=15,
-                     map_x=20,
-                     map_y=20,
-                     max_room_width=15,
+                     map_x=32,
+                     map_y=24,
+                     max_room_width=11,
                      num_envs=num_envs,
                      device='cpu')
-env.init_placement_kernel()
+# print(env.map[0, 4, :, :].t())
 # flattened_kernel = env.placement_kernel.view(-1, env.placement_kernel.shape[2], env.placement_kernel.shape[3], env.placement_kernel.shape[4])
 # A = F.conv2d(env.map, flattened_kernel)
 # A_unflattened = A.view(A.shape[0], 2, -1, A.shape[2], A.shape[3])
 torch.set_printoptions(linewidth=120, threshold=10000)
-valid, A_collision, A_connection = env.get_placement_candidates()
-print(A_collision[0, 0, :, :])
-print(env.map[0, 0, :, :])
-print(A_collision.shape)
+
+import time
+_, _ = env.reset()
+torch.manual_seed(2)
+for i in range(100):
+    candidates = env.get_placement_candidates()
+    if candidates.shape[0] == 0:
+        break
+    ind = torch.randint(high=candidates.shape[0], size=[1])
+    choice = candidates[ind, 1:]
+    room_index = choice[:, 0]
+    room_x = choice[:, 1]
+    room_y = choice[:, 2]
+    _, _ = env.step(room_index, room_x, room_y)
+    env.render()
+    time.sleep(0.1)
+print(i)
+# A_collision[0, 0, :, :].t()
+# print(env.map[0, 3, :, :].t())
+# print(env.map[0, 4, :, :].t())
+
+# print(A_collision[0, 0, :, :])
+# print(env.map[0, 0, :, :])
+# print(A_collision.shape)
 
 # torch.set_printoptions(linewidth=120, threshold=10000)
 # # torch.manual_seed(36)
