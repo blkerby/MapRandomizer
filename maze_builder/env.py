@@ -133,19 +133,19 @@ class MazeBuilderEnv:
                              dtype=torch.int8, device=self.device)
 
         # Detecting collisions and blockages (which are disallowed)
-        kernel[0, :, 0, :, :] = self.room_tensor[:, 0, :, :]  # Overlap (room on top of existing room)
+        kernel[0, :, 0, :, :] = self.room_tensor[:, 0, :, :]  # Overlap (room tile on top of existing room tile)
         kernel[0, :, 1, :, :] = self.room_tensor[:, 3, :, :]  # Horizontal blocked door (map door on room wall)
         kernel[0, :, 3, :, :] = self.room_tensor[:, 1, :, :]  # Horizontal blocked door (room door on map wall)
         kernel[0, :, 2, :, :] = self.room_tensor[:, 4, :, :]  # Vertical blocked door (map door on room wall)
         kernel[0, :, 4, :, :] = self.room_tensor[:, 2, :, :]  # Vertical blocked door (room door on map wall)
 
-        # Detecting connections (of which there is required to be at least one)
+        # Detecting connections (we'll require at least one, except on the first move)
         kernel[1, :, 1, :, :] = self.room_tensor[:, 1, :, :]  # Horizontal connecting door
         kernel[1, :, 2, :, :] = self.room_tensor[:, 2, :, :]  # Vertical connecting door
 
         self.placement_kernel = kernel
 
-    def get_placement_candidates(self):
+    def get_placement_candidates(self, num_candidates):
         flattened_kernel = self.placement_kernel.view(-1, self.placement_kernel.shape[2], self.placement_kernel.shape[3],
                                                      self.placement_kernel.shape[4])
         A_flattened = F.conv2d(self.map, flattened_kernel)
@@ -156,14 +156,21 @@ class MazeBuilderEnv:
             valid = (A_collision == 0)
         else:
             valid = (A_collision == 0) & (A_connection > 0) & ~self.room_mask.unsqueeze(2).unsqueeze(3)
+
         candidates = torch.nonzero(valid)
-        return candidates  #, valid, A_collision, A_connection
+        boundaries = torch.searchsorted(candidates[:, 0].contiguous(), torch.arange(num_envs))
+        boundaries_ext = torch.cat([boundaries, torch.tensor([candidates.shape[0]])])
+        candidate_quantities = boundaries_ext[1:] - boundaries_ext[:-1]
+        relative_ind = torch.randint(high=2 ** 31, size=[self.num_envs, num_candidates]) % candidate_quantities.unsqueeze(1)
+        ind = relative_ind + boundaries.unsqueeze(1)
+        return candidates[ind, 1:]  #, valid, A_collision, A_connection
 
     def reset(self):
         self.init_map()
         self.room_mask.zero_()
         self.room_position_x.zero_()
         self.room_position_y.zero_()
+        self.step_number = 0
         return self.map.clone(), self.room_mask.clone()
 
     def step(self, room_index: torch.tensor, room_x: torch.tensor, room_y: torch.tensor):
@@ -289,9 +296,9 @@ class MazeBuilderEnv:
 import logic.rooms.all_rooms
 import logic.rooms.crateria_isolated
 
-num_envs = 1
+num_envs = 2
 rooms = logic.rooms.crateria_isolated.rooms
-
+num_candidates = 1
 env = MazeBuilderEnv(rooms,
                      # map_x=15,
                      # map_y=15,
@@ -306,20 +313,17 @@ env = MazeBuilderEnv(rooms,
 # A_unflattened = A.view(A.shape[0], 2, -1, A.shape[2], A.shape[3])
 torch.set_printoptions(linewidth=120, threshold=10000)
 
+
 import time
 _, _ = env.reset()
 torch.manual_seed(2)
 for i in range(100):
-    candidates = env.get_placement_candidates()
-    if candidates.shape[0] == 0:
-        break
-    ind = torch.randint(high=candidates.shape[0], size=[1])
-    choice = candidates[ind, 1:]
-    room_index = choice[:, 0]
-    room_x = choice[:, 1]
-    room_y = choice[:, 2]
+    candidates = env.get_placement_candidates(num_candidates)
+    room_index = candidates[:, 0, 0]
+    room_x = candidates[:, 0, 1]
+    room_y = candidates[:, 0, 2]
     _, _ = env.step(room_index, room_x, room_y)
-    env.render()
+    env.render(0)
     time.sleep(0.1)
 print(i)
 # A_collision[0, 0, :, :].t()
