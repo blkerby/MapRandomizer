@@ -1,5 +1,4 @@
 # TODO:
-#  - new environment setup using random sampling of valid room placements
 #  - try implementing DQN, architecture similar to dueling network:
 #    - single network with two heads: one for state-value and one for action-value (or action-advantages)
 #    - target for both state-values and action-values is the estimate state-value n steps later,
@@ -42,116 +41,21 @@ class GlobalMaxPool2d(torch.nn.Module):
         return torch.max(X.view(X.shape[0], X.shape[1], X.shape[2] * X.shape[3]), dim=2)[0]
 
 
-class PolicyNetwork(torch.nn.Module):
-    def __init__(self, room_tensor, left_door_tensor, right_door_tensor, down_door_tensor, up_door_tensor,
-                 map_x, map_y, map_channels, map_kernel_size, fc_widths, door_embedding_width, batch_norm_momentum):
+# TODO: look at using torch.multinomial instead of implementing this from scratch?
+def _rand_choice(p):
+    cumul_p = torch.cumsum(p, dim=1)
+    rnd = torch.rand([p.shape[0], 1], device=p.device)
+    choice = torch.clamp(torch.searchsorted(cumul_p, rnd), max=p.shape[1] - 1).view(-1)
+    return choice
+
+
+class Network(torch.nn.Module):
+    def __init__(self, room_tensor, map_x, map_y, map_channels, map_kernel_size, fc_widths):
         super().__init__()
-        self.room_tensor = room_tensor
-        self.left_door_tensor = left_door_tensor
-        self.right_door_tensor = right_door_tensor
-        self.down_door_tensor = down_door_tensor
-        self.up_door_tensor = up_door_tensor
-        # self.local_radius = local_radius
-
-        map_layers = []
-        map_channels = [4] + map_channels
-        width = map_x
-        height = map_y
-        for i in range(len(map_channels) - 1):
-            map_layers.append(torch.nn.Conv2d(map_channels[i], map_channels[i + 1],
-                                              kernel_size=(map_kernel_size[i], map_kernel_size[i]),
-                                              padding=map_kernel_size[i] // 2))
-            map_layers.append(torch.nn.ReLU())
-            # map_layers.append(torch.nn.BatchNorm2d(map_channels[i + 1], momentum=batch_norm_momentum))
-            map_layers.append(torch.nn.MaxPool2d(3, stride=2, padding=1))
-            width = (width + 1) // 2
-            height = (height + 1) // 2
-        # map_layers.append(GlobalAvgPool2d())
-        # map_layers.append(GlobalMaxPool2d())
-        map_layers.append(torch.nn.Flatten())
-        self.map_sequential = torch.nn.Sequential(*map_layers)
-
-        # map_layers = []
-        # map_channels = [3] + map_channels
-        # width = 2 * local_radius + 1
-        # height = 2 * local_radius + 1
-        # for i in range(len(map_channels) - 1):
-        #     map_layers.append(torch.nn.Conv2d(map_channels[i], map_channels[i + 1],
-        #                                       kernel_size=(map_kernel_size[i], map_kernel_size[i]),
-        #                                       padding=map_kernel_size[i] // 2))
-        #     map_layers.append(torch.nn.ReLU())
-        #     map_layers.append(torch.nn.BatchNorm2d(map_channels[i + 1], momentum=batch_norm_momentum))
-        #     map_layers.append(torch.nn.MaxPool2d(3, stride=2, padding=1))
-        #     width = (width + 1) // 2
-        #     height = (height + 1) // 2
-        # # map_layers.append(GlobalAvgPool2d())
-        # # map_layers.append(GlobalMaxPool2d())
-        # map_layers.append(torch.nn.Flatten())
-        # self.map_sequential = torch.nn.Sequential(*map_layers)
-
-        fc_layers = []
-        fc_widths = [(width * height * map_channels[-1]) + 1 + room_tensor.shape[0]] + fc_widths
-        for i in range(len(fc_widths) - 1):
-            fc_layers.append(torch.nn.Linear(fc_widths[i], fc_widths[i + 1]))
-            fc_layers.append(torch.nn.ReLU())
-            # fc_layers.append(torch.nn.BatchNorm1d(fc_widths[i + 1], momentum=batch_norm_momentum))
-        fc_layers.append(torch.nn.Linear(fc_widths[-1], door_embedding_width))
-        self.fc_sequential = torch.nn.Sequential(*fc_layers)
-
-        self.left_door_embedding = torch.nn.Parameter(torch.randn([door_embedding_width, left_door_tensor.shape[0]]))
-        self.right_door_embedding = torch.nn.Parameter(torch.randn([door_embedding_width, right_door_tensor.shape[0]]))
-        self.down_door_embedding = torch.nn.Parameter(torch.randn([door_embedding_width, down_door_tensor.shape[0]]))
-        self.up_door_embedding = torch.nn.Parameter(torch.randn([door_embedding_width, up_door_tensor.shape[0]]))
-
-        # self.left_raw_logprobs = torch.nn.Parameter(torch.zeros([self.right_door_tensor.shape[0]], dtype=torch.float32))
-        # self.right_raw_logprobs = torch.nn.Parameter(torch.zeros([self.left_door_tensor.shape[0]], dtype=torch.float32))
-        # self.down_raw_logprobs = torch.nn.Parameter(torch.zeros([self.up_door_tensor.shape[0]], dtype=torch.float32))
-        # self.up_raw_logprobs = torch.nn.Parameter(torch.zeros([self.down_door_tensor.shape[0]], dtype=torch.float32))
-
-
-    def forward(self, map, room_mask, position, direction, left_ids, right_ids, down_ids, up_ids, steps_remaining):
-        device = map.device
-
-        # padded_map = torch.nn.functional.pad(map, pad=(self.local_radius, self.local_radius, self.local_radius, self.local_radius))
-        # index_x = torch.arange(-self.local_radius, self.local_radius + 1, device=device).view(1, 1, -1, 1) + position[:, 0].view(-1, 1, 1, 1)
-        # index_y = torch.arange(-self.local_radius, self.local_radius + 1, device=device).view(1, 1, 1, -1) + position[:, 1].view(-1, 1, 1, 1)
-        # local_map = padded_map[torch.arange(map.shape[0], device=device).view(-1, 1, 1, 1),
-        #                        torch.arange(3, device=device).view(1, -1, 1, 1), index_x, index_y]
-        # X = local_map
-        X = map.to(torch.float32)
-        pos_layer = torch.zeros_like(X[:, :1, :, :])
-        pos_layer[torch.arange(map.shape[0], device=device), 0, position[:, 0], position[:, 1]] = (direction + 1).to(torch.float32)
-        X = torch.cat([X, pos_layer], dim=1)
-        for layer in self.map_sequential:
-            # print(X.shape, layer)
-            X = layer(X)
-
-        X = torch.cat([X, steps_remaining.view(-1, 1), room_mask], dim=1)
-        for layer in self.fc_sequential:
-            X = layer(X)
-
-        X_left = X[left_ids, :]
-        X_right = X[right_ids, :]
-        X_down = X[down_ids, :]
-        X_up = X[up_ids, :]
-
-        left_raw_logprobs = torch.matmul(X_left, self.right_door_embedding)
-        right_raw_logprobs = torch.matmul(X_right, self.left_door_embedding)
-        down_raw_logprobs = torch.matmul(X_down, self.up_door_embedding)
-        up_raw_logprobs = torch.matmul(X_up, self.down_door_embedding)
-
-        return left_raw_logprobs, right_raw_logprobs, down_raw_logprobs, up_raw_logprobs
-
-
-class ValueNetwork(torch.nn.Module):
-    def __init__(self, room_tensor, map_x, map_y, map_channels, map_kernel_size, fc_widths, batch_norm_momentum):
-        super().__init__()
-        self.map_x = map_x
-        self.map_y = map_y
         self.room_tensor = room_tensor
 
         map_layers = []
-        map_channels = [3] + map_channels
+        map_channels = [5] + map_channels
         width = map_x
         height = map_y
         for i in range(len(map_channels) - 1):
@@ -176,71 +80,66 @@ class ValueNetwork(torch.nn.Module):
             # fc_layers.append(torch.nn.BatchNorm1d(fc_widths[i + 1], momentum=batch_norm_momentum))
         fc_layers.append(torch.nn.Linear(fc_widths[-1], 1))
         self.fc_sequential = torch.nn.Sequential(*fc_layers)
-        # self.lin = torch.nn.Linear(1, 1)
-        # self.dummy_param = torch.nn.Parameter(torch.zeros([]))
 
-    def forward(self, map, room_mask, steps_remaining):
+    def forward(self, map, room_mask, candidate_placements, steps_remaining):
         X = map.to(torch.float32)
         for layer in self.map_sequential:
+            # print(X.shape, layer)
             X = layer(X)
 
         X = torch.cat([X, steps_remaining.view(-1, 1), room_mask], dim=1)
         for layer in self.fc_sequential:
             X = layer(X)
-        return X[:, 0]
+
+        state_value = X[:, 0]
+
+        # TODO: actually compute something here:
+        action_value = torch.zeros([candidate_placements.shape[0], candidate_placements.shape[1]], dtype=torch.float32,
+                                   device=map.device)
+
+        return state_value, action_value
 
 
 class TrainingSession():
     def __init__(self, env: MazeBuilderEnv,
-                 value_network: torch.nn.Module,
-                 policy_network: PolicyNetwork,
-                 value_optimizer: torch.optim.Optimizer,
-                 policy_optimizer: torch.optim.Optimizer,
+                 network: Network,
+                 optimizer: torch.optim.Optimizer,
                  ):
         self.env = env
-        self.value_network = value_network
-        self.policy_network = policy_network
-        self.value_optimizer = value_optimizer
-        self.policy_optimizer = policy_optimizer
-        self.average_value_parameters = SimpleAverage(value_network.parameters())
-        self.average_policy_parameters = SimpleAverage(policy_network.parameters())
+        self.network = network
+        self.optimizer = optimizer
+        self.average_parameters = SimpleAverage(
+            network.parameters())  # TODO: try batch norm again, and add its internal tensors here
         self.num_rounds = 0
 
-    def generate_round(self, episode_length, render=False):
+    def generate_round(self, episode_length: int, num_candidates: int, temperature: float, render=False):
+        device = self.env.map.device
         map, room_mask = self.env.reset()
         map_list = [map]
         room_mask_list = [room_mask]
-        position_list = []
-        direction_list = []
         action_list = []
-        reward_list = []
-        self.policy_network.eval()
-        with self.average_policy_parameters.average_parameters():
-            for j in range(episode_length):
-                if render:
-                    self.env.render()
-                position, direction, left_ids, right_ids, down_ids, up_ids = env.choose_random_door()
-                steps_remaining = torch.full_like(direction, episode_length - j)
-                with torch.no_grad():
-                    policy_out = self.policy_network(map, room_mask, position, direction,
-                                                     left_ids, right_ids, down_ids, up_ids, steps_remaining)
-                left_raw_logprobs, right_raw_logprobs, down_raw_logprobs, up_raw_logprobs = policy_out
-                reward, map, room_mask, action = self.env.random_step(
-                    position, left_ids, right_ids, down_ids, up_ids,
-                    left_raw_logprobs, right_raw_logprobs, down_raw_logprobs, up_raw_logprobs)
-                map_list.append(map)
-                room_mask_list.append(room_mask)
-                position_list.append(position)
-                direction_list.append(direction)
-                action_list.append(action)
-                reward_list.append(reward)
+        self.network.eval()
+        # with self.average_parameters.average_parameters():
+        for j in range(episode_length):
+            if render:
+                self.env.render()
+            candidate_placements = env.get_placement_candidates(num_candidates)
+            steps_remaining = torch.full([self.env.num_envs], episode_length - j,
+                                         dtype=torch.float32, device=device)
+            with torch.no_grad():
+                state_value, action_value = self.network(map, room_mask, candidate_placements, steps_remaining)
+            action_probs = torch.softmax(action_value * temperature, dim=1)
+            action_index = _rand_choice(action_probs)
+            action = candidate_placements[torch.arange(self.env.num_envs, device=device), action_index]
+            map, room_mask = self.env.step(action[:, 0], action[:, 1], action[:, 2])
+            map_list.append(map)
+            room_mask_list.append(room_mask)
+            action_list.append(action)
         map_tensor = torch.stack(map_list, dim=0)
         room_mask_tensor = torch.stack(room_mask_list, dim=0)
-        position_tensor = torch.stack(position_list, dim=0)
-        direction_tensor = torch.stack(direction_list, dim=0)
         action_tensor = torch.stack(action_list, dim=0)
-        reward_tensor = torch.stack(reward_list, dim=0)
-        return map_tensor, room_mask_tensor, position_tensor, direction_tensor, action_tensor, reward_tensor
+        reward_tensor = self.env.reward()
+        return map_tensor, room_mask_tensor, action_tensor, reward_tensor
 
     def train_round(self,
                     episode_length: int,
@@ -443,102 +342,89 @@ map_y = 30
 env = MazeBuilderEnv(rooms,
                      map_x=map_x,
                      map_y=map_y,
+                     max_room_width=11,
                      num_envs=num_envs,
                      device=device)
-print(env.room_tensor.shape, env.left_door_tensor.shape, env.right_door_tensor.shape, env.down_door_tensor.shape, env.up_door_tensor.shape)
+# print(env.room_tensor.shape, env.left_door_tensor.shape, env.right_door_tensor.shape, env.down_door_tensor.shape, env.up_door_tensor.shape)
 
 
-value_network = ValueNetwork(env.room_tensor,
-                             map_x=map_x,
-                             map_y=map_y,
-                             map_channels=[32, 64, 128],
-                             map_kernel_size=[11, 9, 5],
-                             fc_widths=[128, 128, 128],
-                             batch_norm_momentum=0.1,
-                             ).to(device)
-policy_network = PolicyNetwork(env.room_tensor, env.left_door_tensor, env.right_door_tensor,
-                               env.down_door_tensor, env.up_door_tensor,
-                               map_x=map_x,
-                               map_y=map_y,
-                               # local_radius=5,
-                               map_channels=[32, 64, 128],
-                               map_kernel_size=[11, 9, 5],
-                               fc_widths=[128, 128, 128],
-                               door_embedding_width=128,
-                               batch_norm_momentum=0.1,
-                               ).to(device)
-value_network.fc_sequential[-1].weight.data[:, :] = 0.0
-value_network.fc_sequential[-1].bias.data[:] = 0.0
-policy_network.fc_sequential[-1].weight.data[:, :] = 0.0
-policy_network.fc_sequential[-1].bias.data[:] = 0.0
-value_optimizer = torch.optim.Adam(value_network.parameters(), lr=0.0005, betas=(0.5, 0.5), eps=1e-15)
-policy_optimizer = torch.optim.Adam(policy_network.parameters(), lr=5e-6, betas=(0.5, 0.5), eps=1e-15)
+network = Network(env.room_tensor,
+                  map_x=env.padded_map_x,
+                  map_y=env.padded_map_y,
+                  map_channels=[32, 64, 128],
+                  map_kernel_size=[11, 9, 5],
+                  fc_widths=[128, 128, 128],
+                  ).to(device)
+network.fc_sequential[-1].weight.data[:, :] = 0.0
+network.fc_sequential[-1].bias.data[:] = 0.0
+optimizer = torch.optim.Adam(network.parameters(), lr=0.0005, betas=(0.5, 0.5), eps=1e-15)
 
-print(value_network)
-print(value_optimizer)
-print(policy_network)
-print(policy_optimizer)
+print(network)
+print(optimizer)
 logging.info("Starting training")
 
 session = TrainingSession(env,
-                          value_network=value_network,
-                          policy_network=policy_network,
-                          value_optimizer=value_optimizer,
-                          policy_optimizer=policy_optimizer)
+                          network=network,
+                          optimizer=optimizer)
 
 torch.set_printoptions(linewidth=120, threshold=10000)
 
-# map_tensor, room_mask_tensor, position_tensor, direction_tensor, action_tensor, reward_tensor = session.generate_round(
-#     episode_length=episode_length,
-#     render=True)
+num_candidates = 16
+temperature = 1.0
+map_tensor, room_mask_tensor, action_tensor, reward_tensor = session.generate_round(episode_length, num_candidates,
+                                                                                    temperature)
 
+# # map_tensor, room_mask_tensor, position_tensor, direction_tensor, action_tensor, reward_tensor = session.generate_round(
+# #     episode_length=episode_length,
+# #     render=True)
 #
-# # session = pickle.load(open('models/crateria-2021-06-29T13:35:06.399214.pkl', 'rb'))
+# #
+# # # session = pickle.load(open('models/crateria-2021-06-29T13:35:06.399214.pkl', 'rb'))
+# #
+# import io
+# class CPU_Unpickler(pickle.Unpickler):
+#     def find_class(self, module, name):
+#         if module == 'torch.storage' and name =='_load_from_bytes':
+#             return lambda b: torch.load(io.BytesIO(b), map_location='cpu')
+#         else:
+#             return super().find_class(module, name)
+# session = CPU_Unpickler(open('models/crateria-2021-07-12T15:28:23.905530.pkl', 'rb')).load()
+# # session.policy_optimizer.param_groups[0]['lr'] = 5e-6
+# # # session.value_optimizer.param_groups[0]['betas'] = (0.8, 0.999)
+# batch_size = 2 ** 8
+# # batch_size = 2 ** 13  # 2 ** 12
+# policy_variation_penalty = 0.1
+# td_lambda = 0.5
+# session.env = env
+# # session.value_optimizer.param_groups[0]['lr'] = 0.0001
+# # session.policy_optimizer.param_groups[0]['lr'] = 2e-5
+# # session.value_optimizer.param_groups[0]['betas'] = (0.5, 0.5)
+# # session.policy_optimizer.param_groups[0]['betas'] = (0.5, 0.5)
 #
-import io
-class CPU_Unpickler(pickle.Unpickler):
-    def find_class(self, module, name):
-        if module == 'torch.storage' and name =='_load_from_bytes':
-            return lambda b: torch.load(io.BytesIO(b), map_location='cpu')
-        else:
-            return super().find_class(module, name)
-session = CPU_Unpickler(open('models/crateria-2021-07-12T15:28:23.905530.pkl', 'rb')).load()
-# session.policy_optimizer.param_groups[0]['lr'] = 5e-6
-# # session.value_optimizer.param_groups[0]['betas'] = (0.8, 0.999)
-batch_size = 2 ** 8
-# batch_size = 2 ** 13  # 2 ** 12
-policy_variation_penalty = 0.1
-td_lambda = 0.5
-session.env = env
-# session.value_optimizer.param_groups[0]['lr'] = 0.0001
-# session.policy_optimizer.param_groups[0]['lr'] = 2e-5
-# session.value_optimizer.param_groups[0]['betas'] = (0.5, 0.5)
-# session.policy_optimizer.param_groups[0]['betas'] = (0.5, 0.5)
-
-logging.info(
-    "num_envs={}, batch_size={}, policy_variation_penalty={}, td_lambda={}".format(session.env.num_envs, batch_size,
-                                                                     policy_variation_penalty, td_lambda))
-# for i in range(100000):
-#     mean_reward, max_reward, cnt_max_reward, value_loss_bs, target_err, policy_loss, policy_variation = session.train_round(
-#         episode_length=episode_length,
-#         batch_size=batch_size,
-#         policy_variation_penalty=policy_variation_penalty,
-#         td_lambda=td_lambda,
-#         # mc_weight=0.1,
-#         # render=True)
-#         render=False)
-#     # render=i % display_freq == 0)
-#     logging.info("{}: reward={:.3f} (max={:d}, cnt={:d}), value={:.5f}, target={:.5f}, policy_loss={:.5f}, policy_variation={:.5f}".format(
-#         session.num_rounds, mean_reward, max_reward, cnt_max_reward, value_loss_bs, target_err, policy_loss, policy_variation))
-#     pickle.dump(session, open(pickle_name, 'wb'))
-
-
-while True:
-    map_tensor, room_mask_tensor, position_tensor, direction_tensor, action_tensor, reward_tensor = session.generate_round(episode_length, render=False)
-    sum_reward = torch.sum(reward_tensor, dim=0)
-    max_reward, max_reward_ind = torch.max(sum_reward, dim=0)
-    logging.info("{}: {}".format(max_reward, sum_reward.tolist()))
-    if max_reward.item() >= 33:
-        break
-# session.env.render(0)
-session.env.render(max_reward_ind.item())
+# logging.info(
+#     "num_envs={}, batch_size={}, policy_variation_penalty={}, td_lambda={}".format(session.env.num_envs, batch_size,
+#                                                                      policy_variation_penalty, td_lambda))
+# # for i in range(100000):
+# #     mean_reward, max_reward, cnt_max_reward, value_loss_bs, target_err, policy_loss, policy_variation = session.train_round(
+# #         episode_length=episode_length,
+# #         batch_size=batch_size,
+# #         policy_variation_penalty=policy_variation_penalty,
+# #         td_lambda=td_lambda,
+# #         # mc_weight=0.1,
+# #         # render=True)
+# #         render=False)
+# #     # render=i % display_freq == 0)
+# #     logging.info("{}: reward={:.3f} (max={:d}, cnt={:d}), value={:.5f}, target={:.5f}, policy_loss={:.5f}, policy_variation={:.5f}".format(
+# #         session.num_rounds, mean_reward, max_reward, cnt_max_reward, value_loss_bs, target_err, policy_loss, policy_variation))
+# #     pickle.dump(session, open(pickle_name, 'wb'))
+#
+#
+# while True:
+#     map_tensor, room_mask_tensor, position_tensor, direction_tensor, action_tensor, reward_tensor = session.generate_round(episode_length, render=False)
+#     sum_reward = torch.sum(reward_tensor, dim=0)
+#     max_reward, max_reward_ind = torch.max(sum_reward, dim=0)
+#     logging.info("{}: {}".format(max_reward, sum_reward.tolist()))
+#     if max_reward.item() >= 33:
+#         break
+# # session.env.render(0)
+# session.env.render(max_reward_ind.item())
