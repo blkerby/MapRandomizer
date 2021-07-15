@@ -53,8 +53,9 @@ class MazeBuilderEnv:
 
         self.padded_map_x = self.map_x + self.map_padding_left + self.map_padding_right
         self.padded_map_y = self.map_y + self.map_padding_up + self.map_padding_down
+        self.map_channels = 5
 
-        self.map = torch.zeros([num_envs, 5, self.padded_map_x, self.padded_map_y],
+        self.map = torch.zeros([num_envs, self.map_channels, self.padded_map_x, self.padded_map_y],
                                dtype=torch.int8, device=device)
         self.init_map()
         self.room_mask = torch.zeros([num_envs, len(rooms) + 1], dtype=torch.bool, device=device)
@@ -151,7 +152,11 @@ class MazeBuilderEnv:
     def get_placement_candidates(self, num_candidates):
         flattened_kernel = self.placement_kernel.view(-1, self.placement_kernel.shape[2], self.placement_kernel.shape[3],
                                                      self.placement_kernel.shape[4])
-        A_flattened = F.conv2d(self.map, flattened_kernel)
+        if self.map.is_cuda:
+            # We have to do the convolution in FP16 for now, since it isn't supported in int8 in Pytorch yet
+            A_flattened = F.conv2d(self.map.to(torch.float16), flattened_kernel.to(torch.float16)).to(torch.int8)
+        else:
+            A_flattened = F.conv2d(self.map, flattened_kernel)
         A = A_flattened.view(A_flattened.shape[0], 2, -1, A_flattened.shape[2], A_flattened.shape[3])
         A_collision = A[:, 0, :, :, :]
         A_connection = A[:, 1, :, :, :]
@@ -162,10 +167,10 @@ class MazeBuilderEnv:
             valid[:, -1, 0, 0] = True
 
         candidates = torch.nonzero(valid)
-        boundaries = torch.searchsorted(candidates[:, 0].contiguous(), torch.arange(self.num_envs))
-        boundaries_ext = torch.cat([boundaries, torch.tensor([candidates.shape[0]])])
+        boundaries = torch.searchsorted(candidates[:, 0].contiguous(), torch.arange(self.num_envs, device=candidates.device))
+        boundaries_ext = torch.cat([boundaries, torch.tensor([candidates.shape[0]], device=candidates.device)])
         candidate_quantities = boundaries_ext[1:] - boundaries_ext[:-1]
-        relative_ind = torch.randint(high=2 ** 31, size=[self.num_envs, num_candidates]) % candidate_quantities.unsqueeze(1)
+        relative_ind = torch.randint(high=2 ** 31, size=[self.num_envs, num_candidates], device=candidates.device) % candidate_quantities.unsqueeze(1)
         ind = relative_ind + boundaries.unsqueeze(1)
         return candidates[ind, 1:]  #, valid, A_collision, A_connection
 
