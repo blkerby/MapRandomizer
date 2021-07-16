@@ -50,17 +50,18 @@ def _rand_choice(p):
 
 
 class Network(torch.nn.Module):
-    def __init__(self, room_tensor, map_x, map_y, map_channels, map_kernel_size, global_fc_widths):
+    def __init__(self, room_tensor, map_x, map_y, global_map_channels, global_map_kernel_size, global_fc_widths):
+#                 local_map_channels, local_map_kernel_size, local_fc_widths):
         super().__init__()
         self.room_tensor = room_tensor
+        self.map_x = map_x
+        self.map_y = map_y
 
         map_layers = []
-        map_channels = [5] + map_channels
-        width = map_x
-        height = map_y
-        for i in range(len(map_channels) - 1):
-            map_layers.append(torch.nn.Conv2d(map_channels[i], map_channels[i + 1],
-                                              kernel_size=(map_kernel_size[i], map_kernel_size[i]),
+        global_map_channels = [7] + global_map_channels
+        for i in range(len(global_map_channels) - 1):
+            map_layers.append(torch.nn.Conv2d(global_map_channels[i], global_map_channels[i + 1],
+                                              kernel_size=(global_map_kernel_size[i], global_map_kernel_size[i]),
                                               stride=(2, 2)))
             map_layers.append(torch.nn.ReLU())
             # map_layers.append(torch.nn.BatchNorm2d(map_channels[i + 1], momentum=batch_norm_momentum))
@@ -75,7 +76,7 @@ class Network(torch.nn.Module):
 
         global_fc_layers = []
         # global_fc_widths = [(width * height * map_channels[-1]) + 1 + room_tensor.shape[0]] + global_fc_widths
-        global_fc_widths = [map_channels[-1] + 1 + room_tensor.shape[0]] + global_fc_widths
+        global_fc_widths = [global_map_channels[-1] + 1 + room_tensor.shape[0]] + global_fc_widths
         for i in range(len(global_fc_widths) - 1):
             global_fc_layers.append(torch.nn.Linear(global_fc_widths[i], global_fc_widths[i + 1]))
             global_fc_layers.append(torch.nn.ReLU())
@@ -85,10 +86,31 @@ class Network(torch.nn.Module):
         self.state_value_lin = torch.nn.Linear(global_fc_widths[-1], 1)
 
         # Replace this with conv layers
+        # local_map_layers = []
+        # local_map_channels = [5] + local_map_channels
+        # for i in range(len(local_map_channels) - 1):
+        #     local_map_layers.append(torch.nn.Conv2d(local_map_channels[i], local_map_channels[i + 1],
+        #                                       kernel_size=(local_map_kernel_size[i], local_map_kernel_size[i]),
+        #                                       stride=(2, 2)))
+        #     local_map_layers.append(torch.nn.ReLU())
+        #     # map_layers.append(torch.nn.BatchNorm2d(map_channels[i + 1], momentum=batch_norm_momentum))
+        #     # map_layers.append(torch.nn.MaxPool2d(3, stride=2, padding=1))
+        #     # map_layers.append(torch.nn.MaxPool2d(2, stride=2))
+        #     # width = (width - map_kernel_size[i]) // 2
+        #     # height = (height - map_kernel_size[i]) // 2
+        # # map_layers.append(GlobalAvgPool2d())
+        # map_layers.append(GlobalMaxPool2d())
+        # # map_layers.append(torch.nn.Flatten())
+        # self.map_sequential = torch.nn.Sequential(*map_layers)
+
+
         self.room_embedding = torch.nn.Parameter(torch.randn([room_tensor.shape[0], global_fc_widths[-1]]))
 
     def forward(self, map, room_mask, candidate_placements, steps_remaining):
         X = map.to(torch.float32)
+        x_channel = torch.arange(self.map_x, device=map.device).view(1, 1, -1, 1).repeat(map.shape[0], 1, 1, self.map_y)
+        y_channel = torch.arange(self.map_y, device=map.device).view(1, 1, 1, -1).repeat(map.shape[0], 1, self.map_x, 1)
+        X = torch.cat([X, x_channel, y_channel], dim=1)
         for layer in self.map_sequential:
             # print(X.shape, layer)
             X = layer(X)
@@ -312,8 +334,8 @@ env = MazeBuilderEnv(rooms,
 network = Network(env.room_tensor,
                   map_x=env.padded_map_x,
                   map_y=env.padded_map_y,
-                  map_channels=[32, 64],
-                  map_kernel_size=[11, 7],
+                  global_map_channels=[32, 64],
+                  global_map_kernel_size=[11, 7],
                   global_fc_widths=[256, 256],
                   ).to(device)
 network.state_value_lin.weight.data[:, :] = 0.0
