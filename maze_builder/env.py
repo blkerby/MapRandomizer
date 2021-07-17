@@ -6,27 +6,6 @@ import torch
 import torch.nn.functional as F
 
 
-def _is_map_valid(map: torch.tensor):
-    num_envs = map.shape[0]
-    no_overlapping_room = torch.max(map[:, 0, :, :].view(num_envs, -1), dim=1)[0] <= 1
-
-    blocked_left_door = (map[:, 1, 1:, :] == 1) & (map[:, 0, :-1, :] == 1)
-    some_blocked_left_door = torch.max(blocked_left_door.view(num_envs, -1), dim=1)[0]
-
-    blocked_right_door = (map[:, 1, :, :] == -1) & (map[:, 0, :, :] == 1)
-    some_blocked_right_door = torch.max(blocked_right_door.view(num_envs, -1), dim=1)[0]
-
-    blocked_up_door = (map[:, 2, :, 1:] == 1) & (map[:, 0, :, :-1] == 1)
-    some_blocked_up_door = torch.max(blocked_up_door.view(num_envs, -1), dim=1)[0]
-
-    blocked_down_door = (map[:, 2, :, :] == -1) & (map[:, 0, :, :] == 1)
-    some_blocked_down_door = torch.max(blocked_down_door.view(num_envs, -1), dim=1)[0]
-
-    some_blocked_door = some_blocked_left_door | some_blocked_right_door | some_blocked_up_door | some_blocked_down_door
-
-    return no_overlapping_room & torch.logical_not(some_blocked_door)
-
-
 def _rand_choice(p):
     cumul_p = torch.cumsum(p, dim=1)
     rnd = torch.rand([p.shape[0], 1], device=p.device)
