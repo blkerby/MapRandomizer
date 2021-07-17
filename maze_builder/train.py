@@ -53,7 +53,7 @@
 
     class Network(torch.nn.Module):
         def __init__(self, room_tensor, map_x, map_y, global_map_channels, global_map_kernel_size, global_fc_widths,
-                     local_map_channels, local_map_kernel_size, local_fc_widths, local_fs_noise_init):
+                     local_map_channels, local_map_kernel_size, local_fc_widths):
             super().__init__()
             self.room_tensor = room_tensor
             self.map_x = map_x
@@ -99,14 +99,13 @@
 
             local_fc_layers = []
             local_fc_widths = [global_fc_widths[-1] + local_map_channels[-1]] + local_fc_widths
-            self.local_fc_noise_scale = torch.nn.Parameter(torch.full([local_fc_widths[0]], local_fs_noise_init))
             for i in range(len(local_fc_widths) - 1):
                 local_fc_layers.append(torch.nn.Linear(local_fc_widths[i], local_fc_widths[i + 1]))
                 local_fc_layers.append(torch.nn.ReLU())
             self.local_fc_sequential = torch.nn.Sequential(*local_fc_layers)
             self.action_value_lin = torch.nn.Linear(local_fc_widths[-1], 1)
 
-        def forward(self, map, room_mask, candidate_placements, steps_remaining, reuse_noise: bool = False):
+        def forward(self, map, room_mask, candidate_placements, steps_remaining):
             num_envs = map.shape[0]
             num_channels = map.shape[1]
             map_x = map.shape[2]
@@ -155,11 +154,6 @@
             X_local = torch.cat([X_local, global_embedding.unsqueeze(1).repeat(1, num_candidates, 1)], dim=2)
             X_local_flat = X_local.view(num_envs * num_candidates, -1)
 
-            # Inject tunable noise for structured exploration
-            if not reuse_noise:
-                self.noise = torch.randn_like(X_local_flat)
-            X_local_flat = X_local_flat * torch.exp(self.noise * self.local_fc_noise_scale.view(1, -1))
-
             # Fully-connected layers per-candidate (starting with local map + global embedding from whole map)
             for layer in self.local_fc_sequential:
                 X_local_flat = layer(X_local_flat)
@@ -198,8 +192,7 @@
                     steps_remaining = torch.full([self.env.num_envs], episode_length - j,
                                                  dtype=torch.float32, device=device)
                     with torch.no_grad():
-                        state_value, action_value = self.network(map, room_mask, candidate_placements, steps_remaining,
-                                                                 reuse_noise=(j>0))
+                        state_value, action_value = self.network(map, room_mask, candidate_placements, steps_remaining)
                     action_probs = torch.softmax(action_value * temperature, dim=1)
                     action_index = _rand_choice(action_probs)
                     action = candidate_placements[torch.arange(self.env.num_envs, device=device), action_index]
@@ -380,7 +373,6 @@
                       local_map_channels=[16, 32],
                       local_map_kernel_size=[5, 3],
                       local_fc_widths=[64, 64],
-                      local_fs_noise_init=0.0,
                       ).to(device)
     network.state_value_lin.weight.data[:, :] = 0.0
     network.state_value_lin.bias.data[:] = 0.0
@@ -416,19 +408,28 @@
     # # # session.value_optimizer.param_groups[0]['betas'] = (0.8, 0.999)
     batch_size = 2 ** 10
     # batch_size = 2 ** 13  # 2 ** 12
-    td_lambda = 0.9
+    td_lambda0 = 1.0
+    td_lambda1 = 0.9
     num_candidates = 16
-    temperature = 100.0
-    action_loss_weight = 0.9
+    temperature0 = 0.0
+    temperature1 = 50.0
+    lr0 = 0.0005
+    lr1 = 0.00005
+    annealing_time = 50
+    action_loss_weight = 0.5
     session.env = env
     # session.optimizer.param_groups[0]['lr'] = 0.0002
     # session.value_optimizer.param_groups[0]['betas'] = (0.5, 0.5)
 
     logging.info(
-        "num_envs={}, batch_size={}, td_lambda={}, temperature={}, num_candidates={}, action_loss_weight={}".format(
-            session.env.num_envs, batch_size, td_lambda, temperature, num_candidates, action_loss_weight))
+        "num_envs={}, batch_size={}, num_candidates={}, action_loss_weight={}".format(
+            session.env.num_envs, batch_size, num_candidates, action_loss_weight))
     for i in range(100000):
-        # temperature = session.num_rounds * 0.2
+        frac = min(1, session.num_rounds / annealing_time)
+        temperature = (1 - frac) * temperature0 + frac * temperature1
+        td_lambda = (1 - frac) * td_lambda0 + frac * td_lambda1
+        lr = (1 - frac) * lr0 + frac * lr1
+        optimizer.param_groups[0]['lr'] = lr
         mean_reward, max_reward, cnt_max_reward, state_loss, action_loss, mc_state_err, mc_action_err = session.train_round(
             episode_length=episode_length,
             batch_size=batch_size,
