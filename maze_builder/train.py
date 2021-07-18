@@ -48,11 +48,13 @@ def _rand_choice(p):
 
 class Network(torch.nn.Module):
     def __init__(self, room_tensor, map_x, map_y, global_map_channels, global_map_kernel_size, global_fc_widths,
-                 local_map_channels, local_map_kernel_size, local_fc_widths):
+                 room_embedding_width, local_fc_widths):
         super().__init__()
         self.room_tensor = room_tensor
         self.map_x = map_x
         self.map_y = map_y
+        num_rooms = room_tensor.shape[0]
+        room_width = room_tensor.shape[1]
         # batch_norm_momentum = 1.0
 
         global_map_layers = []
@@ -60,7 +62,7 @@ class Network(torch.nn.Module):
         for i in range(len(global_map_channels) - 1):
             global_map_layers.append(torch.nn.Conv2d(global_map_channels[i], global_map_channels[i + 1],
                                                      kernel_size=(global_map_kernel_size[i], global_map_kernel_size[i]),
-                                                     stride=(2, 2)))
+                                                     padding=global_map_kernel_size[i] // 2))
             global_map_layers.append(torch.nn.ReLU())
             # global_map_layers.append(torch.nn.BatchNorm2d(global_map_channels[i + 1], momentum=batch_norm_momentum))
             # global_map_layers.append(torch.nn.MaxPool2d(3, stride=2, padding=1))
@@ -68,9 +70,9 @@ class Network(torch.nn.Module):
             # width = (width - map_kernel_size[i]) // 2
             # height = (height - map_kernel_size[i]) // 2
         # global_map_layers.append(GlobalAvgPool2d())
-        global_map_layers.append(GlobalMaxPool2d())
         # global_map_layers.append(torch.nn.Flatten())
         self.global_map_sequential = torch.nn.Sequential(*global_map_layers)
+        self.global_pool = GlobalMaxPool2d()
 
         global_fc_layers = []
         # global_fc_widths = [(width * height * map_channels[-1]) + 1 + room_tensor.shape[0]] + global_fc_widths
@@ -83,25 +85,16 @@ class Network(torch.nn.Module):
         self.global_fc_sequential = torch.nn.Sequential(*global_fc_layers)
         self.state_value_lin = torch.nn.Linear(global_fc_widths[-1], 1)
 
-        local_map_layers = []
-        local_map_channels = [10] + local_map_channels
-        for i in range(len(local_map_channels) - 1):
-            local_map_layers.append(torch.nn.Conv2d(local_map_channels[i], local_map_channels[i + 1],
-                                                    kernel_size=(local_map_kernel_size[i], local_map_kernel_size[i]),
-                                                    stride=(2, 2)))
-            local_map_layers.append(torch.nn.ReLU())
-            # local_map_layers.append(torch.nn.BatchNorm2d(local_map_channels[i + 1], momentum=batch_norm_momentum))
-        local_map_layers.append(GlobalMaxPool2d())
-        self.local_map_sequential = torch.nn.Sequential(*local_map_layers)
-
         local_fc_layers = []
-        local_fc_widths = [global_fc_widths[-1] + local_map_channels[-1]] + local_fc_widths
+        local_fc_widths = [global_map_channels[-1] + global_fc_widths[-1] + room_embedding_width] + local_fc_widths
         for i in range(len(local_fc_widths) - 1):
             local_fc_layers.append(torch.nn.Linear(local_fc_widths[i], local_fc_widths[i + 1]))
             local_fc_layers.append(torch.nn.ReLU())
             # local_fc_layers.append(torch.nn.BatchNorm1d(local_fc_widths[i + 1], momentum=batch_norm_momentum))
         self.local_fc_sequential = torch.nn.Sequential(*local_fc_layers)
         self.action_value_lin = torch.nn.Linear(local_fc_widths[-1], 1)
+
+        self.room_embedding = torch.nn.Parameter(torch.randn([num_rooms, room_embedding_width]))
 
     def forward(self, map, room_mask, candidate_placements, steps_remaining):
         num_envs = map.shape[0]
@@ -119,43 +112,32 @@ class Network(torch.nn.Module):
         for layer in self.global_map_sequential:
             # print(X.shape, layer)
             X = layer(X)
+        # print(X.shape)
+        global_map = X
+        pooled_map = self.global_pool(global_map)
 
         # Fully-connected layers on whole map data (starting with output of convolutional layers)
-        X = torch.cat([X, steps_remaining.view(-1, 1), room_mask], dim=1)
+        X = torch.cat([pooled_map, steps_remaining.view(-1, 1), room_mask], dim=1)
         for layer in self.global_fc_sequential:
             X = layer(X)
         global_embedding = X
 
         state_value = self.state_value_lin(global_embedding)[:, 0]
 
-        # For each candidate placement, create local map with map and room data overlaid
+        # For each candidate placement, create local map
         room_width = self.room_tensor.shape[2]
-        index_x = torch.arange(room_width, device=map.device).view(1, 1, 1, -1, 1) + candidate_placements[:, :,
-                                                                                     1].unsqueeze(2).unsqueeze(
-            3).unsqueeze(4)
-        index_y = torch.arange(room_width, device=map.device).view(1, 1, 1, 1, -1) + candidate_placements[:, :,
-                                                                                     2].unsqueeze(2).unsqueeze(
-            3).unsqueeze(4)
-        X_map_local = map[
-            torch.arange(num_envs, device=map.device).view(-1, 1, 1, 1, 1),
-            torch.arange(num_channels, device=map.device).view(1, 1, -1, 1, 1),
-            index_x,
-            index_y]
-        X_room_local = self.room_tensor[candidate_placements[:, :, 0], :, :, :]
-        X_local = torch.cat([X_map_local, X_room_local], dim=2)
-        X_local_flat = X_local.view(num_envs * num_candidates, num_channels * 2, room_width, room_width)
-
-        # Convolutional layers per-candidate (starting with local map)
-        for layer in self.local_map_sequential:
-            X_local_flat = layer(X_local_flat)
-        X_local = X_local_flat.view(num_envs, num_candidates, X_local_flat.shape[-1])
-        X_local = torch.cat([X_local, global_embedding.unsqueeze(1).repeat(1, num_candidates, 1)], dim=2)
-        X_local_flat = X_local.view(num_envs * num_candidates, -1)
+        room_choice = candidate_placements[:, :, 0]
+        index_x = candidate_placements[:, :, 1] + room_width // 2
+        index_y = candidate_placements[:, :, 2] + room_width // 2
+        room_embedding = self.room_embedding[room_choice, :]
+        local_map = global_map[torch.arange(num_envs, device=device).unsqueeze(1), :, index_x, index_y]
+        # print(local_map.shape, global_embedding.unsqueeze(1).repeat(1, num_candidates, 1).shape, room_embedding.shape)
+        X = torch.cat([local_map, global_embedding.unsqueeze(1).repeat(1, num_candidates, 1), room_embedding], dim=2)
 
         # Fully-connected layers per-candidate (starting with local map + global embedding from whole map)
         for layer in self.local_fc_sequential:
-            X_local_flat = layer(X_local_flat)
-        action_value_flat = self.action_value_lin(X_local_flat)
+            X = layer(X)
+        action_value_flat = self.action_value_lin(X)
         action_value = action_value_flat.view(num_envs, num_candidates)
 
         return state_value, action_value
@@ -167,78 +149,6 @@ class Network(torch.nn.Module):
                 params.append(module.running_mean)
                 params.append(module.running_var)
         return params
-
-
-class ReplayBuffer:
-    def __init__(self, loss_threshold):
-        self.loss_threshold = loss_threshold
-        self.tensors = None
-        self.weight = None
-        self.size = 0
-        self.capacity = 0
-
-    def ensure_capacity(self, additional_size):
-        if self.size + additional_size > self.capacity:
-            self.capacity = (self.size + additional_size) * 2
-
-            new_weight = torch.empty([self.capacity], dtype=self.weight.dtype, device=self.weight.device)
-            new_weight[:self.size] = self.weight[:self.size]
-            self.weight = new_weight
-
-            tensors_list = []
-            for tensor in self.tensors:
-                new_tensor = torch.empty([self.capacity] + list(tensor.shape)[1:], dtype=tensor.dtype, device=tensor.device)
-                new_tensor[:self.size] = tensor[:self.size]
-                tensors_list.append(new_tensor)
-            self.tensors = tensors_list
-
-    def init_tensors(self, tensors):
-        self.tensors = [tensor.clone() for tensor in tensors]
-        self.size = tensors[0].shape[0]
-        self.weight = torch.ones([self.size], dtype=self.tensors[0].dtype, device=self.tensors[0].device)
-        assert all(tensor.shape[0] == self.size for tensor in tensors)
-        self.capacity = self.size
-
-    def insert(self, *tensors: torch.Tensor):
-        if self.tensors is None:
-            self.init_tensors(tensors)
-        else:
-            additional_size = tensors[0].shape[0]
-            self.ensure_capacity(additional_size)
-            self.weight[self.size:(self.size + additional_size)] = 1.0
-            for i, tensor in enumerate(tensors):
-                self.tensors[i][self.size:(self.size + additional_size)] = tensor
-            self.size += additional_size
-
-    def remove(self, ind_to_remove):
-        new_size = self.size - ind_to_remove.shape[0]
-        ind_below = ind_to_remove[ind_to_remove < new_size]
-        ind_above = ind_to_remove[ind_to_remove >= new_size]
-        mask = torch.ones([self.size - new_size], dtype=torch.bool, device=ind_to_remove.device)
-        mask[ind_above - new_size] = False
-
-        src_ind = torch.nonzero(mask)[:, 0] + new_size
-        dst_ind = ind_below
-        self.weight[dst_ind] = self.weight[src_ind]
-        for tensor in self.tensors:
-            tensor[dst_ind] = tensor[src_ind]
-
-        self.size = new_size
-
-    def take_sample(self, n):
-        assert n <= self.size
-        ind = torch.randperm(self.size)[:n]
-        weight = self.weight[ind]
-        output_tensors = [tensor[ind] for tensor in self.tensors]
-        loss = output_tensors[0]
-        weighted_loss = loss * weight
-        above_threshold_mask = weighted_loss > self.loss_threshold
-        out_weight = torch.where(above_threshold_mask, self.loss_threshold / weighted_loss, weight)
-        ind_to_keep = torch.nonzero(above_threshold_mask)[:, 0]
-        self.weight[ind[ind_to_keep]] -= out_weight[ind_to_keep]
-        ind_to_remove = ind[torch.nonzero(~above_threshold_mask)[:, 0]]
-        self.remove(ind_to_remove)
-        return out_weight, *output_tensors
 
 # torch.manual_seed(2)
 # rb = ReplayBuffer(0.5)
@@ -466,18 +376,17 @@ print("Rooms: {}, Left doors={}, Right doors={}, Up doors={}, Down doors={}".for
 network = Network(env.room_tensor,
                   map_x=env.padded_map_x,
                   map_y=env.padded_map_y,
-                  global_map_channels=[64, 128],
+                  global_map_channels=[64, 32],
                   global_map_kernel_size=[11, 7],
-                  global_fc_widths=[256, 256],
-                  local_map_channels=[16, 32],
-                  local_map_kernel_size=[5, 3],
+                  global_fc_widths=[256, 32],
+                  room_embedding_width=64,
                   local_fc_widths=[64, 64],
                   ).to(device)
 network.state_value_lin.weight.data[:, :] = 0.0
 network.state_value_lin.bias.data[:] = 0.0
 network.action_value_lin.weight.data[:, :] = 0.0
 network.action_value_lin.bias.data[:] = 0.0
-optimizer = torch.optim.Adam(network.parameters(), lr=0.0002, betas=(0.5, 0.5), eps=1e-15)
+optimizer = torch.optim.Adam(network.parameters(), lr=0.0001, betas=(0.5, 0.5), eps=1e-15)
 
 print(network)
 print(optimizer)
@@ -511,11 +420,11 @@ td_lambda0 = 1.0
 td_lambda1 = 1.0
 num_candidates = 16
 temperature0 = 0.0
-temperature1 = 50.0
+temperature1 = 100.0
 # lr0 = 0.0002
 # lr1 = 0.0002
-annealing_time = 500
-action_loss_weight = 0.5
+annealing_time = 100
+action_loss_weight = 0.9
 session.env = env
 # session.optimizer.param_groups[0]['lr'] = 0.0002
 # session.value_optimizer.param_groups[0]['betas'] = (0.5, 0.5)
