@@ -15,7 +15,7 @@ import logic.rooms.crateria
 from datetime import datetime
 from typing import List, Optional
 import pickle
-from model_average import SimpleAverage
+from model_average import SimpleAverage, ExponentialAverage
 
 logging.basicConfig(format='%(asctime)s %(message)s',
                     level=logging.INFO,
@@ -170,8 +170,7 @@ class Network(torch.nn.Module):
 
 
 class ReplayBuffer:
-    def __init__(self, loss_threshold):
-        self.loss_threshold = loss_threshold
+    def __init__(self):
         self.tensors = None
         self.weight = None
         self.size = 0
@@ -225,49 +224,34 @@ class ReplayBuffer:
 
         self.size = new_size
 
-    def take_sample(self, n):
+    def take_sample(self, n, loss_threshold):
         assert n <= self.size
         ind = torch.randperm(self.size)[:n]
         weight = self.weight[ind]
         output_tensors = [tensor[ind] for tensor in self.tensors]
         loss = output_tensors[0]
         weighted_loss = loss * weight
-        above_threshold_mask = weighted_loss > self.loss_threshold
-        out_weight = torch.where(above_threshold_mask, self.loss_threshold / weighted_loss, weight)
+        above_threshold_mask = weighted_loss > loss_threshold
+        out_weight = torch.where(above_threshold_mask, loss_threshold / weighted_loss, weight)
         ind_to_keep = torch.nonzero(above_threshold_mask)[:, 0]
         self.weight[ind[ind_to_keep]] -= out_weight[ind_to_keep]
         ind_to_remove = ind[torch.nonzero(~above_threshold_mask)[:, 0]]
         self.remove(ind_to_remove)
-        return out_weight, *output_tensors
+        return tuple([out_weight, *output_tensors])
 
-# torch.manual_seed(2)
-# rb = ReplayBuffer(0.5)
-# A = torch.randn([3, 2])
-# loss_A = torch.rand([3])
-# rb.insert(loss_A, A)
-# B = torch.randn([5, 2])
-# loss_B = torch.rand([5])
-# rb.insert(loss_B, B)
-# sm = 0.0
-# for n in [2, 2, 2, 2, 2, 1]:
-#     weight, sample_loss, sample = rb.take_sample(n)
-#     sm += torch.sum(weight.unsqueeze(1) * sample, dim=0)
-#     print(weight)
-# print(sm, torch.sum(A, dim=0) + torch.sum(B, dim=0))
-#
-# self = rb
-# n = 2
 
 class TrainingSession():
     def __init__(self, env: MazeBuilderEnv,
                  network: Network,
                  optimizer: torch.optim.Optimizer,
+                 ema_beta: float,
                  ):
         self.env = env
         self.network = network
         self.optimizer = optimizer
-        self.average_parameters = SimpleAverage(network.all_param_data())
+        # self.average_parameters = ExponentialAverage(network.all_param_data(), ema_beta)
         self.num_rounds = 0
+        self.replay_buffer = ReplayBuffer()
 
     def generate_round(self, episode_length: int, num_candidates: int, temperature: float, render=False):
         device = self.env.map.device
@@ -278,28 +262,28 @@ class TrainingSession():
         action_value_list = []
         action_list = []
         self.network.eval()
-        with self.average_parameters.average_parameters(self.network.all_param_data()):
-            total_action_prob = 0.0
-            for j in range(episode_length):
-                if render:
-                    self.env.render()
-                candidate_placements = env.get_placement_candidates(num_candidates)
-                steps_remaining = torch.full([self.env.num_envs], episode_length - j,
-                                             dtype=torch.float32, device=device)
-                with torch.no_grad():
-                    state_value, action_value = self.network(map, room_mask, candidate_placements, steps_remaining)
-                action_probs = torch.softmax(action_value * temperature, dim=1)
-                action_index = _rand_choice(action_probs)
-                selected_action_prob = action_probs[torch.arange(self.env.num_envs, device=device), action_index]
-                action = candidate_placements[torch.arange(self.env.num_envs, device=device), action_index]
-                selected_action_value = action_value[torch.arange(self.env.num_envs, device=device), action_index]
-                map, room_mask = self.env.step(action[:, 0], action[:, 1], action[:, 2])
-                map_list.append(map)
-                room_mask_list.append(room_mask)
-                action_list.append(action)
-                state_value_list.append(state_value)
-                action_value_list.append(selected_action_value)
-                total_action_prob += torch.mean(selected_action_prob).item()
+        # with self.average_parameters.average_parameters(self.network.all_param_data()):
+        total_action_prob = 0.0
+        for j in range(episode_length):
+            if render:
+                self.env.render()
+            candidate_placements = env.get_placement_candidates(num_candidates)
+            steps_remaining = torch.full([self.env.num_envs], episode_length - j,
+                                         dtype=torch.float32, device=device)
+            with torch.no_grad():
+                state_value, action_value = self.network(map, room_mask, candidate_placements, steps_remaining)
+            action_probs = torch.softmax(action_value * temperature, dim=1)
+            action_index = _rand_choice(action_probs)
+            selected_action_prob = action_probs[torch.arange(self.env.num_envs, device=device), action_index]
+            action = candidate_placements[torch.arange(self.env.num_envs, device=device), action_index]
+            selected_action_value = action_value[torch.arange(self.env.num_envs, device=device), action_index]
+            map, room_mask = self.env.step(action[:, 0], action[:, 1], action[:, 2])
+            map_list.append(map)
+            room_mask_list.append(room_mask)
+            action_list.append(action)
+            state_value_list.append(state_value)
+            action_value_list.append(selected_action_value)
+            total_action_prob += torch.mean(selected_action_prob).item()
         map_tensor = torch.stack(map_list, dim=0)
         room_mask_tensor = torch.stack(room_mask_list, dim=0)
         state_value_tensor = torch.stack(state_value_list, dim=0)
@@ -312,8 +296,10 @@ class TrainingSession():
     def train_round(self,
                     episode_length: int,
                     batch_size: int,
+                    min_buffer_size: int,
                     num_candidates: int,
                     temperature: float,
+                    loss_threshold_factor: float,
                     action_loss_weight: float = 0.5,
                     td_lambda: float = 0.0,
                     render: bool = False,
@@ -352,60 +338,57 @@ class TrainingSession():
             target_list.append(target_batch)
         target = torch.stack(list(reversed(target_list)), dim=0)
 
+        # Compute the loss of the predictions from during generation. There is no backpropagation based on this;
+        # it is only for determining priorities for experience replay.
+        gen_state_loss = (state_value - target) ** 2
+        gen_action_loss = (action_value - target) ** 2
+        gen_loss = (1 - action_loss_weight) * gen_state_loss + action_loss_weight * gen_action_loss
+        mean_gen_loss = torch.mean(gen_loss)
+        loss_threshold = loss_threshold_factor * mean_gen_loss
+
         # Flatten the data
         n = episode_length * self.env.num_envs
+        gen_loss = gen_loss.view(n)
         map0 = map0.view(n, self.env.map_channels, self.env.padded_map_x, self.env.padded_map_y)
         room_mask0 = room_mask0.view(n, len(self.env.rooms) + 1)
         action = action.view(n, 3)
         steps_remaining = steps_remaining.view(n)
         target = target.view(n)
 
-        # Shuffle the data
-        perm = torch.randperm(n)
-        map0 = map0[perm, :, :, :]
-        room_mask0 = room_mask0[perm, :]
-        action = action[perm]
-        steps_remaining = steps_remaining[perm]
-        target = target[perm]
+        # Add the data to the replay buffer
+        self.replay_buffer.insert(gen_loss, map0, room_mask0, action, steps_remaining, target)
 
-        num_batches = n // batch_size
-
+        # If the replay buffer is full enough, sample from it to train the model.
         total_state_loss = 0.0
         total_action_loss = 0.0
         self.network.train()
-        self.average_parameters.reset()
-        for i in range(num_batches):
-            start = i * batch_size
-            end = (i + 1) * batch_size
-            map0_batch = map0[start:end, :, :, :]
-            room_mask0_batch = room_mask0[start:end, :]
-            steps_remaining_batch = steps_remaining[start:end]
-            action_batch = action[start:end, :]
-            target_batch = target[start:end]
-
+        num_batches = 0
+        while self.replay_buffer.size > min_buffer_size:
+            out_batch = self.replay_buffer.take_sample(batch_size, loss_threshold)
+            weight_batch, gen_loss_batch, map0_batch, room_mask0_batch, action_batch, steps_remaining_batch, target_batch = out_batch
             state_value0, action_value0 = self.network(map0_batch, room_mask0_batch, action_batch.unsqueeze(1),
                                                        steps_remaining_batch)
             action_value0 = action_value0[:, 0]
-            state_loss = torch.mean((state_value0 - target_batch) ** 2)
-            action_loss = torch.mean((action_value0 - target_batch) ** 2)
-            # print(state_loss, action_loss)
+            state_loss = torch.mean(weight_batch * (state_value0 - target_batch) ** 2)
+            action_loss = torch.mean(weight_batch * (action_value0 - target_batch) ** 2)
             loss = (1 - action_loss_weight) * state_loss + action_loss_weight * action_loss
             self.optimizer.zero_grad()
             loss.backward()
             torch.nn.utils.clip_grad_norm_(self.network.parameters(), 1e-5)
             self.optimizer.step()
-            self.average_parameters.update(self.network.all_param_data())
+            # self.average_parameters.update(self.network.all_param_data())
             # # self.value_network.decay(weight_decay * self.value_optimizer.param_groups[0]['lr'])
             total_state_loss += state_loss.item()
             total_action_loss += action_loss.item()
+            num_batches += 1
 
         self.num_rounds += 1
 
         # total_loss = 0
         # num_batches = 1
         # total_mc_state_err = 0
-        return mean_reward, max_reward, cnt_max_reward, total_state_loss / num_batches, \
-               total_action_loss / num_batches, total_mc_state_err / episode_length, total_mc_action_err / episode_length, \
+        return mean_reward, max_reward, cnt_max_reward, num_batches, total_state_loss, \
+               total_action_loss, total_mc_state_err / episode_length, total_mc_action_err / episode_length, \
                 action_prob
 
 
@@ -426,7 +409,7 @@ import logic.rooms.maridia_upper
 # device = torch.device('cpu')
 device = torch.device('cuda:0')
 
-num_envs = 512
+num_envs = 1024
 # num_envs = 32
 # rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.crateria.rooms
@@ -477,7 +460,7 @@ network.state_value_lin.weight.data[:, :] = 0.0
 network.state_value_lin.bias.data[:] = 0.0
 network.action_value_lin.weight.data[:, :] = 0.0
 network.action_value_lin.bias.data[:] = 0.0
-optimizer = torch.optim.Adam(network.parameters(), lr=0.0002, betas=(0.5, 0.5), eps=1e-15)
+optimizer = torch.optim.Adam(network.parameters(), lr=0.0001, betas=(0.9, 0.99), eps=1e-15)
 
 print(network)
 print(optimizer)
@@ -485,7 +468,8 @@ logging.info("Starting training")
 
 session = TrainingSession(env,
                           network=network,
-                          optimizer=optimizer)
+                          optimizer=optimizer,
+                          ema_beta=0.9)
 
 torch.set_printoptions(linewidth=120, threshold=10000)
 # map_tensor, room_mask_tensor, action_tensor, reward_tensor = session.generate_round(episode_length, num_candidates,
@@ -507,44 +491,54 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 # # # session.value_optimizer.param_groups[0]['betas'] = (0.8, 0.999)
 batch_size = 2 ** 10
 # batch_size = 2 ** 13  # 2 ** 12
-td_lambda0 = 1.0
-td_lambda1 = 1.0
+# td_lambda0 = 1.0
+# td_lambda1 = 1.0
+td_lambda = 1.0
 num_candidates = 16
-temperature0 = 0.0
-temperature1 = 50.0
+# temperature0 = 0.0
+# temperature1 = 200.0
 # lr0 = 0.0002
 # lr1 = 0.0002
-annealing_time = 500
-action_loss_weight = 0.5
+# annealing_time = 2000
+action_loss_weight = 0.9
 session.env = env
-# session.optimizer.param_groups[0]['lr'] = 0.0002
+# session.optimizer.param_groups[0]['lr'] = 0.0003
 # session.value_optimizer.param_groups[0]['betas'] = (0.5, 0.5)
 
 logging.info(
     "num_envs={}, batch_size={}, num_candidates={}, action_loss_weight={}".format(
         session.env.num_envs, batch_size, num_candidates, action_loss_weight))
 for i in range(100000):
-    frac = min(1, session.num_rounds / annealing_time)
-    temperature = (1 - frac) * temperature0 + frac * temperature1
-    td_lambda = (1 - frac) * td_lambda0 + frac * td_lambda1
+    # frac = min(1, session.num_rounds / annealing_time)
+    temperature = session.num_rounds * 0.1
+    # temperature = (1 - frac) * temperature0 + frac * temperature1
+    # td_lambda = (1 - frac) * td_lambda0 + frac * td_lambda1
     # lr = (1 - frac) * lr0 + frac * lr1
     # optimizer.param_groups[0]['lr'] = lr
-    mean_reward, max_reward, cnt_max_reward, state_loss, action_loss, mc_state_err, mc_action_err, prob = session.train_round(
+    mean_reward, max_reward, cnt_max_reward, num_batches, state_loss, action_loss, mc_state_err, mc_action_err, prob = session.train_round(
         episode_length=episode_length,
         batch_size=batch_size,
+        min_buffer_size=episode_length * num_envs,
         num_candidates=num_candidates,
         temperature=temperature,
+        loss_threshold_factor=2.0,
         action_loss_weight=action_loss_weight,
         td_lambda=td_lambda,
         # mc_weight=0.1,
         # render=True)
         render=False)
     # render=i % display_freq == 0)
-    logging.info(
-        "{}: reward={:.2f} (max={:d}, cnt={:d}), state={:.4f}, action={:.4f}, mc_state={:.4f}, mc_action={:.4f}, p={:.4f}".format(
-            session.num_rounds, mean_reward, max_reward, cnt_max_reward, state_loss, action_loss, mc_state_err,
-            mc_action_err, prob))
-    if i % 10 == 0:
+    if num_batches == 0:
+        logging.info(
+            "{}: reward={:.2f} (max={:d}, cnt={:d}), mc_state={:.4f}, mc_action={:.4f}, p={:.4f}, batches={}".format(
+                session.num_rounds, mean_reward, max_reward, cnt_max_reward, mc_state_err,
+                mc_action_err, prob, num_batches))
+    else:
+        logging.info(
+            "{}: reward={:.2f} (max={:d}, cnt={:d}), mc_state={:.4f}, mc_action={:.4f}, p={:.4f}, batches={}, state={:.4f}, action={:.4f}".format(
+                session.num_rounds, mean_reward, max_reward, cnt_max_reward, mc_state_err,
+                mc_action_err, prob, num_batches, state_loss / num_batches, action_loss / num_batches))
+    if i % 100 == 0:
         pickle.dump(session, open(pickle_name, 'wb'))
 print(network.local_fc_noise_scale)
 
