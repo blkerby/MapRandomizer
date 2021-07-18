@@ -67,6 +67,17 @@ class PReLU2d(torch.nn.Module):
         return torch.where(X > 0, X * scale_right, X * scale_left)
 
 
+class MaxOut(torch.nn.Module):
+    def __init__(self, arity):
+        super().__init__()
+        self.arity = arity
+
+    def forward(self, X):
+        shape = [X.shape[0], self.arity, X.shape[1] // self.arity] + list(X.shape)[2:]
+        X = X.view(*shape)
+        return torch.max(X, dim=1)[0]
+
+
 # TODO: look at using torch.multinomial instead of implementing this from scratch?
 def _rand_choice(p):
     cumul_p = torch.cumsum(p, dim=1)
@@ -82,15 +93,17 @@ class Network(torch.nn.Module):
         self.room_tensor = room_tensor
         self.map_x = map_x
         self.map_y = map_y
+        arity = 2
         # batch_norm_momentum = 1.0
 
         global_map_layers = []
         global_map_channels = [5] + global_map_channels
         for i in range(len(global_map_channels) - 1):
-            global_map_layers.append(torch.nn.Conv2d(global_map_channels[i], global_map_channels[i + 1],
+            global_map_layers.append(torch.nn.Conv2d(global_map_channels[i], global_map_channels[i + 1] * arity,
                                                      kernel_size=(global_map_kernel_size[i], global_map_kernel_size[i]),
                                                      stride=(2, 2)))
-            global_map_layers.append(PReLU2d(global_map_channels[i + 1]))
+            global_map_layers.append(MaxOut(arity))
+            # global_map_layers.append(PReLU2d(global_map_channels[i + 1]))
             # global_map_layers.append(torch.nn.ReLU())
             # global_map_layers.append(torch.nn.BatchNorm2d(global_map_channels[i + 1], momentum=batch_norm_momentum))
             # global_map_layers.append(torch.nn.MaxPool2d(3, stride=2, padding=1))
@@ -106,10 +119,11 @@ class Network(torch.nn.Module):
         # global_fc_widths = [(width * height * map_channels[-1]) + 1 + room_tensor.shape[0]] + global_fc_widths
         global_fc_widths = [global_map_channels[-1] + 1 + room_tensor.shape[0]] + global_fc_widths
         for i in range(len(global_fc_widths) - 1):
-            global_fc_layers.append(torch.nn.Linear(global_fc_widths[i], global_fc_widths[i + 1]))
+            global_fc_layers.append(torch.nn.Linear(global_fc_widths[i], global_fc_widths[i + 1] * arity))
+            global_fc_layers.append(MaxOut(arity))
             # global_fc_layers.append(torch.nn.BatchNorm1d(global_fc_widths[i + 1], momentum=batch_norm_momentum))
             # global_fc_layers.append(torch.nn.ReLU())
-            global_fc_layers.append(PReLU(global_fc_widths[i + 1]))
+            # global_fc_layers.append(PReLU(global_fc_widths[i + 1]))
         # global_fc_layers.append(torch.nn.Linear(fc_widths[-1], 1))
         self.global_fc_sequential = torch.nn.Sequential(*global_fc_layers)
         self.state_value_lin = torch.nn.Linear(global_fc_widths[-1], 1)
@@ -117,10 +131,11 @@ class Network(torch.nn.Module):
         local_map_layers = []
         local_map_channels = [10] + local_map_channels
         for i in range(len(local_map_channels) - 1):
-            local_map_layers.append(torch.nn.Conv2d(local_map_channels[i], local_map_channels[i + 1],
+            local_map_layers.append(torch.nn.Conv2d(local_map_channels[i], local_map_channels[i + 1] * arity,
                                                     kernel_size=(local_map_kernel_size[i], local_map_kernel_size[i]),
                                                     stride=(2, 2)))
-            local_map_layers.append(PReLU2d(local_map_channels[i + 1]))
+            local_map_layers.append(MaxOut(arity))
+            # local_map_layers.append(PReLU2d(local_map_channels[i + 1]))
             # local_map_layers.append(torch.nn.ReLU())
             # local_map_layers.append(torch.nn.BatchNorm2d(local_map_channels[i + 1], momentum=batch_norm_momentum))
         local_map_layers.append(GlobalMaxPool2d())
@@ -129,8 +144,9 @@ class Network(torch.nn.Module):
         local_fc_layers = []
         local_fc_widths = [global_fc_widths[-1] + local_map_channels[-1]] + local_fc_widths
         for i in range(len(local_fc_widths) - 1):
-            local_fc_layers.append(torch.nn.Linear(local_fc_widths[i], local_fc_widths[i + 1]))
-            local_fc_layers.append(PReLU(local_fc_widths[i + 1]))
+            local_fc_layers.append(torch.nn.Linear(local_fc_widths[i], local_fc_widths[i + 1] * arity))
+            local_fc_layers.append(MaxOut(arity))
+            # local_fc_layers.append(PReLU(local_fc_widths[i + 1]))
             # local_fc_layers.append(torch.nn.ReLU())
             # local_fc_layers.append(torch.nn.BatchNorm1d(local_fc_widths[i + 1], momentum=batch_norm_momentum))
         self.local_fc_sequential = torch.nn.Sequential(*local_fc_layers)
@@ -411,10 +427,10 @@ print("Rooms: {}, Left doors={}, Right doors={}, Up doors={}, Down doors={}".for
 network = Network(env.room_tensor,
                   map_x=env.padded_map_x,
                   map_y=env.padded_map_y,
-                  global_map_channels=[64, 128],
+                  global_map_channels=[32, 64],
                   global_map_kernel_size=[7, 3],
-                  global_fc_widths=[256, 256],
-                  local_map_channels=[16, 64],
+                  global_fc_widths=[128, 128],
+                  local_map_channels=[8, 32],
                   local_map_kernel_size=[7, 3],
                   local_fc_widths=[64],
                   ).to(device)
@@ -422,7 +438,7 @@ network.state_value_lin.weight.data[:, :] = 0.0
 network.state_value_lin.bias.data[:] = 0.0
 network.action_value_lin.weight.data[:, :] = 0.0
 network.action_value_lin.bias.data[:] = 0.0
-optimizer = torch.optim.Adam(network.parameters(), lr=0.0001, betas=(0.5, 0.5), eps=1e-15)
+optimizer = torch.optim.Adam(network.parameters(), lr=0.0001, betas=(0.95, 0.99), eps=1e-15)
 
 print(network)
 print(optimizer)
@@ -457,7 +473,7 @@ td_lambda1 = 1.0
 num_candidates = 16
 temperature0 = 0.0
 temperature1 = 100.0
-annealing_time = 10
+annealing_time = 50
 action_loss_weight = 0.5
 session.env = env
 # session.optimizer.param_groups[0]['lr'] = 0.0002
