@@ -43,6 +43,30 @@ class GlobalMaxPool2d(torch.nn.Module):
         return torch.max(X.view(X.shape[0], X.shape[1], X.shape[2] * X.shape[3]), dim=2)[0]
 
 
+class PReLU(torch.nn.Module):
+    def __init__(self, width):
+        super().__init__()
+        self.scale_left = torch.nn.Parameter(torch.randn([width]))
+        self.scale_right = torch.nn.Parameter(torch.randn([width]))
+
+    def forward(self, X):
+        scale_left = self.scale_left.view(1, -1)
+        scale_right = self.scale_right.view(1, -1)
+        return torch.where(X > 0, X * scale_right, X * scale_left)
+
+
+class PReLU2d(torch.nn.Module):
+    def __init__(self, width):
+        super().__init__()
+        self.scale_left = torch.nn.Parameter(torch.randn([width]))
+        self.scale_right = torch.nn.Parameter(torch.randn([width]))
+
+    def forward(self, X):
+        scale_left = self.scale_left.view(1, -1, 1, 1)
+        scale_right = self.scale_right.view(1, -1, 1, 1)
+        return torch.where(X > 0, X * scale_right, X * scale_left)
+
+
 # TODO: look at using torch.multinomial instead of implementing this from scratch?
 def _rand_choice(p):
     cumul_p = torch.cumsum(p, dim=1)
@@ -58,7 +82,7 @@ class Network(torch.nn.Module):
         self.room_tensor = room_tensor
         self.map_x = map_x
         self.map_y = map_y
-        batch_norm_momentum = 1.0
+        # batch_norm_momentum = 1.0
 
         global_map_layers = []
         global_map_channels = [5] + global_map_channels
@@ -66,7 +90,8 @@ class Network(torch.nn.Module):
             global_map_layers.append(torch.nn.Conv2d(global_map_channels[i], global_map_channels[i + 1],
                                                      kernel_size=(global_map_kernel_size[i], global_map_kernel_size[i]),
                                                      stride=(2, 2)))
-            global_map_layers.append(torch.nn.ReLU())
+            global_map_layers.append(PReLU2d(global_map_channels[i + 1]))
+            # global_map_layers.append(torch.nn.ReLU())
             # global_map_layers.append(torch.nn.BatchNorm2d(global_map_channels[i + 1], momentum=batch_norm_momentum))
             # global_map_layers.append(torch.nn.MaxPool2d(3, stride=2, padding=1))
             # global_map_layers.append(torch.nn.MaxPool2d(2, stride=2))
@@ -82,8 +107,9 @@ class Network(torch.nn.Module):
         global_fc_widths = [global_map_channels[-1] + 1 + room_tensor.shape[0]] + global_fc_widths
         for i in range(len(global_fc_widths) - 1):
             global_fc_layers.append(torch.nn.Linear(global_fc_widths[i], global_fc_widths[i + 1]))
-            global_fc_layers.append(torch.nn.BatchNorm1d(global_fc_widths[i + 1], momentum=batch_norm_momentum))
-            global_fc_layers.append(torch.nn.ReLU())
+            # global_fc_layers.append(torch.nn.BatchNorm1d(global_fc_widths[i + 1], momentum=batch_norm_momentum))
+            # global_fc_layers.append(torch.nn.ReLU())
+            global_fc_layers.append(PReLU(global_fc_widths[i + 1]))
         # global_fc_layers.append(torch.nn.Linear(fc_widths[-1], 1))
         self.global_fc_sequential = torch.nn.Sequential(*global_fc_layers)
         self.state_value_lin = torch.nn.Linear(global_fc_widths[-1], 1)
@@ -94,7 +120,8 @@ class Network(torch.nn.Module):
             local_map_layers.append(torch.nn.Conv2d(local_map_channels[i], local_map_channels[i + 1],
                                                     kernel_size=(local_map_kernel_size[i], local_map_kernel_size[i]),
                                                     stride=(2, 2)))
-            local_map_layers.append(torch.nn.ReLU())
+            local_map_layers.append(PReLU2d(local_map_channels[i + 1]))
+            # local_map_layers.append(torch.nn.ReLU())
             # local_map_layers.append(torch.nn.BatchNorm2d(local_map_channels[i + 1], momentum=batch_norm_momentum))
         local_map_layers.append(GlobalMaxPool2d())
         self.local_map_sequential = torch.nn.Sequential(*local_map_layers)
@@ -103,8 +130,9 @@ class Network(torch.nn.Module):
         local_fc_widths = [global_fc_widths[-1] + local_map_channels[-1]] + local_fc_widths
         for i in range(len(local_fc_widths) - 1):
             local_fc_layers.append(torch.nn.Linear(local_fc_widths[i], local_fc_widths[i + 1]))
-            local_fc_layers.append(torch.nn.ReLU())
-            local_fc_layers.append(torch.nn.BatchNorm1d(local_fc_widths[i + 1], momentum=batch_norm_momentum))
+            local_fc_layers.append(PReLU(local_fc_widths[i + 1]))
+            # local_fc_layers.append(torch.nn.ReLU())
+            # local_fc_layers.append(torch.nn.BatchNorm1d(local_fc_widths[i + 1], momentum=batch_norm_momentum))
         self.local_fc_sequential = torch.nn.Sequential(*local_fc_layers)
         self.action_value_lin = torch.nn.Linear(local_fc_widths[-1], 1)
 
@@ -162,6 +190,7 @@ class Network(torch.nn.Module):
             X_local_flat = layer(X_local_flat)
         action_value_flat = self.action_value_lin(X_local_flat)
         action_value = action_value_flat.view(num_envs, num_candidates)
+        # action_value = action_value_flat.view(num_envs, num_candidates) + state_value.unsqueeze(1)
 
         return state_value, action_value
 
@@ -383,11 +412,11 @@ network = Network(env.room_tensor,
                   map_x=env.padded_map_x,
                   map_y=env.padded_map_y,
                   global_map_channels=[64, 128],
-                  global_map_kernel_size=[11, 7],
+                  global_map_kernel_size=[7, 3],
                   global_fc_widths=[256, 256],
-                  local_map_channels=[16, 32],
-                  local_map_kernel_size=[5, 3],
-                  local_fc_widths=[64, 64],
+                  local_map_channels=[16, 64],
+                  local_map_kernel_size=[7, 3],
+                  local_fc_widths=[64],
                   ).to(device)
 network.state_value_lin.weight.data[:, :] = 0.0
 network.state_value_lin.bias.data[:] = 0.0
@@ -427,10 +456,8 @@ td_lambda0 = 1.0
 td_lambda1 = 1.0
 num_candidates = 16
 temperature0 = 0.0
-temperature1 = 50.0
-lr0 = 0.00002
-lr1 = 0.00002
-annealing_time = 100
+temperature1 = 100.0
+annealing_time = 10
 action_loss_weight = 0.5
 session.env = env
 # session.optimizer.param_groups[0]['lr'] = 0.0002
@@ -443,8 +470,8 @@ for i in range(100000):
     frac = min(1, session.num_rounds / annealing_time)
     temperature = (1 - frac) * temperature0 + frac * temperature1
     td_lambda = (1 - frac) * td_lambda0 + frac * td_lambda1
-    lr = (1 - frac) * lr0 + frac * lr1
-    optimizer.param_groups[0]['lr'] = lr
+    # lr = (1 - frac) * lr0 + frac * lr1
+    # optimizer.param_groups[0]['lr'] = lr
     mean_reward, max_reward, cnt_max_reward, state_loss, action_loss, mc_state_err, mc_action_err, prob = session.train_round(
         episode_length=episode_length,
         batch_size=batch_size,
