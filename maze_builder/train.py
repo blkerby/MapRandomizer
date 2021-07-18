@@ -1,9 +1,4 @@
 # TODO:
-#  - try implementing DQN, architecture similar to dueling network:
-#    - single network with two heads: one for state-value and one for action-value (or action-advantages)
-#    - target for both state-values and action-values is the estimate state-value n steps later,
-#      - for stability/accuracy, target computed using an averaged version of the network (EMA or simple average
-#        from the last round)
 #  - try replacing room mask with aggregated room embeddings (possibly using same convolutional network from local map)
 #  - noisy nets: for strategic/coordinated exploration?
 #      - instead of randomizing weights/biases, maybe just add noise (with tunable scale) to activations
@@ -58,7 +53,7 @@ class Network(torch.nn.Module):
         self.room_tensor = room_tensor
         self.map_x = map_x
         self.map_y = map_y
-        batch_norm_momentum = 1.0
+        # batch_norm_momentum = 1.0
 
         global_map_layers = []
         global_map_channels = [5] + global_map_channels
@@ -82,7 +77,7 @@ class Network(torch.nn.Module):
         global_fc_widths = [global_map_channels[-1] + 1 + room_tensor.shape[0]] + global_fc_widths
         for i in range(len(global_fc_widths) - 1):
             global_fc_layers.append(torch.nn.Linear(global_fc_widths[i], global_fc_widths[i + 1]))
-            global_fc_layers.append(torch.nn.BatchNorm1d(global_fc_widths[i + 1], momentum=batch_norm_momentum))
+            # global_fc_layers.append(torch.nn.BatchNorm1d(global_fc_widths[i + 1], momentum=batch_norm_momentum))
             global_fc_layers.append(torch.nn.ReLU())
         # global_fc_layers.append(torch.nn.Linear(fc_widths[-1], 1))
         self.global_fc_sequential = torch.nn.Sequential(*global_fc_layers)
@@ -104,7 +99,7 @@ class Network(torch.nn.Module):
         for i in range(len(local_fc_widths) - 1):
             local_fc_layers.append(torch.nn.Linear(local_fc_widths[i], local_fc_widths[i + 1]))
             local_fc_layers.append(torch.nn.ReLU())
-            local_fc_layers.append(torch.nn.BatchNorm1d(local_fc_widths[i + 1], momentum=batch_norm_momentum))
+            # local_fc_layers.append(torch.nn.BatchNorm1d(local_fc_widths[i + 1], momentum=batch_norm_momentum))
         self.local_fc_sequential = torch.nn.Sequential(*local_fc_layers)
         self.action_value_lin = torch.nn.Linear(local_fc_widths[-1], 1)
 
@@ -173,6 +168,95 @@ class Network(torch.nn.Module):
                 params.append(module.running_var)
         return params
 
+
+class ReplayBuffer:
+    def __init__(self, loss_threshold):
+        self.loss_threshold = loss_threshold
+        self.tensors = None
+        self.weight = None
+        self.size = 0
+        self.capacity = 0
+
+    def ensure_capacity(self, additional_size):
+        if self.size + additional_size > self.capacity:
+            self.capacity = (self.size + additional_size) * 2
+
+            new_weight = torch.empty([self.capacity], dtype=self.weight.dtype, device=self.weight.device)
+            new_weight[:self.size] = self.weight[:self.size]
+            self.weight = new_weight
+
+            tensors_list = []
+            for tensor in self.tensors:
+                new_tensor = torch.empty([self.capacity] + list(tensor.shape)[1:], dtype=tensor.dtype, device=tensor.device)
+                new_tensor[:self.size] = tensor[:self.size]
+                tensors_list.append(new_tensor)
+            self.tensors = tensors_list
+
+    def init_tensors(self, tensors):
+        self.tensors = [tensor.clone() for tensor in tensors]
+        self.size = tensors[0].shape[0]
+        self.weight = torch.ones([self.size], dtype=self.tensors[0].dtype, device=self.tensors[0].device)
+        assert all(tensor.shape[0] == self.size for tensor in tensors)
+        self.capacity = self.size
+
+    def insert(self, *tensors: torch.Tensor):
+        if self.tensors is None:
+            self.init_tensors(tensors)
+        else:
+            additional_size = tensors[0].shape[0]
+            self.ensure_capacity(additional_size)
+            self.weight[self.size:(self.size + additional_size)] = 1.0
+            for i, tensor in enumerate(tensors):
+                self.tensors[i][self.size:(self.size + additional_size)] = tensor
+            self.size += additional_size
+
+    def remove(self, ind_to_remove):
+        new_size = self.size - ind_to_remove.shape[0]
+        ind_below = ind_to_remove[ind_to_remove < new_size]
+        ind_above = ind_to_remove[ind_to_remove >= new_size]
+        mask = torch.ones([self.size - new_size], dtype=torch.bool, device=ind_to_remove.device)
+        mask[ind_above - new_size] = False
+
+        src_ind = torch.nonzero(mask)[:, 0] + new_size
+        dst_ind = ind_below
+        self.weight[dst_ind] = self.weight[src_ind]
+        for tensor in self.tensors:
+            tensor[dst_ind] = tensor[src_ind]
+
+        self.size = new_size
+
+    def take_sample(self, n):
+        assert n <= self.size
+        ind = torch.randperm(self.size)[:n]
+        weight = self.weight[ind]
+        output_tensors = [tensor[ind] for tensor in self.tensors]
+        loss = output_tensors[0]
+        weighted_loss = loss * weight
+        above_threshold_mask = weighted_loss > self.loss_threshold
+        out_weight = torch.where(above_threshold_mask, self.loss_threshold / weighted_loss, weight)
+        ind_to_keep = torch.nonzero(above_threshold_mask)[:, 0]
+        self.weight[ind[ind_to_keep]] -= out_weight[ind_to_keep]
+        ind_to_remove = ind[torch.nonzero(~above_threshold_mask)[:, 0]]
+        self.remove(ind_to_remove)
+        return out_weight, *output_tensors
+
+# torch.manual_seed(2)
+# rb = ReplayBuffer(0.5)
+# A = torch.randn([3, 2])
+# loss_A = torch.rand([3])
+# rb.insert(loss_A, A)
+# B = torch.randn([5, 2])
+# loss_B = torch.rand([5])
+# rb.insert(loss_B, B)
+# sm = 0.0
+# for n in [2, 2, 2, 2, 2, 1]:
+#     weight, sample_loss, sample = rb.take_sample(n)
+#     sm += torch.sum(weight.unsqueeze(1) * sample, dim=0)
+#     print(weight)
+# print(sm, torch.sum(A, dim=0) + torch.sum(B, dim=0))
+#
+# self = rb
+# n = 2
 
 class TrainingSession():
     def __init__(self, env: MazeBuilderEnv,
@@ -342,7 +426,7 @@ import logic.rooms.maridia_upper
 # device = torch.device('cpu')
 device = torch.device('cuda:0')
 
-num_envs = 1024
+num_envs = 512
 # num_envs = 32
 # rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.crateria.rooms
@@ -393,7 +477,7 @@ network.state_value_lin.weight.data[:, :] = 0.0
 network.state_value_lin.bias.data[:] = 0.0
 network.action_value_lin.weight.data[:, :] = 0.0
 network.action_value_lin.bias.data[:] = 0.0
-optimizer = torch.optim.Adam(network.parameters(), lr=0.0001, betas=(0.5, 0.5), eps=1e-15)
+optimizer = torch.optim.Adam(network.parameters(), lr=0.0002, betas=(0.5, 0.5), eps=1e-15)
 
 print(network)
 print(optimizer)
@@ -428,9 +512,9 @@ td_lambda1 = 1.0
 num_candidates = 16
 temperature0 = 0.0
 temperature1 = 50.0
-lr0 = 0.00002
-lr1 = 0.00002
-annealing_time = 100
+# lr0 = 0.0002
+# lr1 = 0.0002
+annealing_time = 500
 action_loss_weight = 0.5
 session.env = env
 # session.optimizer.param_groups[0]['lr'] = 0.0002
@@ -443,8 +527,8 @@ for i in range(100000):
     frac = min(1, session.num_rounds / annealing_time)
     temperature = (1 - frac) * temperature0 + frac * temperature1
     td_lambda = (1 - frac) * td_lambda0 + frac * td_lambda1
-    lr = (1 - frac) * lr0 + frac * lr1
-    optimizer.param_groups[0]['lr'] = lr
+    # lr = (1 - frac) * lr0 + frac * lr1
+    # optimizer.param_groups[0]['lr'] = lr
     mean_reward, max_reward, cnt_max_reward, state_loss, action_loss, mc_state_err, mc_action_err, prob = session.train_round(
         episode_length=episode_length,
         batch_size=batch_size,
