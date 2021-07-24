@@ -39,6 +39,11 @@ rooms = [
             [0, 0, 0, 0, 0, 0],
             [0, 0, 1, 0, 0, 0],
         ],
+        sand_down=[
+            [0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0],
+            [0, 1, 0, 1, 0, 0],
+        ]
         # TODO: When considering path-connectedness, handle this room specially to take the vertical tube into account.
     ),
     Room(
@@ -246,6 +251,7 @@ rooms = [
         name='Below Botwoon Energy Tank',
         map=[[1, 1, 1, 1]],
         door_left=[[1, 0, 0, 0]],
+        sand_up=[[0, 0, 1, 1]],
     ),
     Room(
         name='West Aqueduct Quicksand Room',
@@ -332,6 +338,7 @@ rooms = [
         map=[[1]],
         door_left=[[1]],
         door_right=[[1]],
+        sand_up=[[1]],
     ),
     Room(
         name='Thread The Needle Room',

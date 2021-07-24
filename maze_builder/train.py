@@ -21,7 +21,6 @@ torch.autograd.set_detect_anomaly(True)
 
 start_time = datetime.now()
 pickle_name = 'models/crateria-{}.pkl'.format(start_time.isoformat())
-logging.info("Checkpoint path: {}".format(pickle_name))
 
 
 class GlobalAvgPool2d(torch.nn.Module):
@@ -397,7 +396,7 @@ import logic.rooms.maridia_upper
 device = torch.device('cuda:0')
 
 num_envs = 2 ** 7
-# num_envs = 32
+# num_envs = 1
 # rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.crateria.rooms
 # rooms = logic.rooms.crateria.rooms + logic.rooms.wrecked_ship.rooms
@@ -427,12 +426,16 @@ env = MazeBuilderEnv(rooms,
                      num_envs=num_envs,
                      device=device)
 logging.info("Rooms: {}".format(env.room_tensor.shape[0]))
-for i in range(7, env.map_channels, 2):
+for i in [3] + list(range(7, env.map_channels, 2)):
     left = torch.sum(env.room_tensor[:, 0, 1:, :] & env.room_tensor[:, i, :-1, :])
     right = torch.sum(env.room_tensor[:, 0, :, :] & env.room_tensor[:, i, :, :])
     up = torch.sum(env.room_tensor[:, 0, :, 1:] & env.room_tensor[:, i + 1, :, :-1])
     down = torch.sum(env.room_tensor[:, 0, :, :] & env.room_tensor[:, i + 1, :, :])
     logging.info("type={}, left={}, right={}, up={}, down={}".format(i, left, right, up, down))
+for i in [5, 6]:
+    up = torch.sum(env.room_tensor[:, 0, :, 1:] & env.room_tensor[:, i, :, :-1])
+    down = torch.sum(env.room_tensor[:, 0, :, :] & env.room_tensor[:, i, :, :])
+    logging.info("type={}, up={}, down={}".format(i, up, down))
 max_reward = torch.sum(env.room_tensor[:, 3:, :, :]) // 2
 logging.info("max_reward = {}".format(max_reward))
 
@@ -464,10 +467,11 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 # map_tensor, room_mask_tensor, action_tensor, reward_tensor = session.generate_round(episode_length, num_candidates,
 #                                                                                     temperature)
 
+
 #
-# #
-# # # session = pickle.load(open('models/crateria-2021-06-29T13:35:06.399214.pkl', 'rb'))
-# #
+pickle_name = 'models/crateria-2021-07-24T13:05:09.257856.pkl'
+session = pickle.load(open(pickle_name, 'rb'))
+#
 # import io
 # class CPU_Unpickler(pickle.Unpickler):
 #     def find_class(self, module, name):
@@ -475,23 +479,24 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 #             return lambda b: torch.load(io.BytesIO(b), map_location='cpu')
 #         else:
 #             return super().find_class(module, name)
-# session = CPU_Unpickler(open('models/crateria-2021-07-16T23:23:08.327425.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/crateria-2021-07-24T05:08:10.624260.pkl', 'rb')).load()
 # # session.policy_optimizer.param_groups[0]['lr'] = 5e-6
 # # # session.value_optimizer.param_groups[0]['betas'] = (0.8, 0.999)
 batch_size = 2 ** 9
 # batch_size = 2 ** 13  # 2 ** 12
 td_lambda0 = 1.0
-td_lambda1 = 1.0
-num_candidates = 16
+td_lambda1 = 0.9
+num_candidates = 128
 temperature0 = 0.0
-temperature1 = 50.0
-explore_eps = 0.01
-annealing_time = 50
+temperature1 = 20.0
+explore_eps = 0.0
+annealing_time = 500
 action_loss_weight = 0.8
 session.env = env
-# session.optimizer.param_groups[0]['lr'] = 0.0002
+session.optimizer.param_groups[0]['lr'] = 0.0003
 # session.value_optimizer.param_groups[0]['betas'] = (0.5, 0.5)
 
+logging.info("Checkpoint path: {}".format(pickle_name))
 logging.info(
     "num_envs={}, batch_size={}, num_candidates={}, action_loss_weight={}".format(
         session.env.num_envs, batch_size, num_candidates, action_loss_weight))
@@ -517,16 +522,17 @@ for i in range(100000):
         "{}: reward={:.2f} (max={:d}, cnt={:d}), state={:.4f}, action={:.4f}, mc_state={:.4f}, mc_action={:.4f}, p={:.4f}, pass={:.4f}, temp={:.2f}".format(
             session.num_rounds, mean_reward, max_reward, cnt_max_reward, state_loss, action_loss, mc_state_err,
             mc_action_err, prob, frac_pass, temperature))
-    if i % 10 == 0:
+    if session.num_rounds % 10 == 0:
         pickle.dump(session, open(pickle_name, 'wb'))
 
 
 while True:
-    map, room_mask, state_value, action_value, action, reward = session.generate_round(episode_length,
+    map, room_mask, state_value, action_value, action, reward, prob = session.generate_round(episode_length,
                                                                                        num_candidates=num_candidates,
-                                                                                       temperature=100.0, render=False)
+                                                                                       temperature=100.0, explore_eps=0,
+                                                                                       render=True)
     max_reward, max_reward_ind = torch.max(reward, dim=0)
     logging.info("{}: {}".format(max_reward, reward.tolist()))
-    if max_reward.item() >= 60:
+    if max_reward.item() >= 200:
         break
 session.env.render(max_reward_ind.item())

@@ -180,10 +180,10 @@ class MazeBuilderEnv:
         ind = relative_ind + boundaries.unsqueeze(1)
         out = candidates[ind, 1:]  #, valid, A_collision, A_connection
 
-        # # Override first candidate to always be a pass
-        # out[:, 0, 0] = self.room_tensor.shape[0] - 1
-        # out[:, 0, 1] = 0
-        # out[:, 0, 2] = 0
+        # Override first candidate to always be a pass
+        out[:, 0, 0] = self.room_tensor.shape[0] - 1
+        out[:, 0, 1] = 0
+        out[:, 0, 2] = 0
 
         return out
 
@@ -215,7 +215,7 @@ class MazeBuilderEnv:
 
     def render(self, env_index=0):
         if self.map_display is None:
-            self.map_display = MapDisplay(self.map_x, self.map_y, tile_width=24)
+            self.map_display = MapDisplay(self.map_x, self.map_y, tile_width=16)
         ind = torch.tensor([i for i in range(len(self.rooms)) if self.room_mask[env_index, i]],
                            dtype=torch.int64, device=self.map.device)
         rooms = [self.rooms[i] for i in ind]
@@ -254,12 +254,16 @@ class MazeBuilderEnv:
 # torch.set_printoptions(linewidth=120, threshold=10000)
 #
 # print("Rooms: {}".format(env.room_tensor.shape[0]))
-# for i in range(7, env.map_channels, 2):
+# for i in [3] + list(range(7, env.map_channels, 2)):
 #     left = torch.sum(env.room_tensor[:, 0, 1:, :] & env.room_tensor[:, i, :-1, :])
 #     right = torch.sum(env.room_tensor[:, 0, :, :] & env.room_tensor[:, i, :, :])
 #     up = torch.sum(env.room_tensor[:, 0, :, 1:] & env.room_tensor[:, i + 1, :, :-1])
 #     down = torch.sum(env.room_tensor[:, 0, :, :] & env.room_tensor[:, i + 1, :, :])
 #     print("type={}, left={}, right={}, up={}, down={}".format(i, left, right, up, down))
+# for i in [5, 6]:
+#     up = torch.sum(env.room_tensor[:, 0, :, 1:] & env.room_tensor[:, i, :, :-1])
+#     down = torch.sum(env.room_tensor[:, 0, :, :] & env.room_tensor[:, i, :, :])
+#     print("type={}, up={}, down={}".format(i, up, down))
 #
 # import time
 # _, _ = env.reset()
