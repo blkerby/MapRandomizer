@@ -245,10 +245,16 @@ rooms = [
             [0, 0, 0, 0, 0, 0],
         ],
         door_right=[
+            [0, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0],
+        ],
+        external_door_right=[
             [0, 0, 0, 0, 0, 1],
-            [1, 0, 0, 0, 0, 0],
-            [1, 0, 0, 0, 0, 0],
-            [1, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0],
         ],
     ),
     Room(
@@ -633,7 +639,7 @@ rooms = [
         map=[[1]],
         door_left=[[1]],
         door_right=[[1]],
-        door_down=[[1]],  # TODO: elevator
+        elevator_down=[[1]],
     ),
     Room(
         name='Lower Norfair Elevator Save Room',

@@ -121,7 +121,7 @@ class Network(torch.nn.Module):
         self.state_value_lin = torch.nn.Linear(global_fc_widths[-1], 1)
 
         local_map_layers = []
-        local_map_channels = [10] + local_map_channels
+        local_map_channels = [2 * input_map_channels] + local_map_channels
         for i in range(len(local_map_channels) - 1):
             local_map_layers.append(torch.nn.Conv2d(local_map_channels[i], local_map_channels[i + 1] * arity,
                                                     kernel_size=(local_map_kernel_size[i], local_map_kernel_size[i]),
@@ -396,7 +396,7 @@ import logic.rooms.maridia_upper
 # device = torch.device('cpu')
 device = torch.device('cuda:0')
 
-num_envs = 2 ** 10
+num_envs = 2 ** 7
 # num_envs = 32
 # rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.crateria.rooms
@@ -414,10 +414,10 @@ num_envs = 2 ** 10
 # rooms = logic.rooms.maridia_lower.rooms
 # rooms = logic.rooms.maridia_upper.rooms
 rooms = logic.rooms.all_rooms.rooms
-episode_length = 80
+episode_length = int(len(rooms) * 1.05)
 display_freq = 1
-map_x = 40
-map_y = 30
+map_x = 60
+map_y = 60
 # map_x = 10
 # map_y = 10
 env = MazeBuilderEnv(rooms,
@@ -426,13 +426,15 @@ env = MazeBuilderEnv(rooms,
                      max_room_width=15,
                      num_envs=num_envs,
                      device=device)
-print("Rooms: {}".format(env.room_tensor.shape[0]))
+logging.info("Rooms: {}".format(env.room_tensor.shape[0]))
 for i in range(7, env.map_channels, 2):
     left = torch.sum(env.room_tensor[:, 0, 1:, :] & env.room_tensor[:, i, :-1, :])
     right = torch.sum(env.room_tensor[:, 0, :, :] & env.room_tensor[:, i, :, :])
     up = torch.sum(env.room_tensor[:, 0, :, 1:] & env.room_tensor[:, i + 1, :, :-1])
     down = torch.sum(env.room_tensor[:, 0, :, :] & env.room_tensor[:, i + 1, :, :])
-    print("type={}, left={}, right={}, up={}, down={}".format(i, left, right, up, down))
+    logging.info("type={}, left={}, right={}, up={}, down={}".format(i, left, right, up, down))
+max_reward = torch.sum(env.room_tensor[:, 3:, :, :]) // 2
+logging.info("max_reward = {}".format(max_reward))
 
 network = Network(env.room_tensor,
                   map_x=env.padded_map_x,
@@ -450,8 +452,8 @@ network.action_value_lin.weight.data[:, :] = 0.0
 network.action_value_lin.bias.data[:] = 0.0
 optimizer = torch.optim.Adam(network.parameters(), lr=0.0001, betas=(0.98, 0.98), eps=1e-15)
 
-print(network)
-print(optimizer)
+logging.info("{}".format(network))
+logging.info("{}".format(optimizer))
 logging.info("Starting training")
 
 session = TrainingSession(env,
@@ -476,7 +478,7 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 # session = CPU_Unpickler(open('models/crateria-2021-07-16T23:23:08.327425.pkl', 'rb')).load()
 # # session.policy_optimizer.param_groups[0]['lr'] = 5e-6
 # # # session.value_optimizer.param_groups[0]['betas'] = (0.8, 0.999)
-batch_size = 2 ** 10
+batch_size = 2 ** 9
 # batch_size = 2 ** 13  # 2 ** 12
 td_lambda0 = 1.0
 td_lambda1 = 1.0
@@ -512,9 +514,9 @@ for i in range(100000):
         render=False)
     # render=i % display_freq == 0)
     logging.info(
-        "{}: reward={:.2f} (max={:d}, cnt={:d}), state={:.4f}, action={:.4f}, mc_state={:.4f}, mc_action={:.4f}, p={:.4f}, pass={:.4f}".format(
+        "{}: reward={:.2f} (max={:d}, cnt={:d}), state={:.4f}, action={:.4f}, mc_state={:.4f}, mc_action={:.4f}, p={:.4f}, pass={:.4f}, temp={:.2f}".format(
             session.num_rounds, mean_reward, max_reward, cnt_max_reward, state_loss, action_loss, mc_state_err,
-            mc_action_err, prob, frac_pass))
+            mc_action_err, prob, frac_pass, temperature))
     if i % 10 == 0:
         pickle.dump(session, open(pickle_name, 'wb'))
 

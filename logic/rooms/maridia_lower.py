@@ -18,12 +18,8 @@ rooms = [
             [0, 0, 0, 0],
             [1, 0, 0, 0],
         ],
-        door_right=[
-            [0, 0, 0, 1],
-            [0, 0, 0, 0],
-        ],
         external_door_right=[
-            [0, 0, 0, 0],
+            [0, 0, 0, 1],
             [1, 0, 0, 0],
         ],
     ),
@@ -112,6 +108,7 @@ rooms = [
         ],
     ),
     Room(
+        # TODO: Modify this room to add a door after the tube on the left
         name='Mt. Everest',
         map=[
             [1, 1, 1, 1, 1, 1],
@@ -122,7 +119,7 @@ rooms = [
         door_left=[
             [1, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0],
         ],
         door_right=[
@@ -158,7 +155,7 @@ rooms = [
             [1, 0],
             [0, 0],
         ],
-        door_right=[
+        external_door_right=[
             [0, 0],
             [0, 0],
             [0, 0],
@@ -175,7 +172,7 @@ rooms = [
         name='Crab Tunnel',
         map=[[1, 1, 1, 1]],
         door_left=[[1, 0, 0, 0]],
-        door_right=[[0, 0, 0, 1]],
+        external_door_right=[[0, 0, 0, 1]],
     ),
     Room(
         name='Red Fish Room',
@@ -246,22 +243,12 @@ rooms = [
             [1, 1],
             [1, 0],
             [1, 0],
-        ]
-    ),
-    Room(
-        name='Crab Hole',
-        map=[
-            [1],
-            [1],
-        ],
-        door_left=[
-            [1],
-            [1],
         ],
         door_right=[
-            [1],
-            [1],
-        ],
+            [0, 1],
+            [0, 0],
+            [0, 0],
+        ]
     ),
 ]
 

@@ -211,7 +211,7 @@ class MazeBuilderEnv:
 
     def reward(self):
         # Reward for door connections
-        return torch.sum(self.map[:, 1:3, :, :] == 2, dim=(1, 2, 3))
+        return torch.sum(self.map[:, 3:, :, :] == 2, dim=(1, 2, 3))
 
     def render(self, env_index=0):
         if self.map_display is None:
@@ -226,7 +226,7 @@ class MazeBuilderEnv:
         colors = [self.color_map[room.sub_area] for room in rooms]
         self.map_display.display(rooms, xs, ys, colors)
 
-#
+
 # import logic.rooms.all_rooms
 # import logic.rooms.brinstar_green
 # import logic.rooms.brinstar_pink
