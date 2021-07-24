@@ -1,4 +1,4 @@
-from logic.areas import Area
+from logic.areas import Area, SubArea
 from maze_builder.types import Room
 
 rooms = [
@@ -8,7 +8,7 @@ rooms = [
             [1, 1, 1],
             [1, 1, 0],
         ],
-        door_left=[
+        external_door_left=[
             [1, 0, 0],
             [0, 0, 0],
         ],
@@ -16,7 +16,7 @@ rooms = [
             [0, 0, 1],
             [0, 0, 0],
         ],
-        door_down=[
+        elevator_down=[
             [0, 0, 0],
             [1, 0, 0],
         ]
@@ -114,3 +114,4 @@ rooms = [
 
 for room in rooms:
     room.area = Area.BRINSTAR
+    room.sub_area = SubArea.RED_BRINSTAR_AND_WAREHOUSE

@@ -1,4 +1,4 @@
-from logic.areas import Area
+from logic.areas import Area, SubArea
 from maze_builder.types import Room
 
 rooms = [
@@ -515,4 +515,5 @@ rooms = [
 ]
 
 for room in rooms:
-    room.area = Area.CRATERIA
+    room.area = Area.CRATERIA_AND_BLUE_BRINSTAR
+    room.sub_area = SubArea.CRATERIA_AND_BLUE_BRINSTAR

@@ -1,4 +1,4 @@
-from logic.areas import Area
+from logic.areas import Area, SubArea
 from maze_builder.types import Room
 
 rooms = [
@@ -9,7 +9,7 @@ rooms = [
             [0, 0, 0, 0, 0, 1, 0, 0],
             [1, 1, 1, 1, 1, 1, 1, 1],
         ],
-        door_left=[
+        external_door_left=[
             [0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0],
             [1, 0, 0, 0, 0, 0, 0, 0],
@@ -19,7 +19,7 @@ rooms = [
             [0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 1],
         ],
-        door_up=[
+        elevator_up=[
             [0, 0, 0, 0, 0, 1, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0],
@@ -72,4 +72,5 @@ rooms = [
 ]
 
 for room in rooms:
-    room.area = Area.BRINSTAR
+    room.area = Area.CRATERIA_AND_BLUE_BRINSTAR
+    room.sub_area = SubArea.CRATERIA_AND_BLUE_BRINSTAR

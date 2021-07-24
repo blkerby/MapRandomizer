@@ -12,10 +12,10 @@ def make_color(r, g, b):
     return '#{:02x}{:02x}{:02x}'.format(r, g, b)
 
 class MapDisplay:
-    def __init__(self, tile_x, tile_y):
+    def __init__(self, tile_x, tile_y, tile_width):
         self.tile_x = tile_x
         self.tile_y = tile_y
-        self.tile_width = 30
+        self.tile_width = tile_width
         self.margin = self.tile_width
         self.font_size = int(self.tile_width * 0.8)
         self.width = tile_x * self.tile_width + 2 * self.margin
@@ -48,13 +48,13 @@ class MapDisplay:
             for j in range(room.width):
                 x0 = self.margin + (x + j + 0.5) * self.tile_width
                 y0 = self.margin + (y + i + 0.5) * self.tile_width
-                if room.door_left is not None and room.door_left[i][j] == 1:
+                if room.door_left[i][j] == 1:
                     self.canvas.create_text(x0, y0, text=LEFT_ARROW, font=self.font)
-                if room.door_right is not None and room.door_right[i][j] == 1:
+                if room.door_right[i][j] == 1:
                     self.canvas.create_text(x0, y0, text=RIGHT_ARROW, font=self.font)
-                if room.door_up is not None and room.door_up[i][j] == 1:
+                if room.door_up[i][j] == 1:
                     self.canvas.create_text(x0, y0, text=UP_ARROW, font=self.font)
-                if room.door_down is not None and room.door_down[i][j] == 1:
+                if room.door_down[i][j] == 1:
                     self.canvas.create_text(x0, y0, text=DOWN_ARROW, font=self.font)
 
     def _display_rooms_interior(self, rooms: List[Room], xs: List[int], ys: List[int], colors):

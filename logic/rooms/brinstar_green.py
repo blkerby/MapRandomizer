@@ -1,4 +1,4 @@
-from logic.areas import Area
+from logic.areas import Area, SubArea
 from maze_builder.types import Room
 
 rooms = [
@@ -46,6 +46,20 @@ rooms = [
             [0, 0, 0, 0],
             [0, 0, 0, 0],
         ],
+        elevator_up=[
+            [1, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+        ],
     ),
     Room(
         name='Early Supers Room',
@@ -88,7 +102,7 @@ rooms = [
             [0, 0, 0],
             [1, 0, 0],
         ],
-        door_right = [
+        door_right=[
             [0, 0, 1],
             [0, 0, 0],
         ],
@@ -152,17 +166,23 @@ rooms = [
             [0, 0, 0, 0, 0, 0, 0, 0],
         ],
         door_right=[
-            [0, 1, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 1],
+        ],
+        external_door_right=[
+            [0, 1, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
         ],
     ),
     Room(
         name='Noob Bridge',
         map=[[1, 1, 1, 1, 1, 1]],
         door_left=[[1, 0, 0, 0, 0, 0]],
-        door_right=[[0, 0, 0, 0, 0, 1]],
+        external_door_right=[[0, 0, 0, 0, 0, 1]],
     ),
     Room(
         name='Spore Spawn Kihunter Room',
@@ -193,3 +213,4 @@ rooms = [
 
 for room in rooms:
     room.area = Area.BRINSTAR
+    room.sub_area = SubArea.GREEN_AND_PINK_BRINSTAR

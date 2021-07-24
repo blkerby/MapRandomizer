@@ -1,11 +1,11 @@
-from logic.areas import Area
+from logic.areas import Area, SubArea
 from maze_builder.types import Room
 
 rooms = [
     Room(
         name='Wrecked Ship Entrance',
         map=[[1, 1, 1, 1]],
-        door_left=[[1, 0, 0, 0]],
+        external_door_left=[[1, 0, 0, 0]],
         door_right=[[0, 0, 0, 1]],
     ),
     Room(
@@ -62,6 +62,13 @@ rooms = [
         ],
     ),
     Room(
+        name='Attic',
+        map=[[1, 1, 1, 1, 1, 1, 1]],
+        door_left=[[1, 0, 0, 0, 0, 0, 0]],
+        door_right=[[0, 0, 0, 0, 0, 0, 1]],
+        door_down=[[0, 0, 0, 0, 1, 0, 0]],
+    ),
+    Room(
         name='Basement',
         map=[[1, 1, 1, 1, 1]],
         door_left=[[1, 0, 0, 0, 0]],
@@ -90,7 +97,7 @@ rooms = [
             [1, 1, 1, 1, 1, 1],
             [0, 1, 1, 1, 1, 1],
         ],
-        door_left=[
+        external_door_left=[
             [0, 0, 1, 0, 0, 0],
             [1, 0, 0, 0, 0, 0],
             [0, 1, 0, 0, 0, 0],
@@ -99,7 +106,7 @@ rooms = [
     Room(
         name='Gravity Suit Room',
         map=[[1]],
-        door_left=[[1]],
+        external_door_left=[[1]],
         door_right=[[1]],
     ),
     Room(
@@ -131,7 +138,7 @@ rooms = [
             [0],
             [1],
         ],
-        door_right=[
+        external_door_right=[
             [0],
             [1],
             [0],
@@ -162,3 +169,4 @@ rooms = [
 
 for room in rooms:
     room.area = Area.WRECKED_SHIP
+    room.sub_area = SubArea.WRECKED_SHIP

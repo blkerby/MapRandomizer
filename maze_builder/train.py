@@ -1,17 +1,8 @@
 # TODO:
-#  - try implementing DQN, architecture similar to dueling network:
-#    - single network with two heads: one for state-value and one for action-value (or action-advantages)
-#    - target for both state-values and action-values is the estimate state-value n steps later,
-#      - for stability/accuracy, target computed using an averaged version of the network (EMA or simple average
-#        from the last round)
-#  - try replacing room mask with aggregated room embeddings (possibly using same convolutional network from local map)
-#  - noisy nets: for strategic/coordinated exploration?
-#      - instead of randomizing weights/biases, maybe just add noise (with tunable scale) to activations
-#        in certain layer(s) (same noise across all time steps of an episode)
-#  - distributional DQN: split space of rewards into buckets and predict probabilities
-#  - prioritized replay
-#  - try using batch norm again but with proper averaging of its non-trainable parameters
-#  - try some of the new ideas on Atari benchmarks (variation of dueling network, and variation of noisy nets)
+# - use half precision
+# - force pass to be candidate
+# - distributional DQN: split space of rewards into buckets and predict probabilities
+# - try some of the new ideas on Atari benchmarks (variation of dueling network, and variation of noisy nets)
 import torch
 import logging
 from maze_builder.env import MazeBuilderEnv
@@ -93,7 +84,7 @@ class Network(torch.nn.Module):
         self.room_tensor = room_tensor
         self.map_x = map_x
         self.map_y = map_y
-        arity = 2
+        arity = 1
         # batch_norm_momentum = 1.0
 
         global_map_layers = []
@@ -102,9 +93,9 @@ class Network(torch.nn.Module):
             global_map_layers.append(torch.nn.Conv2d(global_map_channels[i], global_map_channels[i + 1] * arity,
                                                      kernel_size=(global_map_kernel_size[i], global_map_kernel_size[i]),
                                                      stride=(2, 2)))
-            global_map_layers.append(MaxOut(arity))
+            # global_map_layers.append(MaxOut(arity))
             # global_map_layers.append(PReLU2d(global_map_channels[i + 1]))
-            # global_map_layers.append(torch.nn.ReLU())
+            global_map_layers.append(torch.nn.ReLU())
             # global_map_layers.append(torch.nn.BatchNorm2d(global_map_channels[i + 1], momentum=batch_norm_momentum))
             # global_map_layers.append(torch.nn.MaxPool2d(3, stride=2, padding=1))
             # global_map_layers.append(torch.nn.MaxPool2d(2, stride=2))
@@ -120,9 +111,9 @@ class Network(torch.nn.Module):
         global_fc_widths = [global_map_channels[-1] + 1 + room_tensor.shape[0]] + global_fc_widths
         for i in range(len(global_fc_widths) - 1):
             global_fc_layers.append(torch.nn.Linear(global_fc_widths[i], global_fc_widths[i + 1] * arity))
-            global_fc_layers.append(MaxOut(arity))
+            # global_fc_layers.append(MaxOut(arity))
             # global_fc_layers.append(torch.nn.BatchNorm1d(global_fc_widths[i + 1], momentum=batch_norm_momentum))
-            # global_fc_layers.append(torch.nn.ReLU())
+            global_fc_layers.append(torch.nn.ReLU())
             # global_fc_layers.append(PReLU(global_fc_widths[i + 1]))
         # global_fc_layers.append(torch.nn.Linear(fc_widths[-1], 1))
         self.global_fc_sequential = torch.nn.Sequential(*global_fc_layers)
@@ -134,9 +125,9 @@ class Network(torch.nn.Module):
             local_map_layers.append(torch.nn.Conv2d(local_map_channels[i], local_map_channels[i + 1] * arity,
                                                     kernel_size=(local_map_kernel_size[i], local_map_kernel_size[i]),
                                                     stride=(2, 2)))
-            local_map_layers.append(MaxOut(arity))
+            # local_map_layers.append(MaxOut(arity))
             # local_map_layers.append(PReLU2d(local_map_channels[i + 1]))
-            # local_map_layers.append(torch.nn.ReLU())
+            local_map_layers.append(torch.nn.ReLU())
             # local_map_layers.append(torch.nn.BatchNorm2d(local_map_channels[i + 1], momentum=batch_norm_momentum))
         local_map_layers.append(GlobalMaxPool2d())
         self.local_map_sequential = torch.nn.Sequential(*local_map_layers)
@@ -145,9 +136,9 @@ class Network(torch.nn.Module):
         local_fc_widths = [global_fc_widths[-1] + local_map_channels[-1]] + local_fc_widths
         for i in range(len(local_fc_widths) - 1):
             local_fc_layers.append(torch.nn.Linear(local_fc_widths[i], local_fc_widths[i + 1] * arity))
-            local_fc_layers.append(MaxOut(arity))
+            # local_fc_layers.append(MaxOut(arity))
             # local_fc_layers.append(PReLU(local_fc_widths[i + 1]))
-            # local_fc_layers.append(torch.nn.ReLU())
+            local_fc_layers.append(torch.nn.ReLU())
             # local_fc_layers.append(torch.nn.BatchNorm1d(local_fc_widths[i + 1], momentum=batch_norm_momentum))
         self.local_fc_sequential = torch.nn.Sequential(*local_fc_layers)
         self.action_value_lin = torch.nn.Linear(local_fc_widths[-1], 1)
@@ -230,7 +221,7 @@ class TrainingSession():
         self.average_parameters = SimpleAverage(network.all_param_data())
         self.num_rounds = 0
 
-    def generate_round(self, episode_length: int, num_candidates: int, temperature: float, render=False):
+    def generate_round(self, episode_length: int, num_candidates: int, temperature: float, explore_eps: float, render=False):
         device = self.env.map.device
         map, room_mask = self.env.reset()
         map_list = [map]
@@ -250,6 +241,7 @@ class TrainingSession():
                 with torch.no_grad():
                     state_value, action_value = self.network(map, room_mask, candidate_placements, steps_remaining)
                 action_probs = torch.softmax(action_value * temperature, dim=1)
+                action_probs = torch.full_like(action_probs, explore_eps / num_candidates) + (1 - explore_eps) * action_probs
                 action_index = _rand_choice(action_probs)
                 selected_action_prob = action_probs[torch.arange(self.env.num_envs, device=device), action_index]
                 action = candidate_placements[torch.arange(self.env.num_envs, device=device), action_index]
@@ -277,12 +269,14 @@ class TrainingSession():
                     temperature: float,
                     action_loss_weight: float = 0.5,
                     td_lambda: float = 0.0,
+                    explore_eps: float = 0.0,
                     render: bool = False,
                     ):
         map, room_mask, state_value, action_value, action, reward, action_prob = self.generate_round(
             episode_length=episode_length,
             num_candidates=num_candidates,
             temperature=temperature,
+            explore_eps=explore_eps,
             render=render)
 
         map0 = map[:-1, :, :, :, :]
@@ -293,6 +287,10 @@ class TrainingSession():
         mean_reward = torch.mean(reward.to(torch.float32))
         max_reward = torch.max(reward).item()
         cnt_max_reward = torch.sum(reward == max_reward)
+
+        turn_pass = action[:, :, 0] == self.env.room_tensor.shape[0] - 1
+        all_pass = torch.flip(torch.cummin(torch.flip(turn_pass, dims=[0]), dim=0)[0], dims=[0])
+        frac_pass = torch.mean((turn_pass & ~all_pass).to(torch.float32))
 
         # Compute Monte-Carlo errors
         total_mc_state_err = 0.0
@@ -320,6 +318,16 @@ class TrainingSession():
         action = action.view(n, 3)
         steps_remaining = steps_remaining.view(n)
         target = target.view(n)
+        # all_pass = all_pass.view(n)
+
+        # # Filter out completed game states (this would need to be modified to be made correct with bootstrapping)
+        # keep = ~all_pass
+        # map0 = map0[keep]
+        # room_mask0 = room_mask0[keep]
+        # action = action[keep]
+        # steps_remaining = steps_remaining[keep]
+        # target = target[keep]
+        # n = map0.shape[0]
 
         # Shuffle the data
         perm = torch.randperm(n)
@@ -367,7 +375,7 @@ class TrainingSession():
         # total_mc_state_err = 0
         return mean_reward, max_reward, cnt_max_reward, total_state_loss / num_batches, \
                total_action_loss / num_batches, total_mc_state_err / episode_length, total_mc_action_err / episode_length, \
-                action_prob
+                action_prob, frac_pass
 
 
 import logic.rooms.crateria
@@ -387,7 +395,7 @@ import logic.rooms.maridia_upper
 # device = torch.device('cpu')
 device = torch.device('cuda:0')
 
-num_envs = 1024
+num_envs = 2 ** 12
 # num_envs = 32
 # rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.crateria.rooms
@@ -405,7 +413,7 @@ rooms = logic.rooms.norfair_upper_isolated.rooms
 # rooms = logic.rooms.maridia_lower.rooms
 # rooms = logic.rooms.maridia_upper.rooms
 # rooms = logic.rooms.all_rooms.rooms
-episode_length = 60
+episode_length = 80
 display_freq = 1
 map_x = 40
 map_y = 30
@@ -438,7 +446,7 @@ network.state_value_lin.weight.data[:, :] = 0.0
 network.state_value_lin.bias.data[:] = 0.0
 network.action_value_lin.weight.data[:, :] = 0.0
 network.action_value_lin.bias.data[:] = 0.0
-optimizer = torch.optim.Adam(network.parameters(), lr=0.0001, betas=(0.95, 0.99), eps=1e-15)
+optimizer = torch.optim.Adam(network.parameters(), lr=0.0001, betas=(0.98, 0.98), eps=1e-15)
 
 print(network)
 print(optimizer)
@@ -472,9 +480,10 @@ td_lambda0 = 1.0
 td_lambda1 = 1.0
 num_candidates = 16
 temperature0 = 0.0
-temperature1 = 100.0
+temperature1 = 50.0
+explore_eps = 0.01
 annealing_time = 50
-action_loss_weight = 0.5
+action_loss_weight = 0.8
 session.env = env
 # session.optimizer.param_groups[0]['lr'] = 0.0002
 # session.value_optimizer.param_groups[0]['betas'] = (0.5, 0.5)
@@ -488,27 +497,24 @@ for i in range(100000):
     td_lambda = (1 - frac) * td_lambda0 + frac * td_lambda1
     # lr = (1 - frac) * lr0 + frac * lr1
     # optimizer.param_groups[0]['lr'] = lr
-    mean_reward, max_reward, cnt_max_reward, state_loss, action_loss, mc_state_err, mc_action_err, prob = session.train_round(
+    mean_reward, max_reward, cnt_max_reward, state_loss, action_loss, mc_state_err, mc_action_err, prob, frac_pass = session.train_round(
         episode_length=episode_length,
         batch_size=batch_size,
         num_candidates=num_candidates,
         temperature=temperature,
         action_loss_weight=action_loss_weight,
         td_lambda=td_lambda,
+        explore_eps=explore_eps,
         # mc_weight=0.1,
         # render=True)
         render=False)
     # render=i % display_freq == 0)
     logging.info(
-        "{}: reward={:.2f} (max={:d}, cnt={:d}), state={:.4f}, action={:.4f}, mc_state={:.4f}, mc_action={:.4f}, p={:.4f}".format(
+        "{}: reward={:.2f} (max={:d}, cnt={:d}), state={:.4f}, action={:.4f}, mc_state={:.4f}, mc_action={:.4f}, p={:.4f}, pass={:.4f}".format(
             session.num_rounds, mean_reward, max_reward, cnt_max_reward, state_loss, action_loss, mc_state_err,
-            mc_action_err, prob))
+            mc_action_err, prob, frac_pass))
     if i % 10 == 0:
         pickle.dump(session, open(pickle_name, 'wb'))
-print(network.local_fc_noise_scale)
-
-datas = [param.data for param in network.parameters()]
-ids = [id(p) for p in datas]
 
 
 while True:

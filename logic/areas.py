@@ -1,8 +1,18 @@
 from enum import Enum
 
 class Area(Enum):
-    CRATERIA = 1
-    BRINSTAR = 2
-    NORFAIR = 3
-    MARIDIA = 4
-    WRECKED_SHIP = 5
+    CRATERIA_AND_BLUE_BRINSTAR = 0
+    BRINSTAR = 1
+    NORFAIR = 2
+    MARIDIA = 3
+    WRECKED_SHIP = 4
+
+class SubArea(Enum):
+    CRATERIA_AND_BLUE_BRINSTAR = 0
+    GREEN_AND_PINK_BRINSTAR = 1
+    RED_BRINSTAR_AND_WAREHOUSE = 2
+    LOWER_NORFAIR = 3
+    UPPER_NORFAIR = 4
+    LOWER_MARIDIA = 5
+    UPPER_MARIDIA = 6
+    WRECKED_SHIP = 7

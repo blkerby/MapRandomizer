@@ -1,4 +1,4 @@
-from logic.areas import Area
+from logic.areas import Area, SubArea
 from maze_builder.types import Room
 
 rooms = [
@@ -47,7 +47,7 @@ rooms = [
         map=[[1, 1, 1, 1, 1, 1, 1]],
         door_left=[[1, 0, 0, 0, 0, 0, 0]],
         door_right=[[0, 0, 0, 0, 0, 0, 1]],
-        # TODO: sand falls down?
+        sand_down=[[0, 0, 1, 1, 0, 0, 0]],
     ),
     Room(
         name='Halfie Climb Room',
@@ -212,7 +212,7 @@ rooms = [
         map=[[1, 1, 1, 1]],
         door_left=[[1, 0, 0, 0]],
         door_right=[[0, 0, 0, 1]],
-        door_up=[[0, 0, 1, 0]],  # Sand fall (position?)
+        sand_up=[[0, 0, 1, 0]],
     ),
     Room(
         name='West Sand Hall Tunnel',
@@ -228,9 +228,8 @@ rooms = [
     Room(
         name='Botwoon Quicksand Room',
         map=[[1, 1]],
-        door_up=[[1, 1]],
-        door_down=[[1, 1]],
-        # TODO: Figure out how to handle this room (use special door types for elevators and sand falls)
+        sand_up=[[1, 1]],
+        sand_down=[[1, 1]],
     ),
     Room(
         name='Below Botwoon Energy Tank',
@@ -243,14 +242,14 @@ rooms = [
             [1],
             [1],
         ],
-        door_down=[
+        sand_down=[
             [0],
             [1],
         ],
-        door_up=[
+        sand_up=[
             [1],
             [0],
-        ],  # TODO: Figure out how to handle this room (use special door types for elevators and sand falls)
+        ],
     ),
     Room(
         name='East Aqueduct Quicksand Room',
@@ -258,14 +257,14 @@ rooms = [
             [1],
             [1],
         ],
-        door_down=[
+        sand_down=[
             [0],
             [1],
         ],
-        door_up=[
+        sand_up=[
             [1],
             [0],
-        ],  # TODO: Figure out how to handle this room
+        ],
     ),
     Room(
         name='East Sand Hole',
@@ -273,15 +272,14 @@ rooms = [
             [1, 1],
             [1, 1],
         ],
-        door_down=[
+        sand_down=[
             [0, 0],
             [0, 1],
         ],
-        door_up=[
+        sand_up=[
             [1, 0],
             [0, 0],
         ],
-        # TODO: Figure out how to handle this room
     ),
     Room(
         name='West Sand Hole',
@@ -289,35 +287,34 @@ rooms = [
             [1, 1],
             [1, 1],
         ],
-        door_down=[
+        sand_down=[
             [0, 0],
             [1, 0],
         ],
-        door_up=[
+        sand_up=[
             [0, 1],
             [0, 0],
         ],
-        # TODO: Figure out how to handle this room
     ),
     Room(
         name='East Sand Hall',
         map=[[1, 1, 1]],
         door_left=[[1, 0, 0]],
         door_right=[[0, 0, 1]],
-        door_up=[[0, 1, 0]],  # Sand fall (position?)
+        sand_up=[[0, 1, 0]],
     ),
     Room(
         name='Bug Sand Hole',
         map=[[1]],
         door_left=[[1]],
         door_right=[[1]],
-        door_down=[[1]],   # Sand fall
+        sand_down=[[1]],
     ),
     Room(
         name='Plasma Beach Quicksand Room',
         map=[[1]],
-        door_down=[[1]],  # Sand fall
-        door_up=[[1]],  # Sand fall
+        sand_down=[[1]],
+        sand_up=[[1]],
     ),
     Room(
         name='Butterfly Room',
@@ -357,7 +354,7 @@ rooms = [
             [1],
             [0],
         ],
-        door_up=[
+        elevator_up=[
             [1],
             [0],
             [0],
@@ -453,3 +450,4 @@ rooms = [
 
 for room in rooms:
     room.area = Area.MARIDIA
+    room.sub_area = SubArea.UPPER_MARIDIA

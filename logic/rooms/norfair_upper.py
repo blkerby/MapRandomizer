@@ -1,4 +1,4 @@
-from logic.areas import Area
+from logic.areas import Area, SubArea
 from maze_builder.types import Room
 
 rooms = [
@@ -645,3 +645,4 @@ rooms = [
 
 for room in rooms:
     room.area = Area.NORFAIR
+    room.sub_area = SubArea.UPPER_NORFAIR
