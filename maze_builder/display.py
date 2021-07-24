@@ -7,6 +7,15 @@ LEFT_ARROW = '\u2190'
 UP_ARROW = '\u2191'
 RIGHT_ARROW = '\u2192'
 DOWN_ARROW = '\u2193'
+LEFT_DOUBLE_ARROW = '⇐'
+RIGHT_DOUBLE_ARROW = '⇒'
+UP_DOUBLE_ARROW = '⇑'
+DOWN_DOUBLE_ARROW = '⇓'
+UP_WHITE_ARROW = '⇧'
+DOWN_WHITE_ARROW = '⇩'
+UP_DOUBLE_HEAD_ARROW = '↟'
+DOWN_DOUBLE_HEAD_ARROW = '↡'
+
 
 def make_color(r, g, b):
     return '#{:02x}{:02x}{:02x}'.format(r, g, b)
@@ -56,6 +65,22 @@ class MapDisplay:
                     self.canvas.create_text(x0, y0, text=UP_ARROW, font=self.font)
                 if room.door_down[i][j] == 1:
                     self.canvas.create_text(x0, y0, text=DOWN_ARROW, font=self.font)
+                if room.external_door_left[i][j] == 1:
+                    self.canvas.create_text(x0, y0, text=LEFT_DOUBLE_ARROW, font=self.font)
+                if room.external_door_right[i][j] == 1:
+                    self.canvas.create_text(x0, y0, text=RIGHT_DOUBLE_ARROW, font=self.font)
+                if room.external_door_up[i][j] == 1:
+                    self.canvas.create_text(x0, y0, text=UP_DOUBLE_ARROW, font=self.font)
+                if room.external_door_down[i][j] == 1:
+                    self.canvas.create_text(x0, y0, text=DOWN_DOUBLE_ARROW, font=self.font)
+                if room.elevator_up[i][j] == 1:
+                    self.canvas.create_text(x0, y0, text=UP_WHITE_ARROW, font=self.font)
+                if room.elevator_down[i][j] == 1:
+                    self.canvas.create_text(x0, y0, text=DOWN_WHITE_ARROW, font=self.font)
+                if room.sand_up[i][j] == 1:
+                    self.canvas.create_text(x0, y0, text=UP_DOUBLE_HEAD_ARROW, font=self.font)
+                if room.sand_down[i][j] == 1:
+                    self.canvas.create_text(x0, y0, text=DOWN_DOUBLE_HEAD_ARROW, font=self.font)
 
     def _display_rooms_interior(self, rooms: List[Room], xs: List[int], ys: List[int], colors):
         inverted_colors = [[[0, 0, 0] for _ in range(self.tile_x)] for _ in range(self.tile_y)]

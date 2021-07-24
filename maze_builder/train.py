@@ -88,7 +88,8 @@ class Network(torch.nn.Module):
         # batch_norm_momentum = 1.0
 
         global_map_layers = []
-        global_map_channels = [5] + global_map_channels
+        input_map_channels = room_tensor.shape[1]
+        global_map_channels = [input_map_channels] + global_map_channels
         for i in range(len(global_map_channels) - 1):
             global_map_layers.append(torch.nn.Conv2d(global_map_channels[i], global_map_channels[i + 1] * arity,
                                                      kernel_size=(global_map_kernel_size[i], global_map_kernel_size[i]),
@@ -395,14 +396,14 @@ import logic.rooms.maridia_upper
 # device = torch.device('cpu')
 device = torch.device('cuda:0')
 
-num_envs = 2 ** 12
+num_envs = 2 ** 10
 # num_envs = 32
 # rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.crateria.rooms
 # rooms = logic.rooms.crateria.rooms + logic.rooms.wrecked_ship.rooms
 # rooms = logic.rooms.wrecked_ship.rooms
 # rooms = logic.rooms.norfair_lower.rooms + logic.rooms.norfair_upper.rooms
-rooms = logic.rooms.norfair_upper_isolated.rooms
+# rooms = logic.rooms.norfair_upper_isolated.rooms
 # rooms = logic.rooms.norfair_upper.rooms
 # rooms = logic.rooms.norfair_lower.rooms
 # rooms = logic.rooms.brinstar_warehouse.rooms
@@ -412,7 +413,7 @@ rooms = logic.rooms.norfair_upper_isolated.rooms
 # rooms = logic.rooms.brinstar_green.rooms
 # rooms = logic.rooms.maridia_lower.rooms
 # rooms = logic.rooms.maridia_upper.rooms
-# rooms = logic.rooms.all_rooms.rooms
+rooms = logic.rooms.all_rooms.rooms
 episode_length = 80
 display_freq = 1
 map_x = 40
@@ -425,12 +426,13 @@ env = MazeBuilderEnv(rooms,
                      max_room_width=15,
                      num_envs=num_envs,
                      device=device)
-print("Rooms: {}, Left doors={}, Right doors={}, Up doors={}, Down doors={}".format(
-    env.room_tensor.shape[0],
-    torch.sum(env.room_tensor[:, 0, 1:, :] & env.room_tensor[:, 1, :-1, :]),
-    torch.sum(env.room_tensor[:, 0, :, :] & env.room_tensor[:, 1, :, :]),
-    torch.sum(env.room_tensor[:, 0, :, 1:] & env.room_tensor[:, 2, :, :-1]),
-    torch.sum(env.room_tensor[:, 0, :, :] & env.room_tensor[:, 2, :, :])))
+print("Rooms: {}".format(env.room_tensor.shape[0]))
+for i in range(7, env.map_channels, 2):
+    left = torch.sum(env.room_tensor[:, 0, 1:, :] & env.room_tensor[:, i, :-1, :])
+    right = torch.sum(env.room_tensor[:, 0, :, :] & env.room_tensor[:, i, :, :])
+    up = torch.sum(env.room_tensor[:, 0, :, 1:] & env.room_tensor[:, i + 1, :, :-1])
+    down = torch.sum(env.room_tensor[:, 0, :, :] & env.room_tensor[:, i + 1, :, :])
+    print("type={}, left={}, right={}, up={}, down={}".format(i, left, right, up, down))
 
 network = Network(env.room_tensor,
                   map_x=env.padded_map_x,

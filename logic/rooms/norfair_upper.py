@@ -31,16 +31,15 @@ rooms = [
             [1],
             [1],
         ],
-        # TODO: put this back when we're ready to connect to other areas
-        # door_up=[
-        #     [1],
-        #     [0],
-        #     [0],
-        #     [0],
-        #     [0],
-        #     [0],
-        #     [0],
-        # ],
+        elevator_up=[
+            [1],
+            [0],
+            [0],
+            [0],
+            [0],
+            [0],
+            [0],
+        ],
     ),
     Room(
         name='Norfair Map Room',

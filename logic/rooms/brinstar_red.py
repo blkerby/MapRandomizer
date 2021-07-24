@@ -131,6 +131,16 @@ rooms = [
             [0, 0, 0],
             [1, 0, 0],
         ],
+        door_right=[
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 0],
+            [1, 0, 0],
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 0],
+        ],
         external_door_right=[
             [0, 0, 0],
             [0, 0, 0],
@@ -173,6 +183,12 @@ rooms = [
         name='Red Brinstar Save Room',
         map=[[1]],
         door_left=[[1]],
+    ),
+    Room(
+        # TODO: add this to wiki.supermetroid.run/List_of_rooms because it is missing.
+        name='Sloaters Refill',
+        map=[[1]],
+        door_right=[[1]],
     ),
 ]
 

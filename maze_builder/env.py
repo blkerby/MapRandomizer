@@ -33,6 +33,8 @@ class MazeBuilderEnv:
         self.padded_map_x = self.map_x + self.map_padding_left + self.map_padding_right
         self.padded_map_y = self.map_y + self.map_padding_up + self.map_padding_down
         self.map_channels = 7 + 2 * len(SubArea)
+        self.horizontal_channel_list = [1, 3] + [7 + 2 * i for i in range(len(SubArea))]
+        self.vertical_channel_list = [2, 4, 5, 6] + [7 + 2 * i + 1 for i in range(len(SubArea))]
 
         self.map = torch.zeros([num_envs, self.map_channels, self.padded_map_x, self.padded_map_y],
                                dtype=torch.int8, device=device)
@@ -137,12 +139,12 @@ class MazeBuilderEnv:
 
         # Detecting collisions and blockages (which are disallowed)
         kernel[0, :, 0, :, :] = self.room_tensor[:, 0, :, :]  # Overlap (room tile on top of existing room tile)
-        total_horizontal = torch.sum(self.room_tensor[:, 1::2, :, :].to(torch.int64), dim=1)
-        for i in range(1, self.map_channels, 2):
+        total_horizontal = torch.sum(self.room_tensor[:, self.horizontal_channel_list, :, :].to(torch.int64), dim=1)
+        for i in self.horizontal_channel_list:
             other_horizontal = torch.clamp(total_horizontal - self.room_tensor[:, i, :, :].to(torch.int64), max=1).to(torch.int8)
             kernel[0, :, i, :, :] = other_horizontal  # Horizontal wall/door blocked by incompatible other wall/door
-        total_vertical = torch.sum(self.room_tensor[:, 2::2, :, :].to(torch.int64), dim=1)
-        for i in range(2, self.map_channels, 2):
+        total_vertical = torch.sum(self.room_tensor[:, self.vertical_channel_list, :, :].to(torch.int64), dim=1)
+        for i in self.vertical_channel_list:
             other_vertical = torch.clamp(total_vertical - self.room_tensor[:, i, :, :].to(torch.int64), max=1).to(torch.int8)
             kernel[0, :, i, :, :] = other_vertical  # Vertical wall/door blocked by incompatible other wall/door
 
@@ -224,41 +226,45 @@ class MazeBuilderEnv:
         colors = [self.color_map[room.sub_area] for room in rooms]
         self.map_display.display(rooms, xs, ys, colors)
 
-
-import logic.rooms.all_rooms
-import logic.rooms.crateria_isolated
-
-num_envs = 1
-# rooms = logic.rooms.crateria_isolated.rooms
-rooms = logic.rooms.all_rooms.rooms
-num_candidates = 1
-env = MazeBuilderEnv(rooms,
-                     # map_x=15,
-                     # map_y=15,
-                     map_x=60,
-                     map_y=40,
-                     max_room_width=15,
-                     # max_room_width=11,
-                     num_envs=num_envs,
-                     device='cpu')
-# print(env.map[0, 4, :, :].t())
-# flattened_kernel = env.placement_kernel.view(-1, env.placement_kernel.shape[2], env.placement_kernel.shape[3], env.placement_kernel.shape[4])
-# A = F.conv2d(env.map, flattened_kernel)
-# A_unflattened = A.view(A.shape[0], 2, -1, A.shape[2], A.shape[3])
-torch.set_printoptions(linewidth=120, threshold=10000)
-
-print("Rooms: {}".format(env.room_tensor.shape[0]))
-for i in range(7, env.map_channels, 2):
-    left = torch.sum(env.room_tensor[:, 0, 1:, :] & env.room_tensor[:, i, :-1, :])
-    right = torch.sum(env.room_tensor[:, 0, :, :] & env.room_tensor[:, i, :, :])
-    up = torch.sum(env.room_tensor[:, 0, :, 1:] & env.room_tensor[:, i + 1, :, :-1])
-    down = torch.sum(env.room_tensor[:, 0, :, :] & env.room_tensor[:, i + 1, :, :])
-    print("type={}, left={}, right={}, up={}, down={}".format(i, left, right, up, down))
+#
+# import logic.rooms.all_rooms
+# import logic.rooms.brinstar_green
+# import logic.rooms.brinstar_pink
+# # import logic.rooms.crateria_isolated
+#
+# num_envs = 1
+# # rooms = logic.rooms.crateria_isolated.rooms
+# rooms = logic.rooms.all_rooms.rooms
+# # rooms = logic.rooms.brinstar_green.rooms + logic.rooms.brinstar_pink.rooms
+# # rooms = logic.rooms.brinstar_red.rooms
+# num_candidates = 1
+# env = MazeBuilderEnv(rooms,
+#                      map_x=50,
+#                      map_y=40,
+#                      # map_x=60,
+#                      # map_y=40,
+#                      max_room_width=15,
+#                      # max_room_width=11,
+#                      num_envs=num_envs,
+#                      device='cpu')
+# # print(env.map[0, 4, :, :].t())
+# # flattened_kernel = env.placement_kernel.view(-1, env.placement_kernel.shape[2], env.placement_kernel.shape[3], env.placement_kernel.shape[4])
+# # A = F.conv2d(env.map, flattened_kernel)
+# # A_unflattened = A.view(A.shape[0], 2, -1, A.shape[2], A.shape[3])
+# torch.set_printoptions(linewidth=120, threshold=10000)
+#
+# print("Rooms: {}".format(env.room_tensor.shape[0]))
+# for i in range(7, env.map_channels, 2):
+#     left = torch.sum(env.room_tensor[:, 0, 1:, :] & env.room_tensor[:, i, :-1, :])
+#     right = torch.sum(env.room_tensor[:, 0, :, :] & env.room_tensor[:, i, :, :])
+#     up = torch.sum(env.room_tensor[:, 0, :, 1:] & env.room_tensor[:, i + 1, :, :-1])
+#     down = torch.sum(env.room_tensor[:, 0, :, :] & env.room_tensor[:, i + 1, :, :])
+#     print("type={}, left={}, right={}, up={}, down={}".format(i, left, right, up, down))
 #
 # import time
 # _, _ = env.reset()
 # self = env
-# torch.manual_seed(11)
+# torch.manual_seed(22)
 # num_candidates = 1
 # i=0
 # for i in range(100):
@@ -271,7 +277,7 @@ for i in range(7, env.map_channels, 2):
 #     # env.render(0)
 #     env.render(0)
 #     time.sleep(0.1)
-
+#
 
 
 # # torch.set_printoptions(linewidth=120, threshold=10000)
