@@ -32,9 +32,9 @@ class MazeBuilderEnv:
 
         self.padded_map_x = self.map_x + self.map_padding_left + self.map_padding_right
         self.padded_map_y = self.map_y + self.map_padding_up + self.map_padding_down
-        self.map_channels = 7 + 2 * len(SubArea)
-        self.horizontal_channel_list = [1, 3] + [7 + 2 * i for i in range(len(SubArea))]
-        self.vertical_channel_list = [2, 4, 5, 6] + [7 + 2 * i + 1 for i in range(len(SubArea))]
+        self.map_channels = 7
+        self.horizontal_channel_list = [1, 3]
+        self.vertical_channel_list = [2, 4, 5, 6]
 
         self.map = torch.zeros([num_envs, self.map_channels, self.padded_map_x, self.padded_map_y],
                                dtype=torch.int8, device=device)
@@ -121,12 +121,10 @@ class MazeBuilderEnv:
             room_tensor[0, :, :] = map
             room_tensor[1, :-1, :] = wall_horizontal
             room_tensor[2, :, :-1] = wall_vertical
-            room_tensor[3, :-1, :] = external_door_horizontal
-            room_tensor[4, :, :-1] = external_door_vertical
+            room_tensor[3, :-1, :] = door_horizontal | external_door_horizontal
+            room_tensor[4, :, :-1] = door_vertical | external_door_vertical
             room_tensor[5, :, :-1] = elevator
             room_tensor[6, :, :-1] = sand
-            room_tensor[7 + room.sub_area.value * 2, :-1, :] = door_horizontal
-            room_tensor[7 + room.sub_area.value * 2 + 1, :, :-1] = door_vertical
 
             room_tensor_list.append(room_tensor)
         room_tensor_list.append(torch.zeros_like(room_tensor_list[0]))  # Add dummy (empty) room
