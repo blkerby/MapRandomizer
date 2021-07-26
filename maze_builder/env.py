@@ -14,7 +14,7 @@ def _rand_choice(p):
 
 
 class MazeBuilderEnv:
-    def __init__(self, rooms: List[Room], map_x: int, map_y: int, max_room_width: int, num_envs: int, device):
+    def __init__(self, rooms: List[Room], map_x: int, map_y: int, num_envs: int, device):
         self.device = device
         for room in rooms:
             room.populate()
@@ -22,36 +22,25 @@ class MazeBuilderEnv:
         self.rooms = rooms
         self.map_x = map_x
         self.map_y = map_y
-        self.max_room_width = max_room_width
         self.num_envs = num_envs
 
-        self.map_padding_left = (max_room_width - 1) // 2
-        self.map_padding_up = (max_room_width - 1) // 2
-        self.map_padding_right = max_room_width // 2
-        self.map_padding_down = max_room_width // 2
+        self.map_channels = 3
+        self.initial_map = torch.zeros([num_envs, self.map_channels, self.map_x + 1, self.map_y + 1],
+                               dtype=torch.int8, device=self.device)
 
-        self.padded_map_x = self.map_x + self.map_padding_left + self.map_padding_right
-        self.padded_map_y = self.map_y + self.map_padding_up + self.map_padding_down
-        self.map_channels = 7
-        self.horizontal_channel_list = [1, 3]
-        self.vertical_channel_list = [2, 4, 5, 6]
+        # Create "walls" on the perimeter of the map
+        self.initial_map[:, 1, 0, :] = -1
+        self.initial_map[:, 1, -1, :] = 1
+        self.initial_map[:, 2, :, 0] = -1
+        self.initial_map[:, 2, :, -1] = 1
 
-        self.map = torch.zeros([num_envs, self.map_channels, self.padded_map_x, self.padded_map_y],
-                               dtype=torch.int8, device=device)
-        self.init_map()
-        self.room_mask = torch.zeros([num_envs, len(rooms) + 1], dtype=torch.bool, device=device)
+        self.room_mask = torch.zeros([num_envs, len(rooms) + 1], dtype=torch.int8, device=device)
         self.room_position_x = torch.zeros([num_envs, len(rooms) + 1], dtype=torch.int64, device=device)
         self.room_position_y = torch.zeros([num_envs, len(rooms) + 1], dtype=torch.int64, device=device)
 
         self.init_room_data()
-        self.init_placement_kernel()
-        self.step_number = 0
-        # self.cap_x = torch.tensor([map_x - room.width for room in rooms], device=device)
-        # self.cap_y = torch.tensor([map_y - room.height for room in rooms], device=device)
-        # self.cap = torch.stack([self.cap_x, self.cap_y], dim=1)
-        # assert torch.all(self.cap >= 2)  # Ensure map is big enough for largest room in each direction
-        #
-        #
+        self.reset()
+
         self.map_display = None
         self.color_map = {
             SubArea.CRATERIA_AND_BLUE_BRINSTAR: (0xa0, 0xa0, 0xa0),
@@ -64,142 +53,190 @@ class MazeBuilderEnv:
             SubArea.WRECKED_SHIP: (0xff, 0xff, 0x80),
         }
 
-    def init_map(self):
-        self.map.zero_()
-        self.map[:, 0, :, :] = 1
-        self.map[:, 0, self.map_padding_left:-self.map_padding_right, self.map_padding_up:-self.map_padding_down] = 0
-        self.map[:, 1, self.map_padding_left - 1, self.map_padding_up:-self.map_padding_down] = 1
-        self.map[:, 1, -(self.map_padding_right + 1), self.map_padding_up:-self.map_padding_down] = 1
-        self.map[:, 2, self.map_padding_left:-self.map_padding_right, self.map_padding_up - 1] = 1
-        self.map[:, 2, self.map_padding_left:-self.map_padding_right, -(self.map_padding_down + 1)] = 1
-
     def init_room_data(self):
         room_tensor_list = []
-        room_padding_list = []
-        for room in self.rooms:
+        room_tile_list = []
+        room_horizontal_list = []
+        room_vertical_list = []
+        room_data_list = []
+        room_left_list = []
+        room_right_list = []
+        room_up_list = []
+        room_down_list = []
+        room_placements_list = []
+        for i, room in enumerate(self.rooms):
             width = room.width
             height = room.height
-            assert self.max_room_width >= max(width, height) + 2
-            pad_left = (self.max_room_width - width) // 2
-            pad_right = self.max_room_width - (width + pad_left)
-            pad_up = (self.max_room_width - height) // 2
-            pad_down = self.max_room_width - (height + pad_up)
-            room_padding_list.append(torch.tensor([pad_left, pad_right, pad_up, pad_down]))
 
             def pad(A):
-                return F.pad(A, pad=(pad_up, pad_down, pad_left, pad_right))
+                return F.pad(A, pad=(1, 1, 1, 1))
+            room_tensor = torch.zeros([self.map_channels, width + 2, height + 2],
+                                      dtype=torch.int8, device=self.device)
+            map = pad(torch.tensor(room.map, dtype=torch.int8, device=self.device).t())
+            door_left = pad(torch.tensor(room.door_left, dtype=torch.int8, device=self.device).t())
+            door_right = pad(torch.tensor(room.door_right, dtype=torch.int8, device=self.device).t())
+            door_up = pad(torch.tensor(room.door_up, dtype=torch.int8, device=self.device).t())
+            door_down = pad(torch.tensor(room.door_down, dtype=torch.int8, device=self.device).t())
+            elevator_up = pad(torch.tensor(room.elevator_up, dtype=torch.int8, device=self.device).t())
+            elevator_down = pad(torch.tensor(room.elevator_down, dtype=torch.int8, device=self.device).t())
+            sand_up = pad(torch.tensor(room.sand_up, dtype=torch.int8, device=self.device).t())
+            sand_down = pad(torch.tensor(room.sand_down, dtype=torch.int8, device=self.device).t())
 
-            room_tensor = torch.zeros([self.map_channels, self.max_room_width, self.max_room_width],
-                                      dtype=torch.bool, device=self.device)
-            map = pad(torch.tensor(room.map, dtype=torch.bool, device=self.device).t())
-            door_left = pad(torch.tensor(room.door_left, dtype=torch.bool, device=self.device).t())
-            door_right = pad(torch.tensor(room.door_right, dtype=torch.bool, device=self.device).t())
-            door_up = pad(torch.tensor(room.door_up, dtype=torch.bool, device=self.device).t())
-            door_down = pad(torch.tensor(room.door_down, dtype=torch.bool, device=self.device).t())
-            external_door_left = pad(torch.tensor(room.external_door_left, dtype=torch.bool, device=self.device).t())
-            external_door_right = pad(torch.tensor(room.external_door_right, dtype=torch.bool, device=self.device).t())
-            external_door_up = pad(torch.tensor(room.external_door_up, dtype=torch.bool, device=self.device).t())
-            external_door_down = pad(torch.tensor(room.external_door_down, dtype=torch.bool, device=self.device).t())
-            elevator_up = pad(torch.tensor(room.elevator_up, dtype=torch.bool, device=self.device).t())
-            elevator_down = pad(torch.tensor(room.elevator_down, dtype=torch.bool, device=self.device).t())
-            sand_up = pad(torch.tensor(room.sand_up, dtype=torch.bool, device=self.device).t())
-            sand_down = pad(torch.tensor(room.sand_down, dtype=torch.bool, device=self.device).t())
-
-            door_horizontal = door_left[1:, :] | door_right[:-1, :]
-            door_vertical = door_up[:, 1:] | door_down[:, :-1]
-            external_door_horizontal = external_door_left[1:, :] | external_door_right[:-1, :]
-            external_door_vertical = external_door_up[:, 1:] | external_door_down[:, :-1]
-            elevator = elevator_up[:, 1:] | elevator_down[:, :-1]
-            sand = sand_up[:, 1:] | sand_down[:, :-1]
-            any_door_horizontal = door_horizontal | external_door_horizontal
-            any_door_vertical = door_vertical | external_door_vertical | elevator | sand
-            border_horizontal = (map[1:, :] != map[:-1, :])
-            border_vertical = (map[:, 1:] != map[:, :-1])
-            wall_horizontal = border_horizontal & ~any_door_horizontal
-            wall_vertical = border_vertical & ~any_door_vertical
+            border_horizontal = (map[1:, :] - map[:-1, :]).to(torch.int8)
+            border_vertical = (map[:, 1:] - map[:, :-1]).to(torch.int8)
+            door_horizontal = door_left[1:, :] - door_right[:-1, :]
+            door_vertical = door_up[:, 1:] - door_down[:, :-1]
+            elevator = elevator_up[:, 1:] - elevator_down[:, :-1]
+            sand = sand_up[:, 1:] - sand_down[:, :-1]
 
             room_tensor[0, :, :] = map
-            room_tensor[1, :-1, :] = wall_horizontal
-            room_tensor[2, :, :-1] = wall_vertical
-            room_tensor[3, :-1, :] = door_horizontal | external_door_horizontal
-            room_tensor[4, :, :-1] = door_vertical | external_door_vertical
-            room_tensor[5, :, :-1] = elevator
-            room_tensor[6, :, :-1] = sand
+            room_tensor[1, :-1, :] = border_horizontal + door_horizontal
+            room_tensor[2, :, :-1] = border_vertical + door_vertical + 2 * elevator + 3 * sand
+
+            room_id = torch.full([1, 1], i, device=self.device)
+
+            def get_sparse_representation(A):
+                positions = torch.nonzero(A)
+                return torch.cat([room_id.repeat(positions.shape[0], 1), positions, A[positions[:, 0], positions[:, 1]].view(-1, 1)], dim=1)
+
+            room_tile = get_sparse_representation(room_tensor[0, :, :])
+            room_horizontal = get_sparse_representation(room_tensor[1, :, :])
+            room_vertical = get_sparse_representation(room_tensor[2, :, :])
+            room_left = get_sparse_representation(torch.clamp(room_tensor[1, :, :], min=1) - 1)
+            room_right = get_sparse_representation(torch.clamp(room_tensor[1, :, :], max=-1) + 1)
+            room_up = get_sparse_representation(torch.clamp(room_tensor[2, :, :], min=1) - 1)
+            room_down = get_sparse_representation(torch.clamp(room_tensor[2, :, :], max=-1) + 1)
+
+            # Adjust coordinates to remove the effect of padding
+            room_tile[:, 1:3] -= 1
+            room_horizontal[:, 2] -= 1
+            room_left[:, 2] -= 1
+            room_right[:, 2] -= 1
+            room_vertical[:, 1] -= 1
+            room_up[:, 1] -= 1
+            room_down[:, 1] -= 1
+
+            room_data = torch.cat([
+                torch.cat([room_tile, torch.full([room_tile.shape[0], 1], 0)], dim=1),
+                torch.cat([room_horizontal, torch.full([room_horizontal.shape[0], 1], 1)], dim=1),
+                torch.cat([room_vertical, torch.full([room_vertical.shape[0], 1], 2)], dim=1),
+            ])
+
+            if (room_left[:, 1] == 0).any():
+                room_min_x = 1
+            else:
+                room_min_x = 0
+
+            if (room_up[:, 2] == 0).any():
+                room_min_y = 1
+            else:
+                room_min_y = 0
+
+            if (room_right[:, 1] == width).any():
+                room_max_x = self.map_x - width - 1
+            else:
+                room_max_x = self.map_x - width
+
+            if (room_down[:, 1] == height).any():
+                room_max_y = self.map_y - height - 1
+            else:
+                room_max_y = self.map_y - height
+
+            assert room_max_x >= room_min_x
+            assert room_max_y >= room_min_y
+
+            room_placements = torch.tensor(
+                [[i, x + room_min_x, y + room_min_y]
+                 for y in range(room_max_y - room_min_y + 1)
+                 for x in range(room_max_x - room_min_x + 1)]
+            )
 
             room_tensor_list.append(room_tensor)
-        room_tensor_list.append(torch.zeros_like(room_tensor_list[0]))  # Add dummy (empty) room
-        self.room_tensor = torch.stack(room_tensor_list, dim=0).to(torch.int8)
-        self.room_padding = torch.stack(room_padding_list, dim=0)
+            room_tile_list.append(room_tile)
+            room_horizontal_list.append(room_horizontal)
+            room_vertical_list.append(room_vertical)
+            room_left_list.append(room_left)
+            room_right_list.append(room_right)
+            room_up_list.append(room_up)
+            room_down_list.append(room_down)
+            room_data_list.append(room_data)
+            room_placements_list.append(room_placements)
 
-    def init_placement_kernel(self):
-        kernel = torch.zeros([2, self.room_tensor.shape[0], self.map_channels, self.max_room_width, self.max_room_width],
-                             dtype=torch.int8, device=self.device)
+        self.room_tensor_list = room_tensor_list
+        self.room_tile = torch.cat(room_tile_list, dim=0)
+        self.room_horizontal = torch.cat(room_horizontal_list, dim=0)
+        self.room_vertical = torch.cat(room_vertical_list, dim=0)
+        self.room_left = torch.cat(room_left_list, dim=0)
+        self.room_right = torch.cat(room_right_list, dim=0)
+        self.room_up = torch.cat(room_up_list, dim=0)
+        self.room_down = torch.cat(room_down_list, dim=0)
+        self.room_data = torch.cat(room_data_list, dim=0)
+        self.room_placements = torch.cat(room_placements_list, dim=0)
+        #
+        # channel_stride = self.initial_map.stride(1)
+        # x_stride = self.initial_map.stride(2)
+        # y_stride = self.initial_map.stride(3)
+        # self.room_data_flat_index = self.room_data[:, 1] * x_stride + self.room_data[:, 2] * y_stride + self.room_data[:, 4] * channel_stride
+        # self.room_data_flat_value = self.room_data[:, 3]
 
-        # Detecting collisions and blockages (which are disallowed)
-        kernel[0, :, 0, :, :] = self.room_tensor[:, 0, :, :]  # Overlap (room tile on top of existing room tile)
-        total_horizontal = torch.sum(self.room_tensor[:, self.horizontal_channel_list, :, :].to(torch.int64), dim=1)
-        for i in self.horizontal_channel_list:
-            other_horizontal = torch.clamp(total_horizontal - self.room_tensor[:, i, :, :].to(torch.int64), max=1).to(torch.int8)
-            kernel[0, :, i, :, :] = other_horizontal  # Horizontal wall/door blocked by incompatible other wall/door
-        total_vertical = torch.sum(self.room_tensor[:, self.vertical_channel_list, :, :].to(torch.int64), dim=1)
-        for i in self.vertical_channel_list:
-            other_vertical = torch.clamp(total_vertical - self.room_tensor[:, i, :, :].to(torch.int64), max=1).to(torch.int8)
-            kernel[0, :, i, :, :] = other_vertical  # Vertical wall/door blocked by incompatible other wall/door
+    # def get_all_action_candidates(self):
+    #     door_left = torch.nonzero(self.map[:, 1, :] > 1)
+    #     door_right = torch.nonzero(self.map[:, 1, :] < -1)
+    #     door_up = torch.nonzero(self.map[:, 2, :] > 1)
+    #     door_down = torch.nonzero(self.map[:, 2, :] < -1)
 
-        # Detecting connections between compatible doors (we'll require at least one, except on the first move)
-        for i in range(3, self.map_channels):
-            kernel[1, :, i, :, :] = self.room_tensor[:, i, :, :]
-
-        self.placement_kernel = kernel
-
-    def get_placement_candidates(self, num_candidates):
-        flattened_kernel = self.placement_kernel.view(-1, self.placement_kernel.shape[2], self.placement_kernel.shape[3],
-                                                     self.placement_kernel.shape[4])
-        if self.map.is_cuda:
-            # We have to do the convolution in FP16 for now, since it isn't supported in int8 in Pytorch yet
-            A_flattened = F.conv2d(self.map.to(torch.float16), flattened_kernel.to(torch.float16)).to(torch.int8)
-        else:
-            A_flattened = F.conv2d(self.map, flattened_kernel)
-        A = A_flattened.view(A_flattened.shape[0], 2, -1, A_flattened.shape[2], A_flattened.shape[3])
-        A_collision = A[:, 0, :, :, :]
-        A_connection = A[:, 1, :, :, :]
+    def get_action_candidates(self, num_candidates):
         if self.step_number == 0:
-            valid = (A_collision == 0)
-            valid[:, -1, 0, 0] = False
-        else:
-            valid = (A_collision == 0) & (A_connection > 0) & ~self.room_mask.unsqueeze(2).unsqueeze(3)
-            valid[:, -1, 0, 0] = True
+            ind = torch.randint(self.room_placements.shape[0], [self.num_envs, num_candidates], device=self.device)
+            return self.room_placements[ind, :]
 
-        candidates = torch.nonzero(valid)
-        boundaries = torch.searchsorted(candidates[:, 0].contiguous(), torch.arange(self.num_envs, device=candidates.device))
-        boundaries_ext = torch.cat([boundaries, torch.tensor([candidates.shape[0]], device=candidates.device)])
-        candidate_quantities = boundaries_ext[1:] - boundaries_ext[:-1]
-        relative_ind = torch.randint(high=2 ** 31, size=[self.num_envs, num_candidates], device=candidates.device) % candidate_quantities.unsqueeze(1)
-        ind = relative_ind + boundaries.unsqueeze(1)
-        out = candidates[ind, 1:]  #, valid, A_collision, A_connection
-
-        # Override first candidate to always be a pass
-        out[:, 0, 0] = self.room_tensor.shape[0] - 1
-        out[:, 0, 1] = 0
-        out[:, 0, 2] = 0
-
-        return out
+        # candidates = torch.nonzero(valid)
+        # boundaries = torch.searchsorted(candidates[:, 0].contiguous(), torch.arange(self.num_envs, device=candidates.device))
+        # boundaries_ext = torch.cat([boundaries, torch.tensor([candidates.shape[0]], device=candidates.device)])
+        # candidate_quantities = boundaries_ext[1:] - boundaries_ext[:-1]
+        # relative_ind = torch.randint(high=2 ** 31, size=[self.num_envs, num_candidates], device=candidates.device) % candidate_quantities.unsqueeze(1)
+        # ind = relative_ind + boundaries.unsqueeze(1)
+        # out = candidates[ind, 1:]  #, valid, A_collision, A_connection
+        #
+        # # Override first candidate to always be a pass
+        # out[:, 0, 0] = self.room_tensor.shape[0] - 1
+        # out[:, 0, 1] = 0
+        # out[:, 0, 2] = 0
+        #
+        # return out
 
     def reset(self):
-        self.init_map()
         self.room_mask.zero_()
         self.room_position_x.zero_()
         self.room_position_y.zero_()
         self.step_number = 0
-        return self.map.clone(), self.room_mask.clone()
 
-    def step(self, room_index: torch.tensor, room_x: torch.tensor, room_y: torch.tensor):
-        device = room_index.device
-        index_e = torch.arange(self.num_envs, device=device).view(-1, 1, 1, 1)
-        index_c = torch.arange(self.map_channels, device=device).view(1, -1, 1, 1)
-        index_x = room_x.view(-1, 1, 1, 1) + torch.arange(self.max_room_width, device=device).view(1, 1, -1, 1)
-        index_y = room_y.view(-1, 1, 1, 1) + torch.arange(self.max_room_width, device=device).view(1, 1, 1, -1)
-        self.map[index_e, index_c, index_x, index_y] += self.room_tensor[room_index, :, :, :]
+    def compute_map(self):
+        map = self.initial_map.clone()
+        map_flat = map.view(map.shape[0], -1)
+
+        room_data_id = self.room_data[:, 0]
+        room_data_x = self.room_data[:, 1]
+        room_data_y = self.room_data[:, 2]
+        room_data_channel = self.room_data[:, 4]
+        room_data_value = self.room_data[:, 3].to(torch.int8).view(1, -1).repeat(self.num_envs, 1)
+        room_data_value = room_data_value * self.room_mask[:, room_data_id]
+
+        position_x = room_data_x.view(1, -1) + self.room_position_x[:, room_data_id]
+        position_y = room_data_y.view(1, -1) + self.room_position_y[:, room_data_id]
+
+        channel_stride = map.stride(1)
+        x_stride = map.stride(2)
+        y_stride = map.stride(3)
+        flat_ind = position_x * x_stride + position_y * y_stride + room_data_channel * channel_stride
+        map_flat.scatter_add_(dim=1, index=flat_ind, src=room_data_value)
+        return map_flat.view(*map.shape)
+
+    def step(self, action: torch.tensor):
+        room_index = action[:, 0]
+        room_x = action[:, 1]
+        room_y = action[:, 2]
+        device = self.device
         self.room_position_x[torch.arange(self.num_envs, device=device), room_index] = room_x
         self.room_position_y[torch.arange(self.num_envs, device=device), room_index] = room_y
         self.room_mask[torch.arange(self.num_envs, device=device), room_index] = True
@@ -225,26 +262,27 @@ class MazeBuilderEnv:
         self.map_display.display(rooms, xs, ys, colors)
 
 
-# import logic.rooms.all_rooms
-# import logic.rooms.brinstar_green
-# import logic.rooms.brinstar_pink
-# # import logic.rooms.crateria_isolated
-#
-# num_envs = 1
-# # rooms = logic.rooms.crateria_isolated.rooms
+import logic.rooms.all_rooms
+import logic.rooms.brinstar_green
+import logic.rooms.brinstar_pink
+import logic.rooms.crateria
+import logic.rooms.crateria_isolated
+
+num_envs = 1
+rooms = logic.rooms.crateria.rooms
 # rooms = logic.rooms.all_rooms.rooms
-# # rooms = logic.rooms.brinstar_green.rooms + logic.rooms.brinstar_pink.rooms
-# # rooms = logic.rooms.brinstar_red.rooms
-# num_candidates = 1
-# env = MazeBuilderEnv(rooms,
-#                      map_x=50,
-#                      map_y=40,
-#                      # map_x=60,
-#                      # map_y=40,
-#                      max_room_width=15,
-#                      # max_room_width=11,
-#                      num_envs=num_envs,
-#                      device='cpu')
+# rooms = logic.rooms.brinstar_green.rooms + logic.rooms.brinstar_pink.rooms
+# rooms = logic.rooms.brinstar_red.rooms
+num_candidates = 1
+env = MazeBuilderEnv(rooms,
+                     map_x=11,
+                     map_y=11,
+                     # map_x=60,
+                     # map_y=40,
+                     num_envs=num_envs,
+                     device='cpu')
+
+env.compute_map()
 # # print(env.map[0, 4, :, :].t())
 # # flattened_kernel = env.placement_kernel.view(-1, env.placement_kernel.shape[2], env.placement_kernel.shape[3], env.placement_kernel.shape[4])
 # # A = F.conv2d(env.map, flattened_kernel)

@@ -5,7 +5,7 @@ rooms = [
     Room(
         name='Wrecked Ship Entrance',
         map=[[1, 1, 1, 1]],
-        external_door_left=[[1, 0, 0, 0]],
+        door_left=[[1, 0, 0, 0]],
         door_right=[[0, 0, 0, 1]],
     ),
     Room(
@@ -64,7 +64,7 @@ rooms = [
     Room(
         name='Attic',
         map=[[1, 1, 1, 1, 1, 1, 1]],
-        external_door_left=[[1, 0, 0, 0, 0, 0, 0]],
+        door_left=[[1, 0, 0, 0, 0, 0, 0]],
         door_right=[[0, 0, 0, 0, 0, 0, 1]],
         door_down=[[0, 0, 0, 0, 1, 0, 0]],
     ),
@@ -97,21 +97,16 @@ rooms = [
             [1, 1, 1, 1, 1, 1],
             [0, 1, 1, 1, 1, 1],
         ],
-        external_door_left=[
+        door_left=[
             [0, 0, 1, 0, 0, 0],
             [1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-        ],
-        door_left=[
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
             [0, 1, 0, 0, 0, 0],
         ],
     ),
     Room(
         name='Gravity Suit Room',
         map=[[1]],
-        external_door_left=[[1]],
+        door_left=[[1]],
         door_right=[[1]],
     ),
     Room(
@@ -143,7 +138,7 @@ rooms = [
             [0],
             [1],
         ],
-        external_door_right=[
+        door_right=[
             [0],
             [1],
             [0],

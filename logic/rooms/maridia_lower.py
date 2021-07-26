@@ -5,7 +5,7 @@ rooms = [
     Room(
         name='West Tunnel',
         map=[[1]],
-        external_door_left=[[1]],
+        door_left=[[1]],
         door_right=[[1]],
     ),
     Room(
@@ -18,7 +18,7 @@ rooms = [
             [0, 0, 0, 0],
             [1, 0, 0, 0],
         ],
-        external_door_right=[
+        door_right=[
             [0, 0, 0, 1],
             [1, 0, 0, 0],
         ],
@@ -155,7 +155,7 @@ rooms = [
             [1, 0],
             [0, 0],
         ],
-        external_door_right=[
+        door_right=[
             [0, 0],
             [0, 0],
             [0, 0],
@@ -172,7 +172,7 @@ rooms = [
         name='Crab Tunnel',
         map=[[1, 1, 1, 1]],
         door_left=[[1, 0, 0, 0]],
-        external_door_right=[[0, 0, 0, 1]],
+        door_right=[[0, 0, 0, 1]],
     ),
     Room(
         name='Red Fish Room',
@@ -180,7 +180,7 @@ rooms = [
             [1, 1, 1],
             [0, 0, 1],
         ],
-        external_door_left=[
+        door_left=[
             [1, 0, 0],
             [0, 0, 0],
         ],

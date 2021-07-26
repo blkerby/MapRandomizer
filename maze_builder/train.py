@@ -1,8 +1,12 @@
 # TODO:
+# - store only room positions, and use scatter to render map
+# - use only state value function; compute action values as state values of the corresponding new state.
+#   - add broadcasted embedding of room mask after each conv layer (different embedding for each layer)
+# - try removing connected doors & walls from map
+# - implement new area constraint (maintaining area connectedness at each step)
+# - make multiple passes in each training round (since data generation will be more expensive)
 # - use half precision
-# - force pass to be candidate
 # - distributional DQN: split space of rewards into buckets and predict probabilities
-# - try some of the new ideas on Atari benchmarks (variation of dueling network, and variation of noisy nets)
 import torch
 import logging
 from maze_builder.env import MazeBuilderEnv

@@ -8,7 +8,7 @@ rooms = [
             [1, 1, 1],
             [1, 1, 0],
         ],
-        external_door_left=[
+        door_left=[
             [1, 0, 0],
             [0, 0, 0],
         ],
