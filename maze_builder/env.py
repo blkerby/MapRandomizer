@@ -454,7 +454,7 @@ class MazeBuilderEnv:
 
     def render(self, env_index=0):
         if self.map_display is None:
-            self.map_display = MapDisplay(self.map_x, self.map_y, tile_width=30) #tile_width=16)
+            self.map_display = MapDisplay(self.map_x, self.map_y, tile_width=16)
         ind = torch.tensor([i for i in range(len(self.rooms)) if self.room_mask[env_index, i]],
                            dtype=torch.int64, device=self.device)
         rooms = [self.rooms[i] for i in ind]
@@ -471,30 +471,29 @@ import logic.rooms.crateria
 import logic.rooms.crateria_isolated
 
 torch.manual_seed(0)
-num_envs = 2
-rooms = logic.rooms.crateria.rooms[:5]
-# rooms = logic.rooms.all_rooms.rooms
+num_envs = 1
+# rooms = logic.rooms.crateria.rooms[:5]
+rooms = logic.rooms.all_rooms.rooms
 # rooms = logic.rooms.brinstar_green.rooms + logic.rooms.brinstar_pink.rooms
 # rooms = logic.rooms.brinstar_red.rooms
 num_candidates = 1
 env = MazeBuilderEnv(rooms,
-                     map_x=29,
-                     map_y=29,
+                     map_x=60,
+                     map_y=60,
                      # map_x=60,
                      # map_y=40,
                      num_envs=num_envs,
                      device='cpu')
-env.room_mask[0, 0] = 1
-env.room_position_x[0, 0] = 2
-env.room_position_y[0, 0] = 4
-env.room_mask[1, 3] = 1
-env.room_position_x[1, 3] = 12
-env.room_position_y[1, 3] = 12
-env.step_number = 2
+# env.room_mask[0, 0] = 1
+# env.room_position_x[0, 0] = 2
+# env.room_position_y[0, 0] = 4
+# env.room_mask[1, 3] = 1
+# env.room_position_x[1, 3] = 12
+# env.room_position_y[1, 3] = 12
+# env.step_number = 2
 # env.compute_map()
 candidates = env.get_all_action_candidates()
 rcandidates = env.get_action_candidates(4)
-env.render(1)
 print(rcandidates)
 # # print(env.map[0, 4, :, :].t())
 # # flattened_kernel = env.placement_kernel.view(-1, env.placement_kernel.shape[2], env.placement_kernel.shape[3], env.placement_kernel.shape[4])
@@ -520,12 +519,13 @@ self = env
 torch.manual_seed(22)
 num_candidates = 1
 i=0
-for i in range(100):
+for i in range(230):
+    print(i)
     candidates = env.get_action_candidates(num_candidates)
     env.step(candidates[:, 0, :])
     # env.render(0)
     env.render(0)
-    time.sleep(0.1)
+    # time.sleep(0.1)
 
 
 
