@@ -174,6 +174,7 @@ class TrainingSession():
         room_position_y = room_position_y.unsqueeze(1).repeat(1, num_candidates + 1, 1)
         steps_remaining = steps_remaining.unsqueeze(1).repeat(1, num_candidates + 1)
 
+        # print(action_candidates.device, action_room_id.device)
         room_mask[torch.arange(num_envs, device=action_candidates.device).view(-1, 1),
                   torch.arange(1, 1 + num_candidates, device=action_candidates.device).view(1, -1),
                   action_room_id] = True
@@ -276,7 +277,7 @@ class TrainingSession():
         room_mask0 = room_mask[:-1, :, :]
         room_position_x0 = room_position_x[:-1, :, :]
         room_position_y0 = room_position_y[:-1, :, :]
-        steps_remaining = (episode_length - torch.arange(episode_length, device=map.device)).view(-1, 1).repeat(1,
+        steps_remaining = (episode_length - torch.arange(episode_length, device=self.env.device)).view(-1, 1).repeat(1,
                                                                                                                 env.num_envs)
 
         mean_reward = torch.mean(reward.to(torch.float32))
@@ -308,9 +309,9 @@ class TrainingSession():
 
         # Flatten the data
         n = episode_length * self.env.num_envs
-        room_mask0 = room_mask0.view(n, len(self.env.rooms) + 1)
-        room_position_x0 = room_position_x0.view(n, len(self.env.rooms) + 1)
-        room_position_y0 = room_position_y0.view(n, len(self.env.rooms) + 1)
+        room_mask0 = room_mask0.view(n, len(self.env.rooms))
+        room_position_x0 = room_position_x0.view(n, len(self.env.rooms))
+        room_position_y0 = room_position_y0.view(n, len(self.env.rooms))
         action = action.view(n, 3)
         steps_remaining = steps_remaining.view(n)
         target = target.view(n)
@@ -391,11 +392,11 @@ import logic.rooms.brinstar_blue
 import logic.rooms.maridia_lower
 import logic.rooms.maridia_upper
 
-device = torch.device('cpu')
-# device = torch.device('cuda:0')
+# device = torch.device('cpu')
+device = torch.device('cuda:0')
 
 # num_envs = 2 ** 7
-num_envs = 7
+num_envs = 2 ** 9
 # rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.crateria.rooms
 # rooms = logic.rooms.crateria.rooms + logic.rooms.wrecked_ship.rooms
@@ -416,8 +417,8 @@ episode_length = int(len(rooms) * 1.05)
 display_freq = 1
 map_x = 60
 map_y = 60
-# map_x = 10
-# map_y = 10
+# map_x = 30
+# map_y = 30
 env = MazeBuilderEnv(rooms,
                      map_x=map_x,
                      map_y=map_y,
@@ -434,7 +435,7 @@ network = Network(map_x=env.map_x + 1,
                   ).to(device)
 network.state_value_lin.weight.data[:, :] = 0.0
 network.state_value_lin.bias.data[:] = 0.0
-optimizer = torch.optim.Adam(network.parameters(), lr=0.0002, betas=(0.98, 0.98), eps=1e-15)
+optimizer = torch.optim.Adam(network.parameters(), lr=0.0002, betas=(0.9, 0.999), eps=1e-15)
 
 logging.info("{}".format(network))
 logging.info("{}".format(optimizer))
@@ -444,76 +445,76 @@ session = TrainingSession(env,
                           network=network,
                           optimizer=optimizer)
 
+# num_candidates = 16
+# room_mask, room_position_x, room_position_y, state_value, action_value, action, reward, prob = session.generate_round(
+#     episode_length,
+#     num_candidates=num_candidates,
+#     temperature=100.0, explore_eps=0,
+#     render=True)
+
+torch.set_printoptions(linewidth=120, threshold=10000)
+# map_tensor, room_mask_tensor, action_tensor, reward_tensor = session.generate_round(episode_length, num_candidates,
+#                                                                                     temperature)
+
+
+#
+# pickle_name = 'models/crateria-2021-07-24T13:05:09.257856.pkl'
+# session = pickle.load(open(pickle_name, 'rb'))
+#
+# import io
+# class CPU_Unpickler(pickle.Unpickler):
+#     def find_class(self, module, name):
+#         if module == 'torch.storage' and name =='_load_from_bytes':
+#             return lambda b: torch.load(io.BytesIO(b), map_location='cpu')
+#         else:
+#             return super().find_class(module, name)
+# session = CPU_Unpickler(open('models/crateria-2021-07-24T21:37:05.181572.pkl', 'rb')).load()
+# # session.policy_optimizer.param_groups[0]['lr'] = 5e-6
+# # # session.value_optimizer.param_groups[0]['betas'] = (0.8, 0.999)
+batch_size = 2 ** 9
+# batch_size = 2 ** 13  # 2 ** 12
+td_lambda0 = 1.0
+td_lambda1 = 0.9
 num_candidates = 16
-room_mask, room_position_x, room_position_y, state_value, action_value, action, reward, prob = session.generate_round(
-    episode_length,
-    num_candidates=num_candidates,
-    temperature=100.0, explore_eps=0,
-    render=True)
-#
-# torch.set_printoptions(linewidth=120, threshold=10000)
-# # map_tensor, room_mask_tensor, action_tensor, reward_tensor = session.generate_round(episode_length, num_candidates,
-# #                                                                                     temperature)
-#
-#
-# #
-# # pickle_name = 'models/crateria-2021-07-24T13:05:09.257856.pkl'
-# # session = pickle.load(open(pickle_name, 'rb'))
-# #
-# # import io
-# # class CPU_Unpickler(pickle.Unpickler):
-# #     def find_class(self, module, name):
-# #         if module == 'torch.storage' and name =='_load_from_bytes':
-# #             return lambda b: torch.load(io.BytesIO(b), map_location='cpu')
-# #         else:
-# #             return super().find_class(module, name)
-# # session = CPU_Unpickler(open('models/crateria-2021-07-24T21:37:05.181572.pkl', 'rb')).load()
-# # # session.policy_optimizer.param_groups[0]['lr'] = 5e-6
-# # # # session.value_optimizer.param_groups[0]['betas'] = (0.8, 0.999)
-# batch_size = 2 ** 9
-# # batch_size = 2 ** 13  # 2 ** 12
-# td_lambda0 = 1.0
-# td_lambda1 = 0.9
-# num_candidates = 128
-# temperature0 = 0.0
-# temperature1 = 40.0
-# explore_eps = 0.0
-# annealing_time = 10000
-# action_loss_weight = 0.8
-# session.env = env
+temperature0 = 0.0
+temperature1 = 400.0
+explore_eps = 0.0
+annealing_time = 500
+action_loss_weight = 0.8
+session.env = env
 # session.optimizer.param_groups[0]['lr'] = 0.00002
 # session.optimizer.param_groups[0]['betas'] = (0.9, 0.999)
-#
-# logging.info("Checkpoint path: {}".format(pickle_name))
-# logging.info(
-#     "num_envs={}, batch_size={}, num_candidates={}, action_loss_weight={}".format(
-#         session.env.num_envs, batch_size, num_candidates, action_loss_weight))
-# # for i in range(100000):
-# #     frac = min(1, session.num_rounds / annealing_time)
-# #     temperature = (1 - frac) * temperature0 + frac * temperature1
-# #     td_lambda = (1 - frac) * td_lambda0 + frac * td_lambda1
-# #     # lr = (1 - frac) * lr0 + frac * lr1
-# #     # optimizer.param_groups[0]['lr'] = lr
-# #     mean_reward, max_reward, cnt_max_reward, state_loss, action_loss, mc_state_err, mc_action_err, prob, frac_pass = session.train_round(
-# #         episode_length=episode_length,
-# #         batch_size=batch_size,
-# #         num_candidates=num_candidates,
-# #         temperature=temperature,
-# #         action_loss_weight=action_loss_weight,
-# #         td_lambda=td_lambda,
-# #         explore_eps=explore_eps,
-# #         # mc_weight=0.1,
-# #         # render=True)
-# #         render=False)
-# #     # render=i % display_freq == 0)
-# #     logging.info(
-# #         "{}: reward={:.2f} (max={:d}, cnt={:d}), state={:.4f}, action={:.4f}, mc_state={:.4f}, mc_action={:.4f}, p={:.4f}, pass={:.4f}, temp={:.3f}".format(
-# #             session.num_rounds, mean_reward, max_reward, cnt_max_reward, state_loss, action_loss, mc_state_err,
-# #             mc_action_err, prob, frac_pass, temperature))
-# #     if session.num_rounds % 10 == 0:
-# #         pickle.dump(session, open(pickle_name, 'wb'))
-#
-#
+
+logging.info("Checkpoint path: {}".format(pickle_name))
+logging.info(
+    "num_envs={}, batch_size={}, num_candidates={}, action_loss_weight={}".format(
+        session.env.num_envs, batch_size, num_candidates, action_loss_weight))
+for i in range(100000):
+    frac = min(1, session.num_rounds / annealing_time)
+    temperature = (1 - frac) * temperature0 + frac * temperature1
+    td_lambda = (1 - frac) * td_lambda0 + frac * td_lambda1
+    # lr = (1 - frac) * lr0 + frac * lr1
+    # optimizer.param_groups[0]['lr'] = lr
+    mean_reward, max_reward, cnt_max_reward, state_loss, action_loss, mc_state_err, mc_action_err, prob, frac_pass = session.train_round(
+        episode_length=episode_length,
+        batch_size=batch_size,
+        num_candidates=num_candidates,
+        temperature=temperature,
+        action_loss_weight=action_loss_weight,
+        td_lambda=td_lambda,
+        explore_eps=explore_eps,
+        # mc_weight=0.1,
+        # render=True)
+        render=False)
+    # render=i % display_freq == 0)
+    logging.info(
+        "{}: reward={:.2f} (max={:d}, cnt={:d}), state={:.4f}, action={:.4f}, mc_state={:.4f}, mc_action={:.4f}, p={:.4f}, pass={:.4f}, temp={:.3f}".format(
+            session.num_rounds, mean_reward, max_reward, cnt_max_reward, state_loss, action_loss, mc_state_err,
+            mc_action_err, prob, frac_pass, temperature))
+    if session.num_rounds % 10 == 0:
+        pickle.dump(session, open(pickle_name, 'wb'))
+
+
 # while True:
 #     map, room_mask, state_value, action_value, action, reward, prob = session.generate_round(episode_length,
 #                                                                                        num_candidates=num_candidates,

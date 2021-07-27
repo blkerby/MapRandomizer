@@ -144,15 +144,15 @@ class MazeBuilderEnv:
             room_down[:, 1] -= 1
 
             room_data = torch.cat([
-                torch.cat([room_tile, torch.full([room_tile.shape[0], 1], 0)], dim=1),
-                torch.cat([room_horizontal, torch.full([room_horizontal.shape[0], 1], 1)], dim=1),
-                torch.cat([room_vertical, torch.full([room_vertical.shape[0], 1], 2)], dim=1),
+                torch.cat([room_tile, torch.full([room_tile.shape[0], 1], 0, device=self.device)], dim=1),
+                torch.cat([room_horizontal, torch.full([room_horizontal.shape[0], 1], 1, device=self.device)], dim=1),
+                torch.cat([room_vertical, torch.full([room_vertical.shape[0], 1], 2, device=self.device)], dim=1),
             ])
 
-            room_data_tile = torch.cat([room_tile, torch.full([room_tile.shape[0], 1], 0)], dim=1)
+            room_data_tile = torch.cat([room_tile, torch.full([room_tile.shape[0], 1], 0, device=self.device)], dim=1)
             room_data_door = torch.cat([
-                torch.cat([room_horizontal, torch.full([room_horizontal.shape[0], 1], 1)], dim=1),
-                torch.cat([room_vertical, torch.full([room_vertical.shape[0], 1], 2)], dim=1),
+                torch.cat([room_horizontal, torch.full([room_horizontal.shape[0], 1], 1, device=self.device)], dim=1),
+                torch.cat([room_vertical, torch.full([room_vertical.shape[0], 1], 2, device=self.device)], dim=1),
             ])
 
             channel_stride = self.initial_map.stride(1)
@@ -160,8 +160,8 @@ class MazeBuilderEnv:
             y_stride = self.initial_map.stride(3)
 
             def flatten_directional_data(room_dir, filtered_room_data, offset):
-                room_dir_i = torch.arange(room_dir.shape[0]).view(-1, 1)
-                room_j = torch.arange(filtered_room_data.shape[0]).view(1, -1)
+                room_dir_i = torch.arange(room_dir.shape[0], device=room_dir.device).view(-1, 1)
+                room_j = torch.arange(filtered_room_data.shape[0], device=room_dir.device).view(1, -1)
                 room_dir_x = filtered_room_data[room_j, 1] - room_dir[room_dir_i, 1]
                 room_dir_y = filtered_room_data[room_j, 2] - room_dir[room_dir_i, 2]
                 room_dir_channel = filtered_room_data[room_j, 4].repeat(room_dir.shape[0], 1)
@@ -231,7 +231,8 @@ class MazeBuilderEnv:
             room_placements = torch.tensor(
                 [[i, x + room_min_x, y + room_min_y]
                  for y in range(room_max_y - room_min_y + 1)
-                 for x in range(room_max_x - room_min_x + 1)]
+                 for x in range(room_max_x - room_min_x + 1)],
+                device=self.device
             )
 
             room_door_count = torch.sum(torch.abs(room_tensor[1:3, :, :]) > 1)
@@ -318,7 +319,7 @@ class MazeBuilderEnv:
         stride_env = self.initial_map.stride(0)
         stride_x = self.initial_map.stride(2)
         stride_y = self.initial_map.stride(3)
-        stride_all = torch.tensor([stride_env, stride_x, stride_y])
+        # stride_all = torch.tensor([stride_env, stride_x, stride_y], device=self.device)
         map_flat = map.view(-1)
 
         candidates_list = []
@@ -326,16 +327,16 @@ class MazeBuilderEnv:
             num_map_doors = map_door_dir.shape[0]
             num_room_doors = door_data_dir_tile.door_data.shape[0]
 
-            # map_door_env = map_door_dir[:, 0].view(-1, 1)
-            # map_door_x = map_door_dir[:, 1].view(-1, 1)
-            # map_door_y = map_door_dir[:, 2].view(-1, 1)
-            # map_door_index = (map_door_env * stride_env + map_door_x * stride_x + map_door_y * stride_y).view(-1, 1)
-            map_door_index = torch.matmul(map_door_dir[:, :3], stride_all.view(-1, 1))
+            map_door_env = map_door_dir[:, 0].view(-1, 1)
+            map_door_x = map_door_dir[:, 1].view(-1, 1)
+            map_door_y = map_door_dir[:, 2].view(-1, 1)
+            map_door_index = (map_door_env * stride_env + map_door_x * stride_x + map_door_y * stride_y).view(-1, 1)
+            # map_door_index = torch.matmul(map_door_dir[:, :3], stride_all.view(-1, 1))
 
             final_index_tile = map_door_index + door_data_dir_tile.check_map_index.view(1, -1)
             final_index_tile = torch.clamp(final_index_tile, min=0, max=map_flat.shape[0] - 1)  # TODO: maybe use padding on map (extra env on each end) to avoid memory out-of-bounds without clamping
             map_value_tile = map_flat[final_index_tile]
-            tile_out = torch.zeros([num_map_doors, num_room_doors], dtype=torch.int8)
+            tile_out = torch.zeros([num_map_doors, num_room_doors], dtype=torch.int8, device=self.device)
             tile_out.scatter_add_(dim=1,
                                   index=door_data_dir_tile.check_door_index.view(1, -1).expand(num_map_doors, -1),
                                   src=map_value_tile)
@@ -344,7 +345,7 @@ class MazeBuilderEnv:
             final_index_door = torch.clamp(final_index_door, min=0, max=map_flat.shape[0] - 1)  # TODO: maybe use padding on map (extra env on each end) to avoid memory out-of-bounds without clamping
             map_value_door = map_flat[final_index_door]
             misfit_door = ((map_value_door != 0) & (map_value_door != door_data_dir_door.check_value.view(1, -1))).to(torch.int8)
-            door_out = torch.zeros([num_map_doors, num_room_doors], dtype=torch.int8)
+            door_out = torch.zeros([num_map_doors, num_room_doors], dtype=torch.int8, device=self.device)
             door_out.scatter_add_(dim=1,
                                   index=door_data_dir_door.check_door_index.view(1, -1).expand(num_map_doors, -1),
                                   src=misfit_door)
@@ -468,9 +469,10 @@ class MazeBuilderEnv:
     def reward(self):
         # TODO: avoid recomputing map here
         map = self.compute_current_map()
-        unconnected_door_cost = torch.sum(torch.abs(map[:, 1:3, :, :]) > 1, dim=(1, 2, 3))
-        room_door_reward = torch.sum(self.room_mask * self.room_door_count.view(1, -1), dim=1)
-        return room_door_reward - unconnected_door_cost
+        unconnected_doors_count = torch.sum(torch.abs(map[:, 1:3, :, :]) > 1, dim=(1, 2, 3))
+        room_doors_count = torch.sum(self.room_mask * self.room_door_count.view(1, -1), dim=1)
+        connected_doors_count = (room_doors_count - unconnected_doors_count) // 2
+        return connected_doors_count
 
     def render(self, env_index=0):
         if self.map_display is None:
