@@ -4,7 +4,7 @@ from maze_builder.types import Room
 from maze_builder.display import MapDisplay
 import torch
 import torch.nn.functional as F
-
+from dataclasses import dataclass
 
 def _rand_choice(p):
     cumul_p = torch.cumsum(p, dim=1)
@@ -12,6 +12,12 @@ def _rand_choice(p):
     choice = torch.clamp(torch.searchsorted(cumul_p, rnd), max=p.shape[1] - 1).view(-1)
     return choice
 
+@dataclass
+class DoorData:
+    door_data: torch.tensor   # 2D with 4 columns: room id, position x, position y, value (door type)
+    check_door_index: torch.tensor  # 1D, referencing row number in door_data
+    check_map_index: torch.tensor  # 1D
+    check_value: torch.tensor  # 1D
 
 class MazeBuilderEnv:
     def __init__(self, rooms: List[Room], map_x: int, map_y: int, num_envs: int, device):
@@ -34,7 +40,7 @@ class MazeBuilderEnv:
         self.initial_map[:, 2, :, 0] = -1
         self.initial_map[:, 2, :, -1] = 1
 
-        self.room_mask = torch.zeros([num_envs, len(rooms) + 1], dtype=torch.int8, device=device)
+        self.room_mask = torch.zeros([num_envs, len(rooms) + 1], dtype=torch.bool, device=device)
         self.room_position_x = torch.zeros([num_envs, len(rooms) + 1], dtype=torch.int64, device=device)
         self.room_position_y = torch.zeros([num_envs, len(rooms) + 1], dtype=torch.int64, device=device)
 
@@ -54,6 +60,7 @@ class MazeBuilderEnv:
         }
 
     def init_room_data(self):
+        # TODO: clean this up and refactor to make it easier to understand
         room_tensor_list = []
         room_tile_list = []
         room_horizontal_list = []
@@ -64,6 +71,23 @@ class MazeBuilderEnv:
         room_up_list = []
         room_down_list = []
         room_placements_list = []
+        room_min_x_list = []
+        room_min_y_list = []
+        room_max_x_list = []
+        room_max_y_list = []
+        door_data_left_tile_list = []
+        door_data_left_door_list = []
+        door_data_right_tile_list = []
+        door_data_right_door_list = []
+        door_data_up_tile_list = []
+        door_data_up_door_list = []
+        door_data_down_tile_list = []
+        door_data_down_door_list = []
+
+        left_offset = 0
+        right_offset = 0
+        up_offset = 0
+        down_offset = 0
         for i, room in enumerate(self.rooms):
             width = room.width
             height = room.height
@@ -122,6 +146,62 @@ class MazeBuilderEnv:
                 torch.cat([room_vertical, torch.full([room_vertical.shape[0], 1], 2)], dim=1),
             ])
 
+            room_data_tile = torch.cat([room_tile, torch.full([room_tile.shape[0], 1], 0)], dim=1)
+            room_data_door = torch.cat([
+                torch.cat([room_horizontal, torch.full([room_horizontal.shape[0], 1], 1)], dim=1),
+                torch.cat([room_vertical, torch.full([room_vertical.shape[0], 1], 2)], dim=1),
+            ])
+
+            channel_stride = self.initial_map.stride(1)
+            x_stride = self.initial_map.stride(2)
+            y_stride = self.initial_map.stride(3)
+
+            def flatten_directional_data(room_dir, filtered_room_data, offset):
+                room_dir_i = torch.arange(room_dir.shape[0]).view(-1, 1)
+                room_j = torch.arange(filtered_room_data.shape[0]).view(1, -1)
+                room_dir_x = filtered_room_data[room_j, 1] - room_dir[room_dir_i, 1]
+                room_dir_y = filtered_room_data[room_j, 2] - room_dir[room_dir_i, 2]
+                room_dir_channel = filtered_room_data[room_j, 4].repeat(room_dir.shape[0], 1)
+                room_dir_value = filtered_room_data[room_j, 3].repeat(room_dir.shape[0], 1)
+                room_dir_map_index = room_dir_x * x_stride + room_dir_y * y_stride + room_dir_channel * channel_stride
+                room_dir_i_rep = room_dir_i.repeat(1, filtered_room_data.shape[0])
+                # print("shapes: ", room_dir.shape[0], filtered_room_data.shape[0], room_dir_i_rep)
+                return DoorData(
+                    door_data=room_dir,
+                    check_door_index=room_dir_i_rep.view(-1) + offset,
+                    check_map_index=room_dir_map_index.view(-1),
+                    check_value=room_dir_value.view(-1)
+                )
+
+            door_data_left_tile = flatten_directional_data(room_left, room_data_tile, left_offset)
+            door_data_left_door = flatten_directional_data(room_left, room_data_door, left_offset)
+            door_data_right_tile = flatten_directional_data(room_right, room_data_tile, right_offset)
+            door_data_right_door = flatten_directional_data(room_right, room_data_door, right_offset)
+            door_data_up_tile = flatten_directional_data(room_up, room_data_tile, up_offset)
+            door_data_up_door = flatten_directional_data(room_up, room_data_door, up_offset)
+            door_data_down_tile = flatten_directional_data(room_down, room_data_tile, down_offset)
+            door_data_down_door = flatten_directional_data(room_down, room_data_door, down_offset)
+
+            door_data_left_door.check_value *= -1
+            door_data_right_door.check_value *= -1
+            door_data_up_door.check_value *= -1
+            door_data_down_door.check_value *= -1
+
+            # print(self.rooms[i].name)
+            # print("door_data_left_tile.door_data", door_data_left_tile.door_data)
+            # print("door_data_left_tile.check_door_index", door_data_left_tile.check_door_index)
+            # print("door_data_left_tile.check_map_index", door_data_left_tile.check_map_index)
+            # print("door_data_left_tile.check_value", door_data_left_tile.check_value)
+            # print("door_data_left_door.door_data", door_data_left_door.door_data)
+            # print("door_data_left_door.check_door_index", door_data_left_door.check_door_index)
+            # print("door_data_left_door.check_map_index", door_data_left_door.check_map_index)
+            # print("door_data_left_door.check_value", door_data_left_door.check_value)
+
+            left_offset += room_left.shape[0]
+            right_offset += room_right.shape[0]
+            up_offset += room_up.shape[0]
+            down_offset += room_down.shape[0]
+
             if (room_left[:, 1] == 0).any():
                 room_min_x = 1
             else:
@@ -161,6 +241,19 @@ class MazeBuilderEnv:
             room_down_list.append(room_down)
             room_data_list.append(room_data)
             room_placements_list.append(room_placements)
+            room_min_x_list.append(room_min_x)
+            room_min_y_list.append(room_min_y)
+            room_max_x_list.append(room_max_x)
+            room_max_y_list.append(room_max_y)
+
+            door_data_left_tile_list.append(door_data_left_tile)
+            door_data_left_door_list.append(door_data_left_door)
+            door_data_right_tile_list.append(door_data_right_tile)
+            door_data_right_door_list.append(door_data_right_door)
+            door_data_up_tile_list.append(door_data_up_tile)
+            door_data_up_door_list.append(door_data_up_door)
+            door_data_down_tile_list.append(door_data_down_tile)
+            door_data_down_door_list.append(door_data_down_door)
 
         self.room_tensor_list = room_tensor_list
         self.room_tile = torch.cat(room_tile_list, dim=0)
@@ -172,6 +265,29 @@ class MazeBuilderEnv:
         self.room_down = torch.cat(room_down_list, dim=0)
         self.room_data = torch.cat(room_data_list, dim=0)
         self.room_placements = torch.cat(room_placements_list, dim=0)
+        self.room_min_x = torch.tensor(room_min_x_list, device=self.device)
+        self.room_min_y = torch.tensor(room_min_y_list, device=self.device)
+        self.room_max_x = torch.tensor(room_max_x_list, device=self.device)
+        self.room_max_y = torch.tensor(room_max_y_list, device=self.device)
+
+        def cat_door_data(data_list: List[DoorData]):
+            return DoorData(
+                door_data=torch.cat([x.door_data for x in data_list], dim=0),
+                check_door_index=torch.cat([x.check_door_index for x in data_list], dim=0),
+                check_map_index=torch.cat([x.check_map_index for x in data_list], dim=0),
+                check_value=torch.cat([x.check_value for x in data_list], dim=0),
+
+            )
+
+        self.door_data_left_tile = cat_door_data(door_data_left_tile_list)
+        self.door_data_left_door = cat_door_data(door_data_left_door_list)
+        self.door_data_right_tile = cat_door_data(door_data_right_tile_list)
+        self.door_data_right_door = cat_door_data(door_data_right_door_list)
+        self.door_data_up_tile = cat_door_data(door_data_up_tile_list)
+        self.door_data_up_door = cat_door_data(door_data_up_door_list)
+        self.door_data_down_tile = cat_door_data(door_data_down_tile_list)
+        self.door_data_down_door = cat_door_data(door_data_down_door_list)
+
         #
         # channel_stride = self.initial_map.stride(1)
         # x_stride = self.initial_map.stride(2)
@@ -179,31 +295,120 @@ class MazeBuilderEnv:
         # self.room_data_flat_index = self.room_data[:, 1] * x_stride + self.room_data[:, 2] * y_stride + self.room_data[:, 4] * channel_stride
         # self.room_data_flat_value = self.room_data[:, 3]
 
-    # def get_all_action_candidates(self):
-    #     door_left = torch.nonzero(self.map[:, 1, :] > 1)
-    #     door_right = torch.nonzero(self.map[:, 1, :] < -1)
-    #     door_up = torch.nonzero(self.map[:, 2, :] > 1)
-    #     door_down = torch.nonzero(self.map[:, 2, :] < -1)
+    def get_all_action_candidates(self):
+        map = self.compute_map()
+        map_door_left = torch.nonzero(map[:, 1, :] > 1)
+        map_door_right = torch.nonzero(map[:, 1, :] < -1)
+        map_door_up = torch.nonzero(map[:, 2, :] > 1)
+        map_door_down = torch.nonzero(map[:, 2, :] < -1)
+
+        data_tuples = [
+            (map_door_left, self.door_data_right_tile, self.door_data_right_door),
+            (map_door_right, self.door_data_left_tile, self.door_data_left_door),
+            (map_door_up, self.door_data_down_tile, self.door_data_down_door),
+            (map_door_down, self.door_data_up_tile, self.door_data_up_door),
+        ]
+        stride_env = self.initial_map.stride(0)
+        stride_x = self.initial_map.stride(2)
+        stride_y = self.initial_map.stride(3)
+        map_flat = map.view(-1)
+
+        candidates_list = []
+        for (map_door_dir, door_data_dir_tile, door_data_dir_door) in data_tuples:
+            num_map_doors = map_door_dir.shape[0]
+            num_room_doors = door_data_dir_tile.door_data.shape[0]
+
+            map_door_env = map_door_dir[:, 0].view(-1, 1)
+            map_door_x = map_door_dir[:, 1].view(-1, 1)
+            map_door_y = map_door_dir[:, 2].view(-1, 1)
+            map_door_index = (map_door_env * stride_env + map_door_x * stride_x + map_door_y * stride_y).view(-1, 1)
+
+            final_index_tile = map_door_index + door_data_dir_tile.check_map_index.view(1, -1)
+            final_index_tile = torch.clamp(final_index_tile, min=0, max=map_flat.shape[0] - 1)  # TODO: maybe use padding on map (extra env on each end) to avoid memory out-of-bounds without clamping
+            map_value_tile = map_flat[final_index_tile]
+            tile_out = torch.zeros([num_map_doors, num_room_doors], dtype=torch.int8)
+            tile_out.scatter_add_(dim=1,
+                                  index=door_data_dir_tile.check_door_index.view(1, -1).expand(num_map_doors, -1),
+                                  src=map_value_tile)
+
+            final_index_door = map_door_index + door_data_dir_door.check_map_index.view(1, -1)
+            final_index_door = torch.clamp(final_index_door, min=0, max=map_flat.shape[0] - 1)  # TODO: maybe use padding on map (extra env on each end) to avoid memory out-of-bounds without clamping
+            map_value_door = map_flat[final_index_door]
+            misfit_door = ((map_value_door != 0) & (map_value_door != door_data_dir_door.check_value.view(1, -1))).to(torch.int8)
+            door_out = torch.zeros([num_map_doors, num_room_doors], dtype=torch.int8)
+            door_out.scatter_add_(dim=1,
+                                  index=door_data_dir_door.check_door_index.view(1, -1).expand(num_map_doors, -1),
+                                  src=misfit_door)
+
+            valid_mask = (tile_out == 0) & (door_out == 0)
+            valid_positions = torch.nonzero(valid_mask)
+            valid_map_door_id = valid_positions[:, 0]
+            valid_room_door_id = valid_positions[:, 1]
+
+            valid_env_id = map_door_dir[valid_map_door_id, 0]
+            valid_map_position_x = map_door_dir[valid_map_door_id, 1]
+            valid_map_position_y = map_door_dir[valid_map_door_id, 2]
+            valid_room_door_x = door_data_dir_tile.door_data[valid_room_door_id, 1]
+            valid_room_door_y = door_data_dir_tile.door_data[valid_room_door_id, 2]
+            valid_room_id = door_data_dir_tile.door_data[valid_room_door_id, 0]
+            valid_x = valid_map_position_x - valid_room_door_x
+            valid_y = valid_map_position_y - valid_room_door_y
+
+            candidates = torch.stack([valid_env_id, valid_room_id, valid_x, valid_y], dim=1)
+            mask_bounds_min_x = (valid_x >= self.room_min_x[valid_room_id])
+            mask_bounds_min_y = (valid_y >= self.room_min_y[valid_room_id])
+            mask_bounds_max_x = (valid_x <= self.room_max_x[valid_room_id])
+            mask_bounds_max_y = (valid_y <= self.room_max_y[valid_room_id])
+            mask_bounds = mask_bounds_min_x & mask_bounds_min_y & mask_bounds_max_x & mask_bounds_max_y
+            mask_room_mask = self.room_mask[valid_env_id, valid_room_id]
+            mask = mask_bounds & ~mask_room_mask
+
+            candidates = candidates[mask, :]
+            candidates_list.append(candidates)
+            # print(final_index_tile)
+            # print(map_value)
+            # print(map_door_dir)
+            # print(door_data_dir_tile.door_data)
+            # print(candidates)
+            # print(tile_out)
+            # print(door_out)
+            # print(valid_positions)
+            # print(valid_env_id)
+            # print(valid_room_id)
+            # print(map_door_dir.shape,
+            #       door_data_dir_tile.door_data.shape,
+            #       door_data_dir_tile.check_door_index.shape,
+            #       door_data_dir_tile.check_map_index.shape,
+            #       door_data_dir_tile.check_value.shape)
+
+        all_candidates = torch.cat(candidates_list, dim=0)
+        ind = torch.argsort(all_candidates[:, 0])
+        return all_candidates[ind, :]
+        # self.room_right
+        # print("left", door_left)
+        # print("right", door_right)
+        # print("down", door_up)
+        # print("up", door_down)
 
     def get_action_candidates(self, num_candidates):
         if self.step_number == 0:
             ind = torch.randint(self.room_placements.shape[0], [self.num_envs, num_candidates], device=self.device)
             return self.room_placements[ind, :]
 
-        # candidates = torch.nonzero(valid)
-        # boundaries = torch.searchsorted(candidates[:, 0].contiguous(), torch.arange(self.num_envs, device=candidates.device))
-        # boundaries_ext = torch.cat([boundaries, torch.tensor([candidates.shape[0]], device=candidates.device)])
-        # candidate_quantities = boundaries_ext[1:] - boundaries_ext[:-1]
-        # relative_ind = torch.randint(high=2 ** 31, size=[self.num_envs, num_candidates], device=candidates.device) % candidate_quantities.unsqueeze(1)
-        # ind = relative_ind + boundaries.unsqueeze(1)
-        # out = candidates[ind, 1:]  #, valid, A_collision, A_connection
-        #
+        candidates = self.get_all_action_candidates()
+        boundaries = torch.searchsorted(candidates[:, 0].contiguous(), torch.arange(self.num_envs, device=candidates.device))
+        boundaries_ext = torch.cat([boundaries, torch.tensor([candidates.shape[0]], device=candidates.device)])
+        candidate_quantities = boundaries_ext[1:] - boundaries_ext[:-1]
+        relative_ind = torch.randint(high=2 ** 31, size=[self.num_envs, num_candidates], device=candidates.device) % candidate_quantities.unsqueeze(1)
+        ind = relative_ind + boundaries.unsqueeze(1)
+        out = candidates[ind, 1:]
+
         # # Override first candidate to always be a pass
         # out[:, 0, 0] = self.room_tensor.shape[0] - 1
         # out[:, 0, 1] = 0
         # out[:, 0, 2] = 0
         #
-        # return out
+        return out
 
     def reset(self):
         self.room_mask.zero_()
@@ -242,7 +447,6 @@ class MazeBuilderEnv:
         self.room_mask[torch.arange(self.num_envs, device=device), room_index] = True
         self.room_mask[:, -1] = False
         self.step_number += 1
-        return self.map.clone(), self.room_mask.clone()
 
     def reward(self):
         # Reward for door connections
@@ -250,14 +454,12 @@ class MazeBuilderEnv:
 
     def render(self, env_index=0):
         if self.map_display is None:
-            self.map_display = MapDisplay(self.map_x, self.map_y, tile_width=16)
+            self.map_display = MapDisplay(self.map_x, self.map_y, tile_width=30) #tile_width=16)
         ind = torch.tensor([i for i in range(len(self.rooms)) if self.room_mask[env_index, i]],
-                           dtype=torch.int64, device=self.map.device)
+                           dtype=torch.int64, device=self.device)
         rooms = [self.rooms[i] for i in ind]
-        room_padding_left = self.room_padding[ind, 0]
-        room_padding_up = self.room_padding[ind, 2]
-        xs = (self.room_position_x[env_index, :][ind] - self.map_padding_left + room_padding_left).tolist()
-        ys = (self.room_position_y[env_index, :][ind] - self.map_padding_up + room_padding_up).tolist()
+        xs = self.room_position_x[env_index, :][ind].tolist()
+        ys = self.room_position_y[env_index, :][ind].tolist()
         colors = [self.color_map[room.sub_area] for room in rooms]
         self.map_display.display(rooms, xs, ys, colors)
 
@@ -268,21 +470,32 @@ import logic.rooms.brinstar_pink
 import logic.rooms.crateria
 import logic.rooms.crateria_isolated
 
-num_envs = 1
-rooms = logic.rooms.crateria.rooms
+torch.manual_seed(0)
+num_envs = 2
+rooms = logic.rooms.crateria.rooms[:5]
 # rooms = logic.rooms.all_rooms.rooms
 # rooms = logic.rooms.brinstar_green.rooms + logic.rooms.brinstar_pink.rooms
 # rooms = logic.rooms.brinstar_red.rooms
 num_candidates = 1
 env = MazeBuilderEnv(rooms,
-                     map_x=11,
-                     map_y=11,
+                     map_x=29,
+                     map_y=29,
                      # map_x=60,
                      # map_y=40,
                      num_envs=num_envs,
                      device='cpu')
-
-env.compute_map()
+env.room_mask[0, 0] = 1
+env.room_position_x[0, 0] = 2
+env.room_position_y[0, 0] = 4
+env.room_mask[1, 3] = 1
+env.room_position_x[1, 3] = 12
+env.room_position_y[1, 3] = 12
+env.step_number = 2
+# env.compute_map()
+candidates = env.get_all_action_candidates()
+rcandidates = env.get_action_candidates(4)
+env.render(1)
+print(rcandidates)
 # # print(env.map[0, 4, :, :].t())
 # # flattened_kernel = env.placement_kernel.view(-1, env.placement_kernel.shape[2], env.placement_kernel.shape[3], env.placement_kernel.shape[4])
 # # A = F.conv2d(env.map, flattened_kernel)
@@ -301,23 +514,19 @@ env.compute_map()
 #     down = torch.sum(env.room_tensor[:, 0, :, :] & env.room_tensor[:, i, :, :])
 #     print("type={}, up={}, down={}".format(i, up, down))
 #
-# import time
-# _, _ = env.reset()
-# self = env
-# torch.manual_seed(22)
-# num_candidates = 1
-# i=0
-# for i in range(100):
-#     candidates = env.get_placement_candidates(num_candidates)
-#     room_index = candidates[:, 0, 0]
-#     room_x = candidates[:, 0, 1]
-#     room_y = candidates[:, 0, 2]
-#     _, _ = env.step(room_index, room_x, room_y)
-#     print(i, room_index, room_x, room_y)
-#     # env.render(0)
-#     env.render(0)
-#     time.sleep(0.1)
-#
+import time
+env.reset()
+self = env
+torch.manual_seed(22)
+num_candidates = 1
+i=0
+for i in range(100):
+    candidates = env.get_action_candidates(num_candidates)
+    env.step(candidates[:, 0, :])
+    # env.render(0)
+    env.render(0)
+    time.sleep(0.1)
+
 
 
 # # torch.set_printoptions(linewidth=120, threshold=10000)
