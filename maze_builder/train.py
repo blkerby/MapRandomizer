@@ -72,7 +72,7 @@ class MaxOut(torch.nn.Module):
 
 
 class Network(torch.nn.Module):
-    def __init__(self, map_x, map_y, map_c, num_rooms, map_channels, map_kernel_size, fc_widths, dropout_p):
+    def __init__(self, map_x, map_y, map_c, num_rooms, map_channels, map_stride, map_kernel_size, fc_widths):
         super().__init__()
         self.map_x = map_x
         self.map_y = map_y
@@ -84,11 +84,10 @@ class Network(torch.nn.Module):
         for i in range(len(map_channels) - 1):
             global_map_layers.append(torch.nn.Conv2d(map_channels[i], map_channels[i + 1],
                                                      kernel_size=(map_kernel_size[i], map_kernel_size[i]),
-                                                     stride=(2, 2)))
+                                                     stride=(map_stride[i], map_stride[i])))
             # global_map_layers.append(MaxOut(arity))
-            # global_map_layers.append(PReLU2d(global_map_channels[i + 1]))
+            # global_map_layers.append(PReLU2d(map_channels[i + 1]))
             global_map_layers.append(torch.nn.ReLU())
-            global_map_layers.append(torch.nn.Dropout(p=dropout_p))
             # global_map_layers.append(torch.nn.BatchNorm2d(global_map_channels[i + 1], momentum=batch_norm_momentum))
             # global_map_layers.append(torch.nn.MaxPool2d(3, stride=2, padding=1))
             # global_map_layers.append(torch.nn.MaxPool2d(2, stride=2))
@@ -107,8 +106,7 @@ class Network(torch.nn.Module):
             # global_fc_layers.append(MaxOut(arity))
             # global_fc_layers.append(torch.nn.BatchNorm1d(global_fc_widths[i + 1], momentum=batch_norm_momentum))
             global_fc_layers.append(torch.nn.ReLU())
-            global_fc_layers.append(torch.nn.Dropout(p=dropout_p))
-            # global_fc_layers.append(PReLU(global_fc_widths[i + 1]))
+            # global_fc_layers.append(PReLU(fc_widths[i + 1]))
         # global_fc_layers.append(torch.nn.Linear(fc_widths[-1], 1))
         self.global_fc_sequential = torch.nn.Sequential(*global_fc_layers)
         self.state_value_lin = torch.nn.Linear(fc_widths[-1], 1)
@@ -434,7 +432,7 @@ import logic.rooms.maridia_upper
 device = torch.device('cuda:0')
 
 # num_envs = 2 ** 7
-num_envs = 2 ** 9
+num_envs = 2 ** 10
 # rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.crateria.rooms
 # rooms = logic.rooms.crateria.rooms + logic.rooms.wrecked_ship.rooms
@@ -472,9 +470,9 @@ network = Network(map_x=env.map_x + 1,
                   map_c=env.map_channels,
                   num_rooms=len(env.rooms),
                   map_channels=[32, 64],
-                  map_kernel_size=[7, 3],
-                  fc_widths=[128, 128],
-                  dropout_p=0.1,
+                  map_stride=[2, 2],
+                  map_kernel_size=[7, 7],
+                  fc_widths=[256, 256],
                   ).to(device)
 network.state_value_lin.weight.data[:, :] = 0.0
 network.state_value_lin.bias.data[:] = 0.0
@@ -524,13 +522,13 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 # session = CPU_Unpickler(open('models/crateria-2021-07-24T21:37:05.181572.pkl', 'rb')).load()
 # # session.policy_optimizer.param_groups[0]['lr'] = 5e-6
 # # # session.value_optimizer.param_groups[0]['betas'] = (0.8, 0.999)
-batch_size = 2 ** 9
+batch_size = 2 ** 10
 # batch_size = 2 ** 13  # 2 ** 12
 td_lambda0 = 1.0
 td_lambda1 = 0.8
-num_episode_groups = 2
+num_episode_groups = 1
 num_candidates = 16
-num_passes = 2
+num_passes = 4
 temperature0 = 0.0
 temperature1 = 50.0
 explore_eps = 0.0
