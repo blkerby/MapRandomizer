@@ -113,10 +113,11 @@ class Network(torch.nn.Module):
         broadcast_data = torch.cat([room_mask, steps_remaining.view(-1, 1)], dim=1).to(map.dtype)
         for i in range(len(self.map_conv_layers)):
             X = self.map_conv_layers[i](X)
-            broadcast_out = self.broadcast_layers[i](broadcast_data)
-            X = X + broadcast_out.unsqueeze(2).unsqueeze(3)
+            # broadcast_out = self.broadcast_layers[i](broadcast_data)
+            # X = X + broadcast_out.unsqueeze(2).unsqueeze(3)
             X = self.map_act_layers[i](X)
-        action_value = self.action_value_conv1x1(X)
+        # action_value = self.action_value_conv1x1(X)
+        action_advantage = self.action_value_conv1x1(X)
 
         # Fully-connected layers on whole map data (starting with output of convolutional layers)
         X = self.map_global_pool(X)
@@ -124,6 +125,7 @@ class Network(torch.nn.Module):
             # print(X.shape, layer)
             X = layer(X)
         state_value = self.state_value_lin(X)[:, 0]
+        action_value = action_advantage + state_value.unsqueeze(1).unsqueeze(2).unsqueeze(3)
         return state_value, action_value
 
     def all_param_data(self):
@@ -166,6 +168,7 @@ class TrainingSession():
         self.network.eval()
         # with self.average_parameters.average_parameters(self.network.all_param_data()):
         total_action_prob = 0.0
+        total_action_cnt = 0.0
         for j in range(episode_length):
             if render:
                 self.env.render()
@@ -202,7 +205,10 @@ class TrainingSession():
             action_list.append(action)
             state_value_list.append(state_value)
             action_value_list.append(selected_action_value)
-            total_action_prob += torch.mean(selected_action_prob).item()
+            dummy_room_id = len(self.env.rooms) - 1
+            total_action_prob += torch.sum(selected_action_prob * (action_room_id != dummy_room_id)).item()
+            total_action_cnt += torch.sum(action_room_id != dummy_room_id).item()
+            # print(torch.mean(torch.sum((action_probs > 0.0), dim=1).to(torch.float32)), torch.mean(selected_action_prob))
         room_mask_tensor = torch.stack(room_mask_list, dim=0)
         room_position_x_tensor = torch.stack(room_position_x_list, dim=0)
         room_position_y_tensor = torch.stack(room_position_y_list, dim=0)
@@ -210,7 +216,7 @@ class TrainingSession():
         action_value_tensor = torch.stack(action_value_list, dim=0)
         action_tensor = torch.stack(action_list, dim=0)
         reward_tensor = self.env.reward()
-        action_prob = total_action_prob / episode_length
+        action_prob = total_action_prob / total_action_cnt  #episode_length
         return room_mask_tensor, room_position_x_tensor, room_position_y_tensor, state_value_tensor, \
                action_value_tensor, action_tensor, reward_tensor, action_prob
 
@@ -375,7 +381,8 @@ import logic.rooms.maridia_upper
 # device = torch.device('cpu')
 device = torch.device('cuda:0')
 
-num_envs = 2 ** 10
+num_envs = 2 ** 11
+# num_envs = 1
 rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.crateria.rooms
 # rooms = logic.rooms.crateria.rooms + logic.rooms.wrecked_ship.rooms
@@ -465,21 +472,21 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 #             return lambda b: torch.load(io.BytesIO(b), map_location='cpu')
 #         else:
 #             return super().find_class(module, name)
-# session = CPU_Unpickler(open('models/crateria-2021-07-28T05:01:08.541926.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/crateria-2021-07-29T12:59:04.241872.pkl', 'rb')).load()
 # # session.policy_optimizer.param_groups[0]['lr'] = 5e-6
 # # # session.value_optimizer.param_groups[0]['betas'] = (0.8, 0.999)
 # batch_size = 2 ** 11
-batch_size = 2 ** 9
+batch_size = 2 ** 10
 # batch_size = 2 ** 13  # 2 ** 12
 td_lambda0 = 1.0
 td_lambda1 = 1.0
-lr0 = 0.0003
-lr1 = 0.0003
-num_episode_groups = 1
+lr0 = 0.00002
+lr1 = 0.00002
+num_episode_groups = 4
 # num_candidates = 16
 num_passes = 1
 temperature0 = 0.0
-temperature1 = 5.0
+temperature1 = 100.0
 explore_eps = 0.0
 annealing_time = 50
 action_loss_weight = 0.8
@@ -493,7 +500,7 @@ logging.info(
         num_episode_groups, session.env.num_envs, num_passes, batch_size, action_loss_weight))
 for i in range(100000):
     frac = min(1, session.num_rounds / annealing_time)
-    temperature = (1 - frac) * temperature0 + frac * temperature1
+    temperature = (1 - frac ** 2) * temperature0 + frac ** 2 * temperature1
     td_lambda = (1 - frac) * td_lambda0 + frac * td_lambda1
     lr = (1 - frac) * lr0 + frac * lr1
     optimizer.param_groups[0]['lr'] = lr
@@ -518,12 +525,11 @@ for i in range(100000):
 
 # while True:
 #     room_mask, room_position_x, room_position_y, state_value, action_value, action, reward, action_prob = session.generate_episode(episode_length,
-#                                                                                        num_candidates=num_candidates,
-#                                                                                        temperature=100.0, explore_eps=0,
+#                                                                                        temperature=5.0,
 #                                                                                        render=True)
 #     max_reward, max_reward_ind = torch.max(reward, dim=0)
 #     logging.info("{}: {}".format(max_reward, reward.tolist()))
-#     if max_reward.item() >= 200:
+#     if max_reward.item() >= 31:
 #         break
 #     # time.sleep(5)
 # session.env.render(max_reward_ind.item())
