@@ -271,7 +271,7 @@ class MazeBuilderEnv:
         self.room_up = torch.cat(room_up_list, dim=0)
         self.room_down = torch.cat(room_down_list, dim=0)
         self.room_data = torch.cat(room_data_list, dim=0)
-        self.room_placements = torch.cat(room_placements_list, dim=0)
+        self.room_placements = torch.cat(room_placements_list[:-1], dim=0)
         self.room_min_x = torch.tensor(room_min_x_list, device=self.device)
         self.room_min_y = torch.tensor(room_min_y_list, device=self.device)
         self.room_max_x = torch.tensor(room_max_x_list, device=self.device)
@@ -284,7 +284,6 @@ class MazeBuilderEnv:
                 check_door_index=torch.cat([x.check_door_index for x in data_list], dim=0),
                 check_map_index=torch.cat([x.check_map_index for x in data_list], dim=0),
                 check_value=torch.cat([x.check_value for x in data_list], dim=0),
-
             )
 
         self.door_data_left_tile = cat_door_data(door_data_left_tile_list)
@@ -304,6 +303,11 @@ class MazeBuilderEnv:
         # self.room_data_flat_value = self.room_data[:, 3]
 
     def get_all_action_candidates(self):
+        if self.step_number == 0:
+            num_placements = self.room_placements.shape[0]
+            env_ids = torch.arange(self.num_envs, device=self.device).view(-1, 1).repeat(1, num_placements).view(-1)
+            return torch.cat([env_ids.view(-1, 1), self.room_placements.repeat(self.num_envs, 1)], dim=1)
+
         map = self.compute_map(self.room_mask, self.room_position_x, self.room_position_y)
         map_door_left = torch.nonzero(map[:, 1, :] > 1)
         map_door_right = torch.nonzero(map[:, 1, :] < -1)
@@ -375,21 +379,6 @@ class MazeBuilderEnv:
 
             candidates = candidates[mask, :]
             candidates_list.append(candidates)
-            # print(final_index_tile)
-            # print(map_value)
-            # print(map_door_dir)
-            # print(door_data_dir_tile.door_data)
-            # print(candidates)
-            # print(tile_out)
-            # print(door_out)
-            # print(valid_positions)
-            # print(valid_env_id)
-            # print(valid_room_id)
-            # print(map_door_dir.shape,
-            #       door_data_dir_tile.door_data.shape,
-            #       door_data_dir_tile.check_door_index.shape,
-            #       door_data_dir_tile.check_map_index.shape,
-            #       door_data_dir_tile.check_value.shape)
 
         dummy_candidates = torch.cat([
             torch.arange(self.num_envs, device=self.device).view(-1, 1),
@@ -399,11 +388,6 @@ class MazeBuilderEnv:
         all_candidates = torch.cat(candidates_list, dim=0)
         ind = torch.argsort(all_candidates[:, 0])
         return all_candidates[ind, :]
-        # self.room_right
-        # print("left", door_left)
-        # print("right", door_right)
-        # print("down", door_up)
-        # print("up", door_down)
 
     def get_action_candidates(self, num_candidates):
         if self.step_number == 0:
