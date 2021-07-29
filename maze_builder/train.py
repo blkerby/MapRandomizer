@@ -72,35 +72,39 @@ class MaxOut(torch.nn.Module):
 
 
 class Network(torch.nn.Module):
-    def __init__(self, map_x, map_y, map_c, num_rooms, map_channels, map_stride, map_kernel_size, fc_widths):
+    def __init__(self, map_x, map_y, map_c, num_rooms, map_channels, map_stride, map_kernel_size, fc_widths,
+                 batch_norm_momentum=0.1):
         super().__init__()
         self.map_x = map_x
         self.map_y = map_y
         self.map_c = map_c
         self.num_rooms = num_rooms
 
-        global_map_layers = []
+        self.map_conv_layers = torch.nn.ModuleList()
+        self.map_act_layers = torch.nn.ModuleList()
+        # self.map_bn_layers = torch.nn.ModuleList()
+        self.embedding_layers = torch.nn.ModuleList()
         map_channels = [map_c] + map_channels
         for i in range(len(map_channels) - 1):
-            global_map_layers.append(torch.nn.Conv2d(map_channels[i], map_channels[i + 1],
+            self.map_conv_layers.append(torch.nn.Conv2d(map_channels[i], map_channels[i + 1],
                                                      kernel_size=(map_kernel_size[i], map_kernel_size[i]),
                                                      stride=(map_stride[i], map_stride[i])))
             # global_map_layers.append(MaxOut(arity))
             # global_map_layers.append(PReLU2d(map_channels[i + 1]))
-            global_map_layers.append(torch.nn.ReLU())
-            # global_map_layers.append(torch.nn.BatchNorm2d(global_map_channels[i + 1], momentum=batch_norm_momentum))
+            self.embedding_layers.append(torch.nn.Linear(num_rooms + 1, map_channels[i + 1]))
+            self.map_act_layers.append(torch.nn.ReLU())
+            # self.map_bn_layers.append(torch.nn.BatchNorm2d(map_channels[i + 1], momentum=batch_norm_momentum))
             # global_map_layers.append(torch.nn.MaxPool2d(3, stride=2, padding=1))
             # global_map_layers.append(torch.nn.MaxPool2d(2, stride=2))
             # width = (width - map_kernel_size[i]) // 2
             # height = (height - map_kernel_size[i]) // 2
-        # global_map_layers.append(GlobalAvgPool2d())
-        global_map_layers.append(GlobalMaxPool2d())
+        self.map_global_pool = GlobalAvgPool2d()
+        # self.map_global_pool = GlobalMaxPool2d()
         # global_map_layers.append(torch.nn.Flatten())
-        self.global_map_sequential = torch.nn.Sequential(*global_map_layers)
 
         global_fc_layers = []
         # global_fc_widths = [(width * height * map_channels[-1]) + 1 + room_tensor.shape[0]] + global_fc_widths
-        fc_widths = [map_channels[-1] + 1 + num_rooms] + fc_widths
+        fc_widths = [map_channels[-1]] + fc_widths
         for i in range(len(fc_widths) - 1):
             global_fc_layers.append(torch.nn.Linear(fc_widths[i], fc_widths[i + 1]))
             # global_fc_layers.append(MaxOut(arity))
@@ -123,13 +127,19 @@ class Network(torch.nn.Module):
         # x_channel = torch.arange(self.map_x, device=map.device).view(1, 1, -1, 1).repeat(map.shape[0], 1, 1, self.map_y)
         # y_channel = torch.arange(self.map_y, device=map.device).view(1, 1, 1, -1).repeat(map.shape[0], 1, self.map_x, 1)
         # X = torch.cat([X, x_channel, y_channel], dim=1)
-        for layer in self.global_map_sequential:
-            # print(X.shape, layer)
-            X = layer(X)
+        embedding_data = torch.cat([room_mask, steps_remaining.view(-1, 1)], dim=1).to(map.dtype)
+        for i in range(len(self.map_conv_layers)):
+            X = self.map_conv_layers[i](X)
+            embedding_out = self.embedding_layers[i](embedding_data)
+            X = X + embedding_out.unsqueeze(2).unsqueeze(3)
+            X = self.map_act_layers[i](X)
+            # X = self.map_bn_layers[i](X)
 
         # Fully-connected layers on whole map data (starting with output of convolutional layers)
-        X = torch.cat([X, steps_remaining.view(-1, 1), room_mask], dim=1)
+        # X = torch.cat([X, steps_remaining.view(-1, 1), room_mask], dim=1)
+        X = self.map_global_pool(X)
         for layer in self.global_fc_sequential:
+            # print(X.shape, layer)
             X = layer(X)
         state_value = self.state_value_lin(X)[:, 0]
         return state_value
@@ -212,40 +222,40 @@ class TrainingSession():
         action_value_list = []
         action_list = []
         self.network.eval()
-        with self.average_parameters.average_parameters(self.network.all_param_data()):
-            total_action_prob = 0.0
-            for j in range(episode_length):
-                if render:
-                    self.env.render()
-                action_candidates = env.get_action_candidates(num_candidates)
-                steps_remaining = torch.full([self.env.num_envs], episode_length - j,
-                                             dtype=torch.float32, device=device)
-                with torch.no_grad():
-                    state_value, action_value = self.forward_state_action(
-                        self.env.room_mask, self.env.room_position_x, self.env.room_position_y,
-                        action_candidates, steps_remaining)
-                action_probs = torch.softmax(action_value * temperature, dim=1)
-                action_probs = torch.full_like(action_probs, explore_eps / num_candidates) + (
-                            1 - explore_eps) * action_probs
-                action_index = _rand_choice(action_probs)
-                selected_action_prob = action_probs[torch.arange(self.env.num_envs, device=device), action_index]
-                action = action_candidates[torch.arange(self.env.num_envs, device=device), action_index, :]
-                selected_action_value = action_value[torch.arange(self.env.num_envs, device=device), action_index]
+        # with self.average_parameters.average_parameters(self.network.all_param_data()):
+        total_action_prob = 0.0
+        for j in range(episode_length):
+            if render:
+                self.env.render()
+            action_candidates = env.get_action_candidates(num_candidates)
+            steps_remaining = torch.full([self.env.num_envs], episode_length - j,
+                                         dtype=torch.float32, device=device)
+            with torch.no_grad():
+                state_value, action_value = self.forward_state_action(
+                    self.env.room_mask, self.env.room_position_x, self.env.room_position_y,
+                    action_candidates, steps_remaining)
+            action_probs = torch.softmax(action_value * temperature, dim=1)
+            action_probs = torch.full_like(action_probs, explore_eps / num_candidates) + (
+                        1 - explore_eps) * action_probs
+            action_index = _rand_choice(action_probs)
+            selected_action_prob = action_probs[torch.arange(self.env.num_envs, device=device), action_index]
+            action = action_candidates[torch.arange(self.env.num_envs, device=device), action_index, :]
+            selected_action_value = action_value[torch.arange(self.env.num_envs, device=device), action_index]
 
-                # TODO: avoid recomputing map here:
-                self.env.step(action)
-                # map = self.env.compute_current_map()
-                room_mask = self.env.room_mask.clone()
-                room_position_x = self.env.room_position_x.clone()
-                room_position_y = self.env.room_position_y.clone()
-                # map_list.append(map)
-                room_mask_list.append(room_mask)
-                room_position_x_list.append(room_position_x)
-                room_position_y_list.append(room_position_y)
-                action_list.append(action)
-                state_value_list.append(state_value)
-                action_value_list.append(selected_action_value)
-                total_action_prob += torch.mean(selected_action_prob).item()
+            # TODO: avoid recomputing map here:
+            self.env.step(action)
+            # map = self.env.compute_current_map()
+            room_mask = self.env.room_mask.clone()
+            room_position_x = self.env.room_position_x.clone()
+            room_position_y = self.env.room_position_y.clone()
+            # map_list.append(map)
+            room_mask_list.append(room_mask)
+            room_position_x_list.append(room_position_x)
+            room_position_y_list.append(room_position_y)
+            action_list.append(action)
+            state_value_list.append(state_value)
+            action_value_list.append(selected_action_value)
+            total_action_prob += torch.mean(selected_action_prob).item()
         room_mask_tensor = torch.stack(room_mask_list, dim=0)
         room_position_x_tensor = torch.stack(room_position_x_list, dim=0)
         room_position_y_tensor = torch.stack(room_position_y_list, dim=0)
@@ -303,6 +313,7 @@ class TrainingSession():
                     action_loss_weight: float = 0.5,
                     td_lambda: float = 0.0,
                     explore_eps: float = 0.0,
+                    lr_decay: float = 1.0,
                     render: bool = False,
                     ):
         num_episodes = env.num_envs * num_episode_groups
@@ -327,14 +338,8 @@ class TrainingSession():
         all_pass = torch.flip(torch.cummin(torch.flip(turn_pass, dims=[0]), dim=0)[0], dims=[0])
         frac_pass = torch.mean((turn_pass & ~all_pass).to(torch.float32))
 
-        # Compute Monte-Carlo errors
-        total_mc_state_err = 0.0
-        total_mc_action_err = 0.0
-        for i in reversed(range(episode_length)):
-            state_value1 = state_value[i, :]
-            action_value1 = action_value[i, :]
-            total_mc_state_err += torch.mean((state_value1 - reward) ** 2).item()
-            total_mc_action_err += torch.mean((action_value1 - reward) ** 2).item()
+        # Compute Monte-Carlo error
+        mc_err = torch.mean((state_value - reward.unsqueeze(0)) ** 2).item()
 
         # Compute the TD targets
         target_list = []
@@ -376,6 +381,8 @@ class TrainingSession():
 
         num_batches = n // batch_size
 
+        lr_decay_per_step = lr_decay ** (1 / num_passes / num_batches)
+
         for _ in range(num_passes):
             total_loss = 0.0
             self.network.train()
@@ -401,7 +408,8 @@ class TrainingSession():
                 loss.backward()
                 torch.nn.utils.clip_grad_norm_(self.network.parameters(), 1e-5)
                 self.optimizer.step()
-                self.average_parameters.update(self.network.all_param_data())
+                self.optimizer.param_groups[0]['lr'] *= lr_decay_per_step
+                # self.average_parameters.update(self.network.all_param_data())
                 # # self.value_network.decay(weight_decay * self.value_optimizer.param_groups[0]['lr'])
                 total_loss += loss.item()
 
@@ -409,9 +417,8 @@ class TrainingSession():
 
         # total_loss = 0
         # num_batches = 1
-        # total_mc_state_err = 0
-        return mean_reward, max_reward, cnt_max_reward, total_loss / num_batches, total_mc_state_err / episode_length, total_mc_action_err / episode_length, \
-               action_prob, frac_pass
+        # total_mc_err = 0
+        return mean_reward, max_reward, cnt_max_reward, total_loss / num_batches, mc_err, action_prob, frac_pass
 
 
 import logic.rooms.crateria
@@ -431,8 +438,8 @@ import logic.rooms.maridia_upper
 # device = torch.device('cpu')
 device = torch.device('cuda:0')
 
-# num_envs = 2 ** 7
 num_envs = 2 ** 10
+# num_envs = 1
 # rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.crateria.rooms
 # rooms = logic.rooms.crateria.rooms + logic.rooms.wrecked_ship.rooms
@@ -449,12 +456,13 @@ rooms = logic.rooms.norfair_upper_isolated.rooms
 # rooms = logic.rooms.maridia_lower.rooms
 # rooms = logic.rooms.maridia_upper.rooms
 # rooms = logic.rooms.all_rooms.rooms
-episode_length = int(len(rooms) * 1.05)
+# episode_length = int(len(rooms) * 1.5)
+episode_length = len(rooms)
 display_freq = 1
 # map_x = 60
 # map_y = 60
-map_x = 30
-map_y = 30
+map_x = 50
+map_y = 40
 env = MazeBuilderEnv(rooms,
                      map_x=map_x,
                      map_y=map_y,
@@ -473,6 +481,7 @@ network = Network(map_x=env.map_x + 1,
                   map_stride=[2, 2],
                   map_kernel_size=[7, 7],
                   fc_widths=[256, 256],
+                  batch_norm_momentum=0.1,
                   ).to(device)
 network.state_value_lin.weight.data[:, :] = 0.0
 network.state_value_lin.bias.data[:] = 0.0
@@ -519,20 +528,22 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 #             return lambda b: torch.load(io.BytesIO(b), map_location='cpu')
 #         else:
 #             return super().find_class(module, name)
-# session = CPU_Unpickler(open('models/crateria-2021-07-24T21:37:05.181572.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/crateria-2021-07-28T05:01:08.541926.pkl', 'rb')).load()
 # # session.policy_optimizer.param_groups[0]['lr'] = 5e-6
 # # # session.value_optimizer.param_groups[0]['betas'] = (0.8, 0.999)
-batch_size = 2 ** 10
+batch_size = 2 ** 11
 # batch_size = 2 ** 13  # 2 ** 12
 td_lambda0 = 1.0
-td_lambda1 = 0.8
-num_episode_groups = 1
+td_lambda1 = 0.9
+lr0 = 0.0002
+lr1 = 0.0001
+num_episode_groups = 4
 num_candidates = 16
 num_passes = 4
 temperature0 = 0.0
 temperature1 = 50.0
 explore_eps = 0.0
-annealing_time = 50
+annealing_time = 200
 action_loss_weight = 0.8
 session.env = env
 # session.optimizer.param_groups[0]['lr'] = 0.0001
@@ -546,9 +557,9 @@ for i in range(100000):
     frac = min(1, session.num_rounds / annealing_time)
     temperature = (1 - frac) * temperature0 + frac * temperature1
     td_lambda = (1 - frac) * td_lambda0 + frac * td_lambda1
-    # lr = (1 - frac) * lr0 + frac * lr1
-    # optimizer.param_groups[0]['lr'] = lr
-    mean_reward, max_reward, cnt_max_reward, loss, mc_state_err, mc_action_err, prob, frac_pass = session.train_round(
+    lr = (1 - frac) * lr0 + frac * lr1
+    optimizer.param_groups[0]['lr'] = lr
+    mean_reward, max_reward, cnt_max_reward, loss, mc_err, prob, frac_pass = session.train_round(
         num_episode_groups=num_episode_groups,
         episode_length=episode_length,
         batch_size=batch_size,
@@ -558,20 +569,20 @@ for i in range(100000):
         td_lambda=td_lambda,
         explore_eps=explore_eps,
         num_passes=num_passes,
+        lr_decay=0.1,
         # mc_weight=0.1,
         # render=True)
         render=False)
     # render=i % display_freq == 0)
     logging.info(
-        "{}: reward={:.2f} (max={:d}, cnt={:d}), loss={:.4f}, mc_state={:.4f}, mc_action={:.4f}, p={:.4f}, pass={:.4f}, temp={:.3f}".format(
-            session.num_rounds, mean_reward, max_reward, cnt_max_reward, loss, mc_state_err,
-            mc_action_err, prob, frac_pass, temperature))
+        "{}: reward={:.2f} (max={:d}, cnt={:d}), loss={:.4f}, mc={:.4f}, p={:.4f}, pass={:.4f}, temp={:.3f}".format(
+            session.num_rounds, mean_reward, max_reward, cnt_max_reward, loss, mc_err, prob, frac_pass, temperature))
     if session.num_rounds % 10 == 0:
         pickle.dump(session, open(pickle_name, 'wb'))
 
 
 # while True:
-#     map, room_mask, state_value, action_value, action, reward, prob = session.generate_round(episode_length,
+#     room_mask, room_position_x, room_position_y, state_value, action_value, action, reward, action_prob = session.generate_episode(episode_length,
 #                                                                                        num_candidates=num_candidates,
 #                                                                                        temperature=100.0, explore_eps=0,
 #                                                                                        render=True)
@@ -579,4 +590,5 @@ for i in range(100000):
 #     logging.info("{}: {}".format(max_reward, reward.tolist()))
 #     if max_reward.item() >= 200:
 #         break
+#     # time.sleep(5)
 # session.env.render(max_reward_ind.item())
