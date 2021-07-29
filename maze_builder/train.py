@@ -128,6 +128,7 @@ class Network(torch.nn.Module):
         # y_channel = torch.arange(self.map_y, device=map.device).view(1, 1, 1, -1).repeat(map.shape[0], 1, self.map_x, 1)
         # X = torch.cat([X, x_channel, y_channel], dim=1)
         embedding_data = torch.cat([room_mask, steps_remaining.view(-1, 1)], dim=1).to(map.dtype)
+        # embedding_data = torch.cat([room_mask, torch.zeros_like(steps_remaining.view(-1, 1))], dim=1).to(map.dtype)  # TODO: put back steps_remaining
         for i in range(len(self.map_conv_layers)):
             X = self.map_conv_layers[i](X)
             embedding_out = self.embedding_layers[i](embedding_data)
@@ -212,12 +213,9 @@ class TrainingSession():
                        render=False):
         device = self.env.device
         self.env.reset()
-        room_mask = self.env.room_mask.clone()
-        room_position_x = self.env.room_position_x.clone()
-        room_position_y = self.env.room_position_y.clone()
-        room_mask_list = [room_mask]
-        room_position_x_list = [room_position_x]
-        room_position_y_list = [room_position_y]
+        room_mask_list = []
+        room_position_x_list = []
+        room_position_y_list = []
         state_value_list = []
         action_value_list = []
         action_list = []
@@ -230,6 +228,9 @@ class TrainingSession():
             action_candidates = env.get_action_candidates(num_candidates)
             steps_remaining = torch.full([self.env.num_envs], episode_length - j,
                                          dtype=torch.float32, device=device)
+            room_mask = self.env.room_mask.clone()
+            room_position_x = self.env.room_position_x.clone()
+            room_position_y = self.env.room_position_y.clone()
             with torch.no_grad():
                 state_value, action_value = self.forward_state_action(
                     self.env.room_mask, self.env.room_position_x, self.env.room_position_y,
@@ -242,13 +243,7 @@ class TrainingSession():
             action = action_candidates[torch.arange(self.env.num_envs, device=device), action_index, :]
             selected_action_value = action_value[torch.arange(self.env.num_envs, device=device), action_index]
 
-            # TODO: avoid recomputing map here:
             self.env.step(action)
-            # map = self.env.compute_current_map()
-            room_mask = self.env.room_mask.clone()
-            room_position_x = self.env.room_position_x.clone()
-            room_position_y = self.env.room_position_y.clone()
-            # map_list.append(map)
             room_mask_list.append(room_mask)
             room_position_x_list.append(room_position_x)
             room_position_y_list.append(room_position_y)
@@ -325,9 +320,6 @@ class TrainingSession():
             explore_eps=explore_eps,
             render=render)
 
-        room_mask0 = room_mask[:-1, :, :]
-        room_position_x0 = room_position_x[:-1, :, :]
-        room_position_y0 = room_position_y[:-1, :, :]
         steps_remaining = (episode_length - torch.arange(episode_length, device=self.env.device)).view(-1, 1).repeat(1, num_episodes)
 
         mean_reward = torch.mean(reward.to(torch.float32))
@@ -340,6 +332,7 @@ class TrainingSession():
 
         # Compute Monte-Carlo error
         mc_err = torch.mean((state_value - reward.unsqueeze(0)) ** 2).item()
+        mc_bias = torch.mean(state_value - reward.unsqueeze(0)).item()
 
         # Compute the TD targets
         target_list = []
@@ -353,9 +346,9 @@ class TrainingSession():
 
         # Flatten the data
         n = episode_length * num_episodes
-        room_mask0 = room_mask0.view(n, len(self.env.rooms))
-        room_position_x0 = room_position_x0.view(n, len(self.env.rooms))
-        room_position_y0 = room_position_y0.view(n, len(self.env.rooms))
+        room_mask = room_mask.view(n, len(self.env.rooms))
+        room_position_x = room_position_x.view(n, len(self.env.rooms))
+        room_position_y = room_position_y.view(n, len(self.env.rooms))
         action = action.view(n, 3)
         steps_remaining = steps_remaining.view(n)
         target = target.view(n)
@@ -364,7 +357,7 @@ class TrainingSession():
         # # Filter out completed game states (this would need to be modified to be made correct with bootstrapping)
         # keep = ~all_pass
         # map0 = map0[keep]
-        # room_mask0 = room_mask0[keep]
+        # room_mask = room_mask[keep]
         # action = action[keep]
         # steps_remaining = steps_remaining[keep]
         # target = target[keep]
@@ -372,9 +365,9 @@ class TrainingSession():
 
         # Shuffle the data
         perm = torch.randperm(n)
-        room_mask0 = room_mask0[perm, :]
-        room_position_x0 = room_position_x0[perm, :]
-        room_position_y0 = room_position_y0[perm, :]
+        room_mask = room_mask[perm, :]
+        room_position_x = room_position_x[perm, :]
+        room_position_y = room_position_y[perm, :]
         action = action[perm]
         steps_remaining = steps_remaining[perm]
         target = target[perm]
@@ -383,25 +376,27 @@ class TrainingSession():
 
         lr_decay_per_step = lr_decay ** (1 / num_passes / num_batches)
 
+        total_loss = 0.0
+        total_err = 0.0
         for _ in range(num_passes):
-            total_loss = 0.0
             self.network.train()
             self.average_parameters.reset()
             for i in range(num_batches):
                 start = i * batch_size
                 end = (i + 1) * batch_size
-                room_mask0_batch = room_mask0[start:end, :]
-                room_position_x0_batch = room_position_x0[start:end, :]
-                room_position_y0_batch = room_position_y0[start:end, :]
+                room_mask_batch = room_mask[start:end, :]
+                room_position_x_batch = room_position_x[start:end, :]
+                room_position_y_batch = room_position_y[start:end, :]
                 steps_remaining_batch = steps_remaining[start:end]
                 # action_batch = action[start:end, :]
                 target_batch = target[start:end]
 
                 state_value0, _ = self.forward_state_action(
-                    room_mask0_batch, room_position_x0_batch, room_position_y0_batch,
-                    torch.zeros([batch_size, 0, 3], dtype=torch.int64, device=room_mask0_batch.device),
+                    room_mask_batch, room_position_x_batch, room_position_y_batch,
+                    torch.zeros([batch_size, 0, 3], dtype=torch.int64, device=room_mask_batch.device),
                     steps_remaining_batch)
-                loss = torch.mean((state_value0 - target_batch) ** 2)
+                err = state_value0 - target_batch
+                loss = torch.mean(err ** 2)
                 # print(state_loss, action_loss)
                 # loss = (1 - action_loss_weight) * state_loss + action_loss_weight * action_loss
                 self.optimizer.zero_grad()
@@ -412,13 +407,15 @@ class TrainingSession():
                 # self.average_parameters.update(self.network.all_param_data())
                 # # self.value_network.decay(weight_decay * self.value_optimizer.param_groups[0]['lr'])
                 total_loss += loss.item()
+                total_err += torch.mean(err).item()
 
         self.num_rounds += 1
 
         # total_loss = 0
         # num_batches = 1
         # total_mc_err = 0
-        return mean_reward, max_reward, cnt_max_reward, total_loss / num_batches, mc_err, action_prob, frac_pass
+        return mean_reward, max_reward, cnt_max_reward, total_loss / num_batches / num_passes, total_err / num_passes / num_batches, \
+               mc_err, mc_bias, action_prob, frac_pass
 
 
 import logic.rooms.crateria
@@ -534,16 +531,16 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 batch_size = 2 ** 11
 # batch_size = 2 ** 13  # 2 ** 12
 td_lambda0 = 1.0
-td_lambda1 = 0.9
-lr0 = 0.0002
-lr1 = 0.0001
+td_lambda1 = 1.0  #0.9
+lr0 = 0.0005
+lr1 = 0.0005
 num_episode_groups = 4
 num_candidates = 16
 num_passes = 4
 temperature0 = 0.0
-temperature1 = 50.0
+temperature1 = 0.0
 explore_eps = 0.0
-annealing_time = 200
+annealing_time = 1000
 action_loss_weight = 0.8
 session.env = env
 # session.optimizer.param_groups[0]['lr'] = 0.0001
@@ -559,7 +556,7 @@ for i in range(100000):
     td_lambda = (1 - frac) * td_lambda0 + frac * td_lambda1
     lr = (1 - frac) * lr0 + frac * lr1
     optimizer.param_groups[0]['lr'] = lr
-    mean_reward, max_reward, cnt_max_reward, loss, mc_err, prob, frac_pass = session.train_round(
+    mean_reward, max_reward, cnt_max_reward, loss, bias, mc_loss, mc_bias, prob, frac_pass = session.train_round(
         num_episode_groups=num_episode_groups,
         episode_length=episode_length,
         batch_size=batch_size,
@@ -575,8 +572,8 @@ for i in range(100000):
         render=False)
     # render=i % display_freq == 0)
     logging.info(
-        "{}: reward={:.2f} (max={:d}, cnt={:d}), loss={:.4f}, mc={:.4f}, p={:.4f}, pass={:.4f}, temp={:.3f}".format(
-            session.num_rounds, mean_reward, max_reward, cnt_max_reward, loss, mc_err, prob, frac_pass, temperature))
+        "{}: reward={:.2f} (max={:d}, cnt={:d}), loss={:.4f}, bias={:.4f}, mc_loss={:.4f}, mc_bias={:.4f}, p={:.4f}, pass={:.4f}, temp={:.3f}".format(
+            session.num_rounds, mean_reward, max_reward, cnt_max_reward, loss, bias, mc_loss, mc_bias, prob, frac_pass, temperature))
     if session.num_rounds % 10 == 0:
         pickle.dump(session, open(pickle_name, 'wb'))
 
