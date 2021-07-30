@@ -76,6 +76,8 @@ class MazeBuilderEnv:
         room_min_y_list = []
         room_max_x_list = []
         room_max_y_list = []
+        room_center_x_list = []
+        room_center_y_list = []
         room_door_count_list = []
         door_data_left_tile_list = []
         door_data_left_door_list = []
@@ -251,6 +253,8 @@ class MazeBuilderEnv:
             room_min_y_list.append(room_min_y)
             room_max_x_list.append(room_max_x)
             room_max_y_list.append(room_max_y)
+            room_center_x_list.append(width // 2)
+            room_center_y_list.append(height // 2)
             room_door_count_list.append(room_door_count)
 
             door_data_left_tile_list.append(door_data_left_tile)
@@ -276,6 +280,8 @@ class MazeBuilderEnv:
         self.room_min_y = torch.tensor(room_min_y_list, device=self.device)
         self.room_max_x = torch.tensor(room_max_x_list, device=self.device)
         self.room_max_y = torch.tensor(room_max_y_list, device=self.device)
+        self.room_center_x = torch.tensor(room_center_x_list, device=self.device)
+        self.room_center_y = torch.tensor(room_center_y_list, device=self.device)
         self.room_door_count = torch.tensor(room_door_count_list, device=self.device)
 
         def cat_door_data(data_list: List[DoorData]):

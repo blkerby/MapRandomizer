@@ -113,8 +113,8 @@ class Network(torch.nn.Module):
         broadcast_data = torch.cat([room_mask, steps_remaining.view(-1, 1)], dim=1).to(map.dtype)
         for i in range(len(self.map_conv_layers)):
             X = self.map_conv_layers[i](X)
-            # broadcast_out = self.broadcast_layers[i](broadcast_data)
-            # X = X + broadcast_out.unsqueeze(2).unsqueeze(3)
+            broadcast_out = self.broadcast_layers[i](broadcast_data)
+            X = X + broadcast_out.unsqueeze(2).unsqueeze(3)
             X = self.map_act_layers[i](X)
         # action_value = self.action_value_conv1x1(X)
         action_advantage = self.action_value_conv1x1(X)
@@ -183,11 +183,16 @@ class TrainingSession():
                 state_value, action_value = self.network(map, self.env.room_mask, steps_remaining)
             filtered_action_value = torch.full_like(action_value, float('-inf'))
 
+            adjust_x = self.env.room_center_x[action_candidates[:, 1]]
+            adjust_y = self.env.room_center_y[action_candidates[:, 1]]
+            action_candidates_x = action_candidates[:, 2] + adjust_x
+            action_candidates_y = action_candidates[:, 3] + adjust_y
+
             filtered_action_value[action_candidates[:, 0], action_candidates[:, 1],
                                   action_candidates[:, 2], action_candidates[:, 3]] = \
                 action_value[
                     action_candidates[:, 0], action_candidates[:, 1],
-                    action_candidates[:, 2], action_candidates[:, 3]]
+                    action_candidates_x, action_candidates_y]
             flat_action_value = filtered_action_value.view(filtered_action_value.shape[0], -1)
             action_probs = torch.softmax(flat_action_value * max(temperature, torch.finfo(flat_action_value.dtype).tiny), dim=1)
             action_index = _rand_choice(action_probs)
@@ -327,7 +332,6 @@ class TrainingSession():
         num_batches = n // batch_size
 
         lr_decay_per_step = lr_decay ** (1 / num_passes / num_batches)
-
         for _ in range(num_passes):
             total_loss = 0.0
             self.network.train()
@@ -344,8 +348,14 @@ class TrainingSession():
 
                 map = self.env.compute_map(room_mask_batch, room_position_x_batch, room_position_y_batch)
                 state_value, action_value = self.network(map, room_mask_batch, steps_remaining_batch)
+
+                adjust_x = self.env.room_center_x[action_batch[:, 0]]
+                adjust_y = self.env.room_center_y[action_batch[:, 0]]
+                action_x = action_batch[:, 1] + adjust_x
+                action_y = action_batch[:, 2] + adjust_y
+
                 selected_action_value = action_value[torch.arange(batch_size, device=self.env.device),
-                    action_batch[:, 0], action_batch[:, 1], action_batch[:, 2]]
+                    action_batch[:, 0], action_x, action_y]
                 state_loss = torch.mean((state_value - target_batch) ** 2)
                 action_loss = torch.mean((selected_action_value - target_batch) ** 2)
                 # print(state_loss, action_loss)
@@ -382,7 +392,7 @@ import logic.rooms.maridia_upper
 device = torch.device('cuda:0')
 
 num_envs = 2 ** 11
-# num_envs = 1
+# num_envs = 16
 rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.crateria.rooms
 # rooms = logic.rooms.crateria.rooms + logic.rooms.wrecked_ship.rooms
@@ -421,8 +431,8 @@ network = Network(map_x=env.map_x + 1,
                   map_y=env.map_y + 1,
                   map_c=env.map_channels,
                   num_rooms=len(env.rooms),
-                  map_channels=[32, 64],
-                  map_kernel_size=[7, 7],
+                  map_channels=[32, 32, 32],
+                  map_kernel_size=[11, 11, 11],
                   fc_widths=[256, 256],
                   ).to(device)
 network.state_value_lin.weight.data[:, :] = 0.0
@@ -464,7 +474,7 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 #
 # pickle_name = 'models/crateria-2021-07-24T13:05:09.257856.pkl'
 # session = pickle.load(open(pickle_name, 'rb'))
-#
+
 # import io
 # class CPU_Unpickler(pickle.Unpickler):
 #     def find_class(self, module, name):
@@ -472,23 +482,25 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 #             return lambda b: torch.load(io.BytesIO(b), map_location='cpu')
 #         else:
 #             return super().find_class(module, name)
-# session = CPU_Unpickler(open('models/crateria-2021-07-29T12:59:04.241872.pkl', 'rb')).load()
+#
+# pickle_name = 'models/crateria-2021-07-29T21:10:57.819249.pkl'
+# session = CPU_Unpickler(open(pickle_name, 'rb')).load()
 # # session.policy_optimizer.param_groups[0]['lr'] = 5e-6
 # # # session.value_optimizer.param_groups[0]['betas'] = (0.8, 0.999)
 # batch_size = 2 ** 11
-batch_size = 2 ** 10
+batch_size = 2 ** 9
 # batch_size = 2 ** 13  # 2 ** 12
 td_lambda0 = 1.0
 td_lambda1 = 1.0
-lr0 = 0.00002
-lr1 = 0.00002
-num_episode_groups = 4
+lr0 = 0.0005
+lr1 = 0.00005
+num_episode_groups_rate = 0.5
 # num_candidates = 16
 num_passes = 1
 temperature0 = 0.0
-temperature1 = 100.0
+temperature1 = 5.0
 explore_eps = 0.0
-annealing_time = 50
+annealing_time = 20
 action_loss_weight = 0.8
 session.env = env
 # session.optimizer.param_groups[0]['lr'] = 0.0001
@@ -496,14 +508,15 @@ session.env = env
 
 logging.info("Checkpoint path: {}".format(pickle_name))
 logging.info(
-    "num_episode_groups={}, num_envs={}, num_passes={}, batch_size={}, action_loss_weight={}".format(
-        num_episode_groups, session.env.num_envs, num_passes, batch_size, action_loss_weight))
+    "num_envs={}, num_passes={}, batch_size={}, action_loss_weight={}".format(
+        session.env.num_envs, num_passes, batch_size, action_loss_weight))
 for i in range(100000):
     frac = min(1, session.num_rounds / annealing_time)
     temperature = (1 - frac ** 2) * temperature0 + frac ** 2 * temperature1
     td_lambda = (1 - frac) * td_lambda0 + frac * td_lambda1
     lr = (1 - frac) * lr0 + frac * lr1
     optimizer.param_groups[0]['lr'] = lr
+    num_episode_groups = int(session.num_rounds * num_episode_groups_rate) + 1
     mean_reward, max_reward, cnt_max_reward, loss, mc_state, mc_action, prob, frac_pass = session.train_round(
         num_episode_groups=num_episode_groups,
         episode_length=episode_length,
@@ -512,24 +525,24 @@ for i in range(100000):
         action_loss_weight=action_loss_weight,
         td_lambda=td_lambda,
         num_passes=num_passes,
-        lr_decay=0.1,
+        lr_decay=0.2,
         # mc_weight=0.1,
         # render=True)
         render=False)
     # render=i % display_freq == 0)
     logging.info(
-        "{}: reward={:.2f} (max={:d}, cnt={:d}), loss={:.4f}, state={:.4f}, action={:.4f} p={:.4f}, pass={:.4f}, temp={:.3f}".format(
-            session.num_rounds, mean_reward, max_reward, cnt_max_reward, loss, mc_state, mc_action, prob, frac_pass, temperature))
+        "{}: reward={:.2f} (max={:d}, frac={:.4f}), loss={:.4f}, state={:.4f}, action={:.4f} p={:.4f}, pass={:.4f}, temp={:.3f}".format(
+            session.num_rounds, mean_reward, max_reward, cnt_max_reward / (num_episode_groups * num_envs), loss, mc_state, mc_action, prob, frac_pass, temperature))
     if session.num_rounds % 10 == 0:
         pickle.dump(session, open(pickle_name, 'wb'))
 
 # while True:
 #     room_mask, room_position_x, room_position_y, state_value, action_value, action, reward, action_prob = session.generate_episode(episode_length,
-#                                                                                        temperature=5.0,
-#                                                                                        render=True)
+#                                                                                        temperature=temperature1,
+#                                                                                        render=False)
 #     max_reward, max_reward_ind = torch.max(reward, dim=0)
 #     logging.info("{}: {}".format(max_reward, reward.tolist()))
-#     if max_reward.item() >= 31:
+#     if max_reward.item() >= 33:
 #         break
 #     # time.sleep(5)
 # session.env.render(max_reward_ind.item())
