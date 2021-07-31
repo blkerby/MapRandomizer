@@ -69,3 +69,56 @@ class SimpleAverage:
             yield
         finally:
             self.restore(params)
+
+
+class ExponentialAverage:
+    """
+    Accumulates a simple average of a set of tensors.
+    """
+    def __init__(self, params, beta):
+        self.shadow_params = [p.data.clone() for p in params]
+        self.stored_params = None
+        self.beta = beta
+
+    def update(self, params):
+        """
+        Update currently maintained parameters.
+
+        Call this every time the parameters are updated, such as the result of
+        the `optimizer.step()` call.
+        """
+        for i, param in enumerate(params):
+            self.shadow_params[i] = self.beta * self.shadow_params[i] + (1 - self.beta) * param.data
+
+    def use_averages(self, params):
+        for i, param in enumerate(params):
+            param.copy_(self.shadow_params[i])
+
+    def store(self, params) -> None:
+        """
+        Save the current parameters for restoring later.
+        """
+        self.stored_params = [param.data.clone() for param in params]
+
+    def restore(self, params):
+        """
+        Restore the parameters stored with the `store` method.
+        Useful to validate the model with averaged parameters without affecting the
+        original optimization process. Store the parameters before the
+        `use_averages` method. After validation (or model saving), use this to
+        restore the former parameters.
+        """
+        for i, param in enumerate(params):
+            param.data.copy_(self.stored_params[i])
+
+    @contextlib.contextmanager
+    def average_parameters(self, params):
+        r"""
+        Context manager for validation/inference with averaged parameters.
+        """
+        self.store(params)
+        self.use_averages(params)
+        try:
+            yield
+        finally:
+            self.restore(params)
