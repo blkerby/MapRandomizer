@@ -435,14 +435,14 @@ import logic.rooms.maridia_upper
 # device = torch.device('cpu')
 device = torch.device('cuda:0')
 
-num_envs = 2 ** 10
+num_envs = 2 ** 9
 # num_envs = 1
-# rooms = logic.rooms.crateria_isolated.rooms
+rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.crateria.rooms
 # rooms = logic.rooms.crateria.rooms + logic.rooms.wrecked_ship.rooms
 # rooms = logic.rooms.wrecked_ship.rooms
 # rooms = logic.rooms.norfair_lower.rooms + logic.rooms.norfair_upper.rooms
-rooms = logic.rooms.norfair_upper_isolated.rooms
+# rooms = logic.rooms.norfair_upper_isolated.rooms
 # rooms = logic.rooms.norfair_upper.rooms
 # rooms = logic.rooms.norfair_lower.rooms
 # rooms = logic.rooms.brinstar_warehouse.rooms
@@ -458,8 +458,10 @@ episode_length = len(rooms)
 display_freq = 1
 # map_x = 60
 # map_y = 60
-map_x = 50
-map_y = 40
+# map_x = 50
+# map_y = 40
+map_x = 40
+map_y = 30
 env = MazeBuilderEnv(rooms,
                      map_x=map_x,
                      map_y=map_y,
@@ -528,19 +530,19 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 # session = CPU_Unpickler(open('models/crateria-2021-07-28T05:01:08.541926.pkl', 'rb')).load()
 # # session.policy_optimizer.param_groups[0]['lr'] = 5e-6
 # # # session.value_optimizer.param_groups[0]['betas'] = (0.8, 0.999)
-batch_size = 2 ** 11
+batch_size = 2 ** 10
 # batch_size = 2 ** 13  # 2 ** 12
 td_lambda0 = 1.0
 td_lambda1 = 1.0  #0.9
-lr0 = 0.0005
-lr1 = 0.0005
-num_episode_groups = 4
-num_candidates = 16
-num_passes = 4
+lr0 = 0.0002
+lr1 = 0.0002
+num_episode_groups = 8
+num_candidates = 64
+num_passes = 16
 temperature0 = 0.0
-temperature1 = 0.0
+temperature1 = 5.0
 explore_eps = 0.0
-annealing_time = 1000
+annealing_time = 30
 action_loss_weight = 0.8
 session.env = env
 # session.optimizer.param_groups[0]['lr'] = 0.0001
@@ -554,7 +556,7 @@ for i in range(100000):
     frac = min(1, session.num_rounds / annealing_time)
     temperature = (1 - frac) * temperature0 + frac * temperature1
     td_lambda = (1 - frac) * td_lambda0 + frac * td_lambda1
-    lr = (1 - frac) * lr0 + frac * lr1
+    lr = lr0 * (lr1 / lr0) ** frac
     optimizer.param_groups[0]['lr'] = lr
     mean_reward, max_reward, cnt_max_reward, loss, bias, mc_loss, mc_bias, prob, frac_pass = session.train_round(
         num_episode_groups=num_episode_groups,
@@ -566,14 +568,14 @@ for i in range(100000):
         td_lambda=td_lambda,
         explore_eps=explore_eps,
         num_passes=num_passes,
-        lr_decay=0.1,
+        lr_decay=1.0,
         # mc_weight=0.1,
         # render=True)
         render=False)
     # render=i % display_freq == 0)
     logging.info(
-        "{}: reward={:.2f} (max={:d}, cnt={:d}), loss={:.4f}, bias={:.4f}, mc_loss={:.4f}, mc_bias={:.4f}, p={:.4f}, pass={:.4f}, temp={:.3f}".format(
-            session.num_rounds, mean_reward, max_reward, cnt_max_reward, loss, bias, mc_loss, mc_bias, prob, frac_pass, temperature))
+        "{}: reward={:.2f} (max={:d}, cnt={:d}), loss={:.4f}, bias={:.4f}, mc_loss={:.4f}, mc_bias={:.4f}, p={:.4f}, pass={:.4f}, temp={:.3f}, lr={:.6f}".format(
+            session.num_rounds, mean_reward, max_reward, cnt_max_reward, loss, bias, mc_loss, mc_bias, prob, frac_pass, temperature, lr))
     if session.num_rounds % 10 == 0:
         pickle.dump(session, open(pickle_name, 'wb'))
 
