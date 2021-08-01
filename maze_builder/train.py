@@ -79,7 +79,8 @@ class MaxOut(torch.nn.Module):
 
 class Network(torch.nn.Module):
     def __init__(self, map_x, map_y, map_c, num_rooms,
-                 encoder_channels, encoder_kernel_size, encoder_stride, fc_widths):
+                 encoder_channels, encoder_kernel_size, encoder_stride, fc_widths,
+                 bn_momentum):
         super().__init__()
         self.map_x = map_x
         self.map_y = map_y
@@ -92,6 +93,7 @@ class Network(torch.nn.Module):
 
         self.encoder_conv_layers = torch.nn.ModuleList()
         self.encoder_act_layers = torch.nn.ModuleList()
+        self.encoder_bn_layers = torch.nn.ModuleList()
         encoder_channels = [map_c] + encoder_channels
         width = map_x
         height = map_y
@@ -104,6 +106,7 @@ class Network(torch.nn.Module):
                                                             stride=(encoder_stride[i], encoder_stride[i])))
             # self.map_act_layers.append(PReLU2d(encoder_channels[i + 1]))
             self.encoder_act_layers.append(torch.nn.ReLU())
+            self.encoder_bn_layers.append(torch.nn.BatchNorm2d(encoder_channels[i + 1], momentum=bn_momentum))
             width_remainder.append((width - encoder_kernel_size[i]) % encoder_stride[i])
             height_remainder.append((height - encoder_kernel_size[i]) % encoder_stride[i])
             width = (width - encoder_kernel_size[i]) // encoder_stride[i] + 1
@@ -112,10 +115,12 @@ class Network(torch.nn.Module):
 
         self.fc_lin_layers = torch.nn.ModuleList()
         self.fc_act_layers = torch.nn.ModuleList()
+        self.fc_bn_layers = torch.nn.ModuleList()
         fc_widths = [encoder_channels[-1] * width * height + num_rooms + 1] + fc_widths + [decoder_channels[0] * width * height]
         for i in range(len(fc_widths) - 1):
             self.fc_lin_layers.append(torch.nn.Linear(fc_widths[i], fc_widths[i + 1]))
             self.fc_act_layers.append(torch.nn.ReLU())
+            self.fc_bn_layers.append(torch.nn.BatchNorm1d(fc_widths[i + 1], momentum=bn_momentum))
             # self.fc_act_layers.append(PReLU(fc_widths[i + 1]))
         self.state_value_lin = torch.nn.Linear(fc_widths[-1], 1)
 
@@ -123,6 +128,7 @@ class Network(torch.nn.Module):
         self.unflatten_layer = torch.nn.Unflatten(1, (decoder_channels[0], width, height))
         self.decoder_conv_layers = torch.nn.ModuleList()
         self.decoder_act_layers = torch.nn.ModuleList()
+        self.decoder_bn_layers = torch.nn.ModuleList()
         decoder_channels = decoder_channels + [num_rooms]
         for i in range(len(decoder_channels) - 1):
             assert decoder_kernel_size[i] % 2 == 1
@@ -134,6 +140,8 @@ class Network(torch.nn.Module):
             # self.map_act_layers.append(PReLU2d(encoder_channels[i + 1]))
             if i != len(decoder_channels) - 1:
                 self.decoder_act_layers.append(torch.nn.ReLU())
+                self.decoder_bn_layers.append(torch.nn.BatchNorm2d(decoder_channels[i + 1], momentum=bn_momentum))
+
 
     def forward(self, map, room_mask, steps_remaining):
         # Convolutional layers on whole map data
@@ -147,6 +155,7 @@ class Network(torch.nn.Module):
                 # print(X.shape, self.encoder_conv_layers[i])
                 X = self.encoder_conv_layers[i](X)
                 X = self.encoder_act_layers[i](X)
+                X = self.encoder_bn_layers[i](X)
 
             # Fully-connected layers
             # print(X.shape, self.flatten_layer)
@@ -156,6 +165,7 @@ class Network(torch.nn.Module):
                 # print(X.shape, self.fc_lin_layers[i])
                 X = self.fc_lin_layers[i](X)
                 X = self.fc_act_layers[i](X)
+                X = self.fc_bn_layers[i](X)
             state_value = self.state_value_lin(X)[:, 0]
 
             # Decoder convolutional layers
@@ -166,6 +176,7 @@ class Network(torch.nn.Module):
                 X = self.decoder_conv_layers[i](X)
                 if i != len(self.decoder_conv_layers) - 1:
                     X = self.decoder_act_layers[i](X)
+                    X = self.decoder_bn_layers[i](X)
 
             # print(X.shape)
             action_advantage = X
@@ -212,57 +223,57 @@ class TrainingSession():
         action_value_list = []
         action_list = []
         self.network.eval()
-        with self.average_parameters.average_parameters(self.network.all_param_data()):
-            for j in range(episode_length):
-                if render:
-                    self.env.render()
-                action_candidates = env.get_all_action_candidates()
-                steps_remaining = torch.full([self.env.num_envs], episode_length - j,
-                                             dtype=torch.float32, device=device)
-                room_mask = self.env.room_mask.clone()
-                room_position_x = self.env.room_position_x.clone()
-                room_position_y = self.env.room_position_y.clone()
-                with torch.no_grad():
-                    map = self.env.compute_current_map()
-                    state_value, action_value = self.network(map, self.env.room_mask, steps_remaining)
-                filtered_action_value = torch.full_like(action_value, float('-inf'))
+        # with self.average_parameters.average_parameters(self.network.all_param_data()):
+        for j in range(episode_length):
+            if render:
+                self.env.render()
+            action_candidates = env.get_all_action_candidates()
+            steps_remaining = torch.full([self.env.num_envs], episode_length - j,
+                                         dtype=torch.float32, device=device)
+            room_mask = self.env.room_mask.clone()
+            room_position_x = self.env.room_position_x.clone()
+            room_position_y = self.env.room_position_y.clone()
+            with torch.no_grad():
+                map = self.env.compute_current_map()
+                state_value, action_value = self.network(map, self.env.room_mask, steps_remaining)
+            filtered_action_value = torch.full_like(action_value, float('-inf'))
 
-                adjust_x = self.env.room_center_x[action_candidates[:, 1]]
-                adjust_y = self.env.room_center_y[action_candidates[:, 1]]
-                action_candidates_x = action_candidates[:, 2] + adjust_x
-                action_candidates_y = action_candidates[:, 3] + adjust_y
+            adjust_x = self.env.room_center_x[action_candidates[:, 1]]
+            adjust_y = self.env.room_center_y[action_candidates[:, 1]]
+            action_candidates_x = action_candidates[:, 2] + adjust_x
+            action_candidates_y = action_candidates[:, 3] + adjust_y
 
-                filtered_action_value[action_candidates[:, 0], action_candidates[:, 1],
-                                      action_candidates[:, 2], action_candidates[:, 3]] = \
-                    action_value[
-                        action_candidates[:, 0], action_candidates[:, 1],
-                        action_candidates_x, action_candidates_y]
-                flat_action_value = filtered_action_value.view(filtered_action_value.shape[0], -1)
-                # action_probs = torch.softmax(
-                #     flat_action_value * max(temperature, torch.finfo(flat_action_value.dtype).tiny), dim=1).to(
-                #     torch.float32)
-                # action_index = _rand_choice(action_probs)
-                # max_action_value = torch.max(flat_action_value, dim=1)[0]
-                # threshold_action_value = max_action_value * (1 - temperature) - temperature
-                # flat_action_value = torch.where(flat_action_value >= threshold_action_value.unsqueeze(1),
-                #                                 max_action_value.unsqueeze(1),
-                #                                 torch.full_like(max_action_value, float('-inf')).unsqueeze(1))
-                # noisy_action_value = flat_action_value + torch.rand_like(flat_action_value)
-                noisy_action_value = flat_action_value + temperature * torch.randn_like(flat_action_value)
-                action_index = torch.argmax(noisy_action_value, dim=1)
-                action_room_id = action_index // (action_value.shape[2] * action_value.shape[3])
-                action_x = (action_index // action_value.shape[3]) % action_value.shape[2]
-                action_y = action_index % action_value.shape[3]
-                action = torch.stack([action_room_id, action_x, action_y], dim=1)
-                selected_action_value = flat_action_value[torch.arange(self.env.num_envs, device=device), action_index]
+            filtered_action_value[action_candidates[:, 0], action_candidates[:, 1],
+                                  action_candidates[:, 2], action_candidates[:, 3]] = \
+                action_value[
+                    action_candidates[:, 0], action_candidates[:, 1],
+                    action_candidates_x, action_candidates_y]
+            flat_action_value = filtered_action_value.view(filtered_action_value.shape[0], -1)
+            # action_probs = torch.softmax(
+            #     flat_action_value * max(temperature, torch.finfo(flat_action_value.dtype).tiny), dim=1).to(
+            #     torch.float32)
+            # action_index = _rand_choice(action_probs)
+            # max_action_value = torch.max(flat_action_value, dim=1)[0]
+            # threshold_action_value = max_action_value * (1 - temperature) - temperature
+            # flat_action_value = torch.where(flat_action_value >= threshold_action_value.unsqueeze(1),
+            #                                 max_action_value.unsqueeze(1),
+            #                                 torch.full_like(max_action_value, float('-inf')).unsqueeze(1))
+            # noisy_action_value = flat_action_value + torch.rand_like(flat_action_value)
+            noisy_action_value = flat_action_value + temperature * torch.randn_like(flat_action_value)
+            action_index = torch.argmax(noisy_action_value, dim=1)
+            action_room_id = action_index // (action_value.shape[2] * action_value.shape[3])
+            action_x = (action_index // action_value.shape[3]) % action_value.shape[2]
+            action_y = action_index % action_value.shape[3]
+            action = torch.stack([action_room_id, action_x, action_y], dim=1)
+            selected_action_value = flat_action_value[torch.arange(self.env.num_envs, device=device), action_index]
 
-                self.env.step(action)
-                room_mask_list.append(room_mask)
-                room_position_x_list.append(room_position_x)
-                room_position_y_list.append(room_position_y)
-                action_list.append(action)
-                state_value_list.append(state_value)
-                action_value_list.append(selected_action_value)
+            self.env.step(action)
+            room_mask_list.append(room_mask)
+            room_position_x_list.append(room_position_x)
+            room_position_y_list.append(room_position_y)
+            action_list.append(action)
+            state_value_list.append(state_value)
+            action_value_list.append(selected_action_value)
         room_mask_tensor = torch.stack(room_mask_list, dim=0)
         room_position_x_tensor = torch.stack(room_position_x_list, dim=0)
         room_position_y_tensor = torch.stack(room_position_y_list, dim=0)
@@ -396,7 +407,7 @@ class TrainingSession():
                 torch.nn.utils.clip_grad_norm_(self.network.parameters(), 1.0)
                 self.optimizer.step()
                 self.optimizer.param_groups[0]['lr'] *= lr_decay_per_step
-                self.average_parameters.update(self.network.all_param_data())
+                # self.average_parameters.update(self.network.all_param_data())
                 # # self.network.decay(weight_decay * self.value_optimizer.param_groups[0]['lr'])
                 total_loss += loss.item()
 
@@ -422,7 +433,7 @@ import logic.rooms.maridia_upper
 # device = torch.device('cpu')
 device = torch.device('cuda:0')
 
-num_envs = 2 ** 11
+num_envs = 2 ** 10
 # num_envs = 32
 # num_envs = 16
 rooms = logic.rooms.crateria_isolated.rooms
@@ -468,7 +479,8 @@ network = Network(map_x=env.map_x + 1,
                   encoder_stride=3 * [2],
                   # map_channels=3 * [32],
                   # map_kernel_size=3 * [9],
-                  fc_widths=2 * [256],
+                  fc_widths=2 * [1024],
+                  bn_momentum=1.0,
                   ).to(device)
 network.state_value_lin.weight.data.zero_()
 network.state_value_lin.bias.data.zero_()
@@ -527,23 +539,24 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 batch_size = 2 ** 10
 # batch_size = 2 ** 13  # 2 ** 12
 td_lambda0 = 1.0
-td_lambda1 = 1.0
-num_rounds0 = 8
-num_rounds1 = 8
-lr0 = 0.001
-lr1 = 0.0001
+td_lambda1 = 0.8
+num_rounds0 = 1
+num_rounds1 = 1
+lr0 = 0.0005
+lr1 = 0.00005
 # beta0 = 0.9
-# beta1 = 0.995
+# beta1 = 0.9
 # num_candidates = 16
 num_passes = 1
 temperature0 = 40
 temperature1 = 0.1
 explore_eps = 0.0
-annealing_time = 20
-action_loss_weight = 0.5
+annealing_time = 100
+action_loss_weight = 0.8
 session.env = env
 # session.optimizer.param_groups[0]['lr'] = 0.0001
-# session.optimizer.param_groups[0]['betas'] = (0.98, 0.999)
+session.optimizer.param_groups[0]['betas'] = (0.9, 0.999)
+session.average_parameters.beta = 0.99
 
 logging.info("Checkpoint path: {}".format(pickle_name))
 logging.info(
