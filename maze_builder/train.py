@@ -78,68 +78,97 @@ class MaxOut(torch.nn.Module):
 
 
 class Network(torch.nn.Module):
-    def __init__(self, map_x, map_y, map_c, num_rooms, map_channels, map_kernel_size, fc_widths):
+    def __init__(self, map_x, map_y, map_c, num_rooms,
+                 encoder_channels, encoder_kernel_size, encoder_stride, fc_widths):
         super().__init__()
         self.map_x = map_x
         self.map_y = map_y
         self.map_c = map_c
         self.num_rooms = num_rooms
 
-        self.map_conv_layers = torch.nn.ModuleList()
-        self.map_act_layers = torch.nn.ModuleList()
-        self.broadcast_layers = torch.nn.ModuleList()
-        map_channels = [map_c] + map_channels
-        for i in range(len(map_channels) - 1):
-            assert map_kernel_size[i] % 2 == 1
-            self.map_conv_layers.append(torch.nn.Conv2d(map_channels[i], map_channels[i + 1],
-                                                        kernel_size=(map_kernel_size[i], map_kernel_size[i]),
-                                                        padding=map_kernel_size[i] // 2))
-            self.broadcast_layers.append(torch.nn.Linear(num_rooms + 1, map_channels[i + 1]))
-            # self.map_act_layers.append(torch.nn.ReLU())
-            self.map_act_layers.append(PReLU2d(map_channels[i + 1]))
-        self.action_advantage_conv1x1 = torch.nn.Conv2d(map_channels[-1], num_rooms, kernel_size=(1, 1))
+        decoder_channels = list(reversed(encoder_channels))
+        decoder_kernel_size = list(reversed(encoder_kernel_size))
+        decoder_stride = list(reversed(encoder_stride))
 
-        self.map_global_pool = GlobalAvgPool2d()
+        self.encoder_conv_layers = torch.nn.ModuleList()
+        self.encoder_act_layers = torch.nn.ModuleList()
+        encoder_channels = [map_c] + encoder_channels
+        width = map_x
+        height = map_y
+        width_remainder = []
+        height_remainder = []
+        for i in range(len(encoder_channels) - 1):
+            assert encoder_kernel_size[i] % 2 == 1
+            self.encoder_conv_layers.append(torch.nn.Conv2d(encoder_channels[i], encoder_channels[i + 1],
+                                                            kernel_size=(encoder_kernel_size[i], encoder_kernel_size[i]),
+                                                            stride=(encoder_stride[i], encoder_stride[i])))
+            # self.map_act_layers.append(PReLU2d(encoder_channels[i + 1]))
+            self.encoder_act_layers.append(torch.nn.ReLU())
+            width_remainder.append((width - encoder_kernel_size[i]) % encoder_stride[i])
+            height_remainder.append((height - encoder_kernel_size[i]) % encoder_stride[i])
+            width = (width - encoder_kernel_size[i]) // encoder_stride[i] + 1
+            height = (height - encoder_kernel_size[i]) // encoder_stride[i] + 1
+        self.flatten_layer = torch.nn.Flatten()
+
         self.fc_lin_layers = torch.nn.ModuleList()
         self.fc_act_layers = torch.nn.ModuleList()
-        fc_widths = [map_channels[-1]] + fc_widths
+        fc_widths = [encoder_channels[-1] * width * height + num_rooms + 1] + fc_widths + [decoder_channels[0] * width * height]
         for i in range(len(fc_widths) - 1):
             self.fc_lin_layers.append(torch.nn.Linear(fc_widths[i], fc_widths[i + 1]))
-            # self.fc_act_layers.append(torch.nn.ReLU())
-            self.fc_act_layers.append(PReLU(fc_widths[i + 1]))
+            self.fc_act_layers.append(torch.nn.ReLU())
+            # self.fc_act_layers.append(PReLU(fc_widths[i + 1]))
         self.state_value_lin = torch.nn.Linear(fc_widths[-1], 1)
+
+        assert fc_widths[-1] % (width * height) == 0
+        self.unflatten_layer = torch.nn.Unflatten(1, (decoder_channels[0], width, height))
+        self.decoder_conv_layers = torch.nn.ModuleList()
+        self.decoder_act_layers = torch.nn.ModuleList()
+        decoder_channels = decoder_channels + [num_rooms]
+        for i in range(len(decoder_channels) - 1):
+            assert decoder_kernel_size[i] % 2 == 1
+            self.decoder_conv_layers.append(torch.nn.ConvTranspose2d(decoder_channels[i], decoder_channels[i + 1],
+                                                            kernel_size=(
+                                                            decoder_kernel_size[i], decoder_kernel_size[i]),
+                                                            stride=(decoder_stride[i], decoder_stride[i]),
+                                                            output_padding=(width_remainder[-(i + 1)], height_remainder[-(i + 1)])))
+            # self.map_act_layers.append(PReLU2d(encoder_channels[i + 1]))
+            if i != len(decoder_channels) - 1:
+                self.decoder_act_layers.append(torch.nn.ReLU())
 
     def forward(self, map, room_mask, steps_remaining):
         # Convolutional layers on whole map data
         if map.is_cuda:
-            map = map.to(torch.float16)
+            X = map.to(torch.float16)
         else:
-            map = map.to(torch.float32)
+            X = map.to(torch.float32)
         with torch.cuda.amp.autocast():
-            X = map
-            # x_channel = torch.arange(self.map_x, device=map.device).view(1, 1, -1, 1).repeat(map.shape[0], 1, 1, self.map_y)
-            # y_channel = torch.arange(self.map_y, device=map.device).view(1, 1, 1, -1).repeat(map.shape[0], 1, self.map_x, 1)
-            # X = torch.cat([X, x_channel, y_channel], dim=1)
-            broadcast_data = torch.cat([room_mask, steps_remaining.view(-1, 1)], dim=1).to(map.dtype)
-            for i in range(len(self.map_conv_layers)):
-                X1 = self.map_conv_layers[i](X)
-                broadcast_out = self.broadcast_layers[i](broadcast_data)
-                X1 = X1 + broadcast_out.unsqueeze(2).unsqueeze(3)
-                X1 = self.map_act_layers[i](X1)
-                if i == 0:
-                    X = X1
-                else:
-                    X = X + X1
-            # action_value = self.action_value_conv1x1(X)
-            action_advantage = self.action_advantage_conv1x1(X)
+            # Encoder convolutional layers
+            for i in range(len(self.encoder_conv_layers)):
+                # print(X.shape, self.encoder_conv_layers[i])
+                X = self.encoder_conv_layers[i](X)
+                X = self.encoder_act_layers[i](X)
 
-            # Fully-connected layers on whole map data (starting with output of convolutional layers)
-            X = self.map_global_pool(X)
+            # Fully-connected layers
+            # print(X.shape, self.flatten_layer)
+            X = self.flatten_layer(X)
+            X = torch.cat([X, room_mask, steps_remaining.unsqueeze(1)], dim=1)
             for i in range(len(self.fc_lin_layers)):
-                # print(X.shape, layer)
+                # print(X.shape, self.fc_lin_layers[i])
                 X = self.fc_lin_layers[i](X)
                 X = self.fc_act_layers[i](X)
             state_value = self.state_value_lin(X)[:, 0]
+
+            # Decoder convolutional layers
+            # print(X.shape, self.unflatten_layer)
+            X = self.unflatten_layer(X)
+            for i in range(len(self.decoder_conv_layers)):
+                # print(X.shape, self.decoder_conv_layers[i])
+                X = self.decoder_conv_layers[i](X)
+                if i != len(self.decoder_conv_layers) - 1:
+                    X = self.decoder_act_layers[i](X)
+
+            # print(X.shape)
+            action_advantage = X
             action_value = action_advantage + state_value.unsqueeze(1).unsqueeze(2).unsqueeze(3)
             return state_value, action_value
 
@@ -209,14 +238,17 @@ class TrainingSession():
                         action_candidates[:, 0], action_candidates[:, 1],
                         action_candidates_x, action_candidates_y]
                 flat_action_value = filtered_action_value.view(filtered_action_value.shape[0], -1)
-                # action_probs = torch.softmax(flat_action_value * max(temperature, torch.finfo(flat_action_value.dtype).tiny), dim=1).to(torch.float32)
+                # action_probs = torch.softmax(
+                #     flat_action_value * max(temperature, torch.finfo(flat_action_value.dtype).tiny), dim=1).to(
+                #     torch.float32)
                 # action_index = _rand_choice(action_probs)
-                max_action_value = torch.max(flat_action_value, dim=1)[0]
-                threshold_action_value = max_action_value * (1 - temperature) - temperature
-                flat_action_value = torch.where(flat_action_value >= threshold_action_value.unsqueeze(1),
-                                                max_action_value.unsqueeze(1),
-                                                torch.full_like(max_action_value, float('-inf')).unsqueeze(1))
-                noisy_action_value = flat_action_value + torch.rand_like(flat_action_value)
+                # max_action_value = torch.max(flat_action_value, dim=1)[0]
+                # threshold_action_value = max_action_value * (1 - temperature) - temperature
+                # flat_action_value = torch.where(flat_action_value >= threshold_action_value.unsqueeze(1),
+                #                                 max_action_value.unsqueeze(1),
+                #                                 torch.full_like(max_action_value, float('-inf')).unsqueeze(1))
+                # noisy_action_value = flat_action_value + torch.rand_like(flat_action_value)
+                noisy_action_value = flat_action_value + temperature * torch.randn_like(flat_action_value)
                 action_index = torch.argmax(noisy_action_value, dim=1)
                 action_room_id = action_index // (action_value.shape[2] * action_value.shape[3])
                 action_x = (action_index // action_value.shape[3]) % action_value.shape[2]
@@ -354,7 +386,7 @@ class TrainingSession():
                 action_y = action_batch[:, 2] + adjust_y
 
                 selected_action_value = action_value[torch.arange(batch_size, device=self.env.device),
-                    action_batch[:, 0], action_x, action_y]
+                                                     action_batch[:, 0], action_x, action_y]
                 state_loss = torch.mean((state_value - target_batch) ** 2)
                 action_loss = torch.mean((selected_action_value - target_batch) ** 2)
                 # print(state_loss, action_loss)
@@ -390,7 +422,7 @@ import logic.rooms.maridia_upper
 # device = torch.device('cpu')
 device = torch.device('cuda:0')
 
-num_envs = 2 ** 8
+num_envs = 2 ** 11
 # num_envs = 32
 # num_envs = 16
 rooms = logic.rooms.crateria_isolated.rooms
@@ -417,7 +449,7 @@ display_freq = 1
 # map_x = 50
 # map_y = 40
 map_x = 40
-map_y = 30
+map_y = 40
 env = MazeBuilderEnv(rooms,
                      map_x=map_x,
                      map_y=map_y,
@@ -431,14 +463,17 @@ network = Network(map_x=env.map_x + 1,
                   map_y=env.map_y + 1,
                   map_c=env.map_channels,
                   num_rooms=len(env.rooms),
-                  map_channels=4 * [64],
-                  map_kernel_size=4 * [9],
+                  encoder_channels=[32, 64, 128],
+                  encoder_kernel_size=3 * [5],
+                  encoder_stride=3 * [2],
+                  # map_channels=3 * [32],
+                  # map_kernel_size=3 * [9],
                   fc_widths=2 * [256],
                   ).to(device)
-network.state_value_lin.weight.data[:, :] = 0.0
-network.state_value_lin.bias.data[:] = 0.0
-network.action_advantage_conv1x1.weight.data[:, :] = 0.0
-network.action_advantage_conv1x1.bias.data[:] = 0.0
+network.state_value_lin.weight.data.zero_()
+network.state_value_lin.bias.data.zero_()
+network.decoder_conv_layers[-1].weight.data.zero_()
+network.decoder_conv_layers[-1].bias.data.zero_()
 optimizer = torch.optim.Adam(network.parameters(), lr=0.0001, betas=(0.9, 0.999), eps=1e-15)
 
 logging.info("{}".format(network))
@@ -489,20 +524,20 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 # # session.policy_optimizer.param_groups[0]['lr'] = 5e-6
 # # # session.value_optimizer.param_groups[0]['betas'] = (0.8, 0.999)
 # batch_size = 2 ** 11
-batch_size = 2 ** 7
+batch_size = 2 ** 10
 # batch_size = 2 ** 13  # 2 ** 12
 td_lambda0 = 1.0
 td_lambda1 = 1.0
-num_rounds0 = 16
-num_rounds1 = 32
+num_rounds0 = 8
+num_rounds1 = 8
 lr0 = 0.001
-lr1 = lr0 / 64
-beta0 = 0.9
-beta1 = 0.995
+lr1 = 0.0001
+# beta0 = 0.9
+# beta1 = 0.995
 # num_candidates = 16
 num_passes = 1
-temperature0 = 1.0
-temperature1 = 0.01
+temperature0 = 40
+temperature1 = 0.1
 explore_eps = 0.0
 annealing_time = 20
 action_loss_weight = 0.5
@@ -519,10 +554,10 @@ for i in range(100000):
     temperature = temperature0 * (temperature1 / temperature0) ** frac
     lr = lr0 * (lr1 / lr0) ** frac
     td_lambda = td_lambda0 * (td_lambda1 / td_lambda0) ** frac
-    beta = 1 - (1 - beta0) * ((1 - beta1) / (1 - beta0)) ** frac
+    # beta = 1 - (1 - beta0) * ((1 - beta1) / (1 - beta0)) ** frac
     optimizer.param_groups[0]['lr'] = lr
-    optimizer.param_groups[0]['betas'] = (beta, beta)
-    session.average_parameters.beta = beta
+    # optimizer.param_groups[0]['betas'] = (beta, beta)
+    # session.average_parameters.beta = beta
     num_rounds = int(num_rounds0 * (num_rounds1 / num_rounds0) ** frac)
     mean_reward, max_reward, cnt_max_reward, loss, mc_state, mc_action = session.train_round(
         num_episode_groups=num_rounds,
@@ -540,8 +575,9 @@ for i in range(100000):
     lr = session.optimizer.param_groups[0]['lr']
     beta = session.optimizer.param_groups[0]['betas'][0]
     logging.info(
-        "{}: reward={:.2f} (max={:d}, frac={:.4f}), loss={:.4f}, state={:.4f}, action={:.4f}, temp={:.3f}, lr={:.6f}, beta={:.4f}, td={:.3f}, rounds={}".format(
-            session.epoch, mean_reward, max_reward, cnt_max_reward / (num_rounds * num_envs), loss, mc_state, mc_action, temperature, lr, beta, td_lambda, num_rounds))
+        "{}: reward={:.2f} (max={:d}, frac={:.4f}), loss={:.4f}, state={:.4f}, action={:.4f}, temp={:.3f}, lr={:.6f}, td={:.3f}, rounds={}".format(
+            session.epoch, mean_reward, max_reward, cnt_max_reward / (num_rounds * num_envs), loss, mc_state, mc_action,
+            temperature, lr, td_lambda, num_rounds))
     pickle.dump(session, open(pickle_name, 'wb'))
 
 # while True:
