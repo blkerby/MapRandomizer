@@ -122,28 +122,31 @@ class Network(torch.nn.Module):
         # map_y = map.shape[3]
 
         # Convolutional layers on whole map data
-        map = map.to(torch.float32)
-        X = map
-        # x_channel = torch.arange(self.map_x, device=map.device).view(1, 1, -1, 1).repeat(map.shape[0], 1, 1, self.map_y)
-        # y_channel = torch.arange(self.map_y, device=map.device).view(1, 1, 1, -1).repeat(map.shape[0], 1, self.map_x, 1)
-        # X = torch.cat([X, x_channel, y_channel], dim=1)
-        embedding_data = torch.cat([room_mask, steps_remaining.view(-1, 1)], dim=1).to(map.dtype)
-        # embedding_data = torch.cat([room_mask, torch.zeros_like(steps_remaining.view(-1, 1))], dim=1).to(map.dtype)  # TODO: put back steps_remaining
-        for i in range(len(self.map_conv_layers)):
-            X = self.map_conv_layers[i](X)
-            embedding_out = self.embedding_layers[i](embedding_data)
-            X = X + embedding_out.unsqueeze(2).unsqueeze(3)
-            X = self.map_act_layers[i](X)
-            # X = self.map_bn_layers[i](X)
+        if map.is_cuda:
+            X = map.to(torch.float16)
+        else:
+            X = map.to(torch.float32)
+        with torch.cuda.amp.autocast():
+            # x_channel = torch.arange(self.map_x, device=map.device).view(1, 1, -1, 1).repeat(map.shape[0], 1, 1, self.map_y)
+            # y_channel = torch.arange(self.map_y, device=map.device).view(1, 1, 1, -1).repeat(map.shape[0], 1, self.map_x, 1)
+            # X = torch.cat([X, x_channel, y_channel], dim=1)
+            embedding_data = torch.cat([room_mask, steps_remaining.view(-1, 1)], dim=1).to(X.dtype)
+            # embedding_data = torch.cat([room_mask, torch.zeros_like(steps_remaining.view(-1, 1))], dim=1).to(map.dtype)  # TODO: put back steps_remaining
+            for i in range(len(self.map_conv_layers)):
+                X = self.map_conv_layers[i](X)
+                embedding_out = self.embedding_layers[i](embedding_data)
+                X = X + embedding_out.unsqueeze(2).unsqueeze(3)
+                X = self.map_act_layers[i](X)
+                # X = self.map_bn_layers[i](X)
 
-        # Fully-connected layers on whole map data (starting with output of convolutional layers)
-        # X = torch.cat([X, steps_remaining.view(-1, 1), room_mask], dim=1)
-        X = self.map_global_pool(X)
-        for layer in self.global_fc_sequential:
-            # print(X.shape, layer)
-            X = layer(X)
-        state_value = self.state_value_lin(X)[:, 0]
-        return state_value
+            # Fully-connected layers on whole map data (starting with output of convolutional layers)
+            # X = torch.cat([X, steps_remaining.view(-1, 1), room_mask], dim=1)
+            X = self.map_global_pool(X)
+            for layer in self.global_fc_sequential:
+                # print(X.shape, layer)
+                X = layer(X)
+            state_value = self.state_value_lin(X)[:, 0]
+            return state_value.to(torch.float32)
 
     def all_param_data(self):
         params = [param.data for param in self.parameters()]
@@ -461,7 +464,7 @@ display_freq = 1
 # map_x = 50
 # map_y = 40
 map_x = 40
-map_y = 30
+map_y = 40
 env = MazeBuilderEnv(rooms,
                      map_x=map_x,
                      map_y=map_y,
@@ -533,16 +536,16 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 batch_size = 2 ** 10
 # batch_size = 2 ** 13  # 2 ** 12
 td_lambda0 = 1.0
-td_lambda1 = 1.0  #0.9
+td_lambda1 = 0.9
 lr0 = 0.0002
 lr1 = 0.0002
-num_episode_groups = 8
-num_candidates = 64
-num_passes = 16
+num_episode_groups = 4
+num_candidates = 128
+num_passes = 32
 temperature0 = 0.0
-temperature1 = 5.0
+temperature1 = 20.0
 explore_eps = 0.0
-annealing_time = 30
+annealing_time = 200
 action_loss_weight = 0.8
 session.env = env
 # session.optimizer.param_groups[0]['lr'] = 0.0001
