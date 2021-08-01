@@ -392,12 +392,12 @@ import logic.rooms.brinstar_blue
 import logic.rooms.maridia_lower
 import logic.rooms.maridia_upper
 
-device = torch.device('cpu')
-# device = torch.device('cuda:0')
+# device = torch.device('cpu')
+device = torch.device('cuda:0')
 
-# num_envs = 2 ** 7
-num_envs = 1
-# rooms = logic.rooms.crateria_isolated.rooms
+num_envs = 2 ** 9
+# num_envs = 1
+rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.crateria.rooms
 # rooms = logic.rooms.crateria.rooms + logic.rooms.wrecked_ship.rooms
 # rooms = logic.rooms.wrecked_ship.rooms
@@ -412,11 +412,11 @@ num_envs = 1
 # rooms = logic.rooms.brinstar_green.rooms
 # rooms = logic.rooms.maridia_lower.rooms
 # rooms = logic.rooms.maridia_upper.rooms
-rooms = logic.rooms.all_rooms.rooms
+# rooms = logic.rooms.all_rooms.rooms
 episode_length = int(len(rooms) * 1.05)
 display_freq = 1
-map_x = 60
-map_y = 60
+map_x = 40
+map_y = 40
 # map_x = 10
 # map_y = 10
 env = MazeBuilderEnv(rooms,
@@ -471,15 +471,15 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 #
 # pickle_name = 'models/crateria-2021-07-24T13:05:09.257856.pkl'
 # session = pickle.load(open(pickle_name, 'rb'))
-#
-import io
-class CPU_Unpickler(pickle.Unpickler):
-    def find_class(self, module, name):
-        if module == 'torch.storage' and name =='_load_from_bytes':
-            return lambda b: torch.load(io.BytesIO(b), map_location='cpu')
-        else:
-            return super().find_class(module, name)
-session = CPU_Unpickler(open('models/crateria-2021-07-24T21:37:05.181572.pkl', 'rb')).load()
+# #
+# import io
+# class CPU_Unpickler(pickle.Unpickler):
+#     def find_class(self, module, name):
+#         if module == 'torch.storage' and name =='_load_from_bytes':
+#             return lambda b: torch.load(io.BytesIO(b), map_location='cpu')
+#         else:
+#             return super().find_class(module, name)
+# session = CPU_Unpickler(open('models/crateria-2021-08-01T17:56:46.983460.pkl', 'rb')).load()
 # # session.policy_optimizer.param_groups[0]['lr'] = 5e-6
 # # # session.value_optimizer.param_groups[0]['betas'] = (0.8, 0.999)
 batch_size = 2 ** 9
@@ -488,51 +488,51 @@ td_lambda0 = 1.0
 td_lambda1 = 0.9
 num_candidates = 128
 temperature0 = 0.0
-temperature1 = 40.0
+temperature1 = 10.0
 explore_eps = 0.0
-annealing_time = 10000
+annealing_time = 50
 action_loss_weight = 0.8
 session.env = env
-session.optimizer.param_groups[0]['lr'] = 0.00002
-session.optimizer.param_groups[0]['betas'] = (0.9, 0.999)
+# session.optimizer.param_groups[0]['lr'] = 0.0001
+# session.optimizer.param_groups[0]['betas'] = (0.9, 0.999)
 
 logging.info("Checkpoint path: {}".format(pickle_name))
 logging.info(
     "num_envs={}, batch_size={}, num_candidates={}, action_loss_weight={}".format(
         session.env.num_envs, batch_size, num_candidates, action_loss_weight))
-# for i in range(100000):
-#     frac = min(1, session.num_rounds / annealing_time)
-#     temperature = (1 - frac) * temperature0 + frac * temperature1
-#     td_lambda = (1 - frac) * td_lambda0 + frac * td_lambda1
-#     # lr = (1 - frac) * lr0 + frac * lr1
-#     # optimizer.param_groups[0]['lr'] = lr
-#     mean_reward, max_reward, cnt_max_reward, state_loss, action_loss, mc_state_err, mc_action_err, prob, frac_pass = session.train_round(
-#         episode_length=episode_length,
-#         batch_size=batch_size,
-#         num_candidates=num_candidates,
-#         temperature=temperature,
-#         action_loss_weight=action_loss_weight,
-#         td_lambda=td_lambda,
-#         explore_eps=explore_eps,
-#         # mc_weight=0.1,
-#         # render=True)
-#         render=False)
-#     # render=i % display_freq == 0)
-#     logging.info(
-#         "{}: reward={:.2f} (max={:d}, cnt={:d}), state={:.4f}, action={:.4f}, mc_state={:.4f}, mc_action={:.4f}, p={:.4f}, pass={:.4f}, temp={:.3f}".format(
-#             session.num_rounds, mean_reward, max_reward, cnt_max_reward, state_loss, action_loss, mc_state_err,
-#             mc_action_err, prob, frac_pass, temperature))
-#     if session.num_rounds % 10 == 0:
-#         pickle.dump(session, open(pickle_name, 'wb'))
+for i in range(100000):
+    frac = min(1, session.num_rounds / annealing_time)
+    temperature = (1 - frac) * temperature0 + frac * temperature1
+    td_lambda = (1 - frac) * td_lambda0 + frac * td_lambda1
+    # lr = (1 - frac) * lr0 + frac * lr1
+    # optimizer.param_groups[0]['lr'] = lr
+    mean_reward, max_reward, cnt_max_reward, state_loss, action_loss, mc_state_err, mc_action_err, prob, frac_pass = session.train_round(
+        episode_length=episode_length,
+        batch_size=batch_size,
+        num_candidates=num_candidates,
+        temperature=temperature,
+        action_loss_weight=action_loss_weight,
+        td_lambda=td_lambda,
+        explore_eps=explore_eps,
+        # mc_weight=0.1,
+        # render=True)
+        render=False)
+    # render=i % display_freq == 0)
+    if session.num_rounds % 10 == 0:
+        pickle.dump(session, open(pickle_name, 'wb'))
+    logging.info(
+        "{}: reward={:.2f} (max={:d}, cnt={:d}), state={:.4f}, action={:.4f}, mc_state={:.4f}, mc_action={:.4f}, p={:.4f}, pass={:.4f}, temp={:.3f}".format(
+            session.num_rounds, mean_reward, max_reward, cnt_max_reward, state_loss, action_loss, mc_state_err,
+            mc_action_err, prob, frac_pass, temperature))
 
 
 while True:
     map, room_mask, state_value, action_value, action, reward, prob = session.generate_round(episode_length,
                                                                                        num_candidates=num_candidates,
-                                                                                       temperature=100.0, explore_eps=0,
+                                                                                       temperature=20.0, explore_eps=0,
                                                                                        render=True)
     max_reward, max_reward_ind = torch.max(reward, dim=0)
     logging.info("{}: {}".format(max_reward, reward.tolist()))
-    if max_reward.item() >= 200:
+    if max_reward.item() >= 33:
         break
 session.env.render(max_reward_ind.item())
