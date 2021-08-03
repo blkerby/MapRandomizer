@@ -419,9 +419,9 @@ class MazeBuilderEnv:
         out = candidates[ind, 1:]
 
         # Override first candidate to always be a pass
-        # out[:, 0, 0] = len(self.rooms) - 1
-        # out[:, 0, 1] = 0
-        # out[:, 0, 2] = 0
+        out[:, 0, 0] = len(self.rooms) - 1
+        out[:, 0, 1] = 0
+        out[:, 0, 2] = 0
 
         return out
 
