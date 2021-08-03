@@ -62,46 +62,6 @@ class TrainingSession():
         out = out_flat.view(num_envs, 1 + num_candidates)
         state_value = out[:, 0]
         action_value = out[:, 1:]
-        # print(room_mask.shape, room_position_x.shape, room_position_y.shape, steps_remaining.shape, map_flat.shape, room_mask_flat.shape, out_flat.shape)
-
-        # out2 = self.network(map1[:, 0, :, :, :], all_room_mask[:, 0, :], all_steps_remaining[:, 0])
-        # state_value2 = out2
-        ind = torch.arange(0, num_envs) * (1 + num_candidates)
-
-        out2 = self.network(map_flat, room_mask_flat, steps_remaining_flat)[ind]
-        state_value2 = out2
-
-        out3 = self.network(map_flat[ind], room_mask_flat[ind], steps_remaining_flat[ind])
-        state_value3 = out3
-
-        map1 = map_flat.view(*([num_envs, 1 + num_candidates] + list(map_flat.shape)[1:]))
-        map0 = self.env.compute_map(room_mask, room_position_x, room_position_y)
-        if self.map_rand is None:
-            self.map_rand = torch.randn_like(map1[0, 0, :, :, :].to(torch.float64))
-        if gen:
-            self.total_step_remaining_gen += torch.sum(all_steps_remaining[:, 0])
-            self.total_room_position_x_gen += torch.sum(all_room_position_x[:, 0, :])
-            self.total_room_mask_gen += torch.sum(all_room_mask[:, 0, :])
-            self.total_cnt_gen += all_steps_remaining.shape[0]
-            self.total_out_gen += torch.sum(state_value.to(torch.float64))
-            self.total_out_gen2 += torch.sum(state_value2.to(torch.float64))
-            self.total_out_gen3 += torch.sum(state_value3.to(torch.float64))
-            # self.total_map_gen += torch.sum(map1[:, 0, :, :, :].to(torch.float64) * self.map_rand.unsqueeze(0))
-            self.total_map_gen += torch.sum(torch.sin(torch.sum(map1[:, 0, :, :, :] * self.map_rand.unsqueeze(0), dim=(1, 2, 3))))
-            self.total_map_gen0 += torch.sum(torch.sin(torch.sum(map0 * self.map_rand.unsqueeze(0), dim=(1, 2, 3))))
-            self.total_param_gen = sum(torch.sum(p.data ** 2) for p in self.network.parameters())
-        else:
-            self.total_step_remaining_train += torch.sum(all_steps_remaining[:, 0])
-            self.total_room_position_x_train += torch.sum(all_room_position_x[:, 0, :])
-            self.total_room_mask_train += torch.sum(all_room_mask[:, 0, :])
-            self.total_cnt_train += all_steps_remaining.shape[0]
-            self.total_out_train += torch.sum(state_value.to(torch.float64))
-            self.total_out_train2 += torch.sum(state_value2.to(torch.float64))
-            self.total_out_train3 += torch.sum(state_value3.to(torch.float64))
-            self.total_map_train += torch.sum(torch.sin(torch.sum(map1[:, 0, :, :, :] * self.map_rand.unsqueeze(0), dim=(1, 2, 3))))
-            self.total_map_train0 += torch.sum(torch.sin(torch.sum(map0 * self.map_rand.unsqueeze(0), dim=(1, 2, 3))))
-            self.total_param_train = sum(torch.sum(p.data ** 2) for p in self.network.parameters())
-
         return state_value, action_value
 
     def generate_episode(self, episode_length: int, num_candidates: int, temperature: float, explore_eps: float,
@@ -207,27 +167,6 @@ class TrainingSession():
                     dry_run: bool = False,
                     ):
         self.map_rand = None
-        self.total_cnt_gen = 0
-        self.total_step_remaining_gen = 0
-        self.total_room_position_x_gen = 0
-        self.total_room_mask_gen = 0
-        self.total_out_gen = 0
-        self.total_out_gen2 = 0
-        self.total_out_gen3 = 0
-        self.total_map_gen = 0
-        self.total_map_gen0 = 0
-        self.total_param_gen = 0
-
-        self.total_cnt_train = 0
-        self.total_step_remaining_train = 0
-        self.total_room_position_x_train = 0
-        self.total_room_mask_train = 0
-        self.total_out_train = 0
-        self.total_out_train2 = 0
-        self.total_out_train3 = 0
-        self.total_map_train = 0
-        self.total_map_train0 = 0
-        self.total_param_train = 0
 
         num_episodes = self.env.num_envs * num_episode_groups
         room_mask, room_position_x, room_position_y, state_value, action_value, action, reward, action_prob = self.generate_round(

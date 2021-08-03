@@ -45,7 +45,7 @@ import logic.rooms.maridia_upper
 # device = torch.device('cpu')
 device = torch.device('cuda:0')
 
-num_envs = 2 ** 9
+num_envs = 2 ** 10
 # num_envs = 1
 rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.crateria.rooms
@@ -140,13 +140,13 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 # session = CPU_Unpickler(open('models/crateria-2021-07-28T05:01:08.541926.pkl', 'rb')).load()
 # # session.policy_optimizer.param_groups[0]['lr'] = 5e-6
 # # # session.value_optimizer.param_groups[0]['betas'] = (0.8, 0.999)
-batch_size = 2 ** 10
+batch_size = 2 ** 11
 # batch_size = 2 ** 13  # 2 ** 12
 td_lambda0 = 1.0
 td_lambda1 = 1.0
 lr0 = 0.0005
-lr1 = 0.00005
-num_episode_groups = 3
+lr1 = 0.0001
+num_episode_groups = 16
 num_candidates = 16
 num_passes = 1
 temperature0 = 0.0
@@ -161,10 +161,9 @@ logging.info("Checkpoint path: {}".format(pickle_name))
 logging.info(
     "num_episode_groups={}, num_envs={}, num_passes={}, batch_size={}, num_candidates={}".format(
         num_episode_groups, session.env.num_envs, num_passes, batch_size, num_candidates))
-temperature = 0.1
 for i in range(100000):
     frac = min(1, session.num_rounds / annealing_time)
-    # temperature = (1 - frac ** 2) * temperature0 + frac ** 2 * temperature1
+    temperature = (1 - frac ** 2) * temperature0 + frac ** 2 * temperature1
     td_lambda = (1 - frac) * td_lambda0 + frac * td_lambda1
     lr = lr0 * (lr1 / lr0) ** frac
     optimizer.param_groups[0]['lr'] = lr
@@ -181,42 +180,11 @@ for i in range(100000):
         # mc_weight=0.1,
         # render=True)
         render=False,
-        dry_run=i > 0)
+        dry_run=False)
     # render=i % display_freq == 0)
     logging.info(
         "{}: reward={:.2f} (max={:d}, cnt={:d}), loss={:.4f}, bias={:.4f}, mc_loss={:.4f}, mc_bias={:.4f}, p={:.4f}, pass={:.4f}, temp={:.3f}, lr={:.6f}".format(
             session.num_rounds, mean_reward, max_reward, cnt_max_reward, loss, bias, mc_loss, mc_bias, prob, frac_pass, temperature, lr))
-    logging.info("map gen={}, train={}".format(
-        session.total_map_gen / session.total_cnt_gen,
-        session.total_map_train / session.total_cnt_train))
-    logging.info("map0 gen={}, train={}".format(
-        session.total_map_gen0 / session.total_cnt_gen,
-        session.total_map_train0 / session.total_cnt_train))
-    # logging.info("param gen={}, train={}".format(
-    #         session.total_param_gen / session.total_cnt_gen,
-    #         session.total_param_train / session.total_cnt_train))
-
-    logging.info("out gen={}, train={}".format(
-        session.total_out_gen / session.total_cnt_gen,
-        session.total_out_train / session.total_cnt_train))
-    logging.info("out2 gen={}, train={}".format(
-        session.total_out_gen2 / session.total_cnt_gen,
-        session.total_out_train2 / session.total_cnt_train))
-    logging.info("out3 gen={}, train={}".format(
-        session.total_out_gen3 / session.total_cnt_gen,
-        session.total_out_train3 / session.total_cnt_train))
-    # logging.info("room_mask gen={}, train={}".format(
-    #     session.total_room_mask_gen / session.total_cnt_gen,
-    #     session.total_room_mask_train / session.total_cnt_train))
-    # logging.info("cnt gen={}, train={}".format(
-    #     session.total_cnt_gen, session.total_cnt_train
-    # ))
-    # logging.info("room_position_x gen={}, train={}".format(
-    #     session.total_room_position_x_gen / session.total_cnt_gen,
-    #     session.total_room_position_x_train / session.total_cnt_train))
-    # logging.info("steps_remaining gen={}, train={}".format(
-    #     session.total_step_remaining_gen / session.total_cnt_gen,
-    #     session.total_step_remaining_train / session.total_cnt_train))
     if session.num_rounds % 10 == 0:
         pickle.dump(session, open(pickle_name, 'wb'))
 

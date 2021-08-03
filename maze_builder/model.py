@@ -67,6 +67,7 @@ class Network(torch.nn.Module):
                                                      stride=(map_stride[i], map_stride[i])))
             # global_map_layers.append(MaxOut(arity))
             # global_map_layers.append(PReLU2d(map_channels[i + 1]))
+            # self.embedding_layers.append(torch.nn.Linear(1, map_channels[i + 1]))
             self.embedding_layers.append(torch.nn.Linear(num_rooms + 1, map_channels[i + 1]))
             self.map_act_layers.append(torch.nn.ReLU())
             # self.map_bn_layers.append(torch.nn.BatchNorm2d(map_channels[i + 1], momentum=batch_norm_momentum))
@@ -106,12 +107,13 @@ class Network(torch.nn.Module):
         # x_channel = torch.arange(self.map_x, device=map.device).view(1, 1, -1, 1).repeat(map.shape[0], 1, 1, self.map_y)
         # y_channel = torch.arange(self.map_y, device=map.device).view(1, 1, 1, -1).repeat(map.shape[0], 1, self.map_x, 1)
         # X = torch.cat([X, x_channel, y_channel], dim=1)
-        # embedding_data = torch.cat([room_mask, steps_remaining.view(-1, 1)], dim=1).to(X.dtype)
+        # embedding_data = torch.cat([steps_remaining.view(-1, 1)], dim=1).to(X.dtype)
+        embedding_data = torch.cat([room_mask, steps_remaining.view(-1, 1)], dim=1).to(X.dtype)
         # embedding_data = torch.cat([room_mask, torch.zeros_like(steps_remaining.view(-1, 1))], dim=1).to(map.dtype)  # TODO: put back steps_remaining
         for i in range(len(self.map_conv_layers)):
             X = self.map_conv_layers[i](X)
-            # embedding_out = self.embedding_layers[i](embedding_data)
-            # X = X + embedding_out.unsqueeze(2).unsqueeze(3)
+            embedding_out = self.embedding_layers[i](embedding_data)
+            X = X + embedding_out.unsqueeze(2).unsqueeze(3)
             X = self.map_act_layers[i](X)
             # X = self.map_bn_layers[i](X)
 
