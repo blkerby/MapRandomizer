@@ -17,6 +17,7 @@ class TrainingSession():
                  network: Network,
                  optimizer: torch.optim.Optimizer,
                  ema_beta: float,
+                 huber_delta: float,
                  ):
         self.env = env
         self.network = network
@@ -25,6 +26,7 @@ class TrainingSession():
         self.average_parameters = ExponentialAverage(network.all_param_data(), beta=ema_beta)
         self.num_rounds = 0
         self.grad_scaler = torch.cuda.amp.GradScaler()
+        self.loss_obj = torch.nn.HuberLoss(delta=huber_delta)
 
         self.total_step_remaining_gen = 0.0
         self.total_step_remaining_train = 0.0
@@ -286,7 +288,8 @@ class TrainingSession():
 
                 err = state_value0 - target_batch
                 # loss = torch.mean(err ** 2)
-                loss = torch.mean(torch.abs(err))
+                # loss = torch.mean(torch.abs(err))
+                loss = self.loss_obj(state_value0, target_batch)
                 total_cnt += err.shape[0]
                 # print(state_loss, action_loss)
                 # loss = (1 - action_loss_weight) * state_loss + action_loss_weight * action_loss

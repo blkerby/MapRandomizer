@@ -1,10 +1,7 @@
 # TODO:
-# - use only state value function; compute action values as state values of the corresponding new state.
-#   - add broadcasted embedding of room mask after each conv layer (different embedding for each layer)
+# - implement experience replay buffer (again)
 # - implement new area constraint (maintaining area connectedness at each step)
-# - make multiple passes in each training round (since data generation will be more expensive)
 # - store only actions, and reconstruct room positions as needed (to save memory, allow for larger batches and epochs)
-# - use half precision
 # - distributional DQN: split space of rewards into buckets and predict probabilities
 import torch
 import logging
@@ -106,7 +103,8 @@ logging.info("Starting training")
 session = TrainingSession(env,
                           network=network,
                           optimizer=optimizer,
-                          ema_beta=0.9)
+                          ema_beta=0.9,
+                          huber_delta=1.0)
 
 # num_candidates = 16
 # room_mask, room_position_x, room_position_y, state_value, action_value, action, reward, prob = session.generate_round(
@@ -131,7 +129,7 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 
 
 #
-# pickle_name = 'models/crateria-2021-07-24T13:05:09.257856.pkl'
+# pickle_name = 'models/crateria-2021-08-04T21:17:44.458436.pkl'
 # session = pickle.load(open(pickle_name, 'rb'))
 #
 # import io
