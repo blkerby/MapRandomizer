@@ -31,7 +31,7 @@ class MazeBuilderEnv:
         self.map_y = map_y
         self.num_envs = num_envs
 
-        self.map_channels = 3
+        self.map_channels = 4
         self.initial_map = torch.zeros([1, self.map_channels, self.map_x + 1, self.map_y + 1],
                                dtype=torch.int8, device=self.device)
 

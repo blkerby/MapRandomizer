@@ -16,10 +16,12 @@ from maze_builder.model import Network
 from maze_builder.train_session import TrainingSession
 
 logging.basicConfig(format='%(asctime)s %(message)s',
+                    # level=logging.DEBUG,
                     level=logging.INFO,
                     handlers=[logging.FileHandler("train.log"),
                               logging.StreamHandler()])
 # torch.autograd.set_detect_anomaly(False)
+torch.backends.cudnn.benchmark = True
 
 start_time = datetime.now()
 pickle_name = 'models/crateria-{}.pkl'.format(start_time.isoformat())
@@ -45,9 +47,9 @@ import logic.rooms.maridia_upper
 # device = torch.device('cpu')
 device = torch.device('cuda:0')
 
-num_envs = 2 ** 10
+num_envs = 2 ** 9
 # num_envs = 1
-rooms = logic.rooms.crateria_isolated.rooms
+# rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.crateria.rooms
 # rooms = logic.rooms.crateria.rooms + logic.rooms.wrecked_ship.rooms
 # rooms = logic.rooms.wrecked_ship.rooms
@@ -62,7 +64,7 @@ rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.brinstar_green.rooms
 # rooms = logic.rooms.maridia_lower.rooms
 # rooms = logic.rooms.maridia_upper.rooms
-# rooms = logic.rooms.all_rooms.rooms
+rooms = logic.rooms.all_rooms.rooms
 # episode_length = int(len(rooms) * 1.2)
 episode_length = len(rooms)
 display_freq = 1
@@ -70,8 +72,8 @@ display_freq = 1
 # map_y = 60
 # map_x = 50
 # map_y = 40
-map_x = 40
-map_y = 40
+map_x = 60
+map_y = 60
 env = MazeBuilderEnv(rooms,
                      map_x=map_x,
                      map_y=map_y,
@@ -86,15 +88,16 @@ network = Network(map_x=env.map_x + 1,
                   map_y=env.map_y + 1,
                   map_c=env.map_channels,
                   num_rooms=len(env.rooms),
-                  map_channels=[32, 128],
-                  map_stride=[2, 2],
-                  map_kernel_size=[11, 11],
-                  fc_widths=[512, 512],
+                  map_channels=[32, 64, 128, 256],
+                  map_stride=[2, 2, 2, 2],
+                  map_kernel_size=[3, 3, 3, 3],
+                  fc_widths=[1024],
                   batch_norm_momentum=0.1,
                   ).to(device)
 network.state_value_lin.weight.data[:, :] = 0.0
 network.state_value_lin.bias.data[:] = 0.0
-optimizer = torch.optim.Adam(network.parameters(), lr=0.0001, betas=(0.9, 0.999), eps=1e-15)
+# optimizer = torch.optim.Adam(network.parameters(), lr=0.0001, betas=(0.9, 0.999), eps=1e-15)
+optimizer = torch.optim.RMSprop(network.parameters(), lr=0.0001, alpha=0.9)
 
 logging.info("{}".format(network))
 logging.info("{}".format(optimizer))
@@ -102,7 +105,8 @@ logging.info("Starting training")
 
 session = TrainingSession(env,
                           network=network,
-                          optimizer=optimizer)
+                          optimizer=optimizer,
+                          ema_beta=0.9)
 
 # num_candidates = 16
 # room_mask, room_position_x, room_position_y, state_value, action_value, action, reward, prob = session.generate_round(
@@ -140,17 +144,17 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 # session = CPU_Unpickler(open('models/crateria-2021-07-28T05:01:08.541926.pkl', 'rb')).load()
 # # session.policy_optimizer.param_groups[0]['lr'] = 5e-6
 # # # session.value_optimizer.param_groups[0]['betas'] = (0.8, 0.999)
-batch_size = 2 ** 11
+batch_size = 2 ** 10
 # batch_size = 2 ** 13  # 2 ** 12
 td_lambda0 = 1.0
 td_lambda1 = 1.0
-lr0 = 0.0005
+lr0 = 0.0001
 lr1 = 0.0001
-num_episode_groups = 16
+num_rounds = 8
 num_candidates = 16
 num_passes = 1
 temperature0 = 0.0
-temperature1 = 50.0
+temperature1 = 10.0
 explore_eps = 0.0
 annealing_time = 50
 session.env = env
@@ -159,8 +163,8 @@ session.env = env
 
 logging.info("Checkpoint path: {}".format(pickle_name))
 logging.info(
-    "num_episode_groups={}, num_envs={}, num_passes={}, batch_size={}, num_candidates={}".format(
-        num_episode_groups, session.env.num_envs, num_passes, batch_size, num_candidates))
+    "num_rounds={}, num_envs={}, num_passes={}, batch_size={}, num_candidates={}".format(
+        num_rounds, session.env.num_envs, num_passes, batch_size, num_candidates))
 for i in range(100000):
     frac = min(1, session.num_rounds / annealing_time)
     temperature = (1 - frac ** 2) * temperature0 + frac ** 2 * temperature1
@@ -168,7 +172,7 @@ for i in range(100000):
     lr = lr0 * (lr1 / lr0) ** frac
     optimizer.param_groups[0]['lr'] = lr
     mean_reward, max_reward, cnt_max_reward, loss, bias, mc_loss, mc_bias, prob, frac_pass = session.train_round(
-        num_episode_groups=num_episode_groups,
+        num_rounds=num_rounds,
         episode_length=episode_length,
         batch_size=batch_size,
         num_candidates=num_candidates,
@@ -176,7 +180,7 @@ for i in range(100000):
         td_lambda=td_lambda,
         explore_eps=explore_eps,
         num_passes=num_passes,
-        lr_decay=1.0,
+        lr_decay=0.01,
         # mc_weight=0.1,
         # render=True)
         render=False,

@@ -61,9 +61,12 @@ class Network(torch.nn.Module):
         self.embedding_layers = torch.nn.ModuleList()
 
         map_channels = [map_c] + map_channels
+        width = map_x
+        height = map_y
         for i in range(len(map_channels) - 1):
             self.map_conv_layers.append(torch.nn.Conv2d(map_channels[i], map_channels[i + 1],
                                                      kernel_size=(map_kernel_size[i], map_kernel_size[i]),
+                                                     # padding=(map_kernel_size[i] // 2, map_kernel_size[i] // 2),
                                                      stride=(map_stride[i], map_stride[i])))
             # global_map_layers.append(MaxOut(arity))
             # global_map_layers.append(PReLU2d(map_channels[i + 1]))
@@ -73,14 +76,16 @@ class Network(torch.nn.Module):
             # self.map_bn_layers.append(torch.nn.BatchNorm2d(map_channels[i + 1], momentum=batch_norm_momentum))
             # global_map_layers.append(torch.nn.MaxPool2d(3, stride=2, padding=1))
             # global_map_layers.append(torch.nn.MaxPool2d(2, stride=2))
-            # width = (width - map_kernel_size[i]) // 2
-            # height = (height - map_kernel_size[i]) // 2
+            width = (width - map_kernel_size[i]) // map_stride[i] + 1
+            height = (height - map_kernel_size[i]) // map_stride[i] + 1
         self.map_global_pool = GlobalAvgPool2d()
         # self.map_global_pool = GlobalMaxPool2d()
         # global_map_layers.append(torch.nn.Flatten())
+        # self.map_flatten = torch.nn.Flatten()
 
         global_fc_layers = []
         # global_fc_widths = [(width * height * map_channels[-1]) + 1 + room_tensor.shape[0]] + global_fc_widths
+        # fc_widths = [width * height * map_channels[-1]] + fc_widths
         fc_widths = [map_channels[-1]] + fc_widths
         for i in range(len(fc_widths) - 1):
             global_fc_layers.append(torch.nn.Linear(fc_widths[i], fc_widths[i + 1]))
@@ -99,32 +104,31 @@ class Network(torch.nn.Module):
         # map_y = map.shape[3]
 
         # Convolutional layers on whole map data
-        # if map.is_cuda:
-        #     X = map.to(torch.float16)
-        # else:
-        X = map.to(torch.float32)
-        # with torch.cuda.amp.autocast():
-        # x_channel = torch.arange(self.map_x, device=map.device).view(1, 1, -1, 1).repeat(map.shape[0], 1, 1, self.map_y)
-        # y_channel = torch.arange(self.map_y, device=map.device).view(1, 1, 1, -1).repeat(map.shape[0], 1, self.map_x, 1)
-        # X = torch.cat([X, x_channel, y_channel], dim=1)
-        # embedding_data = torch.cat([steps_remaining.view(-1, 1)], dim=1).to(X.dtype)
-        embedding_data = torch.cat([room_mask, steps_remaining.view(-1, 1)], dim=1).to(X.dtype)
-        # embedding_data = torch.cat([room_mask, torch.zeros_like(steps_remaining.view(-1, 1))], dim=1).to(map.dtype)  # TODO: put back steps_remaining
-        for i in range(len(self.map_conv_layers)):
-            X = self.map_conv_layers[i](X)
-            embedding_out = self.embedding_layers[i](embedding_data)
-            X = X + embedding_out.unsqueeze(2).unsqueeze(3)
-            X = self.map_act_layers[i](X)
-            # X = self.map_bn_layers[i](X)
+        if map.is_cuda:
+            X = map.to(torch.float16, memory_format=torch.channels_last)
+        else:
+            X = map.to(torch.float32)
+        with torch.cuda.amp.autocast():
+            # x_channel = torch.arange(self.map_x, device=map.device).view(1, 1, -1, 1).repeat(map.shape[0], 1, 1, self.map_y)
+            # y_channel = torch.arange(self.map_y, device=map.device).view(1, 1, 1, -1).repeat(map.shape[0], 1, self.map_x, 1)
+            # X = torch.cat([X, x_channel, y_channel], dim=1)
+            embedding_data = torch.cat([room_mask, steps_remaining.view(-1, 1)], dim=1).to(X.dtype)
+            for i in range(len(self.map_conv_layers)):
+                X = self.map_conv_layers[i](X)
+                embedding_out = self.embedding_layers[i](embedding_data)
+                X = X + embedding_out.unsqueeze(2).unsqueeze(3).to(memory_format=torch.channels_last)
+                X = self.map_act_layers[i](X)
+                # X = self.map_bn_layers[i](X)
 
-        # Fully-connected layers on whole map data (starting with output of convolutional layers)
-        # X = torch.cat([X, steps_remaining.view(-1, 1), room_mask], dim=1)
-        X = self.map_global_pool(X)
-        for layer in self.global_fc_sequential:
-            # print(X.shape, layer)
-            X = layer(X)
-        state_value = self.state_value_lin(X)[:, 0]
-        return state_value.to(torch.float32)
+            # Fully-connected layers on whole map data (starting with output of convolutional layers)
+            # X = torch.cat([X, steps_remaining.view(-1, 1), room_mask], dim=1)
+            X = self.map_global_pool(X)
+            # X = self.map_flatten(X)
+            for layer in self.global_fc_sequential:
+                # print(X.shape, layer)
+                X = layer(X)
+            state_value = self.state_value_lin(X)[:, 0]
+            return state_value.to(torch.float32)
 
     def all_param_data(self):
         params = [param.data for param in self.parameters()]

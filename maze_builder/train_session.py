@@ -1,7 +1,8 @@
 import torch
 from maze_builder.model import Network
 from maze_builder.env import MazeBuilderEnv
-
+from model_average import ExponentialAverage
+import logging
 
 # TODO: look at using torch.multinomial instead of implementing this from scratch?
 def _rand_choice(p):
@@ -15,19 +16,23 @@ class TrainingSession():
     def __init__(self, env: MazeBuilderEnv,
                  network: Network,
                  optimizer: torch.optim.Optimizer,
+                 ema_beta: float,
                  ):
         self.env = env
         self.network = network
         self.optimizer = optimizer
         # self.average_parameters = SimpleAverage(network.all_param_data())
-        # self.average_parameters = ExponentialAverage(network.all_param_data(), beta=0.9)
+        self.average_parameters = ExponentialAverage(network.all_param_data(), beta=ema_beta)
         self.num_rounds = 0
+        self.grad_scaler = torch.cuda.amp.GradScaler()
 
         self.total_step_remaining_gen = 0.0
         self.total_step_remaining_train = 0.0
 
 
     def forward_state_action(self, room_mask, room_position_x, room_position_y, action_candidates, steps_remaining, gen=True):
+        # torch.cuda.synchronize()
+        # logging.info("Processing candidate data")
         num_envs = room_mask.shape[0]
         num_candidates = action_candidates.shape[1]
         num_rooms = len(self.env.rooms)
@@ -57,8 +62,15 @@ class TrainingSession():
         room_position_y_flat = all_room_position_y.view(num_envs * (1 + num_candidates), num_rooms)
         steps_remaining_flat = all_steps_remaining.view(num_envs * (1 + num_candidates))
 
+        # torch.cuda.synchronize()
+        # logging.info("Creating map")
+
         map_flat = self.env.compute_map(room_mask_flat, room_position_x_flat, room_position_y_flat)
+
+        # torch.cuda.synchronize()
+        # logging.info("Model forward")
         out_flat = self.network(map_flat, room_mask_flat, steps_remaining_flat)
+        torch.cuda.synchronize()
         out = out_flat.view(num_envs, 1 + num_candidates)
         state_value = out[:, 0]
         action_value = out[:, 1:]
@@ -75,51 +87,56 @@ class TrainingSession():
         action_value_list = []
         action_list = []
         self.network.eval()
-        # with self.average_parameters.average_parameters(self.network.all_param_data()):
-        total_action_prob = 0.0
-        for j in range(episode_length):
-            if render:
-                self.env.render()
-            action_candidates = self.env.get_action_candidates(num_candidates)
-            steps_remaining = torch.full([self.env.num_envs], episode_length - j,
-                                         dtype=torch.float32, device=device)
-            room_mask = self.env.room_mask.clone()
-            room_position_x = self.env.room_position_x.clone()
-            room_position_y = self.env.room_position_y.clone()
-            with torch.no_grad():
-                state_value, action_value = self.forward_state_action(
-                    self.env.room_mask, self.env.room_position_x, self.env.room_position_y,
-                    action_candidates, steps_remaining)
-            action_probs = torch.softmax(action_value * temperature, dim=1)
-            action_probs = torch.full_like(action_probs, explore_eps / num_candidates) + (
-                        1 - explore_eps) * action_probs
-            action_index = _rand_choice(action_probs)
-            selected_action_prob = action_probs[torch.arange(self.env.num_envs, device=device), action_index]
-            action = action_candidates[torch.arange(self.env.num_envs, device=device), action_index, :]
-            selected_action_value = action_value[torch.arange(self.env.num_envs, device=device), action_index]
+        # torch.cuda.synchronize()
+        # logging.debug("Averaging parameters")
+        with self.average_parameters.average_parameters(self.network.all_param_data()):
+            total_action_prob = 0.0
+            for j in range(episode_length):
+                if render:
+                    self.env.render()
+                # torch.cuda.synchronize()
+                # logging.debug("Getting candidates")
+                action_candidates = self.env.get_action_candidates(num_candidates)
+                steps_remaining = torch.full([self.env.num_envs], episode_length - j,
+                                             dtype=torch.float32, device=device)
+                room_mask = self.env.room_mask.clone()
+                room_position_x = self.env.room_position_x.clone()
+                room_position_y = self.env.room_position_y.clone()
+                with torch.no_grad():
+                    state_value, action_value = self.forward_state_action(
+                        self.env.room_mask, self.env.room_position_x, self.env.room_position_y,
+                        action_candidates, steps_remaining)
+                action_probs = torch.softmax(action_value * temperature, dim=1)
+                action_probs = torch.full_like(action_probs, explore_eps / num_candidates) + (
+                            1 - explore_eps) * action_probs
+                action_index = _rand_choice(action_probs)
+                selected_action_prob = action_probs[torch.arange(self.env.num_envs, device=device), action_index]
+                action = action_candidates[torch.arange(self.env.num_envs, device=device), action_index, :]
+                selected_action_value = action_value[torch.arange(self.env.num_envs, device=device), action_index]
 
-            self.env.step(action)
-            room_mask_list.append(room_mask)
-            room_position_x_list.append(room_position_x)
-            room_position_y_list.append(room_position_y)
-            action_list.append(action)
-            state_value_list.append(state_value)
-            action_value_list.append(selected_action_value)
-            total_action_prob += torch.mean(selected_action_prob).item()
-        room_mask_tensor = torch.stack(room_mask_list, dim=0)
-        room_position_x_tensor = torch.stack(room_position_x_list, dim=0)
-        room_position_y_tensor = torch.stack(room_position_y_list, dim=0)
-        state_value_tensor = torch.stack(state_value_list, dim=0)
-        action_value_tensor = torch.stack(action_value_list, dim=0)
-        action_tensor = torch.stack(action_list, dim=0)
-        reward_tensor = self.env.reward()
-        action_prob = total_action_prob / episode_length
+                self.env.step(action)
+                room_mask_list.append(room_mask)
+                room_position_x_list.append(room_position_x)
+                room_position_y_list.append(room_position_y)
+                action_list.append(action)
+                state_value_list.append(state_value)
+                action_value_list.append(selected_action_value)
+                total_action_prob += torch.mean(selected_action_prob).item()
+            room_mask_tensor = torch.stack(room_mask_list, dim=0)
+            room_position_x_tensor = torch.stack(room_position_x_list, dim=0)
+            room_position_y_tensor = torch.stack(room_position_y_list, dim=0)
+            state_value_tensor = torch.stack(state_value_list, dim=0)
+            action_value_tensor = torch.stack(action_value_list, dim=0)
+            action_tensor = torch.stack(action_list, dim=0)
+            reward_tensor = self.env.reward()
+            action_prob = total_action_prob / episode_length
         return room_mask_tensor, room_position_x_tensor, room_position_y_tensor, state_value_tensor, \
                action_value_tensor, action_tensor, reward_tensor, action_prob
 
     def generate_round(self, num_episodes, episode_length: int, num_candidates: int, temperature: float, explore_eps: float,
                          render=False):
 
+        # logging.debug("Generating data")
         room_mask_list = []
         room_position_x_list = []
         room_position_y_list = []
@@ -154,7 +171,7 @@ class TrainingSession():
         return room_mask, room_position_x, room_position_y, state_value, action_value, action, reward, action_prob
 
     def train_round(self,
-                    num_episode_groups: int,
+                    num_rounds: int,
                     episode_length: int,
                     batch_size: int,
                     num_candidates: int,
@@ -168,15 +185,17 @@ class TrainingSession():
                     ):
         self.map_rand = None
 
-        num_episodes = self.env.num_envs * num_episode_groups
+        num_episodes = self.env.num_envs * num_rounds
         room_mask, room_position_x, room_position_y, state_value, action_value, action, reward, action_prob = self.generate_round(
-            num_episodes=num_episode_groups,
+            num_episodes=num_rounds,
             episode_length=episode_length,
             num_candidates=num_candidates,
             temperature=temperature,
             explore_eps=explore_eps,
             render=render)
 
+        # torch.cuda.synchronize()
+        # logging.debug("Computing metrics and targets")
         steps_remaining = (episode_length - torch.arange(episode_length, device=self.env.device)).view(-1, 1).repeat(1, num_episodes)
 
         mean_reward = torch.mean(reward.to(torch.float32))
@@ -221,6 +240,8 @@ class TrainingSession():
         # n = map0.shape[0]
 
         # Shuffle the data
+        # torch.cuda.synchronize()
+        # logging.debug("Shuffling")
         perm = torch.randperm(n)
         room_mask = room_mask[perm, :]
         room_position_x = room_position_x[perm, :]
@@ -264,17 +285,27 @@ class TrainingSession():
                         gen=False)
 
                 err = state_value0 - target_batch
-                loss = torch.mean(err ** 2)
+                # loss = torch.mean(err ** 2)
+                loss = torch.mean(torch.abs(err))
                 total_cnt += err.shape[0]
                 # print(state_loss, action_loss)
                 # loss = (1 - action_loss_weight) * state_loss + action_loss_weight * action_loss
                 self.optimizer.zero_grad()
                 if not dry_run:
-                    loss.backward()
-                    torch.nn.utils.clip_grad_norm_(self.network.parameters(), 1e-5)
-                    self.optimizer.step()
+                    # torch.cuda.synchronize()
+                    # logging.debug("Model backward")
+                    self.grad_scaler.scale(loss).backward()
+
+                    # torch.cuda.synchronize()
+                    # logging.debug("Optimizer step")
+                    self.grad_scaler.step(self.optimizer)
+                    self.grad_scaler.update()
+
+                    # loss.backward()
+                    # torch.nn.utils.clip_grad_norm_(self.network.parameters(), 1e-5)
+                    # self.optimizer.step()
                 self.optimizer.param_groups[0]['lr'] *= lr_decay_per_step
-                # self.average_parameters.update(self.network.all_param_data())
+                self.average_parameters.update(self.network.all_param_data())
                 # # self.value_network.decay(weight_decay * self.value_optimizer.param_groups[0]['lr'])
                 total_loss += loss.item()
                 total_err += torch.mean(err).item()
