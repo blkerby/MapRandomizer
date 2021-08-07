@@ -1,5 +1,6 @@
 import torch
-
+import torch.nn.functional as F
+import math
 
 class GlobalAvgPool2d(torch.nn.Module):
     def forward(self, X):
@@ -48,12 +49,14 @@ class MaxOut(torch.nn.Module):
 
 class Network(torch.nn.Module):
     def __init__(self, map_x, map_y, map_c, num_rooms, map_channels, map_stride, map_kernel_size, fc_widths,
+                 round_modulus,
                  batch_norm_momentum=0.1):
         super().__init__()
         self.map_x = map_x
         self.map_y = map_y
         self.map_c = map_c
         self.num_rooms = num_rooms
+        self.round_modulus = round_modulus
 
         self.map_conv_layers = torch.nn.ModuleList()
         self.map_act_layers = torch.nn.ModuleList()
@@ -71,7 +74,7 @@ class Network(torch.nn.Module):
             # global_map_layers.append(MaxOut(arity))
             # global_map_layers.append(PReLU2d(map_channels[i + 1]))
             # self.embedding_layers.append(torch.nn.Linear(1, map_channels[i + 1]))
-            self.embedding_layers.append(torch.nn.Linear(num_rooms + 1, map_channels[i + 1]))
+            self.embedding_layers.append(torch.nn.Linear(num_rooms + 2, map_channels[i + 1]))
             self.map_act_layers.append(torch.nn.ReLU())
             # self.map_bn_layers.append(torch.nn.BatchNorm2d(map_channels[i + 1], momentum=batch_norm_momentum))
             # global_map_layers.append(torch.nn.MaxPool2d(3, stride=2, padding=1))
@@ -97,7 +100,7 @@ class Network(torch.nn.Module):
         self.global_fc_sequential = torch.nn.Sequential(*global_fc_layers)
         self.state_value_lin = torch.nn.Linear(fc_widths[-1], 1)
 
-    def forward(self, map, room_mask, steps_remaining):
+    def forward(self, map, room_mask, steps_remaining, round):
         # num_envs = map.shape[0]
         # map_c = map.shape[1]
         # map_x = map.shape[2]
@@ -112,7 +115,15 @@ class Network(torch.nn.Module):
             # x_channel = torch.arange(self.map_x, device=map.device).view(1, 1, -1, 1).repeat(map.shape[0], 1, 1, self.map_y)
             # y_channel = torch.arange(self.map_y, device=map.device).view(1, 1, 1, -1).repeat(map.shape[0], 1, self.map_x, 1)
             # X = torch.cat([X, x_channel, y_channel], dim=1)
-            embedding_data = torch.cat([room_mask, steps_remaining.view(-1, 1)], dim=1).to(X.dtype)
+            # round_onehot = F.one_hot(round % self.round_modulus, num_classes=self.round_modulus)
+            # round_cos = torch.cos(round.to(X.dtype) * (2 * math.pi / self.round_modulus)).unsqueeze(1)
+            # round_sin = torch.sin(round.to(X.dtype) * (2 * math.pi / self.round_modulus)).unsqueeze(1)
+            # round_cos = torch.zeros_like(torch.cos(round.to(X.dtype) * (2 * math.pi / self.round_modulus)).unsqueeze(1))
+            # round_sin = torch.zeros_like(torch.sin(round.to(X.dtype) * (2 * math.pi / self.round_modulus)).unsqueeze(1))
+            round_t = round.to(X.dtype).unsqueeze(1) / self.round_modulus
+            # round_t = torch.zeros_like(round.to(X.dtype).unsqueeze(1) / self.round_modulus)
+            # print(torch.mean(round_t), torch.min(round_t), torch.max(round_t))
+            embedding_data = torch.cat([room_mask, round_t, steps_remaining.view(-1, 1) / self.num_rooms], dim=1).to(X.dtype)
             for i in range(len(self.map_conv_layers)):
                 X = self.map_conv_layers[i](X)
                 embedding_out = self.embedding_layers[i](embedding_data)
@@ -129,6 +140,11 @@ class Network(torch.nn.Module):
                 X = layer(X)
             state_value = self.state_value_lin(X)[:, 0]
             return state_value.to(torch.float32)
+
+    def decay(self, amount):
+        factor = 1 - amount
+        for param in self.parameters():
+            param.data *= factor
 
     def all_param_data(self):
         params = [param.data for param in self.parameters()]
