@@ -246,7 +246,9 @@ class MazeBuilderEnv:
             room_up_list.append(room_up)
             room_down_list.append(room_down)
             room_data_list.append(room_data)
-            room_placements_list.append(room_placements)
+            if i != len(self.rooms) - 1:
+                # Don't allow placing the dummy room on the first move
+                room_placements_list.append(room_placements)
             room_min_x_list.append(room_min_x)
             room_min_y_list.append(room_min_y)
             room_max_x_list.append(room_max_x)
@@ -397,7 +399,8 @@ class MazeBuilderEnv:
         ], dim=1)
         candidates_list.append(dummy_candidates)
         all_candidates = torch.cat(candidates_list, dim=0)
-        ind = torch.argsort(all_candidates[:, 0])
+        # ind = torch.argsort(all_candidates[:, 0])
+        ind = torch.sort(all_candidates[:, 0], stable=True)[1]
         return all_candidates[ind, :]
         # self.room_right
         # print("left", door_left)
@@ -414,14 +417,15 @@ class MazeBuilderEnv:
         boundaries = torch.searchsorted(candidates[:, 0].contiguous(), torch.arange(self.num_envs, device=candidates.device))
         boundaries_ext = torch.cat([boundaries, torch.tensor([candidates.shape[0]], device=candidates.device)])
         candidate_quantities = boundaries_ext[1:] - boundaries_ext[:-1]
-        relative_ind = torch.randint(high=2 ** 31, size=[self.num_envs, num_candidates], device=candidates.device) % candidate_quantities.unsqueeze(1)
+        restricted_candidate_quantities = torch.clamp(candidate_quantities - 1, min=1)
+        relative_ind = torch.randint(high=2 ** 31, size=[self.num_envs, num_candidates], device=candidates.device) % restricted_candidate_quantities.unsqueeze(1)
         ind = relative_ind + boundaries.unsqueeze(1)
         out = candidates[ind, 1:]
 
         # Override first candidate to always be a pass
-        out[:, 0, 0] = len(self.rooms) - 1
-        out[:, 0, 1] = 0
-        out[:, 0, 2] = 0
+        # out[:, 0, 0] = len(self.rooms) - 1
+        # out[:, 0, 1] = 0
+        # out[:, 0, 2] = 0
 
         return out
 

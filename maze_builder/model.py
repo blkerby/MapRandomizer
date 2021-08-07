@@ -19,8 +19,8 @@ class PReLU(torch.nn.Module):
         self.scale_right = torch.nn.Parameter(torch.randn([width]))
 
     def forward(self, X):
-        scale_left = self.scale_left.view(1, -1)
-        scale_right = self.scale_right.view(1, -1)
+        scale_left = self.scale_left.view(1, -1).to(X.dtype)
+        scale_right = self.scale_right.view(1, -1).to(X.dtype)
         return torch.where(X > 0, X * scale_right, X * scale_left)
 
 
@@ -31,8 +31,8 @@ class PReLU2d(torch.nn.Module):
         self.scale_right = torch.nn.Parameter(torch.randn([width]))
 
     def forward(self, X):
-        scale_left = self.scale_left.view(1, -1, 1, 1)
-        scale_right = self.scale_right.view(1, -1, 1, 1)
+        scale_left = self.scale_left.view(1, -1, 1, 1).to(X.dtype)
+        scale_right = self.scale_right.view(1, -1, 1, 1).to(X.dtype)
         return torch.where(X > 0, X * scale_right, X * scale_left)
 
 
@@ -60,7 +60,7 @@ class Network(torch.nn.Module):
 
         self.map_conv_layers = torch.nn.ModuleList()
         self.map_act_layers = torch.nn.ModuleList()
-        # self.map_bn_layers = torch.nn.ModuleList()
+        self.map_bn_layers = torch.nn.ModuleList()
         self.embedding_layers = torch.nn.ModuleList()
 
         map_channels = [map_c] + map_channels
@@ -72,10 +72,10 @@ class Network(torch.nn.Module):
                                                      # padding=(map_kernel_size[i] // 2, map_kernel_size[i] // 2),
                                                      stride=(map_stride[i], map_stride[i])))
             # global_map_layers.append(MaxOut(arity))
-            # global_map_layers.append(PReLU2d(map_channels[i + 1]))
             # self.embedding_layers.append(torch.nn.Linear(1, map_channels[i + 1]))
-            self.embedding_layers.append(torch.nn.Linear(num_rooms + 2, map_channels[i + 1]))
+            self.embedding_layers.append(torch.nn.Linear(num_rooms, map_channels[i + 1]))
             self.map_act_layers.append(torch.nn.ReLU())
+            # self.map_act_layers.append(PReLU2d(map_channels[i + 1]))
             # self.map_bn_layers.append(torch.nn.BatchNorm2d(map_channels[i + 1], momentum=batch_norm_momentum))
             # global_map_layers.append(torch.nn.MaxPool2d(3, stride=2, padding=1))
             # global_map_layers.append(torch.nn.MaxPool2d(2, stride=2))
@@ -93,8 +93,8 @@ class Network(torch.nn.Module):
         for i in range(len(fc_widths) - 1):
             global_fc_layers.append(torch.nn.Linear(fc_widths[i], fc_widths[i + 1]))
             # global_fc_layers.append(MaxOut(arity))
-            # global_fc_layers.append(torch.nn.BatchNorm1d(global_fc_widths[i + 1], momentum=batch_norm_momentum))
             global_fc_layers.append(torch.nn.ReLU())
+            # global_fc_layers.append(torch.nn.BatchNorm1d(fc_widths[i + 1], momentum=batch_norm_momentum))
             # global_fc_layers.append(PReLU(fc_widths[i + 1]))
         # global_fc_layers.append(torch.nn.Linear(fc_widths[-1], 1))
         self.global_fc_sequential = torch.nn.Sequential(*global_fc_layers)
@@ -120,10 +120,11 @@ class Network(torch.nn.Module):
             # round_sin = torch.sin(round.to(X.dtype) * (2 * math.pi / self.round_modulus)).unsqueeze(1)
             # round_cos = torch.zeros_like(torch.cos(round.to(X.dtype) * (2 * math.pi / self.round_modulus)).unsqueeze(1))
             # round_sin = torch.zeros_like(torch.sin(round.to(X.dtype) * (2 * math.pi / self.round_modulus)).unsqueeze(1))
-            round_t = round.to(X.dtype).unsqueeze(1) / self.round_modulus
+            # round_t = round.to(X.dtype).unsqueeze(1) / self.round_modulus
             # round_t = torch.zeros_like(round.to(X.dtype).unsqueeze(1) / self.round_modulus)
             # print(torch.mean(round_t), torch.min(round_t), torch.max(round_t))
-            embedding_data = torch.cat([room_mask, round_t, steps_remaining.view(-1, 1) / self.num_rooms], dim=1).to(X.dtype)
+            # embedding_data = torch.cat([room_mask, round_t, steps_remaining.view(-1, 1) / self.num_rooms], dim=1).to(X.dtype)
+            embedding_data = torch.cat([room_mask], dim=1).to(X.dtype)
             for i in range(len(self.map_conv_layers)):
                 X = self.map_conv_layers[i](X)
                 embedding_out = self.embedding_layers[i](embedding_data)
@@ -142,9 +143,10 @@ class Network(torch.nn.Module):
             return state_value.to(torch.float32)
 
     def decay(self, amount):
-        factor = 1 - amount
-        for param in self.parameters():
-            param.data *= factor
+        if amount > 0:
+            factor = 1 - amount
+            for param in self.parameters():
+                param.data *= factor
 
     def all_param_data(self):
         params = [param.data for param in self.parameters()]
