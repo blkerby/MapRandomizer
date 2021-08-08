@@ -75,19 +75,19 @@ env = MazeBuilderEnv(rooms,
 max_possible_reward = torch.sum(env.room_door_count) // 2
 logging.info("max_possible_reward = {}".format(max_possible_reward))
 
-def make_network():
+def make_dummy_network():
     return Network(map_x=env.map_x + 1,
                   map_y=env.map_y + 1,
                   map_c=env.map_channels,
                   num_rooms=len(env.rooms),
-                  map_channels=[32, 32],
-                  map_stride=[2, 2, 2, 2],
-                  map_kernel_size=[5, 5],
-                  fc_widths=[1024],
+                  map_channels=[],
+                  map_stride=[],
+                  map_kernel_size=[],
+                  fc_widths=[],
                   round_modulus=128,
                   ).to(device)
 
-network = make_network()
+network = make_dummy_network()
 network.state_value_lin.weight.data[:, :] = 0.0
 network.state_value_lin.bias.data[:] = 0.0
 # optimizer = torch.optim.Adam(network.parameters(), lr=0.0001, betas=(0.95, 0.95), eps=1e-15)
@@ -98,11 +98,11 @@ logging.info("{}".format(optimizer))
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in network.parameters())
 logging.info("Starting training")
 
-replay_size = 256 * num_envs * episode_length
+replay_size = 512 * num_envs * episode_length
 session = TrainingSession(env,
                           network=network,
                           optimizer=optimizer,
-                          ema_beta=0.99,
+                          ema_beta=0.998,
                           loss_obj=torch.nn.HuberLoss(delta=4.0),
                           # loss_obj=torch.nn.L1Loss(),
                           replay_size=replay_size,
@@ -110,15 +110,15 @@ session = TrainingSession(env,
 logging.info("{}".format(session.loss_obj))
 torch.set_printoptions(linewidth=120, threshold=10000)
 
-batch_size_pow0 = 9
-batch_size_pow1 = 9
+batch_size_pow0 = 11
+batch_size_pow1 = 11
 td_lambda0 = 1.0
 td_lambda1 = 1.0
 lr0 = 0.005
 lr1 = lr0
 num_candidates = 16
 temperature0 = 0.0
-temperature1 = 30.0
+temperature1 = 5.0
 explore_eps = 0.0
 annealing_time = 1024
 session.env = env
@@ -165,7 +165,6 @@ while session.replay_buffer.size < session.replay_buffer.capacity:
 
 session.replay_buffer.tensor_list[-2][:] = 1 / num_candidates
 
-batch_size = 2 ** batch_size_pow0
 eval_data_list = []
 num_eval_batches = session.replay_buffer.capacity // (episode_length * num_envs)
 for j in range(num_eval_batches):
@@ -181,7 +180,7 @@ for j in range(num_eval_batches):
 
 
 # session.network = make_network()
-# pass_factor = 16
+pass_factor = 8
 session.network = Network(map_x=env.map_x + 1,
                map_y=env.map_y + 1,
                map_c=env.map_channels,
@@ -189,6 +188,7 @@ session.network = Network(map_x=env.map_x + 1,
                map_channels=[32, 32, 32],
                map_stride=[2, 2, 2, 2],
                map_kernel_size=[5, 3, 3],
+               map_padding=3 * [False],
                fc_widths=[1024, 64],
                batch_norm_momentum=0.01,
                round_modulus=128,
@@ -196,23 +196,25 @@ session.network = Network(map_x=env.map_x + 1,
                ).to(device)
 logging.info(session.network)
 # session.optimizer = torch.optim.RMSprop(session.network.parameters(), lr=0.001, alpha=0.95)
-session.optimizer = torch.optim.RMSprop(session.network.parameters(), lr=0.005, alpha=0.95)
+session.optimizer = torch.optim.RMSprop(session.network.parameters(), lr=0.02, alpha=0.95)
 # session.optimizer = torch.optim.Adam(session.network.parameters(), lr=0.0005, betas=(0.998, 0.998), eps=1e-15)
 logging.info(session.optimizer)
 session.average_parameters = ExponentialAverage(session.network.all_param_data(), beta=session.average_parameters.beta)
 # session.optimizer = torch.optim.RMSprop(session.network.parameters(), lr=0.002, alpha=0.95)
 num_steps = session.replay_buffer.capacity // (num_envs * episode_length)
+batch_size = 2 ** batch_size_pow0
 num_train_batches = pass_factor * session.replay_buffer.capacity // batch_size // num_steps
-eval_freq = 16
+eval_freq = 32
+print_freq = 8
 session.decay_amount = 0.0
-# session.optimizer.param_groups[0]['lr'] = 0.005
+# session.optimizer.param_groups[0]['lr'] = 0.02
+# session.average_parameters.beta = 0.998
 for k in range(1, num_steps + 1):
     total_loss = 0.0
     session.network.train()
     for j in range(num_train_batches):
         data = session.replay_buffer.sample(batch_size)
         total_loss += session.train_batch(data)
-        session.network.project()
     if k % eval_freq == 0:
         total_eval_loss = 0.0
         session.network.eval()
@@ -221,12 +223,11 @@ for k in range(1, num_steps + 1):
             total_eval_loss += session.eval_batch(data)
         logging.info("init train {}: loss={:.4f}, eval={:.4f}".format(
             k, total_loss / num_train_batches, total_eval_loss / num_eval_batches))
-    else:
+    elif k % print_freq == 0:
         logging.info("init train {}: loss={:.4f}".format(
             k, total_loss / num_train_batches))
 
 
-# session.average_parameters.beta = 0.99
 for i in range(100000):
     frac = min(1, session.num_rounds / annealing_time)
     temperature = (1 - frac ** 2) * temperature0 + frac ** 2 * temperature1

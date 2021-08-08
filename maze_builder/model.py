@@ -2,6 +2,7 @@ import torch
 import torch.nn.functional as F
 import math
 
+
 class GlobalAvgPool2d(torch.nn.Module):
     def forward(self, X):
         return torch.mean(X, dim=[2, 3])
@@ -48,7 +49,8 @@ class MaxOut(torch.nn.Module):
 
 
 class Network(torch.nn.Module):
-    def __init__(self, map_x, map_y, map_c, num_rooms, map_channels, map_stride, map_kernel_size, fc_widths,
+    def __init__(self, map_x, map_y, map_c, num_rooms, map_channels, map_stride, map_kernel_size, map_padding,
+                 fc_widths,
                  round_modulus,
                  batch_norm_momentum=0.0, dropout_p=0.0):
         super().__init__()
@@ -71,10 +73,11 @@ class Network(torch.nn.Module):
         height = map_y
         arity = 1
         for i in range(len(map_channels) - 1):
-            self.map_conv_layers.append(torch.nn.Conv2d(map_channels[i], map_channels[i + 1] * arity,
-                                                     kernel_size=(map_kernel_size[i], map_kernel_size[i]),
-                                                     # padding=(map_kernel_size[i] // 2, map_kernel_size[i] // 2),
-                                                     stride=(map_stride[i], map_stride[i])))
+            self.map_conv_layers.append(torch.nn.Conv2d(
+                map_channels[i], map_channels[i + 1] * arity,
+                kernel_size=(map_kernel_size[i], map_kernel_size[i]),
+                padding=(map_kernel_size[i] // 2, map_kernel_size[i] // 2) if map_padding[i] else 0,
+                stride=(map_stride[i], map_stride[i])))
             # self.embedding_layers.append(torch.nn.Linear(1, map_channels[i + 1]))
             self.embedding_layers.append(torch.nn.Linear(num_rooms, map_channels[i + 1] * arity))
             # self.map_act_layers.append(MaxOut(arity))
@@ -183,7 +186,8 @@ class Network(torch.nn.Module):
         eps = 1e-15
         for layer in self.map_conv_layers:
             shape = layer.weight.shape
-            layer.weight.data /= torch.max(torch.abs(layer.weight.data.view(shape[0], -1)) + eps, dim=1)[0].view(-1, 1, 1, 1)
+            layer.weight.data /= torch.max(torch.abs(layer.weight.data.view(shape[0], -1)) + eps, dim=1)[0].view(-1, 1,
+                                                                                                                 1, 1)
             # layer.weight.data /= torch.sqrt(torch.sum(layer.weight.data ** 2, dim=(1, 2, 3), keepdim=True) + eps)
         for layer in self.global_lin_layers:
             layer.weight.data /= torch.max(torch.abs(layer.weight.data) + eps, dim=1)[0].unsqueeze(1)

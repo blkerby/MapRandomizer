@@ -215,6 +215,7 @@ class TrainingSession():
         self.grad_scaler.step(self.optimizer)
         self.grad_scaler.update()
         self.network.decay(self.decay_amount * self.optimizer.param_groups[0]['lr'])
+        self.network.project()
         self.average_parameters.update(self.network.all_param_data())
         return loss.item()
 

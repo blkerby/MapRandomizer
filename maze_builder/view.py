@@ -21,7 +21,7 @@ class CPU_Unpickler(pickle.Unpickler):
             return super().find_class(module, name)
 
 device = torch.device('cpu')
-session = CPU_Unpickler(open('models/crateria-2021-08-07T23:41:17.082204.pkl', 'rb')).load()
+session = CPU_Unpickler(open('models/crateria-2021-08-08T01:33:09.715989.pkl', 'rb')).load()
 
 num_envs = 32
 rooms = logic.rooms.crateria_isolated.rooms
@@ -35,8 +35,8 @@ env = MazeBuilderEnv(rooms,
 
 episode_length = len(rooms)
 session.env = env
-num_candidates = 4
-temperature = 30
+num_candidates = 16
+temperature = 5
 
 while True:
     data = session.generate_round(
