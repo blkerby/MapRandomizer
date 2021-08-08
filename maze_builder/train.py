@@ -12,6 +12,7 @@ from datetime import datetime
 import pickle
 from maze_builder.model import Network
 from maze_builder.train_session import TrainingSession
+from model_average import ExponentialAverage
 
 logging.basicConfig(format='%(asctime)s %(message)s',
                     # level=logging.DEBUG,
@@ -23,10 +24,6 @@ torch.backends.cudnn.benchmark = True
 
 start_time = datetime.now()
 pickle_name = 'models/crateria-{}.pkl'.format(start_time.isoformat())
-
-
-
-
 
 import logic.rooms.crateria
 import logic.rooms.crateria_isolated
@@ -75,56 +72,58 @@ env = MazeBuilderEnv(rooms,
                      num_envs=num_envs,
                      device=device)
 
-
 max_possible_reward = torch.sum(env.room_door_count) // 2
 logging.info("max_possible_reward = {}".format(max_possible_reward))
 
-network = Network(map_x=env.map_x + 1,
+def make_network():
+    return Network(map_x=env.map_x + 1,
                   map_y=env.map_y + 1,
                   map_c=env.map_channels,
                   num_rooms=len(env.rooms),
                   map_channels=[32, 32],
                   map_stride=[2, 2, 2, 2],
-                  map_kernel_size=[9, 9],
+                  map_kernel_size=[5, 5],
                   fc_widths=[1024],
                   batch_norm_momentum=0.1,
                   round_modulus=128,
                   ).to(device)
+
+network = make_network()
 network.state_value_lin.weight.data[:, :] = 0.0
 network.state_value_lin.bias.data[:] = 0.0
 # optimizer = torch.optim.Adam(network.parameters(), lr=0.0001, betas=(0.95, 0.95), eps=1e-15)
-optimizer = torch.optim.RMSprop(network.parameters(), lr=0.0001, alpha=0.9)
+optimizer = torch.optim.RMSprop(network.parameters(), lr=0.0001, alpha=0.95)
 
 logging.info("{}".format(network))
 logging.info("{}".format(optimizer))
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in network.parameters())
 logging.info("Starting training")
 
-replay_size = 64 * num_envs * episode_length
+replay_size = 256 * num_envs * episode_length
 session = TrainingSession(env,
                           network=network,
                           optimizer=optimizer,
-                          ema_beta=0.9,
+                          ema_beta=0.99,
                           loss_obj=torch.nn.HuberLoss(delta=4.0),
                           # loss_obj=torch.nn.L1Loss(),
                           replay_size=replay_size,
-                          decay_amount=0.0)
+                          decay_amount=0.1)
 logging.info("{}".format(session.loss_obj))
 torch.set_printoptions(linewidth=120, threshold=10000)
 
-
 batch_size_pow0 = 9
-batch_size_pow1 = 11
+batch_size_pow1 = 9
 td_lambda0 = 1.0
 td_lambda1 = 1.0
-lr0 = 0.00005
-lr1 = 0.00002
+lr0 = 0.001
+lr1 = lr0
 num_candidates = 16
 temperature0 = 0.0
 temperature1 = 50.0
 explore_eps = 0.0
-annealing_time = 50
+annealing_time = 256
 session.env = env
+pass_factor = 4
 
 # pickle_name = 'models/crateria-2021-08-05T15:10:11.966483.pkl'
 # session = pickle.load(open(pickle_name, 'rb'))
@@ -140,28 +139,84 @@ logging.info(
     "map_x={}, map_y={}, num_envs={}, num_candidates={}, replay_size={}, num_params={}, decay_amount={}".format(
         map_x, map_y, session.env.num_envs, num_candidates, replay_size, num_params, session.decay_amount))
 
-# i = 0
-# while session.replay_buffer.size < session.replay_buffer.capacity:
-#     session.generate_round(
-#         episode_length=episode_length,
-#         num_candidates=num_candidates,
-#         temperature=temperature1,
-#         td_lambda=td_lambda1,
-#         explore_eps=explore_eps,
-#         render=False,
-#         randomized_insert=False)
-#     reward = session.replay_buffer.tensor_list[0][:session.replay_buffer.size].to(torch.float32)
-#     mean_reward = torch.mean(reward)
-#     max_reward = torch.max(session.replay_buffer.tensor_list[0][:session.replay_buffer.size])
-#     frac_max_reward = torch.mean((session.replay_buffer.tensor_list[0][:session.replay_buffer.size] == max_reward).to(torch.float32))
-#
-#     state_value = session.replay_buffer.tensor_list[5][:session.replay_buffer.size].to(torch.float32)
-#     mc_loss = session.loss_obj(state_value, reward)
-#
-#     i += 1
-#     logging.info(
-#         "init {}: reward={:.3f} (max={:d}, frac={:.5f}), mc_loss={:.4f}".format(
-#             i, mean_reward, max_reward, frac_max_reward, mc_loss))
+i = 0
+optimizer.param_groups[0]['lr'] = lr0
+while session.replay_buffer.size < session.replay_buffer.capacity:
+    data = session.generate_round(
+        episode_length=episode_length,
+        num_candidates=1,
+        temperature=temperature1,
+        td_lambda=td_lambda1,
+        explore_eps=explore_eps,
+        render=False)
+    session.replay_buffer.insert(data, randomized=False)
+    reward = session.replay_buffer.tensor_list[0][:session.replay_buffer.size].to(torch.float32)
+    mean_reward = torch.mean(reward)
+    max_reward = torch.max(session.replay_buffer.tensor_list[0][:session.replay_buffer.size])
+    frac_max_reward = torch.mean(
+        (session.replay_buffer.tensor_list[0][:session.replay_buffer.size] == max_reward).to(torch.float32))
+
+    state_value = session.replay_buffer.tensor_list[5][:session.replay_buffer.size].to(torch.float32)
+    mc_loss = session.loss_obj(state_value, reward)
+
+    i += 1
+    logging.info(
+        "init gen {}: reward={:.3f} (max={:d}, frac={:.5f}), mc_loss={:.4f}".format(
+            i, mean_reward, max_reward, frac_max_reward, mc_loss))
+
+session.replay_buffer.tensor_list[-2][:] = 1 / num_candidates
+
+batch_size = 2 ** batch_size_pow0
+eval_data_list = []
+num_eval_batches = session.replay_buffer.capacity // (episode_length * num_envs)
+for j in range(num_eval_batches):
+    eval_data = session.generate_round(
+        episode_length=episode_length,
+        num_candidates=1,
+        temperature=temperature1,
+        td_lambda=td_lambda1,
+        explore_eps=explore_eps,
+        render=False)
+    logging.info("init eval {}".format(j))
+    eval_data_list.append(eval_data)
+
+
+# session.network = make_network()
+pass_factor = 16
+session.network = Network(map_x=env.map_x + 1,
+               map_y=env.map_y + 1,
+               map_c=env.map_channels,
+               num_rooms=len(env.rooms),
+               map_channels=[32, 32],
+               map_stride=[2, 2, 2, 2],
+               map_kernel_size=[5, 3],
+               fc_widths=[1024],
+               batch_norm_momentum=0.1,
+               round_modulus=128,
+               ).to(device)
+logging.info(session.network)
+session.optimizer = torch.optim.RMSprop(session.network.parameters(), lr=0.001, alpha=0.95)
+session.average_parameters = ExponentialAverage(session.network.all_param_data(), beta=session.average_parameters.beta)
+# session.optimizer = torch.optim.RMSprop(session.network.parameters(), lr=0.002, alpha=0.95)
+num_steps = session.replay_buffer.capacity // (num_envs * episode_length)
+num_train_batches = pass_factor * session.replay_buffer.capacity // batch_size // num_steps
+eval_freq = 16
+session.decay_amount = 0.02
+for k in range(1, num_steps + 1):
+    total_loss = 0.0
+    for j in range(num_train_batches):
+        data = session.replay_buffer.sample(batch_size)
+        total_loss += session.train_batch(data)
+    if k % eval_freq == 0:
+        total_eval_loss = 0.0
+        for j in range(num_eval_batches):
+            data = eval_data_list[j]
+            total_eval_loss += session.eval_batch(data)
+        logging.info("init train {}: loss={:.4f}, eval={:.4f}".format(
+            k, total_loss / num_train_batches, total_eval_loss / num_eval_batches))
+    else:
+        logging.info("init train {}: loss={:.4f}".format(
+            k, total_loss / num_train_batches))
 
 
 # session.average_parameters.beta = 0.99
@@ -174,26 +229,29 @@ for i in range(100000):
     batch_size = 2 ** batch_size_pow
     optimizer.param_groups[0]['lr'] = lr
 
-    session.generate_round(
+    data = session.generate_round(
         episode_length=episode_length,
         num_candidates=num_candidates,
         temperature=temperature,
         td_lambda=td_lambda,
         explore_eps=explore_eps,
-        render=False,
-        # randomized_insert=False)
-        randomized_insert=session.replay_buffer.size == session.replay_buffer.capacity)
+        render=False)
+    # randomized_insert=session.replay_buffer.size == session.replay_buffer.capacity)
+    session.replay_buffer.insert(data, randomized=False)
+
     session.num_rounds += 1
 
-    num_batches = int(16 * num_envs * episode_length / batch_size)
+    num_batches = int(pass_factor * num_envs * episode_length / batch_size)
     total_loss = 0.0
     for j in range(num_batches):
-        total_loss += session.train_batch(batch_size)
+        data = session.replay_buffer.sample(batch_size)
+        total_loss += session.train_batch(data)
 
     reward = session.replay_buffer.tensor_list[0][:session.replay_buffer.size].to(torch.float32)
     mean_reward = torch.mean(reward)
     max_reward = torch.max(session.replay_buffer.tensor_list[0][:session.replay_buffer.size])
-    frac_max_reward = torch.mean((session.replay_buffer.tensor_list[0][:session.replay_buffer.size] == max_reward).to(torch.float32))
+    frac_max_reward = torch.mean(
+        (session.replay_buffer.tensor_list[0][:session.replay_buffer.size] == max_reward).to(torch.float32))
 
     state_value = session.replay_buffer.tensor_list[6][:session.replay_buffer.size].to(torch.float32)
     mc_loss = session.loss_obj(state_value, reward)
@@ -207,7 +265,8 @@ for i in range(100000):
 
     logging.info(
         "{}: doors={:.3f} (min={:d}, frac={:.5f}), rooms={:.4f}, mc_loss={:.4f}, loss={:.4f}, p={:.4f}, temp={:.3f}, td={:.4f}, lr={:.6f}, batch_size={}, nb={}".format(
-            session.num_rounds, max_possible_reward - mean_reward, max_possible_reward - max_reward, frac_max_reward, mean_rooms_missing,
+            session.num_rounds, max_possible_reward - mean_reward, max_possible_reward - max_reward, frac_max_reward,
+            mean_rooms_missing,
             mc_loss, total_loss / num_batches,
             mean_action_prob, temperature, td_lambda, lr, batch_size, num_batches))
     if session.num_rounds % 10 == 0:

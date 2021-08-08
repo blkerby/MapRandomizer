@@ -89,7 +89,7 @@ class TrainingSession():
         return state_value, action_value
 
     def generate_round(self, episode_length: int, num_candidates: int, temperature: float, explore_eps: float,
-                         td_lambda: float, randomized_insert: bool, render=False):
+                         td_lambda: float, render=False):
         device = self.env.device
         self.env.reset()
         room_mask_list = []
@@ -168,21 +168,23 @@ class TrainingSession():
         pass_tensor = turn_pass
 
         num_transitions = episode_length * self.env.num_envs
-        self.replay_buffer.insert([reward_tensor.unsqueeze(0).repeat(episode_length, 1).view(num_transitions),
-                                  room_mask_tensor.view(num_transitions, -1),
-                                  room_position_x_tensor.view(num_transitions, -1).to(torch.int8),
-                                  room_position_y_tensor.view(num_transitions, -1).to(torch.int8),
-                                  steps_remaining_tensor.view(num_transitions),
-                                  round_tensor.view(num_transitions),
-                                  state_value_tensor.view(num_transitions),
-                                  action_value_tensor.view(num_transitions),
-                                  action_tensor.view(num_transitions, -1),
-                                  target_tensor.view(num_transitions),
-                                  action_prob_tensor.view(num_transitions),
-                                  pass_tensor.view(num_transitions)],
-                                  randomized=randomized_insert)
+        round_data = (
+            reward_tensor.unsqueeze(0).repeat(episode_length, 1).view(num_transitions),
+            room_mask_tensor.view(num_transitions, -1),
+            room_position_x_tensor.view(num_transitions, -1).to(torch.int8),
+            room_position_y_tensor.view(num_transitions, -1).to(torch.int8),
+            steps_remaining_tensor.view(num_transitions),
+            round_tensor.view(num_transitions),
+            state_value_tensor.view(num_transitions),
+            action_value_tensor.view(num_transitions),
+            action_tensor.view(num_transitions, -1),
+            target_tensor.view(num_transitions),
+            action_prob_tensor.view(num_transitions),
+            pass_tensor.view(num_transitions)
+        )
+        return round_data
 
-    def train_batch(self, batch_size: int):
+    def train_batch(self, data):
         self.network.train()
 
         (reward,
@@ -196,9 +198,10 @@ class TrainingSession():
          action,
          target,
          action_prob,
-         pass_tensor) = self.replay_buffer.sample(batch_size)
+         pass_tensor) = data
         room_position_x = room_position_x.to(torch.int64)
         room_position_y = room_position_y.to(torch.int64)
+        batch_size = reward.shape[0]
 
         state_value0, _ = self.forward_state_action(
             room_mask, room_position_x, room_position_y,
@@ -213,4 +216,34 @@ class TrainingSession():
         self.grad_scaler.update()
         self.network.decay(self.decay_amount * self.optimizer.param_groups[0]['lr'])
         self.average_parameters.update(self.network.all_param_data())
+        return loss.item()
+
+    def eval_batch(self, data):
+        self.network.train()
+
+        (reward,
+         room_mask,
+         room_position_x,
+         room_position_y,
+         steps_remaining,
+         round,
+         state_value,
+         action_value,
+         action,
+         target,
+         action_prob,
+         pass_tensor) = data
+        room_position_x = room_position_x.to(torch.int64)
+        room_position_y = room_position_y.to(torch.int64)
+        batch_size = reward.shape[0]
+
+        with self.average_parameters.average_parameters(self.network.all_param_data()):
+            with torch.no_grad():
+                state_value0, _ = self.forward_state_action(
+                    room_mask, room_position_x, room_position_y,
+                    torch.zeros([batch_size, 0, 3], dtype=torch.int64, device=room_mask.device),
+                    steps_remaining,
+                    self.num_rounds - 1 - round)
+
+        loss = self.loss_obj(state_value0, target)
         return loss.item()
