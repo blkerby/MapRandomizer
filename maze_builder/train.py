@@ -180,23 +180,23 @@ for j in range(num_eval_batches):
 
 
 # session.network = make_network()
-pass_factor = 8
+pass_factor = 4
 session.network = Network(map_x=env.map_x + 1,
                map_y=env.map_y + 1,
                map_c=env.map_channels,
                num_rooms=len(env.rooms),
-               map_channels=[32, 32, 32],
-               map_stride=[2, 2, 2, 2],
+               map_channels=[32, 64, 128],
+               map_stride=[2, 2, 2],
                map_kernel_size=[5, 3, 3],
                map_padding=3 * [False],
-               fc_widths=[1024, 64],
-               batch_norm_momentum=0.01,
+               fc_widths=[1024, 256, 64],
+               batch_norm_momentum=0.5,
                round_modulus=128,
-              dropout_p=0.0,
+               global_dropout_p=0.05,
                ).to(device)
 logging.info(session.network)
 # session.optimizer = torch.optim.RMSprop(session.network.parameters(), lr=0.001, alpha=0.95)
-session.optimizer = torch.optim.RMSprop(session.network.parameters(), lr=0.02, alpha=0.95)
+session.optimizer = torch.optim.RMSprop(session.network.parameters(), lr=0.01, alpha=0.95)
 # session.optimizer = torch.optim.Adam(session.network.parameters(), lr=0.0005, betas=(0.998, 0.998), eps=1e-15)
 logging.info(session.optimizer)
 session.average_parameters = ExponentialAverage(session.network.all_param_data(), beta=session.average_parameters.beta)
@@ -204,17 +204,22 @@ session.average_parameters = ExponentialAverage(session.network.all_param_data()
 num_steps = session.replay_buffer.capacity // (num_envs * episode_length)
 batch_size = 2 ** batch_size_pow0
 num_train_batches = pass_factor * session.replay_buffer.capacity // batch_size // num_steps
-eval_freq = 32
-print_freq = 8
+eval_freq = 64
+print_freq = 16
 session.decay_amount = 0.0
-# session.optimizer.param_groups[0]['lr'] = 0.02
-# session.average_parameters.beta = 0.998
+# session.optimizer.param_groups[0]['lr'] = 0.005
+session.average_parameters.beta = 0.998
+# for layer in session.network.global_dropout_layers:
+#     layer.p = 0.2
+
+total_loss = 0.0
+total_loss_cnt = 0
 for k in range(1, num_steps + 1):
-    total_loss = 0.0
     session.network.train()
     for j in range(num_train_batches):
         data = session.replay_buffer.sample(batch_size)
         total_loss += session.train_batch(data)
+        total_loss_cnt += 1
     if k % eval_freq == 0:
         total_eval_loss = 0.0
         session.network.eval()
@@ -222,10 +227,14 @@ for k in range(1, num_steps + 1):
             data = eval_data_list[j]
             total_eval_loss += session.eval_batch(data)
         logging.info("init train {}: loss={:.4f}, eval={:.4f}".format(
-            k, total_loss / num_train_batches, total_eval_loss / num_eval_batches))
+            k, total_loss / total_loss_cnt, total_eval_loss / num_eval_batches))
+        total_loss = 0
+        total_loss_cnt = 0
     elif k % print_freq == 0:
         logging.info("init train {}: loss={:.4f}".format(
-            k, total_loss / num_train_batches))
+            k, total_loss / total_loss_cnt))
+        total_loss = 0
+        total_loss_cnt = 0
 
 
 for i in range(100000):

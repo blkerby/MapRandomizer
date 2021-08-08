@@ -52,7 +52,9 @@ class Network(torch.nn.Module):
     def __init__(self, map_x, map_y, map_c, num_rooms, map_channels, map_stride, map_kernel_size, map_padding,
                  fc_widths,
                  round_modulus,
-                 batch_norm_momentum=0.0, dropout_p=0.0):
+                 batch_norm_momentum=0.0,
+                 map_dropout_p=0.0,
+                 global_dropout_p=0.0):
         super().__init__()
         self.map_x = map_x
         self.map_y = map_y
@@ -60,7 +62,8 @@ class Network(torch.nn.Module):
         self.num_rooms = num_rooms
         self.round_modulus = round_modulus
         self.batch_norm_momentum = batch_norm_momentum
-        self.dropout_p = dropout_p
+        self.map_dropout_p = map_dropout_p
+        self.global_dropout_p = global_dropout_p
 
         self.map_conv_layers = torch.nn.ModuleList()
         self.map_act_layers = torch.nn.ModuleList()
@@ -81,13 +84,13 @@ class Network(torch.nn.Module):
             # self.embedding_layers.append(torch.nn.Linear(1, map_channels[i + 1]))
             self.embedding_layers.append(torch.nn.Linear(num_rooms, map_channels[i + 1] * arity))
             # self.map_act_layers.append(MaxOut(arity))
-            self.map_act_layers.append(torch.nn.ReLU())
-            if dropout_p > 0:
-                self.map_dropout_layers.append(torch.nn.Dropout2d(dropout_p))
             if batch_norm_momentum > 0:
                 self.map_bn_layers.append(torch.nn.BatchNorm2d(map_channels[i + 1],
                                                                # affine=False,
                                                                momentum=batch_norm_momentum))
+            self.map_act_layers.append(torch.nn.ReLU())
+            if map_dropout_p > 0:
+                self.map_dropout_layers.append(torch.nn.Dropout2d(map_dropout_p))
             # self.map_act_layers.append(PReLU2d(map_channels[i + 1]))
             # self.map_bn_layers.append(torch.nn.BatchNorm2d(map_channels[i + 1], momentum=batch_norm_momentum))
             # global_map_layers.append(torch.nn.MaxPool2d(3, stride=2, padding=1))
@@ -102,18 +105,21 @@ class Network(torch.nn.Module):
         self.global_lin_layers = torch.nn.ModuleList()
         self.global_act_layers = torch.nn.ModuleList()
         self.global_bn_layers = torch.nn.ModuleList()
+        self.global_dropout_layers = torch.nn.ModuleList()
         # global_fc_widths = [(width * height * map_channels[-1]) + 1 + room_tensor.shape[0]] + global_fc_widths
         # fc_widths = [width * height * map_channels[-1]] + fc_widths
         fc_widths = [map_channels[-1]] + fc_widths
         for i in range(len(fc_widths) - 1):
             self.global_lin_layers.append(torch.nn.Linear(fc_widths[i], fc_widths[i + 1] * arity))
             # global_fc_layers.append(MaxOut(arity))
-            self.global_act_layers.append(torch.nn.ReLU())
-            # global_fc_layers.append(PReLU(fc_widths[i + 1]))
             if self.batch_norm_momentum > 0:
                 self.global_bn_layers.append(torch.nn.BatchNorm1d(fc_widths[i + 1],
                                                                   # affine=False,
                                                                   momentum=batch_norm_momentum))
+            self.global_act_layers.append(torch.nn.ReLU())
+            if global_dropout_p > 0:
+                self.global_dropout_layers.append(torch.nn.Dropout(global_dropout_p))
+            # global_fc_layers.append(PReLU(fc_widths[i + 1]))
         # global_fc_layers.append(torch.nn.Linear(fc_widths[-1], 1))
         self.state_value_lin = torch.nn.Linear(fc_widths[-1], 1)
         self.project()
@@ -150,7 +156,7 @@ class Network(torch.nn.Module):
                 if self.batch_norm_momentum > 0:
                     X = self.map_bn_layers[i](X)
                 X = self.map_act_layers[i](X)
-                if self.dropout_p > 0:
+                if self.map_dropout_p > 0:
                     X = self.map_dropout_layers[i](X)
 
                 # X = self.map_bn_layers[i](X)
@@ -165,6 +171,8 @@ class Network(torch.nn.Module):
                 if self.batch_norm_momentum > 0:
                     X = self.global_bn_layers[i](X)
                 X = self.global_act_layers[i](X)
+                if self.global_dropout_p > 0:
+                    X = self.global_dropout_layers[i](X)
             state_value = self.state_value_lin(X)[:, 0]
             return state_value.to(torch.float32)
 
