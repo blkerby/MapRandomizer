@@ -84,7 +84,6 @@ def make_network():
                   map_stride=[2, 2, 2, 2],
                   map_kernel_size=[5, 5],
                   fc_widths=[1024],
-                  batch_norm_momentum=0.1,
                   round_modulus=128,
                   ).to(device)
 
@@ -107,7 +106,7 @@ session = TrainingSession(env,
                           loss_obj=torch.nn.HuberLoss(delta=4.0),
                           # loss_obj=torch.nn.L1Loss(),
                           replay_size=replay_size,
-                          decay_amount=0.1)
+                          decay_amount=0.01)
 logging.info("{}".format(session.loss_obj))
 torch.set_printoptions(linewidth=120, threshold=10000)
 
@@ -115,13 +114,13 @@ batch_size_pow0 = 9
 batch_size_pow1 = 9
 td_lambda0 = 1.0
 td_lambda1 = 1.0
-lr0 = 0.001
+lr0 = 0.005
 lr1 = lr0
 num_candidates = 16
 temperature0 = 0.0
-temperature1 = 50.0
+temperature1 = 30.0
 explore_eps = 0.0
-annealing_time = 256
+annealing_time = 1024
 session.env = env
 pass_factor = 4
 
@@ -182,33 +181,41 @@ for j in range(num_eval_batches):
 
 
 # session.network = make_network()
-pass_factor = 16
+# pass_factor = 16
 session.network = Network(map_x=env.map_x + 1,
                map_y=env.map_y + 1,
                map_c=env.map_channels,
                num_rooms=len(env.rooms),
-               map_channels=[32, 32],
+               map_channels=[32, 32, 32],
                map_stride=[2, 2, 2, 2],
-               map_kernel_size=[5, 3],
-               fc_widths=[1024],
-               batch_norm_momentum=0.1,
+               map_kernel_size=[5, 3, 3],
+               fc_widths=[1024, 64],
+               batch_norm_momentum=0.01,
                round_modulus=128,
+              dropout_p=0.0,
                ).to(device)
 logging.info(session.network)
-session.optimizer = torch.optim.RMSprop(session.network.parameters(), lr=0.001, alpha=0.95)
+# session.optimizer = torch.optim.RMSprop(session.network.parameters(), lr=0.001, alpha=0.95)
+session.optimizer = torch.optim.RMSprop(session.network.parameters(), lr=0.005, alpha=0.95)
+# session.optimizer = torch.optim.Adam(session.network.parameters(), lr=0.0005, betas=(0.998, 0.998), eps=1e-15)
+logging.info(session.optimizer)
 session.average_parameters = ExponentialAverage(session.network.all_param_data(), beta=session.average_parameters.beta)
 # session.optimizer = torch.optim.RMSprop(session.network.parameters(), lr=0.002, alpha=0.95)
 num_steps = session.replay_buffer.capacity // (num_envs * episode_length)
 num_train_batches = pass_factor * session.replay_buffer.capacity // batch_size // num_steps
 eval_freq = 16
-session.decay_amount = 0.02
+session.decay_amount = 0.0
+# session.optimizer.param_groups[0]['lr'] = 0.005
 for k in range(1, num_steps + 1):
     total_loss = 0.0
+    session.network.train()
     for j in range(num_train_batches):
         data = session.replay_buffer.sample(batch_size)
         total_loss += session.train_batch(data)
+        session.network.project()
     if k % eval_freq == 0:
         total_eval_loss = 0.0
+        session.network.eval()
         for j in range(num_eval_batches):
             data = eval_data_list[j]
             total_eval_loss += session.eval_batch(data)
@@ -264,7 +271,7 @@ for i in range(100000):
     mean_rooms_missing = mean_pass * len(rooms)
 
     logging.info(
-        "{}: doors={:.3f} (min={:d}, frac={:.5f}), rooms={:.4f}, mc_loss={:.4f}, loss={:.4f}, p={:.4f}, temp={:.3f}, td={:.4f}, lr={:.6f}, batch_size={}, nb={}".format(
+        "{}: doors={:.4f} (min={:d}, frac={:.5f}), rooms={:.4f}, mc_loss={:.4f}, loss={:.4f}, p={:.4f}, temp={:.3f}, td={:.4f}, lr={:.6f}, batch_size={}, nb={}".format(
             session.num_rounds, max_possible_reward - mean_reward, max_possible_reward - max_reward, frac_max_reward,
             mean_rooms_missing,
             mc_loss, total_loss / num_batches,

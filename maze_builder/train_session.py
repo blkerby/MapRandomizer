@@ -82,7 +82,6 @@ class TrainingSession():
         # torch.cuda.synchronize()
         # logging.info("Model forward")
         out_flat = self.network(map_flat, room_mask_flat, steps_remaining_flat, round_flat)
-        torch.cuda.synchronize()
         out = out_flat.view(num_envs, 1 + num_candidates)
         state_value = out[:, 0]
         action_value = out[:, 1:]
@@ -203,6 +202,7 @@ class TrainingSession():
         room_position_y = room_position_y.to(torch.int64)
         batch_size = reward.shape[0]
 
+        self.network.train()
         state_value0, _ = self.forward_state_action(
             room_mask, room_position_x, room_position_y,
             torch.zeros([batch_size, 0, 3], dtype=torch.int64, device=room_mask.device),
@@ -238,6 +238,7 @@ class TrainingSession():
         batch_size = reward.shape[0]
 
         with self.average_parameters.average_parameters(self.network.all_param_data()):
+            self.network.eval()
             with torch.no_grad():
                 state_value0, _ = self.forward_state_action(
                     room_mask, room_position_x, room_position_y,

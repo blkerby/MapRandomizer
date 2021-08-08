@@ -21,7 +21,7 @@ class CPU_Unpickler(pickle.Unpickler):
             return super().find_class(module, name)
 
 device = torch.device('cpu')
-session = CPU_Unpickler(open('models/crateria-2021-08-03T00:04:17.444944.pkl', 'rb')).load()
+session = CPU_Unpickler(open('models/crateria-2021-08-07T23:41:17.082204.pkl', 'rb')).load()
 
 num_envs = 32
 rooms = logic.rooms.crateria_isolated.rooms
@@ -36,15 +36,18 @@ env = MazeBuilderEnv(rooms,
 episode_length = len(rooms)
 session.env = env
 num_candidates = 4
-temperature = 5
+temperature = 30
 
 while True:
-    room_mask, room_position_x, room_position_y, state_value, action_value, action, reward, action_prob = session.generate_episode(
+    data = session.generate_round(
         episode_length,
         num_candidates=num_candidates,
         temperature=temperature,
         explore_eps=0,
+        td_lambda=1.0,
         render=False)
+    # reward = data[0]
+    reward = session.env.reward()
     max_reward, max_reward_ind = torch.max(reward, dim=0)
     logging.info("{}: {}".format(max_reward, reward.tolist()))
     if max_reward.item() >= 33:

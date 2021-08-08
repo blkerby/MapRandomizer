@@ -50,31 +50,41 @@ class MaxOut(torch.nn.Module):
 class Network(torch.nn.Module):
     def __init__(self, map_x, map_y, map_c, num_rooms, map_channels, map_stride, map_kernel_size, fc_widths,
                  round_modulus,
-                 batch_norm_momentum=0.1):
+                 batch_norm_momentum=0.0, dropout_p=0.0):
         super().__init__()
         self.map_x = map_x
         self.map_y = map_y
         self.map_c = map_c
         self.num_rooms = num_rooms
         self.round_modulus = round_modulus
+        self.batch_norm_momentum = batch_norm_momentum
+        self.dropout_p = dropout_p
 
         self.map_conv_layers = torch.nn.ModuleList()
         self.map_act_layers = torch.nn.ModuleList()
         self.map_bn_layers = torch.nn.ModuleList()
+        self.map_dropout_layers = torch.nn.ModuleList()
         self.embedding_layers = torch.nn.ModuleList()
 
         map_channels = [map_c] + map_channels
         width = map_x
         height = map_y
+        arity = 1
         for i in range(len(map_channels) - 1):
-            self.map_conv_layers.append(torch.nn.Conv2d(map_channels[i], map_channels[i + 1],
+            self.map_conv_layers.append(torch.nn.Conv2d(map_channels[i], map_channels[i + 1] * arity,
                                                      kernel_size=(map_kernel_size[i], map_kernel_size[i]),
                                                      # padding=(map_kernel_size[i] // 2, map_kernel_size[i] // 2),
                                                      stride=(map_stride[i], map_stride[i])))
-            # global_map_layers.append(MaxOut(arity))
             # self.embedding_layers.append(torch.nn.Linear(1, map_channels[i + 1]))
-            self.embedding_layers.append(torch.nn.Linear(num_rooms, map_channels[i + 1]))
+            self.embedding_layers.append(torch.nn.Linear(num_rooms, map_channels[i + 1] * arity))
+            # self.map_act_layers.append(MaxOut(arity))
             self.map_act_layers.append(torch.nn.ReLU())
+            if dropout_p > 0:
+                self.map_dropout_layers.append(torch.nn.Dropout2d(dropout_p))
+            if batch_norm_momentum > 0:
+                self.map_bn_layers.append(torch.nn.BatchNorm2d(map_channels[i + 1],
+                                                               # affine=False,
+                                                               momentum=batch_norm_momentum))
             # self.map_act_layers.append(PReLU2d(map_channels[i + 1]))
             # self.map_bn_layers.append(torch.nn.BatchNorm2d(map_channels[i + 1], momentum=batch_norm_momentum))
             # global_map_layers.append(torch.nn.MaxPool2d(3, stride=2, padding=1))
@@ -86,19 +96,24 @@ class Network(torch.nn.Module):
         # global_map_layers.append(torch.nn.Flatten())
         # self.map_flatten = torch.nn.Flatten()
 
-        global_fc_layers = []
+        self.global_lin_layers = torch.nn.ModuleList()
+        self.global_act_layers = torch.nn.ModuleList()
+        self.global_bn_layers = torch.nn.ModuleList()
         # global_fc_widths = [(width * height * map_channels[-1]) + 1 + room_tensor.shape[0]] + global_fc_widths
         # fc_widths = [width * height * map_channels[-1]] + fc_widths
         fc_widths = [map_channels[-1]] + fc_widths
         for i in range(len(fc_widths) - 1):
-            global_fc_layers.append(torch.nn.Linear(fc_widths[i], fc_widths[i + 1]))
+            self.global_lin_layers.append(torch.nn.Linear(fc_widths[i], fc_widths[i + 1] * arity))
             # global_fc_layers.append(MaxOut(arity))
-            global_fc_layers.append(torch.nn.ReLU())
-            # global_fc_layers.append(torch.nn.BatchNorm1d(fc_widths[i + 1], momentum=batch_norm_momentum))
+            self.global_act_layers.append(torch.nn.ReLU())
             # global_fc_layers.append(PReLU(fc_widths[i + 1]))
+            if self.batch_norm_momentum > 0:
+                self.global_bn_layers.append(torch.nn.BatchNorm1d(fc_widths[i + 1],
+                                                                  # affine=False,
+                                                                  momentum=batch_norm_momentum))
         # global_fc_layers.append(torch.nn.Linear(fc_widths[-1], 1))
-        self.global_fc_sequential = torch.nn.Sequential(*global_fc_layers)
         self.state_value_lin = torch.nn.Linear(fc_widths[-1], 1)
+        self.project()
 
     def forward(self, map, room_mask, steps_remaining, round):
         # num_envs = map.shape[0]
@@ -129,16 +144,24 @@ class Network(torch.nn.Module):
                 X = self.map_conv_layers[i](X)
                 embedding_out = self.embedding_layers[i](embedding_data)
                 X = X + embedding_out.unsqueeze(2).unsqueeze(3).to(memory_format=torch.channels_last)
+                if self.batch_norm_momentum > 0:
+                    X = self.map_bn_layers[i](X)
                 X = self.map_act_layers[i](X)
+                if self.dropout_p > 0:
+                    X = self.map_dropout_layers[i](X)
+
                 # X = self.map_bn_layers[i](X)
 
             # Fully-connected layers on whole map data (starting with output of convolutional layers)
             # X = torch.cat([X, steps_remaining.view(-1, 1), room_mask], dim=1)
             X = self.map_global_pool(X)
             # X = self.map_flatten(X)
-            for layer in self.global_fc_sequential:
+            for i in range(len(self.global_lin_layers)):
                 # print(X.shape, layer)
-                X = layer(X)
+                X = self.global_lin_layers[i](X)
+                if self.batch_norm_momentum > 0:
+                    X = self.global_bn_layers[i](X)
+                X = self.global_act_layers[i](X)
             state_value = self.state_value_lin(X)[:, 0]
             return state_value.to(torch.float32)
 
@@ -155,3 +178,13 @@ class Network(torch.nn.Module):
                 params.append(module.running_mean)
                 params.append(module.running_var)
         return params
+
+    def project(self):
+        eps = 1e-15
+        for layer in self.map_conv_layers:
+            shape = layer.weight.shape
+            layer.weight.data /= torch.max(torch.abs(layer.weight.data.view(shape[0], -1)) + eps, dim=1)[0].view(-1, 1, 1, 1)
+            # layer.weight.data /= torch.sqrt(torch.sum(layer.weight.data ** 2, dim=(1, 2, 3), keepdim=True) + eps)
+        for layer in self.global_lin_layers:
+            layer.weight.data /= torch.max(torch.abs(layer.weight.data) + eps, dim=1)[0].unsqueeze(1)
+            # layer.weight.data /= torch.sqrt(torch.sum(layer.weight.data ** 2, dim=1, keepdim=True) + eps)
