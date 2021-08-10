@@ -16,22 +16,6 @@ logging.basicConfig(format='%(asctime)s %(message)s',
                               logging.StreamHandler()])
 
 
-def approx_simplex_projection(x: torch.tensor, dim: int, num_iters: int) -> torch.tensor:
-    mask = torch.ones(list(x.shape), dtype=x.dtype, device=x.device)
-    with torch.no_grad():
-        for i in range(num_iters - 1):
-            n_act = torch.sum(mask, dim=dim)
-            x_sum = torch.sum(x * mask, dim=dim)
-            t = (x_sum - 1.0) / n_act
-            x1 = x - t.unsqueeze(dim=dim)
-            mask = (x1 >= 0).to(x.dtype)
-        n_act = torch.sum(mask, dim=dim)
-    x_sum = torch.sum(x * mask, dim=dim)
-    t = (x_sum - 1.0) / n_act
-    x1 = torch.clamp(x - t.unsqueeze(dim=dim), min=0.0)
-    # logging.info(torch.mean(torch.sum(x1, dim=1)))
-    return x1  # / torch.sum(torch.abs(x1), dim=dim).unsqueeze(dim=dim)
-
 
 class ManifoldModule(torch.nn.Module):
     @abc.abstractmethod

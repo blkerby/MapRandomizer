@@ -23,6 +23,7 @@ class TrainingSession():
                  loss_obj: torch.nn.Module,
                  replay_size: int,
                  decay_amount: float,
+                 sam_scale: float,
                  ):
         self.env = env
         self.network = network
@@ -30,6 +31,7 @@ class TrainingSession():
         self.average_parameters = ExponentialAverage(network.all_param_data(), beta=ema_beta)
         self.num_rounds = 0
         self.decay_amount = decay_amount
+        self.sam_scale = sam_scale
         self.grad_scaler = torch.cuda.amp.GradScaler()
         # self.loss_obj = torch.nn.HuberLoss(delta=huber_delta)
         self.loss_obj = loss_obj
@@ -203,6 +205,12 @@ class TrainingSession():
         batch_size = reward.shape[0]
 
         self.network.train()
+
+        saved_params = [param.data.clone() for param in self.network.parameters()]
+        for param in self.network.parameters():
+            param.data += torch.randn_like(param.data) * self.sam_scale
+        self.network.project()
+
         state_value0, _ = self.forward_state_action(
             room_mask, room_position_x, room_position_y,
             torch.zeros([batch_size, 0, 3], dtype=torch.int64, device=room_mask.device),
@@ -212,6 +220,10 @@ class TrainingSession():
         loss = self.loss_obj(state_value0, target)
         self.optimizer.zero_grad()
         self.grad_scaler.scale(loss).backward()
+
+        for i, param in enumerate(self.network.parameters()):
+            param.data.copy_(saved_params[i])
+
         self.grad_scaler.step(self.optimizer)
         self.grad_scaler.update()
         self.network.decay(self.decay_amount * self.optimizer.param_groups[0]['lr'])

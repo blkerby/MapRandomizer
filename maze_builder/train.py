@@ -110,7 +110,8 @@ session = TrainingSession(env,
                           loss_obj=torch.nn.HuberLoss(delta=4.0),
                           # loss_obj=torch.nn.L1Loss(),
                           replay_size=replay_size,
-                          decay_amount=0.0)
+                          decay_amount=0.0,
+                          sam_scale=0.01)
 logging.info("{}".format(session.loss_obj))
 torch.set_printoptions(linewidth=120, threshold=10000)
 
@@ -201,22 +202,22 @@ session.network = Network(map_x=env.map_x + 1,
                map_padding=3 * [False],
                fc_widths=[1024, 64],
                room_mask_widths=[64],
-               batch_norm_momentum=1.0,
+               batch_norm_momentum=0.05,
                round_modulus=128,
                global_dropout_p=0.0,
                ).to(device)
 logging.info(session.network)
 # session.optimizer = torch.optim.RMSprop(session.network.parameters(), lr=0.001, alpha=0.95)
-# session.optimizer = torch.optim.RMSprop(session.network.parameters(), lr=0.02, alpha=0.95)
+session.optimizer = torch.optim.RMSprop(session.network.parameters(), lr=0.02, alpha=0.95)
 # session.optimizer = torch.optim.Adam(session.network.parameters(), lr=0.0005, betas=(0.998, 0.998), eps=1e-15)
-session.optimizer = torch.optim.SGD(session.network.parameters(), lr=0.0005)
+# session.optimizer = torch.optim.SGD(session.network.parameters(), lr=0.0005)
 logging.info(session.optimizer)
 session.average_parameters = ExponentialAverage(session.network.all_param_data(), beta=session.average_parameters.beta)
 # session.optimizer = torch.optim.RMSprop(session.network.parameters(), lr=0.002, alpha=0.95)
 num_steps = session.replay_buffer.capacity // (num_envs * episode_length)
 batch_size = 2 ** batch_size_pow0
 num_train_batches = pass_factor * session.replay_buffer.capacity // batch_size // num_steps
-eval_freq = 256
+eval_freq = 64
 print_freq = 16
 save_freq = 64
 # for layer in session.network.global_dropout_layers:
@@ -225,11 +226,13 @@ save_freq = 64
 
 total_loss = 0.0
 total_loss_cnt = 0
-lr0_init = 0.0002
-lr1_init = 0.0002
+lr0_init = 0.005
+lr1_init = 0.005
 # session.optimizer.param_groups[0]['lr'] = 0.99
 # session.optimizer.param_groups[0]['betas'] = (0.9, 0.999)
 session.average_parameters.beta = 0.99
+session.sam_scale = 0.01
+num_steps = 256
 for k in range(1, num_steps + 1):
     frac = (k - 1) / num_steps
     lr = lr0_init * (lr1_init / lr0_init) ** frac

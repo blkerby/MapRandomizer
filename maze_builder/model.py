@@ -28,6 +28,24 @@ def approx_l1_projection(x: torch.tensor, dim: List[int], num_iters: int) -> tor
     return proj * x_sgn
 
 
+class LinearNormalizer(torch.nn.Module):
+    def __init__(self, lin_module: torch.nn.Module, lr: float, dim: List[int]):
+        super().__init__()
+        self.lr = lr
+        self.lin_module = lin_module
+        self.dim = dim
+
+    def forward(self, X):
+        Y = self.lin(X)
+        if self.training:
+            Y_std, Y_mean = torch.std_mean(Y.detach(), dim=self.dim, keepdim=True)
+            self.lin.bias.data -= Y_mean * self.lr
+            self.lin.weight.data[:, :] /= Y_std.view(-1, 1) ** self.lr
+            self.Y_mean = Y_mean
+            self.Y_std = Y_std
+        return Y
+
+
 class GlobalAvgPool2d(torch.nn.Module):
     def forward(self, X):
         return torch.mean(X, dim=[2, 3])
@@ -240,8 +258,8 @@ class Network(torch.nn.Module):
             # shape = layer.weight.shape
             # layer.weight.data /= torch.max(torch.abs(layer.weight.data.view(shape[0], -1)) + eps, dim=1)[0].view(-1, 1,
             #                                                                                                      1, 1)
-            layer.weight.data /= torch.sqrt(torch.sum(layer.weight.data ** 2, dim=(1, 2, 3), keepdim=True) + eps)
+            layer.weight.data /= torch.sqrt(torch.mean(layer.weight.data ** 2, dim=(1, 2, 3), keepdim=True) + eps)
         for layer in self.global_lin_layers:
             # layer.weight.data = approx_l1_projection(layer.weight.data, dim=1, num_iters=5)
             # layer.weight.data /= torch.max(torch.abs(layer.weight.data) + eps, dim=1)[0].unsqueeze(1)
-            layer.weight.data /= torch.sqrt(torch.sum(layer.weight.data ** 2, dim=1, keepdim=True) + eps)
+            layer.weight.data /= torch.sqrt(torch.mean(layer.weight.data ** 2, dim=1, keepdim=True) + eps)
