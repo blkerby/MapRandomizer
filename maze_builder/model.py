@@ -1,6 +1,31 @@
 import torch
 import torch.nn.functional as F
 import math
+from typing import List
+
+
+def approx_simplex_projection(x: torch.tensor, dim: List[int], num_iters: int) -> torch.tensor:
+    mask = torch.ones(list(x.shape), dtype=x.dtype, device=x.device)
+    with torch.no_grad():
+        for i in range(num_iters - 1):
+            n_act = torch.sum(mask, dim=dim, keepdim=True)
+            x_sum = torch.sum(x * mask, dim=dim, keepdim=True)
+            t = (x_sum - 1.0) / n_act
+            x1 = x - t
+            mask = (x1 >= 0).to(x.dtype)
+        n_act = torch.sum(mask, dim=dim, keepdim=True)
+    x_sum = torch.sum(x * mask, dim=dim, keepdim=True)
+    t = (x_sum - 1.0) / n_act
+    x1 = torch.clamp(x - t, min=0.0)
+    # logging.info(torch.mean(torch.sum(x1, dim=1)))
+    return x1  # / torch.sum(torch.abs(x1), dim=dim).unsqueeze(dim=dim)
+
+
+def approx_l1_projection(x: torch.tensor, dim: List[int], num_iters: int) -> torch.tensor:
+    x_sgn = torch.sgn(x)
+    x_abs = torch.abs(x)
+    proj = approx_simplex_projection(x_abs, dim=dim, num_iters=num_iters)
+    return proj * x_sgn
 
 
 class GlobalAvgPool2d(torch.nn.Module):
@@ -50,7 +75,7 @@ class MaxOut(torch.nn.Module):
 
 class Network(torch.nn.Module):
     def __init__(self, map_x, map_y, map_c, num_rooms, map_channels, map_stride, map_kernel_size, map_padding,
-                 fc_widths,
+                 room_mask_widths, fc_widths,
                  round_modulus,
                  batch_norm_momentum=0.0,
                  map_dropout_p=0.0,
@@ -64,6 +89,18 @@ class Network(torch.nn.Module):
         self.batch_norm_momentum = batch_norm_momentum
         self.map_dropout_p = map_dropout_p
         self.global_dropout_p = global_dropout_p
+
+        self.room_mask_lin_layers = torch.nn.ModuleList()
+        self.room_mask_bn_layers = torch.nn.ModuleList()
+        self.room_mask_act_layers = torch.nn.ModuleList()
+        room_mask_widths = [num_rooms] + room_mask_widths
+        for i in range(len(room_mask_widths) - 1):
+            self.room_mask_lin_layers.append(torch.nn.Linear(room_mask_widths[i], room_mask_widths[i + 1]))
+            if self.batch_norm_momentum > 0:
+                self.room_mask_bn_layers.append(torch.nn.BatchNorm1d(room_mask_widths[i + 1],
+                                                                  # affine=False,
+                                                                  momentum=batch_norm_momentum))
+            self.room_mask_act_layers.append(torch.nn.ReLU())
 
         self.map_conv_layers = torch.nn.ModuleList()
         self.map_act_layers = torch.nn.ModuleList()
@@ -82,7 +119,7 @@ class Network(torch.nn.Module):
                 padding=(map_kernel_size[i] // 2, map_kernel_size[i] // 2) if map_padding[i] else 0,
                 stride=(map_stride[i], map_stride[i])))
             # self.embedding_layers.append(torch.nn.Linear(1, map_channels[i + 1]))
-            self.embedding_layers.append(torch.nn.Linear(num_rooms, map_channels[i + 1] * arity))
+            self.embedding_layers.append(torch.nn.Linear(room_mask_widths[-1], map_channels[i + 1] * arity))
             # self.map_act_layers.append(MaxOut(arity))
             if batch_norm_momentum > 0:
                 self.map_bn_layers.append(torch.nn.BatchNorm2d(map_channels[i + 1],
@@ -148,10 +185,16 @@ class Network(torch.nn.Module):
             # round_t = torch.zeros_like(round.to(X.dtype).unsqueeze(1) / self.round_modulus)
             # print(torch.mean(round_t), torch.min(round_t), torch.max(round_t))
             # embedding_data = torch.cat([room_mask, round_t, steps_remaining.view(-1, 1) / self.num_rooms], dim=1).to(X.dtype)
-            embedding_data = torch.cat([room_mask], dim=1).to(X.dtype)
+            room_data = room_mask.to(X.dtype)
+            for i in range(len(self.room_mask_lin_layers)):
+                room_data = self.room_mask_lin_layers[i](room_data)
+                if self.batch_norm_momentum > 0:
+                    room_data = self.room_mask_bn_layers[i](room_data)
+                room_data = self.room_mask_act_layers[i](room_data)
+
             for i in range(len(self.map_conv_layers)):
                 X = self.map_conv_layers[i](X)
-                embedding_out = self.embedding_layers[i](embedding_data)
+                embedding_out = self.embedding_layers[i](room_data)
                 X = X + embedding_out.unsqueeze(2).unsqueeze(3).to(memory_format=torch.channels_last)
                 if self.batch_norm_momentum > 0:
                     X = self.map_bn_layers[i](X)
@@ -193,10 +236,12 @@ class Network(torch.nn.Module):
     def project(self):
         eps = 1e-15
         for layer in self.map_conv_layers:
-            shape = layer.weight.shape
-            layer.weight.data /= torch.max(torch.abs(layer.weight.data.view(shape[0], -1)) + eps, dim=1)[0].view(-1, 1,
-                                                                                                                 1, 1)
-            # layer.weight.data /= torch.sqrt(torch.sum(layer.weight.data ** 2, dim=(1, 2, 3), keepdim=True) + eps)
+            # layer.weight.data = approx_l1_projection(layer.weight.data, dim=(1, 2, 3), num_iters=5)
+            # shape = layer.weight.shape
+            # layer.weight.data /= torch.max(torch.abs(layer.weight.data.view(shape[0], -1)) + eps, dim=1)[0].view(-1, 1,
+            #                                                                                                      1, 1)
+            layer.weight.data /= torch.sqrt(torch.sum(layer.weight.data ** 2, dim=(1, 2, 3), keepdim=True) + eps)
         for layer in self.global_lin_layers:
-            layer.weight.data /= torch.max(torch.abs(layer.weight.data) + eps, dim=1)[0].unsqueeze(1)
-            # layer.weight.data /= torch.sqrt(torch.sum(layer.weight.data ** 2, dim=1, keepdim=True) + eps)
+            # layer.weight.data = approx_l1_projection(layer.weight.data, dim=1, num_iters=5)
+            # layer.weight.data /= torch.max(torch.abs(layer.weight.data) + eps, dim=1)[0].unsqueeze(1)
+            layer.weight.data /= torch.sqrt(torch.sum(layer.weight.data ** 2, dim=1, keepdim=True) + eps)
