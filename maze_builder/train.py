@@ -111,7 +111,7 @@ session = TrainingSession(env,
                           # loss_obj=torch.nn.L1Loss(),
                           replay_size=replay_size,
                           decay_amount=0.0,
-                          sam_scale=0.01)
+                          sam_scale=None)
 logging.info("{}".format(session.loss_obj))
 torch.set_printoptions(linewidth=120, threshold=10000)
 
@@ -205,6 +205,7 @@ session.network = Network(map_x=env.map_x + 1,
                batch_norm_momentum=0.05,
                round_modulus=128,
                global_dropout_p=0.0,
+              noise_scale=0.05,
                ).to(device)
 logging.info(session.network)
 # session.optimizer = torch.optim.RMSprop(session.network.parameters(), lr=0.001, alpha=0.95)
@@ -231,7 +232,7 @@ lr1_init = 0.005
 # session.optimizer.param_groups[0]['lr'] = 0.99
 # session.optimizer.param_groups[0]['betas'] = (0.9, 0.999)
 session.average_parameters.beta = 0.99
-session.sam_scale = 0.01
+# session.sam_scale = 0.01
 num_steps = 256
 for k in range(1, num_steps + 1):
     frac = (k - 1) / num_steps

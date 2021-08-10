@@ -23,7 +23,7 @@ class TrainingSession():
                  loss_obj: torch.nn.Module,
                  replay_size: int,
                  decay_amount: float,
-                 sam_scale: float,
+                 sam_scale: Optional[float],
                  ):
         self.env = env
         self.network = network
@@ -206,10 +206,11 @@ class TrainingSession():
 
         self.network.train()
 
-        saved_params = [param.data.clone() for param in self.network.parameters()]
-        for param in self.network.parameters():
-            param.data += torch.randn_like(param.data) * self.sam_scale
-        self.network.project()
+        if self.sam_scale is not None:
+            saved_params = [param.data.clone() for param in self.network.parameters()]
+            for param in self.network.parameters():
+                param.data += torch.randn_like(param.data) * self.sam_scale
+            self.network.project()
 
         state_value0, _ = self.forward_state_action(
             room_mask, room_position_x, room_position_y,
@@ -221,8 +222,9 @@ class TrainingSession():
         self.optimizer.zero_grad()
         self.grad_scaler.scale(loss).backward()
 
-        for i, param in enumerate(self.network.parameters()):
-            param.data.copy_(saved_params[i])
+        if self.sam_scale is not None:
+            for i, param in enumerate(self.network.parameters()):
+                param.data.copy_(saved_params[i])
 
         self.grad_scaler.step(self.optimizer)
         self.grad_scaler.update()
