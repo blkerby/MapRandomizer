@@ -104,7 +104,8 @@ num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in networ
 logging.info("Starting training")
 
 
-replay_size = 128 * num_envs
+# replay_size = 128 * num_envs
+replay_size = 8 * num_envs
 session = TrainingSession(env,
                           network=network,
                           optimizer=optimizer,

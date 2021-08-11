@@ -35,7 +35,7 @@ class TrainingSession():
         self.grad_scaler = torch.cuda.amp.GradScaler()
         # self.loss_obj = torch.nn.HuberLoss(delta=huber_delta)
         self.loss_obj = loss_obj
-        self.replay_buffer = ReplayBuffer(replay_size, storage_device=torch.device('cpu'),
+        self.replay_buffer = ReplayBuffer(replay_size, len(self.env.rooms), storage_device=torch.device('cpu'),
                                           retrieval_device=env.device)
 
         self.total_step_remaining_gen = 0.0

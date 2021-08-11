@@ -78,7 +78,6 @@ class EpisodeData:
         num_transitions = num_episodes * episode_length
         steps_remaining = (episode_length - torch.arange(episode_length, device=self.reward.device))
         return TrainingData(
-            action=self.action.unsqueeze(1).repeat(1, episode_length, 1, 1).view(num_transitions, episode_length, 3),
             target=self.target.view(-1),
             steps_remaining=steps_remaining.unsqueeze(0).repeat(num_episodes, 1).view(-1),
             round=self.round.unsqueeze(1).repeat(1, episode_length).view(-1),
@@ -89,7 +88,6 @@ class EpisodeData:
 
 @dataclass
 class TrainingData:
-    action: torch.tensor   # 3D int64: (num_transitions, episode_length, 3)  (room id, x position, y position)
     target: torch.tensor  # 1D float32: (num_transitions)
     steps_remaining: torch.tensor  # 1D int64: (num_transitions)
     round: torch.tensor  # 1D int64: (num_transitions)
