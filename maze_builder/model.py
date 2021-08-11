@@ -91,26 +91,13 @@ class MaxOut(torch.nn.Module):
         return torch.max(X, dim=1)[0]
 
 
-class Noise(torch.nn.Module):
-    def __init__(self, scale):
-        super().__init__()
-        self.scale = scale
-
-    def forward(self, X):
-        if self.scale > 0 and self.training:
-            noise = torch.exp(torch.randn_like(X) * self.scale)
-            return X * noise
-        else:
-            return X
-
 class Network(torch.nn.Module):
     def __init__(self, map_x, map_y, map_c, num_rooms, map_channels, map_stride, map_kernel_size, map_padding,
                  room_mask_widths, fc_widths,
                  round_modulus,
                  batch_norm_momentum=0.0,
                  map_dropout_p=0.0,
-                 global_dropout_p=0.0,
-                 noise_scale=0.0):
+                 global_dropout_p=0.0):
         super().__init__()
         self.map_x = map_x
         self.map_y = map_y
@@ -135,7 +122,6 @@ class Network(torch.nn.Module):
 
         self.map_conv_layers = torch.nn.ModuleList()
         self.map_act_layers = torch.nn.ModuleList()
-        self.map_noise_layers = torch.nn.ModuleList()
         self.map_bn_layers = torch.nn.ModuleList()
         self.map_dropout_layers = torch.nn.ModuleList()
         self.embedding_layers = torch.nn.ModuleList()
@@ -152,7 +138,6 @@ class Network(torch.nn.Module):
                 stride=(map_stride[i], map_stride[i])))
             # self.embedding_layers.append(torch.nn.Linear(1, map_channels[i + 1]))
             self.embedding_layers.append(torch.nn.Linear(room_mask_widths[-1], map_channels[i + 1] * arity))
-            self.map_noise_layers.append(Noise(noise_scale))
             # self.map_act_layers.append(MaxOut(arity))
             if batch_norm_momentum > 0:
                 self.map_bn_layers.append(torch.nn.BatchNorm2d(map_channels[i + 1],
@@ -173,7 +158,6 @@ class Network(torch.nn.Module):
         # self.map_flatten = torch.nn.Flatten()
 
         self.global_lin_layers = torch.nn.ModuleList()
-        self.global_noise_layers = torch.nn.ModuleList()
         self.global_act_layers = torch.nn.ModuleList()
         self.global_bn_layers = torch.nn.ModuleList()
         self.global_dropout_layers = torch.nn.ModuleList()
@@ -182,7 +166,6 @@ class Network(torch.nn.Module):
         fc_widths = [map_channels[-1]] + fc_widths
         for i in range(len(fc_widths) - 1):
             self.global_lin_layers.append(torch.nn.Linear(fc_widths[i], fc_widths[i + 1] * arity))
-            self.global_noise_layers.append(Noise(noise_scale))
             # global_fc_layers.append(MaxOut(arity))
             if self.batch_norm_momentum > 0:
                 self.global_bn_layers.append(torch.nn.BatchNorm1d(fc_widths[i + 1],
@@ -231,7 +214,6 @@ class Network(torch.nn.Module):
                 X = self.map_conv_layers[i](X)
                 embedding_out = self.embedding_layers[i](room_data)
                 X = X + embedding_out.unsqueeze(2).unsqueeze(3).to(memory_format=torch.channels_last)
-                X = self.map_noise_layers[i](X)
                 if self.batch_norm_momentum > 0:
                     X = self.map_bn_layers[i](X)
                 X = self.map_act_layers[i](X)
@@ -247,7 +229,6 @@ class Network(torch.nn.Module):
             for i in range(len(self.global_lin_layers)):
                 # print(X.shape, layer)
                 X = self.global_lin_layers[i](X)
-                X = self.global_noise_layers[i](X)
                 if self.batch_norm_momentum > 0:
                     X = self.global_bn_layers[i](X)
                 X = self.global_act_layers[i](X)

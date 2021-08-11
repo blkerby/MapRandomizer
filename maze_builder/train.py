@@ -111,7 +111,7 @@ session = TrainingSession(env,
                           # loss_obj=torch.nn.L1Loss(),
                           replay_size=replay_size,
                           decay_amount=0.0,
-                          sam_scale=None)
+                          sam_scale=0.02)
 logging.info("{}".format(session.loss_obj))
 torch.set_printoptions(linewidth=120, threshold=10000)
 
@@ -120,15 +120,15 @@ batch_size_pow0 = 10
 batch_size_pow1 = 10
 td_lambda0 = 1.0
 td_lambda1 = 1.0
-lr0 = 0.01
-lr1 = 0.01
+lr0 = 0.005
+lr1 = 0.005
 num_candidates = 16
 temperature0 = 0.0
 temperature1 = 20.0
 explore_eps = 0.0
-annealing_time = 100000
+annealing_time = 20000
 session.env = env
-pass_factor = 4
+pass_factor = 2
 
 i = 0
 while session.replay_buffer.size < session.replay_buffer.capacity:
@@ -205,7 +205,6 @@ session.network = Network(map_x=env.map_x + 1,
                batch_norm_momentum=0.05,
                round_modulus=128,
                global_dropout_p=0.0,
-              noise_scale=0.05,
                ).to(device)
 logging.info(session.network)
 # session.optimizer = torch.optim.RMSprop(session.network.parameters(), lr=0.001, alpha=0.95)
@@ -218,7 +217,7 @@ session.average_parameters = ExponentialAverage(session.network.all_param_data()
 num_steps = session.replay_buffer.capacity // (num_envs * episode_length)
 batch_size = 2 ** batch_size_pow0
 num_train_batches = pass_factor * session.replay_buffer.capacity // batch_size // num_steps
-eval_freq = 64
+eval_freq = 256
 print_freq = 16
 save_freq = 64
 # for layer in session.network.global_dropout_layers:
@@ -231,9 +230,8 @@ lr0_init = 0.005
 lr1_init = 0.005
 # session.optimizer.param_groups[0]['lr'] = 0.99
 # session.optimizer.param_groups[0]['betas'] = (0.9, 0.999)
-session.average_parameters.beta = 0.99
+session.average_parameters.beta = 0.995
 # session.sam_scale = 0.01
-num_steps = 256
 for k in range(1, num_steps + 1):
     frac = (k - 1) / num_steps
     lr = lr0_init * (lr1_init / lr0_init) ** frac
@@ -260,7 +258,7 @@ for k in range(1, num_steps + 1):
         total_loss = 0
         total_loss_cnt = 0
 
-# pickle.dump(session, open('init_session_trained.pkl', 'wb'))
+pickle.dump(session, open('init_session_trained.pkl', 'wb'))
 
 # session = pickle.load(open('init_session_trained.pkl', 'rb'))
 
