@@ -1,6 +1,6 @@
 from typing import Optional
 import torch
-from maze_builder.types import EpisodeData, TrainingData
+from maze_builder.types import EpisodeData, TrainingData, reconstruct_room_data
 
 class ReplayBuffer:
     def __init__(self, capacity, num_rooms, storage_device, retrieval_device):
@@ -39,7 +39,6 @@ class ReplayBuffer:
 
     def sample(self, n) -> TrainingData:
         episode_length = self.episode_data.action.shape[1]
-        num_rooms = self.num_rooms
         device = self.episode_data.reward.device
 
         episode_indices = torch.randint(high=self.size, size=[n], device=device)
@@ -48,23 +47,8 @@ class ReplayBuffer:
         round_num = self.episode_data.round[episode_indices]
         steps_remaining = episode_length - step_indices
         target = self.episode_data.target[episode_indices, step_indices]
-        room_mask = self.episode_data.room_mask[episode_indices, step_indices, :]
-        room_position_x = self.episode_data.room_position_x[episode_indices, step_indices, :]
-        room_position_y = self.episode_data.room_position_y[episode_indices, step_indices, :]
 
-        step_mask = torch.arange(episode_length, device=device).view(1, -1) < step_indices.view(-1, 1)
-        room_mask1 = torch.zeros([n, self.num_rooms], dtype=torch.bool, device=device)
-        room_mask1[torch.arange(n, device=device).view(-1, 1), action[:, :, 0]] = step_mask
-        room_mask1[:, -1] = False   # TODO: maybe get rid of this? (and the corresponding part in env)
-
-        room_position_x1 = torch.zeros([n, self.num_rooms], dtype=torch.int64, device=device)
-        room_position_x1[torch.arange(n, device=device).view(-1, 1), action[:, :, 0]] = action[:, :, 1] * step_mask
-        room_position_y1 = torch.zeros([n, self.num_rooms], dtype=torch.int64, device=device)
-        room_position_y1[torch.arange(n, device=device).view(-1, 1), action[:, :, 0]] = action[:, :, 2] * step_mask
-
-        assert torch.equal(room_mask, room_mask1)
-        assert torch.equal(room_position_x.to(torch.int64), room_position_x1)
-        assert torch.equal(room_position_y.to(torch.int64), room_position_y1)
+        room_mask, room_position_x, room_position_y = reconstruct_room_data(action, step_indices, self.num_rooms)
 
         return TrainingData(
             target=target.to(self.retrieval_device),

@@ -95,9 +95,6 @@ class TrainingSession():
                          td_lambda: float, render=False) -> EpisodeData:
         device = self.env.device
         self.env.reset()
-        room_mask_list = []
-        room_position_x_list = []
-        room_position_y_list = []
         state_value_list = []
         action_list = []
         action_prob_list = []
@@ -129,17 +126,11 @@ class TrainingSession():
                 action = action_candidates[torch.arange(self.env.num_envs, device=device), action_index, :]
 
                 self.env.step(action)
-                room_mask_list.append(room_mask)
-                room_position_x_list.append(room_position_x)
-                room_position_y_list.append(room_position_y)
                 action_list.append(action)
                 state_value_list.append(state_value)
                 action_prob_list.append(selected_action_prob)
 
         reward_tensor = self.env.reward()
-        room_mask_tensor = torch.stack(room_mask_list, dim=1)
-        room_position_x_tensor = torch.stack(room_position_x_list, dim=1)
-        room_position_y_tensor = torch.stack(room_position_y_list, dim=1)
         state_value_tensor = torch.stack(state_value_list, dim=1)
         action_tensor = torch.stack(action_list, dim=1)
         action_prob_tensor = torch.stack(action_prob_list, dim=1)
@@ -168,9 +159,6 @@ class TrainingSession():
             target=target_tensor,
             action_prob=action_prob_tensor,
             is_pass=pass_tensor,
-            room_mask=room_mask_tensor,
-            room_position_x=room_position_x_tensor.to(torch.int8),
-            room_position_y=room_position_y_tensor.to(torch.int8),
         )
 
     def train_batch(self, data: TrainingData):

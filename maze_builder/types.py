@@ -54,6 +54,24 @@ class Room:
             self.sand_up = [[0 for _ in range(self.width)] for _ in range(self.height)]
 
 
+def reconstruct_room_data(action, step_indices, num_rooms):
+    n = action.shape[0]
+    episode_length = action.shape[1]
+    device = action.device
+
+    step_mask = torch.arange(episode_length, device=device).view(1, -1) < step_indices.view(-1, 1)
+    room_mask = torch.zeros([n, num_rooms], dtype=torch.bool, device=device)
+    room_mask[torch.arange(n, device=device).view(-1, 1), action[:, :, 0]] = step_mask
+    room_mask[:, -1] = False  # TODO: maybe get rid of this? (and the corresponding part in env)
+
+    room_position_x = torch.zeros([n, num_rooms], dtype=torch.int64, device=device)
+    room_position_x[torch.arange(n, device=device).view(-1, 1), action[:, :, 0]] = action[:, :, 1] * step_mask
+    room_position_y = torch.zeros([n, num_rooms], dtype=torch.int64, device=device)
+    room_position_y[torch.arange(n, device=device).view(-1, 1), action[:, :, 0]] = action[:, :, 2] * step_mask
+
+    return room_mask, room_position_x, room_position_y
+
+
 @dataclass
 class EpisodeData:
     round: torch.tensor    # 1D int64: num_episodes
@@ -63,27 +81,26 @@ class EpisodeData:
     target: torch.tensor  # 2D float32: (num_episodes, episode_length)
     action_prob: torch.tensor  # 2D float32: (num_episodes, episode_length)
     is_pass: torch.tensor  # 2D bool: (num_episodes, episode_length)
-    # TODO: get rid of these:
-    room_mask: torch.tensor  # 3D bool: (num_episodes, episode_length, num_rooms)
-    room_position_x: torch.tensor  # 3D int8: (num_episodes, episode_length, num_rooms)
-    room_position_y: torch.tensor  # 3D int8: (num_episodes, episode_length, num_rooms)
 
     def move_to(self, device):
         for field in self.__dataclass_fields__.keys():
             setattr(self, field, getattr(self, field).to(device))
 
-    def training_data(self):
+    def training_data(self, num_rooms):
         num_episodes = self.reward.shape[0]
         episode_length = self.action.shape[1]
         num_transitions = num_episodes * episode_length
         steps_remaining = (episode_length - torch.arange(episode_length, device=self.reward.device))
+        action = self.action.unsqueeze(1).repeat(1, episode_length, 1, 1).view(num_transitions, episode_length, 3)
+        step_indices = torch.arange(episode_length, device=self.reward.device).unsqueeze(0).repeat(num_episodes, 1).view(-1)
+        room_mask, room_position_x, room_position_y = reconstruct_room_data(action, step_indices, num_rooms)
         return TrainingData(
             target=self.target.view(-1),
             steps_remaining=steps_remaining.unsqueeze(0).repeat(num_episodes, 1).view(-1),
             round=self.round.unsqueeze(1).repeat(1, episode_length).view(-1),
-            room_mask=self.room_mask.view(num_transitions, -1),
-            room_position_x=self.room_position_x.view(num_transitions, -1),
-            room_position_y=self.room_position_y.view(num_transitions, -1),
+            room_mask=room_mask,
+            room_position_x=room_position_x,
+            room_position_y=room_position_y,
         )
 
 @dataclass

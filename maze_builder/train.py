@@ -241,7 +241,7 @@ for k in range(1, num_steps + 1):
         for j in range(num_eval_batches):
             data = eval_data_list[j]
             data.move_to(device)
-            total_eval_loss += session.eval_batch(data.training_data())
+            total_eval_loss += session.eval_batch(data.training_data(len(session.env.rooms)))
         logging.info("init train {}: loss={:.4f}, eval={:.4f}, lr={}".format(
             k, total_loss / total_loss_cnt, total_eval_loss / num_eval_batches, lr))
         total_loss = 0
