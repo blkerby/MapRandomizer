@@ -5,6 +5,7 @@
 #   state-values, no need to use buckets. Just compute prob of value >= n for each integer n between 1 and max_reward)
 # - implement encoding of room mask using convolutional network on room maps
 # - try curriculum learn, starting with small subsets of rooms and ramping up
+# - minor cleanup: in data generation, use action value from previous step to avoid needing to recompute state value
 
 import torch
 import logging
@@ -44,9 +45,9 @@ import logic.rooms.maridia_upper
 # device = torch.device('cpu')
 device = torch.device('cuda:0')
 
-num_envs = 2 ** 7
+num_envs = 2 ** 9
 # num_envs = 1
-# rooms = logic.rooms.crateria_isolated.rooms
+rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.crateria.rooms
 # rooms = logic.rooms.crateria.rooms + logic.rooms.wrecked_ship.rooms
 # rooms = logic.rooms.wrecked_ship.rooms
@@ -61,13 +62,13 @@ num_envs = 2 ** 7
 # rooms = logic.rooms.brinstar_green.rooms
 # rooms = logic.rooms.maridia_lower.rooms
 # rooms = logic.rooms.maridia_upper.rooms
-rooms = logic.rooms.all_rooms.rooms
+# rooms = logic.rooms.all_rooms.rooms
 # episode_length = int(len(rooms) * 1.2)
 episode_length = len(rooms)
-map_x = 60
-map_y = 60
-# map_x = 40
-# map_y = 40
+# map_x = 60
+# map_y = 60
+map_x = 40
+map_y = 40
 env = MazeBuilderEnv(rooms,
                      map_x=map_x,
                      map_y=map_y,
@@ -102,11 +103,13 @@ logging.info("{}".format(optimizer))
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in network.parameters())
 logging.info("Starting training")
 
-replay_size = 1024 * num_envs * episode_length
+
+replay_size = 128 * num_envs
 session = TrainingSession(env,
                           network=network,
                           optimizer=optimizer,
                           ema_beta=0.998,
+                          # loss_obj=HuberLoss(delta=4.0),
                           loss_obj=torch.nn.HuberLoss(delta=4.0),
                           # loss_obj=torch.nn.L1Loss(),
                           replay_size=replay_size,
@@ -124,11 +127,11 @@ lr0 = 0.005
 lr1 = 0.005
 num_candidates = 16
 temperature0 = 0.0
-temperature1 = 20.0
+temperature1 = 10.0
 explore_eps = 0.0
-annealing_time = 20000
+annealing_time = 1000
 session.env = env
-pass_factor = 2
+pass_factor = 4
 
 i = 0
 while session.replay_buffer.size < session.replay_buffer.capacity:
@@ -139,25 +142,15 @@ while session.replay_buffer.size < session.replay_buffer.capacity:
         td_lambda=1.0,
         explore_eps=0.0,
         render=False)
-    session.replay_buffer.insert(data, randomized=False)
-    reward = session.replay_buffer.tensor_list[0][:session.replay_buffer.size].to(torch.float32)
-    mean_reward = torch.mean(reward)
-    max_reward = torch.max(session.replay_buffer.tensor_list[0][:session.replay_buffer.size])
-    frac_max_reward = torch.mean(
-        (session.replay_buffer.tensor_list[0][:session.replay_buffer.size] == max_reward).to(torch.float32))
-
-    state_value = session.replay_buffer.tensor_list[5][:session.replay_buffer.size].to(torch.float32)
-    mc_loss = session.loss_obj(state_value, reward)
+    session.replay_buffer.insert(data)
 
     i += 1
-    logging.info(
-        "init gen {}: reward={:.3f} (max={:d}, frac={:.5f}), mc_loss={:.4f}".format(
-            i, mean_reward, max_reward, frac_max_reward, mc_loss))
+    logging.info("init gen {}".format(i))
 
-session.replay_buffer.tensor_list[-2][:] = 1 / num_candidates
+session.replay_buffer.episode_data.action_prob[:, :] = 1 / num_candidates
 
 eval_data_list = []
-num_eval_batches = session.replay_buffer.capacity // (episode_length * num_envs) // 4
+num_eval_batches = session.replay_buffer.capacity // num_envs // 4
 for j in range(num_eval_batches):
     eval_data = session.generate_round(
         episode_length=episode_length,
@@ -166,12 +159,12 @@ for j in range(num_eval_batches):
         td_lambda=td_lambda1,
         explore_eps=explore_eps,
         render=False)
-    eval_data = [x.to(torch.device('cpu')) for x in eval_data]
+    eval_data.move_to(torch.device('cpu'))
     logging.info("init eval {}".format(j))
     eval_data_list.append(eval_data)
 
-pickle.dump(session, open('init_session.pkl', 'wb'))
-pickle.dump(eval_data_list, open('eval_data_list.pkl', 'wb'))
+# pickle.dump(session, open('init_session.pkl', 'wb'))
+# pickle.dump(eval_data_list, open('eval_data_list.pkl', 'wb'))
 
 
 # session = pickle.load(open('init_session.pkl', 'rb'))
@@ -214,11 +207,11 @@ session.optimizer = torch.optim.RMSprop(session.network.parameters(), lr=0.02, a
 logging.info(session.optimizer)
 session.average_parameters = ExponentialAverage(session.network.all_param_data(), beta=session.average_parameters.beta)
 # session.optimizer = torch.optim.RMSprop(session.network.parameters(), lr=0.002, alpha=0.95)
-num_steps = session.replay_buffer.capacity // (num_envs * episode_length)
+num_steps = session.replay_buffer.capacity // num_envs
 batch_size = 2 ** batch_size_pow0
-num_train_batches = pass_factor * session.replay_buffer.capacity // batch_size // num_steps
-eval_freq = 256
-print_freq = 16
+num_train_batches = pass_factor * session.replay_buffer.capacity * episode_length // batch_size // num_steps
+eval_freq = 4
+print_freq = 1
 save_freq = 64
 # for layer in session.network.global_dropout_layers:
 #     layer.p = 0.0
@@ -246,8 +239,8 @@ for k in range(1, num_steps + 1):
         session.network.eval()
         for j in range(num_eval_batches):
             data = eval_data_list[j]
-            data = [x.to(device) for x in data]
-            total_eval_loss += session.eval_batch(data)
+            data.move_to(device)
+            total_eval_loss += session.eval_batch(data.training_data())
         logging.info("init train {}: loss={:.4f}, eval={:.4f}, lr={}".format(
             k, total_loss / total_loss_cnt, total_eval_loss / num_eval_batches, lr))
         total_loss = 0
@@ -258,7 +251,7 @@ for k in range(1, num_steps + 1):
         total_loss = 0
         total_loss_cnt = 0
 
-pickle.dump(session, open('init_session_trained.pkl', 'wb'))
+# pickle.dump(session, open('init_session_trained.pkl', 'wb'))
 
 # session = pickle.load(open('init_session_trained.pkl', 'rb'))
 
@@ -281,7 +274,7 @@ for i in range(100000):
         explore_eps=explore_eps,
         render=False)
     # randomized_insert=session.replay_buffer.size == session.replay_buffer.capacity)
-    session.replay_buffer.insert(data, randomized=False)
+    session.replay_buffer.insert(data)
 
     session.num_rounds += 1
 
@@ -292,20 +285,20 @@ for i in range(100000):
         total_loss_cnt += 1
 
     if session.num_rounds % print_freq == 0:
-        reward = session.replay_buffer.tensor_list[0][:session.replay_buffer.size].to(torch.float32)
+        reward = session.replay_buffer.episode_data.reward[:session.replay_buffer.size].to(torch.float32)
         mean_reward = torch.mean(reward)
-        max_reward = torch.max(session.replay_buffer.tensor_list[0][:session.replay_buffer.size])
+        max_reward = torch.max(session.replay_buffer.episode_data.reward[:session.replay_buffer.size])
         frac_max_reward = torch.mean(
-            (session.replay_buffer.tensor_list[0][:session.replay_buffer.size] == max_reward).to(torch.float32))
+            (session.replay_buffer.episode_data.reward[:session.replay_buffer.size] == max_reward).to(torch.float32))
 
-        state_value = session.replay_buffer.tensor_list[6][:session.replay_buffer.size].to(torch.float32)
-        mc_loss = session.loss_obj(state_value, reward)
+        state_value = session.replay_buffer.episode_data.state_value[:session.replay_buffer.size].to(torch.float32)
+        mc_loss = session.loss_obj(state_value, reward.unsqueeze(1))
 
-        action_prob = session.replay_buffer.tensor_list[-2][:session.replay_buffer.size]
+        action_prob = session.replay_buffer.episode_data.action_prob[:session.replay_buffer.size]
         mean_action_prob = torch.mean(action_prob)
 
-        pass_tensor = session.replay_buffer.tensor_list[-1][:session.replay_buffer.size]
-        mean_pass = torch.mean(pass_tensor.to(torch.float32))
+        is_pass = session.replay_buffer.episode_data.is_pass[:session.replay_buffer.size]
+        mean_pass = torch.mean(is_pass.to(torch.float32))
         mean_rooms_missing = mean_pass * len(rooms)
 
         logging.info(
@@ -318,7 +311,7 @@ for i in range(100000):
         total_loss_cnt = 0
 
     if session.num_rounds % save_freq == 0:
-        replay_tensors = session.replay_buffer.tensor_list
-        session.replay_buffer.tensor_list = None
+        episode_data = session.replay_buffer.episode_data
+        session.replay_buffer.episode_data = None
         pickle.dump(session, open(pickle_name, 'wb'))
-        session.replay_buffer.tensor_list = replay_tensors
+        session.replay_buffer.episode_data = episode_data

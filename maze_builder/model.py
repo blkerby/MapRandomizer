@@ -4,6 +4,17 @@ import math
 from typing import List
 
 
+# class HuberLoss(torch.nn.Module):
+#     def __init__(self, delta):
+#         super().__init__()
+#         self.delta = delta
+#
+#     def forward(self, X):
+#         delta = self.delta
+#         abs_X = torch.abs(X)
+#         return torch.where(abs_X > delta, delta * (abs_X - (delta / 2)), 0.5 * X ** 2)
+
+
 def approx_simplex_projection(x: torch.tensor, dim: List[int], num_iters: int) -> torch.tensor:
     mask = torch.ones(list(x.shape), dtype=x.dtype, device=x.device)
     with torch.no_grad():
