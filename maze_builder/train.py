@@ -42,12 +42,12 @@ import logic.rooms.brinstar_blue
 import logic.rooms.maridia_lower
 import logic.rooms.maridia_upper
 
-# device = torch.device('cpu')
-device = torch.device('cuda:0')
+device = torch.device('cpu')
+# device = torch.device('cuda:0')
 
 num_envs = 2 ** 7
 # num_envs = 1
-# rooms = logic.rooms.crateria_isolated.rooms
+rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.crateria.rooms
 # rooms = logic.rooms.crateria.rooms + logic.rooms.wrecked_ship.rooms
 # rooms = logic.rooms.wrecked_ship.rooms
@@ -62,13 +62,13 @@ num_envs = 2 ** 7
 # rooms = logic.rooms.brinstar_green.rooms
 # rooms = logic.rooms.maridia_lower.rooms
 # rooms = logic.rooms.maridia_upper.rooms
-rooms = logic.rooms.all_rooms.rooms
+# rooms = logic.rooms.all_rooms.rooms
 # episode_length = int(len(rooms) * 1.2)
 episode_length = len(rooms)
-map_x = 60
-map_y = 60
-# map_x = 40
-# map_y = 40
+# map_x = 60
+# map_y = 60
+map_x = 40
+map_y = 40
 env = MazeBuilderEnv(rooms,
                      map_x=map_x,
                      map_y=map_y,
@@ -78,18 +78,20 @@ env = MazeBuilderEnv(rooms,
 max_possible_reward = torch.sum(env.room_door_count) // 2
 logging.info("max_possible_reward = {}".format(max_possible_reward))
 
+
 def make_dummy_network():
     return Network(map_x=env.map_x + 1,
-                  map_y=env.map_y + 1,
-                  map_c=env.map_channels,
-                  num_rooms=len(env.rooms),
-                  map_channels=[],
-                  map_stride=[],
-                  map_kernel_size=[],
-                  map_padding=[],
-                  room_mask_widths=[],
-                  fc_widths=[],
-                  ).to(device)
+                   map_y=env.map_y + 1,
+                   map_c=env.map_channels,
+                   room_tensor=env.padded_room_tensor,
+                   map_channels=[],
+                   map_stride=[],
+                   map_kernel_size=[],
+                   map_padding=[],
+                   room_mask_widths=[],
+                   fc_widths=[],
+                   ).to(device)
+
 
 network = make_dummy_network()
 network.state_value_lin.weight.data[:, :] = 0.0
@@ -102,8 +104,8 @@ logging.info("{}".format(optimizer))
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in network.parameters())
 logging.info("Starting training")
 
-
-replay_size = 4096 * num_envs
+# replay_size = 4096 * num_envs
+replay_size = 256 * num_envs
 session = TrainingSession(env,
                           network=network,
                           optimizer=optimizer,
@@ -116,7 +118,6 @@ session = TrainingSession(env,
                           sam_scale=0.02)
 logging.info("{}".format(session.loss_obj))
 torch.set_printoptions(linewidth=120, threshold=10000)
-
 
 batch_size_pow0 = 10
 batch_size_pow1 = 10
@@ -168,7 +169,6 @@ for j in range(num_eval_batches):
 pickle.dump(session, open('init_session.pkl', 'wb'))
 pickle.dump(eval_data_list, open('eval_data_list.pkl', 'wb'))
 
-
 # session = pickle.load(open('init_session.pkl', 'rb'))
 # eval_data_list = pickle.load(open('eval_data_list.pkl', 'rb'))
 
@@ -187,19 +187,36 @@ logging.info(
         map_x, map_y, session.env.num_envs, num_candidates, replay_size, num_params, session.decay_amount))
 
 # session.network = make_network()
+# session.network = Network(map_x=env.map_x + 1,
+#                map_y=env.map_y + 1,
+#                map_c=env.map_channels,
+#                num_rooms=len(env.rooms),
+#                map_channels=[32, 64, 128],
+#                map_stride=[2, 2, 2],
+#                map_kernel_size=[5, 3, 3],
+#                map_padding=3 * [False],
+#                fc_widths=[1024, 256, 64],
+#                room_mask_widths=[256, 256],
+#                batch_norm_momentum=1.0,
+#                global_dropout_p=0.0,
+#                ).to(device)
 session.network = Network(map_x=env.map_x + 1,
-               map_y=env.map_y + 1,
-               map_c=env.map_channels,
-               num_rooms=len(env.rooms),
-               map_channels=[32, 64, 128],
-               map_stride=[2, 2, 2],
-               map_kernel_size=[5, 3, 3],
-               map_padding=3 * [False],
-               fc_widths=[1024, 256, 64],
-               room_mask_widths=[256, 256],
-               batch_norm_momentum=1.0,
-               global_dropout_p=0.0,
-               ).to(device)
+                          map_y=env.map_y + 1,
+                          map_c=env.map_channels,
+                          map_channels=[32, 32],
+                          map_stride=[2, 2],
+                          map_kernel_size=[5, 3],
+                          map_padding=3 * [False],
+                          room_tensor=env.padded_room_tensor,
+                          room_channels=[16],
+                          room_kernel_size=[5],
+                          room_stride=1 * [1],
+                          room_padding=1 * [False],
+                          room_mask_widths=[64],
+                          fc_widths=[64],
+                          batch_norm_momentum=1.0,
+                          global_dropout_p=0.0,
+                          ).to(device)
 logging.info(session.network)
 # session.optimizer = torch.optim.RMSprop(session.network.parameters(), lr=0.001, alpha=0.95)
 session.optimizer = torch.optim.RMSprop(session.network.parameters(), lr=0.02, alpha=0.95)
@@ -211,7 +228,7 @@ session.average_parameters = ExponentialAverage(session.network.all_param_data()
 num_steps = session.replay_buffer.capacity // num_envs
 batch_size = 2 ** batch_size_pow0
 num_train_batches = pass_factor * session.replay_buffer.capacity * episode_length // batch_size // num_steps
-eval_freq = 128
+eval_freq = 16
 save_freq = 64
 # for layer in session.network.global_dropout_layers:
 #     layer.p = 0.0
@@ -223,7 +240,7 @@ lr0_init = 0.005
 lr1_init = 0.005
 # session.optimizer.param_groups[0]['lr'] = 0.99
 # session.optimizer.param_groups[0]['betas'] = (0.9, 0.999)
-session.average_parameters.beta = 0.995
+session.average_parameters.beta = 0.98
 session.sam_scale = 0.02
 for k in range(1, num_steps + 1):
     frac = (k - 1) / num_steps
@@ -303,7 +320,8 @@ for i in range(100000):
 
         logging.info(
             "{}: doors={:.4f} (min={:d}, frac={:.6f}), rooms={:.4f}, mc_loss={:.4f}, loss={:.4f}, p={:.6f}, temp={:.5f}, td={:.4f}, lr={:.6f}, batch_size={}, nb={}".format(
-                session.num_rounds, max_possible_reward - mean_reward, max_possible_reward - max_reward, frac_max_reward,
+                session.num_rounds, max_possible_reward - mean_reward, max_possible_reward - max_reward,
+                frac_max_reward,
                 mean_rooms_missing,
                 mc_loss, total_loss / total_loss_cnt,
                 mean_action_prob, temperature, td_lambda, lr, batch_size, num_batches))

@@ -103,7 +103,8 @@ class MaxOut(torch.nn.Module):
 
 
 class Network(torch.nn.Module):
-    def __init__(self, map_x, map_y, map_c, num_rooms, map_channels, map_stride, map_kernel_size, map_padding,
+    def __init__(self, map_x, map_y, map_c, map_channels, map_stride, map_kernel_size, map_padding,
+                 room_tensor, room_channels, room_stride, room_kernel_size, room_padding,
                  room_mask_widths, fc_widths,
                  batch_norm_momentum=0.0,
                  map_dropout_p=0.0,
@@ -112,15 +113,28 @@ class Network(torch.nn.Module):
         self.map_x = map_x
         self.map_y = map_y
         self.map_c = map_c
-        self.num_rooms = num_rooms
+        self.num_rooms = room_tensor.shape[0]
+        self.room_tensor = room_tensor
         self.batch_norm_momentum = batch_norm_momentum
         self.map_dropout_p = map_dropout_p
         self.global_dropout_p = global_dropout_p
 
+        self.room_embedding_layers = torch.nn.ModuleList()
+        room_channels = [room_tensor.shape[1]] + room_channels
+        for i in range(len(room_channels) - 1):
+            conv_layer = torch.nn.Conv2d(
+                room_channels[i], room_channels[i + 1],
+                kernel_size=(room_kernel_size[i], room_kernel_size[i]),
+                padding=(room_kernel_size[i] // 2, room_kernel_size[i] // 2) if room_padding[i] else 0,
+                stride=(room_stride[i], room_stride[i]))
+            self.room_embedding_layers.append(conv_layer)
+            self.room_embedding_layers.append(torch.nn.ReLU())
+        self.room_embedding_layers.append(GlobalAvgPool2d())
+
         self.room_mask_lin_layers = torch.nn.ModuleList()
         self.room_mask_bn_layers = torch.nn.ModuleList()
         self.room_mask_act_layers = torch.nn.ModuleList()
-        room_mask_widths = [num_rooms + 2] + room_mask_widths
+        room_mask_widths = [room_channels[-1] + 2] + room_mask_widths
         for i in range(len(room_mask_widths) - 1):
             self.room_mask_lin_layers.append(torch.nn.Linear(room_mask_widths[i], room_mask_widths[i + 1]))
             if self.batch_norm_momentum > 0:
@@ -220,7 +234,14 @@ class Network(torch.nn.Module):
             round_t = torch.zeros_like(round.to(X.dtype).unsqueeze(1))
             # embedding_data = torch.cat([room_mask, round_t, steps_remaining.view(-1, 1) / self.num_rooms], dim=1).to(X.dtype)
             # room_data = room_mask.to(X.dtype)
-            room_data = torch.cat([room_mask, steps_remaining.view(-1, 1), round_t], dim=1).to(X.dtype)
+
+            room_embedding = self.room_tensor.to(X.dtype)
+            for layer in self.room_embedding_layers:
+                room_embedding = layer(room_embedding)
+            room_embedding = torch.matmul(1 - room_mask.to(X.dtype), room_embedding)
+
+            # room_data = torch.cat([room_mask, steps_remaining.view(-1, 1), round_t], dim=1).to(X.dtype)
+            room_data = torch.cat([room_embedding, steps_remaining.view(-1, 1), round_t], dim=1).to(X.dtype)
             for i in range(len(self.room_mask_lin_layers)):
                 room_data = self.room_mask_lin_layers[i](room_data)
                 if self.batch_norm_momentum > 0:
