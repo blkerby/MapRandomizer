@@ -1,10 +1,15 @@
 # TODO:
+# - split training to separate, alternating phases:
+#    1) generate a dataset using fixed policy (based on a model value function and temperature parameter),
+#    2) training of model value function based on a dataset
+#   Make these flexible so that generated data from a different model can be used to start (for faster
+#   hyperparameter tuning and exploration of model architectures). Track the lineage of models and datasets.
+# - build SQLlite database for metrics on datasets and models.
+# - try all-action approach again
 # - implement new area constraint (maintaining area connectedness at each step)
-# - store only actions, and reconstruct room positions as needed (to save memory, allow for larger batches and epochs)
 # - distributional DQN: split space of rewards into buckets and predict probabilities (or, since we're only computing
 #   state-values, no need to use buckets. Just compute prob of value >= n for each integer n between 1 and max_reward)
-# - implement encoding of room mask using convolutional network on room maps
-# - try curriculum learn, starting with small subsets of rooms and ramping up
+# - try curriculum learning, starting with small subsets of rooms and ramping up
 # - minor cleanup: in data generation, use action value from previous step to avoid needing to recompute state value
 
 import torch
