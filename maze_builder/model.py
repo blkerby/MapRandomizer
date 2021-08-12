@@ -105,7 +105,6 @@ class MaxOut(torch.nn.Module):
 class Network(torch.nn.Module):
     def __init__(self, map_x, map_y, map_c, num_rooms, map_channels, map_stride, map_kernel_size, map_padding,
                  room_mask_widths, fc_widths,
-                 round_modulus,
                  batch_norm_momentum=0.0,
                  map_dropout_p=0.0,
                  global_dropout_p=0.0):
@@ -114,7 +113,6 @@ class Network(torch.nn.Module):
         self.map_y = map_y
         self.map_c = map_c
         self.num_rooms = num_rooms
-        self.round_modulus = round_modulus
         self.batch_norm_momentum = batch_norm_momentum
         self.map_dropout_p = map_dropout_p
         self.global_dropout_p = global_dropout_p
@@ -122,7 +120,7 @@ class Network(torch.nn.Module):
         self.room_mask_lin_layers = torch.nn.ModuleList()
         self.room_mask_bn_layers = torch.nn.ModuleList()
         self.room_mask_act_layers = torch.nn.ModuleList()
-        room_mask_widths = [num_rooms] + room_mask_widths
+        room_mask_widths = [num_rooms + 2] + room_mask_widths
         for i in range(len(room_mask_widths) - 1):
             self.room_mask_lin_layers.append(torch.nn.Linear(room_mask_widths[i], room_mask_widths[i + 1]))
             if self.batch_norm_momentum > 0:
@@ -142,13 +140,22 @@ class Network(torch.nn.Module):
         height = map_y
         arity = 1
         for i in range(len(map_channels) - 1):
-            self.map_conv_layers.append(torch.nn.Conv2d(
+            conv_layer = torch.nn.Conv2d(
                 map_channels[i], map_channels[i + 1] * arity,
                 kernel_size=(map_kernel_size[i], map_kernel_size[i]),
                 padding=(map_kernel_size[i] // 2, map_kernel_size[i] // 2) if map_padding[i] else 0,
-                stride=(map_stride[i], map_stride[i])))
+                stride=(map_stride[i], map_stride[i]))
+
+            # Allow the input channels to pass through (aggregating by summing) to output
+            conv_layer.weight.data[:map_channels[i], :, :, :] = 0.0
+            channel_arange = torch.arange(map_channels[i])
+            conv_layer.weight.data[channel_arange, channel_arange, :, :] = 1.0
+
+            self.map_conv_layers.append(conv_layer)
             # self.embedding_layers.append(torch.nn.Linear(1, map_channels[i + 1]))
-            self.embedding_layers.append(torch.nn.Linear(room_mask_widths[-1], map_channels[i + 1] * arity))
+            embedding_layer = torch.nn.Linear(room_mask_widths[-1], map_channels[i + 1] * arity)
+            embedding_layer.weight.data[channel_arange, :] = 0.0
+            self.embedding_layers.append(embedding_layer)
             # self.map_act_layers.append(MaxOut(arity))
             if batch_norm_momentum > 0:
                 self.map_bn_layers.append(torch.nn.BatchNorm2d(map_channels[i + 1],
@@ -210,11 +217,10 @@ class Network(torch.nn.Module):
             # round_sin = torch.sin(round.to(X.dtype) * (2 * math.pi / self.round_modulus)).unsqueeze(1)
             # round_cos = torch.zeros_like(torch.cos(round.to(X.dtype) * (2 * math.pi / self.round_modulus)).unsqueeze(1))
             # round_sin = torch.zeros_like(torch.sin(round.to(X.dtype) * (2 * math.pi / self.round_modulus)).unsqueeze(1))
-            # round_t = round.to(X.dtype).unsqueeze(1) / self.round_modulus
-            # round_t = torch.zeros_like(round.to(X.dtype).unsqueeze(1) / self.round_modulus)
-            # print(torch.mean(round_t), torch.min(round_t), torch.max(round_t))
+            round_t = torch.zeros_like(round.to(X.dtype).unsqueeze(1))
             # embedding_data = torch.cat([room_mask, round_t, steps_remaining.view(-1, 1) / self.num_rooms], dim=1).to(X.dtype)
-            room_data = room_mask.to(X.dtype)
+            # room_data = room_mask.to(X.dtype)
+            room_data = torch.cat([room_mask, steps_remaining.view(-1, 1), round_t], dim=1).to(X.dtype)
             for i in range(len(self.room_mask_lin_layers)):
                 room_data = self.room_mask_lin_layers[i](room_data)
                 if self.batch_norm_momentum > 0:
