@@ -30,7 +30,6 @@ class MazeBuilderEnv:
         self.map_x = map_x
         self.map_y = map_y
         self.num_envs = num_envs
-        self.max_room_width = max([max(room.width, room.height) for room in rooms]) + 2
 
         self.map_channels = 4
         self.initial_map = torch.zeros([1, self.map_channels, self.map_x + 1, self.map_y + 1],
@@ -63,7 +62,6 @@ class MazeBuilderEnv:
 
     def init_room_data(self):
         # TODO: clean this up and refactor to make it easier to understand
-        padded_room_tensor_list = []
         room_tensor_list = []
         room_tile_list = []
         room_horizontal_list = []
@@ -239,14 +237,6 @@ class MazeBuilderEnv:
 
             room_door_count = torch.sum(torch.abs(room_tensor[1:3, :, :]) > 1)
 
-            pad_left = (self.max_room_width - room_tensor.shape[1]) // 2
-            pad_right = self.max_room_width - (room_tensor.shape[1] + pad_left)
-            pad_up = (self.max_room_width - room_tensor.shape[2]) // 2
-            pad_down = self.max_room_width - (room_tensor.shape[2] + pad_up)
-            padded_room_tensor = F.pad(room_tensor, pad=(pad_up, pad_down, pad_left, pad_right))
-            print(room_tensor.shape, padded_room_tensor.shape, width, height, pad_left, pad_right, pad_up, pad_down, self.max_room_width)
-
-            padded_room_tensor_list.append(padded_room_tensor)
             room_tensor_list.append(room_tensor)
             room_tile_list.append(room_tile)
             room_horizontal_list.append(room_horizontal)
@@ -274,7 +264,6 @@ class MazeBuilderEnv:
             door_data_down_tile_list.append(door_data_down_tile)
             door_data_down_door_list.append(door_data_down_door)
 
-        self.padded_room_tensor = torch.stack(padded_room_tensor_list, dim=0)
         self.room_tensor_list = room_tensor_list
         self.room_tile = torch.cat(room_tile_list, dim=0)
         self.room_horizontal = torch.cat(room_horizontal_list, dim=0)
