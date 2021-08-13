@@ -474,9 +474,9 @@ class MazeBuilderEnv:
         # TODO: avoid recomputing map here
         map = self.compute_current_map()
         unconnected_doors_count = torch.sum(torch.abs(map[:, 1:3, :, :]) > 1, dim=(1, 2, 3))
-        room_doors_count = torch.sum(self.room_mask * self.room_door_count.view(1, -1), dim=1)
-        connected_doors_count = (room_doors_count - unconnected_doors_count) // 2
-        return connected_doors_count
+        room_doors_count = torch.sum(~self.room_mask * self.room_door_count.view(1, -1), dim=1)
+        cost = (room_doors_count + unconnected_doors_count) // 2
+        return -cost
 
     def render(self, env_index=0):
         if self.map_display is None:

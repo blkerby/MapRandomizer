@@ -18,7 +18,7 @@ from maze_builder.env import MazeBuilderEnv
 import logic.rooms.crateria
 from datetime import datetime
 import pickle
-from maze_builder.model import Network
+from maze_builder.model import Model
 from maze_builder.train_session import TrainingSession
 from model_average import ExponentialAverage
 
@@ -84,17 +84,17 @@ max_possible_reward = torch.sum(env.room_door_count) // 2
 logging.info("max_possible_reward = {}".format(max_possible_reward))
 
 def make_dummy_network():
-    return Network(map_x=env.map_x + 1,
-                  map_y=env.map_y + 1,
-                  map_c=env.map_channels,
-                  num_rooms=len(env.rooms),
-                  map_channels=[],
-                  map_stride=[],
-                  map_kernel_size=[],
-                  map_padding=[],
-                  room_mask_widths=[],
-                  fc_widths=[],
-                  ).to(device)
+    return Model(map_x=env.map_x + 1,
+                 map_y=env.map_y + 1,
+                 map_c=env.map_channels,
+                 num_rooms=len(env.rooms),
+                 map_channels=[],
+                 map_stride=[],
+                 map_kernel_size=[],
+                 map_padding=[],
+                 room_mask_widths=[],
+                 fc_widths=[],
+                 ).to(device)
 
 network = make_dummy_network()
 network.state_value_lin.weight.data[:, :] = 0.0
@@ -192,19 +192,19 @@ logging.info(
         map_x, map_y, session.env.num_envs, num_candidates, replay_size, num_params, session.decay_amount))
 
 # session.network = make_network()
-session.network = Network(map_x=env.map_x + 1,
-               map_y=env.map_y + 1,
-               map_c=env.map_channels,
-               num_rooms=len(env.rooms),
-               map_channels=[32, 64, 128],
-               map_stride=[2, 2, 2],
-               map_kernel_size=[5, 3, 3],
-               map_padding=3 * [False],
-               fc_widths=[1024, 256, 64],
-               room_mask_widths=[256, 256],
-               batch_norm_momentum=1.0,
-               global_dropout_p=0.0,
-               ).to(device)
+session.network = Model(map_x=env.map_x + 1,
+                        map_y=env.map_y + 1,
+                        map_c=env.map_channels,
+                        num_rooms=len(env.rooms),
+                        map_channels=[32, 64, 128],
+                        map_stride=[2, 2, 2],
+                        map_kernel_size=[5, 3, 3],
+                        map_padding=3 * [False],
+                        fc_widths=[1024, 256, 64],
+                        room_mask_widths=[256, 256],
+                        batch_norm_momentum=1.0,
+                        global_dropout_p=0.0,
+                        ).to(device)
 logging.info(session.network)
 # session.optimizer = torch.optim.RMSprop(session.network.parameters(), lr=0.001, alpha=0.95)
 session.optimizer = torch.optim.RMSprop(session.network.parameters(), lr=0.02, alpha=0.95)

@@ -1,6 +1,6 @@
 from typing import Optional
 import torch
-from maze_builder.model import Network
+from maze_builder.model import Model
 from maze_builder.env import MazeBuilderEnv
 from maze_builder.replay import ReplayBuffer
 from maze_builder.types import EpisodeData, TrainingData
@@ -8,16 +8,9 @@ from model_average import ExponentialAverage
 import logging
 from dataclasses import dataclass
 
-# TODO: look at using torch.multinomial instead of implementing this from scratch?
-def _rand_choice(p):
-    cumul_p = torch.cumsum(p, dim=1)
-    rnd = torch.rand([p.shape[0], 1], device=p.device)
-    choice = torch.clamp(torch.searchsorted(cumul_p, rnd), max=p.shape[1] - 1).view(-1)
-    return choice
-
 class TrainingSession():
     def __init__(self, env: MazeBuilderEnv,
-                 network: Network,
+                 network: Model,
                  optimizer: torch.optim.Optimizer,
                  ema_beta: float,
                  loss_obj: torch.nn.Module,

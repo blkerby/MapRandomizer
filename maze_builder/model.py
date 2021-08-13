@@ -102,17 +102,18 @@ class MaxOut(torch.nn.Module):
         return torch.max(X, dim=1)[0]
 
 
-class Network(torch.nn.Module):
-    def __init__(self, map_x, map_y, map_c, num_rooms, map_channels, map_stride, map_kernel_size, map_padding,
+class Model(torch.nn.Module):
+    def __init__(self, env_config, map_channels, map_stride, map_kernel_size, map_padding,
                  room_mask_widths, fc_widths,
                  batch_norm_momentum=0.0,
                  map_dropout_p=0.0,
                  global_dropout_p=0.0):
         super().__init__()
-        self.map_x = map_x
-        self.map_y = map_y
-        self.map_c = map_c
-        self.num_rooms = num_rooms
+        self.env_config = env_config
+        self.map_x = env_config.map_x + 1
+        self.map_y = env_config.map_y + 1
+        self.map_c = 4
+        self.num_rooms = len(env_config.rooms) + 1
         self.batch_norm_momentum = batch_norm_momentum
         self.map_dropout_p = map_dropout_p
         self.global_dropout_p = global_dropout_p
@@ -120,7 +121,7 @@ class Network(torch.nn.Module):
         self.room_mask_lin_layers = torch.nn.ModuleList()
         self.room_mask_bn_layers = torch.nn.ModuleList()
         self.room_mask_act_layers = torch.nn.ModuleList()
-        room_mask_widths = [num_rooms + 2] + room_mask_widths
+        room_mask_widths = [self.num_rooms + 1] + room_mask_widths
         for i in range(len(room_mask_widths) - 1):
             self.room_mask_lin_layers.append(torch.nn.Linear(room_mask_widths[i], room_mask_widths[i + 1]))
             if self.batch_norm_momentum > 0:
@@ -135,9 +136,9 @@ class Network(torch.nn.Module):
         self.map_dropout_layers = torch.nn.ModuleList()
         self.embedding_layers = torch.nn.ModuleList()
 
-        map_channels = [map_c] + map_channels
-        width = map_x
-        height = map_y
+        map_channels = [self.map_c] + map_channels
+        width = self.map_x
+        height = self.map_y
         arity = 1
         for i in range(len(map_channels) - 1):
             conv_layer = torch.nn.Conv2d(
@@ -197,7 +198,7 @@ class Network(torch.nn.Module):
         self.state_value_lin = torch.nn.Linear(fc_widths[-1], 1)
         self.project()
 
-    def forward(self, map, room_mask, steps_remaining, round):
+    def forward(self, map, room_mask, steps_remaining):
         # num_envs = map.shape[0]
         # map_c = map.shape[1]
         # map_x = map.shape[2]
@@ -217,10 +218,10 @@ class Network(torch.nn.Module):
             # round_sin = torch.sin(round.to(X.dtype) * (2 * math.pi / self.round_modulus)).unsqueeze(1)
             # round_cos = torch.zeros_like(torch.cos(round.to(X.dtype) * (2 * math.pi / self.round_modulus)).unsqueeze(1))
             # round_sin = torch.zeros_like(torch.sin(round.to(X.dtype) * (2 * math.pi / self.round_modulus)).unsqueeze(1))
-            round_t = torch.zeros_like(round.to(X.dtype).unsqueeze(1))
+            # round_t = torch.zeros_like(round.to(X.dtype).unsqueeze(1))
             # embedding_data = torch.cat([room_mask, round_t, steps_remaining.view(-1, 1) / self.num_rooms], dim=1).to(X.dtype)
             # room_data = room_mask.to(X.dtype)
-            room_data = torch.cat([room_mask, steps_remaining.view(-1, 1), round_t], dim=1).to(X.dtype)
+            room_data = torch.cat([room_mask, steps_remaining.view(-1, 1)], dim=1).to(X.dtype)
             for i in range(len(self.room_mask_lin_layers)):
                 room_data = self.room_mask_lin_layers[i](room_data)
                 if self.batch_norm_momentum > 0:
@@ -280,3 +281,40 @@ class Network(torch.nn.Module):
             # layer.weight.data = approx_l1_projection(layer.weight.data, dim=1, num_iters=5)
             # layer.weight.data /= torch.max(torch.abs(layer.weight.data) + eps, dim=1)[0].unsqueeze(1)
             layer.weight.data /= torch.sqrt(torch.mean(layer.weight.data ** 2, dim=1, keepdim=True) + eps)
+
+    def forward_state_action(self, env, room_mask, room_position_x, room_position_y, action_candidates, steps_remaining):
+        num_envs = room_mask.shape[0]
+        num_candidates = action_candidates.shape[1]
+        num_rooms = self.num_rooms
+        action_room_id = action_candidates[:, :, 0]
+        action_x = action_candidates[:, :, 1]
+        action_y = action_candidates[:, :, 2]
+        all_room_mask = room_mask.unsqueeze(1).repeat(1, num_candidates + 1, 1)
+        all_room_position_x = room_position_x.unsqueeze(1).repeat(1, num_candidates + 1, 1)
+        all_room_position_y = room_position_y.unsqueeze(1).repeat(1, num_candidates + 1, 1)
+        all_steps_remaining = steps_remaining.unsqueeze(1).repeat(1, num_candidates + 1)
+
+        all_room_mask[torch.arange(num_envs, device=action_candidates.device).view(-1, 1),
+                      torch.arange(1, 1 + num_candidates, device=action_candidates.device).view(1, -1),
+                      action_room_id] = True
+        all_room_mask[:, :, -1] = False
+        all_room_position_x[torch.arange(num_envs, device=action_candidates.device).view(-1, 1),
+                            torch.arange(1, 1 + num_candidates, device=action_candidates.device).view(1, -1),
+                            action_room_id] = action_x
+        all_room_position_y[torch.arange(num_envs, device=action_candidates.device).view(-1, 1),
+                            torch.arange(1, 1 + num_candidates, device=action_candidates.device).view(1, -1),
+                            action_room_id] = action_y
+        all_steps_remaining[:, 1:] -= 1
+
+        room_mask_flat = all_room_mask.view(num_envs * (1 + num_candidates), num_rooms)
+        room_position_x_flat = all_room_position_x.view(num_envs * (1 + num_candidates), num_rooms)
+        room_position_y_flat = all_room_position_y.view(num_envs * (1 + num_candidates), num_rooms)
+        steps_remaining_flat = all_steps_remaining.view(num_envs * (1 + num_candidates))
+
+        map_flat = env.compute_map(room_mask_flat, room_position_x_flat, room_position_y_flat)
+
+        out_flat = self.forward(map_flat, room_mask_flat, steps_remaining_flat)
+        out = out_flat.view(num_envs, 1 + num_candidates)
+        state_value = out[:, 0]
+        action_value = out[:, 1:]
+        return state_value, action_value
