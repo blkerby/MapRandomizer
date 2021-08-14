@@ -19,15 +19,13 @@ logging.basicConfig(format='%(asctime)s %(message)s',
                     handlers=[logging.FileHandler(base_path + "logs/gen-{}.log".format(start_time_str)),
                               logging.StreamHandler()])
 
-device = torch.device('cuda:0')
+device = torch.device('cuda:1')
 
 env_config = EnvConfig(
     rooms=all_rooms.rooms,
     map_x=60,
     map_y=60,
 )
-
-
 
 model = Model(env_config=env_config,
              map_channels=[],

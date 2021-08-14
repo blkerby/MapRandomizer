@@ -37,7 +37,7 @@ def generate_episode_batch(env, model: Model, episode_length: int, num_candidate
         action_prob_list.append(selected_action_prob)
 
     reward_tensor = env.reward().to(torch.device('cpu'))
-    action_tensor = torch.stack(action_list, dim=1).to(torch.int8).to(torch.device('cpu'))
+    action_tensor = torch.stack(action_list, dim=1).to(torch.uint8).to(torch.device('cpu'))
     action_prob_tensor = torch.stack(action_prob_list, dim=1).to(torch.device('cpu'))
     return reward_tensor, action_tensor, action_prob_tensor
 
@@ -86,8 +86,8 @@ def generate_episodes(base_path: str,
         ci_reward = std_reward * 1.96 / math.sqrt(cnt_episodes)
         mean_action_prob = total_action_prob / cnt_episodes
 
-        logging.info("batch {}/{}: reward={:.3f} +/- {:.3f}, action_prob={:.6f}".format(
-            i, num_batches, mean_reward, ci_reward, mean_action_prob))
+        logging.info("batch {}/{}: cost={:.5f} +/- {:.5f}, action_prob={:.6f}".format(
+            i, num_batches, env.max_reward - mean_reward, ci_reward, mean_action_prob))
 
         if (i + 1) % save_freq == 0 or i == num_batches - 1:
             full_episode_data = EpisodeData(

@@ -81,8 +81,26 @@ class EnvConfig:
 
 @dataclass
 class EpisodeData:
-    action: torch.tensor   # 3D int8: (num_episodes, episode_length, 3)  (room id, x position, y position)
+    action: torch.tensor   # 3D uint8: (num_episodes, episode_length, 3)  (room id, x position, y position)
     reward: torch.tensor   # 1D int64: num_episodes
+
+
+@dataclass
+class FitConfig:
+    input_data_path: str
+    output_path: str
+    eval_num_episodes: int
+    eval_sample_interval: int
+    eval_batch_size: int
+    eval_freq: int
+    train_num_episodes: int
+    train_sample_interval: int
+    train_batch_size: int
+    bootstrap_n: Optional[int]
+    optimizer_learning_rate0: float
+    optimizer_learning_rate1: float
+    optimizer_alpha: float
+    polyak_ema_beta: float
 
     # def move_to(self, device):
     #     for field in self.__dataclass_fields__.keys():
