@@ -29,22 +29,24 @@ env_config = EnvConfig(
 fit_config = FitConfig(
     input_data_path='models/random/',
     output_path=output_path,
-    train_num_episodes=2 ** 20,
-    train_batch_size=1024,
-    train_sample_interval=1,
-    train_loss_obj=torch.nn.HuberLoss(delta=4.0),
-    eval_num_episodes=2 ** 16,
+    eval_num_episodes=2 ** 18,
     # eval_num_episodes=2 ** 14,
     # eval_sample_interval=len(env_config.rooms) // 4,
     eval_sample_interval=64,
     eval_batch_size=1024,
-    eval_freq=128,
+    eval_freq=1024,
     eval_loss_objs=[torch.nn.HuberLoss(delta=4.0)],
+    train_num_episodes=2 ** 19,
+    train_batch_size=1024,
+    train_sample_interval=2,
+    train_loss_obj=torch.nn.HuberLoss(delta=4.0),
+    train_shuffle_seed=0,
     bootstrap_n=None,
-    optimizer_learning_rate0=0.005,
-    optimizer_learning_rate1=0.005,
+    optimizer_learning_rate0=0.002,
+    optimizer_learning_rate1=0.002,
     optimizer_alpha=0.95,
     polyak_ema_beta=0.99,
+    sam_scale=None,
 )
 
 model = Model(env_config=env_config,
@@ -54,10 +56,8 @@ model = Model(env_config=env_config,
               map_padding=3 * [False],
               fc_widths=[1024, 256, 64],
               room_mask_widths=[256, 256],
-              batch_norm_momentum=1.0,
+              batch_norm_momentum=0.05,
               global_dropout_p=0.0,
               ).to(device)
-model.state_value_lin.weight.data.zero_()
-model.state_value_lin.bias.data.zero_()
 
-episode_data = fit_model(fit_config, model)
+# episode_data = fit_model(fit_config, model)

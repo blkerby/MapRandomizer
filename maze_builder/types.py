@@ -95,6 +95,7 @@ class FitConfig:
     train_sample_interval: int
     train_batch_size: int
     train_loss_obj: torch.nn.Module
+    train_shuffle_seed: int
     eval_num_episodes: int
     eval_sample_interval: int
     eval_batch_size: int
@@ -105,6 +106,7 @@ class FitConfig:
     optimizer_learning_rate1: float
     optimizer_alpha: float
     polyak_ema_beta: float
+    sam_scale: Optional[float]
 
     # def move_to(self, device):
     #     for field in self.__dataclass_fields__.keys():

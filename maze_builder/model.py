@@ -39,19 +39,29 @@ def approx_l1_projection(x: torch.tensor, dim: List[int], num_iters: int) -> tor
     return proj * x_sgn
 
 
+def multi_unsqueeze(X, target_dim):
+    while len(X.shape) < target_dim:
+        X = X.unsqueeze(-1)
+    return X
+
+
 class LinearNormalizer(torch.nn.Module):
-    def __init__(self, lin_module: torch.nn.Module, lr: float, dim: List[int]):
+    def __init__(self, lin: torch.nn.Module, lr: float, dim: List[int], eps=1e-5):
         super().__init__()
         self.lr = lr
-        self.lin_module = lin_module
+        self.lin = lin
         self.dim = dim
+        self.eps = eps
+
 
     def forward(self, X):
         Y = self.lin(X)
         if self.training:
-            Y_std, Y_mean = torch.std_mean(Y.detach(), dim=self.dim, keepdim=True)
+            Y_std, Y_mean = torch.std_mean(Y.detach(), dim=self.dim)
+            Y_std = torch.clamp(multi_unsqueeze(Y_std, len(self.lin.weight.shape)), min=self.eps)
+            # print(self.lin.bias.shape, Y_mean.shape)
             self.lin.bias.data -= Y_mean * self.lr
-            self.lin.weight.data[:, :] /= Y_std.view(-1, 1) ** self.lr
+            self.lin.weight.data /= Y_std ** self.lr
             self.Y_mean = Y_mean
             self.Y_std = Y_std
         return Y
@@ -122,13 +132,19 @@ class Model(torch.nn.Module):
         self.room_mask_bn_layers = torch.nn.ModuleList()
         self.room_mask_act_layers = torch.nn.ModuleList()
         room_mask_widths = [self.num_rooms + 1] + room_mask_widths
+        # common_act = torch.nn.Softplus()
+        common_act = torch.nn.SELU()
         for i in range(len(room_mask_widths) - 1):
-            self.room_mask_lin_layers.append(torch.nn.Linear(room_mask_widths[i], room_mask_widths[i + 1]))
-            if self.batch_norm_momentum > 0:
-                self.room_mask_bn_layers.append(torch.nn.BatchNorm1d(room_mask_widths[i + 1],
-                                                                  # affine=False,
-                                                                  momentum=batch_norm_momentum))
-            self.room_mask_act_layers.append(torch.nn.ReLU())
+            lin = torch.nn.Linear(room_mask_widths[i], room_mask_widths[i + 1])
+            self.room_mask_lin_layers.append(lin)
+            # if self.batch_norm_momentum > 0:
+            #     self.room_mask_bn_layers.append(torch.nn.BatchNorm1d(room_mask_widths[i + 1],
+            #                                                       # affine=False,
+            #                                                       momentum=batch_norm_momentum))
+            # self.room_mask_act_layers.append(torch.nn.SELU())
+            # self.room_mask_act_layers.append(torch.nn.ReLU())
+            # self.room_mask_act_layers.append(torch.nn.SiLU())
+            self.room_mask_act_layers.append(common_act)
 
         self.map_conv_layers = torch.nn.ModuleList()
         self.map_act_layers = torch.nn.ModuleList()
@@ -147,24 +163,28 @@ class Model(torch.nn.Module):
                 padding=(map_kernel_size[i] // 2, map_kernel_size[i] // 2) if map_padding[i] else 0,
                 stride=(map_stride[i], map_stride[i]))
 
-            # Allow the input channels to pass through (aggregating by summing) to output
-            conv_layer.weight.data[:map_channels[i], :, :, :] = 0.0
-            channel_arange = torch.arange(map_channels[i])
-            conv_layer.weight.data[channel_arange, channel_arange, :, :] = 1.0
+            # # Allow the input channels to pass through (aggregating by summing) to output
+            # conv_layer.weight.data[:map_channels[i], :, :, :] = 0.0
+            # channel_arange = torch.arange(map_channels[i])
+            # conv_layer.weight.data[channel_arange, channel_arange, :, :] = 1.0
 
             self.map_conv_layers.append(conv_layer)
-            # self.embedding_layers.append(torch.nn.Linear(1, map_channels[i + 1]))
-            embedding_layer = torch.nn.Linear(room_mask_widths[-1], map_channels[i + 1] * arity)
-            embedding_layer.weight.data[channel_arange, :] = 0.0
-            self.embedding_layers.append(embedding_layer)
-            # self.map_act_layers.append(MaxOut(arity))
-            if batch_norm_momentum > 0:
-                self.map_bn_layers.append(torch.nn.BatchNorm2d(map_channels[i + 1],
-                                                               # affine=False,
-                                                               momentum=batch_norm_momentum))
-            self.map_act_layers.append(torch.nn.ReLU())
-            if map_dropout_p > 0:
-                self.map_dropout_layers.append(torch.nn.Dropout2d(map_dropout_p))
+
+            # # self.embedding_layers.append(torch.nn.Linear(1, map_channels[i + 1]))
+            # embedding_layer = torch.nn.Linear(room_mask_widths[-1], map_channels[i + 1] * arity)
+            # embedding_layer.weight.data[channel_arange, :] = 0.0
+            # self.embedding_layers.append(embedding_layer)
+            # # self.map_act_layers.append(MaxOut(arity))
+            # if batch_norm_momentum > 0:
+            #     self.map_bn_layers.append(torch.nn.BatchNorm2d(map_channels[i + 1],
+            #                                                    # affine=False,
+            #                                                    momentum=batch_norm_momentum))
+            self.map_act_layers.append(common_act)
+            # self.map_act_layers.append(torch.nn.SiLU())
+            # self.map_act_layers.append(torch.nn.ReLU())
+            # self.map_act_layers.append(torch.nn.SELU())
+            # if map_dropout_p > 0:
+            #     self.map_dropout_layers.append(torch.nn.Dropout2d(map_dropout_p))
             # self.map_act_layers.append(PReLU2d(map_channels[i + 1]))
             # self.map_bn_layers.append(torch.nn.BatchNorm2d(map_channels[i + 1], momentum=batch_norm_momentum))
             # global_map_layers.append(torch.nn.MaxPool2d(3, stride=2, padding=1))
@@ -182,17 +202,21 @@ class Model(torch.nn.Module):
         self.global_dropout_layers = torch.nn.ModuleList()
         # global_fc_widths = [(width * height * map_channels[-1]) + 1 + room_tensor.shape[0]] + global_fc_widths
         # fc_widths = [width * height * map_channels[-1]] + fc_widths
-        fc_widths = [map_channels[-1]] + fc_widths
+        fc_widths = [map_channels[-1] + 1 + self.num_rooms] + fc_widths
         for i in range(len(fc_widths) - 1):
-            self.global_lin_layers.append(torch.nn.Linear(fc_widths[i], fc_widths[i + 1] * arity))
+            lin = torch.nn.Linear(fc_widths[i], fc_widths[i + 1] * arity)
+            self.global_lin_layers.append(lin)
             # global_fc_layers.append(MaxOut(arity))
-            if self.batch_norm_momentum > 0:
-                self.global_bn_layers.append(torch.nn.BatchNorm1d(fc_widths[i + 1],
-                                                                  # affine=False,
-                                                                  momentum=batch_norm_momentum))
-            self.global_act_layers.append(torch.nn.ReLU())
-            if global_dropout_p > 0:
-                self.global_dropout_layers.append(torch.nn.Dropout(global_dropout_p))
+            # if self.batch_norm_momentum > 0:
+            #     self.global_bn_layers.append(torch.nn.BatchNorm1d(fc_widths[i + 1],
+            #                                                       # affine=False,
+            #                                                       momentum=batch_norm_momentum))
+            self.global_act_layers.append(common_act)
+            # self.global_act_layers.append(torch.nn.ReLU())
+            # self.global_act_layers.append(torch.nn.SiLU())
+            # self.global_act_layers.append(torch.nn.SELU())
+            # if global_dropout_p > 0:
+            #     self.global_dropout_layers.append(torch.nn.Dropout(global_dropout_p))
             # global_fc_layers.append(PReLU(fc_widths[i + 1]))
         # global_fc_layers.append(torch.nn.Linear(fc_widths[-1], 1))
         self.state_value_lin = torch.nn.Linear(fc_widths[-1], 1)
@@ -224,31 +248,31 @@ class Model(torch.nn.Module):
             room_data = torch.cat([room_mask, steps_remaining.view(-1, 1)], dim=1).to(X.dtype)
             for i in range(len(self.room_mask_lin_layers)):
                 room_data = self.room_mask_lin_layers[i](room_data)
-                if self.batch_norm_momentum > 0:
-                    room_data = self.room_mask_bn_layers[i](room_data)
+                # if self.batch_norm_momentum > 0:
+                #     room_data = self.room_mask_bn_layers[i](room_data)
                 room_data = self.room_mask_act_layers[i](room_data)
 
             for i in range(len(self.map_conv_layers)):
                 X = self.map_conv_layers[i](X)
-                embedding_out = self.embedding_layers[i](room_data)
-                X = X + embedding_out.unsqueeze(2).unsqueeze(3).to(memory_format=torch.channels_last)
-                if self.batch_norm_momentum > 0:
-                    X = self.map_bn_layers[i](X)
+                # embedding_out = self.embedding_layers[i](room_data)
+                # X = X + embedding_out.unsqueeze(2).unsqueeze(3).to(memory_format=torch.channels_last)
+                # if self.batch_norm_momentum > 0:
+                #     X = self.map_bn_layers[i](X)
                 X = self.map_act_layers[i](X)
-                if self.map_dropout_p > 0:
-                    X = self.map_dropout_layers[i](X)
+                # if self.map_dropout_p > 0:
+                #     X = self.map_dropout_layers[i](X)
 
                 # X = self.map_bn_layers[i](X)
 
             # Fully-connected layers on whole map data (starting with output of convolutional layers)
-            # X = torch.cat([X, steps_remaining.view(-1, 1), room_mask], dim=1)
             X = self.map_global_pool(X)
+            X = torch.cat([X, steps_remaining.view(-1, 1), room_mask], dim=1)
             # X = self.map_flatten(X)
             for i in range(len(self.global_lin_layers)):
                 # print(X.shape, layer)
                 X = self.global_lin_layers[i](X)
-                if self.batch_norm_momentum > 0:
-                    X = self.global_bn_layers[i](X)
+                # if self.batch_norm_momentum > 0:
+                #     X = self.global_bn_layers[i](X)
                 X = self.global_act_layers[i](X)
                 if self.global_dropout_p > 0:
                     X = self.global_dropout_layers[i](X)
@@ -270,17 +294,18 @@ class Model(torch.nn.Module):
         return params
 
     def project(self):
-        eps = 1e-15
-        for layer in self.map_conv_layers:
-            # layer.weight.data = approx_l1_projection(layer.weight.data, dim=(1, 2, 3), num_iters=5)
-            # shape = layer.weight.shape
-            # layer.weight.data /= torch.max(torch.abs(layer.weight.data.view(shape[0], -1)) + eps, dim=1)[0].view(-1, 1,
-            #                                                                                                      1, 1)
-            layer.weight.data /= torch.sqrt(torch.mean(layer.weight.data ** 2, dim=(1, 2, 3), keepdim=True) + eps)
-        for layer in self.global_lin_layers:
-            # layer.weight.data = approx_l1_projection(layer.weight.data, dim=1, num_iters=5)
-            # layer.weight.data /= torch.max(torch.abs(layer.weight.data) + eps, dim=1)[0].unsqueeze(1)
-            layer.weight.data /= torch.sqrt(torch.mean(layer.weight.data ** 2, dim=1, keepdim=True) + eps)
+        pass
+        # eps = 1e-15
+        # for layer in self.map_conv_layers:
+        #     # layer.weight.data = approx_l1_projection(layer.weight.data, dim=(1, 2, 3), num_iters=5)
+        #     # shape = layer.weight.shape
+        #     # layer.weight.data /= torch.max(torch.abs(layer.weight.data.view(shape[0], -1)) + eps, dim=1)[0].view(-1, 1,
+        #     #                                                                                                      1, 1)
+        #     layer.lin.weight.data /= torch.sqrt(torch.mean(layer.lin.weight.data ** 2, dim=(1, 2, 3), keepdim=True) + eps)
+        # for layer in self.global_lin_layers:
+        #     # layer.weight.data = approx_l1_projection(layer.weight.data, dim=1, num_iters=5)
+        #     # layer.weight.data /= torch.max(torch.abs(layer.weight.data) + eps, dim=1)[0].unsqueeze(1)
+        #     layer.lin.weight.data /= torch.sqrt(torch.mean(layer.lin.weight.data ** 2, dim=1, keepdim=True) + eps)
 
     def forward_state_action(self, env, room_mask, room_position_x, room_position_y, action_candidates, steps_remaining):
         num_envs = room_mask.shape[0]

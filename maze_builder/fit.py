@@ -44,9 +44,9 @@ def eval(fit_config: FitConfig, model: Model, env: MazeBuilderEnv, eval_episode_
     device = next(iter(model.parameters())).device
     num_eval_batches = (eval_episode_ind.shape[0] + fit_config.eval_batch_size - 1) // fit_config.eval_batch_size
 
-    eval_loss = torch.zeros([len(fit_config.eval_loss_objs), eval_episode_data.action.shape[0]], dtype=torch.float64)
-    eval_cnt = torch.zeros([eval_episode_data.action.shape[0]], dtype=torch.float64)
-    ones = torch.ones([fit_config.eval_batch_size], dtype=torch.float64)
+    eval_loss = torch.zeros([len(fit_config.eval_loss_objs), eval_episode_data.action.shape[0]], dtype=torch.float32)
+    eval_cnt = torch.zeros([eval_episode_data.action.shape[0]], dtype=torch.float32)
+    ones = torch.ones([fit_config.eval_batch_size], dtype=torch.float32)
     for i in range(num_eval_batches):
         batch_episode_ind = extract_batch(eval_episode_ind, fit_config.eval_batch_size, i)
         batch_step_ind = extract_batch(eval_step_ind, fit_config.eval_batch_size, i)
@@ -56,7 +56,7 @@ def eval(fit_config: FitConfig, model: Model, env: MazeBuilderEnv, eval_episode_
         for j, loss_obj in enumerate(fit_config.eval_loss_objs):
             loss_obj.reduction = 'none'
             loss = loss_obj(batch_state_value, batch_reward)
-            eval_loss[j, :].scatter_add_(dim=0, index=batch_episode_ind, src=loss.to('cpu').to(torch.float64))
+            eval_loss[j, :].scatter_add_(dim=0, index=batch_episode_ind, src=loss.to('cpu'))
         eval_cnt.scatter_add_(dim=0, index=batch_episode_ind, src=ones)
     eval_loss /= eval_cnt
     eval_loss_mean = torch.mean(eval_loss, dim=1)
@@ -82,6 +82,7 @@ def fit_model(fit_config: FitConfig, model: Model):
     )
     del episode_data_list
 
+    logging.info("Shuffling data")
     eval_episode_data = EpisodeData(
         action=episode_data.action[:fit_config.eval_num_episodes],
         reward=episode_data.reward[:fit_config.eval_num_episodes],
@@ -104,6 +105,10 @@ def fit_model(fit_config: FitConfig, model: Model):
         episode_length=train_episode_data.action.shape[1],
         sample_interval=fit_config.train_sample_interval,
     )
+    torch.manual_seed(fit_config.train_shuffle_seed)
+    train_perm = torch.randperm(train_episode_ind.shape[0])
+    train_episode_ind = train_episode_ind[train_perm]
+    train_step_ind = train_step_ind[train_perm]
 
     device = next(iter(model.parameters())).device
     env = MazeBuilderEnv(rooms=model.env_config.rooms,
@@ -113,17 +118,24 @@ def fit_model(fit_config: FitConfig, model: Model):
                          device=device)
     num_train_batches = train_episode_ind.shape[0] // fit_config.train_batch_size
 
-    device = next(iter(model.parameters())).device
     grad_scaler = torch.cuda.amp.GradScaler()
     optimizer = torch.optim.RMSprop(model.parameters(),
                                     lr=fit_config.optimizer_learning_rate0,
                                     alpha=fit_config.optimizer_alpha)
     average_parameters = ExponentialAverage(model.all_param_data(), beta=fit_config.polyak_ema_beta)
-
     i = 0
+
     total_loss = 0.0
     total_loss_cnt = 0
+    logging.info(fit_config)
+    logging.info(model)
+    logging.info(optimizer)
+    logging.info("Training")
     while i < num_train_batches:
+        frac = i / num_train_batches
+        lr = fit_config.optimizer_learning_rate0 * (fit_config.optimizer_learning_rate1 / fit_config.optimizer_learning_rate0) ** frac
+        optimizer.param_groups[0]['lr'] = lr
+
         batch_episode_ind = extract_batch(train_episode_ind, fit_config.train_batch_size, i)
         batch_step_ind = extract_batch(train_step_ind, fit_config.train_batch_size, i)
         batch_state_value = forward(env, model, train_episode_data, batch_episode_ind, batch_step_ind, device)
@@ -131,12 +143,19 @@ def fit_model(fit_config: FitConfig, model: Model):
         loss = fit_config.train_loss_obj(batch_state_value, batch_reward.to(torch.float32))
 
         optimizer.zero_grad()
+
+        if fit_config.sam_scale is not None:
+            saved_params = [param.data.clone() for param in model.parameters()]
+            for param in model.parameters():
+                param.data += torch.randn_like(param.data) * fit_config.sam_scale
+            # model.project()
+
         # with torch.autograd.detect_anomaly():
         grad_scaler.scale(loss).backward()
 
-        # if self.sam_scale is not None:
-        #     for i, param in enumerate(self.network.parameters()):
-        #         param.data.copy_(saved_params[i])
+        if fit_config.sam_scale is not None:
+            for j, param in enumerate(model.parameters()):
+                param.data.copy_(saved_params[j])
 
         grad_scaler.step(optimizer)
         grad_scaler.update()
@@ -145,16 +164,19 @@ def fit_model(fit_config: FitConfig, model: Model):
         total_loss += loss.item()
         total_loss_cnt += 1
 
+        i += 1
         if i % fit_config.eval_freq == 0:
+            model.eval()
             with average_parameters.average_parameters(model.all_param_data()):
-                model.eval()
                 eval_fmt = eval(fit_config, model, env, eval_episode_data, eval_episode_ind, eval_step_ind)
-            logging.info("{}/{}: train={:.3f}, test={}".format(
-                i, num_train_batches, total_loss / total_loss_cnt, eval_fmt))
+            logging.info("{}/{}: train={:.3f}, test={}, lr={:.4f}".format(
+                i, num_train_batches, total_loss / total_loss_cnt, eval_fmt, lr))
             total_loss_cnt = 0
             total_loss = 0.0
             model.train()
 
-        i += 1
+    average_parameters.use_averages(model.all_param_data())
+    eval_fmt = eval(fit_config, model, env, eval_episode_data, eval_episode_ind, eval_step_ind)
+    logging.info("{}/{}: final test={}".format(i, num_train_batches, eval_fmt))
 
     # return episode_data
