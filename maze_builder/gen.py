@@ -43,7 +43,7 @@ def generate_episode_batch(env, model: Model, episode_length: int, num_candidate
 
 
 def generate_episodes(base_path: str,
-                      output_filename: str,
+                      output_prefix: str,
                       num_episodes: int,
                       batch_size: int,
                       num_candidates: int,
@@ -65,6 +65,7 @@ def generate_episodes(base_path: str,
     total_reward2 = 0
     total_action_prob = 0
     cnt_episodes = 0
+    cnt_save = 0
     for i in range(num_batches):
         env.reset()
         reward, action, action_prob = generate_episode_batch(
@@ -94,6 +95,9 @@ def generate_episodes(base_path: str,
                 reward=torch.cat(reward_list, dim=0),
                 action=torch.cat(action_list, dim=0),
             )
-            pickle_name = base_path + output_filename
+            pickle_name = base_path + output_prefix + '-{}.pkl'.format(cnt_save)
             pickle.dump(full_episode_data, open(pickle_name, 'wb'))
             logging.info("Wrote to {}".format(pickle_name))
+            reward_list = []
+            action_list = []
+            cnt_save += 1

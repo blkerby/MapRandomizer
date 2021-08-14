@@ -54,7 +54,9 @@ class Room:
             self.sand_up = [[0 for _ in range(self.width)] for _ in range(self.height)]
 
 
+
 def reconstruct_room_data(action, step_indices, num_rooms):
+    action = action.to(torch.int64)
     n = action.shape[0]
     episode_length = action.shape[1]
     device = action.device
@@ -89,13 +91,15 @@ class EpisodeData:
 class FitConfig:
     input_data_path: str
     output_path: str
+    train_num_episodes: int
+    train_sample_interval: int
+    train_batch_size: int
+    train_loss_obj: torch.nn.Module
     eval_num_episodes: int
     eval_sample_interval: int
     eval_batch_size: int
     eval_freq: int
-    train_num_episodes: int
-    train_sample_interval: int
-    train_batch_size: int
+    eval_loss_objs: List[torch.nn.Module]
     bootstrap_n: Optional[int]
     optimizer_learning_rate0: float
     optimizer_learning_rate1: float

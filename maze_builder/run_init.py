@@ -37,10 +37,10 @@ model = Model(env_config=env_config,
 pickle.dump(model, open(base_path + 'model.pkl', 'wb'))
 
 generate_episodes(base_path='models/random/',
-                  output_filename='data-{}.pkl'.format(start_time_str),
+                  output_prefix='data-{}'.format(start_time_str),
                   num_episodes=2**24,
                   batch_size=1024,
                   num_candidates=1,
                   temperature=1.0,
-                  save_freq=128,
+                  save_freq=32,
                   device=device)

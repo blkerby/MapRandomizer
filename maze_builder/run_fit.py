@@ -29,16 +29,20 @@ env_config = EnvConfig(
 fit_config = FitConfig(
     input_data_path='models/random/',
     output_path=output_path,
-    eval_num_episodes=2 ** 16,
-    eval_sample_interval=1,
-    eval_batch_size=1024,
-    eval_freq=4,
     train_num_episodes=2 ** 20,
     train_batch_size=1024,
     train_sample_interval=1,
+    train_loss_obj=torch.nn.HuberLoss(delta=4.0),
+    eval_num_episodes=2 ** 16,
+    # eval_num_episodes=2 ** 14,
+    # eval_sample_interval=len(env_config.rooms) // 4,
+    eval_sample_interval=64,
+    eval_batch_size=1024,
+    eval_freq=128,
+    eval_loss_objs=[torch.nn.HuberLoss(delta=4.0)],
     bootstrap_n=None,
-    optimizer_learning_rate0=0.01,
-    optimizer_learning_rate1=0.01,
+    optimizer_learning_rate0=0.005,
+    optimizer_learning_rate1=0.005,
     optimizer_alpha=0.95,
     polyak_ema_beta=0.99,
 )
@@ -53,5 +57,7 @@ model = Model(env_config=env_config,
               batch_norm_momentum=1.0,
               global_dropout_p=0.0,
               ).to(device)
+model.state_value_lin.weight.data.zero_()
+model.state_value_lin.bias.data.zero_()
 
 episode_data = fit_model(fit_config, model)
