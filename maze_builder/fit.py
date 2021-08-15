@@ -24,9 +24,6 @@ def extract_batch(X: torch.tensor, batch_size, batch_num) -> torch.tensor:
     end = (batch_num + 1) * batch_size
     return X[start:end]
 
-
-
-
 def forward(env: MazeBuilderEnv, model: Model, episode_data: EpisodeData,
             episode_ind: torch.tensor, step_ind: torch.tensor, device: torch.device) -> torch.tensor:
     action = episode_data.action[episode_ind, :, :]
@@ -36,8 +33,8 @@ def forward(env: MazeBuilderEnv, model: Model, episode_data: EpisodeData,
     room_position_y = room_position_y.to(device)
     map = env.compute_map(room_mask, room_position_x, room_position_y)
     episode_length = episode_data.action.shape[1]
-    state_value = model.forward(map, room_mask, episode_length - step_ind.to(device))
-    return state_value
+    state_value_raw_logprobs, state_value_probs, state_value_expected = model.forward_multiclass(map, room_mask, episode_length - step_ind.to(device))
+    return state_value_raw_logprobs, state_value_probs, state_value_expected
 
 def eval(fit_config: FitConfig, model: Model, env: MazeBuilderEnv, eval_episode_data: EpisodeData,
          eval_episode_ind: torch.tensor, eval_step_ind: torch.tensor):
@@ -51,11 +48,18 @@ def eval(fit_config: FitConfig, model: Model, env: MazeBuilderEnv, eval_episode_
         batch_episode_ind = extract_batch(eval_episode_ind, fit_config.eval_batch_size, i)
         batch_step_ind = extract_batch(eval_step_ind, fit_config.eval_batch_size, i)
         with torch.no_grad():
-            batch_state_value = forward(env, model, eval_episode_data, batch_episode_ind, batch_step_ind, device)
+            batch_state_value_raw_logprobs, batch_state_value_probs, batch_state_value_expected = forward(
+                env, model, eval_episode_data, batch_episode_ind, batch_step_ind, device)
         batch_reward = eval_episode_data.reward[batch_episode_ind].to(device)
         for j, loss_obj in enumerate(fit_config.eval_loss_objs):
             loss_obj.reduction = 'none'
-            loss = loss_obj(batch_state_value, batch_reward)
+            if isinstance(loss_obj, torch.nn.CrossEntropyLoss):
+                pred = batch_state_value_raw_logprobs
+                target = batch_reward
+            else:
+                pred = batch_state_value_expected
+                target = batch_reward.to(torch.float32)
+            loss = loss_obj(pred, target)
             eval_loss[j, :].scatter_add_(dim=0, index=batch_episode_ind, src=loss.to('cpu'))
         eval_cnt.scatter_add_(dim=0, index=batch_episode_ind, src=ones)
     eval_loss /= eval_cnt
@@ -82,7 +86,6 @@ def fit_model(fit_config: FitConfig, model: Model):
     )
     del episode_data_list
 
-    episode_length = episode_data.action.shape[1]
     total_episodes_to_use = fit_config.eval_num_episodes + fit_config.train_num_episodes
     logging.info("Loaded {} episodes, to use {} ({} for eval, {} for train)".format(
         episode_data.reward.shape[0], total_episodes_to_use, fit_config.eval_num_episodes, fit_config.train_num_episodes
@@ -143,19 +146,16 @@ def fit_model(fit_config: FitConfig, model: Model):
 
         batch_episode_ind = extract_batch(train_episode_ind, fit_config.train_batch_size, i)
         batch_step_ind = extract_batch(train_step_ind, fit_config.train_batch_size, i)
-        batch_state_value = forward(env, model, train_episode_data, batch_episode_ind, batch_step_ind, device)
-        batch_reward = train_episode_data.reward[batch_episode_ind].to(device).to(torch.float32)
-        if fit_config.bootstrap_n is None:
-            batch_target = batch_reward
+        batch_state_value_raw_logprobs, batch_state_value_probs, batch_state_value_expected = forward(
+            env, model, train_episode_data, batch_episode_ind, batch_step_ind, device)
+        batch_reward = train_episode_data.reward[batch_episode_ind].to(device)
+        if isinstance(fit_config.train_loss_obj, torch.nn.CrossEntropyLoss):
+            pred = batch_state_value_raw_logprobs
+            target = batch_reward
         else:
-            with average_parameters.average_parameters(model.all_param_data()):
-                with torch.no_grad():
-                    batch_step_ind_n_raw = batch_step_ind + fit_config.bootstrap_n
-                    batch_step_ind_n = torch.clamp_max(batch_step_ind_n_raw, episode_length - 1)
-                    batch_state_value_n = forward(env, model, train_episode_data, batch_episode_ind, batch_step_ind_n, device)
-                    batch_done_n = (batch_step_ind_n_raw >= episode_length).to(device)
-                    batch_target = torch.where(batch_done_n, batch_reward, batch_state_value_n)
-        loss = fit_config.train_loss_obj(batch_state_value, batch_target)
+            pred = batch_state_value_expected
+            target = batch_reward.to(torch.float32)
+        loss = fit_config.train_loss_obj(pred, target)
 
         optimizer.zero_grad()
 

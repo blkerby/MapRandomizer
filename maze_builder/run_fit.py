@@ -1,4 +1,5 @@
 from logic.rooms import all_rooms
+from maze_builder.env import MazeBuilderEnv
 from maze_builder.types import EnvConfig, FitConfig
 from maze_builder.model import Model
 from maze_builder.fit import fit_model
@@ -25,7 +26,7 @@ logging.basicConfig(format='%(asctime)s %(message)s',
                               logging.StreamHandler()])
 logging.info("Logging to {}".format(log_path))
 
-device = torch.device('cuda:0')
+device = torch.device('cuda:1')
 
 env_config = EnvConfig(
     rooms=all_rooms.rooms,
@@ -33,19 +34,20 @@ env_config = EnvConfig(
     map_y=60,
 )
 
+env = MazeBuilderEnv(env_config.rooms, env_config.map_x, env_config.map_y, num_envs=0, device='cpu')
+
 fit_config = FitConfig(
     input_data_path=input_data_path,
     output_path=output_path,
     eval_num_episodes=2 ** 18,
-    # eval_num_episodes=2 ** 15,
     eval_sample_interval=64,
     eval_batch_size=4096,
     eval_freq=4000,
-    eval_loss_objs=[torch.nn.HuberLoss(delta=4.0), torch.nn.MSELoss()],
+    eval_loss_objs=[torch.nn.CrossEntropyLoss(), torch.nn.HuberLoss(delta=4.0), torch.nn.MSELoss()],
     train_num_episodes=2 ** 21 - 2 ** 18,
     train_batch_size=1024,
     train_sample_interval=1,
-    train_loss_obj=torch.nn.HuberLoss(delta=4.0),
+    train_loss_obj=torch.nn.CrossEntropyLoss(),
     train_shuffle_seed=0,
     bootstrap_n=None,
     optimizer_learning_rate0=0.0005,
@@ -57,6 +59,7 @@ fit_config = FitConfig(
 
 # model = pickle.load(open(input_model_path + 'model.pkl', 'rb')).to(device)
 model = Model(env_config=env_config,
+              max_possible_reward=env.max_reward,
               map_channels=[32, 64, 256],
               map_stride=[2, 2, 2],
               map_kernel_size=[7, 3, 3],

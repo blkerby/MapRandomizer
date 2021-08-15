@@ -113,12 +113,13 @@ class MaxOut(torch.nn.Module):
 
 
 class Model(torch.nn.Module):
-    def __init__(self, env_config, map_channels, map_stride, map_kernel_size, map_padding,
+    def __init__(self, env_config, max_possible_reward, map_channels, map_stride, map_kernel_size, map_padding,
                  fc_widths,
                  map_dropout_p=0.0,
                  global_dropout_p=0.0):
         super().__init__()
         self.env_config = env_config
+        self.max_possible_reward = max_possible_reward
         self.map_x = env_config.map_x + 1
         self.map_y = env_config.map_y + 1
         self.map_c = 4
@@ -158,10 +159,10 @@ class Model(torch.nn.Module):
             lin = torch.nn.Linear(fc_widths[i], fc_widths[i + 1] * arity)
             self.global_lin_layers.append(lin)
             self.global_act_layers.append(common_act)
-        self.state_value_lin = torch.nn.Linear(fc_widths[-1], 1)
+        self.state_value_lin = torch.nn.Linear(fc_widths[-1], max_possible_reward + 1)
         self.project()
 
-    def forward(self, map, room_mask, steps_remaining):
+    def forward_multiclass(self, map, room_mask, steps_remaining):
         # Convolutional layers on whole map data
         if map.is_cuda:
             X = map.to(torch.float16, memory_format=torch.channels_last)
@@ -180,8 +181,17 @@ class Model(torch.nn.Module):
                 X = self.global_act_layers[i](X)
                 if self.global_dropout_p > 0:
                     X = self.global_dropout_layers[i](X)
-            state_value = self.state_value_lin(X)[:, 0]
-            return state_value.to(torch.float32)
+            state_value_raw_logprobs = self.state_value_lin(X).to(torch.float32)
+            state_value_probs = torch.softmax(state_value_raw_logprobs, dim=1)
+            arange = torch.arange(self.max_possible_reward + 1, device=map.device, dtype=torch.float32)
+            expected_state_value = torch.sum(state_value_probs * arange.view(1, -1), dim=1)
+            return state_value_raw_logprobs, state_value_probs, expected_state_value
+
+    def forward(self, map, room_mask, steps_remaining):
+        # TODO: we could speed up the last layer a bit by summing the parameters instead of outputs
+        # (though this probably is negligible).
+        state_value_multi, expected_state_value = self.forward_multiclass(map, room_mask, steps_remaining)
+        return expected_state_value
 
     def decay(self, amount):
         if amount > 0:
