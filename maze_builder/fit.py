@@ -82,6 +82,7 @@ def fit_model(fit_config: FitConfig, model: Model):
     )
     del episode_data_list
 
+    episode_length = episode_data.action.shape[1]
     total_episodes_to_use = fit_config.eval_num_episodes + fit_config.train_num_episodes
     logging.info("Loaded {} episodes, to use {} ({} for eval, {} for train)".format(
         episode_data.reward.shape[0], total_episodes_to_use, fit_config.eval_num_episodes, fit_config.train_num_episodes
@@ -143,8 +144,18 @@ def fit_model(fit_config: FitConfig, model: Model):
         batch_episode_ind = extract_batch(train_episode_ind, fit_config.train_batch_size, i)
         batch_step_ind = extract_batch(train_step_ind, fit_config.train_batch_size, i)
         batch_state_value = forward(env, model, train_episode_data, batch_episode_ind, batch_step_ind, device)
-        batch_reward = train_episode_data.reward[batch_episode_ind].to(device)
-        loss = fit_config.train_loss_obj(batch_state_value, batch_reward.to(torch.float32))
+        batch_reward = train_episode_data.reward[batch_episode_ind].to(device).to(torch.float32)
+        if fit_config.bootstrap_n is None:
+            batch_target = batch_reward
+        else:
+            with average_parameters.average_parameters(model.all_param_data()):
+                with torch.no_grad():
+                    batch_step_ind_n_raw = batch_step_ind + fit_config.bootstrap_n
+                    batch_step_ind_n = torch.clamp_max(batch_step_ind_n_raw, episode_length - 1)
+                    batch_state_value_n = forward(env, model, train_episode_data, batch_episode_ind, batch_step_ind_n, device)
+                    batch_done_n = (batch_step_ind_n_raw >= episode_length).to(device)
+                    batch_target = torch.where(batch_done_n, batch_reward, batch_state_value_n)
+        loss = fit_config.train_loss_obj(batch_state_value, batch_target)
 
         optimizer.zero_grad()
 

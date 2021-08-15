@@ -23,7 +23,7 @@ logging.basicConfig(format='%(asctime)s %(message)s',
                     handlers=[logging.FileHandler(output_path + "logs/fit-{}.log".format(start_time_str)),
                               logging.StreamHandler()])
 
-device = torch.device('cuda:0')
+device = torch.device('cuda:1')
 
 env_config = EnvConfig(
     rooms=all_rooms.rooms,
@@ -45,13 +45,11 @@ fit_config = FitConfig(
     train_sample_interval=1,
     train_loss_obj=torch.nn.HuberLoss(delta=4.0),
     train_shuffle_seed=0,
-    bootstrap_n=None,
+    bootstrap_n=10,
     optimizer_learning_rate0=0.001,
-    optimizer_learning_rate1=0.00005,
-    # optimizer_learning_rate0=0.0002,
-    # optimizer_learning_rate1=0.0002,
+    optimizer_learning_rate1=0.0002,
     optimizer_alpha=0.95,
-    polyak_ema_beta=0.99,
+    polyak_ema_beta=0.95,
     sam_scale=None,
 )
 
