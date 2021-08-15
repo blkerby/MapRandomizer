@@ -94,15 +94,16 @@ def generate_episodes(base_path: str,
         ci_reward = std_reward * 1.96 / math.sqrt(cnt_episodes)
         mean_action_prob = total_action_prob / cnt_episodes
 
-        logging.info("batch {}/{}: cost={:.5f} +/- {:.5f} (min={}, frac={}), action_prob={:.6f}".format(
-            i, num_batches, env.max_reward - mean_reward, ci_reward, env.max_reward - max_reward, max_reward_cnt, mean_action_prob))
+        logging.info("batch {}/{}: cost={:.5f} +/- {:.5f} (min={}, frac={:.6f}), p={:.6f}".format(
+            i, num_batches, env.max_reward - mean_reward, ci_reward, env.max_reward - max_reward,
+            max_reward_cnt / cnt_episodes, mean_action_prob))
 
         if (i + 1) % save_freq == 0 or i == num_batches - 1:
             full_episode_data = EpisodeData(
                 reward=torch.cat(reward_list, dim=0),
                 action=torch.cat(action_list, dim=0),
             )
-            pickle_name = base_path + output_prefix + '-{}.pkl'.format(cnt_save)
+            pickle_name = base_path + output_prefix + '-{:04d}.pkl'.format(cnt_save)
             pickle.dump(full_episode_data, open(pickle_name, 'wb'))
             logging.info("Wrote to {}".format(pickle_name))
             reward_list = []
