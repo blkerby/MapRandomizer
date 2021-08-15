@@ -11,7 +11,7 @@ from datetime import datetime
 
 temperature = 20
 
-base_path = 'models/starting-v1-i3/'
+base_path = 'models/starting-v1-i4/'
 output_prefix = f't{temperature}/'
 os.makedirs(base_path, exist_ok=True)
 os.makedirs(base_path + 'logs/', exist_ok=True)

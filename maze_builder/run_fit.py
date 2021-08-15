@@ -18,12 +18,14 @@ output_path = 'models/starting-v1-i4/'
 start_time_str = datetime.now().isoformat()
 
 os.makedirs(output_path + 'logs', exist_ok=True)
+log_path = output_path + "logs/fit-{}.log".format(start_time_str)
 logging.basicConfig(format='%(asctime)s %(message)s',
                     level=logging.INFO,
-                    handlers=[logging.FileHandler(output_path + "logs/fit-{}.log".format(start_time_str)),
+                    handlers=[logging.FileHandler(log_path),
                               logging.StreamHandler()])
+logging.info("Logging to {}".format(log_path))
 
-device = torch.device('cuda:1')
+device = torch.device('cuda:0')
 
 env_config = EnvConfig(
     rooms=all_rooms.rooms,
@@ -39,15 +41,15 @@ fit_config = FitConfig(
     eval_sample_interval=64,
     eval_batch_size=4096,
     eval_freq=4000,
-    eval_loss_objs=[torch.nn.HuberLoss(delta=4.0)],
-    train_num_episodes=2 ** 19,  # 2 ** 21 - 2 ** 18,
+    eval_loss_objs=[torch.nn.HuberLoss(delta=4.0), torch.nn.MSELoss()],
+    train_num_episodes=2 ** 21 - 2 ** 18,
     train_batch_size=1024,
     train_sample_interval=1,
     train_loss_obj=torch.nn.HuberLoss(delta=4.0),
     train_shuffle_seed=0,
-    bootstrap_n=10,
-    optimizer_learning_rate0=0.001,
-    optimizer_learning_rate1=0.0002,
+    bootstrap_n=None,
+    optimizer_learning_rate0=0.0005,
+    optimizer_learning_rate1=0.0001,
     optimizer_alpha=0.95,
     polyak_ema_beta=0.95,
     sam_scale=None,
