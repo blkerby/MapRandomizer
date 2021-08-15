@@ -27,7 +27,7 @@ def generate_episode_batch(env, model: Model, episode_length: int, num_candidate
             state_value, action_value = model.forward_state_action(
                 env, env.room_mask, env.room_position_x, env.room_position_y,
                 action_candidates, steps_remaining)
-        action_probs = torch.softmax(action_value * temperature, dim=1)
+        action_probs = torch.softmax(action_value / temperature, dim=1)
         action_index = _rand_choice(action_probs)
         selected_action_prob = action_probs[torch.arange(env.num_envs, device=env.device), action_index]
         action = action_candidates[torch.arange(env.num_envs, device=env.device), action_index, :]
@@ -61,6 +61,8 @@ def generate_episodes(base_path: str,
     reward_list = []
     action_list = []
     num_batches = num_episodes // batch_size
+    max_reward = 0
+    max_reward_cnt = 0
     total_reward = 0
     total_reward2 = 0
     total_action_prob = 0
@@ -77,6 +79,11 @@ def generate_episodes(base_path: str,
         reward_list.append(reward)
         action_list.append(action)
 
+        m = torch.max(reward)
+        if m > max_reward:
+            max_reward = m
+            max_reward_cnt = 0
+        max_reward_cnt += torch.sum(reward == max_reward)
         total_reward += torch.sum(reward.to(torch.float32)).item()
         total_reward2 += torch.sum(reward.to(torch.float32) ** 2).item()
         total_action_prob += torch.sum(torch.mean(action_prob, dim=1))
@@ -87,8 +94,8 @@ def generate_episodes(base_path: str,
         ci_reward = std_reward * 1.96 / math.sqrt(cnt_episodes)
         mean_action_prob = total_action_prob / cnt_episodes
 
-        logging.info("batch {}/{}: cost={:.5f} +/- {:.5f}, action_prob={:.6f}".format(
-            i, num_batches, env.max_reward - mean_reward, ci_reward, mean_action_prob))
+        logging.info("batch {}/{}: cost={:.5f} +/- {:.5f} (min={}, frac={}), action_prob={:.6f}".format(
+            i, num_batches, env.max_reward - mean_reward, ci_reward, env.max_reward - max_reward, max_reward_cnt, mean_action_prob))
 
         if (i + 1) % save_freq == 0 or i == num_batches - 1:
             full_episode_data = EpisodeData(

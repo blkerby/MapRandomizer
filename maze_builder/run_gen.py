@@ -9,9 +9,13 @@ import os
 import logging
 from datetime import datetime
 
-base_path = 'models/random/'
+temperature = 100
+
+base_path = 'models/starting-v1-i1/'
+output_prefix = f't{temperature}/'
 os.makedirs(base_path, exist_ok=True)
 os.makedirs(base_path + 'logs/', exist_ok=True)
+os.makedirs(base_path + output_prefix, exist_ok=True)
 start_time_str = datetime.now().isoformat()
 
 logging.basicConfig(format='%(asctime)s %(message)s',
@@ -27,19 +31,11 @@ env_config = EnvConfig(
     map_y=60,
 )
 
-model = Model(env_config=env_config,
-             map_channels=[],
-             map_stride=[],
-             map_kernel_size=[],
-             map_padding=[],
-             fc_widths=[])
-pickle.dump(model, open(base_path + 'model.pkl', 'wb'))
-
-generate_episodes(base_path='models/random/',
-                  output_prefix='data-{}'.format(start_time_str),
-                  num_episodes=2**24,
+generate_episodes(base_path=base_path,
+                  output_prefix=output_prefix + 'data-{}'.format(start_time_str),
+                  num_episodes=2 ** 18,
                   batch_size=1024,
-                  num_candidates=1,
-                  temperature=1.0,
-                  save_freq=32,
+                  num_candidates=16,
+                  temperature=temperature,
+                  save_freq=16,
                   device=device)

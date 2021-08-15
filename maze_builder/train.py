@@ -1,4 +1,6 @@
 # TODO:
+# - idea for activation: variation of ReLU where on the right the slope starts at a value >1 and then changes to a
+#   value <1 at a certain point (for self-normalization)
 # - split training to separate, alternating phases:
 #    1) generate a dataset using fixed policy (based on a model value function and temperature parameter),
 #    2) training of model value function based on a dataset

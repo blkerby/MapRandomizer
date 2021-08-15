@@ -82,6 +82,11 @@ def fit_model(fit_config: FitConfig, model: Model):
     )
     del episode_data_list
 
+    total_episodes_to_use = fit_config.eval_num_episodes + fit_config.train_num_episodes
+    logging.info("Loaded {} episodes, to use {} ({} for eval, {} for train)".format(
+        episode_data.reward.shape[0], total_episodes_to_use, fit_config.eval_num_episodes, fit_config.train_num_episodes
+    ))
+    assert episode_data.reward.shape[0] >= total_episodes_to_use
     logging.info("Shuffling data")
     eval_episode_data = EpisodeData(
         action=episode_data.action[:fit_config.eval_num_episodes],
@@ -92,9 +97,6 @@ def fit_model(fit_config: FitConfig, model: Model):
         episode_length=eval_episode_data.action.shape[1],
         sample_interval=fit_config.eval_sample_interval,
     )
-    # eval_perm = torch.randperm(eval_episode_ind.shape[0])
-    # eval_episode_ind = eval_episode_ind[eval_perm]
-    # eval_step_ind = eval_step_ind[eval_perm]
 
     train_episode_data = EpisodeData(
         action=episode_data.action[fit_config.eval_num_episodes:(fit_config.eval_num_episodes + fit_config.train_num_episodes)],
@@ -130,6 +132,8 @@ def fit_model(fit_config: FitConfig, model: Model):
     logging.info(fit_config)
     logging.info(model)
     logging.info(optimizer)
+    eval_fmt = eval(fit_config, model, env, eval_episode_data, eval_episode_ind, eval_step_ind)
+    logging.info("Initial test={}".format(eval_fmt))
     logging.info("Training")
     while i < num_train_batches:
         frac = i / num_train_batches
@@ -169,7 +173,7 @@ def fit_model(fit_config: FitConfig, model: Model):
             model.eval()
             with average_parameters.average_parameters(model.all_param_data()):
                 eval_fmt = eval(fit_config, model, env, eval_episode_data, eval_episode_ind, eval_step_ind)
-            logging.info("{}/{}: train={:.3f}, test={}, lr={:.4f}".format(
+            logging.info("{}/{}: train={:.3f}, test={}, lr={:.6f}".format(
                 i, num_train_batches, total_loss / total_loss_cnt, eval_fmt, lr))
             total_loss_cnt = 0
             total_loss = 0.0
