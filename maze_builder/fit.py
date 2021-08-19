@@ -3,12 +3,14 @@ from maze_builder.env import MazeBuilderEnv
 from maze_builder.model import Model
 from maze_builder.types import FitConfig, EpisodeData, reconstruct_room_data
 from model_average import ExponentialAverage
+import shampoo
 
 import logging
 import os
 import pickle
 import torch
 import math
+
 
 def sample_indices(num_episodes: int, episode_length: int, sample_interval: int):
     episode_index = torch.arange(num_episodes).view(-1, 1).repeat(1, episode_length).view(-1)
@@ -66,12 +68,12 @@ def eval(fit_config: FitConfig, model: Model, env: MazeBuilderEnv, eval_episode_
     eval_loss_mean = torch.mean(eval_loss, dim=1)
     eval_loss_std = torch.std(eval_loss, dim=1)
     eval_loss_ci = eval_loss_std / math.sqrt(eval_loss.shape[1]) * 1.96
-    eval_fmt = ', '.join('{:.3f} +/- {:.3f}'.format(eval_loss_mean[i], eval_loss_ci[i])
+    eval_fmt = ', '.join('{:#.5g} +/- {:#.2g}'.format(eval_loss_mean[i], eval_loss_ci[i])
                          for i in range(eval_loss_mean.shape[0]))
     return eval_fmt
 
 
-def fit_model(fit_config: FitConfig, model: Model):
+def fit_model(fit_config: FitConfig, model: Model, baseline_model: Model):
     episode_data_list = []
     for filename in sorted(os.listdir(fit_config.input_data_path)):
         if filename.startswith('data-'):
@@ -125,9 +127,17 @@ def fit_model(fit_config: FitConfig, model: Model):
     num_train_batches = train_episode_ind.shape[0] // fit_config.train_batch_size
 
     grad_scaler = torch.cuda.amp.GradScaler()
-    optimizer = torch.optim.RMSprop(model.parameters(),
-                                    lr=fit_config.optimizer_learning_rate0,
-                                    alpha=fit_config.optimizer_alpha)
+    # optimizer = torch.optim.RMSprop(model.parameters(),
+    #                                 lr=fit_config.optimizer_learning_rate0,
+    #                                 alpha=fit_config.optimizer_alpha)
+    optimizer = torch.optim.Adam(model.parameters(),
+                                 lr=fit_config.optimizer_learning_rate0,
+                                 betas=(fit_config.optimizer_beta, fit_config.optimizer_alpha))
+    # optimizer = shampoo.Shampoo(model.parameters(),
+    #                             lr=fit_config.optimizer_learning_rate0,
+    #                             update_freq=10,
+    #                             epsilon=1.0,
+    #                             beta=0.99)
     average_parameters = ExponentialAverage(model.all_param_data(), beta=fit_config.polyak_ema_beta)
     i = 0
 
@@ -136,13 +146,19 @@ def fit_model(fit_config: FitConfig, model: Model):
     logging.info(fit_config)
     logging.info(model)
     logging.info(optimizer)
-    eval_fmt = eval(fit_config, model, env, eval_episode_data, eval_episode_ind, eval_step_ind)
-    logging.info("Initial test={}".format(eval_fmt))
+    eval_fmt = eval(fit_config, baseline_model, env, eval_episode_data, eval_episode_ind, eval_step_ind)
+    logging.info("Baseline test={}".format(eval_fmt))
     logging.info("Training")
     while i < num_train_batches:
         frac = i / num_train_batches
         lr = fit_config.optimizer_learning_rate0 * (fit_config.optimizer_learning_rate1 / fit_config.optimizer_learning_rate0) ** frac
         optimizer.param_groups[0]['lr'] = lr
+
+        if fit_config.sam_scale is not None:
+            saved_params = [param.data.clone() for param in model.parameters()]
+            for param in model.parameters():
+                param.data += torch.randn_like(param.data) * fit_config.sam_scale
+            # model.project()
 
         batch_episode_ind = extract_batch(train_episode_ind, fit_config.train_batch_size, i)
         batch_step_ind = extract_batch(train_step_ind, fit_config.train_batch_size, i)
@@ -159,12 +175,6 @@ def fit_model(fit_config: FitConfig, model: Model):
 
         optimizer.zero_grad()
 
-        if fit_config.sam_scale is not None:
-            saved_params = [param.data.clone() for param in model.parameters()]
-            for param in model.parameters():
-                param.data += torch.randn_like(param.data) * fit_config.sam_scale
-            # model.project()
-
         # with torch.autograd.detect_anomaly():
         grad_scaler.scale(loss).backward()
 
@@ -174,6 +184,7 @@ def fit_model(fit_config: FitConfig, model: Model):
 
         grad_scaler.step(optimizer)
         grad_scaler.update()
+        model.decay(fit_config.weight_decay * lr)
         model.project()
         average_parameters.update(model.all_param_data())
         total_loss += loss.item()
@@ -184,7 +195,7 @@ def fit_model(fit_config: FitConfig, model: Model):
             model.eval()
             with average_parameters.average_parameters(model.all_param_data()):
                 eval_fmt = eval(fit_config, model, env, eval_episode_data, eval_episode_ind, eval_step_ind)
-            logging.info("{}/{}: train={:.3f}, test={}, lr={:.6f}".format(
+            logging.info("{}/{}: train={:#.5g}, test={}, lr={:.6f}".format(
                 i, num_train_batches, total_loss / total_loss_cnt, eval_fmt, lr))
             total_loss_cnt = 0
             total_loss = 0.0

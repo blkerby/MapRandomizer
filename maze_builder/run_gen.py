@@ -9,10 +9,11 @@ import os
 import logging
 from datetime import datetime
 
-temperature = 20
+temperature = 4.0
+num_candidates = 8
 
-base_path = 'models/starting-v1-i4/'
-output_prefix = f't{temperature}/'
+base_path = 'models/starting-v1-i6/'
+output_prefix = f't{temperature}-c{num_candidates}/'
 os.makedirs(base_path, exist_ok=True)
 os.makedirs(base_path + 'logs/', exist_ok=True)
 os.makedirs(base_path + output_prefix, exist_ok=True)
@@ -23,7 +24,7 @@ logging.basicConfig(format='%(asctime)s %(message)s',
                     handlers=[logging.FileHandler(base_path + "logs/gen-{}.log".format(start_time_str)),
                               logging.StreamHandler()])
 
-device = torch.device('cuda:0')
+device = torch.device('cuda:1')
 
 env_config = EnvConfig(
     rooms=all_rooms.rooms,
@@ -33,9 +34,9 @@ env_config = EnvConfig(
 
 generate_episodes(base_path=base_path,
                   output_prefix=output_prefix + 'data-{}'.format(start_time_str),
-                  num_episodes=2 ** 20,
+                  num_episodes=2 ** 21,
                   batch_size=1024,
-                  num_candidates=16,
+                  num_candidates=num_candidates,
                   temperature=temperature,
                   save_freq=16,
                   device=device)

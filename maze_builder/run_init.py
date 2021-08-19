@@ -1,5 +1,6 @@
 from logic.rooms import all_rooms
 from maze_builder.types import EnvConfig
+from maze_builder.env import MazeBuilderEnv
 from maze_builder.model import Model
 from maze_builder.gen import generate_episodes
 
@@ -27,17 +28,20 @@ env_config = EnvConfig(
     map_y=60,
 )
 
+env = MazeBuilderEnv(env_config.rooms, env_config.map_x, env_config.map_y, num_envs=0, device='cpu')
+
 model = Model(env_config=env_config,
-             map_channels=[],
-             map_stride=[],
-             map_kernel_size=[],
-             map_padding=[],
-             fc_widths=[])
+              max_possible_reward=env.max_reward,
+              map_channels=[],
+              map_stride=[],
+              map_kernel_size=[],
+              map_padding=[],
+              fc_widths=[])
 pickle.dump(model, open(base_path + 'model.pkl', 'wb'))
 
 generate_episodes(base_path='models/random/',
                   output_prefix='data-{}'.format(start_time_str),
-                  num_episodes=2**24,
+                  num_episodes=2 ** 24,
                   batch_size=1024,
                   num_candidates=1,
                   temperature=1.0,

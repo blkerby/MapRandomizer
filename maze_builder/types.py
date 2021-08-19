@@ -85,6 +85,39 @@ class EnvConfig:
 class EpisodeData:
     action: torch.tensor   # 3D uint8: (num_episodes, episode_length, 3)  (room id, x position, y position)
     reward: torch.tensor   # 1D int64: num_episodes
+    prob: torch.tensor  # 1D float32: num_episodes  (average probability of selected action)
+    test_loss: torch.tensor  # 1D float32: num_episodes  (average cross-entropy loss at data-generation time)
+
+    def training_data(self, num_rooms, device):
+        num_episodes = self.reward.shape[0]
+        episode_length = self.action.shape[1]
+        num_transitions = num_episodes * episode_length
+        steps_remaining = (episode_length - torch.arange(episode_length, device=device))
+        action = self.action.to(device).unsqueeze(1).repeat(1, episode_length, 1, 1).view(num_transitions, episode_length, 3)
+        step_indices = torch.arange(episode_length, device=device).unsqueeze(0).repeat(num_episodes, 1).view(-1)
+        room_mask, room_position_x, room_position_y = reconstruct_room_data(action, step_indices, num_rooms)
+
+        return TrainingData(
+            reward=self.reward.to(device).unsqueeze(1).repeat(1, episode_length).view(-1),
+            steps_remaining=steps_remaining.unsqueeze(0).repeat(num_episodes, 1).view(-1),
+            room_mask=room_mask,
+            room_position_x=room_position_x,
+            room_position_y=room_position_y,
+        )
+
+
+@dataclass
+class TrainingData:
+    reward: torch.tensor  # 1D uint64: num_transitions
+    steps_remaining: torch.tensor  # 1D uint64: num_transitions
+    room_mask: torch.tensor  # 2D uint64: (num_transitions, num_rooms)
+    room_position_x: torch.tensor  # 2D uint64: (num_transitions, num_rooms)
+    room_position_y: torch.tensor  # 2D uint64: (num_transitions, num_rooms)
+
+    # def move_to(self, device):
+    #     for field in self.__dataclass_fields__.keys():
+    #         setattr(self, field, getattr(self, field).to(device))
+    #
 
 
 @dataclass
@@ -105,25 +138,7 @@ class FitConfig:
     optimizer_learning_rate0: float
     optimizer_learning_rate1: float
     optimizer_alpha: float
-    polyak_ema_beta: float
-    sam_scale: Optional[float]
-
-    # def move_to(self, device):
-    #     for field in self.__dataclass_fields__.keys():
-    #         setattr(self, field, getattr(self, field).to(device))
-    #
-    # def training_data(self, num_rooms):
-    #     num_episodes = self.reward.shape[0]
-    #     episode_length = self.action.shape[1]
-    #     num_transitions = num_episodes * episode_length
-    #     steps_remaining = (episode_length - torch.arange(episode_length, device=self.reward.device))
-    #     action = self.action.unsqueeze(1).repeat(1, episode_length, 1, 1).view(num_transitions, episode_length, 3)
-    #     step_indices = torch.arange(episode_length, device=self.reward.device).unsqueeze(0).repeat(num_episodes, 1).view(-1)
-    #     room_mask, room_position_x, room_position_y = reconstruct_room_data(action, step_indices, num_rooms)
-    #     return TrainingData(
-    #         target=self.target.view(-1),
-    #         steps_remaining=steps_remaining.unsqueeze(0).repeat(num_episodes, 1).view(-1),
-    #         room_mask=room_mask,
-    #         room_position_x=room_position_x,
-    #         room_position_y=room_position_y,
-    #     )
+    optimizer_beta: Optional[float] = None
+    polyak_ema_beta: float = 0.0
+    sam_scale: Optional[float] = None
+    weight_decay: float = 0.0

@@ -22,6 +22,16 @@ class ReplayBuffer:
             episode_data_dict[field] = allocated_tensor
         self.episode_data = EpisodeData(**episode_data_dict)
 
+    def resize(self, new_capacity: int):
+        new_size = min(new_capacity, self.size)
+        for field in EpisodeData.__dataclass_fields__.keys():
+            current_tensor = getattr(self.episode_data, field)
+            shape = list(current_tensor.shape)
+            shape[0] = new_capacity
+            new_tensor = torch.zeros(shape, dtype=current_tensor.dtype, device=self.storage_device)
+            new_tensor[:new_size] = current_tensor[:new_size]
+            setattr(self.episode_data, field, new_tensor)
+
     def insert(self, episode_data: EpisodeData):
         if self.episode_data is None:
             self.initial_allocation(episode_data)
@@ -37,24 +47,20 @@ class ReplayBuffer:
         if self.position == self.capacity:
             self.position = 0
 
-    def sample(self, n) -> TrainingData:
+    def sample(self, n, device: torch.device) -> TrainingData:
         episode_length = self.episode_data.action.shape[1]
-        device = self.episode_data.reward.device
-
-        episode_indices = torch.randint(high=self.size, size=[n], device=device)
-        step_indices = torch.randint(high=episode_length, size=[n], device=device)
-        action = self.episode_data.action[episode_indices, :, :]
-        round_num = self.episode_data.round[episode_indices]
+        episode_indices = torch.randint(high=self.size, size=[n])
+        step_indices = torch.randint(high=episode_length, size=[n])
+        reward = self.episode_data.reward[episode_indices]
+        action = self.episode_data.action[episode_indices, :, :].to(torch.int64)
         steps_remaining = episode_length - step_indices
-        target = self.episode_data.target[episode_indices, step_indices]
 
         room_mask, room_position_x, room_position_y = reconstruct_room_data(action, step_indices, self.num_rooms)
 
         return TrainingData(
-            target=target.to(self.retrieval_device),
-            steps_remaining=steps_remaining.to(self.retrieval_device),
-            round=round_num.to(self.retrieval_device),
-            room_mask=room_mask.to(self.retrieval_device),
-            room_position_x=room_position_x.to(self.retrieval_device),
-            room_position_y=room_position_y.to(self.retrieval_device),
+            reward=reward.to(device),
+            steps_remaining=steps_remaining.to(device),
+            room_mask=room_mask.to(device),
+            room_position_x=room_position_x.to(device),
+            room_position_y=room_position_y.to(device),
         )

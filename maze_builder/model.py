@@ -1,7 +1,7 @@
 import torch
 import torch.nn.functional as F
 import math
-from typing import List
+from typing import List, Optional
 
 
 # class HuberLoss(torch.nn.Module):
@@ -184,17 +184,17 @@ class Model(torch.nn.Module):
             state_value_raw_logprobs = self.state_value_lin(X).to(torch.float32)
             state_value_probs = torch.softmax(state_value_raw_logprobs, dim=1)
             arange = torch.arange(self.max_possible_reward + 1, device=map.device, dtype=torch.float32)
-            expected_state_value = torch.sum(state_value_probs * arange.view(1, -1), dim=1)
-            return state_value_raw_logprobs, state_value_probs, expected_state_value
+            state_value_expected = torch.sum(state_value_probs * arange.view(1, -1), dim=1)
+            return state_value_raw_logprobs, state_value_probs, state_value_expected
 
     def forward(self, map, room_mask, steps_remaining):
         # TODO: we could speed up the last layer a bit by summing the parameters instead of outputs
         # (though this probably is negligible).
-        state_value_multi, expected_state_value = self.forward_multiclass(map, room_mask, steps_remaining)
-        return expected_state_value
+        state_value_raw_logprobs, state_value_probs, state_value_expected = self.forward_multiclass(map, room_mask, steps_remaining)
+        return state_value_expected
 
-    def decay(self, amount):
-        if amount > 0:
+    def decay(self, amount: Optional[float]):
+        if amount is not None:
             factor = 1 - amount
             for param in self.parameters():
                 param.data *= factor

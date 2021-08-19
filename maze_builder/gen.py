@@ -8,7 +8,7 @@ import logging
 import math
 
 
-# TODO: look at using torch.multinomial instead of implementing this from scratch?
+# TODO: try using torch.multinomial instead of implementing this from scratch?
 def _rand_choice(p):
     cumul_p = torch.cumsum(p, dim=1)
     rnd = torch.rand([p.shape[0], 1], device=p.device)
@@ -51,12 +51,15 @@ def generate_episodes(base_path: str,
                       save_freq: int,
                       device: torch.device):
     model = pickle.load(open(base_path + '/model.pkl', 'rb')).to(device)
+    logging.info("Loaded model config: {}".format(model))
+    if hasattr(model, 'fit_config'):
+        logging.info("{}".format(model.fit_config))
     model.eval()
     env_config = model.env_config
     episode_length = len(env_config.rooms)
     env = MazeBuilderEnv(env_config.rooms, env_config.map_x, env_config.map_y, num_envs=batch_size, device=device)
 
-    logging.info("{}".format(model))
+    logging.info("temperature={}, num_candidates={}".format(temperature, num_candidates))
     logging.info("Starting data generation")
     reward_list = []
     action_list = []
