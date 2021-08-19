@@ -45,7 +45,7 @@ import logic.rooms.maridia_lower
 import logic.rooms.maridia_upper
 
 # device = torch.device('cpu')
-device = torch.device('cuda:0')
+device = torch.device('cuda:1')
 
 num_envs = 2 ** 8
 # num_envs = 1
@@ -101,15 +101,14 @@ def make_dummy_model():
 model = make_dummy_model()
 model.state_value_lin.weight.data[:, :] = 0.0
 model.state_value_lin.bias.data[:] = 0.0
-# optimizer = torch.optim.Adam(network.parameters(), lr=0.0001, betas=(0.995, 0.999), eps=1e-15)
-optimizer = torch.optim.RMSprop(model.parameters(), lr=0.0001, alpha=0.95)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.0001, betas=(0.995, 0.999), eps=1e-15)
+# optimizer = torch.optim.RMSprop(model.parameters(), lr=0.0001, alpha=0.95)
 
 logging.info("{}".format(model))
 logging.info("{}".format(optimizer))
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in model.parameters())
-logging.info("Starting training")
 
-replay_size = 2 ** 15
+replay_size = 2 ** 20
 session = TrainingSession(env,
                           model=model,
                           optimizer=optimizer,
@@ -120,20 +119,20 @@ session = TrainingSession(env,
 torch.set_printoptions(linewidth=120, threshold=10000)
 
 
-# gen_print_freq = 16
-# i = 0
-# while session.replay_buffer.size < session.replay_buffer.capacity:
-#     data = session.generate_round(
-#         episode_length=episode_length,
-#         num_candidates=1,
-#         temperature=1e-10,
-#         explore_eps=0.0,
-#         render=False)
-#     session.replay_buffer.insert(data)
-#
-#     i += 1
-#     if i % gen_print_freq == 0:
-#         logging.info("init gen {}/{}".format(i, session.replay_buffer.capacity // num_envs))
+gen_print_freq = 16
+i = 0
+while session.replay_buffer.size < session.replay_buffer.capacity:
+    data = session.generate_round(
+        episode_length=episode_length,
+        num_candidates=1,
+        temperature=1e-10,
+        explore_eps=0.0,
+        render=False)
+    session.replay_buffer.insert(data)
+
+    i += 1
+    if i % gen_print_freq == 0:
+        logging.info("init gen {}/{}".format(i, session.replay_buffer.capacity // num_envs))
 
 
 
@@ -156,6 +155,21 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 #     test_loss=torch.cat([x.test_loss for x in eval_data_list], dim=0),
 # )
 
+batch_size_pow0 = 9
+batch_size_pow1 = 9
+lr0 = 0.00005
+lr1 = 0.00005
+num_candidates = 16
+temperature0 = 100.0
+temperature1 = 100.0
+explore_eps = 0.0
+annealing_time = 100000
+session.env = env
+pass_factor = 1.0
+print_freq = 16
+num_eval_rounds = replay_size // num_envs // 16
+# session.replay_buffer.episode_data.prob[:] = 1 / num_candidates
+
 # pickle.dump(session, open('init_session.pkl', 'wb'))
 # pickle.dump(eval_data, open('eval_data.pkl', 'wb'))
 
@@ -163,20 +177,6 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 # eval_data = pickle.load(open('eval_data.pkl', 'rb'))
 
 
-batch_size_pow0 = 9
-batch_size_pow1 = 9
-lr0 = 0.0001
-lr1 = 0.0001
-num_candidates = 16
-temperature0 = 100.0
-temperature1 = 100.0
-explore_eps = 0.0
-annealing_time = 20000
-session.env = env
-pass_factor = 2.0
-print_freq = 16
-num_eval_rounds = replay_size // num_envs // 16
-# session.replay_buffer.episode_data.prob[:] = 1 / num_candidates
 
 logging.info("Checkpoint path: {}".format(pickle_name))
 logging.info(
@@ -198,8 +198,8 @@ model.state_value_lin.weight.data.zero_()
 model.state_value_lin.bias.data.zero_()
 logging.info(session.model)
 # session.optimizer = torch.optim.RMSprop(session.network.parameters(), lr=0.001, alpha=0.95)
-session.optimizer = torch.optim.RMSprop(session.model.parameters(), lr=0.00005, alpha=0.99)
-# session.optimizer = torch.optim.Adam(session.network.parameters(), lr=0.0005, betas=(0.998, 0.998), eps=1e-15)
+# session.optimizer = torch.optim.RMSprop(session.model.parameters(), lr=0.00005, alpha=0.99)
+session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.0001, betas=(0.995, 0.999), eps=1e-15)
 # session.optimizer = torch.optim.SGD(session.network.parameters(), lr=0.0005)
 logging.info(session.optimizer)
 session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=session.average_parameters.beta)
@@ -219,7 +219,7 @@ total_loss = 0.0
 total_loss_cnt = 0
 # session.optimizer.param_groups[0]['lr'] = 0.99
 # session.optimizer.param_groups[0]['betas'] = (0.9, 0.999)
-session.average_parameters.beta = 0.999
+session.average_parameters.beta = 0.99
 session.sam_scale = None  # 0.02
 
 # lr0_init = 0.001
@@ -262,12 +262,30 @@ session.sam_scale = None  # 0.02
 #
 # total_loss = 0.0
 # total_loss_cnt = 0
-session = pickle.load(open('models/session-2021-08-18T18:24:48.579381.pkl'))
+session = pickle.load(open('models/session-2021-08-18T21:52:46.002454.pkl', 'rb'))
+session.env = env
+session.model = session.model.to(device)
+def optimizer_to(optim, device):
+    for param in optim.state.values():
+        # Not sure there are any global tensors in the state dict
+        if isinstance(param, torch.Tensor):
+            param.data = param.data.to(device)
+            if param._grad is not None:
+                param._grad.data = param._grad.data.to(device)
+        elif isinstance(param, dict):
+            for subparam in param.values():
+                if isinstance(subparam, torch.Tensor):
+                    subparam.data = subparam.data.to(device)
+                    if subparam._grad is not None:
+                        subparam._grad.data = subparam._grad.data.to(device)
+optimizer_to(session.optimizer, device)
+session.average_parameters.shadow_params = [p.to(device) for p in session.average_parameters.shadow_params]
 
 total_reward = 0
 total_test_loss = 0.0
 total_prob = 0.0
 total_round_cnt = 0
+logging.info("Starting training")
 for i in range(100000):
     frac = min(1, session.num_rounds / annealing_time)
     temperature = temperature0 * (temperature1 / temperature0) ** frac
