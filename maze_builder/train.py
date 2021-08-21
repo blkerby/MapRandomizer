@@ -135,6 +135,11 @@ while session.replay_buffer.size < session.replay_buffer.capacity:
         logging.info("init gen {}/{}".format(i, session.replay_buffer.capacity // num_envs))
 
 
+# for i in range(20):
+#     start = i * 1000 + 150000
+#     end = start + 1000
+#     reward = session.replay_buffer.episode_data.reward[start:end]
+#     print(start, end, torch.mean(reward.to(torch.float32)))
 
 #
 # eval_data_list = []
@@ -155,17 +160,17 @@ while session.replay_buffer.size < session.replay_buffer.capacity:
 #     test_loss=torch.cat([x.test_loss for x in eval_data_list], dim=0),
 # )
 
-batch_size_pow0 = 9
-batch_size_pow1 = 9
-lr0 = 0.00005
-lr1 = 0.00005
+batch_size_pow0 = 10
+batch_size_pow1 = 10
+lr0 = 0.00002
+lr1 = 0.00002
 num_candidates = 16
-temperature0 = 100.0
-temperature1 = 100.0
-explore_eps = 0.0
+temperature0 = 0.1
+temperature1 = 0.1
+explore_eps = 0.005
 annealing_time = 100000
 session.env = env
-pass_factor = 1.0
+pass_factor = 4.0
 print_freq = 16
 num_eval_rounds = replay_size // num_envs // 16
 # session.replay_buffer.episode_data.prob[:] = 1 / num_candidates
@@ -204,9 +209,9 @@ session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.0001, beta
 logging.info(session.optimizer)
 session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=session.average_parameters.beta)
 # session.optimizer = torch.optim.RMSprop(session.network.parameters(), lr=0.002, alpha=0.95)
-num_steps = session.replay_buffer.capacity // num_envs
 batch_size = 2 ** batch_size_pow0
 eval_batch_size = 16
+num_steps = session.replay_buffer.capacity // num_envs
 num_train_batches = int(pass_factor * session.replay_buffer.capacity * episode_length // batch_size // num_steps)
 num_eval_batches = num_eval_rounds * num_envs // eval_batch_size
 eval_freq = 16
@@ -358,4 +363,5 @@ for i in range(100000):
         # episode_data = session.replay_buffer.episode_data
         # session.replay_buffer.episode_data = None
         pickle.dump(session, open(pickle_name, 'wb'))
+        # pickle.dump(session, open(pickle_name + '-t0.2', 'wb'))
         # session.replay_buffer.episode_data = episode_data
