@@ -1,9 +1,10 @@
 # TODO:
+# - implement new area constraint (maintaining area connectedness at each step)
+# - Use embeddings (on tile/door types) instead of putting raw map data straight into convolutional layers
 # - For output probabilities, try using cumulative probabilities for each reward value and binary cross-entropy loss
 # - idea for activation: variation of ReLU where on the right the slope starts at a value >1 and then changes to a
 #   <1 at a certain point (for self-normalization), e.g. sqrt(max(0, x) + 1/4) - 1/2
 # - try all-action approach again
-# - implement new area constraint (maintaining area connectedness at each step)
 # - try curriculum learning, starting with small subsets of rooms and ramping up
 # - minor cleanup: in data generation, use action value from previous step to avoid needing to recompute state value
 # - export better metrics, and maybe build some sort of database for them (e.g., SQLlite, or mongodb/sacred?)
@@ -165,10 +166,11 @@ batch_size_pow1 = 10
 lr0 = 0.00002
 lr1 = 0.00002
 num_candidates = 16
-temperature0 = 0.1
-temperature1 = 0.1
-explore_eps = 0.005
-annealing_time = 100000
+temperature0 = 0.05
+temperature1 = 0.02
+explore_eps = 0.01
+annealing_start = 49148
+annealing_time = 4000
 session.env = env
 pass_factor = 4.0
 print_freq = 16
@@ -292,7 +294,7 @@ total_prob = 0.0
 total_round_cnt = 0
 logging.info("Starting training")
 for i in range(100000):
-    frac = min(1, session.num_rounds / annealing_time)
+    frac = max(0, min(1, (session.num_rounds - annealing_start) / annealing_time))
     temperature = temperature0 * (temperature1 / temperature0) ** frac
     lr = lr0 * (lr1 / lr0) ** frac
     batch_size_pow = int(batch_size_pow0 + frac * (batch_size_pow1 - batch_size_pow0))
@@ -345,7 +347,7 @@ for i in range(100000):
         buffer_mean_rooms_missing = buffer_mean_pass * len(rooms)
 
         logging.info(
-            "{}: doors={:.3f} (min={:d}, frac={:.6f}), rooms={:.3f}, test={:.4f}, p={:.6f} | loss={:.4f}, doors={:.3f}, test={:.4f}, p={:.6f}, temp={:.2f}".format(
+            "{}: doors={:.3f} (min={:d}, frac={:.6f}), rooms={:.3f}, test={:.4f}, p={:.6f} | loss={:.4f}, doors={:.3f}, test={:.4f}, p={:.6f}, temp={:.4f}".format(
                 session.num_rounds, max_possible_reward - buffer_mean_reward, max_possible_reward - buffer_max_reward,
                 buffer_frac_max_reward,
                 buffer_mean_rooms_missing,
@@ -363,5 +365,6 @@ for i in range(100000):
         # episode_data = session.replay_buffer.episode_data
         # session.replay_buffer.episode_data = None
         pickle.dump(session, open(pickle_name, 'wb'))
-        # pickle.dump(session, open(pickle_name + '-t0.2', 'wb'))
+        # pickle.dump(session, open(pickle_name + '-t0.05', 'wb'))
         # session.replay_buffer.episode_data = episode_data
+        # session = pickle.load(open(pickle_name + '-t0.05', 'rb'))
