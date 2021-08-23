@@ -1,6 +1,6 @@
 # TODO:
 # - implement new area constraint (maintaining area connectedness at each step)
-# - Use embeddings (on tile/door types) instead of putting raw map data straight into convolutional layers
+# - Use one-hot coding or embeddings (on tile/door types) instead of putting raw map data into convolutional layers
 # - For output probabilities, try using cumulative probabilities for each reward value and binary cross-entropy loss
 # - idea for activation: variation of ReLU where on the right the slope starts at a value >1 and then changes to a
 #   <1 at a certain point (for self-normalization), e.g. sqrt(max(0, x) + 1/4) - 1/2
@@ -109,7 +109,7 @@ logging.info("{}".format(model))
 logging.info("{}".format(optimizer))
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in model.parameters())
 
-replay_size = 2 ** 20
+replay_size = 2 ** 19
 session = TrainingSession(env,
                           model=model,
                           optimizer=optimizer,
@@ -166,10 +166,10 @@ batch_size_pow1 = 10
 lr0 = 0.00002
 lr1 = 0.00002
 num_candidates = 16
-temperature0 = 0.05
-temperature1 = 0.02
+temperature0 = 0.02
+temperature1 = 0.01
 explore_eps = 0.01
-annealing_start = 49148
+annealing_start = 56368
 annealing_time = 4000
 session.env = env
 pass_factor = 4.0
@@ -269,7 +269,8 @@ session.sam_scale = None  # 0.02
 #
 # total_loss = 0.0
 # total_loss_cnt = 0
-session = pickle.load(open('models/session-2021-08-18T21:52:46.002454.pkl', 'rb'))
+# session = pickle.load(open('models/session-2021-08-18T21:52:46.002454.pkl', 'rb'))
+# session = pickle.load(open('models/session-2021-08-18T22:59:51.919856.pkl-t0.02', 'rb'))
 session.env = env
 session.model = session.model.to(device)
 def optimizer_to(optim, device):
@@ -365,6 +366,6 @@ for i in range(100000):
         # episode_data = session.replay_buffer.episode_data
         # session.replay_buffer.episode_data = None
         pickle.dump(session, open(pickle_name, 'wb'))
-        # pickle.dump(session, open(pickle_name + '-t0.05', 'wb'))
+        # pickle.dump(session, open(pickle_name + '-t0.02', 'wb'))
         # session.replay_buffer.episode_data = episode_data
-        # session = pickle.load(open(pickle_name + '-t0.05', 'rb'))
+        # session = pickle.load(open(pickle_name + '-t0.02', 'rb'))
