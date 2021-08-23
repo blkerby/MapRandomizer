@@ -491,39 +491,38 @@ class MazeBuilderEnv:
         self.map_display.display(rooms, xs, ys, colors)
 
 
-# import logic.rooms.all_rooms
-# import logic.rooms.brinstar_green
-# import logic.rooms.brinstar_pink
-# import logic.rooms.crateria
-# import logic.rooms.crateria_isolated
-#
-# torch.manual_seed(0)
-# num_envs = 7
-# # rooms = logic.rooms.crateria.rooms[:5]
-# rooms = logic.rooms.all_rooms.rooms
-# # rooms = logic.rooms.brinstar_green.rooms + logic.rooms.brinstar_pink.rooms
-# # rooms = logic.rooms.brinstar_red.rooms
-# num_candidates = 1
-# env = MazeBuilderEnv(rooms,
-#                      map_x=60,
-#                      map_y=60,
-#                      # map_x=60,
-#                      # map_y=40,
-#                      num_envs=num_envs,
-#                      device='cpu')
-# import time
-# env.reset()
-# self = env
-# torch.manual_seed(22)
-# num_candidates = 1
-# start = time.perf_counter()
-# for i in range(230):
-#     # print(i)
-#     candidates = env.get_action_candidates(num_candidates)
-#     env.step(candidates[:, 0, :])
-#     env.render(0)
-#     # env.render(0)
-#     # time.sleep(0.1)
-#
-# end = time.perf_counter()
-# print(end - start)
+import logic.rooms.all_rooms
+import logic.rooms.brinstar_green
+import logic.rooms.brinstar_pink
+import logic.rooms.crateria
+import logic.rooms.crateria_isolated
+
+torch.manual_seed(0)
+num_envs = 7
+# rooms = logic.rooms.crateria.rooms[:5]
+rooms = logic.rooms.all_rooms.rooms
+# rooms = logic.rooms.brinstar_green.rooms + logic.rooms.brinstar_pink.rooms
+# rooms = logic.rooms.brinstar_red.rooms
+num_candidates = 1
+env = MazeBuilderEnv(rooms,
+                     map_x=60,
+                     map_y=60,
+                     # map_x=60,
+                     # map_y=40,
+                     num_envs=num_envs,
+                     device='cpu')
+import time
+env.reset()
+self = env
+torch.manual_seed(22)
+start = time.perf_counter()
+for i in range(230):
+    # print(i)
+    candidates = env.get_action_candidates(num_candidates)
+    env.step(candidates[:, 0, :])
+    env.render(0)
+    # env.render(0)
+    # time.sleep(0.1)
+
+end = time.perf_counter()
+print(end - start)
