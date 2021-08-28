@@ -4,6 +4,7 @@ from maze_builder.types import Room
 rooms = [
     Room(
         name='The Moat',
+        rom_address=0x95FF,
         map=[
             [1, 1],
             [1, 1],
@@ -19,6 +20,7 @@ rooms = [
     ),
     Room(
         name='Landing Site',
+        rom_address=0x91F8,
         map=[
             [0, 0, 1, 1, 1, 1, 1, 1, 1],
             [0, 0, 1, 1, 1, 1, 1, 1, 1],
@@ -43,12 +45,14 @@ rooms = [
     ),
     Room(
         name='Crateria Tube',
+        rom_address=0x95D4,
         map=[[1]],
         door_left=[[1]],
         door_right=[[1]],
     ),
     Room(
         name='Parlor and Alcatraz',
+        rom_address=0x92FD,
         map=[
             [1, 1, 1, 1, 1],
             [0, 1, 0, 1, 0],
@@ -80,6 +84,7 @@ rooms = [
     ),
     Room(
         name='Climb',
+        rom_address=0x96BA,
         map=[
             [0, 1, 1],
             [0, 1, 0],
@@ -127,6 +132,7 @@ rooms = [
     ),
     Room(
         name='Pit Room',
+        rom_address=0x975C,
         map=[
             [1, 1, 1],
             [1, 0, 0]
@@ -142,44 +148,52 @@ rooms = [
     ),
     Room(
         name='Flyway',
+        rom_address=0x9879,
         map=[[1, 1, 1]],
         door_left=[[1, 0, 0]],
         door_right=[[0, 0, 1]],
     ),
     Room(
         name='Pre-Map Flyway',
+        rom_address=0x98E2,
         map=[[1, 1, 1]],
         door_left=[[1, 0, 0]],
         door_right=[[0, 0, 1]],
     ),
     Room(
         name='Crateria Map Room',
+        rom_address=0x9994,
         map=[[1]],
         door_left=[[1]],
     ),
     Room(
         name='Crateria Save Room',
+        rom_address=0x93D5,
         map=[[1]],
         door_right=[[1]],
     ),
     Room(
         name='The Final Missile',
+        rom_address=0x9A90,
         map=[[1]],
         door_right=[[1]],
     ),
     Room(
         name='Final Missile Bombway',
+        rom_address=0x9A44,
         map=[[1, 1]],
         door_left=[[1, 0]],
         door_right=[[0, 1]],
     ),
     Room(
         name='Bomb Torizo Room',
+        rom_address=0x9804,
         map=[[1]],
         door_left=[[1]],
     ),
     Room(
         name='Terminator Room',
+        rom_address=0x990D,
         map=[
             [0, 0, 0, 1, 1, 1],
             [0, 1, 1, 1, 1, 0],
@@ -198,6 +212,7 @@ rooms = [
     ),
     Room(
         name='Green Pirates Shaft',
+        rom_address=0x99BD,
         map=[
             [1],
             [1],
@@ -228,12 +243,14 @@ rooms = [
     ),
     Room(
         name='Lower Mushrooms',
+        rom_address=0x9969,
         map=[[1, 1, 1, 1]],
         door_left=[[1, 0, 0, 0]],
         door_right=[[0, 0, 0, 1]],
     ),
     Room(
         name='Green Brinstar Elevator Room',
+        rom_address=0x9938,
         map=[
             [1],
             [1],
@@ -255,6 +272,7 @@ rooms = [
     ),
     Room(
         name='Crateria Kihunter Room',
+        rom_address=0x948C,
         map=[
             [1, 1, 1],
             [0, 1, 0],
@@ -278,12 +296,14 @@ rooms = [
     ),
     Room(
         name='Statues Hallway',
+        rom_address=0xA5ED,
         map=[[1, 1, 1, 1, 1]],
         door_left=[[1, 0, 0, 0, 0]],
         door_right=[[0, 0, 0, 0, 1]],
     ),
     Room(
         name='Red Brinstar Elevator Room',
+        rom_address=0x962A,
         map=[
             [1],
             [1],
@@ -306,6 +326,7 @@ rooms = [
     Room(
         # TODO: add this to wiki.supermetroid.run/List_of_rooms because it is missing.
         name='Blue Brinstar Elevator Room',
+        rom_address=0x97B5,
         map=[
             [1],
             [1],
@@ -327,6 +348,7 @@ rooms = [
     ),
     Room(
         name='Statues Room',
+        rom_address=0xA66A,
         map=[
             [1],
             [1],
@@ -351,11 +373,13 @@ rooms = [
     ),
     Room(
         name='Crateria Power Bomb Room',
+        rom_address=0x93AA,
         map=[[1, 1]],
         door_left=[[1, 0]],
     ),
     Room(
         name='Crateria Super Room',
+        rom_address=0x99F9,
         map=[
             [1, 1, 1, 1],
             [0, 0, 0, 1],
@@ -379,18 +403,21 @@ rooms = [
     ),
     Room(
         name='Gauntlet Entrance',
+        rom_address=0x92B3,
         map=[[1, 1, 1, 1, 1]],
         door_left=[[1, 0, 0, 0, 0]],
         door_right=[[0, 0, 0, 0, 1]],
     ),
     Room(
         name='Gauntlet Energy Tank Room',
+        rom_address=0x965B,
         map=[[1, 1, 1, 1, 1, 1]],
         door_left=[[1, 0, 0, 0, 0, 0]],
         door_right=[[0, 0, 0, 0, 0, 1]],
     ),
     Room(
         name='West Ocean',
+        rom_address=0x93FE,
         map=[
             [1, 1, 1, 1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1, 1, 1, 1],
@@ -418,12 +445,14 @@ rooms = [
     ),
     Room(
         name='Bowling Alley Path',
+        rom_address=0x9461,
         map=[[1, 1]],
         door_left=[[1, 0]],
         door_right=[[0, 1]],
     ),
     Room(
         name='East Ocean',
+        rom_address=0x94FD,
         map=[  # This map could be trimmed, but it's like this in the game (?)
             [0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0],
@@ -451,6 +480,7 @@ rooms = [
     ),
     Room(
         name='Forgotten Highway Kago Room',
+        rom_address=0x9552,
         map=[
             [1],
             [1],
@@ -472,6 +502,7 @@ rooms = [
     ),
     Room(
         name='Crab Maze',
+        rom_address=0x957D,
         map=[
             [1, 1, 1, 1],
             [1, 1, 1, 1],
@@ -487,6 +518,7 @@ rooms = [
     ),
     Room(
         name='Forgotten Highway Elevator',
+        rom_address=0x94CC,
         map=[
             [1],
             [1],
@@ -508,6 +540,7 @@ rooms = [
     ),
     Room(
         name='Forgotten Highway Elbow',  # Add to list on wiki.supermetroid.run
+        rom_address=0x95A8,
         map=[[1]],
         door_right=[[1]],
         door_down=[[1]],
