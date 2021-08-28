@@ -9,6 +9,7 @@ from logic.rooms import maridia_upper
 from logic.rooms import norfair_lower
 from logic.rooms import norfair_upper
 from logic.rooms import wrecked_ship
+from logic.rooms import tourian
 
 rooms = (
     crateria.rooms +
@@ -21,5 +22,6 @@ rooms = (
     maridia_upper.rooms +
     norfair_lower.rooms +
     norfair_upper.rooms +
-    wrecked_ship.rooms
+    wrecked_ship.rooms +
+    tourian.rooms
 )

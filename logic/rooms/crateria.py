@@ -100,7 +100,7 @@ rooms = [
             [0, 0, 0],
             [0, 0, 0],
             [0, 0, 0],
-            [0, 0, 0],   # TODO: add this door back when we add Tourian
+            [1, 0, 0],
         ],
         door_right=[
             [0, 0, 1],
@@ -341,14 +341,13 @@ rooms = [
             [0],
             [0],
         ],
-        # TODO: add this back when we connect Tourian
-        # elevator_down=[
-        #     [0],
-        #     [0],
-        #     [0],
-        #     [0],
-        #     [1],
-        # ],
+        elevator_down=[
+            [0],
+            [0],
+            [0],
+            [0],
+            [1],
+        ],
     ),
     Room(
         name='Crateria Power Bomb Room',

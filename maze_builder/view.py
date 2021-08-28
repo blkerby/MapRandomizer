@@ -2,6 +2,7 @@ import torch
 import logging
 from maze_builder.env import MazeBuilderEnv
 import logic.rooms.crateria_isolated
+import logic.rooms.all_rooms
 import pickle
 
 logging.basicConfig(format='%(asctime)s %(message)s',
@@ -21,10 +22,13 @@ class CPU_Unpickler(pickle.Unpickler):
             return super().find_class(module, name)
 
 device = torch.device('cpu')
-session = CPU_Unpickler(open('models/crateria-2021-08-08T18:12:07.761196.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/crateria-2021-08-08T18:12:07.761196.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2021-08-22T22:26:53.639110.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2021-08-23T09:55:29.550930.pkl', 'rb')).load()
 
-num_envs = 32
-rooms = logic.rooms.crateria_isolated.rooms
+
+num_envs = 1
+rooms = logic.rooms.all_rooms.rooms
 episode_length = len(rooms)
 env = MazeBuilderEnv(rooms,
                      map_x=session.env.map_x,
@@ -35,21 +39,21 @@ env = MazeBuilderEnv(rooms,
 
 episode_length = len(rooms)
 session.env = env
-num_candidates = 16
-temperature = 5
-
+num_candidates = 128
+temperature = 1e-5
+torch.manual_seed(1)
+max_possible_reward = env.max_reward
 while True:
     data = session.generate_round(
-        episode_length,
+        episode_length=episode_length,
         num_candidates=num_candidates,
         temperature=temperature,
-        explore_eps=0,
-        td_lambda=1.0,
-        render=False)
+        explore_eps=0.0,
+        render=True)
     # reward = data[0]
     reward = session.env.reward()
     max_reward, max_reward_ind = torch.max(reward, dim=0)
-    logging.info("{}: {}".format(max_reward, reward.tolist()))
+    logging.info("{}: {}".format(max_possible_reward - max_reward, (max_possible_reward - reward).tolist()))
     if max_reward.item() >= 33:
         break
     # time.sleep(5)

@@ -109,7 +109,7 @@ logging.info("{}".format(model))
 logging.info("{}".format(optimizer))
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in model.parameters())
 
-replay_size = 2 ** 19
+replay_size = 2 ** 18
 session = TrainingSession(env,
                           model=model,
                           optimizer=optimizer,
@@ -166,13 +166,13 @@ batch_size_pow1 = 10
 lr0 = 0.00002
 lr1 = 0.00002
 num_candidates = 16
-temperature0 = 0.02
+temperature0 = 10.0
 temperature1 = 0.01
 explore_eps = 0.01
-annealing_start = 56368
-annealing_time = 4000
+annealing_start = 0
+annealing_time = 10000
 session.env = env
-pass_factor = 4.0
+pass_factor = 1.0
 print_freq = 16
 num_eval_rounds = replay_size // num_envs // 16
 # session.replay_buffer.episode_data.prob[:] = 1 / num_candidates
@@ -271,6 +271,9 @@ session.sam_scale = None  # 0.02
 # total_loss_cnt = 0
 # session = pickle.load(open('models/session-2021-08-18T21:52:46.002454.pkl', 'rb'))
 # session = pickle.load(open('models/session-2021-08-18T22:59:51.919856.pkl-t0.02', 'rb'))
+# session = pickle.load(open('models/session-2021-08-23T09:55:29.550930.pkl', 'rb'))  # t1
+session = pickle.load(open('models/session-2021-08-25T17:41:12.741963.pkl', 'rb'))    # t0
+
 session.env = env
 session.model = session.model.to(device)
 def optimizer_to(optim, device):
@@ -366,6 +369,8 @@ for i in range(100000):
         # episode_data = session.replay_buffer.episode_data
         # session.replay_buffer.episode_data = None
         pickle.dump(session, open(pickle_name, 'wb'))
+        # pickle.dump(session, open(pickle_name + '-c8', 'wb'))
+        # pickle.dump(session, open(pickle_name + '-c16', 'wb'))
         # pickle.dump(session, open(pickle_name + '-t0.02', 'wb'))
         # session.replay_buffer.episode_data = episode_data
-        # session = pickle.load(open(pickle_name + '-t0.02', 'rb'))
+        # session = pickle.load(open(pickle_name, 'rb'))

@@ -6,6 +6,7 @@ class Area(Enum):
     NORFAIR = 3
     MARIDIA = 4
     WRECKED_SHIP = 5
+    TOURIAN = 6
 
 class SubArea(Enum):
     CRATERIA_AND_BLUE_BRINSTAR = 1
@@ -16,3 +17,4 @@ class SubArea(Enum):
     LOWER_MARIDIA = 6
     UPPER_MARIDIA = 7
     WRECKED_SHIP = 8
+    TOURIAN = 9
