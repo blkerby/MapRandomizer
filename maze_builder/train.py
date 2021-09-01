@@ -1,5 +1,4 @@
 # TODO:
-# - implement new area constraint (maintaining area connectedness at each step)
 # - Use one-hot coding or embeddings (on tile/door types) instead of putting raw map data into convolutional layers
 # - For output probabilities, try using cumulative probabilities for each reward value and binary cross-entropy loss
 # - idea for activation: variation of ReLU where on the right the slope starts at a value >1 and then changes to a
@@ -75,10 +74,10 @@ env_config = EnvConfig(
     map_y=60,
 )
 
-map_x = 60
-map_y = 60
-# map_x = 40
-# map_y = 40
+map_x = 72
+map_y = 72
+# map_x = 80
+# map_y = 80
 env = MazeBuilderEnv(rooms,
                      map_x=map_x,
                      map_y=map_y,
@@ -165,14 +164,15 @@ batch_size_pow0 = 10
 batch_size_pow1 = 10
 lr0 = 0.00002
 lr1 = 0.00002
-num_candidates = 16
+num_candidates0 = 32
+num_candidates1 = 32
 # temperature0 = 10.0
 # temperature1 = 0.01
-temperature0 = 0.01
+temperature0 = 0.02
 temperature1 = 0.02
 explore_eps = 0.01
-annealing_start = 67584
-annealing_time = 1000
+annealing_start = 109472
+annealing_time = 4000
 session.env = env
 pass_factor = 1.0
 print_freq = 16
@@ -219,7 +219,7 @@ num_steps = session.replay_buffer.capacity // num_envs
 num_train_batches = int(pass_factor * session.replay_buffer.capacity * episode_length // batch_size // num_steps)
 num_eval_batches = num_eval_rounds * num_envs // eval_batch_size
 eval_freq = 16
-save_freq = 64
+save_freq = 128
 # for layer in session.network.global_dropout_layers:
 #     layer.p = 0.0
 
@@ -273,8 +273,8 @@ session.sam_scale = None  # 0.02
 # total_loss_cnt = 0
 # session = pickle.load(open('models/session-2021-08-18T21:52:46.002454.pkl', 'rb'))
 # session = pickle.load(open('models/session-2021-08-18T22:59:51.919856.pkl-t0.02', 'rb'))
-# session = pickle.load(open('models/session-2021-08-23T09:55:29.550930.pkl', 'rb'))  # t1
-session = pickle.load(open('models/session-2021-08-25T17:41:12.741963.pkl', 'rb'))    # t0
+session = pickle.load(open('models/session-2021-08-23T09:55:29.550930.pkl', 'rb'))  # t1
+# session = pickle.load(open('models/session-2021-08-25T17:41:12.741963.pkl', 'rb'))    # t0
 
 session.env = env
 session.model = session.model.to(device)
@@ -301,6 +301,7 @@ total_round_cnt = 0
 logging.info("Starting training")
 for i in range(100000):
     frac = max(0, min(1, (session.num_rounds - annealing_start) / annealing_time))
+    num_candidates = int(num_candidates0 + (num_candidates1 - num_candidates0) * frac)
     temperature = temperature0 * (temperature1 / temperature0) ** frac
     lr = lr0 * (lr1 / lr0) ** frac
     batch_size_pow = int(batch_size_pow0 + frac * (batch_size_pow1 - batch_size_pow0))
@@ -323,7 +324,7 @@ for i in range(100000):
 
     session.num_rounds += 1
 
-    num_batches = int(pass_factor * num_envs * episode_length / batch_size)
+    num_batches = max(1, int(pass_factor * num_envs * episode_length / batch_size))
     for j in range(num_batches):
         data = session.replay_buffer.sample(batch_size, device=device)
         total_loss += session.train_batch(data)
@@ -353,7 +354,7 @@ for i in range(100000):
         buffer_mean_rooms_missing = buffer_mean_pass * len(rooms)
 
         logging.info(
-            "{}: doors={:.3f} (min={:d}, frac={:.6f}), rooms={:.3f}, test={:.4f}, p={:.6f} | loss={:.4f}, doors={:.3f}, test={:.4f}, p={:.6f}, temp={:.4f}".format(
+            "{}: doors={:.3f} (min={:d}, frac={:.6f}), rooms={:.3f}, test={:.4f}, p={:.6f} | loss={:.4f}, doors={:.3f}, test={:.4f}, p={:.6f}, temp={:.4f}, nc={}".format(
                 session.num_rounds, max_possible_reward - buffer_mean_reward, max_possible_reward - buffer_max_reward,
                 buffer_frac_max_reward,
                 buffer_mean_rooms_missing,
@@ -363,7 +364,8 @@ for i in range(100000):
                 max_possible_reward - new_reward,
                 new_test_loss,
                 new_prob,
-                temperature))
+                temperature,
+                num_candidates))
         total_loss = 0.0
         total_loss_cnt = 0
 
@@ -373,6 +375,8 @@ for i in range(100000):
         pickle.dump(session, open(pickle_name, 'wb'))
         # pickle.dump(session, open(pickle_name + '-c8', 'wb'))
         # pickle.dump(session, open(pickle_name + '-c16', 'wb'))
+        # pickle.dump(session, open(pickle_name + '-c32', 'wb'))
+        # pickle.dump(session, open(pickle_name + '-m72b', 'wb'))
         # pickle.dump(session, open(pickle_name + '-t0.02', 'wb'))
         # session.replay_buffer.episode_data = episode_data
-        # session = pickle.load(open(pickle_name, 'rb'))
+        # session = pickle.load(open(pickle_name + '-m72b', 'rb'))

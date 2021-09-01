@@ -1,3 +1,5 @@
+import time
+
 import torch
 import logging
 from maze_builder.env import MazeBuilderEnv
@@ -24,7 +26,7 @@ class CPU_Unpickler(pickle.Unpickler):
 device = torch.device('cpu')
 # session = CPU_Unpickler(open('models/crateria-2021-08-08T18:12:07.761196.pkl', 'rb')).load()
 # session = CPU_Unpickler(open('models/session-2021-08-22T22:26:53.639110.pkl', 'rb')).load()
-# session = CPU_Unpickler(open('models/session-2021-08-23T09:55:29.550930.pkl', 'rb')).load()
+session = CPU_Unpickler(open('models/session-2021-08-23T09:55:29.550930.pkl', 'rb')).load()
 
 
 num_envs = 1
@@ -41,20 +43,25 @@ episode_length = len(rooms)
 session.env = env
 num_candidates = 128
 temperature = 1e-5
-torch.manual_seed(1)
+torch.manual_seed(5)
 max_possible_reward = env.max_reward
-while True:
+start_time = time.perf_counter()
+for i in range(10000):
     data = session.generate_round(
         episode_length=episode_length,
         num_candidates=num_candidates,
         temperature=temperature,
         explore_eps=0.0,
-        render=True)
+        render=False)
+        # render=True)
     # reward = data[0]
     reward = session.env.reward()
     max_reward, max_reward_ind = torch.max(reward, dim=0)
-    logging.info("{}: {}".format(max_possible_reward - max_reward, (max_possible_reward - reward).tolist()))
-    if max_reward.item() >= 33:
+    num_passes = torch.sum(data.action == len(rooms))
+    logging.info("{}: doors={}, rooms={}".format(i, max_possible_reward - max_reward, num_passes))
+    if max_possible_reward - max_reward.item() <= 25:
         break
     # time.sleep(5)
 session.env.render(max_reward_ind.item())
+end_time = time.perf_counter()
+print(end_time - start_time)

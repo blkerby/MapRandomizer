@@ -7,8 +7,8 @@ from logic.areas import Area, SubArea
 @dataclass
 class Room:
     name: str
-    rom_address: int
     map: List[List[int]]
+    rom_address: int = None
     door_left: Optional[List[List[int]]] = None
     door_right: Optional[List[List[int]]] = None
     door_down: Optional[List[List[int]]] = None
