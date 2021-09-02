@@ -7,6 +7,7 @@
 # - try curriculum learning, starting with small subsets of rooms and ramping up
 # - minor cleanup: in data generation, use action value from previous step to avoid needing to recompute state value
 # - export better metrics, and maybe build some sort of database for them (e.g., SQLlite, or mongodb/sacred?)
+import concurrent.futures
 
 import torch
 import logging
@@ -45,9 +46,13 @@ import logic.rooms.maridia_lower
 import logic.rooms.maridia_upper
 
 # device = torch.device('cpu')
-device = torch.device('cuda:1')
+devices = [torch.device('cuda:1'), torch.device('cuda:0')]
+# devices = [torch.device('cuda:0'), torch.device('cuda:1')]
+# devices = [torch.device('cuda:0')]
+device = devices[0]
+executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
-num_envs = 2 ** 8
+num_envs = 2 ** 7
 # num_envs = 1
 # rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.crateria.rooms
@@ -78,19 +83,20 @@ map_x = 72
 map_y = 72
 # map_x = 80
 # map_y = 80
-env = MazeBuilderEnv(rooms,
+envs = [MazeBuilderEnv(rooms,
                      map_x=map_x,
                      map_y=map_y,
                      num_envs=num_envs,
                      device=device)
+        for device in devices]
 
-max_possible_reward = torch.sum(env.room_door_count) // 2
+max_possible_reward = torch.sum(envs[0].room_door_count) // 2
 logging.info("max_possible_reward = {}".format(max_possible_reward))
 
 
 def make_dummy_model():
     return Model(env_config=env_config,
-                 max_possible_reward=env.max_reward,
+                 max_possible_reward=envs[0].max_reward,
                  map_channels=[],
                  map_stride=[],
                  map_kernel_size=[],
@@ -109,7 +115,7 @@ logging.info("{}".format(optimizer))
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in model.parameters())
 
 replay_size = 2 ** 18
-session = TrainingSession(env,
+session = TrainingSession(envs,
                           model=model,
                           optimizer=optimizer,
                           ema_beta=0.999,
@@ -119,7 +125,7 @@ session = TrainingSession(env,
 torch.set_printoptions(linewidth=120, threshold=10000)
 
 
-gen_print_freq = 16
+gen_print_freq = 1
 i = 0
 while session.replay_buffer.size < session.replay_buffer.capacity:
     data = session.generate_round(
@@ -127,7 +133,8 @@ while session.replay_buffer.size < session.replay_buffer.capacity:
         num_candidates=1,
         temperature=1e-10,
         explore_eps=0.0,
-        render=False)
+        render=False,
+        executor=executor)
     session.replay_buffer.insert(data)
 
     i += 1
@@ -166,6 +173,7 @@ lr0 = 0.00002
 lr1 = 0.00002
 num_candidates0 = 32
 num_candidates1 = 32
+num_candidates = num_candidates0
 # temperature0 = 10.0
 # temperature1 = 0.01
 temperature0 = 0.02
@@ -173,7 +181,7 @@ temperature1 = 0.02
 explore_eps = 0.01
 annealing_start = 109472
 annealing_time = 4000
-session.env = env
+session.envs = envs
 pass_factor = 1.0
 print_freq = 16
 num_eval_rounds = replay_size // num_envs // 16
@@ -190,12 +198,12 @@ num_eval_rounds = replay_size // num_envs // 16
 logging.info("Checkpoint path: {}".format(pickle_name))
 logging.info(
     "map_x={}, map_y={}, num_envs={}, num_candidates={}, replay_size={}, num_params={}, decay_amount={}".format(
-        map_x, map_y, session.env.num_envs, num_candidates, replay_size, num_params, session.decay_amount))
+        map_x, map_y, session.envs[0].num_envs, num_candidates, replay_size, num_params, session.decay_amount))
 
 # session.network = make_network()
 session.model = Model(
     env_config=env_config,
-    max_possible_reward=env.max_reward,
+    max_possible_reward=envs[0].max_reward,
     map_channels=[32, 64, 128],
     map_stride=[2, 2, 2],
     map_kernel_size=[7, 3, 3],
@@ -273,10 +281,11 @@ session.sam_scale = None  # 0.02
 # total_loss_cnt = 0
 # session = pickle.load(open('models/session-2021-08-18T21:52:46.002454.pkl', 'rb'))
 # session = pickle.load(open('models/session-2021-08-18T22:59:51.919856.pkl-t0.02', 'rb'))
-session = pickle.load(open('models/session-2021-08-23T09:55:29.550930.pkl', 'rb'))  # t1
+# session = pickle.load(open('models/session-2021-08-23T09:55:29.550930.pkl', 'rb'))  # t1
 # session = pickle.load(open('models/session-2021-08-25T17:41:12.741963.pkl', 'rb'))    # t0
+session = pickle.load(open('models/session-2021-09-01T20:36:53.060639.pkl', 'rb'))    # t0
 
-session.env = env
+session.envs = envs
 session.model = session.model.to(device)
 def optimizer_to(optim, device):
     for param in optim.state.values():
@@ -313,6 +322,7 @@ for i in range(100000):
         num_candidates=num_candidates,
         temperature=temperature,
         explore_eps=explore_eps,
+        executor=executor,
         render=False)
     # randomized_insert=session.replay_buffer.size == session.replay_buffer.capacity)
     session.replay_buffer.insert(data)
@@ -349,7 +359,7 @@ for i in range(100000):
         total_prob = 0.0
         total_round_cnt = 0
 
-        buffer_is_pass = session.replay_buffer.episode_data.action[:session.replay_buffer.size, :, 0] == len(env.rooms) - 1
+        buffer_is_pass = session.replay_buffer.episode_data.action[:session.replay_buffer.size, :, 0] == len(envs[0].rooms) - 1
         buffer_mean_pass = torch.mean(buffer_is_pass.to(torch.float32))
         buffer_mean_rooms_missing = buffer_mean_pass * len(rooms)
 

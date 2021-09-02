@@ -3,11 +3,10 @@ import torch
 from maze_builder.types import EpisodeData, TrainingData, reconstruct_room_data
 
 class ReplayBuffer:
-    def __init__(self, capacity, num_rooms, storage_device, retrieval_device):
+    def __init__(self, capacity, num_rooms, storage_device):
         self.capacity = capacity
         self.num_rooms = num_rooms
         self.storage_device = storage_device
-        self.retrieval_device = retrieval_device
         self.episode_data: Optional[EpisodeData] = None
         self.position = 0
         self.size = 0

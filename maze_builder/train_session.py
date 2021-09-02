@@ -1,4 +1,5 @@
-from typing import Optional
+from typing import Optional, List
+import copy
 import torch
 import torch.nn.functional as F
 from maze_builder.model import Model
@@ -6,6 +7,7 @@ from maze_builder.env import MazeBuilderEnv
 from maze_builder.replay import ReplayBuffer
 from maze_builder.types import EpisodeData, TrainingData
 from model_average import ExponentialAverage
+import concurrent.futures
 import logging
 from dataclasses import dataclass
 
@@ -19,7 +21,7 @@ def _rand_choice(p):
 
 
 class TrainingSession():
-    def __init__(self, env: MazeBuilderEnv,
+    def __init__(self, envs: List[MazeBuilderEnv],
                  model: Model,
                  optimizer: torch.optim.Optimizer,
                  ema_beta: float,
@@ -27,7 +29,7 @@ class TrainingSession():
                  decay_amount: float,
                  sam_scale: Optional[float],
                  ):
-        self.env = env
+        self.envs = envs
         self.model = model
         self.optimizer = optimizer
         self.average_parameters = ExponentialAverage(model.all_param_data(), beta=ema_beta)
@@ -35,21 +37,21 @@ class TrainingSession():
         self.decay_amount = decay_amount
         self.sam_scale = sam_scale
         self.grad_scaler = torch.cuda.amp.GradScaler()
-        self.replay_buffer = ReplayBuffer(replay_size, len(self.env.rooms), storage_device=torch.device('cpu'),
-                                          retrieval_device=env.device)
+        self.replay_buffer = ReplayBuffer(replay_size, len(self.envs[0].rooms), storage_device=torch.device('cpu'))
 
         self.total_step_remaining_gen = 0.0
         self.total_step_remaining_train = 0.0
 
-    def forward_state_action(self, room_mask, room_position_x, room_position_y, action_candidates, steps_remaining,
-                             round):
+    def forward_state_action(self, model, room_mask, room_position_x, room_position_y, action_candidates,
+                             steps_remaining,
+                             env_id, round):
         # print({k: v.shape for k, v in locals().items() if hasattr(v, 'shape')})
         #
         # torch.cuda.synchronize()
         # logging.info("Processing candidate data")
         num_envs = room_mask.shape[0]
         num_candidates = action_candidates.shape[1]
-        num_rooms = len(self.env.rooms)
+        num_rooms = len(self.envs[0].rooms)
         action_room_id = action_candidates[:, :, 0]
         action_x = action_candidates[:, :, 1]
         action_y = action_candidates[:, :, 2]
@@ -81,64 +83,66 @@ class TrainingSession():
         # torch.cuda.synchronize()
         # logging.info("Creating map")
 
-        map_flat = self.env.compute_map(room_mask_flat, room_position_x_flat, room_position_y_flat)
+        map_flat = self.envs[env_id].compute_map(room_mask_flat, room_position_x_flat, room_position_y_flat)
 
         # torch.cuda.synchronize()
         # logging.info("Model forward")
-        flat_raw_logodds, _, flat_expected = self.model.forward_multiclass(map_flat, room_mask_flat, steps_remaining_flat)
-        raw_logodds = flat_raw_logodds.view(num_envs, 1 + num_candidates, self.env.max_reward + 1)
+        flat_raw_logodds, _, flat_expected = model.forward_multiclass(map_flat, room_mask_flat, steps_remaining_flat)
+        raw_logodds = flat_raw_logodds.view(num_envs, 1 + num_candidates, self.envs[env_id].max_reward + 1)
         expected = flat_expected.view(num_envs, 1 + num_candidates)
         state_raw_logodds = raw_logodds[:, 0, :]
         state_expected = expected[:, 0]
         action_expected = expected[:, 1:]
         return state_expected, action_expected, state_raw_logodds
 
-    def generate_round(self, episode_length: int, num_candidates: int, temperature: float, explore_eps: float,
-                         render=False) -> EpisodeData:
-        device = self.env.device
-        self.env.reset()
+    def generate_round_inner(self, model, episode_length: int, num_candidates: int, temperature: float,
+                             explore_eps: float,
+                             env_id, render=False) -> EpisodeData:
+        device = self.envs[env_id].device
+        env = self.envs[env_id]
+        env.reset()
         state_raw_logodds_list = []
         action_list = []
         prob_list = []
-        round_tensor = torch.full([self.env.num_envs], self.num_rounds, dtype=torch.int64, device=device)
-        self.model.eval()
+        round_tensor = torch.full([env.num_envs], self.num_rounds, dtype=torch.int64, device=device)
+        model.eval()
         # torch.cuda.synchronize()
         # logging.debug("Averaging parameters")
-        with self.average_parameters.average_parameters(self.model.all_param_data()):
-            for j in range(episode_length):
-                if render:
-                    self.env.render()
-                # torch.cuda.synchronize()
-                # logging.debug("Getting candidates")
-                action_candidates = self.env.get_action_candidates(num_candidates)
-                steps_remaining = torch.full([self.env.num_envs], episode_length - j,
-                                             dtype=torch.float32, device=device)
-                with torch.no_grad():
-                    state_expected, action_expected, state_raw_logodds = self.forward_state_action(
-                        self.env.room_mask, self.env.room_position_x, self.env.room_position_y,
-                        action_candidates, steps_remaining, torch.zeros_like(round_tensor))
-                probs = torch.softmax(action_expected / temperature, dim=1)
-                probs = torch.full_like(probs, explore_eps / num_candidates) + (
-                        1 - explore_eps) * probs
-                action_index = _rand_choice(probs)
-                selected_prob = probs[torch.arange(self.env.num_envs, device=device), action_index]
-                action = action_candidates[torch.arange(self.env.num_envs, device=device), action_index, :]
+        for j in range(episode_length):
+            if render:
+                env.render()
+            # torch.cuda.synchronize()
+            # logging.debug("Getting candidates")
+            action_candidates = env.get_action_candidates(num_candidates)
+            steps_remaining = torch.full([env.num_envs], episode_length - j,
+                                         dtype=torch.float32, device=device)
+            with torch.no_grad():
+                # print("inner", env_id, j, env.device, model.state_value_lin.weight.device)
+                state_expected, action_expected, state_raw_logodds = self.forward_state_action(
+                    model, env.room_mask, env.room_position_x, env.room_position_y,
+                    action_candidates, steps_remaining, env_id=env_id, round=torch.zeros_like(round_tensor))
+            probs = torch.softmax(action_expected / temperature, dim=1)
+            probs = torch.full_like(probs, explore_eps / num_candidates) + (
+                    1 - explore_eps) * probs
+            action_index = _rand_choice(probs)
+            selected_prob = probs[torch.arange(env.num_envs, device=device), action_index]
+            action = action_candidates[torch.arange(env.num_envs, device=device), action_index, :]
 
-                self.env.step(action)
-                action_list.append(action.to('cpu'))
-                state_raw_logodds_list.append(state_raw_logodds.to('cpu'))
-                prob_list.append(selected_prob.to('cpu'))
+            env.step(action)
+            action_list.append(action.to('cpu'))
+            state_raw_logodds_list.append(state_raw_logodds.to('cpu'))
+            prob_list.append(selected_prob.to('cpu'))
 
-        reward_tensor = self.env.reward().to('cpu')
+        reward_tensor = env.reward().to('cpu')
         state_raw_logodds_tensor = torch.stack(state_raw_logodds_list, dim=1)
         action_tensor = torch.stack(action_list, dim=1)
         prob_tensor = torch.mean(torch.stack(prob_list, dim=1), dim=1)
 
-        state_raw_logodds_flat = state_raw_logodds_tensor.view(self.env.num_envs * episode_length,
+        state_raw_logodds_flat = state_raw_logodds_tensor.view(env.num_envs * episode_length,
                                                                state_raw_logodds_tensor.shape[-1])
-        reward_flat = reward_tensor.view(self.env.num_envs, 1).repeat(1, episode_length).view(-1)
+        reward_flat = reward_tensor.view(env.num_envs, 1).repeat(1, episode_length).view(-1)
         loss_flat = torch.nn.functional.cross_entropy(state_raw_logodds_flat, reward_flat, reduction='none')
-        loss = loss_flat.view(self.env.num_envs, episode_length)
+        loss = loss_flat.view(env.num_envs, episode_length)
         episode_loss = torch.mean(loss, dim=1)
 
         return EpisodeData(
@@ -147,6 +151,28 @@ class TrainingSession():
             prob=prob_tensor,
             test_loss=episode_loss,
         )
+
+    def generate_round(self, episode_length: int, num_candidates: int, temperature: float, explore_eps: float,
+                       executor: concurrent.futures.ThreadPoolExecutor,
+                       render=False) -> EpisodeData:
+        futures_list = []
+        with self.average_parameters.average_parameters(self.model.all_param_data()):
+            models = [copy.deepcopy(self.model).to(env.device) for env in self.envs]
+            for i, env in enumerate(self.envs):
+                model = models[i]
+                # print("gen", i, env.device, model.state_value_lin.weight.device)
+                future = executor.submit(lambda i=i, model=model: self.generate_round_inner(
+                    model, episode_length, num_candidates, temperature, explore_eps, render=render, env_id=i))
+                futures_list.append(future)
+            episode_data_list = [future.result() for future in futures_list]
+            for env in self.envs:
+                torch.cuda.synchronize(env.device)
+            return EpisodeData(
+                reward=torch.cat([d.reward for d in episode_data_list], dim=0),
+                action=torch.cat([d.action for d in episode_data_list], dim=0),
+                prob=torch.cat([d.prob for d in episode_data_list], dim=0),
+                test_loss=torch.cat([d.test_loss for d in episode_data_list], dim=0),
+            )
 
     def train_batch(self, data: TrainingData):
         self.model.train()
@@ -157,7 +183,7 @@ class TrainingSession():
                 param.data += torch.randn_like(param.data) * self.sam_scale
             self.model.project()
 
-        map = self.env.compute_map(data.room_mask, data.room_position_x, data.room_position_y)
+        map = self.envs[0].compute_map(data.room_mask, data.room_position_x, data.room_position_y)
         state_value_raw_logprobs, _, _ = self.model.forward_multiclass(map, data.room_mask, data.steps_remaining)
 
         loss = torch.nn.functional.cross_entropy(state_value_raw_logprobs, data.reward)
