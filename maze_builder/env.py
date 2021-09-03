@@ -517,7 +517,7 @@ class MazeBuilderEnv:
 
     def render(self, env_index=0):
         if self.map_display is None:
-            self.map_display = MapDisplay(self.map_x, self.map_y, tile_width=16)
+            self.map_display = MapDisplay(self.map_x, self.map_y, tile_width=14)
         ind = torch.tensor([i for i in range(len(self.rooms) - 1) if self.room_mask[env_index, i]],
                            dtype=torch.int64, device=self.device)
         rooms = [self.rooms[i] for i in ind]

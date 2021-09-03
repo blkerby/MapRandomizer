@@ -6,6 +6,7 @@ from maze_builder.env import MazeBuilderEnv
 import logic.rooms.crateria_isolated
 import logic.rooms.all_rooms
 import pickle
+import concurrent.futures
 
 logging.basicConfig(format='%(asctime)s %(message)s',
                     level=logging.INFO,
@@ -26,8 +27,8 @@ class CPU_Unpickler(pickle.Unpickler):
 device = torch.device('cpu')
 # session = CPU_Unpickler(open('models/crateria-2021-08-08T18:12:07.761196.pkl', 'rb')).load()
 # session = CPU_Unpickler(open('models/session-2021-08-22T22:26:53.639110.pkl', 'rb')).load()
-session = CPU_Unpickler(open('models/session-2021-08-23T09:55:29.550930.pkl', 'rb')).load()
-
+# session = CPU_Unpickler(open('models/session-2021-08-23T09:55:29.550930.pkl', 'rb')).load()
+session = CPU_Unpickler(open('models/session-2021-09-01T20:36:53.060639.pkl', 'rb')).load()
 
 num_envs = 1
 rooms = logic.rooms.all_rooms.rooms
@@ -40,28 +41,43 @@ env = MazeBuilderEnv(rooms,
 
 
 episode_length = len(rooms)
-session.env = env
+session.env = None
+session.envs = [env]
 num_candidates = 128
 temperature = 1e-5
-torch.manual_seed(5)
+torch.manual_seed(8)
 max_possible_reward = env.max_reward
 start_time = time.perf_counter()
+executor = concurrent.futures.ThreadPoolExecutor(1)
 for i in range(10000):
     data = session.generate_round(
         episode_length=episode_length,
         num_candidates=num_candidates,
         temperature=temperature,
         explore_eps=0.0,
+        executor=executor,
         render=False)
         # render=True)
     # reward = data[0]
-    reward = session.env.reward()
+    reward = session.envs[0].reward()
     max_reward, max_reward_ind = torch.max(reward, dim=0)
     num_passes = torch.sum(data.action == len(rooms))
     logging.info("{}: doors={}, rooms={}".format(i, max_possible_reward - max_reward, num_passes))
     if max_possible_reward - max_reward.item() <= 25:
         break
     # time.sleep(5)
-session.env.render(max_reward_ind.item())
+session.envs[0].render(max_reward_ind.item())
 end_time = time.perf_counter()
 print(end_time - start_time)
+
+extra_map_x = 50
+extra_map_y = 50
+extra_env = MazeBuilderEnv(rooms,
+                     map_x=extra_map_x,
+                     map_y=extra_map_y,
+                     num_envs=1,
+                     device=device)
+extra_env.room_mask = ~session.envs[0].room_mask
+extra_env.room_position_x = torch.randint(extra_map_x, [1, len(rooms) + 1])
+extra_env.room_position_y = torch.randint(extra_map_y, [1, len(rooms) + 1])
+extra_env.render()

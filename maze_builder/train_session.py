@@ -166,7 +166,8 @@ class TrainingSession():
                 futures_list.append(future)
             episode_data_list = [future.result() for future in futures_list]
             for env in self.envs:
-                torch.cuda.synchronize(env.device)
+                if env.room_mask.is_cuda:
+                    torch.cuda.synchronize(env.device)
             return EpisodeData(
                 reward=torch.cat([d.reward for d in episode_data_list], dim=0),
                 action=torch.cat([d.action for d in episode_data_list], dim=0),

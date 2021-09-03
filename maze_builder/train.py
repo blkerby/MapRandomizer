@@ -171,16 +171,16 @@ batch_size_pow0 = 10
 batch_size_pow1 = 10
 lr0 = 0.00002
 lr1 = 0.00002
-num_candidates0 = 32
-num_candidates1 = 32
+num_candidates0 = 33
+num_candidates1 = 64
 num_candidates = num_candidates0
 # temperature0 = 10.0
 # temperature1 = 0.01
 temperature0 = 0.02
 temperature1 = 0.02
 explore_eps = 0.01
-annealing_start = 109472
-annealing_time = 4000
+annealing_start = 124160
+annealing_time = 4096
 session.envs = envs
 pass_factor = 1.0
 print_freq = 16
@@ -386,7 +386,7 @@ for i in range(100000):
         # pickle.dump(session, open(pickle_name + '-c8', 'wb'))
         # pickle.dump(session, open(pickle_name + '-c16', 'wb'))
         # pickle.dump(session, open(pickle_name + '-c32', 'wb'))
-        # pickle.dump(session, open(pickle_name + '-m72b', 'wb'))
+        # pickle.dump(session, open(pickle_name + '-m72', 'wb'))
         # pickle.dump(session, open(pickle_name + '-t0.02', 'wb'))
         # session.replay_buffer.episode_data = episode_data
         # session = pickle.load(open(pickle_name + '-m72b', 'rb'))
