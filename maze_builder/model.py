@@ -146,6 +146,14 @@ class Model(torch.nn.Module):
             self.map_act_layers.append(common_act)
             width = (width - map_kernel_size[i]) // map_stride[i] + 1
             height = (height - map_kernel_size[i]) // map_stride[i] + 1
+
+        self.map_room_mask_layers = torch.nn.ModuleList()
+        for i in range(len(map_channels) - 1):
+            room_mask_lin = torch.nn.Linear(self.num_rooms, map_channels[i + 1])
+            room_mask_lin.weight.data.zero_()
+            room_mask_lin.bias.data.zero_()
+            self.map_room_mask_layers.append(room_mask_lin)
+
         self.map_global_pool = GlobalAvgPool2d()
         # self.map_global_pool = GlobalMaxPool2d()
         # self.map_global_pool = torch.nn.Flatten()
@@ -171,6 +179,7 @@ class Model(torch.nn.Module):
         with torch.cuda.amp.autocast():
             for i in range(len(self.map_conv_layers)):
                 X = self.map_conv_layers[i](X)
+                X = X + self.map_room_mask_layers[i](room_mask.to(X.dtype)).unsqueeze(2).unsqueeze(3)
                 X = self.map_act_layers[i](X)
 
             # Fully-connected layers on whole map data (starting with output of convolutional layers)
