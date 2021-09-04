@@ -167,8 +167,8 @@ while session.replay_buffer.size < session.replay_buffer.capacity:
 #     test_loss=torch.cat([x.test_loss for x in eval_data_list], dim=0),
 # )
 
-batch_size_pow0 = 10
-batch_size_pow1 = 10
+batch_size_pow0 = 12
+batch_size_pow1 = 12
 lr0 = 0.00002
 lr1 = 0.00002
 num_candidates0 = 33
@@ -182,7 +182,7 @@ explore_eps = 0.01
 annealing_start = 124160
 annealing_time = 4096
 session.envs = envs
-pass_factor = 1.0
+pass_factor = 2.0
 print_freq = 16
 num_eval_rounds = replay_size // num_envs // 16
 # session.replay_buffer.episode_data.prob[:] = 1 / num_candidates
@@ -385,8 +385,8 @@ for i in range(100000):
         pickle.dump(session, open(pickle_name, 'wb'))
         # pickle.dump(session, open(pickle_name + '-c8', 'wb'))
         # pickle.dump(session, open(pickle_name + '-c16', 'wb'))
-        # pickle.dump(session, open(pickle_name + '-c32', 'wb'))
+        # pickle.dump(session, open(pickle_name + '-c64', 'wb'))
         # pickle.dump(session, open(pickle_name + '-m72', 'wb'))
         # pickle.dump(session, open(pickle_name + '-t0.02', 'wb'))
         # session.replay_buffer.episode_data = episode_data
-        # session = pickle.load(open(pickle_name + '-m72b', 'rb'))
+        # session = pickle.load(open(pickle_name, 'rb'))

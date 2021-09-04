@@ -28,7 +28,7 @@ device = torch.device('cpu')
 # session = CPU_Unpickler(open('models/crateria-2021-08-08T18:12:07.761196.pkl', 'rb')).load()
 # session = CPU_Unpickler(open('models/session-2021-08-22T22:26:53.639110.pkl', 'rb')).load()
 # session = CPU_Unpickler(open('models/session-2021-08-23T09:55:29.550930.pkl', 'rb')).load()
-session = CPU_Unpickler(open('models/session-2021-09-01T20:36:53.060639.pkl', 'rb')).load()
+session = CPU_Unpickler(open('models/09-04-session-2021-09-01T20:36:53.060639.pkl', 'rb')).load()
 
 num_envs = 1
 rooms = logic.rooms.all_rooms.rooms
@@ -44,8 +44,8 @@ episode_length = len(rooms)
 session.env = None
 session.envs = [env]
 num_candidates = 128
-temperature = 1e-5
-torch.manual_seed(8)
+temperature = 0.02
+torch.manual_seed(3)
 max_possible_reward = env.max_reward
 start_time = time.perf_counter()
 executor = concurrent.futures.ThreadPoolExecutor(1)
@@ -63,7 +63,7 @@ for i in range(10000):
     max_reward, max_reward_ind = torch.max(reward, dim=0)
     num_passes = torch.sum(data.action == len(rooms))
     logging.info("{}: doors={}, rooms={}".format(i, max_possible_reward - max_reward, num_passes))
-    if max_possible_reward - max_reward.item() <= 25:
+    if max_possible_reward - max_reward.item() <= 40:
         break
     # time.sleep(5)
 session.envs[0].render(max_reward_ind.item())
