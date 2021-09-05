@@ -206,9 +206,10 @@ class TrainingSession():
         with self.average_parameters.average_parameters(self.model.all_param_data()):
             self.model.eval()
             with torch.no_grad():
-                map = self.env.compute_map(data.room_mask, data.room_position_x, data.room_position_y)
-                state_value_raw_logprobs, _, _ = self.model.forward_multiclass(
+                map = self.envs[0].compute_map(data.room_mask, data.room_position_x, data.room_position_y)
+                state_value_raw_logprobs, _, state_value_expected = self.model.forward_multiclass(
                     map, data.room_mask, data.steps_remaining)
 
         loss = torch.nn.functional.cross_entropy(state_value_raw_logprobs, data.reward)
-        return loss.item()
+        mse = torch.nn.functional.mse_loss(state_value_expected, data.reward)
+        return loss.item(), mse.item()

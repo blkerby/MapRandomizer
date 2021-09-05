@@ -1,9 +1,11 @@
 # TODO:
+# - Instead of predicting total reward, predict probability for each room-door connection
+# - Instead of CNN, try using fully-connected network (using embeddings for room positions, instead of map)
+# - try all-action approach again
 # - Use one-hot coding or embeddings (on tile/door types) instead of putting raw map data into convolutional layers
 # - For output probabilities, try using cumulative probabilities for each reward value and binary cross-entropy loss
 # - idea for activation: variation of ReLU where on the right the slope starts at a value >1 and then changes to a
 #   <1 at a certain point (for self-normalization), e.g. sqrt(max(0, x) + 1/4) - 1/2
-# - try all-action approach again
 # - try curriculum learning, starting with small subsets of rooms and ramping up
 # - minor cleanup: in data generation, use action value from previous step to avoid needing to recompute state value
 # - export better metrics, and maybe build some sort of database for them (e.g., SQLlite, or mongodb/sacred?)
@@ -47,6 +49,7 @@ import logic.rooms.maridia_upper
 
 # device = torch.device('cpu')
 devices = [torch.device('cuda:1'), torch.device('cuda:0')]
+num_devices = len(devices)
 # devices = [torch.device('cuda:0'), torch.device('cuda:1')]
 # devices = [torch.device('cuda:0')]
 device = devices[0]
@@ -87,7 +90,8 @@ envs = [MazeBuilderEnv(rooms,
                      map_x=map_x,
                      map_y=map_y,
                      num_envs=num_envs,
-                     device=device)
+                     device=device,
+                     must_areas_be_connected=False)
         for device in devices]
 
 max_possible_reward = torch.sum(envs[0].room_door_count) // 2
@@ -114,18 +118,37 @@ logging.info("{}".format(model))
 logging.info("{}".format(optimizer))
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in model.parameters())
 
-replay_size = 2 ** 18
+replay_size = 2 ** 15
 session = TrainingSession(envs,
                           model=model,
                           optimizer=optimizer,
-                          ema_beta=0.999,
+                          ema_beta=0.99,
                           replay_size=replay_size,
                           decay_amount=0.0,
                           sam_scale=None)
 torch.set_printoptions(linewidth=120, threshold=10000)
 
+batch_size_pow0 = 12
+batch_size_pow1 = 12
+lr0 = 0.00002
+lr1 = 0.00002
+num_candidates0 = 65
+num_candidates1 = 128
+num_candidates = num_candidates0
+# temperature0 = 10.0
+# temperature1 = 0.01
+temperature0 = 0.02
+temperature1 = 0.02
+explore_eps = 0.01
+annealing_start = 147216
+annealing_time = 2048
+session.envs = envs
+pass_factor = 2.0
+print_freq = 16
+num_eval_rounds = replay_size // (num_envs * num_devices) // 16
 
-gen_print_freq = 1
+
+gen_print_freq = 8
 i = 0
 while session.replay_buffer.size < session.replay_buffer.capacity:
     data = session.generate_round(
@@ -139,7 +162,7 @@ while session.replay_buffer.size < session.replay_buffer.capacity:
 
     i += 1
     if i % gen_print_freq == 0:
-        logging.info("init gen {}/{}".format(i, session.replay_buffer.capacity // num_envs))
+        logging.info("init gen {}/{}".format(i, session.replay_buffer.capacity // (num_envs * num_devices)))
 
 
 # for i in range(20):
@@ -148,57 +171,35 @@ while session.replay_buffer.size < session.replay_buffer.capacity:
 #     reward = session.replay_buffer.episode_data.reward[start:end]
 #     print(start, end, torch.mean(reward.to(torch.float32)))
 
-#
-# eval_data_list = []
-# for j in range(num_eval_rounds):
-#     eval_data = session.generate_round(
-#         episode_length=episode_length,
-#         num_candidates=1,
-#         temperature=temperature1,
-#         explore_eps=explore_eps,
-#         render=False)
-#     if j % print_freq == 0:
-#         logging.info("init eval {}/{}".format(j, num_eval_rounds))
-#     eval_data_list.append(eval_data)
-# eval_data = EpisodeData(
-#     reward=torch.cat([x.reward for x in eval_data_list], dim=0),
-#     action=torch.cat([x.action for x in eval_data_list], dim=0),
-#     prob=torch.cat([x.prob for x in eval_data_list], dim=0),
-#     test_loss=torch.cat([x.test_loss for x in eval_data_list], dim=0),
-# )
 
-batch_size_pow0 = 12
-batch_size_pow1 = 12
-lr0 = 0.00002
-lr1 = 0.00002
-num_candidates0 = 33
-num_candidates1 = 64
-num_candidates = num_candidates0
-# temperature0 = 10.0
-# temperature1 = 0.01
-temperature0 = 0.02
-temperature1 = 0.02
-explore_eps = 0.01
-annealing_start = 124160
-annealing_time = 4096
-session.envs = envs
-pass_factor = 2.0
-print_freq = 16
-num_eval_rounds = replay_size // num_envs // 16
+eval_data_list = []
+for j in range(num_eval_rounds):
+    eval_data = session.generate_round(
+        episode_length=episode_length,
+        num_candidates=1,
+        temperature=temperature1,
+        explore_eps=explore_eps,
+        render=False,
+        executor=executor)
+    if j % print_freq == 0:
+        logging.info("init eval {}/{}".format(j, num_eval_rounds))
+    eval_data_list.append(eval_data)
+eval_data = EpisodeData(
+    reward=torch.cat([x.reward for x in eval_data_list], dim=0),
+    action=torch.cat([x.action for x in eval_data_list], dim=0),
+    prob=torch.cat([x.prob for x in eval_data_list], dim=0),
+    test_loss=torch.cat([x.test_loss for x in eval_data_list], dim=0),
+)
+
 # session.replay_buffer.episode_data.prob[:] = 1 / num_candidates
 
-# pickle.dump(session, open('init_session.pkl', 'wb'))
-# pickle.dump(eval_data, open('eval_data.pkl', 'wb'))
+pickle.dump(session, open('init_session.pkl', 'wb'))
+pickle.dump(eval_data, open('eval_data.pkl', 'wb'))
 
-# session = pickle.load(open('init_session.pkl', 'rb'))
-# eval_data = pickle.load(open('eval_data.pkl', 'rb'))
+session = pickle.load(open('init_session.pkl', 'rb'))
+eval_data = pickle.load(open('eval_data.pkl', 'rb'))
 
 
-
-logging.info("Checkpoint path: {}".format(pickle_name))
-logging.info(
-    "map_x={}, map_y={}, num_envs={}, num_candidates={}, replay_size={}, num_params={}, decay_amount={}".format(
-        map_x, map_y, session.envs[0].num_envs, num_candidates, replay_size, num_params, session.decay_amount))
 
 # session.network = make_network()
 session.model = Model(
@@ -239,40 +240,43 @@ total_loss_cnt = 0
 session.average_parameters.beta = 0.99
 session.sam_scale = None  # 0.02
 
-# lr0_init = 0.001
-# lr1_init = 0.00002
-# for k in range(1, num_steps + 1):
-#     frac = (k - 1) / num_steps
-#     lr = lr0_init * (lr1_init / lr0_init) ** frac
-#     session.optimizer.param_groups[0]['lr'] = lr
-#     session.model.train()
-#     for j in range(num_train_batches):
-#         data = session.replay_buffer.sample(batch_size, device=device)
-#         total_loss += session.train_batch(data)
-#         total_loss_cnt += 1
-#     if k % eval_freq == 0:
-#         total_eval_loss = 0.0
-#         session.model.eval()
-#         for j in range(num_eval_batches):
-#             start = j * eval_batch_size
-#             end = (j + 1) * eval_batch_size
-#             data = EpisodeData(
-#                 reward=eval_data.reward[start:end],
-#                 action=eval_data.action[start:end, :, :],
-#                 prob=eval_data.prob[start:end],
-#                 test_loss=eval_data.test_loss[start:end],
-#             )
-#             total_eval_loss += session.eval_batch(data.training_data(len(session.env.rooms), device=device))
-#         logging.info("init train {}/{}: loss={:.4f}, eval={:.4f}, lr={:.6f}".format(
-#             k, num_steps, total_loss / total_loss_cnt, total_eval_loss / num_eval_batches, lr))
-#         total_loss = 0
-#         total_loss_cnt = 0
-#     elif k % print_freq == 0:
-#         logging.info("init train {}/{}: loss={:.4f}, lr={:.6f}".format(
-#             k, num_steps, total_loss / total_loss_cnt, lr))
-#         total_loss = 0
-#         total_loss_cnt = 0
-#
+lr0_init = 0.001
+lr1_init = 0.00002
+for k in range(1, num_steps + 1):
+    frac = (k - 1) / num_steps
+    lr = lr0_init * (lr1_init / lr0_init) ** frac
+    session.optimizer.param_groups[0]['lr'] = lr
+    session.model.train()
+    for j in range(num_train_batches):
+        data = session.replay_buffer.sample(batch_size, device=device)
+        total_loss += session.train_batch(data)
+        total_loss_cnt += 1
+    if k % eval_freq == 0:
+        total_eval_loss = 0.0
+        total_eval_mse = 0.0
+        session.model.eval()
+        for j in range(num_eval_batches):
+            start = j * eval_batch_size
+            end = (j + 1) * eval_batch_size
+            data = EpisodeData(
+                reward=eval_data.reward[start:end],
+                action=eval_data.action[start:end, :, :],
+                prob=eval_data.prob[start:end],
+                test_loss=eval_data.test_loss[start:end],
+            )
+            eval_loss, eval_mse = session.eval_batch(data.training_data(len(session.envs[0].rooms), device=device))
+            total_eval_loss += eval_loss
+            total_eval_mse += eval_mse
+        logging.info("init train {}/{}: loss={:.4f}, eval_loss={:.4f}, eval_mse={:.2f}, lr={:.6f}".format(
+            k, num_steps, total_loss / total_loss_cnt, total_eval_loss / num_eval_batches, total_eval_mse / num_eval_batches, lr))
+        total_loss = 0
+        total_loss_cnt = 0
+    elif k % print_freq == 0:
+        logging.info("init train {}/{}: loss={:.4f}, lr={:.6f}".format(
+            k, num_steps, total_loss / total_loss_cnt, lr))
+        total_loss = 0
+        total_loss_cnt = 0
+
 # pickle.dump(session, open('init_session_trained.pkl', 'wb'))
 #
 # session = pickle.load(open('init_session_trained.pkl', 'rb'))
@@ -283,7 +287,8 @@ session.sam_scale = None  # 0.02
 # session = pickle.load(open('models/session-2021-08-18T22:59:51.919856.pkl-t0.02', 'rb'))
 # session = pickle.load(open('models/session-2021-08-23T09:55:29.550930.pkl', 'rb'))  # t1
 # session = pickle.load(open('models/session-2021-08-25T17:41:12.741963.pkl', 'rb'))    # t0
-session = pickle.load(open('models/session-2021-09-01T20:36:53.060639.pkl', 'rb'))    # t0
+# session = pickle.load(open('models/bk-session-2021-09-01T20:36:53.060639.pkl', 'rb'))    # t0
+session = pickle.load(open('models/session-2021-09-04T09:02:57.420973.pkl', 'rb'))    # t0
 
 session.envs = envs
 session.model = session.model.to(device)
@@ -307,6 +312,10 @@ total_reward = 0
 total_test_loss = 0.0
 total_prob = 0.0
 total_round_cnt = 0
+logging.info("Checkpoint path: {}".format(pickle_name))
+logging.info(
+    "map_x={}, map_y={}, num_envs={}, num_candidates={}, replay_size={}, num_params={}, decay_amount={}".format(
+        map_x, map_y, session.envs[0].num_envs, num_candidates, replay_size, num_params, session.decay_amount))
 logging.info("Starting training")
 for i in range(100000):
     frac = max(0, min(1, (session.num_rounds - annealing_start) / annealing_time))
@@ -383,6 +392,7 @@ for i in range(100000):
         # episode_data = session.replay_buffer.episode_data
         # session.replay_buffer.episode_data = None
         pickle.dump(session, open(pickle_name, 'wb'))
+        # pickle.dump(session, open(pickle_name + '-b21', 'wb'))
         # pickle.dump(session, open(pickle_name + '-c8', 'wb'))
         # pickle.dump(session, open(pickle_name + '-c16', 'wb'))
         # pickle.dump(session, open(pickle_name + '-c64', 'wb'))

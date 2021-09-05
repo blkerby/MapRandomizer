@@ -45,7 +45,7 @@ session.env = None
 session.envs = [env]
 num_candidates = 128
 temperature = 0.02
-torch.manual_seed(3)
+torch.manual_seed(4)
 max_possible_reward = env.max_reward
 start_time = time.perf_counter()
 executor = concurrent.futures.ThreadPoolExecutor(1)
@@ -63,7 +63,7 @@ for i in range(10000):
     max_reward, max_reward_ind = torch.max(reward, dim=0)
     num_passes = torch.sum(data.action == len(rooms))
     logging.info("{}: doors={}, rooms={}".format(i, max_possible_reward - max_reward, num_passes))
-    if max_possible_reward - max_reward.item() <= 40:
+    if max_possible_reward - max_reward.item() <= 26:
         break
     # time.sleep(5)
 session.envs[0].render(max_reward_ind.item())
