@@ -536,50 +536,50 @@ class MazeBuilderEnv:
 
     # def export(self):
 
-
-import logic.rooms.all_rooms
-# import logic.rooms.brinstar_green
-# import logic.rooms.brinstar_pink
-# import logic.rooms.crateria
-# import logic.rooms.crateria_isolated
-# import logic.rooms.maridia_upper
 #
-# torch.manual_seed(0)
-num_envs = 1
-# # rooms = logic.rooms.crateria.rooms[:5]
-rooms = logic.rooms.all_rooms.rooms
-# # rooms = logic.rooms.maridia_upper.rooms
-# # rooms = logic.rooms.brinstar_green.rooms + logic.rooms.brinstar_pink.rooms
-# # rooms = logic.rooms.brinstar_red.rooms
-num_candidates = 1
-env = MazeBuilderEnv(rooms,
-                     map_x=60,
-                     map_y=60,
-                     num_envs=num_envs,
-                     device='cpu',
-                     must_areas_be_connected=False)
-#
-# print("left", torch.sum(env.door_data_left_door.door_data[:, 3] == 1))
-# print("right", torch.sum(env.door_data_right_door.door_data[:, 3] == -1))
-# print("up", torch.sum(env.door_data_up_door.door_data[:, 3] == 1))
-# print("down", torch.sum(env.door_data_down_door.door_data[:, 3] == -1))
-# print("elevator up", torch.sum(env.door_data_up_door.door_data[:, 3] == 2))
-# print("elevator down", torch.sum(env.door_data_down_door.door_data[:, 3] == -2))
-# print("sand up", torch.sum(env.door_data_up_door.door_data[:, 3] == 3))
-# print("sand down", torch.sum(env.door_data_down_door.door_data[:, 3] == -3))
-#
-# import time
-#
-env.reset()
-self = env
-torch.manual_seed(7)
-for i in range(233):
-    # print(i)
-    candidates = env.get_action_candidates(num_candidates)
-    env.step(candidates[:, 0, :])
-    env.render(0)
-    # env.render(0)
-#
-# # self=env
-# # map = env.compute_current_map()
-# # map[0, 0, :15, :15].t()
+# import logic.rooms.all_rooms
+# # import logic.rooms.brinstar_green
+# # import logic.rooms.brinstar_pink
+# # import logic.rooms.crateria
+# # import logic.rooms.crateria_isolated
+# # import logic.rooms.maridia_upper
+# #
+# # torch.manual_seed(0)
+# num_envs = 1
+# # # rooms = logic.rooms.crateria.rooms[:5]
+# rooms = logic.rooms.all_rooms.rooms
+# # # rooms = logic.rooms.maridia_upper.rooms
+# # # rooms = logic.rooms.brinstar_green.rooms + logic.rooms.brinstar_pink.rooms
+# # # rooms = logic.rooms.brinstar_red.rooms
+# num_candidates = 1
+# env = MazeBuilderEnv(rooms,
+#                      map_x=60,
+#                      map_y=60,
+#                      num_envs=num_envs,
+#                      device='cpu',
+#                      must_areas_be_connected=False)
+# #
+# # print("left", torch.sum(env.door_data_left_door.door_data[:, 3] == 1))
+# # print("right", torch.sum(env.door_data_right_door.door_data[:, 3] == -1))
+# # print("up", torch.sum(env.door_data_up_door.door_data[:, 3] == 1))
+# # print("down", torch.sum(env.door_data_down_door.door_data[:, 3] == -1))
+# # print("elevator up", torch.sum(env.door_data_up_door.door_data[:, 3] == 2))
+# # print("elevator down", torch.sum(env.door_data_down_door.door_data[:, 3] == -2))
+# # print("sand up", torch.sum(env.door_data_up_door.door_data[:, 3] == 3))
+# # print("sand down", torch.sum(env.door_data_down_door.door_data[:, 3] == -3))
+# #
+# # import time
+# #
+# env.reset()
+# self = env
+# torch.manual_seed(7)
+# for i in range(233):
+#     # print(i)
+#     candidates = env.get_action_candidates(num_candidates)
+#     env.step(candidates[:, 0, :])
+#     env.render(0)
+#     # env.render(0)
+# #
+# # # self=env
+# # # map = env.compute_current_map()
+# # # map[0, 0, :15, :15].t()

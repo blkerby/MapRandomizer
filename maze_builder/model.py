@@ -162,7 +162,7 @@ class Model(torch.nn.Module):
         self.state_value_lin = torch.nn.Linear(fc_widths[-1], max_possible_reward + 1)
         self.project()
 
-    def forward_multiclass(self, map, room_mask, steps_remaining):
+    def forward_multiclass(self, map, room_mask, room_position_x, room_position_y, steps_remaining):
         # Convolutional layers on whole map data
         if map.is_cuda:
             X = map.to(torch.float16, memory_format=torch.channels_last)
@@ -187,10 +187,11 @@ class Model(torch.nn.Module):
             state_value_expected = torch.sum(state_value_probs * arange.view(1, -1), dim=1)
             return state_value_raw_logprobs, state_value_probs, state_value_expected
 
-    def forward(self, map, room_mask, steps_remaining):
+    def forward(self, map, room_mask, room_position_x, room_position_y, steps_remaining):
         # TODO: we could speed up the last layer a bit by summing the parameters instead of outputs
         # (though this probably is negligible).
-        state_value_raw_logprobs, state_value_probs, state_value_expected = self.forward_multiclass(map, room_mask, steps_remaining)
+        state_value_raw_logprobs, state_value_probs, state_value_expected = self.forward_multiclass(
+            map, room_mask, room_position_x, room_position_y, steps_remaining)
         return state_value_expected
 
     def decay(self, amount: Optional[float]):
@@ -252,7 +253,8 @@ class Model(torch.nn.Module):
 
         map_flat = env.compute_map(room_mask_flat, room_position_x_flat, room_position_y_flat)
 
-        out_flat = self.forward(map_flat, room_mask_flat, steps_remaining_flat)
+        out_flat = self.forward(
+            map_flat, room_mask_flat, room_position_x_flat, room_position_y_flat, steps_remaining_flat)
         out = out_flat.view(num_envs, 1 + num_candidates)
         state_value = out[:, 0]
         action_value = out[:, 1:]

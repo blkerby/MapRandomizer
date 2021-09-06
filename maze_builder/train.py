@@ -119,7 +119,7 @@ logging.info("{}".format(model))
 logging.info("{}".format(optimizer))
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in model.parameters())
 
-replay_size = 2 ** 16
+replay_size = 2 ** 17
 session = TrainingSession(envs,
                           model=model,
                           optimizer=optimizer,
@@ -299,7 +299,7 @@ for i in range(16):
         episode_length=episode_length,
         num_candidates=num_candidates1,
         temperature=0.1, #temperature1,
-        explore_eps=0.0,
+        explore_eps=0.05,
         render=False,
         executor=executor)
 

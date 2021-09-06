@@ -87,7 +87,8 @@ class TrainingSession():
 
         # torch.cuda.synchronize()
         # logging.info("Model forward")
-        flat_raw_logodds, _, flat_expected = model.forward_multiclass(map_flat, room_mask_flat, steps_remaining_flat)
+        flat_raw_logodds, _, flat_expected = model.forward_multiclass(
+            map_flat, room_mask_flat, room_position_x_flat, room_position_y_flat, steps_remaining_flat)
         raw_logodds = flat_raw_logodds.view(num_envs, 1 + num_candidates, self.envs[env_id].max_reward + 1)
         expected = flat_expected.view(num_envs, 1 + num_candidates)
         state_raw_logodds = raw_logodds[:, 0, :]
@@ -185,7 +186,8 @@ class TrainingSession():
             self.model.project()
 
         map = self.envs[0].compute_map(data.room_mask, data.room_position_x, data.room_position_y)
-        state_value_raw_logprobs, _, _ = self.model.forward_multiclass(map, data.room_mask, data.steps_remaining)
+        state_value_raw_logprobs, _, _ = self.model.forward_multiclass(
+            map, data.room_mask, data.room_position_x, data.room_position_y, data.steps_remaining)
 
         loss = torch.nn.functional.cross_entropy(state_value_raw_logprobs, data.reward)
         self.optimizer.zero_grad()
@@ -208,7 +210,7 @@ class TrainingSession():
             with torch.no_grad():
                 map = self.envs[0].compute_map(data.room_mask, data.room_position_x, data.room_position_y)
                 state_value_raw_logprobs, _, state_value_expected = self.model.forward_multiclass(
-                    map, data.room_mask, data.steps_remaining)
+                    map, data.room_mask, data.room_position_x, data.room_position_y, data.steps_remaining)
 
         loss = torch.nn.functional.cross_entropy(state_value_raw_logprobs, data.reward)
         mse = torch.nn.functional.mse_loss(state_value_expected, data.reward)
