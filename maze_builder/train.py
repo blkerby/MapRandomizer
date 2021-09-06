@@ -56,7 +56,7 @@ num_devices = len(devices)
 device = devices[0]
 executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
-num_envs = 2 ** 7
+num_envs = 2 ** 9
 # num_envs = 1
 # rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.crateria.rooms
@@ -77,16 +77,16 @@ rooms = logic.rooms.all_rooms.rooms
 # episode_length = int(len(rooms) * 1.2)
 episode_length = len(rooms)
 
-env_config = EnvConfig(
-    rooms=rooms,
-    map_x=60,
-    map_y=60,
-)
 
 map_x = 72
 map_y = 72
 # map_x = 80
 # map_y = 80
+env_config = EnvConfig(
+    rooms=rooms,
+    map_x=map_x,
+    map_y=map_y,
+)
 envs = [MazeBuilderEnv(rooms,
                      map_x=map_x,
                      map_y=map_y,
@@ -117,7 +117,6 @@ optimizer = torch.optim.Adam(model.parameters(), lr=0.0001, betas=(0.995, 0.999)
 
 logging.info("{}".format(model))
 logging.info("{}".format(optimizer))
-num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in model.parameters())
 
 replay_size = 2 ** 17
 session = TrainingSession(envs,
@@ -133,8 +132,8 @@ batch_size_pow0 = 10
 batch_size_pow1 = 10
 lr0 = 0.00002
 lr1 = 0.00002
-num_candidates0 = 8
-num_candidates1 = 8
+num_candidates0 = 16
+num_candidates1 = 16
 num_candidates = num_candidates0
 # temperature0 = 10.0
 # temperature1 = 0.01
@@ -145,7 +144,7 @@ annealing_start = 147216
 annealing_time = 2048
 session.envs = envs
 pass_factor = 1.0
-print_freq = 16
+print_freq = 8
 num_eval_rounds = replay_size // (num_envs * num_devices) // 16
 
 
@@ -189,7 +188,7 @@ eval_data_list = []
 for j in range(num_eval_rounds):
     eval_data = session.generate_round(
         episode_length=episode_length,
-        num_candidates=1,
+        num_candidates=num_candidates,
         temperature=temperature1,
         explore_eps=explore_eps,
         render=False,
@@ -326,31 +325,32 @@ for i in range(16):
 # session = pickle.load(open('models/session-2021-08-23T09:55:29.550930.pkl', 'rb'))  # t1
 # session = pickle.load(open('models/session-2021-08-25T17:41:12.741963.pkl', 'rb'))    # t0
 # session = pickle.load(open('models/bk-session-2021-09-01T20:36:53.060639.pkl', 'rb'))    # t0
-session = pickle.load(open('models/session-2021-09-04T09:02:57.420973.pkl', 'rb'))    # t0
-
-session.envs = envs
-session.model = session.model.to(device)
-def optimizer_to(optim, device):
-    for param in optim.state.values():
-        # Not sure there are any global tensors in the state dict
-        if isinstance(param, torch.Tensor):
-            param.data = param.data.to(device)
-            if param._grad is not None:
-                param._grad.data = param._grad.data.to(device)
-        elif isinstance(param, dict):
-            for subparam in param.values():
-                if isinstance(subparam, torch.Tensor):
-                    subparam.data = subparam.data.to(device)
-                    if subparam._grad is not None:
-                        subparam._grad.data = subparam._grad.data.to(device)
-optimizer_to(session.optimizer, device)
-session.average_parameters.shadow_params = [p.to(device) for p in session.average_parameters.shadow_params]
+# session = pickle.load(open('models/session-2021-09-04T09:02:57.420973.pkl', 'rb'))    # t0
+#
+# session.envs = envs
+# session.model = session.model.to(device)
+# def optimizer_to(optim, device):
+#     for param in optim.state.values():
+#         # Not sure there are any global tensors in the state dict
+#         if isinstance(param, torch.Tensor):
+#             param.data = param.data.to(device)
+#             if param._grad is not None:
+#                 param._grad.data = param._grad.data.to(device)
+#         elif isinstance(param, dict):
+#             for subparam in param.values():
+#                 if isinstance(subparam, torch.Tensor):
+#                     subparam.data = subparam.data.to(device)
+#                     if subparam._grad is not None:
+#                         subparam._grad.data = subparam._grad.data.to(device)
+# optimizer_to(session.optimizer, device)
+# session.average_parameters.shadow_params = [p.to(device) for p in session.average_parameters.shadow_params]
 
 total_reward = 0
 total_test_loss = 0.0
 total_prob = 0.0
 total_round_cnt = 0
 logging.info("Checkpoint path: {}".format(pickle_name))
+num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in model.parameters())
 logging.info(
     "map_x={}, map_y={}, num_envs={}, num_candidates={}, replay_size={}, num_params={}, decay_amount={}".format(
         map_x, map_y, session.envs[0].num_envs, num_candidates, replay_size, num_params, session.decay_amount))
@@ -430,11 +430,6 @@ for i in range(100000):
         # episode_data = session.replay_buffer.episode_data
         # session.replay_buffer.episode_data = None
         pickle.dump(session, open(pickle_name, 'wb'))
-        # pickle.dump(session, open(pickle_name + '-b21', 'wb'))
-        # pickle.dump(session, open(pickle_name + '-c8', 'wb'))
-        # pickle.dump(session, open(pickle_name + '-c16', 'wb'))
-        # pickle.dump(session, open(pickle_name + '-c64', 'wb'))
-        # pickle.dump(session, open(pickle_name + '-m72', 'wb'))
-        # pickle.dump(session, open(pickle_name + '-t0.02', 'wb'))
+        # pickle.dump(session, open(pickle_name + '-bk', 'wb'))
         # session.replay_buffer.episode_data = episode_data
         # session = pickle.load(open(pickle_name, 'rb'))
