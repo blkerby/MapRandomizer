@@ -523,6 +523,34 @@ class MazeBuilderEnv:
         reward = (room_doors_count - unconnected_doors_count) // 2
         return reward
 
+    def door_connects(self):
+        # TODO: avoid recomputing map here
+        map = self.compute_current_map()
+        data_tuples = [
+            (self.room_left, 1),
+            (self.room_right, 1),
+            (self.room_down, 2),
+            (self.room_up, 2),
+        ]
+        connects_list = []
+        for room_dir, channel in data_tuples:
+            # print(room_dir.shape)
+            room_id = room_dir[:, 0]
+            relative_door_x = room_dir[:, 1]
+            relative_door_y = room_dir[:, 2]
+            door_x = self.room_position_x[:, room_id] + relative_door_x.unsqueeze(0)
+            door_y = self.room_position_y[:, room_id] + relative_door_y.unsqueeze(0)
+            mask = self.room_mask[:, room_id]
+            # print(map.shape, channel, door_x.shape, door_y.shape, torch.min(door_x), torch.max(door_x), torch.min(door_y), torch.max(door_y))
+            tile = map[
+                torch.arange(self.num_envs, device=self.device).view(-1, 1),
+                channel,
+                door_x,
+                door_y]
+            connects = mask & (tile == 0)
+            connects_list.append(connects)
+        return torch.cat(connects_list, dim=1)
+
     def render(self, env_index=0):
         if self.map_display is None:
             self.map_display = MapDisplay(self.map_x, self.map_y, tile_width=14)
@@ -545,7 +573,7 @@ class MazeBuilderEnv:
 # # import logic.rooms.maridia_upper
 # #
 # # torch.manual_seed(0)
-# num_envs = 1
+# num_envs = 16
 # # # rooms = logic.rooms.crateria.rooms[:5]
 # rooms = logic.rooms.all_rooms.rooms
 # # # rooms = logic.rooms.maridia_upper.rooms
@@ -572,14 +600,17 @@ class MazeBuilderEnv:
 # #
 # env.reset()
 # self = env
-# torch.manual_seed(7)
+# torch.manual_seed(13)
 # for i in range(233):
 #     # print(i)
 #     candidates = env.get_action_candidates(num_candidates)
 #     env.step(candidates[:, 0, :])
-#     env.render(0)
+#     # env.render(0)
 #     # env.render(0)
 # #
 # # # self=env
 # # # map = env.compute_current_map()
 # # # map[0, 0, :15, :15].t()
+# print(self.reward() * 2)
+# d = self.door_connects()
+# print(torch.sum(d, dim=1))

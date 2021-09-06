@@ -118,7 +118,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=0.0001, betas=(0.995, 0.999)
 logging.info("{}".format(model))
 logging.info("{}".format(optimizer))
 
-replay_size = 2 ** 17
+replay_size = 2 ** 18
 session = TrainingSession(envs,
                           model=model,
                           optimizer=optimizer,
@@ -224,8 +224,8 @@ session.model = Model(
     fc_widths=[1024, 256, 64],
     global_dropout_p=0.0,
 ).to(device)
-model.state_value_lin.weight.data.zero_()
-model.state_value_lin.bias.data.zero_()
+session.model.state_value_lin.weight.data.zero_()
+session.model.state_value_lin.bias.data.zero_()
 logging.info(session.model)
 # session.optimizer = torch.optim.RMSprop(session.network.parameters(), lr=0.001, alpha=0.95)
 # session.optimizer = torch.optim.RMSprop(session.model.parameters(), lr=0.00005, alpha=0.99)
@@ -239,6 +239,7 @@ eval_batch_size = 16
 num_steps = session.replay_buffer.capacity // num_envs
 num_train_batches = int(pass_factor * session.replay_buffer.capacity * episode_length // batch_size // num_steps)
 num_eval_batches = num_eval_rounds * num_envs // eval_batch_size
+print_freq = 16
 eval_freq = 16
 save_freq = 128
 # for layer in session.network.global_dropout_layers:
@@ -297,8 +298,8 @@ for i in range(16):
     data = session.generate_round(
         episode_length=episode_length,
         num_candidates=num_candidates1,
-        temperature=0.1, #temperature1,
-        explore_eps=0.05,
+        temperature=0.02, #temperature1,
+        explore_eps=0.01,
         render=False,
         executor=executor)
 
@@ -325,7 +326,7 @@ for i in range(16):
 # session = pickle.load(open('models/session-2021-08-23T09:55:29.550930.pkl', 'rb'))  # t1
 # session = pickle.load(open('models/session-2021-08-25T17:41:12.741963.pkl', 'rb'))    # t0
 # session = pickle.load(open('models/bk-session-2021-09-01T20:36:53.060639.pkl', 'rb'))    # t0
-# session = pickle.load(open('models/session-2021-09-04T09:02:57.420973.pkl', 'rb'))    # t0
+# session = pickle.load(open('models/session-2021-09-05T20:36:58.711570.pkl-bk2', 'rb'))    # t0
 #
 # session.envs = envs
 # session.model = session.model.to(device)
@@ -344,16 +345,20 @@ for i in range(16):
 #                         subparam._grad.data = subparam._grad.data.to(device)
 # optimizer_to(session.optimizer, device)
 # session.average_parameters.shadow_params = [p.to(device) for p in session.average_parameters.shadow_params]
+# session.replay_buffer.episode_data.door_connects = torch.zeros([262144, 578], dtype=torch.bool)
 
+print_freq = 8
 total_reward = 0
+total_loss = 0.0
+total_loss_cnt = 0
 total_test_loss = 0.0
 total_prob = 0.0
 total_round_cnt = 0
 logging.info("Checkpoint path: {}".format(pickle_name))
-num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in model.parameters())
+num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
 logging.info(
     "map_x={}, map_y={}, num_envs={}, num_candidates={}, replay_size={}, num_params={}, decay_amount={}".format(
-        map_x, map_y, session.envs[0].num_envs, num_candidates, replay_size, num_params, session.decay_amount))
+        map_x, map_y, session.envs[0].num_envs, num_candidates, session.replay_buffer.size, num_params, session.decay_amount))
 logging.info("Starting training")
 for i in range(100000):
     frac = max(0, min(1, (session.num_rounds - annealing_start) / annealing_time))
@@ -430,6 +435,6 @@ for i in range(100000):
         # episode_data = session.replay_buffer.episode_data
         # session.replay_buffer.episode_data = None
         pickle.dump(session, open(pickle_name, 'wb'))
-        # pickle.dump(session, open(pickle_name + '-bk', 'wb'))
+        # pickle.dump(session, open(pickle_name + '-bk2', 'wb'))
         # session.replay_buffer.episode_data = episode_data
-        # session = pickle.load(open(pickle_name, 'rb'))
+        # session = pickle.load(open(pickle_name + '-bk2', 'rb'))

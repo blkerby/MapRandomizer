@@ -135,6 +135,7 @@ class TrainingSession():
             prob_list.append(selected_prob.to('cpu'))
 
         reward_tensor = env.reward().to('cpu')
+        door_connects_tensor = env.door_connects().to('cpu')
         state_raw_logodds_tensor = torch.stack(state_raw_logodds_list, dim=1)
         action_tensor = torch.stack(action_list, dim=1)
         prob_tensor = torch.mean(torch.stack(prob_list, dim=1), dim=1)
@@ -148,6 +149,7 @@ class TrainingSession():
 
         return EpisodeData(
             reward=reward_tensor,
+            door_connects=door_connects_tensor,
             action=action_tensor.to(torch.uint8),
             prob=prob_tensor,
             test_loss=episode_loss,
@@ -171,6 +173,7 @@ class TrainingSession():
                     torch.cuda.synchronize(env.device)
             return EpisodeData(
                 reward=torch.cat([d.reward for d in episode_data_list], dim=0),
+                door_connects=torch.cat([d.door_connects for d in episode_data_list], dim=0),
                 action=torch.cat([d.action for d in episode_data_list], dim=0),
                 prob=torch.cat([d.prob for d in episode_data_list], dim=0),
                 test_loss=torch.cat([d.test_loss for d in episode_data_list], dim=0),

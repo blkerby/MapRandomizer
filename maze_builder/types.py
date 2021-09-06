@@ -85,6 +85,7 @@ class EnvConfig:
 @dataclass
 class EpisodeData:
     action: torch.tensor   # 3D uint8: (num_episodes, episode_length, 3)  (room id, x position, y position)
+    door_connects: torch.tensor  # 2D bool: (num_episodes, num_doors)
     reward: torch.tensor   # 1D int64: num_episodes
     prob: torch.tensor  # 1D float32: num_episodes  (average probability of selected action)
     test_loss: torch.tensor  # 1D float32: num_episodes  (average cross-entropy loss at data-generation time)
@@ -100,6 +101,7 @@ class EpisodeData:
 
         return TrainingData(
             reward=self.reward.to(device).unsqueeze(1).repeat(1, episode_length).view(-1),
+            door_connects=self.door_connects.to(device).unsqueeze(1).repeat(1, episode_length, 1).view(num_episodes * episode_length, -1),
             steps_remaining=steps_remaining.unsqueeze(0).repeat(num_episodes, 1).view(-1),
             room_mask=room_mask,
             room_position_x=room_position_x,
@@ -110,6 +112,7 @@ class EpisodeData:
 @dataclass
 class TrainingData:
     reward: torch.tensor  # 1D uint64: num_transitions
+    door_connects: torch.tensor # 2D bool: (num_transitions, num_doors)
     steps_remaining: torch.tensor  # 1D uint64: num_transitions
     room_mask: torch.tensor  # 2D uint64: (num_transitions, num_rooms)
     room_position_x: torch.tensor  # 2D uint64: (num_transitions, num_rooms)
