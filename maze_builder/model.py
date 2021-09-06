@@ -128,59 +128,28 @@ class Model(torch.nn.Module):
         self.global_dropout_p = global_dropout_p
         common_act = torch.nn.SELU()
 
-        self.map_conv_layers = torch.nn.ModuleList()
-        self.map_act_layers = torch.nn.ModuleList()
-
-        map_channels = [self.map_c] + map_channels
-        width = self.map_x
-        height = self.map_y
-        arity = 1
-        for i in range(len(map_channels) - 1):
-            conv_layer = torch.nn.Conv2d(
-                map_channels[i], map_channels[i + 1] * arity,
-                kernel_size=(map_kernel_size[i], map_kernel_size[i]),
-                padding=(map_kernel_size[i] // 2, map_kernel_size[i] // 2) if map_padding[i] else 0,
-                stride=(map_stride[i], map_stride[i]))
-
-            self.map_conv_layers.append(conv_layer)
-            self.map_act_layers.append(common_act)
-            width = (width - map_kernel_size[i]) // map_stride[i] + 1
-            height = (height - map_kernel_size[i]) // map_stride[i] + 1
-        self.map_global_pool = GlobalAvgPool2d()
-        # self.map_global_pool = GlobalMaxPool2d()
-        # self.map_global_pool = torch.nn.Flatten()
-
         self.global_lin_layers = torch.nn.ModuleList()
         self.global_act_layers = torch.nn.ModuleList()
-        # global_fc_widths = [(width * height * map_channels[-1]) + 1 + room_tensor.shape[0]] + global_fc_widths
-        # fc_widths = [width * height * map_channels[-1]] + fc_widths
-        fc_widths = [map_channels[-1] + 1 + self.num_rooms] + fc_widths
+        fc_widths = [self.num_rooms * 3] + fc_widths
         for i in range(len(fc_widths) - 1):
-            lin = torch.nn.Linear(fc_widths[i], fc_widths[i + 1] * arity)
+            lin = torch.nn.Linear(fc_widths[i], fc_widths[i + 1])
             self.global_lin_layers.append(lin)
             self.global_act_layers.append(common_act)
         self.state_value_lin = torch.nn.Linear(fc_widths[-1], max_possible_reward + 1)
         self.project()
 
     def forward_multiclass(self, map, room_mask, room_position_x, room_position_y, steps_remaining):
-        # Convolutional layers on whole map data
         if map.is_cuda:
-            X = map.to(torch.float16, memory_format=torch.channels_last)
+            dtype = torch.float16
         else:
-            X = map.to(torch.float32)
+            dtype = torch.float32
         with torch.cuda.amp.autocast():
-            for i in range(len(self.map_conv_layers)):
-                X = self.map_conv_layers[i](X)
-                X = self.map_act_layers[i](X)
-
-            # Fully-connected layers on whole map data (starting with output of convolutional layers)
-            X = self.map_global_pool(X)
-            X = torch.cat([X, steps_remaining.view(-1, 1), room_mask], dim=1)
+            X = torch.cat([room_mask.to(dtype),
+                           room_position_x.to(dtype),
+                           room_position_y.to(dtype)], dim=1)
             for i in range(len(self.global_lin_layers)):
                 X = self.global_lin_layers[i](X)
                 X = self.global_act_layers[i](X)
-                if self.global_dropout_p > 0:
-                    X = self.global_dropout_layers[i](X)
             state_value_raw_logprobs = self.state_value_lin(X).to(torch.float32)
             state_value_probs = torch.softmax(state_value_raw_logprobs, dim=1)
             arange = torch.arange(self.max_possible_reward + 1, device=map.device, dtype=torch.float32)
