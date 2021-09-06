@@ -12,6 +12,7 @@
 import concurrent.futures
 
 import torch
+import math
 import logging
 from maze_builder.types import EnvConfig, EpisodeData
 from maze_builder.env import MazeBuilderEnv
@@ -118,7 +119,7 @@ logging.info("{}".format(model))
 logging.info("{}".format(optimizer))
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in model.parameters())
 
-replay_size = 2 ** 15
+replay_size = 2 ** 16
 session = TrainingSession(envs,
                           model=model,
                           optimizer=optimizer,
@@ -128,12 +129,12 @@ session = TrainingSession(envs,
                           sam_scale=None)
 torch.set_printoptions(linewidth=120, threshold=10000)
 
-batch_size_pow0 = 12
-batch_size_pow1 = 12
+batch_size_pow0 = 10
+batch_size_pow1 = 10
 lr0 = 0.00002
 lr1 = 0.00002
-num_candidates0 = 65
-num_candidates1 = 128
+num_candidates0 = 8
+num_candidates1 = 8
 num_candidates = num_candidates0
 # temperature0 = 10.0
 # temperature1 = 0.01
@@ -143,13 +144,16 @@ explore_eps = 0.01
 annealing_start = 147216
 annealing_time = 2048
 session.envs = envs
-pass_factor = 2.0
+pass_factor = 1.0
 print_freq = 16
 num_eval_rounds = replay_size // (num_envs * num_devices) // 16
 
 
 gen_print_freq = 8
 i = 0
+total_reward = 0
+total_reward2 = 0
+cnt_episodes = 0
 while session.replay_buffer.size < session.replay_buffer.capacity:
     data = session.generate_round(
         episode_length=episode_length,
@@ -160,9 +164,18 @@ while session.replay_buffer.size < session.replay_buffer.capacity:
         executor=executor)
     session.replay_buffer.insert(data)
 
+    total_reward += torch.sum(data.reward.to(torch.float32)).item()
+    total_reward2 += torch.sum(data.reward.to(torch.float32) ** 2).item()
+    cnt_episodes += data.reward.shape[0]
+
     i += 1
     if i % gen_print_freq == 0:
-        logging.info("init gen {}/{}".format(i, session.replay_buffer.capacity // (num_envs * num_devices)))
+        mean_reward = total_reward / cnt_episodes
+        std_reward = math.sqrt(total_reward2 / cnt_episodes - mean_reward ** 2)
+        ci_reward = std_reward * 1.96 / math.sqrt(cnt_episodes)
+        logging.info("init gen {}/{}: cost={:.3f} +/- {:.3f}".format(
+            i, session.replay_buffer.capacity // (num_envs * num_devices),
+            max_possible_reward - mean_reward, ci_reward))
 
 
 # for i in range(20):
@@ -276,6 +289,31 @@ for k in range(1, num_steps + 1):
             k, num_steps, total_loss / total_loss_cnt, lr))
         total_loss = 0
         total_loss_cnt = 0
+
+total_reward = 0
+total_reward2 = 0
+cnt_episodes = 0
+post_gen_print_freq = 1
+for i in range(16):
+    data = session.generate_round(
+        episode_length=episode_length,
+        num_candidates=num_candidates1,
+        temperature=0.1, #temperature1,
+        explore_eps=0.0,
+        render=False,
+        executor=executor)
+
+    total_reward += torch.sum(data.reward.to(torch.float32)).item()
+    total_reward2 += torch.sum(data.reward.to(torch.float32) ** 2).item()
+    cnt_episodes += data.reward.shape[0]
+
+    if i % post_gen_print_freq == 0:
+        mean_reward = total_reward / cnt_episodes
+        std_reward = math.sqrt(total_reward2 / cnt_episodes - mean_reward ** 2)
+        ci_reward = std_reward * 1.96 / math.sqrt(cnt_episodes)
+        logging.info("post gen {}: cost={:.3f} +/- {:.3f}".format(
+            i, max_possible_reward - mean_reward, ci_reward))
+
 
 # pickle.dump(session, open('init_session_trained.pkl', 'wb'))
 #
