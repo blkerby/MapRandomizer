@@ -89,7 +89,8 @@ class TrainingSession():
         # logging.info("Model forward")
         flat_raw_logodds, _, flat_expected = model.forward_multiclass(
             map_flat, room_mask_flat, room_position_x_flat, room_position_y_flat, steps_remaining_flat)
-        raw_logodds = flat_raw_logodds.view(num_envs, 1 + num_candidates, self.envs[env_id].max_reward + 1)
+        # raw_logodds = flat_raw_logodds.view(num_envs, 1 + num_candidates, self.envs[env_id].max_reward + 1)
+        raw_logodds = flat_raw_logodds.view(num_envs, 1 + num_candidates, -1)
         expected = flat_expected.view(num_envs, 1 + num_candidates)
         state_raw_logodds = raw_logodds[:, 0, :]
         state_expected = expected[:, 0]
@@ -142,8 +143,12 @@ class TrainingSession():
 
         state_raw_logodds_flat = state_raw_logodds_tensor.view(env.num_envs * episode_length,
                                                                state_raw_logodds_tensor.shape[-1])
-        reward_flat = reward_tensor.view(env.num_envs, 1).repeat(1, episode_length).view(-1)
-        loss_flat = torch.nn.functional.cross_entropy(state_raw_logodds_flat, reward_flat, reduction='none')
+        # reward_flat = reward_tensor.view(env.num_envs, 1).repeat(1, episode_length).view(-1)
+        door_connects_flat = door_connects_tensor.view(env.num_envs, 1, -1).repeat(1, episode_length, 1).view(env.num_envs * episode_length, -1)
+        # loss_flat = torch.nn.functional.cross_entropy(state_raw_logodds_flat, reward_flat, reduction='none')
+        loss_flat = torch.mean(torch.nn.functional.binary_cross_entropy_with_logits(state_raw_logodds_flat,
+                                                                    door_connects_flat.to(state_raw_logodds_flat.dtype),
+                                                                    reduction='none'), dim=1)
         loss = loss_flat.view(env.num_envs, episode_length)
         episode_loss = torch.mean(loss, dim=1)
 
@@ -192,7 +197,9 @@ class TrainingSession():
         state_value_raw_logprobs, _, _ = self.model.forward_multiclass(
             map, data.room_mask, data.room_position_x, data.room_position_y, data.steps_remaining)
 
-        loss = torch.nn.functional.cross_entropy(state_value_raw_logprobs, data.reward)
+        # loss = torch.nn.functional.cross_entropy(state_value_raw_logprobs, data.reward)
+        loss = torch.nn.functional.binary_cross_entropy_with_logits(state_value_raw_logprobs,
+                                                                    data.door_connects.to(state_value_raw_logprobs.dtype))
         self.optimizer.zero_grad()
         self.grad_scaler.scale(loss).backward()
 
@@ -215,6 +222,8 @@ class TrainingSession():
                 state_value_raw_logprobs, _, state_value_expected = self.model.forward_multiclass(
                     map, data.room_mask, data.room_position_x, data.room_position_y, data.steps_remaining)
 
-        loss = torch.nn.functional.cross_entropy(state_value_raw_logprobs, data.reward)
+        # loss = torch.nn.functional.cross_entropy(state_value_raw_logprobs, data.reward)
+        loss = torch.nn.functional.binary_cross_entropy_with_logits(state_value_raw_logprobs,
+                                                                    data.door_connects.to(state_value_raw_logprobs.dtype))
         mse = torch.nn.functional.mse_loss(state_value_expected, data.reward)
         return loss.item(), mse.item()

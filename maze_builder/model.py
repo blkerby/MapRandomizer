@@ -159,7 +159,8 @@ class Model(torch.nn.Module):
             lin = torch.nn.Linear(fc_widths[i], fc_widths[i + 1] * arity)
             self.global_lin_layers.append(lin)
             self.global_act_layers.append(common_act)
-        self.state_value_lin = torch.nn.Linear(fc_widths[-1], max_possible_reward + 1)
+        # self.state_value_lin = torch.nn.Linear(fc_widths[-1], max_possible_reward + 1)
+        self.state_value_lin = torch.nn.Linear(fc_widths[-1], max_possible_reward * 2)
         self.project()
 
     def forward_multiclass(self, map, room_mask, room_position_x, room_position_y, steps_remaining):
@@ -182,9 +183,11 @@ class Model(torch.nn.Module):
                 if self.global_dropout_p > 0:
                     X = self.global_dropout_layers[i](X)
             state_value_raw_logprobs = self.state_value_lin(X).to(torch.float32)
-            state_value_probs = torch.softmax(state_value_raw_logprobs, dim=1)
-            arange = torch.arange(self.max_possible_reward + 1, device=map.device, dtype=torch.float32)
-            state_value_expected = torch.sum(state_value_probs * arange.view(1, -1), dim=1)
+            state_value_probs = torch.sigmoid(state_value_raw_logprobs)
+            state_value_expected = torch.sum(state_value_probs, dim=1) / 2
+            # state_value_probs = torch.softmax(state_value_raw_logprobs, dim=1)
+            # arange = torch.arange(self.max_possible_reward + 1, device=map.device, dtype=torch.float32)
+            # state_value_expected = torch.sum(state_value_probs * arange.view(1, -1), dim=1)
             return state_value_raw_logprobs, state_value_probs, state_value_expected
 
     def forward(self, map, room_mask, room_position_x, room_position_y, steps_remaining):

@@ -11,6 +11,7 @@
 # - export better metrics, and maybe build some sort of database for them (e.g., SQLlite, or mongodb/sacred?)
 import concurrent.futures
 
+import util
 import torch
 import math
 import logging
@@ -128,10 +129,10 @@ session = TrainingSession(envs,
                           sam_scale=None)
 torch.set_printoptions(linewidth=120, threshold=10000)
 
-batch_size_pow0 = 10
-batch_size_pow1 = 10
-lr0 = 0.00002
-lr1 = 0.00002
+batch_size_pow0 = 11
+batch_size_pow1 = 11
+lr0 = 0.0002
+lr1 = 0.0002
 num_candidates0 = 16
 num_candidates1 = 16
 num_candidates = num_candidates0
@@ -143,9 +144,8 @@ explore_eps = 0.01
 annealing_start = 147216
 annealing_time = 2048
 session.envs = envs
-pass_factor = 1.0
+pass_factor = 4.0
 print_freq = 8
-num_eval_rounds = replay_size // (num_envs * num_devices) // 16
 
 
 gen_print_freq = 8
@@ -184,6 +184,7 @@ while session.replay_buffer.size < session.replay_buffer.capacity:
 #     print(start, end, torch.mean(reward.to(torch.float32)))
 
 
+num_eval_rounds = session.replay_buffer.size // (num_envs * num_devices) // 16
 eval_data_list = []
 for j in range(num_eval_rounds):
     eval_data = session.generate_round(
@@ -198,6 +199,7 @@ for j in range(num_eval_rounds):
     eval_data_list.append(eval_data)
 eval_data = EpisodeData(
     reward=torch.cat([x.reward for x in eval_data_list], dim=0),
+    door_connects=torch.cat([x.door_connects for x in eval_data_list], dim=0),
     action=torch.cat([x.action for x in eval_data_list], dim=0),
     prob=torch.cat([x.prob for x in eval_data_list], dim=0),
     test_loss=torch.cat([x.test_loss for x in eval_data_list], dim=0),
@@ -205,11 +207,12 @@ eval_data = EpisodeData(
 
 # session.replay_buffer.episode_data.prob[:] = 1 / num_candidates
 
-pickle.dump(session, open('init_session.pkl', 'wb'))
-pickle.dump(eval_data, open('eval_data.pkl', 'wb'))
+# pickle.dump(session, open('init_session.pkl', 'wb'))
+# pickle.dump(eval_data, open('eval_data.pkl', 'wb'))
+# pickle.dump(eval_data, open('eval_data2.pkl', 'wb'))
 
-session = pickle.load(open('init_session.pkl', 'rb'))
-eval_data = pickle.load(open('eval_data.pkl', 'rb'))
+# session = pickle.load(open('init_session.pkl', 'rb'))
+eval_data = pickle.load(open('eval_data2.pkl', 'rb'))
 
 
 
@@ -253,17 +256,22 @@ total_loss_cnt = 0
 session.average_parameters.beta = 0.99
 session.sam_scale = None  # 0.02
 
-lr0_init = 0.001
-lr1_init = 0.00002
+lr0_init = 0.0002
+lr1_init = 0.0002
+# num_steps = 128
+num_total_batches = num_train_batches * num_steps
+logging.info("Initial training")
 for k in range(1, num_steps + 1):
-    frac = (k - 1) / num_steps
-    lr = lr0_init * (lr1_init / lr0_init) ** frac
-    session.optimizer.param_groups[0]['lr'] = lr
     session.model.train()
     for j in range(num_train_batches):
+        frac = (k * num_train_batches + j) / num_total_batches
+        lr = lr0_init * (lr1_init / lr0_init) ** frac
+        session.optimizer.param_groups[0]['lr'] = lr
+
         data = session.replay_buffer.sample(batch_size, device=device)
-        total_loss += session.train_batch(data)
-        total_loss_cnt += 1
+        with util.DelayedKeyboardInterrupt():
+            total_loss += session.train_batch(data)
+            total_loss_cnt += 1
     if k % eval_freq == 0:
         total_eval_loss = 0.0
         total_eval_mse = 0.0
@@ -273,6 +281,7 @@ for k in range(1, num_steps + 1):
             end = (j + 1) * eval_batch_size
             data = EpisodeData(
                 reward=eval_data.reward[start:end],
+                door_connects=eval_data.door_connects[start:end, :],
                 action=eval_data.action[start:end, :, :],
                 prob=eval_data.prob[start:end],
                 test_loss=eval_data.test_loss[start:end],
@@ -280,12 +289,12 @@ for k in range(1, num_steps + 1):
             eval_loss, eval_mse = session.eval_batch(data.training_data(len(session.envs[0].rooms), device=device))
             total_eval_loss += eval_loss
             total_eval_mse += eval_mse
-        logging.info("init train {}/{}: loss={:.4f}, eval_loss={:.4f}, eval_mse={:.2f}, lr={:.6f}".format(
+        logging.info("init train {}/{}: loss={:.5f}, eval_loss={:.5f}, eval_mse={:.2f}, lr={:.6f}".format(
             k, num_steps, total_loss / total_loss_cnt, total_eval_loss / num_eval_batches, total_eval_mse / num_eval_batches, lr))
         total_loss = 0
         total_loss_cnt = 0
     elif k % print_freq == 0:
-        logging.info("init train {}/{}: loss={:.4f}, lr={:.6f}".format(
+        logging.info("init train {}/{}: loss={:.5f}, lr={:.6f}".format(
             k, num_steps, total_loss / total_loss_cnt, lr))
         total_loss = 0
         total_loss_cnt = 0
@@ -326,7 +335,10 @@ for i in range(16):
 # session = pickle.load(open('models/session-2021-08-23T09:55:29.550930.pkl', 'rb'))  # t1
 # session = pickle.load(open('models/session-2021-08-25T17:41:12.741963.pkl', 'rb'))    # t0
 # session = pickle.load(open('models/bk-session-2021-09-01T20:36:53.060639.pkl', 'rb'))    # t0
-# session = pickle.load(open('models/session-2021-09-05T20:36:58.711570.pkl-bk2', 'rb'))    # t0
+# session = pickle.load(open('models/session-2021-09-06T14:32:27.585856.pkl-bk2', 'rb'))    # t0
+# session = pickle.load(open('models/session-2021-09-06T14:32:27.585856.pkl-bk', 'rb'))    # t0
+session = pickle.load(open('models/session-2021-09-06T20:45:44.685488.pkl', 'rb'))    # t0
+
 #
 # session.envs = envs
 # session.model = session.model.to(device)
@@ -357,8 +369,8 @@ total_round_cnt = 0
 logging.info("Checkpoint path: {}".format(pickle_name))
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
 logging.info(
-    "map_x={}, map_y={}, num_envs={}, num_candidates={}, replay_size={}, num_params={}, decay_amount={}".format(
-        map_x, map_y, session.envs[0].num_envs, num_candidates, session.replay_buffer.size, num_params, session.decay_amount))
+    "map_x={}, map_y={}, num_envs={}, num_candidates={}, replay_size={}/{}, num_params={}, decay_amount={}".format(
+        map_x, map_y, session.envs[0].num_envs, num_candidates, session.replay_buffer.size, session.replay_buffer.capacity, num_params, session.decay_amount))
 logging.info("Starting training")
 for i in range(100000):
     frac = max(0, min(1, (session.num_rounds - annealing_start) / annealing_time))
@@ -389,8 +401,9 @@ for i in range(100000):
     num_batches = max(1, int(pass_factor * num_envs * episode_length / batch_size))
     for j in range(num_batches):
         data = session.replay_buffer.sample(batch_size, device=device)
-        total_loss += session.train_batch(data)
-        total_loss_cnt += 1
+        with util.DelayedKeyboardInterrupt():
+            total_loss += session.train_batch(data)
+            total_loss_cnt += 1
 
     if session.num_rounds % print_freq == 0:
         buffer_reward = session.replay_buffer.episode_data.reward[:session.replay_buffer.size].to(torch.float32)
@@ -416,7 +429,7 @@ for i in range(100000):
         buffer_mean_rooms_missing = buffer_mean_pass * len(rooms)
 
         logging.info(
-            "{}: doors={:.3f} (min={:d}, frac={:.6f}), rooms={:.3f}, test={:.4f}, p={:.6f} | loss={:.4f}, doors={:.3f}, test={:.4f}, p={:.6f}, temp={:.4f}, nc={}".format(
+            "{}: doors={:.3f} (min={:d}, frac={:.6f}), rooms={:.3f}, test={:.5f}, p={:.6f} | loss={:.5f}, doors={:.3f}, test={:.5f}, p={:.6f}, temp={:.4f}, nc={}".format(
                 session.num_rounds, max_possible_reward - buffer_mean_reward, max_possible_reward - buffer_max_reward,
                 buffer_frac_max_reward,
                 buffer_mean_rooms_missing,
@@ -432,9 +445,10 @@ for i in range(100000):
         total_loss_cnt = 0
 
     if session.num_rounds % save_freq == 0:
-        # episode_data = session.replay_buffer.episode_data
-        # session.replay_buffer.episode_data = None
-        pickle.dump(session, open(pickle_name, 'wb'))
-        # pickle.dump(session, open(pickle_name + '-bk2', 'wb'))
-        # session.replay_buffer.episode_data = episode_data
-        # session = pickle.load(open(pickle_name + '-bk2', 'rb'))
+        with util.DelayedKeyboardInterrupt():
+            # episode_data = session.replay_buffer.episode_data
+            # session.replay_buffer.episode_data = None
+            pickle.dump(session, open(pickle_name, 'wb'))
+            # pickle.dump(session, open(pickle_name + '-bk', 'wb'))
+            # session.replay_buffer.episode_data = episode_data
+            # session = pickle.load(open(pickle_name + '-bk2', 'rb'))
