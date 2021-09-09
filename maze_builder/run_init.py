@@ -36,7 +36,7 @@ model = Model(env_config=env_config,
               map_stride=[],
               map_kernel_size=[],
               map_padding=[],
-              fc_widths=[])
+              map_fc_widths=[])
 pickle.dump(model, open(base_path + 'model.pkl', 'wb'))
 
 generate_episodes(base_path='models/random/',

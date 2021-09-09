@@ -107,7 +107,8 @@ def make_dummy_model():
                  map_stride=[],
                  map_kernel_size=[],
                  map_padding=[],
-                 fc_widths=[]).to(device)
+                 map_fc_widths=[],
+                 map_embedding_width=1).to(device)
 
 
 model = make_dummy_model()
@@ -223,7 +224,9 @@ session.model = Model(
     map_stride=[2, 2, 2],
     map_kernel_size=[7, 3, 3],
     map_padding=3 * [False],
-    fc_widths=[1024, 256, 64],
+    # map_fc_widths=[1024, 1024, 1024],
+    map_fc_widths=[512, 512, 512],
+    map_embedding_width=8,
     global_dropout_p=0.0,
 ).to(device)
 session.model.state_value_lin.weight.data.zero_()
@@ -255,8 +258,8 @@ total_loss_cnt = 0
 session.average_parameters.beta = 0.99
 session.sam_scale = None  # 0.02
 
-lr0_init = 0.0002
-lr1_init = 0.0002
+lr0_init = 0.0001
+lr1_init = 0.0001
 # num_steps = 128
 num_total_batches = num_train_batches * num_steps
 logging.info("Initial training")

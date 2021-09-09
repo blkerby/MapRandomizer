@@ -115,7 +115,8 @@ class MaxOut(torch.nn.Module):
 
 class Model(torch.nn.Module):
     def __init__(self, env_config, max_possible_reward, map_channels, map_stride, map_kernel_size, map_padding,
-                 fc_widths,
+                 map_embedding_width,
+                 map_fc_widths,
                  map_dropout_p=0.0,
                  global_dropout_p=0.0):
         super().__init__()
@@ -124,15 +125,18 @@ class Model(torch.nn.Module):
         self.map_x = env_config.map_x + 1
         self.map_y = env_config.map_y + 1
         self.map_c = 4
+        self.map_embedding_width = map_embedding_width
         self.num_rooms = len(env_config.rooms) + 1
         self.map_dropout_p = map_dropout_p
         self.global_dropout_p = global_dropout_p
         common_act = torch.nn.SELU()
 
+        self.map_embedding = torch.nn.Parameter(torch.randn([self.map_c, self.num_rooms, map_embedding_width]))
+
         self.map_conv_layers = torch.nn.ModuleList()
         self.map_act_layers = torch.nn.ModuleList()
 
-        map_channels = [self.map_c] + map_channels
+        map_channels = [map_embedding_width] + map_channels
         width = self.map_x
         height = self.map_y
         arity = 1
@@ -155,21 +159,30 @@ class Model(torch.nn.Module):
         self.global_act_layers = torch.nn.ModuleList()
         # global_fc_widths = [(width * height * map_channels[-1]) + 1 + room_tensor.shape[0]] + global_fc_widths
         # fc_widths = [width * height * map_channels[-1]] + fc_widths
-        fc_widths = [map_channels[-1] + 1 + self.num_rooms] + fc_widths
-        for i in range(len(fc_widths) - 1):
-            lin = torch.nn.Linear(fc_widths[i], fc_widths[i + 1] * arity)
+        map_fc_widths = [map_channels[-1] + 1 + self.num_rooms] + map_fc_widths
+        for i in range(len(map_fc_widths) - 1):
+            lin = torch.nn.Linear(map_fc_widths[i], map_fc_widths[i + 1] * arity)
             self.global_lin_layers.append(lin)
             self.global_act_layers.append(common_act)
+
         # self.state_value_lin = torch.nn.Linear(fc_widths[-1], max_possible_reward + 1)
-        self.state_value_lin = torch.nn.Linear(fc_widths[-1], max_possible_reward * 2)
+        self.state_value_lin = torch.nn.Linear(map_fc_widths[-1], max_possible_reward * 2)
         self.project()
 
     def forward_multiclass(self, map, room_mask, room_position_x, room_position_y, steps_remaining, env: MazeBuilderEnv):
         # Convolutional layers on whole map data
+        channel = torch.arange(self.map_c, device=map.device, dtype=torch.int64).view(1, -1, 1, 1)
         if map.is_cuda:
-            X = map.to(torch.float16, memory_format=torch.channels_last)
+            map_embedding = self.map_embedding.to(torch.float16)
         else:
-            X = map.to(torch.float32)
+            map_embedding = self.map_embedding
+        map_embedding = map_embedding[channel, map.to(torch.int64), :]
+        # map_embedding = torch.transpose(map_embedding, 1, 4).view(self.map_c, self.map_c * self.map_embedding_width, self.map_x, self.map_y)
+        X = torch.transpose(torch.sum(map_embedding, dim=1), 1, 3)
+        if X.is_cuda:
+            X = X.to(torch.float16, memory_format=torch.channels_last)
+
+        print(map_embedding.shape, X.shape)
         with torch.cuda.amp.autocast():
             for i in range(len(self.map_conv_layers)):
                 X = self.map_conv_layers[i](X)
