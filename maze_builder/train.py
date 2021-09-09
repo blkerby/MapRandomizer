@@ -131,8 +131,8 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 
 batch_size_pow0 = 11
 batch_size_pow1 = 11
-lr0 = 0.0002
-lr1 = 0.0002
+lr0 = 0.0001
+lr1 = 0.0001
 num_candidates0 = 16
 num_candidates1 = 16
 num_candidates = num_candidates0
@@ -208,10 +208,10 @@ eval_data = EpisodeData(
 # session.replay_buffer.episode_data.prob[:] = 1 / num_candidates
 
 # pickle.dump(session, open('init_session.pkl', 'wb'))
-# pickle.dump(eval_data, open('eval_data.pkl', 'wb'))
+pickle.dump(eval_data, open('eval_data.pkl', 'wb'))
 
 # session = pickle.load(open('init_session.pkl', 'rb'))
-eval_data = pickle.load(open('eval_data.pkl', 'rb'))
+# eval_data = pickle.load(open('eval_data.pkl', 'rb'))
 
 
 
@@ -255,8 +255,8 @@ total_loss_cnt = 0
 session.average_parameters.beta = 0.99
 session.sam_scale = None  # 0.02
 
-lr0_init = 0.0002
-lr1_init = 0.0002
+lr0_init = 0.0001
+lr1_init = 0.0001
 # num_steps = 128
 num_total_batches = num_train_batches * num_steps
 logging.info("Initial training")
@@ -337,7 +337,8 @@ for i in range(16):
 # session = pickle.load(open('models/session-2021-09-06T14:32:27.585856.pkl-bk2', 'rb'))
 # session = pickle.load(open('models/session-2021-09-06T14:32:27.585856.pkl-bk', 'rb'))
 # session = pickle.load(open('models/session-2021-09-06T20:45:44.685488.pkl', 'rb'))
-session = pickle.load(open('models/session-2021-09-07T11:08:58.310112.pkl-bk', 'rb'))
+# session = pickle.load(open('models/session-2021-09-07T11:08:58.310112.pkl-bk', 'rb'))
+session = pickle.load(open('models/session-2021-09-08T17:44:34.840094.pkl-bk', 'rb'))
 
 #
 # session.envs = envs
