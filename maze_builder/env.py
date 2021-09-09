@@ -136,7 +136,6 @@ class MazeBuilderEnv:
                 room_tensor[0, :, :] = map
             room_tensor[1, :-1, :] = border_horizontal + door_horizontal
             room_tensor[2, :, :-1] = border_vertical + door_vertical + 2 * elevator + 3 * sand
-            room_tensor[3, :, :] = map * i
 
             room_id = torch.full([1, 1], i, device=self.device)
 
@@ -149,7 +148,6 @@ class MazeBuilderEnv:
             room_tile = get_sparse_representation(room_tensor[0, :, :])
             room_horizontal = get_sparse_representation(room_tensor[1, :, :])
             room_vertical = get_sparse_representation(room_tensor[2, :, :])
-            room_identifier = get_sparse_representation(room_tensor[3, :, :])
             room_left = get_sparse_representation(torch.clamp(room_tensor[1, :, :], min=1) - 1)
             room_right = get_sparse_representation(torch.clamp(room_tensor[1, :, :], max=-1) + 1)
             room_up = get_sparse_representation(torch.clamp(room_tensor[2, :, :], min=1) - 1)
@@ -168,7 +166,6 @@ class MazeBuilderEnv:
                 torch.cat([room_tile, torch.full([room_tile.shape[0], 1], 0, device=self.device)], dim=1),
                 torch.cat([room_horizontal, torch.full([room_horizontal.shape[0], 1], 1, device=self.device)], dim=1),
                 torch.cat([room_vertical, torch.full([room_vertical.shape[0], 1], 2, device=self.device)], dim=1),
-                torch.cat([room_identifier, torch.full([room_identifier.shape[0], 1], 3, device=self.device)], dim=1),
             ])
 
             room_data_tile = torch.cat([room_tile, torch.full([room_tile.shape[0], 1], 0, device=self.device)], dim=1)
