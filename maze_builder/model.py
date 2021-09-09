@@ -3,6 +3,7 @@ import torch.nn.functional as F
 import math
 from typing import List, Optional
 
+from maze_builder.env import MazeBuilderEnv
 
 # class HuberLoss(torch.nn.Module):
 #     def __init__(self, delta):
@@ -163,7 +164,7 @@ class Model(torch.nn.Module):
         self.state_value_lin = torch.nn.Linear(fc_widths[-1], max_possible_reward * 2)
         self.project()
 
-    def forward_multiclass(self, map, room_mask, room_position_x, room_position_y, steps_remaining):
+    def forward_multiclass(self, map, room_mask, room_position_x, room_position_y, steps_remaining, env: MazeBuilderEnv):
         # Convolutional layers on whole map data
         if map.is_cuda:
             X = map.to(torch.float16, memory_format=torch.channels_last)
@@ -182,19 +183,24 @@ class Model(torch.nn.Module):
                 X = self.global_act_layers[i](X)
                 if self.global_dropout_p > 0:
                     X = self.global_dropout_layers[i](X)
-            state_value_raw_logprobs = self.state_value_lin(X).to(torch.float32)
-            state_value_probs = torch.sigmoid(state_value_raw_logprobs)
+
+            door_connects = env.door_connects(map, room_mask, room_position_x, room_position_y)
+
+            state_value_raw_logodds = self.state_value_lin(X).to(torch.float32)
+            inf_tensor = torch.full_like(state_value_raw_logodds, 1e5)  # We can't use actual 'inf' or it results in NaNs in binary_cross_entropy_with_logits, but this is equivalent.
+            state_value_filtered_logodds = torch.where(door_connects, inf_tensor, state_value_raw_logodds)
+            state_value_probs = torch.sigmoid(state_value_filtered_logodds)
             state_value_expected = torch.sum(state_value_probs, dim=1) / 2
             # state_value_probs = torch.softmax(state_value_raw_logprobs, dim=1)
             # arange = torch.arange(self.max_possible_reward + 1, device=map.device, dtype=torch.float32)
             # state_value_expected = torch.sum(state_value_probs * arange.view(1, -1), dim=1)
-            return state_value_raw_logprobs, state_value_probs, state_value_expected
+            return state_value_filtered_logodds, state_value_probs, state_value_expected
 
-    def forward(self, map, room_mask, room_position_x, room_position_y, steps_remaining):
+    def forward(self, map, room_mask, room_position_x, room_position_y, steps_remaining, env):
         # TODO: we could speed up the last layer a bit by summing the parameters instead of outputs
         # (though this probably is negligible).
         state_value_raw_logprobs, state_value_probs, state_value_expected = self.forward_multiclass(
-            map, room_mask, room_position_x, room_position_y, steps_remaining)
+            map, room_mask, room_position_x, room_position_y, steps_remaining, env)
         return state_value_expected
 
     def decay(self, amount: Optional[float]):
@@ -225,7 +231,8 @@ class Model(torch.nn.Module):
         #     # layer.weight.data /= torch.max(torch.abs(layer.weight.data) + eps, dim=1)[0].unsqueeze(1)
         #     layer.lin.weight.data /= torch.sqrt(torch.mean(layer.lin.weight.data ** 2, dim=1, keepdim=True) + eps)
 
-    def forward_state_action(self, env, room_mask, room_position_x, room_position_y, action_candidates, steps_remaining):
+    def forward_state_action(self, env: MazeBuilderEnv, room_mask, room_position_x, room_position_y,
+                             action_candidates, steps_remaining):
         num_envs = room_mask.shape[0]
         num_candidates = action_candidates.shape[1]
         num_rooms = self.num_rooms
@@ -257,7 +264,7 @@ class Model(torch.nn.Module):
         map_flat = env.compute_map(room_mask_flat, room_position_x_flat, room_position_y_flat)
 
         out_flat = self.forward(
-            map_flat, room_mask_flat, room_position_x_flat, room_position_y_flat, steps_remaining_flat)
+            map_flat, room_mask_flat, room_position_x_flat, room_position_y_flat, steps_remaining_flat, env)
         out = out_flat.view(num_envs, 1 + num_candidates)
         state_value = out[:, 0]
         action_value = out[:, 1:]

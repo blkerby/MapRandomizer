@@ -523,9 +523,12 @@ class MazeBuilderEnv:
         reward = (room_doors_count - unconnected_doors_count) // 2
         return reward
 
-    def door_connects(self):
-        # TODO: avoid recomputing map here
+    def current_door_connects(self):
         map = self.compute_current_map()
+        return self.door_connects(map, self.room_mask, self.room_position_x, self.room_position_y)
+
+    def door_connects(self, map, room_mask, room_position_x, room_position_y):
+        # TODO: avoid recomputing map here
         data_tuples = [
             (self.room_left, 1),
             (self.room_right, 1),
@@ -534,16 +537,14 @@ class MazeBuilderEnv:
         ]
         connects_list = []
         for room_dir, channel in data_tuples:
-            # print(room_dir.shape)
             room_id = room_dir[:, 0]
             relative_door_x = room_dir[:, 1]
             relative_door_y = room_dir[:, 2]
-            door_x = self.room_position_x[:, room_id] + relative_door_x.unsqueeze(0)
-            door_y = self.room_position_y[:, room_id] + relative_door_y.unsqueeze(0)
-            mask = self.room_mask[:, room_id]
-            # print(map.shape, channel, door_x.shape, door_y.shape, torch.min(door_x), torch.max(door_x), torch.min(door_y), torch.max(door_y))
+            door_x = room_position_x[:, room_id] + relative_door_x.unsqueeze(0)
+            door_y = room_position_y[:, room_id] + relative_door_y.unsqueeze(0)
+            mask = room_mask[:, room_id]
             tile = map[
-                torch.arange(self.num_envs, device=self.device).view(-1, 1),
+                torch.arange(map.shape[0], device=self.device).view(-1, 1),
                 channel,
                 door_x,
                 door_y]

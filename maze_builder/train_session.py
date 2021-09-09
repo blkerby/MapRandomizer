@@ -83,12 +83,13 @@ class TrainingSession():
         # torch.cuda.synchronize()
         # logging.info("Creating map")
 
-        map_flat = self.envs[env_id].compute_map(room_mask_flat, room_position_x_flat, room_position_y_flat)
+        env = self.envs[env_id]
+        map_flat = env.compute_map(room_mask_flat, room_position_x_flat, room_position_y_flat)
 
         # torch.cuda.synchronize()
         # logging.info("Model forward")
         flat_raw_logodds, _, flat_expected = model.forward_multiclass(
-            map_flat, room_mask_flat, room_position_x_flat, room_position_y_flat, steps_remaining_flat)
+            map_flat, room_mask_flat, room_position_x_flat, room_position_y_flat, steps_remaining_flat, env)
         # raw_logodds = flat_raw_logodds.view(num_envs, 1 + num_candidates, self.envs[env_id].max_reward + 1)
         raw_logodds = flat_raw_logodds.view(num_envs, 1 + num_candidates, -1)
         expected = flat_expected.view(num_envs, 1 + num_candidates)
@@ -136,7 +137,7 @@ class TrainingSession():
             prob_list.append(selected_prob.to('cpu'))
 
         reward_tensor = env.reward().to('cpu')
-        door_connects_tensor = env.door_connects().to('cpu')
+        door_connects_tensor = env.current_door_connects().to('cpu')
         state_raw_logodds_tensor = torch.stack(state_raw_logodds_list, dim=1)
         action_tensor = torch.stack(action_list, dim=1)
         prob_tensor = torch.mean(torch.stack(prob_list, dim=1), dim=1)
@@ -193,9 +194,10 @@ class TrainingSession():
                 param.data += torch.randn_like(param.data) * self.sam_scale
             self.model.project()
 
-        map = self.envs[0].compute_map(data.room_mask, data.room_position_x, data.room_position_y)
+        env = self.envs[0]
+        map = env.compute_map(data.room_mask, data.room_position_x, data.room_position_y)
         state_value_raw_logprobs, _, _ = self.model.forward_multiclass(
-            map, data.room_mask, data.room_position_x, data.room_position_y, data.steps_remaining)
+            map, data.room_mask, data.room_position_x, data.room_position_y, data.steps_remaining, env)
 
         # loss = torch.nn.functional.cross_entropy(state_value_raw_logprobs, data.reward)
         loss = torch.nn.functional.binary_cross_entropy_with_logits(state_value_raw_logprobs,
@@ -218,9 +220,10 @@ class TrainingSession():
         with self.average_parameters.average_parameters(self.model.all_param_data()):
             self.model.eval()
             with torch.no_grad():
-                map = self.envs[0].compute_map(data.room_mask, data.room_position_x, data.room_position_y)
+                env = self.envs[0]
+                map = env.compute_map(data.room_mask, data.room_position_x, data.room_position_y)
                 state_value_raw_logprobs, _, state_value_expected = self.model.forward_multiclass(
-                    map, data.room_mask, data.room_position_x, data.room_position_y, data.steps_remaining)
+                    map, data.room_mask, data.room_position_x, data.room_position_y, data.steps_remaining, env)
 
         # loss = torch.nn.functional.cross_entropy(state_value_raw_logprobs, data.reward)
         loss = torch.nn.functional.binary_cross_entropy_with_logits(state_value_raw_logprobs,

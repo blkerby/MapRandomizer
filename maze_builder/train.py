@@ -209,10 +209,9 @@ eval_data = EpisodeData(
 
 # pickle.dump(session, open('init_session.pkl', 'wb'))
 # pickle.dump(eval_data, open('eval_data.pkl', 'wb'))
-# pickle.dump(eval_data, open('eval_data2.pkl', 'wb'))
 
 # session = pickle.load(open('init_session.pkl', 'rb'))
-eval_data = pickle.load(open('eval_data2.pkl', 'rb'))
+eval_data = pickle.load(open('eval_data.pkl', 'rb'))
 
 
 
@@ -334,10 +333,11 @@ for i in range(16):
 # session = pickle.load(open('models/session-2021-08-18T22:59:51.919856.pkl-t0.02', 'rb'))
 # session = pickle.load(open('models/session-2021-08-23T09:55:29.550930.pkl', 'rb'))  # t1
 # session = pickle.load(open('models/session-2021-08-25T17:41:12.741963.pkl', 'rb'))    # t0
-# session = pickle.load(open('models/bk-session-2021-09-01T20:36:53.060639.pkl', 'rb'))    # t0
-# session = pickle.load(open('models/session-2021-09-06T14:32:27.585856.pkl-bk2', 'rb'))    # t0
-# session = pickle.load(open('models/session-2021-09-06T14:32:27.585856.pkl-bk', 'rb'))    # t0
-session = pickle.load(open('models/session-2021-09-06T20:45:44.685488.pkl', 'rb'))    # t0
+# session = pickle.load(open('models/bk-session-2021-09-01T20:36:53.060639.pkl', 'rb'))
+# session = pickle.load(open('models/session-2021-09-06T14:32:27.585856.pkl-bk2', 'rb'))
+# session = pickle.load(open('models/session-2021-09-06T14:32:27.585856.pkl-bk', 'rb'))
+# session = pickle.load(open('models/session-2021-09-06T20:45:44.685488.pkl', 'rb'))
+session = pickle.load(open('models/session-2021-09-07T11:08:58.310112.pkl-bk', 'rb'))
 
 #
 # session.envs = envs
