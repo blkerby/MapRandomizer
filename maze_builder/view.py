@@ -30,10 +30,10 @@ device = torch.device('cpu')
 # session = CPU_Unpickler(open('models/session-2021-08-22T22:26:53.639110.pkl', 'rb')).load()
 # session = CPU_Unpickler(open('models/session-2021-08-23T09:55:29.550930.pkl', 'rb')).load()
 # session = CPU_Unpickler(open('models/09-04-session-2021-09-01T20:36:53.060639.pkl', 'rb')).load()
-session = CPU_Unpickler(open('models/09-08b-session-2021-09-07T11:08:58.310112.pkl', 'rb')).load()
+session = CPU_Unpickler(open('models/09-09-session-2021-09-08T17:44:34.840094.pkl', 'rb')).load()
 
 ind = torch.nonzero(session.replay_buffer.episode_data.reward == 289)
-i = 1756
+i = 1845
 num_rooms = len(session.envs[0].rooms)
 action = session.replay_buffer.episode_data.action[ind[i], :]
 step_indices = torch.tensor([num_rooms])
