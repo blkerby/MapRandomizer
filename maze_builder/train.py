@@ -208,10 +208,10 @@ eval_data = EpisodeData(
 # session.replay_buffer.episode_data.prob[:] = 1 / num_candidates
 
 # pickle.dump(session, open('init_session.pkl', 'wb'))
-pickle.dump(eval_data, open('eval_data.pkl', 'wb'))
+# pickle.dump(eval_data, open('eval_data.pkl', 'wb'))
 
 # session = pickle.load(open('init_session.pkl', 'rb'))
-# eval_data = pickle.load(open('eval_data.pkl', 'rb'))
+eval_data = pickle.load(open('eval_data.pkl', 'rb'))
 
 
 
@@ -223,7 +223,7 @@ session.model = Model(
     map_stride=[2, 2, 2],
     map_kernel_size=[7, 3, 3],
     map_padding=3 * [False],
-    fc_widths=[1024, 256, 64],
+    fc_widths=[1024, 1024, 1024],
     global_dropout_p=0.0,
 ).to(device)
 session.model.state_value_lin.weight.data.zero_()
@@ -338,10 +338,9 @@ for i in range(16):
 # session = pickle.load(open('models/session-2021-09-06T14:32:27.585856.pkl-bk', 'rb'))
 # session = pickle.load(open('models/session-2021-09-06T20:45:44.685488.pkl', 'rb'))
 # session = pickle.load(open('models/session-2021-09-07T11:08:58.310112.pkl-bk', 'rb'))
-session = pickle.load(open('models/session-2021-09-08T17:44:34.840094.pkl-bk', 'rb'))
-
-#
-# session.envs = envs
+# session = pickle.load(open('models/session-2021-09-08T17:44:34.840094.pkl-bk', 'rb'))
+session = pickle.load(open('models/session-2021-09-09T08:34:57.448897.pkl-bk', 'rb'))
+session.envs = envs
 # session.model = session.model.to(device)
 # def optimizer_to(optim, device):
 #     for param in optim.state.values():

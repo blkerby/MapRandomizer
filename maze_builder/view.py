@@ -32,13 +32,13 @@ device = torch.device('cpu')
 # session = CPU_Unpickler(open('models/09-04-session-2021-09-01T20:36:53.060639.pkl', 'rb')).load()
 session = CPU_Unpickler(open('models/09-09-session-2021-09-08T17:44:34.840094.pkl', 'rb')).load()
 
-# ind = torch.nonzero(session.replay_buffer.episode_data.reward == 289)
-# i = 1845
-# num_rooms = len(session.envs[0].rooms)
-# action = session.replay_buffer.episode_data.action[ind[i], :]
-# step_indices = torch.tensor([num_rooms])
-# room_mask, room_position_x, room_position_y = reconstruct_room_data(action, step_indices, num_rooms)
-#
+ind = torch.nonzero(session.replay_buffer.episode_data.reward == 289)
+i = 1845
+num_rooms = len(session.envs[0].rooms)
+action = session.replay_buffer.episode_data.action[ind[i], :]
+step_indices = torch.tensor([num_rooms])
+room_mask, room_position_x, room_position_y = reconstruct_room_data(action, step_indices, num_rooms)
+
 num_envs = 1
 # num_envs = 8
 rooms = logic.rooms.all_rooms.rooms
@@ -49,10 +49,13 @@ env = MazeBuilderEnv(rooms,
                      num_envs=num_envs,
                      device=device,
                      must_areas_be_connected=False)
-# env.room_mask = room_mask
-# env.room_position_x = room_position_x
-# env.room_position_y = room_position_y
-# env.render()
+env.room_mask = room_mask
+env.room_position_x = room_position_x
+env.room_position_y = room_position_y
+env.render()
+
+map = env.compute_current_map()
+torch.sum(map[0, 3:8, :10, -10:] * 3 ** torch.arange(5).view(-1, 1, 1), dim=0).t()
 
 
 episode_length = len(rooms)
