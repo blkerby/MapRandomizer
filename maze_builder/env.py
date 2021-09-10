@@ -36,7 +36,7 @@ class MazeBuilderEnv:
         self.num_envs = num_envs
         self.must_areas_be_connected = must_areas_be_connected
 
-        self.map_channels = 8
+        self.map_channels = 4
         self.initial_map = torch.zeros([1, self.map_channels, self.map_x + 1, self.map_y + 1],
                                        dtype=torch.int8, device=self.device)
 
@@ -136,13 +136,6 @@ class MazeBuilderEnv:
                 room_tensor[0, :, :] = map
             room_tensor[1, :-1, :] = border_horizontal + door_horizontal
             room_tensor[2, :, :-1] = border_vertical + door_vertical + 2 * elevator + 3 * sand
-            room_identifier = map.to(torch.uint8) * i
-
-            for j in range(5):
-                X = room_identifier // 3 ** j
-                if j != 4:
-                    X = X % 3
-                room_tensor[3 + j, :, :] = X
 
             room_id = torch.full([1, 1], i, device=self.device)
 
@@ -155,7 +148,6 @@ class MazeBuilderEnv:
             room_tile = get_sparse_representation(room_tensor[0, :, :])
             room_horizontal = get_sparse_representation(room_tensor[1, :, :])
             room_vertical = get_sparse_representation(room_tensor[2, :, :])
-            room_identifier_list = [get_sparse_representation(room_tensor[3 + j, :, :]) for j in range(5)]
             room_left = get_sparse_representation(torch.clamp(room_tensor[1, :, :], min=1) - 1)
             room_right = get_sparse_representation(torch.clamp(room_tensor[1, :, :], max=-1) + 1)
             room_up = get_sparse_representation(torch.clamp(room_tensor[2, :, :], min=1) - 1)
@@ -174,9 +166,7 @@ class MazeBuilderEnv:
                 torch.cat([room_tile, torch.full([room_tile.shape[0], 1], 0, device=self.device)], dim=1),
                 torch.cat([room_horizontal, torch.full([room_horizontal.shape[0], 1], 1, device=self.device)], dim=1),
                 torch.cat([room_vertical, torch.full([room_vertical.shape[0], 1], 2, device=self.device)], dim=1),
-            ] + [torch.cat([room_identifier_list[j],
-                            torch.full([room_identifier_list[j].shape[0], 1], 3 + j, device=self.device)], dim=1)
-                 for j in range(5)])
+            ])
 
             room_data_tile = torch.cat([room_tile, torch.full([room_tile.shape[0], 1], 0, device=self.device)], dim=1)
             room_data_door = torch.cat([

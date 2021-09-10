@@ -123,7 +123,7 @@ class Model(torch.nn.Module):
         self.max_possible_reward = max_possible_reward
         self.map_x = env_config.map_x + 1
         self.map_y = env_config.map_y + 1
-        self.map_c = 8
+        self.map_c = 4
         self.num_rooms = len(env_config.rooms) + 1
         self.map_dropout_p = map_dropout_p
         self.global_dropout_p = global_dropout_p
