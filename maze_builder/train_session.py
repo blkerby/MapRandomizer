@@ -10,6 +10,7 @@ from model_average import ExponentialAverage
 import concurrent.futures
 import logging
 from dataclasses import dataclass
+import util
 
 
 # TODO: try using torch.multinomial instead of implementing this from scratch?
@@ -44,7 +45,7 @@ class TrainingSession():
 
     def forward_state_action(self, model, room_mask, room_position_x, room_position_y, action_candidates,
                              steps_remaining,
-                             env_id, round):
+                             env_id):
         # print({k: v.shape for k, v in locals().items() if hasattr(v, 'shape')})
         #
         # torch.cuda.synchronize()
@@ -96,7 +97,7 @@ class TrainingSession():
         state_raw_logodds = raw_logodds[:, 0, :]
         state_expected = expected[:, 0]
         action_expected = expected[:, 1:]
-        return state_expected, action_expected, state_raw_logodds
+        return state_expected, action_expected, state_raw_logodds, raw_logodds
 
     def generate_round_inner(self, model, episode_length: int, num_candidates: int, temperature: float,
                              explore_eps: float,
@@ -116,14 +117,14 @@ class TrainingSession():
                 env.render()
             # torch.cuda.synchronize()
             # logging.debug("Getting candidates")
-            action_candidates = env.get_action_candidates(num_candidates)
+            action_candidates = env.get_action_candidates(num_candidates, env.room_mask, env.room_position_x, env.room_position_y)
             steps_remaining = torch.full([env.num_envs], episode_length - j,
                                          dtype=torch.float32, device=device)
             with torch.no_grad():
                 # print("inner", env_id, j, env.device, model.state_value_lin.weight.device)
-                state_expected, action_expected, state_raw_logodds = self.forward_state_action(
+                state_expected, action_expected, state_raw_logodds, _ = self.forward_state_action(
                     model, env.room_mask, env.room_position_x, env.room_position_y,
-                    action_candidates, steps_remaining, env_id=env_id, round=torch.zeros_like(round_tensor))
+                    action_candidates, steps_remaining, env_id=env_id)
             probs = torch.softmax(action_expected / temperature, dim=1)
             probs = torch.full_like(probs, explore_eps / num_candidates) + (
                     1 - explore_eps) * probs
@@ -202,6 +203,80 @@ class TrainingSession():
         # loss = torch.nn.functional.cross_entropy(state_value_raw_logprobs, data.reward)
         loss = torch.nn.functional.binary_cross_entropy_with_logits(state_value_raw_logprobs,
                                                                     data.door_connects.to(state_value_raw_logprobs.dtype))
+        self.optimizer.zero_grad()
+        self.grad_scaler.scale(loss).backward()
+
+        if self.sam_scale is not None:
+            for i, param in enumerate(self.model.parameters()):
+                param.data.copy_(saved_params[i])
+
+        self.grad_scaler.step(self.optimizer)
+        self.grad_scaler.update()
+        self.model.decay(self.decay_amount * self.optimizer.param_groups[0]['lr'])
+        self.model.project()
+        self.average_parameters.update(self.model.all_param_data())
+        return loss.item()
+
+    def train_distillation_batch(self, data: TrainingData, teacher_model: Model):
+        self.model.train()
+
+        if self.sam_scale is not None:
+            saved_params = [param.data.clone() for param in self.model.parameters()]
+            for param in self.model.parameters():
+                param.data += torch.randn_like(param.data) * self.sam_scale
+            self.model.project()
+
+        env = self.envs[0]
+        map = env.compute_map(data.room_mask, data.room_position_x, data.room_position_y)
+        with torch.no_grad():
+            teacher_logodds, teacher_probs, _ = teacher_model.forward_multiclass(
+                map, data.room_mask, data.room_position_x, data.room_position_y, data.steps_remaining, env)
+        state_value_raw_logodds, _, _ = self.model.forward_multiclass(
+            map, data.room_mask, data.room_position_x, data.room_position_y, data.steps_remaining, env)
+
+        # loss = torch.nn.functional.binary_cross_entropy_with_logits(state_value_raw_logodds,
+        #                                                             data.door_connects.to(state_value_raw_logprobs.dtype))
+        loss = torch.nn.functional.binary_cross_entropy_with_logits(state_value_raw_logodds, teacher_probs) - \
+               torch.nn.functional.binary_cross_entropy_with_logits(teacher_logodds, teacher_probs)
+
+        self.optimizer.zero_grad()
+        self.grad_scaler.scale(loss).backward()
+
+        if self.sam_scale is not None:
+            for i, param in enumerate(self.model.parameters()):
+                param.data.copy_(saved_params[i])
+
+        self.grad_scaler.step(self.optimizer)
+        self.grad_scaler.update()
+        self.model.decay(self.decay_amount * self.optimizer.param_groups[0]['lr'])
+        self.model.project()
+        self.average_parameters.update(self.model.all_param_data())
+        return loss.item()
+
+    def train_distillation_batch_augmented(self, data: TrainingData, teacher_model: Model, num_candidates):
+        self.model.train()
+
+        if self.sam_scale is not None:
+            saved_params = [param.data.clone() for param in self.model.parameters()]
+            for param in self.model.parameters():
+                param.data += torch.randn_like(param.data) * self.sam_scale
+            self.model.project()
+
+        env = self.envs[0]
+        action_candidates = env.get_action_candidates(num_candidates, data.room_mask, data.room_position_x,
+                                                      data.room_position_y)
+        with torch.no_grad():
+            _, _, _, teacher_raw_logodds = self.forward_state_action(
+                teacher_model, data.room_mask, data.room_position_x, data.room_position_y,
+                action_candidates, data.steps_remaining, env_id=0)
+            teacher_probs = torch.sigmoid(teacher_raw_logodds)
+        _, _, _, raw_logodds = self.forward_state_action(
+            self.model, data.room_mask, data.room_position_x, data.room_position_y,
+            action_candidates, data.steps_remaining, env_id=0)
+
+        loss = torch.nn.functional.binary_cross_entropy_with_logits(raw_logodds, teacher_probs) - \
+               torch.nn.functional.binary_cross_entropy_with_logits(teacher_raw_logodds, teacher_probs)
+
         self.optimizer.zero_grad()
         self.grad_scaler.scale(loss).backward()
 

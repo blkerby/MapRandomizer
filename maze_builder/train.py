@@ -1,6 +1,5 @@
 # TODO:
-# - Instead of predicting total reward, predict probability for each room-door connection
-# - Instead of CNN, try using fully-connected network (using embeddings for room positions, instead of map)
+# - Bugfix: include last time-step in training
 # - try all-action approach again
 # - Use one-hot coding or embeddings (on tile/door types) instead of putting raw map data into convolutional layers
 # - For output probabilities, try using cumulative probabilities for each reward value and binary cross-entropy loss
@@ -11,6 +10,7 @@
 # - export better metrics, and maybe build some sort of database for them (e.g., SQLlite, or mongodb/sacred?)
 import concurrent.futures
 
+import shampoo
 import util
 import torch
 import math
@@ -107,6 +107,7 @@ def make_dummy_model():
                  map_stride=[],
                  map_kernel_size=[],
                  map_padding=[],
+                 room_embedding_width=1,
                  fc_widths=[]).to(device)
 
 
@@ -144,7 +145,7 @@ explore_eps = 0.01
 annealing_start = 147216
 annealing_time = 2048
 session.envs = envs
-pass_factor = 4.0
+pass_factor = 1.0
 print_freq = 8
 
 
@@ -184,7 +185,7 @@ while session.replay_buffer.size < session.replay_buffer.capacity:
 #     print(start, end, torch.mean(reward.to(torch.float32)))
 
 
-num_eval_rounds = session.replay_buffer.size // (num_envs * num_devices) // 16
+num_eval_rounds = session.replay_buffer.size // (num_envs * num_devices) // 64
 eval_data_list = []
 for j in range(num_eval_rounds):
     eval_data = session.generate_round(
@@ -208,41 +209,45 @@ eval_data = EpisodeData(
 # session.replay_buffer.episode_data.prob[:] = 1 / num_candidates
 
 # pickle.dump(session, open('init_session.pkl', 'wb'))
-pickle.dump(eval_data, open('eval_data.pkl', 'wb'))
+# pickle.dump(eval_data, open('eval_data2.pkl', 'wb'))
 
 # session = pickle.load(open('init_session.pkl', 'rb'))
-# eval_data = pickle.load(open('eval_data.pkl', 'rb'))
+eval_data = pickle.load(open('eval_data2.pkl', 'rb'))
 
 
-
+# teacher_model = session.model
 # session.network = make_network()
+num_eval_rounds = session.replay_buffer.size // (num_envs * num_devices) // 64
 session.model = Model(
     env_config=env_config,
     max_possible_reward=envs[0].max_reward,
-    map_channels=[32, 64, 128],
-    map_stride=[2, 2, 2],
-    map_kernel_size=[7, 3, 3],
-    map_padding=3 * [False],
-    fc_widths=[1024, 256, 64],
+    map_channels=[32, 64, 128, 256, 512],
+    map_stride=[2, 2, 2, 2, 2],
+    map_kernel_size=[7, 3, 3, 3, 3],
+    map_padding=5 * [False],
+    room_embedding_width=6,
+    fc_widths=[1024, 1024, 1024],
     global_dropout_p=0.0,
 ).to(device)
 session.model.state_value_lin.weight.data.zero_()
 session.model.state_value_lin.bias.data.zero_()
 logging.info(session.model)
+session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=session.average_parameters.beta)
 # session.optimizer = torch.optim.RMSprop(session.network.parameters(), lr=0.001, alpha=0.95)
-# session.optimizer = torch.optim.RMSprop(session.model.parameters(), lr=0.00005, alpha=0.99)
-session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.0001, betas=(0.995, 0.999), eps=1e-15)
+# session.optimizer = torch.optim.RMSprop(session.model.parameters(), lr=0.0002, alpha=0.99)
+session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.0001, betas=(0.95, 0.99), eps=1e-15)
+# session.optimizer = shampoo.Shampoo(session.model.parameters(), beta=0.999, lr=0.001, update_freq=50)
 # session.optimizer = torch.optim.SGD(session.network.parameters(), lr=0.0005)
 logging.info(session.optimizer)
-session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=session.average_parameters.beta)
 # session.optimizer = torch.optim.RMSprop(session.network.parameters(), lr=0.002, alpha=0.95)
-batch_size = 2 ** batch_size_pow0
+# batch_size = 2 ** batch_size_pow0
+batch_size = 1024
 eval_batch_size = 16
 num_steps = session.replay_buffer.capacity // num_envs
 num_train_batches = int(pass_factor * session.replay_buffer.capacity * episode_length // batch_size // num_steps)
 num_eval_batches = num_eval_rounds * num_envs // eval_batch_size
-print_freq = 16
-eval_freq = 16
+print_freq = 8
+eval_freq = print_freq
 save_freq = 128
 # for layer in session.network.global_dropout_layers:
 #     layer.p = 0.0
@@ -251,12 +256,14 @@ save_freq = 128
 total_loss = 0.0
 total_loss_cnt = 0
 # session.optimizer.param_groups[0]['lr'] = 0.99
-# session.optimizer.param_groups[0]['betas'] = (0.9, 0.999)
+session.optimizer.param_groups[0]['betas'] = (0.95, 0.999)
 session.average_parameters.beta = 0.99
-session.sam_scale = None  # 0.02
+session.sam_scale = None
+session.decay_amount = 0.5
+# session.model.global_dropout_p = 0.1
 
-lr0_init = 0.0001
-lr1_init = 0.0001
+lr0_init = 0.00005
+lr1_init = 0.00005
 # num_steps = 128
 num_total_batches = num_train_batches * num_steps
 logging.info("Initial training")
@@ -269,8 +276,10 @@ for k in range(1, num_steps + 1):
 
         data = session.replay_buffer.sample(batch_size, device=device)
         with util.DelayedKeyboardInterrupt():
-            total_loss += session.train_batch(data)
+            # total_loss += session.train_batch(data)
+            total_loss += session.train_distillation_batch_augmented(data, teacher_model, num_candidates=4)
             total_loss_cnt += 1
+            torch.cuda.synchronize(session.envs[0].device)
     if k % eval_freq == 0:
         total_eval_loss = 0.0
         total_eval_mse = 0.0
@@ -325,7 +334,7 @@ for i in range(16):
 
 # pickle.dump(session, open('init_session_trained.pkl', 'wb'))
 #
-# session = pickle.load(open('init_session_trained.pkl', 'rb'))
+session = pickle.load(open('init_session_trained.pkl', 'rb'))
 #
 # total_loss = 0.0
 # total_loss_cnt = 0
@@ -338,8 +347,10 @@ for i in range(16):
 # session = pickle.load(open('models/session-2021-09-06T14:32:27.585856.pkl-bk', 'rb'))
 # session = pickle.load(open('models/session-2021-09-06T20:45:44.685488.pkl', 'rb'))
 # session = pickle.load(open('models/session-2021-09-07T11:08:58.310112.pkl-bk', 'rb'))
-session = pickle.load(open('models/session-2021-09-08T17:44:34.840094.pkl-bk', 'rb'))
-
+# session = pickle.load(open('models/session-2021-09-09T08:34:57.448897.pkl-bk', 'rb'))
+# session = pickle.load(open('models/session-2021-09-10T11:37:28.697449.pkl-bk', 'rb'))
+session = pickle.load(open('models/session-2021-09-09T19:24:28.473375.pkl-bk', 'rb'))
+teacher_model = session.model
 #
 # session.envs = envs
 # session.model = session.model.to(device)
@@ -405,6 +416,7 @@ for i in range(100000):
         with util.DelayedKeyboardInterrupt():
             total_loss += session.train_batch(data)
             total_loss_cnt += 1
+            torch.cuda.synchronize(session.envs[0].device)
 
     if session.num_rounds % print_freq == 0:
         buffer_reward = session.replay_buffer.episode_data.reward[:session.replay_buffer.size].to(torch.float32)
@@ -450,6 +462,6 @@ for i in range(100000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             pickle.dump(session, open(pickle_name, 'wb'))
-            # pickle.dump(session, open(pickle_name + '-bk', 'wb'))
+            # pickle.dump(session, open(pickle_name + '-bad', 'wb'))
             # session.replay_buffer.episode_data = episode_data
             # session = pickle.load(open(pickle_name + '-bk2', 'rb'))

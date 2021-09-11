@@ -115,6 +115,7 @@ class MaxOut(torch.nn.Module):
 
 class Model(torch.nn.Module):
     def __init__(self, env_config, max_possible_reward, map_channels, map_stride, map_kernel_size, map_padding,
+                 room_embedding_width,
                  fc_widths,
                  map_dropout_p=0.0,
                  global_dropout_p=0.0):
@@ -124,10 +125,13 @@ class Model(torch.nn.Module):
         self.map_x = env_config.map_x + 1
         self.map_y = env_config.map_y + 1
         self.map_c = 4
+        self.room_embedding_width = room_embedding_width
         self.num_rooms = len(env_config.rooms) + 1
         self.map_dropout_p = map_dropout_p
         self.global_dropout_p = global_dropout_p
         common_act = torch.nn.SELU()
+
+        # self.room_embedding = torch.nn.Parameter(torch.randn([self.map_x * self.map_y, room_embedding_width]))
 
         self.map_conv_layers = torch.nn.ModuleList()
         self.map_act_layers = torch.nn.ModuleList()
@@ -153,13 +157,16 @@ class Model(torch.nn.Module):
 
         self.global_lin_layers = torch.nn.ModuleList()
         self.global_act_layers = torch.nn.ModuleList()
+        self.global_dropout_layers = torch.nn.ModuleList()
         # global_fc_widths = [(width * height * map_channels[-1]) + 1 + room_tensor.shape[0]] + global_fc_widths
         # fc_widths = [width * height * map_channels[-1]] + fc_widths
+        # fc_widths = [map_channels[-1] + 1 + self.num_rooms * room_embedding_width * 2] + fc_widths
         fc_widths = [map_channels[-1] + 1 + self.num_rooms] + fc_widths
         for i in range(len(fc_widths) - 1):
             lin = torch.nn.Linear(fc_widths[i], fc_widths[i + 1] * arity)
             self.global_lin_layers.append(lin)
             self.global_act_layers.append(common_act)
+            self.global_dropout_layers.append(torch.nn.Dropout(global_dropout_p))
         # self.state_value_lin = torch.nn.Linear(fc_widths[-1], max_possible_reward + 1)
         self.state_value_lin = torch.nn.Linear(fc_widths[-1], max_possible_reward * 2)
         self.project()
@@ -175,9 +182,22 @@ class Model(torch.nn.Module):
                 X = self.map_conv_layers[i](X)
                 X = self.map_act_layers[i](X)
 
+            # Room mask & position data
+            # room_position_i = room_position_y * self.map_x + room_position_x
+            # raw_room_embedding = self.room_embedding[room_position_i, :].to(X.dtype)
+            # room_embedding = (raw_room_embedding * room_mask.to(X.dtype).unsqueeze(2)).view(X.shape[0], -1)
+
+            # freq_multiplier_x = (2 ** torch.arange(self.room_embedding_width, device=X.device)).to(X.dtype).view(1, 1, -1) * math.pi / self.map_x
+            # freq_multiplier_y = (2 ** torch.arange(self.room_embedding_width, device=X.device)).to(X.dtype).view(1, 1, -1) * math.pi / self.map_y
+            # raw_room_embedding_x = torch.cos(room_position_x.to(X.dtype).unsqueeze(2) * freq_multiplier_x)
+            # raw_room_embedding_y = torch.cos(room_position_y.to(X.dtype).unsqueeze(2) * freq_multiplier_y)
+            # room_embedding_x = (raw_room_embedding_x * room_mask.to(X.dtype).unsqueeze(2)).view(X.shape[0], -1)
+            # room_embedding_y = (raw_room_embedding_y * room_mask.to(X.dtype).unsqueeze(2)).view(X.shape[0], -1)
+
             # Fully-connected layers on whole map data (starting with output of convolutional layers)
             X = self.map_global_pool(X)
             X = torch.cat([X, steps_remaining.view(-1, 1), room_mask], dim=1)
+            # X = torch.cat([X, steps_remaining.view(-1, 1), room_embedding_x, room_embedding_y], dim=1)
             for i in range(len(self.global_lin_layers)):
                 X = self.global_lin_layers[i](X)
                 X = self.global_act_layers[i](X)
