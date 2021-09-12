@@ -1,8 +1,28 @@
 from dataclasses import dataclass
 from typing import List, Optional
+from enum import Enum
 import torch
 
 from logic.areas import Area, SubArea
+
+class Direction(Enum):
+    LEFT = 0
+    RIGHT = 1
+    DOWN = 2
+    UP = 3
+
+class DoorSubtype(Enum):
+    NORMAL = 0
+    ELEVATOR = 1
+    SAND = 2
+
+@dataclass
+class DoorIdentifier:
+    direction: Direction
+    x: int
+    y: int
+    room_id: int
+    subtype: DoorSubtype = DoorSubtype.NORMAL
 
 @dataclass
 class Room:
@@ -25,6 +45,7 @@ class Room:
     width: Optional[int] = None
     area: Optional[Area] = None
     sub_area: Optional[SubArea] = None
+    door_ids: List[DoorIdentifier]
 
     def populate(self):
         self.height = len(self.map)
