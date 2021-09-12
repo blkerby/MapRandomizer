@@ -30,7 +30,8 @@ device = torch.device('cpu')
 # session = CPU_Unpickler(open('models/session-2021-08-22T22:26:53.639110.pkl', 'rb')).load()
 # session = CPU_Unpickler(open('models/session-2021-08-23T09:55:29.550930.pkl', 'rb')).load()
 # session = CPU_Unpickler(open('models/09-04-session-2021-09-01T20:36:53.060639.pkl', 'rb')).load()
-session = CPU_Unpickler(open('models/09-09-session-2021-09-08T17:44:34.840094.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/09-09-session-2021-09-08T17:44:34.840094.pkl', 'rb')).load()
+session = CPU_Unpickler(open('models/09-12-session-2021-09-11T16:47:23.572372.pkl', 'rb')).load()
 
 # ind = torch.nonzero(session.replay_buffer.episode_data.reward == 289)
 # i = 1845
@@ -59,8 +60,8 @@ episode_length = len(rooms)
 session.env = None
 session.envs = [env]
 num_candidates = 32
-temperature = 0.02
-torch.manual_seed(13)
+temperature = 0.005
+torch.manual_seed(0)
 max_possible_reward = env.max_reward
 start_time = time.perf_counter()
 executor = concurrent.futures.ThreadPoolExecutor(1)
@@ -78,6 +79,7 @@ for i in range(10000):
     max_reward, max_reward_ind = torch.max(reward, dim=0)
     num_passes = torch.sum(data.action == len(rooms))
     logging.info("{}: doors={}, rooms={}".format(i, max_possible_reward - max_reward, num_passes))
+    # logging.info("{}: {}".format(i, (max_possible_reward - reward).tolist()))
     if max_possible_reward - max_reward.item() == 0:
         break
     # time.sleep(5)

@@ -53,7 +53,7 @@ class ReplayBuffer:
     def sample(self, n, device: torch.device) -> TrainingData:
         episode_length = self.episode_data.action.shape[1]
         episode_indices = torch.randint(high=self.size, size=[n])
-        step_indices = torch.randint(high=episode_length, size=[n])
+        step_indices = torch.randint(high=episode_length + 1, size=[n])
         reward = self.episode_data.reward[episode_indices]
         door_connects = self.episode_data.door_connects[episode_indices, :]
         action = self.episode_data.action[episode_indices, :, :].to(torch.int64)

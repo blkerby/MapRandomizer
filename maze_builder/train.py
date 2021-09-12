@@ -1,8 +1,6 @@
 # TODO:
-# - Bugfix: include last time-step in training
 # - try all-action approach again
 # - Use one-hot coding or embeddings (on tile/door types) instead of putting raw map data into convolutional layers
-# - For output probabilities, try using cumulative probabilities for each reward value and binary cross-entropy loss
 # - idea for activation: variation of ReLU where on the right the slope starts at a value >1 and then changes to a
 #   <1 at a certain point (for self-normalization), e.g. sqrt(max(0, x) + 1/4) - 1/2
 # - try curriculum learning, starting with small subsets of rooms and ramping up
@@ -96,7 +94,7 @@ envs = [MazeBuilderEnv(rooms,
                      must_areas_be_connected=False)
         for device in devices]
 
-max_possible_reward = torch.sum(envs[0].room_door_count) // 2
+max_possible_reward = torch.sum(envs[0].room_door_count).item() // 2
 logging.info("max_possible_reward = {}".format(max_possible_reward))
 
 
@@ -134,18 +132,18 @@ batch_size_pow0 = 11
 batch_size_pow1 = 11
 lr0 = 0.0001
 lr1 = 0.0001
-num_candidates0 = 16
-num_candidates1 = 16
+num_candidates0 = 17
+num_candidates1 = 32
 num_candidates = num_candidates0
 # temperature0 = 10.0
 # temperature1 = 0.01
-temperature0 = 0.02
-temperature1 = 0.02
-explore_eps = 0.01
-annealing_start = 147216
-annealing_time = 2048
-session.envs = envs
-pass_factor = 1.0
+temperature0 = 0.002
+temperature1 = 0.002
+explore_eps = 0.0
+annealing_start = 23424
+annealing_time = 1024
+# session.envs = envs
+pass_factor = 4.0
 print_freq = 8
 
 
@@ -221,14 +219,25 @@ num_eval_rounds = session.replay_buffer.size // (num_envs * num_devices) // 64
 session.model = Model(
     env_config=env_config,
     max_possible_reward=envs[0].max_reward,
-    map_channels=[32, 64, 128, 256, 512],
-    map_stride=[2, 2, 2, 2, 2],
-    map_kernel_size=[7, 3, 3, 3, 3],
-    map_padding=5 * [False],
+    map_channels=[32, 64, 128],
+    map_stride=[2, 2, 2],
+    map_kernel_size=[7, 3, 3],
+    map_padding=3 * [False],
     room_embedding_width=6,
-    fc_widths=[1024, 1024, 1024],
+    fc_widths=[1024, 256, 64],
     global_dropout_p=0.0,
 ).to(device)
+# session.model = Model(
+#     env_config=env_config,
+#     max_possible_reward=envs[0].max_reward,
+#     map_channels=[32, 64, 128, 256, 512],
+#     map_stride=[2, 2, 2, 2, 2],
+#     map_kernel_size=[7, 3, 3, 3, 3],
+#     map_padding=5 * [False],
+#     room_embedding_width=6,
+#     fc_widths=[1024, 1024, 1024],
+#     global_dropout_p=0.0,
+# ).to(device)
 session.model.state_value_lin.weight.data.zero_()
 session.model.state_value_lin.bias.data.zero_()
 logging.info(session.model)
@@ -240,8 +249,8 @@ session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.0001, beta
 # session.optimizer = torch.optim.SGD(session.network.parameters(), lr=0.0005)
 logging.info(session.optimizer)
 # session.optimizer = torch.optim.RMSprop(session.network.parameters(), lr=0.002, alpha=0.95)
-# batch_size = 2 ** batch_size_pow0
-batch_size = 1024
+batch_size = 2 ** batch_size_pow0
+# batch_size = 1024
 eval_batch_size = 16
 num_steps = session.replay_buffer.capacity // num_envs
 num_train_batches = int(pass_factor * session.replay_buffer.capacity * episode_length // batch_size // num_steps)
@@ -256,10 +265,10 @@ save_freq = 128
 total_loss = 0.0
 total_loss_cnt = 0
 # session.optimizer.param_groups[0]['lr'] = 0.99
-session.optimizer.param_groups[0]['betas'] = (0.95, 0.999)
+# session.optimizer.param_groups[0]['betas'] = (0.95, 0.999)
 session.average_parameters.beta = 0.99
 session.sam_scale = None
-session.decay_amount = 0.5
+session.decay_amount = 0.0
 # session.model.global_dropout_p = 0.1
 
 lr0_init = 0.00005
@@ -349,8 +358,10 @@ session = pickle.load(open('init_session_trained.pkl', 'rb'))
 # session = pickle.load(open('models/session-2021-09-07T11:08:58.310112.pkl-bk', 'rb'))
 # session = pickle.load(open('models/session-2021-09-09T08:34:57.448897.pkl-bk', 'rb'))
 # session = pickle.load(open('models/session-2021-09-10T11:37:28.697449.pkl-bk', 'rb'))
-session = pickle.load(open('models/session-2021-09-09T19:24:28.473375.pkl-bk', 'rb'))
-teacher_model = session.model
+# session = pickle.load(open('models/session-2021-09-09T19:24:28.473375.pkl-bk', 'rb'))
+session = pickle.load(open('models/session-2021-09-11T11:41:25.448242.pkl', 'rb'))
+#
+# teacher_model = session.model
 #
 # session.envs = envs
 # session.model = session.model.to(device)
@@ -371,18 +382,22 @@ teacher_model = session.model
 # session.average_parameters.shadow_params = [p.to(device) for p in session.average_parameters.shadow_params]
 # session.replay_buffer.episode_data.door_connects = torch.zeros([262144, 578], dtype=torch.bool)
 
-print_freq = 8
+print_freq = 4
 total_reward = 0
 total_loss = 0.0
 total_loss_cnt = 0
 total_test_loss = 0.0
 total_prob = 0.0
 total_round_cnt = 0
+
+min_door_value = max_possible_reward
+total_min_door_frac = 0
 logging.info("Checkpoint path: {}".format(pickle_name))
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
 logging.info(
-    "map_x={}, map_y={}, num_envs={}, num_candidates={}, replay_size={}/{}, num_params={}, decay_amount={}".format(
-        map_x, map_y, session.envs[0].num_envs, num_candidates, session.replay_buffer.size, session.replay_buffer.capacity, num_params, session.decay_amount))
+    "map_x={}, map_y={}, num_envs={}, num_candidates={}, replay_size={}/{}, num_params={}, decay_amount={}, temp1={}, eps={}".format(
+        map_x, map_y, session.envs[0].num_envs, num_candidates, session.replay_buffer.size, session.replay_buffer.capacity, num_params, session.decay_amount,
+        temperature1, explore_eps))
 logging.info("Starting training")
 for i in range(100000):
     frac = max(0, min(1, (session.num_rounds - annealing_start) / annealing_time))
@@ -408,6 +423,12 @@ for i in range(100000):
     total_prob += torch.mean(data.prob)
     total_round_cnt += 1
 
+    min_door_tmp = (max_possible_reward - torch.max(data.reward)).item()
+    if min_door_tmp < min_door_value:
+        min_door_value = min_door_tmp
+        total_min_door_frac = 0
+    if min_door_tmp == min_door_value:
+        total_min_door_frac += torch.mean((data.reward == max_possible_reward - min_door_value).to(torch.float32)).item()
     session.num_rounds += 1
 
     num_batches = max(1, int(pass_factor * num_envs * episode_length / batch_size))
@@ -432,27 +453,31 @@ for i in range(100000):
         new_reward = total_reward / total_round_cnt
         new_test_loss = total_test_loss / total_round_cnt
         new_prob = total_prob / total_round_cnt
+        min_door_frac = total_min_door_frac / total_round_cnt
         total_reward = 0
         total_test_loss = 0.0
         total_prob = 0.0
         total_round_cnt = 0
+        total_min_door_frac = 0
 
         buffer_is_pass = session.replay_buffer.episode_data.action[:session.replay_buffer.size, :, 0] == len(envs[0].rooms) - 1
         buffer_mean_pass = torch.mean(buffer_is_pass.to(torch.float32))
         buffer_mean_rooms_missing = buffer_mean_pass * len(rooms)
 
         logging.info(
-            "{}: doors={:.3f} (min={:d}, frac={:.6f}), rooms={:.3f}, test={:.5f}, p={:.6f} | loss={:.5f}, doors={:.3f}, test={:.5f}, p={:.6f}, temp={:.4f}, nc={}".format(
+            "{}: doors={:.3f} (min={:d}, frac={:.6f}), rooms={:.3f}, test={:.5f} | loss={:.5f}, doors={:.3f} (min={:d}, frac={:.4f}), test={:.5f}, p={:.6f}, nc={}".format(
                 session.num_rounds, max_possible_reward - buffer_mean_reward, max_possible_reward - buffer_max_reward,
                 buffer_frac_max_reward,
                 buffer_mean_rooms_missing,
                 buffer_test_loss,
-                buffer_prob,
+                # buffer_prob,
                 new_loss,
                 max_possible_reward - new_reward,
+                min_door_value,
+                min_door_frac,
                 new_test_loss,
                 new_prob,
-                temperature,
+                # temperature,
                 num_candidates))
         total_loss = 0.0
         total_loss_cnt = 0
@@ -462,6 +487,6 @@ for i in range(100000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             pickle.dump(session, open(pickle_name, 'wb'))
-            # pickle.dump(session, open(pickle_name + '-bad', 'wb'))
+            # pickle.dump(session, open(pickle_name + '-bk5', 'wb'))
             # session.replay_buffer.episode_data = episode_data
-            # session = pickle.load(open(pickle_name + '-bk2', 'rb'))
+            # session = pickle.load(open(pickle_name + '-bk4', 'rb'))
