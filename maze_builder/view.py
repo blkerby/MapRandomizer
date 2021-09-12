@@ -60,7 +60,7 @@ episode_length = len(rooms)
 session.env = None
 session.envs = [env]
 num_candidates = 32
-temperature = 0.005
+temperature = 1e-5
 torch.manual_seed(0)
 max_possible_reward = env.max_reward
 start_time = time.perf_counter()

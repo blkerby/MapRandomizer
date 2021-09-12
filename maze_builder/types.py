@@ -45,7 +45,7 @@ class Room:
     width: Optional[int] = None
     area: Optional[Area] = None
     sub_area: Optional[SubArea] = None
-    door_ids: List[DoorIdentifier]
+    door_ids: List[DoorIdentifier] = None
 
     def populate(self):
         self.height = len(self.map)
