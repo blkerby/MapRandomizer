@@ -44,8 +44,8 @@ import logic.rooms.brinstar_pink
 import logic.rooms.brinstar_green
 import logic.rooms.brinstar_red
 import logic.rooms.brinstar_blue
-import logic.rooms.maridia_lower
-import logic.rooms.maridia_upper
+import logic.rooms.maridia_outer
+import logic.rooms.maridia_inner
 
 # device = torch.device('cpu')
 devices = [torch.device('cuda:1'), torch.device('cuda:0')]

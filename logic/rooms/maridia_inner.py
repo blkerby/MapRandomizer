@@ -703,4 +703,4 @@ rooms = [
 
 for room in rooms:
     room.area = Area.MARIDIA
-    room.sub_area = SubArea.UPPER_MARIDIA
+    room.sub_area = SubArea.INNER_MARIDIA

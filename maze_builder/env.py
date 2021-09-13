@@ -61,8 +61,8 @@ class MazeBuilderEnv:
             SubArea.RED_BRINSTAR_AND_WAREHOUSE: (0x60, 0xc0, 0x60),
             SubArea.UPPER_NORFAIR: (0xff, 0x80, 0x80),
             SubArea.LOWER_NORFAIR: (0xc0, 0x60, 0x60),
-            SubArea.LOWER_MARIDIA: (0x80, 0x80, 0xff),
-            SubArea.UPPER_MARIDIA: (0x60, 0x60, 0xc0),
+            SubArea.OUTER_MARIDIA: (0x80, 0x80, 0xff),
+            SubArea.INNER_MARIDIA: (0x60, 0x60, 0xc0),
             SubArea.WRECKED_SHIP: (0xff, 0xff, 0x80),
             SubArea.TOURIAN: (0xc0, 0xc0, 0xc0),
         }
