@@ -21,7 +21,7 @@ class DoorIdentifier:
     direction: Direction
     x: int
     y: int
-    room_id: int
+    exit_ptr: Optional[int]
     subtype: DoorSubtype = DoorSubtype.NORMAL
 
 @dataclass
@@ -45,7 +45,7 @@ class Room:
     width: Optional[int] = None
     area: Optional[Area] = None
     sub_area: Optional[SubArea] = None
-    door_ids: List[DoorIdentifier] = None
+    door_ids: List[DoorIdentifier]
 
     def populate(self):
         self.height = len(self.map)
