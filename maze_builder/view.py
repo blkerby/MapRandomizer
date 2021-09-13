@@ -4,7 +4,6 @@ import torch
 import logging
 from maze_builder.env import MazeBuilderEnv
 from maze_builder.types import reconstruct_room_data
-import logic.rooms.crateria_isolated
 import logic.rooms.all_rooms
 import pickle
 import concurrent.futures
