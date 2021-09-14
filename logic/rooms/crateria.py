@@ -205,7 +205,7 @@ rooms = [
         door_right=[[0, 0, 1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x18BCE),
-            DoorIdentifier(RIGHT, 0, 0, 0x18BDA),
+            DoorIdentifier(RIGHT, 2, 0, 0x18BDA),
         ]
     ),
     Room(
@@ -545,10 +545,11 @@ rooms = [
             [1, 1, 1, 1, 1, 1, 1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 5, 0, 0x18B26),
+            DoorIdentifier(LEFT, 5, 2, 0x18B26),
             DoorIdentifier(LEFT, 0, 4, 0x189CA),
             DoorIdentifier(RIGHT, 7, 0, 0x189EE),
             DoorIdentifier(RIGHT, 7, 1, 0x189FA),
+            DoorIdentifier(RIGHT, 2, 2, 0x189E2),
             DoorIdentifier(RIGHT, 5, 2, 0x18B32),
             DoorIdentifier(RIGHT, 5, 3, 0x18A06),
             DoorIdentifier(RIGHT, 7, 4, 0x189D6),

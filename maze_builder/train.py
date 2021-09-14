@@ -130,8 +130,8 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 
 batch_size_pow0 = 11
 batch_size_pow1 = 11
-lr0 = 0.0001
-lr1 = 0.0001
+lr0 = 0.00005
+lr1 = 0.00005
 num_candidates0 = 17
 num_candidates1 = 32
 num_candidates = num_candidates0

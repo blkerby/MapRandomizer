@@ -30,7 +30,7 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1922E),
             DoorIdentifier(RIGHT, 2, 0, 0x1923A),
-            DoorIdentifier(DOWN, 0, 1, 0x19246),
+            DoorIdentifier(DOWN, 0, 1, 0x19246, ELEVATOR),
         ],
     ),
     Room(

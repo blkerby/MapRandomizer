@@ -531,8 +531,8 @@ rooms = [
             [1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 5, 0, 0x1A57C),
-            DoorIdentifier(RIGHT, 4, 0, 0x1A588),
+            DoorIdentifier(LEFT, 0, 5, 0x1A57C),
+            DoorIdentifier(RIGHT, 0, 4, 0x1A588),
             DoorIdentifier(UP, 0, 0, 0x1A594, ELEVATOR)
         ],
         door_left=[

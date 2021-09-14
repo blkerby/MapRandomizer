@@ -26,7 +26,7 @@ class DoorData:
 class MazeBuilderEnv:
     def __init__(self, rooms: List[Room], map_x: int, map_y: int, num_envs: int, must_areas_be_connected: bool, device):
         self.device = device
-        rooms = rooms + [Room(name='Dummy room', map=[[]], sub_area=SubArea.CRATERIA_AND_BLUE_BRINSTAR)]
+        rooms = rooms + [Room(name='Dummy room', map=[[]], door_ids=[], sub_area=SubArea.CRATERIA_AND_BLUE_BRINSTAR)]
         for room in rooms:
             room.populate()
 

@@ -170,7 +170,7 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x199F6),
             DoorIdentifier(RIGHT, 0, 0, 0x19A02),
             DoorIdentifier(RIGHT, 0, 3, 0x19A0E),
-            DoorIdentifier(DOWN, 2, 5, 0x199EA),
+            DoorIdentifier(DOWN, 2, 4, 0x199EA),
         ],
     ),
     Room(
