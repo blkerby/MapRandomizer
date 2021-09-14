@@ -23,30 +23,6 @@ rooms = [
             [1],
             [1],
         ],
-        door_left=[
-            [0],
-            [0],
-            [0],
-            [0],
-            [1],
-            [0],
-            [1],
-            [0],
-            [0],
-            [1],
-        ],
-        door_right=[
-            [1],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [1],
-        ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 4, 0x1902A),
             DoorIdentifier(LEFT, 0, 6, 0x19036),
@@ -62,14 +38,6 @@ rooms = [
             [1, 1, 1, 1, 1, 1, 1, 1],
             [1, 1, 0, 0, 1, 1, 0, 0],
         ],
-        door_left=[
-            [1, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-        ],
-        door_right=[
-            [0, 0, 0, 0, 0, 0, 0, 1],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-        ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1905A),
             DoorIdentifier(RIGHT, 7, 0, 0x19066),
@@ -79,7 +47,6 @@ rooms = [
         name='X-Ray Scope Room',
         rom_address=0x7A2CE,
         map=[[1, 1]],
-        door_right=[[0, 1]],
         door_ids=[
             DoorIdentifier(RIGHT, 1, 0, 0x19072),
         ],
@@ -88,8 +55,6 @@ rooms = [
         name='Bat Room',
         rom_address=0x7A3DD,
         map=[[1, 1]],
-        door_left=[[1, 0]],
-        door_right=[[0, 1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x190F6),
             DoorIdentifier(RIGHT, 1, 0, 0x19102),
@@ -102,14 +67,6 @@ rooms = [
             [1, 1],
             [1, 1],
         ],
-        door_left=[
-            [0, 0],
-            [1, 0],
-        ],
-        door_right=[
-            [0, 1],
-            [0, 1],
-        ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 1, 0x1910E),
             DoorIdentifier(RIGHT, 1, 0, 0x19126),
@@ -120,7 +77,6 @@ rooms = [
         name='Spazer Room',
         rom_address=0x7A447,
         map=[[1]],
-        door_left=[[1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x19132),
         ],
@@ -129,8 +85,6 @@ rooms = [
         name='Hellway',
         rom_address=0x7A2F7,
         map=[[1, 1, 1]],
-        door_left=[[1, 0, 0]],
-        door_right=[[0, 0, 1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1907E),
             DoorIdentifier(RIGHT, 2, 0, 0x1908A),
@@ -149,36 +103,6 @@ rooms = [
             [1, 0, 0],
             [1, 0, 0],
         ],
-        door_left=[
-            [0, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0],
-            [1, 0, 0],
-            [0, 0, 0],
-            [1, 0, 0],
-            [0, 0, 0],
-            [1, 0, 0],
-        ],
-        door_right=[
-            [0, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0],
-            [0, 0, 1],
-            [1, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0],
-        ],
-        elevator_up=[
-            [1, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0],
-        ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 3, 0x190A2),
             DoorIdentifier(LEFT, 0, 5, 0x190AE),
@@ -192,7 +116,6 @@ rooms = [
         name='Alpha Power Bomb Room',
         rom_address=0x7A3AE,
         map=[[1, 1, 1]],
-        door_right=[[0, 0, 1]],
         door_ids=[
             DoorIdentifier(RIGHT, 2, 0, 0x190EA),
         ],
@@ -204,10 +127,6 @@ rooms = [
             [1, 1],
             [1, 0],
         ],
-        door_right=[
-            [0, 1],
-            [0, 0],
-        ],
         door_ids=[
             DoorIdentifier(RIGHT, 1, 0, 0x190DE),
         ],
@@ -217,7 +136,6 @@ rooms = [
         name='Caterpillar Save Room',
         rom_address=0x7A734,
         map=[[1]],
-        door_left=[[1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1926A),
         ],
@@ -227,7 +145,6 @@ rooms = [
         name='Sloaters Refill',
         rom_address=0x7A618,
         map=[[1]],
-        door_right=[[1]],
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x191FE),
         ],

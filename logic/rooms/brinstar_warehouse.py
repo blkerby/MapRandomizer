@@ -15,18 +15,6 @@ rooms = [
             [1, 1, 1],
             [1, 1, 0],
         ],
-        door_left=[
-            [1, 0, 0],
-            [0, 0, 0],
-        ],
-        door_right=[
-            [0, 0, 1],
-            [0, 0, 0],
-        ],
-        elevator_down=[
-            [0, 0, 0],
-            [1, 0, 0],
-        ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1922E),
             DoorIdentifier(RIGHT, 2, 0, 0x1923A),
@@ -40,14 +28,6 @@ rooms = [
             [1, 0],
             [1, 1],
         ],
-        door_left=[
-            [1, 0],
-            [1, 0],
-        ],
-        door_up=[
-            [0, 0],
-            [0, 1],
-        ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1913E),
             DoorIdentifier(LEFT, 0, 1, 0x1914A),
@@ -58,7 +38,6 @@ rooms = [
         name='Warehouse Energy Tank Room',
         rom_address=0x7A4B1,
         map=[[1]],
-        door_right=[[1]],
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x19162),
         ],
@@ -69,14 +48,6 @@ rooms = [
         map=[
             [1, 1, 1, 1],
             [0, 1, 0, 0],
-        ],
-        door_right=[
-            [0, 0, 0, 1],
-            [0, 1, 0, 0],
-        ],
-        door_down=[
-            [1, 0, 0, 0],
-            [0, 0, 0, 0],
         ],
         door_ids=[
             DoorIdentifier(RIGHT, 3, 0, 0x19186),
@@ -89,7 +60,6 @@ rooms = [
         name='Warehouse Save Room',
         rom_address=0x7A70B,
         map=[[1]],
-        door_left=[[1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1925E),
         ],
@@ -98,8 +68,6 @@ rooms = [
         name='Baby Kraid Room',
         rom_address=0x7A521,
         map=[[1, 1, 1, 1, 1, 1]],
-        door_left=[[1, 0, 0, 0, 0, 0]],
-        door_right=[[0, 0, 0, 0, 0, 1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x19192),
             DoorIdentifier(RIGHT, 5, 0, 0x1919E),
@@ -112,14 +80,6 @@ rooms = [
             [1, 0],
             [1, 1],
         ],
-        door_left=[
-            [0, 0],
-            [1, 0],
-        ],
-        door_right=[
-            [1, 0],
-            [0, 1],
-        ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 1, 0x191AA),
             DoorIdentifier(RIGHT, 0, 0, 0x191C2),
@@ -131,7 +91,6 @@ rooms = [
         name='Kraid Recharge Station',
         rom_address=0x7A641,
         map=[[1]],
-        door_left=[[1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1920A),
         ],
@@ -143,14 +102,6 @@ rooms = [
             [1, 1],
             [1, 1],
         ],
-        door_left=[
-            [0, 0],
-            [1, 0],
-        ],
-        door_right=[
-            [0, 0],
-            [0, 1],
-        ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 1, 0x191CE),
             DoorIdentifier(RIGHT, 1, 1, 0x191DA),
@@ -160,7 +111,6 @@ rooms = [
         name='Varia Suit Room',
         rom_address=0x7A6E2,
         map=[[1]],
-        door_left=[[1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x19252),
         ],

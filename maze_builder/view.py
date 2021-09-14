@@ -55,47 +55,47 @@ env = MazeBuilderEnv(rooms,
 # env.room_position_y = room_position_y
 # env.render()
 
+
+episode_length = len(rooms)
+session.env = None
+session.envs = [env]
+num_candidates = 32
+temperature = 1e-5
+torch.manual_seed(4)
+max_possible_reward = env.max_reward
+start_time = time.perf_counter()
+executor = concurrent.futures.ThreadPoolExecutor(1)
+for i in range(10000):
+    data = session.generate_round(
+        episode_length=episode_length,
+        num_candidates=num_candidates,
+        temperature=temperature,
+        explore_eps=0.0,
+        executor=executor,
+        render=False)
+        # render=True)
+    # reward = data[0]
+    reward = session.envs[0].reward()
+    max_reward, max_reward_ind = torch.max(reward, dim=0)
+    num_passes = torch.sum(data.action == len(rooms))
+    logging.info("{}: doors={}, rooms={}".format(i, max_possible_reward - max_reward, num_passes))
+    # logging.info("{}: {}".format(i, (max_possible_reward - reward).tolist()))
+    if max_possible_reward - max_reward.item() == 0:
+        break
+    # time.sleep(5)
+session.envs[0].render(max_reward_ind.item())
+end_time = time.perf_counter()
+print(end_time - start_time)
 #
-# episode_length = len(rooms)
-# session.env = None
-# session.envs = [env]
-# num_candidates = 32
-# temperature = 1e-5
-# torch.manual_seed(4)
-# max_possible_reward = env.max_reward
-# start_time = time.perf_counter()
-# executor = concurrent.futures.ThreadPoolExecutor(1)
-# for i in range(10000):
-#     data = session.generate_round(
-#         episode_length=episode_length,
-#         num_candidates=num_candidates,
-#         temperature=temperature,
-#         explore_eps=0.0,
-#         executor=executor,
-#         render=False)
-#         # render=True)
-#     # reward = data[0]
-#     reward = session.envs[0].reward()
-#     max_reward, max_reward_ind = torch.max(reward, dim=0)
-#     num_passes = torch.sum(data.action == len(rooms))
-#     logging.info("{}: doors={}, rooms={}".format(i, max_possible_reward - max_reward, num_passes))
-#     # logging.info("{}: {}".format(i, (max_possible_reward - reward).tolist()))
-#     if max_possible_reward - max_reward.item() == 0:
-#         break
-#     # time.sleep(5)
-# session.envs[0].render(max_reward_ind.item())
-# end_time = time.perf_counter()
-# print(end_time - start_time)
-# #
-# # extra_map_x = 50
-# # extra_map_y = 50
-# # extra_env = MazeBuilderEnv(rooms,
-# #                      map_x=extra_map_x,
-# #                      map_y=extra_map_y,
-# #                      num_envs=1,
-# #                      device=device,
-# #                      must_areas_be_connected=False)
-# # extra_env.room_mask = ~session.envs[0].room_mask
-# # extra_env.room_position_x = torch.randint(extra_map_x, [1, len(rooms) + 1])
-# # extra_env.room_position_y = torch.randint(extra_map_y, [1, len(rooms) + 1])
-# # extra_env.render()
+# extra_map_x = 50
+# extra_map_y = 50
+# extra_env = MazeBuilderEnv(rooms,
+#                      map_x=extra_map_x,
+#                      map_y=extra_map_y,
+#                      num_envs=1,
+#                      device=device,
+#                      must_areas_be_connected=False)
+# extra_env.room_mask = ~session.envs[0].room_mask
+# extra_env.room_position_x = torch.randint(extra_map_x, [1, len(rooms) + 1])
+# extra_env.room_position_y = torch.randint(extra_map_y, [1, len(rooms) + 1])
+# extra_env.render()

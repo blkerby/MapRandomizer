@@ -11,8 +11,6 @@ rooms = [
         name='Wrecked Ship Entrance',
         rom_address=0x7CA08,
         map=[[1, 1, 1, 1]],
-        door_left=[[1, 0, 0, 0]],
-        door_right=[[0, 0, 0, 1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1A1B0),
             DoorIdentifier(RIGHT, 3, 0, 0x1A1BC),
@@ -40,54 +38,11 @@ rooms = [
             DoorIdentifier(DOWN, 4, 7, 0x1A21C),
             DoorIdentifier(UP, 4, 0, 0x1A228),
         ],
-        door_left=[
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0],
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0],
-            [0, 0, 0, 0, 0, 0],
-        ],
-        door_right=[
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0],
-            [0, 0, 0, 0, 1, 0],
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 1],
-            [0, 0, 0, 0, 0, 0],
-        ],
-        door_down=[
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0],
-        ],
-        door_up=[
-            [0, 0, 0, 0, 1, 0],
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-        ],
     ),
     Room(
         name='Attic',
         rom_address=0x7CA52,
         map=[[1, 1, 1, 1, 1, 1, 1]],
-        door_left=[[1, 0, 0, 0, 0, 0, 0]],
-        door_right=[[0, 0, 0, 0, 0, 0, 1]],
-        door_down=[[0, 0, 0, 0, 1, 0, 0]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1A1E0),
             DoorIdentifier(RIGHT, 6, 0, 0x1A1D4),
@@ -98,9 +53,6 @@ rooms = [
         name='Basement',
         rom_address=0x7CC6F,
         map=[[1, 1, 1, 1, 1]],
-        door_left=[[1, 0, 0, 0, 0]],
-        door_right=[[0, 0, 0, 0, 1]],
-        door_up=[[0, 0, 1, 0, 0]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1A2A0),
             DoorIdentifier(RIGHT, 4, 0, 0x1A2AC),
@@ -111,7 +63,6 @@ rooms = [
         name='Wrecked Ship Map Room',
         rom_address=0x7CCCB,
         map=[[1]],
-        door_right=[[1]],
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x1A2B8),
         ],
@@ -120,7 +71,6 @@ rooms = [
         name="Phantoon's Room",
         rom_address=0x7CD13,
         map=[[1]],
-        door_left=[[1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1A2C4),
         ],
@@ -129,7 +79,6 @@ rooms = [
         name="Wrecked Ship West Super Room",
         rom_address=0x7CDA8,
         map=[[1]],
-        door_right=[[1]],
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x1A2E8),
         ],
@@ -142,11 +91,6 @@ rooms = [
             [1, 1, 1, 1, 1, 1],
             [0, 1, 1, 1, 1, 1],
         ],
-        door_left=[
-            [0, 0, 1, 0, 0, 0],
-            [1, 0, 0, 0, 0, 0],
-            [0, 1, 0, 0, 0, 0],
-        ],
         door_ids=[
             DoorIdentifier(LEFT, 2, 0, 0x1A18C),
             DoorIdentifier(LEFT, 0, 1, 0x1A198),
@@ -157,8 +101,6 @@ rooms = [
         name='Gravity Suit Room',
         rom_address=0x7CE40,
         map=[[1]],
-        door_left=[[1]],
-        door_right=[[1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1A300),
             DoorIdentifier(RIGHT, 0, 0, 0x1A30C),
@@ -168,7 +110,6 @@ rooms = [
         name='Wrecked Ship East Super Room',
         rom_address=0x7CDF1,
         map=[[1, 1, 1, 1]],
-        door_left=[[1, 0, 0, 0]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1A2F4),
         ],
@@ -177,8 +118,6 @@ rooms = [
         name='Sponge Bath',
         rom_address=0x7CD5C,
         map=[[1, 1]],
-        door_left=[[1, 0]],
-        door_right=[[0, 1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1A2D0),
             DoorIdentifier(RIGHT, 1, 0, 0x1A2DC),
@@ -188,8 +127,6 @@ rooms = [
         name='Spiky Death Room',
         rom_address=0x7CB8B,
         map=[[1, 1]],
-        door_left=[[1, 0]],
-        door_right=[[0, 1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1A24C),
             DoorIdentifier(RIGHT, 1, 0, 0x1A258),
@@ -202,16 +139,6 @@ rooms = [
             [1],
             [1],
             [1],
-        ],
-        door_left=[
-            [1],
-            [0],
-            [1],
-        ],
-        door_right=[
-            [0],
-            [1],
-            [0],
         ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1A27C),
@@ -226,10 +153,6 @@ rooms = [
             [1, 1, 1],
             [1, 1, 1],
         ],
-        door_right=[
-            [0, 0, 1],
-            [0, 0, 0],
-        ],
         door_ids=[
             DoorIdentifier(RIGHT, 2, 0, 0x1A288),
         ],
@@ -238,7 +161,6 @@ rooms = [
         name='Assembly Line',
         rom_address=0x7CAAE,
         map=[[1, 1, 1]],
-        door_left=[[1, 0, 0]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1A1EC),
         ],
@@ -247,7 +169,6 @@ rooms = [
         name='Wrecked Ship Save Room',
         rom_address=0x7CE8A,
         map=[[1]],
-        door_left=[[1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1A318),
         ],

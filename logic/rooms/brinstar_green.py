@@ -37,48 +37,6 @@ rooms = [
             DoorIdentifier(RIGHT, 0, 7, 0x18CEE),
             DoorIdentifier(UP, 0, 0, 0x18CA6, ELEVATOR),
         ],
-        door_left=[
-            [0, 0, 0, 0],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0],
-            [1, 0, 0, 0],
-            [1, 0, 0, 0],
-            [1, 0, 0, 0],
-            [0, 1, 0, 0],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0],
-            [1, 0, 0, 0],
-            [0, 0, 1, 0],
-        ],
-        door_right=[
-            [0, 0, 0, 0],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0],
-            [1, 0, 0, 0],
-            [0, 0, 0, 0],
-            [1, 0, 0, 0],
-            [1, 0, 0, 0],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0],
-        ],
-        elevator_up=[
-            [1, 0, 0, 0],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0],
-        ],
     ),
     Room(
         name='Early Supers Room',
@@ -86,14 +44,6 @@ rooms = [
         map=[
             [1, 1, 1],
             [1, 1, 1],
-        ],
-        door_left=[
-            [0, 0, 0],
-            [1, 0, 0],
-        ],
-        door_right=[
-            [0, 0, 0],
-            [0, 0, 1],
         ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 1, 0x18D4E),
@@ -104,7 +54,6 @@ rooms = [
         name='Brinstar Reserve Tank Room',
         rom_address=0x79C07,
         map=[[1, 1]],
-        door_left=[[1, 0]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x18D66),
         ],
@@ -113,8 +62,6 @@ rooms = [
         name='Brinstar Pre-Map Room',
         rom_address=0x79B9D,
         map=[[1, 1, 1]],
-        door_left=[[1, 0, 0]],
-        door_right=[[0, 0, 1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x18D36),
             DoorIdentifier(RIGHT, 2, 0, 0x18D42),
@@ -124,7 +71,6 @@ rooms = [
         name='Brinstar Map Room',
         rom_address=0x79C35,
         map=[[1]],
-        door_right=[[1]],
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x18D72),
         ],
@@ -136,14 +82,6 @@ rooms = [
             [1, 1, 1],
             [1, 1, 0],
         ],
-        door_left=[
-            [0, 0, 0],
-            [1, 0, 0],
-        ],
-        door_right=[
-            [0, 0, 1],
-            [0, 0, 0],
-        ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 1, 0x18D7E),
             DoorIdentifier(RIGHT, 2, 0, 0x18D8A),
@@ -154,7 +92,6 @@ rooms = [
         name='Green Brinstar Missile Refill Room',
         rom_address=0x79C89,
         map=[[1]],
-        door_right=[[1]],
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x18D96),
         ],
@@ -164,7 +101,6 @@ rooms = [
         name='Green Brinstar Main Shaft Save Room',
         rom_address=0x7A201,
         map=[[1]],
-        door_right=[[1]],
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x19006),
         ]
@@ -174,7 +110,6 @@ rooms = [
         name='Etecoon Save Room',
         rom_address=0x7A22A,
         map=[[1]],
-        door_right=[[1]],
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x19012),
         ],
@@ -183,8 +118,6 @@ rooms = [
         name='Green Brinstar Beetom Room',
         rom_address=0x79FE5,
         map=[[1]],
-        door_left=[[1]],
-        door_right=[[1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x18F22),
             DoorIdentifier(RIGHT, 0, 0, 0x18F16),
@@ -197,14 +130,6 @@ rooms = [
             [1, 1, 0, 0, 0],
             [1, 1, 1, 1, 1],
         ],
-        door_left=[
-            [1, 0, 0, 0, 0],
-            [1, 0, 0, 0, 0],
-        ],
-        door_right=[
-            [0, 1, 0, 0, 0],
-            [0, 0, 0, 0, 1],
-        ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x18F3A),
             DoorIdentifier(LEFT, 0, 1, 0x18F52),
@@ -216,7 +141,6 @@ rooms = [
         name='Etecoon Super Room',
         rom_address=0x7A051,
         map=[[1]],
-        door_right=[[1]],
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x18F5E),
         ],
@@ -230,18 +154,6 @@ rooms = [
             [0, 0, 1, 1, 1, 1, 0, 0],
             [0, 0, 0, 0, 1, 1, 1, 1],
         ],
-        door_left=[
-            [1, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-        ],
-        door_right=[
-            [0, 1, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 1],
-        ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x18E7A),
             DoorIdentifier(RIGHT, 1, 0, 0x18E86),
@@ -252,8 +164,6 @@ rooms = [
         name='Noob Bridge',
         rom_address=0x79FBA,
         map=[[1, 1, 1, 1, 1, 1]],
-        door_left=[[1, 0, 0, 0, 0, 0]],
-        door_right=[[0, 0, 0, 0, 0, 1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x18EFE),
             DoorIdentifier(RIGHT, 5, 0, 0x18F0A),
@@ -263,8 +173,6 @@ rooms = [
         name='Spore Spawn Kihunter Room',
         rom_address=0x79D9C,
         map=[[1, 1, 1, 1]],
-        door_left=[[1, 0, 0, 0]],
-        door_up=[[0, 0, 0, 1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x18E32),
             DoorIdentifier(UP, 3, 0, 0x18E3E),
@@ -276,16 +184,6 @@ rooms = [
         map=[
             [1],
             [1],
-            [1],
-        ],
-        door_right=[
-            [1],
-            [0],
-            [0],
-        ],
-        door_down=[
-            [0],
-            [0],
             [1],
         ],
         door_ids=[

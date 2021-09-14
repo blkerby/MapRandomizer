@@ -65,14 +65,14 @@ class MapDisplay:
                     self.canvas.create_text(x0, y0, text=UP_ARROW, font=self.font)
                 if room.door_down[i][j] == 1:
                     self.canvas.create_text(x0, y0, text=DOWN_ARROW, font=self.font)
-                if room.external_door_left[i][j] == 1:
-                    self.canvas.create_text(x0, y0, text=LEFT_DOUBLE_ARROW, font=self.font)
-                if room.external_door_right[i][j] == 1:
-                    self.canvas.create_text(x0, y0, text=RIGHT_DOUBLE_ARROW, font=self.font)
-                if room.external_door_up[i][j] == 1:
-                    self.canvas.create_text(x0, y0, text=UP_DOUBLE_ARROW, font=self.font)
-                if room.external_door_down[i][j] == 1:
-                    self.canvas.create_text(x0, y0, text=DOWN_DOUBLE_ARROW, font=self.font)
+                # if room.external_door_left[i][j] == 1:
+                #     self.canvas.create_text(x0, y0, text=LEFT_DOUBLE_ARROW, font=self.font)
+                # if room.external_door_right[i][j] == 1:
+                #     self.canvas.create_text(x0, y0, text=RIGHT_DOUBLE_ARROW, font=self.font)
+                # if room.external_door_up[i][j] == 1:
+                #     self.canvas.create_text(x0, y0, text=UP_DOUBLE_ARROW, font=self.font)
+                # if room.external_door_down[i][j] == 1:
+                #     self.canvas.create_text(x0, y0, text=DOWN_DOUBLE_ARROW, font=self.font)
                 if room.elevator_up[i][j] == 1:
                     self.canvas.create_text(x0, y0, text=UP_WHITE_ARROW, font=self.font)
                 if room.elevator_down[i][j] == 1:

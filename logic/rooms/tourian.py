@@ -17,24 +17,6 @@ rooms = [
             [1],
             [1]
         ],
-        door_left=[
-            [0],
-            [0],
-            [0],
-            [1]
-        ],
-        door_right=[
-            [0],
-            [0],
-            [0],
-            [1]
-        ],
-        elevator_up=[
-            [1],
-            [0],
-            [0],
-            [0]
-        ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 3, 0x1A984),
             DoorIdentifier(RIGHT, 0, 3, 0x1A99C),
@@ -45,7 +27,6 @@ rooms = [
         name='Upper Tourian Save Room',
         rom_address=0x7DF1B,
         map=[[1]],
-        door_left=[[1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1AB40),
         ],
@@ -54,8 +35,6 @@ rooms = [
         name='Metroid Room 1',
         rom_address=0x7DAE1,
         map=[[1, 1, 1, 1, 1, 1]],
-        door_left=[[1, 0, 0, 0, 0, 0]],
-        door_right=[[0, 0, 0, 0, 0, 1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1A9B4),
             DoorIdentifier(RIGHT, 5, 0, 0x1A9A8),
@@ -68,10 +47,6 @@ rooms = [
             [1],
             [1],
         ],
-        door_right=[
-            [1],
-            [1],
-        ],
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x1A9C0),
             DoorIdentifier(RIGHT, 0, 1, 0x1A9CC),
@@ -81,8 +56,6 @@ rooms = [
         name='Metroid Room 3',
         rom_address=0x7DB7D,
         map=[[1, 1, 1, 1, 1, 1]],
-        door_left=[[1, 0, 0, 0, 0, 0]],
-        door_right=[[0, 0, 0, 0, 0, 1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1A9D8),
             DoorIdentifier(RIGHT, 5, 0, 0x1A9E4),
@@ -95,14 +68,6 @@ rooms = [
             [1],
             [1],
         ],
-        door_left=[
-            [1],
-            [0],
-        ],
-        door_down=[
-            [0],
-            [1],
-        ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1A9F0),
             DoorIdentifier(DOWN, 0, 1, 0x1A9FC),
@@ -112,8 +77,6 @@ rooms = [
         name='Blue Hopper Room',
         rom_address=0x7DC19,
         map=[[1, 1]],
-        door_left=[[1, 0]],
-        door_up=[[0, 1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1AA14),
             DoorIdentifier(UP, 1, 0, 0x1AA08),
@@ -123,8 +86,6 @@ rooms = [
         name='Dust Torizo Room',
         rom_address=0x7DC65,
         map=[[1, 1]],
-        door_left=[[1, 0]],
-        door_right=[[0, 1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1AA2C),
             DoorIdentifier(RIGHT, 1, 0, 0x1AA20),
@@ -134,8 +95,6 @@ rooms = [
         name='Big Boy Room',
         rom_address=0x7DCB1,
         map=[[1, 1, 1, 1]],
-        door_left=[[1, 0, 0, 0]],
-        door_right=[[0, 0, 0, 1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1AA44),
             DoorIdentifier(RIGHT, 3, 0, 0x1AA38),
@@ -145,14 +104,6 @@ rooms = [
         name='Seaweed Room',
         rom_address=0x7DCFF,
         map=[
-            [1],
-            [1],
-        ],
-        door_left=[
-            [0],
-            [1],
-        ],
-        door_right=[
             [1],
             [1],
         ],
@@ -166,7 +117,6 @@ rooms = [
         name='Tourian Recharge Room',
         rom_address=0x7DD2E,
         map=[[1]],
-        door_right=[[1]],
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x1AA74),
         ],
@@ -175,8 +125,6 @@ rooms = [
         name='Tourian Eye Door Room',
         rom_address=0x7DDC4,
         map=[[1, 1, 1, 1]],
-        door_left=[[1, 0, 0, 0]],
-        door_right=[[0, 0, 0, 1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1AA98),
             DoorIdentifier(RIGHT, 3, 0, 0x1AAA4),
@@ -186,11 +134,6 @@ rooms = [
         name='Rinka Shaft',
         rom_address=0x7DDF3,
         map=[
-            [1],
-            [1],
-            [1],
-        ],
-        door_left=[
             [1],
             [1],
             [1],
@@ -205,7 +148,6 @@ rooms = [
         name='Lower Tourian Save Room',
         rom_address=0x7DE23,
         map=[[1]],
-        door_right=[[1]],
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x1AAD4),
         ],
@@ -214,8 +156,6 @@ rooms = [
         name='Mother Brain Room',
         rom_address=0x7DD58,
         map=[[1, 1, 1, 1]],
-        door_left=[[1, 0, 0, 0]],
-        door_right=[[0, 0, 0, 1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1AA8C),
             DoorIdentifier(RIGHT, 3, 0, 0x1AA80),
@@ -225,8 +165,6 @@ rooms = [
         name='Tourian Escape Room 1',
         rom_address=0x7DE4D,
         map=[[1, 1]],
-        door_right=[[0, 1]],
-        door_down=[[1, 0]],
         door_ids=[
             DoorIdentifier(RIGHT, 1, 0, 0x1AAE0),
             DoorIdentifier(DOWN, 0, 0, 0x1AAEC),
@@ -237,14 +175,6 @@ rooms = [
         rom_address=0x7DE7A,
         map=[
             [1],
-            [1],
-        ],
-        door_up=[
-            [1],
-            [0],
-        ],
-        door_right=[
-            [0],
             [1],
         ],
         door_ids=[
@@ -258,14 +188,6 @@ rooms = [
         map=[
             [1, 1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1, 1],
-        ],
-        door_left=[
-            [0, 0, 0, 0, 0, 0],
-            [1, 0, 0, 0, 0, 0],
-        ],
-        door_right=[
-            [0, 0, 0, 0, 0, 1],
-            [0, 0, 0, 0, 0, 0],
         ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 1, 0x1AB10),
@@ -282,22 +204,6 @@ rooms = [
             [1, 1, 1],
             [1, 1, 1],
             [1, 1, 1],
-        ],
-        door_left=[
-            [0, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0],
-            [1, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0],
-        ],
-        door_right=[
-            [0, 0, 0],
-            [0, 0, 1],
-            [0, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0],
         ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 3, 0x1AB28),

@@ -30,39 +30,11 @@ rooms = [
             DoorIdentifier(RIGHT, 0, 6, 0x192E2),
             DoorIdentifier(UP, 0, 0, 0x192EE, ELEVATOR)
         ],
-        door_left=[
-            [0],
-            [0],
-            [0],
-            [1],
-            [1],
-            [1],
-            [0],
-        ],
-        door_right=[
-            [0],
-            [0],
-            [0],
-            [1],
-            [0],
-            [1],
-            [1],
-        ],
-        elevator_up=[
-            [1],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-            [0],
-        ],
     ),
     Room(
         name='Norfair Map Room',
         rom_address=0x7B0B4,
         map=[[1]],
-        door_right=[[1]],
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x7B0B4),
         ],
@@ -74,14 +46,6 @@ rooms = [
             [1, 1],
             [1, 0],
         ],
-        door_left=[
-            [0, 0],
-            [1, 0],
-        ],
-        door_right=[
-            [0, 1],
-            [0, 0],
-        ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 1, 0x19426),
             DoorIdentifier(RIGHT, 1, 0, 0x1941A),
@@ -91,7 +55,6 @@ rooms = [
         name='Hi Jump Boots Room',
         rom_address=0x7A9E5,
         map=[[1]],
-        door_right=[[1]],
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x193F6),
         ],
@@ -102,14 +65,6 @@ rooms = [
         map=[
             [1, 1, 1],
             [1, 1, 1],
-        ],
-        door_left=[
-            [1, 0, 0],
-            [0, 0, 0],
-        ],
-        door_right=[
-            [0, 0, 1],
-            [0, 0, 0],
         ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x192A6),
@@ -123,14 +78,6 @@ rooms = [
             [1, 1, 1],
             [1, 1, 1],
         ],
-        door_left=[
-            [1, 0, 0],
-            [0, 0, 0],
-        ],
-        door_right=[
-            [0, 0, 0],
-            [0, 0, 1],
-        ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1928E),
             DoorIdentifier(RIGHT, 2, 1, 0x1929A),
@@ -140,8 +87,6 @@ rooms = [
         name='Rising Tide',
         rom_address=0x7AFA3,
         map=[[1, 1, 1, 1, 1]],
-        door_left=[[1, 0, 0, 0, 0]],
-        door_right=[[0, 0, 0, 0, 1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x19732),
             DoorIdentifier(RIGHT, 4, 0, 0x1973E),
@@ -151,8 +96,6 @@ rooms = [
         name='Frog Speedway',
         rom_address=0x7B106,
         map=[[1, 1, 1, 1, 1, 1, 1, 1]],
-        door_left=[[1, 0, 0, 0, 0, 0, 0, 0]],
-        door_right=[[0, 0, 0, 0, 0, 0, 0, 1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x197DA),
             DoorIdentifier(RIGHT, 7, 0, 0x197E6),
@@ -164,14 +107,6 @@ rooms = [
         map=[
             [1, 1],
             [1, 1],
-        ],
-        door_left=[
-            [1, 0],
-            [1, 0],
-        ],
-        door_right=[
-            [0, 1],
-            [0, 0],
         ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1970E),
@@ -187,16 +122,6 @@ rooms = [
             [1],
             [1],
         ],
-        door_right=[
-            [0],
-            [1],
-            [1],
-        ],
-        door_up=[
-            [1],
-            [0],
-            [0],
-        ],
         door_ids=[
             DoorIdentifier(RIGHT, 0, 1, 0x196C6),
             DoorIdentifier(RIGHT, 0, 2, 0x196BA),  # TODO: fix the name of this door in sm-json-data
@@ -207,7 +132,6 @@ rooms = [
         name='Purple Farming Room',
         rom_address=0x7B051,
         map=[[1]],
-        door_left=[[1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1979E),
         ],
@@ -216,8 +140,6 @@ rooms = [
         name='Frog Savestation',
         rom_address=0x7B167,
         map=[[1]],
-        door_left=[[1]],
-        door_right=[[1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x19816),
             DoorIdentifier(RIGHT, 0, 0, 0x1980A),
@@ -231,24 +153,6 @@ rooms = [
             [1, 1],
             [1, 1],
             [1, 1],
-        ],
-        door_left=[
-            [1, 0],
-            [1, 0],
-            [1, 0],
-            [1, 0],
-        ],
-        door_right=[
-            [0, 1],
-            [0, 1],
-            [0, 0],
-            [0, 0],
-        ],
-        door_down=[
-            [0, 0],
-            [0, 0],
-            [0, 0],
-            [1, 0],
         ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x19552),
@@ -264,7 +168,6 @@ rooms = [
         name='Bubble Mountain Save Room',
         rom_address=0x7B0DD,
         map=[[1]],
-        door_right=[[1]],
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x197CE),
         ],
@@ -273,8 +176,6 @@ rooms = [
         name='Green Bubbles Missile Room',
         rom_address=0x7AC83,
         map=[[1, 1]],
-        door_left=[[1, 0]],
-        door_right=[[0, 1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x19546),
             DoorIdentifier(RIGHT, 1, 0, 0x1953A),
@@ -284,7 +185,6 @@ rooms = [
         name='Norfair Reserve Tank Room',
         rom_address=0x7AC5A,
         map=[[1, 1]],
-        door_right=[[0, 1]],
         door_ids=[
             DoorIdentifier(RIGHT, 1, 0, 0x1952E),
         ],
@@ -295,14 +195,6 @@ rooms = [
         map=[
             [1],
             [1],
-        ],
-        door_left=[
-            [0],
-            [1],
-        ],
-        door_right=[
-            [1],
-            [0],
         ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 1, 0x197AA),
@@ -316,14 +208,6 @@ rooms = [
             [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
         ],
-        door_left=[
-            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        ],
-        door_right=[
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x195A6),
             DoorIdentifier(RIGHT, 11, 1, 0x195B2),
@@ -333,7 +217,6 @@ rooms = [
         name='Speed Booster Room',
         rom_address=0x7AD1B,
         map=[[1]],
-        door_left=[[1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x195BE),
         ],
@@ -343,18 +226,6 @@ rooms = [
         rom_address=0x7AD5E,
         map=[
             [1, 1, 1, 1, 1, 1],
-            [1, 0, 0, 0, 0, 0],
-            [1, 0, 0, 0, 0, 0],
-            [1, 0, 0, 0, 0, 0],
-        ],
-        door_left=[
-            [1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-        ],
-        door_right=[
-            [0, 0, 0, 0, 0, 1],
             [1, 0, 0, 0, 0, 0],
             [1, 0, 0, 0, 0, 0],
             [1, 0, 0, 0, 0, 0],
@@ -374,14 +245,6 @@ rooms = [
             [1, 1, 1, 1],
             [1, 1, 1, 1],
         ],
-        door_left=[
-            [1, 0, 0, 0],
-            [1, 0, 0, 0],
-        ],
-        door_right=[
-            [0, 0, 0, 1],
-            [0, 0, 0, 0],
-        ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x19606),
             DoorIdentifier(LEFT, 0, 1, 0x19612),
@@ -392,7 +255,6 @@ rooms = [
         name='Wave Beam Room',
         rom_address=0x7ADDE,
         map=[[1]],
-        door_left=[[1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1962A),
         ],
@@ -406,18 +268,6 @@ rooms = [
             [0, 0, 0, 1, 1, 1, 1],
             [1, 1, 1, 1, 0, 0, 0],
         ],
-        door_left=[
-            [0, 0, 0, 1, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 1, 0, 0, 0],
-            [1, 0, 0, 0, 0, 0, 0],
-        ],
-        door_right=[
-            [0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 1],
-            [0, 0, 0, 0, 0, 0, 0],
-        ],
         door_ids=[
             DoorIdentifier(LEFT, 3, 0, 0x19312),
             DoorIdentifier(LEFT, 3, 2, 0x1931E),
@@ -429,8 +279,6 @@ rooms = [
         name='Ice Beam Acid Room',
         rom_address=0x7A75D,
         map=[[1, 1]],
-        door_left=[[1, 0]],
-        door_right=[[0, 1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x19282),
             DoorIdentifier(RIGHT, 1, 0, 0x19276),
@@ -444,11 +292,6 @@ rooms = [
             [1, 1],
             [1, 0],
         ],
-        door_right=[
-            [1, 0],
-            [0, 1],
-            [1, 0],
-        ],
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x19372),
             DoorIdentifier(RIGHT, 1, 1, 0x1937E),
@@ -459,7 +302,6 @@ rooms = [
         name='Ice Beam Room',
         rom_address=0x7A890,
         map=[[1]],
-        door_left=[[1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1935A),
         ],
@@ -468,8 +310,6 @@ rooms = [
         name='Ice Beam Tutorial Room',
         rom_address=0x7A865,
         map=[[1, 1]],
-        door_left=[[1, 0]],
-        door_right=[[0, 1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x19342),
             DoorIdentifier(RIGHT, 1, 0, 0x1934E),
@@ -484,12 +324,6 @@ rooms = [
             [1],
             [1],
         ],
-        door_right=[
-            [1],
-            [0],
-            [0],
-            [1],
-        ],
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x1938A),
             DoorIdentifier(RIGHT, 0, 3, 0x19396),
@@ -499,8 +333,6 @@ rooms = [
         name='Nutella Refill',
         rom_address=0x7B026,
         map=[[1]],
-        door_left=[[1]],
-        door_right=[[1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x19786),
             DoorIdentifier(RIGHT, 0, 0, 0x19792),
@@ -510,8 +342,6 @@ rooms = [
         name='Spiky Acid Snakes Tunnel',
         rom_address=0x7AFFB,
         map=[[1, 1, 1, 1]],
-        door_left=[[1, 0, 0, 0]],
-        door_right=[[0, 0, 0, 1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1976E),
             DoorIdentifier(RIGHT, 3, 0, 0x1977A),
@@ -525,16 +355,6 @@ rooms = [
             [1, 1],
             [0, 1],
         ],
-        door_left=[
-            [0, 1],
-            [1, 0],
-            [0, 1],
-        ],
-        door_right=[
-            [0, 1],
-            [0, 0],
-            [0, 0],
-        ],
         door_ids=[
             DoorIdentifier(LEFT, 1, 0, 0x19666),
             DoorIdentifier(LEFT, 0, 1, 0x1968A),
@@ -546,8 +366,6 @@ rooms = [
         name='Magdollite Tunnel',
         rom_address=0x7AEB4,
         map=[[1, 1, 1]],
-        door_left=[[1, 0, 0]],
-        door_right=[[0, 0, 1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x19696),
             DoorIdentifier(RIGHT, 2, 0, 0x196A2),
@@ -560,16 +378,6 @@ rooms = [
             [1, 1, 1, 1],
             [0, 1, 1, 1],
             [0, 1, 1, 0],
-        ],
-        door_left=[
-            [1, 0, 0, 0],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0],
-        ],
-        door_right=[
-            [0, 0, 0, 1],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0],
         ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x196DE),
@@ -584,11 +392,6 @@ rooms = [
             [0, 0, 1],
             [1, 1, 1],
         ],
-        door_left=[
-            [0, 0, 1],
-            [0, 0, 0],
-            [1, 0, 0],
-        ],
         door_ids=[
             DoorIdentifier(LEFT, 2, 0, 0x1964E),
             DoorIdentifier(LEFT, 0, 2, 0x1965A),
@@ -598,8 +401,6 @@ rooms = [
         name='Spiky Platforms Tunnel',
         rom_address=0x7AE07,
         map=[[1, 1, 1, 1]],
-        door_left=[[1, 0, 0, 0]],
-        door_right=[[0, 0, 0, 1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x19636),
             DoorIdentifier(RIGHT, 3, 0, 0x19642),
@@ -613,16 +414,6 @@ rooms = [
             [1],
             [1],
         ],
-        door_right=[
-            [1],
-            [0],
-            [0],
-        ],
-        door_down=[
-            [0],
-            [0],
-            [1],
-        ],
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x197F2),
             DoorIdentifier(DOWN, 0, 2, 0x197FE),
@@ -632,9 +423,6 @@ rooms = [
         name='Acid Snakes Tunnel',
         rom_address=0x7AFCE,
         map=[[1, 1, 1, 1]],
-        door_left=[[1, 0, 0, 0]],
-        door_right=[[0, 0, 0, 1]],
-        door_up=[[0, 0, 0, 1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1974A),
             DoorIdentifier(RIGHT, 3, 0, 0x19756),
@@ -648,21 +436,6 @@ rooms = [
             [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
             [0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1],
             [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        ],
-        door_left=[
-            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        ],
-        door_right=[
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        ],
-        door_down=[
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
         ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x193A2),
@@ -679,14 +452,6 @@ rooms = [
             [1, 1, 1, 1],
             [1, 1, 1, 1],
         ],
-        door_left=[
-            [1, 0, 0, 0],
-            [0, 0, 0, 0],
-        ],
-        door_right=[
-            [0, 0, 0, 0],
-            [0, 0, 0, 1],
-        ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x19402),
             DoorIdentifier(RIGHT, 3, 1, 0x1940E),
@@ -696,8 +461,6 @@ rooms = [
         name="Crocomire's Room",
         rom_address=0x7A98D,
         map=[[1, 1, 1, 1, 1, 1, 1, 1]],
-        door_left=[[1, 0, 0, 0, 0, 0, 0, 0]],
-        door_up=[[0, 0, 0, 1, 0, 0, 0, 0]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x193DE),
             DoorIdentifier(UP, 3, 0, 0x193EA),
@@ -710,18 +473,6 @@ rooms = [
             [1, 1],
             [1, 1],
         ],
-        door_left=[
-            [1, 0],
-            [0, 0],
-        ],
-        door_right=[
-            [0, 1],
-            [0, 1],
-        ],
-        door_down=[
-            [0, 0],
-            [1, 0],
-        ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1943E),
             DoorIdentifier(RIGHT, 1, 0, 0x19432),
@@ -733,7 +484,6 @@ rooms = [
         name='Post Crocomire Power Bomb Room',
         rom_address=0x7AADE,
         map=[[1]],
-        door_right=[[1]],
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x1946E),
         ],
@@ -754,40 +504,11 @@ rooms = [
             DoorIdentifier(DOWN, 0, 4, 0x1949E),
             DoorIdentifier(UP, 0, 0, 0x1947A),
         ],
-        door_left=[
-            [1],
-            [0],
-            [0],
-            [0],
-            [0],
-        ],
-        door_right=[
-            [0],
-            [0],
-            [0],
-            [1],
-            [0],
-        ],
-        door_down=[
-            [0],
-            [0],
-            [0],
-            [0],
-            [1],
-        ],
-        door_up=[
-            [1],
-            [0],
-            [0],
-            [0],
-            [0],
-        ],
     ),
     Room(
         name='Post Crocomire Missile Room',
         rom_address=0x7AB3B,
         map=[[1, 1, 1, 1]],
-        door_left=[[1, 0, 0, 0]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x194AA),
         ],
@@ -799,16 +520,6 @@ rooms = [
             [1, 1, 1, 1, 1, 0, 0, 0],
             [1, 1, 1, 1, 1, 0, 0, 0],
             [1, 1, 1, 1, 1, 1, 1, 1],
-        ],
-        door_left=[
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [1, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-        ],
-        door_up=[
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 1, 0],
         ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 1, 0x194DA),
@@ -824,12 +535,6 @@ rooms = [
             [1],
             [1],
         ],
-        door_right=[
-            [1],
-            [0],
-            [0],
-            [1],
-        ],
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x19522),
             DoorIdentifier(RIGHT, 0, 3, 0x19516),
@@ -839,8 +544,6 @@ rooms = [
         name='Grapple Tutorial Room 1',
         rom_address=0x7AC00,
         map=[[1, 1]],
-        door_left=[[1, 0]],
-        door_right=[[0, 1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x194FE),
             DoorIdentifier(RIGHT, 1, 0, 0x1950A),
@@ -854,16 +557,6 @@ rooms = [
             [1],
             [1],
         ],
-        door_left=[
-            [0],
-            [0],
-            [1],
-        ],
-        door_right=[
-            [1],
-            [0],
-            [0],
-        ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 2, 0x194E6),
             DoorIdentifier(RIGHT, 0, 0, 0x194F2),
@@ -876,14 +569,6 @@ rooms = [
             [1, 1, 1],
             [1, 1, 1],
         ],
-        door_left=[
-            [1, 0, 0],
-            [0, 0, 0],
-        ],
-        door_right=[
-            [0, 0, 1],
-            [0, 0, 0],
-        ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x194B6),
             DoorIdentifier(RIGHT, 2, 0, 0x194C2),
@@ -893,7 +578,6 @@ rooms = [
         name='Crocomire Save Room',
         rom_address=0x7B192,
         map=[[1]],
-        door_left=[[1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x19822)
         ],
@@ -902,7 +586,6 @@ rooms = [
         name='Post Crocomire Save Room',
         rom_address=0x7AAB5,
         map=[[1]],
-        door_left=[[1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x19462)
         ],
@@ -911,9 +594,6 @@ rooms = [
         name='Lower Norfair Elevator',
         rom_address=0x7AF3F,
         map=[[1]],
-        door_left=[[1]],
-        door_right=[[1]],
-        elevator_down=[[1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x19702),
             DoorIdentifier(RIGHT, 0, 0, 0x196EA),
@@ -924,7 +604,6 @@ rooms = [
         name='Lower Norfair Elevator Save Room',
         rom_address=0x7B1BB,
         map=[[1]],
-        door_right=[[1]],
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x1982E),
         ],

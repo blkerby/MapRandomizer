@@ -50,66 +50,38 @@ class Room:
     def populate(self):
         self.height = len(self.map)
         self.width = len(self.map[0])
-        if self.door_left is None:
-            self.door_left = [[0 for _ in range(self.width)] for _ in range(self.height)]
-        if self.door_right is None:
-            self.door_right = [[0 for _ in range(self.width)] for _ in range(self.height)]
-        if self.door_down is None:
-            self.door_down = [[0 for _ in range(self.width)] for _ in range(self.height)]
-        if self.door_up is None:
-            self.door_up = [[0 for _ in range(self.width)] for _ in range(self.height)]
-        if self.external_door_left is None:
-            self.external_door_left = [[0 for _ in range(self.width)] for _ in range(self.height)]
-        if self.external_door_right is None:
-            self.external_door_right = [[0 for _ in range(self.width)] for _ in range(self.height)]
-        if self.external_door_down is None:
-            self.external_door_down = [[0 for _ in range(self.width)] for _ in range(self.height)]
-        if self.external_door_up is None:
-            self.external_door_up = [[0 for _ in range(self.width)] for _ in range(self.height)]
-        if self.elevator_down is None:
-            self.elevator_down = [[0 for _ in range(self.width)] for _ in range(self.height)]
-        if self.elevator_up is None:
-            self.elevator_up = [[0 for _ in range(self.width)] for _ in range(self.height)]
-        if self.sand_down is None:
-            self.sand_down = [[0 for _ in range(self.width)] for _ in range(self.height)]
-        if self.sand_up is None:
-            self.sand_up = [[0 for _ in range(self.width)] for _ in range(self.height)]
-        door_left = [[0 for _ in range(self.width)] for _ in range(self.height)]
-        door_right = [[0 for _ in range(self.width)] for _ in range(self.height)]
-        door_down = [[0 for _ in range(self.width)] for _ in range(self.height)]
-        door_up = [[0 for _ in range(self.width)] for _ in range(self.height)]
-        elevator_down = [[0 for _ in range(self.width)] for _ in range(self.height)]
-        elevator_up = [[0 for _ in range(self.width)] for _ in range(self.height)]
-        sand_down = [[0 for _ in range(self.width)] for _ in range(self.height)]
-        sand_up = [[0 for _ in range(self.width)] for _ in range(self.height)]
+        print(self.name)
+        assert self.door_left is None
+        assert self.door_right is None
+        assert self.door_down is None
+        assert self.door_up is None
+        self.door_left = [[0 for _ in range(self.width)] for _ in range(self.height)]
+        self.door_right = [[0 for _ in range(self.width)] for _ in range(self.height)]
+        self.door_down = [[0 for _ in range(self.width)] for _ in range(self.height)]
+        self.door_up = [[0 for _ in range(self.width)] for _ in range(self.height)]
+        self.elevator_down = [[0 for _ in range(self.width)] for _ in range(self.height)]
+        self.elevator_up = [[0 for _ in range(self.width)] for _ in range(self.height)]
+        self.sand_down = [[0 for _ in range(self.width)] for _ in range(self.height)]
+        self.sand_up = [[0 for _ in range(self.width)] for _ in range(self.height)]
         for door in self.door_ids:
-            print(self.name, door)
             if door.subtype == DoorSubtype.ELEVATOR and door.direction == Direction.DOWN:
-                elevator_down[door.y][door.x] = 1
+                self.elevator_down[door.y][door.x] = 1
             elif door.subtype == DoorSubtype.ELEVATOR and door.direction == Direction.UP:
-                elevator_up[door.y][door.x] = 1
+                self.elevator_up[door.y][door.x] = 1
             elif door.subtype == DoorSubtype.SAND and door.direction == Direction.DOWN:
-                sand_down[door.y][door.x] = 1
+                self.sand_down[door.y][door.x] = 1
             elif door.subtype == DoorSubtype.SAND and door.direction == Direction.UP:
-                sand_up[door.y][door.x] = 1
+                self.sand_up[door.y][door.x] = 1
             elif door.subtype == DoorSubtype.NORMAL and door.direction == Direction.LEFT:
-                door_left[door.y][door.x] = 1
+                self.door_left[door.y][door.x] = 1
             elif door.subtype == DoorSubtype.NORMAL and door.direction == Direction.RIGHT:
-                door_right[door.y][door.x] = 1
+                self.door_right[door.y][door.x] = 1
             elif door.subtype == DoorSubtype.NORMAL and door.direction == Direction.DOWN:
-                door_down[door.y][door.x] = 1
+                self.door_down[door.y][door.x] = 1
             elif door.subtype == DoorSubtype.NORMAL and door.direction == Direction.UP:
-                door_up[door.y][door.x] = 1
+                self.door_up[door.y][door.x] = 1
             else:
                 raise RuntimeError("Invalid door identifier: {}".format(door))
-        assert door_left == self.door_left
-        assert door_right == self.door_right
-        assert door_down == self.door_down
-        assert door_up == self.door_up
-        assert elevator_down == self.elevator_down
-        assert elevator_up == self.elevator_up
-        assert sand_down == self.sand_down
-        assert sand_up == self.sand_up
 
 def reconstruct_room_data(action, step_indices, num_rooms):
     action = action.to(torch.int64)

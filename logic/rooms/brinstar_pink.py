@@ -20,24 +20,6 @@ rooms = [
             [0, 0, 0, 0, 1, 0, 0],
             [1, 1, 1, 1, 1, 0, 0],
         ],
-        door_left=[
-            [1, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0],
-            [1, 0, 0, 0, 0, 0, 0],
-        ],
-        door_right=[
-            [0, 0, 0, 0, 0, 0, 1],
-            [0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0],
-        ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x18DA2),
             DoorIdentifier(LEFT, 0, 6, 0x18DBA),
@@ -49,7 +31,6 @@ rooms = [
         name='Dachora Energy Refill Room',
         rom_address=0x7A07B,
         map=[[1]],
-        door_right=[[1]],
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x18F6A),
         ],
@@ -69,30 +50,6 @@ rooms = [
             [1, 0, 0, 0, 0],
             [1, 0, 0, 0, 0],
         ],
-        door_left=[
-            [0, 1, 0, 0, 0],
-            [0, 0, 0, 0, 0],
-            [0, 0, 1, 0, 0],
-            [0, 0, 1, 0, 0],
-            [0, 0, 1, 0, 0],
-            [0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0],
-            [1, 0, 0, 0, 0],
-        ],
-        door_right=[
-            [0, 0, 0, 1, 0],
-            [0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0],
-            [0, 0, 0, 1, 0],
-            [0, 0, 0, 0, 1],
-            [0, 0, 0, 1, 0],
-            [0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0],
-        ],
         door_ids=[
             DoorIdentifier(LEFT, 1, 0, 0x18DF6),
             DoorIdentifier(LEFT, 2, 2, 0x18DD2),
@@ -110,7 +67,6 @@ rooms = [
         name='Big Pink Save Room',
         rom_address=0x7A184,
         map=[[1]],
-        door_right=[[1]],
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x18FD6)
         ],
@@ -121,10 +77,6 @@ rooms = [
         map=[
             [1, 1],
             [1, 1],
-        ],
-        door_right=[
-            [0, 1],
-            [0, 1],
         ],
         door_ids=[
             DoorIdentifier(RIGHT, 1, 0, 0x18E62),
@@ -138,14 +90,6 @@ rooms = [
             [1, 1],
             [1, 1],
         ],
-        door_left=[
-            [0, 0],
-            [1, 0],
-        ],
-        door_right=[
-            [0, 0],
-            [0, 1],
-        ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 1, 0x18FB2),
             DoorIdentifier(RIGHT, 1, 1, 0x18FBE),
@@ -155,7 +99,6 @@ rooms = [
         name='Hopper Energy Tank Room',
         rom_address=0x7A15B,
         map=[[1]],
-        door_left=[[1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x18FCA),
         ],
@@ -174,17 +117,6 @@ rooms = [
             [0, 1],
             [1, 1],
         ],
-        door_left=[
-            [1, 0],
-            [0, 0],
-            [0, 0],
-            [0, 0],
-            [0, 0],
-            [0, 0],
-            [0, 0],
-            [0, 0],
-            [1, 0],
-        ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x18D2A),
             DoorIdentifier(LEFT, 0, 8, 0x18D1E),
@@ -194,8 +126,6 @@ rooms = [
         name='Spore Spawn Farming Room',
         rom_address=0x7A0A4,
         map=[[1, 1, 1]],
-        door_left=[[1, 0, 0]],
-        door_right=[[0, 0, 1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x18F82),
             DoorIdentifier(RIGHT, 2, 0, 0x18F76),
@@ -205,7 +135,6 @@ rooms = [
         name='Waterway Energy Tank Room',
         rom_address=0x7A0D2,
         map=[[1, 1, 1, 1, 1, 1, 1]],
-        door_right=[[0, 0, 0, 0, 0, 0, 1]],
         door_ids=[
             DoorIdentifier(RIGHT, 6, 0, 0x18F8E),
         ],
