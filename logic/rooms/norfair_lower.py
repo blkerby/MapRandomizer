@@ -17,9 +17,9 @@ rooms = [
             [1, 1, 1, 1, 1, 1, 1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 2, 0x19852),
-            DoorIdentifier(RIGHT, 7, 2, 0x1985E),
-            DoorIdentifier(UP, 4, 0, 0x1986A, ELEVATOR),
+            DoorIdentifier(LEFT, 0, 2, 0x19852, 0x19846),  # Acid Statue Room
+            DoorIdentifier(RIGHT, 7, 2, 0x1985E, 0x198E2),  # Fast Pillars Setup Room
+            DoorIdentifier(UP, 4, 0, 0x1986A, 0x196F6, ELEVATOR),  # Lower Norfair Elevator
         ],
     ),
     Room(
@@ -31,10 +31,10 @@ rooms = [
             [1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 1, 0x198E2),
-            DoorIdentifier(LEFT, 0, 2, 0x19906),
-            DoorIdentifier(RIGHT, 0, 0, 0x198EE),
-            DoorIdentifier(RIGHT, 0, 2, 0x19912),
+            DoorIdentifier(LEFT, 0, 1, 0x198E2, 0x1985E),  # Main Hall
+            DoorIdentifier(LEFT, 0, 2, 0x19906, 0x1989A),  # Fast Ripper Room
+            DoorIdentifier(RIGHT, 0, 0, 0x198EE, 0x1992A),  # Mickey Mouse Room
+            DoorIdentifier(RIGHT, 0, 2, 0x19912, 0x19942),  # Pillar Room
         ],
     ),
     Room(
@@ -42,8 +42,8 @@ rooms = [
         rom_address=0x7B457,
         map=[[1, 1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x19942),
-            DoorIdentifier(RIGHT, 3, 0, 0x1994E),
+            DoorIdentifier(LEFT, 0, 0, 0x19942, 0x19912),  # Fast Pillars Setup Room
+            DoorIdentifier(RIGHT, 3, 0, 0x1994E, 0x1998A),  # The Worst Room In The Game
         ],
     ),
     Room(
@@ -58,9 +58,9 @@ rooms = [
             [1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x19972),
-            DoorIdentifier(LEFT, 0, 5, 0x1998A),
-            DoorIdentifier(RIGHT, 0, 1, 0x1997E),
+            DoorIdentifier(LEFT, 0, 0, 0x19972, 0x19936),  # Mickey Mouse Room
+            DoorIdentifier(LEFT, 0, 5, 0x1998A, 0x1994E),  # Pillar Room
+            DoorIdentifier(RIGHT, 0, 1, 0x1997E, 0x19996),  # Amphitheatre
         ],
     ),
     Room(
@@ -74,8 +74,8 @@ rooms = [
             [1, 1, 1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 1, 0x19996),
-            DoorIdentifier(RIGHT, 3, 0, 0x199A2),
+            DoorIdentifier(LEFT, 0, 1, 0x19996, 0x1997E),  # The Worst Room In The Game
+            DoorIdentifier(RIGHT, 3, 0, 0x199A2, 0x199F6),  # Red Kihunter Shaft
         ],
     ),
     Room(
@@ -89,10 +89,10 @@ rooms = [
             [1, 1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x199F6),
-            DoorIdentifier(RIGHT, 0, 0, 0x19A02),
-            DoorIdentifier(RIGHT, 0, 3, 0x19A0E),
-            DoorIdentifier(DOWN, 2, 4, 0x199EA),
+            DoorIdentifier(LEFT, 0, 0, 0x199F6, 0x199A2),  # Amphitheatre
+            DoorIdentifier(RIGHT, 0, 0, 0x19A02, 0x19AAA),  # Lower Norfair Fireflea Room
+            DoorIdentifier(RIGHT, 0, 3, 0x19A0E, 0x19AB6),  # Red Kihunter Shaft Save Room
+            DoorIdentifier(DOWN, 2, 4, 0x199EA, 0x19A26),  # Wasteland
         ],
     ),
     Room(
@@ -101,7 +101,7 @@ rooms = [
         rom_address=0x7B741,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x19AB6),
+            DoorIdentifier(LEFT, 0, 0, 0x19AB6, 0x19A0E),  # Red Kihunter Shaft
         ],
     ),
     Room(
@@ -113,8 +113,8 @@ rooms = [
             [0, 1, 0, 0, 0, 0],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 1, 2, 0x19A1A),
-            DoorIdentifier(UP, 5, 0, 0x19A26),
+            DoorIdentifier(LEFT, 1, 2, 0x19A1A, 0x19A3E),  # Metal Pirates Room
+            DoorIdentifier(UP, 5, 0, 0x19A26, 0x199EA),  # Red Kihunter Shaft
         ],
     ),
     Room(
@@ -122,8 +122,8 @@ rooms = [
         rom_address=0x7B62B,
         map=[[1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x19A32),
-            DoorIdentifier(RIGHT, 2, 0, 0x19A3E),
+            DoorIdentifier(LEFT, 0, 0, 0x19A32, 0x19966),  # Plowerhouse Room
+            DoorIdentifier(RIGHT, 2, 0, 0x19A3E, 0x19A1A),  # Wasteland
         ],
     ),
     Room(
@@ -131,8 +131,8 @@ rooms = [
         rom_address=0x7B482,
         map=[[1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1995A),
-            DoorIdentifier(RIGHT, 2, 0, 0x19966),
+            DoorIdentifier(LEFT, 0, 0, 0x1995A, 0x198D6),  # Lower Norfair Farming Room
+            DoorIdentifier(RIGHT, 2, 0, 0x19966, 0x19A32),  # Metal Pirates Room
         ],
     ),
     Room(
@@ -140,8 +140,8 @@ rooms = [
         rom_address=0x7B37A,
         map=[[1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x198CA),
-            DoorIdentifier(RIGHT, 2, 0, 0x198D6),
+            DoorIdentifier(LEFT, 0, 0, 0x198CA, 0x198BE),  # Ridley's Room
+            DoorIdentifier(RIGHT, 2, 0, 0x198D6, 0x1995A),  # Plowerhouse Room
         ],
     ),
     Room(
@@ -152,8 +152,8 @@ rooms = [
             [1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 1, 0x198B2),
-            DoorIdentifier(RIGHT, 0, 0, 0x198BE),
+            DoorIdentifier(LEFT, 0, 1, 0x198B2, 0x19A62),  # Ridley Tank Room
+            DoorIdentifier(RIGHT, 0, 0, 0x198BE, 0x198CA),  # Lower Norfair Farming Room
         ],
     ),
     Room(
@@ -161,7 +161,7 @@ rooms = [
         rom_address=0x7B698,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(RIGHT, 0, 0, 0x19A62),
+            DoorIdentifier(RIGHT, 0, 0, 0x19A62, 0x198B2),  # Ridley's Room
         ],
     ),
     Room(
@@ -174,8 +174,8 @@ rooms = [
             [1, 1, 1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 3, 0x1992A),
-            DoorIdentifier(RIGHT, 3, 0, 0x19936),
+            DoorIdentifier(LEFT, 0, 3, 0x1992A, 0x198EE),  # Fast Pillars Setup Room
+            DoorIdentifier(RIGHT, 3, 0, 0x19936, 0x19972),  # The Worst Room In The Game
         ],
     ),
     Room(
@@ -190,9 +190,9 @@ rooms = [
             [0, 1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x19A92),
-            DoorIdentifier(LEFT, 1, 3, 0x19AAA),
-            DoorIdentifier(RIGHT, 1, 0, 0x19A9E),
+            DoorIdentifier(LEFT, 0, 0, 0x19A92, 0x199BA),  # Lower Norfair Spring Ball Maze Room
+            DoorIdentifier(LEFT, 1, 3, 0x19AAA, 0x19A02),  # Red Kihunter Shaft
+            DoorIdentifier(RIGHT, 1, 0, 0x19A9E, 0x199D2),  # Lower Norfair Escape Power Bomb Room
         ],
     ),
     Room(
@@ -203,9 +203,9 @@ rooms = [
             [1, 1, 0, 0, 0],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x199AE),
-            DoorIdentifier(RIGHT, 1, 1, 0x199BA),
-            DoorIdentifier(DOWN, 4, 0, 0x199C6),
+            DoorIdentifier(LEFT, 0, 0, 0x199AE, 0x19A56),  # Three Musketeers' Room
+            DoorIdentifier(RIGHT, 1, 1, 0x199BA, 0x19A92),  # Lower Norfair Fireflea Room
+            DoorIdentifier(DOWN, 4, 0, 0x199C6, 0x199DE),  # Lower Norfair Escape Power Bomb Room
         ],
     ),
     Room(
@@ -213,8 +213,8 @@ rooms = [
         rom_address=0x7B55A,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x199D2),
-            DoorIdentifier(UP, 0, 0, 0x199DE),
+            DoorIdentifier(LEFT, 0, 0, 0x199D2, 0x19A9E),  # Lower Norfair Fireflea Room
+            DoorIdentifier(UP, 0, 0, 0x199DE, 0x199C6),  # Lower Norfair Spring Ball Maze Room
         ],
     ),
     Room(
@@ -226,8 +226,8 @@ rooms = [
             [1, 1, 1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 1, 0, 0x19A4A),
-            DoorIdentifier(RIGHT, 3, 2, 0x19A56),
+            DoorIdentifier(LEFT, 1, 0, 0x19A4A, 0x195FA),  # Single Chamber
+            DoorIdentifier(RIGHT, 3, 2, 0x19A56, 0x199AE),  # Lower Norfair Spring Ball Maze Room
         ],
     ),
     Room(
@@ -239,8 +239,8 @@ rooms = [
             [1, 1, 1],
         ],
         door_ids=[
-            DoorIdentifier(RIGHT, 1, 0, 0x19846),
-            DoorIdentifier(RIGHT, 2, 2, 0x1983A),
+            DoorIdentifier(RIGHT, 1, 0, 0x19846, 0x19852),  # Main Hall
+            DoorIdentifier(RIGHT, 2, 2, 0x1983A, 0x19876),  # Golden Torizo's Room
         ],
     ),
     Room(
@@ -251,8 +251,8 @@ rooms = [
             [1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x19876),
-            DoorIdentifier(RIGHT, 1, 1, 0x19882),
+            DoorIdentifier(LEFT, 0, 0, 0x19876, 0x1983A),  # Acid Statue Room
+            DoorIdentifier(RIGHT, 1, 1, 0x19882, 0x19A86),  # Screw Attack Room
         ],
     ),
     Room(
@@ -264,9 +264,9 @@ rooms = [
             [1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 2, 0x19A86),
-            DoorIdentifier(RIGHT, 0, 0, 0x19A6E),
-            DoorIdentifier(RIGHT, 0, 1, 0x19A7A),
+            DoorIdentifier(LEFT, 0, 2, 0x19A86, 0x19882),  # Golden Torizo's Room
+            DoorIdentifier(RIGHT, 0, 0, 0x19A6E, 0x1988E),  # Fast Ripper Room
+            DoorIdentifier(RIGHT, 0, 1, 0x19A7A, 0x198A6),  # Golden Torizo Energy Recharge
         ],
     ),
     Room(
@@ -274,7 +274,7 @@ rooms = [
         rom_address=0x7B305,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x198A6),
+            DoorIdentifier(LEFT, 0, 0, 0x198A6, 0x19A7A),  # Screw Attack Room
         ],
     ),
     Room(
@@ -282,8 +282,8 @@ rooms = [
         rom_address=0x7B2DA,
         map=[[1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1988E),
-            DoorIdentifier(RIGHT, 2, 0, 0x1989A),
+            DoorIdentifier(LEFT, 0, 0, 0x1988E, 0x19A6E),  # Screw Attack Room
+            DoorIdentifier(RIGHT, 2, 0, 0x1989A, 0x19906),  # Fast Pillars Setup Room
         ],
     ),
 

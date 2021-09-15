@@ -1,5 +1,5 @@
 from logic.areas import Area, SubArea
-from maze_builder.types import Room, DoorIdentifier, Direction, DoorSubtype
+from maze_builder.types import Room, DoorIdentifier, Direction
 
 LEFT = Direction.LEFT
 RIGHT = Direction.RIGHT
@@ -12,8 +12,8 @@ rooms = [
         rom_address=0x7CA08,
         map=[[1, 1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A1B0),
-            DoorIdentifier(RIGHT, 3, 0, 0x1A1BC),
+            DoorIdentifier(LEFT, 0, 0, 0x1A1B0, 0x189D6),  # West Ocean
+            DoorIdentifier(RIGHT, 3, 0, 0x1A1BC, 0x1A1F8),  # Wrecked Ship Main Shaft
         ],
     ),
     Room(
@@ -30,13 +30,13 @@ rooms = [
             [0, 0, 0, 0, 1, 0],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 4, 3, 0x1A1F8),
-            DoorIdentifier(LEFT, 4, 6, 0x1A210),
-            DoorIdentifier(RIGHT, 4, 3, 0x1A240),
-            DoorIdentifier(RIGHT, 4, 4, 0x1A204),
-            DoorIdentifier(RIGHT, 5, 6, 0x1A234),
-            DoorIdentifier(DOWN, 4, 7, 0x1A21C),
-            DoorIdentifier(UP, 4, 0, 0x1A228),
+            DoorIdentifier(LEFT, 4, 3, 0x1A1F8, 0x1A1BC),  # Wrecked Ship Entrance
+            DoorIdentifier(LEFT, 4, 6, 0x1A210, 0x1A2E8),  # Wrecked Ship West Super Room
+            DoorIdentifier(RIGHT, 4, 3, 0x1A240, 0x1A318),  # Wrecked Ship Save Room
+            DoorIdentifier(RIGHT, 4, 4, 0x1A204, 0x1A2D0),  # Sponge Bath
+            DoorIdentifier(RIGHT, 5, 6, 0x1A234, 0x1A2F4),  # Wrecked Ship East Super Room
+            DoorIdentifier(DOWN, 4, 7, 0x1A21C, 0x1A294),  # Basement
+            DoorIdentifier(UP, 4, 0, 0x1A228, 0x1A1C8),  # Attic
         ],
     ),
     Room(
@@ -44,9 +44,9 @@ rooms = [
         rom_address=0x7CA52,
         map=[[1, 1, 1, 1, 1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A1E0),
-            DoorIdentifier(RIGHT, 6, 0, 0x1A1D4),
-            DoorIdentifier(DOWN, 4, 0, 0x1A1C8),
+            DoorIdentifier(LEFT, 0, 0, 0x1A1E0, 0x189EE),  # West Ocean
+            DoorIdentifier(RIGHT, 6, 0, 0x1A1D4, 0x1A1EC),  # Assembly Line
+            DoorIdentifier(DOWN, 4, 0, 0x1A1C8, 0x1A228),  # Wrecked Ship Main Shaft
         ],
     ),
     Room(
@@ -54,9 +54,9 @@ rooms = [
         rom_address=0x7CC6F,
         map=[[1, 1, 1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A2A0),
-            DoorIdentifier(RIGHT, 4, 0, 0x1A2AC),
-            DoorIdentifier(UP, 2, 0, 0x1A294),
+            DoorIdentifier(LEFT, 0, 0, 0x1A2A0, 0x1A2B8),  # Wrecked Ship Map Room
+            DoorIdentifier(RIGHT, 4, 0, 0x1A2AC, 0x1A2C4),  # Phantoon's Room
+            DoorIdentifier(UP, 2, 0, 0x1A294, 0x1A21C),  # Wrecked Ship Main Shaft
         ],
     ),
     Room(
@@ -64,7 +64,7 @@ rooms = [
         rom_address=0x7CCCB,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(RIGHT, 0, 0, 0x1A2B8),
+            DoorIdentifier(RIGHT, 0, 0, 0x1A2B8, 0x1A2A0),  # Basement
         ],
     ),
     Room(
@@ -72,7 +72,7 @@ rooms = [
         rom_address=0x7CD13,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A2C4),
+            DoorIdentifier(LEFT, 0, 0, 0x1A2C4, 0x1A2AC),  # Basement
         ],
     ),
     Room(
@@ -80,7 +80,7 @@ rooms = [
         rom_address=0x7CDA8,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(RIGHT, 0, 0, 0x1A2E8),
+            DoorIdentifier(RIGHT, 0, 0, 0x1A2E8, 0x1A210),  # Wrecked Ship Main Shaft
         ],
     ),
     Room(
@@ -92,9 +92,9 @@ rooms = [
             [0, 1, 1, 1, 1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 2, 0, 0x1A18C),
-            DoorIdentifier(LEFT, 0, 1, 0x1A198),
-            DoorIdentifier(LEFT, 1, 2, 0x1A1A4),
+            DoorIdentifier(LEFT, 2, 0, 0x1A18C, 0x189FA),  # West Ocean (top)
+            DoorIdentifier(LEFT, 0, 1, 0x1A198, 0x18B32),  # West Ocean (Homing Geemer Room)
+            DoorIdentifier(LEFT, 1, 2, 0x1A1A4, 0x1A30C),  # Gravity Suit Room
         ],
     ),
     Room(
@@ -102,8 +102,8 @@ rooms = [
         rom_address=0x7CE40,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A300),
-            DoorIdentifier(RIGHT, 0, 0, 0x1A30C),
+            DoorIdentifier(LEFT, 0, 0, 0x1A300, 0x18A06),  # West Ocean
+            DoorIdentifier(RIGHT, 0, 0, 0x1A30C, 0x1A1A4),  # Bowling Alley
         ]
     ),
     Room(
@@ -111,7 +111,7 @@ rooms = [
         rom_address=0x7CDF1,
         map=[[1, 1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A2F4),
+            DoorIdentifier(LEFT, 0, 0, 0x1A2F4, 0x1A234),  # Wrecked Ship Main Shaft
         ],
     ),
     Room(
@@ -119,8 +119,8 @@ rooms = [
         rom_address=0x7CD5C,
         map=[[1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A2D0),
-            DoorIdentifier(RIGHT, 1, 0, 0x1A2DC),
+            DoorIdentifier(LEFT, 0, 0, 0x1A2D0, 0x1A204),  # Wrecked Ship Main Shaft
+            DoorIdentifier(RIGHT, 1, 0, 0x1A2DC, 0x1A24C),  # Spiky Death Room
         ],
     ),
     Room(
@@ -128,8 +128,8 @@ rooms = [
         rom_address=0x7CB8B,
         map=[[1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A24C),
-            DoorIdentifier(RIGHT, 1, 0, 0x1A258),
+            DoorIdentifier(LEFT, 0, 0, 0x1A24C, 0x1A2DC),  # Sponge Bath
+            DoorIdentifier(RIGHT, 1, 0, 0x1A258, 0x1A270),  # Electric Death Room
         ],
     ),
     Room(
@@ -141,9 +141,9 @@ rooms = [
             [1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A27C),
-            DoorIdentifier(LEFT, 0, 2, 0x1A270),
-            DoorIdentifier(RIGHT, 0, 1, 0x1A264),
+            DoorIdentifier(LEFT, 0, 0, 0x1A27C, 0x1A288),  # Wrecked Ship Energy Tank Room
+            DoorIdentifier(LEFT, 0, 2, 0x1A270, 0x1A258),  # Spiky Death Room
+            DoorIdentifier(RIGHT, 0, 1, 0x1A264, 0x18A66),  # East Ocean
         ],
     ),
     Room(
@@ -154,7 +154,7 @@ rooms = [
             [1, 1, 1],
         ],
         door_ids=[
-            DoorIdentifier(RIGHT, 2, 0, 0x1A288),
+            DoorIdentifier(RIGHT, 2, 0, 0x1A288, 0x1A27C),  # Electric Death Room
         ],
     ),
     Room(
@@ -162,7 +162,7 @@ rooms = [
         rom_address=0x7CAAE,
         map=[[1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A1EC),
+            DoorIdentifier(LEFT, 0, 0, 0x1A1EC, 0x1A1D4),  # Attic
         ],
     ),
     Room(
@@ -170,7 +170,7 @@ rooms = [
         rom_address=0x7CE8A,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A318),
+            DoorIdentifier(LEFT, 0, 0, 0x1A318, 0x1A240),  # Wrecked Ship Main Shaft
         ],
     ),
 ]

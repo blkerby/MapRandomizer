@@ -16,9 +16,9 @@ rooms = [
             [1, 1, 0],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1922E),
-            DoorIdentifier(RIGHT, 2, 0, 0x1923A),
-            DoorIdentifier(DOWN, 0, 1, 0x19246, ELEVATOR),
+            DoorIdentifier(LEFT, 0, 0, 0x1922E, 0x1A384),  # East Tunnel
+            DoorIdentifier(RIGHT, 2, 0, 0x1923A, 0x1913E),  # Warehouse Zeela Room
+            DoorIdentifier(DOWN, 0, 1, 0x19246, 0x192EE, ELEVATOR),  # Business Center
         ],
     ),
     Room(
@@ -29,9 +29,9 @@ rooms = [
             [1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1913E),
-            DoorIdentifier(LEFT, 0, 1, 0x1914A),
-            DoorIdentifier(UP, 1, 1, 0x19156),
+            DoorIdentifier(LEFT, 0, 0, 0x1913E, 0x1923A),  # Warehouse Entrance
+            DoorIdentifier(LEFT, 0, 1, 0x1914A, 0x19162),  # Warehouse Energy Tank Room
+            DoorIdentifier(UP, 1, 1, 0x19156, 0x1916E),  # Warehouse Kihunter Room
         ],
     ),
     Room(
@@ -39,7 +39,7 @@ rooms = [
         rom_address=0x7A4B1,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(RIGHT, 0, 0, 0x19162),
+            DoorIdentifier(RIGHT, 0, 0, 0x19162, 0x1914A),  # Warehouse Zeela Room
         ],
     ),
     Room(
@@ -50,9 +50,9 @@ rooms = [
             [0, 1, 0, 0],
         ],
         door_ids=[
-            DoorIdentifier(RIGHT, 3, 0, 0x19186),
-            DoorIdentifier(RIGHT, 1, 1, 0x1917A),
-            DoorIdentifier(DOWN, 0, 0, 0x1916E),
+            DoorIdentifier(RIGHT, 3, 0, 0x19186, 0x1925E),  # Warehouse Save Room
+            DoorIdentifier(RIGHT, 1, 1, 0x1917A, 0x19192),  # Baby Kraid Room
+            DoorIdentifier(DOWN, 0, 0, 0x1916E, 0x19156),  # Warehouse Zeela Room
         ],
     ),
     Room(
@@ -61,7 +61,7 @@ rooms = [
         rom_address=0x7A70B,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1925E),
+            DoorIdentifier(LEFT, 0, 0, 0x1925E, 0x19186),  # Warehouse Kihunter Room
         ],
     ),
     Room(
@@ -69,8 +69,8 @@ rooms = [
         rom_address=0x7A521,
         map=[[1, 1, 1, 1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x19192),
-            DoorIdentifier(RIGHT, 5, 0, 0x1919E),
+            DoorIdentifier(LEFT, 0, 0, 0x19192, 0x1917A),  # Warehouse Kihunter Room
+            DoorIdentifier(RIGHT, 5, 0, 0x1919E, 0x191AA),  # Kraid Eye Door Room
         ],
     ),
     Room(
@@ -81,9 +81,9 @@ rooms = [
             [1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 1, 0x191AA),
-            DoorIdentifier(RIGHT, 0, 0, 0x191C2),
-            DoorIdentifier(RIGHT, 1, 1, 0x191B6),
+            DoorIdentifier(LEFT, 0, 1, 0x191AA, 0x1919E),  # Baby Kraid Room
+            DoorIdentifier(RIGHT, 0, 0, 0x191C2, 0x1920A),  # Kraid Recharge Station
+            DoorIdentifier(RIGHT, 1, 1, 0x191B6, 0x191CE),  # Kraid Room
         ],
     ),
     Room(
@@ -92,7 +92,7 @@ rooms = [
         rom_address=0x7A641,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1920A),
+            DoorIdentifier(LEFT, 0, 0, 0x1920A, 0x191C2),  # Kraid Eye Door Room
         ],
     ),
     Room(
@@ -103,8 +103,8 @@ rooms = [
             [1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 1, 0x191CE),
-            DoorIdentifier(RIGHT, 1, 1, 0x191DA),
+            DoorIdentifier(LEFT, 0, 1, 0x191CE, 0x191B6),  # Kraid Eye Door Room
+            DoorIdentifier(RIGHT, 1, 1, 0x191DA, 0x19252),  # Varia Suit Room
         ],
     ),
     Room(
@@ -112,7 +112,7 @@ rooms = [
         rom_address=0x7A6E2,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x19252),
+            DoorIdentifier(LEFT, 0, 0, 0x19252, 0x191DA),  # Kraid Room
         ],
     ),
 ]

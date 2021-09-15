@@ -22,6 +22,7 @@ class DoorIdentifier:
     x: int
     y: int
     exit_ptr: Optional[int]
+    entrance_ptr: Optional[int]
     subtype: DoorSubtype = DoorSubtype.NORMAL
 
 @dataclass
@@ -50,11 +51,6 @@ class Room:
     def populate(self):
         self.height = len(self.map)
         self.width = len(self.map[0])
-        print(self.name)
-        assert self.door_left is None
-        assert self.door_right is None
-        assert self.door_down is None
-        assert self.door_up is None
         self.door_left = [[0 for _ in range(self.width)] for _ in range(self.height)]
         self.door_right = [[0 for _ in range(self.width)] for _ in range(self.height)]
         self.door_down = [[0 for _ in range(self.width)] for _ in range(self.height)]

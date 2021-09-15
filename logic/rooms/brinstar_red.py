@@ -24,11 +24,11 @@ rooms = [
             [1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 4, 0x1902A),
-            DoorIdentifier(LEFT, 0, 6, 0x19036),
-            DoorIdentifier(LEFT, 0, 9, 0x1904E),
-            DoorIdentifier(RIGHT, 0, 0, 0x1901E),
-            DoorIdentifier(RIGHT, 0, 9, 0x19042),
+            DoorIdentifier(LEFT, 0, 4, 0x1902A, 0x18F0A),  # Noob Bridge
+            DoorIdentifier(LEFT, 0, 6, 0x19036, 0x19066),  # Red Brinstar Fireflea Room
+            DoorIdentifier(LEFT, 0, 9, 0x1904E, 0x191FE),  # Sloaters Refill
+            DoorIdentifier(RIGHT, 0, 0, 0x1901E, 0x1907E),  # Hellway
+            DoorIdentifier(RIGHT, 0, 9, 0x19042, 0x190F6),  # Bat Room
         ],
     ),
     Room(
@@ -39,8 +39,8 @@ rooms = [
             [1, 1, 0, 0, 1, 1, 0, 0],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1905A),
-            DoorIdentifier(RIGHT, 7, 0, 0x19066),
+            DoorIdentifier(LEFT, 0, 0, 0x1905A, 0x19072),  # X-Ray Scope Room
+            DoorIdentifier(RIGHT, 7, 0, 0x19066, 0x19036),  # Red Tower
         ],
     ),
     Room(
@@ -48,7 +48,7 @@ rooms = [
         rom_address=0x7A2CE,
         map=[[1, 1]],
         door_ids=[
-            DoorIdentifier(RIGHT, 1, 0, 0x19072),
+            DoorIdentifier(RIGHT, 1, 0, 0x19072, 0x1905A),  # Red Brinstar Fireflea Room
         ],
     ),
     Room(
@@ -56,8 +56,8 @@ rooms = [
         rom_address=0x7A3DD,
         map=[[1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x190F6),
-            DoorIdentifier(RIGHT, 1, 0, 0x19102),
+            DoorIdentifier(LEFT, 0, 0, 0x190F6, 0x19042),  # Red Tower
+            DoorIdentifier(RIGHT, 1, 0, 0x19102, 0x1910E),  # Below Spazer
         ],
     ),
     Room(
@@ -68,9 +68,9 @@ rooms = [
             [1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 1, 0x1910E),
-            DoorIdentifier(RIGHT, 1, 0, 0x19126),
-            DoorIdentifier(RIGHT, 1, 1, 0x1911A),
+            DoorIdentifier(LEFT, 0, 1, 0x1910E, 0x19102),  # Bat Room
+            DoorIdentifier(RIGHT, 1, 0, 0x19126, 0x19132),  # Spazer Room
+            DoorIdentifier(RIGHT, 1, 1, 0x1911A, 0x1A36C),  # West Tunnel
         ],
     ),
     Room(
@@ -78,7 +78,7 @@ rooms = [
         rom_address=0x7A447,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x19132),
+            DoorIdentifier(LEFT, 0, 0, 0x19132, 0x19126),  # Below Spazer
         ],
     ),
     Room(
@@ -86,8 +86,8 @@ rooms = [
         rom_address=0x7A2F7,
         map=[[1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1907E),
-            DoorIdentifier(RIGHT, 2, 0, 0x1908A),
+            DoorIdentifier(LEFT, 0, 0, 0x1907E, 0x1901E),  # Red Tower
+            DoorIdentifier(RIGHT, 2, 0, 0x1908A, 0x190AE),  # Caterpillar Room
         ],
     ),
     Room(
@@ -104,12 +104,12 @@ rooms = [
             [1, 0, 0],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 3, 0x190A2),
-            DoorIdentifier(LEFT, 0, 5, 0x190AE),
-            DoorIdentifier(LEFT, 0, 7, 0x19096),
-            DoorIdentifier(RIGHT, 2, 3, 0x190C6),
-            DoorIdentifier(RIGHT, 0, 4, 0x190D2),
-            DoorIdentifier(UP, 0, 0, 0x190BA, ELEVATOR),
+            DoorIdentifier(LEFT, 0, 3, 0x190A2, 0x190DE),  # Beta Power Bomb Room
+            DoorIdentifier(LEFT, 0, 5, 0x190AE, 0x1908A),  # Hellway
+            DoorIdentifier(LEFT, 0, 7, 0x19096, 0x190EA),  # Alpha Power Bomb Room
+            DoorIdentifier(RIGHT, 2, 3, 0x190C6, 0x1A480),  # Red Fish Room
+            DoorIdentifier(RIGHT, 0, 4, 0x190D2, 0x1926A),  # Caterpillar Save Room
+            DoorIdentifier(UP, 0, 0, 0x190BA, ELEVATOR),  # Red Brinstar Elevator Room
         ],
     ),
     Room(
@@ -117,7 +117,7 @@ rooms = [
         rom_address=0x7A3AE,
         map=[[1, 1, 1]],
         door_ids=[
-            DoorIdentifier(RIGHT, 2, 0, 0x190EA),
+            DoorIdentifier(RIGHT, 2, 0, 0x190EA, 0x19096),  # Caterpillar Room
         ],
     ),
     Room(
@@ -128,7 +128,7 @@ rooms = [
             [1, 0],
         ],
         door_ids=[
-            DoorIdentifier(RIGHT, 1, 0, 0x190DE),
+            DoorIdentifier(RIGHT, 1, 0, 0x190DE, 0x190A2),  # Caterpillar Room
         ],
     ),
     Room(
@@ -137,7 +137,7 @@ rooms = [
         rom_address=0x7A734,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1926A),
+            DoorIdentifier(LEFT, 0, 0, 0x1926A, 0x190D2),  # Caterpillar Room
         ],
     ),
     Room(
@@ -146,7 +146,7 @@ rooms = [
         rom_address=0x7A618,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(RIGHT, 0, 0, 0x191FE),
+            DoorIdentifier(RIGHT, 0, 0, 0x191FE, 0x1904E),  # Red Tower
         ],
     ),
 ]

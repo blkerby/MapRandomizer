@@ -21,9 +21,9 @@ rooms = [
             [1, 1, 1, 1, 1, 0, 0],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18DA2),
-            DoorIdentifier(LEFT, 0, 6, 0x18DBA),
-            DoorIdentifier(RIGHT, 6, 0, 0x18DAE),
+            DoorIdentifier(LEFT, 0, 0, 0x18DA2, 0x18CE2),  # Green Brinstar Main Shaft
+            DoorIdentifier(LEFT, 0, 6, 0x18DBA, 0x18F6A),  # Dachora Energy Refill Room
+            DoorIdentifier(RIGHT, 6, 0, 0x18DAE, 0x18DD2),  # Big Pink
         ],
     ),
     Room(
@@ -32,7 +32,7 @@ rooms = [
         rom_address=0x7A07B,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(RIGHT, 0, 0, 0x18F6A),
+            DoorIdentifier(RIGHT, 0, 0, 0x18F6A, 0x18DBA),  # Dachora Room
         ],
     ),
     Room(
@@ -51,15 +51,15 @@ rooms = [
             [1, 0, 0, 0, 0],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 1, 0, 0x18DF6),
-            DoorIdentifier(LEFT, 2, 2, 0x18DD2),
-            DoorIdentifier(LEFT, 2, 3, 0x18E02),
-            DoorIdentifier(LEFT, 2, 4, 0x18DDE),
-            DoorIdentifier(LEFT, 0, 9, 0x18E0E),
-            DoorIdentifier(RIGHT, 3, 0, 0x18DC6),
-            DoorIdentifier(RIGHT, 3, 4, 0x18E1A),
-            DoorIdentifier(RIGHT, 4, 5, 0x18E26),
-            DoorIdentifier(RIGHT, 3, 6, 0x18DEA),
+            DoorIdentifier(LEFT, 1, 0, 0x18DF6, 0x18FD6),  # Big Pink Save Room
+            DoorIdentifier(LEFT, 2, 2, 0x18DD2, 0x18DAE),  # Dachora Room
+            DoorIdentifier(LEFT, 2, 3, 0x18E02, 0x18E62),  # Pink Brinstar Power Bomb Room (top)
+            DoorIdentifier(LEFT, 2, 4, 0x18DDE, 0x18E6E),  # Pink Brinstar Power Bomb Room (bottom)
+            DoorIdentifier(LEFT, 0, 9, 0x18E0E, 0x18F8E),  # Waterway Energy Tank Room
+            DoorIdentifier(RIGHT, 3, 0, 0x18DC6, 0x18E32),  # Spore Spawn Kihunter Room
+            DoorIdentifier(RIGHT, 3, 4, 0x18E1A, 0x18FB2),  # Pink Brinstar Hopper Room
+            DoorIdentifier(RIGHT, 4, 5, 0x18E26, 0x18F82),  # Spore Spawn Farming Room
+            DoorIdentifier(RIGHT, 3, 6, 0x18DEA, 0x18E7A),  # Green Hill Zone
         ],
     ),
     Room(
@@ -68,7 +68,7 @@ rooms = [
         rom_address=0x7A184,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(RIGHT, 0, 0, 0x18FD6)
+            DoorIdentifier(RIGHT, 0, 0, 0x18FD6, 0x18DF6)  # Big Pink
         ],
     ),
     Room(
@@ -79,8 +79,8 @@ rooms = [
             [1, 1],
         ],
         door_ids=[
-            DoorIdentifier(RIGHT, 1, 0, 0x18E62),
-            DoorIdentifier(RIGHT, 1, 1, 0x18E6E),
+            DoorIdentifier(RIGHT, 1, 0, 0x18E62, 0x18E02),  # Big Pink (top)
+            DoorIdentifier(RIGHT, 1, 1, 0x18E6E, 0x18DDE),  # Big Pink (bottom)
         ],
     ),
     Room(
@@ -91,8 +91,8 @@ rooms = [
             [1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 1, 0x18FB2),
-            DoorIdentifier(RIGHT, 1, 1, 0x18FBE),
+            DoorIdentifier(LEFT, 0, 1, 0x18FB2, 0x18E1A),  # Big Pink
+            DoorIdentifier(RIGHT, 1, 1, 0x18FBE, 0x18FCA),  # Hopper Energy Tank Room
         ],
     ),
     Room(
@@ -100,7 +100,7 @@ rooms = [
         rom_address=0x7A15B,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18FCA),
+            DoorIdentifier(LEFT, 0, 0, 0x18FCA, 0x18FBE),  # Pink Brinstar Hopper Room
         ],
     ),
     Room(
@@ -118,8 +118,8 @@ rooms = [
             [1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18D2A),
-            DoorIdentifier(LEFT, 0, 8, 0x18D1E),
+            DoorIdentifier(LEFT, 0, 0, 0x18D2A, 0x18E4A),  # Spore Spawn Room
+            DoorIdentifier(LEFT, 0, 8, 0x18D1E, 0x18F76),  # Spore Spawn Farming Room
         ],
     ),
     Room(
@@ -127,8 +127,8 @@ rooms = [
         rom_address=0x7A0A4,
         map=[[1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18F82),
-            DoorIdentifier(RIGHT, 2, 0, 0x18F76),
+            DoorIdentifier(LEFT, 0, 0, 0x18F82, 0x18E26),  # Big Pink
+            DoorIdentifier(RIGHT, 2, 0, 0x18F76, 0x18D1E),  # Spore Spawn Super Room
         ],
     ),
     Room(
@@ -136,7 +136,7 @@ rooms = [
         rom_address=0x7A0D2,
         map=[[1, 1, 1, 1, 1, 1, 1]],
         door_ids=[
-            DoorIdentifier(RIGHT, 6, 0, 0x18F8E),
+            DoorIdentifier(RIGHT, 6, 0, 0x18F8E, 0x18E0E),  # Big Pink
         ],
     ),
 ]

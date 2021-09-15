@@ -13,8 +13,8 @@ rooms = [
         rom_address=0x7CF54,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A36C),
-            DoorIdentifier(RIGHT, 0, 0, 0x1A360),
+            DoorIdentifier(LEFT, 0, 0, 0x1A36C, 0x1911A),  # Below Spazer
+            DoorIdentifier(RIGHT, 0, 0, 0x1A360, 0x1A33C),  # Glass Tunnel
         ],
     ),
     Room(
@@ -25,9 +25,9 @@ rooms = [
             [1, 0, 0, 0],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 1, 0x1A378),
-            DoorIdentifier(RIGHT, 0, 1, 0x1A384),
-            DoorIdentifier(RIGHT, 3, 0, 0x1A390),
+            DoorIdentifier(LEFT, 0, 1, 0x1A378, 0x1A348),  # Glass Tunnel
+            DoorIdentifier(RIGHT, 0, 1, 0x1A384, 0x1922E),  # Warehouse Entrance
+            DoorIdentifier(RIGHT, 3, 0, 0x1A390, 0x1A510),  # Crab Hole
         ],
     ),
     Room(
@@ -39,10 +39,10 @@ rooms = [
             [1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 1, 0x1A33C),
-            DoorIdentifier(RIGHT, 0, 1, 0x1A348),
-            DoorIdentifier(RIGHT, 0, 2, 0x1A354),
-            DoorIdentifier(UP, 0, 0, 0x1A330),
+            DoorIdentifier(LEFT, 0, 1, 0x1A33C, 0x1A360),  # West Tunnel
+            DoorIdentifier(RIGHT, 0, 1, 0x1A348, 0x1A378),  # East Tunnel
+            DoorIdentifier(RIGHT, 0, 2, 0x1A354, 0x1A324),  # Glass Tunnel Save Room
+            DoorIdentifier(UP, 0, 0, 0x1A330, 0x1A39C),  # Main Street
         ],
     ),
     Room(
@@ -50,7 +50,7 @@ rooms = [
         rom_address=0x7CED2,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A324),
+            DoorIdentifier(LEFT, 0, 0, 0x1A324, 0x1A354),  # Glass Tunnel
         ],
     ),
     Room(
@@ -67,11 +67,11 @@ rooms = [
             [1, 1, 0],
         ],
         door_ids=[
-            DoorIdentifier(RIGHT, 1, 0, 0x1A3C0),
-            DoorIdentifier(RIGHT, 2, 2, 0x1A3CC),
-            DoorIdentifier(RIGHT, 2, 6, 0x1A3B4),
-            DoorIdentifier(RIGHT, 1, 7, 0x1A3A8),
-            DoorIdentifier(DOWN, 1, 7, 0x1A39C),
+            DoorIdentifier(RIGHT, 1, 0, 0x1A3C0, 0x1A438),  # Mt. Everest (top)
+            DoorIdentifier(RIGHT, 2, 2, 0x1A3CC, 0x1A45C),  # Mt. Everest (morph passage)
+            DoorIdentifier(RIGHT, 2, 6, 0x1A3B4, 0x1A3D8),  # Fish Tank
+            DoorIdentifier(RIGHT, 1, 7, 0x1A3A8, 0x1A414),  # Crab Tunnel
+            DoorIdentifier(DOWN, 1, 7, 0x1A39C, 0x1A330),  # Glass Tunnel
         ],
     ),
     Room(
@@ -83,10 +83,10 @@ rooms = [
             [1, 1, 1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 2, 0x1A3D8),
-            DoorIdentifier(RIGHT, 3, 2, 0x1A3E4),
-            DoorIdentifier(UP, 0, 0, 0x1A3F0),
-            DoorIdentifier(UP, 3, 0, 0x1A3FC),
+            DoorIdentifier(LEFT, 0, 2, 0x1A3D8, 0x1A3B4),  # Main Street
+            DoorIdentifier(RIGHT, 3, 2, 0x1A3E4, 0x1A408),  # Mama Turtle Room
+            DoorIdentifier(UP, 0, 0, 0x1A3F0, 0x1A444),  # Mt. Everest (left)
+            DoorIdentifier(UP, 3, 0, 0x1A3FC, 0x1A450),  # Mt. Everest (right)
         ],
     ),
     Room(
@@ -100,12 +100,12 @@ rooms = [
             [0, 1, 1, 1, 1, 0],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A438),
-            DoorIdentifier(LEFT, 1, 2, 0x1A45C),  # morph passage
-            DoorIdentifier(RIGHT, 5, 0, 0x1A468),
-            DoorIdentifier(DOWN, 1, 3, 0x1A444),
-            DoorIdentifier(DOWN, 4, 3, 0x1A450),
-            DoorIdentifier(UP, 2, 0, 0x1A42C),
+            DoorIdentifier(LEFT, 0, 0, 0x1A438, 0x1A3C0),  # Main Street (top)
+            DoorIdentifier(LEFT, 1, 2, 0x1A45C, 0x1A3CC),  # Main Street (morph passage)
+            DoorIdentifier(RIGHT, 5, 0, 0x1A468, 0x1A4B0),  # Crab Shaft
+            DoorIdentifier(DOWN, 1, 3, 0x1A444, 0x1A3F0),  # Fish Tank (left)
+            DoorIdentifier(DOWN, 4, 3, 0x1A450, 0x1A3FC),  # Fish Tank (right)
+            DoorIdentifier(UP, 2, 0, 0x1A42C, 0x1A474),  # Red Fish Room
         ],
     ),
     Room(
@@ -118,9 +118,9 @@ rooms = [
             [1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 2, 0x1A4B0),
-            DoorIdentifier(RIGHT, 1, 3, 0x1A4C8),
-            DoorIdentifier(UP, 0, 0, 0x1A4BC),
+            DoorIdentifier(LEFT, 0, 2, 0x1A4B0, 0x1A468),  # Mt. Everest
+            DoorIdentifier(RIGHT, 1, 3, 0x1A4C8, 0x1A708),  # Aqueduct
+            DoorIdentifier(UP, 0, 0, 0x1A4BC, 0x1A4E0),  # Pseudo Plasma Spark Room
         ],
     ),
     Room(
@@ -128,8 +128,8 @@ rooms = [
         rom_address=0x7D08A,
         map=[[1, 1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A414),
-            DoorIdentifier(RIGHT, 3, 0, 0x1A420),
+            DoorIdentifier(LEFT, 0, 0, 0x1A414, 0x1A3A8),  # Main Street
+            DoorIdentifier(RIGHT, 3, 0, 0x1A420, 0x1A4F8),  # Crab Hole
         ],
     ),
     Room(
@@ -140,8 +140,8 @@ rooms = [
             [0, 0, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A480),
-            DoorIdentifier(DOWN, 2, 1, 0x1A474),
+            DoorIdentifier(LEFT, 0, 0, 0x1A480, 0x190C6),  # Caterpillar Room
+            DoorIdentifier(DOWN, 2, 1, 0x1A474, 0x1A42C),  # Mt. Everest
         ],
     ),
     Room(
@@ -154,7 +154,7 @@ rooms = [
             [1, 1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 3, 0x1A408)
+            DoorIdentifier(LEFT, 0, 3, 0x1A408, 0x1A3E4),  # Fish Tank
         ],
     ),
     Room(
@@ -166,8 +166,8 @@ rooms = [
             [1, 1, 1, 0],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 1, 0x1A4D4),
-            DoorIdentifier(DOWN, 0, 2, 0x1A4E0),
+            DoorIdentifier(LEFT, 0, 1, 0x1A4D4, 0x1A4A4),  # Northwest Maridia Bug Room
+            DoorIdentifier(DOWN, 0, 2, 0x1A4E0, 0x1A4BC),  # Crab Shaft
         ],
     ),
     Room(
@@ -178,8 +178,8 @@ rooms = [
             [1, 1, 1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A498),
-            DoorIdentifier(RIGHT, 3, 1, 0x1A4A4),
+            DoorIdentifier(LEFT, 0, 0, 0x1A498, 0x1A48C),  # Watering Hole
+            DoorIdentifier(RIGHT, 3, 1, 0x1A4A4, 0x1A4D4),  # Pseudo Plasma Spark Room
         ],
     ),
     Room(
@@ -191,7 +191,7 @@ rooms = [
             [1, 0],
         ],
         door_ids=[
-            DoorIdentifier(RIGHT, 1, 0, 0x1A48C),
+            DoorIdentifier(RIGHT, 1, 0, 0x1A48C, 0x1A498),  # Northwest Maridia Bug Room
         ],
     ),
 ]

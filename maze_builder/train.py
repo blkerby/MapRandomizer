@@ -183,7 +183,7 @@ while session.replay_buffer.size < session.replay_buffer.capacity:
 #     print(start, end, torch.mean(reward.to(torch.float32)))
 
 
-num_eval_rounds = session.replay_buffer.size // (num_envs * num_devices) // 64
+num_eval_rounds = session.replay_buffer.size // (num_envs * num_devices) // 32
 eval_data_list = []
 for j in range(num_eval_rounds):
     eval_data = session.generate_round(
@@ -216,28 +216,28 @@ eval_data = pickle.load(open('eval_data2.pkl', 'rb'))
 # teacher_model = session.model
 # session.network = make_network()
 num_eval_rounds = session.replay_buffer.size // (num_envs * num_devices) // 64
-session.model = Model(
-    env_config=env_config,
-    max_possible_reward=envs[0].max_reward,
-    map_channels=[32, 64, 128],
-    map_stride=[2, 2, 2],
-    map_kernel_size=[7, 3, 3],
-    map_padding=3 * [False],
-    room_embedding_width=6,
-    fc_widths=[1024, 256, 64],
-    global_dropout_p=0.0,
-).to(device)
 # session.model = Model(
 #     env_config=env_config,
 #     max_possible_reward=envs[0].max_reward,
-#     map_channels=[32, 64, 128, 256, 512],
-#     map_stride=[2, 2, 2, 2, 2],
-#     map_kernel_size=[7, 3, 3, 3, 3],
-#     map_padding=5 * [False],
+#     map_channels=[32, 64, 128],
+#     map_stride=[2, 2, 2],
+#     map_kernel_size=[7, 3, 3],
+#     map_padding=3 * [False],
 #     room_embedding_width=6,
-#     fc_widths=[1024, 1024, 1024],
+#     fc_widths=[1024, 256, 64],
 #     global_dropout_p=0.0,
 # ).to(device)
+session.model = Model(
+    env_config=env_config,
+    max_possible_reward=envs[0].max_reward,
+    map_channels=[32, 64, 128, 256, 512],
+    map_stride=[2, 2, 2, 2, 2],
+    map_kernel_size=[7, 3, 3, 3, 3],
+    map_padding=5 * [False],
+    room_embedding_width=6,
+    fc_widths=[1024, 1024, 1024],
+    global_dropout_p=0.0,
+).to(device)
 session.model.state_value_lin.weight.data.zero_()
 session.model.state_value_lin.bias.data.zero_()
 logging.info(session.model)
@@ -255,7 +255,7 @@ eval_batch_size = 16
 num_steps = session.replay_buffer.capacity // num_envs
 num_train_batches = int(pass_factor * session.replay_buffer.capacity * episode_length // batch_size // num_steps)
 num_eval_batches = num_eval_rounds * num_envs // eval_batch_size
-print_freq = 8
+print_freq = 1
 eval_freq = print_freq
 save_freq = 128
 # for layer in session.network.global_dropout_layers:
@@ -271,9 +271,10 @@ session.sam_scale = None
 session.decay_amount = 0.0
 # session.model.global_dropout_p = 0.1
 
-lr0_init = 0.00005
+lr0_init = 0.001
 lr1_init = 0.00005
 # num_steps = 128
+gen_freq = 16
 num_total_batches = num_train_batches * num_steps
 logging.info("Initial training")
 for k in range(1, num_steps + 1):
@@ -315,30 +316,31 @@ for k in range(1, num_steps + 1):
             k, num_steps, total_loss / total_loss_cnt, lr))
         total_loss = 0
         total_loss_cnt = 0
+    if k % gen_freq == 0:
+        total_reward = 0
+        total_reward2 = 0
+        cnt_episodes = 0
+        post_gen_print_freq = 1
+        for m in range(4):
+            data = session.generate_round(
+                episode_length=episode_length,
+                num_candidates=num_candidates1,
+                temperature=1e-5,  # temperature1,
+                explore_eps=0.0,
+                render=False,
+                executor=executor)
 
-total_reward = 0
-total_reward2 = 0
-cnt_episodes = 0
-post_gen_print_freq = 1
-for i in range(16):
-    data = session.generate_round(
-        episode_length=episode_length,
-        num_candidates=num_candidates1,
-        temperature=0.02, #temperature1,
-        explore_eps=0.01,
-        render=False,
-        executor=executor)
+            total_reward += torch.sum(data.reward.to(torch.float32)).item()
+            total_reward2 += torch.sum(data.reward.to(torch.float32) ** 2).item()
+            cnt_episodes += data.reward.shape[0]
 
-    total_reward += torch.sum(data.reward.to(torch.float32)).item()
-    total_reward2 += torch.sum(data.reward.to(torch.float32) ** 2).item()
-    cnt_episodes += data.reward.shape[0]
+            if m % post_gen_print_freq == 0:
+                mean_reward = total_reward / cnt_episodes
+                std_reward = math.sqrt(total_reward2 / cnt_episodes - mean_reward ** 2)
+                ci_reward = std_reward * 1.96 / math.sqrt(cnt_episodes)
+                logging.info("post gen {}: cost={:.3f} +/- {:.3f}".format(
+                    m, max_possible_reward - mean_reward, ci_reward))
 
-    if i % post_gen_print_freq == 0:
-        mean_reward = total_reward / cnt_episodes
-        std_reward = math.sqrt(total_reward2 / cnt_episodes - mean_reward ** 2)
-        ci_reward = std_reward * 1.96 / math.sqrt(cnt_episodes)
-        logging.info("post gen {}: cost={:.3f} +/- {:.3f}".format(
-            i, max_possible_reward - mean_reward, ci_reward))
 
 
 # pickle.dump(session, open('init_session_trained.pkl', 'wb'))
@@ -359,9 +361,10 @@ session = pickle.load(open('init_session_trained.pkl', 'rb'))
 # session = pickle.load(open('models/session-2021-09-09T08:34:57.448897.pkl-bk', 'rb'))
 # session = pickle.load(open('models/session-2021-09-10T11:37:28.697449.pkl-bk', 'rb'))
 # session = pickle.load(open('models/session-2021-09-09T19:24:28.473375.pkl-bk', 'rb'))
-session = pickle.load(open('models/session-2021-09-11T11:41:25.448242.pkl', 'rb'))
-#
-# teacher_model = session.model
+# session = pickle.load(open('models/session-2021-09-11T11:41:25.448242.pkl', 'rb'))
+session = pickle.load(open('models/session-2021-09-11T16:47:23.572372.pkl-bk6', 'rb'))
+session.average_parameters.use_averages(session.model.all_param_data())
+teacher_model = session.model
 #
 # session.envs = envs
 # session.model = session.model.to(device)
@@ -487,6 +490,6 @@ for i in range(100000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             pickle.dump(session, open(pickle_name, 'wb'))
-            # pickle.dump(session, open(pickle_name + '-bk5', 'wb'))
+            # pickle.dump(session, open(pickle_name + '-bk6', 'wb'))
             # session.replay_buffer.episode_data = episode_data
             # session = pickle.load(open(pickle_name + '-bk4', 'rb'))

@@ -14,7 +14,7 @@ rooms = [
         rom_address=0x7D765,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(RIGHT, 0, 0, 0x1A828),
+            DoorIdentifier(RIGHT, 0, 0, 0x1A828, 0x1A744),  # Aqueduct
         ],
     ),
     Room(
@@ -26,14 +26,16 @@ rooms = [
             [1, 1, 1, 1, 1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 1, 0x1A708),
-            DoorIdentifier(LEFT, 0, 2, 0x1A744),
-            DoorIdentifier(RIGHT, 5, 1, 0x1A738),
-            DoorIdentifier(DOWN, 2, 2, None),  # TODO: add door pointer (for tube)
-            DoorIdentifier(DOWN, 1, 2, 0x1A714, SAND),
-            DoorIdentifier(DOWN, 3, 2, 0x1A720, SAND),
-            DoorIdentifier(UP, 0, 0, 0x1A72C),
-            DoorIdentifier(UP, 2, 0, None),  # TODO: add door pointer (for tube)
+            DoorIdentifier(LEFT, 0, 1, 0x1A708, 0x1A4C8),  # Crab Shaft
+            DoorIdentifier(LEFT, 0, 2, 0x1A744, 0x1A828),  # Aqueduct Save Room
+            DoorIdentifier(RIGHT, 5, 1, 0x1A738, 0x1A7D4),  # Below Botwoon Energy Tank
+            # TODO: add door pointer (for tube):
+            DoorIdentifier(DOWN, 2, 2, None, 0x1A678),  # Oasis
+            DoorIdentifier(DOWN, 1, 2, 0x1A714, 0x1A6D8, SAND),  # West Aqueduct Quicksand Room
+            DoorIdentifier(DOWN, 3, 2, 0x1A720, 0x1A6F0, SAND),  # East Aqueduct Quicksand Room
+            DoorIdentifier(UP, 0, 0, 0x1A72C, 0x1A768),  # Botwoon Hallway
+            # TODO: add door pointer (for tube)
+            DoorIdentifier(UP, 2, 0, None, 0x1A5AC),  # Plasma Spark Room (toilet)
         ],
         # TODO: When considering path-connectedness, handle this room specially to take the vertical tube into account.
     ),
@@ -42,8 +44,8 @@ rooms = [
         rom_address=0x7D617,
         map=[[1, 1, 1, 1]],
         door_ids=[
-            DoorIdentifier(RIGHT, 3, 0, 0x1A774),
-            DoorIdentifier(DOWN, 0, 0, 0x1A768),
+            DoorIdentifier(RIGHT, 3, 0, 0x1A774, 0x1A90C),  # Botwoon's Room
+            DoorIdentifier(DOWN, 0, 0, 0x1A768, 0x1A72C),  # Aqueduct
         ],
     ),
     Room(
@@ -51,8 +53,8 @@ rooms = [
         rom_address=0x7D95E,
         map=[[1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A90C),
-            DoorIdentifier(RIGHT, 1, 0, 0x1A918),
+            DoorIdentifier(LEFT, 0, 0, 0x1A90C, 0x1A774),  # Botwoon Hallway
+            DoorIdentifier(RIGHT, 1, 0, 0x1A918, 0x1A84C),  # Botwoon Energy Tank Room
         ],
     ),
     Room(
@@ -60,10 +62,10 @@ rooms = [
         rom_address=0x7D7E4,
         map=[[1, 1, 1, 1, 1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A84C),
-            DoorIdentifier(RIGHT, 6, 0, 0x1A870),
-            DoorIdentifier(DOWN, 2, 0, 0x1A858, SAND),
-            DoorIdentifier(DOWN, 3, 0, 0x1A864, SAND),
+            DoorIdentifier(LEFT, 0, 0, 0x1A84C, 0x1A918),  # Botwoon's Room
+            DoorIdentifier(RIGHT, 6, 0, 0x1A870, 0x1A8DC),  # Halfie Climb Room
+            DoorIdentifier(DOWN, 2, 0, 0x1A858, None, SAND),  # Botwoon Quicksand Room (left)
+            DoorIdentifier(DOWN, 3, 0, 0x1A864, None, SAND),  # Botwoon Quicksand Room (right)
         ],
     ),
     Room(
@@ -75,10 +77,11 @@ rooms = [
             [1, 1, 1, 1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 1, 0x1A900),
-            DoorIdentifier(LEFT, 0, 2, 0x1A8DC),
-            DoorIdentifier(RIGHT, 0, 0, 0x1A8E8),
-            DoorIdentifier(RIGHT, 4, 2, 0x1A8F4),
+            DoorIdentifier(LEFT, 0, 1, 0x1A900, 0x1A960),  # East Cactus Alley Room
+            DoorIdentifier(LEFT, 0, 2, 0x1A8DC, 0x1A870),  # Botwoon Energy Tank Room
+            DoorIdentifier(RIGHT, 0, 0, 0x1A8E8, 0x1A7E0),  # Colosseum
+            # TODO: fix this (from sm-json-data):
+            DoorIdentifier(RIGHT, 4, 2, 0x1A8F4, 0x1A8F4),  # Maridia Missile Refill Room
         ],
     ),
     Room(
@@ -86,7 +89,8 @@ rooms = [
         rom_address=0x7D845,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A8F4),
+            # TODO: fix this (from sm-json-data)
+            DoorIdentifier(LEFT, 0, 0, 0x1A8F4, 0x1A8F4),  # Halfie Climb Room
         ],
     ),
     Room(
@@ -97,9 +101,9 @@ rooms = [
             [1, 1, 1, 1, 1, 1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A7E0),
-            DoorIdentifier(RIGHT, 6, 0, 0x1A7EC),
-            DoorIdentifier(RIGHT, 6, 1, 0x1A7F8),
+            DoorIdentifier(LEFT, 0, 0, 0x1A7E0, 0x1A8E8),  # Halfie Climb Room
+            DoorIdentifier(RIGHT, 6, 0, 0x1A7EC, 0x1A888),  # Draygon Save Room
+            DoorIdentifier(RIGHT, 6, 1, 0x1A7F8, 0x1A834),  # The Precious Room
         ]
     ),
     Room(
@@ -107,8 +111,8 @@ rooms = [
         rom_address=0x7D81A,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A888),
-            DoorIdentifier(RIGHT, 0, 0, 0x1A87C),
+            DoorIdentifier(LEFT, 0, 0, 0x1A888, 0x1A7EC),  # Colosseum
+            DoorIdentifier(RIGHT, 0, 0, 0x1A87C, 0x1A930),  # Maridia Health Refill Room
         ],
     ),
     Room(
@@ -116,7 +120,7 @@ rooms = [
         rom_address=0x7D9D4,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A930),
+            DoorIdentifier(LEFT, 0, 0, 0x1A930, 0x1A87C),  # Draygon Save Room
         ],
     ),
     Room(
@@ -128,8 +132,8 @@ rooms = [
             [1, 0],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A834),
-            DoorIdentifier(LEFT, 0, 2, 0x1A840),
+            DoorIdentifier(LEFT, 0, 0, 0x1A834, 0x1A7F8),  # Colosseum
+            DoorIdentifier(LEFT, 0, 2, 0x1A840, 0x1A96C),  # Draygon's Room
         ],
     ),
     Room(
@@ -140,8 +144,8 @@ rooms = [
             [1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 1, 0x1A978),
-            DoorIdentifier(RIGHT, 1, 0, 0x1A96C),
+            DoorIdentifier(LEFT, 0, 1, 0x1A978, 0x1A924),  # Space Jump Room
+            DoorIdentifier(RIGHT, 1, 0, 0x1A96C, 0x1A840),  # The Precious Room
         ],
     ),
     Room(
@@ -149,7 +153,7 @@ rooms = [
         rom_address=0x7D9AA,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(RIGHT, 0, 0, 0x1A924),
+            DoorIdentifier(RIGHT, 0, 0, 0x1A924, 0x1A978),  # Draygon's Room
         ],
     ),
     Room(
@@ -160,8 +164,8 @@ rooms = [
             [1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 1, 0x1A93C),
-            DoorIdentifier(RIGHT, 0, 0, 0x1A948),
+            DoorIdentifier(LEFT, 0, 1, 0x1A93C, 0x1A75C),  # Butterfly Room
+            DoorIdentifier(RIGHT, 0, 0, 0x1A948, 0x1A954),  # East Cactus Alley Room
         ],
     ),
     Room(
@@ -172,8 +176,8 @@ rooms = [
             [1, 1, 1, 1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A954),
-            DoorIdentifier(RIGHT, 4, 1, 0x1A960),
+            DoorIdentifier(LEFT, 0, 0, 0x1A954, 0x1A948),  # West Cactus Alley Room
+            DoorIdentifier(RIGHT, 4, 1, 0x1A960, 0x1A900),  # Halfie Climb Room
         ],
     ),
     Room(
@@ -188,10 +192,10 @@ rooms = [
             [0, 1, 1, 1],
         ],
         door_ids=[
-            DoorIdentifier(RIGHT, 2, 1, 0x1A5B8),
-            DoorIdentifier(RIGHT, 3, 3, 0x1A5C4),
-            DoorIdentifier(RIGHT, 3, 5, 0x1A5A0),
-            DoorIdentifier(DOWN, 0, 3, 0x1A5AC),
+            DoorIdentifier(RIGHT, 2, 1, 0x1A5B8, 0x1A5D0),  # Kassiuz Room
+            DoorIdentifier(RIGHT, 3, 3, 0x1A5C4, 0x1A630),  # Bug Sand Hole
+            DoorIdentifier(RIGHT, 3, 5, 0x1A5A0, 0x1A750),  # Butterfly Room
+            DoorIdentifier(DOWN, 0, 3, 0x1A5AC, None),  # Aqueduct (toilet)
         ],
     ),
     Room(
@@ -202,9 +206,9 @@ rooms = [
             [1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 1, 0x1A660),
-            DoorIdentifier(RIGHT, 0, 1, 0x1A66C),
-            DoorIdentifier(UP, 0, 0, 0x1A678),
+            DoorIdentifier(LEFT, 0, 1, 0x1A660, 0x1A648),  # West Sand Hall
+            DoorIdentifier(RIGHT, 0, 1, 0x1A66C, 0x1A684),  # East Sand Hall
+            DoorIdentifier(UP, 0, 0, 0x1A678, None),  # Aqueduct (toilet)
         ],
     ),
     Room(
@@ -212,9 +216,10 @@ rooms = [
         rom_address=0x7D461,
         map=[[1, 1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A63C),
-            DoorIdentifier(RIGHT, 3, 0, 0x1A648),
-            DoorIdentifier(UP, 2, 0, 0x1A654, SAND),  # TODO: should this not have a pointer?
+            DoorIdentifier(LEFT, 0, 0, 0x1A63C, 0x1A534),  # West Sand Hall Tunnel
+            DoorIdentifier(RIGHT, 3, 0, 0x1A648, 0x1A660),  # Oasis
+            # TODO: should this not have an exit pointer?:
+            DoorIdentifier(UP, 2, 0, 0x1A654, 0x1A6B4, SAND),  # West Sand Hole
         ],
     ),
     Room(
@@ -222,8 +227,8 @@ rooms = [
         rom_address=0x7D252,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A528),
-            DoorIdentifier(RIGHT, 0, 0, 0x1A534),
+            DoorIdentifier(LEFT, 0, 0, 0x1A528, 0x1A504),  # Crab Hole
+            DoorIdentifier(RIGHT, 0, 0, 0x1A534, 0x1A63C),  # West Sand Hall
         ],
     ),
     Room(
@@ -231,7 +236,7 @@ rooms = [
         rom_address=0x7D3B6,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A5E8),
+            DoorIdentifier(LEFT, 0, 0, 0x1A5E8, 0x1A51C),  # Crab Hole
         ],
     ),
     Room(
@@ -239,10 +244,10 @@ rooms = [
         rom_address=0x7D898,
         map=[[1, 1]],
         door_ids=[
-            DoorIdentifier(DOWN, 0, 0, 0x1A8AC, SAND),
-            DoorIdentifier(DOWN, 1, 0, 0x1A8B8, SAND),
-            DoorIdentifier(UP, 0, 0, None, SAND),
-            DoorIdentifier(UP, 1, 0, None, SAND),
+            DoorIdentifier(DOWN, 0, 0, 0x1A8AC, None, SAND),  # Below Botwoon Energy Tank (left)
+            DoorIdentifier(DOWN, 1, 0, 0x1A8B8, None, SAND),  # Below Botwoon Energy Tank (right)
+            DoorIdentifier(UP, 0, 0, None, 0x1A858, SAND),  # Botwoon Energy Tank Room (left)
+            DoorIdentifier(UP, 1, 0, None, 0x1A864, SAND),  # Botwoon Energy Tank Room (right)
         ],
     ),
     Room(
@@ -250,9 +255,9 @@ rooms = [
         rom_address=0x7D6FD,
         map=[[1, 1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A7D4),
-            DoorIdentifier(UP, 2, 0, None, SAND),
-            DoorIdentifier(UP, 3, 0, None, SAND),
+            DoorIdentifier(LEFT, 0, 0, 0x1A7D4, 0x1A738),  # Aqueduct
+            DoorIdentifier(UP, 2, 0, None, 0x1A8AC, SAND),  # Botwoon Quicksand Room (left)
+            DoorIdentifier(UP, 3, 0, None, 0x1A8B8, SAND),  # Botwoon Quicksand Room (right)
         ],
     ),
     Room(
@@ -263,8 +268,10 @@ rooms = [
             [1],
         ],
         door_ids=[
-            DoorIdentifier(DOWN, 0, 1, 0x1A6E4, SAND),
-            DoorIdentifier(UP, 0, 0, 0x1A6D8, SAND),  # TODO: Should this entrance not have a pointer?
+            # TODO: Should this not have an entrance pointer?:
+            DoorIdentifier(DOWN, 0, 1, 0x1A6E4, 0x1A6A8, SAND),  # West Sand Hole
+            # TODO: Should this not have an exit pointer?:
+            DoorIdentifier(UP, 0, 0, 0x1A6D8, 0x1A714, SAND),  # Aqueduct
         ],
     ),
     Room(
@@ -275,8 +282,10 @@ rooms = [
             [1],
         ],
         door_ids=[
-            DoorIdentifier(DOWN, 0, 1, 0x1A6FC, SAND),
-            DoorIdentifier(UP, 0, 0, 0x1A6F0, SAND),  # TODO: Should this entrance not have a pointer?
+            # TODO: Should this not have an entrance pointer?
+            DoorIdentifier(DOWN, 0, 1, 0x1A6FC, 0x1A6C0, SAND),
+            # TODO: Should this not have an exit pointer?
+            DoorIdentifier(UP, 0, 0, 0x1A6F0, 0x1A720, SAND),
         ],
     ),
     Room(
@@ -287,8 +296,10 @@ rooms = [
             [1, 1],
         ],
         door_ids=[
-            DoorIdentifier(DOWN, 1, 1, 0x1A6CC, SAND),
-            DoorIdentifier(UP, 0, 0, 0x1A6C0, SAND),  # TODO: Should this entrance not have a pointer?
+            # TODO: Should this not have an entrance pointer?
+            DoorIdentifier(DOWN, 1, 1, 0x1A6CC, 0x1A69C, SAND),  # East Sand Hall
+            # TODO: Should this not have an exit pointer?
+            DoorIdentifier(UP, 0, 0, 0x1A6C0, 0x1A6FC, SAND),  # East Aqueduct Quicksand Room
         ],
     ),
     Room(
@@ -299,8 +310,10 @@ rooms = [
             [1, 1],
         ],
         door_ids=[
-            DoorIdentifier(DOWN, 0, 1, 0x1A6B4, SAND),
-            DoorIdentifier(UP, 1, 0, 0x1A6A8, SAND),  # TODO: Should this entrance not have a pointer?
+            # TODO: Should this not have an entrance pointer?
+            DoorIdentifier(DOWN, 0, 1, 0x1A6B4, 0x1A654, SAND),  # West Sand Hall
+            # TODO: Should this not have an exit pointer?
+            DoorIdentifier(UP, 1, 0, 0x1A6A8, 0x1A6E4, SAND),  # West Aqueduct Quicksand Room
         ],
     ),
     Room(
@@ -308,9 +321,9 @@ rooms = [
         rom_address=0x7D4C2,
         map=[[1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A684),
-            DoorIdentifier(RIGHT, 2, 0, 0x1A690),
-            DoorIdentifier(UP, 1, 0, 0x1A69C, SAND),
+            DoorIdentifier(LEFT, 0, 0, 0x1A684, 0x1A66C),  # Oasis
+            DoorIdentifier(RIGHT, 2, 0, 0x1A690, 0x1A780),  # Pants Room
+            DoorIdentifier(UP, 1, 0, 0x1A69C, 0x1A6CC, SAND),  # East Sand Hole
         ],
     ),
     Room(
@@ -318,9 +331,9 @@ rooms = [
         rom_address=0x7D433,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A630),
-            DoorIdentifier(RIGHT, 0, 0, 0x1A618),
-            DoorIdentifier(DOWN, 0, 0, 0x1A624, SAND),
+            DoorIdentifier(LEFT, 0, 0, 0x1A630, 0x1A5C4),  # Plasma Spark Room
+            DoorIdentifier(RIGHT, 0, 0, 0x1A618, 0x1A564),  # Thread The Needle Room
+            DoorIdentifier(DOWN, 0, 0, 0x1A624, None, SAND),  # Plasma Beach Quicksand Room
         ],
     ),
     Room(
@@ -328,8 +341,8 @@ rooms = [
         rom_address=0x7D86E,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(DOWN, 0, 0, 0x1A8A0, SAND),
-            DoorIdentifier(UP, 0, 0, None, SAND),
+            DoorIdentifier(DOWN, 0, 0, 0x1A8A0, None, SAND),  # Butterfly Room
+            DoorIdentifier(UP, 0, 0, None, 0x1A624, SAND),  # Bug Sand Hole
         ],
     ),
     Room(
@@ -337,9 +350,9 @@ rooms = [
         rom_address=0x7D5EC,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A750),
-            DoorIdentifier(RIGHT, 0, 0, 0x1A75C),
-            DoorIdentifier(UP, 0, 0, None, SAND),
+            DoorIdentifier(LEFT, 0, 0, 0x1A750, 0x1A5A0),  # Plasma Spark Room
+            DoorIdentifier(RIGHT, 0, 0, 0x1A75C, 0x1A93C),  # West Cactus Alley Room
+            DoorIdentifier(UP, 0, 0, None, 0x1A8A0, SAND),  # Plasma Beach Quicksand Room
         ],
     ),
     Room(
@@ -347,8 +360,8 @@ rooms = [
         rom_address=0x7D2D9,
         map=[[1, 1, 1, 1, 1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A564),
-            DoorIdentifier(RIGHT, 6, 0, 0x1A570),
+            DoorIdentifier(LEFT, 0, 0, 0x1A564, 0x1A618),  # Bug Sand Hole
+            DoorIdentifier(RIGHT, 6, 0, 0x1A570, 0x1A57C),  # Maridia Elevator Room
         ],
     ),
     Room(
@@ -363,9 +376,9 @@ rooms = [
             [1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 5, 0x1A57C),
-            DoorIdentifier(RIGHT, 0, 4, 0x1A588),
-            DoorIdentifier(UP, 0, 0, 0x1A594, ELEVATOR)
+            DoorIdentifier(LEFT, 0, 5, 0x1A57C, 0x1A570),  # Thread The Needle Room
+            DoorIdentifier(RIGHT, 0, 4, 0x1A588, 0x1A5F4),  # Forgotten Highway Save Room
+            DoorIdentifier(UP, 0, 0, 0x1A594, 0x18A5A, ELEVATOR)  # Forgotten Highway Elevator
         ],
     ),
     Room(
@@ -373,7 +386,7 @@ rooms = [
         rom_address=0x7D3DF,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A5F4),
+            DoorIdentifier(LEFT, 0, 0, 0x1A5F4, 0x1A588),  # Maridia Elevator Room
         ],
     ),
     Room(
@@ -386,8 +399,8 @@ rooms = [
             [1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 3, 0x1A5D0),
-            DoorIdentifier(RIGHT, 0, 0, 0x1A5DC),
+            DoorIdentifier(LEFT, 0, 3, 0x1A5D0, 0x1A5B8),  # Plasma Spark Room
+            DoorIdentifier(RIGHT, 0, 0, 0x1A5DC, 0x1A540),  # Plasma Tutorial Room
         ],
     ),
     Room(
@@ -395,8 +408,8 @@ rooms = [
         rom_address=0x7D27E,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A540),
-            DoorIdentifier(RIGHT, 0, 0, 0x1A54C),
+            DoorIdentifier(LEFT, 0, 0, 0x1A540, 0x1A5DC),  # Kassiuz Room
+            DoorIdentifier(RIGHT, 0, 0, 0x1A54C, 0x1A558),  # Plasma Room
         ],
     ),
     Room(
@@ -408,7 +421,7 @@ rooms = [
             [1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A558),
+            DoorIdentifier(LEFT, 0, 0, 0x1A558, 0x1A54C),  # Plasma Tutorial Room
         ],
     ),
     Room(
@@ -421,10 +434,10 @@ rooms = [
             [1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 3, 0x1A780),
-            DoorIdentifier(LEFT, 1, 3, 0x1A7A4),  # East pants room twin door: 0x1A7B0
-            DoorIdentifier(RIGHT, 0, 3, 0x1A78C),
-            DoorIdentifier(RIGHT, 1, 2, 0x1A798),  # East pants room twin door: 0x1A7BC
+            DoorIdentifier(LEFT, 0, 3, 0x1A780, 0x1A690),  # East Sand Hall
+            DoorIdentifier(LEFT, 1, 3, 0x1A7A4, 0x1A78C),  # Pants Room (East pants room twin door: 0x1A7B0)
+            DoorIdentifier(RIGHT, 0, 3, 0x1A78C, 0x1A7A4),  # Pants Room
+            DoorIdentifier(RIGHT, 1, 2, 0x1A798, 0x1A8C4),  # Shaktool room (East pants room twin door: 0x1A7BC)
         ],
     ),
     Room(
@@ -432,8 +445,8 @@ rooms = [
         rom_address=0x7D8C5,
         map=[[1, 1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A8C4),
-            DoorIdentifier(RIGHT, 3, 0, 0x1A8D0),
+            DoorIdentifier(LEFT, 0, 0, 0x1A8C4, 0x1A798),  # Pants Room
+            DoorIdentifier(RIGHT, 3, 0, 0x1A8D0, 0x1A7C8),  # Spring Ball Room
         ],
     ),
     Room(
@@ -444,7 +457,7 @@ rooms = [
             [1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A7C8),
+            DoorIdentifier(LEFT, 0, 0, 0x1A7C8, 0x1A8D0),  # Shaktool Room
         ],
     ),
     Room(
@@ -455,10 +468,10 @@ rooms = [
             [1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A4F8),
-            DoorIdentifier(LEFT, 0, 1, 0x1A510),
-            DoorIdentifier(RIGHT, 0, 0, 0x1A504),
-            DoorIdentifier(RIGHT, 0, 1, 0x1A51C),
+            DoorIdentifier(LEFT, 0, 0, 0x1A4F8, 0x1A420),  # Crab Tunnel
+            DoorIdentifier(LEFT, 0, 1, 0x1A510, 0x1A390),  # East Tunnel
+            DoorIdentifier(RIGHT, 0, 0, 0x1A504, 0x1A528),  # West Sand Hall Tunnel
+            DoorIdentifier(RIGHT, 0, 1, 0x1A51C, 0x1A5E8),  # Maridia Map Room
         ],
     ),
 ]
