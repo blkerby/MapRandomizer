@@ -109,7 +109,7 @@ rooms = [
             DoorIdentifier(LEFT, 0, 7, 0x19096, 0x190EA),  # Alpha Power Bomb Room
             DoorIdentifier(RIGHT, 2, 3, 0x190C6, 0x1A480),  # Red Fish Room
             DoorIdentifier(RIGHT, 0, 4, 0x190D2, 0x1926A),  # Caterpillar Save Room
-            DoorIdentifier(UP, 0, 0, 0x190BA, ELEVATOR),  # Red Brinstar Elevator Room
+            DoorIdentifier(UP, 0, 0, 0x190BA, 0x18B02, ELEVATOR),  # Red Brinstar Elevator Room
         ],
     ),
     Room(

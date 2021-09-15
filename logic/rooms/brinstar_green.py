@@ -46,7 +46,7 @@ rooms = [
             [1, 1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 1, 0x18D4E, 0x18CEE),  # Green Brinstar Main Shaft
+            DoorIdentifier(LEFT, 0, 1, 0x18D4E, 0x18CD6),  # Green Brinstar Main Shaft
             DoorIdentifier(RIGHT, 2, 1, 0x18D5A, 0x18D66),  # Brinstar Reserve Tank Room
         ],
     ),

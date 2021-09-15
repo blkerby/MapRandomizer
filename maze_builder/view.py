@@ -3,7 +3,7 @@ import time
 import torch
 import logging
 from maze_builder.env import MazeBuilderEnv
-from maze_builder.types import reconstruct_room_data
+from maze_builder.types import reconstruct_room_data, Direction
 import logic.rooms.all_rooms
 import pickle
 import concurrent.futures
@@ -43,6 +43,34 @@ session = CPU_Unpickler(open('models/09-13-session-2021-09-11T16:47:23.572372.pk
 num_envs = 1
 # num_envs = 8
 rooms = logic.rooms.all_rooms.rooms
+
+
+doors = {}
+for room in rooms:
+    for door in room.door_ids:
+        key = (door.exit_ptr, door.entrance_ptr)
+        doors[key] = door
+for key in doors:
+    exit_ptr, entrance_ptr = key
+    reversed_key = (entrance_ptr, exit_ptr)
+    if reversed_key not in doors:
+        print('{:x} {:x}'.format(key[0], key[1]))
+    else:
+        door = doors[key]
+        reversed_door = doors[reversed_key]
+        assert door.subtype == reversed_door.subtype
+        if door.direction == Direction.DOWN:
+            assert reversed_door.direction == Direction.UP
+        elif door.direction == Direction.UP:
+            assert reversed_door.direction == Direction.DOWN
+        elif door.direction == Direction.RIGHT:
+            assert reversed_door.direction == Direction.LEFT
+        elif door.direction == Direction.LEFT:
+            assert reversed_door.direction == Direction.RIGHT
+        else:
+            assert False
+
+
 episode_length = len(rooms)
 env = MazeBuilderEnv(rooms,
                      map_x=session.envs[0].map_x,

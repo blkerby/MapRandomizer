@@ -598,7 +598,7 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x19702, 0x1982E),  # Lower Norfair Elevator Save Room
             DoorIdentifier(RIGHT, 0, 0, 0x196EA, 0x196DE),  # Lava Dive Room
-            DoorIdentifier(DOWN, 0, 0, 0x196F6, ELEVATOR),  # Main Hall
+            DoorIdentifier(DOWN, 0, 0, 0x196F6, 0x1986A, ELEVATOR),  # Main Hall
         ],
     ),
     Room(

@@ -42,7 +42,7 @@ rooms = [
         rom_address=0x795D4,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18AC6, 0x18A2A),  # Landing Site
+            DoorIdentifier(LEFT, 0, 0, 0x18AC6, 0x18922),  # Landing Site
             DoorIdentifier(RIGHT, 0, 0, 0x18AD2, 0x18A2A),  # Crateria Kihunter Room
         ]
     ),
