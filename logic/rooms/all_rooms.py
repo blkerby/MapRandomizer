@@ -11,6 +11,11 @@ from logic.rooms import norfair_upper
 from logic.rooms import wrecked_ship
 from logic.rooms import tourian
 
+# TODO: fix in sm-json-data:
+# Fix door address for Green Brinstar Main Shaft door to Firefleas: should be 0x18CCA
+# Fix door address for Maridia Missile Refill door (to Halfie Climb Room): should be 0x1A894 (not 0x1A8F4)
+# Fix name of door to Magdollite Tunnel in Purple Shaft
+
 rooms = (
         crateria.rooms +
         brinstar_red.rooms +

@@ -27,9 +27,8 @@ rooms = [
         ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 4, 0x18CB2, 0x18D42),  # Brinstar Pre-Map Room
-            # TODO: Fix below, one of these 0x18D12 must be an error (from sm-json-data)
             DoorIdentifier(LEFT, 0, 5, 0x18D12, 0x19006),  # Green Brinstar Main Shaft Save Room
-            DoorIdentifier(LEFT, 0, 6, 0x18D12, 0x18D8A),  # Green Brinstar Fireflea Room
+            DoorIdentifier(LEFT, 0, 6, 0x18CCA, 0x18D8A),  # Green Brinstar Fireflea Room (TODO: fix to 0x18CCA in sm-json-data)
             DoorIdentifier(LEFT, 1, 7, 0x18D06, 0x18CEE),  # Green Brinstar Main Shaft (from Etecoons)
             DoorIdentifier(LEFT, 0, 10, 0x18CBE, 0x18F16),  # Green Brinstar Beetom Room
             DoorIdentifier(LEFT, 2, 11, 0x18CFA, 0x18F46),  # Etecoon Energy Tank Room
@@ -85,7 +84,7 @@ rooms = [
         ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 1, 0x18D7E, 0x18D96),  # Green Brinstar Missile Refill Room
-            DoorIdentifier(RIGHT, 2, 0, 0x18D8A, 0x18D12),  # Green Brinstar Main Shaft (TODO: check if the entrance is wrong)
+            DoorIdentifier(RIGHT, 2, 0, 0x18D8A, 0x18CCA),  # Green Brinstar Main Shaft
         ],
     ),
     Room(

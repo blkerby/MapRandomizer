@@ -29,15 +29,13 @@ rooms = [
             DoorIdentifier(LEFT, 0, 1, 0x1A708, 0x1A4C8),  # Crab Shaft
             DoorIdentifier(LEFT, 0, 2, 0x1A744, 0x1A828),  # Aqueduct Save Room
             DoorIdentifier(RIGHT, 5, 1, 0x1A738, 0x1A7D4),  # Below Botwoon Energy Tank
-            # TODO: add door pointer (for tube):
+            # TODO: Figure out how to make the tube work (if we can)
             DoorIdentifier(DOWN, 2, 2, None, 0x1A678),  # Oasis
             DoorIdentifier(DOWN, 1, 2, 0x1A714, 0x1A6D8, SAND),  # West Aqueduct Quicksand Room
             DoorIdentifier(DOWN, 3, 2, 0x1A720, 0x1A6F0, SAND),  # East Aqueduct Quicksand Room
             DoorIdentifier(UP, 0, 0, 0x1A72C, 0x1A768),  # Botwoon Hallway
-            # TODO: add door pointer (for tube)
             DoorIdentifier(UP, 2, 0, None, 0x1A5AC),  # Plasma Spark Room (toilet)
         ],
-        # TODO: When considering path-connectedness, handle this room specially to take the vertical tube into account.
     ),
     Room(
         name='Botwoon Hallway',
@@ -80,8 +78,7 @@ rooms = [
             DoorIdentifier(LEFT, 0, 1, 0x1A900, 0x1A960),  # East Cactus Alley Room
             DoorIdentifier(LEFT, 0, 2, 0x1A8DC, 0x1A870),  # Botwoon Energy Tank Room
             DoorIdentifier(RIGHT, 0, 0, 0x1A8E8, 0x1A7E0),  # Colosseum
-            # TODO: fix this (from sm-json-data):
-            DoorIdentifier(RIGHT, 4, 2, 0x1A8F4, 0x1A8F4),  # Maridia Missile Refill Room
+            DoorIdentifier(RIGHT, 4, 2, 0x1A8F4, 0x1A894),  # Maridia Missile Refill Room
         ],
     ),
     Room(
@@ -89,8 +86,7 @@ rooms = [
         rom_address=0x7D845,
         map=[[1]],
         door_ids=[
-            # TODO: fix this (from sm-json-data)
-            DoorIdentifier(LEFT, 0, 0, 0x1A8F4, 0x1A8F4),  # Halfie Climb Room
+            DoorIdentifier(LEFT, 0, 0, 0x1A894, 0x1A8F4),  # Halfie Climb Room
         ],
     ),
     Room(
@@ -218,7 +214,6 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1A63C, 0x1A534),  # West Sand Hall Tunnel
             DoorIdentifier(RIGHT, 3, 0, 0x1A648, 0x1A660),  # Oasis
-            # TODO: should this not have an exit pointer?:
             DoorIdentifier(UP, 2, 0, 0x1A654, 0x1A6B4, SAND),  # West Sand Hole
         ],
     ),
@@ -268,9 +263,7 @@ rooms = [
             [1],
         ],
         door_ids=[
-            # TODO: Should this not have an entrance pointer?:
             DoorIdentifier(DOWN, 0, 1, 0x1A6E4, 0x1A6A8, SAND),  # West Sand Hole
-            # TODO: Should this not have an exit pointer?:
             DoorIdentifier(UP, 0, 0, 0x1A6D8, 0x1A714, SAND),  # Aqueduct
         ],
     ),
@@ -282,9 +275,7 @@ rooms = [
             [1],
         ],
         door_ids=[
-            # TODO: Should this not have an entrance pointer?
             DoorIdentifier(DOWN, 0, 1, 0x1A6FC, 0x1A6C0, SAND),
-            # TODO: Should this not have an exit pointer?
             DoorIdentifier(UP, 0, 0, 0x1A6F0, 0x1A720, SAND),
         ],
     ),
@@ -296,9 +287,7 @@ rooms = [
             [1, 1],
         ],
         door_ids=[
-            # TODO: Should this not have an entrance pointer?
             DoorIdentifier(DOWN, 1, 1, 0x1A6CC, 0x1A69C, SAND),  # East Sand Hall
-            # TODO: Should this not have an exit pointer?
             DoorIdentifier(UP, 0, 0, 0x1A6C0, 0x1A6FC, SAND),  # East Aqueduct Quicksand Room
         ],
     ),
@@ -310,9 +299,7 @@ rooms = [
             [1, 1],
         ],
         door_ids=[
-            # TODO: Should this not have an entrance pointer?
             DoorIdentifier(DOWN, 0, 1, 0x1A6B4, 0x1A654, SAND),  # West Sand Hall
-            # TODO: Should this not have an exit pointer?
             DoorIdentifier(UP, 1, 0, 0x1A6A8, 0x1A6E4, SAND),  # West Aqueduct Quicksand Room
         ],
     ),

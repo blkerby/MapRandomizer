@@ -271,16 +271,17 @@ session.sam_scale = None
 session.decay_amount = 0.0
 # session.model.global_dropout_p = 0.1
 
-lr0_init = 0.001
+lr0_init = 0.0004
 lr1_init = 0.00005
 # num_steps = 128
 gen_freq = 16
 num_total_batches = num_train_batches * num_steps
 logging.info("Initial training")
-for k in range(1, num_steps + 1):
+init_train_round = 1
+while init_train_round <= num_steps:
     session.model.train()
     for j in range(num_train_batches):
-        frac = (k * num_train_batches + j) / num_total_batches
+        frac = (init_train_round * num_train_batches + j) / num_total_batches
         lr = lr0_init * (lr1_init / lr0_init) ** frac
         session.optimizer.param_groups[0]['lr'] = lr
 
@@ -290,7 +291,7 @@ for k in range(1, num_steps + 1):
             total_loss += session.train_distillation_batch_augmented(data, teacher_model, num_candidates=4)
             total_loss_cnt += 1
             torch.cuda.synchronize(session.envs[0].device)
-    if k % eval_freq == 0:
+    if init_train_round % eval_freq == 0:
         total_eval_loss = 0.0
         total_eval_mse = 0.0
         session.model.eval()
@@ -308,17 +309,18 @@ for k in range(1, num_steps + 1):
             total_eval_loss += eval_loss
             total_eval_mse += eval_mse
         logging.info("init train {}/{}: loss={:.5f}, eval_loss={:.5f}, eval_mse={:.2f}, lr={:.6f}".format(
-            k, num_steps, total_loss / total_loss_cnt, total_eval_loss / num_eval_batches, total_eval_mse / num_eval_batches, lr))
+            init_train_round, num_steps, total_loss / total_loss_cnt, total_eval_loss / num_eval_batches, total_eval_mse / num_eval_batches, lr))
         total_loss = 0
         total_loss_cnt = 0
-    elif k % print_freq == 0:
+    elif init_train_round % print_freq == 0:
         logging.info("init train {}/{}: loss={:.5f}, lr={:.6f}".format(
-            k, num_steps, total_loss / total_loss_cnt, lr))
+            init_train_round, num_steps, total_loss / total_loss_cnt, lr))
         total_loss = 0
         total_loss_cnt = 0
-    if k % gen_freq == 0:
+    if init_train_round % gen_freq == 0:
         total_reward = 0
         total_reward2 = 0
+        cnt_perfect = 0
         cnt_episodes = 0
         post_gen_print_freq = 1
         for m in range(4):
@@ -332,15 +334,16 @@ for k in range(1, num_steps + 1):
 
             total_reward += torch.sum(data.reward.to(torch.float32)).item()
             total_reward2 += torch.sum(data.reward.to(torch.float32) ** 2).item()
+            cnt_perfect += torch.sum(data.reward == max_possible_reward)
             cnt_episodes += data.reward.shape[0]
 
             if m % post_gen_print_freq == 0:
                 mean_reward = total_reward / cnt_episodes
                 std_reward = math.sqrt(total_reward2 / cnt_episodes - mean_reward ** 2)
                 ci_reward = std_reward * 1.96 / math.sqrt(cnt_episodes)
-                logging.info("post gen {}: cost={:.3f} +/- {:.3f}".format(
-                    m, max_possible_reward - mean_reward, ci_reward))
-
+                logging.info("post gen {}: cost={:.3f} +/- {:.3f} (frac={:.4f})".format(
+                    m, max_possible_reward - mean_reward, ci_reward, cnt_perfect / cnt_episodes))
+    init_train_round += 1
 
 
 # pickle.dump(session, open('init_session_trained.pkl', 'wb'))
