@@ -11,6 +11,7 @@ import concurrent.futures
 import logging
 from dataclasses import dataclass
 import util
+import numpy as np
 
 
 # TODO: try using torch.multinomial instead of implementing this from scratch?
@@ -99,7 +100,7 @@ class TrainingSession():
         action_expected = expected[:, 1:]
         return state_expected, action_expected, state_raw_logodds, raw_logodds
 
-    def generate_round_inner(self, model, episode_length: int, num_candidates: int, temperature: float,
+    def generate_round_inner(self, models, model_fractions, episode_length: int, num_candidates: int, temperature: float,
                              explore_eps: float,
                              env_id, render=False) -> EpisodeData:
         device = self.envs[env_id].device
@@ -108,8 +109,8 @@ class TrainingSession():
         state_raw_logodds_list = []
         action_list = []
         prob_list = []
-        round_tensor = torch.full([env.num_envs], self.num_rounds, dtype=torch.int64, device=device)
-        model.eval()
+        for model in models:
+            model.eval()
         # torch.cuda.synchronize()
         # logging.debug("Averaging parameters")
         for j in range(episode_length):
@@ -120,6 +121,9 @@ class TrainingSession():
             action_candidates = env.get_action_candidates(num_candidates, env.room_mask, env.room_position_x, env.room_position_y)
             steps_remaining = torch.full([env.num_envs], episode_length - j,
                                          dtype=torch.float32, device=device)
+
+            model_index = np.random.choice(len(models), p=model_fractions)
+            model = models[model_index]
             with torch.no_grad():
                 # print("inner", env_id, j, env.device, model.state_value_lin.weight.device)
                 state_expected, action_expected, state_raw_logodds, _ = self.forward_state_action(
@@ -162,29 +166,41 @@ class TrainingSession():
             test_loss=episode_loss,
         )
 
-    def generate_round(self, episode_length: int, num_candidates: int, temperature: float, explore_eps: float,
+    def generate_round_models(self, models, model_fractions, episode_length: int, num_candidates: int, temperature: float, explore_eps: float,
                        executor: concurrent.futures.ThreadPoolExecutor,
                        render=False) -> EpisodeData:
         futures_list = []
+        model_lists = [[copy.deepcopy(model).to(env.device) for model in models] for env in self.envs]
+        for i, env in enumerate(self.envs):
+            models = model_lists[i]
+            # print("gen", i, env.device, model.state_value_lin.weight.device)
+            future = executor.submit(lambda i=i, models=models: self.generate_round_inner(
+                models, model_fractions, episode_length, num_candidates, temperature, explore_eps, render=render, env_id=i))
+            futures_list.append(future)
+        episode_data_list = [future.result() for future in futures_list]
+        for env in self.envs:
+            if env.room_mask.is_cuda:
+                torch.cuda.synchronize(env.device)
+        return EpisodeData(
+            reward=torch.cat([d.reward for d in episode_data_list], dim=0),
+            door_connects=torch.cat([d.door_connects for d in episode_data_list], dim=0),
+            action=torch.cat([d.action for d in episode_data_list], dim=0),
+            prob=torch.cat([d.prob for d in episode_data_list], dim=0),
+            test_loss=torch.cat([d.test_loss for d in episode_data_list], dim=0),
+        )
+
+    def generate_round(self, episode_length: int, num_candidates: int, temperature: float, explore_eps: float,
+                       executor: concurrent.futures.ThreadPoolExecutor,
+                       render=False) -> EpisodeData:
         with self.average_parameters.average_parameters(self.model.all_param_data()):
-            models = [copy.deepcopy(self.model).to(env.device) for env in self.envs]
-            for i, env in enumerate(self.envs):
-                model = models[i]
-                # print("gen", i, env.device, model.state_value_lin.weight.device)
-                future = executor.submit(lambda i=i, model=model: self.generate_round_inner(
-                    model, episode_length, num_candidates, temperature, explore_eps, render=render, env_id=i))
-                futures_list.append(future)
-            episode_data_list = [future.result() for future in futures_list]
-            for env in self.envs:
-                if env.room_mask.is_cuda:
-                    torch.cuda.synchronize(env.device)
-            return EpisodeData(
-                reward=torch.cat([d.reward for d in episode_data_list], dim=0),
-                door_connects=torch.cat([d.door_connects for d in episode_data_list], dim=0),
-                action=torch.cat([d.action for d in episode_data_list], dim=0),
-                prob=torch.cat([d.prob for d in episode_data_list], dim=0),
-                test_loss=torch.cat([d.test_loss for d in episode_data_list], dim=0),
-            )
+            return self.generate_round_models(models=[self.model],
+                                              model_fractions=[1.0],
+                                              episode_length=episode_length,
+                                              num_candidates=num_candidates,
+                                              temperature=temperature,
+                                              explore_eps=explore_eps,
+                                              executor=executor,
+                                              render=render)
 
     def train_batch(self, data: TrainingData):
         self.model.train()
