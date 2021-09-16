@@ -257,7 +257,7 @@ num_train_batches = int(pass_factor * session.replay_buffer.capacity * episode_l
 num_eval_batches = num_eval_rounds * num_envs // eval_batch_size
 print_freq = 1
 eval_freq = print_freq
-save_freq = 128
+save_freq = 16
 # for layer in session.network.global_dropout_layers:
 #     layer.p = 0.0
 init_train_round = 1
@@ -279,9 +279,10 @@ ema_beta = 0.9
 ema_reward = 0.0
 ema_perfect = 0.0
 ema_weight = 0.0
+student_frac = 0.0
 
-student_frac = 0.005
-threhsold = 0.5
+student_frac_increment = 0.001
+threshold = 0.5
 # student_frac_inc = 0.01
 logging.info("Initial training")
 while init_train_round <= num_steps:
@@ -309,6 +310,9 @@ while init_train_round <= num_steps:
         init_train_round, max_possible_reward - ema_reward / ema_weight, ema_perfect / ema_weight,
         max_possible_reward - reward, frac_perfect, student_frac))
 
+    if max_possible_reward - ema_reward / ema_weight < threshold:
+        student_frac = min(1.0, student_frac + student_frac_increment)
+
     session.model.train()
     total_loss = 0.0
     total_loss_cnt = 0
@@ -320,8 +324,8 @@ while init_train_round <= num_steps:
         data = session.replay_buffer.sample(batch_size, device=device)
         with util.DelayedKeyboardInterrupt():
             # total_loss += session.train_batch(data)
-            total_loss += session.train_distillation_batch(data, teacher_model)
-            # total_loss += session.train_distillation_batch_augmented(data, teacher_model, num_candidates=4)
+            # total_loss += session.train_distillation_batch(data, teacher_model)
+            total_loss += session.train_distillation_batch_augmented(data, teacher_model, num_candidates=4)
             total_loss_cnt += 1
             torch.cuda.synchronize(session.envs[0].device)
     if init_train_round % print_freq == 0:
@@ -329,6 +333,8 @@ while init_train_round <= num_steps:
             init_train_round, num_steps, total_loss / total_loss_cnt, lr))
         total_loss = 0
         total_loss_cnt = 0
+    if init_train_round % save_freq == 0:
+        pickle.dump(session, open(pickle_name + '-distillation', 'wb'))
     init_train_round += 1
 
 

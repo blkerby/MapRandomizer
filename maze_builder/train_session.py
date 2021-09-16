@@ -122,13 +122,26 @@ class TrainingSession():
             steps_remaining = torch.full([env.num_envs], episode_length - j,
                                          dtype=torch.float32, device=device)
 
-            model_index = np.random.choice(len(models), p=model_fractions)
-            model = models[model_index]
+            model_index = torch.multinomial(torch.tensor(model_fractions, device=device),
+                                            num_samples=env.num_envs,
+                                            replacement=True)
             with torch.no_grad():
                 # print("inner", env_id, j, env.device, model.state_value_lin.weight.device)
-                state_expected, action_expected, state_raw_logodds, _ = self.forward_state_action(
-                    model, env.room_mask, env.room_position_x, env.room_position_y,
-                    action_candidates, steps_remaining, env_id=env_id)
+                model_action_expected_list = []
+                model_state_raw_logodds_list = []
+                for model in models:
+                    _, action_expected, state_raw_logodds, _ = self.forward_state_action(
+                        model, env.room_mask, env.room_position_x, env.room_position_y,
+                        action_candidates, steps_remaining, env_id=env_id)
+                    model_action_expected_list.append(action_expected)
+                    model_state_raw_logodds_list.append(state_raw_logodds)
+
+                action_expected = torch.stack(model_action_expected_list, dim=0)
+                state_raw_logodds = torch.stack(model_state_raw_logodds_list, dim=0)
+
+                action_expected = action_expected[model_index, torch.arange(env.num_envs, device=device), :]
+                state_raw_logodds = state_raw_logodds[model_index, torch.arange(env.num_envs, device=device), :]
+
             probs = torch.softmax(action_expected / temperature, dim=1)
             probs = torch.full_like(probs, explore_eps / num_candidates) + (
                     1 - explore_eps) * probs
