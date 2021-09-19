@@ -77,6 +77,9 @@ rooms = [
             DoorIdentifier(LEFT, 0, 1, 0x19996, 0x1997E),  # The Worst Room In The Game
             DoorIdentifier(RIGHT, 3, 0, 0x199A2, 0x199F6),  # Red Kihunter Shaft
         ],
+        parts=[[0], [1]],  # assuming that acid damage is not necessarily in logic
+        transient_part_connections=[(0, 1)],  # climbing while acid rises
+        missing_part_connections=[(1, 0)],
     ),
     Room(
         name='Red Kihunter Shaft',
@@ -177,6 +180,9 @@ rooms = [
             DoorIdentifier(LEFT, 0, 3, 0x1992A, 0x198EE),  # Fast Pillars Setup Room
             DoorIdentifier(RIGHT, 3, 0, 0x19936, 0x19972),  # The Worst Room In The Game
         ],
+        parts=[[0], [1]],
+        transient_part_connections=[(1, 0)],  # crumble blocks
+        missing_part_connections=[(0, 1)],
     ),
     Room(
         name='Lower Norfair Fireflea Room',
@@ -207,6 +213,9 @@ rooms = [
             DoorIdentifier(RIGHT, 1, 1, 0x199BA, 0x19A92),  # Lower Norfair Fireflea Room
             DoorIdentifier(DOWN, 4, 0, 0x199C6, 0x199DE),  # Lower Norfair Escape Power Bomb Room
         ],
+        parts=[[0, 1], [2]],
+        transient_part_connections=[(0, 1)],  # crumble block
+        missing_part_connections=[(1, 0)],
     ),
     Room(
         name='Lower Norfair Escape Power Bomb Room',
@@ -216,6 +225,9 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x199D2, 0x19A9E),  # Lower Norfair Fireflea Room
             DoorIdentifier(UP, 0, 0, 0x199DE, 0x199C6),  # Lower Norfair Spring Ball Maze Room
         ],
+        parts=[[0], [1]],
+        transient_part_connections=[(1, 0)],  # crumble block
+        missing_part_connections=[(0, 1)],
     ),
     Room(
         name="Three Musketeers' Room",
@@ -242,6 +254,9 @@ rooms = [
             DoorIdentifier(RIGHT, 1, 0, 0x19846, 0x19852),  # Main Hall
             DoorIdentifier(RIGHT, 2, 2, 0x1983A, 0x19876),  # Golden Torizo's Room
         ],
+        parts=[[0], [1]],
+        durable_part_connections=[(0, 1)],  # acid drain by morphing in statue with space jump
+        missing_part_connections=[(1, 0)],
     ),
     Room(
         name="Golden Torizo's Room",
@@ -254,6 +269,9 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x19876, 0x1983A),  # Acid Statue Room
             DoorIdentifier(RIGHT, 1, 1, 0x19882, 0x19A86),  # Screw Attack Room
         ],
+        parts=[[0], [1]],
+        transient_part_connections=[(0, 1)],  # crumble blocks
+        missing_part_connections=[(1, 0)],
     ),
     Room(
         name='Screw Attack Room',
@@ -285,6 +303,9 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x1988E, 0x19A6E),  # Screw Attack Room
             DoorIdentifier(RIGHT, 2, 0, 0x1989A, 0x19906),  # Fast Pillars Setup Room
         ],
+        parts=[[0], [1]],  # assuming that green gate glitch is not necessarily in logic
+        transient_part_connections=[(0, 1)],  # glitchable green gate
+        missing_part_connections=[(1, 0)],
     ),
 
 ]

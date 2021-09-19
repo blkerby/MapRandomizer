@@ -96,6 +96,9 @@ rooms = [
             DoorIdentifier(LEFT, 0, 1, 0x1A198, 0x18B32),  # West Ocean (Homing Geemer Room)
             DoorIdentifier(LEFT, 1, 2, 0x1A1A4, 0x1A30C),  # Gravity Suit Room
         ],
+        parts=[[0], [1], [2]],
+        transient_part_connections=[(1, 2)],  # bowling sequence, by morphing into statue
+        missing_part_connections=[(0, 1), (2, 0)],
     ),
     Room(
         name='Gravity Suit Room',

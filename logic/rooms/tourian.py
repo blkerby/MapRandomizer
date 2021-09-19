@@ -160,6 +160,9 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x1AA8C, 0x1AAE0),  # Tourian Escape Room 1
             DoorIdentifier(RIGHT, 3, 0, 0x1AA80, 0x1AAC8),  # Rinka Shaft
         ],
+        parts=[[0], [1]],
+        transient_part_connections=[(1, 0)],  # door spawn after mother brain defeated
+        missing_part_connections=[(0, 1)],
     ),
     Room(
         name='Tourian Escape Room 1',

@@ -29,6 +29,9 @@ rooms = [
             DoorIdentifier(RIGHT, 0, 1, 0x1A384, 0x1922E),  # Warehouse Entrance
             DoorIdentifier(RIGHT, 3, 0, 0x1A390, 0x1A510),  # Crab Hole
         ],
+        parts=[[0, 1], [2]],
+        transient_part_connections=[(1, 0)],  # unglitchable green gate
+        missing_part_connections=[(0, 1)],
     ),
     Room(
         name='Glass Tunnel',
@@ -73,6 +76,8 @@ rooms = [
             DoorIdentifier(RIGHT, 1, 7, 0x1A3A8, 0x1A414),  # Crab Tunnel
             DoorIdentifier(DOWN, 1, 7, 0x1A39C, 0x1A330),  # Glass Tunnel
         ],
+        parts=[[0, 2, 3, 4], [1]],
+        missing_part_connections=[(0, 1), (1, 0)],
     ),
     Room(
         name='Fish Tank',
@@ -131,6 +136,9 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x1A414, 0x1A3A8),  # Main Street
             DoorIdentifier(RIGHT, 3, 0, 0x1A420, 0x1A4F8),  # Crab Hole
         ],
+        parts=[[0], [1]],  # assuming that green gate glitch is not necessarily in logic
+        transient_part_connections=[(0, 1)],  # glitchable green gate
+        missing_part_connections=[(1, 0)],
     ),
     Room(
         name='Red Fish Room',

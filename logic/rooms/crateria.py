@@ -190,6 +190,9 @@ rooms = [
             DoorIdentifier(RIGHT, 0, 4, 0x18C3A, 0x18BE6),  # Terminator Room
             DoorIdentifier(RIGHT, 0, 6, 0x18C52, 0x191E6),  # Statues Hallway
         ],
+        parts=[[1], [0, 2, 3]],
+        transient_part_connections=[(0, 1)],  # crumble blocks
+        missing_part_connections=[(1, 0)],
     ),
     Room(
         name='Lower Mushrooms',
@@ -306,6 +309,9 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x18C6A, 0x18B4A),  # Climb (top)
             DoorIdentifier(LEFT, 0, 7, 0x18C76, 0x18B56),  # Climb (bottom)
         ],
+        parts=[[0], [1]],
+        transient_part_connections=[(1, 0)],  # speed blocks
+        missing_part_connections=[(0, 1)],
     ),
     Room(
         name='Gauntlet Entrance',
@@ -346,6 +352,9 @@ rooms = [
             DoorIdentifier(RIGHT, 5, 3, 0x18A06, 0x1A300),  # Gravity Suit Room
             DoorIdentifier(RIGHT, 7, 4, 0x189D6, 0x1A1B0),  # Wrecked Ship Entrance
         ],
+        parts=[[1, 6, 7], [2, 3, 4], [0, 5]],
+        transient_part_connections=[(1, 0)],  # crumble block
+        missing_part_connections=[(0, 2), (2, 1)],
     ),
     Room(
         name='Bowling Alley Path',

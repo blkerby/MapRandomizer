@@ -238,6 +238,9 @@ rooms = [
             DoorIdentifier(RIGHT, 0, 2, 0x195E2, 0x19612),  # Double Chamber (bottom)
             DoorIdentifier(RIGHT, 0, 3, 0x195EE, 0x19636),  # Spiky Platforms Tunnel
         ],
+        parts=[[0, 2, 3, 4], [1]],
+        transient_part_connections=[(1, 0)],  # crumble blocks
+        missing_part_connections=[(0, 1)],
     ),
     Room(
         name='Double Chamber',
@@ -275,6 +278,9 @@ rooms = [
             DoorIdentifier(LEFT, 0, 3, 0x19336, 0x1938A),  # Crumble Shaft
             DoorIdentifier(RIGHT, 6, 2, 0x1932A, 0x192BE),  # Business Center
         ],
+        parts=[[1, 2, 3], [0]],
+        transient_part_connections=[(1, 0)],  # crumble blocks
+        missing_part_connections=[(0, 1)],
     ),
     Room(
         name='Ice Beam Acid Room',
@@ -445,6 +451,9 @@ rooms = [
             DoorIdentifier(RIGHT, 12, 2, 0x193C6, 0x1974A),  # Acid Snakes Tunnel
             DoorIdentifier(DOWN, 12, 2, 0x193D2, 0x193EA),  # Crocomire's Room
         ],
+        parts=[[0], [1, 2, 3, 4]],
+        transient_part_connections=[(0, 1)],  # speed blocks
+        missing_part_connections=[(1, 0)],
     ),
     Room(
         name='Crocomire Escape',
@@ -457,6 +466,9 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x19402, 0x192E2),  # Business Center
             DoorIdentifier(RIGHT, 3, 1, 0x1940E, 0x193AE),  # Crocomire Speedway
         ],
+        parts=[[0], [1]],
+        transient_part_connections=[(1, 0)],  # unglitchable green gate
+        missing_part_connections=[(0, 1)],
     ),
     Room(
         name="Crocomire's Room",
@@ -466,6 +478,9 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x193DE, 0x19432),  # Post Crocomire Farming Room
             DoorIdentifier(UP, 3, 0, 0x193EA, 0x193D2),  # Crocomire Speedway
         ],
+        parts=[[0], [1]],
+        durable_part_connections=[(1, 0)],  # spike blocks cleared after Crocomire defeated
+        missing_part_connections=[(0, 1)],
     ),
     Room(
         name='Post Crocomire Farming Room',
@@ -574,6 +589,9 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x194B6, 0x194F2),  # Grapple Tutorial Room 2
             DoorIdentifier(RIGHT, 2, 0, 0x194C2, 0x19486),  # Post Crocomire Shaft
         ],
+        parts=[[0], [1]],  # assuming that green gate glitch is not necessarily in logic
+        transient_part_connections=[(0, 1)],  # glitchable green gate
+        missing_part_connections=[(1, 0)],
     ),
     Room(
         name='Crocomire Save Room',

@@ -18,8 +18,9 @@ rooms = [
         ],
     ),
     Room(
+        # TODO: Fix this to take the toilet into account (4 more tiles above, and 3 below)
         name='Aqueduct',
-        rom_address=0x7D5A7,
+        rom_address=0x7D5A7,  # 0x7D408 (toilet Aqueduct)
         map=[
             [1, 1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1, 1],
@@ -29,13 +30,15 @@ rooms = [
             DoorIdentifier(LEFT, 0, 1, 0x1A708, 0x1A4C8),  # Crab Shaft
             DoorIdentifier(LEFT, 0, 2, 0x1A744, 0x1A828),  # Aqueduct Save Room
             DoorIdentifier(RIGHT, 5, 1, 0x1A738, 0x1A7D4),  # Below Botwoon Energy Tank
-            # TODO: Figure out how to make the tube work (if we can)
-            DoorIdentifier(DOWN, 2, 2, None, 0x1A678),  # Oasis
+            DoorIdentifier(DOWN, 2, 2, 0x1A60C, 0x1A678),  # Oasis
             DoorIdentifier(DOWN, 1, 2, 0x1A714, 0x1A6D8, SAND),  # West Aqueduct Quicksand Room
             DoorIdentifier(DOWN, 3, 2, 0x1A720, 0x1A6F0, SAND),  # East Aqueduct Quicksand Room
             DoorIdentifier(UP, 0, 0, 0x1A72C, 0x1A768),  # Botwoon Hallway
-            DoorIdentifier(UP, 2, 0, None, 0x1A5AC),  # Plasma Spark Room (toilet)
+            DoorIdentifier(UP, 2, 0, 0x1A600, 0x1A5AC),  # Plasma Spark Room (toilet)
         ],
+        parts=[[0, 1, 2, 6], [4], [5], [3, 7]],
+        transient_part_connections=[(0, 1), (0, 2)],  # sand
+        missing_part_connections=[(1, 0), (2, 0), (0, 3), (3, 0)],
     ),
     Room(
         name='Botwoon Hallway',
@@ -54,6 +57,7 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x1A90C, 0x1A774),  # Botwoon Hallway
             DoorIdentifier(RIGHT, 1, 0, 0x1A918, 0x1A84C),  # Botwoon Energy Tank Room
         ],
+        # No parts here, since we assume that defeating Botwoon from right is in logic (with wave + charge)
     ),
     Room(
         name="Botwoon Energy Tank Room",
@@ -65,6 +69,9 @@ rooms = [
             DoorIdentifier(DOWN, 2, 0, 0x1A858, None, SAND),  # Botwoon Quicksand Room (left)
             DoorIdentifier(DOWN, 3, 0, 0x1A864, None, SAND),  # Botwoon Quicksand Room (right)
         ],
+        parts=[[0, 1], [2], [3]],
+        transient_part_connections=[(0, 1), (0, 2)],  # sand
+        missing_part_connections=[(1, 0), (2, 0)],
     ),
     Room(
         name='Halfie Climb Room',
@@ -191,7 +198,7 @@ rooms = [
             DoorIdentifier(RIGHT, 2, 1, 0x1A5B8, 0x1A5D0),  # Kassiuz Room
             DoorIdentifier(RIGHT, 3, 3, 0x1A5C4, 0x1A630),  # Bug Sand Hole
             DoorIdentifier(RIGHT, 3, 5, 0x1A5A0, 0x1A750),  # Butterfly Room
-            DoorIdentifier(DOWN, 0, 3, 0x1A5AC, None),  # Aqueduct (toilet)
+            DoorIdentifier(DOWN, 0, 3, 0x1A5AC, 0x1A600),  # Aqueduct (toilet)
         ],
     ),
     Room(
@@ -204,7 +211,7 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 0, 1, 0x1A660, 0x1A648),  # West Sand Hall
             DoorIdentifier(RIGHT, 0, 1, 0x1A66C, 0x1A684),  # East Sand Hall
-            DoorIdentifier(UP, 0, 0, 0x1A678, None),  # Aqueduct (toilet)
+            DoorIdentifier(UP, 0, 0, 0x1A678, 0x1A60C),  # Aqueduct (toilet)
         ],
     ),
     Room(
@@ -216,6 +223,9 @@ rooms = [
             DoorIdentifier(RIGHT, 3, 0, 0x1A648, 0x1A660),  # Oasis
             DoorIdentifier(UP, 2, 0, 0x1A654, 0x1A6B4, SAND),  # West Sand Hole
         ],
+        parts=[[0, 1], [2]],
+        transient_part_connections=[(1, 0)],  # sand
+        missing_part_connections=[(0, 1)],
     ),
     Room(
         name='West Sand Hall Tunnel',
@@ -244,6 +254,9 @@ rooms = [
             DoorIdentifier(UP, 0, 0, None, 0x1A858, SAND),  # Botwoon Energy Tank Room (left)
             DoorIdentifier(UP, 1, 0, None, 0x1A864, SAND),  # Botwoon Energy Tank Room (right)
         ],
+        parts=[[0], [1], [2], [3]],
+        transient_part_connections=[(2, 0), (3, 1)],  # sand
+        missing_part_connections=[(0, 2), (1, 3), (0, 1), (1, 0)],
     ),
     Room(
         name='Below Botwoon Energy Tank',
@@ -254,6 +267,9 @@ rooms = [
             DoorIdentifier(UP, 2, 0, None, 0x1A8AC, SAND),  # Botwoon Quicksand Room (left)
             DoorIdentifier(UP, 3, 0, None, 0x1A8B8, SAND),  # Botwoon Quicksand Room (right)
         ],
+        parts=[[0], [1], [2]],
+        transient_part_connections=[(1, 0), (2, 0)],  # sand
+        missing_part_connections=[(0, 1), (0, 2)],
     ),
     Room(
         name='West Aqueduct Quicksand Room',
@@ -266,6 +282,9 @@ rooms = [
             DoorIdentifier(DOWN, 0, 1, 0x1A6E4, 0x1A6A8, SAND),  # West Sand Hole
             DoorIdentifier(UP, 0, 0, 0x1A6D8, 0x1A714, SAND),  # Aqueduct
         ],
+        parts=[[0], [1]],
+        transient_part_connections=[(1, 0)],  # sand
+        missing_part_connections=[(0, 1)],
     ),
     Room(
         name='East Aqueduct Quicksand Room',
@@ -278,6 +297,9 @@ rooms = [
             DoorIdentifier(DOWN, 0, 1, 0x1A6FC, 0x1A6C0, SAND),
             DoorIdentifier(UP, 0, 0, 0x1A6F0, 0x1A720, SAND),
         ],
+        parts=[[0], [1]],
+        transient_part_connections=[(1, 0)],  # sand
+        missing_part_connections=[(0, 1)],
     ),
     Room(
         name='East Sand Hole',
@@ -290,6 +312,9 @@ rooms = [
             DoorIdentifier(DOWN, 1, 1, 0x1A6CC, 0x1A69C, SAND),  # East Sand Hall
             DoorIdentifier(UP, 0, 0, 0x1A6C0, 0x1A6FC, SAND),  # East Aqueduct Quicksand Room
         ],
+        parts=[[0], [1]],
+        transient_part_connections=[(1, 0)],  # sand
+        missing_part_connections=[(0, 1)],
     ),
     Room(
         name='West Sand Hole',
@@ -302,6 +327,9 @@ rooms = [
             DoorIdentifier(DOWN, 0, 1, 0x1A6B4, 0x1A654, SAND),  # West Sand Hall
             DoorIdentifier(UP, 1, 0, 0x1A6A8, 0x1A6E4, SAND),  # West Aqueduct Quicksand Room
         ],
+        parts=[[0], [1]],
+        transient_part_connections=[(1, 0)],  # sand
+        missing_part_connections=[(0, 1)],
     ),
     Room(
         name='East Sand Hall',
@@ -312,6 +340,9 @@ rooms = [
             DoorIdentifier(RIGHT, 2, 0, 0x1A690, 0x1A780),  # Pants Room
             DoorIdentifier(UP, 1, 0, 0x1A69C, 0x1A6CC, SAND),  # East Sand Hole
         ],
+        parts=[[0, 1], [2]],
+        transient_part_connections=[(1, 0)],  # sand
+        missing_part_connections=[(0, 1)],
     ),
     Room(
         name='Bug Sand Hole',
@@ -331,6 +362,9 @@ rooms = [
             DoorIdentifier(DOWN, 0, 0, 0x1A8A0, None, SAND),  # Butterfly Room
             DoorIdentifier(UP, 0, 0, None, 0x1A624, SAND),  # Bug Sand Hole
         ],
+        parts=[[0], [1]],
+        transient_part_connections=[(1, 0)],  # sand
+        missing_part_connections=[(0, 1)],
     ),
     Room(
         name='Butterfly Room',
@@ -341,6 +375,9 @@ rooms = [
             DoorIdentifier(RIGHT, 0, 0, 0x1A75C, 0x1A93C),  # West Cactus Alley Room
             DoorIdentifier(UP, 0, 0, None, 0x1A8A0, SAND),  # Plasma Beach Quicksand Room
         ],
+        parts=[[0, 1], [2]],
+        transient_part_connections=[(1, 0)],  # sand
+        missing_part_connections=[(0, 1)],
     ),
     Room(
         name='Thread The Needle Room',
@@ -435,6 +472,9 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x1A8C4, 0x1A798),  # Pants Room
             DoorIdentifier(RIGHT, 3, 0, 0x1A8D0, 0x1A7C8),  # Spring Ball Room
         ],
+        parts=[[0], [1]],
+        durable_part_connections=[(0, 1)],  # shaktool clearing the sand blocks
+        missing_part_connections=[(1, 0)],
     ),
     Room(
         name='Spring Ball Room',

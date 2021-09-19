@@ -61,6 +61,10 @@ rooms = [
             DoorIdentifier(RIGHT, 4, 5, 0x18E26, 0x18F82),  # Spore Spawn Farming Room
             DoorIdentifier(RIGHT, 3, 6, 0x18DEA, 0x18E7A),  # Green Hill Zone
         ],
+        parts=[[0, 1, 2, 4, 5, 6, 8], [3], [7]],
+        transient_part_connections=[(1, 0),  # crumble blocks
+                                    (2, 0)],  # super missile tunnel after spore spawn
+        missing_part_connections=[(0, 1), (0, 2)],
     ),
     Room(
         # TODO: add this to wiki.supermetroid.run/List_of_rooms because it is missing.
@@ -121,6 +125,9 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x18D2A, 0x18E4A),  # Spore Spawn Room
             DoorIdentifier(LEFT, 0, 8, 0x18D1E, 0x18F76),  # Spore Spawn Farming Room
         ],
+        parts=[[0], [1]],
+        transient_part_connections=[(0, 1)],  # crumble blocks
+        missing_part_connections=[(1, 0)],
     ),
     Room(
         name='Spore Spawn Farming Room',

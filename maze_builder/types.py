@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from enum import Enum
 import torch
 
@@ -47,6 +47,10 @@ class Room:
     width: Optional[int] = None
     area: Optional[Area] = None
     sub_area: Optional[SubArea] = None
+    parts: Optional[List[List[int]]] = None
+    transient_part_connections: Optional[List[Tuple[int, int]]] = None
+    durable_part_connections: Optional[List[Tuple[int, int]]] = None
+    missing_part_connections: Optional[List[Tuple[int, int]]] = None
 
     def populate(self):
         self.height = len(self.map)

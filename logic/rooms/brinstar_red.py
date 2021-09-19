@@ -111,6 +111,9 @@ rooms = [
             DoorIdentifier(RIGHT, 0, 4, 0x190D2, 0x1926A),  # Caterpillar Save Room
             DoorIdentifier(UP, 0, 0, 0x190BA, 0x18B02, ELEVATOR),  # Red Brinstar Elevator Room
         ],
+        parts=[[0, 1, 2, 4, 5], [3]],
+        transient_part_connections=[(1, 0)],  # unglitchable green gate
+        missing_part_connections=[(0, 1)],
     ),
     Room(
         name='Alpha Power Bomb Room',

@@ -37,6 +37,7 @@ rooms = [
             DoorIdentifier(RIGHT, 0, 7, 0x18CEE, 0x18D06),  # Green Brinstar Main Shaft (to Etecoons)
             DoorIdentifier(UP, 0, 0, 0x18CA6, 0x18C0A, ELEVATOR),  # Green Brinstar Elevator Room
         ],
+        # parts=[[0, 1, 2, 4, 6, 7, 8, 9], [3, 5]]  # If we require the door to Etecoons to be gray as in vanilla
     ),
     Room(
         name='Early Supers Room',
@@ -136,6 +137,9 @@ rooms = [
             DoorIdentifier(RIGHT, 1, 0, 0x18F2E, 0x18F22),  # Green Brinstar Beetom Room
             DoorIdentifier(RIGHT, 4, 1, 0x18F46, 0x18CFA),  # Green Brinstar Main Shaft
         ],
+        parts=[[0, 2], [1, 3]],
+        transient_part_connections=[(0, 1)],  # crumble blocks
+        missing_part_connections=[(1, 0)],
     ),
     Room(
         name='Etecoon Super Room',
@@ -190,6 +194,9 @@ rooms = [
             DoorIdentifier(RIGHT, 0, 0, 0x18E4A, 0x18D2A),  # Spore Spawn Super Room
             DoorIdentifier(DOWN, 0, 2, 0x18E56, 0x18E3E),  # Spore Spawn Kihunter Room
         ],
+        parts=[[0], [1]],  # Assuming that defeating Spore Spawn from above is not necessarily permitted in logic
+        durable_part_connections=[(1, 0)],  # Blocks cleared when Spore Spawn defeated
+        missing_part_connections=[(0, 1)],
     ),
 ]
 
