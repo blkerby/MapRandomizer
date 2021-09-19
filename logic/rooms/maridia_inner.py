@@ -18,22 +18,28 @@ rooms = [
         ],
     ),
     Room(
-        # TODO: Fix this to take the toilet into account (4 more tiles above, and 3 below)
         name='Aqueduct',
-        rom_address=0x7D5A7,  # 0x7D408 (toilet Aqueduct)
+        rom_address=0x7D5A7,  # 0x7D408 (toilet)
         map=[
+            [0, 0, 1, 0, 0, 0],
+            [0, 0, 1, 0, 0, 0],
+            [0, 0, 1, 0, 0, 0],
+            [0, 0, 1, 0, 0, 0],
             [1, 1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1, 1],
+            [0, 0, 1, 0, 0, 0],
+            [0, 0, 1, 0, 0, 0],
+            [0, 0, 1, 0, 0, 0],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 1, 0x1A708, 0x1A4C8),  # Crab Shaft
-            DoorIdentifier(LEFT, 0, 2, 0x1A744, 0x1A828),  # Aqueduct Save Room
-            DoorIdentifier(RIGHT, 5, 1, 0x1A738, 0x1A7D4),  # Below Botwoon Energy Tank
-            DoorIdentifier(DOWN, 2, 2, 0x1A60C, 0x1A678),  # Oasis
-            DoorIdentifier(DOWN, 1, 2, 0x1A714, 0x1A6D8, SAND),  # West Aqueduct Quicksand Room
-            DoorIdentifier(DOWN, 3, 2, 0x1A720, 0x1A6F0, SAND),  # East Aqueduct Quicksand Room
-            DoorIdentifier(UP, 0, 0, 0x1A72C, 0x1A768),  # Botwoon Hallway
+            DoorIdentifier(LEFT, 0, 5, 0x1A708, 0x1A4C8),  # Crab Shaft
+            DoorIdentifier(LEFT, 0, 6, 0x1A744, 0x1A828),  # Aqueduct Save Room
+            DoorIdentifier(RIGHT, 5, 5, 0x1A738, 0x1A7D4),  # Below Botwoon Energy Tank
+            DoorIdentifier(DOWN, 2, 9, 0x1A60C, 0x1A678),  # Oasis
+            DoorIdentifier(DOWN, 1, 6, 0x1A714, 0x1A6D8, SAND),  # West Aqueduct Quicksand Room
+            DoorIdentifier(DOWN, 3, 6, 0x1A720, 0x1A6F0, SAND),  # East Aqueduct Quicksand Room
+            DoorIdentifier(UP, 0, 4, 0x1A72C, 0x1A768),  # Botwoon Hallway
             DoorIdentifier(UP, 2, 0, 0x1A600, 0x1A5AC),  # Plasma Spark Room (toilet)
         ],
         parts=[[0, 1, 2, 6], [4], [5], [3, 7]],

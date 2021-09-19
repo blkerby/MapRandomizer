@@ -472,7 +472,7 @@ for i in range(100000):
         buffer_mean_rooms_missing = buffer_mean_pass * len(rooms)
 
         logging.info(
-            "{}: doors={:.3f} (min={:d}, frac={:.6f}), rooms={:.3f}, test={:.5f} | loss={:.5f}, doors={:.3f} (min={:d}, frac={:.4f}), test={:.5f}, p={:.6f}, nc={}".format(
+            "{}: doors={:.3f} (min={:d}, frac={:.6f}), rooms={:.3f}, test={:.5f} | loss={:.5f}, doors={:.3f} (min={:d}, frac={:.4f}), test={:.5f}, p={:.6f}, nc={}, t={:.5f}".format(
                 session.num_rounds, max_possible_reward - buffer_mean_reward, max_possible_reward - buffer_max_reward,
                 buffer_frac_max_reward,
                 buffer_mean_rooms_missing,
@@ -484,8 +484,9 @@ for i in range(100000):
                 min_door_frac,
                 new_test_loss,
                 new_prob,
-                # temperature,
-                num_candidates))
+                num_candidates,
+                temperature,
+            ))
         total_loss = 0.0
         total_loss_cnt = 0
         min_door_value = max_possible_reward

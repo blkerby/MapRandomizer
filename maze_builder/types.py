@@ -48,9 +48,9 @@ class Room:
     area: Optional[Area] = None
     sub_area: Optional[SubArea] = None
     parts: Optional[List[List[int]]] = None
-    transient_part_connections: Optional[List[Tuple[int, int]]] = None
-    durable_part_connections: Optional[List[Tuple[int, int]]] = None
-    missing_part_connections: Optional[List[Tuple[int, int]]] = None
+    transient_part_connections: Optional[List[Tuple[int, int]]] = ()
+    durable_part_connections: Optional[List[Tuple[int, int]]] = ()
+    missing_part_connections: Optional[List[Tuple[int, int]]] = ()
 
     def populate(self):
         self.height = len(self.map)
@@ -82,6 +82,8 @@ class Room:
                 self.door_up[door.y][door.x] = 1
             else:
                 raise RuntimeError("Invalid door identifier: {}".format(door))
+        if self.parts is None:
+            self.parts = [list(range(len(self.door_ids)))]
 
 def reconstruct_room_data(action, step_indices, num_rooms):
     action = action.to(torch.int64)
