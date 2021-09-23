@@ -56,6 +56,7 @@ class ReplayBuffer:
         step_indices = torch.randint(high=episode_length + 1, size=[n])
         reward = self.episode_data.reward[episode_indices]
         door_connects = self.episode_data.door_connects[episode_indices, :]
+        missing_connects = self.episode_data.missing_connects[episode_indices, :]
         action = self.episode_data.action[episode_indices, :, :].to(torch.int64)
         steps_remaining = episode_length - step_indices
 
@@ -64,6 +65,7 @@ class ReplayBuffer:
         return TrainingData(
             reward=reward.to(device),
             door_connects=door_connects.to(device),
+            missing_connects=missing_connects.to(device),
             steps_remaining=steps_remaining.to(device),
             room_mask=room_mask.to(device),
             room_position_x=room_position_x.to(device),

@@ -1,11 +1,4 @@
-# TODO:
-# - try all-action approach again
-# - Use one-hot coding or embeddings (on tile/door types) instead of putting raw map data into convolutional layers
-# - idea for activation: variation of ReLU where on the right the slope starts at a value >1 and then changes to a
-#   <1 at a certain point (for self-normalization), e.g. sqrt(max(0, x) + 1/4) - 1/2
-# - try curriculum learning, starting with small subsets of rooms and ramping up
-# - minor cleanup: in data generation, use action value from previous step to avoid needing to recompute state value
-# - export better metrics, and maybe build some sort of database for them (e.g., SQLlite, or mongodb/sacred?)
+# Quick version of training script for development on CPU
 import concurrent.futures
 
 import shampoo
@@ -31,7 +24,7 @@ logging.basicConfig(format='%(asctime)s %(message)s',
 # torch.backends.cudnn.benchmark = True
 
 start_time = datetime.now()
-pickle_name = 'models/session-{}.pkl'.format(start_time.isoformat())
+pickle_name = 'models/session-local.pkl'
 
 import logic.rooms.crateria
 import logic.rooms.wrecked_ship
@@ -45,15 +38,14 @@ import logic.rooms.brinstar_blue
 import logic.rooms.maridia_outer
 import logic.rooms.maridia_inner
 
-# device = torch.device('cpu')
-devices = [torch.device('cuda:1'), torch.device('cuda:0')]
+devices = [torch.device('cpu')]
 num_devices = len(devices)
 # devices = [torch.device('cuda:0'), torch.device('cuda:1')]
 # devices = [torch.device('cuda:0')]
 device = devices[0]
 executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
-num_envs = 2 ** 9
+num_envs = 2 ** 4
 # num_envs = 1
 # rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.crateria.rooms
@@ -92,6 +84,7 @@ envs = [MazeBuilderEnv(rooms,
                      must_areas_be_connected=False)
         for device in devices]
 
+# max_possible_reward = torch.sum(envs[0].room_door_count).item() // 2
 max_possible_reward = envs[0].max_reward
 logging.info("max_possible_reward = {}".format(max_possible_reward))
 
@@ -117,7 +110,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=0.0001, betas=(0.95, 0.99), 
 logging.info("{}".format(model))
 logging.info("{}".format(optimizer))
 
-replay_size = 2 ** 19
+replay_size = 2 ** 8
 session = TrainingSession(envs,
                           model=model,
                           optimizer=optimizer,
@@ -152,7 +145,7 @@ print_freq = 8
 #     end_i = session.replay_buffer.size * (i + 1) // num_groups
 #     print(start_i, max_possible_reward - torch.mean(session.replay_buffer.episode_data.reward[start_i:end_i].to(torch.float32)))
 
-gen_print_freq = 1
+gen_print_freq = 8
 i = 0
 total_reward = 0
 total_reward2 = 0
@@ -160,10 +153,8 @@ cnt_episodes = 0
 while session.replay_buffer.size < session.replay_buffer.capacity:
     data = session.generate_round(
         episode_length=episode_length,
-        # num_candidates=1,
-        # temperature=1e-10,
-        num_candidates=32,
-        temperature=1e-4,
+        num_candidates=1,
+        temperature=1e-10,
         explore_eps=0.0,
         render=False,
         executor=executor)
@@ -182,10 +173,6 @@ while session.replay_buffer.size < session.replay_buffer.capacity:
             i, session.replay_buffer.capacity // (num_envs * num_devices),
             max_possible_reward - mean_reward, ci_reward))
 
-
-# for i, param in enumerate(session.model.parameters()):
-#     if param.shape != session.average_parameters.shadow_params[i].shape:
-#         print(i, param.shape, session.average_parameters.shadow_params[i].shape)
 
 # for i in range(20):
 #     start = i * 1000 + 150000
@@ -352,8 +339,6 @@ student_frac = 0.0
 #     init_train_round += 1
 #
 
-# pickle.dump(session, open('init_session.pkl', 'wb'))
-
 # pickle.dump(session, open('init_session_trained.pkl', 'wb'))
 # pickle.dump(session, open('init_session_trained3.pkl', 'wb'))
 #
@@ -376,8 +361,6 @@ student_frac = 0.0
 # session = pickle.load(open('models/session-2021-09-09T19:24:28.473375.pkl-bk', 'rb'))
 # session = pickle.load(open('models/session-2021-09-11T11:41:25.448242.pkl', 'rb'))
 # session = pickle.load(open('models/session-2021-09-11T16:47:23.572372.pkl-bk6', 'rb'))
-session = pickle.load(open('models/session-2021-09-19T22:32:37.961101.pkl', 'rb'))
-
 # session.average_parameters.use_averages(session.model.all_param_data())
 # teacher_model = session.model
 #
@@ -400,7 +383,7 @@ session = pickle.load(open('models/session-2021-09-19T22:32:37.961101.pkl', 'rb'
 # session.average_parameters.shadow_params = [p.to(device) for p in session.average_parameters.shadow_params]
 # session.replay_buffer.episode_data.door_connects = torch.zeros([262144, 578], dtype=torch.bool)
 
-print_freq = 4
+print_freq = 1
 total_reward = 0
 total_loss = 0.0
 total_loss_cnt = 0
@@ -456,7 +439,7 @@ for i in range(100000):
         with util.DelayedKeyboardInterrupt():
             total_loss += session.train_batch(data)
             total_loss_cnt += 1
-            torch.cuda.synchronize(session.envs[0].device)
+            # torch.cuda.synchronize(session.envs[0].device)
 
     if session.num_rounds % print_freq == 0:
         buffer_reward = session.replay_buffer.episode_data.reward[:session.replay_buffer.size].to(torch.float32)
@@ -464,7 +447,6 @@ for i in range(100000):
         buffer_max_reward = torch.max(session.replay_buffer.episode_data.reward[:session.replay_buffer.size])
         buffer_frac_max_reward = torch.mean(
             (session.replay_buffer.episode_data.reward[:session.replay_buffer.size] == buffer_max_reward).to(torch.float32))
-        buffer_doors = (session.envs[0].num_doors - torch.mean(torch.sum(session.replay_buffer.episode_data.door_connects[:session.replay_buffer.size, :].to(torch.float32), dim=1))) / 2
 
         buffer_test_loss = torch.mean(session.replay_buffer.episode_data.test_loss[:session.replay_buffer.size])
         buffer_prob = torch.mean(session.replay_buffer.episode_data.prob[:session.replay_buffer.size])
@@ -485,12 +467,11 @@ for i in range(100000):
         buffer_mean_rooms_missing = buffer_mean_pass * len(rooms)
 
         logging.info(
-            "{}: cost={:.3f} (min={:d}, frac={:.6f}), rooms={:.3f}, doors={:.3f} | loss={:.5f}, cost={:.3f} (min={:d}, frac={:.4f}), test={:.5f}, p={:.6f}, nc={}, t={:.5f}".format(
+            "{}: doors={:.3f} (min={:d}, frac={:.6f}), rooms={:.3f}, test={:.5f} | loss={:.5f}, doors={:.3f} (min={:d}, frac={:.4f}), test={:.5f}, p={:.6f}, nc={}, t={:.5f}".format(
                 session.num_rounds, max_possible_reward - buffer_mean_reward, max_possible_reward - buffer_max_reward,
                 buffer_frac_max_reward,
                 buffer_mean_rooms_missing,
-                buffer_doors,
-                # buffer_test_loss,
+                buffer_test_loss,
                 # buffer_prob,
                 new_loss,
                 max_possible_reward - new_reward,
@@ -510,6 +491,6 @@ for i in range(100000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             pickle.dump(session, open(pickle_name, 'wb'))
-            # pickle.dump(session, open(pickle_name + '-bk3', 'wb'))
+            # pickle.dump(session, open(pickle_name + '-bk7', 'wb'))
             # session.replay_buffer.episode_data = episode_data
             # session = pickle.load(open(pickle_name + '-bk4', 'rb'))

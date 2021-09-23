@@ -44,6 +44,9 @@ class TrainingSession():
         self.total_step_remaining_gen = 0.0
         self.total_step_remaining_train = 0.0
 
+    def compute_reward(self, door_connects, missing_connects):
+        return torch.sum(door_connects, dim=1) // 2 + torch.sum(missing_connects, dim=1)
+
     def forward_state_action(self, model, room_mask, room_position_x, room_position_y, action_candidates,
                              steps_remaining,
                              env_id):
@@ -154,8 +157,9 @@ class TrainingSession():
             state_raw_logodds_list.append(state_raw_logodds.to('cpu'))
             prob_list.append(selected_prob.to('cpu'))
 
-        reward_tensor = env.reward().to('cpu')
         door_connects_tensor = env.current_door_connects().to('cpu')
+        missing_connects_tensor = env.compute_missing_connections().to('cpu')
+        reward_tensor = self.compute_reward(door_connects_tensor, missing_connects_tensor)
         state_raw_logodds_tensor = torch.stack(state_raw_logodds_list, dim=1)
         action_tensor = torch.stack(action_list, dim=1)
         prob_tensor = torch.mean(torch.stack(prob_list, dim=1), dim=1)
@@ -164,9 +168,13 @@ class TrainingSession():
                                                                state_raw_logodds_tensor.shape[-1])
         # reward_flat = reward_tensor.view(env.num_envs, 1).repeat(1, episode_length).view(-1)
         door_connects_flat = door_connects_tensor.view(env.num_envs, 1, -1).repeat(1, episode_length, 1).view(env.num_envs * episode_length, -1)
+        missing_connects_flat = missing_connects_tensor.view(env.num_envs, 1, -1).repeat(1, episode_length, 1).view(
+            env.num_envs * episode_length, -1)
+        all_outputs_flat = torch.cat([door_connects_flat, missing_connects_flat], dim=1)
+
         # loss_flat = torch.nn.functional.cross_entropy(state_raw_logodds_flat, reward_flat, reduction='none')
         loss_flat = torch.mean(torch.nn.functional.binary_cross_entropy_with_logits(state_raw_logodds_flat,
-                                                                    door_connects_flat.to(state_raw_logodds_flat.dtype),
+                                                                    all_outputs_flat.to(state_raw_logodds_flat.dtype),
                                                                     reduction='none'), dim=1)
         loss = loss_flat.view(env.num_envs, episode_length)
         episode_loss = torch.mean(loss, dim=1)
@@ -174,6 +182,7 @@ class TrainingSession():
         return EpisodeData(
             reward=reward_tensor,
             door_connects=door_connects_tensor,
+            missing_connects=missing_connects_tensor,
             action=action_tensor.to(torch.uint8),
             prob=prob_tensor,
             test_loss=episode_loss,
@@ -197,6 +206,7 @@ class TrainingSession():
         return EpisodeData(
             reward=torch.cat([d.reward for d in episode_data_list], dim=0),
             door_connects=torch.cat([d.door_connects for d in episode_data_list], dim=0),
+            missing_connects=torch.cat([d.missing_connects for d in episode_data_list], dim=0),
             action=torch.cat([d.action for d in episode_data_list], dim=0),
             prob=torch.cat([d.prob for d in episode_data_list], dim=0),
             test_loss=torch.cat([d.test_loss for d in episode_data_list], dim=0),
@@ -230,8 +240,9 @@ class TrainingSession():
             map, data.room_mask, data.room_position_x, data.room_position_y, data.steps_remaining, env)
 
         # loss = torch.nn.functional.cross_entropy(state_value_raw_logprobs, data.reward)
+        all_outputs = torch.cat([data.door_connects, data.missing_connects], dim=1)
         loss = torch.nn.functional.binary_cross_entropy_with_logits(state_value_raw_logprobs,
-                                                                    data.door_connects.to(state_value_raw_logprobs.dtype))
+                                                                    all_outputs.to(state_value_raw_logprobs.dtype))
         self.optimizer.zero_grad()
         self.grad_scaler.scale(loss).backward()
 

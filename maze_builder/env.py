@@ -52,7 +52,9 @@ class MazeBuilderEnv:
 
         self.init_room_data()
         self.init_part_data()
-        self.max_reward = torch.sum(self.room_door_count) // 2
+        self.num_doors = int(torch.sum(self.room_door_count))
+        self.num_missing_connects = self.missing_connection_src.shape[0]
+        self.max_reward = self.num_doors // 2 + self.num_missing_connects
         self.reset()
 
         self.map_display = None
@@ -520,13 +522,13 @@ class MazeBuilderEnv:
         self.room_mask[:, -1] = False
         self.step_number += 1
 
-    def reward(self):
-        # TODO: avoid recomputing map here
-        map = self.compute_current_map()
-        unconnected_doors_count = torch.sum(torch.abs(map[:, 1:3, :, :]) > 1, dim=(1, 2, 3))
-        room_doors_count = torch.sum(self.room_mask * self.room_door_count.view(1, -1), dim=1)
-        reward = (room_doors_count - unconnected_doors_count) // 2
-        return reward
+    # def reward(self):
+    #     # TODO: avoid recomputing map here
+    #     map = self.compute_current_map()
+    #     unconnected_doors_count = torch.sum(torch.abs(map[:, 1:3, :, :]) > 1, dim=(1, 2, 3))
+    #     room_doors_count = torch.sum(self.room_mask * self.room_door_count.view(1, -1), dim=1)
+    #     reward = (room_doors_count - unconnected_doors_count) // 2
+    #     return reward
 
     def current_door_connects(self):
         map = self.compute_current_map()
@@ -564,6 +566,8 @@ class MazeBuilderEnv:
             (self.room_up, self.room_down, self.part_up, self.part_down),
         ]
         adjacency_matrix = self.part_adjacency_matrix.unsqueeze(0).repeat(self.num_envs, 1, 1)
+        if adjacency_matrix.is_cuda:
+            adjacency_matrix = adjacency_matrix.to(torch.float16)  # pytorch bmm can't handle integer types on CUDA
         for room_dir, room_dir_opp, part, part_opp in data_tuples:
             room_id = room_dir[:, 0]
             relative_door_x = room_dir[:, 1]
@@ -599,12 +603,13 @@ class MazeBuilderEnv:
             component_matrix = torch.clamp_max(component_matrix, 1)
         ship_part = 1
         reachable_from_ship = component_matrix[:, ship_part, :]
-        durable_backtrack = torch.minimum(reachable_from_ship.unsqueeze(1), self.durable_part_adjacency_matrix.unsqueeze(0))
+        durable_backtrack = torch.minimum(reachable_from_ship.unsqueeze(1),
+                                          self.durable_part_adjacency_matrix.unsqueeze(0).to(component_matrix.dtype))
         component_matrix = torch.maximum(component_matrix, durable_backtrack)
         for i in range(8):
             component_matrix = torch.bmm(component_matrix, component_matrix)
             component_matrix = torch.clamp_max(component_matrix, 1)
-        return component_matrix
+        return component_matrix.to(torch.bool)
 
     def compute_missing_connections(self):
         component_matrix = self.compute_component_matrix()
@@ -673,30 +678,6 @@ class MazeBuilderEnv:
             part_tensor_list.append(torch.tensor(part_id_list).to(self.device))
         self.part_left, self.part_right, self.part_down, self.part_up = part_tensor_list
 
-    # def door_connect_matrix(self, map, room_mask, room_position_x, room_position_y):
-    #     data_tuples = [
-    #         (self.room_left, 1),
-    #         (self.room_right, 1),
-    #         (self.room_down, 2),
-    #         (self.room_up, 2),
-    #     ]
-    #     connects_list = []
-    #     for room_dir, channel in data_tuples:
-    #         room_id = room_dir[:, 0]
-    #         relative_door_x = room_dir[:, 1]
-    #         relative_door_y = room_dir[:, 2]
-    #         door_x = room_position_x[:, room_id] + relative_door_x.unsqueeze(0)
-    #         door_y = room_position_y[:, room_id] + relative_door_y.unsqueeze(0)
-    #         mask = room_mask[:, room_id]
-    #         tile = map[
-    #             torch.arange(map.shape[0], device=self.device).view(-1, 1),
-    #             channel,
-    #             door_x,
-    #             door_y]
-    #         connects = mask & (tile == 0)
-    #         connects_list.append(connects)
-    #     return torch.cat(connects_list, dim=1)
-
     def render(self, env_index=0):
         if self.map_display is None:
             self.map_display = MapDisplay(self.map_x, self.map_y, tile_width=14)
@@ -710,56 +691,56 @@ class MazeBuilderEnv:
 
     # def export(self):
 
-
-import logic.rooms.all_rooms
-
-# import logic.rooms.brinstar_green
-# import logic.rooms.brinstar_pink
-# import logic.rooms.crateria
-# import logic.rooms.crateria_isolated
-# import logic.rooms.maridia_upper
 #
-# torch.manual_seed(0)
-num_envs = 16
-# # rooms = logic.rooms.crateria.rooms[:5]
-rooms = logic.rooms.all_rooms.rooms
-# # rooms = logic.rooms.maridia_upper.rooms
-# # rooms = logic.rooms.brinstar_green.rooms + logic.rooms.brinstar_pink.rooms
-# # rooms = logic.rooms.brinstar_red.rooms
-num_candidates = 1
-env = MazeBuilderEnv(rooms,
-                     map_x=60,
-                     map_y=60,
-                     num_envs=num_envs,
-                     device='cpu',
-                     must_areas_be_connected=False)
+# import logic.rooms.all_rooms
 #
-# print("left", torch.sum(env.door_data_left_door.door_data[:, 3] == 1))
-# print("right", torch.sum(env.door_data_right_door.door_data[:, 3] == -1))
-# print("up", torch.sum(env.door_data_up_door.door_data[:, 3] == 1))
-# print("down", torch.sum(env.door_data_down_door.door_data[:, 3] == -1))
-# print("elevator up", torch.sum(env.door_data_up_door.door_data[:, 3] == 2))
-# print("elevator down", torch.sum(env.door_data_down_door.door_data[:, 3] == -2))
-# print("sand up", torch.sum(env.door_data_up_door.door_data[:, 3] == 3))
-# print("sand down", torch.sum(env.door_data_down_door.door_data[:, 3] == -3))
+# # import logic.rooms.brinstar_green
+# # import logic.rooms.brinstar_pink
+# # import logic.rooms.crateria
+# # import logic.rooms.crateria_isolated
+# # import logic.rooms.maridia_upper
+# #
+# # torch.manual_seed(0)
+# num_envs = 16
+# # # rooms = logic.rooms.crateria.rooms[:5]
+# rooms = logic.rooms.all_rooms.rooms
+# # # rooms = logic.rooms.maridia_upper.rooms
+# # # rooms = logic.rooms.brinstar_green.rooms + logic.rooms.brinstar_pink.rooms
+# # # rooms = logic.rooms.brinstar_red.rooms
+# num_candidates = 1
+# env = MazeBuilderEnv(rooms,
+#                      map_x=60,
+#                      map_y=60,
+#                      num_envs=num_envs,
+#                      device='cpu',
+#                      must_areas_be_connected=False)
+# #
+# # print("left", torch.sum(env.door_data_left_door.door_data[:, 3] == 1))
+# # print("right", torch.sum(env.door_data_right_door.door_data[:, 3] == -1))
+# # print("up", torch.sum(env.door_data_up_door.door_data[:, 3] == 1))
+# # print("down", torch.sum(env.door_data_down_door.door_data[:, 3] == -1))
+# # print("elevator up", torch.sum(env.door_data_up_door.door_data[:, 3] == 2))
+# # print("elevator down", torch.sum(env.door_data_down_door.door_data[:, 3] == -2))
+# # print("sand up", torch.sum(env.door_data_up_door.door_data[:, 3] == 3))
+# # print("sand down", torch.sum(env.door_data_down_door.door_data[:, 3] == -3))
+# #
+# # import time
+# #
+# env.reset()
+# self = env
+# torch.manual_seed(13)
+# for i in range(233):
+#     # print(i)
+#     candidates = env.get_action_candidates(num_candidates, env.room_mask, env.room_position_x, env.room_position_y)
+#     env.step(candidates[:, 0, :])
+#     # env.render(0)
+#     # env.render(0)
 #
-# import time
-#
-env.reset()
-self = env
-torch.manual_seed(13)
-for i in range(233):
-    # print(i)
-    candidates = env.get_action_candidates(num_candidates, env.room_mask, env.room_position_x, env.room_position_y)
-    env.step(candidates[:, 0, :])
-    # env.render(0)
-    # env.render(0)
-
-#
-self=env
-# env.render(0)
-# # map = env.compute_current_map()
-# # map[0, 0, :15, :15].t()
-# print(self.reward() * 2)
-# d = self.door_connects()
-# print(torch.sum(d, dim=1))
+# #
+# self=env
+# # env.render(0)
+# # # map = env.compute_current_map()
+# # # map[0, 0, :15, :15].t()
+# # print(self.reward() * 2)
+# # d = self.door_connects()
+# # print(torch.sum(d, dim=1))

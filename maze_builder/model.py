@@ -114,14 +114,15 @@ class MaxOut(torch.nn.Module):
 
 
 class Model(torch.nn.Module):
-    def __init__(self, env_config, max_possible_reward, map_channels, map_stride, map_kernel_size, map_padding,
+    def __init__(self, env_config, num_doors, num_missing_connects, map_channels, map_stride, map_kernel_size, map_padding,
                  room_embedding_width,
                  fc_widths,
                  map_dropout_p=0.0,
                  global_dropout_p=0.0):
         super().__init__()
         self.env_config = env_config
-        self.max_possible_reward = max_possible_reward
+        self.num_doors = num_doors
+        self.num_missing_connects = num_missing_connects
         self.map_x = env_config.map_x + 1
         self.map_y = env_config.map_y + 1
         self.map_c = 4
@@ -167,8 +168,7 @@ class Model(torch.nn.Module):
             self.global_lin_layers.append(lin)
             self.global_act_layers.append(common_act)
             self.global_dropout_layers.append(torch.nn.Dropout(global_dropout_p))
-        # self.state_value_lin = torch.nn.Linear(fc_widths[-1], max_possible_reward + 1)
-        self.state_value_lin = torch.nn.Linear(fc_widths[-1], max_possible_reward * 2)
+        self.state_value_lin = torch.nn.Linear(fc_widths[-1], self.num_doors + self.num_missing_connects)
         self.project()
 
     def forward_multiclass(self, map, room_mask, room_position_x, room_position_y, steps_remaining, env: MazeBuilderEnv):
@@ -207,14 +207,17 @@ class Model(torch.nn.Module):
             door_connects = env.door_connects(map, room_mask, room_position_x, room_position_y)
 
             state_value_raw_logodds = self.state_value_lin(X).to(torch.float32)
-            inf_tensor = torch.full_like(state_value_raw_logodds, 1e5)  # We can't use actual 'inf' or it results in NaNs in binary_cross_entropy_with_logits, but this is equivalent.
-            state_value_filtered_logodds = torch.where(door_connects, inf_tensor, state_value_raw_logodds)
-            state_value_probs = torch.sigmoid(state_value_filtered_logodds)
+            door_connects_raw_logodds = state_value_raw_logodds[:, :self.num_doors]
+            missing_connects_raw_logodds = state_value_raw_logodds[:, self.num_doors:]
+            inf_tensor = torch.full_like(door_connects_raw_logodds, 1e5)  # We can't use actual 'inf' or it results in NaNs in binary_cross_entropy_with_logits, but this is equivalent.
+            door_connects_filtered_logodds = torch.where(door_connects, inf_tensor, door_connects_raw_logodds)
+            all_filtered_logodds = torch.cat([door_connects_filtered_logodds, missing_connects_raw_logodds], dim=1)
+            state_value_probs = torch.sigmoid(all_filtered_logodds)
             state_value_expected = torch.sum(state_value_probs, dim=1) / 2
             # state_value_probs = torch.softmax(state_value_raw_logprobs, dim=1)
             # arange = torch.arange(self.max_possible_reward + 1, device=map.device, dtype=torch.float32)
             # state_value_expected = torch.sum(state_value_probs * arange.view(1, -1), dim=1)
-            return state_value_filtered_logodds, state_value_probs, state_value_expected
+            return all_filtered_logodds, state_value_probs, state_value_expected
 
     def forward(self, map, room_mask, room_position_x, room_position_y, steps_remaining, env):
         # TODO: we could speed up the last layer a bit by summing the parameters instead of outputs
