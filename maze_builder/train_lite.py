@@ -93,11 +93,14 @@ def make_dummy_model():
     return Model(env_config=env_config,
                  num_doors=envs[0].num_doors,
                  num_missing_connects=envs[0].num_missing_connects,
+                 num_room_parts=envs[0].part_adjacency_matrix.shape[0],
                  map_channels=[],
                  map_stride=[],
                  map_kernel_size=[],
                  map_padding=[],
                  room_embedding_width=1,
+                 connectivity_in_width=64,
+                 connectivity_out_width=512,
                  fc_widths=[]).to(device)
 
 
@@ -218,12 +221,15 @@ session.model = Model(
     env_config=env_config,
     num_doors=envs[0].num_doors,
     num_missing_connects=envs[0].num_missing_connects,
+    num_room_parts=envs[0].part_adjacency_matrix.shape[0],
     map_channels=[32, 64, 128],
     map_stride=[2, 2, 2],
     map_kernel_size=[7, 3, 3],
     map_padding=3 * [False],
     room_embedding_width=6,
     fc_widths=[1024, 256, 64],
+    connectivity_in_width=64,
+    connectivity_out_width=512,
     global_dropout_p=0.0,
 ).to(device)
 # session.model = Model(

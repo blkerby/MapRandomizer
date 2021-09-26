@@ -2,6 +2,7 @@ import torch
 import torch.nn.functional as F
 import math
 from typing import List, Optional
+import logging
 
 from maze_builder.env import MazeBuilderEnv
 
@@ -114,19 +115,23 @@ class MaxOut(torch.nn.Module):
 
 
 class Model(torch.nn.Module):
-    def __init__(self, env_config, num_doors, num_missing_connects, map_channels, map_stride, map_kernel_size, map_padding,
+    def __init__(self, env_config, num_doors, num_missing_connects, num_room_parts, map_channels, map_stride, map_kernel_size, map_padding,
                  room_embedding_width,
                  fc_widths,
+                 connectivity_in_width, connectivity_out_width,
                  map_dropout_p=0.0,
                  global_dropout_p=0.0):
         super().__init__()
         self.env_config = env_config
         self.num_doors = num_doors
         self.num_missing_connects = num_missing_connects
+        self.num_room_parts = num_room_parts
         self.map_x = env_config.map_x + 1
         self.map_y = env_config.map_y + 1
         self.map_c = 4
         self.room_embedding_width = room_embedding_width
+        self.connectivity_in_width = connectivity_in_width
+        self.connectivity_out_width = connectivity_out_width
         self.num_rooms = len(env_config.rooms) + 1
         self.map_dropout_p = map_dropout_p
         self.global_dropout_p = global_dropout_p
@@ -156,13 +161,17 @@ class Model(torch.nn.Module):
         # self.map_global_pool = GlobalMaxPool2d()
         # self.map_global_pool = torch.nn.Flatten()
 
+        self.connectivity_left_mat = torch.nn.Parameter(torch.randn([connectivity_in_width, num_room_parts]))
+        self.connectivity_right_mat = torch.nn.Parameter(torch.randn([num_room_parts, connectivity_in_width]))
+        self.connectivity_lin = torch.nn.Linear(connectivity_in_width ** 2, connectivity_out_width)
         self.global_lin_layers = torch.nn.ModuleList()
         self.global_act_layers = torch.nn.ModuleList()
         self.global_dropout_layers = torch.nn.ModuleList()
         # global_fc_widths = [(width * height * map_channels[-1]) + 1 + room_tensor.shape[0]] + global_fc_widths
         # fc_widths = [width * height * map_channels[-1]] + fc_widths
         # fc_widths = [map_channels[-1] + 1 + self.num_rooms * room_embedding_width * 2] + fc_widths
-        fc_widths = [map_channels[-1] + 1 + self.num_rooms] + fc_widths
+        fc_widths = [map_channels[-1] + 1 + self.num_rooms + connectivity_out_width] + fc_widths
+        # fc_widths = [map_channels[-1] + 1 + self.num_rooms] + fc_widths
         for i in range(len(fc_widths) - 1):
             lin = torch.nn.Linear(fc_widths[i], fc_widths[i + 1] * arity)
             self.global_lin_layers.append(lin)
@@ -172,12 +181,26 @@ class Model(torch.nn.Module):
         self.project()
 
     def forward_multiclass(self, map, room_mask, room_position_x, room_position_y, steps_remaining, env: MazeBuilderEnv):
-        # Convolutional layers on whole map data
+        n = map.shape[0]
+        # logging.info("compute_component_matrix")
+        connectivity = env.compute_fast_component_matrix(room_mask, room_position_x, room_position_y)
+
         if map.is_cuda:
             X = map.to(torch.float16, memory_format=torch.channels_last)
+            connectivity = connectivity.to(torch.float16)
         else:
             X = map.to(torch.float32)
+            connectivity = connectivity.to(torch.float32)
+
+        reduced_connectivity = torch.einsum('ijk,mj,kn->imn',
+                                            connectivity,
+                                            self.connectivity_left_mat.to(connectivity.dtype),
+                                            self.connectivity_right_mat.to(connectivity.dtype))
+        # print(n, reduced_connectivity.shape, self.connectivity_in_width)
+        reduced_connectivity_flat = reduced_connectivity.view(n, self.connectivity_in_width ** 2)
+
         with torch.cuda.amp.autocast():
+            connectivity_out = self.connectivity_lin(reduced_connectivity_flat)
             for i in range(len(self.map_conv_layers)):
                 X = self.map_conv_layers[i](X)
                 X = self.map_act_layers[i](X)
@@ -196,7 +219,8 @@ class Model(torch.nn.Module):
 
             # Fully-connected layers on whole map data (starting with output of convolutional layers)
             X = self.map_global_pool(X)
-            X = torch.cat([X, steps_remaining.view(-1, 1), room_mask], dim=1)
+            # X = torch.cat([X, steps_remaining.view(-1, 1), room_mask], dim=1)
+            X = torch.cat([X, steps_remaining.view(-1, 1), room_mask, connectivity_out], dim=1)
             # X = torch.cat([X, steps_remaining.view(-1, 1), room_embedding_x, room_embedding_y], dim=1)
             for i in range(len(self.global_lin_layers)):
                 X = self.global_lin_layers[i](X)

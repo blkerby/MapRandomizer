@@ -6,6 +6,7 @@ from maze_builder.display import MapDisplay
 import torch
 import torch.nn.functional as F
 from dataclasses import dataclass
+import logging
 
 
 def _rand_choice(p):
@@ -558,30 +559,31 @@ class MazeBuilderEnv:
             connects_list.append(connects)
         return torch.cat(connects_list, dim=1)
 
-    def compute_component_matrix(self):
+    def compute_component_matrix(self, room_mask, room_position_x, room_position_y):
+        n = room_mask.shape[0]
         data_tuples = [
             (self.room_left, self.room_right, self.part_left, self.part_right),
             (self.room_right, self.room_left, self.part_right, self.part_left),
             (self.room_down, self.room_up, self.part_down, self.part_up),
             (self.room_up, self.room_down, self.part_up, self.part_down),
         ]
-        adjacency_matrix = self.part_adjacency_matrix.unsqueeze(0).repeat(self.num_envs, 1, 1)
+        adjacency_matrix = self.part_adjacency_matrix.unsqueeze(0).repeat(n, 1, 1)
         if adjacency_matrix.is_cuda:
             adjacency_matrix = adjacency_matrix.to(torch.float16)  # pytorch bmm can't handle integer types on CUDA
         for room_dir, room_dir_opp, part, part_opp in data_tuples:
             room_id = room_dir[:, 0]
             relative_door_x = room_dir[:, 1]
             relative_door_y = room_dir[:, 2]
-            door_x = self.room_position_x[:, room_id] + relative_door_x.unsqueeze(0)
-            door_y = self.room_position_y[:, room_id] + relative_door_y.unsqueeze(0)
-            mask = self.room_mask[:, room_id]
+            door_x = room_position_x[:, room_id] + relative_door_x.unsqueeze(0)
+            door_y = room_position_y[:, room_id] + relative_door_y.unsqueeze(0)
+            mask = room_mask[:, room_id]
 
             room_id_opp = room_dir_opp[:, 0]
             relative_door_x_opp = room_dir_opp[:, 1]
             relative_door_y_opp = room_dir_opp[:, 2]
-            door_x_opp = self.room_position_x[:, room_id_opp] + relative_door_x_opp.unsqueeze(0)
-            door_y_opp = self.room_position_y[:, room_id_opp] + relative_door_y_opp.unsqueeze(0)
-            mask_opp = self.room_mask[:, room_id_opp]
+            door_x_opp = room_position_x[:, room_id_opp] + relative_door_x_opp.unsqueeze(0)
+            door_y_opp = room_position_y[:, room_id_opp] + relative_door_y_opp.unsqueeze(0)
+            mask_opp = room_mask[:, room_id_opp]
 
             x_eq = (door_x.unsqueeze(2) == door_x_opp.unsqueeze(1))
             y_eq = (door_y.unsqueeze(2) == door_y_opp.unsqueeze(1))
@@ -601,6 +603,7 @@ class MazeBuilderEnv:
         for i in range(8):
             component_matrix = torch.bmm(component_matrix, component_matrix)
             component_matrix = torch.clamp_max(component_matrix, 1)
+        # return adjacency_matrix, component_matrix.to(torch.bool)
         ship_part = 1
         reachable_from_ship = component_matrix[:, ship_part, :]
         durable_backtrack = torch.minimum(reachable_from_ship.unsqueeze(1),
@@ -611,8 +614,56 @@ class MazeBuilderEnv:
             component_matrix = torch.clamp_max(component_matrix, 1)
         return component_matrix.to(torch.bool)
 
+    def compute_fast_component_matrix(self, room_mask, room_position_x, room_position_y):
+        n = room_mask.shape[0]
+        data_tuples = [
+            (self.room_left, self.room_right, self.part_left, self.part_right),
+            (self.room_right, self.room_left, self.part_right, self.part_left),
+            (self.room_down, self.room_up, self.part_down, self.part_up),
+            (self.room_up, self.room_down, self.part_up, self.part_down),
+        ]
+        adjacency_matrix = self.part_adjacency_matrix.unsqueeze(0).repeat(n, 1, 1)
+        if adjacency_matrix.is_cuda:
+            adjacency_matrix = adjacency_matrix.to(torch.float16)  # pytorch bmm can't handle integer types on CUDA
+        for room_dir, room_dir_opp, part, part_opp in data_tuples:
+            room_id = room_dir[:, 0]
+            relative_door_x = room_dir[:, 1]
+            relative_door_y = room_dir[:, 2]
+            door_x = room_position_x[:, room_id] + relative_door_x.unsqueeze(0)
+            door_y = room_position_y[:, room_id] + relative_door_y.unsqueeze(0)
+            mask = room_mask[:, room_id]
+
+            room_id_opp = room_dir_opp[:, 0]
+            relative_door_x_opp = room_dir_opp[:, 1]
+            relative_door_y_opp = room_dir_opp[:, 2]
+            door_x_opp = room_position_x[:, room_id_opp] + relative_door_x_opp.unsqueeze(0)
+            door_y_opp = room_position_y[:, room_id_opp] + relative_door_y_opp.unsqueeze(0)
+            mask_opp = room_mask[:, room_id_opp]
+
+            x_eq = (door_x.unsqueeze(2) == door_x_opp.unsqueeze(1))
+            y_eq = (door_y.unsqueeze(2) == door_y_opp.unsqueeze(1))
+            both_mask = (mask.unsqueeze(2) & mask_opp.unsqueeze(1))
+            connects = x_eq & y_eq & both_mask
+            nz = torch.nonzero(connects)
+
+            nz_env = nz[:, 0]
+            nz_door = nz[:, 1]
+            nz_door_opp = nz[:, 2]
+            nz_part = part[nz_door]
+            nz_part_opp = part_opp[nz_door_opp]
+            adjacency_matrix[nz_env, nz_part, nz_part_opp] = 1
+            adjacency_matrix[nz_env, nz_part_opp, nz_part] = 1
+
+        padding_needed = (8 - self.good_room_parts.shape[0] % 8) % 8
+        good_room_parts = torch.cat([self.good_room_parts, torch.zeros([padding_needed], device=self.device, dtype=self.good_room_parts.dtype)])
+        component_matrix = adjacency_matrix[:, good_room_parts.view(-1, 1), good_room_parts.view(1, -1)]
+        for i in range(8):
+            component_matrix = torch.bmm(component_matrix, component_matrix)
+            component_matrix = torch.clamp_max(component_matrix, 1)
+        return component_matrix[:, :self.good_room_parts.shape[0], :self.good_room_parts.shape[0]].to(torch.bool)
+
     def compute_missing_connections(self):
-        component_matrix = self.compute_component_matrix()
+        component_matrix = self.compute_component_matrix(self.room_mask, self.room_position_x, self.room_position_y)
         missing_connections = component_matrix[:, self.missing_connection_src, self.missing_connection_dst]
         return missing_connections
 
@@ -677,10 +728,12 @@ class MazeBuilderEnv:
                         dir, door_x, door_y, self.rooms[room_id]))
             part_tensor_list.append(torch.tensor(part_id_list).to(self.device))
         self.part_left, self.part_right, self.part_down, self.part_up = part_tensor_list
+        self.good_room_parts = torch.tensor([i for i, r in enumerate(self.part_room_id.tolist())
+                                             if len(self.rooms[r].door_ids) > 1], device=self.device)
 
     def render(self, env_index=0):
         if self.map_display is None:
-            self.map_display = MapDisplay(self.map_x, self.map_y, tile_width=14)
+            self.map_display = MapDisplay(self.map_x, self.map_y, tile_width=13)
         ind = torch.tensor([i for i in range(len(self.rooms) - 1) if self.room_mask[env_index, i]],
                            dtype=torch.int64, device=self.device)
         rooms = [self.rooms[i] for i in ind]

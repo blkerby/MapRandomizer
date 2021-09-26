@@ -34,13 +34,14 @@ device = torch.device('cpu')
 # session = CPU_Unpickler(open('models/09-13-session-2021-09-11T16:47:23.572372.pkl', 'rb')).load()
 # session = CPU_Unpickler(open('models/09-17-session-2021-09-15T18:37:33.708805.pkl', 'rb')).load()
 # session = CPU_Unpickler(open('models/09-14-session-2021-09-11T16:47:23.572372.pkl', 'rb')).load()
-session = CPU_Unpickler(open('models/09-20-session-2021-09-19T22:32:37.961101.pkl', 'rb')).load()  # training from scratch with missing connections
+# session = CPU_Unpickler(open('models/09-20-session-2021-09-19T22:32:37.961101.pkl', 'rb')).load()  # training from scratch with missing connections
 # session = CPU_Unpickler(open('models/09-20-session-2021-09-20T07:34:10.766407.pkl', 'rb')).load()  # training from 09-14-session-2021-09-11T16:47:23.572372.pkl, with change to Aqueduct and adding missing connections
-#
+session = CPU_Unpickler(open('models/09-25-session-2021-09-22T07:40:34.148771.pkl', 'rb')).load()  # training from scratch with missing connections
 
-print(torch.sum(session.replay_buffer.episode_data.missing_connects.to(torch.float32), dim=0))
+print(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects.to(torch.float32), dim=0)))
+print(torch.max(session.replay_buffer.episode_data.reward))
 
-ind = torch.nonzero(session.replay_buffer.episode_data.reward == 331)
+ind = torch.nonzero(session.replay_buffer.episode_data.reward == 337)
 i = 0
 num_rooms = len(session.envs[0].rooms)
 action = session.replay_buffer.episode_data.action[ind[i], :]
@@ -50,6 +51,7 @@ room_mask, room_position_x, room_position_y = reconstruct_room_data(action, step
 num_envs = 1
 # num_envs = 8
 rooms = logic.rooms.all_rooms.rooms
+
 
 
 # doors = {}
@@ -88,6 +90,29 @@ env = MazeBuilderEnv(rooms,
 env.room_mask = room_mask
 env.room_position_x = room_position_x
 env.room_position_y = room_position_y
+
+import time
+start = time.perf_counter()
+adjacency_matrix, A = env.compute_component_matrix(room_mask, room_position_x, room_position_y)
+end = time.perf_counter()
+print(end - start)
+
+edges = torch.nonzero(adjacency_matrix)
+import graph_tool
+import graph_tool.topology
+
+flat_edges0 = edges[:, 1:3]
+flat_edges1 = flat_edges0 + 301
+# flat_edges = torch.cat([flat_edges0, flat_edges1], dim=0)
+flat_edges = flat_edges0
+start = time.perf_counter()
+g = graph_tool.Graph()
+g.add_edge_list(flat_edges.numpy())
+# gc = graph_tool.topology.transitive_closure(g)
+gc = graph_tool.topology.label_components(g)
+end = time.perf_counter()
+print(end - start)
+out_edges = gc.get_edges()
 env.render()
 
 
@@ -143,3 +168,5 @@ print(torch.stack([env.part_room_id[env.missing_connection_src], missing_connect
 # # extra_env.render()
 
 # len([r for r in env.rooms if len(r.door_ids) == 1])
+torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects, dim=0))
+session.envs[0].part_room_id[session.envs[0].missing_connection_src[9]]
