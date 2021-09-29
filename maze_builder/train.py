@@ -147,8 +147,8 @@ explore_eps1 = 5e-4
 annealing_start = 0
 annealing_time = 10000
 # session.envs = envs
-pass_factor = 32.0
-print_freq = 8
+pass_factor = 8.0
+print_freq = 4
 
 # num_groups = 100
 # for i in range(num_groups):
