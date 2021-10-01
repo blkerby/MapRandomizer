@@ -341,7 +341,8 @@ class TrainingSession():
                     map, data.room_mask, data.room_position_x, data.room_position_y, data.steps_remaining, env)
 
         # loss = torch.nn.functional.cross_entropy(state_value_raw_logprobs, data.reward)
+        all_outputs = torch.cat([data.door_connects, data.missing_connects], dim=1).to(state_value_raw_logprobs.dtype)
         loss = torch.nn.functional.binary_cross_entropy_with_logits(state_value_raw_logprobs,
-                                                                    data.door_connects.to(state_value_raw_logprobs.dtype))
+                                                                    all_outputs)
         mse = torch.nn.functional.mse_loss(state_value_expected, data.reward)
         return loss.item(), mse.item()

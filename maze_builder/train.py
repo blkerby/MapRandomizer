@@ -54,7 +54,7 @@ num_devices = len(devices)
 device = devices[0]
 executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
-num_envs = 2 ** 8
+num_envs = 2 ** 7
 # num_envs = 1
 # rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.crateria.rooms
@@ -89,7 +89,8 @@ envs = [MazeBuilderEnv(rooms,
                        map_y=map_y,
                        num_envs=num_envs,
                        device=device,
-                       must_areas_be_connected=False)
+                       must_areas_be_connected=False,
+                       workers=8)
         for device in devices]
 
 max_possible_reward = envs[0].max_reward
@@ -383,6 +384,7 @@ student_frac = 0.0
 # session = pickle.load(open('models/session-2021-09-11T11:41:25.448242.pkl', 'rb'))
 # session = pickle.load(open('models/session-2021-09-11T16:47:23.572372.pkl-bk6', 'rb'))
 # session = pickle.load(open('models/session-2021-09-19T22:32:37.961101.pkl', 'rb'))
+session = pickle.load(open('models/session-2021-09-25T14:49:02.893358.pkl-bk3', 'rb'))
 # session = pickle.load(open('models/tmp_session.pkl', 'rb'))
 
 # session2 = pickle.load(open('models/session-2021-09-22T07:40:34.148771.pkl', 'rb'))
@@ -412,7 +414,7 @@ student_frac = 0.0
 # session.average_parameters.use_averages(session.model.all_param_data())
 # teacher_model = session.model
 #
-# session.envs = envs
+session.envs = envs
 # session.model = session.model.to(device)
 # def optimizer_to(optim, device):
 #     for param in optim.state.values():
@@ -547,7 +549,6 @@ for i in range(100000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             pickle.dump(session, open(pickle_name, 'wb'))
-            # pickle.dump(session, open('models/tmp_session.pkl', 'wb'))
-            # pickle.dump(session, open(pickle_name + '-bk2', 'wb'))
+            # pickle.dump(session, open(pickle_name + '-bk3', 'wb'))
             # session.replay_buffer.episode_data = episode_data
             # session = pickle.load(open(pickle_name + '-bk4', 'rb'))
