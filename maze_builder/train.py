@@ -133,21 +133,21 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 
 batch_size_pow0 = 11
 batch_size_pow1 = 11
-lr0 = 0.00005
-lr1 = 0.00005
+lr0 = 0.00002
+lr1 = 0.00002
 num_candidates0 = 8
 num_candidates1 = 32
 num_candidates = num_candidates0
 # temperature0 = 10.0
 # temperature1 = 0.01
 temperature0 = 1.0
-temperature1 = 0.001
+temperature1 = 0.01
 explore_eps0 = 0.1
-explore_eps1 = 1e-4
+explore_eps1 = 1e-3
 annealing_start = 0
 annealing_time = 10000
 # session.envs = envs
-pass_factor = 8.0
+pass_factor = 2.0
 print_freq = 4
 
 # num_groups = 100
@@ -276,7 +276,6 @@ num_train_batches = int(pass_factor * session.replay_buffer.capacity * episode_l
 num_eval_batches = num_eval_rounds * num_envs // eval_batch_size
 print_freq = 1
 eval_freq = print_freq
-save_freq = 16
 # for layer in session.network.global_dropout_layers:
 #     layer.p = 0.0
 init_train_round = 1
@@ -383,6 +382,8 @@ student_frac = 0.0
 # session = pickle.load(open('models/session-2021-09-11T11:41:25.448242.pkl', 'rb'))
 # session = pickle.load(open('models/session-2021-09-11T16:47:23.572372.pkl-bk6', 'rb'))
 # session = pickle.load(open('models/session-2021-09-19T22:32:37.961101.pkl', 'rb'))
+# session = pickle.load(open('models/session-2021-09-25T14:49:02.893358.pkl-bk3', 'rb'))
+session = pickle.load(open('models/session-2021-10-01T06:00:47.689340.pkl-bk4', 'rb'))
 # session = pickle.load(open('models/tmp_session.pkl', 'rb'))
 
 # session2 = pickle.load(open('models/session-2021-09-22T07:40:34.148771.pkl', 'rb'))
@@ -412,7 +413,7 @@ student_frac = 0.0
 # session.average_parameters.use_averages(session.model.all_param_data())
 # teacher_model = session.model
 #
-# session.envs = envs
+session.envs = envs
 # session.model = session.model.to(device)
 # def optimizer_to(optim, device):
 #     for param in optim.state.values():
@@ -431,13 +432,14 @@ student_frac = 0.0
 # session.average_parameters.shadow_params = [p.to(device) for p in session.average_parameters.shadow_params]
 # session.replay_buffer.episode_data.door_connects = torch.zeros([262144, 578], dtype=torch.bool)
 
-print_freq = 1
+print_freq = 8
 total_reward = 0
 total_loss = 0.0
 total_loss_cnt = 0
 total_test_loss = 0.0
 total_prob = 0.0
 total_round_cnt = 0
+save_freq = 16
 
 min_door_value = max_possible_reward
 total_min_door_frac = 0
@@ -547,7 +549,6 @@ for i in range(100000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             pickle.dump(session, open(pickle_name, 'wb'))
-            # pickle.dump(session, open('models/tmp_session.pkl', 'wb'))
-            # pickle.dump(session, open(pickle_name + '-bk2', 'wb'))
+            # pickle.dump(session, open(pickle_name + '-bk4', 'wb'))
             # session.replay_buffer.episode_data = episode_data
             # session = pickle.load(open(pickle_name + '-bk4', 'rb'))
