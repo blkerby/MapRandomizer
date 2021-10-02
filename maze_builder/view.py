@@ -36,12 +36,13 @@ device = torch.device('cpu')
 # session = CPU_Unpickler(open('models/09-14-session-2021-09-11T16:47:23.572372.pkl', 'rb')).load()
 # session = CPU_Unpickler(open('models/09-20-session-2021-09-19T22:32:37.961101.pkl', 'rb')).load()  # training from scratch with missing connections
 # session = CPU_Unpickler(open('models/09-20-session-2021-09-20T07:34:10.766407.pkl', 'rb')).load()  # training from 09-14-session-2021-09-11T16:47:23.572372.pkl, with change to Aqueduct and adding missing connections
-session = CPU_Unpickler(open('models/09-25-session-2021-09-22T07:40:34.148771.pkl', 'rb')).load()  # training from scratch with missing connections
+# session = CPU_Unpickler(open('models/09-25-session-2021-09-22T07:40:34.148771.pkl', 'rb')).load()  # training from scratch with missing connections
+session = CPU_Unpickler(open('models/10-02-session-2021-10-01T20:17:10.651073.pkl', 'rb')).load()  # adding connectivity features
 
 print(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects.to(torch.float32), dim=0)))
 print(torch.max(session.replay_buffer.episode_data.reward))
 
-ind = torch.nonzero(session.replay_buffer.episode_data.reward == 337)
+ind = torch.nonzero(session.replay_buffer.episode_data.reward == 340)
 i = 0
 num_rooms = len(session.envs[0].rooms)
 action = session.replay_buffer.episode_data.action[ind[i], :]
@@ -90,6 +91,7 @@ env = MazeBuilderEnv(rooms,
 env.room_mask = room_mask
 env.room_position_x = room_position_x
 env.room_position_y = room_position_y
+env.render(0)
 
 import time
 start = time.perf_counter()
