@@ -622,9 +622,7 @@ class MazeBuilderEnv:
         n = room_mask.shape[0]
         data_tuples = [
             (self.room_left, self.room_right, self.part_left, self.part_right),
-            (self.room_right, self.room_left, self.part_right, self.part_left),
             (self.room_down, self.room_up, self.part_down, self.part_up),
-            (self.room_up, self.room_down, self.part_up, self.part_down),
         ]
         adjacency_matrix = self.part_adjacency_matrix.unsqueeze(0).repeat(n, 1, 1)
         if adjacency_matrix.is_cuda:
@@ -840,7 +838,7 @@ class MazeBuilderEnv:
 
     def render(self, env_index=0):
         if self.map_display is None:
-            self.map_display = MapDisplay(self.map_x, self.map_y, tile_width=13)
+            self.map_display = MapDisplay(self.map_x, self.map_y, tile_width=14)
         ind = torch.tensor([i for i in range(len(self.rooms) - 1) if self.room_mask[env_index, i]],
                            dtype=torch.int64, device=self.device)
         rooms = [self.rooms[i] for i in ind]
@@ -865,7 +863,7 @@ class MazeBuilderEnv:
 # # import logic.rooms.maridia_upper
 # #
 # # torch.manual_seed(0)
-# num_envs = 32
+# num_envs = 128
 # # # rooms = logic.rooms.crateria.rooms[:5]
 # rooms = logic.rooms.all_rooms.rooms
 # # # rooms = logic.rooms.maridia_upper.rooms
@@ -906,7 +904,7 @@ class MazeBuilderEnv:
 # print(end - start)
 #
 # start = time.perf_counter()
-# A2 = env.compute_faster_component_matrix(env.room_mask, env.room_position_x, env.room_position_y)
+# A2 = env.compute_fast_component_matrix2(env.room_mask, env.room_position_x, env.room_position_y)
 # end = time.perf_counter()
 # print(end - start)
 #
