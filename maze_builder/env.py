@@ -642,15 +642,23 @@ class MazeBuilderEnv:
             door_y_opp = room_position_y[:, room_id_opp] + relative_door_y_opp.unsqueeze(0)
             mask_opp = room_mask[:, room_id_opp]
 
-            x_eq = (door_x.unsqueeze(2) == door_x_opp.unsqueeze(1))
-            y_eq = (door_y.unsqueeze(2) == door_y_opp.unsqueeze(1))
-            both_mask = (mask.unsqueeze(2) & mask_opp.unsqueeze(1))
-            connects = x_eq & y_eq & both_mask
-            nz = torch.nonzero(connects)
+            door_map = torch.zeros([n, (self.map_x + 1) * (self.map_y + 1)], device=self.device, dtype=torch.int64)
+            door_mask = torch.zeros([n, (self.map_x + 1) * (self.map_y + 1)], device=self.device, dtype=torch.bool)
+            door_pos = door_y * (self.map_x + 1) + door_x
+            door_id = torch.arange(room_dir.shape[0], device=self.device).view(1, -1)
+            door_map.scatter_add_(dim=1, index=door_pos, src=door_id * mask)
+            door_mask.scatter_add_(dim=1, index=door_pos, src=mask)
 
+            door_pos_opp = door_y_opp * (self.map_x + 1) + door_x_opp
+            all_env_ids = torch.arange(n, device=self.device).view(-1, 1)
+            door_map_lookup = door_map[all_env_ids, door_pos_opp]
+            door_mask_lookup = door_mask[all_env_ids, door_pos_opp]
+
+            both_mask = mask_opp & door_mask_lookup
+            nz = torch.nonzero(both_mask)
             nz_env = nz[:, 0]
-            nz_door = nz[:, 1]
-            nz_door_opp = nz[:, 2]
+            nz_door_opp = nz[:, 1]
+            nz_door = door_map_lookup[nz_env, nz_door_opp]
             nz_part = part[nz_door]
             nz_part_opp = part_opp[nz_door_opp]
             adjacency_matrix[nz_env, nz_part, nz_part_opp] = 1
@@ -849,7 +857,7 @@ class MazeBuilderEnv:
 
     # def export(self):
 
-#
+
 # logging.basicConfig(format='%(asctime)s %(message)s',
 #                     # level=logging.DEBUG,
 #                     level=logging.INFO,
@@ -863,7 +871,7 @@ class MazeBuilderEnv:
 # # import logic.rooms.maridia_upper
 # #
 # # torch.manual_seed(0)
-# num_envs = 128
+# num_envs = 64
 # # # rooms = logic.rooms.crateria.rooms[:5]
 # rooms = logic.rooms.all_rooms.rooms
 # # # rooms = logic.rooms.maridia_upper.rooms

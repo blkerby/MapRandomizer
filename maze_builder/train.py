@@ -392,7 +392,7 @@ print_freq = 4
 # session = pickle.load(open('models/session-2021-10-01T12:16:22.372599.pkl', 'rb'))
 # session = pickle.load(open('models/session-2021-10-01T20:17:10.651073.pkl', 'rb'))
 # session = pickle.load(open('models/session-2021-10-02T14:01:11.931366.pkl', 'rb'))
-session = pickle.load(open('models/session-2021-10-03T09:44:04.879343.pkl-bk', 'rb'))
+session = pickle.load(open('models/session-2021-10-05T15:39:12.613873.pkl', 'rb'))
 #
 #
 #
