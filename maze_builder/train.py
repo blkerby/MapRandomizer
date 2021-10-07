@@ -1,8 +1,13 @@
 # TODO:
+# - speed up computation of connectivity data
+# - new model architecture
 # - try all-action approach again
+# - filter candidates which leave no possibility of completing connectivity
+# - if for a given open door no room can be attached to it, override the model prediction with 0%
 # - Use one-hot coding or embeddings (on tile/door types) instead of putting raw map data into convolutional layers
 # - idea for activation: variation of ReLU where on the right the slope starts at a value >1 and then changes to a
 #   <1 at a certain point (for self-normalization), e.g. sqrt(max(0, x) + 1/4) - 1/2
+# - try D2 activation (and try torchscript to make it faster)
 # - try curriculum learning, starting with small subsets of rooms and ramping up
 # - minor cleanup: in data generation, use action value from previous step to avoid needing to recompute state value
 # - export better metrics, and maybe build some sort of database for them (e.g., SQLlite, or mongodb/sacred?)
@@ -54,7 +59,7 @@ num_devices = len(devices)
 device = devices[0]
 executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
-num_envs = 2 ** 8
+num_envs = 2 ** 7
 # num_envs = 1
 # rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.crateria.rooms
@@ -136,18 +141,18 @@ batch_size_pow1 = 11
 lr0 = 0.00002
 lr1 = 0.00002
 num_candidates0 = 8
-num_candidates1 = 32
+num_candidates1 = 64
 num_candidates = num_candidates0
 # temperature0 = 10.0
 # temperature1 = 0.01
 temperature0 = 1.0
-temperature1 = 0.01
+temperature1 = 0.001
 explore_eps0 = 0.1
-explore_eps1 = 1e-3
+explore_eps1 = 1e-4
 annealing_start = 0
 annealing_time = 10000
 # session.envs = envs
-pass_factor = 2.0
+pass_factor = 1.0
 print_freq = 4
 
 # # num_groups = 100
@@ -385,7 +390,11 @@ print_freq = 4
 # session = pickle.load(open('models/session-2021-09-25T14:49:02.893358.pkl-bk3', 'rb'))
 # session = pickle.load(open('models/session-2021-10-01T06:00:47.689340.pkl-bk4', 'rb'))
 # session = pickle.load(open('models/session-2021-10-01T12:16:22.372599.pkl', 'rb'))
-session = pickle.load(open('models/session-2021-10-01T20:17:10.651073.pkl', 'rb'))
+# session = pickle.load(open('models/session-2021-10-01T20:17:10.651073.pkl', 'rb'))
+# session = pickle.load(open('models/session-2021-10-02T14:01:11.931366.pkl', 'rb'))
+session = pickle.load(open('models/session-2021-10-03T09:44:04.879343.pkl-bk', 'rb'))
+#
+#
 #
 # session = pickle.load(open('models/tmp_session.pkl', 'rb'))
 
@@ -552,6 +561,6 @@ for i in range(100000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             pickle.dump(session, open(pickle_name, 'wb'))
-            # pickle.dump(session, open(pickle_name + '-bk4', 'wb'))
+            # pickle.dump(session, open(pickle_name + '-bk', 'wb'))
             # session.replay_buffer.episode_data = episode_data
             # session = pickle.load(open(pickle_name + '-bk4', 'rb'))
