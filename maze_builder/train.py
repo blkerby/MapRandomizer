@@ -23,7 +23,7 @@ from maze_builder.env import MazeBuilderEnv
 import logic.rooms.crateria
 from datetime import datetime
 import pickle
-from maze_builder.model import Model
+from maze_builder.model import Model, DoorLocalModel
 from maze_builder.train_session import TrainingSession
 from model_average import ExponentialAverage
 import io
@@ -138,7 +138,7 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 
 batch_size_pow0 = 11
 batch_size_pow1 = 11
-lr0 = 0.00002
+lr0 = 0.0001
 lr1 = 0.00002
 num_candidates0 = 8
 num_candidates1 = 64
@@ -235,7 +235,7 @@ print_freq = 4
 #
 # # teacher_model = session.model
 # # session.network = make_network()
-# num_eval_rounds = session.replay_buffer.size // (num_envs * num_devices) // 64
+num_eval_rounds = session.replay_buffer.size // (num_envs * num_devices) // 64
 # session.model = Model(
 #     env_config=env_config,
 #     num_doors=envs[0].num_doors,
@@ -251,118 +251,137 @@ print_freq = 4
 #     fc_widths=[1024, 256, 64],
 #     global_dropout_p=0.0,
 # ).to(device)
-# # session.model = Model(
-# #     env_config=env_config,
-# #     max_possible_reward=envs[0].max_reward,
-# #     map_channels=[32, 64, 128, 256, 512],
-# #     map_stride=[2, 2, 2, 2, 2],
-# #     map_kernel_size=[7, 3, 3, 3, 3],
-# #     map_padding=5 * [False],
-# #     room_embedding_width=6,
-# #     fc_widths=[1024, 1024, 1024],
-# #     global_dropout_p=0.0,
-# # ).to(device)
-# session.model.state_value_lin.weight.data.zero_()
-# session.model.state_value_lin.bias.data.zero_()
-# logging.info(session.model)
-# session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=session.average_parameters.beta)
-# # session.optimizer = torch.optim.RMSprop(session.network.parameters(), lr=0.001, alpha=0.95)
-# # session.optimizer = torch.optim.RMSprop(session.model.parameters(), lr=0.0002, alpha=0.99)
-# session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.0001, betas=(0.95, 0.99), eps=1e-15)
-# # session.optimizer = shampoo.Shampoo(session.model.parameters(), beta=0.999, lr=0.001, update_freq=50)
-# # session.optimizer = torch.optim.SGD(session.network.parameters(), lr=0.0005)
-# logging.info(session.optimizer)
-# # session.optimizer = torch.optim.RMSprop(session.network.parameters(), lr=0.002, alpha=0.95)
-# # batch_size = 2 ** batch_size_pow0
-# batch_size = 2048
-# eval_batch_size = 16
-# num_steps = session.replay_buffer.capacity // num_envs
-# num_train_batches = int(pass_factor * session.replay_buffer.capacity * episode_length // batch_size // num_steps)
-# num_eval_batches = num_eval_rounds * num_envs // eval_batch_size
-# print_freq = 1
-# eval_freq = print_freq
-# # for layer in session.network.global_dropout_layers:
-# #     layer.p = 0.0
-# init_train_round = 1
-#
-# # session.optimizer.param_groups[0]['lr'] = 0.99
-# # session.optimizer.param_groups[0]['betas'] = (0.95, 0.99)
-# # session.optimizer.param_groups[0]['betas'] = (0.998, 0.998)
-# session.average_parameters.beta = 0.99
-# session.sam_scale = None
-# session.decay_amount = 0.0
-# # session.model.global_dropout_p = 0.1
-#
-# # num_steps = 128
-# gen_freq = 4
-# ema_beta = 0.9
-# ema_reward = 0.0
-# ema_perfect = 0.0
-# ema_weight = 0.0
-# student_frac = 0.0
+session = pickle.load(open('models/session-2021-10-08T16:18:17.471054.pkl', 'rb'))
+session.model = DoorLocalModel(
+    env_config=env_config,
+    num_doors=envs[0].num_doors,
+    num_missing_connects=envs[0].num_missing_connects,
+    num_room_parts=len(envs[0].good_room_parts),
+    map_channels=4,
+    map_kernel_size=16,
+    connectivity_in_width=64,
+    local_widths=[512, 0],
+    global_widths=[512, 512],
+    # local_widths=[256, 256],
+    # global_widths=[256, 256],
+    fc_widths=[512],
+).to(device)
+session.model.state_value_lin.weight.data.zero_()
+session.model.state_value_lin.bias.data.zero_()
+logging.info(session.model)
+session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=session.average_parameters.beta)
+# session.optimizer = torch.optim.RMSprop(session.network.parameters(), lr=0.001, alpha=0.95)
+# session.optimizer = torch.optim.RMSprop(session.model.parameters(), lr=0.0002, alpha=0.99)
+session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.0001, betas=(0.95, 0.99), eps=1e-15)
+# session.optimizer = shampoo.Shampoo(session.model.parameters(), beta=0.999, lr=0.001, update_freq=50)
+# session.optimizer = torch.optim.SGD(session.network.parameters(), lr=0.0005)
+logging.info(session.optimizer)
+# session.optimizer = torch.optim.RMSprop(session.network.parameters(), lr=0.002, alpha=0.95)
+# batch_size = 2 ** batch_size_pow0
+batch_size = 2048
+eval_batch_size = 16
+num_steps = session.replay_buffer.capacity // num_envs
+num_train_batches = int(pass_factor * session.replay_buffer.capacity * episode_length // batch_size // num_steps)
+num_eval_batches = num_eval_rounds * num_envs // eval_batch_size
+print_freq = 64
+eval_freq = print_freq
+# for layer in session.network.global_dropout_layers:
+#     layer.p = 0.0
+init_train_round = 1
 
-# num_total_batches = num_train_batches * num_steps
-# lr0_init = 0.00005
-# lr1_init = 0.00005
-# student_frac_increment = 0.01
-# threshold = 0.3
-# # student_frac_inc = 0.01
-# logging.info("Initial training")
-# while init_train_round <= num_steps:
-#     # Generate new data using a hybrid of the teacher and student models
-#     with session.average_parameters.average_parameters(session.model.all_param_data()):
-#         data = session.generate_round_models(
-#             models=[session.model, teacher_model],
-#             model_fractions=[student_frac, 1 - student_frac],
-#             episode_length=episode_length,
-#             num_candidates=num_candidates1,
-#             temperature=1e-5,  # temperature1,
-#             explore_eps=0.0,
-#             render=False,
-#             executor=executor)
-#     session.replay_buffer.insert(data)
-#
-#     reward = torch.mean(data.reward.to(torch.float32)).item()
-#     frac_perfect = torch.mean((data.reward == max_possible_reward).to(torch.float32)).item()
-#
-#     ema_reward = ema_beta * ema_reward + (1 - ema_beta) * reward
-#     ema_perfect = ema_beta * ema_perfect + (1 - ema_beta) * frac_perfect
-#     ema_weight = ema_beta * ema_weight + (1 - ema_beta)
-#
-#     logging.info("gen {}: cost={:.3f} (frac={:.4f}) | cost={:.3f} (frac={:.4f}), student_frac={:.4f}".format(
-#         init_train_round, max_possible_reward - ema_reward / ema_weight, ema_perfect / ema_weight,
-#         max_possible_reward - reward, frac_perfect, student_frac))
-#
-#     # if max_possible_reward - ema_reward / ema_weight < threshold and max_possible_reward - reward < threshold:
-#     if frac_perfect > threshold and ema_perfect / ema_weight > threshold:
-#         student_frac = min(1.0, student_frac + student_frac_increment)
-#
-#     session.model.train()
-#     total_loss = 0.0
-#     total_loss_cnt = 0
-#     for j in range(num_train_batches):
-#         frac = (init_train_round * num_train_batches + j) / num_total_batches
-#         lr = lr0_init * (lr1_init / lr0_init) ** frac
-#         session.optimizer.param_groups[0]['lr'] = lr
-#
-#         data = session.replay_buffer.sample(batch_size, device=device)
-#         with util.DelayedKeyboardInterrupt():
-#             # total_loss += session.train_batch(data)
-#             # total_loss += session.train_distillation_batch(data, teacher_model)
-#             total_loss += session.train_distillation_batch_augmented(data, teacher_model, num_candidates=4)
-#             total_loss_cnt += 1
-#             torch.cuda.synchronize(session.envs[0].device)
-#     if init_train_round % print_freq == 0:
-#         logging.info("train {}/{}: loss={:.5f}, lr={:.6f}".format(
-#             init_train_round, num_steps, total_loss / total_loss_cnt, lr))
-#         total_loss = 0
-#         total_loss_cnt = 0
-#     if init_train_round % save_freq == 0:
-#         pickle.dump(session, open(pickle_name + '-distillation', 'wb'))
-#     init_train_round += 1
-#
+# session.optimizer.param_groups[0]['lr'] = 0.99
+# session.optimizer.param_groups[0]['betas'] = (0.95, 0.99)
+# session.optimizer.param_groups[0]['betas'] = (0.998, 0.998)
+session.average_parameters.beta = 0.99
+session.sam_scale = None
+session.decay_amount = 0.0
+# session.model.global_dropout_p = 0.1
+
+# num_steps = 128
+gen_freq = 4
+ema_beta = 0.9
+ema_reward = 0.0
+ema_perfect = 0.0
+ema_weight = 0.0
+student_frac = 0.0
+
+num_total_batches = num_train_batches * num_steps
+lr0_init = 0.0005
+lr1_init = 0.00002
+student_frac_increment = 0.01
+threshold = 0.3
+# student_frac_inc = 0.01
+logging.info("Initial training")
+while init_train_round <= num_steps:
+    # # # Generate new data using a hybrid of the teacher and student models
+    # with session.average_parameters.average_parameters(session.model.all_param_data()):
+    #     # data = session.generate_round_models(
+    #     #     models=[session.model, teacher_model],
+    #     #     model_fractions=[student_frac, 1 - student_frac],
+    #     #     episode_length=episode_length,
+    #     #     num_candidates=num_candidates1,
+    #     #     temperature=1e-5,  # temperature1,
+    #     #     explore_eps=0.0,
+    #     #     render=False,
+    #     #     executor=executor)
+    #     data = session.generate_round(
+    #         episode_length=episode_length,
+    #         num_candidates=num_candidates1,
+    #         temperature=1e-5,  # temperature1,
+    #         explore_eps=0.0,
+    #         render=False,
+    #         executor=executor)
+    # session.replay_buffer.insert(data)
+    #
+    # reward = torch.mean(data.reward.to(torch.float32)).item()
+    # frac_perfect = torch.mean((data.reward == max_possible_reward).to(torch.float32)).item()
+    #
+    # ema_reward = ema_beta * ema_reward + (1 - ema_beta) * reward
+    # ema_perfect = ema_beta * ema_perfect + (1 - ema_beta) * frac_perfect
+    # ema_weight = ema_beta * ema_weight + (1 - ema_beta)
+    #
+    # logging.info("gen {}: cost={:.3f} (frac={:.4f}) | cost={:.3f} (frac={:.4f}), student_frac={:.4f}".format(
+    #     init_train_round, max_possible_reward - ema_reward / ema_weight, ema_perfect / ema_weight,
+    #     max_possible_reward - reward, frac_perfect, student_frac))
+    #
+    # # if max_possible_reward - ema_reward / ema_weight < threshold and max_possible_reward - reward < threshold:
+    # if frac_perfect > threshold and ema_perfect / ema_weight > threshold:
+    #     student_frac = min(1.0, student_frac + student_frac_increment)
+
+    session.model.train()
+    total_loss = 0.0
+    total_loss_cnt = 0
+    for j in range(num_train_batches):
+        frac = (init_train_round * num_train_batches + j) / num_total_batches
+        lr = lr0_init * (lr1_init / lr0_init) ** frac
+        session.optimizer.param_groups[0]['lr'] = lr
+
+        data = session.replay_buffer.sample(batch_size, device=device)
+        with util.DelayedKeyboardInterrupt():
+            total_loss += session.train_batch(data)
+            # total_loss += session.train_distillation_batch(data, teacher_model)
+            # total_loss += session.train_distillation_batch_augmented(data, teacher_model, num_candidates=4)
+            total_loss_cnt += 1
+            # torch.cuda.synchronize(session.envs[0].device)
+    if init_train_round % print_freq == 0:
+        logging.info("train {}/{}: loss={:.5f}, lr={:.6f}".format(
+            init_train_round, num_steps, total_loss / total_loss_cnt, lr))
+        total_loss = 0
+        total_loss_cnt = 0
+    # if init_train_round % save_freq == 0:
+    #     pickle.dump(session, open(pickle_name + '-distillation', 'wb'))
+    init_train_round += 1
+
+# raise RuntimeError("done initial training")
+# self = session.model
+# env = envs[0]
+# map = env.compute_map(data.room_mask, data.room_position_x, data.room_position_y)
+# room_mask = data.room_mask
+# room_position_x = data.room_position_x
+# room_position_y = data.room_position_y
 
 # pickle.dump(session, open('init_session.pkl', 'wb'))
+session = pickle.load(open('init_session.pkl', 'rb'))
 
 # pickle.dump(session, open('init_session_trained.pkl', 'wb'))
 # pickle.dump(session, open('init_session_trained3.pkl', 'wb'))
@@ -392,7 +411,10 @@ print_freq = 4
 # session = pickle.load(open('models/session-2021-10-01T12:16:22.372599.pkl', 'rb'))
 # session = pickle.load(open('models/session-2021-10-01T20:17:10.651073.pkl', 'rb'))
 # session = pickle.load(open('models/session-2021-10-02T14:01:11.931366.pkl', 'rb'))
-session = pickle.load(open('models/session-2021-10-05T15:39:12.613873.pkl', 'rb'))
+# session = pickle.load(open('models/session-2021-10-05T15:39:12.613873.pkl', 'rb'))
+# session = pickle.load(open('models/session-2021-10-06T20:21:24.616020.pkl', 'rb'))
+session = pickle.load(open('models/session-2021-10-08T16:18:17.471054.pkl', 'rb'))
+#
 #
 #
 #

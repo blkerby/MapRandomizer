@@ -39,13 +39,14 @@ device = torch.device('cpu')
 # session = CPU_Unpickler(open('models/09-25-session-2021-09-22T07:40:34.148771.pkl', 'rb')).load()  # training from scratch with missing connections
 # session = CPU_Unpickler(open('models/10-02-session-2021-10-01T20:17:10.651073.pkl', 'rb')).load()  # adding connectivity features
 # session = CPU_Unpickler(open('models/10-03-session-2021-10-02T14:01:11.931366.pkl', 'rb')).load()
-session = CPU_Unpickler(open('models/10-04-session-2021-10-03T09:44:04.879343.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/10-04-session-2021-10-03T09:44:04.879343.pkl', 'rb')).load()
+session = CPU_Unpickler(open('models/10-09-session-2021-10-08T16:18:17.471054.pkl', 'rb')).load()
 #
 print(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects.to(torch.float32), dim=0)))
 print(torch.max(session.replay_buffer.episode_data.reward))
 
 ind = torch.nonzero(session.replay_buffer.episode_data.reward == 340)
-i = 0
+i = 3
 num_rooms = len(session.envs[0].rooms)
 action = session.replay_buffer.episode_data.action[ind[i], :]
 step_indices = torch.tensor([num_rooms])

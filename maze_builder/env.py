@@ -342,6 +342,16 @@ class MazeBuilderEnv:
         map_door_up = torch.nonzero(map[:, 2, :] > 1)
         map_door_down = torch.nonzero(map[:, 2, :] < -1)
 
+        # avg_cnt_open_doors = (map_door_left.shape[0] + map_door_right.shape[0] + map_door_up.shape[0] + map_door_down.shape[0]) / num_envs
+        # cnt_open_doors_left = torch.sum(map[:, 1, :] > 1, dim=(1, 2))
+        # cnt_open_doors_right = torch.sum(map[:, 1, :] < -1, dim=(1, 2))
+        # cnt_open_doors_up = torch.sum(map[:, 2, :] > 1, dim=(1, 2))
+        # cnt_open_doors_down = torch.sum(map[:, 2, :] < -1, dim=(1, 2))
+        # cnt_open_doors = cnt_open_doors_left + cnt_open_doors_right + cnt_open_doors_up + cnt_open_doors_down
+        # max_cnt_open_doors = torch.max(cnt_open_doors)
+        # print("step={}, avg_cnt_open_doors={} ({}), max_cnt_open_doors={}".format(
+        #     self.step_number, avg_cnt_open_doors, torch.mean(cnt_open_doors.to(torch.float32)), max_cnt_open_doors))
+
         if self.must_areas_be_connected:
             max_sub_area = torch.max(self.room_sub_area)
             area_room_cnt = torch.zeros([num_envs, max_sub_area + 1], dtype=torch.uint8, device=self.device)
