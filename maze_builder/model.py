@@ -346,14 +346,13 @@ class DoorLocalModel(torch.nn.Module):
         self.num_rooms = len(env_config.rooms) + 1
         common_act = torch.nn.SELU()
 
-        # self.connectivity_left_mat = torch.nn.Parameter(torch.randn([connectivity_in_width, num_room_parts]))
-        # self.connectivity_right_mat = torch.nn.Parameter(torch.randn([num_room_parts, connectivity_in_width]))
+        self.connectivity_left_mat = torch.nn.Parameter(torch.randn([connectivity_in_width, num_room_parts]))
+        self.connectivity_right_mat = torch.nn.Parameter(torch.randn([num_room_parts, connectivity_in_width]))
         self.left_lin = torch.nn.Linear(map_kernel_size ** 2 * map_channels, local_widths[0])
         self.right_lin = torch.nn.Linear(map_kernel_size ** 2 * map_channels, local_widths[0])
         self.up_lin = torch.nn.Linear(map_kernel_size ** 2 * map_channels, local_widths[0])
         self.down_lin = torch.nn.Linear(map_kernel_size ** 2 * map_channels, local_widths[0])
-        # self.global_lin = torch.nn.Linear(connectivity_in_width ** 2 + self.num_rooms + 1, global_widths[0])
-        self.global_lin = torch.nn.Linear(self.num_rooms + 1, global_widths[0])
+        self.global_lin = torch.nn.Linear(connectivity_in_width ** 2 + self.num_rooms + 1, global_widths[0])
         self.base_local_act = common_act
         self.base_global_act = common_act
 
@@ -378,20 +377,21 @@ class DoorLocalModel(torch.nn.Module):
     def forward_multiclass(self, map, room_mask, room_position_x, room_position_y, steps_remaining, env: MazeBuilderEnv):
         n = map.shape[0]
         # logging.info("compute_component_matrix")
-        # connectivity = env.compute_fast_component_matrix(room_mask, room_position_x, room_position_y)
+        connectivity = env.compute_fast_component_matrix(room_mask, room_position_x, room_position_y)
 
         if map.is_cuda:
             X_map = map.to(torch.float16, memory_format=torch.channels_last)
-            # connectivity = connectivity.to(torch.float16)
+            connectivity = connectivity.to(torch.float16)
         else:
             X_map = map.to(torch.float32)
-            # connectivity = connectivity.to(torch.float32)
+            connectivity = connectivity.to(torch.float32)
 
-        # reduced_connectivity = torch.einsum('ijk,mj,kn->imn',
-        #                                     connectivity,
-        #                                     self.connectivity_left_mat.to(connectivity.dtype),
-        #                                     self.connectivity_right_mat.to(connectivity.dtype))
-        # reduced_connectivity_flat = reduced_connectivity.view(n, self.connectivity_in_width ** 2)
+        reduced_connectivity = torch.einsum('ijk,mj,kn->imn',
+                                            connectivity,
+                                            self.connectivity_left_mat.to(connectivity.dtype),
+                                            self.connectivity_right_mat.to(connectivity.dtype))
+        # print(n, reduced_connectivity.shape, self.connectivity_in_width)
+        reduced_connectivity_flat = reduced_connectivity.view(n, self.connectivity_in_width ** 2)
 
         map_door_left = torch.nonzero(map[:, 1, :, :] > 1)
         map_door_right = torch.nonzero(map[:, 1, :, :] < -1)
@@ -418,10 +418,8 @@ class DoorLocalModel(torch.nn.Module):
             local_X = self.base_local_act(local_X)
             local_env_id = torch.cat([map_door_left[:, 0], map_door_right[:, 0], map_door_up[:, 0], map_door_down[:, 0]], dim=0)
 
-            # global_X = torch.cat([reduced_connectivity_flat,
-            #                       room_mask.to(reduced_connectivity_flat.dtype),
-            #                       steps_remaining.view(-1, 1)], dim=1)
-            global_X = torch.cat([room_mask.to(local_X.dtype),
+            global_X = torch.cat([reduced_connectivity_flat,
+                                  room_mask.to(reduced_connectivity_flat.dtype),
                                   steps_remaining.view(-1, 1)], dim=1)
             global_X = self.global_lin(global_X)
             global_X = self.base_global_act(global_X)
