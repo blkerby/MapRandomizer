@@ -323,18 +323,11 @@ def map_extract(map, env_id, pos_x, pos_y, width_x, width_y):
     y = pos_y.view(-1, 1, 1) + torch.arange(width_y, device=map.device).view(1, 1, -1)
     x = torch.clamp(x, min=0, max=map.shape[2] - 1)
     y = torch.clamp(y, min=0, max=map.shape[3] - 1)
-    return map[env_id.view(-1, 1, 1), :, x, y].permute(0, 3, 1, 2)
-    # x = pos_x.view(-1, 1, 1, 1) + torch.arange(width_x, device=map.device).view(1, 1, -1, 1)
-    # y = pos_y.view(-1, 1, 1, 1) + torch.arange(width_y, device=map.device).view(1, 1, 1, -1)
-    # x = torch.clamp(x, min=0, max=map.shape[2] - 1)
-    # y = torch.clamp(y, min=0, max=map.shape[3] - 1)
-    # c = torch.arange(map.shape[1], device=map.device).view(1, -1, 1, 1)
-    # return map[env_id.view(-1, 1, 1, 1), c, x, y]
+    return map[env_id.view(-1, 1, 1), :, x, y].view(env_id.shape[0], -1)
 
 
 class DoorLocalModel(torch.nn.Module):
-    def __init__(self, env_config, num_doors, num_missing_connects, num_room_parts, map_diameter, map_channels,
-                 map_kernel_size, map_stride, map_padding,
+    def __init__(self, env_config, num_doors, num_missing_connects, num_room_parts, map_channels, map_kernel_size,
                  connectivity_in_width, local_widths, global_widths, fc_widths,
                  ):
         super().__init__()
@@ -345,7 +338,6 @@ class DoorLocalModel(torch.nn.Module):
         self.map_x = env_config.map_x + 1
         self.map_y = env_config.map_y + 1
         self.map_c = 4
-        self.map_diameter = map_diameter
         self.map_channels = map_channels
         self.map_kernel_size = map_kernel_size
         self.connectivity_in_width = connectivity_in_width
@@ -356,40 +348,13 @@ class DoorLocalModel(torch.nn.Module):
 
         self.connectivity_left_mat = torch.nn.Parameter(torch.randn([connectivity_in_width, num_room_parts]))
         self.connectivity_right_mat = torch.nn.Parameter(torch.randn([num_room_parts, connectivity_in_width]))
+        self.left_lin = torch.nn.Linear(map_kernel_size ** 2 * map_channels, local_widths[0])
+        self.right_lin = torch.nn.Linear(map_kernel_size ** 2 * map_channels, local_widths[0])
+        self.up_lin = torch.nn.Linear(map_kernel_size ** 2 * map_channels, local_widths[0])
+        self.down_lin = torch.nn.Linear(map_kernel_size ** 2 * map_channels, local_widths[0])
         self.global_lin = torch.nn.Linear(connectivity_in_width ** 2 + self.num_rooms + 1, global_widths[0])
         self.base_local_act = common_act
         self.base_global_act = common_act
-
-        self.map_conv_layers = torch.nn.ModuleList()
-        self.map_act_layers = torch.nn.ModuleList()
-
-        dir_conv_layers_list = []
-        dir_act_layers_list = []
-        dir_lin_list = []
-        map_channels = [self.map_c] + map_channels
-        for j in range(4):
-            dir_conv_layers = torch.nn.ModuleList()
-            dir_act_layers = torch.nn.ModuleList()
-            width = self.map_diameter
-            height = self.map_diameter
-            arity = 1
-            for i in range(len(map_channels) - 1):
-                conv_layer = torch.nn.Conv2d(
-                    map_channels[i], map_channels[i + 1] * arity,
-                    kernel_size=(map_kernel_size[i], map_kernel_size[i]),
-                    padding=(map_kernel_size[i] // 2, map_kernel_size[i] // 2) if map_padding[i] else 0,
-                    stride=(map_stride[i], map_stride[i]))
-                dir_conv_layers.append(conv_layer)
-                dir_act_layers.append(common_act)
-                width = (width - map_kernel_size[i]) // map_stride[i] + 1
-                height = (height - map_kernel_size[i]) // map_stride[i] + 1
-            dir_conv_layers_list.append(dir_conv_layers)
-            dir_act_layers_list.append(dir_act_layers)
-            dir_lin_list.append(torch.nn.Linear(width * height * map_channels[-1], local_widths[0]))
-        self.left_conv_layers, self.right_conv_layers, self.up_conv_layers, self.down_conv_layers = dir_conv_layers_list
-        self.left_act_layers, self.right_act_layers, self.up_act_layers, self.down_act_layers = dir_act_layers_list
-        self.left_lin, self.right_lin, self.up_lin, self.down_lin = dir_lin_list
-        self.map_flatten = torch.nn.Flatten()
 
         self.local_lin_layers = torch.nn.ModuleList()
         self.local_act_layers = torch.nn.ModuleList()
@@ -435,9 +400,9 @@ class DoorLocalModel(torch.nn.Module):
 
         def extract_map(map_door_dir):
             env_id = map_door_dir[:, 0]
-            pos_x = map_door_dir[:, 1] - self.map_diameter // 2
-            pos_y = map_door_dir[:, 2] - self.map_diameter // 2
-            return map_extract(X_map, env_id, pos_x, pos_y, self.map_diameter, self.map_diameter)
+            pos_x = map_door_dir[:, 1] - self.map_kernel_size // 2
+            pos_y = map_door_dir[:, 2] - self.map_kernel_size // 2
+            return map_extract(X_map, env_id, pos_x, pos_y, self.map_kernel_size, self.map_kernel_size)
 
         with torch.cuda.amp.autocast():
             local_map_left = extract_map(map_door_left)
@@ -445,28 +410,10 @@ class DoorLocalModel(torch.nn.Module):
             local_map_up = extract_map(map_door_up)
             local_map_down = extract_map(map_door_down)
 
-            local_map_tuples = [
-                (local_map_left, self.left_conv_layers, self.left_act_layers, self.left_lin),
-                (local_map_right, self.right_conv_layers, self.right_act_layers, self.right_lin),
-                (local_map_up, self.up_conv_layers, self.up_act_layers, self.up_lin),
-                (local_map_down, self.down_conv_layers, self.down_act_layers, self.down_lin),
-            ]
-            local_map_out = []
-            for local_map_dir, dir_conv_layers, dir_act_layers, dir_lin in local_map_tuples:
-                X = local_map_dir
-                for i in range(len(dir_conv_layers)):
-                    X = dir_conv_layers[i](X)
-                    X = dir_act_layers[i](X)
-                X = self.map_flatten(X)
-                X = dir_lin(X)
-                local_map_out.append(X)
-
-            X_left, X_right, X_up, X_down = local_map_out
-            # X_left = self.left_lin(local_map_left)
-            # X_right = self.right_lin(local_map_right)
-            # X_up = self.up_lin(local_map_up)
-            # X_down = self.down_lin(local_map_down)
-
+            X_left = self.left_lin(local_map_left)
+            X_right = self.right_lin(local_map_right)
+            X_up = self.up_lin(local_map_up)
+            X_down = self.down_lin(local_map_down)
             local_X = torch.cat([X_left, X_right, X_up, X_down], dim=0)
             local_X = self.base_local_act(local_X)
             local_env_id = torch.cat([map_door_left[:, 0], map_door_right[:, 0], map_door_up[:, 0], map_door_down[:, 0]], dim=0)
