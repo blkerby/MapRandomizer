@@ -139,16 +139,16 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 batch_size_pow0 = 11
 batch_size_pow1 = 11
 lr0 = 0.0001
-lr1 = 0.00002
+lr1 = 5e-6
 num_candidates0 = 8
-num_candidates1 = 64
+num_candidates1 = 20
 num_candidates = num_candidates0
 # temperature0 = 10.0
 # temperature1 = 0.01
 temperature0 = 1.0
-temperature1 = 0.001
+temperature1 = 0.05
 explore_eps0 = 0.1
-explore_eps1 = 1e-4
+explore_eps1 = 5e-3
 annealing_start = 0
 annealing_time = 10000
 # session.envs = envs
@@ -260,11 +260,11 @@ session.model = DoorLocalModel(
     map_channels=4,
     map_kernel_size=16,
     connectivity_in_width=64,
-    local_widths=[512, 0],
-    global_widths=[512, 512],
+    local_widths=[256, 0],
+    global_widths=[256, 256],
     # local_widths=[256, 256],
     # global_widths=[256, 256],
-    fc_widths=[512],
+    fc_widths=[512, 512, 512],
 ).to(device)
 session.model.state_value_lin.weight.data.zero_()
 session.model.state_value_lin.bias.data.zero_()
@@ -466,14 +466,14 @@ session.envs = envs
 # session.average_parameters.shadow_params = [p.to(device) for p in session.average_parameters.shadow_params]
 # session.replay_buffer.episode_data.door_connects = torch.zeros([262144, 578], dtype=torch.bool)
 
-print_freq = 8
+print_freq = 32
 total_reward = 0
 total_loss = 0.0
 total_loss_cnt = 0
 total_test_loss = 0.0
 total_prob = 0.0
 total_round_cnt = 0
-save_freq = 16
+save_freq = 64
 
 min_door_value = max_possible_reward
 total_min_door_frac = 0
