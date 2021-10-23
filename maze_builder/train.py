@@ -60,7 +60,7 @@ num_devices = len(devices)
 device = devices[0]
 executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
-num_envs = 2 ** 7
+num_envs = 2 ** 6
 # num_envs = 1
 # rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.crateria.rooms
