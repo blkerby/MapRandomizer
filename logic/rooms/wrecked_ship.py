@@ -98,7 +98,7 @@ rooms = [
         ],
         parts=[[0], [1], [2]],
         transient_part_connections=[(1, 2)],  # bowling sequence, by morphing into statue
-        missing_part_connections=[(0, 1), (2, 0)],
+        missing_part_connections=[(0, 1), (1, 0), (2, 1)],
     ),
     Room(
         name='Gravity Suit Room',

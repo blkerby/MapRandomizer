@@ -25,6 +25,7 @@ from datetime import datetime
 import pickle
 from maze_builder.model import Model, DoorLocalModel
 from maze_builder.train_session import TrainingSession
+from maze_builder.replay import ReplayBuffer
 from model_average import ExponentialAverage
 import io
 
@@ -381,7 +382,7 @@ while init_train_round <= num_steps:
 # room_position_y = data.room_position_y
 
 # pickle.dump(session, open('init_session.pkl', 'wb'))
-session = pickle.load(open('init_session.pkl', 'rb'))
+# session = pickle.load(open('init_session.pkl', 'rb'))
 
 # pickle.dump(session, open('init_session_trained.pkl', 'wb'))
 # pickle.dump(session, open('init_session_trained3.pkl', 'wb'))
@@ -413,7 +414,25 @@ session = pickle.load(open('init_session.pkl', 'rb'))
 # session = pickle.load(open('models/session-2021-10-02T14:01:11.931366.pkl', 'rb'))
 # session = pickle.load(open('models/session-2021-10-05T15:39:12.613873.pkl', 'rb'))
 # session = pickle.load(open('models/session-2021-10-06T20:21:24.616020.pkl', 'rb'))
-session = pickle.load(open('models/session-2021-10-08T16:18:17.471054.pkl', 'rb'))
+# session = pickle.load(open('models/session-2021-10-08T16:18:17.471054.pkl', 'rb'))
+session = pickle.load(open('models/session-2021-10-10T17:30:37.335984.pkl-bk', 'rb'))
+
+new_state_value_lin_wt = torch.zeros([630, 512], device=device)
+new_state_value_lin_wt[:627, :] = session.model.state_value_lin.weight[:627, :]
+new_state_value_lin_wt[-1, :] = session.model.state_value_lin.weight[-1, :]
+
+new_state_value_lin_bias = torch.zeros([630], device=device)
+new_state_value_lin_bias[:627] = session.model.state_value_lin.bias[:627]
+new_state_value_lin_bias[-1] = session.model.state_value_lin.bias[-1]
+
+session.model.state_value_lin = torch.nn.Linear(512, 630)
+session.model.state_value_lin.weight.data = new_state_value_lin_wt
+session.model.state_value_lin.bias.data = new_state_value_lin_bias
+session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=session.average_parameters.beta)
+session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.0001, betas=(0.95, 0.99), eps=1e-15)
+session.replay_buffer = ReplayBuffer(replay_size, len(session.envs[0].rooms), storage_device=torch.device('cpu'))
+session.grad_scaler = torch.cuda.amp.GradScaler()
+
 #
 #
 #
