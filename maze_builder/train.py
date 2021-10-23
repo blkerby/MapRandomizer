@@ -138,18 +138,18 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 
 batch_size_pow0 = 11
 batch_size_pow1 = 11
-lr0 = 0.0001
+lr0 = 5e-6
 lr1 = 5e-6
-num_candidates0 = 8
-num_candidates1 = 20
+num_candidates0 = 32
+num_candidates1 = 32
 num_candidates = num_candidates0
 # temperature0 = 10.0
 # temperature1 = 0.01
-temperature0 = 1.0
-temperature1 = 0.05
-explore_eps0 = 0.1
-explore_eps1 = 5e-3
-annealing_start = 0
+temperature0 = 0.02
+temperature1 = 0.01
+explore_eps0 = 2e-3
+explore_eps1 = 1e-3
+annealing_start = 124800
 annealing_time = 10000
 # session.envs = envs
 pass_factor = 1.0
