@@ -40,13 +40,13 @@ device = torch.device('cpu')
 # session = CPU_Unpickler(open('models/10-02-session-2021-10-01T20:17:10.651073.pkl', 'rb')).load()  # adding connectivity features
 # session = CPU_Unpickler(open('models/10-03-session-2021-10-02T14:01:11.931366.pkl', 'rb')).load()
 # session = CPU_Unpickler(open('models/10-04-session-2021-10-03T09:44:04.879343.pkl', 'rb')).load()
-session = CPU_Unpickler(open('models/10-09-session-2021-10-08T16:18:17.471054.pkl', 'rb')).load()
-#
+# session = CPU_Unpickler(open('models/10-09-session-2021-10-08T16:18:17.471054.pkl', 'rb')).load()
+session = CPU_Unpickler(open('models/10-28-session-2021-10-23T07:38:18.777706.pkl', 'rb')).load()
 print(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects.to(torch.float32), dim=0)))
 print(torch.max(session.replay_buffer.episode_data.reward))
 
 ind = torch.nonzero(session.replay_buffer.episode_data.reward == 340)
-i = 3
+i = 5
 num_rooms = len(session.envs[0].rooms)
 action = session.replay_buffer.episode_data.action[ind[i], :]
 step_indices = torch.tensor([num_rooms])
@@ -96,47 +96,47 @@ env.room_position_x = room_position_x
 env.room_position_y = room_position_y
 env.render(0)
 
-import time
-start = time.perf_counter()
-adjacency_matrix, A = env.compute_component_matrix(room_mask, room_position_x, room_position_y)
-end = time.perf_counter()
-print(end - start)
-
-edges = torch.nonzero(adjacency_matrix)
-import graph_tool
-import graph_tool.topology
-
-flat_edges0 = edges[:, 1:3]
-flat_edges1 = flat_edges0 + 301
-# flat_edges = torch.cat([flat_edges0, flat_edges1], dim=0)
-flat_edges = flat_edges0
-start = time.perf_counter()
-g = graph_tool.Graph()
-g.add_edge_list(flat_edges.numpy())
-# gc = graph_tool.topology.transitive_closure(g)
-gc = graph_tool.topology.label_components(g)
-end = time.perf_counter()
-print(end - start)
-out_edges = gc.get_edges()
-env.render()
-
+# import time
+# start = time.perf_counter()
+# adjacency_matrix, A = env.compute_component_matrix(room_mask, room_position_x, room_position_y)
+# end = time.perf_counter()
+# print(end - start)
+#
+# edges = torch.nonzero(adjacency_matrix)
+# import graph_tool
+# import graph_tool.topology
+#
+# flat_edges0 = edges[:, 1:3]
+# flat_edges1 = flat_edges0 + 301
+# # flat_edges = torch.cat([flat_edges0, flat_edges1], dim=0)
+# flat_edges = flat_edges0
+# start = time.perf_counter()
+# g = graph_tool.Graph()
+# g.add_edge_list(flat_edges.numpy())
+# # gc = graph_tool.topology.transitive_closure(g)
+# gc = graph_tool.topology.label_components(g)
+# end = time.perf_counter()
+# print(end - start)
+# out_edges = gc.get_edges()
+# env.render()
+#
 
 episode_length = len(rooms)
 session.env = None
 session.envs = [env]
 num_candidates = 32
-temperature = 1e-5
+temperature = 0.01
 torch.manual_seed(0)
 max_possible_reward = env.max_reward
 start_time = time.perf_counter()
-executor = concurrent.futures.ThreadPoolExecutor(1)
+# executor = concurrent.futures.ThreadPoolExecutor(1)
 # for i in range(10000):
 data = session.generate_round(
     episode_length=episode_length,
     num_candidates=num_candidates,
     temperature=temperature,
     explore_eps=0.0,
-    executor=executor,
+    # executor=executor,
     # render=False)
     render=True)
 

@@ -127,7 +127,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=0.0001, betas=(0.95, 0.99), 
 logging.info("{}".format(model))
 logging.info("{}".format(optimizer))
 
-replay_size = 2 ** 19
+replay_size = 2 ** 20
 session = TrainingSession(envs,
                           model=model,
                           optimizer=optimizer,
@@ -141,19 +141,19 @@ batch_size_pow0 = 11
 batch_size_pow1 = 11
 lr0 = 5e-6
 lr1 = 5e-6
-num_candidates0 = 32
-num_candidates1 = 32
+num_candidates0 = 33
+num_candidates1 = 64
 num_candidates = num_candidates0
 # temperature0 = 10.0
 # temperature1 = 0.01
-temperature0 = 0.02
+temperature0 = 0.01
 temperature1 = 0.01
 explore_eps0 = 2e-3
 explore_eps1 = 1e-3
-annealing_start = 124800
-annealing_time = 10000
+annealing_start = 169248
+annealing_time = 20000
 # session.envs = envs
-pass_factor = 1.0
+pass_factor = 4.0
 print_freq = 4
 
 # # num_groups = 100

@@ -323,7 +323,7 @@ def map_extract(map, env_id, pos_x, pos_y, width_x, width_y):
     y = pos_y.view(-1, 1, 1) + torch.arange(width_y, device=map.device).view(1, 1, -1)
     x = torch.clamp(x, min=0, max=map.shape[2] - 1)
     y = torch.clamp(y, min=0, max=map.shape[3] - 1)
-    return map[env_id.view(-1, 1, 1), :, x, y].view(env_id.shape[0], -1)
+    return map[env_id.view(-1, 1, 1), :, x, y].view(env_id.shape[0], map.shape[1] * width_x * width_y)
 
 
 class DoorLocalModel(torch.nn.Module):

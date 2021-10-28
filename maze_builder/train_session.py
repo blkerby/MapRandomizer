@@ -189,17 +189,26 @@ class TrainingSession():
         )
 
     def generate_round_models(self, models, model_fractions, episode_length: int, num_candidates: int, temperature: float, explore_eps: float,
-                       executor: concurrent.futures.ThreadPoolExecutor,
+                       executor: Optional[concurrent.futures.ThreadPoolExecutor] = None,
                        render=False) -> EpisodeData:
-        futures_list = []
-        model_lists = [[copy.deepcopy(model).to(env.device) for model in models] for env in self.envs]
-        for i, env in enumerate(self.envs):
-            models = model_lists[i]
-            # print("gen", i, env.device, model.state_value_lin.weight.device)
-            future = executor.submit(lambda i=i, models=models: self.generate_round_inner(
-                models, model_fractions, episode_length, num_candidates, temperature, explore_eps, render=render, env_id=i))
-            futures_list.append(future)
-        episode_data_list = [future.result() for future in futures_list]
+        if executor is None:
+            episode_data_list = []
+            model_lists = [[copy.deepcopy(model).to(env.device) for model in models] for env in self.envs]
+            for i, env in enumerate(self.envs):
+                models = model_lists[i]
+                episode_data_list.append(self.generate_round_inner(
+                    models, model_fractions, episode_length, num_candidates, temperature, explore_eps, render=render,
+                    env_id=i))
+        else:
+            futures_list = []
+            model_lists = [[copy.deepcopy(model).to(env.device) for model in models] for env in self.envs]
+            for i, env in enumerate(self.envs):
+                models = model_lists[i]
+                # print("gen", i, env.device, model.state_value_lin.weight.device)
+                future = executor.submit(lambda i=i, models=models: self.generate_round_inner(
+                    models, model_fractions, episode_length, num_candidates, temperature, explore_eps, render=render, env_id=i))
+                futures_list.append(future)
+            episode_data_list = [future.result() for future in futures_list]
         for env in self.envs:
             if env.room_mask.is_cuda:
                 torch.cuda.synchronize(env.device)
@@ -213,7 +222,7 @@ class TrainingSession():
         )
 
     def generate_round(self, episode_length: int, num_candidates: int, temperature: float, explore_eps: float,
-                       executor: concurrent.futures.ThreadPoolExecutor,
+                       executor: Optional[concurrent.futures.ThreadPoolExecutor] = None,
                        render=False) -> EpisodeData:
         with self.average_parameters.average_parameters(self.model.all_param_data()):
             return self.generate_round_models(models=[self.model],
