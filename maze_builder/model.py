@@ -450,8 +450,8 @@ class DoorLocalModel(torch.nn.Module):
             all_filtered_logodds = torch.cat([door_connects_filtered_logodds, missing_connects_raw_logodds], dim=1)
             state_value_probs = torch.sigmoid(all_filtered_logodds)
             # state_value_expected = torch.sum(state_value_probs, dim=1) / 2
-
-            state_value_expected = torch.sum(1 - (1 - state_value_probs) ** self.alpha, dim=1) / 2
+            # TODO: divide only the door connects by 2
+            state_value_expected = torch.sum(state_value_probs ** self.alpha, dim=1) / 2
             return all_filtered_logodds, state_value_probs, state_value_expected
 
     def forward(self, map, room_mask, room_position_x, room_position_y, steps_remaining, env):
