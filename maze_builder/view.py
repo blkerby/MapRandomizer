@@ -41,12 +41,23 @@ device = torch.device('cpu')
 # session = CPU_Unpickler(open('models/10-03-session-2021-10-02T14:01:11.931366.pkl', 'rb')).load()
 # session = CPU_Unpickler(open('models/10-04-session-2021-10-03T09:44:04.879343.pkl', 'rb')).load()
 # session = CPU_Unpickler(open('models/10-09-session-2021-10-08T16:18:17.471054.pkl', 'rb')).load()
-session = CPU_Unpickler(open('models/10-28-session-2021-10-23T07:38:18.777706.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/10-28-session-2021-10-23T07:38:18.777706.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/10-30-session-2021-10-28T07:15:48.802576.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/11-01-session-2021-10-28T07:15:48.802576.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/11-02-session-2021-10-28T07:15:48.802576.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/11-03-session-2021-11-02T20:26:37.515750.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/11-12-session-2021-11-02T20:26:37.515750.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/11-18-session-2021-11-02T20:26:37.515750.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/11-28-session-2021-11-02T20:26:37.515750.pkl', 'rb')).load()
+session = CPU_Unpickler(open('models/11-30-session-2021-11-02T20:26:37.515750.pkl', 'rb')).load()
+
+
+#
 print(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects.to(torch.float32), dim=0)))
 print(torch.max(session.replay_buffer.episode_data.reward))
 
-ind = torch.nonzero(session.replay_buffer.episode_data.reward == 340)
-i = 5
+ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 330)
+i = 2
 num_rooms = len(session.envs[0].rooms)
 action = session.replay_buffer.episode_data.action[ind[i], :]
 step_indices = torch.tensor([num_rooms])

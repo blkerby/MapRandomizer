@@ -328,7 +328,7 @@ def map_extract(map, env_id, pos_x, pos_y, width_x, width_y):
 
 class DoorLocalModel(torch.nn.Module):
     def __init__(self, env_config, num_doors, num_missing_connects, num_room_parts, map_channels, map_kernel_size,
-                 connectivity_in_width, local_widths, global_widths, fc_widths,
+                 connectivity_in_width, local_widths, global_widths, fc_widths, alpha
                  ):
         super().__init__()
         self.env_config = env_config
@@ -343,6 +343,7 @@ class DoorLocalModel(torch.nn.Module):
         self.connectivity_in_width = connectivity_in_width
         self.local_widths = local_widths
         self.global_widths = global_widths
+        self.alpha = alpha
         self.num_rooms = len(env_config.rooms) + 1
         common_act = torch.nn.SELU()
 
@@ -448,7 +449,9 @@ class DoorLocalModel(torch.nn.Module):
             door_connects_filtered_logodds = torch.where(door_connects, inf_tensor, door_connects_raw_logodds)
             all_filtered_logodds = torch.cat([door_connects_filtered_logodds, missing_connects_raw_logodds], dim=1)
             state_value_probs = torch.sigmoid(all_filtered_logodds)
-            state_value_expected = torch.sum(state_value_probs, dim=1) / 2
+            # state_value_expected = torch.sum(state_value_probs, dim=1) / 2
+
+            state_value_expected = torch.sum(1 - (1 - state_value_probs) ** self.alpha, dim=1) / 2
             return all_filtered_logodds, state_value_probs, state_value_expected
 
     def forward(self, map, room_mask, room_position_x, room_position_y, steps_remaining, env):
