@@ -3,7 +3,7 @@ import time
 import torch
 import logging
 from maze_builder.env import MazeBuilderEnv
-from maze_builder.types import reconstruct_room_data, Direction
+from maze_builder.types import reconstruct_room_data, Direction, DoorConnection
 import logic.rooms.all_rooms
 import pickle
 import concurrent.futures
@@ -58,44 +58,26 @@ for i, room in enumerate(rooms):
         vertical = door.direction in (Direction.DOWN, Direction.UP)
         key = (x, y, vertical)
         if key in doors_dict:
-            door_pairs.append((doors_dict[key], door))
+            door_pairs.append(DoorConnection(a=doors_dict[key], b=door))
             doors_cnt[key] += 1
         else:
             doors_dict[key] = door
             doors_cnt[key] = 1
 
 assert all(x == 2 for x in doors_cnt.values())
+DoorConnection.schema().dumps(door_pairs, many=True)
 
 
-# for key in doors:
-#     exit_ptr, entrance_ptr = key
-#     reversed_key = (entrance_ptr, exit_ptr)
-#     if reversed_key not in doors:
-#         print('{:x} {:x}'.format(key[0], key[1]))
-#     else:
-#         door = doors[key]
-#         reversed_door = doors[reversed_key]
-#         assert door.subtype == reversed_door.subtype
-#         if door.direction == Direction.DOWN:
-#             assert reversed_door.direction == Direction.UP
-#         elif door.direction == Direction.UP:
-#             assert reversed_door.direction == Direction.DOWN
-#         elif door.direction == Direction.RIGHT:
-#             assert reversed_door.direction == Direction.LEFT
-#         elif door.direction == Direction.LEFT:
-#             assert reversed_door.direction == Direction.RIGHT
-#         else:
-#             assert False
-
-
-episode_length = len(rooms)
-env = MazeBuilderEnv(rooms,
-                     map_x=session.envs[0].map_x,
-                     map_y=session.envs[0].map_y,
-                     num_envs=num_envs,
-                     device=device,
-                     must_areas_be_connected=False)
-env.room_mask = room_mask
-env.room_position_x = room_position_x
-env.room_position_y = room_position_y
-env.render(0)
+#
+#
+# episode_length = len(rooms)
+# env = MazeBuilderEnv(rooms,
+#                      map_x=session.envs[0].map_x,
+#                      map_y=session.envs[0].map_y,
+#                      num_envs=num_envs,
+#                      device=device,
+#                      must_areas_be_connected=False)
+# env.room_mask = room_mask
+# env.room_position_x = room_position_x
+# env.room_position_y = room_position_y
+# env.render(0)

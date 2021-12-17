@@ -1,9 +1,11 @@
 from dataclasses import dataclass
+from dataclasses_json import dataclass_json
 from typing import List, Optional, Tuple
 from enum import Enum
 import torch
 
 from logic.areas import Area, SubArea
+
 
 class Direction(Enum):
     LEFT = 0
@@ -11,11 +13,14 @@ class Direction(Enum):
     DOWN = 2
     UP = 3
 
+
 class DoorSubtype(Enum):
     NORMAL = 0
     ELEVATOR = 1
     SAND = 2
 
+
+@dataclass_json
 @dataclass
 class DoorIdentifier:
     direction: Direction
@@ -24,6 +29,14 @@ class DoorIdentifier:
     exit_ptr: Optional[int]
     entrance_ptr: Optional[int]
     subtype: DoorSubtype = DoorSubtype.NORMAL
+
+
+@dataclass_json
+@dataclass
+class DoorConnection:
+    a: DoorIdentifier
+    b: DoorIdentifier
+
 
 @dataclass
 class Room:
@@ -85,6 +98,7 @@ class Room:
         if self.parts is None:
             self.parts = [list(range(len(self.door_ids)))]
 
+
 def reconstruct_room_data(action, step_indices, num_rooms):
     action = action.to(torch.int64)
     n = action.shape[0]
@@ -113,10 +127,10 @@ class EnvConfig:
 
 @dataclass
 class EpisodeData:
-    action: torch.tensor   # 3D uint8: (num_episodes, episode_length, 3)  (room id, x position, y position)
+    action: torch.tensor  # 3D uint8: (num_episodes, episode_length, 3)  (room id, x position, y position)
     door_connects: torch.tensor  # 2D bool: (num_episodes, num_doors)
     missing_connects: torch.tensor  # 2D bool: (num_episodes, num_missing_connects)
-    reward: torch.tensor   # 1D int64: num_episodes
+    reward: torch.tensor  # 1D int64: num_episodes
     prob: torch.tensor  # 1D float32: num_episodes  (average probability of selected action)
     test_loss: torch.tensor  # 1D float32: num_episodes  (average cross-entropy loss at data-generation time)
 
@@ -125,13 +139,15 @@ class EpisodeData:
         episode_length = self.action.shape[1]
         num_transitions = num_episodes * episode_length
         steps_remaining = (episode_length - torch.arange(episode_length, device=device))
-        action = self.action.to(device).unsqueeze(1).repeat(1, episode_length, 1, 1).view(num_transitions, episode_length, 3)
+        action = self.action.to(device).unsqueeze(1).repeat(1, episode_length, 1, 1).view(num_transitions,
+                                                                                          episode_length, 3)
         step_indices = torch.arange(episode_length, device=device).unsqueeze(0).repeat(num_episodes, 1).view(-1)
         room_mask, room_position_x, room_position_y = reconstruct_room_data(action, step_indices, num_rooms)
 
         return TrainingData(
             reward=self.reward.to(device).unsqueeze(1).repeat(1, episode_length).view(-1),
-            door_connects=self.door_connects.to(device).unsqueeze(1).repeat(1, episode_length, 1).view(num_episodes * episode_length, -1),
+            door_connects=self.door_connects.to(device).unsqueeze(1).repeat(1, episode_length, 1).view(
+                num_episodes * episode_length, -1),
             steps_remaining=steps_remaining.unsqueeze(0).repeat(num_episodes, 1).view(-1),
             room_mask=room_mask,
             room_position_x=room_position_x,
