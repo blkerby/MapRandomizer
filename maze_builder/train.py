@@ -432,8 +432,10 @@ threshold = 0.3
 # session = pickle.load(open('models/session-2021-10-10T17:30:37.335984.pkl-bk', 'rb'))
 # session = pickle.load(open('models/session-2021-10-23T07:38:18.777706.pkl', 'rb'))
 # session = pickle.load(open('models/session-2021-11-02T20:26:37.515750.pkl-bk', 'rb'))
-session = pickle.load(open('models/session-2021-11-02T20:26:37.515750.pkl-bk', 'rb'))
+# session = pickle.load(open('models/session-2021-11-02T20:26:37.515750.pkl-bk', 'rb'))
 # session = pickle.load(open('models/session-2021-11-02T20:26:37.515750.pkl-bk2', 'rb'))
+session = pickle.load(open('models/session-2021-12-05T14:21:24.708862.pkl', 'rb'))
+#
 
 # new_state_value_lin_wt = torch.zeros([630, 512], device=device)
 # new_state_value_lin_wt[:627, :] = session.model.state_value_lin.weight[:627, :]
@@ -508,18 +510,18 @@ batch_size_pow1 = 11
 # lr0 = 1e-4
 lr0 = 1e-5
 lr1 = 1e-5
-num_candidates0 = 20
-num_candidates1 = 20
+num_candidates0 = 44
+num_candidates1 = 44
 num_candidates = num_candidates0
-temperature0 = 0.1
-temperature1 = 0.05
-explore_eps0 = 0.01
-explore_eps1 = 0.005
-annealing_start = 273760
+temperature0 = 0.005
+temperature1 = 0.0025
+explore_eps0 = 0.002
+explore_eps1 = 0.002
+annealing_start = 383072
 annealing_time = 8000
 pass_factor = 2.0
-alpha0 = 1.0
-alpha1 = 0.5
+alpha0 = 0.2
+alpha1 = 0.1
 print_freq = 32
 total_reward = 0
 total_loss = 0.0
@@ -528,17 +530,17 @@ total_test_loss = 0.0
 total_prob = 0.0
 total_round_cnt = 0
 save_freq = 256
-summary_freq = 256
+summary_freq = 1024
 
 min_door_value = max_possible_reward
 total_min_door_frac = 0
 logging.info("Checkpoint path: {}".format(pickle_name))
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
 logging.info(
-    "map_x={}, map_y={}, num_envs={}, num_candidates={}, replay_size={}/{}, num_params={}, decay_amount={}, temp1={}, eps1={}".format(
-        map_x, map_y, session.envs[0].num_envs, num_candidates, session.replay_buffer.size,
+    "map_x={}, map_y={}, num_envs={}, num_candidates0={}, num_candidates1={}, replay_size={}/{}, num_params={}, decay_amount={}, temp0={}, temp1={}, eps0={}, eps1={}, alpha0={}, alpha1={}".format(
+        map_x, map_y, session.envs[0].num_envs, num_candidates0, num_candidates1, session.replay_buffer.size,
         session.replay_buffer.capacity, num_params, session.decay_amount,
-        temperature1, explore_eps1))
+        temperature0, temperature1, explore_eps0, explore_eps1, alpha0, alpha1))
 logging.info("Starting training")
 for i in range(1000000):
     frac = max(0, min(1, (session.num_rounds - annealing_start) / annealing_time))
@@ -615,7 +617,7 @@ for i in range(1000000):
         buffer_mean_rooms_missing = buffer_mean_pass * len(rooms)
 
         logging.info(
-            "{}: cost={:.3f} (min={:d}, frac={:.6f}), rooms={:.3f}, doors={:.3f} | loss={:.5f}, cost={:.3f} (min={:d}, frac={:.4f}), test={:.5f}, p={:.6f}, nc={}, t={:.5f}".format(
+            "{}: cost={:.3f} (min={:d}, frac={:.6f}), rooms={:.3f}, doors={:.3f} | loss={:.5f}, cost={:.3f} (min={:d}, frac={:.4f}), test={:.5f}, p={:.6f}, nc={}, f={:.5f}".format(
                 session.num_rounds, max_possible_reward - buffer_mean_reward, max_possible_reward - buffer_max_reward,
                 buffer_frac_max_reward,
                 buffer_mean_rooms_missing,
@@ -629,7 +631,7 @@ for i in range(1000000):
                 new_test_loss,
                 new_prob,
                 num_candidates,
-                temperature,
+                frac,
             ))
         total_loss = 0.0
         total_loss_cnt = 0
@@ -640,8 +642,8 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             pickle.dump(session, open(pickle_name, 'wb'))
-            # pickle.dump(session, open(pickle_name + '-bk5', 'wb'))
+            # pickle.dump(session, open(pickle_name + '-bk14', 'wb'))
             # session.replay_buffer.episode_data = episode_data
-            # session = pickle.load(open(pickle_name + '-bk4', 'rb'))
+            # session = pickle.load(open(pickle_name + '-bk6', 'rb'))
     if session.num_rounds % summary_freq == 0:
         logging.info(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects, dim=0)))
