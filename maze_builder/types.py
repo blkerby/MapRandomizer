@@ -20,7 +20,6 @@ class DoorSubtype(Enum):
     SAND = 2
 
 
-@dataclass_json
 @dataclass
 class DoorIdentifier:
     direction: Direction
@@ -29,13 +28,6 @@ class DoorIdentifier:
     exit_ptr: Optional[int]
     entrance_ptr: Optional[int]
     subtype: DoorSubtype = DoorSubtype.NORMAL
-
-
-@dataclass_json
-@dataclass
-class DoorConnection:
-    a: DoorIdentifier
-    b: DoorIdentifier
 
 
 @dataclass

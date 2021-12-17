@@ -1,10 +1,16 @@
 from typing import List
 from dataclasses import dataclass
 from io import BytesIO
-from rando.rooms import room_ptrs
+# from rando.rooms import room_ptrs
+from logic.rooms.all_rooms import rooms
+import json
 
-input_rom_path = '/home/kerby/Downloads/dash-rando-app-v9/DASH_v9_SM_8906529.sfc'
+# input_rom_path = '/home/kerby/Downloads/dash-rando-app-v9/DASH_v9_SM_8906529.sfc'
+input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.2.7-emulator-ntsc.sfc'
+# input_rom_path = '/home/kerby/Downloads/Super Metroid (JU) [!].smc'
 output_rom_path = '/home/kerby/roms/test-rom.sfc'
+map_path = 'maps/12-15-session-2021-12-10T06:00:58.163492-0.json'
+map = json.load(open(map_path, 'r'))
 
 
 class Rom:
@@ -22,12 +28,18 @@ class Rom:
     def read_u24(self, pos):
         return self.read_u8(pos) + (self.read_u8(pos + 1) << 8) + (self.read_u8(pos + 2) << 16)
 
+    def read_n(self, pos, n):
+        return self.byte_buf[pos:(pos + n)]
+
     def write_u8(self, pos, value):
         self.byte_buf[pos] = value
 
     def write_u16(self, pos, value):
         self.byte_buf[pos] = value & 0xff
         self.byte_buf[pos + 1] = value >> 8
+
+    def write_n(self, pos, n, values):
+        self.byte_buf[pos:(pos + n)] = values
 
     def save(self, filename):
         file = open(filename, 'wb')
@@ -87,7 +99,7 @@ class Room:
         self.map_data = [[rom.read_u16(self.xy_to_map_ptr(x, y))
                           for x in range(self.x, self.x + self.width)]
                          for y in range(self.y, self.y + self.height)]
-        # self.doors = self.load_doors(rom)
+        self.doors = self.load_doors(rom)
         # self.load_states(rom)
 
     def load_single_state(self, rom, event_ptr, event_value, state_ptr):
@@ -202,47 +214,22 @@ class Room:
                 rom.write_u16(ptr, self.map_data[y][x])
 
 
+orig_rom = Rom(input_rom_path)
 rom = Rom(input_rom_path)
 
-rooms = []
-for room_ptr in room_ptrs:
-    room = Room(rom, 0x70000 + room_ptr)
-    # if room.area == 5:
-    rooms.append(room)
-    # area = rom.read_u8(0x70000 + room_ptr + 1)
-    # print('{:x}: {:d}'.format(room_ptr, area))
+def write_door_connection(a, b):
+    a_exit_ptr, a_entrance_ptr = a
+    b_exit_ptr, b_entrance_ptr = b
+    if a_entrance_ptr is not None and b_exit_ptr is not None:
+        print('{:x},{:x}'.format(a_entrance_ptr, b_exit_ptr))
+        a_entrance_data = orig_rom.read_n(a_entrance_ptr, 12)
+        rom.write_n(b_exit_ptr, 12, a_entrance_data)
+    if b_entrance_ptr is not None and a_exit_ptr is not None:
+        b_entrance_data = orig_rom.read_n(b_entrance_ptr, 12)
+        rom.write_n(a_exit_ptr, 12, b_entrance_data)
+        print('{:x} {:x}'.format(b_entrance_ptr, a_exit_ptr))
 
-room_ptr = 0x791F8
-# room_ptr = 0x792B3
-room = Room(rom, room_ptr)
-
-states = room.load_states(rom)
-
-room.load_doors(rom)
-room.doors[0].direction = 1
-room.save_doors(rom)
+for (a, b) in list(map):
+    write_door_connection(a, b)
 
 rom.save(output_rom_path)
-# rom.write_u8(room_ptr + 2, 25)
-# # rom.write_u8(room_ptr + 3, 1)
-# # print(room.__dict__)
-# room.x = 25
-# # room.y = 1
-# room.write_map_data(rom)
-# rom.save(output_rom_path)
-#
-# # crateria_map_ptr = 0x1A9000
-# # s = []
-# # for y in range(64):
-# #     for x in range(32):
-# #         k = crateria_map_ptr + (y * 32 + x) * 2
-# #         b = (byte_buf[k] << 8) + byte_buf[k + 1]
-# #         if b != 7948:
-# #             h = b % 77
-# #             s.append(chr(48 + h))
-# #         else:
-# #             s.append('.')
-# #     s.append('\n')
-# # map = ''.join(s)
-# # print(''.join(s))
-# #
