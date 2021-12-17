@@ -3,7 +3,7 @@ import time
 import torch
 import logging
 from maze_builder.env import MazeBuilderEnv
-from maze_builder.types import reconstruct_room_data, Direction, DoorConnection
+from maze_builder.types import reconstruct_room_data, Direction
 import logic.rooms.all_rooms
 import pickle
 import concurrent.futures
@@ -72,16 +72,16 @@ assert all(x == 2 for x in doors_cnt.values())
 map_name = '{}-{}'.format(session_name, ind_i)
 json.dump(door_pairs, open('maps/{}.json'.format(map_name), 'w'))
 
-#
-#
-# episode_length = len(rooms)
-# env = MazeBuilderEnv(rooms,
-#                      map_x=session.envs[0].map_x,
-#                      map_y=session.envs[0].map_y,
-#                      num_envs=num_envs,
-#                      device=device,
-#                      must_areas_be_connected=False)
-# env.room_mask = room_mask
-# env.room_position_x = room_position_x
-# env.room_position_y = room_position_y
-# env.render(0)
+
+
+episode_length = len(rooms)
+env = MazeBuilderEnv(rooms,
+                     map_x=session.envs[0].map_x,
+                     map_y=session.envs[0].map_y,
+                     num_envs=num_envs,
+                     device=device,
+                     must_areas_be_connected=False)
+env.room_mask = room_mask
+env.room_position_x = room_position_x
+env.room_position_y = room_position_y
+env.render(0)

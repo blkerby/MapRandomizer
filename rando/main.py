@@ -8,8 +8,9 @@ import json
 # input_rom_path = '/home/kerby/Downloads/dash-rando-app-v9/DASH_v9_SM_8906529.sfc'
 input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.2.7-emulator-ntsc.sfc'
 # input_rom_path = '/home/kerby/Downloads/Super Metroid (JU) [!].smc'
-output_rom_path = '/home/kerby/roms/test-rom.sfc'
-map_path = 'maps/12-15-session-2021-12-10T06:00:58.163492-0.json'
+map_name = '12-15-session-2021-12-10T06:00:58.163492-0'
+map_path = 'maps/{}.json'.format(map_name)
+output_rom_path = 'roms/{}.sfc'.format(map_name)
 map = json.load(open(map_path, 'r'))
 
 

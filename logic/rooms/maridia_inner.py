@@ -36,11 +36,11 @@ rooms = [
             DoorIdentifier(LEFT, 0, 5, 0x1A708, 0x1A4C8),  # Crab Shaft
             DoorIdentifier(LEFT, 0, 6, 0x1A744, 0x1A828),  # Aqueduct Save Room
             DoorIdentifier(RIGHT, 5, 5, 0x1A738, 0x1A7D4),  # Below Botwoon Energy Tank
-            DoorIdentifier(DOWN, 2, 9, 0x1A60C, 0x1A678),  # Oasis
+            DoorIdentifier(DOWN, 2, 9, 0x1A600, 0x1A678),  # Oasis
             DoorIdentifier(DOWN, 1, 6, 0x1A714, 0x1A6D8, SAND),  # West Aqueduct Quicksand Room
             DoorIdentifier(DOWN, 3, 6, 0x1A720, 0x1A6F0, SAND),  # East Aqueduct Quicksand Room
             DoorIdentifier(UP, 0, 4, 0x1A72C, 0x1A768),  # Botwoon Hallway
-            DoorIdentifier(UP, 2, 0, 0x1A600, 0x1A5AC),  # Plasma Spark Room (toilet)
+            DoorIdentifier(UP, 2, 0, 0x1A60C, 0x1A5AC),  # Plasma Spark Room (toilet)
         ],
         parts=[[0, 1, 2, 6], [4], [5], [3, 7]],
         transient_part_connections=[(0, 1), (0, 2)],  # sand
