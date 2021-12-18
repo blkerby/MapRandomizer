@@ -218,19 +218,70 @@ class Room:
 orig_rom = Rom(input_rom_path)
 rom = Rom(input_rom_path)
 
+def write_door_data(ptr, data):
+    rom.write_n(ptr, 12, data)
+    bitflag = data[2] | 0x40
+    rom.write_u8(ptr + 2, bitflag)
+    # print("{:x}".format(bitflag))
+
 def write_door_connection(a, b):
     a_exit_ptr, a_entrance_ptr = a
     b_exit_ptr, b_entrance_ptr = b
     if a_entrance_ptr is not None and b_exit_ptr is not None:
-        print('{:x},{:x}'.format(a_entrance_ptr, b_exit_ptr))
+        # print('{:x},{:x}'.format(a_entrance_ptr, b_exit_ptr))
         a_entrance_data = orig_rom.read_n(a_entrance_ptr, 12)
-        rom.write_n(b_exit_ptr, 12, a_entrance_data)
+        write_door_data(b_exit_ptr, a_entrance_data)
+        # rom.write_n(b_exit_ptr, 12, a_entrance_data)
     if b_entrance_ptr is not None and a_exit_ptr is not None:
         b_entrance_data = orig_rom.read_n(b_entrance_ptr, 12)
-        rom.write_n(a_exit_ptr, 12, b_entrance_data)
-        print('{:x} {:x}'.format(b_entrance_ptr, a_exit_ptr))
+        write_door_data(a_exit_ptr, b_entrance_data)
+        # rom.write_n(a_exit_ptr, 12, b_entrance_data)
+        # print('{:x} {:x}'.format(b_entrance_ptr, a_exit_ptr))
 
 for (a, b) in list(map):
     write_door_connection(a, b)
+
+
+save_station_ptrs = [
+    0x44C5,
+    0x44D3,
+    0x45CF,
+    0x45DD,
+    0x45EB,
+    0x45F9,
+    0x4607,
+    0x46D9,
+    0x46E7,
+    0x46F5,
+    0x4703,
+    0x4711,
+    0x471F,
+    0x481B,
+    0x4917,
+    0x4925,
+    0x4933,
+    0x4941,
+    0x4A2F,
+    0x4A3D,
+]
+
+orig_door_dict = {}
+for room in rooms:
+    for door in room.door_ids:
+        orig_door_dict[door.exit_ptr] = door.entrance_ptr
+
+door_dict = {}
+for (a, b) in map:
+    a_exit_ptr, a_entrance_ptr = a
+    b_exit_ptr, b_entrance_ptr = b
+    if a_exit_ptr is not None and b_exit_ptr is not None:
+        door_dict[a_exit_ptr] = b_exit_ptr
+        door_dict[b_exit_ptr] = a_exit_ptr
+
+for ptr in save_station_ptrs:
+    orig_entrance_door_ptr = rom.read_u16(ptr + 2) + 0x10000
+    exit_door_ptr = orig_door_dict[orig_entrance_door_ptr]
+    entrance_door_ptr = door_dict[exit_door_ptr]
+    rom.write_u16(ptr + 2, entrance_door_ptr & 0xffff)
 
 rom.save(output_rom_path)
