@@ -53,14 +53,18 @@ device = torch.device('cpu')
 # session = CPU_Unpickler(open('models/12-10-session-2021-12-10T06:00:58.163492.pkl', 'rb')).load()
 # session = CPU_Unpickler(open('models/12-12-session-2021-12-10T06:00:58.163492.pkl', 'rb')).load()
 # session = CPU_Unpickler(open('models/12-13-session-2021-12-10T06:00:58.163492.pkl', 'rb')).load()
-session = CPU_Unpickler(open('models/12-15-session-2021-12-10T06:00:58.163492.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/12-15-session-2021-12-10T06:00:58.163492.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/12-18-session-2021-12-10T06:00:58.163492.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/12-18-b-session-2021-12-10T06:00:58.163492.pkl', 'rb')).load()
+session = CPU_Unpickler(open('models/12-19-session-2021-12-10T06:00:58.163492.pkl', 'rb')).load()
 #
 
 print(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects.to(torch.float32), dim=0)))
 print(torch.max(session.replay_buffer.episode_data.reward))
 
 ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 341)
-i = 6
+ind = ind[(ind >= 200000) & (ind < 262144)].view(-1, 1)
+i = 2
 num_rooms = len(session.envs[0].rooms)
 action = session.replay_buffer.episode_data.action[ind[i], :]
 step_indices = torch.tensor([num_rooms])
@@ -138,7 +142,7 @@ env.render(0)
 episode_length = len(rooms)
 session.env = None
 session.envs = [env]
-num_candidates = 32
+num_candidates = 44
 temperature = 0.01
 torch.manual_seed(0)
 max_possible_reward = env.max_reward

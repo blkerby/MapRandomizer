@@ -1,7 +1,8 @@
 # TODO:
+# - try bootstrapping using targets from just before next exploratory step (N-step bootstrapping where N is dynamic and
+#   as large as possible without crossing an exploratory step)
 # - speed up computation of connectivity data
-# - new model architecture
-# - try all-action approach again
+# - try lightweight scoring of all actions
 # - filter candidates which leave no possibility of completing connectivity
 # - if for a given open door no room can be attached to it, override the model prediction with 0%
 # - Use one-hot coding or embeddings (on tile/door types) instead of putting raw map data into convolutional layers
@@ -511,16 +512,16 @@ batch_size_pow1 = 11
 lr0 = 1e-5
 lr1 = 1e-5
 num_candidates0 = 44
-num_candidates1 = 44
+num_candidates1 = 64
 num_candidates = num_candidates0
-temperature0 = 0.005
+temperature0 = 0.0025
 temperature1 = 0.0025
 explore_eps0 = 0.002
 explore_eps1 = 0.002
-annealing_start = 383072
+annealing_start = 397600
 annealing_time = 8000
 pass_factor = 2.0
-alpha0 = 0.2
+alpha0 = 0.1
 alpha1 = 0.1
 print_freq = 32
 total_reward = 0
@@ -642,7 +643,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             pickle.dump(session, open(pickle_name, 'wb'))
-            # pickle.dump(session, open(pickle_name + '-bk14', 'wb'))
+            # pickle.dump(session, open(pickle_name + '-bk17', 'wb'))
             # session.replay_buffer.episode_data = episode_data
             # session = pickle.load(open(pickle_name + '-bk6', 'rb'))
     if session.num_rounds % summary_freq == 0:
