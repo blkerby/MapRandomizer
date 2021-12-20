@@ -7,8 +7,8 @@ import json
 import ips_util
 
 # input_rom_path = '/home/kerby/Downloads/dash-rando-app-v9/DASH_v9_SM_8906529.sfc'
-# input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.2.7-emulator-ntsc.sfc'
-input_rom_path = '/home/kerby/Downloads/Super Metroid (JU) [!].smc'
+input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.2.7-emulator-ntsc.sfc'
+# input_rom_path = '/home/kerby/Downloads/Super Metroid (JU) [!].smc'
 map_name = '12-15-session-2021-12-10T06:00:58.163492-0'
 map_path = 'maps/{}.json'.format(map_name)
 output_rom_path = 'roms/{}-a.sfc'.format(map_name)
@@ -285,8 +285,15 @@ for ptr in save_station_ptrs:
     entrance_door_ptr = door_dict[exit_door_ptr]
     rom.write_u16(ptr + 2, entrance_door_ptr & 0xffff)
 
-patch = ips_util.Patch.load('patches/ips/new_game.ips')
-byte_buf = patch.apply(rom.byte_buf)
+patches = [
+    'new_game',
+    'crateria_sky',
+    'everest_tube',
+]
+byte_buf = rom.byte_buf
+for patch_name in patches:
+    patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
+    byte_buf = patch.apply(byte_buf)
 with open(output_rom_path, 'wb') as out_file:
     out_file.write(byte_buf)
 # rom.save(output_rom_path)
