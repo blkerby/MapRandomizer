@@ -204,7 +204,7 @@ rooms = [
             DoorIdentifier(RIGHT, 2, 1, 0x1A5B8, 0x1A5D0),  # Kassiuz Room
             DoorIdentifier(RIGHT, 3, 3, 0x1A5C4, 0x1A630),  # Bug Sand Hole
             DoorIdentifier(RIGHT, 3, 5, 0x1A5A0, 0x1A750),  # Butterfly Room
-            DoorIdentifier(DOWN, 0, 3, 0x1A5AC, 0x1A600),  # Aqueduct (toilet)
+            DoorIdentifier(DOWN, 0, 3, 0x1A5AC, 0x1A60C),  # Aqueduct (toilet)
         ],
     ),
     Room(
@@ -217,7 +217,7 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 0, 1, 0x1A660, 0x1A648),  # West Sand Hall
             DoorIdentifier(RIGHT, 0, 1, 0x1A66C, 0x1A684),  # East Sand Hall
-            DoorIdentifier(UP, 0, 0, 0x1A678, 0x1A60C),  # Aqueduct (toilet)
+            DoorIdentifier(UP, 0, 0, 0x1A678, 0x1A600),  # Aqueduct (toilet)
         ],
     ),
     Room(

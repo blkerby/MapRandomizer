@@ -34,7 +34,7 @@ print(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects.t
 print(torch.max(session.replay_buffer.episode_data.reward))
 
 ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 341)
-ind_i = 0
+ind_i = 1
 num_rooms = len(session.envs[0].rooms)
 action = session.replay_buffer.episode_data.action[ind[ind_i], :]
 step_indices = torch.tensor([num_rooms])
