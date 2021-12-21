@@ -86,6 +86,9 @@ rooms = [
             DoorIdentifier(RIGHT, 1, 0, 0x18E62, 0x18E02),  # Big Pink (top)
             DoorIdentifier(RIGHT, 1, 1, 0x18E6E, 0x18DDE),  # Big Pink (bottom)
         ],
+        parts=[[0], [1]],
+        transient_part_connections=[(0, 1)],  # crumble blocks
+        missing_part_connections=[(1, 0)],
     ),
     Room(
         name='Pink Brinstar Hopper Room',

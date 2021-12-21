@@ -436,24 +436,39 @@ threshold = 0.3
 # session = pickle.load(open('models/session-2021-11-02T20:26:37.515750.pkl-bk', 'rb'))
 # session = pickle.load(open('models/session-2021-11-02T20:26:37.515750.pkl-bk2', 'rb'))
 # session = pickle.load(open('models/session-2021-12-05T14:21:24.708862.pkl', 'rb'))
-session = pickle.load(open('models/session-2021-12-10T06:00:58.163492.pkl-bk15', 'rb'))
+session = pickle.load(open('models/session-2021-12-10T06:00:58.163492.pkl-bk19', 'rb'))
 #
 
-# new_state_value_lin_wt = torch.zeros([630, 512], device=device)
-# new_state_value_lin_wt[:627, :] = session.model.state_value_lin.weight[:627, :]
-# new_state_value_lin_wt[-1, :] = session.model.state_value_lin.weight[-1, :]
-#
-# new_state_value_lin_bias = torch.zeros([630], device=device)
-# new_state_value_lin_bias[:627] = session.model.state_value_lin.bias[:627]
-# new_state_value_lin_bias[-1] = session.model.state_value_lin.bias[-1]
-#
-# session.model.state_value_lin = torch.nn.Linear(512, 630)
-# session.model.state_value_lin.weight.data = new_state_value_lin_wt
-# session.model.state_value_lin.bias.data = new_state_value_lin_bias
-# session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=session.average_parameters.beta)
-# session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.0001, betas=(0.95, 0.99), eps=1e-15)
-# session.replay_buffer = ReplayBuffer(replay_size, len(session.envs[0].rooms), storage_device=torch.device('cpu'))
-# session.grad_scaler = torch.cuda.amp.GradScaler()
+session.average_parameters.use_averages(session.model.all_param_data())
+# new_i = 587
+new_i = 578
+new_state_value_lin_wt = torch.zeros([631, 512], device=device)
+new_state_value_lin_wt[:new_i, :] = session.model.state_value_lin.weight[:new_i, :]
+# new_state_value_lin_wt[(new_i + 1):, :] = session.model.state_value_lin.weight[new_i:, :]
+
+new_state_value_lin_bias = torch.zeros([631], device=device)
+new_state_value_lin_bias[:new_i] = session.model.state_value_lin.bias[:new_i]
+# new_state_value_lin_bias[(new_i + 1):] = session.model.state_value_lin.bias[new_i:]
+
+num_parts = 237
+new_i = 81
+new_connectivity_left = torch.zeros([64, num_parts], device=device)
+new_connectivity_left[:, :new_i] = session.model.connectivity_left_mat[:, :new_i]
+new_connectivity_left[:, (new_i + 1):] = session.model.connectivity_left_mat[:, new_i:]
+new_connectivity_right = torch.zeros([num_parts, 64], device=device)
+new_connectivity_right[:new_i, :] = session.model.connectivity_right_mat[:new_i, :]
+new_connectivity_right[(new_i + 1):, :] = session.model.connectivity_right_mat[new_i:, :]
+
+session.model.state_value_lin = torch.nn.Linear(512, 631)
+session.model.state_value_lin.weight.data = new_state_value_lin_wt
+session.model.state_value_lin.bias.data = new_state_value_lin_bias
+session.model.connectivity_left_mat = torch.nn.Parameter(new_connectivity_left)
+session.model.connectivity_right_mat = torch.nn.Parameter(new_connectivity_right)
+session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=session.average_parameters.beta)
+session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.0001, betas=(0.95, 0.99), eps=1e-15)
+session.replay_buffer = ReplayBuffer(replay_size, len(session.envs[0].rooms), storage_device=torch.device('cpu'))
+session.grad_scaler = torch.cuda.amp.GradScaler()
+session.envs = envs
 
 #
 #
@@ -488,7 +503,6 @@ session = pickle.load(open('models/session-2021-12-10T06:00:58.163492.pkl-bk15',
 # session.average_parameters.use_averages(session.model.all_param_data())
 # teacher_model = session.model
 #
-# session.envs = envs
 # session.model = session.model.to(device)
 # def optimizer_to(optim, device):
 #     for param in optim.state.values():
@@ -509,11 +523,12 @@ session = pickle.load(open('models/session-2021-12-10T06:00:58.163492.pkl-bk15',
 
 batch_size_pow0 = 11
 batch_size_pow1 = 11
-# lr0 = 1e-4
 lr0 = 1e-5
 lr1 = 1e-5
-num_candidates0 = 45
-num_candidates1 = 64
+# lr0 = 1e-30  # TODO: increase this back to 1e-5?
+# lr1 = 1e-30
+num_candidates0 = 61
+num_candidates1 = 61
 num_candidates = num_candidates0
 temperature0 = 0.0025
 temperature1 = 0.0025
@@ -521,7 +536,7 @@ explore_eps0 = 0.002
 explore_eps1 = 0.002
 annealing_start = 392493
 annealing_time = 8000
-pass_factor = 2.0
+pass_factor = 0.5
 alpha0 = 0.1
 alpha1 = 0.1
 print_freq = 32
@@ -644,7 +659,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             pickle.dump(session, open(pickle_name, 'wb'))
-            # pickle.dump(session, open(pickle_name + '-bk18', 'wb'))
+            # pickle.dump(session, open(pickle_name + '-bk20', 'wb'))
             # session.replay_buffer.episode_data = episode_data
             # session = pickle.load(open(pickle_name + '-bk6', 'rb'))
     if session.num_rounds % summary_freq == 0:

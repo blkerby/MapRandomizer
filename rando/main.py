@@ -7,7 +7,7 @@ import json
 import ips_util
 
 # input_rom_path = '/home/kerby/Downloads/dash-rando-app-v9/DASH_v9_SM_8906529.sfc'
-input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.2.7-emulator-ntsc.sfc'
+input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.3.3-emulator-ntsc.sfc'
 # input_rom_path = '/home/kerby/Downloads/Super Metroid (JU) [!].smc'
 map_name = '12-15-session-2021-12-10T06:00:58.163492-1'
 map_path = 'maps/{}.json'.format(map_name)

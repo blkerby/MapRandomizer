@@ -114,6 +114,13 @@ env.room_position_x = room_position_x
 env.room_position_y = room_position_y
 env.render(0)
 
+for i in range(env.missing_connection_src.shape[0]):
+    print(i, env.rooms[env.part_room_id[env.missing_connection_src[i]]].name)
+
+for i in range(env.part_room_id.shape[0]):
+    print(i, env.rooms[env.part_room_id[i]].name)
+
+
 # import time
 # start = time.perf_counter()
 # adjacency_matrix, A = env.compute_component_matrix(room_mask, room_position_x, room_position_y)
