@@ -436,39 +436,43 @@ threshold = 0.3
 # session = pickle.load(open('models/session-2021-11-02T20:26:37.515750.pkl-bk', 'rb'))
 # session = pickle.load(open('models/session-2021-11-02T20:26:37.515750.pkl-bk2', 'rb'))
 # session = pickle.load(open('models/session-2021-12-05T14:21:24.708862.pkl', 'rb'))
-session = pickle.load(open('models/session-2021-12-10T06:00:58.163492.pkl-bk19', 'rb'))
+# session = pickle.load(open('models/session-2021-12-20T20:50:57.114928.pkl-bk20', 'rb'))
+# session = pickle.load(open('models/session-2021-12-20T20:50:57.114928.pkl-bk21', 'rb'))
+# session = pickle.load(open('models/session-2021-12-20T20:50:57.114928.pkl-bk22', 'rb'))
+session = pickle.load(open('models/session-2021-12-20T20:50:57.114928.pkl-bk23', 'rb'))
 #
-
-session.average_parameters.use_averages(session.model.all_param_data())
-# new_i = 587
-new_i = 578
-new_state_value_lin_wt = torch.zeros([631, 512], device=device)
-new_state_value_lin_wt[:new_i, :] = session.model.state_value_lin.weight[:new_i, :]
-# new_state_value_lin_wt[(new_i + 1):, :] = session.model.state_value_lin.weight[new_i:, :]
-
-new_state_value_lin_bias = torch.zeros([631], device=device)
-new_state_value_lin_bias[:new_i] = session.model.state_value_lin.bias[:new_i]
-# new_state_value_lin_bias[(new_i + 1):] = session.model.state_value_lin.bias[new_i:]
-
-num_parts = 237
-new_i = 81
-new_connectivity_left = torch.zeros([64, num_parts], device=device)
-new_connectivity_left[:, :new_i] = session.model.connectivity_left_mat[:, :new_i]
-new_connectivity_left[:, (new_i + 1):] = session.model.connectivity_left_mat[:, new_i:]
-new_connectivity_right = torch.zeros([num_parts, 64], device=device)
-new_connectivity_right[:new_i, :] = session.model.connectivity_right_mat[:new_i, :]
-new_connectivity_right[(new_i + 1):, :] = session.model.connectivity_right_mat[new_i:, :]
-
-session.model.state_value_lin = torch.nn.Linear(512, 631)
-session.model.state_value_lin.weight.data = new_state_value_lin_wt
-session.model.state_value_lin.bias.data = new_state_value_lin_bias
-session.model.connectivity_left_mat = torch.nn.Parameter(new_connectivity_left)
-session.model.connectivity_right_mat = torch.nn.Parameter(new_connectivity_right)
-session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=session.average_parameters.beta)
-session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.0001, betas=(0.95, 0.99), eps=1e-15)
-session.replay_buffer = ReplayBuffer(replay_size, len(session.envs[0].rooms), storage_device=torch.device('cpu'))
-session.grad_scaler = torch.cuda.amp.GradScaler()
-session.envs = envs
+#
+# session = pickle.load(open('models/session-2021-12-10T06:00:58.163492.pkl-bk19', 'rb'))
+# session.average_parameters.use_averages(session.model.all_param_data())
+# # new_i = 587
+# new_i = 578
+# new_state_value_lin_wt = torch.zeros([631, 512], device=device)
+# new_state_value_lin_wt[:new_i, :] = session.model.state_value_lin.weight[:new_i, :]
+# # new_state_value_lin_wt[(new_i + 1):, :] = session.model.state_value_lin.weight[new_i:, :]
+#
+# new_state_value_lin_bias = torch.zeros([631], device=device)
+# new_state_value_lin_bias[:new_i] = session.model.state_value_lin.bias[:new_i]
+# # new_state_value_lin_bias[(new_i + 1):] = session.model.state_value_lin.bias[new_i:]
+#
+# num_parts = 237
+# new_i = 81
+# new_connectivity_left = torch.zeros([64, num_parts], device=device)
+# new_connectivity_left[:, :new_i] = session.model.connectivity_left_mat[:, :new_i]
+# new_connectivity_left[:, (new_i + 1):] = session.model.connectivity_left_mat[:, new_i:]
+# new_connectivity_right = torch.zeros([num_parts, 64], device=device)
+# new_connectivity_right[:new_i, :] = session.model.connectivity_right_mat[:new_i, :]
+# new_connectivity_right[(new_i + 1):, :] = session.model.connectivity_right_mat[new_i:, :]
+#
+# session.model.state_value_lin = torch.nn.Linear(512, 631)
+# session.model.state_value_lin.weight.data = new_state_value_lin_wt
+# session.model.state_value_lin.bias.data = new_state_value_lin_bias
+# session.model.connectivity_left_mat = torch.nn.Parameter(new_connectivity_left)
+# session.model.connectivity_right_mat = torch.nn.Parameter(new_connectivity_right)
+# session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=session.average_parameters.beta)
+# session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.0001, betas=(0.95, 0.99), eps=1e-15)
+# session.replay_buffer = ReplayBuffer(replay_size, len(session.envs[0].rooms), storage_device=torch.device('cpu'))
+# session.grad_scaler = torch.cuda.amp.GradScaler()
+# session.envs = envs
 
 #
 #
@@ -523,8 +527,8 @@ session.envs = envs
 
 batch_size_pow0 = 11
 batch_size_pow1 = 11
-lr0 = 1e-5
-lr1 = 1e-5
+lr0 = 2e-7
+lr1 = 2e-7
 # lr0 = 1e-30  # TODO: increase this back to 1e-5?
 # lr1 = 1e-30
 num_candidates0 = 61
@@ -539,7 +543,7 @@ annealing_time = 8000
 pass_factor = 0.5
 alpha0 = 0.1
 alpha1 = 0.1
-print_freq = 32
+print_freq = 16
 total_reward = 0
 total_loss = 0.0
 total_loss_cnt = 0
@@ -547,15 +551,16 @@ total_test_loss = 0.0
 total_prob = 0.0
 total_round_cnt = 0
 save_freq = 256
-summary_freq = 1024
+summary_freq = 512
+session.decay_amount = 5.0
 
 min_door_value = max_possible_reward
 total_min_door_frac = 0
 logging.info("Checkpoint path: {}".format(pickle_name))
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
 logging.info(
-    "map_x={}, map_y={}, num_envs={}, num_candidates0={}, num_candidates1={}, replay_size={}/{}, num_params={}, decay_amount={}, temp0={}, temp1={}, eps0={}, eps1={}, alpha0={}, alpha1={}".format(
-        map_x, map_y, session.envs[0].num_envs, num_candidates0, num_candidates1, session.replay_buffer.size,
+    "map_x={}, map_y={}, num_envs={}, lr0={}, lr1={}, num_candidates0={}, num_candidates1={}, replay_size={}/{}, num_params={}, decay_amount={}, temp0={}, temp1={}, eps0={}, eps1={}, alpha0={}, alpha1={}".format(
+        map_x, map_y, session.envs[0].num_envs, lr0, lr1, num_candidates0, num_candidates1, session.replay_buffer.size,
         session.replay_buffer.capacity, num_params, session.decay_amount,
         temperature0, temperature1, explore_eps0, explore_eps1, alpha0, alpha1))
 logging.info("Starting training")
@@ -659,7 +664,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             pickle.dump(session, open(pickle_name, 'wb'))
-            # pickle.dump(session, open(pickle_name + '-bk20', 'wb'))
+            # pickle.dump(session, open(pickle_name + '-bk27', 'wb'))
             # session.replay_buffer.episode_data = episode_data
             # session = pickle.load(open(pickle_name + '-bk6', 'rb'))
     if session.num_rounds % summary_freq == 0:
