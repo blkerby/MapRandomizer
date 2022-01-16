@@ -1,0 +1,3 @@
+[submodule "sm-json-data"]
+	path = sm-json-data
+	url = git@github.com:miketrethewey/sm-json-data.git

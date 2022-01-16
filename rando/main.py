@@ -1,6 +1,7 @@
 from typing import List
 from dataclasses import dataclass
 from io import BytesIO
+import numpy as np
 # from rando.rooms import room_ptrs
 from logic.rooms.all_rooms import rooms
 import json
@@ -9,9 +10,9 @@ import ips_util
 # input_rom_path = '/home/kerby/Downloads/dash-rando-app-v9/DASH_v9_SM_8906529.sfc'
 input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.3.3-emulator-ntsc.sfc'
 # input_rom_path = '/home/kerby/Downloads/Super Metroid (JU) [!].smc'
-map_name = '12-15-session-2021-12-10T06:00:58.163492-1'
+map_name = '12-15-session-2021-12-10T06:00:58.163492-0'
 map_path = 'maps/{}.json'.format(map_name)
-output_rom_path = 'roms/{}-a.sfc'.format(map_name)
+output_rom_path = 'roms/{}-b.sfc'.format(map_name)
 map = json.load(open(map_path, 'r'))
 
 
@@ -286,7 +287,7 @@ for ptr in save_station_ptrs:
     entrance_door_ptr = door_dict[exit_door_ptr]
     rom.write_u16(ptr + 2, entrance_door_ptr & 0xffff)
 
-# Turn grey doors pink
+item_dict = {}
 for room_obj in rooms:
     room = Room(rom, room_obj.rom_address)
     states = room.load_states(rom)
@@ -300,16 +301,30 @@ for room_obj in rooms:
             #     print('{}: {:04x} {:04x}'.format(room_obj.name, rom.read_u16(ptr + 2), rom.read_u16(ptr + 4)))
             #     rom.write_u8(ptr + 5, 0x0)  # main boss dead
             #     # rom.write_u8(ptr + 5, 0x0C)  # enemies dead
+
+            # Collect item ids
+            if (plm_type >> 8) in (0xEE, 0xEF):
+                item_dict[ptr] = plm_type
+                # print("{:x} {:x} {:x}".format(ptr, plm_type, item_id))
+
+            # Turn grey doors pink
             if plm_type == 0xC842:  # right grey door
-                print('{}: {:x} {:x} {:x}'.format(room_obj.name, rom.read_u16(ptr), rom.read_u16(ptr + 2), rom.read_u16(ptr + 4)))
-                rom.write_u16(ptr, 0xC88A)  # right red door
+                # print('{}: {:x} {:x} {:x}'.format(room_obj.name, rom.read_u16(ptr), rom.read_u16(ptr + 2), rom.read_u16(ptr + 4)))
+                rom.write_u16(ptr, 0xC88A)  # right pink door
             elif plm_type == 0xC848:  # left grey door
-                rom.write_u16(ptr, 0xC890)  # right pink door
+                rom.write_u16(ptr, 0xC890)  # left pink door
             elif plm_type == 0xC84E:  # up grey door
                 rom.write_u16(ptr, 0xC896)  # up pink door
             elif plm_type == 0xC854:  # down grey door
                 rom.write_u16(ptr, 0xC89C)  # down pink door
             ptr += 6
+
+# Randomize items
+item_list = list(item_dict.values())
+item_perm = np.random.permutation(len(item_dict.values()))
+for i, ptr in enumerate(item_dict.keys()):
+    item = item_list[item_perm[i]]
+    rom.write_u16(ptr, item)
 
 # Apply patches
 patches = [
