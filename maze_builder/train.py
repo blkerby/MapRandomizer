@@ -448,7 +448,8 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 # session = pickle.load(open('models/session-2021-12-30T14:27:35.034335.pkl-bk46', 'rb'))
 # session = pickle.load(open('models/session-2021-12-30T21:07:07.735373.pkl', 'rb'))
 # session = pickle.load(open('models/session-2021-12-31T17:27:10.465887.pkl', 'rb'))
-session = pickle.load(open('models/session-2022-01-01T21:25:32.844343.pkl-bk52', 'rb'))
+# session = pickle.load(open('models/session-2022-01-01T21:25:32.844343.pkl-bk52', 'rb'))
+session = pickle.load(open('models/session-2022-01-13T12:40:37.881929.pkl-bk53', 'rb'))
 #
 #
 # session = pickle.load(open('models/session-2021-12-10T06:00:58.163492.pkl-bk19', 'rb'))
@@ -538,18 +539,18 @@ batch_size_pow0 = 11
 batch_size_pow1 = 11
 lr0 = 5e-6
 lr1 = 5e-6
-num_candidates0 = 45
+num_candidates0 = 64
 num_candidates1 = 64
 num_candidates = num_candidates0
 temperature0 = 0.002
-temperature1 = 0.002
+temperature1 = 0.0001
 explore_eps0 = 0.0002
-explore_eps1 = 0.0002
-annealing_start = 611264
+explore_eps1 = 0.00001
+annealing_start = 629952
 annealing_time = 16000
 pass_factor = 2.0
 alpha0 = 0.2
-alpha1 = 0.2
+alpha1 = 0.1
 print_freq = 32
 total_reward = 0
 total_loss = 0.0
@@ -671,7 +672,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             pickle.dump(session, open(pickle_name, 'wb'))
-            # pickle.dump(session, open(pickle_name + '-bk52', 'wb'))
+            # pickle.dump(session, open(pickle_name + '-bk53', 'wb'))
             # session.replay_buffer.episode_data = episode_data
             # session = pickle.load(open(pickle_name + '-bk6', 'rb'))
     if session.num_rounds % summary_freq == 0:

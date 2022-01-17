@@ -6,6 +6,7 @@ import numpy as np
 from logic.rooms.all_rooms import rooms
 import json
 import ips_util
+import rando.conditions
 
 # input_rom_path = '/home/kerby/Downloads/dash-rando-app-v9/DASH_v9_SM_8906529.sfc'
 input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.3.3-emulator-ntsc.sfc'
@@ -304,6 +305,8 @@ for room_obj in rooms:
 
             # Collect item ids
             if (plm_type >> 8) in (0xEE, 0xEF):
+                item_type_index = rando.conditions.get_plm_type_item_index(plm_type)
+                print("{}: {}".format(room_obj.name, rando.conditions.item_list[item_type_index]))
                 item_dict[ptr] = plm_type
                 # print("{:x} {:x} {:x}".format(ptr, plm_type, item_id))
 
@@ -339,3 +342,28 @@ for patch_name in patches:
 with open(output_rom_path, 'wb') as out_file:
     out_file.write(byte_buf)
 # rom.save(output_rom_path)
+
+
+self.item_list = [
+    "ETank",
+    "Missile",
+    "Super",
+    "PowerBomb",
+    "Bombs",
+    "Charge",
+    "Ice",
+    "HiJump",
+    "SpeedBooster",
+    "Wave",
+    "Spazer",
+    "SpringBall",
+    "Varia",
+    "Gravity",
+    "XRayScope",
+    "Plasma",
+    "Grapple",
+    "SpaceJump",
+    "ScrewAttack",
+    "Morph",
+    "ReserveTank",
+]
