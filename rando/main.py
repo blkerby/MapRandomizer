@@ -311,15 +311,15 @@ for room_obj in rooms:
                 # print("{:x} {:x} {:x}".format(ptr, plm_type, item_id))
 
             # Turn grey doors pink
-            if plm_type == 0xC842:  # right grey door
+            if plm_type in (0xC842, 0xC85A, 0xC872):  # right grey/yellow/green door
                 # print('{}: {:x} {:x} {:x}'.format(room_obj.name, rom.read_u16(ptr), rom.read_u16(ptr + 2), rom.read_u16(ptr + 4)))
                 rom.write_u16(ptr, 0xC88A)  # right pink door
-            elif plm_type == 0xC848:  # left grey door
+            elif plm_type in (0xC848, 0xC860, 0xC878):  # left grey/yellow/green door
                 rom.write_u16(ptr, 0xC890)  # left pink door
-            elif plm_type == 0xC84E:  # up grey door
-                rom.write_u16(ptr, 0xC896)  # up pink door
-            elif plm_type == 0xC854:  # down grey door
-                rom.write_u16(ptr, 0xC89C)  # down pink door
+            elif plm_type in (0xC84E, 0xC866, 0xC87E):  # down grey/yellow/green door
+                rom.write_u16(ptr, 0xC896)  # down pink door
+            elif plm_type in (0xC854, 0xC86C, 0xC884):  # up grey/yellow/green door
+                rom.write_u16(ptr, 0xC89C)  # up pink door
             ptr += 6
 
 # Randomize items
@@ -344,26 +344,26 @@ with open(output_rom_path, 'wb') as out_file:
 # rom.save(output_rom_path)
 
 
-self.item_list = [
-    "ETank",
-    "Missile",
-    "Super",
-    "PowerBomb",
-    "Bombs",
-    "Charge",
-    "Ice",
-    "HiJump",
-    "SpeedBooster",
-    "Wave",
-    "Spazer",
-    "SpringBall",
-    "Varia",
-    "Gravity",
-    "XRayScope",
-    "Plasma",
-    "Grapple",
-    "SpaceJump",
-    "ScrewAttack",
-    "Morph",
-    "ReserveTank",
-]
+# self.item_list = [
+#     "ETank",
+#     "Missile",
+#     "Super",
+#     "PowerBomb",
+#     "Bombs",
+#     "Charge",
+#     "Ice",
+#     "HiJump",
+#     "SpeedBooster",
+#     "Wave",
+#     "Spazer",
+#     "SpringBall",
+#     "Varia",
+#     "Gravity",
+#     "XRayScope",
+#     "Plasma",
+#     "Grapple",
+#     "SpaceJump",
+#     "ScrewAttack",
+#     "Morph",
+#     "ReserveTank",
+# ]
