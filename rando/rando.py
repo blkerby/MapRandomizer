@@ -1,6 +1,8 @@
-from typing import List
+from typing import List, Set
 from dataclasses import dataclass
 from enum import Enum
+import numpy as np
+import random
 import json
 import graph_tool
 import graph_tool.topology
@@ -60,8 +62,9 @@ from rando.sm_json_data import SMJsonData, GameState, Link, DifficultyConfig
 
 
 class Randomizer:
-    def __init__(self, map, sm_json_data: SMJsonData):
+    def __init__(self, map, sm_json_data: SMJsonData, difficulty: DifficultyConfig):
         self.sm_json_data = sm_json_data
+        self.difficulty = difficulty
         self.door_graph = graph_tool.Graph()
         for conn in map:
             index_src = sm_json_data.door_ptr_pair_dict[tuple(conn[0])]
@@ -76,6 +79,61 @@ class Randomizer:
                 graph.add_edge(link.from_index, link.to_index)
         return graph
 
+    def randomize(self):
+        items = set()  # No items at start
+        flags = sm_json_data.flags_set  # All flags set
+        state = GameState(
+            difficulty=self.difficulty,
+            items=items,
+            flags=flags,
+            node_index=sm_json_data.node_dict[(8, 5)],  # Landing site ship
+        )
+        item_index_set = set(sm_json_data.item_index_list)  # Set of remaining item locations to be filled
+
+        progression_items = [
+            "Missile",
+            "Super",
+            "PowerBomb",
+            "Bombs",
+            "Charge",
+            "Ice",
+            "HiJump",
+            "SpeedBooster",
+            "Wave",
+            "Varia",
+            "Gravity",
+            "Plasma",
+            "Grapple",
+            "SpaceJump",
+            "ScrewAttack",
+            "Morph",
+        ]
+        other_items = [
+                          "Spazer",
+                          "SpringBall",
+                          "XRayScope",
+                      ] + 45 * ["Missile"] + 9 * ["Super"] + 9 * ["PowerBomb"] + 4 * ["ReserveTank"] + 14 * ["ETank"]
+
+        self.item_sequence = np.random.permutation(progression_items).tolist() + np.random.permutation(other_items).tolist()
+        self.item_placement_list = []
+
+        for i in range(len(self.item_sequence)):
+            graph = randomizer.node_graph(state)
+            _, reached_indices = graph_tool.topology.shortest_distance(graph, source=state.node_index,
+                                                                       return_reached=True)
+            reached_index_set = set(reached_indices)
+            reached_item_index_set = item_index_set.intersection(reached_index_set)
+            reached_item_index_list = list(reached_item_index_set)
+            if len(reached_item_index_list) == 0:
+                # There are no more unfilled item locations
+                break
+            selected_item_index = reached_item_index_list[random.randint(0, len(reached_item_index_list) - 1)]
+
+            self.item_placement_list.append(selected_item_index)
+            state.items.add(self.item_sequence[i])
+            item_index_set.remove(selected_item_index)
+            state.node_index = selected_item_index
+
 sm_json_data_path = "sm-json-data/"
 sm_json_data = SMJsonData(sm_json_data_path)
 
@@ -85,16 +143,19 @@ map_path = 'maps/{}.json'.format(map_name)
 # output_rom_path = 'roms/{}-b.sfc'.format(map_name)
 map = json.load(open(map_path, 'r'))
 
-randomizer = Randomizer(map, sm_json_data)
-tech = sm_json_data.tech_name_set  # All tech enabled
-items = sm_json_data.item_set  # All items collected
-flags = sm_json_data.flags_set  # All flags set
-state = GameState(
-    difficulty=DifficultyConfig(tech=tech, shine_charge_tiles=20),
-    items=items,
-    flags=flags,
-    node_index=sm_json_data.node_dict[(8, 5)],  # Landing site ship
-)
-graph = randomizer.node_graph(state)
-comp, hist = graph_tool.topology.label_components(graph)
-comp.get_array()
+tech = set()
+difficulty = DifficultyConfig(tech=tech, shine_charge_tiles=33)
+
+randomizer = Randomizer(map, sm_json_data, difficulty)
+for _ in range(500):
+    randomizer.randomize()
+    if len(randomizer.item_placement_list) >= 99:
+        print("Success")
+print("Finished")
+# print(len(reached_indices))
+# comp, hist = graph_tool.topology.label_components(graph)
+# comp_arr = comp.get_array()
+# print(comp_arr)
+# print(len(hist), hist)
+# print(np.where(comp_arr == 0))
+# print(sm_json_data.node_list[144])

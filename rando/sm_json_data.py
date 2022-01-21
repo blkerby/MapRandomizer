@@ -49,7 +49,7 @@ class ShineChargeCondition(Condition):
         self.tiles = tiles
 
     def is_accessible(self, state: GameState) -> bool:
-        return self.tiles <= state.difficulty.shine_charge_tiles
+        return self.tiles >= state.difficulty.shine_charge_tiles
 
 class ItemCondition(Condition):
     def __init__(self, item: str):
@@ -108,13 +108,19 @@ class SMJsonData:
 
         self.node_list = []
         self.node_dict = {}
-        self.door_ptr_dict = {}
+        self.node_ptr_list = []
+        self.item_index_list = []
         self.link_list = []
         region_files = [str(f) for f in pathlib.Path(f"{sm_json_data_path}/region").glob("**/*.json")]
         for filename in region_files:
             # logging.info("Processing {}".format(filename))
-            region_data = json.load(open(filename, 'r'))
-            self.process_region(region_data)
+            if "ceres" not in filename:
+                region_data = json.load(open(filename, 'r'))
+                self.process_region(region_data)
+        # Add Pants Room in-room transition
+        from_index = self.node_dict[(220, 2)]  # Pants Room
+        to_index = self.node_dict[(322, 1)]  # East Pants Room
+        self.link_list.append(Link(from_index, to_index, ConstantCondition(True)))
 
         self.door_ptr_pair_dict = {}
         connection_files = [str(f) for f in pathlib.Path(f"{sm_json_data_path}/connection").glob("**/*.json")]
@@ -155,27 +161,38 @@ class SMJsonData:
             if key in ('lavaFrames', 'lavaPhysicsFrames', 'acidFrames', 'enemyDamage', 'spikeHits', 'hibashiHits', 'energyAtMost'):
                 # For now we ignore energy requirements.
                 return ConstantCondition(True)
-            if key in ('enemyKill', 'resetRoom', 'canComeInCharged', 'adjacentRunway', 'previousStratProperty', 'previousNode'):
-                # Ignore these for now.
+            if key in ('enemyKill', 'resetRoom', 'previousStratProperty', 'previousNode'):
+                # For now assume we can do these.
+                return ConstantCondition(True)
+            if key in ('canComeInCharged', 'adjacentRunway'):
+                # For now assume we can't do these.
                 return ConstantCondition(False)
         raise RuntimeError("Unrecognized condition: {}".format(json_data))
 
     def process_region(self, json_data):
         for room_json in json_data['rooms']:
             room_id = room_json['id']
-            # room_ptr = int(room_json['roomAddress'], 16)
             for node_json in room_json['nodes']:
                 pair = (room_id, node_json["id"])
                 self.node_dict[pair] = len(self.node_list)
                 if 'nodeAddress' in node_json:
-                    door_ptr = int(node_json['nodeAddress'], 16)
+                    node_ptr = int(node_json['nodeAddress'], 16)
                     # Convert East Pants Room door pointers to corresponding Pants Room pointers
-                    if door_ptr == 0x1A7BC:
-                        door_ptr = 0x1A798
-                    if door_ptr == 0x1A7B0:
-                        door_ptr = 0x1A7A4
-                    self.door_ptr_dict[pair] = door_ptr
+                    if node_ptr == 0x1A7BC:
+                        node_ptr = 0x1A798
+                    if node_ptr == 0x1A7B0:
+                        node_ptr = 0x1A7A4
+                else:
+                    node_ptr = None
+                if node_json['nodeType'] == 'item':
+                    self.item_index_list.append(len(self.node_list))
+                self.node_ptr_list.append(node_ptr)
                 self.node_list.append(pair)
+            for node_json in room_json['nodes']:
+                if 'spawnAt' in node_json:
+                    from_index = self.node_dict[(room_id, node_json['id'])]
+                    to_index = node_json['spawnAt']
+                    self.link_list.append(Link(from_index, to_index, ConstantCondition(True)))
             for link_json in room_json['links']:
                 for link_to_json in link_json['to']:
                     strats = []
@@ -193,11 +210,13 @@ class SMJsonData:
             assert len(connection['nodes']) == 2
             src_pair = (connection['nodes'][0]['roomid'], connection['nodes'][0]['nodeid'])
             dst_pair = (connection['nodes'][1]['roomid'], connection['nodes'][1]['nodeid'])
-            src_ptr = self.door_ptr_dict.get(src_pair)
-            dst_ptr = self.door_ptr_dict.get(dst_pair)
+            src_index = self.node_dict.get(src_pair)
+            dst_index = self.node_dict.get(dst_pair)
+            src_ptr = self.node_ptr_list[src_index] if src_index is not None else None
+            dst_ptr = self.node_ptr_list[dst_index] if dst_index is not None else None
             if src_ptr is not None or dst_ptr is not None:
-                self.door_ptr_pair_dict[(src_ptr, dst_ptr)] = self.node_dict[src_pair]
-                self.door_ptr_pair_dict[(dst_ptr, src_ptr)] = self.node_dict[dst_pair]
+                self.door_ptr_pair_dict[(src_ptr, dst_ptr)] = src_index
+                self.door_ptr_pair_dict[(dst_ptr, src_ptr)] = dst_index
 
 
 sm_json_data_path = "sm-json-data/"
