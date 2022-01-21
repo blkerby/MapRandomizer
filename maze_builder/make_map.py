@@ -26,15 +26,16 @@ class CPU_Unpickler(pickle.Unpickler):
             return super().find_class(module, name)
 
 device = torch.device('cpu')
-session_name = '12-15-session-2021-12-10T06:00:58.163492'
+# session_name = '12-15-session-2021-12-10T06:00:58.163492'
+session_name = '01-16-session-2022-01-13T12:40:37.881929'
 session = CPU_Unpickler(open('models/{}.pkl'.format(session_name), 'rb')).load()
 #
 
 print(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects.to(torch.float32), dim=0)))
 print(torch.max(session.replay_buffer.episode_data.reward))
 
-ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 341)
-ind_i = 1
+ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 342)
+ind_i = 0
 num_rooms = len(session.envs[0].rooms)
 action = session.replay_buffer.episode_data.action[ind[ind_i], :]
 step_indices = torch.tensor([num_rooms])

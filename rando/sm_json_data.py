@@ -5,16 +5,18 @@ import logging
 import pathlib
 from dataclasses import dataclass
 
+@dataclass
 class DifficultyConfig:
     tech: Set[str]  # Set of names of enabled tech (https://github.com/miketrethewey/sm-json-data/blob/master/tech.json)
     shine_charge_tiles: int  # Minimum number of tiles required to shinespark
 
+@dataclass
 class GameState:
     difficulty: DifficultyConfig
     items: Set[str]   # Set of collected items
     flags: Set[str]   # Set of activated flags
-    room_ptr: int  # Current room (ROM pointer)
-    node_id: int  # Current node within room (sm-json-data "id")
+    node_index: int  # Current node (representing room and location within room)
+
 
 class Condition:
     @abc.abstractmethod
@@ -87,6 +89,7 @@ class Link:
     cond: Condition
 
 
+# TODO: deal with the spawnAt property (e.g. in the Toilet).
 class SMJsonData:
     def __init__(self, sm_json_data_path):
         tech_json = json.load(open(f'{sm_json_data_path}/tech.json', 'r'))
@@ -104,15 +107,16 @@ class SMJsonData:
             self.helpers[helper_json['name']] = cond
 
         self.node_list = []
-        self.node_pair_dict = {}
-        self.node_ptr_dict = {}
-        self.link_cond_list = []
+        self.node_dict = {}
+        self.door_ptr_dict = {}
+        self.link_list = []
         region_files = [str(f) for f in pathlib.Path(f"{sm_json_data_path}/region").glob("**/*.json")]
         for filename in region_files:
             # logging.info("Processing {}".format(filename))
             region_data = json.load(open(filename, 'r'))
             self.process_region(region_data)
 
+        self.door_ptr_pair_dict = {}
         connection_files = [str(f) for f in pathlib.Path(f"{sm_json_data_path}/connection").glob("**/*.json")]
         for filename in connection_files:
             connection_data = json.load(open(filename, 'r'))
@@ -158,13 +162,19 @@ class SMJsonData:
 
     def process_region(self, json_data):
         for room_json in json_data['rooms']:
-            room_ptr = int(room_json['roomAddress'], 16)
+            room_id = room_json['id']
+            # room_ptr = int(room_json['roomAddress'], 16)
             for node_json in room_json['nodes']:
-                pair = (room_ptr, node_json["id"])
-                self.node_pair_dict[pair] = len(self.node_list)
+                pair = (room_id, node_json["id"])
+                self.node_dict[pair] = len(self.node_list)
                 if 'nodeAddress' in node_json:
                     door_ptr = int(node_json['nodeAddress'], 16)
-                    self.node_ptr_dict[door_ptr] = len(self.node_list)
+                    # Convert East Pants Room door pointers to corresponding Pants Room pointers
+                    if door_ptr == 0x1A7BC:
+                        door_ptr = 0x1A798
+                    if door_ptr == 0x1A7B0:
+                        door_ptr = 0x1A7A4
+                    self.door_ptr_dict[pair] = door_ptr
                 self.node_list.append(pair)
             for link_json in room_json['links']:
                 for link_to_json in link_json['to']:
@@ -172,17 +182,23 @@ class SMJsonData:
                     for strat_json in link_to_json['strats']:
                         strats.append(self.make_condition(strat_json['requires']))
                     from_id = link_json['from']
-                    from_index = self.node_pair_dict[(room_ptr, from_id)]
+                    from_index = self.node_dict[(room_id, from_id)]
                     to_id = link_to_json['id']
-                    to_index = self.node_pair_dict[(room_ptr, to_id)]
+                    to_index = self.node_dict[(room_id, to_id)]
                     cond = OrCondition(strats)
-                    self.link_cond_list.append(Link(from_index, to_index, cond))
+                    self.link_list.append(Link(from_index, to_index, cond))
 
     def process_connections(self, json_data):
         for connection in json_data['connections']:
             assert len(connection['nodes']) == 2
+            src_pair = (connection['nodes'][0]['roomid'], connection['nodes'][0]['nodeid'])
+            dst_pair = (connection['nodes'][1]['roomid'], connection['nodes'][1]['nodeid'])
+            src_ptr = self.door_ptr_dict.get(src_pair)
+            dst_ptr = self.door_ptr_dict.get(dst_pair)
+            if src_ptr is not None or dst_ptr is not None:
+                self.door_ptr_pair_dict[(src_ptr, dst_ptr)] = self.node_dict[src_pair]
+                self.door_ptr_pair_dict[(dst_ptr, src_ptr)] = self.node_dict[dst_pair]
 
 
 sm_json_data_path = "sm-json-data/"
 sm_json_data = SMJsonData(sm_json_data_path)
-connection_files = [str(f) for f in pathlib.Path(f"{sm_json_data_path}/connection").glob("**/*.json")]

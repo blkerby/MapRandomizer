@@ -65,7 +65,8 @@ device = torch.device('cpu')
 # session = CPU_Unpickler(open('models/01-05-session-2022-01-01T21:25:32.844343.pkl', 'rb')).load()
 # session = CPU_Unpickler(open('models/01-08-session-2022-01-01T21:25:32.844343.pkl', 'rb')).load()
 # session = CPU_Unpickler(open('models/01-11-session-2022-01-01T21:25:32.844343.pkl', 'rb')).load()
-session = CPU_Unpickler(open('models/01-16-session-2022-01-13T12:40:37.881929.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/01-16-session-2022-01-13T12:40:37.881929.pkl', 'rb')).load()
+session = CPU_Unpickler(open('models/01-20-session-2022-01-16T18:58:02.184898.pkl', 'rb')).load()
 #
 
 print(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects.to(torch.float32), dim=0)))
@@ -85,7 +86,7 @@ print(torch.where(session.replay_buffer.episode_data.door_connects[ind[i, 0], :]
 dir(session.envs[0])
 
 #
-num_envs = 2
+num_envs = 1
 # num_envs = 8
 rooms = logic.rooms.all_rooms.rooms
 
