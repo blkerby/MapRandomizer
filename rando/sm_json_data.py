@@ -23,11 +23,11 @@ class Condition:
     def is_accessible(self, state: GameState) -> bool:
         raise NotImplemented
 
-def get_plm_type_item_index(plm_type):
-    assert 0xEED7 <= plm_type <= 0xEFCF
-    assert plm_type % 4 == 3
-    i = ((plm_type - 0xEED7) // 4) % 21
-    return i
+# def get_plm_type_item_index(plm_type):
+#     assert 0xEED7 <= plm_type <= 0xEFCF
+#     assert plm_type % 4 == 3
+#     i = ((plm_type - 0xEED7) // 4) % 21
+#     return i
 
 class ConstantCondition(Condition):
     def __init__(self, cond: bool):
@@ -36,6 +36,10 @@ class ConstantCondition(Condition):
     def is_accessible(self, state: GameState) -> bool:
         return self.cond
 
+    def __repr__(self):
+        return str(self.cond)
+
+
 class TechCondition(Condition):
     def __init__(self, tech: str):
         self.tech = tech
@@ -43,13 +47,16 @@ class TechCondition(Condition):
     def is_accessible(self, state: GameState) -> bool:
         return self.tech in state.difficulty.tech
 
+    def __repr__(self):
+        return "Tech(" + self.tech + ")"
+
 
 class ShineChargeCondition(Condition):
     def __init__(self, tiles: int):
         self.tiles = tiles
 
     def is_accessible(self, state: GameState) -> bool:
-        return self.tiles >= state.difficulty.shine_charge_tiles
+        return "SpeedBooster" in state.items and self.tiles >= state.difficulty.shine_charge_tiles
 
 class ItemCondition(Condition):
     def __init__(self, item: str):
@@ -57,6 +64,9 @@ class ItemCondition(Condition):
 
     def is_accessible(self, state: GameState) -> bool:
         return self.item in state.items
+
+    def __repr__(self):
+        return "Item(" + self.item + ")"
 
 
 class FlagCondition(Condition):
@@ -74,12 +84,18 @@ class AndCondition(Condition):
     def is_accessible(self, state: GameState) -> bool:
         return all(cond.is_accessible(state) for cond in self.conditions)
 
+    def __repr__(self):
+        return "And(" + ','.join(str(c) for c in self.conditions) + ")"
+
 class OrCondition(Condition):
     def __init__(self, conditions):
         self.conditions = conditions
 
     def is_accessible(self, state: GameState) -> bool:
         return any(cond.is_accessible(state) for cond in self.conditions)
+
+    def __repr__(self):
+        return "Or(" + ','.join(str(c) for c in self.conditions) + ")"
 
 
 @dataclass
@@ -92,16 +108,19 @@ class Link:
 # TODO: deal with the spawnAt property (e.g. in the Toilet).
 class SMJsonData:
     def __init__(self, sm_json_data_path):
-        tech_json = json.load(open(f'{sm_json_data_path}/tech.json', 'r'))
-        self.tech_name_set = set([tech['name'] for tech in tech_json['techs']])
-
         items_json = json.load(open(f'{sm_json_data_path}/items.json', 'r'))
         item_categories = ['implicitItems', 'upgradeItems', 'expansionItems']
         self.item_set = set(x if isinstance(x, str) else x['name'] for c in item_categories for x in items_json[c])
         self.flags_set = set(items_json['gameFlags'])
+        self.helpers = {}
+
+        tech_json = json.load(open(f'{sm_json_data_path}/tech.json', 'r'))
+        self.tech_name_set = set([tech['name'] for tech in tech_json['techs']])
+        # for tech in tech_json['techs']:
+        #     self.make_condition(tech['requires'])
+        #
 
         helpers_json = json.load(open(f'{sm_json_data_path}/helpers.json', 'r'))
-        self.helpers = {}
         for helper_json in helpers_json['helpers']:
             cond = self.make_condition(helper_json['requires'])
             self.helpers[helper_json['name']] = cond
@@ -130,6 +149,8 @@ class SMJsonData:
 
     def make_condition(self, json_data):
         if isinstance(json_data, str):
+            if json_data == 'never':
+                return ConstantCondition(True)  # Should be False but then we'd have to deal with obstacles better
             if json_data in self.tech_name_set:
                 return TechCondition(json_data)
             if json_data in self.item_set:
@@ -191,18 +212,24 @@ class SMJsonData:
             for node_json in room_json['nodes']:
                 if 'spawnAt' in node_json:
                     from_index = self.node_dict[(room_id, node_json['id'])]
-                    to_index = node_json['spawnAt']
+                    to_index = self.node_dict[(room_id, node_json['spawnAt'])]
                     self.link_list.append(Link(from_index, to_index, ConstantCondition(True)))
             for link_json in room_json['links']:
                 for link_to_json in link_json['to']:
                     strats = []
                     for strat_json in link_to_json['strats']:
-                        strats.append(self.make_condition(strat_json['requires']))
+                        requires = strat_json['requires']
+                        if "obstacles" in strat_json:
+                            for obstacle in strat_json['obstacles']:
+                                requires = requires + obstacle['requires']
+                        strats.append(self.make_condition(requires))
                     from_id = link_json['from']
                     from_index = self.node_dict[(room_id, from_id)]
                     to_id = link_to_json['id']
                     to_index = self.node_dict[(room_id, to_id)]
                     cond = OrCondition(strats)
+                    if room_id == 77:
+                        print(from_id, to_id, cond)
                     self.link_list.append(Link(from_index, to_index, cond))
 
     def process_connections(self, json_data):

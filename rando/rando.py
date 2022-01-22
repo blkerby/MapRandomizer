@@ -70,7 +70,8 @@ class Randomizer:
             index_src = sm_json_data.door_ptr_pair_dict[tuple(conn[0])]
             index_dst = sm_json_data.door_ptr_pair_dict[tuple(conn[1])]
             self.door_graph.add_edge(index_src, index_dst)
-            self.door_graph.add_edge(index_dst, index_src)
+            if conn[2]:
+                self.door_graph.add_edge(index_dst, index_src)
 
     def node_graph(self, state: GameState):
         graph = self.door_graph.copy()
@@ -81,17 +82,17 @@ class Randomizer:
 
     def randomize(self):
         items = set()  # No items at start
-        flags = sm_json_data.flags_set  # All flags set
+        flags = self.sm_json_data.flags_set  # All flags set
         state = GameState(
             difficulty=self.difficulty,
             items=items,
             flags=flags,
-            node_index=sm_json_data.node_dict[(8, 5)],  # Landing site ship
+            node_index=self.sm_json_data.node_dict[(8, 5)],  # Landing site ship
         )
-        item_index_set = set(sm_json_data.item_index_list)  # Set of remaining item locations to be filled
+        item_index_set = set(self.sm_json_data.item_index_list)  # Set of remaining item locations to be filled
 
         progression_items = [
-            "Missile",
+            # "Missile",
             "Super",
             "PowerBomb",
             "Bombs",
@@ -114,11 +115,11 @@ class Randomizer:
                           "XRayScope",
                       ] + 45 * ["Missile"] + 9 * ["Super"] + 9 * ["PowerBomb"] + 4 * ["ReserveTank"] + 14 * ["ETank"]
 
-        self.item_sequence = np.random.permutation(progression_items).tolist() + np.random.permutation(other_items).tolist()
+        self.item_sequence = ["Missile"] + np.random.permutation(progression_items).tolist() + np.random.permutation(other_items).tolist()
         self.item_placement_list = []
 
         for i in range(len(self.item_sequence)):
-            graph = randomizer.node_graph(state)
+            graph = self.node_graph(state)
             _, reached_indices = graph_tool.topology.shortest_distance(graph, source=state.node_index,
                                                                        return_reached=True)
             reached_index_set = set(reached_indices)
@@ -134,8 +135,6 @@ class Randomizer:
             item_index_set.remove(selected_item_index)
             state.node_index = selected_item_index
 
-sm_json_data_path = "sm-json-data/"
-sm_json_data = SMJsonData(sm_json_data_path)
 
 # map_name = '12-15-session-2021-12-10T06:00:58.163492-0'
 map_name = '01-16-session-2022-01-13T12:40:37.881929-0'
@@ -143,19 +142,37 @@ map_path = 'maps/{}.json'.format(map_name)
 # output_rom_path = 'roms/{}-b.sfc'.format(map_name)
 map = json.load(open(map_path, 'r'))
 
-tech = set()
+sm_json_data_path = "sm-json-data/"
+sm_json_data = SMJsonData(sm_json_data_path)
+# tech = set()
+tech = sm_json_data.tech_name_set
 difficulty = DifficultyConfig(tech=tech, shine_charge_tiles=33)
 
 randomizer = Randomizer(map, sm_json_data, difficulty)
-for _ in range(500):
+for _ in range(1000):
     randomizer.randomize()
-    if len(randomizer.item_placement_list) >= 99:
+    print(len(randomizer.item_placement_list))
+    if len(randomizer.item_placement_list) >= 98:
         print("Success")
-print("Finished")
+        break
+else:
+    raise RuntimeError("Failed")
+
+state = GameState(
+    difficulty=difficulty,
+    items=sm_json_data.item_set,
+    flags=sm_json_data.flags_set,
+    node_index=sm_json_data.node_dict[(8, 5)],  # Landing site ship
+)
+graph = randomizer.node_graph(state)
+_, reached_indices = graph_tool.topology.shortest_distance(graph, source=state.node_index,
+                                                           return_reached=True)
+# reached_index_set = set(reached_indices)
+
 # print(len(reached_indices))
-# comp, hist = graph_tool.topology.label_components(graph)
-# comp_arr = comp.get_array()
+comp, hist = graph_tool.topology.label_components(graph)
+comp_arr = comp.get_array()
 # print(comp_arr)
-# print(len(hist), hist)
-# print(np.where(comp_arr == 0))
-# print(sm_json_data.node_list[144])
+print(len(hist), hist)
+print(np.where(comp_arr == 1))
+print(sm_json_data.node_list[499])

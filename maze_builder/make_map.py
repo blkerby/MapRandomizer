@@ -3,7 +3,7 @@ import time
 import torch
 import logging
 from maze_builder.env import MazeBuilderEnv
-from maze_builder.types import reconstruct_room_data, Direction
+from maze_builder.types import reconstruct_room_data, Direction, DoorSubtype
 import logic.rooms.all_rooms
 import pickle
 import concurrent.futures
@@ -35,7 +35,7 @@ print(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects.t
 print(torch.max(session.replay_buffer.episode_data.reward))
 
 ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 342)
-ind_i = 2
+ind_i = 1
 num_rooms = len(session.envs[0].rooms)
 action = session.replay_buffer.episode_data.action[ind[ind_i], :]
 step_indices = torch.tensor([num_rooms])
@@ -63,7 +63,12 @@ for i, room in enumerate(rooms):
         if key in doors_dict:
             a = doors_dict[key]
             b = door
-            door_pairs.append([[a.exit_ptr, a.entrance_ptr], [b.exit_ptr, b.entrance_ptr]])
+            if a.direction in (Direction.LEFT, Direction.UP):
+                a, b = b, a
+            if a.subtype == DoorSubtype.SAND:
+                door_pairs.append([[a.exit_ptr, a.entrance_ptr], [b.exit_ptr, b.entrance_ptr], False])
+            else:
+                door_pairs.append([[a.exit_ptr, a.entrance_ptr], [b.exit_ptr, b.entrance_ptr], True])
             doors_cnt[key] += 1
         else:
             doors_dict[key] = door

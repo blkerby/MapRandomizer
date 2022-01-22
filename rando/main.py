@@ -2,19 +2,49 @@ from typing import List
 from dataclasses import dataclass
 from io import BytesIO
 import numpy as np
+import random
 # from rando.rooms import room_ptrs
+from rando.sm_json_data import SMJsonData, GameState, Link, DifficultyConfig
+from rando.rando import Randomizer
 from logic.rooms.all_rooms import rooms
 import json
 import ips_util
-import rando.conditions
 
 # input_rom_path = '/home/kerby/Downloads/dash-rando-app-v9/DASH_v9_SM_8906529.sfc'
 input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.3.3-emulator-ntsc.sfc'
 # input_rom_path = '/home/kerby/Downloads/Super Metroid (JU) [!].smc'
-map_name = '12-15-session-2021-12-10T06:00:58.163492-0'
+# map_name = '12-15-session-2021-12-10T06:00:58.163492-0'
+map_name = '01-16-session-2022-01-13T12:40:37.881929-1'
+
 map_path = 'maps/{}.json'.format(map_name)
-output_rom_path = 'roms/{}-b.sfc'.format(map_name)
+output_rom_path = 'roms/{}-a.sfc'.format(map_name)
 map = json.load(open(map_path, 'r'))
+
+
+sm_json_data_path = "sm-json-data/"
+sm_json_data = SMJsonData(sm_json_data_path)
+tech = sm_json_data.tech_name_set
+# tech = set()
+difficulty = DifficultyConfig(tech=tech, shine_charge_tiles=33)
+
+randomizer = Randomizer(map, sm_json_data, difficulty)
+for i in range(291, 2000):
+    np.random.seed(i)
+    random.seed(i)
+    randomizer.randomize()
+    print(i, len(randomizer.item_placement_list))
+    if len(randomizer.item_placement_list) >= 99:
+        i1 = randomizer.item_placement_list.index(544)
+        i2 = randomizer.item_placement_list.index(545)
+        print([randomizer.item_sequence[i1], randomizer.item_sequence[i2]])
+        if set([randomizer.item_sequence[i1], randomizer.item_sequence[i2]]) == set(["Gravity", "Missile"]):
+            break
+else:
+    raise RuntimeError("Failed")
+print("Done with item randomization")
+print(randomizer.item_sequence[:5])
+print(randomizer.item_placement_list[:5])
+print(sm_json_data.node_list[697])
 
 
 class Rom:
@@ -241,7 +271,7 @@ def write_door_connection(a, b):
         # rom.write_n(a_exit_ptr, 12, b_entrance_data)
         # print('{:x} {:x}'.format(b_entrance_ptr, a_exit_ptr))
 
-for (a, b) in list(map):
+for (a, b, _) in list(map):
     write_door_connection(a, b)
 
 
@@ -274,7 +304,7 @@ for room in rooms:
         orig_door_dict[door.exit_ptr] = door.entrance_ptr
 
 door_dict = {}
-for (a, b) in map:
+for (a, b, _) in map:
     a_exit_ptr, a_entrance_ptr = a
     b_exit_ptr, b_entrance_ptr = b
     if a_exit_ptr is not None and b_exit_ptr is not None:
@@ -288,7 +318,7 @@ for ptr in save_station_ptrs:
     entrance_door_ptr = door_dict[exit_door_ptr]
     rom.write_u16(ptr + 2, entrance_door_ptr & 0xffff)
 
-item_dict = {}
+# item_dict = {}
 for room_obj in rooms:
     room = Room(rom, room_obj.rom_address)
     states = room.load_states(rom)
@@ -303,14 +333,14 @@ for room_obj in rooms:
             #     rom.write_u8(ptr + 5, 0x0)  # main boss dead
             #     # rom.write_u8(ptr + 5, 0x0C)  # enemies dead
 
-            # Collect item ids
-            if (plm_type >> 8) in (0xEE, 0xEF):
-                item_type_index = rando.conditions.get_plm_type_item_index(plm_type)
-                print("{}: {}".format(room_obj.name, rando.conditions.item_list[item_type_index]))
-                item_dict[ptr] = plm_type
-                # print("{:x} {:x} {:x}".format(ptr, plm_type, item_id))
+            # # Collect item ids
+            # if (plm_type >> 8) in (0xEE, 0xEF):
+            #     item_type_index = rando.conditions.get_plm_type_item_index(plm_type)
+            #     print("{}: {}".format(room_obj.name, rando.conditions.item_list[item_type_index]))
+            #     item_dict[ptr] = plm_type
+            #     # print("{:x} {:x} {:x}".format(ptr, plm_type, item_id))
 
-            # Turn grey doors pink
+            # Turn non-blue doors pink
             if plm_type in (0xC842, 0xC85A, 0xC872):  # right grey/yellow/green door
                 # print('{}: {:x} {:x} {:x}'.format(room_obj.name, rom.read_u16(ptr), rom.read_u16(ptr + 2), rom.read_u16(ptr + 4)))
                 rom.write_u16(ptr, 0xC88A)  # right pink door
@@ -322,12 +352,54 @@ for room_obj in rooms:
                 rom.write_u16(ptr, 0xC89C)  # up pink door
             ptr += 6
 
-# Randomize items
-item_list = list(item_dict.values())
-item_perm = np.random.permutation(len(item_dict.values()))
-for i, ptr in enumerate(item_dict.keys()):
-    item = item_list[item_perm[i]]
-    rom.write_u16(ptr, item)
+def item_to_plm_type(item_name, orig_plm_type):
+    item_list = [
+        "ETank",
+        "Missile",
+        "Super",
+        "PowerBomb",
+        "Bombs",
+        "Charge",
+        "Ice",
+        "HiJump",
+        "SpeedBooster",
+        "Wave",
+        "Spazer",
+        "SpringBall",
+        "Varia",
+        "Gravity",
+        "XRayScope",
+        "Plasma",
+        "Grapple",
+        "SpaceJump",
+        "ScrewAttack",
+        "Morph",
+        "ReserveTank",
+    ]
+    i = item_list.index(item_name)
+    old_i = ((orig_plm_type - 0xEED7) // 4) % 21
+    return orig_plm_type + (i - old_i) * 4
+
+# Place items
+for i in range(len(randomizer.item_placement_list)):
+    index = randomizer.item_placement_list[i]
+    item_name = randomizer.item_sequence[i]
+    ptr = sm_json_data.node_ptr_list[index]
+    orig_plm_type = orig_rom.read_u16(ptr)
+    plm_type = item_to_plm_type(item_name, orig_plm_type)
+    rom.write_u16(ptr, plm_type)
+
+# print(randomizer.item_sequence[:5])
+# print(randomizer.item_placement_list[:5])
+# sm_json_data.node_list[641]
+
+
+# # Randomize items
+# item_list = list(item_dict.values())
+# item_perm = np.random.permutation(len(item_dict.values()))
+# for i, ptr in enumerate(item_dict.keys()):
+#     item = item_list[item_perm[i]]
+#     rom.write_u16(ptr, item)
 
 # Apply patches
 patches = [
@@ -343,27 +415,4 @@ with open(output_rom_path, 'wb') as out_file:
     out_file.write(byte_buf)
 # rom.save(output_rom_path)
 
-
-# self.item_list = [
-#     "ETank",
-#     "Missile",
-#     "Super",
-#     "PowerBomb",
-#     "Bombs",
-#     "Charge",
-#     "Ice",
-#     "HiJump",
-#     "SpeedBooster",
-#     "Wave",
-#     "Spazer",
-#     "SpringBall",
-#     "Varia",
-#     "Gravity",
-#     "XRayScope",
-#     "Plasma",
-#     "Grapple",
-#     "SpaceJump",
-#     "ScrewAttack",
-#     "Morph",
-#     "ReserveTank",
-# ]
+print("Done")
