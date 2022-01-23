@@ -42,13 +42,13 @@ for i in range(0, 2000):
 else:
     raise RuntimeError("Failed")
 print("Done with item randomization")
-print(randomizer.item_sequence[:5])
-print(randomizer.item_placement_list[:5])
-print(sm_json_data.node_list[697])
+# print(randomizer.item_sequence[:5])
+# print(randomizer.item_placement_list[:5])
+# print(sm_json_data.node_list[697])
 
-randomizer.item_sequence.index("SpringBall")
-randomizer.item_placement_list[34]
-sm_json_data.node_list[679]
+# randomizer.item_sequence.index("SpringBall")
+# randomizer.item_placement_list[34]
+# sm_json_data.node_list[679]
 
 
 class Rom:
