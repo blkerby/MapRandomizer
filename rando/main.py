@@ -11,8 +11,8 @@ import json
 import ips_util
 
 # input_rom_path = '/home/kerby/Downloads/dash-rando-app-v9/DASH_v9_SM_8906529.sfc'
-input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.3.3-emulator-ntsc.sfc'
-# input_rom_path = '/home/kerby/Downloads/Super Metroid (JU) [!].smc'
+# input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.3.3-emulator-ntsc.sfc'
+input_rom_path = '/home/kerby/Downloads/Super Metroid (JU) [!].smc'
 # map_name = '12-15-session-2021-12-10T06:00:58.163492-0'
 map_name = '01-16-session-2022-01-13T12:40:37.881929-1'
 
@@ -28,7 +28,7 @@ tech = sm_json_data.tech_name_set
 difficulty = DifficultyConfig(tech=tech, shine_charge_tiles=33)
 
 randomizer = Randomizer(map, sm_json_data, difficulty)
-for i in range(291, 2000):
+for i in range(0, 2000):
     np.random.seed(i)
     random.seed(i)
     randomizer.randomize()
@@ -45,6 +45,10 @@ print("Done with item randomization")
 print(randomizer.item_sequence[:5])
 print(randomizer.item_placement_list[:5])
 print(sm_json_data.node_list[697])
+
+randomizer.item_sequence.index("SpringBall")
+randomizer.item_placement_list[34]
+sm_json_data.node_list[679]
 
 
 class Rom:
@@ -252,7 +256,14 @@ orig_rom = Rom(input_rom_path)
 rom = Rom(input_rom_path)
 
 def write_door_data(ptr, data):
-    rom.write_n(ptr, 12, data)
+    if ptr in (0x1A600, 0x1A60C):
+        # Avoid overwriting the door ASM leaving the toilet room. Otherwise Samus will be stuck,
+        # unable to be controlled. This is only quick hack because by not applying the door ASM for
+        # the next room, this can mess up camera scrolls and other things. (At some point,
+        # maybe figure out how we can patch both ASMs together.)
+        rom.write_n(ptr, 10, data[:10])
+    else:
+        rom.write_n(ptr, 12, data)
     bitflag = data[2] | 0x40
     rom.write_u8(ptr + 2, bitflag)
     # print("{:x}".format(bitflag))
@@ -302,6 +313,12 @@ orig_door_dict = {}
 for room in rooms:
     for door in room.door_ids:
         orig_door_dict[door.exit_ptr] = door.entrance_ptr
+        # if door.exit_ptr is not None:
+        #     door_asm = orig_rom.read_u16(door.exit_ptr + 10)
+        #     if door_asm != 0:
+        #         print("{:x}".format(door_asm))
+
+
 
 door_dict = {}
 for (a, b, _) in map:
@@ -344,12 +361,22 @@ for room_obj in rooms:
             if plm_type in (0xC842, 0xC85A, 0xC872):  # right grey/yellow/green door
                 # print('{}: {:x} {:x} {:x}'.format(room_obj.name, rom.read_u16(ptr), rom.read_u16(ptr + 2), rom.read_u16(ptr + 4)))
                 rom.write_u16(ptr, 0xC88A)  # right pink door
+                # rom.write_u16(ptr, 0xB63B)  # right continuation arrow (should have no effect, giving a blue door)
+                # rom.write_u16(ptr + 2, 0)  # position = (0, 0)
             elif plm_type in (0xC848, 0xC860, 0xC878):  # left grey/yellow/green door
                 rom.write_u16(ptr, 0xC890)  # left pink door
+                # rom.write_u16(ptr, 0xB63B)  # right continuation arrow (should have no effect, giving a blue door)
+                # rom.write_u16(ptr + 2, 0)  # position = (0, 0)
             elif plm_type in (0xC84E, 0xC866, 0xC87E):  # down grey/yellow/green door
                 rom.write_u16(ptr, 0xC896)  # down pink door
+                # # rom.write_u16(ptr, 0xB647)  # up continuation arrow (should have no effect, giving a blue door)
+                # rom.write_u16(ptr, 0xB63B)  # right continuation arrow (should have no effect, giving a blue door)
+                # rom.write_u16(ptr + 2, 0)  # position = (0, 0)
             elif plm_type in (0xC854, 0xC86C, 0xC884):  # up grey/yellow/green door
                 rom.write_u16(ptr, 0xC89C)  # up pink door
+                # # rom.write_u16(ptr, 0xB643)  # down continuation arrow (should have no effect, giving a blue door)
+                # rom.write_u16(ptr, 0xB63B)  # right continuation arrow (should have no effect, giving a blue door)
+                # rom.write_u16(ptr + 2, 0)  # position = (0, 0)
             ptr += 6
 
 def item_to_plm_type(item_name, orig_plm_type):
@@ -406,6 +433,7 @@ patches = [
     'new_game',
     'crateria_sky',
     'everest_tube',
+    'escape_room_1',
 ]
 byte_buf = rom.byte_buf
 for patch_name in patches:

@@ -1,5 +1,5 @@
 import abc
-from typing import Set, Dict
+from typing import Set, Dict, List
 import json
 import logging
 import pathlib
@@ -98,6 +98,26 @@ class OrCondition(Condition):
         return "Or(" + ','.join(str(c) for c in self.conditions) + ")"
 
 
+# Helper function to simplify AndCondition in case of 0 or 1 conditions
+def make_and_condition(conditions: List[Condition]):
+    if len(conditions) == 0:
+        return ConstantCondition(True)
+    if len(conditions) == 1:
+        return conditions[0]
+    else:
+        return AndCondition(conditions)
+
+
+# Helper function to simplify OrCondition in case of 0 or 1 conditions
+def make_or_condition(conditions: List[Condition]):
+    if len(conditions) == 0:
+        return ConstantCondition(False)
+    if len(conditions) == 1:
+        return conditions[0]
+    else:
+        return OrCondition(conditions)
+
+
 @dataclass
 class Link:
     from_index: int  # index in SMJsonData.node_list
@@ -105,7 +125,6 @@ class Link:
     cond: Condition
 
 
-# TODO: deal with the spawnAt property (e.g. in the Toilet).
 class SMJsonData:
     def __init__(self, sm_json_data_path):
         items_json = json.load(open(f'{sm_json_data_path}/items.json', 'r'))
@@ -115,15 +134,17 @@ class SMJsonData:
         self.helpers = {}
 
         tech_json = json.load(open(f'{sm_json_data_path}/tech.json', 'r'))
-        self.tech_name_set = set([tech['name'] for tech in tech_json['techs']])
-        # for tech in tech_json['techs']:
-        #     self.make_condition(tech['requires'])
-        #
-
+        self.tech_json_dict = {tech['name']: tech for tech in tech_json['techs']}
+        self.tech_name_set = set(self.tech_json_dict.keys())
         helpers_json = json.load(open(f'{sm_json_data_path}/helpers.json', 'r'))
-        for helper_json in helpers_json['helpers']:
-            cond = self.make_condition(helper_json['requires'])
-            self.helpers[helper_json['name']] = cond
+        self.helpers_json_dict = {helper['name']: helper for helper in helpers_json['helpers']}
+        self.cond_dict = {}
+
+        for tech_name in self.tech_json_dict.keys():
+            self.register_tech_condition(tech_name)
+
+        for helper_name in self.helpers_json_dict.keys():
+            self.register_helper_condition(helper_name)
 
         self.node_list = []
         self.node_dict = {}
@@ -147,28 +168,47 @@ class SMJsonData:
             connection_data = json.load(open(filename, 'r'))
             self.process_connections(connection_data)
 
+    def register_tech_condition(self, name):
+        if name in self.cond_dict:
+            if self.cond_dict[name] is None:
+                raise RuntimeError(f"Circular dependency in {name}")
+        self.cond_dict[name] = None  # Set a sentinel value for detecting potential circular dependencies
+        conds = [self.make_condition(c) for c in self.tech_json_dict[name]['requires']]
+        self.cond_dict[name] = make_and_condition([TechCondition(name), *conds])
+
+    def register_helper_condition(self, name):
+        if name in self.cond_dict:
+            if self.cond_dict[name] is None:
+                raise RuntimeError(f"Circular dependency in {name}")
+        self.cond_dict[name] = None  # Set a sentinel value for detecting potential circular dependencies
+        self.cond_dict[name] = self.make_condition(self.helpers_json_dict[name]['requires'])
+
     def make_condition(self, json_data):
         if isinstance(json_data, str):
             if json_data == 'never':
                 return ConstantCondition(True)  # Should be False but then we'd have to deal with obstacles better
-            if json_data in self.tech_name_set:
-                return TechCondition(json_data)
             if json_data in self.item_set:
                 return ItemCondition(json_data)
             if json_data in self.flags_set:
                 return FlagCondition(json_data)
-            if json_data in self.helpers.keys():
-                return self.helpers[json_data]
+            if json_data in self.cond_dict.keys():
+                return self.cond_dict[json_data]
+            if json_data in self.tech_json_dict.keys():
+                self.register_tech_condition(json_data)
+                return self.cond_dict[json_data]
+            if json_data in self.helpers_json_dict.keys():
+                self.register_helper_condition(json_data)
+                return self.cond_dict[json_data]
         elif isinstance(json_data, list):
-            return AndCondition([self.make_condition(x) for x in json_data])
+            return make_and_condition([self.make_condition(x) for x in json_data])
         elif isinstance(json_data, dict):
             assert len(json_data) == 1
             key = next(iter(json_data.keys()))
             val = json_data[key]
             if key == 'or':
-                return OrCondition([self.make_condition(x) for x in val])
+                return make_or_condition([self.make_condition(x) for x in val])
             if key == 'and':
-                return AndCondition([self.make_condition(x) for x in val])
+                return make_and_condition([self.make_condition(x) for x in val])
             if key == 'ammo':
                 # For now we ignore ammo quantity, just require one of the ammo type
                 item_type = val['type']
@@ -227,8 +267,8 @@ class SMJsonData:
                     from_index = self.node_dict[(room_id, from_id)]
                     to_id = link_to_json['id']
                     to_index = self.node_dict[(room_id, to_id)]
-                    cond = OrCondition(strats)
-                    if room_id == 77:
+                    cond = make_or_condition(strats)
+                    if room_id == 181:
                         print(from_id, to_id, cond)
                     self.link_list.append(Link(from_index, to_index, cond))
 

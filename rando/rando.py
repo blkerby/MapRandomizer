@@ -135,44 +135,44 @@ class Randomizer:
             item_index_set.remove(selected_item_index)
             state.node_index = selected_item_index
 
-
-# map_name = '12-15-session-2021-12-10T06:00:58.163492-0'
-map_name = '01-16-session-2022-01-13T12:40:37.881929-0'
-map_path = 'maps/{}.json'.format(map_name)
-# output_rom_path = 'roms/{}-b.sfc'.format(map_name)
-map = json.load(open(map_path, 'r'))
-
-sm_json_data_path = "sm-json-data/"
-sm_json_data = SMJsonData(sm_json_data_path)
-# tech = set()
-tech = sm_json_data.tech_name_set
-difficulty = DifficultyConfig(tech=tech, shine_charge_tiles=33)
-
-randomizer = Randomizer(map, sm_json_data, difficulty)
-for _ in range(1000):
-    randomizer.randomize()
-    print(len(randomizer.item_placement_list))
-    if len(randomizer.item_placement_list) >= 98:
-        print("Success")
-        break
-else:
-    raise RuntimeError("Failed")
-
-state = GameState(
-    difficulty=difficulty,
-    items=sm_json_data.item_set,
-    flags=sm_json_data.flags_set,
-    node_index=sm_json_data.node_dict[(8, 5)],  # Landing site ship
-)
-graph = randomizer.node_graph(state)
-_, reached_indices = graph_tool.topology.shortest_distance(graph, source=state.node_index,
-                                                           return_reached=True)
-# reached_index_set = set(reached_indices)
-
-# print(len(reached_indices))
-comp, hist = graph_tool.topology.label_components(graph)
-comp_arr = comp.get_array()
-# print(comp_arr)
-print(len(hist), hist)
-print(np.where(comp_arr == 1))
-print(sm_json_data.node_list[499])
+#
+# # map_name = '12-15-session-2021-12-10T06:00:58.163492-0'
+# map_name = '01-16-session-2022-01-13T12:40:37.881929-1'
+# map_path = 'maps/{}.json'.format(map_name)
+# # output_rom_path = 'roms/{}-b.sfc'.format(map_name)
+# map = json.load(open(map_path, 'r'))
+#
+# sm_json_data_path = "sm-json-data/"
+# sm_json_data = SMJsonData(sm_json_data_path)
+# # tech = set()
+# tech = sm_json_data.tech_name_set
+# difficulty = DifficultyConfig(tech=tech, shine_charge_tiles=33)
+#
+# randomizer = Randomizer(map, sm_json_data, difficulty)
+# for _ in range(1000):
+#     randomizer.randomize()
+#     print(len(randomizer.item_placement_list))
+#     if len(randomizer.item_placement_list) >= 98:
+#         print("Success")
+#         break
+# else:
+#     raise RuntimeError("Failed")
+#
+# state = GameState(
+#     difficulty=difficulty,
+#     items=sm_json_data.item_set,
+#     flags=sm_json_data.flags_set,
+#     node_index=sm_json_data.node_dict[(8, 5)],  # Landing site ship
+# )
+# graph = randomizer.node_graph(state)
+# _, reached_indices = graph_tool.topology.shortest_distance(graph, source=state.node_index,
+#                                                            return_reached=True)
+# # reached_index_set = set(reached_indices)
+#
+# # print(len(reached_indices))
+# comp, hist = graph_tool.topology.label_components(graph)
+# comp_arr = comp.get_array()
+# # print(comp_arr)
+# print(len(hist), hist)
+# print(np.where(comp_arr == 1))
+# print(sm_json_data.node_list[499])
