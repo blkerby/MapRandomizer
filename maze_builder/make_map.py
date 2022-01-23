@@ -76,7 +76,12 @@ for i, room in enumerate(rooms):
 
 assert all(x == 2 for x in doors_cnt.values())
 map_name = '{}-{}'.format(session_name, ind_i)
-json.dump(door_pairs, open('maps/{}.json'.format(map_name), 'w'))
+map = {
+    'rooms': [[room_position_x[0, i].item(), room_position_y[0, i].item()]
+              for i in range(room_position_x.shape[1] - 1)],
+    'doors': door_pairs
+}
+json.dump(map, open('maps/{}.json'.format(map_name), 'w'))
 
 
 
