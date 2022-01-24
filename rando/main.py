@@ -3,12 +3,18 @@ from dataclasses import dataclass
 from io import BytesIO
 import numpy as np
 import random
+import graph_tool
+import graph_tool.inference
+import graph_tool.topology
+
 # from rando.rooms import room_ptrs
 from rando.sm_json_data import SMJsonData, GameState, Link, DifficultyConfig
 from rando.rando import Randomizer
 from logic.rooms.all_rooms import rooms
+from maze_builder.display import MapDisplay
 import json
 import ips_util
+
 
 # input_rom_path = '/home/kerby/Downloads/dash-rando-app-v9/DASH_v9_SM_8906529.sfc'
 # input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.3.3-emulator-ntsc.sfc'
@@ -27,7 +33,7 @@ tech = sm_json_data.tech_name_set
 # tech = set()
 difficulty = DifficultyConfig(tech=tech, shine_charge_tiles=33)
 
-randomizer = Randomizer(map, sm_json_data, difficulty)
+randomizer = Randomizer(map['doors'], sm_json_data, difficulty)
 for i in range(0, 2000):
     np.random.seed(i)
     random.seed(i)
@@ -42,6 +48,74 @@ for i in range(0, 2000):
 else:
     raise RuntimeError("Failed")
 print("Done with item randomization")
+
+
+for room in rooms:
+    room.populate()
+xs_min = np.array([p[0] for p in map['rooms']])
+ys_min = np.array([p[1] for p in map['rooms']])
+xs_max = np.array([p[0] + rooms[i].width for i, p in enumerate(map['rooms'])])
+ys_max = np.array([p[1] + rooms[i].height for i, p in enumerate(map['rooms'])])
+
+room_graph = graph_tool.Graph(directed=True)
+door_room_dict = {}
+for i, room in enumerate(rooms):
+    for door in room.door_ids:
+        door_pair = (door.exit_ptr, door.entrance_ptr)
+        door_room_dict[door_pair] = i
+for conn in map['doors']:
+    src_room_id = door_room_dict[tuple(conn[0])]
+    dst_room_id = door_room_dict[tuple(conn[1])]
+    room_graph.add_edge(src_room_id, dst_room_id)
+    room_graph.add_edge(dst_room_id, src_room_id)
+
+best_entropy = float('inf')
+best_state = None
+num_blocks = 6
+for i in range(1000):  # this should be sufficiently large
+    state = graph_tool.inference.minimize_blockmodel_dl(room_graph,
+                                                        multilevel_mcmc_args={"B_min": num_blocks, "B_max": num_blocks})
+    # for j in range(10):
+    #     state.multiflip_mcmc_sweep(beta=np.inf, niter=10)
+    e = state.entropy()
+    if e < best_entropy:
+        u, block_id = np.unique(state.get_blocks().get_array(), return_inverse=True)
+        assert len(u) == num_blocks
+        for j in range(num_blocks):
+            ind = np.where(block_id == j)
+            x_range = np.max(xs_max[ind]) - np.min(xs_min[ind])
+            y_range = np.max(ys_max[ind]) - np.min(ys_min[ind])
+            if x_range > 60 or y_range > 30:
+                break
+        else:
+            best_entropy = e
+            best_state = state
+    print(i, e, best_entropy)
+
+assert best_state is not None
+state = best_state
+# state.draw()
+
+
+display = MapDisplay(72, 72, 14)
+_, cs = np.unique(state.get_blocks().get_array(), return_inverse=True)
+
+# Ensure that Landing Site is in Crateria:
+cs = (cs - cs[1] + num_blocks) % num_blocks
+
+color_map = {
+    0: (0x80, 0x80, 0x80),  # Crateria
+    1: (0x80, 0xff, 0x80),  # Brinstar
+    2: (0xff, 0x80, 0x80),  # Norfair
+    3: (0x80, 0x80, 0xff),  # Maridia
+    4: (0xff, 0xff, 0x80),  # Wrecked ship
+    5: (0xc0, 0xc0, 0xc0),  # Tourian
+}
+colors = [color_map[i] for i in cs]
+display.display(rooms, xs_min, ys_min, colors)
+
+
+
 # print(randomizer.item_sequence[:5])
 # print(randomizer.item_placement_list[:5])
 # print(sm_json_data.node_list[697])
@@ -246,6 +320,10 @@ class Room:
         return base_ptr + offset
 
     def write_map_data(self, rom):
+        rom.write_u8(self.room_ptr + 1, self.area)
+        rom.write_u8(self.room_ptr + 2, self.x)
+        rom.write_u8(self.room_ptr + 3, self.y)
+
         for y in range(self.height):
             for x in range(self.width):
                 ptr = self.xy_to_map_ptr(x + self.x, y + self.y)
@@ -254,6 +332,31 @@ class Room:
 
 orig_rom = Rom(input_rom_path)
 rom = Rom(input_rom_path)
+
+
+# Write map data:
+# first clear existing maps
+for area_id, area_ptr in area_map_ptrs.items():
+    for i in range(64 * 32):
+        # if area_id == 0:
+        #     rom.write_u16(area_ptr + i * 2, 0x0C1F)
+        # else:
+            rom.write_u16(area_ptr + i * 2, 0x001F)
+
+area_start_x = []
+area_start_y = []
+for i in range(num_blocks):
+    ind = np.where(cs == i)
+    area_start_x.append(np.min(xs_min[ind]) - 2)
+    area_start_y.append(np.min(ys_min[ind]) - 1)
+
+for i, room in enumerate(rooms):
+    rom_room = Room(orig_rom, room.rom_address)
+    area = cs[i]
+    rom_room.area = area
+    rom_room.x = xs_min[i] - area_start_x[area]
+    rom_room.y = ys_min[i] - area_start_y[area]
+    rom_room.write_map_data(rom)
 
 def write_door_data(ptr, data):
     if ptr in (0x1A600, 0x1A60C):
@@ -282,7 +385,7 @@ def write_door_connection(a, b):
         # rom.write_n(a_exit_ptr, 12, b_entrance_data)
         # print('{:x} {:x}'.format(b_entrance_ptr, a_exit_ptr))
 
-for (a, b, _) in list(map):
+for (a, b, _) in list(map['doors']):
     write_door_connection(a, b)
 
 
@@ -321,7 +424,7 @@ for room in rooms:
 
 
 door_dict = {}
-for (a, b, _) in map:
+for (a, b, _) in map['doors']:
     a_exit_ptr, a_entrance_ptr = a
     b_exit_ptr, b_entrance_ptr = b
     if a_exit_ptr is not None and b_exit_ptr is not None:
@@ -434,6 +537,7 @@ patches = [
     'crateria_sky',
     'everest_tube',
     'escape_room_1',
+    'saveload',
 ]
 byte_buf = rom.byte_buf
 for patch_name in patches:
@@ -441,6 +545,5 @@ for patch_name in patches:
     byte_buf = patch.apply(byte_buf)
 with open(output_rom_path, 'wb') as out_file:
     out_file.write(byte_buf)
-# rom.save(output_rom_path)
 
 print("Done")

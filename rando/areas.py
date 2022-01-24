@@ -30,18 +30,6 @@ for conn in map['doors']:
     dst_room_id = door_room_dict[tuple(conn[1])]
     room_graph.add_edge(src_room_id, dst_room_id)
     room_graph.add_edge(dst_room_id, src_room_id)
-state = graph_tool.inference.minimize_blockmodel_dl(
-    room_graph,
-    # state_args={"deg_corr": False},
-    multilevel_mcmc_args={"B_min": 6, "B_max": 6})
-# graph_tool.topology.label_components(room_graph)
-# state.draw()
-print(state.entropy())
-print(state)
-# state.draw(room_graph.vp.p)
-
-# football = graph_tool.collection.data["football"]
-
 
 best_entropy = float('inf')
 best_state = None
@@ -88,4 +76,4 @@ color_map = {
 }
 colors = [color_map[i] for i in cs]
 
-display.display(rooms, xs, ys, colors)
+display.display(rooms, xs_min, ys_min, colors)
