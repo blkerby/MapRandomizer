@@ -412,6 +412,8 @@ save_station_ptrs = [
     0x4A3D,
 ]
 
+area_save_ptrs = [0x44C5, 0x45CF, 0x46D9, 0x481B, 0x4917, 0x4A2F]
+
 orig_door_dict = {}
 for room in rooms:
     for door in room.door_ids:
@@ -431,12 +433,43 @@ for (a, b, _) in map['doors']:
         door_dict[a_exit_ptr] = b_exit_ptr
         door_dict[b_exit_ptr] = a_exit_ptr
 
+
+# # Fix save stations
+# for ptr in save_station_ptrs:
+#     orig_entrance_door_ptr = rom.read_u16(ptr + 2) + 0x10000
+#     exit_door_ptr = orig_door_dict[orig_entrance_door_ptr]
+#     entrance_door_ptr = door_dict[exit_door_ptr]
+#     rom.write_u16(ptr + 2, entrance_door_ptr & 0xffff)
+
 # Fix save stations
+room_ptr_to_idx = {room.rom_address: i for i, room in enumerate(rooms)}
+area_save_idx = {x: 0 for x in range(6)}
+area_save_idx[0] = 1  # Start Crateria index at 1 since we keep ship save station as is.
 for ptr in save_station_ptrs:
-    orig_entrance_door_ptr = rom.read_u16(ptr + 2) + 0x10000
+    room_ptr = orig_rom.read_u16(ptr) + 0x70000
+    if room_ptr != 0x791F8:  # The ship has no Save Station PLM for us to update (and we don't need to since we keep the ship in Crateria)
+        room_obj = Room(orig_rom, room_ptr)
+        states = room_obj.load_states(orig_rom)
+        plm_ptr = states[0].plm_set_ptr + 0x70000
+        plm_type = orig_rom.read_u16(plm_ptr)
+        assert plm_type == 0xB76F  # Check that the first PLM is a save station
+
+        area = cs[room_ptr_to_idx[room_ptr]]
+        idx = area_save_idx[area]
+        rom.write_u16(plm_ptr + 4, area_save_idx[area])
+        area_save_idx[area] += 1
+
+        orig_save_station_bytes = orig_rom.read_n(ptr, 14)
+        dst_ptr = area_save_ptrs[area] + 14 * idx
+        rom.write_n(dst_ptr, 14, orig_save_station_bytes)
+    else:
+        area = 0
+        dst_ptr = ptr
+
+    orig_entrance_door_ptr = rom.read_u16(dst_ptr + 2) + 0x10000
     exit_door_ptr = orig_door_dict[orig_entrance_door_ptr]
-    entrance_door_ptr = door_dict[exit_door_ptr]
-    rom.write_u16(ptr + 2, entrance_door_ptr & 0xffff)
+    entrance_door_ptr = door_dict[exit_door_ptr] & 0xffff
+    rom.write_u16(dst_ptr + 2, entrance_door_ptr & 0xffff)
 
 # item_dict = {}
 for room_obj in rooms:
