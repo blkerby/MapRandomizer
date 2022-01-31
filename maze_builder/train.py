@@ -449,7 +449,9 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 # session = pickle.load(open('models/session-2021-12-30T21:07:07.735373.pkl', 'rb'))
 # session = pickle.load(open('models/session-2021-12-31T17:27:10.465887.pkl', 'rb'))
 # session = pickle.load(open('models/session-2022-01-01T21:25:32.844343.pkl-bk52', 'rb'))
-session = pickle.load(open('models/session-2022-01-13T12:40:37.881929.pkl-bk53', 'rb'))
+# session = pickle.load(open('models/session-2022-01-13T12:40:37.881929.pkl-bk53', 'rb'))
+session = pickle.load(open('models/session-2022-01-16T18:58:02.184898.pkl-bk56', 'rb'))
+#
 #
 #
 # session = pickle.load(open('models/session-2021-12-10T06:00:58.163492.pkl-bk19', 'rb'))
@@ -672,7 +674,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             pickle.dump(session, open(pickle_name, 'wb'))
-            # pickle.dump(session, open(pickle_name + '-bk55', 'wb'))
+            # pickle.dump(session, open(pickle_name + '-bk56', 'wb'))
             # session.replay_buffer.episode_data = episode_data
             # session = pickle.load(open(pickle_name + '-bk6', 'rb'))
     if session.num_rounds % summary_freq == 0:
