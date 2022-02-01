@@ -14,7 +14,11 @@ org $82eeda
 ;;; CODE in bank A1
 org $a1f210
 
-;;; Start in loading game state 5 (Main) instead of 0 (Intro)
 startup:
-    lda #$0005
+    lda #$0004  ; Unlock Tourian (to avoid camera glitching when entering from bottom, and also to ensure game is
+    sta $7ED821 ; beatable since we don't take it into account as an obstacle in the item randomization logic)
+    lda #$FFFF
+    sta $09A2
+    sta $09A4   ; all items collected and equipped
+    lda #$0005  ; Start in loading game state 5 (Main) instead of 0 (Intro)
     rtl
