@@ -13,6 +13,7 @@ from rando.sm_json_data import SMJsonData, GameState, Link, DifficultyConfig
 from rando.rando import Randomizer
 from logic.rooms.all_rooms import rooms
 from maze_builder.display import MapDisplay
+from maze_builder.types import Room
 import json
 import ips_util
 
@@ -201,19 +202,32 @@ class RoomState:
     bg_ptr: int  # u16
     setup_asm_ptr: int  # u16
 
-class Room:
-    def __init__(self, rom: Rom, room_ptr: int):
+class RomRoom:
+    def __init__(self, rom: Rom, room: Room):
+        room_ptr = room.rom_address
+        self.room = room
         self.room_ptr = room_ptr
         self.area = rom.read_u8(room_ptr + 1)
         self.x = rom.read_u8(room_ptr + 2)
         self.y = rom.read_u8(room_ptr + 3)
         self.width = rom.read_u8(room_ptr + 4)
         self.height = rom.read_u8(room_ptr + 5)
-        self.map_data = [[rom.read_u16(self.xy_to_map_ptr(x, y))
-                          for x in range(self.x, self.x + self.width)]
-                         for y in range(self.y, self.y + self.height)]
+        self.map_data = self.load_map_data(rom)
         self.doors = self.load_doors(rom)
         # self.load_states(rom)
+
+    def load_map_data(self, rom):
+        map_row_list = []
+        for y in range(self.y, self.y + self.room.height):
+            map_row = []
+            for x in range(self.x, self.x + self.room.width):
+                cell = rom.read_u16(self.xy_to_map_ptr(x, y))
+                # if self.room.map[y - self.y][x - self.x] == 0:
+                #     cell = 0x1F  # Empty tile
+                map_row.append(cell)
+            map_row_list.append(map_row)
+        return map_row_list
+
 
     def load_single_state(self, rom, event_ptr, event_value, state_ptr):
         return RoomState(
@@ -325,10 +339,11 @@ class Room:
         rom.write_u8(self.room_ptr + 2, self.x)
         rom.write_u8(self.room_ptr + 3, self.y)
 
-        for y in range(self.height):
-            for x in range(self.width):
+        for y in range(self.room.height):
+            for x in range(self.room.width):
                 ptr = self.xy_to_map_ptr(x + self.x, y + self.y)
-                rom.write_u16(ptr, self.map_data[y][x])
+                if self.room.map[y][x] == 1:
+                    rom.write_u16(ptr, self.map_data[y][x])
 
 
 orig_rom = Rom(input_rom_path)
@@ -370,7 +385,7 @@ for i in range(num_areas):
     area_start_y.append(np.min(ys_min[ind]) - 1)
 
 for i, room in enumerate(rooms):
-    rom_room = Room(orig_rom, room.rom_address)
+    rom_room = RomRoom(orig_rom, room)
     area = area_arr[i]
     rom_room.area = area
     rom_room.x = xs_min[i] - area_start_x[area]
@@ -455,7 +470,7 @@ for (a, b, _) in map['doors']:
 
 # Fix save stations
 for ptr in save_station_ptrs:
-    orig_entrance_door_ptr = rom.read_u16(ptr + 2) + 0x10000
+    orig_entrance_door_ptr = orig_rom.read_u16(ptr + 2) + 0x10000
     exit_door_ptr = orig_door_dict[orig_entrance_door_ptr]
     entrance_door_ptr = door_dict[exit_door_ptr]
     rom.write_u16(ptr + 2, entrance_door_ptr & 0xffff)
@@ -492,7 +507,7 @@ for ptr in save_station_ptrs:
 
 # item_dict = {}
 for room_obj in rooms:
-    room = Room(rom, room_obj.rom_address)
+    room = RomRoom(orig_rom, room_obj)
     states = room.load_states(rom)
     for state in states:
         ptr = state.plm_set_ptr + 0x70000
