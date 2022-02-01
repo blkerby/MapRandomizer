@@ -9,20 +9,10 @@ DONE:
 - fix escape room 1 (add door transition to the right)
 - fix save stations (again)
 - get map roughly working without overwriting room areas
+- open up statues room (which should also fix camera glitch)
 
 TODO:
-- fix area-dependent BTS (e.g., Maridia sand, waterfalls)
-   - "special air" collision at $94:9A06
-     - area pointers at $94:9B06
-     - current area used at $94:9B32 (loaded from $079F)
-       - one potential hijack point if we want to load area from somewhere else
-   - maybe keep original areas in room header and instead hijack map-related areas only:
-     - $82:93C3 updates the area and map in the map screen
-     - $82:DE6F where room header is loaded (load map-area using room index?)
-		 - $90:A91B update mini-map
-		 - $90:AA43: Update HUD mini-map tilemap
-- fix graphics messed up from changing area
-   - probably coming from FX palette depending on area at $89:AC62
+- fix blue tiles (from map stations)
 - better solution for fixing toilet
 - vanilla morph?
 - door above morph ball room is pink but looks blue?
@@ -34,16 +24,15 @@ TODO:
 - graphics messed up after killing kraid
 - door doesn't open after killing phantoon
 - door randomization
-  - easier for PoC: turn grey doors to blinking
 - cross-area transitions
   - to fix graphical glitches (look into using special GFX flag?)
   - what to do with music
-- map
-  - map stations
+- try to balance map stations across areas
+	- convert one tourian save to a map, so that each area gets a map station?
+		- remove asm that automatically gives map in first tourian room
 - lock mother brain room behind bosses
   - block left side of mother brain room
 - escape timer
-- open up statues room (which should also fix camera glitch)
 - eye doors before bosses?
 - block kraid back door? (camera glitchy)
 - change gravity/varia behavior like other randomizers
