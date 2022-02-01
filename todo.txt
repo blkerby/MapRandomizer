@@ -10,9 +10,11 @@ DONE:
 - fix save stations (again)
 - get map roughly working without overwriting room areas
 - open up statues room (which should also fix camera glitch)
+- fix blue tiles (from map stations - updated data pointed to by $82:9717)
 
 TODO:
-- fix blue tiles (from map stations)
+- statues room in wrong area
+- fix map in toilet and east pants room 
 - better solution for fixing toilet
 - vanilla morph?
 - door above morph ball room is pink but looks blue?

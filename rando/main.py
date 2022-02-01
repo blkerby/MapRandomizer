@@ -569,6 +569,10 @@ for i in range(len(randomizer.item_placement_list)):
     plm_type = item_to_plm_type(item_name, orig_plm_type)
     rom.write_u16(ptr, plm_type)
 
+# Make whole map revealed (after getting map station)
+for i in range(0x11727, 0x11D27):
+    rom.write_u8(i, 0xFF)
+
 # print(randomizer.item_sequence[:5])
 # print(randomizer.item_placement_list[:5])
 # sm_json_data.node_list[641]
