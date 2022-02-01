@@ -11,9 +11,10 @@ DONE:
 - get map roughly working without overwriting room areas
 - open up statues room (which should also fix camera glitch)
 - fix blue tiles (from map stations - updated data pointed to by $82:9717)
+- fix issue with map areas (statues room in wrong area)
 
 TODO:
-- statues room in wrong area
+- fix statues room map tiles
 - fix map in toilet and east pants room 
 - better solution for fixing toilet
 - vanilla morph?

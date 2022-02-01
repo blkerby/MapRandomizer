@@ -356,7 +356,7 @@ for i, room in enumerate(rooms):
     room_index = orig_rom.read_u8(room.rom_address)
     assert room_index not in area_index_dict[orig_room_area]
     area_index_dict[orig_room_area][room_index] = area_arr[i]
-area_sizes = [len(area_index_dict[i]) for i in range(num_areas)]
+area_sizes = [max(area_index_dict[i].keys()) + 1 for i in range(num_areas)]
 cumul_area_sizes = [0] + list(np.cumsum(area_sizes))
 area_data_base_ptr = 0x7E99B  # LoRom $8F:E99B
 area_data_ptrs = [area_data_base_ptr + num_areas * 2 + cumul_area_sizes[i] for i in range(num_areas)]
