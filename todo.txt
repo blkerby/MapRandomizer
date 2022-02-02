@@ -14,6 +14,10 @@ DONE:
 - fix issue with map areas (statues room in wrong area)
 
 TODO:
+- lock mother brain room behind bosses
+  - block left side of mother brain room
+- leaving mother brain should trigger zebesAblaze instead of entering escape room 1
+- escape timer
 - fix statues room map tiles
 - fix map in toilet and east pants room 
 - better solution for fixing toilet
@@ -33,14 +37,10 @@ TODO:
 - try to balance map stations across areas
 	- convert one tourian save to a map, so that each area gets a map station?
 		- remove asm that automatically gives map in first tourian room
-- lock mother brain room behind bosses
-  - block left side of mother brain room
-- escape timer
 - eye doors before bosses?
 - block kraid back door? (camera glitchy)
 - change gravity/varia behavior like other randomizers
 - skip gravity/varia suit-grab animation to avoid potential hard lock
-- leaving mother brain should trigger zebesAblaze instead of entering escape room 1
 - fix map icons
 - parts of rooms in map not working: top of red tower, top of below-spazer, top of kago forgotten highway
 - skip fanfares (like in other randomizers)

@@ -74,7 +74,8 @@ for conn in map['doors']:
 best_entropy = float('inf')
 best_state = None
 num_areas = 6
-for i in range(1000):  # this should be sufficiently large
+for i in range(1000):
+    graph_tool.seed_rng(i)
     state = graph_tool.inference.minimize_blockmodel_dl(room_graph,
                                                         multilevel_mcmc_args={"B_min": num_areas, "B_max": num_areas})
     # for j in range(10):
@@ -360,6 +361,7 @@ area_sizes = [max(area_index_dict[i].keys()) + 1 for i in range(num_areas)]
 cumul_area_sizes = [0] + list(np.cumsum(area_sizes))
 area_data_base_ptr = 0x7E99B  # LoRom $8F:E99B
 area_data_ptrs = [area_data_base_ptr + num_areas * 2 + cumul_area_sizes[i] for i in range(num_areas)]
+assert area_data_ptrs[-1] <= 0x7EB00
 for i in range(num_areas):
     rom.write_u16(area_data_base_ptr + 2 * i, (area_data_ptrs[i] & 0x7FFF) + 0x8000)
     for room_index, new_area in area_index_dict[i].items():
@@ -512,7 +514,7 @@ for room_obj in rooms:
     for state in states:
         ptr = state.plm_set_ptr + 0x70000
         while True:
-            plm_type = rom.read_u16(ptr)
+            plm_type = orig_rom.read_u16(ptr)
             if plm_type == 0:
                 break
             # if plm_type in (0xC842, 0xC848, 0xC84E, 0xC854):
@@ -527,21 +529,21 @@ for room_obj in rooms:
             #     item_dict[ptr] = plm_type
             #     # print("{:x} {:x} {:x}".format(ptr, plm_type, item_id))
 
-            # Turn non-blue doors pink
-            if plm_type in (0xC842, 0xC85A, 0xC872):  # right grey/yellow/green door
+            # Turn non-blue doors blue
+            if plm_type in (0xC88A, 0xC842, 0xC85A, 0xC872):  # right grey/yellow/green door
                 # print('{}: {:x} {:x} {:x}'.format(room_obj.name, rom.read_u16(ptr), rom.read_u16(ptr + 2), rom.read_u16(ptr + 4)))
                 # rom.write_u16(ptr, 0xC88A)  # right pink door
                 rom.write_u16(ptr, 0xB63B)  # right continuation arrow (should have no effect, giving a blue door)
                 rom.write_u16(ptr + 2, 0)  # position = (0, 0)
-            elif plm_type in (0xC848, 0xC860, 0xC878):  # left grey/yellow/green door
+            elif plm_type in (0xC890, 0xC848, 0xC860, 0xC878):  # left grey/yellow/green door
                 # rom.write_u16(ptr, 0xC890)  # left pink door
                 rom.write_u16(ptr, 0xB63B)  # right continuation arrow (should have no effect, giving a blue door)
                 rom.write_u16(ptr + 2, 0)  # position = (0, 0)
-            elif plm_type in (0xC84E, 0xC866, 0xC87E):  # down grey/yellow/green door
+            elif plm_type in (0xC896, 0xC84E, 0xC866, 0xC87E):  # down grey/yellow/green door
                 # rom.write_u16(ptr, 0xC896)  # down pink door
                 rom.write_u16(ptr, 0xB63B)  # right continuation arrow (should have no effect, giving a blue door)
                 rom.write_u16(ptr + 2, 0)  # position = (0, 0)
-            elif plm_type in (0xC854, 0xC86C, 0xC884):  # up grey/yellow/green door
+            elif plm_type in (0xC89C, 0xC854, 0xC86C, 0xC884):  # up grey/yellow/green door
                 # rom.write_u16(ptr, 0xC89C)  # up pink door
                 rom.write_u16(ptr, 0xB63B)  # right continuation arrow (should have no effect, giving a blue door)
                 rom.write_u16(ptr + 2, 0)  # position = (0, 0)
@@ -588,6 +590,7 @@ for i in range(len(randomizer.item_placement_list)):
 for i in range(0x11727, 0x11D27):
     rom.write_u8(i, 0xFF)
 
+
 # print(randomizer.item_sequence[:5])
 # print(randomizer.item_placement_list[:5])
 # sm_json_data.node_list[641]
@@ -600,6 +603,12 @@ for i in range(0x11727, 0x11D27):
 #     item = item_list[item_perm[i]]
 #     rom.write_u16(ptr, item)
 
+# rom.write_u16(0x78000, 0xC82A)
+# rom.write_u8(0x78002, 40)
+# rom.write_u8(0x78003, 68)
+# rom.write_u16(0x78004, 0x8000)
+
+
 # Apply patches
 patches = [
     'new_game',
@@ -608,12 +617,25 @@ patches = [
     'escape_room_1',
     'saveload',
     'map_area',
+    'mb_barrier',
 ]
-byte_buf = rom.byte_buf
 for patch_name in patches:
     patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
-    byte_buf = patch.apply(byte_buf)
+    rom.byte_buf = patch.apply(rom.byte_buf)
+
+
+
+# rom.write_u16(0x79213 + 24, 0xEB00)
+# rom.write_u16(0x7922D + 24, 0xEB00)
+# rom.write_u16(0x79247 + 24, 0xEB00)
+# rom.write_u16(0x79247 + 24, 0xEB00)
+# rom.write_u16(0x79261 + 24, 0xEB00)
+
+mb_door_bytes = orig_rom.read_n(0X1AAC8, 12)
+rom.write_n(0x18916, 12, mb_door_bytes)
+
+
 with open(output_rom_path, 'wb') as out_file:
-    out_file.write(byte_buf)
+    out_file.write(rom.byte_buf)
 
 print("Done")
