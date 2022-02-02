@@ -618,6 +618,7 @@ patches = [
     'saveload',
     'map_area',
     'mb_barrier',
+    'mb_barrier_clear',
 ]
 for patch_name in patches:
     patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
@@ -631,9 +632,12 @@ for patch_name in patches:
 # rom.write_u16(0x79247 + 24, 0xEB00)
 # rom.write_u16(0x79261 + 24, 0xEB00)
 
+# Connect bottom left landing site door to mother brain room, for testing
 mb_door_bytes = orig_rom.read_n(0X1AAC8, 12)
 rom.write_n(0x18916, 12, mb_door_bytes)
 
+# Change setup asm for Mother Brain room
+rom.write_u16(0x7DD6E + 24, 0xEB00)
 
 with open(output_rom_path, 'wb') as out_file:
     out_file.write(rom.byte_buf)
