@@ -619,6 +619,8 @@ patches = [
     'map_area',
     'mb_barrier',
     'mb_barrier_clear',
+    'fast_doors',
+    'elevators_speed',
 ]
 for patch_name in patches:
     patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
@@ -633,8 +635,8 @@ for patch_name in patches:
 # rom.write_u16(0x79261 + 24, 0xEB00)
 
 # Connect bottom left landing site door to mother brain room, for testing
-mb_door_bytes = orig_rom.read_n(0X1AAC8, 12)
-rom.write_n(0x18916, 12, mb_door_bytes)
+# mb_door_bytes = orig_rom.read_n(0X1AAC8, 12)
+# rom.write_n(0x18916, 12, mb_door_bytes)
 
 # Change setup asm for Mother Brain room
 rom.write_u16(0x7DD6E + 24, 0xEB00)

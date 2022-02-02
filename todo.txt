@@ -12,13 +12,13 @@ DONE:
 - open up statues room (which should also fix camera glitch)
 - fix blue tiles (from map stations - updated data pointed to by $82:9717)
 - fix issue with map areas (statues room in wrong area)
+- lock mother brain room behind bosses
+- stop escape room 1 from triggering zebesAblaze
 
 TODO:
-- lock mother brain room behind bosses
-  - block left side of mother brain room
-- leaving mother brain should trigger zebesAblaze instead of entering escape room 1
+- block left side of mother brain room and crocomire room
+	- and possibly kraid? (camera glitchy)
 - escape timer
-- fix statues room map tiles
 - fix map in toilet and east pants room 
 - better solution for fixing toilet
 - vanilla morph?
@@ -31,6 +31,9 @@ TODO:
 - graphics messed up after killing kraid
 - door doesn't open after killing phantoon
 - door randomization
+- refine item randomization
+  - take into account obstacles better
+  - take into account health
 - cross-area transitions
   - to fix graphical glitches (look into using special GFX flag?)
   - what to do with music
@@ -38,12 +41,11 @@ TODO:
 	- convert one tourian save to a map, so that each area gets a map station?
 		- remove asm that automatically gives map in first tourian room
 - eye doors before bosses?
-- block kraid back door? (camera glitchy)
 - change gravity/varia behavior like other randomizers
 - skip gravity/varia suit-grab animation to avoid potential hard lock
 - fix map icons
 - parts of rooms in map not working: top of red tower, top of below-spazer, top of kago forgotten highway
-- skip fanfares (like in other randomizers)
+- skip fanfares? (like in other randomizers)
 
 
 Notes on usage of area ($079F and $7E:D918):

@@ -38,7 +38,7 @@ startup:
     sta $09CE   ; power bombs
     sta $09D0   ; max power bombs
     lda #$0001
-    sta $0789   ; area map collected
+    ; sta $0789   ; area map collected
 
     lda #$0005  ; Start in loading game state 5 (Main) instead of 0 (Intro)
     rtl

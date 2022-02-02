@@ -86,4 +86,4 @@ load_area:
     sta $1F5B
     ply
     rtl
-warnpc $830000
+warnpc $82F800
