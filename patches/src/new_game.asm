@@ -20,8 +20,12 @@ startup:
 
     ; temporary extra stuff:
     lda #$FFFF
-    sta $09A2
-    sta $09A4   ; all items collected and equipped
+    sta $09A2   ; all items equipped
+    sta $09A4   ; all items collected
+    lda #$100b
+    sta $09a6  ; all beams equipped except spazer
+    lda #$100f
+    sta $09a8   ; all beams collected
     lda #$05DB
     sta $09C2  ; health
     sta $09C4  ; max health

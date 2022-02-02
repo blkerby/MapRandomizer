@@ -8,7 +8,7 @@ org $8FEB00
     lda $7ed829
     bit #$0001
     beq phantoon  ; skip clearing if kraid isn't dead
-    lda $7f0276
+    lda $7f0276  ; copy level data from neighboring air tile
     sta $7f0274
     sta $7f02f4
     sta $7f0374
@@ -16,7 +16,7 @@ org $8FEB00
     sta $7f0474
     sta $7f04f4
     sep #$20
-    lda $7f653a
+    lda $7f653a  ; copy bts from neighboring air tile
     sta $7f6539
     sta $7f6579
     sta $7f65b9
