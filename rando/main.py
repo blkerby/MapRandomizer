@@ -615,6 +615,7 @@ patches = [
     'new_game',
     'crateria_sky',
     'everest_tube',
+    'sandfalls',
     'escape_room_1',
     'saveload',
     'map_area',

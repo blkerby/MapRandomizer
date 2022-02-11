@@ -452,7 +452,8 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 # session = pickle.load(open('models/session-2022-01-13T12:40:37.881929.pkl-bk53', 'rb'))
 # session = pickle.load(open('models/session-2022-01-16T18:58:02.184898.pkl-bk56', 'rb'))
 # session = pickle.load(open('models/session-2022-01-29T14:03:23.594948.pkl-bk57', 'rb'))
-session = pickle.load(open('models/session-2022-01-29T14:03:23.594948.pkl-bk58', 'rb'))
+# session = pickle.load(open('models/session-2022-01-29T14:03:23.594948.pkl-bk58', 'rb'))
+session = pickle.load(open('models/session-2022-01-29T14:03:23.594948.pkl-bk60', 'rb'))
 #
 #
 #
@@ -546,13 +547,13 @@ lr_max1 = 1e-5
 lr_min0 = 1e-5
 lr_min1 = 1e-5
 num_candidates0 = 44
-num_candidates1 = 44
+num_candidates1 = 32
 num_candidates = num_candidates0
 temperature0 = 0.002
-temperature1 = 0.002
+temperature1 = 0.01
 explore_eps0 = 0.0002
-explore_eps1 = 0.0002
-annealing_start = 753912
+explore_eps1 = 0.002
+annealing_start = 760448
 annealing_time = 16000
 pass_factor = 2.0
 num_gen_rounds = 1
@@ -683,7 +684,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             pickle.dump(session, open(pickle_name, 'wb'))
-            # pickle.dump(session, open(pickle_name + '-bk59', 'wb'))
+            # pickle.dump(session, open(pickle_name + '-bk60', 'wb'))
             # session.replay_buffer.episode_data = episode_data
             # session = pickle.load(open(pickle_name + '-bk6', 'rb'))
     if session.num_rounds % summary_freq < num_gen_rounds:
