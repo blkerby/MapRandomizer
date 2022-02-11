@@ -14,8 +14,11 @@ DONE:
 - fix issue with map areas (statues room in wrong area)
 - lock mother brain room behind bosses
 - stop escape room 1 from triggering zebesAblaze
+- skip fanfares (like in other randomizers)
+- skip gravity/varia suit-grab animation to avoid potential hard lock
 
 TODO:
+- fix suit graphics not showing after getting suit (consequence of skipping animation)
 - fix demo
 - fix red screen in draygon
 - block left side of mother brain room and crocomire room
@@ -44,10 +47,7 @@ TODO:
 		- remove asm that automatically gives map in first tourian room
 - eye doors before bosses?
 - change gravity/varia behavior like other randomizers
-- skip gravity/varia suit-grab animation to avoid potential hard lock
 - fix map icons
-- parts of rooms in map not working: top of red tower, top of below-spazer, top of kago forgotten highway
-- skip fanfares? (like in other randomizers)
 
 
 Notes on usage of area ($079F and $7E:D918):

@@ -611,6 +611,7 @@ for i in range(0x11727, 0x11D27):
 
 # Apply patches
 patches = [
+    'vanilla_bugfixes',
     'new_game',
     'crateria_sky',
     'everest_tube',
@@ -618,11 +619,12 @@ patches = [
     'saveload',
     'map_area',
     'mb_barrier',
-    'mb_barrier_clear', # Might be incompatible with fast_doors due to race condition?
-    'fast_doors',
+    'mb_barrier_clear',  # Seems to incompatible with fast_doors due to race condition with how level data is loaded (which fast_doors speeds up)?
+    # 'fast_doors',
     'elevators_speed',
     'boss_exit',
-    'itemsounds'
+    'itemsounds',
+    'progressive_suits',
 ]
 for patch_name in patches:
     patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
