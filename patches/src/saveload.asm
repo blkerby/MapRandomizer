@@ -1,4 +1,4 @@
-; Scyzer's replacement of saving/loading, to fix map saving.
+; Based on Scyzer's replacement of saving/loading, to fix map saving.
 ; From https://metroidconstruction.com/SMMM/Scyzer_map_fix_saveload.zip
 LoRom
 

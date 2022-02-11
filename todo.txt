@@ -16,6 +16,8 @@ DONE:
 - stop escape room 1 from triggering zebesAblaze
 
 TODO:
+- fix demo
+- fix red screen in draygon
 - block left side of mother brain room and crocomire room
 	- and possibly kraid? (camera glitchy)
 - escape timer

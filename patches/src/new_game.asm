@@ -18,27 +18,27 @@ startup:
     lda #$0004  ; Unlock Tourian (to avoid camera glitching when entering from bottom, and also to ensure game is
     sta $7ED821 ; beatable since we don't take it into account as an obstacle in the item randomization logic)
 
-    ; temporary extra stuff:
-    lda #$FFFF
-    sta $09A2   ; all items equipped
-    sta $09A4   ; all items collected
-    lda #$100b
-    sta $09a6  ; all beams equipped except spazer
-    lda #$100f
-    sta $09a8   ; all beams collected
-    lda #$05DB
-    sta $09C2  ; health
-    sta $09C4  ; max health
-    lda #$00E6
-    sta $09C6   ; missiles
-    sta $09C8   ; max missiles
-    lda #$0032
-    sta $09CA   ; supers
-    sta $09CC   ; max supers
-    sta $09CE   ; power bombs
-    sta $09D0   ; max power bombs
-    lda #$0001
-    ; sta $0789   ; area map collected
+;    ; temporary extra stuff:
+;    lda #$FFFF
+;    sta $09A2   ; all items equipped
+;    sta $09A4   ; all items collected
+;    lda #$100b
+;    sta $09a6  ; all beams equipped except spazer
+;    lda #$100f
+;    sta $09a8   ; all beams collected
+;    lda #$05DB
+;    sta $09C2  ; health
+;    sta $09C4  ; max health
+;    lda #$00E6
+;    sta $09C6   ; missiles
+;    sta $09C8   ; max missiles
+;    lda #$0032
+;    sta $09CA   ; supers
+;    sta $09CC   ; max supers
+;    sta $09CE   ; power bombs
+;    sta $09D0   ; max power bombs
+;    lda #$0001
+;    sta $0789   ; area map collected
 
     lda #$0005  ; Start in loading game state 5 (Main) instead of 0 (Intro)
     rtl

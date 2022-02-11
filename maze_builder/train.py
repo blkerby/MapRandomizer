@@ -450,7 +450,9 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 # session = pickle.load(open('models/session-2021-12-31T17:27:10.465887.pkl', 'rb'))
 # session = pickle.load(open('models/session-2022-01-01T21:25:32.844343.pkl-bk52', 'rb'))
 # session = pickle.load(open('models/session-2022-01-13T12:40:37.881929.pkl-bk53', 'rb'))
-session = pickle.load(open('models/session-2022-01-16T18:58:02.184898.pkl-bk56', 'rb'))
+# session = pickle.load(open('models/session-2022-01-16T18:58:02.184898.pkl-bk56', 'rb'))
+# session = pickle.load(open('models/session-2022-01-29T14:03:23.594948.pkl-bk57', 'rb'))
+session = pickle.load(open('models/session-2022-01-29T14:03:23.594948.pkl-bk58', 'rb'))
 #
 #
 #
@@ -539,20 +541,23 @@ session = pickle.load(open('models/session-2022-01-16T18:58:02.184898.pkl-bk56',
 
 batch_size_pow0 = 11
 batch_size_pow1 = 11
-lr0 = 5e-6
-lr1 = 5e-6
-num_candidates0 = 64
-num_candidates1 = 64
+lr_max0 = 1e-5
+lr_max1 = 1e-5
+lr_min0 = 1e-5
+lr_min1 = 1e-5
+num_candidates0 = 44
+num_candidates1 = 44
 num_candidates = num_candidates0
-temperature0 = 0.0002
-temperature1 = 0.0002
-explore_eps0 = 0.00001
-explore_eps1 = 0.00001
-annealing_start = 629952
+temperature0 = 0.002
+temperature1 = 0.002
+explore_eps0 = 0.0002
+explore_eps1 = 0.0002
+annealing_start = 753912
 annealing_time = 16000
 pass_factor = 2.0
-alpha0 = 0.1
-alpha1 = 0.1
+num_gen_rounds = 1
+alpha0 = 0.2
+alpha1 = 0.2
 print_freq = 32
 total_reward = 0
 total_loss = 0.0
@@ -569,8 +574,8 @@ total_min_door_frac = 0
 logging.info("Checkpoint path: {}".format(pickle_name))
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
 logging.info(
-    "map_x={}, map_y={}, num_envs={}, pass_factor={}, lr0={}, lr1={}, num_candidates0={}, num_candidates1={}, replay_size={}/{}, num_params={}, decay_amount={}, temp0={}, temp1={}, eps0={}, eps1={}, alpha0={}, alpha1={}".format(
-        map_x, map_y, session.envs[0].num_envs, pass_factor, lr0, lr1, num_candidates0, num_candidates1, session.replay_buffer.size,
+    "map_x={}, map_y={}, num_envs={}, pass_factor={}, lr_max0={}, lr_max1={}, lr_min0={}, lr_min1={}, num_candidates0={}, num_candidates1={}, replay_size={}/{}, num_params={}, decay_amount={}, temp0={}, temp1={}, eps0={}, eps1={}, alpha0={}, alpha1={}".format(
+        map_x, map_y, session.envs[0].num_envs, pass_factor, lr_max0, lr_max1, lr_min0, lr_min1, num_candidates0, num_candidates1, session.replay_buffer.size,
         session.replay_buffer.capacity, num_params, session.decay_amount,
         temperature0, temperature1, explore_eps0, explore_eps1, alpha0, alpha1))
 logging.info("Starting training")
@@ -579,46 +584,50 @@ for i in range(1000000):
     num_candidates = int(num_candidates0 + (num_candidates1 - num_candidates0) * frac)
     temperature = temperature0 * (temperature1 / temperature0) ** frac
     explore_eps = explore_eps0 * (explore_eps1 / explore_eps0) ** frac
-    lr = lr0 * (lr1 / lr0) ** frac
+    lr_max = lr_max0 * (lr_max1 / lr_max0) ** frac
+    lr_min = lr_min0 * (lr_min1 / lr_min0) ** frac
     batch_size_pow = int(batch_size_pow0 + frac * (batch_size_pow1 - batch_size_pow0))
     batch_size = 2 ** batch_size_pow
-    session.optimizer.param_groups[0]['lr'] = lr
     alpha = alpha0 + (alpha1 - alpha0) * frac
     session.model.alpha = alpha
 
-    data = session.generate_round(
-        episode_length=episode_length,
-        num_candidates=num_candidates,
-        temperature=temperature,
-        explore_eps=explore_eps,
-        executor=executor,
-        render=False)
-    # randomized_insert=session.replay_buffer.size == session.replay_buffer.capacity)
-    session.replay_buffer.insert(data)
+    for j in range(num_gen_rounds):
+        data = session.generate_round(
+            episode_length=episode_length,
+            num_candidates=num_candidates,
+            temperature=temperature,
+            explore_eps=explore_eps,
+            executor=executor,
+            render=False)
+        # randomized_insert=session.replay_buffer.size == session.replay_buffer.capacity)
+        session.replay_buffer.insert(data)
 
-    total_reward += torch.mean(data.reward.to(torch.float32))
-    total_test_loss += torch.mean(data.test_loss)
-    total_prob += torch.mean(data.prob)
-    total_round_cnt += 1
+        total_reward += torch.mean(data.reward.to(torch.float32))
+        total_test_loss += torch.mean(data.test_loss)
+        total_prob += torch.mean(data.prob)
+        total_round_cnt += 1
 
-    min_door_tmp = (max_possible_reward - torch.max(data.reward)).item()
-    if min_door_tmp < min_door_value:
-        min_door_value = min_door_tmp
-        total_min_door_frac = 0
-    if min_door_tmp == min_door_value:
-        total_min_door_frac += torch.mean(
-            (data.reward == max_possible_reward - min_door_value).to(torch.float32)).item()
-    session.num_rounds += 1
+        min_door_tmp = (max_possible_reward - torch.max(data.reward)).item()
+        if min_door_tmp < min_door_value:
+            min_door_value = min_door_tmp
+            total_min_door_frac = 0
+        if min_door_tmp == min_door_value:
+            total_min_door_frac += torch.mean(
+                (data.reward == max_possible_reward - min_door_value).to(torch.float32)).item()
+        session.num_rounds += 1
 
-    num_batches = max(1, int(pass_factor * num_envs * episode_length / batch_size))
+    num_batches = max(1, int(pass_factor * num_envs * num_gen_rounds * len(devices) * episode_length / batch_size))
     for j in range(num_batches):
+        batch_frac = j / num_batches
+        lr = lr_max * (lr_min / lr_max) ** batch_frac
+        session.optimizer.param_groups[0]['lr'] = lr
         data = session.replay_buffer.sample(batch_size, device=device)
         with util.DelayedKeyboardInterrupt():
             total_loss += session.train_batch(data)
             total_loss_cnt += 1
             torch.cuda.synchronize(session.envs[0].device)
 
-    if session.num_rounds % print_freq == 0:
+    if session.num_rounds % print_freq < num_gen_rounds:
         buffer_reward = session.replay_buffer.episode_data.reward[:session.replay_buffer.size].to(torch.float32)
         buffer_mean_reward = torch.mean(buffer_reward)
         buffer_max_reward = torch.max(session.replay_buffer.episode_data.reward[:session.replay_buffer.size])
@@ -669,13 +678,13 @@ for i in range(1000000):
         total_loss_cnt = 0
         min_door_value = max_possible_reward
 
-    if session.num_rounds % save_freq == 0:
+    if session.num_rounds % save_freq < num_gen_rounds:
         with util.DelayedKeyboardInterrupt():
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             pickle.dump(session, open(pickle_name, 'wb'))
-            # pickle.dump(session, open(pickle_name + '-bk56', 'wb'))
+            # pickle.dump(session, open(pickle_name + '-bk59', 'wb'))
             # session.replay_buffer.episode_data = episode_data
             # session = pickle.load(open(pickle_name + '-bk6', 'rb'))
-    if session.num_rounds % summary_freq == 0:
+    if session.num_rounds % summary_freq < num_gen_rounds:
         logging.info(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects, dim=0)))

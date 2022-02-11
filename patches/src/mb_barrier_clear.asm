@@ -3,11 +3,20 @@ lorom
 
 org $8FEB00
     ; setup asm to clear barriers in mother brain room based on main bosses killed
-
     ; clear kraid barrier
     lda $7ed829
     bit #$0001
     beq phantoon  ; skip clearing if kraid isn't dead
+;    dec $09c6
+;    lda #$0000
+;    ldx #$0002
+;loop:
+;    sta $7f0002, x
+;    inx
+;    inx
+;    cpx #$200
+;    bne loop
+
     lda $7f0276  ; copy level data from neighboring air tile
     sta $7f0274
     sta $7f02f4
@@ -28,7 +37,7 @@ org $8FEB00
     ; clear phantoon barrier
 phantoon:
     lda $7ed82b
-    bit #$0001
+    and #$0001
     beq draygon  ; skip clearing if phantoon isn't dead
     lda $7f0276
     sta $7f0272
@@ -93,3 +102,5 @@ ridley:
 
 done:
     jmp $C91E  ; now run the original setup asm
+
+warnpc $8fed00

@@ -25,7 +25,7 @@ input_rom_path = '/home/kerby/Downloads/Super Metroid (JU) [!].smc'
 map_name = '01-16-session-2022-01-13T12:40:37.881929-1'
 
 map_path = 'maps/{}.json'.format(map_name)
-output_rom_path = 'roms/{}-a.sfc'.format(map_name)
+output_rom_path = 'roms/{}-b.sfc'.format(map_name)
 map = json.load(open(map_path, 'r'))
 
 
@@ -618,9 +618,10 @@ patches = [
     'saveload',
     'map_area',
     'mb_barrier',
-    'mb_barrier_clear',
+    'mb_barrier_clear', # Might be incompatible with fast_doors due to race condition?
     'fast_doors',
     'elevators_speed',
+    'boss_exit',
 ]
 for patch_name in patches:
     patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
@@ -639,7 +640,21 @@ for patch_name in patches:
 # rom.write_n(0x18916, 12, mb_door_bytes)
 
 # Change setup asm for Mother Brain room
-rom.write_u16(0x7DD6E + 24, 0xEB00)
+# rom.write_u16(0x7DD6E + 24, 0xEB00)
+
+rom.write_u16(0x1956A + 10, 0xEB00)  # Change door asm for entering mother brain room (from bubble mountain)
+
+
+# Change door exit asm for boss rooms (TODO: do this better, in case entrance asm is needed in next room)
+boss_exit_asm = 0xF7F0
+# Kraid:
+rom.write_u16(0x191CE + 10, boss_exit_asm)
+rom.write_u16(0x191DA + 10, boss_exit_asm)
+# Draygon:
+rom.write_u16(0x1A978 + 10, boss_exit_asm)
+rom.write_u16(0x1A96C + 10, boss_exit_asm)
+
+
 
 with open(output_rom_path, 'wb') as out_file:
     out_file.write(rom.byte_buf)
