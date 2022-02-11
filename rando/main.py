@@ -25,7 +25,7 @@ input_rom_path = '/home/kerby/Downloads/Super Metroid (JU) [!].smc'
 map_name = '01-16-session-2022-01-13T12:40:37.881929-1'
 
 map_path = 'maps/{}.json'.format(map_name)
-output_rom_path = 'roms/{}-b.sfc'.format(map_name)
+output_rom_path = 'roms/{}-c.sfc'.format(map_name)
 map = json.load(open(map_path, 'r'))
 
 
@@ -622,6 +622,7 @@ patches = [
     'fast_doors',
     'elevators_speed',
     'boss_exit',
+    'itemsounds'
 ]
 for patch_name in patches:
     patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
