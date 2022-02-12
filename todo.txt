@@ -17,6 +17,7 @@ DONE:
 - skip fanfares (like in other randomizers)
 - skip gravity/varia suit-grab animation to avoid potential hard lock
 - change gravity/varia behavior like other randomizers
+- adjust sand-fall widths to make them compatible
 
 TODO:
 - fix suit graphics not showing after getting suit (consequence of skipping animation)
@@ -24,16 +25,16 @@ TODO:
 - fix red screen in draygon
 - block left side of mother brain room and crocomire room
 	- and possibly right of kraid, or change spawn? (camera glitchy)
+	  - make kraid a first-time one-way in model, like crocomire?
 - escape timer
 - fix map in toilet and east pants room 
 - better solution for fixing toilet
 - vanilla morph?
 - door above morph ball room is pink but looks blue?
-- keep door locks in boss rooms
+- keep door locks in boss rooms?
 - fix new game (instant die after respawn)
 - fix big boy cutscene? (keeps happening whenever entering from right, even if has happened before)
 - missing power bomb item in morph ball room (ind=1) -- maybe because zebes not awake? (also probably need to make bowling open even when phantoon not dead)
-- adjust sand-fall widths to make them compatible
 - graphics messed up after killing kraid
 - door doesn't open after killing phantoon
 - door randomization
