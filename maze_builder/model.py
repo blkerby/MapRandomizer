@@ -1,10 +1,40 @@
+# Notes: Sketch of new model architecture that I want to implement. Basic idea is to comprehensively compute action
+# values for all possible candidate moves (instead of only considering a small amount of random candidates and
+# evaluating their state value on the state that results from applying the move). If successful, this should make it
+# much faster to generate games, hence greatly speeding up the training process as well.
+#
+# Single model for computing action values (for use during generation) and individual outcome predictions (for training)
+# - Input is map consisting of room-tile embedding vectors
+#    - some channels initialized to encode geometric features (occupied tiles, walls, doors)
+#    - other channels randomly initialized (to enable identifying specific rooms even if they have same geometry)
+# - CNN with output width ~1000, which we call the global embedding
+# - Local network computed for each unconnected door
+#    - Input consists of global embedding concatenated with local neighborhood (~16 x 16) of door
+#    - Output of width maybe ~500, which we call the local embedding
+#    - Two final heads which each apply a linear layer to the local embedding:
+#       - Training head: predicted log-probabilities for each binary outcome (door connections and paths)
+#         for each room-door. This is a large number of outputs (631 outcomes * 578 room-doors = 364718) but
+#         we only have to compute the outputs for the one room-door that was chosen. There will be a large number of
+#         parameters here (~500 * 364718 = 182 million).
+#           - Convert the log-probabilities to probabilities using x -> min(e^x, x). Some (bad) predictions may exceed
+#             a probability of 1, but the min(..., x) prevents them from exploding. Use MSE loss (rather than binary
+#             cross-entropy) so that the predictions exceeding 1 can be tolerated but will be discouraged.
+#       - Inference head: This is deterministically derived from the training head (i.e. it is not directly trained)
+#         by summing all the log-probabilities across all the binary outcomes; so we get one value for each candidate
+#         room-door. Based on a heuristic/assumption that the various binary outcomes are independent, this sum
+#         estimates the log-probability that all the binary outcomes are simultaneously positive, i.e., that the final
+#         map is acceptable, which ultimately is our goal. So this output will be used for selecting candidate moves.
+#         Because the training head is a linear function of the local embedding, the inference head will be too
+#         (but with a much smaller number of outputs, only 578, one for each room-door).
+
+
 import torch
 import torch.nn.functional as F
 import math
 from typing import List, Optional
 import logging
 
-from maze_builder.env import MazeBuilderEnv
+from maze_builder.env import MazeBuilderEnv, CandidatesData, CandidatesDataDir
 
 # class HuberLoss(torch.nn.Module):
 #     def __init__(self, delta):
@@ -112,210 +142,6 @@ class MaxOut(torch.nn.Module):
         shape = [X.shape[0], self.arity, X.shape[1] // self.arity] + list(X.shape)[2:]
         X = X.view(*shape)
         return torch.max(X, dim=1)[0]
-
-
-class Model(torch.nn.Module):
-    def __init__(self, env_config, num_doors, num_missing_connects, num_room_parts, map_channels, map_stride, map_kernel_size, map_padding,
-                 room_embedding_width,
-                 fc_widths,
-                 connectivity_in_width, connectivity_out_width,
-                 map_dropout_p=0.0,
-                 global_dropout_p=0.0):
-        super().__init__()
-        self.env_config = env_config
-        self.num_doors = num_doors
-        self.num_missing_connects = num_missing_connects
-        self.num_room_parts = num_room_parts
-        self.map_x = env_config.map_x + 1
-        self.map_y = env_config.map_y + 1
-        self.map_c = 4
-        self.room_embedding_width = room_embedding_width
-        self.connectivity_in_width = connectivity_in_width
-        self.connectivity_out_width = connectivity_out_width
-        self.num_rooms = len(env_config.rooms) + 1
-        self.map_dropout_p = map_dropout_p
-        self.global_dropout_p = global_dropout_p
-        common_act = torch.nn.SELU()
-
-        # self.room_embedding = torch.nn.Parameter(torch.randn([self.map_x * self.map_y, room_embedding_width]))
-
-        self.map_conv_layers = torch.nn.ModuleList()
-        self.map_act_layers = torch.nn.ModuleList()
-
-        map_channels = [self.map_c] + map_channels
-        width = self.map_x
-        height = self.map_y
-        arity = 1
-        for i in range(len(map_channels) - 1):
-            conv_layer = torch.nn.Conv2d(
-                map_channels[i], map_channels[i + 1] * arity,
-                kernel_size=(map_kernel_size[i], map_kernel_size[i]),
-                padding=(map_kernel_size[i] // 2, map_kernel_size[i] // 2) if map_padding[i] else 0,
-                stride=(map_stride[i], map_stride[i]))
-
-            self.map_conv_layers.append(conv_layer)
-            self.map_act_layers.append(common_act)
-            width = (width - map_kernel_size[i]) // map_stride[i] + 1
-            height = (height - map_kernel_size[i]) // map_stride[i] + 1
-        self.map_global_pool = GlobalAvgPool2d()
-        # self.map_global_pool = GlobalMaxPool2d()
-        # self.map_global_pool = torch.nn.Flatten()
-
-        self.connectivity_left_mat = torch.nn.Parameter(torch.randn([connectivity_in_width, num_room_parts]))
-        self.connectivity_right_mat = torch.nn.Parameter(torch.randn([num_room_parts, connectivity_in_width]))
-        self.connectivity_lin = torch.nn.Linear(connectivity_in_width ** 2, connectivity_out_width)
-        self.global_lin_layers = torch.nn.ModuleList()
-        self.global_act_layers = torch.nn.ModuleList()
-        self.global_dropout_layers = torch.nn.ModuleList()
-        # global_fc_widths = [(width * height * map_channels[-1]) + 1 + room_tensor.shape[0]] + global_fc_widths
-        # fc_widths = [width * height * map_channels[-1]] + fc_widths
-        # fc_widths = [map_channels[-1] + 1 + self.num_rooms * room_embedding_width * 2] + fc_widths
-        fc_widths = [map_channels[-1] + 1 + self.num_rooms + connectivity_out_width] + fc_widths
-        # fc_widths = [map_channels[-1] + 1 + self.num_rooms] + fc_widths
-        for i in range(len(fc_widths) - 1):
-            lin = torch.nn.Linear(fc_widths[i], fc_widths[i + 1] * arity)
-            self.global_lin_layers.append(lin)
-            self.global_act_layers.append(common_act)
-            self.global_dropout_layers.append(torch.nn.Dropout(global_dropout_p))
-        self.state_value_lin = torch.nn.Linear(fc_widths[-1], self.num_doors + self.num_missing_connects)
-        self.project()
-
-    def forward_multiclass(self, map, room_mask, room_position_x, room_position_y, steps_remaining, env: MazeBuilderEnv):
-        n = map.shape[0]
-        # logging.info("compute_component_matrix")
-        connectivity = env.compute_fast_component_matrix(room_mask, room_position_x, room_position_y)
-
-        if map.is_cuda:
-            X = map.to(torch.float16, memory_format=torch.channels_last)
-            connectivity = connectivity.to(torch.float16)
-        else:
-            X = map.to(torch.float32)
-            connectivity = connectivity.to(torch.float32)
-
-        reduced_connectivity = torch.einsum('ijk,mj,kn->imn',
-                                            connectivity,
-                                            self.connectivity_left_mat.to(connectivity.dtype),
-                                            self.connectivity_right_mat.to(connectivity.dtype))
-        # print(n, reduced_connectivity.shape, self.connectivity_in_width)
-        reduced_connectivity_flat = reduced_connectivity.view(n, self.connectivity_in_width ** 2)
-
-        with torch.cuda.amp.autocast():
-            connectivity_out = self.connectivity_lin(reduced_connectivity_flat)
-            for i in range(len(self.map_conv_layers)):
-                X = self.map_conv_layers[i](X)
-                X = self.map_act_layers[i](X)
-
-            # Room mask & position data
-            # room_position_i = room_position_y * self.map_x + room_position_x
-            # raw_room_embedding = self.room_embedding[room_position_i, :].to(X.dtype)
-            # room_embedding = (raw_room_embedding * room_mask.to(X.dtype).unsqueeze(2)).view(X.shape[0], -1)
-
-            # freq_multiplier_x = (2 ** torch.arange(self.room_embedding_width, device=X.device)).to(X.dtype).view(1, 1, -1) * math.pi / self.map_x
-            # freq_multiplier_y = (2 ** torch.arange(self.room_embedding_width, device=X.device)).to(X.dtype).view(1, 1, -1) * math.pi / self.map_y
-            # raw_room_embedding_x = torch.cos(room_position_x.to(X.dtype).unsqueeze(2) * freq_multiplier_x)
-            # raw_room_embedding_y = torch.cos(room_position_y.to(X.dtype).unsqueeze(2) * freq_multiplier_y)
-            # room_embedding_x = (raw_room_embedding_x * room_mask.to(X.dtype).unsqueeze(2)).view(X.shape[0], -1)
-            # room_embedding_y = (raw_room_embedding_y * room_mask.to(X.dtype).unsqueeze(2)).view(X.shape[0], -1)
-
-            # Fully-connected layers on whole map data (starting with output of convolutional layers)
-            X = self.map_global_pool(X)
-            # X = torch.cat([X, steps_remaining.view(-1, 1), room_mask], dim=1)
-            X = torch.cat([X, steps_remaining.view(-1, 1), room_mask, connectivity_out], dim=1)
-            # X = torch.cat([X, steps_remaining.view(-1, 1), room_embedding_x, room_embedding_y], dim=1)
-            for i in range(len(self.global_lin_layers)):
-                X = self.global_lin_layers[i](X)
-                X = self.global_act_layers[i](X)
-                if self.global_dropout_p > 0:
-                    X = self.global_dropout_layers[i](X)
-
-            door_connects = env.door_connects(map, room_mask, room_position_x, room_position_y)
-
-            state_value_raw_logodds = self.state_value_lin(X).to(torch.float32)
-            door_connects_raw_logodds = state_value_raw_logodds[:, :self.num_doors]
-            missing_connects_raw_logodds = state_value_raw_logodds[:, self.num_doors:]
-            inf_tensor = torch.full_like(door_connects_raw_logodds, 1e5)  # We can't use actual 'inf' or it results in NaNs in binary_cross_entropy_with_logits, but this is equivalent.
-            door_connects_filtered_logodds = torch.where(door_connects, inf_tensor, door_connects_raw_logodds)
-            all_filtered_logodds = torch.cat([door_connects_filtered_logodds, missing_connects_raw_logodds], dim=1)
-            state_value_probs = torch.sigmoid(all_filtered_logodds)
-            state_value_expected = torch.sum(state_value_probs, dim=1) / 2
-            # state_value_probs = torch.softmax(state_value_raw_logprobs, dim=1)
-            # arange = torch.arange(self.max_possible_reward + 1, device=map.device, dtype=torch.float32)
-            # state_value_expected = torch.sum(state_value_probs * arange.view(1, -1), dim=1)
-            return all_filtered_logodds, state_value_probs, state_value_expected
-
-    def forward(self, map, room_mask, room_position_x, room_position_y, steps_remaining, env):
-        # TODO: we could speed up the last layer a bit by summing the parameters instead of outputs
-        # (though this probably is negligible).
-        state_value_raw_logprobs, state_value_probs, state_value_expected = self.forward_multiclass(
-            map, room_mask, room_position_x, room_position_y, steps_remaining, env)
-        return state_value_expected
-
-    def decay(self, amount: Optional[float]):
-        if amount is not None:
-            factor = 1 - amount
-            for param in self.parameters():
-                param.data *= factor
-
-    def all_param_data(self):
-        params = [param.data for param in self.parameters()]
-        for module in self.modules():
-            if isinstance(module, (torch.nn.BatchNorm1d, torch.nn.BatchNorm2d)):
-                params.append(module.running_mean)
-                params.append(module.running_var)
-        return params
-
-    def project(self):
-        pass
-        # eps = 1e-15
-        # for layer in self.map_conv_layers:
-        #     # layer.weight.data = approx_l1_projection(layer.weight.data, dim=(1, 2, 3), num_iters=5)
-        #     # shape = layer.weight.shape
-        #     # layer.weight.data /= torch.max(torch.abs(layer.weight.data.view(shape[0], -1)) + eps, dim=1)[0].view(-1, 1,
-        #     #                                                                                                      1, 1)
-        #     layer.lin.weight.data /= torch.sqrt(torch.mean(layer.lin.weight.data ** 2, dim=(1, 2, 3), keepdim=True) + eps)
-        # for layer in self.global_lin_layers:
-        #     # layer.weight.data = approx_l1_projection(layer.weight.data, dim=1, num_iters=5)
-        #     # layer.weight.data /= torch.max(torch.abs(layer.weight.data) + eps, dim=1)[0].unsqueeze(1)
-        #     layer.lin.weight.data /= torch.sqrt(torch.mean(layer.lin.weight.data ** 2, dim=1, keepdim=True) + eps)
-
-    def forward_state_action(self, env: MazeBuilderEnv, room_mask, room_position_x, room_position_y,
-                             action_candidates, steps_remaining):
-        num_envs = room_mask.shape[0]
-        num_candidates = action_candidates.shape[1]
-        num_rooms = self.num_rooms
-        action_room_id = action_candidates[:, :, 0]
-        action_x = action_candidates[:, :, 1]
-        action_y = action_candidates[:, :, 2]
-        all_room_mask = room_mask.unsqueeze(1).repeat(1, num_candidates + 1, 1)
-        all_room_position_x = room_position_x.unsqueeze(1).repeat(1, num_candidates + 1, 1)
-        all_room_position_y = room_position_y.unsqueeze(1).repeat(1, num_candidates + 1, 1)
-        all_steps_remaining = steps_remaining.unsqueeze(1).repeat(1, num_candidates + 1)
-
-        all_room_mask[torch.arange(num_envs, device=action_candidates.device).view(-1, 1),
-                      torch.arange(1, 1 + num_candidates, device=action_candidates.device).view(1, -1),
-                      action_room_id] = True
-        all_room_mask[:, :, -1] = False
-        all_room_position_x[torch.arange(num_envs, device=action_candidates.device).view(-1, 1),
-                            torch.arange(1, 1 + num_candidates, device=action_candidates.device).view(1, -1),
-                            action_room_id] = action_x
-        all_room_position_y[torch.arange(num_envs, device=action_candidates.device).view(-1, 1),
-                            torch.arange(1, 1 + num_candidates, device=action_candidates.device).view(1, -1),
-                            action_room_id] = action_y
-        all_steps_remaining[:, 1:] -= 1
-
-        room_mask_flat = all_room_mask.view(num_envs * (1 + num_candidates), num_rooms)
-        room_position_x_flat = all_room_position_x.view(num_envs * (1 + num_candidates), num_rooms)
-        room_position_y_flat = all_room_position_y.view(num_envs * (1 + num_candidates), num_rooms)
-        steps_remaining_flat = all_steps_remaining.view(num_envs * (1 + num_candidates))
-
-        map_flat = env.compute_map(room_mask_flat, room_position_x_flat, room_position_y_flat)
-
-        out_flat = self.forward(
-            map_flat, room_mask_flat, room_position_x_flat, room_position_y_flat, steps_remaining_flat, env)
-        out = out_flat.view(num_envs, 1 + num_candidates)
-        state_value = out[:, 0]
-        action_value = out[:, 1:]
-        return state_value, action_value
 
 
 def map_extract(map, env_id, pos_x, pos_y, width_x, width_y):
