@@ -14,8 +14,7 @@
 #    - Two final heads which each apply a linear layer to the local embedding:
 #       - Training head: predicted log-probabilities for each binary outcome (door connections and paths)
 #         for each room-door. This is a large number of outputs (631 outcomes * 578 room-doors = 364718) but
-#         we only have to compute the outputs for the one room-door that was chosen. There will be a large number of
-#         parameters here (~500 * 364718 = 182 million).
+#         we only have to compute the outputs for the one room-door that was chosen.
 #           - Convert the log-probabilities to probabilities using x -> min(e^x, x). Some (bad) predictions may exceed
 #             a probability of 1, but the min(..., x) prevents them from exploding. Use MSE loss (rather than binary
 #             cross-entropy) so that the predictions exceeding 1 can be tolerated but will be discouraged.
@@ -26,7 +25,22 @@
 #         map is acceptable, which ultimately is our goal. So this output will be used for selecting candidate moves.
 #         Because the training head is a linear function of the local embedding, the inference head will be too
 #         (but with a much smaller number of outputs, only 578, one for each room-door).
-
+#     - There would be a large number of parameters in the final linear layer (~500 * 631 * 578 = 182 million).
+#       As an alternative, we could separate the parameters related to candidates from those related to outputs.
+#       Specifically, in the formula for the "p"th predicted output, given the "c"th candidate and local embedding X,
+#          f(X, p, c) = sum_j (w_{pcj} X_j)
+#       we can require that the weight tensor w_{pcj} factors as
+#          w_{pcj} = u_{pj} v_{cj},
+#       giving
+#          f(X, p, c) = sum_j (u_{pj} v_{cj} X_j)
+#
+# Also: Probably go back to idea of selecting an unconnected door and only considering candidate placements there.
+# Either select a door randomly, or use a heuristic of selecting a door with fewest number of candidates (but >0).
+#     - In this case, shift the map cyclically to put the chosen door in a fixed (x, y) position (e.g., at the
+#       center, or at (0, 0)). Then there's no need for a separate "local network" because the whole map becomes
+#       localized to the door.
+#     - Use "circular" padding in the CNN so the shifting won't introduce new artifical edges. The original map
+#       boundaries will be encoded as walls.
 
 import torch
 import torch.nn.functional as F
