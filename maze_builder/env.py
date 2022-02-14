@@ -10,7 +10,6 @@ import torch.nn.functional as F
 from dataclasses import dataclass
 import logging
 import connectivity
-from dataclasses import dataclass
 
 
 def _rand_choice(p):
@@ -26,26 +25,6 @@ class DoorData:
     check_door_index: torch.tensor  # 1D, referencing row number in door_data
     check_map_index: torch.tensor  # 1D
     check_value: torch.tensor  # 1D
-
-
-@dataclass
-class CandidatesDataDir:
-    # 2D with columns: env_id, x, y (locations on map of unconnected doors with given orientation)
-    map_door_dir: torch.tensor
-
-    # 1D (one value per candidate): index into `map_door_dir`, indicating where candidate would be placed
-    cand_map_door_id: torch.tensor
-
-    # 1D (one value per candidate): index into MazeBuildEnv.room_[dir], indicating which room-door would be placed there
-    cand_room_door_id: torch.tensor
-
-
-@dataclass
-class CandidatesData:
-    candidates_data_left: CandidatesDataDir
-    candidates_data_right: CandidatesDataDir
-    candidates_data_up: CandidatesDataDir
-    candidates_data_down: CandidatesDataDir
 
 
 class MazeBuilderEnv:
@@ -80,7 +59,6 @@ class MazeBuilderEnv:
         self.num_doors = int(torch.sum(self.room_door_count))
         self.num_missing_connects = self.missing_connection_src.shape[0]
         self.max_reward = self.num_doors // 2 + self.num_missing_connects
-        self.step_number = 0
         self.reset()
 
         self.map_display = None
@@ -461,57 +439,67 @@ class MazeBuilderEnv:
             mask = mask_bounds & ~mask_room_mask
 
             candidates = candidates[mask, :]
-            candidates_list.append(CandidatesDataDir(
-                map_door_dir=map_door_dir,
-                cand_map_door_id=valid_map_door_id,
-                cand_room_door_id=valid_room_door_id,
-            ))
             candidates_list.append(candidates)
+            # print(final_index_tile)
+            # print(map_value)
+            # print(map_door_dir)
+            # print(door_data_dir_tile.door_data)
+            # print(candidates)
+            # print(tile_out)
+            # print(door_out)
+            # print(valid_positions)
+            # print(valid_env_id)
+            # print(valid_room_id)
+            # print(map_door_dir.shape,
+            #       door_data_dir_tile.door_data.shape,
+            #       door_data_dir_tile.check_door_index.shape,
+            #       door_data_dir_tile.check_map_index.shape,
+            #       door_data_dir_tile.check_value.shape)
 
-        # dummy_candidates = torch.cat([
-        #     torch.arange(num_envs, device=self.device).view(-1, 1),
-        #     torch.tensor([len(self.rooms) - 1, 0, 0], device=self.device).view(1, -1).repeat(num_envs, 1)
-        # ], dim=1)
-        # candidates_list.append(dummy_candidates)
-        # all_candidates = torch.cat(candidates_list, dim=0)
-        # # ind = torch.argsort(all_candidates[:, 0])
-        # ind = torch.sort(all_candidates[:, 0], stable=True)[1]
-        # return all_candidates[ind, :]
-        return CandidatesData(
-            candidates_data_left=candidates_list[0],
-            candidates_data_right=candidates_list[1],
-            candidates_data_up=candidates_list[2],
-            candidates_data_down=candidates_list[3],
-        )
+        dummy_candidates = torch.cat([
+            torch.arange(num_envs, device=self.device).view(-1, 1),
+            torch.tensor([len(self.rooms) - 1, 0, 0], device=self.device).view(1, -1).repeat(num_envs, 1)
+        ], dim=1)
+        candidates_list.append(dummy_candidates)
+        all_candidates = torch.cat(candidates_list, dim=0)
+        # ind = torch.argsort(all_candidates[:, 0])
+        ind = torch.sort(all_candidates[:, 0], stable=True)[1]
+        return all_candidates[ind, :]
+        # self.room_right
+        # print("left", door_left)
+        # print("right", door_right)
+        # print("down", door_up)
+        # print("up", door_down)
 
-    def place_first_room(self):
-        ind = torch.randint(self.room_placements.shape[0], [num_envs], device=self.device)
-        action = self.room_placements[ind, :]
-        self.step(action)
+    def get_action_candidates(self, num_candidates, room_mask, room_position_x, room_position_y):
+        num_envs = room_mask.shape[0]
+        if self.step_number == 0:
+            ind = torch.randint(self.room_placements.shape[0], [num_envs, num_candidates], device=self.device)
+            return self.room_placements[ind, :]
 
-        # candidates = self.get_all_action_candidates(room_mask, room_position_x, room_position_y)
-        # boundaries = torch.searchsorted(candidates[:, 0].contiguous(),
-        #                                 torch.arange(num_envs, device=candidates.device))
-        # boundaries_ext = torch.cat([boundaries, torch.tensor([candidates.shape[0]], device=candidates.device)])
-        # candidate_quantities = boundaries_ext[1:] - boundaries_ext[:-1]
-        # restricted_candidate_quantities = torch.clamp(candidate_quantities - 1, min=1)
-        # relative_ind = torch.randint(high=2 ** 31, size=[num_envs, num_candidates],
-        #                              device=candidates.device) % restricted_candidate_quantities.unsqueeze(1)
-        # ind = relative_ind + boundaries.unsqueeze(1)
-        # out = candidates[ind, 1:]
-        #
-        # # Override first candidate to always be a pass
-        # # out[:, 0, 0] = len(self.rooms) - 1
-        # # out[:, 0, 1] = 0
-        # # out[:, 0, 2] = 0
-        #
+        candidates = self.get_all_action_candidates(room_mask, room_position_x, room_position_y)
+        boundaries = torch.searchsorted(candidates[:, 0].contiguous(),
+                                        torch.arange(num_envs, device=candidates.device))
+        boundaries_ext = torch.cat([boundaries, torch.tensor([candidates.shape[0]], device=candidates.device)])
+        candidate_quantities = boundaries_ext[1:] - boundaries_ext[:-1]
+        restricted_candidate_quantities = torch.clamp(candidate_quantities - 1, min=1)
+        relative_ind = torch.randint(high=2 ** 31, size=[num_envs, num_candidates],
+                                     device=candidates.device) % restricted_candidate_quantities.unsqueeze(1)
+        ind = relative_ind + boundaries.unsqueeze(1)
+        out = candidates[ind, 1:]
+
+        # Override first candidate to always be a pass
+        # out[:, 0, 0] = len(self.rooms) - 1
+        # out[:, 0, 1] = 0
+        # out[:, 0, 2] = 0
+
+        return out
 
     def reset(self):
         self.room_mask.zero_()
         self.room_position_x.zero_()
         self.room_position_y.zero_()
         self.step_number = 0
-        self.place_first_room()
 
     def compute_current_map(self):
         return self.compute_map(self.room_mask, self.room_position_x, self.room_position_y)
@@ -786,8 +774,8 @@ class MazeBuilderEnv:
         time_expand = end - start_expand
         time_total = end - start
 
-        logging.info("device={}, total={:.4f}, prep={:.4f}, load={:.4f}, comp={:.4f}, store={:.4f}, expand={:.4f}".format(
-            self.device, time_total, time_prep, time_load, time_comp, time_store, time_expand))
+        # logging.info("device={}, total={:.4f}, prep={:.4f}, load={:.4f}, comp={:.4f}, store={:.4f}, expand={:.4f}".format(
+        #     self.device, time_total, time_prep, time_load, time_comp, time_store, time_expand))
         return A
 
     def compute_missing_connections(self):
@@ -876,20 +864,32 @@ class MazeBuilderEnv:
     # def export(self):
 
 
-
-import logic.rooms.all_rooms
-num_envs = 1
-rooms = logic.rooms.all_rooms.rooms
-env = MazeBuilderEnv(rooms,
-                     map_x=20,
-                     map_y=20,
-                     num_envs=num_envs,
-                     device='cpu',
-                     must_areas_be_connected=False)
-env.reset()
-env.render()
-cands = env.get_all_action_candidates(env.room_mask, env.room_position_x, env.room_position_y)
-
+# logging.basicConfig(format='%(asctime)s %(message)s',
+#                     # level=logging.DEBUG,
+#                     level=logging.INFO,
+#                     handlers=[logging.StreamHandler()])
+# import logic.rooms.all_rooms
+#
+# # import logic.rooms.brinstar_green
+# # import logic.rooms.brinstar_pink
+# # import logic.rooms.crateria
+# # import logic.rooms.crateria_isolated
+# # import logic.rooms.maridia_upper
+# #
+# # torch.manual_seed(0)
+# num_envs = 64
+# # # rooms = logic.rooms.crateria.rooms[:5]
+# rooms = logic.rooms.all_rooms.rooms
+# # # rooms = logic.rooms.maridia_upper.rooms
+# # # rooms = logic.rooms.brinstar_green.rooms + logic.rooms.brinstar_pink.rooms
+# # # rooms = logic.rooms.brinstar_red.rooms
+# num_candidates = 1
+# env = MazeBuilderEnv(rooms,
+#                      map_x=60,
+#                      map_y=60,
+#                      num_envs=num_envs,
+#                      device='cpu',
+#                      must_areas_be_connected=False)
 # #
 # # print("left", torch.sum(env.door_data_left_door.door_data[:, 3] == 1))
 # # print("right", torch.sum(env.door_data_right_door.door_data[:, 3] == -1))
