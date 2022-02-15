@@ -15,6 +15,7 @@ from maze_builder.replay import ReplayBuffer
 from model_average import ExponentialAverage
 import io
 import logic.rooms.crateria_isolated
+import logic.rooms.all_rooms
 
 
 logging.basicConfig(format='%(asctime)s %(message)s',
@@ -34,12 +35,15 @@ num_devices = len(devices)
 device = devices[0]
 executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
-num_envs = 2 ** 6
-rooms = logic.rooms.crateria_isolated.rooms
+num_envs = 1   # 2 ** 6
+# rooms = logic.rooms.crateria_isolated.rooms
+rooms = logic.rooms.all_rooms.rooms
 episode_length = len(rooms)
 
-map_x = 32
-map_y = 32
+# map_x = 32
+# map_y = 32
+map_x = 64
+map_y = 64
 env_config = EnvConfig(
     rooms=rooms,
     map_x=map_x,

@@ -332,6 +332,27 @@ class MazeBuilderEnv:
         # self.room_data_flat_index = self.room_data[:, 1] * x_stride + self.room_data[:, 2] * y_stride + self.room_data[:, 4] * channel_stride
         # self.room_data_flat_value = self.room_data[:, 3]
 
+    def select_map_doors(self, map_door_left, map_door_right, map_door_up, map_door_down):
+        map_door_all = torch.cat([
+            torch.cat([map_door_left, torch.full([map_door_left.shape[0], 1], 0, device=self.device)], dim=1),
+            torch.cat([map_door_right, torch.full([map_door_right.shape[0], 1], 1, device=self.device)], dim=1),
+            torch.cat([map_door_up, torch.full([map_door_up.shape[0], 1], 2, device=self.device)], dim=1),
+            torch.cat([map_door_down, torch.full([map_door_down.shape[0], 1], 3, device=self.device)], dim=1),
+        ], dim=0)
+        perm = torch.randperm(map_door_all.shape[0], device=self.device)
+        map_door_all = map_door_all[perm, :]
+        _, ind = torch.sort(map_door_all[:, 0], stable=True)
+        map_door_all = map_door_all[ind, :]
+        shift_ind = torch.cat([torch.tensor([-1], device=self.device), map_door_all[:-1, 0]])
+        first_ind = torch.nonzero(map_door_all[:, 0] != shift_ind)[:, 0]
+        chosen_map_door_all = map_door_all[first_ind, :]
+
+        chosen_map_door_left = chosen_map_door_all[chosen_map_door_all[:, 3] == 0, :3]
+        chosen_map_door_right = chosen_map_door_all[chosen_map_door_all[:, 3] == 1, :3]
+        chosen_map_door_up = chosen_map_door_all[chosen_map_door_all[:, 3] == 2, :3]
+        chosen_map_door_down = chosen_map_door_all[chosen_map_door_all[:, 3] == 3, :3]
+        return chosen_map_door_left, chosen_map_door_right, chosen_map_door_up, chosen_map_door_down
+
     def get_all_action_candidates(self, room_mask, room_position_x, room_position_y):
         # map = self.compute_map(self.room_mask, self.room_position_x, self.room_position_y)
 
@@ -341,6 +362,9 @@ class MazeBuilderEnv:
         map_door_right = torch.nonzero(map[:, 1, :] < -1)
         map_door_up = torch.nonzero(map[:, 2, :] > 1)
         map_door_down = torch.nonzero(map[:, 2, :] < -1)
+
+        map_door_left, map_door_right, map_door_up, map_door_down = self.select_map_doors(
+            map_door_left, map_door_right, map_door_up, map_door_down)
 
         # avg_cnt_open_doors = (map_door_left.shape[0] + map_door_right.shape[0] + map_door_up.shape[0] + map_door_down.shape[0]) / num_envs
         # cnt_open_doors_left = torch.sum(map[:, 1, :] > 1, dim=(1, 2))
@@ -677,7 +701,8 @@ class MazeBuilderEnv:
             adjacency_matrix[nz_env, nz_part_opp, nz_part] = 1
 
         padding_needed = (8 - self.good_room_parts.shape[0] % 8) % 8
-        good_room_parts = torch.cat([self.good_room_parts, torch.zeros([padding_needed], device=self.device, dtype=self.good_room_parts.dtype)])
+        good_room_parts = torch.cat(
+            [self.good_room_parts, torch.zeros([padding_needed], device=self.device, dtype=self.good_room_parts.dtype)])
         component_matrix = adjacency_matrix[:, good_room_parts.view(-1, 1), good_room_parts.view(1, -1)]
         for i in range(8):
             component_matrix = torch.bmm(component_matrix, component_matrix)
@@ -736,7 +761,7 @@ class MazeBuilderEnv:
         undirected_edges = undirected_E[:, 1:3].to(torch.uint8).to('cpu')
         all_root_mask = room_mask[:, self.good_part_room_id].to('cpu')
         undirected_boundaries = torch.searchsorted(undirected_E[:, 0].contiguous(),
-                                        torch.arange(num_envs, device=self.device)).to(torch.int32).to('cpu')
+                                                   torch.arange(num_envs, device=self.device)).to(torch.int32).to('cpu')
         # print(all_nz_cpu.shape, good_matrix.shape, num_envs, torch.max(all_nz_cpu[:, 0]), torch.sum(good_matrix, dim=(1, 2)))
         # boundaries = torch.searchsorted(all_nz_cpu[:, 0].contiguous(), torch.arange(num_envs))
 
@@ -758,11 +783,13 @@ class MazeBuilderEnv:
         output_adjacency = output_adjacency.to(self.device)
 
         start_expand = time.perf_counter()
-        output_adjacency1 = (output_adjacency.unsqueeze(2) >> torch.arange(max_components, device=self.device).view(1, 1, -1)) & 1
+        output_adjacency1 = (output_adjacency.unsqueeze(2) >> torch.arange(max_components, device=self.device).view(1,
+                                                                                                                    1,
+                                                                                                                    -1)) & 1
 
         A = output_adjacency1[torch.arange(num_graphs, device=self.device).view(-1, 1, 1),
                               output_components.unsqueeze(2).to(torch.int64),
-                             output_components.unsqueeze(1).to(torch.int64)]
+                              output_components.unsqueeze(1).to(torch.int64)]
 
         A = torch.maximum(A, self.good_base_matrix.unsqueeze(0))
 
@@ -847,7 +874,8 @@ class MazeBuilderEnv:
         self.good_room_parts = torch.tensor([i for i, r in enumerate(self.part_room_id.tolist())
                                              if len(self.rooms[r].door_ids) > 1], device=self.device)
         self.good_part_room_id = self.part_room_id[self.good_room_parts]
-        self.good_base_matrix = self.part_adjacency_matrix[self.good_room_parts.view(-1, 1), self.good_room_parts.view(1, -1)]
+        self.good_base_matrix = self.part_adjacency_matrix[
+            self.good_room_parts.view(-1, 1), self.good_room_parts.view(1, -1)]
         self.directed_E = torch.nonzero(self.good_base_matrix).to(torch.uint8).to('cpu')
 
     def render(self, env_index=0):
@@ -863,54 +891,45 @@ class MazeBuilderEnv:
 
     # def export(self):
 
-
+#
 # logging.basicConfig(format='%(asctime)s %(message)s',
 #                     # level=logging.DEBUG,
 #                     level=logging.INFO,
 #                     handlers=[logging.StreamHandler()])
-# import logic.rooms.all_rooms
+# # import logic.rooms.all_rooms
+# import logic.rooms.crateria_isolated
 #
-# # import logic.rooms.brinstar_green
-# # import logic.rooms.brinstar_pink
-# # import logic.rooms.crateria
-# # import logic.rooms.crateria_isolated
-# # import logic.rooms.maridia_upper
-# #
-# # torch.manual_seed(0)
-# num_envs = 64
-# # # rooms = logic.rooms.crateria.rooms[:5]
-# rooms = logic.rooms.all_rooms.rooms
-# # # rooms = logic.rooms.maridia_upper.rooms
-# # # rooms = logic.rooms.brinstar_green.rooms + logic.rooms.brinstar_pink.rooms
-# # # rooms = logic.rooms.brinstar_red.rooms
+# num_envs = 2
+# # rooms = logic.rooms.all_rooms.rooms
+# rooms = logic.rooms.crateria_isolated.rooms
 # num_candidates = 1
 # env = MazeBuilderEnv(rooms,
-#                      map_x=60,
-#                      map_y=60,
+#                      map_x=20,
+#                      map_y=20,
 #                      num_envs=num_envs,
 #                      device='cpu',
 #                      must_areas_be_connected=False)
-# #
-# # print("left", torch.sum(env.door_data_left_door.door_data[:, 3] == 1))
-# # print("right", torch.sum(env.door_data_right_door.door_data[:, 3] == -1))
-# # print("up", torch.sum(env.door_data_up_door.door_data[:, 3] == 1))
-# # print("down", torch.sum(env.door_data_down_door.door_data[:, 3] == -1))
-# # print("elevator up", torch.sum(env.door_data_up_door.door_data[:, 3] == 2))
-# # print("elevator down", torch.sum(env.door_data_down_door.door_data[:, 3] == -2))
-# # print("sand up", torch.sum(env.door_data_up_door.door_data[:, 3] == 3))
-# # print("sand down", torch.sum(env.door_data_down_door.door_data[:, 3] == -3))
-# #
-# # import time
-# #
+#
 # env.reset()
 # self = env
-# torch.manual_seed(0)
-# for i in range(233):
-#     # print(i)
+# torch.manual_seed(1)
+# for i in range(5):
 #     candidates = env.get_action_candidates(num_candidates, env.room_mask, env.room_position_x, env.room_position_y)
 #     env.step(candidates[:, 0, :])
-#     # env.render(0)
-#     # env.render(0)
+#     env.render(0)
+#
+# self = env
+# num_envs = self.room_mask.shape[0]
+# map = self.compute_map(env.room_mask, env.room_position_x, env.room_position_y)
+# map_door_left = torch.nonzero(map[:, 1, :] > 1)
+# map_door_right = torch.nonzero(map[:, 1, :] < -1)
+# map_door_up = torch.nonzero(map[:, 2, :] > 1)
+# map_door_down = torch.nonzero(map[:, 2, :] < -1)
+
+# print(chosen_map_door_all)
+# print(chosen_map_door_down)
+
+
 #
 # start = time.perf_counter()
 # A1 = env.compute_fast_component_matrix(env.room_mask, env.room_position_x, env.room_position_y)
