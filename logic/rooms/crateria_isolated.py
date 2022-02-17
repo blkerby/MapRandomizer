@@ -331,31 +331,31 @@ rooms = [
             DoorIdentifier(RIGHT, 5, 0, 0x18B0E, 0x18952),  # Gauntlet Entrance
         ],
     ),
-    Room(
-        name='West Ocean',
-        rom_address=0x793FE,
-        map=[
-            [1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 1, 1, 0, 0, 1, 0, 0],
-            [1, 1, 1, 1, 1, 1, 0, 0],
-            [1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1],
-        ],
-        door_ids=[
-            DoorIdentifier(LEFT, 5, 2, 0x18B26, 0x18A1E),  # Bowling Alley Path (east)
-            DoorIdentifier(LEFT, 0, 4, 0x189CA, 0x18AEA),  # The Moat
-            DoorIdentifier(RIGHT, 7, 0, 0x189EE, 0x1A1E0),  # Attic
-            DoorIdentifier(RIGHT, 7, 1, 0x189FA, 0x1A18C),  # Bowling Alley (top)
-            DoorIdentifier(RIGHT, 2, 2, 0x189E2, 0x18A12),  # Bowling Alley Path (west)
-            DoorIdentifier(RIGHT, 5, 2, 0x18B32, 0x1A198),  # Bowling Alley (middle)
-            DoorIdentifier(RIGHT, 5, 3, 0x18A06, 0x1A300),  # Gravity Suit Room
-            DoorIdentifier(RIGHT, 7, 4, 0x189D6, 0x1A1B0),  # Wrecked Ship Entrance
-        ],
-        parts=[[1, 6, 7], [2, 3, 4], [0, 5]],
-        transient_part_connections=[(1, 0)],  # crumble block
-        missing_part_connections=[(0, 2), (2, 1)],
-    ),
+    # Room(
+    #     name='West Ocean',
+    #     rom_address=0x793FE,
+    #     map=[
+    #         [1, 1, 1, 1, 1, 1, 1, 1],
+    #         [1, 1, 1, 1, 1, 1, 1, 1],
+    #         [1, 1, 1, 0, 0, 1, 0, 0],
+    #         [1, 1, 1, 1, 1, 1, 0, 0],
+    #         [1, 1, 1, 1, 1, 1, 1, 1],
+    #         [1, 1, 1, 1, 1, 1, 1, 1],
+    #     ],
+    #     door_ids=[
+    #         DoorIdentifier(LEFT, 5, 2, 0x18B26, 0x18A1E),  # Bowling Alley Path (east)
+    #         DoorIdentifier(LEFT, 0, 4, 0x189CA, 0x18AEA),  # The Moat
+    #         DoorIdentifier(RIGHT, 7, 0, 0x189EE, 0x1A1E0),  # Attic
+    #         DoorIdentifier(RIGHT, 7, 1, 0x189FA, 0x1A18C),  # Bowling Alley (top)
+    #         DoorIdentifier(RIGHT, 2, 2, 0x189E2, 0x18A12),  # Bowling Alley Path (west)
+    #         DoorIdentifier(RIGHT, 5, 2, 0x18B32, 0x1A198),  # Bowling Alley (middle)
+    #         DoorIdentifier(RIGHT, 5, 3, 0x18A06, 0x1A300),  # Gravity Suit Room
+    #         DoorIdentifier(RIGHT, 7, 4, 0x189D6, 0x1A1B0),  # Wrecked Ship Entrance
+    #     ],
+    #     parts=[[1, 6, 7], [2, 3, 4], [0, 5]],
+    #     transient_part_connections=[(1, 0)],  # crumble block
+    #     missing_part_connections=[(0, 2), (2, 1)],
+    # ),
     Room(
         name='Bowling Alley Path',
         rom_address=0x79461,

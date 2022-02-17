@@ -497,15 +497,19 @@ class MazeBuilderEnv:
         counts_by_door_all = counts_by_door_all[counts_by_door_all[:, 0] > 0, :]
         perm = torch.randperm(counts_by_door_all.shape[0], device=counts_by_door_all.device)
         counts_by_door_all = counts_by_door_all[perm, :]
-        _, chosen_door_indices = torch_scatter.scatter_min(counts_by_door_all[:, 0], counts_by_door_all[:, 1])
+        chosen_min_count, chosen_door_indices = torch_scatter.scatter_min(counts_by_door_all[:, 0], counts_by_door_all[:, 1])
+        # print(chosen_min_count)
         chosen_door_indices = torch.clamp_max(chosen_door_indices, counts_by_door_all.shape[0] - 1)
         chosen_counts_by_door = counts_by_door_all[chosen_door_indices, :]
 
         all_candidates = torch.cat(candidates_list, dim=0)
         all_candidates_env_id = all_candidates[:, 0]
-        dir_match = all_candidates[:, 4] == chosen_counts_by_door[all_candidates_env_id, 2]   # matching door direction
-        door_id_match = all_candidates[:, 5] == chosen_counts_by_door[all_candidates_env_id, 3]  # matching door id (within those of same direction)
+        dir_match = all_candidates[:, 4] == chosen_counts_by_door[all_candidates_env_id, 2]  # matching door direction
+        door_id_match = all_candidates[:, 5] == chosen_counts_by_door[
+            all_candidates_env_id, 3]  # matching door id (within those of same direction)
         filtered_candidates = all_candidates[dir_match & door_id_match, :]
+        perm = torch.randperm(filtered_candidates.shape[0], device=filtered_candidates.device)
+        filtered_candidates = filtered_candidates[perm, :]
 
         dummy_candidates = torch.cat([
             torch.arange(num_envs, device=self.device).view(-1, 1),
@@ -534,9 +538,13 @@ class MazeBuilderEnv:
                                         torch.arange(num_envs, device=candidates.device))
         boundaries_ext = torch.cat([boundaries, torch.tensor([candidates.shape[0]], device=candidates.device)])
         candidate_quantities = boundaries_ext[1:] - boundaries_ext[:-1]
-        restricted_candidate_quantities = torch.clamp(candidate_quantities - 1, min=1)
-        relative_ind = torch.randint(high=2 ** 31, size=[num_envs, num_candidates],
-                                     device=candidates.device) % restricted_candidate_quantities.unsqueeze(1)
+        # restricted_candidate_quantities = torch.clamp(candidate_quantities - 1, min=1)
+        # relative_ind = torch.randint(high=2 ** 31, size=[num_envs, num_candidates],
+        #                              device=candidates.device) % restricted_candidate_quantities.unsqueeze(1)
+        # relative_ind = torch.arange(num_candidates, device=candidates.device).view(1, -1).repeat(num_envs, 1) % \
+        #                restricted_candidate_quantities.unsqueeze(1)
+        relative_ind = torch.minimum(torch.arange(num_candidates, device=candidates.device).view(1, -1).repeat(num_envs, 1),
+                                     candidate_quantities.unsqueeze(1) - 1)
         ind = relative_ind + boundaries.unsqueeze(1)
         out = candidates[ind, 1:]
 
@@ -917,7 +925,6 @@ class MazeBuilderEnv:
         colors = [self.color_map[room.sub_area] for room in rooms]
         self.map_display.display(rooms, xs, ys, colors)
 
-
 # logging.basicConfig(format='%(asctime)s %(message)s',
 #                     # level=logging.DEBUG,
 #                     level=logging.INFO,
@@ -948,7 +955,6 @@ class MazeBuilderEnv:
 # room_mask = env.room_mask
 # room_position_x = env.room_position_x
 # room_position_y = env.room_position_y
-
 
 
 # torch_scatter.scatter_max

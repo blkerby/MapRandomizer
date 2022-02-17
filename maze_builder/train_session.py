@@ -122,6 +122,7 @@ class TrainingSession():
             # torch.cuda.synchronize()
             # logging.debug("Getting candidates")
             action_candidates = env.get_action_candidates(num_candidates, env.room_mask, env.room_position_x, env.room_position_y)
+            # action_candidates = env.get_all_action_candidates(env.room_mask, env.room_position_x, env.room_position_y)
             steps_remaining = torch.full([env.num_envs], episode_length - j,
                                          dtype=torch.float32, device=device)
 
@@ -145,6 +146,9 @@ class TrainingSession():
                 action_expected = action_expected[model_index, torch.arange(env.num_envs, device=device), :]
                 state_raw_logodds = state_raw_logodds[model_index, torch.arange(env.num_envs, device=device), :]
 
+            action_expected = torch.where(action_candidates[:, :, 0] == len(env.rooms) - 1,
+                                          torch.full_like(action_expected, -1e9), action_expected)  # Give dummy move negligible probability except where it is the only choice
+            # print(action_expected)
             probs = torch.softmax(action_expected / temperature, dim=1)
             probs = torch.full_like(probs, explore_eps / num_candidates) + (
                     1 - explore_eps) * probs

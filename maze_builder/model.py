@@ -283,10 +283,10 @@ class Model(torch.nn.Module):
             door_connects_filtered_logodds = torch.where(door_connects, inf_tensor, door_connects_raw_logodds)
             all_filtered_logodds = torch.cat([door_connects_filtered_logodds, missing_connects_raw_logodds], dim=1)
             state_value_probs = torch.sigmoid(all_filtered_logodds)
-            state_value_expected = torch.sum(state_value_probs, dim=1) / 2
-            # state_value_probs = torch.softmax(state_value_raw_logprobs, dim=1)
-            # arange = torch.arange(self.max_possible_reward + 1, device=map.device, dtype=torch.float32)
-            # state_value_expected = torch.sum(state_value_probs * arange.view(1, -1), dim=1)
+            state_value_log_probs = torch.log(state_value_probs)  # TODO: use more numerically stable approach
+            state_value_expected = torch.sum(state_value_log_probs, dim=1)
+            # state_value_expected = torch.sum(state_value_probs, dim=1) / 2
+
             return all_filtered_logodds, state_value_probs, state_value_expected
 
     def forward(self, map, room_mask, room_position_x, room_position_y, steps_remaining, env):
