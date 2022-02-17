@@ -61,7 +61,7 @@ max_possible_reward = envs[0].max_reward
 good_room_parts = [i for i, r in enumerate(envs[0].part_room_id.tolist()) if len(envs[0].rooms[r].door_ids) > 1]
 logging.info("max_possible_reward = {}".format(max_possible_reward))
 
-#
+
 # def make_dummy_model():
 #     return Model(env_config=env_config,
 #                  num_doors=envs[0].num_doors,
@@ -124,7 +124,7 @@ logging.info("max_possible_reward = {}".format(max_possible_reward))
 #         logging.info("init gen {}/{}: cost={:.3f} +/- {:.3f}".format(
 #             session.replay_buffer.size, session.replay_buffer.capacity,
 #                max_possible_reward - mean_reward, ci_reward))
-
+#
 # pickle.dump(session, open('models/init_session.pkl', 'wb'))
 session = pickle.load(open('models/init_session.pkl', 'rb'))
 session.envs = envs
