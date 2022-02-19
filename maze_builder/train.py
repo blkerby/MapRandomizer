@@ -152,27 +152,27 @@ session.model.state_value_lin.weight.data.zero_()
 session.model.state_value_lin.bias.data.zero_()
 session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=session.average_parameters.beta)
 session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.0001, betas=(0.95, 0.99), eps=1e-8)
-session.replay_buffer.resize(2 ** 19)
+session.replay_buffer.resize(2 ** 18)
 logging.info(session.model)
 logging.info(session.optimizer)
 
 # session = pickle.load(open('models/session-2022-02-17T18:39:41.008098.pkl-bk6', 'rb'))
 
 
-batch_size_pow0 = 13
-batch_size_pow1 = 13
-lr0 = 1e-4
-lr1 = 1e-4
+batch_size_pow0 = 11
+batch_size_pow1 = 11
+lr0 = 1e-3
+lr1 = 5e-4
 num_candidates0 = 28
 num_candidates1 = 28
 num_candidates = num_candidates0
-temperature0 = 0.2
+temperature0 = 2.0
 temperature1 = 0.2
-explore_eps0 = 1e-15
-explore_eps1 = 1e-15
+explore_eps0 = 1.0
+explore_eps1 = 1e-5
 annealing_start = 0
-annealing_time = 1
-pass_factor = 2.0
+annealing_time = 2048
+pass_factor = 0.5
 num_gen_rounds = 1
 alpha0 = 0.2
 alpha1 = 0.2

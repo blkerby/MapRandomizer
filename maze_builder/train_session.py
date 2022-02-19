@@ -22,6 +22,12 @@ def _rand_choice(p):
     return choice
 
 
+def compute_mse_loss(log_probs, labels):
+    probs = torch.where(log_probs >= 0, log_probs + 1,
+                        torch.exp(torch.clamp_max(log_probs, 0.0)))  # Clamp is "no-op" but avoids non-finite gradients
+    return (probs - labels) ** 2
+
+
 class TrainingSession():
     def __init__(self, envs: List[MazeBuilderEnv],
                  model: Model,
@@ -109,7 +115,7 @@ class TrainingSession():
         device = self.envs[env_id].device
         env = self.envs[env_id]
         env.reset()
-        state_raw_logodds_list = []
+        state_raw_logprobs_list = []
         action_list = []
         prob_list = []
         for model in models:
@@ -134,17 +140,17 @@ class TrainingSession():
                 model_action_expected_list = []
                 model_state_raw_logodds_list = []
                 for model in models:
-                    _, action_expected, state_raw_logodds, _ = self.forward_state_action(
+                    _, action_expected, state_raw_logprobs, _ = self.forward_state_action(
                         model, env.room_mask, env.room_position_x, env.room_position_y,
                         action_candidates, steps_remaining, env_id=env_id)
                     model_action_expected_list.append(action_expected)
-                    model_state_raw_logodds_list.append(state_raw_logodds)
+                    model_state_raw_logodds_list.append(state_raw_logprobs)
 
                 action_expected = torch.stack(model_action_expected_list, dim=0)
-                state_raw_logodds = torch.stack(model_state_raw_logodds_list, dim=0)
+                state_raw_logprobs = torch.stack(model_state_raw_logodds_list, dim=0)
 
                 action_expected = action_expected[model_index, torch.arange(env.num_envs, device=device), :]
-                state_raw_logodds = state_raw_logodds[model_index, torch.arange(env.num_envs, device=device), :]
+                state_raw_logprobs = state_raw_logprobs[model_index, torch.arange(env.num_envs, device=device), :]
 
             action_expected = torch.where(action_candidates[:, :, 0] == len(env.rooms) - 1,
                                           torch.full_like(action_expected, -1e9), action_expected)  # Give dummy move negligible probability except where it is the only choice
@@ -162,28 +168,28 @@ class TrainingSession():
 
             env.step(action)
             action_list.append(action.to('cpu'))
-            state_raw_logodds_list.append(state_raw_logodds.to('cpu'))
+            state_raw_logprobs_list.append(state_raw_logprobs.to('cpu'))
             prob_list.append(selected_prob.to('cpu'))
 
         door_connects_tensor = env.current_door_connects().to('cpu')
         missing_connects_tensor = env.compute_missing_connections().to('cpu')
         reward_tensor = self.compute_reward(door_connects_tensor, missing_connects_tensor)
-        state_raw_logodds_tensor = torch.stack(state_raw_logodds_list, dim=1)
+        state_raw_logprobs_tensor = torch.stack(state_raw_logprobs_list, dim=1)
         action_tensor = torch.stack(action_list, dim=1)
         prob_tensor = torch.mean(torch.stack(prob_list, dim=1), dim=1)
 
-        state_raw_logodds_flat = state_raw_logodds_tensor.view(env.num_envs * episode_length,
-                                                               state_raw_logodds_tensor.shape[-1])
+        state_raw_logprobs_flat = state_raw_logprobs_tensor.view(env.num_envs * episode_length,
+                                                               state_raw_logprobs_tensor.shape[-1])
         # reward_flat = reward_tensor.view(env.num_envs, 1).repeat(1, episode_length).view(-1)
         door_connects_flat = door_connects_tensor.view(env.num_envs, 1, -1).repeat(1, episode_length, 1).view(env.num_envs * episode_length, -1)
         missing_connects_flat = missing_connects_tensor.view(env.num_envs, 1, -1).repeat(1, episode_length, 1).view(
             env.num_envs * episode_length, -1)
         all_outputs_flat = torch.cat([door_connects_flat, missing_connects_flat], dim=1)
 
-        # loss_flat = torch.nn.functional.cross_entropy(state_raw_logodds_flat, reward_flat, reduction='none')
-        loss_flat = torch.mean(torch.nn.functional.binary_cross_entropy_with_logits(state_raw_logodds_flat,
-                                                                    all_outputs_flat.to(state_raw_logodds_flat.dtype),
-                                                                    reduction='none'), dim=1)
+        # loss_flat = torch.mean(torch.nn.functional.binary_cross_entropy_with_logits(state_raw_logodds_flat,
+        #                                                             all_outputs_flat.to(state_raw_logodds_flat.dtype),
+        #                                                             reduction='none'), dim=1)
+        loss_flat = torch.mean(compute_mse_loss(state_raw_logprobs_flat, all_outputs_flat.to(state_raw_logprobs_flat.dtype)), dim=1)
         loss = loss_flat.view(env.num_envs, episode_length)
         episode_loss = torch.mean(loss, dim=1)
 
@@ -256,45 +262,12 @@ class TrainingSession():
         state_value_raw_logprobs, _, _ = self.model.forward_multiclass(
             map, data.room_mask, data.room_position_x, data.room_position_y, data.steps_remaining, env)
 
-        # loss = torch.nn.functional.cross_entropy(state_value_raw_logprobs, data.reward)
         all_outputs = torch.cat([data.door_connects, data.missing_connects], dim=1)
-        loss = torch.nn.functional.binary_cross_entropy_with_logits(state_value_raw_logprobs,
-                                                                    all_outputs.to(state_value_raw_logprobs.dtype))
-        self.optimizer.zero_grad()
-        self.grad_scaler.scale(loss).backward()
-
-        if self.sam_scale is not None:
-            for i, param in enumerate(self.model.parameters()):
-                param.data.copy_(saved_params[i])
-
-        self.grad_scaler.step(self.optimizer)
-        self.grad_scaler.update()
-        self.model.decay(self.decay_amount * self.optimizer.param_groups[0]['lr'])
-        self.model.project()
-        self.average_parameters.update(self.model.all_param_data())
-        return loss.item()
-
-    def train_distillation_batch(self, data: TrainingData, teacher_model: Model):
-        self.model.train()
-
-        if self.sam_scale is not None:
-            saved_params = [param.data.clone() for param in self.model.parameters()]
-            for param in self.model.parameters():
-                param.data += torch.randn_like(param.data) * self.sam_scale
-            self.model.project()
-
-        env = self.envs[0]
-        map = env.compute_map(data.room_mask, data.room_position_x, data.room_position_y)
-        with torch.no_grad():
-            teacher_logodds, teacher_probs, _ = teacher_model.forward_multiclass(
-                map, data.room_mask, data.room_position_x, data.room_position_y, data.steps_remaining, env)
-        state_value_raw_logodds, _, _ = self.model.forward_multiclass(
-            map, data.room_mask, data.room_position_x, data.room_position_y, data.steps_remaining, env)
-
-        # loss = torch.nn.functional.binary_cross_entropy_with_logits(state_value_raw_logodds,
-        #                                                             data.door_connects.to(state_value_raw_logprobs.dtype))
-        loss = torch.nn.functional.binary_cross_entropy_with_logits(state_value_raw_logodds, teacher_probs) - \
-               torch.nn.functional.binary_cross_entropy_with_logits(teacher_logodds, teacher_probs)
+        # loss = torch.nn.functional.binary_cross_entropy_with_logits(state_value_raw_logprobs,
+        #                                                             all_outputs.to(state_value_raw_logprobs.dtype))
+        loss = torch.mean(compute_mse_loss(state_value_raw_logprobs, all_outputs.to(state_value_raw_logprobs.dtype)))
+        # print(state_value_raw_logprobs, all_outputs.to(state_value_raw_logprobs.dtype),
+        #       compute_mse_loss(state_value_raw_logprobs, all_outputs.to(state_value_raw_logprobs.dtype)))
 
         self.optimizer.zero_grad()
         self.grad_scaler.scale(loss).backward()
@@ -309,57 +282,3 @@ class TrainingSession():
         self.model.project()
         self.average_parameters.update(self.model.all_param_data())
         return loss.item()
-
-    def train_distillation_batch_augmented(self, data: TrainingData, teacher_model: Model, num_candidates):
-        self.model.train()
-
-        if self.sam_scale is not None:
-            saved_params = [param.data.clone() for param in self.model.parameters()]
-            for param in self.model.parameters():
-                param.data += torch.randn_like(param.data) * self.sam_scale
-            self.model.project()
-
-        env = self.envs[0]
-        action_candidates = env.get_action_candidates(num_candidates, data.room_mask, data.room_position_x,
-                                                      data.room_position_y)
-        with torch.no_grad():
-            _, _, _, teacher_raw_logodds = self.forward_state_action(
-                teacher_model, data.room_mask, data.room_position_x, data.room_position_y,
-                action_candidates, data.steps_remaining, env_id=0)
-            teacher_probs = torch.sigmoid(teacher_raw_logodds)
-        _, _, _, raw_logodds = self.forward_state_action(
-            self.model, data.room_mask, data.room_position_x, data.room_position_y,
-            action_candidates, data.steps_remaining, env_id=0)
-
-        loss = torch.nn.functional.binary_cross_entropy_with_logits(raw_logodds, teacher_probs) - \
-               torch.nn.functional.binary_cross_entropy_with_logits(teacher_raw_logodds, teacher_probs)
-
-        self.optimizer.zero_grad()
-        self.grad_scaler.scale(loss).backward()
-
-        if self.sam_scale is not None:
-            for i, param in enumerate(self.model.parameters()):
-                param.data.copy_(saved_params[i])
-
-        self.grad_scaler.step(self.optimizer)
-        self.grad_scaler.update()
-        self.model.decay(self.decay_amount * self.optimizer.param_groups[0]['lr'])
-        self.model.project()
-        self.average_parameters.update(self.model.all_param_data())
-        return loss.item()
-
-    def eval_batch(self, data: TrainingData):
-        with self.average_parameters.average_parameters(self.model.all_param_data()):
-            self.model.eval()
-            with torch.no_grad():
-                env = self.envs[0]
-                map = env.compute_map(data.room_mask, data.room_position_x, data.room_position_y)
-                state_value_raw_logprobs, _, state_value_expected = self.model.forward_multiclass(
-                    map, data.room_mask, data.room_position_x, data.room_position_y, data.steps_remaining, env)
-
-        all_outputs = torch.cat([data.door_connects, data.missing_connects], dim=1)
-        # loss = torch.nn.functional.cross_entropy(state_value_raw_logprobs, data.reward)
-        loss = torch.nn.functional.binary_cross_entropy_with_logits(state_value_raw_logprobs,
-                                                                    all_outputs.to(state_value_raw_logprobs.dtype))
-        mse = torch.nn.functional.mse_loss(state_value_expected, data.reward)
-        return loss.item(), mse.item()
