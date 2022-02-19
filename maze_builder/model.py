@@ -165,6 +165,7 @@ class Model(torch.nn.Module):
                  room_embedding_width,
                  fc_widths,
                  connectivity_in_width, connectivity_out_width,
+                 arity,
                  map_dropout_p=0.0,
                  global_dropout_p=0.0):
         super().__init__()
@@ -178,10 +179,10 @@ class Model(torch.nn.Module):
         self.room_embedding_width = room_embedding_width
         self.connectivity_in_width = connectivity_in_width
         self.connectivity_out_width = connectivity_out_width
+        self.arity = arity
         self.num_rooms = len(env_config.rooms) + 1
         self.map_dropout_p = map_dropout_p
         # self.global_dropout_p = global_dropout_p
-        common_act = torch.nn.SELU()
 
         # self.room_embedding = torch.nn.Parameter(torch.randn([self.map_x * self.map_y, room_embedding_width]))
 
@@ -191,7 +192,8 @@ class Model(torch.nn.Module):
         map_channels = [self.map_c] + map_channels
         width = self.map_x
         height = self.map_y
-        arity = 1
+        # arity = 2
+        common_act = MaxOut(arity)
         for i in range(len(map_channels) - 1):
             conv_layer = torch.nn.Conv2d(
                 map_channels[i], map_channels[i + 1] * arity,
@@ -247,6 +249,7 @@ class Model(torch.nn.Module):
                 X = self.map_act_layers[i](X)
 
             # Fully-connected layers on whole map data (starting with output of convolutional layers)
+            # print(X.shape)
             X = self.map_global_pool(X)
             # X = torch.cat([X, steps_remaining.view(-1, 1), room_mask, connectivity_out], dim=1)
             X = torch.cat([X, steps_remaining.view(-1, 1), room_mask], dim=1)

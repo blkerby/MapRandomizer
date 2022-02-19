@@ -150,8 +150,12 @@ class TrainingSession():
                                           torch.full_like(action_expected, -1e9), action_expected)  # Give dummy move negligible probability except where it is the only choice
             # print(action_expected)
             probs = torch.softmax(action_expected / temperature, dim=1)
-            probs = torch.full_like(probs, explore_eps / num_candidates) + (
-                    1 - explore_eps) * probs
+            if explore_eps != 0.0:
+                candidate_count = torch.sum(action_candidates[:, :, 0] != len(env.rooms) - 1, dim=1)
+                explore_probs = torch.where(action_candidates[:, :, 0] != len(env.rooms) - 1,
+                                            1 / torch.clamp_min(candidate_count.unsqueeze(1), 1),
+                                            torch.zeros_like(probs))
+                probs = explore_eps * explore_probs + (1 - explore_eps) * probs
             action_index = _rand_choice(probs)
             selected_prob = probs[torch.arange(env.num_envs, device=device), action_index]
             action = action_candidates[torch.arange(env.num_envs, device=device), action_index, :]

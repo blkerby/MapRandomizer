@@ -70,30 +70,38 @@ device = torch.device('cpu')
 # session = CPU_Unpickler(open('models/01-26-session-2022-01-16T18:58:02.184898.pkl', 'rb')).load()
 # session = CPU_Unpickler(open('models/02-01-session-2022-01-29T14:03:23.594948.pkl', 'rb')).load()
 # session = CPU_Unpickler(open('models/02-05-session-2022-01-29T14:03:23.594948.pkl', 'rb')).load()
-session = CPU_Unpickler(open('models/02-10-session-2022-01-29T14:03:23.594948.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/02-10-session-2022-01-29T14:03:23.594948.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/crateria/session-2022-02-16T18:14:10.601679.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/crateria/session-2022-02-16T18:14:10.601679.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/crateria/session-2022-02-16T22:53:28.522924.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/crateria/session-2022-02-16T22:53:28.522924.pkl', 'rb')).load()
+session = CPU_Unpickler(open('models/crateria/session-2022-02-17T18:39:41.008098.pkl', 'rb')).load()
 #
 
 print(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects.to(torch.float32), dim=0)))
-print(torch.max(session.replay_buffer.episode_data.reward))
+max_reward = torch.max(session.replay_buffer.episode_data.reward)
+print(max_reward, torch.mean((session.replay_buffer.episode_data.reward == max_reward).to(torch.float32)),
+      session.replay_buffer.episode_data.reward.shape[0])
 
-ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 342)
+ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 35)
 # ind = ind[(ind >= 200000) & (ind < 262144)].view(-1, 1)
 i = int(random.randint(0, ind.shape[0] - 1))
+# i = 2
 num_rooms = len(session.envs[0].rooms)
 action = session.replay_buffer.episode_data.action[ind[i], :]
 step_indices = torch.tensor([num_rooms])
 room_mask, room_position_x, room_position_y = reconstruct_room_data(action, step_indices, num_rooms)
 
-print(torch.where(session.replay_buffer.episode_data.missing_connects[ind[i, 0], :] == False))
-print(torch.where(room_mask[0, :251] == False))
-print(torch.where(session.replay_buffer.episode_data.door_connects[ind[i, 0], :] == False))
-dir(session.envs[0])
+# print(torch.where(session.replay_buffer.episode_data.missing_connects[ind[i, 0], :] == False))
+# print(torch.where(room_mask[0, :251] == False))
+# print(torch.where(session.replay_buffer.episode_data.door_connects[ind[i, 0], :] == False))
+# dir(session.envs[0])
 
 #
 num_envs = 1
 # num_envs = 8
-rooms = logic.rooms.all_rooms.rooms
-
+# rooms = logic.rooms.all_rooms.rooms
+rooms = session.envs[0].rooms
 
 
 # doors = {}

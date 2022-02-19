@@ -29,13 +29,13 @@ logging.basicConfig(format='%(asctime)s %(message)s',
 start_time = datetime.now()
 pickle_name = 'models/session-{}.pkl'.format(start_time.isoformat())
 
-devices = [torch.device('cpu')]
-# devices = [torch.device('cuda:1'), torch.device('cuda:0')]
+# devices = [torch.device('cpu')]
+devices = [torch.device('cuda:1'), torch.device('cuda:0')]
 num_devices = len(devices)
 device = devices[0]
 executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
-num_envs = 2 ** 8
+num_envs = 2 ** 10
 rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.all_rooms.rooms
 episode_length = len(rooms)
@@ -67,6 +67,7 @@ logging.info("max_possible_reward = {}".format(max_possible_reward))
 #                  num_doors=envs[0].num_doors,
 #                  num_missing_connects=envs[0].num_missing_connects,
 #                  num_room_parts=len(envs[0].good_room_parts),
+#                  arity=1,
 #                  map_channels=[],
 #                  map_stride=[],
 #                  map_kernel_size=[],
@@ -85,7 +86,7 @@ logging.info("max_possible_reward = {}".format(max_possible_reward))
 # logging.info("{}".format(model))
 # logging.info("{}".format(optimizer))
 #
-# replay_size = 2 ** 14
+# replay_size = 2 ** 19
 # session = TrainingSession(envs,
 #                           model=model,
 #                           optimizer=optimizer,
@@ -124,48 +125,53 @@ logging.info("max_possible_reward = {}".format(max_possible_reward))
 #         logging.info("init gen {}/{}: cost={:.3f} +/- {:.3f}".format(
 #             session.replay_buffer.size, session.replay_buffer.capacity,
 #                max_possible_reward - mean_reward, ci_reward))
-#
-# pickle.dump(session, open('models/init_session.pkl', 'wb'))
-session = pickle.load(open('models/init_session.pkl', 'rb'))
+
+# pickle.dump(session, open('models/init_session_no_heuristc.pkl', 'wb'))
+# session = pickle.load(open('models/init_session.pkl', 'rb'))
+# session = pickle.load(open('models/init_session_no_heuristic.pkl', 'rb'))
 session.envs = envs
-# session = pickle.load(open('models/session-2022-02-16T10:22:52.372286.pkl-bk4', 'rb'))
+
 
 session.model = Model(
     env_config=env_config,
     num_doors=envs[0].num_doors,
     num_missing_connects=envs[0].num_missing_connects,
     num_room_parts=len(envs[0].good_room_parts),
-    map_channels=[16, 32],
-    map_stride=[2, 2],
-    map_kernel_size=[7, 3],
-    map_padding=2 * [False],
+    arity=2,
+    map_channels=[16, 64, 256],
+    map_stride=[2, 2, 2],
+    map_kernel_size=[7, 5, 3],
+    map_padding=3 * [False],
     room_embedding_width=None,
     connectivity_in_width=16,
     connectivity_out_width=64,
-    fc_widths=[256, 128, 64],
+    fc_widths=[256, 256],
     global_dropout_p=0.0,
 ).to(device)
 session.model.state_value_lin.weight.data.zero_()
 session.model.state_value_lin.bias.data.zero_()
 session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=session.average_parameters.beta)
 session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.0001, betas=(0.95, 0.99), eps=1e-8)
-session.replay_buffer.resize(2 ** 14)
+session.replay_buffer.resize(2 ** 19)
 logging.info(session.model)
 logging.info(session.optimizer)
 
-batch_size_pow0 = 8
-batch_size_pow1 = 8
-lr0 = 1e-3
+# session = pickle.load(open('models/session-2022-02-17T18:39:41.008098.pkl-bk6', 'rb'))
+
+
+batch_size_pow0 = 13
+batch_size_pow1 = 13
+lr0 = 1e-4
 lr1 = 1e-4
 num_candidates0 = 28
 num_candidates1 = 28
 num_candidates = num_candidates0
-temperature0 = 10.0
-temperature1 = 0.02
-explore_eps0 = 0.2
-explore_eps1 = 0.001
+temperature0 = 0.2
+temperature1 = 0.2
+explore_eps0 = 1e-15
+explore_eps1 = 1e-15
 annealing_start = 0
-annealing_time = 256
+annealing_time = 1
 pass_factor = 2.0
 num_gen_rounds = 1
 alpha0 = 0.2
@@ -179,15 +185,17 @@ total_prob = 0.0
 total_round_cnt = 0
 save_freq = 64
 summary_freq = 256
-session.decay_amount = 0.05
+session.decay_amount = 0.0
+session.optimizer.param_groups[0]['betas'] = (0.95, 0.99)
+session.average_parameters.beta = 0.995
 
 min_door_value = max_possible_reward
 total_min_door_frac = 0
 logging.info("Checkpoint path: {}".format(pickle_name))
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
 logging.info(
-    "map_x={}, map_y={}, num_envs={}, pass_factor={}, lr0={}, lr1={}, num_candidates0={}, num_candidates1={}, replay_size={}/{}, num_params={}, decay_amount={}, temp0={}, temp1={}, eps0={}, eps1={}, alpha0={}, alpha1={}".format(
-        map_x, map_y, session.envs[0].num_envs, pass_factor, lr0, lr1, num_candidates0, num_candidates1, session.replay_buffer.size,
+    "map_x={}, map_y={}, num_envs={}, batch_size_pow1={}, pass_factor={}, lr0={}, lr1={}, num_candidates0={}, num_candidates1={}, replay_size={}/{}, num_params={}, decay_amount={}, temp0={}, temp1={}, eps0={}, eps1={}, alpha0={}, alpha1={}".format(
+        map_x, map_y, session.envs[0].num_envs, batch_size_pow1, pass_factor, lr0, lr1, num_candidates0, num_candidates1, session.replay_buffer.size,
         session.replay_buffer.capacity, num_params, session.decay_amount,
         temperature0, temperature1, explore_eps0, explore_eps1, alpha0, alpha1))
 logging.info("Starting training")
@@ -296,8 +304,8 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             pickle.dump(session, open(pickle_name, 'wb'))
-            # pickle.dump(session, open(pickle_name + '-bk4', 'wb'))
-            # # session.replay_buffer.episode_data = episode_data
+            # pickle.dump(session, open(pickle_name + '-bk9', 'wb'))
+            # # # session.replay_buffer.episode_data = episode_data
             # session = pickle.load(open(pickle_name + '-bk6', 'rb'))
     if session.num_rounds % summary_freq < num_gen_rounds:
         logging.info(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects, dim=0)))
