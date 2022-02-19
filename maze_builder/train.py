@@ -127,7 +127,7 @@ logging.info("max_possible_reward = {}".format(max_possible_reward))
 #                max_possible_reward - mean_reward, ci_reward))
 
 # pickle.dump(session, open('models/init_session_no_heuristc.pkl', 'wb'))
-# session = pickle.load(open('models/init_session.pkl', 'rb'))
+session = pickle.load(open('models/init_session.pkl', 'rb'))
 # session = pickle.load(open('models/init_session_no_heuristic.pkl', 'rb'))
 session.envs = envs
 
