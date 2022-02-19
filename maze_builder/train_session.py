@@ -109,7 +109,7 @@ class TrainingSession():
         action_expected = expected[:, 1:]
         return state_expected, action_expected, state_raw_logodds, raw_logodds
 
-    def generate_round_inner(self, models, model_fractions, episode_length: int, num_candidates: int, temperature: float,
+    def generate_round_inner(self, model, model_fractions, episode_length: int, num_candidates: int, temperature: float,
                              explore_eps: float,
                              env_id, render=False) -> EpisodeData:
         device = self.envs[env_id].device
@@ -118,8 +118,7 @@ class TrainingSession():
         state_raw_logprobs_list = []
         action_list = []
         prob_list = []
-        for model in models:
-            model.eval()
+        model.eval()
         # torch.cuda.synchronize()
         # logging.debug("Averaging parameters")
         for j in range(episode_length):
@@ -132,25 +131,11 @@ class TrainingSession():
             steps_remaining = torch.full([env.num_envs], episode_length - j,
                                          dtype=torch.float32, device=device)
 
-            model_index = torch.multinomial(torch.tensor(model_fractions, device=device),
-                                            num_samples=env.num_envs,
-                                            replacement=True)
             with torch.no_grad():
                 # print("inner", env_id, j, env.device, model.state_value_lin.weight.device)
-                model_action_expected_list = []
-                model_state_raw_logodds_list = []
-                for model in models:
-                    _, action_expected, state_raw_logprobs, _ = self.forward_state_action(
-                        model, env.room_mask, env.room_position_x, env.room_position_y,
-                        action_candidates, steps_remaining, env_id=env_id)
-                    model_action_expected_list.append(action_expected)
-                    model_state_raw_logodds_list.append(state_raw_logprobs)
-
-                action_expected = torch.stack(model_action_expected_list, dim=0)
-                state_raw_logprobs = torch.stack(model_state_raw_logodds_list, dim=0)
-
-                action_expected = action_expected[model_index, torch.arange(env.num_envs, device=device), :]
-                state_raw_logprobs = state_raw_logprobs[model_index, torch.arange(env.num_envs, device=device), :]
+                _, action_expected, state_raw_logprobs, _ = self.forward_state_action(
+                    model, env.room_mask, env.room_position_x, env.room_position_y,
+                    action_candidates, steps_remaining, env_id=env_id)
 
             action_expected = torch.where(action_candidates[:, :, 0] == len(env.rooms) - 1,
                                           torch.full_like(action_expected, -1e9), action_expected)  # Give dummy move negligible probability except where it is the only choice
@@ -202,25 +187,25 @@ class TrainingSession():
             test_loss=episode_loss,
         )
 
-    def generate_round_models(self, models, model_fractions, episode_length: int, num_candidates: int, temperature: float, explore_eps: float,
+    def generate_round_model(self, model, model_fractions, episode_length: int, num_candidates: int, temperature: float, explore_eps: float,
                        executor: Optional[concurrent.futures.ThreadPoolExecutor] = None,
                        render=False) -> EpisodeData:
         if executor is None:
             episode_data_list = []
-            model_lists = [[copy.deepcopy(model).to(env.device) for model in models] for env in self.envs]
+            model_list = [copy.deepcopy(model).to(env.device) for env in self.envs]
             for i, env in enumerate(self.envs):
-                models = model_lists[i]
+                model = model_list[i]
                 episode_data_list.append(self.generate_round_inner(
-                    models, model_fractions, episode_length, num_candidates, temperature, explore_eps, render=render,
+                    model, model_fractions, episode_length, num_candidates, temperature, explore_eps, render=render,
                     env_id=i))
         else:
             futures_list = []
-            model_lists = [[copy.deepcopy(model).to(env.device) for model in models] for env in self.envs]
+            model_list = [copy.deepcopy(model).to(env.device) for env in self.envs]
             for i, env in enumerate(self.envs):
-                models = model_lists[i]
+                model = model_list[i]
                 # print("gen", i, env.device, model.state_value_lin.weight.device)
-                future = executor.submit(lambda i=i, models=models: self.generate_round_inner(
-                    models, model_fractions, episode_length, num_candidates, temperature, explore_eps, render=render, env_id=i))
+                future = executor.submit(lambda i=i, model=model: self.generate_round_inner(
+                    model, model_fractions, episode_length, num_candidates, temperature, explore_eps, render=render, env_id=i))
                 futures_list.append(future)
             episode_data_list = [future.result() for future in futures_list]
         for env in self.envs:
@@ -239,7 +224,7 @@ class TrainingSession():
                        executor: Optional[concurrent.futures.ThreadPoolExecutor] = None,
                        render=False) -> EpisodeData:
         with self.average_parameters.average_parameters(self.model.all_param_data()):
-            return self.generate_round_models(models=[self.model],
+            return self.generate_round_model(model=self.model,
                                               model_fractions=[1.0],
                                               episode_length=episode_length,
                                               num_candidates=num_candidates,

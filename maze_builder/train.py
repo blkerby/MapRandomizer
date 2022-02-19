@@ -180,7 +180,7 @@ logging.info(session.optimizer)
 batch_size_pow0 = 12
 batch_size_pow1 = 12
 lr0 = 1e-3
-lr1 = 1e-3
+lr1 = 5e-4
 num_candidates0 = 28
 num_candidates1 = 28
 num_candidates = num_candidates0
@@ -190,7 +190,7 @@ explore_eps0 = 1.0
 explore_eps1 = 1e-5
 annealing_start = 0
 annealing_time = 2048
-pass_factor = 1.0
+pass_factor = 2.0
 num_gen_rounds = 1
 alpha0 = 0.2
 alpha1 = 0.2
