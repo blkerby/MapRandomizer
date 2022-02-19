@@ -9,7 +9,7 @@ from maze_builder.env import MazeBuilderEnv
 import logic.rooms.crateria
 from datetime import datetime
 import pickle
-from maze_builder.model import Model
+from maze_builder.model import Model, DoorLocalModel
 from maze_builder.train_session import TrainingSession
 from maze_builder.replay import ReplayBuffer
 from model_average import ExponentialAverage
@@ -132,22 +132,40 @@ session = pickle.load(open('models/init_session.pkl', 'rb'))
 session.envs = envs
 
 
-session.model = Model(
+# session.model = Model(
+#     env_config=env_config,
+#     num_doors=envs[0].num_doors,
+#     num_missing_connects=envs[0].num_missing_connects,
+#     num_room_parts=len(envs[0].good_room_parts),
+#     arity=2,
+#     map_channels=[16, 64, 256],
+#     map_stride=[2, 2, 2],
+#     map_kernel_size=[7, 5, 3],
+#     map_padding=3 * [False],
+#     room_embedding_width=None,
+#     connectivity_in_width=16,
+#     connectivity_out_width=64,
+#     fc_widths=[256, 256],
+#     global_dropout_p=0.0,
+# ).to(device)
+
+session.model = DoorLocalModel(
     env_config=env_config,
     num_doors=envs[0].num_doors,
     num_missing_connects=envs[0].num_missing_connects,
     num_room_parts=len(envs[0].good_room_parts),
-    arity=2,
-    map_channels=[16, 64, 256],
-    map_stride=[2, 2, 2],
-    map_kernel_size=[7, 5, 3],
-    map_padding=3 * [False],
-    room_embedding_width=None,
-    connectivity_in_width=16,
-    connectivity_out_width=64,
-    fc_widths=[256, 256],
-    global_dropout_p=0.0,
+    map_channels=4,
+    map_kernel_size=12,
+    connectivity_in_width=64,
+    local_widths=[128, 0],
+    global_widths=[128, 128],
+    # local_widths=[256, 256],
+    # global_widths=[256, 256],
+    fc_widths=[256, 256, 256],
+    alpha=2.0,
+    arity=1,
 ).to(device)
+
 session.model.state_value_lin.weight.data.zero_()
 session.model.state_value_lin.bias.data.zero_()
 session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=session.average_parameters.beta)
@@ -159,10 +177,10 @@ logging.info(session.optimizer)
 # session = pickle.load(open('models/session-2022-02-17T18:39:41.008098.pkl-bk6', 'rb'))
 
 
-batch_size_pow0 = 11
-batch_size_pow1 = 11
+batch_size_pow0 = 12
+batch_size_pow1 = 12
 lr0 = 1e-3
-lr1 = 5e-4
+lr1 = 1e-3
 num_candidates0 = 28
 num_candidates1 = 28
 num_candidates = num_candidates0
@@ -172,7 +190,7 @@ explore_eps0 = 1.0
 explore_eps1 = 1e-5
 annealing_start = 0
 annealing_time = 2048
-pass_factor = 0.5
+pass_factor = 1.0
 num_gen_rounds = 1
 alpha0 = 0.2
 alpha1 = 0.2
