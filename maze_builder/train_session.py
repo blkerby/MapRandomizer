@@ -138,7 +138,7 @@ class TrainingSession():
                     action_candidates, steps_remaining, env_id=env_id)
 
             action_expected = torch.where(action_candidates[:, :, 0] == len(env.rooms) - 1,
-                                          torch.full_like(action_expected, -1e9), action_expected)  # Give dummy move negligible probability except where it is the only choice
+                                          torch.full_like(action_expected, -1e15), action_expected)  # Give dummy move negligible probability except where it is the only choice
             # print(action_expected)
             probs = torch.softmax(action_expected / temperature, dim=1)
             if explore_eps != 0.0:

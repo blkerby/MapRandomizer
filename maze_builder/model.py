@@ -379,8 +379,9 @@ class DoorLocalModel(torch.nn.Module):
         self.local_widths = local_widths
         self.global_widths = global_widths
         self.num_rooms = len(env_config.rooms) + 1
-        common_act = torch.nn.ReLU()
+        # common_act = torch.nn.ReLU()
         # common_act = torch.nn.SELU()
+        common_act = torch.nn.Mish()
         # common_act = MaxOut(arity)
 
         # self.connectivity_left_mat = torch.nn.Parameter(torch.randn([connectivity_in_width, num_room_parts]))

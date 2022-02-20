@@ -35,15 +35,15 @@ num_devices = len(devices)
 device = devices[0]
 executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
-num_envs = 2 ** 10
-rooms = logic.rooms.crateria_isolated.rooms
-# rooms = logic.rooms.all_rooms.rooms
+num_envs = 2 ** 8
+# rooms = logic.rooms.crateria_isolated.rooms
+rooms = logic.rooms.all_rooms.rooms
 episode_length = len(rooms)
 
-map_x = 32
-map_y = 32
-# map_x = 72
-# map_y = 72
+# map_x = 32
+# map_y = 32
+map_x = 72
+map_y = 72
 env_config = EnvConfig(
     rooms=rooms,
     map_x=map_x,
@@ -86,7 +86,7 @@ logging.info("max_possible_reward = {}".format(max_possible_reward))
 # logging.info("{}".format(model))
 # logging.info("{}".format(optimizer))
 #
-# replay_size = 2 ** 19
+# replay_size = 2 ** 21
 # session = TrainingSession(envs,
 #                           model=model,
 #                           optimizer=optimizer,
@@ -96,7 +96,7 @@ logging.info("max_possible_reward = {}".format(max_possible_reward))
 #                           sam_scale=None)
 # torch.set_printoptions(linewidth=120, threshold=10000)
 #
-# gen_print_freq = 1
+# gen_print_freq = 16
 # i = 0
 # total_reward = 0
 # total_reward2 = 0
@@ -125,8 +125,8 @@ logging.info("max_possible_reward = {}".format(max_possible_reward))
 #         logging.info("init gen {}/{}: cost={:.3f} +/- {:.3f}".format(
 #             session.replay_buffer.size, session.replay_buffer.capacity,
 #                max_possible_reward - mean_reward, ci_reward))
-
-# pickle.dump(session, open('models/init_session_no_heuristc.pkl', 'wb'))
+#
+# pickle.dump(session, open('models/init_session.pkl', 'wb'))
 session = pickle.load(open('models/init_session.pkl', 'rb'))
 # session = pickle.load(open('models/init_session_no_heuristic.pkl', 'rb'))
 session.envs = envs
@@ -155,13 +155,11 @@ session.model = DoorLocalModel(
     num_missing_connects=envs[0].num_missing_connects,
     num_room_parts=len(envs[0].good_room_parts),
     map_channels=4,
-    map_kernel_size=12,
+    map_kernel_size=16,
     connectivity_in_width=64,
-    local_widths=[128, 0],
-    global_widths=[128, 128],
-    # local_widths=[256, 256],
-    # global_widths=[256, 256],
-    fc_widths=[256, 256, 256],
+    local_widths=[256, 0],
+    global_widths=[256, 256],
+    fc_widths=[256, 256],
     alpha=2.0,
     arity=1,
 ).to(device)
@@ -170,31 +168,31 @@ session.model.state_value_lin.weight.data.zero_()
 session.model.state_value_lin.bias.data.zero_()
 session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=session.average_parameters.beta)
 session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.0001, betas=(0.95, 0.99), eps=1e-8)
-session.replay_buffer.resize(2 ** 18)
+session.replay_buffer.resize(2 ** 21)
 logging.info(session.model)
 logging.info(session.optimizer)
 
 # session = pickle.load(open('models/session-2022-02-17T18:39:41.008098.pkl-bk6', 'rb'))
 
 
-batch_size_pow0 = 12
-batch_size_pow1 = 12
-lr0 = 1e-3
-lr1 = 5e-4
-num_candidates0 = 28
-num_candidates1 = 28
+batch_size_pow0 = 9
+batch_size_pow1 = 9
+lr0 = 2e-4
+lr1 = lr0
+num_candidates0 = 8
+num_candidates1 = 8
 num_candidates = num_candidates0
-temperature0 = 2.0
-temperature1 = 0.2
-explore_eps0 = 1.0
-explore_eps1 = 1e-5
+temperature0 = 100.0
+temperature1 = 100.0
+explore_eps0 = 0.0
+explore_eps1 = 0.0
 annealing_start = 0
 annealing_time = 2048
-pass_factor = 2.0
+pass_factor = 4.0
 num_gen_rounds = 1
 alpha0 = 0.2
 alpha1 = 0.2
-print_freq = 8
+print_freq = 2
 total_reward = 0
 total_loss = 0.0
 total_loss_cnt = 0
@@ -205,7 +203,7 @@ save_freq = 64
 summary_freq = 256
 session.decay_amount = 0.0
 session.optimizer.param_groups[0]['betas'] = (0.95, 0.99)
-session.average_parameters.beta = 0.995
+session.average_parameters.beta = 0.9998
 
 min_door_value = max_possible_reward
 total_min_door_frac = 0
@@ -221,7 +219,8 @@ for i in range(1000000):
     frac = max(0, min(1, (session.num_rounds - annealing_start) / annealing_time))
     num_candidates = int(num_candidates0 + (num_candidates1 - num_candidates0) * frac)
     temperature = temperature0 * (temperature1 / temperature0) ** frac
-    explore_eps = explore_eps0 * (explore_eps1 / explore_eps0) ** frac
+    # explore_eps = explore_eps0 * (explore_eps1 / explore_eps0) ** frac
+    explore_eps = explore_eps0 + (explore_eps1 - explore_eps0) * frac
     lr = lr0 * (lr1 / lr0) ** frac
     # lr_max = lr_max0 * (lr_max1 / lr_max0) ** frac
     # lr_min = lr_min0 * (lr_min1 / lr_min0) ** frac
@@ -322,7 +321,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             pickle.dump(session, open(pickle_name, 'wb'))
-            # pickle.dump(session, open(pickle_name + '-bk9', 'wb'))
+            # pickle.dump(session, open(pickle_name + '-bk1', 'wb'))
             # # # session.replay_buffer.episode_data = episode_data
             # session = pickle.load(open(pickle_name + '-bk6', 'rb'))
     if session.num_rounds % summary_freq < num_gen_rounds:
