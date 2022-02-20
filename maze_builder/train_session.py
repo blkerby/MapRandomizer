@@ -22,10 +22,10 @@ def _rand_choice(p):
     return choice
 
 
-def compute_mse_loss(log_probs, labels):
-    probs = torch.where(log_probs >= 0, log_probs + 1,
-                        torch.exp(torch.clamp_max(log_probs, 0.0)))  # Clamp is "no-op" but avoids non-finite gradients
-    return (probs - labels) ** 2
+# def compute_mse_loss(log_probs, labels):
+#     probs = torch.where(log_probs >= 0, log_probs + 1,
+#                         torch.exp(torch.clamp_max(log_probs, 0.0)))  # Clamp is "no-op" but avoids non-finite gradients
+#     return (probs - labels) ** 2
 
 
 class TrainingSession():
@@ -115,7 +115,7 @@ class TrainingSession():
         device = self.envs[env_id].device
         env = self.envs[env_id]
         env.reset()
-        state_raw_logprobs_list = []
+        state_raw_logodds_list = []
         action_list = []
         prob_list = []
         model.eval()
@@ -133,7 +133,7 @@ class TrainingSession():
 
             with torch.no_grad():
                 # print("inner", env_id, j, env.device, model.state_value_lin.weight.device)
-                _, action_expected, state_raw_logprobs, _ = self.forward_state_action(
+                _, action_expected, state_raw_logodds, _ = self.forward_state_action(
                     model, env.room_mask, env.room_position_x, env.room_position_y,
                     action_candidates, steps_remaining, env_id=env_id)
 
@@ -141,40 +141,40 @@ class TrainingSession():
                                           torch.full_like(action_expected, -1e15), action_expected)  # Give dummy move negligible probability except where it is the only choice
             # print(action_expected)
             probs = torch.softmax(action_expected / temperature, dim=1)
-            if explore_eps != 0.0:
-                candidate_count = torch.sum(action_candidates[:, :, 0] != len(env.rooms) - 1, dim=1)
-                explore_probs = torch.where(action_candidates[:, :, 0] != len(env.rooms) - 1,
-                                            1 / torch.clamp_min(candidate_count.unsqueeze(1), 1),
-                                            torch.zeros_like(probs))
-                probs = explore_eps * explore_probs + (1 - explore_eps) * probs
+            # if explore_eps != 0.0:
+            #     candidate_count = torch.sum(action_candidates[:, :, 0] != len(env.rooms) - 1, dim=1)
+            #     explore_probs = torch.where(action_candidates[:, :, 0] != len(env.rooms) - 1,
+            #                                 1 / torch.clamp_min(candidate_count.unsqueeze(1), 1),
+            #                                 torch.zeros_like(probs))
+            #     probs = explore_eps * explore_probs + (1 - explore_eps) * probs
             action_index = _rand_choice(probs)
             selected_prob = probs[torch.arange(env.num_envs, device=device), action_index]
             action = action_candidates[torch.arange(env.num_envs, device=device), action_index, :]
 
             env.step(action)
             action_list.append(action.to('cpu'))
-            state_raw_logprobs_list.append(state_raw_logprobs.to('cpu'))
+            state_raw_logodds_list.append(state_raw_logodds.to('cpu'))
             prob_list.append(selected_prob.to('cpu'))
 
         door_connects_tensor = env.current_door_connects().to('cpu')
         missing_connects_tensor = env.compute_missing_connections().to('cpu')
         reward_tensor = self.compute_reward(door_connects_tensor, missing_connects_tensor)
-        state_raw_logprobs_tensor = torch.stack(state_raw_logprobs_list, dim=1)
+        state_raw_logodds_tensor = torch.stack(state_raw_logodds_list, dim=1)
         action_tensor = torch.stack(action_list, dim=1)
         prob_tensor = torch.mean(torch.stack(prob_list, dim=1), dim=1)
 
-        state_raw_logprobs_flat = state_raw_logprobs_tensor.view(env.num_envs * episode_length,
-                                                               state_raw_logprobs_tensor.shape[-1])
+        state_raw_logodds_flat = state_raw_logodds_tensor.view(env.num_envs * episode_length,
+                                                               state_raw_logodds_tensor.shape[-1])
         # reward_flat = reward_tensor.view(env.num_envs, 1).repeat(1, episode_length).view(-1)
         door_connects_flat = door_connects_tensor.view(env.num_envs, 1, -1).repeat(1, episode_length, 1).view(env.num_envs * episode_length, -1)
         missing_connects_flat = missing_connects_tensor.view(env.num_envs, 1, -1).repeat(1, episode_length, 1).view(
             env.num_envs * episode_length, -1)
         all_outputs_flat = torch.cat([door_connects_flat, missing_connects_flat], dim=1)
 
-        # loss_flat = torch.mean(torch.nn.functional.binary_cross_entropy_with_logits(state_raw_logodds_flat,
-        #                                                             all_outputs_flat.to(state_raw_logodds_flat.dtype),
-        #                                                             reduction='none'), dim=1)
-        loss_flat = torch.mean(compute_mse_loss(state_raw_logprobs_flat, all_outputs_flat.to(state_raw_logprobs_flat.dtype)), dim=1)
+        loss_flat = torch.mean(torch.nn.functional.binary_cross_entropy_with_logits(state_raw_logodds_flat,
+                                                                    all_outputs_flat.to(state_raw_logodds_flat.dtype),
+                                                                    reduction='none'), dim=1)
+        # loss_flat = torch.mean(compute_mse_loss(state_raw_logodds_flat, all_outputs_flat.to(state_raw_logodds_flat.dtype)), dim=1)
         loss = loss_flat.view(env.num_envs, episode_length)
         episode_loss = torch.mean(loss, dim=1)
 
@@ -244,13 +244,13 @@ class TrainingSession():
 
         env = self.envs[0]
         map = env.compute_map(data.room_mask, data.room_position_x, data.room_position_y)
-        state_value_raw_logprobs, _, _ = self.model.forward_multiclass(
+        state_value_raw_logodds, _, _ = self.model.forward_multiclass(
             map, data.room_mask, data.room_position_x, data.room_position_y, data.steps_remaining, env)
 
         all_outputs = torch.cat([data.door_connects, data.missing_connects], dim=1)
-        # loss = torch.nn.functional.binary_cross_entropy_with_logits(state_value_raw_logprobs,
-        #                                                             all_outputs.to(state_value_raw_logprobs.dtype))
-        loss = torch.mean(compute_mse_loss(state_value_raw_logprobs, all_outputs.to(state_value_raw_logprobs.dtype)))
+        loss = torch.nn.functional.binary_cross_entropy_with_logits(state_value_raw_logodds,
+                                                                    all_outputs.to(state_value_raw_logodds.dtype))
+        # loss = torch.mean(compute_mse_loss(state_value_raw_logprobs, all_outputs.to(state_value_raw_logprobs.dtype)))
         # print(state_value_raw_logprobs, all_outputs.to(state_value_raw_logprobs.dtype),
         #       compute_mse_loss(state_value_raw_logprobs, all_outputs.to(state_value_raw_logprobs.dtype)))
 

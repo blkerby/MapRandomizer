@@ -261,25 +261,26 @@ class Model(torch.nn.Module):
 
             door_connects = env.door_connects(map, room_mask, room_position_x, room_position_y)
 
-            state_value_raw_logprobs = self.state_value_lin(X).to(torch.float32)
-            door_connects_raw_logprobs = state_value_raw_logprobs[:, :self.num_doors]
-            missing_connects_raw_logprobs = state_value_raw_logprobs[:, self.num_doors:]
-            inf_tensor = torch.zeros_like(door_connects_raw_logprobs)
-            door_connects_filtered_logprobs = torch.where(door_connects, inf_tensor, door_connects_raw_logprobs)
-            all_filtered_logprobs = torch.cat([door_connects_filtered_logprobs, missing_connects_raw_logprobs], dim=1)
+            state_value_raw_logodds = self.state_value_lin(X).to(torch.float32)
+            door_connects_raw_logodds = state_value_raw_logodds[:, :self.num_doors]
+            missing_connects_raw_logodds = state_value_raw_logodds[:, self.num_doors:]
+            inf_tensor = torch.zeros_like(door_connects_raw_logodds)
+            door_connects_filtered_logodds = torch.where(door_connects, inf_tensor, door_connects_raw_logodds)
+            all_filtered_logodds = torch.cat([door_connects_filtered_logodds, missing_connects_raw_logodds], dim=1)
             # state_value_probs = torch.sigmoid(all_filtered_logodds)
-            state_value_probs = torch.where(all_filtered_logprobs >= 0, all_filtered_logprobs + 1,
-                        torch.exp(torch.clamp_max(all_filtered_logprobs, 0.0)))  # Clamp is "no-op" but avoids non-finite gradients
+            state_value_logprobs = -torch.logaddexp(-all_filtered_logodds, torch.zeros_like(all_filtered_logodds))
+            # state_value_probs = torch.where(all_filtered_logprobs >= 0, all_filtered_logprobs + 1,
+            #             torch.exp(torch.clamp_max(all_filtered_logprobs, 0.0)))  # Clamp is "no-op" but avoids non-finite gradients
             # state_value_log_probs = torch.log(state_value_probs)  # TODO: use more numerically stable approach
-            state_value_expected = torch.sum(torch.clamp_max(all_filtered_logprobs, 0.0), dim=1)
-            # state_value_expected = torch.sum(state_value_probs, dim=1) / 2
+            # state_value_expected = torch.sum(torch.clamp_max(all_filtered_logprobs, 0.0), dim=1)
+            state_value_expected = torch.sum(state_value_logprobs, dim=1)
 
-            return all_filtered_logprobs, state_value_probs, state_value_expected
+            return all_filtered_logodds, state_value_logprobs, state_value_expected
 
     def forward(self, map, room_mask, room_position_x, room_position_y, steps_remaining, env):
         # TODO: we could speed up the last layer a bit by summing the parameters instead of outputs
         # (though this probably is negligible).
-        state_value_raw_logprobs, state_value_probs, state_value_expected = self.forward_multiclass(
+        state_value_raw_logodds, state_value_probs, state_value_expected = self.forward_multiclass(
             map, room_mask, room_position_x, room_position_y, steps_remaining, env)
         return state_value_expected
 
@@ -482,25 +483,26 @@ class DoorLocalModel(torch.nn.Module):
             door_connects = env.door_connects(map, room_mask, room_position_x, room_position_y)
 
 
-            state_value_raw_logprobs = self.state_value_lin(global_X).to(torch.float32)
-            door_connects_raw_logprobs = state_value_raw_logprobs[:, :self.num_doors]
-            missing_connects_raw_logprobs = state_value_raw_logprobs[:, self.num_doors:]
-            inf_tensor = torch.zeros_like(door_connects_raw_logprobs)
-            door_connects_filtered_logprobs = torch.where(door_connects, inf_tensor, door_connects_raw_logprobs)
-            all_filtered_logprobs = torch.cat([door_connects_filtered_logprobs, missing_connects_raw_logprobs], dim=1)
+            state_value_raw_logodds = self.state_value_lin(global_X).to(torch.float32)
+            door_connects_raw_logodds = state_value_raw_logodds[:, :self.num_doors]
+            missing_connects_raw_logodds = state_value_raw_logodds[:, self.num_doors:]
+            inf_tensor = torch.zeros_like(door_connects_raw_logodds)
+            door_connects_filtered_logodds = torch.where(door_connects, inf_tensor, door_connects_raw_logodds)
+            all_filtered_logodds = torch.cat([door_connects_filtered_logodds, missing_connects_raw_logodds], dim=1)
             # state_value_probs = torch.sigmoid(all_filtered_logodds)
-            state_value_probs = torch.where(all_filtered_logprobs >= 0, all_filtered_logprobs + 1,
-                        torch.exp(torch.clamp_max(all_filtered_logprobs, 0.0)))  # Clamp is "no-op" but avoids non-finite gradients
+            state_value_logprobs = -torch.logaddexp(-all_filtered_logodds, torch.zeros_like(all_filtered_logodds))
+            # state_value_probs = torch.where(all_filtered_logprobs >= 0, all_filtered_logprobs + 1,
+            #             torch.exp(torch.clamp_max(all_filtered_logprobs, 0.0)))  # Clamp is "no-op" but avoids non-finite gradients
             # state_value_log_probs = torch.log(state_value_probs)  # TODO: use more numerically stable approach
-            state_value_expected = torch.sum(torch.clamp_max(all_filtered_logprobs, 0.0), dim=1)
-            # state_value_expected = torch.sum(state_value_probs, dim=1) / 2
+            # state_value_expected = torch.sum(torch.clamp_max(all_filtered_logprobs, 0.0), dim=1)
+            state_value_expected = torch.sum(state_value_logprobs, dim=1) #/ 2
 
-            return all_filtered_logprobs, state_value_probs, state_value_expected
+            return all_filtered_logodds, state_value_logprobs, state_value_expected
 
     def forward(self, map, room_mask, room_position_x, room_position_y, steps_remaining, env):
         # TODO: we could speed up the last layer a bit by summing the parameters instead of outputs
         # (though this probably is negligible).
-        state_value_raw_logprobs, state_value_probs, state_value_expected = self.forward_multiclass(
+        state_value_raw_logodds, state_value_probs, state_value_expected = self.forward_multiclass(
             map, room_mask, room_position_x, room_position_y, steps_remaining, env)
         return state_value_expected
 
