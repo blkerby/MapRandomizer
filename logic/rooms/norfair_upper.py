@@ -549,11 +549,10 @@ rooms = [
             [1],
             [1],
             [1],
-            [1],
         ],
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x19522, 0x194FE),  # Grapple Tutorial Room 1
-            DoorIdentifier(RIGHT, 0, 3, 0x19516, 0x194DA),  # Post Crocomire Jump Room
+            DoorIdentifier(RIGHT, 0, 2, 0x19516, 0x194DA),  # Post Crocomire Jump Room
         ],
     ),
     Room(

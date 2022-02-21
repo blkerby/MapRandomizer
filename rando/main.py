@@ -357,6 +357,8 @@ for i, room in enumerate(rooms):
     room_index = orig_rom.read_u8(room.rom_address)
     assert room_index not in area_index_dict[orig_room_area]
     area_index_dict[orig_room_area][room_index] = area_arr[i]
+aqueduct_room_i = [i for i, room in enumerate(rooms) if room.name == 'Aqueduct'][0]
+area_index_dict[4][0x18] = area_arr[aqueduct_room_i]  # Set Toilet to same area as Aqueduct
 area_sizes = [max(area_index_dict[i].keys()) + 1 for i in range(num_areas)]
 cumul_area_sizes = [0] + list(np.cumsum(area_sizes))
 area_data_base_ptr = 0x7E99B  # LoRom $8F:E99B
@@ -609,6 +611,15 @@ for i in range(0x11727, 0x11D27):
 # rom.write_u16(0x78004, 0x8000)
 
 
+# ---- Fix twin rooms:
+# Aqueduct:
+old_x = rom.read_u8(0x7D5A7 + 2)
+old_y = rom.read_u8(0x7D5A7 + 3)
+rom.write_u8(0x7D5A7 + 3, old_y + 4)
+# Toilet:
+rom.write_u8(0x7D408 + 2, old_x + 2)
+rom.write_u8(0x7D408 + 3, old_y)
+
 # Apply patches
 patches = [
     'vanilla_bugfixes',
@@ -646,7 +657,7 @@ for patch_name in patches:
 # Change setup asm for Mother Brain room
 # rom.write_u16(0x7DD6E + 24, 0xEB00)
 
-rom.write_u16(0x1956A + 10, 0xEB00)  # Change door asm for entering mother brain room (from bubble mountain)
+rom.write_u16(0x1956A + 10, 0xEB00)  # Change door asm for entering mother brain room (from bubble mountain -- TODO: generalize this)
 
 
 # Change door exit asm for boss rooms (TODO: do this better, in case entrance asm is needed in next room)

@@ -35,7 +35,7 @@ num_devices = len(devices)
 device = devices[0]
 executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
-num_envs = 2 ** 8
+num_envs = 2 ** 10
 # rooms = logic.rooms.crateria_isolated.rooms
 rooms = logic.rooms.all_rooms.rooms
 episode_length = len(rooms)
@@ -127,8 +127,8 @@ logging.info("max_possible_reward = {}".format(max_possible_reward))
 #                max_possible_reward - mean_reward, ci_reward))
 #
 # pickle.dump(session, open('models/init_session.pkl', 'wb'))
-session = pickle.load(open('models/init_session.pkl', 'rb'))
-# session = pickle.load(open('models/init_session_no_heuristic.pkl', 'rb'))
+# session = pickle.load(open('models/init_session.pkl', 'rb'))
+session = pickle.load(open('models/session-2022-02-20T19:56:45.676456.pkl-bk9', 'rb'))
 session.envs = envs
 
 
@@ -149,50 +149,49 @@ session.envs = envs
 #     global_dropout_p=0.0,
 # ).to(device)
 
-session.model = DoorLocalModel(
-    env_config=env_config,
-    num_doors=envs[0].num_doors,
-    num_missing_connects=envs[0].num_missing_connects,
-    num_room_parts=len(envs[0].good_room_parts),
-    map_channels=4,
-    map_kernel_size=16,
-    connectivity_in_width=64,
-    local_widths=[256, 0],
-    global_widths=[256, 256],
-    fc_widths=[256, 256],
-    alpha=2.0,
-    arity=1,
-).to(device)
-
-session.model.state_value_lin.weight.data.zero_()
-session.model.state_value_lin.bias.data.zero_()
-session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=session.average_parameters.beta)
-session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.0001, betas=(0.95, 0.99), eps=1e-8)
-session.replay_buffer.resize(2 ** 21)
-logging.info(session.model)
-logging.info(session.optimizer)
-
-# session = pickle.load(open('models/session-2022-02-17T18:39:41.008098.pkl-bk6', 'rb'))
+# session.model = DoorLocalModel(
+#     env_config=env_config,
+#     num_doors=envs[0].num_doors,
+#     num_missing_connects=envs[0].num_missing_connects,
+#     num_room_parts=len(envs[0].good_room_parts),
+#     map_channels=4,
+#     map_kernel_size=16,
+#     connectivity_in_width=64,
+#     local_widths=[256, 0],
+#     global_widths=[256, 256],
+#     fc_widths=[256, 256],
+#     alpha=2.0,
+#     arity=1,
+# ).to(device)
+#
+# session.model.state_value_lin.weight.data.zero_()
+# session.model.state_value_lin.bias.data.zero_()
+# session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=session.average_parameters.beta)
+# session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.0001, betas=(0.95, 0.99), eps=1e-8)
+# session.replay_buffer.resize(2 ** 21)
+# logging.info(session.model)
+# logging.info(session.optimizer)
 
 
-batch_size_pow0 = 9
-batch_size_pow1 = 9
-lr0 = 2e-4
+
+batch_size_pow0 = 10
+batch_size_pow1 = 10
+lr0 = 1e-4
 lr1 = lr0
-num_candidates0 = 8
-num_candidates1 = 8
+num_candidates0 = 16
+num_candidates1 = 16
 num_candidates = num_candidates0
-temperature0 = 100.0
-temperature1 = 100.0
-explore_eps0 = 0.0
-explore_eps1 = 0.0
-annealing_start = 0
-annealing_time = 2048
+temperature0 = 5.0
+temperature1 = 2.0
+explore_eps0 = 0.0001
+explore_eps1 = explore_eps0
+annealing_start = 8576
+annealing_time = 1000
 pass_factor = 1.0
 num_gen_rounds = 1
 alpha0 = 0.2
 alpha1 = 0.2
-print_freq = 16
+print_freq = 4
 total_reward = 0
 total_loss = 0.0
 total_loss_cnt = 0
@@ -200,13 +199,14 @@ total_test_loss = 0.0
 total_prob = 0.0
 total_round_cnt = 0
 save_freq = 64
-summary_freq = 256
-session.decay_amount = 0.0
+summary_freq = 128
+session.decay_amount = 0.05
 session.optimizer.param_groups[0]['betas'] = (0.95, 0.99)
 session.average_parameters.beta = 0.9998
 
 min_door_value = max_possible_reward
 total_min_door_frac = 0
+torch.set_printoptions(linewidth=120, threshold=10000)
 logging.info("Checkpoint path: {}".format(pickle_name))
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
 logging.info(
@@ -321,7 +321,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             pickle.dump(session, open(pickle_name, 'wb'))
-            # pickle.dump(session, open(pickle_name + '-bk1', 'wb'))
+            # pickle.dump(session, open(pickle_name + '-bk9', 'wb'))
             # # # session.replay_buffer.episode_data = episode_data
             # session = pickle.load(open(pickle_name + '-bk6', 'rb'))
     if session.num_rounds % summary_freq < num_gen_rounds:

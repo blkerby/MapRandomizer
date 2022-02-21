@@ -75,7 +75,8 @@ device = torch.device('cpu')
 # session = CPU_Unpickler(open('models/crateria/session-2022-02-16T18:14:10.601679.pkl', 'rb')).load()
 # session = CPU_Unpickler(open('models/crateria/session-2022-02-16T22:53:28.522924.pkl', 'rb')).load()
 # session = CPU_Unpickler(open('models/crateria/session-2022-02-16T22:53:28.522924.pkl', 'rb')).load()
-session = CPU_Unpickler(open('models/crateria/session-2022-02-17T18:39:41.008098.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/crateria/session-2022-02-17T18:39:41.008098.pkl', 'rb')).load()
+session = CPU_Unpickler(open('models/02-20-session-2022-02-20T04:58:37.890164.pkl', 'rb')).load()
 #
 
 print(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects.to(torch.float32), dim=0)))
@@ -83,10 +84,10 @@ max_reward = torch.max(session.replay_buffer.episode_data.reward)
 print(max_reward, torch.mean((session.replay_buffer.episode_data.reward == max_reward).to(torch.float32)),
       session.replay_buffer.episode_data.reward.shape[0])
 
-ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 35)
+ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 310)
 # ind = ind[(ind >= 200000) & (ind < 262144)].view(-1, 1)
-i = int(random.randint(0, ind.shape[0] - 1))
-# i = 2
+# i = int(random.randint(0, ind.shape[0] - 1))
+i = 4
 num_rooms = len(session.envs[0].rooms)
 action = session.replay_buffer.episode_data.action[ind[i], :]
 step_indices = torch.tensor([num_rooms])

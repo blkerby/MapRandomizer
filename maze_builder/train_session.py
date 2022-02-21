@@ -49,6 +49,7 @@ class TrainingSession():
 
         self.total_step_remaining_gen = 0.0
         self.total_step_remaining_train = 0.0
+        self.verbose = False
 
     def compute_reward(self, door_connects, missing_connects):
         return torch.sum(door_connects, dim=1) // 2 + torch.sum(missing_connects, dim=1)
@@ -126,7 +127,8 @@ class TrainingSession():
                 env.render()
             # torch.cuda.synchronize()
             # logging.debug("Getting candidates")
-            action_candidates = env.get_action_candidates(num_candidates, env.room_mask, env.room_position_x, env.room_position_y)
+            action_candidates = env.get_action_candidates(num_candidates, env.room_mask, env.room_position_x, env.room_position_y,
+                                                          verbose=self.verbose)
             # action_candidates = env.get_all_action_candidates(env.room_mask, env.room_position_x, env.room_position_y)
             steps_remaining = torch.full([env.num_envs], episode_length - j,
                                          dtype=torch.float32, device=device)
@@ -141,12 +143,12 @@ class TrainingSession():
                                           torch.full_like(action_expected, -1e15), action_expected)  # Give dummy move negligible probability except where it is the only choice
             # print(action_expected)
             probs = torch.softmax(action_expected / temperature, dim=1)
-            # if explore_eps != 0.0:
-            #     candidate_count = torch.sum(action_candidates[:, :, 0] != len(env.rooms) - 1, dim=1)
-            #     explore_probs = torch.where(action_candidates[:, :, 0] != len(env.rooms) - 1,
-            #                                 1 / torch.clamp_min(candidate_count.unsqueeze(1), 1),
-            #                                 torch.zeros_like(probs))
-            #     probs = explore_eps * explore_probs + (1 - explore_eps) * probs
+            if explore_eps != 0.0:
+                candidate_count = torch.sum(action_candidates[:, :, 0] != len(env.rooms) - 1, dim=1)
+                explore_probs = torch.where(action_candidates[:, :, 0] != len(env.rooms) - 1,
+                                            1 / candidate_count.unsqueeze(1),
+                                            torch.zeros_like(probs))
+                probs = explore_eps * explore_probs + (1 - explore_eps) * probs
             action_index = _rand_choice(probs)
             selected_prob = probs[torch.arange(env.num_envs, device=device), action_index]
             action = action_candidates[torch.arange(env.num_envs, device=device), action_index, :]

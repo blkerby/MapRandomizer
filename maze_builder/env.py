@@ -513,13 +513,15 @@ class MazeBuilderEnv:
         # print("down", door_up)
         # print("up", door_down)
 
-    def get_action_candidates(self, num_candidates, room_mask, room_position_x, room_position_y):
+    def get_action_candidates(self, num_candidates, room_mask, room_position_x, room_position_y, verbose):
         num_envs = room_mask.shape[0]
         if self.step_number == 0:
             ind = torch.randint(self.room_placements.shape[0], [num_envs, num_candidates], device=self.device)
             return self.room_placements[ind, :]
 
         candidates = self.get_all_action_candidates(room_mask, room_position_x, room_position_y)
+        if verbose:
+            print(candidates.shape[0] / self.num_envs)
         boundaries = torch.searchsorted(candidates[:, 0].contiguous(),
                                         torch.arange(num_envs, device=candidates.device))
         boundaries_ext = torch.cat([boundaries, torch.tensor([candidates.shape[0]], device=candidates.device)])
