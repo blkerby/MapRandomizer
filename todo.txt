@@ -20,6 +20,7 @@ DONE:
 - adjust sand-fall widths to make them compatible
 
 TODO:
+- fix Plasma Spark Room map (near door down should only be 1 tile, not 2)
 - fix suit graphics not showing after getting suit (consequence of skipping animation)
 - fix demo
 - fix red screen in draygon
@@ -51,7 +52,7 @@ TODO:
 		- remove asm that automatically gives map in first tourian room
 - eye doors before bosses?
 - fix map icons
-
+- fix map when going down elevator (set bottom tiles to explored)
 
 Notes on usage of area ($079F and $7E:D918):
 

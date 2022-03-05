@@ -629,6 +629,7 @@ rom.write_u8(0x7D408 + 3, old_y)
 patches = [
     'vanilla_bugfixes',
     'new_game',
+    'music',
     'crateria_sky',
     'everest_tube',
     'sandfalls',
