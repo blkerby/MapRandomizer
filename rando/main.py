@@ -350,6 +350,11 @@ class RomRoom:
 orig_rom = Rom(input_rom_path)
 rom = Rom(input_rom_path)
 
+# Change Aqueduct map y position, to include the toilet (for the purposes of the map)
+old_y = orig_rom.read_u8(0x7D5A7 + 3)
+orig_rom.write_u8(0x7D5A7 + 3, old_y - 4)
+
+
 # Write area data:
 area_index_dict = defaultdict(lambda: {})
 for i, room in enumerate(rooms):

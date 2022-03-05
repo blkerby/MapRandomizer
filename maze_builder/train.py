@@ -128,7 +128,7 @@ logging.info("max_possible_reward = {}".format(max_possible_reward))
 #
 # pickle.dump(session, open('models/init_session.pkl', 'wb'))
 # session = pickle.load(open('models/init_session.pkl', 'rb'))
-session = pickle.load(open('models/session-2022-02-20T19:56:45.676456.pkl-bk9', 'rb'))
+session = pickle.load(open('models/session-2022-02-21T14:41:53.417803.pkl-bk10', 'rb'))
 session.envs = envs
 
 
@@ -148,17 +148,17 @@ session.envs = envs
 #     fc_widths=[256, 256],
 #     global_dropout_p=0.0,
 # ).to(device)
-
+#
 # session.model = DoorLocalModel(
 #     env_config=env_config,
 #     num_doors=envs[0].num_doors,
 #     num_missing_connects=envs[0].num_missing_connects,
 #     num_room_parts=len(envs[0].good_room_parts),
 #     map_channels=4,
-#     map_kernel_size=16,
+#     map_kernel_size=12,
 #     connectivity_in_width=64,
-#     local_widths=[256, 0],
-#     global_widths=[256, 256],
+#     local_widths=[128, 0],
+#     global_widths=[128, 128],
 #     fc_widths=[256, 256],
 #     alpha=2.0,
 #     arity=1,
@@ -168,25 +168,26 @@ session.envs = envs
 # session.model.state_value_lin.bias.data.zero_()
 # session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=session.average_parameters.beta)
 # session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.0001, betas=(0.95, 0.99), eps=1e-8)
+# session.verbose = False
 # session.replay_buffer.resize(2 ** 21)
 # logging.info(session.model)
 # logging.info(session.optimizer)
-
+#
 
 
 batch_size_pow0 = 10
 batch_size_pow1 = 10
-lr0 = 1e-4
+lr0 = 2e-5
 lr1 = lr0
-num_candidates0 = 16
-num_candidates1 = 16
+num_candidates0 = 25
+num_candidates1 = 32
 num_candidates = num_candidates0
-temperature0 = 5.0
-temperature1 = 2.0
+temperature0 = 0.01
+temperature1 = 0.01
 explore_eps0 = 0.0001
 explore_eps1 = explore_eps0
-annealing_start = 8576
-annealing_time = 1000
+annealing_start = 48844
+annealing_time = 4000
 pass_factor = 1.0
 num_gen_rounds = 1
 alpha0 = 0.2
@@ -202,7 +203,7 @@ save_freq = 64
 summary_freq = 128
 session.decay_amount = 0.05
 session.optimizer.param_groups[0]['betas'] = (0.95, 0.99)
-session.average_parameters.beta = 0.9998
+session.average_parameters.beta = 0.999
 
 min_door_value = max_possible_reward
 total_min_door_frac = 0
@@ -210,10 +211,10 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 logging.info("Checkpoint path: {}".format(pickle_name))
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
 logging.info(
-    "map_x={}, map_y={}, num_envs={}, batch_size_pow1={}, pass_factor={}, lr0={}, lr1={}, num_candidates0={}, num_candidates1={}, replay_size={}/{}, num_params={}, decay_amount={}, temp0={}, temp1={}, eps0={}, eps1={}, alpha0={}, alpha1={}".format(
+    "map_x={}, map_y={}, num_envs={}, batch_size_pow1={}, pass_factor={}, lr0={}, lr1={}, num_candidates0={}, num_candidates1={}, replay_size={}/{}, num_params={}, decay_amount={}, temp0={}, temp1={}, eps0={}, eps1={}, betas={}".format(
         map_x, map_y, session.envs[0].num_envs, batch_size_pow1, pass_factor, lr0, lr1, num_candidates0, num_candidates1, session.replay_buffer.size,
         session.replay_buffer.capacity, num_params, session.decay_amount,
-        temperature0, temperature1, explore_eps0, explore_eps1, alpha0, alpha1))
+        temperature0, temperature1, explore_eps0, explore_eps1, session.optimizer.param_groups[0]['betas']))
 logging.info("Starting training")
 for i in range(1000000):
     frac = max(0, min(1, (session.num_rounds - annealing_start) / annealing_time))
@@ -321,7 +322,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             pickle.dump(session, open(pickle_name, 'wb'))
-            # pickle.dump(session, open(pickle_name + '-bk9', 'wb'))
+            # pickle.dump(session, open(pickle_name + '-bk20', 'wb'))
             # # # session.replay_buffer.episode_data = episode_data
             # session = pickle.load(open(pickle_name + '-bk6', 'rb'))
     if session.num_rounds % summary_freq < num_gen_rounds:

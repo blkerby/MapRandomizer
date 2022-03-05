@@ -20,12 +20,13 @@ CheckSumAdd: CLC : ADC $14 : INC A : STA $14 : RTS
 
 SaveGame: PHP : REP #$30 : PHB : PHX : PHY
 	PEA $7E7E : PLB : PLB : STZ $14 : AND #$0003 : ASL A : STA $12
-	LDA $1F5B : INC A : XBA : TAX : LDY #$00FE
+	INC A : XBA : TAX : LDY #$00FE
 SaveMap: LDA $07F7,Y : STA $CD50,X : DEX : DEX : DEY : DEY : BPL SaveMap		;Saves the current map
 	LDY #$005E
 SaveItems: LDA $09A2,Y : STA $D7C0,Y : DEY : DEY : BPL SaveItems				;Saves current equipment	
 	LDA $078B : STA $D916		;Current save for the area
 	LDA $079F : STA $D918		;Current Area
+	LDA $1F5B : STA $7FFE00     ;Current Map-area
 	LDX $12 : LDA.l SRAMAddressTable,X : TAX : LDY #$0000		;How much data to save for items and event bits
 SaveSRAMItems: LDA $D7C0,Y : STA $700000,X : JSR CheckSumAdd : INX : INX : INY : INY : CPY #$0160 : BNE SaveSRAMItems	
 	LDY #$06FE		;How much data to save for maps
@@ -53,6 +54,7 @@ LoadSRAM: PEA $7E7E : PLB : PLB : LDY #$005E
 LoadItems: LDA $D7C0,Y : STA $09A2,Y : DEY : DEY : BPL LoadItems		;Loads current equipment	
 	LDA $D916 : STA $078B		;Current save for the area
 	LDA $D918 : STA $079F		;Current Area
+    LDA $7FFE00 : STA $1F5B     ;Current Map-area
 	PLY : PLX : PLB : PLP : CLC : RTL
 SetupClearSRAM: LDX $16 : LDY #$09FE : LDA #$0000
 ClearSRAM: STA $700000,X : INX : INX : DEY : DEY : BPL ClearSRAM

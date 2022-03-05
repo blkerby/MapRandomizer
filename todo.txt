@@ -26,16 +26,17 @@ TODO:
 - block left side of mother brain room and crocomire room
 	- and possibly right of kraid, or change spawn? (camera glitchy)
 	  - make kraid a first-time one-way in model, like crocomire?
+- graphics messed up after killing kraid
 - escape timer
-- fix map in toilet and east pants room 
-- better solution for fixing toilet
+- fix map in east pants room 
+- fix single map tile in toilet
+- better solution for fixing toilet door asm
 - vanilla morph?
 - door above morph ball room is pink but looks blue?
 - keep door locks in boss rooms?
 - fix new game (instant die after respawn)
 - fix big boy cutscene? (keeps happening whenever entering from right, even if has happened before)
 - missing power bomb item in morph ball room (ind=1) -- maybe because zebes not awake? (also probably need to make bowling open even when phantoon not dead)
-- graphics messed up after killing kraid
 - door doesn't open after killing phantoon
 - door randomization
   - tie together plms for the two sides of door?
