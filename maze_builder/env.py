@@ -572,6 +572,33 @@ class MazeBuilderEnv:
         map_flat.scatter_add_(dim=1, index=flat_ind, src=room_data_value)
         return map_flat.view(*map.shape)
 
+    def compute_map_shifted(self, room_mask, room_position_x, room_position_y, center_x, center_y):
+        map = torch.zeros([room_mask.shape[0], self.map_channels, self.map_x, self.map_y],
+                                       dtype=torch.int8, device=self.device)
+        map_flat = map.view(map.shape[0], -1)
+
+        room_data_id = self.room_data[:, 0]
+        room_data_x = self.room_data[:, 1]
+        room_data_y = self.room_data[:, 2]
+        room_data_channel = self.room_data[:, 4]
+        room_data_value = self.room_data[:, 3].to(torch.int8).view(1, -1).repeat(room_mask.shape[0], 1)
+        room_data_value = room_data_value * room_mask[:, room_data_id]
+
+        position_x = room_data_x.view(1, -1) + room_position_x[:, room_data_id] - center_x.unsqueeze(1)
+        position_y = room_data_y.view(1, -1) + room_position_y[:, room_data_id] - center_y.unsqueeze(1)
+        position_x = torch.where(position_x >= 0, position_x, position_x + self.map_x)
+        position_y = torch.where(position_y >= 0, position_y, position_y + self.map_y)
+
+        channel_stride = map.stride(1)
+        x_stride = map.stride(2)
+        y_stride = map.stride(3)
+        flat_ind = position_x * x_stride + position_y * y_stride + room_data_channel * channel_stride
+        map_flat.scatter_add_(dim=1, index=flat_ind, src=room_data_value)
+        out = map_flat.view(*map.shape)
+        out[:, 3, self.map_x - 1 - center_x, :] = 1
+        out[:, 3, :, self.map_y - 1 - center_y] = 1
+        return out
+
     def step(self, action: torch.tensor):
         room_index = action[:, 0]
         room_x = action[:, 1]
@@ -912,36 +939,39 @@ class MazeBuilderEnv:
         colors = [self.color_map[room.sub_area] for room in rooms]
         self.map_display.display(rooms, xs, ys, colors)
 
-# logging.basicConfig(format='%(asctime)s %(message)s',
-#                     # level=logging.DEBUG,
-#                     level=logging.INFO,
-#                     handlers=[logging.StreamHandler()])
-# # import logic.rooms.all_rooms
-# import logic.rooms.crateria_isolated
-#
-# num_envs = 2
-# # rooms = logic.rooms.all_rooms.rooms
-# rooms = logic.rooms.crateria_isolated.rooms
-# num_candidates = 1
-# env = MazeBuilderEnv(rooms,
-#                      map_x=20,
-#                      map_y=20,
-#                      num_envs=num_envs,
-#                      device='cpu',
-#                      must_areas_be_connected=False)
-#
-# env.reset()
-# self = env
-# torch.manual_seed(0)
-# for i in range(40):
-#     candidates = env.get_action_candidates(num_candidates, env.room_mask, env.room_position_x, env.room_position_y)
-#     env.step(candidates[:, 0, :])
-#     env.render(0)
+logging.basicConfig(format='%(asctime)s %(message)s',
+                    # level=logging.DEBUG,
+                    level=logging.INFO,
+                    handlers=[logging.StreamHandler()])
+torch.set_printoptions(linewidth=120)
+# import logic.rooms.all_rooms
+import logic.rooms.crateria_isolated
+
+num_envs = 2
+# rooms = logic.rooms.all_rooms.rooms
+rooms = logic.rooms.crateria_isolated.rooms
+num_candidates = 1
+env = MazeBuilderEnv(rooms,
+                     map_x=20,
+                     map_y=20,
+                     num_envs=num_envs,
+                     device='cpu',
+                     must_areas_be_connected=False)
+
+env.reset()
+self = env
+torch.manual_seed(0)
+for i in range(5):
+    candidates = env.get_action_candidates(num_candidates, env.room_mask, env.room_position_x, env.room_position_y, verbose=False)
+    env.step(candidates[:, 0, :])
+    env.render(0)
 #     # time.sleep(0.5)
-#
-# room_mask = env.room_mask
-# room_position_x = env.room_position_x
-# room_position_y = env.room_position_y
+
+room_mask = env.room_mask
+room_position_x = env.room_position_x
+room_position_y = env.room_position_y
+center_x = torch.full([num_envs], 2)
+center_y = torch.full([num_envs], 2)
 
 
 # torch_scatter.scatter_max
