@@ -29,7 +29,7 @@ TODO:
 	  - make kraid a first-time one-way in model, like crocomire?
 - graphics messed up after killing kraid
 - escape timer
-- fix map in east pants room 
+- fix map in east pants room, and homing geemer room
 - fix single map tile in toilet
 - better solution for fixing toilet door asm
 - vanilla morph?
@@ -53,6 +53,9 @@ TODO:
 - eye doors before bosses?
 - fix map icons
 - fix map when going down elevator (set bottom tiles to explored)
+- fix botwoon e-tank sand
+- fix plasma spark room: map off by 1 tile
+- fix spazer room music
 
 Notes on usage of area ($079F and $7E:D918):
 
