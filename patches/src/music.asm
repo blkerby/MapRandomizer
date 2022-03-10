@@ -31,7 +31,7 @@ org $8F9BAE : db $0F, $05  ; room $9B9D - Brinstar Pre-Map Room
 org $8F9BD9 : db $0F, $05  ; room $9BC8 - Early Supers Room
 org $8F9C46 : db $0F, $05  ; room $9C35 - Brinstar Map Room
 org $8F9C6F : db $0F, $05  ; room $9C5E - Green Brinstar Fireflea Room
-org $8F9C96 : db $0F, $05  ; room $9C89 - Green Brinstar Missile Refill Room
+org $8F9C9A : db $0F, $05  ; room $9C89 - Green Brinstar Missile Refill Room
 org $8F9CC4 : db $0F, $05  ; room $9CB3 - Dachora Room
 org $8F9E22 : db $0F, $05  ; room $9E11 - Pink Brinstar Power Bomb Room
 org $8F9F27 : db $06, $07  ; room $9F11 - Construction Zone (state: Zebes not awake)
@@ -50,9 +50,9 @@ org $8FA1BE : db $09, $05  ; room $A1AD - Blue Brinstar Boulder Room
 org $8FA1E9 : db $09, $05  ; room $A1D8 - Billy Mays Room
 org $8FA2A4 : db $12, $05  ; room $A293 - Red Brinstar Fireflea Room
 org $8FA308 : db $12, $05  ; room $A2F7 - Hellway
-org $8FA389 : db $12, $05  ; room $A37C - Beta Power Bomb Room
-org $8FA3F2 : db $12, $05  ; room $A3DD - Bat Room
-org $8FA415 : db $12, $05  ; room $A408 - Below Spazer
+org $8FA38D : db $12, $05  ; room $A37C - Beta Power Bomb Room
+org $8FA3EE : db $12, $05  ; room $A3DD - Bat Room
+org $8FA419 : db $12, $05  ; room $A408 - Below Spazer
 org $8FA482 : db $12, $05  ; room $A471 - Warehouse Zeela Room
 org $8FA4C2 : db $12, $05  ; room $A4B1 - Warehouse Energy Tank Room
 org $8FA57C : db $12, $05  ; room $A56B - Kraid Eye Door Room (using generic Red Brinstar song)
@@ -172,7 +172,7 @@ org $8FDB47 : db $1E, $05  ; room $DB31 - Metroid Room 2
 org $8FDB61 : db $1E, $05  ; room $DB31 - Metroid Room 2 (state: metroids gone)
 org $8FDB93 : db $1E, $05  ; room $DB7D - Metroid Room 3
 org $8FDBAD : db $1E, $05  ; room $DB7D - Metroid Room 3 (state: metroids gone)
-org $8FDCC3 : db $45, $06  ; room $DCB1 - Big Boy Room (state: pre-cutscene)
+org $8FDCC7 : db $45, $06  ; room $DCB1 - Big Boy Room (state: pre-cutscene)
 org $8FDCE1 : db $1E, $05  ; room $DCB1 - Big Boy Room (state: post-cutscene)
 org $8FDD3F : db $1E, $05  ; room $DD2E - Tourian Recharge Room
 org $8FDD72 : db $1E, $05  ; room $DD58 - Mother Brain Room
