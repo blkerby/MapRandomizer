@@ -326,6 +326,15 @@ class MazeBuilderEnv:
         self.door_data_down_tile = cat_door_data(door_data_down_tile_list)
         self.door_data_down_door = cat_door_data(door_data_down_door_list)
 
+        dummy_door_data = torch.tensor([[len(self.rooms) - 1, 0, 0, 0]], device=self.device)
+        self.door_data_full = torch.cat([
+            self.door_data_right_door.door_data,
+            self.door_data_left_door.door_data,
+            self.door_data_down_door.door_data,
+            self.door_data_up_door.door_data,
+            dummy_door_data
+        ])
+
         #
         # channel_stride = self.initial_map.stride(1)
         # x_stride = self.initial_map.stride(2)
@@ -354,28 +363,16 @@ class MazeBuilderEnv:
     #     chosen_map_door_down = chosen_map_door_all[chosen_map_door_all[:, 3] == 3, :3]
     #     return chosen_map_door_left, chosen_map_door_right, chosen_map_door_up, chosen_map_door_down
 
-    def get_all_action_candidates(self, room_mask, room_position_x, room_position_y):
-        # map = self.compute_map(self.room_mask, self.room_position_x, self.room_position_y)
-
+    def get_action_candidates(self): #, room_mask, room_position_x, room_position_y):
+        room_mask = self.room_mask
+        room_position_x = self.room_position_x
+        room_position_y = self.room_position_y
         num_envs = room_mask.shape[0]
         map = self.compute_map(room_mask, room_position_x, room_position_y)
         map_door_left = torch.nonzero(map[:, 1, :] > 1)
         map_door_right = torch.nonzero(map[:, 1, :] < -1)
         map_door_up = torch.nonzero(map[:, 2, :] > 1)
         map_door_down = torch.nonzero(map[:, 2, :] < -1)
-
-        # map_door_left, map_door_right, map_door_up, map_door_down = self.select_map_doors(
-        #     map_door_left, map_door_right, map_door_up, map_door_down)
-
-        # avg_cnt_open_doors = (map_door_left.shape[0] + map_door_right.shape[0] + map_door_up.shape[0] + map_door_down.shape[0]) / num_envs
-        # cnt_open_doors_left = torch.sum(map[:, 1, :] > 1, dim=(1, 2))
-        # cnt_open_doors_right = torch.sum(map[:, 1, :] < -1, dim=(1, 2))
-        # cnt_open_doors_up = torch.sum(map[:, 2, :] > 1, dim=(1, 2))
-        # cnt_open_doors_down = torch.sum(map[:, 2, :] < -1, dim=(1, 2))
-        # cnt_open_doors = cnt_open_doors_left + cnt_open_doors_right + cnt_open_doors_up + cnt_open_doors_down
-        # max_cnt_open_doors = torch.max(cnt_open_doors)
-        # print("step={}, avg_cnt_open_doors={} ({}), max_cnt_open_doors={}".format(
-        #     self.step_number, avg_cnt_open_doors, torch.mean(cnt_open_doors.to(torch.float32)), max_cnt_open_doors))
 
         if self.must_areas_be_connected:
             max_sub_area = torch.max(self.room_sub_area)
@@ -384,7 +381,6 @@ class MazeBuilderEnv:
                                        index=self.room_sub_area.to(torch.int64).view(1, -1).repeat(num_envs, 1),
                                        src=room_mask.to(torch.uint8))
             area_mask = area_room_cnt > 0
-        # print(area_mask)
 
         data_tuples = [
             (0, 0, 0, map_door_left, self.door_data_right_tile, self.door_data_right_door),
@@ -400,6 +396,7 @@ class MazeBuilderEnv:
 
         candidates_list = []
         counts_by_door_list = []
+        room_door_id_offset = 0
         for (dir_num, offset_x, offset_y, map_door_dir, door_data_dir_tile, door_data_dir_door) in data_tuples:
             num_map_doors = map_door_dir.shape[0]
             num_room_doors = door_data_dir_tile.door_data.shape[0]
@@ -457,7 +454,9 @@ class MazeBuilderEnv:
 
             candidates = torch.stack([valid_env_id, valid_room_id, valid_x, valid_y,
                                       torch.full_like(valid_env_id, dir_num),
-                                      valid_map_door_id], dim=1)
+                                      valid_map_door_id,
+                                      valid_room_door_id + room_door_id_offset], dim=1)
+            # print(room_door_id_offset, candidates)
             mask_bounds_min_x = (valid_x >= self.room_min_x[valid_room_id])
             mask_bounds_min_y = (valid_y >= self.room_min_y[valid_room_id])
             mask_bounds_max_x = (valid_x <= self.room_max_x[valid_room_id])
@@ -469,22 +468,31 @@ class MazeBuilderEnv:
             # TODO: simplify all of this; sum the right mask instead of using scatter_add on the candidates
             counts_by_door = torch.zeros([map_door_env.shape[0]], device=map_door_env.device, dtype=torch.int64)
             counts_by_door.scatter_add_(0, valid_map_door_id, mask.to(torch.int64))
+            # print(counts_by_door.shape, map_door_x.shape)
             counts_by_door_list.append(torch.stack(
                 [counts_by_door,
                  map_door_env.view(-1),
                  torch.full_like(counts_by_door, dir_num),
-                 torch.arange(map_door_env.shape[0], device=map_door_env.device)], dim=1))
+                 torch.arange(map_door_env.shape[0], device=map_door_env.device),
+                 map_door_x.view(-1),
+                 map_door_y.view(-1),
+                 ], dim=1))
 
             candidates = candidates[mask, :]
             candidates_list.append(candidates)
+
+            room_door_id_offset += num_room_doors
 
         counts_by_door_all = torch.cat(counts_by_door_list, dim=0)
         counts_by_door_all = counts_by_door_all[counts_by_door_all[:, 0] > 0, :]
         perm = torch.randperm(counts_by_door_all.shape[0], device=counts_by_door_all.device)
         counts_by_door_all = counts_by_door_all[perm, :]
+
         chosen_min_count, chosen_door_indices = torch_scatter.scatter_min(counts_by_door_all[:, 0], counts_by_door_all[:, 1])
         chosen_door_indices = torch.clamp_max(chosen_door_indices, counts_by_door_all.shape[0] - 1)
         chosen_counts_by_door = counts_by_door_all[chosen_door_indices, :]
+        chosen_map_door_x = chosen_counts_by_door[:, 4]
+        chosen_map_door_y = chosen_counts_by_door[:, 5]
 
         all_candidates = torch.cat(candidates_list, dim=0)
         all_candidates_env_id = all_candidates[:, 0]
@@ -492,55 +500,29 @@ class MazeBuilderEnv:
         door_id_match = all_candidates[:, 5] == chosen_counts_by_door[
             all_candidates_env_id, 3]  # matching door id (within those of same direction)
         filtered_candidates = all_candidates[dir_match & door_id_match, :]
-        perm = torch.randperm(filtered_candidates.shape[0], device=filtered_candidates.device)
-        filtered_candidates = filtered_candidates[perm, :]
+        # perm = torch.randperm(filtered_candidates.shape[0], device=filtered_candidates.device)
+        # filtered_candidates = filtered_candidates[perm, :]
 
-        # filtered_candidates = torch.cat(candidates_list, dim=0)
+        # dummy_candidates = torch.cat([
+        #     torch.arange(num_envs, device=self.device).view(-1, 1),
+        #     torch.tensor([len(self.rooms) - 1, 0, 0, 0, 0, self.num_doors], device=self.device).view(1, -1).repeat(num_envs, 1)
+        # ], dim=1)
+        # all_candidates = torch.cat([filtered_candidates, dummy_candidates], dim=0)
+        # ind = torch.sort(all_candidates[:, 0], stable=True)[1]
+        # all_candidates = all_candidates[ind, :]
 
-        dummy_candidates = torch.cat([
-            torch.arange(num_envs, device=self.device).view(-1, 1),
-            torch.tensor([len(self.rooms) - 1, 0, 0, 0, 0], device=self.device).view(1, -1).repeat(num_envs, 1)
-        ], dim=1)
-        # candidates_list.append(dummy_candidates)
-        # all_candidates = torch.cat(candidates_list, dim=0)
-        all_candidates = torch.cat([filtered_candidates, dummy_candidates], dim=0)
-        # ind = torch.argsort(all_candidates[:, 0])
-        ind = torch.sort(all_candidates[:, 0], stable=True)[1]
-        return all_candidates[ind, :4]
-        # self.room_right
-        # print("left", door_left)
-        # print("right", door_right)
-        # print("down", door_up)
-        # print("up", door_down)
-
-    def get_action_candidates(self, num_candidates, room_mask, room_position_x, room_position_y, verbose):
-        num_envs = room_mask.shape[0]
-        if self.step_number == 0:
-            ind = torch.randint(self.room_placements.shape[0], [num_envs, num_candidates], device=self.device)
-            return self.room_placements[ind, :]
-
-        candidates = self.get_all_action_candidates(room_mask, room_position_x, room_position_y)
-        if verbose:
-            print(candidates.shape[0] / self.num_envs)
-        boundaries = torch.searchsorted(candidates[:, 0].contiguous(),
-                                        torch.arange(num_envs, device=candidates.device))
-        boundaries_ext = torch.cat([boundaries, torch.tensor([candidates.shape[0]], device=candidates.device)])
-        candidate_quantities = boundaries_ext[1:] - boundaries_ext[:-1]
-        # restricted_candidate_quantities = torch.clamp(candidate_quantities - 1, min=1)
-        # relative_ind = torch.randint(high=2 ** 31, size=[num_envs, num_candidates],
-        #                              device=candidates.device) % restricted_candidate_quantities.unsqueeze(1)
-
-        relative_ind = torch.minimum(torch.arange(num_candidates, device=candidates.device).view(1, -1).repeat(num_envs, 1),
-                                     candidate_quantities.unsqueeze(1) - 1)
-        ind = relative_ind + boundaries.unsqueeze(1)
-        out = candidates[ind, 1:]
-
-        # Override first candidate to always be a pass
-        # out[:, 0, 0] = len(self.rooms) - 1
-        # out[:, 0, 1] = 0
-        # out[:, 0, 2] = 0
-
-        return out
+        candidate_mask = torch.zeros([num_envs, self.num_doors + 1], device=self.device, dtype=torch.bool)
+        center_x = torch.zeros([num_envs], device=self.device, dtype=torch.int64)
+        center_y = torch.zeros([num_envs], device=self.device, dtype=torch.int64)
+        candidate_mask[filtered_candidates[:, 0], filtered_candidates[:, 6]] = True
+        center_x[:chosen_map_door_x.shape[0]] = chosen_map_door_x
+        center_y[:chosen_map_door_x.shape[0]] = chosen_map_door_y
+        num_cand = torch.sum(candidate_mask, dim=1)
+        done = num_cand == 0
+        center_x[done] = 0
+        center_y[done] = 0
+        candidate_mask[:, -1] = done
+        return filtered_candidates, candidate_mask, center_x, center_y
 
     def reset(self):
         self.room_mask.zero_()
@@ -945,29 +927,46 @@ class MazeBuilderEnv:
         colors = [self.color_map[room.sub_area] for room in rooms]
         self.map_display.display(rooms, xs, ys, colors)
 
-# logging.basicConfig(format='%(asctime)s %(message)s',
-#                     # level=logging.DEBUG,
-#                     level=logging.INFO,
-#                     handlers=[logging.StreamHandler()])
-# torch.set_printoptions(linewidth=120)
-# # import logic.rooms.all_rooms
-# import logic.rooms.crateria_isolated
-#
-# num_envs = 2
-# # rooms = logic.rooms.all_rooms.rooms
-# rooms = logic.rooms.crateria_isolated.rooms
-# num_candidates = 1
-# env = MazeBuilderEnv(rooms,
-#                      map_x=20,
-#                      map_y=20,
-#                      num_envs=num_envs,
-#                      device='cpu',
-#                      must_areas_be_connected=False)
-#
+logging.basicConfig(format='%(asctime)s %(message)s',
+                    # level=logging.DEBUG,
+                    level=logging.INFO,
+                    handlers=[logging.StreamHandler()])
+torch.set_printoptions(linewidth=120)
+# import logic.rooms.all_rooms
+import logic.rooms.crateria_isolated
+
+num_envs = 2
+# rooms = logic.rooms.all_rooms.rooms
+rooms = logic.rooms.crateria_isolated.rooms
+num_candidates = 1
+torch.manual_seed(1)
+env = MazeBuilderEnv(rooms,
+                     map_x=20,
+                     map_y=20,
+                     num_envs=num_envs,
+                     device='cpu',
+                     must_areas_be_connected=False)
+
 # env.reset()
-# env.render(0)
+env.render(0)
+for i in range(30):
+    cand, mask, center_x, center_y = env.get_action_candidates()
+    # num_cands = torch.sum(mask, dim=1)
+    # mask[:, -1] = num_cands == 0
+    i = torch.multinomial(mask.to(torch.float32), 1, replacement=False)[:, 0]
+    room_id = env.door_data_full[i, 0]
+    room_position_x = center_x - env.door_data_full[i, 1]
+    room_position_y = center_y - env.door_data_full[i, 2]
+    action = torch.stack([room_id, room_position_x, room_position_y], dim=1)
+    print(i, action)
+    env.step(action)
+    env.render(0)
+    # time.sleep(0.5)
+
+
+# print(i, mask[0, i])
+
 # self = env
-# torch.manual_seed(0)
 # for i in range(5):
 #     candidates = env.get_action_candidates(num_candidates, env.room_mask, env.room_position_x, env.room_position_y, verbose=False)
 #     env.step(candidates[:, 0, :])

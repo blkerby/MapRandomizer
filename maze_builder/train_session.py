@@ -110,7 +110,7 @@ class TrainingSession():
         action_expected = expected[:, 1:]
         return state_expected, action_expected, state_raw_logodds, raw_logodds
 
-    def generate_round_inner(self, model, model_fractions, episode_length: int, num_candidates: int, temperature: float,
+    def generate_round_inner(self, model, episode_length: int, num_candidates: int, temperature: float,
                              explore_eps: float,
                              env_id, render=False) -> EpisodeData:
         device = self.envs[env_id].device
@@ -189,7 +189,7 @@ class TrainingSession():
             test_loss=episode_loss,
         )
 
-    def generate_round_model(self, model, model_fractions, episode_length: int, num_candidates: int, temperature: float, explore_eps: float,
+    def generate_round_model(self, model, episode_length: int, num_candidates: int, temperature: float, explore_eps: float,
                        executor: Optional[concurrent.futures.ThreadPoolExecutor] = None,
                        render=False) -> EpisodeData:
         if executor is None:
@@ -198,7 +198,7 @@ class TrainingSession():
             for i, env in enumerate(self.envs):
                 model = model_list[i]
                 episode_data_list.append(self.generate_round_inner(
-                    model, model_fractions, episode_length, num_candidates, temperature, explore_eps, render=render,
+                    model, episode_length, num_candidates, temperature, explore_eps, render=render,
                     env_id=i))
         else:
             futures_list = []
@@ -207,7 +207,7 @@ class TrainingSession():
                 model = model_list[i]
                 # print("gen", i, env.device, model.state_value_lin.weight.device)
                 future = executor.submit(lambda i=i, model=model: self.generate_round_inner(
-                    model, model_fractions, episode_length, num_candidates, temperature, explore_eps, render=render, env_id=i))
+                    model, episode_length, num_candidates, temperature, explore_eps, render=render, env_id=i))
                 futures_list.append(future)
             episode_data_list = [future.result() for future in futures_list]
         for env in self.envs:
@@ -227,7 +227,6 @@ class TrainingSession():
                        render=False) -> EpisodeData:
         with self.average_parameters.average_parameters(self.model.all_param_data()):
             return self.generate_round_model(model=self.model,
-                                              model_fractions=[1.0],
                                               episode_length=episode_length,
                                               num_candidates=num_candidates,
                                               temperature=temperature,
