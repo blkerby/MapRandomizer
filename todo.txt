@@ -18,6 +18,8 @@ DONE:
 - skip gravity/varia suit-grab animation to avoid potential hard lock
 - change gravity/varia behavior like other randomizers
 - adjust sand-fall widths to make them compatible
+- fix plasma spark room: map off by 1 tile
+- music
 
 TODO:
 - fix Plasma Spark Room map (near door down should only be 1 tile, not 2)
@@ -35,6 +37,7 @@ TODO:
 - vanilla morph?
 - door above morph ball room is pink but looks blue?
 - keep door locks in boss rooms?
+    - eye doors before bosses?
 - fix new game (instant die after respawn)
 - fix big boy cutscene? (keeps happening whenever entering from right, even if has happened before)
 - missing power bomb item in morph ball room (ind=1) -- maybe because zebes not awake? (also probably need to make bowling open even when phantoon not dead)
@@ -46,15 +49,12 @@ TODO:
   - take into account health
 - cross-area transitions
   - to fix graphical glitches (look into using special GFX flag?)
-  - what to do with music
 - try to balance map stations across areas
 	- convert one tourian save to a map, so that each area gets a map station?
 		- remove asm that automatically gives map in first tourian room
-- eye doors before bosses?
 - fix map icons
 - fix map when going down elevator (set bottom tiles to explored)
 - fix botwoon e-tank sand
-- fix plasma spark room: map off by 1 tile
 - fix spazer room music
 
 Notes on usage of area ($079F and $7E:D918):

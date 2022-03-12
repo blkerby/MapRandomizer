@@ -547,6 +547,12 @@ class MazeBuilderEnv:
         self.room_position_x.zero_()
         self.room_position_y.zero_()
         self.step_number = 0
+        self.initial_step()
+
+    def initial_step(self):
+        ind = torch.randint(self.room_placements.shape[0], [self.num_envs], device=self.device)
+        room_placement = self.room_placements[ind, :]
+        self.step(room_placement)
 
     def compute_current_map(self):
         return self.compute_map(self.room_mask, self.room_position_x, self.room_position_y)
@@ -939,99 +945,100 @@ class MazeBuilderEnv:
         colors = [self.color_map[room.sub_area] for room in rooms]
         self.map_display.display(rooms, xs, ys, colors)
 
-logging.basicConfig(format='%(asctime)s %(message)s',
-                    # level=logging.DEBUG,
-                    level=logging.INFO,
-                    handlers=[logging.StreamHandler()])
-torch.set_printoptions(linewidth=120)
-# import logic.rooms.all_rooms
-import logic.rooms.crateria_isolated
-
-num_envs = 2
-# rooms = logic.rooms.all_rooms.rooms
-rooms = logic.rooms.crateria_isolated.rooms
-num_candidates = 1
-env = MazeBuilderEnv(rooms,
-                     map_x=20,
-                     map_y=20,
-                     num_envs=num_envs,
-                     device='cpu',
-                     must_areas_be_connected=False)
-
-env.reset()
-self = env
-torch.manual_seed(0)
-for i in range(5):
-    candidates = env.get_action_candidates(num_candidates, env.room_mask, env.room_position_x, env.room_position_y, verbose=False)
-    env.step(candidates[:, 0, :])
-    env.render(0)
-#     # time.sleep(0.5)
-
-room_mask = env.room_mask
-room_position_x = env.room_position_x
-room_position_y = env.room_position_y
-center_x = torch.full([num_envs], 2)
-center_y = torch.full([num_envs], 2)
-
-
-# torch_scatter.scatter_max
-# candidates
-
-# def select_map_doors(self, map_door_left, map_door_right, map_door_up, map_door_down):
-#     map_door_all = torch.cat([
-#         torch.cat([map_door_left, torch.full([map_door_left.shape[0], 1], 0, device=self.device)], dim=1),
-#         torch.cat([map_door_right, torch.full([map_door_right.shape[0], 1], 1, device=self.device)], dim=1),
-#         torch.cat([map_door_up, torch.full([map_door_up.shape[0], 1], 2, device=self.device)], dim=1),
-#         torch.cat([map_door_down, torch.full([map_door_down.shape[0], 1], 3, device=self.device)], dim=1),
-#     ], dim=0)
-#     perm = torch.randperm(map_door_all.shape[0], device=self.device)
-#     map_door_all = map_door_all[perm, :]
-#     _, ind = torch.sort(map_door_all[:, 0], stable=True)
-#     map_door_all = map_door_all[ind, :]
-#     shift_ind = torch.cat([torch.tensor([-1], device=self.device), map_door_all[:-1, 0]])
-#     first_ind = torch.nonzero(map_door_all[:, 0] != shift_ind)[:, 0]
-#     chosen_map_door_all = map_door_all[first_ind, :]
+# logging.basicConfig(format='%(asctime)s %(message)s',
+#                     # level=logging.DEBUG,
+#                     level=logging.INFO,
+#                     handlers=[logging.StreamHandler()])
+# torch.set_printoptions(linewidth=120)
+# # import logic.rooms.all_rooms
+# import logic.rooms.crateria_isolated
 #
-#     chosen_map_door_left = chosen_map_door_all[chosen_map_door_all[:, 3] == 0, :3]
-#     chosen_map_door_right = chosen_map_door_all[chosen_map_door_all[:, 3] == 1, :3]
-#     chosen_map_door_up = chosen_map_door_all[chosen_map_door_all[:, 3] == 2, :3]
-#     chosen_map_door_down = chosen_map_door_all[chosen_map_door_all[:, 3] == 3, :3]
-#     return chosen_map_door_left, chosen_map_door_right, chosen_map_door_up, chosen_map_door_down
-
+# num_envs = 2
+# # rooms = logic.rooms.all_rooms.rooms
+# rooms = logic.rooms.crateria_isolated.rooms
+# num_candidates = 1
+# env = MazeBuilderEnv(rooms,
+#                      map_x=20,
+#                      map_y=20,
+#                      num_envs=num_envs,
+#                      device='cpu',
+#                      must_areas_be_connected=False)
 #
+# env.reset()
+# env.render(0)
 # self = env
-# num_envs = self.room_mask.shape[0]
-# map = self.compute_map(env.room_mask, env.room_position_x, env.room_position_y)
-# map_door_left = torch.nonzero(map[:, 1, :] > 1)
-# map_door_right = torch.nonzero(map[:, 1, :] < -1)
-# map_door_up = torch.nonzero(map[:, 2, :] > 1)
-# map_door_down = torch.nonzero(map[:, 2, :] < -1)
-
-# print(chosen_map_door_all)
-# print(chosen_map_door_down)
-
-
+# torch.manual_seed(0)
+# for i in range(5):
+#     candidates = env.get_action_candidates(num_candidates, env.room_mask, env.room_position_x, env.room_position_y, verbose=False)
+#     env.step(candidates[:, 0, :])
+#     env.render(0)
+# #     # time.sleep(0.5)
 #
-# start = time.perf_counter()
-# A1 = env.compute_fast_component_matrix(env.room_mask, env.room_position_x, env.room_position_y)
-# end = time.perf_counter()
-# print(end - start)
+# room_mask = env.room_mask
+# room_position_x = env.room_position_x
+# room_position_y = env.room_position_y
+# center_x = torch.full([num_envs], 2)
+# center_y = torch.full([num_envs], 2)
 #
-# start = time.perf_counter()
-# A2 = env.compute_fast_component_matrix2(env.room_mask, env.room_position_x, env.room_position_y)
-# end = time.perf_counter()
-# print(end - start)
 #
-# assert (A1 == A2).all()
+# # torch_scatter.scatter_max
+# # candidates
+#
+# # def select_map_doors(self, map_door_left, map_door_right, map_door_up, map_door_down):
+# #     map_door_all = torch.cat([
+# #         torch.cat([map_door_left, torch.full([map_door_left.shape[0], 1], 0, device=self.device)], dim=1),
+# #         torch.cat([map_door_right, torch.full([map_door_right.shape[0], 1], 1, device=self.device)], dim=1),
+# #         torch.cat([map_door_up, torch.full([map_door_up.shape[0], 1], 2, device=self.device)], dim=1),
+# #         torch.cat([map_door_down, torch.full([map_door_down.shape[0], 1], 3, device=self.device)], dim=1),
+# #     ], dim=0)
+# #     perm = torch.randperm(map_door_all.shape[0], device=self.device)
+# #     map_door_all = map_door_all[perm, :]
+# #     _, ind = torch.sort(map_door_all[:, 0], stable=True)
+# #     map_door_all = map_door_all[ind, :]
+# #     shift_ind = torch.cat([torch.tensor([-1], device=self.device), map_door_all[:-1, 0]])
+# #     first_ind = torch.nonzero(map_door_all[:, 0] != shift_ind)[:, 0]
+# #     chosen_map_door_all = map_door_all[first_ind, :]
 # #
-# self=env
-# room_mask = self.room_mask
-# room_position_x = self.room_position_x
-# room_position_y = self.room_position_y
+# #     chosen_map_door_left = chosen_map_door_all[chosen_map_door_all[:, 3] == 0, :3]
+# #     chosen_map_door_right = chosen_map_door_all[chosen_map_door_all[:, 3] == 1, :3]
+# #     chosen_map_door_up = chosen_map_door_all[chosen_map_door_all[:, 3] == 2, :3]
+# #     chosen_map_door_down = chosen_map_door_all[chosen_map_door_all[:, 3] == 3, :3]
+# #     return chosen_map_door_left, chosen_map_door_right, chosen_map_door_up, chosen_map_door_down
 #
-# # env.render(0)
-# # # map = env.compute_current_map()
-# # # map[0, 0, :15, :15].t()
-# # print(self.reward() * 2)
-# # d = self.door_connects()
-# # print(torch.sum(d, dim=1))
+# #
+# # self = env
+# # num_envs = self.room_mask.shape[0]
+# # map = self.compute_map(env.room_mask, env.room_position_x, env.room_position_y)
+# # map_door_left = torch.nonzero(map[:, 1, :] > 1)
+# # map_door_right = torch.nonzero(map[:, 1, :] < -1)
+# # map_door_up = torch.nonzero(map[:, 2, :] > 1)
+# # map_door_down = torch.nonzero(map[:, 2, :] < -1)
+#
+# # print(chosen_map_door_all)
+# # print(chosen_map_door_down)
+#
+#
+# #
+# # start = time.perf_counter()
+# # A1 = env.compute_fast_component_matrix(env.room_mask, env.room_position_x, env.room_position_y)
+# # end = time.perf_counter()
+# # print(end - start)
+# #
+# # start = time.perf_counter()
+# # A2 = env.compute_fast_component_matrix2(env.room_mask, env.room_position_x, env.room_position_y)
+# # end = time.perf_counter()
+# # print(end - start)
+# #
+# # assert (A1 == A2).all()
+# # #
+# # self=env
+# # room_mask = self.room_mask
+# # room_position_x = self.room_position_x
+# # room_position_y = self.room_position_y
+# #
+# # # env.render(0)
+# # # # map = env.compute_current_map()
+# # # # map[0, 0, :15, :15].t()
+# # # print(self.reward() * 2)
+# # # d = self.door_connects()
+# # # print(torch.sum(d, dim=1))

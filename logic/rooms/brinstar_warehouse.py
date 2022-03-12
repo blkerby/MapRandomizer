@@ -106,10 +106,9 @@ rooms = [
             DoorIdentifier(LEFT, 0, 1, 0x191CE, 0x191B6),  # Kraid Eye Door Room
             DoorIdentifier(RIGHT, 1, 1, 0x191DA, 0x19252),  # Varia Suit Room
         ],
-        # parts=[[0], [1]],
-        # transient_part_connections=[(0, 1)],  # Defeating Kraid (we want to avoid entering from the right when Kraid is still alive)
-        # missing_part_connections=[(1, 0)],
-
+        parts=[[0], [1]],
+        durable_part_connections=[(0, 1)],  # Defeating Kraid (we want to avoid entering from the right when Kraid is still alive)
+        missing_part_connections=[(1, 0)],
     ),
     Room(
         name='Varia Suit Room',
