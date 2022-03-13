@@ -53,12 +53,15 @@ class ReplayBuffer:
     def sample(self, n, device: torch.device) -> TrainingData:
         episode_length = self.episode_data.action.shape[1]
         episode_indices = torch.randint(high=self.size, size=[n])
-        step_indices = torch.randint(high=episode_length + 1, size=[n])
+        step_indices = torch.randint(low=1, high=episode_length, size=[n])
         reward = self.episode_data.reward[episode_indices]
         door_connects = self.episode_data.door_connects[episode_indices, :]
         missing_connects = self.episode_data.missing_connects[episode_indices, :]
         action = self.episode_data.action[episode_indices, :, :].to(torch.int64)
-        steps_remaining = episode_length - step_indices
+        center_x = self.episode_data.center_x[episode_indices, step_indices - 1].to(torch.int64)
+        center_y = self.episode_data.center_y[episode_indices, step_indices - 1].to(torch.int64)
+        chosen_candidate_index = self.episode_data.chosen_candidate_index[episode_indices, step_indices - 1].to(torch.int64)
+        # steps_remaining = episode_length - step_indices
 
         room_mask, room_position_x, room_position_y = reconstruct_room_data(action, step_indices, self.num_rooms)
 
@@ -66,8 +69,11 @@ class ReplayBuffer:
             reward=reward.to(device),
             door_connects=door_connects.to(device),
             missing_connects=missing_connects.to(device),
-            steps_remaining=steps_remaining.to(device),
+            # steps_remaining=steps_remaining.to(device),
             room_mask=room_mask.to(device),
             room_position_x=room_position_x.to(device),
             room_position_y=room_position_y.to(device),
+            center_x=center_x.to(device),
+            center_y=center_y.to(device),
+            chosen_candidate_index=chosen_candidate_index.to(device),
         )

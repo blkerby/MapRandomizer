@@ -5,6 +5,7 @@ import logging
 from maze_builder.env import MazeBuilderEnv
 from maze_builder.types import reconstruct_room_data, Direction
 import logic.rooms.all_rooms
+import logic.rooms.crateria_isolated
 import pickle
 import concurrent.futures
 import random
@@ -81,7 +82,8 @@ device = torch.device('cpu')
 # session = CPU_Unpickler(open('models/02-24-session-2022-02-21T17:22:43.673028.pkl', 'rb')).load()
 # session = CPU_Unpickler(open('models/02-25-session-2022-02-21T17:22:43.673028.pkl', 'rb')).load()
 # session = CPU_Unpickler(open('models/02-27-session-2022-02-21T17:22:43.673028.pkl', 'rb')).load()
-session = CPU_Unpickler(open('models/03-01-session-2022-02-21T17:22:43.673028.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/03-01-session-2022-02-21T17:22:43.673028.pkl', 'rb')).load()
+session = CPU_Unpickler(open('models/crateria/session-2022-03-12T15:41:42.088278.pkl', 'rb')).load()
 #
 
 print(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects.to(torch.float32), dim=0)))
@@ -89,7 +91,7 @@ max_reward = torch.max(session.replay_buffer.episode_data.reward)
 print(max_reward, torch.mean((session.replay_buffer.episode_data.reward == max_reward).to(torch.float32)),
       session.replay_buffer.episode_data.reward.shape[0])
 
-ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 342)
+ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 35)
 # ind = ind[(ind >= 200000) & (ind < 262144)].view(-1, 1)
 i = int(random.randint(0, ind.shape[0] - 1))
 # i = 11
@@ -106,7 +108,8 @@ room_mask, room_position_x, room_position_y = reconstruct_room_data(action, step
 #
 num_envs = 1
 # num_envs = 8
-rooms = logic.rooms.all_rooms.rooms
+# rooms = logic.rooms.all_rooms.rooms
+rooms = logic.rooms.crateria_isolated.rooms
 
 
 # doors = {}

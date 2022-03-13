@@ -522,7 +522,8 @@ class MazeBuilderEnv:
         center_x[done] = 0
         center_y[done] = 0
         candidate_mask[:, -1] = done
-        return filtered_candidates, candidate_mask, center_x, center_y
+        return candidate_mask, center_x, center_y
+        # return filtered_candidates, candidate_mask, center_x, center_y
 
     def reset(self):
         self.room_mask.zero_()
@@ -533,8 +534,8 @@ class MazeBuilderEnv:
 
     def initial_step(self):
         ind = torch.randint(self.room_placements.shape[0], [self.num_envs], device=self.device)
-        room_placement = self.room_placements[ind, :]
-        self.step(room_placement)
+        self.initial_action = self.room_placements[ind, :]
+        self.step(self.initial_action)
 
     def compute_current_map(self):
         return self.compute_map(self.room_mask, self.room_position_x, self.room_position_y)
@@ -927,41 +928,41 @@ class MazeBuilderEnv:
         colors = [self.color_map[room.sub_area] for room in rooms]
         self.map_display.display(rooms, xs, ys, colors)
 
-logging.basicConfig(format='%(asctime)s %(message)s',
-                    # level=logging.DEBUG,
-                    level=logging.INFO,
-                    handlers=[logging.StreamHandler()])
-torch.set_printoptions(linewidth=120)
-# import logic.rooms.all_rooms
-import logic.rooms.crateria_isolated
-
-num_envs = 2
-# rooms = logic.rooms.all_rooms.rooms
-rooms = logic.rooms.crateria_isolated.rooms
-num_candidates = 1
-torch.manual_seed(1)
-env = MazeBuilderEnv(rooms,
-                     map_x=20,
-                     map_y=20,
-                     num_envs=num_envs,
-                     device='cpu',
-                     must_areas_be_connected=False)
-
-# env.reset()
-env.render(0)
-for i in range(30):
-    cand, mask, center_x, center_y = env.get_action_candidates()
-    # num_cands = torch.sum(mask, dim=1)
-    # mask[:, -1] = num_cands == 0
-    i = torch.multinomial(mask.to(torch.float32), 1, replacement=False)[:, 0]
-    room_id = env.door_data_full[i, 0]
-    room_position_x = center_x - env.door_data_full[i, 1]
-    room_position_y = center_y - env.door_data_full[i, 2]
-    action = torch.stack([room_id, room_position_x, room_position_y], dim=1)
-    print(i, action)
-    env.step(action)
-    env.render(0)
-    # time.sleep(0.5)
+# logging.basicConfig(format='%(asctime)s %(message)s',
+#                     # level=logging.DEBUG,
+#                     level=logging.INFO,
+#                     handlers=[logging.StreamHandler()])
+# torch.set_printoptions(linewidth=120)
+# # import logic.rooms.all_rooms
+# import logic.rooms.crateria_isolated
+#
+# num_envs = 2
+# # rooms = logic.rooms.all_rooms.rooms
+# rooms = logic.rooms.crateria_isolated.rooms
+# num_candidates = 1
+# torch.manual_seed(1)
+# env = MazeBuilderEnv(rooms,
+#                      map_x=20,
+#                      map_y=20,
+#                      num_envs=num_envs,
+#                      device='cpu',
+#                      must_areas_be_connected=False)
+#
+# # env.reset()
+# env.render(0)
+# for i in range(30):
+#     mask, center_x, center_y = env.get_action_candidates()
+#     # num_cands = torch.sum(mask, dim=1)
+#     # mask[:, -1] = num_cands == 0
+#     i = torch.multinomial(mask.to(torch.float32), 1, replacement=False)[:, 0]
+#     room_id = env.door_data_full[i, 0]
+#     room_position_x = center_x - env.door_data_full[i, 1]
+#     room_position_y = center_y - env.door_data_full[i, 2]
+#     action = torch.stack([room_id, room_position_x, room_position_y], dim=1)
+#     print(i, action)
+#     env.step(action)
+#     env.render(0)
+#     # time.sleep(0.5)
 
 
 # print(i, mask[0, i])

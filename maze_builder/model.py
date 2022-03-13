@@ -212,16 +212,16 @@ class Model(torch.nn.Module):
             lin = torch.nn.Linear(fc_widths[i], fc_widths[i + 1] * arity)
             self.global_lin_layers.append(lin)
             self.global_act_layers.append(common_act)
-        self.candidate_weights = torch.nn.Parameter(torch.randn([fc_widths[-1], self.num_doors]))
+        self.candidate_weights = torch.nn.Parameter(torch.randn([fc_widths[-1], self.num_doors + 1]))
         self.output_lin = torch.nn.Linear(fc_widths[-1], self.num_doors + self.num_missing_connects)
-        self.total_lin_weight = torch.zeros([fc_widths[-1], self.num_doors])
-        self.total_lin_bias = None
+        self.register_buffer('total_lin_weight', torch.zeros([fc_widths[-1], self.num_doors + 1]))
+        self.register_buffer('total_lin_bias', torch.zeros([]))
         self.update()
 
     def update(self):
         with torch.no_grad():
             self.total_lin_weight[:, :] = torch.unsqueeze(torch.sum(self.output_lin.weight, dim=0), 1) * self.candidate_weights
-            self.total_lin_bias = torch.sum(self.output_lin.bias)
+            self.total_lin_bias.copy_(torch.sum(self.output_lin.bias))
 
     def forward_core(self, shifted_map, room_mask):
         if shifted_map.is_cuda:
@@ -241,7 +241,7 @@ class Model(torch.nn.Module):
             for i in range(len(self.global_lin_layers)):
                 X = self.global_lin_layers[i](X)
                 X = self.global_act_layers[i](X)
-            return X
+            return X.to(torch.float32)
 
     def forward_train(self, shifted_map, room_mask, candidate):
         X = self.forward_core(shifted_map, room_mask)
@@ -258,8 +258,10 @@ class Model(torch.nn.Module):
         # return all_filtered_probs
 
     def forward_infer(self, shifted_map, room_mask):
-        X = self.forward_core(shifted_map, room_mask)
-        return torch.matmul(X, self.total_lin_weight) + self.total_lin_bias
+        with torch.no_grad():
+            X = self.forward_core(shifted_map, room_mask)
+            # print("device:", X.device, self.total_lin_weight.device, self.total_lin_bias.device)
+            return torch.matmul(X, self.total_lin_weight) + self.total_lin_bias
 
     def decay(self, amount: Optional[float]):
         if amount is not None:
@@ -275,53 +277,53 @@ class Model(torch.nn.Module):
                 params.append(module.running_var)
         return params
 
-import logic.rooms.crateria_isolated
-
-
-num_envs = 2
-# rooms = logic.rooms.all_rooms.rooms
-rooms = logic.rooms.crateria_isolated.rooms
-num_candidates = 1
-map_x = 20
-map_y = 20
-env_config = EnvConfig(
-    rooms=rooms,
-    map_x=map_x,
-    map_y=map_y,
-)
-env = MazeBuilderEnv(rooms,
-                     map_x=map_x,
-                     map_y=map_y,
-                     num_envs=num_envs,
-                     device='cpu',
-                     must_areas_be_connected=False)
-
-model = Model(
-    env_config=env_config,
-    num_doors=env.num_doors,
-    num_missing_connects=env.num_missing_connects,
-    num_room_parts=len(env.good_room_parts),
-    arity=2,
-    # map_channels=[16, 64, 256],
-    # map_stride=[2, 2, 2],
-    # map_kernel_size=[7, 5, 3],
-    map_channels=[16, 64],
-    map_stride=[2, 2],
-    map_kernel_size=[5, 3],
-    map_padding=3 * [False],
-    room_embedding_width=None,
-    connectivity_in_width=16,
-    connectivity_out_width=64,
-    fc_widths=[256, 256],
-)
-self = model
-room_mask = env.room_mask
-room_position_x = env.room_position_x
-room_position_y = env.room_position_y
-center_x = torch.full([num_envs], 10)
-center_y = torch.full([num_envs], 2)
-candidate = torch.zeros([num_envs], dtype=torch.long)
-map = env.compute_map(room_mask, room_position_x, room_position_y)
-shifted_map = env.compute_map_shifted(room_mask, room_position_x, room_position_y, center_x, center_y)
-torch.set_printoptions(linewidth=120)
-print(map[0, 3, :, :])
+# import logic.rooms.crateria_isolated
+#
+#
+# num_envs = 2
+# # rooms = logic.rooms.all_rooms.rooms
+# rooms = logic.rooms.crateria_isolated.rooms
+# num_candidates = 1
+# map_x = 20
+# map_y = 20
+# env_config = EnvConfig(
+#     rooms=rooms,
+#     map_x=map_x,
+#     map_y=map_y,
+# )
+# env = MazeBuilderEnv(rooms,
+#                      map_x=map_x,
+#                      map_y=map_y,
+#                      num_envs=num_envs,
+#                      device='cpu',
+#                      must_areas_be_connected=False)
+#
+# model = Model(
+#     env_config=env_config,
+#     num_doors=env.num_doors,
+#     num_missing_connects=env.num_missing_connects,
+#     num_room_parts=len(env.good_room_parts),
+#     arity=2,
+#     # map_channels=[16, 64, 256],
+#     # map_stride=[2, 2, 2],
+#     # map_kernel_size=[7, 5, 3],
+#     map_channels=[16, 64],
+#     map_stride=[2, 2],
+#     map_kernel_size=[5, 3],
+#     map_padding=3 * [False],
+#     room_embedding_width=None,
+#     connectivity_in_width=16,
+#     connectivity_out_width=64,
+#     fc_widths=[256, 256],
+# )
+# self = model
+# room_mask = env.room_mask
+# room_position_x = env.room_position_x
+# room_position_y = env.room_position_y
+# center_x = torch.full([num_envs], 10)
+# center_y = torch.full([num_envs], 2)
+# candidate = torch.zeros([num_envs], dtype=torch.long)
+# map = env.compute_map(room_mask, room_position_x, room_position_y)
+# shifted_map = env.compute_map_shifted(room_mask, room_position_x, room_position_y, center_x, center_y)
+# torch.set_printoptions(linewidth=120)
+# print(map[0, 3, :, :])
