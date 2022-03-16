@@ -196,7 +196,7 @@ rooms = [
             [0, 1, 1, 0],
             [0, 1, 1, 0],
             [1, 1, 1, 1],
-            [1, 1, 1, 1],
+            [0, 1, 1, 1],
             [0, 1, 1, 1],
             [0, 1, 1, 1],
         ],
@@ -204,7 +204,7 @@ rooms = [
             DoorIdentifier(RIGHT, 2, 1, 0x1A5B8, 0x1A5D0),  # Kassiuz Room
             DoorIdentifier(RIGHT, 3, 3, 0x1A5C4, 0x1A630),  # Bug Sand Hole
             DoorIdentifier(RIGHT, 3, 5, 0x1A5A0, 0x1A750),  # Butterfly Room
-            DoorIdentifier(DOWN, 0, 3, 0x1A5AC, 0x1A60C),  # Aqueduct (toilet)
+            DoorIdentifier(DOWN, 0, 2, 0x1A5AC, 0x1A60C),  # Aqueduct (toilet)
         ],
     ),
     Room(
