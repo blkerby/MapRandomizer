@@ -37,14 +37,14 @@ device = devices[0]
 executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
 num_envs = 2 ** 10
-rooms = logic.rooms.crateria_isolated.rooms
-# rooms = logic.rooms.all_rooms.rooms
+# rooms = logic.rooms.crateria_isolated.rooms
+rooms = logic.rooms.all_rooms.rooms
 episode_length = len(rooms)
 
-map_x = 32
-map_y = 32
-# map_x = 72
-# map_y = 72
+# map_x = 32
+# map_y = 32
+map_x = 72
+map_y = 72
 env_config = EnvConfig(
     rooms=rooms,
     map_x=map_x,
@@ -63,30 +63,31 @@ good_room_parts = [i for i, r in enumerate(envs[0].part_room_id.tolist()) if len
 logging.info("max_possible_reward = {}".format(max_possible_reward))
 
 
-# def make_dummy_model():
-#     return Model(env_config=env_config,
-#                  num_doors=envs[0].num_doors,
-#                  num_missing_connects=envs[0].num_missing_connects,
-#                  num_room_parts=len(envs[0].good_room_parts),
-#                  arity=1,
-#                  map_channels=[],
-#                  map_stride=[],
-#                  map_kernel_size=[],
-#                  map_padding=[],
-#                  room_embedding_width=1,
-#                  connectivity_in_width=0,
-#                  connectivity_out_width=0,
-#                  fc_widths=[]).to(device)
-#
-#
+def make_dummy_model():
+    return Model(env_config=env_config,
+                 num_doors=envs[0].num_doors,
+                 num_missing_connects=envs[0].num_missing_connects,
+                 num_room_parts=len(envs[0].good_room_parts),
+                 arity=1,
+                 map_channels=[],
+                 map_stride=[],
+                 map_kernel_size=[],
+                 map_padding=[],
+                 room_embedding_width=1,
+                 connectivity_in_width=0,
+                 connectivity_out_width=0,
+                 fc_widths=[]).to(device)
+
+
 # model = make_dummy_model()
-# model.total_lin_weight[:, :] = 0.0
+# model.output_lin.weight.data[:, :] = 0.0
+# model.output_lin.bias.data[:] = 0.0
 # optimizer = torch.optim.Adam(model.parameters(), lr=0.0001, betas=(0.95, 0.99), eps=1e-15)
 #
 # logging.info("{}".format(model))
 # logging.info("{}".format(optimizer))
 #
-# replay_size = 2 ** 18
+# replay_size = 2 ** 20
 # session = TrainingSession(envs,
 #                           model=model,
 #                           optimizer=optimizer,
@@ -126,64 +127,74 @@ logging.info("max_possible_reward = {}".format(max_possible_reward))
 #                max_possible_reward - mean_reward, ci_reward))
 
 # pickle.dump(session, open('models/init_session.pkl', 'wb'))
-session = pickle.load(open('models/init_session.pkl', 'rb'))
+# session = pickle.load(open('models/init_session.pkl', 'rb'))
+# session = pickle.load(open('models/session-2022-03-13T15:39:03.637178.pkl-bk1', 'rb'))
 # session = pickle.load(open('models/session-2022-02-21T14:41:53.417803.pkl-bk10', 'rb'))
+session = pickle.load(open('models/session-2022-03-13T18:04:43.313208.pkl', 'rb'))
 
 # session = pickle.load(open('models/session-2022-03-12T13:59:07.215420.pkl', 'rb'))
 session.envs = envs
 
 
-session.model = Model(
-    env_config=env_config,
-    num_doors=envs[0].num_doors,
-    num_missing_connects=envs[0].num_missing_connects,
-    num_room_parts=len(envs[0].good_room_parts),
-    arity=2,
-    map_channels=[16, 64, 256],
-    map_stride=[2, 2, 2],
-    map_kernel_size=[7, 5, 3],
-    map_padding=3 * [False],
-    room_embedding_width=None,
-    connectivity_in_width=16,
-    connectivity_out_width=64,
-    fc_widths=[256, 256],
-).to(device)
-
-session.model.output_lin.weight.data.zero_()
-session.model.output_lin.bias.data.zero_()
-session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=session.average_parameters.beta)
-session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.0001, betas=(0.95, 0.99), eps=1e-8)
-session.verbose = False
-session.replay_buffer.resize(2 ** 18)
-logging.info(session.model)
-logging.info(session.optimizer)
+# session.model = Model(
+#     env_config=env_config,
+#     num_doors=envs[0].num_doors,
+#     num_missing_connects=envs[0].num_missing_connects,
+#     num_room_parts=len(envs[0].good_room_parts),
+#     arity=2,
+#     # map_channels=[32, 128, 256],
+#     # map_stride=[2, 2, 2],
+#     # map_kernel_size=[3, 3, 3],
+#     # map_padding=3 * [False],
+#     # map_channels=[],
+#     # map_stride=[],
+#     # map_kernel_size=[],
+#     # map_padding=[],
+#     map_channels=[16, 32, 64, 128],
+#     map_stride=[2, 2, 2, 2],
+#     map_kernel_size=[3, 3, 3, 3],
+#     map_padding=4 * [False],
+#     room_embedding_width=None,
+#     connectivity_in_width=16,
+#     connectivity_out_width=64,
+#     fc_widths=[1024],
+# ).to(device)
 #
+# session.model.output_lin.weight.data.zero_()
+# session.model.output_lin.bias.data.zero_()
+# session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=session.average_parameters.beta)
+# session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.0001, betas=(0.95, 0.99), eps=1e-8)
+# session.verbose = False
+# session.replay_buffer.resize(2 ** 21)
+# logging.info(session.model)
+# logging.info(session.optimizer)
+# #
 
 
-batch_size_pow0 = 10
-batch_size_pow1 = 10
-lr0 = 2e-3
-lr1 = lr0
-temperature0 = 10.0
-temperature1 = 0.05
-explore_eps0 = 0.0
+batch_size_pow0 = 8
+batch_size_pow1 = 8
+lr0 = 5e-5
+lr1 = 5e-5
+temperature0 = 0.5
+temperature1 = 0.2
+explore_eps0 = 0.005
 explore_eps1 = explore_eps0
-annealing_start = 0
+annealing_start = 15600
 annealing_time = 1024
 pass_factor = 0.5
 num_gen_rounds = 1
 print_freq = 16
+save_freq = 512
+summary_freq = 512
+session.decay_amount = 0.05
+session.optimizer.param_groups[0]['betas'] = (0.95, 0.99)
+session.average_parameters.beta = 0.99
+
 total_reward = 0
 total_loss = 0.0
 total_loss_cnt = 0
 total_prob = 0.0
 total_round_cnt = 0
-save_freq = 256
-summary_freq = 256
-session.decay_amount = 0.1
-session.optimizer.param_groups[0]['betas'] = (0.95, 0.99)
-session.average_parameters.beta = 0.999
-
 min_door_value = max_possible_reward
 total_min_door_frac = 0
 torch.set_printoptions(linewidth=120, threshold=10000)
@@ -291,8 +302,24 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             pickle.dump(session, open(pickle_name, 'wb'))
-            # pickle.dump(session, open(pickle_name + '-bk1', 'wb'))
+            # pickle.dump(session, open(pickle_name + '-bk4', 'wb'))
+            # session = pickle.load(open(pickle_name + '-bk4', 'rb'))
             # # # session.replay_buffer.episode_data = episode_data
-            # session = pickle.load(open(pickle_name + '-bk6', 'rb'))
     if session.num_rounds % summary_freq < num_gen_rounds:
         logging.info(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects, dim=0)))
+
+
+# data = session.replay_buffer.sample(batch_size, device=device)
+# env = envs[0]
+# # shifted_map = envs[0].compute_current_map()
+# shifted_map = env.compute_map_shifted(data.room_mask, data.room_position_x, data.room_position_y,
+#                                       data.center_x, data.center_y)
+# with torch.no_grad():
+#     A = session.model.forward_infer(shifted_map, data.room_mask)
+#     total = 0.0
+#     # for i in range(envs[0].num_doors + 1):
+#     # i = 0
+#     prob = session.model.forward_train(shifted_map, data.room_mask, data.chosen_candidate_index)
+#     logprob = torch.where(prob >= 1, prob - 1, torch.log(prob))
+#     Y = torch.sum(logprob, dim=1)
+#     A[:, data.chosen_candidate_index]

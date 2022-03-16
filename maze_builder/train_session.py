@@ -69,7 +69,7 @@ class TrainingSession():
 
             probs = torch.where(mask, probs, torch.zeros_like(probs))  # Probably not needed, but just make extra sure that invalid candidates have 0 probability.
             chosen_candidate_index = torch.multinomial(probs, 1, replacement=True)[:, 0]
-            selected_prob = probs[torch.arange(env.num_envs, device=device), chosen_candidate_index] * candidate_count.to(probs.dtype)
+            selected_prob = probs[torch.arange(env.num_envs, device=device), chosen_candidate_index] #* candidate_count.to(probs.dtype)
             room_id = env.door_data_full[chosen_candidate_index, 0]
             room_position_x = center_x - env.door_data_full[chosen_candidate_index, 1]
             room_position_y = center_y - env.door_data_full[chosen_candidate_index, 2]
@@ -110,6 +110,7 @@ class TrainingSession():
                        executor: Optional[concurrent.futures.ThreadPoolExecutor] = None,
                        render=False) -> EpisodeData:
         with self.average_parameters.average_parameters(self.model.all_param_data()):
+            self.model.update()
             if executor is None:
                 episode_data_list = []
                 model_list = [copy.deepcopy(self.model).to(env.device) for env in self.envs]
@@ -148,15 +149,25 @@ class TrainingSession():
 
         env = self.envs[0]
         shifted_map = env.compute_map_shifted(data.room_mask, data.room_position_x, data.room_position_y, data.center_x, data.center_y)
-        probs = self.model.forward_train(shifted_map, data.room_mask, data.chosen_candidate_index)
+        logprobs = self.model.forward_train(shifted_map, data.room_mask, data.chosen_candidate_index)
         all_outputs = torch.cat([data.door_connects, data.missing_connects], dim=1)
-        loss = torch.mean((probs - all_outputs.to(torch.float32)) ** 2)
+
+        # probs = torch.where(logprobs >= 0, logprobs + 1,  # For out-of-bounds logprobs, use linear extrapolation instead of exp, to prevent huge gradients
+        #             torch.exp(torch.clamp_max(logprobs, 0.0)))  # Clamp is "no-op" but avoids non-finite gradients
+        probs = torch.where(logprobs >= 0, logprobs ** 2 / 2 + logprobs + 1,  # For out-of-bounds logprobs, use 2nd order Taylor series instead of exp, to prevent huge gradients
+                    torch.exp(torch.clamp_max(logprobs, 0.0)))  # Clamp is "no-op" but avoids non-finite gradients
+
+        # Custom loss function for this scenario (binary outcomes with predictions on a log-probability scale).
+        # It provides consistent estimation, with advantage over MSE in that the logprob gradient doesn't vanish on
+        # positive labels with large negative (predicted) logprobs, and advantage over log-likelihood in that we can
+        # accomodate out-of-bounds logprobs (i.e., positive logprobs) without blowing up.
+        loss = torch.mean(probs - all_outputs.to(torch.float32) * (logprobs + 1.0))
+        # loss = torch.mean((probs - all_outputs.to(torch.float32)) ** 2)
 
         self.optimizer.zero_grad()
         self.grad_scaler.scale(loss).backward()
         self.grad_scaler.step(self.optimizer)
         self.grad_scaler.update()
         self.model.decay(self.decay_amount * self.optimizer.param_groups[0]['lr'])
-        self.model.update()
         self.average_parameters.update(self.model.all_param_data())
         return loss.item()

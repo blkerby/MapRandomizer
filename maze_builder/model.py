@@ -156,7 +156,8 @@ class MaxOut(torch.nn.Module):
     def forward(self, X):
         shape = [X.shape[0], self.arity, X.shape[1] // self.arity] + list(X.shape)[2:]
         X = X.view(*shape)
-        return torch.max(X, dim=1)[0]
+        return torch.amax(X, dim=1)
+        # return torch.max(X, dim=1)[0]
 
 
 
@@ -172,8 +173,8 @@ class Model(torch.nn.Module):
         self.num_doors = num_doors
         self.num_missing_connects = num_missing_connects
         self.num_room_parts = num_room_parts
-        self.map_x = env_config.map_x + 1
-        self.map_y = env_config.map_y + 1
+        self.map_x = env_config.map_x #+ 1
+        self.map_y = env_config.map_y #+ 1
         self.map_c = 4
         self.room_embedding_width = room_embedding_width
         self.connectivity_in_width = connectivity_in_width
@@ -202,12 +203,12 @@ class Model(torch.nn.Module):
             self.map_act_layers.append(common_act)
             width = (width - map_kernel_size[i]) // map_stride[i] + 1
             height = (height - map_kernel_size[i]) // map_stride[i] + 1
-        self.map_global_pool = GlobalAvgPool2d()
 
+        self.map_flatten = torch.nn.Flatten()
         self.global_lin_layers = torch.nn.ModuleList()
         self.global_act_layers = torch.nn.ModuleList()
         self.global_dropout_layers = torch.nn.ModuleList()
-        fc_widths = [map_channels[-1] + self.num_rooms] + fc_widths
+        fc_widths = [width * height * map_channels[-1] + self.num_rooms] + fc_widths
         for i in range(len(fc_widths) - 1):
             lin = torch.nn.Linear(fc_widths[i], fc_widths[i + 1] * arity)
             self.global_lin_layers.append(lin)
@@ -236,7 +237,8 @@ class Model(torch.nn.Module):
 
             # Fully-connected layers on whole map data (starting with output of convolutional layers)
             # print(X.shape)
-            X = self.map_global_pool(X)
+            # X = self.map_global_pool(X)
+            X = self.map_flatten(X)
             X = torch.cat([X, room_mask], dim=1)
             for i in range(len(self.global_lin_layers)):
                 X = self.global_lin_layers[i](X)
@@ -247,9 +249,7 @@ class Model(torch.nn.Module):
         X = self.forward_core(shifted_map, room_mask)
         X = X * self.candidate_weights[:, candidate].t()
         output_logprobs = self.output_lin(X).to(torch.float32)
-        output_probs = torch.where(output_logprobs >= 0, output_logprobs + 1,
-                    torch.exp(torch.clamp_max(output_logprobs, 0.0)))  # Clamp is "no-op" but avoids non-finite gradients
-        return output_probs
+        return output_logprobs
         # door_connects = env.door_connects(map, room_mask, room_position_x, room_position_y)
         # door_connects_probs = output_probs[:, :self.num_doors]
         # missing_connects_probs = output_probs[:, self.num_doors:]
