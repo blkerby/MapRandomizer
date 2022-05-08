@@ -418,20 +418,25 @@ class DoorLocalModel(torch.nn.Module):
 
     def forward_multiclass(self, map, room_mask, room_position_x, room_position_y, steps_remaining, env: MazeBuilderEnv):
         n = map.shape[0]
-        connectivity = env.compute_fast_component_matrix(room_mask, room_position_x, room_position_y)
 
         if map.is_cuda:
             X_map = map.to(torch.float16, memory_format=torch.channels_last)
-            connectivity = connectivity.to(torch.float16)
         else:
             X_map = map.to(torch.float32)
-            connectivity = connectivity.to(torch.float32)
 
-        reduced_connectivity = torch.einsum('ijk,mj,kn->imn',
-                                            connectivity,
-                                            self.connectivity_left_mat.to(connectivity.dtype),
-                                            self.connectivity_right_mat.to(connectivity.dtype))
-        reduced_connectivity_flat = reduced_connectivity.view(n, self.connectivity_in_width ** 2)
+        if self.connectivity_in_width != 0:
+            connectivity = env.compute_fast_component_matrix(room_mask, room_position_x, room_position_y)
+            if map.is_cuda:
+                connectivity = connectivity.to(torch.float16)
+            else:
+                connectivity = connectivity.to(torch.float32)
+            reduced_connectivity = torch.einsum('ijk,mj,kn->imn',
+                                                connectivity,
+                                                self.connectivity_left_mat.to(connectivity.dtype),
+                                                self.connectivity_right_mat.to(connectivity.dtype))
+            reduced_connectivity_flat = reduced_connectivity.view(n, self.connectivity_in_width ** 2)
+        else:
+            reduced_connectivity_flat = torch.zeros([n, 0], device=map.device, dtype=X_map.dtype)
 
         map_door_left = torch.nonzero(map[:, 1, :, :] > 1)
         map_door_right = torch.nonzero(map[:, 1, :, :] < -1)

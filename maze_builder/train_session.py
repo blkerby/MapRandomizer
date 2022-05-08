@@ -238,11 +238,26 @@ class TrainingSession():
     def train_batch(self, data: TrainingData):
         self.model.train()
 
-        if self.sam_scale is not None:
-            saved_params = [param.data.clone() for param in self.model.parameters()]
-            for param in self.model.parameters():
-                param.data += torch.randn_like(param.data) * self.sam_scale
-            self.model.project()
+        env = self.envs[0]
+        map = env.compute_map(data.room_mask, data.room_position_x, data.room_position_y)
+        state_value_raw_logodds, _, _ = self.model.forward_multiclass(
+            map, data.room_mask, data.room_position_x, data.room_position_y, data.steps_remaining, env)
+
+        all_outputs = torch.cat([data.door_connects, data.missing_connects], dim=1)
+        loss = torch.nn.functional.binary_cross_entropy_with_logits(state_value_raw_logodds,
+                                                                    all_outputs.to(state_value_raw_logodds.dtype))
+
+        self.optimizer.zero_grad()
+        self.grad_scaler.scale(loss).backward()
+        self.grad_scaler.step(self.optimizer)
+        self.grad_scaler.update()
+        self.model.decay(self.decay_amount * self.optimizer.param_groups[0]['lr'])
+        self.model.project()
+        self.average_parameters.update(self.model.all_param_data())
+        return loss.item()
+
+    def eval_batch(self, data: TrainingData):
+        self.model.eval()
 
         env = self.envs[0]
         map = env.compute_map(data.room_mask, data.room_position_x, data.room_position_y)
@@ -252,20 +267,4 @@ class TrainingSession():
         all_outputs = torch.cat([data.door_connects, data.missing_connects], dim=1)
         loss = torch.nn.functional.binary_cross_entropy_with_logits(state_value_raw_logodds,
                                                                     all_outputs.to(state_value_raw_logodds.dtype))
-        # loss = torch.mean(compute_mse_loss(state_value_raw_logprobs, all_outputs.to(state_value_raw_logprobs.dtype)))
-        # print(state_value_raw_logprobs, all_outputs.to(state_value_raw_logprobs.dtype),
-        #       compute_mse_loss(state_value_raw_logprobs, all_outputs.to(state_value_raw_logprobs.dtype)))
-
-        self.optimizer.zero_grad()
-        self.grad_scaler.scale(loss).backward()
-
-        if self.sam_scale is not None:
-            for i, param in enumerate(self.model.parameters()):
-                param.data.copy_(saved_params[i])
-
-        self.grad_scaler.step(self.optimizer)
-        self.grad_scaler.update()
-        self.model.decay(self.decay_amount * self.optimizer.param_groups[0]['lr'])
-        self.model.project()
-        self.average_parameters.update(self.model.all_param_data())
         return loss.item()

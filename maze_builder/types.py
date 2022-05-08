@@ -139,6 +139,8 @@ class EpisodeData:
             reward=self.reward.to(device).unsqueeze(1).repeat(1, episode_length).view(-1),
             door_connects=self.door_connects.to(device).unsqueeze(1).repeat(1, episode_length, 1).view(
                 num_episodes * episode_length, -1),
+            missing_connects=self.missing_connects.to(device).unsqueeze(1).repeat(1, episode_length, 1).view(
+                num_episodes * episode_length, -1),
             steps_remaining=steps_remaining.unsqueeze(0).repeat(num_episodes, 1).view(-1),
             room_mask=room_mask,
             room_position_x=room_position_x,
