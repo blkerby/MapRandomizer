@@ -25,15 +25,15 @@ DONE:
 - fix plasma spark room: map off by 1 tile
 - fix spazer room music
 - fix botwoon e-tank sand
-- keep door locks in boss rooms
 
 TODO:
+- keep door locks in boss rooms?
 - eye doors before bosses?
 - fix demo
 - fix red screen in draygon
 - block left side of mother brain room and crocomire room
 	- and possibly right of kraid, or change spawn? (camera glitchy)
-- graphics messed up after killing kraid?
+- graphics messed up after killing kraid
 - escape timer
 - fix single map tile in toilet
 - better solution for fixing toilet door asm
