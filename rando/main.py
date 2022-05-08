@@ -526,6 +526,9 @@ for ptr in save_station_ptrs:
 
 # item_dict = {}
 for room_obj in rooms:
+    if room_obj.name == 'Pit Room':
+        # Leave grey doors in Pit Room intact, so that there is a way to trigger Zebes becoming awake.
+        continue
     room = RomRoom(orig_rom, room_obj)
     states = room.load_states(rom)
     for state in states:
