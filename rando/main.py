@@ -520,8 +520,21 @@ for ptr in save_station_ptrs:
 #     entrance_door_ptr = door_dict[exit_door_ptr] & 0xffff
 #     rom.write_u16(dst_ptr + 2, entrance_door_ptr & 0xffff)
 
-# item_dict = {}
+# Boss rooms with grey door locks:
+boss_room_names = [
+    'Bomb Torizo Room',
+    'Kraid Room',
+    "Phantoon's Room",
+    "Botwoon's Room",
+    "Draygon's Room",
+    "Crocomire's Room",
+    "Ridley's Room",
+    "Golden Torizo's Room"
+]
 for room_obj in rooms:
+    if room_obj.name in boss_room_names:
+        # Do not change the doors in boss rooms. We want to leave the grey door locks intact.
+        continue
     room = RomRoom(orig_rom, room_obj)
     states = room.load_states(rom)
     for state in states:
