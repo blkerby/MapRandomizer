@@ -61,70 +61,70 @@ max_possible_reward = envs[0].max_reward
 good_room_parts = [i for i, r in enumerate(envs[0].part_room_id.tolist()) if len(envs[0].rooms[r].door_ids) > 1]
 logging.info("max_possible_reward = {}".format(max_possible_reward))
 
-#
-# def make_dummy_model():
-#     return Model(env_config=env_config,
-#                  num_doors=envs[0].num_doors,
-#                  num_missing_connects=envs[0].num_missing_connects,
-#                  num_room_parts=len(envs[0].good_room_parts),
-#                  arity=1,
-#                  map_channels=[],
-#                  map_stride=[],
-#                  map_kernel_size=[],
-#                  map_padding=[],
-#                  room_embedding_width=1,
-#                  connectivity_in_width=0,
-#                  connectivity_out_width=0,
-#                  fc_widths=[]).to(device)
-#
-#
-# model = make_dummy_model()
-# model.state_value_lin.weight.data[:, :] = 0.0
-# model.state_value_lin.bias.data[:] = 0.0
-# optimizer = torch.optim.Adam(model.parameters(), lr=0.0001, betas=(0.95, 0.99), eps=1e-15)
-#
-# logging.info("{}".format(model))
-# logging.info("{}".format(optimizer))
-#
-# replay_size = 2 ** 21
-# session = TrainingSession(envs,
-#                           model=model,
-#                           optimizer=optimizer,
-#                           ema_beta=0.99,
-#                           replay_size=replay_size,
-#                           decay_amount=0.0,
-#                           sam_scale=None)
-# torch.set_printoptions(linewidth=120, threshold=10000)
-#
-# gen_print_freq = 16
-# i = 0
-# total_reward = 0
-# total_reward2 = 0
-# cnt_episodes = 0
-# while session.replay_buffer.size < session.replay_buffer.capacity:
-#     data = session.generate_round(
-#         episode_length=episode_length,
-#         num_candidates=1,
-#         temperature=1e-10,
-#         # num_candidates=32,
-#         # temperature=1e-4,
-#         explore_eps=0.0,
-#         render=False,
-#         executor=executor)
-#     session.replay_buffer.insert(data)
-#
-#     total_reward += torch.sum(data.reward.to(torch.float32)).item()
-#     total_reward2 += torch.sum(data.reward.to(torch.float32) ** 2).item()
-#     cnt_episodes += data.reward.shape[0]
-#
-#     i += 1
-#     if i % gen_print_freq == 0:
-#         mean_reward = total_reward / cnt_episodes
-#         std_reward = math.sqrt(total_reward2 / cnt_episodes - mean_reward ** 2)
-#         ci_reward = std_reward * 1.96 / math.sqrt(cnt_episodes)
-#         logging.info("init gen {}/{}: cost={:.3f} +/- {:.3f}".format(
-#             session.replay_buffer.size, session.replay_buffer.capacity,
-#                max_possible_reward - mean_reward, ci_reward))
+
+def make_dummy_model():
+    return Model(env_config=env_config,
+                 num_doors=envs[0].num_doors,
+                 num_missing_connects=envs[0].num_missing_connects,
+                 num_room_parts=len(envs[0].good_room_parts),
+                 arity=1,
+                 map_channels=[],
+                 map_stride=[],
+                 map_kernel_size=[],
+                 map_padding=[],
+                 room_embedding_width=1,
+                 connectivity_in_width=0,
+                 connectivity_out_width=0,
+                 fc_widths=[]).to(device)
+
+
+model = make_dummy_model()
+model.state_value_lin.weight.data[:, :] = 0.0
+model.state_value_lin.bias.data[:] = 0.0
+optimizer = torch.optim.Adam(model.parameters(), lr=0.0001, betas=(0.95, 0.99), eps=1e-15)
+
+logging.info("{}".format(model))
+logging.info("{}".format(optimizer))
+
+replay_size = 2 ** 21
+session = TrainingSession(envs,
+                          model=model,
+                          optimizer=optimizer,
+                          ema_beta=0.99,
+                          replay_size=replay_size,
+                          decay_amount=0.0,
+                          sam_scale=None)
+torch.set_printoptions(linewidth=120, threshold=10000)
+
+gen_print_freq = 16
+i = 0
+total_reward = 0
+total_reward2 = 0
+cnt_episodes = 0
+while session.replay_buffer.size < session.replay_buffer.capacity:
+    data = session.generate_round(
+        episode_length=episode_length,
+        num_candidates=1,
+        temperature=1e-10,
+        # num_candidates=32,
+        # temperature=1e-4,
+        explore_eps=0.0,
+        render=False,
+        executor=executor)
+    session.replay_buffer.insert(data)
+
+    total_reward += torch.sum(data.reward.to(torch.float32)).item()
+    total_reward2 += torch.sum(data.reward.to(torch.float32) ** 2).item()
+    cnt_episodes += data.reward.shape[0]
+
+    i += 1
+    if i % gen_print_freq == 0:
+        mean_reward = total_reward / cnt_episodes
+        std_reward = math.sqrt(total_reward2 / cnt_episodes - mean_reward ** 2)
+        ci_reward = std_reward * 1.96 / math.sqrt(cnt_episodes)
+        logging.info("init gen {}/{}: cost={:.3f} +/- {:.3f}".format(
+            session.replay_buffer.size, session.replay_buffer.capacity,
+               max_possible_reward - mean_reward, ci_reward))
 #
 # pickle.dump(session, open('models/init_session.pkl', 'wb'))
 session = pickle.load(open('models/init_session.pkl', 'rb'))
@@ -368,7 +368,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             pickle.dump(session, open(pickle_name, 'wb'))
-            # pickle.dump(session, open(pickle_name + '-b-bk5', 'wb'))
+            # pickle.dump(session, open(pickle_name + '-b-bk6', 'wb'))
             # # # # # # # # # session.replay_buffer.episode_data = episode_data
             # session = pickle.load(open(pickle_name + '-bk10', 'rb'))
     if session.num_rounds % summary_freq < num_gen_rounds:

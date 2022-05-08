@@ -30,10 +30,9 @@ DONE:
 
 TODO:
 - fix map when going down elevator (set bottom tiles to explored)
+- generalize patching door asm for entering mother brain room
 - fix demo
 - fix red screen in draygon
-- block left side of mother brain room and crocomire room
-	- and possibly right of kraid, or change spawn? (camera glitchy)
 - escape timer
 - better solution for fixing toilet door asm
 - vanilla morph?
@@ -42,6 +41,8 @@ TODO:
     - new game on second file starts at wrong save
 - fix big boy cutscene? (keeps happening whenever entering from right, even if has happened before)
 - probably need to make bowling open even when phantoon not dead?
+- block left side of mother brain room and crocomire room (grey door)
+	- and possibly right of kraid, or change spawn? (camera glitchy)
 - door randomization
   - tie together plms for the two sides of door?
 - refine item randomization

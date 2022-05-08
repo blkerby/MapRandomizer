@@ -71,6 +71,7 @@ for conn in map['doors']:
     room_graph.add_edge(src_room_id, dst_room_id)
     room_graph.add_edge(dst_room_id, src_room_id)
 
+# Try to assign new areas to rooms in a way that makes areas as clustered as possible
 best_entropy = float('inf')
 best_state = None
 num_areas = 6
@@ -606,7 +607,7 @@ for i in range(len(randomizer.item_placement_list)):
     plm_type = item_to_plm_type(item_name, orig_plm_type)
     rom.write_u16(ptr, plm_type)
 
-# Make whole map revealed (after getting map station)
+# Make whole map revealed (after getting map station), i.e. no more "secret rooms" that don't show up in map.
 for i in range(0x11727, 0x11D27):
     rom.write_u8(i, 0xFF)
 

@@ -40,5 +40,16 @@ startup:
     lda #$0001
     sta $0789   ; area map collected
 
+    ; Testing: Mark all saves/elevators as used (so that elevator tiles will show as explored on map)?
+    lda #$FFFF
+    sta $7ED8F8
+    sta $7ED8FA
+    sta $7ED8FC
+    sta $7ED8FE
+    sta $7ED900
+    sta $7ED902
+    sta $7ED904
+    sta $7ED906
+
     lda #$0005  ; Start in loading game state 5 (Main) instead of 0 (Intro)
     rtl
