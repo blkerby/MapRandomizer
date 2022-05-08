@@ -27,13 +27,10 @@ DONE:
 - fix botwoon e-tank sand
 
 TODO:
-- keep door locks in boss rooms?
-- eye doors before bosses?
 - fix demo
 - fix red screen in draygon
 - block left side of mother brain room and crocomire room
 	- and possibly right of kraid, or change spawn? (camera glitchy)
-- graphics messed up after killing kraid
 - escape timer
 - fix single map tile in toilet
 - better solution for fixing toilet door asm
@@ -56,6 +53,8 @@ TODO:
 - fix map when going down elevator (set bottom tiles to explored)
 - fix suit graphics not showing after getting suit (consequence of skipping animation)
 - door doesn't open after killing phantoon?
+- set boss bits earlier in death sequence (to avoid accidentally leaving room before set)
+- graphics messed up after killing kraid
 
 Notes on usage of area ($079F and $7E:D918):
 

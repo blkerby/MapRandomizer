@@ -354,7 +354,6 @@ rom = Rom(input_rom_path)
 old_y = orig_rom.read_u8(0x7D5A7 + 3)
 orig_rom.write_u8(0x7D5A7 + 3, old_y - 4)
 
-
 # Area data: --------------------------------
 area_index_dict = defaultdict(lambda: {})
 for i, room in enumerate(rooms):
@@ -406,6 +405,11 @@ for i, room in enumerate(rooms):
     rom_room.x = xs_min[i] - area_start_x[area]
     rom_room.y = ys_min[i] - area_start_y[area]
     rom_room.write_map_data(rom)
+    if room.name == 'Aqueduct':
+        # Patch map tile in Aqueduct to replace Botwoon Hallway with tube/elevator tile
+        cell = rom.read_u16(rom_room.xy_to_map_ptr(rom_room.x + 2, rom_room.y + 2))
+        rom.write_u16(rom_room.xy_to_map_ptr(rom_room.x + 2, rom_room.y + 3), cell)
+
 
 def write_door_data(ptr, data):
     if ptr in (0x1A600, 0x1A60C):
