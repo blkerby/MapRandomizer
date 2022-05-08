@@ -21,6 +21,7 @@ DONE:
 - fix Plasma Spark Room map (near door down should only be 1 tile, not 2)
 - make kraid a first-time one-way in model, like crocomire?
 - fix map in east pants room, and homing geemer room
+- fix map icons
 
 TODO:
 - fix demo
@@ -49,7 +50,6 @@ TODO:
 	- convert one tourian save to a map, so that each area gets a map station?
 		- remove asm that automatically gives map in first tourian room
 - eye doors before bosses?
-- fix map icons
 - fix map when going down elevator (set bottom tiles to explored)
 - fix botwoon e-tank sand
 - fix plasma spark room: map off by 1 tile

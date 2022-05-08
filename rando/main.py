@@ -660,6 +660,7 @@ patches = [
     'boss_exit',
     'itemsounds',
     'progressive_suits',
+    'disable_map_icons',
 ]
 for patch_name in patches:
     patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
