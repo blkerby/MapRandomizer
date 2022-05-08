@@ -155,7 +155,8 @@ class MaxOut(torch.nn.Module):
     def forward(self, X):
         shape = [X.shape[0], self.arity, X.shape[1] // self.arity] + list(X.shape)[2:]
         X = X.view(*shape)
-        return torch.max(X, dim=1)[0]
+        return torch.amax(X, dim=1)
+        # return torch.max(X, dim=1)[0]
 
 
 
@@ -377,23 +378,23 @@ class DoorLocalModel(torch.nn.Module):
         self.map_channels = map_channels
         self.map_kernel_size = map_kernel_size
         self.arity = arity
-        # self.connectivity_in_width = connectivity_in_width
+        self.connectivity_in_width = connectivity_in_width
         self.local_widths = local_widths
         self.global_widths = global_widths
         self.num_rooms = len(env_config.rooms) + 1
         # common_act = torch.nn.ReLU()
         # common_act = torch.nn.SELU()
-        common_act = torch.nn.Mish()
-        # common_act = MaxOut(arity)
+        # common_act = torch.nn.Mish()
+        common_act = MaxOut(arity)
 
-        # self.connectivity_left_mat = torch.nn.Parameter(torch.randn([connectivity_in_width, num_room_parts]))
-        # self.connectivity_right_mat = torch.nn.Parameter(torch.randn([num_room_parts, connectivity_in_width]))
+        self.connectivity_left_mat = torch.nn.Parameter(torch.randn([connectivity_in_width, num_room_parts]))
+        self.connectivity_right_mat = torch.nn.Parameter(torch.randn([num_room_parts, connectivity_in_width]))
         self.left_lin = torch.nn.Linear(map_kernel_size ** 2 * map_channels, local_widths[0] * arity)
         self.right_lin = torch.nn.Linear(map_kernel_size ** 2 * map_channels, local_widths[0] * arity)
         self.up_lin = torch.nn.Linear(map_kernel_size ** 2 * map_channels, local_widths[0] * arity)
         self.down_lin = torch.nn.Linear(map_kernel_size ** 2 * map_channels, local_widths[0] * arity)
-        # self.global_lin = torch.nn.Linear(connectivity_in_width ** 2 + self.num_rooms + 1, global_widths[0])
-        self.global_lin = torch.nn.Linear(self.num_rooms + 1, global_widths[0] * arity)
+        self.global_lin = torch.nn.Linear(connectivity_in_width ** 2 + self.num_rooms + 1, global_widths[0] * arity)
+        # self.global_lin = torch.nn.Linear(self.num_rooms + 1, global_widths[0] * arity)
         self.base_local_act = common_act
         self.base_global_act = common_act
 
@@ -417,21 +418,20 @@ class DoorLocalModel(torch.nn.Module):
 
     def forward_multiclass(self, map, room_mask, room_position_x, room_position_y, steps_remaining, env: MazeBuilderEnv):
         n = map.shape[0]
-        # logging.info("compute_component_matrix")
-        # connectivity = env.compute_fast_component_matrix(room_mask, room_position_x, room_position_y)
+        connectivity = env.compute_fast_component_matrix(room_mask, room_position_x, room_position_y)
 
         if map.is_cuda:
             X_map = map.to(torch.float16, memory_format=torch.channels_last)
-            # connectivity = connectivity.to(torch.float16)
+            connectivity = connectivity.to(torch.float16)
         else:
             X_map = map.to(torch.float32)
-            # connectivity = connectivity.to(torch.float32)
+            connectivity = connectivity.to(torch.float32)
 
-        # reduced_connectivity = torch.einsum('ijk,mj,kn->imn',
-        #                                     connectivity,
-        #                                     self.connectivity_left_mat.to(connectivity.dtype),
-        #                                     self.connectivity_right_mat.to(connectivity.dtype))
-        # reduced_connectivity_flat = reduced_connectivity.view(n, self.connectivity_in_width ** 2)
+        reduced_connectivity = torch.einsum('ijk,mj,kn->imn',
+                                            connectivity,
+                                            self.connectivity_left_mat.to(connectivity.dtype),
+                                            self.connectivity_right_mat.to(connectivity.dtype))
+        reduced_connectivity_flat = reduced_connectivity.view(n, self.connectivity_in_width ** 2)
 
         map_door_left = torch.nonzero(map[:, 1, :, :] > 1)
         map_door_right = torch.nonzero(map[:, 1, :, :] < -1)
@@ -458,11 +458,11 @@ class DoorLocalModel(torch.nn.Module):
             local_X = self.base_local_act(local_X)
             local_env_id = torch.cat([map_door_left[:, 0], map_door_right[:, 0], map_door_up[:, 0], map_door_down[:, 0]], dim=0)
 
-            global_X = torch.cat([room_mask.to(X_left.dtype),
-                                  steps_remaining.view(-1, 1)], dim=1)
-            # global_X = torch.cat([reduced_connectivity_flat,
-            #                       room_mask.to(X_left.dtype),
+            # global_X = torch.cat([room_mask.to(X_left.dtype),
             #                       steps_remaining.view(-1, 1)], dim=1)
+            global_X = torch.cat([reduced_connectivity_flat,
+                                  room_mask.to(X_left.dtype),
+                                  steps_remaining.view(-1, 1)], dim=1)
             global_X = self.global_lin(global_X)
             global_X = self.base_global_act(global_X)
 

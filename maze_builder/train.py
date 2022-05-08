@@ -35,7 +35,7 @@ num_devices = len(devices)
 device = devices[0]
 executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
-num_envs = 2 ** 10
+num_envs = 2 ** 8
 # rooms = logic.rooms.crateria_isolated.rooms
 rooms = logic.rooms.all_rooms.rooms
 episode_length = len(rooms)
@@ -61,7 +61,7 @@ max_possible_reward = envs[0].max_reward
 good_room_parts = [i for i, r in enumerate(envs[0].part_room_id.tolist()) if len(envs[0].rooms[r].door_ids) > 1]
 logging.info("max_possible_reward = {}".format(max_possible_reward))
 
-
+#
 # def make_dummy_model():
 #     return Model(env_config=env_config,
 #                  num_doors=envs[0].num_doors,
@@ -127,27 +127,41 @@ logging.info("max_possible_reward = {}".format(max_possible_reward))
 #                max_possible_reward - mean_reward, ci_reward))
 #
 # pickle.dump(session, open('models/init_session.pkl', 'wb'))
-# session = pickle.load(open('models/init_session.pkl', 'rb'))
-session = pickle.load(open('models/session-2022-02-21T14:41:53.417803.pkl-bk10', 'rb'))
-session.envs = envs
-
-
-# session.model = Model(
-#     env_config=env_config,
-#     num_doors=envs[0].num_doors,
-#     num_missing_connects=envs[0].num_missing_connects,
-#     num_room_parts=len(envs[0].good_room_parts),
-#     arity=2,
-#     map_channels=[16, 64, 256],
-#     map_stride=[2, 2, 2],
-#     map_kernel_size=[7, 5, 3],
-#     map_padding=3 * [False],
-#     room_embedding_width=None,
-#     connectivity_in_width=16,
-#     connectivity_out_width=64,
-#     fc_widths=[256, 256],
-#     global_dropout_p=0.0,
-# ).to(device)
+session = pickle.load(open('models/init_session.pkl', 'rb'))
+#
+#
+# # session.model = Model(
+# #     env_config=env_config,
+# #     num_doors=envs[0].num_doors,
+# #     num_missing_connects=envs[0].num_missing_connects,
+# #     num_room_parts=len(envs[0].good_room_parts),
+# #     arity=2,
+# #     map_channels=[16, 64, 256],
+# #     map_stride=[2, 2, 2],
+# #     map_kernel_size=[7, 5, 3],
+# #     map_padding=3 * [False],
+# #     room_embedding_width=None,
+# #     connectivity_in_width=16,
+# #     connectivity_out_width=64,
+# #     fc_widths=[256, 256],
+# #     global_dropout_p=0.0,
+# # ).to(device)
+#
+#
+# # class Custom_Unpickler(pickle.Unpickler):
+# #     def find_class(self, module, name):
+# #         if module == 'torch.storage' and name == '_load_from_bytes':
+# #             return lambda b: torch.load(io.BytesIO(b), map_location='cuda:1')
+# #         else:
+# #             return super().find_class(module, name)
+#
+# # session = pickle.load(open('models/session-2022-03-18T16:55:34.943459.pkl-bk9', 'rb'))
+# # session = pickle.load(open('models/session-2022-03-29T10:54:16.473392.pkl-bk9-newmodel-d0.1', 'rb'))
+# # session = pickle.load(open('models/session-2022-03-29T15:40:57.320430.pkl-bk16', 'rb'))
+# # session = pickle.load(open('models/session-2022-03-29T15:40:57.320430.pkl-bk23', 'rb'))
+# # session.model.to(device)
+#
+# session.envs = envs
 #
 # session.model = DoorLocalModel(
 #     env_config=env_config,
@@ -155,55 +169,87 @@ session.envs = envs
 #     num_missing_connects=envs[0].num_missing_connects,
 #     num_room_parts=len(envs[0].good_room_parts),
 #     map_channels=4,
-#     map_kernel_size=12,
+#     map_kernel_size=16,
 #     connectivity_in_width=64,
-#     local_widths=[128, 0],
-#     global_widths=[128, 128],
-#     fc_widths=[256, 256],
+#     local_widths=[256, 0],
+#     global_widths=[256, 256],
+#     fc_widths=[256, 256, 256],
 #     alpha=2.0,
-#     arity=1,
+#     arity=2,
 # ).to(device)
 #
 # session.model.state_value_lin.weight.data.zero_()
 # session.model.state_value_lin.bias.data.zero_()
 # session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=session.average_parameters.beta)
 # session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.0001, betas=(0.95, 0.99), eps=1e-8)
-# session.verbose = False
-# session.replay_buffer.resize(2 ** 21)
+# # session.verbose = False
+# # # session.replay_buffer.resize(2 ** 21)
 # logging.info(session.model)
 # logging.info(session.optimizer)
+# num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
 #
+#
+# logging.info("Initial training: {} parameters".format(num_params))
+# total_loss = 0.0
+# total_loss_cnt = 0
+# train_round = 1
+# train_print_freq = 2048
+# batch_size = 512
+# train_annealing_time = 200000
+# lr0 = 0.001
+# lr1 = 0.00002
+# session.decay_amount = 0.1
+# for i in range(10000000):
+#     frac = max(0, min(1, train_round / train_annealing_time))
+#     lr = lr0 * (lr1 / lr0) ** frac
+#     session.optimizer.param_groups[0]['lr'] = lr
+#
+#     data = session.replay_buffer.sample(batch_size, device=device)
+#     with util.DelayedKeyboardInterrupt():
+#         total_loss += session.train_batch(data)
+#         total_loss_cnt += 1
+#
+#     if train_round % train_print_freq == 0:
+#         avg_loss = total_loss / total_loss_cnt
+#         total_loss = 0.0
+#         total_loss_cnt = 0
+#
+#         logging.info("init train {}: loss={:.6f}, lr={:.6f}".format(train_round, avg_loss, lr))
+#     train_round += 1
+#
+# pickle.dump(session, open('models/init_train.pkl', 'wb'))
 
 
-batch_size_pow0 = 10
-batch_size_pow1 = 10
-lr0 = 2e-5
-lr1 = lr0
-num_candidates0 = 25
-num_candidates1 = 32
+
+batch_size_pow0 = 11
+batch_size_pow1 = 11
+lr0 = 5e-5
+lr1 = 5e-5
+num_candidates0 = 40
+num_candidates1 = 40
 num_candidates = num_candidates0
-temperature0 = 0.01
-temperature1 = 0.01
+temperature0 = 5.0
+temperature1 = 2.0
 explore_eps0 = 0.0001
-explore_eps1 = explore_eps0
-annealing_start = 48844
-annealing_time = 4000
-pass_factor = 1.0
+explore_eps1 = 0.0001
+annealing_start = 34288
+annealing_time = 8192
+pass_factor = 2.0
 num_gen_rounds = 1
 alpha0 = 0.2
 alpha1 = 0.2
-print_freq = 4
+print_freq = 16
 total_reward = 0
 total_loss = 0.0
 total_loss_cnt = 0
 total_test_loss = 0.0
 total_prob = 0.0
 total_round_cnt = 0
-save_freq = 64
-summary_freq = 128
+save_freq = 256
+summary_freq = 512
 session.decay_amount = 0.05
 session.optimizer.param_groups[0]['betas'] = (0.95, 0.99)
-session.average_parameters.beta = 0.999
+session.average_parameters.beta = 0.9999
 
 min_door_value = max_possible_reward
 total_min_door_frac = 0
@@ -322,8 +368,8 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             pickle.dump(session, open(pickle_name, 'wb'))
-            # pickle.dump(session, open(pickle_name + '-bk20', 'wb'))
-            # # # session.replay_buffer.episode_data = episode_data
-            # session = pickle.load(open(pickle_name + '-bk6', 'rb'))
+            # pickle.dump(session, open(pickle_name + '-b-bk5', 'wb'))
+            # # # # # # # # # session.replay_buffer.episode_data = episode_data
+            # session = pickle.load(open(pickle_name + '-bk10', 'rb'))
     if session.num_rounds % summary_freq < num_gen_rounds:
         logging.info(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects, dim=0)))

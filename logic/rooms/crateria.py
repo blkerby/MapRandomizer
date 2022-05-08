@@ -333,7 +333,7 @@ rooms = [
     ),
     Room(
         name='West Ocean',
-        rom_address=0x793FE,
+        rom_address=0x793FE,  # Homing Geemer twin room: 0x7968F
         map=[
             [1, 1, 1, 1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1, 1, 1, 1],

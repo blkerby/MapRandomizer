@@ -355,15 +355,21 @@ old_y = orig_rom.read_u8(0x7D5A7 + 3)
 orig_rom.write_u8(0x7D5A7 + 3, old_y - 4)
 
 
-# Write area data:
+# Area data: --------------------------------
 area_index_dict = defaultdict(lambda: {})
 for i, room in enumerate(rooms):
     orig_room_area = orig_rom.read_u8(room.rom_address + 1)
     room_index = orig_rom.read_u8(room.rom_address)
     assert room_index not in area_index_dict[orig_room_area]
     area_index_dict[orig_room_area][room_index] = area_arr[i]
+# Handle twin rooms
 aqueduct_room_i = [i for i, room in enumerate(rooms) if room.name == 'Aqueduct'][0]
 area_index_dict[4][0x18] = area_arr[aqueduct_room_i]  # Set Toilet to same area as Aqueduct
+pants_room_i = [i for i, room in enumerate(rooms) if room.name == 'Pants Room'][0]
+area_index_dict[4][0x25] = area_arr[pants_room_i]  # Set East Pants Room to same area as Pants Room
+west_ocean_room_i = [i for i, room in enumerate(rooms) if room.name == 'West Ocean'][0]
+area_index_dict[0][0x11] = area_arr[west_ocean_room_i]  # Set Homing Geemer Room to same area as West Ocean
+# Write area data
 area_sizes = [max(area_index_dict[i].keys()) + 1 for i in range(num_areas)]
 cumul_area_sizes = [0] + list(np.cumsum(area_sizes))
 area_data_base_ptr = 0x7E99B  # LoRom $8F:E99B
@@ -616,19 +622,30 @@ for i in range(0x11727, 0x11D27):
 # rom.write_u16(0x78004, 0x8000)
 
 
-# ---- Fix twin rooms:
+# ---- Fix twin room map x & y:
 # Aqueduct:
-old_x = rom.read_u8(0x7D5A7 + 2)
-old_y = rom.read_u8(0x7D5A7 + 3)
-rom.write_u8(0x7D5A7 + 3, old_y + 4)
+old_aqueduct_x = rom.read_u8(0x7D5A7 + 2)
+old_aqueduct_y = rom.read_u8(0x7D5A7 + 3)
+rom.write_u8(0x7D5A7 + 3, old_aqueduct_y + 4)
 # Toilet:
-rom.write_u8(0x7D408 + 2, old_x + 2)
-rom.write_u8(0x7D408 + 3, old_y)
+rom.write_u8(0x7D408 + 2, old_aqueduct_x + 2)
+rom.write_u8(0x7D408 + 3, old_aqueduct_y)
+# East Pants Room:
+pants_room_x = rom.read_u8(0x7D646 + 2)
+pants_room_y = rom.read_u8(0x7D646 + 3)
+rom.write_u8(0x7D69A + 2, pants_room_x + 1)
+rom.write_u8(0x7D69A + 3, pants_room_y + 1)
+# Homing Geemer Room:
+west_ocean_x = rom.read_u8(0x793FE + 2)
+west_ocean_y = rom.read_u8(0x793FE + 3)
+rom.write_u8(0x7968F + 2, west_ocean_x + 5)
+rom.write_u8(0x7968F + 3, west_ocean_y + 2)
 
 # Apply patches
 patches = [
     'vanilla_bugfixes',
-    'new_game',
+    # 'new_game',
+    'new_game_extra',
     'music',
     'crateria_sky',
     'everest_tube',
@@ -680,4 +697,4 @@ rom.write_u16(0x1A96C + 10, boss_exit_asm)
 with open(output_rom_path, 'wb') as out_file:
     out_file.write(rom.byte_buf)
 
-print("Done")
+print("Wrote to {}".format(output_rom_path))

@@ -456,7 +456,7 @@ rooms = [
     ),
     Room(
         name='Pants Room',
-        rom_address=0x7D646,
+        rom_address=0x7D646,  # East Pants Room twin room: 0x7D69A
         map=[
             [1, 1],
             [1, 1],

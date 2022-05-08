@@ -81,18 +81,31 @@ device = torch.device('cpu')
 # session = CPU_Unpickler(open('models/02-24-session-2022-02-21T17:22:43.673028.pkl', 'rb')).load()
 # session = CPU_Unpickler(open('models/02-25-session-2022-02-21T17:22:43.673028.pkl', 'rb')).load()
 # session = CPU_Unpickler(open('models/02-27-session-2022-02-21T17:22:43.673028.pkl', 'rb')).load()
-session = CPU_Unpickler(open('models/03-01-session-2022-02-21T17:22:43.673028.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/03-01-session-2022-02-21T17:22:43.673028.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/03-26-session-2022-03-18T16:55:34.943459.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/03-31-session-2022-03-29T15:40:57.320430.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/04-02-session-2022-03-29T15:40:57.320430.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/04-03-session-2022-03-29T15:40:57.320430.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/04-07-session-2022-03-29T15:40:57.320430.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/04-09-session-2022-03-29T15:40:57.320430.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/04-16-session-2022-03-29T15:40:57.320430.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/04-21-session-2022-04-16T09:34:25.983030.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/04-23-session-2022-04-16T09:34:25.983030.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/04-27-session-2022-04-16T09:34:25.983030.pkl', 'rb')).load()
+session = CPU_Unpickler(open('models/04-30-session-2022-04-16T09:34:25.983030.pkl', 'rb')).load()
 #
+
 
 print(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects.to(torch.float32), dim=0)))
 max_reward = torch.max(session.replay_buffer.episode_data.reward)
 print(max_reward, torch.mean((session.replay_buffer.episode_data.reward == max_reward).to(torch.float32)),
       session.replay_buffer.episode_data.reward.shape[0])
 
-ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 342)
+# ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 343)
+ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 0)
 # ind = ind[(ind >= 200000) & (ind < 262144)].view(-1, 1)
 i = int(random.randint(0, ind.shape[0] - 1))
-# i = 11
+# i = 3
 num_rooms = len(session.envs[0].rooms)
 action = session.replay_buffer.episode_data.action[ind[i], :]
 step_indices = torch.tensor([num_rooms])
@@ -134,7 +147,7 @@ rooms = logic.rooms.all_rooms.rooms
 #         else:
 #             assert False
 
-#
+
 episode_length = len(rooms)
 env = MazeBuilderEnv(rooms,
                      map_x=session.envs[0].map_x,
@@ -142,10 +155,19 @@ env = MazeBuilderEnv(rooms,
                      num_envs=num_envs,
                      device=device,
                      must_areas_be_connected=False)
-env.room_mask = room_mask
 env.room_position_x = room_position_x
 env.room_position_y = room_position_y
+env.room_mask = room_mask
 env.render(0)
+
+# for i in range(num_rooms + 1):
+#     step_indices = torch.tensor([i])
+#     room_mask, room_position_x, room_position_y = reconstruct_room_data(action, step_indices, num_rooms)
+#     env.room_position_x = room_position_x
+#     env.room_position_y = room_position_y
+#     env.room_mask = room_mask
+#     env.render(0)
+#     time.sleep(0.5)
 
 
 #

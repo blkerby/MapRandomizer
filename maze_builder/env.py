@@ -939,39 +939,39 @@ class MazeBuilderEnv:
         colors = [self.color_map[room.sub_area] for room in rooms]
         self.map_display.display(rooms, xs, ys, colors)
 
-logging.basicConfig(format='%(asctime)s %(message)s',
-                    # level=logging.DEBUG,
-                    level=logging.INFO,
-                    handlers=[logging.StreamHandler()])
-torch.set_printoptions(linewidth=120)
-# import logic.rooms.all_rooms
-import logic.rooms.crateria_isolated
-
-num_envs = 2
-# rooms = logic.rooms.all_rooms.rooms
-rooms = logic.rooms.crateria_isolated.rooms
-num_candidates = 1
-env = MazeBuilderEnv(rooms,
-                     map_x=20,
-                     map_y=20,
-                     num_envs=num_envs,
-                     device='cpu',
-                     must_areas_be_connected=False)
-
-env.reset()
-self = env
-torch.manual_seed(0)
-for i in range(5):
-    candidates = env.get_action_candidates(num_candidates, env.room_mask, env.room_position_x, env.room_position_y, verbose=False)
-    env.step(candidates[:, 0, :])
-    env.render(0)
-#     # time.sleep(0.5)
-
-room_mask = env.room_mask
-room_position_x = env.room_position_x
-room_position_y = env.room_position_y
-center_x = torch.full([num_envs], 2)
-center_y = torch.full([num_envs], 2)
+# logging.basicConfig(format='%(asctime)s %(message)s',
+#                     # level=logging.DEBUG,
+#                     level=logging.INFO,
+#                     handlers=[logging.StreamHandler()])
+# torch.set_printoptions(linewidth=120)
+# # import logic.rooms.all_rooms
+# import logic.rooms.crateria_isolated
+#
+# num_envs = 2
+# # rooms = logic.rooms.all_rooms.rooms
+# rooms = logic.rooms.crateria_isolated.rooms
+# num_candidates = 1
+# env = MazeBuilderEnv(rooms,
+#                      map_x=20,
+#                      map_y=20,
+#                      num_envs=num_envs,
+#                      device='cpu',
+#                      must_areas_be_connected=False)
+#
+# env.reset()
+# self = env
+# torch.manual_seed(0)
+# for i in range(5):
+#     candidates = env.get_action_candidates(num_candidates, env.room_mask, env.room_position_x, env.room_position_y, verbose=False)
+#     env.step(candidates[:, 0, :])
+#     env.render(0)
+# #     # time.sleep(0.5)
+#
+# room_mask = env.room_mask
+# room_position_x = env.room_position_x
+# room_position_y = env.room_position_y
+# center_x = torch.full([num_envs], 2)
+# center_y = torch.full([num_envs], 2)
 
 
 # torch_scatter.scatter_max
