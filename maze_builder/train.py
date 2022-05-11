@@ -156,8 +156,8 @@ logging.info("max_possible_reward = {}".format(max_possible_reward))
 
 # session = pickle.load(open('models/init_session.pkl', 'rb'))
 # eval_batches = pickle.load(open('models/eval_batches.pkl', 'rb'))
-session = pickle.load(open('models/checkpoint-1-train.pkl', 'rb'))
-eval_batches = pickle.load(open('models/checkpoint-1-eval_batches.pkl', 'rb'))
+# session = pickle.load(open('models/checkpoint-1-train.pkl', 'rb'))
+# eval_batches = pickle.load(open('models/checkpoint-1-eval_batches.pkl', 'rb'))
 
 # session.model = DoorLocalModel(
 #     env_config=env_config,
@@ -181,57 +181,57 @@ eval_batches = pickle.load(open('models/checkpoint-1-eval_batches.pkl', 'rb'))
 # # session.optimizer = torch.optim.RMSprop(session.model.parameters(), lr=0.0004, alpha=0.8, eps=1e-5)
 # # session.verbose = False
 # # # session.replay_buffer.resize(2 ** 21)
-logging.info(session.model)
-logging.info(session.optimizer)
-num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
-
-
-session.replay_buffer.resize(2 ** 19)
-logging.info("Initial training: {} parameters, {} training examples".format(num_params, session.replay_buffer.size))
-total_loss = 0.0
-total_loss_cnt = 0
-train_round = 1
-train_print_freq = 1024
-batch_size = 1024
-# train_annealing_time = 2 ** 16
-train_annealing_time = 1
-lr0 = 0.0004
-lr1 = lr0
-# lr1 = 0.00002
-session.decay_amount = 0.05
-session.average_parameters.beta = 0.9998
-session.optimizer.param_groups[0]['betas'] = (0.9, 0.9)
-session.optimizer.param_groups[0]['eps'] = 1e-5
-logging.info(session.optimizer)
-logging.info("batch_size={}, lr0={}, lr1={}, time={}, decay={}, ema_beta={}".format(
-    batch_size, lr0, lr1, train_annealing_time, session.decay_amount, session.average_parameters.beta))
-for i in range(10000000):
-    frac = max(0, min(1, train_round / train_annealing_time))
-    lr = lr0 * (lr1 / lr0) ** frac
-    session.optimizer.param_groups[0]['lr'] = lr
-
-    data = session.replay_buffer.sample(batch_size, device=device)
-    with util.DelayedKeyboardInterrupt():
-        batch_loss = session.train_batch(data)
-        if not math.isnan(batch_loss):
-            total_loss += batch_loss
-            total_loss_cnt += 1
-
-    if train_round % train_print_freq == 0:
-        avg_loss = total_loss / total_loss_cnt
-        total_loss = 0.0
-        total_loss_cnt = 0
-
-        total_eval_loss = 0.0
-        # logging.info("Computing eval")
-        with torch.no_grad():
-            with session.average_parameters.average_parameters(session.model.all_param_data()):
-                for eval_data in eval_batches:
-                    total_eval_loss += session.eval_batch(eval_data)
-        avg_eval_loss = total_eval_loss / len(eval_batches)
-
-        logging.info("init train {}: loss={:.6f}, eval={:.6f}, frac={:.5f}".format(train_round, avg_loss, avg_eval_loss, frac))
-    train_round += 1
+# logging.info(session.model)
+# logging.info(session.optimizer)
+# num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
+#
+#
+# session.replay_buffer.resize(2 ** 19)
+# logging.info("Initial training: {} parameters, {} training examples".format(num_params, session.replay_buffer.size))
+# total_loss = 0.0
+# total_loss_cnt = 0
+# train_round = 1
+# train_print_freq = 1024
+# batch_size = 1024
+# # train_annealing_time = 2 ** 16
+# train_annealing_time = 1
+# lr0 = 0.0004
+# lr1 = lr0
+# # lr1 = 0.00002
+# session.decay_amount = 0.05
+# session.average_parameters.beta = 0.9998
+# session.optimizer.param_groups[0]['betas'] = (0.9, 0.9)
+# session.optimizer.param_groups[0]['eps'] = 1e-5
+# logging.info(session.optimizer)
+# logging.info("batch_size={}, lr0={}, lr1={}, time={}, decay={}, ema_beta={}".format(
+#     batch_size, lr0, lr1, train_annealing_time, session.decay_amount, session.average_parameters.beta))
+# for i in range(10000000):
+#     frac = max(0, min(1, train_round / train_annealing_time))
+#     lr = lr0 * (lr1 / lr0) ** frac
+#     session.optimizer.param_groups[0]['lr'] = lr
+#
+#     data = session.replay_buffer.sample(batch_size, device=device)
+#     with util.DelayedKeyboardInterrupt():
+#         batch_loss = session.train_batch(data)
+#         if not math.isnan(batch_loss):
+#             total_loss += batch_loss
+#             total_loss_cnt += 1
+#
+#     if train_round % train_print_freq == 0:
+#         avg_loss = total_loss / total_loss_cnt
+#         total_loss = 0.0
+#         total_loss_cnt = 0
+#
+#         total_eval_loss = 0.0
+#         # logging.info("Computing eval")
+#         with torch.no_grad():
+#             with session.average_parameters.average_parameters(session.model.all_param_data()):
+#                 for eval_data in eval_batches:
+#                     total_eval_loss += session.eval_batch(eval_data)
+#         avg_eval_loss = total_eval_loss / len(eval_batches)
+#
+#         logging.info("init train {}: loss={:.6f}, eval={:.6f}, frac={:.5f}".format(train_round, avg_loss, avg_eval_loss, frac))
+#     train_round += 1
 
 
 
@@ -251,20 +251,23 @@ for i in range(10000000):
 # pickle.dump(session, open('models/init_train.pkl', 'wb'))
 # pickle.dump(session, open('models/checkpoint-1-eval.pkl', 'wb'))
 # session = pickle.load(open('models/init_train.pkl', 'rb'))
+# session = pickle.load(open('models/session-2022-03-29T15:40:57.320430.pkl-bk23', 'rb'))
+session = pickle.load(open('models/session-2022-04-16T09:34:25.983030.pkl-b-bk6', 'rb'))
+#
 
-batch_size_pow0 = 10
-batch_size_pow1 = 10
-lr0 = 0.0005
-lr1 = 0.0005
-num_candidates0 = 8
-num_candidates1 = 16
+batch_size_pow0 = 11
+batch_size_pow1 = 11
+lr0 = 0.00005
+lr1 = 0.00005
+num_candidates0 = 40
+num_candidates1 = 40
 num_candidates = num_candidates0
-temperature0 = 100.0
-temperature1 = 10.0
+temperature0 = 5.0
+temperature1 = 2.0
 explore_eps0 = 0.0001
 explore_eps1 = 0.0001
-annealing_start = 5632
-annealing_time = 4096
+annealing_start = 34320
+annealing_time = 8192
 pass_factor = 1.0
 num_gen_rounds = 1
 alpha0 = 0.2
@@ -279,7 +282,7 @@ total_round_cnt = 0
 save_freq = 256
 summary_freq = 512
 session.decay_amount = 0.05
-session.optimizer.param_groups[0]['betas'] = (0.9, 0.9)
+session.optimizer.param_groups[0]['betas'] = (0.95, 0.99)
 session.average_parameters.beta = 0.9998
 
 min_door_value = max_possible_reward

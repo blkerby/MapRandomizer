@@ -704,6 +704,7 @@ class MazeBuilderEnv:
     def compute_fast_component_matrix(self, room_mask, room_position_x, room_position_y):
         if not room_mask.is_cuda:
             return self.compute_fast_component_matrix_cpu(room_mask, room_position_x, room_position_y)
+        # torch.cuda.synchronize(room_mask.device)
         # start = time.perf_counter()
         n = room_mask.shape[0]
         data_tuples = [
@@ -750,16 +751,25 @@ class MazeBuilderEnv:
             adjacency_matrix[nz_env, nz_part, nz_part_opp] = 1
             adjacency_matrix[nz_env, nz_part_opp, nz_part] = 1
 
+        # torch.cuda.synchronize(room_mask.device)
+        start_matmul = time.perf_counter()
         padding_needed = (8 - self.good_room_parts.shape[0] % 8) % 8
         good_room_parts = torch.cat(
             [self.good_room_parts, torch.zeros([padding_needed], device=self.device, dtype=self.good_room_parts.dtype)])
         component_matrix = adjacency_matrix[:, good_room_parts.view(-1, 1), good_room_parts.view(1, -1)]
-        for i in range(8):
+        for i in range(6):
             component_matrix = torch.bmm(component_matrix, component_matrix)
-            component_matrix = torch.clamp_max(component_matrix, 1)
-        return component_matrix[:, :self.good_room_parts.shape[0], :self.good_room_parts.shape[0]].to(torch.bool)
+            if i % 2 == 1:
+                component_matrix = torch.clamp_max(component_matrix, 1)
+        # component_matrix = torch.clamp_max(component_matrix, 1)
+        output = component_matrix[:, :self.good_room_parts.shape[0], :self.good_room_parts.shape[0]].to(torch.bool)
+        # torch.cuda.synchronize(room_mask.device)
+        end = time.perf_counter()
+        # logging.info("compute_fast_component_matrix time: {}, matmul={}".format(end - start, end - start_matmul))
+        return output
 
     def compute_fast_component_matrix_cpu(self, room_mask, room_position_x, room_position_y):
+        # torch.cuda.synchronize(room_mask.device)
         start = time.perf_counter()
         num_graphs = room_mask.shape[0]
         data_tuples = [
@@ -806,6 +816,7 @@ class MazeBuilderEnv:
         num_parts = good_matrix.shape[1]
         max_components = 56
 
+        torch.cuda.synchronize(room_mask.device)
         start_load = time.perf_counter()
         undirected_E = torch.nonzero(good_matrix)
         undirected_edges = undirected_E[:, 1:3].to(torch.uint8).to('cpu')
@@ -818,6 +829,7 @@ class MazeBuilderEnv:
         output_components = torch.zeros([num_graphs, num_parts], dtype=torch.uint8)
         output_adjacency = torch.zeros([num_graphs, max_components], dtype=torch.int64)
 
+        # torch.cuda.synchronize(room_mask.device)
         start_comp = time.perf_counter()
         connectivity.compute_connectivity(
             all_root_mask.numpy(),
@@ -828,10 +840,12 @@ class MazeBuilderEnv:
             output_adjacency.numpy(),
         )
 
+        # torch.cuda.synchronize(room_mask.device)
         start_store = time.perf_counter()
         output_components = output_components.to(self.device)
         output_adjacency = output_adjacency.to(self.device)
 
+        # torch.cuda.synchronize(room_mask.device)
         start_expand = time.perf_counter()
         output_adjacency1 = (output_adjacency.unsqueeze(2) >> torch.arange(max_components, device=self.device).view(1,
                                                                                                                     1,
@@ -843,6 +857,7 @@ class MazeBuilderEnv:
 
         A = torch.maximum(A, self.good_base_matrix.unsqueeze(0))
 
+        # torch.cuda.synchronize(room_mask.device)
         end = time.perf_counter()
         time_prep = start_load - start
         time_load = start_comp - start_load
