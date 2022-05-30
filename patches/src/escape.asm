@@ -25,7 +25,7 @@ org $8fe8bd
 
 ; Hi-jack load room event state header
 org $82df4a
-    jml music_and_enemies
+    jml music
 
 ; Hi-jack activate save station
 org $848cf3
@@ -134,7 +134,7 @@ fix_timer_gfx:
     RTL
 
 
-music_and_enemies:
+music:
     LDA $0006,x
     STA $07CD
     %checkEscape() : bcc .end

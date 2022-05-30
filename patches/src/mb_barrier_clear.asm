@@ -6,7 +6,7 @@ org $8FEB00
     ; clear kraid barrier
     lda $7ed829
     bit #$0001
-;    beq phantoon  ; skip clearing if kraid isn't dead
+    beq phantoon  ; skip clearing if kraid isn't dead
 ;    dec $09c6
 ;    lda #$0000
 ;    ldx #$0002
@@ -38,7 +38,7 @@ org $8FEB00
 phantoon:
     lda $7ed82b
     and #$0001
-;    beq draygon  ; skip clearing if phantoon isn't dead
+    beq draygon  ; skip clearing if phantoon isn't dead
     lda $7f0276
     sta $7f0272
     sta $7f02f2
@@ -60,7 +60,7 @@ phantoon:
 draygon:
     lda $7ed82c
     bit #$0001
-;    beq ridley  ; skip clearing if draygon isn't dead
+    beq ridley  ; skip clearing if draygon isn't dead
     lda $7f0276
     sta $7f0270
     sta $7f02f0
@@ -82,7 +82,7 @@ draygon:
 ridley:
     lda $7ed82a
     bit #$0001
-;    beq done  ; skip clearing if ridley isn't dead
+    beq done  ; skip clearing if ridley isn't dead
     lda $7f0276
     sta $7f026e
     sta $7f02ee

@@ -258,10 +258,10 @@ while True:
 session = pickle.load(open('models/session-2022-05-21T07:40:15.324154.pkl-b-bk17', 'rb'))
 #
 # session.replay_buffer.resize(2 ** 22)
-batch_size_pow0 = 11
-batch_size_pow1 = 11
-lr0 = 2e-5
-lr1 = 2e-5
+batch_size_pow0 = 12
+batch_size_pow1 = 12
+lr0 = 1e-5
+lr1 = 1e-5
 num_candidates0 = 40
 num_candidates1 = 40
 num_candidates = num_candidates0
@@ -285,7 +285,7 @@ summary_freq = 512
 session.decay_amount = 1.0
 # session.optimizer.param_groups[0]['betas'] = (0.95, 0.99)
 session.optimizer.param_groups[0]['betas'] = (0.9, 0.9)
-session.average_parameters.beta = 0.9995
+session.average_parameters.beta = 0.999
 
 min_door_value = max_possible_reward
 total_min_door_frac = 0

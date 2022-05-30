@@ -760,8 +760,8 @@ rom.write_u8(0x7968F + 3, west_ocean_y + 2)
 # Apply patches
 patches = [
     'vanilla_bugfixes',
-    # 'new_game',
-    'new_game_extra',
+    'new_game',
+    # 'new_game_extra',
     'music',
     'crateria_sky',
     'everest_tube',
@@ -796,7 +796,7 @@ for patch_name in patches:
 # rom.write_n(0x18916, 12, mb_door_bytes)
 
 # Change setup asm for Mother Brain room
-# rom.write_u16(0x7DD6E + 24, 0xEB00)
+rom.write_u16(0x7DD6E + 24, 0xEB00)
 
 
 
