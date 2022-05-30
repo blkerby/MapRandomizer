@@ -268,8 +268,8 @@ class SMJsonData:
                     to_id = link_to_json['id']
                     to_index = self.node_dict[(room_id, to_id)]
                     cond = make_or_condition(strats)
-                    if room_id == 181:
-                        print(from_id, to_id, cond)
+                    # if room_id == 181:
+                    #     print(from_id, to_id, cond)
                     self.link_list.append(Link(from_index, to_index, cond))
 
     def process_connections(self, json_data):
@@ -285,6 +285,6 @@ class SMJsonData:
                 self.door_ptr_pair_dict[(src_ptr, dst_ptr)] = src_index
                 self.door_ptr_pair_dict[(dst_ptr, src_ptr)] = dst_index
 
-
-sm_json_data_path = "sm-json-data/"
-sm_json_data = SMJsonData(sm_json_data_path)
+#
+# sm_json_data_path = "sm-json-data/"
+# sm_json_data = SMJsonData(sm_json_data_path)

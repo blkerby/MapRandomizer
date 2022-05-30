@@ -752,19 +752,23 @@ class MazeBuilderEnv:
             adjacency_matrix[nz_env, nz_part_opp, nz_part] = 1
 
         # torch.cuda.synchronize(room_mask.device)
-        start_matmul = time.perf_counter()
-        padding_needed = (8 - self.good_room_parts.shape[0] % 8) % 8
-        good_room_parts = torch.cat(
-            [self.good_room_parts, torch.zeros([padding_needed], device=self.device, dtype=self.good_room_parts.dtype)])
+        # start_matmul = time.perf_counter()
+
+        good_room_parts = self.padded_good_room_parts
         component_matrix = adjacency_matrix[:, good_room_parts.view(-1, 1), good_room_parts.view(1, -1)]
         for i in range(6):
             component_matrix = torch.bmm(component_matrix, component_matrix)
             if i % 2 == 1:
+                # We need to clamp the matrix to prevent overflows, but we can get away with clamping on
+                # just every other iteration. Note we also make sure to clamp on the last iteration so that
+                # the output matrix has only 0s and 1s.
                 component_matrix = torch.clamp_max(component_matrix, 1)
         # component_matrix = torch.clamp_max(component_matrix, 1)
-        output = component_matrix[:, :self.good_room_parts.shape[0], :self.good_room_parts.shape[0]].to(torch.bool)
+        output = component_matrix[:, :self.good_room_parts.shape[0], :self.good_room_parts.shape[0]] #.to(torch.bool)
+        # output = component_matrix
+
         # torch.cuda.synchronize(room_mask.device)
-        end = time.perf_counter()
+        # end = time.perf_counter()
         # logging.info("compute_fast_component_matrix time: {}, matmul={}".format(end - start, end - start_matmul))
         return output
 
@@ -938,6 +942,9 @@ class MazeBuilderEnv:
         self.part_left, self.part_right, self.part_down, self.part_up = part_tensor_list
         self.good_room_parts = torch.tensor([i for i, r in enumerate(self.part_room_id.tolist())
                                              if len(self.rooms[r].door_ids) > 1], device=self.device)
+        padding_needed = (8 - self.good_room_parts.shape[0] % 8) % 8
+        self.padded_good_room_parts = torch.cat(
+            [self.good_room_parts, torch.zeros([padding_needed], device=self.device, dtype=self.good_room_parts.dtype)])
         self.good_part_room_id = self.part_room_id[self.good_room_parts]
         self.good_base_matrix = self.part_adjacency_matrix[
             self.good_room_parts.view(-1, 1), self.good_room_parts.view(1, -1)]

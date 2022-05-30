@@ -9,6 +9,7 @@ import graph_tool.topology
 from collections import defaultdict
 
 # from rando.rooms import room_ptrs
+from maze_builder.env import MazeBuilderEnv
 from rando.sm_json_data import SMJsonData, GameState, Link, DifficultyConfig
 from rando.rando import Randomizer
 from logic.rooms.all_rooms import rooms
@@ -22,35 +23,137 @@ import ips_util
 # input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.3.3-emulator-ntsc.sfc'
 input_rom_path = '/home/kerby/Downloads/Super Metroid (JU) [!].smc'
 # map_name = '12-15-session-2021-12-10T06:00:58.163492-0'
-map_name = '01-16-session-2022-01-13T12:40:37.881929-1'
-
-map_path = 'maps/{}.json'.format(map_name)
-output_rom_path = 'roms/{}-c.sfc'.format(map_name)
-map = json.load(open(map_path, 'r'))
+# map_name = '01-16-session-2022-01-13T12:40:37.881929-1'
 
 
-sm_json_data_path = "sm-json-data/"
-sm_json_data = SMJsonData(sm_json_data_path)
-tech = sm_json_data.tech_name_set
-# tech = set()
-difficulty = DifficultyConfig(tech=tech, shine_charge_tiles=33)
 
-randomizer = Randomizer(map['doors'], sm_json_data, difficulty)
-for i in range(0, 2000):
-    np.random.seed(i)
-    random.seed(i)
-    randomizer.randomize()
-    print(i, len(randomizer.item_placement_list))
-    if len(randomizer.item_placement_list) >= 99:
-        i1 = randomizer.item_placement_list.index(544)
-        i2 = randomizer.item_placement_list.index(545)
-        print([randomizer.item_sequence[i1], randomizer.item_sequence[i2]])
-        if set([randomizer.item_sequence[i1], randomizer.item_sequence[i2]]) == set(["Gravity", "Missile"]):
+import torch
+import logging
+from maze_builder.types import reconstruct_room_data, Direction, DoorSubtype
+import logic.rooms.all_rooms
+import pickle
+
+logging.basicConfig(format='%(asctime)s %(message)s',
+                    level=logging.INFO,
+                    handlers=[logging.FileHandler("train.log"),
+                              logging.StreamHandler()])
+
+torch.set_printoptions(linewidth=120, threshold=10000)
+import io
+
+
+class CPU_Unpickler(pickle.Unpickler):
+    def find_class(self, module, name):
+        if module == 'torch.storage' and name == '_load_from_bytes':
+            return lambda b: torch.load(io.BytesIO(b), map_location='cpu')
+        else:
+            return super().find_class(module, name)
+
+device = torch.device('cpu')
+# session_name = '12-15-session-2021-12-10T06:00:58.163492'
+# session_name = '01-16-session-2022-01-13T12:40:37.881929'
+session_name = '04-16-session-2022-03-29T15:40:57.320430'
+session = CPU_Unpickler(open('models/{}.pkl'.format(session_name), 'rb')).load()
+ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 343)
+#
+
+print(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects.to(torch.float32), dim=0)))
+print(torch.max(session.replay_buffer.episode_data.reward))
+
+def get_map(ind_i):
+    num_rooms = len(session.envs[0].rooms)
+    action = session.replay_buffer.episode_data.action[ind[ind_i], :]
+    step_indices = torch.tensor([num_rooms])
+    room_mask, room_position_x, room_position_y = reconstruct_room_data(action, step_indices, num_rooms)
+    rooms = logic.rooms.all_rooms.rooms
+
+    doors_dict = {}
+    doors_cnt = {}
+    door_pairs = []
+    for i, room in enumerate(rooms):
+        for door in room.door_ids:
+            x = int(room_position_x[0, i]) + door.x
+            if door.direction == Direction.RIGHT:
+                x += 1
+            y = int(room_position_y[0, i]) + door.y
+            if door.direction == Direction.DOWN:
+                y += 1
+            vertical = door.direction in (Direction.DOWN, Direction.UP)
+            key = (x, y, vertical)
+            if key in doors_dict:
+                a = doors_dict[key]
+                b = door
+                if a.direction in (Direction.LEFT, Direction.UP):
+                    a, b = b, a
+                if a.subtype == DoorSubtype.SAND:
+                    door_pairs.append([[a.exit_ptr, a.entrance_ptr], [b.exit_ptr, b.entrance_ptr], False])
+                else:
+                    door_pairs.append([[a.exit_ptr, a.entrance_ptr], [b.exit_ptr, b.entrance_ptr], True])
+                doors_cnt[key] += 1
+            else:
+                doors_dict[key] = door
+                doors_cnt[key] = 1
+
+    assert all(x == 2 for x in doors_cnt.values())
+    map_name = '{}-{}'.format(session_name, ind_i)
+    map = {
+        'rooms': [[room_position_x[0, i].item(), room_position_y[0, i].item()]
+                  for i in range(room_position_x.shape[1] - 1)],
+        'doors': door_pairs
+    }
+    num_envs = 1
+    episode_length = len(rooms)
+    env = MazeBuilderEnv(rooms,
+                         map_x=session.envs[0].map_x,
+                         map_y=session.envs[0].map_y,
+                         num_envs=num_envs,
+                         device=device,
+                         must_areas_be_connected=False)
+    env.room_mask = room_mask
+    env.room_position_x = room_position_x
+    env.room_position_y = room_position_y
+    # env.render(0)
+    return map, map_name
+
+# json.dump(map, open('maps/{}.json'.format(map_name), 'w'))
+
+# map_name = '04-16-session-2022-03-29T15:40:57.320430-19'
+get_map(77)
+
+
+
+for ind_i in range(60, 100000):
+    logging.info("ind_i={}".format(ind_i))
+    map, map_name = get_map(ind_i=ind_i)
+    map_path = 'maps/{}.json'.format(map_name)
+    output_rom_path = 'roms/{}-c.sfc'.format(map_name)
+    # map = json.load(open(map_path, 'r'))
+
+
+    sm_json_data_path = "sm-json-data/"
+    sm_json_data = SMJsonData(sm_json_data_path)
+    tech = set(sm_json_data.tech_name_set)
+    tech.remove('canHeatRun')
+    # tech = set()
+    difficulty = DifficultyConfig(tech=tech, shine_charge_tiles=33)
+
+    randomizer = Randomizer(map['doors'], sm_json_data, difficulty)
+    for i in range(0, 100):
+        np.random.seed(i)
+        random.seed(i)
+        randomizer.randomize()
+        # print(i, len(randomizer.item_placement_list))
+        if len(randomizer.item_placement_list) >= 99:
+            # i1 = randomizer.item_placement_list.index(544)
+            # i2 = randomizer.item_placement_list.index(545)
+            # print([randomizer.item_sequence[i1], randomizer.item_sequence[i2]])
+            # if set([randomizer.item_sequence[i1], randomizer.item_sequence[i2]]) == set(["Gravity", "Missile"]):
             break
-else:
-    raise RuntimeError("Failed")
-print("Done with item randomization")
+    else:
+        continue
+    break
 
+print("Done with item randomization")
 
 for room in rooms:
     room.populate()
@@ -75,7 +178,7 @@ for conn in map['doors']:
 best_entropy = float('inf')
 best_state = None
 num_areas = 6
-for i in range(1000):
+for i in range(500, 2000):
     graph_tool.seed_rng(i)
     state = graph_tool.inference.minimize_blockmodel_dl(room_graph,
                                                         multilevel_mcmc_args={"B_min": num_areas, "B_max": num_areas})
@@ -354,6 +457,11 @@ rom = Rom(input_rom_path)
 # Change Aqueduct map y position, to include the toilet (for the purposes of the map)
 old_y = orig_rom.read_u8(0x7D5A7 + 3)
 orig_rom.write_u8(0x7D5A7 + 3, old_y - 4)
+
+# # Change door asm for entering mother brain room
+orig_rom.write_u16(0x1AAC8 + 10, 0xEB00)
+# rom.write_u16(0x1956A + 10, 0xEB00)
+
 
 # Area data: --------------------------------
 area_index_dict = defaultdict(lambda: {})
@@ -669,6 +777,7 @@ patches = [
     'itemsounds',
     'progressive_suits',
     'disable_map_icons',
+    'escape',
 ]
 for patch_name in patches:
     patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
@@ -689,7 +798,6 @@ for patch_name in patches:
 # Change setup asm for Mother Brain room
 # rom.write_u16(0x7DD6E + 24, 0xEB00)
 
-rom.write_u16(0x1956A + 10, 0xEB00)  # Change door asm for entering mother brain room (from bubble mountain -- TODO: generalize this)
 
 
 # Change door exit asm for boss rooms (TODO: do this better, in case entrance asm is needed in next room)
@@ -701,6 +809,8 @@ rom.write_u16(0x191DA + 10, boss_exit_asm)
 rom.write_u16(0x1A978 + 10, boss_exit_asm)
 rom.write_u16(0x1A96C + 10, boss_exit_asm)
 
+
+# print("{:x}".format(rom.read_u16(0x786DE)))
 
 
 with open(output_rom_path, 'wb') as out_file:

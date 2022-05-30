@@ -88,11 +88,12 @@ device = torch.device('cpu')
 # session = CPU_Unpickler(open('models/04-03-session-2022-03-29T15:40:57.320430.pkl', 'rb')).load()
 # session = CPU_Unpickler(open('models/04-07-session-2022-03-29T15:40:57.320430.pkl', 'rb')).load()
 # session = CPU_Unpickler(open('models/04-09-session-2022-03-29T15:40:57.320430.pkl', 'rb')).load()
-session = CPU_Unpickler(open('models/04-16-session-2022-03-29T15:40:57.320430.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/04-16-session-2022-03-29T15:40:57.320430.pkl', 'rb')).load()
 # session = CPU_Unpickler(open('models/04-21-session-2022-04-16T09:34:25.983030.pkl', 'rb')).load()
 # session = CPU_Unpickler(open('models/04-23-session-2022-04-16T09:34:25.983030.pkl', 'rb')).load()
 # session = CPU_Unpickler(open('models/04-27-session-2022-04-16T09:34:25.983030.pkl', 'rb')).load()
 # session = CPU_Unpickler(open('models/04-30-session-2022-04-16T09:34:25.983030.pkl', 'rb')).load()
+session = CPU_Unpickler(open('models/05-26-session-2022-05-21T07:40:15.324154.pkl', 'rb')).load()
 #
 
 
@@ -101,8 +102,8 @@ max_reward = torch.max(session.replay_buffer.episode_data.reward)
 print(max_reward, torch.mean((session.replay_buffer.episode_data.reward == max_reward).to(torch.float32)),
       session.replay_buffer.episode_data.reward.shape[0])
 
-# ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 343)
-ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 0)
+ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 332)
+# ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 0)
 # ind = ind[(ind >= 200000) & (ind < 262144)].view(-1, 1)
 i = int(random.randint(0, ind.shape[0] - 1))
 # i = 3

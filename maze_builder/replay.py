@@ -27,13 +27,14 @@ class ReplayBuffer:
             current_tensor = getattr(self.episode_data, field)
             shape = list(current_tensor.shape)
             shape[0] = new_capacity
+            current_tensor1 = torch.cat([current_tensor[self.position:self.size], current_tensor[:self.position]], dim=0)
             new_tensor = torch.zeros(shape, dtype=current_tensor.dtype, device=self.storage_device)
-            new_tensor[:new_size] = current_tensor[:new_size]
+            new_tensor[:new_size] = current_tensor1[-new_size:]
+            # new_tensor[:new_size] = current_tensor[:new_size]
             setattr(self.episode_data, field, new_tensor)
         self.size = new_size
         self.capacity = new_capacity
-        if new_capacity > new_size:
-            self.position = new_size
+        self.position = new_size
 
     def insert(self, episode_data: EpisodeData):
         if self.episode_data is None:

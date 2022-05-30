@@ -27,15 +27,16 @@ DONE:
 - fix botwoon e-tank sand
 - fix single map tile in toilet
 - restored way to make Zebes awake (by killing enemies in Pit Room)
+- generalize patching door asm for entering mother brain room
+- escape timer
 
 TODO:
-- fix map when going down elevator (set bottom tiles to explored)
-- generalize patching door asm for entering mother brain room
+- escape setup: mark bosses dead
+- fix map when using elevators (to set tiles to explored)
 - fix demo
 - fix red screen in draygon
-- escape timer
 - better solution for fixing toilet door asm
-- vanilla morph?
+- make the item in morph ball location present when zebes awake
 - door above morph ball room is pink but looks blue?
 - fix new game (instant die after respawn)
     - new game on second file starts at wrong save
@@ -57,6 +58,7 @@ TODO:
 - door doesn't open after killing phantoon?
 - set boss bits earlier in death sequence (to avoid accidentally leaving room before set)
 - graphics messed up after killing kraid
+- show map text for cross-area transitions?
 
 Notes on usage of area ($079F and $7E:D918):
 

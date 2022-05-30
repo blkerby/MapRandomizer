@@ -298,16 +298,17 @@ rooms = [
     Room(
         name='Fast Ripper Room',
         rom_address=0x7B2DA,
-        # map=[[1, 1, 1]],
-        # door_ids=[
-        #     DoorIdentifier(LEFT, 0, 0, 0x1988E, 0x19A6E),  # Screw Attack Room
-        #     DoorIdentifier(RIGHT, 2, 0, 0x1989A, 0x19906),  # Fast Pillars Setup Room
-        # ],
-        map=[[1, 1, 1, 1]],
+        # TODO: fix this back.
+        map=[[1, 1, 1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1988E, 0x19A6E),  # Screw Attack Room
-            DoorIdentifier(RIGHT, 3, 0, 0x1989A, 0x19906),  # Fast Pillars Setup Room
+            DoorIdentifier(RIGHT, 2, 0, 0x1989A, 0x19906),  # Fast Pillars Setup Room
         ],
+        # map=[[1, 1, 1, 1]],
+        # door_ids=[
+        #     DoorIdentifier(LEFT, 0, 0, 0x1988E, 0x19A6E),  # Screw Attack Room
+        #     DoorIdentifier(RIGHT, 3, 0, 0x1989A, 0x19906),  # Fast Pillars Setup Room
+        # ],
         parts=[[0], [1]],  # assuming that green gate glitch is not necessarily in logic
         transient_part_connections=[(0, 1)],  # glitchable green gate
         missing_part_connections=[(1, 0)],
