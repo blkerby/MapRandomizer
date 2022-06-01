@@ -115,7 +115,7 @@ while True:
         explore_eps=explore_eps,
         executor=executor,
         render=False)
-    # session.replay_buffer.insert(data)
+    session.replay_buffer.insert(data)
 
     total_reward += torch.sum(data.reward.to(torch.float32)).item()
     total_reward2 += torch.sum(data.reward.to(torch.float32) ** 2).item()
@@ -133,23 +133,28 @@ while True:
 # pickle.dump(session, open('models/init_session.pkl', 'wb'))
 # pickle.dump(session, open('models/init_session_eval.pkl', 'wb'))
 # pickle.dump(session, open('models/init_session_eval.pkl', 'wb'))
-# pickle.dump(session, open('models/checkpoint-3-eval.pkl', 'wb'))
+pickle.dump(session, open('models/checkpoint-4-eval.pkl', 'wb'))
 
 # session_eval = pickle.load(open('models/init_session_eval.pkl', 'rb'))
-# session_eval = pickle.load(open('models/checkpoint-3-eval.pkl', 'rb'))
-# eval_batch_size = 8192
-# eval_num_batches = 8
-# eval_batches = []
-# for i in range(eval_num_batches):
-#     logging.info("Generating eval batch {} of size {}".format(i, eval_batch_size))
-#     data = session_eval.replay_buffer.sample(eval_batch_size, device=device)
-#     eval_batches.append(data)
-# pickle.dump(eval_batches, open('models/checkpoint-3-eval_batches.pkl', 'wb'))
+session_eval = pickle.load(open('models/checkpoint-4-eval.pkl', 'rb'))
+eval_batch_size = 8192
+eval_num_batches = 8
+eval_batches = []
+for i in range(eval_num_batches):
+    logging.info("Generating eval batch {} of size {}".format(i, eval_batch_size))
+    data = session_eval.replay_buffer.sample(eval_batch_size, device=device)
+    eval_batches.append(data)
+pickle.dump(eval_batches, open('models/checkpoint-4-eval_batches.pkl', 'wb'))
 
+
+
+
+session = pickle.load(open('models/session-2022-05-21T07:40:15.324154.pkl-b-bk18', 'rb'))
+# session = pickle.load(open('models/checkpoint-4-train-2.pkl', 'rb'))
 # session = pickle.load(open('models/init_session.pkl', 'rb'))
 # eval_batches = pickle.load(open('models/eval_batches.pkl', 'rb'))
 # session = pickle.load(open('models/checkpoint-3-train.pkl', 'rb'))
-# eval_batches = pickle.load(open('models/checkpoint-3-eval_batches.pkl', 'rb'))
+eval_batches = pickle.load(open('models/checkpoint-4-eval_batches.pkl', 'rb'))
 #
 # session.model = DoorLocalModel(
 #     env_config=env_config,
@@ -175,55 +180,65 @@ while True:
 # # # session.replay_buffer.resize(2 ** 21)
 # logging.info(session.model)
 # logging.info(session.optimizer)
-# num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
+num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
 #
 #
 # # session.replay_buffer.resize(2 ** 19)
-# logging.info("Initial training: {} parameters, {} training examples".format(num_params, session.replay_buffer.size))
-# total_loss = 0.0
-# total_loss_cnt = 0
-# train_round = 1
-# batch_size = 2 ** 10
-# train_print_freq = 2**19 / batch_size
-# # train_annealing_time = 2 ** 16
-# train_annealing_time = 1
-# lr0 = 0.00005
-# lr1 = lr0
-# # lr1 = 0.00002
-# session.decay_amount = 0.0
-# session.average_parameters.beta = 0.9999
-# session.optimizer.param_groups[0]['betas'] = (0.9, 0.9)
-# session.optimizer.param_groups[0]['eps'] = 1e-8
-# logging.info(session.optimizer)
-# logging.info("batch_size={}, lr0={}, lr1={}, time={}, decay={}, ema_beta={}".format(
-#     batch_size, lr0, lr1, train_annealing_time, session.decay_amount, session.average_parameters.beta))
-# for i in range(10000000):
-#     frac = max(0, min(1, train_round / train_annealing_time))
-#     lr = lr0 * (lr1 / lr0) ** frac
-#     session.optimizer.param_groups[0]['lr'] = lr
-#
-#     data = session.replay_buffer.sample(batch_size, device=device)
-#     with util.DelayedKeyboardInterrupt():
-#         batch_loss = session.train_batch(data)
-#         if not math.isnan(batch_loss):
-#             total_loss += batch_loss
-#             total_loss_cnt += 1
-#
-#     if train_round % train_print_freq == 0:
-#         avg_loss = total_loss / total_loss_cnt
-#         total_loss = 0.0
-#         total_loss_cnt = 0
-#
-#         total_eval_loss = 0.0
-#         # logging.info("Computing eval")
-#         with torch.no_grad():
-#             with session.average_parameters.average_parameters(session.model.all_param_data()):
-#                 for eval_data in eval_batches:
-#                     total_eval_loss += session.eval_batch(eval_data)
-#         avg_eval_loss = total_eval_loss / len(eval_batches)
-#
-#         logging.info("init train {}: loss={:.6f}, eval={:.6f}, frac={:.5f}".format(train_round, avg_loss, avg_eval_loss, frac))
-#     train_round += 1
+logging.info("Initial training: {} parameters, {} training examples".format(num_params, session.replay_buffer.size))
+total_loss = 0.0
+total_loss_cnt = 0
+train_round = 1
+batch_size = 2 ** 9
+train_print_freq = 2**20 / batch_size
+# train_annealing_time = 2 ** 16
+train_annealing_time = 1
+lr0 = 0.0001
+lr1 = lr0
+# lr1 = 0.00002
+session.decay_amount = 0.05
+session.average_parameters.beta = 0.9999
+session.optimizer.param_groups[0]['betas'] = (0.9, 0.9)
+session.optimizer.param_groups[0]['eps'] = 1e-5
+logging.info(session.optimizer)
+logging.info("batch_size={}, lr0={}, lr1={}, time={}, decay={}, ema_beta={}".format(
+    batch_size, lr0, lr1, train_annealing_time, session.decay_amount, session.average_parameters.beta))
+for i in range(10000000):
+    frac = max(0, min(1, train_round / train_annealing_time))
+    lr = lr0 * (lr1 / lr0) ** frac
+    session.optimizer.param_groups[0]['lr'] = lr
+
+    data = session.replay_buffer.sample(batch_size, device=device)
+    with util.DelayedKeyboardInterrupt():
+        batch_loss = session.train_batch(data)
+        if not math.isnan(batch_loss):
+            total_loss += batch_loss
+            total_loss_cnt += 1
+
+    if train_round % train_print_freq == 0:
+        avg_loss = total_loss / total_loss_cnt
+        total_loss = 0.0
+        total_loss_cnt = 0
+
+        total_eval_loss = 0.0
+        # logging.info("Computing eval")
+        with torch.no_grad():
+            with session.average_parameters.average_parameters(session.model.all_param_data()):
+                for eval_data in eval_batches:
+                    total_eval_loss += session.eval_batch(eval_data)
+        avg_eval_loss = total_eval_loss / len(eval_batches)
+
+        logging.info("init train {}: loss={:.6f}, eval={:.6f}, frac={:.5f}".format(train_round, avg_loss, avg_eval_loss, frac))
+    train_round += 1
+
+
+
+
+
+
+
+
+# pickle.dump(session, open('models/checkpoint-4-train-2.pkl', 'wb'))
+# pickle.dump(session, open('models/checkpoint-4-train-3.pkl', 'wb'))
 
 
 
@@ -255,13 +270,13 @@ while True:
 # session = pickle.load(open('models/init_session.pkl', 'rb'))
 # session = pickle.load(open('models/session-2022-05-21T07:40:15.324154.pkl-b-bk14', 'rb'))
 # session = pickle.load(open('models/session-2022-05-21T07:40:15.324154.pkl-b-bk15', 'rb'))
-session = pickle.load(open('models/session-2022-05-21T07:40:15.324154.pkl-b-bk17', 'rb'))
+session = pickle.load(open('models/session-2022-05-21T07:40:15.324154.pkl-b-bk18', 'rb'))
 #
-# session.replay_buffer.resize(2 ** 22)
-batch_size_pow0 = 12
-batch_size_pow1 = 12
-lr0 = 1e-5
-lr1 = 1e-5
+# session.replay_buffer.resize(2 ** 16)
+batch_size_pow0 = 9
+batch_size_pow1 = 9
+lr0 = 2e-5
+lr1 = 2e-5
 num_candidates0 = 40
 num_candidates1 = 40
 num_candidates = num_candidates0
@@ -269,11 +284,11 @@ temperature0 = 1.0
 temperature1 = 1.0
 explore_eps0 = 0.0001
 explore_eps1 = 0.0001
-annealing_start = 81203
+annealing_start = 84545
 annealing_time = 20
-pass_factor = 2.0  # 2.0
+pass_factor = 1.0
 num_gen_rounds = 1
-print_freq = 16
+print_freq = 1
 total_reward = 0
 total_loss = 0.0
 total_loss_cnt = 0
@@ -408,7 +423,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             pickle.dump(session, open(pickle_name, 'wb'))
-            # pickle.dump(session, open(pickle_name + '-b-bk17', 'wb'))
+            # pickle.dump(session, open(pickle_name + '-b-bk18', 'wb'))
             # pickle.dump(session, open('models/session-2022-05-10T22:04:18.463473.pkl-b-bk8', 'wb'))
             # pickle.dump(session, open('models/checkpoint-2-train.pkl', 'wb'))
             # # # # # # # # # session.replay_buffer.episode_data = episode_data

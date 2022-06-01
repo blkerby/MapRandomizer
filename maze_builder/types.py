@@ -154,6 +154,7 @@ class TrainingData:
     door_connects: torch.tensor  # 2D bool: (num_transitions, num_doors)
     missing_connects: torch.tensor  # 2D bool: (num_transitions, num_missing_connects)
     steps_remaining: torch.tensor  # 1D uint64: num_transitions
+    round_frac: torch.tensor  # 1D float32: num_transitions
     room_mask: torch.tensor  # 2D uint64: (num_transitions, num_rooms)
     room_position_x: torch.tensor  # 2D uint64: (num_transitions, num_rooms)
     room_position_y: torch.tensor  # 2D uint64: (num_transitions, num_rooms)
