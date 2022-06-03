@@ -393,7 +393,7 @@ class DoorLocalModel(torch.nn.Module):
         self.right_lin = torch.nn.Linear(map_kernel_size ** 2 * map_channels, local_widths[0] * arity)
         self.up_lin = torch.nn.Linear(map_kernel_size ** 2 * map_channels, local_widths[0] * arity)
         self.down_lin = torch.nn.Linear(map_kernel_size ** 2 * map_channels, local_widths[0] * arity)
-        self.global_lin = torch.nn.Linear(connectivity_in_width ** 2 + self.num_rooms + 1, global_widths[0] * arity)
+        self.global_lin = torch.nn.Linear(connectivity_in_width ** 2 + self.num_rooms + 2, global_widths[0] * arity)
         # self.global_lin = torch.nn.Linear(self.num_rooms + 1, global_widths[0] * arity)
         self.base_local_act = common_act
         self.base_global_act = common_act
@@ -416,7 +416,7 @@ class DoorLocalModel(torch.nn.Module):
         self.state_value_lin = torch.nn.Linear(self.fc_widths[-1], self.num_doors + self.num_missing_connects)
         self.project()
 
-    def forward_multiclass(self, map, room_mask, room_position_x, room_position_y, steps_remaining, env: MazeBuilderEnv):
+    def forward_multiclass(self, map, room_mask, room_position_x, room_position_y, steps_remaining, round_frac, env: MazeBuilderEnv):
         n = map.shape[0]
 
         if map.is_cuda:
@@ -467,7 +467,8 @@ class DoorLocalModel(torch.nn.Module):
             #                       steps_remaining.view(-1, 1)], dim=1)
             global_X = torch.cat([reduced_connectivity_flat,
                                   room_mask.to(X_left.dtype),
-                                  steps_remaining.view(-1, 1)], dim=1)
+                                  steps_remaining.view(-1, 1),
+                                  round_frac.view(-1, 1)], dim=1)
             global_X = self.global_lin(global_X)
             global_X = self.base_global_act(global_X)
 
@@ -506,11 +507,11 @@ class DoorLocalModel(torch.nn.Module):
 
             return all_filtered_logodds, state_value_logprobs, state_value_expected
 
-    def forward(self, map, room_mask, room_position_x, room_position_y, steps_remaining, env):
+    def forward(self, map, room_mask, room_position_x, room_position_y, steps_remaining, round_frac, env):
         # TODO: we could speed up the last layer a bit by summing the parameters instead of outputs
         # (though this probably is negligible).
         state_value_raw_logodds, state_value_probs, state_value_expected = self.forward_multiclass(
-            map, room_mask, room_position_x, room_position_y, steps_remaining, env)
+            map, room_mask, room_position_x, room_position_y, steps_remaining, round_frac, env)
         return state_value_expected
 
     def decay(self, amount: Optional[float]):
@@ -542,7 +543,7 @@ class DoorLocalModel(torch.nn.Module):
         #     layer.lin.weight.data /= torch.sqrt(torch.mean(layer.lin.weight.data ** 2, dim=1, keepdim=True) + eps)
 
     def forward_state_action(self, env: MazeBuilderEnv, room_mask, room_position_x, room_position_y,
-                             action_candidates, steps_remaining):
+                             action_candidates, steps_remaining, round_frac):
         num_envs = room_mask.shape[0]
         num_candidates = action_candidates.shape[1]
         num_rooms = self.num_rooms
@@ -570,11 +571,12 @@ class DoorLocalModel(torch.nn.Module):
         room_position_x_flat = all_room_position_x.view(num_envs * (1 + num_candidates), num_rooms)
         room_position_y_flat = all_room_position_y.view(num_envs * (1 + num_candidates), num_rooms)
         steps_remaining_flat = all_steps_remaining.view(num_envs * (1 + num_candidates))
+        round_frac_flat = torch.zeros([num_envs * (1 + num_candidates)], device=action_candidates.device, dtype=torch.float32)
 
         map_flat = env.compute_map(room_mask_flat, room_position_x_flat, room_position_y_flat)
 
         out_flat = self.forward(
-            map_flat, room_mask_flat, room_position_x_flat, room_position_y_flat, steps_remaining_flat, env)
+            map_flat, room_mask_flat, room_position_x_flat, room_position_y_flat, steps_remaining_flat, round_frac_flat, env)
         out = out_flat.view(num_envs, 1 + num_candidates)
         state_value = out[:, 0]
         action_value = out[:, 1:]

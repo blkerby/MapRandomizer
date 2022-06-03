@@ -123,6 +123,7 @@ class EpisodeData:
     missing_connects: torch.tensor  # 2D bool: (num_episodes, num_missing_connects)
     reward: torch.tensor  # 1D int64: num_episodes
     prob: torch.tensor  # 1D float32: num_episodes  (average probability of selected action)
+    prob0: torch.tensor  # 1D float32: num_episodes  (average probability of selected action / probability given uniform distribution)
     test_loss: torch.tensor  # 1D float32: num_episodes  (average cross-entropy loss at data-generation time)
 
     def training_data(self, num_rooms, device):
