@@ -362,6 +362,7 @@ def map_extract(map, env_id, pos_x, pos_y, width_x, width_y):
     y = torch.clamp(y, min=0, max=map.shape[3] - 1)
     return map[env_id.view(-1, 1, 1), :, x, y].view(env_id.shape[0], map.shape[1] * width_x * width_y)
 
+# inputs_list = []
 
 class DoorLocalModel(torch.nn.Module):
     def __init__(self, env_config, num_doors, num_missing_connects, num_room_parts, map_channels, map_kernel_size,
@@ -393,7 +394,7 @@ class DoorLocalModel(torch.nn.Module):
         self.right_lin = torch.nn.Linear(map_kernel_size ** 2 * map_channels, local_widths[0] * arity)
         self.up_lin = torch.nn.Linear(map_kernel_size ** 2 * map_channels, local_widths[0] * arity)
         self.down_lin = torch.nn.Linear(map_kernel_size ** 2 * map_channels, local_widths[0] * arity)
-        self.global_lin = torch.nn.Linear(connectivity_in_width ** 2 + self.num_rooms + 2, global_widths[0] * arity)
+        self.global_lin = torch.nn.Linear(connectivity_in_width ** 2 + self.num_rooms + 3, global_widths[0] * arity)
         # self.global_lin = torch.nn.Linear(self.num_rooms + 1, global_widths[0] * arity)
         self.base_local_act = common_act
         self.base_global_act = common_act
@@ -416,7 +417,7 @@ class DoorLocalModel(torch.nn.Module):
         self.state_value_lin = torch.nn.Linear(self.fc_widths[-1], self.num_doors + self.num_missing_connects)
         self.project()
 
-    def forward_multiclass(self, map, room_mask, room_position_x, room_position_y, steps_remaining, round_frac, env: MazeBuilderEnv):
+    def forward_multiclass(self, map, room_mask, room_position_x, room_position_y, steps_remaining, round_frac, temperature, env: MazeBuilderEnv):
         n = map.shape[0]
 
         if map.is_cuda:
@@ -437,6 +438,8 @@ class DoorLocalModel(torch.nn.Module):
             reduced_connectivity_flat = reduced_connectivity.view(n, self.connectivity_in_width ** 2)
         else:
             reduced_connectivity_flat = torch.zeros([n, 0], device=map.device, dtype=X_map.dtype)
+
+        # inputs_list.append((map, room_mask, room_position_x, room_position_y, steps_remaining, round_frac, temperature, connectivity))
 
         map_door_left = torch.nonzero(map[:, 1, :, :] > 1)
         map_door_right = torch.nonzero(map[:, 1, :, :] < -1)
@@ -467,8 +470,9 @@ class DoorLocalModel(torch.nn.Module):
             #                       steps_remaining.view(-1, 1)], dim=1)
             global_X = torch.cat([reduced_connectivity_flat,
                                   room_mask.to(X_left.dtype),
-                                  steps_remaining.view(-1, 1),
-                                  round_frac.view(-1, 1)], dim=1)
+                                  steps_remaining.view(-1, 1) / 100.0,
+                                  round_frac.view(-1, 1),
+                                  torch.log(temperature.view(-1, 1))], dim=1)
             global_X = self.global_lin(global_X)
             global_X = self.base_global_act(global_X)
 
@@ -507,11 +511,11 @@ class DoorLocalModel(torch.nn.Module):
 
             return all_filtered_logodds, state_value_logprobs, state_value_expected
 
-    def forward(self, map, room_mask, room_position_x, room_position_y, steps_remaining, round_frac, env):
+    def forward(self, map, room_mask, room_position_x, room_position_y, steps_remaining, round_frac, temperature, env):
         # TODO: we could speed up the last layer a bit by summing the parameters instead of outputs
         # (though this probably is negligible).
         state_value_raw_logodds, state_value_probs, state_value_expected = self.forward_multiclass(
-            map, room_mask, room_position_x, room_position_y, steps_remaining, round_frac, env)
+            map, room_mask, room_position_x, room_position_y, steps_remaining, round_frac, temperature, env)
         return state_value_expected
 
     def decay(self, amount: Optional[float]):
@@ -541,43 +545,45 @@ class DoorLocalModel(torch.nn.Module):
         #     # layer.weight.data = approx_l1_projection(layer.weight.data, dim=1, num_iters=5)
         #     # layer.weight.data /= torch.max(torch.abs(layer.weight.data) + eps, dim=1)[0].unsqueeze(1)
         #     layer.lin.weight.data /= torch.sqrt(torch.mean(layer.lin.weight.data ** 2, dim=1, keepdim=True) + eps)
-
-    def forward_state_action(self, env: MazeBuilderEnv, room_mask, room_position_x, room_position_y,
-                             action_candidates, steps_remaining, round_frac):
-        num_envs = room_mask.shape[0]
-        num_candidates = action_candidates.shape[1]
-        num_rooms = self.num_rooms
-        action_room_id = action_candidates[:, :, 0]
-        action_x = action_candidates[:, :, 1]
-        action_y = action_candidates[:, :, 2]
-        all_room_mask = room_mask.unsqueeze(1).repeat(1, num_candidates + 1, 1)
-        all_room_position_x = room_position_x.unsqueeze(1).repeat(1, num_candidates + 1, 1)
-        all_room_position_y = room_position_y.unsqueeze(1).repeat(1, num_candidates + 1, 1)
-        all_steps_remaining = steps_remaining.unsqueeze(1).repeat(1, num_candidates + 1)
-
-        all_room_mask[torch.arange(num_envs, device=action_candidates.device).view(-1, 1),
-                      torch.arange(1, 1 + num_candidates, device=action_candidates.device).view(1, -1),
-                      action_room_id] = True
-        all_room_mask[:, :, -1] = False
-        all_room_position_x[torch.arange(num_envs, device=action_candidates.device).view(-1, 1),
-                            torch.arange(1, 1 + num_candidates, device=action_candidates.device).view(1, -1),
-                            action_room_id] = action_x
-        all_room_position_y[torch.arange(num_envs, device=action_candidates.device).view(-1, 1),
-                            torch.arange(1, 1 + num_candidates, device=action_candidates.device).view(1, -1),
-                            action_room_id] = action_y
-        all_steps_remaining[:, 1:] -= 1
-
-        room_mask_flat = all_room_mask.view(num_envs * (1 + num_candidates), num_rooms)
-        room_position_x_flat = all_room_position_x.view(num_envs * (1 + num_candidates), num_rooms)
-        room_position_y_flat = all_room_position_y.view(num_envs * (1 + num_candidates), num_rooms)
-        steps_remaining_flat = all_steps_remaining.view(num_envs * (1 + num_candidates))
-        round_frac_flat = torch.zeros([num_envs * (1 + num_candidates)], device=action_candidates.device, dtype=torch.float32)
-
-        map_flat = env.compute_map(room_mask_flat, room_position_x_flat, room_position_y_flat)
-
-        out_flat = self.forward(
-            map_flat, room_mask_flat, room_position_x_flat, room_position_y_flat, steps_remaining_flat, round_frac_flat, env)
-        out = out_flat.view(num_envs, 1 + num_candidates)
-        state_value = out[:, 0]
-        action_value = out[:, 1:]
-        return state_value, action_value
+    #
+    # def forward_state_action(self, env: MazeBuilderEnv, room_mask, room_position_x, room_position_y,
+    #                          action_candidates, steps_remaining, round_frac, temperature):
+    #     num_envs = room_mask.shape[0]
+    #     num_candidates = action_candidates.shape[1]
+    #     num_rooms = self.num_rooms
+    #     action_room_id = action_candidates[:, :, 0]
+    #     action_x = action_candidates[:, :, 1]
+    #     action_y = action_candidates[:, :, 2]
+    #     all_room_mask = room_mask.unsqueeze(1).repeat(1, num_candidates + 1, 1)
+    #     all_room_position_x = room_position_x.unsqueeze(1).repeat(1, num_candidates + 1, 1)
+    #     all_room_position_y = room_position_y.unsqueeze(1).repeat(1, num_candidates + 1, 1)
+    #     all_steps_remaining = steps_remaining.unsqueeze(1).repeat(1, num_candidates + 1)
+    #     all_temperature = temperature.unsqueeze(1).repeat(1, num_candidates + 1)
+    #
+    #     all_room_mask[torch.arange(num_envs, device=action_candidates.device).view(-1, 1),
+    #                   torch.arange(1, 1 + num_candidates, device=action_candidates.device).view(1, -1),
+    #                   action_room_id] = True
+    #     all_room_mask[:, :, -1] = False
+    #     all_room_position_x[torch.arange(num_envs, device=action_candidates.device).view(-1, 1),
+    #                         torch.arange(1, 1 + num_candidates, device=action_candidates.device).view(1, -1),
+    #                         action_room_id] = action_x
+    #     all_room_position_y[torch.arange(num_envs, device=action_candidates.device).view(-1, 1),
+    #                         torch.arange(1, 1 + num_candidates, device=action_candidates.device).view(1, -1),
+    #                         action_room_id] = action_y
+    #     all_steps_remaining[:, 1:] -= 1
+    #
+    #     room_mask_flat = all_room_mask.view(num_envs * (1 + num_candidates), num_rooms)
+    #     room_position_x_flat = all_room_position_x.view(num_envs * (1 + num_candidates), num_rooms)
+    #     room_position_y_flat = all_room_position_y.view(num_envs * (1 + num_candidates), num_rooms)
+    #     steps_remaining_flat = all_steps_remaining.view(num_envs * (1 + num_candidates))
+    #     round_frac_flat = torch.zeros([num_envs * (1 + num_candidates)], device=action_candidates.device, dtype=torch.float32)
+    #     temperature_flat = all_temperature.view(num_envs * (1 + num_candidates))
+    #
+    #     map_flat = env.compute_map(room_mask_flat, room_position_x_flat, room_position_y_flat)
+    #
+    #     out_flat = self.forward(
+    #         map_flat, room_mask_flat, room_position_x_flat, room_position_y_flat, steps_remaining_flat, round_frac_flat, temperature_flat, env)
+    #     out = out_flat.view(num_envs, 1 + num_candidates)
+    #     state_value = out[:, 0]
+    #     action_value = out[:, 1:]
+    #     return state_value, action_value

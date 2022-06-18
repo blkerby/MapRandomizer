@@ -820,7 +820,7 @@ class MazeBuilderEnv:
         num_parts = good_matrix.shape[1]
         max_components = 56
 
-        torch.cuda.synchronize(room_mask.device)
+        # torch.cuda.synchronize(room_mask.device)
         start_load = time.perf_counter()
         undirected_E = torch.nonzero(good_matrix)
         undirected_edges = undirected_E[:, 1:3].to(torch.uint8).to('cpu')

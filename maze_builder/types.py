@@ -122,6 +122,7 @@ class EpisodeData:
     door_connects: torch.tensor  # 2D bool: (num_episodes, num_doors)
     missing_connects: torch.tensor  # 2D bool: (num_episodes, num_missing_connects)
     reward: torch.tensor  # 1D int64: num_episodes
+    temperature: torch.tensor  # 1D float32: num_episodes
     prob: torch.tensor  # 1D float32: num_episodes  (average probability of selected action)
     prob0: torch.tensor  # 1D float32: num_episodes  (average probability of selected action / probability given uniform distribution)
     test_loss: torch.tensor  # 1D float32: num_episodes  (average cross-entropy loss at data-generation time)
@@ -156,6 +157,7 @@ class TrainingData:
     missing_connects: torch.tensor  # 2D bool: (num_transitions, num_missing_connects)
     steps_remaining: torch.tensor  # 1D uint64: num_transitions
     round_frac: torch.tensor  # 1D float32: num_transitions
+    temperature: torch.tensor  # 1D float32: num_transitions
     room_mask: torch.tensor  # 2D uint64: (num_transitions, num_rooms)
     room_position_x: torch.tensor  # 2D uint64: (num_transitions, num_rooms)
     room_position_y: torch.tensor  # 2D uint64: (num_transitions, num_rooms)

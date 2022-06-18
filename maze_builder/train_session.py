@@ -27,6 +27,7 @@ def _rand_choice(p):
 #                         torch.exp(torch.clamp_max(log_probs, 0.0)))  # Clamp is "no-op" but avoids non-finite gradients
 #     return (probs - labels) ** 2
 
+# action_indexes = []
 
 class TrainingSession():
     def __init__(self, envs: List[MazeBuilderEnv],
@@ -55,7 +56,7 @@ class TrainingSession():
         return torch.sum(door_connects, dim=1) // 2 + torch.sum(missing_connects, dim=1)
 
     def forward_state_action(self, model, room_mask, room_position_x, room_position_y, action_candidates,
-                             steps_remaining,
+                             steps_remaining, temperature,
                              env_id):
         # print({k: v.shape for k, v in locals().items() if hasattr(v, 'shape')})
         #
@@ -71,6 +72,7 @@ class TrainingSession():
         all_room_position_x = room_position_x.unsqueeze(1).repeat(1, num_candidates + 1, 1)
         all_room_position_y = room_position_y.unsqueeze(1).repeat(1, num_candidates + 1, 1)
         all_steps_remaining = steps_remaining.unsqueeze(1).repeat(1, num_candidates + 1)
+        all_temperature = temperature.unsqueeze(1).repeat(1, num_candidates + 1)
 
         # print(action_candidates.device, action_room_id.device)
         all_room_mask[torch.arange(num_envs, device=action_candidates.device).view(-1, 1),
@@ -89,7 +91,9 @@ class TrainingSession():
         room_position_x_flat = all_room_position_x.view(num_envs * (1 + num_candidates), num_rooms)
         room_position_y_flat = all_room_position_y.view(num_envs * (1 + num_candidates), num_rooms)
         steps_remaining_flat = all_steps_remaining.view(num_envs * (1 + num_candidates))
-        round_frac_flat = torch.zeros([num_envs * (1 + num_candidates)], device=action_candidates.device, dtype=torch.float32)
+        round_frac_flat = torch.zeros([num_envs * (1 + num_candidates)], device=action_candidates.device,
+                                      dtype=torch.float32)
+        temperature_flat = all_temperature.view(num_envs * (1 + num_candidates))
 
         # torch.cuda.synchronize()
         # logging.info("Creating map")
@@ -100,7 +104,8 @@ class TrainingSession():
         # torch.cuda.synchronize()
         # logging.info("Model forward")
         flat_raw_logodds, _, flat_expected = model.forward_multiclass(
-            map_flat, room_mask_flat, room_position_x_flat, room_position_y_flat, steps_remaining_flat, round_frac_flat, env)
+            map_flat, room_mask_flat, room_position_x_flat, room_position_y_flat, steps_remaining_flat, round_frac_flat,
+            temperature_flat, env)
         # raw_logodds = flat_raw_logodds.view(num_envs, 1 + num_candidates, self.envs[env_id].max_reward + 1)
         raw_logodds = flat_raw_logodds.view(num_envs, 1 + num_candidates, -1)
         expected = flat_expected.view(num_envs, 1 + num_candidates)
@@ -109,8 +114,7 @@ class TrainingSession():
         action_expected = expected[:, 1:]
         return state_expected, action_expected, state_raw_logodds, raw_logodds
 
-    def generate_round_inner(self, model, model_fractions, episode_length: int, num_candidates: int, temperature: float,
-                             explore_eps: float,
+    def generate_round_inner(self, model, episode_length: int, num_candidates: int, temperature: torch.tensor,
                              env_id, render=False) -> EpisodeData:
         device = self.envs[env_id].device
         env = self.envs[env_id]
@@ -120,6 +124,7 @@ class TrainingSession():
         prob_list = []
         prob0_list = []
         model.eval()
+        temperature = temperature.to(device)
         # torch.cuda.synchronize()
         # logging.debug("Averaging parameters")
         for j in range(episode_length):
@@ -127,7 +132,8 @@ class TrainingSession():
                 env.render()
             # torch.cuda.synchronize()
             # logging.debug("Getting candidates")
-            action_candidates = env.get_action_candidates(num_candidates, env.room_mask, env.room_position_x, env.room_position_y,
+            action_candidates = env.get_action_candidates(num_candidates, env.room_mask, env.room_position_x,
+                                                          env.room_position_y,
                                                           verbose=self.verbose)
             # action_candidates = env.get_all_action_candidates(env.room_mask, env.room_position_x, env.room_position_y)
             steps_remaining = torch.full([env.num_envs], episode_length - j,
@@ -137,12 +143,13 @@ class TrainingSession():
                 # print("inner", env_id, j, env.device, model.state_value_lin.weight.device)
                 _, action_expected, state_raw_logodds, _ = self.forward_state_action(
                     model, env.room_mask, env.room_position_x, env.room_position_y,
-                    action_candidates, steps_remaining, env_id=env_id)
+                    action_candidates, steps_remaining, temperature, env_id=env_id)
 
             action_expected = torch.where(action_candidates[:, :, 0] == len(env.rooms) - 1,
-                                          torch.full_like(action_expected, -1e15), action_expected)  # Give dummy move negligible probability except where it is the only choice
+                                          torch.full_like(action_expected, -1e15),
+                                          action_expected)  # Give dummy move negligible probability except where it is the only choice
             # print(action_expected)
-            probs = torch.softmax(action_expected / temperature, dim=1)
+            probs = torch.softmax(action_expected / torch.unsqueeze(temperature, 1), dim=1)
             candidate_count = torch.sum(probs > 0, dim=1)
             # candidate_count = torch.clamp_min(torch.sum(action_candidates[:, :, 0] != len(env.rooms) - 1, dim=1), 1)
             # if explore_eps != 0.0:
@@ -151,6 +158,7 @@ class TrainingSession():
             #                                 torch.zeros_like(probs))
             #     probs = explore_eps * explore_probs + (1 - explore_eps) * probs
             action_index = _rand_choice(probs)
+            # action_indexes.append(action_index)  # TODO: remove this
             selected_prob = probs[torch.arange(env.num_envs, device=device), action_index]
             selected_prob0 = selected_prob * candidate_count
             action = action_candidates[torch.arange(env.num_envs, device=device), action_index, :]
@@ -172,14 +180,16 @@ class TrainingSession():
         state_raw_logodds_flat = state_raw_logodds_tensor.view(env.num_envs * episode_length,
                                                                state_raw_logodds_tensor.shape[-1])
         # reward_flat = reward_tensor.view(env.num_envs, 1).repeat(1, episode_length).view(-1)
-        door_connects_flat = door_connects_tensor.view(env.num_envs, 1, -1).repeat(1, episode_length, 1).view(env.num_envs * episode_length, -1)
+        door_connects_flat = door_connects_tensor.view(env.num_envs, 1, -1).repeat(1, episode_length, 1).view(
+            env.num_envs * episode_length, -1)
         missing_connects_flat = missing_connects_tensor.view(env.num_envs, 1, -1).repeat(1, episode_length, 1).view(
             env.num_envs * episode_length, -1)
         all_outputs_flat = torch.cat([door_connects_flat, missing_connects_flat], dim=1)
 
         loss_flat = torch.mean(torch.nn.functional.binary_cross_entropy_with_logits(state_raw_logodds_flat,
-                                                                    all_outputs_flat.to(state_raw_logodds_flat.dtype),
-                                                                    reduction='none'), dim=1)
+                                                                                    all_outputs_flat.to(
+                                                                                        state_raw_logodds_flat.dtype),
+                                                                                    reduction='none'), dim=1)
         # loss_flat = torch.mean(compute_mse_loss(state_raw_logodds_flat, all_outputs_flat.to(state_raw_logodds_flat.dtype)), dim=1)
         loss = loss_flat.view(env.num_envs, episode_length)
         episode_loss = torch.mean(loss, dim=1)
@@ -191,20 +201,21 @@ class TrainingSession():
             action=action_tensor.to(torch.uint8),
             prob=prob_tensor,
             prob0=prob0_tensor,
+            temperature=temperature.to('cpu'),
             test_loss=episode_loss,
         )
         return episode_data
 
-    def generate_round_model(self, model, model_fractions, episode_length: int, num_candidates: int, temperature: float, explore_eps: float,
-                       executor: Optional[concurrent.futures.ThreadPoolExecutor] = None,
-                       render=False) -> EpisodeData:
+    def generate_round_model(self, model, episode_length: int, num_candidates: int, temperature: torch.tensor,
+                             executor: Optional[concurrent.futures.ThreadPoolExecutor] = None,
+                             render=False) -> EpisodeData:
         if executor is None:
             episode_data_list = []
             model_list = [copy.deepcopy(model).to(env.device) for env in self.envs]
             for i, env in enumerate(self.envs):
                 model = model_list[i]
                 episode_data_list.append(self.generate_round_inner(
-                    model, model_fractions, episode_length, num_candidates, temperature, explore_eps, render=render,
+                    model, episode_length, num_candidates, temperature, render=render,
                     env_id=i))
         else:
             futures_list = []
@@ -213,7 +224,7 @@ class TrainingSession():
                 model = model_list[i]
                 # print("gen", i, env.device, model.state_value_lin.weight.device)
                 future = executor.submit(lambda i=i, model=model: self.generate_round_inner(
-                    model, model_fractions, episode_length, num_candidates, temperature, explore_eps, render=render, env_id=i))
+                    model, episode_length, num_candidates, temperature, render=render, env_id=i))
                 futures_list.append(future)
             episode_data_list = [future.result() for future in futures_list]
         for env in self.envs:
@@ -226,21 +237,20 @@ class TrainingSession():
             action=torch.cat([d.action for d in episode_data_list], dim=0),
             prob=torch.cat([d.prob for d in episode_data_list], dim=0),
             prob0=torch.cat([d.prob0 for d in episode_data_list], dim=0),
+            temperature=torch.cat([d.temperature for d in episode_data_list], dim=0),
             test_loss=torch.cat([d.test_loss for d in episode_data_list], dim=0),
         )
 
-    def generate_round(self, episode_length: int, num_candidates: int, temperature: float, explore_eps: float,
+    def generate_round(self, episode_length: int, num_candidates: int, temperature: torch.tensor,
                        executor: Optional[concurrent.futures.ThreadPoolExecutor] = None,
                        render=False) -> EpisodeData:
         with self.average_parameters.average_parameters(self.model.all_param_data()):
             return self.generate_round_model(model=self.model,
-                                              model_fractions=[1.0],
-                                              episode_length=episode_length,
-                                              num_candidates=num_candidates,
-                                              temperature=temperature,
-                                              explore_eps=explore_eps,
-                                              executor=executor,
-                                              render=render)
+                                             episode_length=episode_length,
+                                             num_candidates=num_candidates,
+                                             temperature=temperature,
+                                             executor=executor,
+                                             render=render)
 
     def train_batch(self, data: TrainingData):
         self.model.train()
@@ -248,7 +258,8 @@ class TrainingSession():
         env = self.envs[0]
         map = env.compute_map(data.room_mask, data.room_position_x, data.room_position_y)
         state_value_raw_logodds, _, _ = self.model.forward_multiclass(
-            map, data.room_mask, data.room_position_x, data.room_position_y, data.steps_remaining, data.round_frac, env)
+            map, data.room_mask, data.room_position_x, data.room_position_y, data.steps_remaining, data.round_frac,
+            data.temperature, env)
 
         all_outputs = torch.cat([data.door_connects, data.missing_connects], dim=1)
         loss = torch.nn.functional.binary_cross_entropy_with_logits(state_value_raw_logodds,
@@ -268,8 +279,10 @@ class TrainingSession():
 
         env = self.envs[0]
         map = env.compute_map(data.room_mask, data.room_position_x, data.room_position_y)
+        round_frac = torch.zeros_like(data.round_frac)
         state_value_raw_logodds, _, _ = self.model.forward_multiclass(
-            map, data.room_mask, data.room_position_x, data.room_position_y, data.steps_remaining, env)
+            map, data.room_mask, data.room_position_x, data.room_position_y, data.steps_remaining, round_frac,
+            data.temperature, env)
 
         all_outputs = torch.cat([data.door_connects, data.missing_connects], dim=1)
         loss = torch.nn.functional.binary_cross_entropy_with_logits(state_value_raw_logodds,
