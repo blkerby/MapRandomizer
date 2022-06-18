@@ -38,7 +38,7 @@ device = devices[0]
 executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
 # num_envs = 1
-num_envs = 2 ** 8
+num_envs = 2 ** 9
 # rooms = logic.rooms.crateria_isolated.rooms
 rooms = logic.rooms.all_rooms.rooms
 episode_length = len(rooms)
@@ -327,12 +327,12 @@ for i in range(10000000):
 
 
 # pickle_name = 'models/session-2022-06-03T17:19:29.727911.pkl'
-# session = pickle.load(open(pickle_name + '-bk16', 'rb'))
+# session = pickle.load(open(pickle_name + '-bk17', 'rb'))
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
 # session.replay_buffer.resize(2 ** 23)
 hist = 2 ** 23
 hist_c = 2.0
-batch_size = 2 ** 10
+batch_size = 2 ** 12
 lr = 0.00002
 # num_candidates = 8
 num_candidates0 = 9
@@ -341,8 +341,8 @@ temperature_min = 0.01
 temperature_max = 10.0
 annealing_start = 6560
 annealing_time = 1000
-pass_factor = 2.0
-print_freq = 16
+pass_factor = 0.5
+print_freq = 8
 total_reward = 0
 total_loss = 0.0
 total_loss_cnt = 0
@@ -350,8 +350,8 @@ total_test_loss = 0.0
 total_prob = 0.0
 total_prob0 = 0.0
 total_round_cnt = 0
-save_freq = 256
-summary_freq = 512
+save_freq = 128
+summary_freq = 256
 session.decay_amount = 0.01
 session.optimizer.param_groups[0]['betas'] = (0.9, 0.9)
 session.optimizer.param_groups[0]['eps'] = 1e-5
@@ -450,7 +450,7 @@ for i in range(1000000):
         # buffer_mean_rooms_missing = buffer_mean_pass * len(rooms)
 
         logging.info(
-            "{}: cost={:.3f} (min={:d}, frac={:.6f}), test={:.5f}, p={:.5f}, p0={:.4f} | loss={:.5f}, cost={:.2f} (min={:d}, frac={:.4f}), test={:.4f}, p={:.4f}, p0={:.3f}".format(
+            "{}: cost={:.3f} (min={:d}, frac={:.6f}), test={:.6f}, p={:.5f}, p0={:.4f} | loss={:.5f}, cost={:.2f} (min={:d}, frac={:.4f}), test={:.4f}, p={:.4f}, p0={:.3f}".format(
                 session.num_rounds, max_possible_reward - buffer_mean_reward, max_possible_reward - buffer_max_reward,
                 buffer_frac_max_reward,
                 # buffer_doors,
@@ -497,7 +497,7 @@ for i in range(1000000):
             buffer_mean_prob = torch.mean(buffer_prob)
             buffer_prob0 = session.replay_buffer.episode_data.prob0[ind]
             buffer_mean_prob0 = torch.mean(buffer_prob0)
-            logging.info("[{:.2f}, {:.2f}]: cost={:.3f} (min={}, frac={:.6f}), test={:.5f}, p={:.5f}, p0={:.4f}, cnt={}".format(
+            logging.info("[{:.2f}, {:.2f}]: cost={:.3f} (min={}, frac={:.6f}), test={:.6f}, p={:.5f}, p0={:.4f}, cnt={}".format(
                 temp_low, temp_high, max_possible_reward - buffer_mean_reward, max_possible_reward - buffer_max_reward,
                 buffer_frac_max, buffer_mean_test_loss, buffer_mean_prob, buffer_mean_prob0, ind.shape[0]
             ))
