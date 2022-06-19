@@ -946,6 +946,9 @@ class MazeBuilderEnv:
         self.padded_good_room_parts = torch.cat(
             [self.good_room_parts, torch.zeros([padding_needed], device=self.device, dtype=self.good_room_parts.dtype)])
         self.good_part_room_id = self.part_room_id[self.good_room_parts]
+        good_room_parts_list = self.good_room_parts.tolist()
+        self.good_missing_connection_src = torch.tensor([good_room_parts_list.index(i) for i in self.missing_connection_src], device=self.device)
+        self.good_missing_connection_dst = torch.tensor([good_room_parts_list.index(i) for i in self.missing_connection_dst], device=self.device)
         self.good_base_matrix = self.part_adjacency_matrix[
             self.good_room_parts.view(-1, 1), self.good_room_parts.view(1, -1)]
         self.directed_E = torch.nonzero(self.good_base_matrix).to(torch.uint8).to('cpu')

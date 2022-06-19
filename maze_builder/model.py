@@ -279,12 +279,12 @@ class Model(torch.nn.Module):
 
             return all_filtered_logodds, state_value_logprobs, state_value_expected
 
-    def forward(self, map, room_mask, room_position_x, room_position_y, steps_remaining, env):
-        # TODO: we could speed up the last layer a bit by summing the parameters instead of outputs
-        # (though this probably is negligible).
-        state_value_raw_logodds, state_value_probs, state_value_expected = self.forward_multiclass(
-            map, room_mask, room_position_x, room_position_y, steps_remaining, env)
-        return state_value_expected
+    # def forward(self, map, room_mask, room_position_x, room_position_y, steps_remaining, env):
+    #     # TODO: we could speed up the last layer a bit by summing the parameters instead of outputs
+    #     # (though this probably is negligible).
+    #     state_value_raw_logodds, state_value_probs, state_value_expected = self.forward_multiclass(
+    #         map, room_mask, room_position_x, room_position_y, steps_remaining, env)
+    #     return state_value_expected
 
     def decay(self, amount: Optional[float]):
         if amount is not None:
@@ -492,15 +492,21 @@ class DoorLocalModel(torch.nn.Module):
                 global_X = self.fc_act_layers[i](global_X)
 
             door_connects = env.door_connects(map, room_mask, room_position_x, room_position_y)
-
+            missing_connects = connectivity[:, env.good_missing_connection_src, env.good_missing_connection_dst]
 
             state_value_raw_logodds = self.state_value_lin(global_X).to(torch.float32)
             door_connects_raw_logodds = state_value_raw_logodds[:, :self.num_doors]
             missing_connects_raw_logodds = state_value_raw_logodds[:, self.num_doors:]
             # inf_tensor = torch.zeros_like(door_connects_raw_logodds)
-            inf_tensor = torch.full_like(door_connects_raw_logodds, 1e5)  # We can't use actual 'inf' or it results in NaNs in binary_cross_entropy_with_logits, but this is equivalent.
-            door_connects_filtered_logodds = torch.where(door_connects, inf_tensor, door_connects_raw_logodds)
-            all_filtered_logodds = torch.cat([door_connects_filtered_logodds, missing_connects_raw_logodds], dim=1)
+            inf_tensor_door = torch.full_like(door_connects_raw_logodds, 1e5)  # We can't use actual 'inf' or it results in NaNs in binary_cross_entropy_with_logits, but this is equivalent.
+            inf_tensor_missing = torch.full_like(missing_connects_raw_logodds, 1e5)  # We can't use actual 'inf' or it results in NaNs in binary_cross_entropy_with_logits, but this is equivalent.
+
+            door_connects_filtered_logodds = torch.where(door_connects, inf_tensor_door, door_connects_raw_logodds)
+            # print(missing_connects.shape, inf_tensor_missing.shape, missing_connects_raw_logodds.shape)
+            missing_connects_filtered_logodds = torch.where(missing_connects.to(torch.bool), inf_tensor_missing, missing_connects_raw_logodds)
+
+            # all_filtered_logodds = torch.cat([door_connects_filtered_logodds, missing_connects_raw_logodds], dim=1)
+            all_filtered_logodds = torch.cat([door_connects_filtered_logodds, missing_connects_filtered_logodds], dim=1)
             # state_value_probs = torch.sigmoid(all_filtered_logodds)
             state_value_logprobs = -torch.logaddexp(-all_filtered_logodds, torch.zeros_like(all_filtered_logodds))
             # state_value_probs = torch.where(all_filtered_logprobs >= 0, all_filtered_logprobs + 1,

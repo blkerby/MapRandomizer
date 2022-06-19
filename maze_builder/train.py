@@ -326,14 +326,15 @@ for i in range(10000000):
 # session.replay_buffer.episode_data.prob0 = torch.clone(session.replay_buffer.episode_data.prob)
 
 
-# pickle_name = 'models/session-2022-06-03T17:19:29.727911.pkl'
-# session = pickle.load(open(pickle_name + '-bk17', 'rb'))
+pickle_name = 'models/session-2022-06-03T17:19:29.727911.pkl'
+session = pickle.load(open(pickle_name + '-bk18', 'rb'))
+session.envs = envs
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
 # session.replay_buffer.resize(2 ** 23)
 hist = 2 ** 23
 hist_c = 2.0
-batch_size = 2 ** 12
-lr = 0.00002
+batch_size = 2 ** 10
+lr = 0.00003
 # num_candidates = 8
 num_candidates0 = 9
 num_candidates1 = 16
@@ -341,7 +342,7 @@ temperature_min = 0.01
 temperature_max = 10.0
 annealing_start = 6560
 annealing_time = 1000
-pass_factor = 0.5
+pass_factor = 2.0
 print_freq = 8
 total_reward = 0
 total_loss = 0.0
@@ -476,7 +477,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             pickle.dump(session, open(pickle_name, 'wb'))
-            # pickle.dump(session, open(pickle_name + '-bk17', 'wb'))
+            # pickle.dump(session, open(pickle_name + '-bk18', 'wb'))
     if session.num_rounds % summary_freq == 0:
         temperature_endpoints = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0,
                                  20.0, 50.0, 100.0, 200.0, 500.0, 1000.0, 2000.0, 5000.0, 10000.0]
