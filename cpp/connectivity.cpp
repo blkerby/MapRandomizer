@@ -54,7 +54,7 @@ vertex_t tarjan_rec(
 }
 
 // Compute a compressed representation of reflexive-transitive closure of the given directed graphs. More specifically,
-// compute the strong of components of each graph and the adjacency matrix of the reflexive-transitive closure of 
+// compute the strong components of each graph and the adjacency matrix of the reflexive-transitive closure of
 // the condensation graph.
 void compute_connectivity(
         py::array_t<bool> root_mask,
