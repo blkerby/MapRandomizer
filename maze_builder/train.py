@@ -332,7 +332,7 @@ logging.info("max_possible_reward = {}".format(max_possible_reward))
 pickle_name = 'models/session-2022-06-03T17:19:29.727911.pkl'
 session = pickle.load(open(pickle_name + '-bk19', 'rb'))
 session.envs = envs
-session.replay_buffer.episode_data.cand_count = torch.zeros_like(session.replay_buffer.episode_data.prob)
+# session.replay_buffer.episode_data.cand_count = torch.zeros_like(session.replay_buffer.episode_data.prob)
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
 # session.replay_buffer.resize(2 ** 23)
 hist = 2 ** 23

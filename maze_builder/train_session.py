@@ -68,7 +68,7 @@ class TrainingSession():
         action_room_id = action_candidates[:, :, 0]
         action_x = action_candidates[:, :, 1]
         action_y = action_candidates[:, :, 2]
-        # valid = (action_room_id != len(self.envs[0].rooms) - 1)
+        valid = (action_room_id != len(self.envs[0].rooms) - 1)
 
         all_room_mask = room_mask.unsqueeze(1).repeat(1, num_candidates, 1)
         all_room_position_x = room_position_x.unsqueeze(1).repeat(1, num_candidates, 1)
@@ -96,24 +96,45 @@ class TrainingSession():
         round_frac_flat = torch.zeros([num_envs * num_candidates], device=action_candidates.device,
                                       dtype=torch.float32)
         temperature_flat = all_temperature.view(num_envs * num_candidates)
-        # valid_flat = valid.view(num_envs * (1 + num_candidates))
+        valid_flat = valid.view(num_envs * num_candidates)
+        valid_flat_ind = torch.nonzero(valid_flat)[:, 0]
+
+        room_mask_valid = room_mask_flat[valid_flat, :]
+        room_position_x_valid = room_position_x_flat[valid_flat, :]
+        room_position_y_valid = room_position_y_flat[valid_flat, :]
+        steps_remaining_valid = steps_remaining_flat[valid_flat]
+        round_frac_valid = round_frac_flat[valid_flat]
+        temperature_valid = temperature_flat[valid_flat]
 
         # torch.cuda.synchronize()
         # logging.info("Creating map")
 
         env = self.envs[env_id]
-        map_flat = env.compute_map(room_mask_flat, room_position_x_flat, room_position_y_flat)
+        # map_flat = env.compute_map(room_mask_flat, room_position_x_flat, room_position_y_flat)
+        map_valid = env.compute_map(room_mask_valid, room_position_x_valid, room_position_y_valid)
 
 
 
         # torch.cuda.synchronize()
         # logging.info("Model forward")
-        flat_raw_logodds, _, flat_expected = model.forward_multiclass(
-            map_flat, room_mask_flat, room_position_x_flat, room_position_y_flat, steps_remaining_flat, round_frac_flat,
-            temperature_flat, env)
-        raw_logodds = flat_raw_logodds.view(num_envs, num_candidates, -1)
-        action_expected = flat_expected.view(num_envs, num_candidates)
-        return action_expected, raw_logodds
+        # flat_raw_logodds, _, flat_expected = model.forward_multiclass(
+        #     map_flat, room_mask_flat, room_position_x_flat, room_position_y_flat, steps_remaining_flat, round_frac_flat,
+        #     temperature_flat, env)
+        raw_logodds_valid, _, expected_valid = model.forward_multiclass(
+            map_valid, room_mask_valid, room_position_x_valid, room_position_y_valid, steps_remaining_valid, round_frac_valid,
+            temperature_valid, env)
+
+        # Note: for steps with no valid candidates (i.e. when no more rooms can be placed), we won't generate any
+        # predictions, and the test_loss will be computed just based on these zero log-odds filler values.
+        raw_logodds_flat = torch.zeros([num_envs * num_candidates, raw_logodds_valid.shape[-1]], device=raw_logodds_valid.device)
+        raw_logodds_flat[valid_flat_ind, :] = raw_logodds_valid
+
+        expected_flat = torch.full([num_envs * num_candidates], -1e15, device=raw_logodds_valid.device)
+        expected_flat[valid_flat_ind] = expected_valid
+
+        raw_logodds = raw_logodds_flat.view(num_envs, num_candidates, -1)
+        expected = expected_flat.view(num_envs, num_candidates)
+        return expected, raw_logodds
 
     def generate_round_inner(self, model, episode_length: int, num_candidates: int, temperature: torch.tensor,
                              env_id, render=False) -> EpisodeData:
@@ -147,9 +168,10 @@ class TrainingSession():
                     model, env.room_mask, env.room_position_x, env.room_position_y,
                     action_candidates, steps_remaining, temperature, env_id=env_id)
 
-            action_expected = torch.where(action_candidates[:, :, 0] == len(env.rooms) - 1,
-                                          torch.full_like(action_expected, -1e15),
-                                          action_expected)  # Give dummy move negligible probability except where it is the only choice
+            # action_expected = torch.where(action_candidates[:, :, 0] == len(env.rooms) - 1,
+            #                               torch.full_like(action_expected, -1e15),
+            #                               action_expected)  # Give dummy move negligible probability except where it is the only choice
+            #
             # print(action_expected)
             probs = torch.softmax(action_expected / torch.unsqueeze(temperature, 1), dim=1)
             candidate_count = torch.sum(probs > 0, dim=1)
