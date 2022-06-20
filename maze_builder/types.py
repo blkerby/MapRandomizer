@@ -125,6 +125,7 @@ class EpisodeData:
     temperature: torch.tensor  # 1D float32: num_episodes
     prob: torch.tensor  # 1D float32: num_episodes  (average probability of selected action)
     prob0: torch.tensor  # 1D float32: num_episodes  (average probability of selected action / probability given uniform distribution)
+    cand_count: torch.tensor  # 1D float: num_episodes  (average number of candidates per round)
     test_loss: torch.tensor  # 1D float32: num_episodes  (average cross-entropy loss at data-generation time)
 
     def training_data(self, num_rooms, device):

@@ -55,7 +55,7 @@ class TrainingSession():
     def compute_reward(self, door_connects, missing_connects):
         return torch.sum(door_connects, dim=1) // 2 + torch.sum(missing_connects, dim=1)
 
-    def forward_state_action(self, model, room_mask, room_position_x, room_position_y, action_candidates,
+    def forward_action(self, model, room_mask, room_position_x, room_position_y, action_candidates,
                              steps_remaining, temperature,
                              env_id):
         # print({k: v.shape for k, v in locals().items() if hasattr(v, 'shape')})
@@ -68,32 +68,35 @@ class TrainingSession():
         action_room_id = action_candidates[:, :, 0]
         action_x = action_candidates[:, :, 1]
         action_y = action_candidates[:, :, 2]
-        all_room_mask = room_mask.unsqueeze(1).repeat(1, num_candidates + 1, 1)
-        all_room_position_x = room_position_x.unsqueeze(1).repeat(1, num_candidates + 1, 1)
-        all_room_position_y = room_position_y.unsqueeze(1).repeat(1, num_candidates + 1, 1)
-        all_steps_remaining = steps_remaining.unsqueeze(1).repeat(1, num_candidates + 1)
-        all_temperature = temperature.unsqueeze(1).repeat(1, num_candidates + 1)
+        # valid = (action_room_id != len(self.envs[0].rooms) - 1)
+
+        all_room_mask = room_mask.unsqueeze(1).repeat(1, num_candidates, 1)
+        all_room_position_x = room_position_x.unsqueeze(1).repeat(1, num_candidates, 1)
+        all_room_position_y = room_position_y.unsqueeze(1).repeat(1, num_candidates, 1)
+        all_steps_remaining = steps_remaining.unsqueeze(1).repeat(1, num_candidates)
+        all_temperature = temperature.unsqueeze(1).repeat(1, num_candidates)
 
         # print(action_candidates.device, action_room_id.device)
         all_room_mask[torch.arange(num_envs, device=action_candidates.device).view(-1, 1),
-                      torch.arange(1, 1 + num_candidates, device=action_candidates.device).view(1, -1),
+                      torch.arange(num_candidates, device=action_candidates.device).view(1, -1),
                       action_room_id] = True
         all_room_mask[:, :, -1] = False
         all_room_position_x[torch.arange(num_envs, device=action_candidates.device).view(-1, 1),
-                            torch.arange(1, 1 + num_candidates, device=action_candidates.device).view(1, -1),
+                            torch.arange(num_candidates, device=action_candidates.device).view(1, -1),
                             action_room_id] = action_x
         all_room_position_y[torch.arange(num_envs, device=action_candidates.device).view(-1, 1),
-                            torch.arange(1, 1 + num_candidates, device=action_candidates.device).view(1, -1),
+                            torch.arange(num_candidates, device=action_candidates.device).view(1, -1),
                             action_room_id] = action_y
-        all_steps_remaining[:, 1:] -= 1
+        all_steps_remaining[:, :] -= 1
 
-        room_mask_flat = all_room_mask.view(num_envs * (1 + num_candidates), num_rooms)
-        room_position_x_flat = all_room_position_x.view(num_envs * (1 + num_candidates), num_rooms)
-        room_position_y_flat = all_room_position_y.view(num_envs * (1 + num_candidates), num_rooms)
-        steps_remaining_flat = all_steps_remaining.view(num_envs * (1 + num_candidates))
-        round_frac_flat = torch.zeros([num_envs * (1 + num_candidates)], device=action_candidates.device,
+        room_mask_flat = all_room_mask.view(num_envs * num_candidates, num_rooms)
+        room_position_x_flat = all_room_position_x.view(num_envs * num_candidates, num_rooms)
+        room_position_y_flat = all_room_position_y.view(num_envs * num_candidates, num_rooms)
+        steps_remaining_flat = all_steps_remaining.view(num_envs * num_candidates)
+        round_frac_flat = torch.zeros([num_envs * num_candidates], device=action_candidates.device,
                                       dtype=torch.float32)
-        temperature_flat = all_temperature.view(num_envs * (1 + num_candidates))
+        temperature_flat = all_temperature.view(num_envs * num_candidates)
+        # valid_flat = valid.view(num_envs * (1 + num_candidates))
 
         # torch.cuda.synchronize()
         # logging.info("Creating map")
@@ -101,28 +104,27 @@ class TrainingSession():
         env = self.envs[env_id]
         map_flat = env.compute_map(room_mask_flat, room_position_x_flat, room_position_y_flat)
 
+
+
         # torch.cuda.synchronize()
         # logging.info("Model forward")
         flat_raw_logodds, _, flat_expected = model.forward_multiclass(
             map_flat, room_mask_flat, room_position_x_flat, room_position_y_flat, steps_remaining_flat, round_frac_flat,
             temperature_flat, env)
-        # raw_logodds = flat_raw_logodds.view(num_envs, 1 + num_candidates, self.envs[env_id].max_reward + 1)
-        raw_logodds = flat_raw_logodds.view(num_envs, 1 + num_candidates, -1)
-        expected = flat_expected.view(num_envs, 1 + num_candidates)
-        state_raw_logodds = raw_logodds[:, 0, :]
-        state_expected = expected[:, 0]
-        action_expected = expected[:, 1:]
-        return state_expected, action_expected, state_raw_logodds, raw_logodds
+        raw_logodds = flat_raw_logodds.view(num_envs, num_candidates, -1)
+        action_expected = flat_expected.view(num_envs, num_candidates)
+        return action_expected, raw_logodds
 
     def generate_round_inner(self, model, episode_length: int, num_candidates: int, temperature: torch.tensor,
                              env_id, render=False) -> EpisodeData:
         device = self.envs[env_id].device
         env = self.envs[env_id]
         env.reset()
-        state_raw_logodds_list = []
+        selected_raw_logodds_list = []
         action_list = []
         prob_list = []
         prob0_list = []
+        cand_count_list = []
         model.eval()
         temperature = temperature.to(device)
         # torch.cuda.synchronize()
@@ -141,7 +143,7 @@ class TrainingSession():
 
             with torch.no_grad():
                 # print("inner", env_id, j, env.device, model.state_value_lin.weight.device)
-                _, action_expected, state_raw_logodds, _ = self.forward_state_action(
+                action_expected, raw_logodds = self.forward_action(
                     model, env.room_mask, env.room_position_x, env.room_position_y,
                     action_candidates, steps_remaining, temperature, env_id=env_id)
 
@@ -162,23 +164,26 @@ class TrainingSession():
             selected_prob = probs[torch.arange(env.num_envs, device=device), action_index]
             selected_prob0 = selected_prob * candidate_count
             action = action_candidates[torch.arange(env.num_envs, device=device), action_index, :]
+            selected_raw_logodds = raw_logodds[torch.arange(env.num_envs, device=device), action_index, :]
 
             env.step(action)
             action_list.append(action.to('cpu'))
-            state_raw_logodds_list.append(state_raw_logodds.to('cpu'))
+            selected_raw_logodds_list.append(selected_raw_logodds.to('cpu'))
             prob_list.append(selected_prob.to('cpu'))
             prob0_list.append(selected_prob0.to('cpu'))
+            cand_count_list.append(candidate_count.to(torch.float32).to('cpu'))
 
         door_connects_tensor = env.current_door_connects().to('cpu')
         missing_connects_tensor = env.compute_missing_connections().to('cpu')
         reward_tensor = self.compute_reward(door_connects_tensor, missing_connects_tensor)
-        state_raw_logodds_tensor = torch.stack(state_raw_logodds_list, dim=1)
+        selected_raw_logodds_tensor = torch.stack(selected_raw_logodds_list, dim=1)
         action_tensor = torch.stack(action_list, dim=1)
         prob_tensor = torch.mean(torch.stack(prob_list, dim=1), dim=1)
         prob0_tensor = torch.mean(torch.stack(prob0_list, dim=1), dim=1)
+        cand_count_tensor = torch.mean(torch.stack(cand_count_list, dim=1), dim=1)
 
-        state_raw_logodds_flat = state_raw_logodds_tensor.view(env.num_envs * episode_length,
-                                                               state_raw_logodds_tensor.shape[-1])
+        selected_raw_logodds_flat = selected_raw_logodds_tensor.view(env.num_envs * episode_length,
+                                                               selected_raw_logodds_tensor.shape[-1])
         # reward_flat = reward_tensor.view(env.num_envs, 1).repeat(1, episode_length).view(-1)
         door_connects_flat = door_connects_tensor.view(env.num_envs, 1, -1).repeat(1, episode_length, 1).view(
             env.num_envs * episode_length, -1)
@@ -186,9 +191,9 @@ class TrainingSession():
             env.num_envs * episode_length, -1)
         all_outputs_flat = torch.cat([door_connects_flat, missing_connects_flat], dim=1)
 
-        loss_flat = torch.mean(torch.nn.functional.binary_cross_entropy_with_logits(state_raw_logodds_flat,
+        loss_flat = torch.mean(torch.nn.functional.binary_cross_entropy_with_logits(selected_raw_logodds_flat,
                                                                                     all_outputs_flat.to(
-                                                                                        state_raw_logodds_flat.dtype),
+                                                                                        selected_raw_logodds_flat.dtype),
                                                                                     reduction='none'), dim=1)
         # loss_flat = torch.mean(compute_mse_loss(state_raw_logodds_flat, all_outputs_flat.to(state_raw_logodds_flat.dtype)), dim=1)
         loss = loss_flat.view(env.num_envs, episode_length)
@@ -201,6 +206,7 @@ class TrainingSession():
             action=action_tensor.to(torch.uint8),
             prob=prob_tensor,
             prob0=prob0_tensor,
+            cand_count=cand_count_tensor,
             temperature=temperature.to('cpu'),
             test_loss=episode_loss,
         )
@@ -237,6 +243,7 @@ class TrainingSession():
             action=torch.cat([d.action for d in episode_data_list], dim=0),
             prob=torch.cat([d.prob for d in episode_data_list], dim=0),
             prob0=torch.cat([d.prob0 for d in episode_data_list], dim=0),
+            cand_count=torch.cat([d.cand_count for d in episode_data_list], dim=0),
             temperature=torch.cat([d.temperature for d in episode_data_list], dim=0),
             test_loss=torch.cat([d.test_loss for d in episode_data_list], dim=0),
         )
@@ -273,6 +280,64 @@ class TrainingSession():
         self.model.project()
         self.average_parameters.update(self.model.all_param_data())
         return loss.item()
+
+    # def train_single(self, num_batches, batch_size, hist, hist_c, env_idx, model, optimizer, grad_scaler, average_parameters):
+    #     for i in range(num_batches):
+    #         data = self.replay_buffer.sample(batch_size, hist, hist_c, device=self.envs[env_idx].device)
+    #         env = self.envs[env_idx]
+    #         map = env.compute_map(data.room_mask, data.room_position_x, data.room_position_y)
+    #         state_value_raw_logodds, _, _ = self.model.forward_multiclass(
+    #             map, data.room_mask, data.room_position_x, data.room_position_y, data.steps_remaining, data.round_frac,
+    #             data.temperature, env)
+    #
+    #         all_outputs = torch.cat([data.door_connects, data.missing_connects], dim=1)
+    #         loss = torch.nn.functional.binary_cross_entropy_with_logits(state_value_raw_logodds,
+    #                                                                     all_outputs.to(state_value_raw_logodds.dtype))
+    #
+    #         optimizer.zero_grad()
+    #         grad_scaler.scale(loss).backward()
+    #         grad_scaler.step(optimizer)
+    #         grad_scaler.update()
+    #         model.decay(self.decay_amount * optimizer.param_groups[0]['lr'])
+    #         model.project()
+    #         average_parameters.update(model.all_param_data())
+    #
+    #
+    # def train_batch_parallel(self, num_batches, batch_size, hist, hist_c, executor):
+    #     self.model.train()
+    #     self.optimizer.zero_grad()
+    #
+    #     model_list = [self.model]
+    #     optimizer_list = [self.optimizer]
+    #     grad_scaler_list = [self.grad_scaler]
+    #     average_parameters_list = [self.average_parameters]
+    #     for i in range(1, len(self.envs)):
+    #         model_list.append(copy.deepcopy(self.model).to(self.envs[i].device))
+    #         optimizer_list.append(copy.deepcopy(self.optimizer).to(self.envs[i].device))
+    #
+    #     model = copy.deepcopy(self.model)
+    #     optimizer = copy.deepcopy(self.optimizer)
+    #     grad_scaler = copy.deepcopy(self.grad_scaler)
+    #     average_parameters = copy.deepcopy(self.average_parameters)
+    #
+    #
+    #     futures_list = []
+    #     for i in range(len(self.envs)):
+    #         future = executor.submit(lambda i=i: self.train_single(num_batches, batch_size, hist, hist_c, i))
+    #         futures_list.append(future)
+    #     losses = [future.result() for future in futures_list]
+    #     total_loss = sum(losses) / len(data_list)
+    #
+    #     for i in range(1, len(data_list)):
+    #         for param0, param1 in zip(self.model.parameters(), model_list[i].parameters()):
+    #             param0.grad += param1.grad.to(self.envs[0].device)
+    #
+    #     self.grad_scaler.step(self.optimizer)
+    #     self.grad_scaler.update()
+    #     self.model.decay(self.decay_amount * self.optimizer.param_groups[0]['lr'])
+    #     self.model.project()
+    #     self.average_parameters.update(self.model.all_param_data())
+    #     return total_loss
 
     def eval_batch(self, data: TrainingData):
         self.model.eval()

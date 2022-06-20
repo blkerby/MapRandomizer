@@ -1,8 +1,11 @@
 import concurrent.futures
 
 import math
+import time
+
 import util
 import torch
+import torch.profiler
 import logging
 from maze_builder.types import EnvConfig, EpisodeData
 from maze_builder.env import MazeBuilderEnv
@@ -145,9 +148,9 @@ logging.info("max_possible_reward = {}".format(max_possible_reward))
 #
 #
 #
-pickle_name = 'models/session-2022-06-03T17:19:29.727911.pkl'
-session = pickle.load(open(pickle_name + '-bk12', 'rb'))
-eval_batches = pickle.load(open(pickle_name + '-bk12-eval-batches.pkl', 'rb'))
+# pickle_name = 'models/session-2022-06-03T17:19:29.727911.pkl'
+# session = pickle.load(open(pickle_name + '-bk12', 'rb'))
+# eval_batches = pickle.load(open(pickle_name + '-bk12-eval-batches.pkl', 'rb'))
 # session = pickle.load(open('models/session-2022-05-21T07:40:15.324154.pkl-b-bk18', 'rb'))
 # # session = pickle.load(open('models/checkpoint-4-train-2.pkl', 'rb'))
 # # session = pickle.load(open('models/init_session.pkl', 'rb'))
@@ -231,56 +234,56 @@ eval_batches = pickle.load(open(pickle_name + '-bk12-eval-batches.pkl', 'rb'))
 # #
 # #
 # session.replay_buffer.resize(2 ** 19)
-train_round = 1
-
-hist = 2 ** 21
-hist_c = 4.0
-logging.info("Initial training: {} parameters, hist={}/{}, c={}".format(num_params, hist, session.replay_buffer.size, hist_c))
-total_loss = 0.0
-total_loss_cnt = 0
-batch_size = 2 ** 12
-train_print_freq = 2**20 / batch_size
-# train_annealing_time = 2 ** 16
-train_annealing_time = 1
-lr0 = 0.0001
-lr1 = lr0
-session.decay_amount = 0.01
-session.average_parameters.beta = 0.999
-session.optimizer.param_groups[0]['betas'] = (0.9, 0.9)
-session.optimizer.param_groups[0]['eps'] = 1e-6
-logging.info(session.optimizer)
-logging.info("batch_size={}, lr0={}, lr1={}, time={}, decay={}, ema_beta={}".format(
-    batch_size, lr0, lr1, train_annealing_time, session.decay_amount, session.average_parameters.beta))
-for i in range(10000000):
-    frac = max(0, min(1, train_round / train_annealing_time))
-    lr = lr0 * (lr1 / lr0) ** frac
-    session.optimizer.param_groups[0]['lr'] = lr
-
-    data = session.replay_buffer.sample(batch_size, hist, hist_c, device=device)
-    # data.round_frac = torch.zeros_like(data.round_frac)
-    with util.DelayedKeyboardInterrupt():
-        batch_loss = session.train_batch(data)
-        if not math.isnan(batch_loss):
-            total_loss += batch_loss
-            total_loss_cnt += 1
-
-    if train_round % train_print_freq == 0:
-        avg_loss = total_loss / total_loss_cnt
-        total_loss = 0.0
-        total_loss_cnt = 0
-
-        total_eval_loss = 0.0
-        # logging.info("Computing eval")
-        with torch.no_grad():
-            with session.average_parameters.average_parameters(session.model.all_param_data()):
-                for eval_data in eval_batches:
-                    total_eval_loss += session.eval_batch(eval_data)
-        avg_eval_loss = total_eval_loss / len(eval_batches)
-
-        logging.info("init train {}: loss={:.6f}, eval={:.6f}, frac={:.5f}".format(train_round, avg_loss, avg_eval_loss, frac))
-    train_round += 1
-
-
+# train_round = 1
+#
+# hist = 2 ** 21
+# hist_c = 4.0
+# logging.info("Initial training: {} parameters, hist={}/{}, c={}".format(num_params, hist, session.replay_buffer.size, hist_c))
+# total_loss = 0.0
+# total_loss_cnt = 0
+# batch_size = 2 ** 12
+# train_print_freq = 2**20 / batch_size
+# # train_annealing_time = 2 ** 16
+# train_annealing_time = 1
+# lr0 = 0.0001
+# lr1 = lr0
+# session.decay_amount = 0.01
+# session.average_parameters.beta = 0.999
+# session.optimizer.param_groups[0]['betas'] = (0.9, 0.9)
+# session.optimizer.param_groups[0]['eps'] = 1e-6
+# logging.info(session.optimizer)
+# logging.info("batch_size={}, lr0={}, lr1={}, time={}, decay={}, ema_beta={}".format(
+#     batch_size, lr0, lr1, train_annealing_time, session.decay_amount, session.average_parameters.beta))
+# for i in range(10000000):
+#     frac = max(0, min(1, train_round / train_annealing_time))
+#     lr = lr0 * (lr1 / lr0) ** frac
+#     session.optimizer.param_groups[0]['lr'] = lr
+#
+#     data = session.replay_buffer.sample(batch_size, hist, hist_c, device=device)
+#     # data.round_frac = torch.zeros_like(data.round_frac)
+#     with util.DelayedKeyboardInterrupt():
+#         batch_loss = session.train_batch(data)
+#         if not math.isnan(batch_loss):
+#             total_loss += batch_loss
+#             total_loss_cnt += 1
+#
+#     if train_round % train_print_freq == 0:
+#         avg_loss = total_loss / total_loss_cnt
+#         total_loss = 0.0
+#         total_loss_cnt = 0
+#
+#         total_eval_loss = 0.0
+#         # logging.info("Computing eval")
+#         with torch.no_grad():
+#             with session.average_parameters.average_parameters(session.model.all_param_data()):
+#                 for eval_data in eval_batches:
+#                     total_eval_loss += session.eval_batch(eval_data)
+#         avg_eval_loss = total_eval_loss / len(eval_batches)
+#
+#         logging.info("init train {}: loss={:.6f}, eval={:.6f}, frac={:.5f}".format(train_round, avg_loss, avg_eval_loss, frac))
+#     train_round += 1
+#
+#
 #
 #
 
@@ -327,12 +330,13 @@ for i in range(10000000):
 
 
 pickle_name = 'models/session-2022-06-03T17:19:29.727911.pkl'
-session = pickle.load(open(pickle_name + '-bk18', 'rb'))
+session = pickle.load(open(pickle_name + '-bk19', 'rb'))
 session.envs = envs
+session.replay_buffer.episode_data.cand_count = torch.zeros_like(session.replay_buffer.episode_data.prob)
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
 # session.replay_buffer.resize(2 ** 23)
 hist = 2 ** 23
-hist_c = 2.0
+hist_c = 1.0
 batch_size = 2 ** 10
 lr = 0.00003
 # num_candidates = 8
@@ -342,7 +346,7 @@ temperature_min = 0.01
 temperature_max = 10.0
 annealing_start = 6560
 annealing_time = 1000
-pass_factor = 2.0
+pass_factor = 1.0
 print_freq = 8
 total_reward = 0
 total_loss = 0.0
@@ -376,13 +380,14 @@ for i in range(1000000):
 
     temp_frac = torch.arange(0, num_envs, dtype=torch.float32) / (num_envs - 1)
     temperature = temperature_min * (temperature_max / temperature_min) ** temp_frac
+
     data = session.generate_round(
         episode_length=episode_length,
         num_candidates=num_candidates,
         temperature=temperature,
         executor=executor,
         render=False)
-    # randomized_insert=session.replay_buffer.size == session.replay_buffer.capacity)
+    # logging.info("cand_count={:.3f}".format(torch.mean(data.cand_count)))
     session.replay_buffer.insert(data)
 
     total_reward += torch.mean(data.reward.to(torch.float32))
@@ -401,14 +406,33 @@ for i in range(1000000):
     session.num_rounds += 1
 
     num_batches = max(1, int(pass_factor * num_envs * len(devices) * episode_length / batch_size))
+    # start_training_time = time.perf_counter()
+    # with util.DelayedKeyboardInterrupt():
+    #     total_loss += session.train_batch_parallel(num_batches, batch_size, hist, hist_c, executor)
+    #     total_loss_cnt += 1
+
+    #     logging.info("Starting")
+
+    # with torch.profiler.profile(
+    #         activities=[
+    #             torch.profiler.ProfilerActivity.CPU,
+    #             torch.profiler.ProfilerActivity.CUDA,
+    #         ],
+    #         schedule=torch.profiler.schedule(wait=1, warmup=1, active=3),
+    #         on_trace_ready=torch.profiler.tensorboard_trace_handler('./log/gen3'),
+    #         record_shapes=False,
+    #         profile_memory=False,
+    #         with_stack=False,
+    # ) as prof:
     for j in range(num_batches):
-        # batch_frac = j / num_batches
-        # lr = lr_max * (lr_min / lr_max) ** batch_frac
         data = session.replay_buffer.sample(batch_size, hist, c=hist_c, device=device)
         with util.DelayedKeyboardInterrupt():
             total_loss += session.train_batch(data)
             total_loss_cnt += 1
-            # torch.cuda.synchronize(session.envs[0].device)
+                # prof.step()
+        # logging.info("Done")
+    # end_training_time = time.perf_counter()
+    # logging.info("Training time: {}".format(end_training_time - start_training_time))
 
     if session.num_rounds % print_freq == 0:
         buffer_reward = session.replay_buffer.episode_data.reward[:session.replay_buffer.size].to(torch.float32)
@@ -477,7 +501,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             pickle.dump(session, open(pickle_name, 'wb'))
-            # pickle.dump(session, open(pickle_name + '-bk18', 'wb'))
+            # pickle.dump(session, open(pickle_name + '-bk19', 'wb'))
     if session.num_rounds % summary_freq == 0:
         temperature_endpoints = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0,
                                  20.0, 50.0, 100.0, 200.0, 500.0, 1000.0, 2000.0, 5000.0, 10000.0]
