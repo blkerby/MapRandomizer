@@ -183,6 +183,10 @@ void compute_connectivity2(
         adjacency.push_back(std::vector<vertex_t>());
     }
 
+    std::vector<int> graph_indices;
+    for (int i = 0; i < num_graphs; i++) {
+        graph_indices.push_back(i);
+    }
     for (int g = 0; g < num_graphs; g++) {
         for (int i = 0; i < num_parts; i++){
             adjacency[i].clear();

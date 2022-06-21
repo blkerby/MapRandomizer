@@ -10,6 +10,17 @@ import concurrent.futures
 import random
 import connectivity
 
+import torch.utils.cpp_extension
+import timeit
+
+connectivity2 = torch.utils.cpp_extension.load(
+    name="connectivity2",
+    sources=["cpp/connectivity2.cpp"],
+    extra_cflags=["-fopenmp", "-O3", "-ffast-math"],
+    extra_ldflags=["-lgomp"],
+    verbose=True,
+)
+
 logging.basicConfig(format='%(asctime)s %(message)s',
                     level=logging.INFO,
                     handlers=[logging.FileHandler("train.log"),
@@ -195,7 +206,7 @@ def compute_fast_component_matrix_cpu2(self, room_mask, room_position_x, room_po
     output_adjacency_unpacked = torch.zeros([num_graphs, max_components, max_components], dtype=torch.float)
 
     start_compute = time.perf_counter()
-    connectivity.compute_connectivity2(
+    connectivity2.compute_connectivity2(
         room_mask,
         room_position_x,
         room_position_y,
@@ -208,7 +219,6 @@ def compute_fast_component_matrix_cpu2(self, room_mask, room_position_x, room_po
         self.part_up,
         self.part_down,
         self.part_room_id,
-        self.good_room_parts,
         self.map_x + 1,
         self.map_y + 1,
         num_parts,
@@ -219,37 +229,18 @@ def compute_fast_component_matrix_cpu2(self, room_mask, room_position_x, room_po
     )
 
     start_post = time.perf_counter()
-    output_components1 = output_components[:, self.good_room_parts]
-    # output_adjacency1 = (output_adjacency.unsqueeze(2) >> torch.arange(max_components, device=self.device).view(1,
-    #                                                                                                             1,
-    #                                                                                                             -1)) & 1
-
-    # A = output_adjacency1
-    # A = output_adjacency_unpacked[torch.arange(num_graphs, device=self.device).view(-1, 1, 1),
-    #                               output_components1.unsqueeze(2).to(torch.int64),
-    #                               output_components1.unsqueeze(1).to(torch.int64)]
-    # A = output_adjacency1[torch.arange(num_graphs, device=self.device).view(-1, 1, 1),
-    #                               output_components1.unsqueeze(2).to(torch.int64),
-    #                               output_components1.unsqueeze(1).to(torch.int64)]
+    good_output_components = output_components[:, self.good_room_parts]
+    good_output_components = good_output_components.to(left_mat.device)
+    output_adjacency_unpacked = output_adjacency_unpacked.to(left_mat.device)
 
     start_mul = time.perf_counter()
     A0 = output_adjacency_unpacked
-    A1 = A0[torch.arange(num_graphs, device=self.device).view(-1, 1), output_components1.to(torch.int64), :]
+    A1 = A0[torch.arange(num_graphs, device=self.device).view(-1, 1), good_output_components.to(torch.int64), :]
     A2 = torch.einsum('ijk,mj->imk', A1, left_mat.to(torch.float32))
-    A3 = A2[torch.arange(num_graphs, device=self.device).view(-1, 1), :, output_components1.to(torch.int64)]
+    A3 = A2[torch.arange(num_graphs, device=self.device).view(-1, 1), :, good_output_components.to(torch.int64)]
     A4 = torch.einsum('ikm,kn->imn', A3, right_mat.to(torch.float32))
-
-    # print(A4.shape)
-
-    # A4 = torch.einsum('ijk')
     reduced_connectivity = A4
-    # A2 = A1[]
-    # reduced_connectivity = torch.einsum('ijk,mj,kn->imn',
-    #                                     A.to(torch.float32),
-    #                                     left_mat.to(torch.float32),
-    #                                     right_mat.to(torch.float32))
 
-    # A = torch.maximum(A, self.part_adjacency_matrix)
     end = time.perf_counter()
     time_setup = start_compute - start_setup
     time_compute = start_post - start_compute
@@ -259,7 +250,6 @@ def compute_fast_component_matrix_cpu2(self, room_mask, room_position_x, room_po
     logging.info("total={:.4f}, setup={:.4f}, compute={:.4f}, post={:.4f}, mul={:.4f}".format(
         time_total, time_setup, time_compute, time_post, time_mul
     ))
-    # return A
     return reduced_connectivity
 
 %timeit compute_fast_component_matrix_cpu2(env, room_mask, room_position_x, room_position_y, session.model.connectivity_left_mat, session.model.connectivity_right_mat)
@@ -270,10 +260,10 @@ right_mat=session.model.connectivity_right_mat
 # out_A = env.compute_fast_component_matrix_cpu(room_mask, room_position_x, room_position_y)
 # out_A = env.compute_component_matrix(room_mask, room_position_x, room_position_y, include_durable=False)
 # out_A = out_A[:, env.good_room_parts.view(-1, 1), env.good_room_parts.view(1, -1)]
-# out_A = compute_fast_component_matrix_cpu(env, room_mask, room_position_x, room_position_y, session.model.connectivity_left_mat, session.model.connectivity_right_mat)
+out_A = compute_fast_component_matrix_cpu(env, room_mask, room_position_x, room_position_y, session.model.connectivity_left_mat, session.model.connectivity_right_mat)
 # out_B = compute_fast_component_matrix_cpu(env, room_mask, room_position_x, room_position_y)
-# out_B = compute_fast_component_matrix_cpu2(env, room_mask, room_position_x, room_position_y, session.model.connectivity_left_mat, session.model.connectivity_right_mat)
-# print(torch.sum(out_A != out_B))
+out_B = compute_fast_component_matrix_cpu2(env, room_mask, room_position_x, room_position_y, session.model.connectivity_left_mat, session.model.connectivity_right_mat)
+print(torch.sum(out_A != out_B))
 #
-%timeit compute_fast_component_matrix_cpu(env, room_mask, room_position_x, room_position_y, session.model.connectivity_left_mat, session.model.connectivity_right_mat)
+# %timeit compute_fast_component_matrix_cpu(env, room_mask, room_position_x, room_position_y, session.model.connectivity_left_mat, session.model.connectivity_right_mat)
 # %timeit env.compute_fast_component_matrix_cpu(room_mask, room_position_x, room_position_y)
