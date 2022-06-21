@@ -282,10 +282,7 @@ void compute_connectivity2(
         vertex_t next_vertex = 1;
         component_t next_component = 1;
         for (int i = 0; i < num_parts; i++) {
-            int room_id = *part_room_id_proxy.data(i);
-//            int mask = *room_mask_proxy.data(g, room_id);
-            int mask = 1;
-            if (mask && visited_num[i] == 0) {
+            if (visited_num[i] == 0) {
                 tarjan_rec(i, next_vertex, next_component, adjacency, visited_num, on_stack, stack,
                     output_components_proxy.mutable_data(g, 0));
             }
@@ -314,7 +311,7 @@ void compute_connectivity2(
             }
             output_adjacency_ptr[i] = successor;
             for (int j = 0; j < next_component; j++) {
-                if (successor & (1 << j)) {
+                if (successor & (1L << j)) {
                     *output_adjacency_unpacked_proxy.mutable_data(g, i, j) = 1.0;
                 }
             }

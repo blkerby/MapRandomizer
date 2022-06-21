@@ -34,7 +34,7 @@ device = torch.device('cpu')
 session = CPU_Unpickler(open('models/06-09-session-small.pkl', 'rb')).load()
 
 i = 0
-n = 128
+n = 512
 num_rooms = len(session.envs[0].rooms)
 action = session.replay_buffer.episode_data.action[i:(i + n), :]
 step_indices = torch.tensor([num_rooms])
@@ -62,7 +62,7 @@ env.room_mask = room_mask
 # %timeit env.compute_fast_component_matrix_cpu(room_mask, room_position_x, room_position_y)
 
 
-def compute_fast_component_matrix_cpu(self, room_mask, room_position_x, room_position_y):
+def compute_fast_component_matrix_cpu(self, room_mask, room_position_x, room_position_y, left_mat, right_mat):
     start = time.perf_counter()
     num_graphs = room_mask.shape[0]
     data_tuples = [
@@ -157,25 +157,36 @@ def compute_fast_component_matrix_cpu(self, room_mask, room_position_x, room_pos
 
     A = torch.maximum(A, self.good_base_matrix.unsqueeze(0))
 
+    start_mul = time.perf_counter()
+    reduced_connectivity = torch.einsum('ijk,mj,kn->imn',
+                                        A.to(torch.float32),
+                                        left_mat.to(torch.float32),
+                                        right_mat.to(torch.float32))
+
     # torch.cuda.synchronize(room_mask.device)
     end = time.perf_counter()
     time_prep = start_load - start
     time_load = start_comp - start_load
     time_comp = start_store - start_comp
     time_store = start_expand - start_store
-    time_expand = end - start_expand
+    time_expand = start_mul - start_expand
+    time_mul = end - start_mul
     time_total = end - start
 
-    logging.info("device={}, total={:.4f}, prep={:.4f}, load={:.4f}, comp={:.4f}, store={:.4f}, expand={:.4f}".format(
-        self.device, time_total, time_prep, time_load, time_comp, time_store, time_expand))
-    return A
+    logging.info(
+        "device={}, total={:.4f}, prep={:.4f}, load={:.4f}, comp={:.4f}, store={:.4f}, expand={:.4f}, mul={:.4f}".format(
+            self.device, time_total, time_prep, time_load, time_comp, time_store, time_expand, time_mul))
+    return reduced_connectivity
+    # return A
 
 
 A = env.part_adjacency_matrix.clone()
 A[torch.arange(A.shape[0]), torch.arange(A.shape[0])] = 0
 directed_edges = torch.nonzero(A).to(torch.int16)
 
-def compute_fast_component_matrix_cpu2(self, room_mask, room_position_x, room_position_y):
+
+def compute_fast_component_matrix_cpu2(self, room_mask, room_position_x, room_position_y, left_mat, right_mat):
+    start_setup = time.perf_counter()
     num_graphs = room_mask.shape[0]
     num_parts = env.part_room_id.shape[0]
     max_components = 56
@@ -183,6 +194,7 @@ def compute_fast_component_matrix_cpu2(self, room_mask, room_position_x, room_po
     output_adjacency = torch.zeros([num_graphs, max_components], dtype=torch.int64)
     output_adjacency_unpacked = torch.zeros([num_graphs, max_components, max_components], dtype=torch.float)
 
+    start_compute = time.perf_counter()
     connectivity.compute_connectivity2(
         room_mask,
         room_position_x,
@@ -206,26 +218,62 @@ def compute_fast_component_matrix_cpu2(self, room_mask, room_position_x, room_po
         output_adjacency_unpacked,
     )
 
+    start_post = time.perf_counter()
     output_components1 = output_components[:, self.good_room_parts]
     # output_adjacency1 = (output_adjacency.unsqueeze(2) >> torch.arange(max_components, device=self.device).view(1,
     #                                                                                                             1,
     #                                                                                                             -1)) & 1
 
-    A = output_adjacency_unpacked[torch.arange(num_graphs, device=self.device).view(-1, 1, 1),
-                          output_components1.unsqueeze(2).to(torch.int64),
-                          output_components1.unsqueeze(1).to(torch.int64)]
+    # A = output_adjacency1
+    # A = output_adjacency_unpacked[torch.arange(num_graphs, device=self.device).view(-1, 1, 1),
+    #                               output_components1.unsqueeze(2).to(torch.int64),
+    #                               output_components1.unsqueeze(1).to(torch.int64)]
+    # A = output_adjacency1[torch.arange(num_graphs, device=self.device).view(-1, 1, 1),
+    #                               output_components1.unsqueeze(2).to(torch.int64),
+    #                               output_components1.unsqueeze(1).to(torch.int64)]
+
+    start_mul = time.perf_counter()
+    A0 = output_adjacency_unpacked
+    A1 = A0[torch.arange(num_graphs, device=self.device).view(-1, 1), output_components1.to(torch.int64), :]
+    A2 = torch.einsum('ijk,mj->imk', A1, left_mat.to(torch.float32))
+    A3 = A2[torch.arange(num_graphs, device=self.device).view(-1, 1), :, output_components1.to(torch.int64)]
+    A4 = torch.einsum('ikm,kn->imn', A3, right_mat.to(torch.float32))
+
+    # print(A4.shape)
+
+    # A4 = torch.einsum('ijk')
+    reduced_connectivity = A4
+    # A2 = A1[]
+    # reduced_connectivity = torch.einsum('ijk,mj,kn->imn',
+    #                                     A.to(torch.float32),
+    #                                     left_mat.to(torch.float32),
+    #                                     right_mat.to(torch.float32))
+
     # A = torch.maximum(A, self.part_adjacency_matrix)
-    return A
+    end = time.perf_counter()
+    time_setup = start_compute - start_setup
+    time_compute = start_post - start_compute
+    time_post = start_mul - start_post
+    time_mul = end - start_mul
+    time_total = end - start_setup
+    logging.info("total={:.4f}, setup={:.4f}, compute={:.4f}, post={:.4f}, mul={:.4f}".format(
+        time_total, time_setup, time_compute, time_post, time_mul
+    ))
+    # return A
+    return reduced_connectivity
 
-%timeit compute_fast_component_matrix_cpu2(env, room_mask, room_position_x, room_position_y)
+%timeit compute_fast_component_matrix_cpu2(env, room_mask, room_position_x, room_position_y, session.model.connectivity_left_mat, session.model.connectivity_right_mat)
 
-# self = env
+self = env
+left_mat=session.model.connectivity_left_mat
+right_mat=session.model.connectivity_right_mat
 # out_A = env.compute_fast_component_matrix_cpu(room_mask, room_position_x, room_position_y)
 # out_A = env.compute_component_matrix(room_mask, room_position_x, room_position_y, include_durable=False)
 # out_A = out_A[:, env.good_room_parts.view(-1, 1), env.good_room_parts.view(1, -1)]
+# out_A = compute_fast_component_matrix_cpu(env, room_mask, room_position_x, room_position_y, session.model.connectivity_left_mat, session.model.connectivity_right_mat)
 # out_B = compute_fast_component_matrix_cpu(env, room_mask, room_position_x, room_position_y)
-# out_B = compute_fast_component_matrix_cpu2(env, room_mask, room_position_x, room_position_y)
+# out_B = compute_fast_component_matrix_cpu2(env, room_mask, room_position_x, room_position_y, session.model.connectivity_left_mat, session.model.connectivity_right_mat)
 # print(torch.sum(out_A != out_B))
 #
-# %timeit compute_fast_component_matrix_cpu(env, room_mask, room_position_x, room_position_y)
+%timeit compute_fast_component_matrix_cpu(env, room_mask, room_position_x, room_position_y, session.model.connectivity_left_mat, session.model.connectivity_right_mat)
 # %timeit env.compute_fast_component_matrix_cpu(room_mask, room_position_x, room_position_y)
