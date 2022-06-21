@@ -646,7 +646,7 @@ class MazeBuilderEnv:
             connects_list.append(connects)
         return torch.cat(connects_list, dim=1)
 
-    def compute_component_matrix(self, room_mask, room_position_x, room_position_y):
+    def compute_component_matrix(self, room_mask, room_position_x, room_position_y, include_durable=True):
         n = room_mask.shape[0]
         data_tuples = [
             (self.room_left, self.room_right, self.part_left, self.part_right),
@@ -691,14 +691,16 @@ class MazeBuilderEnv:
             component_matrix = torch.bmm(component_matrix, component_matrix)
             component_matrix = torch.clamp_max(component_matrix, 1)
         # return adjacency_matrix, component_matrix.to(torch.bool)
-        ship_part = 1
-        reachable_from_ship = component_matrix[:, ship_part, :]
-        durable_backtrack = torch.minimum(reachable_from_ship.unsqueeze(1),
-                                          self.durable_part_adjacency_matrix.unsqueeze(0).to(component_matrix.dtype))
-        component_matrix = torch.maximum(component_matrix, durable_backtrack)
-        for i in range(8):
-            component_matrix = torch.bmm(component_matrix, component_matrix)
-            component_matrix = torch.clamp_max(component_matrix, 1)
+
+        if include_durable:
+            ship_part = 1
+            reachable_from_ship = component_matrix[:, ship_part, :]
+            durable_backtrack = torch.minimum(reachable_from_ship.unsqueeze(1),
+                                              self.durable_part_adjacency_matrix.unsqueeze(0).to(component_matrix.dtype))
+            component_matrix = torch.maximum(component_matrix, durable_backtrack)
+            for i in range(8):
+                component_matrix = torch.bmm(component_matrix, component_matrix)
+                component_matrix = torch.clamp_max(component_matrix, 1)
         return component_matrix.to(torch.bool)
 
     def compute_fast_component_matrix(self, room_mask, room_position_x, room_position_y):

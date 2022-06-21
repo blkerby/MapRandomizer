@@ -26,6 +26,7 @@ class CPU_Unpickler(pickle.Unpickler):
         else:
             return super().find_class(module, name)
 
+
 device = torch.device('cpu')
 # session = CPU_Unpickler(open('models/06-09-session-2022-06-03T17:19:29.727911.pkl', 'rb')).load()
 # session.replay_buffer.resize(2 ** 16)
@@ -51,6 +52,7 @@ env = MazeBuilderEnv(rooms,
 env.room_position_x = room_position_x
 env.room_position_y = room_position_y
 env.room_mask = room_mask
+
 
 # start_time = time.perf_counter()
 # result = env.compute_fast_component_matrix_cpu(room_mask, room_position_x, room_position_y)
@@ -87,19 +89,26 @@ def compute_fast_component_matrix_cpu(self, room_mask, room_position_x, room_pos
         door_y_opp = room_position_y[:, room_id_opp] + relative_door_y_opp.unsqueeze(0)
         mask_opp = room_mask[:, room_id_opp]
 
-        x_eq = (door_x.unsqueeze(2) == door_x_opp.unsqueeze(1))
-        y_eq = (door_y.unsqueeze(2) == door_y_opp.unsqueeze(1))
-        both_mask = (mask.unsqueeze(2) & mask_opp.unsqueeze(1))
-        connects = x_eq & y_eq & both_mask
-        nz = torch.nonzero(connects)
+        door_map = torch.zeros([n, (self.map_x + 1) * (self.map_y + 1)], device=self.device, dtype=torch.int64)
+        door_mask = torch.zeros([n, (self.map_x + 1) * (self.map_y + 1)], device=self.device, dtype=torch.bool)
+        door_pos = door_y * (self.map_x + 1) + door_x
+        door_id = torch.arange(room_dir.shape[0], device=self.device).view(1, -1)
+        door_map.scatter_add_(dim=1, index=door_pos, src=door_id * mask)
+        door_mask.scatter_add_(dim=1, index=door_pos, src=mask)
 
+        door_pos_opp = door_y_opp * (self.map_x + 1) + door_x_opp
+        all_env_ids = torch.arange(n, device=self.device).view(-1, 1)
+        door_map_lookup = door_map[all_env_ids, door_pos_opp]
+        door_mask_lookup = door_mask[all_env_ids, door_pos_opp]
+
+        both_mask = mask_opp & door_mask_lookup
+        nz = torch.nonzero(both_mask)
         nz_env = nz[:, 0]
-        nz_door = nz[:, 1]
-        nz_door_opp = nz[:, 2]
+        nz_door_opp = nz[:, 1]
+        nz_door = door_map_lookup[nz_env, nz_door_opp]
         nz_part = part[nz_door]
         nz_part_opp = part_opp[nz_door_opp]
         adjacency_matrix[nz_env, nz_part, nz_part_opp] = 1
-        # adjacency_matrix[nz_env, nz_part_opp, nz_part] = 1
 
     good_matrix = adjacency_matrix[:, self.good_room_parts.view(-1, 1), self.good_room_parts.view(1, -1)]
     # good_base_matrix = self.part_adjacency_matrix[self.good_room_parts.view(-1, 1), self.good_room_parts.view(1, -1)]
@@ -162,10 +171,61 @@ def compute_fast_component_matrix_cpu(self, room_mask, room_position_x, room_pos
     return A
 
 
-out_A = env.compute_fast_component_matrix_cpu(room_mask, room_position_x, room_position_y)
-out_B = compute_fast_component_matrix_cpu(env, room_mask, room_position_x, room_position_y)
-print(torch.sum(out_A != out_B))
+A = env.part_adjacency_matrix.clone()
+A[torch.arange(A.shape[0]), torch.arange(A.shape[0])] = 0
+directed_edges = torch.nonzero(A).to(torch.int16)
 
-%timeit compute_fast_component_matrix_cpu(env, room_mask, room_position_x, room_position_y)
-%timeit env.compute_fast_component_matrix_cpu(room_mask, room_position_x, room_position_y)
+def compute_fast_component_matrix_cpu2(self, room_mask, room_position_x, room_position_y):
+    num_graphs = room_mask.shape[0]
+    num_parts = env.part_room_id.shape[0]
+    max_components = 56
+    output_components = torch.zeros([num_graphs, num_parts], dtype=torch.uint8)
+    output_adjacency = torch.zeros([num_graphs, max_components], dtype=torch.int64)
+    output_adjacency_unpacked = torch.zeros([num_graphs, max_components, max_components], dtype=torch.float)
 
+    connectivity.compute_connectivity2(
+        room_mask,
+        room_position_x,
+        room_position_y,
+        self.room_left,
+        self.room_right,
+        self.room_up,
+        self.room_down,
+        self.part_left,
+        self.part_right,
+        self.part_up,
+        self.part_down,
+        self.part_room_id,
+        self.good_room_parts,
+        self.map_x + 1,
+        self.map_y + 1,
+        num_parts,
+        directed_edges,
+        output_components,
+        output_adjacency,
+        output_adjacency_unpacked,
+    )
+
+    output_components1 = output_components[:, self.good_room_parts]
+    # output_adjacency1 = (output_adjacency.unsqueeze(2) >> torch.arange(max_components, device=self.device).view(1,
+    #                                                                                                             1,
+    #                                                                                                             -1)) & 1
+
+    A = output_adjacency_unpacked[torch.arange(num_graphs, device=self.device).view(-1, 1, 1),
+                          output_components1.unsqueeze(2).to(torch.int64),
+                          output_components1.unsqueeze(1).to(torch.int64)]
+    # A = torch.maximum(A, self.part_adjacency_matrix)
+    return A
+
+%timeit compute_fast_component_matrix_cpu2(env, room_mask, room_position_x, room_position_y)
+
+# self = env
+# out_A = env.compute_fast_component_matrix_cpu(room_mask, room_position_x, room_position_y)
+# out_A = env.compute_component_matrix(room_mask, room_position_x, room_position_y, include_durable=False)
+# out_A = out_A[:, env.good_room_parts.view(-1, 1), env.good_room_parts.view(1, -1)]
+# out_B = compute_fast_component_matrix_cpu(env, room_mask, room_position_x, room_position_y)
+# out_B = compute_fast_component_matrix_cpu2(env, room_mask, room_position_x, room_position_y)
+# print(torch.sum(out_A != out_B))
+#
+# %timeit compute_fast_component_matrix_cpu(env, room_mask, room_position_x, room_position_y)
+# %timeit env.compute_fast_component_matrix_cpu(room_mask, room_position_x, room_position_y)
