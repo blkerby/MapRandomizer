@@ -13,6 +13,7 @@ import connectivity
 import torch.utils.cpp_extension
 import timeit
 
+torch.set_num_threads(8)
 connectivity2 = torch.utils.cpp_extension.load(
     name="connectivity2",
     sources=["cpp/connectivity2.cpp"],
@@ -204,6 +205,7 @@ def compute_fast_component_matrix_cpu2(self, room_mask, room_position_x, room_po
     output_components = torch.zeros([num_graphs, num_parts], dtype=torch.uint8)
     output_adjacency = torch.zeros([num_graphs, max_components], dtype=torch.int64)
     output_adjacency_unpacked = torch.zeros([num_graphs, max_components, max_components], dtype=torch.float)
+    # special_room_mask = torch.tensor([len(room.tra_part_connections) for room in env.rooms])
 
     start_compute = time.perf_counter()
     connectivity2.compute_connectivity2(
@@ -254,16 +256,16 @@ def compute_fast_component_matrix_cpu2(self, room_mask, room_position_x, room_po
 
 %timeit compute_fast_component_matrix_cpu2(env, room_mask, room_position_x, room_position_y, session.model.connectivity_left_mat, session.model.connectivity_right_mat)
 
-self = env
-left_mat=session.model.connectivity_left_mat
-right_mat=session.model.connectivity_right_mat
-# out_A = env.compute_fast_component_matrix_cpu(room_mask, room_position_x, room_position_y)
-# out_A = env.compute_component_matrix(room_mask, room_position_x, room_position_y, include_durable=False)
-# out_A = out_A[:, env.good_room_parts.view(-1, 1), env.good_room_parts.view(1, -1)]
-out_A = compute_fast_component_matrix_cpu(env, room_mask, room_position_x, room_position_y, session.model.connectivity_left_mat, session.model.connectivity_right_mat)
-# out_B = compute_fast_component_matrix_cpu(env, room_mask, room_position_x, room_position_y)
-out_B = compute_fast_component_matrix_cpu2(env, room_mask, room_position_x, room_position_y, session.model.connectivity_left_mat, session.model.connectivity_right_mat)
-print(torch.sum(out_A != out_B))
+# self = env
+# left_mat=session.model.connectivity_left_mat
+# right_mat=session.model.connectivity_right_mat
+# # out_A = env.compute_fast_component_matrix_cpu(room_mask, room_position_x, room_position_y)
+# # out_A = env.compute_component_matrix(room_mask, room_position_x, room_position_y, include_durable=False)
+# # out_A = out_A[:, env.good_room_parts.view(-1, 1), env.good_room_parts.view(1, -1)]
+# out_A = compute_fast_component_matrix_cpu(env, room_mask, room_position_x, room_position_y, session.model.connectivity_left_mat, session.model.connectivity_right_mat)
+# # out_B = compute_fast_component_matrix_cpu(env, room_mask, room_position_x, room_position_y)
+# out_B = compute_fast_component_matrix_cpu2(env, room_mask, room_position_x, room_position_y, session.model.connectivity_left_mat, session.model.connectivity_right_mat)
+# print(torch.sum(out_A != out_B))
 #
 # %timeit compute_fast_component_matrix_cpu(env, room_mask, room_position_x, room_position_y, session.model.connectivity_left_mat, session.model.connectivity_right_mat)
 # %timeit env.compute_fast_component_matrix_cpu(room_mask, room_position_x, room_position_y)

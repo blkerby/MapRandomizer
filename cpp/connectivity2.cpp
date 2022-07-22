@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <unordered_map>
+#include <cassert>
 
 typedef int16_t vertex_t;
 typedef uint8_t component_t;
@@ -71,25 +72,26 @@ void compute_connectivity2(
         torch::Tensor output_adjacency,
         torch::Tensor output_adjacency_unpacked
         ) {
-    auto room_mask_proxy = room_mask.accessor<bool, 2>();
-    auto room_position_x_proxy = room_position_x.accessor<int64_t, 2>();
-    auto room_position_y_proxy = room_position_y.accessor<int64_t, 2>();
-    auto room_left_proxy = room_left.accessor<int64_t, 2>();
-    auto room_right_proxy = room_right.accessor<int64_t, 2>();
-    auto room_up_proxy = room_up.accessor<int64_t, 2>();
-    auto room_down_proxy = room_down.accessor<int64_t, 2>();
-    auto part_left_proxy = part_left.accessor<int64_t, 1>();
-    auto part_right_proxy = part_right.accessor<int64_t, 1>();
-    auto part_up_proxy = part_up.accessor<int64_t, 1>();
-    auto part_down_proxy = part_down.accessor<int64_t, 1>();
-    auto part_room_id_proxy = part_room_id.accessor<int64_t, 1>();
-    auto directed_edges_proxy = directed_edges.accessor<vertex_t, 2>();
-    auto output_components_proxy = output_components.accessor<component_t, 2>();
-    auto output_adjacency_proxy = output_adjacency.accessor<successor_set_t, 2>();
-    auto output_adjacency_unpacked_proxy = output_adjacency_unpacked.accessor<float, 3>();
-    int num_graphs = room_mask_proxy.size(0);
+    int num_graphs = room_mask.size(0);
 
     at::parallel_for(0, num_graphs, 0, [&](int64_t start, int64_t end) {
+        auto room_mask_proxy = room_mask.accessor<bool, 2>();
+        auto room_position_x_proxy = room_position_x.accessor<uint8_t, 2>();
+        auto room_position_y_proxy = room_position_y.accessor<uint8_t, 2>();
+        auto room_left_proxy = room_left.accessor<int64_t, 2>();
+        auto room_right_proxy = room_right.accessor<int64_t, 2>();
+        auto room_up_proxy = room_up.accessor<int64_t, 2>();
+        auto room_down_proxy = room_down.accessor<int64_t, 2>();
+        auto part_left_proxy = part_left.accessor<int64_t, 1>();
+        auto part_right_proxy = part_right.accessor<int64_t, 1>();
+        auto part_up_proxy = part_up.accessor<int64_t, 1>();
+        auto part_down_proxy = part_down.accessor<int64_t, 1>();
+        auto part_room_id_proxy = part_room_id.accessor<int64_t, 1>();
+        auto directed_edges_proxy = directed_edges.accessor<vertex_t, 2>();
+        auto output_components_proxy = output_components.accessor<component_t, 2>();
+        auto output_adjacency_proxy = output_adjacency.accessor<successor_set_t, 2>();
+        auto output_adjacency_unpacked_proxy = output_adjacency_unpacked.accessor<float, 3>();
+
         std::unordered_map<uint16_t, vertex_t> position_to_part_map;
         adjacency_t adjacency;
         for (int i = 0; i < num_parts; i++){
@@ -194,12 +196,15 @@ void compute_connectivity2(
             vertex_t next_vertex = 1;
             component_t next_component = 1;
             for (int i = 0; i < num_parts; i++) {
-                if (visited_num[i] == 0) {
+                int room_id = part_room_id_proxy[i];
+                int mask = room_mask_proxy[g][room_id];
+                if (mask && visited_num[i] == 0) {
                     tarjan_rec(i, next_vertex, next_component, adjacency, visited_num, on_stack, stack,
                         &output_components_proxy[g][0]);
                 }
             }
 
+            assert(next_component <= output_adjacency.size(1));
             // Construct the condensation graph
             cond_adjacency_t condensation_adjacency;
             for (int i = 0; i < next_component; i++){
@@ -231,7 +236,6 @@ void compute_connectivity2(
         }
     });
 }
-
 
 PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
     m.def("compute_connectivity2", &compute_connectivity2,

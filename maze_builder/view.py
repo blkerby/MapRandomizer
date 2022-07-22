@@ -94,7 +94,10 @@ device = torch.device('cpu')
 # session = CPU_Unpickler(open('models/04-27-session-2022-04-16T09:34:25.983030.pkl', 'rb')).load()
 # session = CPU_Unpickler(open('models/04-30-session-2022-04-16T09:34:25.983030.pkl', 'rb')).load()
 # session = CPU_Unpickler(open('models/05-26-session-2022-05-21T07:40:15.324154.pkl', 'rb')).load()
-session = CPU_Unpickler(open('models/06-09-session-2022-06-03T17:19:29.727911.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/06-09-session-2022-06-03T17:19:29.727911.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/07-16-session-2022-06-03T17:19:29.727911.pkl-bk25-small', 'rb')).load()
+# session = CPU_Unpickler(open('models/07-21-session-2022-06-03T17:19:29.727911.pkl-bk27-small', 'rb')).load()
+session = CPU_Unpickler(open('models/07-22-session-2022-06-03T17:19:29.727911.pkl-bk28-small', 'rb')).load()
 #
 
 
@@ -103,11 +106,12 @@ max_reward = torch.max(session.replay_buffer.episode_data.reward)
 print(max_reward, torch.mean((session.replay_buffer.episode_data.reward == max_reward).to(torch.float32)),
       session.replay_buffer.episode_data.reward.shape[0])
 
-ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 343)
+ind = torch.nonzero((session.replay_buffer.episode_data.reward >= 340) & (session.replay_buffer.episode_data.temperature > 0.5))
+# ind = torch.nonzero((session.replay_buffer.episode_data.reward >= 343) & (session.replay_buffer.episode_data.temperature > 0.5))
 # ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 0)
 # ind = ind[(ind >= 200000) & (ind < 262144)].view(-1, 1)
 # i = int(random.randint(0, ind.shape[0] - 1))
-i = 7
+i = 3
 num_rooms = len(session.envs[0].rooms)
 action = session.replay_buffer.episode_data.action[ind[i], :]
 step_indices = torch.tensor([num_rooms])
@@ -119,7 +123,7 @@ room_mask, room_position_x, room_position_y = reconstruct_room_data(action, step
 # dir(session.envs[0])
 
 #
-num_envs = 1
+num_envs = 2
 # num_envs = 8
 rooms = logic.rooms.all_rooms.rooms
 
@@ -150,6 +154,8 @@ rooms = logic.rooms.all_rooms.rooms
 #             assert False
 
 
+# num_envs = 4
+num_envs = 1
 episode_length = len(rooms)
 env = MazeBuilderEnv(rooms,
                      map_x=session.envs[0].map_x,
@@ -174,22 +180,19 @@ env.render(0)
 
 #
 #
-# episode_length = len(rooms)
-# session.env = None
 # session.envs = [env]
 # num_candidates = 32
-# temperature = 0.002
+# temperature = torch.full([num_envs], 0.005)
 # torch.manual_seed(0)
 # max_possible_reward = env.max_reward
 # start_time = time.perf_counter()
-# # executor = concurrent.futures.ThreadPoolExecutor(1)
+# executor = concurrent.futures.ThreadPoolExecutor(1)
 # # for i in range(10000):
 # data = session.generate_round(
 #     episode_length=episode_length,
 #     num_candidates=num_candidates,
 #     temperature=temperature,
-#     explore_eps=0.0,
-#     # executor=executor,
+#     executor=executor,
 #     render=False)
 #     # render=True)
 # end_time = time.perf_counter()

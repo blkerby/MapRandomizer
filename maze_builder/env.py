@@ -10,7 +10,18 @@ import torch.nn.functional as F
 import torch_scatter
 from dataclasses import dataclass
 import logging
-import connectivity
+# import connectivity
+
+import torch.utils.cpp_extension
+import timeit
+
+connectivity2 = torch.utils.cpp_extension.load(
+    name="connectivity2",
+    sources=["cpp/connectivity2.cpp"],
+    extra_cflags=["-fopenmp", "-O3", "-ffast-math"],
+    extra_ldflags=["-lgomp"],
+    verbose=True,
+)
 
 
 def _rand_choice(p):
@@ -57,6 +68,7 @@ class MazeBuilderEnv:
 
         self.init_room_data()
         self.init_part_data()
+        self.init_cpu_data()
         self.num_doors = int(torch.sum(self.room_door_count))
         self.num_missing_connects = self.missing_connection_src.shape[0]
         self.max_reward = self.num_doors // 2 + self.num_missing_connects
@@ -74,6 +86,21 @@ class MazeBuilderEnv:
             SubArea.WRECKED_SHIP: (0xff, 0xff, 0x80),
             SubArea.TOURIAN: (0xc0, 0xc0, 0xc0),
         }
+
+    def init_cpu_data(self):
+        self.room_left_cpu = self.room_left.to('cpu')
+        self.room_right_cpu = self.room_right.to('cpu')
+        self.room_up_cpu = self.room_up.to('cpu')
+        self.room_down_cpu = self.room_down.to('cpu')
+        self.part_left_cpu = self.part_left.to('cpu')
+        self.part_right_cpu = self.part_right.to('cpu')
+        self.part_up_cpu = self.part_up.to('cpu')
+        self.part_down_cpu = self.part_down.to('cpu')
+        self.part_room_id_cpu = self.part_room_id.to('cpu')
+
+        A = self.part_adjacency_matrix.clone()
+        A[torch.arange(A.shape[0]), torch.arange(A.shape[0])] = 0
+        self.directed_edges = torch.nonzero(A).to(torch.int16).to('cpu')
 
     def init_room_data(self):
         # TODO: clean this up and refactor to make it easier to understand
@@ -482,7 +509,8 @@ class MazeBuilderEnv:
         counts_by_door_all = counts_by_door_all[counts_by_door_all[:, 0] > 0, :]
         perm = torch.randperm(counts_by_door_all.shape[0], device=counts_by_door_all.device)
         counts_by_door_all = counts_by_door_all[perm, :]
-        chosen_min_count, chosen_door_indices = torch_scatter.scatter_min(counts_by_door_all[:, 0], counts_by_door_all[:, 1])
+        chosen_min_count, chosen_door_indices = torch_scatter.scatter_min(counts_by_door_all[:, 0],
+                                                                          counts_by_door_all[:, 1])
         chosen_door_indices = torch.clamp_max(chosen_door_indices, counts_by_door_all.shape[0] - 1)
         chosen_counts_by_door = counts_by_door_all[chosen_door_indices, :]
 
@@ -530,8 +558,9 @@ class MazeBuilderEnv:
         # relative_ind = torch.randint(high=2 ** 31, size=[num_envs, num_candidates],
         #                              device=candidates.device) % restricted_candidate_quantities.unsqueeze(1)
 
-        relative_ind = torch.minimum(torch.arange(num_candidates, device=candidates.device).view(1, -1).repeat(num_envs, 1),
-                                     candidate_quantities.unsqueeze(1) - 1)
+        relative_ind = torch.minimum(
+            torch.arange(num_candidates, device=candidates.device).view(1, -1).repeat(num_envs, 1),
+            candidate_quantities.unsqueeze(1) - 1)
         ind = relative_ind + boundaries.unsqueeze(1)
         out = candidates[ind, 1:]
 
@@ -574,7 +603,7 @@ class MazeBuilderEnv:
 
     def compute_map_shifted(self, room_mask, room_position_x, room_position_y, center_x, center_y):
         map = torch.zeros([room_mask.shape[0], self.map_channels, self.map_x, self.map_y],
-                                       dtype=torch.int8, device=self.device)
+                          dtype=torch.int8, device=self.device)
         map_flat = map.view(map.shape[0], -1)
 
         room_data_id = self.room_data[:, 0]
@@ -696,18 +725,19 @@ class MazeBuilderEnv:
             ship_part = 1
             reachable_from_ship = component_matrix[:, ship_part, :]
             durable_backtrack = torch.minimum(reachable_from_ship.unsqueeze(1),
-                                              self.durable_part_adjacency_matrix.unsqueeze(0).to(component_matrix.dtype))
+                                              self.durable_part_adjacency_matrix.unsqueeze(0).to(
+                                                  component_matrix.dtype))
             component_matrix = torch.maximum(component_matrix, durable_backtrack)
             for i in range(8):
                 component_matrix = torch.bmm(component_matrix, component_matrix)
                 component_matrix = torch.clamp_max(component_matrix, 1)
         return component_matrix.to(torch.bool)
 
-    def compute_fast_component_matrix(self, room_mask, room_position_x, room_position_y):
-        if not room_mask.is_cuda:
-            return self.compute_fast_component_matrix_cpu(room_mask, room_position_x, room_position_y)
-        # torch.cuda.synchronize(room_mask.device)
-        # start = time.perf_counter()
+    def compute_fast_component_matrix(self, room_mask, room_position_x, room_position_y, left_mat, right_mat):
+        # if not room_mask.is_cuda:
+        #     return self.compute_fast_component_matrix_cpu(room_mask, room_position_x, room_position_y)
+        torch.cuda.synchronize(room_mask.device)
+        start_prep = time.perf_counter()
         n = room_mask.shape[0]
         data_tuples = [
             (self.room_left, self.room_right, self.part_left, self.part_right),
@@ -753,8 +783,8 @@ class MazeBuilderEnv:
             adjacency_matrix[nz_env, nz_part, nz_part_opp] = 1
             adjacency_matrix[nz_env, nz_part_opp, nz_part] = 1
 
-        # torch.cuda.synchronize(room_mask.device)
-        # start_matmul = time.perf_counter()
+        torch.cuda.synchronize(room_mask.device)
+        start_matmul = time.perf_counter()
 
         good_room_parts = self.padded_good_room_parts
         component_matrix = adjacency_matrix[:, good_room_parts.view(-1, 1), good_room_parts.view(1, -1)]
@@ -766,115 +796,228 @@ class MazeBuilderEnv:
                 # the output matrix has only 0s and 1s.
                 component_matrix = torch.clamp_max(component_matrix, 1)
         # component_matrix = torch.clamp_max(component_matrix, 1)
-        output = component_matrix[:, :self.good_room_parts.shape[0], :self.good_room_parts.shape[0]] #.to(torch.bool)
         # output = component_matrix
 
-        # torch.cuda.synchronize(room_mask.device)
-        # end = time.perf_counter()
         # logging.info("compute_fast_component_matrix time: {}, matmul={}".format(end - start, end - start_matmul))
-        return output
 
-    def compute_fast_component_matrix_cpu(self, room_mask, room_position_x, room_position_y):
-        # torch.cuda.synchronize(room_mask.device)
-        start = time.perf_counter()
+        torch.cuda.synchronize(room_mask.device)
+        start_reduce = time.perf_counter()
+
+        if left_mat.is_cuda:
+            dtype = torch.float16
+        else:
+            dtype = torch.float32
+
+        output = component_matrix[:, :self.good_room_parts.shape[0], :self.good_room_parts.shape[0]]  # .to(torch.bool)
+        reduced_connectivity = torch.einsum('ijk,mj,kn->imn',
+                                            output.to(dtype),
+                                            left_mat.to(dtype),
+                                            right_mat.to(dtype))
+        missing_connects = output[:, self.good_missing_connection_src, self.good_missing_connection_dst]
+
+        torch.cuda.synchronize(room_mask.device)
+        end = time.perf_counter()
+
+        time_prep = start_matmul - start_prep
+        time_matmul = start_reduce - start_matmul
+        time_reduce = end - start_reduce
+        time_total = end - start_prep
+        logging.info("total={:.4f}, prep={:.4f}, matmul={:.4f}, reduce={:.4f}".format(
+            time_total, time_prep, time_matmul, time_reduce
+        ))
+        return reduced_connectivity, missing_connects
+    #
+    # def compute_fast_component_matrix_cpu(self, room_mask, room_position_x, room_position_y):
+    #     # torch.cuda.synchronize(room_mask.device)
+    #     start = time.perf_counter()
+    #     num_graphs = room_mask.shape[0]
+    #     data_tuples = [
+    #         (self.room_left, self.room_right, self.part_left, self.part_right),
+    #         (self.room_right, self.room_left, self.part_right, self.part_left),
+    #         (self.room_down, self.room_up, self.part_down, self.part_up),
+    #         (self.room_up, self.room_down, self.part_up, self.part_down),
+    #     ]
+    #     adjacency_matrix = torch.zeros_like(self.part_adjacency_matrix).unsqueeze(0).repeat(num_graphs, 1, 1)
+    #     if adjacency_matrix.is_cuda:
+    #         adjacency_matrix = adjacency_matrix.to(torch.float16)  # pytorch bmm can't handle integer types on CUDA
+    #     for room_dir, room_dir_opp, part, part_opp in data_tuples:
+    #         room_id = room_dir[:, 0]
+    #         relative_door_x = room_dir[:, 1]
+    #         relative_door_y = room_dir[:, 2]
+    #         door_x = room_position_x[:, room_id] + relative_door_x.unsqueeze(0)
+    #         door_y = room_position_y[:, room_id] + relative_door_y.unsqueeze(0)
+    #         mask = room_mask[:, room_id]
+    #
+    #         room_id_opp = room_dir_opp[:, 0]
+    #         relative_door_x_opp = room_dir_opp[:, 1]
+    #         relative_door_y_opp = room_dir_opp[:, 2]
+    #         door_x_opp = room_position_x[:, room_id_opp] + relative_door_x_opp.unsqueeze(0)
+    #         door_y_opp = room_position_y[:, room_id_opp] + relative_door_y_opp.unsqueeze(0)
+    #         mask_opp = room_mask[:, room_id_opp]
+    #
+    #         x_eq = (door_x.unsqueeze(2) == door_x_opp.unsqueeze(1))
+    #         y_eq = (door_y.unsqueeze(2) == door_y_opp.unsqueeze(1))
+    #         both_mask = (mask.unsqueeze(2) & mask_opp.unsqueeze(1))
+    #         connects = x_eq & y_eq & both_mask
+    #         nz = torch.nonzero(connects)
+    #
+    #         nz_env = nz[:, 0]
+    #         nz_door = nz[:, 1]
+    #         nz_door_opp = nz[:, 2]
+    #         nz_part = part[nz_door]
+    #         nz_part_opp = part_opp[nz_door_opp]
+    #         adjacency_matrix[nz_env, nz_part, nz_part_opp] = 1
+    #         adjacency_matrix[nz_env, nz_part_opp, nz_part] = 1
+    #
+    #     good_matrix = adjacency_matrix[:, self.good_room_parts.view(-1, 1), self.good_room_parts.view(1, -1)]
+    #     # good_base_matrix = self.part_adjacency_matrix[self.good_room_parts.view(-1, 1), self.good_room_parts.view(1, -1)]
+    #     num_envs = good_matrix.shape[0]
+    #     num_parts = good_matrix.shape[1]
+    #     max_components = 56
+    #
+    #     # torch.cuda.synchronize(room_mask.device)
+    #     start_load = time.perf_counter()
+    #     undirected_E = torch.nonzero(good_matrix)
+    #     undirected_edges = undirected_E[:, 1:3].to(torch.uint8).to('cpu')
+    #     all_root_mask = room_mask[:, self.good_part_room_id].to('cpu')
+    #     undirected_boundaries = torch.searchsorted(undirected_E[:, 0].contiguous(),
+    #                                                torch.arange(num_envs, device=self.device)).to(torch.int32).to('cpu')
+    #     # print(all_nz_cpu.shape, good_matrix.shape, num_envs, torch.max(all_nz_cpu[:, 0]), torch.sum(good_matrix, dim=(1, 2)))
+    #     # boundaries = torch.searchsorted(all_nz_cpu[:, 0].contiguous(), torch.arange(num_envs))
+    #
+    #     output_components = torch.zeros([num_graphs, num_parts], dtype=torch.uint8)
+    #     output_adjacency = torch.zeros([num_graphs, max_components], dtype=torch.int64)
+    #
+    #     # torch.cuda.synchronize(room_mask.device)
+    #     start_comp = time.perf_counter()
+    #     connectivity.compute_connectivity(
+    #         all_root_mask.numpy(),
+    #         self.directed_E.numpy(),
+    #         undirected_edges.numpy(),
+    #         undirected_boundaries.numpy(),
+    #         output_components.numpy(),
+    #         output_adjacency.numpy(),
+    #     )
+    #
+    #     # torch.cuda.synchronize(room_mask.device)
+    #     start_store = time.perf_counter()
+    #     output_components = output_components.to(self.device)
+    #     output_adjacency = output_adjacency.to(self.device)
+    #
+    #     # torch.cuda.synchronize(room_mask.device)
+    #     start_expand = time.perf_counter()
+    #     output_adjacency1 = (output_adjacency.unsqueeze(2) >> torch.arange(max_components, device=self.device).view(1,
+    #                                                                                                                 1,
+    #                                                                                                                 -1)) & 1
+    #
+    #     A = output_adjacency1[torch.arange(num_graphs, device=self.device).view(-1, 1, 1),
+    #                           output_components.unsqueeze(2).to(torch.int64),
+    #                           output_components.unsqueeze(1).to(torch.int64)]
+    #
+    #     A = torch.maximum(A, self.good_base_matrix.unsqueeze(0))
+    #
+    #     # torch.cuda.synchronize(room_mask.device)
+    #     end = time.perf_counter()
+    #     time_prep = start_load - start
+    #     time_load = start_comp - start_load
+    #     time_comp = start_store - start_comp
+    #     time_store = start_expand - start_store
+    #     time_expand = end - start_expand
+    #     time_total = end - start
+    #
+    #     # logging.info("device={}, total={:.4f}, prep={:.4f}, load={:.4f}, comp={:.4f}, store={:.4f}, expand={:.4f}".format(
+    #     #     self.device, time_total, time_prep, time_load, time_comp, time_store, time_expand))
+    #     return A
+
+    def compute_fast_component_matrix_cpu2(self, room_mask, room_position_x, room_position_y, left_mat, right_mat):
+        # print(room_mask.shape, room_mask.device,
+        #       room_position_x.shape, room_position_x.device,
+        #       room_position_y.shape, room_position_y.device,
+        #       left_mat.shape, left_mat.device,
+        #       right_mat.shape, right_mat.device)
+        # torch.cuda.synchronize(self.device)
+        # start_setup = time.perf_counter()
+        # logging.info("Setup")
         num_graphs = room_mask.shape[0]
-        data_tuples = [
-            (self.room_left, self.room_right, self.part_left, self.part_right),
-            (self.room_right, self.room_left, self.part_right, self.part_left),
-            (self.room_down, self.room_up, self.part_down, self.part_up),
-            (self.room_up, self.room_down, self.part_up, self.part_down),
-        ]
-        adjacency_matrix = torch.zeros_like(self.part_adjacency_matrix).unsqueeze(0).repeat(num_graphs, 1, 1)
-        if adjacency_matrix.is_cuda:
-            adjacency_matrix = adjacency_matrix.to(torch.float16)  # pytorch bmm can't handle integer types on CUDA
-        for room_dir, room_dir_opp, part, part_opp in data_tuples:
-            room_id = room_dir[:, 0]
-            relative_door_x = room_dir[:, 1]
-            relative_door_y = room_dir[:, 2]
-            door_x = room_position_x[:, room_id] + relative_door_x.unsqueeze(0)
-            door_y = room_position_y[:, room_id] + relative_door_y.unsqueeze(0)
-            mask = room_mask[:, room_id]
-
-            room_id_opp = room_dir_opp[:, 0]
-            relative_door_x_opp = room_dir_opp[:, 1]
-            relative_door_y_opp = room_dir_opp[:, 2]
-            door_x_opp = room_position_x[:, room_id_opp] + relative_door_x_opp.unsqueeze(0)
-            door_y_opp = room_position_y[:, room_id_opp] + relative_door_y_opp.unsqueeze(0)
-            mask_opp = room_mask[:, room_id_opp]
-
-            x_eq = (door_x.unsqueeze(2) == door_x_opp.unsqueeze(1))
-            y_eq = (door_y.unsqueeze(2) == door_y_opp.unsqueeze(1))
-            both_mask = (mask.unsqueeze(2) & mask_opp.unsqueeze(1))
-            connects = x_eq & y_eq & both_mask
-            nz = torch.nonzero(connects)
-
-            nz_env = nz[:, 0]
-            nz_door = nz[:, 1]
-            nz_door_opp = nz[:, 2]
-            nz_part = part[nz_door]
-            nz_part_opp = part_opp[nz_door_opp]
-            adjacency_matrix[nz_env, nz_part, nz_part_opp] = 1
-            adjacency_matrix[nz_env, nz_part_opp, nz_part] = 1
-
-        good_matrix = adjacency_matrix[:, self.good_room_parts.view(-1, 1), self.good_room_parts.view(1, -1)]
-        # good_base_matrix = self.part_adjacency_matrix[self.good_room_parts.view(-1, 1), self.good_room_parts.view(1, -1)]
-        num_envs = good_matrix.shape[0]
-        num_parts = good_matrix.shape[1]
+        num_parts = self.part_room_id.shape[0]
         max_components = 56
-
-        # torch.cuda.synchronize(room_mask.device)
-        start_load = time.perf_counter()
-        undirected_E = torch.nonzero(good_matrix)
-        undirected_edges = undirected_E[:, 1:3].to(torch.uint8).to('cpu')
-        all_root_mask = room_mask[:, self.good_part_room_id].to('cpu')
-        undirected_boundaries = torch.searchsorted(undirected_E[:, 0].contiguous(),
-                                                   torch.arange(num_envs, device=self.device)).to(torch.int32).to('cpu')
-        # print(all_nz_cpu.shape, good_matrix.shape, num_envs, torch.max(all_nz_cpu[:, 0]), torch.sum(good_matrix, dim=(1, 2)))
-        # boundaries = torch.searchsorted(all_nz_cpu[:, 0].contiguous(), torch.arange(num_envs))
-
         output_components = torch.zeros([num_graphs, num_parts], dtype=torch.uint8)
         output_adjacency = torch.zeros([num_graphs, max_components], dtype=torch.int64)
+        output_adjacency_unpacked = torch.zeros([num_graphs, max_components, max_components], dtype=torch.float)
 
-        # torch.cuda.synchronize(room_mask.device)
-        start_comp = time.perf_counter()
-        connectivity.compute_connectivity(
-            all_root_mask.numpy(),
-            self.directed_E.numpy(),
-            undirected_edges.numpy(),
-            undirected_boundaries.numpy(),
-            output_components.numpy(),
-            output_adjacency.numpy(),
+        # torch.cuda.synchronize(self.device)
+        # start_compute = time.perf_counter()
+        # logging.info("Compute")
+        connectivity2.compute_connectivity2(
+            room_mask.to('cpu'),
+            room_position_x.to(torch.uint8).to('cpu'),
+            room_position_y.to(torch.uint8).to('cpu'),
+            self.room_left_cpu,
+            self.room_right_cpu,
+            self.room_up_cpu,
+            self.room_down_cpu,
+            self.part_left_cpu,
+            self.part_right_cpu,
+            self.part_up_cpu,
+            self.part_down_cpu,
+            self.part_room_id_cpu,
+            self.map_x + 1,
+            self.map_y + 1,
+            num_parts,
+            self.directed_edges,
+            output_components,
+            output_adjacency,
+            output_adjacency_unpacked,
         )
 
-        # torch.cuda.synchronize(room_mask.device)
-        start_store = time.perf_counter()
-        output_components = output_components.to(self.device)
-        output_adjacency = output_adjacency.to(self.device)
+        # logging.info("Transfer")
+        # torch.cuda.synchronize(self.device)
+        # start_post = time.perf_counter()
+        good_output_components = output_components[:, self.good_room_parts]
+        good_output_components = good_output_components.to(left_mat.device)
+        output_adjacency_unpacked = output_adjacency_unpacked.to(left_mat.device)
 
-        # torch.cuda.synchronize(room_mask.device)
-        start_expand = time.perf_counter()
-        output_adjacency1 = (output_adjacency.unsqueeze(2) >> torch.arange(max_components, device=self.device).view(1,
-                                                                                                                    1,
-                                                                                                                    -1)) & 1
+        # torch.cuda.synchronize(self.device)
+        # start_mul = time.perf_counter()
+        # logging.info("Multiply")
+        if left_mat.is_cuda:
+            dtype = torch.float16
+        else:
+            dtype = torch.float32
+        A0 = output_adjacency_unpacked.to(dtype)
+        A1 = A0[torch.arange(num_graphs, device=self.device).view(-1, 1), good_output_components.to(torch.int64), :]
+        A2 = torch.einsum('ijk,mj->imk', A1, left_mat.to(dtype))
+        A3 = A2[torch.arange(num_graphs, device=self.device).view(-1, 1), :, good_output_components.to(torch.int64)]
+        A4 = torch.einsum('ikm,kn->imn', A3, right_mat.to(dtype))
+        reduced_connectivity = A4
 
-        A = output_adjacency1[torch.arange(num_graphs, device=self.device).view(-1, 1, 1),
-                              output_components.unsqueeze(2).to(torch.int64),
-                              output_components.unsqueeze(1).to(torch.int64)]
+        # torch.cuda.synchronize(self.device)
+        # start_missing = time.perf_counter()
+        missing_src_component = good_output_components[:, self.good_missing_connection_src.to(left_mat.device)].to(torch.int64)
+        missing_dst_component = good_output_components[:, self.good_missing_connection_dst.to(left_mat.device)].to(torch.int64)
+        # ind1 = torch.arange(num_graphs, device=self.device).view(-1, 1).repeat(1, self.missing_connection_src.shape[0])
+        # ind2 = missing_src_component
+        # ind3 = missing_dst_component
+        # logging.info('{}: {} {} {}'.format(output_adjacency_unpacked.shape, ind1.shape, ind2.shape, ind3.shape))
+        # logging.info('{}: {} {} {}'.format(output_adjacency_unpacked.dtype, ind1.dtype, ind2.dtype, ind3.dtype))
 
-        A = torch.maximum(A, self.good_base_matrix.unsqueeze(0))
+        # missing_connects = output_adjacency_unpacked[ind1.view(-1), ind2.view(-1), ind3.view(-1)].view(-1, self.missing_connection_src.shape[0])
+        missing_connects = output_adjacency_unpacked[torch.arange(num_graphs, device=self.device).view(-1, 1),
+                                                     missing_src_component, missing_dst_component]
 
-        # torch.cuda.synchronize(room_mask.device)
-        end = time.perf_counter()
-        time_prep = start_load - start
-        time_load = start_comp - start_load
-        time_comp = start_store - start_comp
-        time_store = start_expand - start_store
-        time_expand = end - start_expand
-        time_total = end - start
-
-        # logging.info("device={}, total={:.4f}, prep={:.4f}, load={:.4f}, comp={:.4f}, store={:.4f}, expand={:.4f}".format(
-        #     self.device, time_total, time_prep, time_load, time_comp, time_store, time_expand))
-        return A
+        # torch.cuda.synchronize(self.device)
+        # end = time.perf_counter()
+        # time_setup = start_compute - start_setup
+        # time_compute = start_post - start_compute
+        # time_post = start_mul - start_post
+        # time_mul = start_missing - start_mul
+        # time_missing = end - start_missing
+        # time_total = end - start_setup
+        # logging.info("total={:.4f}, setup={:.4f}, compute={:.4f}, post={:.4f}, mul={:.4f}, missing={:.4f}".format(
+        #     time_total, time_setup, time_compute, time_post, time_mul, time_missing
+        # ))
+        # logging.info("Done")
+        return reduced_connectivity.to(self.device), missing_connects.to(self.device)
 
     def compute_missing_connections(self):
         component_matrix = self.compute_component_matrix(self.room_mask, self.room_position_x, self.room_position_y)
@@ -949,8 +1092,10 @@ class MazeBuilderEnv:
             [self.good_room_parts, torch.zeros([padding_needed], device=self.device, dtype=self.good_room_parts.dtype)])
         self.good_part_room_id = self.part_room_id[self.good_room_parts]
         good_room_parts_list = self.good_room_parts.tolist()
-        self.good_missing_connection_src = torch.tensor([good_room_parts_list.index(i) for i in self.missing_connection_src], device=self.device)
-        self.good_missing_connection_dst = torch.tensor([good_room_parts_list.index(i) for i in self.missing_connection_dst], device=self.device)
+        self.good_missing_connection_src = torch.tensor(
+            [good_room_parts_list.index(i) for i in self.missing_connection_src], device=self.device)
+        self.good_missing_connection_dst = torch.tensor(
+            [good_room_parts_list.index(i) for i in self.missing_connection_dst], device=self.device)
         self.good_base_matrix = self.part_adjacency_matrix[
             self.good_room_parts.view(-1, 1), self.good_room_parts.view(1, -1)]
         self.directed_E = torch.nonzero(self.good_base_matrix).to(torch.uint8).to('cpu')

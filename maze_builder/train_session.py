@@ -57,7 +57,7 @@ class TrainingSession():
 
     def forward_action(self, model, room_mask, room_position_x, room_position_y, action_candidates,
                              steps_remaining, temperature,
-                             env_id):
+                             env_id, executor):
         # print({k: v.shape for k, v in locals().items() if hasattr(v, 'shape')})
         #
         # torch.cuda.synchronize()
@@ -122,7 +122,7 @@ class TrainingSession():
         #     temperature_flat, env)
         raw_logodds_valid, _, expected_valid = model.forward_multiclass(
             map_valid, room_mask_valid, room_position_x_valid, room_position_y_valid, steps_remaining_valid, round_frac_valid,
-            temperature_valid, env)
+            temperature_valid, env, executor)
 
         # Note: for steps with no valid candidates (i.e. when no more rooms can be placed), we won't generate any
         # predictions, and the test_loss will be computed just based on these zero log-odds filler values.
@@ -137,7 +137,7 @@ class TrainingSession():
         return expected, raw_logodds
 
     def generate_round_inner(self, model, episode_length: int, num_candidates: int, temperature: torch.tensor,
-                             env_id, render=False) -> EpisodeData:
+                             env_id, render, executor) -> EpisodeData:
         device = self.envs[env_id].device
         env = self.envs[env_id]
         env.reset()
@@ -166,7 +166,7 @@ class TrainingSession():
                 # print("inner", env_id, j, env.device, model.state_value_lin.weight.device)
                 action_expected, raw_logodds = self.forward_action(
                     model, env.room_mask, env.room_position_x, env.room_position_y,
-                    action_candidates, steps_remaining, temperature, env_id=env_id)
+                    action_candidates, steps_remaining, temperature, env_id, executor)
 
             # action_expected = torch.where(action_candidates[:, :, 0] == len(env.rooms) - 1,
             #                               torch.full_like(action_expected, -1e15),
@@ -235,26 +235,17 @@ class TrainingSession():
         return episode_data
 
     def generate_round_model(self, model, episode_length: int, num_candidates: int, temperature: torch.tensor,
-                             executor: Optional[concurrent.futures.ThreadPoolExecutor] = None,
+                             executor: concurrent.futures.ThreadPoolExecutor,
                              render=False) -> EpisodeData:
-        if executor is None:
-            episode_data_list = []
-            model_list = [copy.deepcopy(model).to(env.device) for env in self.envs]
-            for i, env in enumerate(self.envs):
-                model = model_list[i]
-                episode_data_list.append(self.generate_round_inner(
-                    model, episode_length, num_candidates, temperature, render=render,
-                    env_id=i))
-        else:
-            futures_list = []
-            model_list = [copy.deepcopy(model).to(env.device) for env in self.envs]
-            for i, env in enumerate(self.envs):
-                model = model_list[i]
-                # print("gen", i, env.device, model.state_value_lin.weight.device)
-                future = executor.submit(lambda i=i, model=model: self.generate_round_inner(
-                    model, episode_length, num_candidates, temperature, render=render, env_id=i))
-                futures_list.append(future)
-            episode_data_list = [future.result() for future in futures_list]
+        futures_list = []
+        model_list = [copy.deepcopy(model).to(env.device) for env in self.envs]
+        for i, env in enumerate(self.envs):
+            model = model_list[i]
+            # print("gen", i, env.device, model.state_value_lin.weight.device)
+            future = executor.submit(lambda i=i, model=model: self.generate_round_inner(
+                model, episode_length, num_candidates, temperature, render=render, env_id=i, executor=executor))
+            futures_list.append(future)
+        episode_data_list = [future.result() for future in futures_list]
         for env in self.envs:
             if env.room_mask.is_cuda:
                 torch.cuda.synchronize(env.device)
@@ -281,14 +272,14 @@ class TrainingSession():
                                              executor=executor,
                                              render=render)
 
-    def train_batch(self, data: TrainingData):
+    def train_batch(self, data: TrainingData, executor):
         self.model.train()
 
         env = self.envs[0]
         map = env.compute_map(data.room_mask, data.room_position_x, data.room_position_y)
         state_value_raw_logodds, _, _ = self.model.forward_multiclass(
             map, data.room_mask, data.room_position_x, data.room_position_y, data.steps_remaining, data.round_frac,
-            data.temperature, env)
+            data.temperature, env, executor)
 
         all_outputs = torch.cat([data.door_connects, data.missing_connects], dim=1)
         loss = torch.nn.functional.binary_cross_entropy_with_logits(state_value_raw_logodds,
@@ -361,7 +352,7 @@ class TrainingSession():
     #     self.average_parameters.update(self.model.all_param_data())
     #     return total_loss
 
-    def eval_batch(self, data: TrainingData):
+    def eval_batch(self, data: TrainingData, executor):
         self.model.eval()
 
         env = self.envs[0]
@@ -369,7 +360,7 @@ class TrainingSession():
         round_frac = torch.zeros_like(data.round_frac)
         state_value_raw_logodds, _, _ = self.model.forward_multiclass(
             map, data.room_mask, data.room_position_x, data.room_position_y, data.steps_remaining, round_frac,
-            data.temperature, env)
+            data.temperature, env, executor)
 
         all_outputs = torch.cat([data.door_connects, data.missing_connects], dim=1)
         loss = torch.nn.functional.binary_cross_entropy_with_logits(state_value_raw_logodds,
