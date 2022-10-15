@@ -329,8 +329,11 @@ logging.info("max_possible_reward = {}".format(max_possible_reward))
 # session.replay_buffer.episode_data.prob0 = torch.clone(session.replay_buffer.episode_data.prob)
 
 
-pickle_name = 'models/session-2022-06-03T17:19:29.727911.pkl'
-session = pickle.load(open(pickle_name + '-bk28', 'rb'))
+# pickle_name = 'models/session-2022-06-03T17:19:29.727911.pkl'
+# session = pickle.load(open(pickle_name, 'rb'))
+session = pickle.load(open(pickle_name + '-bk35', 'rb'))
+# session.replay_buffer.resize(400000)
+# session.replay_buffer.resize(2 ** 23)
 session.envs = envs
 # session.replay_buffer.episode_data.cand_count = torch.zeros_like(session.replay_buffer.episode_data.prob)
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
@@ -338,15 +341,20 @@ num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in sessio
 hist = 2 ** 23
 hist_c = 1.0
 batch_size = 2 ** 10
-lr = 0.00003
+lr = 0.00002
 # num_candidates = 8
-num_candidates0 = 25
-num_candidates1 = 32
-temperature_min = 0.1
-temperature_max = 1.0
-annealing_start = 127744
-annealing_time = 4000
-pass_factor = 1.0
+num_candidates0 = 40
+num_candidates1 = 40
+explore_eps_factor = 0.0
+# temperature_min = 0.02
+# temperature_max = 2.0
+temperature_min0 = 0.02
+temperature_min1 = 0.005
+temperature_max0 = 2.0
+temperature_max1 = 5.0
+annealing_start = 166896
+annealing_time = 1000
+pass_factor = 0.2
 print_freq = 8
 total_reward = 0
 total_loss = 0.0
@@ -355,6 +363,7 @@ total_test_loss = 0.0
 total_prob = 0.0
 total_prob0 = 0.0
 total_round_cnt = 0
+total_min_door_frac = 0
 save_freq = 128
 summary_freq = 256
 session.decay_amount = 0.01
@@ -363,28 +372,33 @@ session.optimizer.param_groups[0]['eps'] = 1e-5
 session.average_parameters.beta = 0.9999
 
 min_door_value = max_possible_reward
-total_min_door_frac = 0
 torch.set_printoptions(linewidth=120, threshold=10000)
 logging.info("Checkpoint path: {}".format(pickle_name))
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
 logging.info(
-    "map_x={}, map_y={}, num_envs={}, batch_size={}, pass_factor={}, lr={}, num_candidates0={}, num_candidates1={}, replay_size={}/{}, hist={}, hist_c={}, num_params={}, decay_amount={}, temperature_min={}, temperature_max={}, ema_beta={}".format(
+    "map_x={}, map_y={}, num_envs={}, batch_size={}, pass_factor={}, lr={}, num_candidates0={}, num_candidates1={}, replay_size={}/{}, hist={}, hist_c={}, num_params={}, decay_amount={}, temperature_min0={}, temperature_min1={}, temperature_max0={}, temperature_max1={}, ema_beta={}, explore_eps_factor={}".format(
         map_x, map_y, session.envs[0].num_envs, batch_size, pass_factor, lr, num_candidates0, num_candidates1, session.replay_buffer.size,
         session.replay_buffer.capacity, hist, hist_c, num_params, session.decay_amount,
-        temperature_min, temperature_max, session.average_parameters.beta))
+        temperature_min0, temperature_min1, temperature_max0, temperature_max1, session.average_parameters.beta, explore_eps_factor))
 logging.info("Starting training")
 for i in range(1000000):
     frac = max(0.0, min(1.0, (session.num_rounds - annealing_start) / annealing_time))
     num_candidates = int(num_candidates0 + (num_candidates1 - num_candidates0) * frac)
     session.optimizer.param_groups[0]['lr'] = lr
 
+    temperature_min = temperature_min0 * (temperature_min1 / temperature_min0) ** frac
+    temperature_max = temperature_max0 * (temperature_max1 / temperature_max0) ** frac
+
     temp_frac = torch.arange(0, num_envs, dtype=torch.float32) / (num_envs - 1)
     temperature = temperature_min * (temperature_max / temperature_min) ** temp_frac
+    # explore_eps = torch.full_like(temperature, explore_eps_val)
+    explore_eps = temperature * explore_eps_factor
 
     data = session.generate_round(
         episode_length=episode_length,
         num_candidates=num_candidates,
         temperature=temperature,
+        explore_eps=explore_eps,
         executor=executor,
         render=False)
     # logging.info("cand_count={:.3f}".format(torch.mean(data.cand_count)))
@@ -475,13 +489,12 @@ for i in range(1000000):
         # buffer_mean_rooms_missing = buffer_mean_pass * len(rooms)
 
         logging.info(
-            "{}: cost={:.3f} (min={:d}, frac={:.6f}), test={:.6f}, p={:.5f}, p0={:.4f} | loss={:.4f}, cost={:.2f} (min={:d}, frac={:.4f}), test={:.4f}, p={:.4f}, p0={:.3f}, nc={}".format(
+            "{}: cost={:.3f} (min={:d}, frac={:.6f}), test={:.6f}, p0={:.4f} | loss={:.4f}, cost={:.2f} (min={:d}, frac={:.4f}), test={:.4f}, p={:.4f}, p0={:.3f}, nc={}, f={:.3f}".format(
                 session.num_rounds, max_possible_reward - buffer_mean_reward, max_possible_reward - buffer_max_reward,
                 buffer_frac_max_reward,
                 # buffer_doors,
                 # buffer_logr,
                 buffer_test_loss,
-                buffer_prob,
                 buffer_prob0,
                 new_loss,
                 max_possible_reward - new_reward,
@@ -490,7 +503,8 @@ for i in range(1000000):
                 new_test_loss,
                 new_prob,
                 new_prob0,
-                num_candidates
+                num_candidates,
+                frac,
             ))
         total_loss = 0.0
         total_loss_cnt = 0
@@ -501,7 +515,9 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             pickle.dump(session, open(pickle_name, 'wb'))
-            # pickle.dump(session, open(pickle_name + '-bk28', 'wb'))
+            # pickle.dump(session, open(pickle_name + '-bk38', 'wb'))
+            # session.replay_buffer.resize(2 ** 20)
+            # pickle.dump(session, open(pickle_name + '-bk30-small', 'wb'))
     if session.num_rounds % summary_freq == 0:
         temperature_endpoints = [0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0,
                                  20.0, 50.0, 100.0, 200.0, 500.0, 1000.0, 2000.0, 5000.0, 10000.0]
@@ -512,7 +528,7 @@ for i in range(1000000):
         round_window = session.replay_buffer.size
         # for k in range(13):
         round_start = 0
-        # round_start = 111928
+        # round_start = 139016
         # round_end = 112000 + k * 256
         round_end = session.num_rounds
         # logging.info("round {} to {}".format(round_start, round_end))
@@ -521,7 +537,7 @@ for i in range(1000000):
             temp_high = temperature_endpoints[i + 1]
             # ind = torch.nonzero((buffer_temperature > temp_low) & (buffer_temperature <= temp_high))[:, 0]
             # ind = torch.nonzero((buffer_temperature > temp_low) & (buffer_temperature <= temp_high) & (round < round_window))[:, 0]
-            ind = torch.nonzero((buffer_temperature > temp_low) & (buffer_temperature <= temp_high) & (round >= round_start) & (round < round_end))[:, 0]
+            ind = torch.nonzero((buffer_temperature > temp_low * 1.0001) & (buffer_temperature < temp_high * 0.9999) & (round >= round_start) & (round < round_end))[:, 0]
             if ind.shape[0] == 0:
                 continue
             buffer_reward = session.replay_buffer.episode_data.reward[ind]
@@ -534,8 +550,10 @@ for i in range(1000000):
             buffer_mean_prob = torch.mean(buffer_prob)
             buffer_prob0 = session.replay_buffer.episode_data.prob0[ind]
             buffer_mean_prob0 = torch.mean(buffer_prob0)
-            logging.info("[{:.3f}, {:.3f}]: cost={:.3f} (min={}, frac={:.6f}), test={:.6f}, p={:.5f}, p0={:.4f}, cnt={}".format(
+            buffer_temp = session.replay_buffer.episode_data.temperature[ind]
+            buffer_mean_temp = torch.mean(buffer_temp)
+            logging.info("[{:.3f}, {:.3f}]: cost={:.3f} (min={}, frac={:.6f}), test={:.6f}, p={:.5f}, p0={:.4f}, cnt={}, temp={:.4f}".format(
                 temp_low, temp_high, max_possible_reward - buffer_mean_reward, max_possible_reward - buffer_max_reward,
-                buffer_frac_max, buffer_mean_test_loss, buffer_mean_prob, buffer_mean_prob0, ind.shape[0]
+                buffer_frac_max, buffer_mean_test_loss, buffer_mean_prob, buffer_mean_prob0, ind.shape[0], buffer_mean_temp
             ))
         # logging.info(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects, dim=0)))

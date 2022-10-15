@@ -137,6 +137,7 @@ class TrainingSession():
         return expected, raw_logodds
 
     def generate_round_inner(self, model, episode_length: int, num_candidates: int, temperature: torch.tensor,
+                             explore_eps: torch.tensor,
                              env_id, render, executor) -> EpisodeData:
         device = self.envs[env_id].device
         env = self.envs[env_id]
@@ -148,6 +149,7 @@ class TrainingSession():
         cand_count_list = []
         model.eval()
         temperature = temperature.to(device)
+        explore_eps = explore_eps.to(device).unsqueeze(1)
         # torch.cuda.synchronize()
         # logging.debug("Averaging parameters")
         for j in range(episode_length):
@@ -175,12 +177,13 @@ class TrainingSession():
             # print(action_expected)
             probs = torch.softmax(action_expected / torch.unsqueeze(temperature, 1), dim=1)
             candidate_count = torch.sum(probs > 0, dim=1)
+            candidate_count1 = torch.sum(action_candidates[:, :, 0] != len(env.rooms) - 1, dim=1)
             # candidate_count = torch.clamp_min(torch.sum(action_candidates[:, :, 0] != len(env.rooms) - 1, dim=1), 1)
-            # if explore_eps != 0.0:
-            #     explore_probs = torch.where(action_candidates[:, :, 0] != len(env.rooms) - 1,
-            #                                 1 / candidate_count.unsqueeze(1),
-            #                                 torch.zeros_like(probs))
-            #     probs = explore_eps * explore_probs + (1 - explore_eps) * probs
+            explore_probs = torch.where(action_candidates[:, :, 0] != len(env.rooms) - 1,
+                                        1 / candidate_count1.unsqueeze(1),
+                                        torch.zeros_like(probs))
+            new_probs = explore_eps * explore_probs + (1 - explore_eps) * probs
+            probs = torch.where(candidate_count1.unsqueeze(1) > 0, new_probs, probs)
             action_index = _rand_choice(probs)
             # action_indexes.append(action_index)  # TODO: remove this
             selected_prob = probs[torch.arange(env.num_envs, device=device), action_index]
@@ -235,6 +238,7 @@ class TrainingSession():
         return episode_data
 
     def generate_round_model(self, model, episode_length: int, num_candidates: int, temperature: torch.tensor,
+                             explore_eps: torch.tensor,
                              executor: concurrent.futures.ThreadPoolExecutor,
                              render=False) -> EpisodeData:
         futures_list = []
@@ -243,7 +247,7 @@ class TrainingSession():
             model = model_list[i]
             # print("gen", i, env.device, model.state_value_lin.weight.device)
             future = executor.submit(lambda i=i, model=model: self.generate_round_inner(
-                model, episode_length, num_candidates, temperature, render=render, env_id=i, executor=executor))
+                model, episode_length, num_candidates, temperature, explore_eps, render=render, env_id=i, executor=executor))
             futures_list.append(future)
         episode_data_list = [future.result() for future in futures_list]
         for env in self.envs:
@@ -262,6 +266,7 @@ class TrainingSession():
         )
 
     def generate_round(self, episode_length: int, num_candidates: int, temperature: torch.tensor,
+                       explore_eps: torch.tensor,
                        executor: Optional[concurrent.futures.ThreadPoolExecutor] = None,
                        render=False) -> EpisodeData:
         with self.average_parameters.average_parameters(self.model.all_param_data()):
@@ -269,6 +274,7 @@ class TrainingSession():
                                              episode_length=episode_length,
                                              num_candidates=num_candidates,
                                              temperature=temperature,
+                                             explore_eps=explore_eps,
                                              executor=executor,
                                              render=render)
 

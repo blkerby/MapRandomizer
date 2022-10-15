@@ -1,3 +1,4 @@
+# TODO: Clean up this whole thing (it's a mess right now). Split stuff up into modules in some reasonable way.
 from typing import List
 from dataclasses import dataclass
 from io import BytesIO
@@ -50,15 +51,16 @@ class CPU_Unpickler(pickle.Unpickler):
             return super().find_class(module, name)
 
 device = torch.device('cpu')
-# session_name = '12-15-session-2021-12-10T06:00:58.163492'
-# session_name = '01-16-session-2022-01-13T12:40:37.881929'
-session_name = '04-16-session-2022-03-29T15:40:57.320430'
-session = CPU_Unpickler(open('models/{}.pkl'.format(session_name), 'rb')).load()
+# session_name = '12-15-session-2021-12-10T06:00:58.163492.pkl'
+# session_name = '01-16-session-2022-01-13T12:40:37.881929.pkl'
+# session_name = '04-16-session-2022-03-29T15:40:57.320430.pkl'
+session_name = '07-31-session-2022-06-03T17:19:29.727911.pkl-bk30-small'
+session = CPU_Unpickler(open('models/{}'.format(session_name), 'rb')).load()
 ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 343)
 #
 
-print(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects.to(torch.float32), dim=0)))
-print(torch.max(session.replay_buffer.episode_data.reward))
+# print(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects.to(torch.float32), dim=0)))
+# print(torch.max(session.replay_buffer.episode_data.reward))
 
 def get_map(ind_i):
     num_rooms = len(session.envs[0].rooms)
@@ -102,7 +104,6 @@ def get_map(ind_i):
         'doors': door_pairs
     }
     num_envs = 1
-    episode_length = len(rooms)
     env = MazeBuilderEnv(rooms,
                          map_x=session.envs[0].map_x,
                          map_y=session.envs[0].map_y,
@@ -118,11 +119,11 @@ def get_map(ind_i):
 # json.dump(map, open('maps/{}.json'.format(map_name), 'w'))
 
 # map_name = '04-16-session-2022-03-29T15:40:57.320430-19'
-get_map(77)
+# get_map(77)
 
 
 
-for ind_i in range(60, 100000):
+for ind_i in range(0, 100000):
     logging.info("ind_i={}".format(ind_i))
     map, map_name = get_map(ind_i=ind_i)
     map_path = 'maps/{}.json'.format(map_name)

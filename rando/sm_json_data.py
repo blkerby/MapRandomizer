@@ -15,6 +15,12 @@ class GameState:
     difficulty: DifficultyConfig
     items: Set[str]   # Set of collected items
     flags: Set[str]   # Set of activated flags
+    # max_missiles: int
+    # max_super_missiles: int
+    # max_power_bombs: int
+    # current_missiles: int
+    # current_super_missiles: int
+    # current_power_bombs: int
     node_index: int  # Current node (representing room and location within room)
 
 

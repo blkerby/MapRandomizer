@@ -97,7 +97,8 @@ device = torch.device('cpu')
 # session = CPU_Unpickler(open('models/06-09-session-2022-06-03T17:19:29.727911.pkl', 'rb')).load()
 # session = CPU_Unpickler(open('models/07-16-session-2022-06-03T17:19:29.727911.pkl-bk25-small', 'rb')).load()
 # session = CPU_Unpickler(open('models/07-21-session-2022-06-03T17:19:29.727911.pkl-bk27-small', 'rb')).load()
-session = CPU_Unpickler(open('models/07-22-session-2022-06-03T17:19:29.727911.pkl-bk28-small', 'rb')).load()
+# session = CPU_Unpickler(open('models/07-22-session-2022-06-03T17:19:29.727911.pkl-bk28-small', 'rb')).load()
+session = CPU_Unpickler(open('models/07-31-session-2022-06-03T17:19:29.727911.pkl-bk30-small', 'rb')).load()
 #
 
 
@@ -106,12 +107,13 @@ max_reward = torch.max(session.replay_buffer.episode_data.reward)
 print(max_reward, torch.mean((session.replay_buffer.episode_data.reward == max_reward).to(torch.float32)),
       session.replay_buffer.episode_data.reward.shape[0])
 
-ind = torch.nonzero((session.replay_buffer.episode_data.reward >= 340) & (session.replay_buffer.episode_data.temperature > 0.5))
-# ind = torch.nonzero((session.replay_buffer.episode_data.reward >= 343) & (session.replay_buffer.episode_data.temperature > 0.5))
+# ind = torch.nonzero((session.replay_buffer.episode_data.reward >= 340) & (session.replay_buffer.episode_data.temperature > 0.5))
+ind = torch.nonzero((session.replay_buffer.episode_data.reward >= 343) & (session.replay_buffer.episode_data.temperature < 0.05))
+# ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 343)
 # ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 0)
 # ind = ind[(ind >= 200000) & (ind < 262144)].view(-1, 1)
-# i = int(random.randint(0, ind.shape[0] - 1))
-i = 3
+i = int(random.randint(0, ind.shape[0] - 1))
+# i = 0
 num_rooms = len(session.envs[0].rooms)
 action = session.replay_buffer.episode_data.action[ind[i], :]
 step_indices = torch.tensor([num_rooms])
