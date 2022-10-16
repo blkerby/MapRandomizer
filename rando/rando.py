@@ -81,7 +81,7 @@ class Randomizer:
         return graph
 
     def randomize(self):
-        items = set()  # No items at start
+        items = {"PowerBeam"}
         flags = self.sm_json_data.flags_set  # All flags set
         state = GameState(
             difficulty=self.difficulty,

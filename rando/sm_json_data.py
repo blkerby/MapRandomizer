@@ -5,29 +5,47 @@ import logging
 import pathlib
 from dataclasses import dataclass
 
+# An upper bound on the possible amount of energy
+ENERGY_LIMIT = 2000
+
+# Special value to indicate Baby Metroid drain down to 1 energy:
+ENERGY_DRAIN = 1999
+
 @dataclass
 class DifficultyConfig:
     tech: Set[str]  # Set of names of enabled tech (https://github.com/miketrethewey/sm-json-data/blob/master/tech.json)
     shine_charge_tiles: int  # Minimum number of tiles required to shinespark
+    energy_multiplier: float  # Multiplier for energy requirements (1.0 is highest difficulty, larger values are easier)
+
+@dataclass
+class Consumption:
+    energy: int = 0
+    missiles: int = 0
+    super_missiles: int = 0
+    power_bombs: int = 0
 
 @dataclass
 class GameState:
     difficulty: DifficultyConfig
     items: Set[str]   # Set of collected items
     flags: Set[str]   # Set of activated flags
-    # max_missiles: int
-    # max_super_missiles: int
-    # max_power_bombs: int
-    # current_missiles: int
-    # current_super_missiles: int
-    # current_power_bombs: int
+    weapons: Set[str]  # Set of non-situational weapons (derived from collected items)
+    num_energy_tanks: int
+    num_reserves: int
+    max_energy: int  # (derived from num_energy_tanks and num_reserves)
+    max_missiles: int
+    max_super_missiles: int
+    max_power_bombs: int
+    current_missiles: int
+    current_super_missiles: int
+    current_power_bombs: int
     node_index: int  # Current node (representing room and location within room)
 
 
 class Condition:
     @abc.abstractmethod
-    def is_accessible(self, state: GameState) -> bool:
-        raise NotImplemented
+    def get_consumption(self, state: GameState) -> Consumption:
+        raise NotImplementedError
 
 # def get_plm_type_item_index(plm_type):
 #     assert 0xEED7 <= plm_type <= 0xEFCF
@@ -35,41 +53,54 @@ class Condition:
 #     i = ((plm_type - 0xEED7) // 4) % 21
 #     return i
 
-class ConstantCondition(Condition):
-    def __init__(self, cond: bool):
-        self.cond = cond
+zero_consumption = Consumption()
+impossible_consumption = Consumption(energy=ENERGY_LIMIT)
 
-    def is_accessible(self, state: GameState) -> bool:
-        return self.cond
+class FreeCondition(Condition):
+    def get_consumption(self, state: GameState) -> Consumption:
+        return zero_consumption
 
-    def __repr__(self):
-        return str(self.cond)
+
+class ImpossibleCondition(Condition):
+    def get_consumption(self, state: GameState) -> Consumption:
+        return impossible_consumption
 
 
 class TechCondition(Condition):
     def __init__(self, tech: str):
         self.tech = tech
 
-    def is_accessible(self, state: GameState) -> bool:
-        return self.tech in state.difficulty.tech
+    def get_consumption(self, state: GameState) -> Consumption:
+        if self.tech in state.difficulty.tech:
+            return zero_consumption
+        else:
+            return impossible_consumption
 
     def __repr__(self):
         return "Tech(" + self.tech + ")"
 
 
 class ShineChargeCondition(Condition):
-    def __init__(self, tiles: int):
+    def __init__(self, tiles: int, frames: int):
         self.tiles = tiles
+        self.frames = frames
 
-    def is_accessible(self, state: GameState) -> bool:
-        return "SpeedBooster" in state.items and self.tiles >= state.difficulty.shine_charge_tiles
+    def get_consumption(self, state: GameState) -> Consumption:
+        if "SpeedBooster" in state.items and self.tiles >= state.difficulty.shine_charge_tiles:
+            return Consumption(energy=self.frames)
+        else:
+            return impossible_consumption
+
 
 class ItemCondition(Condition):
     def __init__(self, item: str):
         self.item = item
 
-    def is_accessible(self, state: GameState) -> bool:
-        return self.item in state.items
+    def get_consumption(self, state: GameState) -> Consumption:
+        if self.item in state.items:
+            return zero_consumption
+        else:
+            return impossible_consumption
 
     def __repr__(self):
         return "Item(" + self.item + ")"
@@ -79,49 +110,280 @@ class FlagCondition(Condition):
     def __init__(self, flag: str):
         self.flag = flag
 
-    def is_accessible(self, state: GameState) -> bool:
-        return self.flag in state.flags
+    def get_consumption(self, state: GameState) -> Consumption:
+        if self.flag in state.flags:
+            return zero_consumption
+        else:
+            return impossible_consumption
 
+    def __repr__(self):
+        return "Flag(" + self.flag + ")"
+
+class MissileCondition(Condition):
+    def __init__(self, amount: int):
+        self.amount = amount
+
+    def get_consumption(self, state: GameState) -> Consumption:
+        return Consumption(missiles=self.amount)
+
+
+class SuperMissileCondition(Condition):
+    def __init__(self, amount: int):
+        self.amount = amount
+
+    def get_consumption(self, state: GameState) -> Consumption:
+        return Consumption(super_missiles=self.amount)
+
+
+class PowerBombCondition(Condition):
+    def __init__(self, amount: int):
+        self.amount = amount
+
+    def get_consumption(self, state: GameState) -> Consumption:
+        return Consumption(power_bombs=self.amount)
+
+
+class EnergyCondition(Condition):
+    def __init__(self, amount: int):
+        self.amount = amount
+
+    def get_consumption(self, state: GameState) -> Consumption:
+        return Consumption(energy=self.amount)
+
+# def max_consumption(a: Consumption, b: Consumption) -> Consumption:
+#     return Consumption(energy=max(a.energy, b.energy),
+#                        missiles=max(a.missiles, b.missiles),
+#                        super_missiles=max(a.super_missiles, b.super_missiles),
+#                        power_bombs=max(a.power_bombs, b.power_bombs))
+
+def sum_consumption(a: Consumption, b: Consumption) -> Consumption:
+    return Consumption(energy=a.energy + b.energy,
+                       missiles=a.missiles + b.missiles,
+                       super_missiles=a.super_missiles + b.super_missiles,
+                       power_bombs=a.power_bombs + b.power_bombs)
+
+def get_consumption_scalar_cost(c: Consumption, state: GameState) -> float:
+    eps = 1e-5
+    energy_cost = c.energy / (state.max_energy + eps)
+    missile_cost = c.missiles / (state.max_missiles + eps)
+    super_cost = c.super_missiles / (state.max_super_missiles + eps)
+    pb_cost = c.power_bombs / (state.max_power_bombs + eps)
+    return energy_cost + missile_cost + super_cost + pb_cost
+
+def min_consumption(a: Consumption, b: Consumption, state: GameState) -> Consumption:
+    scalar_cost_a = get_consumption_scalar_cost(a, state)
+    scalar_cost_b = get_consumption_scalar_cost(b, state)
+    if scalar_cost_a <= scalar_cost_b:
+        return a
+    else:
+        return b
 
 class AndCondition(Condition):
     def __init__(self, conditions):
         self.conditions = conditions
 
-    def is_accessible(self, state: GameState) -> bool:
-        return all(cond.is_accessible(state) for cond in self.conditions)
+    def get_consumption(self, state: GameState) -> Consumption:
+        consumption = zero_consumption
+        for cond in self.conditions:
+            consumption = sum_consumption(consumption, cond.get_consumption(state))
+        return consumption
 
     def __repr__(self):
         return "And(" + ','.join(str(c) for c in self.conditions) + ")"
+
 
 class OrCondition(Condition):
     def __init__(self, conditions):
         self.conditions = conditions
 
-    def is_accessible(self, state: GameState) -> bool:
-        return any(cond.is_accessible(state) for cond in self.conditions)
+    def get_consumption(self, state: GameState) -> Consumption:
+        consumption = zero_consumption
+        for cond in self.conditions:
+            consumption = min_consumption(consumption, cond.get_consumption(state))
+        return consumption
 
     def __repr__(self):
         return "Or(" + ','.join(str(c) for c in self.conditions) + ")"
 
 
+class HeatCondition(Condition):
+    def __init__(self, frames):
+        self.frames = frames
+
+    def get_consumption(self, state: GameState) -> Consumption:
+        if 'Varia' in state.items:
+            return zero_consumption
+        elif 'Gravity' in state.items:
+            return Consumption(energy=(self.frames + 7) // 8)
+        else:
+            return Consumption(energy=(self.frames + 3) // 4)
+
+    def __repr__(self):
+        return "Heat({})".format(self.frames)
+
+
+class LavaCondition(Condition):
+    def __init__(self, frames):
+        self.frames = frames
+
+    def get_consumption(self, state: GameState) -> Consumption:
+        if 'Varia' in state.items and 'Gravity' in state.items:
+            return zero_consumption
+        elif 'Varia' in state.items or 'Gravity' in state.items:
+            return Consumption(energy=(self.frames + 3) // 4)
+        else:
+            return Consumption(energy=(self.frames + 1) // 2)
+
+    def __repr__(self):
+        return "Lava({})".format(self.frames)
+
+
+class LavaPhysicsCondition(Condition):
+    def __init__(self, frames):
+        self.frames = frames
+
+    def get_consumption(self, state: GameState) -> Consumption:
+        if 'Varia' in state.items:
+            return Consumption(energy=(self.frames + 3) // 4)
+        else:
+            return Consumption(energy=(self.frames + 1) // 2)
+
+    def __repr__(self):
+        return "LavaPhysics({})".format(self.frames)
+
+
+class AcidCondition(Condition):
+    def __init__(self, frames):
+        self.frames = frames
+
+    def get_consumption(self, state: GameState) -> Consumption:
+        if 'Varia' in state.items and 'Gravity' in state.items:
+            return Consumption(energy=(3 * self.frames + 7) // 8)
+        elif 'Varia' in state.items or 'Gravity' in state.items:
+            return Consumption(energy=(3 * self.frames + 3) // 4)
+        else:
+            return Consumption(energy=(3 * self.frames + 1) // 2)
+
+    def __repr__(self):
+        return "Acid({})".format(self.frames)
+
+
+class SpikeHitCondition(Condition):
+    def __init__(self, frames):
+        self.frames = frames
+
+    def get_consumption(self, state: GameState) -> Consumption:
+        if 'Varia' in state.items and 'Gravity' in state.items:
+            return Consumption(energy=15)
+        elif 'Varia' in state.items or 'Gravity' in state.items:
+            return Consumption(energy=30)
+        else:
+            return Consumption(energy=60)
+
+    def __repr__(self):
+        return "SpikeHit({})".format(self.frames)
+
+
+
+class ThornHitCondition(Condition):
+    def __init__(self, frames):
+        self.frames = frames
+
+    def get_consumption(self, state: GameState) -> Consumption:
+        if 'Varia' in state.items and 'Gravity' in state.items:
+            return Consumption(energy=4)
+        elif 'Varia' in state.items or 'Gravity' in state.items:
+            return Consumption(energy=8)
+        else:
+            return Consumption(energy=16)
+
+    def __repr__(self):
+        return "ThornHit({})".format(self.frames)
+
+
+class HibashiHitCondition(Condition):
+    def __init__(self, frames):
+        self.frames = frames
+
+    def get_consumption(self, state: GameState) -> Consumption:
+        if 'Varia' in state.items and 'Gravity' in state.items:
+            return Consumption(energy=7)
+        elif 'Varia' in state.items or 'Gravity' in state.items:
+            return Consumption(energy=15)
+        else:
+            return Consumption(energy=30)
+
+    def __repr__(self):
+        return "HibashiHit({})".format(self.frames)
+
+
+class EnemyDamageCondition(Condition):
+    def __init__(self, base_damage):
+        self.base_damage = base_damage
+
+    def get_consumption(self, state: GameState) -> Consumption:
+        if 'Varia' in state.items and 'Gravity' in state.items:
+            return Consumption(energy=self.base_damage // 4)
+        elif 'Varia' in state.items or 'Gravity' in state.items:
+            return Consumption(energy=self.base_damage // 2)
+        else:
+            return Consumption(energy=self.base_damage)
+
+    def __repr__(self):
+        return "EnemyDamage({})".format(self.frames)
+
+
+class EnemyKillCondition(Condition):
+    def __init__(self, vulnerable_weapons):
+        self.vulnerable_weapons = vulnerable_weapons
+
+    def get_consumption(self, state: GameState) -> Consumption:
+        if state.weapons.isdisjoint(self.vulnerable_weapons):
+            return impossible_consumption
+        else:
+            return zero_consumption
+
+
 # Helper function to simplify AndCondition in case of 0 or 1 conditions
 def make_and_condition(conditions: List[Condition]):
-    if len(conditions) == 0:
-        return ConstantCondition(True)
-    if len(conditions) == 1:
-        return conditions[0]
+    out_conditions = []
+    for cond in conditions:
+        if isinstance(cond, FreeCondition):
+            pass
+        elif isinstance(cond, ImpossibleCondition):
+            return ImpossibleCondition()
+        elif isinstance(cond, AndCondition):
+            for c in cond.conditions:
+                out_conditions.append(c)
+        else:
+            out_conditions.append(cond)
+    if len(out_conditions) == 0:
+        return FreeCondition()
+    if len(out_conditions) == 1:
+        return out_conditions[0]
     else:
-        return AndCondition(conditions)
+        return AndCondition(out_conditions)
 
 
-# Helper function to simplify OrCondition in case of 0 or 1 conditions
+# Helper function to simplify OrCondition in specific cases
 def make_or_condition(conditions: List[Condition]):
-    if len(conditions) == 0:
-        return ConstantCondition(False)
-    if len(conditions) == 1:
-        return conditions[0]
+    out_conditions = []
+    for cond in conditions:
+        if isinstance(cond, FreeCondition):
+            return FreeCondition()
+        elif isinstance(cond, ImpossibleCondition):
+            pass
+        elif isinstance(cond, OrCondition):
+            for c in cond.conditions:
+                out_conditions.append(c)
+        else:
+            out_conditions.append(cond)
+    if len(out_conditions) == 0:
+        return ImpossibleCondition()
+    elif len(out_conditions) == 1:
+        return out_conditions[0]
     else:
-        return OrCondition(conditions)
+        return OrCondition(out_conditions)
 
 
 @dataclass
@@ -142,9 +404,21 @@ class SMJsonData:
         tech_json = json.load(open(f'{sm_json_data_path}/tech.json', 'r'))
         self.tech_json_dict = {tech['name']: tech for tech in tech_json['techs']}
         self.tech_name_set = set(self.tech_json_dict.keys())
+
         helpers_json = json.load(open(f'{sm_json_data_path}/helpers.json', 'r'))
         self.helpers_json_dict = {helper['name']: helper for helper in helpers_json['helpers']}
+
+        enemies_json = json.load(open(f'{sm_json_data_path}/enemies/main.json', 'r'))
+        self.enemies_json_dict = {enemy['name']: enemy for enemy in enemies_json['enemies']}
+
+        weapons_json = json.load(open(f'{sm_json_data_path}/weapons/main.json', 'r'))
+        self.weapons_json_dict = {weapon['name']: weapon for weapon in weapons_json['weapons']}
+
+        self.enemy_vulnerability_dict = {enemy['name']: self.get_enemy_vulnerabilities(enemy)
+                                         for enemy in self.enemies_json_dict.values()}
+
         self.cond_dict = {}
+
 
         for tech_name in self.tech_json_dict.keys():
             self.register_tech_condition(tech_name)
@@ -166,13 +440,40 @@ class SMJsonData:
         # Add Pants Room in-room transition
         from_index = self.node_dict[(220, 2)]  # Pants Room
         to_index = self.node_dict[(322, 1)]  # East Pants Room
-        self.link_list.append(Link(from_index, to_index, ConstantCondition(True)))
+        self.link_list.append(Link(from_index, to_index, FreeCondition()))
 
         self.door_ptr_pair_dict = {}
         connection_files = [str(f) for f in pathlib.Path(f"{sm_json_data_path}/connection").glob("**/*.json")]
         for filename in connection_files:
             connection_data = json.load(open(filename, 'r'))
             self.process_connections(connection_data)
+
+    def is_weapon_considered(self, weapon_json: dict) -> bool:
+        if weapon_json['situational']:
+            return False
+        if 'shotRequires' in weapon_json:
+            return False
+        return True
+
+    def get_weapons(self, items: Set[str]) -> Set[str]:
+        weapons_list = []
+        for weapon in self.weapons_json_dict.values():
+            if not self.is_weapon_considered(weapon):
+                continue
+            if set(weapon['useRequires']).issubset(items):
+                weapons_list.append(weapon['name'])
+        return set(weapons_list)
+
+    def get_enemy_vulnerabilities(self, enemy_json: dict) -> Set[str]:
+        invul = set(enemy_json['invul'])
+        vul_list = []
+        for weapon in self.weapons_json_dict.values():
+            if not self.is_weapon_considered(weapon):
+                continue
+            if any(cat in invul for cat in weapon['categories'] + [weapon['name']]):
+                continue
+            vul_list.append(weapon['name'])
+        return set(vul_list)
 
     def register_tech_condition(self, name):
         if name in self.cond_dict:
@@ -192,7 +493,7 @@ class SMJsonData:
     def make_condition(self, json_data):
         if isinstance(json_data, str):
             if json_data == 'never':
-                return ConstantCondition(True)  # Should be False but then we'd have to deal with obstacles better
+                return ImpossibleCondition()
             if json_data in self.item_set:
                 return ItemCondition(json_data)
             if json_data in self.flags_set:
@@ -216,25 +517,69 @@ class SMJsonData:
             if key == 'and':
                 return make_and_condition([self.make_condition(x) for x in val])
             if key == 'ammo':
-                # For now we ignore ammo quantity, just require one of the ammo type
                 item_type = val['type']
-                assert item_type in self.item_set
-                return ItemCondition(item_type)
+                if item_type == 'Missile':
+                    return MissileCondition(val['count'])
+                elif item_type == 'Super':
+                    return SuperMissileCondition(val['count'])
+                elif item_type == 'PowerBomb':
+                    return PowerBombCondition(val['count'])
+                else:
+                    raise NotImplementedError("Unexpected 'ammo' type: {}".format(item_type))
             if key == 'canShineCharge':
-                return ShineChargeCondition(val['usedTiles'])
+                return ShineChargeCondition(val['usedTiles'], val['shinesparkFrames'])
             if key == 'heatFrames':
-                # For now we keep canHeatRun=False, so heat frames are irrelevant.
-                return ConstantCondition(True)
-            if key in ('lavaFrames', 'lavaPhysicsFrames', 'acidFrames', 'enemyDamage', 'spikeHits', 'hibashiHits', 'energyAtMost'):
-                # For now we ignore energy requirements.
-                return ConstantCondition(True)
-            if key in ('enemyKill', 'resetRoom', 'previousStratProperty', 'previousNode'):
-                # For now assume we can do these.
-                return ConstantCondition(True)
-            if key in ('canComeInCharged', 'adjacentRunway'):
+                return HeatCondition(val)
+            if key == 'lavaFrames':
+                return LavaCondition(val)
+            if key == 'lavaPhysicsFrames':
+                return LavaPhysicsCondition(val)
+            if key == 'acidFrames':
+                return AcidCondition(val)
+            if key == 'spikeHits':
+                return SpikeHitCondition(val)
+            if key == 'thornHits':
+                return ThornHitCondition(val)
+            if key == 'hibashiHits':
+                return HibashiHitCondition(val)
+            if key == 'enemyDamage':
+                if val['enemy'] not in self.enemies_json_dict.keys():
+                    raise NotImplementedError('In enemyDamage, unexpected enemy: {}'.format(val['enemy']))
+                enemy_dict = self.enemies_json_dict[val['enemy']]
+                attacks = {attack['name']: attack['baseDamage'] for attack in enemy_dict['attacks']}
+                if val['type'] not in attacks.keys():
+                    raise NotImplementedError('In enemyDamage for {}, unexpected enemy attack: {}'.format(val['enemy'], val['type']))
+                return EnemyDamageCondition(val['hits'] * attacks[val['type']])
+            if key == 'energyAtMost':
+                # We assume this is only used for the Baby Metroid drain down to 1 energy
+                return EnergyCondition(ENERGY_DRAIN)
+            if key == 'enemyKill':
+                # We only consider enemy kill methods that are non-situational and do not require ammo.
+                conds = []
+                enemy_set = set()
+                for enemy_group in val['enemies']:
+                    for enemy in enemy_group:
+                        enemy_set.add(enemy)
+                if 'explicitWeapons' in val:
+                    explicit_weapons = set(val['explicitWeapons'])
+                else:
+                    explicit_weapons = None
+                for enemy in enemy_set:
+                    if explicit_weapons is not None:
+                        conds.append(EnemyKillCondition(explicit_weapons.intersection(self.enemy_vulnerability_dict[enemy])))
+                    else:
+                        conds.append(EnemyKillCondition(self.enemy_vulnerability_dict[enemy]))
+                return make_and_condition(conds)
+            if key in ('resetRoom', 'previousStratProperty', 'previousNode', 'canComeInCharged', 'adjacentRunway'):
                 # For now assume we can't do these.
-                return ConstantCondition(False)
+                return ImpossibleCondition()
+            # TODO:
+            # - Obstacles
+            # - Boss flags
+            # - Zebes awake flag
+
         raise RuntimeError("Unrecognized condition: {}".format(json_data))
+
 
     def process_region(self, json_data):
         for room_json in json_data['rooms']:
@@ -259,7 +604,9 @@ class SMJsonData:
                 if 'spawnAt' in node_json:
                     from_index = self.node_dict[(room_id, node_json['id'])]
                     to_index = self.node_dict[(room_id, node_json['spawnAt'])]
-                    self.link_list.append(Link(from_index, to_index, ConstantCondition(True)))
+                    self.link_list.append(Link(from_index, to_index, FreeCondition()))
+            # if 'obstacles' in room_json:
+            #     print("Room: {}, obstacles: {}".format(room_json['name'], len(room_json['obstacles'])))
             for link_json in room_json['links']:
                 for link_to_json in link_json['to']:
                     strats = []
@@ -291,6 +638,15 @@ class SMJsonData:
                 self.door_ptr_pair_dict[(src_ptr, dst_ptr)] = src_index
                 self.door_ptr_pair_dict[(dst_ptr, src_ptr)] = dst_index
 
-#
-# sm_json_data_path = "sm-json-data/"
-# sm_json_data = SMJsonData(sm_json_data_path)
+
+sm_json_data_path = "sm-json-data/"
+sm_json_data = SMJsonData(sm_json_data_path)
+# sm_json_data.
+# sm_json_data.link_list[4]
+# weapons = sm_json_data.get_weapons(sm_json_data.item_set)
+# weapons = sm_json_data.get_weapons({"PowerBeam", "Wave", "Charge"})
+# print(weapons)
+# weapons
+# sm_json_data.enemy_vulnerability_dict.keys()
+# sm_json_data.enemy_vulnerability_dict['Kihunter (red)']
+
