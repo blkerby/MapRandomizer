@@ -199,7 +199,7 @@ class OrCondition(Condition):
     def get_consumption(self, state: GameState) -> Consumption:
         consumption = zero_consumption
         for cond in self.conditions:
-            consumption = min_consumption(consumption, cond.get_consumption(state))
+            consumption = min_consumption(consumption, cond.get_consumption(state), state)
         return consumption
 
     def __repr__(self):
@@ -391,7 +391,7 @@ class Link:
     from_index: int  # index in SMJsonData.node_list
     to_index: int  # index in SMJsonData.node_list
     cond: Condition
-
+    strat_name: str
 
 class SMJsonData:
     def __init__(self, sm_json_data_path):
@@ -419,34 +419,38 @@ class SMJsonData:
 
         self.cond_dict = {}
 
-
         for tech_name in self.tech_json_dict.keys():
             self.register_tech_condition(tech_name)
 
         for helper_name in self.helpers_json_dict.keys():
             self.register_helper_condition(helper_name)
 
-        self.node_list = []
-        self.node_dict = {}
-        self.node_ptr_list = []
-        self.item_index_list = []
+        self.vertex_list = []   # List of triples (room_id, node_id, obstacle_bitmask) in order
+        self.vertex_index_dict = {}   # Maps (room_id, node_id, obstacle_bitmask) to integer, the index in self.vertex_index_list
+        self.num_obstacles_dict = {}   # Maps room_id to number of obstacles in room
+        self.node_ptr_dict = {}   # Maps (room_id, node_id) to node pointer
+        self.item_pair_list = []  # List of pairs (room_id, node_id) of item locations
         self.link_list = []
+        self.region_json_dict = {}
+
         region_files = [str(f) for f in pathlib.Path(f"{sm_json_data_path}/region").glob("**/*.json")]
         for filename in region_files:
             # logging.info("Processing {}".format(filename))
             if "ceres" not in filename:
                 region_data = json.load(open(filename, 'r'))
+                self.region_json_dict[filename] = region_data
                 self.process_region(region_data)
         # Add Pants Room in-room transition
-        from_index = self.node_dict[(220, 2)]  # Pants Room
-        to_index = self.node_dict[(322, 1)]  # East Pants Room
-        self.link_list.append(Link(from_index, to_index, FreeCondition()))
+        from_index = self.vertex_index_dict[(220, 2, 0)]  # Pants Room
+        to_index = self.vertex_index_dict[(322, 1, 0)]  # East Pants Room
+        self.link_list.append(Link(from_index, to_index, FreeCondition(), "Pants Room in-room transition"))
 
         self.door_ptr_pair_dict = {}
         connection_files = [str(f) for f in pathlib.Path(f"{sm_json_data_path}/connection").glob("**/*.json")]
         for filename in connection_files:
-            connection_data = json.load(open(filename, 'r'))
-            self.process_connections(connection_data)
+            if "ceres" not in filename:
+                connection_data = json.load(open(filename, 'r'))
+                self.process_connections(connection_data)
 
     def is_weapon_considered(self, weapon_json: dict) -> bool:
         if weapon_json['situational']:
@@ -552,6 +556,7 @@ class SMJsonData:
                 return EnemyDamageCondition(val['hits'] * attacks[val['type']])
             if key == 'energyAtMost':
                 # We assume this is only used for the Baby Metroid drain down to 1 energy
+                # (Currently the only other case is Ceres Ridley, which is irrelevant for us.)
                 return EnergyCondition(ENERGY_DRAIN)
             if key == 'enemyKill':
                 # We only consider enemy kill methods that are non-situational and do not require ammo.
@@ -584,9 +589,13 @@ class SMJsonData:
     def process_region(self, json_data):
         for room_json in json_data['rooms']:
             room_id = room_json['id']
+            if 'obstacles' in room_json:
+                obstacles_dict = {obstacle['id']: i for i, obstacle in enumerate(room_json['obstacles'])}
+            else:
+                obstacles_dict = {}
+            self.num_obstacles_dict[room_id] = len(obstacles_dict)
             for node_json in room_json['nodes']:
-                pair = (room_id, node_json["id"])
-                self.node_dict[pair] = len(self.node_list)
+                pair = (room_id, node_json['id'])
                 if 'nodeAddress' in node_json:
                     node_ptr = int(node_json['nodeAddress'], 16)
                     # Convert East Pants Room door pointers to corresponding Pants Room pointers
@@ -596,51 +605,58 @@ class SMJsonData:
                         node_ptr = 0x1A7A4
                 else:
                     node_ptr = None
+                self.node_ptr_dict[pair] = node_ptr
                 if node_json['nodeType'] == 'item':
-                    self.item_index_list.append(len(self.node_list))
-                self.node_ptr_list.append(node_ptr)
-                self.node_list.append(pair)
+                    self.item_pair_list.append(pair)
+                for obstacle_bitmask in range(2 ** len(obstacles_dict)):
+                    triple = (room_id, node_json['id'], obstacle_bitmask)
+                    # print("added:", triple)
+                    self.vertex_index_dict[triple] = len(self.vertex_list)
+                    self.vertex_list.append(triple)
             for node_json in room_json['nodes']:
+                # TODO: handle spawnAt more correctly.
                 if 'spawnAt' in node_json:
-                    from_index = self.node_dict[(room_id, node_json['id'])]
-                    to_index = self.node_dict[(room_id, node_json['spawnAt'])]
-                    self.link_list.append(Link(from_index, to_index, FreeCondition()))
-            # if 'obstacles' in room_json:
-            #     print("Room: {}, obstacles: {}".format(room_json['name'], len(room_json['obstacles'])))
+                    from_index = self.vertex_index_dict[(room_id, node_json['id'], 0)]
+                    to_index = self.vertex_index_dict[(room_id, node_json['spawnAt'], 0)]
+                    self.link_list.append(Link(from_index, to_index, FreeCondition(), "spawnAt"))
             for link_json in room_json['links']:
                 for link_to_json in link_json['to']:
-                    strats = []
                     for strat_json in link_to_json['strats']:
-                        requires = strat_json['requires']
-                        if "obstacles" in strat_json:
-                            for obstacle in strat_json['obstacles']:
-                                requires = requires + obstacle['requires']
-                        strats.append(self.make_condition(requires))
-                    from_id = link_json['from']
-                    from_index = self.node_dict[(room_id, from_id)]
-                    to_id = link_to_json['id']
-                    to_index = self.node_dict[(room_id, to_id)]
-                    cond = make_or_condition(strats)
-                    # if room_id == 181:
-                    #     print(from_id, to_id, cond)
-                    self.link_list.append(Link(from_index, to_index, cond))
+                        for from_obstacle_bitmask in range(2 ** len(obstacles_dict)):
+                            requires = strat_json['requires']
+                            to_obstacle_bitmask = from_obstacle_bitmask
+                            if "obstacles" in strat_json:
+                                for obstacle in strat_json['obstacles']:
+                                    obstacle_idx = obstacles_dict[obstacle['id']]
+                                    to_obstacle_bitmask |= 1 << obstacle_idx
+                                    if (1 << obstacle_idx) & from_obstacle_bitmask == 0:
+                                        requires = requires + obstacle['requires']
+                                    if "additionalObstacles" in obstacle:
+                                        for additional_obstacle_id in obstacle['additionalObstacles']:
+                                            additional_obstacle_idx = obstacles_dict[additional_obstacle_id]
+                                            to_obstacle_bitmask |= 1 << additional_obstacle_idx
+                            cond = self.make_condition(requires)
+                            from_id = link_json['from']
+                            from_index = self.vertex_index_dict[(room_id, from_id, from_obstacle_bitmask)]
+                            to_id = link_to_json['id']
+                            to_index = self.vertex_index_dict[(room_id, to_id, to_obstacle_bitmask)]
+                            if not isinstance(cond, ImpossibleCondition):
+                                self.link_list.append(Link(from_index, to_index, cond, strat_json['name']))
 
     def process_connections(self, json_data):
         for connection in json_data['connections']:
             assert len(connection['nodes']) == 2
             src_pair = (connection['nodes'][0]['roomid'], connection['nodes'][0]['nodeid'])
             dst_pair = (connection['nodes'][1]['roomid'], connection['nodes'][1]['nodeid'])
-            src_index = self.node_dict.get(src_pair)
-            dst_index = self.node_dict.get(dst_pair)
-            src_ptr = self.node_ptr_list[src_index] if src_index is not None else None
-            dst_ptr = self.node_ptr_list[dst_index] if dst_index is not None else None
+            src_ptr = self.node_ptr_dict.get(src_pair)
+            dst_ptr = self.node_ptr_dict.get(dst_pair)
             if src_ptr is not None or dst_ptr is not None:
-                self.door_ptr_pair_dict[(src_ptr, dst_ptr)] = src_index
-                self.door_ptr_pair_dict[(dst_ptr, src_ptr)] = dst_index
+                self.door_ptr_pair_dict[(src_ptr, dst_ptr)] = src_pair
+                self.door_ptr_pair_dict[(dst_ptr, src_ptr)] = dst_pair
 
 
-sm_json_data_path = "sm-json-data/"
-sm_json_data = SMJsonData(sm_json_data_path)
+# sm_json_data_path = "sm-json-data/"
+# sm_json_data = SMJsonData(sm_json_data_path)
 # sm_json_data.
 # sm_json_data.link_list[4]
 # weapons = sm_json_data.get_weapons(sm_json_data.item_set)
@@ -650,3 +666,5 @@ sm_json_data = SMJsonData(sm_json_data_path)
 # sm_json_data.enemy_vulnerability_dict.keys()
 # sm_json_data.enemy_vulnerability_dict['Kihunter (red)']
 
+# sm_json_data.door_ptr_pair_dict
+# len(sm_json_data.link_list)

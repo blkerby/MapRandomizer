@@ -134,9 +134,9 @@ for ind_i in range(0, 100000):
     sm_json_data_path = "sm-json-data/"
     sm_json_data = SMJsonData(sm_json_data_path)
     tech = set(sm_json_data.tech_name_set)
-    tech.remove('canHeatRun')
+    # tech.remove('canHeatRun')
     # tech = set()
-    difficulty = DifficultyConfig(tech=tech, shine_charge_tiles=33)
+    difficulty = DifficultyConfig(tech=tech, shine_charge_tiles=33, energy_multiplier=1.2)
 
     randomizer = Randomizer(map['doors'], sm_json_data, difficulty)
     for i in range(0, 100):
