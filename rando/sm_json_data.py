@@ -5,11 +5,15 @@ import logging
 import pathlib
 from dataclasses import dataclass
 
-# An upper bound on the possible amount of energy
+# An upper bound on the possible max amount of resources
 ENERGY_LIMIT = 2000
+MISSILE_LIMIT = 230
+SUPER_MISSILE_LIMIT = 50
+POWER_BOMB_LIMIT = 50
 
 # Special value to indicate Baby Metroid drain down to 1 energy:
-ENERGY_DRAIN = 1999
+ENERGY_DRAIN = 2001
+
 
 @dataclass
 class DifficultyConfig:
@@ -17,18 +21,21 @@ class DifficultyConfig:
     shine_charge_tiles: int  # Minimum number of tiles required to shinespark
     energy_multiplier: float  # Multiplier for energy requirements (1.0 is highest difficulty, larger values are easier)
 
+
 @dataclass
 class Consumption:
+    possible: bool = True
     energy: int = 0
     missiles: int = 0
     super_missiles: int = 0
     power_bombs: int = 0
 
+
 @dataclass
 class GameState:
     difficulty: DifficultyConfig
-    items: Set[str]   # Set of collected items
-    flags: Set[str]   # Set of activated flags
+    items: Set[str]  # Set of collected items
+    flags: Set[str]  # Set of activated flags
     weapons: Set[str]  # Set of non-situational weapons (derived from collected items)
     num_energy_tanks: int
     num_reserves: int
@@ -47,6 +54,7 @@ class Condition:
     def get_consumption(self, state: GameState) -> Consumption:
         raise NotImplementedError
 
+
 # def get_plm_type_item_index(plm_type):
 #     assert 0xEED7 <= plm_type <= 0xEFCF
 #     assert plm_type % 4 == 3
@@ -54,7 +62,8 @@ class Condition:
 #     return i
 
 zero_consumption = Consumption()
-impossible_consumption = Consumption(energy=ENERGY_LIMIT)
+impossible_consumption = Consumption(possible=False)
+
 
 class FreeCondition(Condition):
     def get_consumption(self, state: GameState) -> Consumption:
@@ -119,6 +128,7 @@ class FlagCondition(Condition):
     def __repr__(self):
         return "Flag(" + self.flag + ")"
 
+
 class MissileCondition(Condition):
     def __init__(self, amount: int):
         self.amount = amount
@@ -126,6 +136,8 @@ class MissileCondition(Condition):
     def get_consumption(self, state: GameState) -> Consumption:
         return Consumption(missiles=self.amount)
 
+    def __repr__(self):
+        return "Missile({})".format(self.amount)
 
 class SuperMissileCondition(Condition):
     def __init__(self, amount: int):
@@ -134,6 +146,8 @@ class SuperMissileCondition(Condition):
     def get_consumption(self, state: GameState) -> Consumption:
         return Consumption(super_missiles=self.amount)
 
+    def __repr__(self):
+        return "SuperMissile({})".format(self.amount)
 
 class PowerBombCondition(Condition):
     def __init__(self, amount: int):
@@ -141,6 +155,9 @@ class PowerBombCondition(Condition):
 
     def get_consumption(self, state: GameState) -> Consumption:
         return Consumption(power_bombs=self.amount)
+
+    def __repr__(self):
+        return "PowerBomb({})".format(self.amount)
 
 
 class EnergyCondition(Condition):
@@ -150,6 +167,9 @@ class EnergyCondition(Condition):
     def get_consumption(self, state: GameState) -> Consumption:
         return Consumption(energy=self.amount)
 
+    def __repr__(self):
+        return "Energy({})".format(self.amount)
+
 # def max_consumption(a: Consumption, b: Consumption) -> Consumption:
 #     return Consumption(energy=max(a.energy, b.energy),
 #                        missiles=max(a.missiles, b.missiles),
@@ -157,26 +177,39 @@ class EnergyCondition(Condition):
 #                        power_bombs=max(a.power_bombs, b.power_bombs))
 
 def sum_consumption(a: Consumption, b: Consumption) -> Consumption:
-    return Consumption(energy=a.energy + b.energy,
-                       missiles=a.missiles + b.missiles,
-                       super_missiles=a.super_missiles + b.super_missiles,
-                       power_bombs=a.power_bombs + b.power_bombs)
+    if a.possible and b.possible:
+        return Consumption(energy=a.energy + b.energy,
+                           missiles=a.missiles + b.missiles,
+                           super_missiles=a.super_missiles + b.super_missiles,
+                           power_bombs=a.power_bombs + b.power_bombs)
+    else:
+        return Consumption(possible=False)
 
-def get_consumption_scalar_cost(c: Consumption, state: GameState) -> float:
-    eps = 1e-5
-    energy_cost = c.energy / (state.max_energy + eps)
-    missile_cost = c.missiles / (state.max_missiles + eps)
-    super_cost = c.super_missiles / (state.max_super_missiles + eps)
-    pb_cost = c.power_bombs / (state.max_power_bombs + eps)
-    return energy_cost + missile_cost + super_cost + pb_cost
+
+# def get_consumption_scalar_cost(c: Consumption, state: GameState) -> float:
+#     eps = 1e-5
+#     energy_cost = c.energy / (state.max_energy + eps)
+#     missile_cost = c.missiles / (state.max_missiles + eps)
+#     super_cost = c.super_missiles / (state.max_super_missiles + eps)
+#     pb_cost = c.power_bombs / (state.max_power_bombs + eps)
+#     return energy_cost + missile_cost + super_cost + pb_cost
+#
+# def min_consumption(a: Consumption, b: Consumption, state: GameState) -> Consumption:
+#     scalar_cost_a = get_consumption_scalar_cost(a, state)
+#     scalar_cost_b = get_consumption_scalar_cost(b, state)
+#     if scalar_cost_a <= scalar_cost_b:
+#         return a
+#     else:
+#         return b
 
 def min_consumption(a: Consumption, b: Consumption, state: GameState) -> Consumption:
-    scalar_cost_a = get_consumption_scalar_cost(a, state)
-    scalar_cost_b = get_consumption_scalar_cost(b, state)
-    if scalar_cost_a <= scalar_cost_b:
+    a_tuple = (not a.possible, a.energy, a.power_bombs, a.super_missiles, a.missiles)
+    b_tuple = (not b.possible, b.energy, b.power_bombs, b.super_missiles, b.missiles)
+    if a_tuple <= b_tuple:
         return a
     else:
         return b
+
 
 class AndCondition(Condition):
     def __init__(self, conditions):
@@ -197,7 +230,7 @@ class OrCondition(Condition):
         self.conditions = conditions
 
     def get_consumption(self, state: GameState) -> Consumption:
-        consumption = zero_consumption
+        consumption = impossible_consumption
         for cond in self.conditions:
             consumption = min_consumption(consumption, cond.get_consumption(state), state)
         return consumption
@@ -284,7 +317,6 @@ class SpikeHitCondition(Condition):
         return "SpikeHit({})".format(self.frames)
 
 
-
 class ThornHitCondition(Condition):
     def __init__(self, frames):
         self.frames = frames
@@ -343,6 +375,24 @@ class EnemyKillCondition(Condition):
         else:
             return zero_consumption
 
+    def __repr__(self):
+        return "EnemyKill({})".format(self.vulnerable_weapons)
+
+
+class RefillCondition(Condition):
+    def __init__(self, drops_energy, drops_missile, drops_supers, drops_pbs):
+        self.consumption = Consumption(
+            energy=-ENERGY_LIMIT if drops_energy else 0,
+            missiles=-MISSILE_LIMIT if drops_missile else 0,
+            super_missiles=-SUPER_MISSILE_LIMIT if drops_supers else 0,
+            power_bombs=-POWER_BOMB_LIMIT if drops_pbs else 0)
+
+    def get_consumption(self, state: GameState) -> Consumption:
+        return self.consumption
+
+    def __repr__(self):
+        return "Refill({})".format(self.consumption)
+
 
 # Helper function to simplify AndCondition in case of 0 or 1 conditions
 def make_and_condition(conditions: List[Condition]):
@@ -393,6 +443,7 @@ class Link:
     cond: Condition
     strat_name: str
 
+
 class SMJsonData:
     def __init__(self, sm_json_data_path):
         items_json = json.load(open(f'{sm_json_data_path}/items.json', 'r'))
@@ -413,6 +464,8 @@ class SMJsonData:
 
         weapons_json = json.load(open(f'{sm_json_data_path}/weapons/main.json', 'r'))
         self.weapons_json_dict = {weapon['name']: weapon for weapon in weapons_json['weapons']}
+        self.considered_weapons_set = set(
+            [weapon['name'] for weapon in self.weapons_json_dict.values() if self.is_weapon_considered(weapon)])
 
         self.enemy_vulnerability_dict = {enemy['name']: self.get_enemy_vulnerabilities(enemy)
                                          for enemy in self.enemies_json_dict.values()}
@@ -425,10 +478,10 @@ class SMJsonData:
         for helper_name in self.helpers_json_dict.keys():
             self.register_helper_condition(helper_name)
 
-        self.vertex_list = []   # List of triples (room_id, node_id, obstacle_bitmask) in order
-        self.vertex_index_dict = {}   # Maps (room_id, node_id, obstacle_bitmask) to integer, the index in self.vertex_index_list
-        self.num_obstacles_dict = {}   # Maps room_id to number of obstacles in room
-        self.node_ptr_dict = {}   # Maps (room_id, node_id) to node pointer
+        self.vertex_list = []  # List of triples (room_id, node_id, obstacle_bitmask) in order
+        self.vertex_index_dict = {}  # Maps (room_id, node_id, obstacle_bitmask) to integer, the index in self.vertex_index_list
+        self.num_obstacles_dict = {}  # Maps room_id to number of obstacles in room
+        self.node_ptr_dict = {}  # Maps (room_id, node_id) to node pointer
         self.item_pair_list = []  # List of pairs (room_id, node_id) of item locations
         self.link_list = []
         self.region_json_dict = {}
@@ -552,7 +605,8 @@ class SMJsonData:
                 enemy_dict = self.enemies_json_dict[val['enemy']]
                 attacks = {attack['name']: attack['baseDamage'] for attack in enemy_dict['attacks']}
                 if val['type'] not in attacks.keys():
-                    raise NotImplementedError('In enemyDamage for {}, unexpected enemy attack: {}'.format(val['enemy'], val['type']))
+                    raise NotImplementedError(
+                        'In enemyDamage for {}, unexpected enemy attack: {}'.format(val['enemy'], val['type']))
                 return EnemyDamageCondition(val['hits'] * attacks[val['type']])
             if key == 'energyAtMost':
                 # We assume this is only used for the Baby Metroid drain down to 1 energy
@@ -560,20 +614,21 @@ class SMJsonData:
                 return EnergyCondition(ENERGY_DRAIN)
             if key == 'enemyKill':
                 # We only consider enemy kill methods that are non-situational and do not require ammo.
+                # TODO: Consider all methods.
                 conds = []
                 enemy_set = set()
                 for enemy_group in val['enemies']:
                     for enemy in enemy_group:
                         enemy_set.add(enemy)
                 if 'explicitWeapons' in val:
-                    explicit_weapons = set(val['explicitWeapons'])
+                    allowed_weapons = set(val['explicitWeapons'])
                 else:
-                    explicit_weapons = None
+                    allowed_weapons = self.considered_weapons_set
+                if 'excludedWeapons' in val:
+                    allowed_weapons = allowed_weapons.difference(set(val['excludedWeapons']))
                 for enemy in enemy_set:
-                    if explicit_weapons is not None:
-                        conds.append(EnemyKillCondition(explicit_weapons.intersection(self.enemy_vulnerability_dict[enemy])))
-                    else:
-                        conds.append(EnemyKillCondition(self.enemy_vulnerability_dict[enemy]))
+                    conds.append(
+                        EnemyKillCondition(allowed_weapons.intersection(self.enemy_vulnerability_dict[enemy])))
                 return make_and_condition(conds)
             if key in ('resetRoom', 'previousStratProperty', 'previousNode', 'canComeInCharged', 'adjacentRunway'):
                 # For now assume we can't do these.
@@ -584,7 +639,6 @@ class SMJsonData:
             # - Zebes awake flag
 
         raise RuntimeError("Unrecognized condition: {}".format(json_data))
-
 
     def process_region(self, json_data):
         for room_json in json_data['rooms']:
@@ -619,6 +673,31 @@ class SMJsonData:
                     from_index = self.vertex_index_dict[(room_id, node_json['id'], 0)]
                     to_index = self.vertex_index_dict[(room_id, node_json['spawnAt'], 0)]
                     self.link_list.append(Link(from_index, to_index, FreeCondition(), "spawnAt"))
+                if 'utility' in node_json:
+                    for obstacle_bitmask in range(2 ** len(obstacles_dict)):
+                        triple = (room_id, node_json['id'], obstacle_bitmask)
+                        index = self.vertex_index_dict[triple]
+                        fills_energy = 'energy' in node_json['utility']
+                        fills_missiles = 'missile' in node_json['utility']
+                        fills_supers = 'super' in node_json['utility']
+                        fills_pbs = 'powerbomb' in node_json['utility']
+                        cond = RefillCondition(fills_energy, fills_missiles, fills_supers, fills_pbs)
+                        self.link_list.append(Link(index, index, cond, "Refill"))
+            for enemy in (room_json['enemies'] if 'enemies' in room_json else []):
+                if 'farmCycles' in enemy:
+                    # We're ignoring "requires" here. TOOD: Fix this if it is a problem.
+                    enemy_json = self.enemies_json_dict[enemy['enemyName']]
+                    drops = enemy_json['drops']
+                    drops_pbs = drops['powerBomb'] > 0
+                    drops_supers = drops['super'] > 0
+                    drops_missile = drops_pbs | drops_supers | (drops['missile'] > 0)
+                    drops_energy = drops_pbs | drops_supers | (drops['bigEnergy'] > 0) | (drops['smallEnergy'] > 0)
+                    farm_name = "Farm {}".format(enemy['enemyName'])
+                    for node_id in enemy['homeNodes']:
+                        for obstacle_bitmask in range(2 ** len(obstacles_dict)):
+                            index = self.vertex_index_dict[(room_id, node_id, obstacle_bitmask)]
+                            cond = RefillCondition(drops_energy, drops_missile, drops_supers, drops_pbs)
+                            self.link_list.append(Link(index, index, cond, farm_name))
             for link_json in room_json['links']:
                 for link_to_json in link_json['to']:
                     for strat_json in link_to_json['strats']:
@@ -631,6 +710,7 @@ class SMJsonData:
                                     to_obstacle_bitmask |= 1 << obstacle_idx
                                     if (1 << obstacle_idx) & from_obstacle_bitmask == 0:
                                         requires = requires + obstacle['requires']
+                                        # TODO: add node-level obstacle requirements
                                     if "additionalObstacles" in obstacle:
                                         for additional_obstacle_id in obstacle['additionalObstacles']:
                                             additional_obstacle_idx = obstacles_dict[additional_obstacle_id]
@@ -640,8 +720,8 @@ class SMJsonData:
                             from_index = self.vertex_index_dict[(room_id, from_id, from_obstacle_bitmask)]
                             to_id = link_to_json['id']
                             to_index = self.vertex_index_dict[(room_id, to_id, to_obstacle_bitmask)]
-                            if not isinstance(cond, ImpossibleCondition):
-                                self.link_list.append(Link(from_index, to_index, cond, strat_json['name']))
+                            # if not isinstance(cond, ImpossibleCondition):
+                            self.link_list.append(Link(from_index, to_index, cond, strat_json['name']))
 
     def process_connections(self, json_data):
         for connection in json_data['connections']:
@@ -654,9 +734,40 @@ class SMJsonData:
                 self.door_ptr_pair_dict[(src_ptr, dst_ptr)] = src_pair
                 self.door_ptr_pair_dict[(dst_ptr, src_ptr)] = dst_pair
 
+sm_json_data_path = "sm-json-data/"
+sm_json_data = SMJsonData(sm_json_data_path)
+from_vertex = sm_json_data.vertex_index_dict[(38, 5, 0)]
+to_vertex = sm_json_data.vertex_index_dict[(38, 6, 1)]
+for link in sm_json_data.link_list:
+    if link.from_index == from_vertex and link.to_index == to_vertex:
+        print(link)
+        break
 
-# sm_json_data_path = "sm-json-data/"
-# sm_json_data = SMJsonData(sm_json_data_path)
+# difficulty_config = DifficultyConfig(
+#     tech=set(),
+#     shine_charge_tiles=33,
+#     energy_multiplier=1.0)
+# items = {"PowerBomb", "Morph"}
+# game_state = GameState(
+#     difficulty=difficulty_config,
+#     items=items,
+#     flags=set(),
+#     weapons=sm_json_data.get_weapons(set(items)),
+#     num_energy_tanks=0,  # energy_tanks,
+#     num_reserves=0,  # reserve_tanks,
+#     max_energy=99,  # + 100 * (energy_tanks + reserve_tanks),
+#     max_missiles=0,  # missiles,
+#     max_super_missiles=0,  # super_missiles,
+#     max_power_bombs=0,  # power_bombs,
+#     current_missiles=0,  # missiles,
+#     current_super_missiles=0,  # super_missiles,
+#     current_power_bombs=0,  # power_bombs,
+#     node_index=0)
+# link.cond.get_consumption(game_state)
+# link.cond.conditions[1].get_consumption(game_state)
+# link.cond.conditions[1].conditions[0].get_consumption(game_state)
+# link.cond.conditions[1].conditions[1].get_consumption(game_state)
+
 # sm_json_data.
 # sm_json_data.link_list[4]
 # weapons = sm_json_data.get_weapons(sm_json_data.item_set)

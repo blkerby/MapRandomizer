@@ -3,6 +3,7 @@ from rando.sm_json_data import SMJsonData, DifficultyConfig, Consumption, GameSt
 from functools import partial
 from collections import defaultdict
 import pathlib
+import pandas as pd
 
 st.set_page_config(layout="wide")
 
@@ -21,11 +22,11 @@ for tech in sm_json_data.tech_name_set:
     if not tech.startswith('can'):
         raise NotImplementedError("Tech '{}' does not start with 'can'".format(tech))
 
-energy_tanks = st.number_input("Energy tanks", min_value=0, max_value=14, step=1)
-reserve_tanks = st.number_input("Reserve tanks", min_value=0, max_value=4, step=1)
-missiles = st.number_input("Missiles", min_value=0, step=5)
-super_missiles = st.number_input("Super missiles", min_value=0, step=5)
-power_bombs = st.number_input("Power bombs", min_value=0, step=5)
+# energy_tanks = st.number_input("Energy tanks", min_value=0, max_value=14, step=1)
+# reserve_tanks = st.number_input("Reserve tanks", min_value=0, max_value=4, step=1)
+# missiles = st.number_input("Missiles", min_value=0, step=5)
+# super_missiles = st.number_input("Super missiles", min_value=0, step=5)
+# power_bombs = st.number_input("Power bombs", min_value=0, step=5)
 
 # Update style to prevent text in options from being truncated:
 st.markdown(
@@ -52,41 +53,6 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
-
-# ------------- Items ------------------
-
-item_options = [item for item in sorted(sm_json_data.item_set)
-                if item not in ("PowerBeam", "PowerSuit", "Missile", "Super", "PowerBomb")]
-
-if "all_items" not in st.session_state:
-    st.session_state.all_items = True
-    st.session_state.selected_items = item_options
-
-
-def check_change_items():
-    if st.session_state.all_items:
-        st.session_state.selected_items = item_options
-    else:
-        st.session_state.selected_items = []
-
-
-def multi_change_items():
-    if len(st.session_state.selected_items) == len(item_options):
-        st.session_state.all_items = True
-    else:
-        st.session_state.all_items = False
-
-
-selected_items = st.multiselect("Items:", item_options, key="selected_items", on_change=multi_change_items)
-all_items = st.checkbox("Select all", key='all_items', on_change=check_change_items)
-
-full_selected_items = selected_items + ["PowerBeam", "PowerSuit"]
-if missiles > 0:
-    full_selected_items += ["Missile"]
-if super_missiles > 0:
-    full_selected_items += ["Super"]
-if power_bombs > 0:
-    full_selected_items += ["PowerBomb"]
 
 # --------------- Tech ---------------------
 
@@ -169,10 +135,12 @@ else:
 # -------- Obstacles --------------------------
 if 'obstacles' in room:
     obstacle_names = ["{}: {}".format(obstacle['id'], obstacle['name']) for obstacle in room['obstacles']]
+    obstacle_ids = [obstacle['id'] for obstacle in room['obstacles']]
     obstacle_index_dict = {name: i for i, name in enumerate(obstacle_names)}
     cleared_obstacles_names = st.multiselect("Cleared obstacles", obstacle_names)
     cleared_obstacles_bitmask = sum(1 << obstacle_index_dict[name] for name in cleared_obstacles_names)
 else:
+    obstacle_ids = []
     obstacle_names = []
     cleared_obstacles_bitmask = 0
 
@@ -181,6 +149,41 @@ node_names = ["{}: {}".format(node['id'], node['name']) for node in room['nodes'
 node_id_dict = {name: room['nodes'][i]['id'] for i, name in enumerate(node_names)}
 from_node_name = st.selectbox("From node", node_names)
 from_node_id = node_id_dict[from_node_name]
+
+# ------------- Items ------------------
+
+item_options = [item for item in sorted(sm_json_data.item_set)
+                if item not in ("PowerBeam", "PowerSuit", "ETank", "ReserveTank")]
+
+if "all_items" not in st.session_state:
+    st.session_state.all_items = True
+    st.session_state.selected_items = item_options
+
+
+def check_change_items():
+    if st.session_state.all_items:
+        st.session_state.selected_items = item_options
+    else:
+        st.session_state.selected_items = []
+
+
+def multi_change_items():
+    if len(st.session_state.selected_items) == len(item_options):
+        st.session_state.all_items = True
+    else:
+        st.session_state.all_items = False
+
+
+selected_items = st.multiselect("Items:", item_options, key="selected_items", on_change=multi_change_items)
+all_items = st.checkbox("Select all", key='all_items', on_change=check_change_items)
+
+full_selected_items = selected_items + ["PowerBeam", "PowerSuit"]
+# if missiles > 0:
+#     full_selected_items += ["Missile"]
+# if super_missiles > 0:
+#     full_selected_items += ["Super"]
+# if power_bombs > 0:
+#     full_selected_items += ["PowerBomb"]
 
 # -------- Logic ------------------------------
 difficulty_config = DifficultyConfig(
@@ -192,15 +195,15 @@ game_state = GameState(
     items=set(full_selected_items),
     flags=set(selected_flags),
     weapons=sm_json_data.get_weapons(set(full_selected_items)),
-    num_energy_tanks=energy_tanks,
-    num_reserves=reserve_tanks,
-    max_energy=99 + 100 * (energy_tanks + reserve_tanks),
-    max_missiles=missiles,
-    max_super_missiles=super_missiles,
-    max_power_bombs=power_bombs,
-    current_missiles=missiles,
-    current_super_missiles=super_missiles,
-    current_power_bombs=power_bombs,
+    num_energy_tanks=0,  # energy_tanks,
+    num_reserves=0,  # reserve_tanks,
+    max_energy=99,  # + 100 * (energy_tanks + reserve_tanks),
+    max_missiles=0,  # missiles,
+    max_super_missiles=0,  # super_missiles,
+    max_power_bombs=0,  # power_bombs,
+    current_missiles=0,  # missiles,
+    current_super_missiles=0,  # super_missiles,
+    current_power_bombs=0,  # power_bombs,
     node_index=from_node_id)
 from_vertex = sm_json_data.vertex_index_dict[(room['id'], from_node_id, cleared_obstacles_bitmask)]
 
@@ -210,11 +213,35 @@ for link in sm_json_data.link_list:
         to_room_id, to_node_id, to_obstacles_bitmask = sm_json_data.vertex_list[link.to_index]
         link_by_to_node[to_node_id].append(link)
 
-for to_node_id, links in link_by_to_node.items():
+for to_node_id in sorted(link_by_to_node.keys()):
+    links = link_by_to_node[to_node_id]
     to_node_name = ['{}: {}'.format(to_node_id, node['name']) for node in room['nodes'] if node['id'] == to_node_id][0]
     with st.expander('To node {}'.format(to_node_name)):
+        strat_name_list = []
+        possible_list = []
+        energy_list = []
+        missiles_list = []
+        supers_list = []
+        pb_list = []
+        cleared_obstacles_list = []
         for link in links:
             to_room_id, to_node_id, to_obstacles_bitmask = sm_json_data.vertex_list[link.to_index]
-            to_obstacles_names = [name for i, name in enumerate(obstacle_names) if (1 << i) & to_obstacles_bitmask != 0]
+            to_obstacles_ids = [name for i, name in enumerate(obstacle_ids) if (1 << i) & to_obstacles_bitmask != 0]
             consumption = link.cond.get_consumption(game_state)
-            st.write("Cleared obstacles {}, {}: {}".format(to_obstacles_names, link.strat_name, consumption))
+            strat_name_list.append(link.strat_name)
+            possible_list.append(consumption.possible)
+            energy_list.append(consumption.energy)
+            missiles_list.append(consumption.missiles)
+            supers_list.append(consumption.super_missiles)
+            pb_list.append(consumption.power_bombs)
+            cleared_obstacles_list.append(to_obstacles_ids if consumption.possible else None)
+        df = pd.DataFrame({
+            "Strat": strat_name_list,
+            "Possible": possible_list,
+            "Energy": energy_list,
+            "Missiles": missiles_list,
+            "Supers": supers_list,
+            "Power Bombs": pb_list,
+            "Cleared Obstacles": cleared_obstacles_list}
+        ).set_index("Strat")
+        st.table(df)
