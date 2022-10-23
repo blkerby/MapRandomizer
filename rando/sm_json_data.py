@@ -1,18 +1,17 @@
 import abc
+import copy
 from typing import Set, Dict, List
 import json
 import logging
 import pathlib
+import dataclasses
 from dataclasses import dataclass
 
 # An upper bound on the possible max amount of resources
-ENERGY_LIMIT = 2000
+ENERGY_LIMIT = 1899
 MISSILE_LIMIT = 230
 SUPER_MISSILE_LIMIT = 50
 POWER_BOMB_LIMIT = 50
-
-# Special value to indicate Baby Metroid drain down to 1 energy:
-ENERGY_DRAIN = 2001
 
 
 @dataclass
@@ -43,16 +42,56 @@ class GameState:
     max_missiles: int
     max_super_missiles: int
     max_power_bombs: int
+    current_energy: int
     current_missiles: int
     current_super_missiles: int
     current_power_bombs: int
-    node_index: int  # Current node (representing room and location within room)
+    vertex_index: int  # Current node (representing room and location within room)
 
 
 class Condition:
     @abc.abstractmethod
     def get_consumption(self, state: GameState) -> Consumption:
         raise NotImplementedError
+
+
+class Target:
+    @abc.abstractmethod
+    def collect(self, state: GameState) -> GameState:
+        raise NotImplementedError
+
+class FlagTarget(Target):
+    def __init__(self, flag_name: str):
+        self.flag_name = flag_name
+
+    def collect(self, state: GameState) -> GameState:
+        new_state = dataclasses.replace(state)
+        new_state.flags.add(self.flag_name)
+
+
+class ItemTarget(Target):
+    def __init__(self, item_name: str):
+        self.item_name = item_name
+
+    def collect(self, state: GameState) -> GameState:
+        new_state = dataclasses.replace(state)
+        new_state.items.add(self.item_name)
+        if self.item_name == 'Missile':
+            new_state.max_missiles += 5
+            new_state.current_missiles += 5
+        elif self.item_name == 'Super':
+            new_state.max_super_missiles += 5
+            new_state.current_super_missiles += 5
+        elif self.item_name == 'PowerBomb':
+            new_state.max_power_bombs += 5
+            new_state.current_power_bombs += 5
+        elif self.item_name == 'ETank':
+            new_state.num_energy_tanks += 1
+            new_state.max_energy += 100
+            new_state.current_energy = new_state.max_energy
+        elif self.item_name == 'ReserveTank':
+            new_state.num_reserves += 1
+            new_state.max_energy += 100
 
 
 # def get_plm_type_item_index(plm_type):
@@ -349,6 +388,22 @@ class HibashiHitCondition(Condition):
         return "HibashiHit({})".format(self.frames)
 
 
+class DraygonElectricityCondition(Condition):
+    def __init__(self, frames):
+        self.frames = frames
+
+    def get_consumption(self, state: GameState) -> Consumption:
+        if 'Varia' in state.items and 'Gravity' in state.items:
+            return Consumption(energy=self.frames // 4)
+        elif 'Varia' in state.items or 'Gravity' in state.items:
+            return Consumption(energy=self.frames // 2)
+        else:
+            return Consumption(energy=self.frames)
+
+    def __repr__(self):
+        return "DraygonElectricity({})".format(self.frames)
+
+
 class EnemyDamageCondition(Condition):
     def __init__(self, base_damage):
         self.base_damage = base_damage
@@ -460,7 +515,8 @@ class SMJsonData:
         self.helpers_json_dict = {helper['name']: helper for helper in helpers_json['helpers']}
 
         enemies_json = json.load(open(f'{sm_json_data_path}/enemies/main.json', 'r'))
-        self.enemies_json_dict = {enemy['name']: enemy for enemy in enemies_json['enemies']}
+        bosses_json = json.load(open(f'{sm_json_data_path}/enemies/bosses/main.json', 'r'))
+        self.enemies_json_dict = {enemy['name']: enemy for enemy in enemies_json['enemies'] + bosses_json['enemies']}
 
         weapons_json = json.load(open(f'{sm_json_data_path}/weapons/main.json', 'r'))
         self.weapons_json_dict = {weapon['name']: weapon for weapon in weapons_json['weapons']}
@@ -477,6 +533,9 @@ class SMJsonData:
 
         for helper_name in self.helpers_json_dict.keys():
             self.register_helper_condition(helper_name)
+        # TODO: Patch h_heatProof to only use Varia, not Gravity
+        # TODO: Check enemy-count grey door locks to make sure they all unlock f_zebesAwake
+        # TODO: Patch Statues room to open it up
 
         self.vertex_list = []  # List of triples (room_id, node_id, obstacle_bitmask) in order
         self.vertex_index_dict = {}  # Maps (room_id, node_id, obstacle_bitmask) to integer, the index in self.vertex_index_list
@@ -485,12 +544,14 @@ class SMJsonData:
         self.item_pair_list = []  # List of pairs (room_id, node_id) of item locations
         self.link_list = []
         self.region_json_dict = {}
+        self.target_dict = {}  # Maps vertex_id to Target
 
         region_files = [str(f) for f in pathlib.Path(f"{sm_json_data_path}/region").glob("**/*.json")]
         for filename in region_files:
             # logging.info("Processing {}".format(filename))
             if "ceres" not in filename:
                 region_data = json.load(open(filename, 'r'))
+                region_data = self.preprocess_region(region_data)
                 self.region_json_dict[filename] = region_data
                 self.process_region(region_data)
         # Add Pants Room in-room transition
@@ -583,6 +644,13 @@ class SMJsonData:
                     return PowerBombCondition(val['count'])
                 else:
                     raise NotImplementedError("Unexpected 'ammo' type: {}".format(item_type))
+            if key == 'ammoDrain':
+                # This only occurs in the Mother Brain fight. We treat it as free because it would be a pain (and
+                # inefficient) to try to incorporate this as a new kind of edge in our graph traversal. This should
+                # still be correct if we assume that ammo is not needed in the escape.
+                # TODO: Make sure this assumption is correct.
+                # (Alternatively, patch the fight to skip draining the ammo.)
+                return FreeCondition()
             if key == 'canShineCharge':
                 return ShineChargeCondition(val['usedTiles'], val['shinesparkFrames'])
             if key == 'heatFrames':
@@ -593,6 +661,8 @@ class SMJsonData:
                 return LavaPhysicsCondition(val)
             if key == 'acidFrames':
                 return AcidCondition(val)
+            if key == 'draygonElectricityFrames':
+                return DraygonElectricityCondition(val)
             if key == 'spikeHits':
                 return SpikeHitCondition(val)
             if key == 'thornHits':
@@ -609,9 +679,13 @@ class SMJsonData:
                         'In enemyDamage for {}, unexpected enemy attack: {}'.format(val['enemy'], val['type']))
                 return EnemyDamageCondition(val['hits'] * attacks[val['type']])
             if key == 'energyAtMost':
-                # We assume this is only used for the Baby Metroid drain down to 1 energy
-                # (Currently the only other case is Ceres Ridley, which is irrelevant for us.)
-                return EnergyCondition(ENERGY_DRAIN)
+                # This is only used for the Baby Metroid drain down to 1 energy (and for the Ceres Ridley fight, which
+                # is irrelevant for us). We treat it as free because it would be a pain (and inefficient) to try to
+                # incorporate this as a new kind of edge in our graph traversal. If canBabyMetroidAvoid tech is
+                # enabled, then the drain can be skipped, making this indeed free; otherwise we need to figure
+                # out some other way to make this correct.
+                # TODO: If canBabyMetroidAvoid is not enabled, patch the game to skip the baby cutscene?
+                return FreeCondition()
             if key == 'enemyKill':
                 # We only consider enemy kill methods that are non-situational and do not require ammo.
                 # TODO: Consider all methods.
@@ -630,15 +704,74 @@ class SMJsonData:
                     conds.append(
                         EnemyKillCondition(allowed_weapons.intersection(self.enemy_vulnerability_dict[enemy])))
                 return make_and_condition(conds)
-            if key in ('resetRoom', 'previousStratProperty', 'previousNode', 'canComeInCharged', 'adjacentRunway'):
+            if key == 'previousNode':
+                # Currently this is used only in the Early Supers quick crumble and Mission Impossible strats and is
+                # redundant in both cases, so we treat it as free.
+                return FreeCondition()
+            if key in ('resetRoom', 'previousStratProperty', 'canComeInCharged', 'adjacentRunway'):
                 # For now assume we can't do these.
                 return ImpossibleCondition()
             # TODO:
-            # - Obstacles
             # - Boss flags
             # - Zebes awake flag
 
         raise RuntimeError("Unrecognized condition: {}".format(json_data))
+
+    def preprocess_room(self, raw_room_json):
+        room_json = copy.deepcopy(raw_room_json)
+        next_node_id = max(node_json['id'] for node_json in room_json['nodes']) + 1
+        extra_node_list = []
+        extra_link_list = []
+        for node_json in room_json['nodes']:
+            if 'locks' in node_json and node_json['nodeType'] not in ('door', 'entrance'):
+                assert len(node_json['locks']) == 1
+                base_node_name = node_json['name']
+                lock = node_json['locks'][0]
+                yields = node_json.get('yields')
+                del node_json['locks']
+                new_node_json = copy.deepcopy(node_json)
+                if yields is not None:
+                    del node_json['yields']
+                node_json['name'] = base_node_name + ' (locked)'
+                node_json['nodeType'] = 'junction'
+
+                new_node_json['id'] = next_node_id
+                new_node_json['name'] = base_node_name + ' (unlocked)'
+                if yields is not None:
+                    new_node_json['yields'] = yields
+                extra_node_list.append(new_node_json)
+
+                link_to = {
+                    'from': node_json['id'],
+                    'to': [{
+                        'id': next_node_id,
+                        'strats': lock['unlockStrats']
+                    }]
+                }
+                link_from = {
+                    'from': next_node_id,
+                    'to': [{
+                        'id': node_json['id'],
+                        'strats': [{
+                            'name': 'Base',
+                            'notable': False,
+                            'requires': [],
+                        }],
+                    }]
+                }
+                extra_link_list.append(link_to)
+                extra_link_list.append(link_from)
+
+                next_node_id += 1
+
+        room_json['nodes'] += extra_node_list
+        room_json['links'] += extra_link_list
+        return room_json
+
+    def preprocess_region(self, raw_json_data):
+        json_data = copy.deepcopy(raw_json_data)
+        json_data['rooms'] = [self.preprocess_room(room) for room in raw_json_data['rooms']]
+        return json_data
 
     def process_region(self, json_data):
         for room_json in json_data['rooms']:
@@ -668,6 +801,8 @@ class SMJsonData:
                     self.vertex_index_dict[triple] = len(self.vertex_list)
                     self.vertex_list.append(triple)
             for node_json in room_json['nodes']:
+                # if 'locks' in node_json and node_json['nodeType'] != 'door':
+                #     print(f"room='{room_json['name']}', node='{node_json['name']}', nodeType='{node_json.get('nodeType')}', yields='{node_json.get('yields')}'")
                 # TODO: handle spawnAt more correctly.
                 if 'spawnAt' in node_json:
                     from_index = self.vertex_index_dict[(room_id, node_json['id'], 0)]
@@ -710,7 +845,8 @@ class SMJsonData:
                                     to_obstacle_bitmask |= 1 << obstacle_idx
                                     if (1 << obstacle_idx) & from_obstacle_bitmask == 0:
                                         requires = requires + obstacle['requires']
-                                        # TODO: add node-level obstacle requirements
+                                        if 'requires' in room_json['obstacles'][obstacle_idx]:
+                                            requires = requires + room_json['obstacles'][obstacle_idx]['requires']
                                     if "additionalObstacles" in obstacle:
                                         for additional_obstacle_id in obstacle['additionalObstacles']:
                                             additional_obstacle_idx = obstacles_dict[additional_obstacle_id]
@@ -736,12 +872,21 @@ class SMJsonData:
 
 sm_json_data_path = "sm-json-data/"
 sm_json_data = SMJsonData(sm_json_data_path)
-from_vertex = sm_json_data.vertex_index_dict[(38, 5, 0)]
-to_vertex = sm_json_data.vertex_index_dict[(38, 6, 1)]
-for link in sm_json_data.link_list:
-    if link.from_index == from_vertex and link.to_index == to_vertex:
-        print(link)
-        break
+
+for region in sm_json_data.region_json_dict.values():
+    for room in region['rooms']:
+        if 'obstacles' not in room:
+            continue
+        for obstacle in room['obstacles']:
+            if 'requires' in obstacle:
+                print(room['name'])
+
+# from_vertex = sm_json_data.vertex_index_dict[(38, 5, 0)]
+# to_vertex = sm_json_data.vertex_index_dict[(38, 6, 1)]
+# for link in sm_json_data.link_list:
+#     if link.from_index == from_vertex and link.to_index == to_vertex:
+#         print(link)
+#         break
 
 # difficulty_config = DifficultyConfig(
 #     tech=set(),

@@ -201,10 +201,11 @@ game_state = GameState(
     max_missiles=0,  # missiles,
     max_super_missiles=0,  # super_missiles,
     max_power_bombs=0,  # power_bombs,
+    current_energy=99,
     current_missiles=0,  # missiles,
     current_super_missiles=0,  # super_missiles,
     current_power_bombs=0,  # power_bombs,
-    node_index=from_node_id)
+    vertex_index=from_node_id)
 from_vertex = sm_json_data.vertex_index_dict[(room['id'], from_node_id, cleared_obstacles_bitmask)]
 
 link_by_to_node = defaultdict(lambda: [])
@@ -245,3 +246,5 @@ for to_node_id in sorted(link_by_to_node.keys()):
             "Cleared Obstacles": cleared_obstacles_list}
         ).set_index("Strat")
         st.table(df)
+
+st.json(room, expanded=False)
