@@ -5,7 +5,12 @@ import json
 import logging
 import pathlib
 import dataclasses
+import numpy as np
 from dataclasses import dataclass
+
+# C++ module for computing reachability in graph
+# (TODO: set this up more properly)
+import reachability
 
 # An upper bound on the possible max amount of resources
 ENERGY_LIMIT = 1899
@@ -59,6 +64,7 @@ class Target:
     @abc.abstractmethod
     def collect(self, state: GameState) -> GameState:
         raise NotImplementedError
+
 
 class FlagTarget(Target):
     def __init__(self, flag_name: str):
@@ -178,6 +184,7 @@ class MissileCondition(Condition):
     def __repr__(self):
         return "Missile({})".format(self.amount)
 
+
 class SuperMissileCondition(Condition):
     def __init__(self, amount: int):
         self.amount = amount
@@ -187,6 +194,7 @@ class SuperMissileCondition(Condition):
 
     def __repr__(self):
         return "SuperMissile({})".format(self.amount)
+
 
 class PowerBombCondition(Condition):
     def __init__(self, amount: int):
@@ -208,6 +216,7 @@ class EnergyCondition(Condition):
 
     def __repr__(self):
         return "Energy({})".format(self.amount)
+
 
 # def max_consumption(a: Consumption, b: Consumption) -> Consumption:
 #     return Consumption(energy=max(a.energy, b.energy),
@@ -341,51 +350,51 @@ class AcidCondition(Condition):
 
 
 class SpikeHitCondition(Condition):
-    def __init__(self, frames):
-        self.frames = frames
+    def __init__(self, hits):
+        self.hits = hits
 
     def get_consumption(self, state: GameState) -> Consumption:
         if 'Varia' in state.items and 'Gravity' in state.items:
-            return Consumption(energy=15)
+            return Consumption(energy=15 * self.hits)
         elif 'Varia' in state.items or 'Gravity' in state.items:
-            return Consumption(energy=30)
+            return Consumption(energy=30 * self.hits)
         else:
-            return Consumption(energy=60)
+            return Consumption(energy=60 * self.hits)
 
     def __repr__(self):
-        return "SpikeHit({})".format(self.frames)
+        return "SpikeHit({})".format(self.hits)
 
 
 class ThornHitCondition(Condition):
-    def __init__(self, frames):
-        self.frames = frames
+    def __init__(self, hits):
+        self.hits = hits
 
     def get_consumption(self, state: GameState) -> Consumption:
         if 'Varia' in state.items and 'Gravity' in state.items:
-            return Consumption(energy=4)
+            return Consumption(energy=4 * self.hits)
         elif 'Varia' in state.items or 'Gravity' in state.items:
-            return Consumption(energy=8)
+            return Consumption(energy=8 * self.hits)
         else:
-            return Consumption(energy=16)
+            return Consumption(energy=16 * self.hits)
 
     def __repr__(self):
-        return "ThornHit({})".format(self.frames)
+        return "ThornHit({})".format(self.hits)
 
 
 class HibashiHitCondition(Condition):
-    def __init__(self, frames):
-        self.frames = frames
+    def __init__(self, hits):
+        self.hits = hits
 
     def get_consumption(self, state: GameState) -> Consumption:
         if 'Varia' in state.items and 'Gravity' in state.items:
-            return Consumption(energy=7)
+            return Consumption(energy=7 * self.hits)
         elif 'Varia' in state.items or 'Gravity' in state.items:
-            return Consumption(energy=15)
+            return Consumption(energy=15 * self.hits)
         else:
-            return Consumption(energy=30)
+            return Consumption(energy=30 * self.hits)
 
     def __repr__(self):
-        return "HibashiHit({})".format(self.frames)
+        return "HibashiHit({})".format(self.hits)
 
 
 class DraygonElectricityCondition(Condition):
@@ -499,6 +508,32 @@ class Link:
     strat_name: str
 
 
+def has_key(x, k):
+    if isinstance(x, list):
+        return any(has_key(y, k) for y in x)
+    elif isinstance(x, dict):
+        if k in x.keys():
+            return True
+        return any(has_key(y, k) for y in x.values())
+    else:
+        return False
+
+
+def find_key(x, key, prefix):
+    if isinstance(x, list):
+        return [z for i, y in enumerate(x) for z in find_key(y, key, prefix + '.{}'.format(i))]
+    elif isinstance(x, dict):
+        if key in x.keys():
+            out = [prefix + '.{}'.format(key)]
+        else:
+            out = []
+        for k, v in x.items():
+            out += find_key(v, key, prefix + '.{}'.format(k))
+        return out
+    else:
+        return []
+
+
 class SMJsonData:
     def __init__(self, sm_json_data_path):
         items_json = json.load(open(f'{sm_json_data_path}/items.json', 'r'))
@@ -536,6 +571,7 @@ class SMJsonData:
         # TODO: Patch h_heatProof to only use Varia, not Gravity
         # TODO: Check enemy-count grey door locks to make sure they all unlock f_zebesAwake
         # TODO: Patch Statues room to open it up
+        # TODO: Patch out backdoor Shaktool?
 
         self.vertex_list = []  # List of triples (room_id, node_id, obstacle_bitmask) in order
         self.vertex_index_dict = {}  # Maps (room_id, node_id, obstacle_bitmask) to integer, the index in self.vertex_index_list
@@ -708,7 +744,16 @@ class SMJsonData:
                 # Currently this is used only in the Early Supers quick crumble and Mission Impossible strats and is
                 # redundant in both cases, so we treat it as free.
                 return FreeCondition()
-            if key in ('resetRoom', 'previousStratProperty', 'canComeInCharged', 'adjacentRunway'):
+            if key == 'resetRoom':
+                # In all the places where this is required (excluding runways and canComeInCharged which we are not
+                # yet taking into account), it seems to be essentially unnecessary (ignoring the
+                # possibility of needing to take a small amount of heat damage in an adjacent room to exit and
+                # reenter), so for now we treat it as free.
+                return FreeCondition()
+            if key == 'previousStratProperty':
+                # This is only used in one place in Crumble Shaft, where it doesn't seem to be necessary.
+                return FreeCondition()
+            if key in ('canComeInCharged', 'adjacentRunway'):
                 # For now assume we can't do these.
                 return ImpossibleCondition()
             # TODO:
@@ -781,6 +826,10 @@ class SMJsonData:
             else:
                 obstacles_dict = {}
             self.num_obstacles_dict[room_id] = len(obstacles_dict)
+            # if has_key(room_json, 'previousStratProperty'):
+            #     print(f"room='{room_json['name']}'")
+            #     for s in find_key(room_json, 'previousStratProperty', ''):
+            #         print(s)
             for node_json in room_json['nodes']:
                 pair = (room_id, node_json['id'])
                 if 'nodeAddress' in node_json:
@@ -803,6 +852,8 @@ class SMJsonData:
             for node_json in room_json['nodes']:
                 # if 'locks' in node_json and node_json['nodeType'] != 'door':
                 #     print(f"room='{room_json['name']}', node='{node_json['name']}', nodeType='{node_json.get('nodeType')}', yields='{node_json.get('yields')}'")
+                # if 'yields' in node_json:
+                #     print(f"room='{room_json['name']}', node='{node_json['id']}', yields='{node_json.get('yields')}'")
                 # TODO: handle spawnAt more correctly.
                 if 'spawnAt' in node_json:
                     from_index = self.vertex_index_dict[(room_id, node_json['id'], 0)]
@@ -870,16 +921,44 @@ class SMJsonData:
                 self.door_ptr_pair_dict[(src_ptr, dst_ptr)] = src_pair
                 self.door_ptr_pair_dict[(dst_ptr, src_ptr)] = dst_pair
 
+    def get_graph(self, state: GameState) -> np.array:
+        graph = np.zeros([len(self.link_list), 6], dtype=np.int16)
+        i = 0
+        for link in self.link_list:
+            consumption = link.cond.get_consumption(state)
+            if consumption.possible:
+                graph[i, 0] = link.from_index
+                graph[i, 1] = link.to_index
+                graph[i, 2] = consumption.energy
+                graph[i, 3] = consumption.missiles
+                graph[i, 4] = consumption.super_missiles
+                graph[i, 5] = consumption.power_bombs
+                # print(link.strat_name, graph[i, :])
+                i += 1
+        return graph[:i, :]
+
+    def compute_reachable_vertices(self, state: GameState):
+        # TODO: Add door-connection edges.
+        graph = self.get_graph(state)
+        current_resources = np.array(
+            [state.current_energy, state.current_missiles, state.current_super_missiles, state.current_power_bombs])
+        max_resources = np.array(
+            [state.max_energy, state.max_missiles, state.max_super_missiles, state.max_power_bombs])
+        output = np.zeros([len(self.vertex_list), 4], dtype=np.int16)
+        reachability.compute_reachability(graph, state.vertex_index, len(self.vertex_list),
+                                                current_resources, max_resources, output)
+        return output
+
+
 sm_json_data_path = "sm-json-data/"
 sm_json_data = SMJsonData(sm_json_data_path)
-
-for region in sm_json_data.region_json_dict.values():
-    for room in region['rooms']:
-        if 'obstacles' not in room:
-            continue
-        for obstacle in room['obstacles']:
-            if 'requires' in obstacle:
-                print(room['name'])
+# for region in sm_json_data.region_json_dict.values():
+#     for room in region['rooms']:
+#         if 'obstacles' not in room:
+#             continue
+#         for obstacle in room['obstacles']:
+#             if 'requires' in obstacle:
+#                 print(room['name'])
 
 # from_vertex = sm_json_data.vertex_index_dict[(38, 5, 0)]
 # to_vertex = sm_json_data.vertex_index_dict[(38, 6, 1)]
@@ -892,7 +971,8 @@ for region in sm_json_data.region_json_dict.values():
 #     tech=set(),
 #     shine_charge_tiles=33,
 #     energy_multiplier=1.0)
-# items = {"PowerBomb", "Morph"}
+# # items = {"PowerBomb", "Morph"}
+# items = set()
 # game_state = GameState(
 #     difficulty=difficulty_config,
 #     items=items,
@@ -904,10 +984,21 @@ for region in sm_json_data.region_json_dict.values():
 #     max_missiles=0,  # missiles,
 #     max_super_missiles=0,  # super_missiles,
 #     max_power_bombs=0,  # power_bombs,
+#     current_energy=50,
 #     current_missiles=0,  # missiles,
 #     current_super_missiles=0,  # super_missiles,
 #     current_power_bombs=0,  # power_bombs,
-#     node_index=0)
+#     vertex_index=sm_json_data.vertex_index_dict[(8, 5, 0)])  # Ship (Landing Site)
+#
+# out = sm_json_data.compute_reachable_vertices(game_state)
+# nz_i, nz_j = (out != -1).nonzero()
+#
+# print(nz_i.shape)
+# for k in range(nz_i.shape[0]):
+#     print(sm_json_data.vertex_list[nz_i[k]])
+#     print(out[nz_i[k], :])
+
+# graph = sm_json_data.get_graph(game_state)
 # link.cond.get_consumption(game_state)
 # link.cond.conditions[1].get_consumption(game_state)
 # link.cond.conditions[1].conditions[0].get_consumption(game_state)
