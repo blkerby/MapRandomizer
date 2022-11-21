@@ -12,7 +12,7 @@ from collections import defaultdict
 # from rando.rooms import room_ptrs
 from maze_builder.env import MazeBuilderEnv
 from rando.sm_json_data import SMJsonData, GameState, Link, DifficultyConfig
-from rando.rando import Randomizer
+from rando.items import Randomizer
 from logic.rooms.all_rooms import rooms
 from maze_builder.display import MapDisplay
 from maze_builder.types import Room
@@ -41,7 +41,7 @@ logging.basicConfig(format='%(asctime)s %(message)s',
 
 torch.set_printoptions(linewidth=120, threshold=10000)
 import io
-
+import os
 
 class CPU_Unpickler(pickle.Unpickler):
     def find_class(self, module, name):
@@ -51,75 +51,7 @@ class CPU_Unpickler(pickle.Unpickler):
             return super().find_class(module, name)
 
 device = torch.device('cpu')
-# session_name = '12-15-session-2021-12-10T06:00:58.163492.pkl'
-# session_name = '01-16-session-2022-01-13T12:40:37.881929.pkl'
-# session_name = '04-16-session-2022-03-29T15:40:57.320430.pkl'
-session_name = '07-31-session-2022-06-03T17:19:29.727911.pkl-bk30-small'
-session = CPU_Unpickler(open('models/{}'.format(session_name), 'rb')).load()
-ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 343)
-#
 
-# print(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects.to(torch.float32), dim=0)))
-# print(torch.max(session.replay_buffer.episode_data.reward))
-
-def get_map(ind_i):
-    num_rooms = len(session.envs[0].rooms)
-    action = session.replay_buffer.episode_data.action[ind[ind_i], :]
-    step_indices = torch.tensor([num_rooms])
-    room_mask, room_position_x, room_position_y = reconstruct_room_data(action, step_indices, num_rooms)
-    rooms = logic.rooms.all_rooms.rooms
-
-    doors_dict = {}
-    doors_cnt = {}
-    door_pairs = []
-    for i, room in enumerate(rooms):
-        for door in room.door_ids:
-            x = int(room_position_x[0, i]) + door.x
-            if door.direction == Direction.RIGHT:
-                x += 1
-            y = int(room_position_y[0, i]) + door.y
-            if door.direction == Direction.DOWN:
-                y += 1
-            vertical = door.direction in (Direction.DOWN, Direction.UP)
-            key = (x, y, vertical)
-            if key in doors_dict:
-                a = doors_dict[key]
-                b = door
-                if a.direction in (Direction.LEFT, Direction.UP):
-                    a, b = b, a
-                if a.subtype == DoorSubtype.SAND:
-                    door_pairs.append([[a.exit_ptr, a.entrance_ptr], [b.exit_ptr, b.entrance_ptr], False])
-                else:
-                    door_pairs.append([[a.exit_ptr, a.entrance_ptr], [b.exit_ptr, b.entrance_ptr], True])
-                doors_cnt[key] += 1
-            else:
-                doors_dict[key] = door
-                doors_cnt[key] = 1
-
-    assert all(x == 2 for x in doors_cnt.values())
-    map_name = '{}-{}'.format(session_name, ind_i)
-    map = {
-        'rooms': [[room_position_x[0, i].item(), room_position_y[0, i].item()]
-                  for i in range(room_position_x.shape[1] - 1)],
-        'doors': door_pairs
-    }
-    num_envs = 1
-    env = MazeBuilderEnv(rooms,
-                         map_x=session.envs[0].map_x,
-                         map_y=session.envs[0].map_y,
-                         num_envs=num_envs,
-                         device=device,
-                         must_areas_be_connected=False)
-    env.room_mask = room_mask
-    env.room_position_x = room_position_x
-    env.room_position_y = room_position_y
-    # env.render(0)
-    return map, map_name
-
-# json.dump(map, open('maps/{}.json'.format(map_name), 'w'))
-
-# map_name = '04-16-session-2022-03-29T15:40:57.320430-19'
-# get_map(77)
 
 sm_json_data_path = "sm-json-data/"
 sm_json_data = SMJsonData(sm_json_data_path)
@@ -128,13 +60,14 @@ tech = set(sm_json_data.tech_name_set)
 # tech = set()
 difficulty = DifficultyConfig(tech=tech, shine_charge_tiles=33, multiplier=1.2)
 
+map_dir = 'maps/session-2022-06-03T17:19:29.727911.pkl-bk30'
+file_list = sorted(os.listdir(map_dir))
 
-for ind_i in range(44, 100000):
-    logging.info("ind_i={}".format(ind_i))
-    map, map_name = get_map(ind_i=ind_i)
-    map_path = 'maps/{}.json'.format(map_name)
-    output_rom_path = 'roms/{}.sfc'.format(map_name, ind_i)
-    # map = json.load(open(map_path, 'r'))
+for map_filename in file_list[4:]:
+    map_file = '{}/{}'.format(map_dir, map_filename)
+    map = json.load(open(map_file, 'r'))
+    logging.info("{}".format(map_file))
+    output_rom_path = 'roms/{}.sfc'.format(map_filename)
 
     randomizer = Randomizer(map, sm_json_data, difficulty)
     for i in range(0, 100):
@@ -152,7 +85,7 @@ for ind_i in range(44, 100000):
         continue
     break
 
-print("Done with item randomization")
+logging.info("Done with item randomization")
 
 for room in rooms:
     room.populate()
@@ -186,40 +119,43 @@ def check_connected(vertices, edges):
     comp, hist = graph_tool.topology.label_components(subgraph)
     return hist.shape[0] == 1
 
-# Try to assign new areas to rooms in a way that makes areas as clustered as possible
-best_entropy = float('inf')
-best_state = None
+# # Try to assign new areas to rooms in a way that makes areas as clustered as possible
+# best_entropy = float('inf')
+# best_state = None
+# num_areas = 6
+# for i in range(0, 2000):
+#     graph_tool.seed_rng(i)
+#     state = graph_tool.inference.minimize_blockmodel_dl(room_graph,
+#                                                         multilevel_mcmc_args={"B_min": num_areas, "B_max": num_areas})
+#     # for j in range(10):
+#     #     state.multiflip_mcmc_sweep(beta=np.inf, niter=10)
+#     e = state.entropy()
+#     if e < best_entropy:
+#         u, block_id = np.unique(state.get_blocks().get_array(), return_inverse=True)
+#         assert len(u) == num_areas
+#         for j in range(num_areas):
+#             ind = np.where(block_id == j)[0]
+#             x_range = np.max(xs_max[ind]) - np.min(xs_min[ind])
+#             y_range = np.max(ys_max[ind]) - np.min(ys_min[ind])
+#             if x_range > 60 or y_range > 30:
+#                 break
+#             if not check_connected(ind, edges_list):
+#                 break
+#         else:
+#             best_entropy = e
+#             best_state = state
+#     print(i, e, best_entropy)
+#
+# assert best_state is not None
+# state = best_state
+# # state.draw()
+
+
 num_areas = 6
-for i in range(0, 2000):
-    graph_tool.seed_rng(i)
-    state = graph_tool.inference.minimize_blockmodel_dl(room_graph,
-                                                        multilevel_mcmc_args={"B_min": num_areas, "B_max": num_areas})
-    # for j in range(10):
-    #     state.multiflip_mcmc_sweep(beta=np.inf, niter=10)
-    e = state.entropy()
-    if e < best_entropy:
-        u, block_id = np.unique(state.get_blocks().get_array(), return_inverse=True)
-        assert len(u) == num_areas
-        for j in range(num_areas):
-            ind = np.where(block_id == j)[0]
-            x_range = np.max(xs_max[ind]) - np.min(xs_min[ind])
-            y_range = np.max(ys_max[ind]) - np.min(ys_min[ind])
-            if x_range > 60 or y_range > 30:
-                break
-            if not check_connected(ind, edges_list):
-                break
-        else:
-            best_entropy = e
-            best_state = state
-    print(i, e, best_entropy)
-
-assert best_state is not None
-state = best_state
-# state.draw()
-
+area_arr = np.array(map['area'])
 
 display = MapDisplay(72, 72, 14)
-_, area_arr = np.unique(state.get_blocks().get_array(), return_inverse=True)
+# _, area_arr = np.unique(state.get_blocks().get_array(), return_inverse=True)
 
 # Ensure that Landing Site is in Crateria:
 area_arr = (area_arr - area_arr[1] + num_areas) % num_areas

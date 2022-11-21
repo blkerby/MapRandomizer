@@ -23,7 +23,7 @@ POWER_BOMB_LIMIT = 50
 class DifficultyConfig:
     tech: Set[str]  # Set of names of enabled tech (https://github.com/miketrethewey/sm-json-data/blob/master/tech.json)
     shine_charge_tiles: int  # Minimum number of tiles required to shinespark
-    energy_multiplier: float  # Multiplier for energy requirements (1.0 is highest difficulty, larger values are easier)
+    multiplier: float  # Multiplier for energy/ammo requirements (1.0 is highest difficulty, larger values are easier)
 
 
 @dataclass
@@ -71,8 +71,9 @@ class FlagTarget(Target):
         self.flag_name = flag_name
 
     def collect(self, state: GameState) -> GameState:
-        new_state = dataclasses.replace(state)
+        new_state = copy.deepcopy(state)
         new_state.flags.add(self.flag_name)
+        return new_state
 
 
 class ItemTarget(Target):
@@ -80,7 +81,7 @@ class ItemTarget(Target):
         self.item_name = item_name
 
     def collect(self, state: GameState) -> GameState:
-        new_state = dataclasses.replace(state)
+        new_state = copy.deepcopy(state)
         new_state.items.add(self.item_name)
         if self.item_name == 'Missile':
             new_state.max_missiles += 5
@@ -98,7 +99,7 @@ class ItemTarget(Target):
         elif self.item_name == 'ReserveTank':
             new_state.num_reserves += 1
             new_state.max_energy += 100
-
+        return new_state
 
 # def get_plm_type_item_index(plm_type):
 #     assert 0xEED7 <= plm_type <= 0xEFCF
@@ -577,7 +578,7 @@ class SMJsonData:
         self.vertex_index_dict = {}  # Maps (room_id, node_id, obstacle_bitmask) to integer, the index in self.vertex_index_list
         self.num_obstacles_dict = {}  # Maps room_id to number of obstacles in room
         self.node_ptr_dict = {}  # Maps (room_id, node_id) to node pointer
-        self.item_pair_list = []  # List of pairs (room_id, node_id) of item locations
+        self.target_dict = []  # Dict mapping pair (room_id, node_id) to either a node pointer (for an item location) or flag name (for a node yielding a flag)
         self.link_list = []
         self.region_json_dict = {}
         self.target_dict = {}  # Maps vertex_id to Target
@@ -843,7 +844,9 @@ class SMJsonData:
                     node_ptr = None
                 self.node_ptr_dict[pair] = node_ptr
                 if node_json['nodeType'] == 'item':
-                    self.item_pair_list.append(pair)
+                    self.target_dict[pair] = node_ptr
+                elif 'yields' in node_json:
+                    self.target_dict[pair] = node_json['yields'][0]
                 for obstacle_bitmask in range(2 ** len(obstacles_dict)):
                     triple = (room_id, node_json['id'], obstacle_bitmask)
                     # print("added:", triple)
@@ -854,6 +857,8 @@ class SMJsonData:
                 #     print(f"room='{room_json['name']}', node='{node_json['name']}', nodeType='{node_json.get('nodeType')}', yields='{node_json.get('yields')}'")
                 # if 'yields' in node_json:
                 #     print(f"room='{room_json['name']}', node='{node_json['id']}', yields='{node_json.get('yields')}'")
+                # if 'yields' in node_json:
+                #     self.yields_pair_list.append((room_id, node_json['id']))
                 # TODO: handle spawnAt more correctly.
                 if 'spawnAt' in node_json:
                     from_index = self.vertex_index_dict[(room_id, node_json['id'], 0)]
@@ -921,8 +926,8 @@ class SMJsonData:
                 self.door_ptr_pair_dict[(src_ptr, dst_ptr)] = src_pair
                 self.door_ptr_pair_dict[(dst_ptr, src_ptr)] = dst_pair
 
-    def get_graph(self, state: GameState) -> np.array:
-        graph = np.zeros([len(self.link_list), 6], dtype=np.int16)
+    def get_graph(self, state: GameState, door_edges) -> np.array:
+        graph = np.zeros([len(self.link_list) + len(door_edges), 6], dtype=np.int16)
         i = 0
         for link in self.link_list:
             consumption = link.cond.get_consumption(state)
@@ -933,17 +938,25 @@ class SMJsonData:
                 graph[i, 3] = consumption.missiles
                 graph[i, 4] = consumption.super_missiles
                 graph[i, 5] = consumption.power_bombs
-                # print(link.strat_name, graph[i, :])
                 i += 1
+        for (src_index, dst_index) in door_edges:
+            graph[i, 0] = src_index
+            graph[i, 1] = dst_index
+            graph[i, 2:6] = 0
+            i += 1
         return graph[:i, :]
 
-    def compute_reachable_vertices(self, state: GameState):
-        # TODO: Add door-connection edges.
-        graph = self.get_graph(state)
+    def compute_reachable_vertices(self, state: GameState, door_edges):
+        graph = self.get_graph(state, door_edges)
         current_resources = np.array(
-            [state.current_energy, state.current_missiles, state.current_super_missiles, state.current_power_bombs])
+            [state.current_energy, state.current_missiles, state.current_super_missiles, state.current_power_bombs],
+            dtype=np.int16)
         max_resources = np.array(
-            [state.max_energy, state.max_missiles, state.max_super_missiles, state.max_power_bombs])
+            [state.max_energy / state.difficulty.multiplier,
+             state.max_missiles / state.difficulty.multiplier,
+             state.max_super_missiles / state.difficulty.multiplier,
+             state.max_power_bombs / state.difficulty.multiplier],
+            dtype=np.int16)
         output = np.zeros([len(self.vertex_list), 4], dtype=np.int16)
         reachability.compute_reachability(graph, state.vertex_index, len(self.vertex_list),
                                                 current_resources, max_resources, output)
