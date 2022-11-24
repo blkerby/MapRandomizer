@@ -7,12 +7,12 @@ assignees: ''
 
 ---
 
-**Settings**
-Generated ROM filename (if applicable):
+# Settings
+Generated ROM filename (if available):
 
-**If no ROM filename available**
+## If ROM filename not available
 Version: 
 Random seed:
 Difficulty settings:
 
-**Describe the bug**
+# Describe the bug
