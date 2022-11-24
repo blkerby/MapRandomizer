@@ -55,13 +55,13 @@ def get_tech_description(name):
 def get_tech_inputs():
     return '\n'.join(f'''
         <div class="row">
-            <div class="col-3 form-check">
+            <div class="col-sm-3 form-check">
               <input type="checkbox" class="form-check-input" id="tech-{tech}" onchange="techChanged()" name="tech-{tech}" value="{tech}">
               <label class="form-check-label" for="{tech}"><b>{tech}</b></label>
             </div>
         </div>
         <div class="row">
-            <div class="col-12">
+            <div class="col-sm-12">
               {get_tech_description(tech)}
             </div>
         </div>
@@ -204,7 +204,7 @@ for preset_name, preset_tech in presets:
 
 def preset_buttons():
     return '\n'.join(f'''
-      <input type="radio" class="btn-check" name="preset" id="preset{name}" autocomplete="off" onchange="presetChanged()" {'checked' if i == 0 else ''}>
+      <input type="radio" class="btn-check" name="preset" id="preset{name}" autocomplete="off" onclick="presetChanged()" {'checked' if i == 0 else ''}>
       <label class="btn btn-outline-primary" for="preset{name}">{name}</label>
     ''' for i, name in enumerate(preset_dict.keys()))
 
@@ -226,6 +226,17 @@ def tech_change_script():
     return '\n'.join(f'document.getElementById("preset{name}").checked = false;' for name in preset_dict.keys())
 
 
+def encode_difficulty(difficulty: DifficultyConfig):
+    x = 0
+    x = x * 22 + (difficulty.shine_charge_tiles - 12)
+    x = x * 91 + int(difficulty.multiplier * 10) - 10
+    for tech in sorted(sm_json_data.tech_name_set):
+        x *= 2
+        if tech in difficulty.tech:
+            x += 1
+    return x
+
+
 @app.route("/")
 def home():
     # TODO: Put this somewhere else instead of inline here.
@@ -239,15 +250,22 @@ def home():
       </head>
       <body>
         <div class="container">
-        <h1>Super Metroid Map Randomizer</h1>
+            <div class="row">
+                <div class="col-9">
+                    <h1>Super Metroid Map Randomizer</h1>
+                </div>
+                <div class="col-3" align=right>
+                    <small>Version: {VERSION}</small>
+                </div>
+            </div>
             <form method="POST" enctype="multipart/form-data" action="/randomize">
                 <div class="form-group row">
-                  <label class="col-2 col-form-label" for="rom">Input ROM</label>
-                  <input class="col-10 form-control-file" type="file" id="rom" name="rom">
+                  <label class="col-sm-2 col-form-label" for="rom">Input ROM</label>
+                  <input class="col-sm-10 form-control-file" type="file" id="rom" name="rom">
                 </div>
                 <div class="form-group row">
-                  <label class="col-2 col-form-label" for="preset">Skill preset</label>
-                  <div class="col-10 btn-group" role="group">
+                  <label class="col-sm-2 col-form-label" for="preset">Difficulty preset</label>
+                  <div class="col-sm-10 btn-group" role="group">
                     {preset_buttons()}
                  </div>
                 </div>
@@ -255,19 +273,23 @@ def home():
                   <div class="accordion-item">
                     <h2 class="accordion-header" id="flush-headingOne">
                       <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
-                        Customize skill requirements
+                        Customize difficulty requirements
                       </button>
                     </h2>
                     <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
                       <div class="form-group row p-2">
-                        <label for="shinesparkTiles" class="col-2 col-form-label">Shinespark tiles</label>
-                        <div class="col-2">
+                        <label for="shinesparkTiles" class="col-sm-3 col-form-label">Shinespark tiles<br>
+                        <small>(Smaller values assume ability to short-charge over shorter distances)</small>
+                        </label>
+                        <div class="col-sm-2">
                           <input type="text" class="form-control" name="shinesparkTiles" id="shinesparkTiles" value="32">
                         </div>
                       </div>
                       <div class="form-group row p-2">
-                        <label for="resourceMultiplier" class="col-2 col-form-label">Resource multiplier</label>
-                        <div class="col-2">
+                        <label for="resourceMultiplier" class="col-sm-3 col-form-label">Resource multiplier<br>
+                        <small>(Leniency factor on assumed energy & ammo usage)</small>
+                        </label>
+                        <div class="col-sm-2">
                           <input type="text" class="form-control" name="resourceMultiplier" id="resourceMultiplier" value="3.0">
                         </div>
                       </div>
@@ -283,13 +305,13 @@ def home():
                   </div>
                 </div>
                 <div class="form-group row p-2">
-                  <label for="randomSeed" class="col-2 col-form-label">Random seed</label>
-                  <div class="col-2">
+                  <label for="randomSeed" class="col-sm-2 col-form-label">Random seed</label>
+                  <div class="col-sm-3">
                     <input type="text" class="form-control" name="randomSeed" id="randomSeed" value="">
                   </div>
                 </div>
                 <div class="form-group row p-2">
-                    <input type="submit" class="col-3 btn btn-primary" value="Generate ROM" />
+                    <input type="submit" class="col-sm-3 btn btn-primary" value="Generate ROM" />
                 </div>
             </form>
             <div class="row">
@@ -297,20 +319,21 @@ def home():
                     <div class="card-header">Known issues</div>
                     <div class="card-body">
                         <ul>
-                        <li>ROM may take a few minutes to generate (especially with Beginner settings).
-                        <li>This is an early preview version. Expect bugs.
+                        <li>ROM may take a few minutes to generate (especially with Beginner settings). For fastest results, click "Generate ROM" once and wait patiently.
+                        <li>Seeds may be less difficult than desired.  
+                        <li>Even if the tech is not selected, wall jumps and crouch-jump/down-grabs may be required in some places.
                         <li>Entering the Mother Brain room or Crocomire Room from the left causes a soft-lock.
-                        <li>For some maps passing through the Aqueduct toilet causes a soft-lock or glitched graphics.
                         <li>After the Kraid fight, graphics will generally be glitched (pause & unpause to fix). 
-                        <li>The demo (before start of game) is messed up.
-                        <li>Door transitions generally have some minor graphical glitches.                    
-                        <li>Even if the tech is not selected, wall jumps and crouch jump/down-grabs may be required in some places.
-                        <li>Only vanilla end credits.
+                        <li>For some maps, using the Aqueduct toilet causes a soft-lock or glitched graphics.
+                        <li>The demo graphics (before the start of the game) are messed up.
+                        <li>Door transitions generally have some minor graphical glitches.
+                        <li>The escape timer is not tailored to the map (but should be generous enough to be possible to beat).                    
+                        <li>The end credits are vanilla.
                         </ul>
                     </div>
                 </div>
             </div>
-            
+        <small>This is an early preview, so bugs are expected. If you encounter a problem, feedback is welcome on <a href="https://github.com/blkerby/MapRandomizer/issues">GitHub issues</a>.</small>
         </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>        
         <script>
@@ -331,14 +354,32 @@ def home():
 def randomize():
     uploaded_rom_file = flask.request.files['rom']
     input_buf = uploaded_rom_file.stream.read(10_000_000)
-    if len(input_buf) == 0:
-        return "Please provide input ROM"
+
+    if len(input_buf) < 3145728 or len(input_buf) > 8388608:
+        return flask.Response("Invalid input ROM", status=400)
+
+    try:
+        shine_charge_tiles = int(flask.request.form.get('shinesparkTiles'))
+        assert shine_charge_tiles >= 12 and shine_charge_tiles <= 33
+    except:
+        return flask.Response("Invalid shinesparkTiles", status=400)
+
+    try:
+        resource_multiplier = float(flask.request.form.get('resourceMultiplier'))
+        resource_multiplier = round(resource_multiplier * 10) / 10
+        assert 1.0 <= resource_multiplier <= 10.0
+    except:
+        return flask.Response("Invalid resourceMultiplier", status=400)
+
+    try:
+        random_seed = int(flask.request.form.get('randomSeed'))
+    except:
+        return flask.Response("Invalid randomSeed", status=400)
+
     tech = set(tech for tech in sm_json_data.tech_name_set if flask.request.form.get('tech-' + tech) != None)
-    shine_charge_tiles = int(flask.request.form.get('shinesparkTiles'))
-    resource_multiplier = float(flask.request.form.get('resourceMultiplier'))
-    random_seed = int(flask.request.form.get('randomSeed'))
     difficulty = DifficultyConfig(tech=tech, shine_charge_tiles=shine_charge_tiles, multiplier=resource_multiplier)
-    logging.info("randomSeed: {}, difficulty: {}".format(random_seed, difficulty))
+    output_filename = f'smmr-v{VERSION}-{random_seed}-{encode_difficulty(difficulty)}.sfc'
+    logging.info(f"Starting {output_filename}: random_seed={random_seed}, difficulty={difficulty}, ROM='{uploaded_rom_file.filename}' (hash={hash(input_buf)})")
     max_map_attempts = 100
     max_item_attempts = 100
     np.random.seed(random_seed % (2 ** 32))
@@ -956,7 +997,6 @@ def randomize():
     rom.write_u16(0x1A978 + 10, boss_exit_asm)
     rom.write_u16(0x1A96C + 10, boss_exit_asm)
 
-    output_filename = f'smmr-v{VERSION}-{random_seed}.sfc'
     return flask.send_file(io.BytesIO(rom.byte_buf), mimetype='application/octet-stream', download_name=output_filename)
 
 
