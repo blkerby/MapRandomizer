@@ -586,6 +586,8 @@ class SMJsonData:
         # TODO: Patch Statues room to open it up
         # TODO: Patch out backdoor Shaktool?
 
+        self.room_json_dict = {}  # Dict mapping room_id to room JSON data
+        self.node_json_dict = {}  # Dict mapping (room_id, node_id) to node JSON data
         self.vertex_list = []  # List of triples (room_id, node_id, obstacle_bitmask) in order
         self.vertex_index_dict = {}  # Maps (room_id, node_id, obstacle_bitmask) to integer, the index in self.vertex_index_list
         self.num_obstacles_dict = {}  # Maps room_id to number of obstacles in room
@@ -834,6 +836,7 @@ class SMJsonData:
     def process_region(self, json_data):
         for room_json in json_data['rooms']:
             room_id = room_json['id']
+            self.room_json_dict[room_id] = room_json
             if 'obstacles' in room_json:
                 obstacles_dict = {obstacle['id']: i for i, obstacle in enumerate(room_json['obstacles'])}
             else:
@@ -854,6 +857,7 @@ class SMJsonData:
                         node_ptr = 0x1A7A4
                 else:
                     node_ptr = None
+                self.node_json_dict[pair] = node_json
                 self.node_ptr_dict[pair] = node_ptr
                 if node_json['nodeType'] == 'item':
                     self.target_dict[pair] = node_ptr
@@ -939,9 +943,9 @@ class SMJsonData:
                 self.door_ptr_pair_dict[(dst_ptr, src_ptr)] = dst_pair
 
     def get_graph(self, state: GameState, door_edges) -> np.array:
-        graph = np.zeros([len(self.link_list) + len(door_edges), 6], dtype=np.int16)
+        graph = np.zeros([len(self.link_list) + len(door_edges), 7], dtype=np.int16)
         i = 0
-        for link in self.link_list:
+        for link_index, link in enumerate(self.link_list):
             consumption = link.cond.get_consumption(state)
             if consumption.possible:
                 graph[i, 0] = link.from_index
@@ -950,11 +954,13 @@ class SMJsonData:
                 graph[i, 3] = consumption.missiles
                 graph[i, 4] = consumption.super_missiles
                 graph[i, 5] = consumption.power_bombs
+                graph[i, 6] = link_index
                 i += 1
         for (src_index, dst_index) in door_edges:
             graph[i, 0] = src_index
             graph[i, 1] = dst_index
             graph[i, 2:6] = 0
+            graph[i, 6] = -1
             i += 1
         return graph[:i, :]
 
@@ -969,10 +975,16 @@ class SMJsonData:
              state.max_super_missiles / state.difficulty.multiplier,
              state.max_power_bombs / state.difficulty.multiplier],
             dtype=np.int16)
-        output = np.zeros([len(self.vertex_list), 4], dtype=np.int16)
-        reachability.compute_reachability(graph, state.vertex_index, len(self.vertex_list),
-                                                current_resources, max_resources, output)
-        return output
+        output_cost = np.zeros([len(self.vertex_list), 4], dtype=np.int16)
+        output_route_id = np.zeros([len(self.vertex_list)], dtype=np.int32)
+        max_route_len = len(self.vertex_list) ** 2
+        output_route_edge = np.zeros([max_route_len], dtype=np.int16)
+        output_route_prev = np.zeros([max_route_len], dtype=np.int32)
+        track_route = True
+        reachability.compute_reachability(graph, state.vertex_index, len(self.vertex_list), track_route,
+                                          current_resources, max_resources, output_cost,
+                                          output_route_id, output_route_edge, output_route_prev)
+        return output_cost, (graph, output_route_id, output_route_edge, output_route_prev)
 
 
 sm_json_data_path = "sm-json-data/"

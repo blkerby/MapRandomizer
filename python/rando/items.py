@@ -6,8 +6,9 @@ import random
 import json
 import graph_tool
 import graph_tool.topology
+import copy
 
-from rando.sm_json_data import SMJsonData, GameState, Link, DifficultyConfig
+from sm_json_data import SMJsonData, GameState, Link, DifficultyConfig
 
 
 #
@@ -81,6 +82,67 @@ class Randomizer:
                     door_edges.append((dst_vertex_id, src_vertex_id))
         self.door_edges = door_edges
 
+    def get_vertex_data(self, vertex_id):
+        room_id, node_id, obstacles_mask = self.sm_json_data.vertex_list[vertex_id]
+        room_json = self.sm_json_data.room_json_dict[room_id]
+        node_json = self.sm_json_data.node_json_dict[(room_id, node_id)]
+        return {
+            'vertex_id': vertex_id,
+            'room_id': room_id,
+            'node_id': node_id,
+            'obstacles_mask': obstacles_mask,
+            'room_name': room_json['name'],
+            'node_name': node_json['name'],
+        }
+
+    def get_spoiler_entry(self, selected_target_index, route_data, state: GameState, collect_name):
+        graph, output_route_id, output_route_edge, output_route_prev = route_data
+        route_id = output_route_id[selected_target_index]
+        step_list = []
+        while route_id != 0:
+            graph_edge_index = output_route_edge[route_id]
+            dst_vertex_id = int(graph[graph_edge_index, 1])
+            energy_consumed = int(graph[graph_edge_index, 2])
+            missiles_consumed = int(graph[graph_edge_index, 3])
+            supers_consumed = int(graph[graph_edge_index, 4])
+            power_bombs_consumed = int(graph[graph_edge_index, 5])
+            link_index = int(graph[graph_edge_index, 6])
+
+            step = self.get_vertex_data(dst_vertex_id)
+            if energy_consumed > 0:
+                step['energy_consumed'] = energy_consumed
+            if missiles_consumed > 0:
+                step['missiles_consumed'] = missiles_consumed
+            if supers_consumed > 0:
+                step['supers_consumed'] = supers_consumed
+            if power_bombs_consumed > 0:
+                step['power_bombs_consumed'] = power_bombs_consumed
+            if link_index >= 0:
+                link = self.sm_json_data.link_list[link_index]
+                step['strat_name'] = link.strat_name
+            else:
+                step['strat_name'] = '(Door transition)'
+            step_list.append(step)
+            route_id = output_route_prev[route_id]
+        step_list = list(reversed(step_list))
+        return {
+            'start_state': {
+                **self.get_vertex_data(state.vertex_index),
+                'max_energy': state.max_energy,
+                'max_missiles': state.max_missiles,
+                'max_supers': state.max_super_missiles,
+                'max_power_bombs': state.max_power_bombs,
+                'current_energy': state.current_energy,
+                'current_missiles': state.current_missiles,
+                'current_supers': state.current_super_missiles,
+                'current_power_bombs': state.current_power_bombs,
+                'items': [item for item in sorted(state.items) if item not in ["PowerBeam", "PowerSuit"]],
+                'flags': list(sorted(state.flags)),
+            },
+            'collect': collect_name,
+            'steps': step_list,
+        }
+
     def randomize(self):
         items = {"PowerBeam", "PowerSuit"}
         flags = {"f_TourianOpen"}
@@ -91,11 +153,14 @@ class Randomizer:
             weapons=self.sm_json_data.get_weapons(set(items)),
             num_energy_tanks=0,  # energy_tanks,
             num_reserves=0,  # reserve_tanks,
-            max_energy=69,  # + 100 * (energy_tanks + reserve_tanks),
+            # We deduct 29 energy from the actual max energy, to ensure the game is beatable without ever dropping
+            # below 29 energy. This allows us to simplify the logic by not needing to worry about shinespark strats
+            # possibly failing because of dropping below 29 energy:
+            max_energy=70,  # + 100 * (energy_tanks + reserve_tanks),
             max_missiles=0,  # missiles,
             max_super_missiles=0,  # super_missiles,
             max_power_bombs=0,  # power_bombs,
-            current_energy=69,
+            current_energy=70,
             current_missiles=0,  # missiles,
             current_super_missiles=0,  # super_missiles,
             current_power_bombs=0,  # power_bombs,
@@ -112,6 +177,7 @@ class Randomizer:
             'f_DefeatedSporeSpawn',
             'f_DefeatedKraid',
         }
+        num_progression_etanks = 3  # Are we sure 3 ETanks + all items is enough to move everywhere?
         progression_items = [
             "Missile",
             "Super",
@@ -129,12 +195,12 @@ class Randomizer:
             "SpaceJump",
             "ScrewAttack",
             "Morph",
-        ]
+        ] + num_progression_etanks * ["ETank"]
         other_items = [
-                          "Spazer",
-                          "SpringBall",
-                          "XRayScope",
-                      ] + 45 * ["Missile"] + 9 * ["Super"] + 9 * ["PowerBomb"] + 4 * ["ReserveTank"] + 14 * ["ETank"]
+            "Spazer",
+            "SpringBall",
+            "XRayScope",
+        ] + 45 * ["Missile"] + 9 * ["Super"] + 9 * ["PowerBomb"] + 4 * ["ReserveTank"] + (14 - num_progression_etanks) * ["ETank"]
 
         target_mask = np.zeros([len(self.sm_json_data.vertex_list)], dtype=bool)
         for (room_id, node_id), v in self.sm_json_data.target_dict.items():
@@ -143,25 +209,47 @@ class Randomizer:
                     vertex_id = self.sm_json_data.vertex_index_dict[(room_id, node_id, i)]
                     target_mask[vertex_id] = True
 
+        # TODO: we could speed up placement of the last (non-progression) items by skipping the graph logic
         self.item_sequence = np.random.permutation(progression_items).tolist() + np.random.permutation(
             other_items).tolist()
         self.item_placement_list = []
         next_item_index = 0
+        self.spoiler_route = []
         while True:
-            reach = self.sm_json_data.compute_reachable_vertices(state, self.door_edges)
-            reachable_target_vertices = np.nonzero(target_mask & (np.min(reach, axis=1) >= 0))[0]
-            # print(reachable_target_vertices)
-            if reachable_target_vertices.shape[0] == 0:
-                # There are no more reachable locations of interest
-                return target_mask, reach
-                # break
-            selected_target_index = reachable_target_vertices[random.randint(0, len(reachable_target_vertices) - 1)]
+            orig_state = copy.deepcopy(state)
+            if next_item_index < len(progression_items):
+                # Not all progression items have been placed/collected, so check which vertices are reachable.
+                reach, route_data = self.sm_json_data.compute_reachable_vertices(state, self.door_edges)
+                reachable_target_vertices = np.nonzero(target_mask & (np.min(reach, axis=1) >= 0))[0]
+                if reachable_target_vertices.shape[0] == 0:
+                    # There are no more reachable locations of interest. We got stuck before placing all
+                    # progression items, so this attempt failed.
+                    return False
+            else:
+                # All progression items have been placed/collected, so all vertices should be reachable.
+                # We place the remaining items randomly.
+                while True:
+                    reachable_target_vertices = np.nonzero(target_mask)[0]
+                    if reachable_target_vertices.shape[0] == 0:
+                        # There are no more locations to place items. We placed all items so this attempt succeeded.
+                        return True
+                    selected_target_index = int(reachable_target_vertices[0])
+                    room_id, node_id, _ = self.sm_json_data.vertex_list[selected_target_index]
+                    target_value = self.sm_json_data.target_dict[(room_id, node_id)]
+                    for i in range(2 ** self.sm_json_data.num_obstacles_dict[room_id]):
+                        vertex_id = self.sm_json_data.vertex_index_dict[(room_id, node_id, i)]
+                        target_mask[vertex_id] = False
+                    if isinstance(target_value, int):
+                        self.item_placement_list.append(target_value)
+
+            selected_target_index = int(reachable_target_vertices[random.randint(0, len(reachable_target_vertices) - 1)])
             room_id, node_id, _ = self.sm_json_data.vertex_list[selected_target_index]
             target_value = self.sm_json_data.target_dict[(room_id, node_id)]
             if isinstance(target_value, int):
                 # Item placement
                 self.item_placement_list.append(target_value)
                 item_name = self.item_sequence[next_item_index]
+                collect_name = item_name
                 next_item_index += 1
                 state.items.add(item_name)
                 if item_name == 'Missile':
@@ -182,16 +270,20 @@ class Randomizer:
                     state.max_energy += 100
                 state.weapons = self.sm_json_data.get_weapons(state.items)
             else:
+                collect_name = target_value
                 state.flags.add(target_value)
 
             state.vertex_index = selected_target_index
             for i in range(2 ** self.sm_json_data.num_obstacles_dict[room_id]):
                 vertex_id = self.sm_json_data.vertex_index_dict[(room_id, node_id, i)]
                 target_mask[vertex_id] = False
-            state.current_energy = reach[selected_target_index, 0]
-            state.current_missiles = reach[selected_target_index, 1]
-            state.current_super_missiles = reach[selected_target_index, 2]
-            state.current_power_bombs = reach[selected_target_index, 3]
+            state.current_energy = int(reach[selected_target_index, 0])
+            state.current_missiles = int(reach[selected_target_index, 1])
+            state.current_super_missiles = int(reach[selected_target_index, 2])
+            state.current_power_bombs = int(reach[selected_target_index, 3])
+
+            spoiler_entry = self.get_spoiler_entry(selected_target_index, route_data, orig_state, collect_name)
+            self.spoiler_route.append(spoiler_entry)
 
 # # # map_name = '12-15-session-2021-12-10T06:00:58.163492-0'
 # # map_name = '01-16-session-2022-01-13T12:40:37.881929-1'
