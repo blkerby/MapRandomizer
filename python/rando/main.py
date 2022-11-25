@@ -9,6 +9,8 @@ import graph_tool
 import graph_tool.inference
 import graph_tool.topology
 from collections import defaultdict
+import zipfile
+import pprint
 
 from rando.sm_json_data import SMJsonData, GameState, Link, DifficultyConfig
 from rando.items import Randomizer
@@ -278,7 +280,7 @@ def home():
                     </h2>
                     <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
                       <div class="form-group row p-2">
-                        <label for="shinesparkTiles" class="col-sm-3 col-form-label">Shinespark tiles<br>
+                        <label for="shinesparkTiles" class="col-sm-6 col-form-label">Shinespark tiles<br>
                         <small>(Smaller values assume ability to short-charge over shorter distances)</small>
                         </label>
                         <div class="col-sm-2">
@@ -286,7 +288,7 @@ def home():
                         </div>
                       </div>
                       <div class="form-group row p-2">
-                        <label for="resourceMultiplier" class="col-sm-3 col-form-label">Resource multiplier<br>
+                        <label for="resourceMultiplier" class="col-sm-6 col-form-label">Resource multiplier<br>
                         <small>(Leniency factor on assumed energy & ammo usage)</small>
                         </label>
                         <div class="col-sm-2">
@@ -378,10 +380,10 @@ def randomize():
 
     tech = set(tech for tech in sm_json_data.tech_name_set if flask.request.form.get('tech-' + tech) != None)
     difficulty = DifficultyConfig(tech=tech, shine_charge_tiles=shine_charge_tiles, multiplier=resource_multiplier)
-    output_filename = f'smmr-v{VERSION}-{random_seed}-{encode_difficulty(difficulty)}.sfc'
-    logging.info(f"Starting {output_filename}: random_seed={random_seed}, difficulty={difficulty}, ROM='{uploaded_rom_file.filename}' (hash={hash(input_buf)})")
+    output_file_prefix = f'smmr-v{VERSION}-{random_seed}-{encode_difficulty(difficulty)}'
+    logging.info(f"Starting {output_file_prefix}: random_seed={random_seed}, difficulty={difficulty}, ROM='{uploaded_rom_file.filename}' (hash={hash(input_buf)})")
     max_map_attempts = 100
-    max_item_attempts = 100
+    max_item_attempts = 200
     np.random.seed(random_seed % (2 ** 32))
     random.seed(random_seed)
 
@@ -394,14 +396,24 @@ def randomize():
 
         randomizer = Randomizer(map, sm_json_data, difficulty)
         for i in range(max_item_attempts):
-            randomizer.randomize()
-            if len(randomizer.item_placement_list) >= 99:
+            success = randomizer.randomize()
+            if success:
                 break
         else:
             continue
         break
+    else:
+        return flask.Response("Too many failed item randomization attempts", status=500)
 
     logging.info("Done with item randomization")
+    spoiler_data = {
+        'difficulty': {
+            'tech': list(sorted(difficulty.tech)),
+            'shine_charge_tiles': difficulty.shine_charge_tiles,
+            'multiplier': difficulty.multiplier,
+        },
+        'route': randomizer.spoiler_route,
+    }
 
     for room in rooms:
         room.populate()
@@ -997,7 +1009,25 @@ def randomize():
     rom.write_u16(0x1A978 + 10, boss_exit_asm)
     rom.write_u16(0x1A96C + 10, boss_exit_asm)
 
-    return flask.send_file(io.BytesIO(rom.byte_buf), mimetype='application/octet-stream', download_name=output_filename)
+    memory_file = BytesIO()
+    with zipfile.ZipFile(memory_file, 'w') as zf:
+        data = zipfile.ZipInfo(output_file_prefix + '.sfc')
+        data.compress_type = zipfile.ZIP_DEFLATED
+        zf.writestr(data, bytes(rom.byte_buf))
+
+        data = zipfile.ZipInfo(output_file_prefix + '.json')
+        data.compress_type = zipfile.ZIP_DEFLATED
+        zf.writestr(data, json.dumps(spoiler_data, indent=4))
+        # files = result['files']
+        # for individualFile in files:
+        #     data = zipfile.ZipInfo(individualFile['fileName'])
+        #     data.date_time = time.localtime(time.time())[:6]
+        #     data.compress_type = zipfile.ZIP_DEFLATED
+        #     zf.writestr(data, individualFile['fileData'])
+    memory_file.seek(0)
+    return flask.send_file(memory_file, download_name=output_file_prefix + '.zip')
+
+    # return flask.send_file(io.BytesIO(rom.byte_buf), mimetype='application/octet-stream', download_name=output_filename)
 
 
 if __name__ == "__main__":

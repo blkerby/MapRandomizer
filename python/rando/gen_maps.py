@@ -109,8 +109,8 @@ for ind_i in range(start_index, end_index):
     for i in range(0, 100):
         np.random.seed(i)
         random.seed(i)
-        randomizer.randomize()
-        if len(randomizer.item_placement_list) >= 99:
+        success = randomizer.randomize()
+        if success:
             break
     else:
         continue
