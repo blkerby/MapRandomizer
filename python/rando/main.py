@@ -15,7 +15,8 @@ import pprint
 from rando.sm_json_data import SMJsonData, GameState, Link, DifficultyConfig
 from rando.items import Randomizer
 from logic.rooms.all_rooms import rooms
-from maze_builder.types import Room
+from maze_builder.types import Room, SubArea
+from maze_builder.display import MapDisplay
 import json
 import ips_util
 
@@ -321,15 +322,17 @@ def home():
                     <div class="card-header">Known issues</div>
                     <div class="card-body">
                         <ul>
-                        <li>ROM may take a few minutes to generate (especially with Beginner settings). For fastest results, click "Generate ROM" once and wait patiently.
-                        <li>Seeds may be less difficult than desired.  
+                        <li>ROM may take a few minutes to generate. For fastest results, click "Generate ROM" once and wait patiently. If it times out, try again with a different random seed.
                         <li>Even if the tech is not selected, wall jumps and crouch-jump/down-grabs may be required in some places.
                         <li>Entering the Mother Brain room or Crocomire Room from the left causes a soft-lock.
                         <li>After the Kraid fight, graphics will generally be glitched (pause & unpause to fix). 
-                        <li>For some maps, using the Aqueduct toilet causes a soft-lock or glitched graphics.
+                        <li>For some seeds, using the Aqueduct toilet causes a soft-lock or glitched graphics.
                         <li>The demo graphics (before the start of the game) are messed up.
+                        <li>The map in the loading sequence (from saved file) appears wrong.
+                        <li>Some map tiles associated with elevators do not appear correctly.
                         <li>Door transitions generally have some minor graphical glitches.
-                        <li>The escape timer is not tailored to the map (but should be generous enough to be possible to beat).                    
+                        <li>The escape timer is not tailored to the seed (but should be generous enough to be possible to beat).
+                        <li>No door color randomization yet. To simplify things they're all just turned blue for now, except for in the Pit Room to keep a way to awaken Zebes.
                         <li>The end credits are vanilla.
                         </ul>
                     </div>
@@ -443,6 +446,41 @@ def randomize():
 
     # Ensure that Landing Site is in Crateria:
     area_arr = (area_arr - area_arr[1] + num_areas) % num_areas
+
+    display = MapDisplay(72, 72, 20)
+
+    color_map = {
+        0: (0x80, 0x80, 0x80),  # Crateria
+        1: (0x80, 0xff, 0x80),  # Brinstar
+        2: (0xff, 0x80, 0x80),  # Norfair
+        3: (0xff, 0xff, 0x80),  # Wrecked ship
+        4: (0x80, 0x80, 0xff),  # Maridia
+        5: (0xc0, 0xc0, 0xc0),  # Tourian
+    }
+
+    colors = [color_map[i] for i in area_arr]
+    display.display(rooms, xs_min, ys_min, colors)
+    map_png_file = io.BytesIO()
+    display.image.save(map_png_file, "png")
+    map_png_bytes = map_png_file.getvalue()
+
+    color_map = {
+        SubArea.CRATERIA_AND_BLUE_BRINSTAR: (0x80, 0x80, 0x80),
+        SubArea.GREEN_AND_PINK_BRINSTAR: (0x80, 0xff, 0x80),
+        SubArea.RED_BRINSTAR_AND_WAREHOUSE: (0x60, 0xc0, 0x60),
+        SubArea.UPPER_NORFAIR: (0xff, 0x80, 0x80),
+        SubArea.LOWER_NORFAIR: (0xc0, 0x60, 0x60),
+        SubArea.OUTER_MARIDIA: (0x80, 0x80, 0xff),
+        SubArea.INNER_MARIDIA: (0x60, 0x60, 0xc0),
+        SubArea.WRECKED_SHIP: (0xff, 0xff, 0x80),
+        SubArea.TOURIAN: (0xc0, 0xc0, 0xc0),
+    }
+
+    colors = [color_map[room.sub_area] for room in rooms]
+    display.display(rooms, xs_min, ys_min, colors)
+    map_orig_png_file = io.BytesIO()
+    display.image.save(map_orig_png_file, "png")
+    map_orig_png_bytes = map_orig_png_file.getvalue()
 
     class Rom:
         def __init__(self, file):
@@ -1010,20 +1048,17 @@ def randomize():
     rom.write_u16(0x1A96C + 10, boss_exit_asm)
 
     memory_file = BytesIO()
+    files = [
+        (output_file_prefix + '.sfc', rom.byte_buf),
+        (output_file_prefix + '.json', json.dumps(spoiler_data, indent=2)),
+        (output_file_prefix + '.png', map_png_bytes),
+        (output_file_prefix + '-orig.png', map_orig_png_bytes),
+    ]
     with zipfile.ZipFile(memory_file, 'w') as zf:
-        data = zipfile.ZipInfo(output_file_prefix + '.sfc')
-        data.compress_type = zipfile.ZIP_DEFLATED
-        zf.writestr(data, bytes(rom.byte_buf))
-
-        data = zipfile.ZipInfo(output_file_prefix + '.json')
-        data.compress_type = zipfile.ZIP_DEFLATED
-        zf.writestr(data, json.dumps(spoiler_data, indent=4))
-        # files = result['files']
-        # for individualFile in files:
-        #     data = zipfile.ZipInfo(individualFile['fileName'])
-        #     data.date_time = time.localtime(time.time())[:6]
-        #     data.compress_type = zipfile.ZIP_DEFLATED
-        #     zf.writestr(data, individualFile['fileData'])
+        for file_name, file_data in files:
+            data = zipfile.ZipInfo(file_name)
+            data.compress_type = zipfile.ZIP_DEFLATED
+            zf.writestr(data, file_data)
     memory_file.seek(0)
     return flask.send_file(memory_file, download_name=output_file_prefix + '.zip')
 

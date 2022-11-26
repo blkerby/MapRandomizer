@@ -95,7 +95,7 @@ class Randomizer:
             'node_name': node_json['name'],
         }
 
-    def get_spoiler_entry(self, selected_target_index, route_data, state: GameState, collect_name):
+    def get_spoiler_entry(self, selected_target_index, route_data, state: GameState, collect_name, step_number, rank):
         graph, output_route_id, output_route_edge, output_route_prev = route_data
         route_id = output_route_id[selected_target_index]
         step_list = []
@@ -140,6 +140,8 @@ class Randomizer:
                 'flags': list(sorted(state.flags)),
             },
             'collect': collect_name,
+            'step_number': step_number,
+            'rank': rank,
             'steps': step_list,
         }
 
@@ -202,6 +204,7 @@ class Randomizer:
             "XRayScope",
         ] + 45 * ["Missile"] + 9 * ["Super"] + 9 * ["PowerBomb"] + 4 * ["ReserveTank"] + (14 - num_progression_etanks) * ["ETank"]
 
+        # Bitmask indicating vertex IDs that are still available either for placing an item or obtaining a flag:
         target_mask = np.zeros([len(self.sm_json_data.vertex_list)], dtype=bool)
         for (room_id, node_id), v in self.sm_json_data.target_dict.items():
             if isinstance(v, int) or v in progression_flags:
@@ -209,31 +212,44 @@ class Randomizer:
                     vertex_id = self.sm_json_data.vertex_index_dict[(room_id, node_id, i)]
                     target_mask[vertex_id] = True
 
-        # TODO: we could speed up placement of the last (non-progression) items by skipping the graph logic
+        # For each vertex ID, the step number on which it first became accessible (or 0 if not yet accessible).
+        # We use this to filter progression item placements to locations that became accessible as late as possible
+        # (to avoid having the game open up too early).
+        target_rank = np.zeros([len(self.sm_json_data.vertex_list)], dtype=np.int8)
+
         self.item_sequence = np.random.permutation(progression_items).tolist() + np.random.permutation(
             other_items).tolist()
         self.item_placement_list = []
         next_item_index = 0
         self.spoiler_route = []
-        while True:
+        for step_number in range(1, len(progression_items) + len(progression_flags) + 1):
             orig_state = copy.deepcopy(state)
             if next_item_index < len(progression_items):
                 # Not all progression items have been placed/collected, so check which vertices are reachable.
-                reach, route_data = self.sm_json_data.compute_reachable_vertices(state, self.door_edges)
-                reachable_target_vertices = np.nonzero(target_mask & (np.min(reach, axis=1) >= 0))[0]
-                if reachable_target_vertices.shape[0] == 0:
+                raw_reach, route_data = self.sm_json_data.compute_reachable_vertices(state, self.door_edges)
+                reach_mask = (np.min(raw_reach, axis=1) >= 0)
+
+                # # Update target_rank:
+                target_rank = np.where(target_mask & reach_mask & (target_rank == 0), np.full_like(target_rank, step_number), target_rank)
+                max_target_rank = np.max(np.where(target_mask & reach_mask, target_rank, np.zeros_like(target_rank)))
+
+                # Identify
+                eligible_target_vertices = np.nonzero(target_mask & reach_mask & (target_rank == max_target_rank))[0]
+                # eligible_target_vertices = np.nonzero(target_mask & reach_mask)[0]
+                if eligible_target_vertices.shape[0] == 0:
                     # There are no more reachable locations of interest. We got stuck before placing all
                     # progression items, so this attempt failed.
+                    # print("Failed item randomization at step {}".format(step_number))
                     return False
             else:
                 # All progression items have been placed/collected, so all vertices should be reachable.
                 # We place the remaining items randomly.
                 while True:
-                    reachable_target_vertices = np.nonzero(target_mask)[0]
-                    if reachable_target_vertices.shape[0] == 0:
+                    eligible_target_vertices = np.nonzero(target_mask)[0]
+                    if eligible_target_vertices.shape[0] == 0:
                         # There are no more locations to place items. We placed all items so this attempt succeeded.
                         return True
-                    selected_target_index = int(reachable_target_vertices[0])
+                    selected_target_index = int(eligible_target_vertices[0])
                     room_id, node_id, _ = self.sm_json_data.vertex_list[selected_target_index]
                     target_value = self.sm_json_data.target_dict[(room_id, node_id)]
                     for i in range(2 ** self.sm_json_data.num_obstacles_dict[room_id]):
@@ -242,9 +258,19 @@ class Randomizer:
                     if isinstance(target_value, int):
                         self.item_placement_list.append(target_value)
 
-            selected_target_index = int(reachable_target_vertices[random.randint(0, len(reachable_target_vertices) - 1)])
+            selected_target_index = int(eligible_target_vertices[random.randint(0, len(eligible_target_vertices) - 1)])
             room_id, node_id, _ = self.sm_json_data.vertex_list[selected_target_index]
             target_value = self.sm_json_data.target_dict[(room_id, node_id)]
+
+            state.vertex_index = selected_target_index
+            for i in range(2 ** self.sm_json_data.num_obstacles_dict[room_id]):
+                vertex_id = self.sm_json_data.vertex_index_dict[(room_id, node_id, i)]
+                target_mask[vertex_id] = False
+            state.current_energy = int(raw_reach[selected_target_index, 0])
+            state.current_missiles = int(raw_reach[selected_target_index, 1])
+            state.current_super_missiles = int(raw_reach[selected_target_index, 2])
+            state.current_power_bombs = int(raw_reach[selected_target_index, 3])
+
             if isinstance(target_value, int):
                 # Item placement
                 self.item_placement_list.append(target_value)
@@ -273,17 +299,10 @@ class Randomizer:
                 collect_name = target_value
                 state.flags.add(target_value)
 
-            state.vertex_index = selected_target_index
-            for i in range(2 ** self.sm_json_data.num_obstacles_dict[room_id]):
-                vertex_id = self.sm_json_data.vertex_index_dict[(room_id, node_id, i)]
-                target_mask[vertex_id] = False
-            state.current_energy = int(reach[selected_target_index, 0])
-            state.current_missiles = int(reach[selected_target_index, 1])
-            state.current_super_missiles = int(reach[selected_target_index, 2])
-            state.current_power_bombs = int(reach[selected_target_index, 3])
-
-            spoiler_entry = self.get_spoiler_entry(selected_target_index, route_data, orig_state, collect_name)
+            spoiler_entry = self.get_spoiler_entry(selected_target_index, route_data, orig_state, collect_name, step_number, int(target_rank[selected_target_index]))
             self.spoiler_route.append(spoiler_entry)
+        else:
+            raise RuntimeError("Unexpected failure in item randomization")
 
 # # # map_name = '12-15-session-2021-12-10T06:00:58.163492-0'
 # # map_name = '01-16-session-2022-01-13T12:40:37.881929-1'
