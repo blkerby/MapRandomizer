@@ -31,6 +31,7 @@ DONE:
 - escape timer
 
 TODO:
+- fix timestamps in zip file
 - escape setup: mark bosses dead
 - fix map when using elevators (to set tiles to explored)
 - fix demo
