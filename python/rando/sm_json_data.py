@@ -915,10 +915,10 @@ class SMJsonData:
                                         requires = requires + obstacle['requires']
                                         if 'requires' in room_json['obstacles'][obstacle_idx]:
                                             requires = requires + room_json['obstacles'][obstacle_idx]['requires']
-                                    if "additionalObstacles" in obstacle:
-                                        for additional_obstacle_id in obstacle['additionalObstacles']:
-                                            additional_obstacle_idx = obstacles_dict[additional_obstacle_id]
-                                            to_obstacle_bitmask |= 1 << additional_obstacle_idx
+                                        if "additionalObstacles" in obstacle:
+                                            for additional_obstacle_id in obstacle['additionalObstacles']:
+                                                additional_obstacle_idx = obstacles_dict[additional_obstacle_id]
+                                                to_obstacle_bitmask |= 1 << additional_obstacle_idx
                             cond = self.make_condition(requires)
                             from_id = link_json['from']
                             from_index = self.vertex_index_dict[(room_id, from_id, from_obstacle_bitmask)]
