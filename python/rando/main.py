@@ -770,8 +770,14 @@ def randomize():
             # the next room, this can mess up camera scrolls and other things. (At some point,
             # maybe figure out how we can patch both ASMs together.)
             rom.write_n(ptr, 10, data[:10])
+        elif ptr == 0x1A798:  # Pants Room right door
+            rom.write_n(ptr, 12, data)
+            rom.write_n(0x1A7BC, 12, data)  # Also write the same data to the East Pants Room right door
+            bitflag = data[2] | 0x40
+            rom.write_u8(0x1A7BC + 2, bitflag)
         else:
             rom.write_n(ptr, 12, data)
+
         bitflag = data[2] | 0x40
         rom.write_u8(ptr + 2, bitflag)
         # print("{:x}".format(bitflag))
@@ -997,6 +1003,9 @@ def randomize():
     west_ocean_y = rom.read_u8(0x793FE + 3)
     rom.write_u8(0x7968F + 2, west_ocean_x + 5)
     rom.write_u8(0x7968F + 3, west_ocean_y + 2)
+
+    # Fix East Pants Room door
+
 
     # Apply patches
     patches = [
