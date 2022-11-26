@@ -146,6 +146,7 @@ class Randomizer:
         }
 
     def randomize(self):
+        # item_attempts = 1
         items = {"PowerBeam", "PowerSuit"}
         flags = {"f_TourianOpen"}
         state = GameState(
@@ -197,12 +198,10 @@ class Randomizer:
             "SpaceJump",
             "ScrewAttack",
             "Morph",
-        ] + num_progression_etanks * ["ETank"]
-        other_items = [
-            "Spazer",
             "SpringBall",
             "XRayScope",
-        ] + 45 * ["Missile"] + 9 * ["Super"] + 9 * ["PowerBomb"] + 4 * ["ReserveTank"] + (14 - num_progression_etanks) * ["ETank"]
+        ] + num_progression_etanks * ["ETank"]
+        other_items = ["Spazer"] + 45 * ["Missile"] + 9 * ["Super"] + 9 * ["PowerBomb"] + 4 * ["ReserveTank"] + (14 - num_progression_etanks) * ["ETank"]
 
         # Bitmask indicating vertex IDs that are still available either for placing an item or obtaining a flag:
         target_mask = np.zeros([len(self.sm_json_data.vertex_list)], dtype=bool)
@@ -222,19 +221,27 @@ class Randomizer:
         self.item_placement_list = []
         next_item_index = 0
         self.spoiler_route = []
+        reach_mask = None
+        route_data = None
+        # print("start")
         for step_number in range(1, len(progression_items) + len(progression_flags) + 1):
             orig_state = copy.deepcopy(state)
             if next_item_index < len(progression_items):
                 # Not all progression items have been placed/collected, so check which vertices are reachable.
-                raw_reach, route_data = self.sm_json_data.compute_reachable_vertices(state, self.door_edges)
-                reach_mask = (np.min(raw_reach, axis=1) >= 0)
+                if reach_mask is None:
+                    raw_reach, route_data = self.sm_json_data.compute_reachable_vertices(state, self.door_edges)
+                    reach_mask = (np.min(raw_reach, axis=1) >= 0)
 
-                # # Update target_rank:
+                # Update target_rank:
                 target_rank = np.where(target_mask & reach_mask & (target_rank == 0), np.full_like(target_rank, step_number), target_rank)
                 max_target_rank = np.max(np.where(target_mask & reach_mask, target_rank, np.zeros_like(target_rank)))
 
-                # Identify
                 eligible_target_vertices = np.nonzero(target_mask & reach_mask & (target_rank == max_target_rank))[0]
+                # print("state:", state)
+                # print("reach:")
+                for i in range(eligible_target_vertices.shape[0]):
+                    room_id, node_id, _ = self.sm_json_data.vertex_list[eligible_target_vertices[i]]
+                    print(self.sm_json_data.room_json_dict[room_id]['name'], self.sm_json_data.node_json_dict[(room_id, node_id)]['name'])
                 # eligible_target_vertices = np.nonzero(target_mask & reach_mask)[0]
                 if eligible_target_vertices.shape[0] == 0:
                     # There are no more reachable locations of interest. We got stuck before placing all
@@ -273,34 +280,54 @@ class Randomizer:
 
             if isinstance(target_value, int):
                 # Item placement
-                self.item_placement_list.append(target_value)
-                item_name = self.item_sequence[next_item_index]
-                collect_name = item_name
+                pre_item_state = state
+                # Try placing an item that unlocks a new location of interest that wasn't previously reachable.
+                # (but after 3 attempts we give up and place any progression item.)
+                # for item_index in range(next_item_index, len(progression_items)):
+                for item_index in range(next_item_index, next_item_index + 1):
+                    item_name = self.item_sequence[item_index]
+                    state = copy.deepcopy(pre_item_state)
+                    state.items.add(item_name)
+                    if item_name == 'Missile':
+                        state.max_missiles += 5
+                        state.current_missiles += 5
+                    elif item_name == 'Super':
+                        state.max_super_missiles += 5
+                        state.current_super_missiles += 5
+                    elif item_name == 'PowerBomb':
+                        state.max_power_bombs += 5
+                        state.current_power_bombs += 5
+                    elif item_name == 'ETank':
+                        state.num_energy_tanks += 1
+                        state.max_energy += 100
+                        state.current_energy = state.max_energy
+                    elif item_name == 'ReserveTank':
+                        state.num_reserves += 1
+                        state.max_energy += 100
+                    state.weapons = self.sm_json_data.get_weapons(state.items)
+
+                    new_raw_reach, new_route_data = self.sm_json_data.compute_reachable_vertices(state, self.door_edges)
+                    new_reach_mask = (np.min(new_raw_reach, axis=1) >= 0)
+                    if np.any(new_reach_mask & target_mask & (target_rank == 0)):
+                        break
+                else:
+                    item_index = next_item_index
+                print("item: ", self.sm_json_data.room_json_dict[room_id]['name'], item_name, item_index, next_item_index, len(progression_items))
+
+                self.item_sequence[item_index], self.item_sequence[next_item_index] = self.item_sequence[next_item_index], self.item_sequence[item_index]
                 next_item_index += 1
-                state.items.add(item_name)
-                if item_name == 'Missile':
-                    state.max_missiles += 5
-                    state.current_missiles += 5
-                elif item_name == 'Super':
-                    state.max_super_missiles += 5
-                    state.current_super_missiles += 5
-                elif item_name == 'PowerBomb':
-                    state.max_power_bombs += 5
-                    state.current_power_bombs += 5
-                elif item_name == 'ETank':
-                    state.num_energy_tanks += 1
-                    state.max_energy += 100
-                    state.current_energy = state.max_energy
-                elif item_name == 'ReserveTank':
-                    state.num_reserves += 1
-                    state.max_energy += 100
-                state.weapons = self.sm_json_data.get_weapons(state.items)
+                self.item_placement_list.append(target_value)
+                collect_name = item_name
             else:
                 collect_name = target_value
                 state.flags.add(target_value)
+                new_reach_mask = None
+                new_route_data = None
 
             spoiler_entry = self.get_spoiler_entry(selected_target_index, route_data, orig_state, collect_name, step_number, int(target_rank[selected_target_index]))
             self.spoiler_route.append(spoiler_entry)
+            reach_mask = new_reach_mask
+            route_data = new_route_data
         else:
             raise RuntimeError("Unexpected failure in item randomization")
 
