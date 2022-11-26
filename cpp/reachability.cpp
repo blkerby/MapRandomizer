@@ -26,7 +26,6 @@ using Graph = std::vector<std::vector<Edge>>;
 
 inline float compute_heuristic_value(
     cost_t resource_quantity[NUM_RESOURCE_TYPES],
-    cost_t start_resources[NUM_RESOURCE_TYPES],
     cost_t max_resources[NUM_RESOURCE_TYPES]
 ) {
     float total_value = 0.0;
@@ -106,7 +105,7 @@ void compute_reachability(py::array_t<int16_t> graph_input,
         vertex_best_value[start_vertex].resource_quantity[i] = start_resources[i];
     }
     vertex_best_value[start_vertex].heuristic_value = compute_heuristic_value(
-        start_resources, start_resources, max_resources);
+        start_resources, max_resources);
 
     std::unordered_set<vertex_t> modified_vertices;
     modified_vertices.insert(start_vertex);
@@ -126,7 +125,7 @@ void compute_reachability(py::array_t<int16_t> graph_input,
                         dst_value.resource_quantity[i] = max_resources[i];
                     }
                 }
-                dst_value.heuristic_value = compute_heuristic_value(dst_value.resource_quantity, start_resources, max_resources);
+                dst_value.heuristic_value = compute_heuristic_value(dst_value.resource_quantity, max_resources);
                 if (dst_value.heuristic_value > vertex_best_value[edge.dst].heuristic_value) {
                     vertex_best_value[edge.dst] = dst_value;
                     new_modified_vertices.insert(edge.dst);

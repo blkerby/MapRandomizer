@@ -771,10 +771,6 @@ class SMJsonData:
             if key in ('canComeInCharged', 'adjacentRunway'):
                 # For now assume we can't do these.
                 return ImpossibleCondition()
-            # TODO:
-            # - Boss flags
-            # - Zebes awake flag
-
         raise RuntimeError("Unrecognized condition: {}".format(json_data))
 
     def preprocess_room(self, raw_room_json):
