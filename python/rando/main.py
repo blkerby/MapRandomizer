@@ -409,6 +409,13 @@ def randomize():
         return flask.Response("Too many failed item randomization attempts", status=500)
 
     logging.info("Done with item randomization")
+    spoiler_items = []
+    for i in range(len(randomizer.item_placement_list)):
+        spoiler_items.append({
+            'nodeAddress': '{:X}'.format(randomizer.item_placement_list[i]),
+            'item': randomizer.item_sequence[i],
+        })
+
     spoiler_data = {
         'difficulty': {
             'tech': list(sorted(difficulty.tech)),
@@ -416,6 +423,7 @@ def randomize():
             'multiplier': difficulty.multiplier,
         },
         'route': randomizer.spoiler_route,
+        'items': spoiler_items,
     }
 
     for room in rooms:
@@ -964,6 +972,10 @@ def randomize():
         orig_plm_type = orig_rom.read_u16(ptr)
         plm_type = item_to_plm_type(item_name, orig_plm_type)
         rom.write_u16(ptr, plm_type)
+
+    # Copy the item at Morph Ball to the Zebes-awake state (so it doesn't become unobtainable after Zebes is awake).
+    # For this we overwrite the PLM slot for the gray door at the left of the room (which we would get rid of anyway).
+    rom.write_n(0x78746, 6, rom.read_n(0x786DE, 6))
 
     # Make whole map revealed (after getting map station), i.e. no more "secret rooms" that don't show up in map.
     for i in range(0x11727, 0x11D27):

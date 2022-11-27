@@ -312,6 +312,7 @@ class Randomizer:
                         break
                 else:
                     item_index = next_item_index
+                    item_name = self.item_sequence[item_index]
 
                 print(
                     f"item: room='{self.sm_json_data.room_json_dict[room_id]['name']}', node='{self.sm_json_data.node_json_dict[(room_id, node_id)]['name']}', item='{item_name}', index={item_index}, next_item_index={next_item_index}")
