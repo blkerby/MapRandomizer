@@ -191,7 +191,6 @@ difficulty_config = DifficultyConfig(
     shine_charge_tiles=shine_charge_tiles,
     multiplier=1.0)
 game_state = GameState(
-    difficulty=difficulty_config,
     items=set(full_selected_items),
     flags=set(selected_flags),
     weapons=sm_json_data.get_weapons(set(full_selected_items)),
@@ -228,7 +227,7 @@ for to_node_id in sorted(link_by_to_node.keys()):
         for link in links:
             to_room_id, to_node_id, to_obstacles_bitmask = sm_json_data.vertex_list[link.to_index]
             to_obstacles_ids = [name for i, name in enumerate(obstacle_ids) if (1 << i) & to_obstacles_bitmask != 0]
-            consumption = link.cond.get_consumption(game_state)
+            consumption = link.cond.get_consumption(game_state, difficulty_config)
             strat_name_list.append(link.strat_name)
             possible_list.append(consumption.possible)
             energy_list.append(consumption.energy)

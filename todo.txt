@@ -31,13 +31,16 @@ DONE:
 - escape timer
 
 TODO:
+- figure out why extra ETank instead of Plasma in spoiler log for seed 2 (smmr-v0-2-115673117270825932886574167490559 (8))
+- set rank of sibling vertices
+- make the item in morph ball location present when zebes awake
+- maybe don't treat flags as locations of interest
 - fix timestamps in zip file
 - escape setup: mark bosses dead
 - fix map when using elevators (to set tiles to explored)
 - fix demo
 - fix red screen in draygon
 - better solution for fixing toilet door asm
-- make the item in morph ball location present when zebes awake
 - door above morph ball room is pink but looks blue?
 - fix new game (instant die after respawn)
     - new game on second file starts at wrong save
