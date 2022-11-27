@@ -883,7 +883,7 @@ def randomize():
         room = RomRoom(orig_rom, room_obj)
         states = room.load_states(rom)
         for state in states:
-            if room_obj.name == 'Pit Room' and state == 0xE652:
+            if room_obj.name == 'Pit Room' and state.event_ptr == 0xE652:
                 # Leave grey doors in post-Missile Pit Room intact, to leave a way to trigger Zebes becoming awake.
                 continue
             ptr = state.plm_set_ptr + 0x70000
