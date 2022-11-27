@@ -1016,9 +1016,6 @@ def randomize():
     rom.write_u8(0x7968F + 2, west_ocean_x + 5)
     rom.write_u8(0x7968F + 3, west_ocean_y + 2)
 
-    # Fix East Pants Room door
-
-
     # Apply patches
     patches = [
         'vanilla_bugfixes',
