@@ -32,8 +32,7 @@ DONE:
 - make the item in morph ball location present when zebes awake
 
 TODO:
-- set rank of sibling vertices
-- maybe don't treat flags as locations of interest (and f_defeatedBotwoon, don't let it happen twice)
+- fix plasma room (to not assume that the enemies need to be killed)
 - fix timestamps in zip file
 - escape setup: mark bosses dead
 - fix map when using elevators (to set tiles to explored)

@@ -173,7 +173,7 @@ class Randomizer:
             'f_ZebesAwake',
             'f_MaridiaTubeBroken',
             'f_DefeatedBotwoon',
-            'f_ShaktoolDoneDigging',
+            # 'f_ShaktoolDoneDigging',
             'f_UsedAcidChozoStatue',
             'f_DefeatedCrocomire',
             'f_DefeatedSporeSpawn',
@@ -204,11 +204,20 @@ class Randomizer:
 
         # Bitmask indicating vertex IDs that are still available either for placing an item or obtaining a flag:
         target_mask = np.zeros([len(self.sm_json_data.vertex_list)], dtype=bool)
+        flag_mask = np.zeros([len(self.sm_json_data.vertex_list)], dtype=bool)  # Constant mask indicating if a vertex is a progression flag
+        flag_dict = {}  # Map from flag name to list of (room_id, node_id) pairs
         for (room_id, node_id), v in self.sm_json_data.target_dict.items():
-            if isinstance(v, int) or v in progression_flags:
+            is_progression_flag = v in progression_flags
+            if isinstance(v, int) or is_progression_flag:
+                if is_progression_flag:
+                    if v not in flag_dict:
+                        flag_dict[v] = []
+                    flag_dict[v].append((room_id, node_id))
                 for i in range(2 ** self.sm_json_data.num_obstacles_dict[room_id]):
                     vertex_id = self.sm_json_data.vertex_index_dict[(room_id, node_id, i)]
                     target_mask[vertex_id] = True
+                    flag_mask[vertex_id] = is_progression_flag
+
 
         # For each vertex ID, the step number on which it first became accessible (or 0 if not yet accessible).
         # We use this to filter progression item placements to locations that became accessible as late as possible
@@ -235,10 +244,14 @@ class Randomizer:
                 target_rank = np.where(target_mask & reach_mask & (target_rank == 0), np.full_like(target_rank, step_number), target_rank)
                 max_target_rank = np.max(np.where(target_mask & reach_mask, target_rank, np.zeros_like(target_rank)))
 
-                eligible_target_vertices = np.nonzero(target_mask & reach_mask & (target_rank == max_target_rank))[0]
+                # Prioritize selecting a progression flag (rather than an item location) as a next target if possible:
+                eligible_target_vertices = np.nonzero(target_mask & reach_mask & flag_mask)[0]
+                if eligible_target_vertices.shape[0] == 0:
+                    # No flags available, so consider item locations:
+                    eligible_target_vertices = np.nonzero(target_mask & reach_mask & (target_rank == max_target_rank))[0]
                 # eligible_target_vertices = np.nonzero(target_mask & reach_mask)[0]
                 # print("state:", state)
-                print("max_target_rank={}, num_eligible={}, num_reachable={}:".format(max_target_rank, eligible_target_vertices.shape[0], np.sum(target_mask & reach_mask)))
+                print("max_target_rank={}, num_eligible={}, num_reachable={}: ".format(max_target_rank, eligible_target_vertices.shape[0], np.sum(target_mask & reach_mask)), end='')
                 for i in range(eligible_target_vertices.shape[0]):
                     room_id, node_id, _ = self.sm_json_data.vertex_list[eligible_target_vertices[i]]
                     for j in range(2 ** self.sm_json_data.num_obstacles_dict[room_id]):
@@ -248,8 +261,7 @@ class Randomizer:
                 if eligible_target_vertices.shape[0] == 0:
                     # There are no more reachable locations of interest. We got stuck before placing all
                     # progression items, so this attempt failed.
-                    # print("Failed item randomization at step {}".format(step_number))
-                    print()
+                    print("\n")
                     return False
             else:
                 # All progression items have been placed/collected, so all vertices should be reachable.
@@ -274,15 +286,17 @@ class Randomizer:
             target_value = self.sm_json_data.target_dict[(room_id, node_id)]
 
             state.vertex_index = selected_target_index
-            for i in range(2 ** self.sm_json_data.num_obstacles_dict[room_id]):
-                vertex_id = self.sm_json_data.vertex_index_dict[(room_id, node_id, i)]
-                target_mask[vertex_id] = False
             state.current_energy = int(raw_reach[selected_target_index, 0])
             state.current_missiles = int(raw_reach[selected_target_index, 1])
             state.current_super_missiles = int(raw_reach[selected_target_index, 2])
             state.current_power_bombs = int(raw_reach[selected_target_index, 3])
 
+
             if isinstance(target_value, int):
+                for i in range(2 ** self.sm_json_data.num_obstacles_dict[room_id]):
+                    vertex_id = self.sm_json_data.vertex_index_dict[(room_id, node_id, i)]
+                    target_mask[vertex_id] = False
+
                 # Item placement
                 pre_item_state = state
                 # If possible, place an item unlocking a new location of interest that wasn't previously reachable.
@@ -318,7 +332,7 @@ class Randomizer:
                     item_name = self.item_sequence[item_index]
 
                 print(
-                    f"item: room='{self.sm_json_data.room_json_dict[room_id]['name']}', node='{self.sm_json_data.node_json_dict[(room_id, node_id)]['name']}', item='{item_name}', index={item_index}, next_item_index={next_item_index}")
+                    f"item='{item_name}', room='{self.sm_json_data.room_json_dict[room_id]['name']}', node='{self.sm_json_data.node_json_dict[(room_id, node_id)]['name']}', index={item_index}, next_item_index={next_item_index}")
                 # print("item: ", self.sm_json_data.room_json_dict[room_id]['name'], item_name, item_index, next_item_index, len(progression_items))
 
                 self.item_sequence[item_index], self.item_sequence[next_item_index] = self.item_sequence[next_item_index], self.item_sequence[item_index]
@@ -326,7 +340,12 @@ class Randomizer:
                 self.item_placement_list.append(target_value)
                 collect_name = item_name
             else:
-                print(f"flag: {target_value}")
+                for room_id, node_id in flag_dict[target_value]:
+                    for i in range(2 ** self.sm_json_data.num_obstacles_dict[room_id]):
+                        vertex_id = self.sm_json_data.vertex_index_dict[(room_id, node_id, i)]
+                        target_mask[vertex_id] = False
+
+                print(f"flag='{target_value}'")
                 collect_name = target_value
                 state.flags.add(target_value)
                 new_raw_reach = None
