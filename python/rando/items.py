@@ -223,7 +223,7 @@ class Randomizer:
         reach_mask = None
         route_data = None
         # print("start")
-        for step_number in range(1, len(progression_items) + len(progression_flags) + 1):
+        for step_number in range(1, len(progression_items) + len(progression_flags) + 2):
             orig_state = copy.deepcopy(state)
             if next_item_index < len(progression_items):
                 # Not all progression items have been placed/collected, so check which vertices are reachable.
@@ -238,10 +238,13 @@ class Randomizer:
                 eligible_target_vertices = np.nonzero(target_mask & reach_mask & (target_rank == max_target_rank))[0]
                 # eligible_target_vertices = np.nonzero(target_mask & reach_mask)[0]
                 # print("state:", state)
-                print("max_target_rank={}, num_reachable={}:".format(max_target_rank, np.sum(target_mask & reach_mask)))
+                print("max_target_rank={}, num_eligible={}, num_reachable={}:".format(max_target_rank, eligible_target_vertices.shape[0], np.sum(target_mask & reach_mask)))
                 for i in range(eligible_target_vertices.shape[0]):
                     room_id, node_id, _ = self.sm_json_data.vertex_list[eligible_target_vertices[i]]
-                    print(f"room='{self.sm_json_data.room_json_dict[room_id]['name']}', node='{self.sm_json_data.node_json_dict[(room_id, node_id)]['name']}'")
+                    for j in range(2 ** self.sm_json_data.num_obstacles_dict[room_id]):
+                        vertex_id = self.sm_json_data.vertex_index_dict[(room_id, node_id, j)]
+                        target_rank[vertex_id] = max_target_rank
+                    # print(f"room='{self.sm_json_data.room_json_dict[room_id]['name']}', node='{self.sm_json_data.node_json_dict[(room_id, node_id)]['name']}'")
                 if eligible_target_vertices.shape[0] == 0:
                     # There are no more reachable locations of interest. We got stuck before placing all
                     # progression items, so this attempt failed.
@@ -323,6 +326,7 @@ class Randomizer:
                 self.item_placement_list.append(target_value)
                 collect_name = item_name
             else:
+                print(f"flag: {target_value}")
                 collect_name = target_value
                 state.flags.add(target_value)
                 new_raw_reach = None

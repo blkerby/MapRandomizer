@@ -29,10 +29,10 @@ DONE:
 - restored way to make Zebes awake (by killing enemies in Pit Room)
 - generalize patching door asm for entering mother brain room
 - escape timer
+- make the item in morph ball location present when zebes awake
 
 TODO:
 - set rank of sibling vertices
-- make the item in morph ball location present when zebes awake
 - maybe don't treat flags as locations of interest (and f_defeatedBotwoon, don't let it happen twice)
 - fix timestamps in zip file
 - escape setup: mark bosses dead
