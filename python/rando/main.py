@@ -772,23 +772,47 @@ def randomize():
             rom.write_u16(rom_room.xy_to_map_ptr(rom_room.x + 2, rom_room.y + 3), cell)
 
     def write_door_data(ptr, data):
-        if ptr in (0x1A600, 0x1A60C):
-            # Avoid overwriting the door ASM leaving the toilet room. Otherwise Samus will be stuck,
-            # unable to be controlled. This is only quick hack because by not applying the door ASM for
-            # the next room, this can mess up camera scrolls and other things. (At some point,
-            # maybe figure out how we can patch both ASMs together.)
-            rom.write_n(ptr, 10, data[:10])
-        elif ptr == 0x1A798:  # Pants Room right door
-            rom.write_n(ptr, 12, data)
-            rom.write_n(0x1A7BC, 12, data)  # Also write the same data to the East Pants Room right door
-            bitflag = data[2] | 0x40
-            rom.write_u8(0x1A7BC + 2, bitflag)
-        else:
-            rom.write_n(ptr, 12, data)
-
+        rom.write_n(ptr, 10, data[:10])
         bitflag = data[2] | 0x40
         rom.write_u8(ptr + 2, bitflag)
-        # print("{:x}".format(bitflag))
+
+        # When leaving the aqueduct and entering a door that normally has a door ASM into it, we use a patched door
+        # ASM to run both the original door ASM (for leaving the toilet) and the door ASM for the destination room.
+        # Both are essential: if we don't run the original toilet door ASM, then Samus will be left frozen, unable to
+        # be controlled; if we don't run the door ASM for the next room, we can end up with nasty glitches, e.g. due to
+        # camera scrolls not being set. Note, for the toilet door ASM, we use the northbound version for both doors
+        # since the southbound one sets camera scrolls (for Oasis) that generally won't be applicable in the next
+        # room.
+        toilet_down_asm_free_space = 0xED00  # start of 6 bytes of free space in bank 8F for new door ASM
+        toilet_up_asm_free_space = 0xED06  # start of 6 bytes of free space in bank 8F for new door ASM
+        if ptr == 0x1A600:  # Aqueduct toilet door down (to Oasis)
+            if data[10] != 0 or data[11] != 0:
+                # Run both the toilet door ASM and destination door ASM.
+                rom.write_u16(ptr + 10, toilet_down_asm_free_space)
+                rom.write_u8(0x70000 + toilet_down_asm_free_space, 0x20)  # JSR opcode (Jump to Subroutine)
+                rom.write_u16(0x70000 + toilet_down_asm_free_space + 1, 0xE301)  # Run the toilet door ASM
+                rom.write_u8(0x70000 + toilet_down_asm_free_space + 3, 0x4C)  # JMP opcode (Jump)
+                rom.write_n(0x70000 + toilet_down_asm_free_space + 4, 2, data[10:12])  # Run the door ASM for next room
+            else:
+                # Run only the toilet door ASM, because there is no destination door ASM.
+                rom.write_u16(ptr + 10, 0xE301)
+        elif ptr == 0x1A60C:  # Aqueduct toilet door up (to Plasma Spark Room)
+            if data[10] != 0 or data[11] != 0:
+                # Run both the toilet door ASM and destination door ASM.
+                rom.write_u16(ptr + 10, toilet_up_asm_free_space)
+                rom.write_u8(0x70000 + toilet_up_asm_free_space, 0x20)  # JSR opcode (Jump to Subroutine)
+                rom.write_u16(0x70000 + toilet_up_asm_free_space + 1, 0xE301)  # Run the toilet door ASM
+                rom.write_u8(0x70000 + toilet_up_asm_free_space + 3, 0x4C)  # JMP opcode (Jump)
+                rom.write_n(0x70000 + toilet_up_asm_free_space + 4, 2, data[10:12])  # Run the door ASM for next room
+            else:
+                # Run only the toilet door ASM, because there is no destination door ASM.
+                rom.write_u16(ptr + 10, 0xE301)
+        elif ptr == 0x1A798:  # Pants Room right door
+            rom.write_n(0x1A7BC, 12, data)  # Also write the same data to the East Pants Room right door
+            rom.write_u8(0x1A7BC + 2, bitflag)
+        else:
+            # Use the door ASM for the destination room (if present)
+            rom.write_n(ptr + 10, 2, data[10:12])
 
     def write_door_connection(a, b):
         a_exit_ptr, a_entrance_ptr = a

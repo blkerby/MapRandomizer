@@ -1,44 +1,12 @@
-DONE:
-- fix save
-- skip ceres station
-- fix/remove sky scrolling in crateria
-- fix door in everest
-- fix mission impossible one-way
-- fix toilet (keep original door asm for toilet exits)
-- randomize items
-- fix escape room 1 (add door transition to the right)
-- fix save stations (again)
-- get map roughly working without overwriting room areas
-- open up statues room (which should also fix camera glitch)
-- fix blue tiles (from map stations - updated data pointed to by $82:9717)
-- fix issue with map areas (statues room in wrong area)
-- lock mother brain room behind bosses
-- stop escape room 1 from triggering zebesAblaze
-- skip fanfares (like in other randomizers)
-- skip gravity/varia suit-grab animation to avoid potential hard lock
-- change gravity/varia behavior like other randomizers
-- adjust sand-fall widths to make them compatible
-- fix Plasma Spark Room map (near door down should only be 1 tile, not 2)
-- make kraid a first-time one-way in model, like crocomire?
-- fix map in east pants room, and homing geemer room
-- fix map icons
-- fix plasma spark room: map off by 1 tile
-- fix spazer room music
-- fix botwoon e-tank sand
-- fix single map tile in toilet
-- restored way to make Zebes awake (by killing enemies in Pit Room)
-- generalize patching door asm for entering mother brain room
-- escape timer
-- make the item in morph ball location present when zebes awake
-
 TODO:
 - figure out why defeating Phantoon opens the way to Crocomire in smmr-v0-3-115673117270825932886574167490559 (expert).
+- figure out why map tiles transfer across save files
+- figure out why RNG is not reproducible
 - fix plasma room (to not assume that the enemies need to be killed)
 - fix timestamps in zip file
 - escape setup: mark bosses dead
 - fix map when using elevators (to set tiles to explored)
-- fix demo
-- better solution for fixing toilet door asm
+- fix/disable demo
 - fix new game (instant die after respawn)
     - new game on second file starts at wrong save
 - block left side of mother brain room and crocomire room (grey door)
@@ -54,7 +22,6 @@ TODO:
 	- convert one tourian save to a map, so that each area gets a map station?
 		- remove asm that automatically gives map in first tourian room
 - fix suit graphics not showing after getting suit (consequence of skipping animation)
-- door doesn't open after killing phantoon?
 - set boss bits earlier in death sequence (to avoid accidentally leaving room before set)
 - graphics messed up after killing kraid
 - show map text for cross-area transitions?
