@@ -206,6 +206,7 @@ class Randomizer:
         # We avoid having progression depend on reserve tanks, to simplify how energy refill stations work in the logic.
         # So these end up getting placed at the end at locations that cannot be accessed early.
         progression_item_set.remove("ReserveTank")
+        progression_item_list = sorted(progression_item_set)
 
         # Bitmask indicating vertex IDs that are still available either for placing an item or obtaining a flag:
         target_mask = np.zeros([len(self.sm_json_data.vertex_list)], dtype=bool)
@@ -317,9 +318,9 @@ class Randomizer:
                 pre_item_state = state
                 # If possible, place an item unlocking a new location of interest that wasn't previously reachable.
                 missile_items = ['Missile'] if 'Missile' not in state.items else []
-                new_items = [name for name in progression_item_set if name not in state.items and name != 'Missile']
+                new_items = [name for name in progression_item_list if name not in state.items and name != 'Missile']
                 new_items = np.random.permutation(new_items).tolist()
-                old_items = [name for name in progression_item_set if name in state.items
+                old_items = [name for name in progression_item_list if name in state.items
                              and items_to_place_count[name] > 0]
                 old_items = np.random.permutation(old_items).tolist()
                 hypothetical_item_data = []
