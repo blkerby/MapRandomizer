@@ -1,7 +1,6 @@
 TODO:
 - figure out why defeating Phantoon opens the way to Crocomire in smmr-v0-3-115673117270825932886574167490559 (expert).
 - figure out why map tiles transfer across save files
-- figure out why RNG is not reproducible
 - fix plasma room (to not assume that the enemies need to be killed)
 - fix timestamps in zip file
 - escape setup: mark bosses dead
