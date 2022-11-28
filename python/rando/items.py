@@ -275,7 +275,7 @@ class Randomizer:
                 item_names = np.random.permutation(item_names).tolist()
                 item_names = item_names + ['Missile' for _ in range(items_to_place_count['Missile'])]
                 next_item_index = 0
-                print("Remaining items: ", item_names)
+                print("Non-progression items:")
 
                 while True:
                     max_target_rank = np.max(np.where(target_mask, target_rank, np.zeros_like(target_rank)))
@@ -283,7 +283,6 @@ class Randomizer:
                     if eligible_target_vertices.shape[0] == 0:
                         # There are no more locations to place items. We placed all items so this attempt succeeded.
                         assert next_item_index == len(item_names)
-                        print()
                         return True
                     selected_target_index = int(eligible_target_vertices[0])
                     room_id, node_id, _ = self.sm_json_data.vertex_list[selected_target_index]
@@ -309,7 +308,6 @@ class Randomizer:
             state.current_super_missiles = int(raw_reach[selected_target_index, 2])
             state.current_power_bombs = int(raw_reach[selected_target_index, 3])
 
-
             if isinstance(target_value, int):
                 for i in range(2 ** self.sm_json_data.num_obstacles_dict[room_id]):
                     vertex_id = self.sm_json_data.vertex_index_dict[(room_id, node_id, i)]
@@ -318,13 +316,16 @@ class Randomizer:
                 # Item placement
                 pre_item_state = state
                 # If possible, place an item unlocking a new location of interest that wasn't previously reachable.
-                new_items = [name for name in progression_item_set if name not in state.items]
+                missile_items = ['Missile'] if 'Missile' not in state.items else []
+                new_items = [name for name in progression_item_set if name not in state.items and name != 'Missile']
                 new_items = np.random.permutation(new_items).tolist()
                 old_items = [name for name in progression_item_set if name in state.items
                              and items_to_place_count[name] > 0]
                 old_items = np.random.permutation(old_items).tolist()
                 hypothetical_item_data = []
-                for item_name in new_items + old_items:  # Prioritize getting a new item over getting a duplicate/ammo
+                # Prioritize getting a new item over getting a duplicate/ammo (and most of all prioritize getting
+                # the first missile):
+                for item_name in missile_items + new_items + old_items:
                     state = copy.deepcopy(pre_item_state)
                     state.items.add(item_name)
                     if item_name == 'Missile':
