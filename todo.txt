@@ -1,14 +1,11 @@
 TODO:
-- fix boss exit door ASMs when the next room also requires door ASM (similar to Toilet)
-- figure out why map tiles transfer across save files
+- fix new game on second file: some data comes from other file?
 - fix phantoon (and other bosses?) logic to be killable with missiles only.
 - fix plasma room (to not assume that the enemies need to be killed)
 - fix timestamps in zip file
 - escape setup: mark bosses dead
 - fix map when using elevators (to set tiles to explored)
 - fix/disable demo
-- fix new game (instant die after respawn)
-    - new game on second file starts at wrong save
 - block left side of mother brain room and crocomire room (grey door)
 	- and possibly right of kraid, or change spawn? (camera glitchy)
 - door randomization
