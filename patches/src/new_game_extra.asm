@@ -4,9 +4,16 @@
 arch snes.cpu
 lorom
 
+;;; CONSTANTS
+!GameStartState = $7ED914
+!current_save_slot = $7e0952
+
 ;;; Hijack code that runs during initialization
 org $82801d
     jsl startup
+
+org $828067
+    jsl gameplay_start
 
 ;;; Start in game state 1F (Post-Intro) instead of 1E (Intro)
 org $82eeda
@@ -16,8 +23,7 @@ org $82eeda
 org $a1f210
 
 startup:
-    lda #$0004  ; Unlock Tourian (to avoid camera glitching when entering from bottom, and also to ensure game is
-    sta $7ED821 ; beatable since we don't take it into account as an obstacle in the item randomization logic)
+    jsl check_new_game      : bne .end
 
     ; temporary extra stuff:
     lda #$FFFF
@@ -41,16 +47,36 @@ startup:
     lda #$0001
     sta $0789   ; area map collected
 
-    ; Testing: Mark all saves/elevators as used (so that elevator tiles will show as explored on map)?
-    lda #$FFFF
-    sta $7ED8F8
-    sta $7ED8FA
-    sta $7ED8FC
-    sta $7ED8FE
-    sta $7ED900
-    sta $7ED902
-    sta $7ED904
-    sta $7ED906
+
+    ; Unlock Tourian statues room (to avoid camera glitching when entering from bottom, and also to ensure game is
+    ; beatable since we don't take it into account as an obstacle in the item randomization logic)
+    lda #$0004
+    sta $7ED821
 
     lda #$0005  ; Start in loading game state 5 (Main) instead of 0 (Intro)
+    sta !GameStartState
+.end
+    lda !GameStartState
+    rtl
+
+;;; zero flag set if we're starting a new game
+check_new_game:
+    ;; Make sure game mode is 1f
+    lda $7e0998
+    cmp #$001f : bne .end
+    ;; check that Game time and frames is equal zero for new game
+    ;; (Thanks Smiley and P.JBoy from metconst)
+    lda $09DA
+    ora $09DC
+    ora $09DE
+    ora $09E0
+.end:
+    rtl
+
+
+gameplay_start:
+    jsl check_new_game  : bne .end
+    lda !current_save_slot
+    jsl $818000
+.end:
     rtl

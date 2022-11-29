@@ -262,9 +262,9 @@ class LavaCondition(Condition):
         self.frames = frames
 
     def get_consumption(self, state: GameState, difficulty: DifficultyConfig) -> Consumption:
-        if 'Varia' in state.items and 'Gravity' in state.items:
+        if 'Gravity' in state.items:
             return zero_consumption
-        elif 'Varia' in state.items or 'Gravity' in state.items:
+        elif 'Varia' in state.items:
             return Consumption(energy=(self.frames + 3) // 4)
         else:
             return Consumption(energy=(self.frames + 1) // 2)
