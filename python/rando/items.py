@@ -245,22 +245,22 @@ class Randomizer:
                     reach_mask = (np.min(raw_reach, axis=1) >= 0)
 
                 # Update target_rank:
-                target_rank = np.where(target_mask & reach_mask & (target_rank == 0), np.full_like(target_rank, step_number), target_rank)
-                max_target_rank = np.max(np.where(target_mask & reach_mask, target_rank, np.zeros_like(target_rank)))
+                target_rank = np.where(reach_mask & (target_rank == 0), np.full_like(target_rank, step_number), target_rank)
 
                 # Prioritize selecting a progression flag (rather than an item location) as a next target if possible:
                 eligible_target_vertices = np.nonzero(target_mask & reach_mask & flag_mask)[0]
                 if eligible_target_vertices.shape[0] == 0:
                     # No flags available, so consider item locations:
+                    max_target_rank = np.max(
+                        np.where(target_mask & reach_mask, target_rank, np.zeros_like(target_rank)))
                     eligible_target_vertices = np.nonzero(target_mask & reach_mask & (target_rank == max_target_rank))[0]
-                # eligible_target_vertices = np.nonzero(target_mask & reach_mask)[0]
-                # print("state:", state)
-                print("{}: rank={}, num_eligible={}, num_reachable={}: ".format(step_number, max_target_rank, eligible_target_vertices.shape[0], np.sum(target_mask & reach_mask)), end='')
-                for i in range(eligible_target_vertices.shape[0]):
-                    room_id, node_id, _ = self.sm_json_data.vertex_list[eligible_target_vertices[i]]
-                    for j in range(2 ** self.sm_json_data.num_obstacles_dict[room_id]):
-                        vertex_id = self.sm_json_data.vertex_index_dict[(room_id, node_id, j)]
-                        target_rank[vertex_id] = max_target_rank
+                    # eligible_target_vertices = np.nonzero(target_mask & reach_mask)[0]
+                    # print("state:", state)
+                    for i in range(eligible_target_vertices.shape[0]):
+                        room_id, node_id, _ = self.sm_json_data.vertex_list[eligible_target_vertices[i]]
+                        for j in range(2 ** self.sm_json_data.num_obstacles_dict[room_id]):
+                            vertex_id = self.sm_json_data.vertex_index_dict[(room_id, node_id, j)]
+                            target_rank[vertex_id] = max_target_rank
                     # print(f"room='{self.sm_json_data.room_json_dict[room_id]['name']}', node='{self.sm_json_data.node_json_dict[(room_id, node_id)]['name']}'")
                 if eligible_target_vertices.shape[0] == 0:
                     # There are no more reachable locations of interest. We got stuck before placing all
@@ -300,6 +300,9 @@ class Randomizer:
                         self.item_placement_list.append(target_value)
 
             selected_target_index = int(eligible_target_vertices[random.randint(0, len(eligible_target_vertices) - 1)])
+            selected_target_rank = target_rank[selected_target_index]
+            print("{}: selected_rank={}, num_eligible={}, num_reachable={}: ".format(step_number, selected_target_rank, eligible_target_vertices.shape[0],
+                                                                   np.sum(target_mask & reach_mask)), end='')
             room_id, node_id, _ = self.sm_json_data.vertex_list[selected_target_index]
             target_value = self.sm_json_data.target_dict[(room_id, node_id)]
 
