@@ -1,6 +1,7 @@
 TODO:
-- figure out why defeating Phantoon opens the way to Crocomire in smmr-v0-3-115673117270825932886574167490559 (expert).
+- fix boss exit door ASMs when the next room also requires door ASM (similar to Toilet)
 - figure out why map tiles transfer across save files
+- fix phantoon (and other bosses?) logic to be killable with missiles only.
 - fix plasma room (to not assume that the enemies need to be killed)
 - fix timestamps in zip file
 - escape setup: mark bosses dead
