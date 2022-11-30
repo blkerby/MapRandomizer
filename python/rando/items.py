@@ -342,8 +342,12 @@ class Randomizer:
                              and items_to_place_count[name] > 0]
                 old_items = np.random.permutation(old_items).tolist()
                 hypothetical_item_data = []
+                best_item_names = []
+                best_value = 0
                 # Prioritize getting a new item over getting a duplicate/ammo (and most of all prioritize getting
-                # the first missile):
+                # the first missile). We select the first item that results in a new item location becoming reachable.
+                # If there is no such item, we randomly select an item among choices that expand the number of
+                # reachable vertices the most.
                 item_candidate_list = missile_items + new_items + old_items
                 for item_name in item_candidate_list:
                     state = copy.deepcopy(pre_item_state)
@@ -368,13 +372,21 @@ class Randomizer:
 
                     new_raw_reach, new_route_data = self.sm_json_data.compute_reachable_vertices(state, self.difficulty, self.door_edges)
                     new_reach_mask = (np.min(new_raw_reach, axis=1) >= 0)
-                    hypothetical_item_data.append((item_name, state, new_raw_reach, new_reach_mask, new_route_data))
-                    if np.any(new_reach_mask & target_mask & (target_rank == 0)):
+                    data = (item_name, state, new_raw_reach, new_reach_mask, new_route_data)
+                    if np.any(new_reach_mask & target_mask & ~flag_mask & (target_rank == 0)):
                         fallback = False
                         break
+                    value = np.sum(new_reach_mask)
+                    if value > best_value:
+                        best_item_names = [item_name]
+                        hypothetical_item_data = [data]
+                        best_value = value
+                    elif value == best_value:
+                        best_item_names.append(item_name)
+                        hypothetical_item_data.append(data)
                 else:
                     fallback = True
-                    selected_item_index = random.randint(0, len(item_candidate_list) - 1)
+                    selected_item_index = random.randint(0, len(best_item_names) - 1)
                     item_name, state, new_raw_reach, new_reach_mask, new_route_data = hypothetical_item_data[selected_item_index]
 
                 print(
