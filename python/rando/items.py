@@ -149,7 +149,7 @@ class Randomizer:
         }
 
     def randomize(self, item_placement_strategy: ItemPlacementStrategy):
-        # item_attempts = 1
+        # TODO: Split this function into more manageable-sized pieces and clean up.
         items = {"PowerBeam", "PowerSuit"}
         flags = {"f_TourianOpen"}
         state = GameState(
@@ -256,19 +256,19 @@ class Randomizer:
                     # No flags available, so consider item locations:
                     max_target_rank = np.max(
                         np.where(target_mask & reach_mask, target_rank, np.zeros_like(target_rank)))
-                    eligible_target_vertices = np.nonzero(target_mask & reach_mask & (target_rank == max_target_rank))[0]
-                    # if item_placement_strategy == ItemPlacementStrategy.OPEN:
-                    #     eligible_target_vertices = np.nonzero(target_mask & reach_mask)[0]
-                    # elif item_placement_strategy == ItemPlacementStrategy.CLOSED:
-                    #     eligible_target_vertices = np.nonzero(target_mask & reach_mask & (target_rank == max_target_rank))[0]
-                    # else:
-                    #     raise RuntimeError('Unexpected item placement strategy: {}'.format(item_placement_strategy))
+                    if item_placement_strategy == ItemPlacementStrategy.OPEN:
+                        eligible_target_vertices = np.nonzero(target_mask & reach_mask)[0]
+                    elif item_placement_strategy == ItemPlacementStrategy.CLOSED:
+                        eligible_target_vertices = np.nonzero(target_mask & reach_mask & (target_rank == max_target_rank))[0]
+                    else:
+                        raise RuntimeError('Unexpected item placement strategy: {}'.format(item_placement_strategy))
                     # print("state:", state)
                     for i in range(eligible_target_vertices.shape[0]):
                         room_id, node_id, _ = self.sm_json_data.vertex_list[eligible_target_vertices[i]]
-                        for j in range(2 ** self.sm_json_data.num_obstacles_dict[room_id]):
-                            vertex_id = self.sm_json_data.vertex_index_dict[(room_id, node_id, j)]
-                            target_rank[vertex_id] = max_target_rank
+                        if target_rank[eligible_target_vertices[i]] == max_target_rank:
+                            for j in range(2 ** self.sm_json_data.num_obstacles_dict[room_id]):
+                                vertex_id = self.sm_json_data.vertex_index_dict[(room_id, node_id, j)]
+                                target_rank[vertex_id] = max_target_rank
                     # print(f"room='{self.sm_json_data.room_json_dict[room_id]['name']}', node='{self.sm_json_data.node_json_dict[(room_id, node_id)]['name']}'")
                 if eligible_target_vertices.shape[0] == 0:
                     # There are no more reachable locations of interest. We got stuck before placing all
@@ -288,12 +288,19 @@ class Randomizer:
 
                 while True:
                     max_target_rank = np.max(np.where(target_mask, target_rank, np.zeros_like(target_rank)))
-                    eligible_target_vertices = np.nonzero(target_mask & (target_rank == max_target_rank))[0]
+                    if item_placement_strategy == ItemPlacementStrategy.OPEN:
+                        eligible_target_vertices = np.nonzero(target_mask)[0]
+                    elif item_placement_strategy == ItemPlacementStrategy.CLOSED:
+                        eligible_target_vertices = np.nonzero(target_mask & (target_rank == max_target_rank))[0]
+                    else:
+                        raise RuntimeError('Unexpected item placement strategy: {}'.format(item_placement_strategy))
                     if eligible_target_vertices.shape[0] == 0:
                         # There are no more locations to place items. We placed all items so this attempt succeeded.
                         assert next_item_index == len(item_names)
                         return True
-                    selected_target_index = int(eligible_target_vertices[0])
+                    selected_target_index = int(
+                        eligible_target_vertices[random.randint(0, len(eligible_target_vertices) - 1)])
+                    selected_target_rank = target_rank[selected_target_index]
                     room_id, node_id, _ = self.sm_json_data.vertex_list[selected_target_index]
                     target_value = self.sm_json_data.target_dict[(room_id, node_id)]
                     for i in range(2 ** self.sm_json_data.num_obstacles_dict[room_id]):
@@ -303,7 +310,7 @@ class Randomizer:
                         item_name = item_names[next_item_index]
                         next_item_index += 1
                         print(
-                            f"{step_number}: rank={max_target_rank}, item='{item_name}', room='{self.sm_json_data.room_json_dict[room_id]['name']}', node='{self.sm_json_data.node_json_dict[(room_id, node_id)]['name']}'")
+                            f"{step_number}: rank={selected_target_rank}, item='{item_name}', room='{self.sm_json_data.room_json_dict[room_id]['name']}', node='{self.sm_json_data.node_json_dict[(room_id, node_id)]['name']}'")
                         self.item_sequence.append(item_name)
                         self.item_placement_list.append(target_value)
 
@@ -337,7 +344,8 @@ class Randomizer:
                 hypothetical_item_data = []
                 # Prioritize getting a new item over getting a duplicate/ammo (and most of all prioritize getting
                 # the first missile):
-                for item_name in missile_items + new_items + old_items:
+                item_candidate_list = missile_items + new_items + old_items
+                for item_name in item_candidate_list:
                     state = copy.deepcopy(pre_item_state)
                     state.items.add(item_name)
                     if item_name == 'Missile':
@@ -366,7 +374,8 @@ class Randomizer:
                         break
                 else:
                     fallback = True
-                    item_name, state, new_raw_reach, new_reach_mask, new_route_data = hypothetical_item_data[0]
+                    selected_item_index = random.randint(0, len(item_candidate_list) - 1)
+                    item_name, state, new_raw_reach, new_reach_mask, new_route_data = hypothetical_item_data[selected_item_index]
 
                 print(
                     f"item='{item_name}', room='{self.sm_json_data.room_json_dict[room_id]['name']}', node='{self.sm_json_data.node_json_dict[(room_id, node_id)]['name']}', fallback={fallback}")
