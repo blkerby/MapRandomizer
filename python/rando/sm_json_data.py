@@ -94,7 +94,7 @@ class ShineChargeCondition(Condition):
 
     def get_consumption(self, state: GameState, difficulty: DifficultyConfig) -> Consumption:
         if "SpeedBooster" in state.items and self.tiles >= difficulty.shine_charge_tiles:
-            return Consumption(energy=self.frames)
+            return Consumption(energy=self.frames)  # Note: we don't multiply by difficulty.multiplier
         else:
             return impossible_consumption
 
@@ -132,7 +132,7 @@ class MissileCondition(Condition):
         self.amount = amount
 
     def get_consumption(self, state: GameState, difficulty: DifficultyConfig) -> Consumption:
-        return Consumption(missiles=self.amount)
+        return Consumption(missiles=int(self.amount * difficulty.multiplier))
 
     def __repr__(self):
         return "Missile({})".format(self.amount)
@@ -143,7 +143,7 @@ class SuperMissileCondition(Condition):
         self.amount = amount
 
     def get_consumption(self, state: GameState, difficulty: DifficultyConfig) -> Consumption:
-        return Consumption(super_missiles=self.amount)
+        return Consumption(super_missiles=int(self.amount * difficulty.multiplier))
 
     def __repr__(self):
         return "SuperMissile({})".format(self.amount)
@@ -154,7 +154,7 @@ class PowerBombCondition(Condition):
         self.amount = amount
 
     def get_consumption(self, state: GameState, difficulty: DifficultyConfig) -> Consumption:
-        return Consumption(power_bombs=self.amount)
+        return Consumption(power_bombs=int(self.amount * difficulty.multiplier))
 
     def __repr__(self):
         return "PowerBomb({})".format(self.amount)
@@ -165,7 +165,7 @@ class EnergyCondition(Condition):
         self.amount = amount
 
     def get_consumption(self, state: GameState, difficulty: DifficultyConfig) -> Consumption:
-        return Consumption(energy=self.amount)
+        return Consumption(energy=int(self.amount * difficulty.multiplier))
 
     def __repr__(self):
         return "Energy({})".format(self.amount)
@@ -249,9 +249,9 @@ class HeatCondition(Condition):
         if 'Varia' in state.items:
             return zero_consumption
         elif 'Gravity' in state.items:
-            return Consumption(energy=(self.frames + 7) // 8)
+            return Consumption(energy=int(self.frames / 8 * difficulty.multiplier))
         else:
-            return Consumption(energy=(self.frames + 3) // 4)
+            return Consumption(energy=int(self.frames / 4 * difficulty.multiplier))
 
     def __repr__(self):
         return "Heat({})".format(self.frames)
@@ -265,9 +265,9 @@ class LavaCondition(Condition):
         if 'Gravity' in state.items:
             return zero_consumption
         elif 'Varia' in state.items:
-            return Consumption(energy=(self.frames + 3) // 4)
+            return Consumption(energy=int(self.frames / 4 * difficulty.multiplier))
         else:
-            return Consumption(energy=(self.frames + 1) // 2)
+            return Consumption(energy=int(self.frames / 2 * difficulty.multiplier))
 
     def __repr__(self):
         return "Lava({})".format(self.frames)
@@ -279,9 +279,9 @@ class LavaPhysicsCondition(Condition):
 
     def get_consumption(self, state: GameState, difficulty: DifficultyConfig) -> Consumption:
         if 'Varia' in state.items:
-            return Consumption(energy=(self.frames + 3) // 4)
+            return Consumption(energy=int(self.frames / 4 * difficulty.multiplier))
         else:
-            return Consumption(energy=(self.frames + 1) // 2)
+            return Consumption(energy=int(self.frames / 2 * difficulty.multiplier))
 
     def __repr__(self):
         return "LavaPhysics({})".format(self.frames)
@@ -293,11 +293,11 @@ class AcidCondition(Condition):
 
     def get_consumption(self, state: GameState, difficulty: DifficultyConfig) -> Consumption:
         if 'Varia' in state.items and 'Gravity' in state.items:
-            return Consumption(energy=(3 * self.frames + 7) // 8)
+            return Consumption(energy=int(3 * self.frames / 8 * difficulty.multiplier))
         elif 'Varia' in state.items or 'Gravity' in state.items:
-            return Consumption(energy=(3 * self.frames + 3) // 4)
+            return Consumption(energy=int(3 * self.frames / 4 * difficulty.multiplier))
         else:
-            return Consumption(energy=(3 * self.frames + 1) // 2)
+            return Consumption(energy=int(3 * self.frames / 2 * difficulty.multiplier))
 
     def __repr__(self):
         return "Acid({})".format(self.frames)
@@ -309,11 +309,11 @@ class SpikeHitCondition(Condition):
 
     def get_consumption(self, state: GameState, difficulty: DifficultyConfig) -> Consumption:
         if 'Varia' in state.items and 'Gravity' in state.items:
-            return Consumption(energy=15 * self.hits)
+            return Consumption(energy=int(15 * self.hits * difficulty.multiplier))
         elif 'Varia' in state.items or 'Gravity' in state.items:
-            return Consumption(energy=30 * self.hits)
+            return Consumption(energy=int(30 * self.hits * difficulty.multiplier))
         else:
-            return Consumption(energy=60 * self.hits)
+            return Consumption(energy=int(60 * self.hits * difficulty.multiplier))
 
     def __repr__(self):
         return "SpikeHit({})".format(self.hits)
@@ -325,11 +325,11 @@ class ThornHitCondition(Condition):
 
     def get_consumption(self, state: GameState, difficulty: DifficultyConfig) -> Consumption:
         if 'Varia' in state.items and 'Gravity' in state.items:
-            return Consumption(energy=4 * self.hits)
+            return Consumption(energy=int(4 * self.hits * difficulty.multiplier))
         elif 'Varia' in state.items or 'Gravity' in state.items:
-            return Consumption(energy=8 * self.hits)
+            return Consumption(energy=int(8 * self.hits * difficulty.multiplier))
         else:
-            return Consumption(energy=16 * self.hits)
+            return Consumption(energy=int(16 * self.hits * difficulty.multiplier))
 
     def __repr__(self):
         return "ThornHit({})".format(self.hits)
@@ -341,11 +341,11 @@ class HibashiHitCondition(Condition):
 
     def get_consumption(self, state: GameState, difficulty: DifficultyConfig) -> Consumption:
         if 'Varia' in state.items and 'Gravity' in state.items:
-            return Consumption(energy=7 * self.hits)
+            return Consumption(energy=int(7 * self.hits * difficulty.multiplier))
         elif 'Varia' in state.items or 'Gravity' in state.items:
-            return Consumption(energy=15 * self.hits)
+            return Consumption(energy=int(15 * self.hits * difficulty.multiplier))
         else:
-            return Consumption(energy=30 * self.hits)
+            return Consumption(energy=int(30 * self.hits * difficulty.multiplier))
 
     def __repr__(self):
         return "HibashiHit({})".format(self.hits)
@@ -356,6 +356,7 @@ class DraygonElectricityCondition(Condition):
         self.frames = frames
 
     def get_consumption(self, state: GameState, difficulty: DifficultyConfig) -> Consumption:
+        # Note: We don't multiply by difficulty.multiplier here.
         if 'Varia' in state.items and 'Gravity' in state.items:
             return Consumption(energy=self.frames // 4)
         elif 'Varia' in state.items or 'Gravity' in state.items:
@@ -373,11 +374,11 @@ class EnemyDamageCondition(Condition):
 
     def get_consumption(self, state: GameState, difficulty: DifficultyConfig) -> Consumption:
         if 'Varia' in state.items and 'Gravity' in state.items:
-            return Consumption(energy=self.base_damage // 4)
+            return Consumption(energy=int(self.base_damage / 4 * difficulty.multiplier))
         elif 'Varia' in state.items or 'Gravity' in state.items:
-            return Consumption(energy=self.base_damage // 2)
+            return Consumption(energy=int(self.base_damage / 2 * difficulty.multiplier))
         else:
-            return Consumption(energy=self.base_damage)
+            return Consumption(energy=int(self.base_damage * difficulty.multiplier))
 
     def __repr__(self):
         return "EnemyDamage({})".format(self.frames)
@@ -919,10 +920,10 @@ class SMJsonData:
             [state.current_energy, state.current_missiles, state.current_super_missiles, state.current_power_bombs],
             dtype=np.int16)
         max_resources = np.array(
-            [state.max_energy / difficulty.multiplier,
-             state.max_missiles / difficulty.multiplier,
-             state.max_super_missiles / difficulty.multiplier,
-             state.max_power_bombs / difficulty.multiplier],
+            [state.max_energy,
+             state.max_missiles,
+             state.max_super_missiles,
+             state.max_power_bombs],
             dtype=np.int16)
         output_cost = np.zeros([len(self.vertex_list), 4], dtype=np.int16)
         output_route_id = np.zeros([len(self.vertex_list)], dtype=np.int32)
