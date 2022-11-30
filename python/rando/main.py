@@ -26,6 +26,7 @@ import logging
 from maze_builder.types import reconstruct_room_data, Direction, DoorSubtype
 import logic.rooms.all_rooms
 import pickle
+from rando.items import ItemPlacementStrategy
 
 logging.basicConfig(format='%(asctime)s %(message)s',
                     level=logging.INFO,
@@ -73,12 +74,12 @@ def get_tech_inputs():
 
 
 presets = [
-    ('Beginner', {
+    ('Easy', {
         'shinesparkTiles': 32,
         'resourceMultiplier': 3.0,
         'tech': [],
     }),
-    ('Easy', {
+    ('Medium', {
         'shinesparkTiles': 28,
         'resourceMultiplier': 2.0,
         'tech': [
@@ -91,7 +92,7 @@ presets = [
             'canHeatRun',
             'canSuitlessMaridia']
     }),
-    ('Medium', {
+    ('Hard', {
         'shinesparkTiles': 24,
         'resourceMultiplier': 1.5,
         'tech': [
@@ -120,7 +121,7 @@ presets = [
             'canCrumbleJump',
             'canBlueSpaceJump']
     }),
-    ('Hard', {
+    ('Very Hard', {
         'shinesparkTiles': 20,
         'resourceMultiplier': 1.2,
         'tech': [
@@ -197,6 +198,10 @@ presets = [
              'canRightFacingDoorXRayClimb']
      })
 ]
+item_placement_strategies = {
+    'Open': ItemPlacementStrategy.OPEN,
+    'Closed': ItemPlacementStrategy.CLOSED,
+}
 
 preset_dict = {}
 preset_tech_list = []
@@ -204,6 +209,12 @@ for preset_name, preset_tech in presets:
     preset_tech_list = preset_tech_list + preset_tech['tech']
     preset_dict[preset_name] = {**preset_tech, 'tech': preset_tech_list}
 
+
+def item_placement_strategy_buttons():
+    return '\n'.join(f'''
+      <input type="radio" class="btn-check" name="itemPlacementStrategy" id="itemPlacementStrategy{name}" value="{name}" autocomplete="off" onclick="presetChanged()" {'checked' if name == 'Open' else ''}>
+      <label class="btn btn-outline-primary" for="itemPlacementStrategy{name}">{name}</label>
+    ''' for name in item_placement_strategies.keys())
 
 def preset_buttons():
     return '\n'.join(f'''
@@ -262,12 +273,18 @@ def home():
                 </div>
             </div>
             <form method="POST" enctype="multipart/form-data" action="/randomize">
-                <div class="form-group row">
+                <div class="form-group row m-2">
                   <label class="col-sm-2 col-form-label" for="rom">Input ROM</label>
                   <input class="col-sm-10 form-control-file" type="file" id="rom" name="rom">
                 </div>
-                <div class="form-group row">
-                  <label class="col-sm-2 col-form-label" for="preset">Difficulty preset</label>
+                <div class="form-group row m-2">
+                  <label class="col-sm-2 col-form-label" for="preset">Item placement</label>
+                  <div class="col-sm-4 btn-group" role="group">
+                    {item_placement_strategy_buttons()}
+                 </div>
+                </div>
+                <div class="form-group row m-2">
+                  <label class="col-sm-2 col-form-label" for="preset">Skill assumption</label>
                   <div class="col-sm-10 btn-group" role="group">
                     {preset_buttons()}
                  </div>
@@ -276,7 +293,7 @@ def home():
                   <div class="accordion-item">
                     <h2 class="accordion-header" id="flush-headingOne">
                       <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
-                        Customize difficulty requirements
+                        Customize skill assumptions
                       </button>
                     </h2>
                     <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
@@ -364,6 +381,11 @@ def randomize():
         return flask.Response("Invalid input ROM", status=400)
 
     try:
+        item_placement_strategy = item_placement_strategies[flask.request.form.get('itemPlacementStrategy')]
+    except:
+        return flask.Response("Invalid itemPlacementStrategy: '{}'".format(flask.request.form.get('itemPlacementStrategy')))
+
+    try:
         shine_charge_tiles = int(flask.request.form.get('shinesparkTiles'))
         assert shine_charge_tiles >= 12 and shine_charge_tiles <= 33
     except:
@@ -384,7 +406,7 @@ def randomize():
     tech = set(tech for tech in sm_json_data.tech_name_set if flask.request.form.get('tech-' + tech) != None)
     difficulty = DifficultyConfig(tech=tech, shine_charge_tiles=shine_charge_tiles, multiplier=resource_multiplier)
     output_file_prefix = f'smmr-v{VERSION}-{random_seed}-{encode_difficulty(difficulty)}'
-    logging.info(f"Starting {output_file_prefix}: random_seed={random_seed}, difficulty={difficulty}, ROM='{uploaded_rom_file.filename}' (hash={hash(input_buf)})")
+    logging.info(f"Starting {output_file_prefix}: random_seed={random_seed}, item_placement_strategy={item_placement_strategy}, difficulty={difficulty}, ROM='{uploaded_rom_file.filename}' (hash={hash(input_buf)})")
     max_map_attempts = 100
     max_item_attempts = 200
     np.random.seed(random_seed % (2 ** 32))
@@ -399,7 +421,7 @@ def randomize():
 
         randomizer = Randomizer(map, sm_json_data, difficulty)
         for i in range(max_item_attempts):
-            success = randomizer.randomize()
+            success = randomizer.randomize(item_placement_strategy)
             if success:
                 break
         else:

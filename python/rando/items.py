@@ -10,6 +10,9 @@ import copy
 
 from sm_json_data import SMJsonData, GameState, Link, DifficultyConfig
 
+class ItemPlacementStrategy(Enum):
+    OPEN = 'open'
+    CLOSED = 'closed'
 
 #
 # @dataclass
@@ -145,7 +148,7 @@ class Randomizer:
             'steps': step_list,
         }
 
-    def randomize(self):
+    def randomize(self, item_placement_strategy: ItemPlacementStrategy):
         # item_attempts = 1
         items = {"PowerBeam", "PowerSuit"}
         flags = {"f_TourianOpen"}
@@ -254,7 +257,12 @@ class Randomizer:
                     max_target_rank = np.max(
                         np.where(target_mask & reach_mask, target_rank, np.zeros_like(target_rank)))
                     eligible_target_vertices = np.nonzero(target_mask & reach_mask & (target_rank == max_target_rank))[0]
-                    # eligible_target_vertices = np.nonzero(target_mask & reach_mask)[0]
+                    # if item_placement_strategy == ItemPlacementStrategy.OPEN:
+                    #     eligible_target_vertices = np.nonzero(target_mask & reach_mask)[0]
+                    # elif item_placement_strategy == ItemPlacementStrategy.CLOSED:
+                    #     eligible_target_vertices = np.nonzero(target_mask & reach_mask & (target_rank == max_target_rank))[0]
+                    # else:
+                    #     raise RuntimeError('Unexpected item placement strategy: {}'.format(item_placement_strategy))
                     # print("state:", state)
                     for i in range(eligible_target_vertices.shape[0]):
                         room_id, node_id, _ = self.sm_json_data.vertex_list[eligible_target_vertices[i]]
@@ -265,7 +273,7 @@ class Randomizer:
                 if eligible_target_vertices.shape[0] == 0:
                     # There are no more reachable locations of interest. We got stuck before placing all
                     # progression items, so this attempt failed.
-                    print("\n")
+                    print("Failed item randomization")
                     return False
             else:
                 # All progression items have been placed/collected, so all vertices should be reachable except for
