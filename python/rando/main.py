@@ -273,23 +273,23 @@ def home():
                 </div>
             </div>
             <form method="POST" enctype="multipart/form-data" action="/randomize">
-                <div class="form-group row m-2">
+                <div class="form-group row my-2">
                   <label class="col-sm-2 col-form-label" for="rom">Input ROM</label>
                   <input class="col-sm-10 form-control-file" type="file" id="rom" name="rom">
                 </div>
-                <div class="form-group row m-2">
+                <div class="form-group row my-2">
                   <label class="col-sm-2 col-form-label" for="preset">Item placement</label>
                   <div class="col-sm-4 btn-group" role="group">
                     {item_placement_strategy_buttons()}
                  </div>
                 </div>
-                <div class="form-group row m-2">
+                <div class="form-group row my-2">
                   <label class="col-sm-2 col-form-label" for="preset">Skill assumption</label>
                   <div class="col-sm-10 btn-group" role="group">
                     {preset_buttons()}
                  </div>
                 </div>
-                <div class="accordion p-2" id="accordion">
+                <div class="accordion my-2" id="accordion">
                   <div class="accordion-item">
                     <h2 class="accordion-header" id="flush-headingOne">
                       <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
@@ -297,7 +297,7 @@ def home():
                       </button>
                     </h2>
                     <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
-                      <div class="form-group row p-2">
+                      <div class="form-group row m-2">
                         <label for="shinesparkTiles" class="col-sm-6 col-form-label">Shinespark tiles<br>
                         <small>(Smaller values assume ability to short-charge over shorter distances)</small>
                         </label>
@@ -305,7 +305,7 @@ def home():
                           <input type="text" class="form-control" name="shinesparkTiles" id="shinesparkTiles" value="32">
                         </div>
                       </div>
-                      <div class="form-group row p-2">
+                      <div class="form-group row m-2">
                         <label for="resourceMultiplier" class="col-sm-6 col-form-label">Resource multiplier<br>
                         <small>(Leniency factor on assumed energy & ammo usage)</small>
                         </label>
@@ -313,7 +313,7 @@ def home():
                           <input type="text" class="form-control" name="resourceMultiplier" id="resourceMultiplier" value="3.0">
                         </div>
                       </div>
-                      <div class="card p-2">
+                      <div class="card m-2">
                         <div class="card-header">
                           Tech
                         </div>
@@ -324,14 +324,16 @@ def home():
                     </div>
                   </div>
                 </div>
-                <div class="form-group row p-2">
+                <div class="form-group row my-2">
                   <label for="randomSeed" class="col-sm-2 col-form-label">Random seed</label>
                   <div class="col-sm-3">
                     <input type="text" class="form-control" name="randomSeed" id="randomSeed" value="">
                   </div>
                 </div>
-                <div class="form-group row p-2">
-                    <input type="submit" class="col-sm-3 btn btn-primary" value="Generate ROM" />
+                <div class="form-group row my-2">
+                    <div class="col-sm-12">
+                        <input type="submit" class="btn btn-primary" value="Generate ROM" />
+                    </div>
                 </div>
             </form>
             <div class="row">
