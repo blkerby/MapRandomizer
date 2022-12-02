@@ -409,8 +409,8 @@ def randomize():
     difficulty = DifficultyConfig(tech=tech, shine_charge_tiles=shine_charge_tiles, multiplier=resource_multiplier)
     output_file_prefix = f'smmr-v{VERSION}-{random_seed}-{encode_difficulty(difficulty)}'
     logging.info(f"Starting {output_file_prefix}: random_seed={random_seed}, item_placement_strategy={item_placement_strategy}, difficulty={difficulty}, ROM='{uploaded_rom_file.filename}' (hash={hash(input_buf)})")
-    max_map_attempts = 100
-    max_item_attempts = 200
+    max_map_attempts = 500
+    max_item_attempts = 1
     np.random.seed(random_seed % (2 ** 32))
     random.seed(random_seed)
 
@@ -1105,6 +1105,9 @@ def randomize():
 
     # Change setup asm for Mother Brain room
     rom.write_u16(0x7DD6E + 24, 0xEB00)
+
+    # Write title GFX:
+
 
     memory_file = BytesIO()
     files = [

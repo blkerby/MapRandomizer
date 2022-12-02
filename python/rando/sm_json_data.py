@@ -937,8 +937,8 @@ class SMJsonData:
         return output_cost, (graph, output_route_id, output_route_edge, output_route_prev)
 
 
-sm_json_data_path = "sm-json-data/"
-sm_json_data = SMJsonData(sm_json_data_path)
+# sm_json_data_path = "sm-json-data/"
+# sm_json_data = SMJsonData(sm_json_data_path)
 # for region in sm_json_data.region_json_dict.values():
 #     for room in region['rooms']:
 #         if 'obstacles' not in room:

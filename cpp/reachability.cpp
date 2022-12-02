@@ -99,6 +99,7 @@ void compute_reachability(py::array_t<int16_t> graph_input,
     for (int i = 0; i < NUM_RESOURCE_TYPES; i++) {
         initial_value.resource_quantity[i] = -1;
     }
+    initial_value.heuristic_value = compute_heuristic_value(initial_value.resource_quantity, max_resources);
     std::vector<Value> vertex_best_value;
     vertex_best_value.resize(num_vertices, initial_value);
     for (int i = 0; i < NUM_RESOURCE_TYPES; i++) {

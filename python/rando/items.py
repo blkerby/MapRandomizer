@@ -8,7 +8,7 @@ import graph_tool
 import graph_tool.topology
 import copy
 
-from sm_json_data import SMJsonData, GameState, Link, DifficultyConfig
+from rando.sm_json_data import SMJsonData, GameState, Link, DifficultyConfig
 
 class ItemPlacementStrategy(Enum):
     OPEN = 'open'
@@ -112,13 +112,13 @@ class Randomizer:
             link_index = int(graph[graph_edge_index, 6])
 
             step = self.get_vertex_data(dst_vertex_id)
-            if energy_consumed > 0:
+            if energy_consumed != 0:
                 step['energy_consumed'] = energy_consumed
-            if missiles_consumed > 0:
+            if missiles_consumed != 0:
                 step['missiles_consumed'] = missiles_consumed
-            if supers_consumed > 0:
+            if supers_consumed != 0:
                 step['supers_consumed'] = supers_consumed
-            if power_bombs_consumed > 0:
+            if power_bombs_consumed != 0:
                 step['power_bombs_consumed'] = power_bombs_consumed
             if link_index >= 0:
                 link = self.sm_json_data.link_list[link_index]
@@ -176,7 +176,7 @@ class Randomizer:
             'f_ZebesAwake',
             'f_MaridiaTubeBroken',
             'f_DefeatedBotwoon',
-            # 'f_ShaktoolDoneDigging',
+            'f_ShaktoolDoneDigging',
             'f_UsedAcidChozoStatue',
             'f_DefeatedCrocomire',
             'f_DefeatedSporeSpawn',
@@ -209,7 +209,7 @@ class Randomizer:
         # We avoid having progression depend on reserve tanks, to simplify how energy refill stations work in the logic.
         # So these end up getting placed at the end at locations that cannot be accessed early.
         progression_item_set.remove("ReserveTank")
-        progression_item_list = sorted(progression_item_set)
+        progression_item_list = ['Missile'] + np.random.permutation(sorted(progression_item_set.difference({'Missile'}))).tolist()
 
         # Bitmask indicating vertex IDs that are still available either for placing an item or obtaining a flag:
         target_mask = np.zeros([len(self.sm_json_data.vertex_list)], dtype=bool)
@@ -250,6 +250,15 @@ class Randomizer:
                 # Update target_rank:
                 target_rank = np.where(reach_mask & (target_rank == 0), np.full_like(target_rank, step_number), target_rank)
 
+                # Update target_rank of sibling vertices (differing only by obstacle_mask). This is a hacky way to
+                # do it. TODO: Clean this up.
+                newly_reachable_vertices = np.nonzero(target_rank == step_number)[0]
+                for i in range(newly_reachable_vertices.shape[0]):
+                    room_id, node_id, _ = self.sm_json_data.vertex_list[newly_reachable_vertices[i]]
+                    for j in range(2 ** self.sm_json_data.num_obstacles_dict[room_id]):
+                        vertex_id = self.sm_json_data.vertex_index_dict[(room_id, node_id, j)]
+                        target_rank[vertex_id] = step_number
+
                 # Prioritize selecting a progression flag (rather than an item location) as a next target if possible:
                 eligible_target_vertices = np.nonzero(target_mask & reach_mask & flag_mask)[0]
                 if eligible_target_vertices.shape[0] == 0:
@@ -263,12 +272,6 @@ class Randomizer:
                     else:
                         raise RuntimeError('Unexpected item placement strategy: {}'.format(item_placement_strategy))
                     # print("state:", state)
-                    for i in range(eligible_target_vertices.shape[0]):
-                        room_id, node_id, _ = self.sm_json_data.vertex_list[eligible_target_vertices[i]]
-                        if target_rank[eligible_target_vertices[i]] == max_target_rank:
-                            for j in range(2 ** self.sm_json_data.num_obstacles_dict[room_id]):
-                                vertex_id = self.sm_json_data.vertex_index_dict[(room_id, node_id, j)]
-                                target_rank[vertex_id] = max_target_rank
                     # print(f"room='{self.sm_json_data.room_json_dict[room_id]['name']}', node='{self.sm_json_data.node_json_dict[(room_id, node_id)]['name']}'")
                 if eligible_target_vertices.shape[0] == 0:
                     # There are no more reachable locations of interest. We got stuck before placing all
@@ -335,20 +338,12 @@ class Randomizer:
                 # Item placement
                 pre_item_state = state
                 # If possible, place an item unlocking a new location of interest that wasn't previously reachable.
-                missile_items = ['Missile'] if 'Missile' not in state.items else []
-                new_items = [name for name in progression_item_list if name not in state.items and name != 'Missile']
-                new_items = np.random.permutation(new_items).tolist()
+                new_items = [name for name in progression_item_list if name not in state.items]
                 old_items = [name for name in progression_item_list if name in state.items
                              and items_to_place_count[name] > 0]
-                old_items = np.random.permutation(old_items).tolist()
                 hypothetical_item_data = []
-                best_item_names = []
-                best_value = 0
-                # Prioritize getting a new item over getting a duplicate/ammo (and most of all prioritize getting
-                # the first missile). We select the first item that results in a new item location becoming reachable.
-                # If there is no such item, we randomly select an item among choices that expand the number of
-                # reachable vertices the most.
-                item_candidate_list = missile_items + new_items + old_items
+                # Prioritize getting a new item over getting a duplicate/ammo:
+                item_candidate_list = new_items + old_items
                 for item_name in item_candidate_list:
                     state = copy.deepcopy(pre_item_state)
                     state.items.add(item_name)
@@ -372,21 +367,14 @@ class Randomizer:
 
                     new_raw_reach, new_route_data = self.sm_json_data.compute_reachable_vertices(state, self.difficulty, self.door_edges)
                     new_reach_mask = (np.min(new_raw_reach, axis=1) >= 0)
-                    data = (item_name, state, new_raw_reach, new_reach_mask, new_route_data)
-                    if np.any(new_reach_mask & target_mask & ~flag_mask & (target_rank == 0)):
+                    hypothetical_item_data.append((item_name, state, new_raw_reach, new_reach_mask, new_route_data))
+                    new_eligible_target_mask = new_reach_mask & target_mask & (target_rank == 0)
+                    if (item_name == 'Missile' and np.any(new_eligible_target_mask)) or np.any(new_eligible_target_mask & ~flag_mask):
                         fallback = False
                         break
-                    value = np.sum(new_reach_mask)
-                    if value > best_value:
-                        best_item_names = [item_name]
-                        hypothetical_item_data = [data]
-                        best_value = value
-                    elif value == best_value:
-                        best_item_names.append(item_name)
-                        hypothetical_item_data.append(data)
                 else:
                     fallback = True
-                    selected_item_index = random.randint(0, len(best_item_names) - 1)
+                    selected_item_index = random.randint(0, len(new_items) - 1)
                     item_name, state, new_raw_reach, new_reach_mask, new_route_data = hypothetical_item_data[selected_item_index]
 
                 print(
