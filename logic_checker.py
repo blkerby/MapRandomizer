@@ -108,7 +108,9 @@ selected_flags = st.multiselect("Flags:", flag_options, key="selected_flags", on
 all_flags = st.checkbox("Select all", key='all_flags', on_change=check_change_flags)
 
 # ---------- Region ----------------------
-subregion_filename = st.selectbox("Region", sorted(list(sm_json_data.region_json_dict.keys())))
+subregion_filename_dict = {'/'.join(filename.split('/')[2:])[:-5]: filename for filename in sm_json_data.region_json_dict.keys()}
+subregion_name = st.selectbox("Region", sorted(list(subregion_filename_dict.keys())))
+subregion_filename = subregion_filename_dict[subregion_name]
 
 # ---------- Room ------------------------
 room_options = sorted([room['name'] for room in sm_json_data.region_json_dict[subregion_filename]['rooms']])

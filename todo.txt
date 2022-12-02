@@ -1,4 +1,9 @@
 TODO:
+- detect client hang-up and abort
+- figure out why gravity is apparently not reachable from ship initially in smmr-v0-10-115673117270825932886574167490559.json.
+- fix camera when coming into shaktool right side
+- fix wall that spawns in tourian escape room 1
+- use fixed order of items per attempt (to increase diversity of item order, reducing chance of best items appearing early)
 - fix new game on second file: some data comes from other file?
 - fix phantoon (and other bosses?) logic to be killable with missiles only.
 - fix plasma room (to not assume that the enemies need to be killed)
