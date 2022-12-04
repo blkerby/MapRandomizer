@@ -19,6 +19,8 @@ from maze_builder.types import Room, SubArea
 from maze_builder.display import MapDisplay
 import json
 import ips_util
+from rando.compress import compress
+from rando.make_title import encode_graphics
 
 VERSION = 0
 
@@ -345,13 +347,12 @@ def home():
                         <li>Even if the tech is not selected, wall jumps and crouch-jump/down-grabs may be required in some places.
                         <li>Entering the Mother Brain room or Crocomire Room from the left causes a soft-lock.
                         <li>After the Kraid fight, graphics will generally be glitched (pause & unpause to fix). 
-                        <li>For some seeds, using the Aqueduct toilet causes a soft-lock or glitched graphics.
                         <li>The demo graphics (before the start of the game) are messed up.
                         <li>The map in the loading sequence (from saved file) appears wrong.
                         <li>Some map tiles associated with elevators do not appear correctly.
                         <li>Door transitions generally have some minor graphical glitches.
                         <li>The escape timer is not tailored to the seed (but should be generous enough to be possible to beat).
-                        <li>No door color randomization yet. To simplify things they're all just turned blue for now, except for in the Pit Room to keep a way to awaken Zebes.
+                        <li>No door color randomization yet. To simplify things they're all just turned blue for now.
                         <li>The end credits are vanilla.
                         </ul>
                     </div>
@@ -722,6 +723,8 @@ def randomize():
             # rom.write_u8(self.room_ptr + 1, self.area)
             rom.write_u8(self.room_ptr + 2, self.x)
             rom.write_u8(self.room_ptr + 3, self.y)
+            # TODO: Figure out how to set Special GFX flag to avoid graphical glitches in door transitions:
+            # rom.write_u8(self.room_ptr + 8, 0)
 
             for y in range(self.room.height):
                 for x in range(self.room.width):
@@ -1081,13 +1084,14 @@ def randomize():
         'mb_barrier',
         'mb_barrier_clear',
         # Seems to incompatible with fast_doors due to race condition with how level data is loaded (which fast_doors speeds up)?
-        # 'fast_doors',
+        'fast_doors',
         'elevators_speed',
         'boss_exit',
         'itemsounds',
         'progressive_suits',
         'disable_map_icons',
         'escape',
+        # 'title_bg_gfx1'
     ]
     for patch_name in patches:
         patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
@@ -1106,8 +1110,52 @@ def randomize():
     # Change setup asm for Mother Brain room
     rom.write_u16(0x7DD6E + 24, 0xEB00)
 
-    # Write title GFX:
+    snes2pc = lambda address: address >> 1 & 0x3F8000 | address & 0x7FFF
+    pc2snes = lambda address: address << 1 & 0xFF0000 | address & 0xFFFF | 0x808000
 
+    # Write palette and tilemap for title background:
+    import PIL
+    import PIL.Image
+    title_bg_png = PIL.Image.open('gfx/title/Title2.png')
+    # title_bg_png = PIL.Image.open('gfx/title/titlesimplified2.png')
+    title_bg = np.array(title_bg_png)[:, :, :3]
+    pal, gfx, tilemap = encode_graphics(title_bg)
+    compressed_gfx = compress(gfx.tobytes())
+    compressed_tilemap = compress(tilemap.tobytes())
+    print("Compressed GFX size:", len(compressed_gfx))
+    print("Compressed tilemap size:", len(compressed_tilemap))
+    rom.write_n(0x661E9, len(pal.tobytes()), pal.tobytes())
+    gfx_free_space_pc = 0x1C0000
+    gfx_free_space_snes = pc2snes(gfx_free_space_pc)
+    # rom.write_n(0xA6000, len(compressed_gfx), compressed_gfx)
+    rom.write_n(gfx_free_space_pc, len(compressed_gfx), compressed_gfx)
+    rom.write_u8(snes2pc(0x8B9BA8), gfx_free_space_snes >> 16)
+    rom.write_u16(snes2pc(0x8B9BAC), gfx_free_space_snes & 0xFFFF)
+
+    gfx_free_space_pc += len(compressed_gfx)
+    gfx_free_space_snes = pc2snes(gfx_free_space_pc)
+    rom.write_n(gfx_free_space_pc, len(compressed_tilemap), compressed_tilemap)
+    rom.write_u8(snes2pc(0x8B9BB9), gfx_free_space_snes >> 16)
+    rom.write_u16(snes2pc(0x8B9BBD), gfx_free_space_snes & 0xFFFF)
+    rom.write_n(snes2pc(0x8B9CB6), 3, bytes([0xEA, 0xEA, 0xEA]))  # Skip spawning baby metroid (NOP:NOP:NOP)
+
+    # rom.write_n(0xB7C04, len(compressed_tilemap), compressed_tilemap)
+
+    # title_bg_pal = open('gfx/title/title_bg.pal', 'rb').read()
+    # rom.write_n(0x661E9, 512, title_bg_pal)
+    # rom.write_n(0x663E9, 512, title_bg_pal)
+    # rom.write_n(0x665E9, 512, title_bg_pal)
+    # # title_bg_map = open('gfx/title/title_bg.m7', 'rb').read()
+    # title_bg_map = open('gfx/title/title_bg.map', 'rb').read()
+    # # title_bg_gfx_addr = 0xA6000
+    # title_bg_map_addr = 0xB7C04
+    #
+    # # rom.write_u8(title_bg_map_addr, 0xFF)
+    # # addr = title_bg_map_addr
+    # for i in range(15):
+    #     rom.write_u8(title_bg_map_addr + i * 33, 0x1F)
+    #     rom.write_n(title_bg_map_addr + i * 33 + 1, 32, title_bg_map[(i * 32):((i + 1) * 32)])
+    #     rom.write_u8(title_bg_map_addr + i * 33 + 33, 0xFF)
 
     memory_file = BytesIO()
     files = [

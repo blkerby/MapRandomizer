@@ -1,23 +1,28 @@
 TODO:
+- title graphics
+  - title
+     - sprites GFX: $95:80D8 ("Super Metroid" graphics, "Nintendo", etc.):
+         - bank pointer to sprite GFX at $8B:9295
+         - word pointer to sprite GFX at $8B:9299
+     - spritemap: $8C:879D (also $8C:833D but this is unused)?
+         - free space at $8C:F760
+         - (2-byte) pointer to spritemap: $8B:A0C5
+  - title BG GFX: $94:E000 (0xA6000)
+  - title BG tilemap: $96:FC04 (0xB7C04)
+- take shinespark health requirements into account properly
+- fix/disable demo
+- fix timestamps in zip file
 - detect client hang-up and abort
-- figure out why gravity is apparently not reachable from ship initially in smmr-v0-10-115673117270825932886574167490559.json.
 - fix camera when coming into shaktool right side
 - fix wall that spawns in tourian escape room 1
-- use fixed order of items per attempt (to increase diversity of item order, reducing chance of best items appearing early)
 - fix new game on second file: some data comes from other file?
-- fix phantoon (and other bosses?) logic to be killable with missiles only.
 - fix plasma room (to not assume that the enemies need to be killed)
-- fix timestamps in zip file
 - escape setup: mark bosses dead
 - fix map when using elevators (to set tiles to explored)
-- fix/disable demo
 - block left side of mother brain room and crocomire room (grey door)
 	- and possibly right of kraid, or change spawn? (camera glitchy)
 - door randomization
   - tie together plms for the two sides of door?
-- refine item randomization
-  - take into account obstacles better
-  - take into account health
 - cross-area transitions
   - to fix graphical glitches (look into using special GFX flag?)
 - try to balance map stations across areas
