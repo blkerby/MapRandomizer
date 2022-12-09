@@ -7,6 +7,7 @@ TODO:
      - spritemap: $8C:879D (also $8C:833D but this is unused)?
          - free space at $8C:F760
          - (2-byte) pointer to spritemap: $8B:A0C5
+         - Description of spritemap format: $A9:93EE
   - title BG GFX: $94:E000 (0xA6000)
   - title BG tilemap: $96:FC04 (0xB7C04)
 - take shinespark health requirements into account properly
