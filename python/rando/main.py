@@ -22,7 +22,7 @@ import ips_util
 from rando.compress import compress
 from rando.make_title import encode_graphics
 
-VERSION = 0
+VERSION = 2
 
 import logging
 from maze_builder.types import reconstruct_room_data, Direction, DoorSubtype
@@ -252,6 +252,10 @@ def encode_difficulty(difficulty: DifficultyConfig):
             x += 1
     return x
 
+# TODO: Use a more reasonable way of serving static content.
+@app.route("/WebTitle.png")
+def title_image():
+    return flask.send_file("../../gfx/title/WebTitle.png", mimetype='image/png')
 
 @app.route("/")
 def home():
@@ -267,8 +271,8 @@ def home():
       <body>
         <div class="container">
             <div class="row">
-                <div class="col-9">
-                    <h1>Super Metroid Map Randomizer</h1>
+                <div class="col-9 text-center my-2">
+                    <img src="/WebTitle.png" alt="Super Metroid Map Randomizer" style="width: 50%">
                 </div>
                 <div class="col-3" align=right>
                     <small>Version: {VERSION}</small>
@@ -343,11 +347,11 @@ def home():
                     <div class="card-header">Known issues</div>
                     <div class="card-body">
                         <ul>
-                        <li>ROM may take a few minutes to generate. For fastest results, click "Generate ROM" once and wait patiently. If it times out, try again with a different random seed.
+                        <li>ROM may take a while to generate. For fastest results, click "Generate ROM" only once and wait patiently. If it times out, try again with a different random seed.
                         <li>Even if the tech is not selected, wall jumps and crouch-jump/down-grabs may be required in some places.
                         <li>Entering the Mother Brain room or Crocomire Room from the left causes a soft-lock.
                         <li>After the Kraid fight, graphics will generally be glitched (pause & unpause to fix). 
-                        <li>The demo graphics (before the start of the game) are messed up.
+                        <li>The demo (before the start of the game) is messed up.
                         <li>The map in the loading sequence (from saved file) appears wrong.
                         <li>Some map tiles associated with elevators do not appear correctly.
                         <li>Door transitions generally have some minor graphical glitches.
@@ -1084,14 +1088,13 @@ def randomize():
         'mb_barrier',
         'mb_barrier_clear',
         # Seems to incompatible with fast_doors due to race condition with how level data is loaded (which fast_doors speeds up)?
-        'fast_doors',
+        # 'fast_doors',
         'elevators_speed',
         'boss_exit',
         'itemsounds',
         'progressive_suits',
         'disable_map_icons',
         'escape',
-        # 'title_bg_gfx1'
     ]
     for patch_name in patches:
         patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
@@ -1116,7 +1119,7 @@ def randomize():
     # Write palette and tilemap for title background:
     import PIL
     import PIL.Image
-    title_bg_png = PIL.Image.open('gfx/title/Title2.png')
+    title_bg_png = PIL.Image.open('gfx/title/Title3.png')
     # title_bg_png = PIL.Image.open('gfx/title/titlesimplified2.png')
     title_bg = np.array(title_bg_png)[:, :, :3]
     pal, gfx, tilemap = encode_graphics(title_bg)
@@ -1138,7 +1141,8 @@ def randomize():
     rom.write_u8(snes2pc(0x8B9BB9), gfx_free_space_snes >> 16)
     rom.write_u16(snes2pc(0x8B9BBD), gfx_free_space_snes & 0xFFFF)
     rom.write_n(snes2pc(0x8B9CB6), 3, bytes([0xEA, 0xEA, 0xEA]))  # Skip spawning baby metroid (NOP:NOP:NOP)
-
+    # rom.write_u8(snes2pc(0x8B97F7), 0x60)  # Skip spawn text glow
+    rom.write_n(snes2pc(0x8B9A34), 4, bytes([0xEA, 0xEA, 0xEA, 0xEA]))  # Skip pallete FX handler
     # rom.write_n(0xB7C04, len(compressed_tilemap), compressed_tilemap)
 
     # title_bg_pal = open('gfx/title/title_bg.pal', 'rb').read()
@@ -1156,6 +1160,12 @@ def randomize():
     #     rom.write_u8(title_bg_map_addr + i * 33, 0x1F)
     #     rom.write_n(title_bg_map_addr + i * 33 + 1, 32, title_bg_map[(i * 32):((i + 1) * 32)])
     #     rom.write_u8(title_bg_map_addr + i * 33 + 33, 0xFF)
+
+    # In Crocomire's initialization, skip setting the leftmost screens to red scroll. Even in the vanilla game there
+    # is no purpose to this, as they are already red. But it important to skip here in the rando, because when entering
+    # from the left door with Crocomire still alive, these scrolls are set to blue by the door ASM, and if they
+    # were overridden with red it would break the game.
+    rom.write_n(snes2pc(0xA48A92), 4, bytes([0xEA, 0xEA, 0xEA, 0xEA]))  # NOP:NOP:NOP:NOP
 
     memory_file = BytesIO()
     files = [
