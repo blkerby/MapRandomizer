@@ -1176,6 +1176,9 @@ def randomize():
     # were overridden with red it would break the game.
     rom.write_n(snes2pc(0xA48A92), 4, bytes([0xEA, 0xEA, 0xEA, 0xEA]))  # NOP:NOP:NOP:NOP
 
+    # Disable demo (by overwriting the branch on the timer reaching zero):
+    rom.write_n(snes2pc(0x8B9F2C), 2, bytes([0x80, 0x0A]))  # BRA $0A
+    
     memory_file = BytesIO()
     files = [
         (output_file_prefix + '.sfc', rom.byte_buf),
