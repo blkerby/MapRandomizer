@@ -739,6 +739,15 @@ def randomize():
     orig_rom = Rom(io.BytesIO(input_buf))
     rom = Rom(io.BytesIO(input_buf))
 
+    # Patches to be applied at beginning (before reconnecting doors, etc.)
+    orig_patches = [
+        'mb_left_entrance'
+    ]
+    for patch_name in orig_patches:
+        patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
+        orig_rom.byte_buf = patch.apply(orig_rom.byte_buf)
+        rom.byte_buf = patch.apply(rom.byte_buf)
+
     # Change Aqueduct map y position, to include the toilet (for the purposes of the map)
     old_y = orig_rom.read_u8(0x7D5A7 + 3)
     orig_rom.write_u8(0x7D5A7 + 3, old_y - 4)
