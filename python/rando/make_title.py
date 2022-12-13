@@ -34,7 +34,7 @@ def encode_graphics(image):
     num_distinct_colors = 0
     for i, tile in enumerate(tiles_list):
         for j in range(len(tile) // 3):
-            color = tuple(min((c + 32) // 64 * 64, 255) for c in tile[(j * 3):((j + 1) * 3)])
+            color = tuple(min((c + 4) // 8 * 8, 255) for c in tile[(j * 3):((j + 1) * 3)])
             if color in color_dict:
                 gfx[i, j] = color_dict[color]
             else:
