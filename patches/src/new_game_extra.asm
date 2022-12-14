@@ -53,7 +53,7 @@ startup:
     lda #$0004
     sta $7ED821
 
-    lda #$0005  ; Start in loading game state 5 (Main) instead of 0 (Intro)
+    lda #$0006  ; Start in game state 6 (Loading game data) instead of 0 (Intro) or 5 (File select map)
     sta !GameStartState
 .end
     lda !GameStartState

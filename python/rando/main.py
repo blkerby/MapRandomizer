@@ -22,7 +22,7 @@ import ips_util
 from rando.compress import compress
 from rando.make_title import encode_graphics
 
-VERSION = 2
+VERSION = 3
 
 import logging
 from maze_builder.types import reconstruct_room_data, Direction, DoorSubtype
@@ -355,7 +355,6 @@ def home():
                             <li>ROM may take a while to generate. For fastest results, click "Generate ROM" only once and wait patiently. If it times out, try again with a different random seed.
                             <li>Even if the tech is not selected, wall jumps and crouch-jump/down-grabs may be required in some places.
                             <li>After the Kraid fight, graphics will generally be glitched (pause & unpause to fix). 
-                            <li>The map can get messed up after restarting from a save.
                             <li>Some map tiles associated with elevators do not appear correctly.
                             <li>Door transitions generally have some minor graphical glitches.
                             <li>The escape timer is not tailored to the seed (but should be generous enough to be possible to beat).

@@ -1,4 +1,5 @@
 TODO:
+- Warn if base ROM checksum does not match vanilla.
 - Find some way to handle Baby metroid drain.
 - Hyper Beam opens gates and breaks Super/PowerBomb blocks.
 - keep item tile blue for locations locked by Wrecked Ship or Zebes Awake
@@ -15,9 +16,8 @@ TODO:
   - title BG GFX: $94:E000 (0xA6000)
   - title BG tilemap: $96:FC04 (0xB7C04)
 - take shinespark health requirements into account properly
-- fix/disable demo
 - fix timestamps in zip file
-- detect client hang-up and abort
+- detect client hang-up and abort (probably requires switching to websocket request)
 - fix camera when coming into shaktool right side
 - fix wall that spawns in tourian escape room 1
 - fix new game on second file: some data comes from other file?
