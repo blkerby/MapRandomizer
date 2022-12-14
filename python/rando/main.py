@@ -354,10 +354,8 @@ def home():
                             <ul>
                             <li>ROM may take a while to generate. For fastest results, click "Generate ROM" only once and wait patiently. If it times out, try again with a different random seed.
                             <li>Even if the tech is not selected, wall jumps and crouch-jump/down-grabs may be required in some places.
-                            <li>Entering the Mother Brain room or Crocomire Room from the left causes a soft-lock.
                             <li>After the Kraid fight, graphics will generally be glitched (pause & unpause to fix). 
-                            <li>The demo (before the start of the game) is messed up.
-                            <li>The map in the loading sequence (from saved file) appears wrong.
+                            <li>The map can get messed up after restarting from a save.
                             <li>Some map tiles associated with elevators do not appear correctly.
                             <li>Door transitions generally have some minor graphical glitches.
                             <li>The escape timer is not tailored to the seed (but should be generous enough to be possible to beat).
