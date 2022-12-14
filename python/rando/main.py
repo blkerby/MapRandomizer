@@ -257,6 +257,9 @@ def encode_difficulty(difficulty: DifficultyConfig):
 def title_image():
     return flask.send_file("../../gfx/title/WebTitle.png", mimetype='image/png')
 
+def change_log():
+    return open('CHANGELOG.html', 'r').read()
+
 @app.route("/")
 def home():
     # TODO: Put this somewhere else instead of inline here.
@@ -342,27 +345,39 @@ def home():
                     </div>
                 </div>
             </form>
-            <div class="row">
-                <div class="card">
-                    <div class="card-header">Known issues</div>
-                    <div class="card-body">
-                        <ul>
-                        <li>ROM may take a while to generate. For fastest results, click "Generate ROM" only once and wait patiently. If it times out, try again with a different random seed.
-                        <li>Even if the tech is not selected, wall jumps and crouch-jump/down-grabs may be required in some places.
-                        <li>Entering the Mother Brain room or Crocomire Room from the left causes a soft-lock.
-                        <li>After the Kraid fight, graphics will generally be glitched (pause & unpause to fix). 
-                        <li>The demo (before the start of the game) is messed up.
-                        <li>The map in the loading sequence (from saved file) appears wrong.
-                        <li>Some map tiles associated with elevators do not appear correctly.
-                        <li>Door transitions generally have some minor graphical glitches.
-                        <li>The escape timer is not tailored to the seed (but should be generous enough to be possible to beat).
-                        <li>No door color randomization yet. To simplify things they're all just turned blue for now.
-                        <li>The end credits are vanilla.
-                        </ul>
+            <small>This is an early preview, so bugs are expected. If you encounter a problem, feedback is welcome on <a href="https://github.com/blkerby/MapRandomizer/issues">GitHub issues</a>.</small>
+            <div class="row my-2">
+                <div class="col-sm-12">
+                    <div class="card">
+                        <div class="card-header">Known issues</div>
+                        <div class="card-body">
+                            <ul>
+                            <li>ROM may take a while to generate. For fastest results, click "Generate ROM" only once and wait patiently. If it times out, try again with a different random seed.
+                            <li>Even if the tech is not selected, wall jumps and crouch-jump/down-grabs may be required in some places.
+                            <li>Entering the Mother Brain room or Crocomire Room from the left causes a soft-lock.
+                            <li>After the Kraid fight, graphics will generally be glitched (pause & unpause to fix). 
+                            <li>The demo (before the start of the game) is messed up.
+                            <li>The map in the loading sequence (from saved file) appears wrong.
+                            <li>Some map tiles associated with elevators do not appear correctly.
+                            <li>Door transitions generally have some minor graphical glitches.
+                            <li>The escape timer is not tailored to the seed (but should be generous enough to be possible to beat).
+                            <li>No door color randomization yet. To simplify things they're all just turned blue for now.
+                            <li>The end credits are vanilla.
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
-        <small>This is an early preview, so bugs are expected. If you encounter a problem, feedback is welcome on <a href="https://github.com/blkerby/MapRandomizer/issues">GitHub issues</a>.</small>
+            <div class="row my-2">
+                <div class="col-sm-12">
+                    <div class="card">
+                        <div class="card-header">Change log</div>
+                        <div class="card-body">
+                            {change_log()}
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>        
         <script>
@@ -1178,7 +1193,7 @@ def randomize():
 
     # Disable demo (by overwriting the branch on the timer reaching zero):
     rom.write_n(snes2pc(0x8B9F2C), 2, bytes([0x80, 0x0A]))  # BRA $0A
-    
+
     memory_file = BytesIO()
     files = [
         (output_file_prefix + '.sfc', rom.byte_buf),
