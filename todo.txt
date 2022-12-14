@@ -1,4 +1,8 @@
 TODO:
+- Find some way to handle Baby metroid drain.
+- Hyper Beam opens gates and breaks Super/PowerBomb blocks.
+- keep item tile blue for locations locked by Wrecked Ship or Zebes Awake
+- add blue dot to map tile of all item locations
 - title graphics
   - title
      - sprites GFX: $95:80D8 ("Super Metroid" graphics, "Nintendo", etc.):
