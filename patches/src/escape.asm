@@ -100,6 +100,8 @@ room_setup:
     jsr $919c                   ; sets up room shaking
     plb
     jsl fix_timer_gfx
+    lda #$0001                    ; set mother brain boss defeated (in case of re-entry during escape)
+    sta $7ED82D
 .end:
     ;; run hi-jacked instruction, and go back to vanilla setup asm call
     lda $0018,x
