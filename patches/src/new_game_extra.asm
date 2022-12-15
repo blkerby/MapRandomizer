@@ -47,6 +47,9 @@ startup:
     lda #$0001
     sta $0789   ; area map collected
 
+    lda #$0101     ; set bosses defeated
+    sta $7ED829
+    sta $7ED82B
 
     ; Unlock Tourian statues room (to avoid camera glitching when entering from bottom, and also to ensure game is
     ; beatable since we don't take it into account as an obstacle in the item randomization logic)

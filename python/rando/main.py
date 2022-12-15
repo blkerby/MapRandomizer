@@ -22,7 +22,7 @@ import ips_util
 from rando.compress import compress
 from rando.make_title import encode_graphics
 
-VERSION = 3
+VERSION = 4
 
 import logging
 from maze_builder.types import reconstruct_room_data, Direction, DoorSubtype
@@ -1116,6 +1116,7 @@ def randomize():
         'progressive_suits',
         'disable_map_icons',
         'escape',
+        'mother_brain_no_drain'
     ]
     for patch_name in patches:
         patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
