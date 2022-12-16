@@ -22,7 +22,7 @@ import ips_util
 from rando.compress import compress
 from rando.make_title import encode_graphics
 
-VERSION = 4
+VERSION = 5
 
 import logging
 from maze_builder.types import reconstruct_room_data, Direction, DoorSubtype
@@ -831,6 +831,19 @@ def randomize():
         0x1A96C: (0xF7F0, 0xED18),  # Draygon right
         0x1A978: (0xF7F0, 0xED1E),  # Draygon left
     }
+
+    door_room_dict = {}
+    for i, room in enumerate(rooms):
+        for door_id in room.door_ids:
+            door_room_dict[(door_id.exit_ptr, door_id.entrance_ptr)] = i
+
+    # Find the rooms connected to Kraid and set them to reload CRE (to prevent graphical glitches)
+    for src, dst, _ in map['doors']:
+        if src in [(0x191CE, 0x191B6), (0x191DA, 0x19252)]:
+            dst_room_i = door_room_dict[dst]
+            print("Seting reload CRE in {}".format(rooms[dst_room_i].name))
+            rom.write_u8(rooms[dst_room_i].rom_address + 8, 2)  # Special GFX flag = Reload CRE
+
     # boss_exit_asm = 0xF7F0
     # # Kraid:
     # rom.write_u16(0x191CE + 10, boss_exit_asm)
