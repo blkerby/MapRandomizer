@@ -26,7 +26,7 @@ startup:
     jsl check_new_game      : bne .end
 
     ; temporary extra stuff:
-    lda #$FFFF
+    lda #$F32F
     sta $09A2   ; all items equipped
     sta $09A4   ; all items collected
     lda #$100b

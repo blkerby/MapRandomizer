@@ -1,9 +1,13 @@
 TODO:
+- add summary to spoiler log (include area of assigned item).
 - Warn if base ROM checksum does not match vanilla.
 - Find some way to handle Baby metroid drain.
-- Hyper Beam opens gates and breaks Super/PowerBomb blocks.
 - keep item tile blue for locations locked by Wrecked Ship or Zebes Awake
 - add blue dot to map tile of all item locations
+- clean up the code everywhere
+- add option for start-select teleport to ship (only at save stations?).
+- add README
+    - make
 - title graphics
   - title
      - sprites GFX: $95:80D8 ("Super Metroid" graphics, "Nintendo", etc.):
@@ -16,8 +20,11 @@ TODO:
   - title BG GFX: $94:E000 (0xA6000)
   - title BG tilemap: $96:FC04 (0xB7C04)
 - take shinespark health requirements into account properly
+- redo the front-end.
+  - make it so client can save presets.
 - fix timestamps in zip file
 - detect client hang-up and abort (probably requires switching to websocket request)
+- fix eye door graphics in room before rinkas
 - fix camera when coming into shaktool right side
 - fix wall that spawns in tourian escape room 1
 - fix new game on second file: some data comes from other file?
@@ -33,10 +40,21 @@ TODO:
 - try to balance map stations across areas
 	- convert one tourian save to a map, so that each area gets a map station?
 		- remove asm that automatically gives map in first tourian room
+- balance save station distribution
+- balance boss distribution (one boss per area, corresponding to vanilla?)
 - fix suit graphics not showing after getting suit (consequence of skipping animation)
 - set boss bits earlier in death sequence (to avoid accidentally leaving room before set)
 - graphics messed up after killing kraid
 - show map text for cross-area transitions?
+
+
+Mini-map notes:
+- HUD GFX:
+    - ROM $9A:B200
+- HUD Tilemap:
+    - RAM $7E:C608
+    - VRAM $5820 (BG3)
+
 
 Notes on usage of area ($079F and $7E:D918):
 
