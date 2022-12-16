@@ -21,6 +21,7 @@ import json
 import ips_util
 from rando.compress import compress
 from rando.make_title import encode_graphics
+from rando.map_patch import apply_map_patches
 
 VERSION = 5
 
@@ -292,6 +293,17 @@ def home():
                     {item_placement_strategy_buttons()}
                  </div>
                 </div>
+                <div class="form-group row my-2 mx-2">
+                    <small><strong>Open</strong>: At each step of item placement, the item will be placed at a random accessible location.
+                    At the end, non-progression items such as extra E-Tanks and ammo are placed randomly across all remaining
+                    locations.</small>                    
+                </div>
+                <div class="form-group row my-2 mx-2">
+                    <small><strong>Closed</strong>: At each step of item placement, if possible the item will be placed at a random accessible location 
+                    that was unlocked by the previous item. Non-progression items (except Missiles) are
+                    placed in locations that become accessible as late as possible. This reduces the amount of ways to
+                    progress, making it more likely that harder tech will be required.</small>                    
+                </div>
                 <div class="form-group row my-2">
                   <label class="col-sm-2 col-form-label" for="preset">Skill assumption</label>
                   <div class="col-sm-10 btn-group" role="group">
@@ -345,7 +357,9 @@ def home():
                     </div>
                 </div>
             </form>
-            <small>This is an early preview, so bugs are expected. If you encounter a problem, feedback is welcome on <a href="https://github.com/blkerby/MapRandomizer/issues">GitHub issues</a>.</small>
+            <small>This is an early preview, so bugs are expected. If you encounter a problem, feedback is welcome on <a href="https://github.com/blkerby/MapRandomizer/issues">GitHub issues</a>. 
+            Also feel free to stop by the <a href="https://discord.com/channels/1053421401354285129/1053421402096664628">Discord</a>: let us know if you
+            find a cool seed, have questions, if you're streaming the game, or have ideas for future development!</small>
             <div class="row my-2">
                 <div class="col-sm-12">
                     <div class="card">
@@ -354,7 +368,6 @@ def home():
                             <ul>
                             <li>ROM may take a while to generate. For fastest results, click "Generate ROM" only once and wait patiently. If it times out, try again with a different random seed.
                             <li>Even if the tech is not selected, wall jumps and crouch-jump/down-grabs may be required in some places.
-                            <li>After the Kraid fight, graphics will generally be glitched (pause & unpause to fix). 
                             <li>Some map tiles associated with elevators do not appear correctly.
                             <li>Door transitions generally have some minor graphical glitches.
                             <li>The escape timer is not tailored to the seed (but should be generous enough to be possible to beat).
@@ -764,7 +777,7 @@ def randomize():
     old_y = orig_rom.read_u8(0x7D5A7 + 3)
     orig_rom.write_u8(0x7D5A7 + 3, old_y - 4)
 
-    # # Change door asm for entering mother brain room
+    # # Change door asm for entering mother brain room from right
     orig_rom.write_u16(0x1AAC8 + 10, 0xEB00)
     # rom.write_u16(0x1956A + 10, 0xEB00)
 
@@ -782,7 +795,9 @@ def randomize():
     area_index_dict[4][0x25] = area_arr[pants_room_i]  # Set East Pants Room to same area as Pants Room
     west_ocean_room_i = [i for i, room in enumerate(rooms) if room.name == 'West Ocean'][0]
     area_index_dict[0][0x11] = area_arr[west_ocean_room_i]  # Set Homing Geemer Room to same area as West Ocean
-    # Write area data
+
+    # Write room map area data: we use free space in the ROM to store the map area for each room. We leave the area in
+    # the room header alone because changing that would break a bunch of things.
     area_sizes = [max(area_index_dict[i].keys()) + 1 for i in range(num_areas)]
     cumul_area_sizes = [0] + list(np.cumsum(area_sizes))
     area_data_base_ptr = 0x7E99B  # LoRom $8F:E99B
@@ -810,7 +825,6 @@ def randomize():
         ind = np.where(area_arr == i)
         area_start_x.append(np.min(xs_min[ind]) - 2)
         area_start_y.append(np.min(ys_min[ind]) - 1)
-
     for i, room in enumerate(rooms):
         rom_room = RomRoom(orig_rom, room)
         area = area_arr[i]
@@ -820,6 +834,7 @@ def randomize():
         rom_room.write_map_data(rom)
         if room.name == 'Aqueduct':
             # Patch map tile in Aqueduct to replace Botwoon Hallway with tube/elevator tile
+            # TODO: move this in with the other map patches.
             cell = rom.read_u16(rom_room.xy_to_map_ptr(rom_room.x + 2, rom_room.y + 2))
             rom.write_u16(rom_room.xy_to_map_ptr(rom_room.x + 2, rom_room.y + 3), cell)
 
@@ -839,10 +854,14 @@ def randomize():
 
     # Find the rooms connected to Kraid and set them to reload CRE (to prevent graphical glitches)
     for src, dst, _ in map['doors']:
-        if src in [(0x191CE, 0x191B6), (0x191DA, 0x19252)]:
-            dst_room_i = door_room_dict[dst]
+        if tuple(src) == (0x191DA, 0x19252):
+            dst_room_i = door_room_dict[tuple(dst)]
             print("Seting reload CRE in {}".format(rooms[dst_room_i].name))
             rom.write_u8(rooms[dst_room_i].rom_address + 8, 2)  # Special GFX flag = Reload CRE
+        if tuple(dst) == (0x191CE, 0x191B6):
+            src_room_i = door_room_dict[tuple(src)]
+            print("Seting reload CRE in {}".format(rooms[src_room_i].name))
+            rom.write_u8(rooms[src_room_i].rom_address + 8, 2)  # Special GFX flag = Reload CRE
 
     # boss_exit_asm = 0xF7F0
     # # Kraid:
@@ -1068,9 +1087,7 @@ def randomize():
     # For this we overwrite the PLM slot for the gray door at the left of the room (which we would get rid of anyway).
     rom.write_n(0x78746, 6, rom.read_n(0x786DE, 6))
 
-    # Make whole map revealed (after getting map station), i.e. no more "secret rooms" that don't show up in map.
-    for i in range(0x11727, 0x11D27):
-        rom.write_u8(i, 0xFF)
+    apply_map_patches(rom, area_arr)
 
     # print(randomizer.item_sequence[:5])
     # print(randomizer.item_placement_list[:5])
@@ -1145,6 +1162,7 @@ def randomize():
     # mb_door_bytes = orig_rom.read_n(0X1AAC8, 12)
     # rom.write_n(0x18916, 12, mb_door_bytes)
 
+
     # Change setup asm for Mother Brain room
     rom.write_u16(0x7DD6E + 24, 0xEB00)
 
@@ -1204,6 +1222,12 @@ def randomize():
 
     # Disable demo (by overwriting the branch on the timer reaching zero):
     rom.write_n(snes2pc(0x8B9F2C), 2, bytes([0x80, 0x0A]))  # BRA $0A
+
+    # Release Spore Spawn camera so it won't be glitched when entering from the right.
+    rom.write_n(snes2pc(0xA5EADA), 3, bytes([0xEA, 0xEA, 0xEA]))  # NOP:NOP:NOP
+
+    # In Shaktool room, skip setting screens to red scroll (so that it won't glitch out when entering from the right):
+    rom.write_u8(snes2pc(0x84B8DC), 0x60)  # RTS
 
     memory_file = BytesIO()
     files = [
