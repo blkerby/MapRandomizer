@@ -1,9 +1,10 @@
 TODO:
+- restore top of sand falls back to vanilla width (only the bottom needs to be 4 tiles)
+- fix internal checksum in output ROM
 - add summary to spoiler log (include area of assigned item).
 - Warn if base ROM checksum does not match vanilla.
 - Find some way to handle Baby metroid drain.
-- keep item tile blue for locations locked by Wrecked Ship or Zebes Awake
-- add blue dot to map tile of all item locations
+- keep item tile blue for locations locked by Wrecked Ship or Zebes Awake (or maybe for not-collected items in general?)
 - clean up the code everywhere
 - add option for start-select teleport to ship (only at save stations?).
 - add README
@@ -44,7 +45,6 @@ TODO:
 - balance boss distribution (one boss per area, corresponding to vanilla?)
 - fix suit graphics not showing after getting suit (consequence of skipping animation)
 - set boss bits earlier in death sequence (to avoid accidentally leaving room before set)
-- graphics messed up after killing kraid
 - show map text for cross-area transitions?
 
 
