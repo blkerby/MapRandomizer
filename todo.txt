@@ -1,4 +1,7 @@
 TODO:
+
+- add rolling saves (to protect against saving where you can't get out)
+- fix new game on second file (or after deleting first file)
 - restore top of sand falls back to vanilla width (only the bottom needs to be 4 tiles)
 - fix internal checksum in output ROM
 - add summary to spoiler log (include area of assigned item).

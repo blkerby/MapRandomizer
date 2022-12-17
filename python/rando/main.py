@@ -21,9 +21,9 @@ import json
 import ips_util
 from rando.compress import compress
 from rando.make_title import encode_graphics
-from rando.map_patch import apply_map_patches
+from rando.map_patch import apply_map_patches, add_cross_area_arrows
 
-VERSION = 5
+VERSION = 6
 
 import logging
 from maze_builder.types import reconstruct_room_data, Direction, DoorSubtype
@@ -1088,6 +1088,7 @@ def randomize():
     rom.write_n(0x78746, 6, rom.read_n(0x786DE, 6))
 
     apply_map_patches(rom, area_arr)
+    add_cross_area_arrows(rom, area_arr, map)
 
     # print(randomizer.item_sequence[:5])
     # print(randomizer.item_placement_list[:5])
@@ -1127,8 +1128,8 @@ def randomize():
     # Apply patches
     patches = [
         'vanilla_bugfixes',
-        'new_game',
-        # 'new_game_extra',
+        # 'new_game',
+        'new_game_extra',
         'music',
         'crateria_sky',
         'everest_tube',
