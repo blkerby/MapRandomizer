@@ -30,3 +30,6 @@ rooms = (
         wrecked_ship.rooms +
         tourian.rooms
 )
+
+for room in rooms:
+    room.populate()
