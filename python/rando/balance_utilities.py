@@ -29,16 +29,16 @@ def balance_utilities(map):
     # Enumerate single-tile rooms with a single door.
     room_indexes_by_area_then_dir = defaultdict(lambda: defaultdict(lambda: set()))
     map_indexes_by_dir = defaultdict(lambda: set())
-    remaining_src_indexes = set()
-    remaining_dst_indexes = set()
+    remaining_src_indexes_by_dir = defaultdict(lambda: set())
+    remaining_dst_indexes_by_dir = defaultdict(lambda: set())
     for i, room in enumerate(rooms):
         if room.height != 1 or room.width != 1 or len(room.door_ids) != 1:
             continue
         area = map['area'][i]
         dir = room.door_ids[0].direction
         room_indexes_by_area_then_dir[area][dir].add(i)
-        remaining_src_indexes.add(i)
-        remaining_dst_indexes.add(i)
+        remaining_src_indexes_by_dir[dir].add(i)
+        remaining_dst_indexes_by_dir[dir].add(i)
         if ' Map Room' in room.name:
             map_indexes_by_dir[dir].add(i)
 
@@ -55,8 +55,8 @@ def balance_utilities(map):
             dst_i = np.random.choice(list(room_indexes))
             src_room_indexes.append(src_i)
             dst_room_indexes.append(dst_i)
-            remaining_src_indexes.remove(src_i)
-            remaining_dst_indexes.remove(dst_i)
+            remaining_src_indexes_by_dir[dir].remove(src_i)
+            remaining_dst_indexes_by_dir[dir].remove(dst_i)
             map_indexes.remove(src_i)
             room_indexes.remove(dst_i)
             break
@@ -65,7 +65,9 @@ def balance_utilities(map):
             return None
 
     # Randomly shuffle the remaining single-tile rooms
-    src_room_indexes += np.random.permutation(list(remaining_src_indexes)).tolist()
-    dst_room_indexes += np.random.permutation(list(remaining_dst_indexes)).tolist()
+    for dir in [Direction.LEFT, Direction.RIGHT]:
+        src_room_indexes += np.random.permutation(list(remaining_src_indexes_by_dir[dir])).tolist()
+        dst_room_indexes += np.random.permutation(list(remaining_dst_indexes_by_dir[dir])).tolist()
+        assert len(src_room_indexes) == len(dst_room_indexes)
 
     return permute_small_rooms(map, src_room_indexes, dst_room_indexes)

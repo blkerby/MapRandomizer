@@ -1134,8 +1134,8 @@ def randomize():
     # Apply patches
     patches = [
         'vanilla_bugfixes',
-        # 'new_game',
-        'new_game_extra',
+        'new_game',
+        # 'new_game_extra',
         'music',
         'crateria_sky',
         'everest_tube',
