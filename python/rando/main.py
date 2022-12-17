@@ -358,7 +358,7 @@ def home():
                 </div>
             </form>
             <small>This is an early preview, so bugs are expected. If you encounter a problem, feedback is welcome on <a href="https://github.com/blkerby/MapRandomizer/issues">GitHub issues</a>. 
-            Also feel free to stop by the <a href="https://discord.com/channels/1053421401354285129/1053421402096664628">Discord</a>: let us know if you
+            Also feel free to stop by the <a href="https://discord.gg/Gc99YV2ZcB">Discord</a>: let us know if you
             find a cool seed, have questions, if you're streaming the game, or have ideas for future development!</small>
             <div class="row my-2">
                 <div class="col-sm-12">
