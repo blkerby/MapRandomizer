@@ -87,7 +87,7 @@ right_arrow_tile = [
 def write_tile_2bpp(rom, base, index, data):
     # Replace red with white in the minimap (since red doesn't work there for some reason):
     data = [[2 if x == 3 else x for x in row] for row in data]
-    
+
     for row in range(8):
         addr = base + index * 16 + row * 2
         row_data_low = sum((data[row][col] & 1) << (7 - col) for col in range(8))
