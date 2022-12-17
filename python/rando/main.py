@@ -22,6 +22,7 @@ import ips_util
 from rando.compress import compress
 from rando.make_title import encode_graphics
 from rando.map_patch import apply_map_patches, add_cross_area_arrows
+from rando.balance_utilities import balance_utilities
 
 VERSION = 6
 
@@ -450,6 +451,11 @@ def randomize():
         map_file = '{}/{}'.format(map_dir, map_filename)
         map = json.load(open(map_file, 'r'))
         logging.info("{}".format(map_file))
+
+        # Switch around single-tile rooms to balance the distribution of utility rooms (maps, saves, refills)
+        map = balance_utilities(map)
+        if map is None:
+            continue
 
         randomizer = Randomizer(map, sm_json_data, difficulty)
         for i in range(max_item_attempts):
@@ -1147,7 +1153,8 @@ def randomize():
         'progressive_suits',
         'disable_map_icons',
         'escape',
-        'mother_brain_no_drain'
+        'mother_brain_no_drain',
+        'tourian_map'
     ]
     for patch_name in patches:
         patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))

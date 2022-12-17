@@ -235,6 +235,7 @@ class Randomizer:
         self.item_sequence = []
         self.item_placement_list = []
         self.spoiler_route = []
+        self.target_rank = None
         reach_mask = None
         route_data = None
         # print("start")
@@ -300,6 +301,7 @@ class Randomizer:
                     if eligible_target_vertices.shape[0] == 0:
                         # There are no more locations to place items. We placed all items so this attempt succeeded.
                         assert next_item_index == len(item_names)
+                        self.target_rank = target_rank
                         return True
                     selected_target_index = int(
                         eligible_target_vertices[random.randint(0, len(eligible_target_vertices) - 1)])
