@@ -45,7 +45,8 @@ rom = Rom(open(input_rom_path, 'rb'))
 
 patches = [
     'new_game_extra',
-    # 'disable_map_icons',
+    'disable_map_icons',
+    'tourian_map'
 ]
 for patch_name in patches:
     patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))

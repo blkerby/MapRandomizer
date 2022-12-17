@@ -24,7 +24,8 @@ rooms = [
         ],
     ),
     Room(
-        name='Upper Tourian Save Room',
+        # name='Upper Tourian Save Room',
+        name='Tourian Map Room',
         rom_address=0x7DF1B,
         map=[[1]],
         door_ids=[

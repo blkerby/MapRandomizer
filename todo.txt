@@ -1,5 +1,8 @@
 TODO:
-
+- fix GFX that we overwrote with custom tiles
+  - probably switch the new-game GFX (e.g. controller config) to use a separate bank, to free up tiles
+  - or shuffle around the tiles in either the pause-menu tileset or HUD tilset, to make the unused tiles line up.
+  - or see if somehow there actually already are 4 unused tiles that we could use in both tile sets.
 - add rolling saves (to protect against saving where you can't get out)
 - fix new game on second file (or after deleting first file)
 - restore top of sand falls back to vanilla width (only the bottom needs to be 4 tiles)
