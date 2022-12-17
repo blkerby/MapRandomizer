@@ -3,6 +3,7 @@ from io import BytesIO
 import ips_util
 import os
 from logic.rooms.all_rooms import rooms
+from maze_builder.types import Direction
 
 snes2pc = lambda address: address >> 1 & 0x3F8000 | address & 0x7FFF
 
@@ -72,7 +73,21 @@ elevator_tile = [
     [0, 2, 0, 0, 0, 0, 2, 0],
 ]
 
+right_arrow_tile = [
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 3, 0, 0],
+    [0, 0, 0, 0, 0, 3, 3, 0],
+    [0, 3, 3, 3, 3, 3, 3, 3],
+    [0, 3, 3, 3, 3, 3, 3, 3],
+    [0, 0, 0, 0, 0, 3, 3, 0],
+    [0, 0, 0, 0, 0, 3, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+]
+
 def write_tile_2bpp(rom, base, index, data):
+    # Replace red with white in the minimap (since red doesn't work there for some reason):
+    data = [[2 if x == 3 else x for x in row] for row in data]
+    
     for row in range(8):
         addr = base + index * 16 + row * 2
         row_data_low = sum((data[row][col] & 1) << (7 - col) for col in range(8))
@@ -140,10 +155,12 @@ def xy_to_map_ptr(area, x, y):
         offset = ((y1 + 32) * 32 + x - 32) * 2
     return base_ptr + offset
 
-ELEVATOR_TILE = 206
-REFILL_TILE = 158  # Free tile not used in vanilla game (?)
-MAP_TILE = 159  # Free tile not used in vanilla game (?)
-BOSS_TILE = 174  # Free tile not used in vanilla game (?)
+ELEVATOR_TILE = 0xCE
+REFILL_TILE = 0x9E  # Free tile not used in vanilla game (?)
+MAP_TILE = 0x9F  # Free tile not used in vanilla game (?)
+BOSS_TILE = 0xAE  # Free tile not used in vanilla game (?)
+RIGHT_ARROW_TILE = 0xAF  # Free tile not used in vanilla game (?)
+DOWN_ARROW_TILE = 0x11
 
 ITEM_TOP_TILE = 0x76  # Item (dot) tile with a wall on top
 ITEM_LEFT_TILE = 0x77  # Item (dot) tile with a wall on left
@@ -186,6 +203,10 @@ def apply_map_patches(rom, area_arr):
     # Change the elevators to be black & white only (no blue/pink).
     write_tile_2bpp(rom, snes2pc(0x9AB200), ELEVATOR_TILE, elevator_tile)
     write_tile_4bpp(rom, snes2pc(0xB68000), ELEVATOR_TILE, elevator_tile)
+    # Add a right tile to mark cross-area transitions
+    write_tile_2bpp(rom, snes2pc(0x9AB200), RIGHT_ARROW_TILE, right_arrow_tile)
+    write_tile_4bpp(rom, snes2pc(0xB68000), RIGHT_ARROW_TILE, right_arrow_tile)
+
 
     room_dict = {room.name: i for i, room in enumerate(rooms)}
 
@@ -346,6 +367,38 @@ def apply_map_patches(rom, area_arr):
         rom.write_u8(i, 0xFF)
 
 
+def add_cross_area_arrows(rom, area_arr, map):
+    door_pair_idx_dict = {}
+    for room_idx, room in enumerate(rooms):
+        for door_idx, door_id in enumerate(room.door_ids):
+            door_pair_idx_dict[(door_id.exit_ptr, door_id.entrance_ptr)] = (room_idx, door_idx)
+
+    def patch_room_tile(room_idx, x, y, tile_index):
+        room = rooms[room_idx]
+        # area = rom.read_u8(room.rom_address + 1)
+        x0 = rom.read_u8(room.rom_address + 2)
+        y0 = rom.read_u8(room.rom_address + 3)
+        rom.write_u16(xy_to_map_ptr(area_arr[room_idx], x0 + x, y0 + y), tile_index | 0x0C00)
+
+    def add_door_arrow(room_idx, door_id):
+        dir = door_id.direction
+        if dir == Direction.RIGHT:
+            patch_room_tile(room_idx, door_id.x + 1, door_id.y, RIGHT_ARROW_TILE)
+        elif dir == Direction.LEFT:
+            patch_room_tile(room_idx, door_id.x - 1, door_id.y, RIGHT_ARROW_TILE | FLIP_X)
+        elif dir == Direction.DOWN:
+            patch_room_tile(room_idx, door_id.x, door_id.y + 1, DOWN_ARROW_TILE)
+        elif dir == Direction.UP:
+            patch_room_tile(room_idx, door_id.x, door_id.y - 1, DOWN_ARROW_TILE | FLIP_Y)
+
+    for src, dst, _ in map['doors']:
+        src_room_idx, src_door_idx = door_pair_idx_dict[tuple(src)]
+        dst_room_idx, dst_door_idx = door_pair_idx_dict[tuple(dst)]
+        src_area = area_arr[src_room_idx]
+        dst_area = area_arr[dst_room_idx]
+        if src_area != dst_area:
+            add_door_arrow(src_room_idx, rooms[src_room_idx].door_ids[src_door_idx])
+            add_door_arrow(dst_room_idx, rooms[dst_room_idx].door_ids[dst_door_idx])
 
 # Messing around with removing the bottom part of the pause menu, since these occupy a lot of tiles that we
 # might want to repurpose for something more useful (e.g. showing door locations on the map). Looks funny though:
