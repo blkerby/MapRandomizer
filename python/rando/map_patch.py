@@ -155,11 +155,12 @@ def xy_to_map_ptr(area, x, y):
         offset = ((y1 + 32) * 32 + x - 32) * 2
     return base_ptr + offset
 
+# TODO: try to switch Main Menu GFX to load from different copy, to avoid visible effects of the tiles we overwrite.
 ELEVATOR_TILE = 0xCE
-REFILL_TILE = 0x9E  # Free tile not used in vanilla game (?)
-MAP_TILE = 0x9F  # Free tile not used in vanilla game (?)
-BOSS_TILE = 0xAE  # Free tile not used in vanilla game (?)
-RIGHT_ARROW_TILE = 0xAF  # Free tile not used in vanilla game (?)
+REFILL_TILE = 0x60  # "Free" tile used only in controller config
+MAP_TILE = 0x61  # "Free" tile used only in controller config
+BOSS_TILE = 0x62  # "Free" tile used only in controller config
+RIGHT_ARROW_TILE = 0x63  # "Free" tile used only in controller config
 DOWN_ARROW_TILE = 0x11
 
 ITEM_TOP_TILE = 0x76  # Item (dot) tile with a wall on top
@@ -399,18 +400,3 @@ def add_cross_area_arrows(rom, area_arr, map):
         if src_area != dst_area:
             add_door_arrow(src_room_idx, rooms[src_room_idx].door_ids[src_door_idx])
             add_door_arrow(dst_room_idx, rooms[dst_room_idx].door_ids[dst_door_idx])
-
-# Messing around with removing the bottom part of the pause menu, since these occupy a lot of tiles that we
-# might want to repurpose for something more useful (e.g. showing door locations on the map). Looks funny though:
-# n = 0x1C0
-# rom.write_n(snes2pc(0xB6E640), n, (n // 2) * [0x00, 0x00])
-#
-# # import pprint
-# # for i in range(256):
-# #     print(i)
-# #     data = read_tile_2bpp(snes2pc(0x9AB200), i)
-# #     pprint.pprint(data)
-# #     data = read_tile_4bpp(snes2pc(0xB68000), i)
-# #     pprint.pprint(data)
-# #     print()
-#

@@ -1,5 +1,5 @@
 from logic.rooms.all_rooms import rooms
-from rando.map_patch import apply_map_patches
+from rando.map_patch import apply_map_patches, read_tile_2bpp, read_tile_4bpp
 import ips_util
 from io import BytesIO
 import io
@@ -54,6 +54,32 @@ for patch_name in patches:
 
 area_arr = [rom.read_u8(room.rom_address + 1) for room in rooms]
 apply_map_patches(rom, area_arr)
+
+# Messing around with removing the bottom part of the pause menu, since these occupy a lot of tiles that we
+# might want to repurpose for something more useful (e.g. showing door locations on the map). Looks funny though:
+# n = 0x1C0
+# rom.write_n(snes2pc(0xB6E640), n, (n // 2) * [0x00, 0x00])
+#
+snes2pc = lambda address: address >> 1 & 0x3F8000 | address & 0x7FFF
+
+import numpy as np
+image = np.zeros([128, 128])
+for i in range(256):
+    data = read_tile_2bpp(rom, snes2pc(0x9AB200), i)
+    x = i // 16
+    y = i % 16
+    x0 = x * 8
+    x1 = (x + 1) * 8
+    y0 = y * 8
+    y1 = (y + 1) * 8
+    image[x0:x1, y0:y1] = data
+    # for row in data:
+    #     print(''.join('{:x}'.format(x) for x in row))
+    # data = read_tile_4bpp(rom, snes2pc(0xB68000), i)
+    # for row in data:
+    #     print(''.join('{:x}'.format(x) for x in row))
+from matplotlib import pyplot as plt
+plt.imshow(image)
 
 rom.save(output_rom_path)
 os.system(f"rm {output_rom_path[:-4]}.srm")
