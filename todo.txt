@@ -1,4 +1,10 @@
 TODO:
+- Look into problem lava in Volcano room (starts high when entering from left?)
+- turn Crateria scrolling sky back on. Update values for the 14 doors here: https://patrickjohnston.org/bank/8F#fB76A.
+- fix Tripper graphics (and G4 statue sounds) in West Ocean.
+- figure out race condition between fastdoors and Mother Brain room setup. Maybe code around $80836F could be used
+  to wait?
+- fix tiles below Warehouse Entrance
 - fix GFX that we overwrote with custom tiles
   - probably switch the new-game GFX (e.g. controller config) to use a separate bank, to free up tiles
   - or shuffle around the tiles in either the pause-menu tileset or HUD tilset, to make the unused tiles line up.
@@ -39,8 +45,6 @@ TODO:
 - fix plasma room (to not assume that the enemies need to be killed)
 - escape setup: mark bosses dead
 - fix map when using elevators (to set tiles to explored)
-- block left side of mother brain room and crocomire room (grey door)
-	- and possibly right of kraid, or change spawn? (camera glitchy)
 - door randomization
   - tie together plms for the two sides of door?
 - cross-area transitions
@@ -62,6 +66,9 @@ Mini-map notes:
     - RAM $7E:C608
     - VRAM $5820 (BG3)
 
+
+Notes on game-over/loading:
+- In file select, some loading happens starting at $81AD17
 
 Notes on usage of area ($079F and $7E:D918):
 

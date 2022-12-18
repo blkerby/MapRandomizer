@@ -1139,7 +1139,7 @@ def randomize():
         'new_game',
         # 'new_game_extra',
         'music',
-        'crateria_sky',
+        'crateria_sky_fixed',
         'everest_tube',
         'sandfalls',
         'escape_room_1',
@@ -1238,6 +1238,9 @@ def randomize():
 
     # In Shaktool room, skip setting screens to red scroll (so that it won't glitch out when entering from the right):
     rom.write_u8(snes2pc(0x84B8DC), 0x60)  # RTS
+
+    # # Skip map screens when starting after game over
+    # rom.write_u16(snes2pc(0x81911F), 0x0006)
 
     memory_file = BytesIO()
     files = [
