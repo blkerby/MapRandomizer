@@ -30,6 +30,27 @@ startup:
     lda #$0004
     sta $7ED821
 
+    ; Copy initial explored tiles from B5:F000 (to set map station tiles to explored)
+    ldx #$0600
+.copy_explored
+    dex
+    dex
+    lda $B5F000, X
+    sta $7ECD52, X
+    txa
+    bne .copy_explored
+
+    ; Do the same for the local-area explored tiles (TODO: maybe simplify this.)
+    ldx #$0100
+.copy_explored_crateria
+    dex
+    dex
+    lda $B5F000, X
+    sta $07F7, X
+    txa
+    bne .copy_explored_crateria
+
+
     lda #$0006  ; Start in game state 6 (Loading game data) instead of 0 (Intro) or 5 (File select map)
     sta !GameStartState
 .end

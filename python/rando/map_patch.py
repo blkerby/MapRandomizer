@@ -400,3 +400,21 @@ def add_cross_area_arrows(rom, area_arr, map):
         if src_area != dst_area:
             add_door_arrow(src_room_idx, rooms[src_room_idx].door_ids[src_door_idx])
             add_door_arrow(dst_room_idx, rooms[dst_room_idx].door_ids[dst_door_idx])
+
+
+def set_map_stations_explored(rom, map):
+    rom.write_n(snes2pc(0xB5F000), 0x600, bytes(0x600 * [0x00]))
+    for i, room in enumerate(rooms):
+        if ' Map Room' not in room.name:
+            continue
+        area = map['area'][i]
+        x = rom.read_u8(room.rom_address + 2)
+        y = rom.read_u8(room.rom_address + 3) + 1
+        base_ptr = 0xB5F000 + area * 0x100
+        if x >= 32:
+            x -= 32
+            base_ptr += 0x80
+        offset = y * 4 + (x // 8)
+        value = 0x80 >> (x % 8)
+        addr = snes2pc(base_ptr + offset)
+        rom.write_u8(addr, value)

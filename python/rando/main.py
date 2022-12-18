@@ -21,10 +21,10 @@ import json
 import ips_util
 from rando.compress import compress
 from rando.make_title import encode_graphics
-from rando.map_patch import apply_map_patches, add_cross_area_arrows
+from rando.map_patch import apply_map_patches, add_cross_area_arrows, set_map_stations_explored
 from rando.balance_utilities import balance_utilities
 
-VERSION = 6
+VERSION = 7
 
 import logging
 from maze_builder.types import reconstruct_room_data, Direction, DoorSubtype
@@ -270,14 +270,14 @@ def home():
       <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Super Metroid Map Randomizer</title>
+        <title>Super Metroid Map Rando</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
       </head>
       <body>
         <div class="container">
             <div class="row">
                 <div class="col-9 text-center my-2">
-                    <img src="/WebTitle.png" alt="Super Metroid Map Randomizer" style="width: 50%">
+                    <img src="/WebTitle.png" alt="Super Metroid Map Rando" style="width: 50%">
                 </div>
                 <div class="col-3" align=right>
                     <small>Version: {VERSION}</small>
@@ -1095,6 +1095,7 @@ def randomize():
 
     apply_map_patches(rom, area_arr)
     add_cross_area_arrows(rom, area_arr, map)
+    set_map_stations_explored(rom, map)
 
     # print(randomizer.item_sequence[:5])
     # print(randomizer.item_placement_list[:5])

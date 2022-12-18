@@ -90,12 +90,12 @@ class Randomizer:
         room_json = self.sm_json_data.room_json_dict[room_id]
         node_json = self.sm_json_data.node_json_dict[(room_id, node_id)]
         return {
-            'vertex_id': vertex_id,
-            'room_id': room_id,
-            'node_id': node_id,
-            'obstacles_mask': obstacles_mask,
+            # 'vertex_id': vertex_id,
+            # 'room_id': room_id,
+            # 'node_id': node_id,
             'room_name': room_json['name'],
             'node_name': node_json['name'],
+            'obstacles_mask': obstacles_mask,
         }
 
     def get_spoiler_entry(self, selected_target_index, route_data, state: GameState, collect_name, step_number, rank):

@@ -45,6 +45,7 @@ rom = Rom(open(input_rom_path, 'rb'))
 
 patches = [
     'new_game_extra',
+    # 'new_game',
     'disable_map_icons',
     'tourian_map'
 ]

@@ -32,6 +32,7 @@ TODO:
 - fix timestamps in zip file
 - detect client hang-up and abort (probably requires switching to websocket request)
 - fix eye door graphics in room before rinkas
+   - also fake gray door graphics in Kraid room, Phantoon room
 - fix camera when coming into shaktool right side
 - fix wall that spawns in tourian escape room 1
 - fix new game on second file: some data comes from other file?
