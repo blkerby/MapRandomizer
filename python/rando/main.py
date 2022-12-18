@@ -477,13 +477,14 @@ def randomize():
         })
 
     spoiler_data = {
-        'difficulty': {
-            'tech': list(sorted(difficulty.tech)),
-            'shine_charge_tiles': difficulty.shine_charge_tiles,
-            'multiplier': difficulty.multiplier,
-        },
+        # 'difficulty': {
+        #     'tech': list(sorted(difficulty.tech)),
+        #     'shine_charge_tiles': difficulty.shine_charge_tiles,
+        #     'multiplier': difficulty.multiplier,
+        # },
+        'summary': randomizer.spoiler_summary,
         'route': randomizer.spoiler_route,
-        'items': spoiler_items,
+        # 'items': spoiler_items,
     }
 
     for room in rooms:
