@@ -47,7 +47,9 @@ patches = [
     'new_game_extra',
     # 'new_game',
     'disable_map_icons',
-    'tourian_map'
+    'tourian_map',
+    'crateria_sky_fixed',
+    # 'no_map_select'
 ]
 for patch_name in patches:
     patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
@@ -63,24 +65,29 @@ apply_map_patches(rom, area_arr)
 #
 snes2pc = lambda address: address >> 1 & 0x3F8000 | address & 0x7FFF
 
-import numpy as np
-image = np.zeros([128, 128])
-for i in range(256):
-    data = read_tile_2bpp(rom, snes2pc(0x9AB200), i)
-    x = i // 16
-    y = i % 16
-    x0 = x * 8
-    x1 = (x + 1) * 8
-    y0 = y * 8
-    y1 = (y + 1) * 8
-    image[x0:x1, y0:y1] = data
-    # for row in data:
-    #     print(''.join('{:x}'.format(x) for x in row))
-    # data = read_tile_4bpp(rom, snes2pc(0xB68000), i)
-    # for row in data:
-    #     print(''.join('{:x}'.format(x) for x in row))
-from matplotlib import pyplot as plt
-plt.imshow(image)
+# import numpy as np
+# image = np.zeros([128, 128])
+# for i in range(256):
+#     data = read_tile_2bpp(rom, snes2pc(0x9AB200), i)
+#     x = i // 16
+#     y = i % 16
+#     x0 = x * 8
+#     x1 = (x + 1) * 8
+#     y0 = y * 8
+#     y1 = (y + 1) * 8
+#     image[x0:x1, y0:y1] = data
+#     # for row in data:
+#     #     print(''.join('{:x}'.format(x) for x in row))
+#     # data = read_tile_4bpp(rom, snes2pc(0xB68000), i)
+#     # for row in data:
+#     #     print(''.join('{:x}'.format(x) for x in row))
+# from matplotlib import pyplot as plt
+# plt.imshow(image)
+
+# rom.write_u16(snes2pc(0x819124), 0x0009)   # File select index 9 - load
+
+# Skip map screens when starting after game over
+# rom.write_u16(snes2pc(0x81911F), 0x0006)
 
 rom.save(output_rom_path)
 os.system(f"rm {output_rom_path[:-4]}.srm")

@@ -327,7 +327,7 @@ def apply_map_patches(rom, area_arr):
     patch_room_tile(room_idx, 0, 6, EMPTY_LEFT_RIGHT_TILE)
     patch_room_tile(room_idx, 1, 7, EMPTY_TOP_BOTTOM_TILE)
     room_idx = room_dict["Big Pink"]
-    patch_room_tile(room_idx, 1, 7, ITEM_TOP_BOTTOM_TILE | FLIP_X)
+    patch_room_tile(room_idx, 1, 7, EMPTY_TOP_BOTTOM_TILE | FLIP_X)
     room_idx = room_dict["East Tunnel"]
     patch_room_tile(room_idx, 0, 1, EMPTY_TOP_LEFT_RIGHT_TILE | FLIP_Y)
     room_idx = room_dict["Crab Shaft"]
@@ -359,6 +359,9 @@ def apply_map_patches(rom, area_arr):
     patch_room_tile(room_idx, 1, 0, EMPTY_TOP_LEFT_BOTTOM_TILE | FLIP_X)
     room_idx = room_dict["Plasma Beach Quicksand Room"]
     patch_room_tile(room_idx, 0, 0, EMPTY_ALL_TILE)
+    room_idx = room_dict["Lower Norfair Fireflea Room"]
+    patch_room_tile(room_idx, 1, 3, EMPTY_TOP_LEFT_RIGHT_TILE | FLIP_Y)
+
     # Make non-passable internal walls two pixels thick:
     room_idx = room_dict["Pseudo Plasma Spark Room"]
     patch_room_tile(room_idx, 2, 2, ITEM_TOP_LEFT_BOTTOM_TILE | FLIP_X)

@@ -38,8 +38,6 @@ org $829ED5  ; Something map-related (?)
 org $829F01  ; Something map-related (?)
     lda $1F5B
 
-; TODO: fix or disable all the map icons
-
 org $90A9BE  ; Update mini-map
     lda $1F5B
 
