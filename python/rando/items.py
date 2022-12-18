@@ -7,7 +7,7 @@ import json
 import graph_tool
 import graph_tool.topology
 import copy
-
+from logic.rooms.all_rooms import rooms
 from rando.sm_json_data import SMJsonData, GameState, Link, DifficultyConfig
 
 class ItemPlacementStrategy(Enum):
@@ -63,9 +63,20 @@ class ItemPlacementStrategy(Enum):
 #     doors: List[DoorPlacement]
 #     items: List[ItemPlacement]
 
+area_dict = {
+    0: "Crateria",
+    1: "Brinstar",
+    2: "Norfair",
+    3: "Wrecked Ship",
+    4: "Maridia",
+    5: "Tourian",
+}
+
+room_index_by_addr = {room.rom_address: i for i, room in enumerate(rooms)}
 
 class Randomizer:
     def __init__(self, map, sm_json_data: SMJsonData, difficulty: DifficultyConfig):
+        self.map = map
         self.sm_json_data = sm_json_data
         self.difficulty = difficulty
 
@@ -89,16 +100,24 @@ class Randomizer:
         room_id, node_id, obstacles_mask = self.sm_json_data.vertex_list[vertex_id]
         room_json = self.sm_json_data.room_json_dict[room_id]
         node_json = self.sm_json_data.node_json_dict[(room_id, node_id)]
-        return {
+        room_address = int(room_json['roomAddress'], 16)
+        if room_address == 0x7D408:
+            room_address = 0x7D5A7  # Treat Toilet Bowl as part of Aqueduct
+        if room_address == 0x7D69A:
+            room_address = 0x7D646  # Treat East Pants Room as part of Pants Room
+        room_index = room_index_by_addr.get(room_address)
+        data = {
             # 'vertex_id': vertex_id,
             # 'room_id': room_id,
             # 'node_id': node_id,
-            'room_name': room_json['name'],
-            'node_name': node_json['name'],
+            'area': area_dict[self.map['area'][room_index]],
+            'room': room_json['name'],
+            'node': node_json['name'],
             'obstacles_mask': obstacles_mask,
         }
+        return data
 
-    def get_spoiler_entry(self, selected_target_index, route_data, state: GameState, collect_name, step_number, rank):
+    def get_spoiler_entry(self, selected_target_index, route_data, state: GameState, new_state, collect_name, step_number, rank):
         graph, output_route_id, output_route_edge, output_route_prev = route_data
         route_id = output_route_id[selected_target_index]
         step_list = []
@@ -128,7 +147,10 @@ class Randomizer:
             step_list.append(step)
             route_id = output_route_prev[route_id]
         step_list = list(reversed(step_list))
-        return {
+        route = {
+            'step_number': step_number,
+            'step_when_first_accessible': rank,
+            'collect': collect_name,
             'start_state': {
                 **self.get_vertex_data(state.vertex_index),
                 'max_energy': state.max_energy,
@@ -142,11 +164,16 @@ class Randomizer:
                 'items': [item for item in sorted(state.items) if item not in ["PowerBeam", "PowerSuit"]],
                 'flags': list(sorted(state.flags)),
             },
-            'collect': collect_name,
-            'step_number': step_number,
-            'rank': rank,
             'steps': step_list,
         }
+        summary = {
+            'step_number': step_number,
+            'step_when_first_accessible': rank,
+            'collect': collect_name,
+            **self.get_vertex_data(new_state.vertex_index)
+        }
+        del summary['obstacles_mask']
+        return route, summary
 
     def randomize(self, item_placement_strategy: ItemPlacementStrategy):
         # TODO: Split this function into more manageable-sized pieces and clean up.
@@ -207,7 +234,7 @@ class Randomizer:
         }
         progression_item_set = set(items_to_place_count.keys())
         # We avoid having progression depend on reserve tanks, to simplify how energy refill stations work in the logic.
-        # So these end up getting placed at the end at locations that cannot be accessed early.
+        # So these end up getting placed at the end, after all progression items.
         progression_item_set.remove("ReserveTank")
         progression_item_list = ['Missile'] + np.random.permutation(sorted(progression_item_set.difference({'Missile'}))).tolist()
 
@@ -235,6 +262,7 @@ class Randomizer:
         self.item_sequence = []
         self.item_placement_list = []
         self.spoiler_route = []
+        self.spoiler_summary = []
         self.target_rank = None
         reach_mask = None
         route_data = None
@@ -400,8 +428,9 @@ class Randomizer:
                 new_reach_mask = None
                 new_route_data = None
 
-            spoiler_entry = self.get_spoiler_entry(selected_target_index, route_data, orig_state, collect_name, step_number, int(target_rank[selected_target_index]))
-            self.spoiler_route.append(spoiler_entry)
+            spoiler_steps, spoiler_summary = self.get_spoiler_entry(selected_target_index, route_data, orig_state, state, collect_name, step_number, int(target_rank[selected_target_index]))
+            self.spoiler_route.append(spoiler_steps)
+            self.spoiler_summary.append(spoiler_summary)
             raw_reach = new_raw_reach
             reach_mask = new_reach_mask
             route_data = new_route_data
