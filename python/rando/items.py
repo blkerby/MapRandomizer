@@ -72,13 +72,24 @@ area_dict = {
     5: "Tourian",
 }
 
-room_index_by_addr = {room.rom_address: i for i, room in enumerate(rooms)}
-
 class Randomizer:
     def __init__(self, map, sm_json_data: SMJsonData, difficulty: DifficultyConfig):
         self.map = map
         self.sm_json_data = sm_json_data
         self.difficulty = difficulty
+
+        room_index_by_addr = {room.rom_address: i for i, room in enumerate(rooms)}
+        self.room_index_by_id = {}
+        for room_id, room_json in sm_json_data.room_json_dict.items():
+            room_address = int(room_json['roomAddress'], 16)
+            if room_address == 0x7D408:
+                room_address = 0x7D5A7  # Treat Toilet Bowl as part of Aqueduct
+            if room_address == 0x7D69A:
+                room_address = 0x7D646  # Treat East Pants Room as part of Pants Room
+            if room_address == 0x7968F:
+                room_address = 0x793FE  # Treat Homing Geemer Room as part of West Ocean
+            room_index = room_index_by_addr[room_address]
+            self.room_index_by_id[room_id] = room_index
 
         door_edges = []
         for conn in map['doors']:
@@ -100,12 +111,7 @@ class Randomizer:
         room_id, node_id, obstacles_mask = self.sm_json_data.vertex_list[vertex_id]
         room_json = self.sm_json_data.room_json_dict[room_id]
         node_json = self.sm_json_data.node_json_dict[(room_id, node_id)]
-        room_address = int(room_json['roomAddress'], 16)
-        if room_address == 0x7D408:
-            room_address = 0x7D5A7  # Treat Toilet Bowl as part of Aqueduct
-        if room_address == 0x7D69A:
-            room_address = 0x7D646  # Treat East Pants Room as part of Pants Room
-        room_index = room_index_by_addr.get(room_address)
+        room_index = self.room_index_by_id[room_id]
         data = {
             # 'vertex_id': vertex_id,
             # 'room_id': room_id,
