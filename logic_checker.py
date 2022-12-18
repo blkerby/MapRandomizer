@@ -147,7 +147,8 @@ else:
     cleared_obstacles_bitmask = 0
 
 # -------- Node -------------------------------
-node_names = ["{}: {}".format(node['id'], node['name']) for node in room['nodes']]
+node_names = ["{}: {} (vertex {})".format(node['id'], node['name'], sm_json_data.vertex_index_dict[(room['id'], node['id'], cleared_obstacles_bitmask)])
+              for node in room['nodes']]
 node_id_dict = {name: room['nodes'][i]['id'] for i, name in enumerate(node_names)}
 from_node_name = st.selectbox("From node", node_names)
 from_node_id = node_id_dict[from_node_name]
