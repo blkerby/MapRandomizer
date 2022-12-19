@@ -24,7 +24,7 @@ from rando.make_title import encode_graphics
 from rando.map_patch import apply_map_patches, add_cross_area_arrows, set_map_stations_explored
 from rando.balance_utilities import balance_utilities
 
-VERSION = 7
+VERSION = 8
 
 import logging
 from maze_builder.types import reconstruct_room_data, Direction, DoorSubtype
@@ -49,6 +49,8 @@ sm_json_data = SMJsonData(sm_json_data_path)
 map_dir = 'maps/session-2022-06-03T17:19:29.727911.pkl-bk30'
 file_list = sorted(os.listdir(map_dir))
 
+snes2pc = lambda address: address >> 1 & 0x3F8000 | address & 0x7FFF
+pc2snes = lambda address: address << 1 & 0xFF0000 | address & 0xFFFF | 0x808000
 
 def get_tech_description(name):
     desc = sm_json_data.tech_json_dict[name].get('note')
@@ -788,6 +790,8 @@ def randomize():
     orig_rom.write_u16(0x1AAC8 + 10, 0xEB00)
     # rom.write_u16(0x1956A + 10, 0xEB00)
 
+    rom.write_u8(snes2pc(0x83AA8F), 0x04)  # Stop wall from spawning in Tourian Escape Room 1: door direction = 4 (right)
+
     # Area data: --------------------------------
     area_index_dict = defaultdict(lambda: {})
     for i, room in enumerate(rooms):
@@ -1142,7 +1146,6 @@ def randomize():
         'crateria_sky_fixed',
         'everest_tube',
         'sandfalls',
-        'escape_room_1',
         'saveload',
         'map_area',
         'mb_barrier',
@@ -1156,7 +1159,10 @@ def randomize():
         'disable_map_icons',
         'escape',
         'mother_brain_no_drain',
-        'tourian_map'
+        'tourian_map',
+        'tourian_eye_door',
+        'no_explosions_before_escape',
+        'escape_room_1',
     ]
     for patch_name in patches:
         patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
@@ -1175,9 +1181,6 @@ def randomize():
 
     # Change setup asm for Mother Brain room
     rom.write_u16(0x7DD6E + 24, 0xEB00)
-
-    snes2pc = lambda address: address >> 1 & 0x3F8000 | address & 0x7FFF
-    pc2snes = lambda address: address << 1 & 0xFF0000 | address & 0xFFFF | 0x808000
 
     # Write palette and tilemap for title background:
     import PIL
@@ -1224,6 +1227,30 @@ def randomize():
     #     rom.write_n(title_bg_map_addr + i * 33 + 1, 32, title_bg_map[(i * 32):((i + 1) * 32)])
     #     rom.write_u8(title_bg_map_addr + i * 33 + 33, 0xFF)
 
+    # Set up door-specific FX:
+    door_fx = {
+        (0x19732, 0x1929A): 0x8386D0,  # Rising Tide left door: lava rising
+        (0x1965A, 0x19672): 0x838650,  # Volcano Room left door: lava rising
+        # (0x18B6E, 0x1AB34): 0x838060,  # Climb bottom-left door: lava rising
+        (0x195B2, 0x195BE): 0x8385E0,  # Speed Booster Hall right door: lava rising when Speed Booster collected
+        (0x1983A, 0x19876): 0x83876A,  # Acid Statue Room bottom-right door: acid lowered
+        (0x199A2, 0x199F6): 0x83883C,  # Amphitheatre right door: acid raised
+    }
+
+    # In vanilla game, lava will rise in Climb if entered through Tourian Escape Room 4 (even if Zebes not ablaze).
+    # Prevent this by replacing the Tourian Escape Room 4 door with the value 0xFFFF which does not match any door:
+    rom.write_u16(snes2pc(0x838060), 0xffff)
+
+    for door1, door2, _ in map['doors']:
+        door1_t = tuple(door1)
+        door2_t = tuple(door2)
+        if door1_t in door_fx:
+            print("door1: {:x} {:x}".format(door1[0], door1[1]))
+            rom.write_u16(snes2pc(door_fx[door1_t]), door2[0] & 0xffff)
+        elif door2_t in door_fx:
+            print("door2: {:x} {:x}".format(door2[0], door2[1]))
+            rom.write_u16(snes2pc(door_fx[door2_t]), door1[0] & 0xffff)
+
     # In Crocomire's initialization, skip setting the leftmost screens to red scroll. Even in the vanilla game there
     # is no purpose to this, as they are already red. But it important to skip here in the rando, because when entering
     # from the left door with Crocomire still alive, these scrolls are set to blue by the door ASM, and if they
@@ -1238,6 +1265,10 @@ def randomize():
 
     # In Shaktool room, skip setting screens to red scroll (so that it won't glitch out when entering from the right):
     rom.write_u8(snes2pc(0x84B8DC), 0x60)  # RTS
+
+    # Remove the wall that appears on the right side of Tourian Escape Room 1:
+    rom.write_u16(snes2pc(0x84BB34), 0x86BC)
+    rom.write_u16(snes2pc(0x84BB44), 0x86BC)
 
     # # Skip map screens when starting after game over
     # rom.write_u16(snes2pc(0x81911F), 0x0006)
