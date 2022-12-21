@@ -146,10 +146,18 @@ class MapDisplay:
             4: (0x80, 0x80, 0xff),  # Maridia
             5: (0xc0, 0xc0, 0xc0),  # Tourian
             6: (0x80, 0x40, 0x20),  # Save room
+            7: (0x40, 0x20, 0x80),  # Refill room
         }
 
-        colors = [color_map[6 if ' Save Room' in rooms[i].name else area]
-                  for i, area in enumerate(map['area'])]
+        colors = []
+        for i, area in enumerate(map['area']):
+            if ' Save Room' in rooms[i].name:
+                color_idx = 6
+            elif 'Refill' in rooms[i].name or 'Recharge' in rooms[i].name:
+                color_idx = 7
+            else:
+                color_idx = area
+            colors.append(color_map[color_idx])
         x = [p[0] for p in map['rooms']]
         y = [p[1] for p in map['rooms']]
         self._display(rooms, x, y, colors)

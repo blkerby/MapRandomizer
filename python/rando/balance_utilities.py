@@ -185,31 +185,28 @@ def place_phantoon(map):
                                [phantoon_location_idx, phantoon_room_idx])
 
 
-def compute_balance_cost(save_idxs, dist_matrix):
-    # For each room, find the distance (measured by number of door transitions) to the nearest save. Then average
-    # these distances to get an overall cost which we will try to minimize.
+def compute_balance_cost(save_idxs, refill_idxs, dist_matrix, save_weight=0.5):
+    # For each room, find the distance (measured by number of door transitions) to the nearest save and to the
+    # nearest refill. Then average these distances to get an overall cost which we will try to minimize.
 
     landing_site_idx = 1
     assert rooms[landing_site_idx].name == 'Landing Site'
-    save_idxs = [1] + save_idxs  # Include Landing Site as a Save location
+    save_idxs = [1] + save_idxs  # Include Landing Site as a save location
+    refill_idxs = [1] + refill_idxs  # Include Landing Site as a refill location
 
     min_save_dist = np.min(dist_matrix[:len(rooms), save_idxs], axis=1)
-    total_save_cost = np.mean(min_save_dist)
-    return total_save_cost
+    min_refill_dist = np.min(dist_matrix[:len(rooms), refill_idxs], axis=1)
 
-# def compute_balance_cost(save_idxs, dist_matrix):
-#     # For each room, find the distance (measured by number of door transitions) to the nearest save. Then sum up
-#     # these distances to get an overall cost which we will try to minimize.
-#     save_idxs = np.array(save_idxs)
-#     A = dist_matrix[save_idxs.reshape(1, -1), save_idxs.reshape(-1, 1)]
-#     A = np.maximum(A, 1.0)
-#     total_cost = np.sum(1 / A ** 2)
-#     return total_cost
+    overall_save_cost = np.mean(min_save_dist)
+    overall_refill_cost = np.mean(min_refill_dist)
+    overall_cost = save_weight * overall_save_cost + (1 - save_weight) * overall_refill_cost
+    return overall_cost
 
 
 def get_room_indexes_by_doortype():
     # We have three types of Save Rooms: left door, right door, and left+right door.
     save_indexes_by_doortype = [[], [], []]
+    refill_indexes_by_doortype = [[], [], []]
     other_indexes_by_doortype = [[], [], []]
 
     for i, room in enumerate(rooms):
@@ -228,34 +225,55 @@ def get_room_indexes_by_doortype():
             continue
         if ' Save Room' in room.name:
             save_indexes_by_doortype[doortype].append(i)
+        elif 'Refill' in room.name or 'Recharge' in room.name:
+            refill_indexes_by_doortype[doortype].append(i)
         else:
             other_indexes_by_doortype[doortype].append(i)
-    return save_indexes_by_doortype, other_indexes_by_doortype
+    return save_indexes_by_doortype, refill_indexes_by_doortype, other_indexes_by_doortype
 
+
+# def redistribute_saves(map, num_steps, start_temperature, end_temperature):
 def redistribute_saves(map, num_steps):
     # Move Save Rooms around to try to minimize the average distance of each room to a save, subject to constraints
     # that 1) in each area we must leave a place available for a map station and 2) in Wrecked Ship we must also leave
     # a place for Phantoon's Room.
 
-    save_indexes_by_doortype, other_indexes_by_doortype = get_room_indexes_by_doortype()
-    all_indexes_by_doortype = [save_idxs + other_idxs
-                               for save_idxs, other_idxs in zip(save_indexes_by_doortype, other_indexes_by_doortype)]
+    save_indexes_by_doortype, refill_indexes_by_doortype, other_indexes_by_doortype = get_room_indexes_by_doortype()
+    all_indexes_by_doortype = [save_idxs + refill_idxs + other_idxs
+                               for save_idxs, refill_idxs, other_idxs in
+                               zip(save_indexes_by_doortype, refill_indexes_by_doortype, other_indexes_by_doortype)]
     num_saves_by_doortype = [len(idxs) for idxs in save_indexes_by_doortype]
+    num_refills_by_doortype = [len(idxs) for idxs in refill_indexes_by_doortype]
+    num_other_by_doortype = [len(idxs) for idxs in other_indexes_by_doortype]
+    category_by_doortype = [num_saves_by_doortype[d] * [0] + num_refills_by_doortype[d] * [1] + num_other_by_doortype[d] * [2]
+                            for d in range(3)]
     dist_matrix = compute_room_distance_matrix(map)
 
     def compute_balance_cost_for_indexes(idxs_by_doortype):
         save_idxs = [idx for doortype in range(3)
                      for idx in idxs_by_doortype[doortype][:num_saves_by_doortype[doortype]]]
-        return compute_balance_cost(save_idxs, dist_matrix)
+        refill_idxs = [idx for doortype in range(3)
+                     for idx in idxs_by_doortype[doortype][num_saves_by_doortype[doortype]:(
+                        num_saves_by_doortype[doortype] + num_refills_by_doortype[doortype])]]
+        return compute_balance_cost(save_idxs, refill_idxs, dist_matrix)
 
     current_cost = compute_balance_cost_for_indexes(all_indexes_by_doortype)
     current_indexes_by_doortype = all_indexes_by_doortype
     for i in range(num_steps):
+        # temperature = start_temperature * (end_temperature / start_temperature) ** (i / num_steps)
         p = np.array([len(idxs) for idxs in current_indexes_by_doortype], dtype=np.float32)
         p = p / np.sum(p)
         doortype = np.random.choice([0, 1, 2], p=p)
-        idx1 = np.random.choice(len(save_indexes_by_doortype[doortype]))
-        idx2 = np.random.choice(len(other_indexes_by_doortype[doortype])) + len(save_indexes_by_doortype[doortype])
+
+        # idx1 = np.random.choice(len(save_indexes_by_doortype[doortype]))
+        # idx2 = np.random.choice(len(other_indexes_by_doortype[doortype])) + len(save_indexes_by_doortype[doortype])
+        # Select two single-tile rooms to consider swapping:
+        while True:
+            idx1 = np.random.choice(len(current_indexes_by_doortype[doortype]))
+            idx2 = np.random.choice(len(current_indexes_by_doortype[doortype]))
+            if category_by_doortype[doortype][idx1] != category_by_doortype[doortype][idx2]:
+                break
+
         new_indexes_by_doortype = copy.deepcopy(current_indexes_by_doortype)
         new_indexes_by_doortype[doortype][idx1], new_indexes_by_doortype[doortype][idx2] = \
             new_indexes_by_doortype[doortype][idx2], new_indexes_by_doortype[doortype][idx1]
@@ -266,7 +284,7 @@ def redistribute_saves(map, num_steps):
             current_indexes_by_doortype = new_indexes_by_doortype
             current_cost = new_cost
         if i % 100 == 0:
-            print(doortype, current_cost, new_cost)
+            print(current_cost, new_cost)
 
     all_indexes = [i for idxs in all_indexes_by_doortype for i in idxs]
     current_indexes = [i for idxs in current_indexes_by_doortype for i in idxs]
@@ -284,20 +302,27 @@ def balance_map(map):
     map = balance_maps(map)
     map = place_phantoon(map)
     map = redistribute_saves(map, num_steps=1000)
+    # map = redistribute_saves(map, num_steps=10000, start_temperature=0.001, end_temperature=0.0005)
     return map
 
 
 import json
 
 map = json.load(open('maps/maps/session-2022-06-03T17:19:29.727911.pkl-bk30-small/7.json', 'rb'))
-save_indexes_by_doortype, other_indexes_by_doortype = get_room_indexes_by_doortype()
+save_indexes_by_doortype, refill_indexes_by_doortype, other_indexes_by_doortype = get_room_indexes_by_doortype()
 save_indexes = [i for idxs in save_indexes_by_doortype for i in idxs]
-print(compute_balance_cost(save_indexes, compute_room_distance_matrix(map)))
+refill_indexes = [i for idxs in refill_indexes_by_doortype for i in idxs]
+# print(compute_balance_cost(save_indexes, refill_indexes, compute_room_distance_matrix(map)))
+print("save=",compute_balance_cost(save_indexes, refill_indexes, compute_room_distance_matrix(map), save_weight=1.0))
+print("refill=",compute_balance_cost(save_indexes, refill_indexes, compute_room_distance_matrix(map), save_weight=0.0))
 map = balance_map(map)
 # map = balance_map(map)
-save_indexes_by_doortype, other_indexes_by_doortype = get_room_indexes_by_doortype()
+save_indexes_by_doortype, refill_indexes_by_doortype, other_indexes_by_doortype = get_room_indexes_by_doortype()
 save_indexes = [i for idxs in save_indexes_by_doortype for i in idxs]
-print(compute_balance_cost(save_indexes, compute_room_distance_matrix(map)))
+refill_indexes = [i for idxs in refill_indexes_by_doortype for i in idxs]
+# print(compute_balance_cost(save_indexes, refill_indexes, compute_room_distance_matrix(map)))
+print("save=",compute_balance_cost(save_indexes, refill_indexes, compute_room_distance_matrix(map), save_weight=1.0))
+print("refill=",compute_balance_cost(save_indexes, refill_indexes, compute_room_distance_matrix(map), save_weight=0.0))
 
 from maze_builder.display import MapDisplay
 
@@ -305,4 +330,4 @@ display = MapDisplay(72, 72, 20)
 display.display_assigned_areas_with_saves(map)
 # display.display_assigned_areas(map)
 # display.display_vanilla_areas(map)
-# display.image.show()
+display.image.show()
