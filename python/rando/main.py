@@ -374,7 +374,6 @@ def home():
                             <li>Some map tiles associated with elevators do not appear correctly.
                             <li>Door transitions generally have some minor graphical glitches.
                             <li>The escape timer is not tailored to the seed (but should be generous enough to be possible to beat).
-                            <li>No door color randomization yet. To simplify things they're all just turned blue for now.
                             <li>The end credits are vanilla.
                             </ul>
                         </div>
@@ -519,27 +518,13 @@ def randomize():
     area_arr = (area_arr - area_arr[1] + num_areas) % num_areas
 
     display = MapDisplay(72, 72, 20)
-
-    # display.display(rooms, xs_min, ys_min, colors)
-    display.display(map)
+    display.display_assigned_areas(map)
     map_png_file = io.BytesIO()
     display.image.save(map_png_file, "png")
     map_png_bytes = map_png_file.getvalue()
 
-    color_map = {
-        SubArea.CRATERIA_AND_BLUE_BRINSTAR: (0x80, 0x80, 0x80),
-        SubArea.GREEN_AND_PINK_BRINSTAR: (0x80, 0xff, 0x80),
-        SubArea.RED_BRINSTAR_AND_WAREHOUSE: (0x60, 0xc0, 0x60),
-        SubArea.UPPER_NORFAIR: (0xff, 0x80, 0x80),
-        SubArea.LOWER_NORFAIR: (0xc0, 0x60, 0x60),
-        SubArea.OUTER_MARIDIA: (0x80, 0x80, 0xff),
-        SubArea.INNER_MARIDIA: (0x60, 0x60, 0xc0),
-        SubArea.WRECKED_SHIP: (0xff, 0xff, 0x80),
-        SubArea.TOURIAN: (0xc0, 0xc0, 0xc0),
-    }
-
-    colors = [color_map[room.sub_area] for room in rooms]
-    display.display(rooms, xs_min, ys_min, colors)
+    display = MapDisplay(72, 72, 20)
+    display.display_vanilla_areas(map)
     map_orig_png_file = io.BytesIO()
     display.image.save(map_orig_png_file, "png")
     map_orig_png_bytes = map_orig_png_file.getvalue()
