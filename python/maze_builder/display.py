@@ -2,8 +2,8 @@ import PIL
 import PIL.Image
 from PIL import ImageDraw, ImageFont
 from typing import List, Tuple
-from maze_builder.types import Room
-import logic.rooms.all_rooms
+from maze_builder.types import Room, SubArea
+from logic.rooms.all_rooms import rooms
 
 LEFT_ARROW = '\u2190'
 UP_ARROW = '\u2191'
@@ -115,12 +115,64 @@ class MapDisplay:
             x1 = self.margin + self.tile_x * self.tile_width
             self.draw.line((self.margin, y, x1, y), fill=(0xC0, 0xC0, 0xC0))
 
-    def display(self, rooms: List[Room], xs: List[int], ys: List[int], colors: List[Tuple[int, int, int]]):
+    def _display(self, rooms: List[Room], xs: List[int], ys: List[int], colors: List[Tuple[int, int, int]]):
         self._display_grid()
         self._display_rooms_interior(rooms, xs, ys, colors)
         for k, room in enumerate(rooms):
             self._display_room_borders(room, xs[k], ys[k])
             self._display_room_doors(room, xs[k], ys[k])
+
+    def display_assigned_areas(self, map):
+        color_map = {
+            0: (0x80, 0x80, 0x80),  # Crateria
+            1: (0x80, 0xff, 0x80),  # Brinstar
+            2: (0xff, 0x80, 0x80),  # Norfair
+            3: (0xff, 0xff, 0x80),  # Wrecked ship
+            4: (0x80, 0x80, 0xff),  # Maridia
+            5: (0xc0, 0xc0, 0xc0),  # Tourian
+        }
+
+        colors = [color_map[area] for area in map['area']]
+        x = [p[0] for p in map['rooms']]
+        y = [p[1] for p in map['rooms']]
+        self._display(rooms, x, y, colors)
+
+    def display_assigned_areas_with_saves(self, map):
+        color_map = {
+            0: (0x80, 0x80, 0x80),  # Crateria
+            1: (0x80, 0xff, 0x80),  # Brinstar
+            2: (0xff, 0x80, 0x80),  # Norfair
+            3: (0xff, 0xff, 0x80),  # Wrecked ship
+            4: (0x80, 0x80, 0xff),  # Maridia
+            5: (0xc0, 0xc0, 0xc0),  # Tourian
+            6: (0x80, 0x40, 0x20),  # Save room
+        }
+
+        colors = [color_map[6 if ' Save Room' in rooms[i].name else area]
+                  for i, area in enumerate(map['area'])]
+        x = [p[0] for p in map['rooms']]
+        y = [p[1] for p in map['rooms']]
+        self._display(rooms, x, y, colors)
+
+
+    def display_vanilla_areas(self, map):
+        color_map = {
+            SubArea.CRATERIA_AND_BLUE_BRINSTAR: (0x80, 0x80, 0x80),
+            SubArea.GREEN_AND_PINK_BRINSTAR: (0x80, 0xff, 0x80),
+            SubArea.RED_BRINSTAR_AND_WAREHOUSE: (0x60, 0xc0, 0x60),
+            SubArea.UPPER_NORFAIR: (0xff, 0x80, 0x80),
+            SubArea.LOWER_NORFAIR: (0xc0, 0x60, 0x60),
+            SubArea.OUTER_MARIDIA: (0x80, 0x80, 0xff),
+            SubArea.INNER_MARIDIA: (0x60, 0x60, 0xc0),
+            SubArea.WRECKED_SHIP: (0xff, 0xff, 0x80),
+            SubArea.TOURIAN: (0xc0, 0xc0, 0xc0),
+        }
+
+        colors = [color_map[room.sub_area] for room in rooms]
+        x = [p[0] for p in map['rooms']]
+        y = [p[1] for p in map['rooms']]
+        self._display(rooms, x, y, colors)
+
 
 # map_width = 72
 # map_height = 72
