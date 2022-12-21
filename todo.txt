@@ -1,4 +1,5 @@
 TODO:
+- fix acid in Tourian Escape Room 4
 - force Phantoon into Wrecked Ship
 - balance save station + refill distribution
 - keep item tile blue for locations locked by Wrecked Ship or Zebes Awake (or maybe for not-collected items in general?)
@@ -6,8 +7,12 @@ TODO:
 - skip map select after game over
 - rework item placement to clean up, and so Big Pink isn't so stacked
 - display doors on map?
+- fix bug where wrong tiles sometimes show at top of pause-menu map
+- implement enemyKill in logic
+- rework item config:
+  - extra axis for ammo openness
+  - add middle setting
 - Show max ammo (varia patch?)
-- Look into problem lava in Volcano room (starts high when entering from left?)
 - turn Crateria scrolling sky back on. Update values for the 14 doors here: https://patrickjohnston.org/bank/8F#fB76A.
 - figure out race condition between fastdoors and Mother Brain room setup. Maybe code around $80836F could be used
   to wait?
@@ -26,7 +31,6 @@ TODO:
   - Possibly shorten the cutscene for quality of life (since it might be necessary to traverse it multiple times)
 - change boss room doors: let the door you enter be blue but opposite door be locked by boss?
 - clean up the code everywhere
-- add option for start-select teleport to ship (only at save stations?).
 - add README
     - make
 - title graphics
@@ -45,8 +49,7 @@ TODO:
   - make it so client can save presets.
 - fix timestamps in zip file
 - detect client hang-up and abort (probably requires switching to websocket request)
-- fix eye door graphics in room before rinkas
-   - also fake gray door graphics in Kraid room, Phantoon room
+- fix fake gray door graphics in Kraid room, Phantoon room
 - fix new game on second file: some data comes from other file?
 - fix plasma room (to not assume that the enemies need to be killed)
 - fix map when using elevators (to set tiles to explored)
@@ -56,8 +59,8 @@ TODO:
   - to fix graphical glitches (look into using special GFX flag?)
 - balance boss distribution (one boss per area, corresponding to vanilla?)
 - fix suit graphics not showing after getting suit (consequence of skipping animation)?
-- set boss bits earlier in death sequence (to avoid accidentally leaving room before set)?
 - show map text for cross-area transitions?
+- increase PB drop rates on farms?
 
 
 Mini-map notes:

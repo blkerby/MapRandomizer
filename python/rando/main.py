@@ -24,7 +24,7 @@ from rando.make_title import encode_graphics
 from rando.map_patch import apply_map_patches, add_cross_area_arrows, set_map_stations_explored
 from rando.balance_utilities import balance_utilities
 
-VERSION = 8
+VERSION = 9
 
 import logging
 from maze_builder.types import reconstruct_room_data, Direction, DoorSubtype
@@ -520,17 +520,8 @@ def randomize():
 
     display = MapDisplay(72, 72, 20)
 
-    color_map = {
-        0: (0x80, 0x80, 0x80),  # Crateria
-        1: (0x80, 0xff, 0x80),  # Brinstar
-        2: (0xff, 0x80, 0x80),  # Norfair
-        3: (0xff, 0xff, 0x80),  # Wrecked ship
-        4: (0x80, 0x80, 0xff),  # Maridia
-        5: (0xc0, 0xc0, 0xc0),  # Tourian
-    }
-
-    colors = [color_map[i] for i in area_arr]
-    display.display(rooms, xs_min, ys_min, colors)
+    # display.display(rooms, xs_min, ys_min, colors)
+    display.display(map)
     map_png_file = io.BytesIO()
     display.image.save(map_png_file, "png")
     map_png_bytes = map_png_file.getvalue()
