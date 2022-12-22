@@ -53,7 +53,9 @@ patches = [
     # 'crateria_sky_fixed',
     # 'no_map_select'
     # 'escape_room_1',
-    'unexplore'
+    'unexplore',
+    'max_ammo_display',
+    'missile_refill_all',
 ]
 for patch_name in patches:
     patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))

@@ -1,12 +1,9 @@
 TODO:
-- pressing certain button combination will mark current tile unexplored and cause tiles not to be marked explored
-  again until leaving the room.
-- make ammo refill fill all ammo types (Missiles, Supers, Power Bombs)
 - add rolling saves (to protect against saving where you can't get out)
 - skip map select after game over
-- fix acid in Tourian Escape Room 4
 - fix fake gray door graphics in Kraid room, Phantoon room
 - rework item placement to clean up, and so Big Pink isn't so stacked
+  - use alternative fallback strategy (cumulative sequence) instead of placing random item.
 - display doors on map?
 - fix bug where wrong tiles sometimes show at top of pause-menu map
 - implement enemyKill in logic
@@ -18,10 +15,6 @@ TODO:
 - figure out race condition between fastdoors and Mother Brain room setup. Maybe code around $80836F could be used
   to wait?
 - fix tiles below Warehouse Entrance
-- fix GFX that we overwrote with custom tiles
-  - probably switch the new-game GFX (e.g. controller config) to use a separate bank, to free up tiles
-  - or shuffle around the tiles in either the pause-menu tileset or HUD tilset, to make the unused tiles line up.
-  - or see if somehow there actually already are 4 unused tiles that we could use in both tile sets.
 - fix new game on second file (or after deleting first file)
 - fix internal checksum in output ROM
 - Warn if base ROM checksum does not match vanilla.
@@ -31,6 +24,7 @@ TODO:
   - Deal with it correctly in the item logic
   - Possibly shorten the cutscene for quality of life (since it might be necessary to traverse it multiple times)
 - change boss room doors: let the door you enter be blue but opposite door be locked by boss?
+  - first make boss fight strats more accurate in the logic.
 - clean up the code everywhere
 - add README
     - make
