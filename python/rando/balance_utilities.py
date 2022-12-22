@@ -5,6 +5,14 @@ import copy
 import numpy as np
 from collections import defaultdict
 
+def get_room_index(name):
+    for i, room in enumerate(rooms):
+        if room.name == name:
+            return i
+    raise RuntimeError("Room not found: {}".format(name))
+
+landing_site_idx = get_room_index('Landing Site')
+ws_save_idx = get_room_index('Wrecked Ship Save Room')
 
 def permute_small_rooms(map, src_room_index, dst_room_index):
     new_map = copy.deepcopy(map)
@@ -28,7 +36,7 @@ def permute_small_rooms(map, src_room_index, dst_room_index):
     return new_map
 
 
-def balance_maps(map):
+def balance_maps(map, phantoon_area):
     # Enumerate single-tile rooms with a single door.
     room_indexes_by_area_then_dir = defaultdict(lambda: defaultdict(lambda: set()))
     map_indexes_by_dir = defaultdict(lambda: set())
@@ -53,8 +61,8 @@ def balance_maps(map):
     src_room_indexes = []
     dst_room_indexes = []
     for area in range(6):
-        if area == 3:
-            # Always place the Wrecked Ship Map Room in Wrecked Ship
+        if area == phantoon_area:
+            # Always place the Wrecked Ship Map Room in the same area as Phantoon.
             src_i = wrecked_ship_map_room_id
             dir = Direction.RIGHT
             room_indexes = room_indexes_by_area_then_dir[area][dir]
@@ -109,9 +117,9 @@ def compute_room_distance_matrix(map):
     return distance_matrix.astype(np.float32)
 
 
-def can_area_be_wrecked_ship(map, area):
-    has_map_room = False
-    has_phantoon_room = False
+def can_area_have_phantoon(map, area):
+    num_left_door_rooms = 0
+    num_right_door_rooms = 0
     for i, room in enumerate(rooms):
         if room.height != 1 or room.width != 1 or len(room.door_ids) != 1:
             continue
@@ -119,10 +127,12 @@ def can_area_be_wrecked_ship(map, area):
             continue
         dir = room.door_ids[0].direction
         if dir == Direction.LEFT:
-            has_phantoon_room = True
+            num_left_door_rooms += 1
         elif dir == Direction.RIGHT:
-            has_map_room = True
-    return has_phantoon_room and has_map_room
+            num_right_door_rooms += 1
+    # We need a right-door single-tile room to place the Wrecked Ship Map Room, and two left-door single-tile rooms,
+    # one for Phantoon and one for the Wrecked Ship Save Room.
+    return num_left_door_rooms >= 2 and num_right_door_rooms >= 1
 
 
 def get_rooms_in_area(map, area):
@@ -139,16 +149,15 @@ def swap_areas(map, area1, area2):
     return map
 
 
-def make_wrecked_ship_small(map):
-    # Reassign the areas if necessary, to try to make Wrecked Ship be the smallest of the areas (by # of rooms)
-    # to ease the player's hunt for Phantoon. We assume that Crateria already contains the ship and cannot be reassigned.
-    # We only consider areas having rooms of the right shape to become Phantoon's Room and the Wrecked Ship Map Room.
-    eligible_areas = [area for area in range(1, 6) if can_area_be_wrecked_ship(map, area)]
+def get_phantoon_area(map):
+    # Determine the area to place Phantoon in. We choose the smallest area possible (by # of rooms) subject to the
+    # constraint that it must be possible place Phantoon's Room, Wrecked Ship Map Room, and Wrecked Ship Save Room
+    # in the area.
+    eligible_areas = [area for area in range(6) if can_area_have_phantoon(map, area)]
     assert len(eligible_areas) > 0
     area_sizes = np.array([len(get_rooms_in_area(map, area)) for area in eligible_areas])
     smallest_area_idx = np.argmin(area_sizes)
-    map = swap_areas(map, eligible_areas[smallest_area_idx], 3)  # 3 = Wrecked ship
-    return map
+    return eligible_areas[smallest_area_idx]
 
 
 def make_ship_in_crateria(map):
@@ -161,38 +170,47 @@ def make_ship_in_crateria(map):
     return map
 
 
-def place_phantoon(map):
+def place_phantoon_and_ws_save(map, phantoon_area):
     for i, room in enumerate(rooms):
         if room.name == "Phantoon's Room":
             phantoon_room_idx = i
-            break
-    else:
-        raise RuntimeError("Could not find Phantoon's Room")
+        elif room.name == "Wrecked Ship Save Room":
+            ws_save_room_idx = i
 
     eligible_phantoon_locations = []
     for i, room in enumerate(rooms):
-        if map['area'][i] != 3:
+        if map['area'][i] != phantoon_area:
             continue
         if room.width != 1 or room.height != 1 or len(room.door_ids) != 1:
             continue
         if room.door_ids[0].direction != Direction.LEFT:
             continue
         eligible_phantoon_locations.append(i)
-    assert len(eligible_phantoon_locations) > 0
+    assert len(eligible_phantoon_locations) >= 2
 
-    phantoon_location_idx = np.random.choice(eligible_phantoon_locations)
-    return permute_small_rooms(map, [phantoon_room_idx, phantoon_location_idx],
-                               [phantoon_location_idx, phantoon_room_idx])
+    selected_locations = np.random.choice(eligible_phantoon_locations, size=2, replace=False)
+    phantoon_location_idx = selected_locations[0]
+    ws_save_location_idx = selected_locations[1]
 
+    assert phantoon_room_idx != ws_save_room_idx
+    other_src_set = {phantoon_location_idx, ws_save_location_idx}.difference({phantoon_room_idx, ws_save_room_idx})
+    other_dst_set = {phantoon_room_idx, ws_save_room_idx}.difference({phantoon_location_idx, ws_save_location_idx})
+    src_indexes = [phantoon_room_idx, ws_save_room_idx]
+    dst_indexes = [phantoon_location_idx, ws_save_location_idx]
+    assert len(other_src_set) == len(other_dst_set)
+    for src, dst in zip(iter(other_src_set), iter(other_dst_set)):
+        src_indexes.append(src)
+        dst_indexes.append(dst)
+    return permute_small_rooms(map, src_indexes, dst_indexes)
 
 def compute_balance_cost(save_idxs, refill_idxs, dist_matrix, save_weight=0.5):
     # For each room, find the distance (measured by number of door transitions) to the nearest save and to the
     # nearest refill. Then average these distances to get an overall cost which we will try to minimize.
 
-    landing_site_idx = 1
-    assert rooms[landing_site_idx].name == 'Landing Site'
-    save_idxs = [1] + save_idxs  # Include Landing Site as a save location
-    refill_idxs = [1] + refill_idxs  # Include Landing Site as a refill location
+    # Include Landing Site as a save location. Also include the Wrecked Ship Save Room (the position of which is not
+    # allowed to change during balancing in order to ensure that it remains in the correct area.)
+    save_idxs = [landing_site_idx, ws_save_idx] + save_idxs
+    refill_idxs = [landing_site_idx] + refill_idxs  # Include Landing Site as a refill location
 
     min_save_dist = np.min(dist_matrix[:len(rooms), save_idxs], axis=1)
     min_refill_dist = np.min(dist_matrix[:len(rooms), refill_idxs], axis=1)
@@ -212,7 +230,7 @@ def get_room_indexes_by_doortype():
     for i, room in enumerate(rooms):
         if room.height != 1 or room.width != 1:
             continue
-        if ' Map Room' in room.name or room.name == "Phantoon's Room":
+        if ' Map Room' in room.name or room.name == "Phantoon's Room" or room.name == "Wrecked Ship Save Room":
             continue
         if len(room.door_ids) == 1 and room.door_ids[0].direction == Direction.LEFT:
             doortype = 0
@@ -295,11 +313,11 @@ def redistribute_saves_and_refills(map, num_steps):
 
 def balance_utilities(map):
     map = make_ship_in_crateria(map)
-    map = make_wrecked_ship_small(map)
-    map = balance_maps(map)
+    phantoon_area = get_phantoon_area(map)
+    map = balance_maps(map, phantoon_area)
     if map is None:
         return None
-    map = place_phantoon(map)
+    map = place_phantoon_and_ws_save(map, phantoon_area)
     map = redistribute_saves_and_refills(map, num_steps=1000)
     return map
 

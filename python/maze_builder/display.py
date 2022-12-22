@@ -163,6 +163,29 @@ class MapDisplay:
         self._display(rooms, x, y, colors)
 
 
+    def display_assigned_areas_with_ws(self, map):
+        color_map = {
+            0: (0x80, 0x80, 0x80),  # Crateria
+            1: (0x80, 0xff, 0x80),  # Brinstar
+            2: (0xff, 0x80, 0x80),  # Norfair
+            3: (0xff, 0xff, 0x80),  # Wrecked ship
+            4: (0x80, 0x80, 0xff),  # Maridia
+            5: (0xc0, 0xc0, 0xc0),  # Tourian
+            6: (0x80, 0x40, 0x20),  # Wrecked Ship special room
+        }
+
+        colors = []
+        for i, area in enumerate(map['area']):
+            if rooms[i].name in ("Phantoon's Room", "Wrecked Ship Save Room", "Wrecked Ship Map Room"):
+                color_idx = 6
+            else:
+                color_idx = area
+            colors.append(color_map[color_idx])
+        x = [p[0] for p in map['rooms']]
+        y = [p[1] for p in map['rooms']]
+        self._display(rooms, x, y, colors)
+
+
     def display_vanilla_areas(self, map):
         color_map = {
             SubArea.CRATERIA_AND_BLUE_BRINSTAR: (0x80, 0x80, 0x80),
