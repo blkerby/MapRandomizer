@@ -1,0 +1,2 @@
+$EFD3 - $F0FF: itemsounds.asm
+$F100 - $F1FF: missile_refill_all.asm

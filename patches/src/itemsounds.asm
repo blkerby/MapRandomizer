@@ -317,3 +317,5 @@ SETFX:
 	LDA $0000,y
 	INY
 	RTS
+
+warnpc $84F100

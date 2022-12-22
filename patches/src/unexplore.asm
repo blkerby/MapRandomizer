@@ -19,7 +19,7 @@ maybe_set_explored:
     sep #$20
     ; A <- 0xFF - (0x80 >> Y)
     lda #$FF
-    clc
+    sec
     sbc $AC04,y
 
     and $07F7, x
@@ -33,4 +33,4 @@ no_input:
     ; jump back to vanilla code
     jmp $A981
 
-
+warnpc $90F700

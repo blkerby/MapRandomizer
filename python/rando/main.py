@@ -1151,6 +1151,8 @@ def randomize():
         'no_explosions_before_escape',
         'escape_room_1',
         'unexplore',
+        'max_ammo_display',
+        'missile_refill_all',
     ]
     for patch_name in patches:
         patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
@@ -1166,6 +1168,9 @@ def randomize():
     # mb_door_bytes = orig_rom.read_n(0X1AAC8, 12)
     # rom.write_n(0x18916, 12, mb_door_bytes)
 
+    # Restore acid in Tourian Escape Room 4:
+    rom.write_u16(snes2pc(0x8FDF03), 0xC953)  # Vanilla setup ASM pointer
+    rom.write_u8(snes2pc(0x8FC95B), 0x60)  # RTS (return early from setup ASM to skip setting up shaking)
 
     # Change setup asm for Mother Brain room
     rom.write_u16(0x7DD6E + 24, 0xEB00)
