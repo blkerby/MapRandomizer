@@ -11,6 +11,7 @@ import graph_tool.topology
 from collections import defaultdict
 import zipfile
 import pprint
+import datetime
 
 from rando.sm_json_data import SMJsonData, GameState, Link, DifficultyConfig
 from rando.items import Randomizer
@@ -23,8 +24,13 @@ from rando.compress import compress
 from rando.make_title import encode_graphics
 from rando.map_patch import apply_map_patches, add_cross_area_arrows, set_map_stations_explored
 from rando.balance_utilities import balance_utilities
+import argparse
 
-VERSION = 9
+parser = argparse.ArgumentParser(description='Start the Map Rando web service.')
+parser.add_argument('--debug', type=bool, default=False, help='Run in debug mode')
+args = parser.parse_args()
+
+VERSION = 11
 
 import logging
 from maze_builder.types import reconstruct_room_data, Direction, DoorSubtype
@@ -36,6 +42,8 @@ logging.basicConfig(format='%(asctime)s %(message)s',
                     level=logging.INFO,
                     handlers=[logging.FileHandler("train.log"),
                               logging.StreamHandler()])
+
+logging.info("Debug mode: {}".format(args.debug))
 
 import io
 import os
@@ -477,12 +485,15 @@ def randomize():
             'item': randomizer.item_sequence[i],
         })
 
+    config = {
+        'version': VERSION,
+        'seed': random_seed,
+        'shine_charge_tiles': difficulty.shine_charge_tiles,
+        'multiplier': difficulty.multiplier,
+        'tech': list(sorted(difficulty.tech)),
+    }
+
     spoiler_data = {
-        # 'difficulty': {
-        #     'tech': list(sorted(difficulty.tech)),
-        #     'shine_charge_tiles': difficulty.shine_charge_tiles,
-        #     'multiplier': difficulty.multiplier,
-        # },
         'summary': randomizer.spoiler_summary,
         'route': randomizer.spoiler_route,
         # 'items': spoiler_items,
@@ -519,6 +530,7 @@ def randomize():
 
     display = MapDisplay(72, 72, 20)
     display.display_assigned_areas(map)
+    # display.display_assigned_areas_with_ws(map)
     map_png_file = io.BytesIO()
     display.image.save(map_png_file, "png")
     map_png_bytes = map_png_file.getvalue()
@@ -1116,8 +1128,7 @@ def randomize():
     # Apply patches
     patches = [
         'vanilla_bugfixes',
-        'new_game',
-        # 'new_game_extra',
+        'new_game_extra' if args.debug else 'new_game',
         'music',
         'crateria_sky_fixed',
         'everest_tube',
@@ -1139,6 +1150,7 @@ def randomize():
         'tourian_eye_door',
         'no_explosions_before_escape',
         'escape_room_1',
+        'unexplore',
     ]
     for patch_name in patches:
         patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
@@ -1252,13 +1264,14 @@ def randomize():
     memory_file = BytesIO()
     files = [
         (output_file_prefix + '.sfc', rom.byte_buf),
-        (output_file_prefix + '.json', json.dumps(spoiler_data, indent=2)),
-        (output_file_prefix + '.png', map_png_bytes),
-        (output_file_prefix + '-orig.png', map_orig_png_bytes),
+        (output_file_prefix + '-config.json', json.dumps(config, indent=2)),
+        (output_file_prefix + '-spoiler.json', json.dumps(spoiler_data, indent=2)),
+        (output_file_prefix + '-map.png', map_png_bytes),
+        (output_file_prefix + '-map-vanilla.png', map_orig_png_bytes),
     ]
     with zipfile.ZipFile(memory_file, 'w') as zf:
         for file_name, file_data in files:
-            data = zipfile.ZipInfo(file_name)
+            data = zipfile.ZipInfo(file_name, date_time=datetime.datetime.utcnow().utctimetuple()[:6])
             data.compress_type = zipfile.ZIP_DEFLATED
             zf.writestr(data, file_data)
     memory_file.seek(0)
