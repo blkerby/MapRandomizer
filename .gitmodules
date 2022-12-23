@@ -1,3 +1,4 @@
 [submodule "sm-json-data"]
 	path = sm-json-data
 	url = git@github.com:kjbranch/sm-json-data.git
+	branch = map-rando

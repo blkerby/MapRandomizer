@@ -53,18 +53,23 @@ patches = [
     # 'crateria_sky_fixed',
     # 'no_map_select'
     # 'escape_room_1',
-    'unexplore',
-    'max_ammo_display',
-    'missile_refill_all',
+    # 'unexplore',
+    # 'max_ammo_display',
+    # 'missile_refill_all',
 ]
 for patch_name in patches:
     patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
     rom.byte_buf = patch.apply(rom.byte_buf)
 
+
 # # Remove gray lock on Climb left door:
 # ptr = snes2pc(0x8F830C - 14)
 # rom.write_u16(ptr, 0xB63B)  # right continuation arrow (should have no effect, giving a blue door)
 # rom.write_u16(ptr + 2, 0)  # position = (0, 0)
+
+ptr = snes2pc(0x8F84D8 - 8)
+rom.write_u16(ptr, 0xB63B)
+rom.write_u16(ptr + 2, 0)
 
 # Stop tiles from being marked explored (pink)
 # rom.write_n(snes2pc(0x90A981), 3, bytes(3 * [0xEA]))  # NOP

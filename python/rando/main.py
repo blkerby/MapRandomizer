@@ -1182,11 +1182,12 @@ def randomize():
     # title_bg_png = PIL.Image.open('gfx/title/titlesimplified2.png')
     title_bg = np.array(title_bg_png)[:, :, :3]
     pal, gfx, tilemap = encode_graphics(title_bg)
+    gfx = gfx + 1  # Avoid touching the background color (0)
     compressed_gfx = compress(gfx.tobytes())
     compressed_tilemap = compress(tilemap.tobytes())
     print("Compressed GFX size:", len(compressed_gfx))
     print("Compressed tilemap size:", len(compressed_tilemap))
-    rom.write_n(0x661E9, len(pal.tobytes()), pal.tobytes())
+    rom.write_n(0x661E9 + 2, len(pal.tobytes()), pal.tobytes())
     gfx_free_space_pc = 0x1C0000
     gfx_free_space_snes = pc2snes(gfx_free_space_pc)
     # rom.write_n(0xA6000, len(compressed_gfx), compressed_gfx)
