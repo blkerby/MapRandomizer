@@ -30,7 +30,7 @@ parser = argparse.ArgumentParser(description='Start the Map Rando web service.')
 parser.add_argument('--debug', type=bool, default=False, help='Run in debug mode')
 args = parser.parse_args()
 
-VERSION = 11
+VERSION = 12
 
 import logging
 from maze_builder.types import reconstruct_room_data, Direction, DoorSubtype
@@ -844,6 +844,8 @@ def randomize():
         0x191DA: (0xF7F0, 0xED12),  # Kraid right
         0x1A96C: (0xF7F0, 0xED18),  # Draygon right
         0x1A978: (0xF7F0, 0xED1E),  # Draygon left
+        0x193DE: (0xF7F0, 0xED24),  # Crocomire left door
+        0x193EA: (0xF7F0, 0xED2A),  # Crocomire top door
     }
 
     door_room_dict = {}
@@ -851,13 +853,20 @@ def randomize():
         for door_id in room.door_ids:
             door_room_dict[(door_id.exit_ptr, door_id.entrance_ptr)] = i
 
-    # Find the rooms connected to Kraid and set them to reload CRE (to prevent graphical glitches)
+    # Find the rooms connected to Kraid and Crocomire and set them to reload CRE (to prevent graphical glitches).
+    # Not sure if this is necessary for Crocomire, but the vanilla game does this so we do it to be safe.
+    reload_cre_door_pairs = [
+        (0x191DA, 0x19252),  # Kraid right door
+        (0x191CE, 0x191B6),  # Kraid left door
+        (0x193DE, 0x19432),  # Crocomire left door
+        (0x193EA, 0x193D2),  # Crocomire top door
+    ]
     for src, dst, _ in map['doors']:
-        if tuple(src) == (0x191DA, 0x19252):
+        if tuple(src) in reload_cre_door_pairs:
             dst_room_i = door_room_dict[tuple(dst)]
             print("Seting reload CRE in {}".format(rooms[dst_room_i].name))
             rom.write_u8(rooms[dst_room_i].rom_address + 8, 2)  # Special GFX flag = Reload CRE
-        if tuple(dst) == (0x191CE, 0x191B6):
+        if tuple(dst) in reload_cre_door_pairs:
             src_room_i = door_room_dict[tuple(src)]
             print("Seting reload CRE in {}".format(rooms[src_room_i].name))
             rom.write_u8(rooms[src_room_i].rom_address + 8, 2)  # Special GFX flag = Reload CRE
