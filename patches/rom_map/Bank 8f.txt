@@ -1,6 +1,6 @@
 0000-E99B:  Used by vanilla game for Room headers, PLM sets, door & setup ASMs, etc.
 E99B-EB00:  Used by `map_area` patch
 EB00-ED00:  Used by `mb_barrier_clear` patch for Setup ASM to Mother Brain room
-ED00-ED24:  Used for Aqueduct toilet fix & other extra door ASM patches
-ED24-ED2D:  Used by `mb_left_entrance` patch
+ED00-EE00:  Used for Aqueduct toilet fix & other extra door ASM patches
+EE00-EE10:  Used by `mb_left_entrance` patch
 
