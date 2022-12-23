@@ -1,4 +1,7 @@
 TODO:
+- consider alternative item placement strategy:
+  - prefer placing item at locations where you can get back (so the player doesn't have to take a leap of faith as much)
+- fix graphics with exiting crocomire
 - add rolling saves (to protect against saving where you can't get out)
 - skip map select after game over
 - fix fake gray door graphics in Kraid room, Phantoon room
@@ -10,7 +13,6 @@ TODO:
 - rework item config:
   - extra axis for ammo openness
   - add middle setting
-- Show max ammo (varia patch?)
 - turn Crateria scrolling sky back on. Update values for the 14 doors here: https://patrickjohnston.org/bank/8F#fB76A.
 - figure out race condition between fastdoors and Mother Brain room setup. Maybe code around $80836F could be used
   to wait?

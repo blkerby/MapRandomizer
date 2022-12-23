@@ -20,9 +20,8 @@ CheckSumAdd: CLC : ADC $14 : INC A : STA $14 : RTS
 
 SaveGame: PHP : REP #$30 : PHB : PHX : PHY
 	PEA $7E7E : PLB : PLB : STZ $14 : AND #$0003 : ASL A : STA $12
-	INC A : XBA : TAX : LDY #$00FE
-;Skipping this since it breaks stuff and doesn't seem to be necessary?:
-;SaveMap: LDA $07F7,Y : STA $CD50,X : DEX : DEX : DEY : DEY : BPL SaveMap		;Saves the current map
+	LDA $1F5B : INC A : XBA : TAX : LDY #$00FE
+SaveMap: LDA $07F7,Y : STA $CD50,X : DEX : DEX : DEY : DEY : BPL SaveMap		;Saves the current map
 	LDY #$005E
 SaveItems: LDA $09A2,Y : STA $D7C0,Y : DEY : DEY : BPL SaveItems				;Saves current equipment	
 	LDA $078B : STA $D916		;Current save for the area

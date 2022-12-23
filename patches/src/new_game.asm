@@ -25,6 +25,9 @@ org $a1f210
 startup:
     jsl check_new_game      : bne .end
 
+    ; Initialize the load station and area/map-area:
+    stz $078B : stz $079f : stz $1f5b
+
     ; Unlock Tourian statues room (to avoid camera glitching when entering from bottom, and also to ensure game is
     ; beatable since we don't take it into account as an obstacle in the item randomization logic)
     lda #$0004

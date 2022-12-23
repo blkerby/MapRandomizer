@@ -30,6 +30,9 @@ startup:
     rtl
 
 start_game:
+    ; Initialize the load station and area/map-area:
+    stz $078B : stz $079f : stz $1f5b
+
     ; temporary extra stuff:
     lda #$F32F
     sta $09A2   ; all items equipped
