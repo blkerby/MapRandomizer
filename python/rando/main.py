@@ -30,7 +30,7 @@ parser = argparse.ArgumentParser(description='Start the Map Rando web service.')
 parser.add_argument('--debug', type=bool, default=False, help='Run in debug mode')
 args = parser.parse_args()
 
-VERSION = 12
+VERSION = 13
 
 import logging
 from maze_builder.types import reconstruct_room_data, Direction, DoorSubtype
@@ -846,6 +846,7 @@ def randomize():
         0x1A978: (0xF7F0, 0xED1E),  # Draygon left
         0x193DE: (0xF7F0, 0xED24),  # Crocomire left door
         0x193EA: (0xF7F0, 0xED2A),  # Crocomire top door
+        0x1A2C4: (0xF7F0, 0xED30),  # Phantoon door
     }
 
     door_room_dict = {}
@@ -1272,6 +1273,9 @@ def randomize():
     # Remove the wall that appears on the right side of Tourian Escape Room 1:
     rom.write_u16(snes2pc(0x84BB34), 0x86BC)
     rom.write_u16(snes2pc(0x84BB44), 0x86BC)
+
+    # Make Supers do double damage to Mother Brain.
+    rom.write_u8(snes2pc(0xB4F1D5), 0x84)
 
     # # Skip map screens when starting after game over
     # rom.write_u16(snes2pc(0x81911F), 0x0006)

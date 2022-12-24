@@ -1,10 +1,12 @@
 TODO:
+- shorten mother brain cutscene
+- open escape door when reentering mother brain room from right with mother brain dead.
+- despawn enemies to reduce lag during escape (at least in some rooms)?
 - consider alternative item placement strategy:
   - prefer placing item at locations where you can get back (so the player doesn't have to take a leap of faith as much)
-- fix graphics with exiting crocomire
-- add rolling saves (to protect against saving where you can't get out)
 - skip map select after game over
 - fix fake gray door graphics in Kraid room, Phantoon room
+- try using music based on area
 - rework item placement to clean up, and so Big Pink isn't so stacked
   - use alternative fallback strategy (cumulative sequence) instead of placing random item.
 - display doors on map?
@@ -47,10 +49,7 @@ TODO:
 - fix timestamps in zip file
 - detect client hang-up and abort (probably requires switching to websocket request)
 - fix new game on second file: some data comes from other file?
-- fix plasma room (to not assume that the enemies need to be killed)
 - fix map when using elevators (to set tiles to explored)
-- door randomization
-  - tie together plms for the two sides of door?
 - cross-area transitions
   - to fix graphical glitches (look into using special GFX flag?)
 - balance boss distribution (one boss per area, corresponding to vanilla?)

@@ -61,9 +61,9 @@ start_game:
     sta $7ED90A
     sta $7ED90C
 
-    lda #$0101     ; set bosses defeated
-    sta $7ED829
-    sta $7ED82B
+;    lda #$0101     ; set bosses defeated
+;    sta $7ED829
+;    sta $7ED82B
 
     ; Copy initial explored tiles from B5:F000 (to set map station tiles to explored)
     ldx #$0600
