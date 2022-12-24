@@ -36,7 +36,10 @@ SaveGame: PHP : REP #$30 : PHB : PHX : PHY
 	LDA #$0000  ; we were already on the third slot, so wrap back to the first one
 .nowrap
     STA $0952   ; update the save slot
+    STA $701FEC ; write to SRAM
     TAX
+    EOR #$FFFF
+    STA $701FEE ; write complement to SRAM for validation
 .noinc
     TXA
 	ASL A : STA $12
