@@ -19,7 +19,27 @@ SRAMAddressTable:
 CheckSumAdd: CLC : ADC $14 : INC A : STA $14 : RTS
 
 SaveGame: PHP : REP #$30 : PHB : PHX : PHY
-	PEA $7E7E : PLB : PLB : STZ $14 : AND #$0003 : ASL A : STA $12
+	PEA $7E7E : PLB : PLB : STZ $14
+    TAX         ; store save slot (0..2) in X
+	LDA $D916
+	CMP $078B   ; Are we at the same save station index as the last save on this slot?
+	BNE .notsame
+	LDA $D918
+	CMP $079F   ; Are we in the same (vanilla) area as the last save on this slot?
+	BEQ .noinc  ; Yes, which means we're at the same save station, so skip incrementing the slot.
+.notsame
+    TXA         ; load save slot (0..2) back into A
+	AND #$0003
+	INC
+	CMP #$0003
+	BNE .nowrap
+	LDA #$0000  ; we were already on the third slot, so wrap back to the first one
+.nowrap
+    STA $0952   ; update the save slot
+    TAX
+.noinc
+    TXA
+	ASL A : STA $12
 	LDA $1F5B : INC A : XBA : TAX : LDY #$00FE
 SaveMap: LDA $07F7,Y : STA $CD50,X : DEX : DEX : DEY : DEY : BPL SaveMap		;Saves the current map
 	LDY #$005E
@@ -27,7 +47,8 @@ SaveItems: LDA $09A2,Y : STA $D7C0,Y : DEY : DEY : BPL SaveItems				;Saves curre
 	LDA $078B : STA $D916		;Current save for the area
 	LDA $079F : STA $D918		;Current Area
 	LDA $1F5B : STA $7FFE00     ;Current Map-area
-	LDX $12 : LDA.l SRAMAddressTable,X : TAX : LDY #$0000		;How much data to save for items and event bits
+	LDX $12
+	LDA.l SRAMAddressTable,X : TAX : LDY #$0000		;How much data to save for items and event bits
 SaveSRAMItems: LDA $D7C0,Y : STA $700000,X : JSR CheckSumAdd : INX : INX : INY : INY : CPY #$0160 : BNE SaveSRAMItems	
 	LDY #$06FE		;How much data to save for maps
 SaveSRAMMaps: LDA $CD52,Y : STA $700000,X : INX : INX : DEY : DEY : BPL SaveSRAMMaps	

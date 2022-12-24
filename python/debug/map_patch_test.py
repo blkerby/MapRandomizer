@@ -47,6 +47,7 @@ rom = Rom(open(input_rom_path, 'rb'))
 
 patches = [
     'new_game_extra',
+    'saveload',
     # 'new_game',
     # 'disable_map_icons',
     # 'tourian_map',
@@ -67,9 +68,13 @@ for patch_name in patches:
 # rom.write_u16(ptr, 0xB63B)  # right continuation arrow (should have no effect, giving a blue door)
 # rom.write_u16(ptr + 2, 0)  # position = (0, 0)
 
-ptr = snes2pc(0x8F84D8 - 8)
-rom.write_u16(ptr, 0xB63B)
-rom.write_u16(ptr + 2, 0)
+# Remove gray lock on Main Shaft gray door
+# ptr = snes2pc(0x8F84D8 - 8)
+# rom.write_u16(ptr, 0xB63B)
+# rom.write_u16(ptr + 2, 0)
+
+# Supers do double damage to Mother Brain.
+rom.write_u8(snes2pc(0xB4F1D5), 0x84)
 
 # Stop tiles from being marked explored (pink)
 # rom.write_n(snes2pc(0x90A981), 3, bytes(3 * [0xEA]))  # NOP
