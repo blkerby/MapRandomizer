@@ -1,12 +1,13 @@
 TODO:
-- shorten mother brain cutscene
+- try using music based on area
+- shorten mother brain 1 death cutscene? (remove flashing?)
 - open escape door when reentering mother brain room from right with mother brain dead.
+- organize tech on website.
 - despawn enemies to reduce lag during escape (at least in some rooms)?
 - consider alternative item placement strategy:
   - prefer placing item at locations where you can get back (so the player doesn't have to take a leap of faith as much)
 - skip map select after game over
 - fix fake gray door graphics in Kraid room, Phantoon room
-- try using music based on area
 - rework item placement to clean up, and so Big Pink isn't so stacked
   - use alternative fallback strategy (cumulative sequence) instead of placing random item.
 - display doors on map?
