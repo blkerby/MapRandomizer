@@ -30,7 +30,7 @@ parser = argparse.ArgumentParser(description='Start the Map Rando web service.')
 parser.add_argument('--debug', type=bool, default=False, help='Run in debug mode')
 args = parser.parse_args()
 
-VERSION = 13
+VERSION = 15
 
 import logging
 from maze_builder.types import reconstruct_room_data, Direction, DoorSubtype
@@ -368,16 +368,49 @@ def home():
                     </div>
                 </div>
             </form>
-            <small>This is an early preview, so bugs are expected. If you encounter a problem, feedback is welcome on <a href="https://github.com/blkerby/MapRandomizer/issues">GitHub issues</a>. 
+            <small>ROM may take a while to generate. For fastest results, click "Generate ROM" only once and wait patiently. 
+            If it times out, try again with a different random seed. 
+            
+            <p>This is still in an alpha stage of development, so bugs are expected. If you encounter a problem, 
+            feedback is welcome on <a href="https://github.com/blkerby/MapRandomizer/issues">GitHub issues</a>. 
             Also feel free to stop by the <a href="https://discord.gg/Gc99YV2ZcB">Discord</a>: let us know if you
-            find a cool seed, have questions, if you're streaming the game, or have ideas for future development!</small>
+            find a cool seed (or a broken seed), if you have questions or ideas for future development, or if you're 
+            streaming the game!</small>
+            <div class="row my-2">
+                <div class="col-sm-12">
+                    <div class="card">
+                        <div class="card-header">Things to know</div>
+                        <div class="card-body">
+                            <p>Facts unchanged from the vanilla game: 
+                            <ul>
+                            <li>Certain items in Crateria and Blue Brinstar rooms do not spawn until the planet is 
+                            awakened, which happens by entering Pit Room (old Mother Brain
+                            room) with Morph and Missiles collected and opening one of the gray doors.
+                            <li>Certain items in Wrecked Ship rooms do not spawn until Phantoon has been
+                            defeated.
+                            <li>Phantoon will always be in the same area as the Wrecked Ship Map Room and the
+                            Wrecked Ship Save Room.
+                            </ul>
+                            <p>Quality-of-life changes in this randomizer:
+                            <ul> 
+                            <li>Missile Refill stations refill all ammo types: Missiles, Supers, and Power Bombs.
+                            <li>Supers do double damage to Mother Brain 2.
+                            <li>The current tile can be marked un-explored (i.e., turned back to black/blue on the map) by 
+                            pressing Angle Up and Item Cancel simultaneously. To be effective, these inputs must be
+                            held while exiting the tile, since otherwise the game will immediately re-explore the tile.
+                            <li>Saving at a different save station from the last save will advance to the next slot 
+                            before saving, so you can return to an earlier save in case you get stuck.
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="row my-2">
                 <div class="col-sm-12">
                     <div class="card">
                         <div class="card-header">Known issues</div>
                         <div class="card-body">
                             <ul>
-                            <li>ROM may take a while to generate. For fastest results, click "Generate ROM" only once and wait patiently. If it times out, try again with a different random seed.
                             <li>Even if the tech is not selected, wall jumps and crouch-jump/down-grabs may be required in some places.
                             <li>Some map tiles associated with elevators do not appear correctly.
                             <li>Door transitions generally have some minor graphical glitches.
@@ -1198,6 +1231,8 @@ def randomize():
     print("Compressed GFX size:", len(compressed_gfx))
     print("Compressed tilemap size:", len(compressed_tilemap))
     rom.write_n(0x661E9 + 2, len(pal.tobytes()), pal.tobytes())
+    # Use white color for Nintendo copyright text (otherwise it would stay black since we skip the palette FX handler)
+    rom.write_u16(0x661E9 + 0xC9 * 2, 0x7FFF)
     gfx_free_space_pc = 0x1C0000
     gfx_free_space_snes = pc2snes(gfx_free_space_pc)
     # rom.write_n(0xA6000, len(compressed_gfx), compressed_gfx)
