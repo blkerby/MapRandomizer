@@ -939,6 +939,24 @@ class SMJsonData:
 
 # sm_json_data_path = "sm-json-data/"
 # sm_json_data = SMJsonData(sm_json_data_path)
+#
+#
+# for region_name, region_json in sm_json_data.region_json_dict.items():
+#     print("Region: ", region_name)
+#     for room_json in region_json['rooms']:
+#         notable_strats = []
+#         for link_group in room_json['links']:
+#             for link in link_group['to']:
+#                 for strat in link['strats']:
+#                     if strat['notable']:
+#                         notable_strats.append(strat)
+#         if len(notable_strats) > 0:
+#             print("  Room: ", room_json['name'])
+#             for strat in notable_strats:
+#                 print("    ", strat['name'])
+#         #
+#         # pass
+
 # for region in sm_json_data.region_json_dict.values():
 #     for room in region['rooms']:
 #         if 'obstacles' not in room:
