@@ -1,4 +1,6 @@
 TODO:
+- check if map reload is messing up timing at start of rooms (e.g. Beta Power Bombs)
+- prevent escape music from being interrupted (e.g. by Kraid's Room?)
 - put phantoon's room in a tight cluster with broken map & save.
 - add strat for jumping over fune with no damage (check osse Twitch clip).
 - update ammo refilled message box.
@@ -23,7 +25,7 @@ TODO:
   - add middle setting
 - turn Crateria scrolling sky back on. Update values for the 14 doors here: https://patrickjohnston.org/bank/8F#fB76A.
 - figure out race condition between fastdoors and Mother Brain room setup. Maybe code around $80836F could be used
-  to wait?
+  to wait? Though maybe this doesn't matter because we don't want to add fastdoors anyway.
 - fix tiles below Warehouse Entrance
 - fix new game on second file (or after deleting first file)
 - fix internal checksum in output ROM
@@ -38,7 +40,22 @@ TODO:
 - clean up the code everywhere
 - add README
     - make
-- title graphics
+- take shinespark health requirements into account properly
+- redo the front-end.
+  - make it so client can save presets.
+- fix timestamps in zip file
+- detect client hang-up and abort (probably requires switching to websocket request)
+- fix new game on second file: some data comes from other file?
+- fix map when using elevators (to set tiles to explored)
+- cross-area transitions
+  - to fix graphical glitches (look into using special GFX flag?)
+- balance boss distribution (one boss per area, corresponding to vanilla?)
+- fix suit graphics not showing after getting suit (consequence of skipping animation)?
+- show map text for cross-area transitions?
+- increase PB drop rates on farms?
+
+
+title graphics notes:
   - title
      - sprites GFX: $95:80D8 ("Super Metroid" graphics, "Nintendo", etc.):
          - bank pointer to sprite GFX at $8B:9295
@@ -54,19 +71,6 @@ TODO:
      - normally mode 1 elsewhere
   - title BG GFX: $94:E000 (0xA6000)
   - title BG tilemap: $96:FC04 (0xB7C04)
-- take shinespark health requirements into account properly
-- redo the front-end.
-  - make it so client can save presets.
-- fix timestamps in zip file
-- detect client hang-up and abort (probably requires switching to websocket request)
-- fix new game on second file: some data comes from other file?
-- fix map when using elevators (to set tiles to explored)
-- cross-area transitions
-  - to fix graphical glitches (look into using special GFX flag?)
-- balance boss distribution (one boss per area, corresponding to vanilla?)
-- fix suit graphics not showing after getting suit (consequence of skipping animation)?
-- show map text for cross-area transitions?
-- increase PB drop rates on farms?
 
 
 Mini-map notes:

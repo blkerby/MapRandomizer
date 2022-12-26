@@ -4,6 +4,8 @@ from maze_builder.types import Direction
 import copy
 import numpy as np
 from collections import defaultdict
+import logging
+
 
 def get_room_index(name):
     for i, room in enumerate(rooms):
@@ -12,7 +14,6 @@ def get_room_index(name):
     raise RuntimeError("Room not found: {}".format(name))
 
 landing_site_idx = get_room_index('Landing Site')
-ws_save_idx = get_room_index('Wrecked Ship Save Room')
 good_farm_idxs = [get_room_index(name) for name in [
     # 'Purple Farming Room',  # Skipping here since included directly in the list of (single-tile room) refills
     'Bat Cave',
@@ -22,18 +23,29 @@ good_farm_idxs = [get_room_index(name) for name in [
     'Grapple Tutorial Room 3',
     'Acid Snakes Tunnel',
 ]]
+phantoon_room_idx = get_room_index("Phantoon's Room")
+ws_map_room_idx = get_room_index("Wrecked Ship Map Room")
+ws_save_room_idx = get_room_index("Wrecked Ship Save Room")
 
 def permute_small_rooms(map, src_room_index, dst_room_index):
     new_map = copy.deepcopy(map)
     door_pair_dict = {}
+    assert sorted(src_room_index) == sorted(dst_room_index)
     for i in range(len(src_room_index)):
         src_i = src_room_index[i]
         dst_i = dst_room_index[i]
+
+        src_room = rooms[src_i]
+        dst_room = rooms[dst_i]
+        assert len(src_room.door_ids) == len(dst_room.door_ids)
+
         new_map['rooms'][src_i] = map['rooms'][dst_i]
         new_map['area'][src_i] = map['area'][dst_i]
-        for j in range(len(rooms[src_i].door_ids)):
-            src_door_id = rooms[src_i].door_ids[j]
-            dst_door_id = rooms[dst_i].door_ids[j]
+        for j in range(len(src_room.door_ids)):
+            src_door_id = src_room.door_ids[j]
+            dst_door_id = dst_room.door_ids[j]
+            assert src_door_id.direction == dst_door_id.direction
+            assert src_door_id.subtype == dst_door_id.subtype
             src_out_door_pair = (src_door_id.exit_ptr, src_door_id.entrance_ptr)
             dst_out_door_pair = (dst_door_id.exit_ptr, dst_door_id.entrance_ptr)
             door_pair_dict[dst_out_door_pair] = src_out_door_pair
@@ -45,56 +57,52 @@ def permute_small_rooms(map, src_room_index, dst_room_index):
     return new_map
 
 
-def balance_maps(map, phantoon_area):
-    # Enumerate single-tile rooms with a single door.
+def balance_maps(map):
+    # Enumerate single-tile rooms with a single door, excluding Phantoon's room and its special friends.
     room_indexes_by_area_then_dir = defaultdict(lambda: defaultdict(lambda: set()))
     map_indexes_by_dir = defaultdict(lambda: set())
     remaining_src_indexes_by_dir = defaultdict(lambda: set())
     remaining_dst_indexes_by_dir = defaultdict(lambda: set())
-    wrecked_ship_map_room_id = None
+    ws_map_area = None
     for i, room in enumerate(rooms):
         if room.height != 1 or room.width != 1 or len(room.door_ids) != 1:
             continue
         area = map['area'][i]
+        if i == ws_map_room_idx:
+            ws_map_area = area
+            continue
+        if i in [phantoon_room_idx, ws_save_room_idx]:
+            continue
         dir = room.door_ids[0].direction
         room_indexes_by_area_then_dir[area][dir].add(i)
         remaining_src_indexes_by_dir[dir].add(i)
         remaining_dst_indexes_by_dir[dir].add(i)
-        if room.name == 'Wrecked Ship Map Room':
-            wrecked_ship_map_room_id = i
-        elif ' Map Room' in room.name:
+        if ' Map Room' in room.name:
             map_indexes_by_dir[dir].add(i)
-    assert wrecked_ship_map_room_id is not None
 
     # Place exactly one map station in each area
     src_room_indexes = []
     dst_room_indexes = []
     for area in range(6):
-        if area == phantoon_area:
-            # Always place the Wrecked Ship Map Room in the same area as Phantoon.
-            src_i = wrecked_ship_map_room_id
-            dir = Direction.RIGHT
+        if area == ws_map_area:
+            # Leave the Wrecked Ship Map Room alone as it is already placed close to Phantoon.
+            continue
+        for dir in np.random.permutation([Direction.LEFT, Direction.RIGHT]):
             room_indexes = room_indexes_by_area_then_dir[area][dir]
+            map_indexes = map_indexes_by_dir[dir]
+            if len(room_indexes) == 0 or len(map_indexes) == 0:
+                continue
+            src_i = np.random.choice(list(map_indexes))
             dst_i = np.random.choice(list(room_indexes))
+            map_indexes.remove(src_i)
+            src_room_indexes.append(src_i)
+            dst_room_indexes.append(dst_i)
+            remaining_src_indexes_by_dir[dir].remove(src_i)
+            remaining_dst_indexes_by_dir[dir].remove(dst_i)
+            break
         else:
-            for dir in np.random.permutation([Direction.LEFT, Direction.RIGHT]):
-                room_indexes = room_indexes_by_area_then_dir[area][dir]
-                map_indexes = map_indexes_by_dir[dir]
-                if len(room_indexes) == 0 or len(map_indexes) == 0:
-                    continue
-                src_i = np.random.choice(list(map_indexes))
-                dst_i = np.random.choice(list(room_indexes))
-                map_indexes.remove(src_i)
-                break
-            else:
-                # We failed to place a map station in one of the areas. Give up on this attempt.
-                return None
-
-        src_room_indexes.append(src_i)
-        dst_room_indexes.append(dst_i)
-        remaining_src_indexes_by_dir[dir].remove(src_i)
-        remaining_dst_indexes_by_dir[dir].remove(dst_i)
-        room_indexes.remove(dst_i)
+            # We failed to place a map station in one of the areas. Give up on this attempt.
+            return None
 
     # Randomly shuffle the remaining single-tile rooms
     for dir in [Direction.LEFT, Direction.RIGHT]:
@@ -126,24 +134,6 @@ def compute_room_distance_matrix(map):
     return distance_matrix.astype(np.float32)
 
 
-def can_area_have_phantoon(map, area):
-    num_left_door_rooms = 0
-    num_right_door_rooms = 0
-    for i, room in enumerate(rooms):
-        if room.height != 1 or room.width != 1 or len(room.door_ids) != 1:
-            continue
-        if map['area'][i] != area:
-            continue
-        dir = room.door_ids[0].direction
-        if dir == Direction.LEFT:
-            num_left_door_rooms += 1
-        elif dir == Direction.RIGHT:
-            num_right_door_rooms += 1
-    # We need a right-door single-tile room to place the Wrecked Ship Map Room, and two left-door single-tile rooms,
-    # one for Phantoon and one for the Wrecked Ship Save Room.
-    return num_left_door_rooms >= 2 and num_right_door_rooms >= 1
-
-
 def get_rooms_in_area(map, area):
     return [i for i in range(len(map['rooms'])) if map['area'][i] == area]
 
@@ -158,59 +148,14 @@ def swap_areas(map, area1, area2):
     return map
 
 
-def get_phantoon_area(map):
-    # Determine the area to place Phantoon in. We choose the smallest area possible (by # of rooms) subject to the
-    # constraint that it must be possible place Phantoon's Room, Wrecked Ship Map Room, and Wrecked Ship Save Room
-    # in the area.
-    eligible_areas = [area for area in range(6) if can_area_have_phantoon(map, area)]
-    assert len(eligible_areas) > 0
-    area_sizes = np.array([len(get_rooms_in_area(map, area)) for area in eligible_areas])
-    smallest_area_idx = np.argmin(area_sizes)
-    return eligible_areas[smallest_area_idx]
-
-
 def make_ship_in_crateria(map):
     # Reassign the areas if necessary to make the ship be in Crateria.
     map = copy.deepcopy(map)
-    ship_area = map['area'][1]
-    assert rooms[1].name == 'Landing Site'
+    ship_area = map['area'][landing_site_idx]
     num_areas = 6
     map['area'] = [(area - ship_area + num_areas) % num_areas for area in map['area']]
     return map
 
-
-def place_phantoon_and_ws_save(map, phantoon_area):
-    for i, room in enumerate(rooms):
-        if room.name == "Phantoon's Room":
-            phantoon_room_idx = i
-        elif room.name == "Wrecked Ship Save Room":
-            ws_save_room_idx = i
-
-    eligible_phantoon_locations = []
-    for i, room in enumerate(rooms):
-        if map['area'][i] != phantoon_area:
-            continue
-        if room.width != 1 or room.height != 1 or len(room.door_ids) != 1:
-            continue
-        if room.door_ids[0].direction != Direction.LEFT:
-            continue
-        eligible_phantoon_locations.append(i)
-    assert len(eligible_phantoon_locations) >= 2
-
-    selected_locations = np.random.choice(eligible_phantoon_locations, size=2, replace=False)
-    phantoon_location_idx = selected_locations[0]
-    ws_save_location_idx = selected_locations[1]
-
-    assert phantoon_room_idx != ws_save_room_idx
-    other_src_set = {phantoon_location_idx, ws_save_location_idx}.difference({phantoon_room_idx, ws_save_room_idx})
-    other_dst_set = {phantoon_room_idx, ws_save_room_idx}.difference({phantoon_location_idx, ws_save_location_idx})
-    src_indexes = [phantoon_room_idx, ws_save_room_idx]
-    dst_indexes = [phantoon_location_idx, ws_save_location_idx]
-    assert len(other_src_set) == len(other_dst_set)
-    for src, dst in zip(iter(other_src_set), iter(other_dst_set)):
-        src_indexes.append(src)
-        dst_indexes.append(dst)
-    return permute_small_rooms(map, src_indexes, dst_indexes)
 
 def compute_balance_cost(save_idxs, refill_idxs, dist_matrix, save_weight=0.5):
     # For each room, find the distance (measured by number of door transitions) to the nearest save and to the
@@ -218,8 +163,11 @@ def compute_balance_cost(save_idxs, refill_idxs, dist_matrix, save_weight=0.5):
 
     # Include Landing Site as a save location. Also include the Wrecked Ship Save Room (the position of which is not
     # allowed to change during balancing in order to ensure that it remains in the correct area.)
-    save_idxs = [landing_site_idx, ws_save_idx] + save_idxs
-    refill_idxs = [landing_site_idx] + good_farm_idxs + refill_idxs  # Include Landing Site and good farms as a refill location
+    save_idxs = [landing_site_idx, ws_save_room_idx] + save_idxs
+
+    # Include Landing Site and good farms as a refill location (though these cannot be permuted during balancing, due
+    # to their irregular shapes).
+    refill_idxs = [landing_site_idx] + good_farm_idxs + refill_idxs
 
     min_save_dist = np.min(dist_matrix[:len(rooms), save_idxs], axis=1)
     min_refill_dist = np.min(dist_matrix[:len(rooms), refill_idxs], axis=1)
@@ -231,7 +179,7 @@ def compute_balance_cost(save_idxs, refill_idxs, dist_matrix, save_weight=0.5):
 
 
 def get_room_indexes_by_doortype():
-    # We have three types of Save Rooms: left door, right door, and left+right door.
+    # We have three types of Save/Refill Rooms: left door, right door, and left+right door.
     save_indexes_by_doortype = [[], [], []]
     refill_indexes_by_doortype = [[], [], []]
     other_indexes_by_doortype = [[], [], []]
@@ -291,8 +239,6 @@ def redistribute_saves_and_refills(map, num_steps):
         p = p / np.sum(p)
         doortype = np.random.choice([0, 1, 2], p=p)
 
-        # idx1 = np.random.choice(len(save_indexes_by_doortype[doortype]))
-        # idx2 = np.random.choice(len(other_indexes_by_doortype[doortype])) + len(save_indexes_by_doortype[doortype])
         # Select two single-tile rooms to consider swapping:
         while True:
             idx1 = np.random.choice(len(current_indexes_by_doortype[doortype]))
@@ -304,8 +250,12 @@ def redistribute_saves_and_refills(map, num_steps):
         new_indexes_by_doortype[doortype][idx1], new_indexes_by_doortype[doortype][idx2] = \
             new_indexes_by_doortype[doortype][idx2], new_indexes_by_doortype[doortype][idx1]
         new_cost = compute_balance_cost_for_indexes(new_indexes_by_doortype)
+
+        # (We tried an approach with probabilistic acceptance/rejection of swaps, but the results were not any better:)
         # acceptance_prob = 1 / (1 + np.exp((new_cost - current_cost) / temperature))
         # if np.random.uniform(0.0, 1.0) < acceptance_prob:
+
+        # Swap them if it would improve the cost that we are trying to optimize:
         if new_cost < current_cost:
             current_indexes_by_doortype = new_indexes_by_doortype
             current_cost = new_cost
@@ -320,13 +270,85 @@ def redistribute_saves_and_refills(map, num_steps):
     return permute_small_rooms(map, all_indexes, current_indexes)
 
 
+def place_phantoon_and_friends(map):
+    dist = compute_room_distance_matrix(map)
+    left_ids = []
+    left_areas = []
+    right_ids = []
+    right_areas = []
+    for i, room in enumerate(rooms):
+        if room.width != 1 or room.height != 1 or len(room.door_ids) != 1:
+            continue
+        area = map['area'][i]
+        if room.door_ids[0].direction == Direction.LEFT:
+            left_ids.append(i)
+            left_areas.append(area)
+        elif room.door_ids[0].direction == Direction.RIGHT:
+            right_ids.append(i)
+            right_areas.append(area)
+        else:
+            # There aren't any cases where this happens (room with only a door up or down), but if there were we would
+            # ignore them.
+            continue
+    left_ids = np.array(left_ids)
+    left_areas = np.array(left_areas)
+    right_ids = np.array(right_ids)
+    dist_left_right = dist[left_ids, :][:, right_ids]
+
+    # For each room with a left door (candidate for Phantoon's Room), does it have a right-door room (candidate
+    # for Wrecked Ship Map Room) at distance 2?
+    has_close_right = np.min(dist_left_right, axis=1) <= 2
+
+    # For each room with a left door (candidate for Phantoon's Room), does it have another left-door room (candidate
+    # for Wrecked Ship Save Room) in the same area?
+    has_same_area_left = np.sum(left_areas.reshape(-1, 1) == left_areas.reshape(1, -1), axis=1) >= 2
+
+    # Randomly select one of the eligible candidates to be Phantoon's Room. If there are none, fail this attempt
+    # (which will lead to retrying on a different map).
+    eligible_phantoon_idxs = np.where(has_close_right & has_same_area_left)[0]
+    if eligible_phantoon_idxs.shape[0] == 0:
+        logging.info("Failed to place Phantoon's Room")
+        return None
+    new_phantoon_idx = np.random.choice(list(eligible_phantoon_idxs))
+
+    # Randomly select a candidate for Wrecked Ship Map Room:
+    eligible_ws_map_idxs = np.where(dist_left_right[new_phantoon_idx, :] <= 2)[0]
+    new_ws_map_idx = np.random.choice(list(eligible_ws_map_idxs))
+
+    # Randomly select a candidate for Wrecked Ship Save Room:
+    area = left_areas[new_phantoon_idx]
+    eligible_ws_save_idxs = np.where((left_areas == area) & (np.arange(left_areas.shape[0]) != new_phantoon_idx))[0]
+    new_ws_save_idx = np.random.choice(list(eligible_ws_save_idxs))
+
+    new_phantoon_room_idx = left_ids[new_phantoon_idx]
+    new_ws_map_room_idx = right_ids[new_ws_map_idx]
+    new_ws_save_room_idx = left_ids[new_ws_save_idx]
+
+    assert new_phantoon_room_idx != new_ws_save_room_idx
+
+    # Permute left rooms
+    src_indexes = [phantoon_room_idx, ws_save_room_idx]
+    dst_indexes = [new_phantoon_room_idx, new_ws_save_room_idx]
+    other_src_set = set(dst_indexes).difference(set(src_indexes))
+    other_dst_set = set(src_indexes).difference(set(dst_indexes))
+    assert len(other_src_set) == len(other_dst_set)
+    for src, dst in zip(iter(other_src_set), iter(other_dst_set)):
+        src_indexes.append(src)
+        dst_indexes.append(dst)
+
+    src_indexes.extend([ws_map_room_idx, new_ws_map_room_idx])
+    dst_indexes.extend([new_ws_map_room_idx, ws_map_room_idx])
+    return permute_small_rooms(map, src_indexes, dst_indexes)
+
+
 def balance_utilities(map):
     map = make_ship_in_crateria(map)
-    phantoon_area = get_phantoon_area(map)
-    map = balance_maps(map, phantoon_area)
+    map = place_phantoon_and_friends(map)
     if map is None:
         return None
-    map = place_phantoon_and_ws_save(map, phantoon_area)
+    map = balance_maps(map)
+    if map is None:
+        return None
     map = redistribute_saves_and_refills(map, num_steps=1000)
     return map
 
@@ -334,25 +356,30 @@ def balance_utilities(map):
 # import json
 #
 # map = json.load(open('maps/maps/session-2022-06-03T17:19:29.727911.pkl-bk30-small/7.json', 'rb'))
-# save_indexes_by_doortype, refill_indexes_by_doortype, other_indexes_by_doortype = get_room_indexes_by_doortype()
-# save_indexes = [i for idxs in save_indexes_by_doortype for i in idxs]
-# refill_indexes = [i for idxs in refill_indexes_by_doortype for i in idxs]
-# # print(compute_balance_cost(save_indexes, refill_indexes, compute_room_distance_matrix(map)))
-# print("save=",compute_balance_cost(save_indexes, refill_indexes, compute_room_distance_matrix(map), save_weight=1.0))
-# print("refill=",compute_balance_cost(save_indexes, refill_indexes, compute_room_distance_matrix(map), save_weight=0.0))
-# map = balance_map(map)
-# # map = balance_map(map)
-# save_indexes_by_doortype, refill_indexes_by_doortype, other_indexes_by_doortype = get_room_indexes_by_doortype()
-# save_indexes = [i for idxs in save_indexes_by_doortype for i in idxs]
-# refill_indexes = [i for idxs in refill_indexes_by_doortype for i in idxs]
-# # print(compute_balance_cost(save_indexes, refill_indexes, compute_room_distance_matrix(map)))
-# print("save=",compute_balance_cost(save_indexes, refill_indexes, compute_room_distance_matrix(map), save_weight=1.0))
-# print("refill=",compute_balance_cost(save_indexes, refill_indexes, compute_room_distance_matrix(map), save_weight=0.0))
+# map = balance_utilities(map)
+# # map = place_phantoon_and_friends(map)
 #
+#
+# # save_indexes_by_doortype, refill_indexes_by_doortype, other_indexes_by_doortype = get_room_indexes_by_doortype()
+# # save_indexes = [i for idxs in save_indexes_by_doortype for i in idxs]
+# # refill_indexes = [i for idxs in refill_indexes_by_doortype for i in idxs]
+# # # print(compute_balance_cost(save_indexes, refill_indexes, compute_room_distance_matrix(map)))
+# # print("save=",compute_balance_cost(save_indexes, refill_indexes, compute_room_distance_matrix(map), save_weight=1.0))
+# # print("refill=",compute_balance_cost(save_indexes, refill_indexes, compute_room_distance_matrix(map), save_weight=0.0))
+# # map = balance_map(map)
+# # # map = balance_map(map)
+# # save_indexes_by_doortype, refill_indexes_by_doortype, other_indexes_by_doortype = get_room_indexes_by_doortype()
+# # save_indexes = [i for idxs in save_indexes_by_doortype for i in idxs]
+# # refill_indexes = [i for idxs in refill_indexes_by_doortype for i in idxs]
+# # # print(compute_balance_cost(save_indexes, refill_indexes, compute_room_distance_matrix(map)))
+# # print("save=",compute_balance_cost(save_indexes, refill_indexes, compute_room_distance_matrix(map), save_weight=1.0))
+# # print("refill=",compute_balance_cost(save_indexes, refill_indexes, compute_room_distance_matrix(map), save_weight=0.0))
+# #
 # from maze_builder.display import MapDisplay
 #
 # display = MapDisplay(72, 72, 20)
 # display.display_assigned_areas_with_saves(map)
 # # display.display_assigned_areas(map)
-# # display.display_vanilla_areas(map)
+# # display.display_assigned_areas_with_ws(map)
+# # # display.display_vanilla_areas(map)
 # display.image.show()

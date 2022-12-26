@@ -76,9 +76,8 @@ for patch_name in patches:
 # Supers do double damage to Mother Brain.
 rom.write_u8(snes2pc(0xB4F1D5), 0x84)
 
-# Stop tiles from being marked explored (pink)
-# rom.write_n(snes2pc(0x90A981), 3, bytes(3 * [0xEA]))  # NOP
-
+# Set tiles unexplored
+rom.write_n(snes2pc(0xB5F000), 0x600, bytes(0x600 * [0x00]))
 
 #
 # area_arr = [rom.read_u8(room.rom_address + 1) for room in rooms]
