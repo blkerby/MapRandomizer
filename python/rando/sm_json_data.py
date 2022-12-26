@@ -500,9 +500,6 @@ class SMJsonData:
         tech_json = json.load(open(f'{sm_json_data_path}/tech.json', 'r'))
         self.tech_json_dict = {tech['name']: tech for tech in tech_json['techs']}
         self.tech_name_set = set(self.tech_json_dict.keys())
-        self.tech_name_set.remove('canSpaceTime')
-        self.tech_name_set.remove('canGTCode')
-        self.tech_name_set.remove('canXRayClimbOOB')
 
         helpers_json = json.load(open(f'{sm_json_data_path}/helpers.json', 'r'))
         self.helpers_json_dict = {helper['name']: helper for helper in helpers_json['helpers']}

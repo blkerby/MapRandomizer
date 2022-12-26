@@ -3,7 +3,6 @@ import os
 from debug.decompress import decompress
 from rando.compress import compress
 import numpy as np
-from matplotlib import pyplot as plt
 import PIL
 import PIL.Image
 

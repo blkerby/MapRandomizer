@@ -31,7 +31,7 @@ parser = argparse.ArgumentParser(description='Start the Map Rando web service.')
 parser.add_argument('--debug', type=bool, default=False, help='Run in debug mode')
 args = parser.parse_args()
 
-VERSION = 15
+VERSION = 16
 
 import logging
 from maze_builder.types import reconstruct_room_data, Direction, DoorSubtype
@@ -61,32 +61,6 @@ file_list = sorted(os.listdir(map_dir))
 snes2pc = lambda address: address >> 1 & 0x3F8000 | address & 0x7FFF
 pc2snes = lambda address: address << 1 & 0xFF0000 | address & 0xFFFF | 0x808000
 
-def get_tech_description(name):
-    desc = sm_json_data.tech_json_dict[name].get('note')
-    if isinstance(desc, str):
-        return desc
-    elif isinstance(desc, list):
-        return ' '.join(desc)
-    else:
-        return ''
-
-
-def get_tech_inputs():
-    return '\n'.join(f'''
-        <div class="row">
-            <div class="col-sm-3 form-check">
-              <input type="checkbox" class="form-check-input" id="tech-{tech}" onchange="techChanged()" name="tech-{tech}" value="{tech}">
-              <label class="form-check-label" for="{tech}"><b>{tech}</b></label>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-sm-12">
-              {get_tech_description(tech)}
-            </div>
-        </div>
-        '''
-                     for tech in sorted(sm_json_data.tech_name_set))
-
 
 presets = [
     ('Easy', {
@@ -102,7 +76,6 @@ presets = [
             'canWalljump',
             'canShinespark',
             'canCrouchJump',
-            'canCrystalFlash',
             'canDownGrab',
             'canHeatRun',
             'canSuitlessMaridia']
@@ -111,16 +84,14 @@ presets = [
         'shinesparkTiles': 24,
         'resourceMultiplier': 1.5,
         'tech': [
+            'canJumpIntoIBJ',
             'canBombAboveIBJ',
             'canManipulateHitbox',
             'canUseEnemies',
-            'canCrystalFlashForceStandup',
             'canDamageBoost',
             'canGateGlitch',
-            'canGGG',
             'canGravityJump',
             'canMockball',
-            'canMachball',
             'canMidAirMockball',
             'canSpringBallJump',
             'canUseFrozenEnemies',
@@ -140,7 +111,6 @@ presets = [
         'shinesparkTiles': 20,
         'resourceMultiplier': 1.2,
         'tech': [
-            'canUseSpeedEchoes',
             'canTrickyJump',
             'canSuitlessLavaDive',
             'canSuitlessLavaWalljump',
@@ -148,8 +118,6 @@ presets = [
             'canHitbox',
             'canPlasmaHitbox',
             'canUnmorphBombBoost',
-            'canHeatedGateGlitch',
-            'canHeatedGGG',
             'canLavaGravityJump',
             'can3HighMidAirMorph',
             'canTurnaroundAimCancel',
@@ -186,7 +154,6 @@ presets = [
              'canGravityWalljump',
              'can2HighWallMidAirMorph',
              'canPixelPerfectIceClip',
-             'canWallIceClip',
              'canBabyMetroidAvoid',
              'canSunkenDualWallClimb',
              'canBreakFree',
@@ -194,12 +161,12 @@ presets = [
              'canSandIBJ',
              'canFastWalljumpClimb',
              'canDraygonGrappleJump',
-             'canGrappleClip',
              'canManipulateMellas',
              'canMorphlessTunnelCrawl',
              'canSpringwall',
              'canDoubleSpringBallJumpMidAir',
              'canXRayClimb',
+             'canLeftFacingDoorXRayClimb',
              'canQuickCrumbleEscape',
              'canSpeedZebetitesSkip',
              'canRemorphZebetiteSkip',
@@ -213,10 +180,81 @@ presets = [
              'canRightFacingDoorXRayClimb']
      })
 ]
+
+# Tech which is currently not used by any strat in logic, so we avoid showing on the website:
+ignored_tech_set = {
+    'canSpaceTime',
+    'canGTCode',
+    'canXRayClimbOOB',
+    'canWallIceClip',
+    'canGrappleClip',
+    'canUseSpeedEchoes',
+    'canCrystalFlash',
+    'canCrystalFlashForceStandup'
+}
+
 item_placement_strategies = {
     'Open': ItemPlacementStrategy.OPEN,
     'Closed': ItemPlacementStrategy.CLOSED,
 }
+
+def get_tech_description(name):
+    desc = sm_json_data.tech_json_dict[name].get('note')
+    if isinstance(desc, str):
+        return desc
+    elif isinstance(desc, list):
+        return ' '.join(desc)
+    else:
+        return ''
+
+
+def get_tech_inputs_for_level(level, tech_list):
+    if level == 'Easy':
+        return ''
+    level_no_space = ''.join(level.split(' '))
+    rows = '\n'.join(f'''
+        <div class="row">
+            <div class="col-sm-3 form-check">
+              <input type="checkbox" class="form-check-input" id="tech-{tech}" onchange="techChanged()" name="tech-{tech}" value="{tech}">
+              <label class="form-check-label" for="{tech}"><b>{tech}</b></label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+              {get_tech_description(tech)}
+            </div>
+        </div>
+        ''' for tech in sorted(tech_list))
+    return f'''
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{level_no_space}Tech">
+            {level} Tech
+          </button>
+        </h2>
+        <div id="collapse{level_no_space}Tech" class="accordion-collapse collapse">
+            <div class="container mx-2 my-2">
+                {rows}
+            </div>
+        </div>
+    </div>
+    '''
+    # return f'''
+    #   <div class="card m-2">
+    #     <div class="card-header">
+    #       {level} Tech
+    #     </div>
+    #     <div class="card-body">
+    #         {rows}
+    #     </div>
+    #   </div>
+    # '''
+
+
+def get_tech_inputs():
+    return '\n'.join(get_tech_inputs_for_level(level, preset['tech'])
+                     for level, preset in presets)
+
 
 preset_dict = {}
 preset_tech_list = []
@@ -224,12 +262,22 @@ for preset_name, preset_tech in presets:
     preset_tech_list = preset_tech_list + preset_tech['tech']
     preset_dict[preset_name] = {**preset_tech, 'tech': preset_tech_list}
 
+preset_tech_set = set(preset_tech_list)
+for tech in sm_json_data.tech_name_set.difference(preset_tech_set).difference(ignored_tech_set):
+    raise RuntimeError(f"Tech '{tech}' in sm-json-data but not in any preset")
+for tech in preset_tech_set.difference(sm_json_data.tech_name_set):
+    raise RuntimeError(f"Unrecognized tech '{tech}'")
+for tech in ignored_tech_set.difference(sm_json_data.tech_name_set):
+    raise RuntimeError(f"Unrecognized ignored tech '{tech}'")
+for tech in preset_tech_set.intersection(ignored_tech_set):
+    raise RuntimeError(f"Tech '{tech}' is ignored but marked in preset")
 
 def item_placement_strategy_buttons():
     return '\n'.join(f'''
       <input type="radio" class="btn-check" name="itemPlacementStrategy" id="itemPlacementStrategy{name}" value="{name}" autocomplete="off" onclick="presetChanged()" {'checked' if name == 'Open' else ''}>
       <label class="btn btn-outline-primary" for="itemPlacementStrategy{name}">{name}</label>
     ''' for name in item_placement_strategies.keys())
+
 
 def preset_buttons():
     return '\n'.join(f'''
@@ -245,7 +293,7 @@ def preset_change_script():
             if (document.getElementById("preset{name}").checked) {{
                 document.getElementById("shinesparkTiles").value = {preset["shinesparkTiles"]};
                 document.getElementById("resourceMultiplier").value = {preset["resourceMultiplier"]};
-                {';'.join(f'document.getElementById("tech-{tech}").checked = {"true" if tech in preset["tech"] else "false"}' for tech in sm_json_data.tech_name_set)}
+                {';'.join(f'document.getElementById("tech-{tech}").checked = {"true" if tech in preset["tech"] else "false"}' for tech in preset_tech_list)}
             }}
         ''')
     return '\n'.join(script_list)
@@ -270,8 +318,15 @@ def encode_difficulty(difficulty: DifficultyConfig):
 def title_image():
     return flask.send_file("../../gfx/title/WebTitle.png", mimetype='image/png')
 
+
+@app.route("/favicon.ico")
+def favicon():
+    return flask.send_file("../../gfx/favicon.ico", mimetype='image/png')
+
+
 def change_log():
     return open('CHANGELOG.html', 'r').read()
+
 
 @app.route("/")
 def home():
@@ -282,6 +337,7 @@ def home():
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Super Metroid Map Rando</title>
+        <link rel="icon" type="image/x-icon" href="/favicon.ico">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
       </head>
       <body>
@@ -324,12 +380,12 @@ def home():
                 </div>
                 <div class="accordion my-2" id="accordion">
                   <div class="accordion-item">
-                    <h2 class="accordion-header" id="flush-headingOne">
-                      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+                    <h2 class="accordion-header">
+                      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDifficulty">
                         Customize skill assumptions
                       </button>
                     </h2>
-                    <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
+                    <div id="collapseDifficulty" class="accordion-collapse collapse m-2">
                       <div class="form-group row m-2">
                         <label for="shinesparkTiles" class="col-sm-6 col-form-label">Shinespark tiles<br>
                         <small>(Smaller values assume ability to short-charge over shorter distances)</small>
@@ -346,12 +402,11 @@ def home():
                           <input type="text" class="form-control" name="resourceMultiplier" id="resourceMultiplier" value="3.0">
                         </div>
                       </div>
-                      <div class="card m-2">
-                        <div class="card-header">
-                          Tech
-                        </div>
-                        <div class="card-body">
-                          {get_tech_inputs()}
+                      <div class="form-group row my-2">
+                        <div class="col-sm-12">
+                          <div class="accordion my-2" id="accordion">
+                            {get_tech_inputs()}
+                          </div>
                         </div>
                       </div>
                     </div>
