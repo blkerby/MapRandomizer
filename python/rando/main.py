@@ -21,7 +21,8 @@ from maze_builder.display import MapDisplay
 import json
 import ips_util
 from rando.compress import compress
-from rando.make_title import encode_graphics
+from rando.make_title_bg import encode_graphics
+from rando.make_title import add_title
 from rando.map_patch import apply_map_patches, add_cross_area_arrows, set_map_stations_explored
 from rando.balance_utilities import balance_utilities
 import argparse
@@ -584,29 +585,35 @@ def randomize():
     class Rom:
         def __init__(self, file):
             self.bytes_io = BytesIO(file.read())
-            self.byte_buf = self.bytes_io.getbuffer()
 
         def read_u8(self, pos):
-            return self.byte_buf[pos]
+            self.bytes_io.seek(pos)
+            return int.from_bytes(self.bytes_io.read(1), byteorder='little')
 
         def read_u16(self, pos):
-            return self.read_u8(pos) + (self.read_u8(pos + 1) << 8)
+            self.bytes_io.seek(pos)
+            return int.from_bytes(self.bytes_io.read(2), byteorder='little')
 
         def read_u24(self, pos):
-            return self.read_u8(pos) + (self.read_u8(pos + 1) << 8) + (self.read_u8(pos + 2) << 16)
+            self.bytes_io.seek(pos)
+            return int.from_bytes(self.bytes_io.read(3), byteorder='little')
 
         def read_n(self, pos, n):
-            return self.byte_buf[pos:(pos + n)]
+            self.bytes_io.seek(pos)
+            return self.bytes_io.read(n)
 
         def write_u8(self, pos, value):
-            self.byte_buf[pos] = value
+            self.bytes_io.seek(pos)
+            self.bytes_io.write(int(value).to_bytes(1, byteorder='little'))
 
         def write_u16(self, pos, value):
-            self.byte_buf[pos] = value & 0xff
-            self.byte_buf[pos + 1] = value >> 8
+            self.bytes_io.seek(pos)
+            self.bytes_io.write(int(value).to_bytes(2, byteorder='little'))
 
         def write_n(self, pos, n, values):
-            self.byte_buf[pos:(pos + n)] = values
+            self.bytes_io.seek(pos)
+            self.bytes_io.write(values)
+            assert len(values) == n
 
         def save(self, filename):
             file = open(filename, 'wb')
@@ -807,8 +814,8 @@ def randomize():
     ]
     for patch_name in orig_patches:
         patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
-        orig_rom.byte_buf = patch.apply(orig_rom.byte_buf)
-        rom.byte_buf = patch.apply(rom.byte_buf)
+        orig_rom.bytes_io = BytesIO(patch.apply(orig_rom.bytes_io.getvalue()))
+        rom.bytes_io = BytesIO(patch.apply(rom.bytes_io.getvalue()))
 
     # Change Aqueduct map y position, to include the toilet (for the purposes of the map)
     old_y = orig_rom.read_u8(0x7D5A7 + 3)
@@ -1206,7 +1213,7 @@ def randomize():
     ]
     for patch_name in patches:
         patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
-        rom.byte_buf = patch.apply(rom.byte_buf)
+        rom.bytes_io = BytesIO(patch.apply(rom.bytes_io.getvalue()))
 
     # rom.write_u16(0x79213 + 24, 0xEB00)
     # rom.write_u16(0x7922D + 24, 0xEB00)
@@ -1256,6 +1263,10 @@ def randomize():
     # rom.write_u8(snes2pc(0x8B97F7), 0x60)  # Skip spawn text glow
     rom.write_n(snes2pc(0x8B9A34), 4, bytes([0xEA, 0xEA, 0xEA, 0xEA]))  # Skip pallete FX handler
     # rom.write_n(0xB7C04, len(compressed_tilemap), compressed_tilemap)
+
+    gfx_free_space_pc += len(compressed_tilemap)
+    gfx_free_space_snes = pc2snes(gfx_free_space_pc)
+    add_title(rom, gfx_free_space_snes)
 
     # title_bg_pal = open('gfx/title/title_bg.pal', 'rb').read()
     # rom.write_n(0x661E9, 512, title_bg_pal)
@@ -1325,7 +1336,7 @@ def randomize():
 
     memory_file = BytesIO()
     files = [
-        (output_file_prefix + '.sfc', rom.byte_buf),
+        (output_file_prefix + '.sfc', rom.bytes_io.getvalue()),
         (output_file_prefix + '-config.json', json.dumps(config, indent=2)),
         (output_file_prefix + '-spoiler.json', json.dumps(spoiler_data, indent=2)),
         (output_file_prefix + '-map.png', map_png_bytes),

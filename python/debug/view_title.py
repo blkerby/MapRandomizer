@@ -179,15 +179,19 @@ plt.show()
 
 subtitle_image = PIL.Image.open('gfx/title/maprando.png')
 # plt.imshow(subtitle_image)
+# subtitle_arr = np.array(subtitle_image.convert("RGB"))
 subtitle_arr = np.array(subtitle_image)
+# plt.imshow(subtitle_image)
 subtitle_arr = np.tile(np.reshape(subtitle_arr, [224, 256, 1]), [1, 1, 3]) * 127
 
 color_dict = { (0, 0, 0): 0,
                (127, 127, 127): 13,
+               # (127, 127, 127): 1,
                (254, 254, 254): 1 }
-
-# next_color = 14
-pal_base = 2
+# color_dict = {}
+#
+# next_color = 12
+# pal_base = 2
 # for y in range(subtitle_arr.shape[0]):
 #     for x in range(subtitle_arr.shape[1]):
 #         color = tuple(subtitle_arr[y, x, :])
@@ -196,7 +200,7 @@ pal_base = 2
 #             pal[(pal_base + 8) * 16 + next_color, :] = color
 #             next_color += 1
 #             assert next_color <= 16
-#
+
 # write_palette(rom, palette_addr_pc, pal)
 
 def encode_tile(tile):
