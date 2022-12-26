@@ -381,26 +381,21 @@ def home():
                     <div class="card">
                         <div class="card-header">Things to know</div>
                         <div class="card-body">
-                            <p>Facts unchanged from the vanilla game: 
                             <ul>
                             <li>Certain items do not spawn until the planet is 
-                            awakened, which happens by entering Pit Room (old Mother Brain
-                            room) with Morph and Missiles collected and opening one of the gray doors.
+                            awakened, by exiting Pit Room (old Mother Brain
+                            room) with Morph and Missiles collected.<a href="#footnote-pit-room"><sup>1</sup></a>
                             <li>Certain items do not spawn until Phantoon has been
                             defeated.
-                            <li>Phantoon will tend to be very close to the Wrecked Ship Map Room and the
-                            Wrecked Ship Save Room, and in particular will always be in the same area.
-                            </ul>
-                            <p>Changes in this randomizer for quality-of-life and/or balance:
-                            <ul> 
-                            <li>Items are consistently indicated by dots on the map. Map stations, refill stations, 
-                            and major bosses (G4 and Mother Brain) are indicated by special tiles.
+                            <li>Phantoon's Room is always two rooms away from the Wrecked Ship Map Room, and both are 
+                                in the same area as the Wrecked Ship Save Room.
+                            <li>Items are always marked by dots on the map. Map stations, refills, 
+                            and major bosses (G4 and Mother Brain) are marked by special tiles.
                             <li>Missile Refill stations refill all ammo types: Missiles, Supers, and Power Bombs.
-                            <li>Gravity and Varia behave the same as Progressive Suits in other randomizers,
-                            each suit giving 50% reduction (stacking to a combined 75%) for enemy damage
-                            and environmental damage, with Varia providing 100% heat protection (as in vanilla).
-                            <li>Supers do double damage to Mother Brain.
-                            <li>The current tile can be marked un-explored (i.e., turned back to black/blue on the map) 
+                            <li>Gravity and Varia behave like Progressive Suits in other randomizers,
+                            each giving 50% reduction in enemy damage (stacking to a combined 75%).
+                            <li>Mother Brain has been changed to take double damage from Supers.
+                            <li>The current tile can be marked un-explored on the map  
                             by pressing Angle Up and Item Cancel simultaneously. To be effective, these inputs must be
                             held while exiting the tile, since otherwise the game will immediately re-explore the tile.
                             <li>Saving at a different save station from the last save will advance to the next slot 
@@ -435,6 +430,18 @@ def home():
                             {change_log()}
                         </div>
                     </div>
+                </div>
+            </div>
+            <div class="row my-2">
+                <div class="col-sm-12">
+                    <a id="footnote-pit-room">
+                    <sup>1</sup> Technically the planet is awakened by opening any gray door locked by an enemy kill 
+                    count (which does <i>not</i> include gray doors locked by boss kills).
+                    In the vanilla game, such gray doors spawn in the Pit Room when entering with Morph and Missiles but
+                    are also in other rooms (e.g., Spore Spawn Kihunters, Brinstar Pre-Map Room). In 
+                    Map Rando, at least for now, all gray doors are removed except in the Pit Room, making the Pit Room
+                    the only place where the planet can be awakened. Note that Pit Room also has an item that only
+                    spawns when entering with Morph and Missiles (regardless of whether the planet is awake).
                 </div>
             </div>
         </div>
@@ -570,6 +577,7 @@ def randomize():
 
     display = MapDisplay(72, 72, 20)
     display.display_assigned_areas(map)
+    # display.display_assigned_areas_with_maps(map)
     # display.display_assigned_areas_with_saves(map)
     # display.display_assigned_areas_with_ws(map)
     map_png_file = io.BytesIO()

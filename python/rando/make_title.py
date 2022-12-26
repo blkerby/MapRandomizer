@@ -204,4 +204,3 @@ def add_title(rom, gfx_free_space_snes):
     # Shift the title spritemap down:
     rom.write_u16(snes2pc(0x8B9B21), 0x30 + y_shift)
     rom.write_u16(snes2pc(0x8B9EBA), 0x30 + y_shift)
-    
