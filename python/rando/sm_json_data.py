@@ -936,7 +936,7 @@ class SMJsonData:
                                           output_route_id, output_route_edge, output_route_prev)
         return output_cost, (graph, output_route_id, output_route_edge, output_route_prev)
 
-
+# #
 # sm_json_data_path = "sm-json-data/"
 # sm_json_data = SMJsonData(sm_json_data_path)
 #
@@ -944,18 +944,26 @@ class SMJsonData:
 # for region_name, region_json in sm_json_data.region_json_dict.items():
 #     print("Region: ", region_name)
 #     for room_json in region_json['rooms']:
-#         notable_strats = []
-#         for link_group in room_json['links']:
-#             for link in link_group['to']:
-#                 for strat in link['strats']:
-#                     if strat['notable']:
-#                         notable_strats.append(strat)
-#         if len(notable_strats) > 0:
-#             print("  Room: ", room_json['name'])
-#             for strat in notable_strats:
-#                 print("    ", strat['name'])
-#         #
-#         # pass
+#         if 'enemies' in room_json:
+#             for enemy in room_json['enemies']:
+#                 # print(enemy['enemyName'])
+#                 if 'farmCycles' in enemy:
+#                     print(room_json['name'], enemy['enemyName'], enemy['quantity'])
+#             # utility = node.get('utility')
+#             # if utility is not None:
+#             #     print(utility, room_json['name'])
+# #         # notable_strats = []
+# #         # for link_group in room_json['links']:
+# #         #     for link in link_group['to']:
+# #         #         for strat in link['strats']:
+# #         #             if strat['notable']:
+# #         #                 notable_strats.append(strat)
+# #         # if len(notable_strats) > 0:
+# #         #     print("  Room: ", room_json['name'])
+# #         #     for strat in notable_strats:
+# #         #         print("    ", strat['name'])
+# #         # #
+# #         # # pass
 
 # for region in sm_json_data.region_json_dict.values():
 #     for room in region['rooms']:

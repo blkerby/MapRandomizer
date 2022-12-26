@@ -13,6 +13,15 @@ def get_room_index(name):
 
 landing_site_idx = get_room_index('Landing Site')
 ws_save_idx = get_room_index('Wrecked Ship Save Room')
+good_farm_idxs = [get_room_index(name) for name in [
+    # 'Purple Farming Room',  # Skipping here since included directly in the list of (single-tile room) refills
+    'Bat Cave',
+    'Upper Norfair Farming Room',
+    'Post Crocomire Farming Room',
+    'Post Crocomire Missile Room',
+    'Grapple Tutorial Room 3',
+    'Acid Snakes Tunnel',
+]]
 
 def permute_small_rooms(map, src_room_index, dst_room_index):
     new_map = copy.deepcopy(map)
@@ -210,7 +219,7 @@ def compute_balance_cost(save_idxs, refill_idxs, dist_matrix, save_weight=0.5):
     # Include Landing Site as a save location. Also include the Wrecked Ship Save Room (the position of which is not
     # allowed to change during balancing in order to ensure that it remains in the correct area.)
     save_idxs = [landing_site_idx, ws_save_idx] + save_idxs
-    refill_idxs = [landing_site_idx] + refill_idxs  # Include Landing Site as a refill location
+    refill_idxs = [landing_site_idx] + good_farm_idxs + refill_idxs  # Include Landing Site and good farms as a refill location
 
     min_save_dist = np.min(dist_matrix[:len(rooms), save_idxs], axis=1)
     min_refill_dist = np.min(dist_matrix[:len(rooms), refill_idxs], axis=1)
@@ -241,9 +250,9 @@ def get_room_indexes_by_doortype():
             doortype = 2
         else:
             continue
-        if ' Save Room' in room.name:
+        if ' Save Room' in room.name or 'Savestation' in room.name:
             save_indexes_by_doortype[doortype].append(i)
-        elif 'Refill' in room.name or 'Recharge' in room.name:
+        elif 'Refill' in room.name or 'Recharge' in room.name or room.name == 'Purple Farming Room':
             refill_indexes_by_doortype[doortype].append(i)
         else:
             other_indexes_by_doortype[doortype].append(i)
@@ -300,8 +309,8 @@ def redistribute_saves_and_refills(map, num_steps):
         if new_cost < current_cost:
             current_indexes_by_doortype = new_indexes_by_doortype
             current_cost = new_cost
-        # if i % 100 == 0:
-        #     print(current_cost, new_cost)
+        if i % 100 == 0:
+            print(current_cost, new_cost)
 
     all_indexes = [i for idxs in all_indexes_by_doortype for i in idxs]
     current_indexes = [i for idxs in current_indexes_by_doortype for i in idxs]
