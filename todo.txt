@@ -1,9 +1,14 @@
 TODO:
+- put phantoon's room in a tight cluster with broken map & save.
+- add strat for jumping over fune with no damage (check osse Twitch clip).
+- update ammo refilled message box.
+- consider putting map stations closer to the ship? (still balanced to one per area)
 - try using music based on area
 - shorten mother brain 1 death cutscene? (remove flashing?)
 - open escape door when reentering mother brain room from right with mother brain dead.
 - organize tech on website.
 - despawn enemies to reduce lag during escape (at least in some rooms)?
+- L + R + Select + Start to reset?
 - consider alternative item placement strategy:
   - prefer placing item at locations where you can get back (so the player doesn't have to take a leap of faith as much)
 - skip map select after game over

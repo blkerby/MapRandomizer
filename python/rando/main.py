@@ -368,10 +368,9 @@ def home():
                     </div>
                 </div>
             </form>
-            <small>ROM may take a while to generate. For fastest results, click "Generate ROM" only once and wait patiently. 
-            If it times out, try again with a different random seed. 
-            
-            <p>This is still in an alpha stage of development, so bugs are expected. If you encounter a problem, 
+            <small><strong>Note</strong>: ROM may take a while to generate. For fastest results, click "Generate ROM" only once and wait patiently. 
+            If it times out, try again with a different random seed. This is still in an alpha stage of development, 
+            so bugs are expected. If you encounter a problem, 
             feedback is welcome on <a href="https://github.com/blkerby/MapRandomizer/issues">GitHub issues</a>. 
             Also feel free to stop by the <a href="https://discord.gg/Gc99YV2ZcB">Discord</a>: let us know if you
             find a cool seed (or a broken seed), if you have questions or ideas for future development, or if you're 
@@ -383,24 +382,30 @@ def home():
                         <div class="card-body">
                             <p>Facts unchanged from the vanilla game: 
                             <ul>
-                            <li>Certain items in Crateria and Blue Brinstar rooms do not spawn until the planet is 
+                            <li>Certain items do not spawn until the planet is 
                             awakened, which happens by entering Pit Room (old Mother Brain
                             room) with Morph and Missiles collected and opening one of the gray doors.
-                            <li>Certain items in Wrecked Ship rooms do not spawn until Phantoon has been
+                            <li>Certain items do not spawn until Phantoon has been
                             defeated.
-                            <li>Phantoon will always be in the same area as the Wrecked Ship Map Room and the
-                            Wrecked Ship Save Room.
+                            <li>Phantoon will tend to be very close to the Wrecked Ship Map Room and the
+                            Wrecked Ship Save Room, and in particular will always be in the same area.
                             </ul>
-                            <p>Quality-of-life changes in this randomizer:
+                            <p>Changes in this randomizer for quality-of-life and/or balance:
                             <ul> 
+                            <li>Items are consistently indicated by dots on the map. Map stations, refill stations, 
+                            and major bosses (G4 and Mother Brain) are indicated by special tiles.
                             <li>Missile Refill stations refill all ammo types: Missiles, Supers, and Power Bombs.
-                            <li>Supers do double damage to Mother Brain 2.
-                            <li>The current tile can be marked un-explored (i.e., turned back to black/blue on the map) by 
-                            pressing Angle Up and Item Cancel simultaneously. To be effective, these inputs must be
+                            <li>Gravity and Varia behave the same as Progressive Suits in other randomizers,
+                            each suit giving 50% reduction (stacking to a combined 75%) for enemy damage
+                            and environmental damage, with Varia providing 100% heat protection (as in vanilla).
+                            <li>Supers do double damage to Mother Brain.
+                            <li>The current tile can be marked un-explored (i.e., turned back to black/blue on the map) 
+                            by pressing Angle Up and Item Cancel simultaneously. To be effective, these inputs must be
                             held while exiting the tile, since otherwise the game will immediately re-explore the tile.
                             <li>Saving at a different save station from the last save will advance to the next slot 
                             before saving, so you can return to an earlier save in case you get stuck.
                             </ul>
+                            <p>
                         </div>
                     </div>
                 </div>
@@ -521,6 +526,7 @@ def randomize():
     config = {
         'version': VERSION,
         'seed': random_seed,
+        'item_placement_strategy': item_placement_strategy.value,
         'shine_charge_tiles': difficulty.shine_charge_tiles,
         'multiplier': difficulty.multiplier,
         'tech': list(sorted(difficulty.tech)),
@@ -563,6 +569,7 @@ def randomize():
 
     display = MapDisplay(72, 72, 20)
     display.display_assigned_areas(map)
+    # display.display_assigned_areas_with_saves(map)
     # display.display_assigned_areas_with_ws(map)
     map_png_file = io.BytesIO()
     display.image.save(map_png_file, "png")
@@ -1305,7 +1312,8 @@ def randomize():
     # In Shaktool room, skip setting screens to red scroll (so that it won't glitch out when entering from the right):
     rom.write_u8(snes2pc(0x84B8DC), 0x60)  # RTS
 
-    # Remove the wall that appears on the right side of Tourian Escape Room 1:
+    # Remove the wall that appears on the right side of Tourian Escape Room 1. This is probably redundant with the
+    # door data change above. (TODO: Verify and remove this.)
     rom.write_u16(snes2pc(0x84BB34), 0x86BC)
     rom.write_u16(snes2pc(0x84BB44), 0x86BC)
 
