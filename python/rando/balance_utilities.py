@@ -41,6 +41,7 @@ def permute_small_rooms(map, src_room_index, dst_room_index):
 
         new_map['rooms'][src_i] = map['rooms'][dst_i]
         new_map['area'][src_i] = map['area'][dst_i]
+        new_map['subarea'][src_i] = map['subarea'][dst_i]
         for j in range(len(src_room.door_ids)):
             src_door_id = src_room.door_ids[j]
             dst_door_id = dst_room.door_ids[j]

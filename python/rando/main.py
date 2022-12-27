@@ -25,7 +25,7 @@ from rando.make_title_bg import encode_graphics
 from rando.make_title import add_title
 from rando.map_patch import apply_map_patches, add_cross_area_arrows, set_map_stations_explored
 from rando.balance_utilities import balance_utilities
-from rando.music_patch import patch_music
+from rando.music_patch import patch_music, rerank_areas
 import argparse
 
 parser = argparse.ArgumentParser(description='Start the Map Rando web service.')
@@ -56,7 +56,7 @@ app = Flask(__name__)
 
 sm_json_data_path = "sm-json-data/"
 sm_json_data = SMJsonData(sm_json_data_path)
-map_dir = 'maps/session-2022-06-03T17:19:29.727911.pkl-bk30'
+map_dir = 'maps/session-2022-06-03T17:19:29.727911.pkl-bk30-subarea'
 file_list = sorted(os.listdir(map_dir))
 
 
@@ -467,6 +467,8 @@ def home():
                         <div class="card-body">
                             <ul>
                             <li>Even if the tech is not selected, wall jumps and crouch-jump/down-grabs may be required in some places.
+                            <li>On Closed settings the game tends to be very stingy with giving extra ammo/tanks (other than Missiles).
+                            <li>Some sound effects are glitched (due to changing the music).
                             <li>Some map tiles associated with elevators do not appear correctly.
                             <li>Door transitions generally have some minor graphical glitches.
                             <li>The escape timer is not tailored to the seed (but should be generous enough to be possible to beat).
@@ -600,8 +602,9 @@ def randomize():
         # 'items': spoiler_items,
     }
 
-    for room in rooms:
-        room.populate()
+    # Rerank the areas to assign the less nice music to smaller areas:
+    map = rerank_areas(map)
+
     xs_min = np.array([p[0] for p in map['rooms']])
     ys_min = np.array([p[1] for p in map['rooms']])
     xs_max = np.array([p[0] + rooms[i].width for i, p in enumerate(map['rooms'])])
@@ -1050,11 +1053,11 @@ def randomize():
         'unexplore',
         'max_ammo_display',
         'missile_refill_all',
+        'sound_effect_disables',
     ]
     for patch_name in patches:
         patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
         rom.bytes_io = BytesIO(patch.apply(rom.bytes_io.getvalue()))
-
 
     patch_music(rom, map)
 
