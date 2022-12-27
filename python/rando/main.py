@@ -755,11 +755,11 @@ def randomize():
     for src, dst, _ in map['doors']:
         if tuple(src) in reload_cre_door_pairs:
             dst_room_i = door_room_dict[tuple(dst)]
-            print("Seting reload CRE in {}".format(rooms[dst_room_i].name))
+            # print("Seting reload CRE in {}".format(rooms[dst_room_i].name))
             rom.write_u8(rooms[dst_room_i].rom_address + 8, 2)  # Special GFX flag = Reload CRE
         if tuple(dst) in reload_cre_door_pairs:
             src_room_i = door_room_dict[tuple(src)]
-            print("Seting reload CRE in {}".format(rooms[src_room_i].name))
+            # print("Seting reload CRE in {}".format(rooms[src_room_i].name))
             rom.write_u8(rooms[src_room_i].rom_address + 8, 2)  # Special GFX flag = Reload CRE
 
     # boss_exit_asm = 0xF7F0
@@ -1088,8 +1088,8 @@ def randomize():
     gfx = gfx + 1  # Avoid touching the background color (0)
     compressed_gfx = compress(gfx.tobytes())
     compressed_tilemap = compress(tilemap.tobytes())
-    print("Compressed GFX size:", len(compressed_gfx))
-    print("Compressed tilemap size:", len(compressed_tilemap))
+    # print("Compressed GFX size:", len(compressed_gfx))
+    # print("Compressed tilemap size:", len(compressed_tilemap))
     rom.write_n(0x661E9 + 2, len(pal.tobytes()), pal.tobytes())
     # Use white color for Nintendo copyright text (otherwise it would stay black since we skip the palette FX handler)
     rom.write_u16(0x661E9 + 0xC9 * 2, 0x7FFF)
@@ -1148,10 +1148,10 @@ def randomize():
         door1_t = tuple(door1)
         door2_t = tuple(door2)
         if door1_t in door_fx:
-            print("door1: {:x} {:x}".format(door1[0], door1[1]))
+            # print("door1: {:x} {:x}".format(door1[0], door1[1]))
             rom.write_u16(snes2pc(door_fx[door1_t]), door2[0] & 0xffff)
         elif door2_t in door_fx:
-            print("door2: {:x} {:x}".format(door2[0], door2[1]))
+            # print("door2: {:x} {:x}".format(door2[0], door2[1]))
             rom.write_u16(snes2pc(door_fx[door2_t]), door1[0] & 0xffff)
 
     # In Crocomire's initialization, skip setting the leftmost screens to red scroll. Even in the vanilla game there
