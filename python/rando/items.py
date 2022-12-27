@@ -9,6 +9,8 @@ import graph_tool.topology
 import copy
 from logic.rooms.all_rooms import rooms
 from rando.sm_json_data import SMJsonData, GameState, Link, DifficultyConfig
+import logging
+
 
 class ItemPlacementStrategy(Enum):
     OPEN = 'open'
@@ -311,7 +313,7 @@ class Randomizer:
                 if eligible_target_vertices.shape[0] == 0:
                     # There are no more reachable locations of interest. We got stuck before placing all
                     # progression items, so this attempt failed.
-                    print("Failed item randomization")
+                    logging.info("Failed item randomization")
                     return False
             else:
                 # All progression items have been placed/collected, so all vertices should be reachable except for
@@ -322,7 +324,7 @@ class Randomizer:
                 item_names = np.random.permutation(item_names).tolist()
                 item_names = item_names + ['Missile' for _ in range(items_to_place_count['Missile'])]
                 next_item_index = 0
-                print("Non-progression items:")
+                logging.info("Non-progression items:")
 
                 while True:
                     max_target_rank = np.max(np.where(target_mask, target_rank, np.zeros_like(target_rank)))
@@ -348,15 +350,15 @@ class Randomizer:
                     if isinstance(target_value, int):
                         item_name = item_names[next_item_index]
                         next_item_index += 1
-                        print(
+                        logging.info(
                             f"{step_number}: rank={selected_target_rank}, item='{item_name}', room='{self.sm_json_data.room_json_dict[room_id]['name']}', node='{self.sm_json_data.node_json_dict[(room_id, node_id)]['name']}'")
                         self.item_sequence.append(item_name)
                         self.item_placement_list.append(target_value)
 
             selected_target_index = int(eligible_target_vertices[random.randint(0, len(eligible_target_vertices) - 1)])
             selected_target_rank = target_rank[selected_target_index]
-            print("{}: selected_rank={}, num_eligible={}, num_reachable={}: ".format(step_number, selected_target_rank, eligible_target_vertices.shape[0],
-                                                                   np.sum(target_mask & reach_mask)), end='')
+            logging.info("{}: selected_rank={}, num_eligible={}, num_reachable={}: ".format(step_number, selected_target_rank, eligible_target_vertices.shape[0],
+                                                                   np.sum(target_mask & reach_mask)))
             room_id, node_id, _ = self.sm_json_data.vertex_list[selected_target_index]
             target_value = self.sm_json_data.target_dict[(room_id, node_id)]
 
@@ -413,7 +415,7 @@ class Randomizer:
                     selected_item_index = random.randint(0, len(new_items) - 1)
                     item_name, state, new_raw_reach, new_reach_mask, new_route_data = hypothetical_item_data[selected_item_index]
 
-                print(
+                logging.info(
                     f"item='{item_name}', room='{self.sm_json_data.room_json_dict[room_id]['name']}', node='{self.sm_json_data.node_json_dict[(room_id, node_id)]['name']}', fallback={fallback}")
                 # print("item: ", self.sm_json_data.room_json_dict[room_id]['name'], item_name, item_index, next_item_index, len(progression_items))
 
@@ -427,7 +429,7 @@ class Randomizer:
                         vertex_id = self.sm_json_data.vertex_index_dict[(room_id, node_id, i)]
                         target_mask[vertex_id] = False
 
-                print(f"flag='{target_value}'")
+                logging.info(f"flag='{target_value}'")
                 collect_name = target_value
                 state.flags.add(target_value)
                 new_raw_reach = None
