@@ -98,8 +98,8 @@ rom.write_n(snes2pc(0xB5F000), 0x600, bytes(0x600 * [0x00]))
 
 #
 area_arr = [rom.read_u8(room.rom_address + 1) for room in rooms]
-map_patcher = MapPatcher(rom, rom, area_arr)
-map_patcher.apply_map_patches()
+map_patcher = MapPatcher(rom, area_arr)
+# map_patcher.apply_map_patches()
 #
 # # Messing around with removing the bottom part of the pause menu, since these occupy a lot of tiles that we
 # # might want to repurpose for something more useful (e.g. showing door locations on the map). Looks funny though:
@@ -107,24 +107,24 @@ map_patcher.apply_map_patches()
 # # rom.write_n(snes2pc(0xB6E640), n, (n // 2) * [0x00, 0x00])
 # #
 #
-# import numpy as np
-# image = np.zeros([128, 128])
-# for i in range(256):
-#     data = read_tile_2bpp(rom, snes2pc(0x9AB200), i)
-#     x = i // 16
-#     y = i % 16
-#     x0 = x * 8
-#     x1 = (x + 1) * 8
-#     y0 = y * 8
-#     y1 = (y + 1) * 8
-#     image[x0:x1, y0:y1] = data
-#     # for row in data:
-#     #     print(''.join('{:x}'.format(x) for x in row))
-#     # data = read_tile_4bpp(rom, snes2pc(0xB68000), i)
-#     # for row in data:
-#     #     print(''.join('{:x}'.format(x) for x in row))
-# from matplotlib import pyplot as plt
-# plt.imshow(image)
+import numpy as np
+image = np.zeros([128, 128])
+for i in range(256):
+    data = map_patcher.read_tile_2bpp(i)
+    x = i // 16
+    y = i % 16
+    x0 = x * 8
+    x1 = (x + 1) * 8
+    y0 = y * 8
+    y1 = (y + 1) * 8
+    image[x0:x1, y0:y1] = data
+    # for row in data:
+    #     print(''.join('{:x}'.format(x) for x in row))
+    # data = read_tile_4bpp(rom, snes2pc(0xB68000), i)
+    # for row in data:
+    #     print(''.join('{:x}'.format(x) for x in row))
+from matplotlib import pyplot as plt
+plt.imshow(image)
 #
 # # rom.write_u16(snes2pc(0x819124), 0x0009)   # File select index 9 - load
 #
