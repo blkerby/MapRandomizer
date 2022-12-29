@@ -23,7 +23,7 @@ from rando.rom import Rom, RomRoom, area_map_ptrs, snes2pc, pc2snes
 from rando.compress import compress
 from rando.make_title_bg import encode_graphics
 from rando.make_title import add_title
-from rando.map_patch import apply_map_patches, add_cross_area_arrows, set_map_stations_explored
+from rando.map_patch import MapPatcher
 from rando.balance_utilities import balance_utilities
 from rando.music_patch import patch_music, rerank_areas
 import argparse
@@ -32,7 +32,7 @@ parser = argparse.ArgumentParser(description='Start the Map Rando web service.')
 parser.add_argument('--debug', type=bool, default=False, help='Run in debug mode')
 args = parser.parse_args()
 
-VERSION = 17
+VERSION = 18
 
 import logging
 from maze_builder.types import reconstruct_room_data, Direction, DoorSubtype
@@ -653,16 +653,13 @@ def randomize():
 
     # Patches to be applied at beginning (before reconnecting doors, etc.)
     orig_patches = [
-        'mb_left_entrance'
+        'mb_left_entrance',
+        # 'DC_map_patch_2',
     ]
     for patch_name in orig_patches:
         patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
         orig_rom.bytes_io = BytesIO(patch.apply(orig_rom.bytes_io.getvalue()))
         rom.bytes_io = BytesIO(patch.apply(rom.bytes_io.getvalue()))
-
-    # Change Aqueduct map y position, to include the toilet (for the purposes of the map)
-    old_y = orig_rom.read_u8(0x7D5A7 + 3)
-    orig_rom.write_u8(0x7D5A7 + 3, old_y - 4)
 
     # # Change door asm for entering mother brain room from right
     orig_rom.write_u16(0x1AAC8 + 10, 0xEB00)
@@ -986,9 +983,10 @@ def randomize():
     # For this we overwrite the PLM slot for the gray door at the left of the room (which we would get rid of anyway).
     rom.write_n(0x78746, 6, rom.read_n(0x786DE, 6))
 
-    apply_map_patches(rom, area_arr)
-    add_cross_area_arrows(rom, area_arr, map)
-    set_map_stations_explored(rom, map)
+    map_patcher = MapPatcher(rom, orig_rom, area_arr)
+    map_patcher.apply_map_patches()
+    map_patcher.add_cross_area_arrows(map)
+    map_patcher.set_map_stations_explored(map)
 
     # print(randomizer.item_sequence[:5])
     # print(randomizer.item_placement_list[:5])

@@ -8,7 +8,7 @@ RUN apt-get install -y python3-graph-tool
 
 COPY backend_requirements.txt /app/backend_requirements.txt
 RUN pip3 install -r app/backend_requirements.txt
-COPY maps /app/maps
+COPY maps/session-2022-06-03T17:19:29.727911.pkl-bk30-subarea /app/maps/session-2022-06-03T17:19:29.727911.pkl-bk30-subarea
 COPY patches /app/patches
 COPY gfx /app/gfx
 COPY sm-json-data /app/sm-json-data
