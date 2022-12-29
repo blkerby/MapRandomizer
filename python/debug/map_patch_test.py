@@ -1,5 +1,5 @@
 from logic.rooms.all_rooms import rooms
-from rando.map_patch import apply_map_patches, read_tile_2bpp, read_tile_4bpp
+from rando.map_patch import MapPatcher, free_tiles
 import ips_util
 from io import BytesIO
 import io
@@ -48,15 +48,32 @@ rom = Rom(open(input_rom_path, 'rb'))
 patches = [
     'new_game_extra',
     'saveload',
-    # 'new_game',
-    # 'disable_map_icons',
-    # 'tourian_map',
-    # 'crateria_sky_fixed',
-    # 'no_map_select'
-    # 'escape_room_1',
-    # 'unexplore',
-    # 'max_ammo_display',
-    # 'missile_refill_all',
+    'DC_map_patch_2',
+    'vanilla_bugfixes',
+    'music',
+    'crateria_sky_fixed',
+    'everest_tube',
+    'sandfalls',
+    # 'map_area',
+    'mb_barrier',
+    'mb_barrier_clear',
+    # # Seems to incompatible with fast_doors due to race condition with how level data is loaded (which fast_doors speeds up)?
+    # 'fast_doors',
+    'elevators_speed',
+    'boss_exit',
+    'itemsounds',
+    'progressive_suits',
+    'disable_map_icons',
+    'escape',
+    'mother_brain_no_drain',
+    'tourian_map',
+    'tourian_eye_door',
+    'no_explosions_before_escape',
+    'escape_room_1',
+    'unexplore',
+    'max_ammo_display',
+    'missile_refill_all',
+    'sound_effect_disables',
 ]
 for patch_name in patches:
     patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
@@ -80,8 +97,9 @@ rom.write_u8(snes2pc(0xB4F1D5), 0x84)
 rom.write_n(snes2pc(0xB5F000), 0x600, bytes(0x600 * [0x00]))
 
 #
-# area_arr = [rom.read_u8(room.rom_address + 1) for room in rooms]
-# apply_map_patches(rom, area_arr)
+area_arr = [rom.read_u8(room.rom_address + 1) for room in rooms]
+map_patcher = MapPatcher(rom, rom, area_arr)
+map_patcher.apply_map_patches()
 #
 # # Messing around with removing the bottom part of the pause menu, since these occupy a lot of tiles that we
 # # might want to repurpose for something more useful (e.g. showing door locations on the map). Looks funny though:
@@ -89,24 +107,24 @@ rom.write_n(snes2pc(0xB5F000), 0x600, bytes(0x600 * [0x00]))
 # # rom.write_n(snes2pc(0xB6E640), n, (n // 2) * [0x00, 0x00])
 # #
 #
-# # import numpy as np
-# # image = np.zeros([128, 128])
-# # for i in range(256):
-# #     data = read_tile_2bpp(rom, snes2pc(0x9AB200), i)
-# #     x = i // 16
-# #     y = i % 16
-# #     x0 = x * 8
-# #     x1 = (x + 1) * 8
-# #     y0 = y * 8
-# #     y1 = (y + 1) * 8
-# #     image[x0:x1, y0:y1] = data
-# #     # for row in data:
-# #     #     print(''.join('{:x}'.format(x) for x in row))
-# #     # data = read_tile_4bpp(rom, snes2pc(0xB68000), i)
-# #     # for row in data:
-# #     #     print(''.join('{:x}'.format(x) for x in row))
-# # from matplotlib import pyplot as plt
-# # plt.imshow(image)
+# import numpy as np
+# image = np.zeros([128, 128])
+# for i in range(256):
+#     data = read_tile_2bpp(rom, snes2pc(0x9AB200), i)
+#     x = i // 16
+#     y = i % 16
+#     x0 = x * 8
+#     x1 = (x + 1) * 8
+#     y0 = y * 8
+#     y1 = (y + 1) * 8
+#     image[x0:x1, y0:y1] = data
+#     # for row in data:
+#     #     print(''.join('{:x}'.format(x) for x in row))
+#     # data = read_tile_4bpp(rom, snes2pc(0xB68000), i)
+#     # for row in data:
+#     #     print(''.join('{:x}'.format(x) for x in row))
+# from matplotlib import pyplot as plt
+# plt.imshow(image)
 #
 # # rom.write_u16(snes2pc(0x819124), 0x0009)   # File select index 9 - load
 #
@@ -117,7 +135,8 @@ rom.write_n(snes2pc(0xB5F000), 0x600, bytes(0x600 * [0x00]))
 # for i in range(12):
 #     b = rom.read_u8(snes2pc(0x838060 + i))
 #     print("{:x}".format(b))
-print("{:x}".format(rom.read_u16(snes2pc(0x8FC87B))))
+# print("{:x}".format(rom.read_u16(snes2pc(0x8FC87B))))
 
 rom.save(output_rom_path)
 os.system(f"rm {output_rom_path[:-4]}.srm")
+print("{}/{} free tiles used".format(map_patcher.next_free_tile_idx, len(free_tiles)))
