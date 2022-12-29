@@ -654,12 +654,16 @@ def randomize():
     # Patches to be applied at beginning (before reconnecting doors, etc.)
     orig_patches = [
         'mb_left_entrance',
-        # 'DC_map_patch_2',
+        'DC_map_patch_2',
     ]
     for patch_name in orig_patches:
         patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
         orig_rom.bytes_io = BytesIO(patch.apply(orig_rom.bytes_io.getvalue()))
         rom.bytes_io = BytesIO(patch.apply(rom.bytes_io.getvalue()))
+
+    # Change Aqueduct map y position, to include the toilet (for the purposes of the map)
+    old_y = orig_rom.read_u8(0x7D5A7 + 3)
+    orig_rom.write_u8(0x7D5A7 + 3, old_y - 4)
 
     # # Change door asm for entering mother brain room from right
     orig_rom.write_u16(0x1AAC8 + 10, 0xEB00)
@@ -983,7 +987,7 @@ def randomize():
     # For this we overwrite the PLM slot for the gray door at the left of the room (which we would get rid of anyway).
     rom.write_n(0x78746, 6, rom.read_n(0x786DE, 6))
 
-    map_patcher = MapPatcher(rom, orig_rom, area_arr)
+    map_patcher = MapPatcher(rom, area_arr)
     map_patcher.apply_map_patches()
     map_patcher.add_cross_area_arrows(map)
     map_patcher.set_map_stations_explored(map)
@@ -1035,8 +1039,6 @@ def randomize():
         'map_area',
         'mb_barrier',
         'mb_barrier_clear',
-        # Seems to incompatible with fast_doors due to race condition with how level data is loaded (which fast_doors speeds up)?
-        # 'fast_doors',
         'elevators_speed',
         'boss_exit',
         'itemsounds',

@@ -109,8 +109,9 @@ def xy_to_map_ptr(area, x, y):
 
 # Free tiles (in tilemaps for both pause menu and HUD) made available by DC's map patch
 free_tiles = [
-    0x3C, 0x3D, 0x3E, 0x3F,
-    0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x4E,
+    # Skipping tiles used by max_ammo_display:
+    # 0x3C, 0x3D, 0x3E, 0x3F,
+    # 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x4E,
     0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5A, 0x5B, 0x5C, 0x5D,
     0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6A, 0x6B, 0x6C,
     0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x78, 0x79, 0x7A, 0x7B, 0x7C, 0x7D, 0x7E, 0x7F,
@@ -161,12 +162,11 @@ FLIP_X = 0x4000
 
 
 class MapPatcher:
-    def __init__(self, rom, orig_rom, area_arr):
+    def __init__(self, rom, area_arr):
         self.next_free_tile_idx = 0
         self.basic_tile_dict = {}  # Maps (left, right, up, down, item) tuple to tile word
         self.reverse_dict = {}   # Maps tile word to (left, right, up, down, item) tuple
         self.rom = rom
-        self.orig_rom = orig_rom
         self.area_arr = area_arr
         self.base_addr_2bpp = snes2pc(0x9AB200)  # Location of HUD tile GFX in ROM
         self.base_addr_4bpp = snes2pc(0xB68000)  # Location of pause-menu tile GFX in ROM
@@ -648,6 +648,9 @@ class MapPatcher:
         self.patch_room_tile(room_idx, 0, 1, self.basic_tile(left=WALL, right=DOOR, down=PASSAGE))
         room_idx = room_dict["Golden Torizo's Room"]
         self.patch_room_tile(room_idx, 0, 0, self.basic_tile(left=DOOR, right=WALL, up=WALL, down=PASSAGE, interior=ITEM))
+        room_idx = room_dict["Lower Norfair Elevator"]
+        self.patch_room_tile(room_idx, 0, 0,
+                             self.basic_tile(left=DOOR, right=DOOR, up=WALL, down=PASSAGE, interior=ELEVATOR))
 
         # room_idx = room_dict[""]
         # self.patch_room_tile(room_idx, 0, 0, self.basic_tile())
@@ -670,10 +673,6 @@ class MapPatcher:
         # Change the elevators to be black & white only (no blue/pink).
         self.write_tile_2bpp(ELEVATOR_TILE, elevator_tile)
         self.write_tile_4bpp(ELEVATOR_TILE, elevator_tile)
-
-        # # Change Aqueduct map y position, to include the toilet (for the purposes of the map)
-        # old_y = self.orig_rom.read_u8(0x7D5A7 + 3)
-        # self.rom.write_u8(0x7D5A7 + 3, old_y - 4)
 
         # Use special tiles for map stations, refills, and bosses:
         self.apply_special_tiles()
