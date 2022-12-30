@@ -563,6 +563,8 @@ class MapPatcher:
         room_idx = room_dict["Warehouse Kihunter Room"]
         self.patch_room_tile(room_idx, 1, 0, self.basic_tile(up=WALL, down=PASSAGE))
         self.patch_room_tile(room_idx, 2, 0, self.basic_tile(right=PASSAGE, up=WALL, down=WALL, interior=ITEM))
+        room_idx = room_dict["Green Hill Zone"]
+        self.patch_room_tile(room_idx, 2, 1, self.basic_tile(up=WALL, right=PASSAGE))
         # Wrecked Ship:
         room_idx = room_dict["Basement"]
         self.patch_room_tile(room_idx, 3, 0, self.basic_tile(right=PASSAGE, up=WALL, down=WALL))
