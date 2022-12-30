@@ -53,7 +53,7 @@ org $8FA308 : db $12, $05  ; room $A2F7 - Hellway
 org $8FA38D : db $12, $05  ; room $A37C - Beta Power Bomb Room
 org $8FA3EE : db $12, $05  ; room $A3DD - Bat Room
 org $8FA419 : db $12, $05  ; room $A408 - Below Spazer
-org $8FA458 : db $12, $05  ; room $A447 - Spazer Room
+;org $8FA458 : db $12, $05  ; room $A447 - Spazer Room
 org $8FA482 : db $12, $05  ; room $A471 - Warehouse Zeela Room
 org $8FA4C2 : db $12, $05  ; room $A4B1 - Warehouse Energy Tank Room
 org $8FA57C : db $12, $05  ; room $A56B - Kraid Eye Door Room (using generic Red Brinstar song)

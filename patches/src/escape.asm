@@ -24,8 +24,9 @@ org $8fe8bd
     jsr room_main
 
 ; Hi-jack load room event state header
-org $82df4a
-    jml music
+;org $82df4a
+org $82DF5C
+    jml room_load
 
 ; Hi-jack activate save station
 org $848cf3
@@ -100,8 +101,6 @@ room_setup:
     jsr $919c                   ; sets up room shaking
     plb
     jsl fix_timer_gfx
-    lda #$0001                    ; set mother brain boss defeated (in case of re-entry during escape)
-    sta $7ED82D
 .end:
     ;; run hi-jacked instruction, and go back to vanilla setup asm call
     lda $0018,x
@@ -136,13 +135,130 @@ fix_timer_gfx:
     RTL
 
 
-music:
-    LDA $0006,x
-    STA $07CD
+room_load:
+    ; Run hi-jacked instructions (setting Layer 2 scroll)
+    LDA $000C,x
+    STA $091B
+
     %checkEscape() : bcc .end
     stz $07CB   ;} Music data index = 0
     stz $07C9   ;} Music track index = 0
-.end
-    jml $82df50
 
-warnpc $8ff600
+    ; Set all bosses to defeated
+    lda #$0707
+    sta $7ED828
+    sta $7ED82A
+    sta $7ED82C
+
+    lda #$0000    ; Zebes awake
+    jsl $8081FA
+    lda #$000b    ; Maridia Tube open
+    jsl $8081FA
+    lda #$000c    ; Acid statue room drained
+    jsl $8081FA
+    lda #$000d    ; Shaktool done digging
+    jsl $8081FA
+
+    jsl remove_enemies
+.end
+    jml $82DF62
+
+post_kraid_music:
+    %checkEscape() : bcc .noescape
+    rtl
+.noescape
+    lda #$0003    ;\
+    jsl $808FC1   ;} Queue elevator music track
+    rtl
+
+;org $8FA5C9
+;    dw kraid_setup
+;
+;kraid_setup:
+;    JSL $8483D7 ; Spawn PLM to clear the ceiling
+;    db  $02, $12
+;    dw  $B7B7
+;    rts
+
+warnpc $8ff700
+
+; hi-jack post-kraid elevator music (so that it won't play during the escape)
+org $A7C81E
+    jsl post_kraid_music
+
+;;; Bank A1 free space:
+org $a1f000
+remove_enemies:
+    ; Remove enemies (except special cases where they are needed such as elevators, dead bosses)
+    phb : phk : plb             ; data bank=program bank ($8F)
+    ldy #$0000
+.loop:
+    lda enemy_table,y
+    cmp #$ffff
+    beq .empty_list
+    lda $079B  ; room pointer
+    cmp enemy_table,y
+    beq .load
+    rep 6 : iny
+    bra .loop
+.load:
+    iny : iny
+    lda enemy_table,y
+    sta $07CF
+    iny : iny
+    lda enemy_table,y
+    sta $07D1
+    plb
+    bra .end
+.empty_list:
+    plb
+    lda #$85a9  ;\
+    sta $07CF   ;} Enemy population pointer = empty list
+    lda #$80eb  ;\
+    sta $07D1   ;} Enemy set pointer = empty list
+.end
+    rtl
+
+
+;;; custom enemy populations for some rooms
+
+;;; room ID, enemy population in bank a1, enemy GFX in bank b4
+enemy_table:
+    dw $a7de,one_elev_list_1,$8aed  ; business center
+    dw $a6a1,$98e4,$8529            ; warehouse (vanilla data)
+    dw $a98d,$bb0e,$8b11            ; croc room (vanilla "croc dead" data)
+    dw $962a,$89DF,$81F3            ; red brin elevator (vanilla data)
+    dw $a322,one_elev_list_1,$863F  ; red tower top
+    dw $94cc,$8B74,$8255            ; forgotten hiway elevator (vanilla data)
+    dw $d30b,one_elev_list_2,$8d85  ; forgotten hiway
+    dw $9e9f,one_elev_list_3,$83b5  ; morph room
+    dw $97b5,$8b61,$824b            ; blue brin elevator (vanilla data)
+    dw $9ad9,one_elev_list_1,$8541  ; green brin shaft
+    dw $9938,$8573,$80d3            ; green brin elevator (vanilla data)
+    dw $af3f,$a544,$873d            ; LN elevator (vanilla data)
+    dw $b236,one_elev_list_4,$893d  ; LN main hall
+    dw $d95e,$de5a,$9028            ; botwoon room (vanilla "botwoon dead" data)
+    dw $a66a,$9081,$8333            ; G4 (G4?) (vanilla data)
+    dw $9dc7,$a0fd,$8663            ; spore spawn (vanilla data)
+    dw $a59f,$9eb5,$85ef            ; kraid room (vanilla data)
+    dw $daae,$e42d,$913e            ; tourian first room (vanilla data, for the elevator)
+    dw $91f8,$8c0d,$8283            ; landing site (vanilla data, for the ship)
+    dw $9804,$8ed3,$82a3            ; bomb torizo (vanilla data, for the animals)
+    ;; table terminator
+    dw $ffff
+
+one_elev_list_1:
+    dw $D73F,$0080,$02C2,$0000,$2C00,$0000,$0001,$0018,$ffff
+    db $00
+
+one_elev_list_2:
+    dw $D73F,$0080,$02C0,$0000,$2C00,$0000,$0001,$0018,$ffff
+    db $00
+
+one_elev_list_3:
+    dw $D73F,$0580,$02C2,$0000,$2C00,$0000,$0001,$0018,$ffff
+    db $00
+
+one_elev_list_4:
+    dw $D73F,$0480,$02A2,$0000,$2C00,$0000,$0001,$0018,$ffff
+    db $00

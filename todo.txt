@@ -1,11 +1,10 @@
 TODO:
+- Fix first platform in Mother Brain room so you can't fall into them when running.
 - check if map reload is messing up timing at start of rooms (e.g. Beta Power Bombs)
 - prevent escape music from being interrupted (e.g. by Kraid's Room?)
-- put phantoon's room in a tight cluster with broken map & save.
 - add strat for jumping over fune with no damage (check osse Twitch clip).
 - update ammo refilled message box.
 - consider putting map stations closer to the ship? (still balanced to one per area)
-- try using music based on area
 - shorten mother brain 1 death cutscene? (remove flashing?)
 - open escape door when reentering mother brain room from right with mother brain dead.
 - organize tech on website.
@@ -53,7 +52,7 @@ TODO:
 - fix suit graphics not showing after getting suit (consequence of skipping animation)?
 - show map text for cross-area transitions?
 - increase PB drop rates on farms?
-
+- minimizer mode? (select rooms to include randomly, hand-picked, and/or user-selected)
 
 title graphics notes:
   - title
