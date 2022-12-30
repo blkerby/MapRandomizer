@@ -1,8 +1,12 @@
 arch snes.cpu
 lorom
 
+org $83AAD2
+    dw $EB00  ; Set door ASM for Rinka Room toward Mother Brain
+
 org $8FEB00
-    ; setup asm to clear barriers in mother brain room based on main bosses killed
+    ; clear barriers in mother brain room based on main bosses killed:
+
     ; clear kraid barrier
     lda $7ed829
     bit #$0001
@@ -82,7 +86,7 @@ draygon:
 ridley:
     lda $7ed82a
     bit #$0001
-    beq done  ; skip clearing if ridley isn't dead
+    beq motherbrain  ; skip clearing if ridley isn't dead
     lda $7f0276
     sta $7f026e
     sta $7f02ee
@@ -100,7 +104,53 @@ ridley:
     sta $7f6676
     rep #$20
 
+motherbrain:
+    lda $7ed82d
+    bit #$0001
+    beq done  ; skip clearing if mother brain isn't dead
+
+    ; Spawn Mother Brain's room escape door:
+    jsl $8483D7
+    dw  $0600,  $B677
+
+    ; Remove invisible spikes where Mother Brain used to be:
+    jsl remove_spikes
 done:
-    jmp $C91E  ; now run the original setup asm
+    rts
+
 
 warnpc $8fed00
+
+
+org $83AAEA
+    dw $EE00  ; Set door ASM for Tourian Escape Room 1 toward Mother Brain
+
+org $83AAE3
+    db $00    ; Set door direction = $00  (to make door not close behind Samus)
+
+; Custom door ASM for Tourian Escape Room 1 toward Mother Brain
+org $8FEE00
+    jsl $8483D7            ;\
+    db  $00, $06           ;|
+    dw  $B677              ;} Spawn Mother Brain's room escape door
+
+    ; Remove invisible spikes where Mother Brain used to be:
+    jsl remove_spikes
+    rts
+
+; Remove invisible spikes where Mother Brain used to be (common routine used by both the left and right door ASMs)
+org $84F200
+remove_spikes:
+    ; Remove invisible spikes
+    lda #$8000   ; solid tile
+    ldx #$0192   ; offset to spike above Mother Brain right
+    jsr $82B4
+    lda #$8000   ; solid tile
+    ldx #$0210   ; offset to spike above Mother Brain center-right
+    jsr $82B4
+    lda #$8000   ; solid tile
+    ldx #$0494   ; offset to spike below Mother Brain right
+    jsr $82B4
+    rtl
+
+

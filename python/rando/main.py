@@ -32,7 +32,7 @@ parser = argparse.ArgumentParser(description='Start the Map Rando web service.')
 parser.add_argument('--debug', type=bool, default=False, help='Run in debug mode')
 args = parser.parse_args()
 
-VERSION = 18
+VERSION = 19
 
 import logging
 from maze_builder.types import reconstruct_room_data, Direction, DoorSubtype
@@ -653,8 +653,10 @@ def randomize():
 
     # Patches to be applied at beginning (before reconnecting doors, etc.)
     orig_patches = [
-        'mb_left_entrance',
-        'DC_map_patch_2',
+        'mb_barrier2',
+        'mb_barrier_clear',
+        # 'mb_left_entrance',
+        'hud_expansion_opaque',
     ]
     for patch_name in orig_patches:
         patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
@@ -665,9 +667,9 @@ def randomize():
     old_y = orig_rom.read_u8(0x7D5A7 + 3)
     orig_rom.write_u8(0x7D5A7 + 3, old_y - 4)
 
-    # # Change door asm for entering mother brain room from right
-    orig_rom.write_u16(0x1AAC8 + 10, 0xEB00)
-    # rom.write_u16(0x1956A + 10, 0xEB00)
+    # # # Change door asm for entering mother brain room from right
+    # orig_rom.write_u16(0x1AAC8 + 10, 0xEB00)
+    # # rom.write_u16(0x1956A + 10, 0xEB00)
 
     rom.write_u8(snes2pc(0x83AA8F), 0x04)  # Stop wall from spawning in Tourian Escape Room 1: door direction = 4 (right)
 
@@ -1027,57 +1029,6 @@ def randomize():
     rom.write_u8(0x7968F + 2, west_ocean_x + 5)
     rom.write_u8(0x7968F + 3, west_ocean_y + 2)
 
-    # Apply patches
-    patches = [
-        'vanilla_bugfixes',
-        'new_game_extra' if args.debug else 'new_game',
-        'music',
-        'crateria_sky_fixed',
-        'everest_tube',
-        'sandfalls',
-        'saveload',
-        'map_area',
-        'mb_barrier',
-        'mb_barrier_clear',
-        'elevators_speed',
-        'boss_exit',
-        'itemsounds',
-        'progressive_suits',
-        'disable_map_icons',
-        'escape',
-        'mother_brain_no_drain',
-        'tourian_map',
-        'tourian_eye_door',
-        'no_explosions_before_escape',
-        'escape_room_1',
-        'unexplore',
-        'max_ammo_display',
-        'missile_refill_all',
-        'sound_effect_disables',
-    ]
-    for patch_name in patches:
-        patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
-        rom.bytes_io = BytesIO(patch.apply(rom.bytes_io.getvalue()))
-
-    patch_music(rom, map)
-
-    # rom.write_u16(0x79213 + 24, 0xEB00)
-    # rom.write_u16(0x7922D + 24, 0xEB00)
-    # rom.write_u16(0x79247 + 24, 0xEB00)
-    # rom.write_u16(0x79247 + 24, 0xEB00)
-    # rom.write_u16(0x79261 + 24, 0xEB00)
-
-    # Connect bottom left landing site door to mother brain room, for testing
-    # mb_door_bytes = orig_rom.read_n(0X1AAC8, 12)
-    # rom.write_n(0x18916, 12, mb_door_bytes)
-
-    # Restore acid in Tourian Escape Room 4:
-    rom.write_u16(snes2pc(0x8FDF03), 0xC953)  # Vanilla setup ASM pointer
-    rom.write_u8(snes2pc(0x8FC95B), 0x60)  # RTS (return early from setup ASM to skip setting up shaking)
-
-    # Change setup asm for Mother Brain room
-    rom.write_u16(0x7DD6E + 24, 0xEB00)
-
     # Write palette and tilemap for title background:
     import PIL
     import PIL.Image
@@ -1105,7 +1056,7 @@ def randomize():
     rom.write_n(gfx_free_space_pc, len(compressed_tilemap), compressed_tilemap)
     rom.write_u8(snes2pc(0x8B9BB9), gfx_free_space_snes >> 16)
     rom.write_u16(snes2pc(0x8B9BBD), gfx_free_space_snes & 0xFFFF)
-    rom.write_n(snes2pc(0x8B9CB6), 3, bytes([0xEA, 0xEA, 0xEA]))  # Skip spawning baby metroid (NOP:NOP:NOP)
+    # rom.write_n(snes2pc(0x8B9CB6), 3, bytes([0xEA, 0xEA, 0xEA]))  # Skip spawning baby metroid (NOP:NOP:NOP)
     # rom.write_u8(snes2pc(0x8B97F7), 0x60)  # Skip spawn text glow
     rom.write_n(snes2pc(0x8B9A34), 4, bytes([0xEA, 0xEA, 0xEA, 0xEA]))  # Skip pallete FX handler
     # rom.write_n(0xB7C04, len(compressed_tilemap), compressed_tilemap)
@@ -1113,6 +1064,58 @@ def randomize():
     gfx_free_space_pc += len(compressed_tilemap)
     gfx_free_space_snes = pc2snes(gfx_free_space_pc)
     add_title(rom, gfx_free_space_snes)
+
+    # Apply patches
+    patches = [
+        'vanilla_bugfixes',
+        'new_game_extra' if args.debug else 'new_game',
+        'music',
+        'crateria_sky_fixed',
+        'everest_tube',
+        'sandfalls',
+        'saveload',
+        'map_area',
+        'elevators_speed',
+        'boss_exit',
+        'itemsounds',
+        'progressive_suits',
+        'disable_map_icons',
+        'escape',
+        'mother_brain_no_drain',
+        'tourian_map',
+        'tourian_eye_door',
+        'no_explosions_before_escape',
+        'escape_room_1',
+        'unexplore',
+        'max_ammo_display',
+        'missile_refill_all',
+        'sound_effect_disables',
+        'title_map_animation',
+    ]
+    for patch_name in patches:
+        patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
+        rom.bytes_io = BytesIO(patch.apply(rom.bytes_io.getvalue()))
+
+    patch_music(rom, map)
+
+    # rom.write_u16(0x79213 + 24, 0xEB00)
+    # rom.write_u16(0x7922D + 24, 0xEB00)
+    # rom.write_u16(0x79247 + 24, 0xEB00)
+    # rom.write_u16(0x79247 + 24, 0xEB00)
+    # rom.write_u16(0x79261 + 24, 0xEB00)
+
+    # Connect bottom left landing site door to mother brain room, for testing
+    if args.debug:
+        mb_door_bytes = orig_rom.read_n(0X1AAC8, 12)
+        rom.write_n(0x18916, 12, mb_door_bytes)
+
+    # Restore acid in Tourian Escape Room 4:
+    rom.write_u16(snes2pc(0x8FDF03), 0xC953)  # Vanilla setup ASM pointer
+    rom.write_u8(snes2pc(0x8FC95B), 0x60)  # RTS (return early from setup ASM to skip setting up shaking)
+
+    # # Change setup asm for Mother Brain room
+    # rom.write_u16(0x7DD6E + 24, 0xEB00)
+
 
     # title_bg_pal = open('gfx/title/title_bg.pal', 'rb').read()
     # rom.write_n(0x661E9, 512, title_bg_pal)
@@ -1165,6 +1168,12 @@ def randomize():
 
     # Release Spore Spawn camera so it won't be glitched when entering from the right.
     rom.write_n(snes2pc(0xA5EADA), 3, bytes([0xEA, 0xEA, 0xEA]))  # NOP:NOP:NOP
+
+    # TODO: Likewise release Kraid camera so it won't be glitched when entering from the right.
+    # rom.write_u16(snes2pc(0xA7A9E5), 0)
+    # rom.write_n(snes2pc(0xA7A9E7), 3, bytes([0xEA, 0xEA, 0xEA]))  # NOP:NOP:NOP
+    # # rom.write_n(snes2pc(0xA7A9ED), 4, bytes([0xEA, 0xEA, 0xEA, 0xEA]))  # NOP:NOP:NOP:NOP
+    # rom.write_n(snes2pc(0xA7A9F4), 4, bytes([0xEA, 0xEA, 0xEA, 0xEA]))  # NOP:NOP:NOP:NOP
 
     # In Shaktool room, skip setting screens to red scroll (so that it won't glitch out when entering from the right):
     rom.write_u8(snes2pc(0x84B8DC), 0x60)  # RTS

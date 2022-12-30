@@ -47,33 +47,35 @@ rom = Rom(open(input_rom_path, 'rb'))
 
 patches = [
     'new_game_extra',
-    'saveload',
-    'DC_map_patch_2',
-    'vanilla_bugfixes',
-    'music',
-    'crateria_sky_fixed',
-    'everest_tube',
-    'sandfalls',
+    'hud_expansion_opaque',
+    # 'mb_barrier',
+    # 'mb_barrier_clear',
+    # 'saveload',
+    # 'DC_map_patch_1',
+    # 'DC_map_patch_2',
+    # 'vanilla_bugfixes',
+    # 'music',
+    # 'crateria_sky_fixed',
+    # 'everest_tube',
+    # 'sandfalls',
     # 'map_area',
-    'mb_barrier',
-    'mb_barrier_clear',
     # # Seems to incompatible with fast_doors due to race condition with how level data is loaded (which fast_doors speeds up)?
     # 'fast_doors',
-    'elevators_speed',
-    'boss_exit',
-    'itemsounds',
-    'progressive_suits',
-    'disable_map_icons',
-    'escape',
-    'mother_brain_no_drain',
-    'tourian_map',
-    'tourian_eye_door',
-    'no_explosions_before_escape',
-    'escape_room_1',
-    'unexplore',
-    'max_ammo_display',
-    'missile_refill_all',
-    'sound_effect_disables',
+    # 'elevators_speed',
+    # 'boss_exit',
+    # 'itemsounds',
+    # 'progressive_suits',
+    # 'disable_map_icons',
+    # 'escape',
+    # 'mother_brain_no_drain',
+    # 'tourian_map',
+    # 'tourian_eye_door',
+    # 'no_explosions_before_escape',
+    # 'escape_room_1',
+    # 'unexplore',
+    # 'max_ammo_display',
+    # 'missile_refill_all',
+    # 'sound_effect_disables',
 ]
 for patch_name in patches:
     patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
@@ -91,40 +93,44 @@ for patch_name in patches:
 # rom.write_u16(ptr + 2, 0)
 
 # Supers do double damage to Mother Brain.
-rom.write_u8(snes2pc(0xB4F1D5), 0x84)
+# rom.write_u8(snes2pc(0xB4F1D5), 0x84)
 
 # Set tiles unexplored
-rom.write_n(snes2pc(0xB5F000), 0x600, bytes(0x600 * [0x00]))
+# rom.write_n(snes2pc(0xB5F000), 0x600, bytes(0x600 * [0x00]))
 
-#
+# Connect Landing Site bottom left door to Mother Brain room, for testing
+# mb_door_bytes = rom.read_n(0X1AAC8, 12)
+# rom.write_n(0x18916, 12, mb_door_bytes)
+# rom.write_u16(0x18916 + 10, 0xEB00)
+
+# Change setup asm for Mother Brain room
+# rom.write_u16(0x7DD6E + 24, 0xEB00)
+
+old_y = rom.read_u8(0x7D5A7 + 3)
+rom.write_u8(0x7D5A7 + 3, old_y - 4)
+
 area_arr = [rom.read_u8(room.rom_address + 1) for room in rooms]
 map_patcher = MapPatcher(rom, area_arr)
-# map_patcher.apply_map_patches()
+map_patcher.apply_map_patches()
 #
-# # Messing around with removing the bottom part of the pause menu, since these occupy a lot of tiles that we
-# # might want to repurpose for something more useful (e.g. showing door locations on the map). Looks funny though:
-# # n = 0x1C0
-# # rom.write_n(snes2pc(0xB6E640), n, (n // 2) * [0x00, 0x00])
-# #
-#
-import numpy as np
-image = np.zeros([128, 128])
-for i in range(256):
-    data = map_patcher.read_tile_2bpp(i)
-    x = i // 16
-    y = i % 16
-    x0 = x * 8
-    x1 = (x + 1) * 8
-    y0 = y * 8
-    y1 = (y + 1) * 8
-    image[x0:x1, y0:y1] = data
-    # for row in data:
-    #     print(''.join('{:x}'.format(x) for x in row))
-    # data = read_tile_4bpp(rom, snes2pc(0xB68000), i)
-    # for row in data:
-    #     print(''.join('{:x}'.format(x) for x in row))
-from matplotlib import pyplot as plt
-plt.imshow(image)
+# import numpy as np
+# image = np.zeros([128, 128])
+# for i in range(256):
+#     data = map_patcher.read_tile_2bpp(i)
+#     x = i // 16
+#     y = i % 16
+#     x0 = x * 8
+#     x1 = (x + 1) * 8
+#     y0 = y * 8
+#     y1 = (y + 1) * 8
+#     image[x0:x1, y0:y1] = data
+#     # for row in data:
+#     #     print(''.join('{:x}'.format(x) for x in row))
+#     # data = read_tile_4bpp(rom, snes2pc(0xB68000), i)
+#     # for row in data:
+#     #     print(''.join('{:x}'.format(x) for x in row))
+# from matplotlib import pyplot as plt
+# plt.imshow(image)
 #
 # # rom.write_u16(snes2pc(0x819124), 0x0009)   # File select index 9 - load
 #
@@ -139,4 +145,4 @@ plt.imshow(image)
 
 rom.save(output_rom_path)
 os.system(f"rm {output_rom_path[:-4]}.srm")
-print("{}/{} free tiles used".format(map_patcher.next_free_tile_idx, len(free_tiles)))
+# print("{}/{} free tiles used".format(map_patcher.next_free_tile_idx, len(free_tiles)))

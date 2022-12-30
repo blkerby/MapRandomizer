@@ -1,2 +1,3 @@
 $EFD3 - $F0FF: itemsounds.asm
 $F100 - $F1FF: missile_refill_all.asm
+$F200 - $F300: mb_barrier_clear.asm (to remove invisible spikes after Mother Brain defeaed)

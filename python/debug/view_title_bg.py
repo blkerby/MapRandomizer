@@ -34,65 +34,52 @@ def read_graphics(rom, pal_addr, gfx_addr, tilemap_addr):
 
 def patch_title(rom):
     import PIL
-    import PIL.Image
+    from rando.make_title_bg import encode_graphics
     from rando.compress import compress
-    from rando.make_title import encode_graphics
-    pal_offset = 1
     title_bg_png = PIL.Image.open('gfx/title/Title3.png')
     # title_bg_png = PIL.Image.open('gfx/title/titlesimplified2.png')
     title_bg = np.array(title_bg_png)[:, :, :3]
     pal, gfx, tilemap = encode_graphics(title_bg)
-    gfx = gfx + pal_offset
+    gfx = gfx + 1  # Avoid touching the background color (0)
     compressed_gfx = compress(gfx.tobytes())
     compressed_tilemap = compress(tilemap.tobytes())
-    print("Compressed GFX size:", len(compressed_gfx))
-    print("Compressed tilemap size:", len(compressed_tilemap))
-    rom.write_n(0x661E9 + 2 * pal_offset, len(pal.tobytes()), pal.tobytes())
-    gfx_free_space_pc = 0x1C0000
-    gfx_free_space_snes = pc2snes(gfx_free_space_pc)
-    # rom.write_n(0xA6000, len(compressed_gfx), compressed_gfx)
-    rom.write_n(gfx_free_space_pc, len(compressed_gfx), compressed_gfx)
-    rom.write_u8(snes2pc(0x8B9BA8), gfx_free_space_snes >> 16)
-    rom.write_u16(snes2pc(0x8B9BAC), gfx_free_space_snes & 0xFFFF)
-
-    gfx_free_space_pc += len(compressed_gfx)
-    gfx_free_space_snes = pc2snes(gfx_free_space_pc)
-    rom.write_n(gfx_free_space_pc, len(compressed_tilemap), compressed_tilemap)
-    rom.write_u8(snes2pc(0x8B9BB9), gfx_free_space_snes >> 16)
-    rom.write_u16(snes2pc(0x8B9BBD), gfx_free_space_snes & 0xFFFF)
-    rom.write_n(snes2pc(0x8B9CB6), 3, bytes([0xEA, 0xEA, 0xEA]))  # Skip spawning baby metroid (NOP:NOP:NOP)
-    # rom.write_u8(snes2pc(0x8B97F7), 0x60)  # Skip spawn text glow
-    rom.write_n(snes2pc(0x8B9A34), 4, bytes([0xEA, 0xEA, 0xEA, 0xEA]))  # Skip pallete FX handler
-    # # title_bg_png = PIL.Image.open('gfx/title/Title.png')
-    # title_bg_png = PIL.Image.open('gfx/title/Title2.png')
-    # # title_bg_png = PIL.Image.open('gfx/title/titlesimplified2.png')
-    # title_bg = np.array(title_bg_png)[:, :, :3]
-    #
-    # pal, gfx, tilemap = encode_graphics(title_bg)
-    # compressed_gfx = compress(gfx.tobytes())
-    # compressed_tilemap = compress(tilemap.tobytes())
     # print("Compressed GFX size:", len(compressed_gfx))
     # print("Compressed tilemap size:", len(compressed_tilemap))
-    # rom.seek(0x661E9)
-    # rom.write(pal.tobytes())
-    # rom.seek(0xA6000)
-    # rom.write(compressed_gfx)
-    # rom.seek(0xB7C04)
-    # rom.write(compressed_tilemap)
-    # # rom.write_n(0x661E9, len(pal.tobytes()), pal.tobytes())
-    # # rom.write_n(0xA6000, len(compressed_gfx), compressed_gfx)
-    # # rom.write_n(0xB7C04, len(compressed_tilemap), compressed_tilemap)
+    rom.write_n(0x661E9 + 2, len(pal.tobytes()), pal.tobytes())
+    # Use white color for Nintendo copyright text (otherwise it would stay black since we skip the palette FX handler)
+    rom.write_u16(0x661E9 + 0xC9 * 2, 0x7FFF)
+    gfx_free_space_pc = 0x1C0000
+    new_gfx_addr_pc = gfx_free_space_pc
+    new_gfx_addr_snes = pc2snes(new_gfx_addr_pc)
+    # rom.write_n(0xA6000, len(compressed_gfx), compressed_gfx)
+    rom.write_n(gfx_free_space_pc, len(compressed_gfx), compressed_gfx)
+    rom.write_u8(snes2pc(0x8B9BA8), new_gfx_addr_snes >> 16)
+    rom.write_u16(snes2pc(0x8B9BAC), new_gfx_addr_snes & 0xFFFF)
+
+    gfx_free_space_pc += len(compressed_gfx)
+    new_tilemap_addr_pc = gfx_free_space_pc
+    new_tilemap_addr_snes = pc2snes(new_tilemap_addr_pc)
+    rom.write_n(gfx_free_space_pc, len(compressed_tilemap), compressed_tilemap)
+    rom.write_u8(snes2pc(0x8B9BB9), new_tilemap_addr_snes >> 16)
+    rom.write_u16(snes2pc(0x8B9BBD), new_tilemap_addr_snes & 0xFFFF)
+    rom.write_n(snes2pc(0x8B9CB6), 3, bytes([0xEA, 0xEA, 0xEA]))  # Skip spawning baby metroid (NOP:NOP:NOP)
+    # rom.write_u8(snes2pc(0x8B97F7), 0x60)  # Skip spawn text glow
+    rom.write_n(snes2pc(0x8B9A34), 4, bytes([0xEA, 0xEA, 0xEA, 0xEA]))  # Skip palette FX handler
+    return new_gfx_addr_pc, new_tilemap_addr_pc
 
 rom_path = f"{os.getenv('HOME')}/Downloads/Super Metroid (JU) [!].smc"
+# rom_path = f"{os.getenv('HOME')}/Downloads/smmr-v18-1732605487-231346227282193989981786096009053.sfc"
 rom_output_path = f"{os.getenv('HOME')}/Downloads/titletest.smc"
 # rom = open(rom_path, 'rb')
 # rom_bytes = open(rom_path, 'rb').read()
 # rom = io.BytesIO(rom_bytes)
 rom = Rom(open(rom_path, 'rb'))
 
-# patch_title(rom)
+new_gfx_addr_pc, new_tilemap_addr_pc = patch_title(rom)
 
-pal, gfx, tilemap, tiles_image, image = read_graphics(rom, pal_addr=0x661E9, gfx_addr=0xA6000, tilemap_addr=0xB7C04)
+# pal, gfx, tilemap, tiles_image, image = read_graphics(rom, pal_addr=0x661E9, gfx_addr=0xA6000, tilemap_addr=0xB7C04)
+pal, gfx, tilemap, tiles_image, image = read_graphics(rom, pal_addr=0x661E9, gfx_addr=new_gfx_addr_pc, tilemap_addr=new_tilemap_addr_pc)
+
 
 pal_image = np.tile(pal.reshape([16, 1, 16, 1, 3]), [1, 16, 1, 16, 1]).reshape(256, 256, 3) * 8
 

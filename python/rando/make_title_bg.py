@@ -15,6 +15,15 @@ def encode_graphics(image):
     tiles_list = []
     tiles_dict = {}
     num_distinct_tiles = 0
+
+    # Add the Map Station as the first 4 tiles:
+    for i in [20 * 128 + 15, 20 * 128 + 16, 21 * 128 + 15, 21 * 128 + 16]:
+        data = tuple(tiles[i, :].reshape([-1]))
+        # assert data not in tiles_dict
+        tiles_dict[data] = num_distinct_tiles
+        tiles_list.append(data)
+        num_distinct_tiles += 1
+
     for i in range(tiles.shape[0]):
         data = tuple(tiles[i, :].reshape([-1]))
         if data in tiles_dict:
