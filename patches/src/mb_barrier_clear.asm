@@ -1,6 +1,9 @@
 arch snes.cpu
 lorom
 
+org $83AAD2
+    dw $EB00  ; Set door ASM for Rinka Room toward Mother Brain
+
 org $8FEB00
     ; clear barriers in mother brain room based on main bosses killed:
     ; clear kraid barrier
