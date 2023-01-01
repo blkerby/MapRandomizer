@@ -1,4 +1,9 @@
 TODO:
+- escape revamp:
+    - set timer based on distance (rough estimate based on map tiles, we could refine later with "frames" in sm-json-data)
+    - collect & equip all items when Samus gets hyper beam
+       - make sure this doesn't affect the item collected % in the credits
+    - auto-save at start of escape.
 - fix font in message boxes
     - also map tiles showing next to pause menu area name, which should be black (comes from TR map patch)
 - fix fine logic details in Kraid fight:
@@ -7,9 +12,7 @@ TODO:
     - if entering from the right, there may be some energy or item requirements to cross the spikes to get to the
       left (the vanilla game requirements might be a little different from Map Rando because of how the vanilla game
       teleports Samus to the left screen).
-- change boss room doors: let the door you enter be blue but opposite door be locked by boss?
-  - first make boss fight strats more accurate in the logic.
-- auto-save at start of escape.
+- add suitless strats for Ridley
 - during the escape, keep some enemies that could be used for movement? (or give all items with hyper beam)
   - grapple-able enemies in Mt Everest
   - wavers in red brinstar firefleas

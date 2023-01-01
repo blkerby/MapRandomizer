@@ -65,33 +65,11 @@ class ItemPlacementStrategy(Enum):
 #     doors: List[DoorPlacement]
 #     items: List[ItemPlacement]
 
-area_dict = {
-    0: "Crateria",
-    1: "Brinstar",
-    2: "Norfair",
-    3: "Wrecked Ship",
-    4: "Maridia",
-    5: "Tourian",
-}
-
 class Randomizer:
     def __init__(self, map, sm_json_data: SMJsonData, difficulty: DifficultyConfig):
         self.map = map
         self.sm_json_data = sm_json_data
         self.difficulty = difficulty
-
-        room_index_by_addr = {room.rom_address: i for i, room in enumerate(rooms)}
-        self.room_index_by_id = {}
-        for room_id, room_json in sm_json_data.room_json_dict.items():
-            room_address = int(room_json['roomAddress'], 16)
-            if room_address == 0x7D408:
-                room_address = 0x7D5A7  # Treat Toilet Bowl as part of Aqueduct
-            if room_address == 0x7D69A:
-                room_address = 0x7D646  # Treat East Pants Room as part of Pants Room
-            if room_address == 0x7968F:
-                room_address = 0x793FE  # Treat Homing Geemer Room as part of West Ocean
-            room_index = room_index_by_addr[room_address]
-            self.room_index_by_id[room_id] = room_index
 
         door_edges = []
         for conn in map['doors']:
@@ -108,80 +86,6 @@ class Randomizer:
                     dst_vertex_id = sm_json_data.vertex_index_dict[(dst_room_id, dst_node_id, i)]
                     door_edges.append((dst_vertex_id, src_vertex_id))
         self.door_edges = door_edges
-
-    def get_vertex_data(self, vertex_id):
-        room_id, node_id, obstacles_mask = self.sm_json_data.vertex_list[vertex_id]
-        room_json = self.sm_json_data.room_json_dict[room_id]
-        node_json = self.sm_json_data.node_json_dict[(room_id, node_id)]
-        room_index = self.room_index_by_id[room_id]
-        data = {
-            # 'vertex_id': vertex_id,
-            # 'room_id': room_id,
-            # 'node_id': node_id,
-            'area': area_dict[self.map['area'][room_index]],
-            'room': room_json['name'],
-            'node': node_json['name'],
-            'obstacles_mask': obstacles_mask,
-        }
-        return data
-
-    def get_spoiler_entry(self, selected_target_index, route_data, state: GameState, new_state, collect_name, step_number, rank):
-        graph, output_route_id, output_route_edge, output_route_prev = route_data
-        route_id = output_route_id[selected_target_index]
-        step_list = []
-        while route_id != 0:
-            graph_edge_index = output_route_edge[route_id]
-            dst_vertex_id = int(graph[graph_edge_index, 1])
-            energy_consumed = int(graph[graph_edge_index, 2])
-            missiles_consumed = int(graph[graph_edge_index, 3])
-            supers_consumed = int(graph[graph_edge_index, 4])
-            power_bombs_consumed = int(graph[graph_edge_index, 5])
-            link_index = int(graph[graph_edge_index, 6])
-
-            step = self.get_vertex_data(dst_vertex_id)
-            if energy_consumed != 0:
-                step['energy_consumed'] = energy_consumed
-            if missiles_consumed != 0:
-                step['missiles_consumed'] = missiles_consumed
-            if supers_consumed != 0:
-                step['supers_consumed'] = supers_consumed
-            if power_bombs_consumed != 0:
-                step['power_bombs_consumed'] = power_bombs_consumed
-            if link_index >= 0:
-                link = self.sm_json_data.link_list[link_index]
-                step['strat_name'] = link.strat_name
-            else:
-                step['strat_name'] = '(Door transition)'
-            step_list.append(step)
-            route_id = output_route_prev[route_id]
-        step_list = list(reversed(step_list))
-        route = {
-            'step_number': step_number,
-            'step_when_first_accessible': rank,
-            'collect': collect_name,
-            'start_state': {
-                **self.get_vertex_data(state.vertex_index),
-                'max_energy': state.max_energy,
-                'max_missiles': state.max_missiles,
-                'max_supers': state.max_super_missiles,
-                'max_power_bombs': state.max_power_bombs,
-                'current_energy': state.current_energy,
-                'current_missiles': state.current_missiles,
-                'current_supers': state.current_super_missiles,
-                'current_power_bombs': state.current_power_bombs,
-                'items': [item for item in sorted(state.items) if item not in ["PowerBeam", "PowerSuit"]],
-                'flags': list(sorted(state.flags)),
-            },
-            'steps': step_list,
-        }
-        summary = {
-            'step_number': step_number,
-            'step_when_first_accessible': rank,
-            'collect': collect_name,
-            **self.get_vertex_data(new_state.vertex_index)
-        }
-        del summary['obstacles_mask']
-        return route, summary
 
     def randomize(self, item_placement_strategy: ItemPlacementStrategy):
         # TODO: Split this function into more manageable-sized pieces and clean up.
@@ -207,15 +111,18 @@ class Randomizer:
             vertex_index=self.sm_json_data.vertex_index_dict[(8, 5, 0)])  # Ship (Landing Site)
 
         progression_flags = {
-            'f_DefeatedPhantoon',
             'f_ZebesAwake',
             'f_MaridiaTubeBroken',
-            'f_DefeatedBotwoon',
             'f_ShaktoolDoneDigging',
             'f_UsedAcidChozoStatue',
+            'f_DefeatedBotwoon',
             'f_DefeatedCrocomire',
             'f_DefeatedSporeSpawn',
+            'f_DefeatedGoldenTorizo',
             'f_DefeatedKraid',
+            'f_DefeatedPhantoon',
+            'f_DefeatedDraygon',
+            'f_DefeatedRidley',
         }
         items_to_place_count = {
             "Missile": 46,
@@ -436,7 +343,7 @@ class Randomizer:
                 new_reach_mask = None
                 new_route_data = None
 
-            spoiler_steps, spoiler_summary = self.get_spoiler_entry(selected_target_index, route_data, orig_state, state, collect_name, step_number, int(target_rank[selected_target_index]))
+            spoiler_steps, spoiler_summary = self.sm_json_data.get_spoiler_entry(selected_target_index, route_data, orig_state, state, collect_name, step_number, int(target_rank[selected_target_index]), self.map)
             self.spoiler_route.append(spoiler_steps)
             self.spoiler_summary.append(spoiler_summary)
             raw_reach = new_raw_reach

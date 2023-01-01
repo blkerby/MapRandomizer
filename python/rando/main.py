@@ -32,7 +32,7 @@ parser = argparse.ArgumentParser(description='Start the Map Rando web service.')
 parser.add_argument('--debug', type=bool, default=False, help='Run in debug mode')
 args = parser.parse_args()
 
-VERSION = 19
+VERSION = 20
 
 import logging
 from maze_builder.types import reconstruct_room_data, Direction, DoorSubtype
@@ -655,9 +655,8 @@ def randomize():
     orig_patches = [
         'mb_barrier2',
         'mb_barrier_clear',
-        # 'mb_left_entrance',
         'hud_expansion_opaque',
-        'gray_doors'
+        'gray_doors',
     ]
     for patch_name in orig_patches:
         patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
@@ -914,13 +913,12 @@ def randomize():
         0xC854,  # up gray door
         0xC84E,  # down gray door
     ]
-    boss_room_names = [
+    keep_gray_door_room_names = [
+        "Pit Room",
         "Kraid Room",
-        "Phantoon's Room",
         "Draygon's Room",
         "Ridley's Room",
-        "Crocomire's Room",
-        "Botwoon's Room",
+        "Golden Torizo's Room",
     ]
     for room_obj in rooms:
         room = RomRoom(orig_rom, room_obj)
@@ -932,8 +930,9 @@ def randomize():
                 if plm_type == 0:
                     break
                 # Remove PLMs for doors that we don't want: pink, green, yellow, Eye doors, spawning wall in escape
-                main_var_high = orig_rom.read_u8(ptr + 5)
-                is_removable_gray_door = plm_type in gray_door_plm_types and main_var_high != 0x0C and room_obj.name not in boss_room_names
+                # main_var_high = orig_rom.read_u8(ptr + 5)
+                # is_removable_gray_door = plm_type in gray_door_plm_types and main_var_high != 0x0C and room_obj.name not in keep_gray_door_room_names
+                is_removable_gray_door = plm_type in gray_door_plm_types and room_obj.name not in keep_gray_door_room_names
                 if plm_type in plm_types_to_remove or is_removable_gray_door:
                     rom.write_u16(ptr, 0xB63B)  # right continuation arrow (should have no effect, giving a blue door)
                     rom.write_u16(ptr + 2, 0)  # position = (0, 0)
