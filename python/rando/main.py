@@ -667,7 +667,7 @@ def randomize():
     old_y = orig_rom.read_u8(0x7D5A7 + 3)
     orig_rom.write_u8(0x7D5A7 + 3, old_y - 4)
 
-    # # # Change door asm for entering mother brain room from right
+    # Change door asm for entering mother brain room from right
     # orig_rom.write_u16(0x1AAC8 + 10, 0xEB00)
     # # rom.write_u16(0x1956A + 10, 0xEB00)
 
