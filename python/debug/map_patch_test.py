@@ -1,42 +1,11 @@
 from logic.rooms.all_rooms import rooms
 from rando.map_patch import MapPatcher, free_tiles
+from rando.rom import Rom, RomRoom, snes2pc
 import ips_util
 from io import BytesIO
 import io
 import os
 
-class Rom:
-    def __init__(self, file):
-        self.bytes_io = BytesIO(file.read())
-        self.byte_buf = self.bytes_io.getbuffer()
-
-    def read_u8(self, pos):
-        return self.byte_buf[pos]
-
-    def read_u16(self, pos):
-        return self.read_u8(pos) + (self.read_u8(pos + 1) << 8)
-
-    def read_u24(self, pos):
-        return self.read_u8(pos) + (self.read_u8(pos + 1) << 8) + (self.read_u8(pos + 2) << 16)
-
-    def read_n(self, pos, n):
-        return self.byte_buf[pos:(pos + n)]
-
-    def write_u8(self, pos, value):
-        self.byte_buf[pos] = value
-
-    def write_u16(self, pos, value):
-        self.byte_buf[pos] = value & 0xff
-        self.byte_buf[pos + 1] = value >> 8
-
-    def write_n(self, pos, n, values):
-        self.byte_buf[pos:(pos + n)] = values
-
-    def save(self, filename):
-        file = open(filename, 'wb')
-        file.write(self.byte_buf)
-
-snes2pc = lambda address: address >> 1 & 0x3F8000 | address & 0x7FFF
 
 input_rom_path = '/home/kerby/Downloads/Super Metroid (JU) [!].smc'
 # input_rom_path = '/home/kerby/Downloads/smmr-v8-66-115673117270825932886574167490559/smmr-v8-66-115673117270825932886574167490559.sfc'
@@ -47,9 +16,10 @@ rom = Rom(open(input_rom_path, 'rb'))
 
 patches = [
     'new_game_extra',
-    'hud_expansion_opaque',
-    # 'mb_barrier',
-    # 'mb_barrier_clear',
+    # 'hud_expansion_opaque',
+    # 'gray_doors',
+    'mb_barrier',
+    'mb_barrier_clear',
     # 'saveload',
     # 'DC_map_patch_1',
     # 'DC_map_patch_2',
@@ -79,8 +49,61 @@ patches = [
 ]
 for patch_name in patches:
     patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
-    rom.byte_buf = patch.apply(rom.byte_buf)
+    rom.bytes_io = BytesIO(patch.apply(rom.bytes_io.getvalue()))
 
+plm_types_to_remove = [
+    0xC88A, 0xC85A, 0xC872,  # right pink/yellow/green door
+    0xC890, 0xC860, 0xC878,  # left pink/yellow/green door
+    0xC896, 0xC866, 0xC87E,  # down pink/yellow/green door
+    0xC89C, 0xC86C, 0xC884,  # up pink/yellow/green door
+    0xDB48, 0xDB4C, 0xDB52, 0xDB56, 0xDB5A, 0xDB60,  # eye doors
+    0xC8CA,  # wall in Escape Room 1
+]
+gray_door_plm_types = [
+    0xC848,  # left gray door
+    0xC842,  # right gray door
+    0xC854,  # up gray door
+    0xC84E,  # down gray door
+]
+boss_room_names = [
+    "Kraid Room",
+    "Phantoon's Room",
+    "Draygon's Room",
+    "Ridley's Room",
+    "Crocomire's Room",
+    "Botwoon's Room",
+    "Bomb Torizo Room",
+]
+for room_obj in rooms:
+    room = RomRoom(rom, room_obj)
+    states = room.load_states(rom)
+    for state in states:
+        ptr = state.plm_set_ptr + 0x70000
+        while True:
+            plm_type = rom.read_u16(ptr)
+            if plm_type == 0:
+                break
+            # Remove PLMs for doors that we don't want: pink, green, yellow, Eye doors, spawning wall in escape
+            main_var_high = rom.read_u8(ptr + 5)
+            is_removable_gray_door = plm_type in gray_door_plm_types and main_var_high != 0x0C and room_obj.name not in boss_room_names
+            if plm_type == 0xBAF4:
+                # Replace Bomb Torizo door with normal gray door:
+                print(room_obj.name)
+                rom.write_u16(ptr, 0xC848)
+            elif plm_type in plm_types_to_remove or is_removable_gray_door:
+                print(room_obj.name)
+                rom.write_u16(ptr, 0xB63B)  # right continuation arrow (should have no effect, giving a blue door)
+                rom.write_u16(ptr + 2, 0)  # position = (0, 0)
+            ptr += 6
+
+# Delay closing of gray doors
+gray_door_delay_frames = 90
+rom.write_u16(snes2pc(0x84BEC2), gray_door_delay_frames)  # left door
+rom.write_u16(snes2pc(0x84BE59), gray_door_delay_frames)  # right door
+rom.write_u16(snes2pc(0x84BF94), gray_door_delay_frames)  # up door
+rom.write_u16(snes2pc(0x84BF2B), gray_door_delay_frames)  # down door
+# rom.write_u16(snes2pc(0x84BA50), 0x875A)
+# rom.write_u16(snes2pc(0x84BA52), 0x1000)
 
 # # Remove gray lock on Climb left door:
 # ptr = snes2pc(0x8F830C - 14)
@@ -96,22 +119,22 @@ for patch_name in patches:
 # rom.write_u8(snes2pc(0xB4F1D5), 0x84)
 
 # Set tiles unexplored
-# rom.write_n(snes2pc(0xB5F000), 0x600, bytes(0x600 * [0x00]))
+rom.write_n(snes2pc(0xB5F000), 0x600, bytes(0x600 * [0x00]))
 
 # Connect Landing Site bottom left door to Mother Brain room, for testing
-# mb_door_bytes = rom.read_n(0X1AAC8, 12)
-# rom.write_n(0x18916, 12, mb_door_bytes)
-# rom.write_u16(0x18916 + 10, 0xEB00)
+mb_door_bytes = rom.read_n(0X1AAC8, 12)
+rom.write_n(0x18916, 12, mb_door_bytes)
+rom.write_u16(0x18916 + 10, 0xEB00)
 
 # Change setup asm for Mother Brain room
-# rom.write_u16(0x7DD6E + 24, 0xEB00)
+rom.write_u16(0x7DD6E + 24, 0xEC80)
 
 old_y = rom.read_u8(0x7D5A7 + 3)
 rom.write_u8(0x7D5A7 + 3, old_y - 4)
 
 area_arr = [rom.read_u8(room.rom_address + 1) for room in rooms]
 map_patcher = MapPatcher(rom, area_arr)
-map_patcher.apply_map_patches()
+# map_patcher.apply_map_patches()
 #
 # import numpy as np
 # image = np.zeros([128, 128])

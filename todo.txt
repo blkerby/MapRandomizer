@@ -1,32 +1,47 @@
 TODO:
-- Fix first platform in Mother Brain room so you can't fall into them when running.
-- check if map reload is messing up timing at start of rooms (e.g. Beta Power Bombs)
-- prevent escape music from being interrupted (e.g. by Kraid's Room?)
-- add strat for jumping over fune with no damage (check osse Twitch clip).
-- update ammo refilled message box.
+- fix font in message boxes
+    - also map tiles showing next to pause menu area name, which should be black (comes from TR map patch)
+- fix fine logic details in Kraid fight:
+    - without Charge, there should be some minimal ammo requirement in order to reach the phase of the fight where
+      ammo becomes farmable.
+    - if entering from the right, there may be some energy or item requirements to cross the spikes to get to the
+      left (the vanilla game requirements might be a little different from Map Rando because of how the vanilla game
+      teleports Samus to the left screen).
+- change boss room doors: let the door you enter be blue but opposite door be locked by boss?
+  - first make boss fight strats more accurate in the logic.
+- auto-save at start of escape.
+- during the escape, keep some enemies that could be used for movement? (or give all items with hyper beam)
+  - grapple-able enemies in Mt Everest
+  - wavers in red brinstar firefleas
+  - platforms in wasteland
+  - bugs in west ocean for dboost
+  - others (see the discord #general chat for suggestions)
+- fix graphical problem with barriers in Mother Brain room (happened next to Crocomire's Room?)
 - consider putting map stations closer to the ship? (still balanced to one per area)
+- update ammo refilled message box.
+- another item placement mode where selected tech is forced
+- skip map select after game over
+- turn Crateria scrolling sky back on. Update values for the 14 doors here: https://patrickjohnston.org/bank/8F#fB76A.
+- fix fake gray door graphics in Kraid room, Phantoon room
+- check if map reload is messing up timing at start of rooms (e.g. Beta Power Bombs)
+  - or more likely music reload is a factor. Can we artificially trigger reload in Morph Ball room or do something else
+  to fix the timing with the hoppers?
 - shorten mother brain 1 death cutscene? (remove flashing?)
-- open escape door when reentering mother brain room from right with mother brain dead.
 - organize tech on website.
-- despawn enemies to reduce lag during escape (at least in some rooms)?
 - L + R + Select + Start to reset?
+- interactive spoiler map (with room maps, list of possible strats, etc.)
 - consider alternative item placement strategy:
   - prefer placing item at locations where you can get back (so the player doesn't have to take a leap of faith as much)
-- skip map select after game over
-- fix fake gray door graphics in Kraid room, Phantoon room
 - rework item placement to clean up, and so Big Pink isn't so stacked
   - use alternative fallback strategy (cumulative sequence) instead of placing random item.
-- display doors on map?
 - fix bug where wrong tiles sometimes show at top of pause-menu map
 - implement enemyKill in logic
 - rework item config:
   - extra axis for ammo openness
   - add middle setting
-- turn Crateria scrolling sky back on. Update values for the 14 doors here: https://patrickjohnston.org/bank/8F#fB76A.
 - figure out race condition between fastdoors and Mother Brain room setup. Maybe code around $80836F could be used
   to wait? Though maybe this doesn't matter because we don't want to add fastdoors anyway.
-- fix tiles below Warehouse Entrance
-- fix new game on second file (or after deleting first file)
+- figure out and fix what's going on with tiles below Warehouse Entrance when it crosses areas.
 - fix internal checksum in output ROM
 - Warn if base ROM checksum does not match vanilla.
 - Find some way to handle Baby metroid drain.
@@ -34,25 +49,21 @@ TODO:
     getting drained?
   - Deal with it correctly in the item logic
   - Possibly shorten the cutscene for quality of life (since it might be necessary to traverse it multiple times)
-- change boss room doors: let the door you enter be blue but opposite door be locked by boss?
-  - first make boss fight strats more accurate in the logic.
 - clean up the code everywhere
 - add README
     - make
 - take shinespark health requirements into account properly
 - redo the front-end.
   - make it so client can save presets.
-- fix timestamps in zip file
 - detect client hang-up and abort (probably requires switching to websocket request)
-- fix new game on second file: some data comes from other file?
 - fix map when using elevators (to set tiles to explored)
 - cross-area transitions
   - to fix graphical glitches (look into using special GFX flag?)
 - balance boss distribution (one boss per area, corresponding to vanilla?)
 - fix suit graphics not showing after getting suit (consequence of skipping animation)?
-- show map text for cross-area transitions?
-- increase PB drop rates on farms?
+- show map text for cross-area transitions? (or colored arrows)
 - minimizer mode? (select rooms to include randomly, hand-picked, and/or user-selected)
+- add strat for jumping over fune with no damage (check osse Twitch clip).
 
 title graphics notes:
   - title
@@ -70,6 +81,56 @@ title graphics notes:
      - normally mode 1 elsewhere
   - title BG GFX: $94:E000 (0xA6000)
   - title BG tilemap: $96:FC04 (0xB7C04)
+
+
+
+
+Notes on calculating PLM position (and comparing with Samus position):
+
+;    $0AF6: Samus X position (in pixels)
+;    $0AFA: Samus Y position (in pixels)
+;
+;    $1C29: PLM X block (calculated by $84:8290)
+;    $1C2B: PLM Y block (calculated by $84:8290)
+
+$84:82AA 8D 2B 1C    STA $1C2B  [$7E:1C2B]
+$84:82AD AD 16 42    LDA $4216  [$7E:4216]
+$84:82B0 8D 29 1C    STA $1C29  [$7E:1C29]
+
+
+;;; $BB6B: Pre-instruction - wake PLM if triggered or Samus is within 4 block column below PLM ;;;
+{
+$84:BB6B 22 90 82 84 JSL $848290[$84:8290]  ; Calculate PLM block co-ordinates
+$84:BB6F AD F6 0A    LDA $0AF6  [$7E:0AF6]  ;\
+$84:BB72 4A          LSR A                  ;|
+$84:BB73 4A          LSR A                  ;|
+$84:BB74 4A          LSR A                  ;} If [Samus X block] = [PLM X block]:
+$84:BB75 4A          LSR A                  ;|
+$84:BB76 CD 29 1C    CMP $1C29  [$7E:1C29]  ;|
+$84:BB79 D0 10       BNE $10    [$BB8B]     ;/
+$84:BB7B AD FA 0A    LDA $0AFA  [$7E:0AFA]  ;\
+$84:BB7E 4A          LSR A                  ;|
+$84:BB7F 4A          LSR A                  ;|
+$84:BB80 4A          LSR A                  ;|
+$84:BB81 4A          LSR A                  ;} If 0 <= [Samus Y block] - [PLM Y block] < 5: go to BRANCH_TRIGGERED
+$84:BB82 38          SEC                    ;|
+$84:BB83 ED 2B 1C    SBC $1C2B  [$7E:1C2B]  ;|
+$84:BB86 C9 05 00    CMP #$0005             ;|
+$84:BB89 90 05       BCC $05    [$BB90]     ;/
+
+$84:BB8B BD 77 1D    LDA $1D77,x[$7E:1DC5]  ;\
+$84:BB8E F0 13       BEQ $13    [$BBA3]     ;} If not triggered: return
+
+; BRANCH_TRIGGERED
+$84:BB90 FE 27 1D    INC $1D27,x[$7E:1D75]  ;\
+$84:BB93 FE 27 1D    INC $1D27,x[$7E:1D75]  ;} PLM instruction list pointer += 2
+$84:BB96 A9 01 00    LDA #$0001             ;\
+$84:BB99 9F 1C DE 7E STA $7EDE1C,x[$7E:DE6A];} PLM instruction timer = 1
+$84:BB9D A9 A3 BB    LDA #$BBA3             ;\
+$84:BBA0 9D D7 1C    STA $1CD7,x[$7E:1D25]  ;} PLM pre-instruction = RTS
+
+$84:BBA3 60          RTS
+
 
 
 Mini-map notes:
