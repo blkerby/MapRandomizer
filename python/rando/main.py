@@ -657,6 +657,7 @@ def randomize():
         'mb_barrier_clear',
         # 'mb_left_entrance',
         'hud_expansion_opaque',
+        'gray_doors'
     ]
     for patch_name in orig_patches:
         patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
@@ -899,52 +900,41 @@ def randomize():
     #     rom.write_u16(dst_ptr + 2, entrance_door_ptr & 0xffff)
 
     # item_dict = {}
+    plm_types_to_remove = [
+        0xC88A, 0xC85A, 0xC872,  # right pink/yellow/green door
+        0xC890, 0xC860, 0xC878,  # left pink/yellow/green door
+        0xC896, 0xC866, 0xC87E,  # down pink/yellow/green door
+        0xC89C, 0xC86C, 0xC884,  # up pink/yellow/green door
+        0xDB48, 0xDB4C, 0xDB52, 0xDB56, 0xDB5A, 0xDB60,  # eye doors
+        0xC8CA,  # wall in Escape Room 1
+    ]
+    gray_door_plm_types = [
+        0xC848,  # left gray door
+        0xC842,  # right gray door
+        0xC854,  # up gray door
+        0xC84E,  # down gray door
+    ]
+    boss_room_names = [
+        "Kraid Room",
+        "Phantoon's Room",
+        "Draygon's Room",
+        "Ridley's Room",
+        "Crocomire's Room",
+        "Botwoon's Room",
+    ]
     for room_obj in rooms:
         room = RomRoom(orig_rom, room_obj)
         states = room.load_states(rom)
         for state in states:
-            if room_obj.name == 'Pit Room' and state.event_ptr == 0xE652:
-                # Leave grey doors in post-Missile Pit Room intact, to leave a way to trigger Zebes becoming awake.
-                continue
             ptr = state.plm_set_ptr + 0x70000
             while True:
                 plm_type = orig_rom.read_u16(ptr)
                 if plm_type == 0:
                     break
-                # if plm_type in (0xC842, 0xC848, 0xC84E, 0xC854):
-                #     print('{}: {:04x} {:04x}'.format(room_obj.name, rom.read_u16(ptr + 2), rom.read_u16(ptr + 4)))
-                #     rom.write_u8(ptr + 5, 0x0)  # main boss dead
-                #     # rom.write_u8(ptr + 5, 0x0C)  # enemies dead
-
-                # # Collect item ids
-                # if (plm_type >> 8) in (0xEE, 0xEF):
-                #     item_type_index = rando.conditions.get_plm_type_item_index(plm_type)
-                #     print("{}: {}".format(room_obj.name, rando.conditions.item_list[item_type_index]))
-                #     item_dict[ptr] = plm_type
-                #     # print("{:x} {:x} {:x}".format(ptr, plm_type, item_id))
-
-                # Turn non-blue doors blue
-                if plm_type in (0xC88A, 0xC842, 0xC85A, 0xC872):  # right grey/yellow/green door
-                    # print('{}: {:x} {:x} {:x}'.format(room_obj.name, rom.read_u16(ptr), rom.read_u16(ptr + 2), rom.read_u16(ptr + 4)))
-                    # rom.write_u16(ptr, 0xC88A)  # right pink door
-                    rom.write_u16(ptr, 0xB63B)  # right continuation arrow (should have no effect, giving a blue door)
-                    rom.write_u16(ptr + 2, 0)  # position = (0, 0)
-                elif plm_type in (0xC890, 0xC848, 0xC860, 0xC878):  # left grey/yellow/green door
-                    # rom.write_u16(ptr, 0xC890)  # left pink door
-                    rom.write_u16(ptr, 0xB63B)  # right continuation arrow (should have no effect, giving a blue door)
-                    rom.write_u16(ptr + 2, 0)  # position = (0, 0)
-                elif plm_type in (0xC896, 0xC84E, 0xC866, 0xC87E):  # down grey/yellow/green door
-                    # rom.write_u16(ptr, 0xC896)  # down pink door
-                    rom.write_u16(ptr, 0xB63B)  # right continuation arrow (should have no effect, giving a blue door)
-                    rom.write_u16(ptr + 2, 0)  # position = (0, 0)
-                elif plm_type in (0xC89C, 0xC854, 0xC86C, 0xC884):  # up grey/yellow/green door
-                    # rom.write_u16(ptr, 0xC89C)  # up pink door
-                    rom.write_u16(ptr, 0xB63B)  # right continuation arrow (should have no effect, giving a blue door)
-                    rom.write_u16(ptr + 2, 0)  # position = (0, 0)
-                elif plm_type in (0xDB48, 0xDB4C, 0xDB52, 0xDB56, 0xDB5A, 0xDB60):  # eye doors
-                    rom.write_u16(ptr, 0xB63B)  # right continuation arrow (should have no effect, giving a blue door)
-                    rom.write_u16(ptr + 2, 0)  # position = (0, 0)
-                elif plm_type in (0xC8CA,):  # wall in Escape Room 1
+                # Remove PLMs for doors that we don't want: pink, green, yellow, Eye doors, spawning wall in escape
+                main_var_high = orig_rom.read_u8(ptr + 5)
+                is_removable_gray_door = plm_type in gray_door_plm_types and main_var_high != 0x0C and room_obj.name not in boss_room_names
+                if plm_type in plm_types_to_remove or is_removable_gray_door:
                     rom.write_u16(ptr, 0xB63B)  # right continuation arrow (should have no effect, giving a blue door)
                     rom.write_u16(ptr + 2, 0)  # position = (0, 0)
                 ptr += 6
@@ -1104,10 +1094,10 @@ def randomize():
     # rom.write_u16(0x79247 + 24, 0xEB00)
     # rom.write_u16(0x79261 + 24, 0xEB00)
 
-    # Connect bottom left landing site door to mother brain room, for testing
-    if args.debug:
-        mb_door_bytes = orig_rom.read_n(0X1AAC8, 12)
-        rom.write_n(0x18916, 12, mb_door_bytes)
+    # # Connect bottom left landing site door to mother brain room, for testing
+    # if args.debug:
+    #     mb_door_bytes = orig_rom.read_n(0X1AAC8, 12)
+    #     rom.write_n(0x18916, 12, mb_door_bytes)
 
     # Restore acid in Tourian Escape Room 4:
     rom.write_u16(snes2pc(0x8FDF03), 0xC953)  # Vanilla setup ASM pointer
@@ -1169,11 +1159,12 @@ def randomize():
     # Release Spore Spawn camera so it won't be glitched when entering from the right.
     rom.write_n(snes2pc(0xA5EADA), 3, bytes([0xEA, 0xEA, 0xEA]))  # NOP:NOP:NOP
 
-    # TODO: Likewise release Kraid camera so it won't be glitched when entering from the right.
-    # rom.write_u16(snes2pc(0xA7A9E5), 0)
+    # TODO: Likewise release Kraid camera so it won't be as glitched when entering from the right.
+    # rom.write_u16(snes2pc(0xA7A9E5), 0x0000)
     # rom.write_n(snes2pc(0xA7A9E7), 3, bytes([0xEA, 0xEA, 0xEA]))  # NOP:NOP:NOP
-    # # rom.write_n(snes2pc(0xA7A9ED), 4, bytes([0xEA, 0xEA, 0xEA, 0xEA]))  # NOP:NOP:NOP:NOP
-    # rom.write_n(snes2pc(0xA7A9F4), 4, bytes([0xEA, 0xEA, 0xEA, 0xEA]))  # NOP:NOP:NOP:NOP
+    # rom.write_n(snes2pc(0xA7A9ED), 4, bytes([0xEA, 0xEA, 0xEA, 0xEA]))  # NOP:NOP:NOP:NOP
+    rom.write_n(snes2pc(0xA7A9F4), 4, bytes([0xEA, 0xEA, 0xEA, 0xEA]))  # NOP:NOP:NOP:NOP
+    rom.write_u8(snes2pc(0xA7C9EE), 0x60)  # RTS. No longer restrict Samus X position to left screen
 
     # In Shaktool room, skip setting screens to red scroll (so that it won't glitch out when entering from the right):
     rom.write_u8(snes2pc(0x84B8DC), 0x60)  # RTS

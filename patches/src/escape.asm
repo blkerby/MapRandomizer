@@ -244,6 +244,7 @@ enemy_table:
     dw $daae,$e42d,$913e            ; tourian first room (vanilla data, for the elevator)
     dw $91f8,$8c0d,$8283            ; landing site (vanilla data, for the ship)
     dw $9804,$8ed3,$82a3            ; bomb torizo (vanilla data, for the animals)
+    dw $b1e5,acid_chozo,$86b1       ; acid chozo statue (so that the path can be opened)
     ;; table terminator
     dw $ffff
 
@@ -262,3 +263,6 @@ one_elev_list_3:
 one_elev_list_4:
     dw $D73F,$0480,$02A2,$0000,$2C00,$0000,$0001,$0018,$ffff
     db $00
+
+acid_chozo:
+    dw $F0FF,$002C,$009A,$0000,$2000,$0000,$0000,$0002,$FFFF
