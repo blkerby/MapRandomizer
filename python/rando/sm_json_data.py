@@ -7,10 +7,21 @@ import pathlib
 import dataclasses
 import numpy as np
 from dataclasses import dataclass
+from logic.rooms.all_rooms import rooms
 
 # C++ module for computing reachability in graph
 # (TODO: set this up more properly)
 import reachability
+
+
+area_dict = {
+    0: "Crateria",
+    1: "Brinstar",
+    2: "Norfair",
+    3: "Wrecked Ship",
+    4: "Maridia",
+    5: "Tourian",
+}
 
 # An upper bound on the possible max amount of resources
 ENERGY_LIMIT = 1899
@@ -488,6 +499,13 @@ def find_key(x, key, prefix):
     else:
         return []
 
+# Rooms where we want the logic to take into account the gray door locks (elsewhere the gray doors are changed to blue)
+door_lock_allowed_room_ids = {
+    84,   # Kraid Room
+    193,  # Draygon's Room
+    142,  # Ridley's Room
+    150,  # Golden Torizo Room"
+}
 
 class SMJsonData:
     def __init__(self, sm_json_data_path):
@@ -547,6 +565,7 @@ class SMJsonData:
         self.link_list = []
         self.region_json_dict = {}
         self.target_dict = {}  # Maps vertex_id to Target
+        self.unlocked_node_dict = {}  # Maps locked (room_id, node_id) to corresponding unlocked node_id
 
         region_files = [str(f) for f in pathlib.Path(f"{sm_json_data_path}/region").glob("**/*.json")]
         for filename in region_files:
@@ -567,6 +586,20 @@ class SMJsonData:
             if "ceres" not in filename:
                 connection_data = json.load(open(filename, 'r'))
                 self.process_connections(connection_data)
+
+        room_index_by_addr = {room.rom_address: i for i, room in enumerate(rooms)}
+        self.room_index_by_id = {}
+        for room_id, room_json in self.room_json_dict.items():
+            room_address = int(room_json['roomAddress'], 16)
+            if room_address == 0x7D408:
+                room_address = 0x7D5A7  # Treat Toilet Bowl as part of Aqueduct
+            if room_address == 0x7D69A:
+                room_address = 0x7D646  # Treat East Pants Room as part of Pants Room
+            if room_address == 0x7968F:
+                room_address = 0x793FE  # Treat Homing Geemer Room as part of West Ocean
+            room_index = room_index_by_addr[room_address]
+            self.room_index_by_id[room_id] = room_index
+
 
     def is_weapon_considered(self, weapon_json: dict) -> bool:
         if weapon_json['situational']:
@@ -730,7 +763,7 @@ class SMJsonData:
         extra_node_list = []
         extra_link_list = []
         for node_json in room_json['nodes']:
-            if 'locks' in node_json and node_json['nodeType'] not in ('door', 'entrance'):
+            if 'locks' in node_json and (node_json['nodeType'] not in ('door', 'entrance') or room_json['id'] in door_lock_allowed_room_ids):
                 assert len(node_json['locks']) == 1
                 base_node_name = node_json['name']
                 lock = node_json['locks'][0]
@@ -743,6 +776,7 @@ class SMJsonData:
                 node_json['nodeType'] = 'junction'
 
                 new_node_json['id'] = next_node_id
+                self.unlocked_node_dict[(room_json['id'], node_json['id'])] = next_node_id
                 new_node_json['name'] = base_node_name + ' (unlocked)'
                 if yields is not None:
                     new_node_json['yields'] = yields
@@ -878,16 +912,22 @@ class SMJsonData:
                             # if not isinstance(cond, ImpossibleCondition):
                             self.link_list.append(Link(from_index, to_index, cond, strat_json['name']))
 
+    def add_connection(self, src_pair, dst_pair):
+        if src_pair in self.unlocked_node_dict:
+            src_room_id = src_pair[0]
+            src_pair = (src_room_id, self.unlocked_node_dict[src_pair])
+        src_ptr = self.node_ptr_dict.get(src_pair)
+        dst_ptr = self.node_ptr_dict.get(dst_pair)
+        if src_ptr is not None or dst_ptr is not None:
+            self.door_ptr_pair_dict[(src_ptr, dst_ptr)] = src_pair
+
     def process_connections(self, json_data):
         for connection in json_data['connections']:
             assert len(connection['nodes']) == 2
             src_pair = (connection['nodes'][0]['roomid'], connection['nodes'][0]['nodeid'])
             dst_pair = (connection['nodes'][1]['roomid'], connection['nodes'][1]['nodeid'])
-            src_ptr = self.node_ptr_dict.get(src_pair)
-            dst_ptr = self.node_ptr_dict.get(dst_pair)
-            if src_ptr is not None or dst_ptr is not None:
-                self.door_ptr_pair_dict[(src_ptr, dst_ptr)] = src_pair
-                self.door_ptr_pair_dict[(dst_ptr, src_ptr)] = dst_pair
+            self.add_connection(src_pair, dst_pair)
+            self.add_connection(dst_pair, src_pair)
 
     def get_graph(self, state: GameState, difficulty: DifficultyConfig, door_edges) -> np.array:
         graph = np.zeros([len(self.link_list) + len(door_edges), 7], dtype=np.int16)
@@ -932,6 +972,80 @@ class SMJsonData:
                                           current_resources, max_resources, output_cost,
                                           output_route_id, output_route_edge, output_route_prev)
         return output_cost, (graph, output_route_id, output_route_edge, output_route_prev)
+
+    def get_vertex_data(self, vertex_id, map):
+        room_id, node_id, obstacles_mask = self.vertex_list[vertex_id]
+        room_json = self.room_json_dict[room_id]
+        node_json = self.node_json_dict[(room_id, node_id)]
+        room_index = self.room_index_by_id[room_id]
+        data = {
+            # 'vertex_id': vertex_id,
+            # 'room_id': room_id,
+            # 'node_id': node_id,
+            'area': area_dict[map['area'][room_index]],
+            'room': room_json['name'],
+            'node': node_json['name'],
+            'obstacles_mask': obstacles_mask,
+        }
+        return data
+
+    def get_spoiler_entry(self, selected_target_index, route_data, state: GameState, new_state, collect_name, step_number, rank, map):
+        graph, output_route_id, output_route_edge, output_route_prev = route_data
+        route_id = output_route_id[selected_target_index]
+        step_list = []
+        while route_id != 0:
+            graph_edge_index = output_route_edge[route_id]
+            dst_vertex_id = int(graph[graph_edge_index, 1])
+            energy_consumed = int(graph[graph_edge_index, 2])
+            missiles_consumed = int(graph[graph_edge_index, 3])
+            supers_consumed = int(graph[graph_edge_index, 4])
+            power_bombs_consumed = int(graph[graph_edge_index, 5])
+            link_index = int(graph[graph_edge_index, 6])
+
+            step = self.get_vertex_data(dst_vertex_id, map)
+            if energy_consumed != 0:
+                step['energy_consumed'] = energy_consumed
+            if missiles_consumed != 0:
+                step['missiles_consumed'] = missiles_consumed
+            if supers_consumed != 0:
+                step['supers_consumed'] = supers_consumed
+            if power_bombs_consumed != 0:
+                step['power_bombs_consumed'] = power_bombs_consumed
+            if link_index >= 0:
+                link = self.link_list[link_index]
+                step['strat_name'] = link.strat_name
+            else:
+                step['strat_name'] = '(Door transition)'
+            step_list.append(step)
+            route_id = output_route_prev[route_id]
+        step_list = list(reversed(step_list))
+        route = {
+            'step_number': step_number,
+            'step_when_first_accessible': rank,
+            'collect': collect_name,
+            'start_state': {
+                **self.get_vertex_data(state.vertex_index, map),
+                'max_energy': state.max_energy,
+                'max_missiles': state.max_missiles,
+                'max_supers': state.max_super_missiles,
+                'max_power_bombs': state.max_power_bombs,
+                'current_energy': state.current_energy,
+                'current_missiles': state.current_missiles,
+                'current_supers': state.current_super_missiles,
+                'current_power_bombs': state.current_power_bombs,
+                'items': [item for item in sorted(state.items) if item not in ["PowerBeam", "PowerSuit"]],
+                'flags': list(sorted(state.flags)),
+            },
+            'steps': step_list,
+        }
+        summary = {
+            'step_number': step_number,
+            'step_when_first_accessible': rank,
+            'collect': collect_name,
+            **self.get_vertex_data(new_state.vertex_index, map),
+        }
+        del summary['obstacles_mask']
+        return route, summary
 
 # #
 # sm_json_data_path = "sm-json-data/"

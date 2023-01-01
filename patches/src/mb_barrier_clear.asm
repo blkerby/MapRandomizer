@@ -1,43 +1,12 @@
 arch snes.cpu
 lorom
 
-org $83AAD2
-;    dw $EB00  ; Set door ASM for Rinka Room toward Mother Brain
-;    dw $0000
-;    dw $C8C7
-
-org $8fdd86
-    dw $C8C7
-;    dw $EB00  ; Set setup ASM for Mother Brain Room
-
-org $8fDD60
-    db $00     ; set special GFX flag back to default
-
-;org $8fDD90
-;    db $00     ; set special GFX flag back to default
-;
-;org $8fDDAA
-;    db $00     ; set special GFX flag back to default
-;
-;org $8fDD76
-;    db $00     ; set special GFX flag back to default
-
 org $8FEB00
     ; clear barriers in mother brain room based on main bosses killed:
     ; clear kraid barrier
     lda $7ed829
     bit #$0001
     beq phantoon  ; skip clearing if kraid isn't dead
-;    dec $09c6
-;    lda #$0000
-;    ldx #$0002
-;loop:
-;    sta $7f0002, x
-;    inx
-;    inx
-;    cpx #$200
-;    bne loop
-
     lda $7f0276  ; copy level data from neighboring air tile
     sta $7f0274
     sta $7f02f4
@@ -133,15 +102,6 @@ motherbrain:
     ; Remove invisible spikes where Mother Brain used to be:
     jsl remove_spikes
 done:
-
-;    JSL $80835D  ; Disable NMI
-;    JSL $80985F[$80:985F]  ; Disable h/v-counter interrupts
-;    JSL $82E783[$82:E783]  ; Load CRE tiles, tileset tiles and tileset palette
-;    JSL $82E97C[$82:E97C]  ; Load library background
-;    JSL $80A176  ; Display the viewable part of the room
-;    JSL $848232  ; Load room PLM GFX
-;    JSL $80834B  ; Enable NMI
-
     rts
 
 
