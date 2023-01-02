@@ -1,0 +1,2 @@
+0000 - F75F: used by vanilla game
+F760 - F800: used by `escape.asm` for adjusting item percent calculation
