@@ -53,7 +53,7 @@ state = GameState(
     current_power_bombs=0,  # power_bombs,
     vertex_index=sm_json_data.vertex_index_dict[(8, 5, 0)])  # Ship (Landing Site)
     # vertex_index=1053)
-difficulty = DifficultyConfig(sm_json_data.tech_name_set, shine_charge_tiles=16, multiplier=1.0)
+difficulty = DifficultyConfig(sm_json_data.tech_name_set, shine_charge_tiles=16, resource_multiplier=1.0)
 randomizer = Randomizer(map, sm_json_data, difficulty)
 raw_reach, route_data = sm_json_data.compute_reachable_vertices(state, difficulty, randomizer.door_edges)
 # raw_reach, (graph, output_route_id, output_route_edge, output_route_prev) = \

@@ -1,0 +1,2 @@
+0000 - FB6F: used by vanilla game
+FB70 - FC00: used by escape.asm for acquiring all items with hyper beam
