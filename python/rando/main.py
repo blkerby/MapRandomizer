@@ -30,7 +30,7 @@ from rando.music_patch import patch_music, rerank_areas
 import argparse
 
 parser = argparse.ArgumentParser(description='Start the Map Rando web service.')
-parser.add_argument('--debug', type=bool, default=False, help='Run in debug mode')
+parser.add_argument('--debug', default=False, action=argparse.BooleanOptionalAction, help='Run in debug mode')
 args = parser.parse_args()
 
 VERSION = 21
@@ -66,13 +66,13 @@ presets = [
     ('Easy', {
         'shinesparkTiles': 32,
         'resourceMultiplier': 3.0,
-        'escapeTimerMultiplier': 3.0,
+        'escapeTimerMultiplier': 5.0,
         'tech': [],
     }),
     ('Medium', {
         'shinesparkTiles': 28,
         'resourceMultiplier': 2.0,
-        'escapeTimerMultiplier': 2.0,
+        'escapeTimerMultiplier': 3.0,
         'tech': [
             'canIBJ',
             'canWalljump',
@@ -85,7 +85,7 @@ presets = [
     ('Hard', {
         'shinesparkTiles': 24,
         'resourceMultiplier': 1.5,
-        'escapeTimerMultiplier': 1.5,
+        'escapeTimerMultiplier': 2.0,
         'tech': [
             'canJumpIntoIBJ',
             'canBombAboveIBJ',
@@ -113,7 +113,7 @@ presets = [
     ('Very Hard', {
         'shinesparkTiles': 20,
         'resourceMultiplier': 1.2,
-        'escapeTimerMultiplier': 1.2,
+        'escapeTimerMultiplier': 1.5,
         'tech': [
             'canTrickyJump',
             'canSuitlessLavaDive',
@@ -146,7 +146,7 @@ presets = [
     ('Expert', {
         'shinesparkTiles': 16,
         'resourceMultiplier': 1.0,
-        'escapeTimerMultiplier': 1.0,
+        'escapeTimerMultiplier': 1.2,
         'tech':
          [
              'canTrickyDashJump',
@@ -299,6 +299,8 @@ def preset_change_script():
                 document.getElementById("shinesparkTiles").value = {preset["shinesparkTiles"]};
                 document.getElementById("resourceMultiplier").value = {preset["resourceMultiplier"]};
                 document.getElementById("escapeTimerMultiplier").value = {preset["escapeTimerMultiplier"]};
+                document.getElementById("saveAnimalsNo").checked = true;
+                document.getElementById("saveAnimalsYes").checked = false;
                 {';'.join(f'document.getElementById("tech-{tech}").checked = {"true" if tech in preset["tech"] else "false"}' for tech in preset_tech_list)}
             }}
         ''')
@@ -416,6 +418,16 @@ def home():
                           <input type="text" class="form-control" name="escapeTimerMultiplier" id="escapeTimerMultiplier" value="3.0">
                         </div>
                       </div>
+                      <div class="form-group row m-2">
+                          <label class="col-sm-6 col-form-label" for="preset">Save the animals<br>
+                          <small>(Take into account extra time needed in the escape)</small></label>
+                          <div class="col-sm-4 btn-group my-3" role="group">
+                                <input type="radio" class="btn-check" name="saveAnimals" id="saveAnimalsNo" value="No" checked=true>
+                                <label class="btn btn-outline-primary" for="saveAnimalsNo">No</label>
+                                <input type="radio" class="btn-check" name="saveAnimals" id="saveAnimalsYes" value="Yes">
+                                <label class="btn btn-outline-primary" for="saveAnimalsYes">Yes</label>
+                          </div>
+                      </div>
                       <div class="form-group row my-2">
                         <div class="col-sm-12">
                           <div class="accordion my-2" id="accordion">
@@ -469,6 +481,7 @@ def home():
                             held while exiting the tile, since otherwise the game will immediately re-explore the tile.
                             <li>Saving at a different save station from the last save will advance to the next slot 
                             before saving, so you can return to an earlier save in case you get stuck.
+                            <li>Samus collects & equips all items (excluding beams, ammo, and tanks) when acquiring Hyper Beam.
                             </ul>
                             <p>
                         </div>
@@ -486,7 +499,6 @@ def home():
                             <li>Some sound effects are glitched (due to changing the music).
                             <li>Some map tiles associated with elevators do not appear correctly.
                             <li>Door transitions generally have some minor graphical glitches.
-                            <li>The escape timer is not tailored to the seed (but should be generous enough to be possible to beat).
                             <li>The end credits are vanilla.
                             </ul>
                         </div>
@@ -564,6 +576,11 @@ def randomize():
         return flask.Response("Invalid escapeTimerMultiplier", status=400)
 
     try:
+        save_animals = flask.request.form.get('saveAnimals') == 'Yes'
+    except:
+        return flask.Response("Invalid escapeTimerMultiplier", status=400)
+
+    try:
         random_seed = int(flask.request.form.get('randomSeed'))
     except:
         return flask.Response("Invalid randomSeed", status=400)
@@ -571,7 +588,8 @@ def randomize():
     tech = set(tech for tech in sm_json_data.tech_name_set if flask.request.form.get('tech-' + tech) != None)
     difficulty = DifficultyConfig(tech=tech, shine_charge_tiles=shine_charge_tiles,
                                   resource_multiplier=resource_multiplier,
-                                  escape_time_multiplier=escape_timer_multiplier)
+                                  escape_time_multiplier=escape_timer_multiplier,
+                                  save_animals=save_animals)
     output_file_prefix = f'smmr-v{VERSION}-{random_seed}-{encode_difficulty(difficulty)}'
     logging.info(f"Starting {output_file_prefix}: random_seed={random_seed}, item_placement_strategy={item_placement_strategy}, difficulty={difficulty}, ROM='{uploaded_rom_file.filename}' (hash={hash(input_buf)})")
     max_map_attempts = 500
@@ -615,7 +633,9 @@ def randomize():
         'seed': random_seed,
         'item_placement_strategy': item_placement_strategy.value,
         'shine_charge_tiles': difficulty.shine_charge_tiles,
-        'multiplier': difficulty.resource_multiplier,
+        'resource_multiplier': difficulty.resource_multiplier,
+        'escape_time_multiplier': difficulty.escape_time_multiplier,
+        'save_animals': difficulty.save_animals,
         'tech': list(sorted(difficulty.tech)),
     }
 
