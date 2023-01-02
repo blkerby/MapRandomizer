@@ -34,8 +34,8 @@ POWER_BOMB_LIMIT = 50
 class DifficultyConfig:
     tech: Set[str]  # Set of names of enabled tech (https://github.com/miketrethewey/sm-json-data/blob/master/tech.json)
     shine_charge_tiles: int  # Minimum number of tiles required to shinespark
-    multiplier: float  # Multiplier for energy/ammo requirements (1.0 is highest difficulty, larger values are easier)
-
+    resource_multiplier: float  # Multiplier for energy/ammo requirements (1.0 is highest difficulty, larger values are easier)
+    escape_time_multiplier: float
 
 @dataclass
 class Consumption:
@@ -143,7 +143,7 @@ class MissileCondition(Condition):
         self.amount = amount
 
     def get_consumption(self, state: GameState, difficulty: DifficultyConfig) -> Consumption:
-        return Consumption(missiles=int(self.amount * difficulty.multiplier))
+        return Consumption(missiles=int(self.amount * difficulty.resource_multiplier))
 
     def __repr__(self):
         return "Missile({})".format(self.amount)
@@ -154,7 +154,7 @@ class SuperMissileCondition(Condition):
         self.amount = amount
 
     def get_consumption(self, state: GameState, difficulty: DifficultyConfig) -> Consumption:
-        return Consumption(super_missiles=int(self.amount * difficulty.multiplier))
+        return Consumption(super_missiles=int(self.amount * difficulty.resource_multiplier))
 
     def __repr__(self):
         return "SuperMissile({})".format(self.amount)
@@ -165,7 +165,7 @@ class PowerBombCondition(Condition):
         self.amount = amount
 
     def get_consumption(self, state: GameState, difficulty: DifficultyConfig) -> Consumption:
-        return Consumption(power_bombs=int(self.amount * difficulty.multiplier))
+        return Consumption(power_bombs=int(self.amount * difficulty.resource_multiplier))
 
     def __repr__(self):
         return "PowerBomb({})".format(self.amount)
@@ -176,7 +176,7 @@ class EnergyCondition(Condition):
         self.amount = amount
 
     def get_consumption(self, state: GameState, difficulty: DifficultyConfig) -> Consumption:
-        return Consumption(energy=int(self.amount * difficulty.multiplier))
+        return Consumption(energy=int(self.amount * difficulty.resource_multiplier))
 
     def __repr__(self):
         return "Energy({})".format(self.amount)
@@ -260,9 +260,9 @@ class HeatCondition(Condition):
         if 'Varia' in state.items:
             return zero_consumption
         elif 'Gravity' in state.items:
-            return Consumption(energy=int(self.frames / 8 * difficulty.multiplier))
+            return Consumption(energy=int(self.frames / 8 * difficulty.resource_multiplier))
         else:
-            return Consumption(energy=int(self.frames / 4 * difficulty.multiplier))
+            return Consumption(energy=int(self.frames / 4 * difficulty.resource_multiplier))
 
     def __repr__(self):
         return "Heat({})".format(self.frames)
@@ -276,9 +276,9 @@ class LavaCondition(Condition):
         if 'Gravity' in state.items:
             return zero_consumption
         elif 'Varia' in state.items:
-            return Consumption(energy=int(self.frames / 4 * difficulty.multiplier))
+            return Consumption(energy=int(self.frames / 4 * difficulty.resource_multiplier))
         else:
-            return Consumption(energy=int(self.frames / 2 * difficulty.multiplier))
+            return Consumption(energy=int(self.frames / 2 * difficulty.resource_multiplier))
 
     def __repr__(self):
         return "Lava({})".format(self.frames)
@@ -290,9 +290,9 @@ class LavaPhysicsCondition(Condition):
 
     def get_consumption(self, state: GameState, difficulty: DifficultyConfig) -> Consumption:
         if 'Varia' in state.items:
-            return Consumption(energy=int(self.frames / 4 * difficulty.multiplier))
+            return Consumption(energy=int(self.frames / 4 * difficulty.resource_multiplier))
         else:
-            return Consumption(energy=int(self.frames / 2 * difficulty.multiplier))
+            return Consumption(energy=int(self.frames / 2 * difficulty.resource_multiplier))
 
     def __repr__(self):
         return "LavaPhysics({})".format(self.frames)
@@ -304,11 +304,11 @@ class AcidCondition(Condition):
 
     def get_consumption(self, state: GameState, difficulty: DifficultyConfig) -> Consumption:
         if 'Varia' in state.items and 'Gravity' in state.items:
-            return Consumption(energy=int(3 * self.frames / 8 * difficulty.multiplier))
+            return Consumption(energy=int(3 * self.frames / 8 * difficulty.resource_multiplier))
         elif 'Varia' in state.items or 'Gravity' in state.items:
-            return Consumption(energy=int(3 * self.frames / 4 * difficulty.multiplier))
+            return Consumption(energy=int(3 * self.frames / 4 * difficulty.resource_multiplier))
         else:
-            return Consumption(energy=int(3 * self.frames / 2 * difficulty.multiplier))
+            return Consumption(energy=int(3 * self.frames / 2 * difficulty.resource_multiplier))
 
     def __repr__(self):
         return "Acid({})".format(self.frames)
@@ -320,11 +320,11 @@ class SpikeHitCondition(Condition):
 
     def get_consumption(self, state: GameState, difficulty: DifficultyConfig) -> Consumption:
         if 'Varia' in state.items and 'Gravity' in state.items:
-            return Consumption(energy=int(15 * self.hits * difficulty.multiplier))
+            return Consumption(energy=int(15 * self.hits * difficulty.resource_multiplier))
         elif 'Varia' in state.items or 'Gravity' in state.items:
-            return Consumption(energy=int(30 * self.hits * difficulty.multiplier))
+            return Consumption(energy=int(30 * self.hits * difficulty.resource_multiplier))
         else:
-            return Consumption(energy=int(60 * self.hits * difficulty.multiplier))
+            return Consumption(energy=int(60 * self.hits * difficulty.resource_multiplier))
 
     def __repr__(self):
         return "SpikeHit({})".format(self.hits)
@@ -336,11 +336,11 @@ class ThornHitCondition(Condition):
 
     def get_consumption(self, state: GameState, difficulty: DifficultyConfig) -> Consumption:
         if 'Varia' in state.items and 'Gravity' in state.items:
-            return Consumption(energy=int(4 * self.hits * difficulty.multiplier))
+            return Consumption(energy=int(4 * self.hits * difficulty.resource_multiplier))
         elif 'Varia' in state.items or 'Gravity' in state.items:
-            return Consumption(energy=int(8 * self.hits * difficulty.multiplier))
+            return Consumption(energy=int(8 * self.hits * difficulty.resource_multiplier))
         else:
-            return Consumption(energy=int(16 * self.hits * difficulty.multiplier))
+            return Consumption(energy=int(16 * self.hits * difficulty.resource_multiplier))
 
     def __repr__(self):
         return "ThornHit({})".format(self.hits)
@@ -352,11 +352,11 @@ class HibashiHitCondition(Condition):
 
     def get_consumption(self, state: GameState, difficulty: DifficultyConfig) -> Consumption:
         if 'Varia' in state.items and 'Gravity' in state.items:
-            return Consumption(energy=int(7 * self.hits * difficulty.multiplier))
+            return Consumption(energy=int(7 * self.hits * difficulty.resource_multiplier))
         elif 'Varia' in state.items or 'Gravity' in state.items:
-            return Consumption(energy=int(15 * self.hits * difficulty.multiplier))
+            return Consumption(energy=int(15 * self.hits * difficulty.resource_multiplier))
         else:
-            return Consumption(energy=int(30 * self.hits * difficulty.multiplier))
+            return Consumption(energy=int(30 * self.hits * difficulty.resource_multiplier))
 
     def __repr__(self):
         return "HibashiHit({})".format(self.hits)
@@ -385,11 +385,11 @@ class EnemyDamageCondition(Condition):
 
     def get_consumption(self, state: GameState, difficulty: DifficultyConfig) -> Consumption:
         if 'Varia' in state.items and 'Gravity' in state.items:
-            return Consumption(energy=int(self.base_damage / 4 * difficulty.multiplier))
+            return Consumption(energy=int(self.base_damage / 4 * difficulty.resource_multiplier))
         elif 'Varia' in state.items or 'Gravity' in state.items:
-            return Consumption(energy=int(self.base_damage / 2 * difficulty.multiplier))
+            return Consumption(energy=int(self.base_damage / 2 * difficulty.resource_multiplier))
         else:
-            return Consumption(energy=int(self.base_damage * difficulty.multiplier))
+            return Consumption(energy=int(self.base_damage * difficulty.resource_multiplier))
 
     def __repr__(self):
         return "EnemyDamage({})".format(self.frames)

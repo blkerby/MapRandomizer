@@ -34,8 +34,8 @@ start_game:
     ;    stz $078B : stz $079f : stz $1f5b
 
     ; temporary extra stuff:
-;    lda #$F32F
-    lda #$E32F  ; (except Bombs)
+    lda #$F32F
+;    lda #$E32F  ; (except Bombs)
     sta $09A2   ; all items equipped
     sta $09A4   ; all items collected
     lda #$100b
@@ -62,9 +62,9 @@ start_game:
     sta $7ED90A
     sta $7ED90C
 
-;    lda #$0101     ; set G4 bosses defeated
-;    sta $7ED829
-;    sta $7ED82B
+    lda #$0101     ; set G4 bosses defeated
+    sta $7ED829
+    sta $7ED82B
 
     ; Copy initial explored tiles from B5:F000 (to set map station tiles to explored)
     ldx #$0600

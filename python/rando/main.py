@@ -14,6 +14,7 @@ import datetime
 
 from rando.sm_json_data import SMJsonData, GameState, Link, DifficultyConfig
 from rando.items import Randomizer
+from rando.escape import update_escape_timer
 from logic.rooms.all_rooms import rooms
 from maze_builder.types import Room, SubArea
 from maze_builder.display import MapDisplay
@@ -32,7 +33,7 @@ parser = argparse.ArgumentParser(description='Start the Map Rando web service.')
 parser.add_argument('--debug', type=bool, default=False, help='Run in debug mode')
 args = parser.parse_args()
 
-VERSION = 20
+VERSION = 21
 
 import logging
 from maze_builder.types import reconstruct_room_data, Direction, DoorSubtype
@@ -65,11 +66,13 @@ presets = [
     ('Easy', {
         'shinesparkTiles': 32,
         'resourceMultiplier': 3.0,
+        'escapeTimerMultiplier': 3.0,
         'tech': [],
     }),
     ('Medium', {
         'shinesparkTiles': 28,
         'resourceMultiplier': 2.0,
+        'escapeTimerMultiplier': 2.0,
         'tech': [
             'canIBJ',
             'canWalljump',
@@ -82,6 +85,7 @@ presets = [
     ('Hard', {
         'shinesparkTiles': 24,
         'resourceMultiplier': 1.5,
+        'escapeTimerMultiplier': 1.5,
         'tech': [
             'canJumpIntoIBJ',
             'canBombAboveIBJ',
@@ -109,6 +113,7 @@ presets = [
     ('Very Hard', {
         'shinesparkTiles': 20,
         'resourceMultiplier': 1.2,
+        'escapeTimerMultiplier': 1.2,
         'tech': [
             'canTrickyJump',
             'canSuitlessLavaDive',
@@ -141,6 +146,7 @@ presets = [
     ('Expert', {
         'shinesparkTiles': 16,
         'resourceMultiplier': 1.0,
+        'escapeTimerMultiplier': 1.0,
         'tech':
          [
              'canTrickyDashJump',
@@ -292,6 +298,7 @@ def preset_change_script():
             if (document.getElementById("preset{name}").checked) {{
                 document.getElementById("shinesparkTiles").value = {preset["shinesparkTiles"]};
                 document.getElementById("resourceMultiplier").value = {preset["resourceMultiplier"]};
+                document.getElementById("escapeTimerMultiplier").value = {preset["escapeTimerMultiplier"]};
                 {';'.join(f'document.getElementById("tech-{tech}").checked = {"true" if tech in preset["tech"] else "false"}' for tech in preset_tech_list)}
             }}
         ''')
@@ -305,7 +312,7 @@ def tech_change_script():
 def encode_difficulty(difficulty: DifficultyConfig):
     x = 0
     x = x * 22 + (difficulty.shine_charge_tiles - 12)
-    x = x * 91 + int(difficulty.multiplier * 10) - 10
+    x = x * 91 + int(difficulty.resource_multiplier * 10) - 10
     for tech in sorted(sm_json_data.tech_name_set):
         x *= 2
         if tech in difficulty.tech:
@@ -399,6 +406,14 @@ def home():
                         </label>
                         <div class="col-sm-2">
                           <input type="text" class="form-control" name="resourceMultiplier" id="resourceMultiplier" value="3.0">
+                        </div>
+                      </div>
+                      <div class="form-group row m-2">
+                        <label for="escapeTimerMultiplier" class="col-sm-6 col-form-label">Escape timer multiplier<br>
+                        <small>(Leniency factor on escape timer)</small>
+                        </label>
+                        <div class="col-sm-2">
+                          <input type="text" class="form-control" name="escapeTimerMultiplier" id="escapeTimerMultiplier" value="3.0">
                         </div>
                       </div>
                       <div class="form-group row my-2">
@@ -543,12 +558,20 @@ def randomize():
         return flask.Response("Invalid resourceMultiplier", status=400)
 
     try:
+        escape_timer_multiplier = float(flask.request.form.get('escapeTimerMultiplier'))
+        assert 0.0 < escape_timer_multiplier <= 10.0
+    except:
+        return flask.Response("Invalid escapeTimerMultiplier", status=400)
+
+    try:
         random_seed = int(flask.request.form.get('randomSeed'))
     except:
         return flask.Response("Invalid randomSeed", status=400)
 
     tech = set(tech for tech in sm_json_data.tech_name_set if flask.request.form.get('tech-' + tech) != None)
-    difficulty = DifficultyConfig(tech=tech, shine_charge_tiles=shine_charge_tiles, multiplier=resource_multiplier)
+    difficulty = DifficultyConfig(tech=tech, shine_charge_tiles=shine_charge_tiles,
+                                  resource_multiplier=resource_multiplier,
+                                  escape_time_multiplier=escape_timer_multiplier)
     output_file_prefix = f'smmr-v{VERSION}-{random_seed}-{encode_difficulty(difficulty)}'
     logging.info(f"Starting {output_file_prefix}: random_seed={random_seed}, item_placement_strategy={item_placement_strategy}, difficulty={difficulty}, ROM='{uploaded_rom_file.filename}' (hash={hash(input_buf)})")
     max_map_attempts = 500
@@ -592,14 +615,8 @@ def randomize():
         'seed': random_seed,
         'item_placement_strategy': item_placement_strategy.value,
         'shine_charge_tiles': difficulty.shine_charge_tiles,
-        'multiplier': difficulty.multiplier,
+        'multiplier': difficulty.resource_multiplier,
         'tech': list(sorted(difficulty.tech)),
-    }
-
-    spoiler_data = {
-        'summary': randomizer.spoiler_summary,
-        'route': randomizer.spoiler_route,
-        # 'items': spoiler_items,
     }
 
     # Rerank the areas to assign the less nice music to smaller areas:
@@ -1178,6 +1195,15 @@ def randomize():
 
     # # Skip map screens when starting after game over
     # rom.write_u16(snes2pc(0x81911F), 0x0006)
+
+    escape_spoiler = update_escape_timer(rom, map, sm_json_data, difficulty)
+
+    spoiler_data = {
+        'summary': randomizer.spoiler_summary,
+        'route': randomizer.spoiler_route,
+        'escape': escape_spoiler,
+        # 'items': spoiler_items,
+    }
 
     memory_file = BytesIO()
     files = [

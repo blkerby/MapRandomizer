@@ -97,7 +97,7 @@ def get_map(ind_i):
 sm_json_data_path = "sm-json-data/"
 sm_json_data = SMJsonData(sm_json_data_path)
 tech = set(sm_json_data.tech_name_set)
-difficulty = DifficultyConfig(tech=tech, shine_charge_tiles=33, multiplier=1.2)
+difficulty = DifficultyConfig(tech=tech, shine_charge_tiles=33, resource_multiplier=1.2)
 for room in rooms:
     room.populate()
 

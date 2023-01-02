@@ -266,3 +266,16 @@ one_elev_list_4:
 
 acid_chozo:
     dw $F0FF,$002C,$009A,$0000,$2000,$0000,$0000,$0002,$FFFF
+
+
+org $A9CD12
+    jsr get_hyper_beam
+
+; free space in bank $A9
+org $A9FB70
+get_hyper_beam:
+    jsl $91E4AD   ; run the hi-jacked instruction
+    lda #$F32F
+    sta $09A2   ; all items equipped
+    sta $09A4   ; all items collected
+    rts
