@@ -36,6 +36,7 @@ class DifficultyConfig:
     shine_charge_tiles: int  # Minimum number of tiles required to shinespark
     resource_multiplier: float  # Multiplier for energy/ammo requirements (1.0 is highest difficulty, larger values are easier)
     escape_time_multiplier: float
+    save_animals: bool
 
 @dataclass
 class Consumption:
