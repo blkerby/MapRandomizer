@@ -42,9 +42,7 @@ def does_edge_exist(room: Room, src_door_idx, dst_door_idx):
     dst_part = get_part(room, dst_door_idx)
     return A[src_part, dst_part] > 0
 
-# def compute_door_graph(map, sm_jsno)
-
-def compute_escape_data(map, sm_json_data):
+def compute_door_graph(map):
     graph = graph_tool.Graph(directed=True)
     dist_prop = graph.new_edge_property('float')
     door_dict = {}  # Mapping from door pair (exit_ptr, entrance_ptr) to vertex ID
@@ -90,10 +88,12 @@ def compute_escape_data(map, sm_json_data):
         if bidirectional:
             edge = graph.add_edge(dst_id, src_id)
             dist_prop[edge] = 0.0
+    return graph, dist_prop, door_dict, reverse_dict
 
-    src_vertex = graph.vertex(door_dict[(0x1AA8C, 0x1AAE0)])
-    dst_vertex = graph.vertex(door_dict[(None, None)])  # Landing Site
-    path_vertices, path_edges = graph_tool.topology.shortest_path(graph, graph.vertex(src_vertex), graph.vertex(dst_vertex), dist_prop)
+def compute_path(sm_json_data, graph, dist_prop, door_dict, reverse_dict, start_ptr_pair, end_ptr_pair):
+    start_vertex = door_dict[start_ptr_pair]
+    end_vertex = door_dict[end_ptr_pair]
+    path_vertices, path_edges = graph_tool.topology.shortest_path(graph, start_vertex, end_vertex, dist_prop)
     assert len(path_edges) > 0
 
     def get_vertex_name(vertex):
@@ -103,16 +103,16 @@ def compute_escape_data(map, sm_json_data):
         else:
             room_id, node_id = sm_json_data.door_ptr_pair_dict[ptr_pair]
             node_json = sm_json_data.node_json_dict[(room_id, node_id)]
-            return  node_json['name']
+            return node_json['name']
 
     total_dist = 0.0
     spoiler_path = []
     for edge in path_edges:
         total_dist += dist_prop[edge]
-        if dist_prop[edge] == 0:
-            continue
         src_name = get_vertex_name(edge.source())
         dst_name = get_vertex_name(edge.target())
+        if dist_prop[edge] == 0 and "Bomb Torizo" not in src_name and "Bomb Torizo" not in dst_name:
+            continue
         spoiler_path.append({
             'from': src_name,
             'to': dst_name,
@@ -120,8 +120,25 @@ def compute_escape_data(map, sm_json_data):
         })
     return total_dist, spoiler_path
 
+def compute_escape_data(map, sm_json_data, save_animals: bool):
+    graph, dist_prop, door_dict, reverse_dict = compute_door_graph(map)
+    mb_door_ptr_pair = (0x1AA8C, 0x1AAE0)
+    animals_ptr_pair = (0x18BAA, 0x18BC2)
+    ship_ptr_pair = (None, None)
+    if save_animals:
+        to_animals_dist, to_animals_path = compute_path(sm_json_data, graph, dist_prop, door_dict, reverse_dict,
+                                                        mb_door_ptr_pair, animals_ptr_pair)
+        to_ship_dist, to_ship_path = compute_path(sm_json_data, graph, dist_prop, door_dict, reverse_dict,
+                                                        animals_ptr_pair, ship_ptr_pair)
+        return to_animals_dist + to_ship_dist, to_animals_path + to_ship_path
+    else:
+        to_ship_dist, to_ship_path = compute_path(sm_json_data, graph, dist_prop, door_dict, reverse_dict,
+                                                mb_door_ptr_pair, ship_ptr_pair)
+        return to_ship_dist, to_ship_path
+
+
 def update_escape_timer(rom: Rom, map, sm_json_data: SMJsonData, difficulty: DifficultyConfig):
-    total_dist, spoiler_path = compute_escape_data(map, sm_json_data)
+    total_dist, spoiler_path = compute_escape_data(map, sm_json_data, difficulty.save_animals)
     base_time_in_seconds = difficulty.escape_time_multiplier * total_dist
     adjusted_time_in_seconds = base_time_in_seconds + 3 * math.sqrt(base_time_in_seconds)
     rounded_time_in_seconds = int(math.ceil(adjusted_time_in_seconds / 5) * 5)
@@ -135,16 +152,16 @@ def update_escape_timer(rom: Rom, map, sm_json_data: SMJsonData, difficulty: Dif
         'route': spoiler_path,
     }
 
-from rando.sm_json_data import SMJsonData
-import json
-from maze_builder.display import MapDisplay
-map = json.load(open('maps/session-2022-06-03T17:19:29.727911.pkl-bk30-subarea/999987.json', 'r'))
-
-sm_json_data = SMJsonData('sm-json-data')
-# map_display = MapDisplay(72, 72, 20)
-# map_display.display_vanilla_areas(map)
-# map_display.image.show()
-total_dist, spoiler_path = compute_escape_data(map, sm_json_data)
-spoiler_path
-
-# compute_escape_data(map)
+# from rando.sm_json_data import SMJsonData
+# import json
+# from maze_builder.display import MapDisplay
+# map = json.load(open('maps/session-2022-06-03T17:19:29.727911.pkl-bk30-subarea/999987.json', 'r'))
+#
+# sm_json_data = SMJsonData('sm-json-data')
+# # map_display = MapDisplay(72, 72, 20)
+# # map_display.display_vanilla_areas(map)
+# # map_display.image.show()
+# total_dist, spoiler_path = compute_escape_data(map, sm_json_data)
+# spoiler_path
+#
+# # compute_escape_data(map)
