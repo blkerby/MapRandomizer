@@ -206,9 +206,10 @@ class MapPatcher:
         self.index_basic_tile(ITEM_TOP_LEFT_TILE, left=EDGE_WALL, up=EDGE_WALL, interior=INTERIOR_ITEM)
         self.index_basic_tile(ITEM_TOP_LEFT_BOTTOM_TILE, left=EDGE_WALL, up=EDGE_WALL, down=EDGE_WALL, interior=INTERIOR_ITEM)
 
-    def write_tile_2bpp(self, index, data):
+    def write_tile_2bpp(self, index, data, switch_red_white: bool = True):
         # Replace red with white in the minimap (since red doesn't work there for some reason):
-        data = [[2 if x == 3 else x for x in row] for row in data]
+        if switch_red_white:
+            data = [[2 if x == 3 else x for x in row] for row in data]
 
         for row in range(8):
             addr = self.base_addr_2bpp + index * 16 + row * 2
