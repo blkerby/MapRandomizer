@@ -310,6 +310,7 @@ org $848950
     jsr escape_collect_item
 
 ; free space in bank $84
+org $84F300
 escape_collect_item:
     sta $09A4   ; run hi-jacked instruction
 
@@ -320,3 +321,4 @@ escape_collect_item:
     sta $1F5D
 
     rts
+warnpc $84F380
