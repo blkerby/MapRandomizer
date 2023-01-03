@@ -68,6 +68,11 @@ TODO:
 - minimizer mode? (select rooms to include randomly, hand-picked, and/or user-selected)
 - add strat for jumping over fune with no damage (check osse Twitch clip).
 
+
+notes on marking elevator tiles:
+- boss tile marking: $90:A7E2
+
+
 title graphics notes:
   - title
      - sprites GFX: $95:80D8 ("Super Metroid" graphics, "Nintendo", etc.):

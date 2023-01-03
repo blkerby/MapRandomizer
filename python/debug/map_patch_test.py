@@ -18,8 +18,8 @@ patches = [
     'new_game_extra',
     # 'hud_expansion_opaque',
     # 'gray_doors',
-    'mb_barrier',
-    'mb_barrier_clear',
+    # 'mb_barrier',
+    # 'mb_barrier_clear',
     # 'saveload',
     # 'DC_map_patch_1',
     # 'DC_map_patch_2',
@@ -97,11 +97,11 @@ for room_obj in rooms:
             ptr += 6
 
 # Delay closing of gray doors
-gray_door_delay_frames = 90
-rom.write_u16(snes2pc(0x84BEC2), gray_door_delay_frames)  # left door
-rom.write_u16(snes2pc(0x84BE59), gray_door_delay_frames)  # right door
-rom.write_u16(snes2pc(0x84BF94), gray_door_delay_frames)  # up door
-rom.write_u16(snes2pc(0x84BF2B), gray_door_delay_frames)  # down door
+# gray_door_delay_frames = 90
+# rom.write_u16(snes2pc(0x84BEC2), gray_door_delay_frames)  # left door
+# rom.write_u16(snes2pc(0x84BE59), gray_door_delay_frames)  # right door
+# rom.write_u16(snes2pc(0x84BF94), gray_door_delay_frames)  # up door
+# rom.write_u16(snes2pc(0x84BF2B), gray_door_delay_frames)  # down door
 # rom.write_u16(snes2pc(0x84BA50), 0x875A)
 # rom.write_u16(snes2pc(0x84BA52), 0x1000)
 

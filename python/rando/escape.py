@@ -24,6 +24,7 @@ def get_part_adjacency_matrix(room: Room):
     A[np.arange(n_parts), np.arange(n_parts)] = 1
     for src, dst in room.durable_part_connections:
         A[src, dst] = 1
+        A[dst, src] = 1
     for src, dst in room.transient_part_connections:
         A[src, dst] = 1
     A = np.minimum(np.matmul(A, A), 1.0)

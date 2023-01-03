@@ -234,3 +234,17 @@ class RomRoom:
                 ptr = self.xy_to_map_ptr(x + self.x, y + self.y)
                 if self.room.map[y][x] == 1:
                     rom.write_u16(ptr, self.map_data[y][x])
+
+
+def get_area_explored_bit_ptr(area, x, y):
+    # base_ptr = 0xCD52 + area * 0x100
+    base_ptr = 0x07f7
+    y1 = y + 1
+    if x < 32:
+        offset_in_bits = y1 * 32 + x
+    else:
+        offset_in_bits = (y1 + 32) * 32 + x - 32
+    offset_byte_part = offset_in_bits // 8
+    offset_bit_part = 7 - offset_in_bits % 8
+    offset_bitmask = 1 << offset_bit_part
+    return base_ptr + offset_byte_part, offset_bitmask
