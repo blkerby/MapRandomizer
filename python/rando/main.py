@@ -20,7 +20,7 @@ from maze_builder.types import Room, SubArea
 from maze_builder.display import MapDisplay
 import json
 import ips_util
-from rando.rom import Rom, RomRoom, area_map_ptrs, snes2pc, pc2snes
+from rando.rom import Rom, RomRoom, area_map_ptrs, snes2pc, pc2snes, get_area_explored_bit_ptr
 from rando.compress import compress
 from rando.make_title_bg import encode_graphics
 from rando.make_title import add_title
@@ -30,7 +30,7 @@ from rando.music_patch import patch_music, rerank_areas
 import argparse
 
 parser = argparse.ArgumentParser(description='Start the Map Rando web service.')
-parser.add_argument('--debug', default=False, action=argparse.BooleanOptionalAction, help='Run in debug mode')
+parser.add_argument('--debug', type=bool, default=False, help='Run in debug mode')
 args = parser.parse_args()
 
 VERSION = 21
@@ -767,18 +767,6 @@ def randomize():
             cell = rom.read_u16(rom_room.xy_to_map_ptr(rom_room.x + 2, rom_room.y + 2))
             rom.write_u16(rom_room.xy_to_map_ptr(rom_room.x + 2, rom_room.y + 3), cell)
 
-    extra_door_asm_dict = {
-        0x1A600: (0xE301, 0xED00),  # Aqueduct door down
-        0x1A60C: (0xE301, 0xED06),  # Aqueduct door up
-        0x191CE: (0xF7F0, 0xED0C),  # Kraid left
-        0x191DA: (0xF7F0, 0xED12),  # Kraid right
-        0x1A96C: (0xF7F0, 0xED18),  # Draygon right
-        0x1A978: (0xF7F0, 0xED1E),  # Draygon left
-        0x193DE: (0xF7F0, 0xED24),  # Crocomire left door
-        0x193EA: (0xF7F0, 0xED2A),  # Crocomire top door
-        0x1A2C4: (0xF7F0, 0xED30),  # Phantoon door
-    }
-
     door_room_dict = {}
     for i, room in enumerate(rooms):
         for door_id in room.door_ids:
@@ -795,20 +783,41 @@ def randomize():
     for src, dst, _ in map['doors']:
         if tuple(src) in reload_cre_door_pairs:
             dst_room_i = door_room_dict[tuple(dst)]
-            # print("Seting reload CRE in {}".format(rooms[dst_room_i].name))
             rom.write_u8(rooms[dst_room_i].rom_address + 8, 2)  # Special GFX flag = Reload CRE
         if tuple(dst) in reload_cre_door_pairs:
             src_room_i = door_room_dict[tuple(src)]
-            # print("Seting reload CRE in {}".format(rooms[src_room_i].name))
             rom.write_u8(rooms[src_room_i].rom_address + 8, 2)  # Special GFX flag = Reload CRE
 
-    # boss_exit_asm = 0xF7F0
-    # # Kraid:
-    # rom.write_u16(0x191CE + 10, boss_exit_asm)
-    # rom.write_u16(0x191DA + 10, boss_exit_asm)
-    # # Draygon:
-    # rom.write_u16(0x1A978 + 10, boss_exit_asm)
-    # rom.write_u16(0x1A96C + 10, boss_exit_asm)
+    boss_exit_asm = 0xF7F0
+    toilet_exit_asm = 0xE301  # Return control of Samus after exiting the toilet
+    JSR = lambda x: bytes([0x20, x & 0xFF, x >> 8])
+
+    def explore_map_tile_asm(area, x, y):
+        byte_addr, bitmask = get_area_explored_bit_ptr(area, x, y)
+        out = bytearray()
+        out.extend([0xBF, byte_addr & 0xFF, byte_addr >> 8, 0x7E])  # LDA $7E:{byte_addr}
+        # out.extend([0x09, bitmask, 0x00])  # ORA #{bitmask}
+        out.extend([0x09, 0xFF, 0xff])  # ORA #{bitmask}
+        out.extend([0x9F, byte_addr & 0xFF, byte_addr >> 8, 0x7E])  # STA $7E:{byte_addr}
+        return bytes(out)
+
+    extra_door_asm_dict = {
+        0x1A600: JSR(toilet_exit_asm),  # Aqueduct door down
+        0x1A60C: JSR(toilet_exit_asm),  # Aqueduct door up
+        0x191CE: JSR(boss_exit_asm),  # Kraid left
+        0x191DA: JSR(boss_exit_asm),  # Kraid right
+        0x1A96C: JSR(boss_exit_asm),  # Draygon right
+        0x1A978: JSR(boss_exit_asm),  # Draygon left
+        0x193DE: JSR(boss_exit_asm),  # Crocomire left door
+        0x193EA: JSR(boss_exit_asm),  # Crocomire top door
+        0x1A2C4: JSR(boss_exit_asm),  # Phantoon door
+        0x18916: bytes([0xCE, 0xC6, 0x09]) + b''.join(explore_map_tile_asm(0, i, i) for i in range(30)),  # Landing site door (testing)
+    }
+    extra_door_asm_location = {}
+    door_asm_free_space = 0xED00  # in bank $8F
+    for door_addr, extra_asm_bytes in extra_door_asm_dict.items():
+        extra_door_asm_location[door_addr] = door_asm_free_space
+        door_asm_free_space += len(extra_asm_bytes) + 3  # Reserve 3 bytes for the JMP instruction to the original ASM
 
     def write_door_data(ptr, data):
         # print("door: {:x}: {}".format(ptr, data.tobytes()))
@@ -824,17 +833,17 @@ def randomize():
         # since the southbound one sets camera scrolls (for Oasis) that generally won't be applicable in the next
         # room. Using a similar technique we also run extra ASM for exiting bosses to prevent graphical glitches.
         if ptr in extra_door_asm_dict:
-            extra_asm, free_space = extra_door_asm_dict[ptr]
+            extra_asm = extra_door_asm_dict[ptr]
+            free_space = extra_door_asm_location[ptr]
+            # Create a new ASM in free space to run both the extra door ASM and destination door ASM (if applicable).
+            rom.write_u16(ptr + 10, free_space)
+            rom.write_n(0x70000 + free_space, len(extra_asm), extra_asm)
             if data[10] != 0 or data[11] != 0:
-                # Create a new ASM in free space to run both the extra door ASM and destination door ASM.
-                rom.write_u16(ptr + 10, free_space)
-                rom.write_u8(0x70000 + free_space, 0x20)  # JSR opcode (Jump to Subroutine)
-                rom.write_u16(0x70000 + free_space + 1, extra_asm)  # Run the extra ASM (e.g., toilet door ASM)
-                rom.write_u8(0x70000 + free_space + 3, 0x4C)  # JMP opcode (Jump)
-                rom.write_n(0x70000 + free_space + 4, 2, data[10:12])  # Run the door ASM for next room
+                rom.write_u8(0x70000 + free_space + len(extra_asm), 0x4C)  # JMP opcode (Jump)
+                rom.write_n(0x70000 + free_space + len(extra_asm) + 1, 2, data[10:12])  # Run the door ASM for next room
             else:
-                # Run only the extra ASM, because there is no destination door ASM.
-                rom.write_u16(ptr + 10, extra_asm)
+                # Return, because there is no original destination door ASM to run.
+                rom.write_u8(0x70000 + free_space + len(extra_asm), 0x60)  # RTS opcode (return from subroutine)
         elif ptr == 0x1A798:  # Pants Room right door
             rom.write_n(0x1A7BC, 12, data)  # Also write the same data to the East Pants Room right door
             rom.write_u8(0x1A7BC + 2, bitflag)
