@@ -1,1 +1,2 @@
 F70F - F800: map_area.asm
+F800 - F880: fast_reload

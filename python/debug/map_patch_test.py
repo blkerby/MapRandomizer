@@ -27,7 +27,8 @@ area_arr = [rom.read_u8(room.rom_address + 1) for room in rooms]
 
 patches = [
     'new_game_extra',
-    'hud_expansion_opaque',
+    'fast_reload',
+    # 'hud_expansion_opaque',
     # 'hud_expansion_transparent',
     # 'gray_doors',
     # 'mb_barrier',

@@ -1,4 +1,5 @@
 TODO:
+- Use colored arrows for cross-area transitions
 - way to avoid death when coming into tourian hopper room?
 - fix map tiles showing next to pause menu area name, which should be black (comes from TR map patch)
 - fix fine logic details in Kraid fight:
@@ -59,7 +60,6 @@ TODO:
   - to fix graphical glitches (look into using special GFX flag?)
 - balance boss distribution (one boss per area, corresponding to vanilla?)
 - fix suit graphics not showing after getting suit (consequence of skipping animation)?
-- show map text for cross-area transitions? (or colored arrows)
 - minimizer mode? (select rooms to include randomly, hand-picked, and/or user-selected)
 - add strat for jumping over fune with no damage (check osse Twitch clip).
 
