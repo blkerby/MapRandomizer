@@ -33,7 +33,7 @@ parser = argparse.ArgumentParser(description='Start the Map Rando web service.')
 parser.add_argument('--debug', type=bool, default=False, help='Run in debug mode')
 args = parser.parse_args()
 
-VERSION = 23
+VERSION = 24
 
 import logging
 from maze_builder.types import reconstruct_room_data, Direction, DoorSubtype
@@ -1216,6 +1216,7 @@ def randomize():
         'missile_refill_all',
         'sound_effect_disables',
         'title_map_animation',
+        'fast_reload',
     ]
     for patch_name in patches:
         patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
@@ -1311,9 +1312,6 @@ def randomize():
 
     # Make Supers do double damage to Mother Brain.
     rom.write_u8(snes2pc(0xB4F1D5), 0x84)
-
-    # # Skip map screens when starting after game over
-    # rom.write_u16(snes2pc(0x81911F), 0x0006)
 
     escape_spoiler = update_escape_timer(rom, map, sm_json_data, difficulty)
 
