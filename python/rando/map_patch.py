@@ -86,6 +86,16 @@ right_arrow_tile = [
     [0, 0, 0, 0, 0, 0, 0, 0],
 ]
 
+down_arrow_tile = [
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 3, 3, 0, 0, 0],
+    [0, 0, 0, 3, 3, 0, 0, 0],
+    [0, 0, 0, 3, 3, 0, 0, 0],
+    [0, 0, 0, 3, 3, 0, 0, 0],
+    [0, 3, 3, 3, 3, 3, 3, 0],
+    [0, 0, 3, 3, 3, 3, 0, 0],
+    [0, 0, 0, 3, 3, 0, 0, 0],
+]
 
 
 area_map_ptrs = {
@@ -178,6 +188,9 @@ FLIP_Y = 0x8000
 FLIP_X = 0x4000
 
 
+def rgb(r, g, b):
+    return (b << 10) | (g << 5) | r
+
 class MapPatcher:
     def __init__(self, rom, area_arr):
         self.next_free_tile_idx = 0
@@ -207,9 +220,9 @@ class MapPatcher:
         self.index_basic_tile(ITEM_TOP_LEFT_BOTTOM_TILE, left=EDGE_WALL, up=EDGE_WALL, down=EDGE_WALL, interior=INTERIOR_ITEM)
 
     def write_tile_2bpp(self, index, data, switch_red_white: bool = True):
-        # Replace red with white in the minimap (since red doesn't work there for some reason):
+        # Replace red (and new area-arrow colors) with white in the minimap (since red doesn't work there for some reason):
         if switch_red_white:
-            data = [[2 if x == 3 else x for x in row] for row in data]
+            data = [[2 if x >= 3 else x for x in row] for row in data]
 
         for row in range(8):
             addr = self.base_addr_2bpp + index * 16 + row * 2
@@ -760,19 +773,45 @@ class MapPatcher:
         for i in range(0x11727, 0x11D27):
             self.rom.write_u8(i, 0xFF)
 
-    def add_door_arrow(self, room_idx, door_id, RIGHT_ARROW_TILE):
+    def add_door_arrow(self, room_idx, door_id, right_arrow_tile_num, down_arrow_tile_num):
         dir = door_id.direction
         if dir == Direction.RIGHT:
-            self.patch_room_tile(room_idx, door_id.x + 1, door_id.y, RIGHT_ARROW_TILE)
+            self.patch_room_tile(room_idx, door_id.x + 1, door_id.y, right_arrow_tile_num)
         elif dir == Direction.LEFT:
-            self.patch_room_tile(room_idx, door_id.x - 1, door_id.y, RIGHT_ARROW_TILE | FLIP_X)
+            self.patch_room_tile(room_idx, door_id.x - 1, door_id.y, right_arrow_tile_num | FLIP_X)
         elif dir == Direction.DOWN:
-            self.patch_room_tile(room_idx, door_id.x, door_id.y + 1, DOWN_ARROW_TILE)
+            self.patch_room_tile(room_idx, door_id.x, door_id.y + 1, down_arrow_tile_num)
         elif dir == Direction.UP:
-            self.patch_room_tile(room_idx, door_id.x, door_id.y - 1, DOWN_ARROW_TILE | FLIP_Y)
+            self.patch_room_tile(room_idx, door_id.x, door_id.y - 1, down_arrow_tile_num | FLIP_Y)
 
     def add_cross_area_arrows(self, map):
-        RIGHT_ARROW_TILE = self.create_tile(right_arrow_tile)
+        extended_map_palette = {
+            5: rgb(0, 24, 0),
+            8: rgb(8, 8, 28),
+            9: rgb(28, 28, 8),
+        }
+        area_arrow_color_dict = {
+            0: 15,   # Crateria: dark gray
+            1: 5,    # Brinstar: green
+            2: 3,    # Norfair: red
+            3: 9,    # Wrecked Ship: yellow
+            4: 8,    # Maridia: blue
+            5: 14,   # Tourian: light gray
+        }
+        right_arrow_tile_nums = []
+        down_arrow_tile_nums = []
+        for area in range(6):
+            color_number = area_arrow_color_dict[area]
+            right_tile_data = [[color_number if x == 3 else x for x in row] for row in right_arrow_tile]
+            right_tile_num = self.create_tile(right_tile_data)
+            right_arrow_tile_nums.append(right_tile_num)
+            down_tile_data = [[color_number if x == 3 else x for x in row] for row in down_arrow_tile]
+            down_tile_num = self.create_tile(down_tile_data)
+            down_arrow_tile_nums.append(down_tile_num)
+
+        for i, color in extended_map_palette.items():
+            self.rom.write_u16(snes2pc(0xB6F000) + 2 * (0x20 + i), color)
+            self.rom.write_u16(snes2pc(0xB6F000) + 2 * (0x30 + i), color)
 
         door_pair_idx_dict = {}
         for room_idx, room in enumerate(rooms):
@@ -785,8 +824,8 @@ class MapPatcher:
             src_area = self.area_arr[src_room_idx]
             dst_area = self.area_arr[dst_room_idx]
             if src_area != dst_area:
-                self.add_door_arrow(src_room_idx, rooms[src_room_idx].door_ids[src_door_idx], RIGHT_ARROW_TILE)
-                self.add_door_arrow(dst_room_idx, rooms[dst_room_idx].door_ids[dst_door_idx], RIGHT_ARROW_TILE)
+                self.add_door_arrow(src_room_idx, rooms[src_room_idx].door_ids[src_door_idx], right_arrow_tile_nums[dst_area], down_arrow_tile_nums[dst_area])
+                self.add_door_arrow(dst_room_idx, rooms[dst_room_idx].door_ids[dst_door_idx], right_arrow_tile_nums[src_area], down_arrow_tile_nums[src_area])
 
     def set_map_stations_explored(self, map):
         self.rom.write_n(snes2pc(0xB5F000), 0x600, bytes(0x600 * [0x00]))
