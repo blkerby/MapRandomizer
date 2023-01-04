@@ -1,11 +1,6 @@
 TODO:
-- escape revamp:
-    - set timer based on distance (rough estimate based on map tiles, we could refine later with "frames" in sm-json-data)
-    - collect & equip all items when Samus gets hyper beam
-       - make sure this doesn't affect the item collected % in the credits
-    - auto-save at start of escape.
-- fix font in message boxes
-    - also map tiles showing next to pause menu area name, which should be black (comes from TR map patch)
+- way to avoid death when coming into tourian hopper room?
+- fix map tiles showing next to pause menu area name, which should be black (comes from TR map patch)
 - fix fine logic details in Kraid fight:
     - without Charge, there should be some minimal ammo requirement in order to reach the phase of the fight where
       ammo becomes farmable.

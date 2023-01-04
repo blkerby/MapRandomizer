@@ -24,7 +24,7 @@ from rando.rom import Rom, RomRoom, area_map_ptrs, snes2pc, pc2snes, get_area_ex
 from rando.compress import compress
 from rando.make_title_bg import encode_graphics
 from rando.make_title import add_title
-from rando.map_patch import MapPatcher
+from rando.map_patch import MapPatcher, room_dict
 from rando.balance_utilities import balance_utilities
 from rando.music_patch import patch_music, rerank_areas
 import argparse
@@ -33,7 +33,7 @@ parser = argparse.ArgumentParser(description='Start the Map Rando web service.')
 parser.add_argument('--debug', type=bool, default=False, help='Run in debug mode')
 args = parser.parse_args()
 
-VERSION = 21
+VERSION = 23
 
 import logging
 from maze_builder.types import reconstruct_room_data, Direction, DoorSubtype
@@ -497,7 +497,6 @@ def home():
                             <li>Even if the tech is not selected, wall jumps and crouch-jump/down-grabs may be required in some places.
                             <li>On Closed settings the game tends to be very stingy with giving extra ammo/tanks (other than Missiles).
                             <li>Some sound effects are glitched (due to changing the music).
-                            <li>Some map tiles associated with elevators do not appear correctly.
                             <li>Door transitions generally have some minor graphical glitches.
                             <li>The end credits are vanilla.
                             </ul>
@@ -648,10 +647,12 @@ def randomize():
     ys_max = np.array([p[1] + rooms[i].height for i, p in enumerate(map['rooms'])])
 
     door_room_dict = {}
+    door_id_dict = {}
     for i, room in enumerate(rooms):
         for door in room.door_ids:
             door_pair = (door.exit_ptr, door.entrance_ptr)
             door_room_dict[door_pair] = i
+            door_id_dict[door_pair] = door
     edges_list = []
     for conn in map['doors']:
         src_room_id = door_room_dict[tuple(conn[0])]
@@ -771,6 +772,10 @@ def randomize():
     for i, room in enumerate(rooms):
         for door_id in room.door_ids:
             door_room_dict[(door_id.exit_ptr, door_id.entrance_ptr)] = i
+    other_door_dict = {}
+    for src, dst, _ in map['doors']:
+        other_door_dict[tuple(dst)] = tuple(src)
+        other_door_dict[tuple(src)] = tuple(dst)
 
     # Find the rooms connected to Kraid and Crocomire and set them to reload CRE (to prevent graphical glitches).
     # Not sure if this is necessary for Crocomire, but the vanilla game does this so we do it to be safe.
@@ -792,13 +797,21 @@ def randomize():
     toilet_exit_asm = 0xE301  # Return control of Samus after exiting the toilet
     JSR = lambda x: bytes([0x20, x & 0xFF, x >> 8])
 
-    def explore_map_tile_asm(area, x, y):
-        byte_addr, bitmask = get_area_explored_bit_ptr(area, x, y)
+    def explore_map_tile_asm(current_area, tile_area, x, y):
+        byte_offset, bitmask = get_area_explored_bit_ptr(x, y)
         out = bytearray()
-        out.extend([0xBF, byte_addr & 0xFF, byte_addr >> 8, 0x7E])  # LDA $7E:{byte_addr}
-        # out.extend([0x09, bitmask, 0x00])  # ORA #{bitmask}
-        out.extend([0x09, 0xFF, 0xff])  # ORA #{bitmask}
-        out.extend([0x9F, byte_addr & 0xFF, byte_addr >> 8, 0x7E])  # STA $7E:{byte_addr}
+        if current_area == tile_area:
+            base_ptr = 0x07F7
+            byte_addr = base_ptr + byte_offset
+            out.extend([0xAD, byte_addr & 0xFF, byte_addr >> 8])  # LDA {byte_addr}
+            out.extend([0x09, bitmask, 0x00])  # ORA #{bitmask}
+            out.extend([0x8D, byte_addr & 0xFF, byte_addr >> 8])  # STA {byte_addr}
+        else:
+            base_ptr = 0xCD52 + tile_area * 0x100
+            byte_addr = base_ptr + byte_offset
+            out.extend([0xAF, byte_addr & 0xFF, byte_addr >> 8, 0x7E])  # LDA $7E:{byte_addr}
+            out.extend([0x09, bitmask, 0x00])  # ORA #{bitmask}
+            out.extend([0x8F, byte_addr & 0xFF, byte_addr >> 8, 0x7E])  # STA $7E:{byte_addr}
         return bytes(out)
 
     extra_door_asm_dict = {
@@ -811,13 +824,90 @@ def randomize():
         0x193DE: JSR(boss_exit_asm),  # Crocomire left door
         0x193EA: JSR(boss_exit_asm),  # Crocomire top door
         0x1A2C4: JSR(boss_exit_asm),  # Phantoon door
-        0x18916: bytes([0xCE, 0xC6, 0x09]) + b''.join(explore_map_tile_asm(0, i, i) for i in range(30)),  # Landing site door (testing)
+        # 0x18916: bytes([0xCE, 0xC6, 0x09]) + b''.join(explore_map_tile_asm(0, i, i) for i in range(30)),  # Landing site door (testing)
     }
+
+    def add_explore_tile_asm(door_ptr_pair, x, y):
+        room_idx = door_room_dict[door_ptr_pair]
+        room = rooms[room_idx]
+        room_x = rom.read_u8(room.rom_address + 2)
+        room_y = rom.read_u8(room.rom_address + 3)
+        area = area_arr[room_idx]
+        other_door_ptr_pair = other_door_dict[door_ptr_pair]
+        other_room_idx = door_room_dict[other_door_ptr_pair]
+        other_area = area_arr[other_room_idx]
+        if door_ptr_pair[0] not in extra_door_asm_dict:
+            extra_door_asm_dict[door_ptr_pair[0]] = bytes()
+        if other_door_ptr_pair[0] not in extra_door_asm_dict:
+            extra_door_asm_dict[other_door_ptr_pair[0]] = bytes()
+
+        explore_asm = explore_map_tile_asm(other_area, area, room_x + x, room_y + y)
+        extra_door_asm_dict[door_ptr_pair[0]] = extra_door_asm_dict[door_ptr_pair[0]] + explore_asm
+
+        other_explore_asm = explore_map_tile_asm(area, area, room_x + x, room_y + y)
+        extra_door_asm_dict[other_door_ptr_pair[0]] = extra_door_asm_dict[other_door_ptr_pair[0]] + other_explore_asm
+
+    # room_idx = room_dict["Green Brinstar Elevator Room"]
+    # room = rooms[room_idx]
+    # room_x = rom.read_u8(room.rom_address + 2)
+    # room_y = rom.read_u8(room.rom_address + 3)
+    # area = area_arr[room_idx]
+    # explore_asm = bytearray()
+    # explore_asm.extend(bytes([0xCE, 0xC6, 0x09]))  # Decrement missiles (for testing)
+    # explore_asm.extend(explore_map_tile_asm(area, area, room_x, room_y + 1))
+    # explore_asm.extend(explore_map_tile_asm(area, area, room_x, room_y + 2))
+    # explore_asm.extend(explore_map_tile_asm(area, area, room_x, room_y + 3))
+    # extra_door_asm_dict[other_door_dict[(0x18BFE, 0x18C22)][0]] = bytes(explore_asm)
+
+    # TODO: move this stuff somewhere else.
+    def add_explore_tiles_asm(door_ptr_pair, coords):
+        for x, y in coords:
+            add_explore_tile_asm(door_ptr_pair, x, y)
+
+    # Green Brinstar Elevator Room
+    add_explore_tiles_asm((0x18C0A, 0x18CA6), [(0, 1), (0, 2), (0, 3)])
+    # Statues Room
+    add_explore_tiles_asm((0x19222, 0x1A990), [(0, 2), (0, 3), (0, 4)])
+    # Forgotten Highway Elevator
+    add_explore_tiles_asm((0x18A5A, 0x1A594), [(0, 1), (0, 2), (0, 3)])
+    # Red Brinstar Elevator Room
+    add_explore_tiles_asm((0x18B02, 0x190BA), [(0, 1), (0, 2), (0, 3)])
+    # Blue Brinstar Elevator Room
+    add_explore_tiles_asm((0x18B9E, 0x18EB6), [(0, 1), (0, 2), (0, 3)])
+    # We skip Warehouse Entrance and Lower Norfair elevators because there are no tiles to explore there.
+
+    def get_arrow_location(door_id):
+        dir = door_id.direction
+        if dir == Direction.RIGHT:
+            return door_id.x + 1, door_id.y
+        elif dir == Direction.LEFT:
+            return door_id.x - 1, door_id.y
+        elif dir == Direction.DOWN:
+            return door_id.x, door_id.y + 1
+        elif dir == Direction.UP:
+            return door_id.x, door_id.y - 1
+
+    for src_pair, dst_pair, bidirectional in map['doors']:
+        src_pair = tuple(src_pair)
+        dst_pair = tuple(dst_pair)
+        src_area = area_arr[door_room_dict[src_pair]]
+        dst_area = area_arr[door_room_dict[dst_pair]]
+        if src_area == dst_area:
+            continue
+        src_door_id = door_id_dict[src_pair]
+        src_x, src_y = get_arrow_location(src_door_id)
+        add_explore_tile_asm(src_pair, src_x, src_y)
+        dst_door_id = door_id_dict[dst_pair]
+        dst_x, dst_y = get_arrow_location(dst_door_id)
+        add_explore_tile_asm(dst_pair, dst_x, dst_y)
+
+
     extra_door_asm_location = {}
-    door_asm_free_space = 0xED00  # in bank $8F
+    door_asm_free_space = 0xEE10  # in bank $8F
     for door_addr, extra_asm_bytes in extra_door_asm_dict.items():
         extra_door_asm_location[door_addr] = door_asm_free_space
         door_asm_free_space += len(extra_asm_bytes) + 3  # Reserve 3 bytes for the JMP instruction to the original ASM
+    assert door_asm_free_space <= 0xF500
 
     def write_door_data(ptr, data):
         # print("door: {:x}: {}".format(ptr, data.tobytes()))
