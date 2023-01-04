@@ -33,7 +33,7 @@ parser = argparse.ArgumentParser(description='Start the Map Rando web service.')
 parser.add_argument('--debug', type=bool, default=False, help='Run in debug mode')
 args = parser.parse_args()
 
-VERSION = 24
+VERSION = 25
 
 import logging
 from maze_builder.types import reconstruct_room_data, Direction, DoorSubtype
@@ -385,6 +385,11 @@ def home():
                   <div class="col-sm-10 btn-group" role="group">
                     {preset_buttons()}
                  </div>
+                </div>
+                <div class="form-group row my-2 mx-2">
+                    <small><strong>Note</strong>: Even on the "Easy" difficulty, the seeds can be challenging,
+                    particularly in the early game. We are still working on improvements to better align the game's
+                    difficulty with the intended level.
                 </div>
                 <div class="accordion my-2" id="accordion">
                   <div class="accordion-item">

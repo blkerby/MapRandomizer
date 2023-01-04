@@ -28,7 +28,7 @@ area_arr = [rom.read_u8(room.rom_address + 1) for room in rooms]
 patches = [
     'new_game_extra',
     'fast_reload',
-    # 'hud_expansion_opaque',
+    'hud_expansion_opaque',
     # 'hud_expansion_transparent',
     # 'gray_doors',
     # 'mb_barrier',
@@ -63,6 +63,8 @@ patches = [
 for patch_name in patches:
     patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
     rom.bytes_io = BytesIO(patch.apply(rom.bytes_io.getvalue()))
+
+
 
 # map_patcher = MapPatcher(rom, area_arr)
 # for i, idx in enumerate(new_text_tile_idxs):
