@@ -28,7 +28,8 @@ area_arr = [rom.read_u8(room.rom_address + 1) for room in rooms]
 patches = [
     'new_game_extra',
     'fast_reload',
-    'hud_expansion_opaque',
+    # 'hud_expansion_opaque',
+    'hud_expansion_no_water',
     # 'hud_expansion_transparent',
     # 'gray_doors',
     # 'mb_barrier',
@@ -66,7 +67,7 @@ for patch_name in patches:
 
 
 
-# map_patcher = MapPatcher(rom, area_arr)
+map_patcher = MapPatcher(rom, area_arr)
 # for i, idx in enumerate(new_text_tile_idxs):
 #     map_patcher.write_tile_2bpp(idx, vanilla_text_tiles[i], switch_red_white=False)
 
@@ -150,9 +151,14 @@ for patch_name in patches:
 
 # map_patcher.apply_map_patches()
 #
+
+# data = [[0 for _ in range(8)] for _ in range(8)]
+# for i in range(32):
+#     map_patcher.write_tile_2bpp(i + 256, data)
+#
 # import numpy as np
-# image = np.zeros([128, 128])
-# for i in range(256):
+# image = np.zeros([256, 128])
+# for i in range(512):
 #     data = map_patcher.read_tile_2bpp(i)
 #     x = i // 16
 #     y = i % 16
@@ -181,7 +187,8 @@ for patch_name in patches:
 # print("{:x}".format(rom.read_u16(snes2pc(0x8FC87B))))
 
 # new_hud_gfx = rom.read_n(snes2pc(0x9AB200), 8192)
-# new_hud_file = open('HUD_vanilla.gfx', 'wb')
+# # new_hud_file = open('HUD_vanilla.gfx', 'wb')
+# new_hud_file = open('HUD_no_water.gfx', 'wb')
 # new_hud_file.write(new_hud_gfx)
 # new_hud_file.close()
 
