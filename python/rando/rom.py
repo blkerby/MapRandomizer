@@ -46,6 +46,10 @@ class Rom:
         self.bytes_io.seek(pos)
         self.bytes_io.write(int(value).to_bytes(2, byteorder='little'))
 
+    def write_u24(self, pos, value):
+        self.bytes_io.seek(pos)
+        self.bytes_io.write(int(value).to_bytes(3, byteorder='little'))
+
     def write_n(self, pos, n, values):
         self.bytes_io.seek(pos)
         self.bytes_io.write(values)

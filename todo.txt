@@ -1,4 +1,5 @@
 TODO:
+- add grapple + xray to the HUD on hyper beam collect.
 - make the pause map tiles align with the grid
 - fix tiny bug: when bottom-left door of landing site is an area transition, the arrow shows up from the beginning
   of the game (due to running the door ASM while loading the game)
@@ -55,6 +56,23 @@ TODO:
 - fix suit graphics not showing after getting suit (consequence of skipping animation)?
 - minimizer mode? (select rooms to include randomly, hand-picked, and/or user-selected)
 - add strat for jumping over fune with no damage (check osse Twitch clip).
+
+
+notes on tileset palette stuff:
+  - tileset table: $8FE6A2  (will need to move to location with more space)
+  - tileset pointers: $8FE7A7  (will need to update to point into new tileset table)
+  - current tileset (one row of tileset table):
+    - $07C0: Tileset tile table pointer
+    - $07C3: Tileset tiles pointer
+    - $07C6: Tileset palette pointer
+  - reference to tileset pointers: $82:DF02 (LDA $E7A7, y)
+- tileset data decompressed to RAM:
+    - tile table: $7E:A800  (at $82:E856)
+       - CRE tile table: $7E:A000  (at $82:E843)
+          - from $B9A09D
+    - tiles: $7E:2000  (at $82:E42E)
+      - VRAM $0000 (at $82:E7B4)
+    - palette: $7E:C200  (at $82:E43F)
 
 
 notes on marking elevator tiles:

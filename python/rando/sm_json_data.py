@@ -13,7 +13,6 @@ from logic.rooms.all_rooms import rooms
 # (TODO: set this up more properly)
 import reachability
 
-
 area_dict = {
     0: "Crateria",
     1: "Brinstar",
@@ -37,6 +36,7 @@ class DifficultyConfig:
     resource_multiplier: float  # Multiplier for energy/ammo requirements (1.0 is highest difficulty, larger values are easier)
     escape_time_multiplier: float
     save_animals: bool
+
 
 @dataclass
 class Consumption:
@@ -500,13 +500,15 @@ def find_key(x, key, prefix):
     else:
         return []
 
+
 # Rooms where we want the logic to take into account the gray door locks (elsewhere the gray doors are changed to blue)
 door_lock_allowed_room_ids = {
-    84,   # Kraid Room
+    84,  # Kraid Room
     193,  # Draygon's Room
     142,  # Ridley's Room
     150,  # Golden Torizo Room"
 }
+
 
 class SMJsonData:
     def __init__(self, sm_json_data_path):
@@ -516,9 +518,7 @@ class SMJsonData:
         self.flags_set = set(items_json['gameFlags'])
         self.helpers = {}
 
-        tech_json = json.load(open(f'{sm_json_data_path}/tech.json', 'r'))
-        self.tech_json_dict = {tech['name']: tech for tech in tech_json['techs']}
-        self.tech_name_set = set(self.tech_json_dict.keys())
+        self.load_tech(sm_json_data_path)
 
         helpers_json = json.load(open(f'{sm_json_data_path}/helpers.json', 'r'))
         self.helpers_json_dict = {helper['name']: helper for helper in helpers_json['helpers']}
@@ -551,9 +551,7 @@ class SMJsonData:
 
         for helper_name in self.helpers_json_dict.keys():
             self.register_helper_condition(helper_name)
-        # TODO: Patch h_heatProof to only use Varia, not Gravity
         # TODO: Check enemy-count grey door locks to make sure they all unlock f_zebesAwake
-        # TODO: Patch Statues room to open it up
         # TODO: Patch out backdoor Shaktool?
 
         self.room_json_dict = {}  # Dict mapping room_id to room JSON data
@@ -601,6 +599,20 @@ class SMJsonData:
             room_index = room_index_by_addr[room_address]
             self.room_index_by_id[room_id] = room_index
 
+    def load_tech_rec(self, tech_json):
+        self.tech_json_dict[tech_json['name']] = tech_json
+        self.tech_name_set.add(tech_json['name'])
+        if 'extensionTechs' in tech_json:
+            for extension_tech_json in tech_json['extensionTechs']:
+                self.load_tech_rec(extension_tech_json)
+
+    def load_tech(self, sm_json_data_path):
+        top_tech_json = json.load(open(f'{sm_json_data_path}/tech.json', 'r'))
+        self.tech_name_set = set()
+        self.tech_json_dict = {}
+        for tech_category in top_tech_json['techCategories']:
+            for tech_json in tech_category['techs']:
+                self.load_tech_rec(tech_json)
 
     def is_weapon_considered(self, weapon_json: dict) -> bool:
         if weapon_json['situational']:
@@ -764,7 +776,8 @@ class SMJsonData:
         extra_node_list = []
         extra_link_list = []
         for node_json in room_json['nodes']:
-            if 'locks' in node_json and (node_json['nodeType'] not in ('door', 'entrance') or room_json['id'] in door_lock_allowed_room_ids):
+            if 'locks' in node_json and (
+                    node_json['nodeType'] not in ('door', 'entrance') or room_json['id'] in door_lock_allowed_room_ids):
                 assert len(node_json['locks']) == 1
                 base_node_name = node_json['name']
                 lock = node_json['locks'][0]
@@ -990,7 +1003,8 @@ class SMJsonData:
         }
         return data
 
-    def get_spoiler_entry(self, selected_target_index, route_data, state: GameState, new_state, collect_name, step_number, rank, map):
+    def get_spoiler_entry(self, selected_target_index, route_data, state: GameState, new_state, collect_name,
+                          step_number, rank, map):
         graph, output_route_id, output_route_edge, output_route_prev = route_data
         route_id = output_route_id[selected_target_index]
         step_list = []
