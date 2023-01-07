@@ -45,6 +45,7 @@ def create_patched_rom(tileset_idxs, file_bytes_list):
 
     patches = [
         'new_game_extra',
+        'hud_expansion_no_water',
     ]
     for patch_name in patches:
         patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
