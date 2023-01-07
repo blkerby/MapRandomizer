@@ -33,7 +33,7 @@ parser = argparse.ArgumentParser(description='Start the Map Rando web service.')
 parser.add_argument('--debug', type=bool, default=False, help='Run in debug mode')
 args = parser.parse_args()
 
-VERSION = 25
+VERSION = 26
 
 import logging
 from maze_builder.types import reconstruct_room_data, Direction, DoorSubtype
@@ -89,26 +89,29 @@ presets = [
         'tech': [
             'canJumpIntoIBJ',
             'canBombAboveIBJ',
-            'canManipulateHitbox',
+            'canTwoTileSqueeze',
             'canUseEnemies',
             'canDamageBoost',
             'canGateGlitch',
             'canGravityJump',
             'canMockball',
-            'canMidAirMockball',
+            'canLateralMidAirMorph',
             'canSpringBallJump',
             'canUseFrozenEnemies',
-            'canMochtroidClimb',
+            'canMochtroidIceClimb',
             'canStationarySpinJump',
             'canMoonfall',
-            'canMochtroidClip',
+            'canMochtroidIceClip',
             'canCeilingClip',
             'canIframeSpikeJump',
-            'canSingleHBJ',
+            'canBombHorizontally',
             'canSnailClimb',
             'canXRayStandUp',
             'canCrumbleJump',
-            'canBlueSpaceJump']
+            'canBlueSpaceJump',
+            'canCrystalFlash',
+            'canCrystalFlashForceStandup',
+        ]
     }),
     ('Very Hard', {
         'shinesparkTiles': 20,
@@ -117,32 +120,31 @@ presets = [
         'tech': [
             'canTrickyJump',
             'canSuitlessLavaDive',
-            'canSuitlessLavaWalljump',
             'canPreciseWalljump',
             'canHitbox',
-            'canPlasmaHitbox',
             'canUnmorphBombBoost',
             'canLavaGravityJump',
             'can3HighMidAirMorph',
             'canTurnaroundAimCancel',
-            'canStationaryMidAirMockball',
+            'canStationaryLateralMidAirMorph',
             'canTrickyUseFrozenEnemies',
             'canCrabClimb',
             'canMetroidAvoid',
-            'canSandMochtroidClimb',
+            'canSandMochtroidIceClimb',
             'canShotBlockOverload',
             'canMaridiaTubeClip',
             'canQuickLowTideWalljumpWaterEscape',
             'canGrappleJump',
-            'canDoubleHBJ',
+            'canHBJ',
             'canSnailClip',
-            'canBombJumpBreakFree',
+            'canBombJumpWaterEscape',
             'canSuperReachAround',
             'canWrapAroundShot',
             'canTunnelCrawl',
             'canSpringBallJumpMidAir',
             'canCrumbleSpinJump',
-            'canIceZebetitesSkip']}),
+            'canIceZebetitesSkip',
+        ]}),
     ('Expert', {
         'shinesparkTiles': 16,
         'resourceMultiplier': 1.0,
@@ -152,20 +154,17 @@ presets = [
              'canTrickyDashJump',
              'canCWJ',
              'canDelayedWalljump',
-             'canIframeSpikeWalljump',
              'canFlatleyTurnaroundJump',
              'canContinuousDboost',
-             'canReverseGateGlitch',
              'canGravityWalljump',
              'can2HighWallMidAirMorph',
              'canPixelPerfectIceClip',
              'canBabyMetroidAvoid',
              'canSunkenDualWallClimb',
-             'canBreakFree',
-             'canHerdBabyTurtles',
+             'canWaterBreakFree',
              'canSandIBJ',
              'canFastWalljumpClimb',
-             'canDraygonGrappleJump',
+             'canDraygonTurretGrappleJump',
              'canManipulateMellas',
              'canMorphlessTunnelCrawl',
              'canSpringwall',
@@ -178,24 +177,19 @@ presets = [
              'canBePatient',
              'canInsaneWalljump',
              'canNonTrivialIceClip',
-             'canBeetomClip',
-             'canWallCrawlerClip',
-             'canPuyoClip',
-             'canMultiviolaClip',
+             'canBeetomIceClip',
+             'canWallCrawlerIceClip',
+             'canPuyoIceClip',
+             'canMultiviolaIceClip',
              'canRightFacingDoorXRayClimb']
      })
 ]
 
 # Tech which is currently not used by any strat in logic, so we avoid showing on the website:
 ignored_tech_set = {
-    'canSpaceTime',
-    'canGTCode',
-    'canXRayClimbOOB',
     'canWallIceClip',
     'canGrappleClip',
     'canUseSpeedEchoes',
-    'canCrystalFlash',
-    'canCrystalFlashForceStandup'
 }
 
 item_placement_strategies = {
@@ -420,7 +414,7 @@ def home():
                         <small>(Leniency factor on escape timer)</small>
                         </label>
                         <div class="col-sm-2">
-                          <input type="text" class="form-control" name="escapeTimerMultiplier" id="escapeTimerMultiplier" value="3.0">
+                          <input type="text" class="form-control" name="escapeTimerMultiplier" id="escapeTimerMultiplier" value="5.0">
                         </div>
                       </div>
                       <div class="form-group row m-2">
@@ -612,6 +606,8 @@ def randomize():
         map = balance_utilities(map)
         if map is None:
             continue
+        # Rerank the areas to assign the less nice music to smaller areas:
+        map = rerank_areas(map)
 
         randomizer = Randomizer(map, sm_json_data, difficulty)
         for i in range(max_item_attempts):
@@ -643,9 +639,6 @@ def randomize():
         'tech': list(sorted(difficulty.tech)),
     }
 
-    # Rerank the areas to assign the less nice music to smaller areas:
-    map = rerank_areas(map)
-
     xs_min = np.array([p[0] for p in map['rooms']])
     ys_min = np.array([p[1] for p in map['rooms']])
     xs_max = np.array([p[0] + rooms[i].width for i, p in enumerate(map['rooms'])])
@@ -672,9 +665,6 @@ def randomize():
     num_areas = 6
     area_arr = np.array(map['area'])
 
-    # Ensure that Landing Site is in Crateria:
-    area_arr = (area_arr - area_arr[1] + num_areas) % num_areas
-
     display = MapDisplay(72, 72, 20)
     display.display_assigned_areas(map)
     # display.display_assigned_areas_with_maps(map)
@@ -696,7 +686,7 @@ def randomize():
 
     # Patches to be applied at beginning (before reconnecting doors, etc.)
     orig_patches = [
-        'mb_barrier2',
+        'mb_barrier',
         'mb_barrier_clear',
         'hud_expansion_opaque',
         'gray_doors',
