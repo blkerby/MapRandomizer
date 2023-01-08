@@ -2,12 +2,10 @@ import io
 from io import BytesIO
 import ips_util
 import os
-from logic.rooms.all_rooms import rooms
+from logic.rooms.all_rooms import rooms, room_dict
 from maze_builder.types import Direction
 
 snes2pc = lambda address: address >> 1 & 0x3F8000 | address & 0x7FFF
-
-room_dict = {room.name: i for i, room in enumerate(rooms)}
 
 # Palette used by the game (same as vanilla):
 # 0 = black
