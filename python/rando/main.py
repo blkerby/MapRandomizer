@@ -33,7 +33,7 @@ parser = argparse.ArgumentParser(description='Start the Map Rando web service.')
 parser.add_argument('--debug', type=bool, default=False, help='Run in debug mode')
 args = parser.parse_args()
 
-VERSION = 26
+VERSION = 27
 
 import logging
 from maze_builder.types import reconstruct_room_data, Direction, DoorSubtype
