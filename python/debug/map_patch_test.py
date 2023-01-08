@@ -1,6 +1,6 @@
 from logic.rooms.all_rooms import rooms
 from rando.map_patch import MapPatcher, free_tiles
-from rando.rom import Rom, RomRoom, snes2pc
+from rando.rom import Rom, RomRoom, snes2pc, pc2snes
 import ips_util
 from io import BytesIO
 import io

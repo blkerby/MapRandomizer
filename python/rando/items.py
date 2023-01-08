@@ -66,10 +66,11 @@ class ItemPlacementStrategy(Enum):
 #     items: List[ItemPlacement]
 
 class Randomizer:
-    def __init__(self, map, sm_json_data: SMJsonData, difficulty: DifficultyConfig):
+    def __init__(self, map, sm_json_data: SMJsonData, difficulty: DifficultyConfig, item_placement_strategy: ItemPlacementStrategy):
         self.map = map
         self.sm_json_data = sm_json_data
         self.difficulty = difficulty
+        self.item_placement_strategy = item_placement_strategy
 
         door_edges = []
         for conn in map['doors']:
@@ -87,14 +88,129 @@ class Randomizer:
                     door_edges.append((dst_vertex_id, src_vertex_id))
         self.door_edges = door_edges
 
-    def randomize(self, item_placement_strategy: ItemPlacementStrategy):
+        item_ptr_dict = {}  # maps item nodeAddress to index into item_ptr_list
+        item_ptr_list = []  # list of unique item nodeAddress
+        flag_dict = {}   # maps flag name to index into flag_list
+        flag_list = []   # list of unique flag names
+        vertex_item_idx = [-1 for _ in range(len(self.sm_json_data.vertex_list))]
+        vertex_flag_idx = [-1 for _ in range(len(self.sm_json_data.vertex_list))]
+        for (room_id, node_id), v in self.sm_json_data.target_dict.items():
+            is_item = isinstance(v, int)
+            if is_item:
+                if v in item_ptr_dict:
+                    idx = item_ptr_dict[v]
+                else:
+                    idx = len(item_ptr_list)
+                    item_ptr_list.append(v)
+                    item_ptr_dict[v] = idx
+            else:
+                if v in flag_dict:
+                    idx = flag_dict[v]
+                else:
+                    idx = len(flag_list)
+                    flag_list.append(v)
+                    flag_dict[v] = idx
+
+            for i in range(2 ** self.sm_json_data.num_obstacles_dict[room_id]):
+                vertex_id = self.sm_json_data.vertex_index_dict[(room_id, node_id, i)]
+                if is_item:
+                    vertex_item_idx[vertex_id] = idx
+                else:
+                    vertex_flag_idx[vertex_id] = idx
+        self.vertex_item_idx = np.array(vertex_item_idx)
+        self.vertex_flag_idx = np.array(vertex_flag_idx)
+        self.flag_list = flag_list
+        self.item_ptr_list = item_ptr_list
+
+    def get_bireachable_targets(self, state):
+        # Get list of bireachable items and flags (indexes into `self.item_ptr_list` and `self.flag_list`), meaning
+        # ones where we can reach the node and return back to the current node.
+        graph = self.sm_json_data.get_graph(state, self.difficulty, self.door_edges)
+        forward_reach, forward_route_data = self.sm_json_data.compute_reachable_vertices(state, graph)
+        reverse_reach, reverse_route_data = self.sm_json_data.compute_reachable_vertices(state, graph, reverse=True)
+        max_resources = np.array(
+            [state.max_energy,
+             state.max_missiles,
+             state.max_super_missiles,
+             state.max_power_bombs],
+            dtype=np.int16)
+        vertices_reachable = np.all(forward_reach <= max_resources, axis=1)
+        vertices_bireachable = np.all((forward_reach + reverse_reach) >= max_resources, axis=1)
+        reachable_vertices = np.nonzero(vertices_reachable)[0]
+        bireachable_vertices = np.nonzero(vertices_bireachable)[0]
+        reachable_items = self.vertex_item_idx[reachable_vertices]
+        reachable_items = reachable_items[reachable_items >= 0]
+        reachable_items = np.unique(reachable_items)
+        bireachable_items = self.vertex_item_idx[bireachable_vertices]
+        bireachable_items = bireachable_items[bireachable_items >= 0]
+        bireachable_items = np.unique(bireachable_items)
+        flags = self.vertex_flag_idx[bireachable_vertices]
+        flags = flags[flags >= 0]
+        flags = np.unique(flags)
+        return bireachable_items, reachable_items, flags
+
+
+    def select_items(self, num_bireachable_items, num_reachable_items, item_precedence, items_remaining_dict,
+                     item_placement_strategy: ItemPlacementStrategy):
+        pass
+
+
+    def place_items(self, item_idxs, item_names, item_placement_list):
+        # TODO: if configured, implement logic to place key items at harder-to-reach locations?
+        new_item_placement_list = item_placement_list.copy()
+        item_names = np.random.permutation(item_names).tolist()
+        for idx, name in zip(item_idxs, item_names):
+            new_item_placement_list[idx] = name
+        return new_item_placement_list
+
+    def collect_item(self, state: GameState, item_name):
+        state.items.add(item_name)
+        if item_name == 'Missile':
+            state.max_missiles += 5
+            state.current_missiles += 5
+        elif item_name == 'Super':
+            state.max_super_missiles += 5
+            state.current_super_missiles += 5
+        elif item_name == 'PowerBomb':
+            state.max_power_bombs += 5
+            state.current_power_bombs += 5
+        elif item_name == 'ETank':
+            state.num_energy_tanks += 1
+            state.max_energy += 100
+            state.current_energy = state.max_energy
+        elif item_name == 'ReserveTank':
+            state.num_reserves += 1
+            state.max_energy += 100
+        state.weapons = self.sm_json_data.get_weapons(state.items)
+
+    def step(self, state: GameState, item_placement_list, item_precedence, items_remaining_dict):
+        state.current_energy = state.max_energy
+        state.current_missiles = state.max_missiles
+        state.current_super_missiles = state.max_super_missiles
+        state.current_power_bombs = state.max_power_bombs
+
+        bireachable_item_idxs, reachable_item_idxs, flag_idxs = self.get_bireachable_targets(state)
+        place_item_idxs, place_item_names = self.select_items(bireachable_item_idxs.shape[0], reachable_item_idxs.shape[0],
+                                                  item_precedence, items_remaining_dict)
+        new_item_placement_list = self.place_items(place_item_idxs, place_item_names, item_placement_list)
+        new_state = copy.deepcopy(state)
+        for idx in flag_idxs:
+            new_state.flags.add(self.flag_list[idx])
+        new_items_remaining_dict = items_remaining_dict.copy()
+        for item_name in place_item_names:
+            self.collect_item(new_state, item_name)
+            new_items_remaining_dict[item_name] -= 1
+        return new_state, new_item_placement_list, new_items_remaining_dict
+
+
+
+    def randomize(self):
         # TODO: Split this function into more manageable-sized pieces and clean up.
-        items = {"PowerBeam", "PowerSuit"}
-        flags = {"f_TourianOpen"}
+        initial_items = {"PowerBeam", "PowerSuit"}
         state = GameState(
-            items=items,
-            flags=flags,
-            weapons=self.sm_json_data.get_weapons(set(items)),
+            items=initial_items,
+            flags={"f_TourianOpen"},
+            weapons=self.sm_json_data.get_weapons(set(initial_items)),
             num_energy_tanks=0,  # energy_tanks,
             num_reserves=0,  # reserve_tanks,
             # We deduct 29 energy from the actual max energy, to ensure the game is beatable without ever dropping
@@ -109,22 +225,8 @@ class Randomizer:
             current_super_missiles=0,  # super_missiles,
             current_power_bombs=0,  # power_bombs,
             vertex_index=self.sm_json_data.vertex_index_dict[(8, 5, 0)])  # Ship (Landing Site)
-
-        progression_flags = {
-            'f_ZebesAwake',
-            'f_MaridiaTubeBroken',
-            'f_ShaktoolDoneDigging',
-            'f_UsedAcidChozoStatue',
-            'f_DefeatedBotwoon',
-            'f_DefeatedCrocomire',
-            'f_DefeatedSporeSpawn',
-            'f_DefeatedGoldenTorizo',
-            'f_DefeatedKraid',
-            'f_DefeatedPhantoon',
-            'f_DefeatedDraygon',
-            'f_DefeatedRidley',
-        }
-        items_to_place_count = {
+        item_placement_list = [None for _ in range(len(self.item_ptr_list))]
+        items_remaining_dict = {
             "Missile": 46,
             "Super": 10,
             "PowerBomb": 10,
@@ -147,27 +249,23 @@ class Randomizer:
             "XRayScope": 1,
             "Spazer": 1,
         }
-        progression_item_set = set(items_to_place_count.keys())
-        # We avoid having progression depend on reserve tanks, to simplify how energy refill stations work in the logic.
-        # So these end up getting placed at the end, after all progression items.
-        progression_item_set.remove("ReserveTank")
-        progression_item_list = ['Missile'] + np.random.permutation(sorted(progression_item_set.difference({'Missile'}))).tolist()
 
-        # Bitmask indicating vertex IDs that are still available either for placing an item or obtaining a flag:
-        target_mask = np.zeros([len(self.sm_json_data.vertex_list)], dtype=bool)
-        flag_mask = np.zeros([len(self.sm_json_data.vertex_list)], dtype=bool)  # Constant mask indicating if a vertex is a progression flag
-        flag_dict = {}  # Map from flag name to list of (room_id, node_id) pairs
-        for (room_id, node_id), v in self.sm_json_data.target_dict.items():
-            is_progression_flag = v in progression_flags
-            if isinstance(v, int) or is_progression_flag:
-                if is_progression_flag:
-                    if v not in flag_dict:
-                        flag_dict[v] = []
-                    flag_dict[v].append((room_id, node_id))
-                for i in range(2 ** self.sm_json_data.num_obstacles_dict[room_id]):
-                    vertex_id = self.sm_json_data.vertex_index_dict[(room_id, node_id, i)]
-                    target_mask[vertex_id] = True
-                    flag_mask[vertex_id] = is_progression_flag
+        # progression_flags = {
+        #     'f_ZebesAwake',
+        #     'f_MaridiaTubeBroken',
+        #     'f_ShaktoolDoneDigging',
+        #     'f_UsedAcidChozoStatue',
+        #     'f_DefeatedBotwoon',
+        #     'f_DefeatedCrocomire',
+        #     'f_DefeatedSporeSpawn',
+        #     'f_DefeatedGoldenTorizo',
+        #     'f_DefeatedKraid',
+        #     'f_DefeatedPhantoon',
+        #     'f_DefeatedDraygon',
+        #     'f_DefeatedRidley',
+        # }
+        # progression_item_set = set(items_to_place_count.keys())
+        item_precedence = np.random.permutation(sorted(items_remaining_dict.keys())).tolist()
 
         # For each vertex ID, the step number on which it first became accessible (or 0 if not yet accessible).
         # We use this to filter progression item placements to locations that became accessible as late as possible
