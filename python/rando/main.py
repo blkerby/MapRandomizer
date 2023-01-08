@@ -66,13 +66,13 @@ presets = [
     ('Easy', {
         'shinesparkTiles': 32,
         'resourceMultiplier': 3.0,
-        'escapeTimerMultiplier': 5.0,
+        'escapeTimerMultiplier': 3.0,
         'tech': [],
     }),
     ('Medium', {
         'shinesparkTiles': 28,
         'resourceMultiplier': 2.0,
-        'escapeTimerMultiplier': 3.0,
+        'escapeTimerMultiplier': 2.0,
         'tech': [
             'canIBJ',
             'canWalljump',
@@ -85,7 +85,7 @@ presets = [
     ('Hard', {
         'shinesparkTiles': 24,
         'resourceMultiplier': 1.5,
-        'escapeTimerMultiplier': 2.0,
+        'escapeTimerMultiplier': 1.5,
         'tech': [
             'canJumpIntoIBJ',
             'canBombAboveIBJ',
@@ -116,7 +116,7 @@ presets = [
     ('Very Hard', {
         'shinesparkTiles': 20,
         'resourceMultiplier': 1.2,
-        'escapeTimerMultiplier': 1.5,
+        'escapeTimerMultiplier': 1.2,
         'tech': [
             'canTrickyJump',
             'canSuitlessLavaDive',
@@ -148,7 +148,7 @@ presets = [
     ('Expert', {
         'shinesparkTiles': 16,
         'resourceMultiplier': 1.0,
-        'escapeTimerMultiplier': 1.2,
+        'escapeTimerMultiplier': 1.0,
         'tech':
          [
              'canTrickyDashJump',
@@ -569,7 +569,7 @@ def randomize():
 
     try:
         escape_timer_multiplier = float(flask.request.form.get('escapeTimerMultiplier'))
-        assert 0.0 < escape_timer_multiplier <= 10.0
+        assert 0.0 < escape_timer_multiplier
     except:
         return flask.Response("Invalid escapeTimerMultiplier", status=400)
 

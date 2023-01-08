@@ -33,3 +33,5 @@ rooms = (
 
 for room in rooms:
     room.populate()
+
+room_dict = {room.name: i for i, room in enumerate(rooms)}
