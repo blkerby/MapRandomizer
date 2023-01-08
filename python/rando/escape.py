@@ -8,6 +8,8 @@ import numpy as np
 import copy
 import math
 
+
+
 def get_xy(door_id: DoorIdentifier):
     if door_id.direction == Direction.LEFT:
         return (door_id.x, door_id.y + 0.5)
@@ -48,7 +50,7 @@ def compute_door_graph(map):
     dist_prop = graph.new_edge_property('float')
     door_dict = {}  # Mapping from door pair (exit_ptr, entrance_ptr) to vertex ID
     reverse_dict = {}
-    for room in rooms:
+    for room_idx, room in enumerate(rooms):
         door_ids = room.door_ids
         if room.name == 'Landing Site':
             # Add fake door ID for the ship

@@ -965,8 +965,10 @@ class SMJsonData:
             i += 1
         return graph[:i, :]
 
-    def compute_reachable_vertices(self, state: GameState, difficulty: DifficultyConfig, door_edges):
-        graph = self.get_graph(state, difficulty, door_edges)
+    def compute_reachable_vertices(self, state: GameState, graph, reverse: bool = False):
+        if reverse:
+            graph = np.copy(graph)
+            graph[:, [0, 1]] = graph[:, [1, 0]]
         current_resources = np.array(
             [state.current_energy, state.current_missiles, state.current_super_missiles, state.current_power_bombs],
             dtype=np.int16)

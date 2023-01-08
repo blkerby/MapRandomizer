@@ -1,4 +1,9 @@
 TODO:
+- use indiviudal room timings for escape (because sometimes it's impossible on expert settings)
+- consider moving the MB barriers to the right one tile (or two?), to make them interfere less with ice zeb skip.
+- move GFX colors:
+  - Morph Ball room (blue brinstar), tileset 7:
+    - [0x31, 0x32, 0x33] -> [0x38, 0x39, 0x3A]
 - overhaul item placement:
   - on each step, fill all newly accessible item locations
   - place progression items only at locations where you can get back to the ship (with the help of the new item)
