@@ -199,49 +199,59 @@ class Randomizer:
         else:
             num_key_items_to_place = int(
                 math.ceil(num_key_items_remaining / num_items_remaining * num_items_to_place))
-        if num_key_items_to_place - 1 + attempt_num >= num_key_items_remaining:
-            logging.info(f"num_key_items_to_place={num_key_items_to_place}, num_items_to_place={num_items_to_place}, attempt_num={attempt_num}, num_key_items_remaining={num_key_items_remaining}, num_items_remaining={num_items_remaining}")
-            return None, None
-        if num_items_remaining < 30:
+        if num_items_remaining - num_items_to_place < 20:
             num_key_items_to_place = num_key_items_remaining
         num_key_items_to_place = min(num_key_items_to_place, num_bireachable, num_key_items_remaining)
-        if num_key_items_to_place >= 1:
-            key_items_to_place = filtered_item_precedence[:(num_key_items_to_place - 1)] + [
-                filtered_item_precedence[num_key_items_to_place - 1 + attempt_num]]
-        else:
-            key_items_to_place = []
-        key_etank = 1 if 'ETank' in key_items_to_place else 0
-        key_super = 1 if 'Super' in key_items_to_place else 0
-        key_powerbomb = 1 if 'PowerBomb' in key_items_to_place else 0
-        key_missile = 1 if 'Missile' in key_items_to_place else 0
+        if num_key_items_to_place - 1 + attempt_num >= num_key_items_remaining:
+            return None, None, None
+        assert num_key_items_to_place >= 1
+        key_items_to_place = filtered_item_precedence[:(num_key_items_to_place - 1)] + [
+            filtered_item_precedence[num_key_items_to_place - 1 + attempt_num]]
+        assert len(key_items_to_place) == num_key_items_to_place
 
-        num_other_items_to_place = num_items_to_place - len(key_items_to_place)
-        items_to_mix = (items_remaining_dict['Missile'] - key_missile) * ['Missile']
-        items_to_delay = []
+        new_items_remaining_dict = items_remaining_dict.copy()
+        for item_name in key_items_to_place:
+            new_items_remaining_dict[item_name] -= 1
 
-        if self.item_placement_strategy in [ItemPlacementStrategy.OPEN, ItemPlacementStrategy.SEMI_CLOSED]:
-            items_to_mix += (items_remaining_dict['ETank'] - key_etank) * ['ETank']
-        else:
-            items_to_delay += (items_remaining_dict['ETank'] - key_etank) * ['ETank']
+        num_other_items_to_place = num_items_to_place - num_key_items_to_place
+        item_types_to_mix = ['Missile']
+        item_types_to_delay = []
 
-        if self.item_placement_strategy == ItemPlacementStrategy.OPEN or (
-                self.item_placement_strategy == ItemPlacementStrategy.SEMI_CLOSED and items_remaining_dict['Super'] <
-                self.initial_items_remaining_dict['Super']):
-            items_to_mix += (items_remaining_dict['Super'] - key_super) * ['Super']
-        else:
-            items_to_delay += (items_remaining_dict['Super'] - key_super) * ['Super']
+        if self.item_placement_strategy == ItemPlacementStrategy.OPEN:
+            item_types_to_mix = ['Missile', 'ETank', 'Super', 'PowerBomb']
+            item_types_to_delay = []
+        elif self.item_placement_strategy == ItemPlacementStrategy.SEMI_CLOSED:
+            item_types_to_mix = ['Missile', 'ETank']
+            item_types_to_delay = []
+            if items_remaining_dict['Super'] < self.initial_items_remaining_dict['Super']:
+                item_types_to_mix.append('Super')
+            else:
+                item_types_to_delay.append('Super')
+            if items_remaining_dict['PowerBomb'] < self.initial_items_remaining_dict['PowerBomb']:
+                item_types_to_mix.append('PowerBomb')
+            else:
+                item_types_to_delay.append('PowerBomb')
+        elif self.item_placement_strategy == ItemPlacementStrategy.CLOSED:
+            item_types_to_mix = ['Missile']
+            if items_remaining_dict['PowerBomb'] < self.initial_items_remaining_dict['PowerBomb'] and \
+                    items_remaining_dict['Super'] == self.initial_items_remaining_dict['Super']:
+                item_types_to_delay = ['ETank', 'PowerBomb', 'Super']
+            else:
+                item_types_to_delay = ['ETank', 'Super', 'PowerBomb']
+        assert set(item_types_to_mix + item_types_to_delay) == {'Missile', 'ETank', 'Super', 'PowerBomb'}
 
-        if self.item_placement_strategy == ItemPlacementStrategy.OPEN or (
-                self.item_placement_strategy == ItemPlacementStrategy.SEMI_CLOSED and items_remaining_dict['PowerBomb'] <
-                self.initial_items_remaining_dict['PowerBomb']):
-            items_to_mix += (items_remaining_dict['PowerBomb'] - key_powerbomb) * ['PowerBomb']
-        else:
-            items_to_delay += (items_remaining_dict['PowerBomb'] - key_powerbomb) * ['PowerBomb']
-        items_to_delay += items_remaining_dict['ReserveTank'] * ['ReserveTank']
+        items_to_mix = [item_name for item_name, cnt in new_items_remaining_dict.items() for _ in range(cnt)
+                        if item_name in item_types_to_mix]
+        items_to_delay = [item_name for item_name, cnt in new_items_remaining_dict.items() for _ in range(cnt)
+                          if item_name in item_types_to_delay]
+        key_items_to_delay = [item_name for item_name, cnt in new_items_remaining_dict.items() for _ in range(cnt)
+                              if item_name not in item_types_to_mix + item_types_to_delay]
 
-        other_items = np.random.permutation(items_to_mix).tolist() + np.random.permutation(items_to_delay).tolist()
+        other_items = np.random.permutation(items_to_mix).tolist() + items_to_delay + key_items_to_delay
         other_items_to_place = other_items[:num_other_items_to_place]
-        return key_items_to_place, other_items_to_place
+        for item_name in other_items_to_place:
+            new_items_remaining_dict[item_name] -= 1
+        return key_items_to_place, other_items_to_place, new_items_remaining_dict
 
     def place_items(self, bireachable_item_idxs, other_item_idxs, key_item_names, other_item_names,
                     item_placement_list):
@@ -254,9 +264,8 @@ class Randomizer:
             new_item_placement_list[idx] = name
         return new_item_placement_list
 
-    def collect_items(self, state: GameState, items_remaining_dict, item_names):
+    def collect_items(self, state: GameState, item_names):
         state = copy.deepcopy(state)
-        items_remaining_dict = copy.deepcopy(items_remaining_dict)
         for item_name in item_names:
             state.items.add(item_name)
             if item_name == 'Missile':
@@ -275,9 +284,8 @@ class Randomizer:
             elif item_name == 'ReserveTank':
                 state.num_reserves += 1
                 state.max_energy += 100
-            items_remaining_dict[item_name] -= 1
         state.weapons = self.sm_json_data.get_weapons(state.items)
-        return state, items_remaining_dict
+        return state
 
     def step(self, state: GameState, item_placement_list, item_precedence, items_remaining_dict, step_num):
         state = copy.deepcopy(state)
@@ -288,7 +296,9 @@ class Randomizer:
 
         while True:
             bireachable_item_idxs, reachable_item_idxs, flag_idxs = self.get_bireachable_targets(state)
-            logging.info(f"Step={step_num}, bireach={len(bireachable_item_idxs)}, other={len(reachable_item_idxs)}, items={state.items}, flags={state.flags}")
+            # logging.info(f"Step={step_num}, bireach={len(bireachable_item_idxs)}, other={len(reachable_item_idxs)}, items={state.items}, flags={state.flags}")
+            logging.info(
+                f"Step={step_num}, bireach={len(bireachable_item_idxs)}, other={len(reachable_item_idxs)}")
             any_new_flag = False
             for idx in flag_idxs:
                 if self.flag_list[idx] not in state.flags:
@@ -309,24 +319,25 @@ class Randomizer:
                 return None, None, None
             uncollected_oneway_reachable_item_idxs = [i for i in reachable_item_idxs if item_placement_list[i] is None
                                                       and i not in uncollected_bireachable_item_idx_set]
-            key_item_names, other_item_names = self.select_items(len(uncollected_bireachable_item_idx_set),
-                                                                 len(uncollected_oneway_reachable_item_idxs),
-                                                                 item_precedence, items_remaining_dict, attempt_num)
+            key_item_names, other_item_names, new_items_remaining_dict = self.select_items(
+                len(uncollected_bireachable_item_idx_set),
+                len(uncollected_oneway_reachable_item_idxs),
+                item_precedence, items_remaining_dict, attempt_num)
             if key_item_names is None:
                 # We have exhausted all key item placements attempts without success. Abort (and retry probably on new map)
                 logging.info("Exhausted key item placements")
                 return None, None, None
-            new_state, new_items_remaining_dict = self.collect_items(state, items_remaining_dict, key_item_names + other_item_names)
-            if all(items_remaining_dict[item_name] != self.initial_items_remaining_dict[item_name]
+            new_state = self.collect_items(state, key_item_names + other_item_names)
+            if all(new_items_remaining_dict[item_name] != self.initial_items_remaining_dict[item_name]
                    for item_name in self.progression_item_set):
                 # All key items have been placed. Break out early.
                 break
             new_bireachable_item_idxs, _, _ = self.get_bireachable_targets(new_state)
             if any(i not in reachable_item_idx_set for i in new_bireachable_item_idxs):
-                # Success: the new items unlock at least one new bireachable item location.
+                # Success: the new items unlock at least one bireachable item location that wasn't reachable before.
                 break
-            else:
-                logging.info("Failed {}".format(key_item_names))
+            # else:
+            # logging.info("Failed {}".format(key_item_names))
             attempt_num += 1
 
         logging.info("Placing {}, {}".format(key_item_names, other_item_names))
@@ -373,7 +384,8 @@ class Randomizer:
         item_precedence = np.random.permutation(sorted(self.progression_item_set)).tolist()
 
         for step_number in range(1, 101):
-            state, item_placement_list, items_remaining_dict = self.step(state, item_placement_list, item_precedence, items_remaining_dict, step_number)
+            state, item_placement_list, items_remaining_dict = self.step(state, item_placement_list, item_precedence,
+                                                                         items_remaining_dict, step_number)
             if state is None:
                 return None
             if all(items_remaining_dict[item_name] != self.initial_items_remaining_dict[item_name]
