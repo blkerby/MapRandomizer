@@ -350,7 +350,7 @@ def balance_utilities(map):
     map = balance_maps(map)
     if map is None:
         return None
-    map = redistribute_saves_and_refills(map, num_steps=1000)
+    map = redistribute_saves_and_refills(map, num_steps=200)
     return map
 
 

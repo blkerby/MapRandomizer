@@ -194,6 +194,7 @@ ignored_tech_set = {
 
 item_placement_strategies = {
     'Open': ItemPlacementStrategy.OPEN,
+    'Semiclosed': ItemPlacementStrategy.SEMI_CLOSED,
     'Closed': ItemPlacementStrategy.CLOSED,
 }
 
