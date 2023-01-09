@@ -7,6 +7,7 @@ import json
 import graph_tool
 import graph_tool.topology
 import copy
+import math
 from logic.rooms.all_rooms import rooms
 from rando.sm_json_data import SMJsonData, GameState, Link, DifficultyConfig
 import logging
@@ -14,7 +15,9 @@ import logging
 
 class ItemPlacementStrategy(Enum):
     OPEN = 'open'
+    SEMI_CLOSED = 'semi-closed'
     CLOSED = 'closed'
+
 
 #
 # @dataclass
@@ -66,7 +69,8 @@ class ItemPlacementStrategy(Enum):
 #     items: List[ItemPlacement]
 
 class Randomizer:
-    def __init__(self, map, sm_json_data: SMJsonData, difficulty: DifficultyConfig, item_placement_strategy: ItemPlacementStrategy):
+    def __init__(self, map, sm_json_data: SMJsonData, difficulty: DifficultyConfig,
+                 item_placement_strategy: ItemPlacementStrategy):
         self.map = map
         self.sm_json_data = sm_json_data
         self.difficulty = difficulty
@@ -90,8 +94,8 @@ class Randomizer:
 
         item_ptr_dict = {}  # maps item nodeAddress to index into item_ptr_list
         item_ptr_list = []  # list of unique item nodeAddress
-        flag_dict = {}   # maps flag name to index into flag_list
-        flag_list = []   # list of unique flag names
+        flag_dict = {}  # maps flag name to index into flag_list
+        flag_list = []  # list of unique flag names
         vertex_item_idx = [-1 for _ in range(len(self.sm_json_data.vertex_list))]
         vertex_flag_idx = [-1 for _ in range(len(self.sm_json_data.vertex_list))]
         for (room_id, node_id), v in self.sm_json_data.target_dict.items():
@@ -122,111 +126,7 @@ class Randomizer:
         self.flag_list = flag_list
         self.item_ptr_list = item_ptr_list
 
-    def get_bireachable_targets(self, state):
-        # Get list of bireachable items and flags (indexes into `self.item_ptr_list` and `self.flag_list`), meaning
-        # ones where we can reach the node and return back to the current node.
-        graph = self.sm_json_data.get_graph(state, self.difficulty, self.door_edges)
-        forward_reach, forward_route_data = self.sm_json_data.compute_reachable_vertices(state, graph)
-        reverse_reach, reverse_route_data = self.sm_json_data.compute_reachable_vertices(state, graph, reverse=True)
-        max_resources = np.array(
-            [state.max_energy,
-             state.max_missiles,
-             state.max_super_missiles,
-             state.max_power_bombs],
-            dtype=np.int16)
-        vertices_reachable = np.all(forward_reach <= max_resources, axis=1)
-        vertices_bireachable = np.all((forward_reach + reverse_reach) >= max_resources, axis=1)
-        reachable_vertices = np.nonzero(vertices_reachable)[0]
-        bireachable_vertices = np.nonzero(vertices_bireachable)[0]
-        reachable_items = self.vertex_item_idx[reachable_vertices]
-        reachable_items = reachable_items[reachable_items >= 0]
-        reachable_items = np.unique(reachable_items)
-        bireachable_items = self.vertex_item_idx[bireachable_vertices]
-        bireachable_items = bireachable_items[bireachable_items >= 0]
-        bireachable_items = np.unique(bireachable_items)
-        flags = self.vertex_flag_idx[bireachable_vertices]
-        flags = flags[flags >= 0]
-        flags = np.unique(flags)
-        return bireachable_items, reachable_items, flags
-
-
-    def select_items(self, num_bireachable_items, num_reachable_items, item_precedence, items_remaining_dict,
-                     item_placement_strategy: ItemPlacementStrategy):
-        pass
-
-
-    def place_items(self, item_idxs, item_names, item_placement_list):
-        # TODO: if configured, implement logic to place key items at harder-to-reach locations?
-        new_item_placement_list = item_placement_list.copy()
-        item_names = np.random.permutation(item_names).tolist()
-        for idx, name in zip(item_idxs, item_names):
-            new_item_placement_list[idx] = name
-        return new_item_placement_list
-
-    def collect_item(self, state: GameState, item_name):
-        state.items.add(item_name)
-        if item_name == 'Missile':
-            state.max_missiles += 5
-            state.current_missiles += 5
-        elif item_name == 'Super':
-            state.max_super_missiles += 5
-            state.current_super_missiles += 5
-        elif item_name == 'PowerBomb':
-            state.max_power_bombs += 5
-            state.current_power_bombs += 5
-        elif item_name == 'ETank':
-            state.num_energy_tanks += 1
-            state.max_energy += 100
-            state.current_energy = state.max_energy
-        elif item_name == 'ReserveTank':
-            state.num_reserves += 1
-            state.max_energy += 100
-        state.weapons = self.sm_json_data.get_weapons(state.items)
-
-    def step(self, state: GameState, item_placement_list, item_precedence, items_remaining_dict):
-        state.current_energy = state.max_energy
-        state.current_missiles = state.max_missiles
-        state.current_super_missiles = state.max_super_missiles
-        state.current_power_bombs = state.max_power_bombs
-
-        bireachable_item_idxs, reachable_item_idxs, flag_idxs = self.get_bireachable_targets(state)
-        place_item_idxs, place_item_names = self.select_items(bireachable_item_idxs.shape[0], reachable_item_idxs.shape[0],
-                                                  item_precedence, items_remaining_dict)
-        new_item_placement_list = self.place_items(place_item_idxs, place_item_names, item_placement_list)
-        new_state = copy.deepcopy(state)
-        for idx in flag_idxs:
-            new_state.flags.add(self.flag_list[idx])
-        new_items_remaining_dict = items_remaining_dict.copy()
-        for item_name in place_item_names:
-            self.collect_item(new_state, item_name)
-            new_items_remaining_dict[item_name] -= 1
-        return new_state, new_item_placement_list, new_items_remaining_dict
-
-
-
-    def randomize(self):
-        # TODO: Split this function into more manageable-sized pieces and clean up.
-        initial_items = {"PowerBeam", "PowerSuit"}
-        state = GameState(
-            items=initial_items,
-            flags={"f_TourianOpen"},
-            weapons=self.sm_json_data.get_weapons(set(initial_items)),
-            num_energy_tanks=0,  # energy_tanks,
-            num_reserves=0,  # reserve_tanks,
-            # We deduct 29 energy from the actual max energy, to ensure the game is beatable without ever dropping
-            # below 29 energy. This allows us to simplify the logic by not needing to worry about shinespark strats
-            # possibly failing because of dropping below 29 energy:
-            max_energy=70,  # + 100 * (energy_tanks + reserve_tanks),
-            max_missiles=0,  # missiles,
-            max_super_missiles=0,  # super_missiles,
-            max_power_bombs=0,  # power_bombs,
-            current_energy=70,
-            current_missiles=0,  # missiles,
-            current_super_missiles=0,  # super_missiles,
-            current_power_bombs=0,  # power_bombs,
-            vertex_index=self.sm_json_data.vertex_index_dict[(8, 5, 0)])  # Ship (Landing Site)
-        item_placement_list = [None for _ in range(len(self.item_ptr_list))]
-        items_remaining_dict = {
+        self.initial_items_remaining_dict = {
             "Missile": 46,
             "Super": 10,
             "PowerBomb": 10,
@@ -250,205 +150,244 @@ class Randomizer:
             "Spazer": 1,
         }
 
-        # progression_flags = {
-        #     'f_ZebesAwake',
-        #     'f_MaridiaTubeBroken',
-        #     'f_ShaktoolDoneDigging',
-        #     'f_UsedAcidChozoStatue',
-        #     'f_DefeatedBotwoon',
-        #     'f_DefeatedCrocomire',
-        #     'f_DefeatedSporeSpawn',
-        #     'f_DefeatedGoldenTorizo',
-        #     'f_DefeatedKraid',
-        #     'f_DefeatedPhantoon',
-        #     'f_DefeatedDraygon',
-        #     'f_DefeatedRidley',
-        # }
-        # progression_item_set = set(items_to_place_count.keys())
-        item_precedence = np.random.permutation(sorted(items_remaining_dict.keys())).tolist()
+        # For now, don't place Reserve Tanks during progression because the logic won't handle them correctly
+        # with refills (We could resolve this by just making Energy Refills also refill reserves?). We'll want to
+        # fix this if we ever want to put G-mode or R-mode strats into the logic.
+        self.progression_item_set = set(self.initial_items_remaining_dict.keys())
+        self.progression_item_set.remove('ReserveTank')
 
-        # For each vertex ID, the step number on which it first became accessible (or 0 if not yet accessible).
-        # We use this to filter progression item placements to locations that became accessible as late as possible
-        # (to avoid having the game open up too early).
-        target_rank = np.zeros([len(self.sm_json_data.vertex_list)], dtype=np.int8)
-
-        self.item_sequence = []
-        self.item_placement_list = []
         self.spoiler_route = []
         self.spoiler_summary = []
-        self.target_rank = None
-        reach_mask = None
-        route_data = None
-        # print("start")
-        for step_number in range(1, 101):
-            orig_state = copy.deepcopy(state)
-            progression_done = progression_item_set.issubset(state.items)
-            if not progression_done:
-                # Not all progression items have been placed/collected, so check which vertices are reachable.
-                if reach_mask is None:
-                    raw_reach, route_data = self.sm_json_data.compute_reachable_vertices(state, self.difficulty, self.door_edges)
-                    reach_mask = (np.min(raw_reach, axis=1) >= 0)
 
-                # Update target_rank:
-                target_rank = np.where(reach_mask & (target_rank == 0), np.full_like(target_rank, step_number), target_rank)
+    def get_bireachable_targets(self, state):
+        # Get list of bireachable items and flags (indexes into `self.item_ptr_list` and `self.flag_list`), meaning
+        # ones where we can reach the node and return back to the current node, and where the target has not yet
+        # been collected.
+        graph = self.sm_json_data.get_graph(state, self.difficulty, self.door_edges)
+        forward_reach, forward_route_data = self.sm_json_data.compute_reachable_vertices(state, graph)
+        reverse_reach, reverse_route_data = self.sm_json_data.compute_reachable_vertices(state, graph, reverse=True)
+        max_resources = np.array(
+            [state.max_energy,
+             state.max_missiles,
+             state.max_super_missiles,
+             state.max_power_bombs],
+            dtype=np.int16)
+        vertices_reachable = np.all(forward_reach >= 0, axis=1)
+        vertices_bireachable = np.all((forward_reach + reverse_reach) >= max_resources, axis=1)
+        reachable_vertices = np.nonzero(vertices_reachable)[0]
+        bireachable_vertices = np.nonzero(vertices_bireachable)[0]
+        bireachable_items = self.vertex_item_idx[bireachable_vertices]
+        bireachable_items = bireachable_items[bireachable_items >= 0]
+        bireachable_items = np.unique(bireachable_items)
+        reachable_items = self.vertex_item_idx[reachable_vertices]
+        reachable_items = reachable_items[reachable_items >= 0]
+        reachable_items = np.unique(reachable_items)
+        flags = self.vertex_flag_idx[bireachable_vertices]
+        flags = flags[flags >= 0]
+        flags = np.unique(flags)
+        return bireachable_items, reachable_items, flags
 
-                # Update target_rank of sibling vertices (differing only by obstacle_mask). This is a hacky way to
-                # do it. TODO: Clean this up.
-                newly_reachable_vertices = np.nonzero(target_rank == step_number)[0]
-                for i in range(newly_reachable_vertices.shape[0]):
-                    room_id, node_id, _ = self.sm_json_data.vertex_list[newly_reachable_vertices[i]]
-                    for j in range(2 ** self.sm_json_data.num_obstacles_dict[room_id]):
-                        vertex_id = self.sm_json_data.vertex_index_dict[(room_id, node_id, j)]
-                        target_rank[vertex_id] = step_number
-
-                # Prioritize selecting a progression flag (rather than an item location) as a next target if possible:
-                eligible_target_vertices = np.nonzero(target_mask & reach_mask & flag_mask)[0]
-                if eligible_target_vertices.shape[0] == 0:
-                    # No flags available, so consider item locations:
-                    max_target_rank = np.max(
-                        np.where(target_mask & reach_mask, target_rank, np.zeros_like(target_rank)))
-                    if item_placement_strategy == ItemPlacementStrategy.OPEN:
-                        eligible_target_vertices = np.nonzero(target_mask & reach_mask)[0]
-                    elif item_placement_strategy == ItemPlacementStrategy.CLOSED:
-                        eligible_target_vertices = np.nonzero(target_mask & reach_mask & (target_rank == max_target_rank))[0]
-                    else:
-                        raise RuntimeError('Unexpected item placement strategy: {}'.format(item_placement_strategy))
-                    # print("state:", state)
-                    # print(f"room='{self.sm_json_data.room_json_dict[room_id]['name']}', node='{self.sm_json_data.node_json_dict[(room_id, node_id)]['name']}'")
-                if eligible_target_vertices.shape[0] == 0:
-                    # There are no more reachable locations of interest. We got stuck before placing all
-                    # progression items, so this attempt failed.
-                    logging.info("Failed item randomization")
-                    return False
-            else:
-                # All progression items have been placed/collected, so all vertices should be reachable except for
-                # anything locked behind Mother Brain. We place the remaining non-Missile items at nodes with highest
-                # rank (i.e. accessible as late as possible) to minimize sequence-break opportunities.
-                item_names = [name for name, cnt in items_to_place_count.items() if name != 'Missile'
-                              for _ in range(cnt)]
-                item_names = np.random.permutation(item_names).tolist()
-                item_names = item_names + ['Missile' for _ in range(items_to_place_count['Missile'])]
-                next_item_index = 0
-                logging.info("Non-progression items:")
-
-                while True:
-                    max_target_rank = np.max(np.where(target_mask, target_rank, np.zeros_like(target_rank)))
-                    if item_placement_strategy == ItemPlacementStrategy.OPEN:
-                        eligible_target_vertices = np.nonzero(target_mask)[0]
-                    elif item_placement_strategy == ItemPlacementStrategy.CLOSED:
-                        eligible_target_vertices = np.nonzero(target_mask & (target_rank == max_target_rank))[0]
-                    else:
-                        raise RuntimeError('Unexpected item placement strategy: {}'.format(item_placement_strategy))
-                    if eligible_target_vertices.shape[0] == 0:
-                        # There are no more locations to place items. We placed all items so this attempt succeeded.
-                        assert next_item_index == len(item_names)
-                        self.target_rank = target_rank
-                        return True
-                    selected_target_index = int(
-                        eligible_target_vertices[random.randint(0, len(eligible_target_vertices) - 1)])
-                    selected_target_rank = target_rank[selected_target_index]
-                    room_id, node_id, _ = self.sm_json_data.vertex_list[selected_target_index]
-                    target_value = self.sm_json_data.target_dict[(room_id, node_id)]
-                    for i in range(2 ** self.sm_json_data.num_obstacles_dict[room_id]):
-                        vertex_id = self.sm_json_data.vertex_index_dict[(room_id, node_id, i)]
-                        target_mask[vertex_id] = False
-                    if isinstance(target_value, int):
-                        item_name = item_names[next_item_index]
-                        next_item_index += 1
-                        logging.info(
-                            f"{step_number}: rank={selected_target_rank}, item='{item_name}', room='{self.sm_json_data.room_json_dict[room_id]['name']}', node='{self.sm_json_data.node_json_dict[(room_id, node_id)]['name']}'")
-                        self.item_sequence.append(item_name)
-                        self.item_placement_list.append(target_value)
-
-            selected_target_index = int(eligible_target_vertices[random.randint(0, len(eligible_target_vertices) - 1)])
-            selected_target_rank = target_rank[selected_target_index]
-            logging.info("{}: selected_rank={}, num_eligible={}, num_reachable={}: ".format(step_number, selected_target_rank, eligible_target_vertices.shape[0],
-                                                                   np.sum(target_mask & reach_mask)))
-            room_id, node_id, _ = self.sm_json_data.vertex_list[selected_target_index]
-            target_value = self.sm_json_data.target_dict[(room_id, node_id)]
-
-            state.vertex_index = selected_target_index
-            state.current_energy = int(raw_reach[selected_target_index, 0])
-            state.current_missiles = int(raw_reach[selected_target_index, 1])
-            state.current_super_missiles = int(raw_reach[selected_target_index, 2])
-            state.current_power_bombs = int(raw_reach[selected_target_index, 3])
-
-            if isinstance(target_value, int):
-                for i in range(2 ** self.sm_json_data.num_obstacles_dict[room_id]):
-                    vertex_id = self.sm_json_data.vertex_index_dict[(room_id, node_id, i)]
-                    target_mask[vertex_id] = False
-
-                # Item placement
-                pre_item_state = state
-                # If possible, place an item unlocking a new location of interest that wasn't previously reachable.
-                new_items = [name for name in progression_item_list if name not in state.items]
-                old_items = [name for name in progression_item_list if name in state.items
-                             and items_to_place_count[name] > 0]
-                hypothetical_item_data = []
-                # Prioritize getting a new item over getting a duplicate/ammo:
-                item_candidate_list = new_items + old_items
-                for item_name in item_candidate_list:
-                    state = copy.deepcopy(pre_item_state)
-                    state.items.add(item_name)
-                    if item_name == 'Missile':
-                        state.max_missiles += 5
-                        state.current_missiles += 5
-                    elif item_name == 'Super':
-                        state.max_super_missiles += 5
-                        state.current_super_missiles += 5
-                    elif item_name == 'PowerBomb':
-                        state.max_power_bombs += 5
-                        state.current_power_bombs += 5
-                    elif item_name == 'ETank':
-                        state.num_energy_tanks += 1
-                        state.max_energy += 100
-                        state.current_energy = state.max_energy
-                    elif item_name == 'ReserveTank':
-                        state.num_reserves += 1
-                        state.max_energy += 100
-                    state.weapons = self.sm_json_data.get_weapons(state.items)
-
-                    new_raw_reach, new_route_data = self.sm_json_data.compute_reachable_vertices(state, self.difficulty, self.door_edges)
-                    new_reach_mask = (np.min(new_raw_reach, axis=1) >= 0)
-                    hypothetical_item_data.append((item_name, state, new_raw_reach, new_reach_mask, new_route_data))
-                    new_eligible_target_mask = new_reach_mask & target_mask & (target_rank == 0)
-                    if (item_name == 'Missile' and np.any(new_eligible_target_mask)) or np.any(new_eligible_target_mask & ~flag_mask):
-                        fallback = False
-                        break
-                else:
-                    fallback = True
-                    selected_item_index = random.randint(0, len(new_items) - 1)
-                    item_name, state, new_raw_reach, new_reach_mask, new_route_data = hypothetical_item_data[selected_item_index]
-
-                logging.info(
-                    f"item='{item_name}', room='{self.sm_json_data.room_json_dict[room_id]['name']}', node='{self.sm_json_data.node_json_dict[(room_id, node_id)]['name']}', fallback={fallback}")
-                # print("item: ", self.sm_json_data.room_json_dict[room_id]['name'], item_name, item_index, next_item_index, len(progression_items))
-
-                self.item_sequence.append(item_name)
-                items_to_place_count[item_name] -= 1
-                self.item_placement_list.append(target_value)
-                collect_name = item_name
-            else:
-                for room_id, node_id in flag_dict[target_value]:
-                    for i in range(2 ** self.sm_json_data.num_obstacles_dict[room_id]):
-                        vertex_id = self.sm_json_data.vertex_index_dict[(room_id, node_id, i)]
-                        target_mask[vertex_id] = False
-
-                logging.info(f"flag='{target_value}'")
-                collect_name = target_value
-                state.flags.add(target_value)
-                new_raw_reach = None
-                new_reach_mask = None
-                new_route_data = None
-
-            spoiler_steps, spoiler_summary = self.sm_json_data.get_spoiler_entry(selected_target_index, route_data, orig_state, state, collect_name, step_number, int(target_rank[selected_target_index]), self.map)
-            self.spoiler_route.append(spoiler_steps)
-            self.spoiler_summary.append(spoiler_summary)
-            raw_reach = new_raw_reach
-            reach_mask = new_reach_mask
-            route_data = new_route_data
+    def select_items(self, num_bireachable, num_oneway_reachable, item_precedence, items_remaining_dict,
+                     attempt_num):
+        num_items_to_place = num_bireachable + num_oneway_reachable
+        filtered_item_precedence = [item_name for item_name in item_precedence
+                                    if items_remaining_dict[item_name] == self.initial_items_remaining_dict[item_name]]
+        num_key_items_remaining = len(filtered_item_precedence)
+        num_items_remaining = sum(n for k, n in items_remaining_dict.items())
+        if self.item_placement_strategy in [ItemPlacementStrategy.SEMI_CLOSED, ItemPlacementStrategy.CLOSED]:
+            num_key_items_to_place = 1
         else:
-            raise RuntimeError("Unexpected failure in item randomization")
+            num_key_items_to_place = int(
+                math.ceil(num_key_items_remaining / num_items_remaining * num_items_to_place))
+        if num_key_items_to_place - 1 + attempt_num >= num_key_items_remaining:
+            logging.info(f"num_key_items_to_place={num_key_items_to_place}, num_items_to_place={num_items_to_place}, attempt_num={attempt_num}, num_key_items_remaining={num_key_items_remaining}, num_items_remaining={num_items_remaining}")
+            return None, None
+        if num_items_remaining < 30:
+            num_key_items_to_place = num_key_items_remaining
+        num_key_items_to_place = min(num_key_items_to_place, num_bireachable, num_key_items_remaining)
+        if num_key_items_to_place >= 1:
+            key_items_to_place = filtered_item_precedence[:(num_key_items_to_place - 1)] + [
+                filtered_item_precedence[num_key_items_to_place - 1 + attempt_num]]
+        else:
+            key_items_to_place = []
+        key_etank = 1 if 'ETank' in key_items_to_place else 0
+        key_super = 1 if 'Super' in key_items_to_place else 0
+        key_powerbomb = 1 if 'PowerBomb' in key_items_to_place else 0
+        key_missile = 1 if 'Missile' in key_items_to_place else 0
+
+        num_other_items_to_place = num_items_to_place - len(key_items_to_place)
+        items_to_mix = (items_remaining_dict['Missile'] - key_missile) * ['Missile']
+        items_to_delay = []
+
+        if self.item_placement_strategy in [ItemPlacementStrategy.OPEN, ItemPlacementStrategy.SEMI_CLOSED]:
+            items_to_mix += (items_remaining_dict['ETank'] - key_etank) * ['ETank']
+        else:
+            items_to_delay += (items_remaining_dict['ETank'] - key_etank) * ['ETank']
+
+        if self.item_placement_strategy == ItemPlacementStrategy.OPEN or (
+                self.item_placement_strategy == ItemPlacementStrategy.SEMI_CLOSED and items_remaining_dict['Super'] <
+                self.initial_items_remaining_dict['Super']):
+            items_to_mix += (items_remaining_dict['Super'] - key_super) * ['Super']
+        else:
+            items_to_delay += (items_remaining_dict['Super'] - key_super) * ['Super']
+
+        if self.item_placement_strategy == ItemPlacementStrategy.OPEN or (
+                self.item_placement_strategy == ItemPlacementStrategy.SEMI_CLOSED and items_remaining_dict['PowerBomb'] <
+                self.initial_items_remaining_dict['PowerBomb']):
+            items_to_mix += (items_remaining_dict['PowerBomb'] - key_powerbomb) * ['PowerBomb']
+        else:
+            items_to_delay += (items_remaining_dict['PowerBomb'] - key_powerbomb) * ['PowerBomb']
+        items_to_delay += items_remaining_dict['ReserveTank'] * ['ReserveTank']
+
+        other_items = np.random.permutation(items_to_mix).tolist() + np.random.permutation(items_to_delay).tolist()
+        other_items_to_place = other_items[:num_other_items_to_place]
+        return key_items_to_place, other_items_to_place
+
+    def place_items(self, bireachable_item_idxs, other_item_idxs, key_item_names, other_item_names,
+                    item_placement_list):
+        # TODO: if configured, implement logic to place key items at harder-to-reach locations?
+        new_item_placement_list = item_placement_list.copy()
+        bireachable_item_idxs = np.random.permutation(bireachable_item_idxs).tolist()
+        item_names = key_item_names + other_item_names
+        assert len(bireachable_item_idxs) + len(other_item_idxs) == len(key_item_names) + len(other_item_names)
+        for idx, name in zip(bireachable_item_idxs + other_item_idxs, item_names):
+            new_item_placement_list[idx] = name
+        return new_item_placement_list
+
+    def collect_items(self, state: GameState, items_remaining_dict, item_names):
+        state = copy.deepcopy(state)
+        items_remaining_dict = copy.deepcopy(items_remaining_dict)
+        for item_name in item_names:
+            state.items.add(item_name)
+            if item_name == 'Missile':
+                state.max_missiles += 5
+                state.current_missiles += 5
+            elif item_name == 'Super':
+                state.max_super_missiles += 5
+                state.current_super_missiles += 5
+            elif item_name == 'PowerBomb':
+                state.max_power_bombs += 5
+                state.current_power_bombs += 5
+            elif item_name == 'ETank':
+                state.num_energy_tanks += 1
+                state.max_energy += 100
+                state.current_energy = state.max_energy
+            elif item_name == 'ReserveTank':
+                state.num_reserves += 1
+                state.max_energy += 100
+            items_remaining_dict[item_name] -= 1
+        state.weapons = self.sm_json_data.get_weapons(state.items)
+        return state, items_remaining_dict
+
+    def step(self, state: GameState, item_placement_list, item_precedence, items_remaining_dict, step_num):
+        state = copy.deepcopy(state)
+        state.current_energy = state.max_energy
+        state.current_missiles = state.max_missiles
+        state.current_super_missiles = state.max_super_missiles
+        state.current_power_bombs = state.max_power_bombs
+
+        while True:
+            bireachable_item_idxs, reachable_item_idxs, flag_idxs = self.get_bireachable_targets(state)
+            logging.info(f"Step={step_num}, bireach={len(bireachable_item_idxs)}, other={len(reachable_item_idxs)}, items={state.items}, flags={state.flags}")
+            any_new_flag = False
+            for idx in flag_idxs:
+                if self.flag_list[idx] not in state.flags:
+                    state.flags.add(self.flag_list[idx])
+                    any_new_flag = True
+            if not any_new_flag:
+                break
+
+        attempt_num = 0
+        reachable_item_idx_set = set(reachable_item_idxs)
+        while True:
+            uncollected_bireachable_item_idxs = [i for i in bireachable_item_idxs if item_placement_list[i] is None]
+            uncollected_bireachable_item_idx_set = set(uncollected_bireachable_item_idxs)
+            if len(uncollected_bireachable_item_idx_set) == 0:
+                # There are no more eligible locations to place an item.
+                assert step_num == 1
+                logging.info("No uncollected bireachable items")
+                return None, None, None
+            uncollected_oneway_reachable_item_idxs = [i for i in reachable_item_idxs if item_placement_list[i] is None
+                                                      and i not in uncollected_bireachable_item_idx_set]
+            key_item_names, other_item_names = self.select_items(len(uncollected_bireachable_item_idx_set),
+                                                                 len(uncollected_oneway_reachable_item_idxs),
+                                                                 item_precedence, items_remaining_dict, attempt_num)
+            if key_item_names is None:
+                # We have exhausted all key item placements attempts without success. Abort (and retry probably on new map)
+                logging.info("Exhausted key item placements")
+                return None, None, None
+            new_state, new_items_remaining_dict = self.collect_items(state, items_remaining_dict, key_item_names + other_item_names)
+            if all(items_remaining_dict[item_name] != self.initial_items_remaining_dict[item_name]
+                   for item_name in self.progression_item_set):
+                # All key items have been placed. Break out early.
+                break
+            new_bireachable_item_idxs, _, _ = self.get_bireachable_targets(new_state)
+            if any(i not in reachable_item_idx_set for i in new_bireachable_item_idxs):
+                # Success: the new items unlock at least one new bireachable item location.
+                break
+            else:
+                logging.info("Failed {}".format(key_item_names))
+            attempt_num += 1
+
+        logging.info("Placing {}, {}".format(key_item_names, other_item_names))
+        new_item_placement_list = self.place_items(uncollected_bireachable_item_idxs,
+                                                   uncollected_oneway_reachable_item_idxs, key_item_names,
+                                                   other_item_names, item_placement_list)
+        return new_state, new_item_placement_list, new_items_remaining_dict
+
+    def finish(self, item_placement_list, items_remaining_dict):
+        item_placement_list = item_placement_list.copy()
+        items_remaining_list = [item_name for item_name, cnt in items_remaining_dict.items() for _ in range(cnt)]
+        items_remaining_list = np.random.permutation(items_remaining_list).tolist()
+        j = 0
+        for i in range(len(item_placement_list)):
+            if item_placement_list[i] is None:
+                item_placement_list[i] = items_remaining_list[j]
+                j += 1
+        assert j == len(items_remaining_list)
+        return item_placement_list
+
+    def randomize(self):
+        # TODO: Split this function into more manageable-sized pieces and clean up.
+        initial_items = {"PowerBeam", "PowerSuit"}
+        state = GameState(
+            items=initial_items,
+            flags={"f_TourianOpen"},
+            weapons=self.sm_json_data.get_weapons(set(initial_items)),
+            num_energy_tanks=0,  # energy_tanks,
+            num_reserves=0,  # reserve_tanks,
+            # We deduct 29 energy from the actual max energy, to ensure the game is beatable without ever dropping
+            # below 29 energy. This allows us to simplify the logic by not needing to worry about shinespark strats
+            # possibly failing because of dropping below 29 energy:
+            max_energy=70,  # + 100 * (energy_tanks + reserve_tanks),
+            max_missiles=0,  # missiles,
+            max_super_missiles=0,  # super_missiles,
+            max_power_bombs=0,  # power_bombs,
+            current_energy=70,
+            current_missiles=0,  # missiles,
+            current_super_missiles=0,  # super_missiles,
+            current_power_bombs=0,  # power_bombs,
+            vertex_index=self.sm_json_data.vertex_index_dict[(8, 5, 0)])  # Ship (Landing Site)
+        item_placement_list = [None for _ in range(len(self.item_ptr_list))]
+        items_remaining_dict = self.initial_items_remaining_dict.copy()
+        item_precedence = np.random.permutation(sorted(self.progression_item_set)).tolist()
+
+        for step_number in range(1, 101):
+            state, item_placement_list, items_remaining_dict = self.step(state, item_placement_list, item_precedence, items_remaining_dict, step_number)
+            if state is None:
+                return None
+            if all(items_remaining_dict[item_name] != self.initial_items_remaining_dict[item_name]
+                   for item_name in self.progression_item_set):
+                item_placement_list = self.finish(item_placement_list, items_remaining_dict)
+                return item_placement_list
+
+            # spoiler_steps, spoiler_summary = self.sm_json_data.get_spoiler_entry(selected_target_index, route_data,
+            #                                                                      orig_state, state, collect_name,
+            #                                                                      step_number, int(
+            #         target_rank[selected_target_index]), self.map)
+            # self.spoiler_route.append(spoiler_steps)
+            # self.spoiler_summary.append(spoiler_summary)
+        raise RuntimeError("Unexpected failure in item randomization")
 
 # # # map_name = '12-15-session-2021-12-10T06:00:58.163492-0'
 # # map_name = '01-16-session-2022-01-13T12:40:37.881929-1'
