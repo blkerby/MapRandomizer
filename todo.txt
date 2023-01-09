@@ -1,5 +1,18 @@
 TODO:
-- use indiviudal room timings for escape (because sometimes it's impossible on expert settings)
+- finish item placement overhaul
+  - check that all items/flags can be reached
+  - add links to pass bosses without flag
+  - filter flags to progression flags (to avoid wasting steps with irrelevant zeb flags, etc.)
+  - make spoiler log work again
+  - check semi-closed and closed modes
+  - play testing
+- apply bomb torizo patch (from varia) to make it awake when its item is picked up (rather than bombs)?
+- fix color of reserve tank energy in equipment menu (got messed up by colored arrows)
+- check boss logic on easy settings:
+  - golden torizo should need tech to avoid damage?
+  - canBePatient should be required when doing long fight with only Charge?
+- put back gray doors locked by enemy kills (Metal Pirates, etc.)
+  - decide whether these should still wake the planet?
 - consider moving the MB barriers to the right one tile (or two?), to make them interfere less with ice zeb skip.
 - move GFX colors:
   - Morph Ball room (blue brinstar), tileset 7:
@@ -13,37 +26,6 @@ TODO:
     - Open: 100% movement, 100% beams, 100% tanks, 100% ammo
     - Closed: 0% movement, 100% beams, 100% tanks, 100% ammo (gated by first)
     - Extreme: 0% movement, 0% beams, 0% tanks, 50% ammo (gated by first)
-  - algorithm sketch:
-    - Setup phase: Generate a fixed random permutation of items indicating preferred placement order
-      - including movement items, beams, Super, PowerBomb, ETank (but not Missile or ReserveTank)
-      - make sure Morph is before Bomb, PowerBomb, SpringBall (to speed up placement)
-    - Main phase: on each step,
-      1. Determine the set of item locations reachable from the Ship with the current item loadout.
-        a. If there are no such locations with unplaced items, then abort this attempt and move on to a new map.
-           (This should only be possible on the first step.)
-      2. Among the locations in (1), determine the set of item locations which can return back to the Ship, based on
-         current item loadout and energy/ammo reached in (1).
-        a. If there are no such locations with unplaced items, then abort this attempt and move on to a new map.
-           (This should only be possible on the first step.)
-      3. Collect all items already placed in locations in (2). These will only be non-key items.
-      4. Select items to place in the remaining locations in (2).
-        a. Based on the progression rate settings, determine the number of key items to place, number of supers to
-           place, etc.
-        b. Select the key items to place, the first ones from the preferred placement order that have not yet had
-           a placement. (use nodes instead of vertices, e.g. to stop Big Pink from getting disproportionately stacked)
-        c. Determine the set of item locations reachable from the ship with the new items added.
-        d. If this does not contain at least one unplaced item location, go back to (b) and modify the last key item to
-           the next one in the list. If we've exhausted the whole list, then abort this attempt (and retry, possibly
-           on a new map).
-        e. Among the locations in (d), determine the set of item locations which can return back to the Ship, based on
-           current item loadout and energy/ammo reached in (d).
-            - If this does not contain at least one unplaced item location, go back to (b) and modify the last key item to
-           the next one in the list. If we've exhausted the whole list, then abort this attempt (and retry, possibly
-           on a new map).
-      5. Collect the items just placed.
-      6. Place non-key items in the remaining locations in (1).
-      7. If all key items have been placed, proceed to clean-up phase.
-    - Clean-up: place all remaining items randomly at the remaining available locations.
 - add grapple + xray to the HUD on hyper beam collect.
 - make the pause map tiles align with the grid
 - fix tiny bug: when bottom-left door of landing site is an area transition, the arrow shows up from the beginning

@@ -8,6 +8,7 @@ import numpy as np
 import copy
 import math
 
+# Overrides for rooms needing escape timer adjustments, e.g. because of internal walls preventing a direct path.
 escape_distance_override = {
     room_dict['Tourian Escape Room 4']: {
         (0, 1): 18,

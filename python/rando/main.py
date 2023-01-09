@@ -33,7 +33,7 @@ parser = argparse.ArgumentParser(description='Start the Map Rando web service.')
 parser.add_argument('--debug', type=bool, default=False, help='Run in debug mode')
 args = parser.parse_args()
 
-VERSION = 27
+VERSION = 28
 
 import logging
 from maze_builder.types import reconstruct_room_data, Direction, DoorSubtype
@@ -609,10 +609,10 @@ def randomize():
         # Rerank the areas to assign the less nice music to smaller areas:
         map = rerank_areas(map)
 
-        randomizer = Randomizer(map, sm_json_data, difficulty)
+        randomizer = Randomizer(map, sm_json_data, difficulty, item_placement_strategy)
         for i in range(max_item_attempts):
-            success = randomizer.randomize(item_placement_strategy)
-            if success:
+            item_placement_list = randomizer.randomize()
+            if item_placement_list is not None:
                 break
         else:
             continue
@@ -621,12 +621,12 @@ def randomize():
         return flask.Response("Too many failed item randomization attempts", status=500)
 
     logging.info("Done with item randomization")
-    spoiler_items = []
-    for i in range(len(randomizer.item_placement_list)):
-        spoiler_items.append({
-            'nodeAddress': '{:X}'.format(randomizer.item_placement_list[i]),
-            'item': randomizer.item_sequence[i],
-        })
+    # spoiler_items = []
+    # for i in range(len(item_placement_list)):
+    #     spoiler_items.append({
+    #         'nodeAddress': '{:X}'.format(item_placement_list[i]),
+    #         'item': randomizer.item_sequence[i],
+    #     })
 
     config = {
         'version': VERSION,
@@ -1098,9 +1098,9 @@ def randomize():
         return orig_plm_type + (i - old_i) * 4
 
     # Place items
-    for i in range(len(randomizer.item_placement_list)):
-        ptr = randomizer.item_placement_list[i]
-        item_name = randomizer.item_sequence[i]
+    for i in range(len(item_placement_list)):
+        ptr = randomizer.item_ptr_list[i]
+        item_name = item_placement_list[i]
         orig_plm_type = orig_rom.read_u16(ptr)
         plm_type = item_to_plm_type(item_name, orig_plm_type)
         rom.write_u16(ptr, plm_type)
