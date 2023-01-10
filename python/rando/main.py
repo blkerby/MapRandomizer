@@ -612,8 +612,9 @@ def randomize():
 
         randomizer = Randomizer(map, sm_json_data, difficulty, item_placement_strategy)
         for i in range(max_item_attempts):
-            item_placement_list = randomizer.randomize()
-            if item_placement_list is not None:
+            result = randomizer.randomize()
+            if result is not None:
+                item_placement_list, spoiler_details = result
                 break
         else:
             continue
@@ -1309,12 +1310,13 @@ def randomize():
     # Make Supers do double damage to Mother Brain.
     rom.write_u8(snes2pc(0xB4F1D5), 0x84)
 
-    escape_spoiler = update_escape_timer(rom, map, sm_json_data, difficulty)
+    spoiler_escape = update_escape_timer(rom, map, sm_json_data, difficulty)
 
     spoiler_data = {
-        'summary': randomizer.spoiler_summary,
-        'route': randomizer.spoiler_route,
-        'escape': escape_spoiler,
+        # 'summary': randomizer.spoiler_summary,
+        # 'route': randomizer.spoiler_route,
+        'details': spoiler_details,
+        'escape': spoiler_escape,
         # 'items': spoiler_items,
     }
 
