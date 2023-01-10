@@ -506,9 +506,23 @@ door_lock_allowed_room_ids = {
     84,  # Kraid Room
     193,  # Draygon's Room
     142,  # Ridley's Room
-    150,  # Golden Torizo Room"
+    150,  # Golden Torizo Room
 }
 
+# Flags for which we want to add an obstacle in the room, to allow progression through (or back out of) the room
+# after defeating the boss on the same graph traversal step (which cannot take into account the new flag).
+obstacle_flags = {
+    'f_DefeatedKraid',
+    'f_DefeatedDraygon',
+    'f_DefeatedRidley',
+    'f_DefeatedGoldenTorizo',
+    'f_DefeatedCrocomire',
+    'f_DefeatedSporeSpawn',
+    'f_DefeatedBotwoon',
+    'f_MaridiaTubeBroken',
+    'f_ShaktoolDoneDigging',
+    'f_UsedAcidChozoStatue',
+}
 
 class SMJsonData:
     def __init__(self, sm_json_data_path):
@@ -775,7 +789,26 @@ class SMJsonData:
         next_node_id = max(node_json['id'] for node_json in room_json['nodes']) + 1
         extra_node_list = []
         extra_link_list = []
+        obstacle_flag = None
+        obstacle_flag_id = None
+
         for node_json in room_json['nodes']:
+            if room_json['name'] == "Shaktool Room" and node_json['name'] == 'f_ShaktoolDoneDigging':
+                # Adding a dummy lock on Shaktool done digging event, so that the code below can pick it up
+                # and construct a corresponding obstacle for the flag (as it expects there to be a lock).
+                node_json["locks"] = [
+                    {
+                        "name": "Shaktool Lock",
+                        "lockType": "triggeredEvent",
+                        "unlockStrats": [
+                            {
+                                "name": "Base",
+                                "notable": False,
+                                "requires": [],
+                            }
+                        ]
+                    }]
+
             if 'locks' in node_json and (
                     node_json['nodeType'] not in ('door', 'entrance') or room_json['id'] in door_lock_allowed_room_ids):
                 assert len(node_json['locks']) == 1
@@ -800,9 +833,18 @@ class SMJsonData:
                     'from': node_json['id'],
                     'to': [{
                         'id': next_node_id,
-                        'strats': lock['unlockStrats']
+                        'strats': copy.deepcopy(lock['unlockStrats'])
                     }]
                 }
+                if yields is not None and len(yields) > 0 and yields[0] in obstacle_flags:
+                    obstacle_flag = yields[0]
+                    obstacle_flag_id = 'obs_' + obstacle_flag
+                    for strat in link_to['to'][0]['strats']:
+                        strat['obstacles'] = [{
+                            'id': obstacle_flag_id,
+                            'requires': []
+                        }]
+
                 link_from = {
                     'from': next_node_id,
                     'to': [{
@@ -821,6 +863,30 @@ class SMJsonData:
 
         room_json['nodes'] += extra_node_list
         room_json['links'] += extra_link_list
+        if obstacle_flag is not None:
+            print("Obstacle flag: {} in {}".format(obstacle_flag, room_json['name']))
+            if 'obstacles' not in room_json:
+                room_json['obstacles'] = []
+            room_json['obstacles'] += [{
+                'id': obstacle_flag_id,
+                'name': obstacle_flag_id,
+            }]
+            for link in room_json['links']:
+                for to_json in link['to']:
+                    new_strats = []
+                    for strat in to_json['strats']:
+                        if obstacle_flag in strat['requires']:
+                            new_strat = copy.deepcopy(strat)
+                            if 'obstacles' not in new_strat:
+                                new_strat['obstacles'] = []
+                            new_strat['name'] += ' (obstacle)'
+                            new_strat['requires'].remove(obstacle_flag)
+                            new_strat['obstacles'].append({
+                                'id': obstacle_flag_id,
+                                'requires': ['never'],
+                            })
+                            new_strats.append(new_strat)
+                    to_json['strats'] += new_strats
         return room_json
 
     def preprocess_region(self, raw_json_data):
@@ -1001,12 +1067,10 @@ class SMJsonData:
             'area': area_dict[map['area'][room_index]],
             'room': room_json['name'],
             'node': node_json['name'],
-            'obstacles_mask': obstacles_mask,
         }
         return data
 
-    def get_spoiler_entry(self, selected_target_index, route_data, state: GameState, new_state, collect_name,
-                          step_number, rank, map):
+    def get_spoiler_steps(self, selected_target_index, route_data, map):
         graph, output_route_id, output_route_edge, output_route_prev = route_data
         route_id = output_route_id[selected_target_index]
         step_list = []
@@ -1036,33 +1100,7 @@ class SMJsonData:
             step_list.append(step)
             route_id = output_route_prev[route_id]
         step_list = list(reversed(step_list))
-        route = {
-            'step_number': step_number,
-            'step_when_first_accessible': rank,
-            'collect': collect_name,
-            'start_state': {
-                **self.get_vertex_data(state.vertex_index, map),
-                'max_energy': state.max_energy,
-                'max_missiles': state.max_missiles,
-                'max_supers': state.max_super_missiles,
-                'max_power_bombs': state.max_power_bombs,
-                'current_energy': state.current_energy,
-                'current_missiles': state.current_missiles,
-                'current_supers': state.current_super_missiles,
-                'current_power_bombs': state.current_power_bombs,
-                'items': [item for item in sorted(state.items) if item not in ["PowerBeam", "PowerSuit"]],
-                'flags': list(sorted(state.flags)),
-            },
-            'steps': step_list,
-        }
-        summary = {
-            'step_number': step_number,
-            'step_when_first_accessible': rank,
-            'collect': collect_name,
-            **self.get_vertex_data(new_state.vertex_index, map),
-        }
-        del summary['obstacles_mask']
-        return route, summary
+        return step_list
 
 # #
 # sm_json_data_path = "sm-json-data/"
