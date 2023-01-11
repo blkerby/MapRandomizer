@@ -365,15 +365,20 @@ def home():
                  </div>
                 </div>
                 <div class="form-group row my-2 mx-2">
-                    <small><strong>Open</strong>: At each step of item placement, the item will be placed at a random accessible location.
-                    At the end, non-progression items such as extra E-Tanks and ammo are placed randomly across all remaining
-                    locations.</small>                    
+                    <small><strong>Open</strong>: Key items, tanks, and ammo are placed throughout the game in
+                    roughly a uniformly random way (subject to logic constraints to ensure the game is beatable), 
+                    which generally allows multiple pathways for progression.</small>                    
                 </div>
                 <div class="form-group row my-2 mx-2">
-                    <small><strong>Closed</strong>: At each step of item placement, if possible the item will be placed at a random accessible location 
-                    that was unlocked by the previous item. Non-progression items (except Missiles) are
-                    placed in locations that become accessible as late as possible. This reduces the amount of ways to
-                    progress, making it more likely that harder tech will be required.</small>                    
+                    <small><strong>Semiclosed</strong>: Key items are placed sparingly until the final stage of
+                    item placement, tending to limit the player to a single intended progression sequence for much
+                    of the game. Energy Tanks are placed in roughly a uniformly random way, as are additional Super and
+                    Power Bomb packs after the first pack.</small>                    
+                </div>
+                <div class="form-group row my-2 mx-2">
+                    <small><strong>Closed</strong>: Key items, tanks, and ammo (other than Missiles) are placed
+                    sparingly until the final stage of item placement, tending to limit the player to a single intended
+                    progression sequence for much of the game.</small>
                 </div>
                 <div class="form-group row my-2">
                   <label class="col-sm-2 col-form-label" for="preset">Skill assumption</label>
@@ -614,7 +619,7 @@ def randomize():
         for i in range(max_item_attempts):
             result = randomizer.randomize()
             if result is not None:
-                item_placement_list, spoiler_details = result
+                item_placement_list, spoiler_summary, spoiler_details = result
                 break
         else:
             continue
@@ -1047,7 +1052,6 @@ def randomize():
         0xC84E,  # down gray door
     ]
     keep_gray_door_room_names = [
-        "Pit Room",
         "Kraid Room",
         "Draygon's Room",
         "Ridley's Room",
@@ -1063,9 +1067,8 @@ def randomize():
                 if plm_type == 0:
                     break
                 # Remove PLMs for doors that we don't want: pink, green, yellow, Eye doors, spawning wall in escape
-                # main_var_high = orig_rom.read_u8(ptr + 5)
-                # is_removable_gray_door = plm_type in gray_door_plm_types and main_var_high != 0x0C and room_obj.name not in keep_gray_door_room_names
-                is_removable_gray_door = plm_type in gray_door_plm_types and room_obj.name not in keep_gray_door_room_names
+                room_keep_gray_door = room_obj.name in keep_gray_door_room_names or (room_obj.name == 'Pit Room' and state.event_ptr == 0xE652)
+                is_removable_gray_door = plm_type in gray_door_plm_types and not room_keep_gray_door
                 if plm_type in plm_types_to_remove or is_removable_gray_door:
                     rom.write_u16(ptr, 0xB63B)  # right continuation arrow (should have no effect, giving a blue door)
                     rom.write_u16(ptr + 2, 0)  # position = (0, 0)
@@ -1313,10 +1316,9 @@ def randomize():
     spoiler_escape = update_escape_timer(rom, map, sm_json_data, difficulty)
 
     spoiler_data = {
-        # 'summary': randomizer.spoiler_summary,
-        # 'route': randomizer.spoiler_route,
-        'details': spoiler_details,
+        'summary': spoiler_summary,
         'escape': spoiler_escape,
+        'details': spoiler_details,
         # 'items': spoiler_items,
     }
 

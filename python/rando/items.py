@@ -76,7 +76,8 @@ class Randomizer:
         self.difficulty = difficulty
         self.item_placement_strategy = item_placement_strategy
 
-        door_edges = []
+        forward_door_edges = []
+        reverse_door_edges = []
         for conn in map['doors']:
             (src_room_id, src_node_id) = sm_json_data.door_ptr_pair_dict[tuple(conn[0])]
             (dst_room_id, dst_node_id) = sm_json_data.door_ptr_pair_dict[tuple(conn[1])]
@@ -84,13 +85,17 @@ class Randomizer:
                 src_vertex_id = sm_json_data.vertex_index_dict[(src_room_id, src_node_id, i)]
                 dst_vertex_id = sm_json_data.vertex_index_dict[
                     (dst_room_id, dst_node_id, 0)]  # 0 because no obstacles cleared on room entry
-                door_edges.append((src_vertex_id, dst_vertex_id))
-            if conn[2]:
-                for i in range(2 ** sm_json_data.num_obstacles_dict[dst_room_id]):
-                    src_vertex_id = sm_json_data.vertex_index_dict[(src_room_id, src_node_id, 0)]
-                    dst_vertex_id = sm_json_data.vertex_index_dict[(dst_room_id, dst_node_id, i)]
-                    door_edges.append((dst_vertex_id, src_vertex_id))
-        self.door_edges = door_edges
+                forward_door_edges.append((src_vertex_id, dst_vertex_id))
+                if conn[2]:
+                    reverse_door_edges.append((dst_vertex_id, src_vertex_id))
+            for i in range(2 ** sm_json_data.num_obstacles_dict[dst_room_id]):
+                src_vertex_id = sm_json_data.vertex_index_dict[(src_room_id, src_node_id, 0)]
+                dst_vertex_id = sm_json_data.vertex_index_dict[(dst_room_id, dst_node_id, i)]
+                reverse_door_edges.append((src_vertex_id, dst_vertex_id))
+                if conn[2]:
+                    forward_door_edges.append((dst_vertex_id, src_vertex_id))
+        self.forward_door_edges = forward_door_edges
+        self.reverse_door_edges = reverse_door_edges
 
         item_ptr_dict = {}  # maps item nodeAddress to index into item_ptr_list
         item_ptr_list = []  # list of unique item nodeAddress
@@ -162,8 +167,9 @@ class Randomizer:
         }
 
         # For now, don't place Reserve Tanks during progression because the logic won't handle them correctly
-        # with refills (We could resolve this by just making Energy Refills also refill reserves?). We'll want to
-        # fix this if we ever want to put G-mode or R-mode strats into the logic.
+        # with refills (We could resolve this by just making Energy Refills also refill reserves? Though also
+        # what about the Baby drain?). We'll want to fix this if G-mode or R-mode strats get put into the
+        # logic.
         self.progression_item_set = set(self.initial_items_remaining_dict.keys())
         self.progression_item_set.remove('ReserveTank')
 
@@ -174,9 +180,13 @@ class Randomizer:
         # Get list of bireachable items and flags (indexes into `self.item_ptr_list` and `self.flag_list`), meaning
         # ones where we can reach the node and return back to the current node, and where the target has not yet
         # been collected.
-        graph = self.sm_json_data.get_graph(state, self.difficulty, self.door_edges)
-        forward_reach, forward_route_data = self.sm_json_data.compute_reachable_vertices(state, graph)
-        reverse_reach, reverse_route_data = self.sm_json_data.compute_reachable_vertices(state, graph, reverse=True)
+        internal_graph = self.sm_json_data.get_internal_graph(state, self.difficulty)
+        forward_door_graph = self.sm_json_data.get_door_graph(self.forward_door_edges)
+        reverse_door_graph = self.sm_json_data.get_door_graph(self.reverse_door_edges)
+        forward_graph = np.concatenate([internal_graph, forward_door_graph], axis=0)
+        reverse_graph = np.concatenate([internal_graph, reverse_door_graph], axis=0)
+        forward_reach, forward_route_data = self.sm_json_data.compute_reachable_vertices(state, forward_graph)
+        reverse_reach, reverse_route_data = self.sm_json_data.compute_reachable_vertices(state, reverse_graph, reverse=True)
         max_resources = np.array(
             [state.max_energy,
              state.max_missiles,
@@ -196,7 +206,7 @@ class Randomizer:
         flags = self.vertex_flag_idx[bireachable_vertices]
         flags = flags[flags >= 0]
         flags = np.unique(flags)
-        debug_data = (bireachable_vertices, forward_route_data, reverse_route_data)
+        debug_data = (bireachable_vertices, reachable_vertices, forward_route_data, reverse_route_data)
         return bireachable_items, reachable_items, flags, debug_data
 
     def select_items(self, num_bireachable, num_oneway_reachable, item_precedence, items_remaining_dict,
@@ -266,21 +276,25 @@ class Randomizer:
     def get_flag_vertex(self, flag_name, debug_data):
         # For a given item index, choose the first corresponding bireachable vertex ID
         flag_idx = self.flag_dict[flag_name]
-        bireachable_vertices, forward_route_data, reverse_route_data = debug_data
+        bireachable_vertices, reachable_vertices, forward_route_data, reverse_route_data = debug_data
         ind = np.nonzero(self.vertex_flag_idx[bireachable_vertices] == flag_idx)[0]
         assert ind.shape[0] > 0
         return bireachable_vertices[ind[0]]
 
-    def get_item_vertex(self, item_idx, debug_data):
+    def get_item_vertex(self, item_idx, debug_data, use_bireachable: bool):
         # For a given item index, choose the first corresponding bireachable vertex ID
-        bireachable_vertices, forward_route_data, reverse_route_data = debug_data
-        ind = np.nonzero(self.vertex_item_idx[bireachable_vertices] == item_idx)[0]
+        bireachable_vertices, reachable_vertices, forward_route_data, reverse_route_data = debug_data
+        if use_bireachable:
+            vertices = bireachable_vertices
+        else:
+            vertices = reachable_vertices
+        ind = np.nonzero(self.vertex_item_idx[vertices] == item_idx)[0]
         assert ind.shape[0] > 0
-        return bireachable_vertices[ind[0]]
+        return vertices[ind[0]]
 
     def get_flag_spoiler(self, flag_name, debug_data):
         vertex_id = self.get_flag_vertex(flag_name, debug_data)
-        bireachable_vertices, forward_route_data, reverse_route_data = debug_data
+        bireachable_vertices, reachable_vertices, forward_route_data, reverse_route_data = debug_data
         obtain_steps = self.sm_json_data.get_spoiler_steps(vertex_id, forward_route_data, self.map)
         return_steps = list(reversed(self.sm_json_data.get_spoiler_steps(vertex_id, reverse_route_data, self.map)))
         location = obtain_steps[-1]
@@ -296,8 +310,8 @@ class Randomizer:
         }
 
     def get_item_spoiler(self, item_idx, item_name, debug_data):
-        vertex_id = self.get_item_vertex(item_idx, debug_data)
-        bireachable_vertices, forward_route_data, reverse_route_data = debug_data
+        bireachable_vertices, reachable_vertices, forward_route_data, reverse_route_data = debug_data
+        vertex_id = self.get_item_vertex(item_idx, debug_data, use_bireachable=True)
         obtain_steps = self.sm_json_data.get_spoiler_steps(vertex_id, forward_route_data, self.map)
         return_steps = list(reversed(self.sm_json_data.get_spoiler_steps(vertex_id, reverse_route_data, self.map)))
         location = obtain_steps[-1]
@@ -312,8 +326,23 @@ class Randomizer:
             'return_route': return_steps,
         }
 
+    def get_spoiler_items(self, newly_collected_key_item_idxs, newly_collected_non_key_item_idxs, item_placement_list, debug_data):
+        spoiler_item_summary_list = []
+        spoiler_item_details_list = []
+        for i, item_idx in enumerate(newly_collected_key_item_idxs + newly_collected_non_key_item_idxs):
+            item_name = item_placement_list[item_idx]
+            assert item_name is not None
+            spoiler_item = self.get_item_spoiler(item_idx, item_name, debug_data)
+            spoiler_item_details_list.append(spoiler_item)
+            if i < len(newly_collected_key_item_idxs):
+                spoiler_item_summary_list.append({
+                    'item': spoiler_item['item'],
+                    'location': spoiler_item['location'],
+                })
+        return spoiler_item_summary_list, spoiler_item_details_list
+
     def place_items(self, bireachable_item_idxs, other_item_idxs, key_item_names, other_item_names,
-                    item_placement_list, debug_data):
+                    item_placement_list):
         # TODO: if configured, implement logic to place key items at harder-to-reach locations?
         new_item_placement_list = item_placement_list.copy()
         bireachable_item_idxs = np.random.permutation(bireachable_item_idxs).tolist()
@@ -321,15 +350,19 @@ class Randomizer:
         assert len(bireachable_item_idxs) + len(other_item_idxs) == len(key_item_names) + len(other_item_names)
         for idx, name in zip(bireachable_item_idxs + other_item_idxs, item_names):
             new_item_placement_list[idx] = name
+        key_item_idxs = bireachable_item_idxs[:len(key_item_names)]
+        non_key_item_idxs = bireachable_item_idxs[len(key_item_names):] + other_item_idxs
+        return new_item_placement_list, key_item_idxs, non_key_item_idxs
 
-        spoiler_list = []
-        for idx, name in zip(bireachable_item_idxs[:len(key_item_names)], key_item_names):
-            spoiler_list.append(self.get_item_spoiler(idx, name, debug_data))
-        return new_item_placement_list, spoiler_list
-
-    def collect_items(self, state: GameState, item_names):
+    def collect_items(self, state: GameState, bireachable_item_idxs, item_placement_list, item_collected_list):
         state = copy.deepcopy(state)
-        for item_name in item_names:
+        new_item_collected_list = item_collected_list.copy()
+        for i in bireachable_item_idxs:
+            item_name = item_placement_list[i]
+            if item_name is None or item_collected_list[i]:
+                # Skip if there is not yet an item at this location, or if it has already been collected
+                continue
+            new_item_collected_list[i] = True
             state.items.add(item_name)
             if item_name == 'Missile':
                 state.max_missiles += 5
@@ -348,9 +381,9 @@ class Randomizer:
                 state.num_reserves += 1
                 state.max_energy += 100
         state.weapons = self.sm_json_data.get_weapons(state.items)
-        return state
+        return state, new_item_collected_list
 
-    def step(self, state: GameState, item_placement_list, item_precedence, items_remaining_dict, step_num,
+    def step(self, state: GameState, item_placement_list, item_collected_list, item_precedence, items_remaining_dict, step_num,
              bireachable_item_idxs, reachable_item_idxs, flag_idxs, debug_data):
         state = copy.deepcopy(state)
         state.current_energy = state.max_energy
@@ -358,7 +391,8 @@ class Randomizer:
         state.current_super_missiles = state.max_super_missiles
         state.current_power_bombs = state.max_power_bombs
 
-        spoiler_flags = []
+        spoiler_flags_summary = []
+        spoiler_flags_details = []
         while True:
             logging.info(
                 f"Step={step_num}, bireach={len(bireachable_item_idxs)}, other={len(reachable_item_idxs)}, flags={len(flag_idxs)}")
@@ -366,7 +400,12 @@ class Randomizer:
             for idx in flag_idxs:
                 if self.flag_list[idx] not in state.flags:
                     state.flags.add(self.flag_list[idx])
-                    spoiler_flags.append(self.get_flag_spoiler(self.flag_list[idx], debug_data))
+                    flag_details = self.get_flag_spoiler(self.flag_list[idx], debug_data)
+                    spoiler_flags_details.append(flag_details)
+                    spoiler_flags_summary.append({
+                        'flag': self.flag_list[idx],
+                        'area': flag_details['location']['area'],
+                    })
                     any_new_flag = True
             if not any_new_flag:
                 break
@@ -374,21 +413,24 @@ class Randomizer:
 
         attempt_num = 0
         reachable_item_idx_set = set(reachable_item_idxs)
+        unplaced_bireachable_item_idxs = [i for i in bireachable_item_idxs if item_placement_list[i] is None]
+        unplaced_bireachable_item_idx_set = set(unplaced_bireachable_item_idxs)
+        assert len(unplaced_bireachable_item_idx_set) > 0
+        unplaced_oneway_reachable_item_idxs = [i for i in reachable_item_idxs if item_placement_list[i] is None
+                                               and i not in unplaced_bireachable_item_idx_set]
         while True:
-            uncollected_bireachable_item_idxs = [i for i in bireachable_item_idxs if item_placement_list[i] is None]
-            uncollected_bireachable_item_idx_set = set(uncollected_bireachable_item_idxs)
-            assert len(uncollected_bireachable_item_idx_set) > 0
-            uncollected_oneway_reachable_item_idxs = [i for i in reachable_item_idxs if item_placement_list[i] is None
-                                                      and i not in uncollected_bireachable_item_idx_set]
             key_item_names, other_item_names, new_items_remaining_dict = self.select_items(
-                len(uncollected_bireachable_item_idx_set),
-                len(uncollected_oneway_reachable_item_idxs),
+                len(unplaced_bireachable_item_idx_set),
+                len(unplaced_oneway_reachable_item_idxs),
                 item_precedence, items_remaining_dict, attempt_num)
             if key_item_names is None:
                 # We have exhausted all key item placements attempts without success. Abort (and retry probably on new map)
                 logging.info("Exhausted key item placements")
                 return None
-            new_state = self.collect_items(state, key_item_names + other_item_names)
+            new_item_placement_list, key_item_idxs, non_key_item_idxs = self.place_items(unplaced_bireachable_item_idxs,
+                                                       unplaced_oneway_reachable_item_idxs, key_item_names,
+                                                       other_item_names, item_placement_list)
+            new_state, new_item_collected_list = self.collect_items(state, bireachable_item_idxs, new_item_placement_list, item_collected_list)
             new_bireachable_item_idxs, new_reachable_item_idxs, new_flag_idxs, new_debug_data = self.get_bireachable_targets(new_state)
             if all(new_items_remaining_dict[item_name] != self.initial_items_remaining_dict[item_name]
                    for item_name in self.progression_item_set):
@@ -401,16 +443,39 @@ class Randomizer:
             # logging.info("Failed {}".format(key_item_names))
             attempt_num += 1
 
+        newly_collected_item_set = set([i for i in range(len(item_collected_list)) if new_item_collected_list[i] and not item_collected_list[i]])
+        newly_collected_key_item_idxs = [i for i in key_item_idxs if i in newly_collected_item_set]
+        newly_collected_non_key_item_idxs = [i for i in non_key_item_idxs if i in newly_collected_item_set]
+        spoiler_items_summary, spoiler_items_details = self.get_spoiler_items(newly_collected_key_item_idxs, newly_collected_non_key_item_idxs, new_item_placement_list, debug_data)
         logging.info("Placing {}, {}".format(key_item_names, other_item_names))
-        new_item_placement_list, spoiler_items = self.place_items(uncollected_bireachable_item_idxs,
-                                                   uncollected_oneway_reachable_item_idxs, key_item_names,
-                                                   other_item_names, item_placement_list, debug_data)
-        spoiler_data = {
+
+        spoiler_oneway_list = []
+        for item_idx in unplaced_oneway_reachable_item_idxs:
+            vertex_id = self.get_item_vertex(item_idx, debug_data, use_bireachable=False)
+            spoiler_oneway_list.append({
+                'item': new_item_placement_list[item_idx],
+                'location': self.sm_json_data.get_vertex_data(vertex_id, self.map),
+            })
+        spoiler_details = {
             'step': step_num,
-            'flags': spoiler_flags,
-            'items': spoiler_items,
+            'start_state': {
+                'max_energy': state.max_energy,
+                'max_missiles': state.max_missiles,
+                'max_supers': state.max_super_missiles,
+                'max_power_bombs': state.max_power_bombs,
+                'items': [item for item in sorted(state.items) if item not in ["PowerBeam", "PowerSuit"]],
+                'flags': list(sorted([flag for flag in state.flags if flag != 'f_TourianOpen'])),
+            },
+            'flags': spoiler_flags_details,
+            'items': spoiler_items_details,
+            'one_way_reachable_items': spoiler_oneway_list,
         }
-        return new_state, new_item_placement_list, new_items_remaining_dict, new_bireachable_item_idxs, new_reachable_item_idxs, new_flag_idxs, new_debug_data, spoiler_data
+        spoiler_summary = {
+            'step': step_num,
+            'flags': spoiler_flags_summary,
+            'items': spoiler_items_summary,
+        }
+        return new_state, new_item_placement_list, new_item_collected_list, new_items_remaining_dict, new_bireachable_item_idxs, new_reachable_item_idxs, new_flag_idxs, new_debug_data, spoiler_summary, spoiler_details
 
     def finish(self, item_placement_list, items_remaining_dict):
         item_placement_list = item_placement_list.copy()
@@ -447,6 +512,7 @@ class Randomizer:
             current_power_bombs=0,  # power_bombs,
             vertex_index=self.sm_json_data.vertex_index_dict[(8, 5, 0)])  # Ship (Landing Site)
         item_placement_list = [None for _ in range(len(self.item_ptr_list))]
+        item_collected_list = [False for _ in range(len(self.item_ptr_list))]
         items_remaining_dict = self.initial_items_remaining_dict.copy()
         item_precedence = np.random.permutation(sorted(self.progression_item_set)).tolist()
 
@@ -455,14 +521,16 @@ class Randomizer:
             logging.info("No initial bireachable items")
             return None
 
+        spoiler_summary_list = []
         spoiler_details_list = []
         for step_number in range(1, 101):
             result = self.step(
-                state, item_placement_list, item_precedence, items_remaining_dict, step_number, bireachable_item_idxs,
+                state, item_placement_list, item_collected_list, item_precedence, items_remaining_dict, step_number, bireachable_item_idxs,
                 reachable_item_idxs, flag_idxs, debug_data)
             if result is None:
                 return None
-            state, item_placement_list, items_remaining_dict, bireachable_item_idxs, reachable_item_idxs, flag_idxs, debug_data, spoiler_details = result
+            state, item_placement_list, item_collected_list, items_remaining_dict, bireachable_item_idxs, reachable_item_idxs, flag_idxs, debug_data, spoiler_summary, spoiler_details = result
+            spoiler_summary_list.append(spoiler_summary)
             spoiler_details_list.append(spoiler_details)
             if all(items_remaining_dict[item_name] != self.initial_items_remaining_dict[item_name]
                    for item_name in self.progression_item_set):
@@ -480,7 +548,7 @@ class Randomizer:
                     bireachable_item_idxs, reachable_item_idxs, flag_idxs = self.get_bireachable_targets(state)
                 logging.info(f"items={sorted(state.items)}, flags={sorted(state.flags)}")
                 item_placement_list = self.finish(item_placement_list, items_remaining_dict)
-                return item_placement_list, spoiler_details_list
+                return item_placement_list, spoiler_summary_list, spoiler_details_list
 
             # spoiler_steps, spoiler_summary = self.sm_json_data.get_spoiler_entry(selected_target_index, route_data,
             #                                                                      orig_state, state, collect_name,
