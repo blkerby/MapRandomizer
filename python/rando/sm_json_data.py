@@ -1008,8 +1008,8 @@ class SMJsonData:
             self.add_connection(src_pair, dst_pair)
             self.add_connection(dst_pair, src_pair)
 
-    def get_internal_graph(self, state: GameState, difficulty: DifficultyConfig) -> np.array:
-        graph = np.zeros([len(self.link_list), 7], dtype=np.int16)
+    def get_graph(self, state: GameState, difficulty: DifficultyConfig, door_edges) -> np.array:
+        graph = np.zeros([len(self.link_list) + len(door_edges), 7], dtype=np.int16)
         i = 0
         for link_index, link in enumerate(self.link_list):
             consumption = link.cond.get_consumption(state, difficulty)
@@ -1022,16 +1022,13 @@ class SMJsonData:
                 graph[i, 5] = consumption.power_bombs
                 graph[i, 6] = link_index
                 i += 1
-        return graph[:i, :]
-
-    def get_door_graph(self, door_edges) -> np.array:
-        graph = np.zeros([len(door_edges), 7], dtype=np.int16)
-        for i, (src_index, dst_index) in enumerate(door_edges):
+        for (src_index, dst_index) in door_edges:
             graph[i, 0] = src_index
             graph[i, 1] = dst_index
             graph[i, 2:6] = 0
             graph[i, 6] = -1
-        return graph
+            i += 1
+        return graph[:i, :]
 
     def compute_reachable_vertices(self, state: GameState, graph, reverse: bool = False):
         if reverse:
