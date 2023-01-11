@@ -3,6 +3,39 @@
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-28---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 28 (2022-01-10)</a>:
+<ul>
+    <li>Overhaul of the item placement algorithm:
+    <ul>
+        <li>The algorithm now runs faster, especially on Easy and Open modes, which should greatly reduce or eliminate
+        timeouts that were common before.
+        <li>Key items are now only placed at locations that are both able to be reached from the Ship and able to
+        return back to the Ship without the use of the new item.
+        <ul>
+            <li>This means it is now less likely for a player to need to take a leap of faith down a path that they
+            apparently cannot return from.
+            <li>Note, however, that the return path back to the Ship doesn't necessarily need to be the same as the
+            path to the item from the Ship. This means that in some cases a leap of faith can still be required,
+            unless the player has enough map information to either identify or rule out the possibility of a return
+            path back to the Ship with their current items.
+        </ul>
+        <li>The structure of the spoiler log is updated: consistent with the new placement algorithm, for each key
+        item a possible route is indicated for how to get from the Ship to the item and back.
+        <li>Various quirks of the old algorithm are eliminated:
+        <ul>
+            <li>Key items are no longer biased to be placed in rooms with obstacles such as Big Pink.
+            <li>It should no longer happen that extra unnecessary key items are sometimes dumped right at the beginning
+            of the game (which occasionally happened before).
+        </ul>
+    </ul>
+    <li>A new item placement strategy "Semiclosed" is added:
+    <ul>
+        <li>This is similar to "Closed" except it does not have the same tendency to withhold Energy Tanks and
+            additional Supers & Power Bombs (only the first Supers and PowerBombs).
+        <li>See the updated descriptions of all three item placement strategies.
+    </ul>
+    <li>When going down Warehouse Entrance elevator, an elevator map tile is revealed which was previously missed.
+</ul>
 
 <p><a href="https://version-27---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 27 (2022-01-08)</a>:
 <ul>

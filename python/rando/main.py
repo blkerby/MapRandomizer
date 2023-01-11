@@ -500,7 +500,6 @@ def home():
                         <div class="card-body">
                             <ul>
                             <li>Even if the tech is not selected, wall jumps and crouch-jump/down-grabs may be required in some places.
-                            <li>On Closed settings the game tends to be very stingy with giving extra ammo/tanks (other than Missiles).
                             <li>Some sound effects are glitched (due to changing the music).
                             <li>Door transitions generally have some minor graphical glitches.
                             <li>The end credits are vanilla.
@@ -876,7 +875,9 @@ def randomize():
     add_explore_tiles_asm((0x18B02, 0x190BA), [(0, 1), (0, 2), (0, 3)])
     # Blue Brinstar Elevator Room
     add_explore_tiles_asm((0x18B9E, 0x18EB6), [(0, 1), (0, 2), (0, 3)])
-    # We skip Warehouse Entrance and Lower Norfair elevators because there are no tiles to explore there.
+    # Warehouse Entrance
+    add_explore_tiles_asm((0x19246, 0x192EE), [(0, 1)])
+    # We skip Lower Norfair elevators because there are no tiles to explore there.
 
     def get_arrow_location(door_id):
         dir = door_id.direction
