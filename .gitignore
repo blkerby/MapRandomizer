@@ -1,0 +1,6 @@
+.idea/
+maps/
+models/
+rust/rando/target/
+venv/
+__pycache__
