@@ -14,6 +14,7 @@ type NodePtr = usize;
 type ObstacleMask = usize;
 type WeaponMask = usize;
 type Capacity = usize;
+type DoorPtrPair = (Option<NodePtr>, Option<NodePtr>);
 
 #[derive(Default)]
 pub struct IndexedVec<T: Hash + Eq> {
@@ -38,10 +39,10 @@ pub enum Requirement {
     Damage(usize),
     EnemyKill(WeaponMask),
     EnergyDrain,
-    // EnergyRefill,
-    // MissileRefill,
-    // SupersRefill,
-    // PowerBombsRefill,
+    EnergyRefill,
+    MissileRefill,
+    SuperRefill,
+    PowerBombRefill,
     Missiles(usize),
     Supers(usize),
     PowerBombs(usize),
@@ -71,7 +72,8 @@ pub struct SMJsonData {
     room_json_map: HashMap<RoomId, JsonValue>,
     node_json_map: HashMap<(RoomId, NodeId), JsonValue>,
     node_ptr_map: HashMap<(RoomId, NodeId), NodePtr>,
-    door_ptr_pair_map: HashMap<(NodePtr, NodePtr), (RoomId, NodeId)>,
+    unlocked_node_map: HashMap<(RoomId, NodeId), NodeId>,
+    door_ptr_pair_map: HashMap<DoorPtrPair, (RoomId, NodeId)>,
     vertex_isv: IndexedVec<(RoomId, NodeId, ObstacleMask)>,
     links: Vec<Link>,
 }
@@ -110,7 +112,7 @@ impl SMJsonData {
             assert!(tech_json["extensionTechs"].is_array());
             for ext_tech in tech_json["extensionTechs"].members() {
                 self.process_tech_rec(ext_tech);
-            }    
+            }
         }
     }
 
@@ -142,7 +144,7 @@ impl SMJsonData {
             if weapon_json["situational"].as_bool().unwrap() {
                 continue;
             }
-            if weapon_json.contains("shotRequires") {
+            if weapon_json.has_key("shotRequires") {
                 // TODO: Take weapon ammo into account instead of skipping this.
                 continue;
             }
@@ -216,7 +218,9 @@ impl SMJsonData {
         self.helpers.insert(name.to_owned(), None);
         let json_value = self.helper_json_map[name].clone();
         assert!(json_value["requires"].is_array());
-        let req = Requirement::And(self.parse_requires_list(&json_value["requires"].members().as_slice()));
+        let req = Requirement::And(
+            self.parse_requires_list(&json_value["requires"].members().as_slice()),
+        );
         *self.helpers.get_mut(name).unwrap() = Some(req.clone());
         req
     }
@@ -232,7 +236,9 @@ impl SMJsonData {
     fn parse_requirement(&mut self, json_value: &JsonValue) -> Requirement {
         if json_value.is_string() {
             let value = json_value.as_str().unwrap();
-            if let Some(&tech_id) = self.tech_isv.index_by_key.get(value) {
+            if value == "never" {
+                return Requirement::Never;
+            } else if let Some(&tech_id) = self.tech_isv.index_by_key.get(value) {
                 return Requirement::Tech(tech_id as TechId);
             } else if let Some(&item_id) = self.item_isv.index_by_key.get(value) {
                 return Requirement::Item(item_id as ItemId);
@@ -344,22 +350,34 @@ impl SMJsonData {
                     }
                 }
                 assert!(enemy_set.len() > 0);
-                let mut allowed_weapons: WeaponMask = if value.contains("explicitWeapons") {
+                let mut allowed_weapons: WeaponMask = if value.has_key("explicitWeapons") {
                     assert!(value["explicitWeapons"].is_array());
                     let mut weapon_mask = 0;
                     for weapon_name in value["explicitWeapons"].members() {
-                        weapon_mask |=
-                            1 << self.weapon_isv.index_by_key[weapon_name.as_str().unwrap()];
+                        if self
+                            .weapon_isv
+                            .index_by_key
+                            .contains_key(weapon_name.as_str().unwrap())
+                        {
+                            weapon_mask |=
+                                1 << self.weapon_isv.index_by_key[weapon_name.as_str().unwrap()];
+                        }
                     }
                     weapon_mask
                 } else {
                     (1 << self.weapon_isv.keys.len()) - 1
                 };
-                if value.contains("excludedWeapons") {
+                if value.has_key("excludedWeapons") {
                     assert!(value["excludedWeapons"].is_array());
                     for weapon_name in value["excludedWeapons"].members() {
-                        allowed_weapons &=
-                            !(1 << self.weapon_isv.index_by_key[weapon_name.as_str().unwrap()]);
+                        if self
+                            .weapon_isv
+                            .index_by_key
+                            .contains_key(weapon_name.as_str().unwrap())
+                        {
+                            allowed_weapons &=
+                                !(1 << self.weapon_isv.index_by_key[weapon_name.as_str().unwrap()]);
+                        }
                     }
                 }
                 let mut reqs: Vec<Requirement> = Vec::new();
@@ -405,10 +423,10 @@ impl SMJsonData {
             }
         }
         // Add Pants Room in-room transition
-        let from_vertex_id = self.vertex_isv.index_by_key[&(220, 2, 0)];  // Pants Room
-        let to_vertex_id = self.vertex_isv.index_by_key[&(322, 1, 0)];  // East Pants Room
+        let from_vertex_id = self.vertex_isv.index_by_key[&(220, 2, 0)]; // Pants Room
+        let to_vertex_id = self.vertex_isv.index_by_key[&(322, 1, 0)]; // East Pants Room
         self.links.push(Link {
-            from_vertex_id, 
+            from_vertex_id,
             to_vertex_id,
             requirement: Requirement::Free,
             strat_name: "Pants Room in-room transition".to_string(),
@@ -418,8 +436,184 @@ impl SMJsonData {
     fn process_region(&mut self, region_json: &JsonValue) {
         assert!(region_json["rooms"].is_array());
         for room_json in region_json["rooms"].members() {
-            self.process_room(room_json);
+            let preprocessed_room_json = self.preprocess_room(room_json);
+            self.process_room(&preprocessed_room_json);
         }
+    }
+
+    fn preprocess_room(&mut self, room_json: &JsonValue) -> JsonValue {
+        let mut new_room_json = room_json.clone();
+        assert!(room_json["nodes"].is_array());
+        let mut next_node_id = room_json["nodes"]
+            .members()
+            .map(|x| x["id"].as_usize().unwrap())
+            .max()
+            .unwrap()
+            + 1;
+        let mut extra_nodes: Vec<JsonValue> = Vec::new();
+        let mut extra_links: Vec<JsonValue> = Vec::new();
+        let room_id = room_json["id"].as_usize().unwrap();
+
+        // Rooms where we want the logic to take into account the gray door locks (elsewhere the gray doors are changed to blue):
+        let door_lock_allowed_room_ids = [
+            84,  // Kraid Room
+            193, // Draygon's Room
+            142, // Ridley's Room
+            150, // Golden Torizo Room
+        ];
+
+        // Flags for which we want to add an obstacle in the room, to allow progression through (or back out of) the room
+        // after defeating the boss on the same graph traversal step (which cannot take into account the new flag).
+        let obstacle_flags = [
+            "f_DefeatedKraid",
+            "f_DefeatedDraygon",
+            "f_DefeatedRidley",
+            "f_DefeatedGoldenTorizo",
+            "f_DefeatedCrocomire",
+            "f_DefeatedSporeSpawn",
+            "f_DefeatedBotwoon",
+            "f_MaridiaTubeBroken",
+            "f_ShaktoolDoneDigging",
+            "f_UsedAcidChozoStatue",
+        ];
+
+        let mut obstacle_flag: Option<String> = None;
+
+        for node_json in new_room_json["nodes"].members_mut() {
+            let node_id = node_json["id"].as_usize().unwrap();
+
+            if room_json["name"] == "Shaktool Room" && node_json["name"] == "f_ShaktoolDoneDigging"
+            {
+                // Adding a dummy lock on Shaktool done digging event, so that the code below can pick it up
+                // and construct a corresponding obstacle for the flag (as it expects there to be a lock).
+                node_json["locks"] = json::array![{
+                    "name": "Shaktool Lock",
+                    "lockType": "triggeredEvent",
+                    "unlockStrats": [
+                        {
+                            "name": "Base",
+                            "notable": false,
+                            "requires": [],
+                        }
+                    ]
+                }];
+            }
+
+            if node_json.has_key("locks")
+                && (!["door", "entrance"].contains(&node_json["nodeType"].as_str().unwrap())
+                    || door_lock_allowed_room_ids.contains(&room_id))
+            {
+                assert!(node_json["locks"].len() == 1);
+                let base_node_name = node_json["name"].as_str().unwrap().to_string();
+                let lock = node_json["locks"][0].clone();
+                let yields = node_json["yields"].clone();
+                node_json.remove("locks");
+                let mut unlocked_node_json = node_json.clone();
+                if yields != JsonValue::Null {
+                    node_json.remove("yields");
+                }
+                node_json["name"] = JsonValue::String(base_node_name.clone() + " (locked)");
+                node_json["nodeType"] = JsonValue::String("junction".to_string());
+
+                unlocked_node_json["id"] = next_node_id.into();
+                self.unlocked_node_map
+                    .insert((room_id, node_id), next_node_id.into());
+                unlocked_node_json["name"] = JsonValue::String(base_node_name + " (unlocked)");
+                if yields != JsonValue::Null {
+                    unlocked_node_json["yields"] = yields.clone();
+                }
+                extra_nodes.push(unlocked_node_json);
+
+                let mut link_forward = json::object! {
+                    "from": node_id,
+                    "to": [{
+                        "id": next_node_id,
+                        "strats": lock["unlockStrats"].clone(),
+                    }]
+                };
+
+                if yields != JsonValue::Null
+                    && obstacle_flags.contains(&yields[0].as_str().unwrap())
+                {
+                    obstacle_flag = Some(yields[0].as_str().unwrap().to_string());
+                    for strat in link_forward["to"][0]["strats"].members_mut() {
+                        strat["obstacles"] = json::array![{
+                            "id": obstacle_flag.as_ref().unwrap().to_string(),
+                            "requires": []
+                        }]
+                    }
+                }
+
+                let link_backward = json::object! {
+                    "from": next_node_id,
+                    "to": [{
+                        "id": node_id,
+                        "strats": [{
+                            "name": "Base",
+                            "notable": false,
+                            "requires": [],
+                        }],
+                    }]
+                };
+                extra_links.push(link_forward);
+                extra_links.push(link_backward);
+
+                next_node_id += 1;
+            }
+        }
+
+        for extra_node in extra_nodes {
+            new_room_json["nodes"].push(extra_node).unwrap();
+        }
+        for extra_link in extra_links {
+            new_room_json["links"].push(extra_link).unwrap();
+        }
+
+        if obstacle_flag.is_some() {
+            let obstacle_flag_name = obstacle_flag.as_ref().unwrap();
+            if !new_room_json.has_key("obstacles") {
+                new_room_json["obstacles"] = json::array![];
+            }
+            new_room_json["obstacles"]
+                .push(json::object! {
+                    "id": obstacle_flag_name.to_string(),
+                    "name": obstacle_flag_name.to_string(),
+                })
+                .unwrap();
+            assert!(new_room_json["links"].is_array());
+            for link in new_room_json["links"].members_mut() {
+                assert!(link["to"].is_array());
+                for to_json in link["to"].members_mut() {
+                    let mut new_strats: Vec<JsonValue> = Vec::new();
+                    assert!(to_json["strats"].is_array());
+                    for strat in to_json["strats"].members() {
+                        let json_obstacle_flag_name = JsonValue::String(obstacle_flag_name.clone());
+                        let pos = strat["requires"]
+                            .members()
+                            .position(|x| x == &json_obstacle_flag_name);
+                        if let Some(i) = pos {
+                            let mut new_strat = strat.clone();
+                            if !new_strat.has_key("obstacles") {
+                                new_strat["obstacles"] = json::array![];
+                            }
+                            new_strat["requires"].array_remove(i);
+                            new_strat["obstacles"]
+                                .push(json::object! {
+                                    "id": obstacle_flag_name.to_string(),
+                                    "requires": ["never"]
+                                })
+                                .unwrap();
+                            new_strats.push(new_strat);
+                        }
+                    }
+                    for strat in new_strats {
+                        to_json["strats"].push(strat).unwrap();
+                    }
+                }
+            }
+        }
+
+        new_room_json
     }
 
     fn process_room(&mut self, room_json: &JsonValue) {
@@ -428,14 +622,14 @@ impl SMJsonData {
         let room_id = room_json["id"].as_usize().unwrap();
         self.room_json_map.insert(room_id, room_json.clone());
 
-        // Process obstacles
-        let obstacles_idx_map: HashMap<String, usize> = if room_json.contains("obstacles") {
+        // Process obstacles:
+        let obstacles_idx_map: HashMap<String, usize> = if room_json.has_key("obstacles") {
             assert!(room_json["obstacles"].is_array());
             room_json["obstacles"]
-            .members()
-            .enumerate()
-            .map(|(i, x)| (x["name"].as_str().unwrap().to_string(), i))
-            .collect()
+                .members()
+                .enumerate()
+                .map(|(i, x)| (x["id"].as_str().unwrap().to_string(), i))
+                .collect()
         } else {
             HashMap::new()
         };
@@ -447,9 +641,9 @@ impl SMJsonData {
             let node_id = node_json["id"].as_usize().unwrap();
             self.node_json_map
                 .insert((room_id, node_id), node_json.clone());
-            if node_json.contains("nodeAddress") {
+            if node_json.has_key("nodeAddress") {
                 let mut node_ptr =
-                    usize::from_str_radix(node_json["nodeAddress"].as_str().unwrap(), 16).unwrap();
+                    parse_int::parse::<usize>(node_json["nodeAddress"].as_str().unwrap()).unwrap();
                 // Convert East Pants Room door pointers to corresponding Pants Room pointers
                 if node_ptr == 0x1A7BC {
                     node_ptr = 0x1A798;
@@ -460,6 +654,89 @@ impl SMJsonData {
             }
             for obstacle_bitmask in 0..(1 << num_obstacles) {
                 self.vertex_isv.add(&(room_id, node_id, obstacle_bitmask));
+            }
+        }
+        for node_json in room_json["nodes"].members() {
+            let node_id = node_json["id"].as_usize().unwrap();
+            if node_json.has_key("spawnAt") {
+                let spawn_node_id = node_json["spawnAt"].as_usize().unwrap();
+                let from_vertex_id = self.vertex_isv.index_by_key[&(room_id, node_id, 0)];
+                let to_vertex_id = self.vertex_isv.index_by_key[&(room_id, spawn_node_id, 0)];
+                self.links.push(Link {
+                    from_vertex_id,
+                    to_vertex_id,
+                    requirement: Requirement::Free,
+                    strat_name: "spawnAt".to_string(),
+                });
+            }
+            if node_json.has_key("utility") {
+                let utility = &node_json["utility"];
+                for obstacle_bitmask in 0..(1 << num_obstacles) {
+                    let vertex_id =
+                        self.vertex_isv.index_by_key[&(room_id, node_id, obstacle_bitmask)];
+                    let mut reqs: Vec<Requirement> = Vec::new();
+                    assert!(utility.is_array());
+                    if utility.contains("energy") {
+                        reqs.push(Requirement::EnergyRefill);
+                    }
+                    if utility.contains("missile") {
+                        reqs.push(Requirement::MissileRefill);
+                    }
+                    if utility.contains("super") {
+                        reqs.push(Requirement::SuperRefill);
+                    }
+                    if utility.contains("powerbomb") {
+                        reqs.push(Requirement::PowerBombRefill);
+                    }
+                    self.links.push(Link {
+                        from_vertex_id: vertex_id,
+                        to_vertex_id: vertex_id,
+                        requirement: Requirement::And(reqs),
+                        strat_name: "Refill".to_string(),
+                    });
+                }
+            }
+        }
+        if room_json.has_key("enemies") {
+            assert!(room_json["enemies"].is_array());
+            for enemy in room_json["enemies"].members() {
+                if !enemy.has_key("farmCycles") {
+                    continue;
+                }
+                let drops = &enemy["drops"];
+                let drops_pb = drops["powerBomb"].as_usize().map(|x| x > 0) == Some(true);
+                let drops_super = drops["super"].as_usize().map(|x| x > 0) == Some(true);
+                let drops_missile = drops["missile"].as_usize().map(|x| x > 0) == Some(true);
+                let drops_big_energy = drops["bigEnergy"].as_usize().map(|x| x > 0) == Some(true);
+                let drops_small_energy = drops["smallEnergy"].as_usize().map(|x| x > 0) == Some(true);
+                let mut reqs: Vec<Requirement> = Vec::new();
+                if drops_pb {
+                    reqs.push(Requirement::PowerBombRefill);
+                }
+                if drops_super {
+                    reqs.push(Requirement::SuperRefill);
+                }
+                if drops_missile {
+                    reqs.push(Requirement::MissileRefill);
+                }
+                if drops_big_energy || drops_small_energy {
+                    reqs.push(Requirement::EnergyRefill);
+                }
+                let farm_name = format!("Farm {}", enemy["enemyName"].as_str().unwrap());
+                assert!(enemy["homeNodes"].is_array());
+                for node_id_json in enemy["homeNodes"].members() {
+                    let node_id = node_id_json.as_usize().unwrap();
+                    for obstacle_bitmask in 0..(1 << num_obstacles) {
+                        let vertex_id =
+                            self.vertex_isv.index_by_key[&(room_id, node_id, obstacle_bitmask)];
+                        self.links.push(Link {
+                            from_vertex_id: vertex_id,
+                            to_vertex_id: vertex_id,
+                            requirement: Requirement::And(reqs.clone()),
+                            strat_name: farm_name.to_string(),
+                        })
+                    }
+                }
             }
         }
 
@@ -480,7 +757,7 @@ impl SMJsonData {
                             .map(|x| x.clone())
                             .collect();
 
-                        if strat_json.contains("obstacles") {
+                        if strat_json.has_key("obstacles") {
                             assert!(strat_json["obstacles"].is_array());
                             for obstacle in strat_json["obstacles"].members() {
                                 let obstacle_idx =
@@ -488,25 +765,34 @@ impl SMJsonData {
                                 to_obstacles_bitmask |= 1 << obstacle_idx;
                                 if (1 << obstacle_idx) & from_obstacles_bitmask == 0 {
                                     assert!(obstacle["requires"].is_array());
-                                    requires_json.extend(obstacle["requires"].members().map(|x| x.clone()));
+                                    requires_json
+                                        .extend(obstacle["requires"].members().map(|x| x.clone()));
                                 }
                                 let room_obstacle = &room_json["obstacles"][obstacle_idx];
                                 if room_obstacle.has_key("requires") {
                                     assert!(room_obstacle["requires"].is_array());
-                                    requires_json.extend(room_obstacle["requires"].members().map(|x| x.clone()));
+                                    requires_json.extend(
+                                        room_obstacle["requires"].members().map(|x| x.clone()),
+                                    );
                                 }
                                 if obstacle.has_key("additionalObstacles") {
                                     assert!(obstacle["additionalObstacles"].is_array());
-                                    for additional_obstacle_id in obstacle["additionalObstacles"].members() {
-                                        let additional_obstacle_idx = obstacles_idx_map[additional_obstacle_id.as_str().unwrap()];
+                                    for additional_obstacle_id in
+                                        obstacle["additionalObstacles"].members()
+                                    {
+                                        let additional_obstacle_idx = obstacles_idx_map
+                                            [additional_obstacle_id.as_str().unwrap()];
                                         to_obstacles_bitmask |= 1 << additional_obstacle_idx;
                                     }
                                 }
                             }
                         }
-                        let requirement = Requirement::And(self.parse_requires_list(&requires_json));
-                        let from_vertex_id = self.vertex_isv.index_by_key[&(room_id, from_node_id, from_obstacles_bitmask)];
-                        let to_vertex_id = self.vertex_isv.index_by_key[&(room_id, to_node_id, to_obstacles_bitmask)];
+                        let requirement =
+                            Requirement::And(self.parse_requires_list(&requires_json));
+                        let from_vertex_id = self.vertex_isv.index_by_key
+                            [&(room_id, from_node_id, from_obstacles_bitmask)];
+                        let to_vertex_id = self.vertex_isv.index_by_key
+                            [&(room_id, to_node_id, to_obstacles_bitmask)];
                         let strat_name = strat_json["name"].as_str().unwrap().to_string();
                         let link = Link {
                             from_vertex_id,
@@ -522,7 +808,47 @@ impl SMJsonData {
     }
 
     fn load_connections(&mut self) {
-        
+        let connection_pattern = self.path.to_str().unwrap().to_string() + "/connection/**/*.json";
+        for entry in glob::glob(&connection_pattern).unwrap() {
+            if let Ok(path) = entry {
+                if !path.to_str().unwrap().contains("ceres") {
+                    println!("{}", path.display());
+                    self.process_connections(&read_json(&path));
+                }
+            } else {
+                panic!("Error processing connection path: {}", entry.err().unwrap());
+            }
+        }
+    }
+
+    fn process_connections(&mut self, connection_file_json: &JsonValue) {
+        assert!(connection_file_json["connections"].is_array());
+        for connection in connection_file_json["connections"].members() {
+            assert!(connection["nodes"].is_array());
+            assert!(connection["nodes"].len() == 2);
+            let src_pair = (
+                connection["nodes"][0]["roomid"].as_usize().unwrap(),
+                connection["nodes"][0]["nodeid"].as_usize().unwrap(),
+            );
+            let dst_pair = (
+                connection["nodes"][1]["roomid"].as_usize().unwrap(),
+                connection["nodes"][1]["nodeid"].as_usize().unwrap(),
+            );
+            self.add_connection(src_pair, dst_pair);
+            self.add_connection(dst_pair, src_pair);
+        }
+    }
+
+    fn add_connection(&mut self, mut src: (RoomId, NodeId), dst: (RoomId, NodeId)) {
+        if self.unlocked_node_map.contains_key(&src) {
+            let src_room_id = src.0;
+            src = (src_room_id, self.unlocked_node_map[&src])
+        }
+        let src_ptr = self.node_ptr_map.get(&src).map(|x| *x);
+        let dst_ptr = self.node_ptr_map.get(&dst).map(|x| *x);
+        if src_ptr.is_some() || dst_ptr.is_some() {
+            self.door_ptr_pair_map.insert((src_ptr, dst_ptr), src);
+        }
     }
 
     pub fn load(path: &Path) -> SMJsonData {
@@ -535,6 +861,8 @@ impl SMJsonData {
         sm_json_data.load_helpers();
         sm_json_data.load_regions();
         sm_json_data.load_connections();
+        println!("num vertices: {}", sm_json_data.vertex_isv.keys.len());
+        println!("num links: {}", sm_json_data.links.len());
         sm_json_data
     }
 }

@@ -1104,6 +1104,7 @@ class SMJsonData:
 # #
 # sm_json_data_path = "sm-json-data/"
 # sm_json_data = SMJsonData(sm_json_data_path)
+# len(sm_json_data.vertex_list)
 #
 #
 # for region_name, region_json in sm_json_data.region_json_dict.items():
