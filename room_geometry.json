@@ -1,0 +1,7601 @@
+[
+  {
+    "name": "The Moat",
+    "rom_address": "0x795ff",
+    "map": [
+      [1, 1],
+      [1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18ade",
+        "entrance_ptr": "0x18a36",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x18aea",
+        "entrance_ptr": "0x189ca",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Landing Site",
+    "rom_address": "0x791f8",
+    "map": [
+      [0, 0, 1, 1, 1, 1, 1, 1, 1],
+      [0, 0, 1, 1, 1, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1, 1, 1, 1, 1],
+      [0, 0, 1, 1, 1, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1, 1, 1, 1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 2,
+        "exit_ptr": "0x1892e",
+        "entrance_ptr": "0x18946",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 4,
+        "exit_ptr": "0x18916",
+        "entrance_ptr": "0x1896a",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 8,
+        "y": 1,
+        "exit_ptr": "0x1893a",
+        "entrance_ptr": "0x189b2",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 8,
+        "y": 4,
+        "exit_ptr": "0x18922",
+        "entrance_ptr": "0x18ac6",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2, 3]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Crateria Tube",
+    "rom_address": "0x795d4",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18ac6",
+        "entrance_ptr": "0x18922",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18ad2",
+        "entrance_ptr": "0x18a2a",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Parlor and Alcatraz",
+    "rom_address": "0x792fd",
+    "map": [
+      [1, 1, 1, 1, 1],
+      [0, 1, 0, 1, 0],
+      [0, 1, 0, 1, 0],
+      [0, 1, 0, 0, 0],
+      [0, 1, 0, 0, 0]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1895e",
+        "entrance_ptr": "0x18bf2",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 1,
+        "y": 2,
+        "exit_ptr": "0x1899a",
+        "entrance_ptr": "0x189be",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 1,
+        "y": 3,
+        "exit_ptr": "0x189a6",
+        "entrance_ptr": "0x18c8e",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 4,
+        "y": 0,
+        "exit_ptr": "0x1896a",
+        "entrance_ptr": "0x18916",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 3,
+        "y": 2,
+        "exit_ptr": "0x18982",
+        "entrance_ptr": "0x18bb6",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 3,
+        "exit_ptr": "0x18976",
+        "entrance_ptr": "0x18bce",
+        "subtype": "normal"
+      },
+      {
+        "direction": "down",
+        "x": 1,
+        "y": 4,
+        "exit_ptr": "0x1898e",
+        "entrance_ptr": "0x18b3e",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2, 3, 4, 5, 6]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Climb",
+    "rom_address": "0x796ba",
+    "map": [
+      [0, 1, 1],
+      [0, 1, 0],
+      [0, 1, 0],
+      [0, 1, 0],
+      [0, 1, 0],
+      [0, 1, 0],
+      [0, 1, 0],
+      [0, 1, 1],
+      [1, 1, 0]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 8,
+        "exit_ptr": "0x18b6e",
+        "entrance_ptr": "0x1ab34",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 2,
+        "y": 0,
+        "exit_ptr": "0x18b4a",
+        "entrance_ptr": "0x18c6a",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 2,
+        "y": 7,
+        "exit_ptr": "0x18b56",
+        "entrance_ptr": "0x18c76",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 8,
+        "exit_ptr": "0x18b62",
+        "entrance_ptr": "0x18b7a",
+        "subtype": "normal"
+      },
+      {
+        "direction": "up",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x18b3e",
+        "entrance_ptr": "0x1898e",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2, 3, 4]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Pit Room",
+    "rom_address": "0x7975c",
+    "map": [
+      [1, 1, 1],
+      [1, 0, 0]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18b7a",
+        "entrance_ptr": "0x18b62",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 2,
+        "y": 0,
+        "exit_ptr": "0x18b86",
+        "entrance_ptr": "0x18b92",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Flyway",
+    "rom_address": "0x79879",
+    "map": [[1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18bb6",
+        "entrance_ptr": "0x18982",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 2,
+        "y": 0,
+        "exit_ptr": "0x18bc2",
+        "entrance_ptr": "0x18baa",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Pre-Map Flyway",
+    "rom_address": "0x798e2",
+    "map": [[1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18bce",
+        "entrance_ptr": "0x18976",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 2,
+        "y": 0,
+        "exit_ptr": "0x18bda",
+        "entrance_ptr": "0x18c2e",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Crateria Map Room",
+    "rom_address": "0x79994",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18c2e",
+        "entrance_ptr": "0x18bda",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Crateria Save Room",
+    "rom_address": "0x793d5",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x189be",
+        "entrance_ptr": "0x1899a",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "The Final Missile",
+    "rom_address": "0x79a90",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18c9a",
+        "entrance_ptr": "0x18c82",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Final Missile Bombway",
+    "rom_address": "0x79a44",
+    "map": [[1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18c82",
+        "entrance_ptr": "0x18c9a",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x18c8e",
+        "entrance_ptr": "0x189a6",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Bomb Torizo Room",
+    "rom_address": "0x79804",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18baa",
+        "entrance_ptr": "0x18bc2",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Terminator Room",
+    "rom_address": "0x7990d",
+    "map": [
+      [0, 0, 0, 1, 1, 1],
+      [0, 1, 1, 1, 1, 0],
+      [1, 1, 1, 0, 0, 0]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 2,
+        "exit_ptr": "0x18be6",
+        "entrance_ptr": "0x18c3a",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 5,
+        "y": 0,
+        "exit_ptr": "0x18bf2",
+        "entrance_ptr": "0x1895e",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Green Pirates Shaft",
+    "rom_address": "0x799bd",
+    "map": [[1], [1], [1], [1], [1], [1], [1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 6,
+        "exit_ptr": "0x18c46",
+        "entrance_ptr": "0x18c16",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18c5e",
+        "entrance_ptr": "0x18b1a",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 4,
+        "exit_ptr": "0x18c3a",
+        "entrance_ptr": "0x18be6",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 6,
+        "exit_ptr": "0x18c52",
+        "entrance_ptr": "0x191e6",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[1], [0, 2, 3]],
+    "durable_part_connections": [],
+    "transient_part_connections": [[0, 1]]
+  },
+  {
+    "name": "Lower Mushrooms",
+    "rom_address": "0x79969",
+    "map": [[1, 1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18c22",
+        "entrance_ptr": "0x18bfe",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 3,
+        "y": 0,
+        "exit_ptr": "0x18c16",
+        "entrance_ptr": "0x18c46",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Green Brinstar Elevator Room",
+    "rom_address": "0x79938",
+    "map": [[1], [1], [1], [1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18bfe",
+        "entrance_ptr": "0x18c22",
+        "subtype": "normal"
+      },
+      {
+        "direction": "down",
+        "x": 0,
+        "y": 3,
+        "exit_ptr": "0x18c0a",
+        "entrance_ptr": "0x18ca6",
+        "subtype": "elevator"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Crateria Kihunter Room",
+    "rom_address": "0x7948c",
+    "map": [
+      [1, 1, 1],
+      [0, 1, 0],
+      [0, 1, 0]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18a2a",
+        "entrance_ptr": "0x18ad2",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 2,
+        "y": 0,
+        "exit_ptr": "0x18a36",
+        "entrance_ptr": "0x18ade",
+        "subtype": "normal"
+      },
+      {
+        "direction": "down",
+        "x": 1,
+        "y": 2,
+        "exit_ptr": "0x18a42",
+        "entrance_ptr": "0x18af6",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Statues Hallway",
+    "rom_address": "0x7a5ed",
+    "map": [[1, 1, 1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x191e6",
+        "entrance_ptr": "0x18c52",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 4,
+        "y": 0,
+        "exit_ptr": "0x191f2",
+        "entrance_ptr": "0x19216",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Red Brinstar Elevator Room",
+    "rom_address": "0x7962a",
+    "map": [[1], [1], [1], [1]],
+    "doors": [
+      {
+        "direction": "up",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18af6",
+        "entrance_ptr": "0x18a42",
+        "subtype": "normal"
+      },
+      {
+        "direction": "down",
+        "x": 0,
+        "y": 3,
+        "exit_ptr": "0x18b02",
+        "entrance_ptr": "0x190ba",
+        "subtype": "elevator"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Blue Brinstar Elevator Room",
+    "rom_address": "0x797b5",
+    "map": [[1], [1], [1], [1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18b92",
+        "entrance_ptr": "0x18b86",
+        "subtype": "normal"
+      },
+      {
+        "direction": "down",
+        "x": 0,
+        "y": 3,
+        "exit_ptr": "0x18b9e",
+        "entrance_ptr": "0x18eb6",
+        "subtype": "elevator"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Statues Room",
+    "rom_address": "0x7a66a",
+    "map": [[1], [1], [1], [1], [1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x19216",
+        "entrance_ptr": "0x191f2",
+        "subtype": "normal"
+      },
+      {
+        "direction": "down",
+        "x": 0,
+        "y": 4,
+        "exit_ptr": "0x19222",
+        "entrance_ptr": "0x1a990",
+        "subtype": "elevator"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Crateria Power Bomb Room",
+    "rom_address": "0x793aa",
+    "map": [[1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x189b2",
+        "entrance_ptr": "0x1893a",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Crateria Super Room",
+    "rom_address": "0x799f9",
+    "map": [
+      [1, 1, 1, 1],
+      [0, 0, 0, 1],
+      [0, 0, 0, 1],
+      [0, 0, 0, 1],
+      [0, 0, 0, 1],
+      [0, 0, 0, 1],
+      [0, 0, 0, 1],
+      [1, 1, 1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18c6a",
+        "entrance_ptr": "0x18b4a",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 7,
+        "exit_ptr": "0x18c76",
+        "entrance_ptr": "0x18b56",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0], [1]],
+    "durable_part_connections": [],
+    "transient_part_connections": [[1, 0]]
+  },
+  {
+    "name": "Gauntlet Entrance",
+    "rom_address": "0x792b3",
+    "map": [[1, 1, 1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18952",
+        "entrance_ptr": "0x18b0e",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 4,
+        "y": 0,
+        "exit_ptr": "0x18946",
+        "entrance_ptr": "0x1892e",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Gauntlet Energy Tank Room",
+    "rom_address": "0x7965b",
+    "map": [[1, 1, 1, 1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18b1a",
+        "entrance_ptr": "0x18c5e",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 5,
+        "y": 0,
+        "exit_ptr": "0x18b0e",
+        "entrance_ptr": "0x18952",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "West Ocean",
+    "rom_address": "0x793fe",
+    "map": [
+      [1, 1, 1, 1, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1, 1, 1, 1],
+      [1, 1, 1, 0, 0, 1, 0, 0],
+      [1, 1, 1, 1, 1, 1, 0, 0],
+      [1, 1, 1, 1, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1, 1, 1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 5,
+        "y": 2,
+        "exit_ptr": "0x18b26",
+        "entrance_ptr": "0x18a1e",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 4,
+        "exit_ptr": "0x189ca",
+        "entrance_ptr": "0x18aea",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 7,
+        "y": 0,
+        "exit_ptr": "0x189ee",
+        "entrance_ptr": "0x1a1e0",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 7,
+        "y": 1,
+        "exit_ptr": "0x189fa",
+        "entrance_ptr": "0x1a18c",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 2,
+        "y": 2,
+        "exit_ptr": "0x189e2",
+        "entrance_ptr": "0x18a12",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 5,
+        "y": 2,
+        "exit_ptr": "0x18b32",
+        "entrance_ptr": "0x1a198",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 5,
+        "y": 3,
+        "exit_ptr": "0x18a06",
+        "entrance_ptr": "0x1a300",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 7,
+        "y": 4,
+        "exit_ptr": "0x189d6",
+        "entrance_ptr": "0x1a1b0",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [
+      [1, 6, 7],
+      [2, 3, 4],
+      [0, 5]
+    ],
+    "durable_part_connections": [],
+    "transient_part_connections": [[1, 0]]
+  },
+  {
+    "name": "Bowling Alley Path",
+    "rom_address": "0x79461",
+    "map": [[1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18a12",
+        "entrance_ptr": "0x189e2",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x18a1e",
+        "entrance_ptr": "0x18b26",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "East Ocean",
+    "rom_address": "0x794fd",
+    "map": [
+      [0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0],
+      [1, 1, 1, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1, 1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 4,
+        "exit_ptr": "0x18a66",
+        "entrance_ptr": "0x1a264",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 6,
+        "y": 4,
+        "exit_ptr": "0x18a72",
+        "entrance_ptr": "0x18a7e",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Forgotten Highway Kago Room",
+    "rom_address": "0x79552",
+    "map": [[1], [1], [1], [1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18a7e",
+        "entrance_ptr": "0x18a72",
+        "subtype": "normal"
+      },
+      {
+        "direction": "down",
+        "x": 0,
+        "y": 3,
+        "exit_ptr": "0x18a8a",
+        "entrance_ptr": "0x18a96",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Crab Maze",
+    "rom_address": "0x7957d",
+    "map": [
+      [1, 1, 1, 1],
+      [1, 1, 1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x18aae",
+        "entrance_ptr": "0x18aa2",
+        "subtype": "normal"
+      },
+      {
+        "direction": "up",
+        "x": 3,
+        "y": 0,
+        "exit_ptr": "0x18a96",
+        "entrance_ptr": "0x18a8a",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Forgotten Highway Elevator",
+    "rom_address": "0x794cc",
+    "map": [[1], [1], [1], [1]],
+    "doors": [
+      {
+        "direction": "up",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18a4e",
+        "entrance_ptr": "0x18aba",
+        "subtype": "normal"
+      },
+      {
+        "direction": "down",
+        "x": 0,
+        "y": 3,
+        "exit_ptr": "0x18a5a",
+        "entrance_ptr": "0x1a594",
+        "subtype": "elevator"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Forgotten Highway Elbow",
+    "rom_address": "0x795a8",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18aa2",
+        "entrance_ptr": "0x18aae",
+        "subtype": "normal"
+      },
+      {
+        "direction": "down",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18aba",
+        "entrance_ptr": "0x18a4e",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Red Tower",
+    "rom_address": "0x7a253",
+    "map": [[1], [1], [1], [1], [1], [1], [1], [1], [1], [1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 4,
+        "exit_ptr": "0x1902a",
+        "entrance_ptr": "0x18f0a",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 6,
+        "exit_ptr": "0x19036",
+        "entrance_ptr": "0x19066",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 9,
+        "exit_ptr": "0x1904e",
+        "entrance_ptr": "0x191fe",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1901e",
+        "entrance_ptr": "0x1907e",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 9,
+        "exit_ptr": "0x19042",
+        "entrance_ptr": "0x190f6",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2, 3, 4]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Red Brinstar Fireflea Room",
+    "rom_address": "0x7a293",
+    "map": [
+      [1, 1, 1, 1, 1, 1, 1, 1],
+      [1, 1, 0, 0, 1, 1, 0, 0]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1905a",
+        "entrance_ptr": "0x19072",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 7,
+        "y": 0,
+        "exit_ptr": "0x19066",
+        "entrance_ptr": "0x19036",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "X-Ray Scope Room",
+    "rom_address": "0x7a2ce",
+    "map": [[1, 1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x19072",
+        "entrance_ptr": "0x1905a",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Bat Room",
+    "rom_address": "0x7a3dd",
+    "map": [[1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x190f6",
+        "entrance_ptr": "0x19042",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x19102",
+        "entrance_ptr": "0x1910e",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Below Spazer",
+    "rom_address": "0x7a408",
+    "map": [
+      [1, 1],
+      [1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x1910e",
+        "entrance_ptr": "0x19102",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x19126",
+        "entrance_ptr": "0x19132",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 1,
+        "exit_ptr": "0x1911a",
+        "entrance_ptr": "0x1a36c",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Spazer Room",
+    "rom_address": "0x7a447",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x19132",
+        "entrance_ptr": "0x19126",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Hellway",
+    "rom_address": "0x7a2f7",
+    "map": [[1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1907e",
+        "entrance_ptr": "0x1901e",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 2,
+        "y": 0,
+        "exit_ptr": "0x1908a",
+        "entrance_ptr": "0x190ae",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Caterpillar Room",
+    "rom_address": "0x7a322",
+    "map": [
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 1, 1],
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 3,
+        "exit_ptr": "0x190a2",
+        "entrance_ptr": "0x190de",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 5,
+        "exit_ptr": "0x190ae",
+        "entrance_ptr": "0x1908a",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 7,
+        "exit_ptr": "0x19096",
+        "entrance_ptr": "0x190ea",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 2,
+        "y": 3,
+        "exit_ptr": "0x190c6",
+        "entrance_ptr": "0x1a480",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 4,
+        "exit_ptr": "0x190d2",
+        "entrance_ptr": "0x1926a",
+        "subtype": "normal"
+      },
+      {
+        "direction": "up",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x190ba",
+        "entrance_ptr": "0x18b02",
+        "subtype": "elevator"
+      }
+    ],
+    "parts": [[0, 1, 2, 4, 5], [3]],
+    "durable_part_connections": [],
+    "transient_part_connections": [[1, 0]]
+  },
+  {
+    "name": "Alpha Power Bomb Room",
+    "rom_address": "0x7a3ae",
+    "map": [[1, 1, 1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 2,
+        "y": 0,
+        "exit_ptr": "0x190ea",
+        "entrance_ptr": "0x19096",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Beta Power Bomb Room",
+    "rom_address": "0x7a37c",
+    "map": [
+      [1, 1],
+      [1, 0]
+    ],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x190de",
+        "entrance_ptr": "0x190a2",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Caterpillar Save Room",
+    "rom_address": "0x7a734",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1926a",
+        "entrance_ptr": "0x190d2",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Sloaters Refill",
+    "rom_address": "0x7a618",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x191fe",
+        "entrance_ptr": "0x1904e",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Morph Ball Room",
+    "rom_address": "0x79e9f",
+    "map": [
+      [0, 0, 0, 0, 0, 1, 0, 0],
+      [0, 0, 0, 0, 0, 1, 0, 0],
+      [1, 1, 1, 1, 1, 1, 1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 2,
+        "exit_ptr": "0x18e9e",
+        "entrance_ptr": "0x18e86",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 7,
+        "y": 2,
+        "exit_ptr": "0x18eaa",
+        "entrance_ptr": "0x18ec2",
+        "subtype": "normal"
+      },
+      {
+        "direction": "up",
+        "x": 5,
+        "y": 0,
+        "exit_ptr": "0x18eb6",
+        "entrance_ptr": "0x18b9e",
+        "subtype": "elevator"
+      }
+    ],
+    "parts": [[0, 1, 2]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Construction Zone",
+    "rom_address": "0x79f11",
+    "map": [[1], [1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18ec2",
+        "entrance_ptr": "0x18eaa",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x18eda",
+        "entrance_ptr": "0x18fa6",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18ece",
+        "entrance_ptr": "0x18ee6",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "First Missile Room",
+    "rom_address": "0x7a107",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18fa6",
+        "entrance_ptr": "0x18eda",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Blue Brinstar Energy Tank Room",
+    "rom_address": "0x79f64",
+    "map": [
+      [0, 0, 1],
+      [0, 0, 1],
+      [1, 1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 2,
+        "y": 0,
+        "exit_ptr": "0x18ef2",
+        "entrance_ptr": "0x18fe2",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 2,
+        "exit_ptr": "0x18ee6",
+        "entrance_ptr": "0x18ece",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Blue Brinstar Boulder Room",
+    "rom_address": "0x7a1ad",
+    "map": [[1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18fee",
+        "entrance_ptr": "0x18ffa",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x18fe2",
+        "entrance_ptr": "0x18ef2",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Billy Mays Room",
+    "rom_address": "0x7a1d8",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18ffa",
+        "entrance_ptr": "0x18fee",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Green Brinstar Main Shaft",
+    "rom_address": "0x79ad9",
+    "map": [
+      [1, 0, 0, 0],
+      [1, 0, 0, 0],
+      [1, 0, 0, 0],
+      [1, 0, 0, 0],
+      [1, 0, 0, 0],
+      [1, 0, 0, 0],
+      [1, 0, 0, 0],
+      [1, 1, 1, 1],
+      [1, 0, 1, 0],
+      [1, 0, 1, 0],
+      [1, 1, 1, 0],
+      [0, 0, 1, 0]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 4,
+        "exit_ptr": "0x18cb2",
+        "entrance_ptr": "0x18d42",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 5,
+        "exit_ptr": "0x18d12",
+        "entrance_ptr": "0x19006",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 6,
+        "exit_ptr": "0x18cca",
+        "entrance_ptr": "0x18d8a",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 1,
+        "y": 7,
+        "exit_ptr": "0x18d06",
+        "entrance_ptr": "0x18cee",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 10,
+        "exit_ptr": "0x18cbe",
+        "entrance_ptr": "0x18f16",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 2,
+        "y": 11,
+        "exit_ptr": "0x18cfa",
+        "entrance_ptr": "0x18f46",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 4,
+        "exit_ptr": "0x18cd6",
+        "entrance_ptr": "0x18d4e",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 6,
+        "exit_ptr": "0x18ce2",
+        "entrance_ptr": "0x18da2",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 7,
+        "exit_ptr": "0x18cee",
+        "entrance_ptr": "0x18d06",
+        "subtype": "normal"
+      },
+      {
+        "direction": "up",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18ca6",
+        "entrance_ptr": "0x18c0a",
+        "subtype": "elevator"
+      }
+    ],
+    "parts": [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Early Supers Room",
+    "rom_address": "0x79bc8",
+    "map": [
+      [1, 1, 1],
+      [1, 1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x18d4e",
+        "entrance_ptr": "0x18cd6",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 2,
+        "y": 1,
+        "exit_ptr": "0x18d5a",
+        "entrance_ptr": "0x18d66",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Brinstar Reserve Tank Room",
+    "rom_address": "0x79c07",
+    "map": [[1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18d66",
+        "entrance_ptr": "0x18d5a",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Brinstar Pre-Map Room",
+    "rom_address": "0x79b9d",
+    "map": [[1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18d36",
+        "entrance_ptr": "0x18d72",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 2,
+        "y": 0,
+        "exit_ptr": "0x18d42",
+        "entrance_ptr": "0x18cb2",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Brinstar Map Room",
+    "rom_address": "0x79c35",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18d72",
+        "entrance_ptr": "0x18d36",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Green Brinstar Fireflea Room",
+    "rom_address": "0x79c5e",
+    "map": [
+      [1, 1, 1],
+      [1, 1, 0]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x18d7e",
+        "entrance_ptr": "0x18d96",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 2,
+        "y": 0,
+        "exit_ptr": "0x18d8a",
+        "entrance_ptr": "0x18cca",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Green Brinstar Missile Refill Room",
+    "rom_address": "0x79c89",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18d96",
+        "entrance_ptr": "0x18d7e",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Green Brinstar Main Shaft Save Room",
+    "rom_address": "0x7a201",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x19006",
+        "entrance_ptr": "0x18d12",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Etecoon Save Room",
+    "rom_address": "0x7a22a",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x19012",
+        "entrance_ptr": "0x18f52",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Green Brinstar Beetom Room",
+    "rom_address": "0x79fe5",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18f22",
+        "entrance_ptr": "0x18f2e",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18f16",
+        "entrance_ptr": "0x18cbe",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Etecoon Energy Tank Room",
+    "rom_address": "0x7a011",
+    "map": [
+      [1, 1, 0, 0, 0],
+      [1, 1, 1, 1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18f3a",
+        "entrance_ptr": "0x18f5e",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x18f52",
+        "entrance_ptr": "0x19012",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x18f2e",
+        "entrance_ptr": "0x18f22",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 4,
+        "y": 1,
+        "exit_ptr": "0x18f46",
+        "entrance_ptr": "0x18cfa",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [
+      [0, 2],
+      [1, 3]
+    ],
+    "durable_part_connections": [],
+    "transient_part_connections": [[0, 1]]
+  },
+  {
+    "name": "Etecoon Super Room",
+    "rom_address": "0x7a051",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18f5e",
+        "entrance_ptr": "0x18f3a",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Green Hill Zone",
+    "rom_address": "0x79e52",
+    "map": [
+      [1, 1, 0, 0, 0, 0, 0, 0],
+      [1, 1, 1, 1, 0, 0, 0, 0],
+      [0, 0, 1, 1, 1, 1, 0, 0],
+      [0, 0, 0, 0, 1, 1, 1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18e7a",
+        "entrance_ptr": "0x18dea",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x18e86",
+        "entrance_ptr": "0x18e9e",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 7,
+        "y": 3,
+        "exit_ptr": "0x18e92",
+        "entrance_ptr": "0x18efe",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Noob Bridge",
+    "rom_address": "0x79fba",
+    "map": [[1, 1, 1, 1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18efe",
+        "entrance_ptr": "0x18e92",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 5,
+        "y": 0,
+        "exit_ptr": "0x18f0a",
+        "entrance_ptr": "0x1902a",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Spore Spawn Kihunter Room",
+    "rom_address": "0x79d9c",
+    "map": [[1, 1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18e32",
+        "entrance_ptr": "0x18dc6",
+        "subtype": "normal"
+      },
+      {
+        "direction": "up",
+        "x": 3,
+        "y": 0,
+        "exit_ptr": "0x18e3e",
+        "entrance_ptr": "0x18e56",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Spore Spawn Room",
+    "rom_address": "0x79dc7",
+    "map": [[1], [1], [1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18e4a",
+        "entrance_ptr": "0x18d2a",
+        "subtype": "normal"
+      },
+      {
+        "direction": "down",
+        "x": 0,
+        "y": 2,
+        "exit_ptr": "0x18e56",
+        "entrance_ptr": "0x18e3e",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0], [1]],
+    "durable_part_connections": [[1, 0]],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Dachora Room",
+    "rom_address": "0x79cb3",
+    "map": [
+      [1, 1, 1, 1, 1, 1, 1],
+      [0, 0, 0, 0, 1, 0, 0],
+      [0, 0, 0, 0, 1, 0, 0],
+      [0, 0, 0, 0, 1, 0, 0],
+      [0, 0, 0, 0, 1, 0, 0],
+      [0, 0, 0, 0, 1, 0, 0],
+      [1, 1, 1, 1, 1, 0, 0]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18da2",
+        "entrance_ptr": "0x18ce2",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 6,
+        "exit_ptr": "0x18dba",
+        "entrance_ptr": "0x18f6a",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 6,
+        "y": 0,
+        "exit_ptr": "0x18dae",
+        "entrance_ptr": "0x18dd2",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Dachora Energy Refill Room",
+    "rom_address": "0x7a07b",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18f6a",
+        "entrance_ptr": "0x18dba",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Big Pink",
+    "rom_address": "0x79d19",
+    "map": [
+      [0, 1, 1, 1, 0],
+      [0, 0, 1, 1, 0],
+      [0, 0, 1, 1, 0],
+      [0, 0, 1, 1, 0],
+      [0, 0, 1, 1, 0],
+      [0, 0, 1, 1, 1],
+      [0, 0, 1, 1, 0],
+      [1, 1, 1, 0, 0],
+      [1, 0, 0, 0, 0],
+      [1, 0, 0, 0, 0]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x18df6",
+        "entrance_ptr": "0x18fd6",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 2,
+        "y": 2,
+        "exit_ptr": "0x18dd2",
+        "entrance_ptr": "0x18dae",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 2,
+        "y": 3,
+        "exit_ptr": "0x18e02",
+        "entrance_ptr": "0x18e62",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 2,
+        "y": 4,
+        "exit_ptr": "0x18dde",
+        "entrance_ptr": "0x18e6e",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 9,
+        "exit_ptr": "0x18e0e",
+        "entrance_ptr": "0x18f8e",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 3,
+        "y": 0,
+        "exit_ptr": "0x18dc6",
+        "entrance_ptr": "0x18e32",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 3,
+        "y": 4,
+        "exit_ptr": "0x18e1a",
+        "entrance_ptr": "0x18fb2",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 4,
+        "y": 5,
+        "exit_ptr": "0x18e26",
+        "entrance_ptr": "0x18f82",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 3,
+        "y": 6,
+        "exit_ptr": "0x18dea",
+        "entrance_ptr": "0x18e7a",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2, 4, 5, 6, 8], [3], [7]],
+    "durable_part_connections": [],
+    "transient_part_connections": [
+      [1, 0],
+      [2, 0]
+    ]
+  },
+  {
+    "name": "Big Pink Save Room",
+    "rom_address": "0x7a184",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18fd6",
+        "entrance_ptr": "0x18df6",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Pink Brinstar Power Bomb Room",
+    "rom_address": "0x79e11",
+    "map": [
+      [1, 1],
+      [1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x18e62",
+        "entrance_ptr": "0x18e02",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 1,
+        "exit_ptr": "0x18e6e",
+        "entrance_ptr": "0x18dde",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0], [1]],
+    "durable_part_connections": [],
+    "transient_part_connections": [[0, 1]]
+  },
+  {
+    "name": "Pink Brinstar Hopper Room",
+    "rom_address": "0x7a130",
+    "map": [
+      [1, 1],
+      [1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x18fb2",
+        "entrance_ptr": "0x18e1a",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 1,
+        "exit_ptr": "0x18fbe",
+        "entrance_ptr": "0x18fca",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Hopper Energy Tank Room",
+    "rom_address": "0x7a15b",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18fca",
+        "entrance_ptr": "0x18fbe",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Spore Spawn Super Room",
+    "rom_address": "0x79b5b",
+    "map": [
+      [1, 1],
+      [0, 1],
+      [0, 1],
+      [0, 1],
+      [0, 1],
+      [0, 1],
+      [0, 1],
+      [0, 1],
+      [1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18d2a",
+        "entrance_ptr": "0x18e4a",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 8,
+        "exit_ptr": "0x18d1e",
+        "entrance_ptr": "0x18f76",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0], [1]],
+    "durable_part_connections": [],
+    "transient_part_connections": [[0, 1]]
+  },
+  {
+    "name": "Spore Spawn Farming Room",
+    "rom_address": "0x7a0a4",
+    "map": [[1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x18f82",
+        "entrance_ptr": "0x18e26",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 2,
+        "y": 0,
+        "exit_ptr": "0x18f76",
+        "entrance_ptr": "0x18d1e",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Waterway Energy Tank Room",
+    "rom_address": "0x7a0d2",
+    "map": [[1, 1, 1, 1, 1, 1, 1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 6,
+        "y": 0,
+        "exit_ptr": "0x18f8e",
+        "entrance_ptr": "0x18e0e",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Warehouse Entrance",
+    "rom_address": "0x7a6a1",
+    "map": [
+      [1, 1, 1],
+      [1, 1, 0]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1922e",
+        "entrance_ptr": "0x1a384",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 2,
+        "y": 0,
+        "exit_ptr": "0x1923a",
+        "entrance_ptr": "0x1913e",
+        "subtype": "normal"
+      },
+      {
+        "direction": "down",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x19246",
+        "entrance_ptr": "0x192ee",
+        "subtype": "elevator"
+      }
+    ],
+    "parts": [[0, 1, 2]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Warehouse Zeela Room",
+    "rom_address": "0x7a471",
+    "map": [
+      [1, 0],
+      [1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1913e",
+        "entrance_ptr": "0x1923a",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x1914a",
+        "entrance_ptr": "0x19162",
+        "subtype": "normal"
+      },
+      {
+        "direction": "up",
+        "x": 1,
+        "y": 1,
+        "exit_ptr": "0x19156",
+        "entrance_ptr": "0x1916e",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Warehouse Energy Tank Room",
+    "rom_address": "0x7a4b1",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x19162",
+        "entrance_ptr": "0x1914a",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Warehouse Kihunter Room",
+    "rom_address": "0x7a4da",
+    "map": [
+      [1, 1, 1, 1],
+      [0, 1, 0, 0]
+    ],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 3,
+        "y": 0,
+        "exit_ptr": "0x19186",
+        "entrance_ptr": "0x1925e",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 1,
+        "exit_ptr": "0x1917a",
+        "entrance_ptr": "0x19192",
+        "subtype": "normal"
+      },
+      {
+        "direction": "down",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1916e",
+        "entrance_ptr": "0x19156",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Warehouse Save Room",
+    "rom_address": "0x7a70b",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1925e",
+        "entrance_ptr": "0x19186",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Baby Kraid Room",
+    "rom_address": "0x7a521",
+    "map": [[1, 1, 1, 1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x19192",
+        "entrance_ptr": "0x1917a",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 5,
+        "y": 0,
+        "exit_ptr": "0x1919e",
+        "entrance_ptr": "0x191aa",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Kraid Eye Door Room",
+    "rom_address": "0x7a56b",
+    "map": [
+      [1, 0],
+      [1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x191aa",
+        "entrance_ptr": "0x1919e",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x191c2",
+        "entrance_ptr": "0x1920a",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 1,
+        "exit_ptr": "0x191b6",
+        "entrance_ptr": "0x191ce",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Kraid Recharge Station",
+    "rom_address": "0x7a641",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1920a",
+        "entrance_ptr": "0x191c2",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Kraid Room",
+    "rom_address": "0x7a59f",
+    "map": [
+      [1, 1],
+      [1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x191ce",
+        "entrance_ptr": "0x191b6",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 1,
+        "exit_ptr": "0x191da",
+        "entrance_ptr": "0x19252",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0], [1]],
+    "durable_part_connections": [[0, 1]],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Varia Suit Room",
+    "rom_address": "0x7a6e2",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x19252",
+        "entrance_ptr": "0x191da",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "West Tunnel",
+    "rom_address": "0x7cf54",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a36c",
+        "entrance_ptr": "0x1911a",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a360",
+        "entrance_ptr": "0x1a33c",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "East Tunnel",
+    "rom_address": "0x7cf80",
+    "map": [
+      [1, 1, 1, 1],
+      [1, 0, 0, 0]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x1a378",
+        "entrance_ptr": "0x1a348",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x1a384",
+        "entrance_ptr": "0x1922e",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 3,
+        "y": 0,
+        "exit_ptr": "0x1a390",
+        "entrance_ptr": "0x1a510",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1], [2]],
+    "durable_part_connections": [],
+    "transient_part_connections": [[1, 0]]
+  },
+  {
+    "name": "Glass Tunnel",
+    "rom_address": "0x7cefb",
+    "map": [[1], [1], [1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x1a33c",
+        "entrance_ptr": "0x1a360",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x1a348",
+        "entrance_ptr": "0x1a378",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 2,
+        "exit_ptr": "0x1a354",
+        "entrance_ptr": "0x1a324",
+        "subtype": "normal"
+      },
+      {
+        "direction": "up",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a330",
+        "entrance_ptr": "0x1a39c",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2, 3]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Glass Tunnel Save Room",
+    "rom_address": "0x7ced2",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a324",
+        "entrance_ptr": "0x1a354",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Main Street",
+    "rom_address": "0x7cfc9",
+    "map": [
+      [1, 1, 0],
+      [1, 1, 0],
+      [1, 1, 1],
+      [1, 1, 0],
+      [1, 1, 0],
+      [1, 1, 0],
+      [1, 1, 1],
+      [1, 1, 0]
+    ],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x1a3c0",
+        "entrance_ptr": "0x1a438",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 2,
+        "y": 2,
+        "exit_ptr": "0x1a3cc",
+        "entrance_ptr": "0x1a45c",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 2,
+        "y": 6,
+        "exit_ptr": "0x1a3b4",
+        "entrance_ptr": "0x1a3d8",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 7,
+        "exit_ptr": "0x1a3a8",
+        "entrance_ptr": "0x1a414",
+        "subtype": "normal"
+      },
+      {
+        "direction": "down",
+        "x": 1,
+        "y": 7,
+        "exit_ptr": "0x1a39c",
+        "entrance_ptr": "0x1a330",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 2, 3, 4], [1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Fish Tank",
+    "rom_address": "0x7d017",
+    "map": [
+      [1, 1, 1, 1],
+      [1, 1, 1, 1],
+      [1, 1, 1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 2,
+        "exit_ptr": "0x1a3d8",
+        "entrance_ptr": "0x1a3b4",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 3,
+        "y": 2,
+        "exit_ptr": "0x1a3e4",
+        "entrance_ptr": "0x1a408",
+        "subtype": "normal"
+      },
+      {
+        "direction": "up",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a3f0",
+        "entrance_ptr": "0x1a444",
+        "subtype": "normal"
+      },
+      {
+        "direction": "up",
+        "x": 3,
+        "y": 0,
+        "exit_ptr": "0x1a3fc",
+        "entrance_ptr": "0x1a450",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2, 3]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Mt. Everest",
+    "rom_address": "0x7d0b9",
+    "map": [
+      [1, 1, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1, 1],
+      [0, 1, 1, 1, 1, 0],
+      [0, 1, 1, 1, 1, 0]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a438",
+        "entrance_ptr": "0x1a3c0",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 1,
+        "y": 2,
+        "exit_ptr": "0x1a45c",
+        "entrance_ptr": "0x1a3cc",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 5,
+        "y": 0,
+        "exit_ptr": "0x1a468",
+        "entrance_ptr": "0x1a4b0",
+        "subtype": "normal"
+      },
+      {
+        "direction": "down",
+        "x": 1,
+        "y": 3,
+        "exit_ptr": "0x1a444",
+        "entrance_ptr": "0x1a3f0",
+        "subtype": "normal"
+      },
+      {
+        "direction": "down",
+        "x": 4,
+        "y": 3,
+        "exit_ptr": "0x1a450",
+        "entrance_ptr": "0x1a3fc",
+        "subtype": "normal"
+      },
+      {
+        "direction": "up",
+        "x": 2,
+        "y": 0,
+        "exit_ptr": "0x1a42c",
+        "entrance_ptr": "0x1a474",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2, 3, 4, 5]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Crab Shaft",
+    "rom_address": "0x7d1a3",
+    "map": [
+      [1, 0],
+      [1, 0],
+      [1, 0],
+      [1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 2,
+        "exit_ptr": "0x1a4b0",
+        "entrance_ptr": "0x1a468",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 3,
+        "exit_ptr": "0x1a4c8",
+        "entrance_ptr": "0x1a708",
+        "subtype": "normal"
+      },
+      {
+        "direction": "up",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a4bc",
+        "entrance_ptr": "0x1a4e0",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Crab Tunnel",
+    "rom_address": "0x7d08a",
+    "map": [[1, 1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a414",
+        "entrance_ptr": "0x1a3a8",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 3,
+        "y": 0,
+        "exit_ptr": "0x1a420",
+        "entrance_ptr": "0x1a4f8",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0], [1]],
+    "durable_part_connections": [],
+    "transient_part_connections": [[0, 1]]
+  },
+  {
+    "name": "Red Fish Room",
+    "rom_address": "0x7d104",
+    "map": [
+      [1, 1, 1],
+      [0, 0, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a480",
+        "entrance_ptr": "0x190c6",
+        "subtype": "normal"
+      },
+      {
+        "direction": "down",
+        "x": 2,
+        "y": 1,
+        "exit_ptr": "0x1a474",
+        "entrance_ptr": "0x1a42c",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Mama Turtle Room",
+    "rom_address": "0x7d055",
+    "map": [
+      [0, 1, 1],
+      [0, 1, 1],
+      [0, 1, 1],
+      [1, 1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 3,
+        "exit_ptr": "0x1a408",
+        "entrance_ptr": "0x1a3e4",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Pseudo Plasma Spark Room",
+    "rom_address": "0x7d1dd",
+    "map": [
+      [1, 1, 1, 1],
+      [1, 1, 1, 1],
+      [1, 1, 1, 0]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x1a4d4",
+        "entrance_ptr": "0x1a4a4",
+        "subtype": "normal"
+      },
+      {
+        "direction": "down",
+        "x": 0,
+        "y": 2,
+        "exit_ptr": "0x1a4e0",
+        "entrance_ptr": "0x1a4bc",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Northwest Maridia Bug Room",
+    "rom_address": "0x7d16d",
+    "map": [
+      [1, 0, 0, 0],
+      [1, 1, 1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a498",
+        "entrance_ptr": "0x1a48c",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 3,
+        "y": 1,
+        "exit_ptr": "0x1a4a4",
+        "entrance_ptr": "0x1a4d4",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Watering Hole",
+    "rom_address": "0x7d13b",
+    "map": [
+      [1, 1],
+      [1, 0],
+      [1, 0]
+    ],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x1a48c",
+        "entrance_ptr": "0x1a498",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Aqueduct Save Room",
+    "rom_address": "0x7d765",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a828",
+        "entrance_ptr": "0x1a744",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Aqueduct",
+    "rom_address": "0x7d5a7",
+    "map": [
+      [0, 0, 1, 0, 0, 0],
+      [0, 0, 1, 0, 0, 0],
+      [0, 0, 1, 0, 0, 0],
+      [0, 0, 1, 0, 0, 0],
+      [1, 1, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1, 1],
+      [0, 0, 1, 0, 0, 0],
+      [0, 0, 1, 0, 0, 0],
+      [0, 0, 1, 0, 0, 0]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 5,
+        "exit_ptr": "0x1a708",
+        "entrance_ptr": "0x1a4c8",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 6,
+        "exit_ptr": "0x1a744",
+        "entrance_ptr": "0x1a828",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 5,
+        "y": 5,
+        "exit_ptr": "0x1a738",
+        "entrance_ptr": "0x1a7d4",
+        "subtype": "normal"
+      },
+      {
+        "direction": "down",
+        "x": 2,
+        "y": 9,
+        "exit_ptr": "0x1a600",
+        "entrance_ptr": "0x1a678",
+        "subtype": "normal"
+      },
+      {
+        "direction": "down",
+        "x": 1,
+        "y": 6,
+        "exit_ptr": "0x1a714",
+        "entrance_ptr": "0x1a6d8",
+        "subtype": "sand"
+      },
+      {
+        "direction": "down",
+        "x": 3,
+        "y": 6,
+        "exit_ptr": "0x1a720",
+        "entrance_ptr": "0x1a6f0",
+        "subtype": "sand"
+      },
+      {
+        "direction": "up",
+        "x": 0,
+        "y": 4,
+        "exit_ptr": "0x1a72c",
+        "entrance_ptr": "0x1a768",
+        "subtype": "normal"
+      },
+      {
+        "direction": "up",
+        "x": 2,
+        "y": 0,
+        "exit_ptr": "0x1a60c",
+        "entrance_ptr": "0x1a5ac",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2, 6], [4], [5], [3, 7]],
+    "durable_part_connections": [],
+    "transient_part_connections": [
+      [0, 1],
+      [0, 2]
+    ]
+  },
+  {
+    "name": "Botwoon Hallway",
+    "rom_address": "0x7d617",
+    "map": [[1, 1, 1, 1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 3,
+        "y": 0,
+        "exit_ptr": "0x1a774",
+        "entrance_ptr": "0x1a90c",
+        "subtype": "normal"
+      },
+      {
+        "direction": "down",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a768",
+        "entrance_ptr": "0x1a72c",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Botwoon's Room",
+    "rom_address": "0x7d95e",
+    "map": [[1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a90c",
+        "entrance_ptr": "0x1a774",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x1a918",
+        "entrance_ptr": "0x1a84c",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Botwoon Energy Tank Room",
+    "rom_address": "0x7d7e4",
+    "map": [[1, 1, 1, 1, 1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a84c",
+        "entrance_ptr": "0x1a918",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 6,
+        "y": 0,
+        "exit_ptr": "0x1a870",
+        "entrance_ptr": "0x1a8dc",
+        "subtype": "normal"
+      },
+      {
+        "direction": "down",
+        "x": 2,
+        "y": 0,
+        "exit_ptr": "0x1a858",
+        "entrance_ptr": null,
+        "subtype": "sand"
+      },
+      {
+        "direction": "down",
+        "x": 3,
+        "y": 0,
+        "exit_ptr": "0x1a864",
+        "entrance_ptr": null,
+        "subtype": "sand"
+      }
+    ],
+    "parts": [[0, 1], [2], [3]],
+    "durable_part_connections": [],
+    "transient_part_connections": [
+      [0, 1],
+      [0, 2]
+    ]
+  },
+  {
+    "name": "Halfie Climb Room",
+    "rom_address": "0x7d913",
+    "map": [
+      [1, 0, 0, 0, 0],
+      [1, 0, 0, 0, 0],
+      [1, 1, 1, 1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x1a900",
+        "entrance_ptr": "0x1a960",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 2,
+        "exit_ptr": "0x1a8dc",
+        "entrance_ptr": "0x1a870",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a8e8",
+        "entrance_ptr": "0x1a7e0",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 4,
+        "y": 2,
+        "exit_ptr": "0x1a8f4",
+        "entrance_ptr": "0x1a894",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2, 3]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Maridia Missile Refill Room",
+    "rom_address": "0x7d845",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a894",
+        "entrance_ptr": "0x1a8f4",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Colosseum",
+    "rom_address": "0x7d72a",
+    "map": [
+      [1, 1, 1, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1, 1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a7e0",
+        "entrance_ptr": "0x1a8e8",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 6,
+        "y": 0,
+        "exit_ptr": "0x1a7ec",
+        "entrance_ptr": "0x1a888",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 6,
+        "y": 1,
+        "exit_ptr": "0x1a7f8",
+        "entrance_ptr": "0x1a834",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Draygon Save Room",
+    "rom_address": "0x7d81a",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a888",
+        "entrance_ptr": "0x1a7ec",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a87c",
+        "entrance_ptr": "0x1a930",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Maridia Health Refill Room",
+    "rom_address": "0x7d9d4",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a930",
+        "entrance_ptr": "0x1a87c",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "The Precious Room",
+    "rom_address": "0x7d78f",
+    "map": [
+      [1, 1],
+      [1, 0],
+      [1, 0]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a834",
+        "entrance_ptr": "0x1a7f8",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 2,
+        "exit_ptr": "0x1a840",
+        "entrance_ptr": "0x1a96c",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Draygon's Room",
+    "rom_address": "0x7da60",
+    "map": [
+      [1, 1],
+      [1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x1a978",
+        "entrance_ptr": "0x1a924",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x1a96c",
+        "entrance_ptr": "0x1a840",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Space Jump Room",
+    "rom_address": "0x7d9aa",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a924",
+        "entrance_ptr": "0x1a978",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "West Cactus Alley Room",
+    "rom_address": "0x7d9fe",
+    "map": [[1], [1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x1a93c",
+        "entrance_ptr": "0x1a75c",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a948",
+        "entrance_ptr": "0x1a954",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "East Cactus Alley Room",
+    "rom_address": "0x7da2b",
+    "map": [
+      [1, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a954",
+        "entrance_ptr": "0x1a948",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 4,
+        "y": 1,
+        "exit_ptr": "0x1a960",
+        "entrance_ptr": "0x1a900",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Plasma Spark Room",
+    "rom_address": "0x7d340",
+    "map": [
+      [0, 1, 1, 0],
+      [0, 1, 1, 0],
+      [1, 1, 1, 1],
+      [0, 1, 1, 1],
+      [0, 1, 1, 1],
+      [0, 1, 1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 2,
+        "y": 1,
+        "exit_ptr": "0x1a5b8",
+        "entrance_ptr": "0x1a5d0",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 3,
+        "y": 3,
+        "exit_ptr": "0x1a5c4",
+        "entrance_ptr": "0x1a630",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 3,
+        "y": 5,
+        "exit_ptr": "0x1a5a0",
+        "entrance_ptr": "0x1a750",
+        "subtype": "normal"
+      },
+      {
+        "direction": "down",
+        "x": 0,
+        "y": 2,
+        "exit_ptr": "0x1a5ac",
+        "entrance_ptr": "0x1a60c",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2, 3]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Oasis",
+    "rom_address": "0x7d48e",
+    "map": [[1], [1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x1a660",
+        "entrance_ptr": "0x1a648",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x1a66c",
+        "entrance_ptr": "0x1a684",
+        "subtype": "normal"
+      },
+      {
+        "direction": "up",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a678",
+        "entrance_ptr": "0x1a600",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "West Sand Hall",
+    "rom_address": "0x7d461",
+    "map": [[1, 1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a63c",
+        "entrance_ptr": "0x1a534",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 3,
+        "y": 0,
+        "exit_ptr": "0x1a648",
+        "entrance_ptr": "0x1a660",
+        "subtype": "normal"
+      },
+      {
+        "direction": "up",
+        "x": 2,
+        "y": 0,
+        "exit_ptr": "0x1a654",
+        "entrance_ptr": "0x1a6b4",
+        "subtype": "sand"
+      }
+    ],
+    "parts": [[0, 1], [2]],
+    "durable_part_connections": [],
+    "transient_part_connections": [[1, 0]]
+  },
+  {
+    "name": "West Sand Hall Tunnel",
+    "rom_address": "0x7d252",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a528",
+        "entrance_ptr": "0x1a504",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a534",
+        "entrance_ptr": "0x1a63c",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Maridia Map Room",
+    "rom_address": "0x7d3b6",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a5e8",
+        "entrance_ptr": "0x1a51c",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Botwoon Quicksand Room",
+    "rom_address": "0x7d898",
+    "map": [[1, 1]],
+    "doors": [
+      {
+        "direction": "down",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a8ac",
+        "entrance_ptr": null,
+        "subtype": "sand"
+      },
+      {
+        "direction": "down",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x1a8b8",
+        "entrance_ptr": null,
+        "subtype": "sand"
+      },
+      {
+        "direction": "up",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": null,
+        "entrance_ptr": "0x1a858",
+        "subtype": "sand"
+      },
+      {
+        "direction": "up",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": null,
+        "entrance_ptr": "0x1a864",
+        "subtype": "sand"
+      }
+    ],
+    "parts": [[0], [1], [2], [3]],
+    "durable_part_connections": [],
+    "transient_part_connections": [
+      [2, 0],
+      [3, 1]
+    ]
+  },
+  {
+    "name": "Below Botwoon Energy Tank",
+    "rom_address": "0x7d6fd",
+    "map": [[1, 1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a7d4",
+        "entrance_ptr": "0x1a738",
+        "subtype": "normal"
+      },
+      {
+        "direction": "up",
+        "x": 2,
+        "y": 0,
+        "exit_ptr": null,
+        "entrance_ptr": "0x1a8ac",
+        "subtype": "sand"
+      },
+      {
+        "direction": "up",
+        "x": 3,
+        "y": 0,
+        "exit_ptr": null,
+        "entrance_ptr": "0x1a8b8",
+        "subtype": "sand"
+      }
+    ],
+    "parts": [[0], [1], [2]],
+    "durable_part_connections": [],
+    "transient_part_connections": [
+      [1, 0],
+      [2, 0]
+    ]
+  },
+  {
+    "name": "West Aqueduct Quicksand Room",
+    "rom_address": "0x7d54d",
+    "map": [[1], [1]],
+    "doors": [
+      {
+        "direction": "down",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x1a6e4",
+        "entrance_ptr": "0x1a6a8",
+        "subtype": "sand"
+      },
+      {
+        "direction": "up",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a6d8",
+        "entrance_ptr": "0x1a714",
+        "subtype": "sand"
+      }
+    ],
+    "parts": [[0], [1]],
+    "durable_part_connections": [],
+    "transient_part_connections": [[1, 0]]
+  },
+  {
+    "name": "East Aqueduct Quicksand Room",
+    "rom_address": "0x7d57a",
+    "map": [[1], [1]],
+    "doors": [
+      {
+        "direction": "down",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x1a6fc",
+        "entrance_ptr": "0x1a6c0",
+        "subtype": "sand"
+      },
+      {
+        "direction": "up",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a6f0",
+        "entrance_ptr": "0x1a720",
+        "subtype": "sand"
+      }
+    ],
+    "parts": [[0], [1]],
+    "durable_part_connections": [],
+    "transient_part_connections": [[1, 0]]
+  },
+  {
+    "name": "East Sand Hole",
+    "rom_address": "0x7d51e",
+    "map": [
+      [1, 1],
+      [1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "down",
+        "x": 1,
+        "y": 1,
+        "exit_ptr": "0x1a6cc",
+        "entrance_ptr": "0x1a69c",
+        "subtype": "sand"
+      },
+      {
+        "direction": "up",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a6c0",
+        "entrance_ptr": "0x1a6fc",
+        "subtype": "sand"
+      }
+    ],
+    "parts": [[0], [1]],
+    "durable_part_connections": [],
+    "transient_part_connections": [[1, 0]]
+  },
+  {
+    "name": "West Sand Hole",
+    "rom_address": "0x7d4ef",
+    "map": [
+      [1, 1],
+      [1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "down",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x1a6b4",
+        "entrance_ptr": "0x1a654",
+        "subtype": "sand"
+      },
+      {
+        "direction": "up",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x1a6a8",
+        "entrance_ptr": "0x1a6e4",
+        "subtype": "sand"
+      }
+    ],
+    "parts": [[0], [1]],
+    "durable_part_connections": [],
+    "transient_part_connections": [[1, 0]]
+  },
+  {
+    "name": "East Sand Hall",
+    "rom_address": "0x7d4c2",
+    "map": [[1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a684",
+        "entrance_ptr": "0x1a66c",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 2,
+        "y": 0,
+        "exit_ptr": "0x1a690",
+        "entrance_ptr": "0x1a780",
+        "subtype": "normal"
+      },
+      {
+        "direction": "up",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x1a69c",
+        "entrance_ptr": "0x1a6cc",
+        "subtype": "sand"
+      }
+    ],
+    "parts": [[0, 1], [2]],
+    "durable_part_connections": [],
+    "transient_part_connections": [[1, 0]]
+  },
+  {
+    "name": "Bug Sand Hole",
+    "rom_address": "0x7d433",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a630",
+        "entrance_ptr": "0x1a5c4",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a618",
+        "entrance_ptr": "0x1a564",
+        "subtype": "normal"
+      },
+      {
+        "direction": "down",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a624",
+        "entrance_ptr": null,
+        "subtype": "sand"
+      }
+    ],
+    "parts": [[0, 1, 2]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Plasma Beach Quicksand Room",
+    "rom_address": "0x7d86e",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "down",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a8a0",
+        "entrance_ptr": null,
+        "subtype": "sand"
+      },
+      {
+        "direction": "up",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": null,
+        "entrance_ptr": "0x1a624",
+        "subtype": "sand"
+      }
+    ],
+    "parts": [[0], [1]],
+    "durable_part_connections": [],
+    "transient_part_connections": [[1, 0]]
+  },
+  {
+    "name": "Butterfly Room",
+    "rom_address": "0x7d5ec",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a750",
+        "entrance_ptr": "0x1a5a0",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a75c",
+        "entrance_ptr": "0x1a93c",
+        "subtype": "normal"
+      },
+      {
+        "direction": "up",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": null,
+        "entrance_ptr": "0x1a8a0",
+        "subtype": "sand"
+      }
+    ],
+    "parts": [[0, 1], [2]],
+    "durable_part_connections": [],
+    "transient_part_connections": [[1, 0]]
+  },
+  {
+    "name": "Thread The Needle Room",
+    "rom_address": "0x7d2d9",
+    "map": [[1, 1, 1, 1, 1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a564",
+        "entrance_ptr": "0x1a618",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 6,
+        "y": 0,
+        "exit_ptr": "0x1a570",
+        "entrance_ptr": "0x1a57c",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Maridia Elevator Room",
+    "rom_address": "0x7d30b",
+    "map": [[1], [1], [1], [1], [1], [1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 5,
+        "exit_ptr": "0x1a57c",
+        "entrance_ptr": "0x1a570",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 4,
+        "exit_ptr": "0x1a588",
+        "entrance_ptr": "0x1a5f4",
+        "subtype": "normal"
+      },
+      {
+        "direction": "up",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a594",
+        "entrance_ptr": "0x18a5a",
+        "subtype": "elevator"
+      }
+    ],
+    "parts": [[0, 1, 2]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Forgotten Highway Save Room",
+    "rom_address": "0x7d3df",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a5f4",
+        "entrance_ptr": "0x1a588",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Kassiuz Room",
+    "rom_address": "0x7d387",
+    "map": [[1], [1], [1], [1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 3,
+        "exit_ptr": "0x1a5d0",
+        "entrance_ptr": "0x1a5b8",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a5dc",
+        "entrance_ptr": "0x1a540",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Plasma Tutorial Room",
+    "rom_address": "0x7d27e",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a540",
+        "entrance_ptr": "0x1a5dc",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a54c",
+        "entrance_ptr": "0x1a558",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Plasma Room",
+    "rom_address": "0x7d2aa",
+    "map": [
+      [1, 1],
+      [1, 1],
+      [1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a558",
+        "entrance_ptr": "0x1a54c",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Pants Room",
+    "rom_address": "0x7d646",
+    "map": [
+      [1, 1],
+      [1, 1],
+      [1, 1],
+      [1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 3,
+        "exit_ptr": "0x1a780",
+        "entrance_ptr": "0x1a690",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 1,
+        "y": 3,
+        "exit_ptr": "0x1a7a4",
+        "entrance_ptr": "0x1a78c",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 3,
+        "exit_ptr": "0x1a78c",
+        "entrance_ptr": "0x1a7a4",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 2,
+        "exit_ptr": "0x1a798",
+        "entrance_ptr": "0x1a8c4",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2, 3]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Shaktool Room",
+    "rom_address": "0x7d8c5",
+    "map": [[1, 1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a8c4",
+        "entrance_ptr": "0x1a798",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 3,
+        "y": 0,
+        "exit_ptr": "0x1a8d0",
+        "entrance_ptr": "0x1a7c8",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0], [1]],
+    "durable_part_connections": [[0, 1]],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Spring Ball Room",
+    "rom_address": "0x7d6d0",
+    "map": [
+      [1, 0],
+      [1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a7c8",
+        "entrance_ptr": "0x1a8d0",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Crab Hole",
+    "rom_address": "0x7d21c",
+    "map": [[1], [1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a4f8",
+        "entrance_ptr": "0x1a420",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x1a510",
+        "entrance_ptr": "0x1a390",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a504",
+        "entrance_ptr": "0x1a528",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x1a51c",
+        "entrance_ptr": "0x1a5e8",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2, 3]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Main Hall",
+    "rom_address": "0x7b236",
+    "map": [
+      [0, 0, 0, 0, 1, 0, 0, 0],
+      [0, 0, 0, 0, 1, 0, 0, 0],
+      [1, 1, 1, 1, 1, 1, 1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 2,
+        "exit_ptr": "0x19852",
+        "entrance_ptr": "0x19846",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 7,
+        "y": 2,
+        "exit_ptr": "0x1985e",
+        "entrance_ptr": "0x198e2",
+        "subtype": "normal"
+      },
+      {
+        "direction": "up",
+        "x": 4,
+        "y": 0,
+        "exit_ptr": "0x1986a",
+        "entrance_ptr": "0x196f6",
+        "subtype": "elevator"
+      }
+    ],
+    "parts": [[0, 1, 2]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Fast Pillars Setup Room",
+    "rom_address": "0x7b3a5",
+    "map": [[1], [1], [1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x198e2",
+        "entrance_ptr": "0x1985e",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 2,
+        "exit_ptr": "0x19906",
+        "entrance_ptr": "0x1989a",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x198ee",
+        "entrance_ptr": "0x1992a",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 2,
+        "exit_ptr": "0x19912",
+        "entrance_ptr": "0x19942",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2, 3]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Pillar Room",
+    "rom_address": "0x7b457",
+    "map": [[1, 1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x19942",
+        "entrance_ptr": "0x19912",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 3,
+        "y": 0,
+        "exit_ptr": "0x1994e",
+        "entrance_ptr": "0x1998a",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "The Worst Room In The Game",
+    "rom_address": "0x7b4ad",
+    "map": [[1], [1], [1], [1], [1], [1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x19972",
+        "entrance_ptr": "0x19936",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 5,
+        "exit_ptr": "0x1998a",
+        "entrance_ptr": "0x1994e",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x1997e",
+        "entrance_ptr": "0x19996",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Amphitheatre",
+    "rom_address": "0x7b4e5",
+    "map": [
+      [0, 1, 1, 1],
+      [1, 1, 1, 1],
+      [1, 1, 1, 1],
+      [1, 1, 1, 1],
+      [1, 1, 1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x19996",
+        "entrance_ptr": "0x1997e",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 3,
+        "y": 0,
+        "exit_ptr": "0x199a2",
+        "entrance_ptr": "0x199f6",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0], [1]],
+    "durable_part_connections": [],
+    "transient_part_connections": [[0, 1]]
+  },
+  {
+    "name": "Red Kihunter Shaft",
+    "rom_address": "0x7b585",
+    "map": [
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 0, 0],
+      [1, 1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x199f6",
+        "entrance_ptr": "0x199a2",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x19a02",
+        "entrance_ptr": "0x19aaa",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 3,
+        "exit_ptr": "0x19a0e",
+        "entrance_ptr": "0x19ab6",
+        "subtype": "normal"
+      },
+      {
+        "direction": "down",
+        "x": 2,
+        "y": 4,
+        "exit_ptr": "0x199ea",
+        "entrance_ptr": "0x19a26",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2, 3]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Red Kihunter Shaft Save Room",
+    "rom_address": "0x7b741",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x19ab6",
+        "entrance_ptr": "0x19a0e",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Wasteland",
+    "rom_address": "0x7b5d5",
+    "map": [
+      [1, 1, 1, 1, 1, 1],
+      [0, 1, 0, 0, 0, 0],
+      [0, 1, 0, 0, 0, 0]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 1,
+        "y": 2,
+        "exit_ptr": "0x19a1a",
+        "entrance_ptr": "0x19a3e",
+        "subtype": "normal"
+      },
+      {
+        "direction": "up",
+        "x": 5,
+        "y": 0,
+        "exit_ptr": "0x19a26",
+        "entrance_ptr": "0x199ea",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Metal Pirates Room",
+    "rom_address": "0x7b62b",
+    "map": [[1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x19a32",
+        "entrance_ptr": "0x19966",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 2,
+        "y": 0,
+        "exit_ptr": "0x19a3e",
+        "entrance_ptr": "0x19a1a",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Plowerhouse Room",
+    "rom_address": "0x7b482",
+    "map": [[1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1995a",
+        "entrance_ptr": "0x198d6",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 2,
+        "y": 0,
+        "exit_ptr": "0x19966",
+        "entrance_ptr": "0x19a32",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Lower Norfair Farming Room",
+    "rom_address": "0x7b37a",
+    "map": [[1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x198ca",
+        "entrance_ptr": "0x198be",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 2,
+        "y": 0,
+        "exit_ptr": "0x198d6",
+        "entrance_ptr": "0x1995a",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Ridley's Room",
+    "rom_address": "0x7b32e",
+    "map": [[1], [1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x198b2",
+        "entrance_ptr": "0x19a62",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x198be",
+        "entrance_ptr": "0x198ca",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Ridley Tank Room",
+    "rom_address": "0x7b698",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x19a62",
+        "entrance_ptr": "0x198b2",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Mickey Mouse Room",
+    "rom_address": "0x7b40a",
+    "map": [
+      [0, 0, 0, 1],
+      [0, 0, 1, 1],
+      [0, 0, 0, 1],
+      [1, 1, 1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 3,
+        "exit_ptr": "0x1992a",
+        "entrance_ptr": "0x198ee",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 3,
+        "y": 0,
+        "exit_ptr": "0x19936",
+        "entrance_ptr": "0x19972",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0], [1]],
+    "durable_part_connections": [],
+    "transient_part_connections": [[1, 0]]
+  },
+  {
+    "name": "Lower Norfair Fireflea Room",
+    "rom_address": "0x7b6ee",
+    "map": [
+      [1, 1, 0],
+      [0, 1, 0],
+      [0, 1, 0],
+      [0, 1, 1],
+      [0, 1, 1],
+      [0, 1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x19a92",
+        "entrance_ptr": "0x199ba",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 1,
+        "y": 3,
+        "exit_ptr": "0x19aaa",
+        "entrance_ptr": "0x19a02",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x19a9e",
+        "entrance_ptr": "0x199d2",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Lower Norfair Spring Ball Maze Room",
+    "rom_address": "0x7b510",
+    "map": [
+      [1, 1, 1, 1, 1],
+      [1, 1, 0, 0, 0]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x199ae",
+        "entrance_ptr": "0x19a56",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 1,
+        "exit_ptr": "0x199ba",
+        "entrance_ptr": "0x19a92",
+        "subtype": "normal"
+      },
+      {
+        "direction": "down",
+        "x": 4,
+        "y": 0,
+        "exit_ptr": "0x199c6",
+        "entrance_ptr": "0x199de",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1], [2]],
+    "durable_part_connections": [],
+    "transient_part_connections": [[0, 1]]
+  },
+  {
+    "name": "Lower Norfair Escape Power Bomb Room",
+    "rom_address": "0x7b55a",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x199d2",
+        "entrance_ptr": "0x19a9e",
+        "subtype": "normal"
+      },
+      {
+        "direction": "up",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x199de",
+        "entrance_ptr": "0x199c6",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0], [1]],
+    "durable_part_connections": [],
+    "transient_part_connections": [[1, 0]]
+  },
+  {
+    "name": "Three Musketeers' Room",
+    "rom_address": "0x7b656",
+    "map": [
+      [0, 1, 0, 0],
+      [0, 1, 0, 0],
+      [1, 1, 1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x19a4a",
+        "entrance_ptr": "0x195fa",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 3,
+        "y": 2,
+        "exit_ptr": "0x19a56",
+        "entrance_ptr": "0x199ae",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Acid Statue Room",
+    "rom_address": "0x7b1e5",
+    "map": [
+      [1, 1, 0],
+      [1, 1, 0],
+      [1, 1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x19846",
+        "entrance_ptr": "0x19852",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 2,
+        "y": 2,
+        "exit_ptr": "0x1983a",
+        "entrance_ptr": "0x19876",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0], [1]],
+    "durable_part_connections": [[0, 1]],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Golden Torizo's Room",
+    "rom_address": "0x7b283",
+    "map": [
+      [1, 1],
+      [1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x19876",
+        "entrance_ptr": "0x1983a",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 1,
+        "exit_ptr": "0x19882",
+        "entrance_ptr": "0x19a86",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0], [1]],
+    "durable_part_connections": [],
+    "transient_part_connections": [[0, 1]]
+  },
+  {
+    "name": "Screw Attack Room",
+    "rom_address": "0x7b6c1",
+    "map": [[1], [1], [1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 2,
+        "exit_ptr": "0x19a86",
+        "entrance_ptr": "0x19882",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x19a6e",
+        "entrance_ptr": "0x1988e",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x19a7a",
+        "entrance_ptr": "0x198a6",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Golden Torizo Energy Recharge",
+    "rom_address": "0x7b305",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x198a6",
+        "entrance_ptr": "0x19a7a",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Fast Ripper Room",
+    "rom_address": "0x7b2da",
+    "map": [[1, 1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1988e",
+        "entrance_ptr": "0x19a6e",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 3,
+        "y": 0,
+        "exit_ptr": "0x1989a",
+        "entrance_ptr": "0x19906",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0], [1]],
+    "durable_part_connections": [],
+    "transient_part_connections": [[0, 1]]
+  },
+  {
+    "name": "Business Center",
+    "rom_address": "0x7a7de",
+    "map": [[1], [1], [1], [1], [1], [1], [1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 3,
+        "exit_ptr": "0x192be",
+        "entrance_ptr": "0x1932a",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 4,
+        "exit_ptr": "0x19306",
+        "entrance_ptr": "0x197c2",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 5,
+        "exit_ptr": "0x192d6",
+        "entrance_ptr": "0x1941a",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 3,
+        "exit_ptr": "0x192ca",
+        "entrance_ptr": "0x192a6",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 5,
+        "exit_ptr": "0x192fa",
+        "entrance_ptr": "0x19816",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 6,
+        "exit_ptr": "0x192e2",
+        "entrance_ptr": "0x19402",
+        "subtype": "normal"
+      },
+      {
+        "direction": "up",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x192ee",
+        "entrance_ptr": "0x19246",
+        "subtype": "elevator"
+      }
+    ],
+    "parts": [[0, 1, 2, 3, 4, 5, 6]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Norfair Map Room",
+    "rom_address": "0x7b0b4",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x197c2",
+        "entrance_ptr": "0x19306",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Hi Jump Energy Tank Room",
+    "rom_address": "0x7aa41",
+    "map": [
+      [1, 1],
+      [1, 0]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x19426",
+        "entrance_ptr": "0x193f6",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x1941a",
+        "entrance_ptr": "0x192d6",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Hi Jump Boots Room",
+    "rom_address": "0x7a9e5",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x193f6",
+        "entrance_ptr": "0x19426",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Cathedral Entrance",
+    "rom_address": "0x7a7b3",
+    "map": [
+      [1, 1, 1],
+      [1, 1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x192a6",
+        "entrance_ptr": "0x192ca",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 2,
+        "y": 0,
+        "exit_ptr": "0x192b2",
+        "entrance_ptr": "0x1928e",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Cathedral",
+    "rom_address": "0x7a788",
+    "map": [
+      [1, 1, 1],
+      [1, 1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1928e",
+        "entrance_ptr": "0x192b2",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 2,
+        "y": 1,
+        "exit_ptr": "0x1929a",
+        "entrance_ptr": "0x19732",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Rising Tide",
+    "rom_address": "0x7afa3",
+    "map": [[1, 1, 1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x19732",
+        "entrance_ptr": "0x1929a",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 4,
+        "y": 0,
+        "exit_ptr": "0x1973e",
+        "entrance_ptr": "0x1955e",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Frog Speedway",
+    "rom_address": "0x7b106",
+    "map": [[1, 1, 1, 1, 1, 1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x197da",
+        "entrance_ptr": "0x1980a",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 7,
+        "y": 0,
+        "exit_ptr": "0x197e6",
+        "entrance_ptr": "0x1970e",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Upper Norfair Farming Room",
+    "rom_address": "0x7af72",
+    "map": [
+      [1, 1],
+      [1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1970e",
+        "entrance_ptr": "0x197e6",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x19726",
+        "entrance_ptr": "0x197f2",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x1971a",
+        "entrance_ptr": "0x1956a",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Purple Shaft",
+    "rom_address": "0x7aedf",
+    "map": [[1], [1], [1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x196c6",
+        "entrance_ptr": "0x1979e",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 2,
+        "exit_ptr": "0x196ba",
+        "entrance_ptr": "0x19696",
+        "subtype": "normal"
+      },
+      {
+        "direction": "up",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x196ae",
+        "entrance_ptr": "0x19576",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Purple Farming Room",
+    "rom_address": "0x7b051",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1979e",
+        "entrance_ptr": "0x196c6",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Frog Savestation",
+    "rom_address": "0x7b167",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x19816",
+        "entrance_ptr": "0x192fa",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1980a",
+        "entrance_ptr": "0x197da",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Bubble Mountain",
+    "rom_address": "0x7acb3",
+    "map": [
+      [1, 1],
+      [1, 1],
+      [1, 1],
+      [1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x19552",
+        "entrance_ptr": "0x1953a",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x1959a",
+        "entrance_ptr": "0x197ce",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 2,
+        "exit_ptr": "0x1955e",
+        "entrance_ptr": "0x1973e",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 3,
+        "exit_ptr": "0x1956a",
+        "entrance_ptr": "0x1971a",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x1958e",
+        "entrance_ptr": "0x197aa",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 1,
+        "exit_ptr": "0x19582",
+        "entrance_ptr": "0x195ca",
+        "subtype": "normal"
+      },
+      {
+        "direction": "down",
+        "x": 0,
+        "y": 3,
+        "exit_ptr": "0x19576",
+        "entrance_ptr": "0x196ae",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2, 3, 4, 5, 6]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Bubble Mountain Save Room",
+    "rom_address": "0x7b0dd",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x197ce",
+        "entrance_ptr": "0x1959a",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Green Bubbles Missile Room",
+    "rom_address": "0x7ac83",
+    "map": [[1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x19546",
+        "entrance_ptr": "0x1952e",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x1953a",
+        "entrance_ptr": "0x19552",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Norfair Reserve Tank Room",
+    "rom_address": "0x7ac5a",
+    "map": [[1, 1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x1952e",
+        "entrance_ptr": "0x19546",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Bat Cave",
+    "rom_address": "0x7b07a",
+    "map": [[1], [1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x197aa",
+        "entrance_ptr": "0x1958e",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x197b6",
+        "entrance_ptr": "0x195a6",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Speed Booster Hall",
+    "rom_address": "0x7acf0",
+    "map": [
+      [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x195a6",
+        "entrance_ptr": "0x197b6",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 11,
+        "y": 1,
+        "exit_ptr": "0x195b2",
+        "entrance_ptr": "0x195be",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Speed Booster Room",
+    "rom_address": "0x7ad1b",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x195be",
+        "entrance_ptr": "0x195b2",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Single Chamber",
+    "rom_address": "0x7ad5e",
+    "map": [
+      [1, 1, 1, 1, 1, 1],
+      [1, 0, 0, 0, 0, 0],
+      [1, 0, 0, 0, 0, 0],
+      [1, 0, 0, 0, 0, 0]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x195ca",
+        "entrance_ptr": "0x19582",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 5,
+        "y": 0,
+        "exit_ptr": "0x195fa",
+        "entrance_ptr": "0x19a4a",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x195d6",
+        "entrance_ptr": "0x19606",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 2,
+        "exit_ptr": "0x195e2",
+        "entrance_ptr": "0x19612",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 3,
+        "exit_ptr": "0x195ee",
+        "entrance_ptr": "0x19636",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 2, 3, 4], [1]],
+    "durable_part_connections": [],
+    "transient_part_connections": [[1, 0]]
+  },
+  {
+    "name": "Double Chamber",
+    "rom_address": "0x7adad",
+    "map": [
+      [1, 1, 1, 1],
+      [1, 1, 1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x19606",
+        "entrance_ptr": "0x195d6",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x19612",
+        "entrance_ptr": "0x195e2",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 3,
+        "y": 0,
+        "exit_ptr": "0x1961e",
+        "entrance_ptr": "0x1962a",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Wave Beam Room",
+    "rom_address": "0x7adde",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1962a",
+        "entrance_ptr": "0x1961e",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Ice Beam Gate Room",
+    "rom_address": "0x7a815",
+    "map": [
+      [0, 0, 0, 1, 0, 0, 0],
+      [0, 0, 0, 1, 0, 0, 0],
+      [0, 0, 0, 1, 1, 1, 1],
+      [1, 1, 1, 1, 0, 0, 0]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 3,
+        "y": 0,
+        "exit_ptr": "0x19312",
+        "entrance_ptr": "0x1934e",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 3,
+        "y": 2,
+        "exit_ptr": "0x1931e",
+        "entrance_ptr": "0x19276",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 3,
+        "exit_ptr": "0x19336",
+        "entrance_ptr": "0x1938a",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 6,
+        "y": 2,
+        "exit_ptr": "0x1932a",
+        "entrance_ptr": "0x192be",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[1, 2, 3], [0]],
+    "durable_part_connections": [],
+    "transient_part_connections": [[1, 0]]
+  },
+  {
+    "name": "Ice Beam Acid Room",
+    "rom_address": "0x7a75d",
+    "map": [[1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x19282",
+        "entrance_ptr": "0x19366",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x19276",
+        "entrance_ptr": "0x1931e",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Ice Beam Snake Room",
+    "rom_address": "0x7a8b9",
+    "map": [
+      [1, 0],
+      [1, 1],
+      [1, 0]
+    ],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x19372",
+        "entrance_ptr": "0x19342",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 1,
+        "exit_ptr": "0x1937e",
+        "entrance_ptr": "0x1935a",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 2,
+        "exit_ptr": "0x19366",
+        "entrance_ptr": "0x19282",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Ice Beam Room",
+    "rom_address": "0x7a890",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1935a",
+        "entrance_ptr": "0x1937e",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Ice Beam Tutorial Room",
+    "rom_address": "0x7a865",
+    "map": [[1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x19342",
+        "entrance_ptr": "0x19372",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x1934e",
+        "entrance_ptr": "0x19312",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Crumble Shaft",
+    "rom_address": "0x7a8f8",
+    "map": [[1], [1], [1], [1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1938a",
+        "entrance_ptr": "0x19336",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 3,
+        "exit_ptr": "0x19396",
+        "entrance_ptr": "0x193a2",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Nutella Refill",
+    "rom_address": "0x7b026",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x19786",
+        "entrance_ptr": "0x19756",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x19792",
+        "entrance_ptr": "0x1976e",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Spiky Acid Snakes Tunnel",
+    "rom_address": "0x7affb",
+    "map": [[1, 1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1976e",
+        "entrance_ptr": "0x19792",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 3,
+        "y": 0,
+        "exit_ptr": "0x1977a",
+        "entrance_ptr": "0x1968a",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Kronic Boost Room",
+    "rom_address": "0x7ae74",
+    "map": [
+      [0, 1],
+      [1, 1],
+      [0, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x19666",
+        "entrance_ptr": "0x196a2",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x1968a",
+        "entrance_ptr": "0x1977a",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 1,
+        "y": 2,
+        "exit_ptr": "0x1967e",
+        "entrance_ptr": "0x196d2",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x19672",
+        "entrance_ptr": "0x1965a",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2, 3]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Magdollite Tunnel",
+    "rom_address": "0x7aeb4",
+    "map": [[1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x19696",
+        "entrance_ptr": "0x196ba",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 2,
+        "y": 0,
+        "exit_ptr": "0x196a2",
+        "entrance_ptr": "0x19666",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Lava Dive Room",
+    "rom_address": "0x7af14",
+    "map": [
+      [1, 1, 1, 1],
+      [0, 1, 1, 1],
+      [0, 1, 1, 0]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x196de",
+        "entrance_ptr": "0x196ea",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 3,
+        "y": 0,
+        "exit_ptr": "0x196d2",
+        "entrance_ptr": "0x1967e",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Volcano Room",
+    "rom_address": "0x7ae32",
+    "map": [
+      [0, 0, 1],
+      [0, 0, 1],
+      [1, 1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 2,
+        "y": 0,
+        "exit_ptr": "0x1964e",
+        "entrance_ptr": "0x19642",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 2,
+        "exit_ptr": "0x1965a",
+        "entrance_ptr": "0x19672",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Spiky Platforms Tunnel",
+    "rom_address": "0x7ae07",
+    "map": [[1, 1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x19636",
+        "entrance_ptr": "0x195ee",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 3,
+        "y": 0,
+        "exit_ptr": "0x19642",
+        "entrance_ptr": "0x1964e",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Red Pirate Shaft",
+    "rom_address": "0x7b139",
+    "map": [[1], [1], [1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x197f2",
+        "entrance_ptr": "0x19726",
+        "subtype": "normal"
+      },
+      {
+        "direction": "down",
+        "x": 0,
+        "y": 2,
+        "exit_ptr": "0x197fe",
+        "entrance_ptr": "0x19762",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Acid Snakes Tunnel",
+    "rom_address": "0x7afce",
+    "map": [[1, 1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1974a",
+        "entrance_ptr": "0x193c6",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 3,
+        "y": 0,
+        "exit_ptr": "0x19756",
+        "entrance_ptr": "0x19786",
+        "subtype": "normal"
+      },
+      {
+        "direction": "up",
+        "x": 3,
+        "y": 0,
+        "exit_ptr": "0x19762",
+        "entrance_ptr": "0x197fe",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Crocomire Speedway",
+    "rom_address": "0x7a923",
+    "map": [
+      [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
+      [0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1],
+      [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x193a2",
+        "entrance_ptr": "0x19396",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 12,
+        "y": 0,
+        "exit_ptr": "0x193ae",
+        "entrance_ptr": "0x1940e",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 12,
+        "y": 1,
+        "exit_ptr": "0x193ba",
+        "entrance_ptr": "0x19822",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 12,
+        "y": 2,
+        "exit_ptr": "0x193c6",
+        "entrance_ptr": "0x1974a",
+        "subtype": "normal"
+      },
+      {
+        "direction": "down",
+        "x": 12,
+        "y": 2,
+        "exit_ptr": "0x193d2",
+        "entrance_ptr": "0x193ea",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0], [1, 2, 3, 4]],
+    "durable_part_connections": [],
+    "transient_part_connections": [[0, 1]]
+  },
+  {
+    "name": "Crocomire Escape",
+    "rom_address": "0x7aa0e",
+    "map": [
+      [1, 1, 1, 1],
+      [1, 1, 1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x19402",
+        "entrance_ptr": "0x192e2",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 3,
+        "y": 1,
+        "exit_ptr": "0x1940e",
+        "entrance_ptr": "0x193ae",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0], [1]],
+    "durable_part_connections": [],
+    "transient_part_connections": [[1, 0]]
+  },
+  {
+    "name": "Crocomire's Room",
+    "rom_address": "0x7a98d",
+    "map": [[1, 1, 1, 1, 1, 1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x193de",
+        "entrance_ptr": "0x19432",
+        "subtype": "normal"
+      },
+      {
+        "direction": "up",
+        "x": 3,
+        "y": 0,
+        "exit_ptr": "0x193ea",
+        "entrance_ptr": "0x193d2",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0], [1]],
+    "durable_part_connections": [[1, 0]],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Post Crocomire Farming Room",
+    "rom_address": "0x7aa82",
+    "map": [
+      [1, 1],
+      [1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1943e",
+        "entrance_ptr": "0x1946e",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x19432",
+        "entrance_ptr": "0x193de",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 1,
+        "exit_ptr": "0x19456",
+        "entrance_ptr": "0x19462",
+        "subtype": "normal"
+      },
+      {
+        "direction": "down",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x1944a",
+        "entrance_ptr": "0x1947a",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2, 3]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Post Crocomire Power Bomb Room",
+    "rom_address": "0x7aade",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1946e",
+        "entrance_ptr": "0x1943e",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Post Crocomire Shaft",
+    "rom_address": "0x7ab07",
+    "map": [[1], [1], [1], [1], [1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x19486",
+        "entrance_ptr": "0x194c2",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 3,
+        "exit_ptr": "0x19492",
+        "entrance_ptr": "0x194aa",
+        "subtype": "normal"
+      },
+      {
+        "direction": "down",
+        "x": 0,
+        "y": 4,
+        "exit_ptr": "0x1949e",
+        "entrance_ptr": "0x194ce",
+        "subtype": "normal"
+      },
+      {
+        "direction": "up",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1947a",
+        "entrance_ptr": "0x1944a",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2, 3]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Post Crocomire Missile Room",
+    "rom_address": "0x7ab3b",
+    "map": [[1, 1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x194aa",
+        "entrance_ptr": "0x19492",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Post Crocomire Jump Room",
+    "rom_address": "0x7ab8f",
+    "map": [
+      [1, 1, 1, 1, 1, 0, 0, 0],
+      [1, 1, 1, 1, 1, 0, 0, 0],
+      [1, 1, 1, 1, 1, 1, 1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x194da",
+        "entrance_ptr": "0x19516",
+        "subtype": "normal"
+      },
+      {
+        "direction": "up",
+        "x": 6,
+        "y": 2,
+        "exit_ptr": "0x194ce",
+        "entrance_ptr": "0x1949e",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Grapple Beam Room",
+    "rom_address": "0x7ac2b",
+    "map": [[1], [1], [1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x19522",
+        "entrance_ptr": "0x194fe",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 2,
+        "exit_ptr": "0x19516",
+        "entrance_ptr": "0x194da",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Grapple Tutorial Room 1",
+    "rom_address": "0x7ac00",
+    "map": [[1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x194fe",
+        "entrance_ptr": "0x19522",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x1950a",
+        "entrance_ptr": "0x194e6",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Grapple Tutorial Room 2",
+    "rom_address": "0x7abd2",
+    "map": [[1], [1], [1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 2,
+        "exit_ptr": "0x194e6",
+        "entrance_ptr": "0x1950a",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x194f2",
+        "entrance_ptr": "0x194b6",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Grapple Tutorial Room 3",
+    "rom_address": "0x7ab64",
+    "map": [
+      [1, 1, 1],
+      [1, 1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x194b6",
+        "entrance_ptr": "0x194f2",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 2,
+        "y": 0,
+        "exit_ptr": "0x194c2",
+        "entrance_ptr": "0x19486",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0], [1]],
+    "durable_part_connections": [],
+    "transient_part_connections": [[0, 1]]
+  },
+  {
+    "name": "Crocomire Save Room",
+    "rom_address": "0x7b192",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x19822",
+        "entrance_ptr": "0x193ba",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Post Crocomire Save Room",
+    "rom_address": "0x7aab5",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x19462",
+        "entrance_ptr": "0x19456",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Lower Norfair Elevator",
+    "rom_address": "0x7af3f",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x19702",
+        "entrance_ptr": "0x1982e",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x196ea",
+        "entrance_ptr": "0x196de",
+        "subtype": "normal"
+      },
+      {
+        "direction": "down",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x196f6",
+        "entrance_ptr": "0x1986a",
+        "subtype": "elevator"
+      }
+    ],
+    "parts": [[0, 1, 2]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Lower Norfair Elevator Save Room",
+    "rom_address": "0x7b1bb",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1982e",
+        "entrance_ptr": "0x19702",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Wrecked Ship Entrance",
+    "rom_address": "0x7ca08",
+    "map": [[1, 1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a1b0",
+        "entrance_ptr": "0x189d6",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 3,
+        "y": 0,
+        "exit_ptr": "0x1a1bc",
+        "entrance_ptr": "0x1a1f8",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Wrecked Ship Main Shaft",
+    "rom_address": "0x7caf6",
+    "map": [
+      [0, 0, 0, 0, 1, 0],
+      [0, 0, 0, 0, 1, 0],
+      [0, 0, 0, 0, 1, 0],
+      [0, 0, 0, 0, 1, 0],
+      [0, 0, 0, 0, 1, 0],
+      [1, 1, 1, 1, 1, 0],
+      [0, 0, 0, 0, 1, 1],
+      [0, 0, 0, 0, 1, 0]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 4,
+        "y": 3,
+        "exit_ptr": "0x1a1f8",
+        "entrance_ptr": "0x1a1bc",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 4,
+        "y": 6,
+        "exit_ptr": "0x1a210",
+        "entrance_ptr": "0x1a2e8",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 4,
+        "y": 3,
+        "exit_ptr": "0x1a240",
+        "entrance_ptr": "0x1a318",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 4,
+        "y": 4,
+        "exit_ptr": "0x1a204",
+        "entrance_ptr": "0x1a2d0",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 5,
+        "y": 6,
+        "exit_ptr": "0x1a234",
+        "entrance_ptr": "0x1a2f4",
+        "subtype": "normal"
+      },
+      {
+        "direction": "down",
+        "x": 4,
+        "y": 7,
+        "exit_ptr": "0x1a21c",
+        "entrance_ptr": "0x1a294",
+        "subtype": "normal"
+      },
+      {
+        "direction": "up",
+        "x": 4,
+        "y": 0,
+        "exit_ptr": "0x1a228",
+        "entrance_ptr": "0x1a1c8",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2, 3, 4, 5, 6]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Attic",
+    "rom_address": "0x7ca52",
+    "map": [[1, 1, 1, 1, 1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a1e0",
+        "entrance_ptr": "0x189ee",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 6,
+        "y": 0,
+        "exit_ptr": "0x1a1d4",
+        "entrance_ptr": "0x1a1ec",
+        "subtype": "normal"
+      },
+      {
+        "direction": "down",
+        "x": 4,
+        "y": 0,
+        "exit_ptr": "0x1a1c8",
+        "entrance_ptr": "0x1a228",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Basement",
+    "rom_address": "0x7cc6f",
+    "map": [[1, 1, 1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a2a0",
+        "entrance_ptr": "0x1a2b8",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 4,
+        "y": 0,
+        "exit_ptr": "0x1a2ac",
+        "entrance_ptr": "0x1a2c4",
+        "subtype": "normal"
+      },
+      {
+        "direction": "up",
+        "x": 2,
+        "y": 0,
+        "exit_ptr": "0x1a294",
+        "entrance_ptr": "0x1a21c",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Wrecked Ship Map Room",
+    "rom_address": "0x7cccb",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a2b8",
+        "entrance_ptr": "0x1a2a0",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Phantoon's Room",
+    "rom_address": "0x7cd13",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a2c4",
+        "entrance_ptr": "0x1a2ac",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Wrecked Ship West Super Room",
+    "rom_address": "0x7cda8",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a2e8",
+        "entrance_ptr": "0x1a210",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Bowling Alley",
+    "rom_address": "0x7c98e",
+    "map": [
+      [0, 0, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1, 1],
+      [0, 1, 1, 1, 1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 2,
+        "y": 0,
+        "exit_ptr": "0x1a18c",
+        "entrance_ptr": "0x189fa",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x1a198",
+        "entrance_ptr": "0x18b32",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 1,
+        "y": 2,
+        "exit_ptr": "0x1a1a4",
+        "entrance_ptr": "0x1a30c",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0], [1], [2]],
+    "durable_part_connections": [],
+    "transient_part_connections": [[1, 2]]
+  },
+  {
+    "name": "Gravity Suit Room",
+    "rom_address": "0x7ce40",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a300",
+        "entrance_ptr": "0x18a06",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a30c",
+        "entrance_ptr": "0x1a1a4",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Wrecked Ship East Super Room",
+    "rom_address": "0x7cdf1",
+    "map": [[1, 1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a2f4",
+        "entrance_ptr": "0x1a234",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Sponge Bath",
+    "rom_address": "0x7cd5c",
+    "map": [[1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a2d0",
+        "entrance_ptr": "0x1a204",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x1a2dc",
+        "entrance_ptr": "0x1a24c",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Spiky Death Room",
+    "rom_address": "0x7cb8b",
+    "map": [[1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a24c",
+        "entrance_ptr": "0x1a2dc",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x1a258",
+        "entrance_ptr": "0x1a270",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Electric Death Room",
+    "rom_address": "0x7cbd5",
+    "map": [[1], [1], [1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a27c",
+        "entrance_ptr": "0x1a288",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 2,
+        "exit_ptr": "0x1a270",
+        "entrance_ptr": "0x1a258",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x1a264",
+        "entrance_ptr": "0x18a66",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Wrecked Ship Energy Tank Room",
+    "rom_address": "0x7cc27",
+    "map": [
+      [1, 1, 1],
+      [1, 1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 2,
+        "y": 0,
+        "exit_ptr": "0x1a288",
+        "entrance_ptr": "0x1a27c",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Assembly Line",
+    "rom_address": "0x7caae",
+    "map": [[1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a1ec",
+        "entrance_ptr": "0x1a1d4",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Wrecked Ship Save Room",
+    "rom_address": "0x7ce8a",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a318",
+        "entrance_ptr": "0x1a240",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Tourian First Room",
+    "rom_address": "0x7daae",
+    "map": [[1], [1], [1], [1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 3,
+        "exit_ptr": "0x1a984",
+        "entrance_ptr": "0x1a9a8",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 3,
+        "exit_ptr": "0x1a99c",
+        "entrance_ptr": "0x1ab40",
+        "subtype": "normal"
+      },
+      {
+        "direction": "up",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a990",
+        "entrance_ptr": "0x19222",
+        "subtype": "elevator"
+      }
+    ],
+    "parts": [[0, 1, 2]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Tourian Map Room",
+    "rom_address": "0x7df1b",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1ab40",
+        "entrance_ptr": "0x1a99c",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Metroid Room 1",
+    "rom_address": "0x7dae1",
+    "map": [[1, 1, 1, 1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a9b4",
+        "entrance_ptr": "0x1a9c0",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 5,
+        "y": 0,
+        "exit_ptr": "0x1a9a8",
+        "entrance_ptr": "0x1a984",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Metroid Room 2",
+    "rom_address": "0x7db31",
+    "map": [[1], [1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a9c0",
+        "entrance_ptr": "0x1a9b4",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x1a9cc",
+        "entrance_ptr": "0x1a9d8",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Metroid Room 3",
+    "rom_address": "0x7db7d",
+    "map": [[1, 1, 1, 1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a9d8",
+        "entrance_ptr": "0x1a9cc",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 5,
+        "y": 0,
+        "exit_ptr": "0x1a9e4",
+        "entrance_ptr": "0x1a9f0",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Metroid Room 4",
+    "rom_address": "0x7dbcd",
+    "map": [[1], [1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1a9f0",
+        "entrance_ptr": "0x1a9e4",
+        "subtype": "normal"
+      },
+      {
+        "direction": "down",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x1a9fc",
+        "entrance_ptr": "0x1aa08",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Blue Hopper Room",
+    "rom_address": "0x7dc19",
+    "map": [[1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1aa14",
+        "entrance_ptr": "0x1aa20",
+        "subtype": "normal"
+      },
+      {
+        "direction": "up",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x1aa08",
+        "entrance_ptr": "0x1a9fc",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Dust Torizo Room",
+    "rom_address": "0x7dc65",
+    "map": [[1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1aa2c",
+        "entrance_ptr": "0x1aa38",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x1aa20",
+        "entrance_ptr": "0x1aa14",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Big Boy Room",
+    "rom_address": "0x7dcb1",
+    "map": [[1, 1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1aa44",
+        "entrance_ptr": "0x1aa50",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 3,
+        "y": 0,
+        "exit_ptr": "0x1aa38",
+        "entrance_ptr": "0x1aa2c",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Seaweed Room",
+    "rom_address": "0x7dcff",
+    "map": [[1], [1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x1aa68",
+        "entrance_ptr": "0x1aa74",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1aa50",
+        "entrance_ptr": "0x1aa44",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x1aa5c",
+        "entrance_ptr": "0x1aa98",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Tourian Recharge Room",
+    "rom_address": "0x7dd2e",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1aa74",
+        "entrance_ptr": "0x1aa68",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Tourian Eye Door Room",
+    "rom_address": "0x7ddc4",
+    "map": [[1, 1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1aa98",
+        "entrance_ptr": "0x1aa5c",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 3,
+        "y": 0,
+        "exit_ptr": "0x1aaa4",
+        "entrance_ptr": "0x1aab0",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Rinka Shaft",
+    "rom_address": "0x7ddf3",
+    "map": [[1], [1], [1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1aab0",
+        "entrance_ptr": "0x1aaa4",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x1aabc",
+        "entrance_ptr": "0x1aad4",
+        "subtype": "normal"
+      },
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 2,
+        "exit_ptr": "0x1aac8",
+        "entrance_ptr": "0x1aa80",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1, 2]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Lower Tourian Save Room",
+    "rom_address": "0x7de23",
+    "map": [[1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1aad4",
+        "entrance_ptr": "0x1aabc",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Mother Brain Room",
+    "rom_address": "0x7dd58",
+    "map": [[1, 1, 1, 1]],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1aa8c",
+        "entrance_ptr": "0x1aae0",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 3,
+        "y": 0,
+        "exit_ptr": "0x1aa80",
+        "entrance_ptr": "0x1aac8",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0], [1]],
+    "durable_part_connections": [],
+    "transient_part_connections": [[1, 0]]
+  },
+  {
+    "name": "Tourian Escape Room 1",
+    "rom_address": "0x7de4d",
+    "map": [[1, 1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 1,
+        "y": 0,
+        "exit_ptr": "0x1aae0",
+        "entrance_ptr": "0x1aa8c",
+        "subtype": "normal"
+      },
+      {
+        "direction": "down",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1aaec",
+        "entrance_ptr": "0x1aaf8",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Tourian Escape Room 2",
+    "rom_address": "0x7de7a",
+    "map": [[1], [1]],
+    "doors": [
+      {
+        "direction": "right",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x1ab04",
+        "entrance_ptr": "0x1ab10",
+        "subtype": "normal"
+      },
+      {
+        "direction": "up",
+        "x": 0,
+        "y": 0,
+        "exit_ptr": "0x1aaf8",
+        "entrance_ptr": "0x1aaec",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Tourian Escape Room 3",
+    "rom_address": "0x7dea7",
+    "map": [
+      [1, 1, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 1,
+        "exit_ptr": "0x1ab10",
+        "entrance_ptr": "0x1ab04",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 5,
+        "y": 0,
+        "exit_ptr": "0x1ab1c",
+        "entrance_ptr": "0x1ab28",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  },
+  {
+    "name": "Tourian Escape Room 4",
+    "rom_address": "0x7dede",
+    "map": [
+      [1, 1, 1],
+      [1, 1, 1],
+      [1, 1, 1],
+      [1, 1, 1],
+      [1, 1, 1],
+      [1, 1, 1]
+    ],
+    "doors": [
+      {
+        "direction": "left",
+        "x": 0,
+        "y": 3,
+        "exit_ptr": "0x1ab28",
+        "entrance_ptr": "0x1ab1c",
+        "subtype": "normal"
+      },
+      {
+        "direction": "right",
+        "x": 2,
+        "y": 1,
+        "exit_ptr": "0x1ab34",
+        "entrance_ptr": "0x18b6e",
+        "subtype": "normal"
+      }
+    ],
+    "parts": [[0, 1]],
+    "durable_part_connections": [],
+    "transient_part_connections": []
+  }
+]
