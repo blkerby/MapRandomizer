@@ -1,13 +1,11 @@
 TODO:
-- make some quality-of-life changes optional:
+- Fix internal server 500 errors due to aqueduct placement
+- Be more careful with requirements on farms
+  - e.g. Zebbo farm in Plowerhouse Room is not really usable without heat-proof and some way to kill the the owls.
+- make some quality-of-life changes optional?:
   - all movement items collected & equipped when hyper beam is acquired
   - map stations revealed from start of game
   - supers do double damage to mother brain
-- finish item placement overhaul
-  - fix collection of non-key items
-  - make spoiler log work again
-  - play testing
-  - add/update descriptions for open, semi-closed, closed
 - apply bomb torizo patch (from varia) to make it awake when its item is picked up (rather than bombs)?
 - fix color of reserve tank energy in equipment menu (got messed up by colored arrows)
 - check boss logic on easy settings:

@@ -1,6 +1,8 @@
-mod sm_json_data;
+mod game_data;
+mod traverse;
 
-use sm_json_data::SMJsonData;
+use game_data::SMJsonData;
+
 
 use std::path::Path;
 

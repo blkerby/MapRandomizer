@@ -455,8 +455,8 @@ class MapPatcher:
         self.patch_room_tile(room_idx, 0, 3, ELEVATOR_TILE)
         room_idx = room_dict["Statues Room"]
         self.patch_room_tile(room_idx, 0, 4, ELEVATOR_TILE)
-        room_idx = room_dict["Warehouse Entrance"]
-        self.patch_room_tile(room_idx, 0, 3, ELEVATOR_TILE)
+        # room_idx = room_dict["Warehouse Entrance"]
+        # self.patch_room_tile(room_idx, 0, 3, ELEVATOR_TILE)
         # Likewise, in bottom elevator rooms, replace up arrow tiles with elevator tiles:
         room_idx = room_dict["Green Brinstar Main Shaft"]
         self.patch_room_tile(room_idx, 0, 0, ELEVATOR_TILE)  # Oddly, there wasn't an arrow here in the vanilla game. But we left a spot as if there were.
