@@ -1,6 +1,6 @@
 use hashbrown::HashSet;
 
-use crate::game_data::{Item, Link, Requirement, WeaponMask, self, GameData, ItemId};
+use crate::game_data::{Item, Link, Requirement, WeaponMask, GameData};
 
 #[derive(Clone)]
 pub struct GlobalState {
@@ -298,6 +298,7 @@ pub fn traverse(
     num_vertices: usize,
     start_vertex_id: usize,
     reverse: bool,
+    game_data: &GameData,
 ) -> TraverseResult {
     let mut result = TraverseResult {
         local_states: vec![None; num_vertices],
@@ -318,8 +319,20 @@ pub fn traverse(
     }
 
     let mut modified_vertices: HashSet<usize> = HashSet::new();
+    modified_vertices.insert(start_vertex_id);
     while modified_vertices.len() > 0 {
         let mut new_modified_vertices: HashSet<usize> = HashSet::new();
+
+        // println!("new vertices:");
+        // for &v in &modified_vertices {
+        //     let (room_id, node_id, obstacle_bitmask) = game_data.vertex_isv.keys[v];
+        //     let room_name = &game_data.room_json_map[&room_id]["name"];
+        //     let node_name = &game_data.node_json_map[&(room_id, node_id)]["name"];
+        //     println!("vertex={v}, room='{room_name}', node='{node_name}' ({obstacle_bitmask})");
+    
+        // }
+        // println!("end");
+
         for &src_id in &modified_vertices {
             let src_local_state = result.local_states[src_id].unwrap();
             for link in &links_by_src[src_id] {

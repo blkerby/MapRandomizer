@@ -1,4 +1,10 @@
 TODO:
+- Try a different kind of "Open" item placement, to reduce likelihood of items getting heavily front-loaded with good items:
+  - Start by placing all items randomly, then check that game is beatable.
+  - Similar approach could maybe apply to Closed/Semiclosed?: find a beatable game using random placement, then adjust
+    the placements to push unnecessary items further back.
+      - Or just improve the current approach by rejecting cases where the set of bireachable item locations grows too
+      slowly.
 - Fix internal server 500 errors due to aqueduct placement
 - Be more careful with requirements on farms
   - e.g. Zebbo farm in Plowerhouse Room is not really usable without heat-proof and some way to kill the the owls.
@@ -17,15 +23,6 @@ TODO:
 - move GFX colors:
   - Morph Ball room (blue brinstar), tileset 7:
     - [0x31, 0x32, 0x33] -> [0x38, 0x39, 0x3A]
-- overhaul item placement:
-  - on each step, fill all newly accessible item locations
-  - place progression items only at locations where you can get back to the ship (with the help of the new item)
-    - to make this more accurate, modify logic in bosses (and shaktool, acid chozo, etc.?) to be able to go through without flag
-  - new progression rate settings, separate ones for movement, beams, tanks, and ammo.
-  - new presets for item placement strategy:
-    - Open: 100% movement, 100% beams, 100% tanks, 100% ammo
-    - Closed: 0% movement, 100% beams, 100% tanks, 100% ammo (gated by first)
-    - Extreme: 0% movement, 0% beams, 0% tanks, 50% ammo (gated by first)
 - add grapple + xray to the HUD on hyper beam collect.
 - make the pause map tiles align with the grid
 - fix tiny bug: when bottom-left door of landing site is an area transition, the arrow shows up from the beginning
