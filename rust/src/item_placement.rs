@@ -1,5 +1,5 @@
 use crate::{
-    game_data::{self, Item, ItemId, ItemLocationId, Link, NodePtr, VertexId},
+    game_data::{self, Item, ItemLocationId, Link, NodePtr, VertexId},
     traverse::{is_bireachable, traverse, GlobalState},
 };
 use hashbrown::HashSet;
@@ -10,26 +10,25 @@ use std::{cmp::min, convert::TryFrom, iter};
 use crate::game_data::GameData;
 
 #[derive(Clone)]
-enum ItemPlacementStrategy {
+pub enum ItemPlacementStrategy {
     Open,
     Semiclosed,
     Closed,
 }
 
 #[derive(Clone)]
-struct DifficultyConfig {
-    tech: Vec<String>,
-    shine_charge_tiles: i32,
-    item_placement_strategy: ItemPlacementStrategy,
+pub struct DifficultyConfig {
+    pub tech: Vec<String>,
+    pub shine_charge_tiles: i32,
+    pub item_placement_strategy: ItemPlacementStrategy,
 }
 
 // Includes preprocessing specific to the map:
-struct Randomizer<'a> {
-    game_data: &'a GameData,
-    difficulty: &'a DifficultyConfig,
-    door_edges: Vec<(VertexId, VertexId)>,
-    links: Vec<Link>,
-    initial_items_remaining: Vec<usize>, // Corresponds to GameData.items_isv (one count per distinct item name)
+pub struct Randomizer<'a> {
+    pub game_data: &'a GameData,
+    pub difficulty: &'a DifficultyConfig,
+    pub links: Vec<Link>,
+    pub initial_items_remaining: Vec<usize>, // Corresponds to GameData.items_isv (one count per distinct item name)
 }
 
 enum StepResult {
@@ -51,12 +50,13 @@ struct ItemLocationState {
 struct RandomizationState {
     item_precedence: Vec<Item>, // An ordering of the 21 distinct item names. The game will prioritize placing key items earlier in the list.
     item_location_state: Vec<ItemLocationState>, // Corresponds to GameData.item_locations (one record for each of 100 item locations)
+    flag_bireachable: Vec<bool>,  // Corresponds to GameData.flag_locations
     items_remaining: Vec<usize>, // Corresponds to GameData.items_isv (one count for each of 21 distinct item names)
     global_state: GlobalState,
 }
 
-struct Randomization {
-    item_placement: Vec<Item>,
+pub struct Randomization {
+    pub item_placement: Vec<Item>,
     // TODO: add spoiler log
 }
 
@@ -98,7 +98,7 @@ impl<'r> Randomizer<'r> {
                 let src_vertex_id = game_data.vertex_isv.index_by_key
                     [&(src_room_id, src_node_id, obstacle_bitmask)];
                 let dst_vertex_id =
-                    game_data.vertex_isv.index_by_key[&(src_room_id, src_node_id, 0)];
+                    game_data.vertex_isv.index_by_key[&(dst_room_id, dst_node_id, 0)];
                 door_edges.push((src_vertex_id, dst_vertex_id));
             }
             if bidirectional {
@@ -132,7 +132,6 @@ impl<'r> Randomizer<'r> {
         Randomizer {
             initial_items_remaining,
             game_data,
-            door_edges,
             links,
             difficulty,
         }
@@ -164,13 +163,24 @@ impl<'r> Randomizer<'r> {
             num_vertices,
             start_vertex_id,
             false,
+            self.game_data,
         );
+
+        // for (i, &(room_id, node_id, obstacle_bitmask)) in self.game_data.vertex_isv.keys.iter().enumerate() {
+        //     if forward.local_states[i].is_some() {
+        //         let room_name = &self.game_data.room_json_map[&room_id]["name"];
+        //         let node_name = &self.game_data.node_json_map[&(room_id, node_id)]["name"];
+        //         println!("{room_name}: {node_name} ({obstacle_bitmask})");
+        //     }
+        // }
+
         let reverse = traverse(
             &self.links,
             &state.global_state,
             num_vertices,
             start_vertex_id,
             true,
+            self.game_data,
         );
         for (i, vertex_ids) in self.game_data.item_vertex_ids.iter().enumerate() {
             for &v in vertex_ids {
@@ -183,6 +193,17 @@ impl<'r> Randomizer<'r> {
                     ) {
                         state.item_location_state[i].bireachable = true;
                     }
+                }
+            }
+        }
+        for (i, vertex_ids) in self.game_data.flag_vertex_ids.iter().enumerate() {
+            for &v in vertex_ids {
+                if is_bireachable(
+                    &state.global_state,
+                    &forward.local_states[v],
+                    &reverse.local_states[v],
+                ) {
+                    state.flag_bireachable[i] = true;
                 }
             }
         }
@@ -215,6 +236,7 @@ impl<'r> Randomizer<'r> {
             ) as usize,
         };
         if num_items_remaining < num_items_to_place + 20 {
+            // println!("dumping key items");
             num_key_items_to_place = num_key_items_remaining;
         }
         num_key_items_to_place = min(
@@ -256,14 +278,14 @@ impl<'r> Randomizer<'r> {
             ItemPlacementStrategy::Semiclosed => {
                 item_types_to_mix = vec![Item::Missile, Item::ETank, Item::ReserveTank];
                 item_types_to_delay = vec![];
-                if state.items_remaining[Item::Super as usize]
+                if new_items_remaining[Item::Super as usize]
                     < self.initial_items_remaining[Item::Super as usize]
                 {
                     item_types_to_mix.push(Item::Super);
                 } else {
                     item_types_to_delay.push(Item::Super);
                 }
-                if state.items_remaining[Item::PowerBomb as usize]
+                if new_items_remaining[Item::PowerBomb as usize]
                     < self.initial_items_remaining[Item::PowerBomb as usize]
                 {
                     item_types_to_mix.push(Item::PowerBomb);
@@ -273,9 +295,9 @@ impl<'r> Randomizer<'r> {
             }
             ItemPlacementStrategy::Closed => {
                 item_types_to_mix = vec![Item::Missile];
-                if state.items_remaining[Item::PowerBomb as usize]
+                if new_items_remaining[Item::PowerBomb as usize]
                     < self.initial_items_remaining[Item::PowerBomb as usize]
-                    && state.items_remaining[Item::Super as usize]
+                    && new_items_remaining[Item::Super as usize]
                         == self.initial_items_remaining[Item::Super as usize]
                 {
                     item_types_to_delay =
@@ -289,13 +311,13 @@ impl<'r> Randomizer<'r> {
 
         let mut items_to_mix: Vec<Item> = Vec::new();
         for &item in &item_types_to_mix {
-            for _ in 0..state.items_remaining[item as usize] {
+            for _ in 0..new_items_remaining[item as usize] {
                 items_to_mix.push(item);
             }
         }
         let mut expansion_items_to_delay: Vec<Item> = Vec::new();
         for &item in &item_types_to_delay {
-            for _ in 0..state.items_remaining[item as usize] {
+            for _ in 0..new_items_remaining[item as usize] {
                 expansion_items_to_delay.push(item);
             }
         }
@@ -319,7 +341,7 @@ impl<'r> Randomizer<'r> {
         other_items_to_place.shuffle(rng);
         other_items_to_place.extend(expansion_items_to_delay);
         other_items_to_place.extend(key_items_to_delay);
-        let other_items_to_place = other_items_to_place[0..num_other_items_to_place].to_vec();
+        other_items_to_place = other_items_to_place[0..num_other_items_to_place].to_vec();
         for &item in &other_items_to_place {
             new_items_remaining[item as usize] -= 1;
         }
@@ -369,8 +391,10 @@ impl<'r> Randomizer<'r> {
         }
         let mut idx = 0;
         for item_loc_state in &mut state.item_location_state {
-            item_loc_state.placed_item = Some(remaining_items[idx]);
-            idx += 1;
+            if item_loc_state.placed_item.is_none() {
+                item_loc_state.placed_item = Some(remaining_items[idx]);
+                idx += 1;    
+            }
         }
         assert!(idx == remaining_items.len());
     }
@@ -378,16 +402,14 @@ impl<'r> Randomizer<'r> {
     fn step<R: Rng>(&self, state: &mut RandomizationState, rng: &mut R) -> StepResult {
         loop {
             let mut any_new_flag = false;
-            for (i, vertex_ids) in self.game_data.flag_vertex_ids.iter().enumerate() {
+            for i in 0..self.game_data.flag_locations.len() {
                 let flag_id = self.game_data.flag_locations[i].2;
                 if state.global_state.flags[flag_id] {
                     continue;
                 }
-                for &v in vertex_ids {
-                    if state.item_location_state[v].bireachable {
-                        any_new_flag = true;
-                        state.global_state.flags[flag_id] = true;
-                    }
+                if state.flag_bireachable[i] {
+                    any_new_flag = true;
+                    state.global_state.flags[flag_id] = true;
                 }
             }
             if any_new_flag {
@@ -422,7 +444,7 @@ impl<'r> Randomizer<'r> {
             );
             if let Some(select_res) = select_result {
                 let mut new_state = state.clone();
-
+                new_state.items_remaining = select_res.new_items_remaining;
                 self.place_items(
                     &mut new_state,
                     &unplaced_bireachable,
@@ -439,7 +461,16 @@ impl<'r> Randomizer<'r> {
                     new_state.clone_into(state);
                     self.finish(state);
                     return StepResult::Done;
+                } else {
+                    // println!("not all collected:");
+                    // for (i, (x, y)) in iter::zip(&new_state.items_remaining, &self.initial_items_remaining).enumerate() {
+                    //     if x >= y {
+                    //         println!("item={}, remaining={x} ,initial={y}", self.game_data.item_isv.keys[i]);
+                    //     }
+                    // }
+                    // println!("");
                 }
+
                 self.update_reachability(&mut new_state);
                 if iter::zip(&new_state.item_location_state, &state.item_location_state)
                     .any(|(n, o)| n.bireachable && !o.reachable)
@@ -452,6 +483,7 @@ impl<'r> Randomizer<'r> {
                 println!("Exhausted key item placement attempts");
                 return StepResult::Fail;
             }
+            // println!("attempt failed");
             attempt_num += 1;
         }
     }
@@ -466,7 +498,7 @@ impl<'r> Randomizer<'r> {
     }
 
     pub fn randomize<R: Rng>(&self, rng: &mut R) -> Option<Randomization> {
-        let mut global_state = {
+        let initial_global_state = {
             let items = vec![false; self.game_data.item_isv.keys.len()];
             let weapon_mask = self.game_data.get_weapon_mask(&items);
             GlobalState {
@@ -499,20 +531,28 @@ impl<'r> Randomizer<'r> {
                 initial_item_location_state;
                 self.game_data.item_locations.len()
             ],
+            flag_bireachable: vec![false; self.game_data.flag_locations.len()],
             items_remaining: self.initial_items_remaining.clone(),
-            global_state,
+            global_state: initial_global_state,
         };
         self.update_reachability(&mut state);
         if !state.item_location_state.iter().any(|x| x.bireachable) {
             println!("No initially bireachable item locations");
             return None;
         }
+        let mut step_num = 1;
         loop {
+            let cnt_collected = state.item_location_state.iter().filter(|x| x.collected).count();
+            let cnt_placed = state.item_location_state.iter().filter(|x| x.placed_item.is_some()).count();
+            let cnt_reachable = state.item_location_state.iter().filter(|x| x.reachable).count();
+            let cnt_bireachable = state.item_location_state.iter().filter(|x| x.bireachable).count();
+            println!("step={step_num}, bireachable={cnt_bireachable}, reachable={cnt_reachable}, placed={cnt_placed}, collected={cnt_collected}");
             match self.step(&mut state, rng) {
                 StepResult::Progress => {}
                 StepResult::Done => break,
                 StepResult::Fail => return None,
             }
+            step_num += 1;
         }
         Some(self.get_randomization(&state))
     }

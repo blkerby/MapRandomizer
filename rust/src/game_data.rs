@@ -83,7 +83,7 @@ pub enum Requirement {
     Or(Vec<Requirement>),
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Link {
     pub from_vertex_id: VertexId,
     pub to_vertex_id: VertexId,
@@ -109,8 +109,8 @@ pub struct GameData {
     helper_json_map: HashMap<String, JsonValue>,
     tech: HashMap<String, Option<Requirement>>,
     helpers: HashMap<String, Option<Requirement>>,
-    room_json_map: HashMap<RoomId, JsonValue>,
-    node_json_map: HashMap<(RoomId, NodeId), JsonValue>,
+    pub room_json_map: HashMap<RoomId, JsonValue>,
+    pub node_json_map: HashMap<(RoomId, NodeId), JsonValue>,
     node_ptr_map: HashMap<(RoomId, NodeId), NodePtr>,
     unlocked_node_map: HashMap<(RoomId, NodeId), NodeId>,
     pub room_num_obstacles: HashMap<RoomId, usize>,
@@ -131,7 +131,6 @@ impl<T: Hash + Eq> IndexedVec<T> {
         }
     }
 }
-
 
 fn read_json(path: &Path) -> JsonValue {
     let file = File::open(path).expect(&format!("unable to open {}", path.display()));
@@ -476,7 +475,6 @@ impl GameData {
         for entry in glob::glob(&region_pattern).unwrap() {
             if let Ok(path) = entry {
                 if !path.to_str().unwrap().contains("ceres") {
-                    println!("{}", path.display());
                     self.process_region(&read_json(&path));
                 }
             } else {
@@ -681,8 +679,6 @@ impl GameData {
     }
 
     fn process_room(&mut self, room_json: &JsonValue) {
-        println!("{}", room_json["name"]);
-
         let room_id = room_json["id"].as_usize().unwrap();
         self.room_json_map.insert(room_id, room_json.clone());
 
@@ -880,7 +876,6 @@ impl GameData {
         for entry in glob::glob(&connection_pattern).unwrap() {
             if let Ok(path) = entry {
                 if !path.to_str().unwrap().contains("ceres") {
-                    println!("{}", path.display());
                     self.process_connections(&read_json(&path));
                 }
             } else {
@@ -956,7 +951,7 @@ impl GameData {
             self.item_vertex_ids.push(vertex_ids);
         }
 
-        for &(room_id, node_id, flag_id) in &self.flag_locations {
+        for &(room_id, node_id, _flag_id) in &self.flag_locations {
             let num_obstacles = self.room_num_obstacles[&room_id];
             let mut vertex_ids: Vec<VertexId> = Vec::new();
             for obstacle_bitmask in 0..(1 << num_obstacles) {
@@ -1009,8 +1004,6 @@ impl GameData {
         game_data.load_regions();
         game_data.load_connections();
         game_data.populate_target_locations();
-        println!("num vertices: {}", game_data.vertex_isv.keys.len());
-        println!("num links: {}", game_data.links.len());
         game_data
     }
 }
