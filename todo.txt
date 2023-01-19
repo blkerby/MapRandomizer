@@ -1,4 +1,5 @@
 TODO:
+- Use resource multiplier in Rust version.
 - Use `serde_json` instead of `json` crate for loading sm-json-data.
 - Clean up error handling: get rid of a bunch of remaining unwrap()'s, etc.
 - Try a different kind of "Open" item placement, to reduce likelihood of items getting heavily front-loaded with good items:

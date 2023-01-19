@@ -1,30 +1,43 @@
+use std::mem::swap;
+
 use hashbrown::HashSet;
 
-use crate::game_data::{Item, Link, Requirement, WeaponMask, GameData};
+use crate::game_data::{Item, Link, Requirement, WeaponMask, GameData, Capacity};
 
 #[derive(Clone)]
 pub struct GlobalState {
     pub tech: Vec<bool>,
     pub items: Vec<bool>,
     pub flags: Vec<bool>,
-    pub max_energy: i32,
-    pub max_reserves: i32,
-    pub max_missiles: i32,
-    pub max_supers: i32,
-    pub max_power_bombs: i32,
+    pub max_energy: Capacity,
+    pub max_reserves: Capacity,
+    pub max_missiles: Capacity,
+    pub max_supers: Capacity,
+    pub max_power_bombs: Capacity,
     pub weapon_mask: WeaponMask,
-    pub shine_charge_tiles: i32,
+    pub shine_charge_tiles: Capacity,
 }
 
 #[derive(Copy, Clone)]
 pub struct LocalState {
-    energy_used: i32,
-    reserves_used: i32,
-    missiles_used: i32,
-    supers_used: i32,
-    power_bombs_used: i32,
+    pub energy_used: Capacity,
+    pub reserves_used: Capacity,
+    pub missiles_used: Capacity,
+    pub supers_used: Capacity,
+    pub power_bombs_used: Capacity,
 }
 
+impl LocalState {
+    pub fn new() -> Self {
+        Self {
+            energy_used: 0,
+            reserves_used: 0,
+            missiles_used: 0,
+            supers_used: 0,
+            power_bombs_used: 0,
+        }
+    }
+}
 
 fn compute_cost(local: LocalState, global: &GlobalState) -> f32 {
     let eps = 1e-15;
@@ -290,10 +303,21 @@ pub fn is_bireachable(global: &GlobalState, forward_local_state: &Option<LocalSt
     true
 }
 
+pub type StepTrailId = i32;
+pub type LinkIdx = u32;
+
+// TODO: Maybe get rid of the unnecessary cloning of the step trails
+#[derive(Clone)]
+pub struct StepTrail {
+    pub prev_trail_id: StepTrailId,
+    pub link_idx: LinkIdx,
+}
+
 pub struct TraverseResult {
     pub local_states: Vec<Option<LocalState>>,
     pub cost: Vec<f32>,
-    // add route_data for reconstructing paths for spoiler log
+    pub step_trails: Vec<StepTrail>,
+    pub start_trail_ids: Vec<Option<StepTrailId>>,
 }
 
 pub fn traverse(
@@ -307,19 +331,22 @@ pub fn traverse(
     let mut result = TraverseResult {
         local_states: vec![None; num_vertices],
         cost: vec![f32::INFINITY; num_vertices],
+        step_trails: Vec::with_capacity(num_vertices * 10),
+        start_trail_ids: vec![None; num_vertices],
     };
-    result.local_states[start_vertex_id] = Some(LocalState {
-        energy_used: 0,
-        reserves_used: 0,
-        missiles_used: 0,
-        supers_used: 0,
-        power_bombs_used: 0,
-    });
+    result.local_states[start_vertex_id] = Some(LocalState::new());
+    result.start_trail_ids[start_vertex_id] = Some(-1);
     result.cost[start_vertex_id] = compute_cost(result.local_states[start_vertex_id].unwrap(), global);
 
-    let mut links_by_src: Vec<Vec<Link>> = vec![Vec::new(); num_vertices];
-    for link in links {
-        links_by_src[link.from_vertex_id].push(link.clone());
+    let mut links_by_src: Vec<Vec<(LinkIdx, Link)>> = vec![Vec::new(); num_vertices];
+    for (idx, link) in links.iter().enumerate() {
+        if reverse {
+            let mut reversed_link = link.clone();
+            swap(&mut reversed_link.from_vertex_id, &mut reversed_link.to_vertex_id);
+            links_by_src[reversed_link.from_vertex_id].push((idx as LinkIdx, reversed_link));
+        } else {
+            links_by_src[link.from_vertex_id].push((idx as LinkIdx, link.clone()));
+        }
     }
 
     let mut modified_vertices: HashSet<usize> = HashSet::new();
@@ -339,13 +366,21 @@ pub fn traverse(
 
         for &src_id in &modified_vertices {
             let src_local_state = result.local_states[src_id].unwrap();
-            for link in &links_by_src[src_id] {
+            let src_trail_id = result.start_trail_ids[src_id].unwrap();
+            for &(link_idx, ref link) in &links_by_src[src_id] {
                 let dst_id = link.to_vertex_id;
                 let dst_old_cost = result.cost[dst_id];
                 if let Some(dst_new_local_state) = apply_requirement(&link.requirement, global, src_local_state, reverse) {
                     let dst_new_cost = compute_cost(dst_new_local_state, global);
                     if dst_new_cost < dst_old_cost {
+                        let new_step_trail = StepTrail {
+                            prev_trail_id: src_trail_id,
+                            link_idx: link_idx,
+                        };
+                        let new_trail_id = result.step_trails.len() as StepTrailId;
+                        result.step_trails.push(new_step_trail);
                         result.local_states[dst_id] = Some(dst_new_local_state);
+                        result.start_trail_ids[dst_id] = Some(new_trail_id);
                         result.cost[dst_id] = dst_new_cost;
                         new_modified_vertices.insert(dst_id);
                     }
@@ -381,4 +416,22 @@ impl GlobalState {
         }
         self.weapon_mask = game_data.get_weapon_mask(&self.items);
     }
+}
+
+pub fn get_spoiler_route(
+    traverse_result: &TraverseResult,
+    vertex_id: usize,
+    reverse: bool,
+) -> Vec<LinkIdx> {
+    let mut trail_id = traverse_result.start_trail_ids[vertex_id].unwrap();
+    let mut steps: Vec<LinkIdx> = Vec::new();
+    while trail_id != -1 {
+        let step_trail = &traverse_result.step_trails[trail_id as usize];
+        steps.push(step_trail.link_idx);
+        trail_id = step_trail.prev_trail_id;
+    }
+    if !reverse {
+        steps.reverse();
+    }
+    steps
 }

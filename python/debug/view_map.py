@@ -10,7 +10,8 @@ from rando.items import Randomizer, ItemPlacementStrategy
 # map = json.load(open('../maps/session-2022-06-03T17:19:29.727911.pkl-bk30/1054946.json', 'r'))
 # map = json.load(open('maps/session-2022-06-03T17:19:29.727911.pkl-bk30/927666.json', 'r'))
 # map = json.load(open('maps/session-2022-06-03T17:19:29.727911.pkl-bk30/611640.json', 'r'))
-map = json.load(open('maps/session-2022-06-03T17:19:29.727911.pkl-bk30-subarea-balance/1111166.json', 'r'))
+# map = json.load(open('maps/session-2022-06-03T17:19:29.727911.pkl-bk30-subarea-balance/1111166.json', 'r'))
+map = json.load(open('maps/testmap.json', 'r'))
 color_map = {
     SubArea.CRATERIA_AND_BLUE_BRINSTAR: (0x80, 0x80, 0x80),
     SubArea.GREEN_AND_PINK_BRINSTAR: (0x80, 0xff, 0x80),
