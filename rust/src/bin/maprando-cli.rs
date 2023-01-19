@@ -9,8 +9,9 @@ use anyhow::{Context, Result, bail};
 #[derive(Parser)]
 struct Args {
     map: PathBuf,
-    input_rom: PathBuf,
-    output_rom: PathBuf,
+    input_rom_path: PathBuf,
+    output_rom_path: PathBuf,
+    output_spoiler_path: PathBuf,
 }
 
 fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization> {
@@ -22,7 +23,8 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
     let difficulty = DifficultyConfig {
         tech: game_data.tech_isv.keys.clone(),
         shine_charge_tiles: 16,
-        item_placement_strategy: ItemPlacementStrategy::Semiclosed,
+        item_placement_strategy: ItemPlacementStrategy::Closed,
+        // item_placement_strategy: ItemPlacementStrategy::Semiclosed,
     };
     let randomizer = Randomizer::new(&map, &difficulty, &game_data);
     let mut rng = rand::rngs::StdRng::from_seed([0; 32]);
@@ -43,8 +45,10 @@ fn main() -> Result<()> {
     let sm_json_data_path = Path::new("../sm-json-data");
     let game_data = GameData::load(sm_json_data_path)?;
     let randomization = get_randomization(&args, &game_data)?;
-    let rom = make_rom(&args.input_rom, &randomization, &game_data)?;
-    rom.save(&args.output_rom)?;
+    let rom = make_rom(&args.input_rom_path, &randomization, &game_data)?;
+    rom.save(&args.output_rom_path)?;
+    let spoiler_str = serde_json::to_string_pretty(&randomization.spoiler_log)?;
+    std::fs::write(args.output_spoiler_path, spoiler_str)?;
     Ok(())
     // for link in randomizer.links {
     //     if link.from_vertex_id == 1208 {
