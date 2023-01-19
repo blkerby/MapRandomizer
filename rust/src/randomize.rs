@@ -1,5 +1,5 @@
 use crate::{
-    game_data::{self, Capacity, Item, ItemLocationId, Link, Map, VertexId},
+    game_data::{self, Capacity, FlagId, Item, ItemLocationId, Link, Map, VertexId},
     traverse::{
         apply_requirement, get_spoiler_route, is_bireachable, traverse, GlobalState, LinkIdx,
         LocalState, TraverseResult,
@@ -45,59 +45,10 @@ struct ItemLocationState {
     pub bireachable_vertex_id: Option<VertexId>,
 }
 
-#[derive(Serialize, Deserialize)]
-pub struct SpoilerRouteEntry {
-    room: String,
-    node: String,
-    strat_name: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    energy_remaining: Option<Capacity>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    reserves_remaining: Option<Capacity>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    missiles_remaining: Option<Capacity>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    supers_remaining: Option<Capacity>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    power_bombs_remaining: Option<Capacity>,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct SpoilerLocation {
-    // area: String,
-    room: String,
-    node: String,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct SpoilerStartState {
-    max_energy: Capacity,
-    max_reserves: Capacity,
-    max_missiles: Capacity,
-    max_supers: Capacity,
-    max_power_bombs: Capacity,
-    items: Vec<String>,
-    flags: Vec<String>,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct SpoilerItemDetails {
-    item: String,
-    location: SpoilerLocation,
-    start_state: SpoilerStartState,
-    obtain_route: Vec<SpoilerRouteEntry>,
-    return_route: Vec<SpoilerRouteEntry>,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct SpoilerDetails {
-    step: usize,
-    items: Vec<SpoilerItemDetails>,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct SpoilerLog {
-    details: Vec<SpoilerDetails>,
+#[derive(Clone)]
+struct FlagLocationState {
+    pub bireachable: bool,
+    pub bireachable_vertex_id: Option<VertexId>,
 }
 
 struct DebugData {
@@ -110,7 +61,7 @@ struct RandomizationState {
     step_num: usize,
     item_precedence: Vec<Item>, // An ordering of the 21 distinct item names. The game will prioritize placing key items earlier in the list.
     item_location_state: Vec<ItemLocationState>, // Corresponds to GameData.item_locations (one record for each of 100 item locations)
-    flag_bireachable: Vec<bool>,                 // Corresponds to GameData.flag_locations
+    flag_location_state: Vec<FlagLocationState>, // Corresponds to GameData.flag_locations
     items_remaining: Vec<usize>, // Corresponds to GameData.items_isv (one count for each of 21 distinct item names)
     global_state: GlobalState,
     done: bool, // Have all key items been placed?
@@ -206,7 +157,7 @@ impl<'r> Randomizer<'r> {
             .collect()
     }
 
-    fn get_flag_vec(&self) -> Vec<bool> {
+    fn get_initial_flag_vec(&self) -> Vec<bool> {
         let mut flag_vec = vec![false; self.game_data.flag_isv.keys.len()];
         let tourian_open_idx = self.game_data.flag_isv.index_by_key["f_TourianOpen"];
         flag_vec[tourian_open_idx] = true;
@@ -224,15 +175,6 @@ impl<'r> Randomizer<'r> {
             false,
             self.game_data,
         );
-
-        // for (i, &(room_id, node_id, obstacle_bitmask)) in self.game_data.vertex_isv.keys.iter().enumerate() {
-        //     if forward.local_states[i].is_some() {
-        //         let room_name = &self.game_data.room_json_map[&room_id]["name"];
-        //         let node_name = &self.game_data.node_json_map[&(room_id, node_id)]["name"];
-        //         println!("{room_name}: {node_name} ({obstacle_bitmask})");
-        //     }
-        // }
-
         let reverse = traverse(
             &self.links,
             &state.global_state,
@@ -260,12 +202,13 @@ impl<'r> Randomizer<'r> {
         }
         for (i, vertex_ids) in self.game_data.flag_vertex_ids.iter().enumerate() {
             for &v in vertex_ids {
-                if is_bireachable(
+                if !state.flag_location_state[i].bireachable && is_bireachable(
                     &state.global_state,
                     &forward.local_states[v],
                     &reverse.local_states[v],
                 ) {
-                    state.flag_bireachable[i] = true;
+                    state.flag_location_state[i].bireachable = true;
+                    state.flag_location_state[i].bireachable_vertex_id = Some(v);
                 }
             }
         }
@@ -463,6 +406,310 @@ impl<'r> Randomizer<'r> {
         assert!(idx == remaining_items.len());
     }
 
+    fn step<R: Rng>(&self, state: &mut RandomizationState, rng: &mut R) -> Option<(SpoilerSummary, SpoilerDetails)> {
+        let orig_global_state = state.global_state.clone();
+        let mut spoiler_flag_summaries: Vec<SpoilerFlagSummary> = Vec::new();
+        let mut spoiler_flag_details: Vec<SpoilerFlagDetails> = Vec::new();
+        loop {
+            let mut any_new_flag = false;
+            for i in 0..self.game_data.flag_locations.len() {
+                let flag_id = self.game_data.flag_locations[i].2;
+                if state.global_state.flags[flag_id] {
+                    continue;
+                }
+                if state.flag_location_state[i].bireachable {
+                    any_new_flag = true;
+                    let flag_vertex_id = state.flag_location_state[i].bireachable_vertex_id.unwrap();
+                    spoiler_flag_summaries.push(self.get_spoiler_flag_summary(&state, flag_vertex_id, flag_id));
+                    spoiler_flag_details.push(self.get_spoiler_flag_details(&state, flag_vertex_id, flag_id));
+                    state.global_state.flags[flag_id] = true;
+                }
+            }
+            if any_new_flag {
+                self.update_reachability(state);
+            } else {
+                break;
+            }
+        }
+
+        let mut unplaced_bireachable: Vec<ItemLocationId> = Vec::new();
+        let mut unplaced_oneway_reachable: Vec<ItemLocationId> = Vec::new();
+        for (i, item_location_state) in state.item_location_state.iter().enumerate() {
+            if item_location_state.placed_item.is_some() {
+                continue;
+            }
+            if item_location_state.bireachable {
+                unplaced_bireachable.push(i);
+            } else if item_location_state.reachable {
+                unplaced_oneway_reachable.push(i);
+            }
+        }
+        unplaced_bireachable.shuffle(rng);
+        unplaced_oneway_reachable.shuffle(rng);
+        let mut attempt_num = 0;
+        let mut new_state: RandomizationState;
+        loop {
+            let select_result = self.select_items(
+                state,
+                unplaced_bireachable.len(),
+                unplaced_oneway_reachable.len(),
+                attempt_num,
+                rng,
+            );
+            if let Some(select_res) = select_result {
+                new_state = RandomizationState {
+                    step_num: state.step_num,
+                    item_precedence: state.item_precedence.clone(),
+                    item_location_state: state.item_location_state.clone(),
+                    flag_location_state: state.flag_location_state.clone(),
+                    items_remaining: select_res.new_items_remaining,
+                    global_state: state.global_state.clone(),
+                    done: false,
+                    debug_data: None,
+                };
+                self.place_items(
+                    &mut new_state,
+                    &unplaced_bireachable,
+                    &unplaced_oneway_reachable,
+                    &select_res.key_items,
+                    &select_res.other_items,
+                );
+                self.collect_items(&mut new_state);
+                if iter::zip(&new_state.items_remaining, &self.initial_items_remaining)
+                    .all(|(x, y)| x < y)
+                {
+                    // At least one instance of each item have been placed. This should be enough
+                    // to ensure the game is beatable, so we are done.
+                    new_state.done = true;
+                    break;
+                } else {
+                    // println!("not all collected:");
+                    // for (i, (x, y)) in iter::zip(&new_state.items_remaining, &self.initial_items_remaining).enumerate() {
+                    //     if x >= y {
+                    //         println!("item={}, remaining={x} ,initial={y}", self.game_data.item_isv.keys[i]);
+                    //     }
+                    // }
+                    // println!("");
+                }
+
+                self.update_reachability(&mut new_state);
+                if iter::zip(&new_state.item_location_state, &state.item_location_state)
+                    .any(|(n, o)| n.bireachable && !o.reachable)
+                {
+                    // Progress: the new items unlock at least one bireachable item location that wasn't reachable before.
+                    break;
+                }
+            } else {
+                println!("Exhausted key item placement attempts");
+                return None;
+            }
+            // println!("attempt failed");
+            attempt_num += 1;
+        }
+        let spoiler_summary = self.get_spoiler_summary(&orig_global_state, state, &new_state, spoiler_flag_summaries);
+        let spoiler_details = self.get_spoiler_details(&orig_global_state, state, &new_state, spoiler_flag_details);
+        *state = new_state;
+        Some((spoiler_summary, spoiler_details))
+    }
+
+    fn get_randomization(
+        &self,
+        state: &RandomizationState,
+        spoiler_summaries: Vec<SpoilerSummary>,
+        spoiler_details: Vec<SpoilerDetails>,
+    ) -> Randomization {
+        let item_placement = state
+            .item_location_state
+            .iter()
+            .map(|x| x.placed_item.unwrap())
+            .collect();
+        let spoiler_log = SpoilerLog {
+            summary: spoiler_summaries,
+            details: spoiler_details,
+        };
+        Randomization {
+            map: self.map.clone(),
+            item_placement,
+            spoiler_log,
+        }
+    }
+
+    pub fn randomize<R: Rng>(&self, rng: &mut R) -> Option<Randomization> {
+        let initial_global_state = {
+            let items = vec![false; self.game_data.item_isv.keys.len()];
+            let weapon_mask = self.game_data.get_weapon_mask(&items);
+            GlobalState {
+                tech: self.get_tech_vec(),
+                items: items,
+                flags: self.get_initial_flag_vec(),
+                max_energy: 99,
+                max_reserves: 0,
+                max_missiles: 0,
+                max_supers: 0,
+                max_power_bombs: 0,
+                weapon_mask: weapon_mask,
+                shine_charge_tiles: self.difficulty.shine_charge_tiles,
+            }
+        };
+
+        let initial_item_location_state = ItemLocationState {
+            placed_item: None,
+            collected: false,
+            reachable: false,
+            bireachable: false,
+            bireachable_vertex_id: None,
+        };
+        let initial_flag_location_state = FlagLocationState {
+            bireachable: false,
+            bireachable_vertex_id: None,
+        };
+        let mut item_precedence: Vec<Item> = (0..self.game_data.item_isv.keys.len())
+            .map(|i| Item::try_from(i).unwrap())
+            .collect();
+        item_precedence.shuffle(rng);
+        let mut state = RandomizationState {
+            step_num: 1,
+            item_precedence,
+            item_location_state: vec![
+                initial_item_location_state;
+                self.game_data.item_locations.len()
+            ],
+            flag_location_state: vec![initial_flag_location_state; self.game_data.flag_locations.len()],
+            items_remaining: self.initial_items_remaining.clone(),
+            global_state: initial_global_state,
+            done: false,
+            debug_data: None,
+        };
+        self.update_reachability(&mut state);
+        if !state.item_location_state.iter().any(|x| x.bireachable) {
+            println!("No initially bireachable item locations");
+            return None;
+        }
+        let mut spoiler_summary_vec: Vec<SpoilerSummary> = Vec::new();
+        let mut spoiler_details_vec: Vec<SpoilerDetails> = Vec::new();
+        while !state.done {
+            let cnt_collected = state
+                .item_location_state
+                .iter()
+                .filter(|x| x.collected)
+                .count();
+            let cnt_placed = state
+                .item_location_state
+                .iter()
+                .filter(|x| x.placed_item.is_some())
+                .count();
+            let cnt_reachable = state
+                .item_location_state
+                .iter()
+                .filter(|x| x.reachable)
+                .count();
+            let cnt_bireachable = state
+                .item_location_state
+                .iter()
+                .filter(|x| x.bireachable)
+                .count();
+            println!("step={0}, bireachable={cnt_bireachable}, reachable={cnt_reachable}, placed={cnt_placed}, collected={cnt_collected}", state.step_num);
+            match self.step(&mut state, rng) {
+                Some((spoiler_summary, spoiler_details)) => {
+                    spoiler_summary_vec.push(spoiler_summary);
+                    spoiler_details_vec.push(spoiler_details);
+                }
+                None => return None,
+            }
+            state.step_num += 1;
+        }
+        self.finish(&mut state);
+        Some(self.get_randomization(&state, spoiler_summary_vec, spoiler_details_vec))
+    }
+}
+
+// Spoiler log ---------------------------------------------------------
+
+#[derive(Serialize, Deserialize)]
+pub struct SpoilerRouteEntry {
+    room: String,
+    node: String,
+    strat_name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    energy_remaining: Option<Capacity>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    reserves_remaining: Option<Capacity>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    missiles_remaining: Option<Capacity>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    supers_remaining: Option<Capacity>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    power_bombs_remaining: Option<Capacity>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct SpoilerLocation {
+    // area: String,
+    room: String,
+    node: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct SpoilerStartState {
+    max_energy: Capacity,
+    max_reserves: Capacity,
+    max_missiles: Capacity,
+    max_supers: Capacity,
+    max_power_bombs: Capacity,
+    items: Vec<String>,
+    flags: Vec<String>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct SpoilerItemDetails {
+    item: String,
+    location: SpoilerLocation,
+    obtain_route: Vec<SpoilerRouteEntry>,
+    return_route: Vec<SpoilerRouteEntry>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct SpoilerFlagDetails {
+    flag: String,
+    location: SpoilerLocation,
+    obtain_route: Vec<SpoilerRouteEntry>,
+    return_route: Vec<SpoilerRouteEntry>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct SpoilerDetails {
+    step: usize,
+    start_state: SpoilerStartState,
+    flags: Vec<SpoilerFlagDetails>,
+    items: Vec<SpoilerItemDetails>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct SpoilerItemSummary {
+    item: String,
+    location: SpoilerLocation,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct SpoilerFlagSummary {
+    flag: String,
+    // area: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct SpoilerSummary {
+    step: usize,
+    flags: Vec<SpoilerFlagSummary>,
+    items: Vec<SpoilerItemSummary>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct SpoilerLog {
+    summary: Vec<SpoilerSummary>,
+    details: Vec<SpoilerDetails>,
+}
+
+impl<'a> Randomizer<'a> {
     fn get_vertex_info(&self, vertex_id: usize) -> VertexInfo {
         let (room_id, node_id, _obstacle_bitmask) = self.game_data.vertex_isv.keys[vertex_id];
         VertexInfo {
@@ -484,6 +731,12 @@ impl<'r> Randomizer<'r> {
                 items.push(self.game_data.item_isv.keys[i].to_string());
             }
         }
+        let mut flags: Vec<String> = Vec::new();
+        for i in 0..self.game_data.flag_isv.keys.len() {
+            if global_state.flags[i] {
+                flags.push(self.game_data.flag_isv.keys[i].to_string());
+            }
+        }
         SpoilerStartState {
             max_energy: global_state.max_energy,
             max_reserves: global_state.max_reserves,
@@ -491,7 +744,7 @@ impl<'r> Randomizer<'r> {
             max_supers: global_state.max_supers,
             max_power_bombs: global_state.max_power_bombs,
             items: items,
-            flags: vec![],
+            flags: flags,
         }
     }
 
@@ -554,10 +807,104 @@ impl<'r> Randomizer<'r> {
         route
     }
 
-    fn get_spoiler_details(
+    fn get_spoiler_route_birectional(
         &self,
         state: &RandomizationState,
-        new_state: &RandomizationState,
+        vertex_id: usize,
+    ) -> (Vec<SpoilerRouteEntry>, Vec<SpoilerRouteEntry>) {
+        let forward_link_idxs: Vec<LinkIdx> = get_spoiler_route(
+            &state.debug_data.as_ref().unwrap().forward,
+            vertex_id,
+            false,
+        );
+        let reverse_link_idxs: Vec<LinkIdx> =
+            get_spoiler_route(&state.debug_data.as_ref().unwrap().reverse, vertex_id, true);
+        let mut local_state = LocalState::new();
+        let obtain_route =
+            self.get_spoiler_route(&state.global_state, &mut local_state, &forward_link_idxs);
+        let return_route =
+            self.get_spoiler_route(&state.global_state, &mut local_state, &reverse_link_idxs);
+        (obtain_route, return_route)
+    }
+
+    fn get_spoiler_item_details(
+        &self,
+        state: &RandomizationState,
+        item_vertex_id: usize,
+        item: Item,
+    ) -> SpoilerItemDetails {
+        let (obtain_route, return_route) =
+            self.get_spoiler_route_birectional(state, item_vertex_id);
+        let item_vertex_info = self.get_vertex_info(item_vertex_id);
+        SpoilerItemDetails {
+            item: Item::VARIANTS[item as usize].to_string(),
+            location: SpoilerLocation {
+                // TODO: Add area
+                room: item_vertex_info.room_name,
+                node: item_vertex_info.node_name,
+            },
+            obtain_route: obtain_route,
+            return_route: return_route,
+        }
+    }
+
+    fn get_spoiler_item_summary(
+        &self,
+        _state: &RandomizationState,
+        item_vertex_id: usize,
+        item: Item,
+    ) -> SpoilerItemSummary {
+        let item_vertex_info = self.get_vertex_info(item_vertex_id);
+        SpoilerItemSummary {
+            item: Item::VARIANTS[item as usize].to_string(),
+            location: SpoilerLocation {
+                // TODO: Add area
+                room: item_vertex_info.room_name,
+                node: item_vertex_info.node_name,
+            },
+        }
+    }
+
+    fn get_spoiler_flag_details(
+        &self,
+        state: &RandomizationState,
+        flag_vertex_id: usize,
+        flag_id: FlagId,
+    ) -> SpoilerFlagDetails {
+        let (obtain_route, return_route) =
+            self.get_spoiler_route_birectional(state, flag_vertex_id);
+        let flag_vertex_info = self.get_vertex_info(flag_vertex_id);
+        SpoilerFlagDetails {
+            flag: self.game_data.flag_isv.keys[flag_id].to_string(),
+            location: SpoilerLocation {
+                // TODO: Add area
+                room: flag_vertex_info.room_name,
+                node: flag_vertex_info.node_name,
+            },
+            obtain_route: obtain_route,
+            return_route: return_route,
+        }
+    }
+
+    fn get_spoiler_flag_summary(
+        &self,
+        _state: &RandomizationState,
+        _flag_vertex_id: usize,
+        flag_id: FlagId,
+    ) -> SpoilerFlagSummary {
+        // let flag_vertex_info = self.get_vertex_info(flag_vertex_id);
+        SpoilerFlagSummary {
+            flag: self.game_data.flag_isv.keys[flag_id].to_string(),
+            // area: (TODO)
+        }
+    }
+
+    fn get_spoiler_details(
+        &self,
+        orig_global_state: &GlobalState,   // Global state before acquiring new flags
+        state: &RandomizationState,  // State after acquiring new flags but not new items
+        new_state: &RandomizationState,  // State after acquiring new flags and new items
+        spoiler_flag_details: Vec<SpoilerFlagDetails>,
     ) -> SpoilerDetails {
         let mut items: Vec<SpoilerItemDetails> = Vec::new();
         for i in 0..self.game_data.item_locations.len() {
@@ -570,246 +917,45 @@ impl<'r> Randomizer<'r> {
                 {
                     let item_vertex_id =
                         state.item_location_state[i].bireachable_vertex_id.unwrap();
-                    let forward_link_idxs: Vec<LinkIdx> = get_spoiler_route(
-                        &state.debug_data.as_ref().unwrap().forward,
-                        item_vertex_id,
-                        false,
-                    );
-                    let reverse_link_idxs: Vec<LinkIdx> = get_spoiler_route(
-                        &state.debug_data.as_ref().unwrap().reverse,
-                        item_vertex_id,
-                        true,
-                    );
-                    let mut local_state = LocalState::new();
-                    let obtain_route = self.get_spoiler_route(
-                        &state.global_state,
-                        &mut local_state,
-                        &forward_link_idxs,
-                    );
-                    let return_route = self.get_spoiler_route(
-                        &state.global_state,
-                        &mut local_state,
-                        &reverse_link_idxs,
-                    );
-                    let item_vertex_info = self.get_vertex_info(item_vertex_id);
-                    items.push(SpoilerItemDetails {
-                        item: Item::VARIANTS[item as usize].to_string(),
-                        location: SpoilerLocation {
-                            // TODO: Add area
-                            room: item_vertex_info.room_name,
-                            node: item_vertex_info.node_name,
-                        },
-                        start_state: self.get_spoiler_start_state(&state.global_state),
-                        obtain_route: obtain_route,
-                        return_route: return_route,
-                    })
+                    items.push(self.get_spoiler_item_details(state, item_vertex_id, item));
                 }
             }
         }
         SpoilerDetails {
             step: state.step_num,
+            start_state: self.get_spoiler_start_state(orig_global_state),
             items,
+            flags: spoiler_flag_details,
         }
     }
 
-    fn step<R: Rng>(&self, state: &mut RandomizationState, rng: &mut R) -> Option<SpoilerDetails> {
-        loop {
-            let mut any_new_flag = false;
-            for i in 0..self.game_data.flag_locations.len() {
-                let flag_id = self.game_data.flag_locations[i].2;
-                if state.global_state.flags[flag_id] {
-                    continue;
-                }
-                if state.flag_bireachable[i] {
-                    any_new_flag = true;
-                    state.global_state.flags[flag_id] = true;
-                }
-            }
-            if any_new_flag {
-                self.update_reachability(state);
-            } else {
-                break;
-            }
-        }
-
-        let mut unplaced_bireachable: Vec<ItemLocationId> = Vec::new();
-        let mut unplaced_oneway_reachable: Vec<ItemLocationId> = Vec::new();
-        for (i, item_location_state) in state.item_location_state.iter().enumerate() {
-            if item_location_state.placed_item.is_some() {
-                continue;
-            }
-            if item_location_state.bireachable {
-                unplaced_bireachable.push(i);
-            } else if item_location_state.reachable {
-                unplaced_oneway_reachable.push(i);
-            }
-        }
-        unplaced_bireachable.shuffle(rng);
-        unplaced_oneway_reachable.shuffle(rng);
-        let mut attempt_num = 0;
-        let mut new_state: RandomizationState;
-        loop {
-            let select_result = self.select_items(
-                state,
-                unplaced_bireachable.len(),
-                unplaced_oneway_reachable.len(),
-                attempt_num,
-                rng,
-            );
-            if let Some(select_res) = select_result {
-                new_state = RandomizationState {
-                    step_num: state.step_num,
-                    item_precedence: state.item_precedence.clone(),
-                    item_location_state: state.item_location_state.clone(),
-                    flag_bireachable: state.flag_bireachable.clone(),
-                    items_remaining: select_res.new_items_remaining,
-                    global_state: state.global_state.clone(),
-                    done: false,
-                    debug_data: None,
-                };
-                self.place_items(
-                    &mut new_state,
-                    &unplaced_bireachable,
-                    &unplaced_oneway_reachable,
-                    &select_res.key_items,
-                    &select_res.other_items,
-                );
-                self.collect_items(&mut new_state);
-                if iter::zip(&new_state.items_remaining, &self.initial_items_remaining)
-                    .all(|(x, y)| x < y)
-                {
-                    // At least one instance of each item have been placed. This should be enough
-                    // to ensure the game is beatable, so we are done.
-                    new_state.done = true;
-                    break;
-                } else {
-                    // println!("not all collected:");
-                    // for (i, (x, y)) in iter::zip(&new_state.items_remaining, &self.initial_items_remaining).enumerate() {
-                    //     if x >= y {
-                    //         println!("item={}, remaining={x} ,initial={y}", self.game_data.item_isv.keys[i]);
-                    //     }
-                    // }
-                    // println!("");
-                }
-
-                self.update_reachability(&mut new_state);
-                if iter::zip(&new_state.item_location_state, &state.item_location_state)
-                    .any(|(n, o)| n.bireachable && !o.reachable)
-                {
-                    // Progress: the new items unlock at least one bireachable item location that wasn't reachable before.
-                    break;
-                }
-            } else {
-                println!("Exhausted key item placement attempts");
-                return None;
-            }
-            // println!("attempt failed");
-            attempt_num += 1;
-        }
-        let spoiler_details = self.get_spoiler_details(state, &new_state);
-        *state = new_state;
-        Some(spoiler_details)
-    }
-
-    fn get_randomization(
+    fn get_spoiler_summary(
         &self,
-        state: &RandomizationState,
-        spoiler_details: Vec<SpoilerDetails>,
-    ) -> Randomization {
-        let item_placement = state
-            .item_location_state
-            .iter()
-            .map(|x| x.placed_item.unwrap())
-            .collect();
-        let spoiler_log = SpoilerLog {
-            details: spoiler_details,
-        };
-        Randomization {
-            map: self.map.clone(),
-            item_placement,
-            spoiler_log,
-        }
-    }
-
-    pub fn randomize<R: Rng>(&self, rng: &mut R) -> Option<Randomization> {
-        let initial_global_state = {
-            let items = vec![false; self.game_data.item_isv.keys.len()];
-            let weapon_mask = self.game_data.get_weapon_mask(&items);
-            GlobalState {
-                tech: self.get_tech_vec(),
-                items: items,
-                flags: self.get_flag_vec(),
-                max_energy: 99,
-                max_reserves: 0,
-                max_missiles: 0,
-                max_supers: 0,
-                max_power_bombs: 0,
-                weapon_mask: weapon_mask,
-                shine_charge_tiles: self.difficulty.shine_charge_tiles,
-            }
-        };
-
-        let initial_item_location_state = ItemLocationState {
-            placed_item: None,
-            collected: false,
-            reachable: false,
-            bireachable: false,
-            bireachable_vertex_id: None,
-        };
-        let mut item_precedence: Vec<Item> = (0..self.game_data.item_isv.keys.len())
-            .map(|i| Item::try_from(i).unwrap())
-            .collect();
-        item_precedence.shuffle(rng);
-        let mut state = RandomizationState {
-            step_num: 1,
-            item_precedence,
-            item_location_state: vec![
-                initial_item_location_state;
-                self.game_data.item_locations.len()
-            ],
-            flag_bireachable: vec![false; self.game_data.flag_locations.len()],
-            items_remaining: self.initial_items_remaining.clone(),
-            global_state: initial_global_state,
-            done: false,
-            debug_data: None,
-        };
-        self.update_reachability(&mut state);
-        if !state.item_location_state.iter().any(|x| x.bireachable) {
-            println!("No initially bireachable item locations");
-            return None;
-        }
-        let mut spoiler_details_vec: Vec<SpoilerDetails> = Vec::new();
-        while !state.done {
-            let cnt_collected = state
-                .item_location_state
-                .iter()
-                .filter(|x| x.collected)
-                .count();
-            let cnt_placed = state
-                .item_location_state
-                .iter()
-                .filter(|x| x.placed_item.is_some())
-                .count();
-            let cnt_reachable = state
-                .item_location_state
-                .iter()
-                .filter(|x| x.reachable)
-                .count();
-            let cnt_bireachable = state
-                .item_location_state
-                .iter()
-                .filter(|x| x.bireachable)
-                .count();
-            println!("step={0}, bireachable={cnt_bireachable}, reachable={cnt_reachable}, placed={cnt_placed}, collected={cnt_collected}", state.step_num);
-            match self.step(&mut state, rng) {
-                Some(spoiler_details) => {
-                    spoiler_details_vec.push(spoiler_details);
+        orig_global_state: &GlobalState,   // Global state before acquiring new flags
+        state: &RandomizationState,  // State after acquiring new flags but not new items
+        new_state: &RandomizationState,  // State after acquiring new flags and new items
+        spoiler_flag_summaries: Vec<SpoilerFlagSummary>,
+    ) -> SpoilerSummary {
+        let mut items: Vec<SpoilerItemSummary> = Vec::new();
+        for i in 0..self.game_data.item_locations.len() {
+            if let Some(item) = new_state.item_location_state[i].placed_item {
+                let first_item = state.items_remaining[item as usize]
+                    == self.initial_items_remaining[item as usize];
+                if first_item
+                    && !state.item_location_state[i].collected
+                    && new_state.item_location_state[i].collected
+                {
+                    let item_vertex_id =
+                        state.item_location_state[i].bireachable_vertex_id.unwrap();
+                    items.push(self.get_spoiler_item_summary(state, item_vertex_id, item));
                 }
-                None => return None,
             }
-            state.step_num += 1;
         }
-        self.finish(&mut state);
-        Some(self.get_randomization(&state, spoiler_details_vec))
+        SpoilerSummary {
+            step: state.step_num,
+            items,
+            flags: spoiler_flag_summaries,
+        }
     }
+
 }

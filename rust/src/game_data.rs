@@ -961,19 +961,20 @@ impl GameData {
 
     fn populate_target_locations(&mut self) {
         // Flags that are relevant to track in the randomizer:
-        let mut flag_set = HashSet::new();
-        flag_set.insert("f_ZebesAwake");
-        flag_set.insert("f_MaridiaTubeBroken");
-        flag_set.insert("f_ShaktoolDoneDigging");
-        flag_set.insert("f_UsedAcidChozoStatue");
-        flag_set.insert("f_DefeatedBotwoon");
-        flag_set.insert("f_DefeatedCrocomire");
-        flag_set.insert("f_DefeatedSporeSpawn");
-        flag_set.insert("f_DefeatedGoldenTorizo");
-        flag_set.insert("f_DefeatedKraid");
-        flag_set.insert("f_DefeatedPhantoon");
-        flag_set.insert("f_DefeatedDraygon");
-        flag_set.insert("f_DefeatedRidley");
+        let flag_set: HashSet<String> = [
+            "f_ZebesAwake",
+            "f_MaridiaTubeBroken",
+            "f_ShaktoolDoneDigging",
+            "f_UsedAcidChozoStatue",
+            "f_DefeatedBotwoon",
+            "f_DefeatedCrocomire",
+            "f_DefeatedSporeSpawn",
+            "f_DefeatedGoldenTorizo",
+            "f_DefeatedKraid",
+            "f_DefeatedPhantoon",
+            "f_DefeatedDraygon",
+            "f_DefeatedRidley",
+        ].iter().map(|x| x.to_string()).collect();
 
         for (&(room_id, node_id), node_json) in &self.node_json_map {
             if node_json["nodeType"] == "item" {
@@ -982,7 +983,9 @@ impl GameData {
             if node_json.has_key("yields") {
                 assert!(node_json["yields"].len() >= 1);
                 let flag_id = self.flag_isv.index_by_key[node_json["yields"][0].as_str().unwrap()];
-                self.flag_locations.push((room_id, node_id, flag_id));
+                if flag_set.contains(&self.flag_isv.keys[flag_id]) {
+                    self.flag_locations.push((room_id, node_id, flag_id));
+                }
             }
         }
 

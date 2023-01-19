@@ -306,8 +306,6 @@ pub fn is_bireachable(global: &GlobalState, forward_local_state: &Option<LocalSt
 pub type StepTrailId = i32;
 pub type LinkIdx = u32;
 
-// TODO: Maybe get rid of the unnecessary cloning of the step trails
-#[derive(Clone)]
 pub struct StepTrail {
     pub prev_trail_id: StepTrailId,
     pub link_idx: LinkIdx,
@@ -353,17 +351,6 @@ pub fn traverse(
     modified_vertices.insert(start_vertex_id);
     while modified_vertices.len() > 0 {
         let mut new_modified_vertices: HashSet<usize> = HashSet::new();
-
-        // println!("new vertices:");
-        // for &v in &modified_vertices {
-        //     let (room_id, node_id, obstacle_bitmask) = game_data.vertex_isv.keys[v];
-        //     let room_name = &game_data.room_json_map[&room_id]["name"];
-        //     let node_name = &game_data.node_json_map[&(room_id, node_id)]["name"];
-        //     println!("vertex={v}, room='{room_name}', node='{node_name}' ({obstacle_bitmask})");
-    
-        // }
-        // println!("end");
-
         for &src_id in &modified_vertices {
             let src_local_state = result.local_states[src_id].unwrap();
             let src_trail_id = result.start_trail_ids[src_id].unwrap();

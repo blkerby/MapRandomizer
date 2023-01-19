@@ -1,6 +1,6 @@
 use maprando::game_data::Map;
-use maprando::{game_data::GameData, item_placement::DifficultyConfig, patch::make_rom};
-use maprando::item_placement::{Randomizer, ItemPlacementStrategy, Randomization};
+use maprando::{game_data::GameData, randomize::DifficultyConfig, patch::make_rom};
+use maprando::randomize::{Randomizer, ItemPlacementStrategy, Randomization};
 use rand::SeedableRng;
 use std::{path::{Path, PathBuf}};
 use clap::Parser;
