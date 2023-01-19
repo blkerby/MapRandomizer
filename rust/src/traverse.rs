@@ -228,9 +228,13 @@ pub fn apply_requirement(
             if global.items[Item::SpeedBooster as usize] && *used_tiles <= global.shine_charge_tiles
             {
                 let mut new_local = local;
-                new_local.energy_used += shinespark_frames;
-                // TODO: handle this more accurately, to take into account the 29 energy limit:
-                validate_energy(new_local, global)
+                new_local.energy_used += shinespark_frames + 29;
+                if let Some(mut new_local) = validate_energy(new_local, global) {
+                    new_local.energy_used -= 29;
+                    Some(new_local)
+                } else {
+                    None
+                }
             } else {
                 None
             }
@@ -298,7 +302,7 @@ pub fn traverse(
     num_vertices: usize,
     start_vertex_id: usize,
     reverse: bool,
-    game_data: &GameData,
+    _game_data: &GameData,  // May be used for debugging
 ) -> TraverseResult {
     let mut result = TraverseResult {
         local_states: vec![None; num_vertices],
