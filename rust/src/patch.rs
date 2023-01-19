@@ -1,10 +1,11 @@
 use std::path::Path;
 
 use crate::{
-    game_data::{GameData, Item},
+    game_data::{DoorPtrPair, GameData, Item, NodePtr},
     randomize::Randomization,
 };
-use anyhow::{Context, Result, ensure};
+use anyhow::{ensure, Context, Result};
+use hashbrown::HashMap;
 use ips;
 use std::iter;
 
@@ -36,14 +37,20 @@ impl Rom {
     }
 
     pub fn read_u16(&self, addr: usize) -> Result<isize> {
-        ensure!(addr + 2 <= self.data.len(), "read_u16 address out of bounds");
+        ensure!(
+            addr + 2 <= self.data.len(),
+            "read_u16 address out of bounds"
+        );
         let b0 = self.data[addr] as isize;
         let b1 = self.data[addr + 1] as isize;
         Ok(b0 | b1 << 8)
     }
 
     pub fn read_u24(&self, addr: usize) -> Result<isize> {
-        ensure!(addr + 3 <= self.data.len(), "read_u24 address out of bounds");
+        ensure!(
+            addr + 3 <= self.data.len(),
+            "read_u24 address out of bounds"
+        );
         let b0 = self.data[addr] as isize;
         let b1 = self.data[addr + 1] as isize;
         let b2 = self.data[addr + 2] as isize;
@@ -56,14 +63,20 @@ impl Rom {
     }
 
     pub fn write_u8(&mut self, addr: usize, x: isize) -> Result<()> {
-        ensure!(addr + 1 <= self.data.len(), "write_u8 address out of bounds");
+        ensure!(
+            addr + 1 <= self.data.len(),
+            "write_u8 address out of bounds"
+        );
         ensure!(x >= 0 && x <= 0xFF, "write_u8 data does not fit");
         self.data[addr] = x as u8;
         Ok(())
     }
 
     pub fn write_u16(&mut self, addr: usize, x: isize) -> Result<()> {
-        ensure!(addr + 2 <= self.data.len(), "write_u16 address out of bounds");
+        ensure!(
+            addr + 2 <= self.data.len(),
+            "write_u16 address out of bounds"
+        );
         ensure!(x >= 0 && x <= 0xFFFF, "write_u16 data does not fit");
         self.data[addr] = (x & 0xFF) as u8;
         self.data[addr + 1] = (x >> 8) as u8;
@@ -71,7 +84,10 @@ impl Rom {
     }
 
     pub fn write_u24(&mut self, addr: usize, x: isize) -> Result<()> {
-        ensure!(addr + 3 <= self.data.len(), "write_u24 address out of bounds");
+        ensure!(
+            addr + 3 <= self.data.len(),
+            "write_u24 address out of bounds"
+        );
         ensure!(x >= 0 && x <= 0xFFFFFF, "write_u24 data does not fit");
         self.data[addr] = (x & 0xFF) as u8;
         self.data[addr + 1] = ((x >> 8) & 0xFF) as u8;
@@ -80,7 +96,10 @@ impl Rom {
     }
 
     pub fn write_n(&mut self, addr: usize, x: &[u8]) -> Result<()> {
-        ensure!(addr + x.len() <= self.data.len(), "write_n address out of bounds");
+        ensure!(
+            addr + x.len() <= self.data.len(),
+            "write_n address out of bounds"
+        );
         self.data[addr..(addr + x.len())].copy_from_slice(x);
         Ok(())
     }
@@ -99,7 +118,7 @@ fn xy_to_map_offset(x: isize, y: isize) -> isize {
         (y1 * 32 + x) * 2
     } else {
         ((y1 + 32) * 32 + x - 32) * 2
-    }   
+    }
 }
 
 fn item_to_plm_type(item: Item, orig_plm_type: isize) -> isize {
@@ -173,6 +192,70 @@ impl<'a> Patcher<'a> {
         }
         Ok(())
     }
+
+    fn connect_door_pair(
+        &mut self,
+        src_exit_ptr: Option<usize>,
+        src_entrance_ptr: Option<usize>,
+        dst_exit_ptr: Option<usize>,
+        dst_entrance_ptr: Option<usize>,
+    ) -> Result<()> {
+        if src_exit_ptr.is_some() && dst_entrance_ptr.is_some() {
+            let door_data = self.orig_rom.read_n(dst_entrance_ptr.unwrap(), 12)?;
+            self.rom.write_n(src_exit_ptr.unwrap(), door_data)?;
+        }
+        if dst_exit_ptr.is_some() && src_entrance_ptr.is_some() {
+            let door_data = self.orig_rom.read_n(src_entrance_ptr.unwrap(), 12)?;
+            self.rom.write_n(dst_exit_ptr.unwrap(), door_data)?;
+        }
+        Ok(())
+    }
+
+    fn connect_doors(&mut self) -> Result<()> {
+        for &((src_exit_ptr, src_entrance_ptr), (dst_exit_ptr, dst_entrance_ptr), bidirectional) in
+            &self.randomization.map.doors
+        {
+            self.connect_door_pair(
+                src_exit_ptr,
+                src_entrance_ptr,
+                dst_exit_ptr,
+                dst_entrance_ptr,
+            )?;
+        }
+        Ok(())
+    }
+
+    fn fix_save_stations(&mut self) -> Result<()> {
+        let save_station_ptrs = vec![
+            0x44C5, 0x44D3, 0x45CF, 0x45DD, 0x45EB, 0x45F9, 0x4607, 0x46D9, 0x46E7, 0x46F5, 0x4703,
+            0x4711, 0x471F, 0x481B, 0x4917, 0x4925, 0x4933, 0x4941, 0x4A2F, 0x4A3D,
+        ];
+
+        let mut orig_door_map: HashMap<NodePtr, NodePtr> = HashMap::new();
+        let mut new_door_map: HashMap<NodePtr, NodePtr> = HashMap::new();
+        for &((src_exit_ptr, src_entrance_ptr), (dst_exit_ptr, dst_entrance_ptr), _bidirectional) in
+            &self.randomization.map.doors
+        {
+            if src_exit_ptr.is_some() && src_entrance_ptr.is_some() {
+                orig_door_map.insert(src_exit_ptr.unwrap(), src_entrance_ptr.unwrap());
+            }
+            if dst_exit_ptr.is_some() && dst_entrance_ptr.is_some() {
+                orig_door_map.insert(dst_exit_ptr.unwrap(), dst_entrance_ptr.unwrap());
+            }
+            if src_exit_ptr.is_some() && dst_exit_ptr.is_some() {
+                new_door_map.insert(src_exit_ptr.unwrap(), dst_exit_ptr.unwrap());
+                new_door_map.insert(dst_exit_ptr.unwrap(), src_exit_ptr.unwrap());
+            }
+        }
+
+        for ptr in save_station_ptrs {
+            let orig_entrance_door_ptr = (self.orig_rom.read_u16(ptr + 2)? + 0x10000) as NodePtr;
+            let exit_door_ptr = orig_door_map[&orig_entrance_door_ptr];
+            let entrance_door_ptr = new_door_map[&exit_door_ptr];
+            self.rom.write_u16(ptr + 2, (entrance_door_ptr & 0xFFFF) as isize)?;
+        }
+        Ok(())
+    }
 }
 
 pub fn make_rom(
@@ -190,5 +273,7 @@ pub fn make_rom(
     };
     patcher.apply_ips_patches()?;
     patcher.place_items()?;
+    patcher.connect_doors()?;
+    patcher.fix_save_stations()?;
     Ok(rom)
 }
