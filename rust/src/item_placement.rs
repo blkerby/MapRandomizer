@@ -1,9 +1,8 @@
 use crate::{
-    game_data::{self, Item, ItemLocationId, Link, NodePtr, VertexId},
+    game_data::{self, Item, ItemLocationId, Link, VertexId, Map},
     traverse::{is_bireachable, traverse, GlobalState},
 };
 use hashbrown::HashSet;
-use json::JsonValue;
 use rand::{seq::SliceRandom, Rng};
 use std::{cmp::min, convert::TryFrom, iter};
 
@@ -25,6 +24,7 @@ pub struct DifficultyConfig {
 
 // Includes preprocessing specific to the map:
 pub struct Randomizer<'a> {
+    pub map: &'a Map,
     pub game_data: &'a GameData,
     pub difficulty: &'a DifficultyConfig,
     pub links: Vec<Link>,
@@ -50,24 +50,15 @@ struct ItemLocationState {
 struct RandomizationState {
     item_precedence: Vec<Item>, // An ordering of the 21 distinct item names. The game will prioritize placing key items earlier in the list.
     item_location_state: Vec<ItemLocationState>, // Corresponds to GameData.item_locations (one record for each of 100 item locations)
-    flag_bireachable: Vec<bool>,  // Corresponds to GameData.flag_locations
+    flag_bireachable: Vec<bool>,                 // Corresponds to GameData.flag_locations
     items_remaining: Vec<usize>, // Corresponds to GameData.items_isv (one count for each of 21 distinct item names)
     global_state: GlobalState,
 }
 
 pub struct Randomization {
+    pub map: Map,
     pub item_placement: Vec<Item>,
     // TODO: add spoiler log
-}
-
-fn parse_door_ptr(x: &JsonValue) -> Option<NodePtr> {
-    if x.is_number() {
-        Some(x.as_usize().unwrap())
-    } else if x.is_null() {
-        None
-    } else {
-        panic!("Unexpected door pointer: {}", x);
-    }
 }
 
 struct SelectItemsOutput {
@@ -78,18 +69,17 @@ struct SelectItemsOutput {
 
 impl<'r> Randomizer<'r> {
     pub fn new(
-        map: &'r JsonValue,
+        map: &'r Map,
         difficulty: &'r DifficultyConfig,
         game_data: &'r GameData,
     ) -> Randomizer<'r> {
-        assert!(map["doors"].is_array());
         let mut door_edges: Vec<(VertexId, VertexId)> = Vec::new();
-        for door_json in map["doors"].members() {
-            let src_exit_ptr = parse_door_ptr(&door_json[0][0]);
-            let src_entrance_ptr = parse_door_ptr(&door_json[0][1]);
-            let dst_exit_ptr = parse_door_ptr(&door_json[1][0]);
-            let dst_entrance_ptr = parse_door_ptr(&door_json[1][1]);
-            let bidirectional = door_json[2].as_bool().unwrap();
+        for door in &map.doors {
+            let src_exit_ptr = door.0.0;
+            let src_entrance_ptr = door.0.1;
+            let dst_exit_ptr = door.1.0;
+            let dst_entrance_ptr = door.1.1;
+            let bidirectional = door.2;
             let (src_room_id, src_node_id) =
                 game_data.door_ptr_pair_map[&(src_exit_ptr, src_entrance_ptr)];
             let (dst_room_id, dst_node_id) =
@@ -130,6 +120,7 @@ impl<'r> Randomizer<'r> {
         assert!(initial_items_remaining.iter().sum::<usize>() == game_data.item_locations.len());
 
         Randomizer {
+            map,
             initial_items_remaining,
             game_data,
             links,
@@ -393,7 +384,7 @@ impl<'r> Randomizer<'r> {
         for item_loc_state in &mut state.item_location_state {
             if item_loc_state.placed_item.is_none() {
                 item_loc_state.placed_item = Some(remaining_items[idx]);
-                idx += 1;    
+                idx += 1;
             }
         }
         assert!(idx == remaining_items.len());
@@ -494,7 +485,10 @@ impl<'r> Randomizer<'r> {
             .iter()
             .map(|x| x.placed_item.unwrap())
             .collect();
-        Randomization { item_placement }
+        Randomization {
+            map: self.map.clone(),
+            item_placement,
+        }
     }
 
     pub fn randomize<R: Rng>(&self, rng: &mut R) -> Option<Randomization> {
@@ -542,10 +536,26 @@ impl<'r> Randomizer<'r> {
         }
         let mut step_num = 1;
         loop {
-            let cnt_collected = state.item_location_state.iter().filter(|x| x.collected).count();
-            let cnt_placed = state.item_location_state.iter().filter(|x| x.placed_item.is_some()).count();
-            let cnt_reachable = state.item_location_state.iter().filter(|x| x.reachable).count();
-            let cnt_bireachable = state.item_location_state.iter().filter(|x| x.bireachable).count();
+            let cnt_collected = state
+                .item_location_state
+                .iter()
+                .filter(|x| x.collected)
+                .count();
+            let cnt_placed = state
+                .item_location_state
+                .iter()
+                .filter(|x| x.placed_item.is_some())
+                .count();
+            let cnt_reachable = state
+                .item_location_state
+                .iter()
+                .filter(|x| x.reachable)
+                .count();
+            let cnt_bireachable = state
+                .item_location_state
+                .iter()
+                .filter(|x| x.bireachable)
+                .count();
             println!("step={step_num}, bireachable={cnt_bireachable}, reachable={cnt_reachable}, placed={cnt_placed}, collected={cnt_collected}");
             match self.step(&mut state, rng) {
                 StepResult::Progress => {}

@@ -6,6 +6,7 @@ from rando.music_patch import make_subareas
 import logging
 import argparse
 from rando.balance_utilities import balance_utilities
+from rando.music_patch import rerank_areas
 
 logging.basicConfig(format='%(asctime)s %(message)s',
                     level=logging.INFO,
@@ -31,11 +32,11 @@ end_index = args.end_index
 for i in range(start_index, end_index):
     file = file_list[i]
     new_path = f'{out_map_dir}/{file}'
-    if os.
     map = json.load(open(f'{map_dir}/{file}', 'r'))
     new_map = balance_utilities(map)
     if new_map is None:
         logging.info(f"{i} ({file}): failed")
         continue
+    new_map = rerank_areas(new_map)
     json.dump(new_map, open(new_path, 'w'))
     logging.info(f"{i} ({file}): success")
