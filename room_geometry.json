@@ -1,6 +1,7 @@
 [
   {
     "name": "The Moat",
+    "area": 0,
     "rom_address": 497151,
     "map": [
       [1, 1],
@@ -30,6 +31,7 @@
   },
   {
     "name": "Landing Site",
+    "area": 0,
     "rom_address": 496120,
     "map": [
       [0, 0, 1, 1, 1, 1, 1, 1, 1],
@@ -78,6 +80,7 @@
   },
   {
     "name": "Crateria Tube",
+    "area": 0,
     "rom_address": 497108,
     "map": [[1]],
     "doors": [
@@ -104,6 +107,7 @@
   },
   {
     "name": "Parlor and Alcatraz",
+    "area": 0,
     "rom_address": 496381,
     "map": [
       [1, 1, 1, 1, 1],
@@ -176,6 +180,7 @@
   },
   {
     "name": "Climb",
+    "area": 0,
     "rom_address": 497338,
     "map": [
       [0, 1, 1],
@@ -236,6 +241,7 @@
   },
   {
     "name": "Pit Room",
+    "area": 0,
     "rom_address": 497500,
     "map": [
       [1, 1, 1],
@@ -265,6 +271,7 @@
   },
   {
     "name": "Flyway",
+    "area": 0,
     "rom_address": 497785,
     "map": [[1, 1, 1]],
     "doors": [
@@ -291,6 +298,7 @@
   },
   {
     "name": "Pre-Map Flyway",
+    "area": 0,
     "rom_address": 497890,
     "map": [[1, 1, 1]],
     "doors": [
@@ -317,6 +325,7 @@
   },
   {
     "name": "Crateria Map Room",
+    "area": 0,
     "rom_address": 498068,
     "map": [[1]],
     "doors": [
@@ -335,6 +344,7 @@
   },
   {
     "name": "Crateria Save Room",
+    "area": 0,
     "rom_address": 496597,
     "map": [[1]],
     "doors": [
@@ -353,6 +363,7 @@
   },
   {
     "name": "The Final Missile",
+    "area": 0,
     "rom_address": 498320,
     "map": [[1]],
     "doors": [
@@ -371,6 +382,7 @@
   },
   {
     "name": "Final Missile Bombway",
+    "area": 0,
     "rom_address": 498244,
     "map": [[1, 1]],
     "doors": [
@@ -397,6 +409,7 @@
   },
   {
     "name": "Bomb Torizo Room",
+    "area": 0,
     "rom_address": 497668,
     "map": [[1]],
     "doors": [
@@ -415,6 +428,7 @@
   },
   {
     "name": "Terminator Room",
+    "area": 0,
     "rom_address": 497933,
     "map": [
       [0, 0, 0, 1, 1, 1],
@@ -445,6 +459,7 @@
   },
   {
     "name": "Green Pirates Shaft",
+    "area": 0,
     "rom_address": 498109,
     "map": [[1], [1], [1], [1], [1], [1], [1]],
     "doors": [
@@ -487,6 +502,7 @@
   },
   {
     "name": "Lower Mushrooms",
+    "area": 0,
     "rom_address": 498025,
     "map": [[1, 1, 1, 1]],
     "doors": [
@@ -513,6 +529,7 @@
   },
   {
     "name": "Green Brinstar Elevator Room",
+    "area": 0,
     "rom_address": 497976,
     "map": [[1], [1], [1], [1]],
     "doors": [
@@ -539,6 +556,7 @@
   },
   {
     "name": "Crateria Kihunter Room",
+    "area": 0,
     "rom_address": 496780,
     "map": [
       [1, 1, 1],
@@ -577,6 +595,7 @@
   },
   {
     "name": "Statues Hallway",
+    "area": 0,
     "rom_address": 501229,
     "map": [[1, 1, 1, 1, 1]],
     "doors": [
@@ -603,6 +622,7 @@
   },
   {
     "name": "Red Brinstar Elevator Room",
+    "area": 0,
     "rom_address": 497194,
     "map": [[1], [1], [1], [1]],
     "doors": [
@@ -629,6 +649,7 @@
   },
   {
     "name": "Blue Brinstar Elevator Room",
+    "area": 0,
     "rom_address": 497589,
     "map": [[1], [1], [1], [1]],
     "doors": [
@@ -655,6 +676,7 @@
   },
   {
     "name": "Statues Room",
+    "area": 0,
     "rom_address": 501354,
     "map": [[1], [1], [1], [1], [1]],
     "doors": [
@@ -681,6 +703,7 @@
   },
   {
     "name": "Crateria Power Bomb Room",
+    "area": 0,
     "rom_address": 496554,
     "map": [[1, 1]],
     "doors": [
@@ -699,6 +722,7 @@
   },
   {
     "name": "Crateria Super Room",
+    "area": 0,
     "rom_address": 498169,
     "map": [
       [1, 1, 1, 1],
@@ -734,6 +758,7 @@
   },
   {
     "name": "Gauntlet Entrance",
+    "area": 0,
     "rom_address": 496307,
     "map": [[1, 1, 1, 1, 1]],
     "doors": [
@@ -760,6 +785,7 @@
   },
   {
     "name": "Gauntlet Energy Tank Room",
+    "area": 0,
     "rom_address": 497243,
     "map": [[1, 1, 1, 1, 1, 1]],
     "doors": [
@@ -786,6 +812,7 @@
   },
   {
     "name": "West Ocean",
+    "area": 0,
     "rom_address": 496638,
     "map": [
       [1, 1, 1, 1, 1, 1, 1, 1],
@@ -871,6 +898,7 @@
   },
   {
     "name": "Bowling Alley Path",
+    "area": 0,
     "rom_address": 496737,
     "map": [[1, 1]],
     "doors": [
@@ -897,6 +925,7 @@
   },
   {
     "name": "East Ocean",
+    "area": 0,
     "rom_address": 496893,
     "map": [
       [0, 0, 0, 0, 0, 0, 0],
@@ -930,6 +959,7 @@
   },
   {
     "name": "Forgotten Highway Kago Room",
+    "area": 0,
     "rom_address": 496978,
     "map": [[1], [1], [1], [1]],
     "doors": [
@@ -956,6 +986,7 @@
   },
   {
     "name": "Crab Maze",
+    "area": 0,
     "rom_address": 497021,
     "map": [
       [1, 1, 1, 1],
@@ -985,6 +1016,7 @@
   },
   {
     "name": "Forgotten Highway Elevator",
+    "area": 0,
     "rom_address": 496844,
     "map": [[1], [1], [1], [1]],
     "doors": [
@@ -1011,6 +1043,7 @@
   },
   {
     "name": "Forgotten Highway Elbow",
+    "area": 0,
     "rom_address": 497064,
     "map": [[1]],
     "doors": [
@@ -1037,6 +1070,7 @@
   },
   {
     "name": "Red Tower",
+    "area": 1,
     "rom_address": 500307,
     "map": [[1], [1], [1], [1], [1], [1], [1], [1], [1], [1]],
     "doors": [
@@ -1087,6 +1121,7 @@
   },
   {
     "name": "Red Brinstar Fireflea Room",
+    "area": 1,
     "rom_address": 500371,
     "map": [
       [1, 1, 1, 1, 1, 1, 1, 1],
@@ -1116,6 +1151,7 @@
   },
   {
     "name": "X-Ray Scope Room",
+    "area": 1,
     "rom_address": 500430,
     "map": [[1, 1]],
     "doors": [
@@ -1134,6 +1170,7 @@
   },
   {
     "name": "Bat Room",
+    "area": 1,
     "rom_address": 500701,
     "map": [[1, 1]],
     "doors": [
@@ -1160,6 +1197,7 @@
   },
   {
     "name": "Below Spazer",
+    "area": 1,
     "rom_address": 500744,
     "map": [
       [1, 1],
@@ -1197,6 +1235,7 @@
   },
   {
     "name": "Spazer Room",
+    "area": 1,
     "rom_address": 500807,
     "map": [[1]],
     "doors": [
@@ -1215,6 +1254,7 @@
   },
   {
     "name": "Hellway",
+    "area": 1,
     "rom_address": 500471,
     "map": [[1, 1, 1]],
     "doors": [
@@ -1241,6 +1281,7 @@
   },
   {
     "name": "Caterpillar Room",
+    "area": 1,
     "rom_address": 500514,
     "map": [
       [1, 0, 0],
@@ -1308,6 +1349,7 @@
   },
   {
     "name": "Alpha Power Bomb Room",
+    "area": 1,
     "rom_address": 500654,
     "map": [[1, 1, 1]],
     "doors": [
@@ -1326,6 +1368,7 @@
   },
   {
     "name": "Beta Power Bomb Room",
+    "area": 1,
     "rom_address": 500604,
     "map": [
       [1, 1],
@@ -1347,6 +1390,7 @@
   },
   {
     "name": "Caterpillar Save Room",
+    "area": 1,
     "rom_address": 501556,
     "map": [[1]],
     "doors": [
@@ -1365,6 +1409,7 @@
   },
   {
     "name": "Sloaters Refill",
+    "area": 1,
     "rom_address": 501272,
     "map": [[1]],
     "doors": [
@@ -1383,6 +1428,7 @@
   },
   {
     "name": "Morph Ball Room",
+    "area": 1,
     "rom_address": 499359,
     "map": [
       [0, 0, 0, 0, 0, 1, 0, 0],
@@ -1421,6 +1467,7 @@
   },
   {
     "name": "Construction Zone",
+    "area": 1,
     "rom_address": 499473,
     "map": [[1], [1]],
     "doors": [
@@ -1455,6 +1502,7 @@
   },
   {
     "name": "First Missile Room",
+    "area": 1,
     "rom_address": 499975,
     "map": [[1]],
     "doors": [
@@ -1473,6 +1521,7 @@
   },
   {
     "name": "Blue Brinstar Energy Tank Room",
+    "area": 1,
     "rom_address": 499556,
     "map": [
       [0, 0, 1],
@@ -1503,6 +1552,7 @@
   },
   {
     "name": "Blue Brinstar Boulder Room",
+    "area": 1,
     "rom_address": 500141,
     "map": [[1, 1]],
     "doors": [
@@ -1529,6 +1579,7 @@
   },
   {
     "name": "Billy Mays Room",
+    "area": 1,
     "rom_address": 500184,
     "map": [[1]],
     "doors": [
@@ -1547,6 +1598,7 @@
   },
   {
     "name": "Green Brinstar Main Shaft",
+    "area": 1,
     "rom_address": 498393,
     "map": [
       [1, 0, 0, 0],
@@ -1650,6 +1702,7 @@
   },
   {
     "name": "Early Supers Room",
+    "area": 1,
     "rom_address": 498632,
     "map": [
       [1, 1, 1],
@@ -1679,6 +1732,7 @@
   },
   {
     "name": "Brinstar Reserve Tank Room",
+    "area": 1,
     "rom_address": 498695,
     "map": [[1, 1]],
     "doors": [
@@ -1697,6 +1751,7 @@
   },
   {
     "name": "Brinstar Pre-Map Room",
+    "area": 1,
     "rom_address": 498589,
     "map": [[1, 1, 1]],
     "doors": [
@@ -1723,6 +1778,7 @@
   },
   {
     "name": "Brinstar Map Room",
+    "area": 1,
     "rom_address": 498741,
     "map": [[1]],
     "doors": [
@@ -1741,6 +1797,7 @@
   },
   {
     "name": "Green Brinstar Fireflea Room",
+    "area": 1,
     "rom_address": 498782,
     "map": [
       [1, 1, 1],
@@ -1770,6 +1827,7 @@
   },
   {
     "name": "Green Brinstar Missile Refill Room",
+    "area": 1,
     "rom_address": 498825,
     "map": [[1]],
     "doors": [
@@ -1788,6 +1846,7 @@
   },
   {
     "name": "Green Brinstar Main Shaft Save Room",
+    "area": 1,
     "rom_address": 500225,
     "map": [[1]],
     "doors": [
@@ -1806,6 +1865,7 @@
   },
   {
     "name": "Etecoon Save Room",
+    "area": 1,
     "rom_address": 500266,
     "map": [[1]],
     "doors": [
@@ -1824,6 +1884,7 @@
   },
   {
     "name": "Green Brinstar Beetom Room",
+    "area": 1,
     "rom_address": 499685,
     "map": [[1]],
     "doors": [
@@ -1850,6 +1911,7 @@
   },
   {
     "name": "Etecoon Energy Tank Room",
+    "area": 1,
     "rom_address": 499729,
     "map": [
       [1, 1, 0, 0, 0],
@@ -1898,6 +1960,7 @@
   },
   {
     "name": "Etecoon Super Room",
+    "area": 1,
     "rom_address": 499793,
     "map": [[1]],
     "doors": [
@@ -1916,6 +1979,7 @@
   },
   {
     "name": "Green Hill Zone",
+    "area": 1,
     "rom_address": 499282,
     "map": [
       [1, 1, 0, 0, 0, 0, 0, 0],
@@ -1955,6 +2019,7 @@
   },
   {
     "name": "Noob Bridge",
+    "area": 1,
     "rom_address": 499642,
     "map": [[1, 1, 1, 1, 1, 1]],
     "doors": [
@@ -1981,6 +2046,7 @@
   },
   {
     "name": "Spore Spawn Kihunter Room",
+    "area": 1,
     "rom_address": 499100,
     "map": [[1, 1, 1, 1]],
     "doors": [
@@ -2007,6 +2073,7 @@
   },
   {
     "name": "Spore Spawn Room",
+    "area": 1,
     "rom_address": 499143,
     "map": [[1], [1], [1]],
     "doors": [
@@ -2033,6 +2100,7 @@
   },
   {
     "name": "Dachora Room",
+    "area": 1,
     "rom_address": 498867,
     "map": [
       [1, 1, 1, 1, 1, 1, 1],
@@ -2075,6 +2143,7 @@
   },
   {
     "name": "Dachora Energy Refill Room",
+    "area": 1,
     "rom_address": 499835,
     "map": [[1]],
     "doors": [
@@ -2093,6 +2162,7 @@
   },
   {
     "name": "Big Pink",
+    "area": 1,
     "rom_address": 498969,
     "map": [
       [0, 1, 1, 1, 0],
@@ -2189,6 +2259,7 @@
   },
   {
     "name": "Big Pink Save Room",
+    "area": 1,
     "rom_address": 500100,
     "map": [[1]],
     "doors": [
@@ -2207,6 +2278,7 @@
   },
   {
     "name": "Pink Brinstar Power Bomb Room",
+    "area": 1,
     "rom_address": 499217,
     "map": [
       [1, 1],
@@ -2236,6 +2308,7 @@
   },
   {
     "name": "Pink Brinstar Hopper Room",
+    "area": 1,
     "rom_address": 500016,
     "map": [
       [1, 1],
@@ -2265,6 +2338,7 @@
   },
   {
     "name": "Hopper Energy Tank Room",
+    "area": 1,
     "rom_address": 500059,
     "map": [[1]],
     "doors": [
@@ -2283,6 +2357,7 @@
   },
   {
     "name": "Spore Spawn Super Room",
+    "area": 1,
     "rom_address": 498523,
     "map": [
       [1, 1],
@@ -2319,6 +2394,7 @@
   },
   {
     "name": "Spore Spawn Farming Room",
+    "area": 1,
     "rom_address": 499876,
     "map": [[1, 1, 1]],
     "doors": [
@@ -2345,6 +2421,7 @@
   },
   {
     "name": "Waterway Energy Tank Room",
+    "area": 1,
     "rom_address": 499922,
     "map": [[1, 1, 1, 1, 1, 1, 1]],
     "doors": [
@@ -2363,6 +2440,7 @@
   },
   {
     "name": "Warehouse Entrance",
+    "area": 1,
     "rom_address": 501409,
     "map": [
       [1, 1, 1],
@@ -2400,6 +2478,7 @@
   },
   {
     "name": "Warehouse Zeela Room",
+    "area": 1,
     "rom_address": 500849,
     "map": [
       [1, 0],
@@ -2437,6 +2516,7 @@
   },
   {
     "name": "Warehouse Energy Tank Room",
+    "area": 1,
     "rom_address": 500913,
     "map": [[1]],
     "doors": [
@@ -2455,6 +2535,7 @@
   },
   {
     "name": "Warehouse Kihunter Room",
+    "area": 1,
     "rom_address": 500954,
     "map": [
       [1, 1, 1, 1],
@@ -2492,6 +2573,7 @@
   },
   {
     "name": "Warehouse Save Room",
+    "area": 1,
     "rom_address": 501515,
     "map": [[1]],
     "doors": [
@@ -2510,6 +2592,7 @@
   },
   {
     "name": "Baby Kraid Room",
+    "area": 1,
     "rom_address": 501025,
     "map": [[1, 1, 1, 1, 1, 1]],
     "doors": [
@@ -2536,6 +2619,7 @@
   },
   {
     "name": "Kraid Eye Door Room",
+    "area": 1,
     "rom_address": 501099,
     "map": [
       [1, 0],
@@ -2573,6 +2657,7 @@
   },
   {
     "name": "Kraid Recharge Station",
+    "area": 1,
     "rom_address": 501313,
     "map": [[1]],
     "doors": [
@@ -2591,6 +2676,7 @@
   },
   {
     "name": "Kraid Room",
+    "area": 1,
     "rom_address": 501151,
     "map": [
       [1, 1],
@@ -2620,6 +2706,7 @@
   },
   {
     "name": "Varia Suit Room",
+    "area": 1,
     "rom_address": 501474,
     "map": [[1]],
     "doors": [
@@ -2638,6 +2725,7 @@
   },
   {
     "name": "West Tunnel",
+    "area": 4,
     "rom_address": 511828,
     "map": [[1]],
     "doors": [
@@ -2664,6 +2752,7 @@
   },
   {
     "name": "East Tunnel",
+    "area": 4,
     "rom_address": 511872,
     "map": [
       [1, 1, 1, 1],
@@ -2701,6 +2790,7 @@
   },
   {
     "name": "Glass Tunnel",
+    "area": 4,
     "rom_address": 511739,
     "map": [[1], [1], [1]],
     "doors": [
@@ -2743,6 +2833,7 @@
   },
   {
     "name": "Glass Tunnel Save Room",
+    "area": 4,
     "rom_address": 511698,
     "map": [[1]],
     "doors": [
@@ -2761,6 +2852,7 @@
   },
   {
     "name": "Main Street",
+    "area": 4,
     "rom_address": 511945,
     "map": [
       [1, 1, 0],
@@ -2820,6 +2912,7 @@
   },
   {
     "name": "Fish Tank",
+    "area": 4,
     "rom_address": 512023,
     "map": [
       [1, 1, 1, 1],
@@ -2866,6 +2959,7 @@
   },
   {
     "name": "Mt. Everest",
+    "area": 4,
     "rom_address": 512185,
     "map": [
       [1, 1, 1, 1, 1, 1],
@@ -2929,6 +3023,7 @@
   },
   {
     "name": "Crab Shaft",
+    "area": 4,
     "rom_address": 512419,
     "map": [
       [1, 0],
@@ -2968,6 +3063,7 @@
   },
   {
     "name": "Crab Tunnel",
+    "area": 4,
     "rom_address": 512138,
     "map": [[1, 1, 1, 1]],
     "doors": [
@@ -2994,6 +3090,7 @@
   },
   {
     "name": "Red Fish Room",
+    "area": 4,
     "rom_address": 512260,
     "map": [
       [1, 1, 1],
@@ -3023,6 +3120,7 @@
   },
   {
     "name": "Mama Turtle Room",
+    "area": 4,
     "rom_address": 512085,
     "map": [
       [0, 1, 1],
@@ -3046,6 +3144,7 @@
   },
   {
     "name": "Pseudo Plasma Spark Room",
+    "area": 4,
     "rom_address": 512477,
     "map": [
       [1, 1, 1, 1],
@@ -3076,6 +3175,7 @@
   },
   {
     "name": "Northwest Maridia Bug Room",
+    "area": 4,
     "rom_address": 512365,
     "map": [
       [1, 0, 0, 0],
@@ -3105,6 +3205,7 @@
   },
   {
     "name": "Watering Hole",
+    "area": 4,
     "rom_address": 512315,
     "map": [
       [1, 1],
@@ -3127,6 +3228,7 @@
   },
   {
     "name": "Aqueduct Save Room",
+    "area": 4,
     "rom_address": 513893,
     "map": [[1]],
     "doors": [
@@ -3145,6 +3247,7 @@
   },
   {
     "name": "Aqueduct",
+    "area": 4,
     "rom_address": 513447,
     "map": [
       [0, 0, 1, 0, 0, 0],
@@ -3233,6 +3336,7 @@
   },
   {
     "name": "Botwoon Hallway",
+    "area": 4,
     "rom_address": 513559,
     "map": [[1, 1, 1, 1]],
     "doors": [
@@ -3259,6 +3363,7 @@
   },
   {
     "name": "Botwoon's Room",
+    "area": 4,
     "rom_address": 514398,
     "map": [[1, 1]],
     "doors": [
@@ -3285,6 +3390,7 @@
   },
   {
     "name": "Botwoon Energy Tank Room",
+    "area": 4,
     "rom_address": 514020,
     "map": [[1, 1, 1, 1, 1, 1, 1]],
     "doors": [
@@ -3330,6 +3436,7 @@
   },
   {
     "name": "Halfie Climb Room",
+    "area": 4,
     "rom_address": 514323,
     "map": [
       [1, 0, 0, 0, 0],
@@ -3376,6 +3483,7 @@
   },
   {
     "name": "Maridia Missile Refill Room",
+    "area": 4,
     "rom_address": 514117,
     "map": [[1]],
     "doors": [
@@ -3394,6 +3502,7 @@
   },
   {
     "name": "Colosseum",
+    "area": 4,
     "rom_address": 513834,
     "map": [
       [1, 1, 1, 1, 1, 1, 1],
@@ -3431,6 +3540,7 @@
   },
   {
     "name": "Draygon Save Room",
+    "area": 4,
     "rom_address": 514074,
     "map": [[1]],
     "doors": [
@@ -3457,6 +3567,7 @@
   },
   {
     "name": "Maridia Health Refill Room",
+    "area": 4,
     "rom_address": 514516,
     "map": [[1]],
     "doors": [
@@ -3475,6 +3586,7 @@
   },
   {
     "name": "The Precious Room",
+    "area": 4,
     "rom_address": 513935,
     "map": [
       [1, 1],
@@ -3505,6 +3617,7 @@
   },
   {
     "name": "Draygon's Room",
+    "area": 4,
     "rom_address": 514656,
     "map": [
       [1, 1],
@@ -3534,6 +3647,7 @@
   },
   {
     "name": "Space Jump Room",
+    "area": 4,
     "rom_address": 514474,
     "map": [[1]],
     "doors": [
@@ -3552,6 +3666,7 @@
   },
   {
     "name": "West Cactus Alley Room",
+    "area": 4,
     "rom_address": 514558,
     "map": [[1], [1]],
     "doors": [
@@ -3578,6 +3693,7 @@
   },
   {
     "name": "East Cactus Alley Room",
+    "area": 4,
     "rom_address": 514603,
     "map": [
       [1, 1, 1, 1, 1],
@@ -3607,6 +3723,7 @@
   },
   {
     "name": "Plasma Spark Room",
+    "area": 4,
     "rom_address": 512832,
     "map": [
       [0, 1, 1, 0],
@@ -3656,6 +3773,7 @@
   },
   {
     "name": "Oasis",
+    "area": 4,
     "rom_address": 513166,
     "map": [[1], [1]],
     "doors": [
@@ -3690,6 +3808,7 @@
   },
   {
     "name": "West Sand Hall",
+    "area": 4,
     "rom_address": 513121,
     "map": [[1, 1, 1, 1]],
     "doors": [
@@ -3724,6 +3843,7 @@
   },
   {
     "name": "West Sand Hall Tunnel",
+    "area": 4,
     "rom_address": 512594,
     "map": [[1]],
     "doors": [
@@ -3750,6 +3870,7 @@
   },
   {
     "name": "Maridia Map Room",
+    "area": 4,
     "rom_address": 512950,
     "map": [[1]],
     "doors": [
@@ -3768,6 +3889,7 @@
   },
   {
     "name": "Botwoon Quicksand Room",
+    "area": 4,
     "rom_address": 514200,
     "map": [[1, 1]],
     "doors": [
@@ -3813,6 +3935,7 @@
   },
   {
     "name": "Below Botwoon Energy Tank",
+    "area": 4,
     "rom_address": 513789,
     "map": [[1, 1, 1, 1]],
     "doors": [
@@ -3850,6 +3973,7 @@
   },
   {
     "name": "West Aqueduct Quicksand Room",
+    "area": 4,
     "rom_address": 513357,
     "map": [[1], [1]],
     "doors": [
@@ -3876,6 +4000,7 @@
   },
   {
     "name": "East Aqueduct Quicksand Room",
+    "area": 4,
     "rom_address": 513402,
     "map": [[1], [1]],
     "doors": [
@@ -3902,6 +4027,7 @@
   },
   {
     "name": "East Sand Hole",
+    "area": 4,
     "rom_address": 513310,
     "map": [
       [1, 1],
@@ -3931,6 +4057,7 @@
   },
   {
     "name": "West Sand Hole",
+    "area": 4,
     "rom_address": 513263,
     "map": [
       [1, 1],
@@ -3960,6 +4087,7 @@
   },
   {
     "name": "East Sand Hall",
+    "area": 4,
     "rom_address": 513218,
     "map": [[1, 1, 1]],
     "doors": [
@@ -3994,6 +4122,7 @@
   },
   {
     "name": "Bug Sand Hole",
+    "area": 4,
     "rom_address": 513075,
     "map": [[1]],
     "doors": [
@@ -4028,6 +4157,7 @@
   },
   {
     "name": "Plasma Beach Quicksand Room",
+    "area": 4,
     "rom_address": 514158,
     "map": [[1]],
     "doors": [
@@ -4054,6 +4184,7 @@
   },
   {
     "name": "Butterfly Room",
+    "area": 4,
     "rom_address": 513516,
     "map": [[1]],
     "doors": [
@@ -4088,6 +4219,7 @@
   },
   {
     "name": "Thread The Needle Room",
+    "area": 4,
     "rom_address": 512729,
     "map": [[1, 1, 1, 1, 1, 1, 1]],
     "doors": [
@@ -4114,6 +4246,7 @@
   },
   {
     "name": "Maridia Elevator Room",
+    "area": 4,
     "rom_address": 512779,
     "map": [[1], [1], [1], [1], [1], [1]],
     "doors": [
@@ -4148,6 +4281,7 @@
   },
   {
     "name": "Forgotten Highway Save Room",
+    "area": 4,
     "rom_address": 512991,
     "map": [[1]],
     "doors": [
@@ -4166,6 +4300,7 @@
   },
   {
     "name": "Kassiuz Room",
+    "area": 4,
     "rom_address": 512903,
     "map": [[1], [1], [1], [1]],
     "doors": [
@@ -4192,6 +4327,7 @@
   },
   {
     "name": "Plasma Tutorial Room",
+    "area": 4,
     "rom_address": 512638,
     "map": [[1]],
     "doors": [
@@ -4218,6 +4354,7 @@
   },
   {
     "name": "Plasma Room",
+    "area": 4,
     "rom_address": 512682,
     "map": [
       [1, 1],
@@ -4240,6 +4377,7 @@
   },
   {
     "name": "Pants Room",
+    "area": 4,
     "rom_address": 513606,
     "map": [
       [1, 1],
@@ -4287,6 +4425,7 @@
   },
   {
     "name": "Shaktool Room",
+    "area": 4,
     "rom_address": 514245,
     "map": [[1, 1, 1, 1]],
     "doors": [
@@ -4313,6 +4452,7 @@
   },
   {
     "name": "Spring Ball Room",
+    "area": 4,
     "rom_address": 513744,
     "map": [
       [1, 0],
@@ -4334,6 +4474,7 @@
   },
   {
     "name": "Crab Hole",
+    "area": 4,
     "rom_address": 512540,
     "map": [[1], [1]],
     "doors": [
@@ -4376,6 +4517,7 @@
   },
   {
     "name": "Main Hall",
+    "area": 2,
     "rom_address": 504374,
     "map": [
       [0, 0, 0, 0, 1, 0, 0, 0],
@@ -4414,6 +4556,7 @@
   },
   {
     "name": "Fast Pillars Setup Room",
+    "area": 2,
     "rom_address": 504741,
     "map": [[1], [1], [1]],
     "doors": [
@@ -4456,6 +4599,7 @@
   },
   {
     "name": "Pillar Room",
+    "area": 2,
     "rom_address": 504919,
     "map": [[1, 1, 1, 1]],
     "doors": [
@@ -4482,6 +4626,7 @@
   },
   {
     "name": "The Worst Room In The Game",
+    "area": 2,
     "rom_address": 505005,
     "map": [[1], [1], [1], [1], [1], [1]],
     "doors": [
@@ -4516,6 +4661,7 @@
   },
   {
     "name": "Amphitheatre",
+    "area": 2,
     "rom_address": 505061,
     "map": [
       [0, 1, 1, 1],
@@ -4548,6 +4694,7 @@
   },
   {
     "name": "Red Kihunter Shaft",
+    "area": 2,
     "rom_address": 505221,
     "map": [
       [1, 0, 0],
@@ -4596,6 +4743,7 @@
   },
   {
     "name": "Red Kihunter Shaft Save Room",
+    "area": 2,
     "rom_address": 505665,
     "map": [[1]],
     "doors": [
@@ -4614,6 +4762,7 @@
   },
   {
     "name": "Wasteland",
+    "area": 2,
     "rom_address": 505301,
     "map": [
       [1, 1, 1, 1, 1, 1],
@@ -4644,6 +4793,7 @@
   },
   {
     "name": "Metal Pirates Room",
+    "area": 2,
     "rom_address": 505387,
     "map": [[1, 1, 1]],
     "doors": [
@@ -4670,6 +4820,7 @@
   },
   {
     "name": "Plowerhouse Room",
+    "area": 2,
     "rom_address": 504962,
     "map": [[1, 1, 1]],
     "doors": [
@@ -4696,6 +4847,7 @@
   },
   {
     "name": "Lower Norfair Farming Room",
+    "area": 2,
     "rom_address": 504698,
     "map": [[1, 1, 1]],
     "doors": [
@@ -4722,6 +4874,7 @@
   },
   {
     "name": "Ridley's Room",
+    "area": 2,
     "rom_address": 504622,
     "map": [[1], [1]],
     "doors": [
@@ -4748,6 +4901,7 @@
   },
   {
     "name": "Ridley Tank Room",
+    "area": 2,
     "rom_address": 505496,
     "map": [[1]],
     "doors": [
@@ -4766,6 +4920,7 @@
   },
   {
     "name": "Mickey Mouse Room",
+    "area": 2,
     "rom_address": 504842,
     "map": [
       [0, 0, 0, 1],
@@ -4797,6 +4952,7 @@
   },
   {
     "name": "Lower Norfair Fireflea Room",
+    "area": 2,
     "rom_address": 505582,
     "map": [
       [1, 1, 0],
@@ -4838,6 +4994,7 @@
   },
   {
     "name": "Lower Norfair Spring Ball Maze Room",
+    "area": 2,
     "rom_address": 505104,
     "map": [
       [1, 1, 1, 1, 1],
@@ -4875,6 +5032,7 @@
   },
   {
     "name": "Lower Norfair Escape Power Bomb Room",
+    "area": 2,
     "rom_address": 505178,
     "map": [[1]],
     "doors": [
@@ -4901,6 +5059,7 @@
   },
   {
     "name": "Three Musketeers' Room",
+    "area": 2,
     "rom_address": 505430,
     "map": [
       [0, 1, 0, 0],
@@ -4931,6 +5090,7 @@
   },
   {
     "name": "Acid Statue Room",
+    "area": 2,
     "rom_address": 504293,
     "map": [
       [1, 1, 0],
@@ -4961,6 +5121,7 @@
   },
   {
     "name": "Golden Torizo's Room",
+    "area": 2,
     "rom_address": 504451,
     "map": [
       [1, 1],
@@ -4990,6 +5151,7 @@
   },
   {
     "name": "Screw Attack Room",
+    "area": 2,
     "rom_address": 505537,
     "map": [[1], [1], [1]],
     "doors": [
@@ -5024,6 +5186,7 @@
   },
   {
     "name": "Golden Torizo Energy Recharge",
+    "area": 2,
     "rom_address": 504581,
     "map": [[1]],
     "doors": [
@@ -5042,6 +5205,7 @@
   },
   {
     "name": "Fast Ripper Room",
+    "area": 2,
     "rom_address": 504538,
     "map": [[1, 1, 1, 1]],
     "doors": [
@@ -5068,6 +5232,7 @@
   },
   {
     "name": "Business Center",
+    "area": 2,
     "rom_address": 501726,
     "map": [[1], [1], [1], [1], [1], [1], [1]],
     "doors": [
@@ -5134,6 +5299,7 @@
   },
   {
     "name": "Norfair Map Room",
+    "area": 2,
     "rom_address": 503988,
     "map": [[1]],
     "doors": [
@@ -5152,6 +5318,7 @@
   },
   {
     "name": "Hi Jump Energy Tank Room",
+    "area": 2,
     "rom_address": 502337,
     "map": [
       [1, 1],
@@ -5181,6 +5348,7 @@
   },
   {
     "name": "Hi Jump Boots Room",
+    "area": 2,
     "rom_address": 502245,
     "map": [[1]],
     "doors": [
@@ -5199,6 +5367,7 @@
   },
   {
     "name": "Cathedral Entrance",
+    "area": 2,
     "rom_address": 501683,
     "map": [
       [1, 1, 1],
@@ -5228,6 +5397,7 @@
   },
   {
     "name": "Cathedral",
+    "area": 2,
     "rom_address": 501640,
     "map": [
       [1, 1, 1],
@@ -5257,6 +5427,7 @@
   },
   {
     "name": "Rising Tide",
+    "area": 2,
     "rom_address": 503715,
     "map": [[1, 1, 1, 1, 1]],
     "doors": [
@@ -5283,6 +5454,7 @@
   },
   {
     "name": "Frog Speedway",
+    "area": 2,
     "rom_address": 504070,
     "map": [[1, 1, 1, 1, 1, 1, 1, 1]],
     "doors": [
@@ -5309,6 +5481,7 @@
   },
   {
     "name": "Upper Norfair Farming Room",
+    "area": 2,
     "rom_address": 503666,
     "map": [
       [1, 1],
@@ -5346,6 +5519,7 @@
   },
   {
     "name": "Purple Shaft",
+    "area": 2,
     "rom_address": 503519,
     "map": [[1], [1], [1]],
     "doors": [
@@ -5380,6 +5554,7 @@
   },
   {
     "name": "Purple Farming Room",
+    "area": 2,
     "rom_address": 503889,
     "map": [[1]],
     "doors": [
@@ -5398,6 +5573,7 @@
   },
   {
     "name": "Frog Savestation",
+    "area": 2,
     "rom_address": 504167,
     "map": [[1]],
     "doors": [
@@ -5424,6 +5600,7 @@
   },
   {
     "name": "Bubble Mountain",
+    "area": 2,
     "rom_address": 502963,
     "map": [
       [1, 1],
@@ -5495,6 +5672,7 @@
   },
   {
     "name": "Bubble Mountain Save Room",
+    "area": 2,
     "rom_address": 504029,
     "map": [[1]],
     "doors": [
@@ -5513,6 +5691,7 @@
   },
   {
     "name": "Green Bubbles Missile Room",
+    "area": 2,
     "rom_address": 502915,
     "map": [[1, 1]],
     "doors": [
@@ -5539,6 +5718,7 @@
   },
   {
     "name": "Norfair Reserve Tank Room",
+    "area": 2,
     "rom_address": 502874,
     "map": [[1, 1]],
     "doors": [
@@ -5557,6 +5737,7 @@
   },
   {
     "name": "Bat Cave",
+    "area": 2,
     "rom_address": 503930,
     "map": [[1], [1]],
     "doors": [
@@ -5583,6 +5764,7 @@
   },
   {
     "name": "Speed Booster Hall",
+    "area": 2,
     "rom_address": 503024,
     "map": [
       [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
@@ -5612,6 +5794,7 @@
   },
   {
     "name": "Speed Booster Room",
+    "area": 2,
     "rom_address": 503067,
     "map": [[1]],
     "doors": [
@@ -5630,6 +5813,7 @@
   },
   {
     "name": "Single Chamber",
+    "area": 2,
     "rom_address": 503134,
     "map": [
       [1, 1, 1, 1, 1, 1],
@@ -5685,6 +5869,7 @@
   },
   {
     "name": "Double Chamber",
+    "area": 2,
     "rom_address": 503213,
     "map": [
       [1, 1, 1, 1],
@@ -5722,6 +5907,7 @@
   },
   {
     "name": "Wave Beam Room",
+    "area": 2,
     "rom_address": 503262,
     "map": [[1]],
     "doors": [
@@ -5740,6 +5926,7 @@
   },
   {
     "name": "Ice Beam Gate Room",
+    "area": 2,
     "rom_address": 501781,
     "map": [
       [0, 0, 0, 1, 0, 0, 0],
@@ -5787,6 +5974,7 @@
   },
   {
     "name": "Ice Beam Acid Room",
+    "area": 2,
     "rom_address": 501597,
     "map": [[1, 1]],
     "doors": [
@@ -5813,6 +6001,7 @@
   },
   {
     "name": "Ice Beam Snake Room",
+    "area": 2,
     "rom_address": 501945,
     "map": [
       [1, 0],
@@ -5851,6 +6040,7 @@
   },
   {
     "name": "Ice Beam Room",
+    "area": 2,
     "rom_address": 501904,
     "map": [[1]],
     "doors": [
@@ -5869,6 +6059,7 @@
   },
   {
     "name": "Ice Beam Tutorial Room",
+    "area": 2,
     "rom_address": 501861,
     "map": [[1, 1]],
     "doors": [
@@ -5895,6 +6086,7 @@
   },
   {
     "name": "Crumble Shaft",
+    "area": 2,
     "rom_address": 502008,
     "map": [[1], [1], [1], [1]],
     "doors": [
@@ -5921,6 +6113,7 @@
   },
   {
     "name": "Nutella Refill",
+    "area": 2,
     "rom_address": 503846,
     "map": [[1]],
     "doors": [
@@ -5947,6 +6140,7 @@
   },
   {
     "name": "Spiky Acid Snakes Tunnel",
+    "area": 2,
     "rom_address": 503803,
     "map": [[1, 1, 1, 1]],
     "doors": [
@@ -5973,6 +6167,7 @@
   },
   {
     "name": "Kronic Boost Room",
+    "area": 2,
     "rom_address": 503412,
     "map": [
       [0, 1],
@@ -6019,6 +6214,7 @@
   },
   {
     "name": "Magdollite Tunnel",
+    "area": 2,
     "rom_address": 503476,
     "map": [[1, 1, 1]],
     "doors": [
@@ -6045,6 +6241,7 @@
   },
   {
     "name": "Lava Dive Room",
+    "area": 2,
     "rom_address": 503572,
     "map": [
       [1, 1, 1, 1],
@@ -6075,6 +6272,7 @@
   },
   {
     "name": "Volcano Room",
+    "area": 2,
     "rom_address": 503346,
     "map": [
       [0, 0, 1],
@@ -6105,6 +6303,7 @@
   },
   {
     "name": "Spiky Platforms Tunnel",
+    "area": 2,
     "rom_address": 503303,
     "map": [[1, 1, 1, 1]],
     "doors": [
@@ -6131,6 +6330,7 @@
   },
   {
     "name": "Red Pirate Shaft",
+    "area": 2,
     "rom_address": 504121,
     "map": [[1], [1], [1]],
     "doors": [
@@ -6157,6 +6357,7 @@
   },
   {
     "name": "Acid Snakes Tunnel",
+    "area": 2,
     "rom_address": 503758,
     "map": [[1, 1, 1, 1]],
     "doors": [
@@ -6191,6 +6392,7 @@
   },
   {
     "name": "Crocomire Speedway",
+    "area": 2,
     "rom_address": 502051,
     "map": [
       [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
@@ -6245,6 +6447,7 @@
   },
   {
     "name": "Crocomire Escape",
+    "area": 2,
     "rom_address": 502286,
     "map": [
       [1, 1, 1, 1],
@@ -6274,6 +6477,7 @@
   },
   {
     "name": "Crocomire's Room",
+    "area": 2,
     "rom_address": 502157,
     "map": [[1, 1, 1, 1, 1, 1, 1, 1]],
     "doors": [
@@ -6300,6 +6504,7 @@
   },
   {
     "name": "Post Crocomire Farming Room",
+    "area": 2,
     "rom_address": 502402,
     "map": [
       [1, 1],
@@ -6345,6 +6550,7 @@
   },
   {
     "name": "Post Crocomire Power Bomb Room",
+    "area": 2,
     "rom_address": 502494,
     "map": [[1]],
     "doors": [
@@ -6363,6 +6569,7 @@
   },
   {
     "name": "Post Crocomire Shaft",
+    "area": 2,
     "rom_address": 502535,
     "map": [[1], [1], [1], [1], [1]],
     "doors": [
@@ -6405,6 +6612,7 @@
   },
   {
     "name": "Post Crocomire Missile Room",
+    "area": 2,
     "rom_address": 502587,
     "map": [[1, 1, 1, 1]],
     "doors": [
@@ -6423,6 +6631,7 @@
   },
   {
     "name": "Post Crocomire Jump Room",
+    "area": 2,
     "rom_address": 502671,
     "map": [
       [1, 1, 1, 1, 1, 0, 0, 0],
@@ -6453,6 +6662,7 @@
   },
   {
     "name": "Grapple Beam Room",
+    "area": 2,
     "rom_address": 502827,
     "map": [[1], [1], [1]],
     "doors": [
@@ -6479,6 +6689,7 @@
   },
   {
     "name": "Grapple Tutorial Room 1",
+    "area": 2,
     "rom_address": 502784,
     "map": [[1, 1]],
     "doors": [
@@ -6505,6 +6716,7 @@
   },
   {
     "name": "Grapple Tutorial Room 2",
+    "area": 2,
     "rom_address": 502738,
     "map": [[1], [1], [1]],
     "doors": [
@@ -6531,6 +6743,7 @@
   },
   {
     "name": "Grapple Tutorial Room 3",
+    "area": 2,
     "rom_address": 502628,
     "map": [
       [1, 1, 1],
@@ -6560,6 +6773,7 @@
   },
   {
     "name": "Crocomire Save Room",
+    "area": 2,
     "rom_address": 504210,
     "map": [[1]],
     "doors": [
@@ -6578,6 +6792,7 @@
   },
   {
     "name": "Post Crocomire Save Room",
+    "area": 2,
     "rom_address": 502453,
     "map": [[1]],
     "doors": [
@@ -6596,6 +6811,7 @@
   },
   {
     "name": "Lower Norfair Elevator",
+    "area": 2,
     "rom_address": 503615,
     "map": [[1]],
     "doors": [
@@ -6630,6 +6846,7 @@
   },
   {
     "name": "Lower Norfair Elevator Save Room",
+    "area": 2,
     "rom_address": 504251,
     "map": [[1]],
     "doors": [
@@ -6648,6 +6865,7 @@
   },
   {
     "name": "Wrecked Ship Entrance",
+    "area": 3,
     "rom_address": 510472,
     "map": [[1, 1, 1, 1]],
     "doors": [
@@ -6674,6 +6892,7 @@
   },
   {
     "name": "Wrecked Ship Main Shaft",
+    "area": 3,
     "rom_address": 510710,
     "map": [
       [0, 0, 0, 0, 1, 0],
@@ -6749,6 +6968,7 @@
   },
   {
     "name": "Attic",
+    "area": 3,
     "rom_address": 510546,
     "map": [[1, 1, 1, 1, 1, 1, 1]],
     "doors": [
@@ -6783,6 +7003,7 @@
   },
   {
     "name": "Basement",
+    "area": 3,
     "rom_address": 511087,
     "map": [[1, 1, 1, 1, 1]],
     "doors": [
@@ -6817,6 +7038,7 @@
   },
   {
     "name": "Wrecked Ship Map Room",
+    "area": 3,
     "rom_address": 511179,
     "map": [[1]],
     "doors": [
@@ -6835,6 +7057,7 @@
   },
   {
     "name": "Phantoon's Room",
+    "area": 3,
     "rom_address": 511251,
     "map": [[1]],
     "doors": [
@@ -6853,6 +7076,7 @@
   },
   {
     "name": "Wrecked Ship West Super Room",
+    "area": 3,
     "rom_address": 511400,
     "map": [[1]],
     "doors": [
@@ -6871,6 +7095,7 @@
   },
   {
     "name": "Bowling Alley",
+    "area": 3,
     "rom_address": 510350,
     "map": [
       [0, 0, 1, 1, 1, 1],
@@ -6909,6 +7134,7 @@
   },
   {
     "name": "Gravity Suit Room",
+    "area": 3,
     "rom_address": 511552,
     "map": [[1]],
     "doors": [
@@ -6935,6 +7161,7 @@
   },
   {
     "name": "Wrecked Ship East Super Room",
+    "area": 3,
     "rom_address": 511473,
     "map": [[1, 1, 1, 1]],
     "doors": [
@@ -6953,6 +7180,7 @@
   },
   {
     "name": "Sponge Bath",
+    "area": 3,
     "rom_address": 511324,
     "map": [[1, 1]],
     "doors": [
@@ -6979,6 +7207,7 @@
   },
   {
     "name": "Spiky Death Room",
+    "area": 3,
     "rom_address": 510859,
     "map": [[1, 1]],
     "doors": [
@@ -7005,6 +7234,7 @@
   },
   {
     "name": "Electric Death Room",
+    "area": 3,
     "rom_address": 510933,
     "map": [[1], [1], [1]],
     "doors": [
@@ -7039,6 +7269,7 @@
   },
   {
     "name": "Wrecked Ship Energy Tank Room",
+    "area": 3,
     "rom_address": 511015,
     "map": [
       [1, 1, 1],
@@ -7060,6 +7291,7 @@
   },
   {
     "name": "Assembly Line",
+    "area": 3,
     "rom_address": 510638,
     "map": [[1, 1, 1]],
     "doors": [
@@ -7078,6 +7310,7 @@
   },
   {
     "name": "Wrecked Ship Save Room",
+    "area": 3,
     "rom_address": 511626,
     "map": [[1]],
     "doors": [
@@ -7096,6 +7329,7 @@
   },
   {
     "name": "Tourian First Room",
+    "area": 5,
     "rom_address": 514734,
     "map": [[1], [1], [1], [1]],
     "doors": [
@@ -7130,6 +7364,7 @@
   },
   {
     "name": "Tourian Map Room",
+    "area": 5,
     "rom_address": 515867,
     "map": [[1]],
     "doors": [
@@ -7148,6 +7383,7 @@
   },
   {
     "name": "Metroid Room 1",
+    "area": 5,
     "rom_address": 514785,
     "map": [[1, 1, 1, 1, 1, 1]],
     "doors": [
@@ -7174,6 +7410,7 @@
   },
   {
     "name": "Metroid Room 2",
+    "area": 5,
     "rom_address": 514865,
     "map": [[1], [1]],
     "doors": [
@@ -7200,6 +7437,7 @@
   },
   {
     "name": "Metroid Room 3",
+    "area": 5,
     "rom_address": 514941,
     "map": [[1, 1, 1, 1, 1, 1]],
     "doors": [
@@ -7226,6 +7464,7 @@
   },
   {
     "name": "Metroid Room 4",
+    "area": 5,
     "rom_address": 515021,
     "map": [[1], [1]],
     "doors": [
@@ -7252,6 +7491,7 @@
   },
   {
     "name": "Blue Hopper Room",
+    "area": 5,
     "rom_address": 515097,
     "map": [[1, 1]],
     "doors": [
@@ -7278,6 +7518,7 @@
   },
   {
     "name": "Dust Torizo Room",
+    "area": 5,
     "rom_address": 515173,
     "map": [[1, 1]],
     "doors": [
@@ -7304,6 +7545,7 @@
   },
   {
     "name": "Big Boy Room",
+    "area": 5,
     "rom_address": 515249,
     "map": [[1, 1, 1, 1]],
     "doors": [
@@ -7330,6 +7572,7 @@
   },
   {
     "name": "Seaweed Room",
+    "area": 5,
     "rom_address": 515327,
     "map": [[1], [1]],
     "doors": [
@@ -7364,6 +7607,7 @@
   },
   {
     "name": "Tourian Recharge Room",
+    "area": 5,
     "rom_address": 515374,
     "map": [[1]],
     "doors": [
@@ -7382,6 +7626,7 @@
   },
   {
     "name": "Tourian Eye Door Room",
+    "area": 5,
     "rom_address": 515524,
     "map": [[1, 1, 1, 1]],
     "doors": [
@@ -7408,6 +7653,7 @@
   },
   {
     "name": "Rinka Shaft",
+    "area": 5,
     "rom_address": 515571,
     "map": [[1], [1], [1]],
     "doors": [
@@ -7442,6 +7688,7 @@
   },
   {
     "name": "Lower Tourian Save Room",
+    "area": 5,
     "rom_address": 515619,
     "map": [[1]],
     "doors": [
@@ -7460,6 +7707,7 @@
   },
   {
     "name": "Mother Brain Room",
+    "area": 5,
     "rom_address": 515416,
     "map": [[1, 1, 1, 1]],
     "doors": [
@@ -7486,6 +7734,7 @@
   },
   {
     "name": "Tourian Escape Room 1",
+    "area": 5,
     "rom_address": 515661,
     "map": [[1, 1]],
     "doors": [
@@ -7512,6 +7761,7 @@
   },
   {
     "name": "Tourian Escape Room 2",
+    "area": 5,
     "rom_address": 515706,
     "map": [[1], [1]],
     "doors": [
@@ -7538,6 +7788,7 @@
   },
   {
     "name": "Tourian Escape Room 3",
+    "area": 5,
     "rom_address": 515751,
     "map": [
       [1, 1, 1, 1, 1, 1],
@@ -7567,6 +7818,7 @@
   },
   {
     "name": "Tourian Escape Room 4",
+    "area": 5,
     "rom_address": 515806,
     "map": [
       [1, 1, 1],
