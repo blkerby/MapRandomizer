@@ -128,6 +128,19 @@ fn xy_to_map_offset(x: isize, y: isize) -> isize {
     }
 }
 
+fn xy_to_explored_bit_ptr(x: isize, y: isize) -> (isize, u8) {
+    let y1 = y + 1;
+    let offset_in_bits = if x < 32 {
+        y1 * 32 + x
+    } else {
+        (y1 + 32) * 32 + x - 32
+    };
+    let offset_byte_part = offset_in_bits / 8;
+    let offset_bit_part = 7 - offset_in_bits % 8;
+    let offset_bitmask = 1 << offset_bit_part;
+    (offset_byte_part, offset_bitmask)
+}
+
 fn item_to_plm_type(item: Item, orig_plm_type: isize) -> isize {
     let item_id = item as isize;
     let old_item_id = ((orig_plm_type - 0xEED7) / 4) % 21;
@@ -189,7 +202,8 @@ impl<'a> Patcher<'a> {
             "title_map_animation",
             "fast_reload",
         ];
-        patches.push("new_game_extra");
+        patches.push("new_game");
+        // patches.push("new_game_extra");
         // "new_game_extra' if args.debug else 'new_game",
         for patch_name in patches {
             let patch_path = patches_dir.join(patch_name.to_string() + ".ips");
