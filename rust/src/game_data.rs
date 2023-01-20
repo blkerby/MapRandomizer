@@ -2,7 +2,7 @@ use anyhow::{bail, Context, Result};
 use hashbrown::{HashMap, HashSet};
 use json::{self, JsonValue};
 use num_enum::TryFromPrimitive;
-use serde_derive::{Deserialize, Serialize};
+use serde_derive::{Deserialize};
 use std::borrow::ToOwned;
 use std::fs::File;
 use std::hash::Hash;
@@ -10,16 +10,16 @@ use std::path::{Path, PathBuf};
 use strum::VariantNames;
 use strum_macros::{EnumString, EnumVariantNames};
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Deserialize, Clone)]
 pub struct Map {
-    pub rooms: Vec<(usize, usize)>,  // (x, y) of upper-left corner of room on map
+    pub rooms: Vec<(usize, usize)>, // (x, y) of upper-left corner of room on map
     pub doors: Vec<(
-        (Option<usize>, Option<usize>),  // Source (exit_ptr, entrance_ptr)
-        (Option<usize>, Option<usize>),  // Destination (exit_ptr, entrance_ptr)
-        bool,  // bidirectional
+        (Option<usize>, Option<usize>), // Source (exit_ptr, entrance_ptr)
+        (Option<usize>, Option<usize>), // Destination (exit_ptr, entrance_ptr)
+        bool,                           // bidirectional
     )>,
-    pub area: Vec<usize>,  // Area number: 0, 1, 2, 3, 4, or 5
-    pub subarea: Vec<usize>,  // Subarea number: 0 or 1
+    pub area: Vec<usize>,    // Area number: 0, 1, 2, 3, 4, or 5
+    pub subarea: Vec<usize>, // Subarea number: 0 or 1
 }
 
 pub type TechId = usize; // Index into GameData.tech_isv.keys: distinct tech names from sm-json-data
@@ -106,6 +106,35 @@ pub struct Link {
     pub strat_name: String,
 }
 
+// fn parse_int(s: &str) -> serde::Deserializer::Error {
+
+// }
+
+#[derive(Deserialize, Default)]
+pub struct RoomGeometryDoor {
+    pub direction: String,
+    pub x: usize,
+    pub y: usize,
+    pub exit_ptr: Option<usize>,
+    pub entrance_ptr: Option<usize>,
+    pub subtype: String,
+}
+
+type RoomGeometryRoomIdx = usize;
+type RoomGeometryDoorIdx = usize;
+type RoomGeometryPartIdx = usize;
+
+#[derive(Deserialize, Default)]
+pub struct RoomGeometry {
+    pub name: String,
+    pub rom_address: usize,
+    pub map: Vec<Vec<u8>>,
+    pub doors: Vec<RoomGeometryDoor>,
+    pub parts: Vec<Vec<RoomGeometryDoorIdx>>,
+    pub durable_part_connections: Vec<(RoomGeometryPartIdx, RoomGeometryPartIdx)>,
+    pub transient_part_connections: Vec<(RoomGeometryPartIdx, RoomGeometryPartIdx)>,
+}
+
 // TODO: Clean this up, pulling out a separate structure to hold
 // temporary data used only during loading, and replacing any
 // remaining JsonValue types in the main struct with something
@@ -136,6 +165,8 @@ pub struct GameData {
     pub flag_locations: Vec<(RoomId, NodeId, FlagId)>,
     pub flag_vertex_ids: Vec<Vec<VertexId>>,
     pub links: Vec<Link>,
+    pub room_geometry: Vec<RoomGeometry>,
+    pub room_idx_by_name: HashMap<String, RoomGeometryRoomIdx>,
 }
 
 impl<T: Hash + Eq> IndexedVec<T> {
@@ -974,7 +1005,10 @@ impl GameData {
             "f_DefeatedPhantoon",
             "f_DefeatedDraygon",
             "f_DefeatedRidley",
-        ].iter().map(|x| x.to_string()).collect();
+        ]
+        .iter()
+        .map(|x| x.to_string())
+        .collect();
 
         for (&(room_id, node_id), node_json) in &self.node_json_map {
             if node_json["nodeType"] == "item" {
@@ -1032,7 +1066,16 @@ impl GameData {
         weapon_mask
     }
 
-    pub fn load(sm_json_data_path: &Path) -> Result<GameData> {
+    fn load_room_geometry(&mut self, room_geometry_path: &Path) -> Result<()> {
+        let room_geometry_str = std::fs::read_to_string(room_geometry_path)?;
+        self.room_geometry = serde_json::from_str(&room_geometry_str)?;
+        for (i, room) in self.room_geometry.iter().enumerate() {
+            self.room_idx_by_name.insert(room.name.clone(), i);
+        }
+        Ok(())
+    }
+
+    pub fn load(sm_json_data_path: &Path, room_geometry_path: &Path) -> Result<GameData> {
         let mut game_data = GameData::default();
         game_data.sm_json_data_path = sm_json_data_path.to_owned();
 
@@ -1052,6 +1095,9 @@ impl GameData {
         game_data.load_regions()?;
         game_data.load_connections()?;
         game_data.populate_target_locations();
+        game_data
+            .load_room_geometry(room_geometry_path)
+            .context("Unable to load room geometry")?;
         Ok(game_data)
     }
 }

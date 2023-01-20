@@ -1,13 +1,15 @@
 use std::path::Path;
 
 use crate::{
-    game_data::{DoorPtrPair, GameData, Item, NodePtr},
+    game_data::{GameData, Item, Map, NodePtr},
     randomize::Randomization,
 };
 use anyhow::{ensure, Context, Result};
 use hashbrown::HashMap;
 use ips;
 use std::iter;
+
+const NUM_AREAS: usize = 6;
 
 fn snes2pc(addr: usize) -> usize {
     addr >> 1 & 0x3F8000 | addr & 0x7FFF
@@ -110,6 +112,7 @@ pub struct Patcher<'a> {
     pub rom: &'a mut Rom,
     pub randomization: &'a Randomization,
     pub game_data: &'a GameData,
+    pub map: &'a Map,
 }
 
 fn xy_to_map_offset(x: isize, y: isize) -> isize {
@@ -152,7 +155,7 @@ impl<'a> Patcher<'a> {
             "everest_tube",
             "sandfalls",
             "saveload",
-            // "map_area",
+            "map_area",
             "elevators_speed",
             "boss_exit",
             "itemsounds",
@@ -212,7 +215,7 @@ impl<'a> Patcher<'a> {
     }
 
     fn connect_doors(&mut self) -> Result<()> {
-        for &((src_exit_ptr, src_entrance_ptr), (dst_exit_ptr, dst_entrance_ptr), bidirectional) in
+        for &((src_exit_ptr, src_entrance_ptr), (dst_exit_ptr, dst_entrance_ptr), _bidirectional) in
             &self.randomization.map.doors
         {
             self.connect_door_pair(
@@ -252,8 +255,116 @@ impl<'a> Patcher<'a> {
             let orig_entrance_door_ptr = (self.orig_rom.read_u16(ptr + 2)? + 0x10000) as NodePtr;
             let exit_door_ptr = orig_door_map[&orig_entrance_door_ptr];
             let entrance_door_ptr = new_door_map[&exit_door_ptr];
-            self.rom.write_u16(ptr + 2, (entrance_door_ptr & 0xFFFF) as isize)?;
+            self.rom
+                .write_u16(ptr + 2, (entrance_door_ptr & 0xFFFF) as isize)?;
         }
+        Ok(())
+    }
+
+    fn write_map_tilemaps(&mut self) -> Result<()> {
+        let area_map_ptrs: Vec<isize> = vec![
+            0x1A9000,  // Crateria
+            0x1A8000,  // Brinstar
+            0x1AA000,  // Norfair
+            0x1AB000,  // Wrecked ship
+            0x1AC000,  // Maridia
+            0x1AD000,  // Tourian
+        ];
+
+        // Determine upper-left corner of each area:
+        let mut area_map_min_x = [isize::MAX; NUM_AREAS];
+        let mut area_map_min_y = [isize::MAX; NUM_AREAS];
+        for i in 0..self.map.area.len() {
+            let area = self.map.area[i];
+            let x = self.map.rooms[i].0 as isize;
+            let y = self.map.rooms[i].1 as isize;
+            if x < area_map_min_x[area] {
+                area_map_min_x[area] = x;
+            }
+            if y < area_map_min_y[area] {
+                area_map_min_y[area] = y;
+            }
+        }
+
+        // Clear all map tilemap data:
+        for area_ptr in &area_map_ptrs {
+            for i in 0..(64 * 32) {
+                self.rom.write_u16((area_ptr + i * 2) as usize, 0x001F)?;
+            }
+        }
+
+        // Write new map tilemap data (and room X & Y map position) by room:
+        for (i, room) in self.game_data.room_geometry.iter().enumerate() {
+            let orig_area = self.orig_rom.read_u8(room.rom_address + 1)? as usize;
+            let orig_base_x = self.orig_rom.read_u8(room.rom_address + 2)?;
+            let orig_base_y = self.orig_rom.read_u8(room.rom_address + 3)?;
+            let orig_base_ptr = area_map_ptrs[orig_area];
+            let new_area = self.map.area[i];
+            let new_base_ptr = area_map_ptrs[new_area];
+            let new_base_x = self.map.rooms[i].0 as isize - area_map_min_x[new_area] + 2;
+            let new_base_y = self.map.rooms[i].1 as isize - area_map_min_y[new_area] + 1;
+            self.rom.write_u8(room.rom_address + 2, new_base_x)?;
+            self.rom.write_u8(room.rom_address + 3, new_base_y)?;
+            for y in 0..room.map.len() {
+                for x in 0..room.map[0].len() {
+                    if room.map[y][x] == 0 {
+                        continue;
+                    }
+                    let orig_x = orig_base_x + x as isize;
+                    let orig_y = orig_base_y + y as isize;
+                    let orig_offset = xy_to_map_offset(orig_x as isize, orig_y as isize);
+                    let orig_ptr = (orig_base_ptr + orig_offset) as usize;
+                    let new_x = new_base_x + x as isize;
+                    let new_y = new_base_y + y as isize;
+                    let new_offset = xy_to_map_offset(new_x, new_y);
+                    let new_ptr = (new_base_ptr + new_offset) as usize;
+                    let data = self.orig_rom.read_u16(orig_ptr)?;
+                    self.rom.write_u16(new_ptr, data)?;
+                }
+            }
+        }
+        Ok(())
+    }
+
+    fn write_map_areas(&mut self) -> Result<()> {
+        let mut room_index_area_hashmaps: Vec<HashMap<usize, usize>> =
+            vec![HashMap::new(); NUM_AREAS];
+        for (i, room) in self.game_data.room_geometry.iter().enumerate() {
+            let room_index = self.orig_rom.read_u8(room.rom_address)? as usize;
+            let orig_room_area = self.orig_rom.read_u8(room.rom_address + 1)? as usize;
+            assert!(!room_index_area_hashmaps[orig_room_area].contains_key(&room_index));
+            let new_area = self.map.area[i];
+            room_index_area_hashmaps[orig_room_area].insert(room_index, new_area);
+        }
+
+        // Handle twin rooms:
+        let aqueduct_room_idx = self.game_data.room_idx_by_name["Aqueduct"];
+        room_index_area_hashmaps[4].insert(0x18, self.map.area[aqueduct_room_idx]); // Set Toilet to same map area as Aqueduct
+        let pants_room_idx = self.game_data.room_idx_by_name["Pants Room"];
+        room_index_area_hashmaps[4].insert(0x25, self.map.area[pants_room_idx]); // Set East Pants Room to same area as Pants Room
+        let west_ocean_room_idx = self.game_data.room_idx_by_name["West Ocean"];
+        room_index_area_hashmaps[0].insert(0x11, self.map.area[west_ocean_room_idx]); // Set Homing Geemer Room to same area as West Ocean
+
+        // Write the information about each room's map area to some free space in bank 0x8F
+        // which will be read by the `map_area` patch.
+        let area_data_base_ptr = snes2pc(0x8FE99B);
+        let mut area_data_ptr_pc = area_data_base_ptr + 2 * NUM_AREAS;
+        for area in 0..NUM_AREAS {
+            // Write pointer to the start of the table for the given area:
+            let area_data_ptr_snes = (area_data_ptr_pc & 0x7FFF) | 0x8000;
+            self.rom
+                .write_u16(area_data_base_ptr + 2 * area, area_data_ptr_snes as isize)?;
+
+            // Write the table contents:
+            for (&room_index, &new_area) in &room_index_area_hashmaps[area] {
+                self.rom
+                    .write_u8(area_data_ptr_pc + room_index, new_area as isize)?;
+            }
+
+            // Advance the pointer keeping track of the next available free space:
+            area_data_ptr_pc += room_index_area_hashmaps[area].keys().max().unwrap() + 1;
+        }
+        assert!(area_data_ptr_pc <= snes2pc(0x8FEB00));
         Ok(())
     }
 }
@@ -270,10 +381,13 @@ pub fn make_rom(
         rom: &mut rom,
         randomization,
         game_data,
+        map: &randomization.map,
     };
     patcher.apply_ips_patches()?;
     patcher.place_items()?;
     patcher.connect_doors()?;
     patcher.fix_save_stations()?;
+    patcher.write_map_tilemaps()?;
+    patcher.write_map_areas()?;
     Ok(rom)
 }
