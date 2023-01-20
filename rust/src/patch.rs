@@ -1,3 +1,5 @@
+mod map_tiles;
+
 use std::path::Path;
 
 use crate::{
@@ -132,25 +134,36 @@ fn item_to_plm_type(item: Item, orig_plm_type: isize) -> isize {
     orig_plm_type + (item_id - old_item_id) * 4
 }
 
-impl<'a> Patcher<'a> {
-    fn apply_ips_patch(&mut self, patch_path: &Path) -> Result<()> {
-        let patch_data = std::fs::read(&patch_path)
-            .with_context(|| format!("Unable to read patch {}", patch_path.display()))?;
-        let patch = ips::Patch::parse(&patch_data)
-            .with_context(|| format!("Unable to parse patch {}", patch_path.display()))?;
-        for hunk in patch.hunks() {
-            self.rom.write_n(hunk.offset(), hunk.payload())?;
-        }
-        Ok(())
+fn apply_ips_patch(rom: &mut Rom, patch_path: &Path) -> Result<()> {
+    let patch_data = std::fs::read(&patch_path)
+        .with_context(|| format!("Unable to read patch {}", patch_path.display()))?;
+    let patch = ips::Patch::parse(&patch_data)
+        .with_context(|| format!("Unable to parse patch {}", patch_path.display()))?;
+    for hunk in patch.hunks() {
+        rom.write_n(hunk.offset(), hunk.payload())?;
     }
+    Ok(())
+}
 
+fn apply_orig_ips_patches(rom: &mut Rom) -> Result<()> {
+    let patches_dir = Path::new("../patches/ips/");
+    let patches = vec![
+        "mb_barrier",
+        "mb_barrier_clear",
+        "hud_expansion_opaque",
+        "gray_doors",
+    ];
+    for patch_name in patches {
+        let patch_path = patches_dir.join(patch_name.to_string() + ".ips");
+        apply_ips_patch(rom, &patch_path)?;
+    }
+    Ok(())
+}
+
+impl<'a> Patcher<'a> {
     fn apply_ips_patches(&mut self) -> Result<()> {
         let patches_dir = Path::new("../patches/ips/");
         let mut patches = vec![
-            "mb_barrier",
-            "mb_barrier_clear",
-            "hud_expansion_opaque",
-            "gray_doors",
             "vanilla_bugfixes",
             "music",
             "crateria_sky_fixed",
@@ -180,7 +193,7 @@ impl<'a> Patcher<'a> {
         // "new_game_extra' if args.debug else 'new_game",
         for patch_name in patches {
             let patch_path = patches_dir.join(patch_name.to_string() + ".ips");
-            self.apply_ips_patch(&patch_path)?;
+            apply_ips_patch(&mut self.rom, &patch_path)?;
         }
         Ok(())
     }
@@ -300,6 +313,14 @@ impl<'a> Patcher<'a> {
         Ok(())
     }
 
+    fn make_map_revealed(&mut self) -> Result<()> {
+        // Make the whole map revealed (after the player uses the map station) -- no more hidden tiles.
+        for i in 0x11727..0x11D27 {
+            self.rom.write_u8(i, 0xFF)?;
+        }
+        Ok(())
+    }
+
     fn write_map_tilemaps(&mut self) -> Result<()> {
         let area_map_ptrs: Vec<isize> = vec![
             0x1A9000, // Crateria
@@ -312,7 +333,9 @@ impl<'a> Patcher<'a> {
 
         // Determine upper-left corner of each area:
         let mut area_map_min_x = [isize::MAX; NUM_AREAS];
+        let mut area_map_max_x = [0; NUM_AREAS];
         let mut area_map_min_y = [isize::MAX; NUM_AREAS];
+        let mut area_map_max_y = [0; NUM_AREAS];
         for i in 0..self.map.area.len() {
             let area = self.map.area[i];
             let x = self.map.rooms[i].0 as isize;
@@ -320,8 +343,14 @@ impl<'a> Patcher<'a> {
             if x < area_map_min_x[area] {
                 area_map_min_x[area] = x;
             }
+            if x > area_map_max_x[area] {
+                area_map_max_x[area] = x;
+            }
             if y < area_map_min_y[area] {
                 area_map_min_y[area] = y;
+            }
+            if y > area_map_max_y[area] {
+                area_map_max_y[area] = y;
             }
         }
 
@@ -343,8 +372,12 @@ impl<'a> Patcher<'a> {
             let orig_base_ptr = area_map_ptrs[orig_area];
             let new_area = self.map.area[i];
             let new_base_ptr = area_map_ptrs[new_area];
-            let new_base_x = self.map.rooms[i].0 as isize - area_map_min_x[new_area] + 2;
-            let new_base_y = self.map.rooms[i].1 as isize - area_map_min_y[new_area] + 1;
+            let new_margin_x = (64 - (area_map_max_x[new_area] - area_map_min_x[new_area])) / 2;
+            let new_margin_y = (32 - (area_map_max_y[new_area] - area_map_min_y[new_area])) / 2;
+            let new_base_x = self.map.rooms[i].0 as isize - area_map_min_x[new_area] + new_margin_x;
+            let new_base_y = self.map.rooms[i].1 as isize - area_map_min_y[new_area] + new_margin_y;
+            assert!(new_base_x >= 2);
+            assert!(new_base_y >= 1);
             self.rom.write_u8(room.rom_address + 2, new_base_x)?;
             self.rom.write_u8(room.rom_address + 3, new_base_y)?;
             for y in 0..room.map.len() {
@@ -508,13 +541,16 @@ pub fn make_rom(
     game_data: &GameData,
 ) -> Result<Rom> {
     let mut orig_rom = Rom::load(base_rom_path)?;
+    apply_orig_ips_patches(&mut orig_rom)?;
+    map_tiles::MapPatcher::new(&mut orig_rom, game_data).apply_patches()?;
+
     let mut rom = orig_rom.clone();
     let mut patcher = Patcher {
         orig_rom: &mut orig_rom,
         rom: &mut rom,
         randomization,
-        game_data,
         map: &randomization.map,
+        game_data,
     };
     patcher.apply_ips_patches()?;
     patcher.place_items()?;
@@ -522,6 +558,8 @@ pub fn make_rom(
     patcher.fix_save_stations()?;
     patcher.write_map_tilemaps()?;
     patcher.write_map_areas()?;
+    patcher.make_map_revealed()?;
     patcher.remove_non_blue_doors()?;
+    // TODO: add CRE reload for Kraid & Crocomire
     Ok(rom)
 }

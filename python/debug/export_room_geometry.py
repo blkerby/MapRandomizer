@@ -29,6 +29,7 @@ all_json = []
 for room in rooms:
     room_json = {
         "name": room.name,
+        'area': room.area.value,
         # "rom_address": hex(room.rom_address),
         "rom_address": room.rom_address,
         "map": room.map,

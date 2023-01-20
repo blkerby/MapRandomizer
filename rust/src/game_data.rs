@@ -128,6 +128,7 @@ type RoomGeometryPartIdx = usize;
 #[derive(Deserialize, Default)]
 pub struct RoomGeometry {
     pub name: String,
+    pub area: usize,
     pub rom_address: usize,
     pub map: Vec<Vec<u8>>,
     pub doors: Vec<RoomGeometryDoor>,
