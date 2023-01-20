@@ -931,7 +931,7 @@ impl<'a> Randomizer<'a> {
 
     fn get_spoiler_summary(
         &self,
-        orig_global_state: &GlobalState,   // Global state before acquiring new flags
+        _orig_global_state: &GlobalState,   // Global state before acquiring new flags
         state: &RandomizationState,  // State after acquiring new flags but not new items
         new_state: &RandomizationState,  // State after acquiring new flags and new items
         spoiler_flag_summaries: Vec<SpoilerFlagSummary>,

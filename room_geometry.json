@@ -1,7 +1,7 @@
 [
   {
     "name": "The Moat",
-    "rom_address": "0x795ff",
+    "rom_address": 497151,
     "map": [
       [1, 1],
       [1, 1]
@@ -11,16 +11,16 @@
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18ade",
-        "entrance_ptr": "0x18a36",
+        "exit_ptr": 101086,
+        "entrance_ptr": 100918,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x18aea",
-        "entrance_ptr": "0x189ca",
+        "exit_ptr": 101098,
+        "entrance_ptr": 100810,
         "subtype": "normal"
       }
     ],
@@ -30,7 +30,7 @@
   },
   {
     "name": "Landing Site",
-    "rom_address": "0x791f8",
+    "rom_address": 496120,
     "map": [
       [0, 0, 1, 1, 1, 1, 1, 1, 1],
       [0, 0, 1, 1, 1, 1, 1, 1, 1],
@@ -43,32 +43,32 @@
         "direction": "left",
         "x": 0,
         "y": 2,
-        "exit_ptr": "0x1892e",
-        "entrance_ptr": "0x18946",
+        "exit_ptr": 100654,
+        "entrance_ptr": 100678,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 0,
         "y": 4,
-        "exit_ptr": "0x18916",
-        "entrance_ptr": "0x1896a",
+        "exit_ptr": 100630,
+        "entrance_ptr": 100714,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 8,
         "y": 1,
-        "exit_ptr": "0x1893a",
-        "entrance_ptr": "0x189b2",
+        "exit_ptr": 100666,
+        "entrance_ptr": 100786,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 8,
         "y": 4,
-        "exit_ptr": "0x18922",
-        "entrance_ptr": "0x18ac6",
+        "exit_ptr": 100642,
+        "entrance_ptr": 101062,
         "subtype": "normal"
       }
     ],
@@ -78,23 +78,23 @@
   },
   {
     "name": "Crateria Tube",
-    "rom_address": "0x795d4",
+    "rom_address": 497108,
     "map": [[1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18ac6",
-        "entrance_ptr": "0x18922",
+        "exit_ptr": 101062,
+        "entrance_ptr": 100642,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18ad2",
-        "entrance_ptr": "0x18a2a",
+        "exit_ptr": 101074,
+        "entrance_ptr": 100906,
         "subtype": "normal"
       }
     ],
@@ -104,7 +104,7 @@
   },
   {
     "name": "Parlor and Alcatraz",
-    "rom_address": "0x792fd",
+    "rom_address": 496381,
     "map": [
       [1, 1, 1, 1, 1],
       [0, 1, 0, 1, 0],
@@ -117,56 +117,56 @@
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1895e",
-        "entrance_ptr": "0x18bf2",
+        "exit_ptr": 100702,
+        "entrance_ptr": 101362,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 1,
         "y": 2,
-        "exit_ptr": "0x1899a",
-        "entrance_ptr": "0x189be",
+        "exit_ptr": 100762,
+        "entrance_ptr": 100798,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 1,
         "y": 3,
-        "exit_ptr": "0x189a6",
-        "entrance_ptr": "0x18c8e",
+        "exit_ptr": 100774,
+        "entrance_ptr": 101518,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 4,
         "y": 0,
-        "exit_ptr": "0x1896a",
-        "entrance_ptr": "0x18916",
+        "exit_ptr": 100714,
+        "entrance_ptr": 100630,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 3,
         "y": 2,
-        "exit_ptr": "0x18982",
-        "entrance_ptr": "0x18bb6",
+        "exit_ptr": 100738,
+        "entrance_ptr": 101302,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 3,
-        "exit_ptr": "0x18976",
-        "entrance_ptr": "0x18bce",
+        "exit_ptr": 100726,
+        "entrance_ptr": 101326,
         "subtype": "normal"
       },
       {
         "direction": "down",
         "x": 1,
         "y": 4,
-        "exit_ptr": "0x1898e",
-        "entrance_ptr": "0x18b3e",
+        "exit_ptr": 100750,
+        "entrance_ptr": 101182,
         "subtype": "normal"
       }
     ],
@@ -176,7 +176,7 @@
   },
   {
     "name": "Climb",
-    "rom_address": "0x796ba",
+    "rom_address": 497338,
     "map": [
       [0, 1, 1],
       [0, 1, 0],
@@ -193,40 +193,40 @@
         "direction": "left",
         "x": 0,
         "y": 8,
-        "exit_ptr": "0x18b6e",
-        "entrance_ptr": "0x1ab34",
+        "exit_ptr": 101230,
+        "entrance_ptr": 109364,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 2,
         "y": 0,
-        "exit_ptr": "0x18b4a",
-        "entrance_ptr": "0x18c6a",
+        "exit_ptr": 101194,
+        "entrance_ptr": 101482,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 2,
         "y": 7,
-        "exit_ptr": "0x18b56",
-        "entrance_ptr": "0x18c76",
+        "exit_ptr": 101206,
+        "entrance_ptr": 101494,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 8,
-        "exit_ptr": "0x18b62",
-        "entrance_ptr": "0x18b7a",
+        "exit_ptr": 101218,
+        "entrance_ptr": 101242,
         "subtype": "normal"
       },
       {
         "direction": "up",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x18b3e",
-        "entrance_ptr": "0x1898e",
+        "exit_ptr": 101182,
+        "entrance_ptr": 100750,
         "subtype": "normal"
       }
     ],
@@ -236,7 +236,7 @@
   },
   {
     "name": "Pit Room",
-    "rom_address": "0x7975c",
+    "rom_address": 497500,
     "map": [
       [1, 1, 1],
       [1, 0, 0]
@@ -246,16 +246,16 @@
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18b7a",
-        "entrance_ptr": "0x18b62",
+        "exit_ptr": 101242,
+        "entrance_ptr": 101218,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 2,
         "y": 0,
-        "exit_ptr": "0x18b86",
-        "entrance_ptr": "0x18b92",
+        "exit_ptr": 101254,
+        "entrance_ptr": 101266,
         "subtype": "normal"
       }
     ],
@@ -265,23 +265,23 @@
   },
   {
     "name": "Flyway",
-    "rom_address": "0x79879",
+    "rom_address": 497785,
     "map": [[1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18bb6",
-        "entrance_ptr": "0x18982",
+        "exit_ptr": 101302,
+        "entrance_ptr": 100738,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 2,
         "y": 0,
-        "exit_ptr": "0x18bc2",
-        "entrance_ptr": "0x18baa",
+        "exit_ptr": 101314,
+        "entrance_ptr": 101290,
         "subtype": "normal"
       }
     ],
@@ -291,23 +291,23 @@
   },
   {
     "name": "Pre-Map Flyway",
-    "rom_address": "0x798e2",
+    "rom_address": 497890,
     "map": [[1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18bce",
-        "entrance_ptr": "0x18976",
+        "exit_ptr": 101326,
+        "entrance_ptr": 100726,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 2,
         "y": 0,
-        "exit_ptr": "0x18bda",
-        "entrance_ptr": "0x18c2e",
+        "exit_ptr": 101338,
+        "entrance_ptr": 101422,
         "subtype": "normal"
       }
     ],
@@ -317,15 +317,15 @@
   },
   {
     "name": "Crateria Map Room",
-    "rom_address": "0x79994",
+    "rom_address": 498068,
     "map": [[1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18c2e",
-        "entrance_ptr": "0x18bda",
+        "exit_ptr": 101422,
+        "entrance_ptr": 101338,
         "subtype": "normal"
       }
     ],
@@ -335,15 +335,15 @@
   },
   {
     "name": "Crateria Save Room",
-    "rom_address": "0x793d5",
+    "rom_address": 496597,
     "map": [[1]],
     "doors": [
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x189be",
-        "entrance_ptr": "0x1899a",
+        "exit_ptr": 100798,
+        "entrance_ptr": 100762,
         "subtype": "normal"
       }
     ],
@@ -353,15 +353,15 @@
   },
   {
     "name": "The Final Missile",
-    "rom_address": "0x79a90",
+    "rom_address": 498320,
     "map": [[1]],
     "doors": [
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18c9a",
-        "entrance_ptr": "0x18c82",
+        "exit_ptr": 101530,
+        "entrance_ptr": 101506,
         "subtype": "normal"
       }
     ],
@@ -371,23 +371,23 @@
   },
   {
     "name": "Final Missile Bombway",
-    "rom_address": "0x79a44",
+    "rom_address": 498244,
     "map": [[1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18c82",
-        "entrance_ptr": "0x18c9a",
+        "exit_ptr": 101506,
+        "entrance_ptr": 101530,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x18c8e",
-        "entrance_ptr": "0x189a6",
+        "exit_ptr": 101518,
+        "entrance_ptr": 100774,
         "subtype": "normal"
       }
     ],
@@ -397,15 +397,15 @@
   },
   {
     "name": "Bomb Torizo Room",
-    "rom_address": "0x79804",
+    "rom_address": 497668,
     "map": [[1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18baa",
-        "entrance_ptr": "0x18bc2",
+        "exit_ptr": 101290,
+        "entrance_ptr": 101314,
         "subtype": "normal"
       }
     ],
@@ -415,7 +415,7 @@
   },
   {
     "name": "Terminator Room",
-    "rom_address": "0x7990d",
+    "rom_address": 497933,
     "map": [
       [0, 0, 0, 1, 1, 1],
       [0, 1, 1, 1, 1, 0],
@@ -426,16 +426,16 @@
         "direction": "left",
         "x": 0,
         "y": 2,
-        "exit_ptr": "0x18be6",
-        "entrance_ptr": "0x18c3a",
+        "exit_ptr": 101350,
+        "entrance_ptr": 101434,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 5,
         "y": 0,
-        "exit_ptr": "0x18bf2",
-        "entrance_ptr": "0x1895e",
+        "exit_ptr": 101362,
+        "entrance_ptr": 100702,
         "subtype": "normal"
       }
     ],
@@ -445,39 +445,39 @@
   },
   {
     "name": "Green Pirates Shaft",
-    "rom_address": "0x799bd",
+    "rom_address": 498109,
     "map": [[1], [1], [1], [1], [1], [1], [1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 6,
-        "exit_ptr": "0x18c46",
-        "entrance_ptr": "0x18c16",
+        "exit_ptr": 101446,
+        "entrance_ptr": 101398,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18c5e",
-        "entrance_ptr": "0x18b1a",
+        "exit_ptr": 101470,
+        "entrance_ptr": 101146,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 4,
-        "exit_ptr": "0x18c3a",
-        "entrance_ptr": "0x18be6",
+        "exit_ptr": 101434,
+        "entrance_ptr": 101350,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 6,
-        "exit_ptr": "0x18c52",
-        "entrance_ptr": "0x191e6",
+        "exit_ptr": 101458,
+        "entrance_ptr": 102886,
         "subtype": "normal"
       }
     ],
@@ -487,23 +487,23 @@
   },
   {
     "name": "Lower Mushrooms",
-    "rom_address": "0x79969",
+    "rom_address": 498025,
     "map": [[1, 1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18c22",
-        "entrance_ptr": "0x18bfe",
+        "exit_ptr": 101410,
+        "entrance_ptr": 101374,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 3,
         "y": 0,
-        "exit_ptr": "0x18c16",
-        "entrance_ptr": "0x18c46",
+        "exit_ptr": 101398,
+        "entrance_ptr": 101446,
         "subtype": "normal"
       }
     ],
@@ -513,23 +513,23 @@
   },
   {
     "name": "Green Brinstar Elevator Room",
-    "rom_address": "0x79938",
+    "rom_address": 497976,
     "map": [[1], [1], [1], [1]],
     "doors": [
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18bfe",
-        "entrance_ptr": "0x18c22",
+        "exit_ptr": 101374,
+        "entrance_ptr": 101410,
         "subtype": "normal"
       },
       {
         "direction": "down",
         "x": 0,
         "y": 3,
-        "exit_ptr": "0x18c0a",
-        "entrance_ptr": "0x18ca6",
+        "exit_ptr": 101386,
+        "entrance_ptr": 101542,
         "subtype": "elevator"
       }
     ],
@@ -539,7 +539,7 @@
   },
   {
     "name": "Crateria Kihunter Room",
-    "rom_address": "0x7948c",
+    "rom_address": 496780,
     "map": [
       [1, 1, 1],
       [0, 1, 0],
@@ -550,24 +550,24 @@
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18a2a",
-        "entrance_ptr": "0x18ad2",
+        "exit_ptr": 100906,
+        "entrance_ptr": 101074,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 2,
         "y": 0,
-        "exit_ptr": "0x18a36",
-        "entrance_ptr": "0x18ade",
+        "exit_ptr": 100918,
+        "entrance_ptr": 101086,
         "subtype": "normal"
       },
       {
         "direction": "down",
         "x": 1,
         "y": 2,
-        "exit_ptr": "0x18a42",
-        "entrance_ptr": "0x18af6",
+        "exit_ptr": 100930,
+        "entrance_ptr": 101110,
         "subtype": "normal"
       }
     ],
@@ -577,23 +577,23 @@
   },
   {
     "name": "Statues Hallway",
-    "rom_address": "0x7a5ed",
+    "rom_address": 501229,
     "map": [[1, 1, 1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x191e6",
-        "entrance_ptr": "0x18c52",
+        "exit_ptr": 102886,
+        "entrance_ptr": 101458,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 4,
         "y": 0,
-        "exit_ptr": "0x191f2",
-        "entrance_ptr": "0x19216",
+        "exit_ptr": 102898,
+        "entrance_ptr": 102934,
         "subtype": "normal"
       }
     ],
@@ -603,23 +603,23 @@
   },
   {
     "name": "Red Brinstar Elevator Room",
-    "rom_address": "0x7962a",
+    "rom_address": 497194,
     "map": [[1], [1], [1], [1]],
     "doors": [
       {
         "direction": "up",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18af6",
-        "entrance_ptr": "0x18a42",
+        "exit_ptr": 101110,
+        "entrance_ptr": 100930,
         "subtype": "normal"
       },
       {
         "direction": "down",
         "x": 0,
         "y": 3,
-        "exit_ptr": "0x18b02",
-        "entrance_ptr": "0x190ba",
+        "exit_ptr": 101122,
+        "entrance_ptr": 102586,
         "subtype": "elevator"
       }
     ],
@@ -629,23 +629,23 @@
   },
   {
     "name": "Blue Brinstar Elevator Room",
-    "rom_address": "0x797b5",
+    "rom_address": 497589,
     "map": [[1], [1], [1], [1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18b92",
-        "entrance_ptr": "0x18b86",
+        "exit_ptr": 101266,
+        "entrance_ptr": 101254,
         "subtype": "normal"
       },
       {
         "direction": "down",
         "x": 0,
         "y": 3,
-        "exit_ptr": "0x18b9e",
-        "entrance_ptr": "0x18eb6",
+        "exit_ptr": 101278,
+        "entrance_ptr": 102070,
         "subtype": "elevator"
       }
     ],
@@ -655,23 +655,23 @@
   },
   {
     "name": "Statues Room",
-    "rom_address": "0x7a66a",
+    "rom_address": 501354,
     "map": [[1], [1], [1], [1], [1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x19216",
-        "entrance_ptr": "0x191f2",
+        "exit_ptr": 102934,
+        "entrance_ptr": 102898,
         "subtype": "normal"
       },
       {
         "direction": "down",
         "x": 0,
         "y": 4,
-        "exit_ptr": "0x19222",
-        "entrance_ptr": "0x1a990",
+        "exit_ptr": 102946,
+        "entrance_ptr": 108944,
         "subtype": "elevator"
       }
     ],
@@ -681,15 +681,15 @@
   },
   {
     "name": "Crateria Power Bomb Room",
-    "rom_address": "0x793aa",
+    "rom_address": 496554,
     "map": [[1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x189b2",
-        "entrance_ptr": "0x1893a",
+        "exit_ptr": 100786,
+        "entrance_ptr": 100666,
         "subtype": "normal"
       }
     ],
@@ -699,7 +699,7 @@
   },
   {
     "name": "Crateria Super Room",
-    "rom_address": "0x799f9",
+    "rom_address": 498169,
     "map": [
       [1, 1, 1, 1],
       [0, 0, 0, 1],
@@ -715,16 +715,16 @@
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18c6a",
-        "entrance_ptr": "0x18b4a",
+        "exit_ptr": 101482,
+        "entrance_ptr": 101194,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 0,
         "y": 7,
-        "exit_ptr": "0x18c76",
-        "entrance_ptr": "0x18b56",
+        "exit_ptr": 101494,
+        "entrance_ptr": 101206,
         "subtype": "normal"
       }
     ],
@@ -734,23 +734,23 @@
   },
   {
     "name": "Gauntlet Entrance",
-    "rom_address": "0x792b3",
+    "rom_address": 496307,
     "map": [[1, 1, 1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18952",
-        "entrance_ptr": "0x18b0e",
+        "exit_ptr": 100690,
+        "entrance_ptr": 101134,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 4,
         "y": 0,
-        "exit_ptr": "0x18946",
-        "entrance_ptr": "0x1892e",
+        "exit_ptr": 100678,
+        "entrance_ptr": 100654,
         "subtype": "normal"
       }
     ],
@@ -760,23 +760,23 @@
   },
   {
     "name": "Gauntlet Energy Tank Room",
-    "rom_address": "0x7965b",
+    "rom_address": 497243,
     "map": [[1, 1, 1, 1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18b1a",
-        "entrance_ptr": "0x18c5e",
+        "exit_ptr": 101146,
+        "entrance_ptr": 101470,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 5,
         "y": 0,
-        "exit_ptr": "0x18b0e",
-        "entrance_ptr": "0x18952",
+        "exit_ptr": 101134,
+        "entrance_ptr": 100690,
         "subtype": "normal"
       }
     ],
@@ -786,7 +786,7 @@
   },
   {
     "name": "West Ocean",
-    "rom_address": "0x793fe",
+    "rom_address": 496638,
     "map": [
       [1, 1, 1, 1, 1, 1, 1, 1],
       [1, 1, 1, 1, 1, 1, 1, 1],
@@ -800,64 +800,64 @@
         "direction": "left",
         "x": 5,
         "y": 2,
-        "exit_ptr": "0x18b26",
-        "entrance_ptr": "0x18a1e",
+        "exit_ptr": 101158,
+        "entrance_ptr": 100894,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 0,
         "y": 4,
-        "exit_ptr": "0x189ca",
-        "entrance_ptr": "0x18aea",
+        "exit_ptr": 100810,
+        "entrance_ptr": 101098,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 7,
         "y": 0,
-        "exit_ptr": "0x189ee",
-        "entrance_ptr": "0x1a1e0",
+        "exit_ptr": 100846,
+        "entrance_ptr": 106976,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 7,
         "y": 1,
-        "exit_ptr": "0x189fa",
-        "entrance_ptr": "0x1a18c",
+        "exit_ptr": 100858,
+        "entrance_ptr": 106892,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 2,
         "y": 2,
-        "exit_ptr": "0x189e2",
-        "entrance_ptr": "0x18a12",
+        "exit_ptr": 100834,
+        "entrance_ptr": 100882,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 5,
         "y": 2,
-        "exit_ptr": "0x18b32",
-        "entrance_ptr": "0x1a198",
+        "exit_ptr": 101170,
+        "entrance_ptr": 106904,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 5,
         "y": 3,
-        "exit_ptr": "0x18a06",
-        "entrance_ptr": "0x1a300",
+        "exit_ptr": 100870,
+        "entrance_ptr": 107264,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 7,
         "y": 4,
-        "exit_ptr": "0x189d6",
-        "entrance_ptr": "0x1a1b0",
+        "exit_ptr": 100822,
+        "entrance_ptr": 106928,
         "subtype": "normal"
       }
     ],
@@ -871,23 +871,23 @@
   },
   {
     "name": "Bowling Alley Path",
-    "rom_address": "0x79461",
+    "rom_address": 496737,
     "map": [[1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18a12",
-        "entrance_ptr": "0x189e2",
+        "exit_ptr": 100882,
+        "entrance_ptr": 100834,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x18a1e",
-        "entrance_ptr": "0x18b26",
+        "exit_ptr": 100894,
+        "entrance_ptr": 101158,
         "subtype": "normal"
       }
     ],
@@ -897,7 +897,7 @@
   },
   {
     "name": "East Ocean",
-    "rom_address": "0x794fd",
+    "rom_address": 496893,
     "map": [
       [0, 0, 0, 0, 0, 0, 0],
       [0, 0, 0, 0, 0, 0, 0],
@@ -911,16 +911,16 @@
         "direction": "left",
         "x": 0,
         "y": 4,
-        "exit_ptr": "0x18a66",
-        "entrance_ptr": "0x1a264",
+        "exit_ptr": 100966,
+        "entrance_ptr": 107108,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 6,
         "y": 4,
-        "exit_ptr": "0x18a72",
-        "entrance_ptr": "0x18a7e",
+        "exit_ptr": 100978,
+        "entrance_ptr": 100990,
         "subtype": "normal"
       }
     ],
@@ -930,23 +930,23 @@
   },
   {
     "name": "Forgotten Highway Kago Room",
-    "rom_address": "0x79552",
+    "rom_address": 496978,
     "map": [[1], [1], [1], [1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18a7e",
-        "entrance_ptr": "0x18a72",
+        "exit_ptr": 100990,
+        "entrance_ptr": 100978,
         "subtype": "normal"
       },
       {
         "direction": "down",
         "x": 0,
         "y": 3,
-        "exit_ptr": "0x18a8a",
-        "entrance_ptr": "0x18a96",
+        "exit_ptr": 101002,
+        "entrance_ptr": 101014,
         "subtype": "normal"
       }
     ],
@@ -956,7 +956,7 @@
   },
   {
     "name": "Crab Maze",
-    "rom_address": "0x7957d",
+    "rom_address": 497021,
     "map": [
       [1, 1, 1, 1],
       [1, 1, 1, 1]
@@ -966,16 +966,16 @@
         "direction": "left",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x18aae",
-        "entrance_ptr": "0x18aa2",
+        "exit_ptr": 101038,
+        "entrance_ptr": 101026,
         "subtype": "normal"
       },
       {
         "direction": "up",
         "x": 3,
         "y": 0,
-        "exit_ptr": "0x18a96",
-        "entrance_ptr": "0x18a8a",
+        "exit_ptr": 101014,
+        "entrance_ptr": 101002,
         "subtype": "normal"
       }
     ],
@@ -985,23 +985,23 @@
   },
   {
     "name": "Forgotten Highway Elevator",
-    "rom_address": "0x794cc",
+    "rom_address": 496844,
     "map": [[1], [1], [1], [1]],
     "doors": [
       {
         "direction": "up",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18a4e",
-        "entrance_ptr": "0x18aba",
+        "exit_ptr": 100942,
+        "entrance_ptr": 101050,
         "subtype": "normal"
       },
       {
         "direction": "down",
         "x": 0,
         "y": 3,
-        "exit_ptr": "0x18a5a",
-        "entrance_ptr": "0x1a594",
+        "exit_ptr": 100954,
+        "entrance_ptr": 107924,
         "subtype": "elevator"
       }
     ],
@@ -1011,23 +1011,23 @@
   },
   {
     "name": "Forgotten Highway Elbow",
-    "rom_address": "0x795a8",
+    "rom_address": 497064,
     "map": [[1]],
     "doors": [
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18aa2",
-        "entrance_ptr": "0x18aae",
+        "exit_ptr": 101026,
+        "entrance_ptr": 101038,
         "subtype": "normal"
       },
       {
         "direction": "down",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18aba",
-        "entrance_ptr": "0x18a4e",
+        "exit_ptr": 101050,
+        "entrance_ptr": 100942,
         "subtype": "normal"
       }
     ],
@@ -1037,47 +1037,47 @@
   },
   {
     "name": "Red Tower",
-    "rom_address": "0x7a253",
+    "rom_address": 500307,
     "map": [[1], [1], [1], [1], [1], [1], [1], [1], [1], [1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 4,
-        "exit_ptr": "0x1902a",
-        "entrance_ptr": "0x18f0a",
+        "exit_ptr": 102442,
+        "entrance_ptr": 102154,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 0,
         "y": 6,
-        "exit_ptr": "0x19036",
-        "entrance_ptr": "0x19066",
+        "exit_ptr": 102454,
+        "entrance_ptr": 102502,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 0,
         "y": 9,
-        "exit_ptr": "0x1904e",
-        "entrance_ptr": "0x191fe",
+        "exit_ptr": 102478,
+        "entrance_ptr": 102910,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1901e",
-        "entrance_ptr": "0x1907e",
+        "exit_ptr": 102430,
+        "entrance_ptr": 102526,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 9,
-        "exit_ptr": "0x19042",
-        "entrance_ptr": "0x190f6",
+        "exit_ptr": 102466,
+        "entrance_ptr": 102646,
         "subtype": "normal"
       }
     ],
@@ -1087,7 +1087,7 @@
   },
   {
     "name": "Red Brinstar Fireflea Room",
-    "rom_address": "0x7a293",
+    "rom_address": 500371,
     "map": [
       [1, 1, 1, 1, 1, 1, 1, 1],
       [1, 1, 0, 0, 1, 1, 0, 0]
@@ -1097,16 +1097,16 @@
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1905a",
-        "entrance_ptr": "0x19072",
+        "exit_ptr": 102490,
+        "entrance_ptr": 102514,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 7,
         "y": 0,
-        "exit_ptr": "0x19066",
-        "entrance_ptr": "0x19036",
+        "exit_ptr": 102502,
+        "entrance_ptr": 102454,
         "subtype": "normal"
       }
     ],
@@ -1116,15 +1116,15 @@
   },
   {
     "name": "X-Ray Scope Room",
-    "rom_address": "0x7a2ce",
+    "rom_address": 500430,
     "map": [[1, 1]],
     "doors": [
       {
         "direction": "right",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x19072",
-        "entrance_ptr": "0x1905a",
+        "exit_ptr": 102514,
+        "entrance_ptr": 102490,
         "subtype": "normal"
       }
     ],
@@ -1134,23 +1134,23 @@
   },
   {
     "name": "Bat Room",
-    "rom_address": "0x7a3dd",
+    "rom_address": 500701,
     "map": [[1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x190f6",
-        "entrance_ptr": "0x19042",
+        "exit_ptr": 102646,
+        "entrance_ptr": 102466,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x19102",
-        "entrance_ptr": "0x1910e",
+        "exit_ptr": 102658,
+        "entrance_ptr": 102670,
         "subtype": "normal"
       }
     ],
@@ -1160,7 +1160,7 @@
   },
   {
     "name": "Below Spazer",
-    "rom_address": "0x7a408",
+    "rom_address": 500744,
     "map": [
       [1, 1],
       [1, 1]
@@ -1170,24 +1170,24 @@
         "direction": "left",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x1910e",
-        "entrance_ptr": "0x19102",
+        "exit_ptr": 102670,
+        "entrance_ptr": 102658,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x19126",
-        "entrance_ptr": "0x19132",
+        "exit_ptr": 102694,
+        "entrance_ptr": 102706,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 1,
-        "exit_ptr": "0x1911a",
-        "entrance_ptr": "0x1a36c",
+        "exit_ptr": 102682,
+        "entrance_ptr": 107372,
         "subtype": "normal"
       }
     ],
@@ -1197,15 +1197,15 @@
   },
   {
     "name": "Spazer Room",
-    "rom_address": "0x7a447",
+    "rom_address": 500807,
     "map": [[1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x19132",
-        "entrance_ptr": "0x19126",
+        "exit_ptr": 102706,
+        "entrance_ptr": 102694,
         "subtype": "normal"
       }
     ],
@@ -1215,23 +1215,23 @@
   },
   {
     "name": "Hellway",
-    "rom_address": "0x7a2f7",
+    "rom_address": 500471,
     "map": [[1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1907e",
-        "entrance_ptr": "0x1901e",
+        "exit_ptr": 102526,
+        "entrance_ptr": 102430,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 2,
         "y": 0,
-        "exit_ptr": "0x1908a",
-        "entrance_ptr": "0x190ae",
+        "exit_ptr": 102538,
+        "entrance_ptr": 102574,
         "subtype": "normal"
       }
     ],
@@ -1241,7 +1241,7 @@
   },
   {
     "name": "Caterpillar Room",
-    "rom_address": "0x7a322",
+    "rom_address": 500514,
     "map": [
       [1, 0, 0],
       [1, 0, 0],
@@ -1257,48 +1257,48 @@
         "direction": "left",
         "x": 0,
         "y": 3,
-        "exit_ptr": "0x190a2",
-        "entrance_ptr": "0x190de",
+        "exit_ptr": 102562,
+        "entrance_ptr": 102622,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 0,
         "y": 5,
-        "exit_ptr": "0x190ae",
-        "entrance_ptr": "0x1908a",
+        "exit_ptr": 102574,
+        "entrance_ptr": 102538,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 0,
         "y": 7,
-        "exit_ptr": "0x19096",
-        "entrance_ptr": "0x190ea",
+        "exit_ptr": 102550,
+        "entrance_ptr": 102634,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 2,
         "y": 3,
-        "exit_ptr": "0x190c6",
-        "entrance_ptr": "0x1a480",
+        "exit_ptr": 102598,
+        "entrance_ptr": 107648,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 4,
-        "exit_ptr": "0x190d2",
-        "entrance_ptr": "0x1926a",
+        "exit_ptr": 102610,
+        "entrance_ptr": 103018,
         "subtype": "normal"
       },
       {
         "direction": "up",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x190ba",
-        "entrance_ptr": "0x18b02",
+        "exit_ptr": 102586,
+        "entrance_ptr": 101122,
         "subtype": "elevator"
       }
     ],
@@ -1308,15 +1308,15 @@
   },
   {
     "name": "Alpha Power Bomb Room",
-    "rom_address": "0x7a3ae",
+    "rom_address": 500654,
     "map": [[1, 1, 1]],
     "doors": [
       {
         "direction": "right",
         "x": 2,
         "y": 0,
-        "exit_ptr": "0x190ea",
-        "entrance_ptr": "0x19096",
+        "exit_ptr": 102634,
+        "entrance_ptr": 102550,
         "subtype": "normal"
       }
     ],
@@ -1326,7 +1326,7 @@
   },
   {
     "name": "Beta Power Bomb Room",
-    "rom_address": "0x7a37c",
+    "rom_address": 500604,
     "map": [
       [1, 1],
       [1, 0]
@@ -1336,8 +1336,8 @@
         "direction": "right",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x190de",
-        "entrance_ptr": "0x190a2",
+        "exit_ptr": 102622,
+        "entrance_ptr": 102562,
         "subtype": "normal"
       }
     ],
@@ -1347,15 +1347,15 @@
   },
   {
     "name": "Caterpillar Save Room",
-    "rom_address": "0x7a734",
+    "rom_address": 501556,
     "map": [[1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1926a",
-        "entrance_ptr": "0x190d2",
+        "exit_ptr": 103018,
+        "entrance_ptr": 102610,
         "subtype": "normal"
       }
     ],
@@ -1365,15 +1365,15 @@
   },
   {
     "name": "Sloaters Refill",
-    "rom_address": "0x7a618",
+    "rom_address": 501272,
     "map": [[1]],
     "doors": [
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x191fe",
-        "entrance_ptr": "0x1904e",
+        "exit_ptr": 102910,
+        "entrance_ptr": 102478,
         "subtype": "normal"
       }
     ],
@@ -1383,7 +1383,7 @@
   },
   {
     "name": "Morph Ball Room",
-    "rom_address": "0x79e9f",
+    "rom_address": 499359,
     "map": [
       [0, 0, 0, 0, 0, 1, 0, 0],
       [0, 0, 0, 0, 0, 1, 0, 0],
@@ -1394,24 +1394,24 @@
         "direction": "left",
         "x": 0,
         "y": 2,
-        "exit_ptr": "0x18e9e",
-        "entrance_ptr": "0x18e86",
+        "exit_ptr": 102046,
+        "entrance_ptr": 102022,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 7,
         "y": 2,
-        "exit_ptr": "0x18eaa",
-        "entrance_ptr": "0x18ec2",
+        "exit_ptr": 102058,
+        "entrance_ptr": 102082,
         "subtype": "normal"
       },
       {
         "direction": "up",
         "x": 5,
         "y": 0,
-        "exit_ptr": "0x18eb6",
-        "entrance_ptr": "0x18b9e",
+        "exit_ptr": 102070,
+        "entrance_ptr": 101278,
         "subtype": "elevator"
       }
     ],
@@ -1421,31 +1421,31 @@
   },
   {
     "name": "Construction Zone",
-    "rom_address": "0x79f11",
+    "rom_address": 499473,
     "map": [[1], [1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18ec2",
-        "entrance_ptr": "0x18eaa",
+        "exit_ptr": 102082,
+        "entrance_ptr": 102058,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x18eda",
-        "entrance_ptr": "0x18fa6",
+        "exit_ptr": 102106,
+        "entrance_ptr": 102310,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18ece",
-        "entrance_ptr": "0x18ee6",
+        "exit_ptr": 102094,
+        "entrance_ptr": 102118,
         "subtype": "normal"
       }
     ],
@@ -1455,15 +1455,15 @@
   },
   {
     "name": "First Missile Room",
-    "rom_address": "0x7a107",
+    "rom_address": 499975,
     "map": [[1]],
     "doors": [
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18fa6",
-        "entrance_ptr": "0x18eda",
+        "exit_ptr": 102310,
+        "entrance_ptr": 102106,
         "subtype": "normal"
       }
     ],
@@ -1473,7 +1473,7 @@
   },
   {
     "name": "Blue Brinstar Energy Tank Room",
-    "rom_address": "0x79f64",
+    "rom_address": 499556,
     "map": [
       [0, 0, 1],
       [0, 0, 1],
@@ -1484,16 +1484,16 @@
         "direction": "left",
         "x": 2,
         "y": 0,
-        "exit_ptr": "0x18ef2",
-        "entrance_ptr": "0x18fe2",
+        "exit_ptr": 102130,
+        "entrance_ptr": 102370,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 0,
         "y": 2,
-        "exit_ptr": "0x18ee6",
-        "entrance_ptr": "0x18ece",
+        "exit_ptr": 102118,
+        "entrance_ptr": 102094,
         "subtype": "normal"
       }
     ],
@@ -1503,23 +1503,23 @@
   },
   {
     "name": "Blue Brinstar Boulder Room",
-    "rom_address": "0x7a1ad",
+    "rom_address": 500141,
     "map": [[1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18fee",
-        "entrance_ptr": "0x18ffa",
+        "exit_ptr": 102382,
+        "entrance_ptr": 102394,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x18fe2",
-        "entrance_ptr": "0x18ef2",
+        "exit_ptr": 102370,
+        "entrance_ptr": 102130,
         "subtype": "normal"
       }
     ],
@@ -1529,15 +1529,15 @@
   },
   {
     "name": "Billy Mays Room",
-    "rom_address": "0x7a1d8",
+    "rom_address": 500184,
     "map": [[1]],
     "doors": [
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18ffa",
-        "entrance_ptr": "0x18fee",
+        "exit_ptr": 102394,
+        "entrance_ptr": 102382,
         "subtype": "normal"
       }
     ],
@@ -1547,7 +1547,7 @@
   },
   {
     "name": "Green Brinstar Main Shaft",
-    "rom_address": "0x79ad9",
+    "rom_address": 498393,
     "map": [
       [1, 0, 0, 0],
       [1, 0, 0, 0],
@@ -1567,80 +1567,80 @@
         "direction": "left",
         "x": 0,
         "y": 4,
-        "exit_ptr": "0x18cb2",
-        "entrance_ptr": "0x18d42",
+        "exit_ptr": 101554,
+        "entrance_ptr": 101698,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 0,
         "y": 5,
-        "exit_ptr": "0x18d12",
-        "entrance_ptr": "0x19006",
+        "exit_ptr": 101650,
+        "entrance_ptr": 102406,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 0,
         "y": 6,
-        "exit_ptr": "0x18cca",
-        "entrance_ptr": "0x18d8a",
+        "exit_ptr": 101578,
+        "entrance_ptr": 101770,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 1,
         "y": 7,
-        "exit_ptr": "0x18d06",
-        "entrance_ptr": "0x18cee",
+        "exit_ptr": 101638,
+        "entrance_ptr": 101614,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 0,
         "y": 10,
-        "exit_ptr": "0x18cbe",
-        "entrance_ptr": "0x18f16",
+        "exit_ptr": 101566,
+        "entrance_ptr": 102166,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 2,
         "y": 11,
-        "exit_ptr": "0x18cfa",
-        "entrance_ptr": "0x18f46",
+        "exit_ptr": 101626,
+        "entrance_ptr": 102214,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 4,
-        "exit_ptr": "0x18cd6",
-        "entrance_ptr": "0x18d4e",
+        "exit_ptr": 101590,
+        "entrance_ptr": 101710,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 6,
-        "exit_ptr": "0x18ce2",
-        "entrance_ptr": "0x18da2",
+        "exit_ptr": 101602,
+        "entrance_ptr": 101794,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 7,
-        "exit_ptr": "0x18cee",
-        "entrance_ptr": "0x18d06",
+        "exit_ptr": 101614,
+        "entrance_ptr": 101638,
         "subtype": "normal"
       },
       {
         "direction": "up",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18ca6",
-        "entrance_ptr": "0x18c0a",
+        "exit_ptr": 101542,
+        "entrance_ptr": 101386,
         "subtype": "elevator"
       }
     ],
@@ -1650,7 +1650,7 @@
   },
   {
     "name": "Early Supers Room",
-    "rom_address": "0x79bc8",
+    "rom_address": 498632,
     "map": [
       [1, 1, 1],
       [1, 1, 1]
@@ -1660,16 +1660,16 @@
         "direction": "left",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x18d4e",
-        "entrance_ptr": "0x18cd6",
+        "exit_ptr": 101710,
+        "entrance_ptr": 101590,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 2,
         "y": 1,
-        "exit_ptr": "0x18d5a",
-        "entrance_ptr": "0x18d66",
+        "exit_ptr": 101722,
+        "entrance_ptr": 101734,
         "subtype": "normal"
       }
     ],
@@ -1679,15 +1679,15 @@
   },
   {
     "name": "Brinstar Reserve Tank Room",
-    "rom_address": "0x79c07",
+    "rom_address": 498695,
     "map": [[1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18d66",
-        "entrance_ptr": "0x18d5a",
+        "exit_ptr": 101734,
+        "entrance_ptr": 101722,
         "subtype": "normal"
       }
     ],
@@ -1697,23 +1697,23 @@
   },
   {
     "name": "Brinstar Pre-Map Room",
-    "rom_address": "0x79b9d",
+    "rom_address": 498589,
     "map": [[1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18d36",
-        "entrance_ptr": "0x18d72",
+        "exit_ptr": 101686,
+        "entrance_ptr": 101746,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 2,
         "y": 0,
-        "exit_ptr": "0x18d42",
-        "entrance_ptr": "0x18cb2",
+        "exit_ptr": 101698,
+        "entrance_ptr": 101554,
         "subtype": "normal"
       }
     ],
@@ -1723,15 +1723,15 @@
   },
   {
     "name": "Brinstar Map Room",
-    "rom_address": "0x79c35",
+    "rom_address": 498741,
     "map": [[1]],
     "doors": [
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18d72",
-        "entrance_ptr": "0x18d36",
+        "exit_ptr": 101746,
+        "entrance_ptr": 101686,
         "subtype": "normal"
       }
     ],
@@ -1741,7 +1741,7 @@
   },
   {
     "name": "Green Brinstar Fireflea Room",
-    "rom_address": "0x79c5e",
+    "rom_address": 498782,
     "map": [
       [1, 1, 1],
       [1, 1, 0]
@@ -1751,16 +1751,16 @@
         "direction": "left",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x18d7e",
-        "entrance_ptr": "0x18d96",
+        "exit_ptr": 101758,
+        "entrance_ptr": 101782,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 2,
         "y": 0,
-        "exit_ptr": "0x18d8a",
-        "entrance_ptr": "0x18cca",
+        "exit_ptr": 101770,
+        "entrance_ptr": 101578,
         "subtype": "normal"
       }
     ],
@@ -1770,15 +1770,15 @@
   },
   {
     "name": "Green Brinstar Missile Refill Room",
-    "rom_address": "0x79c89",
+    "rom_address": 498825,
     "map": [[1]],
     "doors": [
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18d96",
-        "entrance_ptr": "0x18d7e",
+        "exit_ptr": 101782,
+        "entrance_ptr": 101758,
         "subtype": "normal"
       }
     ],
@@ -1788,15 +1788,15 @@
   },
   {
     "name": "Green Brinstar Main Shaft Save Room",
-    "rom_address": "0x7a201",
+    "rom_address": 500225,
     "map": [[1]],
     "doors": [
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x19006",
-        "entrance_ptr": "0x18d12",
+        "exit_ptr": 102406,
+        "entrance_ptr": 101650,
         "subtype": "normal"
       }
     ],
@@ -1806,15 +1806,15 @@
   },
   {
     "name": "Etecoon Save Room",
-    "rom_address": "0x7a22a",
+    "rom_address": 500266,
     "map": [[1]],
     "doors": [
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x19012",
-        "entrance_ptr": "0x18f52",
+        "exit_ptr": 102418,
+        "entrance_ptr": 102226,
         "subtype": "normal"
       }
     ],
@@ -1824,23 +1824,23 @@
   },
   {
     "name": "Green Brinstar Beetom Room",
-    "rom_address": "0x79fe5",
+    "rom_address": 499685,
     "map": [[1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18f22",
-        "entrance_ptr": "0x18f2e",
+        "exit_ptr": 102178,
+        "entrance_ptr": 102190,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18f16",
-        "entrance_ptr": "0x18cbe",
+        "exit_ptr": 102166,
+        "entrance_ptr": 101566,
         "subtype": "normal"
       }
     ],
@@ -1850,7 +1850,7 @@
   },
   {
     "name": "Etecoon Energy Tank Room",
-    "rom_address": "0x7a011",
+    "rom_address": 499729,
     "map": [
       [1, 1, 0, 0, 0],
       [1, 1, 1, 1, 1]
@@ -1860,32 +1860,32 @@
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18f3a",
-        "entrance_ptr": "0x18f5e",
+        "exit_ptr": 102202,
+        "entrance_ptr": 102238,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x18f52",
-        "entrance_ptr": "0x19012",
+        "exit_ptr": 102226,
+        "entrance_ptr": 102418,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x18f2e",
-        "entrance_ptr": "0x18f22",
+        "exit_ptr": 102190,
+        "entrance_ptr": 102178,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 4,
         "y": 1,
-        "exit_ptr": "0x18f46",
-        "entrance_ptr": "0x18cfa",
+        "exit_ptr": 102214,
+        "entrance_ptr": 101626,
         "subtype": "normal"
       }
     ],
@@ -1898,15 +1898,15 @@
   },
   {
     "name": "Etecoon Super Room",
-    "rom_address": "0x7a051",
+    "rom_address": 499793,
     "map": [[1]],
     "doors": [
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18f5e",
-        "entrance_ptr": "0x18f3a",
+        "exit_ptr": 102238,
+        "entrance_ptr": 102202,
         "subtype": "normal"
       }
     ],
@@ -1916,7 +1916,7 @@
   },
   {
     "name": "Green Hill Zone",
-    "rom_address": "0x79e52",
+    "rom_address": 499282,
     "map": [
       [1, 1, 0, 0, 0, 0, 0, 0],
       [1, 1, 1, 1, 0, 0, 0, 0],
@@ -1928,24 +1928,24 @@
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18e7a",
-        "entrance_ptr": "0x18dea",
+        "exit_ptr": 102010,
+        "entrance_ptr": 101866,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x18e86",
-        "entrance_ptr": "0x18e9e",
+        "exit_ptr": 102022,
+        "entrance_ptr": 102046,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 7,
         "y": 3,
-        "exit_ptr": "0x18e92",
-        "entrance_ptr": "0x18efe",
+        "exit_ptr": 102034,
+        "entrance_ptr": 102142,
         "subtype": "normal"
       }
     ],
@@ -1955,23 +1955,23 @@
   },
   {
     "name": "Noob Bridge",
-    "rom_address": "0x79fba",
+    "rom_address": 499642,
     "map": [[1, 1, 1, 1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18efe",
-        "entrance_ptr": "0x18e92",
+        "exit_ptr": 102142,
+        "entrance_ptr": 102034,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 5,
         "y": 0,
-        "exit_ptr": "0x18f0a",
-        "entrance_ptr": "0x1902a",
+        "exit_ptr": 102154,
+        "entrance_ptr": 102442,
         "subtype": "normal"
       }
     ],
@@ -1981,23 +1981,23 @@
   },
   {
     "name": "Spore Spawn Kihunter Room",
-    "rom_address": "0x79d9c",
+    "rom_address": 499100,
     "map": [[1, 1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18e32",
-        "entrance_ptr": "0x18dc6",
+        "exit_ptr": 101938,
+        "entrance_ptr": 101830,
         "subtype": "normal"
       },
       {
         "direction": "up",
         "x": 3,
         "y": 0,
-        "exit_ptr": "0x18e3e",
-        "entrance_ptr": "0x18e56",
+        "exit_ptr": 101950,
+        "entrance_ptr": 101974,
         "subtype": "normal"
       }
     ],
@@ -2007,23 +2007,23 @@
   },
   {
     "name": "Spore Spawn Room",
-    "rom_address": "0x79dc7",
+    "rom_address": 499143,
     "map": [[1], [1], [1]],
     "doors": [
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18e4a",
-        "entrance_ptr": "0x18d2a",
+        "exit_ptr": 101962,
+        "entrance_ptr": 101674,
         "subtype": "normal"
       },
       {
         "direction": "down",
         "x": 0,
         "y": 2,
-        "exit_ptr": "0x18e56",
-        "entrance_ptr": "0x18e3e",
+        "exit_ptr": 101974,
+        "entrance_ptr": 101950,
         "subtype": "normal"
       }
     ],
@@ -2033,7 +2033,7 @@
   },
   {
     "name": "Dachora Room",
-    "rom_address": "0x79cb3",
+    "rom_address": 498867,
     "map": [
       [1, 1, 1, 1, 1, 1, 1],
       [0, 0, 0, 0, 1, 0, 0],
@@ -2048,24 +2048,24 @@
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18da2",
-        "entrance_ptr": "0x18ce2",
+        "exit_ptr": 101794,
+        "entrance_ptr": 101602,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 0,
         "y": 6,
-        "exit_ptr": "0x18dba",
-        "entrance_ptr": "0x18f6a",
+        "exit_ptr": 101818,
+        "entrance_ptr": 102250,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 6,
         "y": 0,
-        "exit_ptr": "0x18dae",
-        "entrance_ptr": "0x18dd2",
+        "exit_ptr": 101806,
+        "entrance_ptr": 101842,
         "subtype": "normal"
       }
     ],
@@ -2075,15 +2075,15 @@
   },
   {
     "name": "Dachora Energy Refill Room",
-    "rom_address": "0x7a07b",
+    "rom_address": 499835,
     "map": [[1]],
     "doors": [
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18f6a",
-        "entrance_ptr": "0x18dba",
+        "exit_ptr": 102250,
+        "entrance_ptr": 101818,
         "subtype": "normal"
       }
     ],
@@ -2093,7 +2093,7 @@
   },
   {
     "name": "Big Pink",
-    "rom_address": "0x79d19",
+    "rom_address": 498969,
     "map": [
       [0, 1, 1, 1, 0],
       [0, 0, 1, 1, 0],
@@ -2111,72 +2111,72 @@
         "direction": "left",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x18df6",
-        "entrance_ptr": "0x18fd6",
+        "exit_ptr": 101878,
+        "entrance_ptr": 102358,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 2,
         "y": 2,
-        "exit_ptr": "0x18dd2",
-        "entrance_ptr": "0x18dae",
+        "exit_ptr": 101842,
+        "entrance_ptr": 101806,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 2,
         "y": 3,
-        "exit_ptr": "0x18e02",
-        "entrance_ptr": "0x18e62",
+        "exit_ptr": 101890,
+        "entrance_ptr": 101986,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 2,
         "y": 4,
-        "exit_ptr": "0x18dde",
-        "entrance_ptr": "0x18e6e",
+        "exit_ptr": 101854,
+        "entrance_ptr": 101998,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 0,
         "y": 9,
-        "exit_ptr": "0x18e0e",
-        "entrance_ptr": "0x18f8e",
+        "exit_ptr": 101902,
+        "entrance_ptr": 102286,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 3,
         "y": 0,
-        "exit_ptr": "0x18dc6",
-        "entrance_ptr": "0x18e32",
+        "exit_ptr": 101830,
+        "entrance_ptr": 101938,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 3,
         "y": 4,
-        "exit_ptr": "0x18e1a",
-        "entrance_ptr": "0x18fb2",
+        "exit_ptr": 101914,
+        "entrance_ptr": 102322,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 4,
         "y": 5,
-        "exit_ptr": "0x18e26",
-        "entrance_ptr": "0x18f82",
+        "exit_ptr": 101926,
+        "entrance_ptr": 102274,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 3,
         "y": 6,
-        "exit_ptr": "0x18dea",
-        "entrance_ptr": "0x18e7a",
+        "exit_ptr": 101866,
+        "entrance_ptr": 102010,
         "subtype": "normal"
       }
     ],
@@ -2189,15 +2189,15 @@
   },
   {
     "name": "Big Pink Save Room",
-    "rom_address": "0x7a184",
+    "rom_address": 500100,
     "map": [[1]],
     "doors": [
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18fd6",
-        "entrance_ptr": "0x18df6",
+        "exit_ptr": 102358,
+        "entrance_ptr": 101878,
         "subtype": "normal"
       }
     ],
@@ -2207,7 +2207,7 @@
   },
   {
     "name": "Pink Brinstar Power Bomb Room",
-    "rom_address": "0x79e11",
+    "rom_address": 499217,
     "map": [
       [1, 1],
       [1, 1]
@@ -2217,16 +2217,16 @@
         "direction": "right",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x18e62",
-        "entrance_ptr": "0x18e02",
+        "exit_ptr": 101986,
+        "entrance_ptr": 101890,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 1,
-        "exit_ptr": "0x18e6e",
-        "entrance_ptr": "0x18dde",
+        "exit_ptr": 101998,
+        "entrance_ptr": 101854,
         "subtype": "normal"
       }
     ],
@@ -2236,7 +2236,7 @@
   },
   {
     "name": "Pink Brinstar Hopper Room",
-    "rom_address": "0x7a130",
+    "rom_address": 500016,
     "map": [
       [1, 1],
       [1, 1]
@@ -2246,16 +2246,16 @@
         "direction": "left",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x18fb2",
-        "entrance_ptr": "0x18e1a",
+        "exit_ptr": 102322,
+        "entrance_ptr": 101914,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 1,
-        "exit_ptr": "0x18fbe",
-        "entrance_ptr": "0x18fca",
+        "exit_ptr": 102334,
+        "entrance_ptr": 102346,
         "subtype": "normal"
       }
     ],
@@ -2265,15 +2265,15 @@
   },
   {
     "name": "Hopper Energy Tank Room",
-    "rom_address": "0x7a15b",
+    "rom_address": 500059,
     "map": [[1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18fca",
-        "entrance_ptr": "0x18fbe",
+        "exit_ptr": 102346,
+        "entrance_ptr": 102334,
         "subtype": "normal"
       }
     ],
@@ -2283,7 +2283,7 @@
   },
   {
     "name": "Spore Spawn Super Room",
-    "rom_address": "0x79b5b",
+    "rom_address": 498523,
     "map": [
       [1, 1],
       [0, 1],
@@ -2300,16 +2300,16 @@
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18d2a",
-        "entrance_ptr": "0x18e4a",
+        "exit_ptr": 101674,
+        "entrance_ptr": 101962,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 0,
         "y": 8,
-        "exit_ptr": "0x18d1e",
-        "entrance_ptr": "0x18f76",
+        "exit_ptr": 101662,
+        "entrance_ptr": 102262,
         "subtype": "normal"
       }
     ],
@@ -2319,23 +2319,23 @@
   },
   {
     "name": "Spore Spawn Farming Room",
-    "rom_address": "0x7a0a4",
+    "rom_address": 499876,
     "map": [[1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x18f82",
-        "entrance_ptr": "0x18e26",
+        "exit_ptr": 102274,
+        "entrance_ptr": 101926,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 2,
         "y": 0,
-        "exit_ptr": "0x18f76",
-        "entrance_ptr": "0x18d1e",
+        "exit_ptr": 102262,
+        "entrance_ptr": 101662,
         "subtype": "normal"
       }
     ],
@@ -2345,15 +2345,15 @@
   },
   {
     "name": "Waterway Energy Tank Room",
-    "rom_address": "0x7a0d2",
+    "rom_address": 499922,
     "map": [[1, 1, 1, 1, 1, 1, 1]],
     "doors": [
       {
         "direction": "right",
         "x": 6,
         "y": 0,
-        "exit_ptr": "0x18f8e",
-        "entrance_ptr": "0x18e0e",
+        "exit_ptr": 102286,
+        "entrance_ptr": 101902,
         "subtype": "normal"
       }
     ],
@@ -2363,7 +2363,7 @@
   },
   {
     "name": "Warehouse Entrance",
-    "rom_address": "0x7a6a1",
+    "rom_address": 501409,
     "map": [
       [1, 1, 1],
       [1, 1, 0]
@@ -2373,24 +2373,24 @@
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1922e",
-        "entrance_ptr": "0x1a384",
+        "exit_ptr": 102958,
+        "entrance_ptr": 107396,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 2,
         "y": 0,
-        "exit_ptr": "0x1923a",
-        "entrance_ptr": "0x1913e",
+        "exit_ptr": 102970,
+        "entrance_ptr": 102718,
         "subtype": "normal"
       },
       {
         "direction": "down",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x19246",
-        "entrance_ptr": "0x192ee",
+        "exit_ptr": 102982,
+        "entrance_ptr": 103150,
         "subtype": "elevator"
       }
     ],
@@ -2400,7 +2400,7 @@
   },
   {
     "name": "Warehouse Zeela Room",
-    "rom_address": "0x7a471",
+    "rom_address": 500849,
     "map": [
       [1, 0],
       [1, 1]
@@ -2410,24 +2410,24 @@
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1913e",
-        "entrance_ptr": "0x1923a",
+        "exit_ptr": 102718,
+        "entrance_ptr": 102970,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x1914a",
-        "entrance_ptr": "0x19162",
+        "exit_ptr": 102730,
+        "entrance_ptr": 102754,
         "subtype": "normal"
       },
       {
         "direction": "up",
         "x": 1,
         "y": 1,
-        "exit_ptr": "0x19156",
-        "entrance_ptr": "0x1916e",
+        "exit_ptr": 102742,
+        "entrance_ptr": 102766,
         "subtype": "normal"
       }
     ],
@@ -2437,15 +2437,15 @@
   },
   {
     "name": "Warehouse Energy Tank Room",
-    "rom_address": "0x7a4b1",
+    "rom_address": 500913,
     "map": [[1]],
     "doors": [
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x19162",
-        "entrance_ptr": "0x1914a",
+        "exit_ptr": 102754,
+        "entrance_ptr": 102730,
         "subtype": "normal"
       }
     ],
@@ -2455,7 +2455,7 @@
   },
   {
     "name": "Warehouse Kihunter Room",
-    "rom_address": "0x7a4da",
+    "rom_address": 500954,
     "map": [
       [1, 1, 1, 1],
       [0, 1, 0, 0]
@@ -2465,24 +2465,24 @@
         "direction": "right",
         "x": 3,
         "y": 0,
-        "exit_ptr": "0x19186",
-        "entrance_ptr": "0x1925e",
+        "exit_ptr": 102790,
+        "entrance_ptr": 103006,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 1,
-        "exit_ptr": "0x1917a",
-        "entrance_ptr": "0x19192",
+        "exit_ptr": 102778,
+        "entrance_ptr": 102802,
         "subtype": "normal"
       },
       {
         "direction": "down",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1916e",
-        "entrance_ptr": "0x19156",
+        "exit_ptr": 102766,
+        "entrance_ptr": 102742,
         "subtype": "normal"
       }
     ],
@@ -2492,15 +2492,15 @@
   },
   {
     "name": "Warehouse Save Room",
-    "rom_address": "0x7a70b",
+    "rom_address": 501515,
     "map": [[1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1925e",
-        "entrance_ptr": "0x19186",
+        "exit_ptr": 103006,
+        "entrance_ptr": 102790,
         "subtype": "normal"
       }
     ],
@@ -2510,23 +2510,23 @@
   },
   {
     "name": "Baby Kraid Room",
-    "rom_address": "0x7a521",
+    "rom_address": 501025,
     "map": [[1, 1, 1, 1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x19192",
-        "entrance_ptr": "0x1917a",
+        "exit_ptr": 102802,
+        "entrance_ptr": 102778,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 5,
         "y": 0,
-        "exit_ptr": "0x1919e",
-        "entrance_ptr": "0x191aa",
+        "exit_ptr": 102814,
+        "entrance_ptr": 102826,
         "subtype": "normal"
       }
     ],
@@ -2536,7 +2536,7 @@
   },
   {
     "name": "Kraid Eye Door Room",
-    "rom_address": "0x7a56b",
+    "rom_address": 501099,
     "map": [
       [1, 0],
       [1, 1]
@@ -2546,24 +2546,24 @@
         "direction": "left",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x191aa",
-        "entrance_ptr": "0x1919e",
+        "exit_ptr": 102826,
+        "entrance_ptr": 102814,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x191c2",
-        "entrance_ptr": "0x1920a",
+        "exit_ptr": 102850,
+        "entrance_ptr": 102922,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 1,
-        "exit_ptr": "0x191b6",
-        "entrance_ptr": "0x191ce",
+        "exit_ptr": 102838,
+        "entrance_ptr": 102862,
         "subtype": "normal"
       }
     ],
@@ -2573,15 +2573,15 @@
   },
   {
     "name": "Kraid Recharge Station",
-    "rom_address": "0x7a641",
+    "rom_address": 501313,
     "map": [[1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1920a",
-        "entrance_ptr": "0x191c2",
+        "exit_ptr": 102922,
+        "entrance_ptr": 102850,
         "subtype": "normal"
       }
     ],
@@ -2591,7 +2591,7 @@
   },
   {
     "name": "Kraid Room",
-    "rom_address": "0x7a59f",
+    "rom_address": 501151,
     "map": [
       [1, 1],
       [1, 1]
@@ -2601,16 +2601,16 @@
         "direction": "left",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x191ce",
-        "entrance_ptr": "0x191b6",
+        "exit_ptr": 102862,
+        "entrance_ptr": 102838,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 1,
-        "exit_ptr": "0x191da",
-        "entrance_ptr": "0x19252",
+        "exit_ptr": 102874,
+        "entrance_ptr": 102994,
         "subtype": "normal"
       }
     ],
@@ -2620,15 +2620,15 @@
   },
   {
     "name": "Varia Suit Room",
-    "rom_address": "0x7a6e2",
+    "rom_address": 501474,
     "map": [[1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x19252",
-        "entrance_ptr": "0x191da",
+        "exit_ptr": 102994,
+        "entrance_ptr": 102874,
         "subtype": "normal"
       }
     ],
@@ -2638,23 +2638,23 @@
   },
   {
     "name": "West Tunnel",
-    "rom_address": "0x7cf54",
+    "rom_address": 511828,
     "map": [[1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a36c",
-        "entrance_ptr": "0x1911a",
+        "exit_ptr": 107372,
+        "entrance_ptr": 102682,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a360",
-        "entrance_ptr": "0x1a33c",
+        "exit_ptr": 107360,
+        "entrance_ptr": 107324,
         "subtype": "normal"
       }
     ],
@@ -2664,7 +2664,7 @@
   },
   {
     "name": "East Tunnel",
-    "rom_address": "0x7cf80",
+    "rom_address": 511872,
     "map": [
       [1, 1, 1, 1],
       [1, 0, 0, 0]
@@ -2674,24 +2674,24 @@
         "direction": "left",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x1a378",
-        "entrance_ptr": "0x1a348",
+        "exit_ptr": 107384,
+        "entrance_ptr": 107336,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x1a384",
-        "entrance_ptr": "0x1922e",
+        "exit_ptr": 107396,
+        "entrance_ptr": 102958,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 3,
         "y": 0,
-        "exit_ptr": "0x1a390",
-        "entrance_ptr": "0x1a510",
+        "exit_ptr": 107408,
+        "entrance_ptr": 107792,
         "subtype": "normal"
       }
     ],
@@ -2701,39 +2701,39 @@
   },
   {
     "name": "Glass Tunnel",
-    "rom_address": "0x7cefb",
+    "rom_address": 511739,
     "map": [[1], [1], [1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x1a33c",
-        "entrance_ptr": "0x1a360",
+        "exit_ptr": 107324,
+        "entrance_ptr": 107360,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x1a348",
-        "entrance_ptr": "0x1a378",
+        "exit_ptr": 107336,
+        "entrance_ptr": 107384,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 2,
-        "exit_ptr": "0x1a354",
-        "entrance_ptr": "0x1a324",
+        "exit_ptr": 107348,
+        "entrance_ptr": 107300,
         "subtype": "normal"
       },
       {
         "direction": "up",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a330",
-        "entrance_ptr": "0x1a39c",
+        "exit_ptr": 107312,
+        "entrance_ptr": 107420,
         "subtype": "normal"
       }
     ],
@@ -2743,15 +2743,15 @@
   },
   {
     "name": "Glass Tunnel Save Room",
-    "rom_address": "0x7ced2",
+    "rom_address": 511698,
     "map": [[1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a324",
-        "entrance_ptr": "0x1a354",
+        "exit_ptr": 107300,
+        "entrance_ptr": 107348,
         "subtype": "normal"
       }
     ],
@@ -2761,7 +2761,7 @@
   },
   {
     "name": "Main Street",
-    "rom_address": "0x7cfc9",
+    "rom_address": 511945,
     "map": [
       [1, 1, 0],
       [1, 1, 0],
@@ -2777,40 +2777,40 @@
         "direction": "right",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x1a3c0",
-        "entrance_ptr": "0x1a438",
+        "exit_ptr": 107456,
+        "entrance_ptr": 107576,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 2,
         "y": 2,
-        "exit_ptr": "0x1a3cc",
-        "entrance_ptr": "0x1a45c",
+        "exit_ptr": 107468,
+        "entrance_ptr": 107612,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 2,
         "y": 6,
-        "exit_ptr": "0x1a3b4",
-        "entrance_ptr": "0x1a3d8",
+        "exit_ptr": 107444,
+        "entrance_ptr": 107480,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 7,
-        "exit_ptr": "0x1a3a8",
-        "entrance_ptr": "0x1a414",
+        "exit_ptr": 107432,
+        "entrance_ptr": 107540,
         "subtype": "normal"
       },
       {
         "direction": "down",
         "x": 1,
         "y": 7,
-        "exit_ptr": "0x1a39c",
-        "entrance_ptr": "0x1a330",
+        "exit_ptr": 107420,
+        "entrance_ptr": 107312,
         "subtype": "normal"
       }
     ],
@@ -2820,7 +2820,7 @@
   },
   {
     "name": "Fish Tank",
-    "rom_address": "0x7d017",
+    "rom_address": 512023,
     "map": [
       [1, 1, 1, 1],
       [1, 1, 1, 1],
@@ -2831,32 +2831,32 @@
         "direction": "left",
         "x": 0,
         "y": 2,
-        "exit_ptr": "0x1a3d8",
-        "entrance_ptr": "0x1a3b4",
+        "exit_ptr": 107480,
+        "entrance_ptr": 107444,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 3,
         "y": 2,
-        "exit_ptr": "0x1a3e4",
-        "entrance_ptr": "0x1a408",
+        "exit_ptr": 107492,
+        "entrance_ptr": 107528,
         "subtype": "normal"
       },
       {
         "direction": "up",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a3f0",
-        "entrance_ptr": "0x1a444",
+        "exit_ptr": 107504,
+        "entrance_ptr": 107588,
         "subtype": "normal"
       },
       {
         "direction": "up",
         "x": 3,
         "y": 0,
-        "exit_ptr": "0x1a3fc",
-        "entrance_ptr": "0x1a450",
+        "exit_ptr": 107516,
+        "entrance_ptr": 107600,
         "subtype": "normal"
       }
     ],
@@ -2866,7 +2866,7 @@
   },
   {
     "name": "Mt. Everest",
-    "rom_address": "0x7d0b9",
+    "rom_address": 512185,
     "map": [
       [1, 1, 1, 1, 1, 1],
       [1, 1, 1, 1, 1, 1],
@@ -2878,48 +2878,48 @@
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a438",
-        "entrance_ptr": "0x1a3c0",
+        "exit_ptr": 107576,
+        "entrance_ptr": 107456,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 1,
         "y": 2,
-        "exit_ptr": "0x1a45c",
-        "entrance_ptr": "0x1a3cc",
+        "exit_ptr": 107612,
+        "entrance_ptr": 107468,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 5,
         "y": 0,
-        "exit_ptr": "0x1a468",
-        "entrance_ptr": "0x1a4b0",
+        "exit_ptr": 107624,
+        "entrance_ptr": 107696,
         "subtype": "normal"
       },
       {
         "direction": "down",
         "x": 1,
         "y": 3,
-        "exit_ptr": "0x1a444",
-        "entrance_ptr": "0x1a3f0",
+        "exit_ptr": 107588,
+        "entrance_ptr": 107504,
         "subtype": "normal"
       },
       {
         "direction": "down",
         "x": 4,
         "y": 3,
-        "exit_ptr": "0x1a450",
-        "entrance_ptr": "0x1a3fc",
+        "exit_ptr": 107600,
+        "entrance_ptr": 107516,
         "subtype": "normal"
       },
       {
         "direction": "up",
         "x": 2,
         "y": 0,
-        "exit_ptr": "0x1a42c",
-        "entrance_ptr": "0x1a474",
+        "exit_ptr": 107564,
+        "entrance_ptr": 107636,
         "subtype": "normal"
       }
     ],
@@ -2929,7 +2929,7 @@
   },
   {
     "name": "Crab Shaft",
-    "rom_address": "0x7d1a3",
+    "rom_address": 512419,
     "map": [
       [1, 0],
       [1, 0],
@@ -2941,24 +2941,24 @@
         "direction": "left",
         "x": 0,
         "y": 2,
-        "exit_ptr": "0x1a4b0",
-        "entrance_ptr": "0x1a468",
+        "exit_ptr": 107696,
+        "entrance_ptr": 107624,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 3,
-        "exit_ptr": "0x1a4c8",
-        "entrance_ptr": "0x1a708",
+        "exit_ptr": 107720,
+        "entrance_ptr": 108296,
         "subtype": "normal"
       },
       {
         "direction": "up",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a4bc",
-        "entrance_ptr": "0x1a4e0",
+        "exit_ptr": 107708,
+        "entrance_ptr": 107744,
         "subtype": "normal"
       }
     ],
@@ -2968,23 +2968,23 @@
   },
   {
     "name": "Crab Tunnel",
-    "rom_address": "0x7d08a",
+    "rom_address": 512138,
     "map": [[1, 1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a414",
-        "entrance_ptr": "0x1a3a8",
+        "exit_ptr": 107540,
+        "entrance_ptr": 107432,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 3,
         "y": 0,
-        "exit_ptr": "0x1a420",
-        "entrance_ptr": "0x1a4f8",
+        "exit_ptr": 107552,
+        "entrance_ptr": 107768,
         "subtype": "normal"
       }
     ],
@@ -2994,7 +2994,7 @@
   },
   {
     "name": "Red Fish Room",
-    "rom_address": "0x7d104",
+    "rom_address": 512260,
     "map": [
       [1, 1, 1],
       [0, 0, 1]
@@ -3004,16 +3004,16 @@
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a480",
-        "entrance_ptr": "0x190c6",
+        "exit_ptr": 107648,
+        "entrance_ptr": 102598,
         "subtype": "normal"
       },
       {
         "direction": "down",
         "x": 2,
         "y": 1,
-        "exit_ptr": "0x1a474",
-        "entrance_ptr": "0x1a42c",
+        "exit_ptr": 107636,
+        "entrance_ptr": 107564,
         "subtype": "normal"
       }
     ],
@@ -3023,7 +3023,7 @@
   },
   {
     "name": "Mama Turtle Room",
-    "rom_address": "0x7d055",
+    "rom_address": 512085,
     "map": [
       [0, 1, 1],
       [0, 1, 1],
@@ -3035,8 +3035,8 @@
         "direction": "left",
         "x": 0,
         "y": 3,
-        "exit_ptr": "0x1a408",
-        "entrance_ptr": "0x1a3e4",
+        "exit_ptr": 107528,
+        "entrance_ptr": 107492,
         "subtype": "normal"
       }
     ],
@@ -3046,7 +3046,7 @@
   },
   {
     "name": "Pseudo Plasma Spark Room",
-    "rom_address": "0x7d1dd",
+    "rom_address": 512477,
     "map": [
       [1, 1, 1, 1],
       [1, 1, 1, 1],
@@ -3057,16 +3057,16 @@
         "direction": "left",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x1a4d4",
-        "entrance_ptr": "0x1a4a4",
+        "exit_ptr": 107732,
+        "entrance_ptr": 107684,
         "subtype": "normal"
       },
       {
         "direction": "down",
         "x": 0,
         "y": 2,
-        "exit_ptr": "0x1a4e0",
-        "entrance_ptr": "0x1a4bc",
+        "exit_ptr": 107744,
+        "entrance_ptr": 107708,
         "subtype": "normal"
       }
     ],
@@ -3076,7 +3076,7 @@
   },
   {
     "name": "Northwest Maridia Bug Room",
-    "rom_address": "0x7d16d",
+    "rom_address": 512365,
     "map": [
       [1, 0, 0, 0],
       [1, 1, 1, 1]
@@ -3086,16 +3086,16 @@
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a498",
-        "entrance_ptr": "0x1a48c",
+        "exit_ptr": 107672,
+        "entrance_ptr": 107660,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 3,
         "y": 1,
-        "exit_ptr": "0x1a4a4",
-        "entrance_ptr": "0x1a4d4",
+        "exit_ptr": 107684,
+        "entrance_ptr": 107732,
         "subtype": "normal"
       }
     ],
@@ -3105,7 +3105,7 @@
   },
   {
     "name": "Watering Hole",
-    "rom_address": "0x7d13b",
+    "rom_address": 512315,
     "map": [
       [1, 1],
       [1, 0],
@@ -3116,8 +3116,8 @@
         "direction": "right",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x1a48c",
-        "entrance_ptr": "0x1a498",
+        "exit_ptr": 107660,
+        "entrance_ptr": 107672,
         "subtype": "normal"
       }
     ],
@@ -3127,15 +3127,15 @@
   },
   {
     "name": "Aqueduct Save Room",
-    "rom_address": "0x7d765",
+    "rom_address": 513893,
     "map": [[1]],
     "doors": [
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a828",
-        "entrance_ptr": "0x1a744",
+        "exit_ptr": 108584,
+        "entrance_ptr": 108356,
         "subtype": "normal"
       }
     ],
@@ -3145,7 +3145,7 @@
   },
   {
     "name": "Aqueduct",
-    "rom_address": "0x7d5a7",
+    "rom_address": 513447,
     "map": [
       [0, 0, 1, 0, 0, 0],
       [0, 0, 1, 0, 0, 0],
@@ -3163,64 +3163,64 @@
         "direction": "left",
         "x": 0,
         "y": 5,
-        "exit_ptr": "0x1a708",
-        "entrance_ptr": "0x1a4c8",
+        "exit_ptr": 108296,
+        "entrance_ptr": 107720,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 0,
         "y": 6,
-        "exit_ptr": "0x1a744",
-        "entrance_ptr": "0x1a828",
+        "exit_ptr": 108356,
+        "entrance_ptr": 108584,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 5,
         "y": 5,
-        "exit_ptr": "0x1a738",
-        "entrance_ptr": "0x1a7d4",
+        "exit_ptr": 108344,
+        "entrance_ptr": 108500,
         "subtype": "normal"
       },
       {
         "direction": "down",
         "x": 2,
         "y": 9,
-        "exit_ptr": "0x1a600",
-        "entrance_ptr": "0x1a678",
+        "exit_ptr": 108032,
+        "entrance_ptr": 108152,
         "subtype": "normal"
       },
       {
         "direction": "down",
         "x": 1,
         "y": 6,
-        "exit_ptr": "0x1a714",
-        "entrance_ptr": "0x1a6d8",
+        "exit_ptr": 108308,
+        "entrance_ptr": 108248,
         "subtype": "sand"
       },
       {
         "direction": "down",
         "x": 3,
         "y": 6,
-        "exit_ptr": "0x1a720",
-        "entrance_ptr": "0x1a6f0",
+        "exit_ptr": 108320,
+        "entrance_ptr": 108272,
         "subtype": "sand"
       },
       {
         "direction": "up",
         "x": 0,
         "y": 4,
-        "exit_ptr": "0x1a72c",
-        "entrance_ptr": "0x1a768",
+        "exit_ptr": 108332,
+        "entrance_ptr": 108392,
         "subtype": "normal"
       },
       {
         "direction": "up",
         "x": 2,
         "y": 0,
-        "exit_ptr": "0x1a60c",
-        "entrance_ptr": "0x1a5ac",
+        "exit_ptr": 108044,
+        "entrance_ptr": 107948,
         "subtype": "normal"
       }
     ],
@@ -3233,23 +3233,23 @@
   },
   {
     "name": "Botwoon Hallway",
-    "rom_address": "0x7d617",
+    "rom_address": 513559,
     "map": [[1, 1, 1, 1]],
     "doors": [
       {
         "direction": "right",
         "x": 3,
         "y": 0,
-        "exit_ptr": "0x1a774",
-        "entrance_ptr": "0x1a90c",
+        "exit_ptr": 108404,
+        "entrance_ptr": 108812,
         "subtype": "normal"
       },
       {
         "direction": "down",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a768",
-        "entrance_ptr": "0x1a72c",
+        "exit_ptr": 108392,
+        "entrance_ptr": 108332,
         "subtype": "normal"
       }
     ],
@@ -3259,23 +3259,23 @@
   },
   {
     "name": "Botwoon's Room",
-    "rom_address": "0x7d95e",
+    "rom_address": 514398,
     "map": [[1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a90c",
-        "entrance_ptr": "0x1a774",
+        "exit_ptr": 108812,
+        "entrance_ptr": 108404,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x1a918",
-        "entrance_ptr": "0x1a84c",
+        "exit_ptr": 108824,
+        "entrance_ptr": 108620,
         "subtype": "normal"
       }
     ],
@@ -3285,30 +3285,30 @@
   },
   {
     "name": "Botwoon Energy Tank Room",
-    "rom_address": "0x7d7e4",
+    "rom_address": 514020,
     "map": [[1, 1, 1, 1, 1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a84c",
-        "entrance_ptr": "0x1a918",
+        "exit_ptr": 108620,
+        "entrance_ptr": 108824,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 6,
         "y": 0,
-        "exit_ptr": "0x1a870",
-        "entrance_ptr": "0x1a8dc",
+        "exit_ptr": 108656,
+        "entrance_ptr": 108764,
         "subtype": "normal"
       },
       {
         "direction": "down",
         "x": 2,
         "y": 0,
-        "exit_ptr": "0x1a858",
+        "exit_ptr": 108632,
         "entrance_ptr": null,
         "subtype": "sand"
       },
@@ -3316,7 +3316,7 @@
         "direction": "down",
         "x": 3,
         "y": 0,
-        "exit_ptr": "0x1a864",
+        "exit_ptr": 108644,
         "entrance_ptr": null,
         "subtype": "sand"
       }
@@ -3330,7 +3330,7 @@
   },
   {
     "name": "Halfie Climb Room",
-    "rom_address": "0x7d913",
+    "rom_address": 514323,
     "map": [
       [1, 0, 0, 0, 0],
       [1, 0, 0, 0, 0],
@@ -3341,32 +3341,32 @@
         "direction": "left",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x1a900",
-        "entrance_ptr": "0x1a960",
+        "exit_ptr": 108800,
+        "entrance_ptr": 108896,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 0,
         "y": 2,
-        "exit_ptr": "0x1a8dc",
-        "entrance_ptr": "0x1a870",
+        "exit_ptr": 108764,
+        "entrance_ptr": 108656,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a8e8",
-        "entrance_ptr": "0x1a7e0",
+        "exit_ptr": 108776,
+        "entrance_ptr": 108512,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 4,
         "y": 2,
-        "exit_ptr": "0x1a8f4",
-        "entrance_ptr": "0x1a894",
+        "exit_ptr": 108788,
+        "entrance_ptr": 108692,
         "subtype": "normal"
       }
     ],
@@ -3376,15 +3376,15 @@
   },
   {
     "name": "Maridia Missile Refill Room",
-    "rom_address": "0x7d845",
+    "rom_address": 514117,
     "map": [[1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a894",
-        "entrance_ptr": "0x1a8f4",
+        "exit_ptr": 108692,
+        "entrance_ptr": 108788,
         "subtype": "normal"
       }
     ],
@@ -3394,7 +3394,7 @@
   },
   {
     "name": "Colosseum",
-    "rom_address": "0x7d72a",
+    "rom_address": 513834,
     "map": [
       [1, 1, 1, 1, 1, 1, 1],
       [1, 1, 1, 1, 1, 1, 1]
@@ -3404,24 +3404,24 @@
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a7e0",
-        "entrance_ptr": "0x1a8e8",
+        "exit_ptr": 108512,
+        "entrance_ptr": 108776,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 6,
         "y": 0,
-        "exit_ptr": "0x1a7ec",
-        "entrance_ptr": "0x1a888",
+        "exit_ptr": 108524,
+        "entrance_ptr": 108680,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 6,
         "y": 1,
-        "exit_ptr": "0x1a7f8",
-        "entrance_ptr": "0x1a834",
+        "exit_ptr": 108536,
+        "entrance_ptr": 108596,
         "subtype": "normal"
       }
     ],
@@ -3431,23 +3431,23 @@
   },
   {
     "name": "Draygon Save Room",
-    "rom_address": "0x7d81a",
+    "rom_address": 514074,
     "map": [[1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a888",
-        "entrance_ptr": "0x1a7ec",
+        "exit_ptr": 108680,
+        "entrance_ptr": 108524,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a87c",
-        "entrance_ptr": "0x1a930",
+        "exit_ptr": 108668,
+        "entrance_ptr": 108848,
         "subtype": "normal"
       }
     ],
@@ -3457,15 +3457,15 @@
   },
   {
     "name": "Maridia Health Refill Room",
-    "rom_address": "0x7d9d4",
+    "rom_address": 514516,
     "map": [[1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a930",
-        "entrance_ptr": "0x1a87c",
+        "exit_ptr": 108848,
+        "entrance_ptr": 108668,
         "subtype": "normal"
       }
     ],
@@ -3475,7 +3475,7 @@
   },
   {
     "name": "The Precious Room",
-    "rom_address": "0x7d78f",
+    "rom_address": 513935,
     "map": [
       [1, 1],
       [1, 0],
@@ -3486,16 +3486,16 @@
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a834",
-        "entrance_ptr": "0x1a7f8",
+        "exit_ptr": 108596,
+        "entrance_ptr": 108536,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 0,
         "y": 2,
-        "exit_ptr": "0x1a840",
-        "entrance_ptr": "0x1a96c",
+        "exit_ptr": 108608,
+        "entrance_ptr": 108908,
         "subtype": "normal"
       }
     ],
@@ -3505,7 +3505,7 @@
   },
   {
     "name": "Draygon's Room",
-    "rom_address": "0x7da60",
+    "rom_address": 514656,
     "map": [
       [1, 1],
       [1, 1]
@@ -3515,16 +3515,16 @@
         "direction": "left",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x1a978",
-        "entrance_ptr": "0x1a924",
+        "exit_ptr": 108920,
+        "entrance_ptr": 108836,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x1a96c",
-        "entrance_ptr": "0x1a840",
+        "exit_ptr": 108908,
+        "entrance_ptr": 108608,
         "subtype": "normal"
       }
     ],
@@ -3534,15 +3534,15 @@
   },
   {
     "name": "Space Jump Room",
-    "rom_address": "0x7d9aa",
+    "rom_address": 514474,
     "map": [[1]],
     "doors": [
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a924",
-        "entrance_ptr": "0x1a978",
+        "exit_ptr": 108836,
+        "entrance_ptr": 108920,
         "subtype": "normal"
       }
     ],
@@ -3552,23 +3552,23 @@
   },
   {
     "name": "West Cactus Alley Room",
-    "rom_address": "0x7d9fe",
+    "rom_address": 514558,
     "map": [[1], [1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x1a93c",
-        "entrance_ptr": "0x1a75c",
+        "exit_ptr": 108860,
+        "entrance_ptr": 108380,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a948",
-        "entrance_ptr": "0x1a954",
+        "exit_ptr": 108872,
+        "entrance_ptr": 108884,
         "subtype": "normal"
       }
     ],
@@ -3578,7 +3578,7 @@
   },
   {
     "name": "East Cactus Alley Room",
-    "rom_address": "0x7da2b",
+    "rom_address": 514603,
     "map": [
       [1, 1, 1, 1, 1],
       [1, 1, 1, 1, 1]
@@ -3588,16 +3588,16 @@
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a954",
-        "entrance_ptr": "0x1a948",
+        "exit_ptr": 108884,
+        "entrance_ptr": 108872,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 4,
         "y": 1,
-        "exit_ptr": "0x1a960",
-        "entrance_ptr": "0x1a900",
+        "exit_ptr": 108896,
+        "entrance_ptr": 108800,
         "subtype": "normal"
       }
     ],
@@ -3607,7 +3607,7 @@
   },
   {
     "name": "Plasma Spark Room",
-    "rom_address": "0x7d340",
+    "rom_address": 512832,
     "map": [
       [0, 1, 1, 0],
       [0, 1, 1, 0],
@@ -3621,32 +3621,32 @@
         "direction": "right",
         "x": 2,
         "y": 1,
-        "exit_ptr": "0x1a5b8",
-        "entrance_ptr": "0x1a5d0",
+        "exit_ptr": 107960,
+        "entrance_ptr": 107984,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 3,
         "y": 3,
-        "exit_ptr": "0x1a5c4",
-        "entrance_ptr": "0x1a630",
+        "exit_ptr": 107972,
+        "entrance_ptr": 108080,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 3,
         "y": 5,
-        "exit_ptr": "0x1a5a0",
-        "entrance_ptr": "0x1a750",
+        "exit_ptr": 107936,
+        "entrance_ptr": 108368,
         "subtype": "normal"
       },
       {
         "direction": "down",
         "x": 0,
         "y": 2,
-        "exit_ptr": "0x1a5ac",
-        "entrance_ptr": "0x1a60c",
+        "exit_ptr": 107948,
+        "entrance_ptr": 108044,
         "subtype": "normal"
       }
     ],
@@ -3656,31 +3656,31 @@
   },
   {
     "name": "Oasis",
-    "rom_address": "0x7d48e",
+    "rom_address": 513166,
     "map": [[1], [1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x1a660",
-        "entrance_ptr": "0x1a648",
+        "exit_ptr": 108128,
+        "entrance_ptr": 108104,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x1a66c",
-        "entrance_ptr": "0x1a684",
+        "exit_ptr": 108140,
+        "entrance_ptr": 108164,
         "subtype": "normal"
       },
       {
         "direction": "up",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a678",
-        "entrance_ptr": "0x1a600",
+        "exit_ptr": 108152,
+        "entrance_ptr": 108032,
         "subtype": "normal"
       }
     ],
@@ -3690,31 +3690,31 @@
   },
   {
     "name": "West Sand Hall",
-    "rom_address": "0x7d461",
+    "rom_address": 513121,
     "map": [[1, 1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a63c",
-        "entrance_ptr": "0x1a534",
+        "exit_ptr": 108092,
+        "entrance_ptr": 107828,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 3,
         "y": 0,
-        "exit_ptr": "0x1a648",
-        "entrance_ptr": "0x1a660",
+        "exit_ptr": 108104,
+        "entrance_ptr": 108128,
         "subtype": "normal"
       },
       {
         "direction": "up",
         "x": 2,
         "y": 0,
-        "exit_ptr": "0x1a654",
-        "entrance_ptr": "0x1a6b4",
+        "exit_ptr": 108116,
+        "entrance_ptr": 108212,
         "subtype": "sand"
       }
     ],
@@ -3724,23 +3724,23 @@
   },
   {
     "name": "West Sand Hall Tunnel",
-    "rom_address": "0x7d252",
+    "rom_address": 512594,
     "map": [[1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a528",
-        "entrance_ptr": "0x1a504",
+        "exit_ptr": 107816,
+        "entrance_ptr": 107780,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a534",
-        "entrance_ptr": "0x1a63c",
+        "exit_ptr": 107828,
+        "entrance_ptr": 108092,
         "subtype": "normal"
       }
     ],
@@ -3750,15 +3750,15 @@
   },
   {
     "name": "Maridia Map Room",
-    "rom_address": "0x7d3b6",
+    "rom_address": 512950,
     "map": [[1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a5e8",
-        "entrance_ptr": "0x1a51c",
+        "exit_ptr": 108008,
+        "entrance_ptr": 107804,
         "subtype": "normal"
       }
     ],
@@ -3768,14 +3768,14 @@
   },
   {
     "name": "Botwoon Quicksand Room",
-    "rom_address": "0x7d898",
+    "rom_address": 514200,
     "map": [[1, 1]],
     "doors": [
       {
         "direction": "down",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a8ac",
+        "exit_ptr": 108716,
         "entrance_ptr": null,
         "subtype": "sand"
       },
@@ -3783,7 +3783,7 @@
         "direction": "down",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x1a8b8",
+        "exit_ptr": 108728,
         "entrance_ptr": null,
         "subtype": "sand"
       },
@@ -3792,7 +3792,7 @@
         "x": 0,
         "y": 0,
         "exit_ptr": null,
-        "entrance_ptr": "0x1a858",
+        "entrance_ptr": 108632,
         "subtype": "sand"
       },
       {
@@ -3800,7 +3800,7 @@
         "x": 1,
         "y": 0,
         "exit_ptr": null,
-        "entrance_ptr": "0x1a864",
+        "entrance_ptr": 108644,
         "subtype": "sand"
       }
     ],
@@ -3813,15 +3813,15 @@
   },
   {
     "name": "Below Botwoon Energy Tank",
-    "rom_address": "0x7d6fd",
+    "rom_address": 513789,
     "map": [[1, 1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a7d4",
-        "entrance_ptr": "0x1a738",
+        "exit_ptr": 108500,
+        "entrance_ptr": 108344,
         "subtype": "normal"
       },
       {
@@ -3829,7 +3829,7 @@
         "x": 2,
         "y": 0,
         "exit_ptr": null,
-        "entrance_ptr": "0x1a8ac",
+        "entrance_ptr": 108716,
         "subtype": "sand"
       },
       {
@@ -3837,7 +3837,7 @@
         "x": 3,
         "y": 0,
         "exit_ptr": null,
-        "entrance_ptr": "0x1a8b8",
+        "entrance_ptr": 108728,
         "subtype": "sand"
       }
     ],
@@ -3850,23 +3850,23 @@
   },
   {
     "name": "West Aqueduct Quicksand Room",
-    "rom_address": "0x7d54d",
+    "rom_address": 513357,
     "map": [[1], [1]],
     "doors": [
       {
         "direction": "down",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x1a6e4",
-        "entrance_ptr": "0x1a6a8",
+        "exit_ptr": 108260,
+        "entrance_ptr": 108200,
         "subtype": "sand"
       },
       {
         "direction": "up",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a6d8",
-        "entrance_ptr": "0x1a714",
+        "exit_ptr": 108248,
+        "entrance_ptr": 108308,
         "subtype": "sand"
       }
     ],
@@ -3876,23 +3876,23 @@
   },
   {
     "name": "East Aqueduct Quicksand Room",
-    "rom_address": "0x7d57a",
+    "rom_address": 513402,
     "map": [[1], [1]],
     "doors": [
       {
         "direction": "down",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x1a6fc",
-        "entrance_ptr": "0x1a6c0",
+        "exit_ptr": 108284,
+        "entrance_ptr": 108224,
         "subtype": "sand"
       },
       {
         "direction": "up",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a6f0",
-        "entrance_ptr": "0x1a720",
+        "exit_ptr": 108272,
+        "entrance_ptr": 108320,
         "subtype": "sand"
       }
     ],
@@ -3902,7 +3902,7 @@
   },
   {
     "name": "East Sand Hole",
-    "rom_address": "0x7d51e",
+    "rom_address": 513310,
     "map": [
       [1, 1],
       [1, 1]
@@ -3912,16 +3912,16 @@
         "direction": "down",
         "x": 1,
         "y": 1,
-        "exit_ptr": "0x1a6cc",
-        "entrance_ptr": "0x1a69c",
+        "exit_ptr": 108236,
+        "entrance_ptr": 108188,
         "subtype": "sand"
       },
       {
         "direction": "up",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a6c0",
-        "entrance_ptr": "0x1a6fc",
+        "exit_ptr": 108224,
+        "entrance_ptr": 108284,
         "subtype": "sand"
       }
     ],
@@ -3931,7 +3931,7 @@
   },
   {
     "name": "West Sand Hole",
-    "rom_address": "0x7d4ef",
+    "rom_address": 513263,
     "map": [
       [1, 1],
       [1, 1]
@@ -3941,16 +3941,16 @@
         "direction": "down",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x1a6b4",
-        "entrance_ptr": "0x1a654",
+        "exit_ptr": 108212,
+        "entrance_ptr": 108116,
         "subtype": "sand"
       },
       {
         "direction": "up",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x1a6a8",
-        "entrance_ptr": "0x1a6e4",
+        "exit_ptr": 108200,
+        "entrance_ptr": 108260,
         "subtype": "sand"
       }
     ],
@@ -3960,31 +3960,31 @@
   },
   {
     "name": "East Sand Hall",
-    "rom_address": "0x7d4c2",
+    "rom_address": 513218,
     "map": [[1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a684",
-        "entrance_ptr": "0x1a66c",
+        "exit_ptr": 108164,
+        "entrance_ptr": 108140,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 2,
         "y": 0,
-        "exit_ptr": "0x1a690",
-        "entrance_ptr": "0x1a780",
+        "exit_ptr": 108176,
+        "entrance_ptr": 108416,
         "subtype": "normal"
       },
       {
         "direction": "up",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x1a69c",
-        "entrance_ptr": "0x1a6cc",
+        "exit_ptr": 108188,
+        "entrance_ptr": 108236,
         "subtype": "sand"
       }
     ],
@@ -3994,30 +3994,30 @@
   },
   {
     "name": "Bug Sand Hole",
-    "rom_address": "0x7d433",
+    "rom_address": 513075,
     "map": [[1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a630",
-        "entrance_ptr": "0x1a5c4",
+        "exit_ptr": 108080,
+        "entrance_ptr": 107972,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a618",
-        "entrance_ptr": "0x1a564",
+        "exit_ptr": 108056,
+        "entrance_ptr": 107876,
         "subtype": "normal"
       },
       {
         "direction": "down",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a624",
+        "exit_ptr": 108068,
         "entrance_ptr": null,
         "subtype": "sand"
       }
@@ -4028,14 +4028,14 @@
   },
   {
     "name": "Plasma Beach Quicksand Room",
-    "rom_address": "0x7d86e",
+    "rom_address": 514158,
     "map": [[1]],
     "doors": [
       {
         "direction": "down",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a8a0",
+        "exit_ptr": 108704,
         "entrance_ptr": null,
         "subtype": "sand"
       },
@@ -4044,7 +4044,7 @@
         "x": 0,
         "y": 0,
         "exit_ptr": null,
-        "entrance_ptr": "0x1a624",
+        "entrance_ptr": 108068,
         "subtype": "sand"
       }
     ],
@@ -4054,23 +4054,23 @@
   },
   {
     "name": "Butterfly Room",
-    "rom_address": "0x7d5ec",
+    "rom_address": 513516,
     "map": [[1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a750",
-        "entrance_ptr": "0x1a5a0",
+        "exit_ptr": 108368,
+        "entrance_ptr": 107936,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a75c",
-        "entrance_ptr": "0x1a93c",
+        "exit_ptr": 108380,
+        "entrance_ptr": 108860,
         "subtype": "normal"
       },
       {
@@ -4078,7 +4078,7 @@
         "x": 0,
         "y": 0,
         "exit_ptr": null,
-        "entrance_ptr": "0x1a8a0",
+        "entrance_ptr": 108704,
         "subtype": "sand"
       }
     ],
@@ -4088,23 +4088,23 @@
   },
   {
     "name": "Thread The Needle Room",
-    "rom_address": "0x7d2d9",
+    "rom_address": 512729,
     "map": [[1, 1, 1, 1, 1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a564",
-        "entrance_ptr": "0x1a618",
+        "exit_ptr": 107876,
+        "entrance_ptr": 108056,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 6,
         "y": 0,
-        "exit_ptr": "0x1a570",
-        "entrance_ptr": "0x1a57c",
+        "exit_ptr": 107888,
+        "entrance_ptr": 107900,
         "subtype": "normal"
       }
     ],
@@ -4114,31 +4114,31 @@
   },
   {
     "name": "Maridia Elevator Room",
-    "rom_address": "0x7d30b",
+    "rom_address": 512779,
     "map": [[1], [1], [1], [1], [1], [1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 5,
-        "exit_ptr": "0x1a57c",
-        "entrance_ptr": "0x1a570",
+        "exit_ptr": 107900,
+        "entrance_ptr": 107888,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 4,
-        "exit_ptr": "0x1a588",
-        "entrance_ptr": "0x1a5f4",
+        "exit_ptr": 107912,
+        "entrance_ptr": 108020,
         "subtype": "normal"
       },
       {
         "direction": "up",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a594",
-        "entrance_ptr": "0x18a5a",
+        "exit_ptr": 107924,
+        "entrance_ptr": 100954,
         "subtype": "elevator"
       }
     ],
@@ -4148,15 +4148,15 @@
   },
   {
     "name": "Forgotten Highway Save Room",
-    "rom_address": "0x7d3df",
+    "rom_address": 512991,
     "map": [[1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a5f4",
-        "entrance_ptr": "0x1a588",
+        "exit_ptr": 108020,
+        "entrance_ptr": 107912,
         "subtype": "normal"
       }
     ],
@@ -4166,23 +4166,23 @@
   },
   {
     "name": "Kassiuz Room",
-    "rom_address": "0x7d387",
+    "rom_address": 512903,
     "map": [[1], [1], [1], [1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 3,
-        "exit_ptr": "0x1a5d0",
-        "entrance_ptr": "0x1a5b8",
+        "exit_ptr": 107984,
+        "entrance_ptr": 107960,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a5dc",
-        "entrance_ptr": "0x1a540",
+        "exit_ptr": 107996,
+        "entrance_ptr": 107840,
         "subtype": "normal"
       }
     ],
@@ -4192,23 +4192,23 @@
   },
   {
     "name": "Plasma Tutorial Room",
-    "rom_address": "0x7d27e",
+    "rom_address": 512638,
     "map": [[1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a540",
-        "entrance_ptr": "0x1a5dc",
+        "exit_ptr": 107840,
+        "entrance_ptr": 107996,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a54c",
-        "entrance_ptr": "0x1a558",
+        "exit_ptr": 107852,
+        "entrance_ptr": 107864,
         "subtype": "normal"
       }
     ],
@@ -4218,7 +4218,7 @@
   },
   {
     "name": "Plasma Room",
-    "rom_address": "0x7d2aa",
+    "rom_address": 512682,
     "map": [
       [1, 1],
       [1, 1],
@@ -4229,8 +4229,8 @@
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a558",
-        "entrance_ptr": "0x1a54c",
+        "exit_ptr": 107864,
+        "entrance_ptr": 107852,
         "subtype": "normal"
       }
     ],
@@ -4240,7 +4240,7 @@
   },
   {
     "name": "Pants Room",
-    "rom_address": "0x7d646",
+    "rom_address": 513606,
     "map": [
       [1, 1],
       [1, 1],
@@ -4252,32 +4252,32 @@
         "direction": "left",
         "x": 0,
         "y": 3,
-        "exit_ptr": "0x1a780",
-        "entrance_ptr": "0x1a690",
+        "exit_ptr": 108416,
+        "entrance_ptr": 108176,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 1,
         "y": 3,
-        "exit_ptr": "0x1a7a4",
-        "entrance_ptr": "0x1a78c",
+        "exit_ptr": 108452,
+        "entrance_ptr": 108428,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 3,
-        "exit_ptr": "0x1a78c",
-        "entrance_ptr": "0x1a7a4",
+        "exit_ptr": 108428,
+        "entrance_ptr": 108452,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 2,
-        "exit_ptr": "0x1a798",
-        "entrance_ptr": "0x1a8c4",
+        "exit_ptr": 108440,
+        "entrance_ptr": 108740,
         "subtype": "normal"
       }
     ],
@@ -4287,23 +4287,23 @@
   },
   {
     "name": "Shaktool Room",
-    "rom_address": "0x7d8c5",
+    "rom_address": 514245,
     "map": [[1, 1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a8c4",
-        "entrance_ptr": "0x1a798",
+        "exit_ptr": 108740,
+        "entrance_ptr": 108440,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 3,
         "y": 0,
-        "exit_ptr": "0x1a8d0",
-        "entrance_ptr": "0x1a7c8",
+        "exit_ptr": 108752,
+        "entrance_ptr": 108488,
         "subtype": "normal"
       }
     ],
@@ -4313,7 +4313,7 @@
   },
   {
     "name": "Spring Ball Room",
-    "rom_address": "0x7d6d0",
+    "rom_address": 513744,
     "map": [
       [1, 0],
       [1, 1]
@@ -4323,8 +4323,8 @@
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a7c8",
-        "entrance_ptr": "0x1a8d0",
+        "exit_ptr": 108488,
+        "entrance_ptr": 108752,
         "subtype": "normal"
       }
     ],
@@ -4334,39 +4334,39 @@
   },
   {
     "name": "Crab Hole",
-    "rom_address": "0x7d21c",
+    "rom_address": 512540,
     "map": [[1], [1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a4f8",
-        "entrance_ptr": "0x1a420",
+        "exit_ptr": 107768,
+        "entrance_ptr": 107552,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x1a510",
-        "entrance_ptr": "0x1a390",
+        "exit_ptr": 107792,
+        "entrance_ptr": 107408,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a504",
-        "entrance_ptr": "0x1a528",
+        "exit_ptr": 107780,
+        "entrance_ptr": 107816,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x1a51c",
-        "entrance_ptr": "0x1a5e8",
+        "exit_ptr": 107804,
+        "entrance_ptr": 108008,
         "subtype": "normal"
       }
     ],
@@ -4376,7 +4376,7 @@
   },
   {
     "name": "Main Hall",
-    "rom_address": "0x7b236",
+    "rom_address": 504374,
     "map": [
       [0, 0, 0, 0, 1, 0, 0, 0],
       [0, 0, 0, 0, 1, 0, 0, 0],
@@ -4387,24 +4387,24 @@
         "direction": "left",
         "x": 0,
         "y": 2,
-        "exit_ptr": "0x19852",
-        "entrance_ptr": "0x19846",
+        "exit_ptr": 104530,
+        "entrance_ptr": 104518,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 7,
         "y": 2,
-        "exit_ptr": "0x1985e",
-        "entrance_ptr": "0x198e2",
+        "exit_ptr": 104542,
+        "entrance_ptr": 104674,
         "subtype": "normal"
       },
       {
         "direction": "up",
         "x": 4,
         "y": 0,
-        "exit_ptr": "0x1986a",
-        "entrance_ptr": "0x196f6",
+        "exit_ptr": 104554,
+        "entrance_ptr": 104182,
         "subtype": "elevator"
       }
     ],
@@ -4414,39 +4414,39 @@
   },
   {
     "name": "Fast Pillars Setup Room",
-    "rom_address": "0x7b3a5",
+    "rom_address": 504741,
     "map": [[1], [1], [1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x198e2",
-        "entrance_ptr": "0x1985e",
+        "exit_ptr": 104674,
+        "entrance_ptr": 104542,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 0,
         "y": 2,
-        "exit_ptr": "0x19906",
-        "entrance_ptr": "0x1989a",
+        "exit_ptr": 104710,
+        "entrance_ptr": 104602,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x198ee",
-        "entrance_ptr": "0x1992a",
+        "exit_ptr": 104686,
+        "entrance_ptr": 104746,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 2,
-        "exit_ptr": "0x19912",
-        "entrance_ptr": "0x19942",
+        "exit_ptr": 104722,
+        "entrance_ptr": 104770,
         "subtype": "normal"
       }
     ],
@@ -4456,23 +4456,23 @@
   },
   {
     "name": "Pillar Room",
-    "rom_address": "0x7b457",
+    "rom_address": 504919,
     "map": [[1, 1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x19942",
-        "entrance_ptr": "0x19912",
+        "exit_ptr": 104770,
+        "entrance_ptr": 104722,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 3,
         "y": 0,
-        "exit_ptr": "0x1994e",
-        "entrance_ptr": "0x1998a",
+        "exit_ptr": 104782,
+        "entrance_ptr": 104842,
         "subtype": "normal"
       }
     ],
@@ -4482,31 +4482,31 @@
   },
   {
     "name": "The Worst Room In The Game",
-    "rom_address": "0x7b4ad",
+    "rom_address": 505005,
     "map": [[1], [1], [1], [1], [1], [1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x19972",
-        "entrance_ptr": "0x19936",
+        "exit_ptr": 104818,
+        "entrance_ptr": 104758,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 0,
         "y": 5,
-        "exit_ptr": "0x1998a",
-        "entrance_ptr": "0x1994e",
+        "exit_ptr": 104842,
+        "entrance_ptr": 104782,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x1997e",
-        "entrance_ptr": "0x19996",
+        "exit_ptr": 104830,
+        "entrance_ptr": 104854,
         "subtype": "normal"
       }
     ],
@@ -4516,7 +4516,7 @@
   },
   {
     "name": "Amphitheatre",
-    "rom_address": "0x7b4e5",
+    "rom_address": 505061,
     "map": [
       [0, 1, 1, 1],
       [1, 1, 1, 1],
@@ -4529,16 +4529,16 @@
         "direction": "left",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x19996",
-        "entrance_ptr": "0x1997e",
+        "exit_ptr": 104854,
+        "entrance_ptr": 104830,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 3,
         "y": 0,
-        "exit_ptr": "0x199a2",
-        "entrance_ptr": "0x199f6",
+        "exit_ptr": 104866,
+        "entrance_ptr": 104950,
         "subtype": "normal"
       }
     ],
@@ -4548,7 +4548,7 @@
   },
   {
     "name": "Red Kihunter Shaft",
-    "rom_address": "0x7b585",
+    "rom_address": 505221,
     "map": [
       [1, 0, 0],
       [1, 0, 0],
@@ -4561,32 +4561,32 @@
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x199f6",
-        "entrance_ptr": "0x199a2",
+        "exit_ptr": 104950,
+        "entrance_ptr": 104866,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x19a02",
-        "entrance_ptr": "0x19aaa",
+        "exit_ptr": 104962,
+        "entrance_ptr": 105130,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 3,
-        "exit_ptr": "0x19a0e",
-        "entrance_ptr": "0x19ab6",
+        "exit_ptr": 104974,
+        "entrance_ptr": 105142,
         "subtype": "normal"
       },
       {
         "direction": "down",
         "x": 2,
         "y": 4,
-        "exit_ptr": "0x199ea",
-        "entrance_ptr": "0x19a26",
+        "exit_ptr": 104938,
+        "entrance_ptr": 104998,
         "subtype": "normal"
       }
     ],
@@ -4596,15 +4596,15 @@
   },
   {
     "name": "Red Kihunter Shaft Save Room",
-    "rom_address": "0x7b741",
+    "rom_address": 505665,
     "map": [[1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x19ab6",
-        "entrance_ptr": "0x19a0e",
+        "exit_ptr": 105142,
+        "entrance_ptr": 104974,
         "subtype": "normal"
       }
     ],
@@ -4614,7 +4614,7 @@
   },
   {
     "name": "Wasteland",
-    "rom_address": "0x7b5d5",
+    "rom_address": 505301,
     "map": [
       [1, 1, 1, 1, 1, 1],
       [0, 1, 0, 0, 0, 0],
@@ -4625,16 +4625,16 @@
         "direction": "left",
         "x": 1,
         "y": 2,
-        "exit_ptr": "0x19a1a",
-        "entrance_ptr": "0x19a3e",
+        "exit_ptr": 104986,
+        "entrance_ptr": 105022,
         "subtype": "normal"
       },
       {
         "direction": "up",
         "x": 5,
         "y": 0,
-        "exit_ptr": "0x19a26",
-        "entrance_ptr": "0x199ea",
+        "exit_ptr": 104998,
+        "entrance_ptr": 104938,
         "subtype": "normal"
       }
     ],
@@ -4644,23 +4644,23 @@
   },
   {
     "name": "Metal Pirates Room",
-    "rom_address": "0x7b62b",
+    "rom_address": 505387,
     "map": [[1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x19a32",
-        "entrance_ptr": "0x19966",
+        "exit_ptr": 105010,
+        "entrance_ptr": 104806,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 2,
         "y": 0,
-        "exit_ptr": "0x19a3e",
-        "entrance_ptr": "0x19a1a",
+        "exit_ptr": 105022,
+        "entrance_ptr": 104986,
         "subtype": "normal"
       }
     ],
@@ -4670,23 +4670,23 @@
   },
   {
     "name": "Plowerhouse Room",
-    "rom_address": "0x7b482",
+    "rom_address": 504962,
     "map": [[1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1995a",
-        "entrance_ptr": "0x198d6",
+        "exit_ptr": 104794,
+        "entrance_ptr": 104662,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 2,
         "y": 0,
-        "exit_ptr": "0x19966",
-        "entrance_ptr": "0x19a32",
+        "exit_ptr": 104806,
+        "entrance_ptr": 105010,
         "subtype": "normal"
       }
     ],
@@ -4696,23 +4696,23 @@
   },
   {
     "name": "Lower Norfair Farming Room",
-    "rom_address": "0x7b37a",
+    "rom_address": 504698,
     "map": [[1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x198ca",
-        "entrance_ptr": "0x198be",
+        "exit_ptr": 104650,
+        "entrance_ptr": 104638,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 2,
         "y": 0,
-        "exit_ptr": "0x198d6",
-        "entrance_ptr": "0x1995a",
+        "exit_ptr": 104662,
+        "entrance_ptr": 104794,
         "subtype": "normal"
       }
     ],
@@ -4722,23 +4722,23 @@
   },
   {
     "name": "Ridley's Room",
-    "rom_address": "0x7b32e",
+    "rom_address": 504622,
     "map": [[1], [1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x198b2",
-        "entrance_ptr": "0x19a62",
+        "exit_ptr": 104626,
+        "entrance_ptr": 105058,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x198be",
-        "entrance_ptr": "0x198ca",
+        "exit_ptr": 104638,
+        "entrance_ptr": 104650,
         "subtype": "normal"
       }
     ],
@@ -4748,15 +4748,15 @@
   },
   {
     "name": "Ridley Tank Room",
-    "rom_address": "0x7b698",
+    "rom_address": 505496,
     "map": [[1]],
     "doors": [
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x19a62",
-        "entrance_ptr": "0x198b2",
+        "exit_ptr": 105058,
+        "entrance_ptr": 104626,
         "subtype": "normal"
       }
     ],
@@ -4766,7 +4766,7 @@
   },
   {
     "name": "Mickey Mouse Room",
-    "rom_address": "0x7b40a",
+    "rom_address": 504842,
     "map": [
       [0, 0, 0, 1],
       [0, 0, 1, 1],
@@ -4778,16 +4778,16 @@
         "direction": "left",
         "x": 0,
         "y": 3,
-        "exit_ptr": "0x1992a",
-        "entrance_ptr": "0x198ee",
+        "exit_ptr": 104746,
+        "entrance_ptr": 104686,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 3,
         "y": 0,
-        "exit_ptr": "0x19936",
-        "entrance_ptr": "0x19972",
+        "exit_ptr": 104758,
+        "entrance_ptr": 104818,
         "subtype": "normal"
       }
     ],
@@ -4797,7 +4797,7 @@
   },
   {
     "name": "Lower Norfair Fireflea Room",
-    "rom_address": "0x7b6ee",
+    "rom_address": 505582,
     "map": [
       [1, 1, 0],
       [0, 1, 0],
@@ -4811,24 +4811,24 @@
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x19a92",
-        "entrance_ptr": "0x199ba",
+        "exit_ptr": 105106,
+        "entrance_ptr": 104890,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 1,
         "y": 3,
-        "exit_ptr": "0x19aaa",
-        "entrance_ptr": "0x19a02",
+        "exit_ptr": 105130,
+        "entrance_ptr": 104962,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x19a9e",
-        "entrance_ptr": "0x199d2",
+        "exit_ptr": 105118,
+        "entrance_ptr": 104914,
         "subtype": "normal"
       }
     ],
@@ -4838,7 +4838,7 @@
   },
   {
     "name": "Lower Norfair Spring Ball Maze Room",
-    "rom_address": "0x7b510",
+    "rom_address": 505104,
     "map": [
       [1, 1, 1, 1, 1],
       [1, 1, 0, 0, 0]
@@ -4848,24 +4848,24 @@
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x199ae",
-        "entrance_ptr": "0x19a56",
+        "exit_ptr": 104878,
+        "entrance_ptr": 105046,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 1,
-        "exit_ptr": "0x199ba",
-        "entrance_ptr": "0x19a92",
+        "exit_ptr": 104890,
+        "entrance_ptr": 105106,
         "subtype": "normal"
       },
       {
         "direction": "down",
         "x": 4,
         "y": 0,
-        "exit_ptr": "0x199c6",
-        "entrance_ptr": "0x199de",
+        "exit_ptr": 104902,
+        "entrance_ptr": 104926,
         "subtype": "normal"
       }
     ],
@@ -4875,23 +4875,23 @@
   },
   {
     "name": "Lower Norfair Escape Power Bomb Room",
-    "rom_address": "0x7b55a",
+    "rom_address": 505178,
     "map": [[1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x199d2",
-        "entrance_ptr": "0x19a9e",
+        "exit_ptr": 104914,
+        "entrance_ptr": 105118,
         "subtype": "normal"
       },
       {
         "direction": "up",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x199de",
-        "entrance_ptr": "0x199c6",
+        "exit_ptr": 104926,
+        "entrance_ptr": 104902,
         "subtype": "normal"
       }
     ],
@@ -4901,7 +4901,7 @@
   },
   {
     "name": "Three Musketeers' Room",
-    "rom_address": "0x7b656",
+    "rom_address": 505430,
     "map": [
       [0, 1, 0, 0],
       [0, 1, 0, 0],
@@ -4912,16 +4912,16 @@
         "direction": "left",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x19a4a",
-        "entrance_ptr": "0x195fa",
+        "exit_ptr": 105034,
+        "entrance_ptr": 103930,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 3,
         "y": 2,
-        "exit_ptr": "0x19a56",
-        "entrance_ptr": "0x199ae",
+        "exit_ptr": 105046,
+        "entrance_ptr": 104878,
         "subtype": "normal"
       }
     ],
@@ -4931,7 +4931,7 @@
   },
   {
     "name": "Acid Statue Room",
-    "rom_address": "0x7b1e5",
+    "rom_address": 504293,
     "map": [
       [1, 1, 0],
       [1, 1, 0],
@@ -4942,16 +4942,16 @@
         "direction": "right",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x19846",
-        "entrance_ptr": "0x19852",
+        "exit_ptr": 104518,
+        "entrance_ptr": 104530,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 2,
         "y": 2,
-        "exit_ptr": "0x1983a",
-        "entrance_ptr": "0x19876",
+        "exit_ptr": 104506,
+        "entrance_ptr": 104566,
         "subtype": "normal"
       }
     ],
@@ -4961,7 +4961,7 @@
   },
   {
     "name": "Golden Torizo's Room",
-    "rom_address": "0x7b283",
+    "rom_address": 504451,
     "map": [
       [1, 1],
       [1, 1]
@@ -4971,16 +4971,16 @@
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x19876",
-        "entrance_ptr": "0x1983a",
+        "exit_ptr": 104566,
+        "entrance_ptr": 104506,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 1,
-        "exit_ptr": "0x19882",
-        "entrance_ptr": "0x19a86",
+        "exit_ptr": 104578,
+        "entrance_ptr": 105094,
         "subtype": "normal"
       }
     ],
@@ -4990,31 +4990,31 @@
   },
   {
     "name": "Screw Attack Room",
-    "rom_address": "0x7b6c1",
+    "rom_address": 505537,
     "map": [[1], [1], [1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 2,
-        "exit_ptr": "0x19a86",
-        "entrance_ptr": "0x19882",
+        "exit_ptr": 105094,
+        "entrance_ptr": 104578,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x19a6e",
-        "entrance_ptr": "0x1988e",
+        "exit_ptr": 105070,
+        "entrance_ptr": 104590,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x19a7a",
-        "entrance_ptr": "0x198a6",
+        "exit_ptr": 105082,
+        "entrance_ptr": 104614,
         "subtype": "normal"
       }
     ],
@@ -5024,15 +5024,15 @@
   },
   {
     "name": "Golden Torizo Energy Recharge",
-    "rom_address": "0x7b305",
+    "rom_address": 504581,
     "map": [[1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x198a6",
-        "entrance_ptr": "0x19a7a",
+        "exit_ptr": 104614,
+        "entrance_ptr": 105082,
         "subtype": "normal"
       }
     ],
@@ -5042,23 +5042,23 @@
   },
   {
     "name": "Fast Ripper Room",
-    "rom_address": "0x7b2da",
+    "rom_address": 504538,
     "map": [[1, 1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1988e",
-        "entrance_ptr": "0x19a6e",
+        "exit_ptr": 104590,
+        "entrance_ptr": 105070,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 3,
         "y": 0,
-        "exit_ptr": "0x1989a",
-        "entrance_ptr": "0x19906",
+        "exit_ptr": 104602,
+        "entrance_ptr": 104710,
         "subtype": "normal"
       }
     ],
@@ -5068,63 +5068,63 @@
   },
   {
     "name": "Business Center",
-    "rom_address": "0x7a7de",
+    "rom_address": 501726,
     "map": [[1], [1], [1], [1], [1], [1], [1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 3,
-        "exit_ptr": "0x192be",
-        "entrance_ptr": "0x1932a",
+        "exit_ptr": 103102,
+        "entrance_ptr": 103210,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 0,
         "y": 4,
-        "exit_ptr": "0x19306",
-        "entrance_ptr": "0x197c2",
+        "exit_ptr": 103174,
+        "entrance_ptr": 104386,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 0,
         "y": 5,
-        "exit_ptr": "0x192d6",
-        "entrance_ptr": "0x1941a",
+        "exit_ptr": 103126,
+        "entrance_ptr": 103450,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 3,
-        "exit_ptr": "0x192ca",
-        "entrance_ptr": "0x192a6",
+        "exit_ptr": 103114,
+        "entrance_ptr": 103078,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 5,
-        "exit_ptr": "0x192fa",
-        "entrance_ptr": "0x19816",
+        "exit_ptr": 103162,
+        "entrance_ptr": 104470,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 6,
-        "exit_ptr": "0x192e2",
-        "entrance_ptr": "0x19402",
+        "exit_ptr": 103138,
+        "entrance_ptr": 103426,
         "subtype": "normal"
       },
       {
         "direction": "up",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x192ee",
-        "entrance_ptr": "0x19246",
+        "exit_ptr": 103150,
+        "entrance_ptr": 102982,
         "subtype": "elevator"
       }
     ],
@@ -5134,15 +5134,15 @@
   },
   {
     "name": "Norfair Map Room",
-    "rom_address": "0x7b0b4",
+    "rom_address": 503988,
     "map": [[1]],
     "doors": [
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x197c2",
-        "entrance_ptr": "0x19306",
+        "exit_ptr": 104386,
+        "entrance_ptr": 103174,
         "subtype": "normal"
       }
     ],
@@ -5152,7 +5152,7 @@
   },
   {
     "name": "Hi Jump Energy Tank Room",
-    "rom_address": "0x7aa41",
+    "rom_address": 502337,
     "map": [
       [1, 1],
       [1, 0]
@@ -5162,16 +5162,16 @@
         "direction": "left",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x19426",
-        "entrance_ptr": "0x193f6",
+        "exit_ptr": 103462,
+        "entrance_ptr": 103414,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x1941a",
-        "entrance_ptr": "0x192d6",
+        "exit_ptr": 103450,
+        "entrance_ptr": 103126,
         "subtype": "normal"
       }
     ],
@@ -5181,15 +5181,15 @@
   },
   {
     "name": "Hi Jump Boots Room",
-    "rom_address": "0x7a9e5",
+    "rom_address": 502245,
     "map": [[1]],
     "doors": [
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x193f6",
-        "entrance_ptr": "0x19426",
+        "exit_ptr": 103414,
+        "entrance_ptr": 103462,
         "subtype": "normal"
       }
     ],
@@ -5199,7 +5199,7 @@
   },
   {
     "name": "Cathedral Entrance",
-    "rom_address": "0x7a7b3",
+    "rom_address": 501683,
     "map": [
       [1, 1, 1],
       [1, 1, 1]
@@ -5209,16 +5209,16 @@
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x192a6",
-        "entrance_ptr": "0x192ca",
+        "exit_ptr": 103078,
+        "entrance_ptr": 103114,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 2,
         "y": 0,
-        "exit_ptr": "0x192b2",
-        "entrance_ptr": "0x1928e",
+        "exit_ptr": 103090,
+        "entrance_ptr": 103054,
         "subtype": "normal"
       }
     ],
@@ -5228,7 +5228,7 @@
   },
   {
     "name": "Cathedral",
-    "rom_address": "0x7a788",
+    "rom_address": 501640,
     "map": [
       [1, 1, 1],
       [1, 1, 1]
@@ -5238,16 +5238,16 @@
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1928e",
-        "entrance_ptr": "0x192b2",
+        "exit_ptr": 103054,
+        "entrance_ptr": 103090,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 2,
         "y": 1,
-        "exit_ptr": "0x1929a",
-        "entrance_ptr": "0x19732",
+        "exit_ptr": 103066,
+        "entrance_ptr": 104242,
         "subtype": "normal"
       }
     ],
@@ -5257,23 +5257,23 @@
   },
   {
     "name": "Rising Tide",
-    "rom_address": "0x7afa3",
+    "rom_address": 503715,
     "map": [[1, 1, 1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x19732",
-        "entrance_ptr": "0x1929a",
+        "exit_ptr": 104242,
+        "entrance_ptr": 103066,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 4,
         "y": 0,
-        "exit_ptr": "0x1973e",
-        "entrance_ptr": "0x1955e",
+        "exit_ptr": 104254,
+        "entrance_ptr": 103774,
         "subtype": "normal"
       }
     ],
@@ -5283,23 +5283,23 @@
   },
   {
     "name": "Frog Speedway",
-    "rom_address": "0x7b106",
+    "rom_address": 504070,
     "map": [[1, 1, 1, 1, 1, 1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x197da",
-        "entrance_ptr": "0x1980a",
+        "exit_ptr": 104410,
+        "entrance_ptr": 104458,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 7,
         "y": 0,
-        "exit_ptr": "0x197e6",
-        "entrance_ptr": "0x1970e",
+        "exit_ptr": 104422,
+        "entrance_ptr": 104206,
         "subtype": "normal"
       }
     ],
@@ -5309,7 +5309,7 @@
   },
   {
     "name": "Upper Norfair Farming Room",
-    "rom_address": "0x7af72",
+    "rom_address": 503666,
     "map": [
       [1, 1],
       [1, 1]
@@ -5319,24 +5319,24 @@
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1970e",
-        "entrance_ptr": "0x197e6",
+        "exit_ptr": 104206,
+        "entrance_ptr": 104422,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x19726",
-        "entrance_ptr": "0x197f2",
+        "exit_ptr": 104230,
+        "entrance_ptr": 104434,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x1971a",
-        "entrance_ptr": "0x1956a",
+        "exit_ptr": 104218,
+        "entrance_ptr": 103786,
         "subtype": "normal"
       }
     ],
@@ -5346,31 +5346,31 @@
   },
   {
     "name": "Purple Shaft",
-    "rom_address": "0x7aedf",
+    "rom_address": 503519,
     "map": [[1], [1], [1]],
     "doors": [
       {
         "direction": "right",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x196c6",
-        "entrance_ptr": "0x1979e",
+        "exit_ptr": 104134,
+        "entrance_ptr": 104350,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 2,
-        "exit_ptr": "0x196ba",
-        "entrance_ptr": "0x19696",
+        "exit_ptr": 104122,
+        "entrance_ptr": 104086,
         "subtype": "normal"
       },
       {
         "direction": "up",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x196ae",
-        "entrance_ptr": "0x19576",
+        "exit_ptr": 104110,
+        "entrance_ptr": 103798,
         "subtype": "normal"
       }
     ],
@@ -5380,15 +5380,15 @@
   },
   {
     "name": "Purple Farming Room",
-    "rom_address": "0x7b051",
+    "rom_address": 503889,
     "map": [[1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1979e",
-        "entrance_ptr": "0x196c6",
+        "exit_ptr": 104350,
+        "entrance_ptr": 104134,
         "subtype": "normal"
       }
     ],
@@ -5398,23 +5398,23 @@
   },
   {
     "name": "Frog Savestation",
-    "rom_address": "0x7b167",
+    "rom_address": 504167,
     "map": [[1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x19816",
-        "entrance_ptr": "0x192fa",
+        "exit_ptr": 104470,
+        "entrance_ptr": 103162,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1980a",
-        "entrance_ptr": "0x197da",
+        "exit_ptr": 104458,
+        "entrance_ptr": 104410,
         "subtype": "normal"
       }
     ],
@@ -5424,7 +5424,7 @@
   },
   {
     "name": "Bubble Mountain",
-    "rom_address": "0x7acb3",
+    "rom_address": 502963,
     "map": [
       [1, 1],
       [1, 1],
@@ -5436,56 +5436,56 @@
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x19552",
-        "entrance_ptr": "0x1953a",
+        "exit_ptr": 103762,
+        "entrance_ptr": 103738,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x1959a",
-        "entrance_ptr": "0x197ce",
+        "exit_ptr": 103834,
+        "entrance_ptr": 104398,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 0,
         "y": 2,
-        "exit_ptr": "0x1955e",
-        "entrance_ptr": "0x1973e",
+        "exit_ptr": 103774,
+        "entrance_ptr": 104254,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 0,
         "y": 3,
-        "exit_ptr": "0x1956a",
-        "entrance_ptr": "0x1971a",
+        "exit_ptr": 103786,
+        "entrance_ptr": 104218,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x1958e",
-        "entrance_ptr": "0x197aa",
+        "exit_ptr": 103822,
+        "entrance_ptr": 104362,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 1,
-        "exit_ptr": "0x19582",
-        "entrance_ptr": "0x195ca",
+        "exit_ptr": 103810,
+        "entrance_ptr": 103882,
         "subtype": "normal"
       },
       {
         "direction": "down",
         "x": 0,
         "y": 3,
-        "exit_ptr": "0x19576",
-        "entrance_ptr": "0x196ae",
+        "exit_ptr": 103798,
+        "entrance_ptr": 104110,
         "subtype": "normal"
       }
     ],
@@ -5495,15 +5495,15 @@
   },
   {
     "name": "Bubble Mountain Save Room",
-    "rom_address": "0x7b0dd",
+    "rom_address": 504029,
     "map": [[1]],
     "doors": [
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x197ce",
-        "entrance_ptr": "0x1959a",
+        "exit_ptr": 104398,
+        "entrance_ptr": 103834,
         "subtype": "normal"
       }
     ],
@@ -5513,23 +5513,23 @@
   },
   {
     "name": "Green Bubbles Missile Room",
-    "rom_address": "0x7ac83",
+    "rom_address": 502915,
     "map": [[1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x19546",
-        "entrance_ptr": "0x1952e",
+        "exit_ptr": 103750,
+        "entrance_ptr": 103726,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x1953a",
-        "entrance_ptr": "0x19552",
+        "exit_ptr": 103738,
+        "entrance_ptr": 103762,
         "subtype": "normal"
       }
     ],
@@ -5539,15 +5539,15 @@
   },
   {
     "name": "Norfair Reserve Tank Room",
-    "rom_address": "0x7ac5a",
+    "rom_address": 502874,
     "map": [[1, 1]],
     "doors": [
       {
         "direction": "right",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x1952e",
-        "entrance_ptr": "0x19546",
+        "exit_ptr": 103726,
+        "entrance_ptr": 103750,
         "subtype": "normal"
       }
     ],
@@ -5557,23 +5557,23 @@
   },
   {
     "name": "Bat Cave",
-    "rom_address": "0x7b07a",
+    "rom_address": 503930,
     "map": [[1], [1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x197aa",
-        "entrance_ptr": "0x1958e",
+        "exit_ptr": 104362,
+        "entrance_ptr": 103822,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x197b6",
-        "entrance_ptr": "0x195a6",
+        "exit_ptr": 104374,
+        "entrance_ptr": 103846,
         "subtype": "normal"
       }
     ],
@@ -5583,7 +5583,7 @@
   },
   {
     "name": "Speed Booster Hall",
-    "rom_address": "0x7acf0",
+    "rom_address": 503024,
     "map": [
       [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
       [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1]
@@ -5593,16 +5593,16 @@
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x195a6",
-        "entrance_ptr": "0x197b6",
+        "exit_ptr": 103846,
+        "entrance_ptr": 104374,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 11,
         "y": 1,
-        "exit_ptr": "0x195b2",
-        "entrance_ptr": "0x195be",
+        "exit_ptr": 103858,
+        "entrance_ptr": 103870,
         "subtype": "normal"
       }
     ],
@@ -5612,15 +5612,15 @@
   },
   {
     "name": "Speed Booster Room",
-    "rom_address": "0x7ad1b",
+    "rom_address": 503067,
     "map": [[1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x195be",
-        "entrance_ptr": "0x195b2",
+        "exit_ptr": 103870,
+        "entrance_ptr": 103858,
         "subtype": "normal"
       }
     ],
@@ -5630,7 +5630,7 @@
   },
   {
     "name": "Single Chamber",
-    "rom_address": "0x7ad5e",
+    "rom_address": 503134,
     "map": [
       [1, 1, 1, 1, 1, 1],
       [1, 0, 0, 0, 0, 0],
@@ -5642,40 +5642,40 @@
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x195ca",
-        "entrance_ptr": "0x19582",
+        "exit_ptr": 103882,
+        "entrance_ptr": 103810,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 5,
         "y": 0,
-        "exit_ptr": "0x195fa",
-        "entrance_ptr": "0x19a4a",
+        "exit_ptr": 103930,
+        "entrance_ptr": 105034,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x195d6",
-        "entrance_ptr": "0x19606",
+        "exit_ptr": 103894,
+        "entrance_ptr": 103942,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 2,
-        "exit_ptr": "0x195e2",
-        "entrance_ptr": "0x19612",
+        "exit_ptr": 103906,
+        "entrance_ptr": 103954,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 3,
-        "exit_ptr": "0x195ee",
-        "entrance_ptr": "0x19636",
+        "exit_ptr": 103918,
+        "entrance_ptr": 103990,
         "subtype": "normal"
       }
     ],
@@ -5685,7 +5685,7 @@
   },
   {
     "name": "Double Chamber",
-    "rom_address": "0x7adad",
+    "rom_address": 503213,
     "map": [
       [1, 1, 1, 1],
       [1, 1, 1, 1]
@@ -5695,24 +5695,24 @@
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x19606",
-        "entrance_ptr": "0x195d6",
+        "exit_ptr": 103942,
+        "entrance_ptr": 103894,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x19612",
-        "entrance_ptr": "0x195e2",
+        "exit_ptr": 103954,
+        "entrance_ptr": 103906,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 3,
         "y": 0,
-        "exit_ptr": "0x1961e",
-        "entrance_ptr": "0x1962a",
+        "exit_ptr": 103966,
+        "entrance_ptr": 103978,
         "subtype": "normal"
       }
     ],
@@ -5722,15 +5722,15 @@
   },
   {
     "name": "Wave Beam Room",
-    "rom_address": "0x7adde",
+    "rom_address": 503262,
     "map": [[1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1962a",
-        "entrance_ptr": "0x1961e",
+        "exit_ptr": 103978,
+        "entrance_ptr": 103966,
         "subtype": "normal"
       }
     ],
@@ -5740,7 +5740,7 @@
   },
   {
     "name": "Ice Beam Gate Room",
-    "rom_address": "0x7a815",
+    "rom_address": 501781,
     "map": [
       [0, 0, 0, 1, 0, 0, 0],
       [0, 0, 0, 1, 0, 0, 0],
@@ -5752,32 +5752,32 @@
         "direction": "left",
         "x": 3,
         "y": 0,
-        "exit_ptr": "0x19312",
-        "entrance_ptr": "0x1934e",
+        "exit_ptr": 103186,
+        "entrance_ptr": 103246,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 3,
         "y": 2,
-        "exit_ptr": "0x1931e",
-        "entrance_ptr": "0x19276",
+        "exit_ptr": 103198,
+        "entrance_ptr": 103030,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 0,
         "y": 3,
-        "exit_ptr": "0x19336",
-        "entrance_ptr": "0x1938a",
+        "exit_ptr": 103222,
+        "entrance_ptr": 103306,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 6,
         "y": 2,
-        "exit_ptr": "0x1932a",
-        "entrance_ptr": "0x192be",
+        "exit_ptr": 103210,
+        "entrance_ptr": 103102,
         "subtype": "normal"
       }
     ],
@@ -5787,23 +5787,23 @@
   },
   {
     "name": "Ice Beam Acid Room",
-    "rom_address": "0x7a75d",
+    "rom_address": 501597,
     "map": [[1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x19282",
-        "entrance_ptr": "0x19366",
+        "exit_ptr": 103042,
+        "entrance_ptr": 103270,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x19276",
-        "entrance_ptr": "0x1931e",
+        "exit_ptr": 103030,
+        "entrance_ptr": 103198,
         "subtype": "normal"
       }
     ],
@@ -5813,7 +5813,7 @@
   },
   {
     "name": "Ice Beam Snake Room",
-    "rom_address": "0x7a8b9",
+    "rom_address": 501945,
     "map": [
       [1, 0],
       [1, 1],
@@ -5824,24 +5824,24 @@
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x19372",
-        "entrance_ptr": "0x19342",
+        "exit_ptr": 103282,
+        "entrance_ptr": 103234,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 1,
-        "exit_ptr": "0x1937e",
-        "entrance_ptr": "0x1935a",
+        "exit_ptr": 103294,
+        "entrance_ptr": 103258,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 2,
-        "exit_ptr": "0x19366",
-        "entrance_ptr": "0x19282",
+        "exit_ptr": 103270,
+        "entrance_ptr": 103042,
         "subtype": "normal"
       }
     ],
@@ -5851,15 +5851,15 @@
   },
   {
     "name": "Ice Beam Room",
-    "rom_address": "0x7a890",
+    "rom_address": 501904,
     "map": [[1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1935a",
-        "entrance_ptr": "0x1937e",
+        "exit_ptr": 103258,
+        "entrance_ptr": 103294,
         "subtype": "normal"
       }
     ],
@@ -5869,23 +5869,23 @@
   },
   {
     "name": "Ice Beam Tutorial Room",
-    "rom_address": "0x7a865",
+    "rom_address": 501861,
     "map": [[1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x19342",
-        "entrance_ptr": "0x19372",
+        "exit_ptr": 103234,
+        "entrance_ptr": 103282,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x1934e",
-        "entrance_ptr": "0x19312",
+        "exit_ptr": 103246,
+        "entrance_ptr": 103186,
         "subtype": "normal"
       }
     ],
@@ -5895,23 +5895,23 @@
   },
   {
     "name": "Crumble Shaft",
-    "rom_address": "0x7a8f8",
+    "rom_address": 502008,
     "map": [[1], [1], [1], [1]],
     "doors": [
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1938a",
-        "entrance_ptr": "0x19336",
+        "exit_ptr": 103306,
+        "entrance_ptr": 103222,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 3,
-        "exit_ptr": "0x19396",
-        "entrance_ptr": "0x193a2",
+        "exit_ptr": 103318,
+        "entrance_ptr": 103330,
         "subtype": "normal"
       }
     ],
@@ -5921,23 +5921,23 @@
   },
   {
     "name": "Nutella Refill",
-    "rom_address": "0x7b026",
+    "rom_address": 503846,
     "map": [[1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x19786",
-        "entrance_ptr": "0x19756",
+        "exit_ptr": 104326,
+        "entrance_ptr": 104278,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x19792",
-        "entrance_ptr": "0x1976e",
+        "exit_ptr": 104338,
+        "entrance_ptr": 104302,
         "subtype": "normal"
       }
     ],
@@ -5947,23 +5947,23 @@
   },
   {
     "name": "Spiky Acid Snakes Tunnel",
-    "rom_address": "0x7affb",
+    "rom_address": 503803,
     "map": [[1, 1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1976e",
-        "entrance_ptr": "0x19792",
+        "exit_ptr": 104302,
+        "entrance_ptr": 104338,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 3,
         "y": 0,
-        "exit_ptr": "0x1977a",
-        "entrance_ptr": "0x1968a",
+        "exit_ptr": 104314,
+        "entrance_ptr": 104074,
         "subtype": "normal"
       }
     ],
@@ -5973,7 +5973,7 @@
   },
   {
     "name": "Kronic Boost Room",
-    "rom_address": "0x7ae74",
+    "rom_address": 503412,
     "map": [
       [0, 1],
       [1, 1],
@@ -5984,32 +5984,32 @@
         "direction": "left",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x19666",
-        "entrance_ptr": "0x196a2",
+        "exit_ptr": 104038,
+        "entrance_ptr": 104098,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x1968a",
-        "entrance_ptr": "0x1977a",
+        "exit_ptr": 104074,
+        "entrance_ptr": 104314,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 1,
         "y": 2,
-        "exit_ptr": "0x1967e",
-        "entrance_ptr": "0x196d2",
+        "exit_ptr": 104062,
+        "entrance_ptr": 104146,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x19672",
-        "entrance_ptr": "0x1965a",
+        "exit_ptr": 104050,
+        "entrance_ptr": 104026,
         "subtype": "normal"
       }
     ],
@@ -6019,23 +6019,23 @@
   },
   {
     "name": "Magdollite Tunnel",
-    "rom_address": "0x7aeb4",
+    "rom_address": 503476,
     "map": [[1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x19696",
-        "entrance_ptr": "0x196ba",
+        "exit_ptr": 104086,
+        "entrance_ptr": 104122,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 2,
         "y": 0,
-        "exit_ptr": "0x196a2",
-        "entrance_ptr": "0x19666",
+        "exit_ptr": 104098,
+        "entrance_ptr": 104038,
         "subtype": "normal"
       }
     ],
@@ -6045,7 +6045,7 @@
   },
   {
     "name": "Lava Dive Room",
-    "rom_address": "0x7af14",
+    "rom_address": 503572,
     "map": [
       [1, 1, 1, 1],
       [0, 1, 1, 1],
@@ -6056,16 +6056,16 @@
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x196de",
-        "entrance_ptr": "0x196ea",
+        "exit_ptr": 104158,
+        "entrance_ptr": 104170,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 3,
         "y": 0,
-        "exit_ptr": "0x196d2",
-        "entrance_ptr": "0x1967e",
+        "exit_ptr": 104146,
+        "entrance_ptr": 104062,
         "subtype": "normal"
       }
     ],
@@ -6075,7 +6075,7 @@
   },
   {
     "name": "Volcano Room",
-    "rom_address": "0x7ae32",
+    "rom_address": 503346,
     "map": [
       [0, 0, 1],
       [0, 0, 1],
@@ -6086,16 +6086,16 @@
         "direction": "left",
         "x": 2,
         "y": 0,
-        "exit_ptr": "0x1964e",
-        "entrance_ptr": "0x19642",
+        "exit_ptr": 104014,
+        "entrance_ptr": 104002,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 0,
         "y": 2,
-        "exit_ptr": "0x1965a",
-        "entrance_ptr": "0x19672",
+        "exit_ptr": 104026,
+        "entrance_ptr": 104050,
         "subtype": "normal"
       }
     ],
@@ -6105,23 +6105,23 @@
   },
   {
     "name": "Spiky Platforms Tunnel",
-    "rom_address": "0x7ae07",
+    "rom_address": 503303,
     "map": [[1, 1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x19636",
-        "entrance_ptr": "0x195ee",
+        "exit_ptr": 103990,
+        "entrance_ptr": 103918,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 3,
         "y": 0,
-        "exit_ptr": "0x19642",
-        "entrance_ptr": "0x1964e",
+        "exit_ptr": 104002,
+        "entrance_ptr": 104014,
         "subtype": "normal"
       }
     ],
@@ -6131,23 +6131,23 @@
   },
   {
     "name": "Red Pirate Shaft",
-    "rom_address": "0x7b139",
+    "rom_address": 504121,
     "map": [[1], [1], [1]],
     "doors": [
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x197f2",
-        "entrance_ptr": "0x19726",
+        "exit_ptr": 104434,
+        "entrance_ptr": 104230,
         "subtype": "normal"
       },
       {
         "direction": "down",
         "x": 0,
         "y": 2,
-        "exit_ptr": "0x197fe",
-        "entrance_ptr": "0x19762",
+        "exit_ptr": 104446,
+        "entrance_ptr": 104290,
         "subtype": "normal"
       }
     ],
@@ -6157,31 +6157,31 @@
   },
   {
     "name": "Acid Snakes Tunnel",
-    "rom_address": "0x7afce",
+    "rom_address": 503758,
     "map": [[1, 1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1974a",
-        "entrance_ptr": "0x193c6",
+        "exit_ptr": 104266,
+        "entrance_ptr": 103366,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 3,
         "y": 0,
-        "exit_ptr": "0x19756",
-        "entrance_ptr": "0x19786",
+        "exit_ptr": 104278,
+        "entrance_ptr": 104326,
         "subtype": "normal"
       },
       {
         "direction": "up",
         "x": 3,
         "y": 0,
-        "exit_ptr": "0x19762",
-        "entrance_ptr": "0x197fe",
+        "exit_ptr": 104290,
+        "entrance_ptr": 104446,
         "subtype": "normal"
       }
     ],
@@ -6191,7 +6191,7 @@
   },
   {
     "name": "Crocomire Speedway",
-    "rom_address": "0x7a923",
+    "rom_address": 502051,
     "map": [
       [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1],
       [0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1],
@@ -6202,40 +6202,40 @@
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x193a2",
-        "entrance_ptr": "0x19396",
+        "exit_ptr": 103330,
+        "entrance_ptr": 103318,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 12,
         "y": 0,
-        "exit_ptr": "0x193ae",
-        "entrance_ptr": "0x1940e",
+        "exit_ptr": 103342,
+        "entrance_ptr": 103438,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 12,
         "y": 1,
-        "exit_ptr": "0x193ba",
-        "entrance_ptr": "0x19822",
+        "exit_ptr": 103354,
+        "entrance_ptr": 104482,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 12,
         "y": 2,
-        "exit_ptr": "0x193c6",
-        "entrance_ptr": "0x1974a",
+        "exit_ptr": 103366,
+        "entrance_ptr": 104266,
         "subtype": "normal"
       },
       {
         "direction": "down",
         "x": 12,
         "y": 2,
-        "exit_ptr": "0x193d2",
-        "entrance_ptr": "0x193ea",
+        "exit_ptr": 103378,
+        "entrance_ptr": 103402,
         "subtype": "normal"
       }
     ],
@@ -6245,7 +6245,7 @@
   },
   {
     "name": "Crocomire Escape",
-    "rom_address": "0x7aa0e",
+    "rom_address": 502286,
     "map": [
       [1, 1, 1, 1],
       [1, 1, 1, 1]
@@ -6255,16 +6255,16 @@
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x19402",
-        "entrance_ptr": "0x192e2",
+        "exit_ptr": 103426,
+        "entrance_ptr": 103138,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 3,
         "y": 1,
-        "exit_ptr": "0x1940e",
-        "entrance_ptr": "0x193ae",
+        "exit_ptr": 103438,
+        "entrance_ptr": 103342,
         "subtype": "normal"
       }
     ],
@@ -6274,23 +6274,23 @@
   },
   {
     "name": "Crocomire's Room",
-    "rom_address": "0x7a98d",
+    "rom_address": 502157,
     "map": [[1, 1, 1, 1, 1, 1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x193de",
-        "entrance_ptr": "0x19432",
+        "exit_ptr": 103390,
+        "entrance_ptr": 103474,
         "subtype": "normal"
       },
       {
         "direction": "up",
         "x": 3,
         "y": 0,
-        "exit_ptr": "0x193ea",
-        "entrance_ptr": "0x193d2",
+        "exit_ptr": 103402,
+        "entrance_ptr": 103378,
         "subtype": "normal"
       }
     ],
@@ -6300,7 +6300,7 @@
   },
   {
     "name": "Post Crocomire Farming Room",
-    "rom_address": "0x7aa82",
+    "rom_address": 502402,
     "map": [
       [1, 1],
       [1, 1]
@@ -6310,32 +6310,32 @@
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1943e",
-        "entrance_ptr": "0x1946e",
+        "exit_ptr": 103486,
+        "entrance_ptr": 103534,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x19432",
-        "entrance_ptr": "0x193de",
+        "exit_ptr": 103474,
+        "entrance_ptr": 103390,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 1,
-        "exit_ptr": "0x19456",
-        "entrance_ptr": "0x19462",
+        "exit_ptr": 103510,
+        "entrance_ptr": 103522,
         "subtype": "normal"
       },
       {
         "direction": "down",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x1944a",
-        "entrance_ptr": "0x1947a",
+        "exit_ptr": 103498,
+        "entrance_ptr": 103546,
         "subtype": "normal"
       }
     ],
@@ -6345,15 +6345,15 @@
   },
   {
     "name": "Post Crocomire Power Bomb Room",
-    "rom_address": "0x7aade",
+    "rom_address": 502494,
     "map": [[1]],
     "doors": [
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1946e",
-        "entrance_ptr": "0x1943e",
+        "exit_ptr": 103534,
+        "entrance_ptr": 103486,
         "subtype": "normal"
       }
     ],
@@ -6363,39 +6363,39 @@
   },
   {
     "name": "Post Crocomire Shaft",
-    "rom_address": "0x7ab07",
+    "rom_address": 502535,
     "map": [[1], [1], [1], [1], [1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x19486",
-        "entrance_ptr": "0x194c2",
+        "exit_ptr": 103558,
+        "entrance_ptr": 103618,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 3,
-        "exit_ptr": "0x19492",
-        "entrance_ptr": "0x194aa",
+        "exit_ptr": 103570,
+        "entrance_ptr": 103594,
         "subtype": "normal"
       },
       {
         "direction": "down",
         "x": 0,
         "y": 4,
-        "exit_ptr": "0x1949e",
-        "entrance_ptr": "0x194ce",
+        "exit_ptr": 103582,
+        "entrance_ptr": 103630,
         "subtype": "normal"
       },
       {
         "direction": "up",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1947a",
-        "entrance_ptr": "0x1944a",
+        "exit_ptr": 103546,
+        "entrance_ptr": 103498,
         "subtype": "normal"
       }
     ],
@@ -6405,15 +6405,15 @@
   },
   {
     "name": "Post Crocomire Missile Room",
-    "rom_address": "0x7ab3b",
+    "rom_address": 502587,
     "map": [[1, 1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x194aa",
-        "entrance_ptr": "0x19492",
+        "exit_ptr": 103594,
+        "entrance_ptr": 103570,
         "subtype": "normal"
       }
     ],
@@ -6423,7 +6423,7 @@
   },
   {
     "name": "Post Crocomire Jump Room",
-    "rom_address": "0x7ab8f",
+    "rom_address": 502671,
     "map": [
       [1, 1, 1, 1, 1, 0, 0, 0],
       [1, 1, 1, 1, 1, 0, 0, 0],
@@ -6434,16 +6434,16 @@
         "direction": "left",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x194da",
-        "entrance_ptr": "0x19516",
+        "exit_ptr": 103642,
+        "entrance_ptr": 103702,
         "subtype": "normal"
       },
       {
         "direction": "up",
         "x": 6,
         "y": 2,
-        "exit_ptr": "0x194ce",
-        "entrance_ptr": "0x1949e",
+        "exit_ptr": 103630,
+        "entrance_ptr": 103582,
         "subtype": "normal"
       }
     ],
@@ -6453,23 +6453,23 @@
   },
   {
     "name": "Grapple Beam Room",
-    "rom_address": "0x7ac2b",
+    "rom_address": 502827,
     "map": [[1], [1], [1]],
     "doors": [
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x19522",
-        "entrance_ptr": "0x194fe",
+        "exit_ptr": 103714,
+        "entrance_ptr": 103678,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 2,
-        "exit_ptr": "0x19516",
-        "entrance_ptr": "0x194da",
+        "exit_ptr": 103702,
+        "entrance_ptr": 103642,
         "subtype": "normal"
       }
     ],
@@ -6479,23 +6479,23 @@
   },
   {
     "name": "Grapple Tutorial Room 1",
-    "rom_address": "0x7ac00",
+    "rom_address": 502784,
     "map": [[1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x194fe",
-        "entrance_ptr": "0x19522",
+        "exit_ptr": 103678,
+        "entrance_ptr": 103714,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x1950a",
-        "entrance_ptr": "0x194e6",
+        "exit_ptr": 103690,
+        "entrance_ptr": 103654,
         "subtype": "normal"
       }
     ],
@@ -6505,23 +6505,23 @@
   },
   {
     "name": "Grapple Tutorial Room 2",
-    "rom_address": "0x7abd2",
+    "rom_address": 502738,
     "map": [[1], [1], [1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 2,
-        "exit_ptr": "0x194e6",
-        "entrance_ptr": "0x1950a",
+        "exit_ptr": 103654,
+        "entrance_ptr": 103690,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x194f2",
-        "entrance_ptr": "0x194b6",
+        "exit_ptr": 103666,
+        "entrance_ptr": 103606,
         "subtype": "normal"
       }
     ],
@@ -6531,7 +6531,7 @@
   },
   {
     "name": "Grapple Tutorial Room 3",
-    "rom_address": "0x7ab64",
+    "rom_address": 502628,
     "map": [
       [1, 1, 1],
       [1, 1, 1]
@@ -6541,16 +6541,16 @@
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x194b6",
-        "entrance_ptr": "0x194f2",
+        "exit_ptr": 103606,
+        "entrance_ptr": 103666,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 2,
         "y": 0,
-        "exit_ptr": "0x194c2",
-        "entrance_ptr": "0x19486",
+        "exit_ptr": 103618,
+        "entrance_ptr": 103558,
         "subtype": "normal"
       }
     ],
@@ -6560,15 +6560,15 @@
   },
   {
     "name": "Crocomire Save Room",
-    "rom_address": "0x7b192",
+    "rom_address": 504210,
     "map": [[1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x19822",
-        "entrance_ptr": "0x193ba",
+        "exit_ptr": 104482,
+        "entrance_ptr": 103354,
         "subtype": "normal"
       }
     ],
@@ -6578,15 +6578,15 @@
   },
   {
     "name": "Post Crocomire Save Room",
-    "rom_address": "0x7aab5",
+    "rom_address": 502453,
     "map": [[1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x19462",
-        "entrance_ptr": "0x19456",
+        "exit_ptr": 103522,
+        "entrance_ptr": 103510,
         "subtype": "normal"
       }
     ],
@@ -6596,31 +6596,31 @@
   },
   {
     "name": "Lower Norfair Elevator",
-    "rom_address": "0x7af3f",
+    "rom_address": 503615,
     "map": [[1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x19702",
-        "entrance_ptr": "0x1982e",
+        "exit_ptr": 104194,
+        "entrance_ptr": 104494,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x196ea",
-        "entrance_ptr": "0x196de",
+        "exit_ptr": 104170,
+        "entrance_ptr": 104158,
         "subtype": "normal"
       },
       {
         "direction": "down",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x196f6",
-        "entrance_ptr": "0x1986a",
+        "exit_ptr": 104182,
+        "entrance_ptr": 104554,
         "subtype": "elevator"
       }
     ],
@@ -6630,15 +6630,15 @@
   },
   {
     "name": "Lower Norfair Elevator Save Room",
-    "rom_address": "0x7b1bb",
+    "rom_address": 504251,
     "map": [[1]],
     "doors": [
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1982e",
-        "entrance_ptr": "0x19702",
+        "exit_ptr": 104494,
+        "entrance_ptr": 104194,
         "subtype": "normal"
       }
     ],
@@ -6648,23 +6648,23 @@
   },
   {
     "name": "Wrecked Ship Entrance",
-    "rom_address": "0x7ca08",
+    "rom_address": 510472,
     "map": [[1, 1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a1b0",
-        "entrance_ptr": "0x189d6",
+        "exit_ptr": 106928,
+        "entrance_ptr": 100822,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 3,
         "y": 0,
-        "exit_ptr": "0x1a1bc",
-        "entrance_ptr": "0x1a1f8",
+        "exit_ptr": 106940,
+        "entrance_ptr": 107000,
         "subtype": "normal"
       }
     ],
@@ -6674,7 +6674,7 @@
   },
   {
     "name": "Wrecked Ship Main Shaft",
-    "rom_address": "0x7caf6",
+    "rom_address": 510710,
     "map": [
       [0, 0, 0, 0, 1, 0],
       [0, 0, 0, 0, 1, 0],
@@ -6690,56 +6690,56 @@
         "direction": "left",
         "x": 4,
         "y": 3,
-        "exit_ptr": "0x1a1f8",
-        "entrance_ptr": "0x1a1bc",
+        "exit_ptr": 107000,
+        "entrance_ptr": 106940,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 4,
         "y": 6,
-        "exit_ptr": "0x1a210",
-        "entrance_ptr": "0x1a2e8",
+        "exit_ptr": 107024,
+        "entrance_ptr": 107240,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 4,
         "y": 3,
-        "exit_ptr": "0x1a240",
-        "entrance_ptr": "0x1a318",
+        "exit_ptr": 107072,
+        "entrance_ptr": 107288,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 4,
         "y": 4,
-        "exit_ptr": "0x1a204",
-        "entrance_ptr": "0x1a2d0",
+        "exit_ptr": 107012,
+        "entrance_ptr": 107216,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 5,
         "y": 6,
-        "exit_ptr": "0x1a234",
-        "entrance_ptr": "0x1a2f4",
+        "exit_ptr": 107060,
+        "entrance_ptr": 107252,
         "subtype": "normal"
       },
       {
         "direction": "down",
         "x": 4,
         "y": 7,
-        "exit_ptr": "0x1a21c",
-        "entrance_ptr": "0x1a294",
+        "exit_ptr": 107036,
+        "entrance_ptr": 107156,
         "subtype": "normal"
       },
       {
         "direction": "up",
         "x": 4,
         "y": 0,
-        "exit_ptr": "0x1a228",
-        "entrance_ptr": "0x1a1c8",
+        "exit_ptr": 107048,
+        "entrance_ptr": 106952,
         "subtype": "normal"
       }
     ],
@@ -6749,31 +6749,31 @@
   },
   {
     "name": "Attic",
-    "rom_address": "0x7ca52",
+    "rom_address": 510546,
     "map": [[1, 1, 1, 1, 1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a1e0",
-        "entrance_ptr": "0x189ee",
+        "exit_ptr": 106976,
+        "entrance_ptr": 100846,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 6,
         "y": 0,
-        "exit_ptr": "0x1a1d4",
-        "entrance_ptr": "0x1a1ec",
+        "exit_ptr": 106964,
+        "entrance_ptr": 106988,
         "subtype": "normal"
       },
       {
         "direction": "down",
         "x": 4,
         "y": 0,
-        "exit_ptr": "0x1a1c8",
-        "entrance_ptr": "0x1a228",
+        "exit_ptr": 106952,
+        "entrance_ptr": 107048,
         "subtype": "normal"
       }
     ],
@@ -6783,31 +6783,31 @@
   },
   {
     "name": "Basement",
-    "rom_address": "0x7cc6f",
+    "rom_address": 511087,
     "map": [[1, 1, 1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a2a0",
-        "entrance_ptr": "0x1a2b8",
+        "exit_ptr": 107168,
+        "entrance_ptr": 107192,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 4,
         "y": 0,
-        "exit_ptr": "0x1a2ac",
-        "entrance_ptr": "0x1a2c4",
+        "exit_ptr": 107180,
+        "entrance_ptr": 107204,
         "subtype": "normal"
       },
       {
         "direction": "up",
         "x": 2,
         "y": 0,
-        "exit_ptr": "0x1a294",
-        "entrance_ptr": "0x1a21c",
+        "exit_ptr": 107156,
+        "entrance_ptr": 107036,
         "subtype": "normal"
       }
     ],
@@ -6817,15 +6817,15 @@
   },
   {
     "name": "Wrecked Ship Map Room",
-    "rom_address": "0x7cccb",
+    "rom_address": 511179,
     "map": [[1]],
     "doors": [
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a2b8",
-        "entrance_ptr": "0x1a2a0",
+        "exit_ptr": 107192,
+        "entrance_ptr": 107168,
         "subtype": "normal"
       }
     ],
@@ -6835,15 +6835,15 @@
   },
   {
     "name": "Phantoon's Room",
-    "rom_address": "0x7cd13",
+    "rom_address": 511251,
     "map": [[1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a2c4",
-        "entrance_ptr": "0x1a2ac",
+        "exit_ptr": 107204,
+        "entrance_ptr": 107180,
         "subtype": "normal"
       }
     ],
@@ -6853,15 +6853,15 @@
   },
   {
     "name": "Wrecked Ship West Super Room",
-    "rom_address": "0x7cda8",
+    "rom_address": 511400,
     "map": [[1]],
     "doors": [
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a2e8",
-        "entrance_ptr": "0x1a210",
+        "exit_ptr": 107240,
+        "entrance_ptr": 107024,
         "subtype": "normal"
       }
     ],
@@ -6871,7 +6871,7 @@
   },
   {
     "name": "Bowling Alley",
-    "rom_address": "0x7c98e",
+    "rom_address": 510350,
     "map": [
       [0, 0, 1, 1, 1, 1],
       [1, 1, 1, 1, 1, 1],
@@ -6882,24 +6882,24 @@
         "direction": "left",
         "x": 2,
         "y": 0,
-        "exit_ptr": "0x1a18c",
-        "entrance_ptr": "0x189fa",
+        "exit_ptr": 106892,
+        "entrance_ptr": 100858,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x1a198",
-        "entrance_ptr": "0x18b32",
+        "exit_ptr": 106904,
+        "entrance_ptr": 101170,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 1,
         "y": 2,
-        "exit_ptr": "0x1a1a4",
-        "entrance_ptr": "0x1a30c",
+        "exit_ptr": 106916,
+        "entrance_ptr": 107276,
         "subtype": "normal"
       }
     ],
@@ -6909,23 +6909,23 @@
   },
   {
     "name": "Gravity Suit Room",
-    "rom_address": "0x7ce40",
+    "rom_address": 511552,
     "map": [[1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a300",
-        "entrance_ptr": "0x18a06",
+        "exit_ptr": 107264,
+        "entrance_ptr": 100870,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a30c",
-        "entrance_ptr": "0x1a1a4",
+        "exit_ptr": 107276,
+        "entrance_ptr": 106916,
         "subtype": "normal"
       }
     ],
@@ -6935,15 +6935,15 @@
   },
   {
     "name": "Wrecked Ship East Super Room",
-    "rom_address": "0x7cdf1",
+    "rom_address": 511473,
     "map": [[1, 1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a2f4",
-        "entrance_ptr": "0x1a234",
+        "exit_ptr": 107252,
+        "entrance_ptr": 107060,
         "subtype": "normal"
       }
     ],
@@ -6953,23 +6953,23 @@
   },
   {
     "name": "Sponge Bath",
-    "rom_address": "0x7cd5c",
+    "rom_address": 511324,
     "map": [[1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a2d0",
-        "entrance_ptr": "0x1a204",
+        "exit_ptr": 107216,
+        "entrance_ptr": 107012,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x1a2dc",
-        "entrance_ptr": "0x1a24c",
+        "exit_ptr": 107228,
+        "entrance_ptr": 107084,
         "subtype": "normal"
       }
     ],
@@ -6979,23 +6979,23 @@
   },
   {
     "name": "Spiky Death Room",
-    "rom_address": "0x7cb8b",
+    "rom_address": 510859,
     "map": [[1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a24c",
-        "entrance_ptr": "0x1a2dc",
+        "exit_ptr": 107084,
+        "entrance_ptr": 107228,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x1a258",
-        "entrance_ptr": "0x1a270",
+        "exit_ptr": 107096,
+        "entrance_ptr": 107120,
         "subtype": "normal"
       }
     ],
@@ -7005,31 +7005,31 @@
   },
   {
     "name": "Electric Death Room",
-    "rom_address": "0x7cbd5",
+    "rom_address": 510933,
     "map": [[1], [1], [1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a27c",
-        "entrance_ptr": "0x1a288",
+        "exit_ptr": 107132,
+        "entrance_ptr": 107144,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 0,
         "y": 2,
-        "exit_ptr": "0x1a270",
-        "entrance_ptr": "0x1a258",
+        "exit_ptr": 107120,
+        "entrance_ptr": 107096,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x1a264",
-        "entrance_ptr": "0x18a66",
+        "exit_ptr": 107108,
+        "entrance_ptr": 100966,
         "subtype": "normal"
       }
     ],
@@ -7039,7 +7039,7 @@
   },
   {
     "name": "Wrecked Ship Energy Tank Room",
-    "rom_address": "0x7cc27",
+    "rom_address": 511015,
     "map": [
       [1, 1, 1],
       [1, 1, 1]
@@ -7049,8 +7049,8 @@
         "direction": "right",
         "x": 2,
         "y": 0,
-        "exit_ptr": "0x1a288",
-        "entrance_ptr": "0x1a27c",
+        "exit_ptr": 107144,
+        "entrance_ptr": 107132,
         "subtype": "normal"
       }
     ],
@@ -7060,15 +7060,15 @@
   },
   {
     "name": "Assembly Line",
-    "rom_address": "0x7caae",
+    "rom_address": 510638,
     "map": [[1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a1ec",
-        "entrance_ptr": "0x1a1d4",
+        "exit_ptr": 106988,
+        "entrance_ptr": 106964,
         "subtype": "normal"
       }
     ],
@@ -7078,15 +7078,15 @@
   },
   {
     "name": "Wrecked Ship Save Room",
-    "rom_address": "0x7ce8a",
+    "rom_address": 511626,
     "map": [[1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a318",
-        "entrance_ptr": "0x1a240",
+        "exit_ptr": 107288,
+        "entrance_ptr": 107072,
         "subtype": "normal"
       }
     ],
@@ -7096,31 +7096,31 @@
   },
   {
     "name": "Tourian First Room",
-    "rom_address": "0x7daae",
+    "rom_address": 514734,
     "map": [[1], [1], [1], [1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 3,
-        "exit_ptr": "0x1a984",
-        "entrance_ptr": "0x1a9a8",
+        "exit_ptr": 108932,
+        "entrance_ptr": 108968,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 3,
-        "exit_ptr": "0x1a99c",
-        "entrance_ptr": "0x1ab40",
+        "exit_ptr": 108956,
+        "entrance_ptr": 109376,
         "subtype": "normal"
       },
       {
         "direction": "up",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a990",
-        "entrance_ptr": "0x19222",
+        "exit_ptr": 108944,
+        "entrance_ptr": 102946,
         "subtype": "elevator"
       }
     ],
@@ -7130,15 +7130,15 @@
   },
   {
     "name": "Tourian Map Room",
-    "rom_address": "0x7df1b",
+    "rom_address": 515867,
     "map": [[1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1ab40",
-        "entrance_ptr": "0x1a99c",
+        "exit_ptr": 109376,
+        "entrance_ptr": 108956,
         "subtype": "normal"
       }
     ],
@@ -7148,23 +7148,23 @@
   },
   {
     "name": "Metroid Room 1",
-    "rom_address": "0x7dae1",
+    "rom_address": 514785,
     "map": [[1, 1, 1, 1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a9b4",
-        "entrance_ptr": "0x1a9c0",
+        "exit_ptr": 108980,
+        "entrance_ptr": 108992,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 5,
         "y": 0,
-        "exit_ptr": "0x1a9a8",
-        "entrance_ptr": "0x1a984",
+        "exit_ptr": 108968,
+        "entrance_ptr": 108932,
         "subtype": "normal"
       }
     ],
@@ -7174,23 +7174,23 @@
   },
   {
     "name": "Metroid Room 2",
-    "rom_address": "0x7db31",
+    "rom_address": 514865,
     "map": [[1], [1]],
     "doors": [
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a9c0",
-        "entrance_ptr": "0x1a9b4",
+        "exit_ptr": 108992,
+        "entrance_ptr": 108980,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x1a9cc",
-        "entrance_ptr": "0x1a9d8",
+        "exit_ptr": 109004,
+        "entrance_ptr": 109016,
         "subtype": "normal"
       }
     ],
@@ -7200,23 +7200,23 @@
   },
   {
     "name": "Metroid Room 3",
-    "rom_address": "0x7db7d",
+    "rom_address": 514941,
     "map": [[1, 1, 1, 1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a9d8",
-        "entrance_ptr": "0x1a9cc",
+        "exit_ptr": 109016,
+        "entrance_ptr": 109004,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 5,
         "y": 0,
-        "exit_ptr": "0x1a9e4",
-        "entrance_ptr": "0x1a9f0",
+        "exit_ptr": 109028,
+        "entrance_ptr": 109040,
         "subtype": "normal"
       }
     ],
@@ -7226,23 +7226,23 @@
   },
   {
     "name": "Metroid Room 4",
-    "rom_address": "0x7dbcd",
+    "rom_address": 515021,
     "map": [[1], [1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1a9f0",
-        "entrance_ptr": "0x1a9e4",
+        "exit_ptr": 109040,
+        "entrance_ptr": 109028,
         "subtype": "normal"
       },
       {
         "direction": "down",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x1a9fc",
-        "entrance_ptr": "0x1aa08",
+        "exit_ptr": 109052,
+        "entrance_ptr": 109064,
         "subtype": "normal"
       }
     ],
@@ -7252,23 +7252,23 @@
   },
   {
     "name": "Blue Hopper Room",
-    "rom_address": "0x7dc19",
+    "rom_address": 515097,
     "map": [[1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1aa14",
-        "entrance_ptr": "0x1aa20",
+        "exit_ptr": 109076,
+        "entrance_ptr": 109088,
         "subtype": "normal"
       },
       {
         "direction": "up",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x1aa08",
-        "entrance_ptr": "0x1a9fc",
+        "exit_ptr": 109064,
+        "entrance_ptr": 109052,
         "subtype": "normal"
       }
     ],
@@ -7278,23 +7278,23 @@
   },
   {
     "name": "Dust Torizo Room",
-    "rom_address": "0x7dc65",
+    "rom_address": 515173,
     "map": [[1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1aa2c",
-        "entrance_ptr": "0x1aa38",
+        "exit_ptr": 109100,
+        "entrance_ptr": 109112,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x1aa20",
-        "entrance_ptr": "0x1aa14",
+        "exit_ptr": 109088,
+        "entrance_ptr": 109076,
         "subtype": "normal"
       }
     ],
@@ -7304,23 +7304,23 @@
   },
   {
     "name": "Big Boy Room",
-    "rom_address": "0x7dcb1",
+    "rom_address": 515249,
     "map": [[1, 1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1aa44",
-        "entrance_ptr": "0x1aa50",
+        "exit_ptr": 109124,
+        "entrance_ptr": 109136,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 3,
         "y": 0,
-        "exit_ptr": "0x1aa38",
-        "entrance_ptr": "0x1aa2c",
+        "exit_ptr": 109112,
+        "entrance_ptr": 109100,
         "subtype": "normal"
       }
     ],
@@ -7330,31 +7330,31 @@
   },
   {
     "name": "Seaweed Room",
-    "rom_address": "0x7dcff",
+    "rom_address": 515327,
     "map": [[1], [1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x1aa68",
-        "entrance_ptr": "0x1aa74",
+        "exit_ptr": 109160,
+        "entrance_ptr": 109172,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1aa50",
-        "entrance_ptr": "0x1aa44",
+        "exit_ptr": 109136,
+        "entrance_ptr": 109124,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x1aa5c",
-        "entrance_ptr": "0x1aa98",
+        "exit_ptr": 109148,
+        "entrance_ptr": 109208,
         "subtype": "normal"
       }
     ],
@@ -7364,15 +7364,15 @@
   },
   {
     "name": "Tourian Recharge Room",
-    "rom_address": "0x7dd2e",
+    "rom_address": 515374,
     "map": [[1]],
     "doors": [
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1aa74",
-        "entrance_ptr": "0x1aa68",
+        "exit_ptr": 109172,
+        "entrance_ptr": 109160,
         "subtype": "normal"
       }
     ],
@@ -7382,23 +7382,23 @@
   },
   {
     "name": "Tourian Eye Door Room",
-    "rom_address": "0x7ddc4",
+    "rom_address": 515524,
     "map": [[1, 1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1aa98",
-        "entrance_ptr": "0x1aa5c",
+        "exit_ptr": 109208,
+        "entrance_ptr": 109148,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 3,
         "y": 0,
-        "exit_ptr": "0x1aaa4",
-        "entrance_ptr": "0x1aab0",
+        "exit_ptr": 109220,
+        "entrance_ptr": 109232,
         "subtype": "normal"
       }
     ],
@@ -7408,31 +7408,31 @@
   },
   {
     "name": "Rinka Shaft",
-    "rom_address": "0x7ddf3",
+    "rom_address": 515571,
     "map": [[1], [1], [1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1aab0",
-        "entrance_ptr": "0x1aaa4",
+        "exit_ptr": 109232,
+        "entrance_ptr": 109220,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x1aabc",
-        "entrance_ptr": "0x1aad4",
+        "exit_ptr": 109244,
+        "entrance_ptr": 109268,
         "subtype": "normal"
       },
       {
         "direction": "left",
         "x": 0,
         "y": 2,
-        "exit_ptr": "0x1aac8",
-        "entrance_ptr": "0x1aa80",
+        "exit_ptr": 109256,
+        "entrance_ptr": 109184,
         "subtype": "normal"
       }
     ],
@@ -7442,15 +7442,15 @@
   },
   {
     "name": "Lower Tourian Save Room",
-    "rom_address": "0x7de23",
+    "rom_address": 515619,
     "map": [[1]],
     "doors": [
       {
         "direction": "right",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1aad4",
-        "entrance_ptr": "0x1aabc",
+        "exit_ptr": 109268,
+        "entrance_ptr": 109244,
         "subtype": "normal"
       }
     ],
@@ -7460,23 +7460,23 @@
   },
   {
     "name": "Mother Brain Room",
-    "rom_address": "0x7dd58",
+    "rom_address": 515416,
     "map": [[1, 1, 1, 1]],
     "doors": [
       {
         "direction": "left",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1aa8c",
-        "entrance_ptr": "0x1aae0",
+        "exit_ptr": 109196,
+        "entrance_ptr": 109280,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 3,
         "y": 0,
-        "exit_ptr": "0x1aa80",
-        "entrance_ptr": "0x1aac8",
+        "exit_ptr": 109184,
+        "entrance_ptr": 109256,
         "subtype": "normal"
       }
     ],
@@ -7486,23 +7486,23 @@
   },
   {
     "name": "Tourian Escape Room 1",
-    "rom_address": "0x7de4d",
+    "rom_address": 515661,
     "map": [[1, 1]],
     "doors": [
       {
         "direction": "right",
         "x": 1,
         "y": 0,
-        "exit_ptr": "0x1aae0",
-        "entrance_ptr": "0x1aa8c",
+        "exit_ptr": 109280,
+        "entrance_ptr": 109196,
         "subtype": "normal"
       },
       {
         "direction": "down",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1aaec",
-        "entrance_ptr": "0x1aaf8",
+        "exit_ptr": 109292,
+        "entrance_ptr": 109304,
         "subtype": "normal"
       }
     ],
@@ -7512,23 +7512,23 @@
   },
   {
     "name": "Tourian Escape Room 2",
-    "rom_address": "0x7de7a",
+    "rom_address": 515706,
     "map": [[1], [1]],
     "doors": [
       {
         "direction": "right",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x1ab04",
-        "entrance_ptr": "0x1ab10",
+        "exit_ptr": 109316,
+        "entrance_ptr": 109328,
         "subtype": "normal"
       },
       {
         "direction": "up",
         "x": 0,
         "y": 0,
-        "exit_ptr": "0x1aaf8",
-        "entrance_ptr": "0x1aaec",
+        "exit_ptr": 109304,
+        "entrance_ptr": 109292,
         "subtype": "normal"
       }
     ],
@@ -7538,7 +7538,7 @@
   },
   {
     "name": "Tourian Escape Room 3",
-    "rom_address": "0x7dea7",
+    "rom_address": 515751,
     "map": [
       [1, 1, 1, 1, 1, 1],
       [1, 1, 1, 1, 1, 1]
@@ -7548,16 +7548,16 @@
         "direction": "left",
         "x": 0,
         "y": 1,
-        "exit_ptr": "0x1ab10",
-        "entrance_ptr": "0x1ab04",
+        "exit_ptr": 109328,
+        "entrance_ptr": 109316,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 5,
         "y": 0,
-        "exit_ptr": "0x1ab1c",
-        "entrance_ptr": "0x1ab28",
+        "exit_ptr": 109340,
+        "entrance_ptr": 109352,
         "subtype": "normal"
       }
     ],
@@ -7567,7 +7567,7 @@
   },
   {
     "name": "Tourian Escape Room 4",
-    "rom_address": "0x7dede",
+    "rom_address": 515806,
     "map": [
       [1, 1, 1],
       [1, 1, 1],
@@ -7581,16 +7581,16 @@
         "direction": "left",
         "x": 0,
         "y": 3,
-        "exit_ptr": "0x1ab28",
-        "entrance_ptr": "0x1ab1c",
+        "exit_ptr": 109352,
+        "entrance_ptr": 109340,
         "subtype": "normal"
       },
       {
         "direction": "right",
         "x": 2,
         "y": 1,
-        "exit_ptr": "0x1ab34",
-        "entrance_ptr": "0x18b6e",
+        "exit_ptr": 109364,
+        "entrance_ptr": 101230,
         "subtype": "normal"
       }
     ],

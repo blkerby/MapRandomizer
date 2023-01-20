@@ -43,7 +43,8 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
 fn main() -> Result<()> {
     let args = Args::parse();
     let sm_json_data_path = Path::new("../sm-json-data");
-    let game_data = GameData::load(sm_json_data_path)?;
+    let room_geometry_path = Path::new("../room_geometry.json");
+    let game_data = GameData::load(sm_json_data_path, room_geometry_path)?;
     let randomization = get_randomization(&args, &game_data)?;
     let rom = make_rom(&args.input_rom_path, &randomization, &game_data)?;
     rom.save(&args.output_rom_path)?;
