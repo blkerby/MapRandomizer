@@ -33,7 +33,8 @@ pub type ItemLocationId = usize; // Index into GameData.item_locations: 100 node
 pub type ObstacleMask = usize; // Bitmask where `i`th bit (from least significant) indicates `i`th obstacle cleared within a room
 pub type WeaponMask = usize; // Bitmask where `i`th bit indicates availability of (or vulnerability to) `i`th weapon.
 pub type Capacity = i32; // Data type used to represent quantities of energy, ammo, etc.
-pub type DoorPtrPair = (Option<NodePtr>, Option<NodePtr>); // PC addresses of door data for exiting & entering given door (from vanilla door connection)
+pub type DoorPtr = usize; // PC address of door data for exiting given door
+pub type DoorPtrPair = (Option<DoorPtr>, Option<DoorPtr>); // PC addresses of door data for exiting & entering given door (from vanilla door connection)
 
 #[derive(Default)]
 pub struct IndexedVec<T: Hash + Eq> {
