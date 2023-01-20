@@ -1,6 +1,6 @@
 use hashbrown::HashMap;
 
-use crate::game_data::GameData;
+use crate::game_data::{DoorPtrPair, GameData, Map, RoomGeometryDoor};
 
 use super::{snes2pc, xy_to_map_offset, Rom};
 use anyhow::{bail, Result};
@@ -36,6 +36,7 @@ const NUM_AREAS: usize = 6;
 pub struct MapPatcher<'a> {
     rom: &'a mut Rom,
     game_data: &'a GameData,
+    map: &'a Map,
     area_map_ptrs: [usize; NUM_AREAS],
     free_tiles: Vec<usize>,
     next_free_tile_idx: usize,
@@ -59,7 +60,7 @@ const I: Interior = Interior::Item;
 const V: Interior = Interior::Elevator;
 
 impl<'a> MapPatcher<'a> {
-    pub fn new(rom: &'a mut Rom, game_data: &'a GameData) -> Self {
+    pub fn new(rom: &'a mut Rom, game_data: &'a GameData, map: &'a Map) -> Self {
         let free_tiles = vec![
             // Skipping tiles used by max_ammo_display:
             // 0x3C, 0x3D, 0x3E, 0x3F,
@@ -92,6 +93,7 @@ impl<'a> MapPatcher<'a> {
         MapPatcher {
             rom,
             game_data,
+            map,
             area_map_ptrs,
             free_tiles,
             next_free_tile_idx: 0,
@@ -295,6 +297,21 @@ impl<'a> MapPatcher<'a> {
             }
         }
 
+        // Replace blue/pink colors in elevator tile with white. Otherwise, the colors would
+        // be unintuitive given the fact that we auto-explore some elevator tiles.
+        let elevator_tile_data: [[u8; 8]; 8] = [
+            [0, 2, 2, 0, 0, 2, 2, 0],
+            [0, 2, 0, 0, 0, 0, 2, 0],
+            [0, 2, 2, 0, 0, 2, 2, 0],
+            [0, 2, 0, 0, 0, 0, 2, 0],
+            [0, 2, 2, 0, 0, 2, 2, 0],
+            [0, 2, 0, 0, 0, 0, 2, 0],
+            [0, 2, 2, 0, 0, 2, 2, 0],
+            [0, 2, 0, 0, 0, 0, 2, 0],
+        ];
+        self.write_tile_2bpp(ELEVATOR_TILE as usize, elevator_tile_data, true)?;
+        self.write_tile_4bpp(ELEVATOR_TILE as usize, elevator_tile_data)?;
+
         // In top elevator rooms, replace down arrow tiles with elevator tiles:
         self.patch_room("Green Brinstar Elevator Room", vec![(0, 3, ELEVATOR_TILE)])?;
         self.patch_room("Red Brinstar Elevator Room", vec![(0, 3, ELEVATOR_TILE)])?;
@@ -324,7 +341,7 @@ impl<'a> MapPatcher<'a> {
     ) -> Result<()> {
         let room_idx = self.game_data.room_idx_by_name[room_name];
         let room = &self.game_data.room_geometry[room_idx];
-        let area = self.rom.read_u8(room.rom_address + 1)? as usize;
+        let area = self.map.area[room_idx];
         let x0 = self.rom.read_u8(room.rom_address + 2)? as isize;
         let y0 = self.rom.read_u8(room.rom_address + 3)? as isize;
         for (x, y, word) in &tiles {
@@ -475,9 +492,18 @@ impl<'a> MapPatcher<'a> {
         )?;
         self.patch_room_basic("Warehouse Entrance", vec![(1, 1, W, W, E, W, O)])?;
         self.patch_room_basic("Main Street", vec![(2, 2, E, W, W, W, O)])?;
-        self.patch_room_basic("West Aqueduct Quicksand Room", vec![(0, 0, W, W, W, E, O), (0, 1, W, W, E, W, O)])?;
-        self.patch_room_basic("East Aqueduct Quicksand Room", vec![(0, 0, W, W, W, E, O), (0, 1, W, W, E, W, O)])?;
-        self.patch_room_basic("Botwoon Quicksand Room", vec![(0, 0, W, E, W, W, O), (1, 0, E, W, W, W, O)])?;
+        self.patch_room_basic(
+            "West Aqueduct Quicksand Room",
+            vec![(0, 0, W, W, W, E, O), (0, 1, W, W, E, W, O)],
+        )?;
+        self.patch_room_basic(
+            "East Aqueduct Quicksand Room",
+            vec![(0, 0, W, W, W, E, O), (0, 1, W, W, E, W, O)],
+        )?;
+        self.patch_room_basic(
+            "Botwoon Quicksand Room",
+            vec![(0, 0, W, E, W, W, O), (1, 0, E, W, W, W, O)],
+        )?;
         self.patch_room_basic("Plasma Beach Quicksand Room", vec![(0, 0, W, W, W, W, O)])?;
         self.patch_room_basic("Lower Norfair Fireflea Room", vec![(1, 3, W, W, E, W, O)])?;
 
@@ -486,8 +512,8 @@ impl<'a> MapPatcher<'a> {
 
     fn indicate_doors(&mut self) -> Result<()> {
         // Make doors appear as two-pixel-wide opening instead of as a solid wall:
-        for room in &self.game_data.room_geometry {
-            let area = self.rom.read_u8(room.rom_address + 1)? as usize;
+        for (room_idx, room) in self.game_data.room_geometry.iter().enumerate() {
+            let area = self.map.area[room_idx];
             let x0 = self.rom.read_u8(room.rom_address + 2)?;
             let y0 = self.rom.read_u8(room.rom_address + 3)?;
             let mut doors_by_xy: HashMap<(usize, usize), Vec<usize>> = HashMap::new();
@@ -746,6 +772,134 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
+    fn add_door_arrow(
+        &mut self,
+        room_idx: usize,
+        door: &RoomGeometryDoor,
+        right_arrow_tile: TilemapWord,
+        down_arrow_tile: TilemapWord,
+    ) -> Result<()> {
+        let dir = &door.direction;
+        let x = door.x as isize;
+        let y = door.y as isize;
+        if dir == "right" {
+            self.patch_room(&self.game_data.room_geometry[room_idx].name, 
+                vec![(x + 1, y, right_arrow_tile)])?;
+        } else if dir == "left" {
+            self.patch_room(&self.game_data.room_geometry[room_idx].name, 
+                vec![(x - 1, y, right_arrow_tile | FLIP_X)])?;
+        } else if dir == "down" {
+            self.patch_room(&self.game_data.room_geometry[room_idx].name, 
+                vec![(x, y + 1, down_arrow_tile)])?;
+        } else if dir == "up" {
+            self.patch_room(&self.game_data.room_geometry[room_idx].name, 
+                vec![(x, y - 1, down_arrow_tile | FLIP_Y)])?;
+        } else {
+            bail!("Unrecognized door direction: {dir}");
+        }
+        Ok(())
+    }
+
+    fn add_cross_area_arrows(&mut self) -> Result<()> {
+        // Add extra colors to palette:
+        // TODO: Fix color of reserve energy in equipment menu, which gets messed up by this.
+        fn rgb(r: u16, g: u16, b: u16) -> u16 {
+            (b << 10) | (g << 5) | r
+        }
+
+        let extended_map_palette: Vec<(u8, u16)> =
+            vec![(5, rgb(0, 24, 0)), (8, rgb(8, 8, 28)), (9, rgb(28, 28, 8))];
+
+        for &(i, color) in &extended_map_palette {
+            self.rom
+                .write_u16(snes2pc(0xB6F000) + 2 * (0x20 + i as usize), color as isize)?;
+            self.rom
+                .write_u16(snes2pc(0xB6F000) + 2 * (0x30 + i as usize), color as isize)?;
+        }
+
+        // Set up arrows of different colors (one per area):
+        let area_arrow_colors: Vec<usize> = vec![
+            15, // Crateria: dark gray (from vanilla palette)
+            5,  // Brinstar: green (defined above)
+            3,  // Norfair: red (from vanilla palette)
+            9,  // Wrecked Ship: yellow (defined above)
+            8,  // Maridia: blue (defined above)
+            14, // Tourian: light gray (from vanilla palette)
+        ];
+        let right_arrow_tile: [[u8; 8]; 8] = [
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 3, 0, 0],
+            [0, 0, 0, 0, 0, 3, 3, 0],
+            [0, 3, 3, 3, 3, 3, 3, 3],
+            [0, 3, 3, 3, 3, 3, 3, 3],
+            [0, 0, 0, 0, 0, 3, 3, 0],
+            [0, 0, 0, 0, 0, 3, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+        ];
+        let down_arrow_tile: [[u8; 8]; 8] = [
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 3, 3, 0, 0, 0],
+            [0, 0, 0, 3, 3, 0, 0, 0],
+            [0, 0, 0, 3, 3, 0, 0, 0],
+            [0, 0, 0, 3, 3, 0, 0, 0],
+            [0, 3, 3, 3, 3, 3, 3, 0],
+            [0, 0, 3, 3, 3, 3, 0, 0],
+            [0, 0, 0, 3, 3, 0, 0, 0],
+        ];
+
+        let mut right_arrow_tile_idxs: Vec<TilemapWord> = Vec::new();
+        let mut down_arrow_tile_idxs: Vec<TilemapWord> = Vec::new();
+        for area in 0..NUM_AREAS {
+            let color_number = area_arrow_colors[area] as u8;
+
+            let right_tile_data =
+                right_arrow_tile.map(|row| row.map(|c| if c == 3 { color_number } else { c }));
+            let right_tile_idx = self.create_tile(right_tile_data)?;
+            right_arrow_tile_idxs.push(right_tile_idx);
+
+            let down_tile_data =
+                down_arrow_tile.map(|row| row.map(|c| if c == 3 { color_number } else { c }));
+            let down_tile_idx = self.create_tile(down_tile_data)?;
+            down_arrow_tile_idxs.push(down_tile_idx);
+        }
+
+        let mut door_pair_idx_map: HashMap<DoorPtrPair, (usize, usize)> = HashMap::new();
+        for (room_idx, room) in self.game_data.room_geometry.iter().enumerate() {
+            for (door_idx, door) in room.doors.iter().enumerate() {
+                door_pair_idx_map.insert((door.exit_ptr, door.entrance_ptr), (room_idx, door_idx));
+            }
+        }
+
+        for (src_ptr_pair, dst_ptr_pair, _) in &self.map.doors {
+            let (src_room_idx, src_door_idx) = door_pair_idx_map[src_ptr_pair];
+            let (dst_room_idx, dst_door_idx) = door_pair_idx_map[dst_ptr_pair];
+            let src_area = self.map.area[src_room_idx];
+            let dst_area = self.map.area[dst_room_idx];
+            if src_area != dst_area {
+                self.add_door_arrow(
+                    src_room_idx,
+                    &self.game_data.room_geometry[src_room_idx].doors[src_door_idx],
+                    right_arrow_tile_idxs[dst_area],
+                    down_arrow_tile_idxs[dst_area],
+                )?;
+                self.add_door_arrow(
+                    dst_room_idx,
+                    &self.game_data.room_geometry[dst_room_idx].doors[dst_door_idx],
+                    right_arrow_tile_idxs[src_area],
+                    down_arrow_tile_idxs[src_area],
+                )?;
+            }
+        }
+
+        // TODO: implement this.
+        Ok(())
+    }
+
+    fn set_map_stations_explored(&mut self) -> Result<()> {
+        // TODO: implement this.
+        Ok(())
+    }
+
     pub fn apply_patches(&mut self) -> Result<()> {
         self.index_vanilla_tiles();
         self.fix_elevators()?;
@@ -754,6 +908,8 @@ impl<'a> MapPatcher<'a> {
         self.indicate_passages()?;
         self.indicate_doors()?;
         self.indicate_special_tiles()?;
+        self.add_cross_area_arrows()?;
+        self.set_map_stations_explored()?;
         Ok(())
     }
 }

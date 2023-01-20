@@ -3,7 +3,7 @@ mod map_tiles;
 use std::path::Path;
 
 use crate::{
-    game_data::{GameData, Item, Map, NodePtr, DoorPtr},
+    game_data::{DoorPtr, GameData, Item, Map, NodePtr},
     randomize::Randomization,
 };
 use anyhow::{ensure, Context, Result};
@@ -219,7 +219,7 @@ impl<'a> Patcher<'a> {
     ) -> Result<()> {
         let door_data = self.orig_rom.read_n(dst_entrance_ptr, 12)?;
         self.rom.write_n(src_exit_ptr, door_data)?;
-        if let Some(&(new_asm, end_asm)) = extra_door_asm_map.get(&src_exit_ptr) { 
+        if let Some(&(new_asm, end_asm)) = extra_door_asm_map.get(&src_exit_ptr) {
             // Set extra custom ASM applicable to exiting from the given door exit:
             self.rom.write_u16(src_exit_ptr + 10, new_asm as isize)?;
 
@@ -227,7 +227,7 @@ impl<'a> Patcher<'a> {
             let orig_asm = self.orig_rom.read_u16(dst_entrance_ptr + 10)?;
             if orig_asm == 0 {
                 // There is no original ASM for this entrance, so just return:
-                self.rom.write_u8(snes2pc(0x8F8000 | end_asm), 0x60)?;  // RTS
+                self.rom.write_u8(snes2pc(0x8F8000 | end_asm), 0x60)?; // RTS
             } else {
                 let jmp_asm = vec![0x4C, (orig_asm & 0xFF) as u8, (orig_asm >> 8) as u8]; // JMP orig_asm
                 self.rom.write_n(snes2pc(0x8F8000 | end_asm), &jmp_asm)?;
@@ -239,25 +239,29 @@ impl<'a> Patcher<'a> {
     // Returns map from door data PC address to 1) new custom door ASM pointer, 2) end of custom door ASM
     // where an RTS or JMP instruction must be added (based on the connecting door).
     fn prepare_extra_door_asm(&mut self) -> Result<HashMap<DoorPtr, (AsmPtr, AsmPtr)>> {
-        let toilet_exit_asm: Vec<u8> = vec![0x20, 0x01, 0xE3];  // JSR 0xE301
-        let boss_exit_asm: Vec<u8> = vec![0x20, 0xF0, 0xF7];  // JSR 0xF7F0
+        let toilet_exit_asm: Vec<u8> = vec![0x20, 0x01, 0xE3]; // JSR 0xE301
+        let boss_exit_asm: Vec<u8> = vec![0x20, 0xF0, 0xF7]; // JSR 0xF7F0
         let extra_door_asm: Vec<(DoorPtr, Vec<u8>)> = vec![
-            (0x1A600, toilet_exit_asm.clone()),  // Aqueduct toilet door down
-            (0x1A60C, toilet_exit_asm.clone()),  // Aqueduct toilet door up
-            (0x191CE, boss_exit_asm.clone()),  // Kraid left exit
-            (0x191DA, boss_exit_asm.clone()),  // Kraid right exit
-            (0x1A96C, boss_exit_asm.clone()),  // Draygon left exit
-            (0x1A978, boss_exit_asm.clone()),  // Draygon right exit
-            (0x193DE, boss_exit_asm.clone()),  // Crocomire left exit
-            (0x193EA, boss_exit_asm.clone()),  // Crocomire top exit
-            (0x1A2C4, boss_exit_asm.clone()),  // Phantoon exit
+            (0x1A600, toilet_exit_asm.clone()), // Aqueduct toilet door down
+            (0x1A60C, toilet_exit_asm.clone()), // Aqueduct toilet door up
+            (0x191CE, boss_exit_asm.clone()),   // Kraid left exit
+            (0x191DA, boss_exit_asm.clone()),   // Kraid right exit
+            (0x1A96C, boss_exit_asm.clone()),   // Draygon left exit
+            (0x1A978, boss_exit_asm.clone()),   // Draygon right exit
+            (0x193DE, boss_exit_asm.clone()),   // Crocomire left exit
+            (0x193EA, boss_exit_asm.clone()),   // Crocomire top exit
+            (0x1A2C4, boss_exit_asm.clone()),   // Phantoon exit
         ];
 
-        let mut door_asm_free_space = 0xEE10;  // in bank 0x8F
+        let mut door_asm_free_space = 0xEE10; // in bank 0x8F
         let mut extra_door_asm_map: HashMap<DoorPtr, (AsmPtr, AsmPtr)> = HashMap::new();
         for &(door_ptr, ref asm) in &extra_door_asm {
-            extra_door_asm_map.insert(door_ptr, (door_asm_free_space, door_asm_free_space + asm.len()));
-            self.rom.write_n(snes2pc(0x8F8000 | door_asm_free_space), asm)?;
+            extra_door_asm_map.insert(
+                door_ptr,
+                (door_asm_free_space, door_asm_free_space + asm.len()),
+            );
+            self.rom
+                .write_n(snes2pc(0x8F8000 | door_asm_free_space), asm)?;
             // Reserve 3 bytes for the JMP instruction to the original ASM (if applicable, or RTS otherwise):
             door_asm_free_space += asm.len() + 3;
         }
@@ -271,10 +275,18 @@ impl<'a> Patcher<'a> {
             &self.randomization.map.doors
         {
             if src_exit_ptr.is_some() && dst_entrance_ptr.is_some() {
-                self.write_one_door_data(src_exit_ptr.unwrap(), dst_entrance_ptr.unwrap(), &extra_door_asm_map)?;
+                self.write_one_door_data(
+                    src_exit_ptr.unwrap(),
+                    dst_entrance_ptr.unwrap(),
+                    &extra_door_asm_map,
+                )?;
             }
             if dst_exit_ptr.is_some() && src_entrance_ptr.is_some() {
-                self.write_one_door_data(dst_exit_ptr.unwrap(), src_entrance_ptr.unwrap(), &extra_door_asm_map)?;
+                self.write_one_door_data(
+                    dst_exit_ptr.unwrap(),
+                    src_entrance_ptr.unwrap(),
+                    &extra_door_asm_map,
+                )?;
             }
         }
         Ok(())
@@ -416,7 +428,7 @@ impl<'a> Patcher<'a> {
         let west_ocean_y = self.rom.read_u8(0x793FE + 3)?;
         self.rom.write_u8(0x7968F + 2, west_ocean_x + 5)?;
         self.rom.write_u8(0x7968F + 3, west_ocean_y + 2)?;
-    
+
         Ok(())
     }
 
@@ -486,6 +498,11 @@ impl<'a> Patcher<'a> {
         }
     }
 
+    fn apply_map_tile_patches(&mut self) -> Result<()> {
+        map_tiles::MapPatcher::new(&mut self.rom, &self.game_data, &self.map).apply_patches()?;
+        Ok(())
+    }
+
     fn remove_non_blue_doors(&mut self) -> Result<()> {
         let plm_types_to_remove = vec![
             0xC88A, 0xC85A, 0xC872, // right pink/yellow/green door
@@ -522,10 +539,11 @@ impl<'a> Patcher<'a> {
                     }
                     let room_keep_gray_door = keep_gray_door_room_names.contains(&room.name)
                         || (room.name == "Pit Room" && event_ptr == 0xE652);
-                    let is_removable_grey_door = gray_door_plm_types.contains(&plm_type) && !room_keep_gray_door;
+                    let is_removable_grey_door =
+                        gray_door_plm_types.contains(&plm_type) && !room_keep_gray_door;
                     if plm_types_to_remove.contains(&plm_type) || is_removable_grey_door {
-                        self.rom.write_u16(ptr, 0xB63B)?;  // right continuation arrow (should have no effect, giving a blue door)
-                        self.rom.write_u16(ptr + 2, 0)?;   // position = (0, 0)
+                        self.rom.write_u16(ptr, 0xB63B)?; // right continuation arrow (should have no effect, giving a blue door)
+                        self.rom.write_u16(ptr + 2, 0)?; // position = (0, 0)
                     }
                     ptr += 6;
                 }
@@ -542,7 +560,6 @@ pub fn make_rom(
 ) -> Result<Rom> {
     let mut orig_rom = Rom::load(base_rom_path)?;
     apply_orig_ips_patches(&mut orig_rom)?;
-    map_tiles::MapPatcher::new(&mut orig_rom, game_data).apply_patches()?;
 
     let mut rom = orig_rom.clone();
     let mut patcher = Patcher {
@@ -559,6 +576,7 @@ pub fn make_rom(
     patcher.write_map_tilemaps()?;
     patcher.write_map_areas()?;
     patcher.make_map_revealed()?;
+    patcher.apply_map_tile_patches()?;
     patcher.remove_non_blue_doors()?;
     // TODO: add CRE reload for Kraid & Crocomire
     Ok(rom)
