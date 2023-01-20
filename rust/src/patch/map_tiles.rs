@@ -2,7 +2,7 @@ use hashbrown::HashMap;
 
 use crate::game_data::{DoorPtrPair, GameData, Map, RoomGeometryDoor};
 
-use super::{snes2pc, xy_to_map_offset, Rom};
+use super::{snes2pc, xy_to_map_offset, Rom, xy_to_explored_bit_ptr};
 use anyhow::{bail, Result};
 
 type TilemapWord = u16;
@@ -890,13 +890,22 @@ impl<'a> MapPatcher<'a> {
                 )?;
             }
         }
-
-        // TODO: implement this.
         Ok(())
     }
 
     fn set_map_stations_explored(&mut self) -> Result<()> {
-        // TODO: implement this.
+        self.rom.write_n(snes2pc(0xB5F000), &vec![0; 0x600])?;
+        for (room_idx, room) in self.game_data.room_geometry.iter().enumerate() {
+            if !room.name.contains(" Map Room") {
+                continue;
+            }
+            let area = self.map.area[room_idx];
+            let x = self.rom.read_u8(room.rom_address + 2)?;
+            let y = self.rom.read_u8(room.rom_address + 3)?;
+            let (offset, bitmask) = xy_to_explored_bit_ptr(x, y);
+            let base_ptr = 0xB5F000 + area * 0x100;
+            self.rom.write_u8(snes2pc(base_ptr + offset as usize), bitmask as isize)?;
+        }
         Ok(())
     }
 
