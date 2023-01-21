@@ -6,6 +6,9 @@ TODO:
     - Clean up error handling: get rid of a bunch of remaining unwrap()'s, etc.
     - Write web service
     - Finish dynamic ROM patches
+      - escape timer (and spoiler log)
+      - title screen
+      - auto-explore elevators
 - Try a different kind of "Open" item placement, to reduce likelihood of items getting heavily front-loaded with good items:
   - Start by placing all items randomly, then check that game is beatable.
   - Similar approach could maybe apply to Closed/Semiclosed?: find a beatable game using random placement, then adjust
