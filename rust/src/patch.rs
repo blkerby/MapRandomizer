@@ -3,7 +3,7 @@ mod map_tiles;
 use std::path::Path;
 
 use crate::{
-    game_data::{DoorPtr, GameData, Item, Map, NodePtr},
+    game_data::{DoorPtr, GameData, Item, Map, NodePtr, DoorPtrPair},
     randomize::Randomization,
 };
 use anyhow::{ensure, Context, Result};
@@ -231,8 +231,10 @@ impl<'a> Patcher<'a> {
         dst_entrance_ptr: usize,
         extra_door_asm_map: &HashMap<NodePtr, (AsmPtr, AsmPtr)>,
     ) -> Result<()> {
-        let door_data = self.orig_rom.read_n(dst_entrance_ptr, 12)?;
-        self.rom.write_n(src_exit_ptr, door_data)?;
+        let mut door_data = self.orig_rom.read_n(dst_entrance_ptr, 12)?.to_vec();
+        // Trigger the map to reload (TODO: only do this for doors that cross areas):
+        door_data[2] |= 0x40;
+        self.rom.write_n(src_exit_ptr, &door_data)?;
         if let Some(&(new_asm, end_asm)) = extra_door_asm_map.get(&src_exit_ptr) {
             // Set extra custom ASM applicable to exiting from the given door exit:
             self.rom.write_u16(src_exit_ptr + 10, new_asm as isize)?;
@@ -524,7 +526,7 @@ impl<'a> Patcher<'a> {
             0xC896, 0xC866, 0xC87E, // down pink/yellow/green door
             0xC89C, 0xC86C, 0xC884, // up pink/yellow/green door
             0xDB48, 0xDB4C, 0xDB52, 0xDB56, 0xDB5A, 0xDB60, // eye doors
-            0xC8CA, // wall in Escape Room 1
+            // 0xC8CA, // wall in Escape Room 1 (TODO: Check if this is needed)
         ];
         let gray_door_plm_types = vec![
             0xC848, // left gray door
@@ -542,8 +544,8 @@ impl<'a> Patcher<'a> {
         .map(|x| x.to_string())
         .collect();
         for room in &self.game_data.room_geometry {
-            let state_ptrs = self.get_room_state_ptrs(room.rom_address)?;
-            for &(event_ptr, state_ptr) in &state_ptrs {
+            let event_state_ptrs = self.get_room_state_ptrs(room.rom_address)?;
+            for &(event_ptr, state_ptr) in &event_state_ptrs {
                 let plm_set_ptr = self.rom.read_u16(state_ptr + 20)? as usize;
                 let mut ptr = plm_set_ptr + 0x70000;
                 loop {
@@ -565,7 +567,163 @@ impl<'a> Patcher<'a> {
         }
         Ok(())
     }
+
+    fn use_area_based_music(&mut self) -> Result<()> {
+        let area_music: [[u16; 2]; NUM_AREAS] = [
+            [
+                // (0x06, 0x05),   // Empty Crateria
+                0x0509, // Crateria Space Pirates
+                0x050C, // Return to Crateria
+            ],
+            [
+                0x050F, // Green Brinstar
+                0x0512, // Red Brinstar
+            ],
+            [
+                0x0515, // Upper Norfair
+                0x0518, // Lower Norfair
+            ],
+            [
+                0x0530, // Wrecked Ship (off)
+                0x0630, // Wrecked Ship (on)
+            ],
+            [
+                0x061B, // Outer Maridia
+                0x051B, // Inner Maridia
+            ],
+            [
+                0x0609, // Tourian Entrance (Statues Room)
+                0x051E, // Tourian Main
+            ],
+        ];
+
+        let songs_to_keep: Vec<u16> = vec![
+            // Elevator (item room music):
+            0x0300, // Elevator
+            0x0309, // Space Pirate Elevator
+            0x0312, // Lower Brinstar Elevator
+            0x0324, // Golden Torizo incoming fight
+            0x0330, // Bowling Alley
+            // Bosses:
+            0x052A, // Miniboss Fight (Spore Spawn, Botwoon)
+            // 0x0627,  // Boss Fight (Phantoon, Kraid), also Baby Kraid room.
+            0x0527, // Boss Fight (?)
+            0x0424, // Boss Fight (Ridley)
+            0x0524, // Boss Fight (Draygon)
+        ];
+
+        let rooms_to_leave_unchanged = [
+            "Mother Brain Room",
+            "Big Boy Room",
+            "Kraid Room",
+            "Phantoon's Room",
+        ]
+        .map(|x| x.to_string());
+        for (room_idx, room) in self.game_data.room_geometry.iter().enumerate() {
+            if rooms_to_leave_unchanged.contains(&room.name) {
+                continue;
+            }
+            let area = self.map.area[room_idx];
+            let subarea = self.map.subarea[room_idx];
+            let event_state_ptrs = self.get_room_state_ptrs(room.rom_address)?;
+            for &(_event_ptr, state_ptr) in &event_state_ptrs {
+                let song = self.rom.read_u16(state_ptr + 4)? as u16;
+                if songs_to_keep.contains(&song) && room.name != "Golden Torizo Energy Recharge" {
+                    // In vanilla, Golden Torizo Energy Recharge plays the item/elevator music,
+                    // but that only seems to be because of it being next to Screw Attack Room.
+                    // We want it to behave like the other Refill rooms and use area-themed music.
+                    continue;
+                }
+                let mut new_song = area_music[area][subarea];
+                if room.name == "Landing Site" {
+                    // Set all Landing Site states to use the same track, the one that plays in vanilla before
+                    // Power Bombs but after Zebes is awake:
+                    new_song = 0x0606;
+                }
+                self.rom.write_u16(state_ptr + 4, new_song as isize)?;
+                if room.name == "Pants Room" {
+                    // Set music for East Pants Room:
+                    self.rom.write_u16(snes2pc(0x8FD6A7 + 4), new_song as isize)?;
+                } else if room.name == "West Ocean" {
+                    // Set music for Homing Geemer Room:
+                    self.rom.write_u16(snes2pc(0x8F969C + 4), new_song as isize)?;
+                } else if room.name == "Aqueduct" {
+                    // Set music for Toilet:
+                    self.rom.write_u16(snes2pc(0x8FD415 + 4), new_song as isize)?;
+                }
+            }
+        }
+        Ok(())
+    }
+
+    fn setup_door_specific_fx(&mut self) -> Result<()> {
+        // Set up door-specific FX:
+        let mut door_fx: HashMap<DoorPtrPair, usize> = HashMap::new();
+        door_fx.insert((Some(0x19732), Some(0x1929A)), 0x8386D0);  // Rising Tide left door: lava rising
+        door_fx.insert((Some(0x1965A), Some(0x19672)), 0x838650);  // Volcano Room left door: lava rising
+        door_fx.insert((Some(0x195B2), Some(0x195BE)), 0x8385E0);  // Speed Booster Hall right door: lava rising when Speed Booster collected
+        door_fx.insert((Some(0x1983A), Some(0x19876)), 0x83876A);  // Acid Statue Room bottom-right door: acid lowered
+        door_fx.insert((Some(0x199A2), Some(0x199F6)), 0x83883C);  // Amphitheatre right door: acid raised
+        // We skip applying this to Climb, because otherwise the lava would rise every time when entering
+        // the bottom-left door (not only during the escape):
+        // door_fx.insert((0x18B6E, 0x1AB34), 0x838060);  // Climb bottom-left door: lava rising
+        
+        // Even still, as in the vanilla game, lava will rise in Climb if entered through Tourian Escape Room 4 
+        // (even if Zebes not ablaze). We prevent this possibility by replacing the Tourian Escape Room 4 door 
+        // with the value 0xFFFF which does not match any door:
+        self.rom.write_u16(snes2pc(0x838060), 0xffff)?;
+    
+        for (door1, door2, _) in &self.map.doors {
+            if door_fx.contains_key(&door1) {
+                self.rom.write_u16(snes2pc(door_fx[&door1]), (door2.0.unwrap() & 0xffff) as isize)?;
+            }
+            if door_fx.contains_key(&door2) {
+                self.rom.write_u16(snes2pc(door_fx[&door2]), (door1.0.unwrap() & 0xffff) as isize)?;
+            }
+        }
+
+        Ok(())
+    }
+
+    fn apply_miscellaneous_patches(&mut self) -> Result<()> {
+        // Copy the item at Morph Ball to the Zebes-awake state (so it doesn't become unobtainable after Zebes is awake).
+        // For this we overwrite the PLM slot for the gray door at the left of the room (which we would get rid of anyway).
+        let plm_data = self.rom.read_n(0x786DE, 6)?.to_vec();
+        self.rom.write_n(0x78746, &plm_data)?;
+        
+        // Disable demo (by overwriting the branch on the timer reaching zero):
+        self.rom.write_n(snes2pc(0x8B9F2C), &vec![0x80, 0x0A])?;  // BRA $0A
+    
+        // In Crocomire's initialization, skip setting the leftmost screens to red scroll. Even in the vanilla game there
+        // is no purpose to this, as they are already red. But it important to skip here in the rando, because when entering
+        // from the left door with Crocomire still alive, these scrolls are set to blue by the door ASM, and if they
+        // were overridden with red it would break the graphics.
+        self.rom.write_n(snes2pc(0xA48A92), &vec![0xEA; 4])?;  // NOP:NOP:NOP:NOP
+        
+        // Release Spore Spawn camera so it won't be glitched when entering from the right:
+        self.rom.write_n(snes2pc(0xA5EADA), &vec![0xEA; 3])?;  // NOP:NOP:NOP
+    
+        // Likewise release Kraid camera so it won't be as glitched when entering from the right:
+        self.rom.write_n(snes2pc(0xA7A9F4), &vec![0xEA; 4])?;  // NOP:NOP:NOP:NOP
+        self.rom.write_u8(snes2pc(0xA7C9EE), 0x60)?;  // RTS. No longer restrict Samus X position to left screen
+
+        // In Shaktool room, skip setting screens to red scroll (so that it won't glitch out when entering from the right):
+        self.rom.write_u8(snes2pc(0x84B8DC), 0x60)?;  // RTS
+    
+        // Stop wall from spawning in Tourian Escape Room 1: door direction = 4 (right)
+        self.rom.write_u8(snes2pc(0x83AA8F), 0x04)?;
+
+        // Restore acid in Tourian Escape Room 4:
+        self.rom.write_u16(snes2pc(0x8FDF03), 0xC953)?;  // Vanilla setup ASM pointer (to undo effect of `no_explosions_before_escape` patch)
+        self.rom.write_u8(snes2pc(0x8FC95B), 0x60)?;  // RTS (return early from setup ASM to skip setting up shaking)
+
+        // Make Supers do double damage to Mother Brain:
+        self.rom.write_u8(snes2pc(0xB4F1D5), 0x84)?;
+    
+        Ok(())
+    }    
 }
+
 
 pub fn make_rom(
     base_rom_path: &Path,
@@ -592,6 +750,9 @@ pub fn make_rom(
     patcher.make_map_revealed()?;
     patcher.apply_map_tile_patches()?;
     patcher.remove_non_blue_doors()?;
+    patcher.use_area_based_music()?;
+    patcher.setup_door_specific_fx()?;
+    patcher.apply_miscellaneous_patches()?;
     // TODO: add CRE reload for Kraid & Crocomire
     Ok(rom)
 }
