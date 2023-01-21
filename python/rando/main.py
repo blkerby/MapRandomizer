@@ -604,6 +604,8 @@ def randomize():
         map_i = int(np.random.randint(0, len(file_list)))
         map_filename = file_list[map_i]
         map_file = '{}/{}'.format(map_dir, map_filename)
+        if args.debug:
+            map_file = 'maps/testmap.json'
         map = json.load(open(map_file, 'r'))
         logging.info("{}".format(map_file))
 
@@ -878,6 +880,11 @@ def randomize():
     # Warehouse Entrance
     add_explore_tiles_asm((0x19246, 0x192EE), [(0, 1)])
     # We skip Lower Norfair elevators because there are no tiles to explore there.
+
+    s = []
+    for x in extra_door_asm_dict[0x18C0A]:
+        s.append("{:02x}".format(x))
+    print(' '.join(s))
 
     def get_arrow_location(door_id):
         dir = door_id.direction

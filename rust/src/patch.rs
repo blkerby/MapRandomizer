@@ -3,7 +3,7 @@ mod map_tiles;
 use std::path::Path;
 
 use crate::{
-    game_data::{DoorPtr, GameData, Item, Map, NodePtr, DoorPtrPair},
+    game_data::{DoorPtr, DoorPtrPair, GameData, Item, Map, NodePtr},
     randomize::Randomization,
 };
 use anyhow::{ensure, Context, Result};
@@ -117,6 +117,7 @@ pub struct Patcher<'a> {
     pub randomization: &'a Randomization,
     pub game_data: &'a GameData,
     pub map: &'a Map,
+    pub other_door_ptr_pair_map: HashMap<DoorPtrPair, DoorPtrPair>,
 }
 
 fn xy_to_map_offset(x: isize, y: isize) -> isize {
@@ -202,8 +203,8 @@ impl<'a> Patcher<'a> {
             "title_map_animation",
             "fast_reload",
         ];
-        patches.push("new_game");
-        // patches.push("new_game_extra");
+        // patches.push("new_game");
+        patches.push("new_game_extra");
         // "new_game_extra' if args.debug else 'new_game",
         for patch_name in patches {
             let patch_path = patches_dir.join(patch_name.to_string() + ".ips");
@@ -252,12 +253,110 @@ impl<'a> Patcher<'a> {
         Ok(())
     }
 
+    // Appends asm to mark the map tile (x, y) as explored. This is used for elevators.
+    fn add_explore_tile_asm(
+        &mut self,
+        current_area: usize,
+        tile_area: usize,
+        x: isize,
+        y: isize,
+        asm: &mut Vec<u8>,
+    ) -> Result<()> {
+        println!("x={x}, y={y}");
+        let (offset, bitmask) = xy_to_explored_bit_ptr(x, y);
+        if current_area == tile_area {
+            // We want to write an explored bit to the current area's map, so we have to write it to
+            // the temporary copy at 0x07F7 (otherwise it wouldn't take effect and would just be overwritten
+            // on the next map reload).
+            let addr = 0x07F7 + offset;
+            asm.extend([0xAD, (addr & 0xFF) as u8, (addr >> 8) as u8]); // LDA {addr}
+            asm.extend([0x09, bitmask, 0x00]); // ORA #{bitmask}
+            asm.extend([0x8D, (addr & 0xFF) as u8, (addr >> 8) as u8]); // STA {addr}
+        } else {
+            // We want to write an explored bit to a different area's map, so we have to write it to
+            // the main explored bits at 0x7ECD52 (which will get copied over to 0x07F7 on the map reload
+            // when entering the different area).
+            let addr = 0xCD52 + tile_area as isize * 0x100 + offset;
+            asm.extend([0xAF, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x7E]); // LDA $7E:{addr}
+            asm.extend([0x09, bitmask, 0x00]); // ORA #{bitmask}
+            asm.extend([0x8F, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x7E]); // STA $7E:{addr}
+        }
+        // asm.extend([0xEE, 0xC6, 0x09]);
+        Ok(())
+    }
+
+    // Adds ASM to mark the tile (x, y) explored when entering or exiting through `door_ptr_pair`.
+    // Here (x, y) is in room-local coordinates. This is used for elevators.
+    fn add_double_explore_tile_asm(
+        &mut self,
+        door_ptr_pair: &DoorPtrPair,
+        x: isize,
+        y: isize,
+        extra_door_asm: &mut HashMap<DoorPtr, Vec<u8>>,
+    ) -> Result<()> {
+        let (room_idx, _door_idx) =
+            self.game_data.room_and_door_idxs_by_door_ptr_pair[&door_ptr_pair];
+        let room = &self.game_data.room_geometry[room_idx];
+        let room_x = self.rom.read_u8(room.rom_address + 2)?;
+        let room_y = self.rom.read_u8(room.rom_address + 3)?;
+        let area = self.map.area[room_idx];
+        let other_door_ptr_pair = self.other_door_ptr_pair_map[&door_ptr_pair];
+        let (other_room_idx, _other_door_idx) =
+            self.game_data.room_and_door_idxs_by_door_ptr_pair[&other_door_ptr_pair];
+        let other_area = self.map.area[other_room_idx];
+        if let Some(ptr) = door_ptr_pair.0 {
+            let asm = extra_door_asm.entry(ptr).or_default();
+            self.add_explore_tile_asm(other_area, area, room_x + x, room_y + y, asm)?;
+        }
+        if let Some(ptr) = other_door_ptr_pair.0 {
+            let asm = extra_door_asm.entry(ptr).or_default();
+            self.add_explore_tile_asm(area, area, room_x + x, room_y + y, asm)?;
+        }
+        Ok(())
+    }
+
+    // There are map tiles at the bottom of elevator rooms (at the top of elevators) that 
+    // Samus does not pass through and hence would never be marked explored. This is an issue
+    // that exists in the vanilla game but would be more noticeable in Map Rando because 
+    // elevators are frequently connected within the same area, so it would leave a hole 
+    // in the map (if the area map is not yet acquired). We fix this by having the game 
+    // automatically mark these tiles as explored when using the elevator in either direction.
+    fn auto_explore_elevators(
+        &mut self,
+        extra_door_asm: &mut HashMap<DoorPtr, Vec<u8>>,
+    ) -> Result<()> {
+
+        let mut add_explore = |exit_ptr: usize, entrance_ptr: usize, coords: Vec<(isize, isize)>| -> Result<()> {
+            for &(x, y) in &coords {
+                let door_ptr_pair = (Some(exit_ptr), Some(entrance_ptr));
+                self.add_double_explore_tile_asm(&door_ptr_pair, x, y, extra_door_asm)?;
+            }
+            Ok(())
+        };
+
+        // Green Brinstar Elevator Room
+        add_explore(0x18C0A, 0x18CA6, vec![(0, 1), (0, 2), (0, 3)])?;
+        // Statues Room
+        add_explore(0x19222, 0x1A990, vec![(0, 2), (0, 3), (0, 4)])?;
+        // Forgotten Highway Elevator
+        add_explore(0x18A5A, 0x1A594, vec![(0, 1), (0, 2), (0, 3)])?;
+        // Red Brinstar Elevator Room
+        add_explore(0x18B02, 0x190BA, vec![(0, 1), (0, 2), (0, 3)])?;
+        // Blue Brinstar Elevator Room
+        add_explore(0x18B9E, 0x18EB6, vec![(0, 1), (0, 2), (0, 3)])?;
+        // Warehouse Entrance
+        add_explore(0x19246, 0x192EE, vec![(0, 1)])?;
+        // We skip Lower Norfair Elevator Room because there are no extra tiles to explore there.
+    
+        Ok(())
+    }
+
     // Returns map from door data PC address to 1) new custom door ASM pointer, 2) end of custom door ASM
     // where an RTS or JMP instruction must be added (based on the connecting door).
     fn prepare_extra_door_asm(&mut self) -> Result<HashMap<DoorPtr, (AsmPtr, AsmPtr)>> {
         let toilet_exit_asm: Vec<u8> = vec![0x20, 0x01, 0xE3]; // JSR 0xE301
         let boss_exit_asm: Vec<u8> = vec![0x20, 0xF0, 0xF7]; // JSR 0xF7F0
-        let extra_door_asm: Vec<(DoorPtr, Vec<u8>)> = vec![
+        let mut extra_door_asm: HashMap<DoorPtr, Vec<u8>> = vec![
             (0x1A600, toilet_exit_asm.clone()), // Aqueduct toilet door down
             (0x1A60C, toilet_exit_asm.clone()), // Aqueduct toilet door up
             (0x191CE, boss_exit_asm.clone()),   // Kraid left exit
@@ -267,11 +366,15 @@ impl<'a> Patcher<'a> {
             (0x193DE, boss_exit_asm.clone()),   // Crocomire left exit
             (0x193EA, boss_exit_asm.clone()),   // Crocomire top exit
             (0x1A2C4, boss_exit_asm.clone()),   // Phantoon exit
-        ];
+        ]
+        .into_iter()
+        .collect();
+
+        self.auto_explore_elevators(&mut extra_door_asm)?;
 
         let mut door_asm_free_space = 0xEE10; // in bank 0x8F
         let mut extra_door_asm_map: HashMap<DoorPtr, (AsmPtr, AsmPtr)> = HashMap::new();
-        for &(door_ptr, ref asm) in &extra_door_asm {
+        for (&door_ptr, asm) in &extra_door_asm {
             extra_door_asm_map.insert(
                 door_ptr,
                 (door_asm_free_space, door_asm_free_space + asm.len()),
@@ -525,8 +628,9 @@ impl<'a> Patcher<'a> {
             0xC890, 0xC860, 0xC878, // left pink/yellow/green door
             0xC896, 0xC866, 0xC87E, // down pink/yellow/green door
             0xC89C, 0xC86C, 0xC884, // up pink/yellow/green door
-            0xDB48, 0xDB4C, 0xDB52, 0xDB56, 0xDB5A, 0xDB60, // eye doors
-            // 0xC8CA, // wall in Escape Room 1 (TODO: Check if this is needed)
+            0xDB48, 0xDB4C, 0xDB52, 0xDB56, 0xDB5A,
+            0xDB60, // eye doors
+                    // 0xC8CA, // wall in Escape Room 1 (TODO: Check if this is needed)
         ];
         let gray_door_plm_types = vec![
             0xC848, // left gray door
@@ -643,13 +747,16 @@ impl<'a> Patcher<'a> {
                 self.rom.write_u16(state_ptr + 4, new_song as isize)?;
                 if room.name == "Pants Room" {
                     // Set music for East Pants Room:
-                    self.rom.write_u16(snes2pc(0x8FD6A7 + 4), new_song as isize)?;
+                    self.rom
+                        .write_u16(snes2pc(0x8FD6A7 + 4), new_song as isize)?;
                 } else if room.name == "West Ocean" {
                     // Set music for Homing Geemer Room:
-                    self.rom.write_u16(snes2pc(0x8F969C + 4), new_song as isize)?;
+                    self.rom
+                        .write_u16(snes2pc(0x8F969C + 4), new_song as isize)?;
                 } else if room.name == "Aqueduct" {
                     // Set music for Toilet:
-                    self.rom.write_u16(snes2pc(0x8FD415 + 4), new_song as isize)?;
+                    self.rom
+                        .write_u16(snes2pc(0x8FD415 + 4), new_song as isize)?;
                 }
             }
         }
@@ -659,26 +766,35 @@ impl<'a> Patcher<'a> {
     fn setup_door_specific_fx(&mut self) -> Result<()> {
         // Set up door-specific FX:
         let mut door_fx: HashMap<DoorPtrPair, usize> = HashMap::new();
-        door_fx.insert((Some(0x19732), Some(0x1929A)), 0x8386D0);  // Rising Tide left door: lava rising
-        door_fx.insert((Some(0x1965A), Some(0x19672)), 0x838650);  // Volcano Room left door: lava rising
-        door_fx.insert((Some(0x195B2), Some(0x195BE)), 0x8385E0);  // Speed Booster Hall right door: lava rising when Speed Booster collected
-        door_fx.insert((Some(0x1983A), Some(0x19876)), 0x83876A);  // Acid Statue Room bottom-right door: acid lowered
-        door_fx.insert((Some(0x199A2), Some(0x199F6)), 0x83883C);  // Amphitheatre right door: acid raised
+        door_fx.insert((Some(0x19732), Some(0x1929A)), 0x8386D0); // Rising Tide left door: lava rising
+        door_fx.insert((Some(0x1965A), Some(0x19672)), 0x838650); // Volcano Room left door: lava rising
+        door_fx.insert((Some(0x195B2), Some(0x195BE)), 0x8385E0); // Speed Booster Hall right door: lava rising when Speed Booster collected
+        door_fx.insert((Some(0x1983A), Some(0x19876)), 0x83876A); // Acid Statue Room bottom-right door: acid lowered
+        door_fx.insert((Some(0x199A2), Some(0x199F6)), 0x83883C); // Amphitheatre right door: acid raised
+
         // We skip applying this to Climb, because otherwise the lava would rise every time when entering
         // the bottom-left door (not only during the escape):
         // door_fx.insert((0x18B6E, 0x1AB34), 0x838060);  // Climb bottom-left door: lava rising
-        
-        // Even still, as in the vanilla game, lava will rise in Climb if entered through Tourian Escape Room 4 
-        // (even if Zebes not ablaze). We prevent this possibility by replacing the Tourian Escape Room 4 door 
-        // with the value 0xFFFF which does not match any door:
+
+        // Even still, as in the vanilla game, lava would rise in Climb if entered through Tourian Escape Room 4
+        // (even not in the escape). We prevent this possibility by replacing the Tourian Escape Room 4 door
+        // with the value 0xFFFF which does not match any door, effectively disabling the door-specific FX
+        // for this room. Note that lava will still rise in Climb during the escape because of the different
+        // room state (unrelated to door-specific FX).
         self.rom.write_u16(snes2pc(0x838060), 0xffff)?;
-    
+
         for (door1, door2, _) in &self.map.doors {
             if door_fx.contains_key(&door1) {
-                self.rom.write_u16(snes2pc(door_fx[&door1]), (door2.0.unwrap() & 0xffff) as isize)?;
+                self.rom.write_u16(
+                    snes2pc(door_fx[&door1]),
+                    (door2.0.unwrap() & 0xffff) as isize,
+                )?;
             }
             if door_fx.contains_key(&door2) {
-                self.rom.write_u16(snes2pc(door_fx[&door2]), (door1.0.unwrap() & 0xffff) as isize)?;
+                self.rom.write_u16(
+                    snes2pc(door_fx[&door2]),
+                    (door1.0.unwrap() & 0xffff) as isize,
+                )?;
             }
         }
 
@@ -690,40 +806,48 @@ impl<'a> Patcher<'a> {
         // For this we overwrite the PLM slot for the gray door at the left of the room (which we would get rid of anyway).
         let plm_data = self.rom.read_n(0x786DE, 6)?.to_vec();
         self.rom.write_n(0x78746, &plm_data)?;
-        
+
         // Disable demo (by overwriting the branch on the timer reaching zero):
-        self.rom.write_n(snes2pc(0x8B9F2C), &vec![0x80, 0x0A])?;  // BRA $0A
-    
+        self.rom.write_n(snes2pc(0x8B9F2C), &vec![0x80, 0x0A])?; // BRA $0A
+
         // In Crocomire's initialization, skip setting the leftmost screens to red scroll. Even in the vanilla game there
         // is no purpose to this, as they are already red. But it important to skip here in the rando, because when entering
         // from the left door with Crocomire still alive, these scrolls are set to blue by the door ASM, and if they
         // were overridden with red it would break the graphics.
-        self.rom.write_n(snes2pc(0xA48A92), &vec![0xEA; 4])?;  // NOP:NOP:NOP:NOP
-        
+        self.rom.write_n(snes2pc(0xA48A92), &vec![0xEA; 4])?; // NOP:NOP:NOP:NOP
+
         // Release Spore Spawn camera so it won't be glitched when entering from the right:
-        self.rom.write_n(snes2pc(0xA5EADA), &vec![0xEA; 3])?;  // NOP:NOP:NOP
-    
+        self.rom.write_n(snes2pc(0xA5EADA), &vec![0xEA; 3])?; // NOP:NOP:NOP
+
         // Likewise release Kraid camera so it won't be as glitched when entering from the right:
-        self.rom.write_n(snes2pc(0xA7A9F4), &vec![0xEA; 4])?;  // NOP:NOP:NOP:NOP
-        self.rom.write_u8(snes2pc(0xA7C9EE), 0x60)?;  // RTS. No longer restrict Samus X position to left screen
+        self.rom.write_n(snes2pc(0xA7A9F4), &vec![0xEA; 4])?; // NOP:NOP:NOP:NOP
+        self.rom.write_u8(snes2pc(0xA7C9EE), 0x60)?; // RTS. No longer restrict Samus X position to left screen
 
         // In Shaktool room, skip setting screens to red scroll (so that it won't glitch out when entering from the right):
-        self.rom.write_u8(snes2pc(0x84B8DC), 0x60)?;  // RTS
-    
+        self.rom.write_u8(snes2pc(0x84B8DC), 0x60)?; // RTS
+
         // Stop wall from spawning in Tourian Escape Room 1: door direction = 4 (right)
         self.rom.write_u8(snes2pc(0x83AA8F), 0x04)?;
 
         // Restore acid in Tourian Escape Room 4:
-        self.rom.write_u16(snes2pc(0x8FDF03), 0xC953)?;  // Vanilla setup ASM pointer (to undo effect of `no_explosions_before_escape` patch)
-        self.rom.write_u8(snes2pc(0x8FC95B), 0x60)?;  // RTS (return early from setup ASM to skip setting up shaking)
+        self.rom.write_u16(snes2pc(0x8FDF03), 0xC953)?; // Vanilla setup ASM pointer (to undo effect of `no_explosions_before_escape` patch)
+        self.rom.write_u8(snes2pc(0x8FC95B), 0x60)?; // RTS (return early from setup ASM to skip setting up shaking)
 
         // Make Supers do double damage to Mother Brain:
         self.rom.write_u8(snes2pc(0xB4F1D5), 0x84)?;
-    
+
         Ok(())
-    }    
+    }
 }
 
+fn get_other_door_ptr_pair_map(map: &Map) -> HashMap<DoorPtrPair, DoorPtrPair> {
+    let mut other_door_ptr_pair_map: HashMap<DoorPtrPair, DoorPtrPair> = HashMap::new();
+    for (src_door_ptr_pair, dst_door_ptr_pair, _bidirectional) in &map.doors {
+        other_door_ptr_pair_map.insert(src_door_ptr_pair.clone(), dst_door_ptr_pair.clone());
+        other_door_ptr_pair_map.insert(dst_door_ptr_pair.clone(), src_door_ptr_pair.clone());
+    }
+    other_door_ptr_pair_map
+}
 
 pub fn make_rom(
     base_rom_path: &Path,
@@ -738,17 +862,18 @@ pub fn make_rom(
         orig_rom: &mut orig_rom,
         rom: &mut rom,
         randomization,
-        map: &randomization.map,
         game_data,
+        map: &randomization.map,
+        other_door_ptr_pair_map: get_other_door_ptr_pair_map(&randomization.map),
     };
     patcher.apply_ips_patches()?;
     patcher.place_items()?;
-    patcher.write_door_data()?;
     patcher.fix_save_stations()?;
     patcher.write_map_tilemaps()?;
     patcher.write_map_areas()?;
     patcher.make_map_revealed()?;
     patcher.apply_map_tile_patches()?;
+    patcher.write_door_data()?;
     patcher.remove_non_blue_doors()?;
     patcher.use_area_based_music()?;
     patcher.setup_door_specific_fx()?;

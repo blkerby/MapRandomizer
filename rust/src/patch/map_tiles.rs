@@ -1,6 +1,6 @@
 use hashbrown::HashMap;
 
-use crate::game_data::{DoorPtrPair, GameData, Map, RoomGeometryDoor};
+use crate::game_data::{GameData, Map, RoomGeometryDoor};
 
 use super::{snes2pc, xy_to_map_offset, Rom, xy_to_explored_bit_ptr};
 use anyhow::{bail, Result};
@@ -309,8 +309,8 @@ impl<'a> MapPatcher<'a> {
             [0, 2, 2, 0, 0, 2, 2, 0],
             [0, 2, 0, 0, 0, 0, 2, 0],
         ];
-        self.write_tile_2bpp(ELEVATOR_TILE as usize, elevator_tile_data, true)?;
-        self.write_tile_4bpp(ELEVATOR_TILE as usize, elevator_tile_data)?;
+        // self.write_tile_2bpp(ELEVATOR_TILE as usize, elevator_tile_data, true)?;
+        // self.write_tile_4bpp(ELEVATOR_TILE as usize, elevator_tile_data)?;
 
         // In top elevator rooms, replace down arrow tiles with elevator tiles:
         self.patch_room("Green Brinstar Elevator Room", vec![(0, 3, ELEVATOR_TILE)])?;
@@ -719,7 +719,7 @@ impl<'a> MapPatcher<'a> {
         )?;
         self.patch_room_basic("Glass Tunnel", vec![(0, 1, D, D, P, P, O)])?;
         self.patch_room_basic("Main Street", vec![(1, 2, E, P, E, E, I)])?;
-        self.patch_room_basic("Red Fish Room", vec![(2, 0, P, W, E, W, O)])?;
+        self.patch_room_basic("Red Fish Room", vec![(2, 0, P, W, W, E, O)])?;
 
         // Norfair:
         self.patch_room_basic(
@@ -864,16 +864,9 @@ impl<'a> MapPatcher<'a> {
             down_arrow_tile_idxs.push(down_tile_idx);
         }
 
-        let mut door_pair_idx_map: HashMap<DoorPtrPair, (usize, usize)> = HashMap::new();
-        for (room_idx, room) in self.game_data.room_geometry.iter().enumerate() {
-            for (door_idx, door) in room.doors.iter().enumerate() {
-                door_pair_idx_map.insert((door.exit_ptr, door.entrance_ptr), (room_idx, door_idx));
-            }
-        }
-
         for (src_ptr_pair, dst_ptr_pair, _) in &self.map.doors {
-            let (src_room_idx, src_door_idx) = door_pair_idx_map[src_ptr_pair];
-            let (dst_room_idx, dst_door_idx) = door_pair_idx_map[dst_ptr_pair];
+            let (src_room_idx, src_door_idx) = self.game_data.room_and_door_idxs_by_door_ptr_pair[src_ptr_pair];
+            let (dst_room_idx, dst_door_idx) = self.game_data.room_and_door_idxs_by_door_ptr_pair[dst_ptr_pair];
             let src_area = self.map.area[src_room_idx];
             let dst_area = self.map.area[dst_room_idx];
             if src_area != dst_area {
