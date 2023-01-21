@@ -16,8 +16,8 @@ display = MapDisplay(72, 72, 20)
 xy = np.array(map['rooms'])
 for room in rooms:
     room.populate()
-# display.display_vanilla_areas(map)
-display.display_assigned_areas(map)
+display.display_vanilla_areas(map)
+# display.display_assigned_areas(map)
 display.image.show()
 
 # sm_json_data_path = "sm-json-data/"

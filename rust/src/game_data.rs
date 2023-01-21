@@ -168,6 +168,7 @@ pub struct GameData {
     pub flag_vertex_ids: Vec<Vec<VertexId>>,
     pub links: Vec<Link>,
     pub room_geometry: Vec<RoomGeometry>,
+    pub room_and_door_idxs_by_door_ptr_pair: HashMap<DoorPtrPair, (RoomGeometryRoomIdx, RoomGeometryDoorIdx)>,
     pub room_idx_by_name: HashMap<String, RoomGeometryRoomIdx>,
 }
 
@@ -1071,8 +1072,12 @@ impl GameData {
     fn load_room_geometry(&mut self, room_geometry_path: &Path) -> Result<()> {
         let room_geometry_str = std::fs::read_to_string(room_geometry_path)?;
         self.room_geometry = serde_json::from_str(&room_geometry_str)?;
-        for (i, room) in self.room_geometry.iter().enumerate() {
-            self.room_idx_by_name.insert(room.name.clone(), i);
+        for (room_idx, room) in self.room_geometry.iter().enumerate() {
+            self.room_idx_by_name.insert(room.name.clone(), room_idx);
+            for (door_idx, door) in room.doors.iter().enumerate() {
+                let door_ptr_pair = (door.exit_ptr, door.entrance_ptr);
+                self.room_and_door_idxs_by_door_ptr_pair.insert(door_ptr_pair, (room_idx, door_idx));
+            }
         }
         Ok(())
     }
