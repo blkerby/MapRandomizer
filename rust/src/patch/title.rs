@@ -2,7 +2,7 @@ use std::path::Path;
 
 use crate::{game_data::IndexedVec, compress::compress};
 
-use std::cmp::min;
+
 use super::{PcAddr, Rom, pc2snes, snes2pc};
 use anyhow::{Context, Result};
 use image::{io::Reader as ImageReader, Rgb};
@@ -45,7 +45,7 @@ struct Graphics {
     tilemap: Array2<u8>,        // indices into `tiles`
 }
 
-fn encode_graphics(image: &Array3<u8>, quantize_factor: isize) -> Graphics {
+fn encode_graphics(image: &Array3<u8>) -> Graphics {
     let (height, width, _) = image.dim();
 
     let mut tilemap: Array2<u8> = Array2::zeros([height / 8, width / 8]);
@@ -85,15 +85,9 @@ fn encode_graphics(image: &Array3<u8>, quantize_factor: isize) -> Graphics {
         for y in 0..8 {
             for x in 0..8 {
                 let pixel = tile[y][x].map(|x| x as isize);
-                // let r = (pixel[0] / 8 + quantize_factor / 2) / quantize_factor * quantize_factor;
-                // let g = (pixel[1] / 8 + quantize_factor / 2) / quantize_factor * quantize_factor;
-                // let b = (pixel[2] / 8 + quantize_factor / 2) / quantize_factor * quantize_factor;
-                let r = min(31, (pixel[0] as isize + quantize_factor * 4) / (quantize_factor * 8) * quantize_factor);
-                let g = min(31, (pixel[1] as isize + quantize_factor * 4) / (quantize_factor * 8) * quantize_factor);
-                let b = min(31, (pixel[2] as isize + quantize_factor * 4) / (quantize_factor * 8) * quantize_factor);
-                // let r = (pixel[0] / 8) / quantize_factor * quantize_factor;
-                // let g = (pixel[1] / 8) / quantize_factor * quantize_factor;
-                // let b = (pixel[2] / 8) / quantize_factor * quantize_factor;
+                let r = pixel[0] / 8;
+                let g = pixel[1] / 8;
+                let b = pixel[2] / 8;
                 let idx = color_isv.add(&(r as u8, g as u8, b as u8)) as u8;
                 new_tile[y][x] = idx;
             }    
@@ -159,13 +153,12 @@ impl<'a> TitlePatcher<'a> {
 
     pub fn patch_title_background(&mut self) -> Result<()> {
         let image_path = Path::new("../gfx/title/Title3.png");
-        let quantize_factor = 8;
 
         let img = read_image(image_path)?;
         assert!(img.dim() == (224, 256, 3));
 
         // Compute title background palette, tile GFX, and tilemap:
-        let graphics = encode_graphics(&img, quantize_factor);
+        let graphics = encode_graphics(&img);
         println!("Title background distinct colors: {}", graphics.palette.len());
       
         // Write palette, tile GFX, and tilemap:
