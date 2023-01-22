@@ -1,12 +1,12 @@
 use std::path::Path;
 
-use crate::{game_data::IndexedVec, compress::compress};
+use crate::{game_data::IndexedVec, patch::compress::compress};
 
-
-use super::{PcAddr, Rom, pc2snes, snes2pc};
+use super::{decompress::decompress, pc2snes, snes2pc, PcAddr, Rom};
 use anyhow::{Context, Result};
+use hashbrown::HashMap;
 use image::{io::Reader as ImageReader, Rgb};
-use ndarray::{Array2, Array3, concatenate, Axis};
+use ndarray::{concatenate, Array2, Array3, Axis};
 use slice_of_array::prelude::*;
 
 pub struct TitlePatcher<'a> {
@@ -41,11 +41,11 @@ fn rgb_to_u16(rgb: (u8, u8, u8)) -> u16 {
 
 struct Graphics {
     palette: Vec<(u8, u8, u8)>,
-    tiles: Vec<[[u8; 8]; 8]>,    // indices into `palette`
-    tilemap: Array2<u8>,        // indices into `tiles`
+    tiles: Vec<[[u8; 8]; 8]>, // indices into `palette`
+    tilemap: Array2<u8>,      // indices into `tiles`
 }
 
-fn encode_graphics(image: &Array3<u8>) -> Graphics {
+fn encode_mode7_graphics(image: &Array3<u8>) -> Graphics {
     let (height, width, _) = image.dim();
 
     let mut tilemap: Array2<u8> = Array2::zeros([height / 8, width / 8]);
@@ -58,7 +58,7 @@ fn encode_graphics(image: &Array3<u8>) -> Graphics {
                 for c in 0..3 {
                     tile[y][x][c] = image[[tile_y * 8 + y, tile_x * 8 + x, c]];
                 }
-            }    
+            }
         }
         let tile_idx = tile_isv.add(&tile) as u8;
         tilemap[[tile_y, tile_x]] = tile_idx;
@@ -69,7 +69,7 @@ fn encode_graphics(image: &Array3<u8>) -> Graphics {
     process_tile(20, 16);
     process_tile(21, 15);
     process_tile(21, 16);
-    process_tile(16, 15);  // blank tile
+    process_tile(16, 15); // blank tile
     for tile_y in 0..(height / 8) {
         for tile_x in 0..(width / 8) {
             process_tile(tile_y, tile_x);
@@ -79,7 +79,7 @@ fn encode_graphics(image: &Array3<u8>) -> Graphics {
 
     let mut new_tiles: Vec<[[u8; 8]; 8]> = Vec::new();
     let mut color_isv: IndexedVec<(u8, u8, u8)> = IndexedVec::default();
-    color_isv.add(&(0, 0, 0));  // Keep the black color
+    color_isv.add(&(0, 0, 0)); // Keep the black color
     for tile in &tile_isv.keys {
         let mut new_tile: [[u8; 8]; 8] = [[0; 8]; 8];
         for y in 0..8 {
@@ -90,17 +90,58 @@ fn encode_graphics(image: &Array3<u8>) -> Graphics {
                 let b = pixel[2] / 8;
                 let idx = color_isv.add(&(r as u8, g as u8, b as u8)) as u8;
                 new_tile[y][x] = idx;
-            }    
+            }
         }
         new_tiles.push(new_tile);
     }
 
-
     Graphics {
         palette: color_isv.keys,
         tiles: new_tiles,
-        tilemap
+        tilemap,
     }
+}
+
+fn decode_tile_4bpp(tile: &[u8; 32]) -> [[u8; 8]; 8] {
+    let mut out: [[u8; 8]; 8] = [[0; 8]; 8];
+    for y in 0..8 {
+        let i = y * 2;
+        for x in 0..8 {
+            let b0 = (tile[i] >> (7 - x)) & 1;
+            let b1 = (tile[i + 1] >> (7 - x)) & 1;
+            let b2 = (tile[i + 16] >> (7 - x)) & 1;
+            let b3 = (tile[i + 17] >> (7 - x)) & 1;
+            out[y][x] = b0 | b1 << 1 | b2 << 2 | b3 << 3;
+        }
+    }
+    out
+}
+
+fn encode_tile_4bpp(tile: &[[u8; 8]; 8]) -> [u8; 32] {
+    let mut out: [u8; 32] = [0; 32];
+    let offsets = [0, 1, 16, 17];
+    for p in 0..4 {
+        for y in 0..8 {
+            let mut c = 0;
+            for x in 0..8 {
+                c |= ((tile[y][x] >> p) & 1) << (7 - x);
+            }
+            out[y * 2 + offsets[p]] = c;
+        }
+    }
+    out
+}
+
+#[derive(Debug)]
+struct SpriteMapEntry {
+    x: i16,       // x offset in pixels: -256 to +255
+    y: i8,        // y offset in pixels -128 to +127
+    c: u16,       // character (tile) index: 0 to 511
+    palette: u8,  // 0 to 7
+    priority: u8, // 0 to 3
+    size_16: bool,
+    x_flip: bool,
+    y_flip: bool,
 }
 
 impl<'a> TitlePatcher<'a> {
@@ -129,26 +170,36 @@ impl<'a> TitlePatcher<'a> {
     fn write_title_background_tiles(&mut self, tiles: &[[[u8; 8]; 8]]) -> Result<()> {
         let flat_tiles = tiles.flat().flat();
         let compressed = compress(&flat_tiles);
-        let gfx_pc_addr = self.write_to_free_space(&compressed)?;        
+        let gfx_pc_addr = self.write_to_free_space(&compressed)?;
         let gfx_snes_addr = pc2snes(gfx_pc_addr);
         // Update reference to tile GFX:
-        self.rom.write_u8(snes2pc(0x8B9BA8), (gfx_snes_addr >> 16) as isize)?;
-        self.rom.write_u16(snes2pc(0x8B9BAC), (gfx_snes_addr & 0xFFFF) as isize)?;
+        self.rom
+            .write_u8(snes2pc(0x8B9BA8), (gfx_snes_addr >> 16) as isize)?;
+        self.rom
+            .write_u16(snes2pc(0x8B9BAC), (gfx_snes_addr & 0xFFFF) as isize)?;
         Ok(())
     }
 
     fn write_title_background_tilemap(&mut self, tilemap: &Array2<u8>) -> Result<()> {
         let tilemap_horizontal_padding: Array2<u8> = Array2::zeros([28, 96]) + 4;
-        let padded_tilemap0 = concatenate(Axis(1), &[tilemap.view(), tilemap_horizontal_padding.view()])?;
+        let padded_tilemap0 = concatenate(
+            Axis(1),
+            &[tilemap.view(), tilemap_horizontal_padding.view()],
+        )?;
         let tilemap_vertical_padding: Array2<u8> = Array2::zeros([4, 128]) + 4;
-        let padded_tilemap = concatenate(Axis(0), &[padded_tilemap0.view(), tilemap_vertical_padding.view()])?;        
+        let padded_tilemap = concatenate(
+            Axis(0),
+            &[padded_tilemap0.view(), tilemap_vertical_padding.view()],
+        )?;
         let compressed = compress(&padded_tilemap.as_standard_layout().as_slice().unwrap());
-        let tilemap_pc_addr = self.write_to_free_space(&compressed)?;        
+        let tilemap_pc_addr = self.write_to_free_space(&compressed)?;
         let tilemap_snes_addr = pc2snes(tilemap_pc_addr);
         // Update reference to tilemap:
-        self.rom.write_u8(snes2pc(0x8B9BB9), (tilemap_snes_addr >> 16) as isize)?;
-        self.rom.write_u16(snes2pc(0x8B9BBD), (tilemap_snes_addr & 0xFFFF) as isize)?;
-        Ok(()) 
+        self.rom
+            .write_u8(snes2pc(0x8B9BB9), (tilemap_snes_addr >> 16) as isize)?;
+        self.rom
+            .write_u16(snes2pc(0x8B9BBD), (tilemap_snes_addr & 0xFFFF) as isize)?;
+        Ok(())
     }
 
     pub fn patch_title_background(&mut self) -> Result<()> {
@@ -158,10 +209,14 @@ impl<'a> TitlePatcher<'a> {
         assert!(img.dim() == (224, 256, 3));
 
         // Compute title background palette, tile GFX, and tilemap:
-        let graphics = encode_graphics(&img);
-        println!("Title background distinct colors: {}", graphics.palette.len());
-      
-        // Write palette, tile GFX, and tilemap:
+        let graphics = encode_mode7_graphics(&img);
+        println!(
+            "Title background distinct colors: {}",
+            graphics.palette.len()
+        );
+
+        // Write palette, tile GFX, and tilemap. Here write the palette in place,
+        // while we write the GFX and tilemap to free space and update references to them.
         self.write_palette(0x661E9, &graphics.palette)?;
         self.write_title_background_tiles(&graphics.tiles)?;
         self.write_title_background_tilemap(&graphics.tilemap)?;
@@ -171,7 +226,203 @@ impl<'a> TitlePatcher<'a> {
 
         // Use white color for Nintendo copyright text (otherwise it would stay black since we skip the palette FX handler)
         self.rom.write_u16(0x661E9 + 0xC9 * 2, 0x7FFF)?;
-    
+
         Ok(())
+    }
+
+    fn read_compressed_tiles(&self, pc_addr: usize) -> Result<Vec<[[u8; 8]; 8]>> {
+        let decompressed = decompress(&self.rom, pc_addr)?;
+        let mut tiles: Vec<[[u8; 8]; 8]> = Vec::new();
+        assert!(decompressed.len() == 16384);
+        for i in 0..512 {
+            tiles.push(decode_tile_4bpp(
+                &decompressed[(i * 32)..(i * 32 + 32)].try_into()?,
+            ));
+        }
+        // println!("{:?}", tiles[1]);
+        Ok(tiles)
+    }
+
+    fn read_spritemap(&self, mut pc_addr: usize) -> Result<Vec<SpriteMapEntry>> {
+        let num_tiles = self.rom.read_u16(pc_addr)?;
+        let mut out: Vec<SpriteMapEntry> = Vec::new();
+        pc_addr += 2;
+        for _ in 0..num_tiles {
+            let x0 = self.rom.read_u16(pc_addr)?;
+            let mut x = x0 & 0x1FF;
+            if x >= 256 {
+                x -= 512;
+            }
+            let size_16 = x0 >> 15 != 0;
+            let mut y = self.rom.read_u8(pc_addr + 2)?;
+            if y >= 128 {
+                y -= 256;
+            }
+            let a = self.rom.read_u8(pc_addr + 3)?;
+            let b = self.rom.read_u8(pc_addr + 4)?;
+            let y_flip = b >> 7 != 0;
+            let x_flip = (b >> 6) & 1 != 0;
+            let palette = (b >> 1) & 7;
+            let priority = (b >> 4) & 3;
+            let c = ((b & 1) << 8) | a;
+            out.push(SpriteMapEntry {
+                x: x as i16,
+                y: y as i8,
+                c: c as u16,
+                palette: palette as u8,
+                priority: priority as u8,
+                size_16,
+                x_flip,
+                y_flip,
+            });
+            pc_addr += 5;
+        }
+        // println!("{:?}", out);
+        Ok(out)
+    }
+
+    fn write_spritemap(&mut self, mut pc_addr: usize, spritemap: &[SpriteMapEntry]) -> Result<()> {
+        self.rom.write_u16(pc_addr, spritemap.len() as isize)?;
+        pc_addr += 2;
+        for entry in spritemap {
+            let mut x0 = (entry.x as isize + 0x200) & 0x1FF;
+            if entry.size_16 {
+                x0 |= 0x8000;
+            }
+            self.rom.write_u16(pc_addr, x0)?;
+            self.rom
+                .write_u8(pc_addr + 2, (entry.y as isize + 0x100) & 0xFF)?;
+            self.rom.write_u8(pc_addr + 3, (entry.c as isize) & 0xFF)?;
+            self.rom.write_u8(
+                pc_addr + 4,
+                ((entry.c as isize) >> 8)
+                    | ((entry.palette as isize) << 1)
+                    | ((entry.priority as isize) << 4)
+                    | (if entry.x_flip { 1 << 6 } else { 0 })
+                    | (if entry.y_flip { 1 << 7 } else { 0 }),
+            )?;
+            pc_addr += 5;
+        }
+        Ok(())
+    }
+
+    pub fn patch_title_foreground(&mut self) -> Result<()> {
+        // Start by loading the vanilla tiles & spritemap, for "Super Metroid" title:
+        let mut tiles = self.read_compressed_tiles(snes2pc(0x9580D8))?;
+        let mut spritemap = self.read_spritemap(snes2pc(0x8C879D))?;
+
+        // Now we will patch the tiles & spritemap by adding "Map Rando" to the same sprite.
+        // First load the image:
+        let image_path = Path::new("../gfx/title/maprando.png");
+        let img = read_image(image_path)?;
+        assert!(img.dim() == (224, 256, 3));
+        
+        // We don't modify the palette, just reuse colors from the existing palette.
+        // There are only 3 colors in the PNG, and we manually map them over (This is a
+        // little silly, because we could just use an indexed PNG to begin with, instead of RGB.):
+        let mut pal_map: HashMap<(u8, u8, u8), u8> = HashMap::new();
+        pal_map.insert((0, 1, 0), 0);
+        pal_map.insert((205, 207, 152), 13);
+        pal_map.insert((206, 208, 153), 1);
+
+        // Indexes of 16 x 16 tiles that are free for us to use for "Map Rando" subtitle:
+        let free_tiles: Vec<usize> = vec![
+            0xA0, 0xA2, 0xA4, 0xA6, 0xA8, 0xAA, 0xAC, 0xAE,
+            0xC0, 0xC2, 0xC4, 0xC6, 0xC8, 0xCA, 0xCC, 0xCE,
+            0xE0, 0xE2, 0xE4, 0xE6, 0xE8, 0xEA, 0xEC, 0xEE,
+            0x102, 0x104, 0x106, 0x108, 0x10A, 0x10C, 0x10E,
+            0x122, 0x124, 0x126, 0x128, 0x12A, 0x12C, 0x12E,
+            0x140, 0x142, 0x144, 0x146, 0x148, 0x14A, 0x14C, 0x14E,
+            0x160, 0x162, 0x164,
+            0x180, 0x182, 0x184,
+            0x1A0, 0x1A2, 0x1A4, 0x1AC, 0x1AE,
+            0x1CC, 0x1CE,
+            0x1E0, 0x1E2, 0x1E4, 0x1E6, 0x1E8, 0x1EA, 0x1EC, 0x1EE,
+        ];
+
+        let get_tile = |tile_y: usize, tile_x: usize| -> [[u8; 8]; 8] {
+            let mut tile = [[0; 8]; 8];
+            for y in 0..8 {
+                for x in 0..8 {
+                    let r = img[[tile_y * 8 + y, tile_x * 8 + x, 0]];
+                    let g = img[[tile_y * 8 + y, tile_x * 8 + x, 1]];
+                    let b = img[[tile_y * 8 + y, tile_x * 8 + x, 2]];
+                    let c = pal_map[&(r, g, b)];
+                    tile[y][x] = c;
+                }
+            }
+            tile
+        };
+
+        let mut free_tile_idx = 0;
+        let y_shift = 0x10;  // Offset to shift the title down from where it is in vanilla
+        for tile_y in 0..14 {
+            for tile_x in 0..16 {
+                let tile_00 = get_tile(tile_y * 2, tile_x * 2);
+                let tile_01 = get_tile(tile_y * 2, tile_x * 2 + 1);
+                let tile_10 = get_tile(tile_y * 2 + 1, tile_x * 2);
+                let tile_11 = get_tile(tile_y * 2 + 1, tile_x * 2 + 1);
+                let z = [[0; 8]; 8];
+                if tile_00 == z && tile_01 == z && tile_10 == z && tile_11 == z {
+                    continue;
+                }
+                let tile_idx = free_tiles[free_tile_idx];
+                free_tile_idx += 1;
+                let entry = SpriteMapEntry {
+                    x: (tile_x as isize * 16 - 0x80) as i16,
+                    y: (tile_y as isize * 16 - (0x30 + y_shift)) as i8,
+                    c: tile_idx as u16,
+                    palette: 2,
+                    priority: 1,
+                    size_16: true,
+                    x_flip: false,
+                    y_flip: false
+                };
+                spritemap.push(entry);
+                tiles[tile_idx] = tile_00;
+                tiles[tile_idx + 1] = tile_01;
+                tiles[tile_idx + 16] = tile_10;
+                tiles[tile_idx + 17] = tile_11;
+            }
+        }
+        
+        // Write the tiles & spritemap to a new location in free space, since they would
+        // no longer fit in the original location:
+        let encoded_tiles: Vec<[u8; 32]> = tiles.iter().map(|tile| encode_tile_4bpp(tile)).collect();
+        let new_gfx_pc_addr = self.write_to_free_space(&compress(encoded_tiles.flat()))?;
+        let new_gfx_snes_addr = pc2snes(new_gfx_pc_addr);
+        let new_spritemap_snes_addr = 0x8CF3E9;
+        self.write_spritemap(snes2pc(new_spritemap_snes_addr), &spritemap)?;
+
+        // Update pointer to the tile GFX data:
+        self.rom.write_u8(snes2pc(0x8B9BCA), (new_gfx_snes_addr >> 16) as isize)?;
+        self.rom.write_u16(snes2pc(0x8B9BCE), (new_gfx_snes_addr & 0xFFFF) as isize)?;
+
+        // Update pointers to spritemap:
+        self.rom.write_u16(snes2pc(0x8BA0C7), (new_spritemap_snes_addr & 0xFFFF) as isize)?;
+        self.rom.write_u16(snes2pc(0x8BA0CD), (new_spritemap_snes_addr & 0xFFFF) as isize)?;
+
+        // Shift the title spritemap down:
+        self.rom.write_u16(snes2pc(0x8B9B21), 0x30 + y_shift)?;
+        self.rom.write_u16(snes2pc(0x8B9EBA), 0x30 + y_shift)?;
+
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::patch::title::decode_tile_4bpp;
+    use crate::patch::title::encode_tile_4bpp;
+
+    #[test]
+    fn decode_encode_4bpp() {
+        let data: [u8; 32] = [
+            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
+            24, 25, 26, 27, 28, 29, 30, 31,
+        ];
+        let encoded = decode_tile_4bpp(&data);
+        let decoded = encode_tile_4bpp(&encoded);
+        assert_eq!(decoded, data);
     }
 }

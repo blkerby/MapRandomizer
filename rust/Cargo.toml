@@ -1,0 +1,27 @@
+[package]
+name = "maprando"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[profile.release]
+debug = true
+
+[dependencies]
+json = "0.12.4"
+hashbrown = "0.13.2"
+glob = "0.3.1"
+ips = "0.1.0"
+parse_int = "0.6.0"
+strum = "0.24.1"
+strum_macros = "0.24.3"
+rand = "0.8.5"
+num_enum = "0.5.7"
+clap = {version = "4.1.1", features=["derive"]}
+anyhow = {version = "1.0.68", features = ["backtrace"]}
+serde_json = "1.0.91"
+serde = "1.0.152"
+serde_derive = "1.0.152"
+image = "0.24.5"
+ndarray = "0.15.6"
+slice-of-array = "0.3.2"
