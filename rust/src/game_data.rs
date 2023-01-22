@@ -173,10 +173,14 @@ pub struct GameData {
 }
 
 impl<T: Hash + Eq> IndexedVec<T> {
-    pub fn add<U: ToOwned<Owned = T> + ?Sized>(&mut self, name: &U) {
+    pub fn add<U: ToOwned<Owned = T> + ?Sized>(&mut self, name: &U) -> usize {
         if !self.index_by_key.contains_key(&name.to_owned()) {
+            let idx = self.keys.len();
             self.index_by_key.insert(name.to_owned(), self.keys.len());
             self.keys.push(name.to_owned());
+            idx
+        } else {
+            self.index_by_key[&name.to_owned()]
         }
     }
 }
