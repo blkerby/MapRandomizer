@@ -297,21 +297,6 @@ impl<'a> MapPatcher<'a> {
             }
         }
 
-        // Replace blue/pink colors in elevator tile with white. Otherwise, the colors would
-        // be unintuitive given the fact that we auto-explore some elevator tiles.
-        let elevator_tile_data: [[u8; 8]; 8] = [
-            [0, 2, 2, 0, 0, 2, 2, 0],
-            [0, 2, 0, 0, 0, 0, 2, 0],
-            [0, 2, 2, 0, 0, 2, 2, 0],
-            [0, 2, 0, 0, 0, 0, 2, 0],
-            [0, 2, 2, 0, 0, 2, 2, 0],
-            [0, 2, 0, 0, 0, 0, 2, 0],
-            [0, 2, 2, 0, 0, 2, 2, 0],
-            [0, 2, 0, 0, 0, 0, 2, 0],
-        ];
-        // self.write_tile_2bpp(ELEVATOR_TILE as usize, elevator_tile_data, true)?;
-        // self.write_tile_4bpp(ELEVATOR_TILE as usize, elevator_tile_data)?;
-
         // In top elevator rooms, replace down arrow tiles with elevator tiles:
         self.patch_room("Green Brinstar Elevator Room", vec![(0, 3, ELEVATOR_TILE)])?;
         self.patch_room("Red Brinstar Elevator Room", vec![(0, 3, ELEVATOR_TILE)])?;

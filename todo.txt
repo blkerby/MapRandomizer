@@ -5,10 +5,17 @@ TODO:
     - Use `serde_json` instead of `json` crate for loading sm-json-data.
     - Clean up error handling: get rid of a bunch of remaining unwrap()'s, etc.
     - Write web service
+    - Spoiler maps (use in-game map graphics)
     - Finish dynamic ROM patches
       - escape timer (and spoiler log)
       - title screen
       - reload CRE
+- at end of randomization, make sure G4 bosses are reachable (to guard against a case like Phantoon being locked being
+  Bowling).
+- on web site, clarify some things about how logic works, e.g.
+    - hellruns may be required if canHeatRun tech is enabled.
+- Make Gravity-only Samus palette different from Gravity+Varia.
+    - Figure out how this can work with custom sprites.
 - Try a different kind of "Open" item placement, to reduce likelihood of items getting heavily front-loaded with good items:
   - Start by placing all items randomly, then check that game is beatable.
   - Similar approach could maybe apply to Closed/Semiclosed?: find a beatable game using random placement, then adjust
@@ -86,7 +93,7 @@ TODO:
 - fix suit graphics not showing after getting suit (consequence of skipping animation)?
 - minimizer mode? (select rooms to include randomly, hand-picked, and/or user-selected)
 - add strat for jumping over fune with no damage (check osse Twitch clip).
-
+- make map rando for other hacks (e.g. project base, subversion?)
 
 notes on tileset palette stuff:
   - tileset table: $8FE6A2  (will need to move to location with more space)

@@ -881,11 +881,6 @@ def randomize():
     add_explore_tiles_asm((0x19246, 0x192EE), [(0, 1)])
     # We skip Lower Norfair elevators because there are no tiles to explore there.
 
-    s = []
-    for x in extra_door_asm_dict[0x18C0A]:
-        s.append("{:02x}".format(x))
-    print(' '.join(s))
-
     def get_arrow_location(door_id):
         dir = door_id.direction
         if dir == Direction.RIGHT:

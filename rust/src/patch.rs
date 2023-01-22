@@ -1,4 +1,5 @@
 mod map_tiles;
+mod title;
 
 use std::path::Path;
 
@@ -13,10 +14,15 @@ use std::iter;
 
 const NUM_AREAS: usize = 6;
 
-type AsmPtr = usize;
+type PcAddr = usize;  // PC pointer to ROM data
+type AsmPtr = usize;  // 16-bit SNES pointer to ASM code in bank 0x8F
 
 fn snes2pc(addr: usize) -> usize {
     addr >> 1 & 0x3F8000 | addr & 0x7FFF
+}
+
+fn pc2snes(addr: usize) -> usize {
+    addr << 1 & 0xFF0000 | addr & 0xFFFF | 0x808000
 }
 
 #[derive(Clone)]
@@ -202,6 +208,7 @@ impl<'a> Patcher<'a> {
             "sound_effect_disables",
             "title_map_animation",
             "fast_reload",
+            // "gravitypal",
         ];
         // patches.push("new_game");
         patches.push("new_game_extra");
@@ -262,7 +269,6 @@ impl<'a> Patcher<'a> {
         y: isize,
         asm: &mut Vec<u8>,
     ) -> Result<()> {
-        println!("x={x}, y={y}");
         let (offset, bitmask) = xy_to_explored_bit_ptr(x, y);
         if current_area == tile_area {
             // We want to write an explored bit to the current area's map, so we have to write it to
@@ -295,12 +301,12 @@ impl<'a> Patcher<'a> {
         extra_door_asm: &mut HashMap<DoorPtr, Vec<u8>>,
     ) -> Result<()> {
         let (room_idx, _door_idx) =
-            self.game_data.room_and_door_idxs_by_door_ptr_pair[&door_ptr_pair];
+            self.game_data.room_and_door_idxs_by_door_ptr_pair[door_ptr_pair];
         let room = &self.game_data.room_geometry[room_idx];
         let room_x = self.rom.read_u8(room.rom_address + 2)?;
         let room_y = self.rom.read_u8(room.rom_address + 3)?;
         let area = self.map.area[room_idx];
-        let other_door_ptr_pair = self.other_door_ptr_pair_map[&door_ptr_pair];
+        let other_door_ptr_pair = self.other_door_ptr_pair_map[door_ptr_pair];
         let (other_room_idx, _other_door_idx) =
             self.game_data.room_and_door_idxs_by_door_ptr_pair[&other_door_ptr_pair];
         let other_area = self.map.area[other_room_idx];
@@ -784,15 +790,15 @@ impl<'a> Patcher<'a> {
         self.rom.write_u16(snes2pc(0x838060), 0xffff)?;
 
         for (door1, door2, _) in &self.map.doors {
-            if door_fx.contains_key(&door1) {
+            if door_fx.contains_key(door1) {
                 self.rom.write_u16(
-                    snes2pc(door_fx[&door1]),
+                    snes2pc(door_fx[door1]),
                     (door2.0.unwrap() & 0xffff) as isize,
                 )?;
             }
-            if door_fx.contains_key(&door2) {
+            if door_fx.contains_key(door2) {
                 self.rom.write_u16(
-                    snes2pc(door_fx[&door2]),
+                    snes2pc(door_fx[door2]),
                     (door1.0.unwrap() & 0xffff) as isize,
                 )?;
             }
@@ -838,6 +844,12 @@ impl<'a> Patcher<'a> {
 
         Ok(())
     }
+
+    fn apply_title_screen_patches(&mut self) -> Result<()> {
+        let mut title_patcher = title::TitlePatcher::new(&mut self.rom);
+        title_patcher.patch_title_background()?;
+        Ok(())
+    }
 }
 
 fn get_other_door_ptr_pair_map(map: &Map) -> HashMap<DoorPtrPair, DoorPtrPair> {
@@ -877,6 +889,7 @@ pub fn make_rom(
     patcher.remove_non_blue_doors()?;
     patcher.use_area_based_music()?;
     patcher.setup_door_specific_fx()?;
+    patcher.apply_title_screen_patches()?;
     patcher.apply_miscellaneous_patches()?;
     // TODO: add CRE reload for Kraid & Crocomire
     Ok(rom)
