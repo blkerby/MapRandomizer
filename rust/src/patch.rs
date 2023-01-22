@@ -1,5 +1,7 @@
 mod map_tiles;
 mod title;
+mod compress;
+mod decompress;
 
 use std::path::Path;
 
@@ -848,6 +850,7 @@ impl<'a> Patcher<'a> {
     fn apply_title_screen_patches(&mut self) -> Result<()> {
         let mut title_patcher = title::TitlePatcher::new(&mut self.rom);
         title_patcher.patch_title_background()?;
+        title_patcher.patch_title_foreground()?;
         Ok(())
     }
 }

@@ -21,6 +21,7 @@ def decompress(rom, addr=None):
         else:
             size = ((byte & 3) << 8 | romRead(rom)) + 1
             type = byte >> 2 & 7
+        # print("{}: len={} type={} size={}".format(rom.tell(), len(decompressed), type, size))
 
         if type == 0:
             decompressed.fromfile(rom, size)

@@ -39,6 +39,7 @@ def read_gfx(rom, gfx_addr):
     raw_gfx = np.frombuffer(decompress(rom, gfx_addr), dtype=np.uint8)
     print("Original compressed title GFX size:", rom.tell() - gfx_addr)
     gfx = decode_gfx_4bpp(raw_gfx)
+    print("GFX: ", gfx[1])
     return raw_gfx, gfx
 
 
@@ -85,6 +86,7 @@ def read_spritemap(rom, spritemap_addr):
         pr = (b >> 4) & 3  # Priority
         c = ((b & 1) << 8) | a  # Character/tile index
         tiles.append([size, x, y, p, pr, c, x_flip, y_flip])
+    print(tiles)
     return tiles
 
 
