@@ -6,9 +6,7 @@ Release plan:
 
 TODO:
 - Finish Rust migration
-    - Use resource multiplier
     - Write web service
-    - Spoiler maps (use in-game map graphics)
 - Rust cleanup:
     - Use `serde_json` instead of `json` crate for loading sm-json-data.
     - Clean up error handling: get rid of a bunch of remaining unwrap()'s, etc.

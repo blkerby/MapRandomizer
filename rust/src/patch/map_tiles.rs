@@ -2,7 +2,7 @@ use hashbrown::HashMap;
 
 use crate::game_data::{GameData, Map, RoomGeometryDoor};
 
-use super::{snes2pc, xy_to_map_offset, Rom, xy_to_explored_bit_ptr};
+use super::{snes2pc, xy_to_explored_bit_ptr, xy_to_map_offset, Rom};
 use anyhow::{bail, Result};
 
 type TilemapWord = u16;
@@ -37,7 +37,6 @@ pub struct MapPatcher<'a> {
     rom: &'a mut Rom,
     game_data: &'a GameData,
     map: &'a Map,
-    area_map_ptrs: [usize; NUM_AREAS],
     free_tiles: Vec<usize>,
     next_free_tile_idx: usize,
     basic_tile_map: HashMap<BasicTile, TilemapWord>,
@@ -81,20 +80,10 @@ impl<'a> MapPatcher<'a> {
         pixels_map.insert(Edge::Door, vec![0, 1, 2, 5, 6, 7]);
         pixels_map.insert(Edge::Wall, vec![0, 1, 2, 3, 4, 5, 6, 7]);
 
-        let area_map_ptrs = [
-            0x1A9000, // Crateria
-            0x1A8000, // Brinstar
-            0x1AA000, // Norfair
-            0x1AB000, // Wrecked ship
-            0x1AC000, // Maridia
-            0x1AD000, // Tourian
-        ];
-
         MapPatcher {
             rom,
             game_data,
             map,
-            area_map_ptrs,
             free_tiles,
             next_free_tile_idx: 0,
             basic_tile_map: HashMap::new(),
@@ -316,6 +305,9 @@ impl<'a> MapPatcher<'a> {
         // final length of the elevator on the map, which already has variations across rooms). We skip Lower Norfair Elevator
         // and Main Hall because these have no arrows on the vanilla map (since these don't cross regions in vanilla).
 
+        // Patch map tile in Aqueduct to replace Botwoon Hallway with tube/elevator tile
+        self.patch_room("Aqueduct", vec![(2, 3, ELEVATOR_TILE)])?;
+
         Ok(())
     }
 
@@ -330,7 +322,7 @@ impl<'a> MapPatcher<'a> {
         let x0 = self.rom.read_u8(room.rom_address + 2)? as isize;
         let y0 = self.rom.read_u8(room.rom_address + 3)? as isize;
         for (x, y, word) in &tiles {
-            let base_ptr = self.area_map_ptrs[area];
+            let base_ptr = self.game_data.area_map_ptrs[area] as usize;
             let offset = super::xy_to_map_offset(x0 + x, y0 + y) as usize;
             self.rom
                 .write_u16(base_ptr + offset, (word | 0x0C00) as isize)?;
@@ -506,7 +498,7 @@ impl<'a> MapPatcher<'a> {
                 doors_by_xy.entry((door.x, door.y)).or_default().push(i);
             }
             for (&(x, y), idxs) in doors_by_xy.iter() {
-                let base_ptr = self.area_map_ptrs[area];
+                let base_ptr = self.game_data.area_map_ptrs[area] as usize;
                 let offset = xy_to_map_offset(x0 + x as isize, y0 + y as isize) as usize;
                 let word = (self.rom.read_u16(base_ptr + offset)? as TilemapWord) & 0xC0FF;
                 let basic_tile_opt = self.reverse_map.get(&word);
@@ -684,7 +676,7 @@ impl<'a> MapPatcher<'a> {
             "Crab Shaft",
             vec![(0, 2, W, W, E, E, O), (0, 3, W, E, P, W, O)],
         )?;
-        self.patch_room_basic("Halfie Climb Room", vec![(0, 2, D, E, W, P, O)])?;
+        self.patch_room_basic("Halfie Climb Room", vec![(0, 2, D, P, E, W, O)])?;
         self.patch_room_basic("The Precious Room", vec![(0, 0, D, E, W, P, O)])?;
         self.patch_room_basic("Northwest Maridia Bug Room", vec![(2, 1, P, E, W, W, O)])?;
         self.patch_room_basic("Pseudo Plasma Spark Room", vec![(1, 2, E, P, E, W, O)])?;
@@ -768,17 +760,25 @@ impl<'a> MapPatcher<'a> {
         let x = door.x as isize;
         let y = door.y as isize;
         if dir == "right" {
-            self.patch_room(&self.game_data.room_geometry[room_idx].name, 
-                vec![(x + 1, y, right_arrow_tile)])?;
+            self.patch_room(
+                &self.game_data.room_geometry[room_idx].name,
+                vec![(x + 1, y, right_arrow_tile)],
+            )?;
         } else if dir == "left" {
-            self.patch_room(&self.game_data.room_geometry[room_idx].name, 
-                vec![(x - 1, y, right_arrow_tile | FLIP_X)])?;
+            self.patch_room(
+                &self.game_data.room_geometry[room_idx].name,
+                vec![(x - 1, y, right_arrow_tile | FLIP_X)],
+            )?;
         } else if dir == "down" {
-            self.patch_room(&self.game_data.room_geometry[room_idx].name, 
-                vec![(x, y + 1, down_arrow_tile)])?;
+            self.patch_room(
+                &self.game_data.room_geometry[room_idx].name,
+                vec![(x, y + 1, down_arrow_tile)],
+            )?;
         } else if dir == "up" {
-            self.patch_room(&self.game_data.room_geometry[room_idx].name, 
-                vec![(x, y - 1, down_arrow_tile | FLIP_Y)])?;
+            self.patch_room(
+                &self.game_data.room_geometry[room_idx].name,
+                vec![(x, y - 1, down_arrow_tile | FLIP_Y)],
+            )?;
         } else {
             bail!("Unrecognized door direction: {dir}");
         }
@@ -786,15 +786,18 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn add_cross_area_arrows(&mut self) -> Result<()> {
-        // Replace colors to palette used for map tiles in the pause menu, for drawing arrows marking 
+        // Replace colors to palette used for map tiles in the pause menu, for drawing arrows marking
         // cross-area connections:
         // TODO: Fix color of reserve energy in equipment menu, which gets messed up by this.
         fn rgb(r: u16, g: u16, b: u16) -> u16 {
             (b << 10) | (g << 5) | r
         }
 
-        let extended_map_palette: Vec<(u8, u16)> =
-            vec![(5, rgb(0, 24, 0)), (8, rgb(8, 8, 28)), (9, rgb(28, 28, 8))];
+        let extended_map_palette: Vec<(u8, u16)> = vec![
+            (5, rgb(0, 24, 0)),   // Brinstar green
+            (8, rgb(12, 18, 26)), // Maridia blue
+            (9, rgb(24, 25, 0)),  // Wrecked Ship yellow
+        ];
 
         for &(i, color) in &extended_map_palette {
             self.rom
@@ -802,6 +805,13 @@ impl<'a> MapPatcher<'a> {
             self.rom
                 .write_u16(snes2pc(0xB6F000) + 2 * (0x30 + i as usize), color as isize)?;
         }
+
+        // println!("norfair: {:x}", self.rom.read_u16(snes2pc(0xb6f000) + 2 * (0x20 + 3))?);
+        println!(
+            "tourian: {:x}",
+            self.rom.read_u16(snes2pc(0xb6f000) + 2 * (0x20 + 14))?
+        );
+        // println!("crateria: {:x}", self.rom.read_u16(snes2pc(0xb6f000) + 2 * (0x20 + 15))?);
 
         // Set up arrows of different colors (one per area):
         let area_arrow_colors: Vec<usize> = vec![
@@ -850,8 +860,10 @@ impl<'a> MapPatcher<'a> {
         }
 
         for (src_ptr_pair, dst_ptr_pair, _) in &self.map.doors {
-            let (src_room_idx, src_door_idx) = self.game_data.room_and_door_idxs_by_door_ptr_pair[src_ptr_pair];
-            let (dst_room_idx, dst_door_idx) = self.game_data.room_and_door_idxs_by_door_ptr_pair[dst_ptr_pair];
+            let (src_room_idx, src_door_idx) =
+                self.game_data.room_and_door_idxs_by_door_ptr_pair[src_ptr_pair];
+            let (dst_room_idx, dst_door_idx) =
+                self.game_data.room_and_door_idxs_by_door_ptr_pair[dst_ptr_pair];
             let src_area = self.map.area[src_room_idx];
             let dst_area = self.map.area[dst_room_idx];
             if src_area != dst_area {
@@ -883,7 +895,8 @@ impl<'a> MapPatcher<'a> {
             let y = self.rom.read_u8(room.rom_address + 3)?;
             let (offset, bitmask) = xy_to_explored_bit_ptr(x, y);
             let base_ptr = 0xB5F000 + area * 0x100;
-            self.rom.write_u8(snes2pc(base_ptr + offset as usize), bitmask as isize)?;
+            self.rom
+                .write_u8(snes2pc(base_ptr + offset as usize), bitmask as isize)?;
         }
         Ok(())
     }

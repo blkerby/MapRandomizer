@@ -19,11 +19,11 @@ const NUM_AREAS: usize = 6;
 type PcAddr = usize;  // PC pointer to ROM data
 type AsmPtr = usize;  // 16-bit SNES pointer to ASM code in bank 0x8F
 
-fn snes2pc(addr: usize) -> usize {
+pub fn snes2pc(addr: usize) -> usize {
     addr >> 1 & 0x3F8000 | addr & 0x7FFF
 }
 
-fn pc2snes(addr: usize) -> usize {
+pub fn pc2snes(addr: usize) -> usize {
     addr << 1 & 0xFF0000 | addr & 0xFFFF | 0x808000
 }
 
@@ -128,7 +128,7 @@ pub struct Patcher<'a> {
     pub other_door_ptr_pair_map: HashMap<DoorPtrPair, DoorPtrPair>,
 }
 
-fn xy_to_map_offset(x: isize, y: isize) -> isize {
+pub fn xy_to_map_offset(x: isize, y: isize) -> isize {
     let y1 = y + 1;
     if x < 32 {
         (y1 * 32 + x) * 2
@@ -461,14 +461,9 @@ impl<'a> Patcher<'a> {
     }
 
     fn write_map_tilemaps(&mut self) -> Result<()> {
-        let area_map_ptrs: Vec<isize> = vec![
-            0x1A9000, // Crateria
-            0x1A8000, // Brinstar
-            0x1AA000, // Norfair
-            0x1AB000, // Wrecked ship
-            0x1AC000, // Maridia
-            0x1AD000, // Tourian
-        ];
+        // Patch Aqueduct map Y position to include the toilet, for the purposes of determining 
+        // the map. We change it back later in `fix_twin_rooms`.
+        self.orig_rom.write_u8(0x7D5A7 + 3, self.orig_rom.read_u8(0x7D5A7 + 3)? - 4)?;
 
         // Determine upper-left corner of each area:
         let mut area_map_min_x = [isize::MAX; NUM_AREAS];
@@ -494,7 +489,7 @@ impl<'a> Patcher<'a> {
         }
 
         // Clear all map tilemap data:
-        for area_ptr in &area_map_ptrs {
+        for area_ptr in &self.game_data.area_map_ptrs {
             for i in 0..(64 * 32) {
                 self.rom.write_u16((area_ptr + i * 2) as usize, 0x001F)?;
             }
@@ -504,13 +499,10 @@ impl<'a> Patcher<'a> {
         for (i, room) in self.game_data.room_geometry.iter().enumerate() {
             let orig_area = self.orig_rom.read_u8(room.rom_address + 1)? as usize;
             let orig_base_x = self.orig_rom.read_u8(room.rom_address + 2)?;
-            let mut orig_base_y = self.orig_rom.read_u8(room.rom_address + 3)?;
-            if room.name == "Aqueduct" {
-                orig_base_y -= 4;
-            }
-            let orig_base_ptr = area_map_ptrs[orig_area];
+            let orig_base_y = self.orig_rom.read_u8(room.rom_address + 3)?;
+            let orig_base_ptr = self.game_data.area_map_ptrs[orig_area];
             let new_area = self.map.area[i];
-            let new_base_ptr = area_map_ptrs[new_area];
+            let new_base_ptr = self.game_data.area_map_ptrs[new_area];
             let new_margin_x = (64 - (area_map_max_x[new_area] - area_map_min_x[new_area])) / 2;
             let new_margin_y = (32 - (area_map_max_y[new_area] - area_map_min_y[new_area])) / 2;
             let new_base_x = self.map.rooms[i].0 as isize - area_map_min_x[new_area] + new_margin_x;
@@ -537,7 +529,10 @@ impl<'a> Patcher<'a> {
                 }
             }
         }
+        Ok(())
+    }
 
+    fn fix_twin_rooms(&mut self) -> Result<()> {
         // Fix map X & Y of Aqueduct and twin rooms:
         let old_aqueduct_x = self.rom.read_u8(0x7D5A7 + 2)?;
         let old_aqueduct_y = self.rom.read_u8(0x7D5A7 + 3)?;
@@ -555,7 +550,6 @@ impl<'a> Patcher<'a> {
         let west_ocean_y = self.rom.read_u8(0x793FE + 3)?;
         self.rom.write_u8(0x7968F + 2, west_ocean_x + 5)?;
         self.rom.write_u8(0x7968F + 3, west_ocean_y + 2)?;
-
         Ok(())
     }
 
@@ -923,6 +917,7 @@ pub fn make_rom(
     patcher.write_map_areas()?;
     patcher.make_map_revealed()?;
     patcher.apply_map_tile_patches()?;
+    patcher.fix_twin_rooms()?;
     patcher.write_door_data()?;
     patcher.remove_non_blue_doors()?;
     patcher.use_area_based_music()?;

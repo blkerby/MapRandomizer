@@ -178,6 +178,7 @@ pub struct GameData {
     pub room_idx_by_name: HashMap<String, RoomGeometryRoomIdx>,
     pub base_room_door_graph: RoomDoorGraph,
     pub area_names: Vec<String>,
+    pub area_map_ptrs: Vec<isize>,
 }
 
 impl<T: Hash + Eq> IndexedVec<T> {
@@ -1138,6 +1139,15 @@ impl GameData {
             "Maridia",
             "Tourian",
         ].into_iter().map(|x| x.to_owned()).collect();
+        game_data.area_map_ptrs = vec![
+            0x1A9000, // Crateria
+            0x1A8000, // Brinstar
+            0x1AA000, // Norfair
+            0x1AB000, // Wrecked ship
+            0x1AC000, // Maridia
+            0x1AD000, // Tourian
+        ];
+
         Ok(game_data)
     }
 }
