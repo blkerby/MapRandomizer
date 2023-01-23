@@ -43,7 +43,7 @@ pub struct SpoilerEscape {
     pub difficulty_multiplier: f32,
     pub raw_time_seconds: f32,
     pub final_time_seconds: f32,
-    pub animals_route: Vec<SpoilerEscapeRouteEntry>,
+    pub animals_route: Option<Vec<SpoilerEscapeRouteEntry>>,
     pub ship_route: Vec<SpoilerEscapeRouteEntry>,
 }
 
@@ -463,29 +463,29 @@ pub fn compute_escape_data(
     difficulty: &DifficultyConfig,
 ) -> SpoilerEscape {
     let graph = get_full_room_door_graph(game_data, map);
-    let animals_spoiler: Vec<SpoilerEscapeRouteEntry>;
+    let animals_spoiler: Option<Vec<SpoilerEscapeRouteEntry>>;
     let ship_spoiler: Vec<SpoilerEscapeRouteEntry>;
     let distance: usize;
     if difficulty.save_animals {
         let animals_path = get_shortest_path(graph.mother_brain_vertex_id, graph.animals_vertex_id, &graph);
-        animals_spoiler = get_spoiler_escape_route(&animals_path, &graph, &game_data);    
+        animals_spoiler = Some(get_spoiler_escape_route(&animals_path, &graph, &game_data));
         let ship_path = get_shortest_path(graph.animals_vertex_id, graph.ship_vertex_id, &graph);
         ship_spoiler = get_spoiler_escape_route(&ship_path, &graph, &game_data);
         distance = animals_path.last().unwrap().1 + ship_path.last().unwrap().1;
     } else {
-        animals_spoiler = vec![];
+        animals_spoiler = None;
         let ship_path = get_shortest_path(graph.mother_brain_vertex_id, graph.ship_vertex_id, &graph);
         ship_spoiler = get_spoiler_escape_route(&ship_path, &graph, &game_data);    
         distance = ship_path.last().unwrap().1;
     }
 
-    let time_per_distance: f32 = 1.5;
+    let time_per_distance: f32 = 2.0;
     let raw_time_seconds = distance as f32 * time_per_distance * difficulty.escape_timer_multiplier;
     let mut final_time_seconds = f32::ceil(raw_time_seconds / 5.0) * 5.0;
     if final_time_seconds > 5995.0 {
         final_time_seconds = 5995.0;
     }
-    // TODO: Calculate actual values.
+
     SpoilerEscape {
         distance: distance,
         time_per_distance: time_per_distance,

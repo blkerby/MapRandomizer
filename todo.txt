@@ -7,16 +7,13 @@ Release plan:
 TODO:
 - Finish Rust migration
     - Use resource multiplier
-    - Add areas to spoiler log
     - Write web service
     - Spoiler maps (use in-game map graphics)
-    - Finish dynamic ROM patches
-      - escape timer (and spoiler log)
 - Rust cleanup:
     - Use `serde_json` instead of `json` crate for loading sm-json-data.
     - Clean up error handling: get rid of a bunch of remaining unwrap()'s, etc.
-- at end of randomization, make sure G4 bosses are reachable (to guard against a case like Phantoon being locked being
-  Bowling).
+- at end of randomization, make sure G4 bosses are reachable (to guard against a case like Phantoon being locked behind
+  Bowling, or a G4 boss locked behind Mother Brain).
 - on web site, clarify some things about how logic works, e.g.
     - hellruns may be required if canHeatRun tech is enabled.
 - Make Gravity-only Samus palette different from Gravity+Varia.

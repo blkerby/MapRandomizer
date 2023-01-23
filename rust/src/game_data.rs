@@ -27,6 +27,7 @@ pub type TechId = usize; // Index into GameData.tech_isv.keys: distinct tech nam
 pub type ItemId = usize; // Index into GameData.item_isv.keys: 21 distinct item names
 pub type FlagId = usize; // Index into GameData.flag_isv.keys: distinct game flag names from sm-json-data
 pub type RoomId = usize; // Room ID from sm-json-data
+pub type RoomPtr = usize; // Room pointer (PC address of room header)
 pub type NodeId = usize; // Node ID from sm-json-data (only unique within a room)
 pub type NodePtr = usize; // nodeAddress from sm-json-data: for items this is the PC address of PLM, for doors it is PC address of door data
 pub type VertexId = usize; // Index into GameData.vertex_isv.keys: (room_id, node_id, obstacle_bitmask) combinations
@@ -138,10 +139,12 @@ pub struct RoomGeometry {
     pub transient_part_connections: Vec<(RoomGeometryPartIdx, RoomGeometryPartIdx)>,
 }
 
-// TODO: Clean this up, pulling out a separate structure to hold
-// temporary data used only during loading, and replacing any
+// TODO: Clean this up, e.g. pull out a separate structure to hold
+// temporary data used only during loading, replace any
 // remaining JsonValue types in the main struct with something
-// more structured.
+// more structured; also maybe unify the room geometry data
+// with sm-json-data and cut back on the amount of different 
+// keys/IDs/indexes for rooms, nodes, and doors.
 #[derive(Default)]
 pub struct GameData {
     sm_json_data_path: PathBuf,
@@ -170,8 +173,11 @@ pub struct GameData {
     pub links: Vec<Link>,
     pub room_geometry: Vec<RoomGeometry>,
     pub room_and_door_idxs_by_door_ptr_pair: HashMap<DoorPtrPair, (RoomGeometryRoomIdx, RoomGeometryDoorIdx)>,
+    pub room_ptr_by_id: HashMap<RoomId, RoomPtr>,
+    pub room_idx_by_ptr: HashMap<RoomPtr, RoomGeometryRoomIdx>,
     pub room_idx_by_name: HashMap<String, RoomGeometryRoomIdx>,
     pub base_room_door_graph: RoomDoorGraph,
+    pub area_names: Vec<String>,
 }
 
 impl<T: Hash + Eq> IndexedVec<T> {
@@ -764,6 +770,17 @@ impl GameData {
         let room_id = room_json["id"].as_usize().unwrap();
         self.room_json_map.insert(room_id, room_json.clone());
 
+        let mut room_ptr =
+            parse_int::parse::<usize>(room_json["roomAddress"].as_str().unwrap()).unwrap();
+        if room_ptr == 0x7D408 {
+            room_ptr = 0x7D5A7;  // Treat Toilet Bowl as part of Aqueduct
+        } else if room_ptr == 0x7D69A {
+            room_ptr = 0x7D646;  // Treat East Pants Room as part of Pants Room
+        } else if room_ptr == 0x7968F {
+            room_ptr = 0x793FE;  // Treat Homing Geemer Room as part of West Ocean
+        }
+        self.room_ptr_by_id.insert(room_id, room_ptr);
+
         // Process obstacles:
         let obstacles_idx_map: HashMap<String, usize> = if room_json.has_key("obstacles") {
             assert!(room_json["obstacles"].is_array());
@@ -1083,6 +1100,7 @@ impl GameData {
             for (door_idx, door) in room.doors.iter().enumerate() {
                 let door_ptr_pair = (door.exit_ptr, door.entrance_ptr);
                 self.room_and_door_idxs_by_door_ptr_pair.insert(door_ptr_pair, (room_idx, door_idx));
+                self.room_idx_by_ptr.insert(room.rom_address, room_idx);
             }
         }
         Ok(())
@@ -1112,6 +1130,14 @@ impl GameData {
             .load_room_geometry(room_geometry_path)
             .context("Unable to load room geometry")?;
         game_data.base_room_door_graph = get_base_room_door_graph(&game_data);
+        game_data.area_names = vec![
+            "Crateria",
+            "Brinstar",
+            "Norfair",
+            "Wrecked Ship",
+            "Maridia",
+            "Tourian",
+        ].into_iter().map(|x| x.to_owned()).collect();
         Ok(game_data)
     }
 }
