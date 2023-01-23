@@ -1,15 +1,20 @@
+Release plan:
+- v29: Rust migration
+- v30: Area-themed palettes
+- v31: Website improvements (save/export/import presets)
+- v32: Take ammo kills into account in logic, use boss scenarios
+
 TODO:
 - Finish Rust migration
     - Use resource multiplier
     - Add areas to spoiler log
-    - Use `serde_json` instead of `json` crate for loading sm-json-data.
-    - Clean up error handling: get rid of a bunch of remaining unwrap()'s, etc.
     - Write web service
     - Spoiler maps (use in-game map graphics)
     - Finish dynamic ROM patches
       - escape timer (and spoiler log)
-      - title screen
-      - reload CRE
+- Rust cleanup:
+    - Use `serde_json` instead of `json` crate for loading sm-json-data.
+    - Clean up error handling: get rid of a bunch of remaining unwrap()'s, etc.
 - at end of randomization, make sure G4 bosses are reachable (to guard against a case like Phantoon being locked being
   Bowling).
 - on web site, clarify some things about how logic works, e.g.
@@ -22,7 +27,6 @@ TODO:
     the placements to push unnecessary items further back.
       - Or just improve the current approach by rejecting cases where the set of bireachable item locations grows too
       slowly.
-- Fix internal server 500 errors due to aqueduct placement
 - Be more careful with requirements on farms
   - e.g. Zebbo farm in Plowerhouse Room is not really usable without heat-proof and some way to kill the the owls.
 - make some quality-of-life changes optional?:

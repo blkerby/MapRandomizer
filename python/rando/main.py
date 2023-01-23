@@ -373,12 +373,12 @@ def home():
                     <small><strong>Semiclosed</strong>: Key items are placed sparingly until the final stage of
                     item placement, tending to limit the player to a single intended progression sequence for much
                     of the game. Energy Tanks are placed in roughly a uniformly random way, as are additional Super and
-                    Power Bomb packs after the first pack.</small>                    
+                    Power Bomb packs after the first pack.</small>
                 </div>
                 <div class="form-group row my-2 mx-2">
                     <small><strong>Closed</strong>: Key items, tanks, and ammo (other than Missiles) are placed
                     sparingly until the final stage of item placement, tending to limit the player to a single intended
-                    progression sequence for much of the game.</small>
+                    progression sequence and limited resources for much of the game.</small>
                 </div>
                 <div class="form-group row my-2">
                   <label class="col-sm-2 col-form-label" for="preset">Skill assumption</label>

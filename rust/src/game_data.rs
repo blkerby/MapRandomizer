@@ -9,6 +9,7 @@ use std::hash::Hash;
 use std::path::{Path, PathBuf};
 use strum::VariantNames;
 use strum_macros::{EnumString, EnumVariantNames};
+use crate::randomize::escape_timer::{RoomDoorGraph, get_base_room_door_graph};
 
 #[derive(Deserialize, Clone)]
 pub struct Map {
@@ -36,7 +37,7 @@ pub type Capacity = i32; // Data type used to represent quantities of energy, am
 pub type DoorPtr = usize; // PC address of door data for exiting given door
 pub type DoorPtrPair = (Option<DoorPtr>, Option<DoorPtr>); // PC addresses of door data for exiting & entering given door (from vanilla door connection)
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct IndexedVec<T: Hash + Eq> {
     pub keys: Vec<T>,
     pub index_by_key: HashMap<T, usize>,
@@ -111,7 +112,7 @@ pub struct Link {
 
 // }
 
-#[derive(Deserialize, Default)]
+#[derive(Deserialize, Default, Clone)]
 pub struct RoomGeometryDoor {
     pub direction: String,
     pub x: usize,
@@ -121,11 +122,11 @@ pub struct RoomGeometryDoor {
     pub subtype: String,
 }
 
-type RoomGeometryRoomIdx = usize;
-type RoomGeometryDoorIdx = usize;
-type RoomGeometryPartIdx = usize;
+pub type RoomGeometryRoomIdx = usize;
+pub type RoomGeometryDoorIdx = usize;
+pub type RoomGeometryPartIdx = usize;
 
-#[derive(Deserialize, Default)]
+#[derive(Deserialize, Default, Clone)]
 pub struct RoomGeometry {
     pub name: String,
     pub area: usize,
@@ -170,6 +171,7 @@ pub struct GameData {
     pub room_geometry: Vec<RoomGeometry>,
     pub room_and_door_idxs_by_door_ptr_pair: HashMap<DoorPtrPair, (RoomGeometryRoomIdx, RoomGeometryDoorIdx)>,
     pub room_idx_by_name: HashMap<String, RoomGeometryRoomIdx>,
+    pub base_room_door_graph: RoomDoorGraph,
 }
 
 impl<T: Hash + Eq> IndexedVec<T> {
@@ -1109,6 +1111,7 @@ impl GameData {
         game_data
             .load_room_geometry(room_geometry_path)
             .context("Unable to load room geometry")?;
+        game_data.base_room_door_graph = get_base_room_door_graph(&game_data);
         Ok(game_data)
     }
 }

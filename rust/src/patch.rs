@@ -10,7 +10,7 @@ use crate::{
     randomize::Randomization,
 };
 use anyhow::{ensure, Context, Result};
-use hashbrown::HashMap;
+use hashbrown::{HashMap, HashSet};
 use ips;
 use std::iter;
 
@@ -772,7 +772,7 @@ impl<'a> Patcher<'a> {
     }
 
     fn setup_door_specific_fx(&mut self) -> Result<()> {
-        // Set up door-specific FX:
+        // Set up door-specific FX (which otherwise would get broken by the changes in door connections):
         let mut door_fx: HashMap<DoorPtrPair, usize> = HashMap::new();
         door_fx.insert((Some(0x19732), Some(0x1929A)), 0x8386D0); // Rising Tide left door: lava rising
         door_fx.insert((Some(0x1965A), Some(0x19672)), 0x838650); // Volcano Room left door: lava rising
@@ -834,8 +834,12 @@ impl<'a> Patcher<'a> {
         // In Shaktool room, skip setting screens to red scroll (so that it won't glitch out when entering from the right):
         self.rom.write_u8(snes2pc(0x84B8DC), 0x60)?; // RTS
 
-        // Stop wall from spawning in Tourian Escape Room 1: door direction = 4 (right)
-        self.rom.write_u8(snes2pc(0x83AA8F), 0x04)?;
+        // Stop wall from spawning in Tourian Escape Room 1: 
+        self.rom.write_u16(snes2pc(0x84BB34), 0x86BC)?;
+        self.rom.write_u16(snes2pc(0x84BB44), 0x86BC)?;
+        // Alternative way to stop the wall from spawning, but would need to be applied earlier to the 
+        // original ROM before the door data was rewritten:
+        // self.rom.write_u8(snes2pc(0x83AA8F), 0x04)?;  // Door direction = 0x04
 
         // Restore acid in Tourian Escape Room 4:
         self.rom.write_u16(snes2pc(0x8FDF03), 0xC953)?; // Vanilla setup ASM pointer (to undo effect of `no_explosions_before_escape` patch)
@@ -851,6 +855,37 @@ impl<'a> Patcher<'a> {
         let mut title_patcher = title::TitlePatcher::new(&mut self.rom);
         title_patcher.patch_title_background()?;
         title_patcher.patch_title_foreground()?;
+        Ok(())
+    }
+
+    fn setup_reload_cre(&mut self) -> Result<()> {
+        // Find the rooms connected to Kraid and Crocomire and set them to reload CRE, to prevent graphical glitches.
+        // Not sure if this is necessary for Crocomire, but the vanilla game does this so we do it to be safe.
+        let reload_cre_door_pairs: HashSet<DoorPtrPair> = [
+            (Some(0x191DA), Some(0x19252)),  // Kraid right door
+            (Some(0x191CE), Some(0x191B6)),  // Kraid left door
+            (Some(0x193DE), Some(0x19432)),  // Crocomire left door
+            (Some(0x193EA), Some(0x193D2)),  // Crocomire top door
+        ].into();
+        for (src_pair, dst_pair, _bidirectional) in &self.map.doors {
+            if reload_cre_door_pairs.contains(src_pair) {
+                let (room_idx, _door_idx) = self.game_data.room_and_door_idxs_by_door_ptr_pair[dst_pair];
+                self.rom.write_u8(self.game_data.room_geometry[room_idx].rom_address + 8, 2)?;
+            }
+            if reload_cre_door_pairs.contains(dst_pair) {
+                let (room_idx, _door_idx) = self.game_data.room_and_door_idxs_by_door_ptr_pair[src_pair];
+                self.rom.write_u8(self.game_data.room_geometry[room_idx].rom_address + 8, 2)?;
+            }
+        }
+        Ok(())
+    }
+
+    fn customize_escape_timer(&mut self) -> Result<()> {
+        let escape_time = self.randomization.spoiler_log.escape.final_time_seconds as isize;
+        let minutes = escape_time / 60;
+        let seconds = escape_time % 60;
+        self.rom.write_u8(snes2pc(0x809E21), (seconds % 10) + 16 * (seconds / 10))?;
+        self.rom.write_u8(snes2pc(0x809E22), (minutes % 10) + 16 * (minutes / 10))?;      
         Ok(())
     }
 }
@@ -892,7 +927,9 @@ pub fn make_rom(
     patcher.remove_non_blue_doors()?;
     patcher.use_area_based_music()?;
     patcher.setup_door_specific_fx()?;
+    patcher.setup_reload_cre()?;
     patcher.apply_title_screen_patches()?;
+    patcher.customize_escape_timer()?;
     patcher.apply_miscellaneous_patches()?;
     // TODO: add CRE reload for Kraid & Crocomire
     Ok(rom)
