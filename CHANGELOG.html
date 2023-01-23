@@ -5,10 +5,10 @@ about 15 seconds to load.
 
 <p><a href="https://version-29---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 29 (???)</a>:
 <ul>
-    <li>The randomizer is rewritten in Rust.
+    <li>The randomizer is rewritten in Rust. This is an internal change but it has some observable effects:
     <ul>
         <li>The randomization runs much faster.
-        <li>The implementation now allows more flexibility, allowing some logic issues to be resolved (more to come soon):
+        <li>Improved flexibility in the implementation allows some logic issues to be resolved (more to come soon):
         <ul>
             <li>The Baby Metroid drain is taken into account.
             <li>Reserve energy is taken into account properly. As a result, Reserve Tanks may now be placed as progression items
@@ -16,11 +16,10 @@ about 15 seconds to load.
             <li>The Shinespark minimum of 29 energy is taken into account properly, and as a result the logic assumes (and
             spoiler log shows) an initial maximum of 99 energy instead of 70.
         </ul>
-        <li>With a total overhaul like this, it is expected that some bugs are introduced. If you
+        <li>With an overhaul like this, it is expected that inevitably some bugs are introduced. If you
         notice problems, please let us know (on <a href="https://github.com/blkerby/MapRandomizer/issues">GitHub</a>
         or the <a href="https://discord.gg/Gc99YV2ZcB">Discord</a>)!
     </ul>
-    <li>The escape time is reduced by 25%.
     <li>The pause-menu map is now centered in the available space (instead of being skewed to the top-left corner).
     <li>Elevator tiles are restored to their vanilla form with blue/pink pixels indicating if they have been explored.
     <li>Minor changes to spoiler log:
@@ -29,6 +28,7 @@ about 15 seconds to load.
         <li>Escape route shows cumulative distance instead of distance on each step. If applicable, the routes
         to and from the animals are shown separately.
     </ul>
+    <li>(TODO:) Spoiler maps are now drawn using in-game map tiles, so they show items, saves, bosses, etc.
 </ul>
 
 <p><a href="https://version-28---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 28 (2022-01-10)</a>:

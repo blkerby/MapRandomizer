@@ -2,7 +2,10 @@ use std::mem::swap;
 
 use hashbrown::HashSet;
 
-use crate::game_data::{Item, Link, Requirement, WeaponMask, GameData, Capacity};
+use crate::{
+    game_data::{Capacity, GameData, Item, Link, Requirement, WeaponMask},
+    randomize::DifficultyConfig,
+};
 
 #[derive(Clone)]
 pub struct GlobalState {
@@ -84,11 +87,16 @@ fn validate_power_bombs(local: LocalState, global: &GlobalState) -> Option<Local
     }
 }
 
+fn multiply(amount: Capacity, difficulty: &DifficultyConfig) -> Capacity {
+    ((amount as f32) * difficulty.resource_multiplier) as Capacity
+}
+
 pub fn apply_requirement(
     req: &Requirement,
     global: &GlobalState,
     local: LocalState,
     reverse: bool,
+    difficulty: &DifficultyConfig,
 ) -> Option<LocalState> {
     match req {
         Requirement::Free => Some(local),
@@ -121,10 +129,10 @@ pub fn apply_requirement(
             if varia {
                 Some(new_local)
             } else if gravity {
-                new_local.energy_used += frames / 8;
+                new_local.energy_used += multiply(frames / 8, difficulty);
                 validate_energy(new_local, global)
             } else {
-                new_local.energy_used += frames / 4;
+                new_local.energy_used += multiply(frames / 4, difficulty);
                 validate_energy(new_local, global)
             }
         }
@@ -135,10 +143,10 @@ pub fn apply_requirement(
             if gravity {
                 Some(new_local)
             } else if varia {
-                new_local.energy_used += frames / 4;
+                new_local.energy_used += multiply(frames / 4, difficulty);
                 validate_energy(new_local, global)
             } else {
-                new_local.energy_used += frames / 2;
+                new_local.energy_used += multiply(frames / 2, difficulty);
                 validate_energy(new_local, global)
             }
         }
@@ -146,9 +154,9 @@ pub fn apply_requirement(
             let varia = global.items[Item::Varia as usize];
             let mut new_local = local;
             if varia {
-                new_local.energy_used += frames / 4;
+                new_local.energy_used += multiply(frames / 4, difficulty);
             } else {
-                new_local.energy_used += frames / 2;
+                new_local.energy_used += multiply(frames / 2, difficulty);
             }
             validate_energy(new_local, global)
         }
@@ -157,11 +165,11 @@ pub fn apply_requirement(
             let gravity = global.items[Item::Gravity as usize];
             let mut new_local = local;
             if gravity && varia {
-                new_local.energy_used += base_energy / 4;
+                new_local.energy_used += multiply(base_energy / 4, difficulty);
             } else if gravity || varia {
-                new_local.energy_used += base_energy / 2;
+                new_local.energy_used += multiply(base_energy / 2, difficulty);
             } else {
-                new_local.energy_used += base_energy;
+                new_local.energy_used += multiply(*base_energy, difficulty);
             }
             validate_energy(new_local, global)
         }
@@ -172,17 +180,17 @@ pub fn apply_requirement(
         // },
         Requirement::Missiles(count) => {
             let mut new_local = local;
-            new_local.missiles_used += count;
+            new_local.missiles_used += multiply(*count, difficulty);
             validate_missiles(new_local, global)
         }
         Requirement::Supers(count) => {
             let mut new_local = local;
-            new_local.supers_used += count;
+            new_local.supers_used += multiply(*count, difficulty);
             validate_supers(new_local, global)
         }
         Requirement::PowerBombs(count) => {
             let mut new_local = local;
-            new_local.power_bombs_used += count;
+            new_local.power_bombs_used += multiply(*count, difficulty);
             validate_power_bombs(new_local, global)
         }
         Requirement::EnergyRefill => {
@@ -255,7 +263,7 @@ pub fn apply_requirement(
         Requirement::And(reqs) => {
             let mut new_local = local;
             for req in reqs {
-                new_local = apply_requirement(req, global, new_local, reverse)?;
+                new_local = apply_requirement(req, global, new_local, reverse, difficulty)?;
             }
             Some(new_local)
         }
@@ -263,7 +271,8 @@ pub fn apply_requirement(
             let mut best_local = None;
             let mut best_cost = f32::INFINITY;
             for req in reqs {
-                if let Some(new_local) = apply_requirement(req, global, local, reverse) {
+                if let Some(new_local) = apply_requirement(req, global, local, reverse, difficulty)
+                {
                     let cost = compute_cost(new_local, global);
                     if cost < best_cost {
                         best_cost = cost;
@@ -276,7 +285,11 @@ pub fn apply_requirement(
     }
 }
 
-pub fn is_bireachable(global: &GlobalState, forward_local_state: &Option<LocalState>, reverse_local_state: &Option<LocalState>) -> bool {
+pub fn is_bireachable(
+    global: &GlobalState,
+    forward_local_state: &Option<LocalState>,
+    reverse_local_state: &Option<LocalState>,
+) -> bool {
     if forward_local_state.is_none() || reverse_local_state.is_none() {
         return false;
     }
@@ -324,7 +337,8 @@ pub fn traverse(
     num_vertices: usize,
     start_vertex_id: usize,
     reverse: bool,
-    _game_data: &GameData,  // May be used for debugging
+    difficulty: &DifficultyConfig,
+    _game_data: &GameData, // May be used for debugging
 ) -> TraverseResult {
     let mut result = TraverseResult {
         local_states: vec![None; num_vertices],
@@ -334,13 +348,17 @@ pub fn traverse(
     };
     result.local_states[start_vertex_id] = Some(LocalState::new());
     result.start_trail_ids[start_vertex_id] = Some(-1);
-    result.cost[start_vertex_id] = compute_cost(result.local_states[start_vertex_id].unwrap(), global);
+    result.cost[start_vertex_id] =
+        compute_cost(result.local_states[start_vertex_id].unwrap(), global);
 
     let mut links_by_src: Vec<Vec<(LinkIdx, Link)>> = vec![Vec::new(); num_vertices];
     for (idx, link) in links.iter().enumerate() {
         if reverse {
             let mut reversed_link = link.clone();
-            swap(&mut reversed_link.from_vertex_id, &mut reversed_link.to_vertex_id);
+            swap(
+                &mut reversed_link.from_vertex_id,
+                &mut reversed_link.to_vertex_id,
+            );
             links_by_src[reversed_link.from_vertex_id].push((idx as LinkIdx, reversed_link));
         } else {
             links_by_src[link.from_vertex_id].push((idx as LinkIdx, link.clone()));
@@ -357,7 +375,13 @@ pub fn traverse(
             for &(link_idx, ref link) in &links_by_src[src_id] {
                 let dst_id = link.to_vertex_id;
                 let dst_old_cost = result.cost[dst_id];
-                if let Some(dst_new_local_state) = apply_requirement(&link.requirement, global, src_local_state, reverse) {
+                if let Some(dst_new_local_state) = apply_requirement(
+                    &link.requirement,
+                    global,
+                    src_local_state,
+                    reverse,
+                    difficulty,
+                ) {
                     let dst_new_cost = compute_cost(dst_new_local_state, global);
                     if dst_new_cost < dst_old_cost {
                         let new_step_trail = StepTrail {
@@ -386,19 +410,19 @@ impl GlobalState {
         match item {
             Item::Missile => {
                 self.max_missiles += 5;
-            },
+            }
             Item::Super => {
                 self.max_supers += 5;
-            },
-            Item::PowerBomb => { 
+            }
+            Item::PowerBomb => {
                 self.max_power_bombs += 5;
-            },
+            }
             Item::ETank => {
                 self.max_energy += 100;
-            },
+            }
             Item::ReserveTank => {
                 self.max_reserves += 100;
-            },
+            }
             _ => {}
         }
         self.weapon_mask = game_data.get_weapon_mask(&self.items);

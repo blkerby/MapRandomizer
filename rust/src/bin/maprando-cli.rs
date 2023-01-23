@@ -25,6 +25,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         shine_charge_tiles: 16,
         item_placement_strategy: ItemPlacementStrategy::Closed,
         // item_placement_strategy: ItemPlacementStrategy::Semiclosed,
+        resource_multiplier: 1.0,
         escape_timer_multiplier: 1.0,
         save_animals: false,
     };

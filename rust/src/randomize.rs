@@ -29,6 +29,7 @@ pub struct DifficultyConfig {
     pub tech: Vec<String>,
     pub shine_charge_tiles: i32,
     pub item_placement_strategy: ItemPlacementStrategy,
+    pub resource_multiplier: f32,
     pub escape_timer_multiplier: f32,
     pub save_animals: bool,
 }
@@ -87,7 +88,7 @@ struct SelectItemsOutput {
 }
 
 struct VertexInfo {
-    // area_name: String,   // TODO: add this
+    area_name: String,
     room_name: String,
     node_name: String,
 }
@@ -179,6 +180,7 @@ impl<'r> Randomizer<'r> {
             num_vertices,
             start_vertex_id,
             false,
+            self.difficulty,
             self.game_data,
         );
         let reverse = traverse(
@@ -187,6 +189,7 @@ impl<'r> Randomizer<'r> {
             num_vertices,
             start_vertex_id,
             true,
+            self.difficulty,
             self.game_data,
         );
         for (i, vertex_ids) in self.game_data.item_vertex_ids.iter().enumerate() {
@@ -659,6 +662,7 @@ impl<'r> Randomizer<'r> {
 
 #[derive(Serialize, Deserialize)]
 pub struct SpoilerRouteEntry {
+    area: String,
     room: String,
     node: String,
     strat_name: String,
@@ -676,7 +680,7 @@ pub struct SpoilerRouteEntry {
 
 #[derive(Serialize, Deserialize)]
 pub struct SpoilerLocation {
-    // area: String,
+    area: String,
     room: String,
     node: String,
 }
@@ -745,7 +749,11 @@ pub struct SpoilerLog {
 impl<'a> Randomizer<'a> {
     fn get_vertex_info(&self, vertex_id: usize) -> VertexInfo {
         let (room_id, node_id, _obstacle_bitmask) = self.game_data.vertex_isv.keys[vertex_id];
+        let room_ptr = self.game_data.room_ptr_by_id[&room_id];
+        let room_idx = self.game_data.room_idx_by_ptr[&room_ptr];
+        let area = self.map.area[room_idx];
         VertexInfo {
+            area_name: self.game_data.area_names[area].clone(),
             room_name: self.game_data.room_json_map[&room_id]["name"]
                 .as_str()
                 .unwrap()
@@ -786,13 +794,14 @@ impl<'a> Randomizer<'a> {
         global_state: &GlobalState,
         local_state: &mut LocalState,
         link_idxs: &[LinkIdx],
+        difficulty: &DifficultyConfig,
     ) -> Vec<SpoilerRouteEntry> {
         let mut route: Vec<SpoilerRouteEntry> = Vec::new();
         for &link_idx in link_idxs {
             let link = &self.links[link_idx as usize];
             let to_vertex_info = self.get_vertex_info(link.to_vertex_id);
             let new_local_state =
-                apply_requirement(&link.requirement, &global_state, *local_state, false).unwrap();
+                apply_requirement(&link.requirement, &global_state, *local_state, false, difficulty).unwrap();
             let energy_remaining: Option<Capacity> =
                 if new_local_state.energy_used != local_state.energy_used {
                     Some(global_state.max_energy - new_local_state.energy_used)
@@ -825,6 +834,7 @@ impl<'a> Randomizer<'a> {
                 };
 
             route.push(SpoilerRouteEntry {
+                area: to_vertex_info.area_name,
                 room: to_vertex_info.room_name,
                 node: to_vertex_info.node_name,
                 strat_name: link.strat_name.clone(),
@@ -854,9 +864,9 @@ impl<'a> Randomizer<'a> {
             get_spoiler_route(&state.debug_data.as_ref().unwrap().reverse, vertex_id, true);
         let mut local_state = LocalState::new();
         let obtain_route =
-            self.get_spoiler_route(&state.global_state, &mut local_state, &forward_link_idxs);
+            self.get_spoiler_route(&state.global_state, &mut local_state, &forward_link_idxs, self.difficulty);
         let return_route =
-            self.get_spoiler_route(&state.global_state, &mut local_state, &reverse_link_idxs);
+            self.get_spoiler_route(&state.global_state, &mut local_state, &reverse_link_idxs, self.difficulty);
         (obtain_route, return_route)
     }
 
@@ -872,7 +882,7 @@ impl<'a> Randomizer<'a> {
         SpoilerItemDetails {
             item: Item::VARIANTS[item as usize].to_string(),
             location: SpoilerLocation {
-                // TODO: Add area
+                area: item_vertex_info.area_name,
                 room: item_vertex_info.room_name,
                 node: item_vertex_info.node_name,
             },
@@ -891,7 +901,7 @@ impl<'a> Randomizer<'a> {
         SpoilerItemSummary {
             item: Item::VARIANTS[item as usize].to_string(),
             location: SpoilerLocation {
-                // TODO: Add area
+                area: item_vertex_info.area_name,
                 room: item_vertex_info.room_name,
                 node: item_vertex_info.node_name,
             },
@@ -910,7 +920,7 @@ impl<'a> Randomizer<'a> {
         SpoilerFlagDetails {
             flag: self.game_data.flag_isv.keys[flag_id].to_string(),
             location: SpoilerLocation {
-                // TODO: Add area
+                area: flag_vertex_info.area_name,
                 room: flag_vertex_info.room_name,
                 node: flag_vertex_info.node_name,
             },
