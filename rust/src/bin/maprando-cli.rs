@@ -25,6 +25,8 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         shine_charge_tiles: 16,
         item_placement_strategy: ItemPlacementStrategy::Closed,
         // item_placement_strategy: ItemPlacementStrategy::Semiclosed,
+        escape_timer_multiplier: 1.0,
+        save_animals: false,
     };
     let randomizer = Randomizer::new(&map, &difficulty, &game_data);
     let mut rng = rand::rngs::StdRng::from_seed([0; 32]);

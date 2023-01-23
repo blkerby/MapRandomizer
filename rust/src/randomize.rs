@@ -1,3 +1,5 @@
+pub mod escape_timer;
+
 use crate::{
     game_data::{self, Capacity, FlagId, Item, ItemLocationId, Link, Map, VertexId},
     traverse::{
@@ -13,6 +15,8 @@ use strum::VariantNames;
 
 use crate::game_data::GameData;
 
+use self::escape_timer::SpoilerEscape;
+
 #[derive(Clone)]
 pub enum ItemPlacementStrategy {
     Open,
@@ -25,6 +29,8 @@ pub struct DifficultyConfig {
     pub tech: Vec<String>,
     pub shine_charge_tiles: i32,
     pub item_placement_strategy: ItemPlacementStrategy,
+    pub escape_timer_multiplier: f32,
+    pub save_animals: bool,
 }
 
 // Includes preprocessing specific to the map:
@@ -202,11 +208,13 @@ impl<'r> Randomizer<'r> {
         }
         for (i, vertex_ids) in self.game_data.flag_vertex_ids.iter().enumerate() {
             for &v in vertex_ids {
-                if !state.flag_location_state[i].bireachable && is_bireachable(
-                    &state.global_state,
-                    &forward.local_states[v],
-                    &reverse.local_states[v],
-                ) {
+                if !state.flag_location_state[i].bireachable
+                    && is_bireachable(
+                        &state.global_state,
+                        &forward.local_states[v],
+                        &reverse.local_states[v],
+                    )
+                {
                     state.flag_location_state[i].bireachable = true;
                     state.flag_location_state[i].bireachable_vertex_id = Some(v);
                 }
@@ -406,7 +414,11 @@ impl<'r> Randomizer<'r> {
         assert!(idx == remaining_items.len());
     }
 
-    fn step<R: Rng>(&self, state: &mut RandomizationState, rng: &mut R) -> Option<(SpoilerSummary, SpoilerDetails)> {
+    fn step<R: Rng>(
+        &self,
+        state: &mut RandomizationState,
+        rng: &mut R,
+    ) -> Option<(SpoilerSummary, SpoilerDetails)> {
         let orig_global_state = state.global_state.clone();
         let mut spoiler_flag_summaries: Vec<SpoilerFlagSummary> = Vec::new();
         let mut spoiler_flag_details: Vec<SpoilerFlagDetails> = Vec::new();
@@ -419,9 +431,18 @@ impl<'r> Randomizer<'r> {
                 }
                 if state.flag_location_state[i].bireachable {
                     any_new_flag = true;
-                    let flag_vertex_id = state.flag_location_state[i].bireachable_vertex_id.unwrap();
-                    spoiler_flag_summaries.push(self.get_spoiler_flag_summary(&state, flag_vertex_id, flag_id));
-                    spoiler_flag_details.push(self.get_spoiler_flag_details(&state, flag_vertex_id, flag_id));
+                    let flag_vertex_id =
+                        state.flag_location_state[i].bireachable_vertex_id.unwrap();
+                    spoiler_flag_summaries.push(self.get_spoiler_flag_summary(
+                        &state,
+                        flag_vertex_id,
+                        flag_id,
+                    ));
+                    spoiler_flag_details.push(self.get_spoiler_flag_details(
+                        &state,
+                        flag_vertex_id,
+                        flag_id,
+                    ));
                     state.global_state.flags[flag_id] = true;
                 }
             }
@@ -506,8 +527,14 @@ impl<'r> Randomizer<'r> {
             // println!("attempt failed");
             attempt_num += 1;
         }
-        let spoiler_summary = self.get_spoiler_summary(&orig_global_state, state, &new_state, spoiler_flag_summaries);
-        let spoiler_details = self.get_spoiler_details(&orig_global_state, state, &new_state, spoiler_flag_details);
+        let spoiler_summary = self.get_spoiler_summary(
+            &orig_global_state,
+            state,
+            &new_state,
+            spoiler_flag_summaries,
+        );
+        let spoiler_details =
+            self.get_spoiler_details(&orig_global_state, state, &new_state, spoiler_flag_details);
         *state = new_state;
         Some((spoiler_summary, spoiler_details))
     }
@@ -523,8 +550,10 @@ impl<'r> Randomizer<'r> {
             .iter()
             .map(|x| x.placed_item.unwrap())
             .collect();
+        let spoiler_escape = escape_timer::compute_escape_data(self.game_data, self.map, self.difficulty);
         let spoiler_log = SpoilerLog {
             summary: spoiler_summaries,
+            escape: spoiler_escape,
             details: spoiler_details,
         };
         Randomization {
@@ -574,7 +603,10 @@ impl<'r> Randomizer<'r> {
                 initial_item_location_state;
                 self.game_data.item_locations.len()
             ],
-            flag_location_state: vec![initial_flag_location_state; self.game_data.flag_locations.len()],
+            flag_location_state: vec![
+                initial_flag_location_state;
+                self.game_data.flag_locations.len()
+            ],
             items_remaining: self.initial_items_remaining.clone(),
             global_state: initial_global_state,
             done: false,
@@ -698,15 +730,16 @@ pub struct SpoilerFlagSummary {
 
 #[derive(Serialize, Deserialize)]
 pub struct SpoilerSummary {
-    step: usize,
-    flags: Vec<SpoilerFlagSummary>,
-    items: Vec<SpoilerItemSummary>,
+    pub step: usize,
+    pub flags: Vec<SpoilerFlagSummary>,
+    pub items: Vec<SpoilerItemSummary>,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct SpoilerLog {
-    summary: Vec<SpoilerSummary>,
-    details: Vec<SpoilerDetails>,
+    pub summary: Vec<SpoilerSummary>,
+    pub escape: SpoilerEscape,
+    pub details: Vec<SpoilerDetails>,
 }
 
 impl<'a> Randomizer<'a> {
@@ -901,8 +934,8 @@ impl<'a> Randomizer<'a> {
 
     fn get_spoiler_details(
         &self,
-        orig_global_state: &GlobalState,   // Global state before acquiring new flags
-        state: &RandomizationState,  // State after acquiring new flags but not new items
+        orig_global_state: &GlobalState, // Global state before acquiring new flags
+        state: &RandomizationState,      // State after acquiring new flags but not new items
         new_state: &RandomizationState,  // State after acquiring new flags and new items
         spoiler_flag_details: Vec<SpoilerFlagDetails>,
     ) -> SpoilerDetails {
@@ -931,9 +964,9 @@ impl<'a> Randomizer<'a> {
 
     fn get_spoiler_summary(
         &self,
-        _orig_global_state: &GlobalState,   // Global state before acquiring new flags
-        state: &RandomizationState,  // State after acquiring new flags but not new items
-        new_state: &RandomizationState,  // State after acquiring new flags and new items
+        _orig_global_state: &GlobalState, // Global state before acquiring new flags
+        state: &RandomizationState,       // State after acquiring new flags but not new items
+        new_state: &RandomizationState,   // State after acquiring new flags and new items
         spoiler_flag_summaries: Vec<SpoilerFlagSummary>,
     ) -> SpoilerSummary {
         let mut items: Vec<SpoilerItemSummary> = Vec::new();
@@ -957,5 +990,4 @@ impl<'a> Randomizer<'a> {
             flags: spoiler_flag_summaries,
         }
     }
-
 }
