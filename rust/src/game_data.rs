@@ -179,6 +179,7 @@ pub struct GameData {
     pub base_room_door_graph: RoomDoorGraph,
     pub area_names: Vec<String>,
     pub area_map_ptrs: Vec<isize>,
+    pub tech_description: HashMap<String, String>,
 }
 
 impl<T: Hash + Eq> IndexedVec<T> {
@@ -221,6 +222,17 @@ impl GameData {
             .as_str()
             .context("Missing 'name' in tech")?;
         self.tech_isv.add(name);
+
+        let desc = if tech_json["note"].is_string() {
+            tech_json["note"].as_str().unwrap().to_string()
+        } else if tech_json["note"].is_array() {
+            let notes: Vec<String> = tech_json["note"].members().map(|x| x.as_str().unwrap().to_string()).collect();
+            notes.join(" ")
+        } else {
+            String::new()
+        };
+
+        self.tech_description.insert(name.to_string(), desc);
         self.tech_json_map
             .insert(name.to_string(), tech_json.clone());
         if tech_json.has_key("extensionTechs") {

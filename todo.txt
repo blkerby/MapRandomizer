@@ -10,6 +10,7 @@ TODO:
 - Rust cleanup:
     - Use `serde_json` instead of `json` crate for loading sm-json-data.
     - Clean up error handling: get rid of a bunch of remaining unwrap()'s, etc.
+- make option for music: vanilla, area-themed, or none
 - at end of randomization, make sure G4 bosses are reachable (to guard against a case like Phantoon being locked behind
   Bowling, or a G4 boss locked behind Mother Brain).
 - on web site, clarify some things about how logic works, e.g.
