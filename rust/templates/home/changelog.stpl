@@ -1,0 +1,341 @@
+<div>
+<strong>Note</strong>: Previous versions of the rando can be accessed by clicking the links below. These may take
+about 15 seconds to load.
+<br><br>
+
+<p><a href="https://version-29---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 29 (???)</a>:
+<ul>
+    <li>The randomizer is rewritten in Rust. This is an internal change but it has some observable effects:
+    <ul>
+        <li>The randomization runs much faster.
+        <li>Improved flexibility in the implementation allows some logic issues to be resolved (more to come soon):
+        <ul>
+            <li>The Baby Metroid drain is taken into account.
+            <li>Reserve energy is taken into account properly. As a result, Reserve Tanks may now be placed as progression items
+            (Previously they were the only item that could not be; they would only be placed at the end.)
+            <li>The Shinespark minimum of 29 energy is taken into account properly, and as a result the logic assumes (and
+            spoiler log shows) an initial maximum of 99 energy instead of 70.
+        </ul>
+        <li>With an overhaul like this, it is expected that inevitably some bugs are introduced. If you
+        notice problems, please let us know (on <a href="https://github.com/blkerby/MapRandomizer/issues">GitHub</a>
+        or the <a href="https://discord.gg/Gc99YV2ZcB">Discord</a>)!
+    </ul>
+    <li>The pause-menu map is now centered in the available space (instead of being skewed to the top-left corner).
+    <li>Elevator tiles are restored to their vanilla form with blue/pink pixels indicating if they have been explored.
+    <li>Minor changes to spoiler log:
+    <ul>
+        <li>Routes show total resources remaining (e.g., energy, Missiles, etc.) instead of resources consumed in a given step.
+        <li>Escape route shows cumulative distance instead of distance on each step. If applicable, the routes
+        to and from the animals are shown separately.
+    </ul>
+    <li>(TODO:) Spoiler maps are now drawn using in-game map tiles, so they show items, saves, bosses, etc.
+</ul>
+
+<p><a href="https://version-28---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 28 (2022-01-10)</a>:
+<ul>
+    <li>Overhaul of the item placement algorithm:
+    <ul>
+        <li>The algorithm now runs faster, especially on Easy and Open modes, which should greatly reduce or eliminate
+        timeouts that were common before.
+        <li>Key items are now only placed at locations that are both able to be reached from the Ship and able to
+        return back to the Ship without the use of the new item.
+        <ul>
+            <li>This means it is now less likely for a player to need to take a leap of faith down a path that they
+            apparently cannot return from.
+            <li>Note, however, that the return path back to the Ship doesn't necessarily need to be the same as the
+            path to the item from the Ship. This means that in some cases a leap of faith can still be required,
+            unless the player has enough map information to either identify or rule out the possibility of a return
+            path back to the Ship with their current items.
+        </ul>
+        <li>The structure of the spoiler log is updated: consistent with the new placement algorithm, for each key
+        item a possible route is indicated for how to get from the Ship to the item and back.
+        <li>Various quirks of the old algorithm are eliminated:
+        <ul>
+            <li>Key items are no longer biased to be placed in rooms with obstacles such as Big Pink.
+            <li>It should no longer happen that extra unnecessary key items are sometimes dumped right at the beginning
+            of the game (which occasionally happened before).
+        </ul>
+    </ul>
+    <li>A new item placement strategy "Semiclosed" is added:
+    <ul>
+        <li>This is similar to "Closed" except it does not have the same tendency to withhold Energy Tanks and
+            additional Supers & Power Bombs (only the first Supers and PowerBombs).
+        <li>See the updated descriptions of all three item placement strategies.
+    </ul>
+    <li>When going down Warehouse Entrance elevator, an elevator map tile is revealed which was previously missed.
+</ul>
+
+<p><a href="https://version-27---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 27 (2022-01-08)</a>:
+<ul>
+    <li>Enable Bowling Alley chozo during escape (to be able to activate bowling).
+    <li>Adjustments to escape timer, which overall make it more lenient:
+    <ul>
+        <li>Make corrections to distances for rooms where a straight-shot path is not possible.
+        <li>Simplify the computation to assume a speed of 2.0 seconds per unit of map-tile Manhattan distance
+        on Expert settings (eliminated an upper-confidence limit calculation that was used before).
+        <li>Adjust the difficulty presets so that the default escape timer multipliers align with resource multipliers
+        (with Expert now having a multiplier of 1.0).
+    </ul>
+</ul>
+
+<p><a href="https://version-26---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 26 (2022-01-06)</a>:
+<ul>
+    <li>Fix the far right platform in Mother Brain Room to be solid tiles instead of slopes,
+        to avoid the possibility of falling through the tiles and being trapped by running into the room (since
+        the attempted fix in Version 19 didn't go through).
+    <li>Fix the area names in the spoiler log.
+    <li>Logic updates from sm-json-data (<a href="https://github.com/kjbranch/sm-json-data/compare/5339470..6bef471cc81db2c857c619a29c1dff326215f992">diff</a>).
+</ul>
+
+<p><a href="https://version-25---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 25 (2023-01-04)</a>:
+<ul>
+    <li>Arrows on the pause menu map are colored according to the destination area:
+    <ul>
+        <li>Dark gray = Crateria
+        <li>Green = Brinstar
+        <li>Red = Norfair
+        <li>Yellow = Wrecked Ship
+        <li>Blue = Maridia
+        <li>Light gray = Tourian
+    </ul>
+</ul>
+
+<p><a href="https://version-24---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 24 (2023-01-03)</a>:
+<ul>
+    <li>When Samus dies, skip game over screens, reloading immediately from last save.
+    <li>Reload from last save during gameplay by pressing L + R + Select + Start.
+</ul>
+
+<p><a href="https://version-23---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 23 (2023-01-03)</a>:
+<ul>
+    <li>A couple improvements applicable before acquiring the area map:
+    <ul>
+        <li>When using elevators, mark its tiles explored (fixes a gap in map tiles which previously affected elevators).
+        <li>When crossing areas, mark the corresponding arrow tiles as explored.
+    </ul>
+    <li>Restore the vanilla message box font (which was unintentionally changed in Version 19 as a side effect of the
+        new map patch).
+</ul>
+
+<p><a href="https://version-22---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 22 (2023-01-02)</a>:
+<ul>
+    <li>Fix crash that happened in Version 21 when picking up X-Ray.
+</ul>
+
+<p><a href="https://version-21---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 21 (2023-01-02)</a>:
+<ul>
+    <li>Escape timer is tailored to the seed based on the distance back to the ship.
+    <ul>
+        <li>A multiplier is available under "Customize skill assumptions" to adjust the escape time.
+        <li>An option is available to include the extra distance needed for saving the animals.
+    </ul>
+    <li>Samus collects & equips all items (excluding beams, ammo, and tanks) when acquiring Hyper Beam.
+    <ul>
+        <li>Items collected in this way do not count toward the "rate for collecting items" shown after the credits.
+    </ul>
+</ul>
+
+<p><a href="https://version-20---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 20 (2023-01-01)</a>:
+<ul>
+<li>During the Kraid, Draygon, Ridley, and Golden Torizo fights, restore gray door locks, making it no longer
+    possible to run through the room without defeating the boss.
+    <ul>
+        <li>The door through which you entered is kept blue, so it is still possible to back out of the fight.</li>
+    </ul>
+<li>Allow Samus to move freely during the Kraid fight (instead of being constrained to the left half of the room
+    during the first phase), making it possible to exit to the right if you entered from that direction.
+    <ul>
+        <li><strong>Note</strong>: The camera is still constrained to bottom screens during the first phase of the
+        fight, which means it is possible for Samus to go off-camera here.
+    </ul>
+<li>During the escape, allow passage through the Acid Statue room (by spawning the Acid Chozo "enemy"
+    that stopped spawning in Version 19).
+</ul>
+
+
+<p><a href="https://version-19---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 19 (2022-12-30)</a>:
+<ul>
+<li>During the escape, enemies and bosses no longer spawn.
+<li>During the escape, entering Kraid's room no longer cancels the escape music.
+<li>Fixed glitched graphics when pausing during Kraid fight (caused by map changes in version 18).
+<li>Fixed some issues with the Mother Brain room:
+    <ul>
+        <li>Prevent (non-existent) door from closing when entering the room from the left.
+        <li>Fixed the far right platform to be solid tiles instead of slopes,
+            to avoid the possibility of falling through the tiles and being trapped by running into the room.
+        <li>During the escape, the escape door on the left is now always open.
+        <li>During the escape, the invisible spike tiles where Mother Brain used to be are now gone.
+    </ul>
+<li>Corrected a few map tiles: right door in Fish Tank, item dot in West Ocean, and passage in Green Hills (errors in version 18).
+<li>The map station on the title screen is animated.
+</ul>
+
+
+<p><a href="https://version-18---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 18 (2022-12-29)</a>:
+<ul>
+<li>Improvements to map/mini-map:
+    <ul>
+        <li>Doors are shown as 2-pixel-wide openings (vs. as solid walls in vanilla).
+        <li>False walls/passageways within rooms are shown as 4-pixel-wide openings (vs. as solid walls in vanilla).
+    </ul>
+</ul>
+
+<p><a href="https://version-17---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 17 (2022-12-27)</a>:
+<ul>
+<li>Music is based on map area! (This causes some glitches with sound effects which can be fixed later.)
+</ul>
+
+<p><a href="https://version-16---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 16 (2022-12-26)</a>:
+<ul>
+<li>Tech is partially cleaned up and grouped by difficulty for easier navigation.
+<li>Logic updates (<a href="https://github.com/kjbranch/sm-json-data/compare/5339470..6bef471cc81db2c857c619a29c1dff326215f992">diff</a>).
+</ul>
+
+<p><a href="https://version-15---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 15 (2022-12-26)</a>:
+<ul>
+<li>Refining the behavior introduced in version 10 on how Phantoon's Room is placed:
+    <ul>
+        <li>Phantoon's Room will always be two rooms away from the Wrecked Ship Map Room (which is as close as possible).
+        <li>The Wrecked Ship Save Room will always be in the same area as Phantoon's Room and the Wrecked Ship Map Room.
+        <li>These rooms no longer have any tendency to be in a smaller area.
+        <li>They can still be in an area with any name, including possibly Crateria.
+    </ul>
+<li>Bugfix: Include Frog Savestation in the algorithm for balancing save stations.
+<li>Include good farm rooms (those with 5x Gamet spawns) in the algorithm for balancing refills.
+<li>Add "Map Rando" to the title screen.
+</ul>
+
+<p><a href="https://version-14---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 14 (2022-12-24)</a>:
+<ul>
+<li>With the rolling save functionality introduced in version 13, also advance the current save slot. This ensures
+    that after a reset the default save slot to load will be the one most recently saved.
+</ul>
+
+<p><a href="https://version-13---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 13 (2022-12-23)</a>:
+<ul>
+<li>Supers now do double damage to Mother Brain 2.
+<li>Saving at a different save station from the last save will advance to the next slot before saving (wrapping
+    back to slot 1 if the last save was on slot 3).
+<li>Fix graphical glitches that sometimes occurred when leaving Phantoon's Room before defeating Phantoon.
+</ul>
+
+<p><a href="https://version-12---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 12 (2022-12-23)</a>:
+<ul>
+<li>Fix an issue that caused new games (other than the first new game) to start at the wrong save location.
+<li>Fix graphical glitches that sometimes occurred when leaving Crocomire's Room before defeating Crocomire.
+</ul>
+
+<p><a href="https://version-11---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 11 (2022-12-22)</a>:
+<ul>
+<li>Using a Missile Refill station refills all ammo types: Missiles, Supers, and Power Bombs.
+<li>The current tile can be un-explored (i.e., turned back to black/blue on the map) by pressing Angle Up and Item Cancel
+    simultaneously. To be effective, these inputs must be held while exiting the tile, since otherwise the game will
+    immediately re-explore the tile.
+<li>Max ammo is shown in the HUD.
+<li>Restore rising acid in Tourian Escape Room 4 (unintentionally removed in version 8).
+</ul>
+
+<p><a href="https://version-10---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 10 (2022-12-21)</a>:
+<ul>
+<li>Replace the special behavior for Wrecked Ship introduced in version 9 with the following instead:
+    <ul>
+        <li>The Wrecked Ship Map Room and Wrecked Ship Save Room will always be in the same area as Phantoon's Room.
+        <li>The area with Phantoon's Room will tend to be smaller than the other areas.
+        <li><strong>Note</strong>: Phantoon's Room can once again be in any area, including Crateria.
+    </ul>
+<li>A new "-config.json" file is added to the returned ZIP, containing details about the version, random seed, and
+    difficulty config used to generate the ROM.
+</ul>
+
+<p><a href="https://version-9---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 9 (2022-12-21)</a>:
+<ul>
+<li>Spread out the distribution of Save Room and Refill Rooms more evenly.
+<li>Add special behavior for the Wrecked Ship area:
+    <ul>
+        <li>Phantoon's Room will always be in Wrecked Ship.
+        <li>The Wrecked Ship Map Station will always be in Wrecked Ship.
+        <li>Wrecked Ship will tend to be smaller than the other areas.
+    </ul>
+<li>Various corrections to the logic used for item placement (<a href="https://github.com/kjbranch/sm-json-data/compare/a544435..5339470">diff</a>).
+</ul>
+
+<p><a href="https://version-8---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 8 (2022-12-19)</a>:
+<ul>
+<li>Add blue door in Tourian Eye Door Room, removing Gadora graphics.
+<li>Remove explosions & shaking in Tourian Escape rooms when not in escape sequence.
+<li>Restore sandfall layouts to be more similar to vanilla game, with only minimal changes to ensure safe transitions.
+<li>Remove the wall that spawned when entering Tourian Escape Room 1 from the right.
+<li>Set up door-specific FX correctly (applicable when entering rooms through a certain door):
+    <ul>
+        <li>Rising Tide left door: lava rises
+        <li>Volcano Room left door: lava rises and room is heated
+        <li>Speed Booster Hall right door: lava rises if Speed Booster is collected (Note: only happens until completed
+        once, and the lava will never rise or be high when entering from the left.)
+        <li>Acid Statue Room bottom-right door: acid is lowered
+        <li>Amphitheatre right door: acid is raised
+        <li>Climb bottom-left door: disable door-specific FX from the vanilla game, to prevent the
+            lava from rising when entering from Tourian Escape Room 4 (except during the escape).
+    </ul>
+</ul>
+
+<p><a href="https://version-7---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 7 (2022-12-18)</a>:
+<ul>
+<li>Map station tiles are visible from the start of the game.
+<li>Spoiler log is simplified; areas and a summary section are added.
+<li>Fixed bug in West Ocean that caused Tripper graphics to be messed up and G4 statues sounds to play.
+<li>Fix Wrecked Ship Save Room, which had a broken map instead of a usable save station (bug introduced in version 6).
+<li>Minor graphical fixes to map: fix external wall in Lower Norfair Firefleas Room, and remove an item dot from
+    Big Pink that wasn't supposed to be there.
+</ul>
+
+<p><a href="https://version-6---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 6 (2022-12-17)</a>:
+<ul>
+<li>Upper Tourian Save Room is replaced with a map station.
+<li>Entering Tourian First Room no longer gives the area map.
+<li>Each area gets exactly one map station.
+<li>Cross-region arrow markers are added, becoming visible after getting the area map.
+<li>Fixed a problem where the new tiles (e.g., the concentric square map tile) overwrote water graphics.
+</ul>
+
+<p><a href="https://version-5---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 5 (2022-12-16)</a>:
+<ul>
+<li>Fixed graphics after leaving Kraid.
+<li>Unlocked camera in Spore Spawn Room so that entering from the right with Spore Spawn alive does not glitch the graphics.
+<li>Fixed graphics when entering Shaktool Room from the right (before Shaktool finishes digging).
+<li>Changes to make the in-game map more informative (more to come soon):
+    <ul>
+        <li>Refill stations (and the Ship) are marked by "+"-shaped tiles.
+        <li>Map stations are marked by concentric square-shaped tiles.
+        <li>G4 bosses and Mother Brain are marked by "X"-shaped tiles.
+        <li>Items are consistently marked by a dot (and only tiles with an item have a dot).
+        <li>Walls within a room are now consistently one pixel wide on the map.
+        <li>Walls between rooms are now consistently two pixels wide on the map.
+    </ul>
+<li>Added a description of Open/Closed item placement, and a link to the new <a href="https://discord.gg/Gc99YV2ZcB">Discord</a> server.
+</ul>
+
+<p><a href="https://version-4---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 4 (2022-12-14)</a>:
+<ul>
+<li>Mother Brain rainbow beam no longer drains ammo (in case ammo is needed in the escape).
+<li>Mother Brain is marked defeated after the Mother Brain fight, so that if the player re-enters Mother Brain room
+    Mother Brain will not spawn again.
+</ul>
+
+<p><a href="https://version-3---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 3 (2022-12-14)</a>:
+<ul>
+<li>Stop Crateria map from getting messed up when save station is used.
+<li>Skip map screens in file select. This was originally a temporary change for debugging the save map problem, but
+    seemed worth keeping as a tiny quality-of-life change, making it faster to restart after resetting.
+</ul>
+
+<p><a href="https://version-2---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 2 (2022-12-13)</a>:
+<ul>
+<li>Fixed left door entrance to Crocomire Room and Mother Brain room.
+<li>Disabled demo (which was broken).
+</ul>
+
+<p><a href="https://version-1---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 1 (2022-12-11)</a>:
+<ul>
+<li>Initial release
+</ul>
+</div>
