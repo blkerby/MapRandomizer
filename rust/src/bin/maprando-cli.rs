@@ -42,6 +42,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         resource_multiplier: 1.0,
         escape_timer_multiplier: 1.0,
         save_animals: false,
+        debug_mode: false,
     };
     let randomizer = Randomizer::new(&map, &difficulty, &game_data);
     let max_attempts = 1;

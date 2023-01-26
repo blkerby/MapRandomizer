@@ -943,22 +943,22 @@ impl GameData {
                                     assert!(obstacle["requires"].is_array());
                                     requires_json
                                         .extend(obstacle["requires"].members().map(|x| x.clone()));
-                                }
-                                let room_obstacle = &room_json["obstacles"][obstacle_idx];
-                                if room_obstacle.has_key("requires") {
-                                    assert!(room_obstacle["requires"].is_array());
-                                    requires_json.extend(
-                                        room_obstacle["requires"].members().map(|x| x.clone()),
-                                    );
-                                }
-                                if obstacle.has_key("additionalObstacles") {
-                                    assert!(obstacle["additionalObstacles"].is_array());
-                                    for additional_obstacle_id in
-                                        obstacle["additionalObstacles"].members()
-                                    {
-                                        let additional_obstacle_idx = obstacles_idx_map
-                                            [additional_obstacle_id.as_str().unwrap()];
-                                        to_obstacles_bitmask |= 1 << additional_obstacle_idx;
+                                    let room_obstacle = &room_json["obstacles"][obstacle_idx];
+                                    if room_obstacle.has_key("requires") {
+                                        assert!(room_obstacle["requires"].is_array());
+                                        requires_json.extend(
+                                            room_obstacle["requires"].members().map(|x| x.clone()),
+                                        );
+                                    }
+                                    if obstacle.has_key("additionalObstacles") {
+                                        assert!(obstacle["additionalObstacles"].is_array());
+                                        for additional_obstacle_id in
+                                            obstacle["additionalObstacles"].members()
+                                        {
+                                            let additional_obstacle_idx = obstacles_idx_map
+                                                [additional_obstacle_id.as_str().unwrap()];
+                                            to_obstacles_bitmask |= 1 << additional_obstacle_idx;
+                                        }
                                     }
                                 }
                             }

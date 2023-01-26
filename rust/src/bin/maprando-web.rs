@@ -1,7 +1,7 @@
 use std::hash::{Hash, Hasher};
+use std::io::Write;
 use std::path::{Path, PathBuf};
 
-use log::info;
 use actix_easy_multipart::bytes::Bytes;
 use actix_easy_multipart::text::Text;
 use actix_easy_multipart::{MultipartForm, MultipartFormConfig};
@@ -10,9 +10,11 @@ use actix_web::middleware::Logger;
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
 use anyhow::{Context, Result};
 use hashbrown::{HashMap, HashSet};
+use log::info;
 use maprando::game_data::{GameData, Map};
 use maprando::patch::{make_rom, Rom};
 use maprando::randomize::{DifficultyConfig, Randomization, Randomizer};
+use maprando::spoiler_map;
 use rand::{RngCore, SeedableRng};
 use sailfish::TemplateOnce;
 use serde_derive::{Deserialize, Serialize};
@@ -61,6 +63,7 @@ impl MapRepository {
         let path = self.base_path.join(&self.filenames[idx]);
         let map_string = std::fs::read_to_string(&path)
             .with_context(|| format!("Unable to read map file at {}", path.display()))?;
+        info!("Map: {}", path.display());
         let map: Map = serde_json::from_str(&map_string)
             .with_context(|| format!("Unable to parse map file at {}", path.display()))?;
         Ok(map)
@@ -140,6 +143,7 @@ async fn randomize(
         resource_multiplier: req.resource_multiplier.0,
         escape_timer_multiplier: req.escape_timer_multiplier.0,
         save_animals: req.save_animals.0 == "On",
+        debug_mode: false,
     };
     let mut rng_seed = [0u8; 32];
     rng_seed[..8].copy_from_slice(&req.random_seed.to_le_bytes());
@@ -154,10 +158,7 @@ async fn randomize(
                 .body("Failed too many randomization attempts");
         }
         let map_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
-        let map = app_data
-            .map_repository
-            .get_map(map_seed)
-            .unwrap();
+        let map = app_data.map_repository.get_map(map_seed).unwrap();
         let randomizer_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
         info!("Map seed={map_seed}, item placement seed={randomizer_seed}");
         let randomizer = Randomizer::new(&map, &difficulty, &app_data.game_data);
@@ -168,19 +169,46 @@ async fn randomize(
         break;
     }
     let difficulty_hash = get_difficulty_hash(&difficulty);
-    let filename = format!(
+    let base_filename = format!(
         "smmr-v{}-{}-{}",
         VERSION, req.random_seed.0, difficulty_hash
     );
 
     let output_rom = make_rom(&rom, &randomization, &app_data.game_data).unwrap();
+    let mut zip_vec: Vec<u8> = Vec::new();
+    let mut zip = zip::ZipWriter::new(std::io::Cursor::new(&mut zip_vec));
+
+    let mut write_file = |name: &str, data: &[u8]| -> Result<()> {
+        zip.start_file(name, zip::write::FileOptions::default())?;
+        zip.write_all(data)?;
+        Ok(())
+    };
+
+    // Write the ROM (to the ZIP file)
+    write_file(&(base_filename.to_string() + ".sfc"), &output_rom.data).unwrap();
+
+    // Write the spoiler log
+    let spoiler_bytes = serde_json::to_vec_pretty(&randomization.spoiler_log).unwrap();
+    write_file(&(base_filename.to_string() + "-spoiler.json"), &spoiler_bytes).unwrap();
+
+    // Write the spoiler maps
+    let spoiler_map_assigned =
+        spoiler_map::get_spoiler_map(&output_rom, &randomization.map, &app_data.game_data, false).unwrap();
+    write_file(&(base_filename.to_string() + "-map.png"), &spoiler_map_assigned).unwrap();
+    let spoiler_map_vanilla =
+        spoiler_map::get_spoiler_map(&output_rom, &randomization.map, &app_data.game_data, true).unwrap();
+    write_file(&(base_filename.to_string() + "-map-vanilla.png"), &spoiler_map_vanilla).unwrap();
+
+    zip.finish().unwrap();
+    drop(zip);
+
     HttpResponse::Ok()
         .content_type("application/octet-stream")
         .insert_header(ContentDisposition {
             disposition: DispositionType::Attachment,
-            parameters: vec![DispositionParam::Filename(filename)],
+            parameters: vec![DispositionParam::Filename(base_filename.to_string() + ".zip")],
         })
-        .body(output_rom.data)
+        .body(zip_vec)
 }
 
 fn init_presets(presets: Vec<Preset>, game_data: &GameData) -> Vec<PresetData> {

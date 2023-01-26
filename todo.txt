@@ -5,8 +5,13 @@ Release plan:
 - v32: Take ammo kills into account in logic, use boss scenarios
 
 TODO:
-- Finish Rust migration
-    - Write web service
+- Rust migration bugfixes:
+  - arrows not auto-exploring
+  - wrecked ship so large?
+  - add config.json
+- remove fast elevators?
+    - They mess up the heatFrames logic in Main Hall + Lower Norfair Elevator Room (though this  also wouldn't be
+      hard to fix with an override)
 - Rust cleanup:
     - Use `serde_json` instead of `json` crate for loading sm-json-data.
     - Clean up error handling: get rid of a bunch of remaining unwrap()'s, etc.
