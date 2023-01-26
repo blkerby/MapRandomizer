@@ -1,0 +1,38 @@
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+<script>
+document.getElementById("randomSeed").value = Math.floor(Math.random() * 0x7fffffff);        
+
+
+function presetChanged() {
+    <% for p in preset_data { 
+        let name_no_space = p.preset.name.replace(" ", ""); %>
+        if (document.getElementById("preset<%- name_no_space %>").checked) {
+            document.getElementById("shinesparkTiles").value = <%= p.preset.shinespark_tiles %>;
+            document.getElementById("resourceMultiplier").value = <%= p.preset.resource_multiplier %>;
+            document.getElementById("escapeTimerMultiplier").value = <%= p.preset.escape_timer_multiplier %>;
+            document.getElementById("saveAnimalsNo").checked = true;
+            document.getElementById("saveAnimalsYes").checked = false;
+            <% for (tech, is_enabled) in &p.tech_setting { %>
+                document.getElementById("tech-<%- tech%>").checked = <%= is_enabled %>;
+            <% } %>
+        }
+    <% } %>
+    updateTechSelection();
+}
+function techChanged() {
+    <% for p in preset_data { 
+           let name_no_space = p.preset.name.replace(" ", ""); %>
+        document.getElementById("preset<%- name_no_space %>").checked = false;
+    <% } %>
+    updateTechSelection();
+}
+function updateTechSelection() {
+    techSelection = {}
+    document.querySelectorAll('.tech-input')
+    .forEach(function (x) { 
+        techSelection[x.value] = x.checked;
+    });
+    document.getElementById("json-tech").value = JSON.stringify(techSelection);
+}
+updateTechSelection();
+</script>
