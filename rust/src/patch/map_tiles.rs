@@ -806,13 +806,6 @@ impl<'a> MapPatcher<'a> {
                 .write_u16(snes2pc(0xB6F000) + 2 * (0x30 + i as usize), color as isize)?;
         }
 
-        // println!("norfair: {:x}", self.rom.read_u16(snes2pc(0xb6f000) + 2 * (0x20 + 3))?);
-        println!(
-            "tourian: {:x}",
-            self.rom.read_u16(snes2pc(0xb6f000) + 2 * (0x20 + 14))?
-        );
-        // println!("crateria: {:x}", self.rom.read_u16(snes2pc(0xb6f000) + 2 * (0x20 + 15))?);
-
         // Set up arrows of different colors (one per area):
         let area_arrow_colors: Vec<usize> = vec![
             15, // Crateria: dark gray (from vanilla palette)

@@ -14,21 +14,22 @@ about 15 seconds to load.
             <li>Reserve energy is taken into account properly. As a result, Reserve Tanks may now be placed as progression items
             (Previously they were the only item that could not be; they would only be placed at the end.)
             <li>The Shinespark minimum of 29 energy is taken into account properly, and as a result the logic assumes (and
-            spoiler log shows) an initial maximum of 99 energy instead of 70.
+            spoiler log shows) an initial maximum of 99 energy instead of 70 as it was before.
         </ul>
         <li>With an overhaul like this, it is expected that inevitably some bugs are introduced. If you
         notice problems, please let us know (on <a href="https://github.com/blkerby/MapRandomizer/issues">GitHub</a>
         or the <a href="https://discord.gg/Gc99YV2ZcB">Discord</a>)!
     </ul>
-    <li>The pause-menu map is now centered in the available space (instead of being skewed to the top-left corner).
-    <li>Elevator tiles are restored to their vanilla form with blue/pink pixels indicating if they have been explored.
+    <li>Escape time is reduced by 10%.
+    <li>Spoiler maps are now drawn using in-game map tiles, so they show items, saves, bosses, etc.
     <li>Minor changes to spoiler log:
     <ul>
         <li>Routes show total resources remaining (e.g., energy, Missiles, etc.) instead of resources consumed in a given step.
         <li>Escape route shows cumulative distance instead of distance on each step. If applicable, the routes
         to and from the animals are shown separately.
     </ul>
-    <li>(TODO:) Spoiler maps are now drawn using in-game map tiles, so they show items, saves, bosses, etc.
+    <li>The pause-menu map is now centered in the available space (instead of being skewed to the top-left corner).
+    <li>Elevator tiles are restored to their vanilla form with blue/pink pixels indicating if they have been explored.
 </ul>
 
 <p><a href="https://version-28---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 28 (2022-01-10)</a>:

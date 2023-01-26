@@ -34,6 +34,7 @@ pub struct DifficultyConfig {
     pub resource_multiplier: f32,
     pub escape_timer_multiplier: f32,
     pub save_animals: bool,
+    pub debug_mode: bool,
 }
 
 // Includes preprocessing specific to the map:

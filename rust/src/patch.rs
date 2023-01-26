@@ -212,8 +212,8 @@ impl<'a> Patcher<'a> {
             "fast_reload",
             // "gravitypal",
         ];
-        // patches.push("new_game");
-        patches.push("new_game_extra");
+        patches.push("new_game");
+        // patches.push("new_game_extra");
         // "new_game_extra' if args.debug else 'new_game",
         for patch_name in patches {
             let patch_path = patches_dir.join(patch_name.to_string() + ".ips");

@@ -479,7 +479,7 @@ pub fn compute_escape_data(
         distance = ship_path.last().unwrap().1;
     }
 
-    let time_per_distance: f32 = 2.0;
+    let time_per_distance: f32 = 1.8;
     let raw_time_seconds = distance as f32 * time_per_distance * difficulty.escape_timer_multiplier;
     let mut final_time_seconds = f32::ceil(raw_time_seconds / 5.0) * 5.0;
     if final_time_seconds > 5995.0 {
