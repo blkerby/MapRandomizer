@@ -894,11 +894,11 @@ fn get_other_door_ptr_pair_map(map: &Map) -> HashMap<DoorPtrPair, DoorPtrPair> {
 }
 
 pub fn make_rom(
-    base_rom_path: &Path,
+    base_rom: &Rom,
     randomization: &Randomization,
     game_data: &GameData,
 ) -> Result<Rom> {
-    let mut orig_rom = Rom::load(base_rom_path)?;
+    let mut orig_rom = base_rom.clone();
     apply_orig_ips_patches(&mut orig_rom)?;
 
     let mut rom = orig_rom.clone();

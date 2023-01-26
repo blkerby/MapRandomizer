@@ -1,10 +1,10 @@
 use anyhow::{bail, Context, Result};
 use clap::Parser;
 use maprando::game_data::Map;
+use maprando::patch::Rom;
 use maprando::randomize::{ItemPlacementStrategy, Randomization, Randomizer};
 use maprando::spoiler_map;
 use maprando::{game_data::GameData, patch::make_rom, randomize::DifficultyConfig};
-use rand::SeedableRng;
 use std::path::{Path, PathBuf};
 
 #[derive(Parser)]
@@ -44,10 +44,9 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         save_animals: false,
     };
     let randomizer = Randomizer::new(&map, &difficulty, &game_data);
-    let mut rng = rand::rngs::StdRng::from_seed([0; 32]);
     let max_attempts = 1;
-    for _ in 0..max_attempts {
-        if let Some(randomization) = randomizer.randomize(&mut rng) {
+    for attempt_num in 0..max_attempts {
+        if let Some(randomization) = randomizer.randomize(attempt_num) {
             return Ok(randomization);
         } else {
             println!("Failed randomization attempt");
@@ -66,7 +65,7 @@ fn main() -> Result<()> {
     let randomization = get_randomization(&args, &game_data)?;
 
     // Generate the patched ROM:
-    let rom = make_rom(&args.input_rom, &randomization, &game_data)?;
+    let rom = make_rom(&Rom::load(&args.input_rom)?, &randomization, &game_data)?;
 
     // Save the outputs:
     if let Some(output_rom_path) = &args.output_rom {
