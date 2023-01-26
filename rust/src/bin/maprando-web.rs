@@ -1,14 +1,19 @@
-use std::path::Path;
+use std::hash::{Hash, Hasher};
+use std::path::{Path, PathBuf};
 
-
-use actix_easy_multipart::MultipartForm;
-use actix_easy_multipart::tempfile::Tempfile;
+use log::info;
+use actix_easy_multipart::bytes::Bytes;
 use actix_easy_multipart::text::Text;
-use actix_web::{middleware::Logger};
-
+use actix_easy_multipart::{MultipartForm, MultipartFormConfig};
+use actix_web::http::header::{ContentDisposition, DispositionParam, DispositionType};
+use actix_web::middleware::Logger;
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
+use anyhow::{Context, Result};
 use hashbrown::{HashMap, HashSet};
-use maprando::game_data::GameData;
+use maprando::game_data::{GameData, Map};
+use maprando::patch::{make_rom, Rom};
+use maprando::randomize::{DifficultyConfig, Randomization, Randomizer};
+use rand::{RngCore, SeedableRng};
 use sailfish::TemplateOnce;
 use serde_derive::{Deserialize, Serialize};
 
@@ -28,9 +33,38 @@ struct PresetData {
     tech_setting: Vec<(String, bool)>,
 }
 
+struct MapRepository {
+    base_path: PathBuf,
+    filenames: Vec<String>,
+}
+
 struct AppData {
     game_data: GameData,
     preset_data: Vec<PresetData>,
+    map_repository: MapRepository,
+}
+
+impl MapRepository {
+    fn new(base_path: &Path) -> Result<Self> {
+        let mut filenames: Vec<String> = Vec::new();
+        for path in std::fs::read_dir(base_path)? {
+            filenames.push(path?.file_name().into_string().unwrap());
+        }
+        Ok(MapRepository {
+            base_path: base_path.to_owned(),
+            filenames,
+        })
+    }
+
+    fn get_map(&self, seed: usize) -> Result<Map> {
+        let idx = seed % self.filenames.len();
+        let path = self.base_path.join(&self.filenames[idx]);
+        let map_string = std::fs::read_to_string(&path)
+            .with_context(|| format!("Unable to read map file at {}", path.display()))?;
+        let map: Map = serde_json::from_str(&map_string)
+            .with_context(|| format!("Unable to parse map file at {}", path.display()))?;
+        Ok(map)
+    }
 }
 
 #[derive(TemplateOnce)]
@@ -55,21 +89,98 @@ async fn home(app_data: web::Data<AppData>) -> impl Responder {
 
 #[derive(MultipartForm)]
 struct RandomizeRequest {
-    rom: Tempfile,
+    rom: Bytes,
     item_placement_strategy: Text<String>,
-    preset: Text<String>,
+    // preset: Text<String>,
     shinespark_tiles: Text<usize>,
     resource_multiplier: Text<f32>,
     escape_timer_multiplier: Text<f32>,
     save_animals: Text<String>,
     tech_json: Text<String>,
+    random_seed: Text<usize>,
+}
+
+fn get_difficulty_hash(difficulty: &DifficultyConfig) -> usize {
+    let difficulty_str = serde_json::to_string(&difficulty).unwrap();
+    let mut state = hashers::fx_hash::FxHasher::default();
+    difficulty_str.hash(&mut state);
+    state.finish() as usize
 }
 
 #[post("/randomize")]
-async fn randomize(req: MultipartForm<RandomizeRequest>, app_data: web::Data<AppData>) -> impl Responder {
-    println!("{:?}", req.item_placement_strategy);
-    println!("{:?}", req.tech_json);
-    HttpResponse::Ok().body("hello")
+async fn randomize(
+    req: MultipartForm<RandomizeRequest>,
+    app_data: web::Data<AppData>,
+) -> impl Responder {
+    let rom = Rom {
+        data: req.rom.data.to_vec(),
+    };
+    if rom.data.len() < 3145728 || rom.data.len() > 8388608 {
+        return HttpResponse::BadRequest().body("Invalid input ROM");
+    }
+    let tech_json: serde_json::Value = serde_json::from_str(&req.tech_json).unwrap();
+    let mut tech_vec: Vec<String> = Vec::new();
+    for (tech, is_enabled) in tech_json.as_object().unwrap().iter() {
+        if is_enabled.as_bool().unwrap() {
+            tech_vec.push(tech.to_string());
+        }
+    }
+    let difficulty = DifficultyConfig {
+        tech: tech_vec,
+        shine_charge_tiles: req.shinespark_tiles.0 as i32,
+        item_placement_strategy: match req.item_placement_strategy.0.as_str() {
+            "Open" => maprando::randomize::ItemPlacementStrategy::Open,
+            "Semiclosed" => maprando::randomize::ItemPlacementStrategy::Semiclosed,
+            "Closed" => maprando::randomize::ItemPlacementStrategy::Closed,
+            _ => panic!(
+                "Unrecognized item placement strategy {}",
+                req.item_placement_strategy.0.as_str()
+            ),
+        },
+        resource_multiplier: req.resource_multiplier.0,
+        escape_timer_multiplier: req.escape_timer_multiplier.0,
+        save_animals: req.save_animals.0 == "On",
+    };
+    let mut rng_seed = [0u8; 32];
+    rng_seed[..8].copy_from_slice(&req.random_seed.to_le_bytes());
+    let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
+    let max_attempts = 100;
+    let mut attempt_num = 0;
+    let randomization: Randomization;
+    loop {
+        attempt_num += 1;
+        if attempt_num > max_attempts {
+            return HttpResponse::InternalServerError()
+                .body("Failed too many randomization attempts");
+        }
+        let map_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
+        let map = app_data
+            .map_repository
+            .get_map(map_seed)
+            .unwrap();
+        let randomizer_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
+        info!("Map seed={map_seed}, item placement seed={randomizer_seed}");
+        let randomizer = Randomizer::new(&map, &difficulty, &app_data.game_data);
+        randomization = match randomizer.randomize(randomizer_seed) {
+            Some(r) => r,
+            None => continue,
+        };
+        break;
+    }
+    let difficulty_hash = get_difficulty_hash(&difficulty);
+    let filename = format!(
+        "smmr-v{}-{}-{}",
+        VERSION, req.random_seed.0, difficulty_hash
+    );
+
+    let output_rom = make_rom(&rom, &randomization, &app_data.game_data).unwrap();
+    HttpResponse::Ok()
+        .content_type("application/octet-stream")
+        .insert_header(ContentDisposition {
+            disposition: DispositionType::Attachment,
+            parameters: vec![DispositionParam::Filename(filename)],
+        })
+        .body(output_rom.data)
 }
 
 fn init_presets(presets: Vec<Preset>, game_data: &GameData) -> Vec<PresetData> {
@@ -95,14 +206,17 @@ fn init_presets(presets: Vec<Preset>, game_data: &GameData) -> Vec<PresetData> {
         .cloned()
         .collect();
     let visible_tech_set: HashSet<String> = visible_tech.iter().cloned().collect();
-    
+
     for preset in presets {
         for tech in &preset.tech {
             if cumulative_tech.contains(tech) {
                 panic!("Tech \"{tech}\" appears in presets more than once.");
             }
             if !visible_tech_set.contains(tech) {
-                panic!("Unrecognized tech \"{tech}\" appears in preset {}", preset.name);
+                panic!(
+                    "Unrecognized tech \"{tech}\" appears in preset {}",
+                    preset.name
+                );
             }
             cumulative_tech.insert(tech.clone());
         }
@@ -127,6 +241,8 @@ fn init_presets(presets: Vec<Preset>, game_data: &GameData) -> Vec<PresetData> {
 async fn main() {
     let sm_json_data_path = Path::new("../sm-json-data");
     let room_geometry_path = Path::new("../room_geometry.json");
+    let maps_path =
+        Path::new("../maps/session-2022-06-03T17:19:29.727911.pkl-bk30-subarea-balance");
     let game_data = GameData::load(sm_json_data_path, room_geometry_path).unwrap();
     let presets: Vec<Preset> =
         serde_json::from_str(&std::fs::read_to_string(&"data/presets.json").unwrap()).unwrap();
@@ -135,13 +251,21 @@ async fn main() {
     let app_data = web::Data::new(AppData {
         game_data,
         preset_data,
+        map_repository: MapRepository::new(maps_path).unwrap(),
     });
 
-    env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
+    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info"))
+        .format_timestamp_millis()
+        .init();
 
     HttpServer::new(move || {
         App::new()
             .app_data(app_data.clone())
+            .app_data(
+                MultipartFormConfig::default()
+                    .memory_limit(16_000_000)
+                    .total_limit(16_000_000),
+            )
             .wrap(Logger::default())
             .service(home)
             .service(randomize)

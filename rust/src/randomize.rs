@@ -8,6 +8,8 @@ use crate::{
     },
 };
 use hashbrown::HashSet;
+use log::info;
+use rand::SeedableRng;
 use rand::{seq::SliceRandom, Rng};
 use serde_derive::{Deserialize, Serialize};
 use std::{cmp::min, convert::TryFrom, iter};
@@ -17,14 +19,14 @@ use crate::game_data::GameData;
 
 use self::escape_timer::SpoilerEscape;
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub enum ItemPlacementStrategy {
     Open,
     Semiclosed,
     Closed,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct DifficultyConfig {
     pub tech: Vec<String>,
     pub shine_charge_tiles: i32,
@@ -254,7 +256,6 @@ impl<'r> Randomizer<'r> {
             ) as usize,
         };
         if num_items_remaining < num_items_to_place + 20 {
-            // println!("dumping key items");
             num_key_items_to_place = num_key_items_remaining;
         }
         num_key_items_to_place = min(
@@ -524,7 +525,7 @@ impl<'r> Randomizer<'r> {
                     break;
                 }
             } else {
-                println!("Exhausted key item placement attempts");
+                info!("Exhausted key item placement attempts");
                 return None;
             }
             // println!("attempt failed");
@@ -553,7 +554,8 @@ impl<'r> Randomizer<'r> {
             .iter()
             .map(|x| x.placed_item.unwrap())
             .collect();
-        let spoiler_escape = escape_timer::compute_escape_data(self.game_data, self.map, self.difficulty);
+        let spoiler_escape =
+            escape_timer::compute_escape_data(self.game_data, self.map, self.difficulty);
         let spoiler_log = SpoilerLog {
             summary: spoiler_summaries,
             escape: spoiler_escape,
@@ -566,7 +568,10 @@ impl<'r> Randomizer<'r> {
         }
     }
 
-    pub fn randomize<R: Rng>(&self, rng: &mut R) -> Option<Randomization> {
+    pub fn randomize(&self, seed: usize) -> Option<Randomization> {
+        let mut rng_seed = [0u8; 32];
+        rng_seed[..8].copy_from_slice(&seed.to_le_bytes());
+        let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
         let initial_global_state = {
             let items = vec![false; self.game_data.item_isv.keys.len()];
             let weapon_mask = self.game_data.get_weapon_mask(&items);
@@ -598,7 +603,7 @@ impl<'r> Randomizer<'r> {
         let mut item_precedence: Vec<Item> = (0..self.game_data.item_isv.keys.len())
             .map(|i| Item::try_from(i).unwrap())
             .collect();
-        item_precedence.shuffle(rng);
+        item_precedence.shuffle(&mut rng);
         let mut state = RandomizationState {
             step_num: 1,
             item_precedence,
@@ -617,7 +622,7 @@ impl<'r> Randomizer<'r> {
         };
         self.update_reachability(&mut state);
         if !state.item_location_state.iter().any(|x| x.bireachable) {
-            println!("No initially bireachable item locations");
+            info!("No initially bireachable item locations");
             return None;
         }
         let mut spoiler_summary_vec: Vec<SpoilerSummary> = Vec::new();
@@ -643,8 +648,8 @@ impl<'r> Randomizer<'r> {
                 .iter()
                 .filter(|x| x.bireachable)
                 .count();
-            println!("step={0}, bireachable={cnt_bireachable}, reachable={cnt_reachable}, placed={cnt_placed}, collected={cnt_collected}", state.step_num);
-            match self.step(&mut state, rng) {
+            info!("step={0}, bireachable={cnt_bireachable}, reachable={cnt_reachable}, placed={cnt_placed}, collected={cnt_collected}", state.step_num);
+            match self.step(&mut state, &mut rng) {
                 Some((spoiler_summary, spoiler_details)) => {
                     spoiler_summary_vec.push(spoiler_summary);
                     spoiler_details_vec.push(spoiler_details);
@@ -660,7 +665,7 @@ impl<'r> Randomizer<'r> {
 
 // Spoiler log ---------------------------------------------------------
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct SpoilerRouteEntry {
     area: String,
     room: String,
@@ -797,11 +802,20 @@ impl<'a> Randomizer<'a> {
         difficulty: &DifficultyConfig,
     ) -> Vec<SpoilerRouteEntry> {
         let mut route: Vec<SpoilerRouteEntry> = Vec::new();
+        // info!("global: {:?}", global_state);
         for &link_idx in link_idxs {
             let link = &self.links[link_idx as usize];
             let to_vertex_info = self.get_vertex_info(link.to_vertex_id);
-            let new_local_state =
-                apply_requirement(&link.requirement, &global_state, *local_state, false, difficulty).unwrap();
+            // info!("local: {:?}", local_state);
+            // info!("{:?}", link);
+            let new_local_state = apply_requirement(
+                &link.requirement,
+                &global_state,
+                *local_state,
+                false,
+                difficulty,
+            )
+            .unwrap();
             let energy_remaining: Option<Capacity> =
                 if new_local_state.energy_used != local_state.energy_used {
                     Some(global_state.max_energy - new_local_state.energy_used)
@@ -833,7 +847,7 @@ impl<'a> Randomizer<'a> {
                     None
                 };
 
-            route.push(SpoilerRouteEntry {
+            let spoiler_entry = SpoilerRouteEntry {
                 area: to_vertex_info.area_name,
                 room: to_vertex_info.room_name,
                 node: to_vertex_info.node_name,
@@ -843,10 +857,13 @@ impl<'a> Randomizer<'a> {
                 missiles_remaining,
                 supers_remaining,
                 power_bombs_remaining,
-            });
+            };
+            // info!("spoiler: {:?}", spoiler_entry);
+            route.push(spoiler_entry);
             *local_state = new_local_state;
             // TODO: Add details about energy/ammo levels
         }
+        // info!("local: {:?}", local_state);
         route
     }
 
@@ -863,10 +880,18 @@ impl<'a> Randomizer<'a> {
         let reverse_link_idxs: Vec<LinkIdx> =
             get_spoiler_route(&state.debug_data.as_ref().unwrap().reverse, vertex_id, true);
         let mut local_state = LocalState::new();
-        let obtain_route =
-            self.get_spoiler_route(&state.global_state, &mut local_state, &forward_link_idxs, self.difficulty);
-        let return_route =
-            self.get_spoiler_route(&state.global_state, &mut local_state, &reverse_link_idxs, self.difficulty);
+        let obtain_route = self.get_spoiler_route(
+            &state.global_state,
+            &mut local_state,
+            &forward_link_idxs,
+            self.difficulty,
+        );
+        let return_route = self.get_spoiler_route(
+            &state.global_state,
+            &mut local_state,
+            &reverse_link_idxs,
+            self.difficulty,
+        );
         (obtain_route, return_route)
     }
 

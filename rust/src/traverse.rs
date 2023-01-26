@@ -7,7 +7,7 @@ use crate::{
     randomize::DifficultyConfig,
 };
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct GlobalState {
     pub tech: Vec<bool>,
     pub items: Vec<bool>,
@@ -21,7 +21,7 @@ pub struct GlobalState {
     pub shine_charge_tiles: Capacity,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub struct LocalState {
     pub energy_used: Capacity,
     pub reserves_used: Capacity,
@@ -246,15 +246,23 @@ pub fn apply_requirement(
             used_tiles,
             shinespark_frames,
         } => {
-            if global.items[Item::SpeedBooster as usize] && *used_tiles <= global.shine_charge_tiles
+            if global.items[Item::SpeedBooster as usize] && *used_tiles >= global.shine_charge_tiles
             {
                 let mut new_local = local;
-                new_local.energy_used += shinespark_frames + 29;
-                if let Some(mut new_local) = validate_energy(new_local, global) {
-                    new_local.energy_used -= 29;
-                    Some(new_local)
+                if reverse {
+                    if new_local.energy_used < 28 {
+                        new_local.energy_used = 28;
+                    }
+                    new_local.energy_used += shinespark_frames;
+                    validate_energy(new_local, global)
                 } else {
-                    None
+                    new_local.energy_used += shinespark_frames + 28;
+                    if let Some(mut new_local) = validate_energy(new_local, global) {
+                        new_local.energy_used -= 28;
+                        Some(new_local)
+                    } else {
+                        None
+                    }    
                 }
             } else {
                 None
