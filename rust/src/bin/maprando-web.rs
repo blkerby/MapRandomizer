@@ -325,7 +325,7 @@ async fn main() {
             .service(randomize)
             .service(actix_files::Files::new("/static", "static"))
     })
-    .bind("localhost:8080")
+    .bind("0.0.0.0:8080")
     .unwrap()
     .run()
     .await
