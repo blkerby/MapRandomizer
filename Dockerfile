@@ -1,4 +1,4 @@
-FROM rust:1.67.0
+FROM rust:1.67.0 as build
 
 # First get Cargo to download the crates.io index (which takes a long time)
 RUN cargo new --bin rust
@@ -25,4 +25,15 @@ COPY rust /rust
 WORKDIR /rust
 RUN cargo build --release --bin maprando-web
 
-CMD ["target/release/maprando-web"]
+# Now restart with a slim base image and just copy over the binary and data needed at runtime.
+FROM debian:buster-slim
+COPY --from=build /maps /maps
+COPY --from=build /patches /patches
+COPY --from=build /gfx /gfx
+COPY --from=build /sm-json-data /sm-json-data
+COPY --from=build /room_geometry.json /
+COPY --from=build /rust/data /rust/data
+COPY --from=build /rust/static /rust/static
+COPY --from=build /rust/target/release/maprando-web /rust
+WORKDIR /rust
+CMD ["/rust/maprando-web"]
