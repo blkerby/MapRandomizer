@@ -317,14 +317,14 @@ impl<'r> Randomizer<'r> {
             ItemPlacementStrategy::Semiclosed => {
                 item_types_to_mix = vec![Item::Missile, Item::ETank, Item::ReserveTank];
                 item_types_to_delay = vec![];
-                if new_items_remaining[Item::Super as usize]
+                if state.items_remaining[Item::Super as usize]
                     < self.initial_items_remaining[Item::Super as usize]
                 {
                     item_types_to_mix.push(Item::Super);
                 } else {
                     item_types_to_delay.push(Item::Super);
                 }
-                if new_items_remaining[Item::PowerBomb as usize]
+                if state.items_remaining[Item::PowerBomb as usize]
                     < self.initial_items_remaining[Item::PowerBomb as usize]
                 {
                     item_types_to_mix.push(Item::PowerBomb);
@@ -334,9 +334,9 @@ impl<'r> Randomizer<'r> {
             }
             ItemPlacementStrategy::Closed => {
                 item_types_to_mix = vec![Item::Missile];
-                if new_items_remaining[Item::PowerBomb as usize]
+                if state.items_remaining[Item::PowerBomb as usize]
                     < self.initial_items_remaining[Item::PowerBomb as usize]
-                    && new_items_remaining[Item::Super as usize]
+                    && state.items_remaining[Item::Super as usize]
                         == self.initial_items_remaining[Item::Super as usize]
                 {
                     item_types_to_delay =
