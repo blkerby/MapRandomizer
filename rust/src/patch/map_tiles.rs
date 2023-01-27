@@ -597,7 +597,7 @@ impl<'a> MapPatcher<'a> {
                 (2, 0, P, E, W, E, O),
                 (2, 6, W, E, E, P, I),
                 (2, 7, P, W, E, W, I),
-                (3, 5, E, P, E, E, I),
+                (3, 5, E, P, E, E, O),
             ],
         )?;
         self.patch_room_basic(

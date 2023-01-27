@@ -94,13 +94,23 @@ async fn home(app_data: web::Data<AppData>) -> impl Responder {
 struct RandomizeRequest {
     rom: Bytes,
     item_placement_strategy: Text<String>,
-    // preset: Text<String>,
+    preset: Option<Text<String>>,
     shinespark_tiles: Text<usize>,
     resource_multiplier: Text<f32>,
     escape_timer_multiplier: Text<f32>,
     save_animals: Text<String>,
     tech_json: Text<String>,
     random_seed: Text<usize>,
+}
+
+#[derive(Serialize, Deserialize)]
+struct Config {
+    version: usize,
+    random_seed: usize,
+    map_seed: usize,
+    item_placement_seed: usize,
+    preset: Option<String>,
+    difficulty: DifficultyConfig,
 }
 
 fn get_difficulty_hash(difficulty: &DifficultyConfig) -> usize {
@@ -143,7 +153,7 @@ async fn randomize(
         resource_multiplier: req.resource_multiplier.0,
         escape_timer_multiplier: req.escape_timer_multiplier.0,
         save_animals: req.save_animals.0 == "On",
-        debug_mode: false,
+        debug_options: None,
     };
     let mut rng_seed = [0u8; 32];
     rng_seed[..8].copy_from_slice(&req.random_seed.to_le_bytes());
@@ -151,28 +161,40 @@ async fn randomize(
     let max_attempts = 100;
     let mut attempt_num = 0;
     let randomization: Randomization;
+    let difficulty_hash = get_difficulty_hash(&difficulty);
+    let base_filename: String = format!(
+        "smmr-v{}-{}-{}",
+        VERSION, req.random_seed.0, difficulty_hash
+    );
+    info!("Starting {base_filename}");
+    let mut map_seed: usize;
+    let mut item_placement_seed: usize;
     loop {
         attempt_num += 1;
         if attempt_num > max_attempts {
             return HttpResponse::InternalServerError()
                 .body("Failed too many randomization attempts");
         }
-        let map_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
+        map_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
         let map = app_data.map_repository.get_map(map_seed).unwrap();
-        let randomizer_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
-        info!("Map seed={map_seed}, item placement seed={randomizer_seed}");
+        item_placement_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
+        info!("Map seed={map_seed}, item placement seed={item_placement_seed}");
         let randomizer = Randomizer::new(&map, &difficulty, &app_data.game_data);
-        randomization = match randomizer.randomize(randomizer_seed) {
+        randomization = match randomizer.randomize(item_placement_seed) {
             Some(r) => r,
             None => continue,
         };
         break;
     }
-    let difficulty_hash = get_difficulty_hash(&difficulty);
-    let base_filename = format!(
-        "smmr-v{}-{}-{}",
-        VERSION, req.random_seed.0, difficulty_hash
-    );
+
+    let config = Config {
+        version: VERSION,
+        random_seed: req.random_seed.0,
+        map_seed,
+        item_placement_seed,
+        preset: req.preset.as_ref().map(|x| x.0.clone()),
+        difficulty,
+    };
 
     let output_rom = make_rom(&rom, &randomization, &app_data.game_data).unwrap();
     let mut zip_vec: Vec<u8> = Vec::new();
@@ -186,6 +208,10 @@ async fn randomize(
 
     // Write the ROM (to the ZIP file)
     write_file(&(base_filename.to_string() + ".sfc"), &output_rom.data).unwrap();
+
+    // Write the config JSON
+    let config_str = serde_json::to_vec_pretty(&config).unwrap();
+    write_file(&(base_filename.to_string() + "-config.json"), &config_str).unwrap();
 
     // Write the spoiler log
     let spoiler_bytes = serde_json::to_vec_pretty(&randomization.spoiler_log).unwrap();

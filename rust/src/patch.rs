@@ -1,12 +1,12 @@
-mod map_tiles;
-mod title;
 mod compress;
 mod decompress;
+mod map_tiles;
+mod title;
 
 use std::path::Path;
 
 use crate::{
-    game_data::{DoorPtr, DoorPtrPair, GameData, Item, Map, NodePtr},
+    game_data::{DoorPtr, DoorPtrPair, GameData, Item, Map, NodePtr, RoomGeometryDoor},
     randomize::Randomization,
 };
 use anyhow::{ensure, Context, Result};
@@ -16,8 +16,8 @@ use std::iter;
 
 const NUM_AREAS: usize = 6;
 
-type PcAddr = usize;  // PC pointer to ROM data
-type AsmPtr = usize;  // 16-bit SNES pointer to ASM code in bank 0x8F
+type PcAddr = usize; // PC pointer to ROM data
+type AsmPtr = usize; // 16-bit SNES pointer to ASM code in bank 0x8F
 
 pub fn snes2pc(addr: usize) -> usize {
     addr >> 1 & 0x3F8000 | addr & 0x7FFF
@@ -244,10 +244,9 @@ impl<'a> Patcher<'a> {
         let mut door_data = self.orig_rom.read_n(dst_entrance_ptr, 12)?.to_vec();
         // Trigger the map to reload (TODO: only do this for doors that cross areas):
         door_data[2] |= 0x40;
-        self.rom.write_n(src_exit_ptr, &door_data)?;
         if let Some(&(new_asm, end_asm)) = extra_door_asm_map.get(&src_exit_ptr) {
             // Set extra custom ASM applicable to exiting from the given door exit:
-            self.rom.write_u16(src_exit_ptr + 10, new_asm as isize)?;
+            door_data[10..12].copy_from_slice(&((new_asm as u16).to_le_bytes()));
 
             // Patch the custom ASM to jump to original ASM for the given door entrance:
             let orig_asm = self.orig_rom.read_u16(dst_entrance_ptr + 10)?;
@@ -259,10 +258,16 @@ impl<'a> Patcher<'a> {
                 self.rom.write_n(snes2pc(0x8F8000 | end_asm), &jmp_asm)?;
             }
         }
+        self.rom.write_n(src_exit_ptr, &door_data)?;
+        if src_exit_ptr ==  0x1A798 { // Pants Room right door
+            // Also write the same data to the East Pants Room right door
+            self.rom.write_n(0x1A7BC, &door_data)?;
+        }
         Ok(())
     }
 
-    // Appends asm to mark the map tile (x, y) as explored. This is used for elevators.
+    // Appends asm to mark the map tile (x, y) as explored. This is used for elevators and arrows.
+    // (See `auto_explore_elevators` and `auto_explore_arrows` below for details.)
     fn add_explore_tile_asm(
         &mut self,
         current_area: usize,
@@ -313,34 +318,36 @@ impl<'a> Patcher<'a> {
             self.game_data.room_and_door_idxs_by_door_ptr_pair[&other_door_ptr_pair];
         let other_area = self.map.area[other_room_idx];
         if let Some(ptr) = door_ptr_pair.0 {
+            // ASM for when exiting through the given door:
             let asm = extra_door_asm.entry(ptr).or_default();
             self.add_explore_tile_asm(other_area, area, room_x + x, room_y + y, asm)?;
         }
         if let Some(ptr) = other_door_ptr_pair.0 {
+            // ASM for when entering through the given door:
             let asm = extra_door_asm.entry(ptr).or_default();
             self.add_explore_tile_asm(area, area, room_x + x, room_y + y, asm)?;
         }
         Ok(())
     }
 
-    // There are map tiles at the bottom of elevator rooms (at the top of elevators) that 
+    // There are map tiles at the bottom of elevator rooms (at the top of elevators) that
     // Samus does not pass through and hence would never be marked explored. This is an issue
-    // that exists in the vanilla game but would be more noticeable in Map Rando because 
-    // elevators are frequently connected within the same area, so it would leave a hole 
-    // in the map (if the area map is not yet acquired). We fix this by having the game 
+    // that exists in the vanilla game but would be more noticeable in Map Rando because
+    // elevators are frequently connected within the same area, so it would leave a hole
+    // in the map (if the area map is not yet acquired). We fix this by having the game
     // automatically mark these tiles as explored when using the elevator in either direction.
     fn auto_explore_elevators(
         &mut self,
         extra_door_asm: &mut HashMap<DoorPtr, Vec<u8>>,
     ) -> Result<()> {
-
-        let mut add_explore = |exit_ptr: usize, entrance_ptr: usize, coords: Vec<(isize, isize)>| -> Result<()> {
-            for &(x, y) in &coords {
-                let door_ptr_pair = (Some(exit_ptr), Some(entrance_ptr));
-                self.add_double_explore_tile_asm(&door_ptr_pair, x, y, extra_door_asm)?;
-            }
-            Ok(())
-        };
+        let mut add_explore =
+            |exit_ptr: usize, entrance_ptr: usize, coords: Vec<(isize, isize)>| -> Result<()> {
+                for &(x, y) in &coords {
+                    let door_ptr_pair = (Some(exit_ptr), Some(entrance_ptr));
+                    self.add_double_explore_tile_asm(&door_ptr_pair, x, y, extra_door_asm)?;
+                }
+                Ok(())
+            };
 
         // Green Brinstar Elevator Room
         add_explore(0x18C0A, 0x18CA6, vec![(0, 1), (0, 2), (0, 3)])?;
@@ -355,7 +362,45 @@ impl<'a> Patcher<'a> {
         // Warehouse Entrance
         add_explore(0x19246, 0x192EE, vec![(0, 1)])?;
         // We skip Lower Norfair Elevator Room because there are no extra tiles to explore there.
-    
+
+        Ok(())
+    }
+
+    fn get_arrow_xy(&self, door: &RoomGeometryDoor) -> (isize, isize) {
+        if door.direction == "left" {
+            (door.x as isize - 1, door.y as isize)
+        } else if door.direction == "right" {
+            (door.x as isize + 1, door.y as isize)
+        } else if door.direction == "up" {
+            (door.x as isize, door.y as isize - 1)
+        } else if door.direction == "down" {
+            (door.x as isize , door.y as isize + 1)
+        } else {
+            panic!("Unrecognized door direction: {}", door.direction);
+        }
+    }
+
+    // Similarly, for the arrow tiles that we add to mark area transitions, Samus doesn't
+    // pass through these tiles, so normally they wouldn't show up until the map station is
+    // obtained. We change this by having these tiles be automatically marked explored
+    // when passing through the area transition:
+    fn auto_explore_arrows(
+        &mut self,
+        extra_door_asm: &mut HashMap<DoorPtr, Vec<u8>>,
+    ) -> Result<()> {
+        for (src_pair, dst_pair, _bidirectional) in &self.map.doors {
+            let (src_room_idx, src_door_idx) = self.game_data.room_and_door_idxs_by_door_ptr_pair[src_pair];
+            let (dst_room_idx, dst_door_idx) = self.game_data.room_and_door_idxs_by_door_ptr_pair[dst_pair];
+            let src_area = self.map.area[src_room_idx];
+            let dst_area = self.map.area[dst_room_idx];
+            if src_area == dst_area {
+                continue;
+            }
+            let (src_x, src_y) = self.get_arrow_xy(&self.game_data.room_geometry[src_room_idx].doors[src_door_idx]);
+            let (dst_x, dst_y) = self.get_arrow_xy(&self.game_data.room_geometry[dst_room_idx].doors[dst_door_idx]);
+            self.add_double_explore_tile_asm(src_pair, src_x, src_y, extra_door_asm)?;
+            self.add_double_explore_tile_asm(dst_pair, dst_x, dst_y, extra_door_asm)?;
+        }
         Ok(())
     }
 
@@ -379,6 +424,7 @@ impl<'a> Patcher<'a> {
         .collect();
 
         self.auto_explore_elevators(&mut extra_door_asm)?;
+        self.auto_explore_arrows(&mut extra_door_asm)?;
 
         let mut door_asm_free_space = 0xEE10; // in bank 0x8F
         let mut extra_door_asm_map: HashMap<DoorPtr, (AsmPtr, AsmPtr)> = HashMap::new();
@@ -461,9 +507,10 @@ impl<'a> Patcher<'a> {
     }
 
     fn write_map_tilemaps(&mut self) -> Result<()> {
-        // Patch Aqueduct map Y position to include the toilet, for the purposes of determining 
+        // Patch Aqueduct map Y position to include the toilet, for the purposes of determining
         // the map. We change it back later in `fix_twin_rooms`.
-        self.orig_rom.write_u8(0x7D5A7 + 3, self.orig_rom.read_u8(0x7D5A7 + 3)? - 4)?;
+        self.orig_rom
+            .write_u8(0x7D5A7 + 3, self.orig_rom.read_u8(0x7D5A7 + 3)? - 4)?;
 
         // Determine upper-left corner of each area:
         let mut area_map_min_x = [isize::MAX; NUM_AREAS];
@@ -828,10 +875,10 @@ impl<'a> Patcher<'a> {
         // In Shaktool room, skip setting screens to red scroll (so that it won't glitch out when entering from the right):
         self.rom.write_u8(snes2pc(0x84B8DC), 0x60)?; // RTS
 
-        // Stop wall from spawning in Tourian Escape Room 1: 
+        // Stop wall from spawning in Tourian Escape Room 1:
         self.rom.write_u16(snes2pc(0x84BB34), 0x86BC)?;
         self.rom.write_u16(snes2pc(0x84BB44), 0x86BC)?;
-        // Alternative way to stop the wall from spawning, but would need to be applied earlier to the 
+        // Alternative way to stop the wall from spawning, but would need to be applied earlier to the
         // original ROM before the door data was rewritten:
         // self.rom.write_u8(snes2pc(0x83AA8F), 0x04)?;  // Door direction = 0x04
 
@@ -856,19 +903,24 @@ impl<'a> Patcher<'a> {
         // Find the rooms connected to Kraid and Crocomire and set them to reload CRE, to prevent graphical glitches.
         // Not sure if this is necessary for Crocomire, but the vanilla game does this so we do it to be safe.
         let reload_cre_door_pairs: HashSet<DoorPtrPair> = [
-            (Some(0x191DA), Some(0x19252)),  // Kraid right door
-            (Some(0x191CE), Some(0x191B6)),  // Kraid left door
-            (Some(0x193DE), Some(0x19432)),  // Crocomire left door
-            (Some(0x193EA), Some(0x193D2)),  // Crocomire top door
-        ].into();
+            (Some(0x191DA), Some(0x19252)), // Kraid right door
+            (Some(0x191CE), Some(0x191B6)), // Kraid left door
+            (Some(0x193DE), Some(0x19432)), // Crocomire left door
+            (Some(0x193EA), Some(0x193D2)), // Crocomire top door
+        ]
+        .into();
         for (src_pair, dst_pair, _bidirectional) in &self.map.doors {
             if reload_cre_door_pairs.contains(src_pair) {
-                let (room_idx, _door_idx) = self.game_data.room_and_door_idxs_by_door_ptr_pair[dst_pair];
-                self.rom.write_u8(self.game_data.room_geometry[room_idx].rom_address + 8, 2)?;
+                let (room_idx, _door_idx) =
+                    self.game_data.room_and_door_idxs_by_door_ptr_pair[dst_pair];
+                self.rom
+                    .write_u8(self.game_data.room_geometry[room_idx].rom_address + 8, 2)?;
             }
             if reload_cre_door_pairs.contains(dst_pair) {
-                let (room_idx, _door_idx) = self.game_data.room_and_door_idxs_by_door_ptr_pair[src_pair];
-                self.rom.write_u8(self.game_data.room_geometry[room_idx].rom_address + 8, 2)?;
+                let (room_idx, _door_idx) =
+                    self.game_data.room_and_door_idxs_by_door_ptr_pair[src_pair];
+                self.rom
+                    .write_u8(self.game_data.room_geometry[room_idx].rom_address + 8, 2)?;
             }
         }
         Ok(())
@@ -878,8 +930,10 @@ impl<'a> Patcher<'a> {
         let escape_time = self.randomization.spoiler_log.escape.final_time_seconds as isize;
         let minutes = escape_time / 60;
         let seconds = escape_time % 60;
-        self.rom.write_u8(snes2pc(0x809E21), (seconds % 10) + 16 * (seconds / 10))?;
-        self.rom.write_u8(snes2pc(0x809E22), (minutes % 10) + 16 * (minutes / 10))?;      
+        self.rom
+            .write_u8(snes2pc(0x809E21), (seconds % 10) + 16 * (seconds / 10))?;
+        self.rom
+            .write_u8(snes2pc(0x809E22), (minutes % 10) + 16 * (minutes / 10))?;
         Ok(())
     }
 }
@@ -892,6 +946,17 @@ fn get_other_door_ptr_pair_map(map: &Map) -> HashMap<DoorPtrPair, DoorPtrPair> {
     }
     other_door_ptr_pair_map
 }
+
+// fn get_door_room_map(room_geometry: &[RoomGeometry]) -> HashMap<DoorPtrPair, RoomGeometryRoomIdx> {
+//     let mut out: HashMap<DoorPtrPair, RoomGeometryRoomIdx> = HashMap::new();
+//     for (room_idx, room) in room_geometry.iter().enumerate() {
+//         for door in & room.doors {
+//             let door_ptr_pair = (door.exit_ptr, door.entrance_ptr);
+//             out.insert(door_ptr_pair, room_idx);
+//         }
+//     }
+//     out
+// }
 
 pub fn make_rom(
     base_rom: &Rom,
@@ -909,6 +974,7 @@ pub fn make_rom(
         game_data,
         map: &randomization.map,
         other_door_ptr_pair_map: get_other_door_ptr_pair_map(&randomization.map),
+        // door_room_map: get_door_room_map(&self.game_data.)
     };
     patcher.apply_ips_patches()?;
     patcher.place_items()?;
@@ -917,12 +983,12 @@ pub fn make_rom(
     patcher.write_map_areas()?;
     patcher.make_map_revealed()?;
     patcher.apply_map_tile_patches()?;
-    patcher.fix_twin_rooms()?;
     patcher.write_door_data()?;
     patcher.remove_non_blue_doors()?;
     patcher.use_area_based_music()?;
     patcher.setup_door_specific_fx()?;
     patcher.setup_reload_cre()?;
+    patcher.fix_twin_rooms()?;
     patcher.apply_title_screen_patches()?;
     patcher.customize_escape_timer()?;
     patcher.apply_miscellaneous_patches()?;

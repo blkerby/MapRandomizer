@@ -5,12 +5,16 @@ Release plan:
 - v32: Take ammo kills into account in logic, use boss scenarios
 
 TODO:
+- Add more race-friendly options:
+  - Distinct map tile for major items vs. minor items
+  - Make map stations accessible earlier
 - Rust migration bugfixes:
-  - arrows not auto-exploring
-  - wrecked ship so large?
-  - add config.json
+  - phantoon not following the rules
+  - two map stations
+- on open mode, don't place items in one-way reachable locations (to keep open the possibility of placing key items
+  there later once they become bireachable)
 - remove fast elevators?
-    - They mess up the heatFrames logic in Main Hall + Lower Norfair Elevator Room (though this  also wouldn't be
+    - They mess up the heat Frames logic in Main Hall + Lower Norfair Elevator Room (though this also wouldn't be
       hard to fix with an override)
 - Rust cleanup:
     - Use `serde_json` instead of `json` crate for loading sm-json-data.
