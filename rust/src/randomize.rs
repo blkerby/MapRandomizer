@@ -203,6 +203,12 @@ impl<'r> Randomizer<'r> {
             self.game_data,
         );
         for (i, vertex_ids) in self.game_data.item_vertex_ids.iter().enumerate() {
+            // Clear out any previous bireachable markers (because in rare cases a previously bireachable
+            // vertex can become no longer "bireachable" due to the imperfect cost heuristic used for 
+            // resource management.)
+            state.item_location_state[i].bireachable = false;
+            state.item_location_state[i].bireachable_vertex_id = None;
+
             for &v in vertex_ids {
                 if forward.local_states[v].is_some() {
                     state.item_location_state[i].reachable = true;
@@ -220,6 +226,12 @@ impl<'r> Randomizer<'r> {
             }
         }
         for (i, vertex_ids) in self.game_data.flag_vertex_ids.iter().enumerate() {
+            // Clear out any previous bireachable markers (because in rare cases a previously bireachable
+            // vertex can become no longer "bireachable" due to the imperfect cost heuristic used for 
+            // resource management.)
+            state.flag_location_state[i].bireachable = false;
+            state.flag_location_state[i].bireachable_vertex_id = None;
+
             for &v in vertex_ids {
                 if !state.flag_location_state[i].bireachable
                     && is_bireachable(
@@ -869,7 +881,6 @@ impl<'a> Randomizer<'a> {
             // info!("spoiler: {:?}", spoiler_entry);
             route.push(spoiler_entry);
             *local_state = new_local_state;
-            // TODO: Add details about energy/ammo levels
         }
         // info!("local: {:?}", local_state);
         route
@@ -880,6 +891,9 @@ impl<'a> Randomizer<'a> {
         state: &RandomizationState,
         vertex_id: usize,
     ) -> (Vec<SpoilerRouteEntry>, Vec<SpoilerRouteEntry>) {
+        // info!("vertex_id: {}", vertex_id);
+        // info!("forward: {:?}", state.debug_data.as_ref().unwrap().forward.local_states[vertex_id]);
+        // info!("reverse: {:?}", state.debug_data.as_ref().unwrap().reverse.local_states[vertex_id]);
         let forward_link_idxs: Vec<LinkIdx> = get_spoiler_route(
             &state.debug_data.as_ref().unwrap().forward,
             vertex_id,

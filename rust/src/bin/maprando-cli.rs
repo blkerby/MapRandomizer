@@ -37,17 +37,77 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
     let map: Map = serde_json::from_str(&map_string)
         .with_context(|| format!("Unable to parse map file at {}", args.map.display()))?;
 
-    let ignored_tech: Vec<String> = ["canWallIceClip", "canGrappleClip", "canUseSpeedEchoes"].iter().map(|x| x.to_string()).collect();
-    let tech: Vec<String> = game_data.tech_isv.keys.iter().filter(|&x| !ignored_tech.contains(&x)).cloned().collect();
+    // let ignored_tech: Vec<String> = ["canWallIceClip", "canGrappleClip", "canUseSpeedEchoes"].iter().map(|x| x.to_string()).collect();
+    // let tech: Vec<String> = game_data.tech_isv.keys.iter().filter(|&x| !ignored_tech.contains(&x)).cloned().collect();
+    let tech: Vec<String> = vec![
+        "can3HighMidAirMorph",
+        "canBlueSpaceJump",
+        "canBombAboveIBJ",
+        "canBombHorizontally",
+        "canBombJumpWaterEscape",
+        "canCeilingClip",
+        "canCrabClimb",
+        "canCrouchJump",
+        "canCrumbleJump",
+        "canCrumbleSpinJump",
+        "canCrystalFlash",
+        "canCrystalFlashForceStandup",
+        "canDamageBoost",
+        "canDownGrab",
+        "canGateGlitch",
+        "canGrappleJump",
+        "canGravityJump",
+        "canHBJ",
+        "canHeatRun",
+        "canHitbox",
+        "canIBJ",
+        "canIceZebetitesSkip",
+        "canIframeSpikeJump",
+        "canJumpIntoIBJ",
+        "canLateralMidAirMorph",
+        "canLavaGravityJump",
+        "canMaridiaTubeClip",
+        "canMetroidAvoid",
+        "canMochtroidIceClimb",
+        "canMochtroidIceClip",
+        "canMockball",
+        "canMoonfall",
+        "canPreciseWalljump",
+        "canQuickLowTideWalljumpWaterEscape",
+        "canSandMochtroidIceClimb",
+        "canShinespark",
+        "canShotBlockOverload",
+        "canSnailClimb",
+        "canSnailClip",
+        "canSpringBallJump",
+        "canSpringBallJumpMidAir",
+        "canStationaryLateralMidAirMorph",
+        "canStationarySpinJump",
+        "canSuitlessLavaDive",
+        "canSuitlessMaridia",
+        "canSuperReachAround",
+        "canTrickyJump",
+        "canTrickyUseFrozenEnemies",
+        "canTunnelCrawl",
+        "canTurnaroundAimCancel",
+        "canTwoTileSqueeze",
+        "canUnmorphBombBoost",
+        "canUseEnemies",
+        "canUseFrozenEnemies",
+        "canWalljump",
+        "canWrapAroundShot",
+        "canXRayStandUp"
+    ].iter().map(|x| x.to_string()).collect();
     
     let difficulty = DifficultyConfig {
         // tech: game_data.tech_isv.keys.clone(),
         tech,
-        shine_charge_tiles: 16,
+        // shine_charge_tiles: 16,
+        shine_charge_tiles: 20,
         // item_placement_strategy: ItemPlacementStrategy::Closed,
         item_placement_strategy: ItemPlacementStrategy::Semiclosed,
-        resource_multiplier: 1.0,
-        escape_timer_multiplier: 1.0,
+        resource_multiplier: 1.2,
+        escape_timer_multiplier: 1.2,
         save_animals: false,
         debug_options: Some(DebugOptions {
             new_game_extra: false,
@@ -67,6 +127,10 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
 }
 
 fn main() -> Result<()> {
+    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info"))
+        .format_timestamp_millis()
+        .init();
+
     let args = Args::parse();
     let sm_json_data_path = Path::new("../sm-json-data");
     let room_geometry_path = Path::new("../room_geometry.json");

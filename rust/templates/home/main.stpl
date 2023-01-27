@@ -139,8 +139,7 @@
                 </div>
             </div>
         </form>
-        <small><strong>Note</strong>: ROM may take a while to generate. For fastest results, click "Generate ROM" only once and wait patiently. 
-        If it times out, try again with a different random seed. This is still in an alpha stage of development, 
+        <small><strong>Note</strong>: This is still in an alpha stage of development, 
         so bugs are expected. If you encounter a problem, 
         feedback is welcome on <a href="https://github.com/blkerby/MapRandomizer/issues">GitHub issues</a>. 
         Also feel free to stop by the <a href="https://discord.gg/Gc99YV2ZcB">Discord</a>: let us know if you
