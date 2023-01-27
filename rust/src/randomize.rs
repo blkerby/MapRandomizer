@@ -27,6 +27,12 @@ pub enum ItemPlacementStrategy {
 }
 
 #[derive(Clone, Serialize, Deserialize)]
+pub struct DebugOptions {
+    pub new_game_extra: bool,
+    pub extended_spoiler: bool,
+}
+
+#[derive(Clone, Serialize, Deserialize)]
 pub struct DifficultyConfig {
     pub tech: Vec<String>,
     pub shine_charge_tiles: i32,
@@ -34,7 +40,8 @@ pub struct DifficultyConfig {
     pub resource_multiplier: f32,
     pub escape_timer_multiplier: f32,
     pub save_animals: bool,
-    pub debug_mode: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub debug_options: Option<DebugOptions>,
 }
 
 // Includes preprocessing specific to the map:
@@ -978,8 +985,13 @@ impl<'a> Randomizer<'a> {
         let mut items: Vec<SpoilerItemDetails> = Vec::new();
         for i in 0..self.game_data.item_locations.len() {
             if let Some(item) = new_state.item_location_state[i].placed_item {
-                let first_item = state.items_remaining[item as usize]
+                let mut first_item = state.items_remaining[item as usize]
                     == self.initial_items_remaining[item as usize];
+                if let Some(debug_options) = &self.difficulty.debug_options {
+                    if debug_options.extended_spoiler {
+                        first_item = true;
+                    }
+                } 
                 if first_item
                     && !state.item_location_state[i].collected
                     && new_state.item_location_state[i].collected
@@ -1008,8 +1020,13 @@ impl<'a> Randomizer<'a> {
         let mut items: Vec<SpoilerItemSummary> = Vec::new();
         for i in 0..self.game_data.item_locations.len() {
             if let Some(item) = new_state.item_location_state[i].placed_item {
-                let first_item = state.items_remaining[item as usize]
+                let mut first_item = state.items_remaining[item as usize]
                     == self.initial_items_remaining[item as usize];
+                if let Some(debug_options) = &self.difficulty.debug_options {
+                    if debug_options.extended_spoiler {
+                        first_item = true;
+                    }
+                } 
                 if first_item
                     && !state.item_location_state[i].collected
                     && new_state.item_location_state[i].collected

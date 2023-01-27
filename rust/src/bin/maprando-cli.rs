@@ -2,7 +2,7 @@ use anyhow::{bail, Context, Result};
 use clap::Parser;
 use maprando::game_data::Map;
 use maprando::patch::Rom;
-use maprando::randomize::{ItemPlacementStrategy, Randomization, Randomizer};
+use maprando::randomize::{ItemPlacementStrategy, Randomization, Randomizer, DebugOptions};
 use maprando::spoiler_map;
 use maprando::{game_data::GameData, patch::make_rom, randomize::DifficultyConfig};
 use std::path::{Path, PathBuf};
@@ -11,6 +11,9 @@ use std::path::{Path, PathBuf};
 struct Args {
     #[arg(long)]
     map: PathBuf,
+
+    #[arg(long)]
+    item_placement_seed: usize,
 
     #[arg(long)]
     input_rom: PathBuf,
@@ -34,26 +37,33 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
     let map: Map = serde_json::from_str(&map_string)
         .with_context(|| format!("Unable to parse map file at {}", args.map.display()))?;
 
+    let ignored_tech: Vec<String> = ["canWallIceClip", "canGrappleClip", "canUseSpeedEchoes"].iter().map(|x| x.to_string()).collect();
+    let tech: Vec<String> = game_data.tech_isv.keys.iter().filter(|&x| !ignored_tech.contains(&x)).cloned().collect();
+    
     let difficulty = DifficultyConfig {
-        tech: game_data.tech_isv.keys.clone(),
+        // tech: game_data.tech_isv.keys.clone(),
+        tech,
         shine_charge_tiles: 16,
         // item_placement_strategy: ItemPlacementStrategy::Closed,
         item_placement_strategy: ItemPlacementStrategy::Semiclosed,
         resource_multiplier: 1.0,
         escape_timer_multiplier: 1.0,
         save_animals: false,
-        debug_mode: false,
+        debug_options: Some(DebugOptions {
+            new_game_extra: false,
+            extended_spoiler: true,
+        })
     };
     let randomizer = Randomizer::new(&map, &difficulty, &game_data);
-    let max_attempts = 1;
-    for attempt_num in 0..max_attempts {
-        if let Some(randomization) = randomizer.randomize(attempt_num) {
-            return Ok(randomization);
-        } else {
-            println!("Failed randomization attempt");
-        }
+    // let max_attempts = 1;
+    // for attempt_num in 0..max_attempts {
+    if let Some(randomization) = randomizer.randomize(args.item_placement_seed) {
+        return Ok(randomization);
+    } else {
+        bail!("Failed randomization attempt");
     }
-    bail!("Exhausted randomization attempts");
+    // }
+    // bail!("Exhausted randomization attempts");
 }
 
 fn main() -> Result<()> {
