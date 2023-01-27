@@ -3,7 +3,7 @@
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-29---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 29 (???)</a>:
+<p><a href="https://version-29---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 29 (2023-01-27)</a>:
 <ul>
     <li>The randomizer is rewritten in Rust. This is an internal change but it has some observable effects:
     <ul>
@@ -32,7 +32,7 @@ about 15 seconds to load.
     <li>Elevator tiles are restored to their vanilla form with blue/pink pixels indicating if they have been explored.
 </ul>
 
-<p><a href="https://version-28---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 28 (2022-01-10)</a>:
+<p><a href="https://version-28---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 28 (2023-01-10)</a>:
 <ul>
     <li>Overhaul of the item placement algorithm:
     <ul>
@@ -66,7 +66,7 @@ about 15 seconds to load.
     <li>When going down Warehouse Entrance elevator, an elevator map tile is revealed which was previously missed.
 </ul>
 
-<p><a href="https://version-27---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 27 (2022-01-08)</a>:
+<p><a href="https://version-27---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 27 (2023-01-08)</a>:
 <ul>
     <li>Enable Bowling Alley chozo during escape (to be able to activate bowling).
     <li>Adjustments to escape timer, which overall make it more lenient:
@@ -79,7 +79,7 @@ about 15 seconds to load.
     </ul>
 </ul>
 
-<p><a href="https://version-26---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 26 (2022-01-06)</a>:
+<p><a href="https://version-26---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 26 (2023-01-06)</a>:
 <ul>
     <li>Fix the far right platform in Mother Brain Room to be solid tiles instead of slopes,
         to avoid the possibility of falling through the tiles and being trapped by running into the room (since
