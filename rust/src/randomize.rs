@@ -86,6 +86,7 @@ struct RandomizationState {
 }
 
 pub struct Randomization {
+    pub difficulty: DifficultyConfig,
     pub map: Map,
     pub item_placement: Vec<Item>,
     pub spoiler_log: SpoilerLog,
@@ -582,6 +583,7 @@ impl<'r> Randomizer<'r> {
             details: spoiler_details,
         };
         Randomization {
+            difficulty: self.difficulty.clone(),
             map: self.map.clone(),
             item_placement,
             spoiler_log,

@@ -212,7 +212,13 @@ impl<'a> Patcher<'a> {
             "fast_reload",
             // "gravitypal",
         ];
-        patches.push("new_game");
+        let mut new_game = "new_game";
+        if let Some(options) = &self.randomization.difficulty.debug_options {
+            if options.new_game_extra {
+                new_game = "new_game_extra";
+            }
+        }
+        patches.push(new_game);
         // patches.push("new_game_extra");
         // "new_game_extra' if args.debug else 'new_game",
         for patch_name in patches {
@@ -647,7 +653,7 @@ impl<'a> Patcher<'a> {
         let mut pos = 11;
         let mut ptr_pairs: Vec<(usize, usize)> = Vec::new();
         loop {
-            let ptr = self.orig_rom.read_u16(room_ptr + pos)? as usize;
+            let ptr = self.rom.read_u16(room_ptr + pos)? as usize;
             if ptr == 0xE5E6 {
                 // This is the standard state, which is the last one.
                 ptr_pairs.push((ptr, room_ptr + pos + 2));
@@ -702,7 +708,7 @@ impl<'a> Patcher<'a> {
                 let plm_set_ptr = self.rom.read_u16(state_ptr + 20)? as usize;
                 let mut ptr = plm_set_ptr + 0x70000;
                 loop {
-                    let plm_type = self.orig_rom.read_u16(ptr)?;
+                    let plm_type = self.rom.read_u16(ptr)?;
                     if plm_type == 0 {
                         break;
                     }

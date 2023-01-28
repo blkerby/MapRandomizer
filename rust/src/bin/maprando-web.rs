@@ -52,6 +52,7 @@ impl MapRepository {
         for path in std::fs::read_dir(base_path)? {
             filenames.push(path?.file_name().into_string().unwrap());
         }
+        info!("{} maps available", filenames.len());
         Ok(MapRepository {
             base_path: base_path.to_owned(),
             filenames,
@@ -293,7 +294,11 @@ fn init_presets(presets: Vec<Preset>, game_data: &GameData) -> Vec<PresetData> {
 
 #[actix_web::main]
 async fn main() {
-    let sm_json_data_path = Path::new("../sm-json-data");
+    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info"))
+        .format_timestamp_millis()
+        .init();
+
+        let sm_json_data_path = Path::new("../sm-json-data");
     let room_geometry_path = Path::new("../room_geometry.json");
     let maps_path =
         Path::new("../maps/session-2022-06-03T17:19:29.727911.pkl-bk30-subarea-balance");
@@ -307,10 +312,6 @@ async fn main() {
         preset_data,
         map_repository: MapRepository::new(maps_path).unwrap(),
     });
-
-    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info"))
-        .format_timestamp_millis()
-        .init();
 
     HttpServer::new(move || {
         App::new()
