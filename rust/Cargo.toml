@@ -38,3 +38,5 @@ zip = "0.6.3"
 object_store = {version = "0.5.3", features=["gcp"]}
 fasthash = "0.4.0"
 base64 = "0.21.0"
+futures = "0.3.25"
+zstd = "0.12.2+zstd.1.5.2"

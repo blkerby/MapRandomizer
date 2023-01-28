@@ -9,21 +9,22 @@ use actix_web::http::header::{ContentDisposition, DispositionParam, DispositionT
 use actix_web::middleware::Logger;
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
 use anyhow::{Context, Result};
+use clap::Parser;
 use hashbrown::{HashMap, HashSet};
 use log::info;
 use maprando::game_data::{GameData, Map};
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::{make_rom, Rom};
 use maprando::randomize::{DifficultyConfig, Randomization, Randomizer};
-use maprando::seed_repository::{SeedRepository, Seed};
+use maprando::seed_repository::{Seed, SeedRepository};
 // use maprando::seed_repository::Seed;
+use base64::Engine;
 use maprando::spoiler_map;
 use rand::{RngCore, SeedableRng};
 use sailfish::TemplateOnce;
 use serde_derive::{Deserialize, Serialize};
-use base64::Engine;
 
-const VERSION: usize = 30;
+const VERSION: usize = 31;
 
 #[derive(Serialize, Deserialize, Clone)]
 struct Preset {
@@ -44,11 +45,11 @@ struct MapRepository {
     filenames: Vec<String>,
 }
 
-struct AppData {
+struct AppData<'a> {
     game_data: GameData,
     preset_data: Vec<PresetData>,
     map_repository: MapRepository,
-    seed_repository: SeedRepository,
+    seed_repository: SeedRepository<'a>,
 }
 
 impl MapRepository {
@@ -86,7 +87,7 @@ struct HomeTemplate<'a> {
 }
 
 #[get("/")]
-async fn home(app_data: web::Data<AppData>) -> impl Responder {
+async fn home<'a>(app_data: web::Data<AppData<'a>>) -> impl Responder {
     let home_template = HomeTemplate {
         version: VERSION,
         item_placement_strategies: vec!["Open", "Semiclosed", "Closed"],
@@ -133,13 +134,17 @@ fn get_difficulty_hash(difficulty: &DifficultyConfig) -> usize {
     state.finish() as usize
 }
 
-
 #[derive(TemplateOnce)]
 #[template(path = "seed/seed.stpl")]
-struct SeedTemplate {
-}
+struct SeedTemplate {}
 
-async fn save_seed(config: &Config, vanilla_rom: &Rom, rom: &Rom, randomization: &Randomization, app_data: &AppData) -> Result<()> {
+async fn save_seed<'a>(
+    config: &Config,
+    vanilla_rom: &Rom,
+    rom: &Rom,
+    randomization: &Randomization,
+    app_data: &AppData<'a>,
+) -> Result<()> {
     let seed_name = get_seed_name(config);
     let patch_ips = create_ips_patch(&vanilla_rom.data, &rom.data);
     let seed_template = SeedTemplate {};
@@ -155,9 +160,9 @@ async fn save_seed(config: &Config, vanilla_rom: &Rom, rom: &Rom, randomization:
 }
 
 #[post("/randomize")]
-async fn randomize(
+async fn randomize<'a>(
     req: MultipartForm<RandomizeRequest>,
-    app_data: web::Data<AppData>,
+    app_data: web::Data<AppData<'a>>,
 ) -> impl Responder {
     let rom = Rom {
         data: req.rom.data.to_vec(),
@@ -232,7 +237,9 @@ async fn randomize(
 
     let output_rom = make_rom(&rom, &randomization, &app_data.game_data).unwrap();
 
-    save_seed(&config, &rom, &output_rom, &randomization, &app_data).await.unwrap();
+    save_seed(&config, &rom, &output_rom, &randomization, &app_data)
+        .await
+        .unwrap();
 
     let mut zip_vec: Vec<u8> = Vec::new();
     let mut zip = zip::ZipWriter::new(std::io::Cursor::new(&mut zip_vec));
@@ -252,15 +259,29 @@ async fn randomize(
 
     // Write the spoiler log
     let spoiler_bytes = serde_json::to_vec_pretty(&randomization.spoiler_log).unwrap();
-    write_file(&(base_filename.to_string() + "-spoiler.json"), &spoiler_bytes).unwrap();
+    write_file(
+        &(base_filename.to_string() + "-spoiler.json"),
+        &spoiler_bytes,
+    )
+    .unwrap();
 
     // Write the spoiler maps
     let spoiler_map_assigned =
-        spoiler_map::get_spoiler_map(&output_rom, &randomization.map, &app_data.game_data, false).unwrap();
-    write_file(&(base_filename.to_string() + "-map.png"), &spoiler_map_assigned).unwrap();
+        spoiler_map::get_spoiler_map(&output_rom, &randomization.map, &app_data.game_data, false)
+            .unwrap();
+    write_file(
+        &(base_filename.to_string() + "-map.png"),
+        &spoiler_map_assigned,
+    )
+    .unwrap();
     let spoiler_map_vanilla =
-        spoiler_map::get_spoiler_map(&output_rom, &randomization.map, &app_data.game_data, true).unwrap();
-    write_file(&(base_filename.to_string() + "-map-vanilla.png"), &spoiler_map_vanilla).unwrap();
+        spoiler_map::get_spoiler_map(&output_rom, &randomization.map, &app_data.game_data, true)
+            .unwrap();
+    write_file(
+        &(base_filename.to_string() + "-map-vanilla.png"),
+        &spoiler_map_vanilla,
+    )
+    .unwrap();
 
     zip.finish().unwrap();
     drop(zip);
@@ -269,7 +290,9 @@ async fn randomize(
         .content_type("application/octet-stream")
         .insert_header(ContentDisposition {
             disposition: DispositionType::Attachment,
-            parameters: vec![DispositionParam::Filename(base_filename.to_string() + ".zip")],
+            parameters: vec![DispositionParam::Filename(
+                base_filename.to_string() + ".zip",
+            )],
         })
         .body(zip_vec)
 }
@@ -328,31 +351,40 @@ fn init_presets(presets: Vec<Preset>, game_data: &GameData) -> Vec<PresetData> {
     out
 }
 
+#[derive(Parser)]
+struct Args {
+    #[arg(long)]
+    seed_repository_url: String,
+}
+
+fn build_app_data<'a>() -> AppData<'a> {
+    let args = Args::parse();
+    let sm_json_data_path = Path::new("../sm-json-data");
+    let room_geometry_path = Path::new("../room_geometry.json");
+    let maps_path =
+        Path::new("../maps/session-2022-06-03T17:19:29.727911.pkl-bk30-subarea-balance");
+
+    let game_data = GameData::load(sm_json_data_path, room_geometry_path).unwrap();
+    let presets: Vec<Preset> =
+        serde_json::from_str(&std::fs::read_to_string(&"data/presets.json").unwrap()).unwrap();
+    let preset_data = init_presets(presets, &game_data);
+    AppData {
+        game_data,
+        preset_data,
+        map_repository: MapRepository::new(maps_path).unwrap(),
+        seed_repository: SeedRepository::new(&args.seed_repository_url).unwrap(),
+    }
+}
+
 #[actix_web::main]
 async fn main() {
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info"))
         .format_timestamp_millis()
         .init();
 
-        let sm_json_data_path = Path::new("../sm-json-data");
-    let room_geometry_path = Path::new("../room_geometry.json");
-    let maps_path =
-        Path::new("../maps/session-2022-06-03T17:19:29.727911.pkl-bk30-subarea-balance");
-    let game_data = GameData::load(sm_json_data_path, room_geometry_path).unwrap();
-    let presets: Vec<Preset> =
-        serde_json::from_str(&std::fs::read_to_string(&"data/presets.json").unwrap()).unwrap();
-
-    let preset_data = init_presets(presets, &game_data);
-    let app_data = web::Data::new(AppData {
-        game_data,
-        preset_data,
-        map_repository: MapRepository::new(maps_path).unwrap(),
-        seed_repository: SeedRepository::new().unwrap(),
-    });
-
     HttpServer::new(move || {
         App::new()
-            .app_data(app_data.clone())
+            .app_data(web::Data::new(build_app_data()))
             .app_data(
                 MultipartFormConfig::default()
                     .memory_limit(16_000_000)
