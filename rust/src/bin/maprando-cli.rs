@@ -13,7 +13,7 @@ struct Args {
     map: PathBuf,
 
     #[arg(long)]
-    item_placement_seed: usize,
+    item_placement_seed: Option<usize>,
 
     #[arg(long)]
     input_rom: PathBuf,
@@ -39,91 +39,103 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
 
     // let ignored_tech: Vec<String> = ["canWallIceClip", "canGrappleClip", "canUseSpeedEchoes"].iter().map(|x| x.to_string()).collect();
     // let tech: Vec<String> = game_data.tech_isv.keys.iter().filter(|&x| !ignored_tech.contains(&x)).cloned().collect();
-    let tech: Vec<String> = vec![
-        "can3HighMidAirMorph",
-        "canBlueSpaceJump",
-        "canBombAboveIBJ",
-        "canBombHorizontally",
-        "canBombJumpWaterEscape",
-        "canCeilingClip",
-        "canCrabClimb",
-        "canCrouchJump",
-        "canCrumbleJump",
-        "canCrumbleSpinJump",
-        "canCrystalFlash",
-        "canCrystalFlashForceStandup",
-        "canDamageBoost",
-        "canDownGrab",
-        "canGateGlitch",
-        "canGrappleJump",
-        "canGravityJump",
-        "canHBJ",
-        "canHeatRun",
-        "canHitbox",
-        "canIBJ",
-        "canIceZebetitesSkip",
-        "canIframeSpikeJump",
-        "canJumpIntoIBJ",
-        "canLateralMidAirMorph",
-        "canLavaGravityJump",
-        "canMaridiaTubeClip",
-        "canMetroidAvoid",
-        "canMochtroidIceClimb",
-        "canMochtroidIceClip",
-        "canMockball",
-        "canMoonfall",
-        "canPreciseWalljump",
-        "canQuickLowTideWalljumpWaterEscape",
-        "canSandMochtroidIceClimb",
-        "canShinespark",
-        "canShotBlockOverload",
-        "canSnailClimb",
-        "canSnailClip",
-        "canSpringBallJump",
-        "canSpringBallJumpMidAir",
-        "canStationaryLateralMidAirMorph",
-        "canStationarySpinJump",
-        "canSuitlessLavaDive",
-        "canSuitlessMaridia",
-        "canSuperReachAround",
-        "canTrickyJump",
-        "canTrickyUseFrozenEnemies",
-        "canTunnelCrawl",
-        "canTurnaroundAimCancel",
-        "canTwoTileSqueeze",
-        "canUnmorphBombBoost",
-        "canUseEnemies",
-        "canUseFrozenEnemies",
-        "canWalljump",
-        "canWrapAroundShot",
-        "canXRayStandUp"
-    ].iter().map(|x| x.to_string()).collect();
+    // let tech: Vec<String> = vec![
+    //     "canCrouchJump",
+    //     "canDownGrab",
+    //     "canHeatRun",
+    //     "canIBJ",
+    //     "canShinespark",
+    //     "canSuitlessMaridia",
+    //     "canWalljump"
+    //     //   "can3HighMidAirMorph",
+    //     // "canBlueSpaceJump",
+    //     // "canBombAboveIBJ",
+    //     // "canBombHorizontally",
+    //     // "canBombJumpWaterEscape",
+    //     // "canCeilingClip",
+    //     // "canCrabClimb",
+    //     // "canCrouchJump",
+    //     // "canCrumbleJump",
+    //     // "canCrumbleSpinJump",
+    //     // "canCrystalFlash",
+    //     // "canCrystalFlashForceStandup",
+    //     // "canDamageBoost",
+    //     // "canDownGrab",
+    //     // "canGateGlitch",
+    //     // "canGrappleJump",
+    //     // "canGravityJump",
+    //     // "canHBJ",
+    //     // "canHeatRun",
+    //     // "canHitbox",
+    //     // "canIBJ",
+    //     // "canIceZebetitesSkip",
+    //     // "canIframeSpikeJump",
+    //     // "canJumpIntoIBJ",
+    //     // "canLateralMidAirMorph",
+    //     // "canLavaGravityJump",
+    //     // "canMaridiaTubeClip",
+    //     // "canMetroidAvoid",
+    //     // "canMochtroidIceClimb",
+    //     // "canMochtroidIceClip",
+    //     // "canMockball",
+    //     // "canMoonfall",
+    //     // "canPreciseWalljump",
+    //     // "canQuickLowTideWalljumpWaterEscape",
+    //     // "canSandMochtroidIceClimb",
+    //     // "canShinespark",
+    //     // "canShotBlockOverload",
+    //     // "canSnailClimb",
+    //     // "canSnailClip",
+    //     // "canSpringBallJump",
+    //     // "canSpringBallJumpMidAir",
+    //     // "canStationaryLateralMidAirMorph",
+    //     // "canStationarySpinJump",
+    //     // "canSuitlessLavaDive",
+    //     // "canSuitlessMaridia",
+    //     // "canSuperReachAround",
+    //     // "canTrickyJump",
+    //     // "canTrickyUseFrozenEnemies",
+    //     // "canTunnelCrawl",
+    //     // "canTurnaroundAimCancel",
+    //     // "canTwoTileSqueeze",
+    //     // "canUnmorphBombBoost",
+    //     // "canUseEnemies",
+    //     // "canUseFrozenEnemies",
+    //     // "canWalljump",
+    //     // "canWrapAroundShot",
+    //     // "canXRayStandUp"
+    // ].iter().map(|x| x.to_string()).collect();
     
     let difficulty = DifficultyConfig {
-        // tech: game_data.tech_isv.keys.clone(),
-        tech,
+        tech: game_data.tech_isv.keys.clone(),
+        // tech,
         // shine_charge_tiles: 16,
-        shine_charge_tiles: 20,
+        shine_charge_tiles: 28,
+        item_placement_strategy: ItemPlacementStrategy::Open,
         // item_placement_strategy: ItemPlacementStrategy::Closed,
-        item_placement_strategy: ItemPlacementStrategy::Semiclosed,
-        resource_multiplier: 1.2,
-        escape_timer_multiplier: 1.2,
+        // item_placement_strategy: ItemPlacementStrategy::Semiclosed,
+        resource_multiplier: 2.0,
+        escape_timer_multiplier: 2.0,
         save_animals: false,
         debug_options: Some(DebugOptions {
-            new_game_extra: false,
+            new_game_extra: true,
             extended_spoiler: true,
         })
     };
     let randomizer = Randomizer::new(&map, &difficulty, &game_data);
-    // let max_attempts = 1;
-    // for attempt_num in 0..max_attempts {
-    if let Some(randomization) = randomizer.randomize(args.item_placement_seed) {
-        return Ok(randomization);
-    } else {
-        bail!("Failed randomization attempt");
+    let max_attempts = if args.item_placement_seed.is_some() { 1 } else { 10 };
+    for attempt_num in 0..max_attempts {
+        let seed = match args.item_placement_seed {
+            Some(s) => s,
+            None => attempt_num
+        };
+        if let Some(randomization) = randomizer.randomize(seed) {
+            return Ok(randomization);
+        } else {
+            println!("Failed randomization attempt");
+        }
     }
-    // }
-    // bail!("Exhausted randomization attempts");
+    bail!("Exhausted randomization attempts");
 }
 
 fn main() -> Result<()> {
@@ -176,5 +188,8 @@ fn main() -> Result<()> {
             spoiler_map::get_spoiler_map(&rom, &randomization.map, &game_data, true)?;
         std::fs::write(output_spoiler_map_vanilla_path, spoiler_map_vanilla)?;
     }
+
+    let door_data = rom.read_n(0x18e1a, 12).unwrap();
+    println!("{:?}", door_data);
     Ok(())
 }
