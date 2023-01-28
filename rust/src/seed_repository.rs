@@ -29,7 +29,7 @@ impl SeedRepository {
         Ok(Self {
             object_store: Box::new(
                 GoogleCloudStorageBuilder::from_env()
-                    .with_bucket_name("super-metroid-map-rando")
+                    .with_url("gs://super-metroid-map-rando/seeds")
                     .build()?,
             ),
         })
