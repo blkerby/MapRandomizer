@@ -1585,6 +1585,7 @@ dependencies = [
  "clap",
  "env_logger",
  "fasthash",
+ "futures",
  "glob",
  "hashbrown 0.13.2",
  "hashers",
@@ -1606,6 +1607,7 @@ dependencies = [
  "strum",
  "strum_macros",
  "zip",
+ "zstd 0.12.2+zstd.1.5.2",
 ]
 
 [[package]]
