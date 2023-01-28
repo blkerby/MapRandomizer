@@ -2,6 +2,7 @@ mod compress;
 mod decompress;
 mod map_tiles;
 mod title;
+pub mod ips_write;
 
 use std::path::Path;
 

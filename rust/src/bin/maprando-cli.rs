@@ -5,6 +5,7 @@ use maprando::patch::Rom;
 use maprando::randomize::{ItemPlacementStrategy, Randomization, Randomizer, DebugOptions};
 use maprando::spoiler_map;
 use maprando::{game_data::GameData, patch::make_rom, randomize::DifficultyConfig};
+use maprando::patch::ips_write::create_ips_patch;
 use std::path::{Path, PathBuf};
 
 #[derive(Parser)]
@@ -20,6 +21,9 @@ struct Args {
 
     #[arg(long)]
     output_rom: Option<PathBuf>,
+
+    #[arg(long)]
+    output_ips: Option<PathBuf>,
 
     #[arg(long)]
     output_spoiler_log: Option<PathBuf>,
@@ -152,12 +156,19 @@ fn main() -> Result<()> {
     let randomization = get_randomization(&args, &game_data)?;
 
     // Generate the patched ROM:
-    let rom = make_rom(&Rom::load(&args.input_rom)?, &randomization, &game_data)?;
+    let input_rom = Rom::load(&args.input_rom)?;
+    let output_rom = make_rom(&input_rom, &randomization, &game_data)?;
+    let ips_patch = create_ips_patch(&input_rom.data, &output_rom.data);
 
     // Save the outputs:
     if let Some(output_rom_path) = &args.output_rom {
         println!("Writing output ROM to {}", output_rom_path.display());
-        rom.save(output_rom_path)?;
+        output_rom.save(output_rom_path)?;
+    }
+
+    if let Some(output_ips_path) = &args.output_ips {
+        println!("Writing output IPS to {}", output_ips_path.display());
+        std::fs::write(&output_ips_path, &ips_patch)?;
     }
 
     if let Some(output_spoiler_log_path) = &args.output_spoiler_log {
@@ -175,7 +186,7 @@ fn main() -> Result<()> {
             output_spoiler_map_assigned_path.display()
         );
         let spoiler_map_assigned =
-            spoiler_map::get_spoiler_map(&rom, &randomization.map, &game_data, false)?;
+            spoiler_map::get_spoiler_map(&output_rom, &randomization.map, &game_data, false)?;
         std::fs::write(output_spoiler_map_assigned_path, spoiler_map_assigned)?;
     }
 
@@ -185,11 +196,11 @@ fn main() -> Result<()> {
             output_spoiler_map_vanilla_path.display()
         );
         let spoiler_map_vanilla =
-            spoiler_map::get_spoiler_map(&rom, &randomization.map, &game_data, true)?;
+            spoiler_map::get_spoiler_map(&output_rom, &randomization.map, &game_data, true)?;
         std::fs::write(output_spoiler_map_vanilla_path, spoiler_map_vanilla)?;
     }
 
-    let door_data = rom.read_n(0x18e1a, 12).unwrap();
+    let door_data = output_rom.read_n(0x18e1a, 12).unwrap();
     println!("{:?}", door_data);
     Ok(())
 }

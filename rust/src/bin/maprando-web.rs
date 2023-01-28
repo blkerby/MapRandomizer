@@ -12,12 +12,16 @@ use anyhow::{Context, Result};
 use hashbrown::{HashMap, HashSet};
 use log::info;
 use maprando::game_data::{GameData, Map};
+use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::{make_rom, Rom};
 use maprando::randomize::{DifficultyConfig, Randomization, Randomizer};
+use maprando::seed_repository::{SeedRepository, Seed};
+// use maprando::seed_repository::Seed;
 use maprando::spoiler_map;
 use rand::{RngCore, SeedableRng};
 use sailfish::TemplateOnce;
 use serde_derive::{Deserialize, Serialize};
+use base64::Engine;
 
 const VERSION: usize = 30;
 
@@ -44,6 +48,7 @@ struct AppData {
     game_data: GameData,
     preset_data: Vec<PresetData>,
     map_repository: MapRepository,
+    seed_repository: SeedRepository,
 }
 
 impl MapRepository {
@@ -114,11 +119,39 @@ struct Config {
     difficulty: DifficultyConfig,
 }
 
+fn get_seed_name(config: &Config) -> String {
+    let config_str = serde_json::to_string(&config).unwrap();
+    let h128 = fasthash::spooky::hash128(config_str);
+    let base64_str = base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(h128.to_le_bytes());
+    base64_str
+}
+
 fn get_difficulty_hash(difficulty: &DifficultyConfig) -> usize {
     let difficulty_str = serde_json::to_string(&difficulty).unwrap();
     let mut state = hashers::fx_hash::FxHasher::default();
     difficulty_str.hash(&mut state);
     state.finish() as usize
+}
+
+
+#[derive(TemplateOnce)]
+#[template(path = "seed/seed.stpl")]
+struct SeedTemplate {
+}
+
+async fn save_seed(config: &Config, vanilla_rom: &Rom, rom: &Rom, randomization: &Randomization, app_data: &AppData) -> Result<()> {
+    let seed_name = get_seed_name(config);
+    let patch_ips = create_ips_patch(&vanilla_rom.data, &rom.data);
+    let seed_template = SeedTemplate {};
+    let seed_html = seed_template.render_once()?;
+    let seed = Seed {
+        name: seed_name,
+        patch_ips,
+        seed_html: seed_html.into_bytes(),
+        extra_files: vec![],
+    };
+    app_data.seed_repository.put_seed(seed).await?;
+    Ok(())
 }
 
 #[post("/randomize")]
@@ -198,6 +231,9 @@ async fn randomize(
     };
 
     let output_rom = make_rom(&rom, &randomization, &app_data.game_data).unwrap();
+
+    save_seed(&config, &rom, &output_rom, &randomization, &app_data).await.unwrap();
+
     let mut zip_vec: Vec<u8> = Vec::new();
     let mut zip = zip::ZipWriter::new(std::io::Cursor::new(&mut zip_vec));
 
@@ -311,6 +347,7 @@ async fn main() {
         game_data,
         preset_data,
         map_repository: MapRepository::new(maps_path).unwrap(),
+        seed_repository: SeedRepository::new().unwrap(),
     });
 
     HttpServer::new(move || {
