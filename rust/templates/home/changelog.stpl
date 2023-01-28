@@ -3,6 +3,11 @@
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-30---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 30 (2023-01-27)</a>:
+<ul>
+<li>Fix an issue that caused the game to crash when entering Tourian Eye Door Room.
+</ul>
+
 <p><a href="https://version-29---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 29 (2023-01-27)</a>:
 <ul>
     <li>The randomizer is rewritten in Rust. This is an internal change but it has some observable effects:
