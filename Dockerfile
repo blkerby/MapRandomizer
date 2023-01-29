@@ -27,6 +27,7 @@ RUN cargo build --release --bin maprando-web
 
 # Now restart with a slim base image and just copy over the binary and data needed at runtime.
 FROM debian:buster-slim
+RUN apt-get update && apt-get install libssl1.1
 COPY --from=build /maps /maps
 COPY --from=build /patches /patches
 COPY --from=build /gfx /gfx
