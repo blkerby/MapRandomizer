@@ -1,0 +1,68 @@
+<div class="card my-2">
+    <div class="card-header">Things to know</div>
+    <div class="card-body">
+        <h6>Special inputs</h6>
+        <ul>
+        <li>Press L + R + Select + Start simultaneously to quick reload from the last save.
+        <li>Press Angle Up + Item Cancel simultaneously to mark the current tile un-explored on the map.  
+        To be effective, these inputs must be
+        held while exiting the tile, since otherwise the game will immediately re-explore the tile.
+        </ul>
+        <h6>Map info</h6>
+        <ul>
+        <li>Every Zebes room from the vanilla game is placed somewhere and can be reached.
+        <li>Phantoon's Room is always two rooms away from the Wrecked Ship Map Room, and both are 
+            in the same area as the Wrecked Ship Save Room.
+        <li>The map uses special tiles to show the locations of map stations, refills, 
+        and major bosses (G4 and Mother Brain). Items are consistently marked using dots.
+        </ul>
+        
+        <h6>Item info</h6>
+        <ul>
+        <li>Every item from the vanilla game is placed somewhere, and ammo distributions are unchanged.
+        <li>Certain items do not spawn until Phantoon has been defeated, the same as in the vanilla game.
+        <li>Certain items do not spawn until the planet is 
+        awakened, by killing the enemies in the Pit Room (old Mother Brain
+        room) which spawn when Morph and Missiles are collected, the same as in the vanilla game.<a href="#footnote-pit-room"><sup>1</sup></a>
+        </ul>
+
+        <h6>Other info</h6>
+        <ul>
+        <li>Missile Refill stations refill all ammo types: Missiles, Supers, and Power Bombs.
+        <li>Mother Brain takes double damage from Supers.
+        <li>Samus collects & equips all movement items when acquiring Hyper Beam.
+        <li>Saving at a different save station from the last save will advance to the next slot 
+        before saving, so you can return to an earlier save in case you get stuck.
+        </ul>
+        <p>
+    </div>
+</div>
+
+<div class="row my-2">
+    <div class="col-sm-12">
+        <div class="card">
+            <div class="card-header">Known issues</div>
+            <div class="card-body">
+                <ul>
+                <li>Even if the tech is not selected, wall jumps and crouch-jump/down-grabs may be required in some places.
+                <li>Some sound effects are glitched (due to changing the music).
+                <li>Door transitions generally have some minor graphical glitches.
+                <li>The end credits are vanilla.
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <a id="footnote-pit-room">
+    <small>
+    <sup>1</sup> Technically the planet is awakened by unlocking any gray door locked by an enemy kill 
+    count (which does <i>not</i> include gray doors locked by boss kills).
+    In the vanilla game, such gray doors spawn in the Pit Room when entering with Morph and Missiles but
+    are also in other rooms (e.g., Spore Spawn Kihunters, Brinstar Pre-Map Room). In 
+    Map Rando, at least for now, all such gray doors are removed except in the Pit Room, making the Pit Room
+    the only place where the planet can be awakened. Note that Pit Room also has an item that only
+    spawns when entering with Morph and Missiles (regardless of whether the planet is awake).
+    </small>
+</div>

@@ -10,17 +10,20 @@
     <body>
     <div class="container">
         <div class="row">
-            <div class="col-9 text-center my-2">
-                <img src="/static/WebTitle.png" alt="Super Metroid Map Rando" style="width: 50%">
+            <div class="col-3">
+            </div>
+            <div class="col-6 text-center my-2">
+                <img src="/static/WebTitle.png" alt="Super Metroid Map Rando" style="width: 75%">
             </div>
             <div class="col-3" align=right>
                 <small>Version: <%= version %></small>
             </div>
         </div>
-        <form id="main-form" method="POST" enctype="multipart/form-data" action="/randomize">
+        <form id="main-form" method="POST" enctype="multipart/form-data" action="/randomize" onchange="saveForm(this)"  onsubmit="updateTechSelection()">
             <div class="form-group row my-2">
                 <label class="col-sm-2 col-form-label" for="rom">Input ROM</label>
-                <input class="col-sm-10 form-control-file" type="file" id="rom" name="rom">
+                <input class="col-sm-10 form-control-file" type="file" id="vanillaRom" name="rom"
+                onchange="saveROM(this, 'vanilla')">
             </div>
             <div class="form-group row my-2">
                 <label class="col-sm-2 col-form-label" for="preset">Item placement</label>
@@ -73,7 +76,7 @@
             <div class="form-group row my-2 mx-2">
                 <small><strong>Note</strong>: Even on the "Easy" difficulty, the seeds can be challenging,
                 particularly in the early game. We are still working on improvements to better align the game's
-                difficulty with the intended level.
+                difficulty with the intended level.</small>
             </div>
             <div class="accordion my-2" id="accordion">
                 <div class="accordion-item">
@@ -128,6 +131,16 @@
                 </div>
             </div>
             <div class="form-group row my-2">
+                <label class="col-sm-2 col-form-label" for="race_mode">Race mode<br>
+                <small>(no spoilers)</small></label>
+                <div class="col-sm-2 btn-group my-2" role="group">
+                    <input type="radio" class="btn-check" name="race_mode" id="raceModeNo" value="No" checked=true>
+                    <label class="btn btn-outline-primary" for="raceModeNo">No</label>
+                    <input type="radio" class="btn-check" name="race_mode" id="raceModeYes" value="Yes">
+                    <label class="btn btn-outline-primary" for="raceModeYes">Yes</label>
+                </div>
+            </div>
+            <div class="form-group row my-2">
                 <label for="randomSeed" class="col-sm-2 col-form-label">Random seed</label>
                 <div class="col-sm-3">
                 <input type="text" class="form-control" name="random_seed" id="randomSeed" value="">
@@ -135,7 +148,7 @@
             </div>
             <div class="form-group row my-2">
                 <div class="col-sm-12">
-                    <input type="submit" class="btn btn-primary" value="Generate ROM" />
+                    <input type="submit" class="btn btn-primary" value="Randomize Game">
                 </div>
             </div>
         </form>
@@ -148,69 +161,11 @@
         <div class="row my-2">
             <div class="col-sm-12">
                 <div class="card">
-                    <div class="card-header">Things to know</div>
-                    <div class="card-body">
-                        <ul>
-                        <li>Certain items do not spawn until the planet is 
-                        awakened, by exiting Pit Room (old Mother Brain
-                        room) with Morph and Missiles collected.<a href="#footnote-pit-room"><sup>1</sup></a>
-                        <li>Certain items do not spawn until Phantoon has been
-                        defeated.
-                        <li>Phantoon's Room is always two rooms away from the Wrecked Ship Map Room, and both are 
-                            in the same area as the Wrecked Ship Save Room.
-                        <li>Items are always marked by dots on the map. Map stations, refills, 
-                        and major bosses (G4 and Mother Brain) are marked by special tiles.
-                        <li>Missile Refill stations refill all ammo types: Missiles, Supers, and Power Bombs.
-                        <li>Gravity and Varia behave like Progressive Suits in other randomizers,
-                        each giving 50% reduction in enemy damage (stacking to a combined 75%).
-                        <li>Mother Brain has been changed to take double damage from Supers.
-                        <li>The current tile can be marked un-explored on the map  
-                        by pressing Angle Up and Item Cancel simultaneously. To be effective, these inputs must be
-                        held while exiting the tile, since otherwise the game will immediately re-explore the tile.
-                        <li>Saving at a different save station from the last save will advance to the next slot 
-                        before saving, so you can return to an earlier save in case you get stuck.
-                        <li>Samus collects & equips all items (excluding beams, ammo, and tanks) when acquiring Hyper Beam.
-                        </ul>
-                        <p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row my-2">
-            <div class="col-sm-12">
-                <div class="card">
-                    <div class="card-header">Known issues</div>
-                    <div class="card-body">
-                        <ul>
-                        <li>Even if the tech is not selected, wall jumps and crouch-jump/down-grabs may be required in some places.
-                        <li>Some sound effects are glitched (due to changing the music).
-                        <li>Door transitions generally have some minor graphical glitches.
-                        <li>The end credits are vanilla.
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row my-2">
-            <div class="col-sm-12">
-                <div class="card">
                     <div class="card-header">Change log</div>
                     <div class="card-body">
                         <% include!("changelog.stpl"); %>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="row my-2">
-            <div class="col-sm-12">
-                <a id="footnote-pit-room">
-                <sup>1</sup> Technically the planet is awakened by opening any gray door locked by an enemy kill 
-                count (which does <i>not</i> include gray doors locked by boss kills).
-                In the vanilla game, such gray doors spawn in the Pit Room when entering with Morph and Missiles but
-                are also in other rooms (e.g., Spore Spawn Kihunters, Brinstar Pre-Map Room). In 
-                Map Rando, at least for now, all gray doors are removed except in the Pit Room, making the Pit Room
-                the only place where the planet can be awakened. Note that Pit Room also has an item that only
-                spawns when entering with Morph and Missiles (regardless of whether the planet is awake).
             </div>
         </div>
     </div>
