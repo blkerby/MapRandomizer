@@ -1,22 +1,21 @@
-use std::hash::{Hash, Hasher};
-use std::io::Write;
 use std::path::{Path, PathBuf};
+use std::time::SystemTime;
 
 use actix_easy_multipart::bytes::Bytes;
 use actix_easy_multipart::text::Text;
 use actix_easy_multipart::{MultipartForm, MultipartFormConfig};
-use actix_web::http::header::{ContentDisposition, DispositionParam, DispositionType};
+use actix_web::http::header::{self, ContentDisposition, DispositionParam, DispositionType};
 use actix_web::middleware::Logger;
-use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{get, post, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
 use anyhow::{Context, Result};
 use clap::Parser;
 use hashbrown::{HashMap, HashSet};
-use log::info;
+use log::{info, error};
 use maprando::game_data::{GameData, Map};
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::{make_rom, Rom};
 use maprando::randomize::{DifficultyConfig, Randomization, Randomizer};
-use maprando::seed_repository::{Seed, SeedRepository};
+use maprando::seed_repository::{Seed, SeedFile, SeedRepository};
 // use maprando::seed_repository::Seed;
 use base64::Engine;
 use maprando::spoiler_map;
@@ -45,11 +44,11 @@ struct MapRepository {
     filenames: Vec<String>,
 }
 
-struct AppData<'a> {
+struct AppData {
     game_data: GameData,
     preset_data: Vec<PresetData>,
     map_repository: MapRepository,
-    seed_repository: SeedRepository<'a>,
+    seed_repository: SeedRepository,
 }
 
 impl MapRepository {
@@ -78,6 +77,23 @@ impl MapRepository {
 }
 
 #[derive(TemplateOnce)]
+#[template(path = "errors/missing_input_rom.stpl")]
+struct MissingInputRomTemplate {}
+
+#[derive(TemplateOnce)]
+#[template(path = "errors/invalid_rom.stpl")]
+struct InvalidRomTemplate {}
+
+#[derive(TemplateOnce)]
+#[template(path = "errors/seed_not_found.stpl")]
+struct SeedNotFoundTemplate {}
+
+#[derive(TemplateOnce)]
+#[template(path = "errors/file_not_found.stpl")]
+struct FileNotFoundTemplate {}
+
+
+#[derive(TemplateOnce)]
 #[template(path = "home/main.stpl")]
 struct HomeTemplate<'a> {
     version: usize,
@@ -87,7 +103,7 @@ struct HomeTemplate<'a> {
 }
 
 #[get("/")]
-async fn home<'a>(app_data: web::Data<AppData<'a>>) -> impl Responder {
+async fn home(app_data: web::Data<AppData>) -> impl Responder {
     let home_template = HomeTemplate {
         version: VERSION,
         item_placement_strategies: vec!["Open", "Semiclosed", "Closed"],
@@ -107,68 +123,268 @@ struct RandomizeRequest {
     escape_timer_multiplier: Text<f32>,
     save_animals: Text<String>,
     tech_json: Text<String>,
-    random_seed: Text<usize>,
+    race_mode: Text<String>,
+    random_seed: Text<String>,
+}
+
+#[derive(MultipartForm)]
+struct CustomizeRequest {
+    rom: Bytes,
 }
 
 #[derive(Serialize, Deserialize)]
-struct Config {
+struct SeedData {
     version: usize,
+    timestamp: usize,
+    peer_addr: String,
+    http_headers: serde_json::Map<String, serde_json::Value>,
     random_seed: usize,
     map_seed: usize,
     item_placement_seed: usize,
+    race_mode: bool,
     preset: Option<String>,
     difficulty: DifficultyConfig,
 }
 
-fn get_seed_name(config: &Config) -> String {
-    let config_str = serde_json::to_string(&config).unwrap();
-    let h128 = fasthash::spooky::hash128(config_str);
+fn get_seed_name(seed_data: &SeedData) -> String {
+    let seed_data_str = serde_json::to_string(&seed_data).unwrap();
+    let h128 = fasthash::spooky::hash128(seed_data_str);
     let base64_str = base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(h128.to_le_bytes());
     base64_str
 }
 
-fn get_difficulty_hash(difficulty: &DifficultyConfig) -> usize {
-    let difficulty_str = serde_json::to_string(&difficulty).unwrap();
-    let mut state = hashers::fx_hash::FxHasher::default();
-    difficulty_str.hash(&mut state);
-    state.finish() as usize
+
+#[derive(TemplateOnce)]
+#[template(path = "seed/seed_header.stpl")]
+struct SeedHeaderTemplate<'a> {
+    seed_name: String,
+    timestamp: usize, // Milliseconds since UNIX epoch
+    random_seed: usize,
+    version: usize,
+    race_mode: bool,
+    preset: String,
+    item_placement_strategy: String,
+    difficulty: &'a DifficultyConfig,
 }
 
 #[derive(TemplateOnce)]
-#[template(path = "seed/seed.stpl")]
-struct SeedTemplate {}
+#[template(path = "seed/seed_footer.stpl")]
+struct SeedFooterTemplate {
+    race_mode: bool,
+}
 
-async fn save_seed<'a>(
-    config: &Config,
+#[derive(TemplateOnce)]
+#[template(path = "seed/customize_seed.stpl")]
+struct CustomizeSeedTemplate {
+    version: usize,
+    seed_header: String,
+    seed_footer: String,
+}
+
+fn render_seed(seed_name: &str, seed_data: &SeedData) -> Result<(String, String)> {
+    let seed_header_template = SeedHeaderTemplate {
+        seed_name: seed_name.to_string(),
+        version: VERSION,
+        random_seed: seed_data.random_seed,
+        race_mode: seed_data.race_mode,
+        timestamp: seed_data.timestamp,
+        preset: seed_data.preset.clone().unwrap_or("Custom".to_string()),
+        item_placement_strategy: format!("{:?}", seed_data.difficulty.item_placement_strategy),
+        difficulty: &seed_data.difficulty,
+    };
+    let seed_header_html = seed_header_template.render_once()?;
+
+    let seed_footer_template = SeedFooterTemplate {
+        race_mode: seed_data.race_mode,
+    };
+    let seed_footer_html = seed_footer_template.render_once()?;
+    Ok((seed_header_html, seed_footer_html))
+}
+
+async fn save_seed(
+    seed_name: &str,
+    seed_data: &SeedData,
     vanilla_rom: &Rom,
-    rom: &Rom,
+    output_rom: &Rom,
     randomization: &Randomization,
-    app_data: &AppData<'a>,
+    app_data: &AppData,
 ) -> Result<()> {
-    let seed_name = get_seed_name(config);
-    let patch_ips = create_ips_patch(&vanilla_rom.data, &rom.data);
-    let seed_template = SeedTemplate {};
-    let seed_html = seed_template.render_once()?;
+    let mut files: Vec<SeedFile> = Vec::new();
+
+    // Write the seed data JSON. This contains details about the seed and request origin,
+    // so to protect user privacy and the integrity of race ROMs we do not make it public.
+    let seed_data_str = serde_json::to_vec_pretty(&seed_data).unwrap();
+    files.push(SeedFile::new("seed_data.json", seed_data_str.to_vec()));
+
+    // Write the ROM patch.
+    let patch_ips = create_ips_patch(&vanilla_rom.data, &output_rom.data);
+    files.push(SeedFile::new("patch.ips", patch_ips));
+
+    // Write the seed header HTML and footer HTML
+    let (seed_header_html, seed_footer_html) = render_seed(seed_name, seed_data)?;
+    files.push(SeedFile::new(
+        "seed_header.html",
+        seed_header_html.into_bytes(),
+    ));
+    files.push(SeedFile::new(
+        "seed_footer.html",
+        seed_footer_html.into_bytes(),
+    ));
+
+    if !seed_data.race_mode {
+        // Write the spoiler log
+        let spoiler_bytes = serde_json::to_vec_pretty(&randomization.spoiler_log).unwrap();
+        files.push(SeedFile::new("public/spoiler.json", spoiler_bytes));
+
+        // Write the spoiler maps
+        let spoiler_map_assigned =
+            spoiler_map::get_spoiler_map(&output_rom, &randomization.map, &app_data.game_data, false)
+                .unwrap();
+        files.push(SeedFile::new(
+            "public/map-assigned.png",
+            spoiler_map_assigned,
+        ));
+        let spoiler_map_vanilla =
+            spoiler_map::get_spoiler_map(&output_rom, &randomization.map, &app_data.game_data, true)
+                .unwrap();
+        files.push(SeedFile::new("public/map-vanilla.png", spoiler_map_vanilla));
+    }
+
     let seed = Seed {
-        name: seed_name,
-        patch_ips,
-        seed_html: seed_html.into_bytes(),
-        extra_files: vec![],
+        name: seed_name.to_string(),
+        files,
     };
     app_data.seed_repository.put_seed(seed).await?;
     Ok(())
 }
 
+#[get("/seed/{name}/")]
+async fn view_seed(info: web::Path<(String,)>, app_data: web::Data<AppData>) -> impl Responder {
+    let seed_name = &info.0;
+    let (seed_header, seed_footer) = futures::join!(
+        app_data
+            .seed_repository
+            .get_file(seed_name, "seed_header.html"),
+        app_data
+            .seed_repository
+            .get_file(seed_name, "seed_footer.html")
+    );
+
+    match (seed_header, seed_footer) {
+        (Ok(header), Ok(footer)) => {
+            let customize_template = CustomizeSeedTemplate {
+                version: VERSION,
+                seed_header: String::from_utf8(header.to_vec()).unwrap(),
+                seed_footer: String::from_utf8(footer.to_vec()).unwrap(),
+            };
+            HttpResponse::Ok().body(customize_template.render_once().unwrap())
+        },
+        (Err(err), _) => {
+            error!("{}", err.to_string());
+            let template = SeedNotFoundTemplate { };
+            HttpResponse::NotFound().body(template.render_once().unwrap())
+        },
+        (_, Err(err)) => {
+            error!("{}", err.to_string());
+            let template = SeedNotFoundTemplate { };
+            HttpResponse::NotFound().body(template.render_once().unwrap())
+        }
+    }
+
+}
+
+#[post("/seed/{name}/customize")]
+async fn customize_seed(
+    req: MultipartForm<CustomizeRequest>,
+    info: web::Path<(String,)>,
+    app_data: web::Data<AppData>,
+) -> impl Responder {
+    let seed_name = &info.0;
+    let patch_ips = app_data
+        .seed_repository
+        .get_file(seed_name, "patch.ips")
+        .await
+        .unwrap();
+    let mut rom = Rom {
+        data: req.rom.data.to_vec(),
+    };
+
+    if rom.data.len() < 0x300000 {
+        return HttpResponse::BadRequest().body("Invalid base ROM.");
+    }
+
+    let patch = ips::Patch::parse(&patch_ips).unwrap();
+    // .with_context(|| format!("Unable to parse patch {}", patch_path.display()))?;
+    for hunk in patch.hunks() {
+        rom.write_n(hunk.offset(), hunk.payload()).unwrap();
+    }
+    HttpResponse::Ok()
+        .content_type("application/octet-stream")
+        .insert_header(ContentDisposition {
+            disposition: DispositionType::Attachment,
+            parameters: vec![DispositionParam::Filename(
+                "map-rando-".to_string() + seed_name + ".sfc",
+            )],
+        })
+        .body(rom.data)
+}
+
+#[get("/seed/{name}/data/{filename}")]
+async fn get_seed_file(
+    info: web::Path<(String, String)>,
+    app_data: web::Data<AppData>,
+) -> impl Responder {
+    let seed_name = &info.0;
+    let filename = &info.1;
+    match app_data
+        .seed_repository
+        .get_file(seed_name, &("public/".to_string() + filename))
+        .await {
+        Ok(data) => HttpResponse::Ok().body(data),
+        // TODO: Use more refined error handling instead of always returning 404:
+        Err(err) => {
+            error!("{}", err.to_string());
+            HttpResponse::NotFound().body(FileNotFoundTemplate {}.render_once().unwrap())
+        }
+    }
+}
+
+fn format_http_headers(req: &HttpRequest) -> serde_json::Map<String, serde_json::Value> {
+    let map: serde_json::Map<String, serde_json::Value> = req
+        .headers()
+        .into_iter()
+        .map(|(name, value)| {
+            (
+                name.to_string(),
+                serde_json::Value::String(value.to_str().unwrap_or("").to_string()),
+            )
+        })
+        .collect();
+    map
+}
+
+fn get_random_seed() -> usize {
+    (rand::rngs::StdRng::from_entropy().next_u64() & 0xFFFFFFFF) as usize
+}
+
 #[post("/randomize")]
-async fn randomize<'a>(
+async fn randomize(
     req: MultipartForm<RandomizeRequest>,
-    app_data: web::Data<AppData<'a>>,
+    http_req: HttpRequest,
+    app_data: web::Data<AppData>,
 ) -> impl Responder {
     let rom = Rom {
         data: req.rom.data.to_vec(),
     };
-    if rom.data.len() < 3145728 || rom.data.len() > 8388608 {
-        return HttpResponse::BadRequest().body("Invalid input ROM");
+
+    if rom.data.len() == 0 {
+        return HttpResponse::BadRequest().body(MissingInputRomTemplate {}.render_once().unwrap());    
+    }
+
+    let rom_digest = crypto_hash::hex_digest(crypto_hash::Algorithm::SHA256, &rom.data);
+    info!("Rom digest: {rom_digest}");
+    if rom_digest != "12b77c4bc9c1832cee8881244659065ee1d84c70c3d29e6eaf92e6798cc2ca72" {
+        return HttpResponse::BadRequest().body(InvalidRomTemplate {}.render_once().unwrap());
     }
     let tech_json: serde_json::Value = serde_json::from_str(&req.tech_json).unwrap();
     let mut tech_vec: Vec<String> = Vec::new();
@@ -194,18 +410,20 @@ async fn randomize<'a>(
         save_animals: req.save_animals.0 == "On",
         debug_options: None,
     };
+    let random_seed = if &req.random_seed.0 == "" {
+        get_random_seed()
+    } else {
+        req.random_seed.0.parse::<usize>().unwrap()
+    };
+    let race_mode = req.race_mode.0 == "Yes";
     let mut rng_seed = [0u8; 32];
-    rng_seed[..8].copy_from_slice(&req.random_seed.to_le_bytes());
+    rng_seed[..8].copy_from_slice(&random_seed.to_le_bytes());
+    rng_seed[9] = if race_mode { 1 } else { 0 };
     let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
     let max_attempts = 100;
     let mut attempt_num = 0;
     let randomization: Randomization;
-    let difficulty_hash = get_difficulty_hash(&difficulty);
-    let base_filename: String = format!(
-        "smmr-v{}-{}-{}",
-        VERSION, req.random_seed.0, difficulty_hash
-    );
-    info!("Starting {base_filename}");
+    info!("Random seed={random_seed}, difficulty={difficulty:?}");
     let mut map_seed: usize;
     let mut item_placement_seed: usize;
     loop {
@@ -226,75 +444,43 @@ async fn randomize<'a>(
         break;
     }
 
-    let config = Config {
+    let timestamp = match SystemTime::now().duration_since(SystemTime::UNIX_EPOCH) {
+        Ok(n) => n.as_millis() as usize,
+        Err(_) => panic!("SystemTime before UNIX EPOCH!"),
+    };
+    let seed_data = SeedData {
         version: VERSION,
-        random_seed: req.random_seed.0,
+        timestamp,
+        peer_addr: http_req
+            .peer_addr()
+            .map(|x| format!("{:?}", x))
+            .unwrap_or(String::new()),
+        http_headers: format_http_headers(&http_req),
+        random_seed: random_seed,
         map_seed,
         item_placement_seed,
+        race_mode,
         preset: req.preset.as_ref().map(|x| x.0.clone()),
         difficulty,
     };
 
     let output_rom = make_rom(&rom, &randomization, &app_data.game_data).unwrap();
 
-    save_seed(&config, &rom, &output_rom, &randomization, &app_data)
-        .await
-        .unwrap();
-
-    let mut zip_vec: Vec<u8> = Vec::new();
-    let mut zip = zip::ZipWriter::new(std::io::Cursor::new(&mut zip_vec));
-
-    let mut write_file = |name: &str, data: &[u8]| -> Result<()> {
-        zip.start_file(name, zip::write::FileOptions::default())?;
-        zip.write_all(data)?;
-        Ok(())
-    };
-
-    // Write the ROM (to the ZIP file)
-    write_file(&(base_filename.to_string() + ".sfc"), &output_rom.data).unwrap();
-
-    // Write the config JSON
-    let config_str = serde_json::to_vec_pretty(&config).unwrap();
-    write_file(&(base_filename.to_string() + "-config.json"), &config_str).unwrap();
-
-    // Write the spoiler log
-    let spoiler_bytes = serde_json::to_vec_pretty(&randomization.spoiler_log).unwrap();
-    write_file(
-        &(base_filename.to_string() + "-spoiler.json"),
-        &spoiler_bytes,
+    let seed_name = get_seed_name(&seed_data);
+    save_seed(
+        &seed_name,
+        &seed_data,
+        &rom,
+        &output_rom,
+        &randomization,
+        &app_data,
     )
+    .await
     .unwrap();
 
-    // Write the spoiler maps
-    let spoiler_map_assigned =
-        spoiler_map::get_spoiler_map(&output_rom, &randomization.map, &app_data.game_data, false)
-            .unwrap();
-    write_file(
-        &(base_filename.to_string() + "-map.png"),
-        &spoiler_map_assigned,
-    )
-    .unwrap();
-    let spoiler_map_vanilla =
-        spoiler_map::get_spoiler_map(&output_rom, &randomization.map, &app_data.game_data, true)
-            .unwrap();
-    write_file(
-        &(base_filename.to_string() + "-map-vanilla.png"),
-        &spoiler_map_vanilla,
-    )
-    .unwrap();
-
-    zip.finish().unwrap();
-    drop(zip);
-
-    HttpResponse::Ok()
-        .content_type("application/octet-stream")
-        .insert_header(ContentDisposition {
-            disposition: DispositionType::Attachment,
-            parameters: vec![DispositionParam::Filename(
-                base_filename.to_string() + ".zip",
-            )],
-        })
-        .body(zip_vec)
+    HttpResponse::Found()
+        .insert_header((header::LOCATION, format!("seed/{}/", seed_name)))
+        .finish()
 }
 
 fn init_presets(presets: Vec<Preset>, game_data: &GameData) -> Vec<PresetData> {
@@ -357,7 +543,7 @@ struct Args {
     seed_repository_url: String,
 }
 
-fn build_app_data<'a>() -> AppData<'a> {
+fn build_app_data() -> AppData {
     let args = Args::parse();
     let sm_json_data_path = Path::new("../sm-json-data");
     let room_geometry_path = Path::new("../room_geometry.json");
@@ -381,10 +567,11 @@ async fn main() {
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info"))
         .format_timestamp_millis()
         .init();
+    let app_data = web::Data::new(build_app_data());
 
     HttpServer::new(move || {
         App::new()
-            .app_data(web::Data::new(build_app_data()))
+            .app_data(app_data.clone())
             .app_data(
                 MultipartFormConfig::default()
                     .memory_limit(16_000_000)
@@ -393,6 +580,9 @@ async fn main() {
             .wrap(Logger::default())
             .service(home)
             .service(randomize)
+            .service(view_seed)
+            .service(get_seed_file)
+            .service(customize_seed)
             .service(actix_files::Files::new("/static", "static"))
     })
     .bind("0.0.0.0:8080")

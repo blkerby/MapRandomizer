@@ -1,10 +1,15 @@
 Release plan:
-- v29: Rust migration
-- v30: Area-themed palettes
-- v31: Website improvements (save/export/import presets)
+- v30: Website improvements (save/export/import presets)
+- v31: Area-themed palettes
 - v32: Take ammo kills into account in logic, use boss scenarios
 
 TODO:
+- Organize "Things to Know"
+- Add note to strat in Post-Crocomire farming room to get to top-left with HiJump
+  (run on platform enemy and jump)
+- Change Shaktool flag behavior: require entering one door and exiting the opposite door.
+- Switch off ammo (e.g. Missiles or Supers) when acquiring Hyper Beam.
+- Use separate worker pool to run randomization (to avoid blocking web requests)
 - Add more race-friendly options:
   - Distinct map tile for major items vs. minor items
   - Make map stations accessible earlier

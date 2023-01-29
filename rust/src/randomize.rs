@@ -19,20 +19,20 @@ use crate::game_data::GameData;
 
 use self::escape_timer::SpoilerEscape;
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub enum ItemPlacementStrategy {
     Open,
     Semiclosed,
     Closed,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct DebugOptions {
     pub new_game_extra: bool,
     pub extended_spoiler: bool,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct DifficultyConfig {
     pub tech: Vec<String>,
     pub shine_charge_tiles: i32,

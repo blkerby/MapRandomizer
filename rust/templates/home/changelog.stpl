@@ -3,6 +3,19 @@
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-31---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 31 (2023-01-29)</a>:
+<ul>
+<li>The website now remembers the user's settings (using local storage in the browser).
+<li>The "Random seed" field can be left blank and the randomizer will automatically choose a seed.
+<li>Seeds are saved and can be shared with other players by sending them the URL.
+<li>A "race mode" option is added, which prevents spoiler information from being generated. It also
+ensures that using the same random seed for a race-mode game will give different results than
+for a non-race-mode game.
+<li>The server validates that the input ROM is the correct vanilla ROM before generating a game. 
+After the game is generated, the base ROM can still be customized.
+</ul>
+
+
 <p><a href="https://version-30---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 30 (2023-01-27)</a>:
 <ul>
 <li>Fix an issue that caused the game to crash when entering Tourian Eye Door Room.

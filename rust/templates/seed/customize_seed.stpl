@@ -1,0 +1,55 @@
+<html>
+<head>
+<link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico">
+</head>
+<body>
+
+<div class="container">
+    <div class="row">
+        <div class="col-3">
+        </div>
+        <div class="col-6 text-center my-2">
+            <a href="/">
+                <img src="/static/WebTitle.png" alt="Super Metroid Map Rando" style="width: 75%">
+            </a>
+        </div>
+        <div class="col-3" align=right>
+            <small>Version: <%= version %></small>
+        </div>
+    </div>
+
+    <div class="row my-2">
+        <div class="col-lg-9 mx-auto">
+            <div class="container my-2">
+                <%- seed_header %>
+            </div>
+
+            <div class="container my-2">
+                <div class="card">
+                    <div class="card-header">Customization</div>
+                    <form class="card-body container" method="POST" enctype="multipart/form-data" action="customize">
+                        <div class="form-group row my-2">
+                            <label class="col-sm-3 col-form-label" for="rom">Base ROM</label>
+                            <input class="col-sm-9 form-control-file" type="file" id="baseRom" name="rom"
+                            onchange="saveROM(this, 'base')">
+                        </div>
+                        <input type="submit" class="btn btn-primary" value="Download ROM" />
+                    </form>
+                </div>
+            </div>
+
+            <div class="container my-2">
+                <%- seed_footer %>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<% include!("../common/save_load_rom.stpl"); %>
+<script>
+loadROM(document.getElementById("baseRom"), 'base');
+</script>
+
+</body>
+</html>
