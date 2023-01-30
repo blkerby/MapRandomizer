@@ -21,6 +21,10 @@ rooms = [
             DoorIdentifier(RIGHT, 7, 2, 0x18EAA, 0x18EC2),  # Construction Zone
             DoorIdentifier(UP, 5, 0, 0x18EB6, 0x18B9E, ELEVATOR),  # Blue Brinstar Elevator Room
         ],
+        items=[
+            Item(4, 2, 0x786DE),
+            Item(2, 2, 0x7874C),
+        ],
     ),
     Room(
         name='Construction Zone',
@@ -42,6 +46,9 @@ rooms = [
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x18FA6, 0x18EDA),  # Construction Zone
         ],
+        items=[
+            Item(0, 0, 0x78802),
+        ],
     ),
     Room(
         name='Blue Brinstar Energy Tank Room',
@@ -54,7 +61,11 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 2, 0, 0x18EF2, 0x18FE2),  # Blue Brinstar Boulder Room
             DoorIdentifier(LEFT, 0, 2, 0x18EE6, 0x18ECE),  # Construction Zone
-        ]
+        ],
+        items=[
+            Item(1, 2, 0x7879E),
+            Item(2, 2, 0x78798),
+        ],
     ),
     Room(
         name='Blue Brinstar Boulder Room',
@@ -71,6 +82,10 @@ rooms = [
         map=[[1]],
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x18FFA, 0x18FEE),  # Blue Brinstar Boulder Room
+        ],
+        items=[
+            Item(0, 0, 0x78836),
+            Item(0, 0, 0x7883C),
         ],
     ),
 ]
