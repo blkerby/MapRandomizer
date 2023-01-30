@@ -38,6 +38,9 @@ rooms = [
             DoorIdentifier(RIGHT, 0, 7, 0x18CEE, 0x18D06),  # Green Brinstar Main Shaft (to Etecoons)
             DoorIdentifier(UP, 0, 0, 0x18CA6, 0x18C0A, ELEVATOR),  # Green Brinstar Elevator Room
         ],
+        items=[
+            Item(3, 7, 0x784AC),
+        ],
         # parts=[[0, 1, 2, 4, 6, 7, 8, 9], [3, 5]]  # If we require the door to Etecoons to be gray as in vanilla
     ),
     Room(
@@ -51,6 +54,10 @@ rooms = [
             DoorIdentifier(LEFT, 0, 1, 0x18D4E, 0x18CD6),  # Green Brinstar Main Shaft
             DoorIdentifier(RIGHT, 2, 1, 0x18D5A, 0x18D66),  # Brinstar Reserve Tank Room
         ],
+        items=[
+            Item(1, 1, 0x78518),
+            Item(0, 0, 0x7851E),
+        ],
     ),
     Room(
         name='Brinstar Reserve Tank Room',
@@ -58,6 +65,11 @@ rooms = [
         map=[[1, 1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x18D66, 0x18D5A),  # Early Supers Room
+        ],
+        items=[
+            Item(0, 0, 0x7852C),
+            Item(1, 0, 0x78538),
+            Item(1, 0, 0x78532),
         ],
     ),
     Room(
@@ -141,6 +153,9 @@ rooms = [
         parts=[[0, 2], [1, 3]],
         transient_part_connections=[(0, 1)],  # crumble blocks
         missing_part_connections=[(1, 0)],
+        items=[
+            Item(0, 0, 0x787C2),
+        ],
     ),
     Room(
         name='Etecoon Super Room',
@@ -148,6 +163,9 @@ rooms = [
         map=[[1]],
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x18F5E, 0x18F3A),  # Etecoon Energy Tank Room
+        ],
+        items=[
+            Item(0, 0, 0x787D0),
         ],
     ),
     Room(
@@ -163,6 +181,9 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x18E7A, 0x18DEA),  # Big Pink
             DoorIdentifier(RIGHT, 1, 0, 0x18E86, 0x18E9E),  # Morph Ball Room
             DoorIdentifier(RIGHT, 7, 3, 0x18E92, 0x18EFE),  # Noob Bridge
+        ],
+        items=[
+            Item(3, 1, 0x78676),
         ],
     ),
     Room(
