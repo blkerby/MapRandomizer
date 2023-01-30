@@ -30,6 +30,13 @@ class DoorIdentifier:
 
 
 @dataclass
+class Item:
+    x: int
+    y: int
+    addr: int
+
+
+@dataclass
 class Room:
     name: str
     map: List[List[int]]
@@ -55,6 +62,7 @@ class Room:
     transient_part_connections: Optional[List[Tuple[int, int]]] = ()
     durable_part_connections: Optional[List[Tuple[int, int]]] = ()
     missing_part_connections: Optional[List[Tuple[int, int]]] = ()
+    items: Optional[List[Item]] = None
 
     def populate(self):
         self.height = len(self.map)
