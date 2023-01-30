@@ -45,6 +45,10 @@ rooms = [
         parts=[[0, 1, 2, 6], [4], [5], [3, 7]],
         transient_part_connections=[(0, 1), (0, 2)],  # sand
         missing_part_connections=[(1, 0), (2, 0), (0, 3), (3, 0)],
+        items=[
+            Item(4, 4, 0x7C603),
+            Item(5, 4, 0x7C609),
+        ],
     ),
     Room(
         name='Botwoon Hallway',
@@ -78,6 +82,9 @@ rooms = [
         parts=[[0, 1], [2], [3]],
         transient_part_connections=[(0, 1), (0, 2)],  # sand
         missing_part_connections=[(1, 0), (2, 0)],
+        items=[
+            Item(3, 0, 0x7C755),
+        ],
     ),
     Room(
         name='Halfie Climb Room',
@@ -144,6 +151,9 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x1A834, 0x1A7F8),  # Colosseum
             DoorIdentifier(LEFT, 0, 2, 0x1A840, 0x1A96C),  # Draygon's Room
         ],
+        items=[
+            Item(1, 0, 0x7C74D),
+        ],
     ),
     Room(
         name="Draygon's Room",
@@ -163,6 +173,9 @@ rooms = [
         map=[[1]],
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x1A924, 0x1A978),  # Draygon's Room
+        ],
+        items=[
+            Item(0, 0, 0x7C7A7),
         ],
     ),
     Room(
@@ -321,6 +334,10 @@ rooms = [
         parts=[[0], [1]],
         transient_part_connections=[(1, 0)],  # sand
         missing_part_connections=[(0, 1)],
+        items=[
+            Item(0, 0, 0x7C5EB),
+            Item(1, 1, 0x7C5F1),
+        ],
     ),
     Room(
         name='West Sand Hole',
@@ -336,6 +353,10 @@ rooms = [
         parts=[[0], [1]],
         transient_part_connections=[(1, 0)],  # sand
         missing_part_connections=[(0, 1)],
+        items=[
+            Item(0, 0, 0x7C5DD),
+            Item(0, 0, 0x7C5E3),
+        ],
     ),
     Room(
         name='East Sand Hall',
@@ -453,6 +474,9 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1A558, 0x1A54C),  # Plasma Tutorial Room
         ],
+        items=[
+            Item(1, 2, 0x7C559),
+        ],
     ),
     Room(
         name='Pants Room',
@@ -491,6 +515,9 @@ rooms = [
         ],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1A7C8, 0x1A8D0),  # Shaktool Room
+        ],
+        items=[
+            Item(1, 1, 0x7C6E5),
         ],
     ),
     Room(
