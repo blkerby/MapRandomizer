@@ -3,7 +3,10 @@ steps:
   args: ['submodule', 'update', '--init', '--recursive']
 - name: 'gcr.io/cloud-builders/docker'
   entrypoint: 'bash'
-  args: ['-c', 'docker pull us-central1-docker.pkg.dev/super-metroid-map-randomizer/map-randomizer/app:latest || exit 0']
+  args: ['-c', 
+  'docker pull us-central1-docker.pkg.dev/super-metroid-map-randomizer/map-randomizer/app:latest || exit 0']
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-t', 'us-central1-docker.pkg.dev/super-metroid-map-randomizer/map-randomizer/app:${TAG_NAME}',
   '--cache-from', 'us-central1-docker.pkg.dev/super-metroid-map-randomizer/map-randomizer/app:latest', '.']
+images: ['us-central1-docker.pkg.dev/super-metroid-map-randomizer/map-randomizer/app:${TAG_NAME}',
+        'us-central1-docker.pkg.dev/super-metroid-map-randomizer/map-randomizer/app:latest']
