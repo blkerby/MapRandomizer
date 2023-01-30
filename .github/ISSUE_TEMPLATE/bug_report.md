@@ -8,11 +8,6 @@ assignees: ''
 ---
 
 # Settings
-Generated ROM filename (if available):
-
-## If ROM filename not available
-Version: 
-Random seed:
-Difficulty settings:
+Seed URL (or ROM filename):
 
 # Describe the bug
