@@ -4,7 +4,7 @@ Release plan:
 - v32: Take ammo kills into account in logic, use boss scenarios
 
 TODO:
-- Organize "Things to Know"
+- Put spoiler info in collapsible accordion.
 - Add note to strat in Post-Crocomire farming room to get to top-left with HiJump
   (run on platform enemy and jump)
 - Change Shaktool flag behavior: require entering one door and exiting the opposite door.
@@ -88,19 +88,9 @@ TODO:
   to wait? Though maybe this doesn't matter because we don't want to add fastdoors anyway.
 - figure out and fix what's going on with tiles below Warehouse Entrance when it crosses areas.
 - fix internal checksum in output ROM
-- Warn if base ROM checksum does not match vanilla.
-- Find some way to handle Baby metroid drain.
-  - One idea (probably bad): when the tech for baby skip is disabled, stop the camera lock so the player can run straight through without
-    getting drained?
-  - Deal with it correctly in the item logic
-  - Possibly shorten the cutscene for quality of life (since it might be necessary to traverse it multiple times)
-- clean up the code everywhere
+- Possibly shorten Baby Metroid cutscene for quality of life (since it might be necessary to traverse it multiple times)
 - add README
     - make
-- take shinespark health requirements into account properly
-- redo the front-end.
-  - make it so client can save presets.
-- detect client hang-up and abort (probably requires switching to websocket request)
 - cross-area transitions
   - to fix graphical glitches (look into using special GFX flag?)
 - balance boss distribution (one boss per area, corresponding to vanilla?)
