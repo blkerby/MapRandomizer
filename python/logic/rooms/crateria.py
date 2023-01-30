@@ -1,5 +1,5 @@
 from logic.areas import Area, SubArea
-from maze_builder.types import Room, DoorIdentifier, Direction, DoorSubtype
+from maze_builder.types import Room, DoorIdentifier, Direction, DoorSubtype, Item
 
 LEFT = Direction.LEFT
 RIGHT = Direction.RIGHT
@@ -18,7 +18,10 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x18ADE, 0x18A36),  # Crateria Kihunter Room
             DoorIdentifier(RIGHT, 1, 0, 0x18AEA, 0x189CA),  # West Ocean
-        ]
+        ],
+        items=[
+            Item(0, 0, 0x78248),
+        ],
     ),
     Room(
         name='Landing Site',
