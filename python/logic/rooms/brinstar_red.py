@@ -50,6 +50,9 @@ rooms = [
         door_ids=[
             DoorIdentifier(RIGHT, 1, 0, 0x19072, 0x1905A),  # Red Brinstar Fireflea Room
         ],
+        items=[
+            Item(0, 0, 0x78876),
+        ],
     ),
     Room(
         name='Bat Room',
@@ -79,6 +82,9 @@ rooms = [
         map=[[1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x19132, 0x19126),  # Below Spazer
+        ],
+        items=[
+            Item(0, 0, 0x7896E),
         ],
     ),
     Room(
@@ -122,6 +128,10 @@ rooms = [
         door_ids=[
             DoorIdentifier(RIGHT, 2, 0, 0x190EA, 0x19096),  # Caterpillar Room
         ],
+        items=[
+            Item(1, 0, 0x7890E),
+            Item(0, 0, 0x78914),
+        ],
     ),
     Room(
         name='Beta Power Bomb Room',
@@ -132,6 +142,9 @@ rooms = [
         ],
         door_ids=[
             DoorIdentifier(RIGHT, 1, 0, 0x190DE, 0x190A2),  # Caterpillar Room
+        ],
+        items=[
+            Item(0, 1, 0x788CA),
         ],
     ),
     Room(
