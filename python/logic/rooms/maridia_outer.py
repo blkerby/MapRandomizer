@@ -78,6 +78,10 @@ rooms = [
         ],
         parts=[[0, 2, 3, 4], [1]],
         missing_part_connections=[(0, 1), (1, 0)],
+        items=[
+            Item(0, 3, 0x7C437),
+            Item(1, 2, 0x7C43D),
+        ],
     ),
     Room(
         name='Fish Tank',
@@ -164,6 +168,10 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 0, 3, 0x1A408, 0x1A3E4),  # Fish Tank
         ],
+        items=[
+            Item(0, 0, 0x7C47D),
+            Item(1, 1, 0x7C483),
+        ],
     ),
     Room(
         name='Pseudo Plasma Spark Room',
@@ -176,6 +184,9 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 0, 1, 0x1A4D4, 0x1A4A4),  # Northwest Maridia Bug Room
             DoorIdentifier(DOWN, 0, 2, 0x1A4E0, 0x1A4BC),  # Crab Shaft
+        ],
+        items=[
+            Item(2, 2, 0x7C533),
         ],
     ),
     Room(
@@ -200,6 +211,10 @@ rooms = [
         ],
         door_ids=[
             DoorIdentifier(RIGHT, 1, 0, 0x1A48C, 0x1A498),  # Northwest Maridia Bug Room
+        ],
+        items=[
+            Item(0, 2, 0x7C4AF),
+            Item(0, 2, 0x7C4B5),
         ],
     ),
 ]
