@@ -38,6 +38,9 @@ rooms = [
             DoorIdentifier(DOWN, 4, 7, 0x1A21C, 0x1A294),  # Basement
             DoorIdentifier(UP, 4, 0, 0x1A228, 0x1A1C8),  # Attic
         ],
+        items=[
+            Item(0, 5, 0x7C265),
+        ],
     ),
     Room(
         name='Attic',
@@ -82,6 +85,9 @@ rooms = [
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x1A2E8, 0x1A210),  # Wrecked Ship Main Shaft
         ],
+        items=[
+            Item(0, 0, 0x7C357),
+        ],
     ),
     Room(
         name='Bowling Alley',
@@ -99,6 +105,10 @@ rooms = [
         parts=[[0], [1], [2]],
         transient_part_connections=[(1, 2)],  # bowling sequence, by morphing into statue
         missing_part_connections=[(0, 1), (1, 0), (2, 1)],
+        items=[
+            Item(3, 2, 0x7C2EF),
+            Item(5, 0, 0x7C2E9),
+        ],
     ),
     Room(
         name='Gravity Suit Room',
@@ -107,7 +117,10 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1A300, 0x18A06),  # West Ocean
             DoorIdentifier(RIGHT, 0, 0, 0x1A30C, 0x1A1A4),  # Bowling Alley
-        ]
+        ],
+        items=[
+            Item(0, 0, 0x7C36D),
+        ],
     ),
     Room(
         name='Wrecked Ship East Super Room',
@@ -115,6 +128,9 @@ rooms = [
         map=[[1, 1, 1, 1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1A2F4, 0x1A234),  # Wrecked Ship Main Shaft
+        ],
+        items=[
+            Item(3, 0, 0x7C365),
         ],
     ),
     Room(
@@ -159,6 +175,9 @@ rooms = [
         door_ids=[
             DoorIdentifier(RIGHT, 2, 0, 0x1A288, 0x1A27C),  # Electric Death Room
         ],
+        items=[
+            Item(0, 0, 0x7C337),
+        ],
     ),
     Room(
         name='Assembly Line',
@@ -166,6 +185,9 @@ rooms = [
         map=[[1, 1, 1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1A1EC, 0x1A1D4),  # Attic
+        ],
+        items=[
+            Item(2, 0, 0x7C319),
         ],
     ),
     Room(
