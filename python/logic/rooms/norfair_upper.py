@@ -50,6 +50,10 @@ rooms = [
             DoorIdentifier(LEFT, 0, 1, 0x19426, 0x193F6),  # Hi Jump Boots Room
             DoorIdentifier(RIGHT, 1, 0, 0x1941A, 0x192D6),  # Business Center
         ],
+        items=[
+            Item(1, 0, 0x78BEC),
+            Item(0, 0, 0x78BE6),
+        ],
     ),
     Room(
         name='Hi Jump Boots Room',
@@ -57,6 +61,9 @@ rooms = [
         map=[[1]],
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x193F6, 0x19426),  # Hi Jump Energy Tank Room
+        ],
+        items=[
+            Item(0, 0, 0x78BAC),
         ],
     ),
     Room(
@@ -81,6 +88,9 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1928E, 0x192B2),  # Cathedral Entrance
             DoorIdentifier(RIGHT, 2, 1, 0x1929A, 0x19732),  # Rising Tide
+        ],
+        items=[
+            Item(2, 1, 0x78AE4),
         ],
     ),
     Room(
@@ -164,6 +174,9 @@ rooms = [
             DoorIdentifier(RIGHT, 1, 1, 0x19582, 0x195CA),  # Single Chamber
             DoorIdentifier(DOWN, 0, 3, 0x19576, 0x196AE),  # Purple Shaft
         ],
+        items=[
+            Item(1, 3, 0x78C66),
+        ],
     ),
     Room(
         name='Bubble Mountain Save Room',
@@ -181,6 +194,9 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x19546, 0x1952E),  # Norfair Reserve Tank Room
             DoorIdentifier(RIGHT, 1, 0, 0x1953A, 0x19552),  # Bubble Mountain
         ],
+        items=[
+            Item(1, 0, 0x78C52),
+        ],
     ),
     Room(
         name='Norfair Reserve Tank Room',
@@ -188,6 +204,10 @@ rooms = [
         map=[[1, 1]],
         door_ids=[
             DoorIdentifier(RIGHT, 1, 0, 0x1952E, 0x19546),  # Green Bubbles Missile Room
+        ],
+        items=[
+            Item(0, 0, 0x78C3E),
+            Item(0, 0, 0x78C44),
         ],
     ),
     Room(
@@ -213,6 +233,9 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x195A6, 0x197B6),  # Bat Cave
             DoorIdentifier(RIGHT, 11, 1, 0x195B2, 0x195BE),  # Speed Booster Room
         ],
+        items=[
+            Item(11, 1, 0x78C74),
+        ],
     ),
     Room(
         name='Speed Booster Room',
@@ -220,6 +243,9 @@ rooms = [
         map=[[1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x195BE, 0x195B2),  # Speed Booster Hall
+        ],
+        items=[
+            Item(0, 0, 0x78C82),
         ],
     ),
     Room(
@@ -254,6 +280,9 @@ rooms = [
             DoorIdentifier(LEFT, 0, 1, 0x19612, 0x195E2),  # Single Chamber (bottom)
             DoorIdentifier(RIGHT, 3, 0, 0x1961E, 0x1962A),  # Wave Beam Room
         ],
+        items=[
+            Item(1, 0, 0x78CBC),
+        ],
     ),
     Room(
         name='Wave Beam Room',
@@ -261,6 +290,9 @@ rooms = [
         map=[[1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1962A, 0x1961E),  # Double Chamber
+        ],
+        items=[
+            Item(0, 0, 0x78CCA),
         ],
     ),
     Room(
@@ -312,6 +344,9 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1935A, 0x1937E),  # Ice Beam Snake Room
         ],
+        items=[
+            Item(0, 0, 0x78B24),
+        ],
     ),
     Room(
         name='Ice Beam Tutorial Room',
@@ -334,6 +369,9 @@ rooms = [
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x1938A, 0x19336),  # Ice Beam Gate Room
             DoorIdentifier(RIGHT, 0, 3, 0x19396, 0x193A2),  # Crocomire Speedway
+        ],
+        items=[
+            Item(0, 0, 0x78B46),
         ],
     ),
     Room(
@@ -469,6 +507,9 @@ rooms = [
         parts=[[0], [1]],
         transient_part_connections=[(1, 0)],  # unglitchable green gate
         missing_part_connections=[(0, 1)],
+        items=[
+            Item(0, 0, 0x78BC0),
+        ],
     ),
     Room(
         name="Crocomire's Room",
@@ -481,6 +522,9 @@ rooms = [
         parts=[[0], [1]],
         durable_part_connections=[(1, 0)],  # spike blocks cleared after Crocomire defeated
         missing_part_connections=[(0, 1)],
+        items=[
+            Item(7, 0, 0x78BA4),
+        ],
     ),
     Room(
         name='Post Crocomire Farming Room',
@@ -502,6 +546,9 @@ rooms = [
         map=[[1]],
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x1946E, 0x1943E),  # Post Crocomire Farming Room
+        ],
+        items=[
+            Item(0, 0, 0x78C04),
         ],
     ),
     Room(
@@ -528,6 +575,9 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x194AA, 0x19492),  # Post Crocomire Shaft
         ],
+        items=[
+            Item(3, 0, 0x78C14),
+        ],
     ),
     Room(
         name='Post Crocomire Jump Room',
@@ -541,6 +591,9 @@ rooms = [
             DoorIdentifier(LEFT, 0, 1, 0x194DA, 0x19516),  # Grapple Beam Room
             DoorIdentifier(UP, 6, 2, 0x194CE, 0x1949E),  # Post Crocomire Shaft
         ],
+        items=[
+            Item(4, 0, 0x78C2A),
+        ],
     ),
     Room(
         name='Grapple Beam Room',
@@ -553,6 +606,9 @@ rooms = [
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x19522, 0x194FE),  # Grapple Tutorial Room 1
             DoorIdentifier(RIGHT, 0, 2, 0x19516, 0x194DA),  # Post Crocomire Jump Room
+        ],
+        items=[
+            Item(0, 2, 0x78C36),
         ],
     ),
     Room(
