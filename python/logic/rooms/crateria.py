@@ -102,6 +102,9 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x18B7A, 0x18B62),  # Climb
             DoorIdentifier(RIGHT, 2, 0, 0x18B86, 0x18B92),  # Blue Brinstar Elevator Room
         ],
+        items=[
+            Item(0, 1, 0x783EE),
+        ],
     ),
     Room(
         name='Flyway',
@@ -143,7 +146,10 @@ rooms = [
         map=[[1]],
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x18C9A, 0x18C82),  # Final Missile Bombway
-        ]
+        ],
+        items=[
+            Item(0, 0, 0x78486),
+        ],
     ),
     Room(
         name='Final Missile Bombway',
@@ -161,6 +167,9 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x18BAA, 0x18BC2),  # Flyway
         ],
+        items=[
+            Item(0, 0, 0x78404),
+        ],
     ),
     Room(
         name='Terminator Room',
@@ -173,6 +182,9 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 0, 2, 0x18BE6, 0x18C3A),  # Green Pirates Shaft
             DoorIdentifier(RIGHT, 5, 0, 0x18BF2, 0x1895E),  # Parlor and Alcatraz
+        ],
+        items=[
+            Item(0, 2, 0x78432),
         ],
     ),
     Room(
@@ -196,6 +208,10 @@ rooms = [
         parts=[[1], [0, 2, 3]],
         transient_part_connections=[(0, 1)],  # crumble blocks
         missing_part_connections=[(1, 0)],
+        items=[
+            Item(0, 1, 0x7846A),
+            Item(0, 1, 0x78464),
+        ],
     ),
     Room(
         name='Lower Mushrooms',
@@ -294,6 +310,9 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x189B2, 0x1893A),  # Landing Site
         ],
+        items=[
+            Item(1, 0, 0x781CC),
+        ],
     ),
     Room(
         name='Crateria Super Room',
@@ -315,6 +334,9 @@ rooms = [
         parts=[[0], [1]],
         transient_part_connections=[(1, 0)],  # speed blocks
         missing_part_connections=[(0, 1)],
+        items=[
+            Item(3, 0, 0x78478),
+        ],
     ),
     Room(
         name='Gauntlet Entrance',
@@ -332,6 +354,9 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x18B1A, 0x18C5E),  # Green Pirates Shaft
             DoorIdentifier(RIGHT, 5, 0, 0x18B0E, 0x18952),  # Gauntlet Entrance
+        ],
+        items=[
+            Item(5, 0, 0x78264),
         ],
     ),
     Room(
@@ -358,6 +383,11 @@ rooms = [
         parts=[[1, 6, 7], [2, 3, 4], [0, 5]],
         transient_part_connections=[(1, 0)],  # crumble block
         missing_part_connections=[(0, 2), (2, 1)],
+        items=[
+            Item(1, 0, 0x781EE),
+            Item(0, 2, 0x781F4),
+            Item(0, 5, 0x781E8),
+        ],
     ),
     Room(
         name='Bowling Alley Path',
