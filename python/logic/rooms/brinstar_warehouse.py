@@ -41,6 +41,9 @@ rooms = [
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x19162, 0x1914A),  # Warehouse Zeela Room
         ],
+        items=[
+            Item(0, 0, 0x7899C),
+        ],
     ),
     Room(
         name='Warehouse Kihunter Room',
@@ -53,6 +56,9 @@ rooms = [
             DoorIdentifier(RIGHT, 3, 0, 0x19186, 0x1925E),  # Warehouse Save Room
             DoorIdentifier(RIGHT, 1, 1, 0x1917A, 0x19192),  # Baby Kraid Room
             DoorIdentifier(DOWN, 0, 0, 0x1916E, 0x19156),  # Warehouse Zeela Room
+        ],
+        items=[
+            Item(2, 0, 0x789EC),
         ],
     ),
     Room(
@@ -116,6 +122,9 @@ rooms = [
         map=[[1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x19252, 0x191DA),  # Kraid Room
+        ],
+        items=[
+            Item(0, 0, 0x78ACA),
         ],
     ),
 ]
