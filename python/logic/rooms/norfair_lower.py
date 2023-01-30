@@ -119,6 +119,9 @@ rooms = [
             DoorIdentifier(LEFT, 1, 2, 0x19A1A, 0x19A3E),  # Metal Pirates Room
             DoorIdentifier(UP, 5, 0, 0x19A26, 0x199EA),  # Red Kihunter Shaft
         ],
+        items=[
+            Item(0, 0, 0x790C0),
+        ],
     ),
     Room(
         name='Metal Pirates Room',
@@ -166,6 +169,9 @@ rooms = [
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x19A62, 0x198B2),  # Ridley's Room
         ],
+        items=[
+            Item(0, 0, 0x79108),
+        ],
     ),
     Room(
         name='Mickey Mouse Room',
@@ -183,6 +189,9 @@ rooms = [
         parts=[[0], [1]],
         transient_part_connections=[(1, 0)],  # crumble blocks
         missing_part_connections=[(0, 1)],
+        items=[
+            Item(2, 1, 0x78F30),
+        ],
     ),
     Room(
         name='Lower Norfair Fireflea Room',
@@ -200,6 +209,9 @@ rooms = [
             DoorIdentifier(LEFT, 1, 3, 0x19AAA, 0x19A02),  # Red Kihunter Shaft
             DoorIdentifier(RIGHT, 1, 0, 0x19A9E, 0x199D2),  # Lower Norfair Escape Power Bomb Room
         ],
+        items=[
+            Item(2, 5, 0x79184),
+        ],
     ),
     Room(
         name='Lower Norfair Spring Ball Maze Room',
@@ -216,6 +228,9 @@ rooms = [
         parts=[[0, 1], [2]],
         transient_part_connections=[(0, 1)],  # crumble block
         missing_part_connections=[(1, 0)],
+        items=[
+            Item(2, 0, 0x78FCA),
+        ],
     ),
     Room(
         name='Lower Norfair Escape Power Bomb Room',
@@ -228,6 +243,9 @@ rooms = [
         parts=[[0], [1]],
         transient_part_connections=[(1, 0)],  # crumble block
         missing_part_connections=[(0, 1)],
+        items=[
+            Item(0, 0, 0x78FD2),
+        ],
     ),
     Room(
         name="Three Musketeers' Room",
@@ -240,6 +258,9 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 1, 0, 0x19A4A, 0x195FA),  # Single Chamber
             DoorIdentifier(RIGHT, 3, 2, 0x19A56, 0x199AE),  # Lower Norfair Spring Ball Maze Room
+        ],
+        items=[
+            Item(0, 2, 0x79100),
         ],
     ),
     Room(
@@ -272,6 +293,10 @@ rooms = [
         parts=[[0], [1]],
         transient_part_connections=[(0, 1)],  # crumble blocks
         missing_part_connections=[(1, 0)],
+        items=[
+            Item(0, 0, 0x78E6E),
+            Item(1, 0, 0x78E74),
+        ],
     ),
     Room(
         name='Screw Attack Room',
@@ -285,6 +310,9 @@ rooms = [
             DoorIdentifier(LEFT, 0, 2, 0x19A86, 0x19882),  # Golden Torizo's Room
             DoorIdentifier(RIGHT, 0, 0, 0x19A6E, 0x1988E),  # Fast Ripper Room
             DoorIdentifier(RIGHT, 0, 1, 0x19A7A, 0x198A6),  # Golden Torizo Energy Recharge
+        ],
+        items=[
+            Item(0, 2, 0x79110),
         ],
     ),
     Room(
