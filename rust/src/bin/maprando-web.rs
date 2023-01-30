@@ -340,7 +340,11 @@ async fn get_seed_file(
         .seed_repository
         .get_file(seed_name, &("public/".to_string() + filename))
         .await {
-        Ok(data) => HttpResponse::Ok().body(data),
+        Ok(data) => {
+            let ext = Path::new(filename).extension().map(|x| x.to_str().unwrap()).unwrap_or("bin");
+            let mime = actix_files::file_extension_to_mime(ext);
+            HttpResponse::Ok().content_type(mime).body(data)
+        },
         // TODO: Use more refined error handling instead of always returning 404:
         Err(err) => {
             error!("{}", err.to_string());
