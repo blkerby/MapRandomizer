@@ -65,6 +65,11 @@ rooms = [
         transient_part_connections=[(1, 0),  # crumble blocks
                                     (2, 0)],  # super missile tunnel after spore spawn
         missing_part_connections=[(0, 1), (0, 2)],
+        items=[
+            Item(2, 3, 0x78608),
+            Item(2, 6, 0x7860E),
+            Item(2, 7, 0x78614),
+        ],
     ),
     Room(
         # TODO: add this to wiki.supermetroid.run/List_of_rooms because it is missing.
@@ -89,6 +94,9 @@ rooms = [
         parts=[[0], [1]],
         transient_part_connections=[(0, 1)],  # crumble blocks
         missing_part_connections=[(1, 0)],
+        items=[
+            Item(0, 1, 0x7865C),
+        ],
     ),
     Room(
         name='Pink Brinstar Hopper Room',
@@ -108,6 +116,9 @@ rooms = [
         map=[[1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x18FCA, 0x18FBE),  # Pink Brinstar Hopper Room
+        ],
+        items=[
+            Item(0, 0, 0x78824),
         ],
     ),
     Room(
@@ -131,6 +142,9 @@ rooms = [
         parts=[[0], [1]],
         transient_part_connections=[(0, 1)],  # crumble blocks
         missing_part_connections=[(1, 0)],
+        items=[
+            Item(1, 8, 0x784E4),
+        ],
     ),
     Room(
         name='Spore Spawn Farming Room',
@@ -147,6 +161,9 @@ rooms = [
         map=[[1, 1, 1, 1, 1, 1, 1]],
         door_ids=[
             DoorIdentifier(RIGHT, 6, 0, 0x18F8E, 0x18E0E),  # Big Pink
+        ],
+        items=[
+            Item(0, 0, 0x787FA),
         ],
     ),
 ]
