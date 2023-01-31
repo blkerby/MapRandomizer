@@ -125,6 +125,10 @@ struct RandomizeRequest {
     tech_json: Text<String>,
     race_mode: Text<String>,
     random_seed: Text<String>,
+    quality_of_life_preset: Option<Text<bool>>,
+    supers_double: Text<bool>,
+    mark_map_stations: Text<bool>,
+    mark_majors: Text<bool>,
 }
 
 #[derive(MultipartForm)]
@@ -144,6 +148,10 @@ struct SeedData {
     race_mode: bool,
     preset: Option<String>,
     difficulty: DifficultyConfig,
+    quality_of_life_preset: Option<bool>,
+    supers_double: bool,
+    mark_map_stations: bool,
+    mark_majors: bool,
 }
 
 fn get_seed_name(seed_data: &SeedData) -> String {
@@ -165,6 +173,10 @@ struct SeedHeaderTemplate<'a> {
     preset: String,
     item_placement_strategy: String,
     difficulty: &'a DifficultyConfig,
+    quality_of_life_preset: Option<bool>,
+    supers_double: bool,
+    mark_map_stations: bool,
+    mark_majors: bool,
 }
 
 #[derive(TemplateOnce)]
@@ -191,6 +203,10 @@ fn render_seed(seed_name: &str, seed_data: &SeedData) -> Result<(String, String)
         preset: seed_data.preset.clone().unwrap_or("Custom".to_string()),
         item_placement_strategy: format!("{:?}", seed_data.difficulty.item_placement_strategy),
         difficulty: &seed_data.difficulty,
+        quality_of_life_preset: seed_data.quality_of_life_preset,
+        supers_double: seed_data.supers_double,
+        mark_map_stations: seed_data.mark_map_stations,
+        mark_majors: seed_data.mark_majors,
     };
     let seed_header_html = seed_header_template.render_once()?;
 
@@ -412,6 +428,9 @@ async fn randomize(
         resource_multiplier: req.resource_multiplier.0,
         escape_timer_multiplier: req.escape_timer_multiplier.0,
         save_animals: req.save_animals.0 == "On",
+        supers_double: req.supers_double.0,
+        mark_map_stations: req.mark_map_stations.0,
+        mark_majors: req.mark_majors.0,
         debug_options: None,
     };
     let random_seed = if &req.random_seed.0 == "" {
@@ -466,6 +485,10 @@ async fn randomize(
         race_mode,
         preset: req.preset.as_ref().map(|x| x.0.clone()),
         difficulty,
+        quality_of_life_preset: req.quality_of_life_preset.as_ref().map(|x| x.0),
+        supers_double: req.supers_double.0,
+        mark_map_stations: req.mark_map_stations.0,
+        mark_majors: req.mark_majors.0,
     };
 
     let output_rom = make_rom(&rom, &randomization, &app_data.game_data).unwrap();

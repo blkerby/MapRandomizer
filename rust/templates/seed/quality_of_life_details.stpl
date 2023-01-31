@@ -1,0 +1,12 @@
+<div class="row">
+    <div class="col-6">Supers do double damage to Mother Brain:</div>
+    <div class="col-6"><%= if supers_double { "Yes" } else { "No" }%></div>
+</div>
+<div class="row">
+    <div class="col-6">Map stations always visible:</div>
+    <div class="col-6"><%= if mark_map_stations { "Yes" } else { "No" }%></div>
+</div>
+<div class="row">
+    <div class="col-6">Major items marked:</div>
+    <div class="col-6"><%= if mark_majors { "Yes" } else { "No" }%></div>
+</div>

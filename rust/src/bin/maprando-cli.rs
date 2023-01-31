@@ -121,6 +121,9 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         resource_multiplier: 2.0,
         escape_timer_multiplier: 2.0,
         save_animals: false,
+        supers_double: true,
+        mark_map_stations: true,
+        mark_majors: true,
         debug_options: Some(DebugOptions {
             new_game_extra: true,
             extended_spoiler: true,

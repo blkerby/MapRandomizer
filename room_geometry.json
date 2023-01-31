@@ -3503,12 +3503,12 @@
     "transient_part_connections": [],
     "items": [
       {
-        "x": 0,
+        "x": 1,
         "y": 0,
         "addr": 509053
       },
       {
-        "x": 1,
+        "x": 2,
         "y": 1,
         "addr": 509059
       }

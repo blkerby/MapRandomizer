@@ -899,8 +899,10 @@ impl<'a> Patcher<'a> {
         self.rom.write_u16(snes2pc(0x8FDF03), 0xC953)?; // Vanilla setup ASM pointer (to undo effect of `no_explosions_before_escape` patch)
         self.rom.write_u8(snes2pc(0x8FC95B), 0x60)?; // RTS (return early from setup ASM to skip setting up shaking)
 
-        // Make Supers do double damage to Mother Brain:
-        self.rom.write_u8(snes2pc(0xB4F1D5), 0x84)?;
+        if self.randomization.difficulty.supers_double {
+            // Make Supers do double damage to Mother Brain:
+            self.rom.write_u8(snes2pc(0xB4F1D5), 0x84)?;
+        }
 
         Ok(())
     }
