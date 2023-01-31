@@ -1,5 +1,5 @@
 from logic.areas import Area, SubArea
-from maze_builder.types import Room, DoorIdentifier, Direction, DoorSubtype
+from maze_builder.types import Room, DoorIdentifier, Direction, DoorSubtype, Item
 
 LEFT = Direction.LEFT
 RIGHT = Direction.RIGHT

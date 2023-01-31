@@ -27,7 +27,14 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 492104
+      }
+    ]
   },
   {
     "name": "Landing Site",
@@ -76,7 +83,8 @@
     ],
     "parts": [[0, 1, 2, 3]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Crateria Tube",
@@ -103,7 +111,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Parlor and Alcatraz",
@@ -176,7 +185,8 @@
     ],
     "parts": [[0, 1, 2, 3, 4, 5, 6]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Climb",
@@ -237,7 +247,8 @@
     ],
     "parts": [[0, 1, 2, 3, 4]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Pit Room",
@@ -267,7 +278,14 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 0,
+        "y": 1,
+        "addr": 492526
+      }
+    ]
   },
   {
     "name": "Flyway",
@@ -294,7 +312,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Pre-Map Flyway",
@@ -321,7 +340,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Crateria Map Room",
@@ -340,7 +360,8 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Crateria Save Room",
@@ -359,7 +380,8 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "The Final Missile",
@@ -378,7 +400,14 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 492678
+      }
+    ]
   },
   {
     "name": "Final Missile Bombway",
@@ -405,7 +434,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Bomb Torizo Room",
@@ -424,7 +454,14 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 492548
+      }
+    ]
   },
   {
     "name": "Terminator Room",
@@ -455,7 +492,14 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 0,
+        "y": 2,
+        "addr": 492594
+      }
+    ]
   },
   {
     "name": "Green Pirates Shaft",
@@ -498,7 +542,19 @@
     ],
     "parts": [[1], [0, 2, 3]],
     "durable_part_connections": [],
-    "transient_part_connections": [[0, 1]]
+    "transient_part_connections": [[0, 1]],
+    "items": [
+      {
+        "x": 0,
+        "y": 1,
+        "addr": 492650
+      },
+      {
+        "x": 0,
+        "y": 1,
+        "addr": 492644
+      }
+    ]
   },
   {
     "name": "Lower Mushrooms",
@@ -525,7 +581,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Green Brinstar Elevator Room",
@@ -552,7 +609,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Crateria Kihunter Room",
@@ -591,7 +649,8 @@
     ],
     "parts": [[0, 1, 2]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Statues Hallway",
@@ -618,7 +677,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Red Brinstar Elevator Room",
@@ -645,7 +705,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Blue Brinstar Elevator Room",
@@ -672,7 +733,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Statues Room",
@@ -699,7 +761,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Crateria Power Bomb Room",
@@ -718,7 +781,14 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 1,
+        "y": 0,
+        "addr": 491980
+      }
+    ]
   },
   {
     "name": "Crateria Super Room",
@@ -754,7 +824,14 @@
     ],
     "parts": [[0], [1]],
     "durable_part_connections": [],
-    "transient_part_connections": [[1, 0]]
+    "transient_part_connections": [[1, 0]],
+    "items": [
+      {
+        "x": 3,
+        "y": 0,
+        "addr": 492664
+      }
+    ]
   },
   {
     "name": "Gauntlet Entrance",
@@ -781,7 +858,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Gauntlet Energy Tank Room",
@@ -808,7 +886,14 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 5,
+        "y": 0,
+        "addr": 492132
+      }
+    ]
   },
   {
     "name": "West Ocean",
@@ -894,7 +979,24 @@
       [0, 5]
     ],
     "durable_part_connections": [],
-    "transient_part_connections": [[1, 0]]
+    "transient_part_connections": [[1, 0]],
+    "items": [
+      {
+        "x": 1,
+        "y": 0,
+        "addr": 492014
+      },
+      {
+        "x": 0,
+        "y": 2,
+        "addr": 492020
+      },
+      {
+        "x": 0,
+        "y": 5,
+        "addr": 492008
+      }
+    ]
   },
   {
     "name": "Bowling Alley Path",
@@ -921,7 +1023,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "East Ocean",
@@ -955,7 +1058,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Forgotten Highway Kago Room",
@@ -982,7 +1086,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Crab Maze",
@@ -1012,7 +1117,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Forgotten Highway Elevator",
@@ -1039,7 +1145,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Forgotten Highway Elbow",
@@ -1066,7 +1173,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Red Tower",
@@ -1117,7 +1225,8 @@
     ],
     "parts": [[0, 1, 2, 3, 4]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Red Brinstar Fireflea Room",
@@ -1147,7 +1256,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "X-Ray Scope Room",
@@ -1166,7 +1276,14 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 493686
+      }
+    ]
   },
   {
     "name": "Bat Room",
@@ -1193,7 +1310,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Below Spazer",
@@ -1231,7 +1349,8 @@
     ],
     "parts": [[0, 1, 2]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Spazer Room",
@@ -1250,7 +1369,14 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 493934
+      }
+    ]
   },
   {
     "name": "Hellway",
@@ -1277,7 +1403,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Caterpillar Room",
@@ -1345,7 +1472,8 @@
     ],
     "parts": [[0, 1, 2, 4, 5], [3]],
     "durable_part_connections": [],
-    "transient_part_connections": [[1, 0]]
+    "transient_part_connections": [[1, 0]],
+    "items": []
   },
   {
     "name": "Alpha Power Bomb Room",
@@ -1364,7 +1492,19 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 1,
+        "y": 0,
+        "addr": 493838
+      },
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 493844
+      }
+    ]
   },
   {
     "name": "Beta Power Bomb Room",
@@ -1386,7 +1526,14 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 0,
+        "y": 1,
+        "addr": 493770
+      }
+    ]
   },
   {
     "name": "Caterpillar Save Room",
@@ -1405,7 +1552,8 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Sloaters Refill",
@@ -1424,7 +1572,8 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Morph Ball Room",
@@ -1463,7 +1612,19 @@
     ],
     "parts": [[0, 1, 2]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 4,
+        "y": 2,
+        "addr": 493278
+      },
+      {
+        "x": 2,
+        "y": 2,
+        "addr": 493388
+      }
+    ]
   },
   {
     "name": "Construction Zone",
@@ -1498,7 +1659,8 @@
     ],
     "parts": [[0, 1, 2]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "First Missile Room",
@@ -1517,7 +1679,14 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 493570
+      }
+    ]
   },
   {
     "name": "Blue Brinstar Energy Tank Room",
@@ -1548,7 +1717,19 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 1,
+        "y": 2,
+        "addr": 493470
+      },
+      {
+        "x": 2,
+        "y": 2,
+        "addr": 493464
+      }
+    ]
   },
   {
     "name": "Blue Brinstar Boulder Room",
@@ -1575,7 +1756,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Billy Mays Room",
@@ -1594,7 +1776,19 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 493622
+      },
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 493628
+      }
+    ]
   },
   {
     "name": "Green Brinstar Main Shaft",
@@ -1698,7 +1892,14 @@
     ],
     "parts": [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 3,
+        "y": 7,
+        "addr": 492716
+      }
+    ]
   },
   {
     "name": "Early Supers Room",
@@ -1728,7 +1929,19 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 1,
+        "y": 1,
+        "addr": 492824
+      },
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 492830
+      }
+    ]
   },
   {
     "name": "Brinstar Reserve Tank Room",
@@ -1747,7 +1960,24 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 492844
+      },
+      {
+        "x": 1,
+        "y": 0,
+        "addr": 492856
+      },
+      {
+        "x": 1,
+        "y": 0,
+        "addr": 492850
+      }
+    ]
   },
   {
     "name": "Brinstar Pre-Map Room",
@@ -1774,7 +2004,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Brinstar Map Room",
@@ -1793,7 +2024,8 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Green Brinstar Fireflea Room",
@@ -1823,7 +2055,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Green Brinstar Missile Refill Room",
@@ -1842,7 +2075,8 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Green Brinstar Main Shaft Save Room",
@@ -1861,7 +2095,8 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Etecoon Save Room",
@@ -1880,7 +2115,8 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Green Brinstar Beetom Room",
@@ -1907,7 +2143,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Etecoon Energy Tank Room",
@@ -1956,7 +2193,14 @@
       [1, 3]
     ],
     "durable_part_connections": [],
-    "transient_part_connections": [[0, 1]]
+    "transient_part_connections": [[0, 1]],
+    "items": [
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 493506
+      }
+    ]
   },
   {
     "name": "Etecoon Super Room",
@@ -1975,7 +2219,14 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 493520
+      }
+    ]
   },
   {
     "name": "Green Hill Zone",
@@ -2015,7 +2266,14 @@
     ],
     "parts": [[0, 1, 2]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 3,
+        "y": 1,
+        "addr": 493174
+      }
+    ]
   },
   {
     "name": "Noob Bridge",
@@ -2042,7 +2300,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Spore Spawn Kihunter Room",
@@ -2069,7 +2328,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Spore Spawn Room",
@@ -2096,7 +2356,8 @@
     ],
     "parts": [[0], [1]],
     "durable_part_connections": [[1, 0]],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Dachora Room",
@@ -2139,7 +2400,8 @@
     ],
     "parts": [[0, 1, 2]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Dachora Energy Refill Room",
@@ -2158,7 +2420,8 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Big Pink",
@@ -2255,6 +2518,23 @@
     "transient_part_connections": [
       [1, 0],
       [2, 0]
+    ],
+    "items": [
+      {
+        "x": 2,
+        "y": 3,
+        "addr": 493064
+      },
+      {
+        "x": 2,
+        "y": 6,
+        "addr": 493070
+      },
+      {
+        "x": 2,
+        "y": 7,
+        "addr": 493076
+      }
     ]
   },
   {
@@ -2274,7 +2554,8 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Pink Brinstar Power Bomb Room",
@@ -2304,7 +2585,14 @@
     ],
     "parts": [[0], [1]],
     "durable_part_connections": [],
-    "transient_part_connections": [[0, 1]]
+    "transient_part_connections": [[0, 1]],
+    "items": [
+      {
+        "x": 0,
+        "y": 1,
+        "addr": 493148
+      }
+    ]
   },
   {
     "name": "Pink Brinstar Hopper Room",
@@ -2334,7 +2622,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Hopper Energy Tank Room",
@@ -2353,7 +2642,14 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 493604
+      }
+    ]
   },
   {
     "name": "Spore Spawn Super Room",
@@ -2390,7 +2686,14 @@
     ],
     "parts": [[0], [1]],
     "durable_part_connections": [],
-    "transient_part_connections": [[0, 1]]
+    "transient_part_connections": [[0, 1]],
+    "items": [
+      {
+        "x": 1,
+        "y": 8,
+        "addr": 492772
+      }
+    ]
   },
   {
     "name": "Spore Spawn Farming Room",
@@ -2417,7 +2720,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Waterway Energy Tank Room",
@@ -2436,7 +2740,14 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 493562
+      }
+    ]
   },
   {
     "name": "Warehouse Entrance",
@@ -2474,7 +2785,8 @@
     ],
     "parts": [[0, 1, 2]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Warehouse Zeela Room",
@@ -2512,7 +2824,8 @@
     ],
     "parts": [[0, 1, 2]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Warehouse Energy Tank Room",
@@ -2531,7 +2844,14 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 493980
+      }
+    ]
   },
   {
     "name": "Warehouse Kihunter Room",
@@ -2569,7 +2889,14 @@
     ],
     "parts": [[0, 1, 2]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 2,
+        "y": 0,
+        "addr": 494060
+      }
+    ]
   },
   {
     "name": "Warehouse Save Room",
@@ -2588,7 +2915,8 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Baby Kraid Room",
@@ -2615,7 +2943,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Kraid Eye Door Room",
@@ -2653,7 +2982,8 @@
     ],
     "parts": [[0, 1, 2]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Kraid Recharge Station",
@@ -2672,7 +3002,8 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Kraid Room",
@@ -2702,7 +3033,8 @@
     ],
     "parts": [[0], [1]],
     "durable_part_connections": [[0, 1]],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Varia Suit Room",
@@ -2721,7 +3053,14 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 494282
+      }
+    ]
   },
   {
     "name": "West Tunnel",
@@ -2748,7 +3087,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "East Tunnel",
@@ -2786,7 +3126,8 @@
     ],
     "parts": [[0, 1], [2]],
     "durable_part_connections": [],
-    "transient_part_connections": [[1, 0]]
+    "transient_part_connections": [[1, 0]],
+    "items": []
   },
   {
     "name": "Glass Tunnel",
@@ -2829,7 +3170,8 @@
     ],
     "parts": [[0, 1, 2, 3]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Glass Tunnel Save Room",
@@ -2848,7 +3190,8 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Main Street",
@@ -2908,7 +3251,19 @@
     ],
     "parts": [[0, 2, 3, 4], [1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 0,
+        "y": 3,
+        "addr": 508983
+      },
+      {
+        "x": 1,
+        "y": 2,
+        "addr": 508989
+      }
+    ]
   },
   {
     "name": "Fish Tank",
@@ -2955,7 +3310,8 @@
     ],
     "parts": [[0, 1, 2, 3]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Mt. Everest",
@@ -3019,7 +3375,8 @@
     ],
     "parts": [[0, 1, 2, 3, 4, 5]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Crab Shaft",
@@ -3059,7 +3416,8 @@
     ],
     "parts": [[0, 1, 2]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Crab Tunnel",
@@ -3086,7 +3444,8 @@
     ],
     "parts": [[0], [1]],
     "durable_part_connections": [],
-    "transient_part_connections": [[0, 1]]
+    "transient_part_connections": [[0, 1]],
+    "items": []
   },
   {
     "name": "Red Fish Room",
@@ -3116,7 +3475,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Mama Turtle Room",
@@ -3140,7 +3500,19 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 509053
+      },
+      {
+        "x": 1,
+        "y": 1,
+        "addr": 509059
+      }
+    ]
   },
   {
     "name": "Pseudo Plasma Spark Room",
@@ -3171,7 +3543,14 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 2,
+        "y": 2,
+        "addr": 509235
+      }
+    ]
   },
   {
     "name": "Northwest Maridia Bug Room",
@@ -3201,7 +3580,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Watering Hole",
@@ -3224,7 +3604,19 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 0,
+        "y": 2,
+        "addr": 509103
+      },
+      {
+        "x": 0,
+        "y": 2,
+        "addr": 509109
+      }
+    ]
   },
   {
     "name": "Aqueduct Save Room",
@@ -3243,7 +3635,8 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Aqueduct",
@@ -3332,6 +3725,18 @@
     "transient_part_connections": [
       [0, 1],
       [0, 2]
+    ],
+    "items": [
+      {
+        "x": 4,
+        "y": 4,
+        "addr": 509443
+      },
+      {
+        "x": 5,
+        "y": 4,
+        "addr": 509449
+      }
     ]
   },
   {
@@ -3359,7 +3764,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Botwoon's Room",
@@ -3386,7 +3792,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Botwoon Energy Tank Room",
@@ -3432,6 +3839,13 @@
     "transient_part_connections": [
       [0, 1],
       [0, 2]
+    ],
+    "items": [
+      {
+        "x": 3,
+        "y": 0,
+        "addr": 509781
+      }
     ]
   },
   {
@@ -3479,7 +3893,8 @@
     ],
     "parts": [[0, 1, 2, 3]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Maridia Missile Refill Room",
@@ -3498,7 +3913,8 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Colosseum",
@@ -3536,7 +3952,8 @@
     ],
     "parts": [[0, 1, 2]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Draygon Save Room",
@@ -3563,7 +3980,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Maridia Health Refill Room",
@@ -3582,7 +4000,8 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "The Precious Room",
@@ -3613,7 +4032,14 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 1,
+        "y": 0,
+        "addr": 509773
+      }
+    ]
   },
   {
     "name": "Draygon's Room",
@@ -3643,7 +4069,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Space Jump Room",
@@ -3662,7 +4089,14 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 509863
+      }
+    ]
   },
   {
     "name": "West Cactus Alley Room",
@@ -3689,7 +4123,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "East Cactus Alley Room",
@@ -3719,7 +4154,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Plasma Spark Room",
@@ -3769,7 +4205,8 @@
     ],
     "parts": [[0, 1, 2, 3]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Oasis",
@@ -3804,7 +4241,8 @@
     ],
     "parts": [[0, 1, 2]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "West Sand Hall",
@@ -3839,7 +4277,8 @@
     ],
     "parts": [[0, 1], [2]],
     "durable_part_connections": [],
-    "transient_part_connections": [[1, 0]]
+    "transient_part_connections": [[1, 0]],
+    "items": []
   },
   {
     "name": "West Sand Hall Tunnel",
@@ -3866,7 +4305,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Maridia Map Room",
@@ -3885,7 +4325,8 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Botwoon Quicksand Room",
@@ -3931,7 +4372,8 @@
     "transient_part_connections": [
       [2, 0],
       [3, 1]
-    ]
+    ],
+    "items": []
   },
   {
     "name": "Below Botwoon Energy Tank",
@@ -3969,7 +4411,8 @@
     "transient_part_connections": [
       [1, 0],
       [2, 0]
-    ]
+    ],
+    "items": []
   },
   {
     "name": "West Aqueduct Quicksand Room",
@@ -3996,7 +4439,8 @@
     ],
     "parts": [[0], [1]],
     "durable_part_connections": [],
-    "transient_part_connections": [[1, 0]]
+    "transient_part_connections": [[1, 0]],
+    "items": []
   },
   {
     "name": "East Aqueduct Quicksand Room",
@@ -4023,7 +4467,8 @@
     ],
     "parts": [[0], [1]],
     "durable_part_connections": [],
-    "transient_part_connections": [[1, 0]]
+    "transient_part_connections": [[1, 0]],
+    "items": []
   },
   {
     "name": "East Sand Hole",
@@ -4053,7 +4498,19 @@
     ],
     "parts": [[0], [1]],
     "durable_part_connections": [],
-    "transient_part_connections": [[1, 0]]
+    "transient_part_connections": [[1, 0]],
+    "items": [
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 509419
+      },
+      {
+        "x": 1,
+        "y": 1,
+        "addr": 509425
+      }
+    ]
   },
   {
     "name": "West Sand Hole",
@@ -4083,7 +4540,19 @@
     ],
     "parts": [[0], [1]],
     "durable_part_connections": [],
-    "transient_part_connections": [[1, 0]]
+    "transient_part_connections": [[1, 0]],
+    "items": [
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 509405
+      },
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 509411
+      }
+    ]
   },
   {
     "name": "East Sand Hall",
@@ -4118,7 +4587,8 @@
     ],
     "parts": [[0, 1], [2]],
     "durable_part_connections": [],
-    "transient_part_connections": [[1, 0]]
+    "transient_part_connections": [[1, 0]],
+    "items": []
   },
   {
     "name": "Bug Sand Hole",
@@ -4153,7 +4623,8 @@
     ],
     "parts": [[0, 1, 2]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Plasma Beach Quicksand Room",
@@ -4180,7 +4651,8 @@
     ],
     "parts": [[0], [1]],
     "durable_part_connections": [],
-    "transient_part_connections": [[1, 0]]
+    "transient_part_connections": [[1, 0]],
+    "items": []
   },
   {
     "name": "Butterfly Room",
@@ -4215,7 +4687,8 @@
     ],
     "parts": [[0, 1], [2]],
     "durable_part_connections": [],
-    "transient_part_connections": [[1, 0]]
+    "transient_part_connections": [[1, 0]],
+    "items": []
   },
   {
     "name": "Thread The Needle Room",
@@ -4242,7 +4715,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Maridia Elevator Room",
@@ -4277,7 +4751,8 @@
     ],
     "parts": [[0, 1, 2]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Forgotten Highway Save Room",
@@ -4296,7 +4771,8 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Kassiuz Room",
@@ -4323,7 +4799,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Plasma Tutorial Room",
@@ -4350,7 +4827,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Plasma Room",
@@ -4373,7 +4851,14 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 1,
+        "y": 2,
+        "addr": 509273
+      }
+    ]
   },
   {
     "name": "Pants Room",
@@ -4421,7 +4906,8 @@
     ],
     "parts": [[0, 1, 2, 3]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Shaktool Room",
@@ -4448,7 +4934,8 @@
     ],
     "parts": [[0], [1]],
     "durable_part_connections": [[0, 1]],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Spring Ball Room",
@@ -4470,7 +4957,14 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 1,
+        "y": 1,
+        "addr": 509669
+      }
+    ]
   },
   {
     "name": "Crab Hole",
@@ -4513,7 +5007,8 @@
     ],
     "parts": [[0, 1, 2, 3]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Main Hall",
@@ -4552,7 +5047,8 @@
     ],
     "parts": [[0, 1, 2]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Fast Pillars Setup Room",
@@ -4595,7 +5091,8 @@
     ],
     "parts": [[0, 1, 2, 3]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Pillar Room",
@@ -4622,7 +5119,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "The Worst Room In The Game",
@@ -4657,7 +5155,8 @@
     ],
     "parts": [[0, 1, 2]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Amphitheatre",
@@ -4690,7 +5189,8 @@
     ],
     "parts": [[0], [1]],
     "durable_part_connections": [],
-    "transient_part_connections": [[0, 1]]
+    "transient_part_connections": [[0, 1]],
+    "items": []
   },
   {
     "name": "Red Kihunter Shaft",
@@ -4739,7 +5239,8 @@
     ],
     "parts": [[0, 1, 2, 3]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Red Kihunter Shaft Save Room",
@@ -4758,7 +5259,8 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Wasteland",
@@ -4789,7 +5291,14 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 495808
+      }
+    ]
   },
   {
     "name": "Metal Pirates Room",
@@ -4816,7 +5325,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Plowerhouse Room",
@@ -4843,7 +5353,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Lower Norfair Farming Room",
@@ -4870,7 +5381,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Ridley's Room",
@@ -4897,7 +5409,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Ridley Tank Room",
@@ -4916,7 +5429,14 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 495880
+      }
+    ]
   },
   {
     "name": "Mickey Mouse Room",
@@ -4948,7 +5468,14 @@
     ],
     "parts": [[0], [1]],
     "durable_part_connections": [],
-    "transient_part_connections": [[1, 0]]
+    "transient_part_connections": [[1, 0]],
+    "items": [
+      {
+        "x": 2,
+        "y": 1,
+        "addr": 495408
+      }
+    ]
   },
   {
     "name": "Lower Norfair Fireflea Room",
@@ -4990,7 +5517,14 @@
     ],
     "parts": [[0, 1, 2]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 2,
+        "y": 5,
+        "addr": 496004
+      }
+    ]
   },
   {
     "name": "Lower Norfair Spring Ball Maze Room",
@@ -5028,7 +5562,14 @@
     ],
     "parts": [[0, 1], [2]],
     "durable_part_connections": [],
-    "transient_part_connections": [[0, 1]]
+    "transient_part_connections": [[0, 1]],
+    "items": [
+      {
+        "x": 2,
+        "y": 0,
+        "addr": 495562
+      }
+    ]
   },
   {
     "name": "Lower Norfair Escape Power Bomb Room",
@@ -5055,7 +5596,14 @@
     ],
     "parts": [[0], [1]],
     "durable_part_connections": [],
-    "transient_part_connections": [[1, 0]]
+    "transient_part_connections": [[1, 0]],
+    "items": [
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 495570
+      }
+    ]
   },
   {
     "name": "Three Musketeers' Room",
@@ -5086,7 +5634,14 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 0,
+        "y": 2,
+        "addr": 495872
+      }
+    ]
   },
   {
     "name": "Acid Statue Room",
@@ -5117,7 +5672,8 @@
     ],
     "parts": [[0], [1]],
     "durable_part_connections": [[0, 1]],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Golden Torizo's Room",
@@ -5147,7 +5703,19 @@
     ],
     "parts": [[0], [1]],
     "durable_part_connections": [],
-    "transient_part_connections": [[0, 1]]
+    "transient_part_connections": [[0, 1]],
+    "items": [
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 495214
+      },
+      {
+        "x": 1,
+        "y": 0,
+        "addr": 495220
+      }
+    ]
   },
   {
     "name": "Screw Attack Room",
@@ -5182,7 +5750,14 @@
     ],
     "parts": [[0, 1, 2]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 0,
+        "y": 2,
+        "addr": 495888
+      }
+    ]
   },
   {
     "name": "Golden Torizo Energy Recharge",
@@ -5201,7 +5776,8 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Fast Ripper Room",
@@ -5228,7 +5804,8 @@
     ],
     "parts": [[0], [1]],
     "durable_part_connections": [],
-    "transient_part_connections": [[0, 1]]
+    "transient_part_connections": [[0, 1]],
+    "items": []
   },
   {
     "name": "Business Center",
@@ -5295,7 +5872,8 @@
     ],
     "parts": [[0, 1, 2, 3, 4, 5, 6]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Norfair Map Room",
@@ -5314,7 +5892,8 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Hi Jump Energy Tank Room",
@@ -5344,7 +5923,19 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 1,
+        "y": 0,
+        "addr": 494572
+      },
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 494566
+      }
+    ]
   },
   {
     "name": "Hi Jump Boots Room",
@@ -5363,7 +5954,14 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 494508
+      }
+    ]
   },
   {
     "name": "Cathedral Entrance",
@@ -5393,7 +5991,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Cathedral",
@@ -5423,7 +6022,14 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 2,
+        "y": 1,
+        "addr": 494308
+      }
+    ]
   },
   {
     "name": "Rising Tide",
@@ -5450,7 +6056,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Frog Speedway",
@@ -5477,7 +6084,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Upper Norfair Farming Room",
@@ -5515,7 +6123,8 @@
     ],
     "parts": [[0, 1, 2]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Purple Shaft",
@@ -5550,7 +6159,8 @@
     ],
     "parts": [[0, 1, 2]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Purple Farming Room",
@@ -5569,7 +6179,8 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Frog Savestation",
@@ -5596,7 +6207,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Bubble Mountain",
@@ -5668,7 +6280,14 @@
     ],
     "parts": [[0, 1, 2, 3, 4, 5, 6]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 1,
+        "y": 3,
+        "addr": 494694
+      }
+    ]
   },
   {
     "name": "Bubble Mountain Save Room",
@@ -5687,7 +6306,8 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Green Bubbles Missile Room",
@@ -5714,7 +6334,14 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 1,
+        "y": 0,
+        "addr": 494674
+      }
+    ]
   },
   {
     "name": "Norfair Reserve Tank Room",
@@ -5733,7 +6360,19 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 494654
+      },
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 494660
+      }
+    ]
   },
   {
     "name": "Bat Cave",
@@ -5760,7 +6399,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Speed Booster Hall",
@@ -5790,7 +6430,14 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 11,
+        "y": 1,
+        "addr": 494708
+      }
+    ]
   },
   {
     "name": "Speed Booster Room",
@@ -5809,7 +6456,14 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 494722
+      }
+    ]
   },
   {
     "name": "Single Chamber",
@@ -5865,7 +6519,8 @@
     ],
     "parts": [[0, 2, 3, 4], [1]],
     "durable_part_connections": [],
-    "transient_part_connections": [[1, 0]]
+    "transient_part_connections": [[1, 0]],
+    "items": []
   },
   {
     "name": "Double Chamber",
@@ -5903,7 +6558,14 @@
     ],
     "parts": [[0, 1, 2]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 1,
+        "y": 0,
+        "addr": 494780
+      }
+    ]
   },
   {
     "name": "Wave Beam Room",
@@ -5922,7 +6584,14 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 494794
+      }
+    ]
   },
   {
     "name": "Ice Beam Gate Room",
@@ -5970,7 +6639,8 @@
     ],
     "parts": [[1, 2, 3], [0]],
     "durable_part_connections": [],
-    "transient_part_connections": [[1, 0]]
+    "transient_part_connections": [[1, 0]],
+    "items": []
   },
   {
     "name": "Ice Beam Acid Room",
@@ -5997,7 +6667,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Ice Beam Snake Room",
@@ -6036,7 +6707,8 @@
     ],
     "parts": [[0, 1, 2]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Ice Beam Room",
@@ -6055,7 +6727,14 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 494372
+      }
+    ]
   },
   {
     "name": "Ice Beam Tutorial Room",
@@ -6082,7 +6761,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Crumble Shaft",
@@ -6109,7 +6789,14 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 494406
+      }
+    ]
   },
   {
     "name": "Nutella Refill",
@@ -6136,7 +6823,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Spiky Acid Snakes Tunnel",
@@ -6163,7 +6851,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Kronic Boost Room",
@@ -6210,7 +6899,8 @@
     ],
     "parts": [[0, 1, 2, 3]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Magdollite Tunnel",
@@ -6237,7 +6927,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Lava Dive Room",
@@ -6268,7 +6959,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Volcano Room",
@@ -6299,7 +6991,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Spiky Platforms Tunnel",
@@ -6326,7 +7019,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Red Pirate Shaft",
@@ -6353,7 +7047,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Acid Snakes Tunnel",
@@ -6388,7 +7083,8 @@
     ],
     "parts": [[0, 1, 2]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Crocomire Speedway",
@@ -6443,7 +7139,8 @@
     ],
     "parts": [[0], [1, 2, 3, 4]],
     "durable_part_connections": [],
-    "transient_part_connections": [[0, 1]]
+    "transient_part_connections": [[0, 1]],
+    "items": []
   },
   {
     "name": "Crocomire Escape",
@@ -6473,7 +7170,14 @@
     ],
     "parts": [[0], [1]],
     "durable_part_connections": [],
-    "transient_part_connections": [[1, 0]]
+    "transient_part_connections": [[1, 0]],
+    "items": [
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 494528
+      }
+    ]
   },
   {
     "name": "Crocomire's Room",
@@ -6500,7 +7204,14 @@
     ],
     "parts": [[0], [1]],
     "durable_part_connections": [[1, 0]],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 7,
+        "y": 0,
+        "addr": 494500
+      }
+    ]
   },
   {
     "name": "Post Crocomire Farming Room",
@@ -6546,7 +7257,8 @@
     ],
     "parts": [[0, 1, 2, 3]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Post Crocomire Power Bomb Room",
@@ -6565,7 +7277,14 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 494596
+      }
+    ]
   },
   {
     "name": "Post Crocomire Shaft",
@@ -6608,7 +7327,8 @@
     ],
     "parts": [[0, 1, 2, 3]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Post Crocomire Missile Room",
@@ -6627,7 +7347,14 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 3,
+        "y": 0,
+        "addr": 494612
+      }
+    ]
   },
   {
     "name": "Post Crocomire Jump Room",
@@ -6658,7 +7385,14 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 4,
+        "y": 0,
+        "addr": 494634
+      }
+    ]
   },
   {
     "name": "Grapple Beam Room",
@@ -6685,7 +7419,14 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 0,
+        "y": 2,
+        "addr": 494646
+      }
+    ]
   },
   {
     "name": "Grapple Tutorial Room 1",
@@ -6712,7 +7453,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Grapple Tutorial Room 2",
@@ -6739,7 +7481,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Grapple Tutorial Room 3",
@@ -6769,7 +7512,8 @@
     ],
     "parts": [[0], [1]],
     "durable_part_connections": [],
-    "transient_part_connections": [[0, 1]]
+    "transient_part_connections": [[0, 1]],
+    "items": []
   },
   {
     "name": "Crocomire Save Room",
@@ -6788,7 +7532,8 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Post Crocomire Save Room",
@@ -6807,7 +7552,8 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Lower Norfair Elevator",
@@ -6842,7 +7588,8 @@
     ],
     "parts": [[0, 1, 2]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Lower Norfair Elevator Save Room",
@@ -6861,7 +7608,8 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Wrecked Ship Entrance",
@@ -6888,7 +7636,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Wrecked Ship Main Shaft",
@@ -6964,7 +7713,14 @@
     ],
     "parts": [[0, 1, 2, 3, 4, 5, 6]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 0,
+        "y": 5,
+        "addr": 508517
+      }
+    ]
   },
   {
     "name": "Attic",
@@ -6999,7 +7755,8 @@
     ],
     "parts": [[0, 1, 2]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Basement",
@@ -7034,7 +7791,8 @@
     ],
     "parts": [[0, 1, 2]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Wrecked Ship Map Room",
@@ -7053,7 +7811,8 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Phantoon's Room",
@@ -7072,7 +7831,8 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Wrecked Ship West Super Room",
@@ -7091,7 +7851,14 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 508759
+      }
+    ]
   },
   {
     "name": "Bowling Alley",
@@ -7130,7 +7897,19 @@
     ],
     "parts": [[0], [1], [2]],
     "durable_part_connections": [],
-    "transient_part_connections": [[1, 2]]
+    "transient_part_connections": [[1, 2]],
+    "items": [
+      {
+        "x": 3,
+        "y": 2,
+        "addr": 508655
+      },
+      {
+        "x": 5,
+        "y": 0,
+        "addr": 508649
+      }
+    ]
   },
   {
     "name": "Gravity Suit Room",
@@ -7157,7 +7936,14 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 508781
+      }
+    ]
   },
   {
     "name": "Wrecked Ship East Super Room",
@@ -7176,7 +7962,14 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 3,
+        "y": 0,
+        "addr": 508773
+      }
+    ]
   },
   {
     "name": "Sponge Bath",
@@ -7203,7 +7996,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Spiky Death Room",
@@ -7230,7 +8024,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Electric Death Room",
@@ -7265,7 +8060,8 @@
     ],
     "parts": [[0, 1, 2]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Wrecked Ship Energy Tank Room",
@@ -7287,7 +8083,14 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 0,
+        "y": 0,
+        "addr": 508727
+      }
+    ]
   },
   {
     "name": "Assembly Line",
@@ -7306,7 +8109,14 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": [
+      {
+        "x": 2,
+        "y": 0,
+        "addr": 508697
+      }
+    ]
   },
   {
     "name": "Wrecked Ship Save Room",
@@ -7325,7 +8135,8 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Tourian First Room",
@@ -7360,7 +8171,8 @@
     ],
     "parts": [[0, 1, 2]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Tourian Map Room",
@@ -7379,7 +8191,8 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Metroid Room 1",
@@ -7406,7 +8219,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Metroid Room 2",
@@ -7433,7 +8247,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Metroid Room 3",
@@ -7460,7 +8275,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Metroid Room 4",
@@ -7487,7 +8303,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Blue Hopper Room",
@@ -7514,7 +8331,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Dust Torizo Room",
@@ -7541,7 +8359,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Big Boy Room",
@@ -7568,7 +8387,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Seaweed Room",
@@ -7603,7 +8423,8 @@
     ],
     "parts": [[0, 1, 2]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Tourian Recharge Room",
@@ -7622,7 +8443,8 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Tourian Eye Door Room",
@@ -7649,7 +8471,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Rinka Shaft",
@@ -7684,7 +8507,8 @@
     ],
     "parts": [[0, 1, 2]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Lower Tourian Save Room",
@@ -7703,7 +8527,8 @@
     ],
     "parts": [[0]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Mother Brain Room",
@@ -7730,7 +8555,8 @@
     ],
     "parts": [[0], [1]],
     "durable_part_connections": [],
-    "transient_part_connections": [[1, 0]]
+    "transient_part_connections": [[1, 0]],
+    "items": []
   },
   {
     "name": "Tourian Escape Room 1",
@@ -7757,7 +8583,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Tourian Escape Room 2",
@@ -7784,7 +8611,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Tourian Escape Room 3",
@@ -7814,7 +8642,8 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   },
   {
     "name": "Tourian Escape Room 4",
@@ -7848,6 +8677,7 @@
     ],
     "parts": [[0, 1]],
     "durable_part_connections": [],
-    "transient_part_connections": []
+    "transient_part_connections": [],
+    "items": []
   }
 ]
