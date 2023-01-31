@@ -169,8 +169,8 @@ rooms = [
             DoorIdentifier(LEFT, 0, 3, 0x1A408, 0x1A3E4),  # Fish Tank
         ],
         items=[
-            Item(0, 0, 0x7C47D),
-            Item(1, 1, 0x7C483),
+            Item(1, 0, 0x7C47D),
+            Item(2, 1, 0x7C483),
         ],
     ),
     Room(

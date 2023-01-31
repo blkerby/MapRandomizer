@@ -1,9 +1,12 @@
-use hashbrown::{HashMap, HashSet};
+use hashbrown::HashMap;
 
-use crate::{game_data::{GameData, Map, RoomGeometryDoor, RoomGeometryItem}, randomize::Randomization};
+use crate::{
+    game_data::{GameData, Map, RoomGeometryDoor, RoomGeometryItem},
+    randomize::Randomization,
+};
 
 use super::{snes2pc, xy_to_explored_bit_ptr, xy_to_map_offset, Rom};
-use anyhow::{bail, Result, Context};
+use anyhow::{bail, Context, Result};
 
 type TilemapWord = u16;
 
@@ -70,7 +73,12 @@ fn find_item_xy(addr: usize, room_items: &[RoomGeometryItem]) -> Result<(isize, 
 }
 
 impl<'a> MapPatcher<'a> {
-    pub fn new(rom: &'a mut Rom, game_data: &'a GameData, map: &'a Map, randomization: &'a Randomization) -> Self {
+    pub fn new(
+        rom: &'a mut Rom,
+        game_data: &'a GameData,
+        map: &'a Map,
+        randomization: &'a Randomization,
+    ) -> Self {
         let free_tiles = vec![
             // Skipping tiles used by max_ammo_display:
             // 0x3C, 0x3D, 0x3E, 0x3F,
@@ -83,8 +91,10 @@ impl<'a> MapPatcher<'a> {
             0x9E, 0x9F, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB,
             0xAC, 0xAD, 0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9,
             0xBA, 0xBB,
-            0x11, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1C, 0x1D, 0x1E,
-            0x20, 0x2C, 0x2D, 0x2E, 0x2F
+            // Some of these are unused slope tiles; others are used in vanilla but not used in
+            // Map Rando in the end (e.g. tiles with solid walls on all 4 sides):
+            0x11, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1C, 0x1D, 0x1E, 0x20, 0x2C,
+            0x2D, 0x2E, 0x2F,
         ];
 
         let mut pixels_map: HashMap<Edge, Vec<usize>> = HashMap::new();
@@ -904,6 +914,9 @@ impl<'a> MapPatcher<'a> {
 
     fn set_map_stations_explored(&mut self) -> Result<()> {
         self.rom.write_n(snes2pc(0xB5F000), &vec![0; 0x600])?;
+        if !self.randomization.difficulty.mark_map_stations {
+            return Ok(())
+        }
         for (room_idx, room) in self.game_data.room_geometry.iter().enumerate() {
             if !room.name.contains(" Map Room") {
                 continue;
@@ -936,35 +949,23 @@ impl<'a> MapPatcher<'a> {
             let base_ptr = self.game_data.area_map_ptrs[area] as usize;
             let offset = super::xy_to_map_offset(x0 + x, y0 + y) as usize;
             let tile0 = (self.rom.read_u16(base_ptr + offset)? & 0xC0FF) as TilemapWord;
-            let mut basic_tile = self.reverse_map.get(&tile0).context("Tile not found")?.clone();
+            let mut basic_tile = self
+                .reverse_map
+                .get(&tile0)
+                .with_context(|| {
+                    format!(
+                        "Tile not found: {tile0} at ({x}, {y}) in {}",
+                        self.game_data.room_geometry[room_idx].name
+                    )
+                })?
+                .clone();
             basic_tile.interior = Interior::MajorItem;
             let tile1 = self.get_basic_tile(basic_tile)?;
-            self.rom.write_u16(base_ptr + offset, (tile1 | 0x0C00) as isize)?;
+            self.rom
+                .write_u16(base_ptr + offset, (tile1 | 0x0C00) as isize)?;
         }
         Ok(())
     }
-
-    // fn free_unused_tiles(&mut self) -> Result<()> {
-    //     let mut used_tiles: HashSet<TilemapWord> = HashSet::new();
-
-    //     for area in 0..6 {
-    //         let base_ptr = self.game_data.area_map_ptrs[area] as usize;
-    //         for i in 0..(32 * 64) {
-    //             let word = self.rom.read_u16(base_ptr + i * 2)? & 0xFF;
-    //             used_tiles.insert(word as TilemapWord);
-    //         }
-    //     }
-    //     for i in 0..128 {
-    //         if !used_tiles.contains(&i) {
-    //             println!("free: {} {}", i, self.free_tiles.contains(&(i as usize)));
-    //         }
-    //     }
-
-    //     for x in [0x11, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1C, 0x1D, 0x1E] {
-    //         self.write_tile_2bpp(x, [[0; 8]; 8], false)?;
-    //     }
-    //     Ok(())
-    // }
 
     pub fn apply_patches(&mut self) -> Result<()> {
         self.index_vanilla_tiles();
@@ -974,22 +975,11 @@ impl<'a> MapPatcher<'a> {
         self.indicate_passages()?;
         self.indicate_doors()?;
         self.indicate_special_tiles()?;
-        // self.free_unused_tiles()?;
         self.add_cross_area_arrows()?;
         self.set_map_stations_explored()?;
-        self.indicate_major_items()?;
-        println!("{}/{} tiles used", self.next_free_tile_idx, self.free_tiles.len());
-        let mut tileset: HashSet<TilemapWord> = HashSet::new();
-        for (&tile, &word) in self.basic_tile_map.iter() {
-            if tile.interior == Interior::Item {
-                tileset.insert(word & 0xFF);
-            }
+        if self.randomization.difficulty.mark_majors {
+            self.indicate_major_items()?;
         }
-        for t in &tileset {
-            let basic_tile: BasicTile = self.reverse_map[t];
-            println!("{}: {:?}", t, basic_tile);
-        }
-        println!("{}", tileset.len());
         Ok(())
     }
 }

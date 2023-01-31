@@ -146,6 +146,7 @@
                 <input type="text" class="form-control" name="random_seed" id="randomSeed" value="">
                 </div>
             </div>
+            <% include!("quality_of_life.stpl"); %>
             <div class="form-group row my-2">
                 <div class="col-sm-12">
                     <input type="submit" class="btn btn-primary" value="Randomize Game">

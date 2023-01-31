@@ -34,7 +34,7 @@
             <div class="accordion-item">
                 <h2 class="accordion-header">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSkillAssumption">
-                    Details
+                    Skill assumption details
                     </button>
                 </h2>
                 <div id="collapseSkillAssumption" class="accordion-collapse collapse m-2">
@@ -42,6 +42,27 @@
                 </div>
             </div>
         </div>
+        <div class="row">
+            <div class="col-3">Quality-of-life options:</div>
+            <div class="col-9"><%= match quality_of_life_preset {
+                Some(b) => if b { "Yes" } else { "No" },
+                None => "Custom",
+            }
+            %></div>
+        </div>
+        <div class="accordion my-2">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseQOL">
+                    Quality-of-life option details
+                    </button>
+                </h2>
+                <div id="collapseQOL" class="accordion-collapse collapse m-2">
+                    <% include!("quality_of_life_details.stpl"); %>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 

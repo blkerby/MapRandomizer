@@ -29,6 +29,22 @@ function updateTechSelection() {
     });
     document.getElementById("json-tech").value = JSON.stringify(techSelection);
 }
+function qualityOfLifePresetChanged() {
+    if (document.getElementById("qualityOfLifeNo").checked) {
+        document.getElementById("supersDoubleNo").checked = true;
+        document.getElementById("markMapStationsNo").checked = true;
+        document.getElementById("markMajorsNo").checked = true;
+    }
+    if (document.getElementById("qualityOfLifeYes").checked) {
+        document.getElementById("supersDoubleYes").checked = true;
+        document.getElementById("markMapStationsYes").checked = true;
+        document.getElementById("markMajorsYes").checked = true;
+    }    
+}
+function qualityOfLifeSettingChanged() {
+    document.getElementById("qualityOfLifeNo").checked = false;
+    document.getElementById("qualityOfLifeYes").checked = false;
+}
 </script>
 <% include!("../common/save_load_rom.stpl"); %>
 <% include!("../common/save_settings.stpl"); %>
