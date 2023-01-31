@@ -71,6 +71,12 @@ pub enum Item {
     ReserveTank,
 }
 
+impl Item {
+    pub fn is_major(self) -> bool {
+        ![Item::Missile, Item::Super, Item::PowerBomb].contains(&self)
+    }
+}
+
 #[derive(Clone, Debug)]
 pub enum Requirement {
     Free,
@@ -123,6 +129,13 @@ pub struct RoomGeometryDoor {
     pub subtype: String,
 }
 
+#[derive(Deserialize, Default, Clone)]
+pub struct RoomGeometryItem {
+    pub x: usize,
+    pub y: usize,
+    pub addr: usize,
+}
+
 pub type RoomGeometryRoomIdx = usize;
 pub type RoomGeometryDoorIdx = usize;
 pub type RoomGeometryPartIdx = usize;
@@ -137,6 +150,7 @@ pub struct RoomGeometry {
     pub parts: Vec<Vec<RoomGeometryDoorIdx>>,
     pub durable_part_connections: Vec<(RoomGeometryPartIdx, RoomGeometryPartIdx)>,
     pub transient_part_connections: Vec<(RoomGeometryPartIdx, RoomGeometryPartIdx)>,
+    pub items: Vec<RoomGeometryItem>,
 }
 
 // TODO: Clean this up, e.g. pull out a separate structure to hold

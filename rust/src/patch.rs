@@ -1,8 +1,8 @@
 mod compress;
 mod decompress;
+pub mod ips_write;
 mod map_tiles;
 mod title;
-pub mod ips_write;
 
 use std::path::Path;
 
@@ -266,7 +266,8 @@ impl<'a> Patcher<'a> {
             }
         }
         self.rom.write_n(src_exit_ptr, &door_data)?;
-        if src_exit_ptr ==  0x1A798 { // Pants Room right door
+        if src_exit_ptr == 0x1A798 {
+            // Pants Room right door
             // Also write the same data to the East Pants Room right door
             self.rom.write_n(0x1A7BC, &door_data)?;
         }
@@ -381,7 +382,7 @@ impl<'a> Patcher<'a> {
         } else if door.direction == "up" {
             (door.x as isize, door.y as isize - 1)
         } else if door.direction == "down" {
-            (door.x as isize , door.y as isize + 1)
+            (door.x as isize, door.y as isize + 1)
         } else {
             panic!("Unrecognized door direction: {}", door.direction);
         }
@@ -396,15 +397,19 @@ impl<'a> Patcher<'a> {
         extra_door_asm: &mut HashMap<DoorPtr, Vec<u8>>,
     ) -> Result<()> {
         for (src_pair, dst_pair, _bidirectional) in &self.map.doors {
-            let (src_room_idx, src_door_idx) = self.game_data.room_and_door_idxs_by_door_ptr_pair[src_pair];
-            let (dst_room_idx, dst_door_idx) = self.game_data.room_and_door_idxs_by_door_ptr_pair[dst_pair];
+            let (src_room_idx, src_door_idx) =
+                self.game_data.room_and_door_idxs_by_door_ptr_pair[src_pair];
+            let (dst_room_idx, dst_door_idx) =
+                self.game_data.room_and_door_idxs_by_door_ptr_pair[dst_pair];
             let src_area = self.map.area[src_room_idx];
             let dst_area = self.map.area[dst_room_idx];
             if src_area == dst_area {
                 continue;
             }
-            let (src_x, src_y) = self.get_arrow_xy(&self.game_data.room_geometry[src_room_idx].doors[src_door_idx]);
-            let (dst_x, dst_y) = self.get_arrow_xy(&self.game_data.room_geometry[dst_room_idx].doors[dst_door_idx]);
+            let (src_x, src_y) =
+                self.get_arrow_xy(&self.game_data.room_geometry[src_room_idx].doors[src_door_idx]);
+            let (dst_x, dst_y) =
+                self.get_arrow_xy(&self.game_data.room_geometry[dst_room_idx].doors[dst_door_idx]);
             self.add_double_explore_tile_asm(src_pair, src_x, src_y, extra_door_asm)?;
             self.add_double_explore_tile_asm(dst_pair, dst_x, dst_y, extra_door_asm)?;
         }
@@ -674,7 +679,8 @@ impl<'a> Patcher<'a> {
     }
 
     fn apply_map_tile_patches(&mut self) -> Result<()> {
-        map_tiles::MapPatcher::new(&mut self.rom, &self.game_data, &self.map).apply_patches()?;
+        map_tiles::MapPatcher::new(&mut self.rom, self.game_data, self.map, self.randomization)
+            .apply_patches()?;
         Ok(())
     }
 

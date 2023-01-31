@@ -1101,10 +1101,20 @@ class SMJsonData:
         step_list = list(reversed(step_list))
         return step_list
 
-# #
-# sm_json_data_path = "sm-json-data/"
-# sm_json_data = SMJsonData(sm_json_data_path)
-# len(sm_json_data.vertex_list)
+#
+sm_json_data_path = "sm-json-data/"
+sm_json_data = SMJsonData(sm_json_data_path)
+
+cnt = 0
+for region_name, region_json in sm_json_data.region_json_dict.items():
+    print("Region: ", region_name)
+    for room_json in region_json['rooms']:
+        room_name = room_json['name']
+        for node_json in room_json['nodes']:
+            node_name = node_json['name']
+            if node_json['nodeType'] == 'item':
+                print("room='{}', node='{}', addr='{}'".format(room_name, node_name, node_json['nodeAddress']))
+                cnt += 1
 #
 #
 # for region_name, region_json in sm_json_data.region_json_dict.items():
@@ -1194,3 +1204,5 @@ class SMJsonData:
 
 # sm_json_data.door_ptr_pair_dict
 # len(sm_json_data.link_list)
+
+
