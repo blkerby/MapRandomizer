@@ -17,8 +17,8 @@
         </button>
     </h2>
     <div id="collapseQOL" class="accordion-collapse collapse m-2" onchange="qualityOfLifeSettingChanged()">
-        <div class="form-group row m-2">
-            <div class="col-sm-4">
+        <div class="form-group row mx-3 my-1">
+            <div class="col-sm-5">
             <label class="col-form-label" for="supers_double">Supers do double damage to Mother Brain</label>
             </div>
             <div class="col-sm-2 btn-group" role="group">
@@ -29,20 +29,21 @@
             </div>
         </div>
 
-        <%# <div class="form-group row m-2">
-            <div class="col-sm-4">
-            <label class="col-form-label" for="hyper_beam_items">Hyper Beam comes with all movement items</label>
+        <div class="form-group row mx-3">
+            <div class="col-sm-5">
+            <label class="col-form-label" for="hyper_beam_items">Streamlined escape<br>
+            <small>(Enemies cleared, get all movement items with Hyper Beam)</small></label>
             </div>
-            <div class="col-sm-2 btn-group" role="group">
-                <input type="radio" class="btn-check" name="hyper_beam_items" id="hyperBeamItemsNo" value="No">
-                <label class="btn btn-outline-primary" for="hyperBeamItemsNo">No</label>
-                <input type="radio" class="btn-check" name="hyper_beam_items" id="hyperBeamItemsYes" value="Yes" checked=true>
-                <label class="btn btn-outline-primary" for="hyperBeamItemsYes">Yes</label>
+            <div class="col-sm-2 btn-group my-3" role="group">
+                <input type="radio" class="btn-check" name="streamlined_escape" id="streamlinedEscapeNo" value="No">
+                <label class="btn btn-outline-primary" for="streamlinedEscapeNo">No</label>
+                <input type="radio" class="btn-check" name="streamlined_escape" id="streamlinedEscapeYes" value="Yes" checked=true>
+                <label class="btn btn-outline-primary" for="streamlinedEscapeYes">Yes</label>
             </div>
         </div>
- %>
-        <div class="form-group row m-2">
-            <div class="col-sm-4">
+ 
+        <div class="form-group row mx-3 my-1">
+            <div class="col-sm-5">
             <label class="col-form-label" for="mark_map_stations">Map stations always visible</label>
             </div>
             <div class="col-sm-2 btn-group" role="group">
@@ -53,8 +54,8 @@
             </div>
         </div>
 
-        <div class="form-group row m-2">
-            <label class="col-sm-4 col-form-label" for="mark_majors">Major items marked on map</label>
+        <div class="form-group row m-3">
+            <label class="col-sm-5 col-form-label" for="mark_majors">Major items marked on map</label>
             <div class="col-sm-2 btn-group" role="group">
                 <input type="radio" class="btn-check" name="mark_majors" id="markMajorsNo" value="false">
                 <label class="btn btn-outline-primary" for="markMajorsNo">No</label>

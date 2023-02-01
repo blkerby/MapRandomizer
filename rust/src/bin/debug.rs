@@ -1,6 +1,6 @@
 use anyhow::Result;
 use maprando::{
-    game_data::{GameData, Item, Link, Requirement},
+    game_data::{GameData, Item, Requirement},
     randomize::{DifficultyConfig, ItemPlacementStrategy},
     traverse::{apply_requirement, GlobalState, LocalState},
 };
@@ -66,6 +66,7 @@ fn main() -> Result<()> {
         ridley_proficiency: 0.5,
         save_animals: false,
         supers_double: true,
+        streamlined_escape: true,
         mark_map_stations: true,
         mark_majors: true,
         debug_options: None,

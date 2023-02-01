@@ -3,6 +3,10 @@
     <div class="col-6"><%= if supers_double { "Yes" } else { "No" }%></div>
 </div>
 <div class="row">
+    <div class="col-6">Streamlined escape:</div>
+    <div class="col-6"><%= if streamlined_escape { "Yes" } else { "No" }%></div>
+</div>
+<div class="row">
     <div class="col-6">Map stations always visible:</div>
     <div class="col-6"><%= if mark_map_stations { "Yes" } else { "No" }%></div>
 </div>

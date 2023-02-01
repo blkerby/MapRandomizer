@@ -23,7 +23,7 @@ use rand::{RngCore, SeedableRng};
 use sailfish::TemplateOnce;
 use serde_derive::{Deserialize, Serialize};
 
-const VERSION: usize = 32;
+const VERSION: usize = 33;
 
 #[derive(Serialize, Deserialize, Clone)]
 struct Preset {
@@ -129,6 +129,7 @@ struct RandomizeRequest {
     random_seed: Text<String>,
     quality_of_life_preset: Option<Text<bool>>,
     supers_double: Text<bool>,
+    streamlined_escape: Text<bool>,
     mark_map_stations: Text<bool>,
     mark_majors: Text<bool>,
 }
@@ -152,6 +153,7 @@ struct SeedData {
     difficulty: DifficultyConfig,
     quality_of_life_preset: Option<bool>,
     supers_double: bool,
+    streamlined_escape: bool,
     mark_map_stations: bool,
     mark_majors: bool,
 }
@@ -177,6 +179,7 @@ struct SeedHeaderTemplate<'a> {
     difficulty: &'a DifficultyConfig,
     quality_of_life_preset: Option<bool>,
     supers_double: bool,
+    streamlined_escape: bool,
     mark_map_stations: bool,
     mark_majors: bool,
 }
@@ -207,6 +210,7 @@ fn render_seed(seed_name: &str, seed_data: &SeedData) -> Result<(String, String)
         difficulty: &seed_data.difficulty,
         quality_of_life_preset: seed_data.quality_of_life_preset,
         supers_double: seed_data.supers_double,
+        streamlined_escape: seed_data.streamlined_escape,
         mark_map_stations: seed_data.mark_map_stations,
         mark_majors: seed_data.mark_majors,
     };
@@ -448,6 +452,7 @@ async fn randomize(
         save_animals: req.save_animals.0 == "On",
         ridley_proficiency: req.ridley_proficiency.0,
         supers_double: req.supers_double.0,
+        streamlined_escape: req.streamlined_escape.0,
         mark_map_stations: req.mark_map_stations.0,
         mark_majors: req.mark_majors.0,
         debug_options: None,
@@ -501,6 +506,7 @@ async fn randomize(
         difficulty,
         quality_of_life_preset: req.quality_of_life_preset.as_ref().map(|x| x.0),
         supers_double: req.supers_double.0,
+        streamlined_escape: req.streamlined_escape.0,
         mark_map_stations: req.mark_map_stations.0,
         mark_majors: req.mark_majors.0,
     };

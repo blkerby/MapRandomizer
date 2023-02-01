@@ -3,19 +3,25 @@
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-33---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 32 (???)</a>:
+<p><a href="https://version-33---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 33 (???)</a>:
 <ul>
-<li>Implemented refined logic for Ridley fight:
+<li>Improved logic for Ridley fight:
     <ul>
     <li>A new difficulty setting is added for proficiency at the Ridley fight.
-    <li>This tends to make the fight more lenient, ensuring that enough relevant items (such as beams,
-    ammo, tanks, suits) are obtainable before the fight.
-    <li>On the other hand, a suitless fight can now possibly be required if "canHeatRun" is enabled
-    (although without Varia suit the logic will require a lot more other items to be obtainable first).
-    <li>If the fight is modeled to require more than 3 minutes, it will not be in logic at that
+    <li>The new logic is generally more lenient, ensuring that enough relevant items 
+    such as beams, ammo, tanks, and/or suits are obtainable before the fight. (Previously the logic
+    required exactly Varia and Charge).
+    <li>On the other hand, a suitless fight can now possibly be required if "canHeatRun" is enabled,
+    although without suits the logic will require many more other items to be obtainable first.
+    <li>If the fight is expected to require more than 3 minutes, it will not be in logic at that
     point unless "canBePatient" is enabled.
     <li>For details on how the proficiency setting affects the player's assumed firing speed & accuracy,
-    dodge rate, etc., see the <a href="https://github.com/blkerby/MapRandomizer/blob/8c6a7b2b2f4c36b6c00e3f321226d73f13e3548c/rust/src/traverse.rs#L69">code</a>.
+    dodge rate, etc., see the <a href="https://github.com/blkerby/MapRandomizer/blob/b5495daa503924efda1463050c6408438438e5d0/rust/src/traverse.rs#L72">code</a>.
+    </ul>
+<li>"Streamlined escape" is converted to a quality-of-life option
+    <ul>
+    <li>If this is left on, then there is no change from previous versions (enemies are cleared during the escape,
+    and all movement items are acquired with Hyper Beam).
     </ul>
 </ul>
 
