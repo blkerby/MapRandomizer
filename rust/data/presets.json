@@ -4,6 +4,7 @@
         "shinespark_tiles": 32,
         "resource_multiplier": 3.0,
         "escape_timer_multiplier": 3.0,
+        "ridley_proficiency": 0.0,
         "tech": []
     },
     {
@@ -11,6 +12,7 @@
         "shinespark_tiles": 28,
         "resource_multiplier": 2.0,
         "escape_timer_multiplier": 2.0,
+        "ridley_proficiency": 0.5,
         "tech": [
             "canIBJ",
             "canWalljump",
@@ -25,6 +27,7 @@
         "shinespark_tiles": 24,
         "resource_multiplier": 1.5,
         "escape_timer_multiplier": 1.5,
+        "ridley_proficiency": 0.8,
         "tech": [
             "canJumpIntoIBJ",
             "canBombAboveIBJ",
@@ -57,6 +60,7 @@
         "shinespark_tiles": 20,
         "resource_multiplier": 1.2,
         "escape_timer_multiplier": 1.2,
+        "ridley_proficiency": 0.9,
         "tech": [
             "canTrickyJump",
             "canSuitlessLavaDive",
@@ -91,6 +95,7 @@
         "shinespark_tiles": 16,
         "resource_multiplier": 1.0,
         "escape_timer_multiplier": 1.0,
+        "ridley_proficiency": 1.0,
         "tech":
          [
              "canTrickyDashJump",

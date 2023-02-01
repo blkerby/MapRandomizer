@@ -1,15 +1,15 @@
+use crate::randomize::escape_timer::{get_base_room_door_graph, RoomDoorGraph};
 use anyhow::{bail, Context, Result};
 use hashbrown::{HashMap, HashSet};
 use json::{self, JsonValue};
 use num_enum::TryFromPrimitive;
-use serde_derive::{Deserialize};
+use serde_derive::Deserialize;
 use std::borrow::ToOwned;
 use std::fs::File;
 use std::hash::Hash;
 use std::path::{Path, PathBuf};
 use strum::VariantNames;
 use strum_macros::{EnumString, EnumVariantNames};
-use crate::randomize::escape_timer::{RoomDoorGraph, get_base_room_door_graph};
 
 #[derive(Deserialize, Clone)]
 pub struct Map {
@@ -87,6 +87,7 @@ pub enum Requirement {
     ShineCharge {
         used_tiles: i32,
         shinespark_frames: i32,
+        shinespark_tech_id: usize,
     },
     HeatFrames(i32),
     LavaFrames(i32),
@@ -103,6 +104,9 @@ pub enum Requirement {
     PowerBombRefill,
     EnergyDrain,
     EnemyKill(WeaponMask),
+    RidleyFight {
+        can_be_patient_tech_id: usize,
+    },
     And(Vec<Requirement>),
     Or(Vec<Requirement>),
 }
@@ -157,7 +161,7 @@ pub struct RoomGeometry {
 // temporary data used only during loading, replace any
 // remaining JsonValue types in the main struct with something
 // more structured; also maybe unify the room geometry data
-// with sm-json-data and cut back on the amount of different 
+// with sm-json-data and cut back on the amount of different
 // keys/IDs/indexes for rooms, nodes, and doors.
 #[derive(Default)]
 pub struct GameData {
@@ -186,7 +190,8 @@ pub struct GameData {
     pub flag_vertex_ids: Vec<Vec<VertexId>>,
     pub links: Vec<Link>,
     pub room_geometry: Vec<RoomGeometry>,
-    pub room_and_door_idxs_by_door_ptr_pair: HashMap<DoorPtrPair, (RoomGeometryRoomIdx, RoomGeometryDoorIdx)>,
+    pub room_and_door_idxs_by_door_ptr_pair:
+        HashMap<DoorPtrPair, (RoomGeometryRoomIdx, RoomGeometryDoorIdx)>,
     pub room_ptr_by_id: HashMap<RoomId, RoomPtr>,
     pub room_idx_by_ptr: HashMap<RoomPtr, RoomGeometryRoomIdx>,
     pub room_idx_by_name: HashMap<String, RoomGeometryRoomIdx>,
@@ -240,7 +245,10 @@ impl GameData {
         let desc = if tech_json["note"].is_string() {
             tech_json["note"].as_str().unwrap().to_string()
         } else if tech_json["note"].is_array() {
-            let notes: Vec<String> = tech_json["note"].members().map(|x| x.as_str().unwrap().to_string()).collect();
+            let notes: Vec<String> = tech_json["note"]
+                .members()
+                .map(|x| x.as_str().unwrap().to_string())
+                .collect();
             notes.join(" ")
         } else {
             String::new()
@@ -458,6 +466,7 @@ impl GameData {
                 return Ok(Requirement::ShineCharge {
                     used_tiles,
                     shinespark_frames,
+                    shinespark_tech_id: self.tech_isv.index_by_key["canShinespark"],
                 });
             } else if key == "heatFrames" {
                 let frames = value
@@ -518,6 +527,13 @@ impl GameData {
                     }
                 }
                 assert!(enemy_set.len() > 0);
+
+                if enemy_set.contains("Ridley") {
+                    return Ok(Requirement::RidleyFight {
+                        can_be_patient_tech_id: self.tech_isv.index_by_key["canBePatient"],
+                    });
+                }
+
                 let mut allowed_weapons: WeaponMask = if value.has_key("explicitWeapons") {
                     assert!(value["explicitWeapons"].is_array());
                     let mut weapon_mask = 0;
@@ -800,11 +816,11 @@ impl GameData {
         let mut room_ptr =
             parse_int::parse::<usize>(room_json["roomAddress"].as_str().unwrap()).unwrap();
         if room_ptr == 0x7D408 {
-            room_ptr = 0x7D5A7;  // Treat Toilet Bowl as part of Aqueduct
+            room_ptr = 0x7D5A7; // Treat Toilet Bowl as part of Aqueduct
         } else if room_ptr == 0x7D69A {
-            room_ptr = 0x7D646;  // Treat East Pants Room as part of Pants Room
+            room_ptr = 0x7D646; // Treat East Pants Room as part of Pants Room
         } else if room_ptr == 0x7968F {
-            room_ptr = 0x793FE;  // Treat Homing Geemer Room as part of West Ocean
+            room_ptr = 0x793FE; // Treat Homing Geemer Room as part of West Ocean
         }
         self.room_ptr_by_id.insert(room_id, room_ptr);
 
@@ -1126,7 +1142,8 @@ impl GameData {
             self.room_idx_by_name.insert(room.name.clone(), room_idx);
             for (door_idx, door) in room.doors.iter().enumerate() {
                 let door_ptr_pair = (door.exit_ptr, door.entrance_ptr);
-                self.room_and_door_idxs_by_door_ptr_pair.insert(door_ptr_pair, (room_idx, door_idx));
+                self.room_and_door_idxs_by_door_ptr_pair
+                    .insert(door_ptr_pair, (room_idx, door_idx));
                 self.room_idx_by_ptr.insert(room.rom_address, room_idx);
             }
         }
@@ -1164,7 +1181,10 @@ impl GameData {
             "Wrecked Ship",
             "Maridia",
             "Tourian",
-        ].into_iter().map(|x| x.to_owned()).collect();
+        ]
+        .into_iter()
+        .map(|x| x.to_owned())
+        .collect();
         game_data.area_map_ptrs = vec![
             0x1A9000, // Crateria
             0x1A8000, // Brinstar

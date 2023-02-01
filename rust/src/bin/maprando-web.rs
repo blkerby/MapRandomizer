@@ -31,6 +31,7 @@ struct Preset {
     shinespark_tiles: usize,
     resource_multiplier: f32,
     escape_timer_multiplier: f32,
+    ridley_proficiency: f32,
     tech: Vec<String>,
 }
 
@@ -120,6 +121,7 @@ struct RandomizeRequest {
     preset: Option<Text<String>>,
     shinespark_tiles: Text<usize>,
     resource_multiplier: Text<f32>,
+    ridley_proficiency: Text<f32>,
     escape_timer_multiplier: Text<f32>,
     save_animals: Text<String>,
     tech_json: Text<String>,
@@ -406,6 +408,22 @@ async fn randomize(
     if rom_digest != "12b77c4bc9c1832cee8881244659065ee1d84c70c3d29e6eaf92e6798cc2ca72" {
         return HttpResponse::BadRequest().body(InvalidRomTemplate {}.render_once().unwrap());
     }
+
+    let random_seed = if &req.random_seed.0 == "" {
+        get_random_seed()
+    } else {
+        match req.random_seed.0.parse::<usize>() {
+            Ok(x) => x,
+            Err(_) => {
+                return HttpResponse::BadRequest().body("Invalid random seed");
+            }
+        }
+    };
+
+    if req.ridley_proficiency.0 < 0.0 || req.ridley_proficiency.0 > 1.0 {
+        return HttpResponse::BadRequest().body("Invalid Ridley proficiency");
+    }
+
     let tech_json: serde_json::Value = serde_json::from_str(&req.tech_json).unwrap();
     let mut tech_vec: Vec<String> = Vec::new();
     for (tech, is_enabled) in tech_json.as_object().unwrap().iter() {
@@ -428,15 +446,11 @@ async fn randomize(
         resource_multiplier: req.resource_multiplier.0,
         escape_timer_multiplier: req.escape_timer_multiplier.0,
         save_animals: req.save_animals.0 == "On",
+        ridley_proficiency: req.ridley_proficiency.0,
         supers_double: req.supers_double.0,
         mark_map_stations: req.mark_map_stations.0,
         mark_majors: req.mark_majors.0,
         debug_options: None,
-    };
-    let random_seed = if &req.random_seed.0 == "" {
-        get_random_seed()
-    } else {
-        req.random_seed.0.parse::<usize>().unwrap()
     };
     let race_mode = req.race_mode.0 == "Yes";
     let mut rng_seed = [0u8; 32];
@@ -505,6 +519,7 @@ async fn randomize(
     .await
     .unwrap();
 
+    // Redirect to the seed page:
     HttpResponse::Found()
         .insert_header((header::LOCATION, format!("seed/{}/", seed_name)))
         .finish()

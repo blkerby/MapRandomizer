@@ -40,6 +40,7 @@ pub struct DifficultyConfig {
     pub resource_multiplier: f32,
     pub escape_timer_multiplier: f32,
     pub save_animals: bool,
+    pub ridley_proficiency: f32,
     // Quality-of-life options:
     pub supers_double: bool,
     pub mark_map_stations: bool,

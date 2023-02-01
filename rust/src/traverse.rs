@@ -1,4 +1,7 @@
-use std::mem::swap;
+use std::{
+    cmp::{max, min},
+    mem::swap,
+};
 
 use hashbrown::HashSet;
 
@@ -40,6 +43,142 @@ impl LocalState {
             power_bombs_used: 0,
         }
     }
+}
+
+fn get_charge_damage(global: &GlobalState) -> f32 {
+    if !global.items[Item::Charge as usize] {
+        return 0.0;
+    }
+    let plasma = global.items[Item::Plasma as usize];
+    let spazer = global.items[Item::Spazer as usize];
+    let wave = global.items[Item::Wave as usize];
+    let ice = global.items[Item::Spazer as usize];
+    return match (plasma, spazer, wave, ice) {
+        (false, false, false, false) => 20.0,
+        (false, false, false, true) => 30.0,
+        (false, false, true, false) => 50.0,
+        (false, false, true, true) => 60.0,
+        (false, true, false, false) => 40.0,
+        (false, true, false, true) => 60.0,
+        (false, true, true, false) => 70.0,
+        (false, true, true, true) => 100.0,
+        (true, _, false, false) => 150.0,
+        (true, _, false, true) => 200.0,
+        (true, _, true, false) => 250.0,
+        (true, _, true, true) => 300.0,
+    } * 3.0;
+}
+
+fn apply_ridley_requirement(
+    global: &GlobalState,
+    mut local: LocalState,
+    proficiency: f32,
+    can_be_patient_tech_id: usize,
+) -> Option<LocalState> {
+    let mut ridley_hp: f32 = 18000.0;
+    let mut time: f32 = 0.0; // Cumulative time in seconds for the fight
+
+    // Assume an ammo accuracy rate of between 50% (on lowest difficulty) to 100% (on highest):
+    let accuracy = 0.5 + 0.5 * proficiency;
+
+    // Assume a firing rate of between 50% (on lowest difficulty) to 100% (on highest):
+    let firing_rate = 0.5 + 0.5 * proficiency;
+
+    // Prioritize using supers:
+    let supers_available = global.max_supers - local.supers_used;
+    let supers_to_use = min(
+        supers_available,
+        f32::ceil(ridley_hp / (600.0 * accuracy)) as Capacity,
+    );
+    local.supers_used += supers_to_use;
+    ridley_hp -= supers_to_use as f32 * 600.0 * accuracy;
+    time += supers_to_use as f32 * 0.5 / firing_rate; // Assumes max average rate of 2 supers per second
+
+    // Then use available missiles:
+    let missiles_available = global.max_missiles - local.missiles_used;
+    let missiles_to_use = max(
+        0,
+        min(
+            missiles_available,
+            f32::ceil(ridley_hp / (100.0 * accuracy)) as Capacity,
+        ),
+    );
+    local.missiles_used += missiles_to_use;
+    ridley_hp -= missiles_to_use as f32 * 100.0 * accuracy;
+    time += missiles_to_use as f32 * 0.25 / firing_rate; // Assume max average rate of 4 missiles per second
+
+    if global.items[Item::Charge as usize] {
+        // Then finish with Charge shots:
+        // (TODO: it would be a little better to prioritize Charge shots over Supers/Missiles in
+        // some cases).
+        let charge_damage = get_charge_damage(&global);
+        let charge_shots_to_use = max(
+            0,
+            f32::ceil(ridley_hp / (charge_damage * accuracy)) as Capacity,
+        );
+        ridley_hp = 0.0;
+        time += charge_shots_to_use as f32 * 1.5 / firing_rate; // Assume max 1 charge shot per 1.5 seconds
+    } else {
+        // Only use Power Bombs if Charge is not available:
+        let pbs_available = global.max_power_bombs - local.power_bombs_used;
+        let pbs_to_use = max(
+            0,
+            min(
+                pbs_available,
+                f32::ceil(ridley_hp / (400.0 * accuracy)) as Capacity,
+            ),
+        );
+        local.power_bombs_used += pbs_to_use;
+        ridley_hp -= pbs_to_use as f32 * 400.0 * accuracy; // Assumes double hits (or single hits for 50% accuracy)
+        time += pbs_to_use as f32 * 3.0 * firing_rate; // Assume max average rate of 1 power bomb per 3 seconds
+    }
+
+    if ridley_hp > 0.0 {
+        // We don't have enough ammo to finish the fight:
+        return None;
+    }
+
+    if time >= 180.0 && !global.tech[can_be_patient_tech_id] {
+        // We don't have enough patience to finish the fight:
+        return None;
+    }
+
+    let morph = global.items[Item::Morph as usize];
+    let screw = global.items[Item::ScrewAttack as usize];
+
+    // Assumed rate of Ridley damage to Samus (per second), given minimal dodging skill:
+    let base_ridley_attack_dps = 40.0;
+
+    // Multiplier to Ridley damage based on items (Morph and Screw) and proficiency (in dodging).
+    // This is a rough guess which could be refined. We could also take into account other items 
+    // (HiJump and SpaceJump). We assume that at Expert level (proficiency=1.0) it is possible
+    // to avoid all damage from Ridley using either Morph or Screw.
+    let hit_rate = match (morph, screw) {
+        (false, false) => 1.0 - 0.8 * proficiency,
+        (false, true) => 0.5 - 0.5 * proficiency,
+        (true, false) => 0.5 - 0.5 * proficiency,
+        (true, true) => 0.3 - 0.3 * proficiency,
+    };
+    let damage = base_ridley_attack_dps * hit_rate * time;
+    local.energy_used += (damage / suit_damage_factor(global) as f32) as Capacity;
+
+    if !global.items[Item::Varia as usize] {
+        // Heat run case: We do not explicitly check canHeatRun tech here, because it is 
+        // already required to reach the boss node from the doors.
+        // Include time pre- and post-fight when Samus must still take heat damage:
+        let heat_time = time + 20.0;
+        let heat_energy_used = if global.items[Item::Gravity as usize] {
+            (heat_time * 7.5) as Capacity
+        } else {
+            (heat_time * 15.0) as Capacity
+        };
+        local.energy_used += heat_energy_used;
+    }
+
+    // TODO: We could add back some energy and/or ammo by assuming we get drops.
+    // By omitting this for now we're just making the logic a little more conservative in favor of
+    // the player.
+    validate_energy(local, global)
 }
 
 fn compute_cost(local: LocalState, global: &GlobalState) -> f32 {
@@ -89,6 +228,18 @@ fn validate_power_bombs(local: LocalState, global: &GlobalState) -> Option<Local
 
 fn multiply(amount: Capacity, difficulty: &DifficultyConfig) -> Capacity {
     ((amount as f32) * difficulty.resource_multiplier) as Capacity
+}
+
+fn suit_damage_factor(global: &GlobalState) -> Capacity {
+    let varia = global.items[Item::Varia as usize];
+    let gravity = global.items[Item::Gravity as usize];
+    if gravity && varia {
+        4
+    } else if gravity || varia {
+        2
+    } else {
+        1
+    }
 }
 
 pub fn apply_requirement(
@@ -161,16 +312,8 @@ pub fn apply_requirement(
             validate_energy(new_local, global)
         }
         Requirement::Damage(base_energy) => {
-            let varia = global.items[Item::Varia as usize];
-            let gravity = global.items[Item::Gravity as usize];
             let mut new_local = local;
-            if gravity && varia {
-                new_local.energy_used += multiply(base_energy / 4, difficulty);
-            } else if gravity || varia {
-                new_local.energy_used += multiply(base_energy / 2, difficulty);
-            } else {
-                new_local.energy_used += multiply(*base_energy, difficulty);
-            }
+            new_local.energy_used += multiply(base_energy / suit_damage_factor(global), difficulty);
             validate_energy(new_local, global)
         }
         // Requirement::Energy(count) => {
@@ -242,11 +385,17 @@ pub fn apply_requirement(
                 None
             }
         }
+        Requirement::RidleyFight { can_be_patient_tech_id } => {
+            apply_ridley_requirement(global, local, difficulty.ridley_proficiency, *can_be_patient_tech_id)
+        }
         Requirement::ShineCharge {
             used_tiles,
             shinespark_frames,
+            shinespark_tech_id,
         } => {
-            if global.items[Item::SpeedBooster as usize] && *used_tiles >= global.shine_charge_tiles
+            if global.tech[*shinespark_tech_id]
+                && global.items[Item::SpeedBooster as usize]
+                && *used_tiles >= global.shine_charge_tiles
             {
                 let mut new_local = local;
                 if reverse {
@@ -262,7 +411,7 @@ pub fn apply_requirement(
                         Some(new_local)
                     } else {
                         None
-                    }    
+                    }
                 }
             } else {
                 None
