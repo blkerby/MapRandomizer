@@ -4,12 +4,12 @@ Release plan:
 - v32: Take ammo kills into account in logic, use boss scenarios
 
 TODO:
+- Handle other boss fights like we did Ridley:
+  - GT
 - Remove Crocomire funny map behavior?
-- Add keywords, e.g. for "Map Randomizer", to help people find us in search results.
 - Better validation/error-handling of web service
-  - check that random seed is integer
   - push more validation into client
-- Option for anti-softlock patches (e.g. in Moat, Early Supers, etc.)
+- Option for anti-softlock patches (e.g. in Moat, Early Supers, etc.)?
 - Put spoiler info in collapsible accordion.
 - Add note to strat in Post-Crocomire farming room to get to top-left with HiJump
   (run on platform enemy and jump)

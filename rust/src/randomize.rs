@@ -43,6 +43,7 @@ pub struct DifficultyConfig {
     pub ridley_proficiency: f32,
     // Quality-of-life options:
     pub supers_double: bool,
+    pub streamlined_escape: bool,
     pub mark_map_stations: bool,
     pub mark_majors: bool,
     #[serde(skip_serializing_if = "Option::is_none")]

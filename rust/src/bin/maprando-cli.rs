@@ -123,6 +123,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         save_animals: false,
         ridley_proficiency: 1.0,
         supers_double: true,
+        streamlined_escape: true,
         mark_map_stations: true,
         mark_majors: true,
         debug_options: Some(DebugOptions {

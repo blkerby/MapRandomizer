@@ -219,6 +219,10 @@ impl<'a> Patcher<'a> {
                 new_game = "new_game_extra";
             }
         }
+
+        if self.randomization.difficulty.streamlined_escape {
+            patches.push("escape_items");
+        }
         patches.push(new_game);
         // patches.push("new_game_extra");
         // "new_game_extra' if args.debug else 'new_game",
@@ -951,6 +955,12 @@ impl<'a> Patcher<'a> {
             .write_u8(snes2pc(0x809E22), (minutes % 10) + 16 * (minutes / 10))?;
         Ok(())
     }
+
+    fn undo_escape_enemy_clear(&mut self) -> Result<()> {
+        // Skip the patch that clears enemies during escape
+        self.rom.write_u8(snes2pc(0xA1f000), 0x6B)?;  // RTL
+        Ok(())
+    }
 }
 
 fn get_other_door_ptr_pair_map(map: &Map) -> HashMap<DoorPtrPair, DoorPtrPair> {
@@ -1007,6 +1017,9 @@ pub fn make_rom(
     patcher.apply_title_screen_patches()?;
     patcher.customize_escape_timer()?;
     patcher.apply_miscellaneous_patches()?;
+    if !randomization.difficulty.streamlined_escape {
+        patcher.undo_escape_enemy_clear()?;
+    }
     // TODO: add CRE reload for Kraid & Crocomire
     Ok(rom)
 }
