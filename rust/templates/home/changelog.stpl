@@ -3,6 +3,22 @@
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-33---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 32 (???)</a>:
+<ul>
+<li>Implemented refined logic for Ridley fight:
+    <ul>
+    <li>A new difficulty setting is added for proficiency at the Ridley fight.
+    <li>This tends to make the fight more lenient, ensuring that enough relevant items (such as beams,
+    ammo, tanks, suits) are obtainable before the fight.
+    <li>On the other hand, a suitless fight can now possibly be required if "canHeatRun" is enabled
+    (although without Varia suit the logic will require a lot more other items to be obtainable first).
+    <li>If the fight is modeled to require more than 3 minutes, it will not be in logic at that
+    point unless "canBePatient" is enabled.
+    <li>For details on how the proficiency setting affects the player's assumed firing speed & accuracy,
+    dodge rate, etc., see the <a href="https://github.com/blkerby/MapRandomizer/blob/8c6a7b2b2f4c36b6c00e3f321226d73f13e3548c/rust/src/traverse.rs#L69">code</a>.
+    </ul>
+</ul>
+
 <p><a href="https://version-32---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 32 (2023-01-30)</a>:
 <ul>
 <li>Major items are now indicated by large dots on the map.

@@ -4,6 +4,8 @@ Release plan:
 - v32: Take ammo kills into account in logic, use boss scenarios
 
 TODO:
+- Remove Crocomire funny map behavior?
+- Add keywords, e.g. for "Map Randomizer", to help people find us in search results.
 - Better validation/error-handling of web service
   - check that random seed is integer
   - push more validation into client
