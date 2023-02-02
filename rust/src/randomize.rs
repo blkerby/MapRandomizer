@@ -1133,8 +1133,7 @@ impl<'a> Randomizer<'a> {
         let mut items: Vec<SpoilerItemDetails> = Vec::new();
         for i in 0..self.game_data.item_locations.len() {
             if let Some(item) = new_state.item_location_state[i].placed_item {
-                let mut first_item = state.items_remaining[item as usize]
-                    == self.initial_items_remaining[item as usize];
+                let mut first_item = !state.global_state.items[item as usize];
                 if let Some(debug_options) = &self.difficulty.debug_options {
                     if debug_options.extended_spoiler {
                         first_item = true;
@@ -1169,13 +1168,18 @@ impl<'a> Randomizer<'a> {
         let mut items: Vec<SpoilerItemSummary> = Vec::new();
         for i in 0..self.game_data.item_locations.len() {
             if let Some(item) = new_state.item_location_state[i].placed_item {
-                let mut first_item = state.items_remaining[item as usize]
-                    == self.initial_items_remaining[item as usize];
+                let mut first_item = !state.global_state.items[item as usize];
                 if let Some(debug_options) = &self.difficulty.debug_options {
                     if debug_options.extended_spoiler {
                         first_item = true;
                     }
                 }
+
+                if item == Item::PowerBomb {
+                    println!("PowerBomb {i}: items_remaining={}, first_item={} old_collected={} new_collected={}", 
+                        state.items_remaining[item as usize], first_item, state.item_location_state[i].collected, new_state.item_location_state[i].collected);
+                }
+
                 if first_item
                     && !state.item_location_state[i].collected
                     && new_state.item_location_state[i].collected

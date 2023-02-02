@@ -35,9 +35,9 @@
             <small>(Enemies cleared, get all movement items with Hyper Beam)</small></label>
             </div>
             <div class="col-sm-2 btn-group my-3" role="group">
-                <input type="radio" class="btn-check" name="streamlined_escape" id="streamlinedEscapeNo" value="No">
+                <input type="radio" class="btn-check" name="streamlined_escape" id="streamlinedEscapeNo" value="false">
                 <label class="btn btn-outline-primary" for="streamlinedEscapeNo">No</label>
-                <input type="radio" class="btn-check" name="streamlined_escape" id="streamlinedEscapeYes" value="Yes" checked=true>
+                <input type="radio" class="btn-check" name="streamlined_escape" id="streamlinedEscapeYes" value="true" checked=true>
                 <label class="btn btn-outline-primary" for="streamlinedEscapeYes">Yes</label>
             </div>
         </div>
