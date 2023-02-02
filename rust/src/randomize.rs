@@ -12,7 +12,7 @@ use log::info;
 use rand::SeedableRng;
 use rand::{seq::SliceRandom, Rng};
 use serde_derive::{Deserialize, Serialize};
-use std::{cmp::min, convert::TryFrom, iter};
+use std::{cmp::{min, max}, convert::TryFrom, iter};
 use strum::VariantNames;
 
 use crate::game_data::GameData;
@@ -211,7 +211,7 @@ impl<'r> Randomizer<'r> {
         );
         for (i, vertex_ids) in self.game_data.item_vertex_ids.iter().enumerate() {
             // Clear out any previous bireachable markers (because in rare cases a previously bireachable
-            // vertex can become no longer "bireachable" due to the imperfect cost heuristic used for 
+            // vertex can become no longer "bireachable" due to the imperfect cost heuristic used for
             // resource management.)
             state.item_location_state[i].bireachable = false;
             state.item_location_state[i].bireachable_vertex_id = None;
@@ -234,7 +234,7 @@ impl<'r> Randomizer<'r> {
         }
         for (i, vertex_ids) in self.game_data.flag_vertex_ids.iter().enumerate() {
             // Clear out any previous bireachable markers (because in rare cases a previously bireachable
-            // vertex can become no longer "bireachable" due to the imperfect cost heuristic used for 
+            // vertex can become no longer "bireachable" due to the imperfect cost heuristic used for
             // resource management.)
             state.flag_location_state[i].bireachable = false;
             state.flag_location_state[i].bireachable_vertex_id = None;
@@ -831,6 +831,7 @@ impl<'a> Randomizer<'a> {
     ) -> Vec<SpoilerRouteEntry> {
         let mut route: Vec<SpoilerRouteEntry> = Vec::new();
         // info!("global: {:?}", global_state);
+        // global_state.print_debug(self.game_data);
         for &link_idx in link_idxs {
             let link = &self.links[link_idx as usize];
             let to_vertex_info = self.get_vertex_info(link.to_vertex_id);
@@ -894,6 +895,133 @@ impl<'a> Randomizer<'a> {
         route
     }
 
+    fn get_spoiler_route_reverse(
+        &self,
+        global_state: &GlobalState,
+        local_state_end_forward: LocalState,
+        link_idxs: &[LinkIdx],
+        difficulty: &DifficultyConfig,
+    ) -> Vec<SpoilerRouteEntry> {
+        let mut route: Vec<SpoilerRouteEntry> = Vec::new();
+        let mut consumption_vec: Vec<LocalState> = Vec::new();
+
+        let mut local_state = LocalState::new();
+        for &link_idx in link_idxs {
+            let link = &self.links[link_idx as usize];
+            let new_local_state = apply_requirement(
+                &link.requirement,
+                &global_state,
+                local_state,
+                true,
+                difficulty,
+            )
+            .unwrap();
+            // Here we make an assumption that any negative change in resource usage represents
+            // a full refill; this is true for now though we may want to change this later, e.g.
+            // if we want to represent non-farmable enemy drops.
+            let energy_used = if new_local_state.energy_used < local_state.energy_used {
+                -Capacity::MAX
+            } else {
+                new_local_state.energy_used - local_state.energy_used
+            };
+            let reserves_used = if new_local_state.reserves_used < local_state.reserves_used {
+                -Capacity::MAX
+            } else {
+                new_local_state.reserves_used - local_state.reserves_used
+            };
+            let missiles_used = if new_local_state.missiles_used < local_state.missiles_used {
+                -Capacity::MAX
+            } else {
+                new_local_state.missiles_used - local_state.missiles_used
+            };
+            let supers_used = if new_local_state.supers_used < local_state.supers_used {
+                -Capacity::MAX
+            } else {
+                new_local_state.supers_used - local_state.supers_used
+            };
+            let power_bombs_used = if new_local_state.power_bombs_used < local_state.power_bombs_used {
+                -Capacity::MAX
+            } else {
+                new_local_state.power_bombs_used - local_state.power_bombs_used
+            };
+            consumption_vec.push(LocalState {
+                energy_used,
+                reserves_used,
+                missiles_used,
+                supers_used,
+                power_bombs_used,
+            });
+            local_state = new_local_state;
+        }
+
+        local_state = local_state_end_forward;
+        for i in (0..link_idxs.len()).rev() {
+            let link_idx = link_idxs[i];
+            let link = &self.links[link_idx as usize];
+            let to_vertex_info = self.get_vertex_info(link.to_vertex_id);
+            let consumption = consumption_vec[i];
+            let mut new_local_state = LocalState {
+                energy_used: max(0, local_state.energy_used + consumption.energy_used),
+                reserves_used: max(0, local_state.reserves_used + consumption.reserves_used),
+                missiles_used: max(0, local_state.missiles_used + consumption.missiles_used),
+                supers_used: max(0, local_state.supers_used + consumption.supers_used),
+                power_bombs_used: max(0, local_state.power_bombs_used + consumption.power_bombs_used),
+            };
+            if new_local_state.energy_used >= global_state.max_energy {
+                new_local_state.reserves_used += new_local_state.energy_used - (global_state.max_energy - 1);
+                new_local_state.energy_used = global_state.max_energy - 1;
+            }
+            assert!(new_local_state.reserves_used <= global_state.max_reserves);
+            assert!(new_local_state.missiles_used <= global_state.max_missiles);
+            assert!(new_local_state.supers_used <= global_state.max_supers);
+            assert!(new_local_state.power_bombs_used <= global_state.max_power_bombs);
+            let energy_remaining: Option<Capacity> =
+                if new_local_state.energy_used != local_state.energy_used {
+                    Some(global_state.max_energy - new_local_state.energy_used)
+                } else {
+                    None
+                };
+            let reserves_remaining: Option<Capacity> =
+                if new_local_state.reserves_used != local_state.reserves_used {
+                    Some(global_state.max_reserves - new_local_state.reserves_used)
+                } else {
+                    None
+                };
+            let missiles_remaining: Option<Capacity> =
+                if new_local_state.missiles_used != local_state.missiles_used {
+                    Some(global_state.max_missiles - new_local_state.missiles_used)
+                } else {
+                    None
+                };
+            let supers_remaining: Option<Capacity> =
+                if new_local_state.supers_used != local_state.supers_used {
+                    Some(global_state.max_supers - new_local_state.supers_used)
+                } else {
+                    None
+                };
+            let power_bombs_remaining: Option<Capacity> =
+                if new_local_state.power_bombs_used != local_state.power_bombs_used {
+                    Some(global_state.max_power_bombs - new_local_state.power_bombs_used)
+                } else {
+                    None
+                };
+            let spoiler_entry = SpoilerRouteEntry {
+                area: to_vertex_info.area_name,
+                room: to_vertex_info.room_name,
+                node: to_vertex_info.node_name,
+                strat_name: link.strat_name.clone(),
+                energy_remaining,
+                reserves_remaining,
+                missiles_remaining,
+                supers_remaining,
+                power_bombs_remaining,
+            };
+            route.push(spoiler_entry);
+            local_state = new_local_state;
+        }
+        route
+    }
+
     fn get_spoiler_route_birectional(
         &self,
         state: &RandomizationState,
@@ -902,23 +1030,22 @@ impl<'a> Randomizer<'a> {
         // info!("vertex_id: {}", vertex_id);
         // info!("forward: {:?}", state.debug_data.as_ref().unwrap().forward.local_states[vertex_id]);
         // info!("reverse: {:?}", state.debug_data.as_ref().unwrap().reverse.local_states[vertex_id]);
-        let forward_link_idxs: Vec<LinkIdx> = get_spoiler_route(
-            &state.debug_data.as_ref().unwrap().forward,
-            vertex_id,
-            false,
-        );
+        let forward_link_idxs: Vec<LinkIdx> =
+            get_spoiler_route(&state.debug_data.as_ref().unwrap().forward, vertex_id);
         let reverse_link_idxs: Vec<LinkIdx> =
-            get_spoiler_route(&state.debug_data.as_ref().unwrap().reverse, vertex_id, true);
+            get_spoiler_route(&state.debug_data.as_ref().unwrap().reverse, vertex_id);
         let mut local_state = LocalState::new();
+        // info!("obtain");
         let obtain_route = self.get_spoiler_route(
             &state.global_state,
             &mut local_state,
             &forward_link_idxs,
             self.difficulty,
         );
-        let return_route = self.get_spoiler_route(
+        // info!("return");
+        let return_route = self.get_spoiler_route_reverse(
             &state.global_state,
-            &mut local_state,
+            local_state,
             &reverse_link_idxs,
             self.difficulty,
         );
@@ -993,7 +1120,6 @@ impl<'a> Randomizer<'a> {
         // let flag_vertex_info = self.get_vertex_info(flag_vertex_id);
         SpoilerFlagSummary {
             flag: self.game_data.flag_isv.keys[flag_id].to_string(),
-            // area: (TODO)
         }
     }
 
@@ -1013,11 +1139,12 @@ impl<'a> Randomizer<'a> {
                     if debug_options.extended_spoiler {
                         first_item = true;
                     }
-                } 
+                }
                 if first_item
                     && !state.item_location_state[i].collected
                     && new_state.item_location_state[i].collected
                 {
+                    // info!("Item: {item:?}");
                     let item_vertex_id =
                         state.item_location_state[i].bireachable_vertex_id.unwrap();
                     items.push(self.get_spoiler_item_details(state, item_vertex_id, item));
@@ -1048,7 +1175,7 @@ impl<'a> Randomizer<'a> {
                     if debug_options.extended_spoiler {
                         first_item = true;
                     }
-                } 
+                }
                 if first_item
                     && !state.item_location_state[i].collected
                     && new_state.item_location_state[i].collected
