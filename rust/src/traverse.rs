@@ -21,6 +21,16 @@ pub struct GlobalState {
     pub shine_charge_tiles: Capacity,
 }
 
+impl GlobalState {
+    pub fn print_debug(&self, game_data: &GameData) {
+        for (i, item) in game_data.item_isv.keys.iter().enumerate() {
+            if self.items[i] {
+                println!("{:?}", item);
+            }
+        }
+    }
+}
+
 #[derive(Copy, Clone, Debug)]
 pub struct LocalState {
     pub energy_used: Capacity,
@@ -270,8 +280,14 @@ pub fn apply_requirement(
         }
         Requirement::And(reqs) => {
             let mut new_local = local;
-            for req in reqs {
-                new_local = apply_requirement(req, global, new_local, reverse, difficulty)?;
+            if reverse {
+                for req in reqs.into_iter().rev() {
+                    new_local = apply_requirement(req, global, new_local, reverse, difficulty)?;
+                }    
+            } else {
+                for req in reqs {
+                    new_local = apply_requirement(req, global, new_local, reverse, difficulty)?;
+                }    
             }
             Some(new_local)
         }
@@ -440,7 +456,6 @@ impl GlobalState {
 pub fn get_spoiler_route(
     traverse_result: &TraverseResult,
     vertex_id: usize,
-    reverse: bool,
 ) -> Vec<LinkIdx> {
     let mut trail_id = traverse_result.start_trail_ids[vertex_id].unwrap();
     let mut steps: Vec<LinkIdx> = Vec::new();
@@ -449,8 +464,6 @@ pub fn get_spoiler_route(
         steps.push(step_trail.link_idx);
         trail_id = step_trail.prev_trail_id;
     }
-    if !reverse {
-        steps.reverse();
-    }
+    steps.reverse();
     steps
 }
