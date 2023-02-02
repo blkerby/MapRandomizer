@@ -24,7 +24,7 @@
             <div class="col-sm-2 btn-group" role="group">
                 <input type="radio" class="btn-check" name="supers_double" id="supersDoubleNo" value="false">
                 <label class="btn btn-outline-primary" for="supersDoubleNo">No</label>
-                <input type="radio" class="btn-check" name="supers_double" id="supersDoubleYes" value="true" checked=true>
+                <input type="radio" class="btn-check" name="supers_double" id="supersDoubleYes" value="true" checked>
                 <label class="btn btn-outline-primary" for="supersDoubleYes">Yes</label>
             </div>
         </div>
@@ -37,7 +37,7 @@
             <div class="col-sm-2 btn-group my-3" role="group">
                 <input type="radio" class="btn-check" name="streamlined_escape" id="streamlinedEscapeNo" value="false">
                 <label class="btn btn-outline-primary" for="streamlinedEscapeNo">No</label>
-                <input type="radio" class="btn-check" name="streamlined_escape" id="streamlinedEscapeYes" value="true" checked=true>
+                <input type="radio" class="btn-check" name="streamlined_escape" id="streamlinedEscapeYes" value="true" checked>
                 <label class="btn btn-outline-primary" for="streamlinedEscapeYes">Yes</label>
             </div>
         </div>
@@ -49,7 +49,7 @@
             <div class="col-sm-2 btn-group" role="group">
                 <input type="radio" class="btn-check" name="mark_map_stations" id="markMapStationsNo" value="false">
                 <label class="btn btn-outline-primary" for="markMapStationsNo">No</label>
-                <input type="radio" class="btn-check" name="mark_map_stations" id="markMapStationsYes" value="true" checked=true>
+                <input type="radio" class="btn-check" name="mark_map_stations" id="markMapStationsYes" value="true" checked>
                 <label class="btn btn-outline-primary" for="markMapStationsYes">Yes</label>
             </div>
         </div>
@@ -59,7 +59,7 @@
             <div class="col-sm-2 btn-group" role="group">
                 <input type="radio" class="btn-check" name="mark_majors" id="markMajorsNo" value="false">
                 <label class="btn btn-outline-primary" for="markMajorsNo">No</label>
-                <input type="radio" class="btn-check" name="mark_majors" id="markMajorsYes" value="true" checked=true>
+                <input type="radio" class="btn-check" name="mark_majors" id="markMajorsYes" value="true" checked>
                 <label class="btn btn-outline-primary" for="markMajorsYes">Yes</label>
             </div>
         </div>
