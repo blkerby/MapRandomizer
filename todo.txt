@@ -7,9 +7,13 @@ TODO:
 - Handle other boss fights like we did Ridley:
   - GT
 - Remove Crocomire funny map behavior?
+- During escape, block backward path better
+- Handle shinespark_frames=0 correctly (don't require 29 energy)
+  - Fix bug with reverse logic? ( Map seed=330023052, item placement seed=3918075891, Open Easy)
 - Better validation/error-handling of web service
   - push more validation into client
 - Option for anti-softlock patches (e.g. in Moat, Early Supers, etc.)?
+  - disable acid trigger in Leodox room
 - Put spoiler info in collapsible accordion.
 - Add note to strat in Post-Crocomire farming room to get to top-left with HiJump
   (run on platform enemy and jump)
