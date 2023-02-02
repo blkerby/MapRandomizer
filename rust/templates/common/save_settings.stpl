@@ -32,15 +32,11 @@ function loadForm(form) {
             continue;
         }
         if (element.type == "radio") {
-            console.log("Before: " + element.name + "[" + element.value + "] = " + element.checked + 
-                "(data = " + data[element.name] + ")"); 
             if (data[element.name] == element.value) {
                 element.checked = true;
             } else if (data[element.name] !== undefined){
                 element.checked = false;
             }
-            console.log("After: " + element.name + "[" + element.value + "] = " + element.checked + 
-                "(data = " + data[element.name] + ")");
         } else if (data[element.name] !== undefined) {
             if (element.type == "checkbox") {
                 element.checked = data[element.name];
