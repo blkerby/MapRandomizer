@@ -1175,11 +1175,6 @@ impl<'a> Randomizer<'a> {
                     }
                 }
 
-                if item == Item::PowerBomb {
-                    println!("PowerBomb {i}: items_remaining={}, first_item={} old_collected={} new_collected={}", 
-                        state.items_remaining[item as usize], first_item, state.item_location_state[i].collected, new_state.item_location_state[i].collected);
-                }
-
                 if first_item
                     && !state.item_location_state[i].collected
                     && new_state.item_location_state[i].collected
