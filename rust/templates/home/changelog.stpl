@@ -3,16 +3,16 @@
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-33---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 33 (???)</a>:
+<p><a href="https://version-33---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 33 (2023-02-01)</a>:
 <ul>
 <li>Improved logic for Ridley fight:
     <ul>
-    <li>A new difficulty setting is added for proficiency at the Ridley fight.
+    <li>A new setting "Ridley proficiency" is added to adjust the logic for the Ridley fight.
     <li>The new logic is generally more lenient, ensuring that enough relevant items 
     such as beams, ammo, tanks, and/or suits are obtainable before the fight. (Previously the logic
-    required exactly Varia and Charge).
-    <li>On the other hand, a suitless fight can now possibly be required if "canHeatRun" is enabled,
-    although without suits the logic will require many more other items to be obtainable first.
+    required exactly Charge and Varia).
+    <li>On the other hand, now neither Charge nor Varia are logically required for the fight
+    (assuming "canHeatRun" is enabled) if enough ammo/tanks are obtainable.
     <li>If the fight is expected to require more than 3 minutes, it will not be in logic at that
     point unless "canBePatient" is enabled.
     <li>For details on how the proficiency setting affects the player's assumed firing speed & accuracy,
@@ -23,6 +23,7 @@ about 15 seconds to load.
     <li>If this is left on, then there is no change from previous versions (enemies are cleared during the escape,
     and all movement items are acquired with Hyper Beam).
     </ul>
+<li>Fixed a few bugs that occasionally caused the server to crash with "Service Unavailable".
 </ul>
 
 <p><a href="https://version-32---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 32 (2023-01-30)</a>:
