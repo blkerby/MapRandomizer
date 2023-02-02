@@ -4,6 +4,7 @@ Release plan:
 - v32: Take ammo kills into account in logic, use boss scenarios
 
 TODO:
+- Fix map tile at Big Pink bottom missile
 - Handle other boss fights like we did Ridley:
   - GT
 - Remove Crocomire funny map behavior?
