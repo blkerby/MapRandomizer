@@ -54,4 +54,6 @@ function qualityOfLifeSettingChanged() {
 <script>
 loadForm(document.getElementById("main-form"));
 loadROM(document.getElementById("vanillaRom"), 'vanilla');
+presetChanged();
+qualityOfLifePresetChanged();
 </script>
