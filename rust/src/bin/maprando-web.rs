@@ -339,7 +339,7 @@ async fn customize_seed(
     let settings = CustomizeSettings {
         area_themed_palette: false,
     };
-    customize_rom(&mut rom, &patch_ips, &settings);
+    customize_rom(&mut rom, &patch_ips, &settings, &app_data.game_data).unwrap();
 
     HttpResponse::Ok()
         .content_type("application/octet-stream")

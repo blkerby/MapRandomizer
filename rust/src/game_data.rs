@@ -1153,6 +1153,26 @@ impl GameData {
     }
 
     fn load_palette(&mut self, json_path: &Path) -> Result<()> {
+        let file = File::open(json_path)?;
+        let json_value: serde_json::Value = serde_json::from_reader(file)?;
+        for area_json in json_value.as_array().unwrap() {
+            let mut pal_map: HashMap<TilesetIdx, [[u8; 3]; 128]> = HashMap::new();
+            for (tileset_idx_str, palette) in area_json.as_object().unwrap().iter() {
+                let tileset_idx: usize = tileset_idx_str.parse()?;
+                let mut pal = [[0u8; 3]; 128];
+                for (i, color) in palette.as_array().unwrap().iter().enumerate() {
+                    let color_arr = color.as_array().unwrap();
+                    let r = color_arr[0].as_i64().unwrap();
+                    let g = color_arr[1].as_i64().unwrap();
+                    let b = color_arr[2].as_i64().unwrap();
+                    pal[i][0] = r as u8;
+                    pal[i][1] = g as u8;
+                    pal[i][2] = b as u8;
+                }
+                pal_map.insert(tileset_idx, pal);
+            }
+            self.palette_data.push(pal_map);
+        }
         Ok(())
     }
 

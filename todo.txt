@@ -1,8 +1,10 @@
 TODO:
+- Improve save balancing algorithm: don't put saves at end of hallways?
 - Add way to export settings from seed page (and export/import on main page).
 - Make fast elevators optional
 - With a future ML model, treat Mother Brain room as 0-way (instead of one-way) to ensure items, maps, etc.
   cannot be locked behind Mother Brain.
+    - Improve map connectedness so it's less likely for a large area to have only one exit.
 - Add strat for morphless wiggling through tunnel in Etecoon ETank room (figure out how much energy needed)
 - Add speedball strat in Big Pink from 13 to 1 (to top left door)
 - Add redirect from "/seed/{name}" to "/seed/{name}/".

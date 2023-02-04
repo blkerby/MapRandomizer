@@ -30,6 +30,7 @@
         <ul>
         <li>Missile Refill stations refill all ammo types: Missiles, Supers, and Power Bombs.
         <li>Samus collects & equips all movement items when acquiring Hyper Beam.
+        <li>It's easy to get soft-locked. Be careful with one-ways, and be sure to save frequently!
         <li>Saving at a different save station from the last save will advance to the next slot 
         before saving, so you can return to an earlier save in case you get stuck.
         </ul>
