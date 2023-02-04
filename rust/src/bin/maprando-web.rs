@@ -15,6 +15,7 @@ use maprando::game_data::{GameData, Map};
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::{make_rom, Rom};
 use maprando::randomize::{DifficultyConfig, Randomization, Randomizer};
+use maprando::customize::{CustomizeSettings, customize_rom};
 use maprando::seed_repository::{Seed, SeedFile, SeedRepository};
 // use maprando::seed_repository::Seed;
 use base64::Engine;
@@ -335,11 +336,11 @@ async fn customize_seed(
         return HttpResponse::BadRequest().body("Invalid base ROM.");
     }
 
-    let patch = ips::Patch::parse(&patch_ips).unwrap();
-    // .with_context(|| format!("Unable to parse patch {}", patch_path.display()))?;
-    for hunk in patch.hunks() {
-        rom.write_n(hunk.offset(), hunk.payload()).unwrap();
-    }
+    let settings = CustomizeSettings {
+        area_themed_palette: false,
+    };
+    customize_rom(&mut rom, &patch_ips, &settings);
+
     HttpResponse::Ok()
         .content_type("application/octet-stream")
         .insert_header(ContentDisposition {
@@ -595,10 +596,11 @@ fn build_app_data() -> AppData {
     let args = Args::parse();
     let sm_json_data_path = Path::new("../sm-json-data");
     let room_geometry_path = Path::new("../room_geometry.json");
+    let palette_path = Path::new("../palettes.json");
     let maps_path =
         Path::new("../maps/session-2022-06-03T17:19:29.727911.pkl-bk30-subarea-balance");
 
-    let game_data = GameData::load(sm_json_data_path, room_geometry_path).unwrap();
+    let game_data = GameData::load(sm_json_data_path, room_geometry_path, palette_path).unwrap();
     let presets: Vec<Preset> =
         serde_json::from_str(&std::fs::read_to_string(&"data/presets.json").unwrap()).unwrap();
     let preset_data = init_presets(presets, &game_data);

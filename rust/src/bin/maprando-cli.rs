@@ -1,5 +1,6 @@
 use anyhow::{bail, Context, Result};
 use clap::Parser;
+use maprando::customize::{customize_rom, CustomizeSettings};
 use maprando::game_data::Map;
 use maprando::patch::Rom;
 use maprando::randomize::{ItemPlacementStrategy, Randomization, Randomizer, DebugOptions};
@@ -23,9 +24,6 @@ struct Args {
     output_rom: Option<PathBuf>,
 
     #[arg(long)]
-    output_ips: Option<PathBuf>,
-
-    #[arg(long)]
     output_spoiler_log: Option<PathBuf>,
 
     #[arg(long)]
@@ -33,6 +31,9 @@ struct Args {
 
     #[arg(long)]
     output_spoiler_map_vanilla: Option<PathBuf>,
+
+    #[arg(long)]
+    area_themed_palette: bool,
 }
 
 fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization> {
@@ -156,25 +157,27 @@ fn main() -> Result<()> {
     let args = Args::parse();
     let sm_json_data_path = Path::new("../sm-json-data");
     let room_geometry_path = Path::new("../room_geometry.json");
-    let game_data = GameData::load(sm_json_data_path, room_geometry_path)?;
+    let palettes_path = Path::new("../palettes.json");
+    let game_data = GameData::load(sm_json_data_path, room_geometry_path, palettes_path)?;
 
     // Perform randomization (map selection & item placement):
     let randomization = get_randomization(&args, &game_data)?;
 
     // Generate the patched ROM:
     let input_rom = Rom::load(&args.input_rom)?;
-    let output_rom = make_rom(&input_rom, &randomization, &game_data)?;
-    let ips_patch = create_ips_patch(&input_rom.data, &output_rom.data);
+    let game_rom = make_rom(&input_rom, &randomization, &game_data)?;
+    let ips_patch = create_ips_patch(&input_rom.data, &game_rom.data);
+
+    let mut output_rom = input_rom.clone();
+    let customize_settings = CustomizeSettings {
+        area_themed_palette: true
+    };
+    customize_rom(&mut output_rom, &ips_patch, &customize_settings, &game_data)?;
 
     // Save the outputs:
     if let Some(output_rom_path) = &args.output_rom {
         println!("Writing output ROM to {}", output_rom_path.display());
         output_rom.save(output_rom_path)?;
-    }
-
-    if let Some(output_ips_path) = &args.output_ips {
-        println!("Writing output IPS to {}", output_ips_path.display());
-        std::fs::write(&output_ips_path, &ips_patch)?;
     }
 
     if let Some(output_spoiler_log_path) = &args.output_spoiler_log {
@@ -206,7 +209,5 @@ fn main() -> Result<()> {
         std::fs::write(output_spoiler_map_vanilla_path, spoiler_map_vanilla)?;
     }
 
-    let door_data = output_rom.read_n(0x18e1a, 12).unwrap();
-    println!("{:?}", door_data);
     Ok(())
 }

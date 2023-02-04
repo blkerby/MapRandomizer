@@ -37,6 +37,7 @@ pub type WeaponMask = usize; // Bitmask where `i`th bit indicates availability o
 pub type Capacity = i32; // Data type used to represent quantities of energy, ammo, etc.
 pub type DoorPtr = usize; // PC address of door data for exiting given door
 pub type DoorPtrPair = (Option<DoorPtr>, Option<DoorPtr>); // PC addresses of door data for exiting & entering given door (from vanilla door connection)
+pub type TilesetIdx = usize;  // Tileset index
 
 #[derive(Default, Clone)]
 pub struct IndexedVec<T: Hash + Eq> {
@@ -199,6 +200,7 @@ pub struct GameData {
     pub area_names: Vec<String>,
     pub area_map_ptrs: Vec<isize>,
     pub tech_description: HashMap<String, String>,
+    pub palette_data: Vec<HashMap<TilesetIdx, [[u8; 3]; 128]>>,
 }
 
 impl<T: Hash + Eq> IndexedVec<T> {
@@ -487,7 +489,7 @@ impl GameData {
                 let frames = value
                     .as_i32()
                     .expect(&format!("invalid acidFrames in {}", json_value));
-                return Ok(Requirement::Damage(3 * frames / 8));
+                return Ok(Requirement::Damage(3 * frames / 2));
             } else if key == "draygonElectricityFrames" {
                 let frames = value.as_i32().expect(&format!(
                     "invalid draygonElectricityFrames in {}",
@@ -1150,7 +1152,11 @@ impl GameData {
         Ok(())
     }
 
-    pub fn load(sm_json_data_path: &Path, room_geometry_path: &Path) -> Result<GameData> {
+    fn load_palette(&mut self, json_path: &Path) -> Result<()> {
+        Ok(())
+    }
+
+    pub fn load(sm_json_data_path: &Path, room_geometry_path: &Path, palette_path: &Path) -> Result<GameData> {
         let mut game_data = GameData::default();
         game_data.sm_json_data_path = sm_json_data_path.to_owned();
 
@@ -1193,6 +1199,7 @@ impl GameData {
             0x1AC000, // Maridia
             0x1AD000, // Tourian
         ];
+        game_data.load_palette(palette_path)?;
 
         Ok(game_data)
     }

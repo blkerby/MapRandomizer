@@ -959,6 +959,7 @@ impl<'a> MapPatcher<'a> {
                     )
                 })?
                 .clone();
+            assert!([Interior::Item, Interior::MajorItem].contains(&basic_tile.interior));
             basic_tile.interior = Interior::MajorItem;
             let tile1 = self.get_basic_tile(basic_tile)?;
             self.rom

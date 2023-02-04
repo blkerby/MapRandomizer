@@ -1,21 +1,25 @@
-Release plan:
-- v30: Website improvements (save/export/import presets)
-- v31: Area-themed palettes
-- v32: Take ammo kills into account in logic, use boss scenarios
-
 TODO:
+- Add way to export settings from seed page (and export/import on main page).
+- Make fast elevators optional
+- With a future ML model, treat Mother Brain room as 0-way (instead of one-way) to ensure items, maps, etc.
+  cannot be locked behind Mother Brain.
+- Add strat for morphless wiggling through tunnel in Etecoon ETank room (figure out how much energy needed)
+- Add speedball strat in Big Pink from 13 to 1 (to top left door)
+- Add redirect from "/seed/{name}" to "/seed/{name}/".
+- Ridley kill still accidentally requires heatProof: fix this.
+- Add option to not count ETank/ReserveTanks as majors (for large dots on the map).
 - Fix map tile at Big Pink bottom missile
 - Handle other boss fights like we did Ridley:
   - GT
 - Remove Crocomire funny map behavior?
 - During escape, block backward path better
 - Handle shinespark_frames=0 correctly (don't require 29 energy)
-  - Fix bug with reverse logic? ( Map seed=330023052, item placement seed=3918075891, Open Easy)
 - Better validation/error-handling of web service
   - push more validation into client
 - Option for anti-softlock patches (e.g. in Moat, Early Supers, etc.)?
-  - disable acid trigger in Leodox room
+  - disable acid trigger in Leodox room?
 - Put spoiler info in collapsible accordion.
+- Include strat notes in spoiler log.
 - Add note to strat in Post-Crocomire farming room to get to top-left with HiJump
   (run on platform enemy and jump)
 - Change Shaktool flag behavior: require entering one door and exiting the opposite door.
@@ -24,12 +28,9 @@ TODO:
 - Add more race-friendly options:
   - Distinct map tile for major items vs. minor items
   - Make map stations accessible earlier
-- Rust migration bugfixes:
-  - phantoon not following the rules
-  - two map stations
 - on open mode, don't place items in one-way reachable locations (to keep open the possibility of placing key items
   there later once they become bireachable)
-- remove fast elevators?
+- option to remove fast elevators?
     - They mess up the heat Frames logic in Main Hall + Lower Norfair Elevator Room (though this also wouldn't be
       hard to fix with an override)
 - Rust cleanup:
@@ -50,10 +51,6 @@ TODO:
       slowly.
 - Be more careful with requirements on farms
   - e.g. Zebbo farm in Plowerhouse Room is not really usable without heat-proof and some way to kill the the owls.
-- make some quality-of-life changes optional?:
-  - all movement items collected & equipped when hyper beam is acquired
-  - map stations revealed from start of game
-  - supers do double damage to mother brain
 - apply bomb torizo patch (from varia) to make it awake when its item is picked up (rather than bombs)?
 - fix color of reserve tank energy in equipment menu (got messed up by colored arrows)
 - check boss logic on easy settings:
@@ -75,7 +72,6 @@ TODO:
     - if entering from the right, there may be some energy or item requirements to cross the spikes to get to the
       left (the vanilla game requirements might be a little different from Map Rando because of how the vanilla game
       teleports Samus to the left screen).
-- add suitless strats for Ridley
 - fix graphical problem with barriers not clearing in Mother Brain room (happened next to Crocomire's Room?)
 - consider putting map stations closer to the ship? (still balanced to one per area)
 - update ammo refilled message box.
@@ -109,6 +105,8 @@ TODO:
 - minimizer mode? (select rooms to include randomly, hand-picked, and/or user-selected)
 - add strat for jumping over fune with no damage (check osse Twitch clip).
 - make map rando for other hacks (e.g. project base, subversion?)
+  - would be a lot of work. we could invite others to help implement the logic
+- multitroid support
 
 notes on tileset palette stuff:
   - tileset table: $8FE6A2  (will need to move to location with more space)
