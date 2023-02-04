@@ -1,10 +1,5 @@
+; From https://github.com/aremath/sm_rando/blob/master/patches/asm/mother_brain_no_drain.asm
 lorom
 
-; Replace code to decrement ammo during rainbow beam
-org $A9C4C4
-    LDA #$0000
-    STA $09D2   ; Clear HUD item
-    RTS
-
-;org $A9C544
-;dw #$0000
+org $A9C544
+dw #$0000

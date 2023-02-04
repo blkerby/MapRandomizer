@@ -200,7 +200,7 @@ impl<'a> Patcher<'a> {
             "progressive_suits",
             "disable_map_icons",
             "escape",
-            "mother_brain_no_drain",
+            // "mother_brain_no_drain",
             "tourian_map",
             "tourian_eye_door",
             "no_explosions_before_escape",
