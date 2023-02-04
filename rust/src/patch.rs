@@ -1,5 +1,5 @@
-mod compress;
-mod decompress;
+pub mod compress;
+pub mod decompress;
 pub mod ips_write;
 mod map_tiles;
 mod title;
