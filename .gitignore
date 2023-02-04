@@ -4,3 +4,5 @@ models/
 rust/rando/target/
 venv/
 __pycache__
+node_modules
+tilesets
