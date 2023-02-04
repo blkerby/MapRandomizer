@@ -5,4 +5,4 @@ EE00-EE10:  Used by `mb_barrier_clear` patch for door ASM to Mother Brain room (
 EE10-F500:  Used for custom door ASMs
 F500-F700:  Used by `escape` patch
 F700-F900:  Used by `gray_doors` patch
-F900-FD00:  Used for tileset table & pointers for area-themed palettes
+F900-FE00:  Used for tileset table & pointers for area-themed palettes

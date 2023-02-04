@@ -29,6 +29,18 @@
                     <div class="card-header">Customization</div>
                     <form class="card-body container" method="POST" enctype="multipart/form-data" action="customize">
                         <div class="form-group row my-2">
+                            <div class="col-sm-3">
+                            <label class="col-form-label" for="room_palettes">Room palettes</label>
+                            </div>
+                            <div class="col-sm-4 btn-group" role="group">
+                                <input type="radio" class="btn-check" name="room_palettes" id="roomPalettesVanilla" value="vanilla">
+                                <label class="btn btn-outline-primary" for="roomPalettesVanilla">Vanilla</label>
+                                <input type="radio" class="btn-check" name="room_palettes" id="roomPalettesAreaThemed" value="area-themed" checked>
+                                <label class="btn btn-outline-primary" for="roomPalettesAreaThemed">Area-themed</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group row my-3">
                             <label class="col-sm-3 col-form-label" for="rom">Base ROM</label>
                             <input class="col-sm-9 form-control-file" type="file" id="baseRom" name="rom"
                             onchange="saveROM(this, 'base')">
