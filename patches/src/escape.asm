@@ -90,6 +90,33 @@ save_station:
     lda #$0017  ; run hi-jacked instruction
     jmp $8cf6  ; return to next instruction
 
+
+;;; Hi-jack escape start
+org $A9B270
+    jsr escape_setup
+
+;;; Code in bank A9 free space
+org $A9FC00
+escape_setup:
+    JSR $C5BE ; run hi-jacked instruction
+
+    ; Set all bosses to defeated
+    lda #$0707
+    sta $7ED828
+    sta $7ED82A
+    sta $7ED82C
+
+    lda #$0000    ; Zebes awake
+    jsl $8081FA
+    lda #$000b    ; Maridia Tube open
+    jsl $8081FA
+    lda #$000c    ; Acid statue room drained
+    jsl $8081FA
+    lda #$000d    ; Shaktool done digging
+    jsl $8081FA
+
+    rts
+
 org $8ff500
 ;;; CODE (in bank 8F free space)
 
@@ -134,7 +161,6 @@ fix_timer_gfx:
     PLX
     RTL
 
-
 room_load:
     ; Run hi-jacked instructions (setting Layer 2 scroll)
     LDA $000C,x
@@ -143,21 +169,6 @@ room_load:
     %checkEscape() : bcc .end
     stz $07CB   ;} Music data index = 0
     stz $07C9   ;} Music track index = 0
-
-    ; Set all bosses to defeated
-    lda #$0707
-    sta $7ED828
-    sta $7ED82A
-    sta $7ED82C
-
-    lda #$0000    ; Zebes awake
-    jsl $8081FA
-    lda #$000b    ; Maridia Tube open
-    jsl $8081FA
-    lda #$000c    ; Acid statue room drained
-    jsl $8081FA
-    lda #$000d    ; Shaktool done digging
-    jsl $8081FA
 
     jsl remove_enemies
 .end

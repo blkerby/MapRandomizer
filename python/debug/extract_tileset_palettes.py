@@ -40,6 +40,21 @@ for area in area_names:
         reader.preamble()
         palette = reader.palette()
         area_json[tileset_idx] = palette
+
+        if tileset_idx == 2:
+            # Create Zebes asleep palette:
+            dark_palette = [[x for x in color] for color in palette]
+            for i in [0x50, 0x51, 0x52, 0x53, 0x54, 0x56, 0x57, 0x58, 0x59, 0x5A, 0x5B, 0x5C, 0x5D, 0x5E, 0x5F]:
+                for j in range(3):
+                    dark_palette[i][j] //= 2
+            area_json[3] = dark_palette
+        if tileset_idx == 4:
+            # Create unpowered Wrecked Ship palette:
+            dark_palette = [[x for x in color] for color in palette]
+            for i in range(0x40, 0x60):
+                for j in range(3):
+                    dark_palette[i][j] //= 2
+            area_json[5] = dark_palette
     all_json.append(area_json)
 
 # rom.write_u24(snes2pc(0x8FE6A2 + tileset_i * 9 + 6), free_space)

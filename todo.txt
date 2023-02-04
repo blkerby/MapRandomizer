@@ -1,6 +1,8 @@
 TODO:
 - area-themed palettes:
   - apply to twin rooms.
+  - remove red flashing in escape rooms.
+  - glow in Mother Brain room, etc.
 - Improve save balancing algorithm: don't put single-entrance saves (and refills?) at end of hallways,
   i.e. don't connect to rooms with two doors.
 - Add way to export settings from seed page (and export/import on main page).
@@ -128,7 +130,7 @@ notes on tileset palette stuff:
     - tiles: $7E:2000  (at $82:E42E)
       - VRAM $0000 (at $82:E7B4)
     - palette: $7E:C200  (at $82:E43F)
-
+ - palette FX loading: https://patrickjohnston.org/bank/89#fAB82
 
 notes on marking elevator tiles:
 - boss tile marking: $90:A7E2

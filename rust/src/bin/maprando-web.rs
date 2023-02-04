@@ -138,6 +138,7 @@ struct RandomizeRequest {
 #[derive(MultipartForm)]
 struct CustomizeRequest {
     rom: Bytes,
+    room_palettes: Text<String>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -337,7 +338,7 @@ async fn customize_seed(
     }
 
     let settings = CustomizeSettings {
-        area_themed_palette: false,
+        area_themed_palette: req.room_palettes.0 == "area-themed",
     };
     customize_rom(&mut rom, &patch_ips, &settings, &app_data.game_data).unwrap();
 

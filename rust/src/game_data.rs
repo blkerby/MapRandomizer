@@ -1170,6 +1170,12 @@ impl GameData {
                     pal[i][1] = g as u8;
                     pal[i][2] = b as u8;
                 }
+
+                // for i in 0..128 {
+                //     for j in 0..3 {
+                //         pal[i][j] = 0;
+                //     }
+                // }
                 pal_map.insert(tileset_idx, pal);
             }
             self.palette_data.push(pal_map);
