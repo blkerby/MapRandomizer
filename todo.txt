@@ -1,5 +1,6 @@
 TODO:
-- Improve save balancing algorithm: don't put saves at end of hallways?
+- Improve save balancing algorithm: don't put single-entrance saves (and refills?) at end of hallways,
+  i.e. don't connect to rooms with two doors.
 - Add way to export settings from seed page (and export/import on main page).
 - Make fast elevators optional
 - With a future ML model, treat Mother Brain room as 0-way (instead of one-way) to ensure items, maps, etc.
