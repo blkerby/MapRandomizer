@@ -69,7 +69,8 @@ fn main() -> Result<()> {
         supers_double: true,
         streamlined_escape: true,
         mark_map_stations: true,
-        mark_majors: true,
+        mark_uniques: true,
+        mark_tanks: true,
         debug_options: None,
     };
 

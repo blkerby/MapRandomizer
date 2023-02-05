@@ -29,7 +29,7 @@
         <h6>Other info</h6>
         <ul>
         <li>Missile Refill stations refill all ammo types: Missiles, Supers, and Power Bombs.
-        <li>Samus collects & equips all movement items when acquiring Hyper Beam.
+        <li>Hyper Beam destroys Super, Bomb, and Power Bomb blocks and can open blue & green gates from either side.
         <li>It's easy to get soft-locked or killed by surprise. Be careful with one-ways, and be sure to save frequently!
         <li>Saving at a different save station from the last save will advance to the next slot 
         before saving, so you can return to an earlier save in case you get stuck.

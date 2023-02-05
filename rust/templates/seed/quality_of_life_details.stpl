@@ -11,6 +11,10 @@
     <div class="col-6"><%= if mark_map_stations { "Yes" } else { "No" }%></div>
 </div>
 <div class="row">
-    <div class="col-6">Major items marked:</div>
-    <div class="col-6"><%= if mark_majors { "Yes" } else { "No" }%></div>
+    <div class="col-6">Unique items marked as large dots on map:</div>
+    <div class="col-6"><%= if mark_uniques { "Yes" } else { "No" }%></div>
+</div>
+<div class="row">
+    <div class="col-6">Tanks marked as large dots on map:</div>
+    <div class="col-6"><%= if mark_tanks { "Yes" } else { "No" }%></div>
 </div>
