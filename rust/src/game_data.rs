@@ -37,8 +37,8 @@ pub type WeaponMask = usize; // Bitmask where `i`th bit indicates availability o
 pub type Capacity = i32; // Data type used to represent quantities of energy, ammo, etc.
 pub type DoorPtr = usize; // PC address of door data for exiting given door
 pub type DoorPtrPair = (Option<DoorPtr>, Option<DoorPtr>); // PC addresses of door data for exiting & entering given door (from vanilla door connection)
-pub type TilesetIdx = usize;  // Tileset index
-pub type AreaIdx = usize;  // Area index (0..5)
+pub type TilesetIdx = usize; // Tileset index
+pub type AreaIdx = usize; // Area index (0..5)
 
 #[derive(Default, Clone)]
 pub struct IndexedVec<T: Hash + Eq> {
@@ -79,7 +79,14 @@ impl Item {
     // }
 
     pub fn is_unique(self) -> bool {
-        ![Item::Missile, Item::Super, Item::PowerBomb, Item::ETank, Item::ReserveTank].contains(&self)
+        ![
+            Item::Missile,
+            Item::Super,
+            Item::PowerBomb,
+            Item::ETank,
+            Item::ReserveTank,
+        ]
+        .contains(&self)
     }
 
     pub fn is_tank(self) -> bool {
@@ -642,6 +649,86 @@ impl GameData {
         Ok(())
     }
 
+    fn override_shaktool_room(&mut self, room_json: &mut JsonValue) {
+        for node_json in room_json["nodes"].members_mut() {
+            if node_json["name"] == "f_ShaktoolDoneDigging" {
+                // Adding a dummy lock on Shaktool done digging event, so that the code in `preprocess_room`
+                // can pick it up and construct a corresponding obstacle for the flag (as it expects there
+                // to be a lock).
+                node_json["locks"] = json::array![{
+                    "name": "Shaktool Lock",
+                    "lockType": "triggeredEvent",
+                    "unlockStrats": [
+                        {
+                            "name": "Base",
+                            "notable": false,
+                            "requires": ["h_canUsePowerBombs"],
+                        }
+                    ]
+                }];
+            }
+        }
+
+        room_json["links"] = json::array![
+            {
+                "from": 1,
+                "to": [
+                {
+                    "id": 3,
+                    "strats": [
+                    {
+                        "name": "Base",
+                        "notable": false,
+                        "requires": []
+                    }
+                    ]
+                }
+                ]
+            },
+            {
+                "from": 2,
+                "to": [
+                {
+                    "id": 3,
+                    "strats": [
+                    {
+                        "name": "Base",
+                        "notable": false,
+                        "requires": []
+                    }
+                    ],
+                    "note": "Use the snails to dig through the sand."
+                }
+                ]
+            },
+            {
+                "from": 3,
+                "to": [
+                {
+                    "id": 1,
+                    "strats": [
+                    {
+                        "name": "Base",
+                        "notable": false,
+                        "requires": [ "f_ShaktoolDoneDigging" ]
+                    }
+                    ]
+                },
+                {
+                    "id": 2,
+                    "strats": [
+                    {
+                        "name": "Base",
+                        "notable": false,
+                        "requires": [ "f_ShaktoolDoneDigging" ]
+                    }
+                    ]
+                }
+                ]
+            }
+        ];
+    }
+
     fn preprocess_room(&mut self, room_json: &JsonValue) -> JsonValue {
         // We apply some changes to the sm-json-data specific to Map Rando.
         let mut new_room_json = room_json.clone();
@@ -681,25 +768,12 @@ impl GameData {
 
         let mut obstacle_flag: Option<String> = None;
 
+        if room_json["name"] == "Shaktool Room" {
+            self.override_shaktool_room(&mut new_room_json);
+        }
+
         for node_json in new_room_json["nodes"].members_mut() {
             let node_id = node_json["id"].as_usize().unwrap();
-
-            if room_json["name"] == "Shaktool Room" && node_json["name"] == "f_ShaktoolDoneDigging"
-            {
-                // Adding a dummy lock on Shaktool done digging event, so that the code below can pick it up
-                // and construct a corresponding obstacle for the flag (as it expects there to be a lock).
-                node_json["locks"] = json::array![{
-                    "name": "Shaktool Lock",
-                    "lockType": "triggeredEvent",
-                    "unlockStrats": [
-                        {
-                            "name": "Base",
-                            "notable": false,
-                            "requires": [],
-                        }
-                    ]
-                }];
-            }
 
             if node_json.has_key("locks")
                 && (!["door", "entrance"].contains(&node_json["nodeType"].as_str().unwrap())
@@ -1191,7 +1265,11 @@ impl GameData {
         Ok(())
     }
 
-    pub fn load(sm_json_data_path: &Path, room_geometry_path: &Path, palette_path: &Path) -> Result<GameData> {
+    pub fn load(
+        sm_json_data_path: &Path,
+        room_geometry_path: &Path,
+        palette_path: &Path,
+    ) -> Result<GameData> {
         let mut game_data = GameData::default();
         game_data.sm_json_data_path = sm_json_data_path.to_owned();
 

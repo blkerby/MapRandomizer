@@ -20,6 +20,15 @@ about 15 seconds to load.
     </ul>
 <li>Split setting to mark major items (as large dots on the map) into two settings, one for unique items and
 one for tanks.
+<li>Adjust the behavior of Shaktool Room:
+    <ul>
+    <li>In order to set the game flag that keeps the way open, Samus must first cross to the opposite side of 
+    the room from which she entered.
+    <li>The cheesy strat (possible in vanilla) of simply entering, exiting, and re-entering the right door
+    no longer works.
+    <li><b>Note</b>: To cross the room from the right to left, use the snails to dig through the sand. A Power Bomb
+    is needed to cross in either direction.
+    </ul>
 </ul>
 
 <p><a href="https://version-33---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 33 (2023-02-01)</a>:
