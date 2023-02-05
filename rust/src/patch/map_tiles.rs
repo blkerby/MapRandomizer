@@ -915,7 +915,7 @@ impl<'a> MapPatcher<'a> {
     fn set_map_stations_explored(&mut self) -> Result<()> {
         self.rom.write_n(snes2pc(0xB5F000), &vec![0; 0x600])?;
         if !self.randomization.difficulty.mark_map_stations {
-            return Ok(())
+            return Ok(());
         }
         for (room_idx, room) in self.game_data.room_geometry.iter().enumerate() {
             if !room.name.contains(" Map Room") {
@@ -934,36 +934,37 @@ impl<'a> MapPatcher<'a> {
 
     fn indicate_major_items(&mut self) -> Result<()> {
         for (i, &item) in self.randomization.item_placement.iter().enumerate() {
-            if !item.is_major() {
-                continue;
+            if (item.is_tank() && self.randomization.difficulty.mark_tanks)
+                || (item.is_unique() && self.randomization.difficulty.mark_uniques)
+            {
+                let (room_id, node_id) = self.game_data.item_locations[i];
+                let item_ptr = self.game_data.node_ptr_map[&(room_id, node_id)];
+                let room_ptr = self.game_data.room_ptr_by_id[&room_id];
+                let room_idx = self.game_data.room_idx_by_ptr[&room_ptr];
+                let room = &self.game_data.room_geometry[room_idx];
+                let area = self.map.area[room_idx];
+                let x0 = self.rom.read_u8(room.rom_address + 2)? as isize;
+                let y0 = self.rom.read_u8(room.rom_address + 3)? as isize;
+                let (x, y) = find_item_xy(item_ptr, &room.items)?;
+                let base_ptr = self.game_data.area_map_ptrs[area] as usize;
+                let offset = super::xy_to_map_offset(x0 + x, y0 + y) as usize;
+                let tile0 = (self.rom.read_u16(base_ptr + offset)? & 0xC0FF) as TilemapWord;
+                let mut basic_tile = self
+                    .reverse_map
+                    .get(&tile0)
+                    .with_context(|| {
+                        format!(
+                            "Tile not found: {tile0} at ({x}, {y}) in {}",
+                            self.game_data.room_geometry[room_idx].name
+                        )
+                    })?
+                    .clone();
+                assert!([Interior::Item, Interior::MajorItem].contains(&basic_tile.interior));
+                basic_tile.interior = Interior::MajorItem;
+                let tile1 = self.get_basic_tile(basic_tile)?;
+                self.rom
+                    .write_u16(base_ptr + offset, (tile1 | 0x0C00) as isize)?;
             }
-            let (room_id, node_id) = self.game_data.item_locations[i];
-            let item_ptr = self.game_data.node_ptr_map[&(room_id, node_id)];
-            let room_ptr = self.game_data.room_ptr_by_id[&room_id];
-            let room_idx = self.game_data.room_idx_by_ptr[&room_ptr];
-            let room = &self.game_data.room_geometry[room_idx];
-            let area = self.map.area[room_idx];
-            let x0 = self.rom.read_u8(room.rom_address + 2)? as isize;
-            let y0 = self.rom.read_u8(room.rom_address + 3)? as isize;
-            let (x, y) = find_item_xy(item_ptr, &room.items)?;
-            let base_ptr = self.game_data.area_map_ptrs[area] as usize;
-            let offset = super::xy_to_map_offset(x0 + x, y0 + y) as usize;
-            let tile0 = (self.rom.read_u16(base_ptr + offset)? & 0xC0FF) as TilemapWord;
-            let mut basic_tile = self
-                .reverse_map
-                .get(&tile0)
-                .with_context(|| {
-                    format!(
-                        "Tile not found: {tile0} at ({x}, {y}) in {}",
-                        self.game_data.room_geometry[room_idx].name
-                    )
-                })?
-                .clone();
-            assert!([Interior::Item, Interior::MajorItem].contains(&basic_tile.interior));
-            basic_tile.interior = Interior::MajorItem;
-            let tile1 = self.get_basic_tile(basic_tile)?;
-            self.rom
-                .write_u16(base_ptr + offset, (tile1 | 0x0C00) as isize)?;
         }
         Ok(())
     }
@@ -978,7 +979,7 @@ impl<'a> MapPatcher<'a> {
         self.indicate_special_tiles()?;
         self.add_cross_area_arrows()?;
         self.set_map_stations_explored()?;
-        if self.randomization.difficulty.mark_majors {
+        if self.randomization.difficulty.mark_uniques || self.randomization.difficulty.mark_tanks {
             self.indicate_major_items()?;
         }
         Ok(())

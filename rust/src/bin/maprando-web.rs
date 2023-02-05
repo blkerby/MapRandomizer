@@ -132,7 +132,8 @@ struct RandomizeRequest {
     supers_double: Text<bool>,
     streamlined_escape: Text<bool>,
     mark_map_stations: Text<bool>,
-    mark_majors: Text<bool>,
+    mark_uniques: Text<bool>,
+    mark_tanks: Text<bool>,
 }
 
 #[derive(MultipartForm)]
@@ -157,7 +158,8 @@ struct SeedData {
     supers_double: bool,
     streamlined_escape: bool,
     mark_map_stations: bool,
-    mark_majors: bool,
+    mark_uniques: bool,
+    mark_tanks: bool,
 }
 
 fn get_seed_name(seed_data: &SeedData) -> String {
@@ -183,7 +185,8 @@ struct SeedHeaderTemplate<'a> {
     supers_double: bool,
     streamlined_escape: bool,
     mark_map_stations: bool,
-    mark_majors: bool,
+    mark_uniques: bool,
+    mark_tanks: bool,
 }
 
 #[derive(TemplateOnce)]
@@ -214,7 +217,8 @@ fn render_seed(seed_name: &str, seed_data: &SeedData) -> Result<(String, String)
         supers_double: seed_data.supers_double,
         streamlined_escape: seed_data.streamlined_escape,
         mark_map_stations: seed_data.mark_map_stations,
-        mark_majors: seed_data.mark_majors,
+        mark_uniques: seed_data.mark_uniques,
+        mark_tanks: seed_data.mark_tanks,
     };
     let seed_header_html = seed_header_template.render_once()?;
 
@@ -456,7 +460,8 @@ async fn randomize(
         supers_double: req.supers_double.0,
         streamlined_escape: req.streamlined_escape.0,
         mark_map_stations: req.mark_map_stations.0,
-        mark_majors: req.mark_majors.0,
+        mark_uniques: req.mark_uniques.0,
+        mark_tanks: req.mark_tanks.0,
         debug_options: None,
     };
     let race_mode = req.race_mode.0 == "Yes";
@@ -510,7 +515,8 @@ async fn randomize(
         supers_double: req.supers_double.0,
         streamlined_escape: req.streamlined_escape.0,
         mark_map_stations: req.mark_map_stations.0,
-        mark_majors: req.mark_majors.0,
+        mark_uniques: req.mark_uniques.0,
+        mark_tanks: req.mark_tanks.0,
     };
 
     let output_rom = make_rom(&rom, &randomization, &app_data.game_data).unwrap();

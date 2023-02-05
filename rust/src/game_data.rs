@@ -74,8 +74,16 @@ pub enum Item {
 }
 
 impl Item {
-    pub fn is_major(self) -> bool {
-        ![Item::Missile, Item::Super, Item::PowerBomb].contains(&self)
+    // pub fn is_major(self) -> bool {
+    //     ![Item::Missile, Item::Super, Item::PowerBomb].contains(&self)
+    // }
+
+    pub fn is_unique(self) -> bool {
+        ![Item::Missile, Item::Super, Item::PowerBomb, Item::ETank, Item::ReserveTank].contains(&self)
+    }
+
+    pub fn is_tank(self) -> bool {
+        [Item::ETank, Item::ReserveTank].contains(&self)
     }
 }
 

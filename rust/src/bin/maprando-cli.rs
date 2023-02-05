@@ -127,7 +127,8 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         supers_double: true,
         streamlined_escape: true,
         mark_map_stations: true,
-        mark_majors: true,
+        mark_uniques: true,
+        mark_tanks: true,
         debug_options: Some(DebugOptions {
             new_game_extra: true,
             extended_spoiler: true,

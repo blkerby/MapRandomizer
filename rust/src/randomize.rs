@@ -45,7 +45,8 @@ pub struct DifficultyConfig {
     pub supers_double: bool,
     pub streamlined_escape: bool,
     pub mark_map_stations: bool,
-    pub mark_majors: bool,
+    pub mark_uniques: bool,
+    pub mark_tanks: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub debug_options: Option<DebugOptions>,
 }

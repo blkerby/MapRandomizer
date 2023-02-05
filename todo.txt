@@ -1,6 +1,6 @@
 TODO:
 - area-themed palettes:
-  - glow in Mother Brain room, etc.
+  - remove or fix glows that are wrong color (e.g. Wrecked Ship?)
 - Improve save balancing algorithm: don't put single-entrance saves (and refills?) at end of hallways,
   i.e. don't connect to rooms with two doors.
 - Add way to export settings from seed page (and export/import on main page).
