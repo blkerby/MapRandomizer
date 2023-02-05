@@ -211,6 +211,7 @@ impl<'a> Patcher<'a> {
             "sound_effect_disables",
             "title_map_animation",
             "fast_reload",
+            "shaktool",
             // "gravitypal",
         ];
         let mut new_game = "new_game";

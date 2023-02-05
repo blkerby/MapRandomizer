@@ -110,18 +110,18 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
     //     // "canWrapAroundShot",
     //     // "canXRayStandUp"
     // ].iter().map(|x| x.to_string()).collect();
-    let tech = vec![];
+    // let tech = vec![];
     
     let difficulty = DifficultyConfig {
-        // tech: game_data.tech_isv.keys.clone(),
-        tech,
-        // shine_charge_tiles: 16,
-        shine_charge_tiles: 32,
+        tech: game_data.tech_isv.keys.clone(),
+        // tech,
+        shine_charge_tiles: 16,
+        // shine_charge_tiles: 32,
         item_placement_strategy: ItemPlacementStrategy::Open,
         // item_placement_strategy: ItemPlacementStrategy::Closed,
         // item_placement_strategy: ItemPlacementStrategy::Semiclosed,
-        resource_multiplier: 3.0,
-        escape_timer_multiplier: 3.0,
+        resource_multiplier: 1.0,
+        escape_timer_multiplier: 1.0,
         save_animals: false,
         ridley_proficiency: 1.0,
         supers_double: true,
