@@ -5,13 +5,20 @@ about 15 seconds to load.
 
 <p><a href="https://version-34---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 34 (???)</a>:
 <ul>
-<li>Area-themed palettes (optional, enabled by default).
+<li>Area-themed palettes are here!
+    <ul>
+    <li>These are optional but enabled by default.
+    </ul>
 <li>Event flags are set at start of escape instead of when entering the next room.
     <ul>
     <li>This ensures an open path even if the first room of the escape is Acid Statue Room or Shaktool Room.
     </ul>
-<li>
-<ul>
+<li>Mother Brain rainbow beam drains ammo, restoring the vanilla behavior.
+    <ul>
+    <li>This works since in this game Hyper Beam destroys Super, Bomb, and Power Bomb blocks
+    and can open green (and blue) gates.
+    </ul>
+</ul>
 
 <p><a href="https://version-33---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 33 (2023-02-01)</a>:
 <ul>
