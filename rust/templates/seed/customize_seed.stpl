@@ -27,7 +27,7 @@
             <div class="container my-2">
                 <div class="card">
                     <div class="card-header">Customization</div>
-                    <form class="card-body container" method="POST" enctype="multipart/form-data" action="customize">
+                    <form id="customization-form" class="card-body container" method="POST" enctype="multipart/form-data" action="customize" onchange="saveForm(this)">
                         <div class="form-group row my-2">
                             <div class="col-sm-3">
                             <label class="col-form-label" for="room_palettes">Room palettes</label>
@@ -59,7 +59,9 @@
 </div>
 
 <% include!("../common/save_load_rom.stpl"); %>
+<% include!("../common/save_settings.stpl"); %>
 <script>
+loadForm(document.getElementById("customization-form"));
 loadROM(document.getElementById("baseRom"), 'base');
 </script>
 
