@@ -125,7 +125,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         save_animals: false,
         ridley_proficiency: 1.0,
         supers_double: true,
-        streamlined_escape: true,
+        streamlined_escape: false,
         mark_map_stations: true,
         mark_uniques: true,
         mark_tanks: true,
@@ -172,6 +172,7 @@ fn main() -> Result<()> {
     let mut output_rom = input_rom.clone();
     let customize_settings = CustomizeSettings {
         area_themed_palette: true
+        // area_themed_palette: false
     };
     customize_rom(&mut output_rom, &ips_patch, &customize_settings, &game_data)?;
 

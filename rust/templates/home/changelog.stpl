@@ -3,31 +3,42 @@
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-34---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 34 (???)</a>:
+<p><a href="https://version-34---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 34 (2023-02-06)</a>:
 <ul>
-<li>Area-themed palettes are here!
+<li>Area-themed room palettes are here!
     <ul>
     <li>These are optional but enabled by default.
+    <li>There are a few rough spots, mainly in Brinstar rooms using CRE colors from blue doors (making them hard to change)
+        which we can hopefully improve later.
     </ul>
-<li>Event flags are set at start of escape instead of when entering the next room.
+<li>If "Streamlined escape" option is not set, then Mother Brain rainbow beam drains ammo, restoring the vanilla behavior.
+    <ul>
+    <li>The escape should always still be beatable since in this game Hyper Beam destroys Super, Bomb, and Power Bomb blocks
+    and can open green (and blue) gates. 
+    <li>The only tricky case is going through the morph tunnel from left to right at the bottom of Big Pink. This
+    requires following a Hyper Beam shot through the tunnel to destroy the Power Bomb block.
+    <li>If "Streamlined escape" option is enabled then, as before, rainbow beam will not drain ammo.
+    </ul>
+<li>Event flags are set at start of the escape instead of when entering the next room.
     <ul>
     <li>This ensures an open path even if the first room of the escape is Acid Statue Room or Shaktool Room.
     </ul>
-<li>Mother Brain rainbow beam drains ammo, restoring the vanilla behavior.
+<li>When leaving Mother Brain Room at the start of escape, the door is turned gray to block the way going back to the right.
     <ul>
-    <li>This works since in this game Hyper Beam destroys Super, Bomb, and Power Bomb blocks
-    and can open green (and blue) gates.
+    <li>It was already impossible to escape back through the right, but the way was blocked only by the G4 
+    barriers which was confusing.
     </ul>
-<li>Split setting to mark major items (as large dots on the map) into two settings, one for unique items and
+<li>The white whole-screen flashing after Mother Brain 1 is removed.
+<li>The setting to mark major items (as large dots on the map) is split into two settings, one for unique items and
 one for tanks.
 <li>Adjust the behavior of Shaktool Room:
     <ul>
-    <li>In order to set the game flag that keeps the way open, Samus must first cross to the opposite side of 
+    <li>In order to set the game flag that keeps the way cleared, Samus must first cross to the opposite side of 
     the room from which she entered.
     <li>The cheesy strat (possible in vanilla) of simply entering, exiting, and re-entering the right door
     no longer works.
     <li><b>Note</b>: To cross the room from the right to left, use the snails to dig through the sand. A Power Bomb
-    is needed to cross in either direction.
+    is needed to cross in either direction until the way is cleared.
     </ul>
 </ul>
 

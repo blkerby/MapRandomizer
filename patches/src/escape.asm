@@ -283,3 +283,98 @@ bowling_chozo:
     dw $F0FF,$04C8,$018A,$0000,$2000,$0000,$0000,$0000,$FFFF
 
 warnpc $A1F200
+
+; Free space in any bank (but the position must agree with what is used in patch.rs)
+org $84F380
+
+;;; Spawn hard-coded PLM with room argument ;;;
+;; (This is a small tweak of $84:83D7 from vanilla, to allow us to set the room argument)
+;; Parameters:
+;;     [[S] + 1] + 1: X position
+;;     [[S] + 1] + 2: Y position
+;;     [[S] + 1] + 3: PLM ID
+;;     [[S] + 1] + 5: PLM room argument
+;; Returns:
+;;     Carry: set if PLM could not be spawned
+    PHB
+    PHY
+    PHX
+    PHK                    ;\
+    PLB                    ;} DB = $84
+    LDY #$004E             ; Y = 4Eh (PLM index)
+
+; LOOP
+    LDA $1C37,y            ;\
+    BEQ $11                ;} If [PLM ID] = 0: go to BRANCH_FOUND
+    DEY                    ;\
+    DEY                    ;} Y -= 2
+    BPL $F7                ; If [Y] >= 0: go to LOOP
+    LDA $06,s              ;\
+    CLC                    ;|
+    ADC #$0005             ;} Adjust return address
+    STA $06,s              ;/
+    PLX
+    PLY
+    PLB
+    SEC
+    RTL
+
+; BRANCH_FOUND
+    SEP #$20
+    LDA $08,s              ;\
+    PHA                    ;} DB = caller bank
+    PLB                    ;/
+    TYX                    ;\
+    LDY #$0002             ;|
+    LDA ($06,s),y          ;|
+    STA $4202              ;|
+    LDA $07A5              ;|
+    STA $4203              ;|
+    LDY #$0001             ;|
+    LDA ($06,s),y          ;} PLM block index = ([return address + 1] * [room width] + [return address + 2]) * 2
+    REP #$20               ;|
+    AND #$00FF             ;|
+    CLC                    ;|
+    ADC $4216              ;|
+    ASL A                  ;|
+    STA $1C87,x            ;/
+
+    LDY #$0004             ; 
+    LDA ($06,s),y          ; A = [return address + 4]  (PLM room argument)
+    STA $1DC7,x
+
+    LDY #$0003             ;\
+    LDA ($06,s),y          ;} A = [return address + 3] (PLM ID)
+    TXY
+    TAX
+    LDA $06,s              ;\
+    CLC                    ;|
+    ADC #$0005             ;} Adjust return address
+    STA $06,s              ;/
+    PHK                    ;\
+    PLB                    ;} DB = $84
+    TXA
+    STA $1C37,y            ; PLM ID = [A]
+    TYX
+    TAY
+
+    STA $7EDF0C,x          ; PLM $DF0C = 0
+    LDA #$8469             ;\
+    STA $1CD7,x            ;} PLM pre-instruction = RTS
+    LDA $0002,y            ;\
+    STA $1D27,x            ;} PLM instruction list pointer = [[PLM ID] + 2]
+    LDA #$0001             ;\
+    STA $7EDE1C,x          ;} PLM instruction timer = 1
+    LDA #$8DA0             ;\
+    STA $7EDE6C,x          ;} PLM draw instruction pointer = $8DA0
+    STZ $1D77,x            ; PLM $1D77 = 0
+    STX $1C27              ;\
+    TYX                    ;} PLM index = [Y]
+    LDY $1C27              ;/
+    JSR ($0000,x)          ; Execute [[PLM ID]] (PLM setup)
+    PLX
+    PLY
+    PLB
+    CLC
+    RTL
+

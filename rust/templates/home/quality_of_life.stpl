@@ -17,7 +17,7 @@
             </button>
         </h2>
         <div id="collapseQOL" class="accordion-collapse collapse m-2" onchange="qualityOfLifeSettingChanged()">
-            <div class="form-group row mx-3 my-1">
+            <div class="form-group row m-3">
                 <div class="col-sm-5">
                 <label class="col-form-label" for="supers_double">Supers do double damage to Mother Brain</label>
                 </div>
@@ -29,12 +29,11 @@
                 </div>
             </div>
 
-            <div class="form-group row mx-3">
+            <div class="form-group row m-3">
                 <div class="col-sm-5">
-                <label class="col-form-label" for="hyper_beam_items">Streamlined escape<br>
-                <small>(Enemies cleared, get all movement items with Hyper Beam)</small></label>
+                <label class="col-form-label" for="streamlined_escape">Streamlined escape<a href="#footnote-streamlined-escape"><sup>1</sup></a></label>
                 </div>
-                <div class="col-sm-2 btn-group my-3" role="group">
+                <div class="col-sm-2 btn-group" role="group">
                     <input type="radio" class="btn-check" name="streamlined_escape" id="streamlinedEscapeNo" value="false">
                     <label class="btn btn-outline-primary" for="streamlinedEscapeNo">No</label>
                     <input type="radio" class="btn-check" name="streamlined_escape" id="streamlinedEscapeYes" value="true" checked>
@@ -42,9 +41,9 @@
                 </div>
             </div>
     
-            <div class="form-group row mx-3 my-1">
+            <div class="form-group row m-3">
                 <div class="col-sm-5">
-                <label class="col-form-label" for="mark_map_stations">Map stations always visible</label>
+                <label class="col-form-label" for="mark_map_stations">Map stations always visible on map</label>
                 </div>
                 <div class="col-sm-2 btn-group" role="group">
                     <input type="radio" class="btn-check" name="mark_map_stations" id="markMapStationsNo" value="false">

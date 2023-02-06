@@ -1,23 +1,32 @@
 TODO:
+- For next release:
+  - Add redirect from "/seed/{name}" to "/seed/{name}/".
+- figure out why some rooms are dark (some FX other than palette FX?)
+- add back palette FX glows using correct palettes.
+- fix palette in Crocomire cutscene when wall collapses
+- if feasible, mark collected items somehow (preferably as dark gray dots, otherwise as blank)
+- During escape, block backward path using room setup ASM instead of door ASM (so it can still work after leaving room another way)
+- make separate option for patching out major glitches
+  - include GT code, Spacetime beam (currently patched out)
+  - make OOB cause instant death
+  - others
 - area-themed palettes:
   - remove or fix glows that are wrong color (e.g. Wrecked Ship?)
+- Make fast elevators optional
+- make option for music: vanilla, area-themed, or none
 - Improve save balancing algorithm: don't put single-entrance saves (and refills?) at end of hallways,
   i.e. don't connect to rooms with two doors.
 - Add way to export settings from seed page (and export/import on main page).
-- Make fast elevators optional
 - With a future ML model, treat Mother Brain room as 0-way (instead of one-way) to ensure items, maps, etc.
   cannot be locked behind Mother Brain.
     - Improve map connectedness so it's less likely for a large area to have only one exit.
-- Add strat for morphless wiggling through tunnel in Etecoon ETank room (figure out how much energy needed)
-- Add speedball strat in Big Pink from 13 to 1 (to top left door)
-- Add redirect from "/seed/{name}" to "/seed/{name}/".
+- Logic updates:
+  - Add speedball strat in Big Pink from 13 to 1 (to top left door)
 - Ridley kill still accidentally requires heatProof: fix this.
-- Add option to not count ETank/ReserveTanks as majors (for large dots on the map).
 - Fix map tile at Big Pink bottom missile
 - Handle other boss fights like we did Ridley:
   - GT
 - Remove Crocomire funny map behavior?
-- During escape, block backward path better
 - Handle shinespark_frames=0 correctly (don't require 29 energy)
 - Better validation/error-handling of web service
   - push more validation into client
@@ -27,11 +36,9 @@ TODO:
 - Include strat notes in spoiler log.
 - Add note to strat in Post-Crocomire farming room to get to top-left with HiJump
   (run on platform enemy and jump)
-- Change Shaktool flag behavior: require entering one door and exiting the opposite door.
 - Switch off ammo (e.g. Missiles or Supers) when acquiring Hyper Beam.
 - Use separate worker pool to run randomization (to avoid blocking web requests)
 - Add more race-friendly options:
-  - Distinct map tile for major items vs. minor items
   - Make map stations accessible earlier
 - on open mode, don't place items in one-way reachable locations (to keep open the possibility of placing key items
   there later once they become bireachable)
@@ -41,7 +48,6 @@ TODO:
 - Rust cleanup:
     - Use `serde_json` instead of `json` crate for loading sm-json-data.
     - Clean up error handling: get rid of a bunch of remaining unwrap()'s, etc.
-- make option for music: vanilla, area-themed, or none
 - at end of randomization, make sure G4 bosses are reachable (to guard against a case like Phantoon being locked behind
   Bowling, or a G4 boss locked behind Mother Brain).
 - on web site, clarify some things about how logic works, e.g.
@@ -93,9 +99,6 @@ TODO:
 - interactive spoiler map (with room maps, list of possible strats, etc.)
 - fix bug where wrong tiles sometimes show at top of pause-menu map
 - implement enemyKill in logic
-- rework item config:
-  - extra axis for ammo openness
-  - add middle setting
 - figure out race condition between fastdoors and Mother Brain room setup. Maybe code around $80836F could be used
   to wait? Though maybe this doesn't matter because we don't want to add fastdoors anyway.
 - figure out and fix what's going on with tiles below Warehouse Entrance when it crosses areas.
