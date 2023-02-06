@@ -89,13 +89,6 @@ fn replace_room_tilesets(
     game_data: &GameData,
     tile_map: &HashMap<(AreaIdx, TilesetIdx), TilesetIdx>,
 ) -> Result<()> {
-    let no_palette_fx_room_ptrs = [
-        // Tourian escape rooms, where we want to eliminate the background flashing:
-        0x7DE4D, 0x7DE7A, 0x7DEA7, 0x7DEDE, // Mother Brain Room:
-        0x7DD58,
-    ];
-
-    // for &room_ptr in game_data.room_ptr_by_id.values() {
     for room_json in game_data.room_json_map.values() {
         let room_ptr =
             parse_int::parse::<usize>(room_json["roomAddress"].as_str().unwrap()).unwrap();
@@ -107,10 +100,22 @@ fn replace_room_tilesets(
                 let new_tileset_idx = tile_map[&(map_area, old_tileset_idx)];
                 rom.write_u8(state_ptr + 3, new_tileset_idx as isize)?;
             }
-            if (vanilla_area == 2 && map_area != 2) || no_palette_fx_room_ptrs.contains(&room_ptr) {
-                // Remove Norfair glows for non-Norfair area theme
+
+            if vanilla_area != map_area {
+                // Remove palette glows for non-vanilla rooms:
                 let fx_ptr_snes = rom.read_u16(state_ptr + 6)? as usize + 0x830000;
-                rom.write_u8(snes2pc(fx_ptr_snes + 13), 0)?; // Set Palette FX bitflags = 0 (no glows)
+                let fx_door_select = rom.read_u16(snes2pc(fx_ptr_snes))?;
+
+                if fx_door_select != 0xFFFF {
+                    let mut pal_fx_bitflags = rom.read_u8(snes2pc(fx_ptr_snes + 13))?;
+
+                    if vanilla_area == 2 {
+                        pal_fx_bitflags &= 1;  // Norfair room: only keep the heat FX bit
+                    } else if vanilla_area != 4 {  // Keep palette FX for Maridia rooms (e.g. waterfalls)
+                        pal_fx_bitflags = 0;
+                    }
+                    rom.write_u8(snes2pc(fx_ptr_snes + 13), pal_fx_bitflags)?;    
+                }
             }
         }
     }
@@ -140,12 +145,6 @@ fn lighten_firefleas(rom: &mut Rom) -> Result<()> {
 }
 
 fn fix_mother_brain(rom: &mut Rom, game_data: &GameData) -> Result<()> {
-    // Disable start of flashing at end of Mother Brain 1:
-    rom.write_u16(snes2pc(0xA9CFFE), 0)?;
-
-    // Disable end of flashing (to prevent palette from getting overwritten)
-    rom.write_u8(snes2pc(0xA9D00C), 0x60)?;  // RTS
-
     // Copy new room palette to where it's needed so it doesn't get overwritten
     // during cutscenes:
     let mother_brain_room_ptr = 0x7DD58;

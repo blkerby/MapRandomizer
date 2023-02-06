@@ -11,6 +11,11 @@ get_hyper_beam:
     lda #$F32F
     sta $09A2   ; all items equipped
     sta $09A4   ; all items collected
+
+    ; Clear selected HUD item
+    lda #$0000
+    sta $09D2   
+
     rtl
 warnpc $A9FC00
 

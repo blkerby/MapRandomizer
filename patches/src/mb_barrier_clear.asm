@@ -122,6 +122,7 @@ org $8FEE00
 
     ; Remove invisible spikes where Mother Brain used to be:
     jsl remove_spikes
+
     rts
 
 ; Remove invisible spikes where Mother Brain used to be (common routine used by both the left and right door ASMs)

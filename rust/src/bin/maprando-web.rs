@@ -286,6 +286,14 @@ async fn save_seed(
     Ok(())
 }
 
+#[get("/seed/{name}")]
+async fn view_seed_redirect(info: web::Path<(String,)>) -> impl Responder {
+    // Redirect to the seed page (with the trailing slash):
+    HttpResponse::Found()
+        .insert_header((header::LOCATION, format!("{}/", info.0)))
+        .finish()
+}
+
 #[get("/seed/{name}/")]
 async fn view_seed(info: web::Path<(String,)>, app_data: web::Data<AppData>) -> impl Responder {
     let seed_name = &info.0;
@@ -640,6 +648,7 @@ async fn main() {
             .service(view_seed)
             .service(get_seed_file)
             .service(customize_seed)
+            .service(view_seed_redirect)
             .service(actix_files::Files::new("/static", "static"))
     })
     .bind("0.0.0.0:8080")

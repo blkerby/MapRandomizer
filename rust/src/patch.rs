@@ -200,7 +200,6 @@ impl<'a> Patcher<'a> {
             "progressive_suits",
             "disable_map_icons",
             "escape",
-            // "mother_brain_no_drain",
             "tourian_map",
             "tourian_eye_door",
             "no_explosions_before_escape",
@@ -212,7 +211,6 @@ impl<'a> Patcher<'a> {
             "title_map_animation",
             "fast_reload",
             "shaktool",
-            // "gravitypal",
         ];
         let mut new_game = "new_game";
         if let Some(options) = &self.randomization.difficulty.debug_options {
@@ -223,10 +221,9 @@ impl<'a> Patcher<'a> {
 
         if self.randomization.difficulty.streamlined_escape {
             patches.push("escape_items");
+            patches.push("mother_brain_no_drain");
         }
         patches.push(new_game);
-        // patches.push("new_game_extra");
-        // "new_game_extra' if args.debug else 'new_game",
         for patch_name in patches {
             let patch_path = patches_dir.join(patch_name.to_string() + ".ips");
             apply_ips_patch(&mut self.rom, &patch_path)?;
@@ -421,6 +418,37 @@ impl<'a> Patcher<'a> {
         Ok(())
     }
 
+    fn block_escape_return(&mut self, extra_door_asm: &mut HashMap<DoorPtr, Vec<u8>>) -> Result<()> {
+        // For testing, using Landing Site bottom left door
+        // let mother_brain_left_door_pair = (Some(0x18916), Some(0x1896A));
+        let mother_brain_left_door_pair = (Some(0x1AA8C), Some(0x1AAE0));
+        
+        // Finding the matching door on the map:
+        let mut other_door_pair = (None, None);
+        for door in &self.randomization.map.doors {
+            if door.1 == mother_brain_left_door_pair {
+                other_door_pair = door.0;
+                break;
+            }
+        }
+
+        // Get x & y position of door (which we will turn gray during escape).
+        let entrance_x = self.rom.read_u8(other_door_pair.1.unwrap() + 4)? as u8;
+        let entrance_y = self.rom.read_u8(other_door_pair.1.unwrap() + 5)? as u8;
+
+        let asm: Vec<u8> = vec![
+            0xA9, 0x0E, 0x00,         // LDA #$000E   (Escape flag)
+            0x22, 0x33, 0x82, 0x80,   // JSL $808233  (Check if flag is set)
+            0x90, 0x09,               // BCC $09  (Skip spawning gray door if not in escape)
+            0x22, 0x80, 0xF3, 0x84,   // JSL $84F380  (Spawn hard-coded PLM with room argument)
+            entrance_x, entrance_y, 0x42, 0xC8, 0x10  // PLM type 0xC8CA (gray door), argument 0x10 (always closed)
+        ];
+        
+        extra_door_asm.entry(mother_brain_left_door_pair.0.unwrap()).or_default().extend(asm);
+        
+        Ok(())
+    }
+
     // Returns map from door data PC address to 1) new custom door ASM pointer, 2) end of custom door ASM
     // where an RTS or JMP instruction must be added (based on the connecting door).
     fn prepare_extra_door_asm(&mut self) -> Result<HashMap<DoorPtr, (AsmPtr, AsmPtr)>> {
@@ -442,6 +470,7 @@ impl<'a> Patcher<'a> {
 
         self.auto_explore_elevators(&mut extra_door_asm)?;
         self.auto_explore_arrows(&mut extra_door_asm)?;
+        self.block_escape_return(&mut extra_door_asm)?;
 
         let mut door_asm_free_space = 0xEE10; // in bank 0x8F
         let mut extra_door_asm_map: HashMap<DoorPtr, (AsmPtr, AsmPtr)> = HashMap::new();

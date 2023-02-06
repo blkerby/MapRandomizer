@@ -17,11 +17,13 @@ area_names = [
     "Norfair",
     "Wrecked Ship",
     "Maridia",
-    "Tourian"]
+    "Tourian",
+    "Original Tilesets"]
 
+# Load palettes from PNG files, for manually constructed palettes:
 all_json = []
 for area in area_names:
-    area_path = f"tilesets/{area}"
+    area_path = f"sm_tilesets/{area}"
     files = os.listdir(area_path)
     tileset_idxs = []
     file_bytes_list = []
@@ -42,6 +44,7 @@ for area in area_names:
         area_json[tileset_idx] = palette
     all_json.append(area_json)
 
+# Create transformed palettes for certain tilesets:
 for area_idx, area_json in enumerate(all_json):
     new_area_json = area_json.copy()
     for tileset_idx, palette in area_json.items():
@@ -67,14 +70,49 @@ for area_idx, area_json in enumerate(all_json):
             mb_palette[0x63] = palette[0x56]
             mb_palette[0x6C] = palette[0x57]
             # Keep certain colors vanilla:
-            vanilla_palette = all_json[5][13]
-            for i in range(4, 12):
-                mb_palette[0x60 + i] = vanilla_palette[0x60 + i]
+            vanilla_palette = all_json[6][14]
+            for i in list(range(0x00, 0x30)) + list(range(0x40, 0x50)) + list(range(0x64, 0x6C)):
+                mb_palette[i] = vanilla_palette[i]
             new_area_json[14] = mb_palette
+        if tileset_idx == 6:
+            # Create Kraid Room palette
+            new_palette = [[x for x in color] for color in palette]
+            vanilla_palette = all_json[6][26]
+            for i in range(0x60, 0x80):
+                new_palette[i] = vanilla_palette[i]
+            new_area_json[26] = new_palette
+        if tileset_idx == 12:
+            # Change sand to use vanilla colors:
+            vanilla_palette = all_json[6][12]
+            for i in range(0x24, 0x2C):
+                palette[i] = vanilla_palette[i]
+
+            # Create Draygon's Room palette
+            new_palette = all_json[6][28]  # Start with vanilla palette
+            new_palette[0x61] = palette[0x24]
+            new_palette[0x62] = palette[0x26]
+            new_palette[0x63] = palette[0x29]
+            new_palette[0x64] = palette[0x46]
+            new_palette[0x65] = palette[0x25]
+            new_palette[0x66] = palette[0x26]
+            new_palette[0x67] = palette[0x28]
+            new_palette[0x68] = palette[0x29]
+            new_palette[0x71] = palette[0x24]
+            new_palette[0x72] = palette[0x27]
+            new_palette[0x73] = palette[0x45]
+            new_palette[0x74] = palette[0x47]
+            new_palette[0x75] = palette[0x25]
+            new_palette[0x76] = palette[0x27]
+            new_palette[0x77] = palette[0x44]
+            new_palette[0x78] = palette[0x2A]
+            new_palette[0x79] = palette[0x46]
+            new_palette[0x7A] = palette[0x47]
+            new_area_json[28] = new_palette
     area_json.update(new_area_json)
 
 
 
 # rom.write_u24(snes2pc(0x8FE6A2 + tileset_i * 9 + 6), free_space)
 # free_space += write_palette(rom, snes2pc(free_space), palette)
+all_json = all_json[:6]
 json.dump(all_json, open("palettes.json", 'w'))
