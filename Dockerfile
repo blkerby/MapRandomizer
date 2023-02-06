@@ -25,13 +25,13 @@ RUN cargo build --release --bin maprando-web
 FROM debian:buster-slim
 RUN apt-get update && apt-get install libssl1.1
 COPY --from=build /maps /maps
-COPY --from=build /patches /patches
-COPY --from=build /gfx /gfx
-COPY --from=build /sm-json-data /sm-json-data
-COPY --from=build /room_geometry.json /
-COPY --from=build /palettes.json /
 COPY --from=build /rust/data /rust/data
 COPY --from=build /rust/static /rust/static
 COPY --from=build /rust/target/release/maprando-web /rust
+COPY patches /patches
+COPY gfx /gfx
+COPY sm-json-data /sm-json-data
+COPY room_geometry.json /
+COPY palettes.json /
 WORKDIR /rust
 CMD ["/rust/maprando-web"]
