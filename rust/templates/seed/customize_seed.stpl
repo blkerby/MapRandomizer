@@ -61,8 +61,8 @@
 <% include!("../common/save_load_rom.stpl"); %>
 <% include!("../common/save_settings.stpl"); %>
 <script>
-loadForm(document.getElementById("customization-form"));
 loadROM(document.getElementById("baseRom"), 'base');
+loadForm(document.getElementById("customization-form"));
 </script>
 
 </body>
