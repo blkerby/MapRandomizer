@@ -149,18 +149,20 @@ fn fix_mother_brain(rom: &mut Rom, game_data: &GameData) -> Result<()> {
     // during cutscenes:
     let mother_brain_room_ptr = 0x7DD58;
     let area = get_room_map_area(rom, mother_brain_room_ptr)?;
-    let palette = &game_data.palette_data[area][&14];
-    // let encoded_palette = encode_palette(palette);
-    // rom.write_n(snes2pc(0xA9D082), &encoded_palette[104..128])?;
-
-    for i in 0..6 {
-        let faded_palette: Vec<[u8; 3]> = palette
-            .iter()
-            .map(|&c| c.map(|x| (x as usize * (6 - i as usize) / 6) as u8))
-            .collect();
-        let encoded_faded_palette = encode_palette(&faded_palette);
-        rom.write_n(snes2pc(0xADF283 + i * 56), &encoded_faded_palette[98..126])?;
-        rom.write_n(snes2pc(0xADF283 + i * 56 + 28), &encoded_faded_palette[162..190])?;
+    if area != 5 {
+        let palette = &game_data.palette_data[area][&14];
+        // let encoded_palette = encode_palette(palette);
+        // rom.write_n(snes2pc(0xA9D082), &encoded_palette[104..128])?;
+    
+        for i in 0..6 {
+            let faded_palette: Vec<[u8; 3]> = palette
+                .iter()
+                .map(|&c| c.map(|x| (x as usize * (6 - i as usize) / 6) as u8))
+                .collect();
+            let encoded_faded_palette = encode_palette(&faded_palette);
+            rom.write_n(snes2pc(0xADF283 + i * 56), &encoded_faded_palette[98..126])?;
+            rom.write_n(snes2pc(0xADF283 + i * 56 + 28), &encoded_faded_palette[162..190])?;
+        }    
     }
 
     // Disable red background flashing at escape start:
