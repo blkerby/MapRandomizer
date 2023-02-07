@@ -124,6 +124,9 @@ pub enum Requirement {
     RidleyFight {
         can_be_patient_tech_id: usize,
     },
+    BotwoonFight {
+        second_phase: bool,
+    },
     And(Vec<Requirement>),
     Or(Vec<Requirement>),
 }
@@ -549,6 +552,14 @@ impl GameData {
                 if enemy_set.contains("Ridley") {
                     return Ok(Requirement::RidleyFight {
                         can_be_patient_tech_id: self.tech_isv.index_by_key["canBePatient"],
+                    });
+                } else if enemy_set.contains("Botwoon") {
+                    return Ok(Requirement::BotwoonFight {
+                        second_phase: false,
+                    });
+                } else if enemy_set.contains("Botwoon 2") {
+                    return Ok(Requirement::BotwoonFight {
+                        second_phase: true,
                     });
                 }
 

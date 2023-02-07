@@ -15,6 +15,14 @@
     <div class="col-9"><%= difficulty.save_animals %></div>
 </div>
 <div class="row">
+    <div class="col-3">Botwoon proficiency:</div>
+    <div class="col-9"><%= difficulty.botwoon_proficiency %></div>
+</div>
+<div class="row">
+    <div class="col-3">Ridley proficiency:</div>
+    <div class="col-9"><%= difficulty.ridley_proficiency %></div>
+</div>
+<div class="row">
     <div class="col-3">Tech:</div>
     <div class="col-9">
         <%= difficulty.tech.join(", ") %>
