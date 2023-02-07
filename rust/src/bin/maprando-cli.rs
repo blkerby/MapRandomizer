@@ -123,6 +123,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         resource_multiplier: 1.0,
         escape_timer_multiplier: 1.0,
         save_animals: false,
+        botwoon_proficiency: 1.0,
         ridley_proficiency: 1.0,
         supers_double: true,
         streamlined_escape: false,
