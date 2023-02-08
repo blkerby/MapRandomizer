@@ -139,10 +139,6 @@ pub struct Link {
     pub strat_name: String,
 }
 
-// fn parse_int(s: &str) -> serde::Deserializer::Error {
-
-// }
-
 #[derive(Deserialize, Default, Clone)]
 pub struct RoomGeometryDoor {
     pub direction: String,
@@ -553,7 +549,7 @@ impl GameData {
                     return Ok(Requirement::RidleyFight {
                         can_be_patient_tech_id: self.tech_isv.index_by_key["canBePatient"],
                     });
-                } else if enemy_set.contains("Botwoon") {
+                } else if enemy_set.contains("Botwoon 1") {
                     return Ok(Requirement::BotwoonFight {
                         second_phase: false,
                     });
@@ -756,6 +752,7 @@ impl GameData {
 
         // Rooms where we want the logic to take into account the gray door locks (elsewhere the gray doors are changed to blue):
         let door_lock_allowed_room_ids = [
+            12,  // Pit Room
             84,  // Kraid Room
             193, // Draygon's Room
             142, // Ridley's Room
