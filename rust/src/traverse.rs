@@ -85,7 +85,7 @@ fn apply_ridley_requirement(
     proficiency: f32,
     can_be_patient_tech_id: usize,
 ) -> Option<LocalState> {
-    let mut ridley_hp: f32 = 18000.0;
+    let mut boss_hp: f32 = 18000.0;
     let mut time: f32 = 0.0; // Cumulative time in seconds for the fight
 
     // Assume an ammo accuracy rate of between 50% (on lowest difficulty) to 100% (on highest):
@@ -98,10 +98,10 @@ fn apply_ridley_requirement(
     let supers_available = global.max_supers - local.supers_used;
     let supers_to_use = min(
         supers_available,
-        f32::ceil(ridley_hp / (600.0 * accuracy)) as Capacity,
+        f32::ceil(boss_hp / (600.0 * accuracy)) as Capacity,
     );
     local.supers_used += supers_to_use;
-    ridley_hp -= supers_to_use as f32 * 600.0 * accuracy;
+    boss_hp -= supers_to_use as f32 * 600.0 * accuracy;
     time += supers_to_use as f32 * 0.5 / firing_rate; // Assumes max average rate of 2 supers per second
 
     // Then use available missiles:
@@ -110,11 +110,11 @@ fn apply_ridley_requirement(
         0,
         min(
             missiles_available,
-            f32::ceil(ridley_hp / (100.0 * accuracy)) as Capacity,
+            f32::ceil(boss_hp / (100.0 * accuracy)) as Capacity,
         ),
     );
     local.missiles_used += missiles_to_use;
-    ridley_hp -= missiles_to_use as f32 * 100.0 * accuracy;
+    boss_hp -= missiles_to_use as f32 * 100.0 * accuracy;
     time += missiles_to_use as f32 * 0.25 / firing_rate; // Assume max average rate of 4 missiles per second
 
     if global.items[Item::Charge as usize] {
@@ -124,9 +124,9 @@ fn apply_ridley_requirement(
         let charge_damage = get_charge_damage(&global);
         let charge_shots_to_use = max(
             0,
-            f32::ceil(ridley_hp / (charge_damage * accuracy)) as Capacity,
+            f32::ceil(boss_hp / (charge_damage * accuracy)) as Capacity,
         );
-        ridley_hp = 0.0;
+        boss_hp = 0.0;
         time += charge_shots_to_use as f32 * 1.5 / firing_rate; // Assume max 1 charge shot per 1.5 seconds
     } else {
         // Only use Power Bombs if Charge is not available:
@@ -135,15 +135,15 @@ fn apply_ridley_requirement(
             0,
             min(
                 pbs_available,
-                f32::ceil(ridley_hp / (400.0 * accuracy)) as Capacity,
+                f32::ceil(boss_hp / (400.0 * accuracy)) as Capacity,
             ),
         );
         local.power_bombs_used += pbs_to_use;
-        ridley_hp -= pbs_to_use as f32 * 400.0 * accuracy; // Assumes double hits (or single hits for 50% accuracy)
+        boss_hp -= pbs_to_use as f32 * 400.0 * accuracy; // Assumes double hits (or single hits for 50% accuracy)
         time += pbs_to_use as f32 * 3.0 * firing_rate; // Assume max average rate of 1 power bomb per 3 seconds
     }
 
-    if ridley_hp > 0.0 {
+    if boss_hp > 0.0 {
         // We don't have enough ammo to finish the fight:
         return None;
     }
@@ -183,6 +183,121 @@ fn apply_ridley_requirement(
             (heat_time * 15.0) as Capacity
         };
         local.energy_used += heat_energy_used;
+    }
+
+    // TODO: We could add back some energy and/or ammo by assuming we get drops.
+    // By omitting this for now we're just making the logic a little more conservative in favor of
+    // the player.
+    validate_energy(local, global)
+}
+
+
+fn apply_botwoon_requirement(
+    global: &GlobalState,
+    mut local: LocalState,
+    proficiency: f32,
+    second_phase: bool,
+) -> Option<LocalState> {
+    // We aim to be a little lenient here. For example, we don't take SBAs (e.g. X-factors) into account,
+    // assuming instead the player just uses ammo and/or regular charged shots.
+
+    let mut boss_hp: f32 = 1500.0;  // HP for one phase of the fight.
+    let mut time: f32 = 0.0; // Cumulative time in seconds for the phase
+    let charge_damage = get_charge_damage(&global);
+
+    // Assume an ammo accuracy rate of between 30% (on lowest difficulty) to 90% (on highest):
+    let accuracy = 0.3 + 0.6 * proficiency;
+
+    // Assume a firing rate of between 30% (on lowest difficulty) to 100% (on highest),
+    let firing_rate = 0.3 + 0.7 * proficiency;
+
+    // The firing rates below are for the first phase (since the rate doesn't matter for 
+    // the second phase):
+    let use_supers = |local: &mut LocalState, boss_hp: &mut f32, time: &mut f32| {
+        let supers_available = global.max_supers - local.supers_used;
+        let supers_to_use = min(
+            supers_available,
+            f32::ceil(*boss_hp / (300.0 * accuracy)) as Capacity,
+        );
+        local.supers_used += supers_to_use;
+        *boss_hp -= supers_to_use as f32 * 300.0 * accuracy;
+        // Assume a max average rate of one super shot per 2.0 second:
+        *time += supers_to_use as f32 * 2.0 / firing_rate; 
+    };
+
+    let use_missiles = |local: &mut LocalState, boss_hp: &mut f32, time: &mut f32| {
+        let missiles_available = global.max_missiles - local.missiles_used;
+        let missiles_to_use = max(
+            0,
+            min(
+                missiles_available,
+                f32::ceil(*boss_hp / (100.0 * accuracy)) as Capacity,
+            ),
+        );
+        local.missiles_used += missiles_to_use;
+        *boss_hp -= missiles_to_use as f32 * 100.0 * accuracy;
+        // Assume a max average rate of one missile shot per 1.0 seconds:
+        *time += missiles_to_use as f32 * 1.0 / firing_rate;
+    };
+
+    let use_charge = |boss_hp: &mut f32, time: &mut f32| {
+        if charge_damage == 0.0 {
+            return;
+        }
+        let charge_shots_to_use = max(
+            0,
+            f32::ceil(*boss_hp / (charge_damage * accuracy)) as Capacity,
+        );
+        *boss_hp = 0.0;
+        // Assume max average rate of one charge shot per 3.0 seconds
+        *time += charge_shots_to_use as f32 * 3.0 / firing_rate; 
+    };
+
+    if second_phase {
+        // In second phase, prioritize using Charge beam if available. Even if it is slow, we are not
+        // taking damage so we want to conserve ammo.
+        if global.items[Item::Charge as usize] {
+            use_charge(&mut boss_hp, &mut time);
+        } else {
+            // Prioritize using missiles over supers. This is slower but the idea is to conserve supers
+            // since they are generally more valuable to save for later.
+            use_missiles(&mut local, &mut boss_hp, &mut time);
+            use_supers(&mut local, &mut boss_hp, &mut time);
+        }
+    } else {
+        // In the first phase, prioritize using the highest-DPS weapons, to finish the fight faster and
+        // hence minimize damage taken:
+        if charge_damage >= 450.0 {
+            use_charge(&mut boss_hp, &mut time);
+        } else {
+            use_supers(&mut local, &mut boss_hp, &mut time);
+            use_missiles(&mut local, &mut boss_hp, &mut time);
+            use_charge(&mut boss_hp, &mut time);    
+        }
+    }
+
+    if boss_hp > 0.0 {
+        // We don't have enough ammo to finish the fight:
+        return None;
+    }
+
+    if !second_phase {
+        let morph = global.items[Item::Morph as usize];
+        let gravity = global.items[Item::Gravity as usize];
+
+        // Assumed average rate of boss attacks to Samus (per second), given minimal dodging skill:
+        let base_hit_rate = 0.05;
+
+        // Multiplier to boss damage based on items (Morph and Gravity) and proficiency (in dodging).
+        let hit_rate_multiplier = match (morph, gravity) {
+            (false, false) => 1.0 - 0.5 * proficiency,
+            (false, true) => 0.8 - 0.4 * proficiency,
+            (true, false) => 0.5 - 0.25 * proficiency,
+            (true, true) => 0.2 - 0.2 * proficiency,
+        };
+        let hits = f32::round(base_hit_rate * hit_rate_multiplier * time);
+        let damage_per_hit = 96.0 / suit_damage_factor(global) as f32;
+        local.energy_used += (hits * damage_per_hit) as Capacity;
     }
 
     // TODO: We could add back some energy and/or ammo by assuming we get drops.
@@ -397,6 +512,9 @@ pub fn apply_requirement(
         }
         Requirement::RidleyFight { can_be_patient_tech_id } => {
             apply_ridley_requirement(global, local, difficulty.ridley_proficiency, *can_be_patient_tech_id)
+        }
+        Requirement::BotwoonFight { second_phase } => {
+            apply_botwoon_requirement(global, local, difficulty.botwoon_proficiency, *second_phase)
         }
         Requirement::ShineCharge {
             used_tiles,

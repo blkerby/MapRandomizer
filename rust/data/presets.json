@@ -4,6 +4,7 @@
         "shinespark_tiles": 32,
         "resource_multiplier": 3.0,
         "escape_timer_multiplier": 3.0,
+        "draygon_proficiency": 0.0,
         "ridley_proficiency": 0.0,
         "tech": []
     },
@@ -12,6 +13,7 @@
         "shinespark_tiles": 28,
         "resource_multiplier": 2.0,
         "escape_timer_multiplier": 2.0,
+        "botwoon_proficiency": 0.3,
         "ridley_proficiency": 0.5,
         "tech": [
             "canIBJ",
@@ -27,6 +29,7 @@
         "shinespark_tiles": 24,
         "resource_multiplier": 1.5,
         "escape_timer_multiplier": 1.5,
+        "botwoon_proficiency": 0.5,
         "ridley_proficiency": 0.8,
         "tech": [
             "canJumpIntoIBJ",
@@ -60,6 +63,7 @@
         "shinespark_tiles": 20,
         "resource_multiplier": 1.2,
         "escape_timer_multiplier": 1.2,
+        "botwoon_proficiency": 0.7,
         "ridley_proficiency": 0.9,
         "tech": [
             "canTrickyJump",
@@ -95,6 +99,7 @@
         "shinespark_tiles": 16,
         "resource_multiplier": 1.0,
         "escape_timer_multiplier": 1.0,
+        "botwoon_proficiency": 1.0,
         "ridley_proficiency": 1.0,
         "tech":
          [

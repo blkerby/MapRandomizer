@@ -24,7 +24,7 @@ use rand::{RngCore, SeedableRng};
 use sailfish::TemplateOnce;
 use serde_derive::{Deserialize, Serialize};
 
-const VERSION: usize = 34;
+const VERSION: usize = 35;
 
 #[derive(Serialize, Deserialize, Clone)]
 struct Preset {
@@ -122,6 +122,7 @@ struct RandomizeRequest {
     preset: Option<Text<String>>,
     shinespark_tiles: Text<usize>,
     resource_multiplier: Text<f32>,
+    botwoon_proficiency: Text<f32>,
     ridley_proficiency: Text<f32>,
     escape_timer_multiplier: Text<f32>,
     save_animals: Text<String>,
@@ -464,6 +465,7 @@ async fn randomize(
         resource_multiplier: req.resource_multiplier.0,
         escape_timer_multiplier: req.escape_timer_multiplier.0,
         save_animals: req.save_animals.0 == "On",
+        botwoon_proficiency: req.botwoon_proficiency.0,
         ridley_proficiency: req.ridley_proficiency.0,
         supers_double: req.supers_double.0,
         streamlined_escape: req.streamlined_escape.0,

@@ -1,6 +1,26 @@
+Release plan:
+v35: fix boss logic
+v36: sprite customization (?), 
+  - music options
+  - fast elevator
+
+
 TODO:
-- For next release:
-  - Add redirect from "/seed/{name}" to "/seed/{name}/".
+- try to fix water-to-no-water bug, using this snippet from Benox
+    ;Door transition Hijack
+    org $82E659
+    JSR $FA29
+    NOP
+
+    ;Do stuff
+    org $82FA29
+
+    ;And since we are here, lets fix at the same time the entering from water to no water animation bug 
+    STZ $0A9C
+
+    JSL $878064 ;add back what we overwrote
+    RTS
+- throw out seed if too many locations become one-way reachable (to protect against giant softlock)?
 - figure out why some rooms are dark (some FX other than palette FX?)
 - add back palette FX glows using correct palettes.
 - fix palette in Crocomire cutscene when wall collapses
@@ -42,6 +62,8 @@ TODO:
   - Make map stations accessible earlier
 - on open mode, don't place items in one-way reachable locations (to keep open the possibility of placing key items
   there later once they become bireachable)
+  - on (semi-)closed mode, try placing just ammo first before placing any key items. (just put Missile first
+    in item precedence?)
 - option to remove fast elevators?
     - They mess up the heat Frames logic in Main Hall + Lower Norfair Elevator Room (though this also wouldn't be
       hard to fix with an override)
