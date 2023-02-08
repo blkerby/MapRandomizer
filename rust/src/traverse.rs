@@ -438,7 +438,7 @@ pub fn apply_requirement(
         }
         Requirement::Damage(base_energy) => {
             let mut new_local = local;
-            new_local.energy_used += multiply(base_energy / suit_damage_factor(global), difficulty);
+            new_local.energy_used += base_energy / suit_damage_factor(global);
             validate_energy(new_local, global)
         }
         // Requirement::Energy(count) => {
