@@ -3,18 +3,32 @@
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-35---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 35 (2023-02-07)</a>:
+<p><a href="https://version-35---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 35 (2023-02-08)</a>:
 <ul>
 <li>Improvements to Botwoon and Golden Torizo logic which overall make the fights more lenient, especially
 at lower difficulty settings:
     <ul>
-    <li>The possibility of killing Botwoon with ammo is taken into account (previously Charge was required),
-    and a new "Botwoon proficiency" setting is added to model the player's accuracy, firing rate, and ability to
+    <li>The possibility of killing Botwoon with ammo is taken into account (for left-side kills only); previously Charge 
+    was required. A new "Botwoon proficiency" setting is added to model the player's accuracy, firing rate, and ability to
     dodge Botwoon's attacks. For details see the 
     <a href="https://github.com/blkerby/MapRandomizer/blob/a6126cc11d448e5feeeb96a50503d36a5175be67/rust/src/traverse.rs#L195">code</a>.
     <li>A new tech "canSafeSpotGT" is added to represent that the player knows how to use the "safe spot" during the
     Golden Torizo fight. Previously this was implicitly assumed at all difficulty levels, but now by default it is
     enabled only at Hard difficulty and higher. Also, to be in logic, very long fights now require "canBePatient".
+    </ul>
+<li>Changes to the item placement strategies to try to make the game less punishing when the player chooses
+a "wrong" one-way path to go down:
+    <ul>
+    <li>When using Open item placement, eliminate a quirk where one-way-reachable item locations were very likely
+    to contain only tanks & ammo. Now key items are placed more randomly, so if a player goes down a one-way path
+    before intended, they have more chance of finding an item that could allow them to get out, though there is
+    no guarantee. 
+    <li>For Semiclosed and Closed item placement strategies, although the game still fills one-way-reachable 
+    locations only with non-key items, it now tries to avoid creating situations with an excessive amount of 
+    one-way-reachable item locations to begin with. This should help cut back on extreme scenarios where the player
+    could find themselves in large areas with dozens of items but no way out.
+    <li>For all item placement modes, progression still should always be possible by collecting items that have a 
+    path back to the Ship without needing to use the new item.
     </ul>
 <li>Other logic updates (<a href="https://github.com/kjbranch/sm-json-data/compare/f78a39f2905922187c7321db059c65086729a0a4...kjbranch:sm-json-data:map-rando">diff</a>).
 <li>Some adjustments to the area-themed palettes.
