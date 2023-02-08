@@ -33,9 +33,9 @@
                             <label class="col-form-label" for="room_palettes">Room palettes</label>
                             </div>
                             <div class="col-sm-4 btn-group" role="group">
-                                <input type="radio" class="btn-check" name="room_palettes" id="roomPalettesVanilla" value="vanilla">
+                                <input type="radio" class="btn-check" name="room_palettes" id="roomPalettesVanilla" value="vanilla" checked>
                                 <label class="btn btn-outline-primary" for="roomPalettesVanilla">Vanilla</label>
-                                <input type="radio" class="btn-check" name="room_palettes" id="roomPalettesAreaThemed" value="area-themed" checked>
+                                <input type="radio" class="btn-check" name="room_palettes" id="roomPalettesAreaThemed" value="area-themed">
                                 <label class="btn btn-outline-primary" for="roomPalettesAreaThemed">Area-themed</label>
                             </div>
                         </div>
