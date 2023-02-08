@@ -32,6 +32,7 @@ struct Preset {
     shinespark_tiles: usize,
     resource_multiplier: f32,
     escape_timer_multiplier: f32,
+    botwoon_proficiency: f32,
     ridley_proficiency: f32,
     tech: Vec<String>,
 }

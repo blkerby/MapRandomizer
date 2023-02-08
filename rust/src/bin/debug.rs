@@ -33,7 +33,7 @@ fn main() -> Result<()> {
     // items[Item::Wave as usize] = true;
     // items[Item::Ice as usize] = true;
     // items[Item::Spazer as usize] = true;
-    // items[Item::Plasma as usize] = true;
+    items[Item::Plasma as usize] = true;
     // items[Item::Varia as usize] = true;
     items[Item::Gravity as usize] = true;
 

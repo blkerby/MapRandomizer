@@ -4,7 +4,7 @@
         "shinespark_tiles": 32,
         "resource_multiplier": 3.0,
         "escape_timer_multiplier": 3.0,
-        "draygon_proficiency": 0.0,
+        "botwoon_proficiency": 0.0,
         "ridley_proficiency": 0.0,
         "tech": []
     },
@@ -55,7 +55,8 @@
             "canCrumbleJump",
             "canBlueSpaceJump",
             "canCrystalFlash",
-            "canCrystalFlashForceStandup"
+            "canCrystalFlashForceStandup",
+            "canSafeSpotGT"
         ]
     },
     {
