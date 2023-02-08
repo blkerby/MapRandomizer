@@ -12,14 +12,18 @@ use log::info;
 use rand::SeedableRng;
 use rand::{seq::SliceRandom, Rng};
 use serde_derive::{Deserialize, Serialize};
-use std::{cmp::{min, max}, convert::TryFrom, iter};
+use std::{
+    cmp::{max, min},
+    convert::TryFrom,
+    iter,
+};
 use strum::VariantNames;
 
 use crate::game_data::GameData;
 
 use self::escape_timer::SpoilerEscape;
 
-#[derive(Clone, Serialize, Deserialize, Debug)]
+#[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
 pub enum ItemPlacementStrategy {
     Open,
     Semiclosed,
@@ -266,7 +270,12 @@ impl<'r> Randomizer<'r> {
         attempt_num: usize,
         rng: &mut R,
     ) -> Option<SelectItemsOutput> {
-        let num_items_to_place = num_bireachable + num_oneway_reachable;
+        let num_items_to_place = match self.difficulty.item_placement_strategy {
+            ItemPlacementStrategy::Open => num_bireachable,
+            ItemPlacementStrategy::Semiclosed | ItemPlacementStrategy::Closed => {
+                num_bireachable + num_oneway_reachable
+            }
+        };
         let filtered_item_precedence: Vec<Item> = state
             .item_precedence
             .iter()
@@ -284,7 +293,7 @@ impl<'r> Randomizer<'r> {
                     * (num_items_to_place as f32),
             ) as usize,
         };
-        if num_items_remaining < num_items_to_place + 20 {
+        if num_items_remaining < num_items_to_place + 25 {
             num_key_items_to_place = num_key_items_remaining;
         }
         num_key_items_to_place = min(
@@ -521,13 +530,27 @@ impl<'r> Randomizer<'r> {
                     done: false,
                     debug_data: None,
                 };
-                self.place_items(
-                    &mut new_state,
-                    &unplaced_bireachable,
-                    &unplaced_oneway_reachable,
-                    &select_res.key_items,
-                    &select_res.other_items,
-                );
+                if self.difficulty.item_placement_strategy == ItemPlacementStrategy::Open {
+                    // In Open mode, defer placing items at one-way-reachable locations. They may
+                    // get key items placed there later after becoming bireachable.
+                    self.place_items(
+                        &mut new_state,
+                        &unplaced_bireachable,
+                        &[],
+                        &select_res.key_items,
+                        &select_res.other_items,
+                    );    
+                } else {
+                    // In Semiclosed/Closed modes, fill one-way-reachable locations with non-key items,
+                    // to minimize the possibility of them being usable to break from the intended sequence.
+                    self.place_items(
+                        &mut new_state,
+                        &unplaced_bireachable,
+                        &unplaced_oneway_reachable,
+                        &select_res.key_items,
+                        &select_res.other_items,
+                    );
+                }
                 self.collect_items(&mut new_state);
                 if iter::zip(&new_state.items_remaining, &self.initial_items_remaining)
                     .all(|(x, y)| x < y)
@@ -547,8 +570,25 @@ impl<'r> Randomizer<'r> {
                 }
 
                 self.update_reachability(&mut new_state);
-                if iter::zip(&new_state.item_location_state, &state.item_location_state)
-                    .any(|(n, o)| n.bireachable && !o.reachable)
+                let num_bireachable = new_state
+                    .item_location_state
+                    .iter()
+                    .filter(|x| x.bireachable)
+                    .count();
+                let num_reachable = new_state
+                    .item_location_state
+                    .iter()
+                    .filter(|x| x.reachable)
+                    .count();
+                let num_one_way_reachable = num_reachable - num_bireachable;
+                
+                // Maximum acceptable number of one-way-reachable items. This is to try to avoid extreme
+                // cases where the player would gain access to very large areas that they cannot return from:
+                let one_way_reachable_limit = 20;
+
+                if num_one_way_reachable < one_way_reachable_limit
+                    && iter::zip(&new_state.item_location_state, &state.item_location_state)
+                        .any(|(n, o)| n.bireachable && !o.reachable)
                 {
                     // Progress: the new items unlock at least one bireachable item location that wasn't reachable before.
                     break;
@@ -941,11 +981,12 @@ impl<'a> Randomizer<'a> {
             } else {
                 new_local_state.supers_used - local_state.supers_used
             };
-            let power_bombs_used = if new_local_state.power_bombs_used < local_state.power_bombs_used {
-                -Capacity::MAX
-            } else {
-                new_local_state.power_bombs_used - local_state.power_bombs_used
-            };
+            let power_bombs_used =
+                if new_local_state.power_bombs_used < local_state.power_bombs_used {
+                    -Capacity::MAX
+                } else {
+                    new_local_state.power_bombs_used - local_state.power_bombs_used
+                };
             consumption_vec.push(LocalState {
                 energy_used,
                 reserves_used,
@@ -967,10 +1008,14 @@ impl<'a> Randomizer<'a> {
                 reserves_used: max(0, local_state.reserves_used + consumption.reserves_used),
                 missiles_used: max(0, local_state.missiles_used + consumption.missiles_used),
                 supers_used: max(0, local_state.supers_used + consumption.supers_used),
-                power_bombs_used: max(0, local_state.power_bombs_used + consumption.power_bombs_used),
+                power_bombs_used: max(
+                    0,
+                    local_state.power_bombs_used + consumption.power_bombs_used,
+                ),
             };
             if new_local_state.energy_used >= global_state.max_energy {
-                new_local_state.reserves_used += new_local_state.energy_used - (global_state.max_energy - 1);
+                new_local_state.reserves_used +=
+                    new_local_state.energy_used - (global_state.max_energy - 1);
                 new_local_state.energy_used = global_state.max_energy - 1;
             }
             assert!(new_local_state.reserves_used <= global_state.max_reserves);
