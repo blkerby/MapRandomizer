@@ -17,6 +17,7 @@ at lower difficulty settings:
     enabled only at Hard difficulty and higher. Also, to be in logic, very long fights now require "canBePatient".
     </ul>
 <li>Other logic updates (<a href="https://github.com/kjbranch/sm-json-data/compare/f78a39f2905922187c7321db059c65086729a0a4...kjbranch:sm-json-data:map-rando">diff</a>).
+<li>Some adjustments to the area-themed palettes.
 </ul>
 
 <p><a href="https://version-34---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 34 (2023-02-06)</a>:

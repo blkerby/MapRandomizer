@@ -7,6 +7,7 @@ use crate::{
 };
 use anyhow::Result;
 
+#[derive(Debug)]
 pub struct CustomizeSettings {
     pub area_themed_palette: bool,
 }
