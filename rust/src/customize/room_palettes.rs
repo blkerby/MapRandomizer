@@ -2,7 +2,7 @@ use crate::{
     game_data::{AreaIdx, GameData, TilesetIdx},
     patch::{compress::compress, snes2pc, Rom},
 };
-use anyhow::Result;
+use anyhow::{Result, bail};
 use hashbrown::HashMap;
 use std::cmp::max;
 
@@ -126,6 +126,9 @@ fn fix_phantoon_power_on(rom: &mut Rom, game_data: &GameData) -> Result<()> {
     // Fix palette transition that happens in Phantoon's Room after defeating Phantoon.
     let phantoon_room_ptr = 0x7CD13;
     let phantoon_area = get_room_map_area(rom, phantoon_room_ptr)?;
+    if phantoon_area >= 6 {
+        bail!("Invalid Phantoon area: {phantoon_area}")
+    }
     if phantoon_area != 3 {
         let powered_on_palette = &game_data.palette_data[phantoon_area][&4];
         let encoded_palette = encode_palette(powered_on_palette);

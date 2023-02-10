@@ -1,11 +1,12 @@
 Release plan:
-v35: fix boss logic
 v36: sprite customization (?), 
   - music options
   - fast elevator
 
 
 TODO:
+- explain about doors being turned blue
+- add front page to website
 - increase amount of rolling saves?
   - auto-reload in save room to go back a save? (what about in Landing Site?)
 - try to fix water-to-no-water bug, using this snippet from Benox

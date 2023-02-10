@@ -152,38 +152,38 @@ logging.info("max_possible_reward = {}".format(max_possible_reward))
 # session = pickle.load(open(pickle_name + '-bk12', 'rb'))
 # eval_batches = pickle.load(open(pickle_name + '-bk12-eval-batches.pkl', 'rb'))
 # session = pickle.load(open('models/session-2022-05-21T07:40:15.324154.pkl-b-bk18', 'rb'))
-# # session = pickle.load(open('models/checkpoint-4-train-2.pkl', 'rb'))
-# # session = pickle.load(open('models/init_session.pkl', 'rb'))
-# # eval_batches = pickle.load(open('models/eval_batches.pkl', 'rb'))
-# # session = pickle.load(open('models/checkpoint-3-train.pkl', 'rb'))
+# session = pickle.load(open('models/checkpoint-4-train-2.pkl', 'rb'))
+# session = pickle.load(open('models/init_session.pkl', 'rb'))
+# eval_batches = pickle.load(open('models/eval_batches.pkl', 'rb'))
+# session = pickle.load(open('models/checkpoint-3-train.pkl', 'rb'))
 # eval_batches = pickle.load(open('models/checkpoint-4-eval_batches.pkl', 'rb'))
-# #
-# model = DoorLocalModel(
-#     env_config=env_config,
-#     num_doors=envs[0].num_doors,
-#     num_missing_connects=envs[0].num_missing_connects,
-#     num_room_parts=len(envs[0].good_room_parts),
-#     map_channels=4,
-#     map_kernel_size=16,
-#     connectivity_in_width=64,
-#     local_widths=[256, 0],
-#     global_widths=[256, 256],
-#     fc_widths=[256, 256, 256],
-#     alpha=2.0,
-#     arity=2,
-# ).to(device)
 #
-# model.state_value_lin.weight.data.zero_()
-# model.state_value_lin.bias.data.zero_()
-# optimizer = torch.optim.Adam(model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
-# replay_size = 2 ** 17
-# session = TrainingSession(envs,
-#                           model=model,
-#                           optimizer=optimizer,
-#                           ema_beta=0.999,
-#                           replay_size=replay_size,
-#                           decay_amount=0.0,
-#                           sam_scale=None)
+model = DoorLocalModel(
+    env_config=env_config,
+    num_doors=envs[0].num_doors,
+    num_missing_connects=envs[0].num_missing_connects,
+    num_room_parts=len(envs[0].good_room_parts),
+    map_channels=4,
+    map_kernel_size=16,
+    connectivity_in_width=64,
+    local_widths=[256, 0],
+    global_widths=[256, 256],
+    fc_widths=[256, 256, 256],
+    alpha=2.0,
+    arity=2,
+).to(device)
+
+model.state_value_lin.weight.data.zero_()
+model.state_value_lin.bias.data.zero_()
+optimizer = torch.optim.Adam(model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
+replay_size = 2 ** 23
+session = TrainingSession(envs,
+                          model=model,
+                          optimizer=optimizer,
+                          ema_beta=0.999,
+                          replay_size=replay_size,
+                          decay_amount=0.0,
+                          sam_scale=None)
 
 # # Feature skew check:
 # data = session.generate_round(
@@ -329,32 +329,34 @@ logging.info("max_possible_reward = {}".format(max_possible_reward))
 # session.replay_buffer.episode_data.prob0 = torch.clone(session.replay_buffer.episode_data.prob)
 
 
-# pickle_name = 'models/session-2022-06-03T17:19:29.727911.pkl'
+# pickle_name = 'models/session-2023-02-09T08:09:55.417894.pkl'
+# pickle_name = 'models/07-31-session-2022-06-03T17:19:29.727911.pkl-bk30-small'
 # session = pickle.load(open(pickle_name, 'rb'))
-session = pickle.load(open(pickle_name + '-bk35', 'rb'))
+# session = pickle.load(open(pickle_name + '-bk2', 'rb'))
 # session.replay_buffer.resize(400000)
 # session.replay_buffer.resize(2 ** 23)
-session.envs = envs
+# session.envs = envs
 # session.replay_buffer.episode_data.cand_count = torch.zeros_like(session.replay_buffer.episode_data.prob)
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
 # session.replay_buffer.resize(2 ** 23)
 hist = 2 ** 23
 hist_c = 1.0
 batch_size = 2 ** 10
-lr = 0.00002
-# num_candidates = 8
-num_candidates0 = 40
-num_candidates1 = 40
+lr = 0.0005
+num_candidates0 = 8
+num_candidates1 = 8
+# num_candidates0 = 40
+# num_candidates1 = 40
 explore_eps_factor = 0.0
 # temperature_min = 0.02
 # temperature_max = 2.0
-temperature_min0 = 0.02
-temperature_min1 = 0.005
-temperature_max0 = 2.0
-temperature_max1 = 5.0
-annealing_start = 166896
-annealing_time = 1000
-pass_factor = 0.2
+temperature_min0 = 10.0
+temperature_min1 = 0.01
+temperature_max0 = 10000.0
+temperature_max1 = 10.0
+annealing_start = 0
+annealing_time = 8000
+pass_factor = 0.5
 print_freq = 8
 total_reward = 0
 total_loss = 0.0
@@ -366,10 +368,10 @@ total_round_cnt = 0
 total_min_door_frac = 0
 save_freq = 128
 summary_freq = 256
-session.decay_amount = 0.01
+session.decay_amount = 0.05
 session.optimizer.param_groups[0]['betas'] = (0.9, 0.9)
 session.optimizer.param_groups[0]['eps'] = 1e-5
-session.average_parameters.beta = 0.9999
+session.average_parameters.beta = 0.99
 
 min_door_value = max_possible_reward
 torch.set_printoptions(linewidth=120, threshold=10000)
@@ -489,7 +491,7 @@ for i in range(1000000):
         # buffer_mean_rooms_missing = buffer_mean_pass * len(rooms)
 
         logging.info(
-            "{}: cost={:.3f} (min={:d}, frac={:.6f}), test={:.6f}, p0={:.4f} | loss={:.4f}, cost={:.2f} (min={:d}, frac={:.4f}), test={:.4f}, p={:.4f}, p0={:.3f}, nc={}, f={:.3f}".format(
+            "{}: cost={:.3f} (min={:d}, frac={:.6f}), test={:.6f}, p0={:.5f} | loss={:.4f}, cost={:.2f} (min={:d}, frac={:.4f}), test={:.4f}, p={:.4f}, p0={:.4f}, nc={}, f={:.3f}".format(
                 session.num_rounds, max_possible_reward - buffer_mean_reward, max_possible_reward - buffer_max_reward,
                 buffer_frac_max_reward,
                 # buffer_doors,
@@ -515,7 +517,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             pickle.dump(session, open(pickle_name, 'wb'))
-            # pickle.dump(session, open(pickle_name + '-bk38', 'wb'))
+            # pickle.dump(session, open(pickle_name + '-bk2', 'wb'))
             # session.replay_buffer.resize(2 ** 20)
             # pickle.dump(session, open(pickle_name + '-bk30-small', 'wb'))
     if session.num_rounds % summary_freq == 0:
@@ -523,20 +525,21 @@ for i in range(1000000):
                                  20.0, 50.0, 100.0, 200.0, 500.0, 1000.0, 2000.0, 5000.0, 10000.0]
         buffer_temperature = session.replay_buffer.episode_data.temperature[:session.replay_buffer.size]
         # round = (session.replay_buffer.position - torch.arange(session.replay_buffer.size) + session.replay_buffer.size) % session.replay_buffer.size
-        round = session.num_rounds - 1 - (session.replay_buffer.position - torch.arange(session.replay_buffer.size) + session.replay_buffer.size) % session.replay_buffer.size // 1024
-        # round_window = summary_freq * envs[0].num_envs * len(envs)
-        round_window = session.replay_buffer.size
+        round = session.num_rounds - 1 - (session.replay_buffer.position - torch.arange(session.replay_buffer.size) + session.replay_buffer.size) % session.replay_buffer.size // (envs[0].num_envs * len(envs))
+        round_window = summary_freq
+        # round_window = session.replay_buffer.size
         # for k in range(13):
-        round_start = 0
+        round_start = session.num_rounds - round_window
         # round_start = 139016
         # round_end = 112000 + k * 256
+
         round_end = session.num_rounds
         # logging.info("round {} to {}".format(round_start, round_end))
         for i in range(len(temperature_endpoints) - 1):
             temp_low = temperature_endpoints[i]
             temp_high = temperature_endpoints[i + 1]
             # ind = torch.nonzero((buffer_temperature > temp_low) & (buffer_temperature <= temp_high))[:, 0]
-            # ind = torch.nonzero((buffer_temperature > temp_low) & (buffer_temperature <= temp_high) & (round < round_window))[:, 0]
+            # ind = torch.nonzero((buffer_temperature > temp_low * 1.0001) & (buffer_temperature <= temp_high * 0.9999) & (round < round_window))[:, 0]
             ind = torch.nonzero((buffer_temperature > temp_low * 1.0001) & (buffer_temperature < temp_high * 0.9999) & (round >= round_start) & (round < round_end))[:, 0]
             if ind.shape[0] == 0:
                 continue
@@ -552,7 +555,7 @@ for i in range(1000000):
             buffer_mean_prob0 = torch.mean(buffer_prob0)
             buffer_temp = session.replay_buffer.episode_data.temperature[ind]
             buffer_mean_temp = torch.mean(buffer_temp)
-            logging.info("[{:.3f}, {:.3f}]: cost={:.3f} (min={}, frac={:.6f}), test={:.6f}, p={:.5f}, p0={:.4f}, cnt={}, temp={:.4f}".format(
+            logging.info("[{:.3f}, {:.3f}]: cost={:.3f} (min={}, frac={:.6f}), test={:.6f}, p={:.4f}, p0={:.5f}, cnt={}, temp={:.4f}".format(
                 temp_low, temp_high, max_possible_reward - buffer_mean_reward, max_possible_reward - buffer_max_reward,
                 buffer_frac_max, buffer_mean_test_loss, buffer_mean_prob, buffer_mean_prob0, ind.shape[0], buffer_mean_temp
             ))

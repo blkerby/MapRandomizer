@@ -973,7 +973,8 @@ class MazeBuilderEnv:
         # logging.info("Transfer")
         # torch.cuda.synchronize(self.device)
         # start_post = time.perf_counter()
-        good_output_components = output_components[:, self.good_room_parts]
+        # print("output_components: ", output_components.device, "good_room_parts:", self.good_room_parts.device)
+        good_output_components = output_components[:, self.good_room_parts.to(output_components.device)]
         good_output_components = good_output_components.to(left_mat.device)
         output_adjacency_unpacked = output_adjacency_unpacked.to(left_mat.device)
 
