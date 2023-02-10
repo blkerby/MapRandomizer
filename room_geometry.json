@@ -3790,8 +3790,8 @@
         "subtype": "normal"
       }
     ],
-    "parts": [[0, 1]],
-    "durable_part_connections": [],
+    "parts": [[0], [1]],
+    "durable_part_connections": [[0, 1]],
     "transient_part_connections": [],
     "items": []
   },
@@ -8555,7 +8555,7 @@
     ],
     "parts": [[0], [1]],
     "durable_part_connections": [],
-    "transient_part_connections": [[1, 0]],
+    "transient_part_connections": [],
     "items": []
   },
   {

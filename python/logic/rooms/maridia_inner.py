@@ -67,7 +67,11 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x1A90C, 0x1A774),  # Botwoon Hallway
             DoorIdentifier(RIGHT, 1, 0, 0x1A918, 0x1A84C),  # Botwoon Energy Tank Room
         ],
-        # No parts here, since we assume that defeating Botwoon from right is in logic (with wave + charge)
+        parts=[[0], [1]],
+        durable_part_connections=[(0, 1)],  # Defeating Botwoon from left side
+        missing_part_connections=[(1, 0)],
+        # For the purposes of map generation, we don't assume a right-to-left connection 
+        # (though it is possible, e.g. with wave + charge)
     ),
     Room(
         name="Botwoon Energy Tank Room",

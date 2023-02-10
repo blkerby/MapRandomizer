@@ -162,8 +162,13 @@ rooms = [
             DoorIdentifier(RIGHT, 3, 0, 0x1AA80, 0x1AAC8),  # Rinka Shaft
         ],
         parts=[[0], [1]],
-        transient_part_connections=[(1, 0)],  # door spawn after mother brain defeated
-        missing_part_connections=[(0, 1)],
+        # transient_part_connections=[(1, 0)],  # door spawn after mother brain defeated
+        # missing_part_connections=[(0, 1)],
+        #
+        # For the purposes of map generation, we don't assume any connections (leftward or rightward) through
+        # this room. This is because we want to ensure that the left side can be reached before the escape, e.g.
+        # so that we can't end up with items locked behind Mother Brain.
+        missing_part_connections=[(0, 1), (1, 0)],
     ),
     Room(
         name='Tourian Escape Room 1',

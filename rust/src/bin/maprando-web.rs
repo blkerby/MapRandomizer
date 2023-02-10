@@ -10,14 +10,13 @@ use actix_web::{get, post, web, App, HttpRequest, HttpResponse, HttpServer, Resp
 use anyhow::{Context, Result};
 use clap::Parser;
 use hashbrown::{HashMap, HashSet};
-use log::{info, error};
+use log::{error, info};
+use maprando::customize::{customize_rom, CustomizeSettings};
 use maprando::game_data::{GameData, Map};
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::{make_rom, Rom};
 use maprando::randomize::{DifficultyConfig, Randomization, Randomizer};
-use maprando::customize::{CustomizeSettings, customize_rom};
 use maprando::seed_repository::{Seed, SeedFile, SeedRepository};
-// use maprando::seed_repository::Seed;
 use base64::Engine;
 use maprando::spoiler_map;
 use rand::{RngCore, SeedableRng};
@@ -95,7 +94,6 @@ struct SeedNotFoundTemplate {}
 #[template(path = "errors/file_not_found.stpl")]
 struct FileNotFoundTemplate {}
 
-
 #[derive(TemplateOnce)]
 #[template(path = "home/main.stpl")]
 struct HomeTemplate<'a> {
@@ -170,7 +168,6 @@ fn get_seed_name(seed_data: &SeedData) -> String {
     let base64_str = base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(h128.to_le_bytes());
     base64_str
 }
-
 
 #[derive(TemplateOnce)]
 #[template(path = "seed/seed_header.stpl")]
@@ -267,16 +264,24 @@ async fn save_seed(
         files.push(SeedFile::new("public/spoiler.json", spoiler_bytes));
 
         // Write the spoiler maps
-        let spoiler_map_assigned =
-            spoiler_map::get_spoiler_map(&output_rom, &randomization.map, &app_data.game_data, false)
-                .unwrap();
+        let spoiler_map_assigned = spoiler_map::get_spoiler_map(
+            &output_rom,
+            &randomization.map,
+            &app_data.game_data,
+            false,
+        )
+        .unwrap();
         files.push(SeedFile::new(
             "public/map-assigned.png",
             spoiler_map_assigned,
         ));
-        let spoiler_map_vanilla =
-            spoiler_map::get_spoiler_map(&output_rom, &randomization.map, &app_data.game_data, true)
-                .unwrap();
+        let spoiler_map_vanilla = spoiler_map::get_spoiler_map(
+            &output_rom,
+            &randomization.map,
+            &app_data.game_data,
+            true,
+        )
+        .unwrap();
         files.push(SeedFile::new("public/map-vanilla.png", spoiler_map_vanilla));
     }
 
@@ -316,19 +321,18 @@ async fn view_seed(info: web::Path<(String,)>, app_data: web::Data<AppData>) -> 
                 seed_footer: String::from_utf8(footer.to_vec()).unwrap(),
             };
             HttpResponse::Ok().body(customize_template.render_once().unwrap())
-        },
+        }
         (Err(err), _) => {
             error!("{}", err.to_string());
-            let template = SeedNotFoundTemplate { };
+            let template = SeedNotFoundTemplate {};
             HttpResponse::NotFound().body(template.render_once().unwrap())
-        },
+        }
         (_, Err(err)) => {
             error!("{}", err.to_string());
-            let template = SeedNotFoundTemplate { };
+            let template = SeedNotFoundTemplate {};
             HttpResponse::NotFound().body(template.render_once().unwrap())
         }
     }
-
 }
 
 #[post("/seed/{name}/customize")]
@@ -355,7 +359,12 @@ async fn customize_seed(
         area_themed_palette: req.room_palettes.0 == "area-themed",
     };
     info!("CustomizeSettings: {:?}", settings);
-    customize_rom(&mut rom, &patch_ips, &settings, &app_data.game_data).unwrap();
+    match customize_rom(&mut rom, &patch_ips, &settings, &app_data.game_data) {
+        Ok(()) => {}
+        Err(err) => {
+            return HttpResponse::InternalServerError().body(format!("Error customizing ROM: {:?}", err))
+        }
+    }
 
     HttpResponse::Ok()
         .content_type("application/octet-stream")
@@ -378,12 +387,16 @@ async fn get_seed_file(
     match app_data
         .seed_repository
         .get_file(seed_name, &("public/".to_string() + filename))
-        .await {
+        .await
+    {
         Ok(data) => {
-            let ext = Path::new(filename).extension().map(|x| x.to_str().unwrap()).unwrap_or("bin");
+            let ext = Path::new(filename)
+                .extension()
+                .map(|x| x.to_str().unwrap())
+                .unwrap_or("bin");
             let mime = actix_files::file_extension_to_mime(ext);
             HttpResponse::Ok().content_type(mime).body(data)
-        },
+        }
         // TODO: Use more refined error handling instead of always returning 404:
         Err(err) => {
             error!("{}", err.to_string());
@@ -421,7 +434,7 @@ async fn randomize(
     };
 
     if rom.data.len() == 0 {
-        return HttpResponse::BadRequest().body(MissingInputRomTemplate {}.render_once().unwrap());    
+        return HttpResponse::BadRequest().body(MissingInputRomTemplate {}.render_once().unwrap());
     }
 
     let rom_digest = crypto_hash::hex_digest(crypto_hash::Algorithm::SHA256, &rom.data);
