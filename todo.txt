@@ -1,7 +1,10 @@
 Release plan:
-v36: sprite customization (?), 
+v36: 
+  - fix water FX bug
   - music options
   - fast elevator
+
+sprite customization (?), 
 
 
 TODO:

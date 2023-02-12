@@ -582,7 +582,7 @@ class MazeBuilderEnv:
 
     def compute_map(self, room_mask, room_position_x, room_position_y):
         map = self.initial_map.repeat(room_mask.shape[0], 1, 1, 1)
-        map_flat = map.view(map.shape[0], -1)
+        map_flat = map.view(map.shape[0], map.shape[1] * map.shape[2] * map.shape[3])
 
         room_data_id = self.room_data[:, 0]
         room_data_x = self.room_data[:, 1]
@@ -674,6 +674,44 @@ class MazeBuilderEnv:
             connects = mask & (tile == 0)
             connects_list.append(connects)
         return torch.cat(connects_list, dim=1)
+
+    # TODO: Combined `door_connects` and `open_door_locations` to reduce duplicated computation:
+    def open_door_locations(self, map, room_mask, room_position_x, room_position_y):
+        data_tuples = [
+            (self.room_left, 1),
+            (self.room_right, 1),
+            (self.room_down, 2),
+            (self.room_up, 2),
+        ]
+        data_list = []
+        cumul_door_id = 0
+        for room_dir, channel in data_tuples:
+            room_id = room_dir[:, 0]
+            relative_door_x = room_dir[:, 1]
+            relative_door_y = room_dir[:, 2]
+            door_x = room_position_x[:, room_id] + relative_door_x.unsqueeze(0)
+            door_y = room_position_y[:, room_id] + relative_door_y.unsqueeze(0)
+            mask = room_mask[:, room_id]
+            tile = map[
+                torch.arange(map.shape[0], device=self.device).view(-1, 1),
+                channel,
+                door_x,
+                door_y]
+            is_open = mask & (tile != 0)
+            coords = torch.nonzero(is_open)
+            open_env_id = coords[:, 0]
+            open_door_id = coords[:, 1]
+            open_door_x = door_x[open_env_id, open_door_id]
+            open_door_y = door_y[open_env_id, open_door_id]
+            data = torch.stack([
+                open_env_id,
+                open_door_id + cumul_door_id,
+                open_door_x,
+                open_door_y,
+            ], dim=1)
+            data_list.append(data)
+            cumul_door_id += room_dir.shape[0]
+        return data_list
 
     def compute_component_matrix(self, room_mask, room_position_x, room_position_y, include_durable=True):
         n = room_mask.shape[0]
@@ -1094,9 +1132,9 @@ class MazeBuilderEnv:
         self.good_part_room_id = self.part_room_id[self.good_room_parts]
         good_room_parts_list = self.good_room_parts.tolist()
         self.good_missing_connection_src = torch.tensor(
-            [good_room_parts_list.index(i) for i in self.missing_connection_src], device=self.device)
+            [good_room_parts_list.index(i) for i in self.missing_connection_src], device=self.device, dtype=torch.long)
         self.good_missing_connection_dst = torch.tensor(
-            [good_room_parts_list.index(i) for i in self.missing_connection_dst], device=self.device)
+            [good_room_parts_list.index(i) for i in self.missing_connection_dst], device=self.device, dtype=torch.long)
         self.good_base_matrix = self.part_adjacency_matrix[
             self.good_room_parts.view(-1, 1), self.good_room_parts.view(1, -1)]
         self.directed_E = torch.nonzero(self.good_base_matrix).to(torch.uint8).to('cpu')

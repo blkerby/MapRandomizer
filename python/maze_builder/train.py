@@ -42,14 +42,14 @@ executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
 # num_envs = 1
 num_envs = 2 ** 9
-# rooms = logic.rooms.crateria_isolated.rooms
-rooms = logic.rooms.all_rooms.rooms
+rooms = logic.rooms.crateria_isolated.rooms
+# rooms = logic.rooms.all_rooms.rooms
 episode_length = len(rooms)
 
-# map_x = 32
-# map_y = 32
-map_x = 72
-map_y = 72
+map_x = 32
+map_y = 32
+# map_x = 72
+# map_y = 72
 env_config = EnvConfig(
     rooms=rooms,
     map_x=map_x,
@@ -166,7 +166,7 @@ model = DoorLocalModel(
     map_channels=4,
     map_kernel_size=16,
     connectivity_in_width=64,
-    local_widths=[256, 0],
+    local_widths=[256, 256],
     global_widths=[256, 256],
     fc_widths=[256, 256, 256],
     alpha=2.0,
@@ -176,7 +176,7 @@ model = DoorLocalModel(
 model.state_value_lin.weight.data.zero_()
 model.state_value_lin.bias.data.zero_()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
-replay_size = 2 ** 23
+replay_size = 2 ** 21
 session = TrainingSession(envs,
                           model=model,
                           optimizer=optimizer,
@@ -338,10 +338,10 @@ session = TrainingSession(envs,
 # session.envs = envs
 # session.replay_buffer.episode_data.cand_count = torch.zeros_like(session.replay_buffer.episode_data.prob)
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
-# session.replay_buffer.resize(2 ** 23)
-hist = 2 ** 23
+# session.replay_buffer.resize(2 ** 19)
+hist = 2 ** 19
 hist_c = 1.0
-batch_size = 2 ** 10
+batch_size = 2 ** 12
 lr = 0.0005
 num_candidates0 = 8
 num_candidates1 = 8
@@ -350,14 +350,17 @@ num_candidates1 = 8
 explore_eps_factor = 0.0
 # temperature_min = 0.02
 # temperature_max = 2.0
-temperature_min0 = 10.0
-temperature_min1 = 0.01
+temperature_min0 = 100.0
 temperature_max0 = 10000.0
+temperature_min1 = 0.1
 temperature_max1 = 10.0
+
+# temperature_max0 = temperature_min0
+# temperature_max1 = temperature_min1
 annealing_start = 0
-annealing_time = 8000
-pass_factor = 0.5
-print_freq = 8
+annealing_time = 1000
+pass_factor = 2.0
+print_freq = 16
 total_reward = 0
 total_loss = 0.0
 total_loss_cnt = 0
@@ -366,12 +369,12 @@ total_prob = 0.0
 total_prob0 = 0.0
 total_round_cnt = 0
 total_min_door_frac = 0
-save_freq = 128
+save_freq = 512
 summary_freq = 256
-session.decay_amount = 0.05
+session.decay_amount = 0.01
 session.optimizer.param_groups[0]['betas'] = (0.9, 0.9)
 session.optimizer.param_groups[0]['eps'] = 1e-5
-session.average_parameters.beta = 0.99
+session.average_parameters.beta = 0.999
 
 min_door_value = max_possible_reward
 torch.set_printoptions(linewidth=120, threshold=10000)
@@ -440,6 +443,7 @@ for i in range(1000000):
     #         profile_memory=False,
     #         with_stack=False,
     # ) as prof:
+    hist = session.num_rounds * envs[0].num_envs * len(envs) * 0.5
     for j in range(num_batches):
         data = session.replay_buffer.sample(batch_size, hist, c=hist_c, device=device)
         with util.DelayedKeyboardInterrupt():
@@ -527,6 +531,7 @@ for i in range(1000000):
         # round = (session.replay_buffer.position - torch.arange(session.replay_buffer.size) + session.replay_buffer.size) % session.replay_buffer.size
         round = session.num_rounds - 1 - (session.replay_buffer.position - torch.arange(session.replay_buffer.size) + session.replay_buffer.size) % session.replay_buffer.size // (envs[0].num_envs * len(envs))
         round_window = summary_freq
+        # round_window = hist // (envs[0].num_envs * len(envs))
         # round_window = session.replay_buffer.size
         # for k in range(13):
         round_start = session.num_rounds - round_window
@@ -540,7 +545,7 @@ for i in range(1000000):
             temp_high = temperature_endpoints[i + 1]
             # ind = torch.nonzero((buffer_temperature > temp_low) & (buffer_temperature <= temp_high))[:, 0]
             # ind = torch.nonzero((buffer_temperature > temp_low * 1.0001) & (buffer_temperature <= temp_high * 0.9999) & (round < round_window))[:, 0]
-            ind = torch.nonzero((buffer_temperature > temp_low * 1.0001) & (buffer_temperature < temp_high * 0.9999) & (round >= round_start) & (round < round_end))[:, 0]
+            ind = torch.nonzero((buffer_temperature >= temp_low) & (buffer_temperature < temp_high * 0.9999) & (round >= round_start) & (round < round_end))[:, 0]
             if ind.shape[0] == 0:
                 continue
             buffer_reward = session.replay_buffer.episode_data.reward[ind]

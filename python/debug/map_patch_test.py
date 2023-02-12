@@ -27,9 +27,9 @@ area_arr = [rom.read_u8(room.rom_address + 1) for room in rooms]
 
 patches = [
     'new_game_extra',
-    'fast_reload',
+    # 'fast_reload',
     # 'hud_expansion_opaque',
-    'hud_expansion_no_water',
+    # 'hud_expansion_no_water',
     # 'hud_expansion_transparent',
     # 'gray_doors',
     # 'mb_barrier',
@@ -149,7 +149,7 @@ map_patcher = MapPatcher(rom, area_arr)
 # old_y = rom.read_u8(0x7D5A7 + 3)
 # rom.write_u8(0x7D5A7 + 3, old_y - 4)
 
-map_patcher.apply_map_patches()
+# map_patcher.apply_map_patches()
 #
 
 # data = [[0 for _ in range(8)] for _ in range(8)]
