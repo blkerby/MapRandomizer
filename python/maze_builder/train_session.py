@@ -212,9 +212,10 @@ class TrainingSession():
         # reward_flat = reward_tensor.view(env.num_envs, 1).repeat(1, episode_length).view(-1)
         door_connects_flat = door_connects_tensor.view(env.num_envs, 1, -1).repeat(1, episode_length, 1).view(
             env.num_envs * episode_length, -1)
-        missing_connects_flat = missing_connects_tensor.view(env.num_envs, 1, -1).repeat(1, episode_length, 1).view(
-            env.num_envs * episode_length, -1)
-        all_outputs_flat = torch.cat([door_connects_flat, missing_connects_flat], dim=1)
+        # missing_connects_flat = missing_connects_tensor.view(env.num_envs, 1, -1).repeat(1, episode_length, 1).view(
+        #     env.num_envs * episode_length, -1)
+        # all_outputs_flat = torch.cat([door_connects_flat, missing_connects_flat], dim=1)
+        all_outputs_flat = door_connects_flat
 
         loss_flat = torch.mean(torch.nn.functional.binary_cross_entropy_with_logits(selected_raw_logodds_flat,
                                                                                     all_outputs_flat.to(
@@ -287,7 +288,8 @@ class TrainingSession():
             map, data.room_mask, data.room_position_x, data.room_position_y, data.steps_remaining, data.round_frac,
             data.temperature, env, executor)
 
-        all_outputs = torch.cat([data.door_connects, data.missing_connects], dim=1)
+        # all_outputs = torch.cat([data.door_connects, data.missing_connects], dim=1)
+        all_outputs = data.door_connects
         loss = torch.nn.functional.binary_cross_entropy_with_logits(state_value_raw_logodds,
                                                                     all_outputs.to(state_value_raw_logodds.dtype))
 

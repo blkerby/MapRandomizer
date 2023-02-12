@@ -102,6 +102,10 @@ class MazeBuilderEnv:
         A[torch.arange(A.shape[0]), torch.arange(A.shape[0])] = 0
         self.directed_edges = torch.nonzero(A).to(torch.int16).to('cpu')
 
+        A = self.durable_part_adjacency_matrix.clone()
+        A[torch.arange(A.shape[0]), torch.arange(A.shape[0])] = 0
+        self.durable_directed_edges = torch.nonzero(A).to(torch.int16).to('cpu')
+
     def init_room_data(self):
         # TODO: clean this up and refactor to make it easier to understand
         room_sub_area_list = []
@@ -301,8 +305,12 @@ class MazeBuilderEnv:
             room_up_list.append(room_up)
             room_down_list.append(room_down)
             room_data_list.append(room_data)
-            if i != len(self.rooms) - 1:
-                # Don't allow placing the dummy room on the first move
+            # if i != len(self.rooms) - 1:
+            #     # Don't allow placing the dummy room on the first move
+            #     room_placements_list.append(room_placements)
+            if room.name == 'Landing Site':
+                # Always place Landing Site first. For now this is necessary for the one-way
+                # connections work to properly.
                 room_placements_list.append(room_placements)
             room_min_x_list.append(room_min_x)
             room_min_y_list.append(room_min_y)
@@ -1057,6 +1065,86 @@ class MazeBuilderEnv:
         # ))
         # logging.info("Done")
         return reduced_connectivity.to(self.device), missing_connects.to(self.device)
+
+    # def compute_reachability(self, room_mask, room_position_x, room_position_y):
+    #     num_graphs = room_mask.shape[0]
+    #     num_parts = self.part_room_id.shape[0]
+    #     max_components = 56
+    #     output_components = torch.zeros([num_graphs, num_parts], dtype=torch.uint8)
+    #     output_adjacency = torch.zeros([num_graphs, max_components], dtype=torch.int64)
+    #     output_adjacency_unpacked = torch.zeros([num_graphs, max_components, max_components], dtype=torch.float)
+
+    #     connectivity2.compute_connectivity2(
+    #         room_mask.to('cpu'),
+    #         room_position_x.to(torch.uint8).to('cpu'),
+    #         room_position_y.to(torch.uint8).to('cpu'),
+    #         self.room_left_cpu,
+    #         self.room_right_cpu,
+    #         self.room_up_cpu,
+    #         self.room_down_cpu,
+    #         self.part_left_cpu,
+    #         self.part_right_cpu,
+    #         self.part_up_cpu,
+    #         self.part_down_cpu,
+    #         self.part_room_id_cpu,
+    #         self.map_x + 1,
+    #         self.map_y + 1,
+    #         num_parts,
+    #         self.directed_edges,
+    #         output_components,
+    #         output_adjacency,
+    #         output_adjacency_unpacked,
+    #     )
+
+    #     # logging.info("Transfer")
+    #     # torch.cuda.synchronize(self.device)
+    #     # start_post = time.perf_counter()
+    #     # print("output_components: ", output_components.device, "good_room_parts:", self.good_room_parts.device)
+    #     good_output_components = output_components[:, self.good_room_parts.to(output_components.device)]
+    #     good_output_components = good_output_components.to(left_mat.device)
+    #     output_adjacency_unpacked = output_adjacency_unpacked.to(left_mat.device)
+
+    #     # torch.cuda.synchronize(self.device)
+    #     # start_mul = time.perf_counter()
+    #     # logging.info("Multiply")
+    #     if left_mat.is_cuda:
+    #         dtype = torch.float16
+    #     else:
+    #         dtype = torch.float32
+    #     A0 = output_adjacency_unpacked.to(dtype)
+    #     A1 = A0[torch.arange(num_graphs, device=self.device).view(-1, 1), good_output_components.to(torch.int64), :]
+    #     A2 = torch.einsum('ijk,mj->imk', A1, left_mat.to(dtype))
+    #     A3 = A2[torch.arange(num_graphs, device=self.device).view(-1, 1), :, good_output_components.to(torch.int64)]
+    #     A4 = torch.einsum('ikm,kn->imn', A3, right_mat.to(dtype))
+    #     reduced_connectivity = A4
+
+    #     # torch.cuda.synchronize(self.device)
+    #     # start_missing = time.perf_counter()
+    #     missing_src_component = good_output_components[:, self.good_missing_connection_src.to(left_mat.device)].to(torch.int64)
+    #     missing_dst_component = good_output_components[:, self.good_missing_connection_dst.to(left_mat.device)].to(torch.int64)
+    #     # ind1 = torch.arange(num_graphs, device=self.device).view(-1, 1).repeat(1, self.missing_connection_src.shape[0])
+    #     # ind2 = missing_src_component
+    #     # ind3 = missing_dst_component
+    #     # logging.info('{}: {} {} {}'.format(output_adjacency_unpacked.shape, ind1.shape, ind2.shape, ind3.shape))
+    #     # logging.info('{}: {} {} {}'.format(output_adjacency_unpacked.dtype, ind1.dtype, ind2.dtype, ind3.dtype))
+
+    #     # missing_connects = output_adjacency_unpacked[ind1.view(-1), ind2.view(-1), ind3.view(-1)].view(-1, self.missing_connection_src.shape[0])
+    #     missing_connects = output_adjacency_unpacked[torch.arange(num_graphs, device=self.device).view(-1, 1),
+    #                                                  missing_src_component, missing_dst_component]
+
+    #     # torch.cuda.synchronize(self.device)
+    #     # end = time.perf_counter()
+    #     # time_setup = start_compute - start_setup
+    #     # time_compute = start_post - start_compute
+    #     # time_post = start_mul - start_post
+    #     # time_mul = start_missing - start_mul
+    #     # time_missing = end - start_missing
+    #     # time_total = end - start_setup
+    #     # logging.info("total={:.4f}, setup={:.4f}, compute={:.4f}, post={:.4f}, mul={:.4f}, missing={:.4f}".format(
+    #     #     time_total, time_setup, time_compute, time_post, time_mul, time_missing
+    #     # ))
+    #     # logging.info("Done")
+    #     return reduced_connectivity.to(self.device), missing_connects.to(self.device)
 
     def compute_missing_connections(self):
         component_matrix = self.compute_component_matrix(self.room_mask, self.room_position_x, self.room_position_y)

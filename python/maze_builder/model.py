@@ -366,13 +366,12 @@ def map_extract(map, env_id, pos_x, pos_y, width_x, width_y):
 # inputs_list = []
 
 class DoorLocalModel(torch.nn.Module):
-    def __init__(self, env_config, num_doors, num_missing_connects, num_room_parts, map_channels, map_kernel_size,
+    def __init__(self, env_config, num_doors, num_room_parts, map_channels, map_kernel_size,
                  connectivity_in_width, local_widths, global_widths, fc_widths, alpha, arity
                  ):
         super().__init__()
         self.env_config = env_config
         self.num_doors = num_doors
-        self.num_missing_connects = num_missing_connects
         self.num_room_parts = num_room_parts
         self.map_x = env_config.map_x + 1
         self.map_y = env_config.map_y + 1
@@ -389,13 +388,12 @@ class DoorLocalModel(torch.nn.Module):
         # common_act = torch.nn.Mish()
         common_act = MaxOut(arity)
 
-        self.connectivity_left_mat = torch.nn.Parameter(torch.randn([connectivity_in_width, num_room_parts]))
-        self.connectivity_right_mat = torch.nn.Parameter(torch.randn([num_room_parts, connectivity_in_width]))
         self.left_lin = torch.nn.Linear(map_kernel_size ** 2 * map_channels, local_widths[0] * arity)
         self.right_lin = torch.nn.Linear(map_kernel_size ** 2 * map_channels, local_widths[0] * arity)
         self.up_lin = torch.nn.Linear(map_kernel_size ** 2 * map_channels, local_widths[0] * arity)
         self.down_lin = torch.nn.Linear(map_kernel_size ** 2 * map_channels, local_widths[0] * arity)
-        self.global_lin = torch.nn.Linear(connectivity_in_width ** 2 + self.num_rooms + 3, global_widths[0] * arity)
+        # self.global_lin = torch.nn.Linear(connectivity_in_width ** 2 + self.num_rooms + 3, global_widths[0] * arity)
+        self.global_lin = torch.nn.Linear(self.num_rooms + 3, global_widths[0] * arity)
         # self.global_lin = torch.nn.Linear(self.num_rooms + 1, global_widths[0] * arity)
         self.base_local_act = common_act
         self.base_global_act = common_act
@@ -417,7 +415,7 @@ class DoorLocalModel(torch.nn.Module):
             self.fc_lin_layers.append(lin)
             self.fc_act_layers.append(common_act)
 
-        self.state_value_lin = torch.nn.Linear(self.fc_widths[-1], self.num_doors + self.num_missing_connects)
+        self.state_value_lin = torch.nn.Linear(self.fc_widths[-1], self.num_doors)
         self.project()
 
     def forward_multiclass(self, map, room_mask, room_position_x, room_position_y, steps_remaining, round_frac,
@@ -468,21 +466,25 @@ class DoorLocalModel(torch.nn.Module):
             local_door_id = torch.cat(
                 [map_door_left[:, 1], map_door_right[:, 1], map_door_up[:, 1], map_door_down[:, 1]], dim=0)
 
-            reduced_connectivity, missing_connects = env.compute_fast_component_matrix_cpu2(
-                room_mask, room_position_x, room_position_y,
-                self.connectivity_left_mat, self.connectivity_right_mat)
+            # reduced_connectivity, missing_connects = env.compute_fast_component_matrix_cpu2(
+            #     room_mask, room_position_x, room_position_y,
+            #     self.connectivity_left_mat, self.connectivity_right_mat)
+        
             # reduced_connectivity, missing_connects = env.compute_fast_component_matrix(
             #     room_mask, room_position_x, room_position_y,
             #     self.connectivity_left_mat, self.connectivity_right_mat)
-            reduced_connectivity_flat = reduced_connectivity.view(n, self.connectivity_in_width ** 2)
+
+            # reduced_connectivity_flat = reduced_connectivity.view(n, self.connectivity_in_width ** 2)
 
             # global_X = torch.cat([room_mask.to(X_left.dtype),
             #                       steps_remaining.view(-1, 1)], dim=1)
-            global_X = torch.cat([reduced_connectivity_flat,
-                                  room_mask.to(X_left.dtype),
-                                  steps_remaining.view(-1, 1) / 100.0,
-                                  round_frac.view(-1, 1),
-                                  torch.log(temperature.view(-1, 1))], dim=1)
+            global_X = torch.cat([
+                # reduced_connectivity_flat,
+                room_mask.to(X_left.dtype),
+                steps_remaining.view(-1, 1) / 100.0,
+                round_frac.view(-1, 1),
+                torch.log(temperature.view(-1, 1))
+            ], dim=1)
             global_X = self.global_lin(global_X)
             global_X = self.base_global_act(global_X)
 
@@ -526,21 +528,17 @@ class DoorLocalModel(torch.nn.Module):
             
             global_door_connects_raw_logodds = state_value_raw_logodds[:, :self.num_doors]
             door_connects_raw_logodds = torch.where(local_door_mask, local_door_logodds, global_door_connects_raw_logodds)
+            # door_connects_raw_logodds = global_door_connects_raw_logodds)
 
-            missing_connects_raw_logodds = state_value_raw_logodds[:, self.num_doors:]
-            # inf_tensor = torch.zeros_like(door_connects_raw_logodds)
             inf_tensor_door = torch.full_like(door_connects_raw_logodds,
                                               1e5)  # We can't use actual 'inf' or it results in NaNs in binary_cross_entropy_with_logits, but this is equivalent.
-            inf_tensor_missing = torch.full_like(missing_connects_raw_logodds,
-                                                 1e5)  # We can't use actual 'inf' or it results in NaNs in binary_cross_entropy_with_logits, but this is equivalent.
 
             door_connects_filtered_logodds = torch.where(door_connects, inf_tensor_door, door_connects_raw_logodds)
             # print(missing_connects.shape, inf_tensor_missing.shape, missing_connects_raw_logodds.shape)
-            missing_connects_filtered_logodds = torch.where(missing_connects.to(torch.bool), inf_tensor_missing,
-                                                            missing_connects_raw_logodds)
 
             # all_filtered_logodds = torch.cat([door_connects_filtered_logodds, missing_connects_raw_logodds], dim=1)
-            all_filtered_logodds = torch.cat([door_connects_filtered_logodds, missing_connects_filtered_logodds], dim=1)
+            # all_filtered_logodds = torch.cat([door_connects_filtered_logodds, missing_connects_filtered_logodds], dim=1)
+            all_filtered_logodds = door_connects_filtered_logodds
             # state_value_probs = torch.sigmoid(all_filtered_logodds)
             state_value_logprobs = -torch.logaddexp(-all_filtered_logodds, torch.zeros_like(all_filtered_logodds))
             # state_value_probs = torch.where(all_filtered_logprobs >= 0, all_filtered_logprobs + 1,
