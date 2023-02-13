@@ -97,7 +97,14 @@ class TrainingSession():
                                       dtype=torch.float32)
         temperature_flat = all_temperature.view(num_envs * num_candidates)
         valid_flat = valid.view(num_envs * num_candidates)
+
+        # TODO: Skip computing model predictions for candidates failing connectivity requirements
+        # (also: also amortize cost of connectivity computation by basing it on pre-action connectivity data
+        # instead of recomputing from scratch for each candidate).
+        connectivity_valid_flat = self.envs[0].check_connectivity_valid(room_mask_flat, room_position_x_flat, room_position_y_flat)
+        valid_flat = valid_flat
         valid_flat_ind = torch.nonzero(valid_flat)[:, 0]
+
 
         room_mask_valid = room_mask_flat[valid_flat, :]
         room_position_x_valid = room_position_x_flat[valid_flat, :]
@@ -131,6 +138,9 @@ class TrainingSession():
 
         expected_flat = torch.full([num_envs * num_candidates], -1e15, device=raw_logodds_valid.device)
         expected_flat[valid_flat_ind] = expected_valid
+        # Give a lower score to candidates failing connectivity constraints, so that a dummy move (doing nothing)
+        # will be prefered over breaking these constraints:
+        expected_flat[~connectivity_valid_flat] = -2e15
 
         raw_logodds = raw_logodds_flat.view(num_envs, num_candidates, -1)
         expected = expected_flat.view(num_envs, num_candidates)
