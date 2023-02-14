@@ -873,7 +873,7 @@ class MazeBuilderEnv:
         ))
         return reduced_connectivity, missing_connects
 
-    def check_connectivity_valid(self, room_mask, room_position_x, room_position_y):
+    def count_connectivity_violations(self, room_mask, room_position_x, room_position_y):
         num_graphs = room_mask.shape[0]
         num_parts = self.part_room_id.shape[0]
         max_components = 56
@@ -904,7 +904,7 @@ class MazeBuilderEnv:
         reachable_from_start = output_adjacency_unpacked[torch.arange(num_graphs), start_component, :] > 0
         valid_component = output_adjacency_unpacked[torch.arange(num_graphs).view(-1, 1),
             torch.arange(max_components).view(1, -1), torch.arange(max_components).view(1, -1)] > 0
-        all_reachable_from_start = torch.all(reachable_from_start | ~valid_component, dim=1)
+        count_unreachable_from_start = torch.sum((~reachable_from_start & valid_component).to(torch.float32), dim=1)
 
         output_components = torch.zeros([num_graphs, num_parts + 1], dtype=torch.uint8)
         output_adjacency = torch.zeros([num_graphs, max_components], dtype=torch.int64)
@@ -932,9 +932,8 @@ class MazeBuilderEnv:
         reachable_to_start = output_adjacency_unpacked[torch.arange(num_graphs), :, start_component] > 0
         valid_component = output_adjacency_unpacked[torch.arange(num_graphs).view(-1, 1),
             torch.arange(max_components).view(1, -1), torch.arange(max_components).view(1, -1)] > 0
-        all_reachable_to_start = torch.all(reachable_to_start | ~valid_component, dim=1)
-
-        return all_reachable_from_start & all_reachable_to_start
+        count_unreachable_to_start = torch.sum((~reachable_to_start & valid_component).to(torch.float32), dim=1)
+        return count_unreachable_from_start + count_unreachable_to_start
 
     def compute_fast_component_matrix_cpu2(self, room_mask, room_position_x, room_position_y, left_mat, right_mat):
         # torch.cuda.synchronize(self.device)

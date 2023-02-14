@@ -101,7 +101,6 @@ class TrainingSession():
         # TODO: Skip computing model predictions for candidates failing connectivity requirements
         # (also: also amortize cost of connectivity computation by basing it on pre-action connectivity data
         # instead of recomputing from scratch for each candidate).
-        connectivity_valid_flat = self.envs[0].check_connectivity_valid(room_mask_flat, room_position_x_flat, room_position_y_flat)
         valid_flat = valid_flat
         valid_flat_ind = torch.nonzero(valid_flat)[:, 0]
 
@@ -112,6 +111,9 @@ class TrainingSession():
         steps_remaining_valid = steps_remaining_flat[valid_flat]
         round_frac_valid = round_frac_flat[valid_flat]
         temperature_valid = temperature_flat[valid_flat]
+
+        connectivity_violations_valid = self.envs[0].count_connectivity_violations(
+            room_mask_valid, room_position_x_valid, room_position_y_valid).to(action_candidates.device)
 
         # torch.cuda.synchronize()
         # logging.info("Creating map")
@@ -137,10 +139,9 @@ class TrainingSession():
         raw_logodds_flat[valid_flat_ind, :] = raw_logodds_valid
 
         expected_flat = torch.full([num_envs * num_candidates], -1e15, device=raw_logodds_valid.device)
-        expected_flat[valid_flat_ind] = expected_valid
-        # Give a lower score to candidates failing connectivity constraints, so that a dummy move (doing nothing)
-        # will be prefered over breaking these constraints:
-        expected_flat[~connectivity_valid_flat] = -2e15
+        expected_flat[valid_flat_ind] = torch.where(connectivity_violations_valid > 0, -2e15, expected_valid)
+        # cost_per_connectivity_violation = 100.0
+        # expected_flat[valid_flat_ind] = expected_valid - connectivity_violations_valid.to(expected_flat.device) * cost_per_connectivity_violation
 
         raw_logodds = raw_logodds_flat.view(num_envs, num_candidates, -1)
         expected = expected_flat.view(num_envs, num_candidates)
