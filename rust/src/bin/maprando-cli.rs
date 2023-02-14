@@ -130,6 +130,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         mark_map_stations: true,
         mark_uniques: true,
         mark_tanks: true,
+        fast_elevators: true,
         debug_options: Some(DebugOptions {
             new_game_extra: true,
             extended_spoiler: true,

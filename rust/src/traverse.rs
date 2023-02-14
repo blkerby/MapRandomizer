@@ -451,6 +451,13 @@ pub fn apply_requirement(
             new_local.missiles_used += multiply(*count, difficulty);
             validate_missiles(new_local, global)
         }
+        Requirement::MissilesCapacity(count) => {
+            if global.max_missiles >= *count {
+                Some(local)
+            } else {
+                None
+            }
+        }
         Requirement::Supers(count) => {
             let mut new_local = local;
             new_local.supers_used += multiply(*count, difficulty);

@@ -194,7 +194,6 @@ impl<'a> Patcher<'a> {
             "sandfalls",
             "saveload",
             "map_area",
-            "elevators_speed",
             "boss_exit",
             "itemsounds",
             "progressive_suits",
@@ -211,6 +210,7 @@ impl<'a> Patcher<'a> {
             "title_map_animation",
             "fast_reload",
             "shaktool",
+            "fix_water_fx_bug",
         ];
         let mut new_game = "new_game";
         if let Some(options) = &self.randomization.difficulty.debug_options {
@@ -218,12 +218,17 @@ impl<'a> Patcher<'a> {
                 new_game = "new_game_extra";
             }
         }
+        patches.push(new_game);
 
         if self.randomization.difficulty.streamlined_escape {
             patches.push("escape_items");
             patches.push("mother_brain_no_drain");
         }
-        patches.push(new_game);
+
+        if self.randomization.difficulty.fast_elevators {
+            patches.push("elevators_speed");
+        }
+
         for patch_name in patches {
             let patch_path = patches_dir.join(patch_name.to_string() + ".ips");
             apply_ips_patch(&mut self.rom, &patch_path)?;
@@ -565,19 +570,21 @@ impl<'a> Patcher<'a> {
         let mut area_map_max_y = [0; NUM_AREAS];
         for i in 0..self.map.area.len() {
             let area = self.map.area[i];
-            let x = self.map.rooms[i].0 as isize;
-            let y = self.map.rooms[i].1 as isize;
-            if x < area_map_min_x[area] {
-                area_map_min_x[area] = x;
+            let x0 = self.map.rooms[i].0 as isize;
+            let y0 = self.map.rooms[i].1 as isize;
+            let x1 = self.map.rooms[i].0 as isize + self.game_data.room_geometry[i].map[0].len() as isize;
+            let y1 = self.map.rooms[i].1 as isize + self.game_data.room_geometry[i].map.len() as isize;
+            if x0 < area_map_min_x[area] {
+                area_map_min_x[area] = x0;
             }
-            if x > area_map_max_x[area] {
-                area_map_max_x[area] = x;
+            if x1 > area_map_max_x[area] {
+                area_map_max_x[area] = x1;
             }
-            if y < area_map_min_y[area] {
-                area_map_min_y[area] = y;
+            if y0 < area_map_min_y[area] {
+                area_map_min_y[area] = y0;
             }
-            if y > area_map_max_y[area] {
-                area_map_max_y[area] = y;
+            if y1 > area_map_max_y[area] {
+                area_map_max_y[area] = y1;
             }
         }
 

@@ -8,6 +8,7 @@ use actix_web::http::header::{self, ContentDisposition, DispositionParam, Dispos
 use actix_web::middleware::Logger;
 use actix_web::{get, post, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
 use anyhow::{Context, Result};
+use base64::Engine;
 use clap::Parser;
 use hashbrown::{HashMap, HashSet};
 use log::{error, info};
@@ -17,13 +18,12 @@ use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::{make_rom, Rom};
 use maprando::randomize::{DifficultyConfig, Randomization, Randomizer};
 use maprando::seed_repository::{Seed, SeedFile, SeedRepository};
-use base64::Engine;
 use maprando::spoiler_map;
 use rand::{RngCore, SeedableRng};
 use sailfish::TemplateOnce;
 use serde_derive::{Deserialize, Serialize};
 
-const VERSION: usize = 35;
+const VERSION: usize = 36;
 
 #[derive(Serialize, Deserialize, Clone)]
 struct Preset {
@@ -134,6 +134,7 @@ struct RandomizeRequest {
     mark_map_stations: Text<bool>,
     mark_uniques: Text<bool>,
     mark_tanks: Text<bool>,
+    fast_elevators: Text<bool>,
 }
 
 #[derive(MultipartForm)]
@@ -160,6 +161,7 @@ struct SeedData {
     mark_map_stations: bool,
     mark_uniques: bool,
     mark_tanks: bool,
+    fast_elevators: bool,
 }
 
 fn get_seed_name(seed_data: &SeedData) -> String {
@@ -186,6 +188,7 @@ struct SeedHeaderTemplate<'a> {
     mark_map_stations: bool,
     mark_uniques: bool,
     mark_tanks: bool,
+    fast_elevators: bool,
 }
 
 #[derive(TemplateOnce)]
@@ -218,6 +221,7 @@ fn render_seed(seed_name: &str, seed_data: &SeedData) -> Result<(String, String)
         mark_map_stations: seed_data.mark_map_stations,
         mark_uniques: seed_data.mark_uniques,
         mark_tanks: seed_data.mark_tanks,
+        fast_elevators: seed_data.fast_elevators,
     };
     let seed_header_html = seed_header_template.render_once()?;
 
@@ -362,7 +366,8 @@ async fn customize_seed(
     match customize_rom(&mut rom, &patch_ips, &settings, &app_data.game_data) {
         Ok(()) => {}
         Err(err) => {
-            return HttpResponse::InternalServerError().body(format!("Error customizing ROM: {:?}", err))
+            return HttpResponse::InternalServerError()
+                .body(format!("Error customizing ROM: {:?}", err))
         }
     }
 
@@ -487,6 +492,7 @@ async fn randomize(
         mark_map_stations: req.mark_map_stations.0,
         mark_uniques: req.mark_uniques.0,
         mark_tanks: req.mark_tanks.0,
+        fast_elevators: req.fast_elevators.0,
         debug_options: None,
     };
     let race_mode = req.race_mode.0 == "Yes";
@@ -542,6 +548,7 @@ async fn randomize(
         mark_map_stations: req.mark_map_stations.0,
         mark_uniques: req.mark_uniques.0,
         mark_tanks: req.mark_tanks.0,
+        fast_elevators: req.fast_elevators.0,
     };
 
     let output_rom = make_rom(&rom, &randomization, &app_data.game_data).unwrap();
@@ -569,10 +576,16 @@ fn init_presets(presets: Vec<Preset>, game_data: &GameData) -> Vec<PresetData> {
     let mut cumulative_tech: HashSet<String> = HashSet::new();
 
     // Tech which is currently not used by any strat in logic, so we avoid showing on the website:
-    let ignored_tech: HashSet<String> = ["canWallIceClip", "canGrappleClip", "canUseSpeedEchoes"]
-        .iter()
-        .map(|x| x.to_string())
-        .collect();
+    let ignored_tech: HashSet<String> = [
+        "canWallIceClip",
+        "canGrappleClip",
+        "canUseSpeedEchoes",
+        "canSamusEaterStandUp",
+        "canRiskPermanentLossOfAccess",
+    ]
+    .iter()
+    .map(|x| x.to_string())
+    .collect();
     for tech in &ignored_tech {
         if !game_data.tech_isv.index_by_key.contains_key(tech) {
             panic!("Unrecognized ignored tech \"{tech}\"");

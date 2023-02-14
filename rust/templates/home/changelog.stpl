@@ -3,6 +3,21 @@
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-36---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 36 (2023-02-14)</a>:
+<ul>
+<li>Map glitch in the top and bottom rows of tiles should no longer occur.
+<li>Samus animation is no longer glitched when transitioning from water FX to non-water FX rooms.
+<li>Fast elevators is now a Quality-of-life option so it can be disabled.
+<li>Waking Zebes is now in logic again (fixes a bug introduced in Version 35).
+<li>Other logic updates (<a href="https://github.com/kjbranch/sm-json-data/compare/946d82f...kjbranch:sm-json-data:f581c39">diff</a>)
+    <ul>
+    <li>New tech added: canMoonwalk, canConsecutiveWalljump, canStaggeredWalljump,
+    canMomentumConservingTurnaround, canFlatleyJump, canDoubleBombJump, canDiagonalBombJump, canResetFallSpeed,
+    canMellaIceClip, canCrystalFlashClip, canCrystalFlashGrappleClip, canWallJumpBombBoost,
+    canCrouchGateClip, canStaggeredIBJ, canPrepareForNextRoom
+    </ul>
+</ul>
+
 <p><a href="https://version-35---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 35 (2023-02-08)</a>:
 <ul>
 <li>Improvements to Botwoon and Golden Torizo logic which overall make the fights more lenient, especially

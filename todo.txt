@@ -1,8 +1,10 @@
 Release plan:
-v36: sprite customization (?), 
-  - music options
+v36: 
   - fast elevator
+  - music options
 
+v37:
+sprite customization (?),
 
 TODO:
 - explain about doors being turned blue
@@ -23,7 +25,6 @@ TODO:
 
     JSL $878064 ;add back what we overwrote
     RTS
-- throw out seed if too many locations become one-way reachable (to protect against giant softlock)?
 - figure out why some rooms are dark (some FX other than palette FX?)
 - add back palette FX glows using correct palettes.
 - fix palette in Crocomire cutscene when wall collapses
@@ -45,10 +46,7 @@ TODO:
     - Improve map connectedness so it's less likely for a large area to have only one exit.
 - Logic updates:
   - Add speedball strat in Big Pink from 13 to 1 (to top left door)
-- Ridley kill still accidentally requires heatProof: fix this.
 - Fix map tile at Big Pink bottom missile
-- Handle other boss fights like we did Ridley:
-  - GT
 - Remove Crocomire funny map behavior?
 - Handle shinespark_frames=0 correctly (don't require 29 energy)
 - Better validation/error-handling of web service
