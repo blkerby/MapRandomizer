@@ -52,6 +52,7 @@ pub struct DifficultyConfig {
     pub mark_map_stations: bool,
     pub mark_uniques: bool,
     pub mark_tanks: bool,
+    pub fast_elevators: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub debug_options: Option<DebugOptions>,
 }

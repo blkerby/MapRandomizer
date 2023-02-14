@@ -112,6 +112,7 @@ pub enum Requirement {
     Damage(i32),
     // Energy(i32),
     Missiles(i32),
+    MissilesCapacity(i32),
     Supers(i32),
     PowerBombs(i32),
     EnergyRefill,
@@ -452,6 +453,9 @@ impl GameData {
                 return Ok(Requirement::And(
                     self.parse_requires_list(value.members().as_slice())?,
                 ));
+            } else if key == "not" {
+                // For now, assume we can't do these, since they could get us permanently stuck.
+                return Ok(Requirement::Never);
             } else if key == "ammo" {
                 let ammo_type = value["type"]
                     .as_str()
@@ -468,6 +472,20 @@ impl GameData {
                 } else {
                     bail!("Unexpected ammo type in {}", json_value);
                 }
+            } else if key == "resourceCapacity" {
+                assert!(value.members().len() == 1);
+                let value0 = value.members().next().unwrap();
+                let resource_type = value0["type"]
+                    .as_str()
+                    .expect(&format!("missing/invalid resource type in {}", json_value));
+                let count = value0["count"]
+                    .as_i32()
+                    .expect(&format!("missing/invalid resource count in {}", json_value));
+                if resource_type == "Missile" {
+                    return Ok(Requirement::MissilesCapacity(count as Capacity));
+                } else {
+                    bail!("Unexpected ammo type in {}", json_value);
+                }    
             } else if key == "ammoDrain" {
                 // We patch out the ammo drain from the Mother Brain fight.
                 return Ok(Requirement::Free);
@@ -554,9 +572,7 @@ impl GameData {
                         second_phase: false,
                     });
                 } else if enemy_set.contains("Botwoon 2") {
-                    return Ok(Requirement::BotwoonFight {
-                        second_phase: true,
-                    });
+                    return Ok(Requirement::BotwoonFight { second_phase: true });
                 }
 
                 let mut allowed_weapons: WeaponMask = if value.has_key("explicitWeapons") {
@@ -790,7 +806,10 @@ impl GameData {
                 assert!(node_json["locks"].len() == 1);
                 let base_node_name = node_json["name"].as_str().unwrap().to_string();
                 let lock = node_json["locks"][0].clone();
-                let yields = node_json["yields"].clone();
+                let mut yields = node_json["yields"].clone();
+                if lock["yields"] != JsonValue::Null {
+                    yields = lock["yields"].clone();
+                }
                 node_json.remove("locks");
                 let mut unlocked_node_json = node_json.clone();
                 if yields != JsonValue::Null {

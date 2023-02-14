@@ -38,6 +38,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("markMapStationsNo").checked = true;
         document.getElementById("markUniquesNo").checked = true;
         document.getElementById("markTanksNo").checked = true;
+        document.getElementById("fastElevatorsNo").checked = true;
     }
     if (document.getElementById("qualityOfLifeYes").checked) {
         document.getElementById("supersDoubleYes").checked = true;
@@ -45,6 +46,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("markMapStationsYes").checked = true;
         document.getElementById("markUniquesYes").checked = true;
         document.getElementById("markTanksYes").checked = true;
+        document.getElementById("fastElevatorsYes").checked = true;
     }    
 }
 function qualityOfLifeSettingChanged() {
