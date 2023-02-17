@@ -582,7 +582,7 @@ class MazeBuilderEnv:
 
     def compute_map(self, room_mask, room_position_x, room_position_y):
         map = self.initial_map.repeat(room_mask.shape[0], 1, 1, 1)
-        map_flat = map.view(map.shape[0], -1)
+        map_flat = map.view(map.shape[0], map.shape[1] * map.shape[2] * map.shape[3])
 
         room_data_id = self.room_data[:, 0]
         room_data_x = self.room_data[:, 1]
@@ -973,7 +973,7 @@ class MazeBuilderEnv:
         # logging.info("Transfer")
         # torch.cuda.synchronize(self.device)
         # start_post = time.perf_counter()
-        good_output_components = output_components[:, self.good_room_parts]
+        good_output_components = output_components[:, self.good_room_parts.to(output_components.device)]
         good_output_components = good_output_components.to(left_mat.device)
         output_adjacency_unpacked = output_adjacency_unpacked.to(left_mat.device)
 

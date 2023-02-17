@@ -19,6 +19,7 @@ from maze_builder.replay import ReplayBuffer
 from model_average import ExponentialAverage
 import io
 import logic.rooms.crateria_isolated
+import logic.rooms.norfair_isolated
 import logic.rooms.all_rooms
 
 
@@ -43,13 +44,17 @@ executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 # num_envs = 1
 num_envs = 2 ** 9
 # rooms = logic.rooms.crateria_isolated.rooms
-rooms = logic.rooms.all_rooms.rooms
+rooms = logic.rooms.norfair_isolated.rooms
+# rooms = logic.rooms.all_rooms.rooms
 episode_length = len(rooms)
 
 # map_x = 32
 # map_y = 32
-map_x = 72
-map_y = 72
+# map_x = 72
+# map_y = 72
+map_x = 48
+map_y = 48
+
 env_config = EnvConfig(
     rooms=rooms,
     map_x=map_x,
@@ -158,32 +163,32 @@ logging.info("max_possible_reward = {}".format(max_possible_reward))
 # # session = pickle.load(open('models/checkpoint-3-train.pkl', 'rb'))
 # eval_batches = pickle.load(open('models/checkpoint-4-eval_batches.pkl', 'rb'))
 # #
-# model = DoorLocalModel(
-#     env_config=env_config,
-#     num_doors=envs[0].num_doors,
-#     num_missing_connects=envs[0].num_missing_connects,
-#     num_room_parts=len(envs[0].good_room_parts),
-#     map_channels=4,
-#     map_kernel_size=16,
-#     connectivity_in_width=64,
-#     local_widths=[256, 0],
-#     global_widths=[256, 256],
-#     fc_widths=[256, 256, 256],
-#     alpha=2.0,
-#     arity=2,
-# ).to(device)
-#
-# model.state_value_lin.weight.data.zero_()
-# model.state_value_lin.bias.data.zero_()
-# optimizer = torch.optim.Adam(model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
-# replay_size = 2 ** 17
-# session = TrainingSession(envs,
-#                           model=model,
-#                           optimizer=optimizer,
-#                           ema_beta=0.999,
-#                           replay_size=replay_size,
-#                           decay_amount=0.0,
-#                           sam_scale=None)
+model = DoorLocalModel(
+    env_config=env_config,
+    num_doors=envs[0].num_doors,
+    num_missing_connects=envs[0].num_missing_connects,
+    num_room_parts=len(envs[0].good_room_parts),
+    map_channels=4,
+    map_kernel_size=16,
+    connectivity_in_width=64,
+    local_widths=[256, 256],
+    global_widths=[256, 256],
+    fc_widths=[256, 256, 256],
+    alpha=2.0,
+    arity=2,
+).to(device)
+
+model.state_value_lin.weight.data.zero_()
+model.state_value_lin.bias.data.zero_()
+optimizer = torch.optim.Adam(model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
+replay_size = 2 ** 20
+session = TrainingSession(envs,
+                          model=model,
+                          optimizer=optimizer,
+                          ema_beta=0.999,
+                          replay_size=replay_size,
+                          decay_amount=0.0,
+                          sam_scale=None)
 
 # # Feature skew check:
 # data = session.generate_round(
@@ -331,30 +336,29 @@ logging.info("max_possible_reward = {}".format(max_possible_reward))
 
 # pickle_name = 'models/session-2022-06-03T17:19:29.727911.pkl'
 # session = pickle.load(open(pickle_name, 'rb'))
-session = pickle.load(open(pickle_name + '-bk35', 'rb'))
+# session = pickle.load(open(pickle_name + '-bk35', 'rb'))
 # session.replay_buffer.resize(400000)
 # session.replay_buffer.resize(2 ** 23)
-session.envs = envs
+# session.envs = envs
 # session.replay_buffer.episode_data.cand_count = torch.zeros_like(session.replay_buffer.episode_data.prob)
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
 # session.replay_buffer.resize(2 ** 23)
-hist = 2 ** 23
+hist = 2 ** 20
 hist_c = 1.0
 batch_size = 2 ** 10
-lr = 0.00002
-# num_candidates = 8
-num_candidates0 = 40
-num_candidates1 = 40
+lr = 0.002
+num_candidates0 = 8
+num_candidates1 = 8
 explore_eps_factor = 0.0
 # temperature_min = 0.02
 # temperature_max = 2.0
-temperature_min0 = 0.02
-temperature_min1 = 0.005
-temperature_max0 = 2.0
-temperature_max1 = 5.0
-annealing_start = 166896
-annealing_time = 1000
-pass_factor = 0.2
+temperature_min0 = 10.0
+temperature_min1 = 0.1
+temperature_max0 = 1000.0
+temperature_max1 = 10.0
+annealing_start = 0
+annealing_time = 128
+pass_factor = 1.0
 print_freq = 8
 total_reward = 0
 total_loss = 0.0
@@ -364,12 +368,12 @@ total_prob = 0.0
 total_prob0 = 0.0
 total_round_cnt = 0
 total_min_door_frac = 0
-save_freq = 128
+save_freq = 256
 summary_freq = 256
 session.decay_amount = 0.01
 session.optimizer.param_groups[0]['betas'] = (0.9, 0.9)
 session.optimizer.param_groups[0]['eps'] = 1e-5
-session.average_parameters.beta = 0.9999
+session.average_parameters.beta = 0.995
 
 min_door_value = max_possible_reward
 torch.set_printoptions(linewidth=120, threshold=10000)
