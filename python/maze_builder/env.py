@@ -601,6 +601,44 @@ class MazeBuilderEnv:
         map_flat.scatter_add_(dim=1, index=flat_ind, src=room_data_value)
         return map_flat.view(*map.shape)
 
+   # TODO: Combined `door_connects` and `open_door_locations` to reduce duplicated computation:
+    def open_door_locations(self, map, room_mask, room_position_x, room_position_y):
+        data_tuples = [
+            (self.room_left, 1),
+            (self.room_right, 1),
+            (self.room_down, 2),
+            (self.room_up, 2),
+        ]
+        data_list = []
+        cumul_door_id = 0
+        for room_dir, channel in data_tuples:
+            room_id = room_dir[:, 0]
+            relative_door_x = room_dir[:, 1]
+            relative_door_y = room_dir[:, 2]
+            door_x = room_position_x[:, room_id] + relative_door_x.unsqueeze(0)
+            door_y = room_position_y[:, room_id] + relative_door_y.unsqueeze(0)
+            mask = room_mask[:, room_id]
+            tile = map[
+                torch.arange(map.shape[0], device=self.device).view(-1, 1),
+                channel,
+                door_x,
+                door_y]
+            is_open = mask & (tile != 0)
+            coords = torch.nonzero(is_open)
+            open_env_id = coords[:, 0]
+            open_door_id = coords[:, 1]
+            open_door_x = door_x[open_env_id, open_door_id]
+            open_door_y = door_y[open_env_id, open_door_id]
+            data = torch.stack([
+                open_env_id,
+                open_door_id + cumul_door_id,
+                open_door_x,
+                open_door_y,
+            ], dim=1)
+            data_list.append(data)
+            cumul_door_id += room_dir.shape[0]
+        return data_list
+
     def compute_map_shifted(self, room_mask, room_position_x, room_position_y, center_x, center_y):
         map = torch.zeros([room_mask.shape[0], self.map_channels, self.map_x, self.map_y],
                           dtype=torch.int8, device=self.device)

@@ -25,7 +25,6 @@ TODO:
 - add front page to website
 - put back gray doors locked by enemy kills (Metal Pirates, etc.)
   - decide whether these should still wake the planet?
-- apply bomb torizo patch (from varia) to make it awake when its item is picked up (rather than bombs)?
 
 - explain about doors being turned blue
 - increase amount of rolling saves?
