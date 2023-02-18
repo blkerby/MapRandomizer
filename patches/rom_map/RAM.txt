@@ -2,3 +2,4 @@ $1F5B: map area (like $079F)
 $1F5D: items collected before getting them all for free at hyper beam (to use in "rate for collecting items"
        after credits). This is a snapshot of $09A4, captured in `escape.asm`, at the time of getting hyper beam.
 $1F60: fast_reload.asm
+$7ed86c: bomb_torizo.asm
