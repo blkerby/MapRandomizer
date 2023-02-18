@@ -14,7 +14,6 @@ at lower difficulty settings:
     </ul>
 <li>Fix a bug that prevented the "Save the Animals" setting from being taken into account in the escape timer.
 <li>Fast reload (L + R + Select + Start) now also works during the death animation.
-<li>Bomb Torizo's door now closes if you pick up the item in the room (rather than if you have Morph Bombs).
 </ul>
 
 <p><a href="https://version-36---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 36 (2023-02-14)</a>:
