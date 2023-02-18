@@ -211,6 +211,7 @@ impl<'a> Patcher<'a> {
             "fast_reload",
             "shaktool",
             "fix_water_fx_bug",
+            "bomb_torizo",
         ];
         let mut new_game = "new_game";
         if let Some(options) = &self.randomization.difficulty.debug_options {
