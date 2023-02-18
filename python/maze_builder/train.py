@@ -50,8 +50,11 @@ episode_length = len(rooms)
 
 # map_x = 32
 # map_y = 32
-map_x = 72
-map_y = 72
+# map_x = 72
+# map_y = 72
+map_x = 48
+map_y = 48
+
 env_config = EnvConfig(
     rooms=rooms,
     map_x=map_x,
@@ -159,7 +162,6 @@ logging.info("max_possible_reward = {}".format(max_possible_reward))
 # eval_batches = pickle.load(open('models/eval_batches.pkl', 'rb'))
 # session = pickle.load(open('models/checkpoint-3-train.pkl', 'rb'))
 # eval_batches = pickle.load(open('models/checkpoint-4-eval_batches.pkl', 'rb'))
-
 model = DoorLocalModel(
     env_config=env_config,
     num_doors=envs[0].num_doors,
@@ -340,8 +342,8 @@ session = TrainingSession(envs,
 # session.envs = envs
 # session.replay_buffer.episode_data.cand_count = torch.zeros_like(session.replay_buffer.episode_data.prob)
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
-# session.replay_buffer.resize(2 ** 21)
-# hist = 2 ** 23
+# session.replay_buffer.resize(2 ** 23)
+hist = 2 ** 20
 hist_c = 1.0
 hist_frac = 0.5
 batch_size = 2 ** 10
@@ -377,6 +379,7 @@ session.optimizer.param_groups[0]['betas'] = (0.9, 0.9)
 session.optimizer.param_groups[0]['eps'] = 1e-5
 ema_beta0 = 0.99
 ema_beta1 = 0.9999
+session.average_parameters.beta = 0.995
 
 min_door_value = max_possible_reward
 torch.set_printoptions(linewidth=120, threshold=10000)
