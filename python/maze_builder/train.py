@@ -50,10 +50,10 @@ episode_length = len(rooms)
 
 # map_x = 32
 # map_y = 32
-# map_x = 72
-# map_y = 72
-map_x = 48
-map_y = 48
+map_x = 72
+map_y = 72
+# map_x = 48
+# map_y = 48
 
 env_config = EnvConfig(
     rooms=rooms,
