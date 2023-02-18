@@ -492,17 +492,18 @@ class DoorLocalModel(torch.nn.Module):
                 combined_X = torch.cat([local_X, global_X_broadcast], dim=1)
                 combined_X = self.local_lin_layers[i](combined_X)
                 combined_X = self.local_act_layers[i](combined_X)
-                local_X = combined_X[:, :self.local_widths[i + 1]]
+                local_X = local_X + combined_X[:, :self.local_widths[i + 1]]
                 raw_global_X = combined_X[:, self.local_widths[i + 1]:]
                 zeros = torch.zeros([n, self.global_widths[i + 1]], dtype=combined_X.dtype, device=combined_X.device)
                 repeated_env_id = local_env_id.view(-1, 1).expand(local_env_id.shape[0], raw_global_X.shape[1])
-                global_X = torch.scatter_add(zeros, dim=0, index=repeated_env_id, src=raw_global_X)
+                global_X = global_X + torch.scatter_add(zeros, dim=0, index=repeated_env_id, src=raw_global_X)
 
             local_door_logodds_raw = self.local_door_logodds_layer(local_X)[:, 0]
 
             for i in range(len(self.fc_lin_layers)):
-                global_X = self.fc_lin_layers[i](global_X)
-                global_X = self.fc_act_layers[i](global_X)
+                lin = self.fc_lin_layers[i](global_X)
+                act = self.fc_act_layers[i](lin)
+                global_X = global_X + act
 
             door_connects = env.door_connects(map, room_mask, room_position_x, room_position_y)
             # missing_connects = connectivity[:, env.good_missing_connection_src, env.good_missing_connection_dst]
@@ -525,7 +526,8 @@ class DoorLocalModel(torch.nn.Module):
             state_value_raw_logodds = self.state_value_lin(global_X).to(torch.float32)
             # door_connects_raw_logodds = state_value_raw_logodds[:, :self.num_doors]
             global_door_connects_raw_logodds = state_value_raw_logodds[:, :self.num_doors]
-            door_connects_raw_logodds = torch.where(local_door_mask, local_door_logodds, global_door_connects_raw_logodds)
+            # door_connects_raw_logodds = torch.where(local_door_mask, local_door_logodds, global_door_connects_raw_logodds)
+            door_connects_raw_logodds = global_door_connects_raw_logodds
 
             missing_connects_raw_logodds = state_value_raw_logodds[:, self.num_doors:]
             # inf_tensor = torch.zeros_like(door_connects_raw_logodds)
