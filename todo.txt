@@ -1,31 +1,30 @@
 Release plan:
-v36: 
-  - fast elevator
-  - music options
 
 v37:
-sprite customization (?),
+- fix save the animals time
+- make quick reload work during death animation.
+- phantoon & draygon logic
+- pull in other logic updates
+
+v38:
+- save balancing (not at end of hallways)
+
+v39:
+- diabolical mode
+
+v40?:
+  - sprite customization (?),
+  - music options
+
+
 
 TODO:
+- fix bug with save the animals escape time.
 - make quick reload work during death animation.
 - explain about doors being turned blue
 - add front page to website
 - increase amount of rolling saves?
   - auto-reload in save room to go back a save? (what about in Landing Site?)
-- try to fix water-to-no-water bug, using this snippet from Benox
-    ;Door transition Hijack
-    org $82E659
-    JSR $FA29
-    NOP
-
-    ;Do stuff
-    org $82FA29
-
-    ;And since we are here, lets fix at the same time the entering from water to no water animation bug 
-    STZ $0A9C
-
-    JSL $878064 ;add back what we overwrote
-    RTS
 - figure out why some rooms are dark (some FX other than palette FX?)
 - add back palette FX glows using correct palettes.
 - fix palette in Crocomire cutscene when wall collapses

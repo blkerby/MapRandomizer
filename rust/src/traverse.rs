@@ -79,6 +79,135 @@ fn get_charge_damage(global: &GlobalState) -> f32 {
     } * 3.0;
 }
 
+fn apply_phantoon_requirement(
+    global: &GlobalState,
+    mut local: LocalState,
+    proficiency: f32,
+) -> Option<LocalState> {
+    // We only consider simple, safer strats here, where we try to damage Phantoon as much as possible
+    // as soon as he opens his eye. Faster or more complex strats are not relevant, since at
+    // high proficiency the fight is considered free anyway (as long as Charge or any ammo is available)
+    // since all damage can be avoided.
+    let boss_hp: f32 = 2500.0;
+    let charge_damage = get_charge_damage(&global);
+
+    // Assume a firing rate of between 50% (on lowest difficulty) to 100% (on highest).
+    // This represents missing the opportunity to hit Phantoon when he first opens his eye,
+    // and having to wait for the invisible phase.
+    let firing_rate = 0.5 + 0.5 * proficiency;
+
+    let mut possible_kill_times: Vec<f32> = vec![];
+    if charge_damage > 0.0 {
+        let charge_shots_to_use = f32::ceil(boss_hp / charge_damage);
+        // Assume max 1 charge shot per 10 seconds. With weaker beams, a higher firing rate is
+        // possible, but we leave it like this to roughly account for the higher risk of
+        // damage from Phantoon's body when one shot won't immediately despawn him.
+        let time = charge_shots_to_use as f32 * 10.0 / firing_rate;
+        possible_kill_times.push(time);
+    }
+    if global.max_missiles > 0 {
+        // We don't worry about ammo quantity since they can be farmed from the flames.
+        let missiles_to_use = f32::ceil(boss_hp / 100.0);
+        // Assume max average rate of 3 missiles per 10 seconds:
+        let time = missiles_to_use as f32 * 10.0 / 3.0 / firing_rate;
+        possible_kill_times.push(time);
+    }
+    if global.max_supers > 0 {
+        // We don't worry about ammo quantity since they can be farmed from the flames.
+        let supers_to_use = f32::ceil(boss_hp / 600.0);
+        let time = supers_to_use as f32 * 30.0; // Assume average rate of 1 Super per 30 seconds
+        possible_kill_times.push(time);
+    }
+
+    let kill_time = match possible_kill_times.iter().min_by(|x, y| x.total_cmp(y)) {
+        Some(t) => t,
+        None => { return None; }
+    };
+
+    // Assumed rate of damage to Samus per second.
+    let base_hit_dps = 10.0 * (1.0 - 0.6 * proficiency);
+
+    // Assumed average energy per second gained from farming flames:
+    let farm_rate = 4.0 * (0.25 + 0.75 * proficiency);
+
+    // Net damage taken by Samus per second, taking into account suit protection and farms:
+    let mut net_dps = base_hit_dps / suit_damage_factor(global) as f32 - farm_rate;
+    if net_dps < 0.0 {
+        // We could assume we could refill on energy or ammo using farms, but by omitting this for now 
+        // we're just making the logic a little more conservative in favor of the player.
+        net_dps = 0.0;
+    }
+
+    local.energy_used += (net_dps * kill_time) as Capacity;
+
+    validate_energy(local, global)
+}
+
+fn apply_draygon_requirement(
+    global: &GlobalState,
+    mut local: LocalState,
+    proficiency: f32,
+    can_be_patient_tech_id: usize,
+) -> Option<LocalState> {
+    let boss_hp: f32 = 6000.0;
+    let charge_damage = get_charge_damage(&global);
+
+    // Assume an accuracy of between 60% (on lowest difficulty) to 100% (on highest).
+    let accuracy = 0.6 + 0.4 * proficiency;
+
+    // Assume a firing rate of between 60% (on lowest difficulty) to 100% (on highest).
+    let firing_rate = 0.6 + 0.4 * proficiency;
+
+    let mut possible_kill_times: Vec<f32> = vec![];
+    if charge_damage > 0.0 {
+        let charge_shots_to_use = f32::ceil(boss_hp / charge_damage / accuracy);
+        // Assume max 1 charge shot per 3 seconds.
+        let time = charge_shots_to_use as f32 * 3.0 / firing_rate;
+        possible_kill_times.push(time);
+    }
+    if global.max_missiles > 0 {
+        // We don't worry about ammo quantity since they can be farmed from the goops.
+        let missiles_to_use = f32::ceil(boss_hp / 100.0 / accuracy);
+        // Assume max average rate of 1 missiles per second:
+        let time = missiles_to_use as f32 * 1.0 / firing_rate;
+        possible_kill_times.push(time);
+    }
+    // We ignore the possibility of using Supers since farming them is very slow and the
+    // potential benefit over using Missiles is limited.
+
+    let kill_time = match possible_kill_times.iter().min_by(|x, y| x.total_cmp(y)) {
+        Some(&t) => t,
+        None => { return None; }
+    };
+
+    if kill_time >= 180.0 && !global.tech[can_be_patient_tech_id] {
+        // We don't have enough patience to finish the fight:
+        return None;
+    }
+
+    // Assumed rate of damage to Samus per second.
+    let base_hit_dps = 20.0 * (1.0 - 0.9 * proficiency);
+
+    // TODO: we should take into account key items like Morph, Gravity, and Screw Attack.
+    // We ignore this for now; the strats already ensure either Morph or Gravity is available.
+
+    // Assumed average energy per second gained from farming goops:
+    let farm_rate = 3.0 * (0.5 + 0.5 * proficiency);
+
+    // Net damage taken by Samus per second, taking into account suit protection and farms:
+    let mut net_dps = base_hit_dps / suit_damage_factor(global) as f32 - farm_rate;
+    if net_dps < 0.0 {
+        // We could assume we could refill on energy or ammo using farms, but by omitting this for now 
+        // we're just making the logic a little more conservative in favor of the player.
+        net_dps = 0.0;
+    }
+
+    local.energy_used += (net_dps * kill_time) as Capacity;
+
+    validate_energy(local, global)
+}
+
+
 fn apply_ridley_requirement(
     global: &GlobalState,
     mut local: LocalState,
@@ -516,6 +645,12 @@ pub fn apply_requirement(
             } else {
                 None
             }
+        }
+        Requirement::PhantoonFight { } => {
+            apply_phantoon_requirement(global, local, difficulty.phantoon_proficiency)
+        }
+        Requirement::DraygonFight { can_be_patient_tech_id } => {
+            apply_draygon_requirement(global, local, difficulty.draygon_proficiency, *can_be_patient_tech_id)
         }
         Requirement::RidleyFight { can_be_patient_tech_id } => {
             apply_ridley_requirement(global, local, difficulty.ridley_proficiency, *can_be_patient_tech_id)

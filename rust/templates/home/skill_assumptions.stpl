@@ -25,11 +25,20 @@
             </div>
 
             <div class="form-group row m-2">
-                <label for="botwoonProficiency" class="col-sm-6 col-form-label">Botwoon proficiency<br>
-                <small>(Skill level at the Botwoon fight, between 0 and 1)</small>
+                <label for="phantoonProficiency" class="col-sm-6 col-form-label">Phantoon proficiency<br>
+                <small>(Skill level at the Phantoon fight, between 0 and 1)</small>
                 </label>
                 <div class="col-sm-2">
-                    <input type="text" class="form-control" name="botwoon_proficiency" id="botwoonProficiency" value="0.0">
+                    <input type="text" class="form-control" name="phantoon_proficiency" id="phantoonProficiency" value="0.0">
+                </div>
+            </div>
+
+            <div class="form-group row m-2">
+                <label for="draygonProficiency" class="col-sm-6 col-form-label">Draygon proficiency<br>
+                <small>(Skill level at the Draygon fight, between 0 and 1)</small>
+                </label>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" name="draygon_proficiency" id="draygonProficiency" value="0.0">
                 </div>
             </div>
 
@@ -39,6 +48,15 @@
                 </label>
                 <div class="col-sm-2">
                     <input type="text" class="form-control" name="ridley_proficiency" id="ridleyProficiency" value="0.0">
+                </div>
+            </div>
+
+            <div class="form-group row m-2">
+                <label for="botwoonProficiency" class="col-sm-6 col-form-label">Botwoon proficiency<br>
+                <small>(Skill level at the Botwoon fight, between 0 and 1)</small>
+                </label>
+                <div class="col-sm-2">
+                    <input type="text" class="form-control" name="botwoon_proficiency" id="botwoonProficiency" value="0.0">
                 </div>
             </div>
 
@@ -55,9 +73,9 @@
                 <label class="col-sm-6 col-form-label" for="preset">Save the animals<br>
                 <small>(Take into account extra time needed in the escape)</small></label>
                 <div class="col-sm-4 btn-group my-3" role="group">
-                    <input type="radio" class="btn-check" name="save_animals" id="saveAnimalsNo" value="No" checked=true>
+                    <input type="radio" class="btn-check" name="save_animals" id="saveAnimalsNo" value="false" checked=true>
                     <label class="btn btn-outline-primary" for="saveAnimalsNo">No</label>
-                    <input type="radio" class="btn-check" name="save_animals" id="saveAnimalsYes" value="Yes">
+                    <input type="radio" class="btn-check" name="save_animals" id="saveAnimalsYes" value="true">
                     <label class="btn btn-outline-primary" for="saveAnimalsYes">Yes</label>
                 </div>
             </div>
