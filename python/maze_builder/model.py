@@ -526,8 +526,8 @@ class DoorLocalModel(torch.nn.Module):
             state_value_raw_logodds = self.state_value_lin(global_X).to(torch.float32)
             # door_connects_raw_logodds = state_value_raw_logodds[:, :self.num_doors]
             global_door_connects_raw_logodds = state_value_raw_logodds[:, :self.num_doors]
-            # door_connects_raw_logodds = torch.where(local_door_mask, local_door_logodds, global_door_connects_raw_logodds)
-            door_connects_raw_logodds = global_door_connects_raw_logodds
+            door_connects_raw_logodds = torch.where(local_door_mask, local_door_logodds, global_door_connects_raw_logodds)
+            # door_connects_raw_logodds = global_door_connects_raw_logodds
 
             missing_connects_raw_logodds = state_value_raw_logodds[:, self.num_doors:]
             # inf_tensor = torch.zeros_like(door_connects_raw_logodds)

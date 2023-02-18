@@ -3,8 +3,9 @@
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-37---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 37 (???)</a>:
+<p><a href="https://version-37---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 37 (2023-02-18)</a>:
 <ul>
+<li>Bomb Torizo's door now closes if you pick up the item in the room (rather than if you have Morph Bombs).
 <li>Improvements to Phantoon and Draygon logic which make the fights more lenient, especially
 at lower difficulty settings:
     <ul>
@@ -12,9 +13,9 @@ at lower difficulty settings:
     Ridley and Botwoon). Lower values of these settings will ensure that helpful items 
     such as tanks, suits, and beams will be obtainable before the fight is in logic.
     </ul>
-<li>Fix a bug that prevented the "Save the Animals" setting from being taken into account in the escape timer.
-<li>Fast reload (L + R + Select + Start) now also works during the death animation.
-<li>Bomb Torizo's door now closes if you pick up the item in the room (rather than if you have Morph Bombs).
+<li>A bug that prevented the "Save the Animals" setting from being taken into account in the escape timer is fixed.
+<li>Fast reload (L + R + Select + Start) now works during the death animation.
+<li>Pause-menu tiles next to area names are corrected to be black instead of transparent.
 </ul>
 
 <p><a href="https://version-36---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 36 (2023-02-14)</a>:
