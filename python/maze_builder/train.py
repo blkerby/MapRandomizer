@@ -331,10 +331,10 @@ session = TrainingSession(envs,
 # session.replay_buffer.episode_data.prob0 = torch.clone(session.replay_buffer.episode_data.prob)
 
 
-pickle_name = 'models/session-2023-02-17T20:14:59.079056.pkl'
+# pickle_name = 'models/session-2023-02-17T20:14:59.079056.pkl'
 # pickle_name = 'models/07-31-session-2022-06-03T17:19:29.727911.pkl-bk30-small'
 # session = pickle.load(open(pickle_name, 'rb'))
-session = pickle.load(open(pickle_name + '-bk1', 'rb'))
+# session = pickle.load(open(pickle_name + '-bk1', 'rb'))
 # session.replay_buffer.resize(400000)
 # session.replay_buffer.resize(2 ** 23)
 # session.envs = envs
