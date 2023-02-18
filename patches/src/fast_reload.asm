@@ -35,19 +35,68 @@ warnpc $82DDF1
 
 ; Hook main gameplay
 org $828BB3
-    JSL !freespace82_start
+    JSL hook_main
+
+; Hook state $14 (Samus ran out of health, black out surroundings)
+org $82DD6B
+    JSL hook_14
+
+; Hook state $15 (Samus ran out of health, black out surroundings)
+org $82DD74
+    JSL hook_15
+
+; Hook state $16 (Samus ran out of health, starting death animation)
+org $82DD8A
+    JSL hook_16
+
+; Hook state $17 (Samus ran out of health, flashing)
+org $82DD9D
+    JSL hook_17
+
+; Hook state $18 (Samus ran out of health, explosion)
+org $82DDB2
+    JSL hook_18
 
 org !freespace82_start
+
+hook_main:
+    JSL $A09169  ; run hi-jacked instruction
+    JMP check_reload
+
+hook_14:
+    JSL $808FF7  ; run hi-jacked instruction
+    JMP check_reload
+
+hook_15:
+    JSL $908A00  ; run hi-jacked instruction
+    JMP check_reload
+
+hook_16:
+    JSL $9BB43C  ; run hi-jacked instruction
+    JMP check_reload
+
+hook_17:
+    JSL $9BB441  ; run hi-jacked instruction
+    JMP check_reload
+
+hook_18:
+    JSL $9BB701  ; run hi-jacked instruction
+    JMP check_reload
+
+check_reload:
+    PHP
+    REP #$30
     PHA
     lda $8B      ; Controller 1 input
     and #$3030   ; L + R + Select + Start
     cmp #$3030
     beq reset
     PLA
-    JSL $A09169  ; run hi-jacked instruction
+    PLP
     RTL
 reset:
     PLA
+    PLP
     jsr deathhook
     RTL
 warnpc !freespace82_end

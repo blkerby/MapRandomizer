@@ -20,7 +20,7 @@
         </div>
         <div class="row">
             <div class="col-3">Race mode:</div>
-            <div class="col-9"><%= race_mode %></div>
+            <div class="col-9"><%= if race_mode { "Yes" } else { "No" } %></div>
         </div>
         <div class="row">
             <div class="col-3">Item placement:</div>

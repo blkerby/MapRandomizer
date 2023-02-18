@@ -1,30 +1,38 @@
 <div class="row">
-    <div class="col-3">Shinespark tiles:</div>
-    <div class="col-9"><%= difficulty.shine_charge_tiles %></div>
+    <div class="col-4">Shinespark tiles:</div>
+    <div class="col-8"><%= difficulty.shine_charge_tiles %></div>
 </div>
 <div class="row">
-    <div class="col-3">Resource multiplier:</div>
-    <div class="col-9"><%= difficulty.resource_multiplier %></div>
+    <div class="col-4">Resource multiplier:</div>
+    <div class="col-8"><%= difficulty.resource_multiplier %></div>
 </div>
 <div class="row">
-    <div class="col-3">Escape timer multiplier:</div>
-    <div class="col-9"><%= difficulty.escape_timer_multiplier %></div>
+    <div class="col-4">Escape timer multiplier:</div>
+    <div class="col-8"><%= difficulty.escape_timer_multiplier %></div>
 </div>
 <div class="row">
-    <div class="col-3">Save animals:</div>
-    <div class="col-9"><%= difficulty.save_animals %></div>
+    <div class="col-4">Save animals:</div>
+    <div class="col-8"><%= if difficulty.save_animals { "Yes" } else { "No" } %></div>
 </div>
 <div class="row">
-    <div class="col-3">Botwoon proficiency:</div>
-    <div class="col-9"><%= difficulty.botwoon_proficiency %></div>
+    <div class="col-4">Phantoon proficiency:</div>
+    <div class="col-8"><%= difficulty.phantoon_proficiency %></div>
 </div>
 <div class="row">
-    <div class="col-3">Ridley proficiency:</div>
-    <div class="col-9"><%= difficulty.ridley_proficiency %></div>
+    <div class="col-4">Draygon proficiency:</div>
+    <div class="col-8"><%= difficulty.draygon_proficiency %></div>
 </div>
 <div class="row">
-    <div class="col-3">Tech:</div>
-    <div class="col-9">
+    <div class="col-4">Ridley proficiency:</div>
+    <div class="col-8"><%= difficulty.ridley_proficiency %></div>
+</div>
+<div class="row">
+    <div class="col-4">Botwoon proficiency:</div>
+    <div class="col-8"><%= difficulty.botwoon_proficiency %></div>
+</div>
+<div class="row">
+    <div class="col-4">Tech:</div>
+    <div class="col-8">
         <%= difficulty.tech.join(", ") %>
     </div>
 </div>

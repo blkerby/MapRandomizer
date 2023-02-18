@@ -44,8 +44,10 @@ pub struct DifficultyConfig {
     pub resource_multiplier: f32,
     pub escape_timer_multiplier: f32,
     pub save_animals: bool,
-    pub botwoon_proficiency: f32,
+    pub phantoon_proficiency: f32,
+    pub draygon_proficiency: f32,
     pub ridley_proficiency: f32,
+    pub botwoon_proficiency: f32,
     // Quality-of-life options:
     pub supers_double: bool,
     pub streamlined_escape: bool,

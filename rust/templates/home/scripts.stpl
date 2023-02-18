@@ -7,8 +7,10 @@ function presetChanged() {
             document.getElementById("shinesparkTiles").value = <%= p.preset.shinespark_tiles %>;
             document.getElementById("resourceMultiplier").value = <%= p.preset.resource_multiplier %>;
             document.getElementById("escapeTimerMultiplier").value = <%= p.preset.escape_timer_multiplier %>;
-            document.getElementById("botwoonProficiency").value = <%= p.preset.botwoon_proficiency %>;
+            document.getElementById("phantoonProficiency").value = <%= p.preset.phantoon_proficiency %>;
+            document.getElementById("draygonProficiency").value = <%= p.preset.draygon_proficiency %>;
             document.getElementById("ridleyProficiency").value = <%= p.preset.ridley_proficiency %>;
+            document.getElementById("botwoonProficiency").value = <%= p.preset.botwoon_proficiency %>;
             document.getElementById("saveAnimalsNo").checked = true;
             document.getElementById("saveAnimalsYes").checked = false;
             <% for (tech, is_enabled) in &p.tech_setting { %>

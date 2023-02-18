@@ -122,6 +122,10 @@ pub enum Requirement {
     PowerBombRefill,
     EnergyDrain,
     EnemyKill(WeaponMask),
+    PhantoonFight {},
+    DraygonFight {
+        can_be_patient_tech_id: usize,
+    },
     RidleyFight {
         can_be_patient_tech_id: usize,
     },
@@ -563,7 +567,13 @@ impl GameData {
                 }
                 assert!(enemy_set.len() > 0);
 
-                if enemy_set.contains("Ridley") {
+                if enemy_set.contains("Phantoon") {
+                    return Ok(Requirement::PhantoonFight {  });
+                } else if enemy_set.contains("Draygon") {
+                    return Ok(Requirement::DraygonFight {
+                        can_be_patient_tech_id: self.tech_isv.index_by_key["canBePatient"],
+                    });
+                } else if enemy_set.contains("Ridley") {
                     return Ok(Requirement::RidleyFight {
                         can_be_patient_tech_id: self.tech_isv.index_by_key["canBePatient"],
                     });
@@ -827,11 +837,27 @@ impl GameData {
                 }
                 extra_nodes.push(unlocked_node_json);
 
+                let mut unlock_strats = lock["unlockStrats"].clone();
+                if lock["name"].as_str().unwrap() == "Phantoon Fight" {
+                    unlock_strats = json::array![
+                        {
+                            "name": "Base",
+                            "requires": [
+                                {"enemyKill":{
+                                    "enemies": [
+                                        [ "Phantoon" ]
+                                    ]
+                                }},
+                            ]
+                        }
+                    ];
+                }
+
                 let mut link_forward = json::object! {
                     "from": node_id,
                     "to": [{
                         "id": next_node_id,
-                        "strats": lock["unlockStrats"].clone(),
+                        "strats": unlock_strats.clone(),
                     }]
                 };
 
