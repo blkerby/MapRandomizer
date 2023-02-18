@@ -407,6 +407,7 @@ class DoorLocalModel(torch.nn.Module):
                                   (local_widths[i + 1] + global_widths[i + 1]) * arity)
             self.local_lin_layers.append(lin)
             self.local_act_layers.append(common_act)
+        self.local_door_logodds_layer = torch.nn.Linear(local_widths[-1], 1)
 
         self.fc_widths = [global_widths[-1]] + fc_widths
         self.fc_lin_layers = torch.nn.ModuleList()
@@ -430,16 +431,26 @@ class DoorLocalModel(torch.nn.Module):
 
         # inputs_list.append((map, room_mask, room_position_x, room_position_y, steps_remaining, round_frac, temperature, connectivity))
 
-        map_door_left = torch.nonzero(map[:, 1, :, :] > 1)
-        map_door_right = torch.nonzero(map[:, 1, :, :] < -1)
-        map_door_up = torch.nonzero(map[:, 2, :, :] > 1)
-        map_door_down = torch.nonzero(map[:, 2, :, :] < -1)
+        # map_door_left = torch.nonzero(map[:, 1, :, :] > 1)
+        # map_door_right = torch.nonzero(map[:, 1, :, :] < -1)
+        # map_door_up = torch.nonzero(map[:, 2, :, :] > 1)
+        # map_door_down = torch.nonzero(map[:, 2, :, :] < -1)
+
+        # def extract_map(map_door_dir):
+        #     env_id = map_door_dir[:, 0]
+        #     pos_x = map_door_dir[:, 1] - self.map_kernel_size // 2
+        #     pos_y = map_door_dir[:, 2] - self.map_kernel_size // 2
+        #     return map_extract(X_map, env_id, pos_x, pos_y, self.map_kernel_size, self.map_kernel_size)
+
+        map_door_left, map_door_right, map_door_down, map_door_up = \
+                    env.open_door_locations(map, room_mask, room_position_x, room_position_y)
 
         def extract_map(map_door_dir):
             env_id = map_door_dir[:, 0]
-            pos_x = map_door_dir[:, 1] - self.map_kernel_size // 2
-            pos_y = map_door_dir[:, 2] - self.map_kernel_size // 2
+            pos_x = map_door_dir[:, 2] - self.map_kernel_size // 2
+            pos_y = map_door_dir[:, 3] - self.map_kernel_size // 2
             return map_extract(X_map, env_id, pos_x, pos_y, self.map_kernel_size, self.map_kernel_size)
+
 
         with torch.cuda.amp.autocast():
             local_map_left = extract_map(map_door_left)
@@ -455,6 +466,8 @@ class DoorLocalModel(torch.nn.Module):
             local_X = self.base_local_act(local_X)
             local_env_id = torch.cat(
                 [map_door_left[:, 0], map_door_right[:, 0], map_door_up[:, 0], map_door_down[:, 0]], dim=0)
+            local_door_id = torch.cat(
+                [map_door_left[:, 1], map_door_right[:, 1], map_door_up[:, 1], map_door_down[:, 1]], dim=0)
 
             reduced_connectivity, missing_connects = env.compute_fast_component_matrix_cpu2(
                 room_mask, room_position_x, room_position_y,
@@ -485,6 +498,8 @@ class DoorLocalModel(torch.nn.Module):
                 repeated_env_id = local_env_id.view(-1, 1).expand(local_env_id.shape[0], raw_global_X.shape[1])
                 global_X = torch.scatter_add(zeros, dim=0, index=repeated_env_id, src=raw_global_X)
 
+            local_door_logodds_raw = self.local_door_logodds_layer(local_X)[:, 0]
+
             for i in range(len(self.fc_lin_layers)):
                 global_X = self.fc_lin_layers[i](global_X)
                 global_X = self.fc_act_layers[i](global_X)
@@ -492,8 +507,26 @@ class DoorLocalModel(torch.nn.Module):
             door_connects = env.door_connects(map, room_mask, room_position_x, room_position_y)
             # missing_connects = connectivity[:, env.good_missing_connection_src, env.good_missing_connection_dst]
 
+            num_envs = door_connects.shape[0]
+            num_doors = door_connects.shape[1]
+            local_door_pos = local_env_id * num_doors + local_door_id
+            # print("num_envs={}, num_doors={}, max={}".format(num_envs, num_doors, torch.max(local_door_pos)))
+            # print("shapes: ", local_X.shape, local_door_pos.shape, local_door_logodds_raw.shape)
+            local_door_logodds = torch.scatter(
+                torch.zeros([num_envs * num_doors], device=local_door_logodds_raw.device, dtype=local_door_logodds_raw.dtype),
+                0, local_door_pos, local_door_logodds_raw
+            ).view(num_envs, num_doors)
+            local_door_mask = torch.scatter(
+                torch.zeros([num_envs * num_doors], device=local_door_pos.device, dtype=torch.bool),
+                0, local_door_pos, 
+                torch.ones([local_door_pos.shape[0]], device=local_door_pos.device, dtype=torch.bool)
+            ).view(num_envs, num_doors)
+
             state_value_raw_logodds = self.state_value_lin(global_X).to(torch.float32)
-            door_connects_raw_logodds = state_value_raw_logodds[:, :self.num_doors]
+            # door_connects_raw_logodds = state_value_raw_logodds[:, :self.num_doors]
+            global_door_connects_raw_logodds = state_value_raw_logodds[:, :self.num_doors]
+            door_connects_raw_logodds = torch.where(local_door_mask, local_door_logodds, global_door_connects_raw_logodds)
+
             missing_connects_raw_logodds = state_value_raw_logodds[:, self.num_doors:]
             # inf_tensor = torch.zeros_like(door_connects_raw_logodds)
             inf_tensor_door = torch.full_like(door_connects_raw_logodds,
