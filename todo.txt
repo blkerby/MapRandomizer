@@ -7,6 +7,7 @@ v37:
 sprite customization (?),
 
 TODO:
+- make quick reload work during death animation.
 - explain about doors being turned blue
 - add front page to website
 - increase amount of rolling saves?

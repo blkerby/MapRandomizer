@@ -19,6 +19,7 @@ from maze_builder.replay import ReplayBuffer
 from model_average import ExponentialAverage
 import io
 import logic.rooms.crateria_isolated
+import logic.rooms.norfair_isolated
 import logic.rooms.all_rooms
 
 
@@ -43,7 +44,8 @@ executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 # num_envs = 1
 num_envs = 2 ** 9
 # rooms = logic.rooms.crateria_isolated.rooms
-rooms = logic.rooms.all_rooms.rooms
+rooms = logic.rooms.norfair_isolated.rooms
+# rooms = logic.rooms.all_rooms.rooms
 episode_length = len(rooms)
 
 # map_x = 32
@@ -157,7 +159,7 @@ logging.info("max_possible_reward = {}".format(max_possible_reward))
 # eval_batches = pickle.load(open('models/eval_batches.pkl', 'rb'))
 # session = pickle.load(open('models/checkpoint-3-train.pkl', 'rb'))
 # eval_batches = pickle.load(open('models/checkpoint-4-eval_batches.pkl', 'rb'))
-#
+
 model = DoorLocalModel(
     env_config=env_config,
     num_doors=envs[0].num_doors,
@@ -166,7 +168,7 @@ model = DoorLocalModel(
     map_channels=4,
     map_kernel_size=16,
     connectivity_in_width=64,
-    local_widths=[256, 0],
+    local_widths=[256, 256],
     global_widths=[256, 256],
     fc_widths=[256, 256, 256],
     alpha=2.0,
@@ -329,20 +331,22 @@ session = TrainingSession(envs,
 # session.replay_buffer.episode_data.prob0 = torch.clone(session.replay_buffer.episode_data.prob)
 
 
-# pickle_name = 'models/session-2023-02-09T08:09:55.417894.pkl'
+pickle_name = 'models/session-2023-02-17T20:14:59.079056.pkl'
 # pickle_name = 'models/07-31-session-2022-06-03T17:19:29.727911.pkl-bk30-small'
 # session = pickle.load(open(pickle_name, 'rb'))
-# session = pickle.load(open(pickle_name + '-bk2', 'rb'))
+session = pickle.load(open(pickle_name + '-bk1', 'rb'))
 # session.replay_buffer.resize(400000)
 # session.replay_buffer.resize(2 ** 23)
 # session.envs = envs
 # session.replay_buffer.episode_data.cand_count = torch.zeros_like(session.replay_buffer.episode_data.prob)
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
-# session.replay_buffer.resize(2 ** 23)
-hist = 2 ** 23
+# session.replay_buffer.resize(2 ** 21)
+# hist = 2 ** 23
 hist_c = 1.0
-batch_size = 2 ** 12
-lr = 0.0005
+hist_frac = 0.5
+batch_size = 2 ** 10
+lr0 = 0.002
+lr1 = 0.0002
 num_candidates0 = 8
 num_candidates1 = 8
 # num_candidates0 = 40
@@ -350,13 +354,13 @@ num_candidates1 = 8
 explore_eps_factor = 0.0
 # temperature_min = 0.02
 # temperature_max = 2.0
-temperature_min0 = 100.0
-temperature_min1 = 10.0
-temperature_max0 = 10000.0
-temperature_max1 = 1000.0
-annealing_start = 1800
-annealing_time = 1000
-pass_factor = 2.0
+temperature_min0 = 10.0
+temperature_min1 = 0.1
+temperature_max0 = 1000.0
+temperature_max1 = 10.0
+annealing_start = 0
+annealing_time = 1024
+pass_factor = 1.0
 print_freq = 8
 total_reward = 0
 total_loss = 0.0
@@ -371,22 +375,28 @@ summary_freq = 256
 session.decay_amount = 0.01
 session.optimizer.param_groups[0]['betas'] = (0.9, 0.9)
 session.optimizer.param_groups[0]['eps'] = 1e-5
-session.average_parameters.beta = 0.999
+ema_beta0 = 0.99
+ema_beta1 = 0.9999
 
 min_door_value = max_possible_reward
 torch.set_printoptions(linewidth=120, threshold=10000)
 logging.info("Checkpoint path: {}".format(pickle_name))
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
 logging.info(
-    "map_x={}, map_y={}, num_envs={}, batch_size={}, pass_factor={}, lr={}, num_candidates0={}, num_candidates1={}, replay_size={}/{}, hist={}, hist_c={}, num_params={}, decay_amount={}, temperature_min0={}, temperature_min1={}, temperature_max0={}, temperature_max1={}, ema_beta={}, explore_eps_factor={}".format(
-        map_x, map_y, session.envs[0].num_envs, batch_size, pass_factor, lr, num_candidates0, num_candidates1, session.replay_buffer.size,
-        session.replay_buffer.capacity, hist, hist_c, num_params, session.decay_amount,
-        temperature_min0, temperature_min1, temperature_max0, temperature_max1, session.average_parameters.beta, explore_eps_factor))
+    "map_x={}, map_y={}, num_envs={}, batch_size={}, pass_factor={}, lr0={}, lr1={}, num_candidates0={}, num_candidates1={}, replay_size={}/{}, hist_frac={}, hist_c={}, num_params={}, decay_amount={}, temperature_min0={}, temperature_min1={}, temperature_max0={}, temperature_max1={}, ema_beta0={}, ema_beta1={}, explore_eps_factor={}".format(
+        map_x, map_y, session.envs[0].num_envs, batch_size, pass_factor, lr0, lr1, num_candidates0, num_candidates1, session.replay_buffer.size,
+        session.replay_buffer.capacity, hist_frac, hist_c, num_params, session.decay_amount,
+        temperature_min0, temperature_min1, temperature_max0, temperature_max1, ema_beta0, ema_beta1, explore_eps_factor))
 logging.info("Starting training")
 for i in range(1000000):
     frac = max(0.0, min(1.0, (session.num_rounds - annealing_start) / annealing_time))
     num_candidates = int(num_candidates0 + (num_candidates1 - num_candidates0) * frac)
+
+    lr = lr0 * (lr1 / lr0) ** frac
     session.optimizer.param_groups[0]['lr'] = lr
+
+    ema_beta = ema_beta0 * (ema_beta1 / ema_beta0) ** frac
+    session.average_parameters.beta = ema_beta
 
     temperature_min = temperature_min0 * (temperature_min1 / temperature_min0) ** frac
     temperature_max = temperature_max0 * (temperature_max1 / temperature_max0) ** frac
@@ -440,6 +450,7 @@ for i in range(1000000):
     #         profile_memory=False,
     #         with_stack=False,
     # ) as prof:
+    hist = hist_frac * session.replay_buffer.size
     for j in range(num_batches):
         data = session.replay_buffer.sample(batch_size, hist, c=hist_c, device=device)
         with util.DelayedKeyboardInterrupt():
@@ -517,7 +528,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             pickle.dump(session, open(pickle_name, 'wb'))
-            # pickle.dump(session, open(pickle_name + '-bk2', 'wb'))
+            # pickle.dump(session, open(pickle_name + '-bk1', 'wb'))
             # session.replay_buffer.resize(2 ** 20)
             # pickle.dump(session, open(pickle_name + '-bk30-small', 'wb'))
     if session.num_rounds % summary_freq == 0:
