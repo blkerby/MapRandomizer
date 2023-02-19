@@ -7,7 +7,7 @@ import util
 import torch
 import torch.profiler
 import logging
-from maze_builder.types import EnvConfig, EpisodeData
+from maze_builder.types import EnvConfig, EpisodeData, reconstruct_room_data
 from maze_builder.env import MazeBuilderEnv
 import logic.rooms.crateria
 from datetime import datetime
@@ -333,13 +333,13 @@ session = TrainingSession(envs,
 # session.replay_buffer.episode_data.prob0 = torch.clone(session.replay_buffer.episode_data.prob)
 
 
-# pickle_name = 'models/session-2023-02-17T20:14:59.079056.pkl'
+pickle_name = 'models/session-2023-02-18T14:50:58.559343.pkl'
 # pickle_name = 'models/07-31-session-2022-06-03T17:19:29.727911.pkl-bk30-small'
 # session = pickle.load(open(pickle_name, 'rb'))
-# session = pickle.load(open(pickle_name + '-bk1', 'rb'))
+session = pickle.load(open(pickle_name + '-bk1', 'rb'))
 # session.replay_buffer.resize(400000)
 # session.replay_buffer.resize(2 ** 23)
-# session.envs = envs
+session.envs = envs
 # session.replay_buffer.episode_data.cand_count = torch.zeros_like(session.replay_buffer.episode_data.prob)
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
 # session.replay_buffer.resize(2 ** 23)
@@ -380,6 +380,64 @@ session.optimizer.param_groups[0]['eps'] = 1e-5
 ema_beta0 = 0.99
 ema_beta1 = 0.9999
 session.average_parameters.beta = 0.995
+
+def compute_door_connect_counts(only_success: bool):
+    batch_size = 1024
+    num_batches = session.replay_buffer.size // batch_size
+    num_rooms = len(rooms)
+    counts = None
+    for i in range(num_batches):
+        start = i * batch_size
+        end = (i + 1) * batch_size
+        batch_action = session.replay_buffer.episode_data.action[start:end]
+        batch_reward = session.replay_buffer.episode_data.reward[start:end]
+        if only_success:
+            mask = batch_reward == max_possible_reward
+        else:
+            mask = torch.tensor(True)
+        masked_batch_action = batch_action[mask]
+        step = torch.full([masked_batch_action.shape[0]], num_rooms)
+        room_mask, room_position_x, room_position_y = reconstruct_room_data(masked_batch_action, step, num_rooms + 1)
+        batch_counts = session.envs[0].get_door_connect_stats(room_mask, room_position_x, room_position_y)
+        if counts is None:
+            counts = batch_counts
+        else:
+            counts = [x + y for x, y in zip(counts, batch_counts)]
+    return counts
+
+def display_counts(counts, top_n: int, verbose: bool):
+    for cnt, name in zip(counts, ["Horizontal", "Vertical"]):
+        if torch.sum(cnt) == 0:
+            continue
+        frac = cnt.to(torch.float32) / torch.sum(cnt, dim=1, keepdims=True).to(torch.float32)
+        top_n = 10
+        top_frac, top_door_id_pair = torch.sort(frac.view(-1), descending=True)
+        top_door_id_first = top_door_id_pair // cnt.shape[1]
+        top_door_id_second = top_door_id_pair % cnt.shape[1]
+        if name == "Vertical":
+            room_id_first = session.envs[0].room_down[top_door_id_first, 0]
+            x_first = session.envs[0].room_down[top_door_id_first, 1]
+            y_first = session.envs[0].room_down[top_door_id_first, 2]
+            room_id_second = session.envs[0].room_up[top_door_id_second, 0]
+            x_second = session.envs[0].room_up[top_door_id_second, 1]
+            y_second = session.envs[0].room_up[top_door_id_second, 2]
+        else:
+            room_id_first = session.envs[0].room_left[top_door_id_first, 0]
+            x_first = session.envs[0].room_left[top_door_id_first, 1]
+            y_first = session.envs[0].room_left[top_door_id_first, 2]
+            room_id_second = session.envs[0].room_right[top_door_id_second, 0]
+            x_second = session.envs[0].room_right[top_door_id_second, 1]
+            y_second = session.envs[0].room_right[top_door_id_second, 2]
+        if verbose:
+            logging.info(name)
+            for i in range(top_n):
+                logging.info("{:.4f}: {} ({}, {}) -> {} ({}, {})".format(
+                    top_frac[i], rooms[room_id_first[i]].name, x_first[i], y_first[i], 
+                    rooms[room_id_second[i]].name, x_second[i], y_second[i]))
+        else:
+            formatted_fracs = ['{:.4f}'.format(x) for x in top_frac[:top_n]]
+            logging.info("{}: [{}]".format(name, ', '.join(formatted_fracs)))
+
 
 min_door_value = max_possible_reward
 torch.set_printoptions(linewidth=120, threshold=10000)
@@ -573,4 +631,7 @@ for i in range(1000000):
                 temp_low, temp_high, max_possible_reward - buffer_mean_reward, max_possible_reward - buffer_max_reward,
                 buffer_frac_max, buffer_mean_test_loss, buffer_mean_prob, buffer_mean_prob0, ind.shape[0], buffer_mean_temp
             ))
+        counts = compute_door_connect_counts(only_success=True)
+        display_counts(counts, 10, False)
+
         # logging.info(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects, dim=0)))

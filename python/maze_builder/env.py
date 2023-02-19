@@ -1149,6 +1149,74 @@ class MazeBuilderEnv:
         colors = [self.color_map[room.sub_area] for room in rooms]
         self.map_display.display(rooms, xs, ys, colors)
 
+    def get_door_connect_stats(self, room_mask, room_position_x, room_position_y):
+        n = room_mask.shape[0]
+        data_tuples = [
+            (self.room_left, self.room_right),
+            (self.room_down, self.room_up),
+        ]
+        device = room_mask.device
+        count_matrix_list = []
+        for room_dir, room_dir_opp in data_tuples:
+            room_dir = room_dir.to(device)
+            room_dir_opp = room_dir_opp.to(device)
+            room_id = room_dir[:, 0]
+            relative_door_x = room_dir[:, 1]
+            relative_door_y = room_dir[:, 2]
+            door_x = room_position_x[:, room_id] + relative_door_x.unsqueeze(0)
+            door_y = room_position_y[:, room_id] + relative_door_y.unsqueeze(0)
+            mask = room_mask[:, room_id]
+
+            room_id_opp = room_dir_opp[:, 0]
+            relative_door_x_opp = room_dir_opp[:, 1]
+            relative_door_y_opp = room_dir_opp[:, 2]
+            door_x_opp = room_position_x[:, room_id_opp] + relative_door_x_opp.unsqueeze(0)
+            door_y_opp = room_position_y[:, room_id_opp] + relative_door_y_opp.unsqueeze(0)
+            mask_opp = room_mask[:, room_id_opp]
+
+            door_map = torch.zeros([n, (self.map_x + 1) * (self.map_y + 1)], device=device, dtype=torch.int64)
+            door_mask = torch.zeros([n, (self.map_x + 1) * (self.map_y + 1)], device=device, dtype=torch.bool)
+            door_pos = door_y * (self.map_x + 1) + door_x
+            door_id = torch.arange(room_dir.shape[0], device=device).view(1, -1)
+            door_map.scatter_add_(dim=1, index=door_pos, src=door_id * mask)
+            door_mask.scatter_add_(dim=1, index=door_pos, src=mask)
+
+            door_pos_opp = door_y_opp * (self.map_x + 1) + door_x_opp
+            all_env_ids = torch.arange(n, device=device).view(-1, 1)
+            door_map_lookup = door_map[all_env_ids, door_pos_opp]
+            door_mask_lookup = door_mask[all_env_ids, door_pos_opp]
+
+            both_mask = mask_opp & door_mask_lookup
+            nz = torch.nonzero(both_mask)
+            nz_env = nz[:, 0]
+            nz_door_opp = nz[:, 1]
+            nz_door = door_map_lookup[nz_env, nz_door_opp]
+
+            num_door = room_dir.shape[0]
+            num_door_opp = room_dir_opp.shape[0]
+            count_matrix = torch.zeros([num_door * num_door_opp], device=device, dtype=torch.long)
+            pos = nz_door * num_door_opp + nz_door_opp
+            count_matrix.scatter_add_(dim=0, index=pos, src=torch.ones_like(pos))
+            count_matrix_list.append(count_matrix.view(num_door, num_door_opp))
+        return count_matrix_list
+
+    def get_door_connect_stats_batched(self, room_mask, room_position_x, room_position_y, batch_size):
+        num_batches = (room_mask.shape[0] + batch_size - 1) // batch_size
+        counts = None
+        for i in range(num_batches):
+            start = i * batch_size
+            end = (i + 1) * batch_size
+            batch_room_mask = room_mask[start:end]
+            batch_room_position_x = room_position_x[start:end]
+            batch_room_position_y = room_position_y[start:end]
+            batch_counts = self.get_door_connect_stats(batch_room_mask, batch_room_position_x, batch_room_position_y)
+            if counts is None:
+                counts = batch_counts
+            else:
+                counts = [x + y for x, y in zip(counts, batch_counts)]
+        return counts
+
+
 # logging.basicConfig(format='%(asctime)s %(message)s',
 #                     # level=logging.DEBUG,
 #                     level=logging.INFO,
