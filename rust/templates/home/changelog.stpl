@@ -10,6 +10,7 @@ about 15 seconds to load.
     <li>Map stations are placed in more accessible locations on average.
     <li>Save stations and refill stations are less likely to be at the end of a hallway.
     </ul>
+<li>Logic updates (<a href="https://github.com/kjbranch/sm-json-data/compare/01ed640...kjbranch:sm-json-data:d4e5e1a">diff</a>)
 </ul>
 
 <p><a href="https://version-37---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 37 (2023-02-18)</a>:
