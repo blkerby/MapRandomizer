@@ -1,5 +1,5 @@
 use crate::randomize::escape_timer::{get_base_room_door_graph, RoomDoorGraph};
-use anyhow::{bail, Context, Result};
+use anyhow::{bail, ensure, Context, Result};
 use hashbrown::{HashMap, HashSet};
 use json::{self, JsonValue};
 use num_enum::TryFromPrimitive;
@@ -248,9 +248,9 @@ fn read_json(path: &Path) -> Result<JsonValue> {
 impl GameData {
     fn load_tech(&mut self) -> Result<()> {
         let full_tech_json = read_json(&self.sm_json_data_path.join("tech.json"))?;
-        assert!(full_tech_json["techCategories"].is_array());
+        ensure!(full_tech_json["techCategories"].is_array());
         for tech_category in full_tech_json["techCategories"].members() {
-            assert!(tech_category["techs"].is_array());
+            ensure!(tech_category["techs"].is_array());
             for tech_json in tech_category["techs"].members() {
                 self.load_tech_rec(tech_json)?;
             }
@@ -280,7 +280,7 @@ impl GameData {
         self.tech_json_map
             .insert(name.to_string(), tech_json.clone());
         if tech_json.has_key("extensionTechs") {
-            assert!(tech_json["extensionTechs"].is_array());
+            ensure!(tech_json["extensionTechs"].is_array());
             for ext_tech in tech_json["extensionTechs"].members() {
                 self.load_tech_rec(ext_tech)?;
             }
@@ -321,7 +321,7 @@ impl GameData {
         for item_name in Item::VARIANTS {
             self.item_isv.add(&item_name.to_string());
         }
-        assert!(item_json["gameFlags"].is_array());
+        ensure!(item_json["gameFlags"].is_array());
         for flag_name in item_json["gameFlags"].members() {
             self.flag_isv.add(flag_name.as_str().unwrap());
         }
@@ -330,7 +330,7 @@ impl GameData {
 
     fn load_weapons(&mut self) -> Result<()> {
         let weapons_json = read_json(&self.sm_json_data_path.join("weapons/main.json"))?;
-        assert!(weapons_json["weapons"].is_array());
+        ensure!(weapons_json["weapons"].is_array());
         for weapon_json in weapons_json["weapons"].members() {
             let name = weapon_json["name"].as_str().unwrap();
             if weapon_json["situational"].as_bool().unwrap() {
@@ -350,10 +350,10 @@ impl GameData {
     fn load_enemies(&mut self) -> Result<()> {
         for file in ["main.json", "bosses/main.json"] {
             let enemies_json = read_json(&self.sm_json_data_path.join("enemies").join(file))?;
-            assert!(enemies_json["enemies"].is_array());
+            ensure!(enemies_json["enemies"].is_array());
             for enemy_json in enemies_json["enemies"].members() {
                 let enemy_name = enemy_json["name"].as_str().unwrap();
-                assert!(enemy_json["attacks"].is_array());
+                ensure!(enemy_json["attacks"].is_array());
                 for attack in enemy_json["attacks"].members() {
                     let attack_name = attack["name"].as_str().unwrap();
                     let damage = attack["baseDamage"].as_i32().unwrap() as Capacity;
@@ -362,15 +362,15 @@ impl GameData {
                 }
                 self.enemy_vulnerabilities.insert(
                     enemy_name.to_string(),
-                    self.get_enemy_vulnerabilities(enemy_json),
+                    self.get_enemy_vulnerabilities(enemy_json)?,
                 );
             }
         }
         Ok(())
     }
 
-    fn get_enemy_vulnerabilities(&self, enemy_json: &JsonValue) -> WeaponMask {
-        assert!(enemy_json["invul"].is_array());
+    fn get_enemy_vulnerabilities(&self, enemy_json: &JsonValue) -> Result<WeaponMask> {
+        ensure!(enemy_json["invul"].is_array());
         let invul: HashSet<String> = enemy_json["invul"]
             .members()
             .into_iter()
@@ -382,7 +382,7 @@ impl GameData {
             if invul.contains(weapon_name) {
                 continue;
             }
-            assert!(weapon_json["categories"].is_array());
+            ensure!(weapon_json["categories"].is_array());
             for cat in weapon_json["categories"]
                 .members()
                 .map(|x| x.as_str().unwrap())
@@ -393,12 +393,12 @@ impl GameData {
             }
             vul_mask |= 1 << i;
         }
-        return vul_mask;
+        return Ok(vul_mask);
     }
 
     fn load_helpers(&mut self) -> Result<()> {
         let helpers_json = read_json(&self.sm_json_data_path.join("helpers.json"))?;
-        assert!(helpers_json["helpers"].is_array());
+        ensure!(helpers_json["helpers"].is_array());
         for helper in helpers_json["helpers"].members() {
             self.helper_json_map
                 .insert(helper["name"].as_str().unwrap().to_owned(), helper.clone());
@@ -415,7 +415,7 @@ impl GameData {
         }
         self.helpers.insert(name.to_owned(), None);
         let json_value = self.helper_json_map[name].clone();
-        assert!(json_value["requires"].is_array());
+        ensure!(json_value["requires"].is_array());
         let req = Requirement::And(
             self.parse_requires_list(&json_value["requires"].members().as_slice())?,
         );
@@ -448,12 +448,12 @@ impl GameData {
         } else if json_value.is_object() && json_value.len() == 1 {
             let (key, value) = json_value.entries().next().unwrap();
             if key == "or" {
-                assert!(value.is_array());
+                ensure!(value.is_array());
                 return Ok(Requirement::Or(
                     self.parse_requires_list(value.members().as_slice())?,
                 ));
             } else if key == "and" {
-                assert!(value.is_array());
+                ensure!(value.is_array());
                 return Ok(Requirement::And(
                     self.parse_requires_list(value.members().as_slice())?,
                 ));
@@ -477,7 +477,7 @@ impl GameData {
                     bail!("Unexpected ammo type in {}", json_value);
                 }
             } else if key == "resourceCapacity" {
-                assert!(value.members().len() == 1);
+                ensure!(value.members().len() == 1);
                 let value0 = value.members().next().unwrap();
                 let resource_type = value0["type"]
                     .as_str()
@@ -489,7 +489,7 @@ impl GameData {
                     return Ok(Requirement::MissilesCapacity(count as Capacity));
                 } else {
                     bail!("Unexpected ammo type in {}", json_value);
-                }    
+                }
             } else if key == "ammoDrain" {
                 // We patch out the ammo drain from the Mother Brain fight.
                 return Ok(Requirement::Free);
@@ -558,17 +558,17 @@ impl GameData {
                 // We only consider enemy kill methods that are non-situational and do not require ammo.
                 // TODO: Consider all methods.
                 let mut enemy_set: HashSet<String> = HashSet::new();
-                assert!(value["enemies"].is_array());
+                ensure!(value["enemies"].is_array());
                 for enemy_group in value["enemies"].members() {
-                    assert!(enemy_group.is_array());
+                    ensure!(enemy_group.is_array());
                     for enemy in enemy_group.members() {
                         enemy_set.insert(enemy.as_str().unwrap().to_string());
                     }
                 }
-                assert!(enemy_set.len() > 0);
+                ensure!(enemy_set.len() > 0);
 
                 if enemy_set.contains("Phantoon") {
-                    return Ok(Requirement::PhantoonFight {  });
+                    return Ok(Requirement::PhantoonFight {});
                 } else if enemy_set.contains("Draygon") {
                     return Ok(Requirement::DraygonFight {
                         can_be_patient_tech_id: self.tech_isv.index_by_key["canBePatient"],
@@ -586,7 +586,7 @@ impl GameData {
                 }
 
                 let mut allowed_weapons: WeaponMask = if value.has_key("explicitWeapons") {
-                    assert!(value["explicitWeapons"].is_array());
+                    ensure!(value["explicitWeapons"].is_array());
                     let mut weapon_mask = 0;
                     for weapon_name in value["explicitWeapons"].members() {
                         if self
@@ -603,7 +603,7 @@ impl GameData {
                     (1 << self.weapon_isv.keys.len()) - 1
                 };
                 if value.has_key("excludedWeapons") {
-                    assert!(value["excludedWeapons"].is_array());
+                    ensure!(value["excludedWeapons"].is_array());
                     for weapon_name in value["excludedWeapons"].members() {
                         if self
                             .weapon_isv
@@ -622,7 +622,7 @@ impl GameData {
                 }
                 return Ok(Requirement::And(reqs));
             } else if key == "energyAtMost" {
-                assert!(value.as_i32().unwrap() == 1);
+                ensure!(value.as_i32().unwrap() == 1);
                 return Ok(Requirement::EnergyDrain);
             } else if key == "previousNode" {
                 // Currently this is used only in the Early Supers quick crumble and Mission Impossible strats and is
@@ -655,7 +655,8 @@ impl GameData {
                     format!("Unable to convert path to string: {}", path.display())
                 })?;
                 if !path_str.contains("ceres") {
-                    self.process_region(&read_json(&path)?)?;
+                    self.process_region(&read_json(&path)?)
+                        .with_context(|| format!("Processing {}", path_str))?;
                 }
             } else {
                 bail!("Error processing region path: {}", entry.err().unwrap());
@@ -674,10 +675,14 @@ impl GameData {
     }
 
     fn process_region(&mut self, region_json: &JsonValue) -> Result<()> {
-        assert!(region_json["rooms"].is_array());
+        ensure!(region_json["rooms"].is_array());
         for room_json in region_json["rooms"].members() {
-            let preprocessed_room_json = self.preprocess_room(room_json);
-            self.process_room(&preprocessed_room_json)?;
+            let room_name = room_json["name"].clone();
+            let preprocessed_room_json = self
+                .preprocess_room(room_json)
+                .with_context(|| format!("Preprocessing room {}", room_name))?;
+            self.process_room(&preprocessed_room_json)
+                .with_context(|| format!("Processing room {}", room_name))?;
         }
         Ok(())
     }
@@ -762,10 +767,10 @@ impl GameData {
         ];
     }
 
-    fn preprocess_room(&mut self, room_json: &JsonValue) -> JsonValue {
+    fn preprocess_room(&mut self, room_json: &JsonValue) -> Result<JsonValue> {
         // We apply some changes to the sm-json-data specific to Map Rando.
         let mut new_room_json = room_json.clone();
-        assert!(room_json["nodes"].is_array());
+        ensure!(room_json["nodes"].is_array());
         let mut next_node_id = room_json["nodes"]
             .members()
             .map(|x| x["id"].as_usize().unwrap())
@@ -813,7 +818,7 @@ impl GameData {
                 && (!["door", "entrance"].contains(&node_json["nodeType"].as_str().unwrap())
                     || door_lock_allowed_room_ids.contains(&room_id))
             {
-                assert!(node_json["locks"].len() == 1);
+                ensure!(node_json["locks"].len() == 1);
                 let base_node_name = node_json["name"].as_str().unwrap().to_string();
                 let lock = node_json["locks"][0].clone();
                 let mut yields = node_json["yields"].clone();
@@ -909,12 +914,12 @@ impl GameData {
                     "name": obstacle_flag_name.to_string(),
                 })
                 .unwrap();
-            assert!(new_room_json["links"].is_array());
+            ensure!(new_room_json["links"].is_array());
             for link in new_room_json["links"].members_mut() {
-                assert!(link["to"].is_array());
+                ensure!(link["to"].is_array());
                 for to_json in link["to"].members_mut() {
                     let mut new_strats: Vec<JsonValue> = Vec::new();
-                    assert!(to_json["strats"].is_array());
+                    ensure!(to_json["strats"].is_array());
                     // For each strat requiring one of the "obstacle flags" listed above, create an alternative strat
                     // depending on the corresponding obstacle instead:
                     for strat in to_json["strats"].members() {
@@ -944,7 +949,7 @@ impl GameData {
             }
         }
 
-        new_room_json
+        Ok(new_room_json)
     }
 
     fn process_room(&mut self, room_json: &JsonValue) -> Result<()> {
@@ -964,7 +969,7 @@ impl GameData {
 
         // Process obstacles:
         let obstacles_idx_map: HashMap<String, usize> = if room_json.has_key("obstacles") {
-            assert!(room_json["obstacles"].is_array());
+            ensure!(room_json["obstacles"].is_array());
             room_json["obstacles"]
                 .members()
                 .enumerate()
@@ -977,7 +982,7 @@ impl GameData {
         self.room_num_obstacles.insert(room_id, num_obstacles);
 
         // Process nodes:
-        assert!(room_json["nodes"].is_array());
+        ensure!(room_json["nodes"].is_array());
         for node_json in room_json["nodes"].members() {
             let node_id = node_json["id"].as_usize().unwrap();
             self.node_json_map
@@ -1016,7 +1021,7 @@ impl GameData {
                     let vertex_id =
                         self.vertex_isv.index_by_key[&(room_id, node_id, obstacle_bitmask)];
                     let mut reqs: Vec<Requirement> = Vec::new();
-                    assert!(utility.is_array());
+                    ensure!(utility.is_array());
                     if utility.contains("energy") {
                         reqs.push(Requirement::EnergyRefill);
                     }
@@ -1039,11 +1044,14 @@ impl GameData {
             }
         }
         if room_json.has_key("enemies") {
-            assert!(room_json["enemies"].is_array());
+            ensure!(room_json["enemies"].is_array());
             for enemy in room_json["enemies"].members() {
                 // TODO: implement other types of enemy farms, aside from those with farmCycles
                 // (using a requirement to reset the room).
                 if !enemy.has_key("farmCycles") {
+                    continue;
+                }
+                if !enemy["homeNodes"].is_array() {
                     continue;
                 }
                 let drops = &enemy["drops"];
@@ -1067,7 +1075,6 @@ impl GameData {
                     reqs.push(Requirement::ReserveRefill);
                 }
                 let farm_name = format!("Farm {}", enemy["enemyName"].as_str().unwrap());
-                assert!(enemy["homeNodes"].is_array());
                 for node_id_json in enemy["homeNodes"].members() {
                     let node_id = node_id_json.as_usize().unwrap();
                     for obstacle_bitmask in 0..(1 << num_obstacles) {
@@ -1085,41 +1092,41 @@ impl GameData {
         }
 
         // Process links:
-        assert!(room_json["links"].is_array());
+        ensure!(room_json["links"].is_array());
         for link_json in room_json["links"].members() {
-            assert!(link_json["to"].is_array());
+            ensure!(link_json["to"].is_array());
             for link_to_json in link_json["to"].members() {
-                assert!(link_to_json["strats"].is_array());
+                ensure!(link_to_json["strats"].is_array());
                 for strat_json in link_to_json["strats"].members() {
                     for from_obstacles_bitmask in 0..(1 << num_obstacles) {
                         let from_node_id = link_json["from"].as_usize().unwrap();
                         let to_node_id = link_to_json["id"].as_usize().unwrap();
                         let mut to_obstacles_bitmask = from_obstacles_bitmask;
-                        assert!(strat_json["requires"].is_array());
+                        ensure!(strat_json["requires"].is_array());
                         let mut requires_json: Vec<JsonValue> = strat_json["requires"]
                             .members()
                             .map(|x| x.clone())
                             .collect();
 
                         if strat_json.has_key("obstacles") {
-                            assert!(strat_json["obstacles"].is_array());
+                            ensure!(strat_json["obstacles"].is_array());
                             for obstacle in strat_json["obstacles"].members() {
                                 let obstacle_idx =
                                     obstacles_idx_map[obstacle["id"].as_str().unwrap()];
                                 to_obstacles_bitmask |= 1 << obstacle_idx;
                                 if (1 << obstacle_idx) & from_obstacles_bitmask == 0 {
-                                    assert!(obstacle["requires"].is_array());
+                                    ensure!(obstacle["requires"].is_array());
                                     requires_json
                                         .extend(obstacle["requires"].members().map(|x| x.clone()));
                                     let room_obstacle = &room_json["obstacles"][obstacle_idx];
                                     if room_obstacle.has_key("requires") {
-                                        assert!(room_obstacle["requires"].is_array());
+                                        ensure!(room_obstacle["requires"].is_array());
                                         requires_json.extend(
                                             room_obstacle["requires"].members().map(|x| x.clone()),
                                         );
                                     }
                                     if obstacle.has_key("additionalObstacles") {
-                                        assert!(obstacle["additionalObstacles"].is_array());
+                                        ensure!(obstacle["additionalObstacles"].is_array());
                                         for additional_obstacle_id in
                                             obstacle["additionalObstacles"].members()
                                         {
@@ -1158,7 +1165,7 @@ impl GameData {
         for entry in glob::glob(&connection_pattern)? {
             if let Ok(path) = entry {
                 if !path.to_str().unwrap().contains("ceres") {
-                    self.process_connections(&read_json(&path)?);
+                    self.process_connections(&read_json(&path)?)?;
                 }
             } else {
                 bail!("Error processing connection path: {}", entry.err().unwrap());
@@ -1167,11 +1174,11 @@ impl GameData {
         Ok(())
     }
 
-    fn process_connections(&mut self, connection_file_json: &JsonValue) {
-        assert!(connection_file_json["connections"].is_array());
+    fn process_connections(&mut self, connection_file_json: &JsonValue) -> Result<()> {
+        ensure!(connection_file_json["connections"].is_array());
         for connection in connection_file_json["connections"].members() {
-            assert!(connection["nodes"].is_array());
-            assert!(connection["nodes"].len() == 2);
+            ensure!(connection["nodes"].is_array());
+            ensure!(connection["nodes"].len() == 2);
             let src_pair = (
                 connection["nodes"][0]["roomid"].as_usize().unwrap(),
                 connection["nodes"][0]["nodeid"].as_usize().unwrap(),
@@ -1183,6 +1190,7 @@ impl GameData {
             self.add_connection(src_pair, dst_pair);
             self.add_connection(dst_pair, src_pair);
         }
+        Ok(())
     }
 
     fn add_connection(&mut self, mut src: (RoomId, NodeId), dst: (RoomId, NodeId)) {
@@ -1197,7 +1205,7 @@ impl GameData {
         }
     }
 
-    fn populate_target_locations(&mut self) {
+    fn populate_target_locations(&mut self) -> Result<()> {
         // Flags that are relevant to track in the randomizer:
         let flag_set: HashSet<String> = [
             "f_ZebesAwake",
@@ -1222,7 +1230,7 @@ impl GameData {
                 self.item_locations.push((room_id, node_id));
             }
             if node_json.has_key("yields") {
-                assert!(node_json["yields"].len() >= 1);
+                ensure!(node_json["yields"].len() >= 1);
                 let flag_id = self.flag_isv.index_by_key[node_json["yields"][0].as_str().unwrap()];
                 if flag_set.contains(&self.flag_isv.keys[flag_id]) {
                     self.flag_locations.push((room_id, node_id, flag_id));
@@ -1249,6 +1257,7 @@ impl GameData {
             }
             self.flag_vertex_ids.push(vertex_ids);
         }
+        Ok(())
     }
 
     pub fn get_weapon_mask(&self, items: &[bool]) -> WeaponMask {
@@ -1341,7 +1350,7 @@ impl GameData {
         game_data.load_enemies()?;
         game_data.load_regions()?;
         game_data.load_connections()?;
-        game_data.populate_target_locations();
+        game_data.populate_target_locations()?;
         game_data
             .load_room_geometry(room_geometry_path)
             .context("Unable to load room geometry")?;
