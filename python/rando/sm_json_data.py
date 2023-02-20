@@ -1101,108 +1101,108 @@ class SMJsonData:
         step_list = list(reversed(step_list))
         return step_list
 
+# #
+# sm_json_data_path = "sm-json-data/"
+# sm_json_data = SMJsonData(sm_json_data_path)
 #
-sm_json_data_path = "sm-json-data/"
-sm_json_data = SMJsonData(sm_json_data_path)
-
-cnt = 0
-for region_name, region_json in sm_json_data.region_json_dict.items():
-    print("Region: ", region_name)
-    for room_json in region_json['rooms']:
-        room_name = room_json['name']
-        for node_json in room_json['nodes']:
-            node_name = node_json['name']
-            if node_json['nodeType'] == 'item':
-                print("room='{}', node='{}', addr='{}'".format(room_name, node_name, node_json['nodeAddress']))
-                cnt += 1
-#
-#
+# cnt = 0
 # for region_name, region_json in sm_json_data.region_json_dict.items():
 #     print("Region: ", region_name)
 #     for room_json in region_json['rooms']:
-#         if 'enemies' in room_json:
-#             for enemy in room_json['enemies']:
-#                 # print(enemy['enemyName'])
-#                 if 'farmCycles' in enemy:
-#                     print(room_json['name'], enemy['enemyName'], enemy['quantity'])
-#             # utility = node.get('utility')
-#             # if utility is not None:
-#             #     print(utility, room_json['name'])
-# #         # notable_strats = []
-# #         # for link_group in room_json['links']:
-# #         #     for link in link_group['to']:
-# #         #         for strat in link['strats']:
-# #         #             if strat['notable']:
-# #         #                 notable_strats.append(strat)
-# #         # if len(notable_strats) > 0:
-# #         #     print("  Room: ", room_json['name'])
-# #         #     for strat in notable_strats:
-# #         #         print("    ", strat['name'])
-# #         # #
-# #         # # pass
-
-# for region in sm_json_data.region_json_dict.values():
-#     for room in region['rooms']:
-#         if 'obstacles' not in room:
-#             continue
-#         for obstacle in room['obstacles']:
-#             if 'requires' in obstacle:
-#                 print(room['name'])
-
-# from_vertex = sm_json_data.vertex_index_dict[(38, 5, 0)]
-# to_vertex = sm_json_data.vertex_index_dict[(38, 6, 1)]
-# for link in sm_json_data.link_list:
-#     if link.from_index == from_vertex and link.to_index == to_vertex:
-#         print(link)
-#         break
-
-# difficulty_config = DifficultyConfig(
-#     tech=set(),
-#     shine_charge_tiles=33,
-#     energy_multiplier=1.0)
-# # items = {"PowerBomb", "Morph"}
-# items = set()
-# game_state = GameState(
-#     difficulty=difficulty_config,
-#     items=items,
-#     flags=set(),
-#     weapons=sm_json_data.get_weapons(set(items)),
-#     num_energy_tanks=0,  # energy_tanks,
-#     num_reserves=0,  # reserve_tanks,
-#     max_energy=99,  # + 100 * (energy_tanks + reserve_tanks),
-#     max_missiles=0,  # missiles,
-#     max_super_missiles=0,  # super_missiles,
-#     max_power_bombs=0,  # power_bombs,
-#     current_energy=50,
-#     current_missiles=0,  # missiles,
-#     current_super_missiles=0,  # super_missiles,
-#     current_power_bombs=0,  # power_bombs,
-#     vertex_index=sm_json_data.vertex_index_dict[(8, 5, 0)])  # Ship (Landing Site)
+#         room_name = room_json['name']
+#         for node_json in room_json['nodes']:
+#             node_name = node_json['name']
+#             if node_json['nodeType'] == 'item':
+#                 print("room='{}', node='{}', addr='{}'".format(room_name, node_name, node_json['nodeAddress']))
+#                 cnt += 1
+# #
+# #
+# # for region_name, region_json in sm_json_data.region_json_dict.items():
+# #     print("Region: ", region_name)
+# #     for room_json in region_json['rooms']:
+# #         if 'enemies' in room_json:
+# #             for enemy in room_json['enemies']:
+# #                 # print(enemy['enemyName'])
+# #                 if 'farmCycles' in enemy:
+# #                     print(room_json['name'], enemy['enemyName'], enemy['quantity'])
+# #             # utility = node.get('utility')
+# #             # if utility is not None:
+# #             #     print(utility, room_json['name'])
+# # #         # notable_strats = []
+# # #         # for link_group in room_json['links']:
+# # #         #     for link in link_group['to']:
+# # #         #         for strat in link['strats']:
+# # #         #             if strat['notable']:
+# # #         #                 notable_strats.append(strat)
+# # #         # if len(notable_strats) > 0:
+# # #         #     print("  Room: ", room_json['name'])
+# # #         #     for strat in notable_strats:
+# # #         #         print("    ", strat['name'])
+# # #         # #
+# # #         # # pass
 #
-# out = sm_json_data.compute_reachable_vertices(game_state)
-# nz_i, nz_j = (out != -1).nonzero()
+# # for region in sm_json_data.region_json_dict.values():
+# #     for room in region['rooms']:
+# #         if 'obstacles' not in room:
+# #             continue
+# #         for obstacle in room['obstacles']:
+# #             if 'requires' in obstacle:
+# #                 print(room['name'])
 #
-# print(nz_i.shape)
-# for k in range(nz_i.shape[0]):
-#     print(sm_json_data.vertex_list[nz_i[k]])
-#     print(out[nz_i[k], :])
-
-# graph = sm_json_data.get_graph(game_state)
-# link.cond.get_consumption(game_state)
-# link.cond.conditions[1].get_consumption(game_state)
-# link.cond.conditions[1].conditions[0].get_consumption(game_state)
-# link.cond.conditions[1].conditions[1].get_consumption(game_state)
-
-# sm_json_data.
-# sm_json_data.link_list[4]
-# weapons = sm_json_data.get_weapons(sm_json_data.item_set)
-# weapons = sm_json_data.get_weapons({"PowerBeam", "Wave", "Charge"})
-# print(weapons)
-# weapons
-# sm_json_data.enemy_vulnerability_dict.keys()
-# sm_json_data.enemy_vulnerability_dict['Kihunter (red)']
-
-# sm_json_data.door_ptr_pair_dict
-# len(sm_json_data.link_list)
-
-
+# # from_vertex = sm_json_data.vertex_index_dict[(38, 5, 0)]
+# # to_vertex = sm_json_data.vertex_index_dict[(38, 6, 1)]
+# # for link in sm_json_data.link_list:
+# #     if link.from_index == from_vertex and link.to_index == to_vertex:
+# #         print(link)
+# #         break
+#
+# # difficulty_config = DifficultyConfig(
+# #     tech=set(),
+# #     shine_charge_tiles=33,
+# #     energy_multiplier=1.0)
+# # # items = {"PowerBomb", "Morph"}
+# # items = set()
+# # game_state = GameState(
+# #     difficulty=difficulty_config,
+# #     items=items,
+# #     flags=set(),
+# #     weapons=sm_json_data.get_weapons(set(items)),
+# #     num_energy_tanks=0,  # energy_tanks,
+# #     num_reserves=0,  # reserve_tanks,
+# #     max_energy=99,  # + 100 * (energy_tanks + reserve_tanks),
+# #     max_missiles=0,  # missiles,
+# #     max_super_missiles=0,  # super_missiles,
+# #     max_power_bombs=0,  # power_bombs,
+# #     current_energy=50,
+# #     current_missiles=0,  # missiles,
+# #     current_super_missiles=0,  # super_missiles,
+# #     current_power_bombs=0,  # power_bombs,
+# #     vertex_index=sm_json_data.vertex_index_dict[(8, 5, 0)])  # Ship (Landing Site)
+# #
+# # out = sm_json_data.compute_reachable_vertices(game_state)
+# # nz_i, nz_j = (out != -1).nonzero()
+# #
+# # print(nz_i.shape)
+# # for k in range(nz_i.shape[0]):
+# #     print(sm_json_data.vertex_list[nz_i[k]])
+# #     print(out[nz_i[k], :])
+#
+# # graph = sm_json_data.get_graph(game_state)
+# # link.cond.get_consumption(game_state)
+# # link.cond.conditions[1].get_consumption(game_state)
+# # link.cond.conditions[1].conditions[0].get_consumption(game_state)
+# # link.cond.conditions[1].conditions[1].get_consumption(game_state)
+#
+# # sm_json_data.
+# # sm_json_data.link_list[4]
+# # weapons = sm_json_data.get_weapons(sm_json_data.item_set)
+# # weapons = sm_json_data.get_weapons({"PowerBeam", "Wave", "Charge"})
+# # print(weapons)
+# # weapons
+# # sm_json_data.enemy_vulnerability_dict.keys()
+# # sm_json_data.enemy_vulnerability_dict['Kihunter (red)']
+#
+# # sm_json_data.door_ptr_pair_dict
+# # len(sm_json_data.link_list)
+#
+#

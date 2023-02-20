@@ -162,6 +162,9 @@ logging.info("max_possible_reward = {}".format(max_possible_reward))
 # eval_batches = pickle.load(open('models/eval_batches.pkl', 'rb'))
 # session = pickle.load(open('models/checkpoint-3-train.pkl', 'rb'))
 # eval_batches = pickle.load(open('models/checkpoint-4-eval_batches.pkl', 'rb'))
+layer_width = 256
+main_depth = 2
+fc_depth = 3
 model = DoorLocalModel(
     env_config=env_config,
     num_doors=envs[0].num_doors,
@@ -170,9 +173,9 @@ model = DoorLocalModel(
     map_channels=4,
     map_kernel_size=16,
     connectivity_in_width=64,
-    local_widths=[256, 256],
-    global_widths=[256, 256],
-    fc_widths=[256, 256, 256],
+    local_widths=main_depth * [layer_width],
+    global_widths=main_depth * [layer_width],
+    fc_widths=fc_depth * [layer_width],
     alpha=2.0,
     arity=2,
 ).to(device)
@@ -333,10 +336,10 @@ session = TrainingSession(envs,
 # session.replay_buffer.episode_data.prob0 = torch.clone(session.replay_buffer.episode_data.prob)
 
 
-pickle_name = 'models/session-2023-02-18T14:50:58.559343.pkl'
+# pickle_name = 'models/session-2023-02-18T14:50:58.559343.pkl'
 # pickle_name = 'models/07-31-session-2022-06-03T17:19:29.727911.pkl-bk30-small'
 # session = pickle.load(open(pickle_name, 'rb'))
-session = pickle.load(open(pickle_name + '-bk1', 'rb'))
+# session = pickle.load(open(pickle_name + '-bk1', 'rb'))
 # session.replay_buffer.resize(400000)
 # session.replay_buffer.resize(2 ** 23)
 session.envs = envs
@@ -349,8 +352,8 @@ hist_frac = 0.5
 batch_size = 2 ** 10
 lr0 = 0.002
 lr1 = 0.0002
-num_candidates0 = 8
-num_candidates1 = 8
+num_candidates0 = 4
+num_candidates1 = 4
 # num_candidates0 = 40
 # num_candidates1 = 40
 explore_eps_factor = 0.0
@@ -362,7 +365,7 @@ temperature_max0 = 1000.0
 temperature_max1 = 10.0
 annealing_start = 0
 annealing_time = 1024
-pass_factor = 1.0
+pass_factor = 0.5
 print_freq = 8
 total_reward = 0
 total_loss = 0.0

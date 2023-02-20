@@ -13,8 +13,8 @@ RUN rm /rust/src/*.rs
 
 # Download and extract the map dataset
 WORKDIR /maps
-RUN wget https://storage.googleapis.com/super-metroid-map-rando/maps/session-2022-06-03T17:19:29.727911.pkl-bk30-subarea-balance.tar.gz
-RUN mv session-2022-06-03T17:19:29.727911.pkl-bk30-subarea-balance.tar.gz maps.tar.gz && tar xfz maps.tar.gz
+RUN wget https://storage.googleapis.com/super-metroid-map-rando/maps/session-2022-06-03T17:19:29.727911.pkl-bk30-subarea-balance-2.tar.gz
+RUN mv session-2022-06-03T17:19:29.727911.pkl-bk30-subarea-balance-2.tar.gz maps.tar.gz && tar xfz maps.tar.gz
 
 # Now copy over everything else and build the real binary
 COPY rust /rust

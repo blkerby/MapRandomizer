@@ -4,7 +4,7 @@ from maze_builder.types import Room, SubArea
 from maze_builder.display import MapDisplay
 import json
 import numpy as np
-from rando.sm_json_data import SMJsonData, GameState, Link, DifficultyConfig
+# from rando.sm_json_data import SMJsonData, GameState, Link, DifficultyConfig
 from rando.items import Randomizer, ItemPlacementStrategy
 
 # map = json.load(open('../maps/session-2022-06-03T17:19:29.727911.pkl-bk30/1054946.json', 'r'))
@@ -12,6 +12,8 @@ from rando.items import Randomizer, ItemPlacementStrategy
 # map = json.load(open('maps/session-2022-06-03T17:19:29.727911.pkl-bk30/611640.json', 'r'))
 # map = json.load(open('maps/session-2022-06-03T17:19:29.727911.pkl-bk30-subarea-balance/1111166.json', 'r'))
 map = json.load(open('maps/session-2022-06-03T17:19:29.727911.pkl-bk30-subarea-balance/6066.json', 'r'))
+
+map2 = re
 # map = json.load(open('maps/testmap.json', 'r'))
 display = MapDisplay(72, 72, 20)
 xy = np.array(map['rooms'])

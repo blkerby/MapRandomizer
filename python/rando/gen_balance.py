@@ -23,7 +23,7 @@ args = parser.parse_args()
 
 
 map_dir = args.path
-out_map_dir = map_dir + '-balance'
+out_map_dir = map_dir + '-balance-2'
 file_list = sorted(os.listdir(map_dir))
 
 os.makedirs(out_map_dir, exist_ok=True)

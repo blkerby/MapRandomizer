@@ -158,7 +158,18 @@ def make_ship_in_crateria(map):
     return map
 
 
-def compute_balance_cost(save_idxs, refill_idxs, dist_matrix, save_weight=0.5):
+def compute_hallway_cap_mask(dist_matrix):
+    n = dist_matrix.shape[0]
+    dist_matrix = dist_matrix.copy()
+    dist_matrix[np.arange(n), np.arange(n)] = 127
+    degree = np.sum(dist_matrix == 1, axis=1)
+    
+    neighbor = np.argmin(dist_matrix, axis=1)
+    hallway_cap_mask = (degree == 1) & (degree[neighbor] == 2)
+    return hallway_cap_mask
+
+
+def compute_balance_cost(save_idxs, refill_idxs, map_idxs, dist_matrix, hallway_cap_mask):
     # For each room, find the distance (measured by number of door transitions) to the nearest save and to the
     # nearest refill. Then average these distances to get an overall cost which we will try to minimize.
 
@@ -172,10 +183,20 @@ def compute_balance_cost(save_idxs, refill_idxs, dist_matrix, save_weight=0.5):
 
     min_save_dist = np.min(dist_matrix[:len(rooms), save_idxs], axis=1)
     min_refill_dist = np.min(dist_matrix[:len(rooms), refill_idxs], axis=1)
-
-    overall_save_cost = np.mean(min_save_dist)
-    overall_refill_cost = np.mean(min_refill_dist)
-    overall_cost = save_weight * overall_save_cost + (1 - save_weight) * overall_refill_cost
+    
+    save_coverage_cost = np.mean(min_save_dist)
+    save_cap_cnt = np.sum(hallway_cap_mask[save_idxs])
+    save_dist = dist_matrix[np.array(save_idxs).reshape(1, -1), np.array(save_idxs).reshape(-1, 1)]
+    save_neighbors_cnt = np.sum(save_dist == 2)
+    refill_coverage_cost = np.mean(min_refill_dist)
+    refill_cap_cost = np.sum(hallway_cap_mask[refill_idxs])
+    refill_dist = dist_matrix[np.array(refill_idxs).reshape(1, -1), np.array(refill_idxs).reshape(-1, 1)]
+    refill_neighbors_cnt = np.sum(refill_dist == 2)
+    map_dist_cost = np.mean(dist_matrix[landing_site_idx, map_idxs])
+    
+    overall_save_cost = save_coverage_cost + 0.2 * save_cap_cnt + 0.3 * save_neighbors_cnt
+    overall_refill_cost = refill_coverage_cost + 0.1 * refill_cap_cost + 0.2 * refill_neighbors_cnt
+    overall_cost = overall_save_cost + overall_refill_cost + map_dist_cost
     return overall_cost
 
 
@@ -183,12 +204,13 @@ def get_room_indexes_by_doortype():
     # We have three types of Save/Refill Rooms: left door, right door, and left+right door.
     save_indexes_by_doortype = [[], [], []]
     refill_indexes_by_doortype = [[], [], []]
+    map_indexes_by_doortype = [[], [], []]
     other_indexes_by_doortype = [[], [], []]
 
     for i, room in enumerate(rooms):
         if room.height != 1 or room.width != 1:
             continue
-        if ' Map Room' in room.name or room.name == "Phantoon's Room" or room.name == "Wrecked Ship Save Room":
+        if room.name in ["Phantoon's Room", "Wrecked Ship Map Room", "Wrecked Ship Save Room"]:
             continue
         if len(room.door_ids) == 1 and room.door_ids[0].direction == Direction.LEFT:
             doortype = 0
@@ -203,9 +225,11 @@ def get_room_indexes_by_doortype():
             save_indexes_by_doortype[doortype].append(i)
         elif 'Refill' in room.name or 'Recharge' in room.name or room.name == 'Purple Farming Room':
             refill_indexes_by_doortype[doortype].append(i)
+        elif ' Map Room' in room.name:
+            map_indexes_by_doortype[doortype].append(i)
         else:
             other_indexes_by_doortype[doortype].append(i)
-    return save_indexes_by_doortype, refill_indexes_by_doortype, other_indexes_by_doortype
+    return save_indexes_by_doortype, refill_indexes_by_doortype, map_indexes_by_doortype, other_indexes_by_doortype
 
 
 def redistribute_saves_and_refills(map, num_steps):
@@ -213,16 +237,22 @@ def redistribute_saves_and_refills(map, num_steps):
     # that 1) in each area we must leave a place available for a map station and 2) in Wrecked Ship we must also leave
     # a place for Phantoon's Room.
 
-    save_indexes_by_doortype, refill_indexes_by_doortype, other_indexes_by_doortype = get_room_indexes_by_doortype()
-    all_indexes_by_doortype = [save_idxs + refill_idxs + other_idxs
-                               for save_idxs, refill_idxs, other_idxs in
-                               zip(save_indexes_by_doortype, refill_indexes_by_doortype, other_indexes_by_doortype)]
+    save_indexes_by_doortype, refill_indexes_by_doortype, map_indexes_by_doortype, other_indexes_by_doortype = get_room_indexes_by_doortype()
+    all_indexes_by_doortype = [save_idxs + refill_idxs + map_idxs + other_idxs
+                               for save_idxs, refill_idxs, map_idxs, other_idxs in
+                               zip(save_indexes_by_doortype, refill_indexes_by_doortype, 
+                                   map_indexes_by_doortype, other_indexes_by_doortype)]
     num_saves_by_doortype = [len(idxs) for idxs in save_indexes_by_doortype]
     num_refills_by_doortype = [len(idxs) for idxs in refill_indexes_by_doortype]
+    num_maps_by_doortype = [len(idxs) for idxs in map_indexes_by_doortype]
     num_other_by_doortype = [len(idxs) for idxs in other_indexes_by_doortype]
-    category_by_doortype = [num_saves_by_doortype[d] * [0] + num_refills_by_doortype[d] * [1] + num_other_by_doortype[d] * [2]
+    category_by_doortype = [num_saves_by_doortype[d] * [0] + 
+                            num_refills_by_doortype[d] * [1] + 
+                            num_maps_by_doortype[d] * [2] + 
+                            num_other_by_doortype[d] * [3]
                             for d in range(3)]
     dist_matrix = compute_room_distance_matrix(map)
+    hallway_cap_mask = compute_hallway_cap_mask(dist_matrix)
 
     def compute_balance_cost_for_indexes(idxs_by_doortype):
         save_idxs = [idx for doortype in range(3)
@@ -230,7 +260,12 @@ def redistribute_saves_and_refills(map, num_steps):
         refill_idxs = [idx for doortype in range(3)
                      for idx in idxs_by_doortype[doortype][num_saves_by_doortype[doortype]:(
                         num_saves_by_doortype[doortype] + num_refills_by_doortype[doortype])]]
-        return compute_balance_cost(save_idxs, refill_idxs, dist_matrix)
+        map_idxs = [idx for doortype in range(3)
+                     for idx in idxs_by_doortype[doortype][
+                        (num_saves_by_doortype[doortype] + num_refills_by_doortype[doortype]):(
+                        num_saves_by_doortype[doortype] + num_refills_by_doortype[doortype]
+                        + num_maps_by_doortype[doortype])]]
+        return compute_balance_cost(save_idxs, refill_idxs, map_idxs, dist_matrix, hallway_cap_mask)
 
     current_cost = compute_balance_cost_for_indexes(all_indexes_by_doortype)
     current_indexes_by_doortype = all_indexes_by_doortype
@@ -244,6 +279,13 @@ def redistribute_saves_and_refills(map, num_steps):
         while True:
             idx1 = np.random.choice(len(current_indexes_by_doortype[doortype]))
             idx2 = np.random.choice(len(current_indexes_by_doortype[doortype]))
+            if category_by_doortype[doortype][idx1] == 2 or category_by_doortype[doortype][idx2] == 2:
+                # One of the rooms we're swapping is a map station, so make sure they are in the same area,
+                # to avoid disturbing the constraint that we have one map station per area.
+                area1 = map['area'][current_indexes_by_doortype[doortype][idx1]]
+                area2 = map['area'][current_indexes_by_doortype[doortype][idx2]]
+                if area1 != area2:
+                    continue
             if category_by_doortype[doortype][idx1] != category_by_doortype[doortype][idx2]:
                 break
 
@@ -310,6 +352,12 @@ def place_phantoon_and_friends(map):
     if eligible_phantoon_idxs.shape[0] == 0:
         logging.info("Failed to place Phantoon's Room")
         return None
+
+    # Filter to the candidate(s) with smallest distance from Ship.
+    ship_dist = dist[landing_site_idx, eligible_phantoon_idxs]
+    min_ship_dist = np.min(ship_dist)
+    eligible_phantoon_idxs = eligible_phantoon_idxs[ship_dist == min_ship_dist]
+
     new_phantoon_idx = np.random.choice(list(eligible_phantoon_idxs))
 
     # Randomly select a candidate for Wrecked Ship Map Room:
@@ -350,7 +398,7 @@ def balance_utilities(map):
     map = balance_maps(map)
     if map is None:
         return None
-    map = redistribute_saves_and_refills(map, num_steps=200)
+    map = redistribute_saves_and_refills(map, num_steps=1000)
     return map
 
 
