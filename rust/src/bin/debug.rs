@@ -34,7 +34,7 @@ fn main() -> Result<()> {
     // items[Item::Ice as usize] = true;
     // items[Item::Spazer as usize] = true;
     // items[Item::Plasma as usize] = true;
-    items[Item::Varia as usize] = true;
+    // items[Item::Varia as usize] = true;
     items[Item::Gravity as usize] = true;
 
     let weapon_mask = game_data.get_weapon_mask(&items);
@@ -43,7 +43,7 @@ fn main() -> Result<()> {
         flags: vec![false; game_data.flag_isv.keys.len()],
         items: items,
         max_energy: 1800,
-        max_missiles: 1000,
+        max_missiles: 5,
         max_reserves: 400,
         max_supers: 0,
         max_power_bombs: 0,

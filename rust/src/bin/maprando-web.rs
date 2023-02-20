@@ -23,7 +23,7 @@ use rand::{RngCore, SeedableRng};
 use sailfish::TemplateOnce;
 use serde_derive::{Deserialize, Serialize};
 
-const VERSION: usize = 37;
+const VERSION: usize = 38;
 
 #[derive(Serialize, Deserialize, Clone)]
 struct Preset {
@@ -649,7 +649,7 @@ fn build_app_data() -> AppData {
     let room_geometry_path = Path::new("../room_geometry.json");
     let palette_path = Path::new("../palettes.json");
     let maps_path =
-        Path::new("../maps/session-2022-06-03T17:19:29.727911.pkl-bk30-subarea-balance");
+        Path::new("../maps/session-2022-06-03T17:19:29.727911.pkl-bk30-subarea-balance-2");
 
     let game_data = GameData::load(sm_json_data_path, room_geometry_path, palette_path).unwrap();
     let presets: Vec<Preset> =

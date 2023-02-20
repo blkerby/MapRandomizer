@@ -3,6 +3,15 @@
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-38---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 38 (2023-02-20)</a>:
+<ul>
+<li>Refinements to balancing algorithm:
+    <ul>
+    <li>Map stations are placed in more accessible locations on average.
+    <li>Save stations and refill stations are less likely to be at the end of a hallway.
+    </ul>
+</ul>
+
 <p><a href="https://version-37---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 37 (2023-02-18)</a>:
 <ul>
 <li>Bomb Torizo's door now closes if you pick up the item in the room (rather than if you have Morph Bombs).
