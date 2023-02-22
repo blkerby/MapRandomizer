@@ -1,15 +1,9 @@
 Release plan:
 
-v37:
-- fix save the animals time
-- make quick reload work during death animation.
-- phantoon & draygon logic
-- pull in other logic updates
-
-v38:
-- save balancing (not at end of hallways)
-
 v39:
+- save stations go faster
+  - TODO: add back Save Completed message.
+
 - diabolical mode
 
 v40?:

@@ -3,6 +3,20 @@
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-39---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 39 (2023-02-21)</a>:
+<ul>
+<li>Speed up parts of the game where Samus does not have control or cannot do anything useful:
+    <ul>
+    <li>Save stations skip the confirmation prompt and have an accelerated animation.
+    <li>Energy stations, refill stations, map stations, and the Ship have accelerated animations.
+    <li>Message boxes (e.g. after item collection) can be closed slightly sooner.
+    <li>The Baby Metroid cutscene in Big Boy Room is condensed. Baby Skip setups should be unaffected.
+    <li>The delay before the start of Mother Brain 2 is removed.
+    <li>Rooms load faster. This is a small change only noticeable when entering large rooms (not the same
+    as "fast doors").
+    </ul>
+</ul>
+
 <p><a href="https://version-38---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 38 (2023-02-20)</a>:
 <ul>
 <li>Refinements to balancing algorithm:
