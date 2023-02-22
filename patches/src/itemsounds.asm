@@ -1,4 +1,4 @@
-;From https://github.com/theonlydude/RandomMetroidSolver/blob/master/patches/common/src/itemsounds.asm
+;Based on https://github.com/theonlydude/RandomMetroidSolver/blob/master/patches/common/src/itemsounds.asm
 ;Removes all item sound clips, and replaces them with sound FX that don't interupt the BG music (you can still play the usual sound clip if you wish)
 
 ;Uses free space from $26FD3 to $27023 ($51/81 bytes)
@@ -270,7 +270,8 @@ org $84EE3E			;Scenery Reserve Tank
 ;-------------------------DON'T EDIT THIS STUFF--------------------------
 
 org $858491
-	DW #$0020
+;	DW #$0020
+	DW #$0010       ; Shorten the delay on message box being able to be closed.
 org $82E126
 	JSL CLIPCHECK
 	BRA $08

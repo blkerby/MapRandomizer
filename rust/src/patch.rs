@@ -212,6 +212,10 @@ impl<'a> Patcher<'a> {
             "shaktool",
             "fix_water_fx_bug",
             "bomb_torizo",
+            "fast_saves",
+            "fast_mother_brain_cutscene",
+            "fast_big_boy_cutscene",
+            "decompression",
         ];
         let mut new_game = "new_game";
         if let Some(options) = &self.randomization.difficulty.debug_options {
