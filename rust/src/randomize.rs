@@ -23,20 +23,20 @@ use crate::game_data::GameData;
 
 use self::escape_timer::SpoilerEscape;
 
-#[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
 pub enum ItemPlacementStrategy {
     Open,
     Semiclosed,
     Closed,
 }
 
-#[derive(Clone, Serialize, Deserialize, Debug)]
+#[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
 pub struct DebugOptions {
     pub new_game_extra: bool,
     pub extended_spoiler: bool,
 }
 
-#[derive(Clone, Serialize, Deserialize, Debug)]
+#[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
 pub struct DifficultyConfig {
     pub tech: Vec<String>,
     pub shine_charge_tiles: i32,
@@ -63,7 +63,7 @@ pub struct DifficultyConfig {
 pub struct Randomizer<'a> {
     pub map: &'a Map,
     pub game_data: &'a GameData,
-    pub difficulty: &'a DifficultyConfig,
+    pub difficulty_tiers: &'a [DifficultyConfig],
     pub links: Vec<Link>,
     pub initial_items_remaining: Vec<usize>, // Corresponds to GameData.items_isv (one count per distinct item name)
 }
@@ -122,7 +122,7 @@ struct VertexInfo {
 impl<'r> Randomizer<'r> {
     pub fn new(
         map: &'r Map,
-        difficulty: &'r DifficultyConfig,
+        difficulty_tiers: &'r [DifficultyConfig],
         game_data: &'r GameData,
     ) -> Randomizer<'r> {
         let mut door_edges: Vec<(VertexId, VertexId)> = Vec::new();
@@ -176,12 +176,12 @@ impl<'r> Randomizer<'r> {
             initial_items_remaining,
             game_data,
             links,
-            difficulty,
+            difficulty_tiers,
         }
     }
 
-    fn get_tech_vec(&self) -> Vec<bool> {
-        let tech_set: HashSet<String> = self.difficulty.tech.iter().map(|x| x.clone()).collect();
+    fn get_tech_vec(&self, tier: usize) -> Vec<bool> {
+        let tech_set: HashSet<String> = self.difficulty_tiers[tier].tech.iter().map(|x| x.clone()).collect();
         self.game_data
             .tech_isv
             .keys
@@ -206,7 +206,7 @@ impl<'r> Randomizer<'r> {
             num_vertices,
             start_vertex_id,
             false,
-            self.difficulty,
+            &self.difficulty_tiers[0],
             self.game_data,
         );
         let reverse = traverse(
@@ -215,7 +215,7 @@ impl<'r> Randomizer<'r> {
             num_vertices,
             start_vertex_id,
             true,
-            self.difficulty,
+            &self.difficulty_tiers[0],
             self.game_data,
         );
         for (i, vertex_ids) in self.game_data.item_vertex_ids.iter().enumerate() {
@@ -273,7 +273,7 @@ impl<'r> Randomizer<'r> {
         attempt_num: usize,
         rng: &mut R,
     ) -> Option<SelectItemsOutput> {
-        let num_items_to_place = match self.difficulty.item_placement_strategy {
+        let num_items_to_place = match self.difficulty_tiers[0].item_placement_strategy {
             ItemPlacementStrategy::Open => num_bireachable,
             ItemPlacementStrategy::Semiclosed | ItemPlacementStrategy::Closed => {
                 num_bireachable + num_oneway_reachable
@@ -289,7 +289,7 @@ impl<'r> Randomizer<'r> {
             .collect();
         let num_key_items_remaining = filtered_item_precedence.len();
         let num_items_remaining: usize = state.items_remaining.iter().sum();
-        let mut num_key_items_to_place = match self.difficulty.item_placement_strategy {
+        let mut num_key_items_to_place = match self.difficulty_tiers[0].item_placement_strategy {
             ItemPlacementStrategy::Semiclosed | ItemPlacementStrategy::Closed => 1,
             ItemPlacementStrategy::Open => f32::ceil(
                 (num_key_items_remaining as f32) / (num_items_remaining as f32)
@@ -324,7 +324,7 @@ impl<'r> Randomizer<'r> {
         let num_other_items_to_place = num_items_to_place - num_key_items_to_place;
         let mut item_types_to_mix: Vec<Item>;
         let mut item_types_to_delay: Vec<Item>;
-        match self.difficulty.item_placement_strategy {
+        match self.difficulty_tiers[0].item_placement_strategy {
             ItemPlacementStrategy::Open => {
                 item_types_to_mix = vec![
                     Item::Missile,
@@ -420,8 +420,69 @@ impl<'r> Randomizer<'r> {
         key_items_to_place: &[Item],
         other_items_to_place: &[Item],
     ) {
+        // println!("# bireachable = {}", bireachable_locations.len());
+        let mut new_bireachable_locations: Vec<ItemLocationId> = Vec::new();
+        if self.difficulty_tiers.len() > 1 {
+            let num_vertices = self.game_data.vertex_isv.keys.len();
+            let start_vertex_id = self.game_data.vertex_isv.index_by_key[&(8, 5, 0)]; // Landing site
+
+            let mut location_mask = vec![false; bireachable_locations.len()];
+
+            // For diabolical mode, prioritize placing key items at locations that are inaccessible at
+            // lower difficulty tiers. We populate `new_bireachable_locations` with the same set of
+            // locations as `bireachable_locations` but reordered with the highest-priority locations
+            // first.
+            for tier in 1..self.difficulty_tiers.len() {
+                let difficulty = &self.difficulty_tiers[tier];
+                let mut tmp_global = state.global_state.clone();
+                tmp_global.tech = self.get_tech_vec(tier);
+                tmp_global.shine_charge_tiles = difficulty.shine_charge_tiles;
+                let traverse_result = traverse(
+                    &self.links,
+                    &tmp_global,
+                    num_vertices,
+                    start_vertex_id,
+                    false,
+                    difficulty,
+                    self.game_data,
+                );
+
+                for (i, &item_location_id) in bireachable_locations.iter().enumerate() {
+                    if location_mask[i] {
+                        continue;
+                    }
+                    let mut is_reachable = false;
+                    for &v in &self.game_data.item_vertex_ids[item_location_id] {
+                        if traverse_result.local_states[v].is_some() {
+                            is_reachable = true;
+                        }
+                    }
+                    // println!("tier={tier}, item={i}, is_reachable={is_reachable}");
+                    if !is_reachable {
+                        if new_bireachable_locations.is_empty() {
+                            println!("Tier {}", tier);
+                        }
+                        new_bireachable_locations.push(item_location_id);
+                        location_mask[i] = true;
+                    }
+                }
+            }
+
+            for (i, &item_location_id) in bireachable_locations.iter().enumerate() {
+                if !location_mask[i] {
+                    if new_bireachable_locations.is_empty() {
+                        println!("Tier {}", self.difficulty_tiers.len());
+                    }
+                    new_bireachable_locations.push(item_location_id);
+                }
+            }
+            assert!(new_bireachable_locations.len() == bireachable_locations.len());
+        } else {
+            new_bireachable_locations = bireachable_locations.to_vec();
+        }
+
         let mut all_locations: Vec<ItemLocationId> = Vec::new();
-        all_locations.extend(bireachable_locations);
+        all_locations.extend(new_bireachable_locations);
         all_locations.extend(other_locations);
         let mut all_items_to_place: Vec<Item> = Vec::new();
         all_items_to_place.extend(key_items_to_place);
@@ -533,7 +594,7 @@ impl<'r> Randomizer<'r> {
                     done: false,
                     debug_data: None,
                 };
-                if self.difficulty.item_placement_strategy == ItemPlacementStrategy::Open {
+                if self.difficulty_tiers[0].item_placement_strategy == ItemPlacementStrategy::Open {
                     // In Open mode, defer placing items at one-way-reachable locations. They may
                     // get key items placed there later after becoming bireachable.
                     self.place_items(
@@ -542,7 +603,7 @@ impl<'r> Randomizer<'r> {
                         &[],
                         &select_res.key_items,
                         &select_res.other_items,
-                    );    
+                    );
                 } else {
                     // In Semiclosed/Closed modes, fill one-way-reachable locations with non-key items,
                     // to minimize the possibility of them being usable to break from the intended sequence.
@@ -584,7 +645,7 @@ impl<'r> Randomizer<'r> {
                     .filter(|x| x.reachable)
                     .count();
                 let num_one_way_reachable = num_reachable - num_bireachable;
-                
+
                 // Maximum acceptable number of one-way-reachable items. This is to try to avoid extreme
                 // cases where the player would gain access to very large areas that they cannot return from:
                 let one_way_reachable_limit = 20;
@@ -627,14 +688,14 @@ impl<'r> Randomizer<'r> {
             .map(|x| x.placed_item.unwrap())
             .collect();
         let spoiler_escape =
-            escape_timer::compute_escape_data(self.game_data, self.map, self.difficulty);
+            escape_timer::compute_escape_data(self.game_data, self.map, &self.difficulty_tiers[0]);
         let spoiler_log = SpoilerLog {
             summary: spoiler_summaries,
             escape: spoiler_escape,
             details: spoiler_details,
         };
         Randomization {
-            difficulty: self.difficulty.clone(),
+            difficulty: self.difficulty_tiers[0].clone(),
             map: self.map.clone(),
             item_placement,
             spoiler_log,
@@ -649,7 +710,7 @@ impl<'r> Randomizer<'r> {
             let items = vec![false; self.game_data.item_isv.keys.len()];
             let weapon_mask = self.game_data.get_weapon_mask(&items);
             GlobalState {
-                tech: self.get_tech_vec(),
+                tech: self.get_tech_vec(0),
                 items: items,
                 flags: self.get_initial_flag_vec(),
                 max_energy: 99,
@@ -658,7 +719,7 @@ impl<'r> Randomizer<'r> {
                 max_supers: 0,
                 max_power_bombs: 0,
                 weapon_mask: weapon_mask,
-                shine_charge_tiles: self.difficulty.shine_charge_tiles,
+                shine_charge_tiles: self.difficulty_tiers[0].shine_charge_tiles,
             }
         };
 
@@ -1090,14 +1151,14 @@ impl<'a> Randomizer<'a> {
             &state.global_state,
             &mut local_state,
             &forward_link_idxs,
-            self.difficulty,
+            &self.difficulty_tiers[0],
         );
         // info!("return");
         let return_route = self.get_spoiler_route_reverse(
             &state.global_state,
             local_state,
             &reverse_link_idxs,
-            self.difficulty,
+            &self.difficulty_tiers[0],
         );
         (obtain_route, return_route)
     }
@@ -1184,7 +1245,7 @@ impl<'a> Randomizer<'a> {
         for i in 0..self.game_data.item_locations.len() {
             if let Some(item) = new_state.item_location_state[i].placed_item {
                 let mut first_item = !state.global_state.items[item as usize];
-                if let Some(debug_options) = &self.difficulty.debug_options {
+                if let Some(debug_options) = &self.difficulty_tiers[0].debug_options {
                     if debug_options.extended_spoiler {
                         first_item = true;
                     }
@@ -1219,7 +1280,7 @@ impl<'a> Randomizer<'a> {
         for i in 0..self.game_data.item_locations.len() {
             if let Some(item) = new_state.item_location_state[i].placed_item {
                 let mut first_item = !state.global_state.items[item as usize];
-                if let Some(debug_options) = &self.difficulty.debug_options {
+                if let Some(debug_options) = &self.difficulty_tiers[0].debug_options {
                     if debug_options.extended_spoiler {
                         first_item = true;
                     }

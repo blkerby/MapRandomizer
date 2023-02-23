@@ -138,7 +138,8 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
             extended_spoiler: true,
         })
     };
-    let randomizer = Randomizer::new(&map, &difficulty, &game_data);
+    let difficulty_tiers = [difficulty];
+    let randomizer = Randomizer::new(&map, &difficulty_tiers, &game_data);
     let max_attempts = if args.item_placement_seed.is_some() { 1 } else { 10 };
     for attempt_num in 0..max_attempts {
         let seed = match args.item_placement_seed {

@@ -19,10 +19,6 @@
             <div class="col-9"><%= random_seed %></div>
         </div>
         <div class="row">
-            <div class="col-3">Race mode:</div>
-            <div class="col-9"><%= if race_mode { "Yes" } else { "No" } %></div>
-        </div>
-        <div class="row">
             <div class="col-3">Item placement:</div>
             <div class="col-9"><%= item_placement_strategy %></div>
         </div>
@@ -41,6 +37,14 @@
                     <% include!("skill_details.stpl"); %>
                 </div>
             </div>
+        </div>
+        <div class="row">
+            <div class="col-3">Diabolical mode:</div>
+            <div class="col-9"><%= if diabolical_mode { "Yes" } else { "No" } %></div>
+        </div>
+        <div class="row">
+            <div class="col-3">Race mode:</div>
+            <div class="col-9"><%= if race_mode { "Yes" } else { "No" } %></div>
         </div>
         <div class="row">
             <div class="col-3">Quality-of-life options:</div>

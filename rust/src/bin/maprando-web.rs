@@ -1,3 +1,4 @@
+use std::cmp::max;
 use std::path::{Path, PathBuf};
 use std::time::SystemTime;
 
@@ -120,6 +121,7 @@ async fn home(app_data: web::Data<AppData>) -> impl Responder {
 struct RandomizeRequest {
     rom: Bytes,
     item_placement_strategy: Text<String>,
+    diabolical_mode: Text<bool>,
     preset: Option<Text<String>>,
     shinespark_tiles: Text<usize>,
     resource_multiplier: Text<f32>,
@@ -156,6 +158,7 @@ struct SeedData {
     random_seed: usize,
     map_seed: usize,
     item_placement_seed: usize,
+    diabolical_mode: bool,
     race_mode: bool,
     preset: Option<String>,
     difficulty: DifficultyConfig,
@@ -182,6 +185,7 @@ struct SeedHeaderTemplate<'a> {
     timestamp: usize, // Milliseconds since UNIX epoch
     random_seed: usize,
     version: usize,
+    diabolical_mode: bool,
     race_mode: bool,
     preset: String,
     item_placement_strategy: String,
@@ -214,6 +218,7 @@ fn render_seed(seed_name: &str, seed_data: &SeedData) -> Result<(String, String)
         seed_name: seed_name.to_string(),
         version: VERSION,
         random_seed: seed_data.random_seed,
+        diabolical_mode: seed_data.diabolical_mode,
         race_mode: seed_data.race_mode,
         timestamp: seed_data.timestamp,
         preset: seed_data.preset.clone().unwrap_or("Custom".to_string()),
@@ -432,6 +437,68 @@ fn get_random_seed() -> usize {
     (rand::rngs::StdRng::from_entropy().next_u64() & 0xFFFFFFFF) as usize
 }
 
+// Computes the intersection of the selected difficulty with each preset. This
+// gives a set of difficulty tiers below the selected difficulty. These are
+// used in "diabolical mode" to try to identify locations at which to place
+// key items which are reachable using the selected difficulty but not at
+// lower difficulties.
+fn get_difficulty_tiers(
+    difficulty: &DifficultyConfig,
+    presets: &[PresetData],
+) -> Vec<DifficultyConfig> {
+    let mut out: Vec<DifficultyConfig> = vec![];
+    let tech_set: HashSet<String> = difficulty.tech.iter().cloned().collect();
+
+    for preset_data in presets.iter().rev() {
+        let preset = &preset_data.preset;
+        let mut tech_vec: Vec<String> = Vec::new();
+        for (tech, enabled) in &preset_data.tech_setting {
+            if *enabled && tech_set.contains(tech) {
+                tech_vec.push(tech.clone());
+            }
+        }
+        let new_difficulty = DifficultyConfig {
+            tech: tech_vec,
+            shine_charge_tiles: max(
+                difficulty.shine_charge_tiles,
+                preset.shinespark_tiles as i32,
+            ),
+            item_placement_strategy: difficulty.item_placement_strategy,
+            resource_multiplier: f32::max(
+                difficulty.resource_multiplier,
+                preset.resource_multiplier,
+            ),
+            escape_timer_multiplier: difficulty.escape_timer_multiplier,
+            save_animals: difficulty.save_animals,
+            phantoon_proficiency: f32::min(
+                difficulty.phantoon_proficiency,
+                preset.phantoon_proficiency,
+            ),
+            draygon_proficiency: f32::min(
+                difficulty.draygon_proficiency,
+                preset.draygon_proficiency,
+            ),
+            ridley_proficiency: f32::min(difficulty.ridley_proficiency, preset.ridley_proficiency),
+            botwoon_proficiency: f32::min(
+                difficulty.botwoon_proficiency,
+                preset.botwoon_proficiency,
+            ),
+            // Quality-of-life options:
+            supers_double: difficulty.supers_double,
+            streamlined_escape: difficulty.streamlined_escape,
+            mark_map_stations: difficulty.mark_map_stations,
+            mark_uniques: difficulty.mark_uniques,
+            mark_tanks: difficulty.mark_tanks,
+            fast_elevators: difficulty.fast_elevators,
+            debug_options: difficulty.debug_options.clone(),
+        };
+        if Some(&new_difficulty) != out.last() {
+            out.push(new_difficulty);
+        }
+    }
+    out
+}
+
 #[post("/randomize")]
 async fn randomize(
     req: MultipartForm<RandomizeRequest>,
@@ -501,6 +568,11 @@ async fn randomize(
         fast_elevators: req.fast_elevators.0,
         debug_options: None,
     };
+    let difficulty_tiers = if req.diabolical_mode.0 {
+        get_difficulty_tiers(&difficulty, &app_data.preset_data)
+    } else {
+        vec![difficulty.clone()]
+    };
     let race_mode = req.race_mode.0 == "Yes";
     let mut rng_seed = [0u8; 32];
     rng_seed[..8].copy_from_slice(&random_seed.to_le_bytes());
@@ -509,7 +581,14 @@ async fn randomize(
     let max_attempts = 100;
     let mut attempt_num = 0;
     let randomization: Randomization;
-    info!("Random seed={random_seed}, difficulty={difficulty:?}");
+    // info!(
+    //     "Random seed={random_seed}, difficulty={:?}",
+    //     difficulty_tiers[0]
+    // );
+    info!(
+        "Random seed={random_seed}, difficulty={:?}",
+        difficulty_tiers
+    );
     let mut map_seed: usize;
     let mut item_placement_seed: usize;
     loop {
@@ -522,7 +601,7 @@ async fn randomize(
         let map = app_data.map_repository.get_map(map_seed).unwrap();
         item_placement_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
         info!("Map seed={map_seed}, item placement seed={item_placement_seed}");
-        let randomizer = Randomizer::new(&map, &difficulty, &app_data.game_data);
+        let randomizer = Randomizer::new(&map, &difficulty_tiers, &app_data.game_data);
         randomization = match randomizer.randomize(item_placement_seed) {
             Some(r) => r,
             None => continue,
@@ -545,9 +624,10 @@ async fn randomize(
         random_seed: random_seed,
         map_seed,
         item_placement_seed,
+        diabolical_mode: req.diabolical_mode.0,
         race_mode,
         preset: req.preset.as_ref().map(|x| x.0.clone()),
-        difficulty,
+        difficulty: difficulty_tiers[0].clone(),
         quality_of_life_preset: req.quality_of_life_preset.as_ref().map(|x| x.0),
         supers_double: req.supers_double.0,
         streamlined_escape: req.streamlined_escape.0,

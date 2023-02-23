@@ -60,6 +60,7 @@
                 sparingly until the final stage of item placement, tending to limit the player to a single intended
                 progression sequence and limited resources for much of the game.</small>
             </div>
+
             <div class="form-group row my-2">
                 <label class="col-sm-2 col-form-label" for="preset">Skill assumption</label>
                 <div class="col-sm-10 btn-group" role="group">
@@ -80,9 +81,21 @@
                 difficulty with the intended level.</small>
             </div>
             <% include!("skill_assumptions.stpl"); %>
+
             <div class="form-group row my-2">
-                <label class="col-sm-2 col-form-label" for="race_mode">Race mode<br>
-                <small>(no spoilers)</small></label>
+                <label class="col-sm-3 col-form-label" for="diabolical_mode">Diabolical mode<br>
+                <small>(Key items need harder tech to reach)</small></label>
+                <div class="col-sm-2 btn-group my-2" role="group">
+                    <input type="radio" class="btn-check" name="diabolical_mode" id="diabolicalModeNo" value="false" checked=true>
+                    <label class="btn btn-outline-primary" for="diabolicalModeNo">No</label>
+                    <input type="radio" class="btn-check" name="diabolical_mode" id="diabolicalModeYes" value="true">
+                    <label class="btn btn-outline-primary" for="diabolicalModeYes">Yes</label>
+                </div>
+            </div>
+
+            <div class="form-group row my-2">
+                <label class="col-sm-3 col-form-label" for="race_mode">Race mode<br>
+                <small>(No spoilers)</small></label>
                 <div class="col-sm-2 btn-group my-2" role="group">
                     <input type="radio" class="btn-check" name="race_mode" id="raceModeNo" value="No" checked=true>
                     <label class="btn btn-outline-primary" for="raceModeNo">No</label>
@@ -91,7 +104,7 @@
                 </div>
             </div>
             <div class="form-group row my-2">
-                <label for="randomSeed" class="col-sm-2 col-form-label">Random seed</label>
+                <label for="randomSeed" class="col-sm-3 col-form-label">Random seed</label>
                 <div class="col-sm-3">
                 <input type="text" class="form-control" name="random_seed" id="randomSeed" value="">
                 </div>
