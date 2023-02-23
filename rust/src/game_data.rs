@@ -109,6 +109,7 @@ pub enum Requirement {
     HeatFrames(i32),
     LavaFrames(i32),
     LavaPhysicsFrames(i32),
+    AcidFrames(i32),
     Damage(i32),
     // Energy(i32),
     Missiles(i32),
@@ -526,7 +527,8 @@ impl GameData {
                 let frames = value
                     .as_i32()
                     .expect(&format!("invalid acidFrames in {}", json_value));
-                return Ok(Requirement::Damage(3 * frames / 2));
+                return Ok(Requirement::AcidFrames(frames));
+                // return Ok(Requirement::Damage(3 * frames / 2));
             } else if key == "draygonElectricityFrames" {
                 let frames = value.as_i32().expect(&format!(
                     "invalid draygonElectricityFrames in {}",
