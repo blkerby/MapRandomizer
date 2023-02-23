@@ -1,5 +1,5 @@
 <div class="form-group row my-2">
-    <label class="col-sm-2 col-form-label" for="qualityOfLife">Quality-of-life options</label>
+    <label class="col-sm-3 col-form-label" for="qualityOfLife">Quality-of-life options</label>
     <div class="col-sm-2 btn-group" role="group">
         <input type="radio" class="btn-check" name="quality_of_life_preset" value="false"
             id="qualityOfLifeNo" autocomplete="off" onclick="qualityOfLifePresetChanged()">
