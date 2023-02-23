@@ -181,7 +181,11 @@ impl<'r> Randomizer<'r> {
     }
 
     fn get_tech_vec(&self, tier: usize) -> Vec<bool> {
-        let tech_set: HashSet<String> = self.difficulty_tiers[tier].tech.iter().map(|x| x.clone()).collect();
+        let tech_set: HashSet<String> = self.difficulty_tiers[tier]
+            .tech
+            .iter()
+            .map(|x| x.clone())
+            .collect();
         self.game_data
             .tech_isv
             .keys
@@ -487,19 +491,9 @@ impl<'r> Randomizer<'r> {
         let mut all_items_to_place: Vec<Item> = Vec::new();
         all_items_to_place.extend(key_items_to_place);
         all_items_to_place.extend(other_items_to_place);
+        assert!(all_locations.len() == all_items_to_place.len());
         for (&loc, &item) in iter::zip(&all_locations, &all_items_to_place) {
             state.item_location_state[loc].placed_item = Some(item);
-        }
-    }
-
-    fn collect_items(&self, state: &mut RandomizationState) {
-        for item_loc_state in &mut state.item_location_state {
-            if !item_loc_state.collected && item_loc_state.bireachable {
-                if let Some(item) = item_loc_state.placed_item {
-                    state.global_state.collect(item, self.game_data);
-                    item_loc_state.collected = true;
-                }
-            }
         }
     }
 
@@ -559,22 +553,30 @@ impl<'r> Randomizer<'r> {
             }
         }
 
+        let mut placed_uncollected_bireachable_loc: Vec<ItemLocationId> = Vec::new();
+        let mut placed_uncollected_bireachable_items: Vec<Item> = Vec::new();
         let mut unplaced_bireachable: Vec<ItemLocationId> = Vec::new();
         let mut unplaced_oneway_reachable: Vec<ItemLocationId> = Vec::new();
         for (i, item_location_state) in state.item_location_state.iter().enumerate() {
-            if item_location_state.placed_item.is_some() {
-                continue;
-            }
-            if item_location_state.bireachable {
-                unplaced_bireachable.push(i);
-            } else if item_location_state.reachable {
-                unplaced_oneway_reachable.push(i);
+            if let Some(item) = item_location_state.placed_item {
+                if !item_location_state.collected && item_location_state.bireachable {
+                    placed_uncollected_bireachable_loc.push(i);
+                    placed_uncollected_bireachable_items.push(item);
+                }
+            } else {
+                if item_location_state.bireachable {
+                    unplaced_bireachable.push(i);
+                } else if item_location_state.reachable {
+                    unplaced_oneway_reachable.push(i);
+                }
             }
         }
         unplaced_bireachable.shuffle(rng);
         unplaced_oneway_reachable.shuffle(rng);
         let mut attempt_num = 0;
         let mut new_state: RandomizationState;
+        let mut key_items_to_place: Vec<Item>;
+        let mut other_items_to_place: Vec<Item>;
         loop {
             let select_result = self.select_items(
                 state,
@@ -594,28 +596,18 @@ impl<'r> Randomizer<'r> {
                     done: false,
                     debug_data: None,
                 };
-                if self.difficulty_tiers[0].item_placement_strategy == ItemPlacementStrategy::Open {
-                    // In Open mode, defer placing items at one-way-reachable locations. They may
-                    // get key items placed there later after becoming bireachable.
-                    self.place_items(
-                        &mut new_state,
-                        &unplaced_bireachable,
-                        &[],
-                        &select_res.key_items,
-                        &select_res.other_items,
-                    );
-                } else {
-                    // In Semiclosed/Closed modes, fill one-way-reachable locations with non-key items,
-                    // to minimize the possibility of them being usable to break from the intended sequence.
-                    self.place_items(
-                        &mut new_state,
-                        &unplaced_bireachable,
-                        &unplaced_oneway_reachable,
-                        &select_res.key_items,
-                        &select_res.other_items,
-                    );
+                key_items_to_place = select_res.key_items;
+                other_items_to_place = select_res.other_items;
+
+                for &item in placed_uncollected_bireachable_items.iter().chain(
+                    key_items_to_place
+                        .iter()
+                        .chain(other_items_to_place.iter())
+                        .take(unplaced_bireachable.len()),
+                ) {
+                    new_state.global_state.collect(item, self.game_data);
                 }
-                self.collect_items(&mut new_state);
+
                 if iter::zip(&new_state.items_remaining, &self.initial_items_remaining)
                     .all(|(x, y)| x < y)
                 {
@@ -664,6 +656,43 @@ impl<'r> Randomizer<'r> {
             // println!("attempt failed");
             attempt_num += 1;
         }
+
+        // Mark the newly collected items that were placed on earlier steps:
+        for &loc in &placed_uncollected_bireachable_loc {
+            new_state.item_location_state[loc].collected = true;
+        }
+
+        // Place the new items:
+        if self.difficulty_tiers[0].item_placement_strategy == ItemPlacementStrategy::Open {
+            // In Open mode, only place items at bireachable locations. We defer placing items at
+            // one-way-reachable locations so that they may get key items placed there later after
+            // becoming bireachable.
+            self.place_items(
+                &mut new_state,
+                &unplaced_bireachable,
+                &[],
+                &key_items_to_place,
+                &other_items_to_place,
+            );
+        } else {
+            // In Semiclosed/Closed modes, place items in all newly reachable locations (bireachable as
+            // well as one-way-reachable locations). One-way-reachable locations are filled only
+            // with non-key items, to minimize the possibility of them being usable to break from the
+            // intended sequence.
+            self.place_items(
+                &mut new_state,
+                &unplaced_bireachable,
+                &unplaced_oneway_reachable,
+                &key_items_to_place,
+                &other_items_to_place,
+            );
+        }
+
+        // Mark the newly placed bireachable items as collected:
+        for &loc in &unplaced_bireachable {
+            new_state.item_location_state[loc].collected = true;
+        }
+
         let spoiler_summary = self.get_spoiler_summary(
             &orig_global_state,
             state,
