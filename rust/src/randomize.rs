@@ -416,6 +416,49 @@ impl<'r> Randomizer<'r> {
         })
     }
 
+    fn find_hard_location(&self, state: &RandomizationState, bireachable_locations: &[ItemLocationId]) -> usize {
+        // For diabolical mode, we prioritize placing a key item at a location that is inaccessible at
+        // lower difficulty tiers. This function returns an index into `bireachable_locations`, identifying
+        // a location with the hardest possible difficulty to reach.
+        let num_vertices = self.game_data.vertex_isv.keys.len();
+        let start_vertex_id = self.game_data.vertex_isv.index_by_key[&(8, 5, 0)]; // Landing site
+
+        let mut location_mask = vec![false; bireachable_locations.len()];
+
+        for tier in 1..self.difficulty_tiers.len() {
+            let difficulty = &self.difficulty_tiers[tier];
+            let mut tmp_global = state.global_state.clone();
+            tmp_global.tech = self.get_tech_vec(tier);
+            tmp_global.shine_charge_tiles = difficulty.shine_charge_tiles;
+            let traverse_result = traverse(
+                &self.links,
+                &tmp_global,
+                num_vertices,
+                start_vertex_id,
+                false,
+                difficulty,
+                self.game_data,
+            );
+
+            for (i, &item_location_id) in bireachable_locations.iter().enumerate() {
+                if location_mask[i] {
+                    continue;
+                }
+                let mut is_reachable = false;
+                for &v in &self.game_data.item_vertex_ids[item_location_id] {
+                    if traverse_result.local_states[v].is_some() {
+                        is_reachable = true;
+                    }
+                }
+                if !is_reachable {
+                    println!("Tier {}", tier);
+                    return i;
+                }
+            }
+        }
+        return 0;
+    }
+
     fn place_items(
         &self,
         state: &mut RandomizationState,
@@ -425,64 +468,10 @@ impl<'r> Randomizer<'r> {
         other_items_to_place: &[Item],
     ) {
         // println!("# bireachable = {}", bireachable_locations.len());
-        let mut new_bireachable_locations: Vec<ItemLocationId> = Vec::new();
+        let mut new_bireachable_locations: Vec<ItemLocationId> = bireachable_locations.to_vec();
         if self.difficulty_tiers.len() > 1 {
-            let num_vertices = self.game_data.vertex_isv.keys.len();
-            let start_vertex_id = self.game_data.vertex_isv.index_by_key[&(8, 5, 0)]; // Landing site
-
-            let mut location_mask = vec![false; bireachable_locations.len()];
-
-            // For diabolical mode, prioritize placing key items at locations that are inaccessible at
-            // lower difficulty tiers. We populate `new_bireachable_locations` with the same set of
-            // locations as `bireachable_locations` but reordered with the highest-priority locations
-            // first.
-            for tier in 1..self.difficulty_tiers.len() {
-                let difficulty = &self.difficulty_tiers[tier];
-                let mut tmp_global = state.global_state.clone();
-                tmp_global.tech = self.get_tech_vec(tier);
-                tmp_global.shine_charge_tiles = difficulty.shine_charge_tiles;
-                let traverse_result = traverse(
-                    &self.links,
-                    &tmp_global,
-                    num_vertices,
-                    start_vertex_id,
-                    false,
-                    difficulty,
-                    self.game_data,
-                );
-
-                for (i, &item_location_id) in bireachable_locations.iter().enumerate() {
-                    if location_mask[i] {
-                        continue;
-                    }
-                    let mut is_reachable = false;
-                    for &v in &self.game_data.item_vertex_ids[item_location_id] {
-                        if traverse_result.local_states[v].is_some() {
-                            is_reachable = true;
-                        }
-                    }
-                    // println!("tier={tier}, item={i}, is_reachable={is_reachable}");
-                    if !is_reachable {
-                        if new_bireachable_locations.is_empty() {
-                            println!("Tier {}", tier);
-                        }
-                        new_bireachable_locations.push(item_location_id);
-                        location_mask[i] = true;
-                    }
-                }
-            }
-
-            for (i, &item_location_id) in bireachable_locations.iter().enumerate() {
-                if !location_mask[i] {
-                    if new_bireachable_locations.is_empty() {
-                        println!("Tier {}", self.difficulty_tiers.len());
-                    }
-                    new_bireachable_locations.push(item_location_id);
-                }
-            }
-            assert!(new_bireachable_locations.len() == bireachable_locations.len());
-        } else {
-            new_bireachable_locations = bireachable_locations.to_vec();
+            let hard_idx = self.find_hard_location(state, bireachable_locations);
+            new_bireachable_locations.swap(0, hard_idx);
         }
 
         let mut all_locations: Vec<ItemLocationId> = Vec::new();
