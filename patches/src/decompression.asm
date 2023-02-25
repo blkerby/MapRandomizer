@@ -1,7 +1,7 @@
 ; From https://github.com/theonlydude/RandomMetroidSolver/blob/master/patches/common/src/decompression.asm
 ;$30FF-$3265
 
-;;; Decompression optimization by Kejardon, fixed by PJBoy
+;;; Decompression optimization by Kejardon, with fixes by PJBoy and Maddo
 
 ;Compression format: One byte(XXX YYYYY) or two byte (111 XXX YY-YYYYYYYY) headers
 ;XXX = instruction, YYYYYYYYYY = counter
@@ -160,23 +160,25 @@ BRANCH_IOTA:
 	BNE +
 	JSR IncrementBank2
 +
-
 	XBA
+
+	INX ; Test if X = 0 without overwriting carry
+	DEX
+	BEQ ++  ; If X = 0 then skip the loop (otherwise X would underflow and the loop would run $10000 times)
+
 	REP #$20
 
 -
 
 	STA [$4C], Y
 	INY
-;	DEX ; PJ: don't need these anymore
-;	BEQ ++
 	INY
 	DEX
 	BNE -
 
-;++
 	SEP #$20
 
+++
 	BCC + : STA [$4C], Y : INY : + ; PJ: If carry was set, store that last byte
 
 	JMP NextByte
