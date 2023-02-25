@@ -1,18 +1,21 @@
 Release plan:
 
-v39:
-- save stations go faster
-  - TODO: add back Save Completed message.
+priority:
+  - fix bug in decompression patch
+  - cross-room strats
 
-- diabolical mode
-
-v40?:
-  - sprite customization (?),
+later:
+  - credits
+  - proper front page
+  - add back more gray doors
   - music options
+  - sprite customization (?),
 
 
 
 TODO:
+- fix bug in decompression patch
+- maybe speed up shaktool? (but without messing up the initial power bomb)
 - fix bug where suit color does not change when changing suits while taking damage (e.g. lava dive)?
 - fix bug where music is wrong after quick reload (even after going to next room).
 - clean up the web service, to reduce the amount of boilerplate plumbing settings around.
