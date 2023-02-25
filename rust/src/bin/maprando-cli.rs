@@ -3,7 +3,7 @@ use clap::Parser;
 use maprando::customize::{customize_rom, CustomizeSettings};
 use maprando::game_data::Map;
 use maprando::patch::Rom;
-use maprando::randomize::{ItemPlacementStrategy, Randomization, Randomizer, DebugOptions};
+use maprando::randomize::{ProgressionStyle, Randomization, Randomizer, DebugOptions, ItemPlacementStyle, ItemPriorityGroup};
 use maprando::spoiler_map;
 use maprando::{game_data::GameData, patch::make_rom, randomize::DifficultyConfig};
 use maprando::patch::ips_write::create_ips_patch;
@@ -117,9 +117,12 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         // tech,
         shine_charge_tiles: 16,
         // shine_charge_tiles: 32,
-        item_placement_strategy: ItemPlacementStrategy::Open,
-        // item_placement_strategy: ItemPlacementStrategy::Closed,
-        // item_placement_strategy: ItemPlacementStrategy::Semiclosed,
+        progression_style: ProgressionStyle::Open,
+        item_placement_style: ItemPlacementStyle::Neutral,
+        item_priorities: vec![ItemPriorityGroup {
+            name: "Default".to_string(),
+            items: game_data.item_isv.keys.clone(),
+        }],
         resource_multiplier: 1.0,
         escape_timer_multiplier: 1.0,
         save_animals: false,

@@ -20,45 +20,67 @@
                 <small>Version: <%= version %></small>
             </div>
         </div>
-        <form id="main-form" method="POST" enctype="multipart/form-data" action="/randomize" onchange="saveForm(this)"  onsubmit="updateTechSelection()">
+        <form id="main-form" method="POST" enctype="multipart/form-data" action="/randomize" onchange="saveForm(this)"  onsubmit="prepareSubmit()">
             <div class="form-group row my-2">
                 <label class="col-sm-2 col-form-label" for="rom">Input ROM</label>
                 <input class="col-sm-10 form-control-file" type="file" id="vanillaRom" name="rom"
                 onchange="saveROM(this, 'vanilla')">
             </div>
             <div class="form-group row my-2">
-                <label class="col-sm-2 col-form-label" for="preset">Item placement</label>
+                <label class="col-sm-2 col-form-label" for="preset">Progression style</label>
                 <div class="col-sm-4 btn-group" role="group">
-                <% for &name in &item_placement_strategies {
+                <% for &name in &progression_styles {
                         let checked = if name == "Open" { "checked" } else { "" };
                      %>
                     <input type="radio"
                         class="btn-check" 
-                        name="item_placement_strategy" 
-                        id="itemPlacementStrategy<%- name %>"
+                        name="progression_style" 
+                        id="progressionStyle<%- name %>"
                         value="<%- name %>"
                         autocomplete="off"
-                        onclick="presetChanged()"
                         <%- checked %>>
-                    <label class="btn btn-outline-primary" for="itemPlacementStrategy<%- name%>"><%= name %></label>
+                    <label class="btn btn-outline-primary" for="progressionStyle<%- name%>"><%= name %></label>
                 <% } %>
                 </div>
             </div>
             <div class="form-group row my-2 mx-2">
-                <small><strong>Open</strong>: Key items, tanks, and ammo are placed throughout the game in
-                roughly a uniformly random way (subject to logic constraints to ensure the game is beatable), 
-                which generally allows multiple pathways for progression.</small>                    
+                <small><strong>Open</strong>: Key items, tanks, and ammo are placed throughout the game at
+                a uniform rate, generally allowing multiple pathways for progression.</small>                    
             </div>
             <div class="form-group row my-2 mx-2">
-                <small><strong>Semiclosed</strong>: Key items are placed sparingly until the final stage of
-                item placement, tending to limit the player to a single intended progression sequence for much
-                of the game. Energy Tanks and Reserve Tanks are placed in roughly a uniformly random way, as 
-                are additional Super and Power Bomb packs after the first pack.</small>
+                <small><strong>Semiclosed</strong>: Key items are placed sparingly, tending to limit the player
+                to a single intended progression sequence for much of the game. Energy Tanks and Reserve Tanks 
+                are placed at roughly a uniform rate, as are additional Super and Power Bomb packs after the
+                first pack.</small>
             </div>
             <div class="form-group row my-2 mx-2">
                 <small><strong>Closed</strong>: Key items, tanks, and ammo (other than Missiles) are placed
                 sparingly until the final stage of item placement, tending to limit the player to a single intended
                 progression sequence and limited resources for much of the game.</small>
+            </div>
+
+            <div class="form-group row my-2">
+                <label class="col-sm-2 col-form-label" for="preset">Item placement</label>
+                <div class="col-sm-3 btn-group" role="group">
+                <% for &name in &item_placement_styles {
+                        let checked = if name == "Neutral" { "checked" } else { "" };
+                     %>
+                    <input type="radio"
+                        class="btn-check" 
+                        name="item_placement_style" 
+                        id="itemPlacementStyle<%- name %>"
+                        value="<%- name %>"
+                        autocomplete="off"
+                        <%- checked %>>
+                    <label class="btn btn-outline-primary" for="itemPlacementStyle<%- name%>"><%= name %></label>
+                <% } %>
+                </div>
+            </div>
+            <div class="form-group row my-2 mx-2">
+                <small><strong>Neutral</strong>: Key items are placed in random locations (among the possible locations in a given sphere).</small>
+            </div>
+            <div class="form-group row my-2 mx-2">
+                <small><strong>Forced</strong>: Key items tend to be placed in locations requiring difficult techniques to reach.</small>
             </div>
 
             <div class="form-group row my-2">
@@ -83,18 +105,34 @@
             <% include!("skill_assumptions.stpl"); %>
 
             <div class="form-group row my-2">
-                <label class="col-sm-3 col-form-label" for="diabolical_mode">Diabolical mode<br>
-                <small>(Key items need harder tech to reach)</small></label>
-                <div class="col-sm-2 btn-group my-2" role="group">
-                    <input type="radio" class="btn-check" name="diabolical_mode" id="diabolicalModeNo" value="false" checked=true>
-                    <label class="btn btn-outline-primary" for="diabolicalModeNo">No</label>
-                    <input type="radio" class="btn-check" name="diabolical_mode" id="diabolicalModeYes" value="true">
-                    <label class="btn btn-outline-primary" for="diabolicalModeYes">Yes</label>
+                <label class="col-sm-2 col-form-label" for="item_priority_preset">Item priority</label>
+                <div class="col-sm-3 btn-group" role="group">
+                    <input type="radio" class="btn-check" name="item_priority_preset" value="Default"
+                        id="itemPriorityPresetDefault" autocomplete="off" 
+                        onclick="itemPriorityPresetChanged()" checked>
+                    <label class="btn btn-outline-primary" for="itemPriorityPresetDefault">Default</label>
+
+                    <input type="radio" class="btn-check" name="item_priority_preset" value="Early Morph"
+                        id="itemPriorityPresetEarlyMorph" autocomplete="off" 
+                        onclick="itemPriorityPresetChanged()">
+                    <label class="btn btn-outline-primary" for="itemPriorityPresetEarlyMorph">Early Morph</label>
+                 </div>
+            </div>
+            <div class="accordion my-2" id="accordionItemPriority">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseItemPriority">
+                        Customize item priority
+                        </button>
+                    </h2>
+                    <div id="collapseItemPriority" class="accordion-collapse collapse m-2">
+                        <% include!("item_priority.stpl"); %>
+                    </div>
                 </div>
             </div>
 
             <div class="form-group row my-2">
-                <label class="col-sm-3 col-form-label" for="race_mode">Race mode<br>
+                <label class="col-sm-2 col-form-label" for="race_mode">Race mode<br>
                 <small>(No spoilers)</small></label>
                 <div class="col-sm-2 btn-group my-2" role="group">
                     <input type="radio" class="btn-check" name="race_mode" id="raceModeNo" value="No" checked=true>
@@ -104,7 +142,7 @@
                 </div>
             </div>
             <div class="form-group row my-2">
-                <label for="randomSeed" class="col-sm-3 col-form-label">Random seed</label>
+                <label for="randomSeed" class="col-sm-2 col-form-label">Random seed</label>
                 <div class="col-sm-3">
                 <input type="text" class="form-control" name="random_seed" id="randomSeed" value="">
                 </div>

@@ -24,10 +24,16 @@ use crate::game_data::GameData;
 use self::escape_timer::SpoilerEscape;
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
-pub enum ItemPlacementStrategy {
+pub enum ProgressionStyle {
     Open,
     Semiclosed,
     Closed,
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
+pub enum ItemPlacementStyle {
+    Neutral,
+    Forced,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
@@ -37,10 +43,18 @@ pub struct DebugOptions {
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
+pub struct ItemPriorityGroup {
+    pub name: String,
+    pub items: Vec<String>,
+}
+
+#[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
 pub struct DifficultyConfig {
     pub tech: Vec<String>,
     pub shine_charge_tiles: i32,
-    pub item_placement_strategy: ItemPlacementStrategy,
+    pub progression_style: ProgressionStyle,
+    pub item_placement_style: ItemPlacementStyle,
+    pub item_priorities: Vec<ItemPriorityGroup>,
     pub resource_multiplier: f32,
     pub escape_timer_multiplier: f32,
     pub save_animals: bool,
@@ -83,6 +97,7 @@ struct FlagLocationState {
     pub bireachable_vertex_id: Option<VertexId>,
 }
 
+#[derive(Clone)]
 struct DebugData {
     forward: TraverseResult,
     reverse: TraverseResult,
@@ -98,6 +113,8 @@ struct RandomizationState {
     global_state: GlobalState,
     done: bool, // Have all key items been placed?
     debug_data: Option<DebugData>,
+    previous_debug_data: Option<DebugData>,
+    key_visited_vertices: HashSet<usize>,
 }
 
 pub struct Randomization {
@@ -206,6 +223,7 @@ impl<'r> Randomizer<'r> {
         let start_vertex_id = self.game_data.vertex_isv.index_by_key[&(8, 5, 0)]; // Landing site
         let forward = traverse(
             &self.links,
+            None,
             &state.global_state,
             num_vertices,
             start_vertex_id,
@@ -215,6 +233,7 @@ impl<'r> Randomizer<'r> {
         );
         let reverse = traverse(
             &self.links,
+            None,
             &state.global_state,
             num_vertices,
             start_vertex_id,
@@ -277,9 +296,9 @@ impl<'r> Randomizer<'r> {
         attempt_num: usize,
         rng: &mut R,
     ) -> Option<SelectItemsOutput> {
-        let num_items_to_place = match self.difficulty_tiers[0].item_placement_strategy {
-            ItemPlacementStrategy::Open => num_bireachable,
-            ItemPlacementStrategy::Semiclosed | ItemPlacementStrategy::Closed => {
+        let num_items_to_place = match self.difficulty_tiers[0].progression_style {
+            ProgressionStyle::Open => num_bireachable,
+            ProgressionStyle::Semiclosed | ProgressionStyle::Closed => {
                 num_bireachable + num_oneway_reachable
             }
         };
@@ -293,9 +312,9 @@ impl<'r> Randomizer<'r> {
             .collect();
         let num_key_items_remaining = filtered_item_precedence.len();
         let num_items_remaining: usize = state.items_remaining.iter().sum();
-        let mut num_key_items_to_place = match self.difficulty_tiers[0].item_placement_strategy {
-            ItemPlacementStrategy::Semiclosed | ItemPlacementStrategy::Closed => 1,
-            ItemPlacementStrategy::Open => f32::ceil(
+        let mut num_key_items_to_place = match self.difficulty_tiers[0].progression_style {
+            ProgressionStyle::Semiclosed | ProgressionStyle::Closed => 1,
+            ProgressionStyle::Open => f32::ceil(
                 (num_key_items_remaining as f32) / (num_items_remaining as f32)
                     * (num_items_to_place as f32),
             ) as usize,
@@ -328,18 +347,23 @@ impl<'r> Randomizer<'r> {
         let num_other_items_to_place = num_items_to_place - num_key_items_to_place;
         let mut item_types_to_mix: Vec<Item>;
         let mut item_types_to_delay: Vec<Item>;
-        match self.difficulty_tiers[0].item_placement_strategy {
-            ItemPlacementStrategy::Open => {
+        match self.difficulty_tiers[0].progression_style {
+            ProgressionStyle::Open => {
                 item_types_to_mix = vec![
                     Item::Missile,
                     Item::ETank,
                     Item::ReserveTank,
                     Item::Super,
                     Item::PowerBomb,
+                    Item::Charge,
+                    Item::Wave,
+                    Item::Ice,
+                    Item::Spazer,
+                    Item::Plasma,
                 ];
                 item_types_to_delay = vec![];
             }
-            ItemPlacementStrategy::Semiclosed => {
+            ProgressionStyle::Semiclosed => {
                 item_types_to_mix = vec![Item::Missile, Item::ETank, Item::ReserveTank];
                 item_types_to_delay = vec![];
                 if state.items_remaining[Item::Super as usize]
@@ -357,7 +381,7 @@ impl<'r> Randomizer<'r> {
                     item_types_to_delay.push(Item::PowerBomb);
                 }
             }
-            ItemPlacementStrategy::Closed => {
+            ProgressionStyle::Closed => {
                 item_types_to_mix = vec![Item::Missile];
                 if state.items_remaining[Item::PowerBomb as usize]
                     < self.initial_items_remaining[Item::PowerBomb as usize]
@@ -416,14 +440,37 @@ impl<'r> Randomizer<'r> {
         })
     }
 
-    fn find_hard_location(&self, state: &RandomizationState, bireachable_locations: &[ItemLocationId]) -> usize {
-        // For diabolical mode, we prioritize placing a key item at a location that is inaccessible at
+    fn get_init_traverse(
+        &self,
+        state: &RandomizationState,
+        init_traverse: Option<&TraverseResult>,
+    ) -> Option<TraverseResult> {
+        if let Some(init) = init_traverse {
+            let mut out = init.clone();
+            for v in 0..init.local_states.len() {
+                if !state.key_visited_vertices.contains(&v) {
+                    out.local_states[v] = None;
+                    out.cost[v] = f32::INFINITY;
+                    out.start_trail_ids[v] = None;
+                }
+            }
+            Some(out)
+        } else {
+            None
+        }
+    }
+
+    fn find_hard_location(
+        &self,
+        state: &RandomizationState,
+        bireachable_locations: &[ItemLocationId],
+        init_traverse: Option<&TraverseResult>,
+    ) -> usize {
+        // For forced mode, we prioritize placing a key item at a location that is inaccessible at
         // lower difficulty tiers. This function returns an index into `bireachable_locations`, identifying
         // a location with the hardest possible difficulty to reach.
         let num_vertices = self.game_data.vertex_isv.keys.len();
         let start_vertex_id = self.game_data.vertex_isv.index_by_key[&(8, 5, 0)]; // Landing site
-
-        let mut location_mask = vec![false; bireachable_locations.len()];
 
         for tier in 1..self.difficulty_tiers.len() {
             let difficulty = &self.difficulty_tiers[tier];
@@ -432,6 +479,7 @@ impl<'r> Randomizer<'r> {
             tmp_global.shine_charge_tiles = difficulty.shine_charge_tiles;
             let traverse_result = traverse(
                 &self.links,
+                self.get_init_traverse(state, init_traverse),
                 &tmp_global,
                 num_vertices,
                 start_vertex_id,
@@ -441,9 +489,6 @@ impl<'r> Randomizer<'r> {
             );
 
             for (i, &item_location_id) in bireachable_locations.iter().enumerate() {
-                if location_mask[i] {
-                    continue;
-                }
                 let mut is_reachable = false;
                 for &v in &self.game_data.item_vertex_ids[item_location_id] {
                     if traverse_result.local_states[v].is_some() {
@@ -451,17 +496,27 @@ impl<'r> Randomizer<'r> {
                     }
                 }
                 if !is_reachable {
-                    println!("Tier {}", tier);
+                    info!(
+                        "Item placed in tier {} (of {})",
+                        tier,
+                        self.difficulty_tiers.len()
+                    );
                     return i;
                 }
             }
         }
+        info!(
+            "Item placed in tier {} (of {})",
+            self.difficulty_tiers.len(),
+            self.difficulty_tiers.len()
+        );
         return 0;
     }
 
     fn place_items(
         &self,
-        state: &mut RandomizationState,
+        state: &RandomizationState,
+        new_state: &mut RandomizationState,
         bireachable_locations: &[ItemLocationId],
         other_locations: &[ItemLocationId],
         key_items_to_place: &[Item],
@@ -470,8 +525,33 @@ impl<'r> Randomizer<'r> {
         // println!("# bireachable = {}", bireachable_locations.len());
         let mut new_bireachable_locations: Vec<ItemLocationId> = bireachable_locations.to_vec();
         if self.difficulty_tiers.len() > 1 {
-            let hard_idx = self.find_hard_location(state, bireachable_locations);
-            new_bireachable_locations.swap(0, hard_idx);
+            let traverse_result = match state.previous_debug_data.as_ref() {
+                Some(x) => Some(&x.forward),
+                None => None,
+            };
+            for i in 0..key_items_to_place.len() {
+                let hard_idx = i + self.find_hard_location(
+                    new_state,
+                    &new_bireachable_locations[i..],
+                    traverse_result,
+                );
+                let hard_loc = new_bireachable_locations[hard_idx];
+                new_bireachable_locations.swap(i, hard_idx);
+
+                // Mark the vertices along the path to the newly chosen hard location. Vertices that are
+                // easily accessible from along this path are then discouraged from being chosen later
+                // as hard locations (since the point of forced mode is to ensure unique hard strats
+                // are required; we don't want it to be the same hard strat over and over again).
+                let hard_vertex_id = state.item_location_state[hard_loc]
+                    .bireachable_vertex_id
+                    .unwrap();
+                let route =
+                    get_spoiler_route(&state.debug_data.as_ref().unwrap().forward, hard_vertex_id);
+                for &link_idx in &route {
+                    let vertex_id = self.links[link_idx as usize].to_vertex_id;
+                    new_state.key_visited_vertices.insert(vertex_id);
+                }
+            }
         }
 
         let mut all_locations: Vec<ItemLocationId> = Vec::new();
@@ -482,7 +562,7 @@ impl<'r> Randomizer<'r> {
         all_items_to_place.extend(other_items_to_place);
         assert!(all_locations.len() == all_items_to_place.len());
         for (&loc, &item) in iter::zip(&all_locations, &all_items_to_place) {
-            state.item_location_state[loc].placed_item = Some(item);
+            new_state.item_location_state[loc].placed_item = Some(item);
         }
     }
 
@@ -584,9 +664,12 @@ impl<'r> Randomizer<'r> {
                     global_state: state.global_state.clone(),
                     done: false,
                     debug_data: None,
+                    previous_debug_data: None,
+                    key_visited_vertices: HashSet::new(),
                 };
                 key_items_to_place = select_res.key_items;
                 other_items_to_place = select_res.other_items;
+                info!("Trying to place {:?}", key_items_to_place);
 
                 for &item in placed_uncollected_bireachable_items.iter().chain(
                     key_items_to_place
@@ -646,17 +729,21 @@ impl<'r> Randomizer<'r> {
             attempt_num += 1;
         }
 
+        new_state.previous_debug_data = state.debug_data.clone();
+        new_state.key_visited_vertices = state.key_visited_vertices.clone();
+
         // Mark the newly collected items that were placed on earlier steps:
         for &loc in &placed_uncollected_bireachable_loc {
             new_state.item_location_state[loc].collected = true;
         }
 
         // Place the new items:
-        if self.difficulty_tiers[0].item_placement_strategy == ItemPlacementStrategy::Open {
+        if self.difficulty_tiers[0].progression_style == ProgressionStyle::Open {
             // In Open mode, only place items at bireachable locations. We defer placing items at
             // one-way-reachable locations so that they may get key items placed there later after
             // becoming bireachable.
             self.place_items(
+                &state,
                 &mut new_state,
                 &unplaced_bireachable,
                 &[],
@@ -669,6 +756,7 @@ impl<'r> Randomizer<'r> {
             // with non-key items, to minimize the possibility of them being usable to break from the
             // intended sequence.
             self.place_items(
+                &state,
                 &mut new_state,
                 &unplaced_bireachable,
                 &unplaced_oneway_reachable,
@@ -720,6 +808,23 @@ impl<'r> Randomizer<'r> {
         }
     }
 
+    fn get_item_precedence<R: Rng>(
+        &self,
+        item_priorities: &[ItemPriorityGroup],
+        rng: &mut R,
+    ) -> Vec<Item> {
+        let mut item_precedence: Vec<Item> = Vec::new();
+        for priority_group in item_priorities {
+            let mut items = priority_group.items.clone();
+            items.shuffle(rng);
+            for item_name in &items {
+                let item_idx = self.game_data.item_isv.index_by_key[item_name];
+                item_precedence.push(Item::try_from(item_idx).unwrap());
+            }
+        }
+        item_precedence
+    }
+
     pub fn randomize(&self, seed: usize) -> Option<Randomization> {
         let mut rng_seed = [0u8; 32];
         rng_seed[..8].copy_from_slice(&seed.to_le_bytes());
@@ -752,10 +857,9 @@ impl<'r> Randomizer<'r> {
             bireachable: false,
             bireachable_vertex_id: None,
         };
-        let mut item_precedence: Vec<Item> = (0..self.game_data.item_isv.keys.len())
-            .map(|i| Item::try_from(i).unwrap())
-            .collect();
-        item_precedence.shuffle(&mut rng);
+        let item_precedence: Vec<Item> =
+            self.get_item_precedence(&self.difficulty_tiers[0].item_priorities, &mut rng);
+        info!("Item precedence: {:?}", item_precedence);
         let mut state = RandomizationState {
             step_num: 1,
             item_precedence,
@@ -771,6 +875,8 @@ impl<'r> Randomizer<'r> {
             global_state: initial_global_state,
             done: false,
             debug_data: None,
+            previous_debug_data: None,
+            key_visited_vertices: HashSet::new(),
         };
         self.update_reachability(&mut state);
         if !state.item_location_state.iter().any(|x| x.bireachable) {

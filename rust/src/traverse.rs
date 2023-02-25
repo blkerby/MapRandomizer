@@ -757,11 +757,13 @@ pub fn is_bireachable(
 pub type StepTrailId = i32;
 pub type LinkIdx = u32;
 
+#[derive(Clone)]
 pub struct StepTrail {
     pub prev_trail_id: StepTrailId,
     pub link_idx: LinkIdx,
 }
 
+#[derive(Clone)]
 pub struct TraverseResult {
     pub local_states: Vec<Option<LocalState>>,
     pub cost: Vec<f32>,
@@ -771,6 +773,7 @@ pub struct TraverseResult {
 
 pub fn traverse(
     links: &[Link],
+    init_opt: Option<TraverseResult>,
     global: &GlobalState,
     num_vertices: usize,
     start_vertex_id: usize,
@@ -778,16 +781,29 @@ pub fn traverse(
     difficulty: &DifficultyConfig,
     _game_data: &GameData, // May be used for debugging
 ) -> TraverseResult {
-    let mut result = TraverseResult {
-        local_states: vec![None; num_vertices],
-        cost: vec![f32::INFINITY; num_vertices],
-        step_trails: Vec::with_capacity(num_vertices * 10),
-        start_trail_ids: vec![None; num_vertices],
-    };
-    result.local_states[start_vertex_id] = Some(LocalState::new());
-    result.start_trail_ids[start_vertex_id] = Some(-1);
-    result.cost[start_vertex_id] =
-        compute_cost(result.local_states[start_vertex_id].unwrap(), global);
+    let mut modified_vertices: HashSet<usize> = HashSet::new();
+    let mut result: TraverseResult;
+
+    if let Some(init) = init_opt {
+        for (v, local) in init.local_states.iter().enumerate() {
+            if local.is_some() {
+                modified_vertices.insert(v);
+            }
+        }
+        result = init;
+    } else {
+        result = TraverseResult {
+            local_states: vec![None; num_vertices],
+            cost: vec![f32::INFINITY; num_vertices],
+            step_trails: Vec::with_capacity(num_vertices * 10),
+            start_trail_ids: vec![None; num_vertices],
+        };
+        result.local_states[start_vertex_id] = Some(LocalState::new());
+        result.start_trail_ids[start_vertex_id] = Some(-1);
+        result.cost[start_vertex_id] =
+            compute_cost(result.local_states[start_vertex_id].unwrap(), global);
+        modified_vertices.insert(start_vertex_id);    
+    }
 
     let mut links_by_src: Vec<Vec<(LinkIdx, Link)>> = vec![Vec::new(); num_vertices];
     for (idx, link) in links.iter().enumerate() {
@@ -803,8 +819,6 @@ pub fn traverse(
         }
     }
 
-    let mut modified_vertices: HashSet<usize> = HashSet::new();
-    modified_vertices.insert(start_vertex_id);
     while modified_vertices.len() > 0 {
         let mut new_modified_vertices: HashSet<usize> = HashSet::new();
         for &src_id in &modified_vertices {
