@@ -5,13 +5,13 @@ about 15 seconds to load.
 
 <p><a href="https://version-40---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 40 (2023-02-24)</a>:
 <ul>
-<li>"Forced" mode is available: when enabled, key items will tend to be in locations requiring harder 
-techniques to reach. Use this if you want an extra challenge!
-<li>"Early Morph" mode is available, along with the ability to customize item priority more generally.
 <li>In Open mode, beams now have a more reasonable chance of being accessible earlier.
-<li>TODO: Fixed an issue in Semiclosed & Closed modes that caused an unnecessary key item to be placed
-on steps where the ammo/tanks being placed are enough to provide progression.
-<li>
+<li>"Early Morph" mode is available, along with the ability to customize item priority more generally.
+<li>"Forced" mode is available, making key items tend to be in locations requiring harder 
+techniques to reach. Enable this if you want an extra challenge!
+<li>Fixed an issue in Semiclosed & Closed modes where a key item would needlessly be placed
+on steps where ammo/tanks being placed are enough to provide progression.
+<li>Strat notes are added to the spoiler log.
 </ul>
 
 <p><a href="https://version-39---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 39 (2023-02-21)</a>:

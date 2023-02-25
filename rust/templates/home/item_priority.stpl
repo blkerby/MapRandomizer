@@ -12,7 +12,7 @@
             <% for priority in &item_priorities { %>
                 <input type="radio" class="btn-check item-priority-input" name="item_priority_<%- item %>" value="<%- priority %>"
                     id="itemPriority<%- item %><%- priority %>" autocomplete="off" 
-                    onclick="itemPriorityChanged()">
+                    onclick="itemPriorityChanged()" <%- if priority == "Default" { "checked" } else { "" } %>>
                 <label class="btn btn-outline-primary" for="itemPriority<%- item %><%- priority %>"><%= priority%></label>
             <% } %>
         </div>
