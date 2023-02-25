@@ -1,0 +1,20 @@
+<input type="hidden" id="json-item-priority" name="item_priority_json">
+<div class="form-group row my-2 mx-2">
+    <small><strong>Note</strong>: Item priority settings cause the randomizer to try to place selected items
+    earlier or later, but results are not guaranteed: items must be placed in a way allowing
+    progression, which may constrain how early or late selected items can be placed depending on the map.</small>
+</div>
+
+<% for item in &prioritizable_items { %>
+    <div class="form-group row my-2">
+        <label class="col-sm-2 col-form-label text-end" for="item_priority_<%- item %>"><%= item %></label>
+        <div class="col-sm-3 btn-group" role="group">
+            <% for priority in &item_priorities { %>
+                <input type="radio" class="btn-check item-priority-input" name="item_priority_<%- item %>" value="<%- priority %>"
+                    id="itemPriority<%- item %><%- priority %>" autocomplete="off" 
+                    onclick="itemPriorityChanged()">
+                <label class="btn btn-outline-primary" for="itemPriority<%- item %><%- priority %>"><%= priority%></label>
+            <% } %>
+        </div>
+    </div>
+<% }%>

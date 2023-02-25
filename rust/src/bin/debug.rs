@@ -1,7 +1,7 @@
 use anyhow::Result;
 use maprando::{
     game_data::{GameData, Item, Requirement},
-    randomize::{DifficultyConfig, ItemPlacementStrategy},
+    randomize::{DifficultyConfig, ItemPlacementStyle, ItemPriorityGroup, ProgressionStyle},
     traverse::{apply_requirement, GlobalState, LocalState},
 };
 use std::path::Path;
@@ -61,7 +61,12 @@ fn main() -> Result<()> {
     let difficulty = DifficultyConfig {
         tech: vec![],
         shine_charge_tiles: 32,
-        item_placement_strategy: ItemPlacementStrategy::Open,
+        progression_style: ProgressionStyle::Open,
+        item_placement_style: ItemPlacementStyle::Neutral,
+        item_priorities: vec![ItemPriorityGroup {
+            name: "Default".to_string(),
+            items: game_data.item_isv.keys.clone(),
+        }],
         resource_multiplier: 1.0,
         escape_timer_multiplier: 1.0,
         phantoon_proficiency: 0.0,

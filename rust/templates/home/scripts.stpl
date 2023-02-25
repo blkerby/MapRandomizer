@@ -25,13 +25,31 @@ function techChanged() {
         document.getElementById("preset<%- name_no_space %>").checked = false;
     <% } %>
 }
-function updateTechSelection() {
+function updateTechJSON() {
     techSelection = {}
     document.querySelectorAll('.tech-input')
     .forEach(function (x) { 
         techSelection[x.value] = x.checked;
     });
     document.getElementById("json-tech").value = JSON.stringify(techSelection);
+}
+function updateItemPriorityJSON() {
+    itemPriority = {}
+    console.log("Updating item priority JSON");
+    document.querySelectorAll('.item-priority-input')
+    .forEach(function (x) { 
+        // remove prefix: "item_priority_"
+        name = x.name.substring(14);
+        console.log(name + ": " + x.value);
+        if (x.checked) {
+            itemPriority[name] = x.value;
+        }
+    });
+    document.getElementById("json-item-priority").value = JSON.stringify(itemPriority);
+}
+function prepareSubmit() {
+    updateTechJSON();
+    updateItemPriorityJSON();
 }
 function qualityOfLifePresetChanged() {
     if (document.getElementById("qualityOfLifeNo").checked) {
@@ -55,6 +73,23 @@ function qualityOfLifeSettingChanged() {
     document.getElementById("qualityOfLifeNo").checked = false;
     document.getElementById("qualityOfLifeYes").checked = false;
 }
+function itemPriorityPresetChanged() {
+    if (document.getElementById("itemPriorityPresetDefault").checked) {
+        <% for item in &prioritizable_items { %>
+        document.getElementById("itemPriority<%- item %>Default").checked = true;
+        <% } %>
+    }
+    if (document.getElementById("itemPriorityPresetEarlyMorph").checked) {
+        <% for item in &prioritizable_items { %>
+        document.getElementById("itemPriority<%- item %>Default").checked = true;
+        <% } %>
+        document.getElementById("itemPriorityMorphEarly").checked = true;
+    }
+}
+function itemPriorityChanged() {
+    document.getElementById("itemPriorityPresetDefault").checked = false;
+    document.getElementById("itemPriorityPresetEarlyMorph").checked = false;
+}
 </script>
 <% include!("../common/save_load_rom.stpl"); %>
 <% include!("../common/save_settings.stpl"); %>
@@ -63,4 +98,5 @@ loadForm(document.getElementById("main-form"));
 loadROM(document.getElementById("vanillaRom"), 'vanilla');
 presetChanged();
 qualityOfLifePresetChanged();
+itemPriorityPresetChanged();
 </script>

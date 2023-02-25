@@ -13,6 +13,7 @@ v40?:
 
 
 TODO:
+- fix bug where suit color does not change when changing suits while taking damage (e.g. lava dive)?
 - fix bug where music is wrong after quick reload (even after going to next room).
 - clean up the web service, to reduce the amount of boilerplate plumbing settings around.
 - take cross-room strats into account in the logic

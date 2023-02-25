@@ -3,6 +3,17 @@
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-40---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 40 (2023-02-24)</a>:
+<ul>
+<li>"Forced" mode is available: when enabled, key items will tend to be in locations requiring harder 
+techniques to reach. Use this if you want an extra challenge!
+<li>"Early Morph" mode is available, along with the ability to customize item priority more generally.
+<li>In Open mode, beams now have a more reasonable chance of being accessible earlier.
+<li>TODO: Fixed an issue in Semiclosed & Closed modes that caused an unnecessary key item to be placed
+on steps where the ammo/tanks being placed are enough to provide progression.
+<li>
+</ul>
+
 <p><a href="https://version-39---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 39 (2023-02-21)</a>:
 <ul>
 <li>Speed up parts of the game where Samus does not have control or cannot do anything useful:
