@@ -143,6 +143,7 @@ pub struct Link {
     pub to_vertex_id: VertexId,
     pub requirement: Requirement,
     pub strat_name: String,
+    pub strat_notes: Vec<String>,
 }
 
 #[derive(Deserialize, Default, Clone)]
@@ -672,6 +673,7 @@ impl GameData {
             to_vertex_id,
             requirement: Requirement::Free,
             strat_name: "Pants Room in-room transition".to_string(),
+            strat_notes: vec![],
         });
         Ok(())
     }
@@ -1015,6 +1017,7 @@ impl GameData {
                     to_vertex_id,
                     requirement: Requirement::Free,
                     strat_name: "spawnAt".to_string(),
+                    strat_notes: vec![],
                 });
             }
             if node_json.has_key("utility") {
@@ -1041,6 +1044,7 @@ impl GameData {
                         to_vertex_id: vertex_id,
                         requirement: Requirement::And(reqs),
                         strat_name: "Refill".to_string(),
+                        strat_notes: vec![],
                     });
                 }
             }
@@ -1087,6 +1091,7 @@ impl GameData {
                             to_vertex_id: vertex_id,
                             requirement: Requirement::And(reqs.clone()),
                             strat_name: farm_name.to_string(),
+                            strat_notes: vec![],
                         })
                     }
                 }
@@ -1147,11 +1152,22 @@ impl GameData {
                         let to_vertex_id = self.vertex_isv.index_by_key
                             [&(room_id, to_node_id, to_obstacles_bitmask)];
                         let strat_name = strat_json["name"].as_str().unwrap().to_string();
+                        let strat_notes = if strat_json["note"].is_string() {
+                            vec![strat_json["note"].as_str().unwrap().to_string()]
+                        } else if strat_json["note"].is_array() {
+                            strat_json["note"]
+                                .members()
+                                .map(|x| x.as_str().unwrap().to_string())
+                                .collect()
+                        } else {
+                            vec![]
+                        };
                         let link = Link {
                             from_vertex_id,
                             to_vertex_id,
                             requirement,
                             strat_name,
+                            strat_notes,
                         };
                         self.links.push(link);
                     }

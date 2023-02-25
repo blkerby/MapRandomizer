@@ -177,6 +177,7 @@ impl<'r> Randomizer<'r> {
                 to_vertex_id,
                 requirement: game_data::Requirement::Free,
                 strat_name: "(Door transition)".to_string(),
+                strat_notes: vec![],
             })
         }
 
@@ -307,7 +308,8 @@ impl<'r> Randomizer<'r> {
             .iter()
             .copied()
             .filter(|&item| {
-                state.items_remaining[item as usize] == self.initial_items_remaining[item as usize]
+                state.items_remaining[item as usize] == self.initial_items_remaining[item as usize] ||
+                (item == Item::Missile && state.items_remaining[item as usize] > 0)
             })
             .collect();
         let num_key_items_remaining = filtered_item_precedence.len();
@@ -465,7 +467,7 @@ impl<'r> Randomizer<'r> {
         state: &RandomizationState,
         bireachable_locations: &[ItemLocationId],
         init_traverse: Option<&TraverseResult>,
-    ) -> usize {
+    ) -> (usize, usize) {
         // For forced mode, we prioritize placing a key item at a location that is inaccessible at
         // lower difficulty tiers. This function returns an index into `bireachable_locations`, identifying
         // a location with the hardest possible difficulty to reach.
@@ -496,21 +498,11 @@ impl<'r> Randomizer<'r> {
                     }
                 }
                 if !is_reachable {
-                    info!(
-                        "Item placed in tier {} (of {})",
-                        tier,
-                        self.difficulty_tiers.len()
-                    );
-                    return i;
+                    return (i, tier);
                 }
             }
         }
-        info!(
-            "Item placed in tier {} (of {})",
-            self.difficulty_tiers.len(),
-            self.difficulty_tiers.len()
-        );
-        return 0;
+        return (0, self.difficulty_tiers.len());
     }
 
     fn place_items(
@@ -530,13 +522,20 @@ impl<'r> Randomizer<'r> {
                 None => None,
             };
             for i in 0..key_items_to_place.len() {
-                let hard_idx = i + self.find_hard_location(
+                let (hard_idx, tier) = self.find_hard_location(
                     new_state,
                     &new_bireachable_locations[i..],
                     traverse_result,
                 );
-                let hard_loc = new_bireachable_locations[hard_idx];
-                new_bireachable_locations.swap(i, hard_idx);
+                info!(
+                    "{:?} in tier {} (of {})",
+                    key_items_to_place[i],
+                    tier,
+                    self.difficulty_tiers.len()
+                );
+
+                let hard_loc = new_bireachable_locations[i + hard_idx];
+                new_bireachable_locations.swap(i, i + hard_idx);
 
                 // Mark the vertices along the path to the newly chosen hard location. Vertices that are
                 // easily accessible from along this path are then discouraged from being chosen later
@@ -669,7 +668,6 @@ impl<'r> Randomizer<'r> {
                 };
                 key_items_to_place = select_res.key_items;
                 other_items_to_place = select_res.other_items;
-                info!("Trying to place {:?}", key_items_to_place);
 
                 for &item in placed_uncollected_bireachable_items.iter().chain(
                     key_items_to_place
@@ -814,6 +812,12 @@ impl<'r> Randomizer<'r> {
         rng: &mut R,
     ) -> Vec<Item> {
         let mut item_precedence: Vec<Item> = Vec::new();
+        if [ProgressionStyle::Semiclosed, ProgressionStyle::Closed]
+            .contains(&self.difficulty_tiers[0].progression_style)
+        {
+            // In (semi-)closed modes, prioritize placing a missile over other key items.
+            item_precedence.push(Item::Missile);
+        }
         for priority_group in item_priorities {
             let mut items = priority_group.items.clone();
             items.shuffle(rng);
@@ -929,6 +933,8 @@ pub struct SpoilerRouteEntry {
     room: String,
     node: String,
     strat_name: String,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    strat_notes: Vec<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     energy_remaining: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1111,6 +1117,7 @@ impl<'a> Randomizer<'a> {
                 room: to_vertex_info.room_name,
                 node: to_vertex_info.node_name,
                 strat_name: link.strat_name.clone(),
+                strat_notes: link.strat_notes.clone(),
                 energy_remaining,
                 reserves_remaining,
                 missiles_remaining,
@@ -1245,6 +1252,7 @@ impl<'a> Randomizer<'a> {
                 room: to_vertex_info.room_name,
                 node: to_vertex_info.node_name,
                 strat_name: link.strat_name.clone(),
+                strat_notes: link.strat_notes.clone(),
                 energy_remaining,
                 reserves_remaining,
                 missiles_remaining,
