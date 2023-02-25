@@ -108,7 +108,8 @@ org $82D521
     incbin !this_dir/Data/samus_wireframe.ttb
 
 org $85877F
-    incbin !this_dir/Data/Opaque/messages.ttb
+;    incbin !this_dir/Data/Opaque/messages.ttb
+    incbin !this_dir/Data/Opaque/messages_ammo.ttb
 
 ; FX tilemap
 org $8A8000
