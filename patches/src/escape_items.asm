@@ -14,7 +14,10 @@ get_hyper_beam:
 
     ; Clear selected HUD item
     lda #$0000
-    sta $09D2   
+    sta $09D2
+
+    jsl $809A2E   ; Add grapple to HUD tilemap
+    jsl $809A3E   ; Add x-ray to HUD tilemap
 
     rtl
 warnpc $A9FC00

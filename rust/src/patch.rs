@@ -189,7 +189,7 @@ impl<'a> Patcher<'a> {
         let mut patches = vec![
             "vanilla_bugfixes",
             "music",
-            "crateria_sky_fixed",
+            // "crateria_sky_fixed",
             "everest_tube",
             "sandfalls",
             "saveload",
@@ -215,7 +215,8 @@ impl<'a> Patcher<'a> {
             "fast_saves",
             "fast_mother_brain_cutscene",
             "fast_big_boy_cutscene",
-//            "decompression",
+            "decompression",
+            "tourian_blue_hopper",
         ];
         let mut new_game = "new_game";
         if let Some(options) = &self.randomization.difficulty.debug_options {
@@ -459,6 +460,21 @@ impl<'a> Patcher<'a> {
         Ok(())
     }
 
+    // This doesn't work (changing enemy set in door ASM):
+    // fn fix_tourian_blue_hopper(&mut self, extra_door_asm: &mut HashMap<DoorPtr, Vec<u8>>) -> Result<()> {
+    //     let door_pair = (Some(0x1AA14), Some(0x1AA20));
+    //     let other_door_pair = self.other_door_ptr_pair_map[&door_pair];
+    //     // When entering from the left, switch to alternative enemy set that moves the 
+    //     // leftmost Hopper to the right. See `tourian_blue_hopper.asm` which creates the new enemy set.
+    //     let asm: Vec<u8> = vec![
+    //         // 0xa9, 0x00, 0xf2,  // lda #$F200  ;\
+    //         0xa9, 0xa9, 0x85,
+    //        0x8d, 0xcf, 0x07,  // sta $07CF   ;} Enemy set pointer = $A1F200
+    //     ];
+    //     extra_door_asm.entry(other_door_pair.0.unwrap()).or_default().extend(asm);
+    //     Ok(())
+    // }
+
     // Returns map from door data PC address to 1) new custom door ASM pointer, 2) end of custom door ASM
     // where an RTS or JMP instruction must be added (based on the connecting door).
     fn prepare_extra_door_asm(&mut self) -> Result<HashMap<DoorPtr, (AsmPtr, AsmPtr)>> {
@@ -481,6 +497,7 @@ impl<'a> Patcher<'a> {
         self.auto_explore_elevators(&mut extra_door_asm)?;
         self.auto_explore_arrows(&mut extra_door_asm)?;
         self.block_escape_return(&mut extra_door_asm)?;
+        // self.fix_tourian_blue_hopper(&mut extra_door_asm)?;
 
         let mut door_asm_free_space = 0xEE10; // in bank 0x8F
         let mut extra_door_asm_map: HashMap<DoorPtr, (AsmPtr, AsmPtr)> = HashMap::new();
@@ -945,6 +962,9 @@ impl<'a> Patcher<'a> {
         self.rom.write_u16(snes2pc(0x8FDF03), 0xC953)?; // Vanilla setup ASM pointer (to undo effect of `no_explosions_before_escape` patch)
         self.rom.write_u8(snes2pc(0x8FC95B), 0x60)?; // RTS (return early from setup ASM to skip setting up shaking)
 
+        // Remove fake gray door that gets drawn in Phantoon's Room:
+        self.rom.write_n(snes2pc(0xA7D4E5), &vec![0xEA; 8])?;
+
         if self.randomization.difficulty.supers_double {
             // Make Supers do double damage to Mother Brain:
             self.rom.write_u8(snes2pc(0xB4F1D5), 0x84)?;
@@ -1003,6 +1023,30 @@ impl<'a> Patcher<'a> {
         self.rom.write_u8(snes2pc(0xA1f000), 0x6B)?;  // RTL
         Ok(())
     }
+
+    fn fix_crateria_scrolling_sky(&mut self) -> Result<()> {
+        let data = vec![
+            (0x8FB76C, (0x1892E, 0x18946)),
+            (0x8FB777, (0x18916, 0x1896A)),
+            (0x8FB782, (0x1893A, 0x189B2)),
+            (0x8FB78D, (0x18922, 0x18AC6)),
+            (0x8FB7B0, (0x189E2, 0x18A12)),
+            (0x8FB7BB, (0x189CA, 0x18AEA)),
+            (0x8FB7C6, (0x189FA, 0x1A18C)),
+            (0x8FB7D1, (0x189D6, 0x1A1B0)),
+            (0x8FB7DC, (0x189EE, 0x1A1E0)),
+            (0x8FB7E7, (0x18A06, 0x1A300)),
+            (0x8FB7F4, (0x18A72, 0x18A7E)),
+            (0x8FB7FF, (0x18A66, 0x1A264)),
+        ];
+        for (addr, (exit_ptr, entrance_ptr)) in data {
+            let door_pair = (Some(exit_ptr), Some(entrance_ptr));
+            let other_door_pair = self.other_door_ptr_pair_map[&door_pair];
+            self.rom.write_u16(snes2pc(addr), (other_door_pair.0.unwrap() & 0xFFFF) as isize)?;
+        }
+        
+        Ok(())
+    }
 }
 
 fn get_other_door_ptr_pair_map(map: &Map) -> HashMap<DoorPtrPair, DoorPtrPair> {
@@ -1056,6 +1100,7 @@ pub fn make_rom(
     patcher.setup_door_specific_fx()?;
     patcher.setup_reload_cre()?;
     patcher.fix_twin_rooms()?;
+    patcher.fix_crateria_scrolling_sky()?;
     patcher.apply_title_screen_patches()?;
     patcher.customize_escape_timer()?;
     patcher.apply_miscellaneous_patches()?;

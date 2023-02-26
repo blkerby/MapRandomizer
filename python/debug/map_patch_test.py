@@ -193,6 +193,8 @@ map_patcher = MapPatcher(rom, area_arr)
 # new_hud_file.close()
 
 
+# rom.write_n(snes2pc(0xA7D4E5), 8, bytes(8 * [0xEA]))
+
 rom.save(output_rom_path)
 os.system(f"rm {output_rom_path[:-4]}.srm")
 # print("{}/{} free tiles used".format(map_patcher.next_free_tile_idx, len(free_tiles)))

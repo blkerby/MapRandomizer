@@ -1,2 +1,3 @@
 0000 - EBD0: Used by vanilla game
 F000 - F200: Used by `escape.asm`
+F200 - F230: Used by `tourian_blue_hopper.asm`
