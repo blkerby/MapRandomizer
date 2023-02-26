@@ -3,6 +3,17 @@
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-41---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 41 (2023-02-26)</a>:
+<ul>
+<li>In the Tourian Blue Hopper Room, the left enemy position is adjusted four tiles to the right,
+so Samus can leave without taking damage when entering from the left.
+<li>The screen no longer flashes red when entering Draygon's Room (a bug introduced in version 39).
+<li>The message "Missile Reload Completed" is changed to "Ammo Reload Completed", to accurately reflect what the reload does.
+<li>The Crateria scrolling sky is restored.
+<li>A fake gray door no longer appears during the Phantoon fight.
+<li>When Grapple and X-Ray are collected with Hyper Beam (with "streamlined escape" option), they are now visible in the HUD.
+</ul>
+
 <p><a href="https://version-40---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 40 (2023-02-24)</a>:
 <ul>
 <li>In Open mode, beams now have a more reasonable chance of being accessible earlier.
