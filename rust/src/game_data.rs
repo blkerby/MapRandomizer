@@ -88,10 +88,6 @@ impl Item {
         ]
         .contains(&self)
     }
-
-    pub fn is_tank(self) -> bool {
-        [Item::ETank, Item::ReserveTank].contains(&self)
-    }
 }
 
 #[derive(Clone, Debug)]
