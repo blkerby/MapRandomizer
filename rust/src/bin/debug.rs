@@ -78,7 +78,6 @@ fn main() -> Result<()> {
         streamlined_escape: true,
         mark_map_stations: true,
         mark_uniques: true,
-        mark_tanks: true,
         fast_elevators: true,
         debug_options: None,
     };

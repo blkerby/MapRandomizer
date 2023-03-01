@@ -70,7 +70,6 @@ pub struct DifficultyConfig {
     pub streamlined_escape: bool,
     pub mark_map_stations: bool,
     pub mark_uniques: bool,
-    pub mark_tanks: bool,
     pub fast_elevators: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub debug_options: Option<DebugOptions>,
@@ -340,10 +339,10 @@ impl<'a> Preprocessor<'a> {
         let runways = &self.game_data.node_runways_map[&(other_room_id, other_node_id)];
         let mut req_vec: Vec<Requirement> = vec![];
         for runway in runways {
-            // println!(
-            //     "  {}: length={}, physics={}, heated={}, req={:?}",
-            //     runway.name, runway.length, runway.physics, runway.heated, runway.requirement
-            // );
+            println!(
+                "  {}: length={}, physics={}, heated={}, req={:?}",
+                runway.name, runway.length, runway.physics, runway.heated, runway.requirement
+            );
             if (runway.length as f32) < used_tiles {
                 continue;
             }
@@ -365,10 +364,10 @@ impl<'a> Preprocessor<'a> {
             req_vec.push(Requirement::make_and(reqs));
         }
         let out = Requirement::make_or(req_vec);
-        // println!(
-        //     "{}: used_tiles={}, use_frames={:?}, physics={:?}, {:?}",
-        //     _link.strat_name, used_tiles, use_frames, physics, out
-        // );
+        println!(
+            "{}: used_tiles={}, use_frames={:?}, physics={:?}, {:?}",
+            _link.strat_name, used_tiles, use_frames, physics, out
+        );
         out
     }
 }

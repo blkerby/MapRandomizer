@@ -54,22 +54,12 @@
             </div>
 
             <div class="form-group row m-3">
-                <label class="col-sm-5 col-form-label" for="mark_uniques">Unique items marked as large dots on map</label>
+                <label class="col-sm-5 col-form-label" for="mark_uniques">Item types indicated on map</label>
                 <div class="col-sm-2 btn-group" role="group">
                     <input type="radio" class="btn-check" name="mark_uniques" id="markUniquesNo" value="false">
                     <label class="btn btn-outline-primary" for="markUniquesNo">No</label>
                     <input type="radio" class="btn-check" name="mark_uniques" id="markUniquesYes" value="true" checked>
                     <label class="btn btn-outline-primary" for="markUniquesYes">Yes</label>
-                </div>
-            </div>
-
-            <div class="form-group row m-3">
-                <label class="col-sm-5 col-form-label" for="mark_tanks">Tanks marked as large dots on map</label>
-                <div class="col-sm-2 btn-group" role="group">
-                    <input type="radio" class="btn-check" name="mark_tanks" id="markTanksNo" value="false">
-                    <label class="btn btn-outline-primary" for="markTanksNo">No</label>
-                    <input type="radio" class="btn-check" name="mark_tanks" id="markTanksYes" value="true" checked>
-                    <label class="btn btn-outline-primary" for="markTanksYes">Yes</label>
                 </div>
             </div>
 
