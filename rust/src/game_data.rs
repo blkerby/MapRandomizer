@@ -50,34 +50,30 @@ pub struct IndexedVec<T: Hash + Eq> {
 #[repr(usize)]
 // Note: the ordering of these items is significant; it must correspond to the ordering of PLM types:
 pub enum Item {
-    ETank,
-    Missile,
-    Super,
-    PowerBomb,
-    Bombs,
-    Charge,
-    Ice,
-    HiJump,
-    SpeedBooster,
-    Wave,
-    Spazer,
-    SpringBall,
-    Varia,
-    Gravity,
-    XRayScope,
-    Plasma,
-    Grapple,
-    SpaceJump,
-    ScrewAttack,
-    Morph,
-    ReserveTank,
+    ETank,          // 0
+    Missile,        // 1
+    Super,          // 2
+    PowerBomb,      // 3
+    Bombs,          // 4
+    Charge,         // 5
+    Ice,            // 6
+    HiJump,         // 7
+    SpeedBooster,   // 8
+    Wave,           // 9
+    Spazer,         // 10
+    SpringBall,     // 11
+    Varia,          // 12
+    Gravity,        // 13
+    XRayScope,      // 14
+    Plasma,         // 15
+    Grapple,        // 16
+    SpaceJump,      // 17
+    ScrewAttack,    // 18
+    Morph,          // 19
+    ReserveTank,    // 20
 }
 
 impl Item {
-    // pub fn is_major(self) -> bool {
-    //     ![Item::Missile, Item::Super, Item::PowerBomb].contains(&self)
-    // }
-
     pub fn is_unique(self) -> bool {
         ![
             Item::Missile,
@@ -136,6 +132,7 @@ pub enum Requirement {
         used_tiles: f32,
         use_frames: Option<i32>,
         physics: Option<String>,
+        override_runway_requirements: bool,
     },
     CanComeInCharged {
         shinespark_tech_id: usize,
@@ -764,6 +761,7 @@ impl GameData {
                     used_tiles: value["usedTiles"].as_f32().unwrap(),
                     use_frames,
                     physics: physics,
+                    override_runway_requirements: value["overrideRunwayRequirements"].as_bool().unwrap_or(false),
                 });
             } else if key == "canComeInCharged" {
                 if ctx.from_obstacles_bitmask != 0 {
@@ -1290,7 +1288,7 @@ impl GameData {
                         let requirement =
                             Requirement::make_and(self.parse_requires_list(&requires_json, &ctx)?);
                         if strat_json.has_key("obstacles") {
-                            // TODO: handle obstacles in runways
+                            // TODO: handle obstacles
                             continue;
                         }
                         let can_leave_charged = CanLeaveCharged {
