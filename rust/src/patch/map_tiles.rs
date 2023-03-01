@@ -946,7 +946,7 @@ impl<'a> MapPatcher<'a> {
 
     fn indicate_major_items(&mut self) -> Result<()> {
         for (i, &item) in self.randomization.item_placement.iter().enumerate() {
-            if item != Item::Missile && self.randomization.difficulty.mark_uniques {
+            if item != Item::Missile {
                 let (room_id, node_id) = self.game_data.item_locations[i];
                 let item_ptr = self.game_data.node_ptr_map[&(room_id, node_id)];
                 let room_ptr = self.game_data.room_ptr_by_id[&room_id];
@@ -993,7 +993,7 @@ impl<'a> MapPatcher<'a> {
         self.indicate_special_tiles()?;
         self.add_cross_area_arrows()?;
         self.set_map_stations_explored()?;
-        if self.randomization.difficulty.mark_uniques || self.randomization.difficulty.mark_tanks {
+        if self.randomization.difficulty.mark_uniques {
             self.indicate_major_items()?;
         }
         info!("Free tiles: {} (out of {})", self.free_tiles.len() - self.next_free_tile_idx, self.free_tiles.len());

@@ -1,18 +1,19 @@
-Release plan:
-
 priority:
   - cross-room strats
-     - excessShinesparkFrames
      - TODO: make sure to handle obstacle state correctly
-     - slopes
 
 later:
-  - add medium/hollow item dots
+  - refine cross room shinesparks:
+     - excessShinesparkFrames
+     - slopes
   - credits
   - proper front page
   - add back more gray doors
+  - fix map wrap-around bug
+  - put ammo-based enemyKill in logic
   - music options
   - sprite customization (?),
+  - integrate Selicre's interactive spoiler map
 
 
 
@@ -26,7 +27,6 @@ TODO:
 - add front page to website
 - put back gray doors locked by enemy kills (Metal Pirates, etc.)
   - decide whether these should still wake the planet?
-
 - explain about doors being turned blue
 - increase amount of rolling saves?
   - auto-reload in save room to go back a save? (what about in Landing Site?)
@@ -41,10 +41,7 @@ TODO:
   - others
 - area-themed palettes:
   - remove or fix glows that are wrong color (e.g. Wrecked Ship?)
-- Make fast elevators optional
 - make option for music: vanilla, area-themed, or none
-- Improve save balancing algorithm: don't put single-entrance saves (and refills?) at end of hallways,
-  i.e. don't connect to rooms with two doors.
 - Add way to export settings from seed page (and export/import on main page).
 - With a future ML model, treat Mother Brain room as 0-way (instead of one-way) to ensure items, maps, etc.
   cannot be locked behind Mother Brain.
@@ -59,14 +56,9 @@ TODO:
 - Option for anti-softlock patches (e.g. in Moat, Early Supers, etc.)?
   - disable acid trigger in Leodox room?
 - Put spoiler info in collapsible accordion.
-- Include strat notes in spoiler log.
 - Add note to strat in Post-Crocomire farming room to get to top-left with HiJump
   (run on platform enemy and jump)
 - Use separate worker pool to run randomization (to avoid blocking web requests)
-- on open mode, don't place items in one-way reachable locations (to keep open the possibility of placing key items
-  there later once they become bireachable)
-  - on (semi-)closed mode, try placing just ammo first before placing any key items. (just put Missile first
-    in item precedence?)
 - Rust cleanup:
     - Use `serde_json` instead of `json` crate for loading sm-json-data.
     - Clean up error handling: get rid of a bunch of remaining unwrap()'s, etc.
@@ -76,23 +68,12 @@ TODO:
     - hellruns may be required if canHeatRun tech is enabled.
 - Make Gravity-only Samus palette different from Gravity+Varia.
     - Figure out how this can work with custom sprites.
-- Try a different kind of "Open" item placement, to reduce likelihood of items getting heavily front-loaded with good items:
-  - Start by placing all items randomly, then check that game is beatable.
-  - Similar approach could maybe apply to Closed/Semiclosed?: find a beatable game using random placement, then adjust
-    the placements to push unnecessary items further back.
-      - Or just improve the current approach by rejecting cases where the set of bireachable item locations grows too
-      slowly.
-- Be more careful with requirements on farms
-  - e.g. Zebbo farm in Plowerhouse Room is not really usable without heat-proof and some way to kill the the owls.
+- Consider rejecting cases where the set of bireachable item locations grows too slow or too fast.
 - fix color of reserve tank energy in equipment menu (got messed up by colored arrows)
-- check boss logic on easy settings:
-  - golden torizo should need tech to avoid damage?
-  - canBePatient should be required when doing long fight with only Charge?
 - consider moving the MB barriers to the right one tile (or two?), to make them interfere less with ice zeb skip.
 - move GFX colors:
   - Morph Ball room (blue brinstar), tileset 7:
     - [0x31, 0x32, 0x33] -> [0x38, 0x39, 0x3A]
-- add grapple + xray to the HUD on hyper beam collect.
 - make the pause map tiles align with the grid
 - fix tiny bug: when bottom-left door of landing site is an area transition, the arrow shows up from the beginning
   of the game (due to running the door ASM while loading the game)
@@ -102,16 +83,12 @@ TODO:
   to fix the timing with the hoppers?
     - also look into way to avoid a hit when coming into tourian hopper room?
     (e.g., give i-frames, or try to adjust the spawn pattern)
-- shorten mother brain 1 death cutscene? (remove flashing?)
 - organize tech on website.
 - interactive spoiler map (with room maps, list of possible strats, etc.)
-- fix bug where wrong tiles sometimes show at top of pause-menu map
-- implement enemyKill in logic
 - figure out race condition between fastdoors and Mother Brain room setup. Maybe code around $80836F could be used
   to wait? Though maybe this doesn't matter because we don't want to add fastdoors anyway.
 - figure out and fix what's going on with tiles below Warehouse Entrance when it crosses areas.
 - fix internal checksum in output ROM
-- Possibly shorten Baby Metroid cutscene for quality of life (since it might be necessary to traverse it multiple times)
 - add README
     - make
 - cross-area transitions

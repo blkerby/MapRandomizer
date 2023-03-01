@@ -322,9 +322,11 @@ fn read_json(path: &Path) -> Result<JsonValue> {
     Ok(json_data)
 }
 
+#[derive(Default)]
 struct RequirementContext {
     room_id: RoomId,
-    _src_node_id: NodeId,  // Used for debugging
+    _from_node_id: NodeId,  // Usable for debugging
+    from_obstacles_bitmask: ObstacleMask,
 }
 
 impl GameData {
@@ -387,7 +389,7 @@ impl GameData {
 
         let tech_json = &self.tech_json_map[tech_name].clone();
         let req = if tech_json.has_key("requires") {
-            let ctx = RequirementContext { room_id: 0, _src_node_id: 0 };
+            let ctx = RequirementContext::default();
             let mut reqs =
                 self.parse_requires_list(tech_json["requires"].members().as_slice(), &ctx)?;
             reqs.push(Requirement::Tech(self.tech_isv.index_by_key[tech_name]));
@@ -500,7 +502,7 @@ impl GameData {
         self.helpers.insert(name.to_owned(), None);
         let json_value = self.helper_json_map[name].clone();
         ensure!(json_value["requires"].is_array());
-        let ctx = RequirementContext { room_id: 0, _src_node_id: 0 };
+        let ctx = RequirementContext::default();
         let req = Requirement::make_and(
             self.parse_requires_list(&json_value["requires"].members().as_slice(), &ctx)?,
         );
@@ -733,6 +735,9 @@ impl GameData {
                 // This is only used in one place in Crumble Shaft, where it doesn't seem to be necessary.
                 return Ok(Requirement::Free);
             } else if key == "adjacentRunway" {
+                if ctx.from_obstacles_bitmask != 0 {
+                    return Ok(Requirement::Never);
+                }
                 let physics: Option<String> = if value.has_key("physics") {
                     ensure!(value["physics"].len() == 1);
                     Some(value["physics"][0].as_str().unwrap().to_string())
@@ -761,6 +766,9 @@ impl GameData {
                     physics: physics,
                 });
             } else if key == "canComeInCharged" {
+                if ctx.from_obstacles_bitmask != 0 {
+                    return Ok(Requirement::Never);
+                }
                 let frames_remaining = value["framesRemaining"]
                     .as_i32()
                     .with_context(|| format!("missing/invalid framesRemaining in {}", req_json))?;
@@ -1236,7 +1244,7 @@ impl GameData {
                             .members()
                             .map(|x| x.clone())
                             .collect();
-                        let ctx = RequirementContext { room_id, _src_node_id: node_id };
+                        let ctx = RequirementContext::default();
                         let requirement =
                             Requirement::make_and(self.parse_requires_list(&requires_json, &ctx)?);
                         if strat_json.has_key("obstacles") {
@@ -1278,7 +1286,7 @@ impl GameData {
                             .members()
                             .map(|x| x.clone())
                             .collect();
-                        let ctx = RequirementContext { room_id, _src_node_id: node_id };
+                        let ctx = RequirementContext::default();
                         let requirement =
                             Requirement::make_and(self.parse_requires_list(&requires_json, &ctx)?);
                         if strat_json.has_key("obstacles") {
@@ -1410,7 +1418,8 @@ impl GameData {
                             &obstacles_idx_map,
                             &mut requires_json,
                         )?;
-                        let ctx = RequirementContext { room_id, _src_node_id: from_node_id };
+                        let ctx = RequirementContext { room_id, _from_node_id: from_node_id, 
+                            from_obstacles_bitmask };
                         let requirement =
                             Requirement::make_and(self.parse_requires_list(&requires_json, &ctx)?);
                         let from_vertex_id = self.vertex_isv.index_by_key

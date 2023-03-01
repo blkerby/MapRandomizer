@@ -6,6 +6,12 @@ about 15 seconds to load.
 <p><a href="https://version-42---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 42 (???)</a>:
 <ul>
 <li>Disable save stations again during the escape (fixes a bug introduced in version 39).
+<li>The two item dot quality-of-life options are replaced with a single, improved quality-of-life option:
+    <ul>
+    <li>Solid large dots: Unique items
+    <li>Hollow large dots: Supers, Power Bombs, E-Tanks, and Reserve Tanks
+    <li>Small dots: Missiles
+    </ul>
 <li>Major additions to the logic:
     <ul>
     <li>X-Ray climb (if the tech is enabled: canStationarySpinJump, canXRayStandUp, 

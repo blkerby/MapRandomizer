@@ -160,7 +160,6 @@ struct RandomizeRequest {
     streamlined_escape: Text<bool>,
     mark_map_stations: Text<bool>,
     mark_uniques: Text<bool>,
-    mark_tanks: Text<bool>,
     fast_elevators: Text<bool>,
 }
 
@@ -188,7 +187,6 @@ struct SeedData {
     streamlined_escape: bool,
     mark_map_stations: bool,
     mark_uniques: bool,
-    mark_tanks: bool,
     fast_elevators: bool,
 }
 
@@ -217,7 +215,6 @@ struct SeedHeaderTemplate<'a> {
     streamlined_escape: bool,
     mark_map_stations: bool,
     mark_uniques: bool,
-    mark_tanks: bool,
     fast_elevators: bool,
 }
 
@@ -252,7 +249,6 @@ fn render_seed(seed_name: &str, seed_data: &SeedData) -> Result<(String, String)
         streamlined_escape: seed_data.streamlined_escape,
         mark_map_stations: seed_data.mark_map_stations,
         mark_uniques: seed_data.mark_uniques,
-        mark_tanks: seed_data.mark_tanks,
         fast_elevators: seed_data.fast_elevators,
     };
     let seed_header_html = seed_header_template.render_once()?;
@@ -514,7 +510,6 @@ fn get_difficulty_tiers(
             streamlined_escape: difficulty.streamlined_escape,
             mark_map_stations: difficulty.mark_map_stations,
             mark_uniques: difficulty.mark_uniques,
-            mark_tanks: difficulty.mark_tanks,
             fast_elevators: difficulty.fast_elevators,
             debug_options: difficulty.debug_options.clone(),
         };
@@ -623,7 +618,6 @@ async fn randomize(
         streamlined_escape: req.streamlined_escape.0,
         mark_map_stations: req.mark_map_stations.0,
         mark_uniques: req.mark_uniques.0,
-        mark_tanks: req.mark_tanks.0,
         fast_elevators: req.fast_elevators.0,
         debug_options: None,
     };
@@ -692,7 +686,6 @@ async fn randomize(
         streamlined_escape: req.streamlined_escape.0,
         mark_map_stations: req.mark_map_stations.0,
         mark_uniques: req.mark_uniques.0,
-        mark_tanks: req.mark_tanks.0,
         fast_elevators: req.fast_elevators.0,
     };
 
