@@ -167,20 +167,20 @@ struct Preprocessor<'a> {
     door_map: HashMap<(RoomId, NodeId), (RoomId, NodeId)>,
 }
 
-// TODO: Remove this if heatFrames are removed from runways in sm-json-data.
-// (but we might want to keep them for canComeInCharged?)
-fn strip_heat_frames(req: &Requirement) -> Requirement {
-    match req {
-        Requirement::HeatFrames(_) => Requirement::Free,
-        Requirement::And(sub_reqs) => {
-            Requirement::make_and(sub_reqs.iter().map(strip_heat_frames).collect())
-        }
-        Requirement::Or(sub_reqs) => {
-            Requirement::make_or(sub_reqs.iter().map(strip_heat_frames).collect())
-        }
-        _ => req.clone(),
-    }
-}
+// // TODO: Remove this if heatFrames are removed from runways in sm-json-data.
+// // (but we might want to keep them for canComeInCharged?)
+// fn strip_heat_frames(req: &Requirement) -> Requirement {
+//     match req {
+//         Requirement::HeatFrames(_) => Requirement::Free,
+//         Requirement::And(sub_reqs) => {
+//             Requirement::make_and(sub_reqs.iter().map(strip_heat_frames).collect())
+//         }
+//         Requirement::Or(sub_reqs) => {
+//             Requirement::make_or(sub_reqs.iter().map(strip_heat_frames).collect())
+//         }
+//         _ => req.clone(),
+//     }
+// }
 
 impl<'a> Preprocessor<'a> {
     pub fn new(game_data: &'a GameData, map: &'a Map) -> Self {
@@ -218,12 +218,14 @@ impl<'a> Preprocessor<'a> {
                 used_tiles,
                 use_frames,
                 physics,
+                override_runway_requirements,
             } => self.preprocess_adjacent_runway(
                 *room_id,
                 *node_id,
                 *used_tiles,
                 *use_frames,
                 physics,
+                *override_runway_requirements,
                 link,
             ),
             Requirement::CanComeInCharged {
@@ -333,6 +335,7 @@ impl<'a> Preprocessor<'a> {
         used_tiles: f32,
         use_frames: Option<i32>,
         physics: &Option<String>,
+        override_runway_requirements: bool,
         _link: &Link,
     ) -> Requirement {
         let (other_room_id, other_node_id) = self.door_map[&(room_id, node_id)];
@@ -351,15 +354,19 @@ impl<'a> Preprocessor<'a> {
                     continue;
                 }
             }
-            let mut reqs: Vec<Requirement> = vec![strip_heat_frames(&runway.requirement)];
-            if runway.heated {
-                if let Some(frames) = use_frames {
-                    reqs.push(Requirement::HeatFrames(frames));
-                } else {
-                    // TODO: Use a more accurate estimate (and take into account if we have SpeedBooster):
-                    let frames = used_tiles * 10.0 + 20.0;
-                    reqs.push(Requirement::HeatFrames(frames as i32));
+            let mut reqs: Vec<Requirement> = vec![];
+            if override_runway_requirements {
+                if runway.heated {
+                    if let Some(frames) = use_frames {
+                        reqs.push(Requirement::HeatFrames(frames));
+                    } else {
+                        // TODO: Use a more accurate estimate (and take into account if we have SpeedBooster):
+                        let frames = used_tiles * 10.0 + 20.0;
+                        reqs.push(Requirement::HeatFrames(frames as i32));
+                    }
                 }
+            } else {
+                reqs.push(runway.requirement.clone());
             }
             req_vec.push(Requirement::make_and(reqs));
         }

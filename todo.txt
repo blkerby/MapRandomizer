@@ -1,6 +1,8 @@
 priority:
+  - fix map
   - cross-room strats
-     - TODO: make sure to handle obstacle state correctly
+    - in adjacentRunway, handle "water" physics being satisfiable by Gravity
+    - for adjacentRunway, make strat go from vertex in adjacent room (in case spawnAt makes it inaccessible)
 
 later:
   - refine cross room shinesparks:

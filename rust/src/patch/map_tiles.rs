@@ -1,4 +1,4 @@
-use hashbrown::HashMap;
+use hashbrown::{HashMap, HashSet};
 use log::info;
 
 use crate::{
@@ -44,11 +44,11 @@ pub struct MapPatcher<'a> {
     game_data: &'a GameData,
     map: &'a Map,
     randomization: &'a Randomization,
-    free_tiles: Vec<usize>,
     next_free_tile_idx: usize,
     basic_tile_map: HashMap<BasicTile, TilemapWord>,
     reverse_map: HashMap<TilemapWord, BasicTile>,
-    pixels_map: HashMap<Edge, Vec<usize>>,
+    tile_gfx_map: HashMap<TilemapWord, [[u8; 8]; 8]>,
+    edge_pixels_map: HashMap<Edge, Vec<usize>>,
 }
 
 const VANILLA_ELEVATOR_TILE: TilemapWord = 0xCE; // Index of elevator tile in vanilla game
@@ -81,24 +81,6 @@ impl<'a> MapPatcher<'a> {
         map: &'a Map,
         randomization: &'a Randomization,
     ) -> Self {
-        let free_tiles = vec![
-            // Skipping tiles used by max_ammo_display:
-            // 0x3C, 0x3D, 0x3E, 0x3F,
-            // 0x40, 0x41, 0x42, 0x43, 0x44, 0x45,
-            0x4E, 0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5A, 0x5B, 0x5C,
-            0x5D, 0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69, 0x6A, 0x6B, 0x6C,
-            0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x78, 0x79, 0x7A, 0x7B, 0x7C, 0x7D, 0x7E, 0x7F,
-            0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D,
-            0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99, 0x9A, 0x9B, 0x9C, 0x9D,
-            0x9E, 0x9F, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB,
-            0xAC, 0xAD, 0xAE, 0xAF, 0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9,
-            0xBA, 0xBB,
-            // Some of these are unused slope tiles; others are used in vanilla but not used in
-            // Map Rando in the end (e.g. tiles with solid walls on all 4 sides):
-            0x11, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1A, 0x1C, 0x1D, 0x1E, 0x20, 0x2C,
-            0x2D, 0x2E, 0x2F,
-        ];
-
         let mut pixels_map: HashMap<Edge, Vec<usize>> = HashMap::new();
         pixels_map.insert(Edge::Empty, vec![]);
         pixels_map.insert(Edge::Passage, vec![0, 1, 6, 7]);
@@ -110,12 +92,64 @@ impl<'a> MapPatcher<'a> {
             game_data,
             map,
             randomization,
-            free_tiles,
-            next_free_tile_idx: 0,
+            next_free_tile_idx: 256,
             basic_tile_map: HashMap::new(),
             reverse_map: HashMap::new(),
-            pixels_map,
+            tile_gfx_map: HashMap::new(),
+            edge_pixels_map: pixels_map,
         }
+    }
+
+    fn write_tiles(&mut self) -> Result<()> {
+        let mut reserved_tiles: HashSet<TilemapWord> = vec![
+            // Used on HUD:
+            0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D,
+            // Used by max_ammo_display:
+            0x3C, 0x3D, 0x3E, 0x3F, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45,
+        ].into_iter().collect();
+
+        let mut used_tiles: HashSet<TilemapWord> = HashSet::new();
+
+        let base_ptr = 0x1A8000; // Location of map tilemaps
+        for i in 0..0x3000 {
+            let word = (self.rom.read_u16(base_ptr + i * 2)? & 0x3FF) as TilemapWord;
+            if self.tile_gfx_map.contains_key(&word) {
+                used_tiles.insert(word);
+            } else {
+                reserved_tiles.insert(word);
+            }
+        }
+
+        let mut free_tiles: Vec<TilemapWord> = Vec::new();
+        for word in 0..192 {
+            if !reserved_tiles.contains(&word) {
+                free_tiles.push(word);
+            }
+        }
+
+        info!("Free tiles: {} (of {})", free_tiles.len() as isize - used_tiles.len() as isize, free_tiles.len());
+        if used_tiles.len() > free_tiles.len() {
+            bail!("Not enough free tiles");
+        }
+
+        let mut tile_mapping: HashMap<TilemapWord, TilemapWord> = HashMap::new();
+        for (&u, &f) in used_tiles.iter().zip(free_tiles.iter()) {
+            tile_mapping.insert(u, f);
+            let data = self.tile_gfx_map[&u];
+            self.write_tile_2bpp(f as usize, data, true)?;
+            self.write_tile_4bpp(f as usize, data)?;
+        }
+
+        for i in 0..0x3000 {
+            let old_word = self.rom.read_u16(base_ptr + i * 2)? as TilemapWord;
+            let old_idx = old_word & 0x3FF;
+            let old_flip = old_word & 0xC000;
+            let new_idx = *tile_mapping.get(&old_idx).unwrap_or(&old_idx);
+            let new_word = new_idx | old_flip | 0x0C00;
+            self.rom.write_u16(base_ptr + i * 2, new_word as isize)?;
+        }
+
+        Ok(())        
     }
 
     fn write_tile_2bpp(
@@ -162,13 +196,9 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn create_tile(&mut self, data: [[u8; 8]; 8]) -> Result<TilemapWord> {
-        if self.next_free_tile_idx >= self.free_tiles.len() {
-            bail!("Too many new tiles");
-        }
-        let tile_idx = self.free_tiles[self.next_free_tile_idx];
+        let tile_idx = self.next_free_tile_idx;
         self.next_free_tile_idx += 1;
-        self.write_tile_2bpp(tile_idx, data, true)?;
-        self.write_tile_4bpp(tile_idx, data)?;
+        self.tile_gfx_map.insert(tile_idx as TilemapWord, data);
         Ok(tile_idx as TilemapWord)
     }
 
@@ -177,7 +207,9 @@ impl<'a> MapPatcher<'a> {
         self.reverse_map.insert(word, tile);
     }
 
-    fn index_basic_tile(&mut self, tile: BasicTile, word: TilemapWord) {
+    fn index_basic_tile(&mut self, tile: BasicTile, word: TilemapWord) -> Result<()> {
+        let data = self.render_basic_tile(tile)?;
+        self.tile_gfx_map.insert(word, data);
         self.index_basic_tile_case(tile, word);
         if tile.interior != Interior::Elevator {
             self.index_basic_tile_case(
@@ -211,6 +243,7 @@ impl<'a> MapPatcher<'a> {
                 word | FLIP_X | FLIP_Y,
             );
         }
+        Ok(())
     }
 
     fn index_basic(
@@ -221,7 +254,7 @@ impl<'a> MapPatcher<'a> {
         up: Edge,
         down: Edge,
         interior: Interior,
-    ) {
+    ) -> Result<()> {
         self.index_basic_tile(
             BasicTile {
                 left,
@@ -231,46 +264,48 @@ impl<'a> MapPatcher<'a> {
                 interior,
             },
             word,
-        );
+        )?;
+        Ok(())
     }
 
-    fn index_vanilla_tiles(&mut self) {
-        self.index_basic(0x10, W, W, E, P, V); // Elevator: walls on left & right; passage on bottom
-        self.index_basic(0x4F, W, W, W, P, V); // Elevator: walls on left, right, & top; passage on bottom
-        self.index_basic(0x5F, P, P, P, W, V); // Elevator: passages on left, right, & top; wall on bottom
+    fn index_vanilla_tiles(&mut self) -> Result<()> {
+        self.index_basic(0x10, W, W, E, P, V)?; // Elevator: walls on left & right; passage on bottom
+        self.index_basic(0x4F, W, W, W, P, V)?; // Elevator: walls on left, right, & top; passage on bottom
+        self.index_basic(0x5F, P, P, P, W, V)?; // Elevator: passages on left, right, & top; wall on bottom
 
-        self.index_basic(0x1B, E, E, E, E, O); // Empty tile with no walls
-        self.index_basic(0x20, W, W, W, W, O); // Empty tile with wall on all four sides
-        self.index_basic(0x21, W, E, W, W, O); // Empty tile with wall on top, left, and bottom
-        self.index_basic(0x22, E, E, W, W, O); // Empty tile with wall on top and bottom
-        self.index_basic(0x23, W, W, E, E, O); // Empty tile with wall on left and right
-        self.index_basic(0x24, W, W, W, E, O); // Empty tile with wall on top, left, and right
-        self.index_basic(0x25, W, E, W, E, O); // Empty tile with wall on top and left
-        self.index_basic(0x26, E, E, W, E, O); // Empty tile with wall on top
-        self.index_basic(0x27, E, W, E, E, O); // Empty tile with wall on right
+        self.index_basic(0x1B, E, E, E, E, O)?; // Empty tile with no walls
+        self.index_basic(0x20, W, W, W, W, O)?; // Empty tile with wall on all four sides
+        self.index_basic(0x21, W, E, W, W, O)?; // Empty tile with wall on top, left, and bottom
+        self.index_basic(0x22, E, E, W, W, O)?; // Empty tile with wall on top and bottom
+        self.index_basic(0x23, W, W, E, E, O)?; // Empty tile with wall on left and right
+        self.index_basic(0x24, W, W, W, E, O)?; // Empty tile with wall on top, left, and right
+        self.index_basic(0x25, W, E, W, E, O)?; // Empty tile with wall on top and left
+        self.index_basic(0x26, E, E, W, E, O)?; // Empty tile with wall on top
+        self.index_basic(0x27, E, W, E, E, O)?; // Empty tile with wall on right
 
-        self.index_basic(0x76, E, E, W, E, I); // Item (dot) tile with a wall on top
-        self.index_basic(0x77, W, E, E, E, I); // Item (dot) tile with a wall on left
-        self.index_basic(0x5E, E, E, W, W, I); // Item (dot) tile with a wall on top and bottom
-        self.index_basic(0x6E, W, W, W, E, I); // Item (dot) tile with a wall on top, left, and right
-        self.index_basic(0x6F, W, W, W, W, I); // Item (dot) tile with a wall on all four sides
-        self.index_basic(0x8E, W, E, W, E, I); // Item (dot) tile with a wall on top and left
-        self.index_basic(0x8F, W, E, W, W, I); // Item (dot) tile with a wall on top, left, and bottom
+        self.index_basic(0x76, E, E, W, E, I)?; // Item (dot) tile with a wall on top
+        self.index_basic(0x77, W, E, E, E, I)?; // Item (dot) tile with a wall on left
+        self.index_basic(0x5E, E, E, W, W, I)?; // Item (dot) tile with a wall on top and bottom
+        self.index_basic(0x6E, W, W, W, E, I)?; // Item (dot) tile with a wall on top, left, and right
+        self.index_basic(0x6F, W, W, W, W, I)?; // Item (dot) tile with a wall on all four sides
+        self.index_basic(0x8E, W, E, W, E, I)?; // Item (dot) tile with a wall on top and left
+        self.index_basic(0x8F, W, E, W, W, I)?; // Item (dot) tile with a wall on top, left, and bottom
                                                // Note: there's no item tile with walls on left and right.
+        Ok(())
     }
 
-    fn add_basic_tile(&mut self, tile: BasicTile) -> Result<()> {
+    fn render_basic_tile(&mut self, tile: BasicTile) -> Result<[[u8; 8]; 8]> {
         let mut data: [[u8; 8]; 8] = [[1; 8]; 8];
-        for &i in &self.pixels_map[&tile.left] {
+        for &i in &self.edge_pixels_map[&tile.left] {
             data[i][0] = 2;
         }
-        for &i in &self.pixels_map[&tile.right] {
+        for &i in &self.edge_pixels_map[&tile.right] {
             data[i][7] = 2;
         }
-        for &i in &self.pixels_map[&tile.up] {
+        for &i in &self.edge_pixels_map[&tile.up] {
             data[0][i] = 2;
         }
-        for &i in &self.pixels_map[&tile.down] {
+        for &i in &self.edge_pixels_map[&tile.down] {
             data[7][i] = 2;
         }
 
@@ -308,9 +343,13 @@ impl<'a> MapPatcher<'a> {
                 data[5][4] = 3;
             }
         }
+        Ok(data)
+    }
 
+    fn add_basic_tile(&mut self, tile: BasicTile) -> Result<()> {
+        let data = self.render_basic_tile(tile)?;
         let tile_idx = self.create_tile(data)?;
-        self.index_basic_tile(tile, tile_idx);
+        self.index_basic_tile(tile, tile_idx)?;
 
         Ok(())
     }
@@ -325,7 +364,7 @@ impl<'a> MapPatcher<'a> {
     fn fix_elevators(&mut self) -> Result<()> {
         // Replace vanilla elevator tiles with the new tile compatible with TR's map patch:
         let base_ptr = 0x1A8000; // Location of map tilemaps
-        for i in 0..0x4000 {
+        for i in 0..0x3000 {
             let word = self.rom.read_u16(base_ptr + i * 2)? as TilemapWord;
             if (word & 0x3FF) == VANILLA_ELEVATOR_TILE {
                 self.rom
@@ -547,7 +586,7 @@ impl<'a> MapPatcher<'a> {
             for (&(x, y), idxs) in doors_by_xy.iter() {
                 let base_ptr = self.game_data.area_map_ptrs[area] as usize;
                 let offset = xy_to_map_offset(x0 + x as isize, y0 + y as isize) as usize;
-                let word = (self.rom.read_u16(base_ptr + offset)? as TilemapWord) & 0xC0FF;
+                let word = (self.rom.read_u16(base_ptr + offset)? as TilemapWord) & 0xC3FF;
                 let basic_tile_opt = self.reverse_map.get(&word);
                 if let Some(basic_tile) = basic_tile_opt {
                     let mut new_tile = basic_tile.clone();
@@ -958,7 +997,7 @@ impl<'a> MapPatcher<'a> {
                 let (x, y) = find_item_xy(item_ptr, &room.items)?;
                 let base_ptr = self.game_data.area_map_ptrs[area] as usize;
                 let offset = super::xy_to_map_offset(x0 + x, y0 + y) as usize;
-                let tile0 = (self.rom.read_u16(base_ptr + offset)? & 0xC0FF) as TilemapWord;
+                let tile0 = (self.rom.read_u16(base_ptr + offset)? & 0xC3FF) as TilemapWord;
                 let mut basic_tile = self
                     .reverse_map
                     .get(&tile0)
@@ -984,7 +1023,7 @@ impl<'a> MapPatcher<'a> {
     }
 
     pub fn apply_patches(&mut self) -> Result<()> {
-        self.index_vanilla_tiles();
+        self.index_vanilla_tiles()?;
         self.fix_elevators()?;
         self.fix_item_dots()?;
         self.fix_walls()?;
@@ -996,7 +1035,8 @@ impl<'a> MapPatcher<'a> {
         if self.randomization.difficulty.mark_uniques {
             self.indicate_major_items()?;
         }
-        info!("Free tiles: {} (out of {})", self.free_tiles.len() - self.next_free_tile_idx, self.free_tiles.len());
+        self.write_tiles()?;
+        // info!("Free tiles: {} (out of {})", self.free_tiles.len() - self.next_free_tile_idx, self.free_tiles.len());
         Ok(())
     }
 }
