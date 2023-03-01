@@ -1,7 +1,8 @@
 use hashbrown::HashMap;
+use log::info;
 
 use crate::{
-    game_data::{GameData, Map, RoomGeometryDoor, RoomGeometryItem},
+    game_data::{GameData, Map, RoomGeometryDoor, RoomGeometryItem, Item},
     randomize::Randomization,
 };
 
@@ -22,6 +23,7 @@ enum Edge {
 enum Interior {
     Empty,
     Item,
+    MediumItem,
     MajorItem,
     Elevator,
 }
@@ -279,6 +281,16 @@ impl<'a> MapPatcher<'a> {
                 data[3][4] = 2;
                 data[4][3] = 2;
                 data[4][4] = 2;
+            }
+            Interior::MediumItem => {
+                data[2][3] = 2;
+                data[2][4] = 2;
+                data[5][3] = 2;
+                data[5][4] = 2;
+                data[3][2] = 2;
+                data[4][2] = 2;
+                data[3][5] = 2;
+                data[4][5] = 2;
             }
             Interior::MajorItem => {
                 for i in 2..6 {
@@ -934,9 +946,7 @@ impl<'a> MapPatcher<'a> {
 
     fn indicate_major_items(&mut self) -> Result<()> {
         for (i, &item) in self.randomization.item_placement.iter().enumerate() {
-            if (item.is_tank() && self.randomization.difficulty.mark_tanks)
-                || (item.is_unique() && self.randomization.difficulty.mark_uniques)
-            {
+            if item != Item::Missile && self.randomization.difficulty.mark_uniques {
                 let (room_id, node_id) = self.game_data.item_locations[i];
                 let item_ptr = self.game_data.node_ptr_map[&(room_id, node_id)];
                 let room_ptr = self.game_data.room_ptr_by_id[&room_id];
@@ -959,8 +969,12 @@ impl<'a> MapPatcher<'a> {
                         )
                     })?
                     .clone();
-                assert!([Interior::Item, Interior::MajorItem].contains(&basic_tile.interior));
-                basic_tile.interior = Interior::MajorItem;
+                assert!([Interior::Item, Interior::MediumItem, Interior::MajorItem].contains(&basic_tile.interior));
+                if item.is_unique() {
+                    basic_tile.interior = Interior::MajorItem;
+                } else if basic_tile.interior != Interior::MajorItem {
+                    basic_tile.interior = Interior::MediumItem;
+                }
                 let tile1 = self.get_basic_tile(basic_tile)?;
                 self.rom
                     .write_u16(base_ptr + offset, (tile1 | 0x0C00) as isize)?;
@@ -982,6 +996,7 @@ impl<'a> MapPatcher<'a> {
         if self.randomization.difficulty.mark_uniques || self.randomization.difficulty.mark_tanks {
             self.indicate_major_items()?;
         }
+        info!("Free tiles: {} (out of {})", self.free_tiles.len() - self.next_free_tile_idx, self.free_tiles.len());
         Ok(())
     }
 }
