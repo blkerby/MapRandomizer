@@ -3,6 +3,23 @@
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-42---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 42 (???)</a>:
+<ul>
+<li>Disable save stations again during the escape (fixes a bug introduced in version 39).
+<li>Major additions to the logic:
+    <ul>
+    <li>X-Ray climb (if the tech is enabled: canStationarySpinJump, canXRayStandUp, 
+    canXRayClimb, and canLeftFacingDoorXRayClimb and/or canRightFacingDoorXRayClimb).
+    <li>Running through a door to gain extra space to charge a shinespark.
+    <li>Charging a shinespark and using or carrying it into a neighboring room.
+    <li>Using momentum through a horizontal door transition to execute a jump in (or into) the next room.
+        <ul>
+        <li>This includes jumps through a door from a non-water environment to a water environment,
+        to retain extra momentum similar to a Gravity jump.
+        </ul>
+    </ul>
+</ul>
+
 <p><a href="https://version-41---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 41 (2023-02-26)</a>:
 <ul>
 <li>In the Tourian Blue Hopper Room, the left enemy position is adjusted four tiles to the right,

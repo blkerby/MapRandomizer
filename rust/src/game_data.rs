@@ -102,9 +102,10 @@ pub enum Requirement {
     Item(ItemId),
     Flag(FlagId),
     ShineCharge {
-        used_tiles: i32,
-        shinespark_frames: i32,
         shinespark_tech_id: usize,
+        used_tiles: f32,
+        shinespark_frames: i32,
+        // excess_shinespark_frames: i32,
     },
     HeatFrames(i32),
     LavaFrames(i32),
@@ -133,8 +134,82 @@ pub enum Requirement {
     BotwoonFight {
         second_phase: bool,
     },
+    AdjacentRunway {
+        room_id: RoomId,
+        node_id: NodeId,
+        used_tiles: f32,
+        use_frames: Option<i32>,
+        physics: Option<String>,
+    },
+    CanComeInCharged {
+        shinespark_tech_id: usize,
+        room_id: RoomId,
+        node_id: NodeId,
+        frames_remaining: i32,
+        shinespark_frames: i32,
+        // excess_shinespark_frames: i32,
+    },
     And(Vec<Requirement>),
     Or(Vec<Requirement>),
+}
+
+impl Requirement {
+    pub fn make_and(reqs: Vec<Requirement>) -> Requirement {
+        let mut out_reqs: Vec<Requirement> = vec![];
+        for req in reqs {
+            if let Requirement::Never = req {
+                return Requirement::Never;
+            } else if let Requirement::Free = req {
+                continue;
+            }
+            out_reqs.push(req);
+        }
+        if out_reqs.len() == 0 {
+            Requirement::Free
+        } else if out_reqs.len() == 1 {
+            out_reqs.into_iter().next().unwrap()
+        } else {
+            Requirement::And(out_reqs)
+        }
+    }
+
+    pub fn make_or(reqs: Vec<Requirement>) -> Requirement {
+        let mut out_reqs: Vec<Requirement> = vec![];
+        for req in reqs {
+            if let Requirement::Never = req {
+                continue;
+            } else if let Requirement::Free = req {
+                return Requirement::Free;
+            }
+            out_reqs.push(req);
+        }
+        if out_reqs.len() == 0 {
+            Requirement::Never
+        } else if out_reqs.len() == 1 {
+            out_reqs.into_iter().next().unwrap()
+        } else {
+            Requirement::Or(out_reqs)
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct Runway {
+    // TODO: add more details like slopes, openEnd
+    pub name: String,
+    pub length: i32,
+    pub requirement: Requirement,
+    pub physics: String,
+    pub heated: bool,
+    pub usable_coming_in: bool,
+}
+
+pub struct CanLeaveCharged {
+    // TODO: add more details like slopes, openEnd
+    pub frames_remaining: i32,
+    pub used_tiles: i32,
+    pub requirement: Requirement,
+    pub shinespark_frames: Option<i32>,
 }
 
 #[derive(Clone, Debug)]
@@ -183,7 +258,7 @@ pub struct RoomGeometry {
 // TODO: Clean this up, e.g. pull out a separate structure to hold
 // temporary data used only during loading, replace any
 // remaining JsonValue types in the main struct with something
-// more structured; also maybe unify the room geometry data
+// more structured; combine maps with the same keys; also maybe unify the room geometry data
 // with sm-json-data and cut back on the amount of different
 // keys/IDs/indexes for rooms, nodes, and doors.
 #[derive(Default)]
@@ -201,7 +276,11 @@ pub struct GameData {
     tech: HashMap<String, Option<Requirement>>,
     helpers: HashMap<String, Option<Requirement>>,
     pub room_json_map: HashMap<RoomId, JsonValue>,
+    pub room_obstacle_idx_map: HashMap<RoomId, HashMap<String, usize>>,
     pub node_json_map: HashMap<(RoomId, NodeId), JsonValue>,
+    pub node_spawn_at_map: HashMap<(RoomId, NodeId), NodeId>,
+    pub node_runways_map: HashMap<(RoomId, NodeId), Vec<Runway>>,
+    pub node_can_leave_charged_map: HashMap<(RoomId, NodeId), Vec<CanLeaveCharged>>,
     pub node_ptr_map: HashMap<(RoomId, NodeId), NodePtr>,
     unlocked_node_map: HashMap<(RoomId, NodeId), NodeId>,
     pub room_num_obstacles: HashMap<RoomId, usize>,
@@ -245,6 +324,11 @@ fn read_json(path: &Path) -> Result<JsonValue> {
     let json_data =
         json::parse(&json_str).with_context(|| format!("unable to parse {}", path.display()))?;
     Ok(json_data)
+}
+
+struct RequirementContext {
+    room_id: RoomId,
+    _src_node_id: NodeId,  // Used for debugging
 }
 
 impl GameData {
@@ -307,9 +391,11 @@ impl GameData {
 
         let tech_json = &self.tech_json_map[tech_name].clone();
         let req = if tech_json.has_key("requires") {
-            let mut reqs = self.parse_requires_list(tech_json["requires"].members().as_slice())?;
+            let ctx = RequirementContext { room_id: 0, _src_node_id: 0 };
+            let mut reqs =
+                self.parse_requires_list(tech_json["requires"].members().as_slice(), &ctx)?;
             reqs.push(Requirement::Tech(self.tech_isv.index_by_key[tech_name]));
-            Requirement::And(reqs)
+            Requirement::make_and(reqs)
         } else {
             Requirement::Tech(self.tech_isv.index_by_key[tech_name])
         };
@@ -418,24 +504,33 @@ impl GameData {
         self.helpers.insert(name.to_owned(), None);
         let json_value = self.helper_json_map[name].clone();
         ensure!(json_value["requires"].is_array());
-        let req = Requirement::And(
-            self.parse_requires_list(&json_value["requires"].members().as_slice())?,
+        let ctx = RequirementContext { room_id: 0, _src_node_id: 0 };
+        let req = Requirement::make_and(
+            self.parse_requires_list(&json_value["requires"].members().as_slice(), &ctx)?,
         );
         *self.helpers.get_mut(name).unwrap() = Some(req.clone());
         Ok(req)
     }
 
-    fn parse_requires_list(&mut self, json_values: &[JsonValue]) -> Result<Vec<Requirement>> {
-        let mut req_list: Vec<Requirement> = Vec::new();
-        for json_req in json_values {
-            req_list.push(self.parse_requirement(json_req)?);
+    fn parse_requires_list(
+        &mut self,
+        req_jsons: &[JsonValue],
+        ctx: &RequirementContext,
+    ) -> Result<Vec<Requirement>> {
+        let mut reqs: Vec<Requirement> = Vec::new();
+        for req_json in req_jsons {
+            reqs.push(self.parse_requirement(req_json, ctx)?);
         }
-        Ok(req_list)
+        Ok(reqs)
     }
 
-    fn parse_requirement(&mut self, json_value: &JsonValue) -> Result<Requirement> {
-        if json_value.is_string() {
-            let value = json_value.as_str().unwrap();
+    fn parse_requirement(
+        &mut self,
+        req_json: &JsonValue,
+        ctx: &RequirementContext,
+    ) -> Result<Requirement> {
+        if req_json.is_string() {
+            let value = req_json.as_str().unwrap();
             if value == "never" {
                 return Ok(Requirement::Never);
             } else if let Some(&item_id) = self.item_isv.index_by_key.get(value) {
@@ -447,17 +542,17 @@ impl GameData {
             } else if self.helper_json_map.contains_key(value) {
                 return self.get_helper(value);
             }
-        } else if json_value.is_object() && json_value.len() == 1 {
-            let (key, value) = json_value.entries().next().unwrap();
+        } else if req_json.is_object() && req_json.len() == 1 {
+            let (key, value) = req_json.entries().next().unwrap();
             if key == "or" {
                 ensure!(value.is_array());
-                return Ok(Requirement::Or(
-                    self.parse_requires_list(value.members().as_slice())?,
+                return Ok(Requirement::make_or(
+                    self.parse_requires_list(value.members().as_slice(), ctx)?,
                 ));
             } else if key == "and" {
                 ensure!(value.is_array());
-                return Ok(Requirement::And(
-                    self.parse_requires_list(value.members().as_slice())?,
+                return Ok(Requirement::make_and(
+                    self.parse_requires_list(value.members().as_slice(), ctx)?,
                 ));
             } else if key == "not" {
                 // For now, assume we can't do these, since they could get us permanently stuck.
@@ -465,10 +560,10 @@ impl GameData {
             } else if key == "ammo" {
                 let ammo_type = value["type"]
                     .as_str()
-                    .expect(&format!("missing/invalid ammo type in {}", json_value));
+                    .expect(&format!("missing/invalid ammo type in {}", req_json));
                 let count = value["count"]
                     .as_i32()
-                    .expect(&format!("missing/invalid ammo count in {}", json_value));
+                    .expect(&format!("missing/invalid ammo count in {}", req_json));
                 if ammo_type == "Missile" {
                     return Ok(Requirement::Missiles(count as Capacity));
                 } else if ammo_type == "Super" {
@@ -476,33 +571,32 @@ impl GameData {
                 } else if ammo_type == "PowerBomb" {
                     return Ok(Requirement::PowerBombs(count as Capacity));
                 } else {
-                    bail!("Unexpected ammo type in {}", json_value);
+                    bail!("Unexpected ammo type in {}", req_json);
                 }
             } else if key == "resourceCapacity" {
                 ensure!(value.members().len() == 1);
                 let value0 = value.members().next().unwrap();
                 let resource_type = value0["type"]
                     .as_str()
-                    .expect(&format!("missing/invalid resource type in {}", json_value));
+                    .expect(&format!("missing/invalid resource type in {}", req_json));
                 let count = value0["count"]
                     .as_i32()
-                    .expect(&format!("missing/invalid resource count in {}", json_value));
+                    .expect(&format!("missing/invalid resource count in {}", req_json));
                 if resource_type == "Missile" {
                     return Ok(Requirement::MissilesCapacity(count as Capacity));
                 } else {
-                    bail!("Unexpected ammo type in {}", json_value);
+                    bail!("Unexpected ammo type in {}", req_json);
                 }
             } else if key == "ammoDrain" {
                 // We patch out the ammo drain from the Mother Brain fight.
                 return Ok(Requirement::Free);
             } else if key == "canShineCharge" {
                 let used_tiles = value["usedTiles"]
+                    .as_f32()
+                    .expect(&format!("missing/invalid usedTiles in {}", req_json));
+                let shinespark_frames = value["shinesparkFrames"]
                     .as_i32()
-                    .expect(&format!("missing/invalid usedTiles in {}", json_value));
-                let shinespark_frames = value["shinesparkFrames"].as_i32().expect(&format!(
-                    "missing/invalid shinesparkFrames in {}",
-                    json_value
-                ));
+                    .expect(&format!("missing/invalid shinesparkFrames in {}", req_json));
                 // TODO: take slopes into account
                 return Ok(Requirement::ShineCharge {
                     used_tiles,
@@ -512,44 +606,46 @@ impl GameData {
             } else if key == "heatFrames" {
                 let frames = value
                     .as_i32()
-                    .expect(&format!("invalid heatFrames in {}", json_value));
+                    .expect(&format!("invalid heatFrames in {}", req_json));
                 return Ok(Requirement::HeatFrames(frames));
             } else if key == "lavaFrames" {
                 let frames = value
                     .as_i32()
-                    .expect(&format!("invalid lavaFrames in {}", json_value));
+                    .expect(&format!("invalid lavaFrames in {}", req_json));
                 return Ok(Requirement::LavaFrames(frames));
             } else if key == "lavaPhysicsFrames" {
                 let frames = value
                     .as_i32()
-                    .expect(&format!("invalid lavaPhysicsFrames in {}", json_value));
+                    .expect(&format!("invalid lavaPhysicsFrames in {}", req_json));
                 return Ok(Requirement::LavaPhysicsFrames(frames));
             } else if key == "acidFrames" {
                 let frames = value
                     .as_i32()
-                    .expect(&format!("invalid acidFrames in {}", json_value));
+                    .expect(&format!("invalid acidFrames in {}", req_json));
                 return Ok(Requirement::AcidFrames(frames));
                 // return Ok(Requirement::Damage(3 * frames / 2));
             } else if key == "draygonElectricityFrames" {
-                let frames = value.as_i32().expect(&format!(
-                    "invalid draygonElectricityFrames in {}",
-                    json_value
-                ));
+                let frames = value
+                    .as_i32()
+                    .expect(&format!("invalid draygonElectricityFrames in {}", req_json));
                 return Ok(Requirement::Damage(frames));
+            } else if key == "samusEaterFrames" {
+                let frames = value.as_i32().expect(&format!("invalid samusEaterFrames in {}", req_json));
+                return Ok(Requirement::Damage(frames / 8));
             } else if key == "spikeHits" {
                 let hits = value
                     .as_i32()
-                    .expect(&format!("invalid spikeHits in {}", json_value));
+                    .expect(&format!("invalid spikeHits in {}", req_json));
                 return Ok(Requirement::Damage(hits * 60));
             } else if key == "thornHits" {
                 let hits = value
                     .as_i32()
-                    .expect(&format!("invalid thornHits in {}", json_value));
+                    .expect(&format!("invalid thornHits in {}", req_json));
                 return Ok(Requirement::Damage(hits * 16));
             } else if key == "hibashiHits" {
                 let hits = value
                     .as_i32()
-                    .expect(&format!("invalid hibashiHits in {}", json_value));
+                    .expect(&format!("invalid hibashiHits in {}", req_json));
                 return Ok(Requirement::Damage(hits * 30));
             } else if key == "enemyDamage" {
                 let enemy_name = value["enemy"].as_str().unwrap().to_string();
@@ -623,7 +719,7 @@ impl GameData {
                     let vul = self.enemy_vulnerabilities[enemy];
                     reqs.push(Requirement::EnemyKill(vul & allowed_weapons));
                 }
-                return Ok(Requirement::And(reqs));
+                return Ok(Requirement::make_and(reqs));
             } else if key == "energyAtMost" {
                 ensure!(value.as_i32().unwrap() == 1);
                 return Ok(Requirement::EnergyDrain);
@@ -640,13 +736,61 @@ impl GameData {
             } else if key == "previousStratProperty" {
                 // This is only used in one place in Crumble Shaft, where it doesn't seem to be necessary.
                 return Ok(Requirement::Free);
-            } else if key == "canComeInCharged" || key == "adjacentRunway" {
-                // For now assume we can't do these.
-                // TODO: implement this.
-                return Ok(Requirement::Never);
+            } else if key == "adjacentRunway" {
+                let physics: Option<String> = if value.has_key("physics") {
+                    ensure!(value["physics"].len() == 1);
+                    Some(value["physics"][0].as_str().unwrap().to_string())
+                } else {
+                    None
+                };
+                let use_frames: Option<i32> = if value.has_key("useFrames") {
+                    Some(
+                        value["useFrames"]
+                            .as_i32()
+                            .context("Expecting integer for useFrames")?,
+                    )
+                } else {
+                    None
+                };
+                let mut unlocked_node_id = value["fromNode"].as_usize().unwrap();
+                if self.unlocked_node_map.contains_key(&(ctx.room_id, unlocked_node_id)) {
+                    unlocked_node_id = self.unlocked_node_map[&(ctx.room_id, unlocked_node_id)];
+                }
+        
+                return Ok(Requirement::AdjacentRunway {
+                    room_id: ctx.room_id,
+                    node_id: unlocked_node_id,
+                    used_tiles: value["usedTiles"].as_f32().unwrap(),
+                    use_frames,
+                    physics: physics,
+                });
+            } else if key == "canComeInCharged" {
+                let frames_remaining = value["framesRemaining"]
+                    .as_i32()
+                    .with_context(|| format!("missing/invalid framesRemaining in {}", req_json))?;
+                let shinespark_frames = value["shinesparkFrames"]
+                    .as_i32()
+                    .with_context(|| format!("missing/invalid shinesparkFrames in {}", req_json))?;
+                // if value["fromNode"].as_usize().unwrap() != ctx.src_node_id {
+                //     println!("In roomId={}, canComeInCharged fromNode={}, from nodeId={}", ctx.room_id, 
+                //         value["fromNode"].as_usize().unwrap(), ctx.src_node_id);
+                // }
+                let mut unlocked_node_id = value["fromNode"].as_usize().unwrap();
+                if self.unlocked_node_map.contains_key(&(ctx.room_id, unlocked_node_id)) {
+                    unlocked_node_id = self.unlocked_node_map[&(ctx.room_id, unlocked_node_id)];
+                }
+                return Ok(Requirement::CanComeInCharged {
+                    shinespark_tech_id: self.tech_isv.index_by_key["canShinespark"],
+                    room_id: ctx.room_id,
+                    node_id: unlocked_node_id,
+                    // node_id: ctx.src_node_id,
+                    frames_remaining,
+                    shinespark_frames,
+                });
+                // return Ok(Requirement::Never);
             }
         }
-        bail!("Unable to parse requirement: {}", json_value);
+        bail!("Unable to parse requirement: {}", req_json);
     }
 
     fn load_regions(&mut self) -> Result<()> {
@@ -956,6 +1100,81 @@ impl GameData {
         Ok(new_room_json)
     }
 
+    pub fn get_obstacle_data(
+        &self,
+        strat_json: &JsonValue,
+        room_json: &JsonValue,
+        from_obstacles_bitmask: ObstacleMask,
+        obstacles_idx_map: &HashMap<String, usize>,
+        requires_json: &mut Vec<JsonValue>,
+    ) -> Result<ObstacleMask> {
+        let mut to_obstacles_bitmask = from_obstacles_bitmask;
+        if strat_json.has_key("obstacles") {
+            ensure!(strat_json["obstacles"].is_array());
+            for obstacle in strat_json["obstacles"].members() {
+                let obstacle_idx = obstacles_idx_map[obstacle["id"].as_str().unwrap()];
+                to_obstacles_bitmask |= 1 << obstacle_idx;
+                if (1 << obstacle_idx) & from_obstacles_bitmask == 0 {
+                    ensure!(obstacle["requires"].is_array());
+                    requires_json.extend(obstacle["requires"].members().map(|x| x.clone()));
+                    let room_obstacle = &room_json["obstacles"][obstacle_idx];
+                    if room_obstacle.has_key("requires") {
+                        ensure!(room_obstacle["requires"].is_array());
+                        requires_json
+                            .extend(room_obstacle["requires"].members().map(|x| x.clone()));
+                    }
+                    if obstacle.has_key("additionalObstacles") {
+                        ensure!(obstacle["additionalObstacles"].is_array());
+                        for additional_obstacle_id in obstacle["additionalObstacles"].members() {
+                            let additional_obstacle_idx =
+                                obstacles_idx_map[additional_obstacle_id.as_str().unwrap()];
+                            to_obstacles_bitmask |= 1 << additional_obstacle_idx;
+                        }
+                    }
+                }
+            }
+        }
+        Ok(to_obstacles_bitmask)
+    }
+
+    pub fn parse_note(&self, note: &JsonValue) -> Vec<String> {
+        if note.is_string() {
+            vec![note.as_str().unwrap().to_string()]
+        } else if note.is_array() {
+            note.members()
+                .map(|x| x.as_str().unwrap().to_string())
+                .collect()
+        } else {
+            vec![]
+        }
+    }
+
+    fn get_node_physics(&self, node_json: &JsonValue) -> Result<String> {
+        // TODO: handle case with multiple environments
+        ensure!(node_json["doorEnvironments"].is_array());
+        ensure!(node_json["doorEnvironments"].len() == 1);
+        return Ok(node_json["doorEnvironments"][0]["physics"]
+            .as_str()
+            .unwrap()
+            .to_string());
+    }
+
+    fn get_room_heated(&self, room_json: &JsonValue, node_id: NodeId) -> Result<bool> {
+        ensure!(room_json["roomEnvironments"].is_array());
+        for env in room_json["roomEnvironments"].members() {
+            if env.has_key("entranceNodes") {
+                ensure!(env["entranceNodes"].is_array());
+                if !env["entranceNodes"].members().any(|x| x == node_id) {
+                    continue;
+                }
+            }
+            return Ok(env["heated"]
+                .as_bool()
+                .context("Expecting 'heated' to be a bool")?);
+        }
+        bail!("No match for node {} in roomEnvironments", node_id);
+    }
+
     fn process_room(&mut self, room_json: &JsonValue) -> Result<()> {
         let room_id = room_json["id"].as_usize().unwrap();
         self.room_json_map.insert(room_id, room_json.clone());
@@ -984,6 +1203,8 @@ impl GameData {
         };
         let num_obstacles = obstacles_idx_map.len();
         self.room_num_obstacles.insert(room_id, num_obstacles);
+        self.room_obstacle_idx_map
+            .insert(room_id, obstacles_idx_map.clone());
 
         // Process nodes:
         ensure!(room_json["nodes"].is_array());
@@ -1008,17 +1229,89 @@ impl GameData {
         }
         for node_json in room_json["nodes"].members() {
             let node_id = node_json["id"].as_usize().unwrap();
+            if node_json.has_key("runways") {
+                ensure!(node_json["runways"].is_array());
+                let mut runway_vec: Vec<Runway> = vec![];
+                for runway_json in node_json["runways"].members() {
+                    ensure!(runway_json["strats"].is_array());
+                    for strat_json in runway_json["strats"].members() {
+                        ensure!(strat_json["requires"].is_array());
+                        let requires_json: Vec<JsonValue> = strat_json["requires"]
+                            .members()
+                            .map(|x| x.clone())
+                            .collect();
+                        let ctx = RequirementContext { room_id, _src_node_id: node_id };
+                        let requirement =
+                            Requirement::make_and(self.parse_requires_list(&requires_json, &ctx)?);
+                        if strat_json.has_key("obstacles") {
+                            // TODO: handle obstacles in runways
+                            continue;
+                        }
+                        let heated = self.get_room_heated(room_json, node_id)?;
+                        let physics_res = self.get_node_physics(node_json);
+                        if let Ok(physics) = physics_res {
+                            let runway = Runway {
+                                name: runway_json["name"].as_str().unwrap().to_string(),
+                                length: runway_json["length"].as_i32().unwrap(),
+                                requirement,
+                                physics,
+                                heated,
+                                usable_coming_in: runway_json["usableComingIn"].as_bool().unwrap_or(true),
+                            };
+                            runway_vec.push(runway);
+                        }
+                    }
+                }
+                self.node_runways_map.insert((room_id, node_id), runway_vec);
+            } else {
+                self.node_runways_map.insert((room_id, node_id), vec![]);
+            }
+
+            if node_json.has_key("canLeaveCharged") {
+                ensure!(node_json["canLeaveCharged"].is_array());
+                let mut can_leave_charged_vec: Vec<CanLeaveCharged> = vec![];
+                for can_leave_charged_json in node_json["canLeaveCharged"].members() {
+                    if can_leave_charged_json.has_key("initiateRemotely") {
+                        // TODO: handle case with initiateRemotely
+                        continue;
+                    }
+                    ensure!(can_leave_charged_json["strats"].is_array());
+                    for strat_json in can_leave_charged_json["strats"].members() {
+                        ensure!(strat_json["requires"].is_array());
+                        let requires_json: Vec<JsonValue> = strat_json["requires"]
+                            .members()
+                            .map(|x| x.clone())
+                            .collect();
+                        let ctx = RequirementContext { room_id, _src_node_id: node_id };
+                        let requirement =
+                            Requirement::make_and(self.parse_requires_list(&requires_json, &ctx)?);
+                        if strat_json.has_key("obstacles") {
+                            // TODO: handle obstacles in runways
+                            continue;
+                        }
+                        let can_leave_charged = CanLeaveCharged {
+                            used_tiles: can_leave_charged_json["usedTiles"]
+                                .as_i32()
+                                .context("Expecting integer usedTiles")?,
+                            frames_remaining: can_leave_charged_json["framesRemaining"]
+                                .as_i32()
+                                .context("Expecting integer framesRemaining")?,
+                            shinespark_frames: can_leave_charged_json["shinesparkFrames"].as_i32(),
+                            requirement,
+                        };
+                        can_leave_charged_vec.push(can_leave_charged);
+                    }
+                }
+                self.node_can_leave_charged_map
+                    .insert((room_id, node_id), can_leave_charged_vec);
+            } else {
+                self.node_can_leave_charged_map
+                    .insert((room_id, node_id), vec![]);
+            }
+
             if node_json.has_key("spawnAt") {
                 let spawn_node_id = node_json["spawnAt"].as_usize().unwrap();
-                let from_vertex_id = self.vertex_isv.index_by_key[&(room_id, node_id, 0)];
-                let to_vertex_id = self.vertex_isv.index_by_key[&(room_id, spawn_node_id, 0)];
-                self.links.push(Link {
-                    from_vertex_id,
-                    to_vertex_id,
-                    requirement: Requirement::Free,
-                    strat_name: "spawnAt".to_string(),
-                    strat_notes: vec![],
-                });
+                self.node_spawn_at_map.insert((room_id, node_id), spawn_node_id);
             }
             if node_json.has_key("utility") {
                 let utility = &node_json["utility"];
@@ -1042,7 +1335,7 @@ impl GameData {
                     self.links.push(Link {
                         from_vertex_id: vertex_id,
                         to_vertex_id: vertex_id,
-                        requirement: Requirement::And(reqs),
+                        requirement: Requirement::make_and(reqs),
                         strat_name: "Refill".to_string(),
                         strat_notes: vec![],
                     });
@@ -1089,7 +1382,7 @@ impl GameData {
                         self.links.push(Link {
                             from_vertex_id: vertex_id,
                             to_vertex_id: vertex_id,
-                            requirement: Requirement::And(reqs.clone()),
+                            requirement: Requirement::make_and(reqs.clone()),
                             strat_name: farm_name.to_string(),
                             strat_notes: vec![],
                         })
@@ -1108,60 +1401,28 @@ impl GameData {
                     for from_obstacles_bitmask in 0..(1 << num_obstacles) {
                         let from_node_id = link_json["from"].as_usize().unwrap();
                         let to_node_id = link_to_json["id"].as_usize().unwrap();
-                        let mut to_obstacles_bitmask = from_obstacles_bitmask;
                         ensure!(strat_json["requires"].is_array());
                         let mut requires_json: Vec<JsonValue> = strat_json["requires"]
                             .members()
                             .map(|x| x.clone())
                             .collect();
 
-                        if strat_json.has_key("obstacles") {
-                            ensure!(strat_json["obstacles"].is_array());
-                            for obstacle in strat_json["obstacles"].members() {
-                                let obstacle_idx =
-                                    obstacles_idx_map[obstacle["id"].as_str().unwrap()];
-                                to_obstacles_bitmask |= 1 << obstacle_idx;
-                                if (1 << obstacle_idx) & from_obstacles_bitmask == 0 {
-                                    ensure!(obstacle["requires"].is_array());
-                                    requires_json
-                                        .extend(obstacle["requires"].members().map(|x| x.clone()));
-                                    let room_obstacle = &room_json["obstacles"][obstacle_idx];
-                                    if room_obstacle.has_key("requires") {
-                                        ensure!(room_obstacle["requires"].is_array());
-                                        requires_json.extend(
-                                            room_obstacle["requires"].members().map(|x| x.clone()),
-                                        );
-                                    }
-                                    if obstacle.has_key("additionalObstacles") {
-                                        ensure!(obstacle["additionalObstacles"].is_array());
-                                        for additional_obstacle_id in
-                                            obstacle["additionalObstacles"].members()
-                                        {
-                                            let additional_obstacle_idx = obstacles_idx_map
-                                                [additional_obstacle_id.as_str().unwrap()];
-                                            to_obstacles_bitmask |= 1 << additional_obstacle_idx;
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        let to_obstacles_bitmask = self.get_obstacle_data(
+                            strat_json,
+                            room_json,
+                            from_obstacles_bitmask,
+                            &obstacles_idx_map,
+                            &mut requires_json,
+                        )?;
+                        let ctx = RequirementContext { room_id, _src_node_id: from_node_id };
                         let requirement =
-                            Requirement::And(self.parse_requires_list(&requires_json)?);
+                            Requirement::make_and(self.parse_requires_list(&requires_json, &ctx)?);
                         let from_vertex_id = self.vertex_isv.index_by_key
                             [&(room_id, from_node_id, from_obstacles_bitmask)];
                         let to_vertex_id = self.vertex_isv.index_by_key
                             [&(room_id, to_node_id, to_obstacles_bitmask)];
                         let strat_name = strat_json["name"].as_str().unwrap().to_string();
-                        let strat_notes = if strat_json["note"].is_string() {
-                            vec![strat_json["note"].as_str().unwrap().to_string()]
-                        } else if strat_json["note"].is_array() {
-                            strat_json["note"]
-                                .members()
-                                .map(|x| x.as_str().unwrap().to_string())
-                                .collect()
-                        } else {
-                            vec![]
-                        };
+                        let strat_notes = self.parse_note(&strat_json["note"]);
                         let link = Link {
                             from_vertex_id,
                             to_vertex_id,

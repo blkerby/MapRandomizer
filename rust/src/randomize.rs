@@ -1,13 +1,16 @@
 pub mod escape_timer;
 
 use crate::{
-    game_data::{self, Capacity, FlagId, Item, ItemLocationId, Link, Map, VertexId},
+    game_data::{
+        self, Capacity, FlagId, Item, ItemLocationId, Link, Map, NodeId, Requirement, RoomId,
+        TechId, VertexId,
+    },
     traverse::{
         apply_requirement, get_spoiler_route, is_bireachable, traverse, GlobalState, LinkIdx,
         LocalState, TraverseResult,
     },
 };
-use hashbrown::HashSet;
+use hashbrown::{HashMap, HashSet};
 use log::info;
 use rand::SeedableRng;
 use rand::{seq::SliceRandom, Rng};
@@ -51,7 +54,7 @@ pub struct ItemPriorityGroup {
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
 pub struct DifficultyConfig {
     pub tech: Vec<String>,
-    pub shine_charge_tiles: i32,
+    pub shine_charge_tiles: f32,
     pub progression_style: ProgressionStyle,
     pub item_placement_style: ItemPlacementStyle,
     pub item_priorities: Vec<ItemPriorityGroup>,
@@ -136,13 +139,252 @@ struct VertexInfo {
     node_name: String,
 }
 
+fn add_door_links(
+    src_room_id: RoomId,
+    src_node_id: NodeId,
+    dst_room_id: RoomId,
+    dst_node_id: NodeId,
+    game_data: &GameData,
+    links: &mut Vec<Link>,
+) {
+    for obstacle_bitmask in 0..(1 << game_data.room_num_obstacles[&src_room_id]) {
+        let from_vertex_id =
+            game_data.vertex_isv.index_by_key[&(src_room_id, src_node_id, obstacle_bitmask)];
+        let dst_node_id_spawn = *game_data.node_spawn_at_map.get(&(dst_room_id, dst_node_id)).unwrap_or(&dst_node_id);
+        let to_vertex_id = game_data.vertex_isv.index_by_key[&(dst_room_id, dst_node_id_spawn, 0)];
+
+        links.push(Link {
+            from_vertex_id,
+            to_vertex_id,
+            requirement: game_data::Requirement::Free,
+            strat_name: "(Door transition)".to_string(),
+            strat_notes: vec![],
+        });
+    }
+}
+
+struct Preprocessor<'a> {
+    game_data: &'a GameData,
+    door_map: HashMap<(RoomId, NodeId), (RoomId, NodeId)>,
+}
+
+// TODO: Remove this if heatFrames are removed from runways in sm-json-data.
+// (but we might want to keep them for canComeInCharged?)
+fn strip_heat_frames(req: &Requirement) -> Requirement {
+    match req {
+        Requirement::HeatFrames(_) => Requirement::Free,
+        Requirement::And(sub_reqs) => {
+            Requirement::make_and(sub_reqs.iter().map(strip_heat_frames).collect())
+        }
+        Requirement::Or(sub_reqs) => {
+            Requirement::make_or(sub_reqs.iter().map(strip_heat_frames).collect())
+        }
+        _ => req.clone(),
+    }
+}
+
+impl<'a> Preprocessor<'a> {
+    pub fn new(game_data: &'a GameData, map: &'a Map) -> Self {
+        let mut door_map: HashMap<(RoomId, NodeId), (RoomId, NodeId)> = HashMap::new();
+        for &((src_exit_ptr, src_entrance_ptr), (dst_exit_ptr, dst_entrance_ptr), _) in &map.doors {
+            let (src_room_id, src_node_id) =
+                game_data.door_ptr_pair_map[&(src_exit_ptr, src_entrance_ptr)];
+            let (dst_room_id, dst_node_id) =
+                game_data.door_ptr_pair_map[&(dst_exit_ptr, dst_entrance_ptr)];
+            // println!("({}, {}) <-> ({}, {})", src_room_id, src_node_id, dst_room_id, dst_node_id);
+            door_map.insert((src_room_id, src_node_id), (dst_room_id, dst_node_id));
+            door_map.insert((dst_room_id, dst_node_id), (src_room_id, src_node_id));
+        }
+        Preprocessor {
+            game_data,
+            door_map,
+        }
+    }
+
+    fn preprocess_link(&self, link: &Link) -> Link {
+        Link {
+            from_vertex_id: link.from_vertex_id,
+            to_vertex_id: link.to_vertex_id,
+            requirement: self.preprocess_requirement(&link.requirement, link),
+            strat_name: link.strat_name.clone(),
+            strat_notes: link.strat_notes.clone(),
+        }
+    }
+
+    fn preprocess_requirement(&self, req: &Requirement, link: &Link) -> Requirement {
+        match req {
+            Requirement::AdjacentRunway {
+                room_id,
+                node_id,
+                used_tiles,
+                use_frames,
+                physics,
+            } => self.preprocess_adjacent_runway(
+                *room_id,
+                *node_id,
+                *used_tiles,
+                *use_frames,
+                physics,
+                link,
+            ),
+            Requirement::CanComeInCharged {
+                shinespark_tech_id,
+                room_id,
+                node_id,
+                frames_remaining,
+                shinespark_frames,
+            } => self.preprocess_can_come_in_charged(
+                *shinespark_tech_id,
+                *room_id,
+                *node_id,
+                *frames_remaining,
+                *shinespark_frames,
+            ),
+            Requirement::And(sub_reqs) => Requirement::make_and(
+                sub_reqs
+                    .iter()
+                    .map(|r| self.preprocess_requirement(r, link))
+                    .collect(),
+            ),
+            Requirement::Or(sub_reqs) => Requirement::make_or(
+                sub_reqs
+                    .iter()
+                    .map(|r| self.preprocess_requirement(r, link))
+                    .collect(),
+            ),
+            _ => req.clone(),
+        }
+    }
+
+    fn preprocess_can_come_in_charged(
+        &self,
+        shinespark_tech_id: TechId,
+        room_id: RoomId,
+        node_id: NodeId,
+        frames_remaining: i32,
+        shinespark_frames: i32,
+    ) -> Requirement {
+        if let Some(&(other_room_id, other_node_id)) = self.door_map.get(&(room_id, node_id)) {
+            let runways = &self.game_data.node_runways_map[&(room_id, node_id)];
+            let other_runways = &self.game_data.node_runways_map[&(other_room_id, other_node_id)];
+            let can_leave_charged_vec = &self.game_data.node_can_leave_charged_map[&(other_room_id, other_node_id)];
+            let mut req_vec: Vec<Requirement> = vec![];
+    
+            // Strats for in-room runways:
+            for runway in runways {
+                let req = Requirement::ShineCharge {
+                    shinespark_tech_id,
+                    used_tiles: runway.length as f32,
+                    shinespark_frames,
+                };
+                req_vec.push(Requirement::make_and(vec![req, runway.requirement.clone()]));
+            }
+    
+            // Strats for other-room runways:
+            for runway in other_runways {
+                let req = Requirement::ShineCharge {
+                    shinespark_tech_id,
+                    used_tiles: runway.length as f32,
+                    shinespark_frames,
+                };
+                req_vec.push(Requirement::make_and(vec![req, runway.requirement.clone()]));
+            }
+    
+            // Strats for cross-room combined runways:
+            for runway in runways {
+                if !runway.usable_coming_in {
+                    continue;
+                }
+                for other_runway in other_runways {
+                    let used_tiles = runway.length + other_runway.length - 1;
+                    let req = Requirement::ShineCharge {
+                        shinespark_tech_id,
+                        used_tiles: used_tiles as f32,
+                        shinespark_frames,
+                    };
+                    req_vec.push(Requirement::make_and(vec![req, runway.requirement.clone(), other_runway.requirement.clone()]));
+                }
+            }
+    
+            // Strats for canLeaveCharged from other room:
+            for can_leave_charged in can_leave_charged_vec {
+                if can_leave_charged.frames_remaining < frames_remaining {
+                    continue;
+                }
+                let req = Requirement::ShineCharge {
+                    shinespark_tech_id,
+                    used_tiles: can_leave_charged.used_tiles as f32,
+                    shinespark_frames: shinespark_frames + can_leave_charged.shinespark_frames.unwrap_or(0),
+                };
+                req_vec.push(Requirement::make_and(vec![req, can_leave_charged.requirement.clone()]));
+            }
+    
+            let out = Requirement::make_or(req_vec);
+            out    
+        } else {
+            println!("In canComeInCharged, ({}, {}) is not door node?", room_id, node_id);
+            Requirement::Never
+        }
+    }
+
+    fn preprocess_adjacent_runway(
+        &self,
+        room_id: RoomId,
+        node_id: NodeId,
+        used_tiles: f32,
+        use_frames: Option<i32>,
+        physics: &Option<String>,
+        _link: &Link,
+    ) -> Requirement {
+        let (other_room_id, other_node_id) = self.door_map[&(room_id, node_id)];
+        let runways = &self.game_data.node_runways_map[&(other_room_id, other_node_id)];
+        let mut req_vec: Vec<Requirement> = vec![];
+        for runway in runways {
+            // println!(
+            //     "  {}: length={}, physics={}, heated={}, req={:?}",
+            //     runway.name, runway.length, runway.physics, runway.heated, runway.requirement
+            // );
+            if (runway.length as f32) < used_tiles {
+                continue;
+            }
+            if let Some(physics_str) = physics.as_ref() {
+                if &runway.physics != physics_str {
+                    continue;
+                }
+            }
+            let mut reqs: Vec<Requirement> = vec![strip_heat_frames(&runway.requirement)];
+            if runway.heated {
+                if let Some(frames) = use_frames {
+                    reqs.push(Requirement::HeatFrames(frames));
+                } else {
+                    // TODO: Use a more accurate estimate (and take into account if we have SpeedBooster):
+                    let frames = used_tiles * 10.0 + 20.0;
+                    reqs.push(Requirement::HeatFrames(frames as i32));
+                }
+            }
+            req_vec.push(Requirement::make_and(reqs));
+        }
+        let out = Requirement::make_or(req_vec);
+        // println!(
+        //     "{}: used_tiles={}, use_frames={:?}, physics={:?}, {:?}",
+        //     _link.strat_name, used_tiles, use_frames, physics, out
+        // );
+        out
+    }
+}
+
 impl<'r> Randomizer<'r> {
     pub fn new(
         map: &'r Map,
         difficulty_tiers: &'r [DifficultyConfig],
         game_data: &'r GameData,
     ) -> Randomizer<'r> {
-        let mut door_edges: Vec<(VertexId, VertexId)> = Vec::new();
+        let preprocessor = Preprocessor::new(game_data, map);
+        let mut links: Vec<Link> = game_data
+            .links
+            .iter()
+            .map(|x| preprocessor.preprocess_link(x))
+            .collect();
         for door in &map.doors {
             let src_exit_ptr = door.0 .0;
             let src_entrance_ptr = door.0 .1;
@@ -153,32 +395,25 @@ impl<'r> Randomizer<'r> {
                 game_data.door_ptr_pair_map[&(src_exit_ptr, src_entrance_ptr)];
             let (dst_room_id, dst_node_id) =
                 game_data.door_ptr_pair_map[&(dst_exit_ptr, dst_entrance_ptr)];
-            for obstacle_bitmask in 0..(1 << game_data.room_num_obstacles[&src_room_id]) {
-                let src_vertex_id = game_data.vertex_isv.index_by_key
-                    [&(src_room_id, src_node_id, obstacle_bitmask)];
-                let dst_vertex_id =
-                    game_data.vertex_isv.index_by_key[&(dst_room_id, dst_node_id, 0)];
-                door_edges.push((src_vertex_id, dst_vertex_id));
-            }
+
+            add_door_links(
+                src_room_id,
+                src_node_id,
+                dst_room_id,
+                dst_node_id,
+                game_data,
+                &mut links,
+            );
             if bidirectional {
-                for obstacle_bitmask in 0..(1 << game_data.room_num_obstacles[&dst_room_id]) {
-                    let src_vertex_id =
-                        game_data.vertex_isv.index_by_key[&(src_room_id, src_node_id, 0)];
-                    let dst_vertex_id = game_data.vertex_isv.index_by_key
-                        [&(dst_room_id, dst_node_id, obstacle_bitmask)];
-                    door_edges.push((dst_vertex_id, src_vertex_id));
-                }
+                add_door_links(
+                    dst_room_id,
+                    dst_node_id,
+                    src_room_id,
+                    src_node_id,
+                    game_data,
+                    &mut links,
+                );
             }
-        }
-        let mut links = game_data.links.clone();
-        for &(from_vertex_id, to_vertex_id) in &door_edges {
-            links.push(Link {
-                from_vertex_id,
-                to_vertex_id,
-                requirement: game_data::Requirement::Free,
-                strat_name: "(Door transition)".to_string(),
-                strat_notes: vec![],
-            })
         }
 
         let mut initial_items_remaining: Vec<usize> = vec![1; game_data.item_isv.keys.len()];
@@ -308,8 +543,8 @@ impl<'r> Randomizer<'r> {
             .iter()
             .copied()
             .filter(|&item| {
-                state.items_remaining[item as usize] == self.initial_items_remaining[item as usize] ||
-                (item == Item::Missile && state.items_remaining[item as usize] > 0)
+                state.items_remaining[item as usize] == self.initial_items_remaining[item as usize]
+                    || (item == Item::Missile && state.items_remaining[item as usize] > 0)
             })
             .collect();
         let num_key_items_remaining = filtered_item_precedence.len();

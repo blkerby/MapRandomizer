@@ -47,7 +47,7 @@ fn main() -> Result<()> {
         max_reserves: 400,
         max_supers: 0,
         max_power_bombs: 0,
-        shine_charge_tiles: 32,
+        shine_charge_tiles: 32.0,
         weapon_mask,
     };
     let local_state = LocalState {
@@ -60,7 +60,7 @@ fn main() -> Result<()> {
     let reverse = false;
     let difficulty = DifficultyConfig {
         tech: vec![],
-        shine_charge_tiles: 32,
+        shine_charge_tiles: 32.0,
         progression_style: ProgressionStyle::Open,
         item_placement_style: ItemPlacementStyle::Neutral,
         item_priorities: vec![ItemPriorityGroup {

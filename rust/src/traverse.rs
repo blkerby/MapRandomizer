@@ -21,7 +21,7 @@ pub struct GlobalState {
     pub max_supers: Capacity,
     pub max_power_bombs: Capacity,
     pub weapon_mask: WeaponMask,
-    pub shine_charge_tiles: Capacity,
+    pub shine_charge_tiles: f32,
 }
 
 impl GlobalState {
@@ -668,7 +668,7 @@ pub fn apply_requirement(
             shinespark_frames,
             shinespark_tech_id,
         } => {
-            if global.tech[*shinespark_tech_id]
+            if (global.tech[*shinespark_tech_id] || *shinespark_frames == 0)
                 && global.items[Item::SpeedBooster as usize]
                 && *used_tiles >= global.shine_charge_tiles
             {
@@ -692,6 +692,8 @@ pub fn apply_requirement(
                 None
             }
         }
+        Requirement::AdjacentRunway { .. } => panic!("AdjacentRunway should be resolved during preprocessing"),
+        Requirement::CanComeInCharged { .. } => panic!("CanComeInCharged should be resolved during preprocessing"),
         Requirement::And(reqs) => {
             let mut new_local = local;
             if reverse {
