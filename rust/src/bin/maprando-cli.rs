@@ -115,7 +115,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
     let difficulty = DifficultyConfig {
         tech: game_data.tech_isv.keys.clone(),
         // tech,
-        shine_charge_tiles: 16,
+        shine_charge_tiles: 16.0,
         // shine_charge_tiles: 32,
         progression_style: ProgressionStyle::Open,
         item_placement_style: ItemPlacementStyle::Neutral,

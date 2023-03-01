@@ -1,4 +1,3 @@
-use std::cmp::max;
 use std::path::{Path, PathBuf};
 use std::time::SystemTime;
 
@@ -26,7 +25,7 @@ use rand::{RngCore, SeedableRng};
 use sailfish::TemplateOnce;
 use serde_derive::{Deserialize, Serialize};
 
-const VERSION: usize = 41;
+const VERSION: usize = 42;
 
 #[derive(Serialize, Deserialize, Clone)]
 struct Preset {
@@ -143,7 +142,7 @@ struct RandomizeRequest {
     progression_style: Text<String>,
     item_placement_style: Text<String>,
     preset: Option<Text<String>>,
-    shinespark_tiles: Text<usize>,
+    shinespark_tiles: Text<f32>,
     resource_multiplier: Text<f32>,
     phantoon_proficiency: Text<f32>,
     draygon_proficiency: Text<f32>,
@@ -484,9 +483,9 @@ fn get_difficulty_tiers(
         // TODO: move some fields out of here so we don't have clone as much irrelevant stuff:
         let new_difficulty = DifficultyConfig {
             tech: tech_vec,
-            shine_charge_tiles: max(
+            shine_charge_tiles: f32::max(
                 difficulty.shine_charge_tiles,
-                preset.shinespark_tiles as i32,
+                preset.shinespark_tiles as f32,
             ),
             progression_style: difficulty.progression_style,
             item_placement_style: difficulty.item_placement_style,
@@ -527,8 +526,6 @@ fn get_difficulty_tiers(
 }
 
 fn get_item_priorities(item_priority_json: serde_json::Value) -> Vec<ItemPriorityGroup> {
-    println!("json: {:?}", item_priority_json);
-
     let mut priorities: IndexedVec<String> = IndexedVec::default();
     priorities.add("Early");
     priorities.add("Default");
@@ -596,7 +593,7 @@ async fn randomize(
         serde_json::from_str(&req.item_priority_json.0).unwrap();
     let difficulty = DifficultyConfig {
         tech: tech_vec,
-        shine_charge_tiles: req.shinespark_tiles.0 as i32,
+        shine_charge_tiles: req.shinespark_tiles.0,
         progression_style: match req.progression_style.0.as_str() {
             "Open" => maprando::randomize::ProgressionStyle::Open,
             "Semiclosed" => maprando::randomize::ProgressionStyle::Semiclosed,
@@ -640,7 +637,7 @@ async fn randomize(
     rng_seed[..8].copy_from_slice(&random_seed.to_le_bytes());
     rng_seed[9] = if race_mode { 1 } else { 0 };
     let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
-    let max_attempts = 100;
+    let max_attempts = 200;
     let mut attempt_num = 0;
     let randomization: Randomization;
     // info!(

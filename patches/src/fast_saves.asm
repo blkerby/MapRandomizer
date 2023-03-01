@@ -1,8 +1,7 @@
 lorom
 
 ; Skip save confirmation message box:
-org $848CF3
-    nop : nop : nop         ;$84:8CF3 A9 17 00    LDA #$0017             ;\
+org $848CF6
     nop : nop : nop : nop   ;$84:8CF6 22 80 80 85 JSL $858080[$85:8080]  ;} Display save confirmation message box
     nop : nop : nop         ;$84:8CFA C9 02 00    CMP #$0002             ;\
     nop : nop               ;$84:8CFD F0 33       BEQ $33    [$8D32]     ;} If [save confirmation selection] != no:
