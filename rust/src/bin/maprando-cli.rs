@@ -119,10 +119,16 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         // shine_charge_tiles: 32,
         progression_style: ProgressionStyle::Open,
         item_placement_style: ItemPlacementStyle::Neutral,
-        item_priorities: vec![ItemPriorityGroup {
-            name: "Default".to_string(),
-            items: game_data.item_isv.keys.clone(),
-        }],
+        item_priorities: vec![
+            ItemPriorityGroup {
+                name: "Default".to_string(),
+                items: game_data.item_isv.keys.iter().filter(|x| x != &"Varia" && x != &"Gravity").cloned().collect(),
+            },
+            ItemPriorityGroup {
+                name: "Late".to_string(),
+                items: vec!["Varia".to_string(), "Gravity".to_string()],
+            }
+        ],
         resource_multiplier: 1.0,
         escape_timer_multiplier: 1.0,
         save_animals: false,

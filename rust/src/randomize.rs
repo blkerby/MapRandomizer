@@ -149,7 +149,10 @@ fn add_door_links(
     for obstacle_bitmask in 0..(1 << game_data.room_num_obstacles[&src_room_id]) {
         let from_vertex_id =
             game_data.vertex_isv.index_by_key[&(src_room_id, src_node_id, obstacle_bitmask)];
-        let dst_node_id_spawn = *game_data.node_spawn_at_map.get(&(dst_room_id, dst_node_id)).unwrap_or(&dst_node_id);
+        let dst_node_id_spawn = *game_data
+            .node_spawn_at_map
+            .get(&(dst_room_id, dst_node_id))
+            .unwrap_or(&dst_node_id);
         let to_vertex_id = game_data.vertex_isv.index_by_key[&(dst_room_id, dst_node_id_spawn, 0)];
 
         links.push(Link {
@@ -268,9 +271,10 @@ impl<'a> Preprocessor<'a> {
         if let Some(&(other_room_id, other_node_id)) = self.door_map.get(&(room_id, node_id)) {
             let runways = &self.game_data.node_runways_map[&(room_id, node_id)];
             let other_runways = &self.game_data.node_runways_map[&(other_room_id, other_node_id)];
-            let can_leave_charged_vec = &self.game_data.node_can_leave_charged_map[&(other_room_id, other_node_id)];
+            let can_leave_charged_vec =
+                &self.game_data.node_can_leave_charged_map[&(other_room_id, other_node_id)];
             let mut req_vec: Vec<Requirement> = vec![];
-    
+
             // Strats for in-room runways:
             for runway in runways {
                 let req = Requirement::ShineCharge {
@@ -280,7 +284,7 @@ impl<'a> Preprocessor<'a> {
                 };
                 req_vec.push(Requirement::make_and(vec![req, runway.requirement.clone()]));
             }
-    
+
             // Strats for other-room runways:
             for runway in other_runways {
                 let req = Requirement::ShineCharge {
@@ -290,7 +294,7 @@ impl<'a> Preprocessor<'a> {
                 };
                 req_vec.push(Requirement::make_and(vec![req, runway.requirement.clone()]));
             }
-    
+
             // Strats for cross-room combined runways:
             for runway in runways {
                 if !runway.usable_coming_in {
@@ -303,10 +307,14 @@ impl<'a> Preprocessor<'a> {
                         used_tiles: used_tiles as f32,
                         shinespark_frames,
                     };
-                    req_vec.push(Requirement::make_and(vec![req, runway.requirement.clone(), other_runway.requirement.clone()]));
+                    req_vec.push(Requirement::make_and(vec![
+                        req,
+                        runway.requirement.clone(),
+                        other_runway.requirement.clone(),
+                    ]));
                 }
             }
-    
+
             // Strats for canLeaveCharged from other room:
             for can_leave_charged in can_leave_charged_vec {
                 if can_leave_charged.frames_remaining < frames_remaining {
@@ -315,15 +323,22 @@ impl<'a> Preprocessor<'a> {
                 let req = Requirement::ShineCharge {
                     shinespark_tech_id,
                     used_tiles: can_leave_charged.used_tiles as f32,
-                    shinespark_frames: shinespark_frames + can_leave_charged.shinespark_frames.unwrap_or(0),
+                    shinespark_frames: shinespark_frames
+                        + can_leave_charged.shinespark_frames.unwrap_or(0),
                 };
-                req_vec.push(Requirement::make_and(vec![req, can_leave_charged.requirement.clone()]));
+                req_vec.push(Requirement::make_and(vec![
+                    req,
+                    can_leave_charged.requirement.clone(),
+                ]));
             }
-    
+
             let out = Requirement::make_or(req_vec);
-            out    
+            out
         } else {
-            println!("In canComeInCharged, ({}, {}) is not door node?", room_id, node_id);
+            println!(
+                "In canComeInCharged, ({}, {}) is not door node?",
+                room_id, node_id
+            );
             Requirement::Never
         }
     }
@@ -910,6 +925,7 @@ impl<'r> Randomizer<'r> {
                 key_items_to_place = select_res.key_items;
                 other_items_to_place = select_res.other_items;
 
+                // info!("Trying placing {:?}", key_items_to_place);
                 for &item in placed_uncollected_bireachable_items.iter().chain(
                     key_items_to_place
                         .iter()
@@ -953,10 +969,16 @@ impl<'r> Randomizer<'r> {
                 // cases where the player would gain access to very large areas that they cannot return from:
                 let one_way_reachable_limit = 20;
 
-                if num_one_way_reachable < one_way_reachable_limit
-                    && iter::zip(&new_state.item_location_state, &state.item_location_state)
-                        .any(|(n, o)| n.bireachable && !o.reachable)
-                {
+                let gives_expansion =
+                    if self.difficulty_tiers[0].progression_style == ProgressionStyle::Open {
+                        iter::zip(&new_state.item_location_state, &state.item_location_state)
+                            .any(|(n, o)| n.bireachable && !o.bireachable)
+                    } else {
+                        iter::zip(&new_state.item_location_state, &state.item_location_state)
+                            .any(|(n, o)| n.bireachable && !o.reachable)
+                    };
+
+                if num_one_way_reachable < one_way_reachable_limit && gives_expansion {
                     // Progress: the new items unlock at least one bireachable item location that wasn't reachable before.
                     break;
                 }
