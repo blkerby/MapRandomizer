@@ -1,7 +1,11 @@
 priority:
-  - fix map
+  - fix map wrap-around
+  - tweak balancing:
+    - give a little more weight to save coverage
+    - give a little less weight to hallway penalty
   - cross-room strats
     - in adjacentRunway, handle "water" physics being satisfiable by Gravity
+      - look into this
     - for adjacentRunway, make strat go from vertex in adjacent room (in case spawnAt makes it inaccessible)
 
 later:
