@@ -34,9 +34,9 @@ start_game:
     ;    stz $078B : stz $079f : stz $1f5b
 
     ; temporary extra stuff:
-;    lda #$F32F
+    lda #$F32F
 ;    lda #$E32F  ; (except Bombs)
-    lda #$332F  ; (except Grapple and XRay)
+;    lda #$332F  ; (except Grapple and XRay)
     sta $09A2   ; all items equipped
     sta $09A4   ; all items collected
     lda #$100b
