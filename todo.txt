@@ -1,5 +1,6 @@
 priority:
   - fix map wrap-around
+  - in Open mode: fix check for item progression to give new bireachable location with unplaced item, instead of new bireachable location that wasn't reachable before.
   - tweak balancing:
     - give a little more weight to save coverage
     - give a little less weight to hallway penalty
