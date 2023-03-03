@@ -1,13 +1,10 @@
 priority:
-  - fix map wrap-around
-  - in Open mode: fix check for item progression to give new bireachable location with unplaced item, instead of new bireachable location that wasn't reachable before.
-  - tweak balancing:
-    - give a little more weight to save coverage
-    - give a little less weight to hallway penalty
+  - fix zebes awake.
   - cross-room strats
+    - for adjacentRunway, make strat go from vertex in adjacent room (in case spawnAt makes it inaccessible)
+      - careful to take obstacles into account
     - in adjacentRunway, handle "water" physics being satisfiable by Gravity
       - look into this
-    - for adjacentRunway, make strat go from vertex in adjacent room (in case spawnAt makes it inaccessible)
 
 later:
   - refine cross room shinesparks:
@@ -21,11 +18,18 @@ later:
   - music options
   - sprite customization (?),
   - integrate Selicre's interactive spoiler map
-
-
+  - tweak balancing:
+    - give a little more weight to save coverage
+    - give a little less weight to hallway penalty
+  - consider overhauling how cross-room logic is encoded:
+    - canComeInCharged should be in a special part of the "node" (symmetric to "canLeaveCharged"), not in "links"
+    - same thing for adjacentRunway
+    - since "can" sounds like a tech, maybe we should rename these "enterCharged", "enterWithRunway", etc. (later we can have
+      "enterWithSpeedball" and other things), and symmetrically, "exitCharged", "exitWithSpeedball", etc.
+    - This is cleaner, reduces need for preprocessing, and would cut out the possibility of expressing invalid things
+      like requiring multiple adjacentRunway from different nodes in the same strat.
 
 TODO:
-
 - option to have items still spawn when Phantoon alive or Zebes asleep
 - maybe speed up shaktool? (but without messing up the initial power bomb)
 - fix bug where suit color does not change when changing suits while taking damage (e.g. lava dive)?

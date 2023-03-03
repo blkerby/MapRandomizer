@@ -718,7 +718,7 @@ fn init_presets(presets: Vec<Preset>, game_data: &GameData) -> Vec<PresetData> {
     let ignored_tech: HashSet<String> = [
         "canWallIceClip",
         "canGrappleClip",
-        "canUseSpeedEchoes",
+        "canShinesparkWithReserve",
         "canSamusEaterStandUp",
         "canRiskPermanentLossOfAccess",
     ]

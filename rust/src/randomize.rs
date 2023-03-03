@@ -243,6 +243,7 @@ impl<'a> Preprocessor<'a> {
                 *node_id,
                 *frames_remaining,
                 *shinespark_frames,
+                link
             ),
             Requirement::And(sub_reqs) => Requirement::make_and(
                 sub_reqs
@@ -267,6 +268,7 @@ impl<'a> Preprocessor<'a> {
         node_id: NodeId,
         frames_remaining: i32,
         shinespark_frames: i32,
+        _link: &Link,
     ) -> Requirement {
         if let Some(&(other_room_id, other_node_id)) = self.door_map.get(&(room_id, node_id)) {
             let runways = &self.game_data.node_runways_map[&(room_id, node_id)];
@@ -275,8 +277,26 @@ impl<'a> Preprocessor<'a> {
                 &self.game_data.node_can_leave_charged_map[&(other_room_id, other_node_id)];
             let mut req_vec: Vec<Requirement> = vec![];
 
+            // println!("Link strat: {}", _link.strat_name);
+            // println!("frames_remaining={frames_remaining}, shinespark_frames={shinespark_frames}");
+            // println!("In-room runways:");
+            // for runway in runways {
+            //     println!("{:?}", runway);
+            // }
+            // println!("Other-room runways:");
+            // for runway in other_runways {
+            //     println!("{:?}", runway);
+            // }
+            // println!("canLeaveCharged:");
+            // for can_leave_charged in can_leave_charged_vec {
+            //     println!("{:?}", can_leave_charged);
+            // }
+
             // Strats for in-room runways:
             for runway in runways {
+                if runway.length < 15 {
+                    continue;
+                }
                 let req = Requirement::ShineCharge {
                     shinespark_tech_id,
                     used_tiles: runway.length as f32,
@@ -287,6 +307,9 @@ impl<'a> Preprocessor<'a> {
 
             // Strats for other-room runways:
             for runway in other_runways {
+                if runway.length < 15 {
+                    continue;
+                }
                 let req = Requirement::ShineCharge {
                     shinespark_tech_id,
                     used_tiles: runway.length as f32,
@@ -302,6 +325,9 @@ impl<'a> Preprocessor<'a> {
                 }
                 for other_runway in other_runways {
                     let used_tiles = runway.length + other_runway.length - 1;
+                    if used_tiles < 15 {
+                        continue;
+                    }
                     let req = Requirement::ShineCharge {
                         shinespark_tech_id,
                         used_tiles: used_tiles as f32,
@@ -332,6 +358,7 @@ impl<'a> Preprocessor<'a> {
                 ]));
             }
 
+            // println!("Strats: {:?}\n", req_vec);
             let out = Requirement::make_or(req_vec);
             out
         } else {
@@ -353,23 +380,31 @@ impl<'a> Preprocessor<'a> {
         override_runway_requirements: bool,
         _link: &Link,
     ) -> Requirement {
+        println!("{} {} {}", room_id, node_id, _link.strat_name);
         let (other_room_id, other_node_id) = self.door_map[&(room_id, node_id)];
         let runways = &self.game_data.node_runways_map[&(other_room_id, other_node_id)];
         let mut req_vec: Vec<Requirement> = vec![];
         for runway in runways {
-            println!(
-                "  {}: length={}, physics={}, heated={}, req={:?}",
-                runway.name, runway.length, runway.physics, runway.heated, runway.requirement
-            );
-            if (runway.length as f32) < used_tiles {
+            let effective_length = runway.length as f32 + runway.open_end as f32 * 0.5;
+            // println!(
+            //     "  {}: length={}, open_end={}, physics={}, heated={}, req={:?}",
+            //     runway.name, runway.length, runway.open_end, runway.physics, runway.heated, runway.requirement
+            // );
+            if effective_length < used_tiles {
                 continue;
             }
+            let mut reqs: Vec<Requirement> = vec![];
             if let Some(physics_str) = physics.as_ref() {
-                if &runway.physics != physics_str {
+                if physics_str == "normal" {
+                    if runway.physics == "water" {
+                        reqs.push(Requirement::Item(Item::Gravity as usize));
+                    } else if runway.physics != "air" {
+                        continue;
+                    }
+                } else if &runway.physics != physics_str {
                     continue;
                 }
             }
-            let mut reqs: Vec<Requirement> = vec![];
             if override_runway_requirements {
                 if runway.heated {
                     if let Some(frames) = use_frames {
@@ -386,10 +421,10 @@ impl<'a> Preprocessor<'a> {
             req_vec.push(Requirement::make_and(reqs));
         }
         let out = Requirement::make_or(req_vec);
-        println!(
-            "{}: used_tiles={}, use_frames={:?}, physics={:?}, {:?}",
-            _link.strat_name, used_tiles, use_frames, physics, out
-        );
+        // println!(
+        //     "{}: used_tiles={}, use_frames={:?}, physics={:?}, {:?}",
+        //     _link.strat_name, used_tiles, use_frames, physics, out
+        // );
         out
     }
 }
