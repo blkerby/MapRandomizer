@@ -50,27 +50,27 @@ pub struct IndexedVec<T: Hash + Eq> {
 #[repr(usize)]
 // Note: the ordering of these items is significant; it must correspond to the ordering of PLM types:
 pub enum Item {
-    ETank,          // 0
-    Missile,        // 1
-    Super,          // 2
-    PowerBomb,      // 3
-    Bombs,          // 4
-    Charge,         // 5
-    Ice,            // 6
-    HiJump,         // 7
-    SpeedBooster,   // 8
-    Wave,           // 9
-    Spazer,         // 10
-    SpringBall,     // 11
-    Varia,          // 12
-    Gravity,        // 13
-    XRayScope,      // 14
-    Plasma,         // 15
-    Grapple,        // 16
-    SpaceJump,      // 17
-    ScrewAttack,    // 18
-    Morph,          // 19
-    ReserveTank,    // 20
+    ETank,        // 0
+    Missile,      // 1
+    Super,        // 2
+    PowerBomb,    // 3
+    Bombs,        // 4
+    Charge,       // 5
+    Ice,          // 6
+    HiJump,       // 7
+    SpeedBooster, // 8
+    Wave,         // 9
+    Spazer,       // 10
+    SpringBall,   // 11
+    Varia,        // 12
+    Gravity,      // 13
+    XRayScope,    // 14
+    Plasma,       // 15
+    Grapple,      // 16
+    SpaceJump,    // 17
+    ScrewAttack,  // 18
+    Morph,        // 19
+    ReserveTank,  // 20
 }
 
 impl Item {
@@ -191,12 +191,14 @@ pub struct Runway {
     // TODO: add more details like slopes, openEnd
     pub name: String,
     pub length: i32,
+    pub open_end: i32,
     pub requirement: Requirement,
     pub physics: String,
     pub heated: bool,
     pub usable_coming_in: bool,
 }
 
+#[derive(Debug)]
 pub struct CanLeaveCharged {
     // TODO: add more details like slopes, openEnd
     pub frames_remaining: i32,
@@ -320,10 +322,11 @@ fn read_json(path: &Path) -> Result<JsonValue> {
 }
 
 #[derive(Default)]
-struct RequirementContext {
+struct RequirementContext<'a> {
     room_id: RoomId,
-    _from_node_id: NodeId,  // Usable for debugging
+    _from_node_id: NodeId, // Usable for debugging
     from_obstacles_bitmask: ObstacleMask,
+    obstacles_idx_map: Option<&'a HashMap<String, usize>>,
 }
 
 impl GameData {
@@ -625,7 +628,9 @@ impl GameData {
                     .expect(&format!("invalid draygonElectricityFrames in {}", req_json));
                 return Ok(Requirement::Damage(frames));
             } else if key == "samusEaterFrames" {
-                let frames = value.as_i32().expect(&format!("invalid samusEaterFrames in {}", req_json));
+                let frames = value
+                    .as_i32()
+                    .expect(&format!("invalid samusEaterFrames in {}", req_json));
                 return Ok(Requirement::Damage(frames / 8));
             } else if key == "spikeHits" {
                 let hits = value
@@ -731,6 +736,23 @@ impl GameData {
             } else if key == "previousStratProperty" {
                 // This is only used in one place in Crumble Shaft, where it doesn't seem to be necessary.
                 return Ok(Requirement::Free);
+            } else if key == "obstaclesCleared" {
+                ensure!(value.is_array());
+                for obstacle_name_json in value.members() {
+                    let obstacle_name = obstacle_name_json.as_str().unwrap();
+                    if let Some(obstacle_idx) = ctx
+                        .obstacles_idx_map
+                        .context("obstaclesCleared requires obstacles_idx_map in context")?
+                        .get(obstacle_name)
+                    {
+                        if (1 << obstacle_idx) & ctx.from_obstacles_bitmask == 0 {
+                            return Ok(Requirement::Never);
+                        }
+                    } else {
+                        bail!("Obstacle name {} not found", obstacle_name);
+                    }
+                }
+                return Ok(Requirement::Free);
             } else if key == "adjacentRunway" {
                 if ctx.from_obstacles_bitmask != 0 {
                     return Ok(Requirement::Never);
@@ -751,17 +773,22 @@ impl GameData {
                     None
                 };
                 let mut unlocked_node_id = value["fromNode"].as_usize().unwrap();
-                if self.unlocked_node_map.contains_key(&(ctx.room_id, unlocked_node_id)) {
+                if self
+                    .unlocked_node_map
+                    .contains_key(&(ctx.room_id, unlocked_node_id))
+                {
                     unlocked_node_id = self.unlocked_node_map[&(ctx.room_id, unlocked_node_id)];
                 }
-        
+
                 return Ok(Requirement::AdjacentRunway {
                     room_id: ctx.room_id,
                     node_id: unlocked_node_id,
                     used_tiles: value["usedTiles"].as_f32().unwrap(),
                     use_frames,
                     physics: physics,
-                    override_runway_requirements: value["overrideRunwayRequirements"].as_bool().unwrap_or(false),
+                    override_runway_requirements: value["overrideRunwayRequirements"]
+                        .as_bool()
+                        .unwrap_or(false),
                 });
             } else if key == "canComeInCharged" {
                 if ctx.from_obstacles_bitmask != 0 {
@@ -774,11 +801,14 @@ impl GameData {
                     .as_i32()
                     .with_context(|| format!("missing/invalid shinesparkFrames in {}", req_json))?;
                 // if value["fromNode"].as_usize().unwrap() != ctx.src_node_id {
-                //     println!("In roomId={}, canComeInCharged fromNode={}, from nodeId={}", ctx.room_id, 
+                //     println!("In roomId={}, canComeInCharged fromNode={}, from nodeId={}", ctx.room_id,
                 //         value["fromNode"].as_usize().unwrap(), ctx.src_node_id);
                 // }
                 let mut unlocked_node_id = value["fromNode"].as_usize().unwrap();
-                if self.unlocked_node_map.contains_key(&(ctx.room_id, unlocked_node_id)) {
+                if self
+                    .unlocked_node_map
+                    .contains_key(&(ctx.room_id, unlocked_node_id))
+                {
                     unlocked_node_id = self.unlocked_node_map[&(ctx.room_id, unlocked_node_id)];
                 }
                 return Ok(Requirement::CanComeInCharged {
@@ -986,7 +1016,9 @@ impl GameData {
                 unlocked_node_json["id"] = next_node_id.into();
                 self.unlocked_node_map
                     .insert((room_id, node_id), next_node_id.into());
-                unlocked_node_json["name"] = JsonValue::String(base_node_name + " (unlocked)");
+                unlocked_node_json["spawnAt"] = node_id.into();
+                unlocked_node_json["name"] =
+                    JsonValue::String(base_node_name.clone() + " (unlocked)");
                 if yields != JsonValue::Null {
                     unlocked_node_json["yields"] = yields.clone();
                 }
@@ -1006,6 +1038,15 @@ impl GameData {
                             ]
                         }
                     ];
+                }
+
+                if lock.has_key("lock") {
+                    ensure!(lock["lock"].is_array());
+                    for strat in &mut unlock_strats.members_mut() {
+                        for req in lock["lock"].members() {
+                            strat["requires"].push(req.clone())?;
+                        }
+                    }
                 }
 
                 let mut link_forward = json::object! {
@@ -1177,6 +1218,10 @@ impl GameData {
         bail!("No match for node {} in roomEnvironments", node_id);
     }
 
+    // fn get_origin_node(&self, requirement_json: &JsonValue) -> Option<NodeId> {
+
+    // }
+
     fn process_room(&mut self, room_json: &JsonValue) -> Result<()> {
         let room_id = room_json["id"].as_usize().unwrap();
         self.room_json_map.insert(room_id, room_json.clone());
@@ -1255,10 +1300,13 @@ impl GameData {
                             let runway = Runway {
                                 name: runway_json["name"].as_str().unwrap().to_string(),
                                 length: runway_json["length"].as_i32().unwrap(),
+                                open_end: runway_json["openEnd"].as_i32().unwrap(),
                                 requirement,
                                 physics,
                                 heated,
-                                usable_coming_in: runway_json["usableComingIn"].as_bool().unwrap_or(true),
+                                usable_coming_in: runway_json["usableComingIn"]
+                                    .as_bool()
+                                    .unwrap_or(true),
                             };
                             runway_vec.push(runway);
                         }
@@ -1313,7 +1361,8 @@ impl GameData {
 
             if node_json.has_key("spawnAt") {
                 let spawn_node_id = node_json["spawnAt"].as_usize().unwrap();
-                self.node_spawn_at_map.insert((room_id, node_id), spawn_node_id);
+                self.node_spawn_at_map
+                    .insert((room_id, node_id), spawn_node_id);
             }
             if node_json.has_key("utility") {
                 let utility = &node_json["utility"];
@@ -1416,8 +1465,12 @@ impl GameData {
                             &obstacles_idx_map,
                             &mut requires_json,
                         )?;
-                        let ctx = RequirementContext { room_id, _from_node_id: from_node_id, 
-                            from_obstacles_bitmask };
+                        let ctx = RequirementContext {
+                            room_id,
+                            _from_node_id: from_node_id,
+                            from_obstacles_bitmask,
+                            obstacles_idx_map: Some(&obstacles_idx_map),
+                        };
                         let requirement =
                             Requirement::make_and(self.parse_requires_list(&requires_json, &ctx)?);
                         let from_vertex_id = self.vertex_isv.index_by_key

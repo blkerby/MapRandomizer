@@ -626,11 +626,11 @@ impl<'a> Patcher<'a> {
             let new_area = self.map.area[i];
             let new_base_ptr = self.game_data.area_map_ptrs[new_area];
             let new_margin_x = (64 - (area_map_max_x[new_area] - area_map_min_x[new_area])) / 2;
-            let new_margin_y = (32 - (area_map_max_y[new_area] - area_map_min_y[new_area])) / 2;
+            let new_margin_y = (32 - (area_map_max_y[new_area] - area_map_min_y[new_area])) / 2 - 1;
             let new_base_x = self.map.rooms[i].0 as isize - area_map_min_x[new_area] + new_margin_x;
             let new_base_y = self.map.rooms[i].1 as isize - area_map_min_y[new_area] + new_margin_y;
             assert!(new_base_x >= 2);
-            assert!(new_base_y >= 1);
+            assert!(new_base_y >= 0);
             self.rom.write_u8(room.rom_address + 2, new_base_x)?;
             self.rom.write_u8(room.rom_address + 3, new_base_y)?;
             for y in 0..room.map.len() {
