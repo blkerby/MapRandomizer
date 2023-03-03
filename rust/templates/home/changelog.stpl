@@ -3,7 +3,7 @@
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-42---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 42 (???)</a>:
+<p><a href="https://version-42---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 42 (2023-03-03)</a>:
 <ul>
 <li>Escape timer base rate is reduced from 1.8 to 1.6 seconds per screen, and adjustments are made
 for elevators and speedways.
@@ -24,6 +24,7 @@ for elevators and speedways.
             This includes jumping through a door from a non-water environment to a water environment, to retain 
             extra momentum similar to a Gravity jump.
         </ul>
+    <li>Shinespark energy requirements are relaxed in cases where Samus goes far enough even when stopped by reaching 29 energy.
     <li>Added tech:
         <ul>
         <li>canCarefulJump, canCrossRoomJumpIntoWater, canMidairShinespark, canShinechargeMovement, canShinechargeMovementComplex, canMidairWiggle

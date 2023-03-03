@@ -97,7 +97,7 @@ pub enum Requirement {
         shinespark_tech_id: usize,
         used_tiles: f32,
         shinespark_frames: i32,
-        // excess_shinespark_frames: i32,
+        excess_shinespark_frames: i32,
     },
     HeatFrames(i32),
     LavaFrames(i32),
@@ -140,7 +140,7 @@ pub enum Requirement {
         node_id: NodeId,
         frames_remaining: i32,
         shinespark_frames: i32,
-        // excess_shinespark_frames: i32,
+        excess_shinespark_frames: i32,
     },
     And(Vec<Requirement>),
     Or(Vec<Requirement>),
@@ -595,10 +595,14 @@ impl GameData {
                 let shinespark_frames = value["shinesparkFrames"]
                     .as_i32()
                     .expect(&format!("missing/invalid shinesparkFrames in {}", req_json));
+                let excess_shinespark_frames = value["excessShinesparkFrames"]
+                    .as_i32()
+                    .unwrap_or(0);
                 // TODO: take slopes into account
                 return Ok(Requirement::ShineCharge {
                     used_tiles,
                     shinespark_frames,
+                    excess_shinespark_frames,
                     shinespark_tech_id: self.tech_isv.index_by_key["canShinespark"],
                 });
             } else if key == "heatFrames" {
@@ -800,6 +804,9 @@ impl GameData {
                 let shinespark_frames = value["shinesparkFrames"]
                     .as_i32()
                     .with_context(|| format!("missing/invalid shinesparkFrames in {}", req_json))?;
+                let excess_shinespark_frames = value["excessShinesparkFrames"]
+                    .as_i32()
+                    .unwrap_or(0);
                 // if value["fromNode"].as_usize().unwrap() != ctx.src_node_id {
                 //     println!("In roomId={}, canComeInCharged fromNode={}, from nodeId={}", ctx.room_id,
                 //         value["fromNode"].as_usize().unwrap(), ctx.src_node_id);
@@ -818,6 +825,7 @@ impl GameData {
                     // node_id: ctx.src_node_id,
                     frames_remaining,
                     shinespark_frames,
+                    excess_shinespark_frames,
                 });
                 // return Ok(Requirement::Never);
             }
