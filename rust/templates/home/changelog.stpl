@@ -5,7 +5,9 @@ about 15 seconds to load.
 
 <p><a href="https://version-42---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 42 (???)</a>:
 <ul>
-<li>The two item dot quality-of-life options are replaced with a single, improved quality-of-life option, featuring markers for three tiers of items:
+<li>Escape timer base rate is reduced from 1.8 to 1.6 seconds per screen, and adjustments are made
+for elevators and speedways.
+<li>Item dot quality-of-life options are replaced with a single quality-of-life option featuring three item marker types:
     <ul>
     <li>Solid large dots: Unique items
     <li>Hollow large dots: Supers, Power Bombs, E-Tanks, and Reserve Tanks
@@ -15,17 +17,16 @@ about 15 seconds to load.
     <ul>
     <li>Add cross-room strats:
         <ul>
-        <li>X-Ray climbs.
+        <li>X-Ray climbs are back (with many more strats than before).
         <li>Running through a door to gain extra space to charge a shinespark.
         <li>Charging a shinespark and using or carrying it into a neighboring room.
         <li>Using momentum through a horizontal door transition to execute a jump in (or into) the next room.
-            <ul>
-            <li>This includes jumps through a door from a non-water environment to a water environment, to retain extra momentum similar to a Gravity jump.
-            </ul>
+            This includes jumping through a door from a non-water environment to a water environment, to retain 
+            extra momentum similar to a Gravity jump.
         </ul>
     <li>Added tech:
         <ul>
-        <li>canCarefulJump, canCrossRoomJumpIntoWater, canShinechargeMovement, canMidairShinespark, canShinechargeMovementComplex, canMidairWiggle
+        <li>canCarefulJump, canCrossRoomJumpIntoWater, canMidairShinespark, canShinechargeMovement, canShinechargeMovementComplex, canMidairWiggle
         </ul>
     <li>Adjust how Open logic works: a key item is now considered to provide progression if it opens a return path from
     an item location that was already one-way-reachable. (We may apply a similar change to Semiclosed and Closed
@@ -37,11 +38,7 @@ about 15 seconds to load.
         <li>It increases the likelihood of key items being placed in locations that initially are only one-way reachable
         (meaning the player may need to be more careful not to be fooled into going after such items with no way out).
         </ul>
-    <li>Fixed a couple logic bugs:
-        <ul>
-        <li>Waking Zebes again now requires Morph + Missiles (as it does in the game).
-        <li>Beetom ice clip in Etecoon E-Tank Room now requires Morph (as it does in the game).
-        </ul>
+    <li>Fixed a couple logic bugs involving waking Zebes and the Beetom ice clip.
     </ul>
 <li>Save stations are disabled again during the escape (fixes a bug introduced in version 39).
 <li>Bug where tiles sometimes wrap around vertically on the pause map is (mostly) fixed.
