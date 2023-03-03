@@ -136,7 +136,95 @@ fn get_overrides() -> OverridesMap {
                 ((4, 7), 12),
             ],
         ),
-        ("Green Brinstar Main Shaft", vec![((4, 5), 10)]),
+        (
+            "Green Brinstar Main Shaft",
+            vec![
+                ((4, 5), 10),
+                // Shorten distances since timer is paused during elevator:
+                ((9, 0), 2),
+                ((9, 1), 3),
+                ((9, 2), 4),
+                ((9, 4), 8),
+                ((9, 5), 11),
+                ((9, 6), 2),
+                ((9, 7), 4),
+                ((9, 8), 5),
+            ],
+        ),
+        (
+            "Business Center",
+            vec![
+                ((6, 0), 1),
+                ((6, 1), 2),
+                ((6, 2), 3),
+                ((6, 3), 1),
+                ((6, 4), 3),
+                ((6, 5), 4),
+            ],
+        ),
+        (
+            "Morph Ball Room",
+            vec![
+                // Shorten distances since timer is paused during elevator:
+                ((2, 0), 6),
+                ((2, 1), 2),
+            ],
+        ),
+        (
+            "Tourian First Room",
+            vec![
+                // Shorten distances since timer is paused during elevator:
+                ((2, 0), 2),
+                ((2, 1), 2),
+            ],
+        ),
+        (
+            "Caterpillar Room",
+            vec![
+                // Shorten distances since timer is paused during elevator:
+                ((5, 0), 1),
+                ((5, 1), 3),
+                ((5, 2), 5),
+                ((5, 3), 3),
+                ((5, 4), 2),
+            ],
+        ),
+        (
+            "Maridia Elevator Room",
+            vec![
+                // Shorten distances since timer is paused during elevator:
+                ((2, 0), 3),
+                ((2, 1), 2),
+            ],
+        ),
+        (
+            "Main Hall",
+            vec![
+                ((2, 0), 4),
+                ((2, 1), 3),
+            ],
+        ),
+        (
+            // Shorten effective distance since high speed is attainable
+            "Frog Speedway",
+            vec![
+                ((0, 1), 3),
+            ],
+        ),
+        (
+            // Shorten effective distance since high speed is attainable
+            "Speed Booster Hall",
+            vec![
+                ((0, 1), 4),
+            ]
+        ),
+        (
+            // Shorten effective distance since high speed is attainable
+            "Crocomire Speedway",
+            vec![
+                ((0, 1), 5),
+            ],
+        ),
         ("Forgotten Highway Kago Room", vec![((0, 1), 6)]),
         (
             "Green Pirates Shaft",
@@ -272,18 +360,21 @@ fn get_overrides() -> OverridesMap {
         ("East Cactus Alley Room", vec![((0, 1), 8)]),
         ("Metroid Room 4", vec![((0, 1), 3)]),
         ("Tourian Escape Room 4", vec![((0, 1), 17)]),
-        ("Single Chamber", vec![
-            ((0, 1), 7),
-            ((0, 2), 3),
-            ((0, 3), 5),
-            ((0, 4), 7),
-            ((1, 2), 9),
-            ((1, 3), 11),
-            ((1, 4), 13),
-            ((2, 3), 3),
-            ((2, 4), 5),
-            ((3, 4), 3),
-        ]),
+        (
+            "Single Chamber",
+            vec![
+                ((0, 1), 7),
+                ((0, 2), 3),
+                ((0, 3), 5),
+                ((0, 4), 7),
+                ((1, 2), 9),
+                ((1, 3), 11),
+                ((1, 4), 13),
+                ((2, 3), 3),
+                ((2, 4), 5),
+                ((3, 4), 3),
+            ],
+        ),
     ];
     overrides
         .into_iter()
@@ -467,19 +558,24 @@ pub fn compute_escape_data(
     let ship_spoiler: Vec<SpoilerEscapeRouteEntry>;
     let distance: usize;
     if difficulty.save_animals {
-        let animals_path = get_shortest_path(graph.mother_brain_vertex_id, graph.animals_vertex_id, &graph);
+        let animals_path = get_shortest_path(
+            graph.mother_brain_vertex_id,
+            graph.animals_vertex_id,
+            &graph,
+        );
         animals_spoiler = Some(get_spoiler_escape_route(&animals_path, &graph, &game_data));
         let ship_path = get_shortest_path(graph.animals_vertex_id, graph.ship_vertex_id, &graph);
         ship_spoiler = get_spoiler_escape_route(&ship_path, &graph, &game_data);
         distance = animals_path.last().unwrap().1 + ship_path.last().unwrap().1;
     } else {
         animals_spoiler = None;
-        let ship_path = get_shortest_path(graph.mother_brain_vertex_id, graph.ship_vertex_id, &graph);
-        ship_spoiler = get_spoiler_escape_route(&ship_path, &graph, &game_data);    
+        let ship_path =
+            get_shortest_path(graph.mother_brain_vertex_id, graph.ship_vertex_id, &graph);
+        ship_spoiler = get_spoiler_escape_route(&ship_path, &graph, &game_data);
         distance = ship_path.last().unwrap().1;
     }
 
-    let time_per_distance: f32 = 1.8;
+    let time_per_distance: f32 = 1.6;
     let raw_time_seconds = distance as f32 * time_per_distance * difficulty.escape_timer_multiplier;
     let mut final_time_seconds = f32::ceil(raw_time_seconds / 5.0) * 5.0;
     if final_time_seconds > 5995.0 {
