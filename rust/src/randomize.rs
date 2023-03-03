@@ -237,12 +237,14 @@ impl<'a> Preprocessor<'a> {
                 node_id,
                 frames_remaining,
                 shinespark_frames,
+                excess_shinespark_frames,
             } => self.preprocess_can_come_in_charged(
                 *shinespark_tech_id,
                 *room_id,
                 *node_id,
                 *frames_remaining,
                 *shinespark_frames,
+                *excess_shinespark_frames,
                 link
             ),
             Requirement::And(sub_reqs) => Requirement::make_and(
@@ -268,6 +270,7 @@ impl<'a> Preprocessor<'a> {
         node_id: NodeId,
         frames_remaining: i32,
         shinespark_frames: i32,
+        excess_shinespark_frames: i32,
         _link: &Link,
     ) -> Requirement {
         if let Some(&(other_room_id, other_node_id)) = self.door_map.get(&(room_id, node_id)) {
@@ -301,6 +304,7 @@ impl<'a> Preprocessor<'a> {
                     shinespark_tech_id,
                     used_tiles: runway.length as f32,
                     shinespark_frames,
+                    excess_shinespark_frames,
                 };
                 req_vec.push(Requirement::make_and(vec![req, runway.requirement.clone()]));
             }
@@ -314,6 +318,7 @@ impl<'a> Preprocessor<'a> {
                     shinespark_tech_id,
                     used_tiles: runway.length as f32,
                     shinespark_frames,
+                    excess_shinespark_frames,
                 };
                 req_vec.push(Requirement::make_and(vec![req, runway.requirement.clone()]));
             }
@@ -332,6 +337,7 @@ impl<'a> Preprocessor<'a> {
                         shinespark_tech_id,
                         used_tiles: used_tiles as f32,
                         shinespark_frames,
+                        excess_shinespark_frames,
                     };
                     req_vec.push(Requirement::make_and(vec![
                         req,
@@ -351,6 +357,7 @@ impl<'a> Preprocessor<'a> {
                     used_tiles: can_leave_charged.used_tiles as f32,
                     shinespark_frames: shinespark_frames
                         + can_leave_charged.shinespark_frames.unwrap_or(0),
+                    excess_shinespark_frames,
                 };
                 req_vec.push(Requirement::make_and(vec![
                     req,
@@ -380,7 +387,7 @@ impl<'a> Preprocessor<'a> {
         override_runway_requirements: bool,
         _link: &Link,
     ) -> Requirement {
-        println!("{} {} {}", room_id, node_id, _link.strat_name);
+        // println!("{} {} {}", room_id, node_id, _link.strat_name);
         let (other_room_id, other_node_id) = self.door_map[&(room_id, node_id)];
         let runways = &self.game_data.node_runways_map[&(other_room_id, other_node_id)];
         let mut req_vec: Vec<Requirement> = vec![];
