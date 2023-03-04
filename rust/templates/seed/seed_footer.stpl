@@ -1,3 +1,16 @@
+<div class="card my-2">
+    <div class="card-header">Important tips</div>
+    <div class="card-body">
+        <ul>
+        <li>Be sure to save frequently! Saves are fast, and saving at a different station from the last save will advance 
+        to the next slot before saving, so you can return to an earlier save in case you get stuck.
+        <li>Be careful with one-ways, because it's easy to get soft-locked. The logic never requires going down a one-way 
+        for an item unless there is a way out without using the new item. It's often best to avoid one-ways
+        until you know there's a way back or have exhausted all other options.
+        </ul>
+    </div>
+</div>
+
 <% if !race_mode { %>
     <div class="card">
         <div class="card-header">Spoiler Info</div>

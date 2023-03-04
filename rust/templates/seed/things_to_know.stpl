@@ -21,18 +21,14 @@
         <ul>
         <li>Every item from the vanilla game is placed somewhere, and ammo distributions are unchanged.
         <li>Certain items do not spawn until Phantoon has been defeated, the same as in the vanilla game.
-        <li>Certain items do not spawn until the planet is 
-        awakened, by killing the enemies in the Pit Room (old Mother Brain
-        room) which spawn when Morph and Missiles are collected, the same as in the vanilla game.<a href="#footnote-pit-room"><sup>1</sup></a>
+        <li>Certain items do not spawn until the planet is awakened, by killing the enemies (not including bosses or minibosses) 
+        in a room where this unlocks a gray door.<a href="#footnote-pit-room"><sup>1</sup></a>
         </ul>
 
         <h6>Other info</h6>
         <ul>
         <li>Missile Refill stations refill all ammo types: Missiles, Supers, and Power Bombs.
         <li>Hyper Beam destroys Super, Bomb, and Power Bomb blocks and can open blue & green gates from either side.
-        <li>It's easy to get soft-locked or killed by surprise. Be careful with one-ways, and be sure to save frequently!
-        <li>Saving at a different save station from the last save will advance to the next slot 
-        before saving, so you can return to an earlier save in case you get stuck.
         </ul>
         <p>
     </div>
@@ -57,12 +53,9 @@
 <div>
     <a id="footnote-pit-room">
     <small>
-    <sup>1</sup> Technically the planet is awakened by unlocking any gray door locked by an enemy kill 
-    count (which does <i>not</i> include gray doors locked by boss kills).
-    In the vanilla game, such gray doors spawn in the Pit Room when entering with Morph and Missiles but
-    are also in other rooms (e.g., Spore Spawn Kihunters, Brinstar Pre-Map Room). In 
-    Map Rando, at least for now, all such gray doors are removed except in the Pit Room, making the Pit Room
-    the only place where the planet can be awakened. Note that Pit Room also has an item that only
-    spawns when entering with Morph and Missiles (regardless of whether the planet is awake).
+    <sup>1</sup>This can be done in the following rooms: Pit Room (old Mother Brain room), Baby Kraid Room, Metal Pirates Room,
+    and Plasma Room. These are the rooms that involve killing Space Pirates to unlock the doors in the vanilla game.
+    Note that in the Pit Room, the enemies, gray doors, and item only spawn after Morph and Missiles are collected
+    (regardless of whether Zebes is awake).
     </small>
 </div>

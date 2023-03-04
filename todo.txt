@@ -1,10 +1,20 @@
-priority:
-  - fix zebes awake.
-  - cross-room strats
-    - for adjacentRunway, make strat go from vertex in adjacent room (in case spawnAt makes it inaccessible)
-      - careful to take obstacles into account
-    - in adjacentRunway, handle "water" physics being satisfiable by Gravity
-      - look into this
+TODO:
+Baby Kraid Room
+Metal Pirates Room
+
+(DONE) Golden Torizo Room
+(DONE) Plasma Room
+(DONE) Warehouse Energy Tank Room
+
+Unchanged vanilla:
+(DONE) Pit Room
+(DONE) Spore Spawn Kihunter Room 
+
+Not going to do:
+Metroid Room 1
+Metroid Room 2
+Metroid Room 3
+Metroid Room 4
 
 later:
   - refine cross room shinesparks:

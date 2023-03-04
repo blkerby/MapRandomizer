@@ -768,6 +768,7 @@ impl<'a> Patcher<'a> {
             "Draygon's Room",
             "Ridley's Room",
             "Golden Torizo's Room",
+            "Baby Kraid Room",
         ]
         .iter()
         .map(|x| x.to_string())

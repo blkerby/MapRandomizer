@@ -11,5 +11,7 @@ handle_door_transition:
     ; Lets fix the entering from water to no water animation bug 
     STZ $0A9C
 
+    
+
     JSL $878064 ; run hi-jacked instruction
     RTS

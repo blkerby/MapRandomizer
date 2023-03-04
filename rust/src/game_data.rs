@@ -970,12 +970,17 @@ impl GameData {
         let room_id = room_json["id"].as_usize().unwrap();
 
         // Rooms where we want the logic to take into account the gray door locks (elsewhere the gray doors are changed to blue):
+        // Be sure to keep this consistent with patches where the gray doors are actually changed in the ROM, in
+        // "patch.rs", "bomb_torizo.asm", and "gray_doors.asm".
         let door_lock_allowed_room_ids = [
             12,  // Pit Room
+            82,  // Baby Kraid Room
             84,  // Kraid Room
-            193, // Draygon's Room
+            139, // Metal Pirates Room
             142, // Ridley's Room
             150, // Golden Torizo Room
+            193, // Draygon's Room
+            219, // Plasma Room
         ];
 
         // Flags for which we want to add an obstacle in the room, to allow progression through (or back out of) the room

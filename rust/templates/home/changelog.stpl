@@ -3,6 +3,44 @@
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-42---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 43 (???)</a>:
+<ul>
+<li>Gray doors are restored in a few special rooms to bring them closer to vanilla, while continuing to avoid 
+    surprise softlocks:
+    <ul>
+    <li>"Bomb Torizo"-type doors are added to Plasma Room and Golden Torizo's Room:
+        <ul>
+        <li>When entering Plasma Room, the door remains open until the item in the room is collected, at which
+        point it closes gray and is unlocked by killing the Space Pirates in the room.
+        <li>When entering Golden Torizo's Room from the right side, the right door remains open until an item in
+        the room is collected, at which point it closes gray and is unlocked by defeating Golden Torizo.
+        </ul>
+    <li>Gray doors are added to Baby Kraid Room and Metal Pirates Room. The door through which Samus enters remains blue,
+    but the door on the opposite side is now gray, unlocked by killing the enemies in the room.
+        <ul>
+        <li>In Baby Kraid Room, the two gray doors have separate state from each other (as they do in vanilla), but at most 
+        one is spawned at a time, which means that to unlock both doors the player must clear the room twice, 
+        once in each direction.
+        <li>In Metal Pirates Room, the two gray doors share a common state, so after clearing the room once it will
+        remain cleared when passing the other direction.
+        </ul>
+    <li>With these changes, Zebes can now be awakened by unlocking a gray door in any of the following rooms:
+        <ul>
+        <li>Pit Room, Baby Kraid Room, Metal Pirates Room, Plasma Room.
+        <li>To help remember this list: These are exactly the rooms which require killing Space Pirates to unlock the doors (in vanilla, as well 
+        as in the randomizer).
+        </ul>
+    </ul>
+<li>(TODO) Two earlier modes are brought back for marking items on the map. There are now four options:
+    <ul>
+    <li><b>Basic</b>: All items are marked on the map with small dots.
+    <li><b>Majors</b>: Unique items, E-Tanks, and Reserve Tanks are marked with large solid dots; other items are marked with small dots.
+    <li><b>Uniques</b>: Unique items are marked with large solid dots; other items are marked with small dots.
+    <li><b>Triple</b>: Unique items are marked with large solid dots; Supers, Power Bombs, E-Tanks, and Reserve Tanks are marked with
+        large hollow dots; Missiles are marked with small dots.
+    </ul>
+</ul>
+
 <p><a href="https://version-42---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 42 (2023-03-03)</a>:
 <ul>
 <li>Escape timer base rate is reduced from 1.8 to 1.6 seconds per screen, and adjustments are made
