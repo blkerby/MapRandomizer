@@ -39,6 +39,14 @@ pub enum ItemPlacementStyle {
     Forced,
 }
 
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
+pub enum ItemMarkers {
+    Basic,
+    Majors,
+    Uniques,
+    ThreeTiered,
+}
+
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
 pub struct DebugOptions {
     pub new_game_extra: bool,
@@ -69,7 +77,7 @@ pub struct DifficultyConfig {
     pub supers_double: bool,
     pub streamlined_escape: bool,
     pub mark_map_stations: bool,
-    pub mark_uniques: bool,
+    pub item_markers: ItemMarkers,
     pub fast_elevators: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub debug_options: Option<DebugOptions>,

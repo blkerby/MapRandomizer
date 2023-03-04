@@ -3,7 +3,7 @@
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-42---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 43 (???)</a>:
+<p><a href="https://version-43---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 43 (2023-03-04)</a>:
 <ul>
 <li>Gray doors are restored in a few special rooms to bring them closer to vanilla, while continuing to avoid 
     surprise softlocks:
@@ -13,7 +13,8 @@ about 15 seconds to load.
         <li>When entering Plasma Room, the door remains open until the item in the room is collected, at which
         point it closes gray and is unlocked by killing the Space Pirates in the room.
         <li>When entering Golden Torizo's Room from the right side, the right door remains open until an item in
-        the room is collected, at which point it closes gray and is unlocked by defeating Golden Torizo.
+        the room is collected, at which point it closes gray and is unlocked by defeating Golden Torizo. (As before,
+        when entering from the left side, the right door is already gray and is unlocked by defeating Golden Torizo.)
         </ul>
     <li>Gray doors are added to Baby Kraid Room and Metal Pirates Room. The door through which Samus enters remains blue,
     but the door on the opposite side is now gray, unlocked by killing the enemies in the room.
@@ -31,14 +32,16 @@ about 15 seconds to load.
         as in the randomizer).
         </ul>
     </ul>
-<li>(TODO) Two earlier modes are brought back for marking items on the map. There are now four options:
+<li>Two earlier modes are brought back for marking items on the map. There are now four options:
     <ul>
     <li><b>Basic</b>: All items are marked on the map with small dots.
     <li><b>Majors</b>: Unique items, E-Tanks, and Reserve Tanks are marked with large solid dots; other items are marked with small dots.
     <li><b>Uniques</b>: Unique items are marked with large solid dots; other items are marked with small dots.
-    <li><b>Triple</b>: Unique items are marked with large solid dots; Supers, Power Bombs, E-Tanks, and Reserve Tanks are marked with
+    <li><b>3-Tiered</b>: Unique items are marked with large solid dots; Supers, Power Bombs, E-Tanks, and Reserve Tanks are marked with
         large hollow dots; Missiles are marked with small dots.
     </ul>
+<li>The closing animation for the door going left-to-right from Green Brinstar Main Shaft to itself (to Etecoons) is fixed;
+this was a vanilla bug that caused the closing blue door to appear one screen to the left of where it should be.
 </ul>
 
 <p><a href="https://version-42---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 42 (2023-03-03)</a>:

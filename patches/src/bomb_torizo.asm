@@ -14,12 +14,12 @@ arch 65816
 org $82E664 
     JSL handle_door_transition
 
-;;; hijack item collection routine (different hijack point than endingtotals.asm)
+;;; hijack item collection routine
 org $8488a7
-    jsr btflagset
+    jsr item_collect
 
 org $84f840
-btflagset:
+item_collect:
     pha			; save A to perform original ORA afterwards
     ;; set flag "picked up BT's item"
     lda !PickedUp
@@ -37,16 +37,16 @@ btcheck:
 
 handle_door_transition:
     ; clear BT item flag
+    pha
     lda #$0000
     sta !BTRoomFlag
+    pla
 
     jsl $808EF4            ; run hi-jacked instruction
     rtl
 
-warnpc $84f880
-
 ; Opposite-facing Bomb-Torizo-type door
-org $84F880 
+opposite_bt_door:
     dw $C794, btdoor, btdoor_setup
 
 btdoor_setup:
@@ -116,4 +116,4 @@ org $8FC553
 
 ; Override door PLM for Golden Torizo right door
 org $8F8E7A
-    dw $F880
+    dw opposite_bt_door

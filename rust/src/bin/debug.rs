@@ -1,7 +1,7 @@
 use anyhow::Result;
 use maprando::{
     game_data::{GameData, Item, Requirement},
-    randomize::{DifficultyConfig, ItemPlacementStyle, ItemPriorityGroup, ProgressionStyle},
+    randomize::{DifficultyConfig, ItemPlacementStyle, ItemPriorityGroup, ProgressionStyle, ItemMarkers},
     traverse::{apply_requirement, GlobalState, LocalState},
 };
 use std::path::Path;
@@ -77,7 +77,7 @@ fn main() -> Result<()> {
         supers_double: true,
         streamlined_escape: true,
         mark_map_stations: true,
-        mark_uniques: true,
+        item_markers: ItemMarkers::ThreeTiered,
         fast_elevators: true,
         debug_options: None,
     };

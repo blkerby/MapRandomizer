@@ -199,3 +199,5 @@ map_patcher = MapPatcher(rom, area_arr)
 rom.save(output_rom_path)
 os.system(f"rm {output_rom_path[:-4]}.srm")
 # print("{}/{} free tiles used".format(map_patcher.next_free_tile_idx, len(free_tiles)))
+
+print(hex(snes2pc(0x838cee)))

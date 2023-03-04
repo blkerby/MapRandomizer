@@ -3,7 +3,7 @@ use clap::Parser;
 use maprando::customize::{customize_rom, CustomizeSettings};
 use maprando::game_data::Map;
 use maprando::patch::Rom;
-use maprando::randomize::{ProgressionStyle, Randomization, Randomizer, DebugOptions, ItemPlacementStyle, ItemPriorityGroup};
+use maprando::randomize::{ProgressionStyle, Randomization, Randomizer, DebugOptions, ItemPlacementStyle, ItemPriorityGroup, ItemMarkers};
 use maprando::spoiler_map;
 use maprando::{game_data::GameData, patch::make_rom, randomize::DifficultyConfig};
 use maprando::patch::ips_write::create_ips_patch;
@@ -139,7 +139,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         supers_double: true,
         streamlined_escape: true,
         mark_map_stations: true,
-        mark_uniques: true,
+        item_markers: ItemMarkers::ThreeTiered,
         fast_elevators: true,
         debug_options: Some(DebugOptions {
             new_game_extra: true,

@@ -17,7 +17,8 @@ use maprando::game_data::{GameData, IndexedVec, Map};
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::{make_rom, Rom};
 use maprando::randomize::{
-    DifficultyConfig, ItemPlacementStyle, ItemPriorityGroup, Randomization, Randomizer,
+    DebugOptions, DifficultyConfig, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup,
+    Randomization, Randomizer,
 };
 use maprando::seed_repository::{Seed, SeedFile, SeedRepository};
 use maprando::spoiler_map;
@@ -55,6 +56,7 @@ struct AppData {
     preset_data: Vec<PresetData>,
     map_repository: MapRepository,
     seed_repository: SeedRepository,
+    debug: bool,
 }
 
 impl MapRepository {
@@ -160,7 +162,7 @@ struct RandomizeRequest {
     supers_double: Text<bool>,
     streamlined_escape: Text<bool>,
     mark_map_stations: Text<bool>,
-    mark_uniques: Text<bool>,
+    item_markers: Text<String>,
     fast_elevators: Text<bool>,
 }
 
@@ -187,7 +189,7 @@ struct SeedData {
     supers_double: bool,
     streamlined_escape: bool,
     mark_map_stations: bool,
-    mark_uniques: bool,
+    item_markers: String,
     fast_elevators: bool,
 }
 
@@ -215,7 +217,7 @@ struct SeedHeaderTemplate<'a> {
     supers_double: bool,
     streamlined_escape: bool,
     mark_map_stations: bool,
-    mark_uniques: bool,
+    item_markers: String,
     fast_elevators: bool,
 }
 
@@ -241,7 +243,10 @@ fn render_seed(seed_name: &str, seed_data: &SeedData) -> Result<(String, String)
         race_mode: seed_data.race_mode,
         timestamp: seed_data.timestamp,
         preset: seed_data.preset.clone().unwrap_or("Custom".to_string()),
-        item_priority_preset: seed_data.item_priority_preset.clone().unwrap_or("Custom".to_string()),
+        item_priority_preset: seed_data
+            .item_priority_preset
+            .clone()
+            .unwrap_or("Custom".to_string()),
         progression_style: format!("{:?}", seed_data.difficulty.progression_style),
         item_placement_style: format!("{:?}", seed_data.difficulty.item_placement_style),
         difficulty: &seed_data.difficulty,
@@ -249,7 +254,7 @@ fn render_seed(seed_name: &str, seed_data: &SeedData) -> Result<(String, String)
         supers_double: seed_data.supers_double,
         streamlined_escape: seed_data.streamlined_escape,
         mark_map_stations: seed_data.mark_map_stations,
-        mark_uniques: seed_data.mark_uniques,
+        item_markers: seed_data.item_markers.clone(),
         fast_elevators: seed_data.fast_elevators,
     };
     let seed_header_html = seed_header_template.render_once()?;
@@ -510,7 +515,7 @@ fn get_difficulty_tiers(
             supers_double: difficulty.supers_double,
             streamlined_escape: difficulty.streamlined_escape,
             mark_map_stations: difficulty.mark_map_stations,
-            mark_uniques: difficulty.mark_uniques,
+            item_markers: difficulty.item_markers,
             fast_elevators: difficulty.fast_elevators,
             debug_options: difficulty.debug_options.clone(),
         };
@@ -618,9 +623,22 @@ async fn randomize(
         supers_double: req.supers_double.0,
         streamlined_escape: req.streamlined_escape.0,
         mark_map_stations: req.mark_map_stations.0,
-        mark_uniques: req.mark_uniques.0,
+        item_markers: match req.item_markers.0.as_str() {
+            "Basic" => ItemMarkers::Basic,
+            "Majors" => ItemMarkers::Majors,
+            "Uniques" => ItemMarkers::Uniques,
+            "3-Tiered" => ItemMarkers::ThreeTiered,
+            _ => panic!("Unrecognized item_markers: {}", req.item_markers.0),
+        },
         fast_elevators: req.fast_elevators.0,
-        debug_options: None,
+        debug_options: if app_data.debug {
+            Some(DebugOptions {
+                new_game_extra: true,
+                extended_spoiler: true,
+            })
+        } else {
+            None
+        },
     };
     let difficulty_tiers = if difficulty.item_placement_style == ItemPlacementStyle::Forced {
         get_difficulty_tiers(&difficulty, &app_data.preset_data)
@@ -686,7 +704,7 @@ async fn randomize(
         supers_double: req.supers_double.0,
         streamlined_escape: req.streamlined_escape.0,
         mark_map_stations: req.mark_map_stations.0,
-        mark_uniques: req.mark_uniques.0,
+        item_markers: req.item_markers.0.clone(),
         fast_elevators: req.fast_elevators.0,
     };
 
@@ -774,6 +792,8 @@ fn init_presets(presets: Vec<Preset>, game_data: &GameData) -> Vec<PresetData> {
 struct Args {
     #[arg(long)]
     seed_repository_url: String,
+    #[arg(long, action)]
+    debug: bool,
 }
 
 fn build_app_data() -> AppData {
@@ -793,6 +813,7 @@ fn build_app_data() -> AppData {
         preset_data,
         map_repository: MapRepository::new(maps_path).unwrap(),
         seed_repository: SeedRepository::new(&args.seed_repository_url).unwrap(),
+        debug: args.debug,
     }
 }
 

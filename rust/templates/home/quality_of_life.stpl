@@ -18,6 +18,20 @@
         </h2>
         <div id="collapseQOL" class="accordion-collapse collapse m-2" onchange="qualityOfLifeSettingChanged()">
             <div class="form-group row m-3">
+                <label class="col-sm-5 col-form-label" for="item_markers">Item markers</label>
+                <div class="col-sm-5 btn-group" role="group">
+                    <input type="radio" class="btn-check" name="item_markers" id="itemMarkersBasic" value="Basic">
+                    <label class="btn btn-outline-primary" for="itemMarkersBasic">Basic</label>
+                    <input type="radio" class="btn-check" name="item_markers" id="itemMarkersMajors" value="Majors">
+                    <label class="btn btn-outline-primary" for="itemMarkersMajors">Majors</label>
+                    <input type="radio" class="btn-check" name="item_markers" id="itemMarkersUniques" value="Uniques">
+                    <label class="btn btn-outline-primary" for="itemMarkersUniques">Uniques</label>
+                    <input type="radio" class="btn-check" name="item_markers" id="itemMarkersThreeTiered" value="3-Tiered">
+                    <label class="btn btn-outline-primary" for="itemMarkersThreeTiered">3-Tiered</label>
+                </div>
+            </div>
+
+            <div class="form-group row m-3">
                 <div class="col-sm-5">
                 <label class="col-form-label" for="supers_double">Supers do double damage to Mother Brain</label>
                 </div>
@@ -50,16 +64,6 @@
                     <label class="btn btn-outline-primary" for="markMapStationsNo">No</label>
                     <input type="radio" class="btn-check" name="mark_map_stations" id="markMapStationsYes" value="true" checked>
                     <label class="btn btn-outline-primary" for="markMapStationsYes">Yes</label>
-                </div>
-            </div>
-
-            <div class="form-group row m-3">
-                <label class="col-sm-5 col-form-label" for="mark_uniques">Item types indicated on map</label>
-                <div class="col-sm-2 btn-group" role="group">
-                    <input type="radio" class="btn-check" name="mark_uniques" id="markUniquesNo" value="false">
-                    <label class="btn btn-outline-primary" for="markUniquesNo">No</label>
-                    <input type="radio" class="btn-check" name="mark_uniques" id="markUniquesYes" value="true" checked>
-                    <label class="btn btn-outline-primary" for="markUniquesYes">Yes</label>
                 </div>
             </div>
 

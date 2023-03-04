@@ -56,16 +56,20 @@ function qualityOfLifePresetChanged() {
         document.getElementById("supersDoubleNo").checked = true;
         document.getElementById("streamlinedEscapeNo").checked = true;
         document.getElementById("markMapStationsNo").checked = true;
-        document.getElementById("markUniquesNo").checked = true;
-        document.getElementById("markTanksNo").checked = true;
+        document.getElementById("itemMarkersBasic").checked = true;
+        document.getElementById("itemMarkersMajors").checked = false;
+        document.getElementById("itemMarkersUniques").checked = false;
+        document.getElementById("itemMarkersThreeTiered").checked = false;
         document.getElementById("fastElevatorsNo").checked = true;
     }
     if (document.getElementById("qualityOfLifeYes").checked) {
         document.getElementById("supersDoubleYes").checked = true;
         document.getElementById("streamlinedEscapeYes").checked = true;
         document.getElementById("markMapStationsYes").checked = true;
-        document.getElementById("markUniquesYes").checked = true;
-        document.getElementById("markTanksYes").checked = true;
+        document.getElementById("itemMarkersBasic").checked = false;
+        document.getElementById("itemMarkersMajors").checked = false;
+        document.getElementById("itemMarkersUniques").checked = false;
+        document.getElementById("itemMarkersThreeTiered").checked = true;
         document.getElementById("fastElevatorsYes").checked = true;
     }    
 }
