@@ -11,7 +11,7 @@ input_rom_path = '/home/kerby/Downloads/Super Metroid (JU) [!].smc'
 # input_rom_path = '/home/kerby/Downloads/smmr-v8-66-115673117270825932886574167490559/smmr-v8-66-115673117270825932886574167490559.sfc'
 # input_rom_path = '/home/kerby/Downloads/smmr-v0-30-115673117270825932886574167490559.sfc'
 # input_rom_path = '/home/kerby/Downloads/smmr-v0-5-115673117270825932886574167490559.sfc'
-output_rom_path = '/home/kerby/Downloads/maptest.smc'
+output_rom_path = '/home/kerby/Downloads/roms/maptest.smc'
 orig_rom = Rom(open(input_rom_path, 'rb'))
 rom = Rom(open(input_rom_path, 'rb'))
 
@@ -27,9 +27,10 @@ area_arr = [rom.read_u8(room.rom_address + 1) for room in rooms]
 
 patches = [
     'new_game_extra',
+    'bomb_torizo',
     # 'decompression',
     # 'fast_reload',
-    'hud_expansion_opaque',
+    # 'hud_expansion_opaque',
     # 'hud_expansion_transparent',
     # 'gray_doors',
     # 'mb_barrier',
@@ -156,24 +157,24 @@ map_patcher = MapPatcher(rom, area_arr)
 # for i in range(32):
 #     map_patcher.write_tile_2bpp(i + 256, data)
 #
-import numpy as np
-image = np.zeros([256, 128])
-for i in range(512):
-    data = map_patcher.read_tile_2bpp(i)
-    x = i // 16
-    y = i % 16
-    x0 = x * 8
-    x1 = (x + 1) * 8
-    y0 = y * 8
-    y1 = (y + 1) * 8
-    image[x0:x1, y0:y1] = data
-    # for row in data:
-    #     print(''.join('{:x}'.format(x) for x in row))
-    # data = read_tile_4bpp(rom, snes2pc(0xB68000), i)
-    # for row in data:
-    #     print(''.join('{:x}'.format(x) for x in row))
-from matplotlib import pyplot as plt
-plt.imshow(image)
+# import numpy as np
+# image = np.zeros([256, 128])
+# for i in range(512):
+#     data = map_patcher.read_tile_2bpp(i)
+#     x = i // 16
+#     y = i % 16
+#     x0 = x * 8
+#     x1 = (x + 1) * 8
+#     y0 = y * 8
+#     y1 = (y + 1) * 8
+#     image[x0:x1, y0:y1] = data
+#     # for row in data:
+#     #     print(''.join('{:x}'.format(x) for x in row))
+#     # data = read_tile_4bpp(rom, snes2pc(0xB68000), i)
+#     # for row in data:
+#     #     print(''.join('{:x}'.format(x) for x in row))
+# from matplotlib import pyplot as plt
+# plt.imshow(image)
 
 # # rom.write_u16(snes2pc(0x819124), 0x0009)   # File select index 9 - load
 #
