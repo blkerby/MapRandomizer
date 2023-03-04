@@ -769,6 +769,7 @@ impl<'a> Patcher<'a> {
             "Ridley's Room",
             "Golden Torizo's Room",
             "Baby Kraid Room",
+            "Metal Pirates Room",
         ]
         .iter()
         .map(|x| x.to_string())
@@ -965,6 +966,9 @@ impl<'a> Patcher<'a> {
 
         // Remove fake gray door that gets drawn in Phantoon's Room:
         self.rom.write_n(snes2pc(0xA7D4E5), &vec![0xEA; 8])?;
+
+        // ; Fix the door cap X location for the Green Brinstar Main Shaft door to itself left-to-right:
+        self.rom.write_u8(snes2pc(0x838CF2), 0x11)?;
 
         if self.randomization.difficulty.supers_double {
             // Make Supers do double damage to Mother Brain:

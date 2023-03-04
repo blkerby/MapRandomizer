@@ -35,7 +35,7 @@ org $839A24   ; door ASM for entering Metal Pirates from the right
     dw make_right_doors_blue
 
 ; Replace Metal Pirates PLM set to add extra gray door on the right:
-org $8FB64E
+org $8FB64C
     dw metal_pirates_plms
 
 org $8FF700
@@ -82,7 +82,7 @@ metal_pirates_plms:
     dw $0C60
     ; right gray door:
     dw $C842
-    db $1E
+    db $2E
     db $06
     dw $0C60
     ; end marker:

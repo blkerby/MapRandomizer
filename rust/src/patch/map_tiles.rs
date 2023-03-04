@@ -3,7 +3,7 @@ use log::info;
 
 use crate::{
     game_data::{GameData, Map, RoomGeometryDoor, RoomGeometryItem, Item},
-    randomize::Randomization,
+    randomize::{Randomization, ItemMarkers},
 };
 
 use super::{snes2pc, xy_to_explored_bit_ptr, xy_to_map_offset, Rom};
@@ -987,40 +987,54 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn indicate_major_items(&mut self) -> Result<()> {
+        let markers = self.randomization.difficulty.item_markers;
         for (i, &item) in self.randomization.item_placement.iter().enumerate() {
-            if item != Item::Missile {
-                let (room_id, node_id) = self.game_data.item_locations[i];
-                let item_ptr = self.game_data.node_ptr_map[&(room_id, node_id)];
-                let room_ptr = self.game_data.room_ptr_by_id[&room_id];
-                let room_idx = self.game_data.room_idx_by_ptr[&room_ptr];
-                let room = &self.game_data.room_geometry[room_idx];
-                let area = self.map.area[room_idx];
-                let x0 = self.rom.read_u8(room.rom_address + 2)? as isize;
-                let y0 = self.rom.read_u8(room.rom_address + 3)? as isize;
-                let (x, y) = find_item_xy(item_ptr, &room.items)?;
-                let base_ptr = self.game_data.area_map_ptrs[area] as usize;
-                let offset = super::xy_to_map_offset(x0 + x, y0 + y) as usize;
-                let tile0 = (self.rom.read_u16(base_ptr + offset)? & 0xC3FF) as TilemapWord;
-                let mut basic_tile = self
-                    .reverse_map
-                    .get(&tile0)
-                    .with_context(|| {
-                        format!(
-                            "Tile not found: {tile0} at ({x}, {y}) in {}",
-                            self.game_data.room_geometry[room_idx].name
-                        )
-                    })?
-                    .clone();
-                assert!([Interior::Item, Interior::MediumItem, Interior::MajorItem].contains(&basic_tile.interior));
-                if item.is_unique() {
-                    basic_tile.interior = Interior::MajorItem;
-                } else if basic_tile.interior != Interior::MajorItem {
-                    basic_tile.interior = Interior::MediumItem;
+            let (room_id, node_id) = self.game_data.item_locations[i];
+            let item_ptr = self.game_data.node_ptr_map[&(room_id, node_id)];
+            let room_ptr = self.game_data.room_ptr_by_id[&room_id];
+            let room_idx = self.game_data.room_idx_by_ptr[&room_ptr];
+            let room = &self.game_data.room_geometry[room_idx];
+            let area = self.map.area[room_idx];
+            let x0 = self.rom.read_u8(room.rom_address + 2)? as isize;
+            let y0 = self.rom.read_u8(room.rom_address + 3)? as isize;
+            let (x, y) = find_item_xy(item_ptr, &room.items)?;
+            let base_ptr = self.game_data.area_map_ptrs[area] as usize;
+            let offset = super::xy_to_map_offset(x0 + x, y0 + y) as usize;
+            let tile0 = (self.rom.read_u16(base_ptr + offset)? & 0xC3FF) as TilemapWord;
+            let mut basic_tile = self
+                .reverse_map
+                .get(&tile0)
+                .with_context(|| {
+                    format!(
+                        "Tile not found: {tile0} at ({x}, {y}) in {}",
+                        self.game_data.room_geometry[room_idx].name
+                    )
+                })?
+                .clone();
+            assert!([Interior::Item, Interior::MediumItem, Interior::MajorItem].contains(&basic_tile.interior));
+            match markers {
+                ItemMarkers::Basic => {}
+                ItemMarkers::Majors => {
+                    if item.is_unique() || item == Item::ETank || item == Item::ReserveTank {
+                        basic_tile.interior = Interior::MajorItem;
+                    }
                 }
-                let tile1 = self.get_basic_tile(basic_tile)?;
-                self.rom
-                    .write_u16(base_ptr + offset, (tile1 | 0x0C00) as isize)?;
+                ItemMarkers::Uniques => {
+                    if item.is_unique() {
+                        basic_tile.interior = Interior::MajorItem;
+                    }
+                },
+                ItemMarkers::ThreeTiered => {
+                    if item.is_unique() {
+                        basic_tile.interior = Interior::MajorItem;
+                    } else if item != Item::Missile && basic_tile.interior != Interior::MajorItem {
+                        basic_tile.interior = Interior::MediumItem;
+                    }        
+                },
             }
+            let tile1 = self.get_basic_tile(basic_tile)?;
+            self.rom
+                .write_u16(base_ptr + offset, (tile1 | 0x0C00) as isize)?;
         }
         Ok(())
     }
@@ -1035,9 +1049,7 @@ impl<'a> MapPatcher<'a> {
         self.indicate_special_tiles()?;
         self.add_cross_area_arrows()?;
         self.set_map_stations_explored()?;
-        if self.randomization.difficulty.mark_uniques {
-            self.indicate_major_items()?;
-        }
+        self.indicate_major_items()?;
         self.write_tiles()?;
         // info!("Free tiles: {} (out of {})", self.free_tiles.len() - self.next_free_tile_idx, self.free_tiles.len());
         Ok(())

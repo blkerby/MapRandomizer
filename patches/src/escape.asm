@@ -53,7 +53,7 @@ org $84cf75
     jsr super_check
 
 ;;; CODE in bank 84 (PLM)
-org $84f860
+org $84f900
 
 ;;; returns zero flag set if in the escape and projectile is hyper beam
 escape_hyper_check:
@@ -90,6 +90,7 @@ save_station:
     lda #$0017  ; run hi-jacked instruction
     jmp $8cf6  ; return to next instruction
 
+warnpc $84f940
 
 ;;; Hi-jack escape start
 org $A9B270

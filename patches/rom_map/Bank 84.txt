@@ -4,3 +4,4 @@ $F200 - $F300: mb_barrier_clear.asm (to remove invisible spikes after Mother Bra
 $F300 - $F380: escape_items.asm
 $F380 - $F580: escape.asm
 $F840 - $F880: bomb_torizo.asm
+$F900 - $F940: escape.asm

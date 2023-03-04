@@ -1,20 +1,9 @@
-TODO:
-Baby Kraid Room
-Metal Pirates Room
+check metal pirates right entry
+check baby kraid right entry
 
-(DONE) Golden Torizo Room
-(DONE) Plasma Room
-(DONE) Warehouse Energy Tank Room
-
-Unchanged vanilla:
-(DONE) Pit Room
-(DONE) Spore Spawn Kihunter Room 
-
-Not going to do:
-Metroid Room 1
-Metroid Room 2
-Metroid Room 3
-Metroid Room 4
+priority:
+  - put ammo-based enemyKill in logic
+  - add caution tape to dangerous doors
 
 later:
   - refine cross room shinesparks:
@@ -22,9 +11,6 @@ later:
      - slopes
   - credits
   - proper front page
-  - add back more gray doors
-  - fix map wrap-around bug
-  - put ammo-based enemyKill in logic
   - music options
   - sprite customization (?),
   - integrate Selicre's interactive spoiler map
