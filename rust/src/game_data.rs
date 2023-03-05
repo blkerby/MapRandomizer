@@ -595,9 +595,8 @@ impl GameData {
                 let shinespark_frames = value["shinesparkFrames"]
                     .as_i32()
                     .expect(&format!("missing/invalid shinesparkFrames in {}", req_json));
-                let excess_shinespark_frames = value["excessShinesparkFrames"]
-                    .as_i32()
-                    .unwrap_or(0);
+                let excess_shinespark_frames =
+                    value["excessShinesparkFrames"].as_i32().unwrap_or(0);
                 // TODO: take slopes into account
                 return Ok(Requirement::ShineCharge {
                     used_tiles,
@@ -804,9 +803,8 @@ impl GameData {
                 let shinespark_frames = value["shinesparkFrames"]
                     .as_i32()
                     .with_context(|| format!("missing/invalid shinesparkFrames in {}", req_json))?;
-                let excess_shinespark_frames = value["excessShinesparkFrames"]
-                    .as_i32()
-                    .unwrap_or(0);
+                let excess_shinespark_frames =
+                    value["excessShinesparkFrames"].as_i32().unwrap_or(0);
                 // if value["fromNode"].as_usize().unwrap() != ctx.src_node_id {
                 //     println!("In roomId={}, canComeInCharged fromNode={}, from nodeId={}", ctx.room_id,
                 //         value["fromNode"].as_usize().unwrap(), ctx.src_node_id);
@@ -984,7 +982,7 @@ impl GameData {
         ];
 
         // Flags for which we want to add an obstacle in the room, to allow progression through (or back out of) the room
-        // after defeating the boss on the same graph traversal step (which cannot take into account the new flag).
+        // after setting the flag on the same graph traversal step (which cannot take into account the new flag).
         let obstacle_flags = [
             "f_DefeatedKraid",
             "f_DefeatedDraygon",
@@ -1075,10 +1073,16 @@ impl GameData {
                 {
                     obstacle_flag = Some(yields[0].as_str().unwrap().to_string());
                     for strat in link_forward["to"][0]["strats"].members_mut() {
-                        strat["obstacles"] = json::array![{
+                        let mut obstacles = if strat["obstacles"].is_array() {
+                            strat["obstacles"].clone()
+                        } else {
+                            JsonValue::Array(vec![])
+                        };
+                        obstacles.push(json::object!{
                             "id": obstacle_flag.as_ref().unwrap().to_string(),
                             "requires": []
-                        }]
+                        })?;
+                        strat["obstacles"] = obstacles;
                     }
                 }
 
@@ -1152,7 +1156,6 @@ impl GameData {
                 }
             }
         }
-
         Ok(new_room_json)
     }
 

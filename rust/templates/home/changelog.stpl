@@ -40,8 +40,9 @@ about 15 seconds to load.
     <li><b>3-Tiered</b>: Unique items are marked with large solid dots; Supers, Power Bombs, E-Tanks, and Reserve Tanks are marked with
         large hollow dots; Missiles are marked with small dots.
     </ul>
-<li>The closing animation for the door going left-to-right from Green Brinstar Main Shaft to itself (to Etecoons) is fixed;
+<li>Fixed the closing animation for the door going left-to-right from Green Brinstar Main Shaft to itself (to Etecoons);
 this was a vanilla bug that caused the closing blue door to appear one screen to the left of where it should be.
+<li>Fixed a logic bug involving the flag for the Maridia Tube being broken earlier than it should be.
 </ul>
 
 <p><a href="https://version-42---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 42 (2023-03-03)</a>:
