@@ -27,7 +27,8 @@ area_arr = [rom.read_u8(room.rom_address + 1) for room in rooms]
 
 patches = [
     'new_game_extra',
-    'bomb_torizo',
+    'all_items_spawn',
+    # 'bomb_torizo',
     # 'decompression',
     # 'fast_reload',
     # 'hud_expansion_opaque',
@@ -72,20 +73,20 @@ map_patcher = MapPatcher(rom, area_arr)
 # for i, idx in enumerate(new_text_tile_idxs):
 #     map_patcher.write_tile_2bpp(idx, vanilla_text_tiles[i], switch_red_white=False)
 
-# plm_types_to_remove = [
-#     0xC88A, 0xC85A, 0xC872,  # right pink/yellow/green door
-#     0xC890, 0xC860, 0xC878,  # left pink/yellow/green door
-#     0xC896, 0xC866, 0xC87E,  # down pink/yellow/green door
-#     0xC89C, 0xC86C, 0xC884,  # up pink/yellow/green door
-#     0xDB48, 0xDB4C, 0xDB52, 0xDB56, 0xDB5A, 0xDB60,  # eye doors
-#     0xC8CA,  # wall in Escape Room 1
-# ]
-# gray_door_plm_types = [
-#     0xC848,  # left gray door
-#     0xC842,  # right gray door
-#     0xC854,  # up gray door
-#     0xC84E,  # down gray door
-# ]
+plm_types_to_remove = [
+    0xC88A, 0xC85A, 0xC872,  # right pink/yellow/green door
+    0xC890, 0xC860, 0xC878,  # left pink/yellow/green door
+    0xC896, 0xC866, 0xC87E,  # down pink/yellow/green door
+    0xC89C, 0xC86C, 0xC884,  # up pink/yellow/green door
+    0xDB48, 0xDB4C, 0xDB52, 0xDB56, 0xDB5A, 0xDB60,  # eye doors
+    0xC8CA,  # wall in Escape Room 1
+]
+gray_door_plm_types = [
+    0xC848,  # left gray door
+    0xC842,  # right gray door
+    0xC854,  # up gray door
+    0xC84E,  # down gray door
+]
 # boss_room_names = [
 #     "Kraid Room",
 #     "Phantoon's Room",
@@ -95,27 +96,27 @@ map_patcher = MapPatcher(rom, area_arr)
 #     "Botwoon's Room",
 #     "Bomb Torizo Room",
 # ]
-# for room_obj in rooms:
-#     room = RomRoom(rom, room_obj)
-#     states = room.load_states(rom)
-#     for state in states:
-#         ptr = state.plm_set_ptr + 0x70000
-#         while True:
-#             plm_type = rom.read_u16(ptr)
-#             if plm_type == 0:
-#                 break
-#             # Remove PLMs for doors that we don't want: pink, green, yellow, Eye doors, spawning wall in escape
-#             main_var_high = rom.read_u8(ptr + 5)
-#             is_removable_gray_door = plm_type in gray_door_plm_types and main_var_high != 0x0C and room_obj.name not in boss_room_names
-#             if plm_type == 0xBAF4:
-#                 # Replace Bomb Torizo door with normal gray door:
-#                 print(room_obj.name)
-#                 rom.write_u16(ptr, 0xC848)
-#             elif plm_type in plm_types_to_remove or is_removable_gray_door:
-#                 print(room_obj.name)
-#                 rom.write_u16(ptr, 0xB63B)  # right continuation arrow (should have no effect, giving a blue door)
-#                 rom.write_u16(ptr + 2, 0)  # position = (0, 0)
-#             ptr += 6
+for room_obj in rooms:
+    room = RomRoom(rom, room_obj)
+    states = room.load_states(rom)
+    for state in states:
+        ptr = state.plm_set_ptr + 0x70000
+        while True:
+            plm_type = rom.read_u16(ptr)
+            if plm_type == 0:
+                break
+            # Remove PLMs for doors that we don't want: pink, green, yellow, Eye doors, spawning wall in escape
+            main_var_high = rom.read_u8(ptr + 5)
+            is_removable_gray_door = plm_type in gray_door_plm_types #and main_var_high != 0x0C
+            if plm_type == 0xBAF4:
+                # Replace Bomb Torizo door with normal gray door:
+                print(room_obj.name)
+                rom.write_u16(ptr, 0xC848)
+            elif plm_type in plm_types_to_remove or is_removable_gray_door:
+                print(room_obj.name)
+                rom.write_u16(ptr, 0xB63B)  # right continuation arrow (should have no effect, giving a blue door)
+                rom.write_u16(ptr + 2, 0)  # position = (0, 0)
+            ptr += 6
 #
 # # Delay closing of gray doors
 # gray_door_delay_frames = 90

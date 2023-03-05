@@ -217,6 +217,7 @@ impl<'a> Patcher<'a> {
             "fast_big_boy_cutscene",
             "decompression",
             "tourian_blue_hopper",
+            "fast_doors",
         ];
         let mut new_game = "new_game";
         if let Some(options) = &self.randomization.difficulty.debug_options {
@@ -225,6 +226,10 @@ impl<'a> Patcher<'a> {
             }
         }
         patches.push(new_game);
+
+        if self.randomization.difficulty.all_items_spawn {
+            patches.push("all_items_spawn");
+        }
 
         if self.randomization.difficulty.streamlined_escape {
             patches.push("escape_items");

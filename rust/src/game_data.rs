@@ -411,6 +411,10 @@ impl GameData {
         for flag_name in item_json["gameFlags"].members() {
             self.flag_isv.add(flag_name.as_str().unwrap());
         }
+
+        // Add randomizer-specific flags:
+        self.flag_isv.add("f_AllItemsSpawn");
+
         Ok(())
     }
 
@@ -1033,7 +1037,6 @@ impl GameData {
                 if yields != JsonValue::Null {
                     unlocked_node_json["yields"] = yields.clone();
                 }
-                extra_nodes.push(unlocked_node_json);
 
                 let mut unlock_strats = lock["unlockStrats"].clone();
                 if lock["name"].as_str().unwrap() == "Phantoon Fight" {
@@ -1050,6 +1053,15 @@ impl GameData {
                         }
                     ];
                 }
+
+                if unlocked_node_json["nodeType"] == "item" {
+                    unlock_strats.push(json::object! {
+                        "name": "All Items Spawn From Start",
+                        "requires": ["f_AllItemsSpawn"]
+                    })?;
+                }
+
+                extra_nodes.push(unlocked_node_json);
 
                 if lock.has_key("lock") {
                     ensure!(lock["lock"].is_array());
@@ -1078,7 +1090,7 @@ impl GameData {
                         } else {
                             JsonValue::Array(vec![])
                         };
-                        obstacles.push(json::object!{
+                        obstacles.push(json::object! {
                             "id": obstacle_flag.as_ref().unwrap().to_string(),
                             "requires": []
                         })?;

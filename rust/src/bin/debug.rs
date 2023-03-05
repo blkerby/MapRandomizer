@@ -78,6 +78,7 @@ fn main() -> Result<()> {
         streamlined_escape: true,
         mark_map_stations: true,
         item_markers: ItemMarkers::ThreeTiered,
+        all_items_spawn: true,
         fast_elevators: true,
         debug_options: None,
     };

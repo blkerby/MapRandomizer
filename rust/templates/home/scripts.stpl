@@ -60,6 +60,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("itemMarkersMajors").checked = false;
         document.getElementById("itemMarkersUniques").checked = false;
         document.getElementById("itemMarkersThreeTiered").checked = false;
+        document.getElementById("allItemsSpawnNo").checked = true;
         document.getElementById("fastElevatorsNo").checked = true;
     }
     if (document.getElementById("qualityOfLifeYes").checked) {
@@ -70,6 +71,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("itemMarkersMajors").checked = false;
         document.getElementById("itemMarkersUniques").checked = false;
         document.getElementById("itemMarkersThreeTiered").checked = true;
+        document.getElementById("allItemsSpawnYes").checked = true;
         document.getElementById("fastElevatorsYes").checked = true;
     }    
 }
