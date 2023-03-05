@@ -33,6 +33,30 @@
 
             <div class="form-group row m-3">
                 <div class="col-sm-5">
+                <label class="col-form-label" for="mark_map_stations">Map stations always visible on map</label>
+                </div>
+                <div class="col-sm-2 btn-group" role="group">
+                    <input type="radio" class="btn-check" name="mark_map_stations" id="markMapStationsNo" value="false">
+                    <label class="btn btn-outline-primary" for="markMapStationsNo">No</label>
+                    <input type="radio" class="btn-check" name="mark_map_stations" id="markMapStationsYes" value="true" checked>
+                    <label class="btn btn-outline-primary" for="markMapStationsYes">Yes</label>
+                </div>
+            </div>
+
+            <div class="form-group row m-3">
+                <div class="col-sm-5">
+                <label class="col-form-label" for="all_items_spawn">All items spawn at start of game</label>
+                </div>
+                <div class="col-sm-2 btn-group" role="group">
+                    <input type="radio" class="btn-check" name="all_items_spawn" id="allItemsSpawnNo" value="false">
+                    <label class="btn btn-outline-primary" for="allItemsSpawnNo">No</label>
+                    <input type="radio" class="btn-check" name="all_items_spawn" id="allItemsSpawnYes" value="true" checked>
+                    <label class="btn btn-outline-primary" for="allItemsSpawnYes">Yes</label>
+                </div>
+            </div>
+            
+            <div class="form-group row m-3">
+                <div class="col-sm-5">
                 <label class="col-form-label" for="supers_double">Supers do double damage to Mother Brain</label>
                 </div>
                 <div class="col-sm-2 btn-group" role="group">
@@ -55,18 +79,6 @@
                 </div>
             </div>
     
-            <div class="form-group row m-3">
-                <div class="col-sm-5">
-                <label class="col-form-label" for="mark_map_stations">Map stations always visible on map</label>
-                </div>
-                <div class="col-sm-2 btn-group" role="group">
-                    <input type="radio" class="btn-check" name="mark_map_stations" id="markMapStationsNo" value="false">
-                    <label class="btn btn-outline-primary" for="markMapStationsNo">No</label>
-                    <input type="radio" class="btn-check" name="mark_map_stations" id="markMapStationsYes" value="true" checked>
-                    <label class="btn btn-outline-primary" for="markMapStationsYes">Yes</label>
-                </div>
-            </div>
-
             <div class="form-group row m-3">
                 <label class="col-sm-5 col-form-label" for="fast_elevators">Fast elevators</label>
                 <div class="col-sm-2 btn-group" role="group">

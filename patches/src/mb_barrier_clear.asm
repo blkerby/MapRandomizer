@@ -105,6 +105,8 @@ motherbrain:
     ; Remove invisible spikes where Mother Brain used to be:
     jsl remove_spikes
 done:
+    
+    jsl $80A176
     rts
 
 

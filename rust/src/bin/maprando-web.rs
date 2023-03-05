@@ -26,7 +26,7 @@ use rand::{RngCore, SeedableRng};
 use sailfish::TemplateOnce;
 use serde_derive::{Deserialize, Serialize};
 
-const VERSION: usize = 43;
+const VERSION: usize = 44;
 
 #[derive(Serialize, Deserialize, Clone)]
 struct Preset {
@@ -163,6 +163,7 @@ struct RandomizeRequest {
     streamlined_escape: Text<bool>,
     mark_map_stations: Text<bool>,
     item_markers: Text<String>,
+    all_items_spawn: Text<bool>,
     fast_elevators: Text<bool>,
 }
 
@@ -190,6 +191,7 @@ struct SeedData {
     streamlined_escape: bool,
     mark_map_stations: bool,
     item_markers: String,
+    all_items_spawn: bool,
     fast_elevators: bool,
 }
 
@@ -218,6 +220,7 @@ struct SeedHeaderTemplate<'a> {
     streamlined_escape: bool,
     mark_map_stations: bool,
     item_markers: String,
+    all_items_spawn: bool,
     fast_elevators: bool,
 }
 
@@ -255,6 +258,7 @@ fn render_seed(seed_name: &str, seed_data: &SeedData) -> Result<(String, String)
         streamlined_escape: seed_data.streamlined_escape,
         mark_map_stations: seed_data.mark_map_stations,
         item_markers: seed_data.item_markers.clone(),
+        all_items_spawn: seed_data.all_items_spawn,
         fast_elevators: seed_data.fast_elevators,
     };
     let seed_header_html = seed_header_template.render_once()?;
@@ -516,6 +520,7 @@ fn get_difficulty_tiers(
             streamlined_escape: difficulty.streamlined_escape,
             mark_map_stations: difficulty.mark_map_stations,
             item_markers: difficulty.item_markers,
+            all_items_spawn: difficulty.all_items_spawn,
             fast_elevators: difficulty.fast_elevators,
             debug_options: difficulty.debug_options.clone(),
         };
@@ -630,6 +635,7 @@ async fn randomize(
             "3-Tiered" => ItemMarkers::ThreeTiered,
             _ => panic!("Unrecognized item_markers: {}", req.item_markers.0),
         },
+        all_items_spawn: req.all_items_spawn.0,
         fast_elevators: req.fast_elevators.0,
         debug_options: if app_data.debug {
             Some(DebugOptions {
@@ -705,6 +711,7 @@ async fn randomize(
         streamlined_escape: req.streamlined_escape.0,
         mark_map_stations: req.mark_map_stations.0,
         item_markers: req.item_markers.0.clone(),
+        all_items_spawn: req.all_items_spawn.0,
         fast_elevators: req.fast_elevators.0,
     };
 

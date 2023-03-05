@@ -78,6 +78,7 @@ pub struct DifficultyConfig {
     pub streamlined_escape: bool,
     pub mark_map_stations: bool,
     pub item_markers: ItemMarkers,
+    pub all_items_spawn: bool,
     pub fast_elevators: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub debug_options: Option<DebugOptions>,
@@ -522,6 +523,10 @@ impl<'r> Randomizer<'r> {
         let mut flag_vec = vec![false; self.game_data.flag_isv.keys.len()];
         let tourian_open_idx = self.game_data.flag_isv.index_by_key["f_TourianOpen"];
         flag_vec[tourian_open_idx] = true;
+        if self.difficulty_tiers[0].all_items_spawn {
+            let all_items_spawn_idx = self.game_data.flag_isv.index_by_key["f_AllItemsSpawn"];
+            flag_vec[all_items_spawn_idx] = true;    
+        }
         flag_vec
     }
 

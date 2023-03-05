@@ -3,6 +3,25 @@
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-44---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 44 (???)</a>:
+<ul>
+<li>A quality-of-life option is added to spawn all items from the start of the game, and is enabled by default:
+    <ul>
+    <li>This allows earlier access to items which would otherwise be locked by waking Zebes or defeating Phantoon.
+    <li>The item in Wrecked Ship East Super Room remains inaccessible until Phantoon is defeated,
+    due to the deactivated robot blocking the item.
+    <li>The item in the ceiling of Blue Brinstar Energy Tank Room remains less accessible until Zebes is awake,
+    due to the absence of enemies to use for a damage boost.
+    <li>If enabled, this option is taken into account in the logic.
+    </ul>
+<li>(TODO) A quality-of-life option is added for fast door transitions. The implementation is conservative, to avoid 
+    disrupting strats on room entry:
+    <ul>
+    <li>Fade-out and scroll speeds are doubled.
+    <li>Fade-in speed is unchanged.
+    </ul>
+</ul>
+
 <p><a href="https://version-43---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 43 (2023-03-04)</a>:
 <ul>
 <li>Gray doors are restored in a few special rooms to bring them closer to vanilla, while continuing to avoid 

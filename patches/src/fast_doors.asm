@@ -53,8 +53,8 @@ org $80AFF6
 	dw !C
 org $80B02A
 	dw !Y
-org $82D962
-	dw !F
+;org $82D962
+;	dw !F
 
 org $82DE50
 	BPL $0F
@@ -71,12 +71,9 @@ org $82DE50
 ;	NOP		;Uncomment only if S equals $0004
 	ASL A		;Uncomment only if S equals $0008
 
-org $82e3c5
-	jsr fix_samus_pos
-
 ;;; Door centering speed by Kazuto:
 !Speed = 2	;Pixels per-frame to slide the screen, default $01
-!FreeSpace = $82F880	;Safe to move anywhere in ROM
+!FreeSpace = $82F900	; Needs to be in bank $82
 
 org $82E325	;Horizontal doors
 	NOP
@@ -84,12 +81,16 @@ org $82E325	;Horizontal doors
 	LDX #$0004
 	PLP
 	JSL SlideCode
+
 org $82E339	;Vertical doors
 	NOP
 	PHP
 	LDX #$0000
 	PLP
 	JSL SlideCode
+
+org $82E2DB
+	JSR set_fadeout
 
 org !FreeSpace
 SlideCode:
@@ -117,39 +118,12 @@ SlideCode:
 	STA !layer1_x,X
 	RTL
 
-;;; for double door speed, adjust samus position depending on transition:
-;;; negate half of samus speed ($0.$C800 horizontal, $1.$8000 vertical) + half of camera move (4 px)
-fix_samus_pos:
-	lda !direction
-	bit #$0002
-	beq .horizontal
-.vertical:
-	bit #$0001
-	beq .down
-.up:
-	;; samus_y += $5.$8000
-	lda !samus_sy : clc : adc #$8000 : sta !samus_sy
-	lda #$0005 : adc !samus_y : sta !samus_y
-	bra .end
-.down:
-	;; samus_y -= $5.$8000
-	lda !samus_sy : sec : sbc #$8000 : sta !samus_sy
-	lda !samus_y : sbc #$0005 : sta !samus_y
-	bra .end
-.horizontal:
-	bit #$0001
-	beq .right
-.left:
-	;; samus_x += $4.$C800
-	lda !samus_sx : clc : adc #$C800 : sta !samus_sx
-	lda #$0004 : adc !samus_x : sta !samus_x
-	bra .end
-.right:
-	;; samus_x -= $4.$C800
-	lda !samus_sx : sec : sbc #$C800 : sta !samus_sx
-	lda !samus_x : sbc #$0004 : sta !samus_x
-.end:
-	lda !samus_x		; hijacked code
-	rts
+; Based on vanilla code at $82D961. We don't modify it in place because it is still
+; used by fade-in (which is kept vanilla speed).
+set_fadeout:
+	LDA #$0006    ; double speed (vanilla: LDA #$000C)
+	STA $7EC402	  ; Palette change denominator = Ch
+	JSR $DA02  	  ; Advance gradual colour change of all palettes
+	RTS
 
-warnpc $82f980
+warnpc $82fa00

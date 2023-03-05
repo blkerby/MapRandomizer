@@ -1,10 +1,14 @@
 
+for next release:
+  - fix MB barrier clear when using fast doors.
+
 priority:
-  - fix logic problem with maridia tube flag (maybe problem with "obstaclesCleared"?)
   - put ammo-based enemyKill in logic
   - add caution tape to dangerous doors
+  - figure out if fast doors can be good (maybe don't touch fade-in rate).
 
 later:
+  - add reverse botwoon logic from osse's PR
   - refine cross room shinesparks:
      - excessShinesparkFrames
      - slopes
@@ -12,6 +16,7 @@ later:
   - proper front page
   - music options
   - sprite customization (?),
+  - controller config special settings (moonwalk) customization
   - integrate Selicre's interactive spoiler map
   - tweak balancing:
     - give a little more weight to save coverage
@@ -25,14 +30,11 @@ later:
       like requiring multiple adjacentRunway from different nodes in the same strat.
 
 TODO:
-- option to have items still spawn when Phantoon alive or Zebes asleep
-- maybe speed up shaktool? (but without messing up the initial power bomb)
+- fix bug where controls are locked when dying from enemy during elevator
 - fix bug where suit color does not change when changing suits while taking damage (e.g. lava dive)?
 - fix bug where music is wrong after quick reload (even after going to next room).
 - clean up the web service, to reduce the amount of boilerplate plumbing settings around.
 - add front page to website
-- put back gray doors locked by enemy kills (Metal Pirates, etc.)
-  - decide whether these should still wake the planet?
 - explain about doors being turned blue
 - increase amount of rolling saves?
   - auto-reload in save room to go back a save? (what about in Landing Site?)
@@ -52,6 +54,7 @@ TODO:
 - With a future ML model, treat Mother Brain room as 0-way (instead of one-way) to ensure items, maps, etc.
   cannot be locked behind Mother Brain.
     - Improve map connectedness so it's less likely for a large area to have only one exit.
+    - Spread out placement of single-tile, single-door rooms to help balancing of saves & refills.
 - Logic updates:
   - Add speedball strat in Big Pink from 13 to 1 (to top left door)
 - Fix map tile at Big Pink bottom missile
