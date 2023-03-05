@@ -1,7 +1,6 @@
-check metal pirates right entry
-check baby kraid right entry
 
 priority:
+  - fix logic problem with maridia tube flag (maybe problem with "obstaclesCleared"?)
   - put ammo-based enemyKill in logic
   - add caution tape to dangerous doors
 

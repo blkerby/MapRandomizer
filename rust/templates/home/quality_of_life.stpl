@@ -26,7 +26,7 @@
                     <label class="btn btn-outline-primary" for="itemMarkersMajors">Majors</label>
                     <input type="radio" class="btn-check" name="item_markers" id="itemMarkersUniques" value="Uniques">
                     <label class="btn btn-outline-primary" for="itemMarkersUniques">Uniques</label>
-                    <input type="radio" class="btn-check" name="item_markers" id="itemMarkersThreeTiered" value="3-Tiered">
+                    <input type="radio" class="btn-check" name="item_markers" id="itemMarkersThreeTiered" value="3-Tiered" checked>
                     <label class="btn btn-outline-primary" for="itemMarkersThreeTiered">3-Tiered</label>
                 </div>
             </div>
