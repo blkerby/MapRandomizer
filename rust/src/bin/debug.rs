@@ -80,6 +80,7 @@ fn main() -> Result<()> {
         item_markers: ItemMarkers::ThreeTiered,
         all_items_spawn: true,
         fast_elevators: true,
+        fast_doors: true,
         debug_options: None,
     };
 

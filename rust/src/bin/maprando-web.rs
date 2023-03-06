@@ -165,6 +165,7 @@ struct RandomizeRequest {
     item_markers: Text<String>,
     all_items_spawn: Text<bool>,
     fast_elevators: Text<bool>,
+    fast_doors: Text<bool>,
 }
 
 #[derive(MultipartForm)]
@@ -193,6 +194,7 @@ struct SeedData {
     item_markers: String,
     all_items_spawn: bool,
     fast_elevators: bool,
+    fast_doors: bool,
 }
 
 fn get_seed_name(seed_data: &SeedData) -> String {
@@ -222,6 +224,7 @@ struct SeedHeaderTemplate<'a> {
     item_markers: String,
     all_items_spawn: bool,
     fast_elevators: bool,
+    fast_doors: bool,
 }
 
 #[derive(TemplateOnce)]
@@ -260,6 +263,7 @@ fn render_seed(seed_name: &str, seed_data: &SeedData) -> Result<(String, String)
         item_markers: seed_data.item_markers.clone(),
         all_items_spawn: seed_data.all_items_spawn,
         fast_elevators: seed_data.fast_elevators,
+        fast_doors: seed_data.fast_doors,
     };
     let seed_header_html = seed_header_template.render_once()?;
 
@@ -522,6 +526,7 @@ fn get_difficulty_tiers(
             item_markers: difficulty.item_markers,
             all_items_spawn: difficulty.all_items_spawn,
             fast_elevators: difficulty.fast_elevators,
+            fast_doors: difficulty.fast_doors,
             debug_options: difficulty.debug_options.clone(),
         };
         if Some(&new_difficulty) != out.last() {
@@ -637,6 +642,7 @@ async fn randomize(
         },
         all_items_spawn: req.all_items_spawn.0,
         fast_elevators: req.fast_elevators.0,
+        fast_doors: req.fast_doors.0,
         debug_options: if app_data.debug {
             Some(DebugOptions {
                 new_game_extra: true,
@@ -713,6 +719,7 @@ async fn randomize(
         item_markers: req.item_markers.0.clone(),
         all_items_spawn: req.all_items_spawn.0,
         fast_elevators: req.fast_elevators.0,
+        fast_doors: req.fast_doors.0,
     };
 
     let output_rom = make_rom(&rom, &randomization, &app_data.game_data).unwrap();

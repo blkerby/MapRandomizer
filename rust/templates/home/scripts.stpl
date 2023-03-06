@@ -62,6 +62,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("itemMarkersThreeTiered").checked = false;
         document.getElementById("allItemsSpawnNo").checked = true;
         document.getElementById("fastElevatorsNo").checked = true;
+        document.getElementById("fastDoorsNo").checked = true;
     }
     if (document.getElementById("qualityOfLifeYes").checked) {
         document.getElementById("supersDoubleYes").checked = true;
@@ -73,6 +74,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("itemMarkersThreeTiered").checked = true;
         document.getElementById("allItemsSpawnYes").checked = true;
         document.getElementById("fastElevatorsYes").checked = true;
+        document.getElementById("fastDoorsYes").checked = true;
     }    
 }
 function qualityOfLifeSettingChanged() {

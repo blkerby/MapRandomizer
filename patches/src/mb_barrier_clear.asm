@@ -10,88 +10,44 @@ org $8FEB00
     lda $7ed829
     bit #$0001
     beq phantoon  ; skip clearing if kraid isn't dead
-    lda $7f0276  ; copy level data from neighboring air tile
-    sta $7f0274
-    sta $7f02f4
-    sta $7f0374
-    sta $7f03f4
-    sta $7f0474
-    sta $7f04f4
-    sep #$20
-    lda $7f653a  ; copy bts from neighboring air tile
-    sta $7f6539
-    sta $7f6579
-    sta $7f65b9
-    sta $7f65f9
-    sta $7f6639
-    sta $7f6679
-    rep #$20
+
+    jsl $8483D7
+    db $39
+    db $04
+    dw clear_barrier_plm
 
     ; clear phantoon barrier
 phantoon:
     lda $7ed82b
     and #$0001
     beq draygon  ; skip clearing if phantoon isn't dead
-    lda $7f0276
-    sta $7f0272
-    sta $7f02f2
-    sta $7f0372
-    sta $7f03f2
-    sta $7f0472
-    sta $7f04f2
-    sep #$20
-    lda $7f653a
-    sta $7f6538
-    sta $7f6578
-    sta $7f65b8
-    sta $7f65f8
-    sta $7f6638
-    sta $7f6678
-    rep #$20
+
+    jsl $8483D7
+    db $38
+    db $04
+    dw clear_barrier_plm
 
     ; clear draygon barrier
 draygon:
     lda $7ed82c
     bit #$0001
     beq ridley  ; skip clearing if draygon isn't dead
-    lda $7f0276
-    sta $7f0270
-    sta $7f02f0
-    sta $7f0370
-    sta $7f03f0
-    sta $7f0470
-    sta $7f04f0
-    sep #$20
-    lda $7f653a
-    sta $7f6537
-    sta $7f6577
-    sta $7f65b7
-    sta $7f65f7
-    sta $7f6637
-    sta $7f6677
-    rep #$20
+
+    jsl $8483D7
+    db $37
+    db $04
+    dw clear_barrier_plm
 
     ; clear ridley barrier
 ridley:
     lda $7ed82a
     bit #$0001
     beq motherbrain  ; skip clearing if ridley isn't dead
-    lda $7f0276
-    sta $7f026e
-    sta $7f02ee
-    sta $7f036e
-    sta $7f03ee
-    sta $7f046e
-    sta $7f04ee
-    sep #$20
-    lda $7f653a
-    sta $7f6536
-    sta $7f6576
-    sta $7f65b6
-    sta $7f65f6
-    sta $7f6636
-    sta $7f6676
-    rep #$20
+
+    jsl $8483D7
+    db $36
+    db $04
+    dw clear_barrier_plm
 
 motherbrain:
     lda $7ed82d
@@ -105,8 +61,6 @@ motherbrain:
     ; Remove invisible spikes where Mother Brain used to be:
     jsl remove_spikes
 done:
-    
-    jsl $80A176
     rts
 
 
@@ -143,3 +97,41 @@ remove_spikes:
     rtl
 
 warnpc $84F300
+
+org $84FA00
+
+clear_barrier_plm:
+    dw $B3D0, clear_barrier_inst
+
+clear_barrier_inst:
+    dw $0001, clear_barrier_draw
+    dw $86BC
+
+clear_barrier_draw:
+    dw $8006, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $0000
+
+;org $82E801
+;    JSR after_level_data_load
+;
+;org $82EAA9
+;    JSR after_level_data_load
+;
+;org $82FA00
+;after_level_data_load:
+;    INC $09C8
+;    LDA #$0000  ; run hi-jacked instruction
+;    RTS
+
+;org $82E725
+;    JSL end_door_transition
+;
+;org $82FA00      ; TODO: add this to rom map
+;end_door_transition:
+;    INC $09C8
+;    jsl $80A149
+;;    jsl $80A176   ; Display the viewable part of the room
+;    JSL $908E0F   ; run hi-jacked instruction
+;    RTL
+
+
+
