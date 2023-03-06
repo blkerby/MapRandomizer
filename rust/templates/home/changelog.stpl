@@ -3,7 +3,7 @@
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-44---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 44 (???)</a>:
+<p><a href="https://version-44---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 44 (2023-03-05)</a>:
 <ul>
 <li>A quality-of-life option is added to spawn all items from the start of the game, and is enabled by default:
     <ul>
@@ -14,11 +14,11 @@ about 15 seconds to load.
     due to the absence of enemies to use for a damage boost.
     <li>If enabled, this option is taken into account in the logic.
     </ul>
-<li>(TODO) A quality-of-life option is added for fast door transitions. The implementation is conservative, to avoid 
-    disrupting strats on room entry:
+<li>A quality-of-life option is added for fast door transitions, and is enabled by default.
     <ul>
     <li>Fade-out and scroll speeds are doubled.
-    <li>Fade-in speed is unchanged.
+    <li>To avoid disrupting strats on room entry, fade-in speed is unchanged (a difference from "fast doors" in
+    other randomizers).
     </ul>
 </ul>
 

@@ -80,6 +80,7 @@ pub struct DifficultyConfig {
     pub item_markers: ItemMarkers,
     pub all_items_spawn: bool,
     pub fast_elevators: bool,
+    pub fast_doors: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub debug_options: Option<DebugOptions>,
 }

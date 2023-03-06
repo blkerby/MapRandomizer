@@ -142,6 +142,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         item_markers: ItemMarkers::ThreeTiered,
         all_items_spawn: true,
         fast_elevators: true,
+        fast_doors: true,
         debug_options: Some(DebugOptions {
             new_game_extra: true,
             extended_spoiler: true,

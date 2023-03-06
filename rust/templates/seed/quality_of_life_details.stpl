@@ -22,3 +22,7 @@
     <div class="col-6">Fast elevators:</div>
     <div class="col-6"><%= if fast_elevators { "Yes" } else { "No" }%></div>
 </div>
+<div class="row">
+    <div class="col-6">Fast doors:</div>
+    <div class="col-6"><%= if fast_doors { "Yes" } else { "No" }%></div>
+</div>
