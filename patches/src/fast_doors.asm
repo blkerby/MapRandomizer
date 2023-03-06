@@ -10,7 +10,6 @@ arch snes.cpu
 
 ;Door stuff
 !S = $0008	;Door scroll speed
-!F = $0006	;Screen fade speed
 
 ;Don't touch these values
 !X = $0100/!S	;Horizontal loop counter, X times S should equal $100
@@ -53,8 +52,6 @@ org $80AFF6
 	dw !C
 org $80B02A
 	dw !Y
-;org $82D962
-;	dw !F
 
 org $82DE50
 	BPL $0F
