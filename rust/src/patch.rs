@@ -267,11 +267,16 @@ impl<'a> Patcher<'a> {
         &mut self,
         src_exit_ptr: usize,
         dst_entrance_ptr: usize,
+        cross_area: bool,
         extra_door_asm_map: &HashMap<NodePtr, (AsmPtr, AsmPtr)>,
     ) -> Result<()> {
         let mut door_data = self.orig_rom.read_n(dst_entrance_ptr, 12)?.to_vec();
-        // Trigger the map to reload (TODO: only do this for doors that cross areas):
-        door_data[2] |= 0x40;
+        // Trigger the map to reload if the door crosses areas:
+        if cross_area {
+            door_data[2] |= 0x40;
+        } else {
+            door_data[2] &= !0x40;
+        }
         if let Some(&(new_asm, end_asm)) = extra_door_asm_map.get(&src_exit_ptr) {
             // Set extra custom ASM applicable to exiting from the given door exit:
             door_data[10..12].copy_from_slice(&((new_asm as u16).to_le_bytes()));
@@ -528,10 +533,17 @@ impl<'a> Patcher<'a> {
         for &((src_exit_ptr, src_entrance_ptr), (dst_exit_ptr, dst_entrance_ptr), _bidirectional) in
             &self.randomization.map.doors
         {
+            let (src_room_idx, _) = self.game_data.room_and_door_idxs_by_door_ptr_pair[&(src_exit_ptr, src_entrance_ptr)];
+            let (dst_room_idx, _) = self.game_data.room_and_door_idxs_by_door_ptr_pair[&(dst_exit_ptr, dst_entrance_ptr)];
+            let src_area = self.map.area[src_room_idx];
+            let dst_area = self.map.area[dst_room_idx];
+            let cross_area = src_area != dst_area;
+
             if src_exit_ptr.is_some() && dst_entrance_ptr.is_some() {
                 self.write_one_door_data(
                     src_exit_ptr.unwrap(),
                     dst_entrance_ptr.unwrap(),
+                    cross_area,
                     &extra_door_asm_map,
                 )?;
             }
@@ -539,6 +551,7 @@ impl<'a> Patcher<'a> {
                 self.write_one_door_data(
                     dst_exit_ptr.unwrap(),
                     src_entrance_ptr.unwrap(),
+                    cross_area,
                     &extra_door_asm_map,
                 )?;
             }
