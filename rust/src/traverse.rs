@@ -6,7 +6,7 @@ use std::{
 use hashbrown::HashSet;
 
 use crate::{
-    game_data::{Capacity, GameData, Item, Link, Requirement, WeaponMask},
+    game_data::{Capacity, GameData, Item, Link, Requirement, WeaponMask, EnemyVulnerabilities},
     randomize::DifficultyConfig,
 };
 
@@ -77,6 +77,48 @@ fn get_charge_damage(global: &GlobalState) -> f32 {
         (true, _, true, false) => 250.0,
         (true, _, true, true) => 300.0,
     } * 3.0;
+}
+
+fn apply_enemy_kill_requirement(
+    global: &GlobalState,
+    mut local: LocalState,
+    count: i32,
+    vul: &EnemyVulnerabilities,
+) -> Option<LocalState> {
+    // Prioritize using weapons that do not require ammo:
+    if global.weapon_mask & vul.non_ammo_vulnerabilities != 0 {
+        return Some(local);
+    }
+
+    let mut hp = vul.hp;  // HP per enemy
+
+    // Next use Missiles:
+    if vul.missile_damage > 0 {
+        let missiles_to_use_per_enemy = (hp + vul.missile_damage - 1) / vul.missile_damage;
+        hp -= missiles_to_use_per_enemy * vul.missile_damage as i32;
+        local.missiles_used += missiles_to_use_per_enemy * count;
+    }
+
+    // Then use Supers (some overkill is possible, where we could have used fewer Missiles, but we ignore that):
+    if vul.super_damage > 0 {
+        let supers_to_use_per_enemy = (hp + vul.super_damage - 1) / vul.super_damage;
+        hp -= supers_to_use_per_enemy * vul.super_damage as i32;
+        local.supers_used += supers_to_use_per_enemy * count;
+    }
+
+    // Finally, use Power Bombs (overkill is possible, where we could have used fewer Missiles or Supers, but we ignore that):
+    if vul.power_bomb_damage > 0 {
+        let pbs_to_use = (hp + vul.power_bomb_damage - 1) / vul.power_bomb_damage;
+        hp -= pbs_to_use * vul.power_bomb_damage as i32;
+        // Power bombs hit all enemies in the group, so we do not multiply by the count.
+        local.power_bombs_used += pbs_to_use;
+    }
+
+    if hp <= 0 {
+        Some(local)
+    } else {
+        None
+    }
 }
 
 fn apply_phantoon_requirement(
@@ -643,13 +685,11 @@ pub fn apply_requirement(
                 Some(new_local)
             }
         }
-        Requirement::EnemyKill(weapon_mask) => {
-            // TODO: Take into account ammo-kill strats
-            if global.weapon_mask & *weapon_mask != 0 {
-                Some(local)
-            } else {
-                None
-            }
+        Requirement::EnemyKill {
+            count,
+            vul,
+        } => {
+            apply_enemy_kill_requirement(global, local, *count, vul)
         }
         Requirement::PhantoonFight { } => {
             apply_phantoon_requirement(global, local, difficulty.phantoon_proficiency)

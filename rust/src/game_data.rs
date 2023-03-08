@@ -115,7 +115,10 @@ pub enum Requirement {
     SuperRefill,
     PowerBombRefill,
     EnergyDrain,
-    EnemyKill(WeaponMask),
+    EnemyKill {
+        count: i32,
+        vul: EnemyVulnerabilities,
+    },
     PhantoonFight {},
     DraygonFight {
         can_be_patient_tech_id: usize,
@@ -250,6 +253,15 @@ pub struct RoomGeometry {
     pub items: Vec<RoomGeometryItem>,
 }
 
+#[derive(Clone, Debug)]
+pub struct EnemyVulnerabilities {
+    pub hp: i32,
+    pub non_ammo_vulnerabilities: WeaponMask,
+    pub missile_damage: i32,
+    pub super_damage: i32,
+    pub power_bomb_damage: i32,
+}
+
 // TODO: Clean this up, e.g. pull out a separate structure to hold
 // temporary data used only during loading, replace any
 // remaining JsonValue types in the main struct with something
@@ -264,8 +276,9 @@ pub struct GameData {
     pub item_isv: IndexedVec<String>,
     weapon_isv: IndexedVec<String>,
     enemy_attack_damage: HashMap<(String, String), Capacity>,
-    enemy_vulnerabilities: HashMap<String, WeaponMask>,
+    enemy_vulnerabilities: HashMap<String, EnemyVulnerabilities>,
     weapon_json_map: HashMap<String, JsonValue>,
+    non_ammo_weapon_mask: WeaponMask,
     tech_json_map: HashMap<String, JsonValue>,
     helper_json_map: HashMap<String, JsonValue>,
     tech: HashMap<String, Option<Requirement>>,
@@ -426,13 +439,17 @@ impl GameData {
             if weapon_json["situational"].as_bool().unwrap() {
                 continue;
             }
-            if weapon_json.has_key("shotRequires") {
-                // TODO: Take weapon ammo into account instead of skipping this.
-                continue;
-            }
             self.weapon_json_map
                 .insert(name.to_string(), weapon_json.clone());
             self.weapon_isv.add(name);
+        }
+
+        self.non_ammo_weapon_mask = 0;
+        for (i, weapon) in self.weapon_isv.keys.iter().enumerate() {
+            let weapon_json = &self.weapon_json_map[weapon];
+            if !weapon_json.has_key("shotRequires") {
+                self.non_ammo_weapon_mask |= 1 << i;
+            }
         }
         Ok(())
     }
@@ -459,7 +476,30 @@ impl GameData {
         Ok(())
     }
 
-    fn get_enemy_vulnerabilities(&self, enemy_json: &JsonValue) -> Result<WeaponMask> {
+    fn get_enemy_damage_multiplier(&self, enemy_json: &JsonValue, weapon_name: &str) -> f32 {
+        for multiplier in enemy_json["damageMultipliers"].members() {
+            if multiplier["weapon"] == weapon_name {
+                return multiplier["value"].as_f32().unwrap();
+            }
+        }
+        1.0
+    }
+
+    fn get_enemy_damage_weapon(&self, enemy_json: &JsonValue, weapon_name: &str, vul_mask: WeaponMask) -> i32 {
+        let multiplier = self.get_enemy_damage_multiplier(enemy_json, weapon_name);
+        let weapon_idx = self.weapon_isv.index_by_key[weapon_name];
+        if vul_mask & (1 << weapon_idx) == 0 {
+            return 0;
+        }
+        match weapon_name {
+            "Missile" => (100.0 * multiplier) as i32,
+            "Super" => (300.0 * multiplier) as i32,
+            "PowerBomb" => (400.0 * multiplier) as i32,
+            _ => panic!("Unsupported weapon: {}", weapon_name),
+        }
+    }
+
+    fn get_enemy_vulnerabilities(&self, enemy_json: &JsonValue) -> Result<EnemyVulnerabilities> {
         ensure!(enemy_json["invul"].is_array());
         let invul: HashSet<String> = enemy_json["invul"]
             .members()
@@ -483,7 +523,14 @@ impl GameData {
             }
             vul_mask |= 1 << i;
         }
-        return Ok(vul_mask);
+
+        Ok(EnemyVulnerabilities {
+            non_ammo_vulnerabilities: vul_mask & self.non_ammo_weapon_mask,
+            hp: enemy_json["hp"].as_i32().unwrap(),
+            missile_damage: self.get_enemy_damage_weapon(enemy_json, "Missile", vul_mask),
+            super_damage: self.get_enemy_damage_weapon(enemy_json, "Super", vul_mask),
+            power_bomb_damage: self.get_enemy_damage_weapon(enemy_json, "PowerBomb", vul_mask),
+        })
     }
 
     fn load_helpers(&mut self) -> Result<()> {
@@ -664,14 +711,29 @@ impl GameData {
                 // We only consider enemy kill methods that are non-situational and do not require ammo.
                 // TODO: Consider all methods.
                 let mut enemy_set: HashSet<String> = HashSet::new();
+                let mut enemy_list: Vec<(String, i32)> = Vec::new();
                 ensure!(value["enemies"].is_array());
                 for enemy_group in value["enemies"].members() {
                     ensure!(enemy_group.is_array());
+                    let mut last_enemy_name: Option<String> = None;
+                    let mut cnt = 0;
                     for enemy in enemy_group.members() {
-                        enemy_set.insert(enemy.as_str().unwrap().to_string());
+                        let enemy_name = enemy.as_str().unwrap().to_string();
+                        enemy_set.insert(enemy_name.clone());
+                        if Some(&enemy_name) == last_enemy_name.as_ref() {
+                            cnt += 1;
+                        } else {
+                            if cnt > 0 {
+                                enemy_list.push((last_enemy_name.unwrap(), cnt));
+                            }
+                            last_enemy_name = Some(enemy_name);
+                            cnt = 1;
+                        }
+                    }
+                    if cnt > 0 {
+                        enemy_list.push((last_enemy_name.unwrap(), cnt));
                     }
                 }
-                ensure!(enemy_set.len() > 0);
 
                 if enemy_set.contains("Phantoon") {
                     return Ok(Requirement::PhantoonFight {});
@@ -722,9 +784,13 @@ impl GameData {
                     }
                 }
                 let mut reqs: Vec<Requirement> = Vec::new();
-                for enemy in &enemy_set {
-                    let vul = self.enemy_vulnerabilities[enemy];
-                    reqs.push(Requirement::EnemyKill(vul & allowed_weapons));
+                for (enemy_name, count) in &enemy_list {
+                    let mut vul = self.enemy_vulnerabilities[enemy_name].clone();
+                    vul.non_ammo_vulnerabilities &= allowed_weapons;
+                    reqs.push(Requirement::EnemyKill {
+                        count: *count,
+                        vul: vul,
+                    });
                 }
                 return Ok(Requirement::make_and(reqs));
             } else if key == "energyAtMost" {

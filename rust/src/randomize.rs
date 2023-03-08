@@ -290,20 +290,22 @@ impl<'a> Preprocessor<'a> {
                 &self.game_data.node_can_leave_charged_map[&(other_room_id, other_node_id)];
             let mut req_vec: Vec<Requirement> = vec![];
 
-            // println!("Link strat: {}", _link.strat_name);
-            // println!("frames_remaining={frames_remaining}, shinespark_frames={shinespark_frames}");
-            // println!("In-room runways:");
-            // for runway in runways {
-            //     println!("{:?}", runway);
-            // }
-            // println!("Other-room runways:");
-            // for runway in other_runways {
-            //     println!("{:?}", runway);
-            // }
-            // println!("canLeaveCharged:");
-            // for can_leave_charged in can_leave_charged_vec {
-            //     println!("{:?}", can_leave_charged);
-            // }
+            let from_triple = self.game_data.vertex_isv.keys[_link.from_vertex_id];
+            let to_triple = self.game_data.vertex_isv.keys[_link.to_vertex_id];
+            println!("Link: from={:?}, to={:?}, strat={}", from_triple, to_triple, _link.strat_name);
+            println!("frames_remaining={frames_remaining}, shinespark_frames={shinespark_frames}");
+            println!("In-room runways:");
+            for runway in runways {
+                println!("{:?}", runway);
+            }
+            println!("Other-room runways:");
+            for runway in other_runways {
+                println!("{:?}", runway);
+            }
+            println!("canLeaveCharged:");
+            for can_leave_charged in can_leave_charged_vec {
+                println!("{:?}", can_leave_charged);
+            }
 
             // Strats for in-room runways:
             for runway in runways {
@@ -375,7 +377,7 @@ impl<'a> Preprocessor<'a> {
                 ]));
             }
 
-            // println!("Strats: {:?}\n", req_vec);
+            println!("Strats: {:?}\n", req_vec);
             let out = Requirement::make_or(req_vec);
             out
         } else {

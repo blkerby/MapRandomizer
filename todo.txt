@@ -1,16 +1,19 @@
 
-for next release:
-  - fix MB barrier clear when using fast doors.
-
 priority:
   - put ammo-based enemyKill in logic
   - add caution tape to dangerous doors
-  - figure out if fast doors can be good (maybe don't touch fade-in rate).
+  - improve (semi)closed logic: allow item progression by unlocking way back
+  - merge semiclosed/closed into single mode?:
+    - closed right now is overconstrained so it often dumps etanks earlier than intended (runs out of missiles to place).
+      There's not much possibility of it withholding etanks for a very long time, due to the fact that it's trying
+      to withhold supers and PBs too even after the first.
+    - change it to be like semiclosed, except treat etanks/reserves as another category like supers/PBs, where once it
+      places one it can place more. Should give more variety.
 
 later:
   - add reverse botwoon logic from osse's PR
   - refine cross room shinesparks:
-     - excessShinesparkFrames
+     - excessShinesparkFrames (reverse)
      - slopes
   - credits
   - proper front page
@@ -30,6 +33,7 @@ later:
       like requiring multiple adjacentRunway from different nodes in the same strat.
 
 TODO:
+- fix spoiler log for reverse paths using shinesparks
 - fix bug where controls are locked when dying from enemy during elevator
 - fix bug where suit color does not change when changing suits while taking damage (e.g. lava dive)?
 - fix bug where music is wrong after quick reload (even after going to next room).
