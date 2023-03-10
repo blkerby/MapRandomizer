@@ -3,11 +3,43 @@
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-45---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 45 (2023-03-07)</a>:
+<p><a href="https://version-45---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 45 (2023-03-09)</a>:
 <ul>
 <li>Logic updates:
     <ul>
     <li>Enemy kill strats using ammo are now in logic.
+    <li>Fixed a logic bug in the Climb involving breaking the bomb wall with Speedbooster.
+    </ul>
+<li>"Progression style", "Item placement", and "Item priority" settings are consolidated into a new "Item progression" group of settings.
+    <ul>
+    <li>This simplifies the process of generating a seed, by grouping multiple settings under a single preset.
+    <li>Progression style (Open, Semiclosed, Closed) is replaced by more granular settings:
+        <ul>
+        <li>"Progression rate" setting is added. "Normal" is what Open mode used before, while "Slow" is what
+        Semiclosed and Closed used. A new option "Fast" is also added.
+        <li>"Filler items" settings are added. Enabling ammo, tanks, and beams as filler items is equivalent
+        to what Open mode used before.
+        </ul>
+    <li>Three presets are introduced for "Item progression":
+        <ul>
+        <li><b>Quick</b>: This corresponds to "Open", "Neutral", "Early Morph" from previous versions, except 
+        "Fast" progression rate is also now enabled. This mode is now the default, since it is probably the best choice
+        for first-time players.
+        <li><b>Standard</b>: This corresponds to "Open", "Forced", "Default" from previous versions. The use of "Forced" 
+        here helps to bring the difficulty of a seed into closer alignment with the selected skill assumptions.
+        <li><b>Challenge</b>: This corresponds roughly to "Closed", "Forced", while also setting the most powerful items 
+        (Morph, Varia, Gravity) to Late priority, to more consistently provide a challenge.
+            <ul>
+            <li>Like the old Closed mode, "Challenge" mode has no filler items except for Missiles.
+            <li>The placement of Supers and Power Bombs is more like the old Semiclosed mode: after one is placed
+            as a key item, additional copies will be placed as filler.
+            <li>There is more variability in the accessibility of E-Tanks and Reserve Tanks. Some seeds will have
+            very late access to tanks (later than was possible with the old Closed mode) while others will have earlier access
+            to a larger amount of tanks, leading to a higher probability of longer hell-runs with a more delayed Varia.
+            <li>Players wanting the more consistent extra energy of the old Semiclosed mode can enable "ETank" and/or "ReserveTank"
+            as a filler item.
+            </ul>
+        </ul>
     </ul>
 </ul>
 

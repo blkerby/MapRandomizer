@@ -23,6 +23,9 @@ function saveForm(form) {
     localStorage[form.id] = JSON.stringify(data);
 }
 function loadForm(form) {
+    if (localStorage[form.id] === undefined) {
+        return;
+    }
     data = JSON.parse(localStorage[form.id]);
     for (const element of form.elements) {
         if (element.type == "file" || element.type == "hidden") {

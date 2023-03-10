@@ -1,8 +1,17 @@
+v45:
+  - put ammo-based enemyKill in logic
+  - reorganized item progression settings
+
+
+v46:
+  - improve slow-progression logic: allow item progression by unlocking way back
+    - don't immediately place filler items at one-way reachable locations
+    - instead check that when a key item is placed at a previously one-way-reachable location, the item would not have provided
+      a way back at an earlier step?
+  - have forced mode take into account return path
 
 priority:
-  - put ammo-based enemyKill in logic
   - add caution tape to dangerous doors
-  - improve (semi)closed logic: allow item progression by unlocking way back
   - merge semiclosed/closed into single mode?:
     - closed right now is overconstrained so it often dumps etanks earlier than intended (runs out of missiles to place).
       There's not much possibility of it withholding etanks for a very long time, due to the fact that it's trying
@@ -11,6 +20,8 @@ priority:
       places one it can place more. Should give more variety.
 
 later:
+  - figure out glitch where sometimes bottom pixel of HUD is messed up, scrolling with the camera
+    - zsnes 1.36: map-rando-5jGQIBX24w4DVQjZ5as5zQ.sfc
   - add reverse botwoon logic from osse's PR
   - refine cross room shinesparks:
      - excessShinesparkFrames (reverse)

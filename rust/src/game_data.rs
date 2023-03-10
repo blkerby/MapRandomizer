@@ -3,6 +3,7 @@ use anyhow::{bail, ensure, Context, Result};
 use hashbrown::{HashMap, HashSet};
 use json::{self, JsonValue};
 use num_enum::TryFromPrimitive;
+use serde::Serialize;
 use serde_derive::Deserialize;
 use std::borrow::ToOwned;
 use std::fs::File;
@@ -46,7 +47,7 @@ pub struct IndexedVec<T: Hash + Eq> {
     pub index_by_key: HashMap<T, usize>,
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, EnumString, EnumVariantNames, TryFromPrimitive)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, EnumString, EnumVariantNames, TryFromPrimitive, Serialize, Deserialize)]
 #[repr(usize)]
 // Note: the ordering of these items is significant; it must correspond to the ordering of PLM types:
 pub enum Item {
@@ -787,6 +788,15 @@ impl GameData {
                 for (enemy_name, count) in &enemy_list {
                     let mut vul = self.enemy_vulnerabilities[enemy_name].clone();
                     vul.non_ammo_vulnerabilities &= allowed_weapons;
+                    if allowed_weapons & (1 << self.weapon_isv.index_by_key["Missile"]) == 0 {
+                        vul.missile_damage = 0;
+                    }
+                    if allowed_weapons & (1 << self.weapon_isv.index_by_key["Super"]) == 0 {
+                        vul.super_damage = 0;
+                    }
+                    if allowed_weapons & (1 << self.weapon_isv.index_by_key["PowerBomb"]) == 0 {
+                        vul.power_bomb_damage = 0;
+                    }
                     reqs.push(Requirement::EnemyKill {
                         count: *count,
                         vul: vul,

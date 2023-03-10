@@ -1,10 +1,24 @@
 use anyhow::Result;
 use maprando::{
     game_data::{GameData, Item, Requirement},
-    randomize::{DifficultyConfig, ItemPlacementStyle, ItemPriorityGroup, ProgressionStyle, ItemMarkers},
+    randomize::{DifficultyConfig, ItemPlacementStyle, ItemPriorityGroup, ProgressionRate, ItemMarkers},
     traverse::{apply_requirement, GlobalState, LocalState},
 };
 use std::path::Path;
+
+fn strip_cross_room_reqs(req: &Requirement) -> Requirement {
+    match req {
+        Requirement::AdjacentRunway { .. } => Requirement::Never,
+        Requirement::CanComeInCharged { .. } => Requirement::Never,
+        Requirement::And(sub_reqs) => {
+            Requirement::make_and(sub_reqs.iter().map(strip_cross_room_reqs).collect())
+        }
+        Requirement::Or(sub_reqs) => {
+            Requirement::make_or(sub_reqs.iter().map(strip_cross_room_reqs).collect())
+        }
+        _ => req.clone(),
+    }
+}
 
 fn main() -> Result<()> {
     let sm_json_data_path = Path::new("../sm-json-data");
@@ -27,7 +41,7 @@ fn main() -> Result<()> {
     items[Item::Missile as usize] = true;
     // items[Item::SpaceJump as usize] = true;
     // items[Item::Super as usize] = true;
-    // items[Item::Morph as usize] = true;
+    items[Item::Morph as usize] = true;
     // items[Item::ScrewAttack as usize] = true;
     // items[Item::Charge as usize] = true;
     // items[Item::Wave as usize] = true;
@@ -35,19 +49,19 @@ fn main() -> Result<()> {
     // items[Item::Spazer as usize] = true;
     // items[Item::Plasma as usize] = true;
     // items[Item::Varia as usize] = true;
-    items[Item::Gravity as usize] = true;
+    // items[Item::Gravity as usize] = true;
 
     let weapon_mask = game_data.get_weapon_mask(&items);
     let global_state = GlobalState {
         tech: vec![true; game_data.tech_isv.keys.len()],
         flags: vec![false; game_data.flag_isv.keys.len()],
         items: items,
-        max_energy: 1800,
-        max_missiles: 5,
-        max_reserves: 400,
+        max_energy: 99,
+        max_missiles: 0,
+        max_reserves: 0,
         max_supers: 0,
         max_power_bombs: 0,
-        shine_charge_tiles: 32.0,
+        shine_charge_tiles: 16.0,
         weapon_mask,
     };
     let local_state = LocalState {
@@ -60,8 +74,9 @@ fn main() -> Result<()> {
     let reverse = false;
     let difficulty = DifficultyConfig {
         tech: vec![],
-        shine_charge_tiles: 32.0,
-        progression_style: ProgressionStyle::Open,
+        shine_charge_tiles: 16.0,
+        progression_rate: ProgressionRate::Normal,
+        filler_items: vec![Item::Missile],
         item_placement_style: ItemPlacementStyle::Neutral,
         item_priorities: vec![ItemPriorityGroup {
             name: "Default".to_string(),
@@ -69,10 +84,10 @@ fn main() -> Result<()> {
         }],
         resource_multiplier: 1.0,
         escape_timer_multiplier: 1.0,
-        phantoon_proficiency: 0.0,
-        draygon_proficiency: 0.5,
-        ridley_proficiency: 0.0,
-        botwoon_proficiency: 0.0,
+        phantoon_proficiency: 1.0,
+        draygon_proficiency: 1.0,
+        ridley_proficiency: 1.0,
+        botwoon_proficiency: 1.0,
         save_animals: false,
         supers_double: true,
         streamlined_escape: true,
@@ -84,26 +99,25 @@ fn main() -> Result<()> {
         debug_options: None,
     };
 
-    let res = apply_requirement(
-        &Requirement::DraygonFight {
-            can_be_patient_tech_id: game_data.tech_isv.index_by_key["canBePatient"],
-        },
-        // &Requirement::RidleyFight {
-        //     can_be_patient_tech_id: game_data.tech_isv.index_by_key["canBePatient"],
-        // },
-        &global_state,
-        local_state,
-        reverse,
-        &difficulty,
-    );
-    // let res = apply_requirement(
-    //     &Requirement::PhantoonFight { },
-    //     &global_state,
-    //     local_state,
-    //     reverse,
-    //     &difficulty,
-    // );
-    // let res = apply_requirement(&links[0].requirement, &global_state, local_state, reverse, &difficulty);
-    println!("{:?}", res);
+    let get_link_count = |global: &GlobalState| {
+        let mut cnt = 0;
+        for link in &game_data.links {
+            let req = strip_cross_room_reqs(&link.requirement);
+            if apply_requirement(&req, &global, local_state, false, &difficulty).is_some() {
+                cnt += 1;
+            }
+        }
+        cnt            
+    };
+    let baseline_cnt = get_link_count(&global_state);
+    println!("Total links: {}", game_data.links.len());
+    println!("Baseline: {}", baseline_cnt);
+    for item_idx in 0..global_state.items.len() {
+        let mut global_state_item = global_state.clone();
+        let item = Item::try_from(item_idx).unwrap();
+        global_state_item.collect(item, &game_data);
+        let cnt = get_link_count(&global_state_item);
+        println!("{:?}: {}", item, cnt - baseline_cnt);
+    }
     Ok(())
 }

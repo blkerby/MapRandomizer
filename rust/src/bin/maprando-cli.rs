@@ -1,9 +1,9 @@
 use anyhow::{bail, Context, Result};
 use clap::Parser;
 use maprando::customize::{customize_rom, CustomizeSettings};
-use maprando::game_data::Map;
+use maprando::game_data::{Map, Item};
 use maprando::patch::Rom;
-use maprando::randomize::{ProgressionStyle, Randomization, Randomizer, DebugOptions, ItemPlacementStyle, ItemPriorityGroup, ItemMarkers};
+use maprando::randomize::{ProgressionRate, Randomization, Randomizer, DebugOptions, ItemPlacementStyle, ItemPriorityGroup, ItemMarkers};
 use maprando::spoiler_map;
 use maprando::{game_data::GameData, patch::make_rom, randomize::DifficultyConfig};
 use maprando::patch::ips_write::create_ips_patch;
@@ -117,7 +117,8 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         // tech,
         shine_charge_tiles: 16.0,
         // shine_charge_tiles: 32,
-        progression_style: ProgressionStyle::Open,
+        progression_rate: ProgressionRate::Slow,
+        filler_items: vec![Item::Missile],
         item_placement_style: ItemPlacementStyle::Neutral,
         item_priorities: vec![
             ItemPriorityGroup {
