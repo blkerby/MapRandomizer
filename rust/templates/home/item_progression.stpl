@@ -1,0 +1,116 @@
+<div class="form-group row m-2">
+    <label class="col-sm-2 col-form-label" for="progression_rate">Progression rate</label>
+    <div class="col-sm-3 btn-group" role="group">
+    <% for &name in &progression_rates { %>
+        <input type="radio"
+            class="btn-check" 
+            name="progression_rate" 
+            id="progressionRate<%- name %>"
+            onclick="itemProgressionChanged()"
+            value="<%- name %>">
+        <label class="btn btn-outline-primary" for="progressionRate<%- name%>"><%= name %></label>
+    <% } %>
+    </div>
+</div>
+<div class="form-group row my-2 mx-4">
+    <small><strong>Fast</strong>: Key items are placed at double the normal rate, concentrating them in locations 
+    accessible earlier in the game.
+    </small>
+</div>
+<div class="form-group row my-2 mx-4">
+    <small><strong>Normal</strong>: Key items are placed at a uniform rate. By the middle of the game there will likely 
+    be many possible ways to progress.
+    </small>
+</div>
+<div class="form-group row my-2 mx-4">
+    <small><strong>Slow</strong>: At most one key item is placed at each step. This tends to limit the player to a
+    linear progression sequence, with many key items not being accessible until near the end of the game.
+    </small>
+</div>
+
+
+<div class="form-group row m-2">
+    <label class="col-sm-2 col-form-label" for="item_placement_style">Item placement</label>
+    <div class="col-sm-3 btn-group" role="group">
+    <% for &name in &item_placement_styles {
+            let checked = if name == "Neutral" { "checked" } else { "" };
+            %>
+        <input type="radio"
+            class="btn-check" 
+            name="item_placement_style" 
+            id="itemPlacementStyle<%- name %>"
+            value="<%- name %>"
+            onclick="itemProgressionChanged()"
+            autocomplete="off"
+            <%- checked %>>
+        <label class="btn btn-outline-primary" for="itemPlacementStyle<%- name%>"><%= name %></label>
+    <% } %>
+    </div>
+</div>
+<div class="form-group row my-2 mx-4">
+    <small><strong>Neutral</strong>: Key items are placed in random locations (among the possible locations at a given step).</small>
+</div>
+<div class="form-group row my-2 mx-4">
+    <small><strong>Forced</strong>: Key items have some tendency to be placed in locations requiring difficult techniques to reach.</small>
+</div>
+
+
+<div class="row m-2">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">Key item priority</div>
+            <div class="card-body">
+                <input type="hidden" id="json-item-priority" name="item_priority_json">
+                <% for item in &prioritizable_items { %>
+                    <div class="form-group row my-2">
+                        <label class="col-sm-4 col-form-label text-end" for="item_priority_<%- item %>"><%= item %></label>
+                        <div class="col-sm-6 btn-group" role="group">
+                            <% for priority in &item_priorities { %>
+                                <input type="radio" class="btn-check item-priority-input" name="item_priority_<%- item %>" value="<%- priority %>"
+                                    id="itemPriority<%- item %><%- priority %>" autocomplete="off" 
+                                    onclick="itemProgressionChanged()" <%- if priority == "Default" { "checked" } else { "" } %>>
+                                <label class="btn btn-outline-primary" for="itemPriority<%- item %><%- priority %>"><%= priority%></label>
+                            <% } %>
+                        </div>
+                    </div>
+                <% }%>
+                <div class="form-group row my-2 mx-4">
+                    <small><strong>Note</strong>: These settings affect how the randomizer prioritizes placing key items, but
+                    the results will vary. Depending on the "Progression rate" setting above, key items are often constrained
+                    to provide progression, limiting how early or late a given item may be placed for a given map.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">Filler items</div>
+            <div class="card-body">
+                <input type="hidden" id="json-filler-items" name="filler_items_json">
+                <% for item in &prioritizable_items { %>
+                    <div class="form-group row my-2">
+                        <label class="col-sm-4 col-form-label text-end" for="filler_items_<%- item %>"><%= item %></label>
+                        <div class="col-sm-4 btn-group" role="group">
+                            <input type="radio" class="btn-check filler-items-input" name="filler_items_<%- item %>" value=false
+                                id="fillerItems<%- item %>No" autocomplete="off" 
+                                onclick="itemProgressionChanged()">
+                            <label class="btn btn-outline-primary" for="fillerItems<%- item %>No">No</label>
+                            <input type="radio" class="btn-check filler-items-input" name="filler_items_<%- item %>" value=true
+                                id="fillerItems<%- item %>Yes" autocomplete="off" 
+                                onclick="itemProgressionChanged()">
+                            <label class="btn btn-outline-primary" for="fillerItems<%- item %>Yes">Yes</label>
+                        </div>
+                    </div>
+                <% }%>
+                <div class="form-group row my-2 mx-4">
+                    <small><strong>Note</strong>: Filler items (which always include Missiles) may be placed
+                    regardless of if they provide progression. If an item with multiple copies (Supers, Power Bombs,
+                    Energy Tanks, and Reserve Tanks) is not selected as a filler item but is placed as a key item,
+                    then additional copies may be placed as filler. </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
