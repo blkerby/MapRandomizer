@@ -117,7 +117,8 @@
       "canShinechargeMovementComplex",
       "canMidairWiggle",
       "canUseSpeedEchoes",
-      "canMomentumConservingTurnaround"
+      "canMomentumConservingTurnaround",
+      "canSunkenTileWideWallClimb"
     ]
   },
   {

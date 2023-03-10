@@ -9,6 +9,7 @@ about 15 seconds to load.
     <ul>
     <li>Enemy kill strats using ammo are now in logic.
     <li>Fixed a logic bug in the Climb involving breaking the bomb wall with Speedbooster.
+    <li>Other logic updates (<a href="https://github.com/kjbranch/sm-json-data/compare/36c5241...4e16597">diff</a>)
     </ul>
 <li>"Progression style", "Item placement", and "Item priority" settings are consolidated into a new "Item progression" group of settings.
     <ul>
