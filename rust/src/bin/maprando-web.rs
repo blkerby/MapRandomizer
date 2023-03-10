@@ -13,7 +13,7 @@ use clap::Parser;
 use hashbrown::{HashMap, HashSet};
 use log::{error, info};
 use maprando::customize::{customize_rom, CustomizeSettings};
-use maprando::game_data::{GameData, IndexedVec, Map};
+use maprando::game_data::{GameData, IndexedVec, Map, Item};
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::{make_rom, Rom};
 use maprando::randomize::{
@@ -105,7 +105,7 @@ struct FileNotFoundTemplate {}
 #[template(path = "home/main.stpl")]
 struct HomeTemplate<'a> {
     version: usize,
-    progression_styles: Vec<&'static str>,
+    progression_rates: Vec<&'static str>,
     item_placement_styles: Vec<&'static str>,
     preset_data: &'a [PresetData],
     item_priorities: Vec<String>,
@@ -126,7 +126,7 @@ async fn home(app_data: web::Data<AppData>) -> impl Responder {
     prioritizable_items.sort();
     let home_template = HomeTemplate {
         version: VERSION,
-        progression_styles: vec!["Open", "Semiclosed", "Closed"],
+        progression_rates: vec!["Fast", "Normal", "Slow"],
         item_placement_styles: vec!["Neutral", "Forced"],
         item_priorities: vec!["Early", "Default", "Late"]
             .iter()
@@ -142,8 +142,6 @@ async fn home(app_data: web::Data<AppData>) -> impl Responder {
 #[derive(MultipartForm)]
 struct RandomizeRequest {
     rom: Bytes,
-    progression_style: Text<String>,
-    item_placement_style: Text<String>,
     preset: Option<Text<String>>,
     shinespark_tiles: Text<f32>,
     resource_multiplier: Text<f32>,
@@ -154,8 +152,11 @@ struct RandomizeRequest {
     escape_timer_multiplier: Text<f32>,
     save_animals: Text<bool>,
     tech_json: Text<String>,
-    item_priority_preset: Option<Text<String>>,
+    progression_rate: Text<String>,
+    item_placement_style: Text<String>,
+    item_progression_preset: Option<Text<String>>,
     item_priority_json: Text<String>,
+    filler_items_json: Text<String>,
     race_mode: Text<String>,
     random_seed: Text<String>,
     quality_of_life_preset: Option<Text<bool>>,
@@ -185,7 +186,7 @@ struct SeedData {
     item_placement_seed: usize,
     race_mode: bool,
     preset: Option<String>,
-    item_priority_preset: Option<String>,
+    item_progression_preset: Option<String>,
     difficulty: DifficultyConfig,
     quality_of_life_preset: Option<bool>,
     supers_double: bool,
@@ -213,8 +214,9 @@ struct SeedHeaderTemplate<'a> {
     version: usize,
     race_mode: bool,
     preset: String,
-    item_priority_preset: String,
-    progression_style: String,
+    item_progression_preset: String,
+    progression_rate: String,
+    filler_items: Vec<String>,
     item_placement_style: String,
     difficulty: &'a DifficultyConfig,
     quality_of_life_preset: Option<bool>,
@@ -249,11 +251,17 @@ fn render_seed(seed_name: &str, seed_data: &SeedData) -> Result<(String, String)
         race_mode: seed_data.race_mode,
         timestamp: seed_data.timestamp,
         preset: seed_data.preset.clone().unwrap_or("Custom".to_string()),
-        item_priority_preset: seed_data
-            .item_priority_preset
+        item_progression_preset: seed_data
+            .item_progression_preset
             .clone()
             .unwrap_or("Custom".to_string()),
-        progression_style: format!("{:?}", seed_data.difficulty.progression_style),
+        progression_rate: format!("{:?}", seed_data.difficulty.progression_rate),
+        filler_items: seed_data
+            .difficulty
+            .filler_items
+            .iter()
+            .map(|x| format!("{:?}", x))
+            .collect(),
         item_placement_style: format!("{:?}", seed_data.difficulty.item_placement_style),
         difficulty: &seed_data.difficulty,
         quality_of_life_preset: seed_data.quality_of_life_preset,
@@ -497,9 +505,10 @@ fn get_difficulty_tiers(
                 difficulty.shine_charge_tiles,
                 preset.shinespark_tiles as f32,
             ),
-            progression_style: difficulty.progression_style,
+            progression_rate: difficulty.progression_rate,
             item_placement_style: difficulty.item_placement_style,
             item_priorities: difficulty.item_priorities.clone(),
+            filler_items: difficulty.filler_items.clone(),
             resource_multiplier: f32::max(
                 difficulty.resource_multiplier,
                 preset.resource_multiplier,
@@ -602,18 +611,31 @@ async fn randomize(
     info!("raw json: {}", req.item_priority_json.0);
     let item_priority_json: serde_json::Value =
         serde_json::from_str(&req.item_priority_json.0).unwrap();
+
+    let filler_items_json: serde_json::Value =
+        serde_json::from_str(&req.filler_items_json.0).unwrap();
+    let mut filler_items = vec![Item::Missile];
+    filler_items.extend(filler_items_json
+        .as_object()
+        .unwrap()
+        .iter()
+        .filter(|(_k, v)| v.as_str().unwrap() == "true")
+        .map(|(k, _v)| Item::try_from(app_data.game_data.item_isv.index_by_key[k]).unwrap()));
+    info!("Filler items: {:?}", filler_items);
+
     let difficulty = DifficultyConfig {
         tech: tech_vec,
         shine_charge_tiles: req.shinespark_tiles.0,
-        progression_style: match req.progression_style.0.as_str() {
-            "Open" => maprando::randomize::ProgressionStyle::Open,
-            "Semiclosed" => maprando::randomize::ProgressionStyle::Semiclosed,
-            "Closed" => maprando::randomize::ProgressionStyle::Closed,
+        progression_rate: match req.progression_rate.0.as_str() {
+            "Slow" => maprando::randomize::ProgressionRate::Slow,
+            "Normal" => maprando::randomize::ProgressionRate::Normal,
+            "Fast" => maprando::randomize::ProgressionRate::Fast,
             _ => panic!(
-                "Unrecognized progression style {}",
-                req.progression_style.0.as_str()
+                "Unrecognized progression rate {}",
+                req.progression_rate.0.as_str()
             ),
         },
+        filler_items: filler_items,
         item_placement_style: match req.item_placement_style.0.as_str() {
             "Neutral" => maprando::randomize::ItemPlacementStyle::Neutral,
             "Forced" => maprando::randomize::ItemPlacementStyle::Forced,
@@ -710,7 +732,7 @@ async fn randomize(
         item_placement_seed,
         race_mode,
         preset: req.preset.as_ref().map(|x| x.0.clone()),
-        item_priority_preset: req.item_priority_preset.as_ref().map(|x| x.0.clone()),
+        item_progression_preset: req.item_progression_preset.as_ref().map(|x| x.0.clone()),
         difficulty: difficulty_tiers[0].clone(),
         quality_of_life_preset: req.quality_of_life_preset.as_ref().map(|x| x.0),
         supers_double: req.supers_double.0,

@@ -35,21 +35,35 @@ function updateTechJSON() {
 }
 function updateItemPriorityJSON() {
     itemPriority = {}
-    console.log("Updating item priority JSON");
     document.querySelectorAll('.item-priority-input')
     .forEach(function (x) { 
         // remove prefix: "item_priority_"
         name = x.name.substring(14);
-        console.log(name + ": " + x.value);
+        // console.log(name + ": " + x.value);
         if (x.checked) {
             itemPriority[name] = x.value;
         }
     });
     document.getElementById("json-item-priority").value = JSON.stringify(itemPriority);
 }
+function updateFillerItemsJSON() {
+    fillerItems = {}
+    document.querySelectorAll('.filler-items-input')
+    .forEach(function (x) { 
+        // remove prefix: "filler_items_"
+        name = x.name.substring(13);
+        if (x.checked) {
+            //console.log(name + ": " + x.value);
+            fillerItems[name] = x.value;
+        }
+    });
+    console.log(JSON.stringify(fillerItems));
+    document.getElementById("json-filler-items").value = JSON.stringify(fillerItems);
+}
 function prepareSubmit() {
     updateTechJSON();
     updateItemPriorityJSON();
+    updateFillerItemsJSON();
 }
 function qualityOfLifePresetChanged() {
     if (document.getElementById("qualityOfLifeNo").checked) {
@@ -81,22 +95,70 @@ function qualityOfLifeSettingChanged() {
     document.getElementById("qualityOfLifeNo").checked = false;
     document.getElementById("qualityOfLifeYes").checked = false;
 }
-function itemPriorityPresetChanged() {
-    if (document.getElementById("itemPriorityPresetDefault").checked) {
-        <% for item in &prioritizable_items { %>
-        document.getElementById("itemPriority<%- item %>Default").checked = true;
-        <% } %>
-    }
-    if (document.getElementById("itemPriorityPresetEarlyMorph").checked) {
+function itemProgressionPresetChanged() {
+    if (document.getElementById("itemProgressionPresetQuick").checked) {
+        document.getElementById("progressionRateFast").checked = true;
+
+        document.getElementById("itemPlacementStyleNeutral").checked = true;
         <% for item in &prioritizable_items { %>
         document.getElementById("itemPriority<%- item %>Default").checked = true;
         <% } %>
         document.getElementById("itemPriorityMorphEarly").checked = true;
+
+        <% for item in &prioritizable_items { %>
+        document.getElementById("fillerItems<%- item %>No").checked = true;
+        <% } %>
+        document.getElementById("fillerItemsSuperYes").checked = true;
+        document.getElementById("fillerItemsPowerBombYes").checked = true;
+        document.getElementById("fillerItemsETankYes").checked = true;
+        document.getElementById("fillerItemsReserveTankYes").checked = true;
+        document.getElementById("fillerItemsChargeYes").checked = true;
+        document.getElementById("fillerItemsIceYes").checked = true;
+        document.getElementById("fillerItemsWaveYes").checked = true;
+        document.getElementById("fillerItemsSpazerYes").checked = true;
+        document.getElementById("fillerItemsPlasmaYes").checked = true;
+    }
+    if (document.getElementById("itemProgressionPresetStandard").checked) {
+        document.getElementById("progressionRateNormal").checked = true;
+
+        document.getElementById("itemPlacementStyleForced").checked = true;
+        <% for item in &prioritizable_items { %>
+        document.getElementById("itemPriority<%- item %>Default").checked = true;
+        <% } %>
+
+        <% for item in &prioritizable_items { %>
+        document.getElementById("fillerItems<%- item %>No").checked = true;
+        <% } %>
+        document.getElementById("fillerItemsSuperYes").checked = true;
+        document.getElementById("fillerItemsPowerBombYes").checked = true;
+        document.getElementById("fillerItemsETankYes").checked = true;
+        document.getElementById("fillerItemsReserveTankYes").checked = true;
+        document.getElementById("fillerItemsChargeYes").checked = true;
+        document.getElementById("fillerItemsIceYes").checked = true;
+        document.getElementById("fillerItemsWaveYes").checked = true;
+        document.getElementById("fillerItemsSpazerYes").checked = true;
+        document.getElementById("fillerItemsPlasmaYes").checked = true;
+    }
+    if (document.getElementById("itemProgressionPresetChallenge").checked) {
+        document.getElementById("progressionRateSlow").checked = true;
+
+        document.getElementById("itemPlacementStyleForced").checked = true;
+        <% for item in &prioritizable_items { %>
+        document.getElementById("itemPriority<%- item %>Default").checked = true;
+        <% } %>
+        document.getElementById("itemPriorityMorphLate").checked = true;
+        document.getElementById("itemPriorityVariaLate").checked = true;
+        document.getElementById("itemPriorityGravityLate").checked = true;
+
+        <% for item in &prioritizable_items { %>
+        document.getElementById("fillerItems<%- item %>No").checked = true;
+        <% } %>
     }
 }
-function itemPriorityChanged() {
-    document.getElementById("itemPriorityPresetDefault").checked = false;
-    document.getElementById("itemPriorityPresetEarlyMorph").checked = false;
+function itemProgressionChanged() {
+    document.getElementById("itemProgressionPresetQuick").checked = false;
+    document.getElementById("itemProgressionPresetStandard").checked = false;
+    document.getElementById("itemProgressionPresetChallenge").checked = false;
 }
 </script>
 <% include!("../common/save_load_rom.stpl"); %>
@@ -106,5 +168,5 @@ loadForm(document.getElementById("main-form"));
 loadROM(document.getElementById("vanillaRom"), 'vanilla');
 presetChanged();
 qualityOfLifePresetChanged();
-itemPriorityPresetChanged();
+itemProgressionPresetChanged();
 </script>

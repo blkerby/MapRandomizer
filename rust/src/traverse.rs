@@ -6,7 +6,7 @@ use std::{
 use hashbrown::HashSet;
 
 use crate::{
-    game_data::{Capacity, GameData, Item, Link, Requirement, WeaponMask, EnemyVulnerabilities},
+    game_data::{Capacity, EnemyVulnerabilities, GameData, Item, Link, Requirement, WeaponMask},
     randomize::DifficultyConfig,
 };
 
@@ -90,25 +90,46 @@ fn apply_enemy_kill_requirement(
         return Some(local);
     }
 
-    let mut hp = vul.hp;  // HP per enemy
+    let mut hp = vul.hp; // HP per enemy
 
     // Next use Missiles:
     if vul.missile_damage > 0 {
-        let missiles_to_use_per_enemy = (hp + vul.missile_damage - 1) / vul.missile_damage;
+        let missiles_available = global.max_missiles - local.missiles_used;
+        let missiles_to_use_per_enemy = max(
+            0,
+            min(
+                missiles_available / count,
+                (hp + vul.missile_damage - 1) / vul.missile_damage,
+            ),
+        );
         hp -= missiles_to_use_per_enemy * vul.missile_damage as i32;
         local.missiles_used += missiles_to_use_per_enemy * count;
     }
 
     // Then use Supers (some overkill is possible, where we could have used fewer Missiles, but we ignore that):
     if vul.super_damage > 0 {
-        let supers_to_use_per_enemy = (hp + vul.super_damage - 1) / vul.super_damage;
+        let supers_available = global.max_supers - local.supers_used;
+        let supers_to_use_per_enemy = max(
+            0,
+            min(
+                supers_available / count,
+                (hp + vul.super_damage - 1) / vul.super_damage,
+            ),
+        );
         hp -= supers_to_use_per_enemy * vul.super_damage as i32;
         local.supers_used += supers_to_use_per_enemy * count;
     }
 
     // Finally, use Power Bombs (overkill is possible, where we could have used fewer Missiles or Supers, but we ignore that):
-    if vul.power_bomb_damage > 0 {
-        let pbs_to_use = (hp + vul.power_bomb_damage - 1) / vul.power_bomb_damage;
+    if vul.power_bomb_damage > 0 && global.items[Item::Morph as usize] {
+        let pbs_available = global.max_power_bombs - local.power_bombs_used;
+        let pbs_to_use = max(
+            0,
+            min(
+                pbs_available,
+                (hp + vul.power_bomb_damage - 1) / vul.power_bomb_damage,
+            ),
+        );
         hp -= pbs_to_use * vul.power_bomb_damage as i32;
         // Power bombs hit all enemies in the group, so we do not multiply by the count.
         local.power_bombs_used += pbs_to_use;
@@ -163,7 +184,9 @@ fn apply_phantoon_requirement(
 
     let kill_time = match possible_kill_times.iter().min_by(|x, y| x.total_cmp(y)) {
         Some(t) => t,
-        None => { return None; }
+        None => {
+            return None;
+        }
     };
 
     // Assumed rate of damage to Samus per second.
@@ -175,7 +198,7 @@ fn apply_phantoon_requirement(
     // Net damage taken by Samus per second, taking into account suit protection and farms:
     let mut net_dps = base_hit_dps / suit_damage_factor(global) as f32 - farm_rate;
     if net_dps < 0.0 {
-        // We could assume we could refill on energy or ammo using farms, but by omitting this for now 
+        // We could assume we could refill on energy or ammo using farms, but by omitting this for now
         // we're just making the logic a little more conservative in favor of the player.
         net_dps = 0.0;
     }
@@ -219,7 +242,9 @@ fn apply_draygon_requirement(
 
     let kill_time = match possible_kill_times.iter().min_by(|x, y| x.total_cmp(y)) {
         Some(&t) => t,
-        None => { return None; }
+        None => {
+            return None;
+        }
     };
 
     if kill_time >= 180.0 && !global.tech[can_be_patient_tech_id] {
@@ -239,7 +264,7 @@ fn apply_draygon_requirement(
     // Net damage taken by Samus per second, taking into account suit protection and farms:
     let mut net_dps = base_hit_dps / suit_damage_factor(global) as f32 - farm_rate;
     if net_dps < 0.0 {
-        // We could assume we could refill on energy or ammo using farms, but by omitting this for now 
+        // We could assume we could refill on energy or ammo using farms, but by omitting this for now
         // we're just making the logic a little more conservative in favor of the player.
         net_dps = 0.0;
     }
@@ -248,7 +273,6 @@ fn apply_draygon_requirement(
 
     validate_energy(local, global)
 }
-
 
 fn apply_ridley_requirement(
     global: &GlobalState,
@@ -299,7 +323,7 @@ fn apply_ridley_requirement(
         );
         boss_hp = 0.0;
         time += charge_shots_to_use as f32 * 1.5 / firing_rate; // Assume max 1 charge shot per 1.5 seconds
-    } else {
+    } else if global.items[Item::Morph as usize]{
         // Only use Power Bombs if Charge is not available:
         let pbs_available = global.max_power_bombs - local.power_bombs_used;
         let pbs_to_use = max(
@@ -331,7 +355,7 @@ fn apply_ridley_requirement(
     let base_ridley_attack_dps = 40.0;
 
     // Multiplier to Ridley damage based on items (Morph and Screw) and proficiency (in dodging).
-    // This is a rough guess which could be refined. We could also take into account other items 
+    // This is a rough guess which could be refined. We could also take into account other items
     // (HiJump and SpaceJump). We assume that at Expert level (proficiency=1.0) it is possible
     // to avoid all damage from Ridley using either Morph or Screw.
     let hit_rate = match (morph, screw) {
@@ -344,7 +368,7 @@ fn apply_ridley_requirement(
     local.energy_used += (damage / suit_damage_factor(global) as f32) as Capacity;
 
     if !global.items[Item::Varia as usize] {
-        // Heat run case: We do not explicitly check canHeatRun tech here, because it is 
+        // Heat run case: We do not explicitly check canHeatRun tech here, because it is
         // already required to reach the boss node from the doors.
         // Include time pre- and post-fight when Samus must still take heat damage:
         let heat_time = time + 20.0;
@@ -362,7 +386,6 @@ fn apply_ridley_requirement(
     validate_energy(local, global)
 }
 
-
 fn apply_botwoon_requirement(
     global: &GlobalState,
     mut local: LocalState,
@@ -372,7 +395,7 @@ fn apply_botwoon_requirement(
     // We aim to be a little lenient here. For example, we don't take SBAs (e.g. X-factors) into account,
     // assuming instead the player just uses ammo and/or regular charged shots.
 
-    let mut boss_hp: f32 = 1500.0;  // HP for one phase of the fight.
+    let mut boss_hp: f32 = 1500.0; // HP for one phase of the fight.
     let mut time: f32 = 0.0; // Cumulative time in seconds for the phase
     let charge_damage = get_charge_damage(&global);
 
@@ -382,7 +405,7 @@ fn apply_botwoon_requirement(
     // Assume a firing rate of between 30% (on lowest difficulty) to 100% (on highest),
     let firing_rate = 0.3 + 0.7 * proficiency;
 
-    // The firing rates below are for the first phase (since the rate doesn't matter for 
+    // The firing rates below are for the first phase (since the rate doesn't matter for
     // the second phase):
     let use_supers = |local: &mut LocalState, boss_hp: &mut f32, time: &mut f32| {
         let supers_available = global.max_supers - local.supers_used;
@@ -393,7 +416,7 @@ fn apply_botwoon_requirement(
         local.supers_used += supers_to_use;
         *boss_hp -= supers_to_use as f32 * 300.0 * accuracy;
         // Assume a max average rate of one super shot per 2.0 second:
-        *time += supers_to_use as f32 * 2.0 / firing_rate; 
+        *time += supers_to_use as f32 * 2.0 / firing_rate;
     };
 
     let use_missiles = |local: &mut LocalState, boss_hp: &mut f32, time: &mut f32| {
@@ -421,7 +444,7 @@ fn apply_botwoon_requirement(
         );
         *boss_hp = 0.0;
         // Assume max average rate of one charge shot per 3.0 seconds
-        *time += charge_shots_to_use as f32 * 3.0 / firing_rate; 
+        *time += charge_shots_to_use as f32 * 3.0 / firing_rate;
     };
 
     if second_phase {
@@ -443,7 +466,7 @@ fn apply_botwoon_requirement(
         } else {
             use_supers(&mut local, &mut boss_hp, &mut time);
             use_missiles(&mut local, &mut boss_hp, &mut time);
-            use_charge(&mut boss_hp, &mut time);    
+            use_charge(&mut boss_hp, &mut time);
         }
     }
 
@@ -609,7 +632,8 @@ pub fn apply_requirement(
         }
         Requirement::AcidFrames(frames) => {
             let mut new_local = local;
-            new_local.energy_used += multiply(3 * frames / 2, difficulty) / suit_damage_factor(global);
+            new_local.energy_used +=
+                multiply(3 * frames / 2, difficulty) / suit_damage_factor(global);
             validate_energy(new_local, global)
         }
         Requirement::Damage(base_energy) => {
@@ -685,21 +709,28 @@ pub fn apply_requirement(
                 Some(new_local)
             }
         }
-        Requirement::EnemyKill {
-            count,
-            vul,
-        } => {
+        Requirement::EnemyKill { count, vul } => {
             apply_enemy_kill_requirement(global, local, *count, vul)
         }
-        Requirement::PhantoonFight { } => {
+        Requirement::PhantoonFight {} => {
             apply_phantoon_requirement(global, local, difficulty.phantoon_proficiency)
         }
-        Requirement::DraygonFight { can_be_patient_tech_id } => {
-            apply_draygon_requirement(global, local, difficulty.draygon_proficiency, *can_be_patient_tech_id)
-        }
-        Requirement::RidleyFight { can_be_patient_tech_id } => {
-            apply_ridley_requirement(global, local, difficulty.ridley_proficiency, *can_be_patient_tech_id)
-        }
+        Requirement::DraygonFight {
+            can_be_patient_tech_id,
+        } => apply_draygon_requirement(
+            global,
+            local,
+            difficulty.draygon_proficiency,
+            *can_be_patient_tech_id,
+        ),
+        Requirement::RidleyFight {
+            can_be_patient_tech_id,
+        } => apply_ridley_requirement(
+            global,
+            local,
+            difficulty.ridley_proficiency,
+            *can_be_patient_tech_id,
+        ),
         Requirement::BotwoonFight { second_phase } => {
             apply_botwoon_requirement(global, local, difficulty.botwoon_proficiency, *second_phase)
         }
@@ -725,7 +756,8 @@ pub fn apply_requirement(
                     new_local.energy_used += shinespark_frames - excess_shinespark_frames + 28;
                     if let Some(mut new_local) = validate_energy(new_local, global) {
                         let energy_remaining = global.max_energy - new_local.energy_used - 1;
-                        new_local.energy_used += std::cmp::min(*excess_shinespark_frames, energy_remaining);
+                        new_local.energy_used +=
+                            std::cmp::min(*excess_shinespark_frames, energy_remaining);
                         new_local.energy_used -= 28;
                         Some(new_local)
                     } else {
@@ -736,18 +768,22 @@ pub fn apply_requirement(
                 None
             }
         }
-        Requirement::AdjacentRunway { .. } => panic!("AdjacentRunway should be resolved during preprocessing"),
-        Requirement::CanComeInCharged { .. } => panic!("CanComeInCharged should be resolved during preprocessing"),
+        Requirement::AdjacentRunway { .. } => {
+            panic!("AdjacentRunway should be resolved during preprocessing")
+        }
+        Requirement::CanComeInCharged { .. } => {
+            panic!("CanComeInCharged should be resolved during preprocessing")
+        }
         Requirement::And(reqs) => {
             let mut new_local = local;
             if reverse {
                 for req in reqs.into_iter().rev() {
                     new_local = apply_requirement(req, global, new_local, reverse, difficulty)?;
-                }    
+                }
             } else {
                 for req in reqs {
                     new_local = apply_requirement(req, global, new_local, reverse, difficulty)?;
-                }    
+                }
             }
             Some(new_local)
         }
@@ -848,7 +884,7 @@ pub fn traverse(
         result.start_trail_ids[start_vertex_id] = Some(-1);
         result.cost[start_vertex_id] =
             compute_cost(result.local_states[start_vertex_id].unwrap(), global);
-        modified_vertices.insert(start_vertex_id);    
+        modified_vertices.insert(start_vertex_id);
     }
 
     let mut links_by_src: Vec<Vec<(LinkIdx, Link)>> = vec![Vec::new(); num_vertices];
@@ -927,10 +963,7 @@ impl GlobalState {
     }
 }
 
-pub fn get_spoiler_route(
-    traverse_result: &TraverseResult,
-    vertex_id: usize,
-) -> Vec<LinkIdx> {
+pub fn get_spoiler_route(traverse_result: &TraverseResult, vertex_id: usize) -> Vec<LinkIdx> {
     let mut trail_id = traverse_result.start_trail_ids[vertex_id].unwrap();
     let mut steps: Vec<LinkIdx> = Vec::new();
     while trail_id != -1 {

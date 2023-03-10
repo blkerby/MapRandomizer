@@ -27,10 +27,10 @@ use crate::game_data::GameData;
 use self::escape_timer::SpoilerEscape;
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
-pub enum ProgressionStyle {
-    Open,
-    Semiclosed,
-    Closed,
+pub enum ProgressionRate {
+    Slow,
+    Normal,
+    Fast,
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
@@ -63,9 +63,10 @@ pub struct ItemPriorityGroup {
 pub struct DifficultyConfig {
     pub tech: Vec<String>,
     pub shine_charge_tiles: f32,
-    pub progression_style: ProgressionStyle,
+    pub progression_rate: ProgressionRate,
     pub item_placement_style: ItemPlacementStyle,
     pub item_priorities: Vec<ItemPriorityGroup>,
+    pub filler_items: Vec<Item>,
     pub resource_multiplier: f32,
     pub escape_timer_multiplier: f32,
     pub save_animals: bool,
@@ -255,7 +256,7 @@ impl<'a> Preprocessor<'a> {
                 *frames_remaining,
                 *shinespark_frames,
                 *excess_shinespark_frames,
-                link
+                link,
             ),
             Requirement::And(sub_reqs) => Requirement::make_and(
                 sub_reqs
@@ -290,22 +291,25 @@ impl<'a> Preprocessor<'a> {
                 &self.game_data.node_can_leave_charged_map[&(other_room_id, other_node_id)];
             let mut req_vec: Vec<Requirement> = vec![];
 
-            let from_triple = self.game_data.vertex_isv.keys[_link.from_vertex_id];
-            let to_triple = self.game_data.vertex_isv.keys[_link.to_vertex_id];
-            println!("Link: from={:?}, to={:?}, strat={}", from_triple, to_triple, _link.strat_name);
-            println!("frames_remaining={frames_remaining}, shinespark_frames={shinespark_frames}");
-            println!("In-room runways:");
-            for runway in runways {
-                println!("{:?}", runway);
-            }
-            println!("Other-room runways:");
-            for runway in other_runways {
-                println!("{:?}", runway);
-            }
-            println!("canLeaveCharged:");
-            for can_leave_charged in can_leave_charged_vec {
-                println!("{:?}", can_leave_charged);
-            }
+            // let from_triple = self.game_data.vertex_isv.keys[_link.from_vertex_id];
+            // let to_triple = self.game_data.vertex_isv.keys[_link.to_vertex_id];
+            // println!(
+            //     "Link: from={:?}, to={:?}, strat={}",
+            //     from_triple, to_triple, _link.strat_name
+            // );
+            // println!("frames_remaining={frames_remaining}, shinespark_frames={shinespark_frames}");
+            // println!("In-room runways:");
+            // for runway in runways {
+            //     println!("{:?}", runway);
+            // }
+            // println!("Other-room runways:");
+            // for runway in other_runways {
+            //     println!("{:?}", runway);
+            // }
+            // println!("canLeaveCharged:");
+            // for can_leave_charged in can_leave_charged_vec {
+            //     println!("{:?}", can_leave_charged);
+            // }
 
             // Strats for in-room runways:
             for runway in runways {
@@ -377,7 +381,7 @@ impl<'a> Preprocessor<'a> {
                 ]));
             }
 
-            println!("Strats: {:?}\n", req_vec);
+            // println!("Strats: {:?}\n", req_vec);
             let out = Requirement::make_or(req_vec);
             out
         } else {
@@ -528,7 +532,7 @@ impl<'r> Randomizer<'r> {
         flag_vec[tourian_open_idx] = true;
         if self.difficulty_tiers[0].all_items_spawn {
             let all_items_spawn_idx = self.game_data.flag_isv.index_by_key["f_AllItemsSpawn"];
-            flag_vec[all_items_spawn_idx] = true;    
+            flag_vec[all_items_spawn_idx] = true;
         }
         flag_vec
     }
@@ -611,11 +615,10 @@ impl<'r> Randomizer<'r> {
         attempt_num: usize,
         rng: &mut R,
     ) -> Option<SelectItemsOutput> {
-        let num_items_to_place = match self.difficulty_tiers[0].progression_style {
-            ProgressionStyle::Open => num_bireachable,
-            ProgressionStyle::Semiclosed | ProgressionStyle::Closed => {
-                num_bireachable + num_oneway_reachable
-            }
+        let num_items_to_place = match self.difficulty_tiers[0].progression_rate {
+            ProgressionRate::Slow => num_bireachable + num_oneway_reachable,
+            ProgressionRate::Normal => num_bireachable,
+            ProgressionRate::Fast => num_bireachable,
         };
         let filtered_item_precedence: Vec<Item> = state
             .item_precedence
@@ -628,14 +631,18 @@ impl<'r> Randomizer<'r> {
             .collect();
         let num_key_items_remaining = filtered_item_precedence.len();
         let num_items_remaining: usize = state.items_remaining.iter().sum();
-        let mut num_key_items_to_place = match self.difficulty_tiers[0].progression_style {
-            ProgressionStyle::Semiclosed | ProgressionStyle::Closed => 1,
-            ProgressionStyle::Open => f32::ceil(
+        let mut num_key_items_to_place = match self.difficulty_tiers[0].progression_rate {
+            ProgressionRate::Slow => 1,
+            ProgressionRate::Normal => f32::ceil(
                 (num_key_items_remaining as f32) / (num_items_remaining as f32)
                     * (num_items_to_place as f32),
             ) as usize,
+            ProgressionRate::Fast => f32::ceil(
+                2.0 * (num_key_items_remaining as f32) / (num_items_remaining as f32)
+                    * (num_items_to_place as f32),
+            ) as usize,
         };
-        if num_items_remaining < num_items_to_place + 25 {
+        if num_items_remaining < num_items_to_place + 20 {
             num_key_items_to_place = num_key_items_remaining;
         }
         num_key_items_to_place = min(
@@ -661,57 +668,44 @@ impl<'r> Randomizer<'r> {
         }
 
         let num_other_items_to_place = num_items_to_place - num_key_items_to_place;
-        let mut item_types_to_mix: Vec<Item>;
-        let mut item_types_to_delay: Vec<Item>;
-        match self.difficulty_tiers[0].progression_style {
-            ProgressionStyle::Open => {
-                item_types_to_mix = vec![
-                    Item::Missile,
-                    Item::ETank,
-                    Item::ReserveTank,
-                    Item::Super,
-                    Item::PowerBomb,
-                    Item::Charge,
-                    Item::Wave,
-                    Item::Ice,
-                    Item::Spazer,
-                    Item::Plasma,
-                ];
-                item_types_to_delay = vec![];
+
+        let expansion_item_set: HashSet<Item> = [
+            Item::ETank,
+            Item::ReserveTank,
+            Item::Super,
+            Item::PowerBomb,
+        ]
+        .into_iter()
+        .collect();
+        let mut item_types_to_mix: Vec<Item> = vec![Item::Missile];
+        let mut item_types_to_delay: Vec<Item> = vec![];
+
+        for &item in &state.item_precedence {
+            if !expansion_item_set.contains(&item) || item == Item::Missile {
+                continue;
             }
-            ProgressionStyle::Semiclosed => {
-                item_types_to_mix = vec![Item::Missile, Item::ETank, Item::ReserveTank];
-                item_types_to_delay = vec![];
-                if state.items_remaining[Item::Super as usize]
-                    < self.initial_items_remaining[Item::Super as usize]
-                {
-                    item_types_to_mix.push(Item::Super);
-                } else {
-                    item_types_to_delay.push(Item::Super);
-                }
-                if state.items_remaining[Item::PowerBomb as usize]
-                    < self.initial_items_remaining[Item::PowerBomb as usize]
-                {
-                    item_types_to_mix.push(Item::PowerBomb);
-                } else {
-                    item_types_to_delay.push(Item::PowerBomb);
-                }
-            }
-            ProgressionStyle::Closed => {
-                item_types_to_mix = vec![Item::Missile];
-                if state.items_remaining[Item::PowerBomb as usize]
-                    < self.initial_items_remaining[Item::PowerBomb as usize]
-                    && state.items_remaining[Item::Super as usize]
-                        == self.initial_items_remaining[Item::Super as usize]
-                {
-                    item_types_to_delay =
-                        vec![Item::ETank, Item::ReserveTank, Item::PowerBomb, Item::Super];
-                } else {
-                    item_types_to_delay =
-                        vec![Item::ETank, Item::ReserveTank, Item::Super, Item::PowerBomb];
-                }
+            if self.difficulty_tiers[0].filler_items.contains(&item)
+                || state.items_remaining[item as usize]
+                    < self.initial_items_remaining[item as usize]
+            {
+                item_types_to_mix.push(item);
+            } else {
+                item_types_to_delay.push(item);
             }
         }
+
+        for &item in &state.item_precedence {
+            if expansion_item_set.contains(&item) || item == Item::Missile {
+                continue;
+            }
+            if self.difficulty_tiers[0].filler_items.contains(&item) {
+                item_types_to_mix.push(item);
+            } else {
+                item_types_to_delay.push(item);
+            }
+        }
+
+        // println!("mix: {:?}, delay: {:?}", item_types_to_mix, item_types_to_delay);
 
         let mut items_to_mix: Vec<Item> = Vec::new();
         for &item in &item_types_to_mix {
@@ -719,32 +713,15 @@ impl<'r> Randomizer<'r> {
                 items_to_mix.push(item);
             }
         }
-        let mut expansion_items_to_delay: Vec<Item> = Vec::new();
+        let mut items_to_delay: Vec<Item> = Vec::new();
         for &item in &item_types_to_delay {
             for _ in 0..new_items_remaining[item as usize] {
-                expansion_items_to_delay.push(item);
+                items_to_delay.push(item);
             }
         }
-        let mut key_items_to_delay: Vec<Item> = Vec::new();
-        for item_id in 0..self.game_data.item_isv.keys.len() {
-            let item = Item::try_from(item_id).unwrap();
-            if ![
-                Item::Missile,
-                Item::Super,
-                Item::PowerBomb,
-                Item::ETank,
-                Item::ReserveTank,
-            ]
-            .contains(&item)
-            {
-                key_items_to_delay.push(item);
-            }
-        }
-
         let mut other_items_to_place: Vec<Item> = items_to_mix;
         other_items_to_place.shuffle(rng);
-        other_items_to_place.extend(expansion_items_to_delay);
-        other_items_to_place.extend(key_items_to_delay);
+        other_items_to_place.extend(items_to_delay);
         other_items_to_place = other_items_to_place[0..num_other_items_to_place].to_vec();
         for &item in &other_items_to_place {
             new_items_remaining[item as usize] -= 1;
@@ -828,6 +805,10 @@ impl<'r> Randomizer<'r> {
         key_items_to_place: &[Item],
         other_items_to_place: &[Item],
     ) {
+        info!(
+            "Placing {:?}, {:?}",
+            key_items_to_place, other_items_to_place
+        );
         // println!("# bireachable = {}", bireachable_locations.len());
         let mut new_bireachable_locations: Vec<ItemLocationId> = bireachable_locations.to_vec();
         if self.difficulty_tiers.len() > 1 {
@@ -896,7 +877,7 @@ impl<'r> Randomizer<'r> {
         assert!(idx == remaining_items.len());
     }
 
-    fn step<R: Rng>(
+    fn step<R: Rng + Clone>(
         &self,
         state: &mut RandomizationState,
         rng: &mut R,
@@ -1028,12 +1009,12 @@ impl<'r> Randomizer<'r> {
                 let one_way_reachable_limit = 20;
 
                 let gives_expansion =
-                    if self.difficulty_tiers[0].progression_style == ProgressionStyle::Open {
-                        iter::zip(&new_state.item_location_state, &state.item_location_state)
-                            .any(|(n, o)| n.bireachable && !o.bireachable)
-                    } else {
+                    if self.difficulty_tiers[0].progression_rate == ProgressionRate::Slow {
                         iter::zip(&new_state.item_location_state, &state.item_location_state)
                             .any(|(n, o)| n.bireachable && !o.reachable)
+                    } else {
+                        iter::zip(&new_state.item_location_state, &state.item_location_state)
+                            .any(|(n, o)| n.bireachable && !o.bireachable)
                     };
 
                 if num_one_way_reachable < one_way_reachable_limit && gives_expansion {
@@ -1057,20 +1038,8 @@ impl<'r> Randomizer<'r> {
         }
 
         // Place the new items:
-        if self.difficulty_tiers[0].progression_style == ProgressionStyle::Open {
-            // In Open mode, only place items at bireachable locations. We defer placing items at
-            // one-way-reachable locations so that they may get key items placed there later after
-            // becoming bireachable.
-            self.place_items(
-                &state,
-                &mut new_state,
-                &unplaced_bireachable,
-                &[],
-                &key_items_to_place,
-                &other_items_to_place,
-            );
-        } else {
-            // In Semiclosed/Closed modes, place items in all newly reachable locations (bireachable as
+        if self.difficulty_tiers[0].progression_rate == ProgressionRate::Slow {
+            // With Slow progression, place items in all newly reachable locations (bireachable as
             // well as one-way-reachable locations). One-way-reachable locations are filled only
             // with non-key items, to minimize the possibility of them being usable to break from the
             // intended sequence.
@@ -1079,6 +1048,18 @@ impl<'r> Randomizer<'r> {
                 &mut new_state,
                 &unplaced_bireachable,
                 &unplaced_oneway_reachable,
+                &key_items_to_place,
+                &other_items_to_place,
+            );
+        } else {
+            // In Normal and Fast progression, only place items at bireachable locations. We defer placing items at
+            // one-way-reachable locations so that they may get key items placed there later after
+            // becoming bireachable.
+            self.place_items(
+                &state,
+                &mut new_state,
+                &unplaced_bireachable,
+                &[],
                 &key_items_to_place,
                 &other_items_to_place,
             );
@@ -1133,10 +1114,8 @@ impl<'r> Randomizer<'r> {
         rng: &mut R,
     ) -> Vec<Item> {
         let mut item_precedence: Vec<Item> = Vec::new();
-        if [ProgressionStyle::Semiclosed, ProgressionStyle::Closed]
-            .contains(&self.difficulty_tiers[0].progression_style)
-        {
-            // In (semi-)closed modes, prioritize placing a missile over other key items.
+        if self.difficulty_tiers[0].progression_rate == ProgressionRate::Slow {
+            // With slow progression, prioritize placing a missile over other key items.
             item_precedence.push(Item::Missile);
         }
         for priority_group in item_priorities {

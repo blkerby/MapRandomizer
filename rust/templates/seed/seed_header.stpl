@@ -19,14 +19,6 @@
             <div class="col-9"><%= random_seed %></div>
         </div>
         <div class="row">
-            <div class="col-3">Progression style:</div>
-            <div class="col-9"><%= progression_style %></div>
-        </div>
-        <div class="row">
-            <div class="col-3">Item placement:</div>
-            <div class="col-9"><%= item_placement_style %></div>
-        </div>
-        <div class="row">
             <div class="col-3">Skill assumption:</div>
             <div class="col-9"><%= preset %></div>
         </div>
@@ -43,26 +35,20 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-3">Item priority:</div>
-            <div class="col-9"><%= item_priority_preset %></div>
+            <div class="col-3">Item progression:</div>
+            <div class="col-9"><%= item_progression_preset %></div>
         </div>
-        <% if item_priority_preset == "Custom" { %>
-            <div class="accordion my-2">
-                <div class="accordion-item">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseItemPriority">
-                        Item priority details
-                        </button>
-                    </h2>
-                    <div id="collapseItemPriority" class="accordion-collapse collapse m-2">
-                        <% include!("item_priority_details.stpl"); %>
-                    </div>
+        <div class="accordion my-2">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseItemProgression">
+                    Item progression details
+                    </button>
+                </h2>
+                <div id="collapseItemProgression" class="accordion-collapse collapse m-2">
+                    <% include!("item_progression_details.stpl"); %>
                 </div>
             </div>
-        <% } %>
-        <div class="row">
-            <div class="col-3">Race mode:</div>
-            <div class="col-9"><%= if race_mode { "Yes" } else { "No" } %></div>
         </div>
         <div class="row">
             <div class="col-3">Quality-of-life options:</div>
@@ -84,7 +70,10 @@
                 </div>
             </div>
         </div>
-
+        <div class="row">
+            <div class="col-3">Race mode:</div>
+            <div class="col-9"><%= if race_mode { "Yes" } else { "No" } %></div>
+        </div>
     </div>
 </div>
 
