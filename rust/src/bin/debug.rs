@@ -71,7 +71,6 @@ fn main() -> Result<()> {
         supers_used: 0,
         power_bombs_used: 0,
     };
-    let reverse = false;
     let difficulty = DifficultyConfig {
         tech: vec![],
         shine_charge_tiles: 16.0,

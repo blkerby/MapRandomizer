@@ -47,7 +47,19 @@ pub struct IndexedVec<T: Hash + Eq> {
     pub index_by_key: HashMap<T, usize>,
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, EnumString, EnumVariantNames, TryFromPrimitive, Serialize, Deserialize)]
+#[derive(
+    Copy,
+    Clone,
+    Debug,
+    PartialEq,
+    Eq,
+    Hash,
+    EnumString,
+    EnumVariantNames,
+    TryFromPrimitive,
+    Serialize,
+    Deserialize,
+)]
 #[repr(usize)]
 // Note: the ordering of these items is significant; it must correspond to the ordering of PLM types:
 pub enum Item {
@@ -486,7 +498,12 @@ impl GameData {
         1.0
     }
 
-    fn get_enemy_damage_weapon(&self, enemy_json: &JsonValue, weapon_name: &str, vul_mask: WeaponMask) -> i32 {
+    fn get_enemy_damage_weapon(
+        &self,
+        enemy_json: &JsonValue,
+        weapon_name: &str,
+        vul_mask: WeaponMask,
+    ) -> i32 {
         let multiplier = self.get_enemy_damage_multiplier(enemy_json, weapon_name);
         let weapon_idx = self.weapon_isv.index_by_key[weapon_name];
         if vul_mask & (1 << weapon_idx) == 0 {
@@ -821,19 +838,21 @@ impl GameData {
                 return Ok(Requirement::Free);
             } else if key == "obstaclesCleared" {
                 ensure!(value.is_array());
-                for obstacle_name_json in value.members() {
-                    let obstacle_name = obstacle_name_json.as_str().unwrap();
-                    if let Some(obstacle_idx) = ctx
-                        .obstacles_idx_map
-                        .context("obstaclesCleared requires obstacles_idx_map in context")?
-                        .get(obstacle_name)
-                    {
-                        if (1 << obstacle_idx) & ctx.from_obstacles_bitmask == 0 {
-                            return Ok(Requirement::Never);
+                if let Some(obstacles_idx_map) = ctx.obstacles_idx_map {
+                    for obstacle_name_json in value.members() {
+                        let obstacle_name = obstacle_name_json.as_str().unwrap();
+                        if let Some(obstacle_idx) = obstacles_idx_map.get(obstacle_name) {
+                            if (1 << obstacle_idx) & ctx.from_obstacles_bitmask == 0 {
+                                return Ok(Requirement::Never);
+                            }
+                        } else {
+                            bail!("Obstacle name {} not found", obstacle_name);
                         }
-                    } else {
-                        bail!("Obstacle name {} not found", obstacle_name);
                     }
+                } else {
+                    // No obstacle state in context. This happens with cross-room strats. We're not ready to
+                    // deal with obstacles yet here, so we just keep these out of logic.
+                    return Ok(Requirement::Never);
                 }
                 return Ok(Requirement::Free);
             } else if key == "adjacentRunway" {
