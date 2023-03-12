@@ -955,6 +955,13 @@ impl<'a> Patcher<'a> {
         let plm_data = self.rom.read_n(0x786DE, 6)?.to_vec();
         self.rom.write_n(0x78746, &plm_data)?;
 
+        if self.randomization.difficulty.all_items_spawn {
+            // Copy the item in Pit Room to the Zebes-asleep state.
+            // For this we overwrite the PLM slot for the gray door at the left of the room (which we would get rid of anyway).
+            let plm_data = self.rom.read_n(0x783EE, 6)?.to_vec();
+            self.rom.write_n(0x783C8, &plm_data)?;
+        }
+
         // Disable demo (by overwriting the branch on the timer reaching zero):
         self.rom.write_n(snes2pc(0x8B9F2C), &vec![0x80, 0x0A])?; // BRA $0A
 
@@ -1052,25 +1059,25 @@ impl<'a> Patcher<'a> {
 
     fn fix_crateria_scrolling_sky(&mut self) -> Result<()> {
         let data = vec![
-            (0x8FB76C, (0x1892E, 0x18946)),
-            (0x8FB777, (0x18916, 0x1896A)),
-            (0x8FB782, (0x1893A, 0x189B2)),
-            (0x8FB78D, (0x18922, 0x18AC6)),
-            (0x8FB7B0, (0x189E2, 0x18A12)),
-            (0x8FB7BB, (0x189CA, 0x18AEA)),
-            (0x8FB7C6, (0x189FA, 0x1A18C)),
-            (0x8FB7D1, (0x189D6, 0x1A1B0)),
-            (0x8FB7DC, (0x189EE, 0x1A1E0)),
-            (0x8FB7E7, (0x18A06, 0x1A300)),
-            (0x8FB7F4, (0x18A72, 0x18A7E)),
-            (0x8FB7FF, (0x18A66, 0x1A264)),
+            (0x8FB76C, (0x1892E, 0x18946)),  // Landing Site
+            (0x8FB777, (0x18916, 0x1896A)),  // Landing Site
+            (0x8FB782, (0x1893A, 0x189B2)),  // Landing Site
+            (0x8FB78D, (0x18922, 0x18AC6)),  // Landing Site
+            (0x8FB7B0, (0x189E2, 0x18A12)),  // West Ocean
+            (0x8FB7BB, (0x189CA, 0x18AEA)),  // West Ocean (Bottom-left door, to Moat)
+            (0x8FB7C6, (0x189FA, 0x1A18C)),  // West Ocean
+            (0x8FB7D1, (0x189D6, 0x1A1B0)),  // West Ocean
+            (0x8FB7DC, (0x189EE, 0x1A1E0)),  // West Ocean
+            (0x8FB7E7, (0x18A06, 0x1A300)),  // West Ocean
+            (0x8FB7F4, (0x18A72, 0x18A7E)),  // East Ocean
+            (0x8FB7FF, (0x18A66, 0x1A264)),  // East Ocean
         ];
         for (addr, (exit_ptr, entrance_ptr)) in data {
             let door_pair = (Some(exit_ptr), Some(entrance_ptr));
             let other_door_pair = self.other_door_ptr_pair_map[&door_pair];
             self.rom.write_u16(snes2pc(addr), (other_door_pair.0.unwrap() & 0xFFFF) as isize)?;
         }
-        
+
         Ok(())
     }
 }

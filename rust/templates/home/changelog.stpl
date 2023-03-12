@@ -3,6 +3,23 @@
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-46---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 46 (???)</a>:
+<ul>
+<li>Bug is fixed which had caused gray doors not to appear in Pit Room (old Mother Brain room) when
+using the quality-of-life option "All items spawn at start of game".
+<li>Skill assumption settings are expanded and adjusted:
+    <ul>
+    <li>A new preset "Insane" is added.
+    <li>Descriptions are added for each preset.
+    (TODO) show these only for the select preset
+    <li>Tech dependencies are shown.
+    <li>Several tech are moved into a higher or lower difficulty preset.
+    <li>Shinespark tiles are adjusted to be a little more lenient (except in "Insane").
+    <li>Notable strats are added to skill assumptions, allowing individual strats to be toggled, in cases where
+    the difficulty or obscurity of the strat exceeds that of the general tech that it uses.
+    </ul>
+</ul>
+
 <p><a href="https://version-45---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 45 (2023-03-09)</a>:
 <ul>
 <li>Logic updates:

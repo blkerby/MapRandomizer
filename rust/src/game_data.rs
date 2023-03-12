@@ -25,6 +25,7 @@ pub struct Map {
 }
 
 pub type TechId = usize; // Index into GameData.tech_isv.keys: distinct tech names from sm-json-data
+pub type StratId = usize; // Index into GameData.notable_strats_isv.keys: distinct notable strat names from sm-json-data
 pub type ItemId = usize; // Index into GameData.item_isv.keys: 21 distinct item names
 pub type FlagId = usize; // Index into GameData.flag_isv.keys: distinct game flag names from sm-json-data
 pub type RoomId = usize; // Room ID from sm-json-data
@@ -104,6 +105,7 @@ pub enum Requirement {
     Free,
     Never,
     Tech(TechId),
+    Strat(StratId),
     Item(ItemId),
     Flag(FlagId),
     ShineCharge {
@@ -228,6 +230,7 @@ pub struct Link {
     pub from_vertex_id: VertexId,
     pub to_vertex_id: VertexId,
     pub requirement: Requirement,
+    pub notable: bool,
     pub strat_name: String,
     pub strat_notes: Vec<String>,
 }
@@ -285,6 +288,7 @@ pub struct EnemyVulnerabilities {
 pub struct GameData {
     sm_json_data_path: PathBuf,
     pub tech_isv: IndexedVec<String>,
+    pub notable_strat_isv: IndexedVec<String>,
     pub flag_isv: IndexedVec<String>,
     pub item_isv: IndexedVec<String>,
     weapon_isv: IndexedVec<String>,
@@ -322,6 +326,11 @@ pub struct GameData {
     pub area_names: Vec<String>,
     pub area_map_ptrs: Vec<isize>,
     pub tech_description: HashMap<String, String>,
+    pub tech_dependencies: HashMap<String, Vec<String>>,
+    pub strat_dependencies: HashMap<String, Vec<String>>,
+    pub strat_area: HashMap<String, String>,
+    pub strat_room: HashMap<String, String>,
+    pub strat_description: HashMap<String, String>,
     pub palette_data: Vec<HashMap<TilesetIdx, [[u8; 3]; 128]>>,
 }
 
@@ -396,6 +405,24 @@ impl GameData {
             }
         }
         Ok(())
+    }
+
+    fn extract_tech_dependencies(&self, req: &Requirement) -> Vec<String> {
+        match req {
+            Requirement::Tech(tech_id) => {
+                vec![self.tech_isv.keys[*tech_id].clone()]
+            }
+            Requirement::And(sub_reqs) => {
+                let mut out: Vec<String> = vec![];
+                for r in sub_reqs {
+                    out.extend(self.extract_tech_dependencies(r));
+                }
+                out
+            }
+            _ => {
+                vec![]
+            }
+        }
     }
 
     fn get_tech_requirement(&mut self, tech_name: &str) -> Result<Requirement> {
@@ -953,6 +980,7 @@ impl GameData {
             from_vertex_id,
             to_vertex_id,
             requirement: Requirement::Free,
+            notable: false,
             strat_name: "Pants Room in-room transition".to_string(),
             strat_notes: vec![],
         });
@@ -1510,6 +1538,7 @@ impl GameData {
                         from_vertex_id: vertex_id,
                         to_vertex_id: vertex_id,
                         requirement: Requirement::make_and(reqs),
+                        notable: false,
                         strat_name: "Refill".to_string(),
                         strat_notes: vec![],
                     });
@@ -1557,6 +1586,7 @@ impl GameData {
                             from_vertex_id: vertex_id,
                             to_vertex_id: vertex_id,
                             requirement: Requirement::make_and(reqs.clone()),
+                            notable: false,
                             strat_name: farm_name.to_string(),
                             strat_notes: vec![],
                         })
@@ -1594,18 +1624,36 @@ impl GameData {
                             from_obstacles_bitmask,
                             obstacles_idx_map: Some(&obstacles_idx_map),
                         };
-                        let requirement =
-                            Requirement::make_and(self.parse_requires_list(&requires_json, &ctx)?);
+                        let mut requires_vec = self.parse_requires_list(&requires_json, &ctx)?;
+                        let strat_name = strat_json["name"].as_str().unwrap().to_string();
+                        let strat_notes = self.parse_note(&strat_json["note"]);
+                        let notable = strat_json["notable"].as_bool().unwrap_or(false);
+                        if notable {
+                            let strat_id = self.notable_strat_isv.add(&strat_name);
+                            requires_vec.push(Requirement::Strat(strat_id));
+                            let area = format!(
+                                "{} - {}",
+                                room_json["area"].as_str().unwrap(),
+                                room_json["subarea"].as_str().unwrap()
+                            );
+                            self.strat_area.insert(strat_name.clone(), area);
+                            self.strat_room.insert(
+                                strat_name.clone(),
+                                room_json["name"].as_str().unwrap().to_string(),
+                            );
+                            self.strat_description
+                                .insert(strat_name.clone(), strat_notes.join(" "));
+                        }
+                        let requirement = Requirement::make_and(requires_vec);
                         let from_vertex_id = self.vertex_isv.index_by_key
                             [&(room_id, from_node_id, from_obstacles_bitmask)];
                         let to_vertex_id = self.vertex_isv.index_by_key
                             [&(room_id, to_node_id, to_obstacles_bitmask)];
-                        let strat_name = strat_json["name"].as_str().unwrap().to_string();
-                        let strat_notes = self.parse_note(&strat_json["note"]);
                         let link = Link {
                             from_vertex_id,
                             to_vertex_id,
                             requirement,
+                            notable,
                             strat_name,
                             strat_notes,
                         };
@@ -1785,6 +1833,33 @@ impl GameData {
         Ok(())
     }
 
+    fn extract_all_tech_dependencies(&mut self) -> Result<()> {
+        let tech_vec = self.tech_isv.keys.clone();
+        for tech in &tech_vec {
+            let req = self.get_tech_requirement(tech)?;
+            let deps: Vec<String> = self
+                .extract_tech_dependencies(&req)
+                .into_iter()
+                .filter(|x| x != tech)
+                .collect();
+            println!("tech={}, deps={:?}", tech, deps);
+            self.tech_dependencies.insert(tech.clone(), deps);
+        }
+        Ok(())
+    }
+
+    fn extract_all_strat_dependencies(&mut self) -> Result<()> {
+        let links = self.links.clone();
+        for link in &links {
+            if link.notable {
+                let deps: Vec<String> = self.extract_tech_dependencies(&link.requirement);
+                println!("strat={}, deps={:?}", link.strat_name, deps);
+                self.strat_dependencies.insert(link.strat_name.clone(), deps);
+            }
+        }
+        Ok(())
+    }
+
     pub fn load(
         sm_json_data_path: &Path,
         room_geometry_path: &Path,
@@ -1809,6 +1884,9 @@ impl GameData {
         game_data.load_regions()?;
         game_data.load_connections()?;
         game_data.populate_target_locations()?;
+        game_data.extract_all_tech_dependencies()?;
+        game_data.extract_all_strat_dependencies()?;
+
         game_data
             .load_room_geometry(room_geometry_path)
             .context("Unable to load room geometry")?;

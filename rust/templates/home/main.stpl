@@ -42,10 +42,32 @@
                  </div>
             </div>
             <div class="form-group row my-2 mx-2">
-                <small><strong>Note</strong>: Even on the "Easy" difficulty, the seeds can be challenging,
-                particularly in the early game. We are still working on improvements to better align the game's
-                difficulty with the intended level.</small>
+                <small><strong>Easy</strong>: No tech is required. The early game can still be challenging, as you
+                may encounter dangerous enemies and softlock risks.</small>
             </div>
+            <div class="form-group row my-2 mx-2">
+                <small><strong>Medium</strong>: Basic tech may be required: wall jumps, crouch jumps, down grabs, 
+                infinite bomb jumps, shinesparks, and navigating heated/water rooms without suits.</small>
+            </div>
+            <div class="form-group row my-2 mx-2">
+                <small><strong>Hard</strong>: Common tech may be required, such as mockballs, damage boosts, 
+                gate glitching, Gravity jumps, snail climb, Spring Ball jump, and Mochtroid ice clips.</small>
+            </div>
+            <div class="form-group row my-2 mx-2">
+                <small><strong>Very Hard</strong>: Obscure or precise tech may be required, such as
+                Flatley jumps, grapple jumps, crystal flash stand-ups, evading Metroids, and snail/ice clips 
+                assisted by X-ray.</small>
+            </div>
+            <div class="form-group row my-2 mx-2">
+                <small><strong>Expert</strong>: Highly precise and/or repetitive tech may be required, such as
+                CWJ, tunnel crawls, X-ray climbs, Baby Metroid skip, crystal flash clips, double Spring Ball jumps,
+                and pixel-perfect snail/ice clips.</small>
+            </div>
+            <div class="form-group row my-2 mx-2">
+                <small><strong>Insane</strong>: Extremely precise, complex, or time-consuming tech may be required,
+                such as Taco Tank, Multiviola ice clip, or climbing Main Street with only Ice Beam (no HiJump or Supers).</small>
+            </div>
+            
             <% include!("skill_assumptions.stpl"); %>
 
             <div class="form-group row my-2">

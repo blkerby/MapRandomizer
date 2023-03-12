@@ -114,6 +114,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
     
     let difficulty = DifficultyConfig {
         tech: game_data.tech_isv.keys.clone(),
+        notable_strats: vec![],
         // tech,
         shine_charge_tiles: 16.0,
         // shine_charge_tiles: 32,
