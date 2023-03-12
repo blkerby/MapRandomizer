@@ -13,7 +13,7 @@ use clap::Parser;
 use hashbrown::{HashMap, HashSet};
 use log::{error, info};
 use maprando::customize::{customize_rom, CustomizeSettings};
-use maprando::game_data::{GameData, IndexedVec, Map, Item};
+use maprando::game_data::{GameData, IndexedVec, Item, Map};
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::{make_rom, Rom};
 use maprando::randomize::{
@@ -26,7 +26,7 @@ use rand::{RngCore, SeedableRng};
 use sailfish::TemplateOnce;
 use serde_derive::{Deserialize, Serialize};
 
-const VERSION: usize = 45;
+const VERSION: usize = 46;
 
 #[derive(Serialize, Deserialize, Clone)]
 struct Preset {
@@ -39,11 +39,13 @@ struct Preset {
     ridley_proficiency: f32,
     botwoon_proficiency: f32,
     tech: Vec<String>,
+    notable_strats: Vec<String>,
 }
 
 struct PresetData {
     preset: Preset,
     tech_setting: Vec<(String, bool)>,
+    notable_strat_setting: Vec<(String, bool)>,
 }
 
 struct MapRepository {
@@ -111,6 +113,11 @@ struct HomeTemplate<'a> {
     item_priorities: Vec<String>,
     prioritizable_items: Vec<String>,
     tech_description: &'a HashMap<String, String>,
+    tech_dependencies: &'a HashMap<String, Vec<String>>,
+    strat_dependencies: &'a HashMap<String, Vec<String>>,
+    _strat_area: &'a HashMap<String, String>,
+    strat_room: &'a HashMap<String, String>,
+    strat_description: &'a HashMap<String, String>,
 }
 
 #[get("/")]
@@ -135,6 +142,11 @@ async fn home(app_data: web::Data<AppData>) -> impl Responder {
         prioritizable_items,
         preset_data: &app_data.preset_data,
         tech_description: &app_data.game_data.tech_description,
+        tech_dependencies: &app_data.game_data.tech_dependencies,
+        strat_dependencies: &app_data.game_data.strat_dependencies,
+        _strat_area: &app_data.game_data.strat_area,
+        strat_room: &app_data.game_data.strat_room,
+        strat_description: &app_data.game_data.strat_description,
     };
     HttpResponse::Ok().body(home_template.render_once().unwrap())
 }
@@ -152,6 +164,7 @@ struct RandomizeRequest {
     escape_timer_multiplier: Text<f32>,
     save_animals: Text<bool>,
     tech_json: Text<String>,
+    strat_json: Text<String>,
     progression_rate: Text<String>,
     item_placement_style: Text<String>,
     item_progression_preset: Option<Text<String>>,
@@ -489,6 +502,7 @@ fn get_difficulty_tiers(
 ) -> Vec<DifficultyConfig> {
     let mut out: Vec<DifficultyConfig> = vec![];
     let tech_set: HashSet<String> = difficulty.tech.iter().cloned().collect();
+    let strat_set: HashSet<String> = difficulty.notable_strats.iter().cloned().collect();
 
     for preset_data in presets.iter().rev() {
         let preset = &preset_data.preset;
@@ -498,9 +512,18 @@ fn get_difficulty_tiers(
                 tech_vec.push(tech.clone());
             }
         }
+
+        let mut strat_vec: Vec<String> = Vec::new();
+        for (strat, enabled) in &preset_data.notable_strat_setting {
+            if *enabled && strat_set.contains(strat) {
+                strat_vec.push(strat.clone());
+            }
+        }
+
         // TODO: move some fields out of here so we don't have clone as much irrelevant stuff:
         let new_difficulty = DifficultyConfig {
             tech: tech_vec,
+            notable_strats: strat_vec,
             shine_charge_tiles: f32::max(
                 difficulty.shine_charge_tiles,
                 preset.shinespark_tiles as f32,
@@ -608,6 +631,14 @@ async fn randomize(
         }
     }
 
+    let strat_json: serde_json::Value = serde_json::from_str(&req.strat_json).unwrap();
+    let mut strat_vec: Vec<String> = Vec::new();
+    for (strat, is_enabled) in strat_json.as_object().unwrap().iter() {
+        if is_enabled.as_bool().unwrap() {
+            strat_vec.push(strat.to_string());
+        }
+    }
+
     info!("raw json: {}", req.item_priority_json.0);
     let item_priority_json: serde_json::Value =
         serde_json::from_str(&req.item_priority_json.0).unwrap();
@@ -615,16 +646,19 @@ async fn randomize(
     let filler_items_json: serde_json::Value =
         serde_json::from_str(&req.filler_items_json.0).unwrap();
     let mut filler_items = vec![Item::Missile];
-    filler_items.extend(filler_items_json
-        .as_object()
-        .unwrap()
-        .iter()
-        .filter(|(_k, v)| v.as_str().unwrap() == "true")
-        .map(|(k, _v)| Item::try_from(app_data.game_data.item_isv.index_by_key[k]).unwrap()));
+    filler_items.extend(
+        filler_items_json
+            .as_object()
+            .unwrap()
+            .iter()
+            .filter(|(_k, v)| v.as_str().unwrap() == "true")
+            .map(|(k, _v)| Item::try_from(app_data.game_data.item_isv.index_by_key[k]).unwrap()),
+    );
     info!("Filler items: {:?}", filler_items);
 
     let difficulty = DifficultyConfig {
         tech: tech_vec,
+        notable_strats: strat_vec,
         shine_charge_tiles: req.shinespark_tiles.0,
         progression_rate: match req.progression_rate.0.as_str() {
             "Slow" => maprando::randomize::ProgressionRate::Slow,
@@ -767,6 +801,7 @@ async fn randomize(
 fn init_presets(presets: Vec<Preset>, game_data: &GameData) -> Vec<PresetData> {
     let mut out: Vec<PresetData> = Vec::new();
     let mut cumulative_tech: HashSet<String> = HashSet::new();
+    let mut cumulative_strats: HashSet<String> = HashSet::new();
 
     // Tech which is currently not used by any strat in logic, so we avoid showing on the website:
     let ignored_tech: HashSet<String> = [
@@ -775,6 +810,8 @@ fn init_presets(presets: Vec<Preset>, game_data: &GameData) -> Vec<PresetData> {
         "canShinesparkWithReserve",
         "canSamusEaterStandUp",
         "canRiskPermanentLossOfAccess",
+        "canSpeedZebetitesSkip",
+        "canRemorphZebetiteSkip",
     ]
     .iter()
     .map(|x| x.to_string())
@@ -794,6 +831,13 @@ fn init_presets(presets: Vec<Preset>, game_data: &GameData) -> Vec<PresetData> {
         .collect();
     let visible_tech_set: HashSet<String> = visible_tech.iter().cloned().collect();
 
+    let visible_notable_strats: HashSet<String> = game_data
+        .links
+        .iter()
+        .filter(|&x| x.notable)
+        .map(|x| x.strat_name.clone())
+        .collect();
+
     for preset in presets {
         for tech in &preset.tech {
             if cumulative_tech.contains(tech) {
@@ -811,9 +855,28 @@ fn init_presets(presets: Vec<Preset>, game_data: &GameData) -> Vec<PresetData> {
         for tech in &visible_tech {
             tech_setting.push((tech.clone(), cumulative_tech.contains(tech)));
         }
+
+        for strat_name in &preset.notable_strats {
+            if cumulative_strats.contains(strat_name) {
+                panic!("Notable strat \"{strat_name}\" appears in presets more than once.");
+            }
+            if !visible_notable_strats.contains(strat_name) {
+                panic!(
+                    "Unrecognized notable strat \"{strat_name}\" appears in preset {}",
+                    preset.name
+                );                
+            }
+            cumulative_strats.insert(strat_name.clone());
+        }
+        let mut notable_strat_setting: Vec<(String, bool)> = Vec::new();
+        for strat_name in &visible_notable_strats {
+            notable_strat_setting.push((strat_name.clone(), cumulative_strats.contains(strat_name)));
+        }
+
         out.push(PresetData {
             preset: preset,
             tech_setting: tech_setting,
+            notable_strat_setting: notable_strat_setting,
         });
     }
     for tech in &visible_tech_set {
@@ -821,6 +884,11 @@ fn init_presets(presets: Vec<Preset>, game_data: &GameData) -> Vec<PresetData> {
             panic!("Tech \"{tech}\" not found in any preset.");
         }
     }
+    // for strat_name in &visible_notable_strats {
+    //     if !cumulative_strats.contains(strat_name) {
+    //         panic!("Notable strat \"{strat_name}\" not found in any preset.");
+    //     }
+    // }
     out
 }
 

@@ -1,4 +1,5 @@
 <input type="hidden" id="json-tech" name="tech_json">
+<input type="hidden" id="json-strat" name="strat_json">
 <% for p in preset_data { %>
     <% if p.preset.name != "Easy" {
         let name_no_space = p.preset.name.replace(" ", ""); %>
@@ -12,7 +13,7 @@
                 <div class="container mx-2 my-2">
                     <% for tech in &p.preset.tech { %>
                         <div class="row">
-                            <div class="col-sm-3 form-check">
+                            <div class="col-sm-12 form-check">
                             <input type="checkbox" class="form-check-input tech-input" 
                                 id="tech-<%- tech%>" 
                                 onchange="techChanged()" 
@@ -26,7 +27,34 @@
                                 <%= tech_description[tech] %>
                             </div>
                         </div>                    
+                        <% if tech_dependencies[tech].len() > 0 { %>
+                        <i>Dependencies: <%= tech_dependencies[tech].join(", ") %> </i>
+                        <% } %>
                     <% } %>
+
+                    <hr>
+
+                    <% for strat in &p.preset.notable_strats { %>
+                        <div class="row">
+                            <div class="col-sm-12 form-check">
+                            <input type="checkbox" class="form-check-input strat-input" 
+                                id="strat-<%- strat%>" 
+                                onchange="techChanged()" 
+                                name="strat-<%- strat %>" 
+                                value="<%- strat%>">
+                            <label class="form-check-label" for="<%- strat%>"><b><%= strat %></b> (<%= strat_room[strat] %>)</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <%= strat_description[strat] %>
+                            </div>
+                        </div>
+                        <% if strat_dependencies[strat].len() > 0 { %>
+                        <i>Dependencies: <%= strat_dependencies[strat].join(", ") %> </i>
+                        <% } %>
+                    <% } %>
+
                 </div>
             </div>
         </div>

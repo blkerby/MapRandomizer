@@ -51,9 +51,9 @@ start_game:
     sta $09D4  
     sta $09D6
 
-    lda #$00E6
-    sta $09C6   ; missiles
-    sta $09C8   ; max missiles
+;    lda #$00E6
+;    sta $09C6   ; missiles
+;    sta $09C8   ; max missiles
     lda #$0032
     sta $09CA   ; supers
     sta $09CC   ; max supers

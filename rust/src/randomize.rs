@@ -62,6 +62,8 @@ pub struct ItemPriorityGroup {
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
 pub struct DifficultyConfig {
     pub tech: Vec<String>,
+    pub notable_strats: Vec<String>,
+    // pub notable_strats: Vec<String>,
     pub shine_charge_tiles: f32,
     pub progression_rate: ProgressionRate,
     pub item_placement_style: ItemPlacementStyle,
@@ -170,6 +172,7 @@ fn add_door_links(
             from_vertex_id,
             to_vertex_id,
             requirement: game_data::Requirement::Free,
+            notable: false,
             strat_name: "(Door transition)".to_string(),
             strat_notes: vec![],
         });
@@ -219,6 +222,7 @@ impl<'a> Preprocessor<'a> {
             from_vertex_id: link.from_vertex_id,
             to_vertex_id: link.to_vertex_id,
             requirement: self.preprocess_requirement(&link.requirement, link),
+            notable: link.notable,
             strat_name: link.strat_name.clone(),
             strat_notes: link.strat_notes.clone(),
         }
@@ -526,6 +530,20 @@ impl<'r> Randomizer<'r> {
             .collect()
     }
 
+    fn get_strat_vec(&self, tier: usize) -> Vec<bool> {
+        let strat_set: HashSet<String> = self.difficulty_tiers[tier]
+            .notable_strats
+            .iter()
+            .map(|x| x.clone())
+            .collect();
+        self.game_data
+            .notable_strat_isv
+            .keys
+            .iter()
+            .map(|x| strat_set.contains(x))
+            .collect()
+    }
+
     fn get_initial_flag_vec(&self) -> Vec<bool> {
         let mut flag_vec = vec![false; self.game_data.flag_isv.keys.len()];
         let tourian_open_idx = self.game_data.flag_isv.index_by_key["f_TourianOpen"];
@@ -769,6 +787,7 @@ impl<'r> Randomizer<'r> {
             let difficulty = &self.difficulty_tiers[tier];
             let mut tmp_global = state.global_state.clone();
             tmp_global.tech = self.get_tech_vec(tier);
+            tmp_global.notable_strats = self.get_strat_vec(tier);
             tmp_global.shine_charge_tiles = difficulty.shine_charge_tiles;
             let traverse_result = traverse(
                 &self.links,
@@ -1138,6 +1157,7 @@ impl<'r> Randomizer<'r> {
             let weapon_mask = self.game_data.get_weapon_mask(&items);
             GlobalState {
                 tech: self.get_tech_vec(0),
+                notable_strats: self.get_strat_vec(0),
                 items: items,
                 flags: self.get_initial_flag_vec(),
                 max_energy: 99,

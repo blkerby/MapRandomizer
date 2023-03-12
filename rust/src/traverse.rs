@@ -10,9 +10,11 @@ use crate::{
     randomize::DifficultyConfig,
 };
 
+// TODO: move tech and notable_strats out of this struct, since these do not change from step to step.
 #[derive(Clone, Debug)]
 pub struct GlobalState {
     pub tech: Vec<bool>,
+    pub notable_strats: Vec<bool>,
     pub items: Vec<bool>,
     pub flags: Vec<bool>,
     pub max_energy: Capacity,
@@ -573,6 +575,13 @@ pub fn apply_requirement(
         Requirement::Never => None,
         Requirement::Tech(tech_id) => {
             if global.tech[*tech_id] {
+                Some(local)
+            } else {
+                None
+            }
+        }
+        Requirement::Strat(strat_id) => {
+            if global.notable_strats[*strat_id] {
                 Some(local)
             } else {
                 None

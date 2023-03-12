@@ -8,9 +8,8 @@ arch 65816
 org $8F9EC5
     dw $86E6
 
-; Pit Room
-org $8F9781
-    dw $83D0
+; Note: Pit Room is handled specially in patch.rs: in this case we can't repoint the
+; whole PLM set because it would mess up the gray doors.
 
 ; The Final Missile
 org $8F9AB6

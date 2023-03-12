@@ -33,6 +33,14 @@ function updateTechJSON() {
     });
     document.getElementById("json-tech").value = JSON.stringify(techSelection);
 }
+function updateStratJSON() {
+    stratSelection = {}
+    document.querySelectorAll('.strat-input')
+    .forEach(function (x) { 
+        stratSelection[x.value] = x.checked;
+    });
+    document.getElementById("json-strat").value = JSON.stringify(stratSelection);
+}
 function updateItemPriorityJSON() {
     itemPriority = {}
     document.querySelectorAll('.item-priority-input')
@@ -62,6 +70,7 @@ function updateFillerItemsJSON() {
 }
 function prepareSubmit() {
     updateTechJSON();
+    updateStratJSON();
     updateItemPriorityJSON();
     updateFillerItemsJSON();
 }
