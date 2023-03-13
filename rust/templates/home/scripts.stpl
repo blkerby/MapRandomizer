@@ -16,6 +16,10 @@ function presetChanged() {
             <% for (tech, is_enabled) in &p.tech_setting { %>
                 document.getElementById("tech-<%- tech%>").checked = <%= is_enabled %>;
             <% } %>
+            <% for (strat, is_enabled) in &p.notable_strat_setting { %>
+                <% let strat_id = strat_id_by_name[strat]; %>
+                document.getElementById("strat-<%- strat_id %>").checked = <%= is_enabled %>;
+            <% } %>
         }
     <% } %>
 }

@@ -407,20 +407,20 @@ impl GameData {
         Ok(())
     }
 
-    fn extract_tech_dependencies(&self, req: &Requirement) -> Vec<String> {
+    fn extract_tech_dependencies(&self, req: &Requirement) -> HashSet<String> {
         match req {
             Requirement::Tech(tech_id) => {
-                vec![self.tech_isv.keys[*tech_id].clone()]
+                vec![self.tech_isv.keys[*tech_id].clone()].into_iter().collect()
             }
             Requirement::And(sub_reqs) => {
-                let mut out: Vec<String> = vec![];
+                let mut out: HashSet<String> = HashSet::new();
                 for r in sub_reqs {
                     out.extend(self.extract_tech_dependencies(r));
                 }
                 out
             }
             _ => {
-                vec![]
+                HashSet::new()
             }
         }
     }
@@ -1852,9 +1852,9 @@ impl GameData {
         let links = self.links.clone();
         for link in &links {
             if link.notable {
-                let deps: Vec<String> = self.extract_tech_dependencies(&link.requirement);
+                let deps: HashSet<String> = self.extract_tech_dependencies(&link.requirement);
                 println!("strat={}, deps={:?}", link.strat_name, deps);
-                self.strat_dependencies.insert(link.strat_name.clone(), deps);
+                self.strat_dependencies.insert(link.strat_name.clone(), deps.into_iter().collect());
             }
         }
         Ok(())

@@ -56,6 +56,7 @@ struct MapRepository {
 struct AppData {
     game_data: GameData,
     preset_data: Vec<PresetData>,
+    ignored_notable_strats: HashSet<String>,
     map_repository: MapRepository,
     seed_repository: SeedRepository,
     debug: bool,
@@ -118,6 +119,7 @@ struct HomeTemplate<'a> {
     _strat_area: &'a HashMap<String, String>,
     strat_room: &'a HashMap<String, String>,
     strat_description: &'a HashMap<String, String>,
+    strat_id_by_name: &'a HashMap<String, usize>,
 }
 
 #[get("/")]
@@ -147,6 +149,7 @@ async fn home(app_data: web::Data<AppData>) -> impl Responder {
         _strat_area: &app_data.game_data.strat_area,
         strat_room: &app_data.game_data.strat_room,
         strat_description: &app_data.game_data.strat_description,
+        strat_id_by_name: &app_data.game_data.notable_strat_isv.index_by_key,
     };
     HttpResponse::Ok().body(home_template.render_once().unwrap())
 }
@@ -498,8 +501,9 @@ fn get_random_seed() -> usize {
 // lower difficulties.
 fn get_difficulty_tiers(
     difficulty: &DifficultyConfig,
-    presets: &[PresetData],
+    app_data: &AppData,
 ) -> Vec<DifficultyConfig> {
+    let presets = &app_data.preset_data;
     let mut out: Vec<DifficultyConfig> = vec![];
     let tech_set: HashSet<String> = difficulty.tech.iter().cloned().collect();
     let strat_set: HashSet<String> = difficulty.notable_strats.iter().cloned().collect();
@@ -513,7 +517,7 @@ fn get_difficulty_tiers(
             }
         }
 
-        let mut strat_vec: Vec<String> = Vec::new();
+        let mut strat_vec: Vec<String> = app_data.ignored_notable_strats.iter().cloned().collect();
         for (strat, enabled) in &preset_data.notable_strat_setting {
             if *enabled && strat_set.contains(strat) {
                 strat_vec.push(strat.clone());
@@ -632,7 +636,7 @@ async fn randomize(
     }
 
     let strat_json: serde_json::Value = serde_json::from_str(&req.strat_json).unwrap();
-    let mut strat_vec: Vec<String> = Vec::new();
+    let mut strat_vec: Vec<String> = app_data.ignored_notable_strats.iter().cloned().collect();
     for (strat, is_enabled) in strat_json.as_object().unwrap().iter() {
         if is_enabled.as_bool().unwrap() {
             strat_vec.push(strat.to_string());
@@ -709,7 +713,7 @@ async fn randomize(
         },
     };
     let difficulty_tiers = if difficulty.item_placement_style == ItemPlacementStyle::Forced {
-        get_difficulty_tiers(&difficulty, &app_data.preset_data)
+        get_difficulty_tiers(&difficulty, &app_data)
     } else {
         vec![difficulty.clone()]
     };
@@ -798,7 +802,7 @@ async fn randomize(
         .finish()
 }
 
-fn init_presets(presets: Vec<Preset>, game_data: &GameData) -> Vec<PresetData> {
+fn init_presets(presets: Vec<Preset>, game_data: &GameData, ignored_notable_strats: &HashSet<String>) -> Vec<PresetData> {
     let mut out: Vec<PresetData> = Vec::new();
     let mut cumulative_tech: HashSet<String> = HashSet::new();
     let mut cumulative_strats: HashSet<String> = HashSet::new();
@@ -834,7 +838,7 @@ fn init_presets(presets: Vec<Preset>, game_data: &GameData) -> Vec<PresetData> {
     let visible_notable_strats: HashSet<String> = game_data
         .links
         .iter()
-        .filter(|&x| x.notable)
+        .filter(|&x| x.notable & !ignored_notable_strats.contains(&x.strat_name))
         .map(|x| x.strat_name.clone())
         .collect();
 
@@ -860,17 +864,12 @@ fn init_presets(presets: Vec<Preset>, game_data: &GameData) -> Vec<PresetData> {
             if cumulative_strats.contains(strat_name) {
                 panic!("Notable strat \"{strat_name}\" appears in presets more than once.");
             }
-            if !visible_notable_strats.contains(strat_name) {
-                panic!(
-                    "Unrecognized notable strat \"{strat_name}\" appears in preset {}",
-                    preset.name
-                );                
-            }
             cumulative_strats.insert(strat_name.clone());
         }
         let mut notable_strat_setting: Vec<(String, bool)> = Vec::new();
         for strat_name in &visible_notable_strats {
-            notable_strat_setting.push((strat_name.clone(), cumulative_strats.contains(strat_name)));
+            notable_strat_setting
+                .push((strat_name.clone(), cumulative_strats.contains(strat_name)));
         }
 
         out.push(PresetData {
@@ -884,11 +883,22 @@ fn init_presets(presets: Vec<Preset>, game_data: &GameData) -> Vec<PresetData> {
             panic!("Tech \"{tech}\" not found in any preset.");
         }
     }
-    // for strat_name in &visible_notable_strats {
-    //     if !cumulative_strats.contains(strat_name) {
-    //         panic!("Notable strat \"{strat_name}\" not found in any preset.");
-    //     }
-    // }
+
+    if !visible_notable_strats.is_subset(&cumulative_strats) {
+        let diff: Vec<String> = visible_notable_strats
+            .difference(&cumulative_strats)
+            .cloned()
+            .collect();
+        panic!("Notable strats not found in any preset: {:?}", diff);
+    }
+    if !cumulative_strats.is_subset(&visible_notable_strats) {
+        let diff: Vec<String> = cumulative_strats
+            .difference(&visible_notable_strats)
+            .cloned()
+            .collect();
+        panic!("Unrecognized notable strats in presets: {:?}", diff);
+    }
+
     out
 }
 
@@ -898,6 +908,40 @@ struct Args {
     seed_repository_url: String,
     #[arg(long, action)]
     debug: bool,
+}
+
+fn get_ignored_notable_strats() -> HashSet<String> {
+    [
+        "Frozen Geemer Alcatraz Escape",
+        "GT Supers Double Shinespark With HiJump",
+        "Botwoon Puyo Clip (Left to Right)",
+        "Botwoon Puyo Clip (Right to Left)",
+        "Suitless Botwoon Kill",
+        "Maridia Bug Room Frozen Menu Bridge",
+        "Breaking the Maridia Tube Gravity Jump",
+        "Crumble Shaft Consecutive Crumble Climb",
+        "Metroid Room 1 PB Dodge Kill (Left to Right)",
+        "Metroid Room 1 PB Dodge Kill (Right to Left)",
+        "Metroid Room 2 PB Dodge Kill (Bottom to Top)",
+        "Metroid Room 3 PB Dodge Kill (Left to Right)",
+        "Metroid Room 3 PB Dodge Kill (Right to Left)",
+        "Metroid Room 4 Three PB Kill (Top to Bottom)",
+        "Metroid Room 4 Six PB Dodge Kill (Bottom to Top)",
+        "Metroid Room 4 Three PB Dodge Kill (Bottom to Top)",
+        "Partial Covern Ice Clip",
+        "Basement Speedball (Phantoon Dead)",
+        "Basement Speedball (Phantoon Alive)",
+        "Dodge the Etecoon Beetoms (Left to Right)",
+        "MickeyMouse Crumbleless MidAir Spring Ball",
+        "Mickey Mouse Crumble IBJ",
+        "Landing Site Blue Space Jump (Bottom)",
+        "Big Pink Crystal Flash Standup - Super Block",
+        "Dodge the Etecoon Beetoms (Right to Left)",
+        "Big Pink Off Screen Super Block",
+    ]
+    .iter()
+    .map(|x| x.to_string())
+    .collect()
 }
 
 fn build_app_data() -> AppData {
@@ -911,10 +955,12 @@ fn build_app_data() -> AppData {
     let game_data = GameData::load(sm_json_data_path, room_geometry_path, palette_path).unwrap();
     let presets: Vec<Preset> =
         serde_json::from_str(&std::fs::read_to_string(&"data/presets.json").unwrap()).unwrap();
-    let preset_data = init_presets(presets, &game_data);
+    let ignored_notable_strats = get_ignored_notable_strats();
+    let preset_data = init_presets(presets, &game_data, &ignored_notable_strats);
     AppData {
         game_data,
         preset_data,
+        ignored_notable_strats,
         map_repository: MapRepository::new(maps_path).unwrap(),
         seed_repository: SeedRepository::new(&args.seed_repository_url).unwrap(),
         debug: args.debug,

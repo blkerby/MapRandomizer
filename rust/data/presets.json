@@ -30,7 +30,8 @@
       "canSuitlessMaridia"
     ],
     "notable_strats": [
-      "Draygon Grapple Kill"
+      "Draygon Grapple Kill",
+      "Suitless Botwoon Backdoor Kill (Wave)"
     ]
   },
   {
@@ -82,6 +83,7 @@
       "Power Bomb Pillar Room (Right to Left)",
       "Reverse Amphitheatre with Gravity",
       "Reverse Amphitheatre, Gravityless",
+      "West Sand Hole MidAir Morph (Bootless Suitless)",
       "Pants Room Gravity Jump",
       "Suitless Colosseum Grapple (Left to Right)",
       "Suitless Colosseum Grapple (Right to Left)",
@@ -163,8 +165,9 @@
       "Climb Moonfall Block Break",
       "Landing Site Big Jump Blue Suit Bounce",
       "Moat SpringBall Bounce",
+      "Red Tower Hero Shot",
+      "Red Tower Spark",
       "Red Kihunter Shaft X-Ray Clip",
-      "Mickey Mouse Crumble IBJ",
       "LN Fireflea Room Damage Boost Over the Fune",
       "Reverse Spring Ball Maze Crystal Flash Clip",
       "GT Supers Walljump Into Double Shinespark",
@@ -172,7 +175,6 @@
       "Screw Attack Room Transition Screwjump",
       "Screw Attack Room Springwall Morph Bombs",
       "Screw Attack Room Transition Speedjump (Morph Bombs)",  
-      "East Sand Hall Springball Jump",
       "Pants Room Shinespark",
       "Draygon Grapple Quick Kill",
       "Draygon Shinespark Kill",
@@ -181,8 +183,6 @@
       "Suitless Pants Room SpringBall Climb",
       "Suitless Pants Room Flatley Turnaround Climb",
       "Halfie Climb Enter with Shinespark from the Right",
-      "East Cac Alley Cross Room Jump with IBJ",
-      "West Sand Hole MidAir Morph (Bootless Suitless)",
       "Plasma Spark Fish Climb",
       "Maridia Tube Standing Clip",
       "Fish Tank Entry Fall onto Frozen Fish",
@@ -196,6 +196,7 @@
       "PCJR Springwall",
       "PCJR Acid Shinespark",
       "Grapple Tutorial Frozen Gamet",
+      "Croc Escape SpringBall Freeze",
       "Cathedral Entrance Left Door Frozen Sova Step",
       "Cathedral Entrance Hero Shot Shinespark",
       "Bubble Mountain Save Room Jump",
@@ -203,7 +204,8 @@
       "Hjless Lava Dive",
       "Hjless Lava Dive BounceBall",
       "HiJump Etank X-Ray Clip",
-      "Sponge Bath Bull Boost"
+      "Sponge Bath Bull Boost",
+      "Maridia Bug Room MidAir Morph with Gravity"
     ]
   },
   {
@@ -259,7 +261,7 @@
       "Warehouse Kihunter Speedball",
       "Mission Impossible",
       "Red Tower IBJ Between the Bottom Rippers",
-      "Red Tower Hero Shot",
+      "Red Tower Midair HBJ",
       "X-Ray Access Damage Boost",
       "Landing Site Blue Space Jump (Top)",
       "West Ocean Bug Boost",
@@ -269,11 +271,12 @@
       "LN Fireflea Room Morph Over the Fune Escape",
       "LN Spring Ball Maze Hotarubi Special",
       "Reverse Acid Statue CF Grapple Clip",
-      "West Sand Hall Insane Bomb Jump",
+      "East Sand Hall Springball Jump",
       "Pants Room IBJ",
       "Suitless East Pants Room CF Clip",
       "Suitless Botwoon CF Clip (Left to Right)",
       "Suitless Botwoon CF Clip (Right to Left)",
+      "East Cac Alley Cross Room Jump with IBJ",
       "East Cac Alley Cross Room Jump with Spring Ball, Bomb Boost",
       "Cacatac Alley Springball Spike Boost",
       "Everest Tricky Cross Room Jump (Right to Left)",
@@ -289,7 +292,6 @@
       "Lava Dive Diagonal Bomb Jump",
       "Lava Dive HiJumpless Suitless Double Springball Jump",
       "Croc Escape SpringBall Bomb Boost",
-      "Croc Escape SpringBall Freeze",
       "Waveless Baby Skip",
       "Bowling Reserve Crystal Flash Grapple Clip"
     ]
@@ -314,7 +316,8 @@
       "Main Street Ice Only Mid Crab Climb",
       "Main Street Ice Only Top Crab Climb",
       "Main Street Top Crab Climb with Supers",
-      "Double Chamber Hijumpless Walljump"
+      "Double Chamber Hijumpless Walljump",
+      "West Sand Hall Insane Bomb Jump"
     ]
   }
 ]
