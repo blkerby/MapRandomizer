@@ -35,10 +35,11 @@
                     <hr>
 
                     <% for strat in &p.preset.notable_strats { %>
+                        <% let strat_id = strat_id_by_name[strat]; %>
                         <div class="row">
                             <div class="col-sm-12 form-check">
                             <input type="checkbox" class="form-check-input strat-input" 
-                                id="strat-<%- strat%>" 
+                                id="strat-<%- strat_id %>" 
                                 onchange="techChanged()" 
                                 name="strat-<%- strat %>" 
                                 value="<%- strat%>">
