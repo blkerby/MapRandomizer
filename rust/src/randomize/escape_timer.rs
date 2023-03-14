@@ -29,10 +29,17 @@ pub struct RoomDoorGraph {
     pub animals_vertex_id: VertexId,
 }
 
+// Ideally this would contain coords, but whatever
+#[derive(Serialize, Deserialize)]
+pub struct SpoilerEscapeRouteNode {
+    room: String,
+    node: String,
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct SpoilerEscapeRouteEntry {
-    pub from: String,
-    pub to: String,
+    pub from: SpoilerEscapeRouteNode,
+    pub to: SpoilerEscapeRouteNode,
     pub distance: usize,
 }
 
@@ -494,16 +501,23 @@ fn get_vertex_name(
     vertex_id: VertexId,
     room_door_graph: &RoomDoorGraph,
     game_data: &GameData,
-) -> String {
+) -> SpoilerEscapeRouteNode {
     if vertex_id == room_door_graph.ship_vertex_id {
-        return "Ship".to_string();
+        return SpoilerEscapeRouteNode {
+            room: "Landing Site".to_string(),
+            node: "Ship".to_string(),
+        };
     }
     let (room_idx, door_idx) = room_door_graph.vertices.keys[vertex_id];
     let door = &game_data.room_geometry[room_idx].doors[door_idx];
     let door_ptr_pair = (door.exit_ptr, door.entrance_ptr);
     let (room_id, door_id) = game_data.door_ptr_pair_map[&door_ptr_pair];
+    let room_json = &game_data.room_json_map[&room_id];
     let node_json = &game_data.node_json_map[&(room_id, door_id)];
-    node_json["name"].as_str().unwrap().to_string()
+    SpoilerEscapeRouteNode {
+        room: room_json["name"].as_str().unwrap().to_string(),
+        node: node_json["name"].as_str().unwrap().to_string()
+    }
 }
 
 fn get_spoiler_escape_route(

@@ -1,0 +1,85 @@
+body {
+	font-family: sans-serif;
+	background-color: #111;
+	margin: 0;
+	overflow: hidden;
+}
+#map {
+	position: absolute;
+	width: 1776px;
+	image-rendering: crisp-edges;
+	top: 0;
+	left: 0;
+	transform: translate(var(--tx), var(--ty));
+}
+#obscure-overlay, #path-overlay {
+	position: absolute;
+	pointer-events: none;
+	transform: translate(var(--tx), var(--ty));
+}
+#obscure-overlay {
+	margin: 24px;
+	width: 1728px;
+	height: 1728px;
+	image-rendering: crisp-edges;
+	z-index: 1;
+}
+#overlay {
+	position: absolute;
+	transform: translate(var(--tx), var(--ty));
+}
+.popup, #room-info, #sidebar-info {
+	position: relative;
+	color: #eee;
+	background-color: #222222aa;
+	z-index: 2;
+	border: 2px solid #222;
+	border-radius: 2px;
+	padding: 2px;
+	line-height: 1em;
+	pointer-events: none;
+}
+#sidebar-info {
+	position: fixed;
+	max-height: 300px;
+	overflow-y: scroll;
+	pointer-events: auto;
+	top: 16px;
+	left: 16px;
+}
+.sidebar-title {
+	font-size: x-large;
+}
+.category {
+	font-size: small;
+	font-weight: bold;
+	margin-top: 8px;
+}
+.hidden {
+	display: none;
+}
+.popup {
+	display: none;
+}
+.icon:hover + .popup {
+	display: block;
+	width: auto;
+}
+.icon, .ui-icon {
+	background-image: url("items.png");
+	width: 16px;
+	height: 16px;
+	background-size: 384px;
+	image-rendering: crisp-edges;
+	transition: transform 200ms ease;
+}
+.icon {
+	position: absolute;
+}
+.ui-icon {
+	display: inline-block;
+}
+.icon:hover {
+	transform: scale(2);
+	z-index: 2;
+}
