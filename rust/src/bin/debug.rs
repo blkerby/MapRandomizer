@@ -103,10 +103,10 @@ fn main() -> Result<()> {
 
     let mut name_set: HashSet<String> = HashSet::new();
     for link in &game_data.links {
-        if link.notable {
-            if !name_set.contains(&link.strat_name) {
-                println!("{}", link.strat_name);
-                name_set.insert(link.strat_name.clone());
+        if let Some(name) = link.notable_strat_name.clone() {
+            if !name_set.contains(&name) {
+                println!("{}", name);
+                name_set.insert(name.clone());
             }
             // println!("{}", link.requirement);
         }

@@ -172,7 +172,7 @@ fn add_door_links(
             from_vertex_id,
             to_vertex_id,
             requirement: game_data::Requirement::Free,
-            notable: false,
+            notable_strat_name: None,
             strat_name: "(Door transition)".to_string(),
             strat_notes: vec![],
         });
@@ -222,7 +222,7 @@ impl<'a> Preprocessor<'a> {
             from_vertex_id: link.from_vertex_id,
             to_vertex_id: link.to_vertex_id,
             requirement: self.preprocess_requirement(&link.requirement, link),
-            notable: link.notable,
+            notable_strat_name: link.notable_strat_name.clone(),
             strat_name: link.strat_name.clone(),
             strat_notes: link.strat_notes.clone(),
         }
