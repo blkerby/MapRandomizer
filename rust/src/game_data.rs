@@ -230,7 +230,7 @@ pub struct Link {
     pub from_vertex_id: VertexId,
     pub to_vertex_id: VertexId,
     pub requirement: Requirement,
-    pub notable: bool,
+    pub notable_strat_name: Option<String>,
     pub strat_name: String,
     pub strat_notes: Vec<String>,
 }
@@ -980,7 +980,7 @@ impl GameData {
             from_vertex_id,
             to_vertex_id,
             requirement: Requirement::Free,
-            notable: false,
+            notable_strat_name: None,
             strat_name: "Pants Room in-room transition".to_string(),
             strat_notes: vec![],
         });
@@ -1538,7 +1538,7 @@ impl GameData {
                         from_vertex_id: vertex_id,
                         to_vertex_id: vertex_id,
                         requirement: Requirement::make_and(reqs),
-                        notable: false,
+                        notable_strat_name: None,
                         strat_name: "Refill".to_string(),
                         strat_notes: vec![],
                     });
@@ -1586,13 +1586,19 @@ impl GameData {
                             from_vertex_id: vertex_id,
                             to_vertex_id: vertex_id,
                             requirement: Requirement::make_and(reqs.clone()),
-                            notable: false,
+                            notable_strat_name: None,
                             strat_name: farm_name.to_string(),
                             strat_notes: vec![],
                         })
                     }
                 }
             }
+        }
+
+        // Process roomwide reusable strats:
+        let mut roomwide_notable: HashMap<String, JsonValue> = HashMap::new();
+        for strat in room_json["reusableRoomwideNotable"].members() {
+            roomwide_notable.insert(strat["name"].as_str().unwrap().to_string(), strat.clone());
         }
 
         // Process links:
@@ -1628,21 +1634,27 @@ impl GameData {
                         let strat_name = strat_json["name"].as_str().unwrap().to_string();
                         let strat_notes = self.parse_note(&strat_json["note"]);
                         let notable = strat_json["notable"].as_bool().unwrap_or(false);
+                        let mut notable_strat_name = strat_name.clone();
                         if notable {
-                            let strat_id = self.notable_strat_isv.add(&strat_name);
+                            let mut notable_strat_note: Vec<String> = vec![];
+                            if strat_json.has_key("reusableRoomwideNotable") {
+                                notable_strat_name = strat_json["reusableRoomwideNotable"].as_str().unwrap().to_string();
+                                notable_strat_note = self.parse_note(&roomwide_notable[&notable_strat_name]["note"]);
+                            }
+                            let strat_id = self.notable_strat_isv.add(&notable_strat_name);
                             requires_vec.push(Requirement::Strat(strat_id));
                             let area = format!(
                                 "{} - {}",
                                 room_json["area"].as_str().unwrap(),
                                 room_json["subarea"].as_str().unwrap()
                             );
-                            self.strat_area.insert(strat_name.clone(), area);
+                            self.strat_area.insert(notable_strat_name.clone(), area);
                             self.strat_room.insert(
-                                strat_name.clone(),
+                                notable_strat_name.clone(),
                                 room_json["name"].as_str().unwrap().to_string(),
                             );
                             self.strat_description
-                                .insert(strat_name.clone(), strat_notes.join(" "));
+                                .insert(notable_strat_name.clone(), notable_strat_note.join(" "));
                         }
                         let requirement = Requirement::make_and(requires_vec);
                         let from_vertex_id = self.vertex_isv.index_by_key
@@ -1653,7 +1665,7 @@ impl GameData {
                             from_vertex_id,
                             to_vertex_id,
                             requirement,
-                            notable,
+                            notable_strat_name: if notable { Some(notable_strat_name) } else { None },
                             strat_name,
                             strat_notes,
                         };
@@ -1851,10 +1863,9 @@ impl GameData {
     fn extract_all_strat_dependencies(&mut self) -> Result<()> {
         let links = self.links.clone();
         for link in &links {
-            if link.notable {
+            if let Some(notable_strat_name) = link.notable_strat_name.clone() {
                 let deps: HashSet<String> = self.extract_tech_dependencies(&link.requirement);
-                println!("strat={}, deps={:?}", link.strat_name, deps);
-                self.strat_dependencies.insert(link.strat_name.clone(), deps.into_iter().collect());
+                self.strat_dependencies.insert(notable_strat_name.clone(), deps.into_iter().collect());
             }
         }
         Ok(())

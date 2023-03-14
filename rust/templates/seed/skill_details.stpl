@@ -36,3 +36,9 @@
         <%= difficulty.tech.join(", ") %>
     </div>
 </div>
+<div class="row">
+    <div class="col-4">Notable strats:</div>
+    <div class="col-8">
+        <%- notable_strats.join("<br>") %>
+    </div>
+</div>

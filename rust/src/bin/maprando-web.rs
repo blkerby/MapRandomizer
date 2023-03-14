@@ -204,6 +204,7 @@ struct SeedData {
     preset: Option<String>,
     item_progression_preset: Option<String>,
     difficulty: DifficultyConfig,
+    ignored_notable_strats: Vec<String>,
     quality_of_life_preset: Option<bool>,
     supers_double: bool,
     streamlined_escape: bool,
@@ -235,6 +236,7 @@ struct SeedHeaderTemplate<'a> {
     filler_items: Vec<String>,
     item_placement_style: String,
     difficulty: &'a DifficultyConfig,
+    notable_strats: Vec<String>,
     quality_of_life_preset: Option<bool>,
     supers_double: bool,
     streamlined_escape: bool,
@@ -260,6 +262,12 @@ struct CustomizeSeedTemplate {
 }
 
 fn render_seed(seed_name: &str, seed_data: &SeedData) -> Result<(String, String)> {
+    let ignored_notable_strats: HashSet<String> = seed_data.ignored_notable_strats.iter().cloned().collect();
+    let notable_strats: Vec<String> = seed_data.difficulty.notable_strats
+            .iter()
+            .cloned()
+            .filter(|x| !ignored_notable_strats.contains(x))
+            .collect();
     let seed_header_template = SeedHeaderTemplate {
         seed_name: seed_name.to_string(),
         version: VERSION,
@@ -280,6 +288,7 @@ fn render_seed(seed_name: &str, seed_data: &SeedData) -> Result<(String, String)
             .collect(),
         item_placement_style: format!("{:?}", seed_data.difficulty.item_placement_style),
         difficulty: &seed_data.difficulty,
+        notable_strats,
         quality_of_life_preset: seed_data.quality_of_life_preset,
         supers_double: seed_data.supers_double,
         streamlined_escape: seed_data.streamlined_escape,
@@ -731,7 +740,7 @@ async fn randomize(
     // );
     info!(
         "Random seed={random_seed}, difficulty={:?}",
-        difficulty_tiers
+        difficulty_tiers[0]
     );
     let mut map_seed: usize;
     let mut item_placement_seed: usize;
@@ -772,6 +781,7 @@ async fn randomize(
         preset: req.preset.as_ref().map(|x| x.0.clone()),
         item_progression_preset: req.item_progression_preset.as_ref().map(|x| x.0.clone()),
         difficulty: difficulty_tiers[0].clone(),
+        ignored_notable_strats: app_data.ignored_notable_strats.iter().cloned().collect(),
         quality_of_life_preset: req.quality_of_life_preset.as_ref().map(|x| x.0),
         supers_double: req.supers_double.0,
         streamlined_escape: req.streamlined_escape.0,
@@ -826,6 +836,19 @@ fn init_presets(presets: Vec<Preset>, game_data: &GameData, ignored_notable_stra
         }
     }
 
+    let all_notable_strats: HashSet<String> = game_data
+        .links
+        .iter()
+        .filter_map(|x| x.notable_strat_name.clone())
+        .collect();
+    if !ignored_notable_strats.is_subset(&all_notable_strats) {
+        let diff: Vec<String> = ignored_notable_strats
+            .difference(&all_notable_strats)
+            .cloned()
+            .collect();
+        panic!("Unrecognized ignored notable strats: {:?}", diff);
+    }
+
     let visible_tech: Vec<String> = game_data
         .tech_isv
         .keys
@@ -835,11 +858,10 @@ fn init_presets(presets: Vec<Preset>, game_data: &GameData, ignored_notable_stra
         .collect();
     let visible_tech_set: HashSet<String> = visible_tech.iter().cloned().collect();
 
-    let visible_notable_strats: HashSet<String> = game_data
-        .links
+    let visible_notable_strats: HashSet<String> = all_notable_strats
         .iter()
-        .filter(|&x| x.notable & !ignored_notable_strats.contains(&x.strat_name))
-        .map(|x| x.strat_name.clone())
+        .filter(|&x| !ignored_notable_strats.contains(x))
+        .cloned()
         .collect();
 
     for preset in presets {
@@ -913,9 +935,6 @@ struct Args {
 fn get_ignored_notable_strats() -> HashSet<String> {
     [
         "Frozen Geemer Alcatraz Escape",
-        "GT Supers Double Shinespark With HiJump",
-        "Botwoon Puyo Clip (Left to Right)",
-        "Botwoon Puyo Clip (Right to Left)",
         "Suitless Botwoon Kill",
         "Maridia Bug Room Frozen Menu Bridge",
         "Breaking the Maridia Tube Gravity Jump",
@@ -931,13 +950,9 @@ fn get_ignored_notable_strats() -> HashSet<String> {
         "Partial Covern Ice Clip",
         "Basement Speedball (Phantoon Dead)",
         "Basement Speedball (Phantoon Alive)",
-        "Dodge the Etecoon Beetoms (Left to Right)",
         "MickeyMouse Crumbleless MidAir Spring Ball",
         "Mickey Mouse Crumble IBJ",
-        "Landing Site Blue Space Jump (Bottom)",
-        "Big Pink Crystal Flash Standup - Super Block",
-        "Dodge the Etecoon Beetoms (Right to Left)",
-        "Big Pink Off Screen Super Block",
+        "Botwoon Hallway Puyo Ice Clip",
     ]
     .iter()
     .map(|x| x.to_string())
