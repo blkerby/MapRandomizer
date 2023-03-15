@@ -7,6 +7,7 @@ use actix_easy_multipart::{MultipartForm, MultipartFormConfig};
 use actix_web::http::header::{self, ContentDisposition, DispositionParam, DispositionType};
 use actix_web::middleware::Logger;
 use actix_web::{get, post, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
+use actix_files::NamedFile;
 use anyhow::{Context, Result};
 use base64::Engine;
 use clap::Parser;
@@ -413,6 +414,12 @@ async fn view_seed(info: web::Path<(String,)>, app_data: web::Data<AppData>) -> 
         }
     }
 }
+
+#[get("/seed/{name}/visualizer")]
+async fn visualize_seed(_info: web::Path<(String,)>, _app_data: web::Data<AppData>) -> impl Responder {
+    NamedFile::open_async("./static/sl_visualizer/index.html").await
+}
+
 
 #[post("/seed/{name}/customize")]
 async fn customize_seed(
@@ -1001,6 +1008,7 @@ async fn main() {
             .service(home)
             .service(randomize)
             .service(view_seed)
+            .service(visualize_seed)
             .service(get_seed_file)
             .service(customize_seed)
             .service(view_seed_redirect)
