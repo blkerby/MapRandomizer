@@ -19,6 +19,7 @@
                 <li><a href="data/spoiler.json">Spoiler log JSON</a>
                 <li><a href="data/map-assigned.png">Spoiler map: assigned room colors</a>
                 <li><a href="data/map-vanilla.png">Spoiler map: vanilla room colors</a>
+                <li><a href="visualizer">Spoiler map visualizer</a>
             </ul>
         </div>
     </div>

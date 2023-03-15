@@ -320,6 +320,7 @@ pub struct GameData {
     pub room_and_door_idxs_by_door_ptr_pair:
         HashMap<DoorPtrPair, (RoomGeometryRoomIdx, RoomGeometryDoorIdx)>,
     pub room_ptr_by_id: HashMap<RoomId, RoomPtr>,
+    pub room_id_by_ptr: HashMap<RoomPtr, RoomId>,
     pub room_idx_by_ptr: HashMap<RoomPtr, RoomGeometryRoomIdx>,
     pub room_idx_by_name: HashMap<String, RoomGeometryRoomIdx>,
     pub base_room_door_graph: RoomDoorGraph,
@@ -1385,6 +1386,8 @@ impl GameData {
             room_ptr = 0x7D646; // Treat East Pants Room as part of Pants Room
         } else if room_ptr == 0x7968F {
             room_ptr = 0x793FE; // Treat Homing Geemer Room as part of West Ocean
+        } else {
+            self.room_id_by_ptr.insert(room_ptr, room_id);
         }
         self.room_ptr_by_id.insert(room_id, room_ptr);
 

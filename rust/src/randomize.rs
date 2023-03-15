@@ -148,6 +148,7 @@ struct SelectItemsOutput {
 struct VertexInfo {
     area_name: String,
     room_name: String,
+    room_coords: (usize, usize),
     node_name: String,
 }
 
@@ -1112,12 +1113,42 @@ impl<'r> Randomizer<'r> {
             .iter()
             .map(|x| x.placed_item.unwrap())
             .collect();
+        let spoiler_all_items = state
+            .item_location_state
+            .iter()
+            .enumerate()
+            .map(|(i,x)| {
+                let (r,n) = self.game_data.item_locations[i];
+                let item_vertex_info = self.get_vertex_info_by_id(r,n);
+                let location = SpoilerLocation {
+                    area: item_vertex_info.area_name,
+                    room: item_vertex_info.room_name,
+                    node: item_vertex_info.node_name,
+                    coords: item_vertex_info.room_coords,
+                };
+                let item = x.placed_item.unwrap();
+                SpoilerItemLoc {
+                    item: Item::VARIANTS[item as usize].to_string(),
+                    location
+                }
+            }).collect();
+        let spoiler_all_rooms = self.map.rooms.iter().zip(self.game_data.room_geometry.iter()).map(|(c,g)| {
+            let room = self.game_data.room_id_by_ptr[&g.rom_address];
+            let room = self.game_data.room_json_map[&room]["name"].as_str().unwrap().to_string();
+            SpoilerRoomLoc {
+                room,
+                map: g.map.clone(),
+                coords: *c
+            }
+        }).collect();
         let spoiler_escape =
             escape_timer::compute_escape_data(self.game_data, self.map, &self.difficulty_tiers[0]);
         let spoiler_log = SpoilerLog {
             summary: spoiler_summaries,
             escape: spoiler_escape,
             details: spoiler_details,
+            all_items: spoiler_all_items,
+            all_rooms: spoiler_all_rooms
         };
         Randomization {
             difficulty: self.difficulty_tiers[0].clone(),
@@ -1252,6 +1283,7 @@ pub struct SpoilerRouteEntry {
     area: String,
     room: String,
     node: String,
+    coords: (usize, usize),
     strat_name: String,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     strat_notes: Vec<String>,
@@ -1272,6 +1304,7 @@ pub struct SpoilerLocation {
     area: String,
     room: String,
     node: String,
+    coords: (usize, usize),
 }
 
 #[derive(Serialize, Deserialize)]
@@ -1310,6 +1343,19 @@ pub struct SpoilerDetails {
 }
 
 #[derive(Serialize, Deserialize)]
+pub struct SpoilerItemLoc {
+    item: String,
+    location: SpoilerLocation,
+}
+#[derive(Serialize, Deserialize)]
+pub struct SpoilerRoomLoc {
+    // here temporarily, most likely, since these can be baked into the web UI
+    room: String,
+    map: Vec<Vec<u8>>,
+    coords: (usize, usize)
+}
+
+#[derive(Serialize, Deserialize)]
 pub struct SpoilerItemSummary {
     item: String,
     location: SpoilerLocation,
@@ -1333,20 +1379,27 @@ pub struct SpoilerLog {
     pub summary: Vec<SpoilerSummary>,
     pub escape: SpoilerEscape,
     pub details: Vec<SpoilerDetails>,
+    pub all_items: Vec<SpoilerItemLoc>,
+    pub all_rooms: Vec<SpoilerRoomLoc>
 }
 
 impl<'a> Randomizer<'a> {
     fn get_vertex_info(&self, vertex_id: usize) -> VertexInfo {
         let (room_id, node_id, _obstacle_bitmask) = self.game_data.vertex_isv.keys[vertex_id];
+        self.get_vertex_info_by_id(room_id, node_id)
+    }
+    fn get_vertex_info_by_id(&self, room_id: RoomId, node_id: NodeId) -> VertexInfo {
         let room_ptr = self.game_data.room_ptr_by_id[&room_id];
         let room_idx = self.game_data.room_idx_by_ptr[&room_ptr];
         let area = self.map.area[room_idx];
+        let room_coords = self.map.rooms[room_idx];
         VertexInfo {
             area_name: self.game_data.area_names[area].clone(),
             room_name: self.game_data.room_json_map[&room_id]["name"]
                 .as_str()
                 .unwrap()
                 .to_string(),
+            room_coords,
             node_name: self.game_data.node_json_map[&(room_id, node_id)]["name"]
                 .as_str()
                 .unwrap()
@@ -1436,6 +1489,7 @@ impl<'a> Randomizer<'a> {
                 area: to_vertex_info.area_name,
                 room: to_vertex_info.room_name,
                 node: to_vertex_info.node_name,
+                coords: to_vertex_info.room_coords,
                 strat_name: link.strat_name.clone(),
                 strat_notes: link.strat_notes.clone(),
                 energy_remaining,
@@ -1571,6 +1625,7 @@ impl<'a> Randomizer<'a> {
                 area: to_vertex_info.area_name,
                 room: to_vertex_info.room_name,
                 node: to_vertex_info.node_name,
+                coords: to_vertex_info.room_coords,
                 strat_name: link.strat_name.clone(),
                 strat_notes: link.strat_notes.clone(),
                 energy_remaining,
@@ -1630,6 +1685,7 @@ impl<'a> Randomizer<'a> {
                 area: item_vertex_info.area_name,
                 room: item_vertex_info.room_name,
                 node: item_vertex_info.node_name,
+                coords: item_vertex_info.room_coords,
             },
             obtain_route: obtain_route,
             return_route: return_route,
@@ -1649,6 +1705,7 @@ impl<'a> Randomizer<'a> {
                 area: item_vertex_info.area_name,
                 room: item_vertex_info.room_name,
                 node: item_vertex_info.node_name,
+                coords: item_vertex_info.room_coords,
             },
         }
     }
@@ -1668,6 +1725,7 @@ impl<'a> Randomizer<'a> {
                 area: flag_vertex_info.area_name,
                 room: flag_vertex_info.room_name,
                 node: flag_vertex_info.node_name,
+                coords: flag_vertex_info.room_coords,
             },
             obtain_route: obtain_route,
             return_route: return_route,
