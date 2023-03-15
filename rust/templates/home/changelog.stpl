@@ -3,6 +3,60 @@
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-47---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 47 (???)</a>:
+<ul>
+<li>(TODO:) Gravity suit protection is adjusted:
+    <ul>
+    <li>Gravity no longer provides any protection from heat damage.
+    <li>Gravity now provides only 50% protection from lava damage.
+    <li>Suit damage reduction can be summarized by the following table:
+        <table class="table w-auto table-striped table-bordered">
+        <thead>
+            <tr>
+            <th scope="col">Suit combination</th>
+            <th scope="col">Heat</th>
+            <th scope="col">Lava</th>
+            <th scope="col">Rainbow beam</th>
+            <th scope="col">Other</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+            <td>Varia</td>
+            <td>100%</td>
+            <td>50%</td>
+            <td>50%</td>
+            <td>50%</td>
+            </tr>
+            <tr>
+            <td>Gravity</td>
+            <td>0%</td>
+            <td>50%</td>
+            <td>0%</td>
+            <td>50%</td>
+            </tr>
+            <tr>
+            <td>Varia + Gravity</td>
+            <td>100%</td>
+            <td>100%</td>
+            <td>50%</td>
+            <td>75%</td>
+            </tr>
+        </tbody>
+        </table>
+
+
+        <ul>
+        <li>Varia suit provides 100% protection against heat and 50% reduction against all other damage (same as in vanilla game).
+        <li>Varia combined with Gravity provide 100% protection against heat and lava, 50% protection for Rainbow beam, and 
+        75% reduction for all other damage (same as in vanilla game).
+        <li>Gravity suit provides 
+        <li>
+        </ul>
+    </ul>
+<li>(TODO:) Interactive spoiler map visualizer and Plandoizer are added.
+</ul>
+
 <p><a href="https://version-46---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 46 (2023-03-13)</a>:
 <ul>
 <li>Bug is fixed which had caused gray doors not to appear in Pit Room (old Mother Brain room) when
