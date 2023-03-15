@@ -4,11 +4,6 @@ v46:
 
 priority:
   - add caution tape to dangerous doors
-  - improve slow-progression logic: allow item progression by unlocking way back
-    - don't immediately place filler items at one-way reachable locations
-    - instead check that when a key item is placed at a previously one-way-reachable location, the item would not have provided
-      a way back at an earlier step?
-  - have forced mode take into account return path
 
 later:
   - fix camera in bowling alley (for CF grapple clip)
@@ -36,6 +31,14 @@ later:
       like requiring multiple adjacentRunway from different nodes in the same strat.
 
 TODO:
+- consider indicating heated rooms & fully immersed rooms on map
+- add explanation of map generation logic to website: e.g.
+  "map generation is set up such that once all items are collected, no tech is required to go from anywhere on the map to anywhere else, so in particular the escape shouldn't require x-ray climb or any other tech"
+- improve slow-progression logic: allow item progression by unlocking way back
+  - don't immediately place filler items at one-way reachable locations
+  - instead check that when a key item is placed at a previously one-way-reachable location, the item would not have provided
+    a way back at an earlier step?
+- have forced mode take into account return path? (probably a bad idea)
 - fix spoiler log for reverse paths using shinesparks
 - fix bug where controls are locked when dying from enemy during elevator
 - fix bug where suit color does not change when changing suits while taking damage (e.g. lava dive)?
