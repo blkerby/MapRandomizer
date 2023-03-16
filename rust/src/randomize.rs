@@ -1754,14 +1754,7 @@ impl<'a> Randomizer<'a> {
         let mut items: Vec<SpoilerItemDetails> = Vec::new();
         for i in 0..self.game_data.item_locations.len() {
             if let Some(item) = new_state.item_location_state[i].placed_item {
-                let mut first_item = !state.global_state.items[item as usize];
-                if let Some(debug_options) = &self.difficulty_tiers[0].debug_options {
-                    if debug_options.extended_spoiler {
-                        first_item = true;
-                    }
-                }
-                if first_item
-                    && !state.item_location_state[i].collected
+                if !state.item_location_state[i].collected
                     && new_state.item_location_state[i].collected
                 {
                     // info!("Item: {item:?}");
@@ -1789,15 +1782,7 @@ impl<'a> Randomizer<'a> {
         let mut items: Vec<SpoilerItemSummary> = Vec::new();
         for i in 0..self.game_data.item_locations.len() {
             if let Some(item) = new_state.item_location_state[i].placed_item {
-                let mut first_item = !state.global_state.items[item as usize];
-                if let Some(debug_options) = &self.difficulty_tiers[0].debug_options {
-                    if debug_options.extended_spoiler {
-                        first_item = true;
-                    }
-                }
-
-                if first_item
-                    && !state.item_location_state[i].collected
+                if !state.item_location_state[i].collected
                     && new_state.item_location_state[i].collected
                 {
                     let item_vertex_id =

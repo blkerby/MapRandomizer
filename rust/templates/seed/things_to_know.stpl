@@ -10,7 +10,8 @@
         </ul>
         <h6>Map info</h6>
         <ul>
-        <li>Every Zebes room from the vanilla game is placed somewhere and can be reached.
+        <li>Every Zebes room from the vanilla game is placed somewhere. Once all movement items are
+        collected, it is possible to reach every room without any tech.
         <li>Phantoon's Room is always two rooms away from the broken map station, and both are 
             in the same area as the broken save room.
         <li>The map uses special tiles to show the locations of map stations, refills, 
@@ -20,9 +21,16 @@
         <h6>Item info</h6>
         <ul>
         <li>Every item from the vanilla game is placed somewhere, and ammo distributions are unchanged.
+        <li>Gravity and Varia suits behave like in the vanilla game, except that Gravity alone provides
+        no heat protection and only 50% protection against other damage.
+        <% if all_items_spawn { %>
+        <li>The planet is awakened by killing the enemies (not including bosses or minibosses) 
+        in a room where this unlocks a gray door.<a href="#footnote-pit-room"><sup>1</sup></a>
+        <% } else { %>
         <li>Certain items do not spawn until Phantoon has been defeated, the same as in the vanilla game.
         <li>Certain items do not spawn until the planet is awakened, by killing the enemies (not including bosses or minibosses) 
         in a room where this unlocks a gray door.<a href="#footnote-pit-room"><sup>1</sup></a>
+        <% } %>
         </ul>
 
         <h6>Other info</h6>
@@ -55,7 +63,12 @@
     <small>
     <sup>1</sup>This can be done in the following rooms: Pit Room (old Mother Brain room), Baby Kraid Room, Metal Pirates Room,
     and Plasma Room. These are the rooms that involve killing Space Pirates to unlock the doors in the vanilla game.
-    Note that in the Pit Room, the enemies, gray doors, and item only spawn after Morph and Missiles are collected
-    (regardless of whether Zebes is awake).
+    Note that in the Pit Room, the 
+    <% if all_items_spawn { %>
+    enemies and gray doors
+    <% } else { %>
+    enemies, gray doors, and item 
+    <% } %>
+    only spawn after Morph and Missiles are collected (regardless of whether Zebes is awake).
     </small>
 </div>
