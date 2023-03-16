@@ -5,10 +5,9 @@ about 15 seconds to load.
 
 <p><a href="https://version-47---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 47 (???)</a>:
 <ul>
-<li>(TODO:) Gravity suit protection is adjusted:
+<li>(TODO:) Gravity no longer provides any protection from heat and only 50% protection from lava.
     <ul>
-    <li>Gravity no longer provides any protection from heat damage.
-    <li>Gravity now provides only 50% protection from lava damage.
+    <li>Varia and Varia + Gravity continue to behave the same as in vanilla.
     <li>Suit damage reduction can be summarized by the following table:
         <table class="table w-auto table-striped table-bordered">
         <thead>
@@ -44,17 +43,11 @@ about 15 seconds to load.
             </tr>
         </tbody>
         </table>
-
-
-        <ul>
-        <li>Varia suit provides 100% protection against heat and 50% reduction against all other damage (same as in vanilla game).
-        <li>Varia combined with Gravity provide 100% protection against heat and lava, 50% protection for Rainbow beam, and 
-        75% reduction for all other damage (same as in vanilla game).
-        <li>Gravity suit provides 
-        <li>
-        </ul>
     </ul>
-<li>(TODO:) Interactive spoiler map visualizer and Plandoizer are added.
+<li>Interactive spoiler map visualizer is added.
+    <ul>
+    <li>It also includes the ability to modify the items, for creating a plando.
+    </ul>
 </ul>
 
 <p><a href="https://version-46---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 46 (2023-03-13)</a>:

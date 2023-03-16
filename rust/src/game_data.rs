@@ -1857,7 +1857,6 @@ impl GameData {
                 .into_iter()
                 .filter(|x| x != tech)
                 .collect();
-            println!("tech={}, deps={:?}", tech, deps);
             self.tech_dependencies.insert(tech.clone(), deps);
         }
         Ok(())

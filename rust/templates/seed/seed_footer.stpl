@@ -15,11 +15,12 @@
     <div class="card">
         <div class="card-header">Spoiler Info</div>
         <div class="card-body container">
+            <p>To see item locations and how to reach them, use the <a href="visualizer">interactive spoiler map visualizer</a>.
+            <p>Additional spoiler data (machine-readable):
             <ul>
                 <li><a href="data/spoiler.json">Spoiler log JSON</a>
                 <li><a href="data/map-assigned.png">Spoiler map: assigned room colors</a>
                 <li><a href="data/map-vanilla.png">Spoiler map: vanilla room colors</a>
-                <li><a href="visualizer">Spoiler map visualizer</a>
             </ul>
         </div>
     </div>
