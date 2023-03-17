@@ -202,14 +202,14 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 	window.generate_rom = async () => {
 		const rom_data = await localforage.getItem("baseRomData") ?? await localforage.getItem("vanillaRomData");
 		if (!rom_data) {
-			alert("set the rom on the main page pls (temporary)");
+			alert("Please set the ROM on the previous page.");
 			return;
 		}
 		const form = new FormData();
 		form.append("room_palettes", "vanilla");
 		const rom = new Blob([rom_data], { type: "" });
 		form.append("rom", rom);
-		let c = await fetch("customize", { body: form, method: "post" });
+		let c = await fetch("../../customize", { body: form, method: "post" });
 		let blob = await c.blob();
 		// change up the item locations
 		let ab = await blob.arrayBuffer();
