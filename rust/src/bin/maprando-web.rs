@@ -7,7 +7,6 @@ use actix_easy_multipart::{MultipartForm, MultipartFormConfig};
 use actix_web::http::header::{self, ContentDisposition, DispositionParam, DispositionType};
 use actix_web::middleware::Logger;
 use actix_web::{get, post, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
-use actix_files::NamedFile;
 use anyhow::{Context, Result};
 use base64::Engine;
 use clap::Parser;
@@ -27,7 +26,7 @@ use rand::{RngCore, SeedableRng};
 use sailfish::TemplateOnce;
 use serde_derive::{Deserialize, Serialize};
 
-const VERSION: usize = 46;
+const VERSION: usize = 47;
 
 #[derive(Serialize, Deserialize, Clone)]
 struct Preset {
@@ -60,6 +59,7 @@ struct AppData {
     ignored_notable_strats: HashSet<String>,
     map_repository: MapRepository,
     seed_repository: SeedRepository,
+    visualizer_files: Vec<(String, Vec<u8>)>,   // (path, contents)
     debug: bool,
 }
 
@@ -365,6 +365,12 @@ async fn save_seed(
         )
         .unwrap();
         files.push(SeedFile::new("public/map-vanilla.png", spoiler_map_vanilla));
+
+        // Write the spoiler visualizer
+        for (filename, data) in &app_data.visualizer_files {
+            let path = format!("public/visualizer/{}", filename);
+            files.push(SeedFile::new(&path, data.clone()));
+        }
     }
 
     let seed = Seed {
@@ -417,12 +423,6 @@ async fn view_seed(info: web::Path<(String,)>, app_data: web::Data<AppData>) -> 
     }
 }
 
-#[get("/seed/{name}/visualizer")]
-async fn visualize_seed(_info: web::Path<(String,)>, _app_data: web::Data<AppData>) -> impl Responder {
-    NamedFile::open_async("./static/sl_visualizer/index.html").await
-}
-
-
 #[post("/seed/{name}/customize")]
 async fn customize_seed(
     req: MultipartForm<CustomizeRequest>,
@@ -466,13 +466,14 @@ async fn customize_seed(
         .body(rom.data)
 }
 
-#[get("/seed/{name}/data/{filename}")]
+#[get("/seed/{name}/data/{filename:.*}")]
 async fn get_seed_file(
     info: web::Path<(String, String)>,
     app_data: web::Data<AppData>,
 ) -> impl Responder {
     let seed_name = &info.0;
     let filename = &info.1;
+    println!("get_seed_file {}", filename);
     match app_data
         .seed_repository
         .get_file(seed_name, &("public/".to_string() + filename))
@@ -968,6 +969,17 @@ fn get_ignored_notable_strats() -> HashSet<String> {
     .collect()
 }
 
+fn load_visualizer_files() -> Vec<(String, Vec<u8>)> {
+    let mut files: Vec<(String, Vec<u8>)> = vec![];
+    for entry_res in std::fs::read_dir("../visualizer").unwrap() {
+        let entry = entry_res.unwrap();
+        let name = entry.file_name().to_str().unwrap().to_string();
+        let data = std::fs::read(entry.path()).unwrap();
+        files.push((name, data));
+    }
+    files
+}
+
 fn build_app_data() -> AppData {
     let args = Args::parse();
     let sm_json_data_path = Path::new("../sm-json-data");
@@ -987,6 +999,7 @@ fn build_app_data() -> AppData {
         ignored_notable_strats,
         map_repository: MapRepository::new(maps_path).unwrap(),
         seed_repository: SeedRepository::new(&args.seed_repository_url).unwrap(),
+        visualizer_files: load_visualizer_files(),
         debug: args.debug,
     }
 }
@@ -1010,7 +1023,6 @@ async fn main() {
             .service(home)
             .service(randomize)
             .service(view_seed)
-            .service(visualize_seed)
             .service(get_seed_file)
             .service(customize_seed)
             .service(view_seed_redirect)

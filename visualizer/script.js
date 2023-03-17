@@ -101,14 +101,14 @@ let change_item = (old_plm,id) => {
 	return old_plm + (id - old_id) * 4;
 }
 let item_addrs;
-fetch(`/static/sl_visualizer/item_addrs.json`).then(c => c.json()).then(c => {
+fetch(`item_addrs.json`).then(c => c.json()).then(c => {
 	item_addrs = c;
 })
 let plando_changes = {};
 let doors;
-fetch(`/static/sl_visualizer/doors.json`).then(c => c.json()).then(c => {
+fetch(`doors.json`).then(c => c.json()).then(c => {
 	doors = c;
-}).then(_ => fetch(`data/spoiler.json`)).then(c => c.json()).then(c => {
+}).then(_ => fetch(`../spoiler.json`)).then(c => c.json()).then(c => {
 	// generate map
 	let map = new Array(72*72);
 	for (let i in c.all_rooms) {
