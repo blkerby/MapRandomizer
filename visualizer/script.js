@@ -375,14 +375,17 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 				si.innerHTML += `<div class="category">PREREQUISITES</div>`;
 				let ss = c.details[i].start_state;
 				let s = [ss.max_missiles, ss.max_supers, ss.max_power_bombs, ss.max_energy, ss.max_reserves];
+				let ic = [1, 2, 3, 0, 20];
 				for (let i in s) {
 					if (s[i] > 0) {
-						si.innerHTML += icon(i);
+						si.innerHTML += icon(ic[i]);
 						si.innerHTML += s[i] + " ";
 					}
 				}
 				for (let i of ss.items) {
-					si.innerHTML += icon(item_plm[i]);
+					if (!ic.includes(item_plm[i])) {
+						si.innerHTML += icon(item_plm[i]);
+					}
 				}
 				si.innerHTML += `<div class="category">OBTAIN ROUTE</div>`;
 				let f = k => {
