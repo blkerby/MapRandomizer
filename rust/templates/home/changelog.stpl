@@ -5,9 +5,9 @@ about 15 seconds to load.
 
 <p><a href="https://version-47---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 47 (???)</a>:
 <ul>
-<li>(TODO:) Gravity no longer provides any protection from heat and only 50% protection from lava.
+<li>Complementary suits: Gravity no longer provides any protection from heat and only 50% protection from lava.
     <ul>
-    <li>Varia and Varia + Gravity continue to behave the same as in vanilla.
+    <li>Varia and combined Varia + Gravity continue to behave the same as in vanilla.
     <li>Suit damage reduction can be summarized by the following table:
         <table class="table w-auto table-striped table-bordered">
         <thead>
@@ -46,7 +46,10 @@ about 15 seconds to load.
     </ul>
 <li>Interactive spoiler map visualizer is added.
     <ul>
+    <li>This shows the intended progression sequence, items locations, and routes to reach them.
     <li>It also includes the ability to modify the items, for creating a plando.
+    <li>(TODO: make the spoiler JS, etc. be saved off statically like the rest of the seed data, so it won't
+    break in future versions)
     </ul>
 </ul>
 

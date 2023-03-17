@@ -1,1 +1,2 @@
-$90F63A - $90F6FF: unexplore.asm
+$90F63A - $90F680: unexplore.asm
+$90F680 - $90F700: complementary_suits.asm
