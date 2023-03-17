@@ -15,7 +15,8 @@
     <div class="card">
         <div class="card-header">Spoiler Info</div>
         <div class="card-body container">
-            <p>To see item locations and how to reach them, use the <a href="visualizer">interactive spoiler map visualizer</a>.
+            <p>Use the <a href="visualizer">interactive spoiler map visualizer</a> to see the intended 
+            progression sequence, including item locations and how to reach them.
             <p>Additional spoiler data (machine-readable):
             <ul>
                 <li><a href="data/spoiler.json">Spoiler log JSON</a>

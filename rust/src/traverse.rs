@@ -603,13 +603,13 @@ pub fn apply_requirement(
         }
         Requirement::HeatFrames(frames) => {
             let varia = global.items[Item::Varia as usize];
-            let gravity = global.items[Item::Gravity as usize];
+            // let gravity = global.items[Item::Gravity as usize];
             let mut new_local = local;
             if varia {
                 Some(new_local)
-            } else if gravity {
-                new_local.energy_used += multiply(frames / 8, difficulty);
-                validate_energy(new_local, global)
+            // } else if gravity {
+            //     new_local.energy_used += multiply(frames / 8, difficulty);
+            //     validate_energy(new_local, global)
             } else {
                 new_local.energy_used += multiply(frames / 4, difficulty);
                 validate_energy(new_local, global)
@@ -619,9 +619,10 @@ pub fn apply_requirement(
             let varia = global.items[Item::Varia as usize];
             let gravity = global.items[Item::Gravity as usize];
             let mut new_local = local;
-            if gravity {
+            // if gravity {
+            if gravity && varia {
                 Some(new_local)
-            } else if varia {
+            } else if gravity || varia {
                 new_local.energy_used += multiply(frames / 4, difficulty);
                 validate_energy(new_local, global)
             } else {

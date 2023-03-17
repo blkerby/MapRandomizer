@@ -33,4 +33,4 @@ no_input:
     ; jump back to vanilla code
     jmp $A981
 
-warnpc $90F700
+warnpc $90F680

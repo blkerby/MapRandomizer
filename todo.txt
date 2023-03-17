@@ -1,11 +1,18 @@
-
-
-v46:
-
 priority:
-  - add caution tape to dangerous doors
+  - add crystal flash to logic when needed for energy
+  - add count of how many times each tech is used
+
 
 later:
+  - lock boss doors once damage is dealt to the boss (handle croc specially i guess)
+  - set boss flag immediately when boss dies.
+  - speed up parts of MB: where Big Boy is latched on to MB, and death animation (shouldn't affect stand-up)
+  - add pages for tech, strats, rooms.
+  - add more farms to logic
+  - adjust elevator heatFrames when fast elevators enabled
+  - make quick reload work while in pause menu
+  - make quick reload in save room to go back to previous save? (what about in Landing Site?)
+  - add caution tape to dangerous doors?
   - fix camera in bowling alley (for CF grapple clip)
   - figure out glitch where sometimes bottom pixel of HUD is messed up, scrolling with the camera
     - zsnes 1.36: map-rando-5jGQIBX24w4DVQjZ5as5zQ.sfc
@@ -18,7 +25,6 @@ later:
   - music options
   - sprite customization (?),
   - controller config special settings (moonwalk) customization
-  - integrate Selicre's interactive spoiler map
   - tweak balancing:
     - give a little more weight to save coverage
     - give a little less weight to hallway penalty
@@ -31,9 +37,7 @@ later:
       like requiring multiple adjacentRunway from different nodes in the same strat.
 
 TODO:
-- consider indicating heated rooms & fully immersed rooms on map
-- add explanation of map generation logic to website: e.g.
-  "map generation is set up such that once all items are collected, no tech is required to go from anywhere on the map to anywhere else, so in particular the escape shouldn't require x-ray climb or any other tech"
+- consider indicating heated rooms & fully immersed rooms on map?
 - improve slow-progression logic: allow item progression by unlocking way back
   - don't immediately place filler items at one-way reachable locations
   - instead check that when a key item is placed at a previously one-way-reachable location, the item would not have provided
@@ -45,17 +49,16 @@ TODO:
 - fix bug where music is wrong after quick reload (even after going to next room).
 - clean up the web service, to reduce the amount of boilerplate plumbing settings around.
 - add front page to website
-- explain about doors being turned blue
+- explain about doors being turned blue?
 - increase amount of rolling saves?
-  - auto-reload in save room to go back a save? (what about in Landing Site?)
 - figure out why some rooms are dark (some FX other than palette FX?)
 - add back palette FX glows using correct palettes.
 - fix palette in Crocomire cutscene when wall collapses
 - if feasible, mark collected items somehow (preferably as dark gray dots, otherwise as blank)
 - During escape, block backward path using room setup ASM instead of door ASM (so it can still work after leaving room another way)
-- make separate option for patching out major glitches
+- make separate option for patching out major glitches?
   - include GT code, Spacetime beam (currently patched out)
-  - make OOB cause instant death
+  - make OOB cause instant death?
   - others
 - area-themed palettes:
   - remove or fix glows that are wrong color (e.g. Wrecked Ship?)
@@ -65,24 +68,21 @@ TODO:
   cannot be locked behind Mother Brain.
     - Improve map connectedness so it's less likely for a large area to have only one exit.
     - Spread out placement of single-tile, single-door rooms to help balancing of saves & refills.
-- Logic updates:
-  - Add speedball strat in Big Pink from 13 to 1 (to top left door)
-- Fix map tile at Big Pink bottom missile
+- at end of randomization, make sure G4 bosses are reachable (to guard against a case like Phantoon being locked behind
+  Bowling, or a G4 boss locked behind Mother Brain).
 - Remove Crocomire funny map behavior?
 - Handle shinespark_frames=0 correctly (don't require 29 energy)
 - Better validation/error-handling of web service
   - push more validation into client
 - Option for anti-softlock patches (e.g. in Moat, Early Supers, etc.)?
   - disable acid trigger in Leodox room?
-- Put spoiler info in collapsible accordion.
+- Put spoiler info in collapsible accordion?
 - Add note to strat in Post-Crocomire farming room to get to top-left with HiJump
   (run on platform enemy and jump)
 - Use separate worker pool to run randomization (to avoid blocking web requests)
 - Rust cleanup:
     - Use `serde_json` instead of `json` crate for loading sm-json-data.
     - Clean up error handling: get rid of a bunch of remaining unwrap()'s, etc.
-- at end of randomization, make sure G4 bosses are reachable (to guard against a case like Phantoon being locked behind
-  Bowling, or a G4 boss locked behind Mother Brain).
 - on web site, clarify some things about how logic works, e.g.
     - hellruns may be required if canHeatRun tech is enabled.
 - Make Gravity-only Samus palette different from Gravity+Varia.
@@ -103,7 +103,6 @@ TODO:
     - also look into way to avoid a hit when coming into tourian hopper room?
     (e.g., give i-frames, or try to adjust the spawn pattern)
 - organize tech on website.
-- interactive spoiler map (with room maps, list of possible strats, etc.)
 - figure out race condition between fastdoors and Mother Brain room setup. Maybe code around $80836F could be used
   to wait? Though maybe this doesn't matter because we don't want to add fastdoors anyway.
 - figure out and fix what's going on with tiles below Warehouse Entrance when it crosses areas.
@@ -115,7 +114,6 @@ TODO:
 - balance boss distribution (one boss per area, corresponding to vanilla?)
 - fix suit graphics not showing after getting suit (consequence of skipping animation)?
 - minimizer mode? (select rooms to include randomly, hand-picked, and/or user-selected)
-- add strat for jumping over fune with no damage (check osse Twitch clip).
 - make map rando for other hacks (e.g. project base, subversion?)
   - would be a lot of work. we could invite others to help implement the logic
 - multitroid support
