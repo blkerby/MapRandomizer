@@ -33,5 +33,6 @@ COPY gfx /gfx
 COPY sm-json-data /sm-json-data
 COPY room_geometry.json /
 COPY palettes.json /
+COPY visualizer /visualizer
 WORKDIR /rust
 CMD ["/rust/maprando-web"]
