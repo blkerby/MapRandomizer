@@ -23,11 +23,11 @@ org $84BA4C
 bt_door_left:
 .wait_trigger
     dw $0002, $A683
-;    dw btcheck_inst, .wait_trigger  ; Go to .wait_trigger unless the condition is triggered (item collected or boss hurt)
+    dw btcheck_inst, .wait_trigger  ; Go to .wait_trigger unless the condition is triggered (item collected or boss hurt)
+    dw $0028, $A683    ; After the condition is triggered, wait a bit before closing
 .wait_clear
-    dw $0002, $A683
-;    dw doorway_clear_check_inst, .wait_clear
-    dw $0028, $A683
+    dw $0002, $A683    ; Wait for Samus not to be in the doorway (to avoid getting stuck)
+    dw left_doorway_clear, .wait_clear  
     dw $8C19        ; Queue sound 8, sound library 3, max queued sounds allowed = 6 (door closed)
     db $08    
     dw $0002, $A6FB
@@ -68,9 +68,26 @@ btcheck_inst:
     tay
     rts
 
-doorway_clear_check_inst:
+;;; Check if Samus is away from the left door (X position >= $25)
+left_doorway_clear:
     lda $0AF6
-    cmp #$0032
+    cmp #$0025
+    bcc .not_clear
+    iny
+    iny
+    rts
+.not_clear:
+    lda $0000,y
+    tay
+    rts
+
+;;; Check if Samus is away from the right door (X position < room_width - $24)
+right_doorway_clear:
+    lda $07A9  ; room width in screens
+    xba        ; room width in pixels
+    clc
+    sbc #$0024
+    cmp $0AF6
     bcc .not_clear
     iny
     iny
@@ -91,16 +108,19 @@ handle_door_transition:
     rtl
 
 ; Right-side Bomb-Torizo-type door
-opposite_bt_door:
+right_bt_door:
     dw $C794, btdoor_right, btdoor_setup_right
+;    dw $C794, $BA7F, $BA4C
+
 
 btdoor_setup_right:
 .wait_trigger
-    dw $0002,$A677
-    ;dw $BA6F,.wait_trigger  ; Go to .wait_trigger unless the condition is triggered (item collected or boss hurt)
-    dw $0028,$A677          ; After the condition is triggered, wait a bit before closing
-;.wait_clear
-;    dw doorway_clear_check, .wait_clear  ; Wait for Samus not to be in the doorway (to avoid getting stuck)
+    dw $0002, $A677
+;    dw btcheck_inst, .wait_trigger  ; Go to .wait_trigger unless the condition is triggered (item collected or boss hurt)
+    dw $0028, $A677    ; After the condition is triggered, wait a bit before closing
+.wait_clear
+    dw $0002, $A677    ; Wait for Samus not to be in the doorway (to avoid getting stuck)
+    dw right_doorway_clear, .wait_clear  
     dw $8C19
     db $08    ; Queue sound 8, sound library 3, max queued sounds allowed = 6 (door closed)
     dw $0002,$A6CB
@@ -111,7 +131,7 @@ btdoor_setup_right:
 
 btdoor_right:
     dw $8A72, $C4B1      ; Go to $C4B1 (blue door) if the room argument door is set
-    dw $8A24, .wait      ; Link instruction = $BA93
+    dw $8A24, .wait      ; Link instruction = .wait
     dw $BE3F           ; Set grey door pre-instruction
     dw $0001, $A6A7
 .sleep
@@ -141,14 +161,16 @@ btdoor_right:
     dw $0001, $A677
     dw $86BC
 
-warnpc $84f900
+warnpc $84f980
+; FIX ME: make these patches more compact (reuse vanilla instruction lists more?)
+
 
 ;;; overwrite BT grey door PLM instruction (bomb check)
-org $84ba6f
-bt_grey_door_instr:
-    jsr btcheck
-    nop : nop : nop
-    bne $03	                ; orig: BEQ $03    ; return if no bombs
+;org $84ba6f
+;bt_grey_door_instr:
+;    jsr btcheck
+;    nop : nop : nop
+;    bne $03	                ; orig: BEQ $03    ; return if no bombs
 
 ;;; overwrite BT crumbling chozo PLM pre-instruction (bomb check)
 org $84d33b
@@ -163,7 +185,7 @@ org $8FC553
 
 ; Override door PLM for Golden Torizo right door
 org $8F8E7A
-    dw opposite_bt_door
+    dw right_bt_door
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -178,19 +200,19 @@ org $83925C  ; door ASM for entering Kraid Room from the right
     dw make_right_doors_bt
 
 org $83A92E   ; door ASM for entering Draygon's Room from the left
-    dw make_left_doors_blue
+    dw make_left_doors_bt
 
 org $83A84A   ; door ASM for entering Draygon's Room from the right
-    dw make_right_doors_blue
+    dw make_right_doors_bt
 
 org $839A6C   ; door ASM for entering Ridley's Room from the left
-    dw make_left_doors_blue
+    dw make_left_doors_bt
 
 org $8398D4   ; door ASM for entering Ridley's Room from the right
-    dw make_right_doors_blue
+    dw make_right_doors_bt
 
 org $839A90   ; door ASM for entering Golden Torizo's Room from the right
-    dw make_right_doors_blue
+    dw make_right_doors_bt
 
 org $839184   ; door ASM for entering Baby Kraid Room from the left
     dw make_left_doors_blue
@@ -246,7 +268,8 @@ make_right_doors_blue:
 
 make_right_doors_bt:
     lda #$C842 : sta $00  ; right doors
-    lda #$BAF4 : sta $02  ; BT-type door
+    lda #right_bt_door : sta $02  ; BT-type door
+    ;lda #$BAF4 : sta $02  ; BT-type door
     jmp change_doors
 
 
@@ -278,6 +301,10 @@ org $A7DD42
 org $A7B374
     jsl kraid_shot
 
+org $A5954D
+    jsl draygon_shot
+    nop : nop
+
 ; free space in bank $A0
 org $A0F7D3
 phantoon_shot:
@@ -293,4 +320,12 @@ kraid_shot:
     sta !BTRoomFlag
     ; run hi-jacked instruction
     lda $7E782A
+    rtl
+
+draygon_shot:
+    lda !PickedUp
+    sta !BTRoomFlag
+    ; run hi-jacked instruction
+    ldy #$A277
+    ldx $0E54
     rtl
