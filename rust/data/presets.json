@@ -57,7 +57,6 @@
       "canSpringBallJumpMidAir",
       "canUseFrozenEnemies",
       "canMochtroidIceClimb",
-      "canStationarySpinJump",
       "canMoonwalk",
       "canMoonfall",
       "canMochtroidIceClip",
@@ -76,16 +75,12 @@
     "notable_strats": [
       "Early Supers Mockball",
       "Alcatraz Escape",
-      "East Ocean Suitless Damage Boost Water Escape",
-      "East Ocean Suitless Damage Boost Underwater Pillar",
       "Writg Frozen Pirate Platforms",
       "Lower Norfair Pillar Room with Power Bombs",
       "West Sand Hole MidAir Morph (Bootless Suitless)",
-      "Pants Room Gravity Jump",
       "Colosseum Suitless Grapple Only",
       "Suitless Draygon",
       "Bug Sand Room Naked",
-      "PCJR Indiana Jones Grapple",
       "PCJR Big Jump Shinespark",
       "Bubble Mountain Damage Boost",
       "Crumble Shaft Top Item Precise Walljump",
@@ -115,7 +110,6 @@
       "canLavaGravityJump",
       "can3HighMidAirMorph",
       "canTurnaroundAimCancel",
-      "canStationaryLateralMidAirMorph",
       "canTrickyUseFrozenEnemies",
       "canCrabClimb",
       "canMetroidAvoid",
@@ -150,7 +144,8 @@
       "canBlueSpaceJump",
       "canSpeedKeep",
       "canXRayStandUp",
-      "canPartialFloorClip"
+      "canPartialFloorClip",
+      "canStationarySpinJump"
     ],
     "notable_strats": [
       "Pink Brinstar Power Bombs Crystal Flash Clip",
@@ -197,7 +192,11 @@
       "Etecoon Beetom Tricky Dodge",
       "Big Pink Crystal Flash Standup - Super Block",
       "Golden Torizo Supers Double Shinespark",
-      "Landing Site Blue Space Jump (Bottom)"
+      "Landing Site Blue Space Jump (Bottom)",
+      "Pants Room Gravity Jump",
+      "East Ocean Suitless Damage Boost Water Escape",
+      "East Ocean Suitless Damage Boost Underwater Pillar",
+      "PCJR Indiana Jones Grapple"
     ]
   },
   {
@@ -239,7 +238,8 @@
       "canCrouchGateClip",
       "canStaggeredIBJ",
       "canDiagonalBombJump",
-      "canRJump"
+      "canRJump",
+      "canStationaryLateralMidAirMorph"
     ],
     "notable_strats": [
       "Early Supers Crouch Gate Clip Damage Boost",
