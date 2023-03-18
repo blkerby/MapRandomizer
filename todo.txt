@@ -4,6 +4,9 @@ priority:
 
 
 later:
+  - fix (sometimes?) glitched right door in GT. X-Ray showed a plasma beam inside it
+  - find some way to make it more obvious when you wake Zebes?
+    - maybe open/closed eye icon next to defeated bosses marked in pause menu?
   - fix game crash that can happen when quick-reloading in death animation
   - add count of how many times each tech is used
   - make tech dependencies also look at "obstacles"
