@@ -1,15 +1,16 @@
 priority:
+  - lock boss doors once damage is dealt to the boss (handle croc specially i guess)
+  - set boss flag immediately when boss dies.
 
 
 later:
+  - fix game crash that can happen when quick-reloading in death animation
+  - add count of how many times each tech is used
   - make tech dependencies also look at "obstacles"
   - consider splitting up Streamlined escape into 3 separate QoL options (removing the need for a footnote to explain it)
   - add crystal flash to logic when needed for energy
     - do we need sm-json-data to mark nodes which are unsafe for crystal flashing?
-  - add count of how many times each tech is used
   - consider adding a mode that can require leaps-of-faith
-  - lock boss doors once damage is dealt to the boss (handle croc specially i guess)
-  - set boss flag immediately when boss dies.
   - speed up parts of MB: where Big Boy is latched on to MB, and death animation (shouldn't affect stand-up)
   - add pages for tech, strats, rooms.
   - add more farms to logic
