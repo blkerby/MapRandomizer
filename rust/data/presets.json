@@ -107,18 +107,15 @@
       "canSpringBallBounce",
       "canSuitlessLavaDive",
       "canHitbox",
-      "canLavaGravityJump",
       "can3HighMidAirMorph",
       "canTurnaroundAimCancel",
       "canTrickyUseFrozenEnemies",
       "canCrabClimb",
       "canMetroidAvoid",
       "canSandMochtroidIceClimb",
-      "canShotBlockOverload",
       "canMaridiaTubeClip",
       "canGrappleJump",
       "canSnailClip",
-      "canCrystalFlashForceStandup",
       "canWrapAroundShot",
       "canTunnelCrawl",
       "canCrumbleSpinJump",
@@ -135,7 +132,6 @@
       "canMomentumConservingTurnaround",
       "canSunkenTileWideWallClimb",
       "canSpringwall",
-      "canGravityWalljump",
       "canNonTrivialIceClip",
       "canBeetomIceClip",
       "canWallCrawlerIceClip",
@@ -145,7 +141,8 @@
       "canSpeedKeep",
       "canXRayStandUp",
       "canPartialFloorClip",
-      "canStationarySpinJump"
+      "canStationarySpinJump",
+      "canKago"
     ],
     "notable_strats": [
       "Pink Brinstar Power Bombs Crystal Flash Clip",
@@ -194,9 +191,12 @@
       "Golden Torizo Supers Double Shinespark",
       "Landing Site Blue Space Jump (Bottom)",
       "Pants Room Gravity Jump",
+      "Pants Room Gravity Walljump",
       "East Ocean Suitless Damage Boost Water Escape",
       "East Ocean Suitless Damage Boost Underwater Pillar",
-      "PCJR Indiana Jones Grapple"
+      "PCJR Indiana Jones Grapple",
+      "Frog Speedway Shot Block Overload (Speedless Speedway)",
+      "WS East Supers Crystal Flash Clip (Right to Left)"
     ]
   },
   {
@@ -218,8 +218,6 @@
       "can2HighWallMidAirMorph",
       "canPixelPerfectIceClip",
       "canBabyMetroidAvoid",
-      "canSunkenDualWallClimb",
-      "canWaterBreakFree",
       "canBombJumpWaterEscape",
       "canSandIBJ",
       "canFastWalljumpClimb",
@@ -282,7 +280,9 @@
       "Lava Dive HiJumpless Suitless Double Springball Jump",
       "Croc Escape SpringBall Bomb Boost",
       "Waveless Baby Skip",
-      "Bowling Reserve Crystal Flash Grapple Clip"
+      "Bowling Reserve Crystal Flash Grapple Clip",
+      "West Sand Hole Suitless Wall Jump Break Free",
+      "Crab Shaft Suitless Walljump Climb"
     ]
   },
   {
