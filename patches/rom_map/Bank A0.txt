@@ -1,1 +1,2 @@
+F7D3 - F800: gray_doors.asm
 FE00 - FFFF: fast_reload.asm

@@ -212,7 +212,6 @@ impl<'a> Patcher<'a> {
             "fast_reload",
             "shaktool",
             "fix_water_fx_bug",
-            "bomb_torizo",
             "fast_saves",
             "fast_mother_brain_cutscene",
             "fast_big_boy_cutscene",
@@ -787,6 +786,7 @@ impl<'a> Patcher<'a> {
         ];
         let keep_gray_door_room_names: Vec<String> = vec![
             "Kraid Room",
+            "Phantoon's Room",
             "Draygon's Room",
             "Ridley's Room",
             "Golden Torizo's Room",
