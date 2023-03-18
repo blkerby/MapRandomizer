@@ -27,13 +27,13 @@ area_arr = [rom.read_u8(room.rom_address + 1) for room in rooms]
 
 patches = [
     'new_game_extra',
-    'all_items_spawn',
+    'gray_doors',
+    # 'all_items_spawn',
     # 'bomb_torizo',
     # 'decompression',
     # 'fast_reload',
     # 'hud_expansion_opaque',
     # 'hud_expansion_transparent',
-    # 'gray_doors',
     # 'mb_barrier',
     # 'mb_barrier_clear',
     # 'saveload',
@@ -96,27 +96,29 @@ gray_door_plm_types = [
 #     "Botwoon's Room",
 #     "Bomb Torizo Room",
 # ]
-for room_obj in rooms:
-    room = RomRoom(rom, room_obj)
-    states = room.load_states(rom)
-    for state in states:
-        ptr = state.plm_set_ptr + 0x70000
-        while True:
-            plm_type = rom.read_u16(ptr)
-            if plm_type == 0:
-                break
-            # Remove PLMs for doors that we don't want: pink, green, yellow, Eye doors, spawning wall in escape
-            main_var_high = rom.read_u8(ptr + 5)
-            is_removable_gray_door = plm_type in gray_door_plm_types #and main_var_high != 0x0C
-            if plm_type == 0xBAF4:
-                # Replace Bomb Torizo door with normal gray door:
-                print(room_obj.name)
-                rom.write_u16(ptr, 0xC848)
-            elif plm_type in plm_types_to_remove or is_removable_gray_door:
-                print(room_obj.name)
-                rom.write_u16(ptr, 0xB63B)  # right continuation arrow (should have no effect, giving a blue door)
-                rom.write_u16(ptr + 2, 0)  # position = (0, 0)
-            ptr += 6
+# for room_obj in rooms:
+#     room = RomRoom(rom, room_obj)
+#     states = room.load_states(rom)
+#     for state in states:
+#         ptr = state.plm_set_ptr + 0x70000
+#         while True:
+#             plm_type = rom.read_u16(ptr)
+#             if plm_type == 0:
+#                 break
+#             # Remove PLMs for doors that we don't want: pink, green, yellow, Eye doors, spawning wall in escape
+#             main_var_high = rom.read_u8(ptr + 5)
+#             is_removable_gray_door = plm_type in gray_door_plm_types #and main_var_high != 0x0C
+#             if plm_type == 0xBAF4:
+#                 # Replace Bomb Torizo door with normal gray door:
+#                 print(room_obj.name)
+#                 rom.write_u16(ptr, 0xC848)
+#             elif plm_type in plm_types_to_remove or is_removable_gray_door:
+#                 print(room_obj.name)
+#                 rom.write_u16(ptr, 0xB63B)  # right continuation arrow (should have no effect, giving a blue door)
+#                 rom.write_u16(ptr + 2, 0)  # position = (0, 0)
+#             ptr += 6
+#
+
 #
 # # Delay closing of gray doors
 # gray_door_delay_frames = 90
@@ -198,7 +200,8 @@ for room_obj in rooms:
 # rom.write_n(snes2pc(0xA7D4E5), 8, bytes(8 * [0xEA]))
 
 rom.save(output_rom_path)
+print("Wrote to", output_rom_path)
 os.system(f"rm {output_rom_path[:-4]}.srm")
 # print("{}/{} free tiles used".format(map_patcher.next_free_tile_idx, len(free_tiles)))
 
-print(hex(snes2pc(0x838cee)))
+# print(hex(snes2pc(0x838cee)))

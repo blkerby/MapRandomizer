@@ -51,9 +51,9 @@ start_game:
     sta $09D4  
     sta $09D6
 
-;    lda #$00E6
-;    sta $09C6   ; missiles
-;    sta $09C8   ; max missiles
+    lda #$00E6
+    sta $09C6   ; missiles
+    sta $09C8   ; max missiles
     lda #$0032
     sta $09CA   ; supers
     sta $09CC   ; max supers
@@ -68,9 +68,9 @@ start_game:
     sta $7ED90A
     sta $7ED90C
 
-    lda #$0101     ; set G4 bosses defeated
-    sta $7ED829
-    sta $7ED82B
+;    lda #$0101     ; set G4 bosses defeated
+;    sta $7ED829
+;    sta $7ED82B
 
     ; Copy initial explored tiles from B5:F000 (to set map station tiles to explored)
     ldx #$0600
