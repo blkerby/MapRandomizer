@@ -527,6 +527,7 @@ fn get_difficulty_tiers(
     let tech_set: HashSet<String> = difficulty.tech.iter().cloned().collect();
     let strat_set: HashSet<String> = difficulty.notable_strats.iter().cloned().collect();
 
+    out.push(difficulty.clone());
     for preset_data in presets.iter().rev() {
         let preset = &preset_data.preset;
         let mut tech_vec: Vec<String> = Vec::new();
