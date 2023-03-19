@@ -1885,9 +1885,13 @@ impl GameData {
         game_data.load_tech()?;
         game_data.load_helpers()?;
 
-        // Patch the h_heatProof to take into account the progressive suit patch, where only Varia
-        // (and not Gravity) provides full heat protection:
+        // Patch the h_heatProof and h_heatResistant to take into account the complementary suit 
+        // patch, where only Varia (and not Gravity) provides heat protection:
         *game_data.helper_json_map.get_mut("h_heatProof").unwrap() = json::object! {
+            "name": "h_heatProof",
+            "requires": ["Varia"],
+        };
+        *game_data.helper_json_map.get_mut("h_heatResistant").unwrap() = json::object! {
             "name": "h_heatProof",
             "requires": ["Varia"],
         };

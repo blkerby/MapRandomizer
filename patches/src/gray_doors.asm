@@ -39,7 +39,72 @@ bt_door_left:
 
 warnpc $84BA7F
 
+; Free space in Bank $84:
 org $84f940
+
+; PLM: Right-side Bomb-Torizo-type door
+right_bt_door:
+    dw $C794, $BE70, btdoor_setup_right
+
+; PLM: Up-side Bomb-Torizo-type door (facing down)
+up_bt_door:
+    dw $C794, $BFAB, btdoor_setup_up
+
+; PLM: Down-side Bomb-Torizo-type door (facing up)
+down_bt_door:
+    dw $C794, $BF42, btdoor_setup_down
+
+btdoor_setup_right:
+.wait_trigger
+    dw $0002, $A677
+    dw btcheck_inst, .wait_trigger  ; Go to .wait_trigger unless the condition is triggered (item collected or boss hurt)
+    dw $0026, $A677    ; After the condition is triggered, wait a bit before closing (time reduced by 2, to make up for extra 2 in next instruction)
+.wait_clear
+    dw $0002, $A677    ; Wait for Samus not to be in the doorway (to avoid getting stuck)
+    dw right_doorway_clear, .wait_clear  
+    dw $8C19
+    db $08    ; Queue sound 8, sound library 3, max queued sounds allowed = 6 (door closed)
+    dw $0002, $A6CB
+    dw $0002, $A6BF
+    dw $0002, $A6B3
+    dw $0001, $A6A7
+    dw $8724, $BE70
+
+
+
+btdoor_setup_up:
+.wait_trigger
+    dw $0002, $A69B
+    dw btcheck_inst, .wait_trigger  ; Go to .wait_trigger unless the condition is triggered (item collected or boss hurt)
+    dw $0026, $A69B    ; After the condition is triggered, wait a bit before closing (time reduced by 2, to make up for extra 2 in next instruction)
+;.wait_clear
+;    dw $0002, $A69B    ; Wait for Samus not to be in the doorway (to avoid getting stuck)
+;    dw up_doorway_clear, .wait_clear  
+    dw $8C19
+    db $08    ; Queue sound 8, sound library 3, max queued sounds allowed = 6 (door closed)
+    dw $0002,$A75B
+    dw $0002,$A74F
+    dw $0002,$A743
+    dw $0001,$A737
+    dw $8724, $BFAB
+
+btdoor_setup_down:
+.wait_trigger
+    dw $0002, $A68F
+    dw btcheck_inst, .wait_trigger  ; Go to .wait_trigger unless the condition is triggered (item collected or boss hurt)
+    dw $0026, $A68F    ; After the condition is triggered, wait a bit before closing (time reduced by 2, to make up for extra 2 in next instruction)
+;.wait_clear
+;    dw $0002, $A68F    ; Wait for Samus not to be in the doorway (to avoid getting stuck)
+;    dw up_doorway_clear, .wait_clear  
+    dw $8C19
+    db $08    ; Queue sound 8, sound library 3, max queued sounds allowed = 6 (door closed)
+    dw $0002,$A72B
+    dw $0002,$A71F
+    dw $0002,$A713
+    dw $0001,$A707
+    dw $8724, $BF42
+
+
 item_collect:
     pha			; save A to perform original ORA afterwards
     ;; set flag "picked up BT's item"
@@ -141,6 +206,7 @@ right_doorway_clear:
     tay
     rts
 
+
 handle_door_transition:
     ; clear BT item flag
     pha
@@ -151,61 +217,6 @@ handle_door_transition:
     jsl $808EF4            ; run hi-jacked instruction
     rtl
 
-; Right-side Bomb-Torizo-type door
-right_bt_door:
-;    dw $C794, btdoor_right, btdoor_setup_right
-    dw $C794, $BE70, btdoor_setup_right
-;    dw $C794, $BA7F, $BA4C
-
-
-btdoor_setup_right:
-.wait_trigger
-    dw $0002, $A677
-    dw btcheck_inst, .wait_trigger  ; Go to .wait_trigger unless the condition is triggered (item collected or boss hurt)
-    dw $0026, $A677    ; After the condition is triggered, wait a bit before closing (time reduced by 2, to make up for extra 2 in next instruction)
-.wait_clear
-    dw $0002, $A677    ; Wait for Samus not to be in the doorway (to avoid getting stuck)
-    dw right_doorway_clear, .wait_clear  
-    dw $8C19
-    db $08    ; Queue sound 8, sound library 3, max queued sounds allowed = 6 (door closed)
-    dw $0002,$A6CB
-    dw $0002,$A6BF
-    dw $0002,$A6B3
-    dw $0001,$A6A7
-;    dw $8724,btdoor_right
-    dw $8724, $BE70
-
-;btdoor_right:
-;    dw $8A72, $C4B1      ; Go to $C4B1 (blue door) if the room argument door is set
-;    dw $8A24, .wait      ; Link instruction = .wait
-;    dw $BE3F           ; Set grey door pre-instruction
-;    dw $0001, $A6A7
-;.sleep
-;    dw $86B4            ; Sleep
-;    dw $8724, .sleep      ; Go to .sleep
-;.wait
-;    dw $8A24, .shot      ; Link instruction = .shot
-;    dw $86C1, $BD0F      ; Pre-instruction = go to link instruction if shot
-;.flashing
-;    dw $0003, $A9B3
-;    dw $0004, $A6A7
-;    dw $0003, $A9B3
-;    dw $0004, $A6A7
-;    dw $0003, $A9B3
-;    dw $0004, $A6A7
-;    dw $8724, .flashing      ; Go to .flashing
-;.shot
-;    dw $8A91
-;    db $01
-;    dw .opening   ; Increment door hit counter; Set room argument door and go to $BABC if [door hit counter] >= 01h
-;.opening             
-;    dw $8C19
-;    db $07        ; Queue sound 7, sound library 3, max queued sounds allowed = 6 (door opened)
-;    dw $0004, $A6B3
-;    dw $0004, $A6BF
-;    dw $0004, $A6CB
-;    dw $0001, $A677
-;    dw $86BC
 
 warnpc $84fb00
 ; FIX ME: make these patches more compact (reuse vanilla instruction lists more?)
@@ -232,6 +243,16 @@ org $8FC553
 ;; Override door PLM for Golden Torizo right door
 ;org $8F8E7A
 ;    dw right_bt_door
+
+; Override door PLM for Crocomire top door
+org $8F8B9E
+    dw up_bt_door
+
+; Override door PLM for Spore Spawn bottom door (was green)
+org $8F8642
+    dw down_bt_door
+org $8F8647
+    db $04  ; unlocked by miniboss
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -361,10 +382,19 @@ org $AAD3BA
     jsl golden_torizo_hurt
     nop : nop
 
+org $A4868A
+    jsl crocomire_hurt
+
 ; Botwoon doesn't have its own hurt AI (it just uses the common enemy hurt AI),
 ; so we use its shot AI and check if its full health.
 org $B3A024
     jsl botwoon_shot
+
+; Spore Spawn doesn't have its own hurt AI (it just uses the common enemy hurt AI),
+; so we use its shot AI and check if its full health.
+org $A5EDF3
+    jsl spore_spawn_shot
+    nop : nop
 
 ; free space in any bank
 org $A0F7D3
@@ -409,6 +439,28 @@ botwoon_shot:
     ; run hi-jacked instruction
     lda $7E8818,x
     rtl
+
+spore_spawn_shot:
+    lda $0F8C  ; Enemy 0 health
+    cmp #960   ; Check if Spore Spawn is full health
+    bcs .miss
+    lda !PickedUp
+    sta !BTRoomFlag
+.miss
+    ; run hi-jacked instructions
+    ldx $0E54
+    lda $0F8C,x
+    rtl
+
+
+crocomire_hurt:
+    lda !PickedUp
+    sta !BTRoomFlag
+    ; run hi-jacked instruction
+    jsl $A48B5B
+    rtl
+
+
 
 ; Free space in bank $AA
 org $AAF7D3
