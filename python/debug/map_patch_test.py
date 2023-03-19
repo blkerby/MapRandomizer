@@ -7,7 +7,8 @@ import io
 import os
 
 
-input_rom_path = '/home/kerby/Downloads/Super Metroid (JU) [!].smc'
+# input_rom_path = '/home/kerby/Downloads/Super Metroid (JU) [!].smc'
+input_rom_path = '/home/kerby/Downloads/Practice-v2.5.1-suits.sfc'
 # input_rom_path = '/home/kerby/Downloads/smmr-v8-66-115673117270825932886574167490559/smmr-v8-66-115673117270825932886574167490559.sfc'
 # input_rom_path = '/home/kerby/Downloads/smmr-v0-30-115673117270825932886574167490559.sfc'
 # input_rom_path = '/home/kerby/Downloads/smmr-v0-5-115673117270825932886574167490559.sfc'
@@ -67,26 +68,29 @@ for patch_name in patches:
     patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
     rom.bytes_io = BytesIO(patch.apply(rom.bytes_io.getvalue()))
 
+# release Kraid camera so it won't be as glitched when entering from the right
+rom.write_n(snes2pc(0xA7A9F4), 4, bytes(4 * [0xEA]))
+# No longer restrict Samus X position to left screen during start of Kraid fight
+rom.write_u8(snes2pc(0xA7C9EE), 0x60)
 
-
-map_patcher = MapPatcher(rom, area_arr)
-# for i, idx in enumerate(new_text_tile_idxs):
-#     map_patcher.write_tile_2bpp(idx, vanilla_text_tiles[i], switch_red_white=False)
-
-plm_types_to_remove = [
-    0xC88A, 0xC85A, 0xC872,  # right pink/yellow/green door
-    0xC890, 0xC860, 0xC878,  # left pink/yellow/green door
-    0xC896, 0xC866, 0xC87E,  # down pink/yellow/green door
-    0xC89C, 0xC86C, 0xC884,  # up pink/yellow/green door
-    0xDB48, 0xDB4C, 0xDB52, 0xDB56, 0xDB5A, 0xDB60,  # eye doors
-    0xC8CA,  # wall in Escape Room 1
-]
-gray_door_plm_types = [
-    0xC848,  # left gray door
-    0xC842,  # right gray door
-    0xC854,  # up gray door
-    0xC84E,  # down gray door
-]
+# map_patcher = MapPatcher(rom, area_arr)
+# # for i, idx in enumerate(new_text_tile_idxs):
+# #     map_patcher.write_tile_2bpp(idx, vanilla_text_tiles[i], switch_red_white=False)
+#
+# plm_types_to_remove = [
+#     0xC88A, 0xC85A, 0xC872,  # right pink/yellow/green door
+#     0xC890, 0xC860, 0xC878,  # left pink/yellow/green door
+#     0xC896, 0xC866, 0xC87E,  # down pink/yellow/green door
+#     0xC89C, 0xC86C, 0xC884,  # up pink/yellow/green door
+#     0xDB48, 0xDB4C, 0xDB52, 0xDB56, 0xDB5A, 0xDB60,  # eye doors
+#     0xC8CA,  # wall in Escape Room 1
+# ]
+# gray_door_plm_types = [
+#     0xC848,  # left gray door
+#     0xC842,  # right gray door
+#     0xC854,  # up gray door
+#     0xC84E,  # down gray door
+# ]
 # boss_room_names = [
 #     "Kraid Room",
 #     "Phantoon's Room",
