@@ -24,7 +24,7 @@ bt_door_left:
 .wait_trigger
     dw $0002, $A683
     dw btcheck_inst, .wait_trigger  ; Go to .wait_trigger unless the condition is triggered (item collected or boss hurt)
-    dw $0028, $A683    ; After the condition is triggered, wait a bit before closing
+    dw $0026, $A683    ; After the condition is triggered, wait a bit before closing (time reduced by 2, to make up for extra 2 in next instruction)
 .wait_clear
     dw $0002, $A683    ; Wait for Samus not to be in the doorway (to avoid getting stuck)
     dw left_doorway_clear, .wait_clear  
@@ -39,7 +39,7 @@ bt_door_left:
 
 warnpc $84BA7F
 
-org $84f840
+org $84f940
 item_collect:
     pha			; save A to perform original ORA afterwards
     ;; set flag "picked up BT's item"
@@ -162,7 +162,7 @@ btdoor_setup_right:
 .wait_trigger
     dw $0002, $A677
     dw btcheck_inst, .wait_trigger  ; Go to .wait_trigger unless the condition is triggered (item collected or boss hurt)
-    dw $0028, $A677    ; After the condition is triggered, wait a bit before closing
+    dw $0026, $A677    ; After the condition is triggered, wait a bit before closing (time reduced by 2, to make up for extra 2 in next instruction)
 .wait_clear
     dw $0002, $A677    ; Wait for Samus not to be in the doorway (to avoid getting stuck)
     dw right_doorway_clear, .wait_clear  
@@ -207,7 +207,7 @@ btdoor_setup_right:
 ;    dw $0001, $A677
 ;    dw $86BC
 
-warnpc $84f980
+warnpc $84fb00
 ; FIX ME: make these patches more compact (reuse vanilla instruction lists more?)
 
 
@@ -264,16 +264,16 @@ org $83A77E   ; door ASM for entering Botwoon's Room from the left
     dw make_left_doors_bt
 
 org $839184   ; door ASM for entering Baby Kraid Room from the left
-    dw make_left_doors_blue
+    dw make_left_doors_bt
 
 org $8391B4   ; door ASM for entering Baby Kraid Room from the right
-    dw make_right_doors_blue
+    dw make_right_doors_bt
 
 org $839970   ; door ASM for entering Metal Pirates from the left
-    dw make_left_doors_blue
+    dw make_left_doors_bt
 
 org $839A24   ; door ASM for entering Metal Pirates from the right
-    dw make_right_doors_blue
+    dw make_right_doors_bt
 
 ; Replace Metal Pirates PLM set to add extra gray door on the right:
 org $8FB64C
@@ -357,7 +357,16 @@ org $A6B297
     jsl ridley_hurt
     nop : nop
 
-; free space in bank $A0
+org $AAD3BA
+    jsl golden_torizo_hurt
+    nop : nop
+
+; Botwoon doesn't have its own hurt AI (it just uses the common enemy hurt AI),
+; so we use its shot AI and check if its full health.
+org $B3A024
+    jsl botwoon_shot
+
+; free space in any bank
 org $A0F7D3
 phantoon_hurt:
     lda !PickedUp
@@ -389,3 +398,26 @@ ridley_hurt:
     lda $0FA4
     and #$0001
     rtl
+
+botwoon_shot:
+    lda $0F8C  ; Enemy 0 health
+    cmp #3000  ; Check if Botwoon is full health
+    bcs .miss
+    lda !PickedUp
+    sta !BTRoomFlag
+.miss
+    ; run hi-jacked instruction
+    lda $7E8818,x
+    rtl
+
+; Free space in bank $AA
+org $AAF7D3
+golden_torizo_hurt:
+    lda !PickedUp
+    sta !BTRoomFlag
+    ; run hi-jacked instruction
+    ldx $0E54
+    jsr $C620
+    rtl
+
+warnpc $AAF800
