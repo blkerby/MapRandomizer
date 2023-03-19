@@ -374,11 +374,12 @@ fn apply_ridley_requirement(
         // already required to reach the boss node from the doors.
         // Include time pre- and post-fight when Samus must still take heat damage:
         let heat_time = time + 20.0;
-        let heat_energy_used = if global.items[Item::Gravity as usize] {
-            (heat_time * 7.5) as Capacity
-        } else {
-            (heat_time * 15.0) as Capacity
-        };
+        // let heat_energy_used = if global.items[Item::Gravity as usize] {
+        //     (heat_time * 7.5) as Capacity
+        // } else {
+        //     (heat_time * 15.0) as Capacity
+        // };
+        let heat_energy_used = (heat_time * 15.0) as Capacity;
         local.energy_used += heat_energy_used;
     }
 
