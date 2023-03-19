@@ -3,6 +3,25 @@
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-48---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 48 (???)</a>:
+<ul>
+<li>Gray doors are adjusted and now behave more consistently throughout the game:
+    <ul>
+    <li>When entering a room, a gray door behind Samus remains open until one of the following conditions is satisfied:
+        <ul>
+        <li>An item in the room is collected.
+        <li>A boss in the room is hurt.
+        <li>All the enemies in the room are killed (which also unlocks the door).
+        </ul>
+    <li>The door then closes after a brief delay, like the door in Bomb Torizo room does in the vanilla game.
+    <li>If Samus is in the doorway when a horizontal gray door would close, it will wait for Samus to move out of the way.
+    </ul>
+<li>"Spoiler Info" section is reorganized to better highlight the new interactive spoiler map and how to use it.
+<li>"Fast doors" option is renamed "Fast doors (no effect on fade-in)" to make it more clear what it does: unlike the original
+patch on which it is based, it does not include an accelerated fade-in, to avoid disrupting strats when entering a room.
+<li>The logic for Ridley is fixed to align with the behavior of complementary suits introduced in Version 47.
+</ul>
+
 <p><a href="https://version-47---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 47 (2023-03-17)</a>:
 <ul>
 <li>Interactive spoiler map visualizer is added.
