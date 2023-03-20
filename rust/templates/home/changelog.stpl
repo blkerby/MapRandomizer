@@ -3,8 +3,13 @@
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-48---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 48 (???)</a>:
+<p><a href="https://version-48---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 48 (2023-03-20)</a>:
 <ul>
+<li>Spore Spawn Room now has a gray door at the bottom, and Crocomire's Room now has a gray door at the top.
+    <ul>
+    <li>The set of rooms with gray doors now consists of all boss and miniboss rooms (except for Mother Brain) 
+    along with the four Pirate rooms (Pit Room, Baby Kraid Room, Metal Pirates Room, Plasma Room).
+    </ul>
 <li>Gray doors now have a consistent behavior throughout the game:
     <ul>
     <li>When entering a room, a gray door behind Samus remains open until one of the following conditions is satisfied:
@@ -15,11 +20,6 @@ about 15 seconds to load.
         </ul>
     <li>The door then closes after a brief delay, like the door in Bomb Torizo room does in the vanilla game.
     <li>If Samus is in the doorway when a left-facing or right-facing gray door would close, it will wait for Samus to move out of the way.
-    </ul>
-<li>Spore Spawn Room now has a gray door at the bottom, and Crocomire's Room now has a gray door at the top.
-    <ul>
-    <li>The set of rooms with gray doors now consists of all boss and miniboss rooms (except for Mother Brain) 
-    along with the four Pirate rooms (Pit Room, Baby Kraid Room, Metal Pirates Room, Plasma Room).
     </ul>
 <li>A couple logic bugs are fixed to align with the behavior of complementary suits introduced in Version 47.
 </ul>
