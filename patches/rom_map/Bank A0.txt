@@ -1,2 +1,3 @@
-F7D3 - F800: gray_doors.asm
+F820 - F830: vanilla_bugfixes.asm
+F900 - FA00: gray_doors.asm
 FE00 - FFFF: fast_reload.asm

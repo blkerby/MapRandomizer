@@ -96,10 +96,6 @@ remove_spikes:
     jsr $82B4
     rtl
 
-warnpc $84F300
-
-org $84FA00
-
 clear_barrier_plm:
     dw $B3D0, clear_barrier_inst
 
@@ -109,6 +105,8 @@ clear_barrier_inst:
 
 clear_barrier_draw:
     dw $8006, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $0000
+
+warnpc $84F300
 
 ;org $82E801
 ;    JSR after_level_data_load

@@ -5,4 +5,4 @@ $F300 - $F380: escape_items.asm
 $F380 - $F580: escape.asm
 $F580 - $F900: ???
 $F900 - $F940: escape.asm
-$F940 - $FB00: gray_doors.asm
+$FA00 - $FC00: gray_doors.asm

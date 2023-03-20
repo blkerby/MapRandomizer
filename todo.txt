@@ -4,47 +4,45 @@ priority:
 
 
 later:
-  - fix (sometimes?) glitched right door in GT. X-Ray showed a plasma beam inside it
-  - find some way to make it more obvious when you wake Zebes?
-    - maybe open/closed eye icon next to defeated bosses marked in pause menu?
-  - fix game crash that can happen when quick-reloading in death animation
-  - add count of how many times each tech is used
-  - make tech dependencies also look at "obstacles"
-  - consider splitting up Streamlined escape into 3 separate QoL options (removing the need for a footnote to explain it)
-  - add crystal flash to logic when needed for energy
-    - do we need sm-json-data to mark nodes which are unsafe for crystal flashing?
-  - consider adding a mode that can require leaps-of-faith
-  - speed up parts of MB: where Big Boy is latched on to MB, and death animation (shouldn't affect stand-up)
-  - add pages for tech, strats, rooms.
-  - add more farms to logic
-  - adjust elevator heatFrames when fast elevators enabled
-  - make quick reload work while in pause menu
-  - make quick reload in save room to go back to previous save? (what about in Landing Site?)
-  - add caution tape to dangerous doors?
-  - fix camera in bowling alley (for CF grapple clip)
-  - figure out glitch where sometimes bottom pixel of HUD is messed up, scrolling with the camera
-    - zsnes 1.36: map-rando-5jGQIBX24w4DVQjZ5as5zQ.sfc
-  - add reverse botwoon logic from osse's PR
-  - refine cross room shinesparks:
-     - excessShinesparkFrames (reverse)
-     - slopes
-  - credits
-  - proper front page
-  - music options
-  - sprite customization (?),
-  - controller config special settings (moonwalk) customization
-  - tweak balancing:
-    - give a little more weight to save coverage
-    - give a little less weight to hallway penalty
-  - consider overhauling how cross-room logic is encoded:
-    - canComeInCharged should be in a special part of the "node" (symmetric to "canLeaveCharged"), not in "links"
-    - same thing for adjacentRunway
-    - since "can" sounds like a tech, maybe we should rename these "enterCharged", "enterWithRunway", etc. (later we can have
-      "enterWithSpeedball" and other things), and symmetrically, "exitCharged", "exitWithSpeedball", etc.
-    - This is cleaner, reduces need for preprocessing, and would cut out the possibility of expressing invalid things
-      like requiring multiple adjacentRunway from different nodes in the same strat.
-
-TODO:
+- fix (sometimes?) glitched right door in GT. X-Ray showed a plasma beam inside it
+- find some way to make it more obvious when you wake Zebes?
+  - maybe open/closed eye icon next to defeated bosses marked in pause menu?
+- fix game crash that can happen when quick-reloading in death animation
+- add count of how many times each tech is used
+- make tech dependencies also look at "obstacles"
+- consider splitting up Streamlined escape into 3 separate QoL options (removing the need for a footnote to explain it)
+- add crystal flash to logic when needed for energy
+  - do we need sm-json-data to mark nodes which are unsafe for crystal flashing?
+- consider adding a mode that can require leaps-of-faith
+- speed up parts of MB: where Big Boy is latched on to MB, and death animation (shouldn't affect stand-up)
+- add pages for tech, strats, rooms.
+- add more farms to logic
+- adjust elevator heatFrames when fast elevators enabled
+- make quick reload work while in pause menu
+- make quick reload in save room to go back to previous save? (what about in Landing Site?)
+- add caution tape to dangerous doors?
+- fix camera in bowling alley (for CF grapple clip)
+- figure out glitch where sometimes bottom pixel of HUD is messed up, scrolling with the camera
+  - zsnes 1.36: map-rando-5jGQIBX24w4DVQjZ5as5zQ.sfc
+- add reverse botwoon logic from osse's PR
+- refine cross room shinesparks:
+    - excessShinesparkFrames (reverse)
+    - slopes
+- credits
+- proper front page
+- music options
+- sprite customization (?),
+- controller config special settings (moonwalk) customization
+- tweak balancing:
+  - give a little more weight to save coverage
+  - give a little less weight to hallway penalty
+- consider overhauling how cross-room logic is encoded:
+  - canComeInCharged should be in a special part of the "node" (symmetric to "canLeaveCharged"), not in "links"
+  - same thing for adjacentRunway
+  - since "can" sounds like a tech, maybe we should rename these "enterCharged", "enterWithRunway", etc. (later we can have
+    "enterWithSpeedball" and other things), and symmetrically, "exitCharged", "exitWithSpeedball", etc.
+  - This is cleaner, reduces need for preprocessing, and would cut out the possibility of expressing invalid things
+    like requiring multiple adjacentRunway from different nodes in the same strat.
 - consider indicating heated rooms & fully immersed rooms on map?
 - improve slow-progression logic: allow item progression by unlocking way back
   - don't immediately place filler items at one-way reachable locations
@@ -111,9 +109,6 @@ TODO:
     - also look into way to avoid a hit when coming into tourian hopper room?
     (e.g., give i-frames, or try to adjust the spawn pattern)
 - organize tech on website.
-- figure out race condition between fastdoors and Mother Brain room setup. Maybe code around $80836F could be used
-  to wait? Though maybe this doesn't matter because we don't want to add fastdoors anyway.
-- figure out and fix what's going on with tiles below Warehouse Entrance when it crosses areas.
 - fix internal checksum in output ROM
 - add README
     - make
@@ -125,6 +120,16 @@ TODO:
 - make map rando for other hacks (e.g. project base, subversion?)
   - would be a lot of work. we could invite others to help implement the logic
 - multitroid support
+- show whole Zebes map in pause menu?
+  - instead of blue/pink, use area-themed colors (with light/dark to mark explored/unexplored)
+  - probably difficult, but maybe possible?
+  - play subversion and then chat with amoeba to get more ideas
+- change how item dots appear once collected?
+  - make them disappear or turn gray?
+  - consider using dynamic tiles or sprites:
+     - we would need to limit how many can appear on the pause screen at the same time.
+     - amoeba apparently found there was more room for tiles than sprites?
+  - we need this to show up on HUD as well as pause map
 
 notes on tileset palette stuff:
   - tileset table: $8FE6A2  (will need to move to location with more space)

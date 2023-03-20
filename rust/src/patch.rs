@@ -170,7 +170,7 @@ fn apply_ips_patch(rom: &mut Rom, patch_path: &Path) -> Result<()> {
 
 fn apply_orig_ips_patches(rom: &mut Rom) -> Result<()> {
     let patches_dir = Path::new("../patches/ips/");
-    let patches = vec![
+    let patches: Vec<&'static str> = vec![
         "mb_barrier",
         "mb_barrier_clear",
         "hud_expansion_opaque",
@@ -189,14 +189,12 @@ impl<'a> Patcher<'a> {
         let mut patches = vec![
             "vanilla_bugfixes",
             "music",
-            // "crateria_sky_fixed",
             "everest_tube",
             "sandfalls",
             "saveload",
             "map_area",
             "boss_exit",
             "itemsounds",
-            // "progressive_suits",
             "complementary_suits",
             "disable_map_icons",
             "escape",
@@ -778,19 +776,23 @@ impl<'a> Patcher<'a> {
             0xDB60, // eye doors
                     // 0xC8CA, // wall in Escape Room 1 (TODO: Check if this is needed)
         ];
-        let gray_door_plm_types = vec![
-            0xC848, // left gray door
-            0xC842, // right gray door
-            0xC854, // up gray door
-            0xC84E, // down gray door
-        ];
+        let gray_door_plm_types: HashMap<isize, isize> = vec![
+            (0xC848, 0xBAF4),  // left gray door
+            (0xC842, 0xFA00),  // right gray door
+            (0xC854, 0xFA06),  // up gray door
+            (0xC84E, 0xFA0C),  // down gray door
+        ].into_iter().collect();
         let keep_gray_door_room_names: Vec<String> = vec![
             "Kraid Room",
             "Phantoon's Room",
             "Draygon's Room",
             "Ridley's Room",
             "Golden Torizo's Room",
+            "Botwoon's Room",
+            "Spore Spawn Room",
+            "Crocomire's Room",
             "Baby Kraid Room",
+            "Plasma Room",
             "Metal Pirates Room",
         ]
         .iter()
@@ -809,10 +811,13 @@ impl<'a> Patcher<'a> {
                     let room_keep_gray_door = keep_gray_door_room_names.contains(&room.name)
                         || (room.name == "Pit Room" && event_ptr == 0xE652);
                     let is_removable_grey_door =
-                        gray_door_plm_types.contains(&plm_type) && !room_keep_gray_door;
+                        gray_door_plm_types.contains_key(&plm_type) && !room_keep_gray_door;
                     if plm_types_to_remove.contains(&plm_type) || is_removable_grey_door {
                         self.rom.write_u16(ptr, 0xB63B)?; // right continuation arrow (should have no effect, giving a blue door)
                         self.rom.write_u16(ptr + 2, 0)?; // position = (0, 0)
+                    } else if gray_door_plm_types.contains_key(&plm_type) {
+                        let new_type = gray_door_plm_types[&plm_type];
+                        self.rom.write_u16(ptr, new_type)?;
                     }
                     ptr += 6;
                 }
