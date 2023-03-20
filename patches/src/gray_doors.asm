@@ -39,8 +39,8 @@ bt_door_left:
 
 warnpc $84BA7F
 
-; Free space in Bank $84:
-org $84f940
+; Free space in Bank $84 (but must be consistent with values used in patch.rs):
+org $84fa00
 
 ; PLM: Right-side Bomb-Torizo-type door
 right_bt_door:
@@ -59,9 +59,9 @@ btdoor_setup_right:
     dw $0002, $A677
     dw btcheck_inst, .wait_trigger  ; Go to .wait_trigger unless the condition is triggered (item collected or boss hurt)
     dw $0026, $A677    ; After the condition is triggered, wait a bit before closing (time reduced by 2, to make up for extra 2 in next instruction)
-.wait_clear
-    dw $0002, $A677    ; Wait for Samus not to be in the doorway (to avoid getting stuck)
-    dw right_doorway_clear, .wait_clear  
+;.wait_clear
+;    dw $0002, $A677    ; Wait for Samus not to be in the doorway (to avoid getting stuck)
+;    dw right_doorway_clear, .wait_clear  
     dw $8C19
     db $08    ; Queue sound 8, sound library 3, max queued sounds allowed = 6 (door closed)
     dw $0002, $A6CB
@@ -71,15 +71,11 @@ btdoor_setup_right:
     dw $8724, $BE70
 
 
-
 btdoor_setup_up:
 .wait_trigger
     dw $0002, $A69B
     dw btcheck_inst, .wait_trigger  ; Go to .wait_trigger unless the condition is triggered (item collected or boss hurt)
     dw $0026, $A69B    ; After the condition is triggered, wait a bit before closing (time reduced by 2, to make up for extra 2 in next instruction)
-;.wait_clear
-;    dw $0002, $A69B    ; Wait for Samus not to be in the doorway (to avoid getting stuck)
-;    dw up_doorway_clear, .wait_clear  
     dw $8C19
     db $08    ; Queue sound 8, sound library 3, max queued sounds allowed = 6 (door closed)
     dw $0002,$A75B
@@ -93,9 +89,6 @@ btdoor_setup_down:
     dw $0002, $A68F
     dw btcheck_inst, .wait_trigger  ; Go to .wait_trigger unless the condition is triggered (item collected or boss hurt)
     dw $0026, $A68F    ; After the condition is triggered, wait a bit before closing (time reduced by 2, to make up for extra 2 in next instruction)
-;.wait_clear
-;    dw $0002, $A68F    ; Wait for Samus not to be in the doorway (to avoid getting stuck)
-;    dw up_doorway_clear, .wait_clear  
     dw $8C19
     db $08    ; Queue sound 8, sound library 3, max queued sounds allowed = 6 (door closed)
     dw $0002,$A72B
@@ -144,28 +137,20 @@ btcheck:
     lda !BTRoomFlag
     cmp !PickedUp
     beq .done
-;    jsr check_area_boss
-    
-    ;phy
-    ;lda check_list, y
-    ;ldx #check_area_boss
-    ;phx
-    ;tax
     phx
     lda $1E17, x
     tax
     jsr (check_list, x)
     plx
-    ;plx
-    ;ply
-
+    
     lda #$ffff  ;\ transfer carry flag to zero flag
     adc #$0000  ;/
 
 .done
     rts
 
-;;; check if we the BT door condition is triggered (item collected, or boss hurt)
+;;; check if we the BT door condition is triggered (item collected, or boss hurt).
+;;; If so, go to the next instruction (Y <- Y + 2), otherwise go to [Y].
 btcheck_inst:
     jsr btcheck
     bne .not_triggered
@@ -217,17 +202,7 @@ handle_door_transition:
     jsl $808EF4            ; run hi-jacked instruction
     rtl
 
-
-warnpc $84fb00
-; FIX ME: make these patches more compact (reuse vanilla instruction lists more?)
-
-
-;;; overwrite BT grey door PLM instruction (bomb check)
-;org $84ba6f
-;bt_grey_door_instr:
-;    jsr btcheck
-;    nop : nop : nop
-;    bne $03	                ; orig: BEQ $03    ; return if no bombs
+warnpc $84fc00
 
 ;;; overwrite BT crumbling chozo PLM pre-instruction (bomb check)
 org $84d33b
@@ -235,18 +210,6 @@ bt_instr:
     jsr btcheck
     nop : nop : nop
     bne $13			; orig: BEQ $13    ; return if no bombs
-
-; Override door PLM in Plasma Room
-org $8FC553
-    dw $BAF4
-
-;; Override door PLM for Golden Torizo right door
-;org $8F8E7A
-;    dw right_bt_door
-
-; Override door PLM for Crocomire top door
-org $8F8B9E
-    dw up_bt_door
 
 ; Override door PLM for Spore Spawn bottom door (was green)
 org $8F8642
@@ -256,91 +219,11 @@ org $8F8647
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-org $83A2B6  ; door ASM for entering Phantoon's Room
-    dw make_left_doors_bt
-
-org $8391C0  ; door ASM for entering Kraid Room from the left
-    dw make_left_doors_bt
-
-org $83925C  ; door ASM for entering Kraid Room from the right
-    dw make_right_doors_bt
-
-org $83A92E   ; door ASM for entering Draygon's Room from the left
-    dw make_left_doors_bt
-
-org $83A84A   ; door ASM for entering Draygon's Room from the right
-    dw make_right_doors_bt
-
-org $839A6C   ; door ASM for entering Ridley's Room from the left
-    dw make_left_doors_bt
-
-org $8398D4   ; door ASM for entering Ridley's Room from the right
-    dw make_right_doors_bt
-
-org $839A90   ; door ASM for entering Golden Torizo's Room from the right
-    dw make_right_doors_bt
-
-org $83A77E   ; door ASM for entering Botwoon's Room from the left
-    dw make_left_doors_bt
-
-org $839184   ; door ASM for entering Baby Kraid Room from the left
-    dw make_left_doors_bt
-
-org $8391B4   ; door ASM for entering Baby Kraid Room from the right
-    dw make_right_doors_bt
-
-org $839970   ; door ASM for entering Metal Pirates from the left
-    dw make_left_doors_bt
-
-org $839A24   ; door ASM for entering Metal Pirates from the right
-    dw make_right_doors_bt
-
 ; Replace Metal Pirates PLM set to add extra gray door on the right:
 org $8FB64C
     dw metal_pirates_plms
 
 org $8FF700
-; $00: Door type (PLM ID) to replace
-; $02: New door type (PLM ID) to replace them with
-change_doors:
-    phx
-    pha
-    ldx #$0000
-.loop
-    lda $1C37, x
-    cmp $00
-    bne .next
-    lda $02
-    sta $1C37, x
-.next
-    inx : inx
-    cpx #$0050
-    bne .loop
-    pla
-    plx
-    rts
-
-make_left_doors_blue:
-    lda #$C848 : sta $00  ; left doors
-    lda #$0000 : sta $02  ; blue (remove PLM)
-    jmp change_doors
-
-make_left_doors_bt:
-    lda #$C848 : sta $00  ; left doors
-    lda #$BAF4 : sta $02  ; BT-type door
-    jmp change_doors
-
-make_right_doors_blue:
-    lda #$C842 : sta $00  ; right doors
-    lda #$0000 : sta $02  ; blue (remove PLM)
-    jmp change_doors
-
-make_right_doors_bt:
-    lda #$C842 : sta $00  ; right doors
-    lda #right_bt_door : sta $02  ; BT-type door
-    jmp change_doors
-
 
 ; Replaces PLM list at $8F90C8
 metal_pirates_plms:
@@ -397,7 +280,7 @@ org $A5EDF3
     nop : nop
 
 ; free space in any bank
-org $A0F7D3
+org $A0F900
 phantoon_hurt:
     lda !PickedUp
     sta !BTRoomFlag
