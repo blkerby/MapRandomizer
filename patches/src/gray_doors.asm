@@ -59,9 +59,9 @@ btdoor_setup_right:
     dw $0002, $A677
     dw btcheck_inst, .wait_trigger  ; Go to .wait_trigger unless the condition is triggered (item collected or boss hurt)
     dw $0026, $A677    ; After the condition is triggered, wait a bit before closing (time reduced by 2, to make up for extra 2 in next instruction)
-;.wait_clear
-;    dw $0002, $A677    ; Wait for Samus not to be in the doorway (to avoid getting stuck)
-;    dw right_doorway_clear, .wait_clear  
+.wait_clear
+    dw $0002, $A677    ; Wait for Samus not to be in the doorway (to avoid getting stuck)
+    dw right_doorway_clear, .wait_clear  
     dw $8C19
     db $08    ; Queue sound 8, sound library 3, max queued sounds allowed = 6 (door closed)
     dw $0002, $A6CB
