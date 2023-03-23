@@ -12,7 +12,7 @@
         <ul>
         <li>Every Zebes room from the vanilla game is placed somewhere. Once all movement items are
         collected, it is possible to reach every room without any tech.
-        <li>Phantoon's Room is always two rooms away from the broken map station, and both are 
+        <li>Phantoon's Room always connects to the same room as the broken map station, and both are 
             in the same area as the broken save room.
         <li>The map uses special tiles to show the locations of map stations, refills, 
         and major bosses (G4 and Mother Brain). Items are consistently marked using dots.
