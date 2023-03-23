@@ -1,9 +1,13 @@
 priority:
-  - lock boss doors once damage is dealt to the boss (handle croc specially i guess)
-  - set boss flag immediately when boss dies.
+- add pages for tech, strats, rooms.
+- credits
+- proper front page
+- music options: vanilla, area-themed, or none
+- sprite customization (?),
 
 
 later:
+- fix graphics in door transitions?
 - fix (sometimes?) glitched right door in GT. X-Ray showed a plasma beam inside it
 - find some way to make it more obvious when you wake Zebes?
   - maybe open/closed eye icon next to defeated bosses marked in pause menu?
@@ -15,7 +19,6 @@ later:
   - do we need sm-json-data to mark nodes which are unsafe for crystal flashing?
 - consider adding a mode that can require leaps-of-faith
 - speed up parts of MB: where Big Boy is latched on to MB, and death animation (shouldn't affect stand-up)
-- add pages for tech, strats, rooms.
 - add more farms to logic
 - adjust elevator heatFrames when fast elevators enabled
 - make quick reload work while in pause menu
@@ -28,10 +31,6 @@ later:
 - refine cross room shinesparks:
     - excessShinesparkFrames (reverse)
     - slopes
-- credits
-- proper front page
-- music options
-- sprite customization (?),
 - controller config special settings (moonwalk) customization
 - tweak balancing:
   - give a little more weight to save coverage
@@ -48,7 +47,6 @@ later:
   - don't immediately place filler items at one-way reachable locations
   - instead check that when a key item is placed at a previously one-way-reachable location, the item would not have provided
     a way back at an earlier step?
-- have forced mode take into account return path? (probably a bad idea)
 - fix spoiler log for reverse paths using shinesparks
 - fix bug where controls are locked when dying from enemy during elevator
 - fix bug where suit color does not change when changing suits while taking damage (e.g. lava dive)?
@@ -68,7 +66,6 @@ later:
   - others
 - area-themed palettes:
   - remove or fix glows that are wrong color (e.g. Wrecked Ship?)
-- make option for music: vanilla, area-themed, or none
 - Add way to export settings from seed page (and export/import on main page).
 - With a future ML model, treat Mother Brain room as 0-way (instead of one-way) to ensure items, maps, etc.
   cannot be locked behind Mother Brain.
@@ -76,13 +73,11 @@ later:
     - Spread out placement of single-tile, single-door rooms to help balancing of saves & refills.
 - at end of randomization, make sure G4 bosses are reachable (to guard against a case like Phantoon being locked behind
   Bowling, or a G4 boss locked behind Mother Brain).
-- Remove Crocomire funny map behavior?
 - Handle shinespark_frames=0 correctly (don't require 29 energy)
 - Better validation/error-handling of web service
   - push more validation into client
-- Option for anti-softlock patches (e.g. in Moat, Early Supers, etc.)?
-  - disable acid trigger in Leodox room?
-- Put spoiler info in collapsible accordion?
+- Make big button for spoiler info.
+  - put instructions in the spoiler page itself instead of on the seed page
 - Add note to strat in Post-Crocomire farming room to get to top-left with HiJump
   (run on platform enemy and jump)
 - Use separate worker pool to run randomization (to avoid blocking web requests)
@@ -95,31 +90,18 @@ later:
     - Figure out how this can work with custom sprites.
 - Consider rejecting cases where the set of bireachable item locations grows too slow or too fast.
 - fix color of reserve tank energy in equipment menu (got messed up by colored arrows)
-- consider moving the MB barriers to the right one tile (or two?), to make them interfere less with ice zeb skip.
 - move GFX colors:
   - Morph Ball room (blue brinstar), tileset 7:
     - [0x31, 0x32, 0x33] -> [0x38, 0x39, 0x3A]
 - make the pause map tiles align with the grid
 - fix tiny bug: when bottom-left door of landing site is an area transition, the arrow shows up from the beginning
   of the game (due to running the door ASM while loading the game)
-- fix graphical problem with barriers not clearing in Mother Brain room (happened next to Crocomire's Room?)
-- check if map reload is messing up timing at start of rooms (e.g. Beta Power Bombs)
-  - or more likely music reload is a factor. Can we artificially trigger reload in Morph Ball room or do something else
-  to fix the timing with the hoppers?
-    - also look into way to avoid a hit when coming into tourian hopper room?
-    (e.g., give i-frames, or try to adjust the spawn pattern)
 - organize tech on website.
 - fix internal checksum in output ROM
 - add README
-    - make
-- cross-area transitions
-  - to fix graphical glitches (look into using special GFX flag?)
-- balance boss distribution (one boss per area, corresponding to vanilla?)
 - fix suit graphics not showing after getting suit (consequence of skipping animation)?
-- minimizer mode? (select rooms to include randomly, hand-picked, and/or user-selected)
-- make map rando for other hacks (e.g. project base, subversion?)
-  - would be a lot of work. we could invite others to help implement the logic
-- multitroid support
+
+maybe someday?:
 - show whole Zebes map in pause menu?
   - instead of blue/pink, use area-themed colors (with light/dark to mark explored/unexplored)
   - probably difficult, but maybe possible?
@@ -130,6 +112,24 @@ later:
      - we would need to limit how many can appear on the pause screen at the same time.
      - amoeba apparently found there was more room for tiles than sprites?
   - we need this to show up on HUD as well as pause map
+- minimizer mode? (select rooms to include randomly, hand-picked, and/or user-selected)
+- make map rando for other hacks (e.g. project base, subversion?)
+  - would be a lot of work. we could invite others to help implement the logic
+- multitroid support
+
+
+rejected ideas (probably):
+- set boss flag immediately when boss dies.
+- balance boss distribution (one boss per area, corresponding to vanilla?)
+- check if map reload is messing up timing at start of rooms (e.g. Beta Power Bombs)
+  - or more likely music reload is a factor. Can we artificially trigger reload in Morph Ball room or do something else
+  to fix the timing with the hoppers?
+- consider moving the MB barriers to the right one tile (or two?), to make them interfere less with ice zeb skip.
+- have forced mode take into account return path? (probably a bad idea)
+- Remove Crocomire funny map behavior?
+- Option for anti-softlock patches (e.g. in Moat, Early Supers, etc.)?
+  - disable acid trigger in Leodox room?
+
 
 notes on tileset palette stuff:
   - tileset table: $8FE6A2  (will need to move to location with more space)
