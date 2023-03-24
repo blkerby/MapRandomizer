@@ -28,7 +28,8 @@ area_arr = [rom.read_u8(room.rom_address + 1) for room in rooms]
 
 patches = [
     'new_game_extra',
-    'gray_doors',
+    'gravitypal',
+    # 'gray_doors',
     # 'all_items_spawn',
     # 'bomb_torizo',
     # 'decompression',
@@ -68,58 +69,93 @@ for patch_name in patches:
     patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
     rom.bytes_io = BytesIO(patch.apply(rom.bytes_io.getvalue()))
 
-# release Kraid camera so it won't be as glitched when entering from the right
-rom.write_n(snes2pc(0xA7A9F4), 4, bytes(4 * [0xEA]))
-# No longer restrict Samus X position to left screen during start of Kraid fight
-rom.write_u8(snes2pc(0xA7C9EE), 0x60)
+def read_colors(addr, n):
+    out = []
+    for i in range(n):
+        x = rom.read_u16(addr + i * 2)
+        r = x & 0x1F
+        g = (x >> 5) & 0x1F
+        b = (x >> 10) & 0x1F
+        out.append((r, g, b))
+    return out
 
-# map_patcher = MapPatcher(rom, area_arr)
-# # for i, idx in enumerate(new_text_tile_idxs):
-# #     map_patcher.write_tile_2bpp(idx, vanilla_text_tiles[i], switch_red_white=False)
+def write_colors(addr, colors):
+    for i in range(len(colors)):
+        r, g, b = colors[i]
+        x = r | (g << 5) | (b << 10)
+        rom.write_u16(addr + i * 2, x)
+
+
+power_suit_colors = read_colors(snes2pc(0x9B9400), 32)
+varia_suit_colors = read_colors(snes2pc(0x9B9520), 32)
+combined_suit_colors = read_colors(snes2pc(0x9B9800), 32)
+
+gravity_suit_colors = []
+for i in range(32):
+    p = power_suit_colors[i]
+    v = varia_suit_colors[i]
+    c = combined_suit_colors[i]
+    g = []
+    for j in range(3):
+        x = max(0, min(31, p[j] + c[j] - v[j]))
+        # x = p[j] + c[j] - v[j]
+        g.append(x)
+    print(g)
+    gravity_suit_colors.append(g)
+
+write_colors(snes2pc(0x9BFF00), gravity_suit_colors)
+# # release Kraid camera so it won't be as glitched when entering from the right
+# rom.write_n(snes2pc(0xA7A9F4), 4, bytes(4 * [0xEA]))
+# # No longer restrict Samus X position to left screen during start of Kraid fight
+# rom.write_u8(snes2pc(0xA7C9EE), 0x60)
 #
-plm_types_to_remove = [
-    0xC88A, 0xC85A, 0xC872,  # right pink/yellow/green door
-    0xC890, 0xC860, 0xC878,  # left pink/yellow/green door
-    0xC896, 0xC866, 0xC87E,  # down pink/yellow/green door
-    0xC89C, 0xC86C, 0xC884,  # up pink/yellow/green door
-    0xDB48, 0xDB4C, 0xDB52, 0xDB56, 0xDB5A, 0xDB60,  # eye doors
-    0xC8CA,  # wall in Escape Room 1
-]
-gray_door_plm_types = {
-    0xC848: 0xBAF4,  # left gray door
-    0xC842: 0xF940,  # right gray door
-    0xC854: 0xF946,  # up gray door
-    0xC84E: 0xF94C,  # down gray door
-}
-boss_room_names = [
-    "Kraid Room",
-    "Phantoon's Room",
-    "Draygon's Room",
-    "Ridley's Room",
-    "Crocomire's Room",
-    "Botwoon's Room",
-    "Bomb Torizo Room",
-]
-for room_obj in rooms:
-    room = RomRoom(rom, room_obj)
-    states = room.load_states(rom)
-    for state in states:
-        ptr = state.plm_set_ptr + 0x70000
-        while True:
-            plm_type = rom.read_u16(ptr)
-            if plm_type == 0:
-                break
-            # Remove PLMs for doors that we don't want: pink, green, yellow, Eye doors, spawning wall in escape
-            main_var_high = rom.read_u8(ptr + 5)
-            if plm_type in plm_types_to_remove:
-                print(room_obj.name)
-                rom.write_u16(ptr, 0xB63B)  # right continuation arrow (should have no effect, giving a blue door)
-                rom.write_u16(ptr + 2, 0)  # position = (0, 0)
-            elif plm_type in gray_door_plm_types:
-                new_type = gray_door_plm_types[plm_type]
-                rom.write_u16(ptr, new_type)
-            ptr += 6
-
+# # map_patcher = MapPatcher(rom, area_arr)
+# # # for i, idx in enumerate(new_text_tile_idxs):
+# # #     map_patcher.write_tile_2bpp(idx, vanilla_text_tiles[i], switch_red_white=False)
+# #
+# plm_types_to_remove = [
+#     0xC88A, 0xC85A, 0xC872,  # right pink/yellow/green door
+#     0xC890, 0xC860, 0xC878,  # left pink/yellow/green door
+#     0xC896, 0xC866, 0xC87E,  # down pink/yellow/green door
+#     0xC89C, 0xC86C, 0xC884,  # up pink/yellow/green door
+#     0xDB48, 0xDB4C, 0xDB52, 0xDB56, 0xDB5A, 0xDB60,  # eye doors
+#     0xC8CA,  # wall in Escape Room 1
+# ]
+# gray_door_plm_types = {
+#     0xC848: 0xBAF4,  # left gray door
+#     0xC842: 0xF940,  # right gray door
+#     0xC854: 0xF946,  # up gray door
+#     0xC84E: 0xF94C,  # down gray door
+# }
+# boss_room_names = [
+#     "Kraid Room",
+#     "Phantoon's Room",
+#     "Draygon's Room",
+#     "Ridley's Room",
+#     "Crocomire's Room",
+#     "Botwoon's Room",
+#     "Bomb Torizo Room",
+# ]
+# for room_obj in rooms:
+#     room = RomRoom(rom, room_obj)
+#     states = room.load_states(rom)
+#     for state in states:
+#         ptr = state.plm_set_ptr + 0x70000
+#         while True:
+#             plm_type = rom.read_u16(ptr)
+#             if plm_type == 0:
+#                 break
+#             # Remove PLMs for doors that we don't want: pink, green, yellow, Eye doors, spawning wall in escape
+#             main_var_high = rom.read_u8(ptr + 5)
+#             if plm_type in plm_types_to_remove:
+#                 print(room_obj.name)
+#                 rom.write_u16(ptr, 0xB63B)  # right continuation arrow (should have no effect, giving a blue door)
+#                 rom.write_u16(ptr + 2, 0)  # position = (0, 0)
+#             elif plm_type in gray_door_plm_types:
+#                 new_type = gray_door_plm_types[plm_type]
+#                 rom.write_u16(ptr, new_type)
+#             ptr += 6
+#
 
 #
 # # Delay closing of gray doors

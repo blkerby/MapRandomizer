@@ -7,6 +7,7 @@ priority:
 
 
 later:
+- consider putting back the save confirmation.
 - fix graphics in door transitions?
 - fix (sometimes?) glitched right door in GT. X-Ray showed a plasma beam inside it
 - find some way to make it more obvious when you wake Zebes?

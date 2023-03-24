@@ -20,7 +20,7 @@
         
         <h6>Item info</h6>
         <ul>
-        <li>Every item from the vanilla game is placed somewhere, and ammo distributions are unchanged.
+        <li>Every item from the vanilla game is placed somewhere, and ammo distributions are unchanged; e.g. there are 50 Supers in the game.
         <li>Gravity and Varia suits behave like in the vanilla game, except that Gravity alone provides
         no heat protection and only 50% protection against other damage.
         <% if all_items_spawn { %>
@@ -36,9 +36,6 @@
         <h6>Other info</h6>
         <ul>
         <li>Missile Refill stations refill all ammo types: Missiles, Supers, and Power Bombs.
-        <% if supers_double { %>
-        <li>Supers do double damage to Mother Brain.
-        <% } %>
         <li>Hyper Beam destroys Super, Bomb, and Power Bomb blocks and can open blue & green gates from either side.
         </ul>
         <p>
