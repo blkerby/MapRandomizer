@@ -7,6 +7,9 @@
         <li>Be careful with one-ways: it's easy to get soft-locked. The logic never requires going down a one-way 
         for an item unless there is a way out without using the new item. It's often best to avoid one-ways
         until you know there's a way back or have exhausted all other options.
+        <% if supers_double { %>
+        <li>Supers do double damage to Mother Brain (a quality-of-life option enabled by default).
+        <% } %>
         </ul>
     </div>
 </div>
