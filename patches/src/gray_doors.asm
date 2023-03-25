@@ -148,6 +148,11 @@ btcheck:
 .done
     rts
 
+btcheck1:
+    lda !BTRoomFlag
+    cmp !PickedUp
+    rts
+
 ;;; check if we the BT door condition is triggered (item collected, or boss hurt).
 ;;; If so, go to the next instruction (Y <- Y + 2), otherwise go to [Y].
 btcheck_inst:
@@ -206,8 +211,8 @@ warnpc $84fc00
 ;;; overwrite BT crumbling chozo PLM pre-instruction (bomb check)
 org $84d33b
 bt_instr:
-    lda !BTRoomFlag
-    cmp !PickedUp
+    jsr btcheck1
+    nop : nop : nop
     bne $13			; orig: BEQ $13    ; return if no bombs
 
 ; Override door PLM for Spore Spawn bottom door (was green)
