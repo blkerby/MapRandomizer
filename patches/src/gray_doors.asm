@@ -142,10 +142,9 @@ btcheck:
     tax
     jsr (check_list, x)
     plx
-    
+
     lda #$ffff  ;\ transfer carry flag to zero flag
     adc #$0000  ;/
-
 .done
     rts
 
@@ -207,8 +206,8 @@ warnpc $84fc00
 ;;; overwrite BT crumbling chozo PLM pre-instruction (bomb check)
 org $84d33b
 bt_instr:
-    jsr btcheck
-    nop : nop : nop
+    lda !BTRoomFlag
+    cmp !PickedUp
     bne $13			; orig: BEQ $13    ; return if no bombs
 
 ; Override door PLM for Spore Spawn bottom door (was green)
