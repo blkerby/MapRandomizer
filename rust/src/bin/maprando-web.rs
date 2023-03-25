@@ -26,7 +26,7 @@ use rand::{RngCore, SeedableRng};
 use sailfish::TemplateOnce;
 use serde_derive::{Deserialize, Serialize};
 
-const VERSION: usize = 48;
+const VERSION: usize = 49;
 
 #[derive(Serialize, Deserialize, Clone)]
 struct Preset {
