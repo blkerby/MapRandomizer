@@ -28,6 +28,7 @@ pub fn customize_rom(
     settings: &CustomizeSettings,
     game_data: &GameData,
 ) -> Result<()> {
+    rom.data.resize(0x400000, 0);
     let patch = ips::Patch::parse(seed_patch).unwrap();
     // .with_context(|| format!("Unable to parse patch {}", patch_path.display()))?;
     for hunk in patch.hunks() {

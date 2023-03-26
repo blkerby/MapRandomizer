@@ -185,6 +185,7 @@ fn apply_orig_ips_patches(rom: &mut Rom) -> Result<()> {
 
 impl<'a> Patcher<'a> {
     fn apply_ips_patches(&mut self) -> Result<()> {
+        self.rom.data.resize(0x400000, 0);
         let patches_dir = Path::new("../patches/ips/");
         let mut patches = vec![
             "vanilla_bugfixes",
@@ -215,6 +216,7 @@ impl<'a> Patcher<'a> {
             "fast_big_boy_cutscene",
             "decompression",
             "tourian_blue_hopper",
+            "alucard",
         ];
         let mut new_game = "new_game";
         if let Some(options) = &self.randomization.difficulty.debug_options {

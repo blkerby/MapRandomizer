@@ -37,13 +37,25 @@ fn get_next_chunk(mut pos: usize, old: &[u8], new: &[u8]) -> Chunk {
     }
 }
 
+fn push_split_chunks(chunk_vec: &mut Vec<Chunk>, chunk: &Chunk) {
+    let mut start = chunk.start;
+    while start + 0xFFFF < chunk.end {
+        chunk_vec.push(Chunk { 
+            start,
+            end: start + 0xFFFF,
+        });
+        start += 0xFFFF;
+    }
+    chunk_vec.push(Chunk { start, end: chunk.end });
+}
+
 fn get_chunks(old_rom: &[u8], new_rom: &[u8]) -> Vec<Chunk> {
     let mut pos = 0;
     let mut chunk_vec: Vec<Chunk> = Vec::new();
     loop {
         let chunk = get_next_chunk(pos, old_rom, new_rom);
         if chunk.start != chunk.end {
-            chunk_vec.push(chunk);
+            push_split_chunks(&mut chunk_vec, &chunk)
         }
         if chunk.end == new_rom.len() {
             return chunk_vec;
