@@ -3,6 +3,20 @@
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-50---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 50 (2023-03-26)</a>:
+<ul>
+<li>Fixed a couple bugs that previously could occur when using "fast doors".
+    <ul>
+    <li>The Baby Metroid no longer spawns when entering Big Boy Room from the left from Kraid's Room.
+    <li>Corrupted graphics no longer appear when re-entering Kraid's Room after Kraid is defeated.
+    </ul>
+<li>Logic updates:
+    <ul>
+    <li>More crab climb strats in Maridia rooms are added to the logic.
+    <li>More cross-room shinespark strats are added to the logic.
+    </ul>
+</ul>
+
 <p><a href="https://version-49---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 49 (2023-03-24)</a>:
 <ul>
 <li>Fixed an issue that sometimes caused the game to crash in Bomb Torizo Room (a bug introduced in version 48).

@@ -107,29 +107,3 @@ clear_barrier_draw:
     dw $8006, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $0000
 
 warnpc $84F300
-
-;org $82E801
-;    JSR after_level_data_load
-;
-;org $82EAA9
-;    JSR after_level_data_load
-;
-;org $82FA00
-;after_level_data_load:
-;    INC $09C8
-;    LDA #$0000  ; run hi-jacked instruction
-;    RTS
-
-;org $82E725
-;    JSL end_door_transition
-;
-;org $82FA00      ; TODO: add this to rom map
-;end_door_transition:
-;    INC $09C8
-;    jsl $80A149
-;;    jsl $80A176   ; Display the viewable part of the room
-;    JSL $908E0F   ; run hi-jacked instruction
-;    RTL
-
-
-
