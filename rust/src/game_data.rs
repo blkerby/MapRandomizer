@@ -883,6 +883,25 @@ impl GameData {
                     return Ok(Requirement::Never);
                 }
                 return Ok(Requirement::Free);
+            } else if key == "obstaclesNotCleared" {
+                ensure!(value.is_array());
+                if let Some(obstacles_idx_map) = ctx.obstacles_idx_map {
+                    for obstacle_name_json in value.members() {
+                        let obstacle_name = obstacle_name_json.as_str().unwrap();
+                        if let Some(obstacle_idx) = obstacles_idx_map.get(obstacle_name) {
+                            if (1 << obstacle_idx) & ctx.from_obstacles_bitmask != 0 {
+                                return Ok(Requirement::Never);
+                            }
+                        } else {
+                            bail!("Obstacle name {} not found", obstacle_name);
+                        }
+                    }
+                } else {
+                    // No obstacle state in context. This happens with cross-room strats. We're not ready to
+                    // deal with obstacles yet here, so we just keep these out of logic.
+                    return Ok(Requirement::Never);
+                }
+                return Ok(Requirement::Free);
             } else if key == "adjacentRunway" {
                 if ctx.from_obstacles_bitmask != 0 {
                     return Ok(Requirement::Never);
@@ -966,10 +985,11 @@ impl GameData {
                 let path_str = path.to_str().with_context(|| {
                     format!("Unable to convert path to string: {}", path.display())
                 })?;
-                if !path_str.contains("ceres") {
-                    self.process_region(&read_json(&path)?)
-                        .with_context(|| format!("Processing {}", path_str))?;
+                if path_str.contains("ceres") || path_str.contains("roomDiagrams") {
+                    continue;
                 }
+                self.process_region(&read_json(&path)?)
+                    .with_context(|| format!("Processing {}", path_str))?;
             } else {
                 bail!("Error processing region path: {}", entry.err().unwrap());
             }

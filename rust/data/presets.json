@@ -70,7 +70,8 @@
       "canCrossRoomJumpIntoWater",
       "canShinechargeMovement",
       "canMidairShinespark",
-      "canCarefulJump"
+      "canCarefulJump",
+      "canXrayWaitForIFrames"
     ],
     "notable_strats": [
       "Early Supers Mockball",
@@ -110,7 +111,6 @@
       "can3HighMidAirMorph",
       "canTurnaroundAimCancel",
       "canTrickyUseFrozenEnemies",
-      "canCrabClimb",
       "canMetroidAvoid",
       "canSandMochtroidIceClimb",
       "canMaridiaTubeClip",
@@ -142,7 +142,8 @@
       "canXRayStandUp",
       "canPartialFloorClip",
       "canStationarySpinJump",
-      "canKago"
+      "canKago",
+      "canXrayTurnaround"
     ],
     "notable_strats": [
       "Pink Brinstar Power Bombs Crystal Flash Clip",
@@ -172,8 +173,6 @@
       "Fish Tank Entry Fall onto Frozen Fish",
       "Fish Tank Entry Reset Fall Speed",
       "Fish Tank Top Left Flatley Jump",
-      "Mt. Everest Right Bottom Half Crab Climb",
-      "Mt. Everest Right Top Half  Crab Climb",
       "Post Crocomire Farming Room Dboost",
       "PCJR Springwall",
       "PCJR Acid Shinespark",
@@ -237,14 +236,17 @@
       "canStaggeredIBJ",
       "canDiagonalBombJump",
       "canRJump",
-      "canStationaryLateralMidAirMorph"
+      "canStationaryLateralMidAirMorph",
+      "canCrazyCrabClimb"
     ],
     "notable_strats": [
       "Early Supers Crouch Gate Clip Damage Boost",
       "Brinstar Reserve Hole-in-One",
       "Etecoon Spikeway Tunnel Crawl",
-      "Etecoon Spikeway Wiggle",
+      "Etecoon Spikeway Xray Wiggle",
+      "Etecoon Spikeway Aim Cancel Wiggle",
       "Green Hill Zone Tunnel Crawl",
+      "Dachora Room Shinespark No Etanks No HiJump",
       "Warehouse Kihunter Speedball",
       "Mission Impossible",
       "Red Tower IBJ Between the Bottom Rippers",
@@ -282,7 +284,12 @@
       "Waveless Baby Skip",
       "Bowling Reserve Crystal Flash Grapple Clip",
       "West Sand Hole Suitless Wall Jump Break Free",
-      "Crab Shaft Suitless Walljump Climb"
+      "Crab Shaft Suitless Walljump Climb",
+      "Fish Tank Insane Naked Jump Over Pirate (Left to Right)",
+      "Screw Attack Room Descent and Shinespark Escape",
+      "Mt. Everest Right Crab Climb with Only HiJump or Springball",
+      "Gauntlet Entrance Blue SpaceJump",
+      "Crab Hole Suitless Crab Climb No Jump Assist"
     ]
   },
   {
@@ -302,12 +309,12 @@
       "Screw Attack Room Doorway CWJ",
       "Mama Turtle Insane Walljump",
       "Green Pirate Shaft Beetom Xray Climb",
-      "Main Street Ice Only Bottom Crab Climb",
-      "Main Street Ice Only Mid Crab Climb",
-      "Main Street Ice Only Top Crab Climb",
-      "Main Street Top Crab Climb with Supers",
       "Double Chamber Hijumpless Walljump",
-      "West Sand Hall Insane Bomb Jump"
+      "West Sand Hall Insane Bomb Jump",
+      "Main Street Crab Climb with Only Ice",
+      "Main Street Crab Climb with Only Ice and Supers",
+      "Mt. Everest Right Crab Climb with Only 2 Supers",
+      "Mt. Everest Right Crab Climb with Only 1 Super"
     ]
   }
 ]
