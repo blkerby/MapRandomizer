@@ -7,6 +7,8 @@ priority:
 
 
 later:
+- fix panic that is occasionally happening:
+  thread 'actix-rt|system:0|arbiter:0' panicked at 'assertion failed: num_key_items_to_place >= 1', src/randomize.rs:671:9
 - find some way to have forced mode take into account difficulty of defeating bosses (and other flags)
 - consider putting back the save confirmation.
 - fix graphics in door transitions?

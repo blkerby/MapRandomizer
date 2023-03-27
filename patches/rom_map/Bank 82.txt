@@ -1,3 +1,4 @@
 F70F - F800: map_area.asm
 F800 - F880: fast_reload
-F880 - F980: fast_doors
+F880 - F900: fix_water_fx_bug
+F900 - FA00: fast_doors

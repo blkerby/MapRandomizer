@@ -216,7 +216,7 @@ impl<'a> Patcher<'a> {
             "fast_big_boy_cutscene",
             "decompression",
             "tourian_blue_hopper",
-            "alucard",
+            "fix_kraid_vomit",
         ];
         let mut new_game = "new_game";
         if let Some(options) = &self.randomization.difficulty.debug_options {
@@ -1003,7 +1003,7 @@ impl<'a> Patcher<'a> {
         // Remove fake gray door that gets drawn in Phantoon's Room:
         self.rom.write_n(snes2pc(0xA7D4E5), &vec![0xEA; 8])?;
 
-        // ; Fix the door cap X location for the Green Brinstar Main Shaft door to itself left-to-right:
+        // Fix the door cap X location for the Green Brinstar Main Shaft door to itself left-to-right:
         self.rom.write_u8(snes2pc(0x838CF2), 0x11)?;
 
         if self.randomization.difficulty.supers_double {
@@ -1023,7 +1023,7 @@ impl<'a> Patcher<'a> {
 
     fn setup_reload_cre(&mut self) -> Result<()> {
         // Find the rooms connected to Kraid and Crocomire and set them to reload CRE, to prevent graphical glitches.
-        // Not sure if this is necessary for Crocomire, but the vanilla game does this so we do it to be safe.
+        // Not sure if this is necessary for Crocomire. The vanilla game does it but we skip it since it doesn't seem to be a problem.
         let reload_cre_door_pairs: HashSet<DoorPtrPair> = [
             (Some(0x191DA), Some(0x19252)), // Kraid right door
             (Some(0x191CE), Some(0x191B6)), // Kraid left door
