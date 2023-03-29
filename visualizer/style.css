@@ -7,7 +7,7 @@ body {
 #map {
 	position: absolute;
 	width: 1776px;
-	image-rendering: crisp-edges;
+	image-rendering: pixelated;
 	top: 0;
 	left: 0;
 	transform: translate(var(--tx), var(--ty));
@@ -21,7 +21,7 @@ body {
 	margin: 24px;
 	width: 1728px;
 	height: 1728px;
-	image-rendering: crisp-edges;
+	image-rendering: pixelated;
 	z-index: 1;
 }
 #overlay {
@@ -70,7 +70,7 @@ body {
 	width: 16px;
 	height: 16px;
 	background-size: 384px;
-	image-rendering: crisp-edges;
+	image-rendering: pixelated;
 	transition: transform 200ms ease;
 }
 .icon {

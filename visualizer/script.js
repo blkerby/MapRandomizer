@@ -184,14 +184,14 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 			document.body.style.setProperty("--tx", page_x + "px");
 			document.body.style.setProperty("--ty", page_y + "px");
 		} else {
-			let x = ((ev.layerX / 24)|0) - 1;
-			let y = ((ev.layerY / 24)|0) - 1;
+			let x = ((ev.offsetX / 24)|0) - 1;
+			let y = ((ev.offsetY / 24)|0) - 1;
 			if (x >= 0 && x < 72 && y >= 0 && y < 72) {
 				let tile = map[y*72+x];
 				if (tile > 0) {
 					el.innerText = c.all_rooms[tile].room;
-					el.style.left = ev.layerX + 16 + "px";
-					el.style.top = ev.layerY + "px";
+					el.style.left = ev.offsetX + 16 + "px";
+					el.style.top = ev.offsetY + "px";
 					el.classList.remove("hidden");
 					return;
 				}
