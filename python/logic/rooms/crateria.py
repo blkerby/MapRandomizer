@@ -22,6 +22,11 @@ rooms = [
         items=[
             Item(0, 0, 0x78248),
         ],
+        node_tiles={
+            1: [(0, 0), (0, 1)],  # left door
+            2: [(1, 0), (1, 1)],  # right door
+            3: [(0, 0)],  # missile
+        },
     ),
     Room(
         name='Landing Site',
@@ -38,7 +43,21 @@ rooms = [
             DoorIdentifier(LEFT, 0, 4, 0x18916, 0x1896A),  # Parlor and Alcatraz
             DoorIdentifier(RIGHT, 8, 1, 0x1893A, 0x189B2),  # Crateria Power Bomb Room
             DoorIdentifier(RIGHT, 8, 4, 0x18922, 0x18AC6),  # Crateria Tube
-        ]
+        ],
+        node_tiles={
+            1: [(0, 2), (1, 2)],  # top left door
+            2: [(0, 4), (1, 4)],  # bottom left door
+            3: [(2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0), (8, 0),  # top right door
+                (2, 1), (3, 1), (4, 1), (5, 1), (6, 1), (7, 1), (8, 1),
+                (3, 2), (4, 2), (5, 2)],
+            4: [(6, 2), (7, 2), (8, 2),  # bottom right door
+                (6, 3), (7, 3), (8, 3),
+                (6, 4), (7, 4), (8, 4)],
+            5: [(3, 3), (4, 3), (5, 3),  # Ship
+                (3, 4), (4, 4), (5, 4), (6, 4)],
+            6: [(4, 4)],  # Escape Zebes
+            7: [(2, 2), (2, 3)],  # Gauntlet ledge
+        },
     ),
     Room(
         name='Crateria Tube',
@@ -47,7 +66,11 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x18AC6, 0x18922),  # Landing Site
             DoorIdentifier(RIGHT, 0, 0, 0x18AD2, 0x18A2A),  # Crateria Kihunter Room
-        ]
+        ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 0)],
+        },
     ),
     Room(
         name='Parlor and Alcatraz',
@@ -68,6 +91,16 @@ rooms = [
             DoorIdentifier(RIGHT, 1, 3, 0x18976, 0x18BCE),  # Pre-Map Flyway
             DoorIdentifier(DOWN, 1, 4, 0x1898E, 0x18B3E),  # Climb
         ],
+        node_tiles={
+            1: [(0, 0)],  # top left door
+            2: [(1, 2)],  # middle left door
+            3: [(1, 3)],  # bottom left door
+            4: [(4, 0)],  # top right door
+            5: [(3, 1), (3, 2)],  # alcatraz door
+            6: [(1, 3)],  # bottom right door
+            7: [(1, 4)],  # bottom door
+            8: [(1, 0), (2, 0), (3, 0), (4, 0), (1, 1), (1, 2), (1, 3), (1, 4)],  # junction
+        },
     ),
     Room(
         name='Climb',
@@ -90,6 +123,14 @@ rooms = [
             DoorIdentifier(RIGHT, 1, 8, 0x18B62, 0x18B7A),  # Pit Room
             DoorIdentifier(UP, 1, 0, 0x18B3E, 0x1898E),  # Parlor and Alcatraz
         ],
+        node_tiles={
+            1: [(1, 0)],  # top door
+            2: [(0, 8)],  # bottom left door
+            3: [(2, 0)],  # top right door
+            4: [(2, 7)],  # middle right door
+            5: [(1, 8)],  # bottom right door
+            6: [(1, 0), (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8)],  # main junction
+        },
     ),
     Room(
         name='Pit Room',
@@ -105,6 +146,11 @@ rooms = [
         items=[
             Item(0, 1, 0x783EE),
         ],
+        node_tiles={
+            1: [(0, 0)],  # left door
+            2: [(1, 0), (2, 0), (3, 0)],  # right door
+            3: [(0, 1)],  # missile
+        },
     ),
     Room(
         name='Flyway',
@@ -113,7 +159,11 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x18BB6, 0x18982),  # Parlor and Alcatraz
             DoorIdentifier(RIGHT, 2, 0, 0x18BC2, 0x18BAA),  # Bomb Torizo Room
-        ]
+        ],
+        node_tiles={
+            1: [(0, 0), (1, 0)],  # left door
+            2: [(2, 0)],  # right door
+        },
     ),
     Room(
         name='Pre-Map Flyway',
@@ -122,7 +172,11 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x18BCE, 0x18976),  # Parlor and Alcatraz
             DoorIdentifier(RIGHT, 2, 0, 0x18BDA, 0x18C2E),  # Crateria Map Room
-        ]
+        ],
+        node_tiles={
+            1: [(0, 0), (1, 0)],  # left door
+            2: [(2, 0)],  # right door
+        },
     ),
     Room(
         name='Crateria Map Room',
@@ -130,7 +184,11 @@ rooms = [
         map=[[1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x18C2E, 0x18BDA),  # Pre-Map Flyway
-        ]
+        ],
+        node_tiles={
+            1: [(0, 0)],  # door
+            2: [(0, 0)],  # map station
+        },
     ),
     Room(
         name='Crateria Save Room',
@@ -139,6 +197,10 @@ rooms = [
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x189BE, 0x1899A),  # Parlor and Alcatraz
         ]
+        node_tiles={
+            1: [(0, 0)],  # door
+            2: [(0, 0)],  # save station
+        },
     ),
     Room(
         name='The Final Missile',
@@ -150,6 +212,10 @@ rooms = [
         items=[
             Item(0, 0, 0x78486),
         ],
+        node_tiles={
+            1: [(0, 0)],  # door
+            2: [(0, 0)],  # missile
+        },
     ),
     Room(
         name='Final Missile Bombway',
@@ -158,7 +224,11 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x18C82, 0x18C9A),  # The Final Missile
             DoorIdentifier(RIGHT, 1, 0, 0x18C8E, 0x189A6),  # Parlor and Alcatraz
-        ]
+        ],
+        node_tiles={
+            1: [(0, 0)],  # left door
+            2: [(1, 0)],  # right door
+        },
     ),
     Room(
         name='Bomb Torizo Room',
@@ -170,6 +240,12 @@ rooms = [
         items=[
             Item(0, 0, 0x78404),
         ],
+        node_tiles={
+            1: [(0, 0)],  # door
+            2: [(0, 0)],  # bombs
+            3: [(0, 0)],  # boss
+            4: [(0, 0)],  # animals
+        },
     ),
     Room(
         name='Terminator Room',

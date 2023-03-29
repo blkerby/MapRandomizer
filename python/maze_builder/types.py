@@ -63,6 +63,7 @@ class Room:
     durable_part_connections: Optional[List[Tuple[int, int]]] = ()
     missing_part_connections: Optional[List[Tuple[int, int]]] = ()
     items: Optional[List[Item]] = None
+    node_tiles: Optional[List[Item]] = None
 
     def populate(self):
         self.height = len(self.map)

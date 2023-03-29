@@ -26,7 +26,7 @@ use rand::{RngCore, SeedableRng};
 use sailfish::TemplateOnce;
 use serde_derive::{Deserialize, Serialize};
 
-const VERSION: usize = 50;
+const VERSION: usize = 51;
 
 #[derive(Serialize, Deserialize, Clone)]
 struct Preset {
@@ -835,7 +835,6 @@ fn init_presets(presets: Vec<Preset>, game_data: &GameData, ignored_notable_stra
         "canWallIceClip",
         "canGrappleClip",
         "canShinesparkWithReserve",
-        "canSamusEaterStandUp",
         "canRiskPermanentLossOfAccess",
         "canSpeedZebetitesSkip",
         "canRemorphZebetiteSkip",
