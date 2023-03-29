@@ -1,6 +1,12 @@
 <html>
 <head>
 <link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico">
+<style> 
+input[type=submit] {
+padding: 12px 12px;
+box-sizing: border-box;
+}
+</style>
 </head>
 <body>
 
