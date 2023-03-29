@@ -55,7 +55,7 @@ const offsets = {
 	"Grapple Beam": [0,2],
 	"Super Missile (Golden Torizo)": [1,0],
 	"Missile (Golden Torizo)": [0,0],
-	"Right Super, Wrecked Ship": [3,0],
+	"Right Super, Wrecked Ship (unlocked)": [3,0],
 	"Energy Tank, Botwoon": [3,0],
 	"Energy Tank, Terminator": [0,2],
 	"Missile (Grapple Beam)": [4,0],
