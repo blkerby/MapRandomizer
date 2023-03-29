@@ -15,25 +15,88 @@
 </div>
 
 <% if !race_mode { %>
-    <div class="card">
-        <div class="card-header">Spoiler Info</div>
-        <div class="card-body container">
-            <ul>
-            <li><a href="data/visualizer/index.html">Interactive spoiler map</a>
-                <ul>
-                <li>Select a step in the top-left corner to focus on rooms with items reachable by that step.
-                <li>Select an item on the map to show a path to reach it (white) and return to the Ship (yellow).
-                <li>Click on the Mother Brain Room to show the intended escape route. 
-                <li>Double-click a room to pull up the Wiki page for that room.
-                <li>You can also modify the items to create a plando.
-                </ul>
-            <li>Additional spoiler data (machine-readable)<a href="#footnote-spoiler"><sup>2</sup></a>
-            </ul>
+    <div class="row">
+        <div class="col-sm-6 mx-auto text-center m-2">
+            <a class="btn btn-success" href="data/visualizer/index.html"><p class="m-2">View interactive spoiler map</p></a>
         </div>
     </div>
 <% } %>
 
-<% include!("things_to_know.stpl"); %>
+<div class="card my-2">
+    <div class="card-header">Things to know</div>
+    <div class="card-body">
+        <h6>Special inputs</h6>
+        <ul>
+        <li>Press L + R + Select + Start simultaneously to quick reload from the last save.
+        <li>Press Angle Up + Item Cancel simultaneously to mark the current tile un-explored on the map.  
+        To be effective, these inputs must be
+        held while exiting the tile, since otherwise the game will immediately re-explore the tile.
+        </ul>
+        <h6>Map info</h6>
+        <ul>
+        <li>Every Zebes room from the vanilla game is placed somewhere. Once all movement items are
+        collected, it is possible to reach every room without any tech.
+        <li>Phantoon's Room always connects to the same room as the broken map station, and both are 
+            in the same area as the broken save room.
+        <li>The map uses special tiles to show the locations of map stations, refills, 
+        and major bosses (G4 and Mother Brain). Items are consistently marked using dots.
+        </ul>
+        
+        <h6>Item info</h6>
+        <ul>
+        <% if all_items_spawn { %>
+        <li>The planet is awakened by killing the enemies (not including bosses or minibosses) 
+        in a room where this unlocks a gray door.<a href="#footnote-pit-room"><sup>1</sup></a>
+        <% } else { %>
+        <li>Certain items do not spawn until the planet is awakened, by killing the enemies (not including bosses or minibosses) 
+        in a room where this unlocks a gray door.<a href="#footnote-pit-room"><sup>1</sup></a>
+        <li>Certain items do not spawn until Phantoon has been defeated, the same as in the vanilla game.
+        <% } %>
+        <li>Every item from the vanilla game is placed somewhere, and ammo distributions are unchanged; e.g. there are 50 Supers in the game.
+        <li>Gravity and Varia suits behave like in the vanilla game, except that Gravity alone provides
+        no heat protection and only 50% protection against other damage.
+        </ul>
+
+        <h6>Other info</h6>
+        <ul>
+        <li>Missile Refill stations refill all ammo types: Missiles, Supers, and Power Bombs.
+        <li>Hyper Beam destroys Super, Bomb, and Power Bomb blocks and can open blue & green gates from either side.
+        </ul>
+        <p>
+    </div>
+</div>
+
+<div class="row my-2">
+    <div class="col-sm-12">
+        <div class="card">
+            <div class="card-header">Known issues</div>
+            <div class="card-body">
+                <ul>
+                <li>Even if the tech is not selected, wall jumps and crouch-jump/down-grabs may be required in some places.
+                <li>Some sound effects are glitched (due to changing the music).
+                <li>Door transitions generally have some minor graphical glitches.
+                <li>The end credits are vanilla.
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <a id="footnote-pit-room">
+    <small>
+    <sup>1</sup>This can be done in the following rooms: Pit Room (old Mother Brain room), Baby Kraid Room, Metal Pirates Room,
+    and Plasma Room. These are the rooms that involve killing Space Pirates to unlock the doors in the vanilla game.
+    Note that in the Pit Room, the 
+    <% if all_items_spawn { %>
+    enemies and gray doors
+    <% } else { %>
+    enemies, gray doors, and item 
+    <% } %>
+    only spawn after Morph and Missiles are collected (regardless of whether Zebes is awake).
+    </small>
+</div>
+
 
 <div>
     <a id="footnote-spoiler">

@@ -8,7 +8,7 @@ priority:
 
 
 later:
-
+- add patch to be able to bind other buttons to angle up/down
 - spoiler visualizer improvements:
   - refinements
     - show room if some node in room is bireachable (not only on the way to items)
