@@ -1,5 +1,6 @@
 priority:
 - add pages for tech, strats, rooms.
+- logic simulator
 - credits
 - proper front page
 - music options: vanilla, area-themed, or none
@@ -7,10 +8,37 @@ priority:
 
 
 later:
+
+- spoiler visualizer improvements:
+  - refinements
+    - show room if some node in room is bireachable (not only on the way to items)
+    - show faded room if no node in the room is bireachable but some node is one-way-reachable?
+    - show faded item if some node in the room is reachable but the item itself is not (or is only one-way reachable)
+    - show instructions/tips when first opening
+      - then we can replace "Spoiler Info" section on seed page with just a single big button
+    - make the fog more crisp
+    - make it so you can click on an item in the step panel and it will show the route to the item
+    - show the route info in a separate panel below the step panel
+  - bugs to fix:
+    - mouse-over item info sometimes gets covered up by fog
+    - mouse-over room info doesn't work after panning (have to reload)
+  - eventually integrate with logic pages once those are implemented:
+    - double-clicking on room can go to our room page (instead of to wiki)
+    - clicking on a strat (in route info) goes to strat page
+  - other possible improvements:
+    - mouse-over a room shows an image of the room
+      - or, there's a toggle to switch from map view to image view.
+    - add controls to properly zoom
+    - once available, use junction bounding boxes to plot the paths more accurately, and avoid having lines going outside of the room's tiles
+    - show flags in the steps too (e.g. bosses) and be able to click on them too to show the route
+      - come up with new icons for these: G4 bosses, minibosses, golden torizo, shaktool, maridia tube, acid chozo statue, mother brain
+      - (mother brain needs to be added to the logic as a flag)
 - separate animation for screw attack without space jump (like in SMZ3?)
 - fix panic that is occasionally happening:
   thread 'actix-rt|system:0|arbiter:0' panicked at 'assertion failed: num_key_items_to_place >= 1', src/randomize.rs:671:9
 - find some way to have forced mode take into account difficulty of defeating bosses (and other flags)
+  - for each flag, identify its tier using just the flag edge (not redoing a full graph traversal)
+  - then for the item placement, have the graph traversal treat that flag not as free but as whatever difficulty it was.
 - consider putting back the save confirmation.
 - fix graphics in door transitions?
 - fix (sometimes?) glitched right door in GT. X-Ray showed a plasma beam inside it
