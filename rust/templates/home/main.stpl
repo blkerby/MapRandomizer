@@ -75,12 +75,12 @@
                 <div class="col-sm-5 btn-group" role="group">
                     <input type="radio" class="btn-check" name="item_progression_preset" value="Quick"
                         id="itemProgressionPresetQuick" autocomplete="off" 
-                        onclick="itemProgressionPresetChanged()" checked>
+                        onclick="itemProgressionPresetChanged()">
                     <label class="btn btn-outline-primary" for="itemProgressionPresetQuick">Quick</label>
 
                     <input type="radio" class="btn-check" name="item_progression_preset" value="Standard"
                         id="itemProgressionPresetStandard" autocomplete="off" 
-                        onclick="itemProgressionPresetChanged()">
+                        onclick="itemProgressionPresetChanged()" checked>
                     <label class="btn btn-outline-primary" for="itemProgressionPresetStandard">Standard</label>
 
                     <input type="radio" class="btn-check" name="item_progression_preset" value="Challenge"
