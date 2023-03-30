@@ -20,6 +20,12 @@ rooms = [
             DoorIdentifier(RIGHT, 2, 0, 0x1923A, 0x1913E),  # Warehouse Zeela Room
             DoorIdentifier(DOWN, 0, 1, 0x19246, 0x192EE, ELEVATOR),  # Business Center
         ],
+        node_tiles={
+            1: [(0, 0)],  # left door
+            2: [(0, 0), (0, 1)],  # elevator
+            3: [(2, 0)],  # right door
+            4: [(1, 0), (1, 1)],  # junction
+        },
     ),
     Room(
         name='Warehouse Zeela Room',
@@ -33,6 +39,11 @@ rooms = [
             DoorIdentifier(LEFT, 0, 1, 0x1914A, 0x19162),  # Warehouse Energy Tank Room
             DoorIdentifier(UP, 1, 1, 0x19156, 0x1916E),  # Warehouse Kihunter Room
         ],
+        node_tiles={
+            1: [(0, 0)],  # top left door
+            2: [(0, 1)],  # bottom left door
+            3: [(1, 0)],  # bottom right door (up to kihunters)
+        },
     ),
     Room(
         name='Warehouse Energy Tank Room',
@@ -44,6 +55,10 @@ rooms = [
         items=[
             Item(0, 0, 0x7899C),
         ],
+        node_tiles={
+            1: [(0, 0)],  # door
+            2: [(0, 0)],  # etank
+        },
     ),
     Room(
         name='Warehouse Kihunter Room',
@@ -60,6 +75,12 @@ rooms = [
         items=[
             Item(2, 0, 0x789EC),
         ],
+        node_tiles={
+            1: [(0, 0), (1, 0), (2, 0)],  # left door (down to zeelas)
+            2: [(1, 1)],  # bottom right door
+            3: [(3, 0)],  # top right door
+            4: [(2, 0)],  # missile
+        },
     ),
     Room(
         # TODO: add this to wiki.supermetroid.run/List_of_rooms because it is missing.
@@ -69,6 +90,10 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1925E, 0x19186),  # Warehouse Kihunter Room
         ],
+        node_tiles={
+            1: [(0, 0)],  # door
+            2: [(0, 0)],  # save station
+        },
     ),
     Room(
         name='Baby Kraid Room',
@@ -78,6 +103,10 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x19192, 0x1917A),  # Warehouse Kihunter Room
             DoorIdentifier(RIGHT, 5, 0, 0x1919E, 0x191AA),  # Kraid Eye Door Room
         ],
+        node_tiles={
+            1: [(0, 0), (1, 0), (2, 0)],  # left door
+            2: [(3, 0), (4, 0), (5, 0)],  # right door
+        },
     ),
     Room(
         name='Kraid Eye Door Room',
@@ -91,6 +120,11 @@ rooms = [
             DoorIdentifier(RIGHT, 0, 0, 0x191C2, 0x1920A),  # Kraid Recharge Station
             DoorIdentifier(RIGHT, 1, 1, 0x191B6, 0x191CE),  # Kraid Room
         ],
+        node_tiles={
+            1: [(0, 1)],  # left door
+            2: [(0, 0)],  # top right door
+            3: [(1, 1)],  # bottom right door
+        },
     ),
     Room(
         # TODO: add this to wiki.supermetroid.run/List_of_rooms because it is missing.
@@ -100,6 +134,11 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1920A, 0x191C2),  # Kraid Eye Door Room
         ],
+        node_tiles={
+            1: [(0, 0)],  # door
+            2: [(0, 0)],  # energy refill
+            3: [(0, 0)],  # missile refill
+        },
     ),
     Room(
         name='Kraid Room',
@@ -115,6 +154,11 @@ rooms = [
         parts=[[0], [1]],
         durable_part_connections=[(0, 1)],  # Defeating Kraid (we want to avoid entering from the right when Kraid is still alive)
         missing_part_connections=[(1, 0)],
+        node_tiles={
+            1: [(0, 1)],  # left door
+            2: [(1, 1)],  # right door
+            3: [(0, 0), (1, 0), (0, 1), (1, 1)],  # boss
+        },
     ),
     Room(
         name='Varia Suit Room',
@@ -126,6 +170,10 @@ rooms = [
         items=[
             Item(0, 0, 0x78ACA),
         ],
+        node_tiles={
+            1: [(0, 0)],  # door
+            2: [(0, 0)],  # varia
+        },
     ),
 ]
 
