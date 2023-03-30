@@ -25,6 +25,11 @@ rooms = [
             DoorIdentifier(LEFT, 0, 6, 0x18DBA, 0x18F6A),  # Dachora Energy Refill Room
             DoorIdentifier(RIGHT, 6, 0, 0x18DAE, 0x18DD2),  # Big Pink
         ],
+        node_tiles={
+            1: [(0, 0), (1, 0), (2, 0), (3, 0)],  # left door
+            2: [(0, 6), (1, 6), (2, 6), (3, 6), (4, 6), (4, 5), (4, 4), (4, 3), (4, 2), (4, 1)],  # bottom left door
+            3: [(4, 0), (5, 0), (6, 0)],  # top right door
+        },
     ),
     Room(
         # TODO: add this to wiki.supermetroid.run/List_of_rooms because it is missing.
@@ -34,6 +39,10 @@ rooms = [
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x18F6A, 0x18DBA),  # Dachora Room
         ],
+        node_tiles={
+            1: [(0, 0)],  # door
+            2: [(0, 0)],  # refill station
+        },
     ),
     Room(
         name='Big Pink',
@@ -70,6 +79,23 @@ rooms = [
             Item(2, 6, 0x7860E),
             Item(2, 7, 0x78614),
         ],
+        node_tiles={
+            1: [(1, 0)],  # top left door
+            2: [(4, 0)],  # top right door
+            3: [(2, 2)],  # mid-top left door
+            4: [(2, 3)],  # middle left door (to top of Mission Impossible)
+            5: [(2, 4)],  # mid-bottom left door (to bottom of Mission Impossible)
+            6: [(3, 4)],  # mid-top right door
+            7: [(4, 5)],  # mid-bottom right door (behind Super block)
+            8: [(3, 6)],  # bottom right door
+            9: [(0, 9), (0, 8), (0, 7), (1, 7)],  # bottom left door
+            10: [(2, 3)],  # top missile
+            11: [(2, 6)],  # bottom missile
+            12: [(2, 7)],  # charge beam
+            13: [(2, 0), (3, 0), (2, 1), (3, 1), (2, 2), (3, 2),  # main junction
+                 (2, 3), (3, 3), (2, 4), (3, 4), (2, 5), (3, 5), (2, 6)],
+            14: [(2, 4)],  # junction above crumbles
+        },
     ),
     Room(
         # TODO: add this to wiki.supermetroid.run/List_of_rooms because it is missing.
@@ -79,6 +105,10 @@ rooms = [
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x18FD6, 0x18DF6)  # Big Pink
         ],
+        node_tiles={
+            1: [(0, 0)],  # door
+            2: [(0, 0)],  # save
+        },
     ),
     Room(
         name='Pink Brinstar Power Bomb Room',
@@ -97,6 +127,12 @@ rooms = [
         items=[
             Item(0, 1, 0x7865C),
         ],
+        node_tiles={
+            1: [(1, 0)],  # top right door
+            2: [(1, 1)],  # bottom right door
+            3: [(0, 1)],  # power bomb
+            4: [(0, 0)],  # junction
+        },
     ),
     Room(
         name='Pink Brinstar Hopper Room',
@@ -109,6 +145,10 @@ rooms = [
             DoorIdentifier(LEFT, 0, 1, 0x18FB2, 0x18E1A),  # Big Pink
             DoorIdentifier(RIGHT, 1, 1, 0x18FBE, 0x18FCA),  # Hopper Energy Tank Room
         ],
+        node_tiles={
+            1: [(0, 0), (0, 1)],  # left door
+            2: [(1, 0), (1, 1)],  # right door
+        },
     ),
     Room(
         name='Hopper Energy Tank Room',
@@ -120,6 +160,10 @@ rooms = [
         items=[
             Item(0, 0, 0x78824),
         ],
+        node_tiles={
+            1: [(0, 0)],  # door
+            2: [(0, 0)],  # etank
+        },
     ),
     Room(
         name='Spore Spawn Super Room',
@@ -145,6 +189,11 @@ rooms = [
         items=[
             Item(1, 8, 0x784E4),
         ],
+        node_tiles={
+            1: [(0, 0), (1, 0)],  # top left door
+            2: [(0, 8)],  # bottom left door
+            3: [(1, 8), (1, 7), (1, 6), (1, 5), (1, 4), (1, 3), (1, 2), (1, 1)],  # super
+        },
     ),
     Room(
         name='Spore Spawn Farming Room',
@@ -154,6 +203,10 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x18F82, 0x18E26),  # Big Pink
             DoorIdentifier(RIGHT, 2, 0, 0x18F76, 0x18D1E),  # Spore Spawn Super Room
         ],
+        node_tiles={
+            1: [(0, 0), (1, 0)],  # left door
+            2: [(2, 0)],  # right door
+        },
     ),
     Room(
         name='Waterway Energy Tank Room',
@@ -165,6 +218,10 @@ rooms = [
         items=[
             Item(0, 0, 0x787FA),
         ],
+        node_tiles={
+            1: [(1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0)],  # door
+            2: [(0, 0)],  # item
+        },
     ),
 ]
 

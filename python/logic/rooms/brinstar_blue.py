@@ -25,6 +25,14 @@ rooms = [
             Item(4, 2, 0x786DE),
             Item(2, 2, 0x7874C),
         ],
+        node_tiles={
+            1: [(0, 2), (1, 2)],  # left door
+            2: [(5, 2), (5, 1), (5, 0)],  # elevator
+            3: [(6, 2), (7, 2)],  # right door
+            4: [(4, 2)],  # morph ball
+            5: [(2, 2), (3, 2)],  # power bomb
+            6: [(2, 2)],  # junction right of sidehoppers
+        },
     ),
     Room(
         name='Construction Zone',
@@ -38,6 +46,11 @@ rooms = [
             DoorIdentifier(LEFT, 0, 1, 0x18EDA, 0x18FA6),  # First Missile Room
             DoorIdentifier(RIGHT, 0, 0, 0x18ECE, 0x18EE6),  # Blue Brinstar Energy Tank Room
         ],
+        node_tiles={
+            1: [(0, 0)],  # left door
+            2: [(0, 0)],  # right door
+            3: [(0, 1)],  # bottom left door
+        },
     ),
     Room(
         name='First Missile Room',
@@ -49,6 +62,10 @@ rooms = [
         items=[
             Item(0, 0, 0x78802),
         ],
+        node_tiles={
+            1: [(0, 0)],  # door
+            2: [(0, 0)],  # item
+        },
     ),
     Room(
         name='Blue Brinstar Energy Tank Room',
@@ -66,6 +83,12 @@ rooms = [
             Item(1, 2, 0x7879E),
             Item(2, 2, 0x78798),
         ],
+        node_tiles={
+            1: [(0, 2), (1, 2)],  # bottom left door
+            2: [(2, 0)],  # top left door
+            3: [(1, 2)],  # etank
+            4: [(2, 2), (2, 1)],  # missile
+        },
     ),
     Room(
         name='Blue Brinstar Boulder Room',
@@ -75,6 +98,10 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x18FEE, 0x18FFA),  # Billy Mays Room
             DoorIdentifier(RIGHT, 1, 0, 0x18FE2, 0x18EF2),  # Blue Brinstar Energy Tank Room
         ],
+        node_tiles={
+            1: [(0, 0)],  # left door
+            2: [(1, 0)],  # right door
+        },
     ),
     Room(
         name='Billy Mays Room',
@@ -87,6 +114,11 @@ rooms = [
             Item(0, 0, 0x78836),
             Item(0, 0, 0x7883C),
         ],
+        node_tiles={
+            1: [(0, 0)],  # door
+            2: [(0, 0)],  # center missile
+            3: [(0, 0)],  # left missile
+        },
     ),
 ]
 
