@@ -1662,6 +1662,9 @@ impl GameData {
                             let mut notable_strat_note: Vec<String> = strat_notes.clone();
                             if strat_json.has_key("reusableRoomwideNotable") {
                                 notable_strat_name = strat_json["reusableRoomwideNotable"].as_str().unwrap().to_string();
+                                if !roomwide_notable.contains_key(&notable_strat_name) {
+                                    bail!("Unrecognized reusable notable strat name: {}", notable_strat_name);
+                                }
                                 notable_strat_note = self.parse_note(&roomwide_notable[&notable_strat_name]["note"]);
                             }
                             let strat_id = self.notable_strat_isv.add(&notable_strat_name);

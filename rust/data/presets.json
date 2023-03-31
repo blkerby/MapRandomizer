@@ -86,7 +86,7 @@
       "Bubble Mountain Damage Boost",
       "Crumble Shaft Top Item Precise Walljump",
       "Crumble Shaft Top Item Frozen Sova",
-      "Croc Speedway Bottom Reverse Spark",
+      "Croc Speedway Reverse Spark",
       "Golden Torizo Safe Spot",
       "Amphitheatre Reverse Acid Dive",
       "Big Pink Off Screen Super Block"
@@ -164,11 +164,11 @@
       "Pants Room Shinespark",
       "Draygon Grapple Quick Kill",
       "Draygon Shinespark Kill",
-      "Pants Room Sand HiJump",
-      "Pants Room Sand MidAir SpringBall",
-      "Suitless Pants Room SpringBall Climb",
-      "Suitless Pants Room Flatley Turnaround Climb",
-      "Halfie Climb Enter with Shinespark from the Right",
+      "Pants Room Sand HiJump with Gravity",
+      "Pants Room Sand MidAir SpringBall with Gravity",
+      "Pants Room Suitless Sand MidAir SpringBall with HiJump",
+      "Pants Room Suitless Flatley Turnaround Climb",
+      "Halfie Climb Enter with Shinespark from the Bottom Right",
       "Plasma Spark Fish Climb",
       "Maridia Tube Standing Clip",
       "Fish Tank Entry Fall onto Frozen Fish",
@@ -191,12 +191,14 @@
       "Golden Torizo Supers Double Shinespark",
       "Landing Site Blue Space Jump (Bottom)",
       "Pants Room Gravity Jump",
-      "Pants Room Gravity Walljump",
       "East Ocean Suitless Damage Boost Water Escape",
       "East Ocean Suitless Damage Boost Underwater Pillar",
       "PCJR Indiana Jones Grapple",
       "Frog Speedway Shot Block Overload (Speedless Speedway)",
-      "WS East Supers Crystal Flash Clip (Right to Left)"
+      "WS East Supers Crystal Flash Clip (Right to Left)",
+      "Butterfly Room Careful Jump",
+      "Double Chamber Shinespark to Wave Beam Door",
+      "Oasis Cross Room Jump with Screw Attack"
     ]
   },
   {
@@ -263,8 +265,7 @@
       "LN Spring Ball Maze Hotarubi Special",
       "Reverse Acid Statue CF Grapple Clip",
       "East Sand Hall Springball Jump",
-      "Pants Room IBJ",
-      "Suitless East Pants Room CF Clip",
+      "East Pants Room Suitless Crystal Flash Clip",
       "Botwoon Hallway Suitless Crystal Flash Clip",
       "East Cac Alley Cross Room Jump with IBJ",
       "East Cac Alley Cross Room Jump with Spring Ball, Bomb Boost",
@@ -285,12 +286,13 @@
       "Waveless Baby Skip",
       "Bowling Reserve Crystal Flash Grapple Clip",
       "West Sand Hole Suitless Wall Jump Break Free",
-      "Crab Shaft Suitless Walljump Climb",
+      "Crab Shaft Suitless Walljump Climb with HiJump",
       "Fish Tank Insane Naked Jump Over Pirate (Left to Right)",
       "Screw Attack Room Descent and Shinespark Escape",
       "Mt. Everest Right Crab Climb with Only HiJump or Springball",
       "Gauntlet Entrance Blue SpaceJump",
-      "Crab Hole Suitless Crab Climb No Jump Assist"
+      "Crab Hole Suitless Crab Climb No Jump Assist",
+      "Oasis Cross Room Jump with Screw Attack and Speed through the Top Door"
     ]
   },
   {
@@ -306,11 +308,11 @@
       "canBePatient"
     ],
     "notable_strats": [
-      "Taco Tank",
+      "Taco Tank in Blue Brinstar Energy Tank Room",
       "Screw Attack Room Doorway CWJ",
       "Mama Turtle Insane Walljump",
       "Green Pirate Shaft Beetom Xray Climb",
-      "Double Chamber Hijumpless Walljump",
+      "Double Chamber HiJumpless Wall Jump",
       "West Sand Hall Insane Bomb Jump",
       "Main Street Crab Climb with Only Ice",
       "Main Street Crab Climb with Only Ice and Supers",
