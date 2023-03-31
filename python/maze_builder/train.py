@@ -42,7 +42,7 @@ device = devices[0]
 executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
 # num_envs = 1
-num_envs = 2 ** 12
+num_envs = 2 ** 11
 # rooms = logic.rooms.crateria_isolated.rooms
 rooms = logic.rooms.norfair_isolated.rooms
 # rooms = logic.rooms.all_rooms.rooms
@@ -65,7 +65,8 @@ envs = [MazeBuilderEnv(rooms,
                        map_y=map_y,
                        num_envs=num_envs,
                        device=device,
-                       must_areas_be_connected=False)
+                       must_areas_be_connected=False,
+                       starting_room_name="Business Center")
         for device in devices]
 
 max_possible_reward = envs[0].max_reward
@@ -353,7 +354,7 @@ batch_size = 2 ** 11
 lr0 = 0.002
 lr1 = 0.0002
 num_candidates0 = 4
-num_candidates1 = 4
+num_candidates1 = 16
 # num_candidates0 = 40
 # num_candidates1 = 40
 explore_eps_factor = 0.0
@@ -365,8 +366,9 @@ temperature_max0 = 1000.0
 temperature_max1 = 10.0
 annealing_start = 0
 annealing_time = 128
-pass_factor = 0.5
-print_freq = 4
+pass_factor0 = 0.0
+pass_factor1 = 2.0
+print_freq = 8
 total_reward = 0
 total_loss = 0.0
 total_loss_cnt = 0
@@ -375,8 +377,8 @@ total_prob = 0.0
 total_prob0 = 0.0
 total_round_cnt = 0
 total_min_door_frac = 0
-save_freq = 128
-summary_freq = 128
+save_freq = 256
+summary_freq = 256
 session.decay_amount = 0.01
 session.optimizer.param_groups[0]['betas'] = (0.9, 0.9)
 session.optimizer.param_groups[0]['eps'] = 1e-5
@@ -447,8 +449,8 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 logging.info("Checkpoint path: {}".format(pickle_name))
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
 logging.info(
-    "map_x={}, map_y={}, num_envs={}, batch_size={}, pass_factor={}, lr0={}, lr1={}, num_candidates0={}, num_candidates1={}, replay_size={}/{}, hist_frac={}, hist_c={}, num_params={}, decay_amount={}, temperature_min0={}, temperature_min1={}, temperature_max0={}, temperature_max1={}, ema_beta0={}, ema_beta1={}, explore_eps_factor={}".format(
-        map_x, map_y, session.envs[0].num_envs, batch_size, pass_factor, lr0, lr1, num_candidates0, num_candidates1, session.replay_buffer.size,
+    "map_x={}, map_y={}, num_envs={}, batch_size={}, pass_factor0={}, pass_factor1={}, lr0={}, lr1={}, num_candidates0={}, num_candidates1={}, replay_size={}/{}, hist_frac={}, hist_c={}, num_params={}, decay_amount={}, temperature_min0={}, temperature_min1={}, temperature_max0={}, temperature_max1={}, ema_beta0={}, ema_beta1={}, explore_eps_factor={}".format(
+        map_x, map_y, session.envs[0].num_envs, batch_size, pass_factor0, pass_factor1, lr0, lr1, num_candidates0, num_candidates1, session.replay_buffer.size,
         session.replay_buffer.capacity, hist_frac, hist_c, num_params, session.decay_amount,
         temperature_min0, temperature_min1, temperature_max0, temperature_max1, ema_beta0, ema_beta1, explore_eps_factor))
 logging.info("Starting training")
@@ -461,6 +463,8 @@ for i in range(1000000):
 
     ema_beta = ema_beta0 * (ema_beta1 / ema_beta0) ** frac
     session.average_parameters.beta = ema_beta
+
+    pass_factor = pass_factor0 + (pass_factor1 - pass_factor0) * frac
 
     temperature_min = temperature_min0 * (temperature_min1 / temperature_min0) ** frac
     temperature_max = temperature_max0 * (temperature_max1 / temperature_max0) ** frac

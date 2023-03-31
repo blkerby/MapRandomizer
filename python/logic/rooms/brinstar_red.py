@@ -53,7 +53,7 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x1905A, 0x19072),  # X-Ray Scope Room
             DoorIdentifier(RIGHT, 7, 0, 0x19066, 0x19036),  # Red Tower
         ],
-        node_ids={
+        node_tiles={
             1: [(0, 0), (0, 1), (1, 0), (1, 1), (2, 0)],  # left door
             2: [(3, 0), (4, 0), (4, 1), (5, 0), (5, 1), (6, 0), (7, 0)],  # right door
         },
@@ -68,7 +68,7 @@ rooms = [
         items=[
             Item(0, 0, 0x78876),
         ],
-        node_ids={
+        node_tiles={
             1: [(1, 0)],  # door
             2: [(0, 0)],  # xray
         },
@@ -81,7 +81,7 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x190F6, 0x19042),  # Red Tower
             DoorIdentifier(RIGHT, 1, 0, 0x19102, 0x1910E),  # Below Spazer
         ],
-        node_ids={
+        node_tiles={
             1: [(0, 0)],  # left door
             2: [(1, 0)],  # right door
         },
@@ -98,7 +98,7 @@ rooms = [
             DoorIdentifier(RIGHT, 1, 0, 0x19126, 0x19132),  # Spazer Room
             DoorIdentifier(RIGHT, 1, 1, 0x1911A, 0x1A36C),  # West Tunnel
         ],
-        node_ids={
+        node_tiles={
             1: [(0, 0), (0, 1)],  # left door
             2: [(1, 1)],  # bottom right door
             3: [(1, 0)],  # top right door
@@ -114,7 +114,7 @@ rooms = [
         items=[
             Item(0, 0, 0x7896E),
         ],
-        node_ids={
+        node_tiles={
             1: [(0, 0)],  # door
             2: [(0, 0)],  # spazer
         },
@@ -127,7 +127,7 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x1907E, 0x1901E),  # Red Tower
             DoorIdentifier(RIGHT, 2, 0, 0x1908A, 0x190AE),  # Caterpillar Room
         ],
-        node_ids={
+        node_tiles={
             1: [(0, 0), (1, 0)],  # left door
             2: [(2, 0)],  # right door
         },
@@ -196,9 +196,9 @@ rooms = [
             Item(0, 1, 0x788CA),
         ],
         node_tiles={
-            [(1, 0)],  # right door
-            [(0, 1)],  # power bomb
-            [(0, 0)],  # junction
+            1: [(1, 0)],  # right door
+            2: [(0, 1)],  # power bomb
+            3: [(0, 0)],  # junction
         },
     ),
     Room(

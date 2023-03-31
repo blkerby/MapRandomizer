@@ -40,11 +40,13 @@ class DoorData:
 
 
 class MazeBuilderEnv:
-    def __init__(self, rooms: List[Room], map_x: int, map_y: int, num_envs: int, must_areas_be_connected: bool, device):
+    def __init__(self, rooms: List[Room], map_x: int, map_y: int, num_envs: int, must_areas_be_connected: bool, starting_room_name: str, device):
         self.device = device
         rooms = rooms + [Room(name='Dummy room', map=[[]], door_ids=[], sub_area=SubArea.CRATERIA_AND_BLUE_BRINSTAR)]
         for room in rooms:
             room.populate()
+        room_names = [room.name for room in rooms]
+        self.starting_room_idx = room_names.index(starting_room_name)
 
         self.rooms = rooms
         self.map_x = map_x
@@ -301,8 +303,11 @@ class MazeBuilderEnv:
             room_up_list.append(room_up)
             room_down_list.append(room_down)
             room_data_list.append(room_data)
-            if i != len(self.rooms) - 1:
-                # Don't allow placing the dummy room on the first move
+            # if i != len(self.rooms) - 1:
+            #     # Don't allow placing the dummy room on the first move
+            #     room_placements_list.append(room_placements)
+            if i == self.starting_room_idx:
+                # Only allow placing the designated first room (e.g. Landing Site) on the first step
                 room_placements_list.append(room_placements)
             room_min_x_list.append(room_min_x)
             room_min_y_list.append(room_min_y)

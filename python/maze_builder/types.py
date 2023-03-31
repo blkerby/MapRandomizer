@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Optional, Tuple
+from typing import List, Dict, Optional, Tuple
 from enum import Enum
 import torch
 
@@ -63,7 +63,7 @@ class Room:
     durable_part_connections: Optional[List[Tuple[int, int]]] = ()
     missing_part_connections: Optional[List[Tuple[int, int]]] = ()
     items: Optional[List[Item]] = None
-    node_tiles: Optional[List[Item]] = None
+    node_tiles: Optional[Dict[int, List[Tuple[int, int]]]] = None
 
     def populate(self):
         self.height = len(self.map)
