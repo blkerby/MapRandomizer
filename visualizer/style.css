@@ -83,3 +83,29 @@ body {
 	transform: scale(2);
 	z-index: 2;
 }
+.button {
+	background-color: #36f;
+	border-radius: 2px;
+	font-weight: bold;
+	text-align: center;
+	padding: 5px;
+	cursor: pointer;
+}
+#msg-wrap {
+	display:flex;
+	justify-content: center;
+	align-items: center;
+	height: 100vh;
+}
+.msg {
+	background: #222;
+	color: #eee;
+	background-color: #222;
+	z-index: 2;
+	border-radius: 2px;
+	padding: 8px;
+}
+.msg-title {
+	text-align: center;
+	margin: 10px;
+}
