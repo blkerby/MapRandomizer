@@ -331,8 +331,8 @@ rooms = [
             DoorIdentifier(DOWN, 0, 3, 0x18C0A, 0x18CA6, ELEVATOR),
         ],
         node_tiles={
-            [(0, 0)],  # right door
-            [(0, 1), (0, 2), (0, 3)],  # elevator
+            1: [(0, 0)],  # right door
+            2: [(0, 1), (0, 2), (0, 3)],  # elevator
         },
     ),
     Room(

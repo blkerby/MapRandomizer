@@ -8,6 +8,12 @@ priority:
 
 
 later:
+- add objective option for killing all metroids (to open MB barriers)
+- further streamlining of mother brain fight
+  - shorten cutscene when Big Boy is attached to MB
+  - add two more options:
+    - skipping MB2: health starts at 0, proceeding immediately to rainbow beam after MB1
+    - skipping MB2 + MB3: after collapsing in MB1, mother brain doesn't rise, Samus gets hyper beam and escape sequence starts immediately.
 - add patch to be able to bind other buttons to angle up/down
 - spoiler visualizer improvements:
   - refinements
