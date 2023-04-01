@@ -8,6 +8,13 @@ priority:
 
 
 later:
+- check if pants room internal door connects correctly in logic
+- fix apparent bug with Forced mode which is adding an extra wasted tier that never gets used (but just slows things down a bit)
+- add option (enabled on Challenge) to not treat tanks as filler items anymore after giving Varia (including the step where giving Varia)
+- (probably bad idea:) add third option for filler items: "After First"
+  - reorganize UI to only show this option for Supers, PowerBombs, ETanks, and Reserve Tanks.
+
+
 - add objective option for killing all metroids (to open MB barriers)
 - further streamlining of mother brain fight
   - shorten cutscene when Big Boy is attached to MB
