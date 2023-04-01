@@ -1,5 +1,5 @@
 ; Based on https://github.com/tewtal/alttp_sm_combo_randomizer_rom/blob/a5ef67d7ed3af48ff785731f5b5c8086d3106b11/src/sm/sprite/spinjump.asm
-; 
+;
 ; Currently broken, need to dig into this sometime. Guessing there may be some (unwanted) dependence on other sprite patches from SMZ3
 
 lorom

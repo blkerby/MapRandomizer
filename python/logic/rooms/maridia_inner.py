@@ -16,6 +16,10 @@ rooms = [
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x1A828, 0x1A744),  # Aqueduct
         ],
+        node_tiles={
+            1: [(0, 0)],  # door
+            2: [(0, 0)],  # save station
+        },
     ),
     Room(
         name='Aqueduct',
@@ -49,6 +53,18 @@ rooms = [
             Item(4, 4, 0x7C603),
             Item(5, 4, 0x7C609),
         ],
+        node_tiles={
+            1: [(0, 5)],
+            2: [(0, 6), (1, 6), (2, 6), (3, 6), (4, 6), (5, 6)],
+            3: [(1, 6)],
+            4: [(3, 6)],
+            5: [(4, 6), (5, 6)],
+            6: [(0, 4)],
+            7: [(4, 4)],
+            8: [(5, 4)],
+            9: [(0, 4), (1, 4), (2, 4), (3, 4), (1, 5), (2, 5), (2, 5)],
+            # TODO: add toilet
+        },
     ),
     Room(
         name='Botwoon Hallway',
@@ -58,6 +74,10 @@ rooms = [
             DoorIdentifier(RIGHT, 3, 0, 0x1A774, 0x1A90C),  # Botwoon's Room
             DoorIdentifier(DOWN, 0, 0, 0x1A768, 0x1A72C),  # Aqueduct
         ],
+        node_tiles={
+            1: [(0, 0), (1, 0)],
+            2: [(2, 0), (3, 0)],
+        },
     ),
     Room(
         name="Botwoon's Room",
@@ -72,6 +92,13 @@ rooms = [
         missing_part_connections=[(1, 0)],
         # For the purposes of map generation, we don't assume a right-to-left connection 
         # (though it is possible, e.g. with wave + charge)
+        node_tiles={
+            1: [(0, 0)],
+            2: [(1, 0)],
+            3: [(0, 0)],
+            4: [(0, 0)],
+            5: [(0, 0)],
+        },
     ),
     Room(
         name="Botwoon Energy Tank Room",
@@ -89,6 +116,14 @@ rooms = [
         items=[
             Item(3, 0, 0x7C755),
         ],
+        node_tiles={
+            1: [(0, 0), (1, 0), (2, 0)],
+            2: [(2, 0)],
+            3: [(3, 0)],
+            4: [(4, 0), (5, 0), (6, 0)],
+            5: [(3, 0)],
+            6: [(4, 0)],
+        },
     ),
     Room(
         name='Halfie Climb Room',
@@ -104,6 +139,12 @@ rooms = [
             DoorIdentifier(RIGHT, 0, 0, 0x1A8E8, 0x1A7E0),  # Colosseum
             DoorIdentifier(RIGHT, 4, 2, 0x1A8F4, 0x1A894),  # Maridia Missile Refill Room
         ],
+        node_tiles={
+            1: [(0, 1)],
+            2: [(0, 2), (1, 2)],
+            3: [(2, 2), (3, 2), (4, 2)],
+            4: [(0, 0)],
+        },
     ),
     Room(
         name='Maridia Missile Refill Room',
@@ -112,6 +153,10 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1A894, 0x1A8F4),  # Halfie Climb Room
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 0)],
+        },
     ),
     Room(
         name='Colosseum',
@@ -124,7 +169,12 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x1A7E0, 0x1A8E8),  # Halfie Climb Room
             DoorIdentifier(RIGHT, 6, 0, 0x1A7EC, 0x1A888),  # Draygon Save Room
             DoorIdentifier(RIGHT, 6, 1, 0x1A7F8, 0x1A834),  # The Precious Room
-        ]
+        ],
+        node_tiles={
+            1: [(0, 0), (0, 1), (1, 0), (1, 1), (2, 0), (2, 1), (3, 0), (3, 1)],
+            2: [(6, 1)],
+            3: [(6, 0), (5, 0), (5, 1), (4, 0), (4, 1)],
+        },
     ),
     Room(
         name='Draygon Save Room',
@@ -134,6 +184,10 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x1A888, 0x1A7EC),  # Colosseum
             DoorIdentifier(RIGHT, 0, 0, 0x1A87C, 0x1A930),  # Maridia Health Refill Room
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 0)],
+        },
     ),
     Room(
         name='Maridia Health Refill Room',
@@ -142,6 +196,10 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1A930, 0x1A87C),  # Draygon Save Room
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 0)],
+        },
     ),
     Room(
         name='The Precious Room',
@@ -158,6 +216,11 @@ rooms = [
         items=[
             Item(1, 0, 0x7C74D),
         ],
+        node_tiles={
+            1: [(0, 0), (0, 1)],
+            2: [(0, 2), (0, 3)],
+            3: [(1, 0)],
+        },
     ),
     Room(
         name="Draygon's Room",
@@ -170,6 +233,11 @@ rooms = [
             DoorIdentifier(LEFT, 0, 1, 0x1A978, 0x1A924),  # Space Jump Room
             DoorIdentifier(RIGHT, 1, 0, 0x1A96C, 0x1A840),  # The Precious Room
         ],
+        node_tiles={
+            1: [(0, 1), (1, 1)],
+            2: [(0, 0), (1, 0)],
+            3: [(0, 1), (1, 1)],
+        },
     ),
     Room(
         name='Space Jump Room',
@@ -181,6 +249,10 @@ rooms = [
         items=[
             Item(0, 0, 0x7C7A7),
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 0)],
+        },
     ),
     Room(
         name='West Cactus Alley Room',
@@ -193,6 +265,10 @@ rooms = [
             DoorIdentifier(LEFT, 0, 1, 0x1A93C, 0x1A75C),  # Butterfly Room
             DoorIdentifier(RIGHT, 0, 0, 0x1A948, 0x1A954),  # East Cactus Alley Room
         ],
+        node_tiles={
+            1: [(0, 1)],
+            2: [(0, 0)],
+        },
     ),
     Room(
         name='East Cactus Alley Room',
@@ -205,6 +281,12 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x1A954, 0x1A948),  # West Cactus Alley Room
             DoorIdentifier(RIGHT, 4, 1, 0x1A960, 0x1A900),  # Halfie Climb Room
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(4, 1)],
+            3: [(0, 1)],
+            4: [(1, 0), (1, 1), (2, 0), (2, 1), (3, 0), (3, 1), (4, 0)],
+        },
     ),
     Room(
         name='Plasma Spark Room',
@@ -223,6 +305,13 @@ rooms = [
             DoorIdentifier(RIGHT, 3, 5, 0x1A5A0, 0x1A750),  # Butterfly Room
             DoorIdentifier(DOWN, 0, 2, 0x1A5AC, 0x1A60C),  # Aqueduct (toilet)
         ],
+        node_tiles={
+            1: [(0, 2), (1, 0), (1, 1), (1, 2), (1, 3)],
+            2: [(1, 4), (1, 5), (2, 4), (2, 5), (3, 4), (3, 5)],
+            3: [(2, 2), (3, 2), (2, 3), (3, 3)],
+            4: [(2, 1)],
+            5: [(2, 0)],
+        },
     ),
     Room(
         name='Oasis',
@@ -236,6 +325,14 @@ rooms = [
             DoorIdentifier(RIGHT, 0, 1, 0x1A66C, 0x1A684),  # East Sand Hall
             DoorIdentifier(UP, 0, 0, 0x1A678, 0x1A600),  # Aqueduct (toilet)
         ],
+        node_tiles={
+            1: [(0, 1)],
+            2: [(0, 1)],
+            3: [(0, 0)],
+            4: [(0, 0)],
+            5: [(0, 1)],
+            6: [(0, 1)],
+        },
     ),
     Room(
         name='West Sand Hall',
@@ -249,6 +346,11 @@ rooms = [
         parts=[[0, 1], [2]],
         transient_part_connections=[(1, 0)],  # sand
         missing_part_connections=[(0, 1)],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(3, 0)],
+            3: [(1, 0), (2, 0)],
+        },
     ),
     Room(
         name='West Sand Hall Tunnel',
@@ -258,6 +360,10 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x1A528, 0x1A504),  # Crab Hole
             DoorIdentifier(RIGHT, 0, 0, 0x1A534, 0x1A63C),  # West Sand Hall
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 0)],
+        },
     ),
     Room(
         name='Maridia Map Room',
@@ -266,6 +372,10 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1A5E8, 0x1A51C),  # Crab Hole
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 0)],
+        },
     ),
     Room(
         name='Botwoon Quicksand Room',
@@ -280,6 +390,13 @@ rooms = [
         parts=[[0], [1], [2], [3]],
         transient_part_connections=[(2, 0), (3, 1)],  # sand
         missing_part_connections=[(0, 2), (1, 3), (0, 1), (1, 0)],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 0)],
+            3: [(1, 0)],
+            4: [(1, 0)],
+            5: [(0, 0), (1, 0)],
+        },
     ),
     Room(
         name='Below Botwoon Energy Tank',
@@ -293,6 +410,11 @@ rooms = [
         parts=[[0], [1], [2]],
         transient_part_connections=[(1, 0), (2, 0)],  # sand
         missing_part_connections=[(0, 1), (0, 2)],
+        node_tiles={
+            1: [(0, 0), (1, 0)],
+            2: [(2, 0)],
+            3: [(3, 0)],
+        },
     ),
     Room(
         name='West Aqueduct Quicksand Room',
@@ -308,6 +430,10 @@ rooms = [
         parts=[[0], [1]],
         transient_part_connections=[(1, 0)],  # sand
         missing_part_connections=[(0, 1)],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 1)],
+        },
     ),
     Room(
         name='East Aqueduct Quicksand Room',
@@ -323,6 +449,10 @@ rooms = [
         parts=[[0], [1]],
         transient_part_connections=[(1, 0)],  # sand
         missing_part_connections=[(0, 1)],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 1)],
+        },
     ),
     Room(
         name='East Sand Hole',
@@ -342,6 +472,12 @@ rooms = [
             Item(0, 0, 0x7C5EB),
             Item(1, 1, 0x7C5F1),
         ],
+        node_tiles={
+            1: [(0, 0), (0, 1)],
+            2: [(1, 1)],
+            3: [(0, 0)],
+            4: [(1, 0)],
+        },
     ),
     Room(
         name='West Sand Hole',
@@ -361,6 +497,15 @@ rooms = [
             Item(0, 0, 0x7C5DD),
             Item(0, 0, 0x7C5E3),
         ],
+        node_tiles={
+            1: [(1, 0), (1, 1)],
+            2: [(0, 1)],
+            3: [(0, 0)],
+            4: [(0, 0)],
+            5: [(0, 0)],
+            6: [(0, 0)],
+            7: [(0, 0)],
+        },
     ),
     Room(
         name='East Sand Hall',
@@ -374,6 +519,11 @@ rooms = [
         parts=[[0, 1], [2]],
         transient_part_connections=[(1, 0)],  # sand
         missing_part_connections=[(0, 1)],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(2, 0)],
+            3: [(1, 0)],
+        },
     ),
     Room(
         name='Bug Sand Hole',
@@ -384,6 +534,11 @@ rooms = [
             DoorIdentifier(RIGHT, 0, 0, 0x1A618, 0x1A564),  # Thread The Needle Room
             DoorIdentifier(DOWN, 0, 0, 0x1A624, None, SAND),  # Plasma Beach Quicksand Room
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 0)],
+            3: [(0, 0)],
+        },
     ),
     Room(
         name='Plasma Beach Quicksand Room',
@@ -396,6 +551,10 @@ rooms = [
         parts=[[0], [1]],
         transient_part_connections=[(1, 0)],  # sand
         missing_part_connections=[(0, 1)],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 0)],
+        },
     ),
     Room(
         name='Butterfly Room',
@@ -409,6 +568,11 @@ rooms = [
         parts=[[0, 1], [2]],
         transient_part_connections=[(1, 0)],  # sand
         missing_part_connections=[(0, 1)],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 0)],
+            3: [(0, 0)],
+        },
     ),
     Room(
         name='Thread The Needle Room',
@@ -418,6 +582,10 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x1A564, 0x1A618),  # Bug Sand Hole
             DoorIdentifier(RIGHT, 6, 0, 0x1A570, 0x1A57C),  # Maridia Elevator Room
         ],
+        node_tiles={
+            1: [(0, 0), (1, 0), (2, 0), (3, 0)],
+            2: [(4, 0), (5, 0), (6, 0)],
+        },
     ),
     Room(
         name='Maridia Elevator Room',
@@ -435,6 +603,11 @@ rooms = [
             DoorIdentifier(RIGHT, 0, 4, 0x1A588, 0x1A5F4),  # Forgotten Highway Save Room
             DoorIdentifier(UP, 0, 0, 0x1A594, 0x18A5A, ELEVATOR)  # Forgotten Highway Elevator
         ],
+        node_tiles={
+            1: [(0, 5)],
+            2: [(0, 4)],
+            3: [(0, 0), (0, 1), (0, 2), (0, 3)],
+        },
     ),
     Room(
         name='Forgotten Highway Save Room',
@@ -443,6 +616,10 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1A5F4, 0x1A588),  # Maridia Elevator Room
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 0)],
+        }
     ),
     Room(
         name='Kassiuz Room',
@@ -466,6 +643,10 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x1A540, 0x1A5DC),  # Kassiuz Room
             DoorIdentifier(RIGHT, 0, 0, 0x1A54C, 0x1A558),  # Plasma Room
         ],
+        node_ids={
+            1: [(0, 0)],
+            2: [(0, 0)],
+        },
     ),
     Room(
         name='Plasma Room',
@@ -481,6 +662,11 @@ rooms = [
         items=[
             Item(1, 2, 0x7C559),
         ],
+        node_tiles={
+            1: [(0, 0), (1, 0)],
+            2: [(0, 1), (1, 1), (0, 2), (1, 2)],
+            3: [(0, 1), (1, 1)],
+        },
     ),
     Room(
         name='Pants Room',
@@ -497,6 +683,14 @@ rooms = [
             DoorIdentifier(RIGHT, 0, 3, 0x1A78C, 0x1A7A4),  # Pants Room
             DoorIdentifier(RIGHT, 1, 2, 0x1A798, 0x1A8C4),  # Shaktool room (East pants room twin door: 0x1A7BC)
         ],
+        node_tiles={
+            1: [(0, 3)],
+            2: [(0, 1), (0, 0), (1, 0), (1, 1)],
+            3: [(0, 0)],
+            4: [(0, 0)],
+            5: [(0, 2)],
+        },
+        # TODO: East Pants Room
     ),
     Room(
         name='Shaktool Room',
@@ -509,6 +703,11 @@ rooms = [
         parts=[[0], [1]],
         durable_part_connections=[(0, 1)],  # shaktool clearing the sand blocks
         missing_part_connections=[(1, 0)],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(1, 0), (2, 0), (3, 0)],
+            3: [(2, 0)],
+        },
     ),
     Room(
         name='Spring Ball Room',
@@ -523,6 +722,10 @@ rooms = [
         items=[
             Item(1, 1, 0x7C6E5),
         ],
+        node_tiles={
+            1: [(0, 0), (0, 1)],
+            2: [(1, 1)],
+        },
     ),
     Room(
         name='Crab Hole',
@@ -537,6 +740,12 @@ rooms = [
             DoorIdentifier(RIGHT, 0, 0, 0x1A504, 0x1A528),  # West Sand Hall Tunnel
             DoorIdentifier(RIGHT, 0, 1, 0x1A51C, 0x1A5E8),  # Maridia Map Room
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 1)],
+            3: [(0, 1)],
+            4: [(0, 0)],
+        },
     ),
 ]
 
