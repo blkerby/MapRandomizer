@@ -16,6 +16,10 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x1A36C, 0x1911A),  # Below Spazer
             DoorIdentifier(RIGHT, 0, 0, 0x1A360, 0x1A33C),  # Glass Tunnel
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 0)],
+        },
     ),
     Room(
         name='East Tunnel',
@@ -32,6 +36,12 @@ rooms = [
         parts=[[0, 1], [2]],
         transient_part_connections=[(1, 0)],  # unglitchable green gate
         missing_part_connections=[(0, 1)],
+        node_tiles={
+            1: [(0, 1)],
+            2: [(0, 1)],
+            3: [(1, 0), (2, 0), (3, 0)],
+            4: [(0, 0)],
+        },
     ),
     Room(
         name='Glass Tunnel',
@@ -47,6 +57,15 @@ rooms = [
             DoorIdentifier(RIGHT, 0, 2, 0x1A354, 0x1A324),  # Glass Tunnel Save Room
             DoorIdentifier(UP, 0, 0, 0x1A330, 0x1A39C),  # Main Street
         ],
+        node_tiles={
+            1: [(0, 1)],
+            2: [(0, 2)],
+            3: [(0, 1)],
+            4: [(0, 0)],
+            5: [(0, 1)],
+            6: [(0, 1)],
+            7: [(0, 1)],
+        },
     ),
     Room(
         name='Glass Tunnel Save Room',
@@ -55,6 +74,10 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1A324, 0x1A354),  # Glass Tunnel
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 0)],
+        },
     ),
     Room(
         name='Main Street',
@@ -82,6 +105,11 @@ rooms = [
             Item(0, 3, 0x7C437),
             Item(1, 2, 0x7C43D),
         ],
+        node_tiles={
+            1: [(1, 7)],
+            2: [(1, 7)],
+            3: [(0, 6), (1, 6), (2, 6)],
+        },
     ),
     Room(
         name='Fish Tank',
@@ -97,6 +125,15 @@ rooms = [
             DoorIdentifier(UP, 0, 0, 0x1A3F0, 0x1A444),  # Mt. Everest (left)
             DoorIdentifier(UP, 3, 0, 0x1A3FC, 0x1A450),  # Mt. Everest (right)
         ],
+        node_tiles={
+            1: [(0, 2)],
+            2: [(1, 2), (2, 2), (3, 2)],
+            3: [(3, 0)],
+            4: [(0, 0), (0, 1)],
+            5: [(0, 0)],
+            6: [(1, 0), (1, 1), (2, 0), (2, 1), (3, 1)],
+            7: [(3, 0)],
+        },
     ),
     Room(
         # TODO: Modify this room to add a door after the tube on the left
@@ -116,6 +153,19 @@ rooms = [
             DoorIdentifier(DOWN, 4, 3, 0x1A450, 0x1A3FC),  # Fish Tank (right)
             DoorIdentifier(UP, 2, 0, 0x1A42C, 0x1A474),  # Red Fish Room
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(1, 3), (2, 3), (3, 3)],
+            3: [(4, 3)],
+            4: [(4, 0), (5, 0)],
+            5: [(2, 0)],
+            6: [(1, 2)],
+            7: [(2, 2), (3, 2), (4, 2)],
+            8: [(1, 1), (2, 1)],
+            9: [(2, 0), (3, 0), (2, 1), (3, 1)],
+            10: [(4, 1), (5, 1)],
+            11: [(1, 0), (1, 1)],
+        },
     ),
     Room(
         name='Crab Shaft',
@@ -131,6 +181,11 @@ rooms = [
             DoorIdentifier(RIGHT, 1, 3, 0x1A4C8, 0x1A708),  # Aqueduct
             DoorIdentifier(UP, 0, 0, 0x1A4BC, 0x1A4E0),  # Pseudo Plasma Spark Room
         ],
+        node_tiles={
+            1: [(0, 2)],
+            2: [(0, 2), (1, 2)],
+            3: [(0, 0), (0, 1)],
+        },
     ),
     Room(
         name='Crab Tunnel',
@@ -143,6 +198,10 @@ rooms = [
         parts=[[0], [1]],  # assuming that green gate glitch is not necessarily in logic
         transient_part_connections=[(0, 1)],  # glitchable green gate
         missing_part_connections=[(1, 0)],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(1, 0), (2, 0), (3, 0)],
+        },
     ),
     Room(
         name='Red Fish Room',
@@ -155,6 +214,10 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x1A480, 0x190C6),  # Caterpillar Room
             DoorIdentifier(DOWN, 2, 1, 0x1A474, 0x1A42C),  # Mt. Everest
         ],
+        node_tiles={
+            1: [(0, 0), (1, 0)],
+            2: [(2, 0), (2, 1)],
+        },
     ),
     Room(
         name='Mama Turtle Room',
@@ -172,6 +235,11 @@ rooms = [
             Item(1, 0, 0x7C47D),
             Item(2, 1, 0x7C483),
         ],
+        node_tiles={
+            1: [(0, 3), (1, 3), (2, 3)],
+            2: [(1, 0), (2, 0)],
+            3: [(1, 1), (2, 1), (1, 2), (2, 2)],
+        },
     ),
     Room(
         name='Pseudo Plasma Spark Room',
@@ -188,6 +256,11 @@ rooms = [
         items=[
             Item(2, 2, 0x7C533),
         ],
+        node_tiles={
+            1: [(0, 0), (1, 0), (2, 0), (3, 0), (0, 1), (1, 1), (2, 1)],
+            2: [(0, 2), (1, 2)],
+            3: [(2, 2)],
+        },
     ),
     Room(
         name='Northwest Maridia Bug Room',
@@ -216,6 +289,12 @@ rooms = [
             Item(0, 2, 0x7C4AF),
             Item(0, 2, 0x7C4B5),
         ],
+        node_tiles={
+            1: [(0, 0), (1, 0), (0, 1)],
+            2: [(0, 2)],
+            3: [(0, 2)],
+            4: [(0, 2)],
+        },
     ),
 ]
 

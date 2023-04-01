@@ -643,7 +643,7 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x1A540, 0x1A5DC),  # Kassiuz Room
             DoorIdentifier(RIGHT, 0, 0, 0x1A54C, 0x1A558),  # Plasma Room
         ],
-        node_ids={
+        node_tiles={
             1: [(0, 0)],
             2: [(0, 0)],
         },
