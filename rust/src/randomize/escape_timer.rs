@@ -124,6 +124,7 @@ fn get_overrides() -> OverridesMap {
         RoomName,
         Vec<((RoomGeometryDoorIdx, RoomGeometryDoorIdx), Cost)>,
     )> = vec![
+        ("Tourian Escape Room 3", vec![((1, 0), 12)]),
         ("Tourian Escape Room 4", vec![((0, 1), 18)]),
         (
             "Parlor and Alcatraz",
@@ -400,7 +401,7 @@ fn get_override_cost(
         if room_overrides.contains_key(&(src_door_idx, dst_door_idx)) {
             return Some(room_overrides[&(src_door_idx, dst_door_idx)]);
         } else if room_overrides.contains_key(&(dst_door_idx, src_door_idx)) {
-            if room.name != "Pants Room" {
+            if room.name != "Pants Room" && room.name != "Tourian Escape Room 3" {
                 return Some(room_overrides[&(dst_door_idx, src_door_idx)]);
             }
         }

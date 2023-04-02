@@ -21,6 +21,12 @@ rooms = [
             DoorIdentifier(RIGHT, 7, 2, 0x1985E, 0x198E2),  # Fast Pillars Setup Room
             DoorIdentifier(UP, 4, 0, 0x1986A, 0x196F6, ELEVATOR),  # Lower Norfair Elevator
         ],
+        node_tiles={
+            1: [(0, 2), (1, 2), (2, 2), (3, 2)],
+            2: [(5, 2), (6, 2), (7, 2)],
+            3: [(4, 2)],
+            4: [(4, 2)],
+        },
     ),
     Room(
         name='Fast Pillars Setup Room',
@@ -36,6 +42,13 @@ rooms = [
             DoorIdentifier(RIGHT, 0, 0, 0x198EE, 0x1992A),  # Mickey Mouse Room
             DoorIdentifier(RIGHT, 0, 2, 0x19912, 0x19942),  # Pillar Room
         ],
+        node_tiles={
+            1: [(0, 1)],
+            2: [(0, 2)],
+            3: [(0, 2)],
+            4: [(0, 0)],
+            5: [(0, 2)],
+        },
     ),
     Room(
         name='Pillar Room',
@@ -45,6 +58,10 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x19942, 0x19912),  # Fast Pillars Setup Room
             DoorIdentifier(RIGHT, 3, 0, 0x1994E, 0x1998A),  # The Worst Room In The Game
         ],
+        node_tiles={
+            1: [(0, 0), (1, 0)],
+            2: [(2, 0), (3, 0)],
+        },
     ),
     Room(
         name='The Worst Room In The Game',
@@ -62,6 +79,14 @@ rooms = [
             DoorIdentifier(LEFT, 0, 5, 0x1998A, 0x1994E),  # Pillar Room
             DoorIdentifier(RIGHT, 0, 1, 0x1997E, 0x19996),  # Amphitheatre
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 5)],
+            3: [(0, 1)],
+            4: [(0, 3)],
+            5: [(0, 2)],
+            6: [(0, 4)],
+        },
     ),
     Room(
         name='Amphitheatre',
@@ -80,6 +105,12 @@ rooms = [
         parts=[[0], [1]],  # assuming that acid damage is not necessarily in logic
         transient_part_connections=[(0, 1)],  # climbing while acid rises
         missing_part_connections=[(1, 0)],
+        node_tiles={
+            1: [(0, 1), (0, 2), (0, 3), (0, 4)],
+            2: [(1, 0), (1, 1), (1, 2), (1, 3), (1, 4),
+                (2, 0), (2, 1), (2, 2), (2, 3), (2, 4),
+                (3, 0), (3, 1), (3, 2), (3, 3), (3, 4)],
+        },
     ),
     Room(
         name='Red Kihunter Shaft',
@@ -97,6 +128,14 @@ rooms = [
             DoorIdentifier(RIGHT, 0, 3, 0x19A0E, 0x19AB6),  # Red Kihunter Shaft Save Room
             DoorIdentifier(DOWN, 2, 4, 0x199EA, 0x19A26),  # Wasteland
         ],
+        node_tiles={
+            1: [(0, 0), (0, 1)],
+            2: [(2, 4)],
+            3: [(0, 2), (0, 3), (0, 4)],
+            4: [(0, 0)],
+            5: [(0, 0)],
+            6: [(1, 4)],
+        },
     ),
     Room(
         # TODO: add this to wiki.supermetroid.run/List_of_rooms because it is missing.
@@ -106,6 +145,10 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x19AB6, 0x19A0E),  # Red Kihunter Shaft
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 0)],
+        },
     ),
     Room(
         name='Wasteland',
@@ -122,6 +165,15 @@ rooms = [
         items=[
             Item(0, 0, 0x790C0),
         ],
+        node_tiles={
+            1: [(1, 2), (1, 1)],
+            2: [(4, 0), (5, 0)],
+            3: [(0, 0)],
+            4: [(1, 0), (2, 0), (3, 0)],
+            5: [(1, 0)],
+            6: [(1, 0)],
+            7: [(3, 0)],
+        },
     ),
     Room(
         name='Metal Pirates Room',
@@ -131,6 +183,11 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x19A32, 0x19966),  # Plowerhouse Room
             DoorIdentifier(RIGHT, 2, 0, 0x19A3E, 0x19A1A),  # Wasteland
         ],
+        node_tiles={
+            1: [(0, 0), (1, 0)],
+            2: [(1, 0), (2, 0)],
+            3: [(1, 0)],
+        },
     ),
     Room(
         name='Plowerhouse Room',
@@ -140,6 +197,11 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x1995A, 0x198D6),  # Lower Norfair Farming Room
             DoorIdentifier(RIGHT, 2, 0, 0x19966, 0x19A32),  # Metal Pirates Room
         ],
+        node_tiles={
+            1: [(0, 0), (1, 0)],
+            2: [(1, 0), (2, 0)],
+            3: [(0, 0), (1, 0), (2, 0)],
+        },
     ),
     Room(
         name='Lower Norfair Farming Room',
@@ -149,6 +211,10 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x198CA, 0x198BE),  # Ridley's Room
             DoorIdentifier(RIGHT, 2, 0, 0x198D6, 0x1995A),  # Plowerhouse Room
         ],
+        node_tiles={
+            1: [(0, 0), (1, 0)],
+            2: [(1, 0), (2, 0)],
+        },
     ),
     Room(
         name="Ridley's Room",
@@ -161,6 +227,11 @@ rooms = [
             DoorIdentifier(LEFT, 0, 1, 0x198B2, 0x19A62),  # Ridley Tank Room
             DoorIdentifier(RIGHT, 0, 0, 0x198BE, 0x198CA),  # Lower Norfair Farming Room
         ],
+        node_tiles={
+            1: [(0, 1)],
+            2: [(0, 0)],
+            3: [(0, 0), (0, 1)],
+        },
     ),
     Room(
         name='Ridley Tank Room',
@@ -172,6 +243,10 @@ rooms = [
         items=[
             Item(0, 0, 0x79108),
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 0)],
+        },
     ),
     Room(
         name='Mickey Mouse Room',
@@ -192,6 +267,17 @@ rooms = [
         items=[
             Item(2, 1, 0x78F30),
         ],
+        node_tiles={
+            1: [(0, 3)],
+            2: [(3, 0)],
+            3: [(2, 1)],
+            4: [(3, 1)],
+            5: [(3, 1)],
+            6: [(3, 3), (3, 2)],
+            7: [(1, 3), (2, 3)],
+            8: [(0, 3)],
+            9: [(3, 2)],
+        },
     ),
     Room(
         name='Lower Norfair Fireflea Room',
@@ -212,6 +298,15 @@ rooms = [
         items=[
             Item(2, 5, 0x79184),
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(1, 2), (1, 3)],
+            3: [(1, 0), (1, 1)],
+            4: [(2, 5)],
+            5: [(1, 5)],
+            6: [(2, 3)],
+            7: [(1, 4), (2, 4)],
+        },
     ),
     Room(
         name='Lower Norfair Spring Ball Maze Room',
@@ -231,6 +326,13 @@ rooms = [
         items=[
             Item(2, 0, 0x78FCA),
         ],
+        node_tiles={
+            1: [(0, 0), (1, 0)],
+            2: [(4, 0)],
+            3: [(0, 1), (1, 1)],
+            4: [(2, 0)],
+            5: [(3, 0)],
+        },
     ),
     Room(
         name='Lower Norfair Escape Power Bomb Room',
@@ -246,6 +348,11 @@ rooms = [
         items=[
             Item(0, 0, 0x78FD2),
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 0)],
+            3: [(0, 0)],
+        },
     ),
     Room(
         name="Three Musketeers' Room",
@@ -262,6 +369,12 @@ rooms = [
         items=[
             Item(0, 2, 0x79100),
         ],
+        node_tiles={
+            1: [(1, 0), (1, 1)],
+            2: [(2, 2), (3, 2)],
+            3: [(0, 2)],
+            4: [(1, 2)],
+        },
     ),
     Room(
         name='Acid Statue Room',
@@ -278,6 +391,13 @@ rooms = [
         parts=[[0], [1]],
         durable_part_connections=[(0, 1)],  # acid drain by morphing in statue with space jump
         missing_part_connections=[(1, 0)],
+        node_tiles={
+            1: [(1, 0)],
+            2: [(1, 2), (2, 2)],
+            3: [(0, 0)],
+            4: [(0, 1), (1, 1)],
+            5: [(0, 2), (1, 2)],
+        },
     ),
     Room(
         name="Golden Torizo's Room",
@@ -297,6 +417,13 @@ rooms = [
             Item(0, 0, 0x78E6E),
             Item(1, 0, 0x78E74),
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(1, 1)],
+            3: [(0, 0)],
+            4: [(1, 0)],
+            5: [(0, 1), (1, 1)],
+        },
     ),
     Room(
         name='Screw Attack Room',
@@ -314,6 +441,13 @@ rooms = [
         items=[
             Item(0, 2, 0x79110),
         ],
+        node_tiles={
+            1: [(0, 2)],
+            2: [(0, 1)],
+            3: [(0, 0)],
+            4: [(0, 2)],
+            5: [(0, 1)],
+        },
     ),
     Room(
         name='Golden Torizo Energy Recharge',
@@ -322,16 +456,14 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x198A6, 0x19A7A),  # Screw Attack Room
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 0)],
+        },
     ),
     Room(
         name='Fast Ripper Room',
         rom_address=0x7B2DA,
-        # # TODO: fix this back.
-        # map=[[1, 1, 1]],
-        # door_ids=[
-        #     DoorIdentifier(LEFT, 0, 0, 0x1988E, 0x19A6E),  # Screw Attack Room
-        #     DoorIdentifier(RIGHT, 2, 0, 0x1989A, 0x19906),  # Fast Pillars Setup Room
-        # ],
         map=[[1, 1, 1, 1]],
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1988E, 0x19A6E),  # Screw Attack Room
@@ -340,6 +472,11 @@ rooms = [
         parts=[[0], [1]],  # assuming that green gate glitch is not necessarily in logic
         transient_part_connections=[(0, 1)],  # glitchable green gate
         missing_part_connections=[(1, 0)],
+        node_tiles={
+            1: [(0, 0), (1, 0)],
+            2: [(3, 0)],
+            3: [(2, 0)],
+        },
     ),
 ]
 

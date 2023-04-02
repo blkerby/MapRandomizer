@@ -1,4 +1,6 @@
 priority:
+- finish node tiles and export to spoiler log
+- add gmode logic to sm-json-data
 - add pages for tech, strats, rooms.
 - logic simulator
 - credits
@@ -8,13 +10,15 @@ priority:
 
 
 later:
+- fix gray door after mother brain when entering baby kraid (& metal pirates, boss rooms, etc.?)
+- add patch for handling crashes? (to display the stack & registers)
+- if possible, debug crash in Mt. Everest from Scottycro42 (https://clips.twitch.tv/DarlingSavageDogeMcaT-zgV9PF33MiawTpL2)
 - oats seed Apr 1:
  - main street shinespark energy
  - kronic boost heatframes
  - metal pirates hitbox doesn't need plasma
 - take double-hits into account correctly with reserve energy.
-- add gmode logic to sm-json-data
-  - use Fix Scroll Offsets from practice hack
+- use Fix Scroll Offsets from practice hack
 - check if pants room internal door connects correctly in logic
 - fix apparent bug with Forced mode which is adding an extra wasted tier that never gets used (but just slows things down a bit)
 - add option (enabled on Challenge) to not treat tanks as filler items anymore after giving Varia (including the step where giving Varia)
