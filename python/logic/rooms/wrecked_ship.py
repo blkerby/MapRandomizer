@@ -15,6 +15,10 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x1A1B0, 0x189D6),  # West Ocean
             DoorIdentifier(RIGHT, 3, 0, 0x1A1BC, 0x1A1F8),  # Wrecked Ship Main Shaft
         ],
+        node_tiles={
+            1: [(0, 0), (1, 0)],
+            2: [(2, 0), (3, 0)],
+        }
     ),
     Room(
         name='Wrecked Ship Main Shaft',
@@ -41,6 +45,17 @@ rooms = [
         items=[
             Item(0, 5, 0x7C265),
         ],
+        node_tiles={
+            1: [(4, 0), (4, 1)],
+            2: [(4, 2), (4, 3)],
+            3: [(4, 6)],
+            4: [(4, 2), (4, 3)],
+            5: [(4, 4)],
+            6: [(5, 6)],
+            7: [(4, 7)],
+            8: [(0, 5), (1, 5), (2, 5), (3, 5)],
+            9: [(4, 3), (4, 4), (4, 5), (4, 6)],
+        },
     ),
     Room(
         name='Attic',
@@ -51,6 +66,11 @@ rooms = [
             DoorIdentifier(RIGHT, 6, 0, 0x1A1D4, 0x1A1EC),  # Assembly Line
             DoorIdentifier(DOWN, 4, 0, 0x1A1C8, 0x1A228),  # Wrecked Ship Main Shaft
         ],
+        node_tiles={
+            1: [(0, 0), (1, 0), (2, 0), (3, 0)],
+            2: [(4, 0), (5, 0)],
+            3: [(6, 0)],
+        },
     ),
     Room(
         name='Basement',
@@ -61,6 +81,11 @@ rooms = [
             DoorIdentifier(RIGHT, 4, 0, 0x1A2AC, 0x1A2C4),  # Phantoon's Room
             DoorIdentifier(UP, 2, 0, 0x1A294, 0x1A21C),  # Wrecked Ship Main Shaft
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(1, 0), (2, 0), (3, 0)],
+            3: [(4, 0)],
+        },
     ),
     Room(
         name='Wrecked Ship Map Room',
@@ -69,6 +94,10 @@ rooms = [
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x1A2B8, 0x1A2A0),  # Basement
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 0)],
+        }
     ),
     Room(
         name="Phantoon's Room",
@@ -77,6 +106,10 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1A2C4, 0x1A2AC),  # Basement
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 0)],
+        },
     ),
     Room(
         name="Wrecked Ship West Super Room",
@@ -88,6 +121,10 @@ rooms = [
         items=[
             Item(0, 0, 0x7C357),
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 0)],
+        },
     ),
     Room(
         name='Bowling Alley',
@@ -109,6 +146,14 @@ rooms = [
             Item(3, 2, 0x7C2EF),
             Item(5, 0, 0x7C2E9),
         ],
+        node_tiles={
+            1: [(2, 0), (3, 0), (4, 0), (5, 0)],
+            2: [(0, 1), (1, 1), (2, 1)],
+            3: [(1, 2)],
+            4: [(2, 2), (3, 2)],
+            5: [(5, 0), (5, 1), (5, 2), (4, 2)],
+            6: [(3, 1), (4, 1)],
+        },
     ),
     Room(
         name='Gravity Suit Room',
@@ -121,6 +166,11 @@ rooms = [
         items=[
             Item(0, 0, 0x7C36D),
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 0)],
+            3: [(0, 0)],
+        },
     ),
     Room(
         name='Wrecked Ship East Super Room',
@@ -132,6 +182,10 @@ rooms = [
         items=[
             Item(3, 0, 0x7C365),
         ],
+        node_tiles={
+            1: [(0, 0), (1, 0), (2, 0)],
+            2: [(3, 0)],
+        },
     ),
     Room(
         name='Sponge Bath',
@@ -141,6 +195,10 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x1A2D0, 0x1A204),  # Wrecked Ship Main Shaft
             DoorIdentifier(RIGHT, 1, 0, 0x1A2DC, 0x1A24C),  # Spiky Death Room
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(1, 0)],
+        },
     ),
     Room(
         name='Spiky Death Room',
@@ -150,6 +208,10 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x1A24C, 0x1A2DC),  # Sponge Bath
             DoorIdentifier(RIGHT, 1, 0, 0x1A258, 0x1A270),  # Electric Death Room
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(1, 0)],
+        },
     ),
     Room(
         name='Electric Death Room',
@@ -164,6 +226,11 @@ rooms = [
             DoorIdentifier(LEFT, 0, 2, 0x1A270, 0x1A258),  # Spiky Death Room
             DoorIdentifier(RIGHT, 0, 1, 0x1A264, 0x18A66),  # East Ocean
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 1)],
+            3: [(0, 2)],
+        },
     ),
     Room(
         name='Wrecked Ship Energy Tank Room',
@@ -178,6 +245,10 @@ rooms = [
         items=[
             Item(0, 0, 0x7C337),
         ],
+        node_tiles={
+            1: [(2, 0), (2, 1), (1, 0), (1, 1)],
+            2: [(0, 0), (0, 1)],
+        },
     ),
     Room(
         name='Assembly Line',
@@ -189,6 +260,10 @@ rooms = [
         items=[
             Item(2, 0, 0x7C319),
         ],
+        node_tiles={
+            1: [(0, 0), (1, 0)],
+            2: [(2, 0)],
+        },
     ),
     Room(
         name='Wrecked Ship Save Room',
@@ -197,6 +272,10 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1A318, 0x1A240),  # Wrecked Ship Main Shaft
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 0)],
+        },
     ),
 ]
 
