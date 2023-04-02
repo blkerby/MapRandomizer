@@ -30,6 +30,16 @@ rooms = [
             DoorIdentifier(RIGHT, 0, 6, 0x192E2, 0x19402),  # Crocomire Escape
             DoorIdentifier(UP, 0, 0, 0x192EE, 0x19246, ELEVATOR)  # Warehouse Entrance
         ],
+        node_tiles={
+            1: [(0, 3)],
+            2: [(0, 4)],
+            3: [(0, 5)],
+            4: [(0, 6)],
+            5: [(0, 5)],
+            6: [(0, 3)],
+            7: [(0, 0), (0, 1), (0, 2)],
+            8: [(0, 3), (0, 4), (0, 5)],
+        },
     ),
     Room(
         name='Norfair Map Room',
@@ -38,6 +48,10 @@ rooms = [
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x197C2, 0x19306),  # Business Center
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 0)],
+        },
     ),
     Room(
         name='Hi Jump Energy Tank Room',
@@ -54,6 +68,12 @@ rooms = [
             Item(1, 0, 0x78BEC),
             Item(0, 0, 0x78BE6),
         ],
+        node_tiles={
+            1: [(0, 1)],
+            2: [(1, 0)],
+            3: [(1, 0)],
+            4: [(0, 0)],
+        },
     ),
     Room(
         name='Hi Jump Boots Room',
@@ -65,6 +85,10 @@ rooms = [
         items=[
             Item(0, 0, 0x78BAC),
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 0)],
+        }
     ),
     Room(
         name='Cathedral Entrance',
@@ -77,6 +101,13 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x192A6, 0x192CA),  # Business Center
             DoorIdentifier(RIGHT, 2, 0, 0x192B2, 0x1928E),  # Cathedral
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(2, 0)],
+            3: [(0, 1)],
+            4: [(1, 0), (1, 1)],
+            5: [(2, 1)],
+        },
     ),
     Room(
         name='Cathedral',
@@ -92,6 +123,12 @@ rooms = [
         items=[
             Item(2, 1, 0x78AE4),
         ],
+        node_tiles={
+            1: [(0, 0), (0, 1)],
+            2: [(2, 0), (2, 1)],
+            3: [(2, 1)],
+            4: [(1, 0), (1, 1)],
+        },
     ),
     Room(
         name='Rising Tide',
@@ -101,6 +138,10 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x19732, 0x1929A),  # Cathedral
             DoorIdentifier(RIGHT, 4, 0, 0x1973E, 0x1955E),  # Bubble Mountain
         ],
+        node_tiles={
+            1: [(0, 0), (1, 0), (2, 0)],
+            2: [(3, 0), (4, 0)],
+        },
     ),
     Room(
         name='Frog Speedway',
@@ -110,6 +151,10 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x197DA, 0x1980A),  # Frog Savestation
             DoorIdentifier(RIGHT, 7, 0, 0x197E6, 0x1970E),  # Upper Norfair Farming Room
         ],
+        node_tiles={
+            1: [(0, 0), (1, 0), (2, 0), (3, 0)],
+            2: [(4, 0), (5, 0), (6, 0), (7, 0)],
+        },
     ),
     Room(
         name='Upper Norfair Farming Room',
@@ -123,6 +168,13 @@ rooms = [
             DoorIdentifier(LEFT, 0, 1, 0x19726, 0x197F2),  # Red Pirate Shaft
             DoorIdentifier(RIGHT, 1, 0, 0x1971A, 0x1956A),  # Bubble Mountain
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 1)],
+            3: [(1, 0)],
+            4: [(0, 0), (1, 0)],
+            5: [(0, 1), (1, 1)],
+        },
     ),
     Room(
         name='Purple Shaft',
@@ -138,6 +190,11 @@ rooms = [
             DoorIdentifier(RIGHT, 0, 2, 0x196BA, 0x19696),  # Magdollite Tunnel
             DoorIdentifier(UP, 0, 0, 0x196AE, 0x19576),  # Bubble Mountain
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 1)],
+            3: [(0, 2)],
+        },
     ),
     Room(
         name='Purple Farming Room',
@@ -146,6 +203,10 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1979E, 0x196C6),  # Purple Shaft
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 0)],
+        },
     ),
     Room(
         name='Frog Savestation',
@@ -155,6 +216,11 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x19816, 0x192FA),  # Business Center
             DoorIdentifier(RIGHT, 0, 0, 0x1980A, 0x197DA),  # Frog Speedway
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 0)],
+            3: [(0, 0)],
+        },
     ),
     Room(
         name='Bubble Mountain',
@@ -177,6 +243,17 @@ rooms = [
         items=[
             Item(1, 3, 0x78C66),
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 1)],
+            3: [(0, 2)],
+            4: [(0, 3)],
+            5: [(0, 3)],
+            6: [(1, 1)],
+            7: [(1, 0)],
+            8: [(1, 3)],
+            9: [(0, 1), (0, 2), (1, 2)],
+        },
     ),
     Room(
         name='Bubble Mountain Save Room',
@@ -185,6 +262,10 @@ rooms = [
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x197CE, 0x1959A),  # Bubble Mountain
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 0)],
+        },
     ),
     Room(
         name='Green Bubbles Missile Room',
@@ -197,6 +278,11 @@ rooms = [
         items=[
             Item(1, 0, 0x78C52),
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(1, 0)],
+            3: [(1, 0)],
+        },
     ),
     Room(
         name='Norfair Reserve Tank Room',
@@ -209,6 +295,12 @@ rooms = [
             Item(0, 0, 0x78C3E),
             Item(0, 0, 0x78C44),
         ],
+        node_tiles={
+            1: [(1, 0)],
+            2: [(0, 0)],
+            3: [(0, 0)],
+            4: [(0, 0)],
+        },
     ),
     Room(
         name='Bat Cave',
@@ -221,6 +313,11 @@ rooms = [
             DoorIdentifier(LEFT, 0, 1, 0x197AA, 0x1958E),  # Bubble Mountain
             DoorIdentifier(RIGHT, 0, 0, 0x197B6, 0x195A6),  # Speed Booster Hall
         ],
+        node_tiles={
+            1: [(0, 1)],
+            2: [(0, 0)],
+            3: [(0, 0)],
+        },
     ),
     Room(
         name='Speed Booster Hall',
@@ -236,6 +333,10 @@ rooms = [
         items=[
             Item(11, 1, 0x78C74),
         ],
+        node_tiles={
+            1: [(0, 0), (1, 0), (2, 0), (3, 0), (3, 1), (4, 0), (4, 1), (5, 0), (5, 1)],
+            2: [(6, 1), (7, 1), (8, 1), (9, 1), (10, 1), (11, 1)],
+        }
     ),
     Room(
         name='Speed Booster Room',
@@ -247,6 +348,10 @@ rooms = [
         items=[
             Item(0, 0, 0x78C82),
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 0)],
+        },
     ),
     Room(
         name='Single Chamber',
@@ -267,6 +372,13 @@ rooms = [
         parts=[[0, 2, 3, 4], [1]],
         transient_part_connections=[(1, 0)],  # crumble blocks
         missing_part_connections=[(0, 1)],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 3)],
+            3: [(0, 2)],
+            4: [(0, 1)],
+            5: [(1, 0), (2, 0), (3, 0), (4, 0), (5, 0)],
+        },
     ),
     Room(
         name='Double Chamber',
@@ -283,6 +395,13 @@ rooms = [
         items=[
             Item(1, 0, 0x78CBC),
         ],
+        node_tiles={
+            1: [(0, 0), (1, 0)],
+            2: [(0, 1), (1, 1)],
+            3: [(3, 0)],
+            4: [(2, 0)],
+            5: [(2, 1), (3, 1)],
+        },
     ),
     Room(
         name='Wave Beam Room',
@@ -294,6 +413,10 @@ rooms = [
         items=[
             Item(0, 0, 0x78CCA),
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 0)],
+        },
     ),
     Room(
         name='Ice Beam Gate Room',
@@ -313,6 +436,14 @@ rooms = [
         parts=[[1, 2, 3], [0]],
         transient_part_connections=[(1, 0)],  # crumble blocks
         missing_part_connections=[(0, 1)],
+        node_tiles={
+            1: [(3, 0)],
+            2: [(3, 2)],
+            3: [(0, 3), (1, 3), (2, 3), (3, 3)],
+            4: [(4, 2), (5, 2), (6, 2)],
+            5: [(3, 2)],
+            6: [(3, 1)],
+        },
     ),
     Room(
         name='Ice Beam Acid Room',
@@ -322,6 +453,10 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x19282, 0x19366),  # Ice Beam Snake Room
             DoorIdentifier(RIGHT, 1, 0, 0x19276, 0x1931E),  # Ice Beam Gate Room
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(1, 0)],
+        }
     ),
     Room(
         name='Ice Beam Snake Room',
@@ -336,6 +471,13 @@ rooms = [
             DoorIdentifier(RIGHT, 1, 1, 0x1937E, 0x1935A),  # Ice Beam Room
             DoorIdentifier(RIGHT, 0, 2, 0x19366, 0x19282),  # Ice Beam Acid Room
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(1, 1)],
+            3: [(0, 2)],
+            4: [(0, 1)],
+            5: [(0, 1)],
+        },
     ),
     Room(
         name='Ice Beam Room',
@@ -347,6 +489,10 @@ rooms = [
         items=[
             Item(0, 0, 0x78B24),
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 0)],
+        },
     ),
     Room(
         name='Ice Beam Tutorial Room',
@@ -356,6 +502,10 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x19342, 0x19372),  # Ice Beam Snake Room
             DoorIdentifier(RIGHT, 1, 0, 0x1934E, 0x19312),  # Ice Beam Gate Room
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(1, 0)],
+        },
     ),
     Room(
         name='Crumble Shaft',
@@ -373,6 +523,11 @@ rooms = [
         items=[
             Item(0, 0, 0x78B46),
         ],
+        node_tiles={
+            1: [(0, 0), (0, 1), (0, 2)],
+            2: [(0, 3)],
+            3: [(0, 0)],
+        },
     ),
     Room(
         name='Nutella Refill',
@@ -382,6 +537,11 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x19786, 0x19756),  # Acid Snakes Tunnel
             DoorIdentifier(RIGHT, 0, 0, 0x19792, 0x1976E),  # Spiky Acid Snakes Tunnel
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 0)],
+            3: [(0, 0)],
+        },
     ),
     Room(
         name='Spiky Acid Snakes Tunnel',
@@ -391,6 +551,10 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x1976E, 0x19792),  # Nutella Refill
             DoorIdentifier(RIGHT, 3, 0, 0x1977A, 0x1968A),  # Kronic Boost Room
         ],
+        node_tiles={
+            1: [(0, 0), (1, 0)],
+            2: [(2, 0), (3, 0)],
+        },
     ),
     Room(
         name='Kronic Boost Room',
@@ -406,6 +570,14 @@ rooms = [
             DoorIdentifier(LEFT, 1, 2, 0x1967E, 0x196D2),  # Lava Dive Room
             DoorIdentifier(RIGHT, 1, 0, 0x19672, 0x1965A),  # Volcano Room
         ],
+        node_tiles={
+            1: [(1, 0)],
+            2: [(0, 1)],
+            3: [(1, 2)],
+            4: [(1, 0)],
+            5: [(1, 0)],
+            6: [(1, 1)],
+        },
     ),
     Room(
         name='Magdollite Tunnel',
@@ -415,6 +587,10 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x19696, 0x196BA),  # Purple Shaft
             DoorIdentifier(RIGHT, 2, 0, 0x196A2, 0x19666),  # Kronic Boost Room
         ],
+        node_tiles={
+            1: [(0, 0), (1, 0)],
+            2: [(1, 0), (2, 0)],
+        },
     ),
     Room(
         name='Lava Dive Room',
@@ -428,6 +604,10 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x196DE, 0x196EA),  # Lower Norfair Elevator
             DoorIdentifier(RIGHT, 3, 0, 0x196D2, 0x1967E),  # Kronic Boost Room
         ],
+        node_tiles={
+            1: [(0, 0), (1, 0), (1, 1)],
+            2: [(1, 2), (2, 0), (2, 1), (2, 2), (3, 0), (3, 1)],
+        },
     ),
     Room(
         name='Volcano Room',
@@ -441,6 +621,10 @@ rooms = [
             DoorIdentifier(LEFT, 2, 0, 0x1964E, 0x19642),  # Spiky Platforms Tunnel
             DoorIdentifier(LEFT, 0, 2, 0x1965A, 0x19672),  # Kronic Boost Room
         ],
+        node_tiles={
+            1: [(2, 0), (2, 1), (2, 2)],
+            2: [(0, 2), (1, 2)],
+        },
     ),
     Room(
         name='Spiky Platforms Tunnel',
@@ -450,6 +634,10 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x19636, 0x195EE),  # Single Chamber
             DoorIdentifier(RIGHT, 3, 0, 0x19642, 0x1964E),  # Volcano Room
         ],
+        node_tiles={
+            1: [(0, 0), (1, 0)],
+            2: [(2, 0), (3, 0)],
+        },
     ),
     Room(
         name='Red Pirate Shaft',
@@ -463,6 +651,10 @@ rooms = [
             DoorIdentifier(RIGHT, 0, 0, 0x197F2, 0x19726),  # Upper Norfair Farming Room
             DoorIdentifier(DOWN, 0, 2, 0x197FE, 0x19762),  # Acid Snakes Tunnel
         ],
+        node_tiles={
+            1: [(0, 1), (0, 2)],
+            2: [(0, 0)],
+        },
     ),
     Room(
         name='Acid Snakes Tunnel',
@@ -473,6 +665,11 @@ rooms = [
             DoorIdentifier(RIGHT, 3, 0, 0x19756, 0x19786),  # Nutella Refill
             DoorIdentifier(UP, 3, 0, 0x19762, 0x197FE),  # Red Pirate Shaft
         ],
+        node_tiles={
+            1: [(0, 0), (1, 0)],
+            2: [(3, 0)],
+            3: [(2, 0), (3, 0)],
+        },
     ),
     Room(
         name='Crocomire Speedway',
@@ -492,6 +689,15 @@ rooms = [
         parts=[[0], [1, 2, 3, 4]],
         transient_part_connections=[(0, 1)],  # speed blocks
         missing_part_connections=[(1, 0)],
+        node_tiles={
+            1: [(12, 0)],
+            2: [(0, 0), (1, 0), (2, 0), (3, 0), (3, 1), (4, 0), (4, 1), (4, 2),
+                (5, 1), (5, 2), (6, 1), (6, 2), (7, 2), (8, 2), (9, 2), (10, 2), (11, 2)],
+            3: [(12, 2)],
+            4: [(12, 2)],
+            5: [(12, 1)],
+            6: [(12, 2)],
+        },
     ),
     Room(
         name='Crocomire Escape',
@@ -510,6 +716,11 @@ rooms = [
         items=[
             Item(0, 0, 0x78BC0),
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(2, 0), (3, 0), (0, 1), (1, 1), (2, 1), (3, 1)],
+            3: [(1, 0)],
+        },
     ),
     Room(
         name="Crocomire's Room",
@@ -525,6 +736,14 @@ rooms = [
         items=[
             Item(7, 0, 0x78BA4),
         ],
+        node_tiles={
+            1: [(0, 0), (1, 0)],
+            2: [(3, 0)],
+            3: [(6, 0), (7, 0)],
+            4: [(4, 0)],
+            5: [(2, 0), (3, 0)],
+            6: [(5, 0)],
+        },
     ),
     Room(
         name='Post Crocomire Farming Room',
@@ -539,6 +758,12 @@ rooms = [
             DoorIdentifier(RIGHT, 1, 1, 0x19456, 0x19462),  # Post Crocomire Save Room
             DoorIdentifier(DOWN, 0, 1, 0x1944A, 0x1947A),  # Post Crocomire Shaft
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 1)],
+            3: [(1, 1)],
+            4: [(1, 0)],
+        },
     ),
     Room(
         name='Post Crocomire Power Bomb Room',
@@ -550,6 +775,10 @@ rooms = [
         items=[
             Item(0, 0, 0x78C04),
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 0)],
+        },
     ),
     Room(
         name='Post Crocomire Shaft',
@@ -567,6 +796,12 @@ rooms = [
             DoorIdentifier(DOWN, 0, 4, 0x1949E, 0x194CE),  # Post Crocomire Jump Room
             DoorIdentifier(UP, 0, 0, 0x1947A, 0x1944A),  # Post Crocomire Farming Room
         ],
+        node_tiles={
+            1: [(0, 0), (0, 1)],
+            2: [(0, 4)],
+            3: [(0, 2), (0, 3)],
+            4: [(0, 0)],
+        },
     ),
     Room(
         name='Post Crocomire Missile Room',
@@ -578,6 +813,10 @@ rooms = [
         items=[
             Item(3, 0, 0x78C14),
         ],
+        node_tiles={
+            1: [(0, 0), (1, 0)],
+            2: [(2, 0), (3, 0)],
+        },
     ),
     Room(
         name='Post Crocomire Jump Room',
@@ -594,6 +833,13 @@ rooms = [
         items=[
             Item(4, 0, 0x78C2A),
         ],
+        node_tiles={
+            1: [(0, 0), (1, 0), (0, 1), (1, 1)],
+            2: [(5, 2), (6, 2), (7, 2)],
+            3: [(2, 0), (2, 1), (3, 0), (3, 1), (4, 0), (4, 1)],
+            4: [(4, 2)],
+            5: [(0, 2), (1, 2), (2, 2), (3, 2)],
+        },
     ),
     Room(
         name='Grapple Beam Room',
@@ -610,6 +856,11 @@ rooms = [
         items=[
             Item(0, 2, 0x78C36),
         ],
+        node_tiles={
+            1: [(0, 0), (0, 1)],
+            2: [(0, 2)],
+            3: [(0, 2)],
+        },
     ),
     Room(
         name='Grapple Tutorial Room 1',
@@ -619,6 +870,10 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x194FE, 0x19522),  # Grapple Beam Room
             DoorIdentifier(RIGHT, 1, 0, 0x1950A, 0x194E6),  # Grapple Tutorial Room 2
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(1, 0)],
+        },
     ),
     Room(
         name='Grapple Tutorial Room 2',
@@ -632,6 +887,10 @@ rooms = [
             DoorIdentifier(LEFT, 0, 2, 0x194E6, 0x1950A),  # Grapple Tutorial Room 1
             DoorIdentifier(RIGHT, 0, 0, 0x194F2, 0x194B6),  # Grapple Tutorial Room 3
         ],
+        node_tiles={
+            1: [(0, 2), (0, 1)],
+            2: [(0, 0)],
+        }
     ),
     Room(
         name='Grapple Tutorial Room 3',
@@ -647,6 +906,11 @@ rooms = [
         parts=[[0], [1]],  # assuming that green gate glitch is not necessarily in logic
         transient_part_connections=[(0, 1)],  # glitchable green gate
         missing_part_connections=[(1, 0)],
+        node_tiles={
+            1: [(0, 0), (0, 1), (1, 0), (1, 1), (2, 1)],
+            2: [(2, 0)],
+            3: [(2, 0)],
+        },
     ),
     Room(
         name='Crocomire Save Room',
@@ -655,6 +919,10 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x19822, 0x193BA)  # Crocomire Speedway
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 0)],
+        },
     ),
     Room(
         name='Post Crocomire Save Room',
@@ -663,6 +931,10 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x19462, 0x19456)  # Post Crocomire Farming Room
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 0)],
+        },
     ),
     Room(
         name='Lower Norfair Elevator',
@@ -673,6 +945,12 @@ rooms = [
             DoorIdentifier(RIGHT, 0, 0, 0x196EA, 0x196DE),  # Lava Dive Room
             DoorIdentifier(DOWN, 0, 0, 0x196F6, 0x1986A, ELEVATOR),  # Main Hall
         ],
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 0)],
+            3: [(0, 0)],
+            4: [(0, 0)],
+        },
     ),
     Room(
         name='Lower Norfair Elevator Save Room',
@@ -681,7 +959,11 @@ rooms = [
         door_ids=[
             DoorIdentifier(RIGHT, 0, 0, 0x1982E, 0x19702),  # Lower Norfair Elevator
         ],
-    )
+        node_tiles={
+            1: [(0, 0)],
+            2: [(0, 0)],
+        },
+    ),
 ]
 
 for room in rooms:

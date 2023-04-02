@@ -47,11 +47,11 @@ fn main() -> Result<()> {
     // items[Item::Morph as usize] = true;
     // items[Item::ScrewAttack as usize] = true;
     items[Item::Charge as usize] = true;
-    items[Item::Wave as usize] = true;
+    // items[Item::Wave as usize] = true;
     // items[Item::Ice as usize] = true;
     // items[Item::Spazer as usize] = true;
     // items[Item::Plasma as usize] = true;
-    items[Item::Varia as usize] = true;
+    // items[Item::Varia as usize] = true;
     items[Item::Gravity as usize] = true;
 
     let weapon_mask = game_data.get_weapon_mask(&items);
@@ -61,9 +61,9 @@ fn main() -> Result<()> {
         flags: vec![false; game_data.flag_isv.keys.len()],
         items: items,
         max_energy: 1000,
-        max_missiles: 35,
+        max_missiles: 5,
         max_reserves: 0,
-        max_supers: 10,
+        max_supers: 0,
         max_power_bombs: 0,
         shine_charge_tiles: 16.0,
         weapon_mask,
@@ -89,7 +89,7 @@ fn main() -> Result<()> {
         resource_multiplier: 1.0,
         escape_timer_multiplier: 1.0,
         phantoon_proficiency: 1.0,
-        draygon_proficiency: 1.0,
+        draygon_proficiency: 0.5,
         ridley_proficiency: 1.0,
         botwoon_proficiency: 1.0,
         save_animals: false,
@@ -105,10 +105,17 @@ fn main() -> Result<()> {
 
     println!(
         "{:?}",
-        apply_requirement(&Requirement::RidleyFight {
+        apply_requirement(&Requirement::DraygonFight {
             can_be_patient_tech_id: game_data.tech_isv.index_by_key["canBePatient"]
         }, &global_state, local_state, false, &difficulty)
     );
+
+    // println!(
+    //     "{:?}",
+    //     apply_requirement(&Requirement::RidleyFight {
+    //         can_be_patient_tech_id: game_data.tech_isv.index_by_key["canBePatient"]
+    //     }, &global_state, local_state, false, &difficulty)
+    // );
 
     // let mut name_set: HashSet<String> = HashSet::new();
     // for link in &game_data.links {

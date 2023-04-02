@@ -364,7 +364,7 @@ temperature_min1 = 0.1
 temperature_max0 = 1000.0
 temperature_max1 = 10.0
 annealing_start = 0
-annealing_time = 256
+annealing_time = 512
 pass_factor0 = 0.0
 pass_factor1 = 2.0
 print_freq = 8
@@ -448,10 +448,11 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 logging.info("Checkpoint path: {}".format(pickle_name))
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
 logging.info(
-    "map_x={}, map_y={}, num_envs={}, batch_size={}, pass_factor0={}, pass_factor1={}, lr0={}, lr1={}, num_candidates0={}, num_candidates1={}, replay_size={}/{}, hist_frac={}, hist_c={}, num_params={}, decay_amount={}, temperature_min0={}, temperature_min1={}, temperature_max0={}, temperature_max1={}, ema_beta0={}, ema_beta1={}, explore_eps_factor={}".format(
+    "map_x={}, map_y={}, num_envs={}, batch_size={}, pass_factor0={}, pass_factor1={}, lr0={}, lr1={}, num_candidates0={}, num_candidates1={}, replay_size={}/{}, hist_frac={}, hist_c={}, num_params={}, decay_amount={}, temperature_min0={}, temperature_min1={}, temperature_max0={}, temperature_max1={}, ema_beta0={}, ema_beta1={}, explore_eps_factor={}, annealing_time={}".format(
         map_x, map_y, session.envs[0].num_envs, batch_size, pass_factor0, pass_factor1, lr0, lr1, num_candidates0, num_candidates1, session.replay_buffer.size,
         session.replay_buffer.capacity, hist_frac, hist_c, num_params, session.decay_amount,
-        temperature_min0, temperature_min1, temperature_max0, temperature_max1, ema_beta0, ema_beta1, explore_eps_factor))
+        temperature_min0, temperature_min1, temperature_max0, temperature_max1, ema_beta0, ema_beta1, explore_eps_factor,
+        annealing_time))
 logging.info("Starting training")
 for i in range(1000000):
     frac = max(0.0, min(1.0, (session.num_rounds - annealing_start) / annealing_time))

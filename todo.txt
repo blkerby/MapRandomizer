@@ -8,6 +8,13 @@ priority:
 
 
 later:
+- oats seed Apr 1:
+ - main street shinespark energy
+ - kronic boost heatframes
+ - metal pirates hitbox doesn't need plasma
+- take double-hits into account correctly with reserve energy.
+- add gmode logic to sm-json-data
+  - use Fix Scroll Offsets from practice hack
 - check if pants room internal door connects correctly in logic
 - fix apparent bug with Forced mode which is adding an extra wasted tier that never gets used (but just slows things down a bit)
 - add option (enabled on Challenge) to not treat tanks as filler items anymore after giving Varia (including the step where giving Varia)
