@@ -86,8 +86,8 @@ org $82E339	;Vertical doors
 	PLP
 	JSL SlideCode
 
-org $82E2DB
-	JSR set_fadeout
+;org $82E2DB
+;	JSR set_fadeout
 
 org !FreeSpace
 SlideCode:
@@ -115,12 +115,12 @@ SlideCode:
 	STA !layer1_x,X
 	RTL
 
-; Based on vanilla code at $82D961. We don't modify it in place because it is still
-; used by fade-in (which is kept vanilla speed).
-set_fadeout:
-	LDA #$0006    ; double speed (vanilla: LDA #$000C)
-	STA $7EC402	  ; Palette change denominator = Ch
-	JSR $DA02  	  ; Advance gradual colour change of all palettes
-	RTS
+;; Based on vanilla code at $82D961. We don't modify it in place because it is still
+;; used by fade-in (which is kept vanilla speed).
+;set_fadeout:
+;	LDA #$0006    ; double speed (vanilla: LDA #$000C)
+;	STA $7EC402	  ; Palette change denominator = Ch
+;	JSR $DA02  	  ; Advance gradual colour change of all palettes
+;	RTS
 
 warnpc $82fa00
