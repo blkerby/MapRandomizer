@@ -5,11 +5,11 @@
         <li>Be sure to save frequently! Saves are fast, and saving at a different station from the last save will move 
         to the next slot before saving, so you can go back to an earlier save if you get stuck.
         <li>Be careful with one-ways: it's easy to get soft-locked. The logic never requires going down a one-way 
-        for an item unless there is a way out without using the new item. It's often best to avoid one-ways
+        for an item unless there is a way back to the Ship without using the new item. It's often best to avoid one-ways
         until you know there's a way back or have exhausted all other options.
-        <% if supers_double { %>
-        <li>Supers do double damage to Mother Brain (a quality-of-life option enabled by default).
-        <% } %>
+        <li>If you can't find any way to progress, don't give up! Check out the interactive spoiler map below to see
+        what the game intended. If it still seems impossible or too difficult, please let us know in the
+        <a href="https://discord.gg/Gc99YV2ZcB">Discord</a> #strat-help or #unbeatable-seeds.
         </ul>
     </div>
 </div>
@@ -60,6 +60,9 @@
         <h6>Other info</h6>
         <ul>
         <li>Missile Refill stations refill all ammo types: Missiles, Supers, and Power Bombs.
+        <% if supers_double { %>
+        <li>Supers do double damage to Mother Brain (a quality-of-life option enabled by default).
+        <% } %>
         <li>Hyper Beam destroys Super, Bomb, and Power Bomb blocks and can open blue & green gates from either side.
         </ul>
         <p>
