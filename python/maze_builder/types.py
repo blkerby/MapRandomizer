@@ -41,6 +41,7 @@ class Room:
     name: str
     map: List[List[int]]
     rom_address: Optional[int] = None
+    twin_rom_address: Optional[int] = None
     door_ids: Optional[List[DoorIdentifier]] = None
     door_left: Optional[List[List[int]]] = None
     door_right: Optional[List[List[int]]] = None
@@ -64,6 +65,7 @@ class Room:
     missing_part_connections: Optional[List[Tuple[int, int]]] = ()
     items: Optional[List[Item]] = None
     node_tiles: Optional[Dict[int, List[Tuple[int, int]]]] = None
+    twin_node_tiles: Optional[Dict[int, List[Tuple[int, int]]]] = None
 
     def populate(self):
         self.height = len(self.map)

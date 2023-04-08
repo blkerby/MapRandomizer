@@ -114,6 +114,7 @@ struct FlagLocationState {
 
 #[derive(Clone)]
 struct DebugData {
+    global_state: GlobalState,
     forward: TraverseResult,
     reverse: TraverseResult,
 }
@@ -623,7 +624,11 @@ impl<'r> Randomizer<'r> {
             }
         }
         // Store TraverseResults to use for constructing spoiler log
-        state.debug_data = Some(DebugData { forward, reverse });
+        state.debug_data = Some(DebugData {
+            global_state: state.global_state.clone(),
+            forward,
+            reverse,
+        });
     }
 
     fn select_items<R: Rng>(
@@ -688,14 +693,10 @@ impl<'r> Randomizer<'r> {
 
         let num_other_items_to_place = num_items_to_place - num_key_items_to_place;
 
-        let expansion_item_set: HashSet<Item> = [
-            Item::ETank,
-            Item::ReserveTank,
-            Item::Super,
-            Item::PowerBomb,
-        ]
-        .into_iter()
-        .collect();
+        let expansion_item_set: HashSet<Item> =
+            [Item::ETank, Item::ReserveTank, Item::Super, Item::PowerBomb]
+                .into_iter()
+                .collect();
         let mut item_types_to_mix: Vec<Item> = vec![Item::Missile];
         let mut item_types_to_delay: Vec<Item> = vec![];
 
@@ -1107,7 +1108,61 @@ impl<'r> Randomizer<'r> {
         state: &RandomizationState,
         spoiler_summaries: Vec<SpoilerSummary>,
         spoiler_details: Vec<SpoilerDetails>,
+        debug_data_vec: Vec<DebugData>,
     ) -> Randomization {
+        // Compute the first step on which each node becomes reachable/bireachable:
+        let mut node_reachable_step: HashMap<(RoomId, NodeId), usize> = HashMap::new();
+        let mut node_bireachable_step: HashMap<(RoomId, NodeId), usize> = HashMap::new();
+        let mut map_tile_reachable_step: HashMap<(RoomId, (usize, usize)), usize> = HashMap::new();
+        let mut map_tile_bireachable_step: HashMap<(RoomId, (usize, usize)), usize> =
+            HashMap::new();
+
+        for (step, debug_data) in debug_data_vec.iter().enumerate() {
+            for (v, (room_id, node_id, _obstacle_bitmask)) in
+                self.game_data.vertex_isv.keys.iter().enumerate()
+            {
+                if node_bireachable_step.contains_key(&(*room_id, *node_id)) {
+                    continue;
+                }
+                if is_bireachable(
+                    &debug_data.global_state,
+                    &debug_data.forward.local_states[v],
+                    &debug_data.reverse.local_states[v],
+                ) {
+                    node_bireachable_step.insert((*room_id, *node_id), step);
+                    let room_ptr = self.game_data.room_ptr_by_id[room_id];
+                    let room_idx = self.game_data.room_idx_by_ptr[&room_ptr];
+                    if let Some(coords) = self.game_data.node_tile_coords.get(&(*room_id, *node_id))
+                    {
+                        for (x, y) in coords.iter().copied() {
+                            let key = (room_idx, (x, y));
+                            if !map_tile_bireachable_step.contains_key(&key) {
+                                map_tile_bireachable_step.insert(key, step);
+                            }
+                        }
+                    }
+                }
+
+                if node_reachable_step.contains_key(&(*room_id, *node_id)) {
+                    continue;
+                }
+                if debug_data.forward.local_states[v].is_some() {
+                    node_reachable_step.insert((*room_id, *node_id), step);
+                    let room_ptr = self.game_data.room_ptr_by_id[room_id];
+                    let room_idx = self.game_data.room_idx_by_ptr[&room_ptr];
+                    if let Some(coords) = self.game_data.node_tile_coords.get(&(*room_id, *node_id))
+                    {
+                        for (x, y) in coords.iter().copied() {
+                            let key = (room_idx, (x, y));
+                            if !map_tile_reachable_step.contains_key(&key) {
+                                map_tile_reachable_step.insert(key, step);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         let item_placement = state
             .item_location_state
             .iter()
@@ -1117,9 +1172,9 @@ impl<'r> Randomizer<'r> {
             .item_location_state
             .iter()
             .enumerate()
-            .map(|(i,x)| {
-                let (r,n) = self.game_data.item_locations[i];
-                let item_vertex_info = self.get_vertex_info_by_id(r,n);
+            .map(|(i, x)| {
+                let (r, n) = self.game_data.item_locations[i];
+                let item_vertex_info = self.get_vertex_info_by_id(r, n);
                 let location = SpoilerLocation {
                     area: item_vertex_info.area_name,
                     room: item_vertex_info.room_name,
@@ -1129,18 +1184,48 @@ impl<'r> Randomizer<'r> {
                 let item = x.placed_item.unwrap();
                 SpoilerItemLoc {
                     item: Item::VARIANTS[item as usize].to_string(),
-                    location
+                    location,
                 }
-            }).collect();
-        let spoiler_all_rooms = self.map.rooms.iter().zip(self.game_data.room_geometry.iter()).map(|(c,g)| {
-            let room = self.game_data.room_id_by_ptr[&g.rom_address];
-            let room = self.game_data.room_json_map[&room]["name"].as_str().unwrap().to_string();
-            SpoilerRoomLoc {
-                room,
-                map: g.map.clone(),
-                coords: *c
-            }
-        }).collect();
+            })
+            .collect();
+        let spoiler_all_rooms = self
+            .map
+            .rooms
+            .iter()
+            .enumerate()
+            .zip(self.game_data.room_geometry.iter())
+            .map(|((room_idx, c), g)| {
+                let room = self.game_data.room_id_by_ptr[&g.rom_address];
+                let room = self.game_data.room_json_map[&room]["name"]
+                    .as_str()
+                    .unwrap()
+                    .to_string();
+                let height = g.map.len();
+                let width = g.map[0].len();
+                let mut map_reachable_step: Vec<Vec<u8>> = vec![vec![255; width]; height];
+                let mut map_bireachable_step: Vec<Vec<u8>> = vec![vec![255; width]; height];
+                for y in 0..height {
+                    for x in 0..width {
+                        if g.map[y][x] != 0 {
+                            let key = (room_idx, (x, y));
+                            if let Some(step) = map_tile_reachable_step.get(&key) {
+                                map_reachable_step[y][x] = *step as u8;
+                            }
+                            if let Some(step) = map_tile_bireachable_step.get(&key) {
+                                map_bireachable_step[y][x] = *step as u8;
+                            }
+                        }
+                    }
+                }
+                SpoilerRoomLoc {
+                    room,
+                    map: g.map.clone(),
+                    map_reachable_step,
+                    map_bireachable_step,
+                    coords: *c,
+                }
+            })
+            .collect();
         let spoiler_escape =
             escape_timer::compute_escape_data(self.game_data, self.map, &self.difficulty_tiers[0]);
         let spoiler_log = SpoilerLog {
@@ -1148,7 +1233,7 @@ impl<'r> Randomizer<'r> {
             escape: spoiler_escape,
             details: spoiler_details,
             all_items: spoiler_all_items,
-            all_rooms: spoiler_all_rooms
+            all_rooms: spoiler_all_rooms,
         };
         Randomization {
             difficulty: self.difficulty_tiers[0].clone(),
@@ -1240,6 +1325,7 @@ impl<'r> Randomizer<'r> {
         }
         let mut spoiler_summary_vec: Vec<SpoilerSummary> = Vec::new();
         let mut spoiler_details_vec: Vec<SpoilerDetails> = Vec::new();
+        let mut debug_data_vec: Vec<DebugData> = Vec::new();
         while !state.done {
             let cnt_collected = state
                 .item_location_state
@@ -1266,13 +1352,22 @@ impl<'r> Randomizer<'r> {
                 Some((spoiler_summary, spoiler_details)) => {
                     spoiler_summary_vec.push(spoiler_summary);
                     spoiler_details_vec.push(spoiler_details);
+                    // Append `debug_data` is present (which it always should be except after the final step)
+                    if let Some(debug_data) = &state.debug_data {
+                        debug_data_vec.push(debug_data.clone());
+                    }
                 }
                 None => return None,
             }
             state.step_num += 1;
         }
         self.finish(&mut state);
-        Some(self.get_randomization(&state, spoiler_summary_vec, spoiler_details_vec))
+        Some(self.get_randomization(
+            &state,
+            spoiler_summary_vec,
+            spoiler_details_vec,
+            debug_data_vec,
+        ))
     }
 }
 
@@ -1352,7 +1447,9 @@ pub struct SpoilerRoomLoc {
     // here temporarily, most likely, since these can be baked into the web UI
     room: String,
     map: Vec<Vec<u8>>,
-    coords: (usize, usize)
+    map_reachable_step: Vec<Vec<u8>>,
+    map_bireachable_step: Vec<Vec<u8>>,
+    coords: (usize, usize),
 }
 
 #[derive(Serialize, Deserialize)]
@@ -1380,7 +1477,7 @@ pub struct SpoilerLog {
     pub escape: SpoilerEscape,
     pub details: Vec<SpoilerDetails>,
     pub all_items: Vec<SpoilerItemLoc>,
-    pub all_rooms: Vec<SpoilerRoomLoc>
+    pub all_rooms: Vec<SpoilerRoomLoc>,
 }
 
 impl<'a> Randomizer<'a> {
