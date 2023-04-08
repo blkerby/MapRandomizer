@@ -504,7 +504,8 @@ rooms = [
     ),
     Room(
         name='West Ocean',
-        rom_address=0x793FE,  # Homing Geemer twin room: 0x7968F
+        rom_address=0x793FE,
+        twin_rom_address=0x7968F,
         map=[
             [1, 1, 1, 1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1, 1, 1, 1],
@@ -547,6 +548,10 @@ rooms = [
                  (0, 4), (1, 4), (2, 4), (3, 4), (4, 4), (5, 4),
                  (2, 5), (3, 5), (4, 5), (5, 5), (6, 5), (7, 5)],
             14: [(0, 2)],  # north-south junction
+        },
+        twin_node_tiles={
+            1: [(5, 2)],
+            2: [(5, 2)],
         },
     ),
     Room(

@@ -9,7 +9,10 @@ for room in rooms:
                     all_coords_set.add((x, y))
 
         covered_coords_set = set()
-        for k, v in room.node_tiles.items():
+        tile_list = list(room.node_tiles.items())
+        if room.twin_node_tiles is not None:
+            tile_list = tile_list + list(room.twin_node_tiles.items())
+        for k, v in tile_list:
             for (x, y) in v:
                 if (x, y) not in all_coords_set:
                     print("Room='{}', Node={}, coords=({}, {}): not valid".format(room.name, k, x, y))
@@ -20,3 +23,4 @@ for room in rooms:
                 print("Room='{}', coords=({}, {}): not covered".format(room.name, x, y))
     except Exception as e:
         print("Room='{}': {}".format(room.name, e))
+

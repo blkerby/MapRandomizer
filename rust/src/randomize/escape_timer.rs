@@ -124,7 +124,11 @@ fn get_overrides() -> OverridesMap {
         RoomName,
         Vec<((RoomGeometryDoorIdx, RoomGeometryDoorIdx), Cost)>,
     )> = vec![
-        ("Tourian Escape Room 3", vec![((1, 0), 12)]),
+        (
+            "Terminator Room",
+            vec![((0, 1), 3)],
+        ),
+        ("Tourian Escape Room 3", vec![((1, 0), 12), ((0, 1), 5)]),
         ("Tourian Escape Room 4", vec![((0, 1), 18)]),
         (
             "Parlor and Alcatraz",
@@ -355,6 +359,7 @@ fn get_overrides() -> OverridesMap {
                 ((0, 4), 11),
                 ((0, 5), 9),
                 ((0, 6), 6),
+                ((6, 0), 3), // asymmetric
                 ((1, 4), 10),
                 ((1, 5), 8),
                 ((1, 6), 5),
@@ -364,7 +369,7 @@ fn get_overrides() -> OverridesMap {
                 ((6, 5), 10),
             ],
         ),
-        ("Pants Room", vec![((0, 2), 8)]),
+        ("Pants Room", vec![((0, 2), 8), ((2, 0), 3)]),
         ("East Cactus Alley Room", vec![((0, 1), 8)]),
         ("Metroid Room 4", vec![((0, 1), 3)]),
         ("Tourian Escape Room 4", vec![((0, 1), 17)]),
@@ -401,9 +406,7 @@ fn get_override_cost(
         if room_overrides.contains_key(&(src_door_idx, dst_door_idx)) {
             return Some(room_overrides[&(src_door_idx, dst_door_idx)]);
         } else if room_overrides.contains_key(&(dst_door_idx, src_door_idx)) {
-            if room.name != "Pants Room" && room.name != "Tourian Escape Room 3" {
-                return Some(room_overrides[&(dst_door_idx, src_door_idx)]);
-            }
+            return Some(room_overrides[&(dst_door_idx, src_door_idx)]);
         }
     }
     None
