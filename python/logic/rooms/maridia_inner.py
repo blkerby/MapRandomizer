@@ -23,7 +23,8 @@ rooms = [
     ),
     Room(
         name='Aqueduct',
-        rom_address=0x7D5A7,  # 0x7D408 (toilet)
+        rom_address=0x7D5A7,
+        twin_rom_address=0x7D408,
         map=[
             [0, 0, 1, 0, 0, 0],
             [0, 0, 1, 0, 0, 0],
@@ -64,6 +65,10 @@ rooms = [
             8: [(5, 4)],
             9: [(0, 4), (1, 4), (2, 4), (1, 5), (2, 5), (2, 5)],
             # TODO: add toilet
+        },
+        twin_node_tiles={
+            1: [(2, 0), (2, 1), (2, 2), (2, 3), (2, 4)],
+            2: [(2, 5), (2, 6), (2, 7), (2, 8), (2, 9)],
         },
     ),
     Room(
@@ -674,7 +679,8 @@ rooms = [
     ),
     Room(
         name='Pants Room',
-        rom_address=0x7D646,  # East Pants Room twin room: 0x7D69A
+        rom_address=0x7D646,
+        twin_rom_address=0x7D69A,
         map=[
             [1, 1],
             [1, 1],
@@ -694,7 +700,12 @@ rooms = [
             4: [(0, 0)],
             5: [(0, 2)],
         },
-        # TODO: East Pants Room
+        twin_node_tiles={
+            1: [(1, 1)],
+            2: [(1, 2)],
+            3: [(1, 3)],
+            4: [(1, 2)],
+        },
     ),
     Room(
         name='Shaktool Room',

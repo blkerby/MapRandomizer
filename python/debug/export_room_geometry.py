@@ -32,19 +32,29 @@ def item_to_json(item: Item):
         'addr': item.addr,
     }
 
+def node_tiles_to_json(node_tiles_dict):
+    if node_tiles_dict is None:
+        return None
+    out = []
+    for k, v in node_tiles_dict.items():
+        out.append([k, v])
+    return out
+
 all_json = []
 for room in rooms:
     room_json = {
         "name": room.name,
         'area': room.area.value,
-        # "rom_address": hex(room.rom_address),
         "rom_address": room.rom_address,
+        "twin_rom_address": room.twin_rom_address,
         "map": room.map,
         "doors": [door_id_to_json(door_id) for door_id in room.door_ids],
         "parts": room.parts,
         "durable_part_connections": room.durable_part_connections,
         "transient_part_connections": room.transient_part_connections,
-        "items": [] if room.items is None else [item_to_json(item) for item in room.items]
+        "items": [] if room.items is None else [item_to_json(item) for item in room.items],
+        "node_tiles": node_tiles_to_json(room.node_tiles),
+        "twin_node_tiles": node_tiles_to_json(room.twin_node_tiles),
     }
     all_json.append(room_json)
 

@@ -17,6 +17,7 @@ priority:
 
 
 later:
+- logic: ice moonfall (in dachora room)
 - make graph traversals faster by using previous step for initial local states (probably not worth it?):
   - we'd have to do a full graph traversal to get spoiler route as a separate step, to avoid getting weird long paths
 - in sm-json-data: add logical requirement for refills
