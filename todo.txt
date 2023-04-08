@@ -17,6 +17,8 @@ priority:
 
 
 later:
+- make graph traversals faster by using previous step for initial local states (probably not worth it?):
+  - we'd have to do a full graph traversal to get spoiler route as a separate step, to avoid getting weird long paths
 - in sm-json-data: add logical requirement for refills
   - use this for strats that enter G-mode in a room with a refill (or the Ship), use it, and then go back out still in G-mode?
 - check if fast doors interferes with G-mode setup (taking damage in the transition)
