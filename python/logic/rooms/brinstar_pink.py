@@ -81,7 +81,7 @@ rooms = [
         ],
         node_tiles={
             1: [(1, 0)],  # top left door
-            2: [(4, 0)],  # top right door
+            2: [(3, 0)],  # top right door
             3: [(2, 2)],  # mid-top left door
             4: [(2, 3)],  # middle left door (to top of Mission Impossible)
             5: [(2, 4)],  # mid-bottom left door (to bottom of Mission Impossible)

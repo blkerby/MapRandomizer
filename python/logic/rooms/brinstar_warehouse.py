@@ -42,7 +42,7 @@ rooms = [
         node_tiles={
             1: [(0, 0)],  # top left door
             2: [(0, 1)],  # bottom left door
-            3: [(1, 0)],  # bottom right door (up to kihunters)
+            3: [(1, 1)],  # bottom right door (up to kihunters)
         },
     ),
     Room(
