@@ -261,12 +261,15 @@ pub struct RoomGeometry {
     pub name: String,
     pub area: usize,
     pub rom_address: usize,
+    pub twin_rom_address: Option<usize>,
     pub map: Vec<Vec<u8>>,
     pub doors: Vec<RoomGeometryDoor>,
     pub parts: Vec<Vec<RoomGeometryDoorIdx>>,
     pub durable_part_connections: Vec<(RoomGeometryPartIdx, RoomGeometryPartIdx)>,
     pub transient_part_connections: Vec<(RoomGeometryPartIdx, RoomGeometryPartIdx)>,
     pub items: Vec<RoomGeometryItem>,
+    pub node_tiles: Vec<(usize, Vec<(usize, usize)>)>,
+    pub twin_node_tiles: Option<Vec<(usize, Vec<(usize, usize)>)>>,
 }
 
 #[derive(Clone, Debug)]
@@ -321,8 +324,10 @@ pub struct GameData {
         HashMap<DoorPtrPair, (RoomGeometryRoomIdx, RoomGeometryDoorIdx)>,
     pub room_ptr_by_id: HashMap<RoomId, RoomPtr>,
     pub room_id_by_ptr: HashMap<RoomPtr, RoomId>,
+    pub raw_room_id_by_ptr: HashMap<RoomPtr, RoomId>, // Does not replace twin room pointer with corresponding main room pointer
     pub room_idx_by_ptr: HashMap<RoomPtr, RoomGeometryRoomIdx>,
     pub room_idx_by_name: HashMap<String, RoomGeometryRoomIdx>,
+    pub node_tile_coords: HashMap<(RoomId, NodeId), Vec<(usize, usize)>>,
     pub base_room_door_graph: RoomDoorGraph,
     pub area_names: Vec<String>,
     pub area_map_ptrs: Vec<isize>,
@@ -410,9 +415,9 @@ impl GameData {
 
     fn extract_tech_dependencies(&self, req: &Requirement) -> HashSet<String> {
         match req {
-            Requirement::Tech(tech_id) => {
-                vec![self.tech_isv.keys[*tech_id].clone()].into_iter().collect()
-            }
+            Requirement::Tech(tech_id) => vec![self.tech_isv.keys[*tech_id].clone()]
+                .into_iter()
+                .collect(),
             Requirement::And(sub_reqs) => {
                 let mut out: HashSet<String> = HashSet::new();
                 for r in sub_reqs {
@@ -420,9 +425,7 @@ impl GameData {
                 }
                 out
             }
-            _ => {
-                HashSet::new()
-            }
+            _ => HashSet::new(),
         }
     }
 
@@ -1400,6 +1403,7 @@ impl GameData {
 
         let mut room_ptr =
             parse_int::parse::<usize>(room_json["roomAddress"].as_str().unwrap()).unwrap();
+        self.raw_room_id_by_ptr.insert(room_ptr, room_id);
         if room_ptr == 0x7D408 {
             room_ptr = 0x7D5A7; // Treat Toilet Bowl as part of Aqueduct
         } else if room_ptr == 0x7D69A {
@@ -1661,11 +1665,18 @@ impl GameData {
                         if notable {
                             let mut notable_strat_note: Vec<String> = strat_notes.clone();
                             if strat_json.has_key("reusableRoomwideNotable") {
-                                notable_strat_name = strat_json["reusableRoomwideNotable"].as_str().unwrap().to_string();
+                                notable_strat_name = strat_json["reusableRoomwideNotable"]
+                                    .as_str()
+                                    .unwrap()
+                                    .to_string();
                                 if !roomwide_notable.contains_key(&notable_strat_name) {
-                                    bail!("Unrecognized reusable notable strat name: {}", notable_strat_name);
+                                    bail!(
+                                        "Unrecognized reusable notable strat name: {}",
+                                        notable_strat_name
+                                    );
                                 }
-                                notable_strat_note = self.parse_note(&roomwide_notable[&notable_strat_name]["note"]);
+                                notable_strat_note =
+                                    self.parse_note(&roomwide_notable[&notable_strat_name]["note"]);
                             }
                             let strat_id = self.notable_strat_isv.add(&notable_strat_name);
                             requires_vec.push(Requirement::Strat(strat_id));
@@ -1691,7 +1702,11 @@ impl GameData {
                             from_vertex_id,
                             to_vertex_id,
                             requirement,
-                            notable_strat_name: if notable { Some(notable_strat_name) } else { None },
+                            notable_strat_name: if notable {
+                                Some(notable_strat_name)
+                            } else {
+                                None
+                            },
                             strat_name,
                             strat_notes,
                         };
@@ -1831,11 +1846,28 @@ impl GameData {
         self.room_geometry = serde_json::from_str(&room_geometry_str)?;
         for (room_idx, room) in self.room_geometry.iter().enumerate() {
             self.room_idx_by_name.insert(room.name.clone(), room_idx);
+            self.room_idx_by_ptr.insert(room.rom_address, room_idx);
+            if let Some(twin_rom_address) = room.twin_rom_address {
+                self.room_idx_by_ptr.insert(twin_rom_address, room_idx);
+            }
             for (door_idx, door) in room.doors.iter().enumerate() {
                 let door_ptr_pair = (door.exit_ptr, door.entrance_ptr);
                 self.room_and_door_idxs_by_door_ptr_pair
                     .insert(door_ptr_pair, (room_idx, door_idx));
-                self.room_idx_by_ptr.insert(room.rom_address, room_idx);
+            }
+
+            let room_id = self.room_id_by_ptr[&room.rom_address];
+            for (node_id, tiles) in &room.node_tiles {
+                self.node_tile_coords
+                    .insert((room_id, *node_id), tiles.clone());
+            }
+
+            if let Some(twin_rom_address) = room.twin_rom_address {
+                let room_id = self.raw_room_id_by_ptr[&twin_rom_address];
+                for (node_id, tiles) in room.twin_node_tiles.as_ref().unwrap() {
+                    self.node_tile_coords
+                        .insert((room_id, *node_id), tiles.clone());
+                }
             }
         }
         Ok(())
@@ -1890,7 +1922,8 @@ impl GameData {
         for link in &links {
             if let Some(notable_strat_name) = link.notable_strat_name.clone() {
                 let deps: HashSet<String> = self.extract_tech_dependencies(&link.requirement);
-                self.strat_dependencies.insert(notable_strat_name.clone(), deps.into_iter().collect());
+                self.strat_dependencies
+                    .insert(notable_strat_name.clone(), deps.into_iter().collect());
             }
         }
         Ok(())
@@ -1908,13 +1941,16 @@ impl GameData {
         game_data.load_tech()?;
         game_data.load_helpers()?;
 
-        // Patch the h_heatProof and h_heatResistant to take into account the complementary suit 
+        // Patch the h_heatProof and h_heatResistant to take into account the complementary suit
         // patch, where only Varia (and not Gravity) provides heat protection:
         *game_data.helper_json_map.get_mut("h_heatProof").unwrap() = json::object! {
             "name": "h_heatProof",
             "requires": ["Varia"],
         };
-        *game_data.helper_json_map.get_mut("h_heatResistant").unwrap() = json::object! {
+        *game_data
+            .helper_json_map
+            .get_mut("h_heatResistant")
+            .unwrap() = json::object! {
             "name": "h_heatProof",
             "requires": ["Varia"],
         };
