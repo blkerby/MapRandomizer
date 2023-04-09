@@ -69,13 +69,37 @@
 
             <div class="form-group row m-3">
                 <div class="col-sm-5">
-                <label class="col-form-label" for="streamlined_escape">Streamlined escape<a href="#footnote-streamlined-escape"><sup>1</sup></a></label>
+                <label class="col-form-label" for="mother_brain_short">Short Mother Brain fight</label>
                 </div>
                 <div class="col-sm-2 btn-group" role="group">
-                    <input type="radio" class="btn-check" name="streamlined_escape" id="streamlinedEscapeNo" value="false">
-                    <label class="btn btn-outline-primary" for="streamlinedEscapeNo">No</label>
-                    <input type="radio" class="btn-check" name="streamlined_escape" id="streamlinedEscapeYes" value="true" checked>
-                    <label class="btn btn-outline-primary" for="streamlinedEscapeYes">Yes</label>
+                    <input type="radio" class="btn-check" name="mother_brain_short" id="motherBrainShortNo" value="false">
+                    <label class="btn btn-outline-primary" for="motherBrainShortNo">No</label>
+                    <input type="radio" class="btn-check" name="mother_brain_short" id="motherBrainShortYes" value="true" checked>
+                    <label class="btn btn-outline-primary" for="motherBrainShortYes">Yes</label>
+                </div>
+            </div>
+
+            <div class="form-group row m-3">
+                <div class="col-sm-5">
+                <label class="col-form-label" for="escape_movement_items">Hyper Beam gives all movement items</label>
+                </div>
+                <div class="col-sm-2 btn-group" role="group">
+                    <input type="radio" class="btn-check" name="escape_movement_items" id="escapeMovementItemsNo" value="false">
+                    <label class="btn btn-outline-primary" for="escapeMovementItemsNo">No</label>
+                    <input type="radio" class="btn-check" name="escape_movement_items" id="escapeMovementItemsYes" value="true" checked>
+                    <label class="btn btn-outline-primary" for="escapeMovementItemsYes">Yes</label>
+                </div>
+            </div>
+
+            <div class="form-group row m-3">
+                <div class="col-sm-5">
+                <label class="col-form-label" for="escape_enemies_cleared">Enemies cleared during escape</label>
+                </div>
+                <div class="col-sm-2 btn-group" role="group">
+                    <input type="radio" class="btn-check" name="escape_enemies_cleared" id="escapeEnemiesClearedNo" value="false">
+                    <label class="btn btn-outline-primary" for="escapeEnemiesClearedNo">No</label>
+                    <input type="radio" class="btn-check" name="escape_enemies_cleared" id="escapeEnemiesClearedYes" value="true" checked>
+                    <label class="btn btn-outline-primary" for="escapeEnemiesClearedYes">Yes</label>
                 </div>
             </div>
     

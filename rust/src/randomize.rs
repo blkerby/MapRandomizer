@@ -78,7 +78,9 @@ pub struct DifficultyConfig {
     pub botwoon_proficiency: f32,
     // Quality-of-life options:
     pub supers_double: bool,
-    pub streamlined_escape: bool,
+    pub mother_brain_short: bool,
+    pub escape_movement_items: bool,
+    pub escape_enemies_cleared: bool,
     pub mark_map_stations: bool,
     pub item_markers: ItemMarkers,
     pub all_items_spawn: bool,

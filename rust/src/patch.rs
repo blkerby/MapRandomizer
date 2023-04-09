@@ -230,9 +230,9 @@ impl<'a> Patcher<'a> {
             patches.push("all_items_spawn");
         }
 
-        if self.randomization.difficulty.streamlined_escape {
+        if self.randomization.difficulty.escape_movement_items {
             patches.push("escape_items");
-            patches.push("mother_brain_no_drain");
+            // patches.push("mother_brain_no_drain");
         }
 
         if self.randomization.difficulty.fast_elevators {
@@ -442,11 +442,14 @@ impl<'a> Patcher<'a> {
         Ok(())
     }
 
-    fn block_escape_return(&mut self, extra_door_asm: &mut HashMap<DoorPtr, Vec<u8>>) -> Result<()> {
+    fn block_escape_return(
+        &mut self,
+        extra_door_asm: &mut HashMap<DoorPtr, Vec<u8>>,
+    ) -> Result<()> {
         // For testing, using Landing Site bottom left door
         // let mother_brain_left_door_pair = (Some(0x18916), Some(0x1896A));
         let mother_brain_left_door_pair = (Some(0x1AA8C), Some(0x1AAE0));
-        
+
         // Finding the matching door on the map:
         let mut other_door_pair = (None, None);
         for door in &self.randomization.map.doors {
@@ -461,15 +464,19 @@ impl<'a> Patcher<'a> {
         let entrance_y = self.rom.read_u8(other_door_pair.1.unwrap() + 5)? as u8;
 
         let asm: Vec<u8> = vec![
-            0xA9, 0x0E, 0x00,         // LDA #$000E   (Escape flag)
-            0x22, 0x33, 0x82, 0x80,   // JSL $808233  (Check if flag is set)
-            0x90, 0x09,               // BCC $09  (Skip spawning gray door if not in escape)
-            0x22, 0x80, 0xF3, 0x84,   // JSL $84F380  (Spawn hard-coded PLM with room argument)
-            entrance_x, entrance_y, 0x42, 0xC8, 0x10  // PLM type 0xC8CA (gray door), argument 0x10 (always closed)
+            0xA9, 0x0E, 0x00, // LDA #$000E   (Escape flag)
+            0x22, 0x33, 0x82, 0x80, // JSL $808233  (Check if flag is set)
+            0x90, 0x09, // BCC $09  (Skip spawning gray door if not in escape)
+            0x22, 0x80, 0xF3, 0x84, // JSL $84F380  (Spawn hard-coded PLM with room argument)
+            entrance_x, entrance_y, 0x42, 0xC8,
+            0x10, // PLM type 0xC8CA (gray door), argument 0x10 (always closed)
         ];
-        
-        extra_door_asm.entry(mother_brain_left_door_pair.0.unwrap()).or_default().extend(asm);
-        
+
+        extra_door_asm
+            .entry(mother_brain_left_door_pair.0.unwrap())
+            .or_default()
+            .extend(asm);
+
         Ok(())
     }
 
@@ -477,7 +484,7 @@ impl<'a> Patcher<'a> {
     // fn fix_tourian_blue_hopper(&mut self, extra_door_asm: &mut HashMap<DoorPtr, Vec<u8>>) -> Result<()> {
     //     let door_pair = (Some(0x1AA14), Some(0x1AA20));
     //     let other_door_pair = self.other_door_ptr_pair_map[&door_pair];
-    //     // When entering from the left, switch to alternative enemy set that moves the 
+    //     // When entering from the left, switch to alternative enemy set that moves the
     //     // leftmost Hopper to the right. See `tourian_blue_hopper.asm` which creates the new enemy set.
     //     let asm: Vec<u8> = vec![
     //         // 0xa9, 0x00, 0xf2,  // lda #$F200  ;\
@@ -533,8 +540,10 @@ impl<'a> Patcher<'a> {
         for &((src_exit_ptr, src_entrance_ptr), (dst_exit_ptr, dst_entrance_ptr), _bidirectional) in
             &self.randomization.map.doors
         {
-            let (src_room_idx, _) = self.game_data.room_and_door_idxs_by_door_ptr_pair[&(src_exit_ptr, src_entrance_ptr)];
-            let (dst_room_idx, _) = self.game_data.room_and_door_idxs_by_door_ptr_pair[&(dst_exit_ptr, dst_entrance_ptr)];
+            let (src_room_idx, _) = self.game_data.room_and_door_idxs_by_door_ptr_pair
+                [&(src_exit_ptr, src_entrance_ptr)];
+            let (dst_room_idx, _) = self.game_data.room_and_door_idxs_by_door_ptr_pair
+                [&(dst_exit_ptr, dst_entrance_ptr)];
             let src_area = self.map.area[src_room_idx];
             let dst_area = self.map.area[dst_room_idx];
             let cross_area = src_area != dst_area;
@@ -615,8 +624,10 @@ impl<'a> Patcher<'a> {
             let area = self.map.area[i];
             let x0 = self.map.rooms[i].0 as isize;
             let y0 = self.map.rooms[i].1 as isize;
-            let x1 = self.map.rooms[i].0 as isize + self.game_data.room_geometry[i].map[0].len() as isize;
-            let y1 = self.map.rooms[i].1 as isize + self.game_data.room_geometry[i].map.len() as isize;
+            let x1 = self.map.rooms[i].0 as isize
+                + self.game_data.room_geometry[i].map[0].len() as isize;
+            let y1 =
+                self.map.rooms[i].1 as isize + self.game_data.room_geometry[i].map.len() as isize;
             if x0 < area_map_min_x[area] {
                 area_map_min_x[area] = x0;
             }
@@ -779,11 +790,13 @@ impl<'a> Patcher<'a> {
                     // 0xC8CA, // wall in Escape Room 1 (TODO: Check if this is needed)
         ];
         let gray_door_plm_types: HashMap<isize, isize> = vec![
-            (0xC848, 0xBAF4),  // left gray door
-            (0xC842, 0xFA00),  // right gray door
-            (0xC854, 0xFA06),  // up gray door
-            (0xC84E, 0xFA0C),  // down gray door
-        ].into_iter().collect();
+            (0xC848, 0xBAF4), // left gray door
+            (0xC842, 0xFA00), // right gray door
+            (0xC854, 0xFA06), // up gray door
+            (0xC84E, 0xFA0C), // down gray door
+        ]
+        .into_iter()
+        .collect();
         let keep_gray_door_room_names: Vec<String> = vec![
             "Kraid Room",
             "Phantoon's Room",
@@ -1011,6 +1024,37 @@ impl<'a> Patcher<'a> {
             self.rom.write_u8(snes2pc(0xB4F1D5), 0x84)?;
         }
 
+        if self.randomization.difficulty.mother_brain_short {
+            // Make Mother Brain 1 finish faster and skip MB2 and MB3:
+
+            for addr in &[0x897D, 0x89AF, 0x89E1, 0x8A09, 0x8A31, 0x8A63, 0x8A95] {
+                self.rom.write_u16(snes2pc(0xA90000 + addr), 0x10)?; // cut delay in half for tubes to fall
+            }
+    
+            self.rom.write_u16(snes2pc(0xA98D80), 0xAEE1)?; // Skip MB2 and MB3
+    
+            self.rom.write_n(
+                snes2pc(0xA9AEFD),
+                &[
+                    // (skip part where mother brain stumbles backwards before death; instead get hyper beam)
+                    0xA9, 0x03, 0x00, // LDA #$0003
+                    0x22, 0xAD, 0xE4, 0x91, // JSL $91E4AD
+                    0xEA, 0xEA, // nop : nop
+                ],
+            )?;    
+
+            self.rom.write_u16(snes2pc(0xA9AF07), 0xB115)?; // skip MB moving forward, drooling, exploding
+            self.rom.write_u16(snes2pc(0xA9B19F), 1)?; // accelerate fade to gray (which does nothing here, so we're just reducing the delay)
+            self.rom.write_u16(snes2pc(0xA99D2D), 0x10)?; // accelerate corpse tipping over
+            self.rom.write_u16(snes2pc(0xA99D31), 0x10)?; // accelerate corpse tipping over
+            self.rom.write_u16(snes2pc(0xA9B1B2), 0x50)?; // reduce delay before corpse rotting
+        }
+        
+        if self.randomization.difficulty.escape_movement_items {
+            // 0xA9FB70: new hyper beam collect routine in escape_items.asm.
+            self.rom.write_u24(snes2pc(0xA9AF01), 0xA9FB70)?;
+        }
+
         Ok(())
     }
 
@@ -1027,8 +1071,8 @@ impl<'a> Patcher<'a> {
         let reload_cre_door_pairs: HashSet<DoorPtrPair> = [
             (Some(0x191DA), Some(0x19252)), // Kraid right door
             (Some(0x191CE), Some(0x191B6)), // Kraid left door
-            // (Some(0x193DE), Some(0x19432)), // Crocomire left door
-            // (Some(0x193EA), Some(0x193D2)), // Crocomire top door
+                                            // (Some(0x193DE), Some(0x19432)), // Crocomire left door
+                                            // (Some(0x193EA), Some(0x193D2)), // Crocomire top door
         ]
         .into();
         for (src_pair, dst_pair, _bidirectional) in &self.map.doors {
@@ -1061,29 +1105,32 @@ impl<'a> Patcher<'a> {
 
     fn undo_escape_enemy_clear(&mut self) -> Result<()> {
         // Skip the patch that clears enemies during escape
-        self.rom.write_u8(snes2pc(0xA1f000), 0x6B)?;  // RTL
+        self.rom.write_u8(snes2pc(0xA1f000), 0x6B)?; // RTL
         Ok(())
     }
 
     fn fix_crateria_scrolling_sky(&mut self) -> Result<()> {
         let data = vec![
-            (0x8FB76C, (0x1892E, 0x18946)),  // Landing Site
-            (0x8FB777, (0x18916, 0x1896A)),  // Landing Site
-            (0x8FB782, (0x1893A, 0x189B2)),  // Landing Site
-            (0x8FB78D, (0x18922, 0x18AC6)),  // Landing Site
-            (0x8FB7B0, (0x189E2, 0x18A12)),  // West Ocean
-            (0x8FB7BB, (0x189CA, 0x18AEA)),  // West Ocean (Bottom-left door, to Moat)
-            (0x8FB7C6, (0x189FA, 0x1A18C)),  // West Ocean
-            (0x8FB7D1, (0x189D6, 0x1A1B0)),  // West Ocean
-            (0x8FB7DC, (0x189EE, 0x1A1E0)),  // West Ocean
-            (0x8FB7E7, (0x18A06, 0x1A300)),  // West Ocean
-            (0x8FB7F4, (0x18A72, 0x18A7E)),  // East Ocean
-            (0x8FB7FF, (0x18A66, 0x1A264)),  // East Ocean
+            (0x8FB76C, (0x1892E, 0x18946)), // Landing Site
+            (0x8FB777, (0x18916, 0x1896A)), // Landing Site
+            (0x8FB782, (0x1893A, 0x189B2)), // Landing Site
+            (0x8FB78D, (0x18922, 0x18AC6)), // Landing Site
+            (0x8FB7B0, (0x189E2, 0x18A12)), // West Ocean
+            (0x8FB7BB, (0x189CA, 0x18AEA)), // West Ocean (Bottom-left door, to Moat)
+            (0x8FB7C6, (0x189FA, 0x1A18C)), // West Ocean
+            (0x8FB7D1, (0x189D6, 0x1A1B0)), // West Ocean
+            (0x8FB7DC, (0x189EE, 0x1A1E0)), // West Ocean
+            (0x8FB7E7, (0x18A06, 0x1A300)), // West Ocean
+            (0x8FB7F4, (0x18A72, 0x18A7E)), // East Ocean
+            (0x8FB7FF, (0x18A66, 0x1A264)), // East Ocean
         ];
         for (addr, (exit_ptr, entrance_ptr)) in data {
             let door_pair = (Some(exit_ptr), Some(entrance_ptr));
             let other_door_pair = self.other_door_ptr_pair_map[&door_pair];
-            self.rom.write_u16(snes2pc(addr), (other_door_pair.0.unwrap() & 0xFFFF) as isize)?;
+            self.rom.write_u16(
+                snes2pc(addr),
+                (other_door_pair.0.unwrap() & 0xFFFF) as isize,
+            )?;
         }
 
         Ok(())
@@ -1145,7 +1192,7 @@ pub fn make_rom(
     patcher.apply_title_screen_patches()?;
     patcher.customize_escape_timer()?;
     patcher.apply_miscellaneous_patches()?;
-    if !randomization.difficulty.streamlined_escape {
+    if !randomization.difficulty.escape_enemies_cleared {
         patcher.undo_escape_enemy_clear()?;
     }
     // TODO: add CRE reload for Kraid & Crocomire

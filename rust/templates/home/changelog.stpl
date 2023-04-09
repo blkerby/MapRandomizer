@@ -5,8 +5,16 @@ about 15 seconds to load.
 
 <p><a href="https://version-52---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 52 (???)</a>:
 <ul>
-<li>Restore vanilla fade-out speed when using the fast doors quality-of-life option (to avoid disrupting R-mode/G-mode setups)
-<li>Adjust escape time in Tourian Escape Room 3 to be more lenient.
+<li>A new quality-of-life option "Short Mother Brain fight" is added and enabled by default.
+    <ul>
+    <li>This skips phases 2 and 3 of the fight.
+    </ul>
+<li>Quality-of-life option "Streamlined escape" is split into two separate options "Hyper Beam gives all movement items" and "Enemies cleared during escape".
+    <ul>
+    <li>The other behavior of "Streamlined escape", modifying Rainbow Beam to not drain ammo, is discarded.
+    </ul>
+<li>Fade-out speed is no longer affected by the "Fast doors" option.
+<li>Escape time in Tourian Escape Room 3 and Terminator Room is adjusted.
 </ul>
 
 <p><a href="https://version-51---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 51 (2023-03-30)</a>:
