@@ -81,7 +81,9 @@ function prepareSubmit() {
 function qualityOfLifePresetChanged() {
     if (document.getElementById("qualityOfLifeNo").checked) {
         document.getElementById("supersDoubleNo").checked = true;
-        document.getElementById("streamlinedEscapeNo").checked = true;
+        document.getElementById("motherBrainShortNo").checked = true;
+        document.getElementById("escapeMovementItemsNo").checked = true;
+        document.getElementById("escapeEnemiesClearedNo").checked = true;
         document.getElementById("markMapStationsNo").checked = true;
         document.getElementById("itemMarkersBasic").checked = true;
         document.getElementById("itemMarkersMajors").checked = false;
@@ -93,7 +95,9 @@ function qualityOfLifePresetChanged() {
     }
     if (document.getElementById("qualityOfLifeYes").checked) {
         document.getElementById("supersDoubleYes").checked = true;
-        document.getElementById("streamlinedEscapeYes").checked = true;
+        document.getElementById("motherBrainShortYes").checked = true;
+        document.getElementById("escapeMovementItemsYes").checked = true;
+        document.getElementById("escapeEnemiesClearedYes").checked = true;
         document.getElementById("markMapStationsYes").checked = true;
         document.getElementById("itemMarkersBasic").checked = false;
         document.getElementById("itemMarkersMajors").checked = false;

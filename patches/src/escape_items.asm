@@ -2,7 +2,7 @@
 org $A9CD12
     jsl get_hyper_beam
 
-; free space in bank $A9
+; free space in bank $A9, but must match address in patch.rs (for collecting hyper beam with fast Mother Brain)
 org $A9FB70
 get_hyper_beam:
     jsl $91E4AD   ; run the hi-jacked instruction

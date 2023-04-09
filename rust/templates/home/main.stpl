@@ -158,7 +158,6 @@
                 </div>
             </div>
         </div>
-        <% include!("footnotes.stpl"); %>
     </div>
     <% include!("scripts.stpl"); %>
     </body>
