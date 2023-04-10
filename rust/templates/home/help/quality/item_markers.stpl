@@ -1,0 +1,31 @@
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-light mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#itemMarkersModal">
+<i class="bi bi-question-circle"></i>
+</button>
+
+<!-- Modal -->
+<div class="modal" id="itemMarkersModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">Item markers</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>This option affects the way that items are drawn on the map (pause menu map and HUD minimap). There are four choices:
+        <ul>
+        <li><strong>Basic</strong>: All items are marked on the map with small dots.
+        <li><strong>Majors</strong>: Unique items, E-Tanks, and Reserve Tanks are marked with large solid dots; 
+        other items are marked with small dots.
+        <li><strong>Uniques</strong>: Unique items are marked with large solid dots; other items are marked with small dots.
+        <li><strong>3-Tiered</strong>: Unique items are marked with large solid dots; Supers, Power Bombs, E-Tanks, 
+        and Reserve Tanks are marked with large hollow dots; Missiles are marked with small dots.
+        </ul>
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

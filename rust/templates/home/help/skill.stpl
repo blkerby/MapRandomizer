@@ -1,0 +1,52 @@
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-light mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#skillModal">
+<i class="bi bi-question-circle"></i>
+</button>
+
+<!-- Modal -->
+<div class="modal" id="skillModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">Skill assumptions</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Skill assumptions determine which tricks the randomizer assumes the player is able to perform.
+        This affects where the randomizer may place key items on any given step. Anything selected here
+        is "fair game" for the player to be required to do in order to progress.</p>
+
+        <p>The presets can be summarized as follows:</p>
+
+        <p><ul>
+        <li><p><strong>Easy</strong>: No tech is required. The early game can still be challenging, as you
+        may encounter dangerous enemies and softlock risks.</p>
+        <li><p><strong>Medium</strong>: Basic tech may be required: wall jumps, crouch jumps, down grabs, 
+        infinite bomb jumps, shinesparks, and navigating heated/water rooms without suits.</p>
+        <li><p><strong>Hard</strong>: Common tech may be required, such as mockballs, damage boosts, 
+        gate glitching, Gravity jumps, snail climb, Spring Ball jump, and Mochtroid ice clips.</p>
+        <li><p><strong>Very Hard</strong>: Obscure or precise tech may be required, such as
+        Flatley jumps, grapple jumps, crystal flash stand-ups, evading Metroids, snail clips, and ice clips 
+        assisted by X-ray.</p>
+        <li><p><strong>Expert</strong>: Highly precise and/or repetitive tech may be required, such as
+        CWJ, tunnel crawls, X-ray climbs, Baby Metroid skip, crystal flash clips, double Spring Ball jumps,
+        and pixel-perfect ice clips.</p>
+        <li><p><strong>Insane</strong>: Extremely precise, complex, or time-consuming tech may be required,
+        such as Taco Tank, Multiviola ice clip, or climbing Main Street with only Ice Beam (no HiJump or Supers).</p>
+        </ul></p>
+
+        <p>Select one of the preset difficulty levels and then, if desired, refine it by expanding the
+        "Customize skill assumption" box below and modifying the selections. Note that if you then
+        select a preset again, it will override any customized settings that you made.</p>
+
+        <p>The amount of relevant tricks is large in this randomizer due to the large variety of situations that
+        can arise in randomized maps. Improving the organization of these settings is a work in progress!
+
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,25 @@
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-light mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#qualityModal">
+<i class="bi bi-question-circle"></i>
+</button>
+
+<!-- Modal -->
+<div class="modal" id="qualityModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">Quality-of-life options</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>These options help provide a smoother, more intuitive, and less tedious game experience.</p>
+
+        <p>They can be turned all off or all on at once using the "No" and "Yes" presets. Alternatively, individual options 
+        may be customized by expanding the "Customize quality-of-life options" below.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

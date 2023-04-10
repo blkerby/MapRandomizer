@@ -1,0 +1,41 @@
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-light mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#progressionRateModal">
+<i class="bi bi-question-circle"></i>
+</button>
+
+<!-- Modal -->
+<div class="modal" id="progressionRateModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">Progression rate</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>This setting affects the quantity of key items that the randomizer places on each step:</p> 
+        
+        <ul>
+        <li><p><strong>Fast</strong>: Key items are placed at double the normal rate, concentrating them in locations 
+        accessible earlier in the game.</p>
+        <li><p><strong>Normal</strong>: Key items are placed at a uniform rate. By the middle of the game there will likely 
+            be many possible ways to progress.</p>
+        <li><p><strong>Slow</strong>: At most one key item is placed at each step. This tends to limit the player to a
+            linear progression sequence, with many key items not being accessible until near the end of the game.</p>
+        </ul>
+
+        <h5>Details</h5>
+        <p>With a Normal progression rate, on a given step, the proportion of item locations to fill with key items (as opposed to filler items)
+        is targeted to match the fraction of key items among all unplaced items; in other words, the amount of key items to be
+        placed is roughly equal to the expected (average) amount if items were to be drawn completely randomly from the pool of unplaced items.</p>
+
+        <p>On Slow progression, on each step the randomizer will first attempt to place zero key items, in case the filler items alone may be
+        sufficient to provide progression. If that fails, it will try placing one key item.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
