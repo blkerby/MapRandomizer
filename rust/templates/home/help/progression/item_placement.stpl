@@ -1,0 +1,29 @@
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-light mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#itemPlacementModal">
+<i class="bi bi-question-circle"></i>
+</button>
+
+<!-- Modal -->
+<div class="modal" id="itemPlacementModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">Item placement</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        This setting affect how the randomizer selects locations to place key items in on each step, among all the 
+        possible obtainable item locations as determined by "Skill assumptions".
+        <p><ul>
+        <li><p><strong>Neutral</strong>: Key items are placed in random locations (among the possible locations).</p>
+        <li><p><strong>Forced</strong>: Key items tend to be placed in locations requiring difficult techniques to reach.</p>
+        </ul></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+

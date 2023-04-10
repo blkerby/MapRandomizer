@@ -1,0 +1,27 @@
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-light mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#shortMotherBrainModal">
+<i class="bi bi-question-circle"></i>
+</button>
+
+<!-- Modal -->
+<div class="modal" id="shortMotherBrainModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">Short Mother Brain fight</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>If enabled, then immediately after phase 1 of the Mother Brain fight, Samus collects Hyper Beam and the escape begins.</p>
+
+        <p>In this randomizer, there can be a significant risk of failing the escape, and this option makes it much less tedious to retry. 
+        In the vanilla game, the Mother Brain fight is mainly about telling a story, one that randomizer players are already familiar with.
+
+        <p>In this randomizer the escape is the true final boss.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
