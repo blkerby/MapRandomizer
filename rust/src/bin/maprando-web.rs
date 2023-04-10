@@ -260,6 +260,7 @@ struct SeedFooterTemplate {
     race_mode: bool,
     all_items_spawn: bool,
     supers_double: bool,
+    mother_brain_short: bool,
 }
 
 #[derive(TemplateOnce)]
@@ -315,6 +316,7 @@ fn render_seed(seed_name: &str, seed_data: &SeedData) -> Result<(String, String)
         race_mode: seed_data.race_mode,
         all_items_spawn: seed_data.all_items_spawn,
         supers_double: seed_data.supers_double,
+        mother_brain_short: seed_data.mother_brain_short,
     };
     let seed_footer_html = seed_footer_template.render_once()?;
     Ok((seed_header_html, seed_footer_html))

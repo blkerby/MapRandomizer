@@ -1,6 +1,9 @@
-<div class="form-group row my-2">
-    <label class="col-sm-2 col-form-label" for="qualityOfLife">Quality-of-life options</label>
-    <div class="col-sm-2 btn-group" role="group">
+<div class="form-group row">
+    <div class="col-lg-3 my-2">
+        <% include!("help/quality.stpl"); %>
+        <label for="preset">Quality-of-life options</label>
+    </div>
+    <div class="col-lg-2 btn-group my-2" role="group">
         <input type="radio" class="btn-check" name="quality_of_life_preset" value="false"
             id="qualityOfLifeNo" autocomplete="off" onclick="qualityOfLifePresetChanged()">
         <label class="btn btn-outline-primary" for="qualityOfLifeNo">No</label>
@@ -17,9 +20,12 @@
             </button>
         </h2>
         <div id="collapseQOL" class="accordion-collapse collapse m-2" onchange="qualityOfLifeSettingChanged()">
-            <div class="form-group row m-3">
-                <label class="col-sm-5 col-form-label" for="item_markers">Item markers</label>
-                <div class="col-sm-5 btn-group" role="group">
+            <div class="form-group row align-items-center">
+                <div class="col-lg-6 col-xl-4 m-2">
+                    <% include!("help/quality/item_markers.stpl"); %>
+                    <label for="preset">Item markers</label>
+                </div>
+                <div class="col-6 btn-group m-2" role="group">
                     <input type="radio" class="btn-check" name="item_markers" id="itemMarkersBasic" value="Basic">
                     <label class="btn btn-outline-primary" for="itemMarkersBasic">Basic</label>
                     <input type="radio" class="btn-check" name="item_markers" id="itemMarkersMajors" value="Majors">
@@ -31,11 +37,12 @@
                 </div>
             </div>
 
-            <div class="form-group row m-3">
-                <div class="col-sm-5">
-                <label class="col-form-label" for="mark_map_stations">Map stations always visible on map</label>
+            <div class="form-group row align-items-center">
+                <div class="col-lg-6 col-xl-4 m-2">
+                    <% include!("help/quality/map_stations.stpl"); %>
+                    <label for="preset">Map stations always visible on map</label>
                 </div>
-                <div class="col-sm-2 btn-group" role="group">
+                <div class="col-2 btn-group m-2" role="group">
                     <input type="radio" class="btn-check" name="mark_map_stations" id="markMapStationsNo" value="false">
                     <label class="btn btn-outline-primary" for="markMapStationsNo">No</label>
                     <input type="radio" class="btn-check" name="mark_map_stations" id="markMapStationsYes" value="true" checked>
@@ -43,11 +50,12 @@
                 </div>
             </div>
 
-            <div class="form-group row m-3">
-                <div class="col-sm-5">
-                <label class="col-form-label" for="all_items_spawn">All items spawn at start of game</label>
+            <div class="form-group row align-items-center">
+                <div class="col-lg-6 col-xl-4 m-2">
+                    <% include!("help/quality/items_spawn.stpl"); %>
+                    <label for="preset">All items spawn at start of game</label>
                 </div>
-                <div class="col-sm-2 btn-group" role="group">
+                <div class="col-2 btn-group m-2" role="group">
                     <input type="radio" class="btn-check" name="all_items_spawn" id="allItemsSpawnNo" value="false">
                     <label class="btn btn-outline-primary" for="allItemsSpawnNo">No</label>
                     <input type="radio" class="btn-check" name="all_items_spawn" id="allItemsSpawnYes" value="true" checked>
@@ -55,23 +63,12 @@
                 </div>
             </div>
             
-            <div class="form-group row m-3">
-                <div class="col-sm-5">
-                <label class="col-form-label" for="supers_double">Supers do double damage to Mother Brain</label>
+            <div class="form-group row align-items-center">
+                <div class="col-lg-6 col-xl-4 m-2">
+                    <% include!("help/quality/short_mother_brain.stpl"); %>
+                    <label for="preset">Short Mother Brain fight</label>
                 </div>
-                <div class="col-sm-2 btn-group" role="group">
-                    <input type="radio" class="btn-check" name="supers_double" id="supersDoubleNo" value="false">
-                    <label class="btn btn-outline-primary" for="supersDoubleNo">No</label>
-                    <input type="radio" class="btn-check" name="supers_double" id="supersDoubleYes" value="true" checked>
-                    <label class="btn btn-outline-primary" for="supersDoubleYes">Yes</label>
-                </div>
-            </div>
-
-            <div class="form-group row m-3">
-                <div class="col-sm-5">
-                <label class="col-form-label" for="mother_brain_short">Short Mother Brain fight</label>
-                </div>
-                <div class="col-sm-2 btn-group" role="group">
+                <div class="col-2 btn-group m-2" role="group">
                     <input type="radio" class="btn-check" name="mother_brain_short" id="motherBrainShortNo" value="false">
                     <label class="btn btn-outline-primary" for="motherBrainShortNo">No</label>
                     <input type="radio" class="btn-check" name="mother_brain_short" id="motherBrainShortYes" value="true" checked>
@@ -79,11 +76,25 @@
                 </div>
             </div>
 
-            <div class="form-group row m-3">
-                <div class="col-sm-5">
-                <label class="col-form-label" for="escape_movement_items">Hyper Beam gives all movement items</label>
+            <div class="form-group row align-items-center">
+                <div class="col-lg-6 col-xl-4 m-2">
+                    <% include!("help/quality/supers_double.stpl"); %>
+                    <label for="preset">Supers do double damage to Mother Brain</label>
                 </div>
-                <div class="col-sm-2 btn-group" role="group">
+                <div class="col-2 btn-group m-2" role="group">
+                    <input type="radio" class="btn-check" name="supers_double" id="supersDoubleNo" value="false">
+                    <label class="btn btn-outline-primary" for="supersDoubleNo">No</label>
+                    <input type="radio" class="btn-check" name="supers_double" id="supersDoubleYes" value="true" checked>
+                    <label class="btn btn-outline-primary" for="supersDoubleYes">Yes</label>
+                </div>
+            </div>
+
+            <div class="form-group row align-items-center">
+                <div class="col-lg-6 col-xl-4 m-2">
+                    <% include!("help/quality/movement_items.stpl"); %>
+                    <label for="preset">Hyper Beam gives all movement items</label>
+                </div>
+                <div class="col-2 btn-group m-2" role="group">
                     <input type="radio" class="btn-check" name="escape_movement_items" id="escapeMovementItemsNo" value="false">
                     <label class="btn btn-outline-primary" for="escapeMovementItemsNo">No</label>
                     <input type="radio" class="btn-check" name="escape_movement_items" id="escapeMovementItemsYes" value="true" checked>
@@ -91,11 +102,12 @@
                 </div>
             </div>
 
-            <div class="form-group row m-3">
-                <div class="col-sm-5">
-                <label class="col-form-label" for="escape_enemies_cleared">Enemies cleared during escape</label>
+            <div class="form-group row align-items-center">
+                <div class="col-lg-6 col-xl-4 m-2">
+                    <% include!("help/quality/enemies_cleared.stpl"); %>
+                    <label for="preset">Enemies cleared during escape</label>
                 </div>
-                <div class="col-sm-2 btn-group" role="group">
+                <div class="col-2 btn-group m-2" role="group">
                     <input type="radio" class="btn-check" name="escape_enemies_cleared" id="escapeEnemiesClearedNo" value="false">
                     <label class="btn btn-outline-primary" for="escapeEnemiesClearedNo">No</label>
                     <input type="radio" class="btn-check" name="escape_enemies_cleared" id="escapeEnemiesClearedYes" value="true" checked>
@@ -103,9 +115,12 @@
                 </div>
             </div>
     
-            <div class="form-group row m-3">
-                <label class="col-sm-5 col-form-label" for="fast_elevators">Fast elevators</label>
-                <div class="col-sm-2 btn-group" role="group">
+            <div class="form-group row align-items-center">
+                <div class="col-lg-6 col-xl-4 m-2">
+                    <% include!("help/quality/fast_elevators.stpl"); %>
+                    <label for="preset">Fast elevators</label>
+                </div>
+                <div class="col-2 btn-group m-2" role="group">
                     <input type="radio" class="btn-check" name="fast_elevators" id="fastElevatorsNo" value="false">
                     <label class="btn btn-outline-primary" for="fastElevatorsNo">No</label>
                     <input type="radio" class="btn-check" name="fast_elevators" id="fastElevatorsYes" value="true" checked>
@@ -113,9 +128,12 @@
                 </div>
             </div>
 
-            <div class="form-group row m-3">
-                <label class="col-sm-5 col-form-label" for="fast_doors">Fast doors (no effect on fade in/out)</label>
-                <div class="col-sm-2 btn-group" role="group">
+            <div class="form-group row align-items-center">
+                <div class="col-lg-6 col-xl-4 m-2">
+                    <% include!("help/quality/fast_doors.stpl"); %>
+                    <label for="preset">Fast doors</label>
+                </div>
+                <div class="col-2 btn-group m-2" role="group">
                     <input type="radio" class="btn-check" name="fast_doors" id="fastDoorsNo" value="false">
                     <label class="btn btn-outline-primary" for="fastDoorsNo">No</label>
                     <input type="radio" class="btn-check" name="fast_doors" id="fastDoorsYes" value="true" checked>
