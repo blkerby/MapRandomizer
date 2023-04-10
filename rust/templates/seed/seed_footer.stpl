@@ -53,15 +53,17 @@
         <li>Certain items do not spawn until Phantoon has been defeated, the same as in the vanilla game.
         <% } %>
         <li>Every item from the vanilla game is placed somewhere, and ammo distributions are unchanged; e.g. there are 50 Supers in the game.
-        <li>Gravity and Varia suits behave like in the vanilla game, except that Gravity alone provides
-        no heat protection and only 50% protection against other damage.
+        <li>Varis suit behaves as in vanilla, but Gravity suit alone provides no heat protection and only 50% protection against other damage. 
+        The suits are "complementary", meaning they stack to give the same effect as combined suits in the vanilla game.
         </ul>
 
         <h6>Other info</h6>
         <ul>
         <li>Missile Refill stations refill all ammo types: Missiles, Supers, and Power Bombs.
-        <% if supers_double { %>
-        <li>Supers do double damage to Mother Brain (a quality-of-life option enabled by default).
+        <% if mother_brain_short { %>
+        <li>The Mother Brain fight is shortened, making it unnecessary to collect extra ammo or tanks for it (a quality-of-life option).
+        <% } else if supers_double { %>
+        <li>Supers do double damage to Mother Brain (a quality-of-life option).
         <% } %>
         <li>Hyper Beam destroys Super, Bomb, and Power Bomb blocks and can open blue & green gates from either side.
         </ul>

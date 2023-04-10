@@ -11,12 +11,12 @@
     <div class="col-6"><%= if all_items_spawn { "Yes" } else { "No" }%></div>
 </div>
 <div class="row">
-    <div class="col-6">Supers do double damage to Mother Brain:</div>
-    <div class="col-6"><%= if supers_double { "Yes" } else { "No" }%></div>
-</div>
-<div class="row">
     <div class="col-6">Short Mother Brain fight:</div>
     <div class="col-6"><%= if mother_brain_short { "Yes" } else { "No" }%></div>
+</div>
+<div class="row">
+    <div class="col-6">Supers do double damage to Mother Brain:</div>
+    <div class="col-6"><%= if supers_double { "Yes" } else { "No" }%></div>
 </div>
 <div class="row">
     <div class="col-6">Hyper Beam gives all movement items:</div>
