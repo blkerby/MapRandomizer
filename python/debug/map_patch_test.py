@@ -7,7 +7,8 @@ import io
 import os
 
 
-input_rom_path = '/home/kerby/Downloads/Super Metroid (JU) [!].smc'
+# input_rom_path = '/home/kerby/Downloads/Super Metroid (JU) [!].smc'
+input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.5.3-tinystates-ntsc.sfc'
 # input_rom_path = '/home/kerby/Downloads/Practice-v2.5.1-suits.sfc'
 # input_rom_path = '/home/kerby/Downloads/smmr-v8-66-115673117270825932886574167490559/smmr-v8-66-115673117270825932886574167490559.sfc'
 # input_rom_path = '/home/kerby/Downloads/smmr-v0-30-115673117270825932886574167490559.sfc'
@@ -28,6 +29,7 @@ area_arr = [rom.read_u8(room.rom_address + 1) for room in rooms]
 
 patches = [
     'new_game_extra',
+    'door_hurt',
     # 'gunport',
     # 'screw_attack',
     # 'alucard',
