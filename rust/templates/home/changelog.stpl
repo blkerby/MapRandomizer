@@ -3,6 +3,18 @@
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-53---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 53 (2023-04-10)</a>:
+<ul>
+<li>A new "Objectives" setting is added, determining the condition for the barriers in Mother Brain Room to clear:
+    <ul>
+    <li><strong>Bosses</strong>: Defeat Kraid, Phantoon, Draygon, and Ridley (default, the same as before).
+    <li><strong>Minibosses</strong>: Defeat Spore Spawn, Crocomire, Botwoon, and Golden Torizo.
+    <li><strong>Metroids</strong>: Defeat all the Metroids in the four Metroid rooms.
+    </ul>
+<li>Issue is fixed that caused a crash in the Mother Brain fight when "Short Mother Brain fight" was disabled but 
+   "Hyper Beam gives all movement items" was enabled (a bug introduced in version 52).
+</ul>
+
 <p><a href="https://version-52---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 52 (2023-04-10)</a>:
 <ul>
 <li>A new quality-of-life option "Short Mother Brain fight" is added and enabled by default.

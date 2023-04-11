@@ -2,52 +2,56 @@ arch snes.cpu
 lorom
 
 org $83AAD2
-    dw $EB00  ; Set door ASM for Rinka Room toward Mother Brain
+    dw $EB00  ; Set door ASM for Rinka Room toward Mother Brain (using Bosses as default objective)
 
+; Free space in bank $8F 
+
+; OBJECTIVE: Bosses (must match address in patch.rs)
 org $8FEB00
     ; clear barriers in mother brain room based on main bosses killed:
-    ; clear kraid barrier
+kraid:
     lda $7ed829
     bit #$0001
-    beq phantoon  ; skip clearing if kraid isn't dead
+    beq .skip  ; skip clearing if kraid isn't dead
 
     jsl $8483D7
     db $39
     db $04
     dw clear_barrier_plm
+.skip:
 
-    ; clear phantoon barrier
 phantoon:
     lda $7ed82b
     and #$0001
-    beq draygon  ; skip clearing if phantoon isn't dead
+    beq .skip  ; skip clearing if phantoon isn't dead
 
     jsl $8483D7
     db $38
     db $04
     dw clear_barrier_plm
+.skip:
 
-    ; clear draygon barrier
 draygon:
     lda $7ed82c
     bit #$0001
-    beq ridley  ; skip clearing if draygon isn't dead
+    beq .skip  ; skip clearing if draygon isn't dead
 
     jsl $8483D7
     db $37
     db $04
     dw clear_barrier_plm
+.skip:
 
-    ; clear ridley barrier
 ridley:
     lda $7ed82a
     bit #$0001
-    beq motherbrain  ; skip clearing if ridley isn't dead
+    beq .skip  ; skip clearing if ridley isn't dead
 
     jsl $8483D7
     db $36
     db $04
     dw clear_barrier_plm
+.skip:
 
 motherbrain:
     lda $7ed82d
@@ -63,6 +67,108 @@ motherbrain:
 done:
     rts
 
+; OBJECTIVE: Minibosses (must match address in patch.rs)
+warnpc $8FEB60
+org $8FEB60
+    ; clear barriers in mother brain room based on mini-bosses killed:
+spore_spawn:
+    lda $7ed829
+    bit #$0002
+    beq .skip  ; skip clearing if spore spawn isn't dead
+
+    jsl $8483D7
+    db $39
+    db $04
+    dw clear_barrier_plm
+.skip:
+
+crocomire:
+    lda $7ed82a
+    and #$0002
+    beq .skip  ; skip clearing if crocomire isn't dead
+
+    jsl $8483D7
+    db $38
+    db $04
+    dw clear_barrier_plm
+.skip:
+
+botwoon:
+    lda $7ed82c
+    bit #$0002
+    beq .skip  ; skip clearing if draygon isn't dead
+
+    jsl $8483D7
+    db $37
+    db $04
+    dw clear_barrier_plm
+.skip:
+
+golden_torizo:
+    lda $7ed82a
+    bit #$0004
+    beq .skip  ; skip clearing if GT isn't dead
+
+    jsl $8483D7
+    db $36
+    db $04
+    dw clear_barrier_plm
+.skip:
+
+    jmp motherbrain
+
+
+; OBJECTIVE: Metroids (must match address in patch.rs)
+warnpc $8FEBC0
+org $8FEBC0
+    ; clear barriers in mother brain room based on Metroid rooms cleared:
+metroid_1:
+    lda $7ed822
+    bit #$0001
+    beq .skip
+
+    jsl $8483D7
+    db $39
+    db $04
+    dw clear_barrier_plm
+.skip:
+
+metroid_2:
+    lda $7ed822
+    and #$0002
+    beq .skip
+
+    jsl $8483D7
+    db $38
+    db $04
+    dw clear_barrier_plm
+.skip:
+
+metroid_3:
+    lda $7ed822
+    bit #$0004
+    beq .skip
+
+    jsl $8483D7
+    db $37
+    db $04
+    dw clear_barrier_plm
+.skip:
+
+metroid_4:
+    lda $7ed822
+    bit #$0008
+    beq .skip
+
+    jsl $8483D7
+    db $36
+    db $04
+    dw clear_barrier_plm
+.skip:
+
+    jmp motherbrain
+
+warnpc $8FED00
 
 org $83AAEA
     dw $EE00  ; Set door ASM for Tourian Escape Room 1 toward Mother Brain

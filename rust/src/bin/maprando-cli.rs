@@ -3,7 +3,7 @@ use clap::Parser;
 use maprando::customize::{customize_rom, CustomizeSettings};
 use maprando::game_data::{Map, Item};
 use maprando::patch::Rom;
-use maprando::randomize::{ProgressionRate, Randomization, Randomizer, DebugOptions, ItemPlacementStyle, ItemPriorityGroup, ItemMarkers};
+use maprando::randomize::{ProgressionRate, Randomization, Randomizer, DebugOptions, ItemPlacementStyle, ItemPriorityGroup, ItemMarkers, Objectives};
 use maprando::spoiler_map;
 use maprando::{game_data::GameData, patch::make_rom, randomize::DifficultyConfig};
 use maprando::patch::ips_write::create_ips_patch;
@@ -147,6 +147,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         all_items_spawn: true,
         fast_elevators: true,
         fast_doors: true,
+        objectives: Objectives::Bosses,
         debug_options: Some(DebugOptions {
             new_game_extra: true,
             extended_spoiler: true,
