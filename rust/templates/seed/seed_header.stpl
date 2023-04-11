@@ -71,6 +71,10 @@
             </div>
         </div>
         <div class="row">
+            <div class="col-3">Objectives:</div>
+            <div class="col-9"><%= objectives %></div>
+        </div>
+        <div class="row">
             <div class="col-3">Race mode:</div>
             <div class="col-9"><%= if race_mode { "Yes" } else { "No" } %></div>
         </div>

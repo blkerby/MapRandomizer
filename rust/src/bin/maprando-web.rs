@@ -18,7 +18,7 @@ use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::{make_rom, Rom};
 use maprando::randomize::{
     DebugOptions, DifficultyConfig, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup,
-    Randomization, Randomizer,
+    Randomization, Randomizer, Objectives,
 };
 use maprando::seed_repository::{Seed, SeedFile, SeedRepository};
 use maprando::spoiler_map;
@@ -111,6 +111,7 @@ struct HomeTemplate<'a> {
     version: usize,
     progression_rates: Vec<&'static str>,
     item_placement_styles: Vec<&'static str>,
+    objectives: Vec<&'static str>,
     preset_data: &'a [PresetData],
     item_priorities: Vec<String>,
     prioritizable_items: Vec<String>,
@@ -138,6 +139,7 @@ async fn home(app_data: web::Data<AppData>) -> impl Responder {
         version: VERSION,
         progression_rates: vec!["Fast", "Normal", "Slow"],
         item_placement_styles: vec!["Neutral", "Forced"],
+        objectives: vec!["Bosses", "Minibosses", "Metroids"],
         item_priorities: vec!["Early", "Default", "Late"]
             .iter()
             .map(|x| x.to_string())
@@ -172,6 +174,7 @@ struct RandomizeRequest {
     progression_rate: Text<String>,
     item_placement_style: Text<String>,
     item_progression_preset: Option<Text<String>>,
+    objectives: Text<String>,
     item_priority_json: Text<String>,
     filler_items_json: Text<String>,
     race_mode: Text<String>,
@@ -218,6 +221,7 @@ struct SeedData {
     all_items_spawn: bool,
     fast_elevators: bool,
     fast_doors: bool,
+    objectives: String,
 }
 
 fn get_seed_name(seed_data: &SeedData) -> String {
@@ -252,6 +256,7 @@ struct SeedHeaderTemplate<'a> {
     all_items_spawn: bool,
     fast_elevators: bool,
     fast_doors: bool,
+    objectives: String,
 }
 
 #[derive(TemplateOnce)]
@@ -309,6 +314,7 @@ fn render_seed(seed_name: &str, seed_data: &SeedData) -> Result<(String, String)
         all_items_spawn: seed_data.all_items_spawn,
         fast_elevators: seed_data.fast_elevators,
         fast_doors: seed_data.fast_doors,
+        objectives: seed_data.objectives.clone(),
     };
     let seed_header_html = seed_header_template.render_once()?;
 
@@ -597,6 +603,7 @@ fn get_difficulty_tiers(
             all_items_spawn: difficulty.all_items_spawn,
             fast_elevators: difficulty.fast_elevators,
             fast_doors: difficulty.fast_doors,
+            objectives: difficulty.objectives,
             debug_options: difficulty.debug_options.clone(),
         };
         if Some(&new_difficulty) != out.last() {
@@ -739,6 +746,12 @@ async fn randomize(
         all_items_spawn: req.all_items_spawn.0,
         fast_elevators: req.fast_elevators.0,
         fast_doors: req.fast_doors.0,
+        objectives: match req.objectives.0.as_str() {
+            "Bosses" => Objectives::Bosses,
+            "Minibosses" => Objectives::Minibosses,
+            "Metroids" => Objectives::Metroids,
+            _ => panic!("Unrecognized objectives: {}", req.objectives.0),
+        },
         debug_options: if app_data.debug {
             Some(DebugOptions {
                 new_game_extra: true,
@@ -819,6 +832,7 @@ async fn randomize(
         all_items_spawn: req.all_items_spawn.0,
         fast_elevators: req.fast_elevators.0,
         fast_doors: req.fast_doors.0,
+        objectives: req.objectives.0.clone(),
     };
 
     let output_rom = make_rom(&rom, &randomization, &app_data.game_data).unwrap();

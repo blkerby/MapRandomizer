@@ -3,7 +3,7 @@ use anyhow::Result;
 use maprando::{
     game_data::{GameData, Item, Requirement},
     randomize::{
-        DifficultyConfig, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, ProgressionRate,
+        DifficultyConfig, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, ProgressionRate, Objectives,
     },
     traverse::{apply_requirement, GlobalState, LocalState},
 };
@@ -102,6 +102,7 @@ fn main() -> Result<()> {
         all_items_spawn: true,
         fast_elevators: true,
         fast_doors: true,
+        objectives: Objectives::Bosses,
         debug_options: None,
     };
 

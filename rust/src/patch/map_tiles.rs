@@ -3,7 +3,7 @@ use log::info;
 
 use crate::{
     game_data::{GameData, Map, RoomGeometryDoor, RoomGeometryItem, Item},
-    randomize::{Randomization, ItemMarkers},
+    randomize::{Randomization, ItemMarkers, Objectives},
 };
 
 use super::{snes2pc, xy_to_explored_bit_ptr, xy_to_map_offset, Rom};
@@ -439,6 +439,116 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
+    fn indicate_boss_tiles(&mut self, boss_tile: u16) -> Result<()> {
+        self.patch_room(
+            "Kraid Room",
+            vec![
+                (0, 0, boss_tile),
+                (0, 1, boss_tile),
+                (1, 0, boss_tile),
+                (1, 1, boss_tile),
+            ],
+        )?;
+        self.patch_room("Phantoon's Room", vec![(0, 0, boss_tile)])?;
+        self.patch_room(
+            "Draygon's Room",
+            vec![
+                (0, 0, boss_tile),
+                (0, 1, boss_tile),
+                (1, 0, boss_tile),
+                (1, 1, boss_tile),
+            ],
+        )?;
+        self.patch_room("Ridley's Room", vec![(0, 0, boss_tile), (0, 1, boss_tile)])?;
+
+        Ok(())
+    }
+
+    fn indicate_miniboss_tiles(&mut self, boss_tile: u16) -> Result<()> {
+        self.patch_room(
+            "Spore Spawn Room",
+            vec![
+                (0, 0, boss_tile),
+                (0, 1, boss_tile),
+                (0, 2, boss_tile),
+            ],
+        )?;
+        self.patch_room(
+            "Crocomire's Room",
+            vec![
+                (0, 0, boss_tile),
+                (1, 0, boss_tile),
+                (2, 0, boss_tile),
+                (3, 0, boss_tile),
+                (4, 0, boss_tile),
+                (5, 0, boss_tile),
+                (6, 0, boss_tile),
+                // We don't mark the last tile, so the item can still be visible.
+            ],
+        )?;
+        self.patch_room(
+            "Botwoon's Room",
+            vec![
+                (0, 0, boss_tile),
+                (1, 0, boss_tile),
+            ],
+        )?;
+        self.patch_room(
+            "Golden Torizo's Room",
+            vec![
+                (0, 1, boss_tile),
+                (1, 1, boss_tile),
+                // We don't mark the top row of tiles, so the items can still be visible.
+            ]
+        )?;
+
+        Ok(())
+    }
+
+    fn indicate_metroid_tiles(&mut self, boss_tile: u16) -> Result<()> {
+        self.patch_room(
+            "Metroid Room 1",
+            vec![
+                (0, 0, boss_tile),
+                (1, 0, boss_tile),
+                (2, 0, boss_tile),
+                (3, 0, boss_tile),
+                (4, 0, boss_tile),
+                (5, 0, boss_tile),
+            ],
+        )?;
+
+        self.patch_room(
+            "Metroid Room 2",
+            vec![
+                (0, 0, boss_tile),
+                (0, 1, boss_tile),
+            ],
+        )?;
+
+        self.patch_room(
+            "Metroid Room 3",
+            vec![
+                (0, 0, boss_tile),
+                (1, 0, boss_tile),
+                (2, 0, boss_tile),
+                (3, 0, boss_tile),
+                (4, 0, boss_tile),
+                (5, 0, boss_tile),
+            ],
+        )?;
+
+        self.patch_room(
+            "Metroid Room 4",
+            vec![
+                (0, 0, boss_tile),
+                (0, 1, boss_tile),
+            ],
+        )?;
+
+        Ok(())
+    }
+
     fn indicate_special_tiles(&mut self) -> Result<()> {
         let refill_tile = self.create_tile([
             [2, 2, 2, 2, 2, 2, 2, 2],
@@ -484,26 +594,17 @@ impl<'a> MapPatcher<'a> {
             }
         }
 
-        self.patch_room(
-            "Kraid Room",
-            vec![
-                (0, 0, boss_tile),
-                (0, 1, boss_tile),
-                (1, 0, boss_tile),
-                (1, 1, boss_tile),
-            ],
-        )?;
-        self.patch_room("Phantoon's Room", vec![(0, 0, boss_tile)])?;
-        self.patch_room(
-            "Draygon's Room",
-            vec![
-                (0, 0, boss_tile),
-                (0, 1, boss_tile),
-                (1, 0, boss_tile),
-                (1, 1, boss_tile),
-            ],
-        )?;
-        self.patch_room("Ridley's Room", vec![(0, 0, boss_tile), (0, 1, boss_tile)])?;
+        match self.randomization.difficulty.objectives {
+            Objectives::Bosses => {
+                self.indicate_boss_tiles(boss_tile)?;
+            },
+            Objectives::Minibosses => {
+                self.indicate_miniboss_tiles(boss_tile)?;
+            },
+            Objectives::Metroids => {
+                self.indicate_metroid_tiles(boss_tile)?;
+            },
+        }
         self.patch_room(
             "Mother Brain Room",
             vec![

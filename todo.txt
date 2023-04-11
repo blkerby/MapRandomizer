@@ -1,34 +1,24 @@
 priority:
-- finish node tiles and export to spoiler log
+- add objective option for killing all metroids (to open MB barriers)
 - add gmode logic to sm-json-data
-- restore fast doors fade-out to vanilla? (so it won't mess with g-mode/r-mode setups)
-- clean up web page: add question mark buttons for info
 - add pages for tech, strats, rooms.
 - logic simulator
 - credits
 - proper front page
 - music options: vanilla, area-themed, or none
 - sprite customization (?),
-- add objective option for killing all metroids (to open MB barriers)
-- further streamlining of mother brain fight
-  - maybe?: shorten cutscene when Big Boy is attached to MB
-  - maybe?: skipping MB2: health starts at 0, proceeding immediately to rainbow beam after MB1
-  - yes: skipping MB2 + MB3: after collapsing in MB1, mother brain doesn't rise, Samus gets hyper beam and escape sequence starts immediately.
 
 
 later:
+- add a tip that you can share a seed using the URL.
+- add ability to "select" through different areas in pause menu map (check out what Map Overhaul did).
 - logic: ice moonfall (in dachora room)
 - make graph traversals faster by using previous step for initial local states (probably not worth it?):
   - we'd have to do a full graph traversal to get spoiler route as a separate step, to avoid getting weird long paths
 - in sm-json-data: add logical requirement for refills
   - use this for strats that enter G-mode in a room with a refill (or the Ship), use it, and then go back out still in G-mode?
-- check if fast doors interferes with G-mode setup (taking damage in the transition)
-  - probably fast fade-out would reduce the frame window for the enemy to contact Samus
-  - maybe we should restore fade-out to vanilla?
-    - or maybe only when X-Ray is equipped?
 - replace Botwoon Hallway portion of Toilet level data with something more neutral
    - also remove the enemies from the Botwoon Hallway part
-- add tip telling people to look at spoiler map
 - fix gray door after mother brain when entering baby kraid (& metal pirates, boss rooms, etc.?)
 - add patch for handling crashes? (to display the stack & registers)
 - if possible, debug crash in Mt. Everest from Scottycro42 (https://clips.twitch.tv/DarlingSavageDogeMcaT-zgV9PF33MiawTpL2)

@@ -8,7 +8,7 @@ use std::path::Path;
 
 use crate::{
     game_data::{DoorPtr, DoorPtrPair, GameData, Item, Map, NodePtr, RoomGeometryDoor},
-    randomize::Randomization,
+    randomize::{Randomization, Objectives},
 };
 use anyhow::{ensure, Context, Result};
 use hashbrown::{HashMap, HashSet};
@@ -168,7 +168,7 @@ fn apply_ips_patch(rom: &mut Rom, patch_path: &Path) -> Result<()> {
     Ok(())
 }
 
-fn apply_orig_ips_patches(rom: &mut Rom) -> Result<()> {
+fn apply_orig_ips_patches(rom: &mut Rom, randomization: &Randomization) -> Result<()> {
     let patches_dir = Path::new("../patches/ips/");
     let patches: Vec<&'static str> = vec![
         "mb_barrier",
@@ -180,8 +180,19 @@ fn apply_orig_ips_patches(rom: &mut Rom) -> Result<()> {
         let patch_path = patches_dir.join(patch_name.to_string() + ".ips");
         apply_ips_patch(rom, &patch_path)?;
     }
+
+    // Overwrite door ASM for entering Mother Brain room from right, used for clearing objective barriers:
+    match randomization.difficulty.objectives {
+        Objectives::Bosses => {},
+        Objectives::Minibosses => {
+            rom.write_u16(snes2pc(0x83AAD2), 0xEB60)?;
+        },
+        Objectives::Metroids => {
+            rom.write_u16(snes2pc(0x83AAD2), 0xEBC0)?;
+        },
+    }
     Ok(())
-}
+}    
 
 impl<'a> Patcher<'a> {
     fn apply_ips_patches(&mut self) -> Result<()> {
@@ -1048,11 +1059,11 @@ impl<'a> Patcher<'a> {
             self.rom.write_u16(snes2pc(0xA99D2D), 0x10)?; // accelerate corpse tipping over
             self.rom.write_u16(snes2pc(0xA99D31), 0x10)?; // accelerate corpse tipping over
             self.rom.write_u16(snes2pc(0xA9B1B2), 0x50)?; // reduce delay before corpse rotting
-        }
-        
-        if self.randomization.difficulty.escape_movement_items {
-            // 0xA9FB70: new hyper beam collect routine in escape_items.asm.
-            self.rom.write_u24(snes2pc(0xA9AF01), 0xA9FB70)?;
+
+            if self.randomization.difficulty.escape_movement_items {
+                // 0xA9FB70: new hyper beam collect routine in escape_items.asm.
+                self.rom.write_u24(snes2pc(0xA9AF01), 0xA9FB70)?;
+            }    
         }
 
         Ok(())
@@ -1163,7 +1174,7 @@ pub fn make_rom(
     game_data: &GameData,
 ) -> Result<Rom> {
     let mut orig_rom = base_rom.clone();
-    apply_orig_ips_patches(&mut orig_rom)?;
+    apply_orig_ips_patches(&mut orig_rom, randomization)?;
 
     let mut rom = orig_rom.clone();
     let mut patcher = Patcher {

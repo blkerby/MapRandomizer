@@ -47,6 +47,13 @@ pub enum ItemMarkers {
     ThreeTiered,
 }
 
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
+pub enum Objectives {
+    Bosses,
+    Minibosses,
+    Metroids,
+}
+
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
 pub struct DebugOptions {
     pub new_game_extra: bool,
@@ -86,6 +93,8 @@ pub struct DifficultyConfig {
     pub all_items_spawn: bool,
     pub fast_elevators: bool,
     pub fast_doors: bool,
+    // Objectives:
+    pub objectives: Objectives,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub debug_options: Option<DebugOptions>,
 }
