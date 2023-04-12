@@ -3,6 +3,14 @@
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-54---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 54 (???)</a>:
+<ul>
+<li>Tourian Blue Hopper Room is restored to have vanilla enemy behavior when entering from the top.
+    <ul>
+    <li>When entering from the left, the position of the left enemy is still adjusted to prevent an unavoidable hit.
+    </ul>
+</ul>
+
 <p><a href="https://version-53---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 53 (2023-04-10)</a>:
 <ul>
 <li>A new "Objectives" setting is added, determining the condition for the barriers in Mother Brain Room to clear:
