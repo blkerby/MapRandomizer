@@ -902,6 +902,7 @@ impl<'a> Patcher<'a> {
             "Big Boy Room",
             "Kraid Room",
             "Phantoon's Room",
+            "Blue Hopper Room",
         ]
         .map(|x| x.to_string());
         for (room_idx, room) in self.game_data.room_geometry.iter().enumerate() {
