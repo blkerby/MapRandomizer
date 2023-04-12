@@ -1,5 +1,4 @@
 priority:
-- add objective option for killing all metroids (to open MB barriers)
 - add gmode logic to sm-json-data
 - add pages for tech, strats, rooms.
 - logic simulator
