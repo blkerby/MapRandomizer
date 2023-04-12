@@ -233,6 +233,7 @@ impl<'a> Patcher<'a> {
         if let Some(options) = &self.randomization.difficulty.debug_options {
             if options.new_game_extra {
                 new_game = "new_game_extra";
+                patches.push("disable_walljump");  // Just testing, remove this later
             }
         }
         patches.push(new_game);
