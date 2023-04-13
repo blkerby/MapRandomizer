@@ -106,6 +106,8 @@ fn main() -> Result<()> {
         debug_options: None,
     };
 
+    println!("{:?}", game_data.helpers["h_heatResistant"]);
+
     println!(
         "{:?}",
         apply_requirement(&Requirement::PhantoonFight {  }, &global_state, local_state, false, &difficulty)
