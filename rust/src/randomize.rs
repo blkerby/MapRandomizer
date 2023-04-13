@@ -899,6 +899,7 @@ impl<'r> Randomizer<'r> {
                 remaining_items.push(Item::try_from(item_id).unwrap());
             }
         }
+        info!("Finishing with {:?}", remaining_items);
         let mut idx = 0;
         for item_loc_state in &mut state.item_location_state {
             if item_loc_state.placed_item.is_none() {
@@ -1039,6 +1040,7 @@ impl<'r> Randomizer<'r> {
                 // Maximum acceptable number of one-way-reachable items. This is to try to avoid extreme
                 // cases where the player would gain access to very large areas that they cannot return from:
                 let one_way_reachable_limit = 20;
+                // let one_way_reachable_limit = 100;
 
                 let gives_expansion =
                     if self.difficulty_tiers[0].progression_rate == ProgressionRate::Slow {

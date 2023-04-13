@@ -297,12 +297,13 @@ pub struct GameData {
     weapon_isv: IndexedVec<String>,
     enemy_attack_damage: HashMap<(String, String), Capacity>,
     enemy_vulnerabilities: HashMap<String, EnemyVulnerabilities>,
+    enemy_json: HashMap<String, JsonValue>,
     weapon_json_map: HashMap<String, JsonValue>,
     non_ammo_weapon_mask: WeaponMask,
     tech_json_map: HashMap<String, JsonValue>,
     helper_json_map: HashMap<String, JsonValue>,
     tech: HashMap<String, Option<Requirement>>,
-    helpers: HashMap<String, Option<Requirement>>,
+    pub helpers: HashMap<String, Option<Requirement>>,
     pub room_json_map: HashMap<RoomId, JsonValue>,
     pub room_obstacle_idx_map: HashMap<RoomId, HashMap<String, usize>>,
     pub node_json_map: HashMap<(RoomId, NodeId), JsonValue>,
@@ -515,6 +516,7 @@ impl GameData {
                     enemy_name.to_string(),
                     self.get_enemy_vulnerabilities(enemy_json)?,
                 );
+                self.enemy_json.insert(enemy_name.to_string(), enemy_json.clone());
             }
         }
         Ok(())
@@ -1583,7 +1585,10 @@ impl GameData {
                 if !enemy["homeNodes"].is_array() {
                     continue;
                 }
-                let drops = &enemy["drops"];
+                let enemy_name = enemy["enemyName"].as_str().unwrap();
+                let enemy_json = self.enemy_json.get(enemy_name).with_context(|| format!("Unknown enemy: {}", enemy_name))?;
+
+                let drops = &enemy_json["drops"];
                 let drops_pb = drops["powerBomb"].as_i32().map(|x| x > 0) == Some(true);
                 let drops_super = drops["super"].as_i32().map(|x| x > 0) == Some(true);
                 let drops_missile = drops["missile"].as_i32().map(|x| x > 0) == Some(true);
@@ -1616,7 +1621,7 @@ impl GameData {
                             notable_strat_name: None,
                             strat_name: farm_name.to_string(),
                             strat_notes: vec![],
-                        })
+                        });
                     }
                 }
             }
@@ -1951,7 +1956,7 @@ impl GameData {
             .helper_json_map
             .get_mut("h_heatResistant")
             .unwrap() = json::object! {
-            "name": "h_heatProof",
+            "name": "h_heatResistant",
             "requires": ["Varia"],
         };
 
