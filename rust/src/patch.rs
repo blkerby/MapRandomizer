@@ -228,6 +228,7 @@ impl<'a> Patcher<'a> {
             "decompression",
             "tourian_blue_hopper",
             "fix_kraid_vomit",
+            "aim_anything",
         ];
         let mut new_game = "new_game";
         if let Some(options) = &self.randomization.difficulty.debug_options {

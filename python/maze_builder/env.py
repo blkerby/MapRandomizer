@@ -72,7 +72,8 @@ class MazeBuilderEnv:
         self.init_part_data()
         self.init_cpu_data()
         self.num_doors = int(torch.sum(self.room_door_count))
-        self.num_missing_connects = self.missing_connection_src.shape[0]
+        # self.num_missing_connects = self.missing_connection_src.shape[0]
+        self.num_missing_connects = self.num_parts * 2
         self.max_reward = self.num_doors // 2 + self.num_missing_connects
         self.reset()
 
@@ -490,6 +491,7 @@ class MazeBuilderEnv:
             candidates = torch.stack([valid_env_id, valid_room_id, valid_x, valid_y,
                                       torch.full_like(valid_env_id, dir_num),
                                       valid_map_door_id], dim=1)
+            # print("{} candidates".format(candidates.shape[0] / num_envs))
             mask_bounds_min_x = (valid_x >= self.room_min_x[valid_room_id])
             mask_bounds_min_y = (valid_y >= self.room_min_y[valid_room_id])
             mask_bounds_max_x = (valid_x <= self.room_max_x[valid_room_id])
@@ -763,6 +765,7 @@ class MazeBuilderEnv:
             component_matrix = torch.bmm(component_matrix, component_matrix)
             component_matrix = torch.clamp_max(component_matrix, 1)
         # return adjacency_matrix, component_matrix.to(torch.bool)
+        from_start_component_matrix = component_matrix
 
         reachable_from_ship = component_matrix[:, self.starting_part, :]
         durable_backtrack = torch.minimum(reachable_from_ship.unsqueeze(1),
@@ -773,7 +776,7 @@ class MazeBuilderEnv:
             component_matrix = torch.bmm(component_matrix, component_matrix)
             component_matrix = torch.clamp_max(component_matrix, 1)
 
-        return component_matrix.to(torch.bool)
+        return from_start_component_matrix.to(torch.bool), component_matrix.to(torch.bool)
 
     def compute_fast_component_matrix(self, room_mask, room_position_x, room_position_y, left_mat, right_mat):
         # if not room_mask.is_cuda:
@@ -1062,8 +1065,11 @@ class MazeBuilderEnv:
         return reduced_connectivity.to(self.device), missing_connects.to(self.device)
 
     def compute_missing_connections(self):
-        component_matrix = self.compute_component_matrix(self.room_mask, self.room_position_x, self.room_position_y)
-        missing_connections = component_matrix[:, self.missing_connection_src, self.missing_connection_dst]
+        from_component_matrix, component_matrix = self.compute_component_matrices(self.room_mask, self.room_position_x, self.room_position_y)
+        from_start_reachable = from_component_matrix[:, self.starting_part, :]
+        to_start_reachable = component_matrix[:, :, self.starting_part]
+        missing_connections = torch.cat([from_start_reachable, to_start_reachable], dim=1)
+        # missing_connections = component_matrix[:, self.missing_connection_src, self.missing_connection_dst]
         return missing_connections
 
     def init_part_data(self):
@@ -1074,6 +1080,7 @@ class MazeBuilderEnv:
                 self.starting_part = i
             num_parts_list.append(num_parts)
             num_parts += len(room.parts)
+        self.num_parts = num_parts
 
         self.part_adjacency_matrix = torch.eye(num_parts, device=self.device, dtype=torch.int16)
         self.durable_part_adjacency_matrix = torch.eye(num_parts, device=self.device, dtype=torch.int16)

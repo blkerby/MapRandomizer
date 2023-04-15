@@ -397,6 +397,7 @@ def compute_door_connect_counts(only_success: bool):
         batch_reward = session.replay_buffer.episode_data.reward[start:end]
         if only_success:
             mask = batch_reward == max_possible_reward
+            # mask = batch_reward == max_possible_reward - 2
         else:
             mask = torch.tensor(True)
         masked_batch_action = batch_action[mask]
@@ -414,7 +415,6 @@ def display_counts(counts, top_n: int, verbose: bool):
         if torch.sum(cnt) == 0:
             continue
         frac = cnt.to(torch.float32) / torch.sum(cnt, dim=1, keepdims=True).to(torch.float32)
-        top_n = 10
         top_frac, top_door_id_pair = torch.sort(frac.view(-1), descending=True)
         top_door_id_first = top_door_id_pair // cnt.shape[1]
         top_door_id_second = top_door_id_pair % cnt.shape[1]

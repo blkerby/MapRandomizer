@@ -26,7 +26,7 @@ use rand::{RngCore, SeedableRng};
 use sailfish::TemplateOnce;
 use serde_derive::{Deserialize, Serialize};
 
-const VERSION: usize = 54;
+const VERSION: usize = 55;
 
 #[derive(Serialize, Deserialize, Clone)]
 struct Preset {
@@ -868,6 +868,10 @@ fn init_presets(presets: Vec<Preset>, game_data: &GameData, ignored_notable_stra
         "canRiskPermanentLossOfAccess",
         "canSpeedZebetitesSkip",
         "canRemorphZebetiteSkip",
+        "canEnterRMode",
+        "canEnterGMode",
+        "canEnterGModeImmobile",
+        "canArtificialMorph",
     ]
     .iter()
     .map(|x| x.to_string())

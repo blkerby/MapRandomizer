@@ -9,6 +9,7 @@ priority:
 
 
 later:
+- Add override for Tourian Hopper run under strat from left to top (imyt strat)
 - add a tip that you can share a seed using the URL.
 - add ability to "select" through different areas in pause menu map (check out what Map Overhaul did).
 - logic: ice moonfall (in dachora room)

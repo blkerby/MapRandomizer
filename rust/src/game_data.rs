@@ -977,6 +977,9 @@ impl GameData {
                     excess_shinespark_frames,
                 });
                 // return Ok(Requirement::Never);
+            } else if key == "comeInWithGMode" {
+                // TODO: implement this.
+                return Ok(Requirement::Never);
             }
         }
         bail!("Unable to parse requirement: {}", req_json);
