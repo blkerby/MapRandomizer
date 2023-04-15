@@ -715,9 +715,6 @@ rooms = [
             DoorIdentifier(LEFT, 0, 0, 0x1A8C4, 0x1A798),  # Pants Room
             DoorIdentifier(RIGHT, 3, 0, 0x1A8D0, 0x1A7C8),  # Spring Ball Room
         ],
-        parts=[[0], [1]],
-        durable_part_connections=[(0, 1)],  # shaktool clearing the sand blocks
-        missing_part_connections=[(1, 0)],
         node_tiles={
             1: [(0, 0)],
             2: [(1, 0), (2, 0), (3, 0)],
