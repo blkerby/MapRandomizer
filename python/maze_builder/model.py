@@ -397,7 +397,8 @@ class DoorLocalModel(torch.nn.Module):
         self.right_lin = torch.nn.Linear(map_kernel_size ** 2 * map_channels, local_widths[0] * arity)
         self.up_lin = torch.nn.Linear(map_kernel_size ** 2 * map_channels, local_widths[0] * arity)
         self.down_lin = torch.nn.Linear(map_kernel_size ** 2 * map_channels, local_widths[0] * arity)
-        self.global_lin = torch.nn.Linear(connectivity_in_width ** 2 + self.num_rooms + 3, global_widths[0] * arity)
+        # self.global_lin = torch.nn.Linear(connectivity_in_width ** 2 + self.num_rooms + 3, global_widths[0] * arity)
+        self.global_lin = torch.nn.Linear(self.num_rooms + 3, global_widths[0] * arity)
         # self.global_lin = torch.nn.Linear(self.num_rooms + 1, global_widths[0] * arity)
         self.base_local_act = common_act
         self.base_global_act = common_act
@@ -478,21 +479,22 @@ class DoorLocalModel(torch.nn.Module):
             local_pos_emb_y = self.pos_embedding_y[local_pos_y, :]
             local_X = local_X + local_pos_emb_x + local_pos_emb_y
 
-            reduced_connectivity, missing_connects = env.compute_fast_component_matrix_cpu2(
-                room_mask, room_position_x, room_position_y,
-                self.connectivity_left_mat, self.connectivity_right_mat)
-            # reduced_connectivity, missing_connects = env.compute_fast_component_matrix(
+            # reduced_connectivity, missing_connects = env.compute_fast_component_matrix_cpu2(
             #     room_mask, room_position_x, room_position_y,
             #     self.connectivity_left_mat, self.connectivity_right_mat)
-            reduced_connectivity_flat = reduced_connectivity.view(n, self.connectivity_in_width ** 2)
+            # # reduced_connectivity, missing_connects = env.compute_fast_component_matrix(
+            # #     room_mask, room_position_x, room_position_y,
+            # #     self.connectivity_left_mat, self.connectivity_right_mat)
+            # reduced_connectivity_flat = reduced_connectivity.view(n, self.connectivity_in_width ** 2)
 
             # global_X = torch.cat([room_mask.to(X_left.dtype),
             #                       steps_remaining.view(-1, 1)], dim=1)
-            global_X = torch.cat([reduced_connectivity_flat,
-                                  room_mask.to(X_left.dtype),
-                                  steps_remaining.view(-1, 1) / 100.0,
-                                  round_frac.view(-1, 1),
-                                  torch.log(temperature.view(-1, 1))], dim=1)
+            global_X = torch.cat([
+                # reduced_connectivity_flat,
+                  room_mask.to(X_left.dtype),
+                  steps_remaining.view(-1, 1) / 100.0,
+                  round_frac.view(-1, 1),
+                  torch.log(temperature.view(-1, 1))], dim=1)
             global_X = self.global_lin(global_X)
             global_X = self.base_global_act(global_X)
 
