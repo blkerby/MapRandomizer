@@ -9,6 +9,7 @@ priority:
 
 
 later:
+- fix map tile for phantoon with objectives other than bosses (remove item dot).
 - Add override for Tourian Hopper run under strat from left to top (imyt strat)
 - add a tip that you can share a seed using the URL.
 - add ability to "select" through different areas in pause menu map (check out what Map Overhaul did).

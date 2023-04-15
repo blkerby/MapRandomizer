@@ -18,7 +18,7 @@
         <li><p><strong>Minibosses</strong>: Defeat Spore Spawn, Crocomire, Botwoon, and Golden Torizo.</p>
         <li><p><strong>Metroids</strong>: Defeat all the Metroids in the four Metroid rooms.</p>
         </ul>
-        In every case, the way to beat the game is to escape after defeating Mother Brain.
+        In every case, the way to beat the game is to escape after defeating Mother Brain. Objective rooms are marked with X's on the map.
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

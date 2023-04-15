@@ -583,7 +583,7 @@ class SMJsonData:
         region_files = [str(f) for f in pathlib.Path(f"{sm_json_data_path}/region").glob("**/*.json")]
         for filename in region_files:
             # logging.info("Processing {}".format(filename))
-            if "ceres" not in filename:
+            if "ceres" not in filename and "roomDiagram" not in filename:
                 region_data = json.load(open(filename, 'r'))
                 region_data = self.preprocess_region(region_data)
                 self.region_json_dict[filename] = region_data
@@ -782,7 +782,8 @@ class SMJsonData:
             if key in ('canComeInCharged', 'adjacentRunway'):
                 # For now assume we can't do these.
                 return ImpossibleCondition()
-        raise RuntimeError("Unrecognized condition: {}".format(json_data))
+        # raise RuntimeError("Unrecognized condition: {}".format(json_data))
+        return ImpossibleCondition()
 
     def preprocess_room(self, raw_room_json):
         room_json = copy.deepcopy(raw_room_json)
