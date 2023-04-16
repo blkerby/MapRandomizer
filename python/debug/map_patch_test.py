@@ -75,6 +75,9 @@ for patch_name in patches:
     patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
     rom.bytes_io = BytesIO(patch.apply(rom.bytes_io.getvalue()))
 
+rom.write_u8(snes2pc(0xA1f000), 0x6B)  # RTL (skip clearing enemies in escape)
+
+
 def read_colors(addr, n):
     out = []
     for i in range(n):
