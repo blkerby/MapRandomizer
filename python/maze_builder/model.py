@@ -393,6 +393,7 @@ class DoorLocalModel(torch.nn.Module):
         self.connectivity_right_mat = torch.nn.Parameter(torch.randn([num_room_parts, connectivity_in_width]))
         self.pos_embedding_x = torch.nn.Parameter(torch.randn([self.map_x, local_widths[0]]))
         self.pos_embedding_y = torch.nn.Parameter(torch.randn([self.map_y, local_widths[0]]))
+        self.door_embedding = torch.nn.Parameter(torch.randn([self.num_doors, local_widths[0]]))
         self.left_lin = torch.nn.Linear(map_kernel_size ** 2 * map_channels, local_widths[0] * arity)
         self.right_lin = torch.nn.Linear(map_kernel_size ** 2 * map_channels, local_widths[0] * arity)
         self.up_lin = torch.nn.Linear(map_kernel_size ** 2 * map_channels, local_widths[0] * arity)
@@ -476,7 +477,8 @@ class DoorLocalModel(torch.nn.Module):
                 [map_door_left[:, 3], map_door_right[:, 3], map_door_up[:, 3], map_door_down[:, 3]], dim=0)
             local_pos_emb_x = self.pos_embedding_x[local_pos_x, :]
             local_pos_emb_y = self.pos_embedding_y[local_pos_y, :]
-            local_X = local_X + local_pos_emb_x + local_pos_emb_y
+            local_door_emb = self.door_embedding[local_door_id, :]
+            local_X = local_X + local_pos_emb_x + local_pos_emb_y + local_door_emb
 
             reduced_connectivity, missing_connects = env.compute_fast_component_matrix_cpu2(
                 room_mask, room_position_x, room_position_y,
