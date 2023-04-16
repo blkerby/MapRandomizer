@@ -9,6 +9,8 @@ priority:
 
 
 later:
+- auto-save before escape
+- add tech for five-missile Crocomire
 - fix map tile for phantoon with objectives other than bosses (remove item dot).
 - Add override for Tourian Hopper run under strat from left to top (imyt strat)
 - add a tip that you can share a seed using the URL.
