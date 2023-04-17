@@ -1,5 +1,12 @@
+next release (v55):
+- escape timer based on new timings
+- auto-save before escape
+- new difficulty preset ("Extreme") between Expert & Insane
+  - put G-mode there, and move slow Expert tech into it:
+  - X-ray climbs, notable tunnel crawls, crystal flash clips
+- add gmode logic to randomizer
+
 priority:
-- add gmode logic to sm-json-data
 - add pages for tech, strats, rooms.
 - logic simulator
 - credits
@@ -9,7 +16,11 @@ priority:
 
 
 later:
-- auto-save before escape
+- add tech for underwater single-sided wall-jumping (UWU)
+  - limit to climbs of ~2 tiles
+  - require HiJump
+  - require SpaceJump for breaking the water
+  - put in Insane tier
 - add tech for five-missile Crocomire
 - fix map tile for phantoon with objectives other than bosses (remove item dot).
 - Add override for Tourian Hopper run under strat from left to top (imyt strat)

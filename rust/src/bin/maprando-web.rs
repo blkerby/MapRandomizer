@@ -866,12 +866,9 @@ fn init_presets(presets: Vec<Preset>, game_data: &GameData, ignored_notable_stra
         "canGrappleClip",
         "canShinesparkWithReserve",
         "canRiskPermanentLossOfAccess",
+        "canIceZebetitesSkip",
         "canSpeedZebetitesSkip",
-        "canRemorphZebetiteSkip",
-        "canEnterRMode",
-        "canEnterGMode",
-        "canEnterGModeImmobile",
-        "canArtificialMorph",
+        "canRemorphZebetiteSkip"
     ]
     .iter()
     .map(|x| x.to_string())

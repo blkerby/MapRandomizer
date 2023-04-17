@@ -262,7 +262,8 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": 7.03
+            "in_game_time": 7.03,
+            "note": "One-tap short charge"
           },
           {
             "to_door": {
@@ -274,7 +275,8 @@
               "door_idx": 1,
               "node_id": 2
             },
-            "in_game_time": 4.47
+            "in_game_time": 4.47,
+            "note": "One-tap short charge"
           },
           {
             "to_door": {
@@ -286,7 +288,8 @@
               "door_idx": 2,
               "node_id": 3
             },
-            "in_game_time": 9.48
+            "in_game_time": 8.30,
+            "note": "One-tap shinespark"
           },
           {
             "to_door": {
@@ -298,7 +301,8 @@
               "door_idx": 4,
               "node_id": 5
             },
-            "in_game_time": 3.26
+            "in_game_time": 3.26,
+            "note": "One-tap short charge"
           }
         ]
       }
@@ -984,7 +988,7 @@
               "node_id": 3
             },
             "in_game_time": 9.15,
-            "note": "Shinespark"
+            "note": "One-tap shinespark"
           },
           {
             "to_door": {
@@ -1020,7 +1024,8 @@
               "door_idx": 4,
               "node_id": 1
             },
-            "in_game_time": 6.24
+            "in_game_time": 6.24,
+            "note": "One-tap shinespark"
           }
         ]
       },
@@ -1122,7 +1127,7 @@
               "node_id": 3
             },
             "in_game_time": 15.36,
-            "note": "Shinespark"
+            "note": "One-tap shinespark"
           },
           {
             "to_door": {
@@ -1147,7 +1152,7 @@
               "node_id": 1
             },
             "in_game_time": 12.45,
-            "note": "Shinespark"
+            "note": "One-tap shinespark"
           }
         ]
       },
@@ -1184,7 +1189,8 @@
               "door_idx": 1,
               "node_id": 3
             },
-            "in_game_time": 11.24
+            "in_game_time": 11.24,
+            "note": "One-tap shinespark"
           },
           {
             "to_door": {
@@ -1208,7 +1214,8 @@
               "door_idx": 4,
               "node_id": 1
             },
-            "in_game_time": 8.33
+            "in_game_time": 8.33,
+            "note": "One-tap shinespark"
           }
         ]
       },
@@ -3538,7 +3545,7 @@
               "door_idx": 1,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 3.30
           }
         ]
       },
@@ -3563,7 +3570,7 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 3.45
           }
         ]
       }
@@ -3593,7 +3600,7 @@
               "door_idx": 1,
               "node_id": 3
             },
-            "in_game_time": -1.0
+            "in_game_time": 5.15
           },
           {
             "to_door": {
@@ -3605,7 +3612,7 @@
               "door_idx": 2,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 3.03
           }
         ]
       },
@@ -3630,7 +3637,7 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 3.53
           },
           {
             "to_door": {
@@ -3642,7 +3649,7 @@
               "door_idx": 2,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 6.32
           }
         ]
       },
@@ -3667,7 +3674,7 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 2.52
           },
           {
             "to_door": {
@@ -3679,7 +3686,7 @@
               "door_idx": 1,
               "node_id": 3
             },
-            "in_game_time": -1.0
+            "in_game_time": 7.42
           }
         ]
       }
@@ -3726,7 +3733,7 @@
               "door_idx": 1,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 4.27
           }
         ]
       },
@@ -3751,7 +3758,7 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 3.16
           }
         ]
       }
@@ -3781,7 +3788,7 @@
               "door_idx": 1,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 2.44
           },
           {
             "to_door": {
@@ -3793,7 +3800,7 @@
               "door_idx": 2,
               "node_id": 3
             },
-            "in_game_time": -1.0
+            "in_game_time": 5.46
           },
           {
             "to_door": {
@@ -3805,7 +3812,7 @@
               "door_idx": 4,
               "node_id": 4
             },
-            "in_game_time": -1.0
+            "in_game_time": 1.44
           },
           {
             "to_door": {
@@ -3817,7 +3824,24 @@
               "door_idx": 5,
               "node_id": 6
             },
-            "in_game_time": -1.0
+            "in_game_time": 1.38
+          },
+          {
+            "to_door": {
+              "name": "Caterpillar Room Top Right Door (to Red Fish Room)",
+              "direction": "right",
+              "x": 2,
+              "y": 3,
+              "part_idx": 1,
+              "door_idx": 3,
+              "node_id": 5
+            },
+            "conditions": [
+              {
+                "requires": "can_reverse_gate",
+                "in_game_time": 4.59
+              }
+            ]  
           }
         ]
       },
@@ -3842,7 +3866,7 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 3.37
           },
           {
             "to_door": {
@@ -3854,7 +3878,7 @@
               "door_idx": 2,
               "node_id": 3
             },
-            "in_game_time": -1.0
+            "in_game_time": 3.59
           },
           {
             "to_door": {
@@ -3866,7 +3890,7 @@
               "door_idx": 4,
               "node_id": 4
             },
-            "in_game_time": -1.0
+            "in_game_time": 2.04
           },
           {
             "to_door": {
@@ -3878,7 +3902,24 @@
               "door_idx": 5,
               "node_id": 6
             },
-            "in_game_time": -1.0
+            "in_game_time": 4.43
+          },
+          {
+            "to_door": {
+              "name": "Caterpillar Room Top Right Door (to Red Fish Room)",
+              "direction": "right",
+              "x": 2,
+              "y": 3,
+              "part_idx": 1,
+              "door_idx": 3,
+              "node_id": 5
+            },
+            "conditions": [
+              {
+                "requires": "can_reverse_gate",
+                "in_game_time": 7.59
+              }
+            ]  
           }
         ]
       },
@@ -3903,7 +3944,7 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 7.36
           },
           {
             "to_door": {
@@ -3915,7 +3956,7 @@
               "door_idx": 1,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 3.47
           },
           {
             "to_door": {
@@ -3927,7 +3968,7 @@
               "door_idx": 4,
               "node_id": 4
             },
-            "in_game_time": -1.0
+            "in_game_time": 5.21
           },
           {
             "to_door": {
@@ -3939,7 +3980,24 @@
               "door_idx": 5,
               "node_id": 6
             },
-            "in_game_time": -1.0
+            "in_game_time": 8.09
+          },
+          {
+            "to_door": {
+              "name": "Caterpillar Room Top Right Door (to Red Fish Room)",
+              "direction": "right",
+              "x": 2,
+              "y": 3,
+              "part_idx": 1,
+              "door_idx": 3,
+              "node_id": 5
+            },
+            "conditions": [
+              {
+                "requires": "can_reverse_gate",
+                "in_game_time": 11.18
+              }
+            ]  
           }
         ]
       },
@@ -3964,7 +4022,7 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 1.53
           },
           {
             "to_door": {
@@ -3976,7 +4034,7 @@
               "door_idx": 1,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 1.48
           },
           {
             "to_door": {
@@ -3988,7 +4046,7 @@
               "door_idx": 2,
               "node_id": 3
             },
-            "in_game_time": -1.0
+            "in_game_time": 4.39
           },
           {
             "to_door": {
@@ -4000,8 +4058,26 @@
               "door_idx": 5,
               "node_id": 6
             },
-            "in_game_time": -1.0
+            "in_game_time": 3.04
+          },
+          {
+            "to_door": {
+              "name": "Caterpillar Room Top Right Door (to Red Fish Room)",
+              "direction": "right",
+              "x": 2,
+              "y": 3,
+              "part_idx": 1,
+              "door_idx": 3,
+              "node_id": 5
+            },
+            "conditions": [
+              {
+                "requires": "can_reverse_gate",
+                "in_game_time": 5.53
+              }
+            ]  
           }
+
         ]
       },
       {
@@ -4025,7 +4101,7 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 1.49
           },
           {
             "to_door": {
@@ -4037,7 +4113,7 @@
               "door_idx": 1,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 4.15
           },
           {
             "to_door": {
@@ -4049,7 +4125,7 @@
               "door_idx": 2,
               "node_id": 3
             },
-            "in_game_time": -1.0
+            "in_game_time": 7.42
           },
           {
             "to_door": {
@@ -4061,7 +4137,25 @@
               "door_idx": 4,
               "node_id": 4
             },
-            "in_game_time": -1.0
+            "in_game_time": 3.00
+          },
+          {
+            "to_door": {
+              "name": "Caterpillar Room Top Right Door (to Red Fish Room)",
+              "direction": "right",
+              "x": 2,
+              "y": 3,
+              "part_idx": 1,
+              "door_idx": 3,
+              "node_id": 5
+            },
+            "conditions": [
+              {
+                "requires": "can_reverse_gate",
+                "in_game_time": 5.32,
+                "note": "Unmorph-remorph to reset fall speed"
+              }
+            ]  
           }
         ]
       },
@@ -4086,7 +4180,8 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 4.35,
+            "note": "Mockball"
           },
           {
             "to_door": {
@@ -4098,7 +4193,8 @@
               "door_idx": 1,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 5.36,
+            "note": "Mockball"
           },
           {
             "to_door": {
@@ -4110,7 +4206,8 @@
               "door_idx": 2,
               "node_id": 3
             },
-            "in_game_time": -1.0
+            "in_game_time": 8.51,
+            "note": "Mockball"
           },
           {
             "to_door": {
@@ -4122,7 +4219,8 @@
               "door_idx": 4,
               "node_id": 4
             },
-            "in_game_time": -1.0
+            "in_game_time": 4.46,
+            "note": "Mockball"
           },
           {
             "to_door": {
@@ -4134,7 +4232,8 @@
               "door_idx": 5,
               "node_id": 6
             },
-            "in_game_time": -1.0
+            "in_game_time": 4.52,
+            "note": "Mockball"
           }
         ]
       }
@@ -4232,7 +4331,7 @@
               "door_idx": 1,
               "node_id": 3
             },
-            "in_game_time": -1.0
+            "in_game_time": 11.28
           },
           {
             "to_door": {
@@ -4244,7 +4343,7 @@
               "door_idx": 2,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 9.04
           }
         ]
       },
@@ -4269,7 +4368,8 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 10.02,
+            "note": "Mockball"
           },
           {
             "to_door": {
@@ -4281,7 +4381,7 @@
               "door_idx": 2,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 2.27
           }
         ]
       },
@@ -4306,7 +4406,8 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 8.06,
+            "note": "Mockball"
           },
           {
             "to_door": {
@@ -4318,7 +4419,7 @@
               "door_idx": 1,
               "node_id": 3
             },
-            "in_game_time": -1.0
+            "in_game_time": 2.53
           }
         ]
       }
@@ -4348,7 +4449,7 @@
               "door_idx": 1,
               "node_id": 3
             },
-            "in_game_time": -1.0
+            "in_game_time": 3.23
           },
           {
             "to_door": {
@@ -4360,7 +4461,7 @@
               "door_idx": 2,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 1.25
           }
         ]
       },
@@ -4385,7 +4486,7 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 4.03
           },
           {
             "to_door": {
@@ -4397,7 +4498,7 @@
               "door_idx": 2,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 4.00
           }
         ]
       },
@@ -4422,7 +4523,7 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 1.18
           },
           {
             "to_door": {
@@ -4434,7 +4535,7 @@
               "door_idx": 1,
               "node_id": 3
             },
-            "in_game_time": -1.0
+            "in_game_time": 3.05
           }
         ]
       }
@@ -4481,7 +4582,7 @@
               "door_idx": 1,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 7.46
           }
         ]
       },
@@ -4506,7 +4607,8 @@
               "door_idx": 0,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 6.00,
+            "note": "Shinespark"
           }
         ]
       }
@@ -4536,7 +4638,7 @@
               "door_idx": 1,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 2.45
           }
         ]
       },
@@ -4561,7 +4663,7 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 3.20
           }
         ]
       }
@@ -4608,7 +4710,7 @@
               "door_idx": 1,
               "node_id": 4
             },
-            "in_game_time": -1.0
+            "in_game_time": 1.45
           },
           {
             "to_door": {
@@ -4620,19 +4722,7 @@
               "door_idx": 2,
               "node_id": 5
             },
-            "in_game_time": -1.0
-          },
-          {
-            "to_door": {
-              "name": "Top Left Etecoons Door (to Green Shaft)",
-              "direction": "left",
-              "x": 1,
-              "y": 7,
-              "part_idx": 0,
-              "door_idx": 3,
-              "node_id": 9
-            },
-            "in_game_time": -1.0
+            "in_game_time": 2.40
           },
           {
             "to_door": {
@@ -4644,19 +4734,8 @@
               "door_idx": 4,
               "node_id": 8
             },
-            "in_game_time": -1.0
-          },
-          {
-            "to_door": {
-              "name": "Bottom Left Etecoons Door (to E-Tank Room)",
-              "direction": "left",
-              "x": 2,
-              "y": 11,
-              "part_idx": 0,
-              "door_idx": 5,
-              "node_id": 10
-            },
-            "in_game_time": -1.0
+            "in_game_time": 6.55,
+            "note": "Moonfall"
           },
           {
             "to_door": {
@@ -4668,7 +4747,7 @@
               "door_idx": 6,
               "node_id": 3
             },
-            "in_game_time": -1.0
+            "in_game_time": 1.08
           },
           {
             "to_door": {
@@ -4680,7 +4759,7 @@
               "door_idx": 7,
               "node_id": 6
             },
-            "in_game_time": -1.0
+            "in_game_time": 3.03
           },
           {
             "to_door": {
@@ -4692,7 +4771,7 @@
               "door_idx": 8,
               "node_id": 7
             },
-            "in_game_time": -1.0
+            "in_game_time": 4.43
           },
           {
             "to_door": {
@@ -4704,7 +4783,7 @@
               "door_idx": 9,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 3.50
           }
         ]
       },
@@ -4729,7 +4808,7 @@
               "door_idx": 0,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 1.52
           },
           {
             "to_door": {
@@ -4741,19 +4820,7 @@
               "door_idx": 2,
               "node_id": 5
             },
-            "in_game_time": -1.0
-          },
-          {
-            "to_door": {
-              "name": "Top Left Etecoons Door (to Green Shaft)",
-              "direction": "left",
-              "x": 1,
-              "y": 7,
-              "part_idx": 0,
-              "door_idx": 3,
-              "node_id": 9
-            },
-            "in_game_time": -1.0
+            "in_game_time": 1.39
           },
           {
             "to_door": {
@@ -4765,19 +4832,8 @@
               "door_idx": 4,
               "node_id": 8
             },
-            "in_game_time": -1.0
-          },
-          {
-            "to_door": {
-              "name": "Bottom Left Etecoons Door (to E-Tank Room)",
-              "direction": "left",
-              "x": 2,
-              "y": 11,
-              "part_idx": 0,
-              "door_idx": 5,
-              "node_id": 10
-            },
-            "in_game_time": -1.0
+            "in_game_time": 5.36,
+            "note": "Moonfall"
           },
           {
             "to_door": {
@@ -4789,7 +4845,7 @@
               "door_idx": 6,
               "node_id": 3
             },
-            "in_game_time": -1.0
+            "in_game_time": 1.58
           },
           {
             "to_door": {
@@ -4801,7 +4857,7 @@
               "door_idx": 7,
               "node_id": 6
             },
-            "in_game_time": -1.0
+            "in_game_time": 2.10
           },
           {
             "to_door": {
@@ -4813,7 +4869,7 @@
               "door_idx": 8,
               "node_id": 7
             },
-            "in_game_time": -1.0
+            "in_game_time": 3.52
           },
           {
             "to_door": {
@@ -4825,7 +4881,7 @@
               "door_idx": 9,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 4.49
           }
         ]
       },
@@ -4850,7 +4906,7 @@
               "door_idx": 0,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 3.49
           },
           {
             "to_door": {
@@ -4862,19 +4918,7 @@
               "door_idx": 1,
               "node_id": 4
             },
-            "in_game_time": -1.0
-          },
-          {
-            "to_door": {
-              "name": "Top Left Etecoons Door (to Green Shaft)",
-              "direction": "left",
-              "x": 1,
-              "y": 7,
-              "part_idx": 0,
-              "door_idx": 3,
-              "node_id": 9
-            },
-            "in_game_time": -1.0
+            "in_game_time": 2.04
           },
           {
             "to_door": {
@@ -4886,19 +4930,8 @@
               "door_idx": 4,
               "node_id": 8
             },
-            "in_game_time": -1.0
-          },
-          {
-            "to_door": {
-              "name": "Bottom Left Etecoons Door (to E-Tank Room)",
-              "direction": "left",
-              "x": 2,
-              "y": 11,
-              "part_idx": 0,
-              "door_idx": 5,
-              "node_id": 10
-            },
-            "in_game_time": -1.0
+            "in_game_time": 4.23,
+            "note": "Moonfall"
           },
           {
             "to_door": {
@@ -4910,7 +4943,7 @@
               "door_idx": 6,
               "node_id": 3
             },
-            "in_game_time": -1.0
+            "in_game_time": 4.00
           },
           {
             "to_door": {
@@ -4922,7 +4955,7 @@
               "door_idx": 7,
               "node_id": 6
             },
-            "in_game_time": -1.0
+            "in_game_time": 0.42
           },
           {
             "to_door": {
@@ -4934,7 +4967,7 @@
               "door_idx": 8,
               "node_id": 7
             },
-            "in_game_time": -1.0
+            "in_game_time": 2.50
           },
           {
             "to_door": {
@@ -4946,7 +4979,7 @@
               "door_idx": 9,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 7.00
           }
         ]
       },
@@ -4963,54 +4996,6 @@
         "to": [
           {
             "to_door": {
-              "name": "Green Shaft Top Left Door (to Pre-Map)",
-              "direction": "left",
-              "x": 0,
-              "y": 4,
-              "part_idx": 0,
-              "door_idx": 0,
-              "node_id": 2
-            },
-            "in_game_time": -1.0
-          },
-          {
-            "to_door": {
-              "name": "Green Shaft Mid-High Left Door (to Save)",
-              "direction": "left",
-              "x": 0,
-              "y": 5,
-              "part_idx": 0,
-              "door_idx": 1,
-              "node_id": 4
-            },
-            "in_game_time": -1.0
-          },
-          {
-            "to_door": {
-              "name": "Green Shaft Mid-Low Left Door (to Firefleas)",
-              "direction": "left",
-              "x": 0,
-              "y": 6,
-              "part_idx": 0,
-              "door_idx": 2,
-              "node_id": 5
-            },
-            "in_game_time": -1.0
-          },
-          {
-            "to_door": {
-              "name": "Green Shaft Bottom Left Door (to Beetoms)",
-              "direction": "left",
-              "x": 0,
-              "y": 10,
-              "part_idx": 0,
-              "door_idx": 4,
-              "node_id": 8
-            },
-            "in_game_time": -1.0
-          },
-          {
-            "to_door": {
               "name": "Bottom Left Etecoons Door (to E-Tank Room)",
               "direction": "left",
               "x": 2,
@@ -5019,55 +5004,7 @@
               "door_idx": 5,
               "node_id": 10
             },
-            "in_game_time": -1.0
-          },
-          {
-            "to_door": {
-              "name": "Green Shaft Top Right Door (to Early Supers)",
-              "direction": "right",
-              "x": 0,
-              "y": 4,
-              "part_idx": 0,
-              "door_idx": 6,
-              "node_id": 3
-            },
-            "in_game_time": -1.0
-          },
-          {
-            "to_door": {
-              "name": "Green Shaft Middle Right Door (to Dachora Room)",
-              "direction": "right",
-              "x": 0,
-              "y": 6,
-              "part_idx": 0,
-              "door_idx": 7,
-              "node_id": 6
-            },
-            "in_game_time": -1.0
-          },
-          {
-            "to_door": {
-              "name": "Green Shaft Bottom Right Door (Etecoon Exit)",
-              "direction": "right",
-              "x": 0,
-              "y": 7,
-              "part_idx": 0,
-              "door_idx": 8,
-              "node_id": 7
-            },
-            "in_game_time": -1.0
-          },
-          {
-            "to_door": {
-              "name": "Green Brinstar Elevator to Crateria",
-              "direction": "up",
-              "x": 0,
-              "y": 0,
-              "part_idx": 0,
-              "door_idx": 9,
-              "node_id": 1
-            },
-            "in_game_time": -1.0
+            "in_game_time": 5.02
           }
         ]
       },
@@ -5092,7 +5029,7 @@
               "door_idx": 0,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 10.35
           },
           {
             "to_door": {
@@ -5104,7 +5041,7 @@
               "door_idx": 1,
               "node_id": 4
             },
-            "in_game_time": -1.0
+            "in_game_time": 8.38
           },
           {
             "to_door": {
@@ -5116,31 +5053,7 @@
               "door_idx": 2,
               "node_id": 5
             },
-            "in_game_time": -1.0
-          },
-          {
-            "to_door": {
-              "name": "Top Left Etecoons Door (to Green Shaft)",
-              "direction": "left",
-              "x": 1,
-              "y": 7,
-              "part_idx": 0,
-              "door_idx": 3,
-              "node_id": 9
-            },
-            "in_game_time": -1.0
-          },
-          {
-            "to_door": {
-              "name": "Bottom Left Etecoons Door (to E-Tank Room)",
-              "direction": "left",
-              "x": 2,
-              "y": 11,
-              "part_idx": 0,
-              "door_idx": 5,
-              "node_id": 10
-            },
-            "in_game_time": -1.0
+            "in_game_time": 7.06
           },
           {
             "to_door": {
@@ -5152,7 +5065,7 @@
               "door_idx": 6,
               "node_id": 3
             },
-            "in_game_time": -1.0
+            "in_game_time": 10.41
           },
           {
             "to_door": {
@@ -5164,7 +5077,7 @@
               "door_idx": 7,
               "node_id": 6
             },
-            "in_game_time": -1.0
+            "in_game_time": 7.14
           },
           {
             "to_door": {
@@ -5176,7 +5089,7 @@
               "door_idx": 8,
               "node_id": 7
             },
-            "in_game_time": -1.0
+            "in_game_time": 4.59
           },
           {
             "to_door": {
@@ -5188,7 +5101,7 @@
               "door_idx": 9,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 13.56
           }
         ]
       },
@@ -5205,42 +5118,6 @@
         "to": [
           {
             "to_door": {
-              "name": "Green Shaft Top Left Door (to Pre-Map)",
-              "direction": "left",
-              "x": 0,
-              "y": 4,
-              "part_idx": 0,
-              "door_idx": 0,
-              "node_id": 2
-            },
-            "in_game_time": -1.0
-          },
-          {
-            "to_door": {
-              "name": "Green Shaft Mid-High Left Door (to Save)",
-              "direction": "left",
-              "x": 0,
-              "y": 5,
-              "part_idx": 0,
-              "door_idx": 1,
-              "node_id": 4
-            },
-            "in_game_time": -1.0
-          },
-          {
-            "to_door": {
-              "name": "Green Shaft Mid-Low Left Door (to Firefleas)",
-              "direction": "left",
-              "x": 0,
-              "y": 6,
-              "part_idx": 0,
-              "door_idx": 2,
-              "node_id": 5
-            },
-            "in_game_time": -1.0
-          },
-          {
-            "to_door": {
               "name": "Top Left Etecoons Door (to Green Shaft)",
               "direction": "left",
               "x": 1,
@@ -5249,7 +5126,7 @@
               "door_idx": 3,
               "node_id": 9
             },
-            "in_game_time": -1.0
+            "in_game_time": 6.54
           },
           {
             "to_door": {
@@ -5261,55 +5138,7 @@
               "door_idx": 4,
               "node_id": 8
             },
-            "in_game_time": -1.0
-          },
-          {
-            "to_door": {
-              "name": "Green Shaft Top Right Door (to Early Supers)",
-              "direction": "right",
-              "x": 0,
-              "y": 4,
-              "part_idx": 0,
-              "door_idx": 6,
-              "node_id": 3
-            },
-            "in_game_time": -1.0
-          },
-          {
-            "to_door": {
-              "name": "Green Shaft Middle Right Door (to Dachora Room)",
-              "direction": "right",
-              "x": 0,
-              "y": 6,
-              "part_idx": 0,
-              "door_idx": 7,
-              "node_id": 6
-            },
-            "in_game_time": -1.0
-          },
-          {
-            "to_door": {
-              "name": "Green Shaft Bottom Right Door (Etecoon Exit)",
-              "direction": "right",
-              "x": 0,
-              "y": 7,
-              "part_idx": 0,
-              "door_idx": 8,
-              "node_id": 7
-            },
-            "in_game_time": -1.0
-          },
-          {
-            "to_door": {
-              "name": "Green Brinstar Elevator to Crateria",
-              "direction": "up",
-              "x": 0,
-              "y": 0,
-              "part_idx": 0,
-              "door_idx": 9,
-              "node_id": 1
-            },
-            "in_game_time": -1.0
+            "in_game_time": 6.17
           }
         ]
       },
@@ -5334,7 +5163,7 @@
               "door_idx": 0,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 1.08
           },
           {
             "to_door": {
@@ -5346,7 +5175,7 @@
               "door_idx": 1,
               "node_id": 4
             },
-            "in_game_time": -1.0
+            "in_game_time": 1.43
           },
           {
             "to_door": {
@@ -5358,19 +5187,7 @@
               "door_idx": 2,
               "node_id": 5
             },
-            "in_game_time": -1.0
-          },
-          {
-            "to_door": {
-              "name": "Top Left Etecoons Door (to Green Shaft)",
-              "direction": "left",
-              "x": 1,
-              "y": 7,
-              "part_idx": 0,
-              "door_idx": 3,
-              "node_id": 9
-            },
-            "in_game_time": -1.0
+            "in_game_time": 2.41
           },
           {
             "to_door": {
@@ -5382,19 +5199,8 @@
               "door_idx": 4,
               "node_id": 8
             },
-            "in_game_time": -1.0
-          },
-          {
-            "to_door": {
-              "name": "Bottom Left Etecoons Door (to E-Tank Room)",
-              "direction": "left",
-              "x": 2,
-              "y": 11,
-              "part_idx": 0,
-              "door_idx": 5,
-              "node_id": 10
-            },
-            "in_game_time": -1.0
+            "in_game_time": 6.25,
+            "note": "Moonfall"
           },
           {
             "to_door": {
@@ -5406,7 +5212,7 @@
               "door_idx": 7,
               "node_id": 6
             },
-            "in_game_time": -1.0
+            "in_game_time": 3.31
           },
           {
             "to_door": {
@@ -5418,7 +5224,7 @@
               "door_idx": 8,
               "node_id": 7
             },
-            "in_game_time": -1.0
+            "in_game_time": 4.55
           },
           {
             "to_door": {
@@ -5430,7 +5236,7 @@
               "door_idx": 9,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 3.15
           }
         ]
       },
@@ -5455,7 +5261,7 @@
               "door_idx": 0,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 3.53
           },
           {
             "to_door": {
@@ -5467,7 +5273,7 @@
               "door_idx": 1,
               "node_id": 4
             },
-            "in_game_time": -1.0
+            "in_game_time": 2.08
           },
           {
             "to_door": {
@@ -5479,19 +5285,7 @@
               "door_idx": 2,
               "node_id": 5
             },
-            "in_game_time": -1.0
-          },
-          {
-            "to_door": {
-              "name": "Top Left Etecoons Door (to Green Shaft)",
-              "direction": "left",
-              "x": 1,
-              "y": 7,
-              "part_idx": 0,
-              "door_idx": 3,
-              "node_id": 9
-            },
-            "in_game_time": -1.0
+            "in_game_time": 0.42
           },
           {
             "to_door": {
@@ -5503,19 +5297,7 @@
               "door_idx": 4,
               "node_id": 8
             },
-            "in_game_time": -1.0
-          },
-          {
-            "to_door": {
-              "name": "Bottom Left Etecoons Door (to E-Tank Room)",
-              "direction": "left",
-              "x": 2,
-              "y": 11,
-              "part_idx": 0,
-              "door_idx": 5,
-              "node_id": 10
-            },
-            "in_game_time": -1.0
+            "in_game_time": 4.17
           },
           {
             "to_door": {
@@ -5527,7 +5309,7 @@
               "door_idx": 6,
               "node_id": 3
             },
-            "in_game_time": -1.0
+            "in_game_time": 3.48
           },
           {
             "to_door": {
@@ -5539,7 +5321,7 @@
               "door_idx": 8,
               "node_id": 7
             },
-            "in_game_time": -1.0
+            "in_game_time": 2.57
           },
           {
             "to_door": {
@@ -5551,7 +5333,7 @@
               "door_idx": 9,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 7.00
           }
         ]
       },
@@ -5576,7 +5358,7 @@
               "door_idx": 0,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 5.56
           },
           {
             "to_door": {
@@ -5588,7 +5370,7 @@
               "door_idx": 1,
               "node_id": 4
             },
-            "in_game_time": -1.0
+            "in_game_time": 4.19
           },
           {
             "to_door": {
@@ -5600,19 +5382,7 @@
               "door_idx": 2,
               "node_id": 5
             },
-            "in_game_time": -1.0
-          },
-          {
-            "to_door": {
-              "name": "Top Left Etecoons Door (to Green Shaft)",
-              "direction": "left",
-              "x": 1,
-              "y": 7,
-              "part_idx": 0,
-              "door_idx": 3,
-              "node_id": 9
-            },
-            "in_game_time": -1.0
+            "in_game_time": 2.52
           },
           {
             "to_door": {
@@ -5624,19 +5394,7 @@
               "door_idx": 4,
               "node_id": 8
             },
-            "in_game_time": -1.0
-          },
-          {
-            "to_door": {
-              "name": "Bottom Left Etecoons Door (to E-Tank Room)",
-              "direction": "left",
-              "x": 2,
-              "y": 11,
-              "part_idx": 0,
-              "door_idx": 5,
-              "node_id": 10
-            },
-            "in_game_time": -1.0
+            "in_game_time": 3.24
           },
           {
             "to_door": {
@@ -5648,7 +5406,7 @@
               "door_idx": 6,
               "node_id": 3
             },
-            "in_game_time": -1.0
+            "in_game_time": 6.11
           },
           {
             "to_door": {
@@ -5660,7 +5418,7 @@
               "door_idx": 7,
               "node_id": 6
             },
-            "in_game_time": -1.0
+            "in_game_time": 2.46
           },
           {
             "to_door": {
@@ -5672,7 +5430,7 @@
               "door_idx": 9,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 9.23
           }
         ]
       },
@@ -5697,7 +5455,7 @@
               "door_idx": 0,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 3.09
           },
           {
             "to_door": {
@@ -5709,7 +5467,7 @@
               "door_idx": 1,
               "node_id": 4
             },
-            "in_game_time": -1.0
+            "in_game_time": 4.07
           },
           {
             "to_door": {
@@ -5721,19 +5479,8 @@
               "door_idx": 2,
               "node_id": 5
             },
-            "in_game_time": -1.0
-          },
-          {
-            "to_door": {
-              "name": "Top Left Etecoons Door (to Green Shaft)",
-              "direction": "left",
-              "x": 1,
-              "y": 7,
-              "part_idx": 0,
-              "door_idx": 3,
-              "node_id": 9
-            },
-            "in_game_time": -1.0
+            "in_game_time": 5.15,
+            "note": "Moonfall"
           },
           {
             "to_door": {
@@ -5745,19 +5492,8 @@
               "door_idx": 4,
               "node_id": 8
             },
-            "in_game_time": -1.0
-          },
-          {
-            "to_door": {
-              "name": "Bottom Left Etecoons Door (to E-Tank Room)",
-              "direction": "left",
-              "x": 2,
-              "y": 11,
-              "part_idx": 0,
-              "door_idx": 5,
-              "node_id": 10
-            },
-            "in_game_time": -1.0
+            "in_game_time": 7.34,
+            "note": "Moonfall"
           },
           {
             "to_door": {
@@ -5769,7 +5505,7 @@
               "door_idx": 6,
               "node_id": 3
             },
-            "in_game_time": -1.0
+            "in_game_time": 2.38
           },
           {
             "to_door": {
@@ -5781,7 +5517,8 @@
               "door_idx": 7,
               "node_id": 6
             },
-            "in_game_time": -1.0
+            "in_game_time": 4.35,
+            "note": "Moonfall"
           },
           {
             "to_door": {
@@ -5793,7 +5530,8 @@
               "door_idx": 8,
               "node_id": 7
             },
-            "in_game_time": -1.0
+            "in_game_time": 6.02,
+            "note": "Moonfall"
           }
         ]
       }
@@ -5823,7 +5561,7 @@
               "door_idx": 1,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 3.15
           }
         ]
       },
@@ -5848,7 +5586,7 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 6.28
           }
         ]
       }
@@ -5895,7 +5633,7 @@
               "door_idx": 1,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 4.07
           }
         ]
       },
@@ -5920,7 +5658,7 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 4.00
           }
         ]
       }
@@ -5967,7 +5705,7 @@
               "door_idx": 1,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 4.25
           }
         ]
       },
@@ -5992,7 +5730,7 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 3.32
           }
         ]
       }
@@ -6073,7 +5811,7 @@
               "door_idx": 1,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 1.24
           }
         ]
       },
@@ -6098,7 +5836,7 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 1.23
           }
         ]
       }
@@ -6128,7 +5866,7 @@
               "door_idx": 2,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 1.56
           },
           {
             "to_door": {
@@ -6140,7 +5878,7 @@
               "door_idx": 1,
               "node_id": 3
             },
-            "in_game_time": -1.0
+            "in_game_time": 2.17
           },
           {
             "to_door": {
@@ -6152,7 +5890,7 @@
               "door_idx": 3,
               "node_id": 4
             },
-            "in_game_time": -1.0
+            "in_game_time": 10.03
           }
         ]
       },
@@ -6177,7 +5915,7 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 1.25
           },
           {
             "to_door": {
@@ -6189,7 +5927,7 @@
               "door_idx": 1,
               "node_id": 3
             },
-            "in_game_time": -1.0
+            "in_game_time": 2.51
           },
           {
             "to_door": {
@@ -6201,7 +5939,7 @@
               "door_idx": 3,
               "node_id": 4
             },
-            "in_game_time": -1.0
+            "in_game_time": 10.12
           }
         ]
       },
@@ -6226,7 +5964,7 @@
               "door_idx": 3,
               "node_id": 4
             },
-            "in_game_time": -1.0
+            "in_game_time": 8.32
           }
         ]
       },
@@ -6251,7 +5989,7 @@
               "door_idx": 1,
               "node_id": 3
             },
-            "in_game_time": -1.0
+            "in_game_time": 7.55
           }
         ]
       }
@@ -6298,7 +6036,7 @@
               "door_idx": 1,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 2.39
           },
           {
             "to_door": {
@@ -6310,7 +6048,7 @@
               "door_idx": 2,
               "node_id": 3
             },
-            "in_game_time": -1.0
+            "in_game_time": 11.43
           }
         ]
       },
@@ -6335,7 +6073,7 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 1.58
           },
           {
             "to_door": {
@@ -6347,7 +6085,7 @@
               "door_idx": 2,
               "node_id": 3
             },
-            "in_game_time": -1.0
+            "in_game_time": 10.25
           }
         ]
       },
@@ -6372,7 +6110,7 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 9.28
           },
           {
             "to_door": {
@@ -6384,7 +6122,7 @@
               "door_idx": 1,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 9.29
           }
         ]
       }
@@ -6414,7 +6152,7 @@
               "door_idx": 1,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 4.34
           }
         ]
       },
@@ -6439,7 +6177,7 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 4.43
           }
         ]
       }
@@ -6469,7 +6207,7 @@
               "door_idx": 1,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 3.48
           }
         ]
       },
@@ -6494,7 +6232,7 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 3.53
           }
         ]
       }
@@ -6513,7 +6251,20 @@
           "door_idx": 0,
           "node_id": 1
         },
-        "to": []
+        "to": [
+          {
+            "to_door": {
+              "name": "Spore Spawn Room Bottom Door (to Spore Spawn Kihunters)",
+              "direction": "down",
+              "x": 0,
+              "y": 2,
+              "part_idx": 1,
+              "door_idx": 1,
+              "node_id": 2  
+            },
+            "in_game_time": 4.04
+          }
+        ]
       },
       {
         "from_door": {
@@ -6536,7 +6287,7 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 4.36
           }
         ]
       }
@@ -6566,7 +6317,7 @@
               "door_idx": 1,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 10.27
           },
           {
             "to_door": {
@@ -6578,7 +6329,7 @@
               "door_idx": 2,
               "node_id": 3
             },
-            "in_game_time": -1.0
+            "in_game_time": 4.24
           }
         ]
       },
@@ -6603,7 +6354,7 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 9.33
           },
           {
             "to_door": {
@@ -6615,7 +6366,7 @@
               "door_idx": 2,
               "node_id": 3
             },
-            "in_game_time": -1.0
+            "in_game_time": 7.51
           }
         ]
       },
@@ -6640,7 +6391,7 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 4.40
           },
           {
             "to_door": {
@@ -6652,7 +6403,7 @@
               "door_idx": 1,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 9.33
           }
         ]
       }
@@ -6699,7 +6450,7 @@
               "door_idx": 1,
               "node_id": 3
             },
-            "in_game_time": -1.0
+            "in_game_time": 8.51
           },
           {
             "to_door": {
@@ -6711,7 +6462,7 @@
               "door_idx": 2,
               "node_id": 4
             },
-            "in_game_time": -1.0
+            "in_game_time": 14.02
           },
           {
             "to_door": {
@@ -6723,7 +6474,7 @@
               "door_idx": 4,
               "node_id": 9
             },
-            "in_game_time": -1.0
+            "in_game_time": 24.14
           },
           {
             "to_door": {
@@ -6735,7 +6486,7 @@
               "door_idx": 5,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 4.31
           },
           {
             "to_door": {
@@ -6747,7 +6498,7 @@
               "door_idx": 6,
               "node_id": 6
             },
-            "in_game_time": -1.0
+            "in_game_time": 13.35
           },
           {
             "to_door": {
@@ -6759,7 +6510,7 @@
               "door_idx": 8,
               "node_id": 8
             },
-            "in_game_time": -1.0
+            "in_game_time": 19.07
           }
         ]
       },
@@ -6784,7 +6535,7 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 8.15
           },
           {
             "to_door": {
@@ -7039,7 +6790,7 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 2.41
           },
           {
             "to_door": {
@@ -7051,7 +6802,7 @@
               "door_idx": 1,
               "node_id": 3
             },
-            "in_game_time": -1.0
+            "in_game_time": 7.46
           },
           {
             "to_door": {
@@ -7063,7 +6814,7 @@
               "door_idx": 2,
               "node_id": 4
             },
-            "in_game_time": -1.0
+            "in_game_time": 13.20
           },
           {
             "to_door": {
@@ -7075,7 +6826,7 @@
               "door_idx": 4,
               "node_id": 9
             },
-            "in_game_time": -1.0
+            "in_game_time": 23.11
           },
           {
             "to_door": {
@@ -7087,7 +6838,7 @@
               "door_idx": 6,
               "node_id": 6
             },
-            "in_game_time": -1.0
+            "in_game_time": 12.49
           },
           {
             "to_door": {
@@ -7099,7 +6850,7 @@
               "door_idx": 8,
               "node_id": 8
             },
-            "in_game_time": -1.0
+            "in_game_time": 18.45
           }
         ]
       },
