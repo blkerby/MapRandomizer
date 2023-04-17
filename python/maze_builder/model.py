@@ -366,14 +366,15 @@ def map_extract(map, env_id, pos_x, pos_y, width_x, width_y):
 # inputs_list = []
 
 class DoorLocalModel(torch.nn.Module):
-    def __init__(self, env_config, num_doors, num_missing_connects, num_room_parts, map_channels, map_kernel_size,
+    def __init__(self, env_config, num_doors, num_missing_connects, num_good_room_parts, num_parts, map_channels, map_kernel_size,
                  connectivity_in_width, local_widths, global_widths, fc_widths, alpha, arity
                  ):
         super().__init__()
         self.env_config = env_config
         self.num_doors = num_doors
         self.num_missing_connects = num_missing_connects
-        self.num_room_parts = num_room_parts
+        self.num_good_room_parts = num_good_room_parts
+        self.num_parts = num_parts
         self.map_x = env_config.map_x + 1
         self.map_y = env_config.map_y + 1
         self.map_c = 4
@@ -389,8 +390,8 @@ class DoorLocalModel(torch.nn.Module):
         # common_act = torch.nn.Mish()
         common_act = MaxOut(arity)
 
-        self.connectivity_left_mat = torch.nn.Parameter(torch.randn([connectivity_in_width, num_room_parts]))
-        self.connectivity_right_mat = torch.nn.Parameter(torch.randn([num_room_parts, connectivity_in_width]))
+        self.connectivity_left_mat = torch.nn.Parameter(torch.randn([connectivity_in_width, num_good_room_parts]))
+        self.connectivity_right_mat = torch.nn.Parameter(torch.randn([num_good_room_parts, connectivity_in_width]))
         self.pos_embedding_x = torch.nn.Parameter(torch.randn([self.map_x, local_widths[0]]))
         self.pos_embedding_y = torch.nn.Parameter(torch.randn([self.map_y, local_widths[0]]))
         self.door_embedding = torch.nn.Parameter(torch.randn([self.num_doors, local_widths[0]]))
@@ -399,6 +400,8 @@ class DoorLocalModel(torch.nn.Module):
         self.up_lin = torch.nn.Linear(map_kernel_size ** 2 * map_channels, local_widths[0] * arity)
         self.down_lin = torch.nn.Linear(map_kernel_size ** 2 * map_channels, local_widths[0] * arity)
         self.global_lin = torch.nn.Linear(connectivity_in_width ** 2 + self.num_rooms + 3, global_widths[0] * arity)
+        self.local_conn_lin_from = torch.nn.Linear(self.num_parts, local_widths[0])
+        self.local_conn_lin_to = torch.nn.Linear(self.num_parts, local_widths[0])
         # self.global_lin = torch.nn.Linear(self.num_rooms + 1, global_widths[0] * arity)
         self.base_local_act = common_act
         self.base_global_act = common_act
@@ -463,30 +466,37 @@ class DoorLocalModel(torch.nn.Module):
 
             X_left = self.left_lin(local_map_left)
             X_right = self.right_lin(local_map_right)
-            X_up = self.up_lin(local_map_up)
             X_down = self.down_lin(local_map_down)
-            local_X = torch.cat([X_left, X_right, X_up, X_down], dim=0)
+            X_up = self.up_lin(local_map_up)
+            local_X = torch.cat([X_left, X_right, X_down, X_up], dim=0)
             local_X = self.base_local_act(local_X)
             local_env_id = torch.cat(
-                [map_door_left[:, 0], map_door_right[:, 0], map_door_up[:, 0], map_door_down[:, 0]], dim=0)
+                [map_door_left[:, 0], map_door_right[:, 0], map_door_down[:, 0], map_door_up[:, 0]], dim=0)
             local_door_id = torch.cat(
-                [map_door_left[:, 1], map_door_right[:, 1], map_door_up[:, 1], map_door_down[:, 1]], dim=0)
+                [map_door_left[:, 1], map_door_right[:, 1], map_door_down[:, 1], map_door_up[:, 1]], dim=0)
+            local_part_id = env.part_all[local_door_id]
             local_pos_x = torch.cat(
-                [map_door_left[:, 2], map_door_right[:, 2], map_door_up[:, 2], map_door_down[:, 2]], dim=0)
+                [map_door_left[:, 2], map_door_right[:, 2], map_door_down[:, 2], map_door_up[:, 2]], dim=0)
             local_pos_y = torch.cat(
-                [map_door_left[:, 3], map_door_right[:, 3], map_door_up[:, 3], map_door_down[:, 3]], dim=0)
+                [map_door_left[:, 3], map_door_right[:, 3], map_door_down[:, 3], map_door_up[:, 3]], dim=0)
             local_pos_emb_x = self.pos_embedding_x[local_pos_x, :]
             local_pos_emb_y = self.pos_embedding_y[local_pos_y, :]
             local_door_emb = self.door_embedding[local_door_id, :]
-            local_X = local_X + local_pos_emb_x + local_pos_emb_y + local_door_emb
 
-            reduced_connectivity, missing_connects = env.compute_fast_component_matrix_cpu2(
+
+            reduced_connectivity, missing_connects, local_conn_from, local_conn_to = env.compute_fast_component_matrix_cpu2(
                 room_mask, room_position_x, room_position_y,
-                self.connectivity_left_mat, self.connectivity_right_mat)
+                self.connectivity_left_mat, self.connectivity_right_mat,
+                local_env_id, local_part_id)
             # reduced_connectivity, missing_connects = env.compute_fast_component_matrix(
             #     room_mask, room_position_x, room_position_y,
             #     self.connectivity_left_mat, self.connectivity_right_mat)
             reduced_connectivity_flat = reduced_connectivity.view(n, self.connectivity_in_width ** 2)
+
+            local_conn_lin_from = self.local_conn_lin_from(local_conn_from.to(X_left.dtype))
+            local_conn_lin_to = self.local_conn_lin_to(local_conn_to.to(X_left.dtype))
+
+            local_X = local_X + local_pos_emb_x + local_pos_emb_y + local_door_emb + local_conn_lin_from + local_conn_lin_to
 
             # global_X = torch.cat([room_mask.to(X_left.dtype),
             #                       steps_remaining.view(-1, 1)], dim=1)

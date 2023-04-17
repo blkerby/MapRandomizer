@@ -97,8 +97,9 @@ class MazeBuilderEnv:
         self.room_down_cpu = self.room_down.to('cpu')
         self.part_left_cpu = self.part_left.to('cpu')
         self.part_right_cpu = self.part_right.to('cpu')
-        self.part_up_cpu = self.part_up.to('cpu')
         self.part_down_cpu = self.part_down.to('cpu')
+        self.part_up_cpu = self.part_up.to('cpu')
+        self.part_all_cpu = self.part_all.to('cpu')
         self.part_room_id_cpu = self.part_room_id.to('cpu')
 
         A = self.part_adjacency_matrix.clone()
@@ -975,7 +976,8 @@ class MazeBuilderEnv:
     #     #     self.device, time_total, time_prep, time_load, time_comp, time_store, time_expand))
     #     return A
 
-    def compute_fast_component_matrix_cpu2(self, room_mask, room_position_x, room_position_y, left_mat, right_mat):
+    def compute_fast_component_matrix_cpu2(self, room_mask, room_position_x, room_position_y, left_mat, right_mat,
+                                           local_env_id, local_part_id):
         # print(room_mask.shape, room_mask.device,
         #       room_position_x.shape, room_position_x.device,
         #       room_position_y.shape, room_position_y.device,
@@ -1019,9 +1021,23 @@ class MazeBuilderEnv:
         # logging.info("Transfer")
         # torch.cuda.synchronize(self.device)
         # start_post = time.perf_counter()
+        output_components = output_components.to(left_mat.device)
         good_output_components = output_components[:, self.good_room_parts.to(output_components.device)]
-        good_output_components = good_output_components.to(left_mat.device)
         output_adjacency_unpacked = output_adjacency_unpacked.to(left_mat.device)
+
+
+        local_components = output_components[local_env_id, local_part_id]
+        # print(output_adjacency_unpacked.shape, local_components.shape, output_components.shape)
+
+        # i = local_env_id.view(-1, 1)
+        # j = local_components.view(-1, 1).to(torch.int64)
+        # k = output_components[local_env_id, :].to(torch.int64)
+        # print(output_adjacency_unpacked.shape, i.shape, j.shape, k.shape, i.dtype, j.dtype, k.dtype)
+        local_conn_from = output_adjacency_unpacked[local_env_id.view(-1, 1), local_components.view(-1, 1).to(torch.int64), output_components[local_env_id, :].to(torch.int64)]
+        local_conn_to = output_adjacency_unpacked[local_env_id.view(-1, 1), output_components[local_env_id, :].to(torch.int64), local_components.view(-1, 1).to(torch.int64)]
+        # local_conn_from = output_adjacency_unpacked[local_env_id.view(-1, 1), local_components.view(-1, 1), output_components[local_env_id, :].view(1, -1)]
+        # local_conn_to = output_adjacency_unpacked[local_env_id.view(-1, 1), output_components[local_env_id, :].view(1, -1), local_components.view(-1, 1)]
+        # local_conn_to = local_conn_from
 
         # torch.cuda.synchronize(self.device)
         # start_mul = time.perf_counter()
@@ -1063,7 +1079,7 @@ class MazeBuilderEnv:
         #     time_total, time_setup, time_compute, time_post, time_mul, time_missing
         # ))
         # logging.info("Done")
-        return reduced_connectivity.to(self.device), missing_connects.to(self.device)
+        return reduced_connectivity.to(self.device), missing_connects.to(self.device), local_conn_from.to(self.device), local_conn_to.to(self.device)
 
     def compute_missing_connections(self):
         component_matrix = self.compute_component_matrices(self.room_mask, self.room_position_x, self.room_position_y)
@@ -1138,6 +1154,7 @@ class MazeBuilderEnv:
                         dir, door_x, door_y, self.rooms[room_id]))
             part_tensor_list.append(torch.tensor(part_id_list).to(self.device))
         self.part_left, self.part_right, self.part_down, self.part_up = part_tensor_list
+        self.part_all = torch.cat(part_tensor_list)
         self.good_room_parts = torch.tensor([i for i, r in enumerate(self.part_room_id.tolist())
                                              if len(self.rooms[r].door_ids) > 1], device=self.device)
         padding_needed = (8 - self.good_room_parts.shape[0] % 8) % 8
