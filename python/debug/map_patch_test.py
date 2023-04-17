@@ -30,7 +30,7 @@ area_arr = [rom.read_u8(room.rom_address + 1) for room in rooms]
 patches = [
     'new_game_extra',
     'escape',
-    # 'door_hurt',
+    'door_hurt',
     # 'gunport',
     # 'screw_attack',
     # 'alucard',
