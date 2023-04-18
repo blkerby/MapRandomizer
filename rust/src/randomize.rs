@@ -10,6 +10,7 @@ use crate::{
         LocalState, TraverseResult,
     },
 };
+use by_address::ByAddress;
 use hashbrown::{HashMap, HashSet};
 use log::info;
 use rand::SeedableRng;
@@ -195,6 +196,9 @@ fn add_door_links(
 struct Preprocessor<'a> {
     game_data: &'a GameData,
     door_map: HashMap<(RoomId, NodeId), (RoomId, NodeId)>,
+    // Cache of previously-processed or currently-processing inputs. This is used to avoid infinite
+    // recursion in cases of circular dependencies (e.g. cycles of leaveWithGMode)
+    preprocessed_output: HashMap<ByAddress<&'a Requirement>, Option<Requirement>>,
 }
 
 // // TODO: Remove this if heatFrames are removed from runways in sm-json-data.
@@ -227,10 +231,11 @@ impl<'a> Preprocessor<'a> {
         Preprocessor {
             game_data,
             door_map,
+            preprocessed_output: HashMap::new(),
         }
     }
 
-    fn preprocess_link(&self, link: &Link) -> Link {
+    fn preprocess_link(&mut self, link: &'a Link) -> Link {
         Link {
             from_vertex_id: link.from_vertex_id,
             to_vertex_id: link.to_vertex_id,
@@ -241,8 +246,20 @@ impl<'a> Preprocessor<'a> {
         }
     }
 
-    fn preprocess_requirement(&self, req: &Requirement, link: &Link) -> Requirement {
-        match req {
+    fn preprocess_requirement(&mut self, req: &'a Requirement, link: &Link) -> Requirement {
+        let key = ByAddress(req);
+        if self.preprocessed_output.contains_key(&key) {
+            if let Some(val) = &self.preprocessed_output[&key] {
+                return val.clone();
+            } else {
+                // Circular dependency detected, which cannot be satisfied.
+                println!("Circular requirement: {:?}", req);
+                return Requirement::Never;
+            }
+        }
+        self.preprocessed_output.insert(key, None);
+
+        let out = match req {
             Requirement::AdjacentRunway {
                 room_id,
                 node_id,
@@ -275,6 +292,12 @@ impl<'a> Preprocessor<'a> {
                 *excess_shinespark_frames,
                 link,
             ),
+            Requirement::ComeInWithGMode {
+                room_id,
+                node_ids,
+                mode,
+                artificial_morph,
+            } => self.preprocess_come_in_with_gmode(*room_id, node_ids, mode, *artificial_morph, link),
             Requirement::And(sub_reqs) => Requirement::make_and(
                 sub_reqs
                     .iter()
@@ -288,11 +311,13 @@ impl<'a> Preprocessor<'a> {
                     .collect(),
             ),
             _ => req.clone(),
-        }
+        };
+        self.preprocessed_output.insert(key, Some(out.clone()));
+        out
     }
 
     fn preprocess_can_come_in_charged(
-        &self,
+        &mut self,
         shinespark_tech_id: TechId,
         room_id: RoomId,
         node_id: NodeId,
@@ -411,7 +436,7 @@ impl<'a> Preprocessor<'a> {
     }
 
     fn preprocess_adjacent_runway(
-        &self,
+        &mut self,
         room_id: RoomId,
         node_id: NodeId,
         used_tiles: f32,
@@ -467,6 +492,62 @@ impl<'a> Preprocessor<'a> {
         // );
         out
     }
+
+    fn preprocess_come_in_with_gmode(
+        &mut self,
+        room_id: RoomId,
+        node_ids: &[NodeId],
+        mode: &str,
+        artificial_morph: bool,
+        link: &Link,
+    ) -> Requirement {
+        let gmode_tech_id = self.game_data.tech_isv.index_by_key["canEnterGMode"];
+        let artificial_morph_tech_id = self.game_data.tech_isv.index_by_key["canArtificialMorph"];
+        let morph_item_id = self.game_data.item_isv.index_by_key["Morph"];
+        let xray_item_id = self.game_data.item_isv.index_by_key["XRayScope"];
+        let mut req_or_list: Vec<Requirement> = Vec::new();
+        for &node_id in node_ids {
+            if let Some(&(other_room_id, other_node_id)) = self.door_map.get(&(room_id, node_id)) {
+                if mode == "direct" || mode == "any" {
+                    let leave_with_gmode_setup_vec = &self
+                        .game_data
+                        .node_leave_with_gmode_setup_map[&(other_room_id, other_node_id)];
+                    for leave_with_gmode_setup in leave_with_gmode_setup_vec {
+                        let mut req_and_list: Vec<Requirement> = Vec::new();
+                        req_and_list.push(self.preprocess_requirement(&leave_with_gmode_setup.requirement, link));
+                        req_and_list.push(Requirement::Tech(gmode_tech_id));
+                        if artificial_morph {
+                            req_and_list.push(Requirement::Or(vec![
+                                Requirement::Tech(artificial_morph_tech_id),
+                                Requirement::Item(morph_item_id),
+                            ]));
+                        }
+                        req_and_list.push(Requirement::Item(xray_item_id));
+                        req_and_list.push(Requirement::ReserveTrigger {
+                            min_reserve_energy: 1,
+                            max_reserve_energy: 4,
+                        });
+                        req_or_list.push(Requirement::make_and(req_and_list));
+                    }
+                }
+
+                if mode == "indirect" || mode == "any" {
+                    let leave_with_gmode_vec = &self
+                        .game_data
+                        .node_leave_with_gmode_map[&(other_room_id, other_node_id)];
+                    for leave_with_gmode in leave_with_gmode_vec {
+                        if !artificial_morph || leave_with_gmode.artificial_morph {
+                            req_or_list.push(self.preprocess_requirement(&leave_with_gmode.requirement, link));
+                        }
+                    }
+                }
+            }
+        }
+
+        let out = Requirement::make_or(req_or_list);
+        println!("{} ({}) {:?} {}: {:?}", self.game_data.room_json_map[&room_id]["name"], room_id, node_ids, link.strat_name, out);
+        out
+    }
 }
 
 impl<'r> Randomizer<'r> {
@@ -475,7 +556,7 @@ impl<'r> Randomizer<'r> {
         difficulty_tiers: &'r [DifficultyConfig],
         game_data: &'r GameData,
     ) -> Randomizer<'r> {
-        let preprocessor = Preprocessor::new(game_data, map);
+        let mut preprocessor = Preprocessor::new(game_data, map);
         let mut links: Vec<Link> = game_data
             .links
             .iter()
@@ -1391,6 +1472,7 @@ pub struct SpoilerRouteEntry {
     area: String,
     room: String,
     node: String,
+    obstacles_bitmask: usize,
     coords: (usize, usize),
     strat_name: String,
     #[serde(skip_serializing_if = "Vec::is_empty")]
@@ -1554,6 +1636,7 @@ impl<'a> Randomizer<'a> {
         for &link_idx in link_idxs {
             let link = &self.links[link_idx as usize];
             let to_vertex_info = self.get_vertex_info(link.to_vertex_id);
+            let (_, _, to_obstacles_mask) = self.game_data.vertex_isv.keys[link.to_vertex_id];
             // info!("local: {:?}", local_state);
             // info!("{:?}", link);
             let new_local_state = apply_requirement(
@@ -1599,6 +1682,7 @@ impl<'a> Randomizer<'a> {
                 area: to_vertex_info.area_name,
                 room: to_vertex_info.room_name,
                 node: to_vertex_info.node_name,
+                obstacles_bitmask: to_obstacles_mask,
                 coords: to_vertex_info.room_coords,
                 strat_name: link.strat_name.clone(),
                 strat_notes: link.strat_notes.clone(),
@@ -1681,6 +1765,7 @@ impl<'a> Randomizer<'a> {
             let link_idx = link_idxs[i];
             let link = &self.links[link_idx as usize];
             let to_vertex_info = self.get_vertex_info(link.to_vertex_id);
+            let (_, _, to_obstacles_mask) = self.game_data.vertex_isv.keys[link.to_vertex_id];
             let consumption = consumption_vec[i];
             let mut new_local_state = LocalState {
                 energy_used: max(0, local_state.energy_used + consumption.energy_used),
@@ -1735,6 +1820,7 @@ impl<'a> Randomizer<'a> {
                 area: to_vertex_info.area_name,
                 room: to_vertex_info.room_name,
                 node: to_vertex_info.node_name,
+                obstacles_bitmask: to_obstacles_mask,
                 coords: to_vertex_info.room_coords,
                 strat_name: link.strat_name.clone(),
                 strat_notes: link.strat_notes.clone(),

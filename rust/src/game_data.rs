@@ -130,6 +130,10 @@ pub enum Requirement {
     SuperRefill,
     PowerBombRefill,
     EnergyDrain,
+    ReserveTrigger {
+        min_reserve_energy: i32,
+        max_reserve_energy: i32,
+    },
     EnemyKill {
         count: i32,
         vul: EnemyVulnerabilities,
@@ -159,6 +163,12 @@ pub enum Requirement {
         frames_remaining: i32,
         shinespark_frames: i32,
         excess_shinespark_frames: i32,
+    },
+    ComeInWithGMode {
+        room_id: RoomId,
+        node_ids: Vec<NodeId>,
+        mode: String,
+        artificial_morph: bool,
     },
     And(Vec<Requirement>),
     Or(Vec<Requirement>),
@@ -223,6 +233,17 @@ pub struct CanLeaveCharged {
     pub used_tiles: i32,
     pub requirement: Requirement,
     pub shinespark_frames: Option<i32>,
+}
+
+#[derive(Debug)]
+pub struct LeaveWithGModeSetup {
+    pub requirement: Requirement,
+}
+
+#[derive(Debug)]
+pub struct LeaveWithGMode {
+    pub artificial_morph: bool,
+    pub requirement: Requirement,
 }
 
 #[derive(Clone, Debug)]
@@ -310,6 +331,8 @@ pub struct GameData {
     pub node_spawn_at_map: HashMap<(RoomId, NodeId), NodeId>,
     pub node_runways_map: HashMap<(RoomId, NodeId), Vec<Runway>>,
     pub node_can_leave_charged_map: HashMap<(RoomId, NodeId), Vec<CanLeaveCharged>>,
+    pub node_leave_with_gmode_map: HashMap<(RoomId, NodeId), Vec<LeaveWithGMode>>,
+    pub node_leave_with_gmode_setup_map: HashMap<(RoomId, NodeId), Vec<LeaveWithGModeSetup>>,
     pub node_ptr_map: HashMap<(RoomId, NodeId), NodePtr>,
     unlocked_node_map: HashMap<(RoomId, NodeId), NodeId>,
     pub room_num_obstacles: HashMap<RoomId, usize>,
@@ -882,12 +905,12 @@ impl GameData {
                             bail!("Obstacle name {} not found", obstacle_name);
                         }
                     }
+                    return Ok(Requirement::Free);
                 } else {
                     // No obstacle state in context. This happens with cross-room strats. We're not ready to
                     // deal with obstacles yet here, so we just keep these out of logic.
                     return Ok(Requirement::Never);
                 }
-                return Ok(Requirement::Free);
             } else if key == "obstaclesNotCleared" {
                 ensure!(value.is_array());
                 if let Some(obstacles_idx_map) = ctx.obstacles_idx_map {
@@ -978,8 +1001,34 @@ impl GameData {
                 });
                 // return Ok(Requirement::Never);
             } else if key == "comeInWithGMode" {
-                // TODO: implement this.
-                return Ok(Requirement::Never);
+                if ctx.from_obstacles_bitmask != 0 {
+                    return Ok(Requirement::Never);
+                }
+                let mut node_ids: Vec<NodeId> = Vec::new();
+                for from_node in value["fromNodes"].members() {
+                    let mut unlocked_node_id = from_node.as_usize().unwrap();
+                    if self
+                        .unlocked_node_map
+                        .contains_key(&(ctx.room_id, unlocked_node_id))
+                    {
+                        unlocked_node_id = self.unlocked_node_map[&(ctx.room_id, unlocked_node_id)];
+                    }
+                    node_ids.push(unlocked_node_id);
+                }
+                let mode = value["mode"]
+                    .as_str()
+                    .with_context(|| format!("missing/invalid artificialMorph in {}", req_json))?;
+                let artificial_morph = value["artificialMorph"]
+                    .as_bool()
+                    .with_context(|| format!("missing/invalid artificialMorph in {}", req_json))?;
+
+                println!("ComeInWithGMode: room_id={}", ctx.room_id);
+                return Ok(Requirement::ComeInWithGMode {
+                    room_id: ctx.room_id,
+                    node_ids,
+                    mode: mode.to_string(),
+                    artificial_morph,
+                });
             }
         }
         bail!("Unable to parse requirement: {}", req_json);
@@ -1183,7 +1232,8 @@ impl GameData {
                 unlocked_node_json["id"] = next_node_id.into();
                 self.unlocked_node_map
                     .insert((room_id, node_id), next_node_id.into());
-                unlocked_node_json["spawnAt"] = node_id.into();
+                // Adding spawnAt helps shorten/clean spoiler log but interferes with the implicit leaveWithGMode:
+                // unlocked_node_json["spawnAt"] = node_id.into();
                 unlocked_node_json["name"] =
                     JsonValue::String(base_node_name.clone() + " (unlocked)");
                 if yields != JsonValue::Null {
@@ -1540,6 +1590,81 @@ impl GameData {
             } else {
                 self.node_can_leave_charged_map
                     .insert((room_id, node_id), vec![]);
+            }
+
+            if node_json.has_key("leaveWithGModeSetup") {
+                ensure!(node_json["leaveWithGModeSetup"].is_array());
+                let mut leave_with_gmode_setup_vec: Vec<LeaveWithGModeSetup> = vec![];
+                for leave_with_gmode_setup_json in node_json["leaveWithGModeSetup"].members() {
+                    ensure!(leave_with_gmode_setup_json["strats"].is_array());
+                    for strat_json in leave_with_gmode_setup_json["strats"].members() {
+                        ensure!(strat_json["requires"].is_array());
+                        let requires_json: Vec<JsonValue> = strat_json["requires"]
+                            .members()
+                            .map(|x| x.clone())
+                            .collect();
+                        let mut ctx = RequirementContext::default();
+                        ctx.room_id = room_id;
+                        let requirement =
+                            Requirement::make_and(self.parse_requires_list(&requires_json, &ctx)?);
+                        let leave_with_gmode_setup = LeaveWithGModeSetup {
+                            requirement,
+                        };
+                        leave_with_gmode_setup_vec.push(leave_with_gmode_setup);
+                    }
+                }
+                self.node_leave_with_gmode_setup_map
+                    .insert((room_id, node_id), leave_with_gmode_setup_vec);
+            } else {
+                self.node_leave_with_gmode_setup_map
+                    .insert((room_id, node_id), vec![]);
+            }
+
+            // Explicit leaveWithGMode:
+            if node_json.has_key("leaveWithGMode") {
+                ensure!(node_json["leaveWithGMode"].is_array());
+                let mut leave_with_gmode_vec: Vec<LeaveWithGMode> = vec![];
+                for leave_with_gmode_json in node_json["leaveWithGMode"].members() {
+                    ensure!(leave_with_gmode_json["strats"].is_array());
+                    for strat_json in leave_with_gmode_json["strats"].members() {
+                        ensure!(strat_json["requires"].is_array());
+                        let requires_json: Vec<JsonValue> = strat_json["requires"]
+                            .members()
+                            .map(|x| x.clone())
+                            .collect();
+                        let mut ctx = RequirementContext::default();
+                        ctx.room_id = room_id;
+                        let requirement =
+                            Requirement::make_and(self.parse_requires_list(&requires_json, &ctx)?);
+                        let leave_with_gmode = LeaveWithGMode {
+                            artificial_morph: leave_with_gmode_json["leavesWithArtificialMorph"]
+                                .as_bool()
+                                .context("Expecting field leavesWithArtificialMorph")?,                            
+                            requirement,
+                        };
+                        leave_with_gmode_vec.push(leave_with_gmode);
+                    }
+                }
+                self.node_leave_with_gmode_map
+                    .insert((room_id, node_id), leave_with_gmode_vec);
+            } else {
+                self.node_leave_with_gmode_map
+                    .insert((room_id, node_id), vec![]);
+            }
+
+            // Implicit leaveWithGMode:
+            if !node_json.has_key("spawnAt") && node_json["nodeType"].as_str().unwrap() == "door" {
+                for artificial_morph in [false, true] {
+                    self.node_leave_with_gmode_map.get_mut(&(room_id, node_id)).unwrap().push(LeaveWithGMode {
+                        artificial_morph,
+                        requirement: Requirement::ComeInWithGMode {
+                            room_id,
+                            node_ids: vec![node_id],
+                            mode: "direct".to_string(),
+                            artificial_morph
+                        }
+                    });    
+                }
             }
 
             if node_json.has_key("spawnAt") {
