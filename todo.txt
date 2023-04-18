@@ -1,12 +1,13 @@
-next release (v55):
+todo for next release (v55):
 - escape timer based on new timings
 - auto-save before escape
-- new difficulty preset ("Extreme") between Expert & Insane
-  - put G-mode there, and move slow Expert tech into it:
-  - X-ray climbs, notable tunnel crawls, crystal flash clips
-- add gmode logic to randomizer
+- new option for MB fight (to become new default): skip cutscenes + MB3
+- new quality-of-life preset "Default":
+  - three presets: Off, Default, and Max.
+  - Default will have everything except not the short MB fight (only skip cutscenes + MB3)
 
 priority:
+- gmode-immobile logic
 - add pages for tech, strats, rooms.
 - logic simulator
 - credits

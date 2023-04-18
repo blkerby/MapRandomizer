@@ -5,7 +5,13 @@ about 15 seconds to load.
 
 <p><a href="https://version-55---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 55 (???)</a>:
 <ul>
-<li>Angle up/down can be bound to any button.
+<li>A new difficulty tier "Extreme" is added between "Expert" and "Insane".
+    <ul>
+    <li>X-ray climbing, long tunnel crawls, and crystal flash clips are moved from Expert into Extreme.
+    <li>G-mode tech is added to Extreme (adding strats to logic is a work-in-progress).
+    </ul>
+
+<li>Angle up/down can now be bound to any button.
 </ul>
 
 <p><a href="https://version-54---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 54 (2023-04-12)</a>:

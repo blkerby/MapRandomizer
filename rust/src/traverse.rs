@@ -720,6 +720,28 @@ pub fn apply_requirement(
                 Some(new_local)
             }
         }
+        Requirement::ReserveTrigger { min_reserve_energy, max_reserve_energy } => {
+            if reverse {
+                if local.reserves_used > 0 || local.energy_used >= min(*max_reserve_energy, global.max_reserves) {
+                    None
+                } else {
+                    let mut new_local = local;
+                    new_local.energy_used = 0;
+                    new_local.reserves_used = max(local.energy_used + 1, *min_reserve_energy);
+                    Some(new_local)
+                }
+            } else {
+                let reserve_energy = min(global.max_reserves - local.reserves_used, *max_reserve_energy);
+                if reserve_energy >= *min_reserve_energy {
+                    let mut new_local = local;
+                    new_local.reserves_used = global.max_reserves;
+                    new_local.energy_used = global.max_energy - reserve_energy;
+                    Some(new_local)
+                } else {
+                    None
+                }
+            }
+        }
         Requirement::EnemyKill { count, vul } => {
             apply_enemy_kill_requirement(global, local, *count, vul)
         }
@@ -784,6 +806,9 @@ pub fn apply_requirement(
         }
         Requirement::CanComeInCharged { .. } => {
             panic!("CanComeInCharged should be resolved during preprocessing")
+        }
+        Requirement::ComeInWithGMode { .. } => {
+            panic!("ComeInWithGMode should be resolved during preprocessing")
         }
         Requirement::And(reqs) => {
             let mut new_local = local;
