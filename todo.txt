@@ -17,12 +17,12 @@ priority:
 
 
 later:
+- redo disable_walljump patch to disable the wall jump only, not disable wall-jump check (which breaks X-ray climb setups)
 - add tech for underwater single-sided wall-jumping (UWU)
   - limit to climbs of ~2 tiles
   - require HiJump
   - require SpaceJump for breaking the water
   - put in Insane tier
-- add tech for five-missile Crocomire
 - fix map tile for phantoon with objectives other than bosses (remove item dot).
 - Add override for Tourian Hopper run under strat from left to top (imyt strat)
 - add a tip that you can share a seed using the URL.

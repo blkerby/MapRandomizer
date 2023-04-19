@@ -55,6 +55,13 @@ pub enum Objectives {
     Metroids,
 }
 
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
+pub enum MotherBrainFight {
+    Vanilla,
+    Short,
+    Skipped,
+}
+
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
 pub struct DebugOptions {
     pub new_game_extra: bool,
@@ -86,7 +93,7 @@ pub struct DifficultyConfig {
     pub botwoon_proficiency: f32,
     // Quality-of-life options:
     pub supers_double: bool,
-    pub mother_brain_short: bool,
+    pub mother_brain_fight: MotherBrainFight,
     pub escape_movement_items: bool,
     pub escape_enemies_cleared: bool,
     pub mark_map_stations: bool,

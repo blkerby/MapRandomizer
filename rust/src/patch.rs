@@ -8,7 +8,7 @@ use std::path::Path;
 
 use crate::{
     game_data::{DoorPtr, DoorPtrPair, GameData, Item, Map, NodePtr, RoomGeometryDoor},
-    randomize::{Randomization, Objectives},
+    randomize::{Randomization, Objectives, MotherBrainFight},
 };
 use anyhow::{ensure, Context, Result};
 use hashbrown::{HashMap, HashSet};
@@ -234,7 +234,7 @@ impl<'a> Patcher<'a> {
         if let Some(options) = &self.randomization.difficulty.debug_options {
             if options.new_game_extra {
                 new_game = "new_game_extra";
-                patches.push("disable_walljump");  // Just testing, remove this later
+                // patches.push("disable_walljump");  // Just testing, remove this later
             }
         }
         patches.push(new_game);
@@ -984,6 +984,108 @@ impl<'a> Patcher<'a> {
         Ok(())
     }
 
+    fn apply_mother_brain_fight_patches(&mut self) -> Result<()> {
+        if self.randomization.difficulty.supers_double {
+            // Make Supers do double damage to Mother Brain:
+            self.rom.write_u8(snes2pc(0xB4F1D5), 0x84)?;
+        }
+
+        match self.randomization.difficulty.mother_brain_fight {
+            MotherBrainFight::Vanilla => {
+                // See fast_mother_brain_fight.asm patch for baseline changes to speed up cutscenes.
+            },
+            MotherBrainFight::Short => {
+                // Make Mother Brain 1 finish faster:
+                for addr in &[0x897D, 0x89AF, 0x89E1, 0x8A09, 0x8A31, 0x8A63, 0x8A95] {
+                    self.rom.write_u16(snes2pc(0xA90000 + addr), 0x10)?; // cut delay in half for tubes to fall
+                }
+
+                // After rainbow beam, skip to Mother Brain exploding:
+                self.rom.write_u16(snes2pc(0xA9BACC), 0xAEE1)?;
+
+                // self.rom.write_u16(snes2pc(0xA9BABE), 0xAEE1)?;
+
+                // self.rom.write_n(
+                //     snes2pc(0xA9BAB0),
+                //     &[
+                //         0xA9, 0x01, 0x00,       // LDA #$0001             ; A = 1 (unlock Samus)
+                //         0x22, 0x84, 0xF0, 0x90, // JSL $90F084[$90:F084]  ; Execute $90:F084
+                //         0xA9, 0x00, 0x00,       // LDA #$0000             ;\
+                //         0x22, 0xAD, 0xE4, 0x91, // JSL $91E4AD[$91:E4AD]  ;} Let drained Samus fall                        
+                //         // 0xA9, 0x01, 0x00,       // LDA #$0001             ; A = 1 (unlock Samus)
+                //         // 0x22, 0x84, 0xF0, 0x90, // JSL $90F084[$90:F084]  ; Execute $90:F084
+                //         0xA9, 0x08, 0x00,       // LDA #$0008             ;\
+                //         0x8D, 0xCC, 0x0C,       // STA $0CCC  [$7E:0CCC]  ;} Cooldown timer = 8
+                //         0xA9, 0xE1, 0xAE,       // LDA #$AEE1             ;\
+                //         0x8D, 0xA8, 0x0F,       // STA $0FA8  [$7E:0FA8]  ;} Mother Brain's body function = $AEE1
+                //         0x60,                   // RTS
+                //     ]
+                // )?;
+
+                self.rom.write_n(
+                    snes2pc(0xA9AEFD),
+                    &[
+                        // (skip part where mother brain stumbles backwards before death; instead get hyper beam)
+                        0xA9, 0x03, 0x00,       // LDA #$0003
+                        0x22, 0xAD, 0xE4, 0x91, // JSL $91E4AD
+                        0xA9, 0x21, 0xAF,       //  LDA #$AF21             ;\
+                        0x8D, 0xA8, 0x0F,       //  STA $0FA8  [$7E:0FA8]  ;} Mother Brain's body function = $AF21
+                        0x60,                   // RTS
+//                        0xEA, 0xEA, // nop : nop
+                    ],
+                )?;    
+
+                self.rom.write_n(
+                    // snes2pc(0xA9B166),
+                    snes2pc(0xA9B1BE),
+                    &[0x20, 0x00, 0xFD],  // JSR 0xFD00  (must match address in fast_mother_brain_cutscene.asm)
+                )?;
+
+                // //
+                // self.rom.write_n(
+                //     snes2pc(0xA9B121),
+                //     &[
+                //         0xA9, 0x17, 0x00,       // LDA #$0001             ; A = 1 (unlock Samus)
+                //         0x22, 0x84, 0xF0, 0x90, // JSL $90F084[$90:F084]  ; Execute $90:F084                        
+                //         0xEA, 0xEA, 0xEA, 0xEA, 0xEA  // NOP
+                //     ]
+                // )?;
+
+                if self.randomization.difficulty.escape_movement_items {
+                    // 0xA9FB70: new hyper beam collect routine in escape_items.asm.
+                    self.rom.write_u24(snes2pc(0xA9AF01), 0xA9FB70)?;
+                }    
+            }
+            MotherBrainFight::Skipped => {
+                // Make Mother Brain 1 finish faster:
+                for addr in &[0x897D, 0x89AF, 0x89E1, 0x8A09, 0x8A31, 0x8A63, 0x8A95] {
+                    self.rom.write_u16(snes2pc(0xA90000 + addr), 0x10)?; // cut delay in half for tubes to fall
+                }
+        
+                // Skip MB2 and MB3:
+                self.rom.write_u16(snes2pc(0xA98D80), 0xAEE1)?; 
+                self.rom.write_n(
+                    snes2pc(0xA9AEFD),
+                    &[
+                        // (skip part where mother brain stumbles backwards before death; instead get hyper beam)
+                        0xA9, 0x03, 0x00, // LDA #$0003
+                        0x22, 0xAD, 0xE4, 0x91, // JSL $91E4AD
+                        0xEA, 0xEA, // nop : nop
+                    ],
+                )?;    
+                self.rom.write_u16(snes2pc(0xA9AF07), 0xB115)?; // skip MB moving forward, drooling, exploding
+                self.rom.write_u16(snes2pc(0xA9B19F), 1)?; // accelerate fade to gray (which does nothing here, so we're just reducing the delay)
+
+                if self.randomization.difficulty.escape_movement_items {
+                    // 0xA9FB70: new hyper beam collect routine in escape_items.asm.
+                    self.rom.write_u24(snes2pc(0xA9AF01), 0xA9FB70)?;
+                }    
+            }
+        }
+
+        Ok(())
+    }
+
     fn apply_miscellaneous_patches(&mut self) -> Result<()> {
         // Copy the item at Morph Ball to the Zebes-awake state (so it doesn't become unobtainable after Zebes is awake).
         // For this we overwrite the PLM slot for the gray door at the left of the room (which we would get rid of anyway).
@@ -1032,42 +1134,6 @@ impl<'a> Patcher<'a> {
 
         // Fix the door cap X location for the Green Brinstar Main Shaft door to itself left-to-right:
         self.rom.write_u8(snes2pc(0x838CF2), 0x11)?;
-
-        if self.randomization.difficulty.supers_double {
-            // Make Supers do double damage to Mother Brain:
-            self.rom.write_u8(snes2pc(0xB4F1D5), 0x84)?;
-        }
-
-        if self.randomization.difficulty.mother_brain_short {
-            // Make Mother Brain 1 finish faster and skip MB2 and MB3:
-
-            for addr in &[0x897D, 0x89AF, 0x89E1, 0x8A09, 0x8A31, 0x8A63, 0x8A95] {
-                self.rom.write_u16(snes2pc(0xA90000 + addr), 0x10)?; // cut delay in half for tubes to fall
-            }
-    
-            self.rom.write_u16(snes2pc(0xA98D80), 0xAEE1)?; // Skip MB2 and MB3
-    
-            self.rom.write_n(
-                snes2pc(0xA9AEFD),
-                &[
-                    // (skip part where mother brain stumbles backwards before death; instead get hyper beam)
-                    0xA9, 0x03, 0x00, // LDA #$0003
-                    0x22, 0xAD, 0xE4, 0x91, // JSL $91E4AD
-                    0xEA, 0xEA, // nop : nop
-                ],
-            )?;    
-
-            self.rom.write_u16(snes2pc(0xA9AF07), 0xB115)?; // skip MB moving forward, drooling, exploding
-            self.rom.write_u16(snes2pc(0xA9B19F), 1)?; // accelerate fade to gray (which does nothing here, so we're just reducing the delay)
-            self.rom.write_u16(snes2pc(0xA99D2D), 0x10)?; // accelerate corpse tipping over
-            self.rom.write_u16(snes2pc(0xA99D31), 0x10)?; // accelerate corpse tipping over
-            self.rom.write_u16(snes2pc(0xA9B1B2), 0x50)?; // reduce delay before corpse rotting
-
-            if self.randomization.difficulty.escape_movement_items {
-                // 0xA9FB70: new hyper beam collect routine in escape_items.asm.
-                self.rom.write_u24(snes2pc(0xA9AF01), 0xA9FB70)?;
-            }    
-        }
 
         Ok(())
     }
@@ -1206,6 +1272,7 @@ pub fn make_rom(
     patcher.apply_title_screen_patches()?;
     patcher.customize_escape_timer()?;
     patcher.apply_miscellaneous_patches()?;
+    patcher.apply_mother_brain_fight_patches()?;
     if !randomization.difficulty.escape_enemies_cleared {
         patcher.undo_escape_enemy_clear()?;
     }
