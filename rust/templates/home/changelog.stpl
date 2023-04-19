@@ -10,7 +10,19 @@ about 15 seconds to load.
     <li>X-ray climbing, long tunnel crawls, and crystal flash clips are moved from Expert into Extreme.
     <li>G-mode tech is added to Extreme (adding strats to logic is a work-in-progress).
     </ul>
-
+<li>The "Short Mother Brain" quality-of-life option is replaced with three choices (affecting Mother Brain phases 2 and 3):
+    <ul>
+    <li><strong>Vanilla</strong>: The fight behaves as in the vanilla game. Some cutscenes are accelerated, but only in ways that
+    should not interfere with how the player executes the fight.
+    <li><strong>Short</strong>: The fight ends immediately after Mother Brain finishes the first Rainbow Beam attack.
+    <li><strong>Skipped</strong>: The fight is skipped entirely.
+    </ul>
+<li>There are now three quality-of-life presets:
+    <ul>
+    <li><strong>No</strong>: All quality-of-life options are turned off.
+    <li><strong>Default</strong>: All quality-of-life options are turned to their highest settings, except that the Mother Brain fight is set to "Short" instead of "Skipped".
+    <li><strong>Max</strong>: All quality-of-life options are turned on to their highest settings.    
+    </ul>
 <li>Angle up/down can now be bound to any button.
 </ul>
 

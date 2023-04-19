@@ -3,7 +3,7 @@ use anyhow::Result;
 use maprando::{
     game_data::{GameData, Item, Requirement},
     randomize::{
-        DifficultyConfig, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, ProgressionRate, Objectives,
+        DifficultyConfig, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, ProgressionRate, Objectives, MotherBrainFight,
     },
     traverse::{apply_requirement, GlobalState, LocalState},
 };
@@ -94,7 +94,7 @@ fn main() -> Result<()> {
         botwoon_proficiency: 1.0,
         save_animals: false,
         supers_double: true,
-        mother_brain_short: true,
+        mother_brain_fight: MotherBrainFight::Short,
         escape_enemies_cleared: true,
         escape_movement_items: true,
         mark_map_stations: true,

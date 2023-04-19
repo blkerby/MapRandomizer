@@ -30,6 +30,9 @@
 
         <p>The escape timer is based on an assumption that the player has all these items available. By granting them with Hyper Beam,
         it avoids the possibility of the player needing to hunt for movement items in order to complete the escape fast enough.
+
+        <p>Note: Regardless of this setting, in this randomizer Hyper Beam always breaks bomb blocks, Super blocks, and Power Bomb blocks
+        and can open blue/green gates from either side.
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

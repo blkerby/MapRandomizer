@@ -18,7 +18,7 @@ use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::{make_rom, Rom};
 use maprando::randomize::{
     DebugOptions, DifficultyConfig, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup,
-    Randomization, Randomizer, Objectives,
+    Randomization, Randomizer, Objectives, MotherBrainFight,
 };
 use maprando::seed_repository::{Seed, SeedFile, SeedRepository};
 use maprando::spoiler_map;
@@ -179,9 +179,9 @@ struct RandomizeRequest {
     filler_items_json: Text<String>,
     race_mode: Text<String>,
     random_seed: Text<String>,
-    quality_of_life_preset: Option<Text<bool>>,
+    quality_of_life_preset: Option<Text<String>>,
     supers_double: Text<bool>,
-    mother_brain_short: Text<bool>,
+    mother_brain_fight: Text<String>,
     escape_enemies_cleared: Text<bool>,
     escape_movement_items: Text<bool>,
     mark_map_stations: Text<bool>,
@@ -211,9 +211,9 @@ struct SeedData {
     item_progression_preset: Option<String>,
     difficulty: DifficultyConfig,
     ignored_notable_strats: Vec<String>,
-    quality_of_life_preset: Option<bool>,
+    quality_of_life_preset: Option<String>,
     supers_double: bool,
-    mother_brain_short: bool,
+    mother_brain_fight: String,
     escape_enemies_cleared: bool,
     escape_movement_items: bool,
     mark_map_stations: bool,
@@ -246,9 +246,9 @@ struct SeedHeaderTemplate<'a> {
     item_placement_style: String,
     difficulty: &'a DifficultyConfig,
     notable_strats: Vec<String>,
-    quality_of_life_preset: Option<bool>,
+    quality_of_life_preset: String,
     supers_double: bool,
-    mother_brain_short: bool,
+    mother_brain_fight: String,
     escape_enemies_cleared: bool,
     escape_movement_items: bool,
     mark_map_stations: bool,
@@ -265,7 +265,6 @@ struct SeedFooterTemplate {
     race_mode: bool,
     all_items_spawn: bool,
     supers_double: bool,
-    mother_brain_short: bool,
 }
 
 #[derive(TemplateOnce)]
@@ -304,9 +303,9 @@ fn render_seed(seed_name: &str, seed_data: &SeedData) -> Result<(String, String)
         item_placement_style: format!("{:?}", seed_data.difficulty.item_placement_style),
         difficulty: &seed_data.difficulty,
         notable_strats,
-        quality_of_life_preset: seed_data.quality_of_life_preset,
+        quality_of_life_preset: seed_data.quality_of_life_preset.clone().unwrap_or("Custom".to_string()),
         supers_double: seed_data.supers_double,
-        mother_brain_short: seed_data.mother_brain_short,
+        mother_brain_fight: seed_data.mother_brain_fight.clone(),
         escape_enemies_cleared: seed_data.escape_enemies_cleared,
         escape_movement_items: seed_data.escape_movement_items,
         mark_map_stations: seed_data.mark_map_stations,
@@ -322,7 +321,6 @@ fn render_seed(seed_name: &str, seed_data: &SeedData) -> Result<(String, String)
         race_mode: seed_data.race_mode,
         all_items_spawn: seed_data.all_items_spawn,
         supers_double: seed_data.supers_double,
-        mother_brain_short: seed_data.mother_brain_short,
     };
     let seed_footer_html = seed_footer_template.render_once()?;
     Ok((seed_header_html, seed_footer_html))
@@ -595,7 +593,7 @@ fn get_difficulty_tiers(
             ),
             // Quality-of-life options:
             supers_double: difficulty.supers_double,
-            mother_brain_short: difficulty.mother_brain_short,
+            mother_brain_fight: difficulty.mother_brain_fight,
             escape_enemies_cleared: difficulty.escape_enemies_cleared,
             escape_movement_items: difficulty.escape_movement_items,
             mark_map_stations: difficulty.mark_map_stations,
@@ -732,7 +730,12 @@ async fn randomize(
         ridley_proficiency: req.ridley_proficiency.0,
         botwoon_proficiency: req.botwoon_proficiency.0,
         supers_double: req.supers_double.0,
-        mother_brain_short: req.mother_brain_short.0,
+        mother_brain_fight: match req.mother_brain_fight.0.as_str() {
+            "Vanilla" => MotherBrainFight::Vanilla,
+            "Short" => MotherBrainFight::Short,
+            "Skip" => MotherBrainFight::Skipped,
+            _ => panic!("Unrecognized mother_brain_fight: {}", req.mother_brain_fight.0),
+        },
         escape_enemies_cleared: req.escape_enemies_cleared.0,
         escape_movement_items: req.escape_movement_items.0,
         mark_map_stations: req.mark_map_stations.0,
@@ -822,9 +825,9 @@ async fn randomize(
         item_progression_preset: req.item_progression_preset.as_ref().map(|x| x.0.clone()),
         difficulty: difficulty_tiers[0].clone(),
         ignored_notable_strats: app_data.ignored_notable_strats.iter().cloned().collect(),
-        quality_of_life_preset: req.quality_of_life_preset.as_ref().map(|x| x.0),
+        quality_of_life_preset: req.quality_of_life_preset.as_ref().map(|x| x.0.clone()),
         supers_double: req.supers_double.0,
-        mother_brain_short: req.mother_brain_short.0,
+        mother_brain_fight: req.mother_brain_fight.0.clone(),
         escape_enemies_cleared: req.escape_enemies_cleared.0,
         escape_movement_items: req.escape_movement_items.0,
         mark_map_stations: req.mark_map_stations.0,

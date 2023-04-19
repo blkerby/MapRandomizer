@@ -3,7 +3,7 @@ use clap::Parser;
 use maprando::customize::{customize_rom, CustomizeSettings};
 use maprando::game_data::{Map, Item};
 use maprando::patch::Rom;
-use maprando::randomize::{ProgressionRate, Randomization, Randomizer, DebugOptions, ItemPlacementStyle, ItemPriorityGroup, ItemMarkers, Objectives};
+use maprando::randomize::{ProgressionRate, Randomization, Randomizer, DebugOptions, ItemPlacementStyle, ItemPriorityGroup, ItemMarkers, Objectives, MotherBrainFight};
 use maprando::spoiler_map;
 use maprando::{game_data::GameData, patch::make_rom, randomize::DifficultyConfig};
 use maprando::patch::ips_write::create_ips_patch;
@@ -139,7 +139,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         ridley_proficiency: 1.0,
         botwoon_proficiency: 1.0,
         supers_double: true,
-        mother_brain_short: true,
+        mother_brain_fight: MotherBrainFight::Short,
         escape_enemies_cleared: true,
         escape_movement_items: true,
         mark_map_stations: true,

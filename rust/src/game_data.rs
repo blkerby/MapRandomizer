@@ -1022,7 +1022,6 @@ impl GameData {
                     .as_bool()
                     .with_context(|| format!("missing/invalid artificialMorph in {}", req_json))?;
 
-                println!("ComeInWithGMode: room_id={}", ctx.room_id);
                 return Ok(Requirement::ComeInWithGMode {
                     room_id: ctx.room_id,
                     node_ids,
