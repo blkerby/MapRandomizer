@@ -21,8 +21,9 @@ about 15 seconds to load.
     <ul>
     <li><strong>No</strong>: All quality-of-life options are turned off.
     <li><strong>Default</strong>: All quality-of-life options are turned to their highest settings, except that the Mother Brain fight is set to "Short" instead of "Skipped".
-    <li><strong>Max</strong>: All quality-of-life options are turned on to their highest settings.    
+    <li><strong>Max</strong>: All quality-of-life options are turned to their highest settings.    
     </ul>
+<li>An auto-save is now made at the start of the escape.
 <li>Angle up/down can now be bound to any button.
 </ul>
 

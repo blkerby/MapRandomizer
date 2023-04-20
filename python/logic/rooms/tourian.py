@@ -248,7 +248,7 @@ rooms = [
         map=[[1, 1]],
         door_ids=[
             DoorIdentifier(RIGHT, 1, 0, 0x1AAE0, 0x1AA8C),  # Mother Brain Room
-            DoorIdentifier(DOWN, 0, 0, 0x1AAEC, 0x1AAF8),  # Tourian Escape Room 1
+            DoorIdentifier(DOWN, 0, 0, 0x1AAEC, 0x1AAF8),  # Tourian Escape Room 2
         ],
         node_tiles={
             1: [(1, 0)],

@@ -123,3 +123,6 @@ gameplay_start:
     jsl $818000
 .end:
     rtl
+
+
+warnpc $a1f300

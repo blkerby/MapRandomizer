@@ -14,11 +14,11 @@
       <div class="modal-body">
         <p>If enabled, Supers will deal double damage to Mother Brain, applying to all three phases of the fight.</p>
 
-        <p>This option is mostly useful in case the option "Short Mother Brain fight" is disabled; otherwise its practical effect is minimal.
-        </p>
+        <p>Given that the randomizer does not change the ammo distribution (there are only 50 Supers in the game), this 
+        option reduces the need for a long "ammo hunt" before fighting Mother Brain if the player has not found Charge Beam.</p>
 
-        <p>Given that the randomizer does not change the ammo distribution (there are only 50 Supers in the game), this option reduces
-        the need for a long "ammo hunt" before fighting Mother Brain if the player has not found Charge Beam.
+        <p>This option can be set independently of the "Mother Brain fight" setting, though in case of a "Short" 
+        Mother Brain fight, its practical effect is minimal.
         </p>
       </div>
       <div class="modal-footer">

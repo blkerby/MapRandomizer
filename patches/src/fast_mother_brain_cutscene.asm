@@ -60,3 +60,4 @@ org $A9FD00
 ;    LDA #$B173             ; Run hi-jacked instruction
     LDA #$B1D5
     RTS
+warnpc $A9FD40
