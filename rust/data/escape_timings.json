@@ -6511,6 +6511,23 @@
               "node_id": 8
             },
             "in_game_time": 19.07
+          },
+          {
+            "to_door": {
+              "name": "Big Pink Bottom Middle Right Door (to Spore Spawn Farm)",
+              "direction": "right",
+              "x": 4,
+              "y": 5,
+              "part_idx": 2,
+              "door_idx": 7,
+              "node_id": 7
+            },
+            "conditions": [
+              {
+                "requires": ["off_camera_shot"],
+                "in_game_time": 16.12
+              }
+            ]
           }
         ]
       },
@@ -6547,7 +6564,7 @@
               "door_idx": 2,
               "node_id": 4
             },
-            "in_game_time": -1.0
+            "in_game_time": 5.58
           },
           {
             "to_door": {
@@ -6559,7 +6576,7 @@
               "door_idx": 4,
               "node_id": 9
             },
-            "in_game_time": -1.0
+            "in_game_time": 15.00
           },
           {
             "to_door": {
@@ -6571,7 +6588,7 @@
               "door_idx": 5,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 8.10
           },
           {
             "to_door": {
@@ -6583,7 +6600,7 @@
               "door_idx": 6,
               "node_id": 6
             },
-            "in_game_time": -1.0
+            "in_game_time": 4.36
           },
           {
             "to_door": {
@@ -6595,7 +6612,24 @@
               "door_idx": 8,
               "node_id": 8
             },
-            "in_game_time": -1.0
+            "in_game_time": 10.12
+          },
+          {
+            "to_door": {
+              "name": "Big Pink Bottom Middle Right Door (to Spore Spawn Farm)",
+              "direction": "right",
+              "x": 4,
+              "y": 5,
+              "part_idx": 2,
+              "door_idx": 7,
+              "node_id": 7
+            },
+            "conditions": [
+              {
+                "requires": ["off_camera_shot"],
+                "in_game_time": 7.43
+              }
+            ]
           }
         ]
       },
@@ -6620,7 +6654,7 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 15.23
           },
           {
             "to_door": {
@@ -6632,7 +6666,7 @@
               "door_idx": 1,
               "node_id": 3
             },
-            "in_game_time": -1.0
+            "in_game_time": 6.33
           },
           {
             "to_door": {
@@ -6644,7 +6678,7 @@
               "door_idx": 4,
               "node_id": 9
             },
-            "in_game_time": -1.0
+            "in_game_time": 16.32
           },
           {
             "to_door": {
@@ -6656,7 +6690,7 @@
               "door_idx": 5,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 14.45
           },
           {
             "to_door": {
@@ -6668,7 +6702,7 @@
               "door_idx": 6,
               "node_id": 6
             },
-            "in_game_time": -1.0
+            "in_game_time": 4.37
           },
           {
             "to_door": {
@@ -6680,7 +6714,24 @@
               "door_idx": 8,
               "node_id": 8
             },
-            "in_game_time": -1.0
+            "in_game_time": 12.01
+          },
+          {
+            "to_door": {
+              "name": "Big Pink Bottom Middle Right Door (to Spore Spawn Farm)",
+              "direction": "right",
+              "x": 4,
+              "y": 5,
+              "part_idx": 2,
+              "door_idx": 7,
+              "node_id": 7
+            },
+            "conditions": [
+              {
+                "requires": ["off_camera_shot"],
+                "in_game_time": 8.43
+              }
+            ]
           }
         ]
       },
@@ -6705,7 +6756,7 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 27.51
           },
           {
             "to_door": {
@@ -6717,7 +6768,7 @@
               "door_idx": 1,
               "node_id": 3
             },
-            "in_game_time": -1.0
+            "in_game_time": 19.39
           },
           {
             "to_door": {
@@ -6729,7 +6780,7 @@
               "door_idx": 2,
               "node_id": 4
             },
-            "in_game_time": -1.0
+            "in_game_time": 20.31
           },
           {
             "to_door": {
@@ -6741,7 +6792,7 @@
               "door_idx": 5,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 27.26
           },
           {
             "to_door": {
@@ -6753,7 +6804,7 @@
               "door_idx": 6,
               "node_id": 6
             },
-            "in_game_time": -1.0
+            "in_game_time": 13.36
           },
           {
             "to_door": {
@@ -6765,7 +6816,24 @@
               "door_idx": 8,
               "node_id": 8
             },
-            "in_game_time": -1.0
+            "in_game_time": 12.21
+          },
+          {
+            "to_door": {
+              "name": "Big Pink Bottom Middle Right Door (to Spore Spawn Farm)",
+              "direction": "right",
+              "x": 4,
+              "y": 5,
+              "part_idx": 2,
+              "door_idx": 7,
+              "node_id": 7
+            },
+            "conditions": [
+              {
+                "requires": ["off_camera_shot"],
+                "in_game_time": 15.06
+              }
+            ]
           }
         ]
       },
@@ -6851,6 +6919,23 @@
               "node_id": 8
             },
             "in_game_time": 18.45
+          },
+          {
+            "to_door": {
+              "name": "Big Pink Bottom Middle Right Door (to Spore Spawn Farm)",
+              "direction": "right",
+              "x": 4,
+              "y": 5,
+              "part_idx": 2,
+              "door_idx": 7,
+              "node_id": 7
+            },
+            "conditions": [
+              {
+                "requires": ["off_camera_shot"],
+                "in_game_time": 15.38
+              }
+            ]
           }
         ]
       },
@@ -6875,7 +6960,7 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 15.09
           },
           {
             "to_door": {
@@ -6887,7 +6972,7 @@
               "door_idx": 1,
               "node_id": 3
             },
-            "in_game_time": -1.0
+            "in_game_time": 6.35
           },
           {
             "to_door": {
@@ -6899,7 +6984,7 @@
               "door_idx": 2,
               "node_id": 4
             },
-            "in_game_time": -1.0
+            "in_game_time": 7.18
           },
           {
             "to_door": {
@@ -6911,7 +6996,7 @@
               "door_idx": 4,
               "node_id": 9
             },
-            "in_game_time": -1.0
+            "in_game_time": 11.41
           },
           {
             "to_door": {
@@ -6923,7 +7008,7 @@
               "door_idx": 5,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 14.48
           },
           {
             "to_door": {
@@ -6935,7 +7020,24 @@
               "door_idx": 8,
               "node_id": 8
             },
-            "in_game_time": -1.0
+            "in_game_time": 6.59
+          },
+          {
+            "to_door": {
+              "name": "Big Pink Bottom Middle Right Door (to Spore Spawn Farm)",
+              "direction": "right",
+              "x": 4,
+              "y": 5,
+              "part_idx": 2,
+              "door_idx": 7,
+              "node_id": 7
+            },
+            "conditions": [
+              {
+                "requires": ["off_camera_shot"],
+                "in_game_time": 4.02
+              }
+            ]
           }
         ]
       },
@@ -6960,7 +7062,7 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 20.06
           },
           {
             "to_door": {
@@ -6972,7 +7074,7 @@
               "door_idx": 1,
               "node_id": 3
             },
-            "in_game_time": -1.0
+            "in_game_time": 11.52
           },
           {
             "to_door": {
@@ -6984,7 +7086,7 @@
               "door_idx": 2,
               "node_id": 4
             },
-            "in_game_time": -1.0
+            "in_game_time": 12.45
           },
           {
             "to_door": {
@@ -6996,7 +7098,7 @@
               "door_idx": 4,
               "node_id": 9
             },
-            "in_game_time": -1.0
+            "in_game_time": 10.01
           },
           {
             "to_door": {
@@ -7008,7 +7110,7 @@
               "door_idx": 5,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 19.45
           },
           {
             "to_door": {
@@ -7020,7 +7122,24 @@
               "door_idx": 6,
               "node_id": 6
             },
-            "in_game_time": -1.0
+            "in_game_time": 6.35
+          },
+          {
+            "to_door": {
+              "name": "Big Pink Bottom Middle Right Door (to Spore Spawn Farm)",
+              "direction": "right",
+              "x": 4,
+              "y": 5,
+              "part_idx": 2,
+              "door_idx": 7,
+              "node_id": 7
+            },
+            "conditions": [
+              {
+                "requires": ["off_camera_shot"],
+                "in_game_time": 7.19
+              }
+            ]
           }
         ]
       },
@@ -7045,7 +7164,7 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 17.59
           },
           {
             "to_door": {
@@ -7057,7 +7176,7 @@
               "door_idx": 1,
               "node_id": 3
             },
-            "in_game_time": -1.0
+            "in_game_time": 9.42
           },
           {
             "to_door": {
@@ -7069,7 +7188,7 @@
               "door_idx": 2,
               "node_id": 4
             },
-            "in_game_time": -1.0
+            "in_game_time": 11.21
           },
           {
             "to_door": {
@@ -7081,7 +7200,7 @@
               "door_idx": 4,
               "node_id": 9
             },
-            "in_game_time": -1.0
+            "in_game_time": 9.39
           },
           {
             "to_door": {
@@ -7093,7 +7212,7 @@
               "door_idx": 5,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 17.38
           },
           {
             "to_door": {
@@ -7105,7 +7224,7 @@
               "door_idx": 6,
               "node_id": 6
             },
-            "in_game_time": -1.0
+            "in_game_time": 4.54
           },
           {
             "to_door": {
@@ -7117,7 +7236,24 @@
               "door_idx": 8,
               "node_id": 8
             },
-            "in_game_time": -1.0
+            "in_game_time": 5.24
+          },
+          {
+            "to_door": {
+              "name": "Big Pink Bottom Middle Right Door (to Spore Spawn Farm)",
+              "direction": "right",
+              "x": 4,
+              "y": 5,
+              "part_idx": 2,
+              "door_idx": 7,
+              "node_id": 7
+            },
+            "conditions": [
+              {
+                "requires": ["off_camera_shot"],
+                "in_game_time": 5.51
+              }
+            ]
           }
         ]
       },
@@ -7142,7 +7278,7 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": -1.0
+            "in_game_time": 17.22
           },
           {
             "to_door": {
@@ -7154,7 +7290,7 @@
               "door_idx": 1,
               "node_id": 3
             },
-            "in_game_time": -1.0
+            "in_game_time": 9.00
           },
           {
             "to_door": {
@@ -7166,7 +7302,7 @@
               "door_idx": 2,
               "node_id": 4
             },
-            "in_game_time": -1.0
+            "in_game_time": 10.10
           },
           {
             "to_door": {
@@ -7178,7 +7314,7 @@
               "door_idx": 4,
               "node_id": 9
             },
-            "in_game_time": -1.0
+            "in_game_time": 12.01
           },
           {
             "to_door": {
@@ -7190,7 +7326,7 @@
               "door_idx": 5,
               "node_id": 2
             },
-            "in_game_time": -1.0
+            "in_game_time": 16.54
           },
           {
             "to_door": {
@@ -7202,7 +7338,7 @@
               "door_idx": 6,
               "node_id": 6
             },
-            "in_game_time": -1.0
+            "in_game_time": 4.30
           },
           {
             "to_door": {
@@ -7214,7 +7350,7 @@
               "door_idx": 8,
               "node_id": 8
             },
-            "in_game_time": -1.0
+            "in_game_time": 7.27
           }
         ]
       }
