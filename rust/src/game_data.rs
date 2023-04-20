@@ -237,12 +237,18 @@ pub struct CanLeaveCharged {
 
 #[derive(Debug)]
 pub struct LeaveWithGModeSetup {
+    pub knockback: bool,
     pub requirement: Requirement,
 }
 
 #[derive(Debug)]
 pub struct LeaveWithGMode {
     pub artificial_morph: bool,
+    pub requirement: Requirement,
+}
+
+#[derive(Debug)]
+pub struct GModeImmobile {
     pub requirement: Requirement,
 }
 
@@ -333,6 +339,7 @@ pub struct GameData {
     pub node_can_leave_charged_map: HashMap<(RoomId, NodeId), Vec<CanLeaveCharged>>,
     pub node_leave_with_gmode_map: HashMap<(RoomId, NodeId), Vec<LeaveWithGMode>>,
     pub node_leave_with_gmode_setup_map: HashMap<(RoomId, NodeId), Vec<LeaveWithGModeSetup>>,
+    pub node_gmode_immobile_map: HashMap<(RoomId, NodeId), GModeImmobile>,
     pub node_ptr_map: HashMap<(RoomId, NodeId), NodePtr>,
     unlocked_node_map: HashMap<(RoomId, NodeId), NodeId>,
     pub room_num_obstacles: HashMap<RoomId, usize>,
@@ -1604,9 +1611,11 @@ impl GameData {
                             .collect();
                         let mut ctx = RequirementContext::default();
                         ctx.room_id = room_id;
+                        let knockback = leave_with_gmode_setup_json["knockback"].as_bool().unwrap_or(true);
                         let requirement =
                             Requirement::make_and(self.parse_requires_list(&requires_json, &ctx)?);
                         let leave_with_gmode_setup = LeaveWithGModeSetup {
+                            knockback,
                             requirement,
                         };
                         leave_with_gmode_setup_vec.push(leave_with_gmode_setup);
@@ -1664,6 +1673,23 @@ impl GameData {
                         }
                     });    
                 }
+            }
+
+            if node_json.has_key("gModeImmobile") {
+                let gmode_immobile_json = &node_json["gModeImmobile"];
+                ensure!(gmode_immobile_json["requires"].is_array());
+                let requires_json: Vec<JsonValue> = gmode_immobile_json["requires"]
+                    .members()
+                    .map(|x| x.clone())
+                    .collect();
+                let mut ctx = RequirementContext::default();
+                ctx.room_id = room_id;
+                let requirement =
+                    Requirement::make_and(self.parse_requires_list(&requires_json, &ctx)?);
+                let gmode_immobile = GModeImmobile {
+                    requirement,
+                };
+                self.node_gmode_immobile_map.insert((room_id, node_id), gmode_immobile);
             }
 
             if node_json.has_key("spawnAt") {

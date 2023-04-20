@@ -304,7 +304,13 @@ impl<'a> Preprocessor<'a> {
                 node_ids,
                 mode,
                 artificial_morph,
-            } => self.preprocess_come_in_with_gmode(*room_id, node_ids, mode, *artificial_morph, link),
+            } => self.preprocess_come_in_with_gmode(
+                *room_id,
+                node_ids,
+                mode,
+                *artificial_morph,
+                link,
+            ),
             Requirement::And(sub_reqs) => Requirement::make_and(
                 sub_reqs
                     .iter()
@@ -509,19 +515,26 @@ impl<'a> Preprocessor<'a> {
         link: &Link,
     ) -> Requirement {
         let gmode_tech_id = self.game_data.tech_isv.index_by_key["canEnterGMode"];
+        let gmode_immobile_tech_id = self.game_data.tech_isv.index_by_key["canEnterGModeImmobile"];
         let artificial_morph_tech_id = self.game_data.tech_isv.index_by_key["canArtificialMorph"];
         let morph_item_id = self.game_data.item_isv.index_by_key["Morph"];
         let xray_item_id = self.game_data.item_isv.index_by_key["XRayScope"];
         let mut req_or_list: Vec<Requirement> = Vec::new();
         for &node_id in node_ids {
             if let Some(&(other_room_id, other_node_id)) = self.door_map.get(&(room_id, node_id)) {
+                let gmode_immobile_opt = self
+                    .game_data
+                    .node_gmode_immobile_map
+                    .get(&(other_room_id, other_node_id));
                 if mode == "direct" || mode == "any" {
                     let leave_with_gmode_setup_vec = &self
                         .game_data
                         .node_leave_with_gmode_setup_map[&(other_room_id, other_node_id)];
                     for leave_with_gmode_setup in leave_with_gmode_setup_vec {
                         let mut req_and_list: Vec<Requirement> = Vec::new();
-                        req_and_list.push(self.preprocess_requirement(&leave_with_gmode_setup.requirement, link));
+                        req_and_list.push(
+                            self.preprocess_requirement(&leave_with_gmode_setup.requirement, link),
+                        );
                         req_and_list.push(Requirement::Tech(gmode_tech_id));
                         if artificial_morph {
                             req_and_list.push(Requirement::Or(vec![
@@ -530,21 +543,41 @@ impl<'a> Preprocessor<'a> {
                             ]));
                         }
                         req_and_list.push(Requirement::Item(xray_item_id));
-                        req_and_list.push(Requirement::ReserveTrigger {
-                            min_reserve_energy: 1,
-                            max_reserve_energy: 4,
-                        });
+
+                        let mobile_req = if leave_with_gmode_setup.knockback {
+                            Requirement::ReserveTrigger {
+                                min_reserve_energy: 1,
+                                max_reserve_energy: 4,
+                            }
+                        } else {
+                            Requirement::Never
+                        };
+                        let immobile_req = if let Some(gmode_immobile) = gmode_immobile_opt {
+                            let mut immobile_req_vec: Vec<Requirement> = Vec::new();
+                            immobile_req_vec.push(gmode_immobile.requirement.clone());
+                            immobile_req_vec.push(Requirement::Tech(gmode_immobile_tech_id));
+                            immobile_req_vec.push(Requirement::ReserveTrigger { 
+                                min_reserve_energy: 1, 
+                                max_reserve_energy: 400,
+                            });
+                            Requirement::make_and(immobile_req_vec)
+                        } else {
+                            Requirement::Never
+                        };
+                        req_and_list.push(Requirement::make_or(vec![mobile_req, immobile_req]));
+
                         req_or_list.push(Requirement::make_and(req_and_list));
                     }
                 }
 
                 if mode == "indirect" || mode == "any" {
-                    let leave_with_gmode_vec = &self
-                        .game_data
-                        .node_leave_with_gmode_map[&(other_room_id, other_node_id)];
+                    let leave_with_gmode_vec =
+                        &self.game_data.node_leave_with_gmode_map[&(other_room_id, other_node_id)];
                     for leave_with_gmode in leave_with_gmode_vec {
                         if !artificial_morph || leave_with_gmode.artificial_morph {
-                            req_or_list.push(self.preprocess_requirement(&leave_with_gmode.requirement, link));
+                            req_or_list.push(
+                                self.preprocess_requirement(&leave_with_gmode.requirement, link),
+                            );
                         }
                     }
                 }
@@ -552,7 +585,10 @@ impl<'a> Preprocessor<'a> {
         }
 
         let out = Requirement::make_or(req_or_list);
-        println!("{} ({}) {:?} {}: {:?}", self.game_data.room_json_map[&room_id]["name"], room_id, node_ids, link.strat_name, out);
+        println!(
+            "{} ({}) {:?} {}: {:?}",
+            self.game_data.room_json_map[&room_id]["name"], room_id, node_ids, link.strat_name, out
+        );
         out
     }
 }
