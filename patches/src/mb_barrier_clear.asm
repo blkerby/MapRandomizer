@@ -212,4 +212,4 @@ clear_barrier_inst:
 clear_barrier_draw:
     dw $8006, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $0000
 
-warnpc $84F300
+warnpc $84F280
