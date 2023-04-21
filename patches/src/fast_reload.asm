@@ -50,12 +50,8 @@ org $82DD8A
     JSL hook_16
 
 ; Hook state $17 (Samus ran out of health, flashing)
-org $82DD9D
+org $82DDA9
     JSL hook_17
-
-; Hook state $18 (Samus ran out of health, explosion)
-org $82DDB2
-    JSL hook_18
 
 org !freespace82_start
 
@@ -76,12 +72,9 @@ hook_16:
     JMP check_reload
 
 hook_17:
-    JSL $9BB441  ; run hi-jacked instruction
+    JSL $908998 ; run hi-jacked instruction
     JMP check_reload
 
-hook_18:
-    JSL $9BB701  ; run hi-jacked instruction
-    JMP check_reload
 
 check_reload:
     PHP
