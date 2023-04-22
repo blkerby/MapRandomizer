@@ -26,6 +26,10 @@ deathhook:
 	lda $0952         ; Load saveslot
     jsl $818085       ; Load savefile
 	jsl $80858C		  ; load map
+
+    ; In case we're on an elevator ride, reset this state so that Samus will have control after the reload:
+    stz $0E18
+
     lda #$0006        
     sta $0998         ; Goto game mode 6 (load game)
     plp
