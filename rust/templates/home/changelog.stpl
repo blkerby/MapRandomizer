@@ -5,19 +5,27 @@ about 15 seconds to load.
 
 <p><a href="https://version-55---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 55 (???)</a>:
 <ul>
-<li>An auto-save is now made at the start of the escape.
-<li>A new difficulty tier "Extreme" is added between "Expert" and "Insane".
+<li>TODO: Escape timer is now based on actual room timings instead of a heuristic based on room geometry.
     <ul>
-    <li>X-ray climbing, long tunnel crawls, and crystal flash clips are moved from Expert into Extreme.
-    <li>G-mode tech is added to Extreme (adding strats to logic is a work-in-progress).
+    <li>This results in a more consistent and typically higher level of challenge.
     </ul>
+<li>An auto-save is now created at the start of the escape.
 <li>"Mother Brain fight" quality-of-life setting is reworked (affecting Mother Brain phases 2 and 3):
     <ul>
     <li>The option "Skip" corresponds to "Short Mother Brain fight" from previous versions.
     <li>A new option "Short" (now the default) ends the fight after the first rainbow beam. 
     </ul>
-<li>Crashes should no longer happen when quick-reloading during the death animation.
-<li>Angle up/down can now be bound to any button.
+<li>A new difficulty tier "Extreme" is added between "Expert" and "Insane".
+    <ul>
+    <li>X-ray climbing, long tunnel crawls, and crystal flash clips are moved from Expert into Extreme.
+    <li>G-mode tech is added to Extreme (though adding strats to logic is an early work-in-progress).
+    </ul>
+<li>A couple bugs are fixed relating to quick reloading:
+    <ul>
+    <li>The game would sometimes crash when quick-reloading during the death animation.
+    <li>When quick-reloading (or dying) while riding an elevator, Samus would not regain control after the reload.
+    </ul>
+<li>In the controller settings, angle up/down can now be bound to any button.
 </ul>
 
 <p><a href="https://version-54---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 54 (2023-04-12)</a>:

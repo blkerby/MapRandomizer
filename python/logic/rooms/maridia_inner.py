@@ -539,6 +539,9 @@ rooms = [
             DoorIdentifier(RIGHT, 0, 0, 0x1A618, 0x1A564),  # Thread The Needle Room
             DoorIdentifier(DOWN, 0, 0, 0x1A624, None, SAND),  # Plasma Beach Quicksand Room
         ],
+        parts=[[0, 1], [2]],
+        transient_part_connections=[(0, 1)],  # sand
+        missing_part_connections=[(1, 0)],
         node_tiles={
             1: [(0, 0)],
             2: [(0, 0)],
