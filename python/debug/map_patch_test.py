@@ -113,6 +113,7 @@ for i in range(32):
     gravity_suit_colors.append(g)
 
 write_colors(snes2pc(0x9BFF00), gravity_suit_colors)
+
 # # release Kraid camera so it won't be as glitched when entering from the right
 # rom.write_n(snes2pc(0xA7A9F4), 4, bytes(4 * [0xEA]))
 # # No longer restrict Samus X position to left screen during start of Kraid fight
@@ -167,6 +168,10 @@ for room_obj in rooms:
 
 # stop lava rising in Climb
 rom.write_u16(snes2pc(0x838060), 0xffff)
+
+# clear enemies in Wasteland:
+# rom.write_u16(snes2pc(0x8FB5E2 + 8), 0x8000)
+
 
 #
 
