@@ -1490,7 +1490,7 @@ impl<'r> Randomizer<'r> {
                     spoiler_summary_vec.push(spoiler_summary);
                     spoiler_details_vec.push(spoiler_details);
                     // Append `debug_data` is present (which it always should be except after the final step)
-                    if let Some(debug_data) = &state.debug_data {
+                    if let Some(debug_data) = &state.previous_debug_data {
                         debug_data_vec.push(debug_data.clone());
                     }
                 }
