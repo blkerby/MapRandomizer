@@ -128,36 +128,26 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 		let ov = document.getElementById("obscure-overlay");
 		let ctx = ov.getContext("2d");
 		let img = ctx.createImageData(72,72);
-		if (!step_limit) {
+		if (step_limit === null) {
 			ctx.putImageData(img, 0, 0);
 			return;
 		}
-		let shown_rooms = new Set();
-		for (let i of c.details) {
-			if (i.step > step_limit) break;
-			for (let j of i.items) {
-				for (let v of j.obtain_route) {
-					let room_id = c.all_rooms.findIndex(x => x.room == v.room);
-					shown_rooms.add(room_id);
-				}
-				for (let v of j.return_route) {
-					let room_id = c.all_rooms.findIndex(x => x.room == v.room);
-					shown_rooms.add(room_id);
-				}
-			}
-		}
-		for (let y = 0; y < 72; y++) {
-			for (let x = 0; x < 72; x++) {
-				let addr = y*72+x;
-				if (!shown_rooms.has(map[addr])) {
-					img.data[addr*4+0] = 0;
-					img.data[addr*4+1] = 0;
-					img.data[addr*4+2] = 0;
-					img.data[addr*4+3] = 0xFF;
+		for (let v of c.all_rooms) {
+			for (let y = 0; y < v.map.length; y++) {
+				for (let x = 0; x < v.map[y].length; x++) {
+					let addr = (v.coords[1]+y)*72+(v.coords[0]+x);
+					if (v.map_bireachable_step[y][x] < step_limit) {
+						img.data[addr*4+3] = 0x00; // opaque
+					} else if (v.map_reachable_step[y][x] < step_limit) {
+						img.data[addr*4+3] = 0x7F; // semiopaque
+					} else {
+						img.data[addr*4+3] = 0xFF; // transparent
+					}
 				}
 			}
 		}
 		ctx.putImageData(img, 0, 0);
+		// TODO: hide items and unfuck overlay
 	}
 	gen_obscurity(null);
 	let el = document.getElementById("room-info");
