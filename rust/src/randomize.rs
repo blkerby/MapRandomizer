@@ -1255,6 +1255,7 @@ impl<'r> Randomizer<'r> {
             HashMap::new();
 
         for (step, debug_data) in debug_data_vec.iter().enumerate() {
+            // println!("step={}, global_state={:?}", step, debug_data.global_state);
             for (v, (room_id, node_id, _obstacle_bitmask)) in
                 self.game_data.vertex_isv.keys.iter().enumerate()
             {
@@ -1490,7 +1491,7 @@ impl<'r> Randomizer<'r> {
                     spoiler_summary_vec.push(spoiler_summary);
                     spoiler_details_vec.push(spoiler_details);
                     // Append `debug_data` is present (which it always should be except after the final step)
-                    if let Some(debug_data) = &state.debug_data {
+                    if let Some(debug_data) = &state.previous_debug_data {
                         debug_data_vec.push(debug_data.clone());
                     }
                 }
