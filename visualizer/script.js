@@ -132,16 +132,21 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 			ctx.putImageData(img, 0, 0);
 			return;
 		}
+		for (let i = 0; i < 72 * 72; i++) {
+			img.data[i*4+3] = 0xFF; // opaque
+		}
 		for (let v of c.all_rooms) {
 			for (let y = 0; y < v.map.length; y++) {
 				for (let x = 0; x < v.map[y].length; x++) {
-					let addr = (v.coords[1]+y)*72+(v.coords[0]+x);
-					if (v.map_bireachable_step[y][x] < step_limit) {
-						img.data[addr*4+3] = 0x00; // opaque
-					} else if (v.map_reachable_step[y][x] < step_limit) {
-						img.data[addr*4+3] = 0x7F; // semiopaque
-					} else {
-						img.data[addr*4+3] = 0xFF; // transparent
+					if (v.map[y][x] == 1) {
+						let addr = (v.coords[1]+y)*72+(v.coords[0]+x);
+						if (v.map_bireachable_step[y][x] < step_limit) {
+							img.data[addr*4+3] = 0x00; // transparent
+						} else if (v.map_reachable_step[y][x] < step_limit) {
+							img.data[addr*4+3] = 0x7F; // semiopaque
+						} else {
+							img.data[addr*4+3] = 0xFF; // opaque
+						}
 					}
 				}
 			}
