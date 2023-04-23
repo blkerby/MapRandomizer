@@ -18,7 +18,7 @@ use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::{make_rom, Rom};
 use maprando::randomize::{
     DebugOptions, DifficultyConfig, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup,
-    Randomization, Randomizer, Objectives, MotherBrainFight,
+    MotherBrainFight, Objectives, Randomization, Randomizer,
 };
 use maprando::seed_repository::{Seed, SeedFile, SeedRepository};
 use maprando::spoiler_map;
@@ -27,6 +27,7 @@ use sailfish::TemplateOnce;
 use serde_derive::{Deserialize, Serialize};
 
 const VERSION: usize = 55;
+const VISUALIZER_PATH: &'static str = "../visualizer/";
 
 #[derive(Serialize, Deserialize, Clone)]
 struct Preset {
@@ -59,8 +60,9 @@ struct AppData {
     ignored_notable_strats: HashSet<String>,
     map_repository: MapRepository,
     seed_repository: SeedRepository,
-    visualizer_files: Vec<(String, Vec<u8>)>,   // (path, contents)
+    visualizer_files: Vec<(String, Vec<u8>)>, // (path, contents)
     debug: bool,
+    static_visualizer: bool,
 }
 
 impl MapRepository {
@@ -276,12 +278,15 @@ struct CustomizeSeedTemplate {
 }
 
 fn render_seed(seed_name: &str, seed_data: &SeedData) -> Result<(String, String)> {
-    let ignored_notable_strats: HashSet<String> = seed_data.ignored_notable_strats.iter().cloned().collect();
-    let notable_strats: Vec<String> = seed_data.difficulty.notable_strats
-            .iter()
-            .cloned()
-            .filter(|x| !ignored_notable_strats.contains(x))
-            .collect();
+    let ignored_notable_strats: HashSet<String> =
+        seed_data.ignored_notable_strats.iter().cloned().collect();
+    let notable_strats: Vec<String> = seed_data
+        .difficulty
+        .notable_strats
+        .iter()
+        .cloned()
+        .filter(|x| !ignored_notable_strats.contains(x))
+        .collect();
     let seed_header_template = SeedHeaderTemplate {
         seed_name: seed_name.to_string(),
         version: VERSION,
@@ -303,7 +308,10 @@ fn render_seed(seed_name: &str, seed_data: &SeedData) -> Result<(String, String)
         item_placement_style: format!("{:?}", seed_data.difficulty.item_placement_style),
         difficulty: &seed_data.difficulty,
         notable_strats,
-        quality_of_life_preset: seed_data.quality_of_life_preset.clone().unwrap_or("Custom".to_string()),
+        quality_of_life_preset: seed_data
+            .quality_of_life_preset
+            .clone()
+            .unwrap_or("Custom".to_string()),
         supers_double: seed_data.supers_double,
         mother_brain_fight: seed_data.mother_brain_fight.clone(),
         escape_enemies_cleared: seed_data.escape_enemies_cleared,
@@ -490,11 +498,21 @@ async fn get_seed_file(
     let seed_name = &info.0;
     let filename = &info.1;
     println!("get_seed_file {}", filename);
-    match app_data
-        .seed_repository
-        .get_file(seed_name, &("public/".to_string() + filename))
-        .await
-    {
+
+    let data_result: Result<Vec<u8>> =
+        if filename.starts_with("visualizer/") && app_data.static_visualizer {
+            let path = Path::new(VISUALIZER_PATH).join(filename.strip_prefix("visualizer/").unwrap());
+            std::fs::read(&path)
+                .map_err(anyhow::Error::from)
+                .with_context(|| format!("Error reading static file: {}", path.display()))
+        } else {
+            app_data
+                .seed_repository
+                .get_file(seed_name, &("public/".to_string() + filename))
+                .await
+        };
+
+    match data_result {
         Ok(data) => {
             let ext = Path::new(filename)
                 .extension()
@@ -734,7 +752,10 @@ async fn randomize(
             "Vanilla" => MotherBrainFight::Vanilla,
             "Short" => MotherBrainFight::Short,
             "Skip" => MotherBrainFight::Skipped,
-            _ => panic!("Unrecognized mother_brain_fight: {}", req.mother_brain_fight.0),
+            _ => panic!(
+                "Unrecognized mother_brain_fight: {}",
+                req.mother_brain_fight.0
+            ),
         },
         escape_enemies_cleared: req.escape_enemies_cleared.0,
         escape_movement_items: req.escape_movement_items.0,
@@ -858,7 +879,11 @@ async fn randomize(
         .finish()
 }
 
-fn init_presets(presets: Vec<Preset>, game_data: &GameData, ignored_notable_strats: &HashSet<String>) -> Vec<PresetData> {
+fn init_presets(
+    presets: Vec<Preset>,
+    game_data: &GameData,
+    ignored_notable_strats: &HashSet<String>,
+) -> Vec<PresetData> {
     let mut out: Vec<PresetData> = Vec::new();
     let mut cumulative_tech: HashSet<String> = HashSet::new();
     let mut cumulative_strats: HashSet<String> = HashSet::new();
@@ -871,7 +896,7 @@ fn init_presets(presets: Vec<Preset>, game_data: &GameData, ignored_notable_stra
         "canRiskPermanentLossOfAccess",
         "canIceZebetitesSkip",
         "canSpeedZebetitesSkip",
-        "canRemorphZebetiteSkip"
+        "canRemorphZebetiteSkip",
     ]
     .iter()
     .map(|x| x.to_string())
@@ -976,6 +1001,8 @@ struct Args {
     seed_repository_url: String,
     #[arg(long, action)]
     debug: bool,
+    #[arg(long, action)]
+    static_visualizer: bool,
 }
 
 fn get_ignored_notable_strats() -> HashSet<String> {
@@ -1007,7 +1034,7 @@ fn get_ignored_notable_strats() -> HashSet<String> {
 
 fn load_visualizer_files() -> Vec<(String, Vec<u8>)> {
     let mut files: Vec<(String, Vec<u8>)> = vec![];
-    for entry_res in std::fs::read_dir("../visualizer").unwrap() {
+    for entry_res in std::fs::read_dir(VISUALIZER_PATH).unwrap() {
         let entry = entry_res.unwrap();
         let name = entry.file_name().to_str().unwrap().to_string();
         let data = std::fs::read(entry.path()).unwrap();
@@ -1037,6 +1064,7 @@ fn build_app_data() -> AppData {
         seed_repository: SeedRepository::new(&args.seed_repository_url).unwrap(),
         visualizer_files: load_visualizer_files(),
         debug: args.debug,
+        static_visualizer: args.static_visualizer,
     }
 }
 

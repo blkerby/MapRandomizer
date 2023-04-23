@@ -41,7 +41,7 @@ fn main() -> Result<()> {
     // }
 
     let mut items = vec![false; game_data.item_isv.keys.len()];
-    items[Item::Missile as usize] = true;
+    // items[Item::Missile as usize] = true;
     // items[Item::SpaceJump as usize] = true;
     // items[Item::Super as usize] = true;
     // items[Item::Morph as usize] = true;
@@ -60,10 +60,10 @@ fn main() -> Result<()> {
         notable_strats: vec![true; game_data.notable_strat_isv.keys.len()],
         flags: vec![false; game_data.flag_isv.keys.len()],
         items: items,
-        max_energy: 1000,
-        max_missiles: 0,
+        max_energy: 99,
+        max_missiles: 5,
         max_reserves: 0,
-        max_supers: 5,
+        max_supers: 0,
         max_power_bombs: 0,
         shine_charge_tiles: 16.0,
         weapon_mask,
@@ -106,20 +106,20 @@ fn main() -> Result<()> {
         debug_options: None,
     };
 
-    println!("{:?}", game_data.helpers["h_heatResistant"]);
-
-    println!(
-        "{:?}",
-        apply_requirement(&Requirement::PhantoonFight {  }, &global_state, local_state, false, &difficulty)
-    );
-    println!("{} links", game_data.links.len());
+    // println!("{:?}", game_data.helpers["h_heatResistant"]);
 
     // println!(
     //     "{:?}",
-    //     apply_requirement(&Requirement::DraygonFight {
-    //         can_be_patient_tech_id: game_data.tech_isv.index_by_key["canBePatient"]
-    //     }, &global_state, local_state, false, &difficulty)
+    //     apply_requirement(&Requirement::PhantoonFight {  }, &global_state, local_state, false, &difficulty)
     // );
+    // println!("{} links", game_data.links.len());
+
+    println!(
+        "{:?}",
+        apply_requirement(&Requirement::DraygonFight {
+            can_be_patient_tech_id: game_data.tech_isv.index_by_key["canBePatient"]
+        }, &global_state, local_state, false, &difficulty)
+    );
 
     // println!(
     //     "{:?}",

@@ -8,6 +8,7 @@ todo for next release (v55):
 
 priority:
 - gmode-immobile logic
+- add vertical gravity jumps to logic
 - add pages for tech, strats, rooms.
 - logic simulator
 - credits
