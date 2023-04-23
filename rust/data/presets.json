@@ -71,7 +71,9 @@
       "canShinechargeMovement",
       "canMidairShinespark",
       "canCarefulJump",
-      "canXrayWaitForIFrames"
+      "canXrayWaitForIFrames",
+      "canDownBack",
+      "canPlayInSand"
     ],
     "notable_strats": [
       "Early Supers Mockball",
@@ -81,7 +83,6 @@
       "West Sand Hole MidAir Morph (Bootless Suitless)",
       "Colosseum Suitless Grapple Only",
       "Suitless Draygon",
-      "Bug Sand Room Naked",
       "PCJR Big Jump Shinespark",
       "Bubble Mountain Damage Boost",
       "Crumble Shaft Top Item Precise Walljump",
@@ -112,7 +113,6 @@
       "canTurnaroundAimCancel",
       "canTrickyUseFrozenEnemies",
       "canMetroidAvoid",
-      "canSandMochtroidIceClimb",
       "canMaridiaTubeClip",
       "canGrappleJump",
       "canSnailClip",
@@ -143,7 +143,9 @@
       "canStationarySpinJump",
       "canKago",
       "canXrayTurnaround",
-      "canSamusEaterStandUp"
+      "canSamusEaterStandUp",
+      "canSandfallBounce",
+      "canEscapeSand"
     ],
     "notable_strats": [
       "Pink Brinstar Power Bombs Crystal Flash Clip",
@@ -163,9 +165,6 @@
       "Pants Room Shinespark",
       "Draygon Grapple Quick Kill",
       "Draygon Shinespark Kill",
-      "Pants Room Sand HiJump with Gravity",
-      "Pants Room Sand MidAir SpringBall with Gravity",
-      "Pants Room Suitless Sand MidAir SpringBall with HiJump",
       "Pants Room Suitless Flatley Turnaround Climb",
       "Halfie Climb Enter with Shinespark from the Bottom Right",
       "Plasma Spark Fish Climb",
@@ -198,7 +197,14 @@
       "Butterfly Room Careful Jump",
       "Double Chamber Shinespark to Wave Beam Door",
       "Oasis Cross Room Jump with Screw Attack",
-      "Blue Hopper Room Roll Under Hoppers"
+      "Blue Hopper Room Roll Under Hoppers",
+      "Aqueduct Snail Walk",
+      "West Ocean Bug Boost with Ice",
+      "Bug Sand Hole Damage Boost", 
+      "Bug Sand Hole Sand Jumps",
+      "Pants Room Suitless MidAir SpringBall Jump with HiJump",
+      "East Sand Hole Sandfall Bounce to Power Bombs",
+      "Bug Sand Hole Speedy Jump Morph"
     ]
   },
   {
@@ -234,7 +240,9 @@
       "canStaggeredIBJ",
       "canDiagonalBombJump",
       "canRJump",
-      "canStationaryLateralMidAirMorph"
+      "canStationaryLateralMidAirMorph",
+      "canSpeedKeepChain",
+      "canBombJumpOnSand"
     ],
     "notable_strats": [
       "Early Supers Crouch Gate Clip Damage Boost",
@@ -249,6 +257,7 @@
       "X-Ray Access SpikeJumps with HiJump",
       "Landing Site Big Jump Blue Suit Bounce",
       "Landing Site Blue Space Jump (Top)",
+      "West Ocean Bug Boost with Wave or Spazer",
       "West Ocean Bug Boost",
       "LN Fireflea Room Morph Over the Fune",
       "LN Fireflea Room Morph Over the Fune Escape",
@@ -280,7 +289,11 @@
       "Crab Hole Suitless Crab Climb No Jump Assist",
       "Oasis Cross Room Jump with Screw Attack and Speed through the Top Door",
       "Brinstar Reserve Speed Keep",
-      "Crab Hole Suitless Crab Climb Superless with Springball"
+      "Crab Hole Suitless Crab Climb Superless with Springball",
+      "Colosseum Spike Platforming",
+      "West Sand Hole Bootless Suitless IBJ",
+      "Climb Speedkeep Chain Through Bomb Blocks",
+      "East Pants Room Suitless Puyo Clip"
     ]
   },
   {
@@ -328,7 +341,8 @@
     "ridley_proficiency": 1.0,
     "botwoon_proficiency": 1.0,
     "tech": [
-      "canBePatient"
+      "canBePatient",
+      "canDownwardGModeSetup"
     ],
     "notable_strats": [
       "Taco Tank in Blue Brinstar Energy Tank Room",
