@@ -18,6 +18,7 @@ priority:
 
 
 later:
+- fix Lower Norfair Farming Room farm
 - show seed hash in main menu (to help in race setup to make sure everyone is using the same seed)
 - fix problem with disappearing typewriter text when pausing as escape sequence starts
 - redo disable_walljump patch to disable the wall jump only, not disable wall-jump check (which breaks X-ray climb setups)
