@@ -1,6 +1,5 @@
 use std::path::Path;
 
-use actix_web::{body::MessageBody, web::Bytes};
 use anyhow::Result;
 use log::info;
 use object_store::{gcp::GoogleCloudStorageBuilder, ObjectStore, memory::InMemory, local::LocalFileSystem};
@@ -57,13 +56,13 @@ impl SeedRepository {
         })    
     }
 
-    pub async fn get_file(&self, seed_name: &str, filename: &str) -> Result<Bytes> {
+    pub async fn get_file(&self, seed_name: &str, filename: &str) -> Result<Vec<u8>> {
         let path = object_store::path::Path::parse(
             self.base_path.clone() + seed_name + "/" + filename + ".zstd",
         )?;
         let compressed_data = self.object_store.get(&path).await?.bytes().await?;
         let data = zstd::bulk::decompress(&compressed_data, 10_000_000)?;
-        Ok(data.try_into_bytes().unwrap())
+        Ok(data)
     }
 
     pub async fn put_file(&self, seed_name: &str, filename: String, data: Vec<u8>) -> Result<()> {
