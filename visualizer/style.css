@@ -12,21 +12,27 @@ body {
 	left: 0;
 	transform: translate(var(--tx), var(--ty));
 }
-#obscure-overlay, #path-overlay {
+#path-overlay {
 	position: absolute;
 	pointer-events: none;
 	transform: translate(var(--tx), var(--ty));
 }
 #obscure-overlay {
+	position: absolute;
 	margin: 24px;
 	width: 1728px;
 	height: 1728px;
 	image-rendering: pixelated;
 	z-index: 1;
+	pointer-events: none
+}
+#path-overlay {
+	z-index: 3
 }
 #overlay {
 	position: absolute;
 	transform: translate(var(--tx), var(--ty));
+	z-index: 2;
 }
 .popup, #room-info, #sidebar-info {
 	position: relative;
@@ -60,6 +66,7 @@ body {
 }
 .popup {
 	display: none;
+	z-index: 2;
 }
 .icon:hover + .popup {
 	display: block;
