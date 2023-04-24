@@ -20,6 +20,7 @@ about 15 seconds to load.
     <li>X-ray climbing, long tunnel crawls, and crystal flash clips are moved from Expert into Extreme.
     <li>G-mode tech is added to Extreme (though adding strats to logic is an early work-in-progress).
     </ul>
+<li>The interactive spoiler map now shows which parts of rooms are reachable on a given step.
 <li>A couple bugs are fixed relating to quick reloading:
     <ul>
     <li>The game would sometimes crash when quick-reloading during the death animation.
