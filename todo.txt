@@ -18,6 +18,8 @@ priority:
 
 
 later:
+- fix Pit Room in randomizer logic
+  - it doesn't think you can pass through the room until getting Morph + Missiles
 - fix Lower Norfair Farming Room farm
 - show seed hash in main menu (to help in race setup to make sure everyone is using the same seed)
 - fix problem with disappearing typewriter text when pausing as escape sequence starts

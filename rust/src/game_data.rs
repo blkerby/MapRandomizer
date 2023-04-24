@@ -1097,7 +1097,7 @@ impl GameData {
                         {
                             "name": "Base",
                             "notable": false,
-                            "requires": ["h_canUsePowerBombs"],
+                            "requires": [],
                         }
                     ]
                 }];
@@ -1114,7 +1114,12 @@ impl GameData {
                     {
                         "name": "Base",
                         "notable": false,
-                        "requires": []
+                        "requires": [
+                            {"or": [
+                                "h_canUsePowerBombs",
+                                "f_ShaktoolDoneDigging"
+                            ]}
+                        ]
                     }
                     ]
                 }
@@ -1129,7 +1134,12 @@ impl GameData {
                     {
                         "name": "Base",
                         "notable": false,
-                        "requires": []
+                        "requires": [
+                            {"or": [
+                                "h_canUsePowerBombs",
+                                "f_ShaktoolDoneDigging"
+                            ]}
+                        ]
                     }
                     ],
                     "note": "Use the snails to dig through the sand."
@@ -1145,7 +1155,7 @@ impl GameData {
                     {
                         "name": "Base",
                         "notable": false,
-                        "requires": [ "f_ShaktoolDoneDigging" ]
+                        "requires": []
                     }
                     ]
                 },
@@ -1155,7 +1165,7 @@ impl GameData {
                     {
                         "name": "Base",
                         "notable": false,
-                        "requires": [ "f_ShaktoolDoneDigging" ]
+                        "requires": []
                     }
                     ]
                 }
