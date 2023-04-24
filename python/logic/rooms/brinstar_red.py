@@ -31,7 +31,7 @@ rooms = [
             DoorIdentifier(RIGHT, 0, 9, 0x19042, 0x190F6),  # Bat Room
         ],
         node_tiles={
-            1: [(0, 4), (0, 5)],  # top left door
+            1: [(0, 4), (0, 5), (0, 6)],  # top left door
             2: [(0, 6)],  # middle left door
             3: [(0, 9)],  # bottom left door
             4: [(0, 9)],  # bottom right door

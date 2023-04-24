@@ -133,7 +133,7 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 			return;
 		}
 		for (let i = 0; i < 72 * 72; i++) {
-			img.data[i*4+3] = 0xFF; // opaque
+			img.data[i*4+3] = 0xD8; // mostly opaque
 		}
 		for (let v of c.all_rooms) {
 			for (let y = 0; y < v.map.length; y++) {
@@ -145,7 +145,7 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 						} else if (v.map_reachable_step[y][x] < step_limit) {
 							img.data[addr*4+3] = 0x7F; // semiopaque
 						} else {
-							img.data[addr*4+3] = 0xFF; // opaque
+							img.data[addr*4+3] = 0xD8; // mostly opaque
 						}
 					}
 				}

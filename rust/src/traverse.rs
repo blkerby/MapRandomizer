@@ -778,23 +778,27 @@ pub fn apply_requirement(
                 && *used_tiles >= global.shine_charge_tiles
             {
                 let mut new_local = local;
-                if reverse {
-                    // TODO: Handle excessShineSparkFrames in reverse:
-                    if new_local.energy_used < 28 {
-                        new_local.energy_used = 28;
-                    }
-                    new_local.energy_used += shinespark_frames;
-                    validate_energy(new_local, global)
+                if *shinespark_frames == 0 {
+                    Some(new_local)
                 } else {
-                    new_local.energy_used += shinespark_frames - excess_shinespark_frames + 28;
-                    if let Some(mut new_local) = validate_energy(new_local, global) {
-                        let energy_remaining = global.max_energy - new_local.energy_used - 1;
-                        new_local.energy_used +=
-                            std::cmp::min(*excess_shinespark_frames, energy_remaining);
-                        new_local.energy_used -= 28;
-                        Some(new_local)
+                    if reverse {
+                        if new_local.energy_used <= 28 {
+                            new_local.energy_used = 28 + shinespark_frames - excess_shinespark_frames;
+                        } else {
+                            new_local.energy_used += shinespark_frames;
+                        }
+                        validate_energy(new_local, global)
                     } else {
-                        None
+                        new_local.energy_used += shinespark_frames - excess_shinespark_frames + 28;
+                        if let Some(mut new_local) = validate_energy(new_local, global) {
+                            let energy_remaining = global.max_energy - new_local.energy_used - 1;
+                            new_local.energy_used +=
+                                std::cmp::min(*excess_shinespark_frames, energy_remaining);
+                            new_local.energy_used -= 28;
+                            Some(new_local)
+                        } else {
+                            None
+                        }
                     }
                 }
             } else {
