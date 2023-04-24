@@ -546,7 +546,8 @@ impl GameData {
                     enemy_name.to_string(),
                     self.get_enemy_vulnerabilities(enemy_json)?,
                 );
-                self.enemy_json.insert(enemy_name.to_string(), enemy_json.clone());
+                self.enemy_json
+                    .insert(enemy_name.to_string(), enemy_json.clone());
             }
         }
         Ok(())
@@ -1246,8 +1247,13 @@ impl GameData {
                 node_json["nodeType"] = JsonValue::String("junction".to_string());
 
                 unlocked_node_json["id"] = next_node_id.into();
-                self.unlocked_node_map
-                    .insert((room_id, node_id), next_node_id.into());
+
+                // Pit Room is a special case: since the doors can always be freely opened, we don't use
+                // the unlocked nodes in the door edges.
+                if room_json["name"] != "Pit Room" {
+                    self.unlocked_node_map
+                        .insert((room_id, node_id), next_node_id.into());
+                }
                 // Adding spawnAt helps shorten/clean spoiler log but interferes with the implicit leaveWithGMode:
                 // unlocked_node_json["spawnAt"] = node_id.into();
                 unlocked_node_json["name"] =
@@ -1621,7 +1627,9 @@ impl GameData {
                             .collect();
                         let mut ctx = RequirementContext::default();
                         ctx.room_id = room_id;
-                        let knockback = leave_with_gmode_setup_json["knockback"].as_bool().unwrap_or(true);
+                        let knockback = leave_with_gmode_setup_json["knockback"]
+                            .as_bool()
+                            .unwrap_or(true);
                         let requirement =
                             Requirement::make_and(self.parse_requires_list(&requires_json, &ctx)?);
                         let leave_with_gmode_setup = LeaveWithGModeSetup {
@@ -1657,7 +1665,7 @@ impl GameData {
                         let leave_with_gmode = LeaveWithGMode {
                             artificial_morph: leave_with_gmode_json["leavesWithArtificialMorph"]
                                 .as_bool()
-                                .context("Expecting field leavesWithArtificialMorph")?,                            
+                                .context("Expecting field leavesWithArtificialMorph")?,
                             requirement,
                         };
                         leave_with_gmode_vec.push(leave_with_gmode);
@@ -1673,15 +1681,18 @@ impl GameData {
             // Implicit leaveWithGMode:
             if !node_json.has_key("spawnAt") && node_json["nodeType"].as_str().unwrap() == "door" {
                 for artificial_morph in [false, true] {
-                    self.node_leave_with_gmode_map.get_mut(&(room_id, node_id)).unwrap().push(LeaveWithGMode {
-                        artificial_morph,
-                        requirement: Requirement::ComeInWithGMode {
-                            room_id,
-                            node_ids: vec![node_id],
-                            mode: "direct".to_string(),
-                            artificial_morph
-                        }
-                    });    
+                    self.node_leave_with_gmode_map
+                        .get_mut(&(room_id, node_id))
+                        .unwrap()
+                        .push(LeaveWithGMode {
+                            artificial_morph,
+                            requirement: Requirement::ComeInWithGMode {
+                                room_id,
+                                node_ids: vec![node_id],
+                                mode: "direct".to_string(),
+                                artificial_morph,
+                            },
+                        });
                 }
             }
 
@@ -1696,10 +1707,9 @@ impl GameData {
                 ctx.room_id = room_id;
                 let requirement =
                     Requirement::make_and(self.parse_requires_list(&requires_json, &ctx)?);
-                let gmode_immobile = GModeImmobile {
-                    requirement,
-                };
-                self.node_gmode_immobile_map.insert((room_id, node_id), gmode_immobile);
+                let gmode_immobile = GModeImmobile { requirement };
+                self.node_gmode_immobile_map
+                    .insert((room_id, node_id), gmode_immobile);
             }
 
             if node_json.has_key("spawnAt") {
@@ -1749,7 +1759,10 @@ impl GameData {
                     continue;
                 }
                 let enemy_name = enemy["enemyName"].as_str().unwrap();
-                let enemy_json = self.enemy_json.get(enemy_name).with_context(|| format!("Unknown enemy: {}", enemy_name))?;
+                let enemy_json = self
+                    .enemy_json
+                    .get(enemy_name)
+                    .with_context(|| format!("Unknown enemy: {}", enemy_name))?;
 
                 let drops = &enemy_json["drops"];
                 let drops_pb = drops["powerBomb"].as_i32().map(|x| x > 0) == Some(true);
