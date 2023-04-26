@@ -299,6 +299,43 @@ pub struct RoomGeometry {
     pub twin_node_tiles: Option<Vec<(usize, Vec<(usize, usize)>)>>,
 }
 
+#[derive(Deserialize)]
+pub struct EscapeTimingDoor {
+    pub name: String,
+    pub direction: String,
+    pub x: usize,
+    pub y: usize,
+    pub part_idx: usize,
+    pub door_idx: usize,
+    pub node_id: usize,
+}
+
+#[derive(Deserialize)]
+pub struct EscapeTimingCondition {
+    pub requires: Vec<String>,
+    pub in_game_time: f32,
+}
+
+#[derive(Deserialize)]
+pub struct EscapeTiming {
+    pub to_door: EscapeTimingDoor,
+    pub in_game_time: Option<f32>,
+    #[serde(default)]
+    pub conditions: Vec<EscapeTimingCondition>,
+}
+
+#[derive(Deserialize)]
+pub struct EscapeTimingGroup {
+    pub from_door: EscapeTimingDoor,
+    pub to: Vec<EscapeTiming>,
+}
+
+#[derive(Deserialize)]
+pub struct EscapeTimingRoom {
+    pub room_name: String,
+    pub timings: Vec<EscapeTimingGroup>,
+}
+
 #[derive(Clone, Debug)]
 pub struct EnemyVulnerabilities {
     pub hp: i32,
@@ -307,6 +344,8 @@ pub struct EnemyVulnerabilities {
     pub super_damage: i32,
     pub power_bomb_damage: i32,
 }
+
+
 
 // TODO: Clean this up, e.g. pull out a separate structure to hold
 // temporary data used only during loading, replace any
@@ -369,6 +408,7 @@ pub struct GameData {
     pub strat_room: HashMap<String, String>,
     pub strat_description: HashMap<String, String>,
     pub palette_data: Vec<HashMap<TilesetIdx, [[u8; 3]; 128]>>,
+    pub escape_timings: Vec<EscapeTimingRoom>,
 }
 
 impl<T: Hash + Eq> IndexedVec<T> {
@@ -2043,6 +2083,12 @@ impl GameData {
         weapon_mask
     }
 
+    fn load_escape_timings(&mut self, escape_timings_path: &Path) -> Result<()> {
+        let escape_timings_str = std::fs::read_to_string(escape_timings_path)?;
+        self.escape_timings = serde_json::from_str(&escape_timings_str)?;
+        Ok(())
+    }
+
     fn load_room_geometry(&mut self, room_geometry_path: &Path) -> Result<()> {
         let room_geometry_str = std::fs::read_to_string(room_geometry_path)?;
         self.room_geometry = serde_json::from_str(&room_geometry_str)?;
@@ -2135,6 +2181,7 @@ impl GameData {
         sm_json_data_path: &Path,
         room_geometry_path: &Path,
         palette_path: &Path,
+        escape_timings_path: &Path,
     ) -> Result<GameData> {
         let mut game_data = GameData::default();
         game_data.sm_json_data_path = sm_json_data_path.to_owned();
@@ -2168,6 +2215,7 @@ impl GameData {
         game_data
             .load_room_geometry(room_geometry_path)
             .context("Unable to load room geometry")?;
+        game_data.load_escape_timings(escape_timings_path)?;
         game_data.base_room_door_graph = get_base_room_door_graph(&game_data);
         game_data.area_names = vec![
             "Crateria",

@@ -179,7 +179,8 @@ fn main() -> Result<()> {
     let sm_json_data_path = Path::new("../sm-json-data");
     let room_geometry_path = Path::new("../room_geometry.json");
     let palettes_path = Path::new("../palettes.json");
-    let game_data = GameData::load(sm_json_data_path, room_geometry_path, palettes_path)?;
+    let escape_timings_path = Path::new("data/escape_timings.json");
+    let game_data = GameData::load(sm_json_data_path, room_geometry_path, palettes_path, escape_timings_path)?;
 
     // Perform randomization (map selection & item placement):
     let randomization = get_randomization(&args, &game_data)?;

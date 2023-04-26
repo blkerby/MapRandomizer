@@ -1048,10 +1048,11 @@ fn build_app_data() -> AppData {
     let sm_json_data_path = Path::new("../sm-json-data");
     let room_geometry_path = Path::new("../room_geometry.json");
     let palette_path = Path::new("../palettes.json");
+    let escape_timings_path = Path::new("data/escape_timings.json");
     let maps_path =
         Path::new("../maps/session-2022-06-03T17:19:29.727911.pkl-bk30-subarea-balance-2");
 
-    let game_data = GameData::load(sm_json_data_path, room_geometry_path, palette_path).unwrap();
+    let game_data = GameData::load(sm_json_data_path, room_geometry_path, palette_path, escape_timings_path).unwrap();
     let presets: Vec<Preset> =
         serde_json::from_str(&std::fs::read_to_string(&"data/presets.json").unwrap()).unwrap();
     let ignored_notable_strats = get_ignored_notable_strats();
