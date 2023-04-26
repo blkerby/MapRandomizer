@@ -1,15 +1,15 @@
 todo for next release (v55):
 - escape timer based on new timings
-- auto-save before escape
-- new option for MB fight (to become new default): skip cutscenes + MB3
-- new quality-of-life preset "Default":
-  - three presets: Off, Default, and Max.
-  - Default will have everything except not the short MB fight (only skip cutscenes + MB3)
+- add reverse botwoon logic
+- logic fixes:
+  - pit room
+  - tourian escape room 4
+  - fix farm requirements (use them, but strip out heat frames)
 
 priority:
-- gmode-immobile logic
 - add vertical gravity jumps to logic
 - add pages for tech, strats, rooms.
+- help buttons for rest of settings (e.g. explain boss proficiency calculations)
 - logic simulator
 - credits
 - proper front page
@@ -18,9 +18,7 @@ priority:
 
 
 later:
-- fix Pit Room in randomizer logic
-  - it doesn't think you can pass through the room until getting Morph + Missiles
-- fix Lower Norfair Farming Room farm
+- see if it is possible to prevent song changes from messing up enemy behavior
 - show seed hash in main menu (to help in race setup to make sure everyone is using the same seed)
 - fix problem with disappearing typewriter text when pausing as escape sequence starts
 - redo disable_walljump patch to disable the wall jump only, not disable wall-jump check (which breaks X-ray climb setups)

@@ -1763,6 +1763,7 @@ impl GameData {
                     .enemy_json
                     .get(enemy_name)
                     .with_context(|| format!("Unknown enemy: {}", enemy_name))?;
+                let farm_name = format!("Farm {}", enemy["enemyName"].as_str().unwrap());
 
                 let drops = &enemy_json["drops"];
                 let drops_pb = drops["powerBomb"].as_i32().map(|x| x > 0) == Some(true);
@@ -1770,34 +1771,54 @@ impl GameData {
                 let drops_missile = drops["missile"].as_i32().map(|x| x > 0) == Some(true);
                 let drops_big_energy = drops["bigEnergy"].as_i32().map(|x| x > 0) == Some(true);
                 let drops_small_energy = drops["smallEnergy"].as_i32().map(|x| x > 0) == Some(true);
-                let mut reqs: Vec<Requirement> = Vec::new();
-                if drops_pb {
-                    reqs.push(Requirement::PowerBombRefill);
-                }
-                if drops_super {
-                    reqs.push(Requirement::SuperRefill);
-                }
-                if drops_missile {
-                    reqs.push(Requirement::MissileRefill);
-                }
-                if drops_big_energy || drops_small_energy {
-                    reqs.push(Requirement::EnergyRefill);
-                    reqs.push(Requirement::ReserveRefill);
-                }
-                let farm_name = format!("Farm {}", enemy["enemyName"].as_str().unwrap());
                 for node_id_json in enemy["homeNodes"].members() {
                     let node_id = node_id_json.as_usize().unwrap();
-                    for obstacle_bitmask in 0..(1 << num_obstacles) {
-                        let vertex_id =
-                            self.vertex_isv.index_by_key[&(room_id, node_id, obstacle_bitmask)];
-                        self.links.push(Link {
-                            from_vertex_id: vertex_id,
-                            to_vertex_id: vertex_id,
-                            requirement: Requirement::make_and(reqs.clone()),
-                            notable_strat_name: None,
-                            strat_name: farm_name.to_string(),
-                            strat_notes: vec![],
-                        });
+                    for obstacles_bitmask in 0..(1 << num_obstacles) {
+                        for farm_cycle in enemy["farmCycles"].members() {
+                            let mut reqs: Vec<Requirement> = Vec::new();
+                            let ctx = RequirementContext {
+                                room_id,
+                                _from_node_id: node_id,
+                                from_obstacles_bitmask: obstacles_bitmask,
+                                obstacles_idx_map: Some(&obstacles_idx_map),
+                            };
+
+                            // For now we ignore heatFrames requirements. The other requirements should be sufficient
+                            // to ensure the farm provides progress.
+                            let farm_reqs_json: Vec<JsonValue> = farm_cycle["requires"]
+                                .members()
+                                .filter(|r| !r.has_key("heatFrames"))
+                                .cloned()
+                                .collect();
+                            let farm_req = self.parse_requires_list(&farm_reqs_json, &ctx)?;
+                            reqs.extend(farm_req);
+                            if drops_pb {
+                                reqs.push(Requirement::PowerBombRefill);
+                            }
+                            if drops_super {
+                                reqs.push(Requirement::SuperRefill);
+                            }
+                            if drops_missile {
+                                reqs.push(Requirement::MissileRefill);
+                            }
+                            if drops_big_energy || drops_small_energy {
+                                reqs.push(Requirement::EnergyRefill);
+                                reqs.push(Requirement::ReserveRefill);
+                            }
+                            let vertex_id = self.vertex_isv.index_by_key
+                                [&(room_id, node_id, obstacles_bitmask)];
+                            let link = Link {
+                                from_vertex_id: vertex_id,
+                                to_vertex_id: vertex_id,
+                                requirement: Requirement::make_and(reqs.clone()),
+                                notable_strat_name: None,
+                                strat_name: format!("{} ({})", farm_name.to_string(), farm_cycle["name"]),
+                                strat_notes: vec![],
+                            };
+                            // println!("Farm: room='{}',node={}, obstacles={}, name={}, req={:?}", 
+                            //     room_json["name"], node_id, obstacles_bitmask, link.strat_name, link.requirement);
+                            self.links.push(link);
+                        }
                     }
                 }
             }
