@@ -31,6 +31,9 @@ patches = [
     'new_game_extra',
     'escape',
     'door_hurt',
+    'fast_big_boy_cutscene',
+    # 'mb_barrier_clear',
+    # 'mb_left_entrance',
     # 'gunport',
     # 'screw_attack',
     # 'alucard',
@@ -169,8 +172,24 @@ for room_obj in rooms:
 # stop lava rising in Climb
 rom.write_u16(snes2pc(0x838060), 0xffff)
 
+
 # clear enemies in Wasteland:
 # rom.write_u16(snes2pc(0x8FB5E2 + 8), 0x8000)
+
+# in Ice Beam Gate Room
+# rom.write_u16(snes2pc(0x8FA822 + 8), 0x8000)
+
+# in Ice Beam Tutorial Room
+# rom.write_u16(snes2pc(0x8FA872 + 8), 0x8000)
+
+# in Basement
+# rom.write_u16(snes2pc(0x8FCC9B + 8), 0x8000)
+
+# # In Sponge Bath
+# rom.write_u16(snes2pc(0x8FCBB7 + 8), 0x8000)
+
+# In Big Boy Room
+rom.write_u16(snes2pc(0x8FDCC3 + 8), 0x8000)
 
 
 #
