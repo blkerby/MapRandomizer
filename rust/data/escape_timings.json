@@ -3871,7 +3871,7 @@
             },
             "conditions": [
               {
-                "requires": "can_reverse_gate",
+                "requires": ["can_reverse_gate"],
                 "in_game_time": 4.59
               }
             ]  
@@ -3949,7 +3949,7 @@
             },
             "conditions": [
               {
-                "requires": "can_reverse_gate",
+                "requires": ["can_reverse_gate"],
                 "in_game_time": 7.59
               }
             ]  
@@ -4027,7 +4027,7 @@
             },
             "conditions": [
               {
-                "requires": "can_reverse_gate",
+                "requires": ["can_reverse_gate"],
                 "in_game_time": 11.18
               }
             ]  
@@ -4105,7 +4105,7 @@
             },
             "conditions": [
               {
-                "requires": "can_reverse_gate",
+                "requires": ["can_reverse_gate"],
                 "in_game_time": 5.53
               }
             ]  
@@ -4184,7 +4184,7 @@
             },
             "conditions": [
               {
-                "requires": "can_reverse_gate",
+                "requires": ["can_reverse_gate"],
                 "in_game_time": 5.32,
                 "note": "Unmorph-remorph to reset fall speed"
               }
@@ -10195,7 +10195,7 @@
             "in_game_time": 4.21,
             "conditions": [
               {
-                "requires": "can_moonfall",
+                "requires": ["can_moonfall"],
                 "in_game_time": 4.12
               }
             ]
@@ -20754,7 +20754,7 @@
             "in_game_time": 4.47,
             "conditions": [
               {
-                "requires": "enemies_cleared",
+                "requires": ["enemies_cleared"],
                 "in_game_time": 3.39
               }
             ]
@@ -20785,7 +20785,7 @@
             "in_game_time": 4.40,
             "conditions": [
               {
-                "requires": "enemies_cleared",
+                "requires": ["enemies_cleared"],
                 "in_game_time": 3.41
               }
             ]
