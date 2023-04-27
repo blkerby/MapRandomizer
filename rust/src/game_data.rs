@@ -1,4 +1,3 @@
-use crate::randomize::escape_timer::{get_base_room_door_graph, RoomDoorGraph};
 use anyhow::{bail, ensure, Context, Result};
 use hashbrown::{HashMap, HashSet};
 use json::{self, JsonValue};
@@ -310,9 +309,28 @@ pub struct EscapeTimingDoor {
     pub node_id: usize,
 }
 
+#[derive(Deserialize, Copy, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum EscapeConditionRequirement {
+    // #[serde(rename = "enemies_cleared")]
+    EnemiesCleared,
+    // #[serde(rename = "can_use_powerbombs")]
+    CanUsePowerBombs,
+    // #[serde(rename = "can_moonfall")]
+    CanMoonfall,
+    // #[serde(rename = "can_reverse_gate")]
+    CanReverseGate,
+    // #[serde(rename = "can_acid_dive")]
+    CanAcidDive,
+    // #[serde(rename = "can_off_camera_shot")]
+    CanOffCameraShot,
+    // #[serde(rename = "can_kago")]
+    CanKago,
+}
+
 #[derive(Deserialize)]
 pub struct EscapeTimingCondition {
-    pub requires: Vec<String>,
+    pub requires: Vec<EscapeConditionRequirement>,
     pub in_game_time: f32,
 }
 
@@ -398,7 +416,6 @@ pub struct GameData {
     pub room_idx_by_ptr: HashMap<RoomPtr, RoomGeometryRoomIdx>,
     pub room_idx_by_name: HashMap<String, RoomGeometryRoomIdx>,
     pub node_tile_coords: HashMap<(RoomId, NodeId), Vec<(usize, usize)>>,
-    pub base_room_door_graph: RoomDoorGraph,
     pub area_names: Vec<String>,
     pub area_map_ptrs: Vec<isize>,
     pub tech_description: HashMap<String, String>,
@@ -443,10 +460,20 @@ struct RequirementContext<'a> {
 
 impl GameData {
     fn load_tech(&mut self) -> Result<()> {
-        let full_tech_json = read_json(&self.sm_json_data_path.join("tech.json"))?;
+        let mut full_tech_json = read_json(&self.sm_json_data_path.join("tech.json"))?;
         ensure!(full_tech_json["techCategories"].is_array());
-        for tech_category in full_tech_json["techCategories"].members() {
+        for tech_category in full_tech_json["techCategories"].members_mut() {
             ensure!(tech_category["techs"].is_array());
+            if tech_category["name"] == "Shots" {
+                tech_category["techs"].push(json::object!{
+                    "name": "canHyperGateShot",
+                    "requires": [],
+                    "note": [
+                        "Can shoot a gate from either side using Hyper Beam during the escape.",
+                        "This is easy to do; this tech just represents the player's knowledge that it can be done."
+                    ]
+                })?;
+            }
             for tech_json in tech_category["techs"].members() {
                 self.load_tech_rec(tech_json)?;
             }
@@ -2217,7 +2244,6 @@ impl GameData {
             .load_room_geometry(room_geometry_path)
             .context("Unable to load room geometry")?;
         game_data.load_escape_timings(escape_timings_path)?;
-        game_data.base_room_door_graph = get_base_room_door_graph(&game_data.escape_timings);
         game_data.area_names = vec![
             "Crateria",
             "Brinstar",

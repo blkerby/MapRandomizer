@@ -73,7 +73,8 @@
       "canCarefulJump",
       "canXrayWaitForIFrames",
       "canDownBack",
-      "canPlayInSand"
+      "canPlayInSand",
+      "canHyperGateShot"
     ],
     "notable_strats": [
       "Early Supers Mockball",

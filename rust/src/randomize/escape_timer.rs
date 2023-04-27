@@ -1,10 +1,11 @@
 use hashbrown::HashMap;
+use hashbrown::HashSet;
 use pathfinding;
 use serde_derive::Deserialize;
 use serde_derive::Serialize;
 
 use crate::game_data::DoorPtrPair;
-use crate::game_data::EscapeTimingRoom;
+use crate::game_data::EscapeConditionRequirement;
 use crate::game_data::GameData;
 use crate::game_data::IndexedVec;
 use crate::game_data::Map;
@@ -12,6 +13,7 @@ use crate::game_data::RoomGeometryDoorIdx;
 use crate::game_data::RoomGeometryRoomIdx;
 
 use super::DifficultyConfig;
+use super::MotherBrainFight;
 
 pub type RoomName = &'static str;
 pub type VertexId = usize;
@@ -53,35 +55,68 @@ pub struct SpoilerEscape {
     pub ship_route: Vec<SpoilerEscapeRouteEntry>,
 }
 
-// In game times are recorded in the format X.YY where X is integer seconds and YY is frames 
+// In game times are recorded in the format X.YY where X is integer seconds and YY is frames
 // (as in the Practice Hack). This function converts this to frames.
 fn parse_in_game_time(raw_time: f32) -> usize {
     let int_part = raw_time.floor() as usize;
     let frac_part = raw_time.fract();
-    let frames = (frac_part * 100.0) as usize;
+    let frames = (frac_part * 100.0).round() as usize;
     assert!(frames < 60);
     int_part * 60 + frames
 }
 
-pub fn get_base_room_door_graph(escape_timings: &[EscapeTimingRoom]) -> RoomDoorGraph {
+fn is_requirement_satisfied(
+    req: EscapeConditionRequirement,
+    config: &DifficultyConfig,
+    tech_map: &HashMap<String, bool>,
+) -> bool {
+    match req {
+        EscapeConditionRequirement::EnemiesCleared => config.escape_enemies_cleared,
+        EscapeConditionRequirement::CanUsePowerBombs => {
+            config.mother_brain_fight == MotherBrainFight::Skip
+        }
+        EscapeConditionRequirement::CanAcidDive => tech_map["canSuitlessLavaDive"],
+        EscapeConditionRequirement::CanKago => tech_map["canKago"],
+        EscapeConditionRequirement::CanMoonfall => tech_map["canMoonfall"],
+        EscapeConditionRequirement::CanOffCameraShot => tech_map["canOffScreenSuperShot"],
+        EscapeConditionRequirement::CanReverseGate => tech_map["canHyperGateShot"],
+    }
+}
+
+pub fn get_base_room_door_graph(
+    game_data: &GameData,
+    difficulty: &DifficultyConfig,
+) -> RoomDoorGraph {
     let mut vertices: IndexedVec<VertexKey> = IndexedVec::default();
     let mut successors: Vec<Vec<(VertexId, Cost)>> = Vec::new();
     let mut ship_vertex_id = VertexId::MAX;
     let mut animals_vertex_id = VertexId::MAX;
     let mut mother_brain_vertex_id = VertexId::MAX;
 
-    for (room_idx, escape_timing_room) in escape_timings.iter().enumerate() {
+    let tech_set: HashSet<String> = difficulty.tech.iter().cloned().collect();
+    let tech_map: HashMap<String, bool> = game_data
+        .tech_isv
+        .keys
+        .iter()
+        .map(|x| (x.clone(), tech_set.contains(x)))
+        .collect();
+
+    for (room_idx, escape_timing_room) in game_data.escape_timings.iter().enumerate() {
         for escape_timing_group in &escape_timing_room.timings {
             let from_key = (room_idx, escape_timing_group.from_door.door_idx);
             let from_idx = vertices.add(&from_key);
             successors.push(vec![]);
-            if escape_timing_room.room_name == "Landing Site" && escape_timing_group.from_door.name == "Ship" {
+            if escape_timing_room.room_name == "Landing Site"
+                && escape_timing_group.from_door.name == "Ship"
+            {
                 ship_vertex_id = from_idx;
             }
             if escape_timing_room.room_name == "Bomb Torizo Room" {
                 animals_vertex_id = from_idx;
             }
-            if escape_timing_room.room_name == "Mother Brain Room" && escape_timing_group.from_door.direction == "left" {
+            if escape_timing_room.room_name == "Mother Brain Room"
+                && escape_timing_group.from_door.direction == "left"
+            {
                 mother_brain_vertex_id = from_idx;
             }
         }
@@ -94,6 +129,16 @@ pub fn get_base_room_door_graph(escape_timings: &[EscapeTimingRoom]) -> RoomDoor
                 if let Some(in_game_time) = escape_timing.in_game_time {
                     let cost = parse_in_game_time(in_game_time);
                     successors[from_idx].push((to_idx, cost));
+                }
+                for condition in &escape_timing.conditions {
+                    if condition
+                        .requires
+                        .iter()
+                        .all(|&req| is_requirement_satisfied(req, difficulty, &tech_map))
+                    {
+                        let cost = parse_in_game_time(condition.in_game_time);
+                        successors[from_idx].push((to_idx, cost));    
+                    }
                 }
             }
         }
@@ -108,8 +153,12 @@ pub fn get_base_room_door_graph(escape_timings: &[EscapeTimingRoom]) -> RoomDoor
     }
 }
 
-pub fn get_full_room_door_graph(game_data: &GameData, map: &Map) -> RoomDoorGraph {
-    let base = &game_data.base_room_door_graph;
+pub fn get_full_room_door_graph(
+    game_data: &GameData,
+    map: &Map,
+    difficulty: &DifficultyConfig,
+) -> RoomDoorGraph {
+    let base = get_base_room_door_graph(game_data, difficulty);
     let mut door_ptr_pair_to_vertex: HashMap<DoorPtrPair, VertexId> = HashMap::new();
     for (room_idx, room) in game_data.room_geometry.iter().enumerate() {
         println!("{}", room.name);
@@ -150,7 +199,7 @@ fn get_vertex_name(
     let node_json = &game_data.node_json_map[&(room_id, door_id)];
     SpoilerEscapeRouteNode {
         room: room_json["name"].as_str().unwrap().to_string(),
-        node: node_json["name"].as_str().unwrap().to_string()
+        node: node_json["name"].as_str().unwrap().to_string(),
     }
 }
 
@@ -201,7 +250,7 @@ pub fn compute_escape_data(
     map: &Map,
     difficulty: &DifficultyConfig,
 ) -> SpoilerEscape {
-    let graph = get_full_room_door_graph(game_data, map);
+    let graph = get_full_room_door_graph(game_data, map, difficulty);
     let animals_spoiler: Option<Vec<SpoilerEscapeRouteEntry>>;
     let ship_spoiler: Vec<SpoilerEscapeRouteEntry>;
     let base_igt_frames: usize;
@@ -225,7 +274,8 @@ pub fn compute_escape_data(
 
     let base_igt_seconds: f32 = (base_igt_frames as f32) / 60.0;
     let base_leniency_factor: f32 = 1.15;
-    let raw_time_seconds = base_igt_seconds * base_leniency_factor * difficulty.escape_timer_multiplier;
+    let raw_time_seconds =
+        base_igt_seconds * base_leniency_factor * difficulty.escape_timer_multiplier;
     let mut final_time_seconds = f32::ceil(raw_time_seconds / 5.0) * 5.0;
     if final_time_seconds > 5995.0 {
         final_time_seconds = 5995.0;

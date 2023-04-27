@@ -59,7 +59,7 @@ pub enum Objectives {
 pub enum MotherBrainFight {
     Vanilla,
     Short,
-    Skipped,
+    Skip,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
