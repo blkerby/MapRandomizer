@@ -6569,7 +6569,7 @@
             },
             "conditions": [
               {
-                "requires": ["off_camera_shot"],
+                "requires": ["can_off_camera_shot"],
                 "in_game_time": 16.12
               }
             ]
@@ -6671,7 +6671,7 @@
             },
             "conditions": [
               {
-                "requires": ["off_camera_shot"],
+                "requires": ["can_off_camera_shot"],
                 "in_game_time": 7.43
               }
             ]
@@ -6773,7 +6773,7 @@
             },
             "conditions": [
               {
-                "requires": ["off_camera_shot"],
+                "requires": ["can_off_camera_shot"],
                 "in_game_time": 8.43
               }
             ]
@@ -6875,7 +6875,7 @@
             },
             "conditions": [
               {
-                "requires": ["off_camera_shot"],
+                "requires": ["can_off_camera_shot"],
                 "in_game_time": 15.06
               }
             ]
@@ -6977,7 +6977,7 @@
             },
             "conditions": [
               {
-                "requires": ["off_camera_shot"],
+                "requires": ["can_off_camera_shot"],
                 "in_game_time": 15.38
               }
             ]
@@ -7079,7 +7079,7 @@
             },
             "conditions": [
               {
-                "requires": ["off_camera_shot"],
+                "requires": ["can_off_camera_shot"],
                 "in_game_time": 4.02
               }
             ]
@@ -7181,7 +7181,7 @@
             },
             "conditions": [
               {
-                "requires": ["off_camera_shot"],
+                "requires": ["can_off_camera_shot"],
                 "in_game_time": 7.19
               }
             ]
@@ -7295,7 +7295,7 @@
             },
             "conditions": [
               {
-                "requires": ["off_camera_shot"],
+                "requires": ["can_off_camera_shot"],
                 "in_game_time": 5.51
               }
             ]
@@ -13724,7 +13724,7 @@
             "in_game_time": 17.57,
             "conditions": [
               {
-                "requires": ["use_powerbombs"],
+                "requires": ["can_use_power_bombs"],
                 "in_game_time": 15.18
               }
             ]
@@ -13742,7 +13742,7 @@
             "in_game_time": 17.55,
             "conditions": [
               {
-                "requires": ["use_powerbombs"],
+                "requires": ["can_use_power_bombs"],
                 "in_game_time": 15.16
               }
             ]
@@ -13760,7 +13760,7 @@
             "in_game_time": 10.49,
             "conditions": [
               {
-                "requires": ["use_powerbombs"],
+                "requires": ["can_use_power_bombs"],
                 "in_game_time": 8.10
               }
             ]

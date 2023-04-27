@@ -747,7 +747,7 @@ async fn randomize(
         mother_brain_fight: match req.mother_brain_fight.0.as_str() {
             "Vanilla" => MotherBrainFight::Vanilla,
             "Short" => MotherBrainFight::Short,
-            "Skip" => MotherBrainFight::Skipped,
+            "Skip" => MotherBrainFight::Skip,
             _ => panic!(
                 "Unrecognized mother_brain_fight: {}",
                 req.mother_brain_fight.0

@@ -1044,7 +1044,7 @@ impl<'a> Patcher<'a> {
                     self.rom.write_u24(snes2pc(0xA9AF01), 0xA9FB70)?;
                 }    
             }
-            MotherBrainFight::Skipped => {
+            MotherBrainFight::Skip => {
                 // Make Mother Brain 1 finish faster:
                 for addr in &[0x897D, 0x89AF, 0x89E1, 0x8A09, 0x8A31, 0x8A63, 0x8A95] {
                     self.rom.write_u16(snes2pc(0xA90000 + addr), 0x10)?; // cut delay in half for tubes to fall
