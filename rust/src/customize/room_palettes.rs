@@ -4,7 +4,6 @@ use crate::{
 };
 use anyhow::{Result, bail};
 use hashbrown::HashMap;
-use std::cmp::max;
 
 fn encode_palette(pal: &[[u8; 3]]) -> Vec<u8> {
     let mut out: Vec<u8> = vec![];
