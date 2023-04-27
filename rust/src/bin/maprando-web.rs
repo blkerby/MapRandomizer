@@ -459,9 +459,7 @@ async fn customize_seed(
         .get_file(seed_name, "patch.ips")
         .await
         .unwrap();
-    let mut rom = Rom {
-        data: req.rom.data.to_vec(),
-    };
+    let mut rom = Rom::new(req.rom.data.to_vec());
 
     if rom.data.len() < 0x300000 {
         return HttpResponse::BadRequest().body("Invalid base ROM.");
@@ -655,9 +653,7 @@ async fn randomize(
     http_req: HttpRequest,
     app_data: web::Data<AppData>,
 ) -> impl Responder {
-    let rom = Rom {
-        data: req.rom.data.to_vec(),
-    };
+    let rom = Rom::new(req.rom.data.to_vec());
 
     if rom.data.len() == 0 {
         return HttpResponse::BadRequest().body(MissingInputRomTemplate {}.render_once().unwrap());

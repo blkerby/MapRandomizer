@@ -31,13 +31,24 @@ pub fn pc2snes(addr: usize) -> usize {
 #[derive(Clone)]
 pub struct Rom {
     pub data: Vec<u8>,
+    touched: Vec<bool>,
 }
 
 impl Rom {
+    pub fn new(data: Vec<u8>) -> Self {
+        let len = data.len();
+        Rom { data, touched: vec![false; len] }
+    }
+
+    pub fn resize(&mut self, new_size: usize) {
+        self.data.resize(new_size, 0xFF);
+        self.touched.resize(new_size, false);
+    }
+
     pub fn load(path: &Path) -> Result<Self> {
         let data = std::fs::read(path)
             .with_context(|| format!("Unable to load ROM at path {}", path.display()))?;
-        Ok(Rom { data })
+        Ok(Rom::new(data))
     }
 
     pub fn save(&self, path: &Path) -> Result<()> {
@@ -84,6 +95,10 @@ impl Rom {
         );
         ensure!(x >= 0 && x <= 0xFF, "write_u8 data does not fit");
         self.data[addr] = x as u8;
+        if self.touched[addr] {
+            println!("Rewritten: {:x}", pc2snes(addr));
+        }
+        self.touched[addr] = true;
         Ok(())
     }
 
@@ -93,8 +108,8 @@ impl Rom {
             "write_u16 address out of bounds"
         );
         ensure!(x >= 0 && x <= 0xFFFF, "write_u16 data does not fit");
-        self.data[addr] = (x & 0xFF) as u8;
-        self.data[addr + 1] = (x >> 8) as u8;
+        self.write_u8(addr, x & 0xFF)?;
+        self.write_u8(addr + 1, x >> 8)?;
         Ok(())
     }
 
@@ -104,9 +119,9 @@ impl Rom {
             "write_u24 address out of bounds"
         );
         ensure!(x >= 0 && x <= 0xFFFFFF, "write_u24 data does not fit");
-        self.data[addr] = (x & 0xFF) as u8;
-        self.data[addr + 1] = ((x >> 8) & 0xFF) as u8;
-        self.data[addr + 2] = (x >> 16) as u8;
+        self.write_u8(addr, x & 0xFF)?;
+        self.write_u8(addr + 1, (x >> 8) & 0xFF)?;
+        self.write_u8(addr + 2, x >> 16)?;
         Ok(())
     }
 
@@ -115,7 +130,9 @@ impl Rom {
             addr + x.len() <= self.data.len(),
             "write_n address out of bounds"
         );
-        self.data[addr..(addr + x.len())].copy_from_slice(x);
+        for i in 0..x.len() {
+            self.write_u8(addr + i, x[i] as isize)?;
+        }
         Ok(())
     }
 }

@@ -305,6 +305,18 @@
             "note": "One-tap short charge"
           }
         ]
+      },
+      {
+        "from_door": {
+          "name": "Ship",
+          "direction": "up",
+          "x": 4,
+          "y": 4,
+          "part_idx": 0,
+          "door_idx": 4,
+          "node_id": 5
+        },
+        "to": []
       }
     ]
   },
@@ -12665,6 +12677,30 @@
             "in_game_time": 13.00
           }
         ]
+      },
+      {
+        "from_door": {
+          "name": "East Pants Room Left Door (to Pants Room)",
+          "direction": "left",
+          "x": 1,
+          "y": 3,
+          "part_idx": 0,
+          "door_idx": 1,
+          "node_id": 3
+        },
+        "to": []
+      },
+      {
+        "from_door": {
+          "name": "Pants Room Left Leg Right Door (to East Pants Room)",
+          "direction": "right",
+          "x": 0,
+          "y": 3,
+          "part_idx": 0,
+          "door_idx": 2,
+          "node_id": 3
+        },
+        "to": []
       },
       {
         "from_door": {

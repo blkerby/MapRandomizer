@@ -186,8 +186,6 @@ pub fn apply_area_themed_palettes(rom: &mut Rom, game_data: &GameData) -> Result
     let pal_free_space_start_snes = 0xE18000;
     let pal_free_space_end_snes = pal_free_space_start_snes + 0x8000;
     let mut pal_free_space_snes = pal_free_space_start_snes;
-    rom.data
-        .resize(max(snes2pc(pal_free_space_end_snes), rom.data.len()), 0xFF);
 
     let mut next_tile_idx = 29;
     let mut tile_table: Vec<u8> = rom.read_n(snes2pc(0x8FE6A2), next_tile_idx * 9)?.to_vec();

@@ -2086,6 +2086,7 @@ impl GameData {
     fn load_escape_timings(&mut self, escape_timings_path: &Path) -> Result<()> {
         let escape_timings_str = std::fs::read_to_string(escape_timings_path)?;
         self.escape_timings = serde_json::from_str(&escape_timings_str)?;
+        assert_eq!(self.escape_timings.len(), self.room_geometry.len());
         Ok(())
     }
 
@@ -2216,7 +2217,7 @@ impl GameData {
             .load_room_geometry(room_geometry_path)
             .context("Unable to load room geometry")?;
         game_data.load_escape_timings(escape_timings_path)?;
-        game_data.base_room_door_graph = get_base_room_door_graph(&game_data);
+        game_data.base_room_door_graph = get_base_room_door_graph(&game_data.escape_timings);
         game_data.area_names = vec![
             "Crateria",
             "Brinstar",
