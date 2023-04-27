@@ -273,7 +273,7 @@ pub fn compute_escape_data(
     }
 
     let base_igt_seconds: f32 = (base_igt_frames as f32) / 60.0;
-    let base_leniency_factor: f32 = 1.15;
+    let base_leniency_factor: f32 = 1.2;
     let raw_time_seconds =
         base_igt_seconds * base_leniency_factor * difficulty.escape_timer_multiplier;
     let mut final_time_seconds = f32::ceil(raw_time_seconds / 5.0) * 5.0;
