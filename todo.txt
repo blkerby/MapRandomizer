@@ -18,6 +18,7 @@ priority:
 
 
 later:
+- fix how spoiler map sometimes won't show escape route
 - see if fast doors causes issues with Samus momentum across rooms (see examples from insomniaspeed)
 - see if it is possible to prevent song changes from messing up enemy behavior
 - show seed hash in main menu (to help in race setup to make sure everyone is using the same seed)

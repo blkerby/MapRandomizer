@@ -3,22 +3,22 @@
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-55---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 55 (???)</a>:
+<p><a href="https://version-55---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 55 (2023-04-27)</a>:
 <ul>
-<li>"Mother Brain fight" quality-of-life setting is reworked (affecting Mother Brain phases 2 and 3):
+<li>Reworked "Mother Brain fight" quality-of-life setting (affecting Mother Brain phases 2 and 3):
     <ul>
     <li>The option "Skip" corresponds to "Short Mother Brain fight" from previous versions.
     <li>A new option "Short" (now the default) ends the fight after the first rainbow beam. 
     </ul>
 <li>Escape timer is now based on actual room timings instead of a heuristic based on room geometry.
     <ul>
-    <li>This results in a more consistent (and typically somewhat higher) level of challenge.
+    <li>This results in a more consistent (and typically somewhat higher) level of difficulty.
     </ul>
 <li>An auto-save is now created at the start of the escape.
 <li>A new difficulty tier "Extreme" is added between "Expert" and "Insane".
     <ul>
     <li>X-ray climbing, long tunnel crawls, and crystal flash clips are moved from Expert into Extreme.
-    <li>G-mode tech is added to Extreme (though adding strats to logic is an early work-in-progress).
+    <li>Tech for glitched X-ray modes (G-mode, R-mode, X-mode) are added to Extreme. Adding strats to logic is still an early work-in-progress.
     </ul>
 <li>The interactive spoiler map now shows which parts of rooms are reachable on a given step.
 <li>A couple bugs are fixed relating to quick reloading:

@@ -74,7 +74,8 @@
       "canXrayWaitForIFrames",
       "canDownBack",
       "canPlayInSand",
-      "canHyperGateShot"
+      "canHyperGateShot",
+      "canSpaceJumpWaterBounce"
     ],
     "notable_strats": [
       "Early Supers Mockball",
@@ -147,7 +148,9 @@
       "canSamusEaterStandUp",
       "canSandfallBounce",
       "canEscapeSand",
-      "canSpringBallBombJump"
+      "canSpringBallBombJump",
+      "canPreciseGrapple",
+      "canSpaceJumpWaterEscape"
     ],
     "notable_strats": [
       "Pink Brinstar Power Bombs Crystal Flash Clip",
@@ -206,7 +209,8 @@
       "Bug Sand Hole Sand Jumps",
       "Pants Room Suitless MidAir SpringBall Jump with HiJump",
       "East Sand Hole Sandfall Bounce to Power Bombs",
-      "Bug Sand Hole Speedy Jump Morph"
+      "Bug Sand Hole Speedy Jump Morph",
+      "East Ocean Space Jump Water Escape with Ice (Left to Right)"
     ]
   },
   {
@@ -295,7 +299,8 @@
       "Colosseum Spike Platforming",
       "West Sand Hole Bootless Suitless IBJ",
       "Climb Speedkeep Chain Through Bomb Blocks",
-      "East Pants Room Suitless Puyo Clip"
+      "East Pants Room Suitless Puyo Clip",
+      "East Ocean Space Jump Water Escape (Left to Right)"
     ]
   },
   {
@@ -318,7 +323,9 @@
       "canEnterGMode",
       "canEnterGModeImmobile",
       "canArtificialMorph",
-      "canOffScreenMovement"
+      "canOffScreenMovement",
+      "canXMode",
+      "canSuperJump"
   ],
     "notable_strats": [
       "Green Hill Zone Tunnel Crawl",
@@ -330,7 +337,8 @@
       "Reverse Acid Statue CF Grapple Clip",
       "East Pants Room Suitless Crystal Flash Clip",
       "Botwoon Hallway Suitless Crystal Flash Clip",
-      "Writg X-Ray Climb"      
+      "Writg X-Ray Climb",
+      "West Ocean G-mode Overload PLMs by PBing Missile Item"
     ]
   },
   {

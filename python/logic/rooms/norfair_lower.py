@@ -81,7 +81,7 @@ rooms = [
         ],
         node_tiles={
             1: [(0, 0)],
-            2: [(0, 5)],
+            2: [(0, 4), (0, 5)],  # Include the extra tile (0, 4) to avoid having a skipped tile with Shinespark strats
             3: [(0, 1)],
             4: [(0, 3)],
             5: [(0, 2)],

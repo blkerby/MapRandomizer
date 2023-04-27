@@ -469,8 +469,9 @@ impl GameData {
                     "name": "canHyperGateShot",
                     "requires": [],
                     "note": [
-                        "Can shoot a gate from either side using Hyper Beam during the escape.",
-                        "This is easy to do; this tech just represents the player's knowledge that it can be done."
+                        "Can shoot blue & green gates from either side using Hyper Beam during the escape.",
+                        "This is easy to do; this tech just represents knowing it can be done.",
+                        "This is based on a randomizer patch applied on all settings (as in the vanilla game it isn't possible to open green gates using Hyper Beam.)"
                     ]
                 })?;
             }
@@ -1103,6 +1104,9 @@ impl GameData {
                     mode: mode.to_string(),
                     artificial_morph,
                 });
+            } else if key == "itemNotCollectedAtNode" {
+                // TODO: implement this
+                return Ok(Requirement::Free);
             }
         }
         bail!("Unable to parse requirement: {}", req_json);

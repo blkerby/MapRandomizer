@@ -735,7 +735,7 @@ pub fn apply_requirement(
                 if reserve_energy >= *min_reserve_energy {
                     let mut new_local = local;
                     new_local.reserves_used = global.max_reserves;
-                    new_local.energy_used = global.max_energy - reserve_energy;
+                    new_local.energy_used = max(0, global.max_energy - reserve_energy);
                     Some(new_local)
                 } else {
                     None
