@@ -525,7 +525,7 @@ impl<'a> Preprocessor<'a> {
                 let gmode_immobile_opt = self
                     .game_data
                     .node_gmode_immobile_map
-                    .get(&(other_room_id, other_node_id));
+                    .get(&(room_id, node_id));
                 if mode == "direct" || mode == "any" {
                     let leave_with_gmode_setup_vec = &self
                         .game_data

@@ -161,7 +161,6 @@ pub fn get_full_room_door_graph(
     let base = get_base_room_door_graph(game_data, difficulty);
     let mut door_ptr_pair_to_vertex: HashMap<DoorPtrPair, VertexId> = HashMap::new();
     for (room_idx, room) in game_data.room_geometry.iter().enumerate() {
-        println!("{}", room.name);
         for (door_idx, door) in room.doors.iter().enumerate() {
             let vertex_id = base.vertices.index_by_key[&(room_idx, door_idx)];
             let door_ptr_pair = (door.exit_ptr, door.entrance_ptr);

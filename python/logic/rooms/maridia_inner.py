@@ -352,8 +352,8 @@ rooms = [
         transient_part_connections=[(1, 0)],  # sand
         missing_part_connections=[(0, 1)],
         node_tiles={
-            1: [(0, 0)],
-            2: [(3, 0)],
+            1: [(0, 0), (1, 0)],
+            2: [(2, 0), (3, 0)],
             3: [(1, 0), (2, 0)],
         },
     ),

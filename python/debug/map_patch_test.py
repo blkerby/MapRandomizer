@@ -7,8 +7,8 @@ import io
 import os
 
 
-# input_rom_path = '/home/kerby/Downloads/Super Metroid (JU) [!].smc'
-input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.5.3-tinystates-ntsc.sfc'
+input_rom_path = '/home/kerby/Downloads/Super Metroid (JU) [!].smc'
+# input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.5.3-tinystates-ntsc.sfc'
 # input_rom_path = '/home/kerby/Downloads/Practice-v2.5.1-suits.sfc'
 # input_rom_path = '/home/kerby/Downloads/smmr-v8-66-115673117270825932886574167490559/smmr-v8-66-115673117270825932886574167490559.sfc'
 # input_rom_path = '/home/kerby/Downloads/smmr-v0-30-115673117270825932886574167490559.sfc'
@@ -29,9 +29,11 @@ area_arr = [rom.read_u8(room.rom_address + 1) for room in rooms]
 
 patches = [
     'new_game_extra',
-    'escape',
     'door_hurt',
-    'fast_big_boy_cutscene',
+    # 'complementary_suits',
+    'complementary_suits_noheat',
+    # 'escape',
+    # 'fast_big_boy_cutscene',
     # 'mb_barrier_clear',
     # 'mb_left_entrance',
     # 'gunport',
@@ -189,7 +191,11 @@ rom.write_u16(snes2pc(0x838060), 0xffff)
 # rom.write_u16(snes2pc(0x8FCBB7 + 8), 0x8000)
 
 # In Big Boy Room
-rom.write_u16(snes2pc(0x8FDCC3 + 8), 0x8000)
+# rom.write_u16(snes2pc(0x8FDCC3 + 8), 0x8000)
+
+# Connect Aqueduct right door to Pillar Room
+data = rom.read_n(snes2pc(0x839912), 12)
+rom.write_n(snes2pc(0x83A738), 12, data)
 
 
 #
