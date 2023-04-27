@@ -585,10 +585,10 @@ impl<'a> Preprocessor<'a> {
         }
 
         let out = Requirement::make_or(req_or_list);
-        println!(
-            "{} ({}) {:?} {}: {:?}",
-            self.game_data.room_json_map[&room_id]["name"], room_id, node_ids, link.strat_name, out
-        );
+        // println!(
+        //     "{} ({}) {:?} {}: {:?}",
+        //     self.game_data.room_json_map[&room_id]["name"], room_id, node_ids, link.strat_name, out
+        // );
         out
     }
 }

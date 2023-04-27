@@ -5,16 +5,16 @@ about 15 seconds to load.
 
 <p><a href="https://version-55---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 55 (???)</a>:
 <ul>
-<li>TODO: Escape timer is now based on actual room timings instead of a heuristic based on room geometry.
-    <ul>
-    <li>This results in a more consistent and typically higher level of challenge.
-    </ul>
-<li>An auto-save is now created at the start of the escape.
 <li>"Mother Brain fight" quality-of-life setting is reworked (affecting Mother Brain phases 2 and 3):
     <ul>
     <li>The option "Skip" corresponds to "Short Mother Brain fight" from previous versions.
     <li>A new option "Short" (now the default) ends the fight after the first rainbow beam. 
     </ul>
+<li>Escape timer is now based on actual room timings instead of a heuristic based on room geometry.
+    <ul>
+    <li>This results in a more consistent (and typically somewhat higher) level of challenge.
+    </ul>
+<li>An auto-save is now created at the start of the escape.
 <li>A new difficulty tier "Extreme" is added between "Expert" and "Insane".
     <ul>
     <li>X-ray climbing, long tunnel crawls, and crystal flash clips are moved from Expert into Extreme.

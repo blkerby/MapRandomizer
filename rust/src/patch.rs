@@ -95,9 +95,9 @@ impl Rom {
         );
         ensure!(x >= 0 && x <= 0xFF, "write_u8 data does not fit");
         self.data[addr] = x as u8;
-        if self.touched[addr] {
-            println!("Rewritten: {:x}", pc2snes(addr));
-        }
+        // if self.touched[addr] {
+        //     println!("Rewritten: {:x}", pc2snes(addr));
+        // }
         self.touched[addr] = true;
         Ok(())
     }
