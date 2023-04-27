@@ -124,7 +124,8 @@ function qualityOfLifePresetChanged() {
 }
 function qualityOfLifeSettingChanged() {
     document.getElementById("qualityOfLifeNo").checked = false;
-    document.getElementById("qualityOfLifeYes").checked = false;
+    document.getElementById("qualityOfLifeDefault").checked = false;
+    document.getElementById("qualityOfLifeMax").checked = false;
 }
 function itemProgressionPresetChanged() {
     if (document.getElementById("itemProgressionPresetQuick").checked) {

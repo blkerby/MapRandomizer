@@ -101,39 +101,6 @@ org $A986EE
 org $A9873A
     JSR brain_init
 
-; Free space in bank $A9:
-org $A9FE00
-body_init:
-    LDA #$0001
-    JSL $8081DC   ; Check if Mother Brain is marked dead (indicating we're respawning in escape). 
-    BCS .skip     ; If so, skip loading FX entry (acid) and spawning turrets.
-    
-    ; Finish vanilla Mother Brain body initialization:
-    JSL $89AB02            ;} Load FX entry index 1
-    LDA #$0000             ;\
-                           ;|
-    PHA                    ;|
-    LDY #$C17E             ;|
-    JSL $868097            ;} Spawn Ch Mother Brain's room turret enemy projectiles
-    PLA                    ;|
-    INC A                  ;|
-    CMP #$000C             ;|
-    BCC $F1                ;/
-.skip:
-
-    RTS
-
-brain_init:
-    LDA #$0001
-    JSL $8081DC   ; Check if Mother Brain is marked dead (indicating we're respawning in escape). 
-    BCC .skip     ; If not, continue with normal brain initialization.
-    
-    ; During respawn in escape room, move brain off-screen:
-    STZ $0FBA   ; Mother Brain's brain X position = 0
-    STZ $0FBE   ; Mother Brain's brain Y position = 0
-.skip
-    JSR $D1F8   ; run hi-jacked instruction
-    RTS
 
 ; Free space in bank $8F
 org $8FF800
@@ -222,5 +189,44 @@ autosave:
     LDA $0952   ; Use current save slot (which will be incremented by rolling-save code in saveload.asm)
     JSL $818000
 
-    STZ $0FBA   ; run hi-jacked instruction
+    ;STZ $0FBA   ; run hi-jacked instruction
+    LDA #$0000
     RTS
+
+body_init:
+    LDA #$0001
+    JSL $8081DC   ; Check if Mother Brain is marked dead (indicating we're respawning in escape). 
+    BCS .skip     ; If so, skip loading FX entry (acid) and spawning turrets.
+    
+    ; Finish vanilla Mother Brain body initialization:
+    JSL $89AB02            ;} Load FX entry index 1
+    LDA #$0000             ;\
+                           ;|
+    PHA                    ;|
+    LDY #$C17E             ;|
+    JSL $868097            ;} Spawn Ch Mother Brain's room turret enemy projectiles
+    PLA                    ;|
+    INC A                  ;|
+    CMP #$000C             ;|
+    BCC $F1                ;/
+.skip:
+
+    RTS
+
+brain_init:
+    LDA #$0001
+    JSL $8081DC   ; Check if Mother Brain is marked dead (indicating we're respawning in escape). 
+    BCC .skip     ; If not, continue with normal brain initialization.
+    
+    ; During respawn in escape room, move brain off-screen:
+    STZ $0FBA   ; Mother Brain's brain X position = 0
+    STZ $0FBE   ; Mother Brain's brain Y position = 0
+
+    ; Acquire hyper beam
+    LDA #$0003
+    JSL $91E4AD    
+.skip
+    JSR $D1F8   ; run hi-jacked instruction
+    RTS
+
+warnpc $A9FE00
