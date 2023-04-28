@@ -199,6 +199,7 @@ body_init:
     BCS .skip     ; If so, skip loading FX entry (acid) and spawning turrets.
     
     ; Finish vanilla Mother Brain body initialization:
+    LDA #$0001
     JSL $89AB02            ;} Load FX entry index 1
     LDA #$0000             ;\
                            ;|

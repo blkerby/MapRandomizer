@@ -43,15 +43,15 @@ executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
 # num_envs = 1
 num_envs = 2 ** 11
-# rooms = logic.rooms.crateria_isolated.rooms
-rooms = logic.rooms.norfair_isolated.rooms
+rooms = logic.rooms.crateria_isolated.rooms
+# rooms = logic.rooms.norfair_isolated.rooms
 # rooms = logic.rooms.all_rooms.rooms
 episode_length = len(rooms)
 
-# map_x = 32
-# map_y = 32
-map_x = 72
-map_y = 72
+map_x = 32
+map_y = 32
+# map_x = 72
+# map_y = 72
 # map_x = 48
 # map_y = 48
 
@@ -66,7 +66,8 @@ envs = [MazeBuilderEnv(rooms,
                        num_envs=num_envs,
                        device=device,
                        must_areas_be_connected=False,
-                       starting_room_name="Business Center")
+                       starting_room_name="Landing Site")
+                       # starting_room_name="Business Center")
         for device in devices]
 
 max_possible_reward = envs[0].max_reward
@@ -351,7 +352,7 @@ num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in sessio
 hist_c = 1.0
 hist_frac = 0.5
 batch_size = 2 ** 9
-lr0 = 0.002
+lr0 = 0.001
 lr1 = 0.0002
 num_candidates0 = 4
 num_candidates1 = 16
