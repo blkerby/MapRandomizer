@@ -3,6 +3,13 @@
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-56---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 56 (2023-04-28)</a>:
+<ul>
+<li>Mother Brain Room has acid again (fixes a bug introduced in version 55).
+<li>Quick reload (L + R + Select + Start) can be used to cycle through previous saves.
+<li>When using quick reload during the death animation, audio is now less glitchy.
+</ul>
+
 <p><a href="https://version-55---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 55 (2023-04-27)</a>:
 <ul>
 <li>Reworked "Mother Brain fight" quality-of-life setting (affecting Mother Brain phases 2 and 3):

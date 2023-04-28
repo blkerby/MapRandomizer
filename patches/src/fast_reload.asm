@@ -23,8 +23,8 @@ deathhook:
     lda #$0001
     sta !QUICK_RELOAD ; Currently "quick reloading"
     jsl $82be17       ; Stop sounds
-	lda $0952         ; Load saveslot
-    jsl $818085       ; Load savefile
+    jsl load_save_slot
+    lda $0952
 	jsl $80858C		  ; load map
 
     ; In case we're on an elevator ride, reset this state so that Samus will have control after the reload:
@@ -34,7 +34,7 @@ deathhook:
     sta $0998         ; Goto game mode 6 (load game)
     plp
     rts
-
+    
 warnpc $82DDF1
 
 ; Hook main gameplay
@@ -84,14 +84,21 @@ check_reload:
     PHP
     REP #$30
     PHA
+
+    ; Disable quick reload during the Samus fanfare at the start of the game (or when loading game from menu)
+    lda $0A44
+    cmp #$E86A
+    beq .noreset
+
     lda $8B      ; Controller 1 input
     and #$3030   ; L + R + Select + Start
     cmp #$3030
-    beq reset
+    beq .reset
+.noreset
     PLA
     PLP
     RTL
-reset:
+.reset:
     PLA
     PLP
     jsr deathhook
@@ -158,6 +165,7 @@ setup_game_3:
     pla
     jsl $80982a
     stz !QUICK_RELOAD
+
     lda $07c9
     cmp $07f5
     bne .loadmusic
@@ -166,17 +174,24 @@ setup_game_3:
     bne .loadmusic
     jml $80a122
 
+
 .loadmusic
     lda $07c9
     sta $07f5
     lda $07cb
     sta $07f3    
 
+    ; Stop music before starting new track. This prevents audio glitchiness in case the death track is playing.
+    lda #$0000
+    jsl $808FC1
+
     lda $07cb
     ora #$ff00
     jsl $808fc1
+
     lda $07c9
     jsl $808fc1
+
 
     jml $80a122
 
@@ -190,6 +205,42 @@ setup_samus:
 .normal    
     lda $09c2
     sta $0a12
+    rtl
+
+; Determine which save slot to load from:
+set_save_slot:
+    lda $0E18       ; Check if we are on an elevator ride
+    bne .done       ; If so, just load the current save (in spite of Samus facing forward, don't go back to previous save.)
+    lda $0A1C       ; Check if Samus is still facing forward (initial state after loading)
+    beq .forward     
+    cmp #$009B
+    beq .forward
+
+    ; Load current save slot:
+    lda #$0952
+    jml $818085
+
+.forward:
+    ; Samus still facing forward, so we'll go back to previous save:
+    lda $0952
+    jsl $80818E       ; Convert bit index into bitmask
+    lda $05E7
+    ora $0954
+    sta $0954
+
+.previous:
+    lda $0952         ; Load saveslot
+    beq .cycle
+    dec               ; Decrease save slot by 1
+    bra .check
+
+.cycle:
+    lda #$0002        ; Wrap back around to save slot 2
+
+.check:
+    sta $0952
+    jsl $818085
+    bcs .previous     ; If slot is empty/corrupt, go back to previous save again.
     rtl
 
 warnpc $A18000
