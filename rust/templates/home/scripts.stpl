@@ -92,6 +92,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("allItemsSpawnNo").checked = true;
         document.getElementById("fastElevatorsNo").checked = true;
         document.getElementById("fastDoorsNo").checked = true;
+        document.getElementById("fastPauseMenuNo").checked = true;
     }
     if (document.getElementById("qualityOfLifeDefault").checked) {
         document.getElementById("supersDoubleYes").checked = true;
@@ -106,6 +107,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("allItemsSpawnYes").checked = true;
         document.getElementById("fastElevatorsYes").checked = true;
         document.getElementById("fastDoorsYes").checked = true;
+        document.getElementById("fastPauseMenuYes").checked = true;
     }    
     if (document.getElementById("qualityOfLifeMax").checked) {
         document.getElementById("supersDoubleYes").checked = true;
@@ -120,6 +122,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("allItemsSpawnYes").checked = true;
         document.getElementById("fastElevatorsYes").checked = true;
         document.getElementById("fastDoorsYes").checked = true;
+        document.getElementById("fastPauseMenuYes").checked = true;
     }    
 }
 function qualityOfLifeSettingChanged() {

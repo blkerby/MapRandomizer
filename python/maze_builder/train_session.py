@@ -137,7 +137,7 @@ class TrainingSession():
         return expected, raw_logodds
 
     def generate_round_inner(self, model, episode_length: int, num_candidates: int, temperature: torch.tensor,
-                             explore_eps: torch.tensor,
+                             temperature_decay: float, explore_eps: torch.tensor,
                              env_id, render, executor) -> EpisodeData:
         device = self.envs[env_id].device
         env = self.envs[env_id]
@@ -175,7 +175,9 @@ class TrainingSession():
             #                               action_expected)  # Give dummy move negligible probability except where it is the only choice
             #
             # print(action_expected)
-            probs = torch.softmax(action_expected / torch.unsqueeze(temperature, 1), dim=1)
+
+            curr_temperature = temperature * temperature_decay ** (j / (episode_length - 1))
+            probs = torch.softmax(action_expected / torch.unsqueeze(curr_temperature, 1), dim=1)
             candidate_count = torch.sum(probs > 0, dim=1)
             candidate_count1 = torch.sum(action_candidates[:, :, 0] != len(env.rooms) - 1, dim=1)
             # candidate_count = torch.clamp_min(torch.sum(action_candidates[:, :, 0] != len(env.rooms) - 1, dim=1), 1)
@@ -238,6 +240,7 @@ class TrainingSession():
         return episode_data
 
     def generate_round_model(self, model, episode_length: int, num_candidates: int, temperature: torch.tensor,
+                             temperature_decay: float,
                              explore_eps: torch.tensor,
                              executor: concurrent.futures.ThreadPoolExecutor,
                              render=False) -> EpisodeData:
@@ -247,7 +250,7 @@ class TrainingSession():
             model = model_list[i]
             # print("gen", i, env.device, model.state_value_lin.weight.device)
             future = executor.submit(lambda i=i, model=model: self.generate_round_inner(
-                model, episode_length, num_candidates, temperature, explore_eps, render=render, env_id=i, executor=executor))
+                model, episode_length, num_candidates, temperature, temperature_decay, explore_eps, render=render, env_id=i, executor=executor))
             futures_list.append(future)
         episode_data_list = [future.result() for future in futures_list]
         for env in self.envs:
@@ -266,6 +269,7 @@ class TrainingSession():
         )
 
     def generate_round(self, episode_length: int, num_candidates: int, temperature: torch.tensor,
+                       temperature_decay: float,
                        explore_eps: torch.tensor,
                        executor: Optional[concurrent.futures.ThreadPoolExecutor] = None,
                        render=False) -> EpisodeData:
@@ -274,6 +278,7 @@ class TrainingSession():
                                              episode_length=episode_length,
                                              num_candidates=num_candidates,
                                              temperature=temperature,
+                                             temperature_decay=temperature_decay,
                                              explore_eps=explore_eps,
                                              executor=executor,
                                              render=render)

@@ -42,7 +42,7 @@ device = devices[0]
 executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
 # num_envs = 1
-num_envs = 2 ** 11
+num_envs = 2 ** 12
 rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.norfair_isolated.rooms
 # rooms = logic.rooms.all_rooms.rooms
@@ -351,25 +351,26 @@ num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in sessio
 # session.replay_buffer.resize(2 ** 23)
 hist_c = 1.0
 hist_frac = 0.5
-batch_size = 2 ** 9
+batch_size = 2 ** 10
 lr0 = 0.001
-lr1 = 0.0002
+lr1 = 0.0001
 num_candidates0 = 4
-num_candidates1 = 16
+num_candidates1 = 8
+temperature_decay = 0.1
 # num_candidates0 = 40
 # num_candidates1 = 40
 explore_eps_factor = 0.0
 # temperature_min = 0.02
 # temperature_max = 2.0
-temperature_min0 = 10.0
-temperature_min1 = 0.1
-temperature_max0 = 1000.0
-temperature_max1 = 10.0
+temperature_min0 = 100.0
+temperature_min1 = 1.0
+temperature_max0 = 10000.0
+temperature_max1 = 100.0
 annealing_start = 0
 annealing_time = 512
 pass_factor0 = 0.0
 pass_factor1 = 2.0
-print_freq = 8
+print_freq = 4
 total_reward = 0
 total_loss = 0.0
 total_loss_cnt = 0
@@ -378,8 +379,8 @@ total_prob = 0.0
 total_prob0 = 0.0
 total_round_cnt = 0
 total_min_door_frac = 0
-save_freq = 256
-summary_freq = 256
+save_freq = 128
+summary_freq = 128
 session.decay_amount = 0.01
 session.optimizer.param_groups[0]['betas'] = (0.9, 0.9)
 session.optimizer.param_groups[0]['eps'] = 1e-5
@@ -387,19 +388,21 @@ ema_beta0 = 0.99
 ema_beta1 = 0.9999
 session.average_parameters.beta = 0.995
 
-def compute_door_connect_counts(only_success: bool):
+def compute_door_connect_counts(only_success: bool, ind=None):
     batch_size = 1024
-    num_batches = session.replay_buffer.size // batch_size
+    if ind is None:
+        ind = torch.arange(session.replay_buffer.size)
+    num_batches = ind.shape[0] // batch_size
     num_rooms = len(rooms)
     counts = None
     for i in range(num_batches):
         start = i * batch_size
         end = (i + 1) * batch_size
-        batch_action = session.replay_buffer.episode_data.action[start:end]
-        batch_reward = session.replay_buffer.episode_data.reward[start:end]
+        batch_ind = ind[start:end]
+        batch_action = session.replay_buffer.episode_data.action[batch_ind]
+        batch_reward = session.replay_buffer.episode_data.reward[batch_ind]
         if only_success:
-            mask = batch_reward == max_possible_reward
-            # mask = batch_reward == max_possible_reward - 2
+            mask = (batch_reward == max_possible_reward)
         else:
             mask = torch.tensor(True)
         masked_batch_action = batch_action[mask]
@@ -480,6 +483,7 @@ for i in range(1000000):
         episode_length=episode_length,
         num_candidates=num_candidates,
         temperature=temperature,
+        temperature_decay=temperature_decay,
         explore_eps=explore_eps,
         executor=executor,
         render=False)
@@ -640,6 +644,9 @@ for i in range(1000000):
                 temp_low, temp_high, max_possible_reward - buffer_mean_reward, max_possible_reward - buffer_max_reward,
                 buffer_frac_max, buffer_mean_test_loss, buffer_mean_prob, buffer_mean_prob0, ind.shape[0], buffer_mean_temp
             ))
+            counts = compute_door_connect_counts(only_success=True, ind=ind)
+            display_counts(counts, 10, False)
+        logging.info("Overall:")
         counts = compute_door_connect_counts(only_success=True)
         display_counts(counts, 10, False)
 

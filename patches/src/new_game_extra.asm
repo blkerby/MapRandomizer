@@ -33,6 +33,10 @@ start_game:
     ; Initialize the load station and area/map-area:
     ;    stz $078B : stz $079f : stz $1f5b
 
+    ; Initialize areas explored
+    lda #$003F
+    sta $7FFE02
+
     ; temporary extra stuff:
     lda #$F32F
 ;    lda #$E32F  ; (except Bombs)

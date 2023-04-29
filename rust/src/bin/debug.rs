@@ -27,7 +27,8 @@ fn main() -> Result<()> {
     let sm_json_data_path = Path::new("../sm-json-data");
     let room_geometry_path = Path::new("../room_geometry.json");
     let palette_path = Path::new("../palettes.json");
-    let game_data = GameData::load(sm_json_data_path, room_geometry_path, palette_path)?;
+    let escape_timings_path = Path::new("data/escape_timings.json");
+    let game_data = GameData::load(sm_json_data_path, room_geometry_path, palette_path, escape_timings_path)?;
 
     // let vertex_id_src = game_data.vertex_isv.index_by_key[&(77, 1, 0)];
     // let vertex_id_dst = game_data.vertex_isv.index_by_key[&(77, 3, 3)];
@@ -102,6 +103,7 @@ fn main() -> Result<()> {
         all_items_spawn: true,
         fast_elevators: true,
         fast_doors: true,
+        fast_pause_menu: true,
         objectives: Objectives::Bosses,
         debug_options: None,
     };
