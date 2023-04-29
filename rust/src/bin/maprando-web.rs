@@ -26,7 +26,7 @@ use rand::{RngCore, SeedableRng};
 use sailfish::TemplateOnce;
 use serde_derive::{Deserialize, Serialize};
 
-const VERSION: usize = 56;
+const VERSION: usize = 57;
 const VISUALIZER_PATH: &'static str = "../visualizer/";
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -191,6 +191,7 @@ struct RandomizeRequest {
     all_items_spawn: Text<bool>,
     fast_elevators: Text<bool>,
     fast_doors: Text<bool>,
+    fast_pause_menu: Text<bool>,
 }
 
 #[derive(MultipartForm)]
@@ -223,6 +224,7 @@ struct SeedData {
     all_items_spawn: bool,
     fast_elevators: bool,
     fast_doors: bool,
+    fast_pause_menu: bool,
     objectives: String,
 }
 
@@ -258,6 +260,7 @@ struct SeedHeaderTemplate<'a> {
     all_items_spawn: bool,
     fast_elevators: bool,
     fast_doors: bool,
+    fast_pause_menu: bool,
     objectives: String,
 }
 
@@ -321,6 +324,7 @@ fn render_seed(seed_name: &str, seed_data: &SeedData) -> Result<(String, String)
         all_items_spawn: seed_data.all_items_spawn,
         fast_elevators: seed_data.fast_elevators,
         fast_doors: seed_data.fast_doors,
+        fast_pause_menu: seed_data.fast_pause_menu,
         objectives: seed_data.objectives.clone(),
     };
     let seed_header_html = seed_header_template.render_once()?;
@@ -617,6 +621,7 @@ fn get_difficulty_tiers(
             all_items_spawn: difficulty.all_items_spawn,
             fast_elevators: difficulty.fast_elevators,
             fast_doors: difficulty.fast_doors,
+            fast_pause_menu: difficulty.fast_pause_menu,
             objectives: difficulty.objectives,
             debug_options: difficulty.debug_options.clone(),
         };
@@ -766,6 +771,7 @@ async fn randomize(
         all_items_spawn: req.all_items_spawn.0,
         fast_elevators: req.fast_elevators.0,
         fast_doors: req.fast_doors.0,
+        fast_pause_menu: req.fast_pause_menu.0,
         objectives: match req.objectives.0.as_str() {
             "Bosses" => Objectives::Bosses,
             "Minibosses" => Objectives::Minibosses,
@@ -852,6 +858,7 @@ async fn randomize(
         all_items_spawn: req.all_items_spawn.0,
         fast_elevators: req.fast_elevators.0,
         fast_doors: req.fast_doors.0,
+        fast_pause_menu: req.fast_pause_menu.0,
         objectives: req.objectives.0.clone(),
     };
 

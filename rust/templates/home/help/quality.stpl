@@ -14,11 +14,11 @@
       <div class="modal-body">
         <p>These options help provide a smoother, more intuitive, and less tedious game experience.</p>
 
-        <p>Players wanting a full experience of exploration may want to disable these options. Three presets are provided:</p>
+        <p>Players wanting a full experience of exploration may want to disable some of these options. Three presets are provided:</p>
 
         <p><ul>
         <li><strong>No</strong>: All quality-of-life options are turned off.
-        <li><strong>Default</strong>: All quality-of-life options are turned to their highest settings, except that the Mother Brain fight is set to "Short" instead of "Skipped".
+        <li><strong>Default</strong>: Quality-of-life options are turned to their generally recommended settings (mostly on).
         <li><strong>Max</strong>: All quality-of-life options are turned on to their highest settings.    
         </ul></p>
 

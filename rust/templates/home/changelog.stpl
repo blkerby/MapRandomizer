@@ -3,6 +3,14 @@
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-57---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 57 (2023-04-29)</a>:
+<ul>
+<li>Maps of other explored areas can be viewed in the pause menu by pressing Select.
+<li>Quality-of-life option "Fast pause menu" is added (enabled by default).
+<li>TODO: Quality-of-life option "Transition letters instead of arrows" is added (disabled by default).
+<li>TODO: Area names in pause menu are colored the same as the transition arrows or letters.
+</ul>
+
 <p><a href="https://version-56---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 56 (2023-04-28)</a>:
 <ul>
 <li>Mother Brain Room has acid again (fixes a bug introduced in version 55).

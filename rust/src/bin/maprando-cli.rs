@@ -147,6 +147,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         all_items_spawn: true,
         fast_elevators: true,
         fast_doors: true,
+        fast_pause_menu: true,
         objectives: Objectives::Bosses,
         debug_options: Some(DebugOptions {
             new_game_extra: true,

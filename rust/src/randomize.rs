@@ -101,6 +101,7 @@ pub struct DifficultyConfig {
     pub all_items_spawn: bool,
     pub fast_elevators: bool,
     pub fast_doors: bool,
+    pub fast_pause_menu: bool,
     // Objectives:
     pub objectives: Objectives,
     #[serde(skip_serializing_if = "Option::is_none")]
