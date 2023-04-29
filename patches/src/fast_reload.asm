@@ -6,8 +6,8 @@
 !deathhook82 = $82DDC7 ;$82 used for death hook (game state $19)
 
 ;free space: make sure it doesnt override anything you have
-!freespace82_start = $82F800
-!freespace82_end = $82F880
+!freespace82_start = $82FA00
+!freespace82_end = $82FA80
 !freespacea0 = $a0fe00 ;$A0 used for instant save reload
 
 !QUICK_RELOAD = $1f60 ;dont need to touch this
@@ -23,7 +23,7 @@ deathhook:
     lda #$0001
     sta !QUICK_RELOAD ; Currently "quick reloading"
     jsl $82be17       ; Stop sounds
-    jsl load_save_slot
+    jsl set_save_slot
     lda $0952
 	jsl $80858C		  ; load map
 
@@ -210,7 +210,7 @@ setup_samus:
 ; Determine which save slot to load from:
 set_save_slot:
     lda $0E18       ; Check if we are on an elevator ride
-    bne .done       ; If so, just load the current save (in spite of Samus facing forward, don't go back to previous save.)
+    bne .check       ; If so, just load the current save (in spite of Samus facing forward, don't go back to previous save.)
     lda $0A1C       ; Check if Samus is still facing forward (initial state after loading)
     beq .forward     
     cmp #$009B
