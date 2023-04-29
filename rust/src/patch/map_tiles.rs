@@ -273,8 +273,16 @@ impl<'a> MapPatcher<'a> {
 
     fn index_vanilla_tiles(&mut self) -> Result<()> {
         self.index_basic(0x10, W, W, E, P, V)?; // Elevator: walls on left & right; passage on bottom
+        // let tile = self.render_basic_tile(BasicTile { left: W, right: W, up: E, down: P, interior: V })?;
+        // self.write_tile_4bpp(0x10, tile)?;
+
         self.index_basic(0x4F, W, W, W, P, V)?; // Elevator: walls on left, right, & top; passage on bottom
+        // let tile = self.render_basic_tile(BasicTile { left: W, right: W, up: W, down: P, interior: V })?;
+        // self.write_tile_4bpp(0x4F, tile)?;
+        
         self.index_basic(0x5F, P, P, P, W, V)?; // Elevator: passages on left, right, & top; wall on bottom
+        // let tile = self.render_basic_tile(BasicTile { left: P, right: P, up: P, down: W, interior: V })?;
+        // self.write_tile_4bpp(0x5F, tile)?;
 
         self.index_basic(0x1B, E, E, E, E, O)?; // Empty tile with no walls
         self.index_basic(0x20, W, W, W, W, O)?; // Empty tile with wall on all four sides
@@ -342,8 +350,9 @@ impl<'a> MapPatcher<'a> {
                 data[5][5] = 1;
             }
             Interior::Elevator => {
-                data[5][3] = 3;
-                data[5][4] = 3;
+                // Use white instead of red for elevator platform:
+                data[5][3] = 2;
+                data[5][4] = 2;
             }
         }
         Ok(data)
@@ -985,8 +994,12 @@ impl<'a> MapPatcher<'a> {
 
         let extended_map_palette: Vec<(u8, u16)> = vec![
             (5, rgb(0, 24, 0)),   // Brinstar green
-            (8, rgb(12, 18, 26)), // Maridia blue
+            // (8, rgb(12, 18, 26)), // Maridia blue
+            (8, rgb(6, 12, 31)), // Maridia blue
             (9, rgb(24, 25, 0)),  // Wrecked Ship yellow
+            (6, rgb(16, 2, 27)),  // Crateria purple
+            // (12, rgb(4, 4, 4)),  // Dotted grid lines
+            (12, rgb(5, 5, 5)),  // Dotted grid lines
         ];
 
         for &(i, color) in &extended_map_palette {
@@ -996,9 +1009,11 @@ impl<'a> MapPatcher<'a> {
                 .write_u16(snes2pc(0xB6F000) + 2 * (0x30 + i as usize), color as isize)?;
         }
 
+        // 12: dotted grid lines
+
         // Set up arrows of different colors (one per area):
         let area_arrow_colors: Vec<usize> = vec![
-            15, // Crateria: dark gray (from vanilla palette)
+            6, // Crateria: purple
             5,  // Brinstar: green (defined above)
             3,  // Norfair: red (from vanilla palette)
             9,  // Wrecked Ship: yellow (defined above)

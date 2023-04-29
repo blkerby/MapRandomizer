@@ -64,7 +64,8 @@ org $82DE80
     jmp $DE89
 warnpc $82DE89
 
-org $828D08
+;org $828D08
+org $828D4B
     jsr pause_start_hook
 
 org $82936A
@@ -79,18 +80,22 @@ org $82910A : jsr (PauseRoutineIndex,x)
 org $829125
     jsr check_start_select
 
+org $829E38
+    jsr horizontal_scroll_hook
 
 ;;; Put new code in free space at end of bank $82:
 org $82F70F
 
 ;;; X = room header pointer
 load_area:
+    phx
+    phy
+
     ;;; Load the original area number into $079F
     lda $0001,x
     and #$00FF
     sta $079F
     ;;; Load the new area number (for use in map) into $1F5B
-    phy
     asl
     tay
     lda $E99B, y
@@ -102,15 +107,14 @@ load_area:
     sta $1F5B
 
     ; mark area as explored (determinines set of valid area maps to cycle through in pause menu):
-    phx
     jsl $80818E    ; convert map area to bitmask
     lda $05E7      ; load bitmask
     ora $7FFE02    ; combine with area explored mask
     sta $7FFE02    ; update area explored mask
-    plx
-    
+
     lda $1F5B
     ply
+    plx
     rtl
 
 
@@ -121,13 +125,16 @@ PauseRoutineIndex:
 pause_start_hook:
     lda $1F5B
     sta !backup_area  ; back up map area
-    jsl $8085C6  ; mirror current map explored bits
-    jsr $8D51  ; run hi-jacked instruction
+    jsr update_pause_map_palette
+    jsl $8085C6  ; save current map explored bits
+    ;jsr $8D51  ; run hi-jacked instruction
+    inc $0998  ; run hi-jacked instruction
     rts
 
 pause_end_hook:
     lda !backup_area
     sta $1F5B  ; restore map area
+    jsl $80858C ; restore map explored bits
     jsr $A2BE  ; run hi-jacked instruction
     rts
 
@@ -158,15 +165,54 @@ check_start_select:
 
 switch_map_area:
     jsr next_area
+    jsr update_pause_map_palette
 	jsl $80858C     ;load explored bits for area
     jsl $8293C3		;update area label and construct new area map
-	jsl $829028		;set map scroll boundaries and screen starting position
-
+    lda #$0080
+	jsr $9E27		;set map scroll boundaries and screen starting position
+    
     LDA #$0000             ;\
     STA $0723             ;} Screen fade delay = 0
 
     inc $0727
     rts
+
+update_pause_map_palette:
+    lda $1F5B
+    asl
+    tax
+;    lda area_palettes_unexplored, x
+    ; Set unexplored color to gray:
+    ;lda #$18C6
+    lda #$1CE7
+    sta $7EC062
+
+    ; Set explored color based on area:
+    lda area_palettes_explored, x
+    sta $7EC042
+
+;    ; Set elevator platform color to white (instead of red)
+;    lda #$7FFF
+;    sta $7EC066    
+;    sta $7EC046
+    rts
+
+;area_palettes_unexplored:
+;    dw $2446  ; Crateria
+;    dw $0100  ; Brinstar
+;    dw $000A  ; Norfair
+;    dw $0108  ; Wrecked Ship
+;    dw $2882  ; Maridia
+;    dw $1CE7  ; Tourian
+;
+area_palettes_explored:
+;    dw $680F  ; Crateria
+    dw $6C50  ; Crateria
+    dw $02A0  ; Brinstar
+    dw $0019  ; Norfair
+    dw $02D5  ; Wrecked Ship
+    dw $7D86  ; Maridia
+    dw $5294  ; Tourian
 
 
 next_area:
@@ -193,5 +239,12 @@ draw_samus_indicator:
 .skip:
     rts
 
+horizontal_scroll_hook:
+    ; round BG1 scroll X to a multiple of 8, to make grid lines consistently align with tiles:
+    sbc #$0080   ; run hi-jacked instruction
+    and #$FFF8
+    inc $09c6
+    rts
 
-warnpc $82F800
+warnpc $82F880
+
