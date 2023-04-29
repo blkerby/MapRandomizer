@@ -210,7 +210,7 @@ area_palettes_explored:
     dw $6C50  ; Crateria
     dw $02A0  ; Brinstar
     dw $0019  ; Norfair
-    dw $02D5  ; Wrecked Ship
+    dw $02F6  ; Wrecked Ship
     dw $7D86  ; Maridia
     dw $5294  ; Tourian
 
