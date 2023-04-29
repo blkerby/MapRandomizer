@@ -243,7 +243,6 @@ horizontal_scroll_hook:
     ; round BG1 scroll X to a multiple of 8, to make grid lines consistently align with tiles:
     sbc #$0080   ; run hi-jacked instruction
     and #$FFF8
-    inc $09c6
     rts
 
 warnpc $82F880
