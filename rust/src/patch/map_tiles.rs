@@ -100,6 +100,23 @@ impl<'a> MapPatcher<'a> {
         }
     }
 
+    fn read_tile_2bpp(&self, idx: usize) -> Result<[[u8; 8]; 8]> {
+        let base_addr = snes2pc(0x9AB200); // Location of HUD tile GFX in ROM
+        let mut out: [[u8; 8]; 8] = [[0; 8]; 8];
+        for y in 0..8 {
+            let addr = base_addr + idx * 16 + y * 2;
+            let data_low = self.rom.read_u8(addr)?;
+            let data_high = self.rom.read_u8(addr + 1)?;
+            for x in 0..8 {
+                let bit_low = (data_low >> (7 - x)) & 1;
+                let bit_high = (data_high >> (7 - x)) & 1;
+                let c = bit_low | (bit_high << 1);
+                out[y][x] = c as u8;
+            }
+        }
+        Ok(out)
+    }
+
     fn write_tiles(&mut self) -> Result<()> {
         let mut reserved_tiles: HashSet<TilemapWord> = vec![
             // Used on HUD:
@@ -1016,12 +1033,11 @@ impl<'a> MapPatcher<'a> {
         }
 
         let extended_map_palette: Vec<(u8, u16)> = vec![
-            (5, rgb(0, 24, 0)),   // Brinstar green
-            // (8, rgb(12, 18, 26)), // Maridia blue
-            (8, rgb(6, 12, 31)), // Maridia blue
-            (9, rgb(24, 25, 0)),  // Wrecked Ship yellow
+            (5, rgb(0, 21, 0)),   // Brinstar green
+            (3, rgb(25, 0, 0)),  // Norfair red
+            (8, rgb(8, 14, 31)), // Maridia blue
+            (9, rgb(23, 22, 0)),  // Wrecked Ship yellow
             (6, rgb(16, 2, 27)),  // Crateria purple
-            // (12, rgb(4, 4, 4)),  // Dotted grid lines
             (12, rgb(5, 5, 5)),  // Dotted grid lines
         ];
 
@@ -1032,13 +1048,11 @@ impl<'a> MapPatcher<'a> {
                 .write_u16(snes2pc(0xB6F000) + 2 * (0x30 + i as usize), color as isize)?;
         }
 
-        // 12: dotted grid lines
-
         // Set up arrows of different colors (one per area):
         let area_arrow_colors: Vec<usize> = vec![
-            6, // Crateria: purple
+            6,  // Crateria: purple (defined above)
             5,  // Brinstar: green (defined above)
-            3,  // Norfair: red (from vanilla palette)
+            3,  // Norfair: red (defined above)
             9,  // Wrecked Ship: yellow (defined above)
             8,  // Maridia: blue (defined above)
             14, // Tourian: light gray (from vanilla palette)
@@ -1193,12 +1207,39 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
+    fn fix_message_boxes(&mut self) -> Result<()> {
+        // Fix message boxes GFX: use white letters (color 3) instead of dark gray (color 1)
+        for idx in 0xC0..0x100 {
+            let mut data = self.read_tile_2bpp(idx)?;
+            for y in 0..8 {
+                for x in 0..8 {
+                    if data[y][x] == 1 {
+                        data[y][x] = 2;
+                    }
+                }
+            }
+            self.write_tile_2bpp(idx, data, false)?;
+        }
+
+        // Fix message boxes tilemaps: use palette 3 instead of 2
+        for addr in (snes2pc(0x85877F)..snes2pc(0x859641)).step_by(2) {
+            let mut word = self.rom.read_u16(addr)?;
+            let pal = (word >> 10) & 7;
+            if pal == 2 {
+                word |= 0x0400;
+                self.rom.write_u16(addr, word)?;
+            }
+        }
+        Ok(())
+    }
+
     pub fn apply_patches(&mut self) -> Result<()> {
         self.index_vanilla_tiles()?;
         self.fix_elevators()?;
         self.fix_item_dots()?;
         self.fix_walls()?;
         self.fix_etank_color()?;
+        self.fix_message_boxes()?;
         self.indicate_passages()?;
         self.indicate_doors()?;
         self.indicate_special_tiles()?;

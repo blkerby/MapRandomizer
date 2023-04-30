@@ -144,6 +144,7 @@ pause_start_hook:
     lda $1F5B
     sta !backup_area  ; back up map area
     jsr update_pause_map_palette
+    jsr set_hud_map_colors
     jsl $8085C6  ; save current map explored bits
     ;jsr $8D51  ; run hi-jacked instruction
     inc $0998  ; run hi-jacked instruction
@@ -200,20 +201,26 @@ update_pause_map_palette:
     asl
     tax
 ;    lda area_palettes_unexplored, x
+
     ; Set unexplored color to gray:
     ;lda #$18C6
     lda #$1CE7
     sta $7EC062
 
+    ; Set color 3 to black (instead of red)
+    lda #$0000
+    sta $7EC066
+    sta $7EC046
+
     ; Set explored color based on area:
     lda area_palettes_explored, x
     sta $7EC042
 
-    lda !backup_area
-    cmp $1F5B
-    bne .skip_hud_color
-    lda area_palettes_explored, x
-    sta $7EC012  ; set the 
+;    lda !backup_area
+;    cmp $1F5B
+;    bne .skip_hud_color
+;    lda area_palettes_explored, x
+;    sta $7EC012  ; set the current area HUD color
 
 .skip_hud_color:
 ;    ; Set elevator platform color to white (instead of red)
@@ -231,12 +238,11 @@ update_pause_map_palette:
 ;    dw $1CE7  ; Tourian
 ;
 area_palettes_explored:
-;    dw $680F  ; Crateria
     dw $6C50  ; Crateria
     dw $02A0  ; Brinstar
     dw $0019  ; Norfair
-    dw $02F6  ; Wrecked Ship
-    dw $7D86  ; Maridia
+    dw $02D7  ; Wrecked Ship
+    dw $79C8  ; Maridia
     dw $5294  ; Tourian
 
 
@@ -309,7 +315,7 @@ door_transition_hook:
     rts
 
 set_hud_map_colors:
-    ; Set target colors for HUD map:
+    ; Set colors for HUD map:
     lda $1F5B
     asl
     tax
