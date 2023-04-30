@@ -355,17 +355,17 @@ batch_size = 2 ** 10
 lr0 = 0.001
 lr1 = 0.0001
 num_candidates0 = 4
-num_candidates1 = 16
-temperature_decay = 0.05
+num_candidates1 = 8
+temperature_decay = 0.01
 # num_candidates0 = 40
 # num_candidates1 = 40
 explore_eps_factor = 0.0
 # temperature_min = 0.02
 # temperature_max = 2.0
-temperature_min0 = 200.0
-temperature_min1 = 2.0
-temperature_max0 = 20000.0
-temperature_max1 = 200.0
+temperature_min0 = 1000.0
+temperature_min1 = 10.0
+temperature_max0 = 100000.0
+temperature_max1 = 1000.0
 annealing_start = 0
 annealing_time = 512
 pass_factor0 = 0.0
@@ -453,10 +453,10 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 logging.info("Checkpoint path: {}".format(pickle_name))
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
 logging.info(
-    "map_x={}, map_y={}, num_envs={}, batch_size={}, pass_factor0={}, pass_factor1={}, lr0={}, lr1={}, num_candidates0={}, num_candidates1={}, replay_size={}/{}, hist_frac={}, hist_c={}, num_params={}, decay_amount={}, temperature_min0={}, temperature_min1={}, temperature_max0={}, temperature_max1={}, ema_beta0={}, ema_beta1={}, explore_eps_factor={}, annealing_time={}".format(
+    "map_x={}, map_y={}, num_envs={}, batch_size={}, pass_factor0={}, pass_factor1={}, lr0={}, lr1={}, num_candidates0={}, num_candidates1={}, replay_size={}/{}, hist_frac={}, hist_c={}, num_params={}, decay_amount={}, temperature_min0={}, temperature_min1={}, temperature_max0={}, temperature_max1={}, temperature_decay={}, ema_beta0={}, ema_beta1={}, explore_eps_factor={}, annealing_time={}".format(
         map_x, map_y, session.envs[0].num_envs, batch_size, pass_factor0, pass_factor1, lr0, lr1, num_candidates0, num_candidates1, session.replay_buffer.size,
         session.replay_buffer.capacity, hist_frac, hist_c, num_params, session.decay_amount,
-        temperature_min0, temperature_min1, temperature_max0, temperature_max1, ema_beta0, ema_beta1, explore_eps_factor,
+        temperature_min0, temperature_min1, temperature_max0, temperature_max1, temperature_decay, ema_beta0, ema_beta1, explore_eps_factor,
         annealing_time))
 logging.info("Starting training")
 for i in range(1000000):

@@ -2,6 +2,7 @@ arch snes.cpu
 lorom
 
 !backup_area = $1F62
+!unexplored_gray = #$2529
 
 ;;; Hijack map usages of area ($079F) with new area ($1F5B)
 org $8085A7  ; Load mirror of current area's map explored
@@ -203,8 +204,7 @@ update_pause_map_palette:
 ;    lda area_palettes_unexplored, x
 
     ; Set unexplored color to gray:
-    ;lda #$18C6
-    lda #$1CE7
+    lda !unexplored_gray
     sta $7EC062
 
     ; Set color 3 to black (instead of red)
@@ -222,27 +222,14 @@ update_pause_map_palette:
 ;    lda area_palettes_explored, x
 ;    sta $7EC012  ; set the current area HUD color
 
-.skip_hud_color:
-;    ; Set elevator platform color to white (instead of red)
-;    lda #$7FFF
-;    sta $7EC066    
-;    sta $7EC046
     rts
 
-;area_palettes_unexplored:
-;    dw $2446  ; Crateria
-;    dw $0100  ; Brinstar
-;    dw $000A  ; Norfair
-;    dw $0108  ; Wrecked Ship
-;    dw $2882  ; Maridia
-;    dw $1CE7  ; Tourian
-;
 area_palettes_explored:
     dw $6C50  ; Crateria
-    dw $02A0  ; Brinstar
+    dw $02E0  ; Brinstar
     dw $0019  ; Norfair
-    dw $02D7  ; Wrecked Ship
-    dw $79C8  ; Maridia
+    dw $02D8  ; Wrecked Ship
+    dw $7E44  ; Maridia
     dw $5294  ; Tourian
 
 
@@ -289,11 +276,15 @@ load_tileset_palette_hook:
 palette_clear_hook:
     lda $C016  ; preserve pink color for full E-tank energy squares (2-bit palette 2, color 3, black in vanilla)
     sta $C216
+
+;    lda $C03C  ; preserve off-white color in Samus indicator (2-bit palette 7, color 1)
+;    sta $C23C
+
     lda $C014  ; run hi-jacked instruction
     rts
 
 load_target_palette:
-    ; Prevent HUD map colors from gradually changing (to blue/pink) during door transition:
+    ; Prevent HUD map colors from gradually changing (e.g. to blue/pink) during door transition:
     lda $7EC01A  ; unexplored gray
     sta $7EC21A
 
@@ -302,6 +293,13 @@ load_target_palette:
 
     lda $7EC016  ; pink color for full E-tank energy squares (using color 3, used for black in vanilla)
     sta $7EC216
+
+ ;   lda $7EC03A
+ ;   sta $7EC23A
+
+;    lda $7EC03C
+;    sta $7EC23C
+
     rts
 
 load_target_palette_hook:
@@ -321,7 +319,7 @@ set_hud_map_colors:
     tax
 
     ; Set unexplored color to gray:
-    lda #$1CE7
+    lda !unexplored_gray
     sta $7EC01A
 
     ; Set explored color based on area:
@@ -329,25 +327,40 @@ set_hud_map_colors:
     sta $7EC012
 
     ; Set explored color 3 to pink color for full E-tank energy squares (used for black in vanilla)
-    lda #$48FB   
+    lda #$48FB
     sta $7EC016
+;    sta $7EC01E
+
+;    ; Set unexplored color 3 to pink color for full E-tank energy squares (used for black in vanilla)
+;    sta $7EC01E
+
+;    ; Set Samus marker to solid white instead of orange/red (palette 7, colors 1-2)
+;    lda #$7FFF
+;    sta $7EC03A
+;    lda #$6318
+;    sta $7EC03C
 
     rts
 
-warnpc $82F880
+warnpc $82F900
 
-; Pause menu: Pink color for full E-tank energy squares in HUD
+;; Pause menu: Samus indicator in HUD (palette 7, colors 1-2)
+;org $B6F03A
+;    dw $7FFF
+;    dw $6318
+
+; Pause menu: Pink color for full E-tank energy squares in HUD (palette 2, color 3)
 org $B6F016
     dw $48FB
 
-; Pause menu: Black color for color 3 (explored palette)
+; Pause menu: Gray color for unexplored tiles in HUD (palette 3, color 1)
+org $B6F01A
+    dw !unexplored_gray
+
+; Pause menu: Black color for 4bpp color 3 (palette 2 - explored)
 org $B6F046
     dw $0000
 
-; Pause menu: Black color for color 3 (unexplored palette)
+; Pause menu: Black color for 4bpp color 3 (palette 3 - unexplored)
 org $B6F066
     dw $0000
-
-; Pause menu: Gray color for unexplored tiles in HUD
-org $B6F01A
-    dw $1CE7

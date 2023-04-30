@@ -45,7 +45,7 @@ patches = [
     # 'bomb_torizo',
     # 'decompression',
     # 'fast_reload',
-    # 'hud_expansion_opaque',
+    'hud_expansion_opaque',
     # 'hud_expansion_transparent',
     # 'mb_barrier',
     # 'mb_barrier_clear',
@@ -72,7 +72,7 @@ patches = [
     # 'no_explosions_before_escape',
     # 'escape_room_1',
     # 'unexplore',
-    # 'max_ammo_display',
+    'max_ammo_display',
     # 'missile_refill_all',
     # 'sound_effect_disables',
 ]

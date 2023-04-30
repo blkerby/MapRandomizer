@@ -1033,10 +1033,10 @@ impl<'a> MapPatcher<'a> {
         }
 
         let extended_map_palette: Vec<(u8, u16)> = vec![
-            (5, rgb(0, 21, 0)),   // Brinstar green
+            (5, rgb(0, 23, 0)),   // Brinstar green
             (3, rgb(25, 0, 0)),  // Norfair red
-            (8, rgb(8, 14, 31)), // Maridia blue
-            (9, rgb(23, 22, 0)),  // Wrecked Ship yellow
+            (8, rgb(4, 18, 31)), // Maridia blue
+            (9, rgb(24, 22, 0)),  // Wrecked Ship yellow
             (6, rgb(16, 2, 27)),  // Crateria purple
             (12, rgb(5, 5, 5)),  // Dotted grid lines
         ];
@@ -1233,13 +1233,94 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
+    fn fix_hud_black(&mut self) -> Result<()> {
+        // Use color 0 instead of color 3 for black in HUD map tiles:
+        for idx in 0..0x80 {
+            if idx == 0x0F {
+                continue;
+            }
+            let mut tile = self.read_tile_2bpp(idx)?;
+            for y in 0..8 {
+                for x in 0..8 {
+                    if tile[y][x] == 3 {
+                        tile[y][x] = 0;
+                    }
+                }
+            }
+            self.write_tile_2bpp(idx, tile, false)?;
+        }
+        Ok(())
+    }
+
+    fn darken_hud_grid(&mut self) -> Result<()> {
+        // In HUD tiles, replace the white dotted grid lines with dark gray ones.
+        self.write_tile_2bpp(0x1C, [
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0, 0, 0],
+        ], false)?;
+        self.write_tile_2bpp(0x1D, [
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 0, 1, 0, 1, 0, 1, 0],
+        ], false)?;
+        self.write_tile_2bpp(0x1E, [
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0, 0, 0],
+        ], false)?;
+        self.write_tile_2bpp(0x1F, [
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 0, 1, 0, 1, 0, 1, 0],
+        ], false)?;
+
+        // Patch slope tiles:
+        let coords = vec![
+            (0x28, vec![(4, 7), (6, 7)]),
+            (0x29, vec![(0, 1), (0, 3), (0, 5)]),
+            (0x2A, vec![(0, 5), (0, 7), (2, 7), (4, 7), (6, 7)]),
+            (0x2B, vec![(0, 1)]),
+        ];
+        for (idx, v) in coords {
+            let mut tile = self.read_tile_2bpp(idx)?;
+            for (x, y) in v {
+                tile[y][x] = 1;
+            }
+            self.write_tile_2bpp(idx, tile, false)?;
+        }
+        Ok(())
+    }
+
     pub fn apply_patches(&mut self) -> Result<()> {
         self.index_vanilla_tiles()?;
         self.fix_elevators()?;
         self.fix_item_dots()?;
         self.fix_walls()?;
-        self.fix_etank_color()?;
         self.fix_message_boxes()?;
+        self.fix_hud_black()?;
+        self.darken_hud_grid()?;
+        self.fix_etank_color()?;
         self.indicate_passages()?;
         self.indicate_doors()?;
         self.indicate_special_tiles()?;
