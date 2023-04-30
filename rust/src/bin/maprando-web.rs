@@ -378,25 +378,15 @@ async fn save_seed(
         files.push(SeedFile::new("public/spoiler.json", spoiler_bytes));
 
         // Write the spoiler maps
-        let spoiler_map_assigned = spoiler_map::get_spoiler_map(
+        let spoiler_maps = spoiler_map::get_spoiler_map(
             &output_rom,
             &randomization.map,
             &app_data.game_data,
-            false,
         )
         .unwrap();
-        files.push(SeedFile::new(
-            "public/map-assigned.png",
-            spoiler_map_assigned,
-        ));
-        let spoiler_map_vanilla = spoiler_map::get_spoiler_map(
-            &output_rom,
-            &randomization.map,
-            &app_data.game_data,
-            true,
-        )
-        .unwrap();
-        files.push(SeedFile::new("public/map-vanilla.png", spoiler_map_vanilla));
+        files.push(SeedFile::new("public/map-assigned.png", spoiler_maps.assigned));
+        files.push(SeedFile::new("public/map-vanilla.png", spoiler_maps.vanilla));
+        files.push(SeedFile::new("public/map-grid.png", spoiler_maps.grid));
 
         // Write the spoiler visualizer
         for (filename, data) in &app_data.visualizer_files {

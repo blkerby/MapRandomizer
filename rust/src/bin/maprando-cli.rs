@@ -214,13 +214,14 @@ fn main() -> Result<()> {
         std::fs::write(output_spoiler_log_path, spoiler_str)?;
     }
 
+    let spoiler_maps = spoiler_map::get_spoiler_map(&output_rom, &randomization.map, &game_data)?;
+
     if let Some(output_spoiler_map_assigned_path) = &args.output_spoiler_map_assigned {
         println!(
             "Writing spoiler map (assigned areas) to {}",
             output_spoiler_map_assigned_path.display()
         );
-        let spoiler_map_assigned =
-            spoiler_map::get_spoiler_map(&output_rom, &randomization.map, &game_data, false)?;
+        let spoiler_map_assigned = spoiler_maps.assigned.clone();
         std::fs::write(output_spoiler_map_assigned_path, spoiler_map_assigned)?;
     }
 
@@ -229,8 +230,7 @@ fn main() -> Result<()> {
             "Writing spoiler map (vanilla areas) to {}",
             output_spoiler_map_vanilla_path.display()
         );
-        let spoiler_map_vanilla =
-            spoiler_map::get_spoiler_map(&output_rom, &randomization.map, &game_data, true)?;
+        let spoiler_map_vanilla = spoiler_maps.vanilla.clone();
         std::fs::write(output_spoiler_map_vanilla_path, spoiler_map_vanilla)?;
     }
 
