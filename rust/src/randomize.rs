@@ -97,6 +97,7 @@ pub struct DifficultyConfig {
     pub escape_movement_items: bool,
     pub escape_enemies_cleared: bool,
     pub mark_map_stations: bool,
+    pub transition_letters: bool,
     pub item_markers: ItemMarkers,
     pub all_items_spawn: bool,
     pub fast_elevators: bool,

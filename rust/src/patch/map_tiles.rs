@@ -402,14 +402,14 @@ impl<'a> MapPatcher<'a> {
         }
 
         let elevator_tile_pause: [[u8; 8]; 8] = [
-            [0, 2, 1, 3, 3, 1, 2, 0],
-            [0, 2, 3, 3, 3, 3, 2, 0],
-            [0, 2, 1, 3, 3, 1, 2, 0],
-            [0, 2, 3, 3, 3, 3, 2, 0],
-            [0, 2, 1, 3, 3, 1, 2, 0],
-            [0, 2, 3, 3, 3, 3, 2, 0],
-            [0, 2, 1, 3, 3, 1, 2, 0],
-            [0, 2, 3, 3, 3, 3, 2, 0],
+            [0, 2, 1, 4, 4, 1, 2, 0],
+            [0, 2, 4, 4, 4, 4, 2, 0],
+            [0, 2, 1, 4, 4, 1, 2, 0],
+            [0, 2, 4, 4, 4, 4, 2, 0],
+            [0, 2, 1, 4, 4, 1, 2, 0],
+            [0, 2, 4, 4, 4, 4, 2, 0],
+            [0, 2, 1, 4, 4, 1, 2, 0],
+            [0, 2, 4, 4, 4, 4, 2, 0],
         ];
         let elevator_tile_hud: [[u8; 8]; 8] = [
             [0, 2, 1, 0, 0, 1, 2, 0],
@@ -1024,6 +1024,41 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
+    fn add_door_letter(
+        &mut self,
+        room_idx: usize,
+        door: &RoomGeometryDoor,
+        letter_tile: TilemapWord,
+    ) -> Result<()> {
+        let dir = &door.direction;
+        let x = door.x as isize;
+        let y = door.y as isize;
+        if dir == "right" {
+            self.patch_room(
+                &self.game_data.room_geometry[room_idx].name,
+                vec![(x + 1, y, letter_tile)],
+            )?;
+        } else if dir == "left" {
+            self.patch_room(
+                &self.game_data.room_geometry[room_idx].name,
+                vec![(x - 1, y, letter_tile)],
+            )?;
+        } else if dir == "down" {
+            self.patch_room(
+                &self.game_data.room_geometry[room_idx].name,
+                vec![(x, y + 1, letter_tile)],
+            )?;
+        } else if dir == "up" {
+            self.patch_room(
+                &self.game_data.room_geometry[room_idx].name,
+                vec![(x, y - 1, letter_tile)],
+            )?;
+        } else {
+            bail!("Unrecognized door direction: {dir}");
+        }
+        Ok(())
+    }
+
     fn add_cross_area_arrows(&mut self) -> Result<()> {
         // Replace colors to palette used for map tiles in the pause menu, for drawing arrows marking
         // cross-area connections:
@@ -1057,6 +1092,70 @@ impl<'a> MapPatcher<'a> {
             8,  // Maridia: blue (defined above)
             14, // Tourian: light gray (from vanilla palette)
         ];
+
+        let letter_tiles: Vec<[[u8; 8]; 8]> = vec![
+            [
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 3, 3, 3, 3, 0, 0],
+                [0, 3, 3, 0, 0, 3, 3, 0],
+                [0, 3, 3, 0, 0, 0, 0, 0],
+                [0, 3, 3, 0, 0, 0, 0, 0],
+                [0, 3, 3, 0, 0, 3, 3, 0],
+                [0, 0, 3, 3, 3, 3, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 3, 3, 3, 3, 3, 0, 0],
+                [0, 3, 3, 0, 0, 3, 3, 0],
+                [0, 3, 3, 3, 3, 3, 0, 0],
+                [0, 3, 3, 0, 0, 3, 3, 0],
+                [0, 3, 3, 0, 0, 3, 3, 0],
+                [0, 3, 3, 3, 3, 3, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 3, 3, 0, 0, 0, 3, 0],
+                [0, 3, 3, 3, 0, 0, 3, 0],
+                [0, 3, 3, 3, 3, 0, 3, 0],
+                [0, 3, 3, 0, 3, 3, 3, 0],
+                [0, 3, 3, 0, 0, 3, 3, 0],
+                [0, 3, 3, 0, 0, 0, 3, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 3, 3, 0, 0, 0, 3, 0],
+                [0, 3, 3, 0, 0, 0, 3, 0],
+                [0, 3, 3, 0, 3, 0, 3, 0],
+                [0, 3, 3, 3, 3, 3, 3, 0],
+                [0, 3, 3, 3, 0, 3, 3, 0],
+                [0, 3, 3, 0, 0, 0, 3, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 3, 3, 0, 0, 0, 3, 0],
+                [0, 3, 3, 3, 0, 3, 3, 0],
+                [0, 3, 3, 3, 3, 3, 3, 0],
+                [0, 3, 3, 0, 3, 0, 3, 0],
+                [0, 3, 3, 0, 0, 0, 3, 0],
+                [0, 3, 3, 0, 0, 0, 3, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+            ],
+            [
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 3, 3, 3, 3, 3, 3, 0],
+                [0, 0, 0, 3, 3, 0, 0, 0],
+                [0, 0, 0, 3, 3, 0, 0, 0],
+                [0, 0, 0, 3, 3, 0, 0, 0],
+                [0, 0, 0, 3, 3, 0, 0, 0],
+                [0, 0, 0, 3, 3, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+            ],
+        ];
+
         let right_arrow_tile: [[u8; 8]; 8] = [
             [0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 3, 0, 0],
@@ -1080,18 +1179,30 @@ impl<'a> MapPatcher<'a> {
 
         let mut right_arrow_tile_idxs: Vec<TilemapWord> = Vec::new();
         let mut down_arrow_tile_idxs: Vec<TilemapWord> = Vec::new();
-        for area in 0..NUM_AREAS {
-            let color_number = area_arrow_colors[area] as u8;
+        let mut letter_tile_idxs: Vec<TilemapWord> = Vec::new();
+        if self.randomization.difficulty.transition_letters {
+            for area in 0..NUM_AREAS {
+                let color_number = area_arrow_colors[area] as u8;
+    
+                let letter_tile_data =
+                    letter_tiles[area].map(|row| row.map(|c| if c == 3 { color_number } else { c }));
+                let letter_tile_idx = self.create_tile(letter_tile_data)?;
+                letter_tile_idxs.push(letter_tile_idx);
+            }
+        } else {
+            for area in 0..NUM_AREAS {
+                let color_number = area_arrow_colors[area] as u8;
+    
+                let right_tile_data =
+                    right_arrow_tile.map(|row| row.map(|c| if c == 3 { color_number } else { c }));
+                let right_tile_idx = self.create_tile(right_tile_data)?;
+                right_arrow_tile_idxs.push(right_tile_idx);
 
-            let right_tile_data =
-                right_arrow_tile.map(|row| row.map(|c| if c == 3 { color_number } else { c }));
-            let right_tile_idx = self.create_tile(right_tile_data)?;
-            right_arrow_tile_idxs.push(right_tile_idx);
-
-            let down_tile_data =
-                down_arrow_tile.map(|row| row.map(|c| if c == 3 { color_number } else { c }));
-            let down_tile_idx = self.create_tile(down_tile_data)?;
-            down_arrow_tile_idxs.push(down_tile_idx);
+                let down_tile_data =
+                    down_arrow_tile.map(|row| row.map(|c| if c == 3 { color_number } else { c }));
+                let down_tile_idx = self.create_tile(down_tile_data)?;
+                down_arrow_tile_idxs.push(down_tile_idx);
+            }    
         }
 
         for (src_ptr_pair, dst_ptr_pair, _) in &self.map.doors {
@@ -1102,18 +1213,31 @@ impl<'a> MapPatcher<'a> {
             let src_area = self.map.area[src_room_idx];
             let dst_area = self.map.area[dst_room_idx];
             if src_area != dst_area {
-                self.add_door_arrow(
-                    src_room_idx,
-                    &self.game_data.room_geometry[src_room_idx].doors[src_door_idx],
-                    right_arrow_tile_idxs[dst_area],
-                    down_arrow_tile_idxs[dst_area],
-                )?;
-                self.add_door_arrow(
-                    dst_room_idx,
-                    &self.game_data.room_geometry[dst_room_idx].doors[dst_door_idx],
-                    right_arrow_tile_idxs[src_area],
-                    down_arrow_tile_idxs[src_area],
-                )?;
+                if self.randomization.difficulty.transition_letters {
+                    self.add_door_letter(
+                        src_room_idx,
+                        &self.game_data.room_geometry[src_room_idx].doors[src_door_idx],
+                        letter_tile_idxs[dst_area],
+                    )?;
+                    self.add_door_letter(
+                        dst_room_idx,
+                        &self.game_data.room_geometry[dst_room_idx].doors[dst_door_idx],
+                        letter_tile_idxs[src_area],
+                    )?;
+                } else {
+                    self.add_door_arrow(
+                        src_room_idx,
+                        &self.game_data.room_geometry[src_room_idx].doors[src_door_idx],
+                        right_arrow_tile_idxs[dst_area],
+                        down_arrow_tile_idxs[dst_area],
+                    )?;
+                    self.add_door_arrow(
+                        dst_room_idx,
+                        &self.game_data.room_geometry[dst_room_idx].doors[dst_door_idx],
+                        right_arrow_tile_idxs[src_area],
+                        down_arrow_tile_idxs[src_area],
+                    )?;    
+                }
             }
         }
         Ok(())
@@ -1305,7 +1429,7 @@ impl<'a> MapPatcher<'a> {
         for (idx, v) in coords {
             let mut tile = self.read_tile_2bpp(idx)?;
             for (x, y) in v {
-                tile[y][x] = 1;
+                tile[y][x] = 0;
             }
             self.write_tile_2bpp(idx, tile, false)?;
         }

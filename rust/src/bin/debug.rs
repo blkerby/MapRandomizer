@@ -99,6 +99,7 @@ fn main() -> Result<()> {
         escape_enemies_cleared: true,
         escape_movement_items: true,
         mark_map_stations: true,
+        transition_letters: false,
         item_markers: ItemMarkers::ThreeTiered,
         all_items_spawn: true,
         fast_elevators: true,
