@@ -1,5 +1,5 @@
 use anyhow::Result;
-use image::{Rgb, RgbImage};
+use image::{Rgb, RgbImage, Rgba, RgbaImage};
 use std::io::Cursor;
 
 use crate::{
@@ -81,26 +81,33 @@ fn get_color(value: u8, area: usize) -> Rgb<u8> {
     }
 }
 
+pub struct SpoilerMaps {
+    pub assigned: Vec<u8>,
+    pub vanilla: Vec<u8>,
+    pub grid: Vec<u8>,
+}
+
 pub fn get_spoiler_map(
     rom: &Rom,
     map: &Map,
     game_data: &GameData,
-    use_vanilla_area: bool,
-) -> Result<Vec<u8>> {
+) -> Result<SpoilerMaps> {
     let max_tiles = 72;
     let width = (max_tiles + 2) * 8;
     let height = (max_tiles + 2) * 8;
-    let mut img = RgbImage::new(width, height);
-    let grid_rgb = Rgb([0x29, 0x29, 0x29]);
+    let mut img_assigned = RgbImage::new(width, height);
+    let mut img_vanilla = RgbImage::new(width, height);
+    let mut img_grid = RgbaImage::new(width, height);
+    let grid_val = Rgba([0x21, 0x21, 0x21, 0xFF]);
 
     for y in (7..height).step_by(8) {
         for x in (0..width).step_by(2) {
-            img.put_pixel(x, y, grid_rgb);
+            img_grid.put_pixel(x, y, grid_val);
         }
     }
     for x in (0..width).step_by(8) {
         for y in (1..height).step_by(2) {
-            img.put_pixel(x, y, grid_rgb);
+            img_grid.put_pixel(x, y, grid_val);
         }
     }
 
@@ -131,29 +138,41 @@ pub fn get_spoiler_map(
                     for x in 0..8 {
                         let x1 = (global_room_x + local_x + 1) * 8 + x;
                         let y1 = (global_room_y + local_y + 1) * 8 + y;
-                        if tile[y][x] == 0 {
-                            // Skip drawing transparent color
-                            continue;
+                        if tile[y][x] != 0 {
+                            img_grid.put_pixel(x1 as u32, y1 as u32, Rgba([0x00, 0x00, 0x00, 0x00]));
                         }
-                        if use_vanilla_area {
-                            img.put_pixel(
-                                x1 as u32,
-                                y1 as u32,
-                                get_color(tile[y][x], vanilla_area),
-                            );
-                        } else {
-                            img.put_pixel(x1 as u32, y1 as u32, get_color(tile[y][x], map_area));
-                        }
+                        img_vanilla.put_pixel(
+                            x1 as u32,
+                            y1 as u32,
+                            get_color(tile[y][x], vanilla_area),
+                        );
+                        img_assigned.put_pixel(x1 as u32, y1 as u32, get_color(tile[y][x], map_area));
                     }
                 }
             }
         }
     }
 
-    let mut output_bytes: Vec<u8> = Vec::new();
-    img.write_to(
-        &mut Cursor::new(&mut output_bytes),
+    let mut vec_assigned: Vec<u8> = Vec::new();
+    img_assigned.write_to(
+        &mut Cursor::new(&mut vec_assigned),
         image::ImageOutputFormat::Png,
     )?;
-    Ok(output_bytes)
+
+    let mut vec_vanilla: Vec<u8> = Vec::new();
+    img_vanilla.write_to(
+        &mut Cursor::new(&mut vec_vanilla),
+        image::ImageOutputFormat::Png,
+    )?;
+
+    let mut vec_grid: Vec<u8> = Vec::new();
+    img_grid.write_to(
+        &mut Cursor::new(&mut vec_grid),
+        image::ImageOutputFormat::Png,
+    )?;
+    Ok(SpoilerMaps {
+        assigned: vec_assigned,
+        vanilla: vec_vanilla,
+        grid: vec_grid,
+    })
 }

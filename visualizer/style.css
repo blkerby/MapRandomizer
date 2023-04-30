@@ -34,11 +34,20 @@ body {
 	transform: translate(var(--tx), var(--ty));
 	z-index: 2;
 }
+#grid-overlay {
+	position: absolute;
+	pointer-events: none;
+	width: 1776px;
+	image-rendering: pixelated;
+	top: 0;
+	left: 0;
+	z-index: 2;
+}
 .popup, #room-info, #sidebar-info {
 	position: relative;
 	color: #eee;
 	background-color: #222222aa;
-	z-index: 2;
+	z-index: 3;
 	border: 2px solid #222;
 	border-radius: 2px;
 	padding: 2px;
