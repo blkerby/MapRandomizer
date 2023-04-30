@@ -1,9 +1,11 @@
-use std::io::Cursor;
 use anyhow::Result;
 use image::{Rgb, RgbImage};
+use std::io::Cursor;
 
-use crate::{game_data::{Map, GameData}, patch::{Rom, xy_to_map_offset, snes2pc}};
-
+use crate::{
+    game_data::{GameData, Map},
+    patch::{snes2pc, xy_to_map_offset, Rom},
+};
 
 // fn read_tile_2bpp(rom: &Rom, base_addr: usize, idx: usize) -> Result<[[u8; 8]; 8]> {
 //     let mut out: [[u8; 8]; 8] = [[0; 8]; 8];
@@ -34,13 +36,12 @@ fn read_tile_4bpp(rom: &Rom, base_addr: usize, idx: usize) -> Result<[[u8; 8]; 8
             let bit_1 = (data_1 >> (7 - x)) & 1;
             let bit_2 = (data_2 >> (7 - x)) & 1;
             let bit_3 = (data_3 >> (7 - x)) & 1;
-            let c = bit_0 | (bit_1 << 1) | (bit_2 << 1) | (bit_3 << 1);
+            let c = bit_0 | (bit_1 << 1) | (bit_2 << 2) | (bit_3 << 3);
             out[y][x] = c as u8;
         }
     }
     Ok(out)
 }
-
 
 fn render_tile(rom: &Rom, tilemap_word: u16) -> Result<[[u8; 8]; 8]> {
     let idx = (tilemap_word & 0x3FF) as usize;
@@ -64,26 +65,44 @@ fn get_color(value: u8, area: usize) -> Rgb<u8> {
         0 => Rgb([0x00, 0x00, 0x00]),
         1 => {
             match area {
-                0 => Rgb([0x84, 0x10, 0xDE]),  // Crateria
-                1 => Rgb([0x00, 0xBD, 0x00]),  // Brinstar
-                2 => Rgb([0xCE, 0x00, 0x00]),  // Norfair
-                3 => Rgb([0xC6, 0xB5, 0x00]),  // Wrecked Ship
-                4 => Rgb([0x21, 0x94, 0xFC]),  // Maridia
-                5 => Rgb([0xA5, 0xA5, 0xA5]),  // Tourian
-                _ => panic!("Unexpected area {}", area)
+                0 => Rgb([0x84, 0x10, 0xDE]), // Crateria
+                1 => Rgb([0x00, 0xBD, 0x00]), // Brinstar
+                2 => Rgb([0xCE, 0x00, 0x00]), // Norfair
+                3 => Rgb([0xC6, 0xB5, 0x00]), // Wrecked Ship
+                4 => Rgb([0x21, 0x94, 0xFC]), // Maridia
+                5 => Rgb([0xA5, 0xA5, 0xA5]), // Tourian
+                _ => panic!("Unexpected area {}", area),
             }
-        },
+        }
         2 => Rgb([0xFF, 0xFF, 0xFF]),
         3 => Rgb([0x00, 0x00, 0x00]),
-        _ => panic!("Unexpected color value {}", value)
+        4 => Rgb([0x00, 0x00, 0x00]),
+        _ => panic!("Unexpected color value {}", value),
     }
 }
 
-pub fn get_spoiler_map(rom: &Rom, map: &Map, game_data: &GameData, use_vanilla_area: bool) -> Result<Vec<u8>> {
+pub fn get_spoiler_map(
+    rom: &Rom,
+    map: &Map,
+    game_data: &GameData,
+    use_vanilla_area: bool,
+) -> Result<Vec<u8>> {
     let max_tiles = 72;
     let width = (max_tiles + 2) * 8;
     let height = (max_tiles + 2) * 8;
     let mut img = RgbImage::new(width, height);
+    let grid_rgb = Rgb([0x29, 0x29, 0x29]);
+
+    for y in (7..height).step_by(8) {
+        for x in (0..width).step_by(2) {
+            img.put_pixel(x, y, grid_rgb);
+        }
+    }
+    for x in (0..width).step_by(8) {
+        for y in (1..height).step_by(2) {
+            img.put_pixel(x, y, grid_rgb);
+        }
+    }
 
     for room_idx in 0..map.rooms.len() {
         let room = &game_data.room_geometry[room_idx];
@@ -112,8 +131,16 @@ pub fn get_spoiler_map(rom: &Rom, map: &Map, game_data: &GameData, use_vanilla_a
                     for x in 0..8 {
                         let x1 = (global_room_x + local_x + 1) * 8 + x;
                         let y1 = (global_room_y + local_y + 1) * 8 + y;
+                        if tile[y][x] == 0 {
+                            // Skip drawing transparent color
+                            continue;
+                        }
                         if use_vanilla_area {
-                            img.put_pixel(x1 as u32, y1 as u32, get_color(tile[y][x], vanilla_area));
+                            img.put_pixel(
+                                x1 as u32,
+                                y1 as u32,
+                                get_color(tile[y][x], vanilla_area),
+                            );
                         } else {
                             img.put_pixel(x1 as u32, y1 as u32, get_color(tile[y][x], map_area));
                         }
@@ -122,8 +149,11 @@ pub fn get_spoiler_map(rom: &Rom, map: &Map, game_data: &GameData, use_vanilla_a
             }
         }
     }
-    
+
     let mut output_bytes: Vec<u8> = Vec::new();
-    img.write_to(&mut Cursor::new(&mut output_bytes), image::ImageOutputFormat::Png)?;
+    img.write_to(
+        &mut Cursor::new(&mut output_bytes),
+        image::ImageOutputFormat::Png,
+    )?;
     Ok(output_bytes)
 }

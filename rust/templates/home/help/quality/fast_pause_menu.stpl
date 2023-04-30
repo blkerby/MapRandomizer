@@ -1,0 +1,33 @@
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-light mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#fastPauseMenuModal">
+<i class="bi bi-question-circle"></i>
+</button>
+
+<!-- Modal -->
+<div class="modal" id="fastPauseMenuModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">Fast pause menu</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>If enabled, this increases the speed and responsiveness of pause menu navigation:</p>
+        <p><ul>
+        <li>It is no longer needed to hold L, R, or Start for 4 frames for these inputs to have their effect.
+        <li>The fade-in of the pause menu is faster.
+        <li>Fade-in and fade-out are faster when switching between map and equipment screens with L & R.
+        <li>Fade-in and fade-out are faster when switching between maps with Select.
+        </ul></p>
+        <p>Changes are avoided that could meaningfully affect pause buffering strats or game behavior:</p>
+        <ul>
+        <li>Fade-in and fade-out of gameplay (before and after pause) are unaffected.
+        <li>Fade-out of pause menu is unaffected except for the elimination of the 4-frame delay.
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

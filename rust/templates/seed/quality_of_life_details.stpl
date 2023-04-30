@@ -7,6 +7,10 @@
     <div class="col-6"><%= if mark_map_stations { "Yes" } else { "No" }%></div>
 </div>
 <div class="row">
+    <div class="col-6">Area transitions marked as letters on map:</div>
+    <div class="col-6"><%= if transition_letters { "Yes" } else { "No" }%></div>
+</div>
+<div class="row">
     <div class="col-6">All items spawn at start of game:</div>
     <div class="col-6"><%= if all_items_spawn { "Yes" } else { "No" }%></div>
 </div>

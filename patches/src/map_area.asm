@@ -144,8 +144,9 @@ PauseRoutineIndex:
 pause_start_hook:
     lda $1F5B
     sta !backup_area  ; back up map area
-    jsr update_pause_map_palette
     jsr set_hud_map_colors
+    jsr update_pause_map_palette
+    jsr remove_samus_hud_indicator
     jsl $8085C6  ; save current map explored bits
     ;jsr $8D51  ; run hi-jacked instruction
     inc $0998  ; run hi-jacked instruction
@@ -207,10 +208,10 @@ update_pause_map_palette:
     lda !unexplored_gray
     sta $7EC062
 
-    ; Set color 3 to black (instead of red)
-    lda #$0000
-    sta $7EC066
-    sta $7EC046
+;    ; Set color 3 to black (instead of red)
+;    lda #$0000
+;    sta $7EC066
+;    sta $7EC046
 
     ; Set explored color based on area:
     lda area_palettes_explored, x
@@ -223,6 +224,12 @@ update_pause_map_palette:
 ;    sta $7EC012  ; set the current area HUD color
 
     rts
+
+remove_samus_hud_indicator:
+    ; Remove HUD Samus indicator
+    lda $7EC042
+    sta $7EC03A
+
 
 area_palettes_explored:
     dw $6C50  ; Crateria
@@ -357,10 +364,10 @@ org $B6F016
 org $B6F01A
     dw !unexplored_gray
 
-; Pause menu: Black color for 4bpp color 3 (palette 2 - explored)
-org $B6F046
-    dw $0000
-
-; Pause menu: Black color for 4bpp color 3 (palette 3 - unexplored)
-org $B6F066
-    dw $0000
+;; Pause menu: Black color for 4bpp color 3 (palette 2 - explored)
+;org $B6F046
+;    dw $0000
+;
+;; Pause menu: Black color for 4bpp color 3 (palette 3 - unexplored)
+;org $B6F066
+;    dw $0000
