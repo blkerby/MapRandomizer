@@ -384,6 +384,29 @@ impl<'a> MapPatcher<'a> {
             }
         }
 
+        let elevator_tile_pause: [[u8; 8]; 8] = [
+            [0, 2, 1, 3, 3, 1, 2, 0],
+            [0, 2, 3, 3, 3, 3, 2, 0],
+            [0, 2, 1, 3, 3, 1, 2, 0],
+            [0, 2, 3, 3, 3, 3, 2, 0],
+            [0, 2, 1, 3, 3, 1, 2, 0],
+            [0, 2, 3, 3, 3, 3, 2, 0],
+            [0, 2, 1, 3, 3, 1, 2, 0],
+            [0, 2, 3, 3, 3, 3, 2, 0],
+        ];
+        let elevator_tile_hud: [[u8; 8]; 8] = [
+            [0, 2, 1, 0, 0, 1, 2, 0],
+            [0, 2, 0, 0, 0, 0, 2, 0],
+            [0, 2, 1, 0, 0, 1, 2, 0],
+            [0, 2, 0, 0, 0, 0, 2, 0],
+            [0, 2, 1, 0, 0, 1, 2, 0],
+            [0, 2, 0, 0, 0, 0, 2, 0],
+            [0, 2, 1, 0, 0, 1, 2, 0],
+            [0, 2, 0, 0, 0, 0, 2, 0],
+        ];
+        self.write_tile_2bpp(ELEVATOR_TILE as usize, elevator_tile_hud, false)?;
+        self.write_tile_4bpp(ELEVATOR_TILE as usize, elevator_tile_pause)?;
+
         // In top elevator rooms, replace down arrow tiles with elevator tiles:
         self.patch_room("Green Brinstar Elevator Room", vec![(0, 3, ELEVATOR_TILE)])?;
         self.patch_room("Red Brinstar Elevator Room", vec![(0, 3, ELEVATOR_TILE)])?;
@@ -1155,11 +1178,27 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
+    fn fix_etank_color(&mut self) -> Result<()> {
+        let etank_tile: [[u8; 8]; 8] = [
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 2, 2, 2, 2, 2, 2, 0],
+            [0, 2, 3, 3, 3, 3, 3, 0],
+            [0, 2, 3, 3, 3, 3, 3, 0],
+            [0, 2, 3, 3, 3, 3, 3, 0],
+            [0, 2, 3, 3, 3, 3, 3, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+        ];
+        self.write_tile_2bpp(0x31, etank_tile, false)?;
+        Ok(())
+    }
+
     pub fn apply_patches(&mut self) -> Result<()> {
         self.index_vanilla_tiles()?;
         self.fix_elevators()?;
         self.fix_item_dots()?;
         self.fix_walls()?;
+        self.fix_etank_color()?;
         self.indicate_passages()?;
         self.indicate_doors()?;
         self.indicate_special_tiles()?;

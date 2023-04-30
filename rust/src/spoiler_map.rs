@@ -74,7 +74,7 @@ fn get_color(value: u8, area: usize) -> Rgb<u8> {
             }
         },
         2 => Rgb([0xFF, 0xFF, 0xFF]),
-        3 => Rgb([0xFF, 0xFF, 0xFF]),
+        3 => Rgb([0x00, 0x00, 0x00]),
         _ => panic!("Unexpected color value {}", value)
     }
 }

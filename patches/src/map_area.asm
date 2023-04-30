@@ -83,6 +83,24 @@ org $829125
 org $829E38
     jsr horizontal_scroll_hook
 
+
+org $82E7C9
+    jsr load_tileset_palette_hook
+    nop : nop : nop : nop
+
+org $82E1F7
+    jsr palette_clear_hook
+
+;org $82E464
+;org $82E55F
+;org $82E780
+org $82E764
+    jsr door_transition_hook
+
+org $82E4A2
+    jsr load_target_palette_hook
+
+
 ;;; Put new code in free space at end of bank $82:
 org $82F70F
 
@@ -191,6 +209,13 @@ update_pause_map_palette:
     lda area_palettes_explored, x
     sta $7EC042
 
+    lda !backup_area
+    cmp $1F5B
+    bne .skip_hud_color
+    lda area_palettes_explored, x
+    sta $7EC012  ; set the 
+
+.skip_hud_color:
 ;    ; Set elevator platform color to white (instead of red)
 ;    lda #$7FFF
 ;    sta $7EC066    
@@ -245,5 +270,78 @@ horizontal_scroll_hook:
     and #$FFF8
     rts
 
+load_tileset_palette_hook:
+    ; run hi-jacked instruction:
+    jsl $80B0FF
+    dl $7EC200
+
+    jsr set_hud_map_colors
+    jsr load_target_palette
+
+    rts
+
+palette_clear_hook:
+    lda $C016  ; preserve pink color for full E-tank energy squares (2-bit palette 2, color 3, black in vanilla)
+    sta $C216
+    lda $C014  ; run hi-jacked instruction
+    rts
+
+load_target_palette:
+    ; Prevent HUD map colors from gradually changing (to blue/pink) during door transition:
+    lda $7EC01A  ; unexplored gray
+    sta $7EC21A
+
+    lda $7EC012  ; explored color
+    sta $7EC212
+
+    lda $7EC016  ; pink color for full E-tank energy squares (using color 3, used for black in vanilla)
+    sta $7EC216
+    rts
+
+load_target_palette_hook:
+    jsr load_target_palette
+    lda #$E4A9   ; run hi-jacked instruction
+    rts
+
+door_transition_hook:
+    jsr set_hud_map_colors
+    lda #$0008   ; run hi-jacked instruction
+    rts
+
+set_hud_map_colors:
+    ; Set target colors for HUD map:
+    lda $1F5B
+    asl
+    tax
+
+    ; Set unexplored color to gray:
+    lda #$1CE7
+    sta $7EC01A
+
+    ; Set explored color based on area:
+    lda.l area_palettes_explored, x
+    sta $7EC012
+
+    ; Set explored color 3 to pink color for full E-tank energy squares (used for black in vanilla)
+    lda #$48FB   
+    sta $7EC016
+
+    rts
+
 warnpc $82F880
 
+; Pause menu: Pink color for full E-tank energy squares in HUD
+org $B6F016
+    dw $48FB
+
+; Pause menu: Black color for color 3 (explored palette)
+org $B6F046
+    dw $0000
+
+; Pause menu: Black color for color 3 (unexplored palette)
+org $B6F066
+    dw $0000
+
+; Pause menu: Gray color for unexplored tiles in HUD
+org $B6F01A
+    dw $1CE7
