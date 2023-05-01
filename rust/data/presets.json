@@ -146,7 +146,6 @@
       "canKago",
       "canXrayTurnaround",
       "canSamusEaterStandUp",
-      "canSandfallBounce",
       "canEscapeSand",
       "canSpringBallBombJump",
       "canPreciseGrapple",
@@ -180,7 +179,6 @@
       "Post Crocomire Farming Room Dboost",
       "PCJR Springwall",
       "PCJR Acid Shinespark",
-      "Grapple Tutorial Frozen Gamet",
       "Croc Escape SpringBall Freeze",
       "Cathedral Entrance Left Door Frozen Sova Step",
       "Cathedral Entrance Hero Shot Shinespark",
@@ -210,7 +208,9 @@
       "Pants Room Suitless MidAir SpringBall Jump with HiJump",
       "East Sand Hole Sandfall Bounce to Power Bombs",
       "Bug Sand Hole Speedy Jump Morph",
-      "East Ocean Space Jump Water Escape with Ice (Left to Right)"
+      "East Ocean Space Jump Water Escape with Ice (Left to Right)",
+      "Grapple Tutorial 3 Frozen Gamet Bridge",
+      "LN Spring Ball Maze Hotarubi Special"
     ]
   },
   {
@@ -227,13 +227,14 @@
       "canCWJ",
       "canHBJ",
       "canUnmorphBombBoost",
-      "canCeilingBombJump",
       "canContinuousDboost",
       "can2HighWallMidAirMorph",
       "canPixelPerfectIceClip",
       "canBabyMetroidAvoid",
       "canBombJumpWaterEscape",
       "canSandIBJ",
+      "canSandfallBounce",
+      "canBombJumpOnSand",
       "canFastWalljumpClimb",
       "canDraygonTurretGrappleJump",
       "canManipulateMellas",
@@ -244,11 +245,9 @@
       "canWallJumpBombBoost",
       "canCrouchGateClip",
       "canStaggeredIBJ",
-      "canDiagonalBombJump",
       "canRJump",
       "canStationaryLateralMidAirMorph",
-      "canSpeedKeepChain",
-      "canBombJumpOnSand"
+      "canSpeedKeepChain"
     ],
     "notable_strats": [
       "Early Supers Crouch Gate Clip Damage Boost",
@@ -267,7 +266,6 @@
       "West Ocean Bug Boost",
       "LN Fireflea Room Morph Over the Fune",
       "LN Fireflea Room Morph Over the Fune Escape",
-      "LN Spring Ball Maze Hotarubi Special",
       "East Sand Hall Springball Jump",
       "East Cac Alley Cross Room Jump with IBJ",
       "East Cac Alley Cross Room Jump with Spring Ball, Bomb Boost",
@@ -300,7 +298,8 @@
       "West Sand Hole Bootless Suitless IBJ",
       "Climb Speedkeep Chain Through Bomb Blocks",
       "East Pants Room Suitless Puyo Clip",
-      "East Ocean Space Jump Water Escape (Left to Right)"
+      "East Ocean Space Jump Water Escape (Left to Right)",
+      "Grapple Tutorial 3 Double Gamet Boost"
     ]
   },
   {
@@ -325,7 +324,9 @@
       "canArtificialMorph",
       "canOffScreenMovement",
       "canXMode",
-      "canSuperJump"
+      "canSuperJump",
+      "canCeilingBombJump",
+      "canDiagonalBombJump"
   ],
     "notable_strats": [
       "Green Hill Zone Tunnel Crawl",
@@ -338,7 +339,8 @@
       "East Pants Room Suitless Crystal Flash Clip",
       "Botwoon Hallway Suitless Crystal Flash Clip",
       "Writg X-Ray Climb",
-      "West Ocean G-mode Overload PLMs by PBing Missile Item"
+      "West Ocean G-mode Overload PLMs by PBing Missile Item",
+      "Double Chamber HiJumpless Wall Jump"
     ]
   },
   {
@@ -359,7 +361,6 @@
       "Screw Attack Room Doorway CWJ",
       "Mama Turtle Insane Walljump",
       "Green Pirate Shaft Beetom Xray Climb",
-      "Double Chamber HiJumpless Wall Jump",
       "West Sand Hall Insane Bomb Jump",
       "Main Street Crab Climb with Only Ice",
       "Main Street Crab Climb with Only Ice and Supers",

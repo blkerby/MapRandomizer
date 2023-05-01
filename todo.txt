@@ -1,11 +1,3 @@
-todo for next release (v55):
-- escape timer based on new timings
-- add reverse botwoon logic
-- logic fixes:
-  - pit room
-  - tourian escape room 4
-  - fix farm requirements (use them, but strip out heat frames)
-
 priority:
 - add vertical gravity jumps to logic
 - add pages for tech, strats, rooms.
@@ -15,9 +7,12 @@ priority:
 - proper front page
 - music options: vanilla, area-themed, or none
 - sprite customization (?),
+- add reverse botwoon logic
 
 
 later:
+- logic: metroid tank damage may need to be higher without some tech (multiplier doesn't apply)
+- fix palette issue in HUD map after Phantoon fight
 - fix how spoiler map sometimes won't show escape route
 - see if fast doors causes issues with Samus momentum across rooms (see examples from insomniaspeed)
 - see if it is possible to prevent song changes from messing up enemy behavior
