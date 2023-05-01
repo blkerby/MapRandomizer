@@ -104,6 +104,8 @@ org $82E764
 org $82E4A2
     jsr load_target_palette_hook
 
+org $90AB4A
+    jsl samus_minimap_flash_hook : nop : nop
 
 ;;; Put new code in free space at end of bank $82:
 org $82F70F
@@ -149,7 +151,7 @@ pause_start_hook:
     sta !backup_area  ; back up map area
     jsr set_hud_map_colors
     jsr update_pause_map_palette
-    jsr remove_samus_hud_indicator
+    ;jsr remove_samus_hud_indicator
     jsl $8085C6  ; save current map explored bits
     ;jsr $8D51  ; run hi-jacked instruction
     inc $0998  ; run hi-jacked instruction
@@ -193,11 +195,15 @@ switch_map_area:
 	jsl $80858C     ;load explored bits for area
 	lda $7ED908,x : and #$00FF : sta $0789	;set flag of map station for next area
     jsl $8293C3		;update area label and construct new area map
-    jsl $829028     ;set map scroll boundaries and screen starting position
-;    jsr $9EC4 
-;    lda #$0080
-;	jsr $9E27		;set map scroll boundaries and screen starting position
-;    
+    lda $1F5B
+    cmp !backup_area
+    beq .orig_area
+    jsr simple_scroll_setup  ; for map in different area, set scrolls without using samus position
+    bra .done
+.orig_area:
+    jsl $829028     ;set map scroll boundaries and screen starting position like vanilla, using samus position
+.done:
+
     LDA #$0000             ;\
     STA $0723             ;} Screen fade delay = 0
 
@@ -231,10 +237,10 @@ update_pause_map_palette:
 
     rts
 
-remove_samus_hud_indicator:
-    ; Remove HUD Samus indicator
-    lda $7EC042
-    sta $7EC03A
+;remove_samus_hud_indicator:
+;    ; Remove HUD Samus indicator
+;    lda $7EC042
+;    sta $7EC03A
 
 
 area_palettes_explored:
@@ -355,7 +361,63 @@ set_hud_map_colors:
 
     rts
 
+
+samus_minimap_flash_hook:
+    lda $0998
+    cmp #$000C
+    bne .normal
+
+    ; Paused: skip showing Samus indicator:
+    lda #$0001
+    rtl
+    
+    ; Run hi-jacked instructions (use frame counter to determine whether to show Samus indicator)
+.normal    
+    lda $05B5
+    and #$0008 
+
+    rtl
+
+
+simple_scroll_setup:
+    ; Like $829028 but without using Samus position, just midpoints.
+    JSR $A0F7    ; Reset pause menu animations
+    JSR $9EC4    ; Determine map scroll limits
+    LDA $05AE    ;\
+    SEC          ;|
+    SBC $05AC    ;|
+    LSR A        ;|
+    CLC          ;} BG1 X scroll = midpoint([map min X scroll], [map max X scroll]) - 80h
+    ADC $05AC    ;|
+    SEC          ;|
+    SBC #$0080   ;|
+    AND #$FFF8   ;|
+    STA $B1      ;/
+
+    LDA $05B2    ;\
+    SEC          ;|
+    SBC $05B0    ;|
+    LSR A        ;|
+    CLC          ;|
+    ADC #$0010   ;|
+    CLC          ;|
+    ADC $05B0    ;|
+    STA $12      ;} BG1 Y scroll = midpoint([map min Y scroll], [map max Y scroll]) - 60h rounded up to multiple of 8
+    LDA #$0070   ;|
+    SEC          ;|
+    SBC $12      ;|
+    AND #$FFF8   ;|
+    EOR #$FFFF   ;|
+    INC A        ;|
+    STA $B3      ;/    
+
+    RTS
+
+
 warnpc $82F900
+
+;org $829040  ; testing map scrolling
+;    jmp $9077
 
 ;; Pause menu: Samus indicator in HUD (palette 7, colors 1-2)
 ;org $B6F03A

@@ -45,8 +45,7 @@ patches = [
     # 'bomb_torizo',
     # 'decompression',
     'fast_reload',
-    # 'hud_expansion_opaque',
-    # 'hud_expansion_transparent',
+    'hud_expansion_opaque',
     # 'mb_barrier',
     # 'mb_barrier_clear',
     'saveload',
@@ -72,7 +71,7 @@ patches = [
     # 'no_explosions_before_escape',
     # 'escape_room_1',
     # 'unexplore',
-    # 'max_ammo_display',
+    'max_ammo_display',
     # 'missile_refill_all',
     # 'sound_effect_disables',
 ]
@@ -234,31 +233,31 @@ rom.write_n(snes2pc(0x83A738), 12, data)
 # old_y = rom.read_u8(0x7D5A7 + 3)
 # rom.write_u8(0x7D5A7 + 3, old_y - 4)
 
-# map_patcher.apply_map_patches()
-# #
+map_patcher.apply_map_patches()
 #
-# # data = [[0 for _ in range(8)] for _ in range(8)]
-# # for i in range(32):
-# #     map_patcher.write_tile_2bpp(i + 256, data)
-# #
-# import numpy as np
-# image = np.zeros([256, 128])
-# for i in range(512):
-#     data = map_patcher.read_tile_2bpp(i)
-#     x = i // 16
-#     y = i % 16
-#     x0 = x * 8
-#     x1 = (x + 1) * 8
-#     y0 = y * 8
-#     y1 = (y + 1) * 8
-#     image[x0:x1, y0:y1] = data
-#     # for row in data:
-#     #     print(''.join('{:x}'.format(x) for x in row))
-#     # data = read_tile_4bpp(rom, snes2pc(0xB68000), i)
-#     # for row in data:
-#     #     print(''.join('{:x}'.format(x) for x in row))
-# from matplotlib import pyplot as plt
-# plt.imshow(image)
+
+# data = [[0 for _ in range(8)] for _ in range(8)]
+# for i in range(32):
+#     map_patcher.write_tile_2bpp(i + 256, data)
+#
+import numpy as np
+image = np.zeros([256, 128])
+for i in range(512):
+    data = map_patcher.read_tile_2bpp(i)
+    x = i // 16
+    y = i % 16
+    x0 = x * 8
+    x1 = (x + 1) * 8
+    y0 = y * 8
+    y1 = (y + 1) * 8
+    image[x0:x1, y0:y1] = data
+    # for row in data:
+    #     print(''.join('{:x}'.format(x) for x in row))
+    # data = read_tile_4bpp(rom, snes2pc(0xB68000), i)
+    # for row in data:
+    #     print(''.join('{:x}'.format(x) for x in row))
+from matplotlib import pyplot as plt
+plt.imshow(image)
 
 # # rom.write_u16(snes2pc(0x819124), 0x0009)   # File select index 9 - load
 #
