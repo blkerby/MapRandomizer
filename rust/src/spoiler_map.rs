@@ -69,7 +69,7 @@ fn get_color(value: u8, area: usize) -> Rgb<u8> {
                 1 => Rgb([0x00, 0xBD, 0x00]), // Brinstar
                 2 => Rgb([0xCE, 0x00, 0x00]), // Norfair
                 3 => Rgb([0xC6, 0xB5, 0x00]), // Wrecked Ship
-                4 => Rgb([0x21, 0x94, 0xFC]), // Maridia
+                4 => Rgb([0x21, 0x94, 0xFF]), // Maridia
                 5 => Rgb([0xA5, 0xA5, 0xA5]), // Tourian
                 _ => panic!("Unexpected area {}", area),
             }
@@ -98,7 +98,7 @@ pub fn get_spoiler_map(
     let mut img_assigned = RgbImage::new(width, height);
     let mut img_vanilla = RgbImage::new(width, height);
     let mut img_grid = RgbaImage::new(width, height);
-    let grid_val = Rgba([0x21, 0x21, 0x21, 0xFF]);
+    let grid_val = Rgba([0x29, 0x29, 0x29, 0xFF]);
 
     for y in (7..height).step_by(8) {
         for x in (0..width).step_by(2) {

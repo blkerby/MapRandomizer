@@ -3,13 +3,14 @@
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-57---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 57 (2023-04-29)</a>:
+<p><a href="https://version-57---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 57 (2023-05-01)</a>:
 <ul>
 <li>Maps of other explored areas can be viewed in the pause menu by pressing Select.
 <li>Explored map tiles are colored based on area.
 <li>Quality-of-life option "Fast pause menu" is added (enabled by default).
 <li>Quality-of-life option "Area transitions marked as letters on map" is added (disabled by default).
-<li>TODO: fix crateria tube graphics (pink -> black)
+<li>Item collection percentage is now shown correctly when beating the game after loading from the escape auto-save.
+<li>The interactive spoiler map now has grid in the background similar to the in-game map.
 </ul>
 
 <p><a href="https://version-56---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 56 (2023-04-28)</a>:

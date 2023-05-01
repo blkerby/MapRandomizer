@@ -81,12 +81,16 @@ org $82910A : jsr (PauseRoutineIndex,x)
 org $829125
     jsr check_start_select
 
+; Use consistent version of map scrolling setup so we don't have to patch both versions of it:
+org $829E27
+    jsl $829028
+    rts
+
 org $82903B
     jsr horizontal_scroll_hook
 
-org $829E38
+org $829E38  ; TODO: remove this (should be unused?)
     jsr horizontal_scroll_hook
-
 
 org $82E7C9
     jsr load_tileset_palette_hook
@@ -195,6 +199,7 @@ switch_map_area:
 	jsl $80858C     ;load explored bits for area
 	lda $7ED908,x : and #$00FF : sta $0789	;set flag of map station for next area
     jsl $8293C3		;update area label and construct new area map
+
     lda $1F5B
     cmp !backup_area
     beq .orig_area

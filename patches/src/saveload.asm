@@ -50,6 +50,7 @@ SaveItems: LDA $09A2,Y : STA $D7C0,Y : DEY : DEY : BPL SaveItems				;Saves curre
 	LDA $078B : STA $D916		;Current save for the area
 	LDA $079F : STA $D918		;Current Area
 	LDA $1F5B : STA $7FFE00     ;Current Map-area
+	LDA $1F5D : STA $7FFE04     ;Item set before escape (note that $7FFE04 gets wiped during the escape sequence)
 	LDX $12
 	LDA.l SRAMAddressTable,X : TAX : LDY #$0000		;How much data to save for items and event bits
 SaveSRAMItems: LDA $D7C0,Y : STA $700000,X : JSR CheckSumAdd : INX : INX : INY : INY : CPY #$0160 : BNE SaveSRAMItems	
@@ -79,6 +80,7 @@ LoadItems: LDA $D7C0,Y : STA $09A2,Y : DEY : DEY : BPL LoadItems		;Loads current
 	LDA $D916 : STA $078B		;Current save for the area
 	LDA $D918 : STA $079F		;Current Area
     LDA $7FFE00 : STA $1F5B     ;Current Map-area
+	LDA $7FFE04 : STA $1F5D     ;Item set before escape
 	PLY : PLX : PLB : PLP : CLC : RTL
 SetupClearSRAM: LDX $16 : LDY #$09FE : LDA #$0000
 ClearSRAM: STA $700000,X : INX : INX : DEY : DEY : BPL ClearSRAM

@@ -1,3 +1,8 @@
+next release:
+- fix palettes:
+  - crateria tube
+  - optional: save animation
+
 priority:
 - add vertical gravity jumps to logic
 - add pages for tech, strats, rooms.
