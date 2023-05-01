@@ -26,20 +26,20 @@ org $829440  ; Updates the area and map in the map screen
 org $829475  ; Updates the area and map in the map screen
     ldx $1F5B
 
-;org $82952D  ; Draw room select map
-;    lda $1F5B
-;
-;org $829562  ; Draw room select map
-;    ldx $1F5B
-;
-;org $82962B  ; Something map-related (?)
-;    lda $1F5B
-;
-;org $829ED5  ; Something map-related (?)
-;    lda $1F5B
-;
-;org $829F01  ; Something map-related (?)
-;    lda $1F5B
+org $82952D  ; Draw room select map
+    lda $1F5B
+
+org $829562  ; Draw room select map
+    ldx $1F5B
+
+org $82962B  ; Draw room select map area label
+    lda $1F5B
+
+org $829ED5  ; Determining map scroll limits
+    lda $1F5B
+
+org $829F01  ; Determining map scroll limits
+    lda $1F5B
 
 org $90A9BE  ; Update mini-map
     lda $1F5B
@@ -80,6 +80,9 @@ org $82910A : jsr (PauseRoutineIndex,x)
 
 org $829125
     jsr check_start_select
+
+org $82903B
+    jsr horizontal_scroll_hook
 
 org $829E38
     jsr horizontal_scroll_hook
@@ -188,10 +191,13 @@ switch_map_area:
     jsr next_area
     jsr update_pause_map_palette
 	jsl $80858C     ;load explored bits for area
+	lda $7ED908,x : and #$00FF : sta $0789	;set flag of map station for next area
     jsl $8293C3		;update area label and construct new area map
-    lda #$0080
-	jsr $9E27		;set map scroll boundaries and screen starting position
-    
+    jsl $829028     ;set map scroll boundaries and screen starting position
+;    jsr $9EC4 
+;    lda #$0080
+;	jsr $9E27		;set map scroll boundaries and screen starting position
+;    
     LDA #$0000             ;\
     STA $0723             ;} Screen fade delay = 0
 
@@ -371,3 +377,16 @@ org $B6F01A
 ;; Pause menu: Black color for 4bpp color 3 (palette 3 - unexplored)
 ;org $B6F066
 ;    dw $0000
+
+
+
+; Patch tile data for button letters. Changing the palettes to 3:
+org $858426            
+    dw $2CE0, ; A
+       $2CE1, ; B
+       $2CF7, ; X
+       $2CF8, ; Y
+       $2CD0, ; Select
+       $2CEB, ; L
+       $2CF1, ; R
+       $2C4E  ; Blank

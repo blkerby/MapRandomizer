@@ -1,0 +1,3 @@
+0000 - CD8E: used by vanilla game
+CDA0 - D02F: max_ammo_display.asm
+D02F - D100: fast_pause_menu.asm

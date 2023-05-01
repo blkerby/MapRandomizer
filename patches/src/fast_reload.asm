@@ -23,8 +23,7 @@ deathhook:
     lda #$0001
     sta !QUICK_RELOAD ; Currently "quick reloading"
     jsl $82be17       ; Stop sounds
-    jsl set_save_slot
-    lda $0952
+    jsl load_save_slot
 	jsl $80858C		  ; load map
 
     ; In case we're on an elevator ride, reset this state so that Samus will have control after the reload:
@@ -37,7 +36,7 @@ deathhook:
     
 warnpc $82DDF1
 
-; Hook main gameplay
+; Hook state $08 (main gameplay)
 org $828BB3
     JSL hook_main
 
@@ -207,28 +206,22 @@ setup_samus:
     sta $0a12
     rtl
 
-; Determine which save slot to load from:
-set_save_slot:
+; Determine which save slot to load from, and load it:
+load_save_slot:
     lda $0E18       ; Check if we are on an elevator ride
-    bne .check       ; If so, just load the current save (in spite of Samus facing forward, don't go back to previous save.)
+    bne .current      ; If so, just load the current save (in spite of Samus facing forward, don't go back to previous save.)
     lda $0A1C       ; Check if Samus is still facing forward (initial state after loading)
     beq .forward     
     cmp #$009B
     beq .forward
 
     ; Load current save slot:
-    lda #$0952
+.current
+    lda $0952
     jml $818085
 
 .forward:
     ; Samus still facing forward, so we'll go back to previous save:
-    lda $0952
-    jsl $80818E       ; Convert bit index into bitmask
-    lda $05E7
-    ora $0954
-    sta $0954
-
-.previous:
     lda $0952         ; Load saveslot
     beq .cycle
     dec               ; Decrease save slot by 1
@@ -240,7 +233,7 @@ set_save_slot:
 .check:
     sta $0952
     jsl $818085
-    bcs .previous     ; If slot is empty/corrupt, go back to previous save again.
+    bcs .forward     ; If slot is empty/corrupt, go back to previous save again.
     rtl
 
 warnpc $A18000

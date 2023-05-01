@@ -1332,7 +1332,7 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn fix_message_boxes(&mut self) -> Result<()> {
-        // Fix message boxes GFX: use white letters (color 3) instead of dark gray (color 1)
+        // Fix message boxes GFX: use white letters (color 2) instead of dark gray (color 1)
         for idx in 0xC0..0x100 {
             let mut data = self.read_tile_2bpp(idx)?;
             for y in 0..8 {
@@ -1345,12 +1345,13 @@ impl<'a> MapPatcher<'a> {
             self.write_tile_2bpp(idx, data, false)?;
         }
 
-        // Fix message boxes tilemaps: use palette 3 instead of 2
+        // Fix message boxes tilemaps: use palette 3 instead of 2 or 7
         for addr in (snes2pc(0x85877F)..snes2pc(0x859641)).step_by(2) {
             let mut word = self.rom.read_u16(addr)?;
             let pal = (word >> 10) & 7;
-            if pal == 2 {
-                word |= 0x0400;
+            if pal == 2 || pal == 7 {
+                word &= 0xE3FF;
+                word |= 0x0C00;
                 self.rom.write_u16(addr, word)?;
             }
         }

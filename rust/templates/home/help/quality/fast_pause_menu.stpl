@@ -21,7 +21,7 @@
         </ul></p>
         <p>Changes are avoided that could meaningfully affect pause buffering strats or game behavior:</p>
         <ul>
-        <li>Fade-in and fade-out of gameplay (before and after pause) are unaffected.
+        <li>Fade-out and fade-in of gameplay (before and after pause) are unaffected.
         <li>Fade-out of pause menu is unaffected except for the elimination of the 4-frame delay.
         </ul>
       </div>
