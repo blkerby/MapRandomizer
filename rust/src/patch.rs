@@ -247,6 +247,7 @@ impl<'a> Patcher<'a> {
             "tourian_blue_hopper",
             "fix_kraid_vomit",
             "aim_anything",
+            "crateria_tube_black",
         ];
         let mut new_game = "new_game";
         if let Some(options) = &self.randomization.difficulty.debug_options {
