@@ -1,7 +1,6 @@
 next release:
-- fix palettes:
-  - crateria tube
-  - optional: save animation
+- seed hash display
+- QoL option: map tiles saved after death/reload
 
 priority:
 - add vertical gravity jumps to logic
@@ -16,6 +15,12 @@ priority:
 
 
 later:
+- fix save animation colors (area-themed color looks a little bad?)
+- consider making Save the Animals option displayed more prominently
+  - show Bomb Torizo room on map somehow during escape
+- consider option to retain map tiles after death
+  - (but this would probably have to come after an option to make item dots disapper, and show boss/objective progress)
+- customization option to disable low-energy beeping.
 - logic: metroid tank damage may need to be higher without some tech (multiplier doesn't apply)
 - fix palette issue in HUD map after Phantoon fight
 - fix how spoiler map sometimes won't show escape route
