@@ -159,6 +159,7 @@ pub struct Randomization {
     pub map: Map,
     pub item_placement: Vec<Item>,
     pub spoiler_log: SpoilerLog,
+    pub seed: usize,
 }
 
 struct SelectItemsOutput {
@@ -1248,6 +1249,7 @@ impl<'r> Randomizer<'r> {
         spoiler_summaries: Vec<SpoilerSummary>,
         spoiler_details: Vec<SpoilerDetails>,
         debug_data_vec: Vec<DebugData>,
+        seed: usize,
     ) -> Randomization {
         // Compute the first step on which each node becomes reachable/bireachable:
         let mut node_reachable_step: HashMap<(RoomId, NodeId), usize> = HashMap::new();
@@ -1380,6 +1382,7 @@ impl<'r> Randomizer<'r> {
             map: self.map.clone(),
             item_placement,
             spoiler_log,
+            seed
         }
     }
 
@@ -1507,6 +1510,7 @@ impl<'r> Randomizer<'r> {
             spoiler_summary_vec,
             spoiler_details_vec,
             debug_data_vec,
+            seed
         ))
     }
 }

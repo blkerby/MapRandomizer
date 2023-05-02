@@ -46,7 +46,6 @@
     "tech": [
       "canPreciseWalljump",
       "canJumpIntoIBJ",
-      "canBombAboveIBJ",
       "canTwoTileSqueeze",
       "canUseEnemies",
       "canDamageBoost",
@@ -80,11 +79,9 @@
     "notable_strats": [
       "Early Supers Mockball",
       "Alcatraz Escape",
-      "Writg Frozen Pirate Platforms",
       "Lower Norfair Pillar Room with Power Bombs",
       "West Sand Hole MidAir Morph (Bootless Suitless)",
       "Colosseum Suitless Grapple Only",
-      "Suitless Draygon",
       "PCJR Big Jump Shinespark",
       "Bubble Mountain Damage Boost",
       "Crumble Shaft Top Item Precise Walljump",
@@ -149,7 +146,8 @@
       "canEscapeSand",
       "canSpringBallBombJump",
       "canPreciseGrapple",
-      "canSpaceJumpWaterEscape"
+      "canSpaceJumpWaterEscape",
+      "canBombAboveIBJ"
     ],
     "notable_strats": [
       "Pink Brinstar Power Bombs Crystal Flash Clip",
@@ -210,7 +208,9 @@
       "Bug Sand Hole Speedy Jump Morph",
       "East Ocean Space Jump Water Escape with Ice (Left to Right)",
       "Grapple Tutorial 3 Frozen Gamet Bridge",
-      "LN Spring Ball Maze Hotarubi Special"
+      "LN Spring Ball Maze Hotarubi Special",
+      "Suitless Draygon",
+      "Writg Frozen Pirate Platforms"
     ]
   },
   {

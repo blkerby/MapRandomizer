@@ -2,3 +2,4 @@ F70F - F900: map_area.asm
 F900 - FA00: fast_doors
 FA00 - FA80: fast_reload
 FA80 - FA90: fix_water_fx_bug
+FA90 - FD00: seed_hash_display

@@ -248,6 +248,7 @@ impl<'a> Patcher<'a> {
             "fix_kraid_vomit",
             "aim_anything",
             "crateria_tube_black",
+            "seed_hash_display",
         ];
         let mut new_game = "new_game";
         if let Some(options) = &self.randomization.difficulty.debug_options {
@@ -1208,6 +1209,12 @@ impl<'a> Patcher<'a> {
 
         Ok(())
     }
+
+    fn apply_seed_hash(&mut self) -> Result<()> {
+        let seed_bytes = (self.randomization.seed as u32).to_le_bytes();
+        self.rom.write_n(snes2pc(0xdfff00), &seed_bytes)?;
+        Ok(())
+    }
 }
 
 fn get_other_door_ptr_pair_map(map: &Map) -> HashMap<DoorPtrPair, DoorPtrPair> {
@@ -1218,17 +1225,6 @@ fn get_other_door_ptr_pair_map(map: &Map) -> HashMap<DoorPtrPair, DoorPtrPair> {
     }
     other_door_ptr_pair_map
 }
-
-// fn get_door_room_map(room_geometry: &[RoomGeometry]) -> HashMap<DoorPtrPair, RoomGeometryRoomIdx> {
-//     let mut out: HashMap<DoorPtrPair, RoomGeometryRoomIdx> = HashMap::new();
-//     for (room_idx, room) in room_geometry.iter().enumerate() {
-//         for door in & room.doors {
-//             let door_ptr_pair = (door.exit_ptr, door.entrance_ptr);
-//             out.insert(door_ptr_pair, room_idx);
-//         }
-//     }
-//     out
-// }
 
 pub fn make_rom(
     base_rom: &Rom,
@@ -1266,6 +1262,7 @@ pub fn make_rom(
     patcher.customize_escape_timer()?;
     patcher.apply_miscellaneous_patches()?;
     patcher.apply_mother_brain_fight_patches()?;
+    patcher.apply_seed_hash()?;
     if !randomization.difficulty.escape_enemies_cleared {
         patcher.undo_escape_enemy_clear()?;
     }
