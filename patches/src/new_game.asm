@@ -47,6 +47,19 @@ startup:
     txa
     bne .copy_explored
 
+    ; If there are no existing save files, then clear map revealed tiles (persisted across deaths/reloads)
+    lda $0954
+    bne .skip_clear_revealed
+    ldx #$0600
+.clear_revealed
+    dex
+    dex
+    lda #$0000
+    sta $702000, X    
+    txa
+    bne .clear_revealed
+.skip_clear_revealed:
+
     ; Do the same for the local-area explored tiles (TODO: maybe simplify this.)
     ldx #$0100
 .copy_explored_crateria

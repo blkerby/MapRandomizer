@@ -286,7 +286,6 @@ impl<'a> Patcher<'a> {
             patches.push("unexplore");
         }
 
-
         for patch_name in patches {
             let patch_path = patches_dir.join(patch_name.to_string() + ".ips");
             apply_ips_patch(&mut self.rom, &patch_path)?;
