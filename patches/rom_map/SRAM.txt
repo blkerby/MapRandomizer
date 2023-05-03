@@ -1,0 +1,7 @@
+0000-0010: ?
+0010-0A10: Save slot 1
+0A10-1410: Save slot 2
+1410-1E10: Save slot 3
+1FE0-2000: Save slot selection, etc.
+----- expanded SRAM (if map progress QoL option is enabled): -----
+2000-2600: map_progress_maintain.asm
