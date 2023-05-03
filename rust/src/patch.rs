@@ -279,7 +279,7 @@ impl<'a> Patcher<'a> {
             patches.push("fast_pause_menu");
         }
 
-        let map_progress_maintain = true;        
+        let map_progress_maintain = true;
         if map_progress_maintain {
             patches.push("map_progress_maintain");
         } else {

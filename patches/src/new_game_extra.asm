@@ -64,13 +64,19 @@ start_game:
     sta $09CE   ; power bombs
     sta $09D0   ; max power bombs
 
-    ; area maps collected
+    ; Initialize areas explored
     lda #$0001
-    sta $0789
-    lda #$ffff
-    sta $7ED908
-    sta $7ED90A
-    sta $7ED90C
+    sta $7FFE02
+
+;    ; area maps collected
+;    lda #$003F
+;    sta $7FFE02
+;    lda #$0001
+;    sta $0789
+;    lda #$ffff
+;    sta $7ED908
+;    sta $7ED90A
+;    sta $7ED90C
 
     lda #$0101     ; set G4 bosses defeated
     sta $7ED829
