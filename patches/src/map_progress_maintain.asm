@@ -63,11 +63,7 @@ load_pause_map_tilemap:
     LDA $12                ;\
     ASL A                  ;|
     TAX                    ;|
-    LDA #$0082             ;} $06 = $82:0000 + [$9717 + [$12] * 2] (map data)
-    STA $08                ;|
-    LDA $829717,x          ;|
-    STA $06                ;/
-    LDX $079F              ;\
+    LDX $1F5B              ;\
     LDA $7ED908,x          ;|
     AND #$00FF             ;} If area map collected: go to BRANCH_MAP_COLLECTED
     BNE .BRANCH_MAP_COLLECTED
@@ -109,11 +105,6 @@ load_pause_map_tilemap:
 
 .BRANCH_MAP_COLLECTED:
     REP #$30
-    LDA [$06]              ;\
-    XBA                    ;} $26 = [[$06]] << 8 | [[$06] + 1]
-    STA $26                ;/
-    INC $06                ;\
-    INC $06                ;} $06 += 2
     LDA #$0000             ;\
     STA $0B                ;|
     LDA #$07F7             ;} $09 = $00:07F7 (map tiles explored)
