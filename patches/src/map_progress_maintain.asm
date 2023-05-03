@@ -45,6 +45,9 @@ mark_progress:
 org $82943D
 load_pause_map_tilemap:
     PHP
+
+    jsl $8085C6  ; mirror explored bits
+
     REP #$30
     LDA $1F5B              ; $12 = [area index]
     STA $12              
@@ -78,8 +81,10 @@ load_pause_map_tilemap:
     LDY #$0000             ; Y = 0 (tilemap index)
     STZ $12                ; $12 = 0 (map data bit subindex)
     
-    LDA $7ECD52, x
+    LDA $7ECD52, x         ; load first set of map tile explored bits
     STA $06
+    LDA $702000, x         ; load first set of map tile revealed bits (persisted across deaths/reloads)
+    STA $26
 
     CLC
 
@@ -87,6 +92,8 @@ load_pause_map_tilemap:
 ;    ROL $07F7,x               ;\
     ROL $06
     BCS .BRANCH_EXPLORED_MAP_TILE ;} If [$07F7 + [X]] & 80h >> [$12] != 0: go to BRANCH_EXPLORED_MAP_TILE
+    ROL $26
+    BCS .BRANCH_REVEALED_MAP_TILE
     REP #$20
     LDA #$001F             ;\
     STA [$03],y            ;} [$03] + [Y] = 001Fh (blank tile)
@@ -101,15 +108,23 @@ load_pause_map_tilemap:
     BMI .LOOP_WITHOUT_MAP_DATA ;/
     STZ $12                ; $12 = 0
     INX                    ; Increment X
-    LDA $7ECD52, x
-    STA $06
-    CPX #$0100             ;\
-    BMI .LOOP_WITHOUT_MAP_DATA     ;} If [X] < 100h: go to LOOP
+    lda $7ECD52, x         ; load next set of map tile explored bits
+    sta $06
+    lda $702000, x         ; load next set of map tile revealed bits (persisted across deaths/reloads)
+    sta $26
+    txa
+    bne .LOOP_WITHOUT_MAP_DATA     ;} If [X] % $100 != 0: go to LOOP
     PLP
     RTS                    ; Return
 
+.BRANCH_REVEALED_MAP_TILE:
+    REP #$30
+    LDA [$00],y            ;\
+    STA [$03],y            ;/
+    BRA .BRANCH_NEXT_WITHOUT_MAP_DATA     ; Go to BRANCH_NEXT_WITHOUT_MAP_DATA
+
 .BRANCH_EXPLORED_MAP_TILE:
-    INC $07F7,x
+    ROL $26
     REP #$30
     LDA [$00],y            ;\
     AND #$FBFF             ;} [$03] + [Y] = [[$00] + [Y]] & ~400h

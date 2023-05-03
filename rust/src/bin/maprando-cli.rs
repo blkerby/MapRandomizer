@@ -151,7 +151,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         fast_pause_menu: true,
         objectives: Objectives::Bosses,
         debug_options: Some(DebugOptions {
-            new_game_extra: true,
+            new_game_extra: false,
             extended_spoiler: true,
         })
     };
