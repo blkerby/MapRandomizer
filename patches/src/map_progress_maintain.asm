@@ -4,7 +4,7 @@ lorom
 !bank_90_freespace_start = $90F700
 !bank_90_freespace_end = $90F780
 
-; Expand SRAM from 8 KB to 16 KB.
+; In the game header, expand SRAM from 8 KB to 16 KB.
 org $80FFD8
     db 4
 
@@ -15,6 +15,10 @@ org $8086B5 : LDX #$3FFE
 org $8086B8 : STA $704000, x
 org $8086C4 : LDX #$3FFE
 org $8086D2 : LDX #$3FFE
+
+org $848CA6
+    jsl activate_map_station_hook
+    nop : nop
 
 org $90A98B
     jsr mark_progress
@@ -40,6 +44,25 @@ mark_progress:
     rep #$30 : dex  ; run hi-jacked instructions
     rts
 
+; When map station is activated, fill all map revealed bits for the area:
+activate_map_station_hook:
+    LDA #$0001 : STA $0789   ; run hi-jacked instructions (set map flag)
+    
+    lda $1F5B
+    xba
+    tax          ; X <- map area * $100
+    ldy $0080    ; Y <- loop counter (number of words to fill with #$FFFF)
+.loop    
+    lda #$FFFF
+    sta $702000, x
+    inx
+    inx
+    dey
+    bne .loop
+    
+    rtl
+
+warnpc !bank_90_freespace_end
 
 ;;;; $943D: Load pause menu map tilemap ;;;
 org $82943D
@@ -170,4 +193,54 @@ load_pause_map_tilemap:
 
 warnpc $829628
 
-warnpc !bank_90_freespace_end
+; For HUD mini-map drawing, load map revealed bits (persisted across deaths/reloads) 
+; in place of map data bits (which are irrelevant since whole map is revealed):
+org $90A9C1
+    NOP
+    XBA                    ; A := A << 8
+    CLC
+    ADC #$2000
+    STA $09                ; $09 = $702000 + [area index] * $100
+    STA $0F                ; $0F = $702000 + [area index] * $100
+    LDA #$0070             
+    STA $0B                
+    ; PC should now be exactly $90A9D0:
+    print "$90A9D0 =? ", pc
+
+; Patch HUD mini-map drawing to use map revealed bits instead of map data bits
+; Vanilla logic: tile is non-blank if map station obtained AND map data bit is set
+; New logic: tile is non-blank if map revealed bit is set
+; (We make minimal changes to the code here, leaving redundant computations, to minimize changes to timings)
+org $90AAAC : BRA $03   ; Row 0
+org $90AAD3 : BRA $03   ; Row 1
+org $90AB10 : BRA $03   ; Row 2
+
+; Patch "Determine map scroll limits" to be based on map revealed bits instead of map explored bits:
+org $829EC6
+    lda $1F5B
+    clc
+    xba
+    adc #$2000
+    sta $06
+    lda #$0070
+    sta $08         ; $06 <- $702000 + area index * $100
+    jmp $9EEA
+    
+
+;$82:9EC6 AD 89 07    LDA $0789  [$7E:0789]  ;\
+;$82:9EC9 F0 15       BEQ $15    [$9EE0]     ;} If area map has been collected:
+;$82:9ECB A9 82 00    LDA #$0082             ;\
+;$82:9ECE 85 08       STA $08    [$7E:0008]  ;} $08 = $82
+;$82:9ED0 A9 17 97    LDA #$9717             ;\
+;$82:9ED3 85 06       STA $06    [$7E:0006]  ;|
+;$82:9ED5 AD 9F 07    LDA $079F  [$7E:079F]  ;|
+;$82:9ED8 0A          ASL A                  ;} $06 = [$82:9717 + [area index] * 2] (map data pointer)
+;$82:9ED9 A8          TAY                    ;|
+;$82:9EDA B7 06       LDA [$06],y[$82:9717]  ;|
+;$82:9EDC 85 06       STA $06    [$7E:0006]  ;/
+;$82:9EDE 80 0A       BRA $0A    [$9EEA]
+;
+;$82:9EE0 A9 00 00    LDA #$0000             ;\ Else (area map has not been collected):
+;$82:9EE3 85 08       STA $08    [$7E:0008]  ;|
+;$82:9EE5 A9 F7 07    LDA #$07F7             ;} $06 = $00:07F7 (map tiles explored)
+;$82:9EE8 85 06       STA $06    [$7E:0006]  ;/

@@ -5,3 +5,4 @@
 1FE0-2000: Save slot selection, etc.
 ----- expanded SRAM (if map progress QoL option is enabled): -----
 2000-2600: map_progress_maintain.asm
+2600-2602: Area explored bitmask, determines if an area map can show in pause map with Select (map_area.asm)

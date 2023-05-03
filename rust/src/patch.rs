@@ -248,6 +248,8 @@ impl<'a> Patcher<'a> {
             "aim_anything",
             "crateria_tube_black",
             "seed_hash_display",
+            "map_progress_maintain",
+            "unexplore",    
         ];
         let mut new_game = "new_game";
         if let Some(options) = &self.randomization.difficulty.debug_options {
@@ -277,13 +279,6 @@ impl<'a> Patcher<'a> {
 
         if self.randomization.difficulty.fast_pause_menu {
             patches.push("fast_pause_menu");
-        }
-
-        let map_progress_maintain = true;
-        if map_progress_maintain {
-            patches.push("map_progress_maintain");
-        } else {
-            patches.push("unexplore");
         }
 
         for patch_name in patches {
@@ -343,7 +338,7 @@ impl<'a> Patcher<'a> {
         Ok(())
     }
 
-    // Appends asm to mark the map tile (x, y) as explored. This is used for elevators and arrows.
+    // Appends asm to mark the map tile (x, y) as explored and revealed. This is used for elevators and arrows.
     // (See `auto_explore_elevators` and `auto_explore_arrows` below for details.)
     fn add_explore_tile_asm(
         &mut self,
@@ -352,26 +347,36 @@ impl<'a> Patcher<'a> {
         x: isize,
         y: isize,
         asm: &mut Vec<u8>,
+        explore: bool,
     ) -> Result<()> {
         let (offset, bitmask) = xy_to_explored_bit_ptr(x, y);
-        if current_area == tile_area {
-            // We want to write an explored bit to the current area's map, so we have to write it to
-            // the temporary copy at 0x07F7 (otherwise it wouldn't take effect and would just be overwritten
-            // on the next map reload).
-            let addr = 0x07F7 + offset;
-            asm.extend([0xAD, (addr & 0xFF) as u8, (addr >> 8) as u8]); // LDA {addr}
-            asm.extend([0x09, bitmask, 0x00]); // ORA #{bitmask}
-            asm.extend([0x8D, (addr & 0xFF) as u8, (addr >> 8) as u8]); // STA {addr}
-        } else {
-            // We want to write an explored bit to a different area's map, so we have to write it to
-            // the main explored bits at 0x7ECD52 (which will get copied over to 0x07F7 on the map reload
-            // when entering the different area).
-            let addr = 0xCD52 + tile_area as isize * 0x100 + offset;
-            asm.extend([0xAF, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x7E]); // LDA $7E:{addr}
-            asm.extend([0x09, bitmask, 0x00]); // ORA #{bitmask}
-            asm.extend([0x8F, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x7E]); // STA $7E:{addr}
+
+        // Mark as revealed (which will persist after deaths/reloads):
+        let addr = 0x2000 + (tile_area as isize) * 0x100 + offset;
+        asm.extend([0xAF, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // LDA $70:{addr}
+        asm.extend([0x09, bitmask, 0x00]); // ORA #{bitmask}
+        asm.extend([0x8F, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // STA $70:{addr}
+
+        // Mark as explored:
+        if explore {
+            if current_area == tile_area {
+                // We want to write an explored bit to the current area's map, so we have to write it to
+                // the temporary copy at 0x07F7 (otherwise it wouldn't take effect and would just be overwritten
+                // on the next map reload).
+                let addr = 0x07F7 + offset;
+                asm.extend([0xAD, (addr & 0xFF) as u8, (addr >> 8) as u8]); // LDA {addr}
+                asm.extend([0x09, bitmask, 0x00]); // ORA #{bitmask}
+                asm.extend([0x8D, (addr & 0xFF) as u8, (addr >> 8) as u8]); // STA {addr}
+            } else {
+                // We want to write an explored bit to a different area's map, so we have to write it to
+                // the main explored bits at 0x7ECD52 (which will get copied over to 0x07F7 on the map reload
+                // when entering the different area).
+                let addr = 0xCD52 + tile_area as isize * 0x100 + offset;
+                asm.extend([0xAF, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x7E]); // LDA $7E:{addr}
+                asm.extend([0x09, bitmask, 0x00]); // ORA #{bitmask}
+                asm.extend([0x8F, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x7E]); // STA $7E:{addr}
+            }    
         }
-        // asm.extend([0xEE, 0xC6, 0x09]);
         Ok(())
     }
 
@@ -383,6 +388,7 @@ impl<'a> Patcher<'a> {
         x: isize,
         y: isize,
         extra_door_asm: &mut HashMap<DoorPtr, Vec<u8>>,
+        explore: bool,
     ) -> Result<()> {
         let (room_idx, _door_idx) =
             self.game_data.room_and_door_idxs_by_door_ptr_pair[door_ptr_pair];
@@ -397,12 +403,12 @@ impl<'a> Patcher<'a> {
         if let Some(ptr) = door_ptr_pair.0 {
             // ASM for when exiting through the given door:
             let asm = extra_door_asm.entry(ptr).or_default();
-            self.add_explore_tile_asm(other_area, area, room_x + x, room_y + y, asm)?;
+            self.add_explore_tile_asm(other_area, area, room_x + x, room_y + y, asm, explore)?;
         }
         if let Some(ptr) = other_door_ptr_pair.0 {
             // ASM for when entering through the given door:
             let asm = extra_door_asm.entry(ptr).or_default();
-            self.add_explore_tile_asm(area, area, room_x + x, room_y + y, asm)?;
+            self.add_explore_tile_asm(area, area, room_x + x, room_y + y, asm, explore)?;
         }
         Ok(())
     }
@@ -421,7 +427,7 @@ impl<'a> Patcher<'a> {
             |exit_ptr: usize, entrance_ptr: usize, coords: Vec<(isize, isize)>| -> Result<()> {
                 for &(x, y) in &coords {
                     let door_ptr_pair = (Some(exit_ptr), Some(entrance_ptr));
-                    self.add_double_explore_tile_asm(&door_ptr_pair, x, y, extra_door_asm)?;
+                    self.add_double_explore_tile_asm(&door_ptr_pair, x, y, extra_door_asm, true)?;
                 }
                 Ok(())
             };
@@ -459,9 +465,9 @@ impl<'a> Patcher<'a> {
 
     // Similarly, for the arrow tiles that we add to mark area transitions, Samus doesn't
     // pass through these tiles, so normally they wouldn't show up until the map station is
-    // obtained. We change this by having these tiles be automatically marked explored
-    // when passing through the area transition:
-    fn auto_explore_arrows(
+    // obtained. We change this by having these tiles be automatically marked revealed
+    // when passing through the area transition (it isn't necessary to mark them explored):
+    fn auto_reveal_arrows(
         &mut self,
         extra_door_asm: &mut HashMap<DoorPtr, Vec<u8>>,
     ) -> Result<()> {
@@ -479,8 +485,8 @@ impl<'a> Patcher<'a> {
                 self.get_arrow_xy(&self.game_data.room_geometry[src_room_idx].doors[src_door_idx]);
             let (dst_x, dst_y) =
                 self.get_arrow_xy(&self.game_data.room_geometry[dst_room_idx].doors[dst_door_idx]);
-            self.add_double_explore_tile_asm(src_pair, src_x, src_y, extra_door_asm)?;
-            self.add_double_explore_tile_asm(dst_pair, dst_x, dst_y, extra_door_asm)?;
+            self.add_double_explore_tile_asm(src_pair, src_x, src_y, extra_door_asm, false)?;
+            self.add_double_explore_tile_asm(dst_pair, dst_x, dst_y, extra_door_asm, false)?;
         }
         Ok(())
     }
@@ -558,7 +564,7 @@ impl<'a> Patcher<'a> {
         .collect();
 
         self.auto_explore_elevators(&mut extra_door_asm)?;
-        self.auto_explore_arrows(&mut extra_door_asm)?;
+        self.auto_reveal_arrows(&mut extra_door_asm)?;
         self.block_escape_return(&mut extra_door_asm)?;
         // self.fix_tourian_blue_hopper(&mut extra_door_asm)?;
 

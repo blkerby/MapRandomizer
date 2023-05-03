@@ -55,7 +55,7 @@
         <li>Certain items do not spawn until Phantoon has been defeated, the same as in the vanilla game.
         <% } %>
         <li>Every item from the vanilla game is placed somewhere, and ammo distributions are unchanged; e.g. there are 50 Supers in the game.
-        <li>Varis suit behaves as in vanilla, but Gravity suit alone provides no heat protection and only 50% protection against other damage. 
+        <li>Varia suit behaves as in vanilla, but Gravity suit alone provides no heat protection and only 50% protection against other damage. 
         The suits are "complementary", meaning they stack to give the same effect as combined suits in the vanilla game.
         </ul>
 
