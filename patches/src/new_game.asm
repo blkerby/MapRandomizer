@@ -46,6 +46,7 @@ startup:
     dex
     lda $B5F000, X
     sta $7ECD52, X
+    ora $702000, X
     sta $702000, X
     txa
     bne .copy_explored

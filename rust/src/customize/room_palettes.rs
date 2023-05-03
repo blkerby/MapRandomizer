@@ -132,6 +132,9 @@ fn fix_phantoon_power_on(rom: &mut Rom, game_data: &GameData) -> Result<()> {
         let powered_on_palette = &game_data.palette_data[phantoon_area][&4];
         let encoded_palette = encode_palette(powered_on_palette);
         rom.write_n(snes2pc(0xA7CA61), &encoded_palette[0..224])?;
+        rom.write_u16(snes2pc(0xA7CA77), 0x48FB)?; // 2bpp palette 2, color 3: pink color for E-tanks (instead of black)
+        rom.write_u16(snes2pc(0xA7CA7B), 0x2529)?; // 2bpp palette 3, color 1: gray color for HUD dotted grid lines
+        
     }
     Ok(())
 }
