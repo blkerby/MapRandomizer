@@ -5,7 +5,7 @@ about 15 seconds to load.
 
 <p><a href="https://version-58---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 58 (2023-05-03)</a>:
 <ul>
-<li>Seed hash is shown on options menu before game start (using enemy names, similar to other Super Metroid randomizers).
+<li>Seed hash is shown in the options menu before game start (using enemy names, similar to other Super Metroid randomizers).
 <li>Map tile progress is always maintained, even after dying, reloading, resetting, or switching/creating save files.
   <ul>
   <li>Map tiles preserved in this way appear gray, the same as tiles revealed by map stations.
@@ -13,6 +13,7 @@ about 15 seconds to load.
   <li>Unexploring a tile (with Angle Up + Item Cancel) now changes the tile to gray (instead of black) even if 
   the area's map station has not been obtained.
   </ul>
+<li>Fixed issue with the palette transition after the Phantoon fight (a bug introduced in version 57).
 </ul>
 
 <p><a href="https://version-57---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 57 (2023-05-01)</a>:

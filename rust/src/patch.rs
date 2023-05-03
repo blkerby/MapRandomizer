@@ -357,7 +357,7 @@ impl<'a> Patcher<'a> {
         asm.extend([0x09, bitmask, 0x00]); // ORA #{bitmask}
         asm.extend([0x8F, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // STA $70:{addr}
 
-        // Mark as explored:
+        // Mark as explored (for elevators. Not needed for area transition arrows/letters):
         if explore {
             if current_area == tile_area {
                 // We want to write an explored bit to the current area's map, so we have to write it to

@@ -80,9 +80,9 @@ start_game:
 ;    sta $7ED90A
 ;    sta $7ED90C
 
-    lda #$0101     ; set G4 bosses defeated
-    sta $7ED829
-    sta $7ED82B
+;    lda #$0101     ; set G4 bosses defeated
+;    sta $7ED829
+;    sta $7ED82B
 
     ; Copy initial explored tiles from B5:F000 (to set map station tiles to explored)
     ; Also initialize these as revealed tiles (so that map station tiles will be taken into account in pause map scroll limits).
@@ -92,6 +92,7 @@ start_game:
     dex
     lda $B5F000, X
     sta $7ECD52, X
+    ora $702000, X
     sta $702000, X
     txa
     bne .copy_explored

@@ -20,8 +20,13 @@ org $848CA6
     jsl activate_map_station_hook
     nop : nop
 
+; Hook for normal routine to mark tiles explored (at current Samus location)
 org $90A98B
     jsr mark_progress
+
+; Hook for special routine to mark tiles (used when entering boss rooms)
+org $90A8E8
+    jsr mark_tile_explored_hook
 
 org !bank_90_freespace_start
 mark_progress:
@@ -61,6 +66,21 @@ activate_map_station_hook:
     bne .loop
     
     rtl
+
+
+mark_tile_explored_hook:
+    STA $07F7,x   ; run hi-jacked instruction (mark tile explored)
+
+    ; Also mark tile revealed (persists after deaths/reloads)
+    lda $1F5B  ; load current area
+    xba
+    txa  ; only low 8-bits of X transferred to low 8 bits of A
+    tax  ; full 16-bits of A transferred to X:  X <- area * $100 + offset
+    lda $702000,x
+    ora $AC04,y
+    sta $702000,x
+
+    rts
 
 warnpc !bank_90_freespace_end
 
