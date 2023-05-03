@@ -232,7 +232,6 @@ impl<'a> Patcher<'a> {
             "tourian_eye_door",
             "no_explosions_before_escape",
             "escape_room_1",
-            "unexplore",
             "max_ammo_display",
             "missile_refill_all",
             "sound_effect_disables",
@@ -279,6 +278,14 @@ impl<'a> Patcher<'a> {
         if self.randomization.difficulty.fast_pause_menu {
             patches.push("fast_pause_menu");
         }
+
+        let map_progress_maintain = true;        
+        if map_progress_maintain {
+            patches.push("map_progress_maintain");
+        } else {
+            patches.push("unexplore");
+        }
+
 
         for patch_name in patches {
             let patch_path = patches_dir.join(patch_name.to_string() + ".ips");
