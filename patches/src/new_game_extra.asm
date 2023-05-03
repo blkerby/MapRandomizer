@@ -7,6 +7,7 @@ lorom
 ;;; CONSTANTS
 !GameStartState = $7ED914
 !current_save_slot = $7e0952
+!area_explored_mask = $702600
 
 ;;; Hijack code that runs during initialization
 org $82801d
@@ -34,8 +35,9 @@ start_game:
     ;    stz $078B : stz $079f : stz $1f5b
 
     ; Initialize areas explored
-    lda #$003F
-    sta $7FFE02
+;    lda #$003F
+    lda #$0001
+    sta !area_explored_mask
 
     ; temporary extra stuff:
     lda #$F32F
@@ -83,12 +85,14 @@ start_game:
     sta $7ED82B
 
     ; Copy initial explored tiles from B5:F000 (to set map station tiles to explored)
+    ; Also initialize these as revealed tiles (so that map station tiles will be taken into account in pause map scroll limits).
     ldx #$0600
 .copy_explored
     dex
     dex
     lda $B5F000, X
     sta $7ECD52, X
+    sta $702000, X
     txa
     bne .copy_explored
 

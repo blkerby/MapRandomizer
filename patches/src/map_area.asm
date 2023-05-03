@@ -3,6 +3,7 @@ lorom
 
 !backup_area = $1F62
 !unexplored_gray = #$2529
+!area_explored_mask = $702600
 
 ;;; Hijack map usages of area ($079F) with new area ($1F5B)
 org $8085A7  ; Load mirror of current area's map explored
@@ -137,8 +138,8 @@ load_area:
     ; mark area as explored (determinines set of valid area maps to cycle through in pause menu):
     jsl $80818E    ; convert map area to bitmask
     lda $05E7      ; load bitmask
-    ora $7FFE02    ; combine with area explored mask
-    sta $7FFE02    ; update area explored mask
+    ora !area_explored_mask    ; combine with area explored mask
+    sta !area_explored_mask    ; update area explored mask
 
     lda $1F5B
     ply
@@ -268,7 +269,7 @@ next_area:
 
     jsl $80818E     ; convert map area to bitmask
     lda $05E7       ; load bitmask
-    and $7FFE02     ; test if area is explored
+    and !area_explored_mask     ; test if area is explored
     beq next_area   ; if not, skip this area and try the next one.
 
     rts
@@ -421,14 +422,6 @@ simple_scroll_setup:
 
 warnpc $82F900
 
-;org $829040  ; testing map scrolling
-;    jmp $9077
-
-;; Pause menu: Samus indicator in HUD (palette 7, colors 1-2)
-;org $B6F03A
-;    dw $7FFF
-;    dw $6318
-
 ; Pause menu: Pink color for full E-tank energy squares in HUD (palette 2, color 3)
 org $B6F016
     dw $48FB
@@ -436,16 +429,6 @@ org $B6F016
 ; Pause menu: Gray color for unexplored tiles in HUD (palette 3, color 1)
 org $B6F01A
     dw !unexplored_gray
-
-;; Pause menu: Black color for 4bpp color 3 (palette 2 - explored)
-;org $B6F046
-;    dw $0000
-;
-;; Pause menu: Black color for 4bpp color 3 (palette 3 - unexplored)
-;org $B6F066
-;    dw $0000
-
-
 
 ; Patch tile data for button letters. Changing the palettes to 3:
 org $858426            

@@ -7,6 +7,7 @@ lorom
 ;;; CONSTANTS
 !GameStartState = $7ED914
 !current_save_slot = $7e0952
+!area_explored_mask = $702600
 
 ;;; Hijack code that runs during initialization
 org $82801d
@@ -30,7 +31,7 @@ startup:
 
     ; Initialize areas explored
     lda #$0001
-    sta $7FFE02
+    sta !area_explored_mask
 
     ; Unlock Tourian statues room (to avoid camera glitching when entering from bottom, and also to ensure game is
     ; beatable since we don't take it into account as an obstacle in the item randomization logic)
@@ -38,12 +39,14 @@ startup:
     sta $7ED821
 
     ; Copy initial explored tiles from B5:F000 (to set map station tiles to explored)
+    ; Also initialize these as revealed tiles (so that map station tiles will be taken into account in pause map scroll limits).
     ldx #$0600
 .copy_explored
     dex
     dex
     lda $B5F000, X
     sta $7ECD52, X
+    sta $702000, X
     txa
     bne .copy_explored
 
