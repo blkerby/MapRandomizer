@@ -68,13 +68,24 @@ load_pause_map_tilemap:
     AND #$00FF             ;} If area map collected: go to BRANCH_MAP_COLLECTED
     BNE .BRANCH_MAP_COLLECTED
     SEP #$20
+
+    ; X := X << 8
+    txa
+    xba
+    lda $00
+    
+    tax
     LDY #$0000             ; Y = 0 (tilemap index)
-    LDX #$0000             ; X = 0 (map data byte index)
     STZ $12                ; $12 = 0 (map data bit subindex)
+    
+    LDA $7ECD52, x
+    STA $06
+
     CLC
 
 .LOOP_WITHOUT_MAP_DATA:
-    ROL $07F7,x               ;\
+;    ROL $07F7,x               ;\
+    ROL $06
     BCS .BRANCH_EXPLORED_MAP_TILE ;} If [$07F7 + [X]] & 80h >> [$12] != 0: go to BRANCH_EXPLORED_MAP_TILE
     REP #$20
     LDA #$001F             ;\
@@ -90,6 +101,8 @@ load_pause_map_tilemap:
     BMI .LOOP_WITHOUT_MAP_DATA ;/
     STZ $12                ; $12 = 0
     INX                    ; Increment X
+    LDA $7ECD52, x
+    STA $06
     CPX #$0100             ;\
     BMI .LOOP_WITHOUT_MAP_DATA     ;} If [X] < 100h: go to LOOP
     PLP
