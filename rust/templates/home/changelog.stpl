@@ -3,6 +3,14 @@
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-59---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 59 (2023-05-03)</a>:
+<ul>
+<li>Fixed issue with "Map stations always visible on map" (bug introduced in version 58).
+    <ul>
+    <li>Sometimes in the pause menu map it was not possible to scroll to see the location of the map station.
+    </ul>
+</ul>
+
 <p><a href="https://version-58---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 58 (2023-05-03)</a>:
 <ul>
 <li>Seed hash is shown in the options menu before game start (using enemy names, similar to other Super Metroid randomizers).
