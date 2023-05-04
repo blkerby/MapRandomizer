@@ -99,6 +99,7 @@ pub struct DifficultyConfig {
     pub mark_map_stations: bool,
     pub transition_letters: bool,
     pub item_markers: ItemMarkers,
+    pub item_dots_disappear: bool,
     pub all_items_spawn: bool,
     pub fast_elevators: bool,
     pub fast_doors: bool,

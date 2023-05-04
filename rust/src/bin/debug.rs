@@ -101,6 +101,7 @@ fn main() -> Result<()> {
         mark_map_stations: true,
         transition_letters: false,
         item_markers: ItemMarkers::ThreeTiered,
+        item_dots_disappear: true,
         all_items_spawn: true,
         fast_elevators: true,
         fast_doors: true,

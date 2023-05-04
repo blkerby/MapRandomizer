@@ -26,7 +26,7 @@ use rand::{RngCore, SeedableRng};
 use sailfish::TemplateOnce;
 use serde_derive::{Deserialize, Serialize};
 
-const VERSION: usize = 59;
+const VERSION: usize = 60;
 const VISUALIZER_PATH: &'static str = "../visualizer/";
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -189,6 +189,7 @@ struct RandomizeRequest {
     mark_map_stations: Text<bool>,
     transition_letters: Text<bool>,
     item_markers: Text<String>,
+    item_dots_disappear: Text<bool>,
     all_items_spawn: Text<bool>,
     fast_elevators: Text<bool>,
     fast_doors: Text<bool>,
@@ -223,6 +224,7 @@ struct SeedData {
     mark_map_stations: bool,
     transition_letters: bool,
     item_markers: String,
+    item_dots_disappear: bool,
     all_items_spawn: bool,
     fast_elevators: bool,
     fast_doors: bool,
@@ -260,6 +262,7 @@ struct SeedHeaderTemplate<'a> {
     mark_map_stations: bool,
     transition_letters: bool,
     item_markers: String,
+    item_dots_disappear: bool,
     all_items_spawn: bool,
     fast_elevators: bool,
     fast_doors: bool,
@@ -324,6 +327,7 @@ fn render_seed(seed_name: &str, seed_data: &SeedData) -> Result<(String, String)
         escape_movement_items: seed_data.escape_movement_items,
         mark_map_stations: seed_data.mark_map_stations,
         item_markers: seed_data.item_markers.clone(),
+        item_dots_disappear: seed_data.item_dots_disappear,
         transition_letters: seed_data.transition_letters,
         all_items_spawn: seed_data.all_items_spawn,
         fast_elevators: seed_data.fast_elevators,
@@ -613,6 +617,7 @@ fn get_difficulty_tiers(
             mark_map_stations: difficulty.mark_map_stations,
             transition_letters: difficulty.transition_letters,
             item_markers: difficulty.item_markers,
+            item_dots_disappear: difficulty.item_dots_disappear,
             all_items_spawn: difficulty.all_items_spawn,
             fast_elevators: difficulty.fast_elevators,
             fast_doors: difficulty.fast_doors,
@@ -764,6 +769,7 @@ async fn randomize(
             "3-Tiered" => ItemMarkers::ThreeTiered,
             _ => panic!("Unrecognized item_markers: {}", req.item_markers.0),
         },
+        item_dots_disappear: req.item_dots_disappear.0,
         all_items_spawn: req.all_items_spawn.0,
         fast_elevators: req.fast_elevators.0,
         fast_doors: req.fast_doors.0,
@@ -852,6 +858,7 @@ async fn randomize(
         mark_map_stations: req.mark_map_stations.0,
         transition_letters: req.transition_letters.0,
         item_markers: req.item_markers.0.clone(),
+        item_dots_disappear: req.item_dots_disappear.0,
         all_items_spawn: req.all_items_spawn.0,
         fast_elevators: req.fast_elevators.0,
         fast_doors: req.fast_doors.0,

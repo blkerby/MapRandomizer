@@ -2,13 +2,14 @@ use hashbrown::{HashMap, HashSet};
 use log::info;
 
 use crate::{
-    game_data::{GameData, Map, RoomGeometryDoor, RoomGeometryItem, Item},
+    game_data::{GameData, Map, RoomGeometryDoor, RoomGeometryItem, Item, ItemIdx},
     randomize::{Randomization, ItemMarkers, Objectives},
 };
 
 use super::{snes2pc, xy_to_explored_bit_ptr, xy_to_map_offset, Rom};
 use anyhow::{bail, Context, Result};
 
+type TilemapOffset = u16;
 type TilemapWord = u16;
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
@@ -133,12 +134,29 @@ impl<'a> MapPatcher<'a> {
         let base_ptr = 0x1A8000; // Location of map tilemaps
         for i in 0..0x3000 {
             let word = (self.rom.read_u16(base_ptr + i * 2)? & 0x3FF) as TilemapWord;
+            // println!("{:x}", word);
             if self.tile_gfx_map.contains_key(&word) {
                 used_tiles.insert(word);
             } else {
                 reserved_tiles.insert(word);
             }
         }
+
+        if self.randomization.difficulty.item_dots_disappear {
+            for area_idx in 0..6 {
+                let ptr = self.rom.read_u16(snes2pc(0x83B000 + area_idx * 2))?;
+                let size = self.rom.read_u16(snes2pc(0x83B00C + area_idx * 2))? as usize;
+                for i in 0..size {
+                    let word = (self.rom.read_u16(snes2pc(0x830000 + (ptr as usize) + i * 6 + 4))? & 0x3FF) as TilemapWord;
+                    println!("used word: {:x}", word);
+                    used_tiles.insert(word);
+                }
+            }
+        }
+        // for &word in &self.empty_item_tiles {
+        //     // println!("empty item: {:x}", word);
+        //     used_tiles.insert(word & 0x3FF);
+        // }
 
         let mut free_tiles: Vec<TilemapWord> = Vec::new();
         for word in 0..192 {
@@ -155,6 +173,7 @@ impl<'a> MapPatcher<'a> {
         let mut tile_mapping: HashMap<TilemapWord, TilemapWord> = HashMap::new();
         for (&u, &f) in used_tiles.iter().zip(free_tiles.iter()) {
             tile_mapping.insert(u, f);
+            println!("used: {:x}", u);
             let data = self.tile_gfx_map[&u];
             self.write_tile_2bpp(f as usize, data, true)?;
             self.write_tile_4bpp(f as usize, data)?;
@@ -167,6 +186,21 @@ impl<'a> MapPatcher<'a> {
             let new_idx = *tile_mapping.get(&old_idx).unwrap_or(&old_idx);
             let new_word = new_idx | old_flip | 0x0C00;
             self.rom.write_u16(base_ptr + i * 2, new_word as isize)?;
+        }
+
+        if self.randomization.difficulty.item_dots_disappear {
+            for area_idx in 0..6 {
+                let ptr = self.rom.read_u16(snes2pc(0x83B000 + area_idx * 2))?;
+                let size = self.rom.read_u16(snes2pc(0x83B00C + area_idx * 2))? as usize;
+                for i in 0..size {
+                    let old_word = self.rom.read_u16(snes2pc(0x830000 + (ptr as usize) + i * 6 + 4))? as TilemapWord;
+                    let old_idx = old_word & 0x3FF;
+                    let old_flip = old_word & 0xC000;
+                    let new_idx = *tile_mapping.get(&old_idx).unwrap_or(&old_idx);
+                    let new_word = new_idx | old_flip | 0x0C00;
+                    self.rom.write_u16(snes2pc(0x830000 + (ptr as usize) + i * 6 + 4), new_word as isize)?;
+                }
+            }
         }
 
         Ok(())        
@@ -1263,11 +1297,39 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
+    fn add_items_disappear_data(&mut self, area_data: &[Vec<(ItemIdx, TilemapOffset, TilemapWord, Interior)>]) -> Result<()> {
+        // Write per-area item listings, to be used by the patch `item_dots_disappear.asm`.
+        let base_ptr = 0x83B000;
+        let mut data_ptr = base_ptr + 24;
+        for (area_idx, data) in area_data.iter().enumerate() {
+            self.rom.write_u16(snes2pc(base_ptr + area_idx * 2), (data_ptr & 0xFFFF) as isize)?;
+            self.rom.write_u16(snes2pc(base_ptr + 12 + area_idx * 2), data.len() as isize)?;
+            for interior in [Interior::Item, Interior::MediumItem, Interior::MajorItem] {
+                for &(item_idx, offset, word, interior1) in data {
+                    if interior1 != interior {
+                        continue;
+                    }
+                    self.rom.write_u8(snes2pc(data_ptr), (item_idx as isize) >> 3)?;     // item byte index
+                    self.rom.write_u8(snes2pc(data_ptr + 1), 1 << ((item_idx as isize) & 7))?;  // item bitmask
+                    self.rom.write_u16(snes2pc(data_ptr + 2), offset as isize)?;  // tilemap offset
+                    self.rom.write_u16(snes2pc(data_ptr + 4), word as isize)?;  // tilemap word
+                    println!("area={}, offset={:x}, word={:x}, idx={:x}", area_idx, offset, word, word & 0x3ff);
+                    data_ptr += 6;
+                }
+            }
+        }
+        println!("ptr={:x}", self.rom.read_u16(snes2pc(0x83B000))?);
+        assert!(data_ptr <= 0x83B300);
+        Ok(())
+    }
+
     fn indicate_major_items(&mut self) -> Result<()> {
         let markers = self.randomization.difficulty.item_markers;
+        let mut area_data: Vec<Vec<(ItemIdx, TilemapOffset, TilemapWord, Interior)>> = vec![vec![]; 6];
         for (i, &item) in self.randomization.item_placement.iter().enumerate() {
             let (room_id, node_id) = self.game_data.item_locations[i];
             let item_ptr = self.game_data.node_ptr_map[&(room_id, node_id)];
+            let item_idx = self.rom.read_u8(item_ptr + 4)? as usize;
             let room_ptr = self.game_data.room_ptr_by_id[&room_id];
             let room_idx = self.game_data.room_idx_by_ptr[&room_ptr];
             let room = &self.game_data.room_geometry[room_idx];
@@ -1288,7 +1350,7 @@ impl<'a> MapPatcher<'a> {
                     )
                 })?
                 .clone();
-            assert!([Interior::Item, Interior::MediumItem, Interior::MajorItem].contains(&basic_tile.interior));
+            // assert!([Interior::Item, Interior::MediumItem, Interior::MajorItem].contains(&basic_tile.interior));
             match markers {
                 ItemMarkers::Basic => {}
                 ItemMarkers::Majors => {
@@ -1310,8 +1372,17 @@ impl<'a> MapPatcher<'a> {
                 },
             }
             let tile1 = self.get_basic_tile(basic_tile)?;
-            self.rom
-                .write_u16(base_ptr + offset, (tile1 | 0x0C00) as isize)?;
+            if self.randomization.difficulty.item_dots_disappear {
+                area_data[area].push((item_idx, offset as TilemapOffset, tile1 | 0x0C00, basic_tile.interior));
+                basic_tile.interior = Interior::Empty;
+                let tile_empty = self.get_basic_tile(basic_tile)?;    
+                self.rom.write_u16(base_ptr + offset, (tile_empty | 0x0C00) as isize)?;
+            } else {
+                self.rom.write_u16(base_ptr + offset, (tile1 | 0x0C00) as isize)?;    
+            }
+        }
+        if self.randomization.difficulty.item_dots_disappear {
+            self.add_items_disappear_data(&area_data)?;
         }
         Ok(())
     }

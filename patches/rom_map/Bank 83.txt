@@ -1,2 +1,3 @@
 0000 - AD66: Used by vanilla game
 AD66 - AD72: escape_autosave.asm
+B000 - B400: items_disappear.asm
