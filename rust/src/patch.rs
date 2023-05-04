@@ -281,6 +281,10 @@ impl<'a> Patcher<'a> {
             patches.push("fast_pause_menu");
         }
 
+        if self.randomization.difficulty.item_dots_disappear {
+            patches.push("item_dots_disappear");
+        }
+
         for patch_name in patches {
             let patch_path = patches_dir.join(patch_name.to_string() + ".ips");
             apply_ips_patch(&mut self.rom, &patch_path)?;

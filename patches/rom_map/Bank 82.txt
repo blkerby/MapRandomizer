@@ -3,3 +3,4 @@ F900 - FA00: fast_doors
 FA00 - FA80: fast_reload
 FA80 - FA90: fix_water_fx_bug
 FA90 - FD00: seed_hash_display
+FD00 - FD80: item_dots_disappear

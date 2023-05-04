@@ -102,6 +102,11 @@ load_pause_map_tilemap:
     STA $00                ;|
     LDA $964C,x            ;|
     STA $02                ;/
+    BRA .set_dst
+
+warnpc $82945C
+org $82945C      ; We keep this instruction in the same place so that item_dots_disappear can hook into it
+.set_dst
     LDA #$4000             ;\
     STA $03                ;|
     LDA #$007E             ;} $03 = $7E:4000 (destination tilemap)

@@ -26,6 +26,7 @@ pub struct Map {
 pub type TechId = usize; // Index into GameData.tech_isv.keys: distinct tech names from sm-json-data
 pub type StratId = usize; // Index into GameData.notable_strats_isv.keys: distinct notable strat names from sm-json-data
 pub type ItemId = usize; // Index into GameData.item_isv.keys: 21 distinct item names
+pub type ItemIdx = usize; // Index into the game's item bit array (in RAM at 7E:D870)
 pub type FlagId = usize; // Index into GameData.flag_isv.keys: distinct game flag names from sm-json-data
 pub type RoomId = usize; // Room ID from sm-json-data
 pub type RoomPtr = usize; // Room pointer (PC address of room header)
