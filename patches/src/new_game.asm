@@ -38,19 +38,6 @@ startup:
     lda #$0004
     sta $7ED821
 
-    ; Copy initial explored tiles from B5:F000 (to set map station tiles to explored)
-    ; Also initialize these as revealed tiles (so that map station tiles will be taken into account in pause map scroll limits).
-    ldx #$0600
-.copy_explored
-    dex
-    dex
-    lda $B5F000, X
-    sta $7ECD52, X
-    ora $702000, X
-    sta $702000, X
-    txa
-    bne .copy_explored
-
     ; If there are no existing save files, then clear map revealed tiles (persisted across deaths/reloads)
     lda $0954
     bne .skip_clear_revealed
@@ -63,6 +50,19 @@ startup:
     txa
     bne .clear_revealed
 .skip_clear_revealed:
+
+    ; Copy initial explored tiles from B5:F000 (to set map station tiles to explored)
+    ; Also initialize these as revealed tiles (so that map station tiles will be taken into account in pause map scroll limits).
+    ldx #$0600
+.copy_explored
+    dex
+    dex
+    lda $B5F000, X
+    sta $7ECD52, X
+    ora $702000, X
+    sta $702000, X
+    txa
+    bne .copy_explored
 
     ; Do the same for the local-area explored tiles (TODO: maybe simplify this.)
     ldx #$0100

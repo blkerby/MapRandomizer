@@ -26,7 +26,7 @@ use rand::{RngCore, SeedableRng};
 use sailfish::TemplateOnce;
 use serde_derive::{Deserialize, Serialize};
 
-const VERSION: usize = 58;
+const VERSION: usize = 59;
 const VISUALIZER_PATH: &'static str = "../visualizer/";
 
 #[derive(Serialize, Deserialize, Clone)]
