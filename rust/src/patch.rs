@@ -1175,8 +1175,13 @@ impl<'a> Patcher<'a> {
             if reload_cre_door_pairs.contains(dst_pair) {
                 let (room_idx, _door_idx) =
                     self.game_data.room_and_door_idxs_by_door_ptr_pair[src_pair];
-                self.rom
+                if self.game_data.room_geometry[room_idx].name == "Pants Room" {
+                    // Apply reload CRE to East Pants Room rather than Pants Room:
+                    self.rom.write_u8(0x7D69A + 8, 2)?;
+                } else {
+                    self.rom
                     .write_u8(self.game_data.room_geometry[room_idx].rom_address + 8, 2)?;
+                }
             }
         }
         Ok(())
