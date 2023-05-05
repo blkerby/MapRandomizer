@@ -90,6 +90,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("itemMarkersMajors").checked = false;
         document.getElementById("itemMarkersUniques").checked = false;
         document.getElementById("itemMarkersThreeTiered").checked = false;
+        document.getElementById("itemDotsDisappearNo").checked = true;
         document.getElementById("allItemsSpawnNo").checked = true;
         document.getElementById("fastElevatorsNo").checked = true;
         document.getElementById("fastDoorsNo").checked = true;
@@ -106,6 +107,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("itemMarkersMajors").checked = false;
         document.getElementById("itemMarkersUniques").checked = false;
         document.getElementById("itemMarkersThreeTiered").checked = true;
+        document.getElementById("itemDotsDisappearYes").checked = true;
         document.getElementById("allItemsSpawnYes").checked = true;
         document.getElementById("fastElevatorsYes").checked = true;
         document.getElementById("fastDoorsYes").checked = true;
@@ -122,6 +124,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("itemMarkersMajors").checked = false;
         document.getElementById("itemMarkersUniques").checked = false;
         document.getElementById("itemMarkersThreeTiered").checked = true;
+        document.getElementById("itemDotsDisappearYes").checked = true;
         document.getElementById("allItemsSpawnYes").checked = true;
         document.getElementById("fastElevatorsYes").checked = true;
         document.getElementById("fastDoorsYes").checked = true;

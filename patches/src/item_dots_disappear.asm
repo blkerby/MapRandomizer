@@ -14,38 +14,44 @@ lorom
 org $82945C
     jsr transfer_pause_tilemap_hook
 
-; Free space in bank $82:
-org !bank_82_freespace_start
-;load_pause_map_hook:
-;    jsr $943D           ; run hi-jacked instruction (load pause menu map tilemap without items, into $7E4000)
-;    jsl update_tilemap  ; (add items to the tilemap)
-;    rts
-
-transfer_pause_tilemap_hook:
-    ; Copy tilemap from [$00] (original ROM map tilemap) to $703000
-    ldx #$0800  ; loop counter
-    ldy #$0000  ; offset
-
-    lda #$3000
-    sta $03
+; patch HUD minimap drawing to copy from $703000 instead of original ROM tilemap, to pick up item dot modifications
+org $90AA73
+patch_hud_minimap_draw:
     lda #$0070
     sta $05
+    sta $02
+    sta $08
+    lda #$3000
+    bra .setup
+warnpc $90AA8A
+org $90AA8A
+.setup:
 
-.loop:
-    lda [$00], y
-    sta [$03], y
-    iny
-    iny
-    dex
-    bne .loop
+; update tilemap when loading game:
+org $80A0D9
+    jsl update_tilemap  ; no hi-jack needed since the replaced instruction does nothing
+
+org $829370
+    jsl unpause_hook
+
+org $82DFC2
+    jsl reload_map_hook
+
+org $85846D
+    jsl message_box_hook   ; reload map after message boxes (e.g. after item collect or map station activation)
+    nop
+
+; Free space in bank $82:
+org !bank_82_freespace_start
+
+transfer_pause_tilemap_hook:
+    jsl update_tilemap  ; update tilemap with collected item dots
 
     ; Set source tilemap to $703000 for further processing
     lda #$3000
     sta $00
     lda #$0070
     sta $02
-
-    jsl update_tilemap  ; update tilemap with collected item dots
 
     lda #$4000  ; run hi-jacked instruction
     rts
@@ -55,10 +61,55 @@ warnpc !bank_82_freespace_end
 ; Free space in any bank:
 org $83B300
 
+unpause_hook:
+    jsl update_tilemap
+    jsl $80A149  ; run hi-jacked instruction
+    rtl
+
+message_box_hook:
+    jsl update_tilemap
+    
+    ; run hi-jacked instructions:
+    sep #$20
+    lda $1C1F
+    rtl
+
+reload_map_hook:
+    jsl $80858C  ; run hi-jacked instruction (load map explored bits)
+    jsl update_tilemap
+    rtl
+
 update_tilemap:
     php
-
     rep #$30
+
+    ; $00 <- long pointer to original map tilemap in ROM, for current area
+    lda $1F5B  ; current map area
+    asl A
+    clc
+    adc $1F5B
+    tax
+    lda $82964C,x
+    sta $02
+    lda $82964A,x
+    sta $00
+
+    ; Copy tilemap from [$00] (original map tilemap in ROM) to $703000 (in SRAM, which we're just using as extra RAM)
+    ldx #$0800  ; loop counter
+    ldy #$0000  ; offset
+
+    lda #$3000
+    sta $03
+    lda #$0070
+    sta $05
+
+.copy_loop:
+    lda [$00], y
+    sta [$03], y
+    iny
+    iny
+    dex
+    bne .copy_loop
 
     lda $1F5B
     asl
@@ -69,7 +120,7 @@ update_tilemap:
     lda !item_list_ptrs, x
     tax  ; X <- item data offset
 
-.loop:
+.item_loop:
     lda #$0000
     sep #$20
     lda $830000, x
@@ -90,7 +141,7 @@ update_tilemap:
     rep #$20
     inx : inx : inx : inx : inx : inx
     dec $06
-    bne .loop
+    bne .item_loop
 
 .done:
     plp
