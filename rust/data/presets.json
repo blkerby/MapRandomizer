@@ -181,8 +181,6 @@
       "Cathedral Entrance Left Door Frozen Sova Step",
       "Cathedral Entrance Hero Shot Shinespark",
       "Lava Dive Shinespark",
-      "Hjless Lava Dive",
-      "Hjless Lava Dive BounceBall",
       "Sponge Bath Bull Boost",
       "Maridia Bug Room MidAir Morph with Gravity",
       "Etecoon Beetom Tricky Dodge",
@@ -204,7 +202,6 @@
       "Bug Sand Hole Damage Boost", 
       "Bug Sand Hole Sand Jumps",
       "Pants Room Suitless MidAir SpringBall Jump with HiJump",
-      "East Sand Hole Sandfall Bounce to Power Bombs",
       "Bug Sand Hole Speedy Jump Morph",
       "East Ocean Space Jump Water Escape with Ice (Left to Right)",
       "Grapple Tutorial 3 Frozen Gamet Bridge",
@@ -243,17 +240,14 @@
       "canManipulateMellas",
       "canDoubleSpringBallJumpMidAir",
       "canQuickCrumbleEscape",
-      "canInsaneWalljump",
       "canMultiviolaIceClip",
       "canWallJumpBombBoost",
-      "canCrouchGateClip",
       "canStaggeredIBJ",
       "canRJump",
       "canStationaryLateralMidAirMorph",
       "canSpeedKeepChain"
     ],
     "notable_strats": [
-      "Early Supers Crouch Gate Clip Damage Boost",
       "Brinstar Reserve Hole-in-One",
       "Dachora Room Shinespark No Etanks No HiJump",
       "Warehouse Kihunter Speedball",
@@ -273,9 +267,6 @@
       "East Cac Alley Cross Room Jump with IBJ",
       "East Cac Alley Cross Room Jump with Spring Ball, Bomb Boost",
       "Cacatac Alley Springball Spike Boost",
-      "Everest Tricky Cross Room Jump (Right to Left)",
-      "Everest Tricky Cross Room Jump (Right to Top)",
-      "Everest Tricky Cross Room Jump with HiJump (Right to Top)",
       "Mama Turtle Wall Jump Bomb Boost",
       "Post Crocomire Farming Room Speed Jump",
       "PCJR Full Room Space Jump Through Speed Blocks",
@@ -294,15 +285,14 @@
       "Mt. Everest Right Crab Climb with Only HiJump or Springball",
       "Gauntlet Entrance Blue SpaceJump",
       "Crab Hole Suitless Crab Climb No Jump Assist",
-      "Oasis Cross Room Jump with Screw Attack and Speed through the Top Door",
       "Brinstar Reserve Speed Keep",
       "Crab Hole Suitless Crab Climb Superless with Springball",
-      "Colosseum Spike Platforming",
       "West Sand Hole Bootless Suitless IBJ",
       "Climb Speedkeep Chain Through Bomb Blocks",
-      "East Pants Room Suitless Puyo Clip",
       "East Ocean Space Jump Water Escape (Left to Right)",
-      "Grapple Tutorial 3 Double Gamet Boost"
+      "Grapple Tutorial 3 Double Gamet Boost",
+      "Hjless Lava Dive",
+      "Hjless Lava Dive BounceBall"
     ]
   },
   {
@@ -329,7 +319,9 @@
       "canXMode",
       "canSuperJump",
       "canCeilingBombJump",
-      "canDiagonalBombJump"
+      "canDiagonalBombJump",
+      "canCrouchGateClip",
+      "canInsaneWalljump"
   ],
     "notable_strats": [
       "Green Hill Zone Tunnel Crawl",
@@ -344,7 +336,14 @@
       "Writg X-Ray Climb",
       "West Ocean G-mode Overload PLMs by PBing Missile Item",
       "Double Chamber HiJumpless Wall Jump",
-      "Bowling Alley Ceiling Bomb Jump"
+      "Bowling Alley Ceiling Bomb Jump",
+      "Early Supers Crouch Gate Clip Damage Boost",
+      "Everest Tricky Cross Room Jump (Right to Left)",
+      "Everest Tricky Cross Room Jump (Right to Top)",
+      "Everest Tricky Cross Room Jump with HiJump (Right to Top)",
+      "Oasis Cross Room Jump with Screw Attack and Speed through the Top Door",
+      "East Pants Room Suitless Puyo Clip",
+      "East Sand Hole Sandfall Bounce to Power Bombs"
     ]
   },
   {
@@ -374,7 +373,8 @@
       "Climb G-Mode Morph Blind Climb to the Top",
       "Crateria Supers G-Mode Morph Long Ceiling Bomb Jump",
       "Crateria Supers G-Mode Up with PBs",
-      "Back-Side Botwoon Super Only Fight"
+      "Back-Side Botwoon Super Only Fight",
+      "Colosseum Spike Platforming"
     ]
   }
 ]
