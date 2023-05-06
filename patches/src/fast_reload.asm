@@ -92,7 +92,11 @@ check_reload:
     lda $8B      ; Controller 1 input
     and #$3030   ; L + R + Select + Start
     cmp #$3030
-    beq .reset
+    bne .noreset ; If any of the 4 inputs are not currently held, then do not reset.
+
+    lda $8F      ; Newly pressed controller 1 input
+    and #$3030   ; L + R + Select + Start
+    bne .reset   ; Reset only if at least one of the 4 inputs is newly pressed
 .noreset
     PLA
     PLP

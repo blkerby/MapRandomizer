@@ -364,7 +364,7 @@ explore_eps_factor = 0.0
 # temperature_max = 2.0
 temperature_min0 = 1.0
 temperature_min1 = temperature_min0
-temperature_max0 = 100.0
+temperature_max0 = 10.0
 temperature_max1 = temperature_max0
 annealing_start = 0
 annealing_time = 32
@@ -381,11 +381,11 @@ total_round_cnt = 0
 total_min_door_frac = 0
 save_freq = 128
 summary_freq = 128
-session.decay_amount = 0.01
+session.decay_amount = 0.05
 session.optimizer.param_groups[0]['betas'] = (0.9, 0.9)
 session.optimizer.param_groups[0]['eps'] = 1e-5
-ema_beta0 = 0.9995
-ema_beta1 = ema_beta0
+ema_beta0 = 0.99
+ema_beta1 = 0.9995
 session.average_parameters.beta = 0.995
 
 def compute_door_connect_counts(only_success: bool, ind=None):
@@ -460,6 +460,7 @@ logging.info(
         session.replay_buffer.capacity, hist_frac, hist_c, num_params, session.decay_amount,
         temperature_min0, temperature_min1, temperature_max0, temperature_max1, temperature_decay, ema_beta0, ema_beta1, explore_eps_factor,
         annealing_time))
+logging.info(session.optimizer)
 logging.info("Starting training")
 for i in range(1000000):
     frac = max(0.0, min(1.0, (session.num_rounds - annealing_start) / annealing_time))
