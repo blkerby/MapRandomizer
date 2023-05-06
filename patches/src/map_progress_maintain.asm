@@ -8,11 +8,14 @@ lorom
 org $80FFD8
     db 4
 
-; Modify SRAM size check to work for the new SRAM size
+; Modify SRAM size check to work for the new SRAM size.
+; We just check that the SRAM can remember the incrementing sequence. 
+; No need to check mirroring behavior since this isn't used in the game and doesn't work with some flash carts such
+; as Everdrive.
 org $808695 : LDX #$3FFE
 org $8086A7 : LDX #$3FFE
 org $8086B5 : LDX #$3FFE
-org $8086B8 : STA $704000, x
+org $8086B8 : STA $700000, x
 org $8086C4 : LDX #$3FFE
 org $8086D2 : LDX #$3FFE
 

@@ -1,9 +1,7 @@
-next release:
-- seed hash display
-- QoL option: map tiles saved after death/reload
-
 priority:
+- see if fast doors causes issues with Samus momentum across rooms (see examples from insomniaspeed)
 - add vertical gravity jumps to logic
+- show objective progress in pause menu
 - add pages for tech, strats, rooms.
 - help buttons for rest of settings (e.g. explain boss proficiency calculations)
 - logic simulator
@@ -11,22 +9,18 @@ priority:
 - proper front page
 - music options: vanilla, area-themed, or none
 - sprite customization (?),
-- add reverse botwoon logic
 
 
 later:
+- maybe make Mother Brain Room reveal all its tiles (and maybe explore them too? but probably not), to be more consistent with the other boss rooms
 - fix save animation colors (area-themed color looks a little bad?)
 - consider making Save the Animals option displayed more prominently
   - show Bomb Torizo room on map somehow during escape
-- consider option to retain map tiles after death
-  - (but this would probably have to come after an option to make item dots disapper, and show boss/objective progress)
 - customization option to disable low-energy beeping.
 - logic: metroid tank damage may need to be higher without some tech (multiplier doesn't apply)
 - fix palette issue in HUD map after Phantoon fight
 - fix how spoiler map sometimes won't show escape route
-- see if fast doors causes issues with Samus momentum across rooms (see examples from insomniaspeed)
 - see if it is possible to prevent song changes from messing up enemy behavior
-- show seed hash in main menu (to help in race setup to make sure everyone is using the same seed)
 - fix problem with disappearing typewriter text when pausing as escape sequence starts
 - redo disable_walljump patch to disable the wall jump only, not disable wall-jump check (which breaks X-ray climb setups)
 - add tech for underwater single-sided wall-jumping (UWU)
@@ -37,7 +31,6 @@ later:
 - fix map tile for phantoon with objectives other than bosses (remove item dot).
 - Add override for Tourian Hopper run under strat from left to top (imyt strat)
 - add a tip that you can share a seed using the URL.
-- add ability to "select" through different areas in pause menu map (check out what Map Overhaul did).
 - logic: ice moonfall (in dachora room)
 - make graph traversals faster by using previous step for initial local states (probably not worth it?):
   - we'd have to do a full graph traversal to get spoiler route as a separate step, to avoid getting weird long paths
@@ -60,21 +53,11 @@ later:
 - (probably bad idea:) add third option for filler items: "After First"
   - reorganize UI to only show this option for Supers, PowerBombs, ETanks, and Reserve Tanks.
 
-
-- add patch to be able to bind other buttons to angle up/down
 - spoiler visualizer improvements:
   - refinements
-    - show room if some node in room is bireachable (not only on the way to items)
-    - show faded room if no node in the room is bireachable but some node is one-way-reachable?
     - show faded item if some node in the room is reachable but the item itself is not (or is only one-way reachable)
-    - show instructions/tips when first opening
-      - then we can replace "Spoiler Info" section on seed page with just a single big button
-    - make the fog more crisp
     - make it so you can click on an item in the step panel and it will show the route to the item
     - show the route info in a separate panel below the step panel
-  - bugs to fix:
-    - mouse-over item info sometimes gets covered up by fog
-    - mouse-over room info doesn't work after panning (have to reload)
   - eventually integrate with logic pages once those are implemented:
     - double-clicking on room can go to our room page (instead of to wiki)
     - clicking on a strat (in route info) goes to strat page
@@ -97,7 +80,6 @@ later:
 - fix (sometimes?) glitched right door in GT. X-Ray showed a plasma beam inside it
 - find some way to make it more obvious when you wake Zebes?
   - maybe open/closed eye icon next to defeated bosses marked in pause menu?
-- fix game crash that can happen when quick-reloading in death animation
 - add count of how many times each tech is used
 - make tech dependencies also look at "obstacles"
 - consider splitting up Streamlined escape into 3 separate QoL options (removing the need for a footnote to explain it)
@@ -107,15 +89,8 @@ later:
 - speed up parts of MB: where Big Boy is latched on to MB, and death animation (shouldn't affect stand-up)
 - add more farms to logic
 - adjust elevator heatFrames when fast elevators enabled
-- make quick reload work while in pause menu
-- make quick reload in save room to go back to previous save? (what about in Landing Site?)
-- add caution tape to dangerous doors?
-- fix camera in bowling alley (for CF grapple clip)
-- figure out glitch where sometimes bottom pixel of HUD is messed up, scrolling with the camera
-  - zsnes 1.36: map-rando-5jGQIBX24w4DVQjZ5as5zQ.sfc
-- add reverse botwoon logic from osse's PR
+- make quick reload work while in pause menu?
 - refine cross room shinesparks:
-    - excessShinesparkFrames (reverse)
     - slopes
 - controller config special settings (moonwalk) customization
 - tweak balancing:
@@ -128,31 +103,25 @@ later:
     "enterWithSpeedball" and other things), and symmetrically, "exitCharged", "exitWithSpeedball", etc.
   - This is cleaner, reduces need for preprocessing, and would cut out the possibility of expressing invalid things
     like requiring multiple adjacentRunway from different nodes in the same strat.
-- consider indicating heated rooms & fully immersed rooms on map?
 - improve slow-progression logic: allow item progression by unlocking way back
   - don't immediately place filler items at one-way reachable locations
   - instead check that when a key item is placed at a previously one-way-reachable location, the item would not have provided
     a way back at an earlier step?
 - fix spoiler log for reverse paths using shinesparks
-- fix bug where controls are locked when dying from enemy during elevator
-  - also from quick reloading during elevator
 - fix bug where suit color does not change when changing suits while taking damage (e.g. lava dive)?
 - fix bug where music is wrong after quick reload (even after going to next room).
 - clean up the web service, to reduce the amount of boilerplate plumbing settings around.
 - add front page to website
 - explain about doors being turned blue?
-- increase amount of rolling saves?
 - figure out why some rooms are dark (some FX other than palette FX?)
 - add back palette FX glows using correct palettes.
 - fix palette in Crocomire cutscene when wall collapses
-- if feasible, mark collected items somehow (preferably as dark gray dots, otherwise as blank)
+  - also cutscene between MB1 and MB2
 - During escape, block backward path using room setup ASM instead of door ASM (so it can still work after leaving room another way)
 - make separate option for patching out major glitches?
   - include GT code, Spacetime beam (currently patched out)
   - make OOB cause instant death?
   - others
-- area-themed palettes:
-  - remove or fix glows that are wrong color (e.g. Wrecked Ship?)
 - Add way to export settings from seed page (and export/import on main page).
 - With a future ML model, treat Mother Brain room as 0-way (instead of one-way) to ensure items, maps, etc.
   cannot be locked behind Mother Brain.
@@ -160,11 +129,8 @@ later:
     - Spread out placement of single-tile, single-door rooms to help balancing of saves & refills.
 - at end of randomization, make sure G4 bosses are reachable (to guard against a case like Phantoon being locked behind
   Bowling, or a G4 boss locked behind Mother Brain).
-- Handle shinespark_frames=0 correctly (don't require 29 energy)
 - Better validation/error-handling of web service
   - push more validation into client
-- Make big button for spoiler info.
-  - put instructions in the spoiler page itself instead of on the seed page
 - Add note to strat in Post-Crocomire farming room to get to top-left with HiJump
   (run on platform enemy and jump)
 - Use separate worker pool to run randomization (to avoid blocking web requests)
@@ -180,7 +146,6 @@ later:
 - move GFX colors:
   - Morph Ball room (blue brinstar), tileset 7:
     - [0x31, 0x32, 0x33] -> [0x38, 0x39, 0x3A]
-- make the pause map tiles align with the grid
 - fix tiny bug: when bottom-left door of landing site is an area transition, the arrow shows up from the beginning
   of the game (due to running the door ASM while loading the game)
 - organize tech on website.
@@ -189,16 +154,6 @@ later:
 - fix suit graphics not showing after getting suit (consequence of skipping animation)?
 
 maybe someday?:
-- show whole Zebes map in pause menu?
-  - instead of blue/pink, use area-themed colors (with light/dark to mark explored/unexplored)
-  - probably difficult, but maybe possible?
-  - play subversion and then chat with amoeba to get more ideas
-- change how item dots appear once collected?
-  - make them disappear or turn gray?
-  - consider using dynamic tiles or sprites:
-     - we would need to limit how many can appear on the pause screen at the same time.
-     - amoeba apparently found there was more room for tiles than sprites?
-  - we need this to show up on HUD as well as pause map
 - minimizer mode? (select rooms to include randomly, hand-picked, and/or user-selected)
 - make map rando for other hacks (e.g. project base, subversion?)
   - would be a lot of work. we could invite others to help implement the logic
@@ -208,8 +163,6 @@ maybe someday?:
 rejected ideas (probably):
 - set boss flag immediately when boss dies.
 - balance boss distribution (one boss per area, corresponding to vanilla?)
-- check if map reload is messing up timing at start of rooms (e.g. Beta Power Bombs)
-  - or more likely music reload is a factor. Can we artificially trigger reload in Morph Ball room or do something else
   to fix the timing with the hoppers?
 - consider moving the MB barriers to the right one tile (or two?), to make them interfere less with ice zeb skip.
 - have forced mode take into account return path? (probably a bad idea)
