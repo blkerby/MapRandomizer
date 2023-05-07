@@ -3,16 +3,17 @@
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-61---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 61 (???)</a>:
+<p><a href="https://version-61---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 61 (2023-05-07)</a>:
 <ul>
-<li>Improved "Fast doors" option to avoid affecting Samus' position after door transitions.
+<li>"Fast doors" option no longer affects Samus' position after door transitions.
 <li>Fixed graphical glitch that occurred when Kraid's Room was connected to East Pants Room.
 <li>Fixed issue where fast reload could unintentionally load a previous save if L + R + Select + Start were held too long.
 <li>Simplified SRAM check to improve compatibility with some flash carts such as Everdrive.
-<li>Some adjustments to difficulty tiers:
+<li>Logic updates:
     <ul>
     <li>"canInsaneWalljump" and "canCrouchGateClip" tech are moved up from Expert to Extreme.
-    <li>Several notable strats are also moved up in difficulty.
+    <li>Several notable strats are moved up in difficulty.
+    <li>Requirements for Tourian Escape Room 4 are reworked.
     </ul>
 </ul>
 
