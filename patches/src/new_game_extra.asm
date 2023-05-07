@@ -80,9 +80,9 @@ start_game:
 ;    sta $7ED90A
 ;    sta $7ED90C
 
-;    lda #$0101     ; set G4 bosses defeated
-;    sta $7ED829
-;    sta $7ED82B
+    lda #$0101     ; set G4 bosses defeated
+    sta $7ED829
+    sta $7ED82B
 
     ; If there are no existing save files, then clear map revealed tiles (persisted across deaths/reloads)
     lda $0954

@@ -5,9 +5,10 @@ about 15 seconds to load.
 
 <p><a href="https://version-61---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 61 (???)</a>:
 <ul>
-<li>Fix graphical glitch that occurred when Kraid's Room was connected to East Pants Room.
-<li>Fix issue where fast reload could unintentionally load a previous save if L + R + Select + Start were held too long.
-<li>Simplify SRAM check to improve compatibility with some flash carts such as Everdrive.
+<li>Improved "Fast doors" option to avoid affecting Samus' position after door transitions.
+<li>Fixed graphical glitch that occurred when Kraid's Room was connected to East Pants Room.
+<li>Fixed issue where fast reload could unintentionally load a previous save if L + R + Select + Start were held too long.
+<li>Simplified SRAM check to improve compatibility with some flash carts such as Everdrive.
 <li>Some adjustments to difficulty tiers:
     <ul>
     <li>"canInsaneWalljump" and "canCrouchGateClip" tech are moved up from Expert to Extreme.
