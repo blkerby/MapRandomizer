@@ -630,7 +630,7 @@ for i in range(1000000):
             temp_high = temperature_endpoints[i + 1]
             # ind = torch.nonzero((buffer_temperature > temp_low) & (buffer_temperature <= temp_high))[:, 0]
             # ind = torch.nonzero((buffer_temperature > temp_low * 1.0001) & (buffer_temperature <= temp_high * 0.9999) & (round < round_window))[:, 0]
-            ind = torch.nonzero((buffer_temperature > temp_low * 1.0001) & (buffer_temperature < temp_high * 0.9999) & (round >= round_start) & (round < round_end))[:, 0]
+            ind = torch.nonzero((buffer_temperature >= temp_low) & (buffer_temperature < temp_high * 0.9999) & (round >= round_start) & (round < round_end))[:, 0]
             if ind.shape[0] == 0:
                 continue
             buffer_reward = session.replay_buffer.episode_data.reward[ind]
