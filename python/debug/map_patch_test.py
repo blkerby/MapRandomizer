@@ -7,8 +7,8 @@ import io
 import os
 
 
-input_rom_path = '/home/kerby/Downloads/Super Metroid (JU) [!].smc'
-# input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.5.3-tinystates-ntsc.sfc'
+# input_rom_path = '/home/kerby/Downloads/Super Metroid (JU) [!].smc'
+input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.5.3-tinystates-ntsc.sfc'
 # input_rom_path = '/home/kerby/Downloads/Practice-v2.5.1-suits.sfc'
 # input_rom_path = '/home/kerby/Downloads/smmr-v8-66-115673117270825932886574167490559/smmr-v8-66-115673117270825932886574167490559.sfc'
 # input_rom_path = '/home/kerby/Downloads/smmr-v0-30-115673117270825932886574167490559.sfc'
@@ -28,8 +28,8 @@ area_arr = [rom.read_u8(room.rom_address + 1) for room in rooms]
 
 
 patches = [
-    'new_game_extra',
-    # 'door_hurt',
+    # 'new_game_extra',
+    'door_hurt',
     # 'complementary_suits',
     # 'complementary_suits_noheat',
     # 'escape',
@@ -44,11 +44,11 @@ patches = [
     # 'all_items_spawn',
     # 'bomb_torizo',
     # 'decompression',
-    'fast_reload',
-    'hud_expansion_opaque',
+    # 'fast_reload',
+    # 'hud_expansion_opaque',
     # 'mb_barrier',
     # 'mb_barrier_clear',
-    'saveload',
+    # 'saveload',
     # 'DC_map_patch_1',
     # 'DC_map_patch_2',
     # 'vanilla_bugfixes',
@@ -71,7 +71,7 @@ patches = [
     # 'no_explosions_before_escape',
     # 'escape_room_1',
     # 'unexplore',
-    'max_ammo_display',
+    # 'max_ammo_display',
     # 'missile_refill_all',
     # 'sound_effect_disables',
 ]
@@ -79,7 +79,7 @@ for patch_name in patches:
     patch = ips_util.Patch.load('patches/ips/{}.ips'.format(patch_name))
     rom.bytes_io = BytesIO(patch.apply(rom.bytes_io.getvalue()))
 
-rom.write_u8(snes2pc(0xA1f000), 0x6B)  # RTL (skip clearing enemies in escape)
+# rom.write_u8(snes2pc(0xA1f000), 0x6B)  # RTL (skip clearing enemies in escape)
 
 
 def read_colors(addr, n):
@@ -116,14 +116,14 @@ for i in range(32):
     print(g)
     gravity_suit_colors.append(g)
 
-write_colors(snes2pc(0x9BFF00), gravity_suit_colors)
+# write_colors(snes2pc(0x9BFF00), gravity_suit_colors)
 
 # # release Kraid camera so it won't be as glitched when entering from the right
 # rom.write_n(snes2pc(0xA7A9F4), 4, bytes(4 * [0xEA]))
 # # No longer restrict Samus X position to left screen during start of Kraid fight
 # rom.write_u8(snes2pc(0xA7C9EE), 0x60)
 #
-map_patcher = MapPatcher(rom, area_arr)
+# map_patcher = MapPatcher(rom, area_arr)
 # # # for i, idx in enumerate(new_text_tile_idxs):
 # # #     map_patcher.write_tile_2bpp(idx, vanilla_text_tiles[i], switch_red_white=False)
 # #
@@ -233,31 +233,31 @@ rom.write_n(snes2pc(0x83A738), 12, data)
 # old_y = rom.read_u8(0x7D5A7 + 3)
 # rom.write_u8(0x7D5A7 + 3, old_y - 4)
 
-map_patcher.apply_map_patches()
+# map_patcher.apply_map_patches()
+# #
 #
-
-# data = [[0 for _ in range(8)] for _ in range(8)]
-# for i in range(32):
-#     map_patcher.write_tile_2bpp(i + 256, data)
-#
-import numpy as np
-image = np.zeros([256, 128])
-for i in range(512):
-    data = map_patcher.read_tile_2bpp(i)
-    x = i // 16
-    y = i % 16
-    x0 = x * 8
-    x1 = (x + 1) * 8
-    y0 = y * 8
-    y1 = (y + 1) * 8
-    image[x0:x1, y0:y1] = data
-    # for row in data:
-    #     print(''.join('{:x}'.format(x) for x in row))
-    # data = read_tile_4bpp(rom, snes2pc(0xB68000), i)
-    # for row in data:
-    #     print(''.join('{:x}'.format(x) for x in row))
-from matplotlib import pyplot as plt
-plt.imshow(image)
+# # data = [[0 for _ in range(8)] for _ in range(8)]
+# # for i in range(32):
+# #     map_patcher.write_tile_2bpp(i + 256, data)
+# #
+# import numpy as np
+# image = np.zeros([256, 128])
+# for i in range(512):
+#     data = map_patcher.read_tile_2bpp(i)
+#     x = i // 16
+#     y = i % 16
+#     x0 = x * 8
+#     x1 = (x + 1) * 8
+#     y0 = y * 8
+#     y1 = (y + 1) * 8
+#     image[x0:x1, y0:y1] = data
+#     # for row in data:
+#     #     print(''.join('{:x}'.format(x) for x in row))
+#     # data = read_tile_4bpp(rom, snes2pc(0xB68000), i)
+#     # for row in data:
+#     #     print(''.join('{:x}'.format(x) for x in row))
+# from matplotlib import pyplot as plt
+# plt.imshow(image)
 
 # # rom.write_u16(snes2pc(0x819124), 0x0009)   # File select index 9 - load
 #
@@ -278,6 +278,9 @@ plt.imshow(image)
 
 
 # rom.write_n(snes2pc(0xA7D4E5), 8, bytes(8 * [0xEA]))
+
+# Shaktool camera
+rom.write_u8(snes2pc(0x84B8DC), 0x60)  # RTS
 
 rom.save(output_rom_path)
 print("Wrote to", output_rom_path)

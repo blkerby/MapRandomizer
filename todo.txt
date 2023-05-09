@@ -1,12 +1,10 @@
-special rooms to check with fast doors:
-- plowerhouse room
-- spiky room of death
-- tourian blue hopper room
-- northwest maridia bug room
 
 priority:
-- see if fast doors causes issues with Samus momentum across rooms (see examples from insomniaspeed)
+- require canHeroShot for escape in Big Pink (and handle possibility that this may require rejecting a map)
+- implement comeInWithRMode
+- use openEnd to adjust runway length
 - add vertical gravity jumps to logic
+- add cross-room water short charges to logic
 - show objective progress in pause menu
 - add pages for tech, strats, rooms.
 - help buttons for rest of settings (e.g. explain boss proficiency calculations)
@@ -17,7 +15,23 @@ priority:
 - sprite customization (?),
 
 
+model stuff to try:
+- train on random subsets of rooms
+- try changing the number of candidates
+- increase replay buffer size
+  - if it helps significantly, then set it up to read from disk, to allow for an unbounded buffer
+- add map channel indicating whether door has path to/from ship
+
+
 later:
+- possibly add smoother map scrolling (8-directional) like Map Overhaul?
+- fix dark grid dots in slope tiles (Terminator/Croc Speedway)
+- adjust some of the transition marker letters:
+  - make the right part of the N thicker (possibly make it 7 pixels wide?)
+  - make M and W be 7 pixels wide. 
+    - Mirror them to put the gap in the correct place?
+    - but if it has tiles on both the left & right, what do we do?
+       - keep it 6 pixels?
 - consider adding options for game variations:
   - no walljumps
     - logic not quite ready for this yet
