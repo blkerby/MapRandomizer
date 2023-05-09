@@ -74,7 +74,9 @@
       "canDownBack",
       "canPlayInSand",
       "canHyperGateShot",
-      "canSpaceJumpWaterBounce"
+      "canSpaceJumpWaterBounce",
+      "canWaterShineCharge",
+      "canHeroShot"
     ],
     "notable_strats": [
       "Early Supers Mockball",
@@ -147,7 +149,8 @@
       "canSpringBallBombJump",
       "canPreciseGrapple",
       "canSpaceJumpWaterEscape",
-      "canBombAboveIBJ"
+      "canBombAboveIBJ",
+      "canWalljumpWithCharge"
     ],
     "notable_strats": [
       "Pink Brinstar Power Bombs Crystal Flash Clip",
@@ -179,7 +182,6 @@
       "PCJR Acid Shinespark",
       "Croc Escape SpringBall Freeze",
       "Cathedral Entrance Left Door Frozen Sova Step",
-      "Cathedral Entrance Hero Shot Shinespark",
       "Lava Dive Shinespark",
       "Sponge Bath Bull Boost",
       "Maridia Bug Room MidAir Morph with Gravity",
@@ -210,7 +212,8 @@
       "Writg Frozen Pirate Platforms",
       "Back-Side Botwoon Magic Pixel Beam Fight",
       "Back-Side Botwoon Plasma Shield Microwave",
-      "Back-Side Botwoon Plasma Shield Fight"
+      "Back-Side Botwoon Plasma Shield Fight",
+      "Writg New Route with HiJump, Speed, and PowerBombs"
     ]
   },
   {
@@ -292,7 +295,9 @@
       "East Ocean Space Jump Water Escape (Left to Right)",
       "Grapple Tutorial 3 Double Gamet Boost",
       "Hjless Lava Dive",
-      "Hjless Lava Dive BounceBall"
+      "Hjless Lava Dive BounceBall",
+      "Writg New Low Ice Pirate Freeze", 
+      "Writg Low Ice Pirate Freeze"
     ]
   },
   {
@@ -343,7 +348,10 @@
       "Everest Tricky Cross Room Jump with HiJump (Right to Top)",
       "Oasis Cross Room Jump with Screw Attack and Speed through the Top Door",
       "East Pants Room Suitless Puyo Clip",
-      "East Sand Hole Sandfall Bounce to Power Bombs"
+      "East Sand Hole Sandfall Bounce to Power Bombs",
+      "Red Tower R-Mode Frozen Beetom X-Ray Climb",
+      "Writg HiJump and Only Screw", 
+      "Writg Power Bomb Diagonal Bomb Jump"
     ]
   },
   {

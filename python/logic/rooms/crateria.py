@@ -458,8 +458,8 @@ rooms = [
             DoorIdentifier(LEFT, 0, 7, 0x18C76, 0x18B56),  # Climb (bottom)
         ],
         parts=[[0], [1]],
-        transient_part_connections=[(1, 0)],  # speed blocks
-        missing_part_connections=[(0, 1)],
+        # transient_part_connections=[(1, 0)],  # speed blocks
+        missing_part_connections=[(0, 1), (1, 0)],
         items=[
             Item(3, 0, 0x78478),
         ],

@@ -1077,6 +1077,9 @@ impl GameData {
                     excess_shinespark_frames,
                 });
                 // return Ok(Requirement::Never);
+            } else if key == "comeInWithRMode" {
+                // TODO: Implement this:
+                return Ok(Requirement::Never);
             } else if key == "comeInWithGMode" {
                 if ctx.from_obstacles_bitmask != 0 {
                     return Ok(Requirement::Never);
