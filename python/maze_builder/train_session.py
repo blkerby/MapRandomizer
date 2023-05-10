@@ -139,7 +139,7 @@ class TrainingSession():
         expected = expected_flat.view(num_envs, num_candidates)
         return expected, raw_logodds
 
-    def generate_round_inner(self, model, episode_length: int, num_candidates: int, temperature: torch.tensor,
+    def generate_round_inner(self, model, episode_length: int, num_candidates_min: float, num_candidates_max: float, temperature: torch.tensor,
                              temperature_decay: float, explore_eps: torch.tensor,
                              env_id, use_connectivity: bool, render, executor) -> EpisodeData:
         device = self.envs[env_id].device
@@ -158,6 +158,8 @@ class TrainingSession():
         for j in range(episode_length):
             if render:
                 env.render()
+
+            num_candidates = int(round(num_candidates_min + (num_candidates_max - num_candidates_min) * j / (episode_length - 1)))
             # torch.cuda.synchronize()
             # logging.debug("Getting candidates")
             action_candidates = env.get_action_candidates(num_candidates, env.room_mask, env.room_position_x,
@@ -242,7 +244,7 @@ class TrainingSession():
         )
         return episode_data
 
-    def generate_round_model(self, model, episode_length: int, num_candidates: int, temperature: torch.tensor,
+    def generate_round_model(self, model, episode_length: int, num_candidates_min: float, num_candidates_max: float, temperature: torch.tensor,
                              temperature_decay: float,
                              explore_eps: torch.tensor,
                              use_connectivity: bool,
@@ -254,7 +256,7 @@ class TrainingSession():
             model = model_list[i]
             # print("gen", i, env.device, model.state_value_lin.weight.device)
             future = executor.submit(lambda i=i, model=model: self.generate_round_inner(
-                model, episode_length, num_candidates, temperature, temperature_decay, explore_eps, render=render,
+                model, episode_length, num_candidates_min, num_candidates_max, temperature, temperature_decay, explore_eps, render=render,
                 env_id=i, use_connectivity=use_connectivity, executor=executor))
             futures_list.append(future)
         episode_data_list = [future.result() for future in futures_list]
@@ -273,7 +275,7 @@ class TrainingSession():
             test_loss=torch.cat([d.test_loss for d in episode_data_list], dim=0),
         )
 
-    def generate_round(self, episode_length: int, num_candidates: int, temperature: torch.tensor,
+    def generate_round(self, episode_length: int, num_candidates_min: float, num_candidates_max: float,  temperature: torch.tensor,
                        temperature_decay: float,
                        explore_eps: torch.tensor,
                        use_connectivity: bool,
@@ -282,7 +284,8 @@ class TrainingSession():
         with self.average_parameters.average_parameters(self.model.all_param_data()):
             return self.generate_round_model(model=self.model,
                                              episode_length=episode_length,
-                                             num_candidates=num_candidates,
+                                             num_candidates_min=num_candidates_min,
+                                             num_candidates_max=num_candidates_max,
                                              temperature=temperature,
                                              temperature_decay=temperature_decay,
                                              explore_eps=explore_eps,

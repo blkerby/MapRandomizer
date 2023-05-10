@@ -331,10 +331,13 @@ hist_c = 1.0
 hist_frac = 0.5
 batch_size = 2 ** 10
 lr0 = 0.001
-# lr1 = 0.001
-lr1 = 0.001
-num_candidates0 = 4
-num_candidates1 = num_candidates0
+lr1 = 0.0002
+# lr1 = 0.0005
+num_candidates_min0 = 2
+num_candidates_max0 = 4
+num_candidates_min1 = num_candidates_min0
+num_candidates_max1 = num_candidates_max0
+
 temperature_decay = 0.1
 # num_candidates0 = 40
 # num_candidates1 = 40
@@ -347,7 +350,7 @@ temperature_max0 = 10.0
 temperature_max1 = temperature_max0
 annealing_start = 0
 annealing_time = 32
-pass_factor0 = 2.0
+pass_factor0 = 1.0
 pass_factor1 = pass_factor0
 print_freq = 4
 total_reward = 0
@@ -437,8 +440,8 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 logging.info("Checkpoint path: {}".format(pickle_name))
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
 logging.info(
-    "map_x={}, map_y={}, num_envs={}, batch_size={}, pass_factor0={}, pass_factor1={}, lr0={}, lr1={}, num_candidates0={}, num_candidates1={}, replay_size={}/{}, hist_frac={}, hist_c={}, num_params={}, decay_amount={}, temperature_min0={}, temperature_min1={}, temperature_max0={}, temperature_max1={}, temperature_decay={}, ema_beta0={}, ema_beta1={}, explore_eps_factor={}, annealing_time={}".format(
-        map_x, map_y, session.envs[0].num_envs, batch_size, pass_factor0, pass_factor1, lr0, lr1, num_candidates0, num_candidates1, session.replay_buffer.size,
+    "map_x={}, map_y={}, num_envs={}, batch_size={}, pass_factor0={}, pass_factor1={}, lr0={}, lr1={}, num_candidates_min0={}, num_candidates_max0={}, num_candidates_min1={}, num_candidates_max1={}, replay_size={}/{}, hist_frac={}, hist_c={}, num_params={}, decay_amount={}, temperature_min0={}, temperature_min1={}, temperature_max0={}, temperature_max1={}, temperature_decay={}, ema_beta0={}, ema_beta1={}, explore_eps_factor={}, annealing_time={}".format(
+        map_x, map_y, session.envs[0].num_envs, batch_size, pass_factor0, pass_factor1, lr0, lr1, num_candidates_min0, num_candidates_max0, num_candidates_min1, num_candidates_max1, session.replay_buffer.size,
         session.replay_buffer.capacity, hist_frac, hist_c, num_params, session.decay_amount,
         temperature_min0, temperature_min1, temperature_max0, temperature_max1, temperature_decay, ema_beta0, ema_beta1, explore_eps_factor,
         annealing_time))
@@ -446,7 +449,8 @@ logging.info(session.optimizer)
 logging.info("Starting training")
 for i in range(1000000):
     frac = max(0.0, min(1.0, (session.num_rounds - annealing_start) / annealing_time))
-    num_candidates = int(num_candidates0 + (num_candidates1 - num_candidates0) * frac)
+    num_candidates_min = num_candidates_min0 + (num_candidates_min1 - num_candidates_min0) * frac
+    num_candidates_max = num_candidates_max0 + (num_candidates_max1 - num_candidates_max0) * frac
 
     lr = lr0 * (lr1 / lr0) ** frac
     session.optimizer.param_groups[0]['lr'] = lr
@@ -466,7 +470,8 @@ for i in range(1000000):
 
     data = session.generate_round(
         episode_length=episode_length,
-        num_candidates=num_candidates,
+        num_candidates_min=num_candidates_min,
+        num_candidates_max=num_candidates_max,
         temperature=temperature,
         temperature_decay=temperature_decay,
         explore_eps=explore_eps,
@@ -562,7 +567,7 @@ for i in range(1000000):
         # buffer_mean_rooms_missing = buffer_mean_pass * len(rooms)
 
         logging.info(
-            "{}: cost={:.3f} (min={:d}, frac={:.6f}), test={:.6f}, p0={:.5f} | loss={:.4f}, cost={:.2f} (min={:d}, frac={:.4f}), test={:.4f}, p0={:.4f}, nc={}, f={:.3f}".format(
+            "{}: cost={:.3f} (min={:d}, frac={:.6f}), test={:.6f}, p0={:.5f} | loss={:.4f}, cost={:.2f} (min={:d}, frac={:.4f}), test={:.4f}, p0={:.4f}, f={:.3f}".format(
                 session.num_rounds, buffer_mean_reward, buffer_min_reward,
                 buffer_frac_min_reward,
                 # buffer_doors,
@@ -575,7 +580,6 @@ for i in range(1000000):
                 min_door_frac,
                 new_test_loss,
                 new_prob0,
-                num_candidates,
                 frac,
             ))
         total_loss = 0.0
