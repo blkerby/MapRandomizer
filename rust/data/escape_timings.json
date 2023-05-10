@@ -5606,7 +5606,7 @@
               "door_idx": 1,
               "node_id": 2
             },
-            "in_game_time": 3.15
+            "in_game_time": 2.57
           }
         ]
       },
@@ -5631,7 +5631,13 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": 6.28
+            "in_game_time": 6.28,
+            "conditions": [
+              {
+                "requires": ["enemies_cleared"],
+                "in_game_time": 2.48
+              }
+            ]
           }
         ]
       }
@@ -17236,7 +17242,13 @@
               "door_idx": 3,
               "node_id": 4
             },
-            "in_game_time": 11.51
+            "in_game_time": 11.51,
+            "conditions": [
+              {
+                "requires": ["enemies_cleared"],
+                "in_game_time": 6.29
+              }
+            ]
           }
         ]
       },

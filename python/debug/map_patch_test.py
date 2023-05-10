@@ -32,7 +32,7 @@ patches = [
     'door_hurt',
     # 'complementary_suits',
     # 'complementary_suits_noheat',
-    # 'escape',
+    'escape',
     # 'fast_big_boy_cutscene',
     # 'mb_barrier_clear',
     # 'mb_left_entrance',
@@ -193,8 +193,8 @@ rom.write_u16(snes2pc(0x838060), 0xffff)
 # rom.write_u16(snes2pc(0x8FDCC3 + 8), 0x8000)
 
 # Connect Aqueduct right door to Pillar Room
-data = rom.read_n(snes2pc(0x839912), 12)
-rom.write_n(snes2pc(0x83A738), 12, data)
+# data = rom.read_n(snes2pc(0x839912), 12)
+# rom.write_n(snes2pc(0x83A738), 12, data)
 
 
 #
