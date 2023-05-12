@@ -43,8 +43,8 @@ executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
 # num_envs = 1
 num_envs = 2 ** 11
-# rooms = logic.rooms.crateria_isolated.rooms
-rooms = logic.rooms.norfair_isolated.rooms
+rooms = logic.rooms.crateria_isolated.rooms
+# rooms = logic.rooms.norfair_isolated.rooms
 # rooms = logic.rooms.all_rooms.rooms
 episode_length = len(rooms)
 
@@ -66,8 +66,8 @@ envs = [MazeBuilderEnv(rooms,
                        num_envs=num_envs,
                        device=device,
                        must_areas_be_connected=False,
-                       # starting_room_name="Landing Site")
-                       starting_room_name="Business Center")
+                       starting_room_name="Landing Site")
+                       # starting_room_name="Business Center")
         for device in devices]
 
 max_possible_reward = envs[0].max_reward
@@ -320,7 +320,9 @@ session = TrainingSession(envs,
 
 # pickle_name = 'models/session-2023-05-09T17:09:09.043567.pkl'
 # pickle_name = 'models/session-2023-05-10T14:34:48.668019.pkl'
-pickle_name = 'models/session-2023-05-10T21:51:08.659971.pkl'
+# pickle_name = 'models/session-2023-05-10T21:51:08.659971.pkl'
+# pickle_name = 'models/session-2023-05-12T09:02:09.007216.pkl'
+pickle_name = 'models/session-2023-05-12T10:31:03.093671.pkl'
 session = pickle.load(open(pickle_name, 'rb'))
 session.envs = envs
 
@@ -330,7 +332,7 @@ hist_c = 1.0
 hist_frac = 0.5
 batch_size = 2 ** 10
 lr0 = 0.0001
-lr1 = 0.0005
+lr1 = 0.0002
 # lr1 = 0.0005
 num_candidates_min0 = 8
 num_candidates_max0 = 16
@@ -344,10 +346,12 @@ explore_eps_factor = 0.0
 # temperature_min = 0.02
 # temperature_max = 2.0
 cycle_weight = 0.5
-cycle_value_coef = 50.0
+cycle_value_coef = 5.0
+door_connect_coef = 20.0
+door_connect_beta = 0.9
 temperature_min0 = 0.1
 temperature_min1 = temperature_min0
-temperature_max0 = 10.0
+temperature_max0 = temperature_min0
 temperature_max1 = temperature_max0
 annealing_start = 0
 annealing_time = 32
@@ -364,13 +368,13 @@ total_round_cnt = 0
 total_min_door_frac = 0
 total_cycle_cost = 0.0
 save_freq = 128
-summary_freq = 128
-session.decay_amount = 0.05
+summary_freq = 32
+session.decay_amount = 0.01
 # session.decay_amount = 0.01
 session.optimizer.param_groups[0]['betas'] = (0.9, 0.9)
 session.optimizer.param_groups[0]['eps'] = 1e-5
 ema_beta0 = 0.99
-ema_beta1 = 0.9998
+ema_beta1 = 0.999
 session.average_parameters.beta = 0.995
 use_connectivity = True
 cpu_executor = concurrent.futures.ProcessPoolExecutor()
@@ -449,11 +453,11 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 logging.info("Checkpoint path: {}".format(pickle_name))
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
 logging.info(
-    "map_x={}, map_y={}, num_envs={}, batch_size={}, pass_factor0={}, pass_factor1={}, lr0={}, lr1={}, num_candidates_min0={}, num_candidates_max0={}, num_candidates_min1={}, num_candidates_max1={}, replay_size={}/{}, hist_frac={}, hist_c={}, num_params={}, decay_amount={}, temperature_min0={}, temperature_min1={}, temperature_max0={}, temperature_max1={}, temperature_decay={}, ema_beta0={}, ema_beta1={}, explore_eps_factor={}, annealing_time={}, cycle_weight={}, cycle_value_coef={}".format(
+    "map_x={}, map_y={}, num_envs={}, batch_size={}, pass_factor0={}, pass_factor1={}, lr0={}, lr1={}, num_candidates_min0={}, num_candidates_max0={}, num_candidates_min1={}, num_candidates_max1={}, replay_size={}/{}, hist_frac={}, hist_c={}, num_params={}, decay_amount={}, temperature_min0={}, temperature_min1={}, temperature_max0={}, temperature_max1={}, temperature_decay={}, ema_beta0={}, ema_beta1={}, explore_eps_factor={}, annealing_time={}, cycle_weight={}, cycle_value_coef={}, door_connect_coef={}".format(
         map_x, map_y, session.envs[0].num_envs, batch_size, pass_factor0, pass_factor1, lr0, lr1, num_candidates_min0, num_candidates_max0, num_candidates_min1, num_candidates_max1, session.replay_buffer.size,
         session.replay_buffer.capacity, hist_frac, hist_c, num_params, session.decay_amount,
         temperature_min0, temperature_min1, temperature_max0, temperature_max1, temperature_decay, ema_beta0, ema_beta1, explore_eps_factor,
-        annealing_time, cycle_weight, cycle_value_coef))
+        annealing_time, cycle_weight, cycle_value_coef, door_connect_coef))
 logging.info(session.optimizer)
 logging.info("Starting training")
 for i in range(1000000):
@@ -486,9 +490,11 @@ for i in range(1000000):
         explore_eps=explore_eps,
         use_connectivity=use_connectivity,
         cycle_value_coef=cycle_value_coef,
+        door_connect_coef=door_connect_coef,
         executor=executor,
         cpu_executor=cpu_executor,
         render=False)
+    session.update_door_connect_stats(door_connect_beta)
     # logging.info("cand_count={:.3f}".format(torch.mean(data.cand_count)))
     session.replay_buffer.insert(data)
 
@@ -582,20 +588,21 @@ for i in range(1000000):
         # buffer_mean_rooms_missing = buffer_mean_pass * len(rooms)
 
         logging.info(
-            "{}: cost={:.3f} (min={:d}, frac={:.6f}), cycle={:.6f}, p0={:.5f} | loss={:.4f}, cost={:.2f} (min={:d}, frac={:.4f}), cycle={:.4f}, p0={:.4f}, f={:.3f}".format(
+            "{}: cost={:.3f} (min={:d}, frac={:.6f}), cycle={:.6f}, p={:.5f} | loss={:.4f}, cost={:.2f} (min={:d}, frac={:.4f}), cycle={:.4f}, p={:.4f}, f={:.3f}".format(
                 session.num_rounds, buffer_mean_reward, buffer_min_reward,
                 buffer_frac_min_reward,
                 # buffer_doors,
                 # buffer_logr,
                 # buffer_test_loss,
                 buffer_cycle,
-                buffer_prob0,
+                # buffer_prob0,
+                buffer_prob,
                 new_loss,
                 new_reward,
                 min_door_value,
                 min_door_frac,
                 new_cycle_cost,
-                new_prob0,
+                new_prob,
                 frac,
             ))
         total_loss = 0.0
@@ -654,8 +661,9 @@ for i in range(1000000):
             ))
             counts = compute_door_connect_counts(only_success=True, ind=ind)
             display_counts(counts, 10, False)
-        logging.info("Overall:")
-        counts = compute_door_connect_counts(only_success=True)
-        display_counts(counts, 10, False)
+            # display_counts(counts, 10, True)
+        # logging.info("Overall:")
+        # counts = compute_door_connect_counts(only_success=True)
+        # display_counts(counts, 10, False)
 
         # logging.info(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects, dim=0)))

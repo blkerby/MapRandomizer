@@ -24,6 +24,8 @@ model stuff to try:
 
 
 later:
+- look into potential conflicts between map_area.asm and map_progress_maintain.asm
+  - AkumaGath17 mentioned discussion on metconst.
 - move "Save the Animals" option out of "Skill Assumptions" into QoL?
 - possibly add smoother map scrolling (8-directional) like Map Overhaul?
 - fix dark grid dots in slope tiles (Terminator/Croc Speedway)

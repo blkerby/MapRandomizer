@@ -288,7 +288,7 @@ class MazeBuilderEnv:
             assert room_max_y >= room_min_y
 
             room_placements = torch.tensor(
-                [[i, x + room_min_x, y + room_min_y]
+                [[i, x + room_min_x, y + room_min_y, -1, -1]  # -1: invalid map & room door IDs (since no door connection is made on the first step)
                  for y in range(room_max_y - room_min_y + 1)
                  for x in range(room_max_x - room_min_x + 1)],
                 device=self.device
@@ -394,10 +394,13 @@ class MazeBuilderEnv:
 
         num_envs = room_mask.shape[0]
         map = self.compute_map(room_mask, room_position_x, room_position_y)
-        map_door_left = torch.nonzero(map[:, 1, :] > 1)
-        map_door_right = torch.nonzero(map[:, 1, :] < -1)
-        map_door_up = torch.nonzero(map[:, 2, :] > 1)
-        map_door_down = torch.nonzero(map[:, 2, :] < -1)
+
+        map_door_left, map_door_right, map_door_down, map_door_up = self.open_door_locations(map, room_mask, room_position_x, room_position_y)
+
+        # map_door_left = torch.nonzero(map[:, 1, :] > 1)
+        # map_door_right = torch.nonzero(map[:, 1, :] < -1)
+        # map_door_up = torch.nonzero(map[:, 2, :] > 1)
+        # map_door_down = torch.nonzero(map[:, 2, :] < -1)
 
         # map_door_left, map_door_right, map_door_up, map_door_down = self.select_map_doors(
         #     map_door_left, map_door_right, map_door_up, map_door_down)
@@ -421,9 +424,10 @@ class MazeBuilderEnv:
             area_mask = area_room_cnt > 0
         # print(area_mask)
 
+        # The order here matters and must be consistent with the ordering of door IDs in open_door_locations:
         data_tuples = [
-            (0, 0, 0, map_door_left, self.door_data_right_tile, self.door_data_right_door),
-            (1, -1, 0, map_door_right, self.door_data_left_tile, self.door_data_left_door),
+            (0, -1, 0, map_door_right, self.door_data_left_tile, self.door_data_left_door),
+            (1, 0, 0, map_door_left, self.door_data_right_tile, self.door_data_right_door),
             (2, 0, 0, map_door_up, self.door_data_down_tile, self.door_data_down_door),
             (3, 0, -1, map_door_down, self.door_data_up_tile, self.door_data_up_door),
         ]
@@ -435,13 +439,16 @@ class MazeBuilderEnv:
 
         candidates_list = []
         counts_by_door_list = []
+        cumul_door_id = 0
         for (dir_num, offset_x, offset_y, map_door_dir, door_data_dir_tile, door_data_dir_door) in data_tuples:
             num_map_doors = map_door_dir.shape[0]
             num_room_doors = door_data_dir_tile.door_data.shape[0]
 
             map_door_env = map_door_dir[:, 0].view(-1, 1)
-            map_door_x = map_door_dir[:, 1].view(-1, 1)
-            map_door_y = map_door_dir[:, 2].view(-1, 1)
+            # map_door_x = map_door_dir[:, 1].view(-1, 1)
+            # map_door_y = map_door_dir[:, 2].view(-1, 1)
+            map_door_x = map_door_dir[:, 2].view(-1, 1)
+            map_door_y = map_door_dir[:, 3].view(-1, 1)
             map_door_index = (map_door_env * stride_env + map_door_x * stride_x + map_door_y * stride_y).view(-1, 1)
             # map_door_index = torch.matmul(map_door_dir[:, :3], stride_all.view(-1, 1))
 
@@ -478,21 +485,25 @@ class MazeBuilderEnv:
             else:
                 valid_mask = (tile_out == 0) & (door_out == 0)
             valid_positions = torch.nonzero(valid_mask)
-            valid_map_door_id = valid_positions[:, 0]
-            valid_room_door_id = valid_positions[:, 1]
+            valid_map_door_idx = valid_positions[:, 0]
+            valid_room_door_idx = valid_positions[:, 1]
 
-            valid_env_id = map_door_dir[valid_map_door_id, 0]
-            valid_map_position_x = map_door_dir[valid_map_door_id, 1]
-            valid_map_position_y = map_door_dir[valid_map_door_id, 2]
-            valid_room_door_x = door_data_dir_tile.door_data[valid_room_door_id, 1]
-            valid_room_door_y = door_data_dir_tile.door_data[valid_room_door_id, 2]
-            valid_room_id = door_data_dir_tile.door_data[valid_room_door_id, 0]
+            valid_env_id = map_door_dir[valid_map_door_idx, 0]
+            valid_map_door_id = map_door_dir[valid_map_door_idx, 1]
+            valid_map_position_x = map_door_dir[valid_map_door_idx, 2]
+            valid_map_position_y = map_door_dir[valid_map_door_idx, 3]
+            valid_room_door_id = cumul_door_id + valid_room_door_idx
+            valid_room_door_x = door_data_dir_tile.door_data[valid_room_door_idx, 1]
+            valid_room_door_y = door_data_dir_tile.door_data[valid_room_door_idx, 2]
+            valid_room_id = door_data_dir_tile.door_data[valid_room_door_idx, 0]
             valid_x = valid_map_position_x - valid_room_door_x
             valid_y = valid_map_position_y - valid_room_door_y
 
             candidates = torch.stack([valid_env_id, valid_room_id, valid_x, valid_y,
+                                      valid_map_door_id, valid_room_door_id,
                                       torch.full_like(valid_env_id, dir_num),
-                                      valid_map_door_id], dim=1)
+                                      valid_map_door_idx,
+                                      ], dim=1)
             # print("{} candidates".format(candidates.shape[0] / num_envs))
             mask_bounds_min_x = (valid_x >= self.room_min_x[valid_room_id])
             mask_bounds_min_y = (valid_y >= self.room_min_y[valid_room_id])
@@ -504,7 +515,7 @@ class MazeBuilderEnv:
 
             # TODO: simplify all of this; sum the right mask instead of using scatter_add on the candidates
             counts_by_door = torch.zeros([map_door_env.shape[0]], device=map_door_env.device, dtype=torch.int64)
-            counts_by_door.scatter_add_(0, valid_map_door_id, mask.to(torch.int64))
+            counts_by_door.scatter_add_(0, valid_map_door_idx, mask.to(torch.int64))
             counts_by_door_list.append(torch.stack(
                 [counts_by_door,
                  map_door_env.view(-1),
@@ -513,6 +524,8 @@ class MazeBuilderEnv:
 
             candidates = candidates[mask, :]
             candidates_list.append(candidates)
+
+            cumul_door_id += num_room_doors
 
         counts_by_door_all = torch.cat(counts_by_door_list, dim=0)
         counts_by_door_all = counts_by_door_all[counts_by_door_all[:, 0] > 0, :]
@@ -525,8 +538,8 @@ class MazeBuilderEnv:
 
         all_candidates = torch.cat(candidates_list, dim=0)
         all_candidates_env_id = all_candidates[:, 0]
-        dir_match = all_candidates[:, 4] == chosen_counts_by_door[all_candidates_env_id, 2]  # matching door direction
-        door_id_match = all_candidates[:, 5] == chosen_counts_by_door[
+        dir_match = all_candidates[:, 6] == chosen_counts_by_door[all_candidates_env_id, 2]  # matching door direction
+        door_id_match = all_candidates[:, 7] == chosen_counts_by_door[
             all_candidates_env_id, 3]  # matching door id (within those of same direction)
         filtered_candidates = all_candidates[dir_match & door_id_match, :]
         perm = torch.randperm(filtered_candidates.shape[0], device=filtered_candidates.device)
@@ -536,14 +549,14 @@ class MazeBuilderEnv:
 
         dummy_candidates = torch.cat([
             torch.arange(num_envs, device=self.device).view(-1, 1),
-            torch.tensor([len(self.rooms) - 1, 0, 0, 0, 0], device=self.device).view(1, -1).repeat(num_envs, 1)
+            torch.tensor([len(self.rooms) - 1, 0, 0, 0, 0, 0, 0], device=self.device).view(1, -1).repeat(num_envs, 1)
         ], dim=1)
         # candidates_list.append(dummy_candidates)
         # all_candidates = torch.cat(candidates_list, dim=0)
         all_candidates = torch.cat([filtered_candidates, dummy_candidates], dim=0)
         # ind = torch.argsort(all_candidates[:, 0])
         ind = torch.sort(all_candidates[:, 0], stable=True)[1]
-        return all_candidates[ind, :4]
+        return all_candidates[ind, :6]
         # self.room_right
         # print("left", door_left)
         # print("right", door_right)
@@ -577,7 +590,6 @@ class MazeBuilderEnv:
         # out[:, 0, 0] = len(self.rooms) - 1
         # out[:, 0, 1] = 0
         # out[:, 0, 2] = 0
-
         return out
 
     def reset(self):
