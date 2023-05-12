@@ -196,6 +196,12 @@ rom.write_u16(snes2pc(0x838060), 0xffff)
 # data = rom.read_n(snes2pc(0x839912), 12)
 # rom.write_n(snes2pc(0x83A738), 12, data)
 
+# Connect Climb top door to water room
+data = rom.read_n(snes2pc(0x83A4BC), 12)  # Pseudo Plasma Spark Room
+# data = rom.read_n(snes2pc(0x83A3F0), 12)  # Mt Everest left bottom door
+# data = rom.read_n(snes2pc(0x83A3FC), 12)  # Mt Everest right bottom door
+rom.write_n(snes2pc(0x838B3E), 12, data)
+
 
 #
 

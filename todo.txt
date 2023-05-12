@@ -24,6 +24,7 @@ model stuff to try:
 
 
 later:
+- move "Save the Animals" option out of "Skill Assumptions" into QoL?
 - possibly add smoother map scrolling (8-directional) like Map Overhaul?
 - fix dark grid dots in slope tiles (Terminator/Croc Speedway)
 - adjust some of the transition marker letters:
@@ -82,6 +83,7 @@ later:
 
 - spoiler visualizer improvements:
   - refinements
+    - get rid of "Route Unavailable"
     - show faded item if some node in the room is reachable but the item itself is not (or is only one-way reachable)
     - make it so you can click on an item in the step panel and it will show the route to the item
     - show the route info in a separate panel below the step panel
