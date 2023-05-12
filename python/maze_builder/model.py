@@ -423,7 +423,7 @@ class DoorLocalModel(torch.nn.Module):
             self.fc_lin_layers.append(lin)
             self.fc_act_layers.append(common_act)
 
-        self.state_value_lin = torch.nn.Linear(self.fc_widths[-1], self.num_doors + self.num_missing_connects)
+        self.state_value_lin = torch.nn.Linear(self.fc_widths[-1], self.num_doors + self.num_missing_connects + 1)
         self.project()
 
     def forward_multiclass(self, map, room_mask, room_position_x, room_position_y, steps_remaining, round_frac,
@@ -558,7 +558,7 @@ class DoorLocalModel(torch.nn.Module):
             door_connects_filtered_logodds = torch.where(door_connects, inf_tensor_door, door_connects_raw_logodds)
 
             if use_connectivity:
-                missing_connects_raw_logodds = state_value_raw_logodds[:, self.num_doors:]
+                missing_connects_raw_logodds = state_value_raw_logodds[:, self.num_doors:(self.num_doors + self.num_missing_connects)]
                 # inf_tensor = torch.zeros_like(door_connects_raw_logodds)
                 inf_tensor_missing = torch.full_like(missing_connects_raw_logodds,
                                                      1e5)  # We can't use actual 'inf' or it results in NaNs in binary_cross_entropy_with_logits, but this is equivalent.
@@ -579,7 +579,9 @@ class DoorLocalModel(torch.nn.Module):
             # state_value_expected = torch.sum(torch.clamp_max(all_filtered_logprobs, 0.0), dim=1)
             state_value_expected = torch.sum(state_value_logprobs, dim=1)  # / 2
 
-            return all_filtered_logodds, state_value_logprobs, state_value_expected
+            pred_cycle_cost = state_value_raw_logodds[:, self.num_doors + self.num_missing_connects]
+
+            return all_filtered_logodds, state_value_logprobs, state_value_expected, pred_cycle_cost
 
     # def forward(self, map, room_mask, room_position_x, room_position_y, steps_remaining, round_frac, temperature, env):
     #     # TODO: we could speed up the last layer a bit by summing the parameters instead of outputs

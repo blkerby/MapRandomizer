@@ -132,6 +132,7 @@ class EpisodeData:
     action: torch.tensor  # 3D uint8: (num_episodes, episode_length, 3)  (room id, x position, y position)
     door_connects: torch.tensor  # 2D bool: (num_episodes, num_doors)
     missing_connects: torch.tensor  # 2D bool: (num_episodes, num_missing_connects)
+    cycle_cost: torch.tensor  # 1D float32: num_episodes
     reward: torch.tensor  # 1D int64: num_episodes
     temperature: torch.tensor  # 1D float32: num_episodes
     prob: torch.tensor  # 1D float32: num_episodes  (average probability of selected action)
@@ -155,6 +156,7 @@ class EpisodeData:
                 num_episodes * episode_length, -1),
             missing_connects=self.missing_connects.to(device).unsqueeze(1).repeat(1, episode_length, 1).view(
                 num_episodes * episode_length, -1),
+            cycle_cost=self.cycle_cost.to(device).unsqueeze(1).repeat(1, episode_length).view(-1),
             steps_remaining=steps_remaining.unsqueeze(0).repeat(num_episodes, 1).view(-1),
             room_mask=room_mask,
             room_position_x=room_position_x,
@@ -167,6 +169,7 @@ class TrainingData:
     reward: torch.tensor  # 1D uint64: num_transitions
     door_connects: torch.tensor  # 2D bool: (num_transitions, num_doors)
     missing_connects: torch.tensor  # 2D bool: (num_transitions, num_missing_connects)
+    cycle_cost: torch.tensor  # 1D float32: num_transitions
     steps_remaining: torch.tensor  # 1D uint64: num_transitions
     round_frac: torch.tensor  # 1D float32: num_transitions
     temperature: torch.tensor  # 1D float32: num_transitions

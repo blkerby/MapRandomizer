@@ -68,6 +68,7 @@ class ReplayBuffer:
         temperature = self.episode_data.temperature[episode_indices]
         door_connects = self.episode_data.door_connects[episode_indices, :]
         missing_connects = self.episode_data.missing_connects[episode_indices, :]
+        cycle_cost = self.episode_data.cycle_cost[episode_indices]
         action = self.episode_data.action[episode_indices, :, :].to(torch.int64)
         steps_remaining = episode_length - step_indices
 
@@ -77,6 +78,7 @@ class ReplayBuffer:
             reward=reward.to(device),
             door_connects=door_connects.to(device),
             missing_connects=missing_connects.to(device),
+            cycle_cost=cycle_cost.to(device),
             steps_remaining=steps_remaining.to(device),
             round_frac=round_frac.to(device),
             temperature=temperature.to(device),

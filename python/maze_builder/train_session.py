@@ -3,7 +3,7 @@ import copy
 import torch
 import torch.nn.functional as F
 from maze_builder.model import DoorLocalModel
-from maze_builder.env import MazeBuilderEnv
+from maze_builder.env import MazeBuilderEnv, compute_cycle_costs
 from maze_builder.replay import ReplayBuffer
 from maze_builder.types import EpisodeData, TrainingData
 from model_average import ExponentialAverage
@@ -60,7 +60,7 @@ class TrainingSession():
 
     def forward_action(self, model, room_mask, room_position_x, room_position_y, action_candidates,
                              steps_remaining, temperature,
-                             env_id, use_connectivity: bool, executor):
+                             env_id, use_connectivity: bool, cycle_value_coef: float, executor):
         # print({k: v.shape for k, v in locals().items() if hasattr(v, 'shape')})
         #
         # torch.cuda.synchronize()
@@ -123,7 +123,7 @@ class TrainingSession():
         # flat_raw_logodds, _, flat_expected = model.forward_multiclass(
         #     map_flat, room_mask_flat, room_position_x_flat, room_position_y_flat, steps_remaining_flat, round_frac_flat,
         #     temperature_flat, env)
-        raw_logodds_valid, _, expected_valid = model.forward_multiclass(
+        raw_logodds_valid, _, expected_valid, pred_cycle_cost = model.forward_multiclass(
             map_valid, room_mask_valid, room_position_x_valid, room_position_y_valid, steps_remaining_valid, round_frac_valid,
             temperature_valid, use_connectivity, env, executor)
 
@@ -133,6 +133,7 @@ class TrainingSession():
         raw_logodds_flat[valid_flat_ind, :] = raw_logodds_valid
 
         expected_flat = torch.full([num_envs * num_candidates], -1e15, device=raw_logodds_valid.device)
+        expected_valid = expected_valid - pred_cycle_cost * cycle_value_coef
         expected_flat[valid_flat_ind] = expected_valid
 
         raw_logodds = raw_logodds_flat.view(num_envs, num_candidates, -1)
@@ -141,7 +142,7 @@ class TrainingSession():
 
     def generate_round_inner(self, model, episode_length: int, num_candidates_min: float, num_candidates_max: float, temperature: torch.tensor,
                              temperature_decay: float, explore_eps: torch.tensor,
-                             env_id, use_connectivity: bool, render, executor) -> EpisodeData:
+                             env_id, use_connectivity: bool, cycle_value_coef: float, render, executor, cpu_executor) -> EpisodeData:
         device = self.envs[env_id].device
         env = self.envs[env_id]
         env.reset()
@@ -160,6 +161,7 @@ class TrainingSession():
                 env.render()
 
             num_candidates = int(round(num_candidates_min + (num_candidates_max - num_candidates_min) * j / (episode_length - 1)))
+            num_candidates = min(num_candidates, episode_length - j)  # The number of candidates won't be more than the number of steps remaining.
             # torch.cuda.synchronize()
             # logging.debug("Getting candidates")
             action_candidates = env.get_action_candidates(num_candidates, env.room_mask, env.room_position_x,
@@ -173,7 +175,7 @@ class TrainingSession():
                 # print("inner", env_id, j, env.device, model.state_value_lin.weight.device)
                 action_expected, raw_logodds = self.forward_action(
                     model, env.room_mask, env.room_position_x, env.room_position_y,
-                    action_candidates, steps_remaining, temperature, env_id, use_connectivity, executor)
+                    action_candidates, steps_remaining, temperature, env_id, use_connectivity, cycle_value_coef, executor)
 
             # action_expected = torch.where(action_candidates[:, :, 0] == len(env.rooms) - 1,
             #                               torch.full_like(action_expected, -1e15),
@@ -206,7 +208,11 @@ class TrainingSession():
             cand_count_list.append(candidate_count.to(torch.float32).to('cpu'))
 
         door_connects_tensor = env.current_door_connects().to('cpu')
-        missing_connects_tensor = env.compute_missing_connections().to('cpu')
+        room_adjacency_matrix = env.compute_room_adjacency_matrix(env.room_mask, env.room_position_x,
+                                                                  env.room_position_y)
+        part_adjacency_matrix = env.compute_part_adjacency_matrix(env.room_mask, env.room_position_x, env.room_position_y)
+        missing_connects_tensor = env.compute_missing_connections(part_adjacency_matrix).to('cpu')
+        cycle_cost_tensor = compute_cycle_costs(room_adjacency_matrix, cpu_executor)
         reward_tensor = self.compute_reward(door_connects_tensor, missing_connects_tensor, use_connectivity)
         selected_raw_logodds_tensor = torch.stack(selected_raw_logodds_list, dim=1)
         action_tensor = torch.stack(action_list, dim=1)
@@ -235,6 +241,7 @@ class TrainingSession():
             reward=reward_tensor,
             door_connects=door_connects_tensor,
             missing_connects=missing_connects_tensor,
+            cycle_cost=cycle_cost_tensor,
             action=action_tensor.to(torch.uint8),
             prob=prob_tensor,
             prob0=prob0_tensor,
@@ -248,7 +255,9 @@ class TrainingSession():
                              temperature_decay: float,
                              explore_eps: torch.tensor,
                              use_connectivity: bool,
+                             cycle_value_coef: float,
                              executor: concurrent.futures.ThreadPoolExecutor,
+                             cpu_executor: concurrent.futures.ProcessPoolExecutor,
                              render=False) -> EpisodeData:
         futures_list = []
         model_list = [copy.deepcopy(model).to(env.device) for env in self.envs]
@@ -257,7 +266,7 @@ class TrainingSession():
             # print("gen", i, env.device, model.state_value_lin.weight.device)
             future = executor.submit(lambda i=i, model=model: self.generate_round_inner(
                 model, episode_length, num_candidates_min, num_candidates_max, temperature, temperature_decay, explore_eps, render=render,
-                env_id=i, use_connectivity=use_connectivity, executor=executor))
+                env_id=i, use_connectivity=use_connectivity, cycle_value_coef=cycle_value_coef, executor=executor, cpu_executor=cpu_executor))
             futures_list.append(future)
         episode_data_list = [future.result() for future in futures_list]
         for env in self.envs:
@@ -267,6 +276,7 @@ class TrainingSession():
             reward=torch.cat([d.reward for d in episode_data_list], dim=0),
             door_connects=torch.cat([d.door_connects for d in episode_data_list], dim=0),
             missing_connects=torch.cat([d.missing_connects for d in episode_data_list], dim=0),
+            cycle_cost=torch.cat([d.cycle_cost for d in episode_data_list], dim=0),
             action=torch.cat([d.action for d in episode_data_list], dim=0),
             prob=torch.cat([d.prob for d in episode_data_list], dim=0),
             prob0=torch.cat([d.prob0 for d in episode_data_list], dim=0),
@@ -279,8 +289,11 @@ class TrainingSession():
                        temperature_decay: float,
                        explore_eps: torch.tensor,
                        use_connectivity: bool,
-                       executor: Optional[concurrent.futures.ThreadPoolExecutor] = None,
+                        cycle_value_coef: float,
+                       executor: Optional[concurrent.futures.ThreadPoolExecutor],
+                       cpu_executor: Optional[concurrent.futures.ProcessPoolExecutor],
                        render=False) -> EpisodeData:
+        # cpu_executor = concurrent.futures.ProcessPoolExecutor()
         with self.average_parameters.average_parameters(self.model.all_param_data()):
             return self.generate_round_model(model=self.model,
                                              episode_length=episode_length,
@@ -290,15 +303,17 @@ class TrainingSession():
                                              temperature_decay=temperature_decay,
                                              explore_eps=explore_eps,
                                              use_connectivity=use_connectivity,
+                                             cycle_value_coef=cycle_value_coef,
                                              executor=executor,
+                                             cpu_executor=cpu_executor,
                                              render=render)
 
-    def train_batch(self, data: TrainingData, use_connectivity: bool, executor):
+    def train_batch(self, data: TrainingData, use_connectivity: bool, cycle_weight: float, executor):
         self.model.train()
 
         env = self.envs[0]
         map = env.compute_map(data.room_mask, data.room_position_x, data.room_position_y)
-        state_value_raw_logodds, _, _ = self.model.forward_multiclass(
+        state_value_raw_logodds, _, _, pred_cycle_cost = self.model.forward_multiclass(
             map, data.room_mask, data.room_position_x, data.room_position_y, data.steps_remaining, data.round_frac,
             data.temperature, use_connectivity, env, executor)
 
@@ -310,6 +325,11 @@ class TrainingSession():
             loss = torch.nn.functional.binary_cross_entropy_with_logits(state_value_raw_logodds[:, :data.door_connects.shape[1]],
                                                                         data.door_connects.to(state_value_raw_logodds.dtype))
 
+        # Need to replace with non-NaN value for gradients not to get messed up:
+        cycle_mask = torch.isnan(data.cycle_cost)
+        data_cycle_cost = torch.where(cycle_mask, torch.zeros_like(data.cycle_cost), data.cycle_cost)
+        cycle_loss = torch.mean(torch.where(cycle_mask, torch.zeros_like(data.cycle_cost), (data_cycle_cost - pred_cycle_cost) ** 2))
+        loss = loss + cycle_loss * cycle_weight
 
         self.optimizer.zero_grad()
         self.grad_scaler.scale(loss).backward()

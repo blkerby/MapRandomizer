@@ -1,5 +1,6 @@
 import time
-
+import networkx as nx
+import numpy as np
 from logic.areas import Area, SubArea
 from typing import List
 from logic.areas import SubArea
@@ -721,7 +722,7 @@ class MazeBuilderEnv:
             connects_list.append(connects)
         return torch.cat(connects_list, dim=1)
 
-    def compute_component_matrices(self, room_mask, room_position_x, room_position_y):
+    def compute_part_adjacency_matrix(self, room_mask, room_position_x, room_position_y):
         n = room_mask.shape[0]
         data_tuples = [
             (self.room_left, self.room_right, self.part_left, self.part_right),
@@ -761,6 +762,61 @@ class MazeBuilderEnv:
             adjacency_matrix[nz_env, nz_part, nz_part_opp] = 1
             adjacency_matrix[nz_env, nz_part_opp, nz_part] = 1
 
+        return adjacency_matrix
+
+
+    def compute_room_adjacency_matrix(self, room_mask, room_position_x, room_position_y):
+        n = room_mask.shape[0]
+        data_tuples = [
+            (self.room_left, self.room_right),
+            (self.room_down, self.room_up),
+        ]
+        num_envs = room_mask.shape[0]
+        num_rooms = len(self.rooms) - 1
+        adjacency_matrix = torch.zeros([num_envs, num_rooms, num_rooms], device=room_mask.device, dtype=torch.uint8)
+        if adjacency_matrix.is_cuda:
+            adjacency_matrix = adjacency_matrix.to(torch.float16)  # pytorch bmm can't handle integer types on CUDA
+        for room_dir, room_dir_opp in data_tuples:
+            room_id = room_dir[:, 0]
+            relative_door_x = room_dir[:, 1]
+            relative_door_y = room_dir[:, 2]
+            door_x = room_position_x[:, room_id] + relative_door_x.unsqueeze(0)
+            door_y = room_position_y[:, room_id] + relative_door_y.unsqueeze(0)
+            mask = room_mask[:, room_id]
+
+            room_id_opp = room_dir_opp[:, 0]
+            relative_door_x_opp = room_dir_opp[:, 1]
+            relative_door_y_opp = room_dir_opp[:, 2]
+            door_x_opp = room_position_x[:, room_id_opp] + relative_door_x_opp.unsqueeze(0)
+            door_y_opp = room_position_y[:, room_id_opp] + relative_door_y_opp.unsqueeze(0)
+            mask_opp = room_mask[:, room_id_opp]
+
+            x_eq = (door_x.unsqueeze(2) == door_x_opp.unsqueeze(1))
+            y_eq = (door_y.unsqueeze(2) == door_y_opp.unsqueeze(1))
+            both_mask = (mask.unsqueeze(2) & mask_opp.unsqueeze(1))
+            connects = x_eq & y_eq & both_mask
+            nz = torch.nonzero(connects)
+
+            nz_env = nz[:, 0]
+            nz_door = nz[:, 1]
+            nz_door_opp = nz[:, 2]
+            nz_room = room_id[nz_door]
+            nz_room_opp = room_id_opp[nz_door_opp]
+
+            idx = nz_env * num_rooms * num_rooms + nz_room * num_rooms + nz_room_opp
+            adjacency_matrix.view(-1).scatter_add_(
+                dim=0, index=idx, src=torch.ones_like(idx, dtype=adjacency_matrix.dtype, device=adjacency_matrix.device))
+
+            idx = nz_env * num_rooms * num_rooms + nz_room_opp * num_rooms + nz_room
+            adjacency_matrix.view(-1).scatter_add_(
+                dim=0, index=idx, src=torch.ones_like(idx, dtype=adjacency_matrix.dtype, device=adjacency_matrix.device))
+            # adjacency_matrix[nz_env, nz_room, nz_room_opp] += 1
+            # adjacency_matrix[nz_env, nz_room_opp, nz_room] += 1
+
+        return adjacency_matrix
+
+
+    def compute_component_matrices(self, adjacency_matrix):
         component_matrix = adjacency_matrix
         for i in range(8):
             component_matrix = torch.bmm(component_matrix, component_matrix)
@@ -1081,8 +1137,8 @@ class MazeBuilderEnv:
         # logging.info("Done")
         return reduced_connectivity.to(self.device), missing_connects.to(self.device), local_conn_from.to(self.device), local_conn_to.to(self.device)
 
-    def compute_missing_connections(self):
-        component_matrix = self.compute_component_matrices(self.room_mask, self.room_position_x, self.room_position_y)
+    def compute_missing_connections(self, part_adjacency_matrix):
+        component_matrix = self.compute_component_matrices(part_adjacency_matrix)
         # from_component_matrix, component_matrix = self.compute_component_matrices(self.room_mask, self.room_position_x, self.room_position_y)
         # from_start_reachable = from_component_matrix[:, self.starting_part, :]
         # to_start_reachable = component_matrix[:, :, self.starting_part]
@@ -1179,7 +1235,7 @@ class MazeBuilderEnv:
         xs = self.room_position_x[env_index, :][ind].tolist()
         ys = self.room_position_y[env_index, :][ind].tolist()
         colors = [self.color_map[room.sub_area] for room in rooms]
-        self.map_display.display(rooms, xs, ys, colors)
+        self.map_display._display(rooms, xs, ys, colors)
 
     def get_door_connect_stats(self, room_mask, room_position_x, room_position_y):
         n = room_mask.shape[0]
@@ -1248,6 +1304,28 @@ class MazeBuilderEnv:
                 counts = [x + y for x, y in zip(counts, batch_counts)]
         return counts
 
+def compute_average_cycle_cost(A0):
+    # We define the "cost" of a cycle of length `n` to be 1 / (n - 1), so longer cycles have lower cost.
+    G = nx.from_numpy_array(A0)
+    cycle_basis = nx.minimum_cycle_basis(G)
+    cnt_multiple_edges = np.sum(np.maximum(A0, 1) - 1)
+    cnt_cycles = cnt_multiple_edges + len(cycle_basis)
+    total_cycle_cost = cnt_multiple_edges + sum(1 / (len(x) - 1) for x in cycle_basis)
+    if cnt_cycles == 0:
+        return float('nan')
+    else:
+        return total_cycle_cost / cnt_cycles
+
+def compute_cycle_costs(room_adjacency_matrix, cpu_executor):
+    A = room_adjacency_matrix.to(torch.uint8).cpu().numpy()
+    futures = []
+    for i in range(A.shape[0]):
+        futures.append(cpu_executor.submit(compute_average_cycle_cost, A[i, :, :]))
+        # G = nx.from_numpy_array(A[i, :, :])
+        # cycle_basis = nx.minimum_cycle_basis(G)
+        # print("nodes={}, edges={}, cycles={}".format(G.number_of_nodes(), G.number_of_edges(), nx.minimum_cycle_basis(G)))
+    results = [f.result() for f in futures]
+    return torch.tensor(results, dtype=torch.float)
 
 # logging.basicConfig(format='%(asctime)s %(message)s',
 #                     # level=logging.DEBUG,
