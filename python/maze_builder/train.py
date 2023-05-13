@@ -322,7 +322,7 @@ session = TrainingSession(envs,
 # pickle_name = 'models/session-2023-05-10T14:34:48.668019.pkl'
 # pickle_name = 'models/session-2023-05-10T21:51:08.659971.pkl'
 # pickle_name = 'models/session-2023-05-12T09:02:09.007216.pkl'
-pickle_name = 'models/session-2023-05-12T10:31:03.093671.pkl'
+pickle_name = 'models/session-2023-05-12T22:02:33.004752.pkl'
 session = pickle.load(open(pickle_name, 'rb'))
 session.envs = envs
 
@@ -332,7 +332,7 @@ hist_c = 1.0
 hist_frac = 0.5
 batch_size = 2 ** 10
 lr0 = 0.0001
-lr1 = 0.0002
+lr1 = 0.0001
 # lr1 = 0.0005
 num_candidates_min0 = 8
 num_candidates_max0 = 16
@@ -347,14 +347,15 @@ explore_eps_factor = 0.0
 # temperature_max = 2.0
 cycle_weight = 0.5
 cycle_value_coef = 5.0
-door_connect_coef = 20.0
-door_connect_beta = 0.9
-temperature_min0 = 0.1
-temperature_min1 = temperature_min0
-temperature_max0 = temperature_min0
-temperature_max1 = temperature_max0
+door_connect_bound = 50.0
+door_connect_alpha = 0.5
+door_connect_beta = door_connect_bound / (door_connect_bound + door_connect_alpha)
+temperature_min0 = 10.0
+temperature_min1 = 0.1
+temperature_max0 = 10.0
+temperature_max1 = 0.1
 annealing_start = 0
-annealing_time = 32
+annealing_time = 256
 pass_factor0 = 2.0
 pass_factor1 = pass_factor0
 print_freq = 4
@@ -453,11 +454,11 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 logging.info("Checkpoint path: {}".format(pickle_name))
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
 logging.info(
-    "map_x={}, map_y={}, num_envs={}, batch_size={}, pass_factor0={}, pass_factor1={}, lr0={}, lr1={}, num_candidates_min0={}, num_candidates_max0={}, num_candidates_min1={}, num_candidates_max1={}, replay_size={}/{}, hist_frac={}, hist_c={}, num_params={}, decay_amount={}, temperature_min0={}, temperature_min1={}, temperature_max0={}, temperature_max1={}, temperature_decay={}, ema_beta0={}, ema_beta1={}, explore_eps_factor={}, annealing_time={}, cycle_weight={}, cycle_value_coef={}, door_connect_coef={}".format(
+    "map_x={}, map_y={}, num_envs={}, batch_size={}, pass_factor0={}, pass_factor1={}, lr0={}, lr1={}, num_candidates_min0={}, num_candidates_max0={}, num_candidates_min1={}, num_candidates_max1={}, replay_size={}/{}, hist_frac={}, hist_c={}, num_params={}, decay_amount={}, temperature_min0={}, temperature_min1={}, temperature_max0={}, temperature_max1={}, temperature_decay={}, ema_beta0={}, ema_beta1={}, explore_eps_factor={}, annealing_time={}, cycle_weight={}, cycle_value_coef={}, door_connect_alpha={}, door_connect_bound={}".format(
         map_x, map_y, session.envs[0].num_envs, batch_size, pass_factor0, pass_factor1, lr0, lr1, num_candidates_min0, num_candidates_max0, num_candidates_min1, num_candidates_max1, session.replay_buffer.size,
         session.replay_buffer.capacity, hist_frac, hist_c, num_params, session.decay_amount,
         temperature_min0, temperature_min1, temperature_max0, temperature_max1, temperature_decay, ema_beta0, ema_beta1, explore_eps_factor,
-        annealing_time, cycle_weight, cycle_value_coef, door_connect_coef))
+        annealing_time, cycle_weight, cycle_value_coef, door_connect_alpha, door_connect_bound))
 logging.info(session.optimizer)
 logging.info("Starting training")
 for i in range(1000000):
@@ -481,38 +482,38 @@ for i in range(1000000):
     # explore_eps = torch.full_like(temperature, explore_eps_val)
     explore_eps = temperature * explore_eps_factor
 
-    data = session.generate_round(
-        episode_length=episode_length,
-        num_candidates_min=num_candidates_min,
-        num_candidates_max=num_candidates_max,
-        temperature=temperature,
-        temperature_decay=temperature_decay,
-        explore_eps=explore_eps,
-        use_connectivity=use_connectivity,
-        cycle_value_coef=cycle_value_coef,
-        door_connect_coef=door_connect_coef,
-        executor=executor,
-        cpu_executor=cpu_executor,
-        render=False)
-    session.update_door_connect_stats(door_connect_beta)
-    # logging.info("cand_count={:.3f}".format(torch.mean(data.cand_count)))
-    session.replay_buffer.insert(data)
+    with util.DelayedKeyboardInterrupt():
+        data = session.generate_round(
+            episode_length=episode_length,
+            num_candidates_min=num_candidates_min,
+            num_candidates_max=num_candidates_max,
+            temperature=temperature,
+            temperature_decay=temperature_decay,
+            explore_eps=explore_eps,
+            use_connectivity=use_connectivity,
+            cycle_value_coef=cycle_value_coef,
+            executor=executor,
+            cpu_executor=cpu_executor,
+            render=False)
+        session.update_door_connect_stats(door_connect_alpha, door_connect_beta)
+        # logging.info("cand_count={:.3f}".format(torch.mean(data.cand_count)))
+        session.replay_buffer.insert(data)
 
-    total_reward += torch.mean(data.reward.to(torch.float32))
-    total_test_loss += torch.mean(data.test_loss)
-    total_prob += torch.mean(data.prob)
-    total_prob0 += torch.mean(data.prob0)
-    total_cycle_cost += torch.nanmean(data.cycle_cost)
-    total_round_cnt += 1
+        total_reward += torch.mean(data.reward.to(torch.float32))
+        total_test_loss += torch.mean(data.test_loss)
+        total_prob += torch.mean(data.prob)
+        total_prob0 += torch.mean(data.prob0)
+        total_cycle_cost += torch.nanmean(data.cycle_cost)
+        total_round_cnt += 1
 
-    min_door_tmp = torch.min(data.reward).item()
-    if min_door_tmp < min_door_value:
-        min_door_value = min_door_tmp
-        total_min_door_frac = 0
-    if min_door_tmp == min_door_value:
-        total_min_door_frac += torch.mean(
-            (data.reward == min_door_tmp).to(torch.float32)).item()
-    session.num_rounds += 1
+        min_door_tmp = torch.min(data.reward).item()
+        if min_door_tmp < min_door_value:
+            min_door_value = min_door_tmp
+            total_min_door_frac = 0
+        if min_door_tmp == min_door_value:
+            total_min_door_frac += torch.mean(
+                (data.reward == min_door_tmp).to(torch.float32)).item()
+        session.num_rounds += 1
 
     num_batches = max(1, int(pass_factor * num_envs * len(devices) * episode_length / batch_size))
     # start_training_time = time.perf_counter()

@@ -47,8 +47,8 @@ class TrainingSession():
         self.sam_scale = sam_scale
         self.grad_scaler = torch.cuda.amp.GradScaler()
         self.replay_buffer = ReplayBuffer(replay_size, len(self.envs[0].rooms), storage_device=torch.device('cpu'))
-        self.door_connect_stats = self.get_initial_door_connect_stats()
-        self.normalized_door_connect_stats = self.door_connect_stats
+
+        self.door_connect_adjust = self.get_initial_door_connect_stats()
 
         self.total_step_remaining_gen = 0.0
         self.total_step_remaining_train = 0.0
@@ -86,14 +86,13 @@ class TrainingSession():
         stats_left, stats_down = self.envs[0].get_door_connect_stats(room_mask, room_position_x, room_position_y)
         return self.pad_door_connect_stats(stats_left, stats_down)
 
-    def update_door_connect_stats(self, beta):
+    def update_door_connect_stats(self, alpha, beta):
         for env in self.envs:
             batch_stats_left, batch_stats_down = env.get_door_connect_stats(env.room_mask, env.room_position_x, env.room_position_y)
             batch_stats_left = batch_stats_left.to(torch.float).to(self.envs[0].device)
             batch_stats_down = batch_stats_down.to(torch.float).to(self.envs[0].device)
             batch_stats = self.pad_door_connect_stats(batch_stats_left, batch_stats_down)
-            self.door_connect_stats = beta * self.door_connect_stats + (1 - beta) * batch_stats
-        self.normalized_door_connect_stats = self.door_connect_stats / (torch.sum(self.door_connect_stats, dim=1, keepdim=True) + 1.0)
+            self.door_connect_adjust = beta * self.door_connect_adjust + alpha * batch_stats / env.num_envs
 
     def compute_reward(self, door_connects, missing_connects, use_connectivity):
         reward = torch.sum(~door_connects, dim=1) // 2
@@ -104,7 +103,6 @@ class TrainingSession():
     def forward_action(self, model, room_mask, room_position_x, room_position_y, action_candidates,
                              steps_remaining, temperature,
                              env_id, use_connectivity: bool, cycle_value_coef: float,
-                             door_connect_coef: float,
                              executor):
         # print({k: v.shape for k, v in locals().items() if hasattr(v, 'shape')})
         #
@@ -187,8 +185,8 @@ class TrainingSession():
         expected_valid = expected_valid - pred_cycle_cost * cycle_value_coef #- door_connect_cost * door_connect_coef
 
         # Adjust the scores to disfavor door connections which occurred frequently in the past:
-        door_connect_cost = self.normalized_door_connect_stats.to(expected_valid.device)[map_door_id_valid, room_door_id_valid]
-        expected_valid = expected_valid - door_connect_cost * door_connect_coef
+        door_connect_cost = self.door_connect_adjust.to(expected_valid.device)[map_door_id_valid, room_door_id_valid]
+        expected_valid = expected_valid - door_connect_cost
 
         expected_flat = torch.full([num_envs * num_candidates], -1e15, device=raw_logodds_valid.device)
         expected_flat[valid_flat_ind] = expected_valid
@@ -200,7 +198,6 @@ class TrainingSession():
     def generate_round_inner(self, model, episode_length: int, num_candidates_min: float, num_candidates_max: float, temperature: torch.tensor,
                              temperature_decay: float, explore_eps: torch.tensor,
                              env_id, use_connectivity: bool, cycle_value_coef: float,
-                             door_connect_coef: float,
                              render, executor, cpu_executor) -> EpisodeData:
         device = self.envs[env_id].device
         env = self.envs[env_id]
@@ -235,7 +232,7 @@ class TrainingSession():
                 action_expected, raw_logodds = self.forward_action(
                     model, env.room_mask, env.room_position_x, env.room_position_y,
                     action_candidates, steps_remaining, temperature, env_id, use_connectivity, cycle_value_coef,
-                    door_connect_coef, executor)
+                    executor)
 
             # action_expected = torch.where(action_candidates[:, :, 0] == len(env.rooms) - 1,
             #                               torch.full_like(action_expected, -1e15),
@@ -316,7 +313,6 @@ class TrainingSession():
                              explore_eps: torch.tensor,
                              use_connectivity: bool,
                              cycle_value_coef: float,
-                             door_connect_coef: float,
                              executor: concurrent.futures.ThreadPoolExecutor,
                              cpu_executor: concurrent.futures.ProcessPoolExecutor,
                              render=False) -> EpisodeData:
@@ -327,7 +323,7 @@ class TrainingSession():
             # print("gen", i, env.device, model.state_value_lin.weight.device)
             future = executor.submit(lambda i=i, model=model: self.generate_round_inner(
                 model, episode_length, num_candidates_min, num_candidates_max, temperature, temperature_decay, explore_eps, render=render,
-                env_id=i, use_connectivity=use_connectivity, cycle_value_coef=cycle_value_coef, door_connect_coef=door_connect_coef, executor=executor, cpu_executor=cpu_executor))
+                env_id=i, use_connectivity=use_connectivity, cycle_value_coef=cycle_value_coef, executor=executor, cpu_executor=cpu_executor))
             futures_list.append(future)
         episode_data_list = [future.result() for future in futures_list]
         for env in self.envs:
@@ -351,7 +347,6 @@ class TrainingSession():
                        explore_eps: torch.tensor,
                        use_connectivity: bool,
                        cycle_value_coef: float,
-                       door_connect_coef: float,
                        executor: Optional[concurrent.futures.ThreadPoolExecutor],
                        cpu_executor: Optional[concurrent.futures.ProcessPoolExecutor],
                        render=False) -> EpisodeData:
@@ -366,7 +361,6 @@ class TrainingSession():
                                              explore_eps=explore_eps,
                                              use_connectivity=use_connectivity,
                                              cycle_value_coef=cycle_value_coef,
-                                             door_connect_coef=door_connect_coef,
                                              executor=executor,
                                              cpu_executor=cpu_executor,
                                              render=render)
