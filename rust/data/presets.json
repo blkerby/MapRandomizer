@@ -245,7 +245,8 @@
       "canStationaryLateralMidAirMorph",
       "canSpeedKeepChain",
       "canSpaceJumpWaterEscape",
-      "canCrystalFlashClip"
+      "canCrystalFlashClip",
+      "canUnmorphBombBoost"
     ],
     "notable_strats": [
       "Dachora Room Shinespark No Etanks No HiJump",
@@ -263,6 +264,7 @@
       "LN Fireflea Room Morph Over the Fune",
       "LN Fireflea Room Morph Over the Fune Escape",
       "East Sand Hall Springball Jump",
+      "East Cac Alley Cross Room Jump with Spring Ball, Bomb Boost",
       "East Cac Alley Cross Room Jump with IBJ",
       "Cacatac Alley Springball Spike Boost",
       "Mama Turtle Wall Jump Bomb Boost",
@@ -293,7 +295,8 @@
       "Hjless Lava Dive BounceBall",
       "Writg New Low Ice Pirate Freeze", 
       "Writg Low Ice Pirate Freeze",
-      "Blue Hopper Room Roll Under Hoppers"
+      "Blue Hopper Room Roll Under Hoppers",
+      "Croc Escape SpringBall Bomb Boost"
     ]
   },
   {
@@ -321,8 +324,7 @@
       "canCeilingBombJump",
       "canDiagonalBombJump",
       "canCrouchGateClip",
-      "canInsaneWalljump",
-      "canUnmorphBombBoost"
+      "canInsaneWalljump"
     ],
     "notable_strats": [
       "Green Hill Zone Tunnel Crawl",
@@ -345,12 +347,10 @@
       "Oasis Cross Room Jump with Screw Attack and Speed through the Top Door",
       "East Pants Room Suitless Puyo Clip",
       "East Sand Hole Sandfall Bounce to Power Bombs",
-      "East Cac Alley Cross Room Jump with Spring Ball, Bomb Boost",
       "Red Tower R-Mode Frozen Beetom X-Ray Climb",
       "Writg HiJump and Only Screw", 
       "Writg Power Bomb Diagonal Bomb Jump",
       "Lava Dive Diagonal Bomb Jump",
-      "Croc Escape SpringBall Bomb Boost",
       "Climb Speedkeep Chain Through Bomb Blocks"
     ]
   },
