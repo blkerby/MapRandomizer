@@ -1,10 +1,14 @@
-
-priority:
+for next release:
 - require canHeroShot for escape in Big Pink (and handle possibility that this may require rejecting a map)
 - implement comeInWithRMode
-- use openEnd to adjust runway length
-- add vertical gravity jumps to logic
 - add cross-room water short charges to logic
+- use openEnd to adjust runway length
+- adjust logic for ridley missile dps: should require 11 tanks instead of 9, for 180 missile suitless fight
+  - go back and check other dps too: super, charge shot, power bomb
+
+priority:
+- finish getting new model training going
+- add vertical gravity jumps to logic
 - show objective progress in pause menu
 - add pages for tech, strats, rooms.
 - help buttons for rest of settings (e.g. explain boss proficiency calculations)

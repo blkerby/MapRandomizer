@@ -316,15 +316,12 @@ session = TrainingSession(envs,
 
 
 
+cpu_executor = concurrent.futures.ProcessPoolExecutor()
 
+# pickle_name = 'models/session-2023-05-14T02:29:49.990751.pkl'
+# session = pickle.load(open(pickle_name, 'rb'))
+# session.envs = envs
 
-# pickle_name = 'models/session-2023-05-09T17:09:09.043567.pkl'
-# pickle_name = 'models/session-2023-05-10T14:34:48.668019.pkl'
-# pickle_name = 'models/session-2023-05-10T21:51:08.659971.pkl'
-# pickle_name = 'models/session-2023-05-12T09:02:09.007216.pkl'
-pickle_name = 'models/session-2023-05-12T22:02:33.004752.pkl'
-session = pickle.load(open(pickle_name, 'rb'))
-session.envs = envs
 
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
 # session.replay_buffer.resize(2 ** 23)
@@ -332,8 +329,7 @@ hist_c = 1.0
 hist_frac = 0.5
 batch_size = 2 ** 10
 lr0 = 0.0001
-lr1 = 0.0001
-# lr1 = 0.0005
+lr1 = 0.001
 num_candidates_min0 = 8
 num_candidates_max0 = 16
 num_candidates_min1 = num_candidates_min0
@@ -345,18 +341,26 @@ temperature_decay = 0.1
 explore_eps_factor = 0.0
 # temperature_min = 0.02
 # temperature_max = 2.0
-cycle_weight = 0.5
-cycle_value_coef = 5.0
-door_connect_bound = 50.0
-door_connect_alpha = 0.5
+# cycle_weight = 0.5
+# cycle_value_coef = 5.0
+cycle_weight = 0.0
+cycle_value_coef = 0.0
+compute_cycles = False
+
+# door_connect_bound = 50.0
+# door_connect_alpha = 0.5
+door_connect_bound = 0.0
+door_connect_alpha = 1e-15
 door_connect_beta = door_connect_bound / (door_connect_bound + door_connect_alpha)
-temperature_min0 = 10.0
+
+temperature_min0 = 0.1
 temperature_min1 = 0.1
 temperature_max0 = 10.0
-temperature_max1 = 0.1
+temperature_max1 = 10.0
+temperature_frac_min = 0.5
 annealing_start = 0
-annealing_time = 256
-pass_factor0 = 2.0
+annealing_time = 4
+pass_factor0 = 1.0
 pass_factor1 = pass_factor0
 print_freq = 4
 total_reward = 0
@@ -365,6 +369,7 @@ total_loss_cnt = 0
 total_test_loss = 0.0
 total_prob = 0.0
 total_prob0 = 0.0
+total_ent = 0.0
 total_round_cnt = 0
 total_min_door_frac = 0
 total_cycle_cost = 0.0
@@ -377,8 +382,8 @@ session.optimizer.param_groups[0]['eps'] = 1e-5
 ema_beta0 = 0.99
 ema_beta1 = 0.999
 session.average_parameters.beta = 0.995
-use_connectivity = True
-cpu_executor = concurrent.futures.ProcessPoolExecutor()
+# use_connectivity = True
+use_connectivity = False
 
 def compute_door_connect_counts(only_success: bool, ind=None):
     batch_size = 1024
@@ -397,7 +402,7 @@ def compute_door_connect_counts(only_success: bool, ind=None):
             # mask = (batch_reward == max_possible_reward)
             mask = (batch_reward == 0)
         else:
-            mask = torch.tensor(True)
+            mask = (batch_reward == batch_reward)
         masked_batch_action = batch_action[mask]
         step = torch.full([masked_batch_action.shape[0]], num_rooms)
         room_mask, room_position_x, room_position_y = reconstruct_room_data(masked_batch_action, step, num_rooms + 1)
@@ -443,6 +448,7 @@ def display_counts(counts, top_n: int, verbose: bool):
             logging.info("{}: [{}]".format(name, ', '.join(formatted_fracs)))
 
 
+
 def save_session(session, name):
     with util.DelayedKeyboardInterrupt():
         logging.info("Saving to {}".format(name))
@@ -477,7 +483,12 @@ for i in range(1000000):
     temperature_min = temperature_min0 * (temperature_min1 / temperature_min0) ** frac
     temperature_max = temperature_max0 * (temperature_max1 / temperature_max0) ** frac
 
-    temp_frac = torch.arange(0, num_envs, dtype=torch.float32) / num_envs
+    temp_num_min = int(num_envs * temperature_frac_min)
+    temp_num_higher = num_envs - temp_num_min
+    temp_frac_min = torch.zeros([temp_num_min], dtype=torch.float32)
+    temp_frac_higher = torch.arange(0, temp_num_higher, dtype=torch.float32) / temp_num_higher
+    temp_frac = torch.cat([temp_frac_min, temp_frac_higher])
+
     temperature = temperature_min * (temperature_max / temperature_min) ** temp_frac
     # explore_eps = torch.full_like(temperature, explore_eps_val)
     explore_eps = temperature * explore_eps_factor
@@ -491,11 +502,12 @@ for i in range(1000000):
             temperature_decay=temperature_decay,
             explore_eps=explore_eps,
             use_connectivity=use_connectivity,
+            compute_cycles=compute_cycles,
             cycle_value_coef=cycle_value_coef,
             executor=executor,
             cpu_executor=cpu_executor,
             render=False)
-        session.update_door_connect_stats(door_connect_alpha, door_connect_beta)
+        total_ent += session.update_door_connect_stats(door_connect_alpha, door_connect_beta, temp_num_min)
         # logging.info("cand_count={:.3f}".format(torch.mean(data.cand_count)))
         session.replay_buffer.insert(data)
 
@@ -574,12 +586,14 @@ for i in range(1000000):
         new_test_loss = total_test_loss / total_round_cnt
         new_prob = total_prob / total_round_cnt
         new_prob0 = total_prob0 / total_round_cnt
+        new_ent = total_ent / total_round_cnt
         min_door_frac = total_min_door_frac / total_round_cnt
         total_reward = 0
         total_cycle_cost = 0.0
         total_test_loss = 0.0
         total_prob = 0.0
         total_prob0 = 0.0
+        total_ent = 0.0
         total_round_cnt = 0
         total_min_door_frac = 0
 
@@ -589,7 +603,7 @@ for i in range(1000000):
         # buffer_mean_rooms_missing = buffer_mean_pass * len(rooms)
 
         logging.info(
-            "{}: cost={:.3f} (min={:d}, frac={:.6f}), cycle={:.6f}, p={:.5f} | loss={:.4f}, cost={:.2f} (min={:d}, frac={:.4f}), cycle={:.4f}, p={:.4f}, f={:.3f}".format(
+            "{}: cost={:.3f} (min={:d}, frac={:.6f}), cycle={:.6f}, p={:.5f} | loss={:.4f}, cost={:.2f} (min={:d}, frac={:.4f}), cycle={:.4f}, ent={:.4f}, p={:.4f}, f={:.3f}".format(
                 session.num_rounds, buffer_mean_reward, buffer_min_reward,
                 buffer_frac_min_reward,
                 # buffer_doors,
@@ -603,6 +617,7 @@ for i in range(1000000):
                 min_door_value,
                 min_door_frac,
                 new_cycle_cost,
+                new_ent,
                 new_prob,
                 frac,
             ))
@@ -639,7 +654,7 @@ for i in range(1000000):
             temp_high = temperature_endpoints[i + 1]
             # ind = torch.nonzero((buffer_temperature > temp_low) & (buffer_temperature <= temp_high))[:, 0]
             # ind = torch.nonzero((buffer_temperature > temp_low * 1.0001) & (buffer_temperature <= temp_high * 0.9999) & (round < round_window))[:, 0]
-            ind = torch.nonzero((buffer_temperature >= temp_low) & (buffer_temperature < temp_high * 0.9999) & (round >= round_start) & (round < round_end))[:, 0]
+            ind = torch.nonzero((buffer_temperature > temp_low * 1.0001) & (buffer_temperature <= temp_high) & (round >= round_start) & (round < round_end))[:, 0]
             if ind.shape[0] == 0:
                 continue
             buffer_reward = session.replay_buffer.episode_data.reward[ind]
@@ -656,12 +671,15 @@ for i in range(1000000):
             buffer_mean_prob0 = torch.mean(buffer_prob0)
             buffer_temp = session.replay_buffer.episode_data.temperature[ind]
             buffer_mean_temp = torch.mean(buffer_temp)
-            logging.info("[{:.3f}, {:.3f}]: cost={:.3f} (min={}, frac={:.6f}), cycle={:.6f}, test={:.6f}, p={:.4f}, p0={:.5f}, cnt={}, temp={:.4f}".format(
+            counts = compute_door_connect_counts(only_success=False, ind=ind)
+            counts1 = compute_door_connect_counts(only_success=True, ind=ind)
+            ent = session.compute_door_stats_entropy(counts).item()
+            ent1 = session.compute_door_stats_entropy(counts1).item()
+            logging.info("[{:.3f}, {:.3f}]: cost={:.3f} (min={}, frac={:.6f}), cycle={:.6f}, ent={:.6f}, ent1={:.6f}, test={:.6f}, p={:.4f}, p0={:.5f}, cnt={}, temp={:.4f}".format(
                 temp_low, temp_high, buffer_mean_reward, buffer_min_reward,
-                buffer_frac_min, buffer_mean_cycle_cost, buffer_mean_test_loss, buffer_mean_prob, buffer_mean_prob0, ind.shape[0], buffer_mean_temp
+                buffer_frac_min, buffer_mean_cycle_cost, ent, ent1, buffer_mean_test_loss, buffer_mean_prob, buffer_mean_prob0, ind.shape[0], buffer_mean_temp
             ))
-            counts = compute_door_connect_counts(only_success=True, ind=ind)
-            display_counts(counts, 10, False)
+            display_counts(counts1, 10, False)
             # display_counts(counts, 10, True)
         # logging.info("Overall:")
         # counts = compute_door_connect_counts(only_success=True)
