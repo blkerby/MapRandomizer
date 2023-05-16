@@ -183,7 +183,7 @@ class TrainingSession():
 
         env = self.envs[env_id]
         # map_flat = env.compute_map(room_mask_flat, room_position_x_flat, room_position_y_flat)
-        map_valid = env.compute_map(room_mask_valid, room_position_x_valid, room_position_y_valid)
+        # map_valid = env.compute_map(room_mask_valid, room_position_x_valid, room_position_y_valid)
 
 
 
@@ -192,14 +192,20 @@ class TrainingSession():
         # flat_raw_logodds, _, flat_expected = model.forward_multiclass(
         #     map_flat, room_mask_flat, room_position_x_flat, room_position_y_flat, steps_remaining_flat, round_frac_flat,
         #     temperature_flat, env)
-        raw_logodds_valid, _, expected_valid, pred_cycle_cost = model.forward_multiclass(
-            map_valid, room_mask_valid, room_position_x_valid, room_position_y_valid, steps_remaining_valid, round_frac_valid,
-            temperature_valid, use_connectivity, env, executor)
+        raw_preds_valid = model.forward_multiclass(
+            room_mask_valid, room_position_x_valid, room_position_y_valid, steps_remaining_valid, round_frac_valid,
+            temperature_valid)
+
+        logodds_valid = raw_preds_valid[:, :-1]
+        logprobs_valid = -torch.logaddexp(-logodds_valid, torch.zeros_like(logodds_valid))
+        expected_valid = torch.sum(logprobs_valid, dim=1)  # / 2
+
+        pred_cycle_cost = raw_preds_valid[:, -1]
 
         # Note: for steps with no valid candidates (i.e. when no more rooms can be placed), we won't generate any
         # predictions, and the test_loss will be computed just based on these zero log-odds filler values.
-        raw_logodds_flat = torch.zeros([num_envs * num_candidates, raw_logodds_valid.shape[-1]], device=raw_logodds_valid.device)
-        raw_logodds_flat[valid_flat_ind, :] = raw_logodds_valid
+        logodds_flat = torch.zeros([num_envs * num_candidates, logodds_valid.shape[-1]], device=logodds_valid.device)
+        logodds_flat[valid_flat_ind, :] = logodds_valid
 
         # Adjust score using additional term to encourage large cycles
         expected_valid = expected_valid - pred_cycle_cost * cycle_value_coef #- door_connect_cost * door_connect_coef
@@ -209,10 +215,10 @@ class TrainingSession():
         door_connect_cost2 = self.door_connect_adjust.to(expected_valid.device)[room_door_id_valid, map_door_id_valid]
         expected_valid = expected_valid - door_connect_cost1 - door_connect_cost2
 
-        expected_flat = torch.full([num_envs * num_candidates], -1e15, device=raw_logodds_valid.device)
+        expected_flat = torch.full([num_envs * num_candidates], -1e15, device=logodds_valid.device)
         expected_flat[valid_flat_ind] = expected_valid
 
-        raw_logodds = raw_logodds_flat.view(num_envs, num_candidates, -1)
+        raw_logodds = logodds_flat.view(num_envs, num_candidates, -1)
         expected = expected_flat.view(num_envs, num_candidates)
         return expected, raw_logodds
 
@@ -400,10 +406,13 @@ class TrainingSession():
         self.model.train()
 
         env = self.envs[0]
-        map = env.compute_map(data.room_mask, data.room_position_x, data.room_position_y)
-        state_value_raw_logodds, _, _, pred_cycle_cost = self.model.forward_multiclass(
-            map, data.room_mask, data.room_position_x, data.room_position_y, data.steps_remaining, data.round_frac,
-            data.temperature, use_connectivity, env, executor)
+        # map = env.compute_map(data.room_mask, data.room_position_x, data.room_position_y)
+        raw_preds = self.model.forward_multiclass(
+            data.room_mask, data.room_position_x, data.room_position_y, data.steps_remaining, data.round_frac,
+            data.temperature)
+
+        state_value_raw_logodds = raw_preds[:, :-1]
+        pred_cycle_cost = raw_preds[:, -1]
 
         if use_connectivity:
             all_outputs = torch.cat([data.door_connects, data.missing_connects], dim=1)

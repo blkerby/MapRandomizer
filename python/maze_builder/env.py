@@ -16,13 +16,13 @@ import logging
 import torch.utils.cpp_extension
 import timeit
 
-connectivity2 = torch.utils.cpp_extension.load(
-    name="connectivity2",
-    sources=["cpp/connectivity2.cpp"],
-    extra_cflags=["-fopenmp", "-O3", "-ffast-math"],
-    extra_ldflags=["-lgomp"],
-    verbose=True,
-)
+# connectivity2 = torch.utils.cpp_extension.load(
+#     name="connectivity2",
+#     sources=["cpp/connectivity2.cpp"],
+#     extra_cflags=["-fopenmp", "-O3", "-ffast-math"],
+#     extra_ldflags=["-lgomp"],
+#     verbose=True,
+# )
 
 
 def _rand_choice(p):

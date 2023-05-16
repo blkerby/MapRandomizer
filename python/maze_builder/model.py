@@ -329,15 +329,15 @@ class Model(torch.nn.Module):
         all_steps_remaining = steps_remaining.unsqueeze(1).repeat(1, num_candidates + 1)
 
         all_room_mask[torch.arange(num_envs, device=action_candidates.device).view(-1, 1),
-                      torch.arange(1, 1 + num_candidates, device=action_candidates.device).view(1, -1),
-                      action_room_id] = True
+        torch.arange(1, 1 + num_candidates, device=action_candidates.device).view(1, -1),
+        action_room_id] = True
         all_room_mask[:, :, -1] = False
         all_room_position_x[torch.arange(num_envs, device=action_candidates.device).view(-1, 1),
-                            torch.arange(1, 1 + num_candidates, device=action_candidates.device).view(1, -1),
-                            action_room_id] = action_x
+        torch.arange(1, 1 + num_candidates, device=action_candidates.device).view(1, -1),
+        action_room_id] = action_x
         all_room_position_y[torch.arange(num_envs, device=action_candidates.device).view(-1, 1),
-                            torch.arange(1, 1 + num_candidates, device=action_candidates.device).view(1, -1),
-                            action_room_id] = action_y
+        torch.arange(1, 1 + num_candidates, device=action_candidates.device).view(1, -1),
+        action_room_id] = action_y
         all_steps_remaining[:, 1:] -= 1
 
         room_mask_flat = all_room_mask.view(num_envs * (1 + num_candidates), num_rooms)
@@ -366,7 +366,8 @@ def map_extract(map, env_id, pos_x, pos_y, width_x, width_y):
 # inputs_list = []
 
 class DoorLocalModel(torch.nn.Module):
-    def __init__(self, env_config, num_doors, num_missing_connects, num_good_room_parts, num_parts, map_channels, map_kernel_size,
+    def __init__(self, env_config, num_doors, num_missing_connects, num_good_room_parts, num_parts, map_channels,
+                 map_kernel_size,
                  connectivity_in_width, local_widths, global_widths, fc_widths, alpha, arity
                  ):
         super().__init__()
@@ -449,14 +450,13 @@ class DoorLocalModel(torch.nn.Module):
         #     return map_extract(X_map, env_id, pos_x, pos_y, self.map_kernel_size, self.map_kernel_size)
 
         map_door_left, map_door_right, map_door_down, map_door_up = \
-                    env.open_door_locations(map, room_mask, room_position_x, room_position_y)
+            env.open_door_locations(map, room_mask, room_position_x, room_position_y)
 
         def extract_map(map_door_dir):
             env_id = map_door_dir[:, 0]
             pos_x = map_door_dir[:, 2] - self.map_kernel_size // 2
             pos_y = map_door_dir[:, 3] - self.map_kernel_size // 2
             return map_extract(X_map, env_id, pos_x, pos_y, self.map_kernel_size, self.map_kernel_size)
-
 
         with torch.cuda.amp.autocast():
             local_map_left = extract_map(map_door_left)
@@ -539,26 +539,29 @@ class DoorLocalModel(torch.nn.Module):
             # print("num_envs={}, num_doors={}, max={}".format(num_envs, num_doors, torch.max(local_door_pos)))
             # print("shapes: ", local_X.shape, local_door_pos.shape, local_door_logodds_raw.shape)
             local_door_logodds = torch.scatter(
-                torch.zeros([num_envs * num_doors], device=local_door_logodds_raw.device, dtype=local_door_logodds_raw.dtype),
+                torch.zeros([num_envs * num_doors], device=local_door_logodds_raw.device,
+                            dtype=local_door_logodds_raw.dtype),
                 0, local_door_pos, local_door_logodds_raw
             ).view(num_envs, num_doors)
             local_door_mask = torch.scatter(
                 torch.zeros([num_envs * num_doors], device=local_door_pos.device, dtype=torch.bool),
-                0, local_door_pos, 
+                0, local_door_pos,
                 torch.ones([local_door_pos.shape[0]], device=local_door_pos.device, dtype=torch.bool)
             ).view(num_envs, num_doors)
 
             state_value_raw_logodds = self.state_value_lin(global_X).to(torch.float32)
             # door_connects_raw_logodds = state_value_raw_logodds[:, :self.num_doors]
             global_door_connects_raw_logodds = state_value_raw_logodds[:, :self.num_doors]
-            door_connects_raw_logodds = torch.where(local_door_mask, local_door_logodds, global_door_connects_raw_logodds)
+            door_connects_raw_logodds = torch.where(local_door_mask, local_door_logodds,
+                                                    global_door_connects_raw_logodds)
             # door_connects_raw_logodds = global_door_connects_raw_logodds
             inf_tensor_door = torch.full_like(door_connects_raw_logodds,
                                               1e5)  # We can't use actual 'inf' or it results in NaNs in binary_cross_entropy_with_logits, but this is equivalent.
             door_connects_filtered_logodds = torch.where(door_connects, inf_tensor_door, door_connects_raw_logodds)
 
             if use_connectivity:
-                missing_connects_raw_logodds = state_value_raw_logodds[:, self.num_doors:(self.num_doors + self.num_missing_connects)]
+                missing_connects_raw_logodds = state_value_raw_logodds[:,
+                                               self.num_doors:(self.num_doors + self.num_missing_connects)]
                 # inf_tensor = torch.zeros_like(door_connects_raw_logodds)
                 inf_tensor_missing = torch.full_like(missing_connects_raw_logodds,
                                                      1e5)  # We can't use actual 'inf' or it results in NaNs in binary_cross_entropy_with_logits, but this is equivalent.
@@ -606,56 +609,196 @@ class DoorLocalModel(torch.nn.Module):
 
     def project(self):
         pass
-        # eps = 1e-15
-        # for layer in self.map_conv_layers:
-        #     # layer.weight.data = approx_l1_projection(layer.weight.data, dim=(1, 2, 3), num_iters=5)
-        #     # shape = layer.weight.shape
-        #     # layer.weight.data /= torch.max(torch.abs(layer.weight.data.view(shape[0], -1)) + eps, dim=1)[0].view(-1, 1,
-        #     #                                                                                                      1, 1)
-        #     layer.lin.weight.data /= torch.sqrt(torch.mean(layer.lin.weight.data ** 2, dim=(1, 2, 3), keepdim=True) + eps)
-        # for layer in self.global_lin_layers:
-        #     # layer.weight.data = approx_l1_projection(layer.weight.data, dim=1, num_iters=5)
-        #     # layer.weight.data /= torch.max(torch.abs(layer.weight.data) + eps, dim=1)[0].unsqueeze(1)
-        #     layer.lin.weight.data /= torch.sqrt(torch.mean(layer.lin.weight.data ** 2, dim=1, keepdim=True) + eps)
-    #
-    # def forward_state_action(self, env: MazeBuilderEnv, room_mask, room_position_x, room_position_y,
-    #                          action_candidates, steps_remaining, round_frac, temperature):
-    #     num_envs = room_mask.shape[0]
-    #     num_candidates = action_candidates.shape[1]
-    #     num_rooms = self.num_rooms
-    #     action_room_id = action_candidates[:, :, 0]
-    #     action_x = action_candidates[:, :, 1]
-    #     action_y = action_candidates[:, :, 2]
-    #     all_room_mask = room_mask.unsqueeze(1).repeat(1, num_candidates + 1, 1)
-    #     all_room_position_x = room_position_x.unsqueeze(1).repeat(1, num_candidates + 1, 1)
-    #     all_room_position_y = room_position_y.unsqueeze(1).repeat(1, num_candidates + 1, 1)
-    #     all_steps_remaining = steps_remaining.unsqueeze(1).repeat(1, num_candidates + 1)
-    #     all_temperature = temperature.unsqueeze(1).repeat(1, num_candidates + 1)
-    #
-    #     all_room_mask[torch.arange(num_envs, device=action_candidates.device).view(-1, 1),
-    #                   torch.arange(1, 1 + num_candidates, device=action_candidates.device).view(1, -1),
-    #                   action_room_id] = True
-    #     all_room_mask[:, :, -1] = False
-    #     all_room_position_x[torch.arange(num_envs, device=action_candidates.device).view(-1, 1),
-    #                         torch.arange(1, 1 + num_candidates, device=action_candidates.device).view(1, -1),
-    #                         action_room_id] = action_x
-    #     all_room_position_y[torch.arange(num_envs, device=action_candidates.device).view(-1, 1),
-    #                         torch.arange(1, 1 + num_candidates, device=action_candidates.device).view(1, -1),
-    #                         action_room_id] = action_y
-    #     all_steps_remaining[:, 1:] -= 1
-    #
-    #     room_mask_flat = all_room_mask.view(num_envs * (1 + num_candidates), num_rooms)
-    #     room_position_x_flat = all_room_position_x.view(num_envs * (1 + num_candidates), num_rooms)
-    #     room_position_y_flat = all_room_position_y.view(num_envs * (1 + num_candidates), num_rooms)
-    #     steps_remaining_flat = all_steps_remaining.view(num_envs * (1 + num_candidates))
-    #     round_frac_flat = torch.zeros([num_envs * (1 + num_candidates)], device=action_candidates.device, dtype=torch.float32)
-    #     temperature_flat = all_temperature.view(num_envs * (1 + num_candidates))
-    #
-    #     map_flat = env.compute_map(room_mask_flat, room_position_x_flat, room_position_y_flat)
-    #
-    #     out_flat = self.forward(
-    #         map_flat, room_mask_flat, room_position_x_flat, room_position_y_flat, steps_remaining_flat, round_frac_flat, temperature_flat, env)
-    #     out = out_flat.view(num_envs, 1 + num_candidates)
-    #     state_value = out[:, 0]
-    #     action_value = out[:, 1:]
-    #     return state_value, action_value
+
+
+def compute_cross_attn(Q, K, V):
+    # Q, K, V: [batch, seq, head, emb]
+    raw_attn = torch.einsum('bshe,bthe->bsth', Q, K)
+    attn = torch.softmax(raw_attn, dim=2)
+    out = torch.einsum('bsth,bthe->bshe', attn, V)
+    return out
+
+
+class AttentionLayer(torch.nn.Module):
+    def __init__(self, input_width, key_width, value_width, num_heads):
+        super().__init__()
+        self.input_width = input_width
+        self.key_width = key_width
+        self.value_width = value_width
+        self.num_heads = num_heads
+        self.query = torch.nn.Linear(input_width, num_heads * key_width)
+        self.key = torch.nn.Linear(input_width, num_heads * key_width)
+        self.value = torch.nn.Linear(input_width, num_heads * value_width)
+        self.post = torch.nn.Linear(num_heads * value_width, input_width)
+        self.layer_norm = torch.nn.LayerNorm(input_width)
+
+    def forward(self, X):
+        assert len(X.shape) == 3
+        assert X.shape[2] == self.input_width
+        n = X.shape[0]  # batch dimension
+        s = X.shape[1]  # sequence dimension
+        Q = self.query(X).view(n, s, self.num_heads, self.key_width)
+        K = self.key(X).view(n, s, self.num_heads, self.key_width)
+        V = self.value(X).view(n, s, self.num_heads, self.value_width)
+        A = compute_cross_attn(Q, K, V).reshape(n, s, self.num_heads * self.value_width)
+        return self.layer_norm(X + self.post(A))
+
+
+class FeedforwardLayer(torch.nn.Module):
+    def __init__(self, input_width, relu_width):
+        super().__init__()
+        self.lin1 = torch.nn.Linear(input_width, relu_width)
+        self.lin2 = torch.nn.Linear(relu_width, input_width)
+        self.layer_norm = torch.nn.LayerNorm(input_width)
+
+    def forward(self, X):
+        return self.layer_norm(X + self.lin2(torch.relu(self.lin1(X))))
+
+
+# class TransformerLayer(torch.nn.Module):
+#     def __init__(self, input_width, key_width, value_width, num_heads, relu_width):
+#         super().__init__()
+#         self.input_width = input_width
+#         self.key_width = key_width
+#         self.value_width = value_width
+#         self.num_heads = num_heads
+#         self.query = torch.nn.Linear(input_width, num_heads * key_width)
+#         self.key = torch.nn.Linear(input_width, num_heads * key_width)
+#         self.value = torch.nn.Linear(input_width, num_heads * value_width)
+#         self.post1 = torch.nn.Linear(num_heads * value_width, relu_width)
+#         self.post2 = torch.nn.Linear(relu_width, input_width)
+#         self.layer_norm = torch.nn.LayerNorm(input_width)
+#
+#     def forward(self, X):
+#         assert len(X.shape) == 3
+#         assert X.shape[2] == self.input_width
+#         n = X.shape[0]  # batch dimension
+#         s = X.shape[1]  # sequence dimension
+#         Q = self.query(X).view(n, s, self.num_heads, self.key_width)
+#         K = self.key(X).view(n, s, self.num_heads, self.key_width)
+#         V = self.value(X).view(n, s, self.num_heads, self.value_width)
+#         A = compute_cross_attn(Q, K, V).reshape(n, s, self.num_heads * self.value_width)
+#         return self.layer_norm(X + self.post2(torch.relu(self.post1(A))))
+#
+
+class TransformerModel(torch.nn.Module):
+    def __init__(self, rooms, num_outputs, map_x, map_y, block_size_x, block_size_y,
+                 embedding_width, key_width, value_width, attn_heads, relu_width, num_layers):
+        super().__init__()
+        self.room_half_size_x = torch.tensor([len(r.map[0]) // 2 for r in rooms])
+        self.room_half_size_y = torch.tensor([len(r.map) // 2 for r in rooms])
+        self.num_rooms = len(rooms)
+        self.num_outputs = num_outputs
+        self.num_layers = num_layers
+        self.embedding_width = embedding_width
+        self.block_size_x = block_size_x
+        self.block_size_y = block_size_y
+        self.block_size = block_size_x * block_size_y
+        self.num_blocks_x = map_x // block_size_x
+        self.num_blocks_y = map_y // block_size_y
+        self.num_blocks = self.num_blocks_x * self.num_blocks_y
+        self.global_lin = torch.nn.Linear(self.num_rooms + 3, embedding_width)
+        self.pos_embedding = torch.nn.Parameter(torch.randn([self.num_blocks, embedding_width]) / math.sqrt(embedding_width))
+        self.room_embedding = torch.nn.Parameter(
+            torch.randn([self.num_rooms, self.block_size, embedding_width]) / math.sqrt(embedding_width))
+        self.attn_layers = torch.nn.ModuleList()
+        self.ff_layers = torch.nn.ModuleList()
+        # self.transformer_layers = torch.nn.ModuleList()
+        for i in range(num_layers):
+            self.attn_layers.append(AttentionLayer(
+                input_width=embedding_width,
+                key_width=key_width,
+                value_width=value_width,
+                num_heads=attn_heads))
+            self.ff_layers.append(FeedforwardLayer(
+                input_width=embedding_width,
+                relu_width=relu_width))
+            # self.transformer_layers.append(TransformerLayer(
+            #     input_width=embedding_width,
+            #     key_width=key_width,
+            #     value_width=value_width,
+            #     num_heads=attn_heads,
+            #     relu_width=relu_width))
+        self.output_query = torch.nn.Parameter(torch.randn([num_outputs, embedding_width]) / math.sqrt(embedding_width))
+        self.output_value = torch.nn.Parameter(torch.randn([num_outputs, embedding_width]) / math.sqrt(embedding_width))
+
+    def forward_multiclass(self, room_mask, room_position_x, room_position_y, steps_remaining, round_frac,
+                           temperature):
+        n = room_mask.shape[0]
+        device = room_mask.device
+
+        global_data = torch.cat([room_mask.to(torch.float32),
+                                 steps_remaining.view(-1, 1) / self.num_rooms,
+                                 round_frac.view(-1, 1),
+                                 torch.log(temperature.view(-1, 1))], dim=1)
+        global_embedding = self.global_lin(global_data)
+
+        # Initialize embeddings by replicating the global embedding across all blocks
+        # X = global_embedding.view(n, 1, global_embedding.shape[1]).repeat(1, self.num_blocks, 1)
+        # X = X.view(n * self.num_blocks, self.embedding_width)  # Flatten X in order to perform the scatter_add
+
+        nz = torch.nonzero(room_mask)
+        nz_env_idx = nz[:, 0]
+        nz_room_idx = nz[:, 1]
+        nz_room_position_x = room_position_x[nz_env_idx, nz_room_idx] + self.room_half_size_x.to(device)[nz_room_idx]
+        nz_room_position_y = room_position_y[nz_env_idx, nz_room_idx] + self.room_half_size_y.to(device)[nz_room_idx]
+
+        nz_block_x = nz_room_position_x // self.block_size_x
+        nz_block_y = nz_room_position_y // self.block_size_y
+        nz_block_idx = nz_block_y * self.num_blocks_x + nz_block_x
+        nz_env_block_idx = nz_env_idx * self.num_blocks + nz_block_idx
+
+        nz_within_block_x = nz_room_position_x - nz_block_x * self.block_size_x
+        nz_within_block_y = nz_room_position_y - nz_block_y * self.block_size_y
+        nz_within_block_idx = nz_within_block_y * self.block_size_x + nz_within_block_x
+        # nz_embedding_idx = nz_room_idx * self.block_size + nz_within_block_idx
+
+        # A_sparse_ind = torch.stack([nz_env_block_idx, nz_embedding_idx], dim=0)
+        # A_sparse_val = torch.ones([nz_env_block_idx.shape[0]], device=device)
+        # A_sparse = torch.sparse_coo_tensor(A_sparse_ind, A_sparse_val, [n * self.num_blocks, self.num_rooms * self.block_size])
+        # X = torch.sparse.mm(A_sparse, self.room_embedding.view(self.num_rooms * self.block_size, self.embedding_width))
+        #
+
+        X = global_embedding.view(n, 1, global_embedding.shape[1]).repeat(1, self.num_blocks, 1)
+        X = X.view(n * self.num_blocks, self.embedding_width)  # Flatten X in order to perform the scatter_add
+        nz_embedding = self.room_embedding[nz_room_idx, nz_within_block_idx, :]
+        X = torch.scatter_add(X, dim=0, index=nz_env_block_idx.view(-1, 1).repeat(1, self.embedding_width), src=nz_embedding)
+
+
+        # Add room embedding to the appropriate block, i.e. the block that the room is centered on.
+        # print("X={}, idx={}, emb={}".format(X.shape, nz_env_block_idx.shape, nz_embedding.shape))
+
+        # X = torch.scatter_add(X, dim=0, index=nz_env_block_idx, src=nz_embedding)
+        X = X.reshape(n, self.num_blocks, self.embedding_width)  # Unflatten X
+        # X = X + global_embedding.view(n, 1, self.embedding_width) + self.pos_embedding.view(1, self.num_blocks, self.embedding_width)
+        X = X + self.pos_embedding.view(1, self.num_blocks, self.embedding_width)
+
+        with torch.cuda.amp.autocast():
+            for i in range(self.num_layers):
+                # X = self.transformer_layers[i](X)
+                X = self.attn_layers[i](X)
+                X = self.ff_layers[i](X)
+
+            raw_output_weight = torch.einsum('bse,oe->bso', X, self.output_query)
+            output_weight = torch.softmax(raw_output_weight, dim=1)
+            output_value = torch.einsum('bse,oe->bso', X, self.output_value)
+            output = torch.sum(output_weight * output_value, dim=1)
+
+        return output
+
+    def decay(self, amount: Optional[float]):
+        if amount is not None:
+            factor = 1 - amount
+            for param in self.parameters():
+                param.data *= factor
+
+    def all_param_data(self):
+        params = [param.data for param in self.parameters()]
+        for module in self.modules():
+            if isinstance(module, (torch.nn.BatchNorm1d, torch.nn.BatchNorm2d)):
+                params.append(module.running_mean)
+                params.append(module.running_var)
+        return params
+
+    def project(self):
+        pass
