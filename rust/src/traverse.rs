@@ -312,7 +312,7 @@ fn apply_ridley_requirement(
     );
     local.missiles_used += missiles_to_use;
     boss_hp -= missiles_to_use as f32 * 100.0 * accuracy;
-    time += missiles_to_use as f32 * 0.25 / firing_rate; // Assume max average rate of 4 missiles per second
+    time += missiles_to_use as f32 * 0.3 / firing_rate; // Assume max average rate of 1 missile per 0.3 seconds
 
     if global.items[Item::Charge as usize] {
         // Then finish with Charge shots:
