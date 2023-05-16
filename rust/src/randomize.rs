@@ -303,6 +303,14 @@ impl<'a> Preprocessor<'a> {
                 *excess_shinespark_frames,
                 link,
             ),
+            Requirement::ComeInWithRMode {
+                room_id,
+                node_ids,
+            } => self.preprocess_come_in_with_rmode(
+                *room_id,
+                node_ids,
+                link,
+            ),
             Requirement::ComeInWithGMode {
                 room_id,
                 node_ids,
@@ -510,6 +518,40 @@ impl<'a> Preprocessor<'a> {
         out
     }
 
+    fn preprocess_come_in_with_rmode(
+        &mut self,
+        room_id: RoomId,
+        node_ids: &[NodeId],
+        link: &Link,
+    ) -> Requirement {
+        let rmode_tech_id = self.game_data.tech_isv.index_by_key["canEnterRMode"];
+        let xray_item_id = self.game_data.item_isv.index_by_key["XRayScope"];
+        let mut req_or_list: Vec<Requirement> = Vec::new();
+        for &node_id in node_ids {
+            if let Some(&(other_room_id, other_node_id)) = self.door_map.get(&(room_id, node_id)) {
+                let leave_with_gmode_setup_vec = &self
+                    .game_data
+                    .node_leave_with_gmode_setup_map[&(other_room_id, other_node_id)];
+                for leave_with_gmode_setup in leave_with_gmode_setup_vec {
+                    let mut req_and_list: Vec<Requirement> = Vec::new();
+                    req_and_list.push(
+                        self.preprocess_requirement(&leave_with_gmode_setup.requirement, link),
+                    );
+                    req_and_list.push(Requirement::Tech(rmode_tech_id));
+                    req_and_list.push(Requirement::Item(xray_item_id));
+                    req_and_list.push(Requirement::ReserveTrigger { 
+                        min_reserve_energy: 1, 
+                        max_reserve_energy: 400,
+                    });
+                    req_or_list.push(Requirement::make_and(req_and_list));
+                }
+            }
+        }
+
+        let out = Requirement::make_or(req_or_list);
+        out
+    }
+
     fn preprocess_come_in_with_gmode(
         &mut self,
         room_id: RoomId,
@@ -589,10 +631,6 @@ impl<'a> Preprocessor<'a> {
         }
 
         let out = Requirement::make_or(req_or_list);
-        // println!(
-        //     "{} ({}) {:?} {}: {:?}",
-        //     self.game_data.room_json_map[&room_id]["name"], room_id, node_ids, link.strat_name, out
-        // );
         out
     }
 }

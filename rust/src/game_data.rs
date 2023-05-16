@@ -164,6 +164,10 @@ pub enum Requirement {
         shinespark_frames: i32,
         excess_shinespark_frames: i32,
     },
+    ComeInWithRMode {
+        room_id: RoomId,
+        node_ids: Vec<NodeId>,
+    },
     ComeInWithGMode {
         room_id: RoomId,
         node_ids: Vec<NodeId>,
@@ -1078,8 +1082,25 @@ impl GameData {
                 });
                 // return Ok(Requirement::Never);
             } else if key == "comeInWithRMode" {
-                // TODO: Implement this:
-                return Ok(Requirement::Never);
+                if ctx.from_obstacles_bitmask != 0 {
+                    return Ok(Requirement::Never);
+                }
+                let mut node_ids: Vec<NodeId> = Vec::new();
+                for from_node in value["fromNodes"].members() {
+                    let mut unlocked_node_id = from_node.as_usize().unwrap();
+                    if self
+                        .unlocked_node_map
+                        .contains_key(&(ctx.room_id, unlocked_node_id))
+                    {
+                        unlocked_node_id = self.unlocked_node_map[&(ctx.room_id, unlocked_node_id)];
+                    }
+                    node_ids.push(unlocked_node_id);
+                }
+
+                return Ok(Requirement::ComeInWithRMode {
+                    room_id: ctx.room_id,
+                    node_ids,
+                });
             } else if key == "comeInWithGMode" {
                 if ctx.from_obstacles_bitmask != 0 {
                     return Ok(Requirement::Never);

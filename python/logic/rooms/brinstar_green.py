@@ -49,7 +49,7 @@ rooms = [
             6: [(0, 6)],  # middle right door
             7: [(0, 7)],  # internal right door (to etecoons)
             8: [(0, 10)],  # left door to beetom room
-            9: [(1, 7)],  # internal left door (from etecoons)
+            9: [(1, 7), (2, 7)],  # internal left door (from etecoons)
             10: [(2, 11)],  # bottom left door (to etecoon etank room)
             11: [(3, 7)],  # power bomb
             12: [(0, 3), (0, 4), (0, 5), (0, 6)],  # top junction

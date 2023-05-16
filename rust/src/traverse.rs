@@ -811,6 +811,9 @@ pub fn apply_requirement(
         Requirement::CanComeInCharged { .. } => {
             panic!("CanComeInCharged should be resolved during preprocessing")
         }
+        Requirement::ComeInWithRMode { .. } => {
+            panic!("ComeInWithRMode should be resolved during preprocessing")
+        }
         Requirement::ComeInWithGMode { .. } => {
             panic!("ComeInWithGMode should be resolved during preprocessing")
         }
