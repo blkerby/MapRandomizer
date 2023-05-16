@@ -3,6 +3,23 @@
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-62---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 62 (???)</a>:
+<ul>
+<li>Removed item dot that incorrectly showed on the map in Phantoon's Room when using Minibosses or Metroids objective.
+<li>Logic updates:
+    <ul>
+    <li>Fighting Ridley suitless with Missiles has been adjusted to be more lenient:
+        <ul>
+        <li>On highest settings, a 180 Missile fight with Morph or Screw Attack now requires 1110 energy (compared to 975 before).
+        </ul>
+    <li>New notable strats:
+        <ul>
+        <li>Red Tower R-Mode Frozen Beetom X-Ray Climb
+        </ul>
+    </ul>
+</ul>
+
+
 <p><a href="https://version-61---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 61 (2023-05-07)</a>:
 <ul>
 <li>"Fast doors" option no longer affects Samus' position after door transitions.
