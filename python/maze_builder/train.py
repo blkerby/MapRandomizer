@@ -13,7 +13,7 @@ import logic.rooms.crateria
 from datetime import datetime
 import pickle
 import maze_builder.model
-from maze_builder.model import Model, DoorLocalModel
+from maze_builder.model import Model, DoorLocalModel, TransformerModel
 from maze_builder.train_session import TrainingSession
 from maze_builder.replay import ReplayBuffer
 from model_average import ExponentialAverage
@@ -164,27 +164,45 @@ logging.info("max_possible_reward = {}".format(max_possible_reward))
 # eval_batches = pickle.load(open('models/eval_batches.pkl', 'rb'))
 # session = pickle.load(open('models/checkpoint-3-train.pkl', 'rb'))
 # eval_batches = pickle.load(open('models/checkpoint-4-eval_batches.pkl', 'rb'))
-layer_width = 512
-main_depth = 2
-fc_depth = 3
-model = DoorLocalModel(
-    env_config=env_config,
-    num_doors=envs[0].num_doors,
-    num_missing_connects=envs[0].num_missing_connects,
-    num_good_room_parts=len(envs[0].good_room_parts),
-    num_parts=envs[0].num_parts,
-    map_channels=4,
-    map_kernel_size=16,
-    connectivity_in_width=64,
-    local_widths=main_depth * [layer_width],
-    global_widths=main_depth * [layer_width],
-    fc_widths=fc_depth * [layer_width],
-    alpha=2.0,
-    arity=2,
+
+# layer_width = 512
+# main_depth = 2
+# fc_depth = 3
+# model = DoorLocalModel(
+#     env_config=env_config,
+#     num_doors=envs[0].num_doors,
+#     num_missing_connects=envs[0].num_missing_connects,
+#     num_good_room_parts=len(envs[0].good_room_parts),
+#     num_parts=envs[0].num_parts,
+#     map_channels=4,
+#     map_kernel_size=16,
+#     connectivity_in_width=64,
+#     local_widths=main_depth * [layer_width],
+#     global_widths=main_depth * [layer_width],
+#     fc_widths=fc_depth * [layer_width],
+#     alpha=2.0,
+#     arity=2,
+# ).to(device)
+
+model = TransformerModel(
+    rooms=envs[0].rooms,
+    num_outputs=envs[0].num_doors + envs[0].num_missing_connects + 1,
+    map_x=env_config.map_x,
+    map_y=env_config.map_y,
+    block_size_x=8,
+    block_size_y=8,
+    embedding_width=256,
+    key_width=32,
+    value_width=32,
+    attn_heads=8,
+    relu_width=1024,
+    num_layers=2,
 ).to(device)
 
-model.state_value_lin.weight.data.zero_()
-model.state_value_lin.bias.data.zero_()
+
+# model.state_value_lin.weight.data.zero_()
+# model.state_value_lin.bias.data.zero_()
+model.output_value.data.zero_()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
 replay_size = 2 ** 23
 session = TrainingSession(envs,
@@ -318,8 +336,9 @@ session = TrainingSession(envs,
 
 cpu_executor = concurrent.futures.ProcessPoolExecutor()
 
-# pickle_name = 'models/session-2023-05-14T02:29:49.990751.pkl'
+# pickle_name = 'models/session-2023-05-15T23:02:08.243200.pkl'
 # session = pickle.load(open(pickle_name, 'rb'))
+# # session = pickle.load(open(pickle_name + '-bk1', 'rb'))
 # session.envs = envs
 
 
@@ -347,10 +366,10 @@ cycle_weight = 0.0
 cycle_value_coef = 0.0
 compute_cycles = False
 
-# door_connect_bound = 50.0
-# door_connect_alpha = 0.5
-door_connect_bound = 0.0
-door_connect_alpha = 1e-15
+door_connect_bound = 20.0
+door_connect_alpha = 0.5
+# door_connect_bound = 0.0
+# door_connect_alpha = 1e-15
 door_connect_beta = door_connect_bound / (door_connect_bound + door_connect_alpha)
 
 temperature_min0 = 0.1
@@ -630,7 +649,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk1')
+            # save_session(session, pickle_name + '-bk2')
             # pickle.dump(session, open(pickle_name + '-bk1', 'wb'))
             # session.replay_buffer.resize(2 ** 20)
             # pickle.dump(session, open(pickle_name + '-small', 'wb'))
