@@ -1,10 +1,8 @@
 for next release:
 - require canHeroShot for escape in Big Pink (and handle possibility that this may require rejecting a map)
 - implement comeInWithRMode
-- add cross-room water short charges to logic
 - use openEnd to adjust runway length
-- adjust logic for ridley missile dps: should require 11 tanks instead of 9, for 180 missile suitless fight
-  - go back and check other dps too: super, charge shot, power bomb
+- add cross-room water short charges to logic
 
 priority:
 - finish getting new model training going
@@ -28,6 +26,7 @@ model stuff to try:
 
 
 later:
+- 10 super botwoon should be possible in Expert (and 30 missile in Insane?)
 - look into potential conflicts between map_area.asm and map_progress_maintain.asm
   - AkumaGath17 mentioned discussion on metconst.
 - move "Save the Animals" option out of "Skill Assumptions" into QoL?
@@ -62,7 +61,6 @@ later:
   - require HiJump
   - require SpaceJump for breaking the water
   - put in Insane tier
-- fix map tile for phantoon with objectives other than bosses (remove item dot).
 - Add override for Tourian Hopper run under strat from left to top (imyt strat)
 - add a tip that you can share a seed using the URL.
 - logic: ice moonfall (in dachora room)

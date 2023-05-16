@@ -717,6 +717,7 @@ impl<'a> MapPatcher<'a> {
         self.patch_room_basic("Acid Statue Room", vec![(0, 0, W, E, W, E, O)])?;
         self.patch_room_basic("Bowling Alley", vec![(4, 1, E, W, W, W, O)])?;
         self.patch_room_basic("Botwoon's Room", vec![(0, 0, W, E, W, W, O)])?;
+        self.patch_room_basic("Phantoon's Room", vec![(0, 0, W, W, W, W, O)])?;
         Ok(())
     }
 

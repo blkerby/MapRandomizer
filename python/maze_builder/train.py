@@ -366,7 +366,7 @@ cycle_weight = 0.0
 cycle_value_coef = 0.0
 compute_cycles = False
 
-door_connect_bound = 20.0
+door_connect_bound = 50.0
 door_connect_alpha = 0.5
 # door_connect_bound = 0.0
 # door_connect_alpha = 1e-15
@@ -401,8 +401,8 @@ session.optimizer.param_groups[0]['eps'] = 1e-5
 ema_beta0 = 0.99
 ema_beta1 = 0.999
 session.average_parameters.beta = 0.995
-# use_connectivity = True
-use_connectivity = False
+use_connectivity = True
+# use_connectivity = False
 
 def compute_door_connect_counts(only_success: bool, ind=None):
     batch_size = 1024
