@@ -73,11 +73,11 @@
       "canXRayWaitForIFrames",
       "canDownBack",
       "canPlayInSand",
+      "canSnailClimb",
       "canHyperGateShot",
       "canSpaceJumpWaterBounce",
       "canWaterShineCharge",
-      "canHeroShot",
-      "canMaridiaTubeClip"
+      "canHeroShot"
     ],
     "notable_strats": [
       "Early Supers Mockball",
@@ -116,8 +116,8 @@
       "canTrickyUseFrozenEnemies",
       "canMetroidAvoid",
       "canGrappleJump",
-      "canSnailClimb",
       "canSnailClip",
+      "canEscapeSand",
       "canWrapAroundShot",
       "canTunnelCrawl",
       "canCrumbleSpinJump",
@@ -149,7 +149,8 @@
       "canPreciseGrapple",
       "canBombAboveIBJ",
       "canWalljumpWithCharge",
-      "canSamusEaterStandUp"
+      "canSamusEaterStandUp",
+      "canMaridiaTubeClip"
     ],
     "notable_strats": [
       "Pink Brinstar Power Bombs Crystal Flash Clip",
@@ -231,7 +232,6 @@
       "canPixelPerfectIceClip",
       "canBabyMetroidAvoid",
       "canBombJumpWaterEscape",
-      "canEscapeSand",
       "canSandIBJ",
       "canSandfallBounce",
       "canBombJumpOnSand",
