@@ -194,7 +194,7 @@ class TrainingSession():
         #     temperature_flat, env)
         raw_preds_valid = model.forward_multiclass(
             room_mask_valid, room_position_x_valid, room_position_y_valid, steps_remaining_valid, round_frac_valid,
-            temperature_valid, augment=False)
+            temperature_valid, augment_frac=0.0)
 
         logodds_valid = raw_preds_valid[:, :-1]
         logprobs_valid = -torch.logaddexp(-logodds_valid, torch.zeros_like(logodds_valid))
@@ -402,14 +402,14 @@ class TrainingSession():
                                              cpu_executor=cpu_executor,
                                              render=render)
 
-    def train_batch(self, data: TrainingData, use_connectivity: bool, cycle_weight: float, augment: bool, executor):
+    def train_batch(self, data: TrainingData, use_connectivity: bool, cycle_weight: float, augment_frac: float, executor):
         self.model.train()
 
         env = self.envs[0]
         # map = env.compute_map(data.room_mask, data.room_position_x, data.room_position_y)
         raw_preds = self.model.forward_multiclass(
             data.room_mask, data.room_position_x, data.room_position_y, data.steps_remaining, data.round_frac,
-            data.temperature, augment=augment)
+            data.temperature, augment_frac=augment_frac)
 
         state_value_raw_logodds = raw_preds[:, :-1]
         pred_cycle_cost = raw_preds[:, -1]

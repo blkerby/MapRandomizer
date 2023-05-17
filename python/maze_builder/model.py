@@ -759,7 +759,7 @@ class TransformerModel(torch.nn.Module):
 
 
     def forward_multiclass(self, room_mask, room_position_x, room_position_y, steps_remaining, round_frac,
-                           temperature, augment):
+                           temperature, augment_frac: float):
         n = room_mask.shape[0]
         device = room_mask.device
 
@@ -776,7 +776,7 @@ class TransformerModel(torch.nn.Module):
         adj_room_position_x = room_position_x + self.room_half_size_x.to(device).view(1, -1)
         adj_room_position_y = room_position_y + self.room_half_size_y.to(device).view(1, -1)
 
-        if augment:
+        if augment_frac > 0.0:
             min_room_position_x = torch.min(adj_room_position_x, dim=1)[0]
             max_room_position_x = torch.max(adj_room_position_x, dim=1)[0]
             min_shift_x = -torch.clamp(min_room_position_x, max=4)
@@ -797,6 +797,8 @@ class TransformerModel(torch.nn.Module):
             augment_weight = torch.where(augment_valid, self.augment_weight.to(device).view(1, -1),
                                          torch.zeros_like(self.augment_weight.to(device)).view(1, -1))
             augment_idx = torch.multinomial(augment_weight, num_samples=1, replacement=True)[:, 0]
+            augment_selected = torch.rand([n], device=device) < augment_frac
+            augment_idx = torch.where(augment_selected, augment_idx, torch.full_like(augment_idx, self.no_augment_idx))
 
             augment_x = augment_shift_x[augment_idx]
             augment_y = augment_shift_y[augment_idx]
@@ -806,6 +808,11 @@ class TransformerModel(torch.nn.Module):
             augment_embedding = self.augment_embedding[augment_idx, :]
         else:
             augment_embedding = self.augment_embedding[self.no_augment_idx, :]
+
+        # assert torch.min(adj_room_position_x) >= 0
+        # assert torch.max(adj_room_position_x) < self.map_x
+        # assert torch.min(adj_room_position_y) >= 0
+        # assert torch.max(adj_room_position_y) < self.map_y
 
         global_embedding = global_embedding + augment_embedding
 

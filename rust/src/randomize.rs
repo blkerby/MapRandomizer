@@ -2,14 +2,15 @@ pub mod escape_timer;
 
 use crate::{
     game_data::{
-        self, Capacity, FlagId, Item, ItemLocationId, Link, Map, NodeId, Requirement, RoomId,
-        TechId, VertexId,
+        self, get_effective_runway_length, Capacity, FlagId, Item, ItemLocationId, Link, Map,
+        NodeId, Requirement, RoomId, TechId, VertexId,
     },
     traverse::{
         apply_requirement, get_spoiler_route, is_bireachable, traverse, GlobalState, LinkIdx,
         LocalState, TraverseResult,
     },
 };
+use anyhow::Result;
 use by_address::ByAddress;
 use hashbrown::{HashMap, HashSet};
 use log::info;
@@ -303,14 +304,9 @@ impl<'a> Preprocessor<'a> {
                 *excess_shinespark_frames,
                 link,
             ),
-            Requirement::ComeInWithRMode {
-                room_id,
-                node_ids,
-            } => self.preprocess_come_in_with_rmode(
-                *room_id,
-                node_ids,
-                link,
-            ),
+            Requirement::ComeInWithRMode { room_id, node_ids } => {
+                self.preprocess_come_in_with_rmode(*room_id, node_ids, link)
+            }
             Requirement::ComeInWithGMode {
                 room_id,
                 node_ids,
@@ -380,12 +376,14 @@ impl<'a> Preprocessor<'a> {
 
             // Strats for in-room runways:
             for runway in runways {
-                if runway.length < 15 {
+                let effective_length =
+                    get_effective_runway_length(runway.length as f32, runway.open_end as f32);
+                if effective_length < 12.0 {
                     continue;
                 }
                 let req = Requirement::ShineCharge {
                     shinespark_tech_id,
-                    used_tiles: runway.length as f32,
+                    used_tiles: effective_length,
                     shinespark_frames,
                     excess_shinespark_frames,
                 };
@@ -394,12 +392,14 @@ impl<'a> Preprocessor<'a> {
 
             // Strats for other-room runways:
             for runway in other_runways {
-                if runway.length < 15 {
+                let effective_length =
+                    get_effective_runway_length(runway.length as f32, runway.open_end as f32);
+                if effective_length < 12.0 {
                     continue;
                 }
                 let req = Requirement::ShineCharge {
                     shinespark_tech_id,
-                    used_tiles: runway.length as f32,
+                    used_tiles: effective_length,
                     shinespark_frames,
                     excess_shinespark_frames,
                 };
@@ -412,13 +412,20 @@ impl<'a> Preprocessor<'a> {
                     continue;
                 }
                 for other_runway in other_runways {
-                    let used_tiles = runway.length + other_runway.length - 1;
-                    if used_tiles < 15 {
+                    let in_room_effective_length =
+                        get_effective_runway_length(runway.length as f32, runway.open_end as f32);
+                    let other_room_effective_length = get_effective_runway_length(
+                        other_runway.length as f32,
+                        other_runway.open_end as f32,
+                    );
+                    let total_effective_length =
+                        in_room_effective_length + other_room_effective_length - 1.0;
+                    if total_effective_length < 12.0 {
                         continue;
                     }
                     let req = Requirement::ShineCharge {
                         shinespark_tech_id,
-                        used_tiles: used_tiles as f32,
+                        used_tiles: total_effective_length,
                         shinespark_frames,
                         excess_shinespark_frames,
                     };
@@ -435,9 +442,13 @@ impl<'a> Preprocessor<'a> {
                 if can_leave_charged.frames_remaining < frames_remaining {
                     continue;
                 }
+                let effective_length = get_effective_runway_length(
+                    can_leave_charged.used_tiles as f32,
+                    can_leave_charged.open_end as f32,
+                );
                 let req = Requirement::ShineCharge {
                     shinespark_tech_id,
-                    used_tiles: can_leave_charged.used_tiles as f32,
+                    used_tiles: effective_length,
                     shinespark_frames: shinespark_frames
                         + can_leave_charged.shinespark_frames.unwrap_or(0),
                     excess_shinespark_frames,
@@ -475,7 +486,8 @@ impl<'a> Preprocessor<'a> {
         let runways = &self.game_data.node_runways_map[&(other_room_id, other_node_id)];
         let mut req_vec: Vec<Requirement> = vec![];
         for runway in runways {
-            let effective_length = runway.length as f32 + runway.open_end as f32 * 0.5;
+            let effective_length =
+                get_effective_runway_length(runway.length as f32, runway.open_end as f32);
             // println!(
             //     "  {}: length={}, open_end={}, physics={}, heated={}, req={:?}",
             //     runway.name, runway.length, runway.open_end, runway.physics, runway.heated, runway.requirement
@@ -529,9 +541,8 @@ impl<'a> Preprocessor<'a> {
         let mut req_or_list: Vec<Requirement> = Vec::new();
         for &node_id in node_ids {
             if let Some(&(other_room_id, other_node_id)) = self.door_map.get(&(room_id, node_id)) {
-                let leave_with_gmode_setup_vec = &self
-                    .game_data
-                    .node_leave_with_gmode_setup_map[&(other_room_id, other_node_id)];
+                let leave_with_gmode_setup_vec = &self.game_data.node_leave_with_gmode_setup_map
+                    [&(other_room_id, other_node_id)];
                 for leave_with_gmode_setup in leave_with_gmode_setup_vec {
                     let mut req_and_list: Vec<Requirement> = Vec::new();
                     req_and_list.push(
@@ -539,8 +550,8 @@ impl<'a> Preprocessor<'a> {
                     );
                     req_and_list.push(Requirement::Tech(rmode_tech_id));
                     req_and_list.push(Requirement::Item(xray_item_id));
-                    req_and_list.push(Requirement::ReserveTrigger { 
-                        min_reserve_energy: 1, 
+                    req_and_list.push(Requirement::ReserveTrigger {
+                        min_reserve_energy: 1,
                         max_reserve_energy: 400,
                     });
                     req_or_list.push(Requirement::make_and(req_and_list));
@@ -606,8 +617,8 @@ impl<'a> Preprocessor<'a> {
                             let mut immobile_req_vec: Vec<Requirement> = Vec::new();
                             immobile_req_vec.push(gmode_immobile.requirement.clone());
                             immobile_req_vec.push(Requirement::Tech(gmode_immobile_tech_id));
-                            immobile_req_vec.push(Requirement::ReserveTrigger { 
-                                min_reserve_energy: 1, 
+                            immobile_req_vec.push(Requirement::ReserveTrigger {
+                                min_reserve_energy: 1,
                                 max_reserve_energy: 400,
                             });
                             Requirement::make_and(immobile_req_vec)
@@ -1297,7 +1308,7 @@ impl<'r> Randomizer<'r> {
         spoiler_details: Vec<SpoilerDetails>,
         debug_data_vec: Vec<DebugData>,
         seed: usize,
-    ) -> Randomization {
+    ) -> Result<Randomization> {
         // Compute the first step on which each node becomes reachable/bireachable:
         let mut node_reachable_step: HashMap<(RoomId, NodeId), usize> = HashMap::new();
         let mut node_bireachable_step: HashMap<(RoomId, NodeId), usize> = HashMap::new();
@@ -1416,7 +1427,7 @@ impl<'r> Randomizer<'r> {
             })
             .collect();
         let spoiler_escape =
-            escape_timer::compute_escape_data(self.game_data, self.map, &self.difficulty_tiers[0]);
+            escape_timer::compute_escape_data(self.game_data, self.map, &self.difficulty_tiers[0])?;
         let spoiler_log = SpoilerLog {
             summary: spoiler_summaries,
             escape: spoiler_escape,
@@ -1424,13 +1435,13 @@ impl<'r> Randomizer<'r> {
             all_items: spoiler_all_items,
             all_rooms: spoiler_all_rooms,
         };
-        Randomization {
+        Ok(Randomization {
             difficulty: self.difficulty_tiers[0].clone(),
             map: self.map.clone(),
             item_placement,
             spoiler_log,
-            seed
-        }
+            seed,
+        })
     }
 
     fn get_item_precedence<R: Rng>(
@@ -1552,13 +1563,19 @@ impl<'r> Randomizer<'r> {
             state.step_num += 1;
         }
         self.finish(&mut state);
-        Some(self.get_randomization(
+        match self.get_randomization(
             &state,
             spoiler_summary_vec,
             spoiler_details_vec,
             debug_data_vec,
-            seed
-        ))
+            seed,
+        ) {
+            Ok(r) => Some(r),
+            Err(e) => {
+                info!("Failed randomization: {}", e);
+                None
+            }
+        }
     }
 }
 

@@ -334,7 +334,8 @@ session = TrainingSession(envs,
 
 
 
-cpu_executor = concurrent.futures.ProcessPoolExecutor()
+# cpu_executor = concurrent.futures.ProcessPoolExecutor()
+cpu_executor = None
 
 # pickle_name = 'models/session-2023-05-15T23:02:08.243200.pkl'
 # session = pickle.load(open(pickle_name, 'rb'))
@@ -344,11 +345,13 @@ cpu_executor = concurrent.futures.ProcessPoolExecutor()
 
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
 # session.replay_buffer.resize(2 ** 23)
+
+# TODO: bundle all this stuff into a structure
 hist_c = 1.0
 hist_frac = 0.5
 batch_size = 2 ** 10
 lr0 = 0.0001
-lr1 = 0.001
+lr1 = 0.0002
 num_candidates_min0 = 8
 num_candidates_max0 = 16
 num_candidates_min1 = num_candidates_min0
@@ -371,6 +374,8 @@ door_connect_alpha = 0.5
 # door_connect_bound = 0.0
 # door_connect_alpha = 1e-15
 door_connect_beta = door_connect_bound / (door_connect_bound + door_connect_alpha)
+
+augment_frac = 0.0
 
 temperature_min0 = 0.1
 temperature_min1 = 0.1
@@ -479,11 +484,11 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 logging.info("Checkpoint path: {}".format(pickle_name))
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
 logging.info(
-    "map_x={}, map_y={}, num_envs={}, batch_size={}, pass_factor0={}, pass_factor1={}, lr0={}, lr1={}, num_candidates_min0={}, num_candidates_max0={}, num_candidates_min1={}, num_candidates_max1={}, replay_size={}/{}, hist_frac={}, hist_c={}, num_params={}, decay_amount={}, temperature_min0={}, temperature_min1={}, temperature_max0={}, temperature_max1={}, temperature_decay={}, ema_beta0={}, ema_beta1={}, explore_eps_factor={}, annealing_time={}, cycle_weight={}, cycle_value_coef={}, door_connect_alpha={}, door_connect_bound={}".format(
+    "map_x={}, map_y={}, num_envs={}, batch_size={}, pass_factor0={}, pass_factor1={}, lr0={}, lr1={}, num_candidates_min0={}, num_candidates_max0={}, num_candidates_min1={}, num_candidates_max1={}, replay_size={}/{}, hist_frac={}, hist_c={}, num_params={}, decay_amount={}, temperature_min0={}, temperature_min1={}, temperature_max0={}, temperature_max1={}, temperature_decay={}, ema_beta0={}, ema_beta1={}, explore_eps_factor={}, annealing_time={}, cycle_weight={}, cycle_value_coef={}, door_connect_alpha={}, door_connect_bound={}, augment_frac={}".format(
         map_x, map_y, session.envs[0].num_envs, batch_size, pass_factor0, pass_factor1, lr0, lr1, num_candidates_min0, num_candidates_max0, num_candidates_min1, num_candidates_max1, session.replay_buffer.size,
         session.replay_buffer.capacity, hist_frac, hist_c, num_params, session.decay_amount,
         temperature_min0, temperature_min1, temperature_max0, temperature_max1, temperature_decay, ema_beta0, ema_beta1, explore_eps_factor,
-        annealing_time, cycle_weight, cycle_value_coef, door_connect_alpha, door_connect_bound))
+        annealing_time, cycle_weight, cycle_value_coef, door_connect_alpha, door_connect_bound, augment_frac))
 logging.info(session.optimizer)
 logging.info("Starting training")
 for i in range(1000000):
@@ -569,7 +574,7 @@ for i in range(1000000):
     for j in range(num_batches):
         data = session.replay_buffer.sample(batch_size, hist, c=hist_c, device=device)
         with util.DelayedKeyboardInterrupt():
-            total_loss += session.train_batch(data, use_connectivity, cycle_weight=cycle_weight, augment=True, executor=executor)
+            total_loss += session.train_batch(data, use_connectivity, cycle_weight=cycle_weight, augment_frac=augment_frac, executor=executor)
             total_loss_cnt += 1
                 # prof.step()
         # logging.info("Done")

@@ -6807,7 +6807,12 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": 27.51
+            "conditions": [
+              {
+                "requires": ["can_hero_shot"],
+                "in_game_time": 27.51
+              }
+            ]
           },
           {
             "to_door": {
@@ -6819,7 +6824,12 @@
               "door_idx": 1,
               "node_id": 3
             },
-            "in_game_time": 19.39
+            "conditions": [
+              {
+                "requires": ["can_hero_shot"],
+                "in_game_time": 19.39
+              }
+            ]
           },
           {
             "to_door": {
@@ -6831,7 +6841,12 @@
               "door_idx": 2,
               "node_id": 4
             },
-            "in_game_time": 20.31
+            "conditions": [
+              {
+                "requires": ["can_hero_shot"],
+                "in_game_time": 20.31
+              }
+            ]
           },
           {
             "to_door": {
@@ -6843,7 +6858,12 @@
               "door_idx": 5,
               "node_id": 2
             },
-            "in_game_time": 27.26
+            "conditions": [
+              {
+                "requires": ["can_hero_shot"],
+                "in_game_time": 27.26
+              }
+            ]
           },
           {
             "to_door": {
@@ -6855,7 +6875,12 @@
               "door_idx": 6,
               "node_id": 6
             },
-            "in_game_time": 13.36
+            "conditions": [
+              {
+                "requires": ["can_hero_shot"],
+                "in_game_time": 13.36
+              }
+            ]
           },
           {
             "to_door": {
@@ -6867,7 +6892,12 @@
               "door_idx": 8,
               "node_id": 8
             },
-            "in_game_time": 12.21
+            "conditions": [
+              {
+                "requires": ["can_hero_shot"],
+                "in_game_time": 12.21
+              }
+            ]
           },
           {
             "to_door": {
@@ -6881,7 +6911,7 @@
             },
             "conditions": [
               {
-                "requires": ["can_off_camera_shot"],
+                "requires": ["can_hero_shot", "can_off_camera_shot"],
                 "in_game_time": 15.06
               }
             ]
