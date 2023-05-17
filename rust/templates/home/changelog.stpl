@@ -3,16 +3,18 @@
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-62---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 62 (???)</a>:
+<p><a href="https://version-62---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 62 (2023-05-17)</a>:
 <ul>
 <li>Removed item dot that incorrectly showed on the map in Phantoon's Room when using Minibosses or Metroids objective.
 <li>Logic updates:
     <ul>
+    <li>Cross-room water shinecharge strats are added.
+    <li>Cross-room speedball strats are added.
     <li>Fighting Ridley suitless with Missiles has been adjusted to be more lenient:
         <ul>
         <li>On highest settings, a 180 Missile fight with Morph or Screw Attack now requires 1110 energy (compared to 975 before).
         </ul>
-    <li>New tech: canHeroShot (Hard).
+    <li>New tech: canHeroShot (Hard), canWaterShineCharge (Very Hard), canWalljumpWithCharge (Very Hard).
         <ul>
         <li>The escape logic now requires "canHeroShot" in order to use Hyper Beam to pass left-to-right through
         the Power Bomb block at the bottom of Big Pink.

@@ -163,6 +163,7 @@ pub enum Requirement {
         frames_remaining: i32,
         shinespark_frames: i32,
         excess_shinespark_frames: i32,
+        unusable_tiles: i32,
     },
     ComeInWithRMode {
         room_id: RoomId,
@@ -1071,6 +1072,8 @@ impl GameData {
                     .with_context(|| format!("missing/invalid shinesparkFrames in {}", req_json))?;
                 let excess_shinespark_frames =
                     value["excessShinesparkFrames"].as_i32().unwrap_or(0);
+                let unusable_tiles =
+                    value["unusableTiles"].as_i32().unwrap_or(0);
                 // if value["fromNode"].as_usize().unwrap() != ctx.src_node_id {
                 //     println!("In roomId={}, canComeInCharged fromNode={}, from nodeId={}", ctx.room_id,
                 //         value["fromNode"].as_usize().unwrap(), ctx.src_node_id);
@@ -1090,6 +1093,7 @@ impl GameData {
                     frames_remaining,
                     shinespark_frames,
                     excess_shinespark_frames,
+                    unusable_tiles,
                 });
                 // return Ok(Requirement::Never);
             } else if key == "comeInWithRMode" {
@@ -2273,6 +2277,11 @@ impl GameData {
             .unwrap() = json::object! {
             "name": "h_heatResistant",
             "requires": ["Varia"],
+        };
+        // Both Varia and Gravity are required to provide full lava protection:
+        *game_data.helper_json_map.get_mut("h_lavaProof").unwrap() = json::object! {
+            "name": "h_lavaProof",
+            "requires": ["Varia", "Gravity"],
         };
 
         game_data.load_weapons()?;

@@ -295,6 +295,7 @@ impl<'a> Preprocessor<'a> {
                 frames_remaining,
                 shinespark_frames,
                 excess_shinespark_frames,
+                unusable_tiles,
             } => self.preprocess_can_come_in_charged(
                 *shinespark_tech_id,
                 *room_id,
@@ -302,6 +303,7 @@ impl<'a> Preprocessor<'a> {
                 *frames_remaining,
                 *shinespark_frames,
                 *excess_shinespark_frames,
+                *unusable_tiles,
                 link,
             ),
             Requirement::ComeInWithRMode { room_id, node_ids } => {
@@ -345,6 +347,7 @@ impl<'a> Preprocessor<'a> {
         frames_remaining: i32,
         shinespark_frames: i32,
         excess_shinespark_frames: i32,
+        unusable_tiles: i32,
         _link: &Link,
     ) -> Requirement {
         if let Some(&(other_room_id, other_node_id)) = self.door_map.get(&(room_id, node_id)) {
@@ -377,7 +380,7 @@ impl<'a> Preprocessor<'a> {
             // Strats for in-room runways:
             for runway in runways {
                 let effective_length =
-                    get_effective_runway_length(runway.length as f32, runway.open_end as f32);
+                    get_effective_runway_length(runway.length as f32, runway.open_end as f32) - unusable_tiles as f32;
                 if effective_length < 12.0 {
                     continue;
                 }
@@ -393,7 +396,7 @@ impl<'a> Preprocessor<'a> {
             // Strats for other-room runways:
             for runway in other_runways {
                 let effective_length =
-                    get_effective_runway_length(runway.length as f32, runway.open_end as f32);
+                    get_effective_runway_length(runway.length as f32, runway.open_end as f32) - unusable_tiles as f32;
                 if effective_length < 12.0 {
                     continue;
                 }
@@ -419,7 +422,7 @@ impl<'a> Preprocessor<'a> {
                         other_runway.open_end as f32,
                     );
                     let total_effective_length =
-                        in_room_effective_length + other_room_effective_length - 1.0;
+                        in_room_effective_length + other_room_effective_length - 1.0 - unusable_tiles as f32;
                     if total_effective_length < 12.0 {
                         continue;
                     }

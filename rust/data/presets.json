@@ -149,7 +149,8 @@
       "canBombAboveIBJ",
       "canWalljumpWithCharge",
       "canSamusEaterStandUp",
-      "canMaridiaTubeClip"
+      "canMaridiaTubeClip",
+      "canStutterWaterShineCharge"
     ],
     "notable_strats": [
       "Pink Brinstar Power Bombs Crystal Flash Clip",
@@ -210,7 +211,9 @@
       "Back-Side Botwoon Plasma Shield Microwave",
       "Back-Side Botwoon Plasma Shield Fight",
       "Writg New Route with HiJump, Speed, and PowerBombs",
-      "Brinstar Reserve Hole-in-One"
+      "Brinstar Reserve Hole-in-One",
+      "Bowling Alley Missile Chozo Camera Unlock",
+      "Croc Speedway Reverse Speedball"
     ]
   },
   {
@@ -246,8 +249,9 @@
       "canStationaryLateralMidAirMorph",
       "canSpeedKeepChain",
       "canSpaceJumpWaterEscape",
-      "canCrystalFlashClip",
-      "canUnmorphBombBoost"
+      "canBombIntoCrystalFlashClip",
+      "canUnmorphBombBoost",
+      "canSlowShortCharge"
     ],
     "notable_strats": [
       "Dachora Room Shinespark No Etanks No HiJump",
@@ -296,7 +300,9 @@
       "Writg New Low Ice Pirate Freeze", 
       "Writg Low Ice Pirate Freeze",
       "Blue Hopper Room Roll Under Hoppers",
-      "Croc Escape SpringBall Bomb Boost"
+      "Croc Escape SpringBall Bomb Boost",
+      "Big Pink SpeedBall into Raised Bomb Blocks",
+      "Below Spazer Jump Shot Speedball"
     ]
   },
   {
@@ -312,7 +318,7 @@
       "canXRayClimb",
       "canLeftFacingDoorXRayClimb",
       "canRightFacingDoorXRayClimb",
-      "canCrystalFlashGrappleClip",
+      "canJumpIntoCrystalFlashClip",
       "canCrazyCrabClimb",
       "canEnterRMode",
       "canEnterGMode",
@@ -331,11 +337,6 @@
       "Etecoon Spikeway Tunnel Crawl",
       "Etecoon Spikeway Xray Wiggle",
       "Etecoon Spikeway Aim Cancel Wiggle",
-      "Bowling Reserve Crystal Flash Grapple Clip",
-      "Mickey Mouse Crystal Flash Grapple Clip",
-      "Reverse Acid Statue CF Grapple Clip",
-      "East Pants Room Suitless Crystal Flash Clip",
-      "Botwoon Hallway Suitless Crystal Flash Clip",
       "Writg X-Ray Climb",
       "West Ocean G-mode Overload PLMs by PBing Missile Item",
       "Double Chamber HiJumpless Wall Jump",

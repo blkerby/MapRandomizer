@@ -1,9 +1,5 @@
 for next release:
-- pull in updated sm-json-data
-- merge preset change PR
-- override h_lavaProof
 - update shortcharge tiles in presets
-- handle unusableTiles?
 
 priority:
 - finish getting new model training going
