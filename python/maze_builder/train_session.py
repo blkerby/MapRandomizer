@@ -2,7 +2,7 @@ from typing import Optional, List
 import copy
 import torch
 import torch.nn.functional as F
-from maze_builder.model import DoorLocalModel
+from maze_builder.model import DoorLocalModel, TransformerModel
 from maze_builder.env import MazeBuilderEnv, compute_cycle_costs
 from maze_builder.replay import ReplayBuffer
 from maze_builder.types import EpisodeData, TrainingData
@@ -31,7 +31,7 @@ def _rand_choice(p):
 
 class TrainingSession():
     def __init__(self, envs: List[MazeBuilderEnv],
-                 model: DoorLocalModel,
+                 model: TransformerModel,
                  optimizer: torch.optim.Optimizer,
                  ema_beta: float,
                  replay_size: int,
@@ -194,7 +194,7 @@ class TrainingSession():
         #     temperature_flat, env)
         raw_preds_valid = model.forward_multiclass(
             room_mask_valid, room_position_x_valid, room_position_y_valid, steps_remaining_valid, round_frac_valid,
-            temperature_valid)
+            temperature_valid, augment=False)
 
         logodds_valid = raw_preds_valid[:, :-1]
         logprobs_valid = -torch.logaddexp(-logodds_valid, torch.zeros_like(logodds_valid))
@@ -402,14 +402,14 @@ class TrainingSession():
                                              cpu_executor=cpu_executor,
                                              render=render)
 
-    def train_batch(self, data: TrainingData, use_connectivity: bool, cycle_weight: float, executor):
+    def train_batch(self, data: TrainingData, use_connectivity: bool, cycle_weight: float, augment: bool, executor):
         self.model.train()
 
         env = self.envs[0]
         # map = env.compute_map(data.room_mask, data.room_position_x, data.room_position_y)
         raw_preds = self.model.forward_multiclass(
             data.room_mask, data.room_position_x, data.room_position_y, data.steps_remaining, data.round_frac,
-            data.temperature)
+            data.temperature, augment=augment)
 
         state_value_raw_logodds = raw_preds[:, :-1]
         pred_cycle_cost = raw_preds[:, -1]

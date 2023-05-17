@@ -569,7 +569,7 @@ for i in range(1000000):
     for j in range(num_batches):
         data = session.replay_buffer.sample(batch_size, hist, c=hist_c, device=device)
         with util.DelayedKeyboardInterrupt():
-            total_loss += session.train_batch(data, use_connectivity, cycle_weight=cycle_weight, executor=executor)
+            total_loss += session.train_batch(data, use_connectivity, cycle_weight=cycle_weight, augment=True, executor=executor)
             total_loss_cnt += 1
                 # prof.step()
         # logging.info("Done")
