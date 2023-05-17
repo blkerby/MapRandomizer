@@ -12,6 +12,11 @@ about 15 seconds to load.
         <ul>
         <li>On highest settings, a 180 Missile fight with Morph or Screw Attack now requires 1110 energy (compared to 975 before).
         </ul>
+    <li>New tech: canHeroShot (Hard).
+        <ul>
+        <li>The escape logic now requires "canHeroShot" in order to use Hyper Beam to pass left-to-right through
+        the Power Bomb block at the bottom of Big Pink.
+        </ul>
     <li>New notable strats:
         <ul>
         <li>Red Tower R-Mode Frozen Beetom X-Ray Climb

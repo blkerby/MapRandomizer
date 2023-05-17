@@ -220,7 +220,7 @@ impl Requirement {
 
 #[derive(Clone, Debug)]
 pub struct Runway {
-    // TODO: add more details like slopes, openEnd
+    // TODO: add more details like slopes
     pub name: String,
     pub length: i32,
     pub open_end: i32,
@@ -232,9 +232,10 @@ pub struct Runway {
 
 #[derive(Debug)]
 pub struct CanLeaveCharged {
-    // TODO: add more details like slopes, openEnd
+    // TODO: add more details like slopes
     pub frames_remaining: i32,
     pub used_tiles: i32,
+    pub open_end: i32,
     pub requirement: Requirement,
     pub shinespark_frames: Option<i32>,
 }
@@ -331,6 +332,8 @@ pub enum EscapeConditionRequirement {
     CanOffCameraShot,
     // #[serde(rename = "can_kago")]
     CanKago,
+    // #[serde(rename = "can_hero_shot")]
+    CanHeroShot,
 }
 
 #[derive(Deserialize)]
@@ -453,6 +456,11 @@ fn read_json(path: &Path) -> Result<JsonValue> {
     let json_data =
         json::parse(&json_str).with_context(|| format!("unable to parse {}", path.display()))?;
     Ok(json_data)
+}
+
+// TODO: Take steep slopes into account here:
+pub fn get_effective_runway_length(used_tiles: f32, open_end: f32) -> f32 {
+    used_tiles + open_end * 0.5
 }
 
 #[derive(Default)]
@@ -798,6 +806,9 @@ impl GameData {
                 let used_tiles = value["usedTiles"]
                     .as_f32()
                     .expect(&format!("missing/invalid usedTiles in {}", req_json));
+                let open_end = value["openEnd"]
+                    .as_f32()
+                    .expect(&format!("missing/invalid openEnd in {}", req_json));
                 let shinespark_frames = value["shinesparkFrames"]
                     .as_i32()
                     .expect(&format!("missing/invalid shinesparkFrames in {}", req_json));
@@ -805,7 +816,7 @@ impl GameData {
                     value["excessShinesparkFrames"].as_i32().unwrap_or(0);
                 // TODO: take slopes into account
                 return Ok(Requirement::ShineCharge {
-                    used_tiles,
+                    used_tiles: get_effective_runway_length(used_tiles, open_end),
                     shinespark_frames,
                     excess_shinespark_frames,
                     shinespark_tech_id: self.tech_isv.index_by_key["canShinespark"],
@@ -1694,6 +1705,9 @@ impl GameData {
                             used_tiles: can_leave_charged_json["usedTiles"]
                                 .as_i32()
                                 .context("Expecting integer usedTiles")?,
+                            open_end: can_leave_charged_json["openEnd"]
+                                .as_i32()
+                                .context("Expecting integer openEnd")?,
                             frames_remaining: can_leave_charged_json["framesRemaining"]
                                 .as_i32()
                                 .context("Expecting integer framesRemaining")?,

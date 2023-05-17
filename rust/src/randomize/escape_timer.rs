@@ -3,6 +3,7 @@ use hashbrown::HashSet;
 use pathfinding;
 use serde_derive::Deserialize;
 use serde_derive::Serialize;
+use anyhow::{Result, Context};
 
 use crate::game_data::DoorPtrPair;
 use crate::game_data::EscapeConditionRequirement;
@@ -80,6 +81,7 @@ fn is_requirement_satisfied(
         EscapeConditionRequirement::CanMoonfall => tech_map["canMoonfall"],
         EscapeConditionRequirement::CanOffCameraShot => tech_map["canOffScreenSuperShot"],
         EscapeConditionRequirement::CanReverseGate => tech_map["canHyperGateShot"],
+        EscapeConditionRequirement::CanHeroShot => tech_map["canHeroShot"],
     }
 }
 
@@ -229,26 +231,26 @@ fn get_shortest_path(
     src: VertexId,
     dst: VertexId,
     room_door_graph: &RoomDoorGraph,
-) -> Vec<(VertexId, Cost)> {
+) -> Result<Vec<(VertexId, Cost)>> {
     let successors = |&src: &VertexId| room_door_graph.successors[src].iter().copied();
     let parents: std::collections::HashMap<VertexId, (VertexId, Cost)> =
         pathfinding::directed::dijkstra::dijkstra_all(&src, successors);
     let mut path: Vec<(VertexId, Cost)> = Vec::new();
     let mut v = dst;
     while v != src {
-        let (new_v, cost) = parents[&v];
+        let (new_v, cost) = *parents.get(&v).context("No escape path")?;
         path.push((v, cost));
         v = new_v;
     }
     path.reverse();
-    path
+    Ok(path)
 }
 
 pub fn compute_escape_data(
     game_data: &GameData,
     map: &Map,
     difficulty: &DifficultyConfig,
-) -> SpoilerEscape {
+) -> Result<SpoilerEscape> {
     let graph = get_full_room_door_graph(game_data, map, difficulty);
     let animals_spoiler: Option<Vec<SpoilerEscapeRouteEntry>>;
     let ship_spoiler: Vec<SpoilerEscapeRouteEntry>;
@@ -258,15 +260,15 @@ pub fn compute_escape_data(
             graph.mother_brain_vertex_id,
             graph.animals_vertex_id,
             &graph,
-        );
+        )?;
         animals_spoiler = Some(get_spoiler_escape_route(&animals_path, &graph, &game_data));
-        let ship_path = get_shortest_path(graph.animals_vertex_id, graph.ship_vertex_id, &graph);
+        let ship_path = get_shortest_path(graph.animals_vertex_id, graph.ship_vertex_id, &graph)?;
         ship_spoiler = get_spoiler_escape_route(&ship_path, &graph, &game_data);
         base_igt_frames = animals_path.last().unwrap().1 + ship_path.last().unwrap().1;
     } else {
         animals_spoiler = None;
         let ship_path =
-            get_shortest_path(graph.mother_brain_vertex_id, graph.ship_vertex_id, &graph);
+            get_shortest_path(graph.mother_brain_vertex_id, graph.ship_vertex_id, &graph)?;
         ship_spoiler = get_spoiler_escape_route(&ship_path, &graph, &game_data);
         base_igt_frames = ship_path.last().unwrap().1;
     }
@@ -279,8 +281,9 @@ pub fn compute_escape_data(
     if final_time_seconds > 5995.0 {
         final_time_seconds = 5995.0;
     }
+    println!("escape time: {}", final_time_seconds);
 
-    SpoilerEscape {
+    Ok(SpoilerEscape {
         base_igt_frames,
         base_igt_seconds,
         base_leniency_factor,
@@ -289,5 +292,5 @@ pub fn compute_escape_data(
         final_time_seconds: final_time_seconds,
         animals_route: animals_spoiler,
         ship_route: ship_spoiler,
-    }
+    })
 }
