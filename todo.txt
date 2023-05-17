@@ -1,8 +1,8 @@
 for next release:
 - require canHeroShot for escape in Big Pink (and handle possibility that this may require rejecting a map)
-- implement comeInWithRMode
 - use openEnd to adjust runway length
-- add cross-room water short charges to logic
+- pull in updated sm-json-data
+- override h_lavaProof
 
 priority:
 - finish getting new model training going
@@ -26,6 +26,7 @@ model stuff to try:
 
 
 later:
+- make more QoL options for stuff bobbob wants to turn off.
 - 10 super botwoon should be possible in Expert (and 30 missile in Insane?)
 - look into potential conflicts between map_area.asm and map_progress_maintain.asm
   - AkumaGath17 mentioned discussion on metconst.
@@ -91,6 +92,8 @@ later:
     - show faded item if some node in the room is reachable but the item itself is not (or is only one-way reachable)
     - make it so you can click on an item in the step panel and it will show the route to the item
     - show the route info in a separate panel below the step panel
+    - initially show only Step 1, and center the screen over Landing Site.
+       - Add button for "Show next step" and "Show all steps"
   - eventually integrate with logic pages once those are implemented:
     - double-clicking on room can go to our room page (instead of to wiki)
     - clicking on a strat (in route info) goes to strat page
