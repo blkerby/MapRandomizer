@@ -76,7 +76,6 @@
       "canSnailClimb",
       "canHyperGateShot",
       "canSpaceJumpWaterBounce",
-      "canWaterShineCharge",
       "canHeroShot"
     ],
     "notable_strats": [
@@ -150,7 +149,7 @@
       "canWalljumpWithCharge",
       "canSamusEaterStandUp",
       "canMaridiaTubeClip",
-      "canStutterWaterShineCharge"
+      "canWaterShineCharge"
     ],
     "notable_strats": [
       "Pink Brinstar Power Bombs Crystal Flash Clip",
@@ -251,6 +250,7 @@
       "canSpaceJumpWaterEscape",
       "canBombIntoCrystalFlashClip",
       "canUnmorphBombBoost",
+      "canStutterWaterShineCharge",
       "canSlowShortCharge"
     ],
     "notable_strats": [
