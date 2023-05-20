@@ -350,8 +350,8 @@ num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in sessio
 hist_c = 1.0
 hist_frac = 0.5
 batch_size = 2 ** 10
-lr0 = 0.0001
-lr1 = 0.0002
+lr0 = 0.0005
+lr1 = 0.0005
 num_candidates_min0 = 8
 num_candidates_max0 = 16
 num_candidates_min1 = num_candidates_min0
@@ -403,8 +403,8 @@ session.decay_amount = 0.01
 # session.decay_amount = 0.01
 session.optimizer.param_groups[0]['betas'] = (0.9, 0.9)
 session.optimizer.param_groups[0]['eps'] = 1e-5
-ema_beta0 = 0.99
-ema_beta1 = 0.999
+ema_beta0 = 0.995
+ema_beta1 = 0.995
 session.average_parameters.beta = 0.995
 use_connectivity = True
 # use_connectivity = False
@@ -654,7 +654,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk2')
+            # save_session(session, pickle_name + '-bk1')
             # pickle.dump(session, open(pickle_name + '-bk1', 'wb'))
             # session.replay_buffer.resize(2 ** 20)
             # pickle.dump(session, open(pickle_name + '-small', 'wb'))

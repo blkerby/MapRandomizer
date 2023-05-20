@@ -1,9 +1,12 @@
-for next release:
-- update shortcharge tiles in presets
-
 priority:
-- finish getting new model training going
 - add vertical gravity jumps to logic
+- add "game variation" options section:
+  - respin
+  - infinite space jump
+  - vanilla map layout
+  - vanilla item placement (requires vanilla map)
+  - vanilla game behavior (extra-low quality-of-life)
+- finish getting new model training going
 - show objective progress in pause menu
 - add pages for tech, strats, rooms.
 - help buttons for rest of settings (e.g. explain boss proficiency calculations)
@@ -15,6 +18,7 @@ priority:
 
 
 model stuff to try:
+- expand room embeddings to include neighboring blocks as well
 - train on random subsets of rooms
 - try changing the number of candidates
 - increase replay buffer size
@@ -23,6 +27,8 @@ model stuff to try:
 
 
 later:
+- make kraid camera act normal when entering from left
+  - same thing with spore spawn entering from bottom
 - handle (steep) slopes in runway length calculations
 - make more QoL options for stuff bobbob wants to turn off.
 - 10 super botwoon should be possible in Expert (and 30 missile in Insane?)

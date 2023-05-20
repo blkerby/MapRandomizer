@@ -1147,6 +1147,9 @@ impl GameData {
             } else if key == "itemNotCollectedAtNode" {
                 // TODO: implement this
                 return Ok(Requirement::Free);
+            } else if key == "adjacentJumpway" {
+                // TODO: implement this
+                return Ok(Requirement::Never);
             }
         }
         bail!("Unable to parse requirement: {}", req_json);
