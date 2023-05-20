@@ -641,7 +641,8 @@ class AttentionLayer(torch.nn.Module):
         K = self.key(X).view(n, s, self.num_heads, self.key_width)
         V = self.value(X).view(n, s, self.num_heads, self.value_width)
         A = compute_cross_attn(Q, K, V).reshape(n, s, self.num_heads * self.value_width)
-        return self.layer_norm(X + self.post(A))
+        out = self.layer_norm(X + self.post(A)).to(X.dtype)
+        return out
 
 
 class FeedforwardLayer(torch.nn.Module):
@@ -652,7 +653,12 @@ class FeedforwardLayer(torch.nn.Module):
         self.layer_norm = torch.nn.LayerNorm(input_width)
 
     def forward(self, X):
-        return self.layer_norm(X + self.lin2(torch.relu(self.lin1(X))))
+        A = self.lin1(X)
+        A = torch.relu(A)
+        A = self.lin2(A)
+        X = X + A
+        # return self.layer_norm(X).to(X.dtype)
+        return X
 
 
 # class TransformerLayer(torch.nn.Module):
@@ -762,97 +768,97 @@ class TransformerModel(torch.nn.Module):
                            temperature, augment_frac: float):
         n = room_mask.shape[0]
         device = room_mask.device
-
-        global_data = torch.cat([room_mask.to(torch.float32),
-                                 steps_remaining.view(-1, 1) / self.num_rooms,
-                                 round_frac.view(-1, 1),
-                                 torch.log(temperature.view(-1, 1))], dim=1)
-        global_embedding = self.global_lin(global_data)
-
-        # Initialize embeddings by replicating the global embedding across all blocks
-        # X = global_embedding.view(n, 1, global_embedding.shape[1]).repeat(1, self.num_blocks, 1)
-        # X = X.view(n * self.num_blocks, self.embedding_width)  # Flatten X in order to perform the scatter_add
-
-        adj_room_position_x = room_position_x + self.room_half_size_x.to(device).view(1, -1)
-        adj_room_position_y = room_position_y + self.room_half_size_y.to(device).view(1, -1)
-
-        if augment_frac > 0.0:
-            min_room_position_x = torch.min(adj_room_position_x, dim=1)[0]
-            max_room_position_x = torch.max(adj_room_position_x, dim=1)[0]
-            min_shift_x = -torch.clamp(min_room_position_x, max=4)
-            max_shift_x = torch.clamp(self.map_x - max_room_position_x, max=4)
-
-            min_room_position_y = torch.min(adj_room_position_y, dim=1)[0]
-            max_room_position_y = torch.max(adj_room_position_y, dim=1)[0]
-            min_shift_y = -torch.clamp(min_room_position_y, max=4)
-            max_shift_y = torch.clamp(self.map_y - max_room_position_y, max=4)
-
-            augment_shift_x = self.augment_shift_x.to(device)  # TODO: just keep these on the device
-            augment_shift_y = self.augment_shift_y.to(device)
-            augment_valid_x_min = augment_shift_x.view(1, -1) >= min_shift_x.view(-1, 1)
-            augment_valid_x_max = augment_shift_x.view(1, -1) < max_shift_x.view(-1, 1)
-            augment_valid_y_min = augment_shift_y.view(1, -1) >= min_shift_y.view(-1, 1)
-            augment_valid_y_max = augment_shift_y.view(1, -1) < max_shift_y.view(-1, 1)
-            augment_valid = augment_valid_x_min & augment_valid_x_max & augment_valid_y_min & augment_valid_y_max
-            augment_weight = torch.where(augment_valid, self.augment_weight.to(device).view(1, -1),
-                                         torch.zeros_like(self.augment_weight.to(device)).view(1, -1))
-            augment_idx = torch.multinomial(augment_weight, num_samples=1, replacement=True)[:, 0]
-            augment_selected = torch.rand([n], device=device) < augment_frac
-            augment_idx = torch.where(augment_selected, augment_idx, torch.full_like(augment_idx, self.no_augment_idx))
-
-            augment_x = augment_shift_x[augment_idx]
-            augment_y = augment_shift_y[augment_idx]
-            adj_room_position_x = adj_room_position_x + augment_x.view(-1, 1)
-            adj_room_position_y = adj_room_position_y + augment_y.view(-1, 1)
-
-            augment_embedding = self.augment_embedding[augment_idx, :]
-        else:
-            augment_embedding = self.augment_embedding[self.no_augment_idx, :]
-
-        # assert torch.min(adj_room_position_x) >= 0
-        # assert torch.max(adj_room_position_x) < self.map_x
-        # assert torch.min(adj_room_position_y) >= 0
-        # assert torch.max(adj_room_position_y) < self.map_y
-
-        global_embedding = global_embedding + augment_embedding
-
-        nz = torch.nonzero(room_mask)
-        nz_env_idx = nz[:, 0]
-        nz_room_idx = nz[:, 1]
-        nz_room_position_x = adj_room_position_x[nz_env_idx, nz_room_idx]
-        nz_room_position_y = adj_room_position_y[nz_env_idx, nz_room_idx]
-
-        nz_block_x = nz_room_position_x // self.block_size_x
-        nz_block_y = nz_room_position_y // self.block_size_y
-        nz_block_idx = nz_block_y * self.num_blocks_x + nz_block_x
-        nz_env_block_idx = nz_env_idx * self.num_blocks + nz_block_idx
-
-        nz_within_block_x = nz_room_position_x - nz_block_x * self.block_size_x
-        nz_within_block_y = nz_room_position_y - nz_block_y * self.block_size_y
-        nz_within_block_idx = nz_within_block_y * self.block_size_x + nz_within_block_x
-        # nz_embedding_idx = nz_room_idx * self.block_size + nz_within_block_idx
-
-        # A_sparse_ind = torch.stack([nz_env_block_idx, nz_embedding_idx], dim=0)
-        # A_sparse_val = torch.ones([nz_env_block_idx.shape[0]], device=device)
-        # A_sparse = torch.sparse_coo_tensor(A_sparse_ind, A_sparse_val, [n * self.num_blocks, self.num_rooms * self.block_size])
-        # X = torch.sparse.mm(A_sparse, self.room_embedding.view(self.num_rooms * self.block_size, self.embedding_width))
-        #
-
-        X = global_embedding.view(n, 1, global_embedding.shape[1]).repeat(1, self.num_blocks, 1)
-        X = X.view(n * self.num_blocks, self.embedding_width)  # Flatten X in order to perform the scatter_add
-        nz_embedding = self.room_embedding[nz_room_idx, nz_within_block_idx, :]
-        X = torch.scatter_add(X, dim=0, index=nz_env_block_idx.view(-1, 1).repeat(1, self.embedding_width), src=nz_embedding)
-
-
-        # Add room embedding to the appropriate block, i.e. the block that the room is centered on.
-        # print("X={}, idx={}, emb={}".format(X.shape, nz_env_block_idx.shape, nz_embedding.shape))
-
-        # X = torch.scatter_add(X, dim=0, index=nz_env_block_idx, src=nz_embedding)
-        X = X.reshape(n, self.num_blocks, self.embedding_width)  # Unflatten X
-        # X = X + global_embedding.view(n, 1, self.embedding_width) + self.pos_embedding.view(1, self.num_blocks, self.embedding_width)
-        X = X + self.pos_embedding.view(1, self.num_blocks, self.embedding_width)
+        dtype = torch.float16
 
         with torch.cuda.amp.autocast():
+            global_data = torch.cat([room_mask.to(torch.float32),
+                                     steps_remaining.view(-1, 1) / self.num_rooms,
+                                     round_frac.view(-1, 1),
+                                     torch.log(temperature.view(-1, 1))], dim=1).to(dtype)
+            global_embedding = self.global_lin(global_data)
+
+            # Initialize embeddings by replicating the global embedding across all blocks
+            # X = global_embedding.view(n, 1, global_embedding.shape[1]).repeat(1, self.num_blocks, 1)
+            # X = X.view(n * self.num_blocks, self.embedding_width)  # Flatten X in order to perform the scatter_add
+
+            adj_room_position_x = room_position_x + self.room_half_size_x.to(device).view(1, -1)
+            adj_room_position_y = room_position_y + self.room_half_size_y.to(device).view(1, -1)
+
+            if augment_frac > 0.0:
+                min_room_position_x = torch.min(adj_room_position_x, dim=1)[0]
+                max_room_position_x = torch.max(adj_room_position_x, dim=1)[0]
+                min_shift_x = -torch.clamp(min_room_position_x, max=4)
+                max_shift_x = torch.clamp(self.map_x - max_room_position_x, max=4)
+
+                min_room_position_y = torch.min(adj_room_position_y, dim=1)[0]
+                max_room_position_y = torch.max(adj_room_position_y, dim=1)[0]
+                min_shift_y = -torch.clamp(min_room_position_y, max=4)
+                max_shift_y = torch.clamp(self.map_y - max_room_position_y, max=4)
+
+                augment_shift_x = self.augment_shift_x.to(device)  # TODO: just keep these on the device
+                augment_shift_y = self.augment_shift_y.to(device)
+                augment_valid_x_min = augment_shift_x.view(1, -1) >= min_shift_x.view(-1, 1)
+                augment_valid_x_max = augment_shift_x.view(1, -1) < max_shift_x.view(-1, 1)
+                augment_valid_y_min = augment_shift_y.view(1, -1) >= min_shift_y.view(-1, 1)
+                augment_valid_y_max = augment_shift_y.view(1, -1) < max_shift_y.view(-1, 1)
+                augment_valid = augment_valid_x_min & augment_valid_x_max & augment_valid_y_min & augment_valid_y_max
+                augment_weight = torch.where(augment_valid, self.augment_weight.to(device).view(1, -1),
+                                             torch.zeros_like(self.augment_weight.to(device)).view(1, -1))
+                augment_idx = torch.multinomial(augment_weight, num_samples=1, replacement=True)[:, 0]
+                augment_selected = torch.rand([n], device=device) < augment_frac
+                augment_idx = torch.where(augment_selected, augment_idx, torch.full_like(augment_idx, self.no_augment_idx))
+
+                augment_x = augment_shift_x[augment_idx]
+                augment_y = augment_shift_y[augment_idx]
+                adj_room_position_x = adj_room_position_x + augment_x.view(-1, 1)
+                adj_room_position_y = adj_room_position_y + augment_y.view(-1, 1)
+
+                augment_embedding = self.augment_embedding.to(dtype)[augment_idx, :]
+            else:
+                augment_embedding = self.augment_embedding.to(dtype)[self.no_augment_idx, :]
+
+            # assert torch.min(adj_room_position_x) >= 0
+            # assert torch.max(adj_room_position_x) < self.map_x
+            # assert torch.min(adj_room_position_y) >= 0
+            # assert torch.max(adj_room_position_y) < self.map_y
+
+            global_embedding = global_embedding + augment_embedding
+
+            nz = torch.nonzero(room_mask)
+            nz_env_idx = nz[:, 0]
+            nz_room_idx = nz[:, 1]
+            nz_room_position_x = adj_room_position_x[nz_env_idx, nz_room_idx]
+            nz_room_position_y = adj_room_position_y[nz_env_idx, nz_room_idx]
+
+            nz_block_x = nz_room_position_x // self.block_size_x
+            nz_block_y = nz_room_position_y // self.block_size_y
+            nz_block_idx = nz_block_y * self.num_blocks_x + nz_block_x
+            nz_env_block_idx = nz_env_idx * self.num_blocks + nz_block_idx
+
+            nz_within_block_x = nz_room_position_x - nz_block_x * self.block_size_x
+            nz_within_block_y = nz_room_position_y - nz_block_y * self.block_size_y
+            nz_within_block_idx = nz_within_block_y * self.block_size_x + nz_within_block_x
+            # nz_embedding_idx = nz_room_idx * self.block_size + nz_within_block_idx
+
+            # A_sparse_ind = torch.stack([nz_env_block_idx, nz_embedding_idx], dim=0)
+            # A_sparse_val = torch.ones([nz_env_block_idx.shape[0]], device=device)
+            # A_sparse = torch.sparse_coo_tensor(A_sparse_ind, A_sparse_val, [n * self.num_blocks, self.num_rooms * self.block_size])
+            # X = torch.sparse.mm(A_sparse, self.room_embedding.view(self.num_rooms * self.block_size, self.embedding_width))
+            #
+
+            X = global_embedding.view(n, 1, global_embedding.shape[1]).repeat(1, self.num_blocks, 1)
+            X = X.view(n * self.num_blocks, self.embedding_width)  # Flatten X in order to perform the scatter_add
+            nz_embedding = self.room_embedding.to(dtype)[nz_room_idx, nz_within_block_idx, :]
+            X = torch.scatter_add(X, dim=0, index=nz_env_block_idx.view(-1, 1).repeat(1, self.embedding_width), src=nz_embedding)
+
+            # Add room embedding to the appropriate block, i.e. the block that the room is centered on.
+            # print("X={}, idx={}, emb={}".format(X.shape, nz_env_block_idx.shape, nz_embedding.shape))
+
+            # X = torch.scatter_add(X, dim=0, index=nz_env_block_idx, src=nz_embedding)
+            X = X.reshape(n, self.num_blocks, self.embedding_width)  # Unflatten X
+            # X = X + global_embedding.view(n, 1, self.embedding_width) + self.pos_embedding.view(1, self.num_blocks, self.embedding_width)
+            X = X + self.pos_embedding.to(dtype).view(1, self.num_blocks, self.embedding_width)
+
             for i in range(self.num_layers):
                 # X = self.transformer_layers[i](X)
                 X = self.attn_layers[i](X)
@@ -862,6 +868,7 @@ class TransformerModel(torch.nn.Module):
             output_weight = torch.softmax(raw_output_weight, dim=1)
             output_value = torch.einsum('bse,oe->bso', X, self.output_value)
             output = torch.sum(output_weight * output_value, dim=1)
+            # print("output: ", output.dtype)
 
         return output
 

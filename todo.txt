@@ -1,11 +1,11 @@
 priority:
 - add vertical gravity jumps to logic
 - add "game variation" options section:
+  - objectives (move out of top-level settings)
   - respin
   - infinite space jump
   - vanilla map layout
-  - vanilla item placement (requires vanilla map)
-  - vanilla game behavior (extra-low quality-of-life)
+  - ultra-low quality-of-life (restore vanilla behavior like what bobbob wants)
 - finish getting new model training going
 - show objective progress in pause menu
 - add pages for tech, strats, rooms.
@@ -27,6 +27,11 @@ model stuff to try:
 
 
 later:
+- handle 3-room shinesparks
+  - at least basic case where using two-room combined runway to get a charge then jump into a 3rd room
+    - should be representable with canLeaveCharged having a canComeInCharged requirement (180 frames)
+  - in trickier cases, the frames in canLeaveCharged could depend on frames remaining in canComeInCharged
+    - we could add a field in canComeInCharged "relativeFrameRemaining" for this
 - make kraid camera act normal when entering from left
   - same thing with spore spawn entering from bottom
 - handle (steep) slopes in runway length calculations
