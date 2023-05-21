@@ -1,7 +1,8 @@
 priority:
+- handle "not" requirements properly:
+  - WS e-tank room currently has problem because of treating "not" like "never"
 - add vertical gravity jumps to logic
 - add "game variation" options section:
-  - objectives (move out of top-level settings)
   - respin
   - infinite space jump
   - vanilla map layout

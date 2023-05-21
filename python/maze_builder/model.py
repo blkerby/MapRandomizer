@@ -613,7 +613,8 @@ class DoorLocalModel(torch.nn.Module):
 
 def compute_cross_attn(Q, K, V):
     # Q, K, V: [batch, seq, head, emb]
-    raw_attn = torch.einsum('bshe,bthe->bsth', Q, K)
+    d = Q.shape[-1]
+    raw_attn = torch.einsum('bshe,bthe->bsth', Q, K / math.sqrt(d))
     attn = torch.softmax(raw_attn, dim=2)
     out = torch.einsum('bsth,bthe->bshe', attn, V)
     return out
@@ -626,10 +627,12 @@ class AttentionLayer(torch.nn.Module):
         self.key_width = key_width
         self.value_width = value_width
         self.num_heads = num_heads
+        # self.qkv = torch.nn.Linear(input_width, num_heads * key_width * 2 + num_heads * value_width)
         self.query = torch.nn.Linear(input_width, num_heads * key_width)
         self.key = torch.nn.Linear(input_width, num_heads * key_width)
         self.value = torch.nn.Linear(input_width, num_heads * value_width)
         self.post = torch.nn.Linear(num_heads * value_width, input_width)
+        self.post.weight.data.zero_()
         self.layer_norm = torch.nn.LayerNorm(input_width)
 
     def forward(self, X):
@@ -637,6 +640,10 @@ class AttentionLayer(torch.nn.Module):
         assert X.shape[2] == self.input_width
         n = X.shape[0]  # batch dimension
         s = X.shape[1]  # sequence dimension
+        # QKV = self.qkv(X)
+        # Q = QKV[:, :, :(self.num_heads * self.key_width)].view(n, s, self.num_heads, self.key_width)
+        # K = QKV[:, :, (self.num_heads * self.key_width):(2 * self.num_heads * self.key_width)].view(n, s, self.num_heads, self.key_width)
+        # V = QKV[:, :, (2 * self.num_heads * self.key_width):].view(n, s, self.num_heads, self.value_width)
         Q = self.query(X).view(n, s, self.num_heads, self.key_width)
         K = self.key(X).view(n, s, self.num_heads, self.key_width)
         V = self.value(X).view(n, s, self.num_heads, self.value_width)
@@ -650,6 +657,7 @@ class FeedforwardLayer(torch.nn.Module):
         super().__init__()
         self.lin1 = torch.nn.Linear(input_width, relu_width)
         self.lin2 = torch.nn.Linear(relu_width, input_width)
+        self.lin2.weight.data.zero_()
         self.layer_norm = torch.nn.LayerNorm(input_width)
 
     def forward(self, X):

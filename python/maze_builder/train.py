@@ -196,7 +196,7 @@ model = TransformerModel(
     value_width=32,
     attn_heads=8,
     relu_width=1024,
-    num_layers=2,
+    num_layers=4,
 ).to(device)
 
 

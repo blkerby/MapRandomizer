@@ -602,6 +602,13 @@ pub fn apply_requirement(
                 None
             }
         }
+        Requirement::NotFlag(flag_id) => {
+            if !global.flags[*flag_id] {
+                Some(local)
+            } else {
+                None
+            }
+        }
         Requirement::HeatFrames(frames) => {
             let varia = global.items[Item::Varia as usize];
             // let gravity = global.items[Item::Gravity as usize];

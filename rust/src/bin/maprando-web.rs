@@ -89,6 +89,16 @@ impl MapRepository {
             .with_context(|| format!("Unable to parse map file at {}", path.display()))?;
         Ok(map)
     }
+
+    fn get_vanilla_map(&self) -> Result<Map> {
+        let path = Path::new("data/vanilla_map.json");
+        let map_string = std::fs::read_to_string(&path)
+            .with_context(|| format!("Unable to read map file at {}", path.display()))?;
+        info!("Map: {}", path.display());
+        let map: Map = serde_json::from_str(&map_string)
+            .with_context(|| format!("Unable to parse map file at {}", path.display()))?;
+        Ok(map)
+    }
 }
 
 #[derive(TemplateOnce)]
@@ -714,7 +724,12 @@ async fn randomize(
 
     let tech_json: serde_json::Value = serde_json::from_str(&req.tech_json).unwrap();
     let mut tech_vec: Vec<String> = Vec::new();
+    let walljump_tech = "canWalljump";
+    assert!(tech_json.as_object().unwrap().contains_key(walljump_tech));
     for (tech, is_enabled) in tech_json.as_object().unwrap().iter() {
+        if tech == walljump_tech && req.disable_walljump.0 {
+            continue;
+        }
         if is_enabled.as_bool().unwrap() {
             tech_vec.push(tech.to_string());
         }
@@ -851,7 +866,11 @@ async fn randomize(
                 .body("Failed too many randomization attempts");
         }
         map_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
-        let map = app_data.map_repository.get_map(map_seed).unwrap();
+        let map = if difficulty.vanilla_map {
+            app_data.map_repository.get_vanilla_map().unwrap()
+        } else {
+            app_data.map_repository.get_map(map_seed).unwrap()
+        };
         item_placement_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
         info!("Map seed={map_seed}, item placement seed={item_placement_seed}");
         let randomizer = Randomizer::new(&map, &difficulty_tiers, &app_data.game_data);

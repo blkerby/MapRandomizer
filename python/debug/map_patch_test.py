@@ -214,7 +214,7 @@ rom.write_n(snes2pc(0x839156), 12, data)  # Warehouse Zeela Room
 rom.write_n(snes2pc(0x8394CE), 12, data)  # Post Crocomire Jump Room
 rom.write_n(snes2pc(0x83A294), 12, data)  # Basement
 rom.write_n(snes2pc(0x83AA08), 12, data)  # Blue Hopper Room
-rom.write_n(snes2pc(0x8399EA), 12, data)  # Wasteland
+rom.write_n(snes2pc(0x839A26), 12, data)  # Wasteland
 rom.write_n(snes2pc(0x8399DE), 12, data)  # Lower Norfair Escape Power Bomb Room
 rom.write_n(snes2pc(0x8396AE), 12, data)  # Purple Shaft
 rom.write_n(snes2pc(0x839762), 12, data)  # Acid Snakes Tunnel

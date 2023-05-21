@@ -108,6 +108,7 @@ pub enum Requirement {
     Strat(StratId),
     Item(ItemId),
     Flag(FlagId),
+    NotFlag(FlagId),
     ShineCharge {
         shinespark_tech_id: usize,
         used_tiles: f32,
@@ -768,8 +769,11 @@ impl GameData {
                     self.parse_requires_list(value.members().as_slice(), ctx)?,
                 ));
             } else if key == "not" {
-                // For now, assume we can't do these, since they could get us permanently stuck.
-                return Ok(Requirement::Never);
+                if let Some(&flag_id) = self.flag_isv.index_by_key.get(value.as_str().unwrap()) {
+                    return Ok(Requirement::NotFlag(flag_id));
+                } else {
+                    panic!("Unrecognized flag in 'not': {}", value);
+                }
             } else if key == "ammo" {
                 let ammo_type = value["type"]
                     .as_str()
