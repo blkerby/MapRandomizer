@@ -1,3 +1,4 @@
 $F63A - $F680: unexplore.asm
 $F680 - $F700: complementary_suits.asm
 $F700 - $F780: map_progress_maintain.asm
+$F780 - $F800: spinjumprestart.asm

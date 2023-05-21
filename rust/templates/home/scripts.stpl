@@ -95,6 +95,10 @@ function qualityOfLifePresetChanged() {
         document.getElementById("fastElevatorsNo").checked = true;
         document.getElementById("fastDoorsNo").checked = true;
         document.getElementById("fastPauseMenuNo").checked = true;
+        document.getElementById("respinNo").checked = true;
+        document.getElementById("infiniteSpaceJumpNo").checked = true;
+    } else {
+        document.getElementById("ultraLowQoLNo").checked = true;
     }
     if (document.getElementById("qualityOfLifeDefault").checked) {
         document.getElementById("supersDoubleYes").checked = true;
@@ -112,6 +116,8 @@ function qualityOfLifePresetChanged() {
         document.getElementById("fastElevatorsYes").checked = true;
         document.getElementById("fastDoorsYes").checked = true;
         document.getElementById("fastPauseMenuYes").checked = true;
+        document.getElementById("respinNo").checked = true;
+        document.getElementById("infiniteSpaceJumpNo").checked = true;
     }    
     if (document.getElementById("qualityOfLifeMax").checked) {
         document.getElementById("supersDoubleYes").checked = true;
@@ -129,12 +135,15 @@ function qualityOfLifePresetChanged() {
         document.getElementById("fastElevatorsYes").checked = true;
         document.getElementById("fastDoorsYes").checked = true;
         document.getElementById("fastPauseMenuYes").checked = true;
+        document.getElementById("respinYes").checked = true;
+        document.getElementById("infiniteSpaceJumpYes").checked = true;
     }    
 }
 function qualityOfLifeSettingChanged() {
     document.getElementById("qualityOfLifeNo").checked = false;
     document.getElementById("qualityOfLifeDefault").checked = false;
     document.getElementById("qualityOfLifeMax").checked = false;
+    qualityOfLifePresetChanged();
 }
 function itemProgressionPresetChanged() {
     if (document.getElementById("itemProgressionPresetQuick").checked) {
@@ -201,6 +210,12 @@ function itemProgressionChanged() {
     document.getElementById("itemProgressionPresetStandard").checked = false;
     document.getElementById("itemProgressionPresetChallenge").checked = false;
 }
+function gameVariationChanged() {
+    if (document.getElementById("ultraLowQoLYes").checked) {
+        document.getElementById("qualityOfLifeNo").checked = true;
+        qualityOfLifePresetChanged();
+    }
+}
 </script>
 <% include!("../common/save_load_rom.stpl"); %>
 <% include!("../common/save_settings.stpl"); %>
@@ -208,6 +223,7 @@ function itemProgressionChanged() {
 loadForm(document.getElementById("main-form"));
 loadROM(document.getElementById("vanillaRom"), 'vanilla');
 presetChanged();
+gameVariationChanged();
 qualityOfLifePresetChanged();
 itemProgressionPresetChanged();
 </script>

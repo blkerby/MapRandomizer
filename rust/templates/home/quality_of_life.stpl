@@ -184,6 +184,33 @@
                     <label class="btn btn-outline-primary" for="fastPauseMenuYes">Yes</label>
                 </div>
             </div>
+
+            <div class="form-group row">
+                <div class="col-lg-6 col-xl-4 m-2">
+                    <% include!("help/quality/respin.stpl"); %>
+                    <label for="respin">Spin jump restart (respin)</label>
+                </div>
+                <div class="col-2 btn-group m-2" role="group">
+                    <input type="radio" class="btn-check" name="respin" id="respinNo" value="false" checked>
+                    <label class="btn btn-outline-primary" for="respinNo">No</label>
+                    <input type="radio" class="btn-check" name="respin" id="respinYes" value="true">
+                    <label class="btn btn-outline-primary" for="respinYes">Yes</label>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-lg-6 col-xl-4 m-2">
+                    <% include!("help/quality/infinite_space_jump.stpl"); %>
+                    <label for="infinite_space_jump">Infinite Space Jump</label>
+                </div>
+                <div class="col-2 btn-group m-2" role="group">
+                    <input type="radio" class="btn-check" name="infinite_space_jump" id="infiniteSpaceJumpNo" value="false" checked>
+                    <label class="btn btn-outline-primary" for="infiniteSpaceJumpNo">No</label>
+                    <input type="radio" class="btn-check" name="infinite_space_jump" id="infiniteSpaceJumpYes" value="true">
+                    <label class="btn btn-outline-primary" for="infiniteSpaceJumpYes">Yes</label>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>

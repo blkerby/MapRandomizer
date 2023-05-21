@@ -151,6 +151,11 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         fast_doors: true,
         fast_pause_menu: true,
         objectives: Objectives::Bosses,
+        disable_walljump: false,
+        vanilla_map: false,
+        respin: false,
+        infinite_space_jump: false,
+        ultra_low_qol: false,
         debug_options: Some(DebugOptions {
             new_game_extra: true,
             extended_spoiler: true,

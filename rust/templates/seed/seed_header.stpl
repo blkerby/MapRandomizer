@@ -70,6 +70,24 @@
             <div class="col-3">Objectives:</div>
             <div class="col-9"><%= objectives %></div>
         </div>
+        <% if disable_walljump { %>
+        <div class="row">
+            <div class="col-3">Disable wall jumps:</div>
+            <div class="col-9">Yes</div>
+        </div>
+        <% } %>
+        <% if vanilla_map { %>
+        <div class="row">
+            <div class="col-3">Vanilla map:</div>
+            <div class="col-9">Yes</div>
+        </div>
+        <% } %>
+        <% if ultra_low_qol { %>
+        <div class="row">
+            <div class="col-3">Ultra-low quality of life:</div>
+            <div class="col-9">Yes</div>
+        </div>
+        <% } %>
         <div class="row">
             <div class="col-3">Race mode:</div>
             <div class="col-9"><%= if race_mode { "Yes" } else { "No" } %></div>

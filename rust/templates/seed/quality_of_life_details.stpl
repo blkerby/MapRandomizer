@@ -46,3 +46,11 @@
     <div class="col-6">Fast pause menu:</div>
     <div class="col-6"><%= if fast_pause_menu { "Yes" } else { "No" }%></div>
 </div>
+<div class="row">
+    <div class="col-6">Spin jump restart (respin):</div>
+    <div class="col-6"><%= if respin { "Yes" } else { "No" }%></div>
+</div>
+<div class="row">
+    <div class="col-6">Infinite Space Jump:</div>
+    <div class="col-6"><%= if infinite_space_jump { "Yes" } else { "No" }%></div>
+</div>

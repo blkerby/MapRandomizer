@@ -176,7 +176,6 @@ struct RandomizeRequest {
     progression_rate: Text<String>,
     item_placement_style: Text<String>,
     item_progression_preset: Option<Text<String>>,
-    objectives: Text<String>,
     item_priority_json: Text<String>,
     filler_items_json: Text<String>,
     race_mode: Text<String>,
@@ -194,6 +193,12 @@ struct RandomizeRequest {
     fast_elevators: Text<bool>,
     fast_doors: Text<bool>,
     fast_pause_menu: Text<bool>,
+    objectives: Text<String>,
+    disable_walljump: Text<bool>,
+    vanilla_map: Text<bool>,
+    respin: Text<bool>,
+    infinite_space_jump: Text<bool>,
+    ultra_low_qol: Text<bool>,
 }
 
 #[derive(MultipartForm)]
@@ -230,6 +235,11 @@ struct SeedData {
     fast_doors: bool,
     fast_pause_menu: bool,
     objectives: String,
+    disable_walljump: bool,
+    vanilla_map: bool,
+    respin: bool,
+    infinite_space_jump: bool,
+    ultra_low_qol: bool,
 }
 
 fn get_seed_name(seed_data: &SeedData) -> String {
@@ -268,6 +278,11 @@ struct SeedHeaderTemplate<'a> {
     fast_doors: bool,
     fast_pause_menu: bool,
     objectives: String,
+    disable_walljump: bool,
+    vanilla_map: bool,
+    respin: bool,
+    infinite_space_jump: bool,
+    ultra_low_qol: bool,
 }
 
 #[derive(TemplateOnce)]
@@ -276,6 +291,7 @@ struct SeedFooterTemplate {
     race_mode: bool,
     all_items_spawn: bool,
     supers_double: bool,
+    ultra_low_qol: bool,
 }
 
 #[derive(TemplateOnce)]
@@ -334,6 +350,11 @@ fn render_seed(seed_name: &str, seed_data: &SeedData) -> Result<(String, String)
         fast_doors: seed_data.fast_doors,
         fast_pause_menu: seed_data.fast_pause_menu,
         objectives: seed_data.objectives.clone(),
+        disable_walljump: seed_data.disable_walljump,
+        vanilla_map: seed_data.vanilla_map,
+        respin: seed_data.respin,
+        infinite_space_jump: seed_data.infinite_space_jump,
+        ultra_low_qol: seed_data.ultra_low_qol,
     };
     let seed_header_html = seed_header_template.render_once()?;
 
@@ -341,6 +362,7 @@ fn render_seed(seed_name: &str, seed_data: &SeedData) -> Result<(String, String)
         race_mode: seed_data.race_mode,
         all_items_spawn: seed_data.all_items_spawn,
         supers_double: seed_data.supers_double,
+        ultra_low_qol: seed_data.ultra_low_qol,
     };
     let seed_footer_html = seed_footer_template.render_once()?;
     Ok((seed_header_html, seed_footer_html))
@@ -623,6 +645,11 @@ fn get_difficulty_tiers(
             fast_doors: difficulty.fast_doors,
             fast_pause_menu: difficulty.fast_pause_menu,
             objectives: difficulty.objectives,
+            disable_walljump: difficulty.disable_walljump,
+            vanilla_map: difficulty.vanilla_map,
+            respin: difficulty.respin,
+            infinite_space_jump: difficulty.infinite_space_jump,
+            ultra_low_qol: difficulty.ultra_low_qol,
             debug_options: difficulty.debug_options.clone(),
         };
         if Some(&new_difficulty) != out.last() {
@@ -780,6 +807,11 @@ async fn randomize(
             "Metroids" => Objectives::Metroids,
             _ => panic!("Unrecognized objectives: {}", req.objectives.0),
         },
+        disable_walljump: req.disable_walljump.0,
+        vanilla_map: req.vanilla_map.0,
+        respin: req.respin.0,
+        infinite_space_jump: req.infinite_space_jump.0,
+        ultra_low_qol: req.ultra_low_qol.0,
         debug_options: if app_data.debug {
             Some(DebugOptions {
                 new_game_extra: true,
@@ -864,6 +896,11 @@ async fn randomize(
         fast_doors: req.fast_doors.0,
         fast_pause_menu: req.fast_pause_menu.0,
         objectives: req.objectives.0.clone(),
+        disable_walljump: req.disable_walljump.0,
+        vanilla_map: req.vanilla_map.0,
+        respin: req.respin.0,
+        infinite_space_jump: req.infinite_space_jump.0,
+        ultra_low_qol: req.ultra_low_qol.0,
     };
 
     let output_rom = make_rom(&rom, &randomization, &app_data.game_data).unwrap();
@@ -1033,6 +1070,7 @@ fn get_ignored_notable_strats() -> HashSet<String> {
         "MickeyMouse Crumbleless MidAir Spring Ball",
         "Mickey Mouse Crumble IBJ",
         "Botwoon Hallway Puyo Ice Clip",
+        "Mt. Everest Cross Room Jump through Top Door",  // currently unusable because of obstacleCleared requirement
     ]
     .iter()
     .map(|x| x.to_string())

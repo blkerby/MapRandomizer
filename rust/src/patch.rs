@@ -221,41 +221,46 @@ impl<'a> Patcher<'a> {
             "everest_tube",
             "sandfalls",
             "saveload",
-            "map_area",
             "boss_exit",
             "itemsounds",
             "complementary_suits",
             "disable_map_icons",
             "escape",
-            "escape_autosave",
             "tourian_map",
             "tourian_eye_door",
             "no_explosions_before_escape",
             "escape_room_1",
             "max_ammo_display",
-            "missile_refill_all",
             "sound_effect_disables",
             "title_map_animation",
-            "fast_reload",
             "shaktool",
             "fix_water_fx_bug",
-            "fast_saves",
-            "fast_mother_brain_cutscene",
-            "fast_big_boy_cutscene",
-            "decompression",
             "tourian_blue_hopper",
-            "fix_kraid_vomit",
             "aim_anything",
             "crateria_tube_black",
             "seed_hash_display",
+            "fix_kraid_vomit",
+            "map_area",
             "map_progress_maintain",
-            "unexplore",    
         ];
+
+        if !self.randomization.difficulty.ultra_low_qol {
+            patches.extend([
+                "missile_refill_all",
+                "decompression",
+                "fast_reload",
+                "fast_saves",
+                "fast_mother_brain_cutscene",
+                "fast_big_boy_cutscene",
+                "unexplore",    
+                "escape_autosave",
+            ]);
+        }
+
         let mut new_game = "new_game";
         if let Some(options) = &self.randomization.difficulty.debug_options {
             if options.new_game_extra {
                 new_game = "new_game_extra";
-                // patches.push("disable_walljump");  // Just testing, remove this later
             }
         }
         patches.push(new_game);
@@ -283,6 +288,14 @@ impl<'a> Patcher<'a> {
 
         if self.randomization.difficulty.item_dots_disappear {
             patches.push("item_dots_disappear");
+        }
+
+        if self.randomization.difficulty.disable_walljump {
+            patches.push("disable_walljump");
+        }
+
+        if self.randomization.difficulty.respin {
+            patches.push("spinjumprestart");
         }
 
         for patch_name in patches {
@@ -1102,28 +1115,11 @@ impl<'a> Patcher<'a> {
         let plm_data = self.rom.read_n(0x786DE, 6)?.to_vec();
         self.rom.write_n(0x78746, &plm_data)?;
 
-        if self.randomization.difficulty.all_items_spawn {
-            // Copy the item in Pit Room to the Zebes-asleep state.
-            // For this we overwrite the PLM slot for the gray door at the left of the room (which we would get rid of anyway).
-            let plm_data = self.rom.read_n(0x783EE, 6)?.to_vec();
-            self.rom.write_n(0x783C8, &plm_data)?;
-        }
-
         // Disable demo (by overwriting the branch on the timer reaching zero):
         self.rom.write_n(snes2pc(0x8B9F2C), &vec![0x80, 0x0A])?; // BRA $0A
 
-        // In Crocomire's initialization, skip setting the leftmost screens to red scroll. Even in the vanilla game there
-        // is no purpose to this, as they are already red. But it important to skip here in the rando, because when entering
-        // from the left door with Crocomire still alive, these scrolls are set to blue by the door ASM, and if they
-        // were overridden with red it would break the graphics.
-        self.rom.write_n(snes2pc(0xA48A92), &vec![0xEA; 4])?; // NOP:NOP:NOP:NOP
-
-        // Release Spore Spawn camera so it won't be glitched when entering from the right:
-        self.rom.write_n(snes2pc(0xA5EADA), &vec![0xEA; 3])?; // NOP:NOP:NOP
-
-        // Likewise release Kraid camera so it won't be as glitched when entering from the right:
-        self.rom.write_n(snes2pc(0xA7A9F4), &vec![0xEA; 4])?; // NOP:NOP:NOP:NOP
-        self.rom.write_u8(snes2pc(0xA7C9EE), 0x60)?; // RTS. No longer restrict Samus X position to left screen
+        // In Kraid's room, no longer restrict Samus X position to left screen:
+        self.rom.write_u8(snes2pc(0xA7C9EE), 0x60)?; // RTS
 
         // In Shaktool room, skip setting screens to red scroll (so that it won't glitch out when entering from the right):
         self.rom.write_u8(snes2pc(0x84B8DC), 0x60)?; // RTS
@@ -1139,11 +1135,36 @@ impl<'a> Patcher<'a> {
         self.rom.write_u16(snes2pc(0x8FDF03), 0xC953)?; // Vanilla setup ASM pointer (to undo effect of `no_explosions_before_escape` patch)
         self.rom.write_u8(snes2pc(0x8FC95B), 0x60)?; // RTS (return early from setup ASM to skip setting up shaking)
 
-        // Remove fake gray door that gets drawn in Phantoon's Room:
-        self.rom.write_n(snes2pc(0xA7D4E5), &vec![0xEA; 8])?;
+        if self.randomization.difficulty.all_items_spawn {
+            // Copy the item in Pit Room to the Zebes-asleep state.
+            // For this we overwrite the PLM slot for the gray door at the left of the room (which we would get rid of anyway).
+            let plm_data = self.rom.read_n(0x783EE, 6)?.to_vec();
+            self.rom.write_n(0x783C8, &plm_data)?;
+        }
 
-        // Fix the door cap X location for the Green Brinstar Main Shaft door to itself left-to-right:
-        self.rom.write_u8(snes2pc(0x838CF2), 0x11)?;
+        if self.randomization.difficulty.infinite_space_jump {
+            self.rom.write_n(0x82493, &[0x80, 0x0D])?;
+        }
+
+        if !self.randomization.difficulty.ultra_low_qol {
+            // In Crocomire's initialization, skip setting the leftmost screens to red scroll. Even in the vanilla game there
+            // is no purpose to this, as they are already red. But it important to skip here in the rando, because when entering
+            // from the left door with Crocomire still alive, these scrolls are set to blue by the door ASM, and if they
+            // were overridden with red it would break the graphics.
+            self.rom.write_n(snes2pc(0xA48A92), &vec![0xEA; 4])?; // NOP:NOP:NOP:NOP
+
+            // Release Spore Spawn camera so it won't be glitched when entering from the right:
+            self.rom.write_n(snes2pc(0xA5EADA), &vec![0xEA; 3])?; // NOP:NOP:NOP
+
+            // Likewise release Kraid camera so it won't be as glitched when entering from the right:
+            self.rom.write_n(snes2pc(0xA7A9F4), &vec![0xEA; 4])?; // NOP:NOP:NOP:NOP
+
+            // Remove fake gray door that gets drawn in Phantoon's Room:
+            self.rom.write_n(snes2pc(0xA7D4E5), &vec![0xEA; 8])?;
+
+            // Fix the door cap X location for the Green Brinstar Main Shaft door to itself left-to-right:
+            self.rom.write_u8(snes2pc(0x838CF2), 0x11)?;
+        }
 
         Ok(())
     }
