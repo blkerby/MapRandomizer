@@ -219,7 +219,9 @@ rom.write_n(snes2pc(0x8399DE), 12, data)  # Lower Norfair Escape Power Bomb Room
 rom.write_n(snes2pc(0x8396AE), 12, data)  # Purple Shaft
 rom.write_n(snes2pc(0x839762), 12, data)  # Acid Snakes Tunnel
 
-
+# Connect Landing Site bottom left door to different room:
+data = rom.read_n(snes2pc(0x838952), 12)  # Gauntlet Energy Tank Room right
+rom.write_n(snes2pc(0x838916), 12, data)  # Landing Site bottom left door
 
 #
 # # Delay closing of gray doors

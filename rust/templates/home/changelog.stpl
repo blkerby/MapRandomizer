@@ -3,6 +3,17 @@
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-63---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 63 (???)</a>:
+<ul>
+<li>Added quality-of-life options "Spin jump restart (respin)" and "Infinite Space Jump".
+<li>Added a new group of settings "Game variations" with three options:
+    <ul>
+    <li>Disable wall jumps (experimental)
+    <li>Vanilla map
+    <li>Ultra-low quality of life
+    </ul>
+</ul>
+
 <p><a href="https://version-62---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 62 (2023-05-17)</a>:
 <ul>
 <li>Logic updates:

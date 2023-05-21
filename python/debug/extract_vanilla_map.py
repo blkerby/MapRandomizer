@@ -7,12 +7,12 @@ input_rom_path = '/home/kerby/Downloads/Super Metroid (JU) [!].smc'
 rom = Rom(open(input_rom_path, 'rb'))
 
 area_offsets = [
-    (4, 0),  # Crateria
-    (1, 19),  # Brinstar
-    (32, 39),  # Norfair
-    (38, -10),  # Wrecked Ship
-    (29, 19),  # Maridia
-    (1, 0),  # Tourian
+    (1, 4),  # Crateria
+    (-2, 23),  # Brinstar
+    (29, 43),  # Norfair
+    (35, -6),  # Wrecked Ship
+    (26, 23),  # Maridia
+    (-2, 4),  # Tourian
 ]
 
 output_rooms = []

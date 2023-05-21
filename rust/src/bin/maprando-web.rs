@@ -26,7 +26,7 @@ use rand::{RngCore, SeedableRng};
 use sailfish::TemplateOnce;
 use serde_derive::{Deserialize, Serialize};
 
-const VERSION: usize = 62;
+const VERSION: usize = 63;
 const VISUALIZER_PATH: &'static str = "../visualizer/";
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -734,6 +734,9 @@ async fn randomize(
             tech_vec.push(tech.to_string());
         }
     }
+    if req.vanilla_map.0 {
+        tech_vec.push("canEscapeMorphLocation".to_string());
+    }
 
     let strat_json: serde_json::Value = serde_json::from_str(&req.strat_json).unwrap();
     let mut strat_vec: Vec<String> = app_data.ignored_notable_strats.iter().cloned().collect();
@@ -960,6 +963,7 @@ fn init_presets(
         "canIceZebetitesSkip",
         "canSpeedZebetitesSkip",
         "canRemorphZebetiteSkip",
+        "canEscapeMorphLocation",  // Special internal tech for "vanilla map" option
     ]
     .iter()
     .map(|x| x.to_string())

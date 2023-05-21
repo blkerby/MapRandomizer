@@ -216,13 +216,11 @@ impl<'a> Patcher<'a> {
         self.rom.data.resize(0x400000, 0);
         let patches_dir = Path::new("../patches/ips/");
         let mut patches = vec![
-            "vanilla_bugfixes",
             "music",
             "everest_tube",
             "sandfalls",
             "saveload",
             "boss_exit",
-            "itemsounds",
             "complementary_suits",
             "disable_map_icons",
             "escape",
@@ -236,34 +234,41 @@ impl<'a> Patcher<'a> {
             "shaktool",
             "fix_water_fx_bug",
             "tourian_blue_hopper",
-            "aim_anything",
             "crateria_tube_black",
             "seed_hash_display",
-            "fix_kraid_vomit",
             "map_area",
             "map_progress_maintain",
         ];
 
-        if !self.randomization.difficulty.ultra_low_qol {
+        if self.randomization.difficulty.ultra_low_qol {
             patches.extend([
+                "ultra_low_qol_vanilla_bugfixes",
+                "ultra_low_qol_new_game",
+            ]);
+        } else {
+            patches.extend([
+                "vanilla_bugfixes",
+                "itemsounds",
                 "missile_refill_all",
                 "decompression",
+                "aim_anything",
                 "fast_reload",
                 "fast_saves",
                 "fast_mother_brain_cutscene",
                 "fast_big_boy_cutscene",
                 "unexplore",    
+                "fix_kraid_vomit",
                 "escape_autosave",
             ]);
-        }
 
-        let mut new_game = "new_game";
-        if let Some(options) = &self.randomization.difficulty.debug_options {
-            if options.new_game_extra {
-                new_game = "new_game_extra";
+            let mut new_game = "new_game";
+            if let Some(options) = &self.randomization.difficulty.debug_options {
+                if options.new_game_extra {
+                    new_game = "new_game_extra";
+                }
             }
+            patches.push(new_game);
         }
-        patches.push(new_game);
 
         if self.randomization.difficulty.all_items_spawn {
             patches.push("all_items_spawn");

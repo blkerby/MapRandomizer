@@ -373,8 +373,6 @@ pub struct EnemyVulnerabilities {
     pub power_bomb_damage: i32,
 }
 
-
-
 // TODO: Clean this up, e.g. pull out a separate structure to hold
 // temporary data used only during loading, replace any
 // remaining JsonValue types in the main struct with something
@@ -477,19 +475,23 @@ impl GameData {
     fn load_tech(&mut self) -> Result<()> {
         let mut full_tech_json = read_json(&self.sm_json_data_path.join("tech.json"))?;
         ensure!(full_tech_json["techCategories"].is_array());
+        full_tech_json["techCategories"].members_mut().find(|x| x["name"] == "Shots").unwrap()["techs"].push(json::object!{
+            "name": "canHyperGateShot",
+            "requires": [],
+            "note": [
+                "Can shoot blue & green gates from either side using Hyper Beam during the escape.",
+                "This is easy to do; this tech just represents knowing it can be done.",
+                "This is based on a randomizer patch applied on all settings (as in the vanilla game it isn't possible to open green gates using Hyper Beam.)"
+            ]
+        })?;
+        full_tech_json["techCategories"].members_mut().find(|x| x["name"] == "Movement").unwrap()["techs"].push(json::object!{
+            "name": "canEscapeMorphLocation",
+            "requires": [],
+            "devNote": "A special internal tech that is auto-enabled when using vanilla map, to ensure there is at least one bireachable item."
+        })?;
+
         for tech_category in full_tech_json["techCategories"].members_mut() {
             ensure!(tech_category["techs"].is_array());
-            if tech_category["name"] == "Shots" {
-                tech_category["techs"].push(json::object!{
-                    "name": "canHyperGateShot",
-                    "requires": [],
-                    "note": [
-                        "Can shoot blue & green gates from either side using Hyper Beam during the escape.",
-                        "This is easy to do; this tech just represents knowing it can be done.",
-                        "This is based on a randomizer patch applied on all settings (as in the vanilla game it isn't possible to open green gates using Hyper Beam.)"
-                    ]
-                })?;
-            }
             for tech_json in tech_category["techs"].members() {
                 self.load_tech_rec(tech_json)?;
             }
@@ -1076,8 +1078,7 @@ impl GameData {
                     .with_context(|| format!("missing/invalid shinesparkFrames in {}", req_json))?;
                 let excess_shinespark_frames =
                     value["excessShinesparkFrames"].as_i32().unwrap_or(0);
-                let unusable_tiles =
-                    value["unusableTiles"].as_i32().unwrap_or(0);
+                let unusable_tiles = value["unusableTiles"].as_i32().unwrap_or(0);
                 // if value["fromNode"].as_usize().unwrap() != ctx.src_node_id {
                 //     println!("In roomId={}, canComeInCharged fromNode={}, from nodeId={}", ctx.room_id,
                 //         value["fromNode"].as_usize().unwrap(), ctx.src_node_id);
@@ -1201,6 +1202,30 @@ impl GameData {
                 .with_context(|| format!("Processing room {}", room_name))?;
         }
         Ok(())
+    }
+
+    fn override_morph_ball_room(&mut self, room_json: &mut JsonValue) {
+        // Override the Careful Jump strat to get out from Morph Ball location:
+        //
+        room_json["links"]
+            .members_mut()
+            .find(|x| x["from"].as_i32().unwrap() == 4)
+            .unwrap()["to"]
+            .members_mut()
+            .find(|x| x["id"].as_i32().unwrap() == 2)
+            .unwrap()["strats"]
+            .members_mut()
+            .find(|x| x["name"].as_str().unwrap() == "Careful Jump")
+            .unwrap()
+            .insert(
+                "requires",
+                json::array![{
+                    "or": [
+                        "canCarefulJump",
+                        "canEscapeMorphLocation",
+                    ]
+                }],
+            ).unwrap();
     }
 
     fn override_shaktool_room(&mut self, room_json: &mut JsonValue) {
@@ -1340,6 +1365,8 @@ impl GameData {
 
         if room_json["name"] == "Shaktool Room" {
             self.override_shaktool_room(&mut new_room_json);
+        } else if room_json["name"] == "Morph Ball Room" {
+            self.override_morph_ball_room(&mut new_room_json);
         }
 
         for node_json in new_room_json["nodes"].members_mut() {
@@ -1933,10 +1960,14 @@ impl GameData {
                                 to_vertex_id: vertex_id,
                                 requirement: Requirement::make_and(reqs.clone()),
                                 notable_strat_name: None,
-                                strat_name: format!("{} ({})", farm_name.to_string(), farm_cycle["name"]),
+                                strat_name: format!(
+                                    "{} ({})",
+                                    farm_name.to_string(),
+                                    farm_cycle["name"]
+                                ),
                                 strat_notes: vec![],
                             };
-                            // println!("Farm: room='{}',node={}, obstacles={}, name={}, req={:?}", 
+                            // println!("Farm: room='{}',node={}, obstacles={}, name={}, req={:?}",
                             //     room_json["name"], node_id, obstacles_bitmask, link.strat_name, link.requirement);
                             self.links.push(link);
                         }
