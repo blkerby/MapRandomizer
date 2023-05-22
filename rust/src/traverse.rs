@@ -711,6 +711,15 @@ pub fn apply_requirement(
             new_local.power_bombs_used = 0;
             Some(new_local)
         }
+        Requirement::AmmoStationRefill => {
+            let mut new_local = local;
+            new_local.missiles_used = 0;
+            if !difficulty.ultra_low_qol {
+                new_local.supers_used = 0;
+                new_local.power_bombs_used = 0;
+            }
+            Some(new_local)
+        }
         Requirement::EnergyDrain => {
             if reverse {
                 let mut new_local = local;

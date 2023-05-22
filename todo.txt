@@ -1,6 +1,5 @@
 priority:
-- handle "not" requirements properly:
-  - WS e-tank room currently has problem because of treating "not" like "never"
+- add QoL option to disable low-health beeping
 - add vertical gravity jumps to logic
 - add "game variation" options section:
   - respin
@@ -28,6 +27,7 @@ model stuff to try:
 
 
 later:
+- fix toilet tile in botwoon's hallway with "vanilla map" option.
 - handle 3-room shinesparks
   - at least basic case where using two-room combined runway to get a charge then jump into a 3rd room
     - should be representable with canLeaveCharged having a canComeInCharged requirement (180 frames)

@@ -187,12 +187,16 @@ fn apply_ips_patch(rom: &mut Rom, patch_path: &Path) -> Result<()> {
 
 fn apply_orig_ips_patches(rom: &mut Rom, randomization: &Randomization) -> Result<()> {
     let patches_dir = Path::new("../patches/ips/");
-    let patches: Vec<&'static str> = vec![
+    let mut patches: Vec<&'static str> = vec![
         "mb_barrier",
         "mb_barrier_clear",
-        "hud_expansion_opaque",
         "gray_doors",
     ];
+    // if randomization.difficulty.ultra_low_qol {
+    //     patches.push("ultra_low_qol_hud_expansion_opaque");
+    // } else {
+    patches.push("hud_expansion_opaque");
+    // }
     for patch_name in patches {
         let patch_path = patches_dir.join(patch_name.to_string() + ".ips");
         apply_ips_patch(rom, &patch_path)?;
@@ -216,11 +220,8 @@ impl<'a> Patcher<'a> {
         self.rom.data.resize(0x400000, 0);
         let patches_dir = Path::new("../patches/ips/");
         let mut patches = vec![
-            "music",
             "everest_tube",
             "sandfalls",
-            "saveload",
-            "boss_exit",
             "complementary_suits",
             "disable_map_icons",
             "escape",
@@ -228,26 +229,31 @@ impl<'a> Patcher<'a> {
             "tourian_eye_door",
             "no_explosions_before_escape",
             "escape_room_1",
-            "max_ammo_display",
             "sound_effect_disables",
             "title_map_animation",
             "shaktool",
             "fix_water_fx_bug",
-            "tourian_blue_hopper",
             "crateria_tube_black",
             "seed_hash_display",
-            "map_area",
-            "map_progress_maintain",
+            "max_ammo_display",
+            "boss_exit",
         ];
+
+        if !self.randomization.difficulty.vanilla_map {
+            patches.push("music");
+        }
 
         if self.randomization.difficulty.ultra_low_qol {
             patches.extend([
                 "ultra_low_qol_vanilla_bugfixes",
                 "ultra_low_qol_new_game",
+                "ultra_low_qol_saveload",
+                "ultra_low_qol_map_area",
             ]);
         } else {
             patches.extend([
                 "vanilla_bugfixes",
+                "saveload",
                 "itemsounds",
                 "missile_refill_all",
                 "decompression",
@@ -259,6 +265,9 @@ impl<'a> Patcher<'a> {
                 "unexplore",    
                 "fix_kraid_vomit",
                 "escape_autosave",
+                "map_area",
+                "map_progress_maintain",
+                "tourian_blue_hopper",
             ]);
 
             let mut new_game = "new_game";
@@ -289,6 +298,10 @@ impl<'a> Patcher<'a> {
 
         if self.randomization.difficulty.fast_pause_menu {
             patches.push("fast_pause_menu");
+        }
+
+        if self.randomization.difficulty.disable_beeping {
+            patches.push("no_beeping");            
         }
 
         if self.randomization.difficulty.item_dots_disappear {
@@ -373,14 +386,15 @@ impl<'a> Patcher<'a> {
     ) -> Result<()> {
         let (offset, bitmask) = xy_to_explored_bit_ptr(x, y);
 
-        // Mark as revealed (which will persist after deaths/reloads):
-        let addr = 0x2000 + (tile_area as isize) * 0x100 + offset;
-        asm.extend([0xAF, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // LDA $70:{addr}
-        asm.extend([0x09, bitmask, 0x00]); // ORA #{bitmask}
-        asm.extend([0x8F, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // STA $70:{addr}
-
-        // Mark as explored (for elevators. Not needed for area transition arrows/letters):
-        if explore {
+        if !self.randomization.difficulty.ultra_low_qol {
+            // Mark as revealed (which will persist after deaths/reloads):
+            let addr = 0x2000 + (tile_area as isize) * 0x100 + offset;
+            asm.extend([0xAF, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // LDA $70:{addr}
+            asm.extend([0x09, bitmask, 0x00]); // ORA #{bitmask}
+            asm.extend([0x8F, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // STA $70:{addr}    
+        }
+        // Mark as explored (for elevators. Not needed for area transition arrows/letters except in ultra-low QoL mode):
+        if explore || self.randomization.difficulty.ultra_low_qol {
             if current_area == tile_area {
                 // We want to write an explored bit to the current area's map, so we have to write it to
                 // the temporary copy at 0x07F7 (otherwise it wouldn't take effect and would just be overwritten
@@ -1140,6 +1154,9 @@ impl<'a> Patcher<'a> {
         self.rom.write_u16(snes2pc(0x8FDF03), 0xC953)?; // Vanilla setup ASM pointer (to undo effect of `no_explosions_before_escape` patch)
         self.rom.write_u8(snes2pc(0x8FC95B), 0x60)?; // RTS (return early from setup ASM to skip setting up shaking)
 
+        // Remove fake gray door that gets drawn in Phantoon's Room:
+        self.rom.write_n(snes2pc(0xA7D4E5), &vec![0xEA; 8])?;
+
         if self.randomization.difficulty.all_items_spawn {
             // Copy the item in Pit Room to the Zebes-asleep state.
             // For this we overwrite the PLM slot for the gray door at the left of the room (which we would get rid of anyway).
@@ -1163,9 +1180,6 @@ impl<'a> Patcher<'a> {
 
             // Likewise release Kraid camera so it won't be as glitched when entering from the right:
             self.rom.write_n(snes2pc(0xA7A9F4), &vec![0xEA; 4])?; // NOP:NOP:NOP:NOP
-
-            // Remove fake gray door that gets drawn in Phantoon's Room:
-            self.rom.write_n(snes2pc(0xA7D4E5), &vec![0xEA; 8])?;
 
             // Fix the door cap X location for the Green Brinstar Main Shaft door to itself left-to-right:
             self.rom.write_u8(snes2pc(0x838CF2), 0x11)?;
@@ -1300,9 +1314,13 @@ pub fn make_rom(
     patcher.apply_map_tile_patches()?;
     patcher.write_door_data()?;
     patcher.remove_non_blue_doors()?;
-    patcher.use_area_based_music()?;
+    if !randomization.difficulty.vanilla_map {
+        patcher.use_area_based_music()?;
+    }
     patcher.setup_door_specific_fx()?;
+    // if !randomization.difficulty.ultra_low_qol {
     patcher.setup_reload_cre()?;
+    // }
     patcher.fix_twin_rooms()?;
     patcher.fix_crateria_scrolling_sky()?;
     patcher.apply_title_screen_patches()?;
@@ -1313,6 +1331,5 @@ pub fn make_rom(
     if !randomization.difficulty.escape_enemies_cleared {
         patcher.undo_escape_enemy_clear()?;
     }
-    // TODO: add CRE reload for Kraid & Crocomire
     Ok(rom)
 }

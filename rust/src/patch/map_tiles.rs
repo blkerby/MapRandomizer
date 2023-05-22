@@ -1095,14 +1095,16 @@ impl<'a> MapPatcher<'a> {
             (b << 10) | (g << 5) | r
         }
 
-        let extended_map_palette: Vec<(u8, u16)> = vec![
+        let mut extended_map_palette: Vec<(u8, u16)> = vec![
             (5, rgb(0, 23, 0)),   // Brinstar green
             (3, rgb(25, 0, 0)),  // Norfair red
             (8, rgb(4, 18, 31)), // Maridia blue
             (9, rgb(24, 22, 0)),  // Wrecked Ship yellow
             (6, rgb(16, 2, 27)),  // Crateria purple
-            (12, rgb(5, 5, 5)),  // Dotted grid lines
         ];
+        if !self.randomization.difficulty.ultra_low_qol {
+            extended_map_palette.push((12, rgb(5, 5, 5)));  // Dotted grid lines
+        }
 
         for &(i, color) in &extended_map_palette {
             self.rom
@@ -1508,10 +1510,12 @@ impl<'a> MapPatcher<'a> {
         self.fix_elevators()?;
         self.fix_item_dots()?;
         self.fix_walls()?;
-        self.fix_message_boxes()?;
-        self.fix_hud_black()?;
-        self.darken_hud_grid()?;
-        self.fix_etank_color()?;
+        if !self.randomization.difficulty.ultra_low_qol {
+            self.fix_message_boxes()?;
+            self.fix_hud_black()?;
+            self.darken_hud_grid()?;
+            self.fix_etank_color()?;
+        }
         self.indicate_passages()?;
         self.indicate_doors()?;
         self.indicate_special_tiles()?;

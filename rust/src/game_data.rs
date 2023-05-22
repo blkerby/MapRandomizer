@@ -130,6 +130,7 @@ pub enum Requirement {
     MissileRefill,
     SuperRefill,
     PowerBombRefill,
+    AmmoStationRefill,
     EnergyDrain,
     ReserveTrigger {
         min_reserve_energy: i32,
@@ -1876,13 +1877,13 @@ impl GameData {
                         reqs.push(Requirement::EnergyRefill);
                     }
                     if utility.contains("missile") {
-                        reqs.push(Requirement::MissileRefill);
-                    }
-                    if utility.contains("super") {
-                        reqs.push(Requirement::SuperRefill);
-                    }
-                    if utility.contains("powerbomb") {
-                        reqs.push(Requirement::PowerBombRefill);
+                        if utility.contains("super") && utility.contains("powerbomb") {
+                            reqs.push(Requirement::MissileRefill);
+                            reqs.push(Requirement::SuperRefill);
+                            reqs.push(Requirement::PowerBombRefill);
+                        } else {
+                            reqs.push(Requirement::AmmoStationRefill)
+                        }
                     }
                     self.links.push(Link {
                         from_vertex_id: vertex_id,

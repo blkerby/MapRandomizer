@@ -15,10 +15,6 @@
     <div class="col-6"><%= if transition_letters { "Yes" } else { "No" }%></div>
 </div>
 <div class="row">
-    <div class="col-6">All items spawn at start of game:</div>
-    <div class="col-6"><%= if all_items_spawn { "Yes" } else { "No" }%></div>
-</div>
-<div class="row">
     <div class="col-6">Mother Brain fight (phases 2 and 3):</div>
     <div class="col-6"><%= mother_brain_fight %></div>
 </div>
@@ -47,10 +43,18 @@
     <div class="col-6"><%= if fast_pause_menu { "Yes" } else { "No" }%></div>
 </div>
 <div class="row">
+    <div class="col-6">All items spawn at start of game:</div>
+    <div class="col-6"><%= if all_items_spawn { "Yes" } else { "No" }%></div>
+</div>
+<div class="row">
     <div class="col-6">Spin jump restart (respin):</div>
     <div class="col-6"><%= if respin { "Yes" } else { "No" }%></div>
 </div>
 <div class="row">
     <div class="col-6">Infinite Space Jump:</div>
     <div class="col-6"><%= if infinite_space_jump { "Yes" } else { "No" }%></div>
+</div>
+<div class="row">
+    <div class="col-6">Disable low-energy beeping:</div>
+    <div class="col-6"><%= if disable_beeping { "Yes" } else { "No" }%></div>
 </div>

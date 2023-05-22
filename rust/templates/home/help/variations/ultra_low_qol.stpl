@@ -14,22 +14,29 @@
       <div class="modal-body">
       <p>This disables many quality-of-life changes that are normally built into the randomizer, including</p>
       <p><ul>
-      <li>Quick reloading
       <li>Rolling saves
+      <li>Quick reload (after death, or by pressing L + R + Select + Start)
       <li>Faster cutscenes (e.g., involving Baby Metroid, Mother Brain, save & refill stations)
       <li>Refill stations giving Supers and Power Bombs in addition to Supers
       <li>Area-themed map colors
       <li>Map tiles being retained after death
-      <li>The ability to view maps of other areas
+      <li>The ability to view maps of other areas (using Select in the pause menu)
       <li>The ability to unexplore map tiles (using Angle Up + Item Cancel)
       <li>The auto-save before the escape sequence
-      <li>Camera fix when entering Kraid's, Crocomire's, or Spore Spawn's room.
+      <li>Camera fix when entering Kraid's, Crocomire's, or Spore Spawn's room
+      <li>Patching out major glitches: Spacetime beam, GT code
+      <li>Removal of item fanfares
+      <li>Fast decompression (for quicker room loading)
+      <li>Adjustment to the position of the left enemy in Tourian Blue Hopper Room
       </ul></p>
       <p>This setting also automatically <b>disables all other quality-of-life options</b>. Conversely, 
       enabling any quality-of-life option causes this setting to be automatically disabled.</p>
       
       <p>This setting is not recommended for most players, but it is an option for those wanting the game to feel and behave as 
-      vanilla as possible.</p>
+      vanilla as possible. If enabled, expect to encounter some graphical glitches.</p>
+
+      <p><b>Note</b>: If this setting is enabled, the logic will take into account that refill stations no longer give 
+      Supers and Power Bombs.
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

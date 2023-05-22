@@ -105,12 +105,13 @@ pub struct DifficultyConfig {
     pub fast_elevators: bool,
     pub fast_doors: bool,
     pub fast_pause_menu: bool,
+    pub respin: bool,
+    pub infinite_space_jump: bool,
+    pub disable_beeping: bool,
     // Game variations:
     pub objectives: Objectives,
     pub disable_walljump: bool,
     pub vanilla_map: bool,
-    pub respin: bool,
-    pub infinite_space_jump: bool,
     pub ultra_low_qol: bool,
     // Debug:
     #[serde(skip_serializing_if = "Option::is_none")]
