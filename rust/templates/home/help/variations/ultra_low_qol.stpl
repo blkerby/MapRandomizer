@@ -12,12 +12,12 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-      <p>This disables many quality-of-life changes that are normally built into the randomizer, including</p>
+      <p>This disables many quality-of-life changes that are normally built into the randomizer, including:</p>
       <p><ul>
       <li>Rolling saves
       <li>Quick reload (after death, or by pressing L + R + Select + Start)
       <li>Faster cutscenes (e.g., involving Baby Metroid, Mother Brain, save & refill stations)
-      <li>Refill stations giving Supers and Power Bombs in addition to Supers
+      <li>Refill stations giving Supers and Power Bombs in addition to Missiles
       <li>Area-themed map colors
       <li>Map tiles being retained after death
       <li>The ability to view maps of other areas (using Select in the pause menu)
