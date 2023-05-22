@@ -42,7 +42,7 @@ device = devices[0]
 executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
 # num_envs = 1
-num_envs = 2 ** 11
+num_envs = 2 ** 10
 rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.norfair_isolated.rooms
 # rooms = logic.rooms.all_rooms.rooms
@@ -195,6 +195,8 @@ model = TransformerModel(
     key_width=32,
     value_width=32,
     attn_heads=8,
+    room_size=16,
+    room_channels=8,
     relu_width=1024,
     num_layers=4,
 ).to(device)
