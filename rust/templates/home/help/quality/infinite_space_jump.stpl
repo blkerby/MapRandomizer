@@ -12,7 +12,8 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-      <p>If enabled, you can use Space Jump any time while spinning.</p>
+      <p>If enabled, you can use Space Jump any time while spinning, instead of being limited to a certain window of
+      time.</p>
 
       <p><b>Note</b>: The randomizer logic currently does not take this setting into account. Therefore, even 
       when it is enabled, the game will not require it to be used, and it may create sequence break opportunities.

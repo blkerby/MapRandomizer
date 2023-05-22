@@ -1,11 +1,5 @@
 priority:
-- add QoL option to disable low-health beeping
 - add vertical gravity jumps to logic
-- add "game variation" options section:
-  - respin
-  - infinite space jump
-  - vanilla map layout
-  - ultra-low quality-of-life (restore vanilla behavior like what bobbob wants)
 - finish getting new model training going
 - show objective progress in pause menu
 - add pages for tech, strats, rooms.

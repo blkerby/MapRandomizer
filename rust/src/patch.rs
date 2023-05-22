@@ -236,7 +236,6 @@ impl<'a> Patcher<'a> {
             "crateria_tube_black",
             "seed_hash_display",
             "max_ammo_display",
-            "boss_exit",
         ];
 
         if !self.randomization.difficulty.vanilla_map {
@@ -268,6 +267,7 @@ impl<'a> Patcher<'a> {
                 "map_area",
                 "map_progress_maintain",
                 "tourian_blue_hopper",
+                "boss_exit",
             ]);
 
             let mut new_game = "new_game";
@@ -585,20 +585,18 @@ impl<'a> Patcher<'a> {
     fn prepare_extra_door_asm(&mut self) -> Result<HashMap<DoorPtr, (AsmPtr, AsmPtr)>> {
         let toilet_exit_asm: Vec<u8> = vec![0x20, 0x01, 0xE3]; // JSR 0xE301
         let boss_exit_asm: Vec<u8> = vec![0x20, 0xF0, 0xF7]; // JSR 0xF7F0
-        let mut extra_door_asm: HashMap<DoorPtr, Vec<u8>> = vec![
-            (0x1A600, toilet_exit_asm.clone()), // Aqueduct toilet door down
-            (0x1A60C, toilet_exit_asm.clone()), // Aqueduct toilet door up
-            (0x191CE, boss_exit_asm.clone()),   // Kraid left exit
-            (0x191DA, boss_exit_asm.clone()),   // Kraid right exit
-            (0x1A96C, boss_exit_asm.clone()),   // Draygon left exit
-            (0x1A978, boss_exit_asm.clone()),   // Draygon right exit
-            (0x193DE, boss_exit_asm.clone()),   // Crocomire left exit
-            (0x193EA, boss_exit_asm.clone()),   // Crocomire top exit
-            (0x1A2C4, boss_exit_asm.clone()),   // Phantoon exit
-        ]
-        .into_iter()
-        .collect();
-
+        let mut extra_door_asm: HashMap<DoorPtr, Vec<u8>> = HashMap::new();
+        extra_door_asm.insert(0x1A600, toilet_exit_asm.clone()); // Aqueduct toilet door down
+        extra_door_asm.insert(0x1A60C, toilet_exit_asm.clone()); // Aqueduct toilet door up
+        if !self.randomization.difficulty.ultra_low_qol {
+            extra_door_asm.insert(0x191CE, boss_exit_asm.clone());   // Kraid left exit
+            extra_door_asm.insert(0x191DA, boss_exit_asm.clone());   // Kraid right exit
+            extra_door_asm.insert(0x1A96C, boss_exit_asm.clone());   // Draygon left exit
+            extra_door_asm.insert(0x1A978, boss_exit_asm.clone());   // Draygon right exit
+            extra_door_asm.insert(0x193DE, boss_exit_asm.clone());   // Crocomire left exit
+            extra_door_asm.insert(0x193EA, boss_exit_asm.clone());   // Crocomire top exit
+            extra_door_asm.insert(0x1A2C4, boss_exit_asm.clone());   // Phantoon exit    
+        }
         self.auto_explore_elevators(&mut extra_door_asm)?;
         self.auto_reveal_arrows(&mut extra_door_asm)?;
         self.block_escape_return(&mut extra_door_asm)?;
@@ -1318,9 +1316,9 @@ pub fn make_rom(
         patcher.use_area_based_music()?;
     }
     patcher.setup_door_specific_fx()?;
-    // if !randomization.difficulty.ultra_low_qol {
-    patcher.setup_reload_cre()?;
-    // }
+    if !randomization.difficulty.ultra_low_qol {
+        patcher.setup_reload_cre()?;
+    }
     patcher.fix_twin_rooms()?;
     patcher.fix_crateria_scrolling_sky()?;
     patcher.apply_title_screen_patches()?;
