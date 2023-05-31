@@ -48,34 +48,13 @@ class TrainingSession():
         self.grad_scaler = torch.cuda.amp.GradScaler()
         self.replay_buffer = ReplayBuffer(replay_size, len(self.envs[0].rooms), storage_device=torch.device('cpu'))
 
-        self.door_connect_adjust = self.get_initial_door_connect_stats()
+        self.door_connect_adjust_left_right, self.door_connect_adjust_down_up = self.get_initial_door_connect_stats()
+        self.door_connect_weight_left_right = torch.zeros_like(self.door_connect_adjust_left_right)
+        self.door_connect_weight_down_up = torch.zeros_like(self.door_connect_adjust_down_up)
 
         self.total_step_remaining_gen = 0.0
         self.total_step_remaining_train = 0.0
         self.verbose = False
-
-    def pad_door_connect_stats(self, stats_left, stats_down):
-        # Order: left, right, down, up
-        num_left = stats_left.shape[0]
-        num_right = stats_left.shape[1]
-        num_down = stats_down.shape[0]
-        num_up = stats_down.shape[1]
-        # Currently `num_left` and `num_right` are equal: `stats_left` is a square matrix as there are the same number of left doors as right doors
-        num_total = num_left + num_right + num_down + num_up
-        stats = torch.zeros([num_total + 1, num_total + 1], dtype=torch.float, device=stats_left.device)
-        # We include an extra row & column as padding to use for invalid values which occur on the first step of map generation (where no door connection is made)
-
-        start_left = 0
-        start_right = end_left = num_left
-        start_down = end_right = num_left + num_right
-        start_up = end_down = num_left + num_right + num_down
-        end_up = num_total
-
-        stats[start_left:end_left, start_right:end_right] = stats_left
-        stats[start_right:end_right, start_left:end_left] = torch.transpose(stats_left, 0, 1)
-        stats[start_down:end_down, start_up:end_up] = stats_down
-        stats[start_up:end_up, start_down:end_down] = torch.transpose(stats_down, 0, 1)
-        return stats
 
     def get_initial_door_connect_stats(self):
         device = self.envs[0].device
@@ -84,7 +63,7 @@ class TrainingSession():
         room_position_x = torch.zeros([0, num_rooms], dtype=torch.int64, device=device)
         room_position_y = torch.zeros([0, num_rooms], dtype=torch.int64, device=device)
         stats_left, stats_down = self.envs[0].get_door_connect_stats(room_mask, room_position_x, room_position_y)
-        return self.pad_door_connect_stats(stats_left, stats_down)
+        return stats_left.to(torch.float32), stats_down.to(torch.float32)
 
     def compute_door_stats_entropy(self, counts):
         if counts is None:
@@ -94,31 +73,96 @@ class TrainingSession():
         for cnt in counts:
             total_doors += cnt.shape[0]
             p = cnt / torch.sum(cnt, dim=1, keepdim=True)
-            total_entropy += torch.sum(p * -torch.log(p + 1e-15))
+            total_entropy += torch.sum(p * -torch.log(p + 1e-15)).item()
 
             cnt = torch.transpose(cnt, 0, 1)
             total_doors += cnt.shape[0]
             p = cnt / torch.sum(cnt, dim=1, keepdim=True)
-            total_entropy += torch.sum(p * -torch.log(p + 1e-15))
+            total_entropy += torch.sum(p * -torch.log(p + 1e-15)).item()
         return total_entropy / total_doors
 
+    def center_matrix(self, A, wt):
+        wt_mean_row = torch.sum(A * wt, dim=0, keepdim=True) / (torch.sum(wt, dim=0, keepdim=True) + 1e-15)
+        A = A - wt_mean_row
+
+        wt_mean_col = torch.sum(A * wt, dim=1, keepdim=True) / (torch.sum(wt, dim=1, keepdim=True) + 1e-15)
+        A = A - wt_mean_col
+
+        return A
+
     def update_door_connect_stats(self, alpha, beta, num_examples):
-        total_ent = 0.0
+        stats_left_list = []
+        stats_down_list = []
         for env in self.envs:
             batch_stats_left, batch_stats_down = env.get_door_connect_stats(
                 env.room_mask[:num_examples], env.room_position_x[:num_examples], env.room_position_y[:num_examples])
-            total_ent += self.compute_door_stats_entropy((batch_stats_left, batch_stats_down)).item()
-            batch_stats_left = batch_stats_left.to(torch.float).to(self.envs[0].device)
-            batch_stats_down = batch_stats_down.to(torch.float).to(self.envs[0].device)
-            batch_stats = self.pad_door_connect_stats(batch_stats_left, batch_stats_down)
-            self.door_connect_adjust = beta * self.door_connect_adjust + alpha * batch_stats / num_examples
-        return total_ent / len(self.envs)
+            stats_left_list.append(batch_stats_left.to(torch.float).to(self.envs[0].device))
+            stats_down_list.append(batch_stats_down.to(torch.float).to(self.envs[0].device))
+
+        stats_left = torch.sum(torch.stack(stats_left_list, dim=0), dim=0)
+        stats_down = torch.sum(torch.stack(stats_down_list, dim=0), dim=0)
+        ent = self.compute_door_stats_entropy((stats_left, stats_down))
+        alpha0 = alpha / num_examples
+        self.door_connect_weight_left_right = (1 - alpha0) * self.door_connect_weight_left_right + alpha0 * stats_left.to(torch.float32)
+        self.door_connect_weight_down_up = (1 - alpha0) * self.door_connect_weight_down_up + alpha0 * stats_down.to(torch.float32)
+        self.door_connect_adjust_left_right = self.center_matrix(beta * self.door_connect_adjust_left_right + alpha0 * stats_left.to(torch.float32), self.door_connect_weight_left_right)
+        self.door_connect_adjust_down_up = self.center_matrix(beta * self.door_connect_adjust_down_up + alpha0 * stats_down.to(torch.float32), self.door_connect_weight_down_up)
+        return ent
 
     def compute_reward(self, door_connects, missing_connects, use_connectivity):
         reward = torch.sum(~door_connects, dim=1) // 2
         if use_connectivity:
             reward += torch.sum(~missing_connects, dim=1)
         return reward
+
+    def compute_candidate_penalties(self, room_mask, room_position_x, room_position_y,
+                                    action_env_id, action_room_id, action_x, action_y, env_id):
+        device = room_mask.device
+        env = self.envs[env_id]
+        num_candidates = action_env_id.shape[0]
+
+        data_tuples = [
+            (env.room_left, env.room_right, self.door_connect_adjust_left_right),
+            (env.room_right, env.room_left, torch.transpose(self.door_connect_adjust_left_right, 0, 1)),
+            (env.room_down, env.room_up, self.door_connect_adjust_down_up),
+            (env.room_up, env.room_down, torch.transpose(self.door_connect_adjust_down_up, 0, 1)),
+        ]
+        penalty = torch.zeros([num_candidates], device=device)
+        for room_dir, room_dir_opp, adjust in data_tuples:
+            room_id = room_dir[:, 0]
+            relative_door_x = room_dir[:, 1]
+            relative_door_y = room_dir[:, 2]
+
+            nz_idxs = torch.nonzero(torch.eq(action_room_id.view(-1, 1), room_id.view(1, -1)))
+            cand_idx = nz_idxs[:, 0]
+            cand_door_idx = nz_idxs[:, 1]
+            cand_env_id = action_env_id[cand_idx]
+            cand_door_x = action_x[cand_idx] + relative_door_x[cand_door_idx]
+            cand_door_y = action_y[cand_idx] + relative_door_y[cand_door_idx]
+
+            map_room_id = room_dir_opp[:, 0]
+            map_relative_door_x = room_dir_opp[:, 1]
+            map_relative_door_y = room_dir_opp[:, 2]
+            map_door_x = room_position_x[:, map_room_id] + map_relative_door_x.unsqueeze(0)
+            map_door_y = room_position_y[:, map_room_id] + map_relative_door_y.unsqueeze(0)
+            map_mask = room_mask[:, map_room_id]
+
+            # print(cand_door_y.shape, map_door_y.shape, env_idx.shape, map_door_y[env_idx, :].shape)
+            match_x = torch.eq(cand_door_x.view(-1, 1), map_door_x[cand_env_id, :])
+            match_y = torch.eq(cand_door_y.view(-1, 1), map_door_y[cand_env_id, :])
+            match_mask = map_mask[cand_env_id, :]
+            match = match_x & match_y & match_mask
+
+            nz_match_idxs = torch.nonzero(match)
+            cand_i = nz_match_idxs[:, 0]
+            map_door_i = nz_match_idxs[:, 1]
+            cand_door_i = cand_door_idx[cand_i]
+
+            penalty_value = adjust.to(device)[cand_door_i, map_door_i]  # TODO: keep `adjust` on device
+            penalty_cand_idx = cand_idx[cand_i]
+            penalty.scatter_add_(dim=0, index=penalty_cand_idx, src=penalty_value)
+
+        return penalty
 
     def forward_action(self, model, room_mask, room_position_x, room_position_y, action_candidates,
                              steps_remaining, temperature,
@@ -169,6 +213,15 @@ class TrainingSession():
         valid_flat = valid.view(num_envs * num_candidates)
         valid_flat_ind = torch.nonzero(valid_flat)[:, 0]
 
+        action_room_id_flat = action_room_id.view(num_envs * num_candidates)
+        action_x_flat = action_x.view(num_envs * num_candidates)
+        action_y_flat = action_y.view(num_envs * num_candidates)
+
+        action_env_id_valid = valid_flat_ind // num_candidates
+        action_room_id_valid = action_room_id_flat[valid_flat_ind]
+        action_x_valid = action_x_flat[valid_flat_ind]
+        action_y_valid = action_y_flat[valid_flat_ind]
+
         room_mask_valid = room_mask_flat[valid_flat, :]
         room_position_x_valid = room_position_x_flat[valid_flat, :]
         room_position_y_valid = room_position_y_flat[valid_flat, :]
@@ -211,9 +264,11 @@ class TrainingSession():
         expected_valid = expected_valid - pred_cycle_cost * cycle_value_coef #- door_connect_cost * door_connect_coef
 
         # Adjust the scores to disfavor door connections which occurred frequently in the past:
-        door_connect_cost1 = self.door_connect_adjust.to(expected_valid.device)[map_door_id_valid, room_door_id_valid]
-        door_connect_cost2 = self.door_connect_adjust.to(expected_valid.device)[room_door_id_valid, map_door_id_valid]
-        expected_valid = expected_valid - door_connect_cost1 - door_connect_cost2
+        # door_connect_cost1 = self.door_connect_adjust.to(expected_valid.device)[map_door_id_valid, room_door_id_valid]
+        # door_connect_cost2 = self.door_connect_adjust.to(expected_valid.device)[room_door_id_valid, map_door_id_valid]
+        door_connect_cost = self.compute_candidate_penalties(
+            room_mask, room_position_x, room_position_y, action_env_id_valid, action_room_id_valid, action_x_valid, action_y_valid, env_id)
+        expected_valid = expected_valid - door_connect_cost
 
         expected_flat = torch.full([num_envs * num_candidates], -1e15, device=logodds_valid.device)
         expected_flat[valid_flat_ind] = expected_valid

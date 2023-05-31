@@ -158,6 +158,15 @@ pub enum Requirement {
         physics: Option<String>,
         override_runway_requirements: bool,
     },
+    AdjacentJumpway {
+        room_id: RoomId,
+        node_id: NodeId,
+        jumpway_type: String,
+        min_height: Option<f32>,
+        max_height: Option<f32>,
+        max_left_position: Option<f32>,
+        min_right_position: Option<f32>,
+    },
     CanComeInCharged {
         shinespark_tech_id: usize,
         room_id: RoomId,
@@ -231,6 +240,16 @@ pub struct Runway {
     pub physics: String,
     pub heated: bool,
     pub usable_coming_in: bool,
+}
+
+#[derive(Clone, Debug)]
+pub struct Jumpway {
+    pub name: String,
+    pub jumpway_type: String,
+    pub height: f32,
+    pub left_position: Option<f32>,
+    pub right_position: Option<f32>,
+    pub requirement: Requirement,
 }
 
 #[derive(Debug)]
@@ -402,6 +421,7 @@ pub struct GameData {
     pub node_json_map: HashMap<(RoomId, NodeId), JsonValue>,
     pub node_spawn_at_map: HashMap<(RoomId, NodeId), NodeId>,
     pub node_runways_map: HashMap<(RoomId, NodeId), Vec<Runway>>,
+    pub node_jumpways_map: HashMap<(RoomId, NodeId), Vec<Jumpway>>,
     pub node_can_leave_charged_map: HashMap<(RoomId, NodeId), Vec<CanLeaveCharged>>,
     pub node_leave_with_gmode_map: HashMap<(RoomId, NodeId), Vec<LeaveWithGMode>>,
     pub node_leave_with_gmode_setup_map: HashMap<(RoomId, NodeId), Vec<LeaveWithGModeSetup>>,
@@ -1067,6 +1087,66 @@ impl GameData {
                         .as_bool()
                         .unwrap_or(false),
                 });
+            }  else if key == "adjacentJumpway" {
+                // TODO: implement this
+                if ctx.from_obstacles_bitmask != 0 {
+                    return Ok(Requirement::Never);
+                }
+                let jumpway_type: String = value["jumpwayType"].as_str().unwrap().to_string();
+                let min_height: Option<f32> = if value.has_key("minHeight") {
+                    Some(
+                        value["minHeight"]
+                            .as_f32()
+                            .context("Expecting number for minHeight")?,
+                    )
+                } else {
+                    None
+                };
+                let max_height: Option<f32> = if value.has_key("maxHeight") {
+                    Some(
+                        value["maxHeight"]
+                            .as_f32()
+                            .context("Expecting number for maxHeight")?,
+                    )
+                } else {
+                    None
+                };
+                let max_left_position: Option<f32> = if value.has_key("maxLeftPosition") {
+                    Some(
+                        value["maxLeftPosition"]
+                            .as_f32()
+                            .context("Expecting number for maxLeftPosition")?,
+                    )
+                } else {
+                    None
+                };
+                let min_right_position: Option<f32> = if value.has_key("minRightPosition") {
+                    Some(
+                        value["minRightPosition"]
+                            .as_f32()
+                            .context("Expecting number for minRightPosition")?,
+                    )
+                } else {
+                    None
+                };
+
+                let mut unlocked_node_id = value["fromNode"].as_usize().unwrap();
+                if self
+                    .unlocked_node_map
+                    .contains_key(&(ctx.room_id, unlocked_node_id))
+                {
+                    unlocked_node_id = self.unlocked_node_map[&(ctx.room_id, unlocked_node_id)];
+                }
+
+                return Ok(Requirement::AdjacentJumpway {
+                    room_id: ctx.room_id,
+                    node_id: unlocked_node_id,
+                    jumpway_type: jumpway_type,
+                    min_height,
+                    max_height,
+                    max_left_position,
+                    min_right_position,
+                });
             } else if key == "canComeInCharged" {
                 if ctx.from_obstacles_bitmask != 0 {
                     return Ok(Requirement::Never);
@@ -1153,9 +1233,6 @@ impl GameData {
             } else if key == "itemNotCollectedAtNode" {
                 // TODO: implement this
                 return Ok(Requirement::Free);
-            } else if key == "adjacentJumpway" {
-                // TODO: implement this
-                return Ok(Requirement::Never);
             }
         }
         bail!("Unable to parse requirement: {}", req_json);
@@ -1716,6 +1793,34 @@ impl GameData {
                 self.node_runways_map.insert((room_id, node_id), runway_vec);
             } else {
                 self.node_runways_map.insert((room_id, node_id), vec![]);
+            }
+
+            if node_json.has_key("jumpways") {
+                ensure!(node_json["jumpways"].is_array());
+                let mut jumpway_vec: Vec<Jumpway> = vec![];
+                for jumpway_json in node_json["jumpways"].members() {
+                    ensure!(jumpway_json["requires"].is_array());
+                    let requires_json: Vec<JsonValue> = jumpway_json["requires"]
+                        .members()
+                        .map(|x| x.clone())
+                        .collect();
+                    let ctx = RequirementContext::default();
+                    let requirement =
+                        Requirement::make_and(self.parse_requires_list(&requires_json, &ctx)?);
+
+                    let jumpway = Jumpway {
+                        name: jumpway_json["name"].as_str().unwrap().to_string(),
+                        jumpway_type: jumpway_json["jumpwayType"].as_str().unwrap().to_string(),
+                        height: jumpway_json["height"].as_f32().unwrap(),
+                        left_position: jumpway_json["leftPosition"].as_f32(),
+                        right_position: jumpway_json["rightPosition"].as_f32(),
+                        requirement,
+                    };
+                    jumpway_vec.push(jumpway);
+                }
+                self.node_jumpways_map.insert((room_id, node_id), jumpway_vec);
+            } else {
+                self.node_jumpways_map.insert((room_id, node_id), vec![]);
             }
 
             if node_json.has_key("canLeaveCharged") {

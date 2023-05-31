@@ -198,11 +198,11 @@ for room_obj in rooms:
 
 # Connect top door of various rooms to specific water room:
 # data = rom.read_n(snes2pc(0x83A4BC), 12)  # Pseudo Plasma Spark Room
-# data = rom.read_n(snes2pc(0x83A330), 12)  # Main Street
+data = rom.read_n(snes2pc(0x83A330), 12)  # Main Street
 # data = rom.read_n(snes2pc(0x83A42C), 12)  # Red Fish Room
 # data = rom.read_n(snes2pc(0x83A3F0), 12)  # Mt Everest left bottom door
-data = rom.read_n(snes2pc(0x83A3FC), 12)  # Mt Everest right bottom door
-
+# data = rom.read_n(snes2pc(0x83A3FC), 12)  # Mt Everest right bottom door
+#
 rom.write_n(snes2pc(0x838B3E), 12, data)  # Climb
 rom.write_n(snes2pc(0x838A96), 12, data)  # Crab Maze
 rom.write_n(snes2pc(0x83947A), 12, data)  # Post Crocomire Shaft
@@ -219,9 +219,13 @@ rom.write_n(snes2pc(0x8399DE), 12, data)  # Lower Norfair Escape Power Bomb Room
 rom.write_n(snes2pc(0x8396AE), 12, data)  # Purple Shaft
 rom.write_n(snes2pc(0x839762), 12, data)  # Acid Snakes Tunnel
 
-# Connect Landing Site bottom left door to different room:
-data = rom.read_n(snes2pc(0x838952), 12)  # Gauntlet Energy Tank Room right
-rom.write_n(snes2pc(0x838916), 12, data)  # Landing Site bottom left door
+# # Connect Landing Site bottom left door to different room:
+# data = rom.read_n(snes2pc(0x838952), 12)  # Gauntlet Energy Tank Room right
+# rom.write_n(snes2pc(0x838916), 12, data)  # Landing Site bottom left door
+
+# Connect Parlor top left door to different room:
+# data = rom.read_n(snes2pc(0x83A300), 12)  # Gauntlet Energy Tank Room right
+# rom.write_n(snes2pc(0x83895E), 12, data)  # parlor top left door
 
 #
 # # Delay closing of gray doors

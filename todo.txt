@@ -1,6 +1,8 @@
 priority:
+- fix respin to not mess up R-jumps (and sand escapes?)
 - add vertical gravity jumps to logic
 - finish getting new model training going
+- improve how race ROMs work (allow creator to unlock spoiler)
 - show objective progress in pause menu
 - add pages for tech, strats, rooms.
 - help buttons for rest of settings (e.g. explain boss proficiency calculations)
@@ -21,6 +23,7 @@ model stuff to try:
 
 
 later:
+- logic: killing 3 musketeers with ice should require patience?
 - fix toilet tile in botwoon's hallway with "vanilla map" option.
 - handle 3-room shinesparks
   - at least basic case where using two-room combined runway to get a charge then jump into a 3rd room

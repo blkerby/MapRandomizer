@@ -824,6 +824,9 @@ pub fn apply_requirement(
         Requirement::AdjacentRunway { .. } => {
             panic!("AdjacentRunway should be resolved during preprocessing")
         }
+        Requirement::AdjacentJumpway { .. } => {
+            panic!("AdjacentJumpway should be resolved during preprocessing")
+        }
         Requirement::CanComeInCharged { .. } => {
             panic!("CanComeInCharged should be resolved during preprocessing")
         }

@@ -295,6 +295,24 @@ impl<'a> Preprocessor<'a> {
                 *override_runway_requirements,
                 link,
             ),
+            Requirement::AdjacentJumpway {
+                room_id,
+                node_id,
+                jumpway_type,
+                min_height,
+                max_height,
+                max_left_position,
+                min_right_position,
+            } => self.preprocess_adjacent_jumpway(
+                *room_id,
+                *node_id,
+                jumpway_type,
+                *min_height,
+                *max_height,
+                *max_left_position,
+                *min_right_position,
+                link,
+            ),
             Requirement::CanComeInCharged {
                 shinespark_tech_id,
                 room_id,
@@ -537,6 +555,61 @@ impl<'a> Preprocessor<'a> {
         //     "{}: used_tiles={}, use_frames={:?}, physics={:?}, {:?}",
         //     _link.strat_name, used_tiles, use_frames, physics, out
         // );
+        out
+    }
+
+    fn preprocess_adjacent_jumpway(
+        &mut self,
+        room_id: RoomId,
+        node_id: NodeId,
+        jumpway_type: &str,
+        min_height: Option<f32>,
+        max_height: Option<f32>,
+        max_left_position: Option<f32>,
+        min_right_position: Option<f32>,
+        _link: &Link,
+    ) -> Requirement {
+        // println!("{} {} {}", room_id, node_id, _link.strat_name);
+        let (mut other_room_id, mut other_node_id) = self.door_map[&(room_id, node_id)];
+        if (other_room_id, other_node_id) == (321, 1) {
+            (other_room_id, other_node_id) = self.door_map[&(321, 2)];
+        }
+        let jumpways = &self.game_data.node_jumpways_map[&(other_room_id, other_node_id)];
+        let mut req_vec: Vec<Requirement> = vec![];
+        for jumpway in jumpways {
+            if jumpway.jumpway_type != jumpway_type {
+                continue;
+            }
+            if let Some(x) = min_height {
+                if jumpway.height < x {
+                    continue;
+                }
+            }
+            if let Some(x) = max_height {
+                if jumpway.height > x {
+                    continue;
+                }
+            }
+            if let Some(x) = max_left_position {
+                if jumpway.left_position.unwrap() > x {
+                    continue;
+                }
+            }
+            if let Some(x) = min_right_position {
+                if jumpway.right_position.unwrap() < x {
+                    continue;
+                }
+            }
+            println!("{}", jumpway.name);
+            req_vec.push(jumpway.requirement.clone());
+        }
+        let out = Requirement::make_or(req_vec);
+        println!(
+            "{}, {}, {}: {:?}",
+            self.game_data.room_json_map[&room_id]["name"], 
+            self.game_data.node_json_map[&(room_id, node_id)]["name"],
+            _link.strat_name, out
+        );
         out
     }
 

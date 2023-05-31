@@ -621,18 +621,19 @@ def compute_cross_attn(Q, K, V):
 
 
 class AttentionLayer(torch.nn.Module):
-    def __init__(self, input_width, key_width, value_width, num_heads):
+    def __init__(self, input_width, key_width, value_width, num_heads, dropout):
         super().__init__()
         self.input_width = input_width
         self.key_width = key_width
         self.value_width = value_width
         self.num_heads = num_heads
         # self.qkv = torch.nn.Linear(input_width, num_heads * key_width * 2 + num_heads * value_width)
-        self.query = torch.nn.Linear(input_width, num_heads * key_width)
-        self.key = torch.nn.Linear(input_width, num_heads * key_width)
-        self.value = torch.nn.Linear(input_width, num_heads * value_width)
-        self.post = torch.nn.Linear(num_heads * value_width, input_width)
+        self.query = torch.nn.Linear(input_width, num_heads * key_width, bias=False)
+        self.key = torch.nn.Linear(input_width, num_heads * key_width, bias=False)
+        self.value = torch.nn.Linear(input_width, num_heads * value_width, bias=False)
+        self.post = torch.nn.Linear(num_heads * value_width, input_width, bias=False)
         self.post.weight.data.zero_()
+        self.dropout = torch.nn.Dropout(p=dropout)
         self.layer_norm = torch.nn.LayerNorm(input_width)
 
     def forward(self, X):
@@ -648,25 +649,34 @@ class AttentionLayer(torch.nn.Module):
         K = self.key(X).view(n, s, self.num_heads, self.key_width)
         V = self.value(X).view(n, s, self.num_heads, self.value_width)
         A = compute_cross_attn(Q, K, V).reshape(n, s, self.num_heads * self.value_width)
-        out = self.layer_norm(X + self.post(A)).to(X.dtype)
+        out = self.layer_norm(X + self.dropout(self.post(A))).to(X.dtype)
         return out
 
 
 class FeedforwardLayer(torch.nn.Module):
-    def __init__(self, input_width, relu_width):
+    def __init__(self, input_width, hidden_width, arity, dropout):
         super().__init__()
-        self.lin1 = torch.nn.Linear(input_width, relu_width)
-        self.lin2 = torch.nn.Linear(relu_width, input_width)
+        # assert hidden_width % arity == 0
+        assert arity == 1
+        self.lin1 = torch.nn.Linear(input_width, hidden_width, bias=False)
+        self.lin2 = torch.nn.Linear(hidden_width // arity, input_width, bias=False)
         self.lin2.weight.data.zero_()
+        # self.arity = arity
+        self.dropout = torch.nn.Dropout(p=dropout)
         self.layer_norm = torch.nn.LayerNorm(input_width)
 
     def forward(self, X):
         A = self.lin1(X)
-        A = torch.relu(A)
+        # A = torch.relu(A)
+        A = torch.nn.functional.gelu(A)
+        # shape = list(A.shape)
+        # shape[-1] //= self.arity
+        # shape.append(self.arity)
+        # A = torch.amax(A.reshape(*shape), dim=-1)
         A = self.lin2(A)
-        X = X + A
-        # return self.layer_norm(X).to(X.dtype)
-        return X
+        X = X + self.dropout(A)
+        return self.layer_norm(X).to(X.dtype)
+        # return X
 
 
 # class TransformerLayer(torch.nn.Module):
@@ -697,7 +707,9 @@ class FeedforwardLayer(torch.nn.Module):
 
 class TransformerModel(torch.nn.Module):
     def __init__(self, rooms, num_outputs, map_x, map_y, block_size_x, block_size_y,
-                 embedding_width, key_width, value_width, attn_heads, relu_width, num_layers):
+                 embedding_width, key_width, value_width, attn_heads, hidden_width, arity, num_local_layers,
+                 num_global_layers, global_width, global_hidden_width,
+                 embed_dropout, attn_dropout, ff_dropout, global_ff_dropout):
         super().__init__()
         self.room_half_size_x = torch.tensor([len(r.map[0]) // 2 for r in rooms])
         self.room_half_size_y = torch.tensor([len(r.map) // 2 for r in rooms])
@@ -705,7 +717,10 @@ class TransformerModel(torch.nn.Module):
         self.map_y = map_y
         self.num_rooms = len(rooms)
         self.num_outputs = num_outputs
-        self.num_layers = num_layers
+        self.num_local_layers = num_local_layers
+        self.num_global_layers = num_global_layers
+        self.global_width = global_width
+        self.global_hidden_width = global_hidden_width
         self.embedding_width = embedding_width
         self.block_size_x = block_size_x
         self.block_size_y = block_size_y
@@ -717,26 +732,47 @@ class TransformerModel(torch.nn.Module):
         self.pos_embedding = torch.nn.Parameter(torch.randn([self.num_blocks, embedding_width]) / math.sqrt(embedding_width))
         self.room_embedding = torch.nn.Parameter(
             torch.randn([self.num_rooms, self.block_size, embedding_width]) / math.sqrt(embedding_width))
+        self.embed_dropout = torch.nn.Dropout(p=embed_dropout)
         self.attn_layers = torch.nn.ModuleList()
         self.ff_layers = torch.nn.ModuleList()
         # self.transformer_layers = torch.nn.ModuleList()
-        for i in range(num_layers):
+        for i in range(num_local_layers):
             self.attn_layers.append(AttentionLayer(
                 input_width=embedding_width,
                 key_width=key_width,
                 value_width=value_width,
-                num_heads=attn_heads))
+                num_heads=attn_heads,
+                dropout=attn_dropout))
             self.ff_layers.append(FeedforwardLayer(
                 input_width=embedding_width,
-                relu_width=relu_width))
+                hidden_width=hidden_width,
+                arity=arity,
+                dropout=ff_dropout))
+        self.global_ff_layers = torch.nn.ModuleList()
+        for i in range(num_global_layers):
+            self.global_ff_layers.append(FeedforwardLayer(
+                input_width=global_width,
+                hidden_width=global_hidden_width,
+                arity=arity,
+                dropout=global_ff_dropout))
             # self.transformer_layers.append(TransformerLayer(
             #     input_width=embedding_width,
             #     key_width=key_width,
             #     value_width=value_width,
             #     num_heads=attn_heads,
             #     relu_width=relu_width))
-        self.output_query = torch.nn.Parameter(torch.randn([num_outputs, embedding_width]) / math.sqrt(embedding_width))
-        self.output_value = torch.nn.Parameter(torch.randn([num_outputs, embedding_width]) / math.sqrt(embedding_width))
+
+        if self.num_global_layers > 0:
+            self.global_query = torch.nn.Parameter(
+                torch.randn([global_width, embedding_width]) / math.sqrt(embedding_width))
+            self.global_value = torch.nn.Parameter(
+                torch.randn([global_width, embedding_width]) / math.sqrt(embedding_width))
+            self.output_lin = torch.nn.Linear(self.global_width, num_outputs)
+        else:
+            self.global_query = torch.nn.Parameter(
+                torch.randn([num_outputs, embedding_width]) / math.sqrt(embedding_width))
+            self.global_value = torch.nn.Parameter(
+                torch.randn([num_outputs, embedding_width]) / math.sqrt(embedding_width))
 
         # Assign weights to the amounts to shift the map (in X and Y dimensions) for data augmentation, such that
         # each within-block position (and hence room embedding vector) has an equal probability of being sampled.
@@ -867,18 +903,26 @@ class TransformerModel(torch.nn.Module):
             # X = X + global_embedding.view(n, 1, self.embedding_width) + self.pos_embedding.view(1, self.num_blocks, self.embedding_width)
             X = X + self.pos_embedding.to(dtype).view(1, self.num_blocks, self.embedding_width)
 
-            for i in range(self.num_layers):
+            X = self.embed_dropout(X)
+            for i in range(self.num_local_layers):
                 # X = self.transformer_layers[i](X)
                 X = self.attn_layers[i](X)
                 X = self.ff_layers[i](X)
 
-            raw_output_weight = torch.einsum('bse,oe->bso', X, self.output_query)
-            output_weight = torch.softmax(raw_output_weight, dim=1)
-            output_value = torch.einsum('bse,oe->bso', X, self.output_value)
-            output = torch.sum(output_weight * output_value, dim=1)
+            raw_global_weight = torch.einsum('bse,ge->bsg', X, self.global_query)
+            global_weight = torch.softmax(raw_global_weight, dim=1)
+            global_value = torch.einsum('bse,ge->bsg', X, self.global_value)
+            X = torch.sum(global_weight * global_value, dim=1)
+            for i in range(self.num_global_layers):
+                X = self.global_ff_layers[i](X)
+            if self.num_global_layers > 0:
+                X = self.output_lin(X)
+
+            # X = torch.sum(X, dim=1)
+            # output = self.output_lin(X).to(torch.float32)
             # print("output: ", output.dtype)
 
-        return output
+        return X.to(torch.float32)
 
     def decay(self, amount: Optional[float]):
         if amount is not None:
