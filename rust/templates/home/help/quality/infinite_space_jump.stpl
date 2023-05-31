@@ -8,12 +8,12 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5">Infinite Space Jump</h1>
+        <h1 class="modal-title fs-5">Lenient Space Jump</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-      <p>If enabled, you can use Space Jump any time while spinning, instead of being limited to a certain window of
-      time.</p>
+      <p>If enabled, Space Jump behaves in air the same as it does underwater, making it easier to use by widening the window of time to press jump.
+      </p>
 
       <p><b>Note</b>: The randomizer logic currently does not take this setting into account. Therefore, even 
       when it is enabled, the game will not require it to be used, and it may create sequence break opportunities.

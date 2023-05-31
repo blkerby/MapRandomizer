@@ -7,18 +7,17 @@ about 15 seconds to load.
 <ul>
 <li>The effects of Infinite Space Jump are now less extreme and it is renamed "Lenient Space Jump":
     <ul>
-    <li>Lenient Space Jump behaves in air the same as it does underwater with Gravity in vanilla.
-    <li>Its behavior underwater is vanilla.
+    <li>Lenient Space Jump changes Space Jump to behave the same in air as it does underwater with Gravity.
     <li>This provides a wider window of time to perform Space Jumps in air, but not as wide as in the earlier version.
-    <li>With the new behavior, Lenient Space Jump creates less interference with short-hop Mockball strats.
+    <li>With the new behavior, Lenient Space Jump does not interfere as much with short-hop Mockballs.
     </ul>
 <li>TODO: Spin jump restart (respin) no longer has an effect when held while unpausing.
     <ul>
     <li>This prevents respin from interfering with R-jump strats.
     </ul>
-<li>TODO: The lower three difficulty tiers are restructured:
+<li>The lower three difficulty tiers are restructured:
     <ul>
-    <li>The lowest tier is renamed Beginner and now contains most of the tech previously in Medium.
+    <li>The lowest tier is now Beginner and is in between the previous Easy and Medium settings.
     <li>The next tier is now Intermediate and is in between the previous Medium and Hard settings.
     <li>The new Hard tier is in between the previous Hard and Very Hard settings.
     </ul>
