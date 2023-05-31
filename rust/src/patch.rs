@@ -1163,7 +1163,8 @@ impl<'a> Patcher<'a> {
         }
 
         if self.randomization.difficulty.infinite_space_jump {
-            self.rom.write_n(0x82493, &[0x80, 0x0D])?;
+            // self.rom.write_n(0x82493, &[0x80, 0x0D])?;  // BRA $0D
+            self.rom.write_n(snes2pc(0x90A493), &[0xEA, 0xEA])?;  // NOP : NOP
         }
 
         if !self.randomization.difficulty.ultra_low_qol {
