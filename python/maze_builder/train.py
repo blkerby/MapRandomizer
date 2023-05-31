@@ -346,21 +346,21 @@ session = TrainingSession(envs,
 # cpu_executor = concurrent.futures.ProcessPoolExecutor()
 cpu_executor = None
 
-pickle_name = 'models/session-2023-05-30T19:31:03.499468.pkl'
-session = pickle.load(open(pickle_name, 'rb'))
+# pickle_name = 'models/session-2023-05-30T19:31:03.499468.pkl'
+# session = pickle.load(open(pickle_name, 'rb'))
 # # session = pickle.load(open(pickle_name + '-bk1', 'rb'))
 # session.envs = envs
 
 
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
 # session.replay_buffer.resize(2 ** 23)
-session.replay_buffer.resize(2 ** 18)
+# session.replay_buffer.resize(2 ** 18)
 
 # TODO: bundle all this stuff into a structure
 hist_c = 1.0
 hist_frac = 1.0
 batch_size = 2 ** 10
-lr0 = 0.0002
+lr0 = 0.001
 lr1 = lr0
 # lr_warmup_time = 16
 # lr_cooldown_time = 100
@@ -380,9 +380,9 @@ cycle_weight = 0.0
 cycle_value_coef = 0.0
 compute_cycles = False
 
-door_connect_bound = 2.0
+door_connect_bound = 20.0
 # door_connect_bound = 0.0
-door_connect_alpha = 0.02
+door_connect_alpha = 0.2
 # door_connect_alpha = door_connect_alpha0 / math.sqrt(1 + session.num_rounds / lr_cooldown_time)
 door_connect_beta = door_connect_bound / (door_connect_bound + door_connect_alpha)
 # door_connect_bound = 0.0
