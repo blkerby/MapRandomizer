@@ -970,6 +970,7 @@ fn init_presets(
         "canIceZebetitesSkip",
         "canSpeedZebetitesSkip",
         "canRemorphZebetiteSkip",
+        "canDownBack",
         "canEscapeMorphLocation",  // Special internal tech for "vanilla map" option
     ]
     .iter()
