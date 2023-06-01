@@ -298,7 +298,8 @@ class TrainingSession():
             if render:
                 env.render()
 
-            num_candidates = int(round(num_candidates_min + (num_candidates_max - num_candidates_min) * j / (episode_length - 1)))
+            frac = j / (episode_length - 1)
+            num_candidates = int(round(num_candidates_min * (num_candidates_max / num_candidates_min) ** frac))
             num_candidates = min(num_candidates, episode_length - j)  # The number of candidates won't be more than the number of steps remaining.
             if j == 0:
                 # Place the first room (Landing Site) uniformly randomly:
