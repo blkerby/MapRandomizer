@@ -197,8 +197,8 @@ for room_obj in rooms:
 # rom.write_n(snes2pc(0x83A738), 12, data)
 
 # Connect top door of various rooms to specific water room:
-# data = rom.read_n(snes2pc(0x83A4BC), 12)  # Pseudo Plasma Spark Room
-data = rom.read_n(snes2pc(0x83A330), 12)  # Main Street
+data = rom.read_n(snes2pc(0x83A4BC), 12)  # Pseudo Plasma Spark Room
+# data = rom.read_n(snes2pc(0x83A330), 12)  # Main Street
 # data = rom.read_n(snes2pc(0x83A42C), 12)  # Red Fish Room
 # data = rom.read_n(snes2pc(0x83A3F0), 12)  # Mt Everest left bottom door
 # data = rom.read_n(snes2pc(0x83A3FC), 12)  # Mt Everest right bottom door

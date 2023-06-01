@@ -300,6 +300,10 @@ class TrainingSession():
 
             num_candidates = int(round(num_candidates_min + (num_candidates_max - num_candidates_min) * j / (episode_length - 1)))
             num_candidates = min(num_candidates, episode_length - j)  # The number of candidates won't be more than the number of steps remaining.
+            if j == 0:
+                # Place the first room (Landing Site) uniformly randomly:
+                num_candidates = 1
+
             # torch.cuda.synchronize()
             # logging.debug("Getting candidates")
             action_candidates = env.get_action_candidates(num_candidates, env.room_mask, env.room_position_x,
