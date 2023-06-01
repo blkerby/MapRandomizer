@@ -41,7 +41,8 @@
       "canSpaceJumpWaterBounce",
       "canShinechargeMovement",
       "canMidairShinespark",
-      "canCrystalFlash"
+      "canCrystalFlash",
+      "canDodgeWhileShooting"
     ],
     "notable_strats": [
       "Draygon Grapple Kill",
@@ -177,7 +178,6 @@
       "Croc Escape SpringBall Freeze",
       "Cathedral Entrance Left Door Frozen Sova Step",
       "Sponge Bath Bull Boost",
-      "Maridia Bug Room MidAir Morph with Gravity",
       "Etecoon Beetom Tricky Dodge",
       "Big Pink Crystal Flash Standup - Super Block",
       "Golden Torizo Supers Double Shinespark",

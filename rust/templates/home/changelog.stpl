@@ -3,29 +3,33 @@
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-64---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 64 (???)</a>:
+<p><a href="https://version-64---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 64 (2023-06-01)</a>:
 <ul>
-<li>The effects of Infinite Space Jump are now less extreme and it is renamed "Lenient Space Jump":
+<li>The effects of Infinite Space Jump (quality-of-life option) are now less extreme and it is renamed "Lenient Space Jump":
     <ul>
     <li>Lenient Space Jump changes Space Jump to behave the same in air as it does underwater with Gravity.
     <li>This provides a wider window of time to perform Space Jumps in air, but not as wide as in the earlier version.
-    <li>With the new behavior, Lenient Space Jump does not interfere as much with short-hop Mockballs.
-    </ul>
-<li>TODO: Spin jump restart (respin) no longer has an effect when held while unpausing.
-    <ul>
-    <li>This prevents respin from interfering with R-jump strats.
+    <li>With the new behavior, Lenient Space Jump does not interfere as much with performing short-hop mockballs.
     </ul>
 <li>The lower three difficulty tiers are restructured:
     <ul>
-    <li>The lowest tier is now Beginner and is in between the previous Easy and Medium settings.
-    <li>The next tier is now Intermediate and is in between the previous Medium and Hard settings.
-    <li>The new Hard tier is in between the previous Hard and Very Hard settings.
+    <li>The lowest tier is now Beginner and is between the previous Easy and Medium settings.
+    <li>The next tier is now Intermediate and is between the previous Medium and Hard settings.
+    <li>The Hard tier is now between the previous Hard and Very Hard settings.
     </ul>
 <li>Logic updates:
     <ul>
     <li>Vertical cross-room jumps into water are added (Hard).
     <li>Deep stuck X-ray climbs are added, using shinesparks or G-mode (Extreme).
-    <li>TODO: ...
+    <li>New tech canDodgeWhileShooting (Intermediate) for combat situations that are non-trivial but not too difficult.
+    <li>Many room-specific changes, including the following:
+        <ul>
+        <li>West Ocean: New notable strat West Ocean Bug Ice Clip is added.
+        <li>Post Crocomire Jump Room: Springwall strat is added on the left side.
+        <li>Pseudo Plasma Spark Room: Crouch-jump down-grab strat is added for getting out of the water on the right.
+        <li>East Cactus Alley: Space Jump strat is added with X-ray climbing out of the water on the right side.
+        <li>Colosseum: Notable strats for crossing using the spike platforms are refined.
+        </ul>
     </ul>
 </ul>
 

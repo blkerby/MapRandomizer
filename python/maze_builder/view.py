@@ -29,7 +29,8 @@ class CPU_Unpickler(pickle.Unpickler):
 device = torch.device('cpu')
 # session = CPU_Unpickler(open('models/07-31-session-2022-06-03T17:19:29.727911.pkl-bk30-small', 'rb')).load()
 # session = CPU_Unpickler(open('models/session-2023-05-10T14:34:48.668019.pkl-small.pkl', 'rb')).load()
-session = CPU_Unpickler(open('models/session-2023-05-31T14:35:04.410129.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2023-05-31T14:35:04.410129.pkl', 'rb')).load()
+session = CPU_Unpickler(open('models/session-2023-05-31T21:25:13.243815.pkl', 'rb')).load()
 #
 
 

@@ -28,6 +28,7 @@ area_arr = [rom.read_u8(room.rom_address + 1) for room in rooms]
 
 
 patches = [
+    'spinjumprestart',
     # 'new_game_extra',
     # 'door_hurt',
     # 'complementary_suits',
@@ -221,7 +222,8 @@ rom.write_n(snes2pc(0x839762), 12, data)  # Acid Snakes Tunnel
 
 # # Connect Landing Site bottom left door to different room:
 # data = rom.read_n(snes2pc(0x838952), 12)  # Gauntlet Energy Tank Room right
-# rom.write_n(snes2pc(0x838916), 12, data)  # Landing Site bottom left door
+data = rom.read_n(snes2pc(0x8399D2), 12)  # Lower Norfair Fireflea Room
+rom.write_n(snes2pc(0x838916), 12, data)  # Landing Site bottom left door
 
 # Connect Parlor top left door to different room:
 # data = rom.read_n(snes2pc(0x83A300), 12)  # Gauntlet Energy Tank Room right

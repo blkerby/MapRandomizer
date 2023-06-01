@@ -43,17 +43,17 @@ executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
 # num_envs = 1
 num_envs = 2 ** 10
-rooms = logic.rooms.crateria_isolated.rooms
-# rooms = logic.rooms.norfair_isolated.rooms
+# rooms = logic.rooms.crateria_isolated.rooms
+rooms = logic.rooms.norfair_isolated.rooms
 # rooms = logic.rooms.all_rooms.rooms
 episode_length = len(rooms)
 
-map_x = 32
-map_y = 32
+# map_x = 32
+# map_y = 32
 # map_x = 72
 # map_y = 72
-# map_x = 48
-# map_y = 48
+map_x = 48
+map_y = 48
 
 env_config = EnvConfig(
     rooms=rooms,
@@ -66,8 +66,8 @@ envs = [MazeBuilderEnv(rooms,
                        num_envs=num_envs,
                        device=device,
                        must_areas_be_connected=False,
-                       starting_room_name="Landing Site")
-                       # starting_room_name="Business Center")
+                       # starting_room_name="Landing Site")
+                       starting_room_name="Business Center")
         for device in devices]
 
 max_possible_reward = envs[0].max_reward
@@ -360,12 +360,12 @@ num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in sessio
 hist_c = 1.0
 hist_frac = 1.0
 batch_size = 2 ** 10
-lr0 = 0.001
+lr0 = 0.0005
 lr1 = lr0
 # lr_warmup_time = 16
 # lr_cooldown_time = 100
-num_candidates_min0 = 16
-num_candidates_max0 = 16
+num_candidates_min0 = 32
+num_candidates_max0 = 32
 num_candidates_min1 = num_candidates_min0
 num_candidates_max1 = num_candidates_max0
 
@@ -380,9 +380,9 @@ cycle_weight = 0.0
 cycle_value_coef = 0.0
 compute_cycles = False
 
-door_connect_bound = 20.0
+door_connect_bound = 10.0
 # door_connect_bound = 0.0
-door_connect_alpha = 0.2
+door_connect_alpha = 0.1
 # door_connect_alpha = door_connect_alpha0 / math.sqrt(1 + session.num_rounds / lr_cooldown_time)
 door_connect_beta = door_connect_bound / (door_connect_bound + door_connect_alpha)
 # door_connect_bound = 0.0
@@ -680,7 +680,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk5')
+            # save_session(session, pickle_name + '-bk1')
             # session.replay_buffer.resize(2 ** 20)
             # pickle.dump(session, open(pickle_name + '-small', 'wb'))
     if session.num_rounds % summary_freq == 0:
