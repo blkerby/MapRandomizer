@@ -18,10 +18,11 @@
         Three presets are available:
 
         <p><ul>
-        <li><p><strong>Quick</strong>: Key items, and Morph in particular, are placed earlier. Key items have no specific tendency to
-        be in harder or easier locations to reach. Beams, tanks, and ammo are spread out uniformly. Multiple progression paths 
-        are generally possible from relatively early in the game.</p>
-        <li><p><strong>Standard</strong>: Key items are spread out at a roughly uniformly pace but tend to be placed in harder-to-reach
+        <li><p><strong>Quick</strong>: Key items are placed early, in roughly the first 50% of obtainable locations. 
+        Morph in particular is placed early. Key items have no specific tendency to be in harder or easier locations 
+        to reach. Beams, tanks, and ammo are spread out uniformly. Multiple progression paths are generally possible 
+        from relatively early in the game.</p>
+        <li><p><strong>Standard</strong>: Key items are spread out at a roughly uniform pace but tend to be placed in harder-to-reach
         locations. Beams, tanks, and ammo are spread out uniformly. Multiple progression paths are generally possible by the middle of the game.</p>
         <li><p><strong>Challenge</strong>: Key items are delayed and tend to be placed in harder-to-reach locations. A single progression 
         path may be forced until late in the game. Access to beams, tanks, and ammo other than Missiles is often delayed.</p>

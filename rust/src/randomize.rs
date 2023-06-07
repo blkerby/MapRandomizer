@@ -241,11 +241,15 @@ impl<'a> Preprocessor<'a> {
         for &((src_exit_ptr, src_entrance_ptr), (dst_exit_ptr, dst_entrance_ptr), _) in &map.doors {
             let (src_room_id, src_node_id) =
                 game_data.door_ptr_pair_map[&(src_exit_ptr, src_entrance_ptr)];
+            let (_, unlocked_src_node_id) =
+                game_data.unlocked_door_ptr_pair_map[&(src_exit_ptr, src_entrance_ptr)];
             let (dst_room_id, dst_node_id) =
                 game_data.door_ptr_pair_map[&(dst_exit_ptr, dst_entrance_ptr)];
+            let (_, unlocked_dst_node_id) =
+                game_data.unlocked_door_ptr_pair_map[&(dst_exit_ptr, dst_entrance_ptr)];
             // println!("({}, {}) <-> ({}, {})", src_room_id, src_node_id, dst_room_id, dst_node_id);
-            door_map.insert((src_room_id, src_node_id), (dst_room_id, dst_node_id));
-            door_map.insert((dst_room_id, dst_node_id), (src_room_id, src_node_id));
+            door_map.insert((src_room_id, unlocked_src_node_id), (dst_room_id, dst_node_id));
+            door_map.insert((dst_room_id, unlocked_dst_node_id), (src_room_id, src_node_id));
         }
         Preprocessor {
             game_data,
@@ -510,7 +514,11 @@ impl<'a> Preprocessor<'a> {
         _link: &Link,
     ) -> Requirement {
         // println!("{} {} {}", room_id, node_id, _link.strat_name);
-        let (other_room_id, other_node_id) = self.door_map[&(room_id, node_id)];
+        let mut unlocked_node_id = node_id;
+        if self.game_data.unlocked_node_map.contains_key(&(room_id, node_id)) {
+            unlocked_node_id = self.game_data.unlocked_node_map[&(room_id, node_id)];
+        }
+        let (other_room_id, other_node_id) = self.door_map[&(room_id, unlocked_node_id)];
         let runways = &self.game_data.node_runways_map[&(other_room_id, other_node_id)];
         let mut req_vec: Vec<Requirement> = vec![];
         for runway in runways {
@@ -570,7 +578,11 @@ impl<'a> Preprocessor<'a> {
         _link: &Link,
     ) -> Requirement {
         // println!("{} {} {}", room_id, node_id, _link.strat_name);
-        let (mut other_room_id, mut other_node_id) = self.door_map[&(room_id, node_id)];
+        let mut unlocked_node_id = node_id;
+        if self.game_data.unlocked_node_map.contains_key(&(room_id, node_id)) {
+            unlocked_node_id = self.game_data.unlocked_node_map[&(room_id, node_id)];
+        }
+        let (mut other_room_id, mut other_node_id) = self.door_map[&(room_id, unlocked_node_id)];
         if (other_room_id, other_node_id) == (321, 1) {
             (other_room_id, other_node_id) = self.door_map[&(321, 2)];
         }
@@ -623,7 +635,11 @@ impl<'a> Preprocessor<'a> {
         let xray_item_id = self.game_data.item_isv.index_by_key["XRayScope"];
         let mut req_or_list: Vec<Requirement> = Vec::new();
         for &node_id in node_ids {
-            if let Some(&(other_room_id, other_node_id)) = self.door_map.get(&(room_id, node_id)) {
+            let mut unlocked_node_id = node_id;
+            if self.game_data.unlocked_node_map.contains_key(&(room_id, node_id)) {
+                unlocked_node_id = self.game_data.unlocked_node_map[&(room_id, node_id)];
+            }
+            if let Some(&(other_room_id, other_node_id)) = self.door_map.get(&(room_id, unlocked_node_id)) {
                 let leave_with_gmode_setup_vec = &self.game_data.node_leave_with_gmode_setup_map
                     [&(other_room_id, other_node_id)];
                 for leave_with_gmode_setup in leave_with_gmode_setup_vec {
@@ -665,7 +681,11 @@ impl<'a> Preprocessor<'a> {
         let xray_item_id = self.game_data.item_isv.index_by_key["XRayScope"];
         let mut req_or_list: Vec<Requirement> = Vec::new();
         for &node_id in node_ids {
-            if let Some(&(other_room_id, other_node_id)) = self.door_map.get(&(room_id, node_id)) {
+            let mut unlocked_node_id = node_id;
+            if self.game_data.unlocked_node_map.contains_key(&(room_id, node_id)) {
+                unlocked_node_id = self.game_data.unlocked_node_map[&(room_id, node_id)];
+            }
+            if let Some(&(other_room_id, other_node_id)) = self.door_map.get(&(room_id, unlocked_node_id)) {
                 let gmode_immobile_opt = self
                     .game_data
                     .node_gmode_immobile_map
@@ -757,12 +777,16 @@ impl<'r> Randomizer<'r> {
             let bidirectional = door.2;
             let (src_room_id, src_node_id) =
                 game_data.door_ptr_pair_map[&(src_exit_ptr, src_entrance_ptr)];
+            let (_, unlocked_src_node_id) =
+                game_data.unlocked_door_ptr_pair_map[&(src_exit_ptr, src_entrance_ptr)];
             let (dst_room_id, dst_node_id) =
                 game_data.door_ptr_pair_map[&(dst_exit_ptr, dst_entrance_ptr)];
+            let (_, unlocked_dst_node_id) =
+                game_data.unlocked_door_ptr_pair_map[&(dst_exit_ptr, dst_entrance_ptr)];
 
             add_door_links(
                 src_room_id,
-                src_node_id,
+                unlocked_src_node_id,
                 dst_room_id,
                 dst_node_id,
                 game_data,
@@ -771,7 +795,7 @@ impl<'r> Randomizer<'r> {
             if bidirectional {
                 add_door_links(
                     dst_room_id,
-                    dst_node_id,
+                    unlocked_dst_node_id,
                     src_room_id,
                     src_node_id,
                     game_data,

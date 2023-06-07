@@ -427,9 +427,10 @@ pub struct GameData {
     pub node_leave_with_gmode_setup_map: HashMap<(RoomId, NodeId), Vec<LeaveWithGModeSetup>>,
     pub node_gmode_immobile_map: HashMap<(RoomId, NodeId), GModeImmobile>,
     pub node_ptr_map: HashMap<(RoomId, NodeId), NodePtr>,
-    unlocked_node_map: HashMap<(RoomId, NodeId), NodeId>,
+    pub unlocked_node_map: HashMap<(RoomId, NodeId), NodeId>,
     pub room_num_obstacles: HashMap<RoomId, usize>,
     pub door_ptr_pair_map: HashMap<DoorPtrPair, (RoomId, NodeId)>,
+    pub unlocked_door_ptr_pair_map: HashMap<DoorPtrPair, (RoomId, NodeId)>,
     pub vertex_isv: IndexedVec<(RoomId, NodeId, ObstacleMask)>,
     pub item_locations: Vec<(RoomId, NodeId)>,
     pub item_vertex_ids: Vec<Vec<VertexId>>,
@@ -1087,7 +1088,7 @@ impl GameData {
                         .as_bool()
                         .unwrap_or(false),
                 });
-            }  else if key == "adjacentJumpway" {
+            } else if key == "adjacentJumpway" {
                 // TODO: implement this
                 if ctx.from_obstacles_bitmask != 0 {
                     return Ok(Requirement::Never);
@@ -1303,7 +1304,8 @@ impl GameData {
                         "canEscapeMorphLocation",
                     ]
                 }],
-            ).unwrap();
+            )
+            .unwrap();
     }
 
     fn override_shaktool_room(&mut self, room_json: &mut JsonValue) {
@@ -1396,6 +1398,31 @@ impl GameData {
         ];
     }
 
+    fn override_metal_pirates_room(&mut self, room_json: &mut JsonValue) {
+        // Add lock on right door of Metal Pirates Room:
+        for node_json in room_json["nodes"].members_mut() {
+            if node_json["id"].as_i32().unwrap() == 2 {
+                // Adding a dummy lock on Shaktool done digging event, so that the code in `preprocess_room`
+                // can pick it up and construct a corresponding obstacle for the flag (as it expects there
+                // to be a lock).
+                node_json["locks"] = json::array![
+                  {
+                    "name": "Metal Pirates Grey Lock (to Wasteland)",
+                    "lockType": "killEnemies",
+                    "unlockStrats": [
+                      {
+                        "name": "Base",
+                        "notable": false,
+                        "requires": [ {"obstaclesCleared": ["A"]} ]
+                      }
+                    ],
+                    "yields": [ "f_ZebesAwake" ]
+                  }
+                ];
+            }
+        }
+    }
+
     fn preprocess_room(&mut self, room_json: &JsonValue) -> Result<JsonValue> {
         // We apply some changes to the sm-json-data specific to Map Rando.
         let mut new_room_json = room_json.clone();
@@ -1412,7 +1439,7 @@ impl GameData {
 
         // Rooms where we want the logic to take into account the gray door locks (elsewhere the gray doors are changed to blue):
         // Be sure to keep this consistent with patches where the gray doors are actually changed in the ROM, in
-        // "patch.rs", "bomb_torizo.asm", and "gray_doors.asm".
+        // "patch.rs" and "gray_doors.asm".
         let door_lock_allowed_room_ids = [
             12,  // Pit Room
             82,  // Baby Kraid Room
@@ -1441,10 +1468,13 @@ impl GameData {
 
         let mut obstacle_flag: Option<String> = None;
 
+        // TODO: handle overrides in a more structured/robust way
         if room_json["name"] == "Shaktool Room" {
             self.override_shaktool_room(&mut new_room_json);
         } else if room_json["name"] == "Morph Ball Room" {
             self.override_morph_ball_room(&mut new_room_json);
+        } else if room_json["name"] == "Metal Pirates Room" {
+            self.override_metal_pirates_room(&mut new_room_json);
         }
 
         for node_json in new_room_json["nodes"].members_mut() {
@@ -1818,7 +1848,8 @@ impl GameData {
                     };
                     jumpway_vec.push(jumpway);
                 }
-                self.node_jumpways_map.insert((room_id, node_id), jumpway_vec);
+                self.node_jumpways_map
+                    .insert((room_id, node_id), jumpway_vec);
             } else {
                 self.node_jumpways_map.insert((room_id, node_id), vec![]);
             }
@@ -2213,14 +2244,15 @@ impl GameData {
     }
 
     fn add_connection(&mut self, mut src: (RoomId, NodeId), dst: (RoomId, NodeId)) {
-        if self.unlocked_node_map.contains_key(&src) {
-            let src_room_id = src.0;
-            src = (src_room_id, self.unlocked_node_map[&src])
-        }
         let src_ptr = self.node_ptr_map.get(&src).map(|x| *x);
         let dst_ptr = self.node_ptr_map.get(&dst).map(|x| *x);
         if src_ptr.is_some() || dst_ptr.is_some() {
             self.door_ptr_pair_map.insert((src_ptr, dst_ptr), src);
+            if self.unlocked_node_map.contains_key(&src) {
+                let src_room_id = src.0;
+                src = (src_room_id, self.unlocked_node_map[&src])
+            }
+            self.unlocked_door_ptr_pair_map.insert((src_ptr, dst_ptr), src);
         }
     }
 
@@ -2252,7 +2284,11 @@ impl GameData {
                 ensure!(node_json["yields"].len() >= 1);
                 let flag_id = self.flag_isv.index_by_key[node_json["yields"][0].as_str().unwrap()];
                 if flag_set.contains(&self.flag_isv.keys[flag_id]) {
-                    self.flag_locations.push((room_id, node_id, flag_id));
+                    let mut unlocked_node_id = node_id;
+                    if self.unlocked_node_map.contains_key(&(room_id, node_id)) {
+                        unlocked_node_id = self.unlocked_node_map[&(room_id, node_id)];
+                    }
+                    self.flag_locations.push((room_id, unlocked_node_id, flag_id));
                 }
             }
         }

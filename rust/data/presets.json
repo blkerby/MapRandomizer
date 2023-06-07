@@ -240,7 +240,6 @@
       "canDraygonTurretGrappleJump",
       "canDoubleSpringBallJumpMidAir",
       "canQuickCrumbleEscape",
-      "canMultiviolaIceClip",
       "canWallJumpBombBoost",
       "canStaggeredIBJ",
       "canRJump",
@@ -367,7 +366,8 @@
     "botwoon_proficiency": 1.0,
     "tech": [
       "canBePatient",
-      "canDownwardGModeSetup"
+      "canDownwardGModeSetup",
+      "canMultiviolaIceClip"
     ],
     "notable_strats": [
       "Taco Tank in Blue Brinstar Energy Tank Room",

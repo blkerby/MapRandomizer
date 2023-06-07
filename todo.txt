@@ -1,7 +1,9 @@
 priority:
-- fix respin to not mess up R-jumps (and sand escapes?)
-- add vertical gravity jumps to logic
+- fix metal pirates room
+- new objective: chozos (BT, GT, Bowling, Acid statue)
+- randomized start
 - finish getting new model training going
+- game variation for maps revealed from start
 - improve how race ROMs work (allow creator to unlock spoiler)
 - show objective progress in pause menu
 - add pages for tech, strats, rooms.
@@ -23,6 +25,7 @@ model stuff to try:
 
 
 later:
+- fix: arrow map tile down to toilet doesn't get revealed (when it crosses areas)?
 - logic: killing 3 musketeers with ice should require patience?
 - fix toilet tile in botwoon's hallway with "vanilla map" option.
 - handle 3-room shinesparks

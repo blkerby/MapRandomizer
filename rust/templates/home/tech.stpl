@@ -12,26 +12,34 @@
             <div id="collapse<%- name_no_space %>Tech" class="accordion-collapse collapse">
                 <div class="container mx-2 my-2">
                     <% for tech in &p.preset.tech { %>
-                        <div class="row">
-                            <div class="col-sm-12 form-check">
-                            <input type="checkbox" class="form-check-input tech-input" 
-                                id="tech-<%- tech%>" 
-                                onchange="techChanged()" 
-                                name="tech-<%- tech %>" 
-                                value="<%- tech%>">
-                            <label class="form-check-label" for="<%- tech%>"><b><%= tech %></b></label>
+                        <div class="row my-2">
+                            <div class="text-center" style="width:12.5%">
+                                <img src="/static/tech_gifs/<%- tech%>.gif" style="width:100%">
+                            </div>
+                            <div style="width:87.5%">
+                                <div class="container m-2">
+                                    <div class="row">
+                                        <div class="col-sm-12 form-check">
+                                        <input type="checkbox" class="form-check-input tech-input" 
+                                            id="tech-<%- tech%>" 
+                                            onchange="techChanged()" 
+                                            name="tech-<%- tech %>" 
+                                            value="<%- tech%>">
+                                        <label class="form-check-label" for="<%- tech%>"><b><%= tech %></b></label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <%= tech_description[tech] %>
+                                        </div>
+                                    </div>                    
+                                    <% if tech_dependencies[tech].len() > 0 { %>
+                                    <i>Dependencies: <%= tech_dependencies[tech].join(", ") %> </i>
+                                    <% } %>
+                                </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <%= tech_description[tech] %>
-                            </div>
-                        </div>                    
-                        <% if tech_dependencies[tech].len() > 0 { %>
-                        <i>Dependencies: <%= tech_dependencies[tech].join(", ") %> </i>
-                        <% } %>
                     <% } %>
-
                     <hr>
 
                     <% for strat in &p.preset.notable_strats { %>

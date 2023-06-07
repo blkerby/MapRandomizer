@@ -25,9 +25,9 @@ rooms = [
             DoorIdentifier(LEFT, 0, 6, 0x18DBA, 0x18F6A),  # Dachora Energy Refill Room
             DoorIdentifier(RIGHT, 6, 0, 0x18DAE, 0x18DD2),  # Big Pink
         ],
-        parts=[[0, 2], [1]],
-        transient_part_connections=[(0, 1)],  # speed blocks
-        missing_part_connections=[(1, 0)],
+        # parts=[[0, 2], [1]],
+        # transient_part_connections=[(0, 1)],  # speed blocks
+        # missing_part_connections=[(1, 0)],
         node_tiles={
             1: [(0, 0), (1, 0), (2, 0), (3, 0)],  # left door
             2: [(0, 6), (1, 6), (2, 6), (3, 6), (4, 6), (4, 5), (4, 4), (4, 3), (4, 2), (4, 1)],  # bottom left door

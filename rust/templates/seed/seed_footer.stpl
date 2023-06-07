@@ -83,6 +83,7 @@
             <div class="card-header">Known issues</div>
             <div class="card-body">
                 <ul>
+                <li>Certain room combinations appear with high frequency (not much randomness).
                 <li>Even if the tech is not selected, wall jumps and crouch-jump/down-grabs may be required in some places.
                 <li>Some sound effects are glitched (due to changing the music).
                 <li>Door transitions generally have some minor graphical glitches.
