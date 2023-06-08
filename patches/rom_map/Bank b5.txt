@@ -1,2 +1,3 @@
 0000-F000: Used by vanilla game
 F000-F5FF: Initial explored tile bitmask, copied to $7E:CD52-D351 (used to set map stations as initially explored)
+F600-F602: Initial area explored bitmask, copied to $

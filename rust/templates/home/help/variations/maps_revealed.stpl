@@ -1,18 +1,18 @@
 <!-- Button trigger modal -->
-<button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#raceModal">
+<button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#mapsRevealedModal">
 <i class="bi bi-question-circle"></i>
 </button>
 
 <!-- Modal -->
-<div class="modal" id="raceModal" tabindex="-1">
+<div class="modal" id="mapsRevealedModal" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5">Race mode</h1>
+        <h1 class="modal-title fs-5">Maps revealed from start</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <p>When set to "Yes", this option prevents spoiler information from being generated.</p>
+      <p>When enabled, all maps are fully revealed from the beginning of the game, without needing to activate the map stations.</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

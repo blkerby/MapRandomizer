@@ -1,0 +1,25 @@
+<!-- Button trigger modal -->
+<button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#acidChozoModal">
+<i class="bi bi-question-circle"></i>
+</button>
+
+<!-- Modal -->
+<div class="modal" id="acidChozoModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">Acid Chozo does not require Space Jump</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+      <p>In the vanilla game, the statue in Acid Chozo Statue Room will not activate (to lower the acid) unless Space Jump 
+      has been collected. This option removes this requirement, allowing the statue to be activated without Space Jump.
+      <p>The vanilla game behavior was likely intended to prevent the player from soft-locking in Golden Torizo Room and 
+      Screw Attack Room. In the context of map randomization, this is not applicable.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

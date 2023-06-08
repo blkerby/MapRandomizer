@@ -12,24 +12,32 @@
             <div id="collapse<%- name_no_space %>Tech" class="accordion-collapse collapse">
                 <div class="container mx-2 my-2">
                     <% for tech in &p.preset.tech { %>
-                        <div class="row my-2">
-                            <div class="text-center" style="width:12.5%">
-                                <img src="/static/tech_gifs/<%- tech%>.gif" style="width:100%">
+                        <div class="row my-3">
+                            <div class="text-center col-sm-4 col-md-3 col-lg-2">
+                                <% if tech_gif_listing.contains(&format!("{}.gif", tech)) { %>
+                                <img loading="lazy" src="/static/tech_gifs/<%- tech%>.gif" style="width:80%">
+                                <% } %>
                             </div>
-                            <div style="width:87.5%">
-                                <div class="container m-2">
+                            <div class="col-sm-8 col-md-9 col-lg-10">
+                                <div class="container mx-0 my-0">
                                     <div class="row">
-                                        <div class="col-sm-12 form-check">
-                                        <input type="checkbox" class="form-check-input tech-input" 
+                                        <div class="col-xs-9 col-sm-7 col-md-5 col-lg-4 mx-0 my-1">
+<!--                                         <input type="checkbox" class="form-check-input tech-input" 
                                             id="tech-<%- tech%>" 
                                             onchange="techChanged()" 
                                             name="tech-<%- tech %>" 
-                                            value="<%- tech%>">
-                                        <label class="form-check-label" for="<%- tech%>"><b><%= tech %></b></label>
+                                            value="<%- tech%>"> -->
+                                            <label class="form-check-label" for="<%- tech%>"><b><%= tech %></b></label>
+                                        </div>
+                                        <div class="col-md-3 col-lg-2 btn-group my-0" role="group" onchange="techChanged()">
+                                            <input type="radio" class="btn-check" name="tech-<%- tech %>" id="tech-<%- tech %>-No" value="false" checked=true>
+                                            <label class="btn btn-outline-primary m-0 p-1" for="tech-<%- tech %>-No">No</label>
+                                            <input type="radio" class="btn-check" name="tech-<%- tech %>" id="tech-<%- tech %>-Yes" value="true">
+                                            <label class="btn btn-outline-primary m-0 p-1" for="tech-<%- tech %>-Yes">Yes</label>
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <div class="col-sm-12">
+                                        <div class="col-sm-12 my-1">
                                             <%= tech_description[tech] %>
                                         </div>
                                     </div>                    

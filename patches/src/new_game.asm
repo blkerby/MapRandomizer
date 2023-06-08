@@ -8,6 +8,7 @@ lorom
 !GameStartState = $7ED914
 !current_save_slot = $7e0952
 !area_explored_mask = $702600
+!initial_area_explored_mask = $B5F600  ; must match address in patch/map_tiles.rs
 
 ;;; Hijack code that runs during initialization
 org $82801d
@@ -30,7 +31,7 @@ startup:
     stz $078B : stz $079f : stz $1f5b
 
     ; Initialize areas explored
-    lda #$0001
+    lda !initial_area_explored_mask
     sta !area_explored_mask
 
     ; Unlock Tourian statues room (to avoid camera glitching when entering from bottom, and also to ensure game is
@@ -41,39 +42,18 @@ startup:
     ; If there are no existing save files, then clear map revealed tiles (persisted across deaths/reloads)
     lda $0954
     bne .skip_clear_revealed
-    ldx #$0600
-.clear_revealed
-    dex
-    dex
-    lda #$0000
-    sta $702000, X    
-    txa
-    bne .clear_revealed
-.skip_clear_revealed:
 
-    ; Copy initial explored tiles from B5:F000 (to set map station tiles to explored)
-    ; Also initialize these as revealed tiles (so that map station tiles will be taken into account in pause map scroll limits).
+    ; Copy initial revealed tiles from B5:F000 (e.g. to set map station tiles to revealed)
     ldx #$0600
-.copy_explored
+.copy_revealed
     dex
     dex
     lda $B5F000, X
-    sta $7ECD52, X
-    ora $702000, X
     sta $702000, X
     txa
-    bne .copy_explored
+    bne .copy_revealed
 
-    ; Do the same for the local-area explored tiles (TODO: maybe simplify this.)
-    ldx #$0100
-.copy_explored_crateria
-    dex
-    dex
-    lda $B5F000, X
-    sta $07F7, X
-    txa
-    bne .copy_explored_crateria
-
+.skip_clear_revealed:
 
     lda #$0006  ; Start in game state 6 (Loading game data) instead of 0 (Intro) or 5 (File select map)
     sta !GameStartState

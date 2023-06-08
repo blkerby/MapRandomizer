@@ -43,15 +43,15 @@ executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
 # num_envs = 1
 num_envs = 2 ** 11
-rooms = logic.rooms.crateria_isolated.rooms
+# rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.norfair_isolated.rooms
-# rooms = logic.rooms.all_rooms.rooms
+rooms = logic.rooms.all_rooms.rooms
 episode_length = len(rooms)
 
-map_x = 32
-map_y = 32
-# map_x = 72
-# map_y = 72
+# map_x = 32
+# map_y = 32
+map_x = 72
+map_y = 72
 # map_x = 48
 # map_y = 48
 
@@ -75,95 +75,6 @@ good_room_parts = [i for i, r in enumerate(envs[0].part_room_id.tolist()) if len
 logging.info("max_possible_reward = {}".format(max_possible_reward))
 
 
-# def make_dummy_model():
-#     return Model(env_config=env_config,
-#                  num_doors=envs[0].num_doors,
-#                  num_missing_connects=envs[0].num_missing_connects,
-#                  num_room_parts=len(envs[0].good_room_parts),
-#                  arity=1,
-#                  map_channels=[],
-#                  map_stride=[],
-#                  map_kernel_size=[],
-#                  map_padding=[],
-#                  room_embedding_width=1,
-#                  connectivity_in_width=0,
-#                  connectivity_out_width=0,
-#                  fc_widths=[]).to(device)
-#
-#
-# model = make_dummy_model()
-# model.state_value_lin.weight.data[:, :] = 0.0
-# model.state_value_lin.bias.data[:] = 0.0
-# optimizer = torch.optim.Adam(model.parameters(), lr=0.0001, betas=(0.95, 0.99), eps=1e-15)
-#
-# logging.info("{}".format(model))
-# logging.info("{}".format(optimizer))
-#
-# torch.set_printoptions(linewidth=120, threshold=10000)
-# #
-# num_candidates = 1
-# temperature = 1e-10
-# explore_eps = 0.0
-# gen_print_freq = 1
-# gen_print_freq = 1
-# i = 0
-# total_reward = 0
-# total_reward2 = 0
-# cnt_episodes = 0
-# logging.info("Generating data: temperature={}, num_candidates={}".format(temperature, num_candidates))
-# while session.replay_buffer.size < session.replay_buffer.capacity:
-# # while True:
-#     data = session.generate_round(
-#         episode_length=episode_length,
-#         num_candidates=num_candidates,
-#         temperature=temperature,
-#         executor=executor,
-#         render=False)
-#     session.replay_buffer.insert(data)
-#
-#     total_reward += torch.sum(data.reward.to(torch.float32)).item()
-#     total_reward2 += torch.sum(data.reward.to(torch.float32) ** 2).item()
-#     cnt_episodes += data.reward.shape[0]
-#
-#     i += 1
-#     if i % gen_print_freq == 0:
-#         mean_reward = total_reward / cnt_episodes
-#         std_reward = math.sqrt(total_reward2 / cnt_episodes - mean_reward ** 2)
-#         ci_reward = std_reward * 1.96 / math.sqrt(cnt_episodes)
-#         logging.info("init gen {}/{}: cost={:.3f} +/- {:.3f}".format(
-#             session.replay_buffer.size, session.replay_buffer.capacity,
-#                max_possible_reward - mean_reward, ci_reward))
-#
-# # pickle.dump(session, open('models/init_session.pkl', 'wb'))
-# # pickle.dump(session, open('models/init_session_eval.pkl', 'wb'))
-# # pickle.dump(session, open('models/init_session_eval.pkl', 'wb'))
-# pickle.dump(session, open(pickle_name + '-bk12-eval.pkl', 'wb'))
-# pickle.dump(session, open('models/checkpoint-4-eval.pkl', 'wb'))
-
-#
-# # session_eval = pickle.load(open('models/init_session_eval.pkl', 'rb'))
-# session_eval = pickle.load(open(pickle_name + '-bk12-eval.pkl', 'rb'))
-# eval_batch_size = 8192
-# eval_num_batches = 8
-# eval_batches = []
-# for i in range(eval_num_batches):
-#     logging.info("Generating eval batch {} of size {}".format(i, eval_batch_size))
-#     data = session_eval.replay_buffer.sample(eval_batch_size, device=device)
-#     eval_batches.append(data)
-# pickle.dump(eval_batches, open(pickle_name + '-bk12-eval-batches.pkl', 'wb'))
-#
-#
-#
-#
-# pickle_name = 'models/session-2022-06-03T17:19:29.727911.pkl'
-# session = pickle.load(open(pickle_name + '-bk12', 'rb'))
-# eval_batches = pickle.load(open(pickle_name + '-bk12-eval-batches.pkl', 'rb'))
-# session = pickle.load(open('models/session-2022-05-21T07:40:15.324154.pkl-b-bk18', 'rb'))
-# session = pickle.load(open('models/checkpoint-4-train-2.pkl', 'rb'))
-# session = pickle.load(open('models/init_session.pkl', 'rb'))
-# eval_batches = pickle.load(open('models/eval_batches.pkl', 'rb'))
-# session = pickle.load(open('models/checkpoint-3-train.pkl', 'rb'))
-# eval_batches = pickle.load(open('models/checkpoint-4-eval_batches.pkl', 'rb'))
 
 # layer_width = 512
 # main_depth = 2
@@ -213,7 +124,7 @@ logging.info("{}".format(model))
 model.global_value.data.zero_()
 # model.output_lin.weight.data.zero_()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
-replay_size = 2 ** 21
+replay_size = 2 ** 23
 session = TrainingSession(envs,
                           model=model,
                           optimizer=optimizer,
@@ -223,7 +134,7 @@ session = TrainingSession(envs,
                           sam_scale=None)
 
 
-# num_eval_rounds = 512
+# num_eval_rounds = 256
 # eval_buffer = ReplayBuffer(num_eval_rounds * envs[0].num_envs * len(envs), session.replay_buffer.num_rooms, torch.device('cpu'))
 # for i in range(num_eval_rounds):
 #     with util.DelayedKeyboardInterrupt():
@@ -246,15 +157,15 @@ session = TrainingSession(envs,
 #
 # eval_batches = []
 # eval_pass_factor = 1 / episode_length
-# eval_batch_size = 8192
+# eval_batch_size = 4096
 # num_eval_batches = max(1, int(eval_pass_factor * episode_length * eval_buffer.size / eval_batch_size))
 # for i in range(num_eval_batches):
-#     data = session.replay_buffer.sample(eval_batch_size, hist=eval_buffer.size, c=1.0, device=device)
+#     data = eval_buffer.sample(eval_batch_size, hist=eval_buffer.size, c=1.0, device=device)
 #     eval_batches.append(data)
 # logging.info("Constructed {} eval batches".format(num_eval_batches))
-# pickle.dump(eval_batches, open("eval_batches.pkl", "wb"))
+# pickle.dump(eval_batches, open("eval_batches_zebes.pkl", "wb"))
 
-# eval_batches = pickle.load(open("eval_batches.pkl", "rb"))
+eval_batches = pickle.load(open("eval_batches_zebes.pkl", "rb"))
 
 # # for i in range(len(eval_batches)):
 # i = 0
@@ -280,14 +191,14 @@ num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in sessio
 hist_c = 1.0
 hist_frac = 1.0
 batch_size = 2 ** 10
-lr0 = 0.001
-lr1 = 0.001
+lr0 = 0.0005
+lr1 = 0.0005
 # lr_warmup_time = 16
 # lr_cooldown_time = 100
-num_candidates_min0 = 16
-num_candidates_max0 = 16
-num_candidates_min1 = 16
-num_candidates_max1 = 16
+num_candidates_min0 = 1
+num_candidates_max0 = 1
+num_candidates_min1 = 1
+num_candidates_max1 = 1
 
 # num_candidates0 = 40
 # num_candidates1 = 40
@@ -300,9 +211,9 @@ cycle_weight = 0.0
 cycle_value_coef = 0.0
 compute_cycles = False
 
-door_connect_bound = 50.0
+door_connect_bound = 10.0
 # door_connect_bound = 0.0
-door_connect_alpha = 0.5
+door_connect_alpha = 0.1
 # door_connect_alpha = door_connect_alpha0 / math.sqrt(1 + session.num_rounds / lr_cooldown_time)
 door_connect_beta = door_connect_bound / (door_connect_bound + door_connect_alpha)
 # door_connect_bound = 0.0
@@ -310,21 +221,25 @@ door_connect_beta = door_connect_bound / (door_connect_bound + door_connect_alph
 
 augment_frac = 0.0
 
-temperature_min0 = 0.05
-temperature_max0 = 0.05
-temperature_min1 = 0.05
-temperature_max1 = 0.05
+temperature_min0 = 1.0
+temperature_max0 = 1.0
+temperature_min1 = 1.0
+temperature_max1 = 1.0
+# temperature_min0 = 0.01
+# temperature_max0 = 10.0
+# temperature_min1 = 0.01
+# temperature_max1 = 10.0
 # temperature_frac_min0 = 0.0
 # temperature_frac_min1 = 0.0
-temperature_frac_min0 = 1.0
-temperature_frac_min1 = 1.0
+temperature_frac_min0 = 0.5
+temperature_frac_min1 = 0.5
 temperature_decay = 1.0
 
 annealing_start = 0
 annealing_time = 1
 
-pass_factor0 = 1.0
-pass_factor1 = 1.0
+pass_factor0 = 0.1
+pass_factor1 = 0.1
 print_freq = 4
 total_reward = 0
 total_loss = 0.0
@@ -340,9 +255,9 @@ total_ent = 0.0
 total_round_cnt = 0
 total_min_door_frac = 0
 total_cycle_cost = 0.0
-save_freq = 64
-summary_freq = 64
-session.decay_amount = 0.02
+save_freq = 128
+summary_freq = 128
+session.decay_amount = 0.01
 # session.decay_amount = 0.2
 session.optimizer.param_groups[0]['betas'] = (0.9, 0.9)
 session.optimizer.param_groups[0]['eps'] = 1e-5

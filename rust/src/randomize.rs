@@ -54,6 +54,7 @@ pub enum Objectives {
     Bosses,
     Minibosses,
     Metroids,
+    Chozos,
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
@@ -102,6 +103,7 @@ pub struct DifficultyConfig {
     pub item_markers: ItemMarkers,
     pub item_dots_disappear: bool,
     pub all_items_spawn: bool,
+    pub acid_chozo: bool,
     pub fast_elevators: bool,
     pub fast_doors: bool,
     pub fast_pause_menu: bool,
@@ -111,6 +113,7 @@ pub struct DifficultyConfig {
     // Game variations:
     pub objectives: Objectives,
     pub disable_walljump: bool,
+    pub maps_revealed: bool,
     pub vanilla_map: bool,
     pub ultra_low_qol: bool,
     // Debug:
@@ -582,10 +585,13 @@ impl<'a> Preprocessor<'a> {
         if self.game_data.unlocked_node_map.contains_key(&(room_id, node_id)) {
             unlocked_node_id = self.game_data.unlocked_node_map[&(room_id, node_id)];
         }
-        let (mut other_room_id, mut other_node_id) = self.door_map[&(room_id, unlocked_node_id)];
-        if (other_room_id, other_node_id) == (321, 1) {
-            (other_room_id, other_node_id) = self.door_map[&(321, 2)];
-        }
+        let (other_room_id, other_node_id) = self.door_map[&(room_id, unlocked_node_id)];
+        // Commenting this out for now: we can't safely skip over the Toilet, because it centers Samus horizontally
+        // which could interfere with the strat (particularly jumps up into Pseudo Plasma Spark Room):
+        // if (other_room_id, other_node_id) == (321, 1) {
+        //     // Check jumpways below Toilet
+        //     (other_room_id, other_node_id) = self.door_map[&(321, 2)];
+        // }
         let jumpways = &self.game_data.node_jumpways_map[&(other_room_id, other_node_id)];
         let mut req_vec: Vec<Requirement> = vec![];
         for jumpway in jumpways {

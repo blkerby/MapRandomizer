@@ -211,6 +211,9 @@ fn apply_orig_ips_patches(rom: &mut Rom, randomization: &Randomization) -> Resul
         Objectives::Metroids => {
             rom.write_u16(snes2pc(0x83AAD2), 0xEBC0)?;
         },
+        Objectives::Chozos => {
+            rom.write_u16(snes2pc(0x83AAD2), 0xEC20)?;
+        }
     }
     Ok(())
 }    
@@ -1162,9 +1165,14 @@ impl<'a> Patcher<'a> {
             self.rom.write_n(0x783C8, &plm_data)?;
         }
 
+        if self.randomization.difficulty.acid_chozo {
+            // Remove Space Jump check
+            self.rom.write_n(snes2pc(0x84D195), &[0xEA, 0xEA])?;  // NOP : NOP
+        }
+
         if self.randomization.difficulty.infinite_space_jump {
-            // self.rom.write_n(0x82493, &[0x80, 0x0D])?;  // BRA $0D
-            self.rom.write_n(snes2pc(0x90A493), &[0xEA, 0xEA])?;  // NOP : NOP
+            // self.rom.write_n(0x82493, &[0x80, 0x0D])?;  // BRA $0D  (Infinite Space Jump)
+            self.rom.write_n(snes2pc(0x90A493), &[0xEA, 0xEA])?;  // NOP : NOP  (Lenient Space Jump)
         }
 
         if !self.randomization.difficulty.ultra_low_qol {

@@ -3,6 +3,25 @@
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-65---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 65 (???)</a>:
+<ul>
+<li>New quality-of-life option "Acid Chozo does not require Space Jump" is added (enabled by default).
+<li>New objective option "Chozos" is added.
+<li>New game variation "Maps revealed from start" is added.
+<li>Website updates:
+    <ul>
+    <li>Animated GIFs are included under "Skill Assumptions" to illustrate tech.
+    <li>Dark mode support is added (enabled based on system preference)
+    </ul>
+<li>Logic bugfixes:
+    <ul>
+    <li>Fixed problem where access to Metal Pirates, Baby Kraid Room, or Plasma Room could incorrectly put Zebes Awake 
+    into logic without a way to defeat the enemies in the room.
+    <li>Removed cross-room jump strats through the Toilet from being in logic. In some cases these were not
+    doable because of how the Toilet centers Samus horizontally.
+    </ul>
+</ul>
+
 <p><a href="https://version-64---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 64 (2023-06-01)</a>:
 <ul>
 <li>The effects of Infinite Space Jump (quality-of-life option) are now less extreme and it is renamed "Lenient Space Jump":

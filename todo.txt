@@ -1,10 +1,14 @@
 priority:
-- fix metal pirates room
 - new objective: chozos (BT, GT, Bowling, Acid statue)
+- improve how race ROMs work (allow creator to unlock spoiler)
+<li>TODO: The creator of a Race Mode seed can now unlock its spoiler information.
+    <ul>
+    <li>If spoiler information is unlocked, it will become visible to everyone on the seed page.
+    <li>The timestamp when spoiler information was unlocked is shown on the seed page.
+    </ul>
 - randomized start
 - finish getting new model training going
 - game variation for maps revealed from start
-- improve how race ROMs work (allow creator to unlock spoiler)
 - show objective progress in pause menu
 - add pages for tech, strats, rooms.
 - help buttons for rest of settings (e.g. explain boss proficiency calculations)

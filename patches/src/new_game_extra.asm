@@ -40,7 +40,8 @@ start_game:
     sta !area_explored_mask
 
     ; temporary extra stuff:
-    lda #$F32F
+;    lda #$F32F
+    lda #$F12F  ; (except Space Jump)
 ;    lda #$E32F  ; (except Bombs)
 ;    lda #$332F  ; (except Grapple and XRay)
     sta $09A2   ; all items equipped

@@ -1,5 +1,5 @@
 <!-- Button trigger modal -->
-<button type="button" class="btn btn-light mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#keyItemPriorityModal">
+<button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#keyItemPriorityModal">
 <i class="bi bi-question-circle"></i>
 </button>
 

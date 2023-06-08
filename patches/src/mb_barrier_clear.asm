@@ -168,6 +168,58 @@ metroid_4:
 
     jmp motherbrain
 
+
+; OBJECTIVE: Chozos (must match address in patch.rs)
+warnpc $8FEC20
+org $8FEC20
+    ; clear barriers in mother brain room based on Chozos defeated/activated:
+
+bomb_torizo:
+    lda $7ed828
+    bit #$0004
+    beq .skip  ; skip clearing if Bomb Torizo isn't dead
+
+    jsl $8483D7
+    db $39
+    db $04
+    dw clear_barrier_plm
+.skip:
+
+bowling_chozo:
+    lda $7ed822
+    and #$0010
+    beq .skip  ; skip clearing if Bowling Alley Chozo hasn't been used
+
+    jsl $8483D7
+    db $38
+    db $04
+    dw clear_barrier_plm
+.skip:
+
+acid_chozo:
+    lda $7ed821
+    bit #$0010
+    beq .skip  ; skip clearing if Acid Chozo hasn't been used
+
+    jsl $8483D7
+    db $37
+    db $04
+    dw clear_barrier_plm
+.skip:
+
+golden_torizo_chozo:
+    lda $7ed82a
+    bit #$0004
+    beq .skip  ; skip clearing if Golden Torizo isn't dead
+
+    jsl $8483D7
+    db $36
+    db $04
+    dw clear_barrier_plm
+.skip:
+
+    jmp motherbrain
+
 warnpc $8FED00
 
 org $83AAEA
@@ -212,4 +264,16 @@ clear_barrier_inst:
 clear_barrier_draw:
     dw $8006, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $0000
 
+bowling_chozo_set_flag:
+    jsl $90F084  ; run hi-jacked instruction
+    lda $7ed822  ; set flag to represent that Bowling statue has been used (flag bit unused by vanilla game)
+    ora #$0010
+    sta $7ed822
+    rtl
+
 warnpc $84F280
+
+; bowling chozo hook
+org $84D66B
+    jsl bowling_chozo_set_flag
+

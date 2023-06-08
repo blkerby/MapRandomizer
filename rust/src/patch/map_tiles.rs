@@ -625,6 +625,40 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
+    fn indicate_chozo_tiles(&mut self, boss_tile: u16) -> Result<()> {
+        self.patch_room(
+            "Bomb Torizo Room",
+            vec![
+                (0, 0, boss_tile),
+            ],
+        )?;
+
+        self.patch_room(
+            "Bowling Alley",
+            vec![
+                (4, 1, boss_tile),
+            ],
+        )?;
+
+        self.patch_room(
+            "Acid Statue Room",
+            vec![
+                (0, 0, boss_tile),
+            ],
+        )?;
+
+        self.patch_room(
+            "Golden Torizo's Room",
+            vec![
+                (0, 1, boss_tile),
+                (1, 1, boss_tile),
+                // We don't mark the top row of tiles, so the items can still be visible.
+            ]
+        )?;
+
+        Ok(())
+    }
+
     fn indicate_special_tiles(&mut self) -> Result<()> {
         let refill_tile = self.create_tile([
             [2, 2, 2, 2, 2, 2, 2, 2],
@@ -679,6 +713,9 @@ impl<'a> MapPatcher<'a> {
             },
             Objectives::Metroids => {
                 self.indicate_metroid_tiles(boss_tile)?;
+            },
+            Objectives::Chozos => {
+                self.indicate_chozo_tiles(boss_tile)?;
             },
         }
         self.patch_room(
@@ -1274,7 +1311,13 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn set_map_stations_explored(&mut self) -> Result<()> {
+        if self.randomization.difficulty.maps_revealed {
+            self.rom.write_n(snes2pc(0xB5F000), &vec![0xFF; 0x600])?;
+            self.rom.write_u16(snes2pc(0xB5F600), 0x003F)?;
+            return Ok(());
+        }
         self.rom.write_n(snes2pc(0xB5F000), &vec![0; 0x600])?;
+        self.rom.write_u16(snes2pc(0xB5F600), 0x0000)?;
         if !self.randomization.difficulty.mark_map_stations {
             return Ok(());
         }
@@ -1323,6 +1366,10 @@ impl<'a> MapPatcher<'a> {
         let mut area_data: Vec<Vec<(ItemIdx, TilemapOffset, TilemapWord, Interior)>> = vec![vec![]; 6];
         for (i, &item) in self.randomization.item_placement.iter().enumerate() {
             let (room_id, node_id) = self.game_data.item_locations[i];
+            if self.randomization.difficulty.objectives == Objectives::Chozos && room_id == 19 {
+                // With Chozos objective, we don't draw item dot in Bomb Torizo Room since a boss X tile will be drawn instead.
+                continue;
+            }
             let item_ptr = self.game_data.node_ptr_map[&(room_id, node_id)];
             let item_idx = self.rom.read_u8(item_ptr + 4)? as usize;
             let room_ptr = self.game_data.room_ptr_by_id[&room_id];
@@ -1373,7 +1420,7 @@ impl<'a> MapPatcher<'a> {
                 area_data[area].push((item_idx, offset as TilemapOffset, tile1 | 0x0C00, basic_tile.interior));
                 basic_tile.interior = Interior::Empty;
                 let tile_empty = self.get_basic_tile(basic_tile)?;    
-                self.rom.write_u16(base_ptr + offset, (tile_empty | 0x0C00) as isize)?;
+                self.rom.write_u16(base_ptr + offset, (tile_empty | 0x0C00) as isize)?;    
             } else {
                 self.rom.write_u16(base_ptr + offset, (tile1 | 0x0C00) as isize)?;    
             }

@@ -26,8 +26,9 @@ use rand::{RngCore, SeedableRng};
 use sailfish::TemplateOnce;
 use serde_derive::{Deserialize, Serialize};
 
-const VERSION: usize = 64;
+const VERSION: usize = 65;
 const VISUALIZER_PATH: &'static str = "../visualizer/";
+const TECH_GIF_PATH: &'static str = "static/tech_gifs/";
 
 #[derive(Serialize, Deserialize, Clone)]
 struct Preset {
@@ -61,6 +62,7 @@ struct AppData {
     map_repository: MapRepository,
     seed_repository: SeedRepository,
     visualizer_files: Vec<(String, Vec<u8>)>, // (path, contents)
+    tech_gif_listing: HashSet<String>,
     debug: bool,
     static_visualizer: bool,
 }
@@ -134,6 +136,7 @@ struct HomeTemplate<'a> {
     strat_room: &'a HashMap<String, String>,
     strat_description: &'a HashMap<String, String>,
     strat_id_by_name: &'a HashMap<String, usize>,
+    tech_gif_listing: &'a HashSet<String>
 }
 
 #[get("/")]
@@ -151,7 +154,7 @@ async fn home(app_data: web::Data<AppData>) -> impl Responder {
         version: VERSION,
         progression_rates: vec!["Fast", "Normal", "Slow"],
         item_placement_styles: vec!["Neutral", "Forced"],
-        objectives: vec!["Bosses", "Minibosses", "Metroids"],
+        objectives: vec!["Bosses", "Minibosses", "Metroids", "Chozos"],
         item_priorities: vec!["Early", "Default", "Late"]
             .iter()
             .map(|x| x.to_string())
@@ -165,6 +168,7 @@ async fn home(app_data: web::Data<AppData>) -> impl Responder {
         strat_room: &app_data.game_data.strat_room,
         strat_description: &app_data.game_data.strat_description,
         strat_id_by_name: &app_data.game_data.notable_strat_isv.index_by_key,
+        tech_gif_listing: &app_data.tech_gif_listing,
     };
     HttpResponse::Ok().body(home_template.render_once().unwrap())
 }
@@ -200,6 +204,7 @@ struct RandomizeRequest {
     item_markers: Text<String>,
     item_dots_disappear: Text<bool>,
     all_items_spawn: Text<bool>,
+    acid_chozo: Text<bool>,
     fast_elevators: Text<bool>,
     fast_doors: Text<bool>,
     fast_pause_menu: Text<bool>,
@@ -208,6 +213,7 @@ struct RandomizeRequest {
     disable_beeping: Text<bool>,
     objectives: Text<String>,
     disable_walljump: Text<bool>,
+    maps_revealed: Text<bool>,
     vanilla_map: Text<bool>,
     ultra_low_qol: Text<bool>,
 }
@@ -242,6 +248,7 @@ struct SeedData {
     item_markers: String,
     item_dots_disappear: bool,
     all_items_spawn: bool,
+    acid_chozo: bool,
     fast_elevators: bool,
     fast_doors: bool,
     fast_pause_menu: bool,
@@ -250,6 +257,7 @@ struct SeedData {
     disable_beeping: bool,
     objectives: String,
     disable_walljump: bool,
+    maps_revealed: bool,
     vanilla_map: bool,
     ultra_low_qol: bool,
 }
@@ -286,6 +294,7 @@ struct SeedHeaderTemplate<'a> {
     item_markers: String,
     item_dots_disappear: bool,
     all_items_spawn: bool,
+    acid_chozo: bool,
     fast_elevators: bool,
     fast_doors: bool,
     fast_pause_menu: bool,
@@ -294,6 +303,7 @@ struct SeedHeaderTemplate<'a> {
     disable_beeping: bool,
     objectives: String,
     disable_walljump: bool,
+    maps_revealed: bool,
     vanilla_map: bool,
     ultra_low_qol: bool,
 }
@@ -359,6 +369,7 @@ fn render_seed(seed_name: &str, seed_data: &SeedData) -> Result<(String, String)
         item_dots_disappear: seed_data.item_dots_disappear,
         transition_letters: seed_data.transition_letters,
         all_items_spawn: seed_data.all_items_spawn,
+        acid_chozo: seed_data.acid_chozo,
         fast_elevators: seed_data.fast_elevators,
         fast_doors: seed_data.fast_doors,
         fast_pause_menu: seed_data.fast_pause_menu,
@@ -367,6 +378,7 @@ fn render_seed(seed_name: &str, seed_data: &SeedData) -> Result<(String, String)
         disable_beeping: seed_data.disable_beeping,
         objectives: seed_data.objectives.clone(),
         disable_walljump: seed_data.disable_walljump,
+        maps_revealed: seed_data.maps_revealed,
         vanilla_map: seed_data.vanilla_map,
         ultra_low_qol: seed_data.ultra_low_qol,
     };
@@ -655,6 +667,7 @@ fn get_difficulty_tiers(
             item_markers: difficulty.item_markers,
             item_dots_disappear: difficulty.item_dots_disappear,
             all_items_spawn: difficulty.all_items_spawn,
+            acid_chozo: difficulty.acid_chozo,
             fast_elevators: difficulty.fast_elevators,
             fast_doors: difficulty.fast_doors,
             fast_pause_menu: difficulty.fast_pause_menu,
@@ -663,6 +676,7 @@ fn get_difficulty_tiers(
             disable_beeping: difficulty.disable_beeping,
             objectives: difficulty.objectives,
             disable_walljump: difficulty.disable_walljump,
+            maps_revealed: difficulty.maps_revealed,
             vanilla_map: difficulty.vanilla_map,
             ultra_low_qol: difficulty.ultra_low_qol,
             debug_options: difficulty.debug_options.clone(),
@@ -821,6 +835,7 @@ async fn randomize(
         },
         item_dots_disappear: req.item_dots_disappear.0,
         all_items_spawn: req.all_items_spawn.0,
+        acid_chozo: req.acid_chozo.0,
         fast_elevators: req.fast_elevators.0,
         fast_doors: req.fast_doors.0,
         fast_pause_menu: req.fast_pause_menu.0,
@@ -831,9 +846,11 @@ async fn randomize(
             "Bosses" => Objectives::Bosses,
             "Minibosses" => Objectives::Minibosses,
             "Metroids" => Objectives::Metroids,
+            "Chozos" => Objectives::Chozos,
             _ => panic!("Unrecognized objectives: {}", req.objectives.0),
         },
         disable_walljump: req.disable_walljump.0,
+        maps_revealed: req.maps_revealed.0,
         vanilla_map: req.vanilla_map.0,
         ultra_low_qol: req.ultra_low_qol.0,
         debug_options: if app_data.debug {
@@ -920,6 +937,7 @@ async fn randomize(
         item_markers: req.item_markers.0.clone(),
         item_dots_disappear: req.item_dots_disappear.0,
         all_items_spawn: req.all_items_spawn.0,
+        acid_chozo: req.acid_chozo.0,
         fast_elevators: req.fast_elevators.0,
         fast_doors: req.fast_doors.0,
         fast_pause_menu: req.fast_pause_menu.0,
@@ -928,6 +946,7 @@ async fn randomize(
         disable_beeping: req.disable_beeping.0,
         objectives: req.objectives.0.clone(),
         disable_walljump: req.disable_walljump.0,
+        maps_revealed: req.maps_revealed.0,
         vanilla_map: req.vanilla_map.0,
         ultra_low_qol: req.ultra_low_qol.0,
     };
@@ -1120,6 +1139,16 @@ fn load_visualizer_files() -> Vec<(String, Vec<u8>)> {
     files
 }
 
+fn list_tech_gif_files() -> HashSet<String> {
+    let mut files: HashSet<String> = HashSet::new();
+    for entry_res in std::fs::read_dir(TECH_GIF_PATH).unwrap() {
+        let entry = entry_res.unwrap();
+        let name = entry.file_name().to_str().unwrap().to_string();
+        files.insert(name);
+    }
+    files
+}
+
 fn build_app_data() -> AppData {
     let args = Args::parse();
     let sm_json_data_path = Path::new("../sm-json-data");
@@ -1141,6 +1170,7 @@ fn build_app_data() -> AppData {
         map_repository: MapRepository::new(maps_path).unwrap(),
         seed_repository: SeedRepository::new(&args.seed_repository_url).unwrap(),
         visualizer_files: load_visualizer_files(),
+        tech_gif_listing: list_tech_gif_files(),
         debug: args.debug,
         static_visualizer: args.static_visualizer,
     }

@@ -13,9 +13,13 @@ function presetChanged() {
             document.getElementById("botwoonProficiency").value = <%= p.preset.botwoon_proficiency %>;
             document.getElementById("saveAnimalsNo").checked = true;
             document.getElementById("saveAnimalsYes").checked = false;
-            <% for (tech, is_enabled) in &p.tech_setting { %>
-                document.getElementById("tech-<%- tech%>").checked = <%= is_enabled %>;
-            <% } %>
+            <% for (tech, is_enabled) in &p.tech_setting { 
+                if *is_enabled { %>
+                  document.getElementById("tech-<%- tech%>-Yes").checked = true;
+                <% } else { %>
+                  document.getElementById("tech-<%- tech%>-No").checked = true;
+            <%  } 
+            } %>
             <% for (strat, is_enabled) in &p.notable_strat_setting { %>
                 <% let strat_id = strat_id_by_name[strat]; %>
                 document.getElementById("strat-<%- strat_id %>").checked = <%= is_enabled %>;
@@ -92,6 +96,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("itemMarkersThreeTiered").checked = false;
         document.getElementById("itemDotsDisappearNo").checked = true;
         document.getElementById("allItemsSpawnNo").checked = true;
+        document.getElementById("acidChozoNo").checked = true;
         document.getElementById("fastElevatorsNo").checked = true;
         document.getElementById("fastDoorsNo").checked = true;
         document.getElementById("fastPauseMenuNo").checked = true;
@@ -114,6 +119,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("itemMarkersThreeTiered").checked = true;
         document.getElementById("itemDotsDisappearYes").checked = true;
         document.getElementById("allItemsSpawnYes").checked = true;
+        document.getElementById("acidChozoYes").checked = true;
         document.getElementById("fastElevatorsYes").checked = true;
         document.getElementById("fastDoorsYes").checked = true;
         document.getElementById("fastPauseMenuYes").checked = true;
@@ -134,6 +140,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("itemMarkersThreeTiered").checked = true;
         document.getElementById("itemDotsDisappearYes").checked = true;
         document.getElementById("allItemsSpawnYes").checked = true;
+        document.getElementById("acidChozoYes").checked = true;
         document.getElementById("fastElevatorsYes").checked = true;
         document.getElementById("fastDoorsYes").checked = true;
         document.getElementById("fastPauseMenuYes").checked = true;
