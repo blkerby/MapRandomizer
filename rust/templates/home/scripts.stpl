@@ -20,9 +20,13 @@ function presetChanged() {
                   document.getElementById("tech-<%- tech%>-No").checked = true;
             <%  } 
             } %>
-            <% for (strat, is_enabled) in &p.notable_strat_setting { %>
-                <% let strat_id = strat_id_by_name[strat]; %>
-                document.getElementById("strat-<%- strat_id %>").checked = <%= is_enabled %>;
+            <% for (strat, is_enabled) in &p.notable_strat_setting {
+                let strat_id = strat_id_by_name[strat]; 
+                if *is_enabled { %>
+                    document.getElementById("strat-<%- strat_id %>-Yes").checked = true;
+                <% } else { %>
+                    document.getElementById("strat-<%- strat_id %>-No").checked = true;
+                <% } %>
             <% } %>
         }
     <% } %>
@@ -36,8 +40,9 @@ function techChanged() {
 function updateTechJSON() {
     techSelection = {}
     document.querySelectorAll('.tech-input')
-    .forEach(function (x) { 
-        techSelection[x.value] = x.checked;
+    .forEach(function (x) {
+        let name = x.name.substring(5);  // strip the "tech-" prefix
+        techSelection[name] = x.checked;
     });
     document.getElementById("json-tech").value = JSON.stringify(techSelection);
 }
@@ -45,7 +50,8 @@ function updateStratJSON() {
     stratSelection = {}
     document.querySelectorAll('.strat-input')
     .forEach(function (x) { 
-        stratSelection[x.value] = x.checked;
+        let name = x.name.substring(6);  // strip the "strat-" prefix
+        stratSelection[name] = x.checked;
     });
     document.getElementById("json-strat").value = JSON.stringify(stratSelection);
 }
@@ -69,11 +75,9 @@ function updateFillerItemsJSON() {
         // remove prefix: "filler_items_"
         name = x.name.substring(13);
         if (x.checked) {
-            //console.log(name + ": " + x.value);
             fillerItems[name] = x.value;
         }
     });
-    console.log(JSON.stringify(fillerItems));
     document.getElementById("json-filler-items").value = JSON.stringify(fillerItems);
 }
 function prepareSubmit() {

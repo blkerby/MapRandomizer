@@ -71,29 +71,25 @@
             <div class="col-3">Objectives:</div>
             <div class="col-9"><%= objectives %></div>
         </div>
-        <% if disable_walljump { %>
-        <div class="row">
-            <div class="col-3">Disable wall jumps:</div>
-            <div class="col-9">Yes</div>
-        </div>
-        <% } %>
-        <% if maps_revealed { %>
-        <div class="row">
-            <div class="col-3">Maps revealed from start:</div>
-            <div class="col-9">Yes</div>
-        </div>
-        <% } %>
-        <% if vanilla_map { %>
-        <div class="row">
-            <div class="col-3">Vanilla map:</div>
-            <div class="col-9">Yes</div>
-        </div>
-        <% } %>
-        <% if ultra_low_qol { %>
-        <div class="row">
-            <div class="col-3">Ultra-low quality of life:</div>
-            <div class="col-9">Yes</div>
-        </div>
+        <% 
+        let mut game_variations = vec![];
+        if disable_walljump {
+            game_variations.push("Disable wall jumps");
+        }
+        if maps_revealed {
+            game_variations.push("Maps revealed from start");
+        }
+        if vanilla_map {
+            game_variations.push("Vanilla map");
+        }
+        if ultra_low_qol {
+            game_variations.push("Ultra-low quality of life");
+        }
+        if game_variations.len() > 0 { %>
+            <div class="row">
+                <div class="col-3">Game variations:</div>
+                <div class="col-9"><b><%- game_variations.join(", ") %></b></div>
+            </div>
         <% } %>
         <div class="row">
             <div class="col-3">Race mode:</div>

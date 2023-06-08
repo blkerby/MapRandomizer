@@ -11,28 +11,26 @@
             </h2>
             <div id="collapse<%- name_no_space %>Tech" class="accordion-collapse collapse">
                 <div class="container mx-2 my-2">
-                    <% for tech in &p.preset.tech { %>
+                    <% for (i, tech) in p.preset.tech.iter().enumerate() { %>
+                        <% if i > 0 { %>
+                            <hr>
+                        <% } %>
                         <div class="row my-3">
-                            <div class="text-center col-sm-4 col-md-3 col-lg-2">
+                            <div class="text-center col-sm-4 col-md-3 col-lg-2 my-0">
                                 <% if tech_gif_listing.contains(&format!("{}.gif", tech)) { %>
                                 <img loading="lazy" src="/static/tech_gifs/<%- tech%>.gif" style="width:80%">
                                 <% } %>
                             </div>
-                            <div class="col-sm-8 col-md-9 col-lg-10">
+                            <div class="col-sm-8 col-md-9 col-lg-10 my-0">
                                 <div class="container mx-0 my-0">
                                     <div class="row">
-                                        <div class="col-xs-9 col-sm-7 col-md-5 col-lg-4 mx-0 my-1">
-<!--                                         <input type="checkbox" class="form-check-input tech-input" 
-                                            id="tech-<%- tech%>" 
-                                            onchange="techChanged()" 
-                                            name="tech-<%- tech %>" 
-                                            value="<%- tech%>"> -->
-                                            <label class="form-check-label" for="<%- tech%>"><b><%= tech %></b></label>
+                                        <div class="col-lg-9 col-xl-8 col-xxl-7 mx-0 my-0">
+                                            <label for="<%- tech%>"><b><%= tech %></b></label>
                                         </div>
-                                        <div class="col-md-3 col-lg-2 btn-group my-0" role="group" onchange="techChanged()">
+                                        <div class="col-lg-2 col-xl-2 btn-group my-0" role="group" onchange="techChanged()">
                                             <input type="radio" class="btn-check" name="tech-<%- tech %>" id="tech-<%- tech %>-No" value="false" checked=true>
                                             <label class="btn btn-outline-primary m-0 p-1" for="tech-<%- tech %>-No">No</label>
-                                            <input type="radio" class="btn-check" name="tech-<%- tech %>" id="tech-<%- tech %>-Yes" value="true">
+                                            <input type="radio" class="btn-check tech-input" name="tech-<%- tech %>" id="tech-<%- tech %>-Yes" value="true">
                                             <label class="btn btn-outline-primary m-0 p-1" for="tech-<%- tech %>-Yes">Yes</label>
                                         </div>
                                     </div>
@@ -48,30 +46,41 @@
                             </div>
                         </div>
                     <% } %>
-                    <hr>
 
                     <% for strat in &p.preset.notable_strats { %>
                         <% let strat_id = strat_id_by_name[strat]; %>
-                        <div class="row">
-                            <div class="col-sm-12 form-check">
-                            <input type="checkbox" class="form-check-input strat-input" 
-                                id="strat-<%- strat_id %>" 
-                                onchange="techChanged()" 
-                                name="strat-<%- strat %>" 
-                                value="<%- strat%>">
-                            <label class="form-check-label" for="<%- strat%>"><b><%= strat %></b> (<%= strat_room[strat] %>)</label>
+                        <hr>
+                        <div class="row my-3">
+                            <div class="text-center col-sm-4 col-md-3 col-lg-2">
+                                <!-- placeholder for GIFs (coming soon) -->
+                            </div>
+                            <div class="col-sm-8 col-md-9 col-lg-10">
+                                <div class="container mx-0 my-0">
+                                    <div class="row">
+                                        <div class="col-lg-9 col-xl-8 col-xxl-7 mx-0 my-1">
+                                            <label for="strat-<%- strat %>">
+                                            <b><%= strat %></b>
+                                            </label>
+                                        </div>
+                                        <div class="col-lg-2 col-xl-2 btn-group my-0" role="group" onchange="techChanged()">
+                                            <input type="radio" class="btn-check" name="strat-<%- strat %>" id="strat-<%- strat_id %>-No" value="false" checked=true>
+                                            <label class="btn btn-outline-primary m-0 p-1" for="strat-<%- strat_id %>-No">No</label>
+                                            <input type="radio" class="btn-check strat-input" name="strat-<%- strat %>" id="strat-<%- strat_id %>-Yes" value="true">
+                                            <label class="btn btn-outline-primary m-0 p-1" for="strat-<%- strat_id %>-Yes">Yes</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12 my-1">
+                                            <%= strat_description[strat] %>
+                                        </div>
+                                    </div>
+                                    <% if strat_dependencies[strat].len() > 0 { %>
+                                    <i>Dependencies: <%= strat_dependencies[strat].join(", ") %> </i>
+                                    <% } %>
+                                </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <%= strat_description[strat] %>
-                            </div>
-                        </div>
-                        <% if strat_dependencies[strat].len() > 0 { %>
-                        <i>Dependencies: <%= strat_dependencies[strat].join(", ") %> </i>
-                        <% } %>
                     <% } %>
-
                 </div>
             </div>
         </div>

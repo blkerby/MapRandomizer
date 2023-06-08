@@ -102,11 +102,11 @@ model = TransformerModel(
     map_y=env_config.map_y,
     block_size_x=8,
     block_size_y=8,
-    embedding_width=256,
+    embedding_width=512,
     key_width=32,
     value_width=32,
     attn_heads=8,
-    hidden_width=512,
+    hidden_width=2048,
     arity=1,
     num_local_layers=2,
     embed_dropout=0.1,
@@ -191,8 +191,8 @@ num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in sessio
 hist_c = 1.0
 hist_frac = 1.0
 batch_size = 2 ** 10
-lr0 = 0.0005
-lr1 = 0.0005
+lr0 = 0.0003
+lr1 = 0.0003
 # lr_warmup_time = 16
 # lr_cooldown_time = 100
 num_candidates_min0 = 1
@@ -238,8 +238,8 @@ temperature_decay = 1.0
 annealing_start = 0
 annealing_time = 1
 
-pass_factor0 = 0.1
-pass_factor1 = 0.1
+pass_factor0 = 0.05
+pass_factor1 = 0.05
 print_freq = 4
 total_reward = 0
 total_loss = 0.0
@@ -255,8 +255,8 @@ total_ent = 0.0
 total_round_cnt = 0
 total_min_door_frac = 0
 total_cycle_cost = 0.0
-save_freq = 128
-summary_freq = 128
+save_freq = 64
+summary_freq = 64
 session.decay_amount = 0.01
 # session.decay_amount = 0.2
 session.optimizer.param_groups[0]['betas'] = (0.9, 0.9)
@@ -394,7 +394,7 @@ for i in range(1000000):
             cpu_executor=cpu_executor,
             render=False)
 
-        if temp_num_min > 0:
+        if temp_num_min > 0 and num_candidates_max > 1:
             total_ent += session.update_door_connect_stats(door_connect_alpha, door_connect_beta, temp_num_min)
         # logging.info("cand_count={:.3f}".format(torch.mean(data.cand_count)))
         session.replay_buffer.insert(data)

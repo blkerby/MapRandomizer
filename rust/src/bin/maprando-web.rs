@@ -742,6 +742,8 @@ async fn randomize(
     }
 
     let tech_json: serde_json::Value = serde_json::from_str(&req.tech_json).unwrap();
+    info!("tech_json: {}", tech_json);
+    info!("{}", tech_json.is_object());
     let mut tech_vec: Vec<String> = Vec::new();
     let walljump_tech = "canWalljump";
     assert!(tech_json.as_object().unwrap().contains_key(walljump_tech));
