@@ -23,7 +23,7 @@
       <li>The ability to view maps of other areas (using Select in the pause menu)
       <li>The ability to unexplore map tiles (using Angle Up + Item Cancel)
       <li>The auto-save before the escape sequence
-      <li>Patching out major glitches: Spacetime beam, GT code
+      <li>Patching out major glitches: Spacetime beam, GT code, and out-of-bounds (death trigger)
       <li>Removal of item fanfares
       <li>Fast decompression (for quicker room loading)
       <li>Adjustment to the position of the left enemy in Tourian Blue Hopper Room

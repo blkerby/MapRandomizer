@@ -271,6 +271,7 @@ impl<'a> Patcher<'a> {
                 "map_progress_maintain",
                 "tourian_blue_hopper",
                 "boss_exit",
+                "oob_death",
             ]);
 
             let mut new_game = "new_game";

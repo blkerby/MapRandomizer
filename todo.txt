@@ -1,11 +1,6 @@
 priority:
 - new objective: chozos (BT, GT, Bowling, Acid statue)
 - improve how race ROMs work (allow creator to unlock spoiler)
-<li>TODO: The creator of a Race Mode seed can now unlock its spoiler information.
-    <ul>
-    <li>If spoiler information is unlocked, it will become visible to everyone on the seed page.
-    <li>The timestamp when spoiler information was unlocked is shown on the seed page.
-    </ul>
 - randomized start
 - finish getting new model training going
 - game variation for maps revealed from start
@@ -29,6 +24,7 @@ model stuff to try:
 
 
 later:
+- add logic override for strat to run under tourian blue hoppers from left (except with ultra-low QoL)
 - fix: arrow map tile down to toilet doesn't get revealed (when it crosses areas)?
 - logic: killing 3 musketeers with ice should require patience?
 - fix toilet tile in botwoon's hallway with "vanilla map" option.

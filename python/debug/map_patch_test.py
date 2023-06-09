@@ -28,7 +28,9 @@ area_arr = [rom.read_u8(room.rom_address + 1) for room in rooms]
 
 
 patches = [
-    'spinjumprestart',
+    'holes',
+    'oob_death',
+    # 'spinjumprestart',
     # 'new_game_extra',
     # 'door_hurt',
     # 'complementary_suits',
@@ -197,34 +199,34 @@ for room_obj in rooms:
 # data = rom.read_n(snes2pc(0x839912), 12)
 # rom.write_n(snes2pc(0x83A738), 12, data)
 
-# Connect top door of various rooms to specific water room:
-data = rom.read_n(snes2pc(0x83A4BC), 12)  # Pseudo Plasma Spark Room
-# data = rom.read_n(snes2pc(0x83A330), 12)  # Main Street
-# data = rom.read_n(snes2pc(0x83A42C), 12)  # Red Fish Room
-# data = rom.read_n(snes2pc(0x83A3F0), 12)  # Mt Everest left bottom door
-# data = rom.read_n(snes2pc(0x83A3FC), 12)  # Mt Everest right bottom door
+# # Connect top door of various rooms to specific water room:
+# data = rom.read_n(snes2pc(0x83A4BC), 12)  # Pseudo Plasma Spark Room
+# # data = rom.read_n(snes2pc(0x83A330), 12)  # Main Street
+# # data = rom.read_n(snes2pc(0x83A42C), 12)  # Red Fish Room
+# # data = rom.read_n(snes2pc(0x83A3F0), 12)  # Mt Everest left bottom door
+# # data = rom.read_n(snes2pc(0x83A3FC), 12)  # Mt Everest right bottom door
+# #
+# rom.write_n(snes2pc(0x838B3E), 12, data)  # Climb
+# rom.write_n(snes2pc(0x838A96), 12, data)  # Crab Maze
+# rom.write_n(snes2pc(0x83947A), 12, data)  # Post Crocomire Shaft
+# rom.write_n(snes2pc(0x83A228), 12, data)  # Wrecked Ship Main Shaft
+# rom.write_n(snes2pc(0x83AAF8), 12, data)  # Tourian Escape Room 2
+# rom.write_n(snes2pc(0x8393EA), 12, data)  # Crocomire's Room
+# rom.write_n(snes2pc(0x838E3E), 12, data)  # Spore Spawn Kihunter
+# rom.write_n(snes2pc(0x839156), 12, data)  # Warehouse Zeela Room
+# rom.write_n(snes2pc(0x8394CE), 12, data)  # Post Crocomire Jump Room
+# rom.write_n(snes2pc(0x83A294), 12, data)  # Basement
+# rom.write_n(snes2pc(0x83AA08), 12, data)  # Blue Hopper Room
+# rom.write_n(snes2pc(0x839A26), 12, data)  # Wasteland
+# rom.write_n(snes2pc(0x8399DE), 12, data)  # Lower Norfair Escape Power Bomb Room
+# rom.write_n(snes2pc(0x8396AE), 12, data)  # Purple Shaft
+# rom.write_n(snes2pc(0x839762), 12, data)  # Acid Snakes Tunnel
 #
-rom.write_n(snes2pc(0x838B3E), 12, data)  # Climb
-rom.write_n(snes2pc(0x838A96), 12, data)  # Crab Maze
-rom.write_n(snes2pc(0x83947A), 12, data)  # Post Crocomire Shaft
-rom.write_n(snes2pc(0x83A228), 12, data)  # Wrecked Ship Main Shaft
-rom.write_n(snes2pc(0x83AAF8), 12, data)  # Tourian Escape Room 2
-rom.write_n(snes2pc(0x8393EA), 12, data)  # Crocomire's Room
-rom.write_n(snes2pc(0x838E3E), 12, data)  # Spore Spawn Kihunter
-rom.write_n(snes2pc(0x839156), 12, data)  # Warehouse Zeela Room
-rom.write_n(snes2pc(0x8394CE), 12, data)  # Post Crocomire Jump Room
-rom.write_n(snes2pc(0x83A294), 12, data)  # Basement
-rom.write_n(snes2pc(0x83AA08), 12, data)  # Blue Hopper Room
-rom.write_n(snes2pc(0x839A26), 12, data)  # Wasteland
-rom.write_n(snes2pc(0x8399DE), 12, data)  # Lower Norfair Escape Power Bomb Room
-rom.write_n(snes2pc(0x8396AE), 12, data)  # Purple Shaft
-rom.write_n(snes2pc(0x839762), 12, data)  # Acid Snakes Tunnel
-
-# # Connect Landing Site bottom left door to different room:
-# data = rom.read_n(snes2pc(0x838952), 12)  # Gauntlet Energy Tank Room right
-data = rom.read_n(snes2pc(0x8399D2), 12)  # Lower Norfair Fireflea Room
-rom.write_n(snes2pc(0x838916), 12, data)  # Landing Site bottom left door
-
+# # # Connect Landing Site bottom left door to different room:
+# # data = rom.read_n(snes2pc(0x838952), 12)  # Gauntlet Energy Tank Room right
+# data = rom.read_n(snes2pc(0x8399D2), 12)  # Lower Norfair Fireflea Room
+# rom.write_n(snes2pc(0x838916), 12, data)  # Landing Site bottom left door
+#
 # Connect Parlor top left door to different room:
 # data = rom.read_n(snes2pc(0x83A300), 12)  # Gauntlet Energy Tank Room right
 # rom.write_n(snes2pc(0x83895E), 12, data)  # parlor top left door

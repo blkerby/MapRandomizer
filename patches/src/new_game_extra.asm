@@ -8,6 +8,7 @@ lorom
 !GameStartState = $7ED914
 !current_save_slot = $7e0952
 !area_explored_mask = $702600
+!initial_area_explored_mask = $B5F600  ; must match address in patch/map_tiles.rs
 
 ;;; Hijack code that runs during initialization
 org $82801d
@@ -33,11 +34,6 @@ startup:
 start_game:
     ; Initialize the load station and area/map-area:
     ;    stz $078B : stz $079f : stz $1f5b
-
-    ; Initialize areas explored
-;    lda #$003F
-    lda #$0001
-    sta !area_explored_mask
 
     ; temporary extra stuff:
 ;    lda #$F32F
@@ -67,20 +63,6 @@ start_game:
     sta $09CE   ; power bombs
     sta $09D0   ; max power bombs
 
-    ; Initialize areas explored
-    lda #$0001
-    sta $7FFE02
-
-;    ; area maps collected
-;    lda #$003F
-;    sta $7FFE02
-;    lda #$0001
-;    sta $0789
-;    lda #$ffff
-;    sta $7ED908
-;    sta $7ED90A
-;    sta $7ED90C
-
     lda #$0101     ; set G4 bosses defeated
     sta $7ED829
     sta $7ED82B
@@ -88,38 +70,22 @@ start_game:
     ; If there are no existing save files, then clear map revealed tiles (persisted across deaths/reloads)
     lda $0954
     bne .skip_clear_revealed
-    ldx #$0600
-.clear_revealed
-    dex
-    dex
-    lda #$0000
-    sta $702000, X    
-    txa
-    bne .clear_revealed
-.skip_clear_revealed:
 
-    ; Copy initial explored tiles from B5:F000 (to set map station tiles to explored)
-    ; Also initialize these as revealed tiles (so that map station tiles will be taken into account in pause map scroll limits).
+    ; Initialize areas explored
+    lda !initial_area_explored_mask
+    sta !area_explored_mask
+
+    ; Copy initial revealed tiles from B5:F000 (e.g. to set map station tiles to revealed)
     ldx #$0600
-.copy_explored
+.copy_revealed
     dex
     dex
     lda $B5F000, X
-    sta $7ECD52, X
-    ora $702000, X
     sta $702000, X
     txa
-    bne .copy_explored
+    bne .copy_revealed
 
-    ; Do the same for the local-area explored tiles (TODO: maybe simplify this.)
-    ldx #$0100
-.copy_explored_crateria
-    dex
-    dex
-    lda $B5F000, X
-    sta $07F7, X
-    txa
-    bne .copy_explored_crateria
+.skip_clear_revealed:
 
     ; Unlock Tourian statues room (to avoid camera glitching when entering from bottom, and also to ensure game is
     ; beatable since we don't take it into account as an obstacle in the item randomization logic)

@@ -2,3 +2,4 @@
 CDA0 - D02F: max_ammo_display.asm
 D02F - D100: fast_pause_menu.asm
 D100 - D140: fast_doors.asm
+D140 - D200: oob_death.asm

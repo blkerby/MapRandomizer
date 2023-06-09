@@ -8,17 +8,31 @@ about 15 seconds to load.
 <li>New quality-of-life option "Acid Chozo does not require Space Jump" is added (enabled by default).
 <li>New objective option "Chozos" is added.
 <li>New game variation "Maps revealed from start" is added.
+<li>Going out of bounds triggers death.
+    <ul>
+    <li>Note that other major glitches have already been patched out: glitched beams and GT code (since version 1).
+    <li>When the "Ultra-low quality-of-life" game variation is enabled, out-of-bounds still behaves vanilla.
+    </ul>
+<li>TODO: The creator of a Race Mode seed can now unlock its spoiler information.
+    <ul>
+    <li>If spoiler information is unlocked, it will become visible to everyone on the seed page.
+    <li>The timestamp when spoiler information was unlocked is shown on the seed page.
+    </ul>
 <li>Website updates:
     <ul>
     <li>Animated GIFs are included under "Skill Assumptions" to illustrate tech.
-    <li>Dark mode support is added (enabled based on system preference)
+    <li>Dark mode support is added (automatically enabled based on system preference)
     </ul>
-<li>Logic bugfixes:
+<li>Logic updates:
     <ul>
-    <li>Fixed problem where access to Metal Pirates, Baby Kraid Room, or Plasma Room could incorrectly put Zebes Awake 
-    into logic without a way to defeat the enemies in the room.
-    <li>Removed cross-room jump strats through the Toilet from being in logic. In some cases these were not
-    doable because of how the Toilet centers Samus horizontally.
+    <li>Bugfixes:</li>
+        <ul>
+        <li>Fixed problem where access to Metal Pirates, Baby Kraid Room, or Plasma Room could put Zebes Awake 
+    into logic without a way to defeat the enemies.
+        <li>Removed cross-room jump strats through the Toilet from being in logic. These were not
+        always doable because of how the Toilet centers Samus horizontally.
+        </ul>
+    <li>TODO: ...
     </ul>
 </ul>
 

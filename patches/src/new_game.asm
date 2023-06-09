@@ -30,10 +30,6 @@ startup:
     ; Initialize the load station and area, map-area:
     stz $078B : stz $079f : stz $1f5b
 
-    ; Initialize areas explored
-    lda !initial_area_explored_mask
-    sta !area_explored_mask
-
     ; Unlock Tourian statues room (to avoid camera glitching when entering from bottom, and also to ensure game is
     ; beatable since we don't take it into account as an obstacle in the item randomization logic)
     lda #$0004
@@ -42,6 +38,10 @@ startup:
     ; If there are no existing save files, then clear map revealed tiles (persisted across deaths/reloads)
     lda $0954
     bne .skip_clear_revealed
+
+    ; Initialize areas explored
+    lda !initial_area_explored_mask
+    sta !area_explored_mask
 
     ; Copy initial revealed tiles from B5:F000 (e.g. to set map station tiles to revealed)
     ldx #$0600
