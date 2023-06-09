@@ -120,6 +120,14 @@ struct SeedNotFoundTemplate {}
 struct FileNotFoundTemplate {}
 
 #[derive(TemplateOnce)]
+#[template(path = "errors/invalid_token.stpl")]
+struct InvalidTokenTemplate {}
+
+#[derive(TemplateOnce)]
+#[template(path = "errors/already_unlocked.stpl")]
+struct AlreadyUnlockedTemplate {}
+
+#[derive(TemplateOnce)]
 #[template(path = "home/main.stpl")]
 struct HomeTemplate<'a> {
     version: usize,
@@ -133,10 +141,9 @@ struct HomeTemplate<'a> {
     tech_dependencies: &'a HashMap<String, Vec<String>>,
     strat_dependencies: &'a HashMap<String, Vec<String>>,
     _strat_area: &'a HashMap<String, String>,
-    strat_room: &'a HashMap<String, String>,
     strat_description: &'a HashMap<String, String>,
     strat_id_by_name: &'a HashMap<String, usize>,
-    tech_gif_listing: &'a HashSet<String>
+    tech_gif_listing: &'a HashSet<String>,
 }
 
 #[get("/")]
@@ -165,7 +172,6 @@ async fn home(app_data: web::Data<AppData>) -> impl Responder {
         tech_dependencies: &app_data.game_data.tech_dependencies,
         strat_dependencies: &app_data.game_data.strat_dependencies,
         _strat_area: &app_data.game_data.strat_area,
-        strat_room: &app_data.game_data.strat_room,
         strat_description: &app_data.game_data.strat_description,
         strat_id_by_name: &app_data.game_data.notable_strat_isv.index_by_key,
         tech_gif_listing: &app_data.tech_gif_listing,
@@ -194,6 +200,7 @@ struct RandomizeRequest {
     filler_items_json: Text<String>,
     race_mode: Text<String>,
     random_seed: Text<String>,
+    spoiler_token: Text<String>,
     quality_of_life_preset: Option<Text<String>>,
     supers_double: Text<bool>,
     mother_brain_fight: Text<String>,
@@ -216,6 +223,11 @@ struct RandomizeRequest {
     maps_revealed: Text<bool>,
     vanilla_map: Text<bool>,
     ultra_low_qol: Text<bool>,
+}
+
+#[derive(Deserialize)]
+struct UnlockRequest {
+    spoiler_token: String,
 }
 
 #[derive(MultipartForm)]
@@ -321,6 +333,7 @@ struct SeedFooterTemplate {
 #[template(path = "seed/customize_seed.stpl")]
 struct CustomizeSeedTemplate {
     version: usize,
+    unlocked_timestamp_str: String,
     seed_header: String,
     seed_footer: String,
 }
@@ -397,6 +410,7 @@ fn render_seed(seed_name: &str, seed_data: &SeedData) -> Result<(String, String)
 async fn save_seed(
     seed_name: &str,
     seed_data: &SeedData,
+    spoiler_token: &str,
     vanilla_rom: &Rom,
     output_rom: &Rom,
     randomization: &Randomization,
@@ -424,27 +438,46 @@ async fn save_seed(
         seed_footer_html.into_bytes(),
     ));
 
-    if !seed_data.race_mode {
-        // Write the spoiler log
-        let spoiler_bytes = serde_json::to_vec_pretty(&randomization.spoiler_log).unwrap();
-        files.push(SeedFile::new("public/spoiler.json", spoiler_bytes));
+    let prefix = if seed_data.race_mode {
+        "locked"
+    } else {
+        "public"
+    };
 
-        // Write the spoiler maps
-        let spoiler_maps = spoiler_map::get_spoiler_map(
-            &output_rom,
-            &randomization.map,
-            &app_data.game_data,
-        )
-        .unwrap();
-        files.push(SeedFile::new("public/map-assigned.png", spoiler_maps.assigned));
-        files.push(SeedFile::new("public/map-vanilla.png", spoiler_maps.vanilla));
-        files.push(SeedFile::new("public/map-grid.png", spoiler_maps.grid));
+    if seed_data.race_mode {
+        files.push(SeedFile::new(
+            "spoiler_token.txt",
+            spoiler_token.as_bytes().to_vec(),
+        ));
+    }
 
-        // Write the spoiler visualizer
-        for (filename, data) in &app_data.visualizer_files {
-            let path = format!("public/visualizer/{}", filename);
-            files.push(SeedFile::new(&path, data.clone()));
-        }
+    // Write the spoiler log
+    let spoiler_bytes = serde_json::to_vec_pretty(&randomization.spoiler_log).unwrap();
+    files.push(SeedFile::new(
+        &format!("{}/spoiler.json", prefix),
+        spoiler_bytes,
+    ));
+
+    // Write the spoiler maps
+    let spoiler_maps =
+        spoiler_map::get_spoiler_map(&output_rom, &randomization.map, &app_data.game_data).unwrap();
+    files.push(SeedFile::new(
+        &format!("{}/map-assigned.png", prefix),
+        spoiler_maps.assigned,
+    ));
+    files.push(SeedFile::new(
+        &format!("{}/map-vanilla.png", prefix),
+        spoiler_maps.vanilla,
+    ));
+    files.push(SeedFile::new(
+        &format!("{}/map-grid.png", prefix),
+        spoiler_maps.grid,
+    ));
+
+    // Write the spoiler visualizer
+    for (filename, data) in &app_data.visualizer_files {
+        let path = format!("{}/visualizer/{}", prefix, filename);
+        files.push(SeedFile::new(&path, data.clone()));
     }
 
     let seed = Seed {
@@ -466,19 +499,23 @@ async fn view_seed_redirect(info: web::Path<(String,)>) -> impl Responder {
 #[get("/seed/{name}/")]
 async fn view_seed(info: web::Path<(String,)>, app_data: web::Data<AppData>) -> impl Responder {
     let seed_name = &info.0;
-    let (seed_header, seed_footer) = futures::join!(
+    let (seed_header, seed_footer, unlocked_timestamp_str) = futures::join!(
         app_data
             .seed_repository
             .get_file(seed_name, "seed_header.html"),
         app_data
             .seed_repository
-            .get_file(seed_name, "seed_footer.html")
+            .get_file(seed_name, "seed_footer.html"),
+        app_data
+            .seed_repository
+            .get_file(seed_name, "unlocked_timestamp.txt"),
     );
 
     match (seed_header, seed_footer) {
         (Ok(header), Ok(footer)) => {
             let customize_template = CustomizeSeedTemplate {
                 version: VERSION,
+                unlocked_timestamp_str: String::from_utf8(unlocked_timestamp_str.unwrap_or(vec![])).unwrap(),
                 seed_header: String::from_utf8(header.to_vec()).unwrap(),
                 seed_footer: String::from_utf8(footer.to_vec()).unwrap(),
             };
@@ -495,6 +532,55 @@ async fn view_seed(info: web::Path<(String,)>, app_data: web::Data<AppData>) -> 
             HttpResponse::NotFound().body(template.render_once().unwrap())
         }
     }
+}
+
+#[post("/seed/{name}/unlock")]
+async fn unlock_seed(
+    req: web::Form<UnlockRequest>,
+    info: web::Path<(String,)>,
+    app_data: web::Data<AppData>,
+) -> impl Responder {
+    let seed_name = &info.0;
+    let seed_spoiler_token = app_data
+        .seed_repository
+        .get_file(seed_name, "spoiler_token.txt")
+        .await
+        .unwrap();
+
+    if req.spoiler_token.as_bytes() == seed_spoiler_token {
+        let unlocked_timestamp_data = app_data.seed_repository.get_file(seed_name, "unlocked_timestamp.txt").await;
+        if unlocked_timestamp_data.is_ok() {
+            // TODO: handle other errors that are not 404.
+            let template = AlreadyUnlockedTemplate {};
+            return HttpResponse::UnprocessableEntity().body(template.render_once().unwrap());    
+        }
+        
+        app_data
+            .seed_repository
+            .move_prefix(seed_name, "locked", "public")
+            .await
+            .unwrap();
+        let timestamp = match SystemTime::now().duration_since(SystemTime::UNIX_EPOCH) {
+            Ok(n) => n.as_millis() as usize,
+            Err(_) => panic!("SystemTime before UNIX EPOCH!"),
+        };
+        let unlock_time_str = format!("{}", timestamp);
+        app_data
+            .seed_repository
+            .put_file(
+                seed_name,
+                "unlocked_timestamp.txt".to_string(),
+                unlock_time_str.into_bytes(),
+            )
+            .await
+            .unwrap();
+    } else {
+        let template = InvalidTokenTemplate {};
+        return HttpResponse::Forbidden().body(template.render_once().unwrap());
+    }
+    HttpResponse::Found()
+        .insert_header((header::LOCATION, format!("/seed/{}/", info.0)))
+        .finish()
 }
 
 #[post("/seed/{name}/customize")]
@@ -547,18 +633,19 @@ async fn get_seed_file(
     let filename = &info.1;
     println!("get_seed_file {}", filename);
 
-    let data_result: Result<Vec<u8>> =
-        if filename.starts_with("visualizer/") && app_data.static_visualizer {
-            let path = Path::new(VISUALIZER_PATH).join(filename.strip_prefix("visualizer/").unwrap());
-            std::fs::read(&path)
-                .map_err(anyhow::Error::from)
-                .with_context(|| format!("Error reading static file: {}", path.display()))
-        } else {
-            app_data
-                .seed_repository
-                .get_file(seed_name, &("public/".to_string() + filename))
-                .await
-        };
+    let data_result: Result<Vec<u8>> = if filename.starts_with("visualizer/")
+        && app_data.static_visualizer
+    {
+        let path = Path::new(VISUALIZER_PATH).join(filename.strip_prefix("visualizer/").unwrap());
+        std::fs::read(&path)
+            .map_err(anyhow::Error::from)
+            .with_context(|| format!("Error reading static file: {}", path.display()))
+    } else {
+        app_data
+            .seed_repository
+            .get_file(seed_name, &("public/".to_string() + filename))
+            .await
+    };
 
     match data_result {
         Ok(data) => {
@@ -959,6 +1046,7 @@ async fn randomize(
     save_seed(
         &seed_name,
         &seed_data,
+        &req.spoiler_token.0,
         &rom,
         &output_rom,
         &randomization,
@@ -992,7 +1080,7 @@ fn init_presets(
         "canSpeedZebetitesSkip",
         "canRemorphZebetiteSkip",
         "canDownBack",
-        "canEscapeMorphLocation",  // Special internal tech for "vanilla map" option
+        "canEscapeMorphLocation", // Special internal tech for "vanilla map" option
     ]
     .iter()
     .map(|x| x.to_string())
@@ -1122,8 +1210,8 @@ fn get_ignored_notable_strats() -> HashSet<String> {
         "MickeyMouse Crumbleless MidAir Spring Ball",
         "Mickey Mouse Crumble IBJ",
         "Botwoon Hallway Puyo Ice Clip",
-        "West Sand Hole MidAir Morph (Bootless Suitless)",  // redundant and going to be removed from being notable
-        "Mt. Everest Cross Room Jump through Top Door",  // currently unusable because of obstacleCleared requirement
+        "West Sand Hole MidAir Morph (Bootless Suitless)", // redundant and going to be removed from being notable
+        "Mt. Everest Cross Room Jump through Top Door", // currently unusable because of obstacleCleared requirement
     ]
     .iter()
     .map(|x| x.to_string())
@@ -1160,7 +1248,13 @@ fn build_app_data() -> AppData {
     let maps_path =
         Path::new("../maps/session-2022-06-03T17:19:29.727911.pkl-bk30-subarea-balance-2");
 
-    let game_data = GameData::load(sm_json_data_path, room_geometry_path, palette_path, escape_timings_path).unwrap();
+    let game_data = GameData::load(
+        sm_json_data_path,
+        room_geometry_path,
+        palette_path,
+        escape_timings_path,
+    )
+    .unwrap();
     let presets: Vec<Preset> =
         serde_json::from_str(&std::fs::read_to_string(&"data/presets.json").unwrap()).unwrap();
     let ignored_notable_strats = get_ignored_notable_strats();
@@ -1199,6 +1293,7 @@ async fn main() {
             .service(view_seed)
             .service(get_seed_file)
             .service(customize_seed)
+            .service(unlock_seed)
             .service(view_seed_redirect)
             .service(actix_files::Files::new("/static", "static"))
     })

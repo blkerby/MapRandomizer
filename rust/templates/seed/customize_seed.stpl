@@ -10,6 +10,10 @@ box-sizing: border-box;
 </head>
 <body>
 
+<script>
+window.unlockedTimestampString = "<%- unlocked_timestamp_str %>";
+</script>
+
 <div class="container">
     <div class="row">
         <div class="col-3">
@@ -25,7 +29,7 @@ box-sizing: border-box;
     </div>
 
     <div class="row my-2">
-        <div class="col-lg-9 mx-auto">
+        <div class="col-xl-9 mx-auto">
             <div class="container my-2">
                 <%- seed_header %>
             </div>
@@ -55,7 +59,6 @@ box-sizing: border-box;
                     </form>
                 </div>
             </div>
-
             <div class="container my-2">
                 <%- seed_footer %>
             </div>

@@ -16,7 +16,29 @@
     </div>
 </div>
 
-<% if !race_mode { %>
+<% if race_mode { %>
+    <div class="row">
+        <form id="unlockForm" method="POST" action="unlock" style="display:none;">
+            <input type="hidden" id="spoilerToken" name="spoiler_token">
+            <div class="col-sm-6 mx-auto text-center m-2">
+                <input type="submit" class="btn btn-secondary" value="Unlock spoiler data">
+            </div>
+        </form>
+    </div>
+    <div id="viewSpoilerDiv" class="row" style="display:none;">
+        <div class="col-sm-6 mx-auto text-center m-2">
+            <a class="btn btn-success" href="data/visualizer/index.html"><p class="m-2">View interactive spoiler map</p></a>
+        </div>
+    </div>
+    <script>
+    document.getElementById("spoilerToken").value = localStorage["spoilerToken"];
+    if (window.unlockedTimestampString === "") {
+        document.getElementById("unlockForm").style.display = "flex";
+    } else {
+        document.getElementById("viewSpoilerDiv").style.display = "flex";
+    }
+    </script>
+<% } else { %>
     <div class="row">
         <div class="col-sm-6 mx-auto text-center m-2">
             <a class="btn btn-success" href="data/visualizer/index.html"><p class="m-2">View interactive spoiler map</p></a>
@@ -109,7 +131,19 @@
     </small>
 </div>
 
-<% if !race_mode { %>
+<% if race_mode { %>
+<div id="footnote-spoiler" style="display:none;">
+    <a>
+    <small>
+    <sup>2</sup>Spoiler log <a href="data/spoiler.json">JSON</a>, map PNG (<a href="data/map-assigned.png">assigned room colors</a>, <a href="data/map-vanilla.png">vanilla room colors</a>)</small>
+    </small>
+</div>
+<script>
+if (window.unlockedTimestampString != "") {
+    document.getElementById("footnote-spoiler").style.display = "inline-block";
+}
+</script>
+<% } else { %>
 <div>
     <a id="footnote-spoiler">
     <small>

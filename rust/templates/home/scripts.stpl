@@ -230,6 +230,21 @@ function gameVariationChanged() {
         qualityOfLifePresetChanged();
     }
 }
+function initializeSpoilerToken() {
+    if (localStorage["spoilerToken"] === undefined) {
+        let result = '';
+        const length = 80;
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        const charactersLength = characters.length;
+        let counter = 0;
+        while (counter < length) {
+            result += characters.charAt(Math.floor(Math.random() * charactersLength));
+            counter += 1;
+        }
+        localStorage["spoilerToken"] = result;
+    }
+    document.getElementById("spoilerToken").value = localStorage["spoilerToken"];
+}
 </script>
 <% include!("../common/save_load_rom.stpl"); %>
 <% include!("../common/save_settings.stpl"); %>
@@ -240,4 +255,5 @@ presetChanged();
 gameVariationChanged();
 qualityOfLifePresetChanged();
 itemProgressionPresetChanged();
+initializeSpoilerToken();
 </script>

@@ -144,6 +144,7 @@
                 <input type="text" class="form-control" name="random_seed" id="randomSeed" value="">
                 </div>
             </div>
+            <input type="hidden" id="spoilerToken" name="spoiler_token">
             <div class="form-group row">
                 <div class="col-lg-3 my-2">
                     <input type="submit" class="btn btn-primary" value="Randomize Game">

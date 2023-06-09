@@ -35,7 +35,7 @@ env_logger = "0.10.0"
 hashers = "1.0.1"
 log = "0.4.17"
 zip = "0.6.3"
-object_store = {version = "0.5.3", features=["gcp"]}
+object_store = {version = "0.6.1", features=["gcp"]}
 fasthash = "0.4.0"
 base64 = "0.21.0"
 futures = "0.3.25"

@@ -8,9 +8,15 @@
             <div class="col-9"><%= seed_name %></div>
         </div>
         <div class="row">
-            <div class="col-3">Timestamp:</div>
-            <div class="col-9" id="seedTimestamp"></div>
+            <div class="col-3">Created:</div>
+            <div class="col-9" id="createdTimestamp"></div>
         </div>
+        <% if race_mode { %>
+        <div class="row">
+            <div class="col-3">Spoiler unlocked:</div>
+            <div class="col-9" id="unlockedTimestamp"></div>
+        </div>
+        <% } %>
         <div class="row">
             <div class="col-3">Version:</div>
             <div class="col-9"><%= version %></div>
@@ -91,15 +97,22 @@
                 <div class="col-9"><b><%- game_variations.join(", ") %></b></div>
             </div>
         <% } %>
-        <div class="row">
-            <div class="col-3">Race mode:</div>
-            <div class="col-9"><%= if race_mode { "Yes" } else { "No" } %></div>
-        </div>
     </div>
 </div>
 
 <script>
 var date = new Date();
 date.setTime(<%- timestamp %>);
-document.getElementById("seedTimestamp").innerHTML = date.toString();
+document.getElementById("createdTimestamp").innerHTML = date.toString();
+
+unlockedTimestampElement = document.getElementById("unlockedTimestamp")
+if (unlockedTimestampElement !== null) {
+    if (window.unlockedTimestampString == "") {
+        unlockedTimestampElement.innerHTML = "Not yet";    
+    } else {
+        var date = new Date();
+        date.setTime(parseInt(window.unlockedTimestampString));
+        unlockedTimestampElement.innerHTML = date.toString();
+    }
+}
 </script>

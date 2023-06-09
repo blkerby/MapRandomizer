@@ -6,6 +6,9 @@ about 15 seconds to load.
 <p><a href="https://version-65---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 65 (???)</a>:
 <ul>
 <li>New quality-of-life option "Acid Chozo does not require Space Jump" is added (enabled by default).
+    <ul>
+    <li>TODO: implement logic override.
+    </ul>
 <li>New objective option "Chozos" is added.
 <li>New game variation "Maps revealed from start" is added.
 <li>Going out of bounds triggers death.
@@ -17,6 +20,8 @@ about 15 seconds to load.
     <ul>
     <li>If spoiler information is unlocked, it will become visible to everyone on the seed page.
     <li>The timestamp when spoiler information was unlocked is shown on the seed page.
+    <li>TODO: check prefix of spoiler token, don't show "Unlock" button if doesn't match.
+    <li>TODO: do not show or use Random Seed. (also modify before storing in ROM for seed hash)
     </ul>
 <li>Website updates:
     <ul>
