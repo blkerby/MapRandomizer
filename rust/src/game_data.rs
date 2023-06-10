@@ -1446,7 +1446,6 @@ impl GameData {
                 }
             }
         }
-        println!("{}", room_json);
         assert!(found);
     }
 

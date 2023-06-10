@@ -28,8 +28,9 @@ area_arr = [rom.read_u8(room.rom_address + 1) for room in rooms]
 
 
 patches = [
-    'holes',
-    'oob_death',
+    'disable_walljump'
+    # 'holes',
+    # 'oob_death',
     # 'spinjumprestart',
     # 'new_game_extra',
     # 'door_hurt',

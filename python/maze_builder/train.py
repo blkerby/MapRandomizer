@@ -177,10 +177,10 @@ eval_batches = pickle.load(open("eval_batches_zebes.pkl", "rb"))
 # cpu_executor = concurrent.futures.ProcessPoolExecutor()
 cpu_executor = None
 
-# pickle_name = 'models/session-2023-06-05T23:13:42.750975.pkl'
+pickle_name = 'models/session-2023-06-08T14:55:16.779895.pkl'
 # # session = pickle.load(open(pickle_name, 'rb'))
-# session = pickle.load(open(pickle_name + '-bk6', 'rb'))
-# session.envs = envs
+session = pickle.load(open(pickle_name + '-bk1', 'rb'))
+session.envs = envs
 
 
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
@@ -236,10 +236,10 @@ temperature_frac_min1 = 0.5
 temperature_decay = 1.0
 
 annealing_start = 0
-annealing_time = 1
+annealing_time = 2048
 
-pass_factor0 = 0.05
-pass_factor1 = 0.05
+pass_factor0 = 0.2
+pass_factor1 = 0.2
 print_freq = 16
 total_reward = 0
 total_loss = 0.0
@@ -535,7 +535,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk6')
+            # save_session(session, pickle_name + '-bk2')
             # session.replay_buffer.resize(2 ** 20)
             # pickle.dump(session, open(pickle_name + '-small', 'wb'))
     if session.num_rounds % summary_freq == 0:

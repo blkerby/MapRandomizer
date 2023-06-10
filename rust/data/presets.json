@@ -47,7 +47,9 @@
     "notable_strats": [
       "Draygon Grapple Kill",
       "Back-Side Botwoon Fight with Charge and Wave",
-      "Green Hill Zone Wall Jump to Top Right Door"
+      "Green Hill Zone Wall Jump to Top Right Door",
+      "Golden Torizo Horizontal Bomb Jump",
+      "Reverse Tourian Escape Room 4 Dodge While Climbing"
     ]
   },
   {
@@ -105,7 +107,11 @@
       "Big Pink Off Screen Super Block",
       "Red Tower Hero Shot",
       "Plasma Spark Fish Climb",
-      "Moat SpringBall Bounce"
+      "Moat SpringBall Bounce",
+      "Golden Torizo Crumble Jump",
+      "Ridley without Heat Protection",
+      "Colosseum Mochtroid Ice Climb",
+      "Aqueduct Bootless Suitless Snail Climb"
     ]
   },
   {
@@ -211,7 +217,10 @@
       "Bowling Alley Missile Chozo Camera Unlock",
       "Croc Speedway Reverse Speedball",
       "Glass Tunnel Maridia Tube Clip",
-      "Mickey Mouse Crumble Speedjump"
+      "Mickey Mouse Crumble Speedjump",
+      "Crab Shaft Ice Only Crab Climb",
+      "West Sand Hall Ice Beam Only (Center to Left)",
+      "West Sand Hall Ice Only (Center to Right)"
     ]
   },
   {
@@ -265,7 +274,6 @@
       "West Ocean Bug Boost with Wave or Spazer",
       "West Ocean Bug Boost",
       "LN Fireflea Room Morph Over the Fune",
-      "East Sand Hall Springball Jump",
       "East Cac Alley Cross Room Jump with Spring Ball, Bomb Boost",
       "East Cac Alley Cross Room Jump with IBJ",
       "Cacatac Alley Springball Spike Boost",
@@ -301,7 +309,11 @@
       "Big Pink SpeedBall into Raised Bomb Blocks",
       "Below Spazer Jump Shot Speedball",
       "Spring Ball Room Escape - Suitless, Bootless, Space Jump",
-      "Colosseum Spike Platforming with Move Assist (Left to Right)"
+      "Colosseum Spike Platforming with Move Assist (Left to Right)",
+      "East Sand Hall Spring Ball HiJump",
+      "West Sand Hall Suitless Bootless Spring Ball",
+      "East Sand Hall Suitless Bootless Evir Freeze (Center to Left)",
+      "East Sand Hall Suitless Bootless Evir Freeze (Center to Right)"
     ]
   },
   {
@@ -353,7 +365,9 @@
       "Writg HiJump and Only Screw", 
       "Writg Power Bomb Diagonal Bomb Jump",
       "Lava Dive Diagonal Bomb Jump",
-      "Climb Speedkeep Chain Through Bomb Blocks"
+      "Climb Speedkeep Chain Through Bomb Blocks",
+      "Aqueduct Left-Side X-Ray Climb (Upper)",
+      "East Sand Hall Cross Room Jump with Ice or Damage Boost"      
     ]
   },
   {

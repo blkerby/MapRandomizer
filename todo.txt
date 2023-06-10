@@ -24,6 +24,7 @@ model stuff to try:
 
 
 later:
+- fix missing Samus tile in Bomb message box (issue with map tile expansion patch)
 - add logic override for strat to run under tourian blue hoppers from left (except with ultra-low QoL)
 - fix: arrow map tile down to toilet doesn't get revealed (when it crosses areas)?
 - logic: killing 3 musketeers with ice should require patience?

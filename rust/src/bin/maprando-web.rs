@@ -1227,7 +1227,6 @@ fn get_ignored_notable_strats() -> HashSet<String> {
         "MickeyMouse Crumbleless MidAir Spring Ball",
         "Mickey Mouse Crumble IBJ",
         "Botwoon Hallway Puyo Ice Clip",
-        "West Sand Hole MidAir Morph (Bootless Suitless)", // redundant and going to be removed from being notable
         "Mt. Everest Cross Room Jump through Top Door", // currently unusable because of obstacleCleared requirement
     ]
     .iter()

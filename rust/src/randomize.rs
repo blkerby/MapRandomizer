@@ -619,16 +619,16 @@ impl<'a> Preprocessor<'a> {
                     continue;
                 }
             }
-            println!("{}", jumpway.name);
+            // println!("{}", jumpway.name);
             req_vec.push(jumpway.requirement.clone());
         }
         let out = Requirement::make_or(req_vec);
-        println!(
-            "{}, {}, {}: {:?}",
-            self.game_data.room_json_map[&room_id]["name"], 
-            self.game_data.node_json_map[&(room_id, node_id)]["name"],
-            _link.strat_name, out
-        );
+        // println!(
+        //     "{}, {}, {}: {:?}",
+        //     self.game_data.room_json_map[&room_id]["name"], 
+        //     self.game_data.node_json_map[&(room_id, node_id)]["name"],
+        //     _link.strat_name, out
+        // );
         out
     }
 
