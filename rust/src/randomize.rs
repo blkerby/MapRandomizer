@@ -172,6 +172,7 @@ pub struct Randomization {
     pub item_placement: Vec<Item>,
     pub spoiler_log: SpoilerLog,
     pub seed: usize,
+    pub display_seed: usize,
 }
 
 struct SelectItemsOutput {
@@ -863,6 +864,10 @@ impl<'r> Randomizer<'r> {
             let all_items_spawn_idx = self.game_data.flag_isv.index_by_key["f_AllItemsSpawn"];
             flag_vec[all_items_spawn_idx] = true;
         }
+        if self.difficulty_tiers[0].acid_chozo {
+            let acid_chozo_without_space_jump_idx = self.game_data.flag_isv.index_by_key["f_AcidChozoWithoutSpaceJump"];
+            flag_vec[acid_chozo_without_space_jump_idx] = true;
+        }
         flag_vec
     }
 
@@ -1421,6 +1426,7 @@ impl<'r> Randomizer<'r> {
         spoiler_details: Vec<SpoilerDetails>,
         debug_data_vec: Vec<DebugData>,
         seed: usize,
+        display_seed: usize,
     ) -> Result<Randomization> {
         // Compute the first step on which each node becomes reachable/bireachable:
         let mut node_reachable_step: HashMap<(RoomId, NodeId), usize> = HashMap::new();
@@ -1554,6 +1560,7 @@ impl<'r> Randomizer<'r> {
             item_placement,
             spoiler_log,
             seed,
+            display_seed,
         })
     }
 
@@ -1578,7 +1585,7 @@ impl<'r> Randomizer<'r> {
         item_precedence
     }
 
-    pub fn randomize(&self, seed: usize) -> Option<Randomization> {
+    pub fn randomize(&self, seed: usize, display_seed: usize) -> Option<Randomization> {
         let mut rng_seed = [0u8; 32];
         rng_seed[..8].copy_from_slice(&seed.to_le_bytes());
         let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
@@ -1682,6 +1689,7 @@ impl<'r> Randomizer<'r> {
             spoiler_details_vec,
             debug_data_vec,
             seed,
+            display_seed,
         ) {
             Ok(r) => Some(r),
             Err(e) => {

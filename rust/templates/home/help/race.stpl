@@ -12,7 +12,12 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <p>When set to "Yes", this option prevents spoiler information from being generated.</p>
+        <p>When set to "Yes", spoiler data is initially locked. The creator of the seed can unlock the spoiler data,
+        at which point it will become viewable to everyone, and the timestamp when the spoiler data was unlocked will be
+        shown on seed page.</p>
+
+        <p>The seed creator will need to use the same device and browser to unlock the spoiler data as what they used to
+        create it (as the ability to unlock the data depends on a small random token in browser-local storage).
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

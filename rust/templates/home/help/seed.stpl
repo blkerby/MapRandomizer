@@ -13,10 +13,9 @@
       </div>
       <div class="modal-body">
         <p>If provided, this number will be used as a random seed for generating the game. This can be used to regenerate the
-        same game, e.g. after changing some quality-of-life options (as long as these do not affect game logic). Note that
-        changing the Race Mode setting will result in a different game being generated.</p>
+        same game, e.g. after changing some quality-of-life options (as long as these do not affect game logic).</p>
 
-        <p>This field can be left blank, and the randomizer will automatically choose a random seed.</p>
+        <p>If this field is left blank (or if Race Mode is enabled), then the randomizer will automatically choose a random seed.</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

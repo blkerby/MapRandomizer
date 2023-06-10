@@ -14,8 +14,6 @@
       <div class="modal-body">
       <p>In the vanilla game, the statue in Acid Chozo Statue Room will not activate (to lower the acid) unless Space Jump 
       has been collected. This option removes this requirement, allowing the statue to be activated without Space Jump.
-      <p>The vanilla game behavior was likely intended to prevent the player from soft-locking in Golden Torizo Room and 
-      Screw Attack Room. In the context of map randomization, this is not applicable.
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

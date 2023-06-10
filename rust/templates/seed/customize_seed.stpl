@@ -12,6 +12,7 @@ box-sizing: border-box;
 
 <script>
 window.unlockedTimestampString = "<%- unlocked_timestamp_str %>";
+window.spoilerTokenPrefix = "<%- spoiler_token_prefix %>";
 </script>
 
 <div class="container">

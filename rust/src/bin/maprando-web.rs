@@ -333,6 +333,7 @@ struct SeedFooterTemplate {
 #[template(path = "seed/customize_seed.stpl")]
 struct CustomizeSeedTemplate {
     version: usize,
+    spoiler_token_prefix: String,
     unlocked_timestamp_str: String,
     seed_header: String,
     seed_footer: String,
@@ -499,7 +500,7 @@ async fn view_seed_redirect(info: web::Path<(String,)>) -> impl Responder {
 #[get("/seed/{name}/")]
 async fn view_seed(info: web::Path<(String,)>, app_data: web::Data<AppData>) -> impl Responder {
     let seed_name = &info.0;
-    let (seed_header, seed_footer, unlocked_timestamp_str) = futures::join!(
+    let (seed_header, seed_footer, unlocked_timestamp_str, spoiler_token) = futures::join!(
         app_data
             .seed_repository
             .get_file(seed_name, "seed_header.html"),
@@ -509,13 +510,23 @@ async fn view_seed(info: web::Path<(String,)>, app_data: web::Data<AppData>) -> 
         app_data
             .seed_repository
             .get_file(seed_name, "unlocked_timestamp.txt"),
+        app_data
+            .seed_repository
+            .get_file(seed_name, "spoiler_token.txt"),
     );
-
+    let spoiler_token = String::from_utf8(spoiler_token.unwrap_or(vec![])).unwrap();
+    let spoiler_token_prefix = if spoiler_token.is_empty() {
+        "".to_string()
+    } else {
+        spoiler_token[0..16].to_string()
+    };
     match (seed_header, seed_footer) {
         (Ok(header), Ok(footer)) => {
             let customize_template = CustomizeSeedTemplate {
                 version: VERSION,
-                unlocked_timestamp_str: String::from_utf8(unlocked_timestamp_str.unwrap_or(vec![])).unwrap(),
+                unlocked_timestamp_str: String::from_utf8(unlocked_timestamp_str.unwrap_or(vec![]))
+                    .unwrap(),
+                spoiler_token_prefix: spoiler_token_prefix.to_string(),
                 seed_header: String::from_utf8(header.to_vec()).unwrap(),
                 seed_footer: String::from_utf8(footer.to_vec()).unwrap(),
             };
@@ -548,13 +559,16 @@ async fn unlock_seed(
         .unwrap();
 
     if req.spoiler_token.as_bytes() == seed_spoiler_token {
-        let unlocked_timestamp_data = app_data.seed_repository.get_file(seed_name, "unlocked_timestamp.txt").await;
+        let unlocked_timestamp_data = app_data
+            .seed_repository
+            .get_file(seed_name, "unlocked_timestamp.txt")
+            .await;
         if unlocked_timestamp_data.is_ok() {
             // TODO: handle other errors that are not 404.
             let template = AlreadyUnlockedTemplate {};
-            return HttpResponse::UnprocessableEntity().body(template.render_once().unwrap());    
+            return HttpResponse::UnprocessableEntity().body(template.render_once().unwrap());
         }
-        
+
         app_data
             .seed_repository
             .move_prefix(seed_name, "locked", "public")
@@ -813,7 +827,8 @@ async fn randomize(
         return HttpResponse::BadRequest().body(InvalidRomTemplate {}.render_once().unwrap());
     }
 
-    let random_seed = if &req.random_seed.0 == "" {
+    let race_mode = req.race_mode.0 == "Yes";
+    let random_seed = if &req.random_seed.0 == "" || race_mode {
         get_random_seed()
     } else {
         match req.random_seed.0.parse::<usize>() {
@@ -823,14 +838,17 @@ async fn randomize(
             }
         }
     };
+    let display_seed = if race_mode {
+        get_random_seed()
+    } else {
+        random_seed
+    };
 
     if req.ridley_proficiency.0 < 0.0 || req.ridley_proficiency.0 > 1.0 {
         return HttpResponse::BadRequest().body("Invalid Ridley proficiency");
     }
 
     let tech_json: serde_json::Value = serde_json::from_str(&req.tech_json).unwrap();
-    info!("tech_json: {}", tech_json);
-    info!("{}", tech_json.is_object());
     let mut tech_vec: Vec<String> = Vec::new();
     let walljump_tech = "canWalljump";
     assert!(tech_json.as_object().unwrap().contains_key(walljump_tech));
@@ -956,7 +974,6 @@ async fn randomize(
     } else {
         vec![difficulty.clone()]
     };
-    let race_mode = req.race_mode.0 == "Yes";
     let mut rng_seed = [0u8; 32];
     rng_seed[..8].copy_from_slice(&random_seed.to_le_bytes());
     rng_seed[9] = if race_mode { 1 } else { 0 };
@@ -989,7 +1006,7 @@ async fn randomize(
         item_placement_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
         info!("Map seed={map_seed}, item placement seed={item_placement_seed}");
         let randomizer = Randomizer::new(&map, &difficulty_tiers, &app_data.game_data);
-        randomization = match randomizer.randomize(item_placement_seed) {
+        randomization = match randomizer.randomize(item_placement_seed, display_seed) {
             Some(r) => r,
             None => continue,
         };

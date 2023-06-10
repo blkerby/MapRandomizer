@@ -172,7 +172,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
             Some(s) => s,
             None => attempt_num
         };
-        if let Some(randomization) = randomizer.randomize(seed) {
+        if let Some(randomization) = randomizer.randomize(seed, 0) {
             return Ok(randomization);
         } else {
             println!("Failed randomization attempt");

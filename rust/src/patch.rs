@@ -1280,7 +1280,7 @@ impl<'a> Patcher<'a> {
     }
 
     fn apply_seed_hash(&mut self) -> Result<()> {
-        let seed_bytes = (self.randomization.seed as u32).to_le_bytes();
+        let seed_bytes = (self.randomization.display_seed as u32).to_le_bytes();
         self.rom.write_n(snes2pc(0xdfff00), &seed_bytes)?;
         Ok(())
     }

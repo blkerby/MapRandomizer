@@ -330,7 +330,8 @@
       "canCeilingBombJump",
       "canDiagonalBombJump",
       "canCrouchGateClip",
-      "canInsaneWalljump"
+      "canInsaneWalljump",
+      "canMultiviolaIceClip"
     ],
     "notable_strats": [
       "Green Hill Zone Tunnel Crawl",
@@ -366,8 +367,7 @@
     "botwoon_proficiency": 1.0,
     "tech": [
       "canBePatient",
-      "canDownwardGModeSetup",
-      "canMultiviolaIceClip"
+      "canDownwardGModeSetup"
     ],
     "notable_strats": [
       "Taco Tank in Blue Brinstar Energy Tank Room",

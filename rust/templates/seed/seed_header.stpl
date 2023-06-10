@@ -21,10 +21,12 @@
             <div class="col-3">Version:</div>
             <div class="col-9"><%= version %></div>
         </div>
+        <% if !race_mode { %>
         <div class="row">
             <div class="col-3">Random seed:</div>
             <div class="col-9"><%= random_seed %></div>
         </div>
+        <% } %>
         <div class="row">
             <div class="col-3">Skill assumption:</div>
             <div class="col-9"><%= preset %></div>

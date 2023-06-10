@@ -609,6 +609,7 @@ impl GameData {
 
         // Add randomizer-specific flags:
         self.flag_isv.add("f_AllItemsSpawn");
+        self.flag_isv.add("f_AcidChozoWithoutSpaceJump");
 
         Ok(())
     }
@@ -1400,11 +1401,13 @@ impl GameData {
 
     fn override_metal_pirates_room(&mut self, room_json: &mut JsonValue) {
         // Add lock on right door of Metal Pirates Room:
+        let mut found = false;
         for node_json in room_json["nodes"].members_mut() {
             if node_json["id"].as_i32().unwrap() == 2 {
                 // Adding a dummy lock on Shaktool done digging event, so that the code in `preprocess_room`
                 // can pick it up and construct a corresponding obstacle for the flag (as it expects there
                 // to be a lock).
+                found = true;
                 node_json["locks"] = json::array![
                   {
                     "name": "Metal Pirates Grey Lock (to Wasteland)",
@@ -1421,6 +1424,30 @@ impl GameData {
                 ];
             }
         }
+        assert!(found);
+    }
+
+    fn override_acid_statue_room(&mut self, room_json: &mut JsonValue) {
+        // Add an alternative to Space Jump requirement for using the Acid chozo statue:
+        let mut found = false;
+        for node_json in room_json["nodes"].members_mut() {
+            if node_json["id"].as_i32().unwrap() == 3 {
+                for lock in node_json["locks"].members_mut() {
+                    for strat in lock["unlockStrats"].members_mut() {
+                        for req in strat["requires"].members_mut() {
+                            if req == &JsonValue::String("SpaceJump".to_string()) {
+                                *req = json::object!{
+                                    "or": ["SpaceJump", "f_AcidChozoWithoutSpaceJump"]
+                                };
+                                found = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        println!("{}", room_json);
+        assert!(found);
     }
 
     fn preprocess_room(&mut self, room_json: &JsonValue) -> Result<JsonValue> {
@@ -1469,12 +1496,14 @@ impl GameData {
         let mut obstacle_flag: Option<String> = None;
 
         // TODO: handle overrides in a more structured/robust way
-        if room_json["name"] == "Shaktool Room" {
+        if room_id == 222 {
             self.override_shaktool_room(&mut new_room_json);
-        } else if room_json["name"] == "Morph Ball Room" {
+        } else if room_id == 38 {
             self.override_morph_ball_room(&mut new_room_json);
-        } else if room_json["name"] == "Metal Pirates Room" {
+        } else if room_id == 139 {
             self.override_metal_pirates_room(&mut new_room_json);
+        } else if room_id == 149 {
+            self.override_acid_statue_room(&mut new_room_json);
         }
 
         for node_json in new_room_json["nodes"].members_mut() {

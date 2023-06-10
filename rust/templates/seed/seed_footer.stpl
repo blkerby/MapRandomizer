@@ -33,7 +33,9 @@
     <script>
     document.getElementById("spoilerToken").value = localStorage["spoilerToken"];
     if (window.unlockedTimestampString === "") {
-        document.getElementById("unlockForm").style.display = "flex";
+        if (localStorage["spoilerToken"].startsWith(window.spoilerTokenPrefix)) {
+            document.getElementById("unlockForm").style.display = "flex";
+        }
     } else {
         document.getElementById("viewSpoilerDiv").style.display = "flex";
     }
