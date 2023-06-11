@@ -138,3 +138,9 @@ fix_big_boy:
 	NOP
 org $A9EF80 
 .done
+
+
+; Fix Bomb Torizo crumbling animation (which can be very messed up if the player earlier visited a room
+; that maxed out enemy projectiles)
+org $86A8FD
+	ADC $1B23, x   ; was: ADC $1B23
