@@ -42,7 +42,7 @@ device = devices[0]
 executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
 # num_envs = 1
-num_envs = 2 ** 11
+num_envs = 2 ** 10
 # rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.norfair_isolated.rooms
 rooms = logic.rooms.all_rooms.rooms
@@ -165,7 +165,7 @@ session = TrainingSession(envs,
 # logging.info("Constructed {} eval batches".format(num_eval_batches))
 # pickle.dump(eval_batches, open("eval_batches_zebes.pkl", "wb"))
 
-eval_batches = pickle.load(open("eval_batches_zebes.pkl", "rb"))
+# eval_batches = pickle.load(open("eval_batches_zebes.pkl", "rb"))
 
 # # for i in range(len(eval_batches)):
 # i = 0
@@ -179,7 +179,7 @@ cpu_executor = None
 
 pickle_name = 'models/session-2023-06-08T14:55:16.779895.pkl'
 # # session = pickle.load(open(pickle_name, 'rb'))
-session = pickle.load(open(pickle_name + '-bk1', 'rb'))
+session = pickle.load(open(pickle_name + '-bk2', 'rb'))
 session.envs = envs
 
 
@@ -196,9 +196,9 @@ lr1 = 0.0002
 # lr_warmup_time = 16
 # lr_cooldown_time = 100
 num_candidates_min0 = 1
-num_candidates_max0 = 1
-num_candidates_min1 = 1
-num_candidates_max1 = 1
+num_candidates_max0 = 1.5
+num_candidates_min1 = 2
+num_candidates_max1 = 2
 
 # num_candidates0 = 40
 # num_candidates1 = 40
@@ -221,10 +221,10 @@ door_connect_beta = door_connect_bound / (door_connect_bound + door_connect_alph
 
 augment_frac = 0.0
 
-temperature_min0 = 1.0
-temperature_max0 = 1.0
-temperature_min1 = 1.0
-temperature_max1 = 1.0
+temperature_min0 = 0.1
+temperature_max0 = 10.0
+temperature_min1 = 0.1
+temperature_max1 = 10.0
 # temperature_min0 = 0.01
 # temperature_max0 = 10.0
 # temperature_min1 = 0.01
@@ -235,8 +235,8 @@ temperature_frac_min0 = 0.5
 temperature_frac_min1 = 0.5
 temperature_decay = 1.0
 
-annealing_start = 0
-annealing_time = 2048
+annealing_start = 11008
+annealing_time = 512
 
 pass_factor0 = 0.2
 pass_factor1 = 0.2

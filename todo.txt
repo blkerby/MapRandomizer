@@ -1,26 +1,23 @@
 priority:
-- new objective: chozos (BT, GT, Bowling, Acid statue)
-- improve how race ROMs work (allow creator to unlock spoiler)
-- randomized start
-- finish getting new model training going
-- game variation for maps revealed from start
-- show objective progress in pause menu
+- only animate GIFs on hover
+- proper front page
 - add pages for tech, strats, rooms.
+- show objective progress in pause menu
+- randomized start
 - help buttons for rest of settings (e.g. explain boss proficiency calculations)
 - logic simulator
 - credits
-- proper front page
 - music options: vanilla, area-themed, or none
 - sprite customization (?),
 
 
 model stuff to try:
+- try using nvidia transformer engine (could be faster because of fused kernels)
+- work out a way to use both GPUs for training steps (not only generation)
 - expand room embeddings to include neighboring blocks as well
 - train on random subsets of rooms
-- try changing the number of candidates
 - increase replay buffer size
   - if it helps significantly, then set it up to read from disk, to allow for an unbounded buffer
-- add map channel indicating whether door has path to/from ship
 
 
 later:

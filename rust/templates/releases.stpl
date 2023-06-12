@@ -1,7 +1,33 @@
-<div>
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<% include!("common/header.stpl"); %>
+<meta name="keywords" content="Super Metroid, Map Randomizer, Map Rando, Map, Randomizer">
+<title>Super Metroid Map Rando - Releases</title>
+</head>
+<body>
+<% include!("common/navbar.stpl"); %>
+<div class="container">
+
+<h1 class="my-3">Release History</h1>
 <strong>Note</strong>: Previous versions of the rando can be accessed by clicking the links below. These may take
 about 15 seconds to load.
 <br><br>
+
+<p><a href="https://version-66---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 66 (???)</a>:
+<ul>
+<li>Fixed graphical glitch that could sometimes occur during the Bomb Torizo crumbling animation (a vanilla bug).
+<li>TODO: Item progression now includes "Early" filler item options, to prioritize placing at least one instance of
+    the item early if possible.
+    <ul>
+    <li>The Quick preset now includes an Early ETank filler item.
+    </ul>
+<li>Website updates:
+    <ul>
+    <li>TODO: Navigation bar is added, and the site is reorganized.
+    <li>TODO: Each GIF under "Skill Assumptions" only animates while hovering over the given tech.
+    </ul>
+</ul>
 
 <p><a href="https://version-65---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 65 (2023-06-10)</a>:
 <ul>
@@ -139,12 +165,12 @@ about 15 seconds to load.
 <ul>
 <li>Seed hash is shown in the options menu before game start (using enemy names, similar to other Super Metroid randomizers).
 <li>Map tile progress is always maintained, even after dying, reloading, resetting, or switching/creating save files.
-  <ul>
-  <li>Map tiles preserved in this way appear gray, the same as tiles revealed by map stations.
-  <li>Map progress is only cleared by creating a new file when all three save slots are empty.
-  <li>Unexploring a tile (with Angle Up + Item Cancel) now changes the tile to gray (instead of black) even if 
-  the area's map station has not been obtained.
-  </ul>
+<ul>
+<li>Map tiles preserved in this way appear gray, the same as tiles revealed by map stations.
+<li>Map progress is only cleared by creating a new file when all three save slots are empty.
+<li>Unexploring a tile (with Angle Up + Item Cancel) now changes the tile to gray (instead of black) even if 
+the area's map station has not been obtained.
+</ul>
 <li>Fixed issue with the palette transition after the Phantoon fight (a bug introduced in version 57).
 </ul>
 
@@ -209,7 +235,7 @@ about 15 seconds to load.
     <li><strong>Metroids</strong>: Defeat all the Metroids in the four Metroid rooms.
     </ul>
 <li>Issue is fixed that caused a crash in the Mother Brain fight when "Short Mother Brain fight" was disabled but 
-   "Hyper Beam gives all movement items" was enabled (a bug introduced in version 52).
+"Hyper Beam gives all movement items" was enabled (a bug introduced in version 52).
 </ul>
 
 <p><a href="https://version-52---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 52 (2023-04-10)</a>:
@@ -1014,3 +1040,5 @@ After the game is generated, the base ROM can still be customized.
 <li>Initial release
 </ul>
 </div>
+</body>
+</html>

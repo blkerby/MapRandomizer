@@ -22,6 +22,7 @@
         and Reserve Tanks are marked with large hollow dots; Missiles are marked with small dots.
         </ul>
         </p>
+        <p>If you like doing more exploration, you may want to select an option providing less information.
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

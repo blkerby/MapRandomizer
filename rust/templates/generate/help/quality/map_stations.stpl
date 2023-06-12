@@ -12,8 +12,9 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        If enabled, the map station for the current area will always be visible as a special tile on the map even before you have reached it.
-        This affects both the pause menu map and the HUD mini-map.
+        <p>If enabled, the map station for the current area will always be visible as a special tile on the map even before you have reached it.
+        This affects both the pause menu map and the HUD mini-map.</p>
+        <p>In general, disabling this option will greatly increase the amount of exploration needed to beat the game.</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+    <% include!("common/header.stpl"); %>
+    <meta name="keywords" content="Super Metroid, Map Randomizer, Map Rando, Map, Randomizer">
+    <title>Super Metroid Map Rando</title>
+    </head>
+    <body>
+    <% include!("common/navbar.stpl"); %>
+    <div class="container col-xl-8 col-xxl-6">
+        <div class="row align-items-center rounded-3 border shadow-lg m-4">
+            <div class="col-lg-8 p-4">
+                <h2 class="fw-bold">Super Metroid Map Rando</h2>
+                <p class="lead">After the planet Zebes exploded, Mother Brain put it back together again but arranged it differently.</p>
+                <p class="lead">Can you find the items needed to defeat Mother Brain and restore peace to the galaxy?</p>
+                <div class="text-center m-3">
+                    <a href="/generate" class="btn btn-primary btn-lg">Generate Game</a>
+                </div>
+            </div>
+            <div class="col-lg-4 overflow-hidden text-center my-0">
+                <img src="/static/hero-map.png" height=320 style="image-rendering: pixelated;">
+            </div>
+        </div>
+    </div>
+    <div class="container col-xxl-10">
+        <div class="row m-5">
+            <div class="col-lg-6">
+                <h3>Important tips</h3>
+                <ul>
+                    <li>Save frequently, to avoid losing progress in case of unexpected death.
+                    <li>Don't go a way you can't come back from, except as a last resort.
+                    <li>Before giving up, check the spoiler map to see what the game intended.
+                    <li>There is a community happy to help if you need it. Find us on
+                        <a href="https://discord.gg/Gc99YV2ZcB">Discord</a>!
+                        This is a work in progress, so we appreciate feedback.
+                </ul>
+            </div>
+            <div class="col-lg-6">
+                <h3>Things to know</h3>
+                <ul>
+                <li>Even on its lowest difficulty settings, this is a challenging randomizer.
+                <li>Expect to encounter dangerous enemies and softlock risks early on.
+                <li>Rolling saves allow you to go back to an earlier save if you get stuck.
+                <li>The game won't expect you to go down a one-way path for an item unless there is a way back
+                    without using the item.
+                <li>Many options are available to add variety and fit your style of play.
+                </ul>
+            </div>
+        </div>
+    </div>
+</html>

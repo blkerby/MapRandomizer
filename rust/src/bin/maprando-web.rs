@@ -26,7 +26,7 @@ use rand::{RngCore, SeedableRng};
 use sailfish::TemplateOnce;
 use serde_derive::{Deserialize, Serialize};
 
-const VERSION: usize = 65;
+const VERSION: usize = 66;
 const VISUALIZER_PATH: &'static str = "../visualizer/";
 const TECH_GIF_PATH: &'static str = "static/tech_gifs/";
 
@@ -128,8 +128,20 @@ struct InvalidTokenTemplate {}
 struct AlreadyUnlockedTemplate {}
 
 #[derive(TemplateOnce)]
-#[template(path = "home/main.stpl")]
-struct HomeTemplate<'a> {
+#[template(path = "home.stpl")]
+struct HomeTemplate {
+    version: usize,
+}
+
+#[derive(TemplateOnce)]
+#[template(path = "releases.stpl")]
+struct ReleasesTemplate {
+    version: usize,
+}
+
+#[derive(TemplateOnce)]
+#[template(path = "generate/main.stpl")]
+struct GenerateTemplate<'a> {
     version: usize,
     progression_rates: Vec<&'static str>,
     item_placement_styles: Vec<&'static str>,
@@ -147,7 +159,23 @@ struct HomeTemplate<'a> {
 }
 
 #[get("/")]
-async fn home(app_data: web::Data<AppData>) -> impl Responder {
+async fn home(_app_data: web::Data<AppData>) -> impl Responder {
+    let home_template = HomeTemplate {
+        version: VERSION,
+    };
+    HttpResponse::Ok().body(home_template.render_once().unwrap())
+}
+
+#[get("/releases")]
+async fn releases(_app_data: web::Data<AppData>) -> impl Responder {
+    let changes_template = ReleasesTemplate {
+        version: VERSION,
+    };
+    HttpResponse::Ok().body(changes_template.render_once().unwrap())
+}
+
+#[get("/generate")]
+async fn generate(app_data: web::Data<AppData>) -> impl Responder {
     let mut prioritizable_items: Vec<String> = app_data
         .game_data
         .item_isv
@@ -157,7 +185,7 @@ async fn home(app_data: web::Data<AppData>) -> impl Responder {
         .filter(|x| x != "Missile")
         .collect();
     prioritizable_items.sort();
-    let home_template = HomeTemplate {
+    let generate_template = GenerateTemplate {
         version: VERSION,
         progression_rates: vec!["Fast", "Normal", "Slow"],
         item_placement_styles: vec!["Neutral", "Forced"],
@@ -176,7 +204,7 @@ async fn home(app_data: web::Data<AppData>) -> impl Responder {
         strat_id_by_name: &app_data.game_data.notable_strat_isv.index_by_key,
         tech_gif_listing: &app_data.tech_gif_listing,
     };
-    HttpResponse::Ok().body(home_template.render_once().unwrap())
+    HttpResponse::Ok().body(generate_template.render_once().unwrap())
 }
 
 #[derive(MultipartForm)]
@@ -1305,6 +1333,8 @@ async fn main() {
             )
             .wrap(Logger::default())
             .service(home)
+            .service(releases)
+            .service(generate)
             .service(randomize)
             .service(view_seed)
             .service(get_seed_file)
