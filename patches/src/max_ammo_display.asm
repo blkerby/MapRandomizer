@@ -2,7 +2,8 @@
 ;;; Display in HUD the maximum number of ammo that samus can carry
 ;;;
 ;;; compile with asar v1.81 (https://github.com/RPGHacker/asar/releases/tag/v1.81)
-
+;;;
+;;; original patch by Personitis, added support for 3-digit supers/PBs by theonlydude
 
 lorom
 arch 65816

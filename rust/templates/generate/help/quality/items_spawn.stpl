@@ -17,7 +17,7 @@
       <li>Items in Wrecked Ship rooms (with the exception of the one item in Wrecked Ship Main Shaft) do not
       spawn until after Phantoon is defeated, when the rooms change to appearing "powered on".
       <li>The item in the left side of Morph Ball Room and in The Final Missile do not spawn until the planet is awakened.
-      <li>The item in Pit Room does not spawn until entering with Morph and Missiles collected.
+      <li>The item in Pit Room does not spawn until entering with Morph and Missiles collected (regardless of whether the planet is awake).
       </ul>
       </p>
 

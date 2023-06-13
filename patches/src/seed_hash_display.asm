@@ -1,6 +1,7 @@
 ; Based on https://raw.githubusercontent.com/theonlydude/RandomMetroidSolver/master/patches/common/src/seed_display.asm
-
 ;; compile with asar v1.81 (https://github.com/RPGHacker/asar/releases/tag/v1.81)
+;
+; Author: total
 
 arch 65816
 lorom

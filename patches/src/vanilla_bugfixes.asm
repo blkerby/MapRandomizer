@@ -1,7 +1,6 @@
 ; From https://github.com/theonlydude/RandomMetroidSolver/blob/master/patches/common/src/vanilla_bugfixes.asm
-; Added this here mainly to skip the Varia/Gravity suit animation (to avoid possible softlock), decided to keep
-; the others too, even though some of them may not be applicable (yet).
-; TODO: Go through and see what the rest of these are all doing
+;
+; Authors: total, PJBoy, strotlog, ouiche, Maddo, NobodyNada
 
 ;;; Some vanilla bugfixes included in all VARIA seeds
 ;;; compile with asar

@@ -7,16 +7,22 @@
 </head>
 <body>
 <% include!("common/navbar.stpl"); %>
-<div class="container">
+<script>
+document.getElementById("navigation-releases").classList.add("active");
+</script>
+<div class="container col-xl-8 col-xxl-6">
 
-<h1 class="my-3">Release History</h1>
+<h3 class="my-3">Release History</h3>
 <strong>Note</strong>: Previous versions of the rando can be accessed by clicking the links below. These may take
 about 15 seconds to load.
 <br><br>
 
 <p><a href="https://version-66---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 66 (???)</a>:
 <ul>
-<li>Fixed graphical glitch that could sometimes occur during the Bomb Torizo crumbling animation (a vanilla bug).
+<li>Added customization option "Disable music".
+<li>TODO: "Disable low-energy beeping" is moved from Quality-of-life to Customization (on the seed page)
+<li>"Save the Animals" option is moved from Skill Assumptions to Game Variations.
+<li>Fixed graphical glitch that could occur during the Bomb Torizo crumbling animation (a vanilla bug).
 <li>TODO: Item progression now includes "Early" filler item options, to prioritize placing at least one instance of
     the item early if possible.
     <ul>

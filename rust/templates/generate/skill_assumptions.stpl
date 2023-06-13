@@ -69,17 +69,6 @@
                 </div>
             </div>
 
-            <div class="form-group row m-2">
-                <label class="col-sm-6 col-form-label" for="preset">Save the animals<br>
-                <small>(Take into account extra time needed in the escape)</small></label>
-                <div class="col-sm-4 btn-group my-3" role="group">
-                    <input type="radio" class="btn-check" name="save_animals" id="saveAnimalsNo" value="false" checked=true>
-                    <label class="btn btn-outline-primary" for="saveAnimalsNo">No</label>
-                    <input type="radio" class="btn-check" name="save_animals" id="saveAnimalsYes" value="true">
-                    <label class="btn btn-outline-primary" for="saveAnimalsYes">Yes</label>
-                </div>
-            </div>
-
             <div class="form-group row my-2">
                 <div class="col-sm-12">
                     <div class="accordion my-2" id="accordion">

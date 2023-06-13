@@ -3,11 +3,11 @@
     <div class="card-body">
         <ul>
         <% if !ultra_low_qol { %>
-        <li>Be sure to save frequently! Saves are fast, and saving at a different station from the last save will move 
+        <li>Save frequently! Saves are fast, and saving at a different station from the last save will move 
         to the next slot before saving, so you can go back to an earlier save if you get stuck.
         <% } %>
-        <li>Be careful with one-ways: it's easy to get soft-locked. The logic never requires going down a one-way 
-        for an item unless there is a way back to the Ship without using the new item. It's often best to avoid one-ways
+        <li>Be careful with one-ways: it's easy to get soft-locked. The logic usually doesn't require going down a one-way 
+        for an item, only if there is a way back to the Ship <i>without</i> using the new item. It's often best to avoid one-ways
         until you know there's a way back or have exhausted all other options.
         <li>If you can't find any way to progress, don't give up! Check out the interactive spoiler map below to see
         what the game intended. If it still seems impossible or too difficult, please let us know in the

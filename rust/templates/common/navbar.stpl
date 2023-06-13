@@ -1,57 +1,47 @@
 <script src="static/colorMode.js"></script>
-<nav class="navbar navbar-expand-lg bg-body-tertiary sticky-top">
+<nav class="navbar navbar-expand-md bg-body-tertiary sticky-top">
   <div class="container-fluid col-xl-10 col-xxl-8">
     <a class="navbar-brand" href="/">
-        <img src="/static/map_station_transparent.png">
+        <img src="/static/map_station_transparent.png" style="image-rendering: pixelated;">
     </a>
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-center">
         <li class="nav-item">
-            <a class="nav-link" href="/">Home</a>
+            <a id="navigation-home" class="nav-link" href="/">Home</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="/generate">Generate</a>
+            <a id="navigation-generate" class="nav-link" href="/generate">Generate</a>
+        </li>
+        <!--<li class="nav-item">
+            <a id="navigation-logic" class="nav-link" href="/logic">Logic</a>
+        </li>-->
+        <li class="nav-item">
+            <a id="navigation-releases" class="nav-link" href="/releases">Releases</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="/logic">Logic</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="/releases">Releases</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="/about">About</a>
+            <a id="navigation-about" class="nav-link" href="/about">About</a>
         </li>
       </ul>
-      <ul class="navbar-nav flex-row flex-wrap">
+      <ul class="navbar-nav flex-row flex-wrap align-items-center">
         <li class="nav-item">
             <a class="nav-link" href="https://github.com/blkerby/MapRandomizer">
-                <img src="/static/github-mark-white.svg" style="height:20px;">
+                <img src="/static/github-mark-white.svg" style="height:20px;" class="m-1">
                 GitHub
             </a>
         </li>
-        <li class="nav-item py-2 py-lg-1 col-12 col-lg-auto">
-            <div class="vr d-none d-lg-flex h-100 mx-lg-2 text-white"></div>
-            <hr class="d-lg-none my-2 text-white-50">
-        </li>
         <li class="nav-item">
             <a class="nav-link" href="https://discord.gg/Gc99YV2ZcB">
-                <img src="/static/discord-white.svg" style="height:20px;">
+                <img src="/static/discord-white.svg" style="height:20px;" class="m-1">
                 Discord
             </a>
         </li>
-        <li class="nav-item py-2 py-lg-1 col-12 col-lg-auto">
-            <div class="vr d-none d-lg-flex h-100 mx-lg-2 text-white"></div>
-            <hr class="d-lg-none my-2 text-white-50">
-        </li>
-
         <li class="nav-item dropdown">
-            <button class="btn btn-link nav-link py-2 px-0 px-lg-2 dropdown-toggle d-flex align-items-center" id="bd-theme" type="button" aria-expanded="false" data-bs-toggle="dropdown" data-bs-display="static" aria-label="Toggle theme (dark)">
+            <button class="btn btn-link nav-link py-2 px-0 px-lg-2 dropdown-toggle d-flex align-items-center m-1" id="bd-theme" type="button" aria-expanded="false" data-bs-toggle="dropdown" data-bs-display="static" aria-label="Toggle theme (dark)">
               <svg class="bi me-2 opacity-50 theme-icon" style="width:20px;height:20px;"><use href="#circle-half"></use></svg>
-            <span class="d-lg-none ms-2" id="bd-theme-text">Toggle theme</span>
 <!--            </button>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bd-theme-text">
               <li>
@@ -77,12 +67,8 @@
               </li>
             </ul>-->
         </li>
-        <li class="nav-item py-2 py-lg-1 col-12 col-lg-auto">
-            <div class="vr d-none d-lg-flex h-100 mx-lg-2 text-white"></div>
-            <hr class="d-lg-none my-2 text-white-50">
-        </li>
         <li class="nav-item">
-            <a class="nav-link" href="/">
+            <a class="nav-link m-1" href="/">
               v<%= version %>
             </a>
         </li>

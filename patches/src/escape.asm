@@ -1,7 +1,9 @@
 ;;; Based on https://raw.githubusercontent.com/theonlydude/RandomMetroidSolver/master/patches/common/src/rando_escape.asm
 ;;;
 ;;; compile with asar (https://www.smwcentral.net/?a=details&id=14560&p=section),
-
+;;;
+;;; Author: ouiche, with some tweaks by Maddo
+;;;
 lorom
 arch snes.cpu
 

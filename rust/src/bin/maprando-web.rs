@@ -140,6 +140,12 @@ struct ReleasesTemplate {
 }
 
 #[derive(TemplateOnce)]
+#[template(path = "about.stpl")]
+struct AboutTemplate {
+    version: usize,
+}
+
+#[derive(TemplateOnce)]
 #[template(path = "generate/main.stpl")]
 struct GenerateTemplate<'a> {
     version: usize,
@@ -172,6 +178,14 @@ async fn releases(_app_data: web::Data<AppData>) -> impl Responder {
         version: VERSION,
     };
     HttpResponse::Ok().body(changes_template.render_once().unwrap())
+}
+
+#[get("/about")]
+async fn about(_app_data: web::Data<AppData>) -> impl Responder {
+    let about_template = AboutTemplate {
+        version: VERSION,
+    };
+    HttpResponse::Ok().body(about_template.render_once().unwrap())
 }
 
 #[get("/generate")]
@@ -262,6 +276,7 @@ struct UnlockRequest {
 struct CustomizeRequest {
     rom: Bytes,
     room_palettes: Text<String>,
+    disable_music: Option<Text<bool>>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -645,6 +660,7 @@ async fn customize_seed(
 
     let settings = CustomizeSettings {
         area_themed_palette: req.room_palettes.0 == "area-themed",
+        disable_music: if let Some(x) = &req.disable_music { x.0 } else { false },
     };
     info!("CustomizeSettings: {:?}", settings);
     match customize_rom(&mut rom, &patch_ips, &settings, &app_data.game_data) {
@@ -1336,6 +1352,7 @@ async fn main() {
             .service(releases)
             .service(generate)
             .service(randomize)
+            .service(about)
             .service(view_seed)
             .service(get_seed_file)
             .service(customize_seed)

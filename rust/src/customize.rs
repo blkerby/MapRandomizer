@@ -10,6 +10,7 @@ use anyhow::Result;
 #[derive(Debug)]
 pub struct CustomizeSettings {
     pub area_themed_palette: bool,
+    pub disable_music: bool,
 }
 
 fn remove_mother_brain_flashing(rom: &mut Rom) -> Result<()> {
@@ -37,6 +38,9 @@ pub fn customize_rom(
     remove_mother_brain_flashing(rom)?;
     if settings.area_themed_palette {
         apply_area_themed_palettes(rom, game_data)?;
+    }
+    if settings.disable_music {
+        rom.write_u8(snes2pc(0xcf8413), 0x6F)?;
     }
     Ok(())
 }

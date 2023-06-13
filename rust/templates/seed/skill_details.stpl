@@ -11,10 +11,6 @@
     <div class="col-8"><%= difficulty.escape_timer_multiplier %></div>
 </div>
 <div class="row">
-    <div class="col-4">Save animals:</div>
-    <div class="col-8"><%= if difficulty.save_animals { "Yes" } else { "No" } %></div>
-</div>
-<div class="row">
     <div class="col-4">Phantoon proficiency:</div>
     <div class="col-8"><%= difficulty.phantoon_proficiency %></div>
 </div>

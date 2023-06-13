@@ -1,5 +1,5 @@
 <div class="form-group row">
-    <div class="col-lg-2 m-2">
+    <div class="col-lg-3 m-2">
         <% include!("help/progression/rate.stpl"); %>
         <label for="preset">Progression rate</label>
     </div>
@@ -18,7 +18,7 @@
 
 
 <div class="form-group row">
-    <div class="col-lg-2 m-2">
+    <div class="col-lg-3 m-2">
         <% include!("help/progression/item_placement.stpl"); %>
         <label for="preset">Item placement</label>
     </div>

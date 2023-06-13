@@ -93,6 +93,9 @@
         if ultra_low_qol {
             game_variations.push("Ultra-low quality of life");
         }
+        if difficulty.save_animals {
+            game_variations.push("Save the animals");
+        }
         if game_variations.len() > 0 { %>
             <div class="row">
                 <div class="col-3">Game variations:</div>
