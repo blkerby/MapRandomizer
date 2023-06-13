@@ -220,8 +220,7 @@
 
     <h5>Fast transitions & cutscenes</h5>
     <ul>
-    <li>Save station animations are accelerated.
-    <li>Using the Ship (for refilling and/or saving) is accelerated.
+    <li>Ship, save, refill, and map station animations are accelerated.
     <li>Parts of the Big Boy Room cutscene are accelerated: 
         <ul>
         <li>The Baby enters sooner, and the Hopper moves more quickly to the right, stopping in the same position as vanilla.
@@ -254,7 +253,6 @@
     <h5>Other changes</h5>
     <ul>
     <li>Missile Refill stations refill all ammo types: Missiles, Supers, and Power Bombs.
-    <li>Refill station and map station animations are accelerated.
     <li>The Acid Chozo statue can be activated without Space Jump (optional).
     </ul>
 
@@ -325,70 +323,77 @@
     <p>The following people contributed directly to the development of the randomizer, its web service, and/or the
     underlying logic data:</p>
     <ul>
-    <li>Game design: Maddo, kyleb
-    <li>Map generation, randomizer, and web service frontend & backend: Maddo
-    <li>Logic data (sm-json-data): Rushlight, Miss Minnie T., DIProgan, kyleb, Osse101, Maddo, Bokyubi
-    <li>Spoiler map: Selicre
-    <li>Tech animated GIFs: Osse101
+    <li>Game design: <i>Maddo</i>, <i>kyleb</i>
+    <li>Map generation, randomizer, and web service frontend & backend: <i>Maddo</i>
+    <li>Logic data <a href="https://github.com/miketrethewey/sm-json-data">sm-json-data</a>: 
+        <i>Rushlight</i>, <i>Miss Minnie T.</i>, <i>DIProgan</i>, <i>kyleb</i>, 
+        <i>Osse101</i>, <i>Maddo</i>, <i>Bokyubi</i>
+    <li>Spoiler map: <i>Selicre</i>
+    <li>Tech animated GIFs: <i>Osse101</i>
     <li>ASM help:
         <ul>
-        <li>Buggmann (title screen animation patch)
-        <li>somerando (scrolling sky, West Ocean G4 statue bug, save/load bug, etc.)
-        <li>NobodyNada (figured out BT statue crumble bug)
-        <li>PJBoy (explained Big Boy Room enemy initialization issue)
+        <li><i>Buggmann</i> (title screen animation patch)
+        <li><i>somerando</i> (scrolling sky, West Ocean G4 statue bug, save/load bug, etc.)
+        <li><i>NobodyNada</i> (figured out BT statue crumble bug)
+        <li><i>PJBoy</i> (explained Big Boy Room enemy initialization issue)
         </ul>
     </ul>
 
     <p>Many people in the community have created and shared videos of interesting Super Metroid strats, which have 
     then contributed to the logic used by the randomizer:
     <ul>
-    <li>Special thanks go to bobbob and insomniaspeed who have been especially profilic in creating & sharing videos.
+    <li>Special thanks go to <i>bobbob</i> and <i>insomniaspeed</i> who have been especially profilic in 
+    creating & sharing strat videos.
     </ul>
 
     <p>There are also many ASM patches written by other people for earlier projects, which this randomizer
     reuses or builds on:</p>
     <ul>
-    <li>Vanilla bugfixes: total, PJBoy, strotlog, ouiche
-    <li>Save/load patch: Scyzer
-    <li>Map tile expansion: DC, TestRunner
-    <li>Map Overhaul (inspiration & helpful reference): MFreak
-    <li>Max ammo display: Personitis, theonlydude
-    <li>Randomized escape: ouiche
-    <li>Seed hash display: total
-    <li>Progressive suits: Smiley
-    <li>Bomb Torizo patch: PJBoy
-    <li>Kraid vomit fix: PJBoy
-    <li>Water FX bug fix: Benox
-    <li>Item collection sound effects (replacing fanfares): Sadiztyk Fish
-    <li>Bind angle up/down to any button: Kejardon
-    <li>Fast decompression: Kejardon, PJBoy
-    <li>Fast elevators: Lioran
-    <li>Fast doors: Rakki, Kazuto
-    <li>Respin: Kejardon
+    <li>Vanilla bugfixes: <i>total</i>, <i>PJBoy</i>, <i>strotlog</i>, <i>ouiche</i>
+    <li>Save/load patch: <i>Scyzer</i>
+    <li>Map tile expansion: <i>DC</i>, <i>TestRunner</i>
+    <li>Map Overhaul (inspiration & helpful reference): <i>MFreak</i>
+    <li>Max ammo display: <i>Personitis</i>, <i>theonlydude</i>
+    <li>Randomized escape: <i>ouiche</i>
+    <li>Seed hash display: <i>total</i>
+    <li>Progressive suits: <i>Smiley</i>
+    <li>Bomb Torizo patch: <i>PJBoy</i>
+    <li>Kraid vomit fix: <i>PJBoy</i>
+    <li>Water FX bug fix: <i>Benox</i>
+    <li>Item collection sound effects (replacing fanfares): <i>Sadiztyk Fish</i>
+    <li>Bind angle up/down to any button: <i>Kejardon</i>
+    <li>Fast decompression: <i>Kejardon</i>, <i>PJBoy</i>
+    <li>Fast elevators: <i>Lioran</i>
+    <li>Fast doors: <i>Rakki</i>, <i>Kazuto</i>
+    <li>Respin: <i>Kejardon</i>
     </ul>
+
+    <p>Other randomizers have been a source of inspiration and ideas, particularly 
+    <a href="https://randommetroidsolver.pythonanywhere.com/randomizer">VARIA Randomizer</a> 
+    and <a href="https://samus.link/">SMZ3 Randomizer</a>.</p>
 
     <p>The following reference materials have been indispensible:
     <ul>
-    <li><a href="https://patrickjohnston.org/bank/index.html">Bank logs</a> by PJBoy. Essentially every change we make on the ROM side of the randomizer involves consulting this.
-    <li><a href="http://metroidconstruction.com/SMMM/">Super Metroid Mod Manual</a> by grime.
-    <li><a href="https://www.raphnet.net/divers/retro_challenge_2019_03/qsnesdoc.html">SNES Graphics Information</a> by Qwertie.
+    <li><a href="https://patrickjohnston.org/bank/index.html">Bank logs</a> by <i>PJBoy</i>. Essentially every change we make on the ROM side of the randomizer involves consulting this.
+    <li><a href="http://metroidconstruction.com/SMMM/">Super Metroid Mod Manual</a> by <i>grime</i>.
+    <li><a href="https://www.raphnet.net/divers/retro_challenge_2019_03/qsnesdoc.html">SNES Graphics Information</a> by <i>Qwertie</i>.
     </ul>
 
     <p>We've also received valuable feedback, suggestions, and bug reports from many players, too many to mention them all 
     individually, but there are a few players who have been involved from an early period who we have to mention:
     <ul>
-    <li>Osse, who does a lot of careful playtesting and is a main contributor to the on-going logic work (alongside kyleb)
-    <li>Joonie, who gave very helpful feedback that guided a lot of the early development.
-    <li>somerando(cauuyjdp), who has reported a ton of bugs (along with sharing interesting strats, seeds, and ASM help).
-    <li>TarThoron, who has been super helpful on the Discord, sharing a lot of knowledge and answering questions.
+    <li><i>Osse</i>, who does a lot of careful playtesting and is a main contributor to the on-going logic work (alongside <i>kyleb</i>)
+    <li><i>Joonie</i>, who gave very helpful feedback that guided much of the early development.
+    <li><i>somerando(cauuyjdp)</i>, who has reported a ton of bugs (along with sharing interesting strats, seeds, and ASM help).
+    <li><i>TarThoron</i>, who has been super helpful on the Discord, sharing a lot of knowledge and answering questions.
     </ul>
     </p>
 
     <p>We also appreciate the people who have created and shared tools related to the randomizer:
     <ul>
-    <li>ocesse_sm: <a href="https://forum.metroidconstruction.com/index.php/topic,5168.msg72455.html#msg72455">widescreen patch</a>
-    <li>chicdead26: Map Rando package for <a href="https://emotracker.net/">EmoTracker</a>
-    <li>Dicene: <a href="https://dicene.github.io/smCustomizer/index.html">palette randomizer</a> (work-in-progress)
+    <li><i>ocesse_sm</i>: <a href="https://forum.metroidconstruction.com/index.php/topic,5168.msg72455.html#msg72455">widescreen patch</a>
+    <li><i>chicdead26</i>: Map Rando package for <a href="https://emotracker.net/">EmoTracker</a>
+    <li><i>Dicene</i>: <a href="https://dicene.github.io/smCustomizer/index.html">palette randomizer</a> (work-in-progress)
     </ul>
 
     <p>

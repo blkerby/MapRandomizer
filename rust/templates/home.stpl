@@ -14,7 +14,8 @@
         <div class="row align-items-center rounded-3 border shadow-lg m-4">
             <div class="col-lg-8 p-4">
                 <h2 class="fw-bold">Super Metroid Map Rando</h2>
-                <p class="lead">After the planet Zebes exploded, Mother Brain put it back together again but arranged it differently.</p>
+                <p class="lead">After the planet Zebes exploded, Mother Brain put it back together again but arranged 
+                it differently this time.</p>
                 <p class="lead">Can you find the items needed to defeat Mother Brain and restore peace to the galaxy?</p>
                 <div class="text-center m-4">
                     <a href="/generate" class="btn btn-primary btn-lg">Generate Game</a>

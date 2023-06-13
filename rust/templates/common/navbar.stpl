@@ -1,9 +1,10 @@
 <script src="static/colorMode.js"></script>
-<nav class="navbar navbar-expand-md bg-body-tertiary sticky-top">
+<nav class="navbar navbar-expand-md bg-body-secondary sticky-top">
   <div class="container-fluid col-xl-10 col-xxl-8">
     <a class="navbar-brand" href="/">
         <img src="/static/map_station_transparent.png" style="image-rendering: pixelated;">
     </a>
+
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -29,43 +30,64 @@
       <ul class="navbar-nav flex-row flex-wrap align-items-center">
         <li class="nav-item">
             <a class="nav-link" href="https://github.com/blkerby/MapRandomizer">
-                <img src="/static/github-mark-white.svg" style="height:20px;" class="m-1">
+                <style>
+                html[data-bs-theme=light] img#github-icon {
+                  content:url("/static/github-mark.svg")
+                }
+                html[data-bs-theme=dark] img#github-icon {
+                  content:url("/static/github-mark-white.svg")
+                }
+                </style>
+                <img id="github-icon" style="height:20px;opacity:0.9;" class="m-1">
                 GitHub
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="https://discord.gg/Gc99YV2ZcB">
-                <img src="/static/discord-white.svg" style="height:20px;" class="m-1">
+                <style>
+                html[data-bs-theme=light] img#discord-icon {
+                  content:url("/static/discord-black.svg")
+                }
+                html[data-bs-theme=dark] img#discord-icon {
+                  content:url("/static/discord-white.svg")
+                }
+                </style>
+                <img id="discord-icon" style="height:20px;opacity:0.75;" class="m-1">
                 Discord
             </a>
         </li>
         <li class="nav-item dropdown">
-            <button class="btn btn-link nav-link py-2 px-0 px-lg-2 dropdown-toggle d-flex align-items-center m-1" id="bd-theme" type="button" aria-expanded="false" data-bs-toggle="dropdown" data-bs-display="static" aria-label="Toggle theme (dark)">
-              <svg class="bi me-2 opacity-50 theme-icon" style="width:20px;height:20px;"><use href="#circle-half"></use></svg>
-<!--            </button>
+            <style>
+            html[data-bs-theme=dark] .theme-icon {
+              fill: white;
+            }
+            html[data-bs-theme=dark] .theme-icon-active {
+              fill: white;
+            }            </style>
+            <button class="btn btn-link nav-link py-2 px-0 px-lg-2 dropdown-toggle d-flex align-items-center m-2" id="bd-theme" type="button" aria-expanded="false" data-bs-toggle="dropdown" data-bs-display="static" aria-label="Toggle theme (auto)">
+              <svg class="bi my-1 theme-icon-active" style="height:20px;width:20px;opacity:0.75;"><use href="#circle-half"></use></svg>
+              <span class="d-md-none ms-2" id="bd-theme-text">Toggle theme</span>
+            </button>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bd-theme-text">
               <li>
                 <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">
-                  <svg class="bi me-2 opacity-50 theme-icon"><use href="#sun-fill"></use></svg>
+                  <svg class="bi me-2 opacity-50 theme-icon" style="height:20px;width:20px;opacity:0.75;"><use href="#sun-fill"></use></svg>
                   Light
-                  <svg class="bi ms-auto d-none"><use href="#check2"></use></svg>
                 </button>
               </li>
               <li>
-                <button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="dark" aria-pressed="true">
-                  <svg class="bi me-2 opacity-50 theme-icon"><use href="#moon-stars-fill"></use></svg>
+                <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">
+                  <svg class="bi me-2 opacity-50 theme-icon" style="height:20px;width:20px;opacity:0.75;"><use href="#moon-stars-fill"></use></svg>
                   Dark
-                  <svg class="bi ms-auto d-none"><use href="#check2"></use></svg>
                 </button>
               </li>
               <li>
-                <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto" aria-pressed="false">
-                  <svg class="bi me-2 opacity-50 theme-icon"><use href="#circle-half"></use></svg>
+                <button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="auto" aria-pressed="true">
+                  <svg class="bi me-2 opacity-50 theme-icon" style="height:20px;width:20px;opacity:0.75;"><use href="#circle-half"></use></svg>
                   Auto
-                  <svg class="bi ms-auto d-none"><use href="#check2"></use></svg>
                 </button>
               </li>
-            </ul>-->
+            </ul>
         </li>
         <li class="nav-item">
             <a class="nav-link m-1" href="/">
