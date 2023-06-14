@@ -137,27 +137,47 @@
     </ul>
 
     <h5>Item spawns</h5>
-
-    <p>In the vanilla game, some items do not spawn until certain conditions are fulfilled:
     <ul>
+    <li>All items spawn at start of game (optional).
+    </ul>
+    
+    <p>If this option is disabled, then the randomizer will behave like the vanilla game in that some items will 
+    not spawn until certain conditions are fulfilled:</p>
+    
+    <p><ul>
     <li>Items in Wrecked Ship rooms (with the exception of the one item in Wrecked Ship Main Shaft) do not
     spawn until after Phantoon is defeated, when the rooms change to appearing "powered on".
     <li>The item in the left side of Morph Ball Room and in The Final Missile do not spawn until the planet is awake.
     <li>The item in Pit Room does not spawn until entering with Morph and Missiles collected (regardless of whether
     the planet is awake).
-    </ul>
-    </p>
+    </ul></p>
+    
+    <p>Whether or not this option is enabled, the way to awaken the planet is same as in the vanilla game: it is done by
+    unlocking any gray door that requires killing enemies in the room (not including bosses or minibosses). In the randomizer
+    there are four rooms where this can be done: Pit Room (old Mother Brain room), Baby Kraid Room, Metal Pirates, and 
+    Plasma Room. These are the four rooms containing gray doors unlockable by killing Space Pirates in the vanilla game.
+    The vanilla game also has other rooms which could be used to awaken the planet, such as Brinstar Pre-Map Room
+    or Spore Spawn Kihunter Room, but in Map Rando these will not work because the gray doors have been removed. 
+    Note that in order to awaken the planet using the Pit Room, the player must enter the room with Morph and Missiles, 
+    otherwise the enemies and gray doors would not spawn.</p>
+    
+    <p>The game logic takes into account whether the option is enabled. Other vanilla effects of defeating Phantoon and 
+    waking the planet are unchanged by the randomizer, regardless of whether the "All items spawn at start of game" 
+    is enabled or disabled:</p>
 
-    <p>When the randomizer quality-of-life option "All items spawn at start of game" is enabled (as it is by default), 
-    these items will spawn from the beginning of the game instead of requiring those
-    conditions.<a href="#footnote-item-spawns"><sup>2</sup></a></p></p>
+    <p><ul>
+    <li>After defeating Phantoon, the Bowling Alley Chozo statue becomes usable and there are changes to enemy spawns. This includes
+    the Workrobot which will move and open access to the item in Wrecked Ship East Super Room.
+    <li>After the planet is awakened, enemies will spawn in Parlor, Climb, Morph Ball Room, and Blue Brinstar Energy Tank Room.
+    </ul></p>
 
     <h5>Suit behavior</h5>
     <p>In the vanilla game, Gravity suit includes almost all the benefits of Varia suit, apparently based on the 
     expectation that the player will get Varia before Gravity. In the randomizer, Varia suit behaves as in vanilla, 
-    but Gravity suit alone provides no heat protection and only 50% protection against other damage. This makes the 
-    suits become  "complementary", meaning their effects stack to give the same effect as combined suits in the 
-    vanilla game:</p>
+    but Gravity suit alone has only the incremental effects that Gravity gives on top of Varia in the vanilla game: 
+    Gravity suit alone provides no heat protection and only 50% protection against other damage (including lava). 
+    This makes the suits become "complementary", meaning their effects stack to give the same effect as combined 
+    Varia + Gravity suits in the vanilla game:</p>
     <table class="table w-auto table-striped table-bordered mx-auto">
     <thead>
         <tr>
@@ -205,7 +225,7 @@
     <li>Supers do double damage to Mother Brain (optional).
     <li>The Mother Brain fight ends after the first Rainbow Beam attack (optional). 
         <ul>
-        <li>With this option, there is no need to damage down before the Rainbow Beam attack, there is no MB3 
+        <li>With this option, there is no reason to damage Samus down before the Rainbow Beam attack, there is no MB3 
         fight, and the player does <i>not</i> get an energy refill from the Baby.
         <li>In every case, the player does get Hyper Beam.
         </ul>
@@ -215,7 +235,12 @@
         Speed Booster, Grapple, X-Ray.
         </ul>
     <li>Hyper Beam destroys Super, Bomb, and Power Bomb blocks and opens blue & green gates from either side.
+    <li>An auto-save is made after Mother Brain is defeated, immediately before the escape begins.
     <li>Enemies are cleared during the escape (optional).
+    <li>The escape timer is adapted based on the estimated time required to return to the Ship.
+        <ul>
+        <li>If the "Save the animals" game variation is enabled, time is also included for a detour to Bomb Torizo Room.
+        </ul>
     </ul>
 
     <h5>Fast transitions & cutscenes</h5>
@@ -223,14 +248,20 @@
     <li>Ship, save, refill, and map station animations are accelerated.
     <li>Parts of the Big Boy Room cutscene are accelerated: 
         <ul>
-        <li>The Baby enters sooner, and the Hopper moves more quickly to the right, stopping in the same position as vanilla.
-        <li>The Baby drains Samus' energy more quickly, and the player regains control of Samus sooner after being drained. 
+        <li>The Baby enters sooner, and the Hopper moves to the right sooner, stopping in the same position as vanilla.
+        <li>The Baby drains Samus' energy faster.
+        <li>The player regains control of Samus sooner after being drained. 
         <li>The part in the middle (starting when the Hopper is about to become a corpse) is left unmodified to avoid 
         disturbing the setup and execution of Baby Skip.
         </ul>
-    <li>Some Mother Brain cutscenes are accelerated, in particular the delay after MB1 head falls to the ground. 
-        If the default Short Mother Brain fight is disabled, then the part where Baby Metroid is latched onto MB2 is
-        also accelerated, as is the MB3 death animation; these should not affect the execution of the stand-up glitch.
+    <li>Some Mother Brain cutscenes are accelerated or simplified:
+        <ul>
+        <li>The whole-screen flashing during the MB1 death animation is removed (for photo-sensitive players & viewers, to 
+        avoid causing discomfort or triggering seizures).
+        <li>The delay after MB1 head falls to the ground is eliminated. 
+        <li>If the default Short Mother Brain fight is disabled, then the part where Baby Metroid is latched onto MB2 is
+        accelerated, as is the MB3 death animation. These should not affect the execution of the stand-up glitch.
+        </ul>
     <li>Fast doors (optional):
         <ul>
         <li>Scrolling speed is doubled for both the door centering and transition.
@@ -254,12 +285,34 @@
     <ul>
     <li>Missile Refill stations refill all ammo types: Missiles, Supers, and Power Bombs.
     <li>The Acid Chozo statue can be activated without Space Jump (optional).
+    <li>The music for each room is based on its area & sub-area on the randomized map.
+    <li>Angle up/down can be bound to any button.
+    <li>Item fanfares are removed, replaced with short sound effects that do not interrupt gameplay.
+    <li>The position of the Hopper on the left side of the Tourian Blue Hopper Room is adjusted when entering from the left,
+    to avoid Samus taking an unavoidable hit.
+    <li>Major glitches are disabled:
+        <ul>
+        <li>The pause menu is fixed so that glitched beams cannot occur.
+        <li>GT code is disabled.
+        <li>Going out-of-bounds triggers death. Going off-camera into screens that are normally inaccessible is fine,
+        as long as no part of Samus' hitbox goes outside the rectangle defining the room boundary.
+        </ul>
+    <li>The wall on the right side of Tourian Escape Room 1 does not spawn. Instead, a gray door spawns when exiting
+    Mother Brain Room at the beginning of the escape, in whichever room this leads into.
+    <li>During the first phase of the Kraid fight, Samus's X position is no longer restricted to the left screen.
+        <ul>
+        <li>This allows the room to function properly when entering from the right, giving the player an option to exit back
+        through the right door before the fight starts.
+        </ul>
+    <li>Fix to vanilla bug where heat damage could cause Samus to lose blue speed.
+    <li>Fixes to many graphical glitches, mainly ones that would happen because of modifying the doors and how they connect.<a href="#footnote-graphical-fixes"><sup>2</sup></a></p>
     </ul>
 
     <hr>
     <h3 class="my-3">How it works</h3>
-    <p>Randomization happens in three phases: map generation, item placement, and ROM patching. Map generation is done
-    offline ahead-of-time, while the other two steps happen in real-time when a user requests the system to generate a game.</p>
+    <p>Randomization happens in a few phases: map generation, item placement, escape timer calculation, and ROM patching. 
+    Map generation is done offline ahead-of-time, while the others happen in real-time when a user requests the system to 
+    generate a game.</p>
     <h5>Map generation</h5>
     <p>At the core of the map generation process is a machine-learning model trained to arrange Super Metroid rooms 
     onto a 72 x 72 grid, while satisfying the following constraints:</p>
@@ -270,9 +323,10 @@
     connect to elevators. 
     </ul>
     <p>It took about a year to develop the initial model architecture and training process, including about two months of
-    continuous training on a pair of RTX 3080 Ti GPUs.</p>
+    continuous training on a pair of RTX 3080 Ti GPUs. Work is on-going to train a new model to improve the diversity of 
+    room connections (i.e., reduce the model quirkiness where it almost always connects certain groups of rooms together).</p>
 
-    <p>Maps produced by the model then go through a few steps of post-processing: 
+    <p>Maps produced by the model go through a few steps of post-processing: 
     <ul>
     <li>The rooms are partitioned into six areas using a graph clustering algorithm.
     <li>Each area is partitioned into two sub-areas (used to determine which music track plays).
@@ -292,8 +346,10 @@
     placed in them, a subset of these locations is selected to place key items in, either randomly (if "Neural" item 
     placement is selected), or by prioritizing those that require more difficult techniques to reach (if "Forced" is 
     selected). Key items are selected to ensure that progression is unlocked (i.e., at least one new item location 
-    becomes bireachable). Filler items are placed in the remaining two-way reachable item locations for a given step, 
-    and the process repeats with the next set of key items. If on a given step there is no key item that can provide 
+    becomes bireachable). Filler items are placed in the remaining two-way reachable item locations for a given step.
+    On "Slow" progression (e.g. in "Challenge" mode), filler items are also placed in the one-way reachable
+    item locations (otherwise, one-way reachable locations will be left open to fill on later steps).
+    The process then repeats with the next set of key items. If on a given step there is no key item that can provide 
     progression, then the randomizer retries with a different map. For more details, see the "Item progression" section
     of the <a href="/generate">Generate</a> page.</p>
 
@@ -309,10 +365,47 @@
     are reachable and/or bireachable on each step, and constructing an obtain & return path for each bireachable item
     location.</p>
 
+    <h5>Escape timer</h5>
+    <p>The escape timer is determined by computing the fastest path from Mother Brain Room to the Ship (including a 
+    detour to Bomb Torizo Room if "Save the animals" is enabled). This is based on manually constructed 
+    <a href="https://github.com/blkerby/MapRandomizer/blob/main/rust/data/escape_timings.json">escape timing data</a>
+    which gives a timing between every pair of doors in every room. The base timings are humanly-viable for an
+    individual room but would be quite tight for a whole escape sequence, so a minimum of an extra 20% time is added 
+    for leniency, with additional extra time on top of that based on the difficulty settings.</p>
+
+    <p>For escape timings that rely on tech in an important way, this is taken into account by making the timings
+    conditional on the tech (and where applicable, including alternative timings that do not use the tech):
+    <ul>
+    <li>"canMoonfall" to save a substantial amount of time in certain rooms,
+    <li>"canKago" to get through Wasteland faster from top to bottom,
+    <li>"canHyperGateShot" to go through gates in reverse,
+    <li>"canSuitlessLavaDive" to go through Amphitheatre in reverse,
+    <li>"canHeroShot" to go through Big Pink from the bottom left door,
+    <li>"canOffScreenSuperShot" to go through the Morph tunnel left-to-right in Big Pink,
+        <ul>
+        <li><b>Note</b>: It's easier with Hyper Beam than with a Super (and Super ammo is not guaranteed to be available).
+        </ul>
+    </ul></p>
+
+    <p>For other more minor uses of tech (e.g. "canMockball"), the base timings assume that the tech can be used,
+    and the difficulty multiplier should be enough to account for the player's potentially inability to do
+    the tech on lower difficulty settings.</p>
+
+    <p>For timings which are heavily affected by the "Enemies cleared during escape" option, two timings are included
+    in the data, one based on the enemies being present and one based on them not, and the correct one will be used.
+    Otherwise a conservative timing is used which should be doable in both cases.</p>
+
+    <p>The escape timings assume that the player has all movement items. If the option "Hyper Beam gives all movement items"
+    is disabled, it possible that the player could defeat Mother Brain but not have the movement items required to
+    execute the escape in time; in this case the player would need to reload to an earlier save (before the escape auto-save) 
+    and go back and collect the necessary movement items before reattempting Mother Brain and the escape. A similar scenario
+    could happen if the player needs more energy for the escape (e.g. to perform a shinespark or acid dive): it's possible 
+    they could need to go back and collect more tanks or redo the Mother Brain fight with less energy loss.
+
     <h5>ROM patching</h5>
     <p>The final step is to construct a ROM patch which applies the item placements, door connections,
-    and map data, along with other game changes (as described <a href="#changes">above</a>) that are either built into the 
-    randomizer or selected as options by the user.</p>
+    map data, and escape time, along with other game changes (as described <a href="#changes">above</a>) that are either 
+    built into the randomizer or selected as options by the user. </p>
 
     <p>The resulting ROM patch, spoiler data, and other information associated with the randomized game are saved off 
     to cloud object storage, allowing users to share the randomized games with one another simply by sharing the URL. Each
@@ -324,7 +417,7 @@
     underlying logic data:</p>
     <ul>
     <li>Game design: <i>Maddo</i>, <i>kyleb</i>
-    <li>Map generation, randomizer, and web service frontend & backend: <i>Maddo</i>
+    <li>Map generation, randomizer, escape timings, and web service frontend & backend: <i>Maddo</i>
     <li>Logic data (<a href="https://github.com/miketrethewey/sm-json-data">sm-json-data</a>): 
         <i>Rushlight</i>, <i>Miss Minnie T.</i>, <i>DIProgan</i>, <i>kyleb</i>, 
         <i>Osse101</i>, <i>Maddo</i>, <i>Bokyubi</i>
@@ -332,7 +425,7 @@
     <li>Tech animated GIFs: <i>Osse101</i>
     <li>ASM help:
         <ul>
-        <li><i>Buggmann</i> (title screen animation patch)
+        <li><i>Buggmann</i> (created the title screen animation patch)
         <li><i>somerando</i> (scrolling sky, West Ocean G4 statue bug, save/load bug, etc.)
         <li><i>NobodyNada</i> (figured out BT statue crumble bug)
         <li><i>PJBoy</i> (explained Big Boy Room enemy initialization issue)
@@ -370,8 +463,8 @@
     </ul>
 
     <p>Other randomizers have been a significant source of inspiration and ideas, particularly 
-    <a href="https://randommetroidsolver.pythonanywhere.com/randomizer">VARIA Randomizer</a> 
-    and <a href="https://samus.link/">SMZ3 Randomizer</a>.</p>
+    <a href="https://randommetroidsolver.pythonanywhere.com/randomizer">VARIA Randomizer</a>, 
+    and also <a href="https://samus.link/">SMZ3 Randomizer</a> which was the first randomizer that we played (Maddo and kyleb).</p>
 
     <p>The following reference materials have been indispensible:
     <ul>
@@ -411,15 +504,20 @@
     them less painful.
     </small></p>
 
-    <a id="footnote-item-spawns">
+    <a id="footnote-graphical-fixes">
     <p><small>
-    <sup>2</sup>Whether or not this option is enabled, the way to awaken the planet is same as in the vanilla game: it is done by 
-    unlocking any gray door that requires killing enemies in the room (not including bosses or minibosses). In the randomizer
-    there are four rooms where this can be done: Pit Room (old Mother Brain room), Baby Kraid Room, Metal Pirates, and 
-    Plasma Room. Note that in order to awaken the planet using the Pit Room, the player must enter the room with Morph and Missiles, 
-    otherwise the enemies and gray doors would not spawn. Other vanilla effects of defeating Phantoon and waking the planet are
-    unaffected by this option.
+    <sup>2</sup>Specific graphical fixes include the following:
+    <ul>
+    <li>Camera fix in Kraid's, Crocomire's, Shaktool's, and Spore Spawn's Room when entering from the "wrong" side.
+    <li>Fix to background layer when exiting boss rooms without defeating the boss.
+    <li>Fix to CRE tiles when leaving Kraid's room (into non-vanilla destination rooms).
+    <li>Fix to remove "Kraid vomit" when entering Kraid's room (from a non-vanilla transition).
+    <li>Graphical fix to Crateria scrolling sky when entering from non-vanilla door connections.
+    <li>Fix to door cap closing animation when going through bottom right door of Green Brinstar Main Shaft (toward Etecoons).
+    <li>Remove fake gray door that would be drawn during the Phantoon fight.
+    <li>Fix to Bomb Torizo statue crumble animation (which otherwise could appear messed up, e.g. when encountering
+    Bomb Torizo after Botwoon).
+    </ul>
     </small></p>
-
 
 </html>

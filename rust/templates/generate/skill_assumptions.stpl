@@ -5,12 +5,12 @@
             Customize skill assumptions
             </button>
         </h2>
-        <div id="collapseDifficulty" class="accordion-collapse collapse m-2">
+        <div id="collapseDifficulty" class="accordion-collapse collapse p-0 my-0">
             <div class="form-group row m-2">
                 <label for="shinesparkTiles" class="col-sm-6 col-form-label">Shinespark tiles<br>
                 <small>(Smaller values assume ability to short-charge over shorter distances)</small>
                 </label>
-                <div class="col-sm-2">
+                <div class="col-sm-2 my-2">
                     <input type="text" class="form-control" name="shinespark_tiles" id="shinesparkTiles" value="32">
                 </div>
             </div>
@@ -19,7 +19,7 @@
                 <label for="resourceMultiplier" class="col-sm-6 col-form-label">Resource multiplier<br>
                 <small>(Leniency factor on assumed energy & ammo usage)</small>
                 </label>
-                <div class="col-sm-2">
+                <div class="col-sm-2 my-2">
                     <input type="text" class="form-control" name="resource_multiplier" id="resourceMultiplier" value="3.0">
                 </div>
             </div>
@@ -28,7 +28,7 @@
                 <label for="phantoonProficiency" class="col-sm-6 col-form-label">Phantoon proficiency<br>
                 <small>(Skill level at the Phantoon fight, between 0 and 1)</small>
                 </label>
-                <div class="col-sm-2">
+                <div class="col-sm-2 my-2">
                     <input type="text" class="form-control" name="phantoon_proficiency" id="phantoonProficiency" value="0.0">
                 </div>
             </div>
@@ -37,7 +37,7 @@
                 <label for="draygonProficiency" class="col-sm-6 col-form-label">Draygon proficiency<br>
                 <small>(Skill level at the Draygon fight, between 0 and 1)</small>
                 </label>
-                <div class="col-sm-2">
+                <div class="col-sm-2 my-2">
                     <input type="text" class="form-control" name="draygon_proficiency" id="draygonProficiency" value="0.0">
                 </div>
             </div>
@@ -46,7 +46,7 @@
                 <label for="ridleyProficiency" class="col-sm-6 col-form-label">Ridley proficiency<br>
                 <small>(Skill level at the Ridley fight, between 0 and 1)</small>
                 </label>
-                <div class="col-sm-2">
+                <div class="col-sm-2 my-2">
                     <input type="text" class="form-control" name="ridley_proficiency" id="ridleyProficiency" value="0.0">
                 </div>
             </div>
@@ -55,7 +55,7 @@
                 <label for="botwoonProficiency" class="col-sm-6 col-form-label">Botwoon proficiency<br>
                 <small>(Skill level at the Botwoon fight, between 0 and 1)</small>
                 </label>
-                <div class="col-sm-2">
+                <div class="col-sm-2 my-2">
                     <input type="text" class="form-control" name="botwoon_proficiency" id="botwoonProficiency" value="0.0">
                 </div>
             </div>
@@ -64,14 +64,14 @@
                 <label for="escapeTimerMultiplier" class="col-sm-6 col-form-label">Escape timer multiplier<br>
                 <small>(Leniency factor on escape timer)</small>
                 </label>
-                <div class="col-sm-2">
+                <div class="col-sm-2 my-2">
                     <input type="text" class="form-control" name="escape_timer_multiplier" id="escapeTimerMultiplier" value="3.0">
                 </div>
             </div>
 
-            <div class="form-group row my-2">
+            <div class="form-group row my-0">
                 <div class="col-sm-12">
-                    <div class="accordion my-2" id="accordion">
+                    <div class="accordion my-0" id="accordion">
                         <% include!("tech.stpl"); %>
                     </div>
                 </div>

@@ -17,7 +17,7 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-66---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 66 (???)</a>:
+<p><a href="https://version-66---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 66 (2023-06-14)</a>:
 <ul>
 <li>"Disable low-energy beeping" is moved from "Quality-of-life" to "Customization" (on the seed page).
 <li>Added customization option "Disable music".

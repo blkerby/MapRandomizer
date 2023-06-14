@@ -2321,6 +2321,11 @@ impl GameData {
 
     pub fn get_weapon_mask(&self, items: &[bool]) -> WeaponMask {
         let mut weapon_mask = 0;
+        let implicit_item_requires: HashSet<String> = vec![
+            "PowerBeam",
+            "canUseGrapple",
+            "canSpecialBeamAttack",
+        ].into_iter().map(|x| x.to_string()).collect();
         // TODO: possibly make this more efficient. We could avoid dealing with strings
         // and just use a pre-computed item bitmask per weapon. But not sure yet if it matters.
         'weapon: for (i, weapon_name) in self.weapon_isv.keys.iter().enumerate() {
@@ -2328,7 +2333,7 @@ impl GameData {
             assert!(weapon["useRequires"].is_array());
             for item_name_json in weapon["useRequires"].members() {
                 let item_name = item_name_json.as_str().unwrap();
-                if item_name == "PowerBeam" {
+                if implicit_item_requires.contains(item_name) {
                     continue;
                 }
                 let item_idx = self.item_isv.index_by_key[item_name];

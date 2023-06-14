@@ -286,7 +286,7 @@ impl<'a> Preprocessor<'a> {
                 return val.clone();
             } else {
                 // Circular dependency detected, which cannot be satisfied.
-                println!("Circular requirement: {:?}", req);
+                // println!("Circular requirement: {:?}", req);
                 return Requirement::Never;
             }
         }
@@ -1075,7 +1075,7 @@ impl<'r> Randomizer<'r> {
         for &item in &item_types_to_mix {
             let mut cnt = new_items_remaining[item as usize];
             if item_types_to_prioritize.contains(&item) {
-                println!("{:?}: {} {}", item, new_items_remaining[item as usize], self.initial_items_remaining[item as usize]);
+                // println!("{:?}: {} {}", item, new_items_remaining[item as usize], self.initial_items_remaining[item as usize]);
                 cnt -= 1;
             }
             for _ in 0..cnt {

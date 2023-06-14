@@ -8,13 +8,12 @@ priority:
 - help buttons for rest of settings (e.g. explain boss proficiency calculations)
 - logic simulator
 
-
-
 later:
 - model improvement:
   - try using localized output: use token that room is placed in, instead of applying attention across all tokens
   - try nvidia transformer engine
   - increase model size, probably decrease pass factor and buffer size
+  - try again using action values, to reduce the amount of computation needed
 - add objectives:
   - Pirates: 4 space pirate rooms with gray doors
   - Items: 4 special items (replacing missiles)

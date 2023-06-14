@@ -29,6 +29,7 @@
       <li>Adjustment to the position of the left enemy in Tourian Blue Hopper Room
       <li>Camera fix when entering Kraid's, Crocomire's, or Spore Spawn's room
       <li>Graphical fixes when exiting boss rooms
+      <li>Graphical fix to Bomb Torizo statue crumble animation
       </ul></p>
       <p>This setting also automatically <b>disables all other quality-of-life options</b>. Conversely, 
       enabling any quality-of-life option causes this setting to be automatically disabled.</p>
