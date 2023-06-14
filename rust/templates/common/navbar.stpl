@@ -1,4 +1,3 @@
-<script src="static/colorMode.js"></script>
 <nav class="navbar navbar-expand-md bg-body-secondary sticky-top">
   <div class="container-fluid col-xl-10 col-xxl-8">
     <a class="navbar-brand" href="/">

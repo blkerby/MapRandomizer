@@ -1,6 +1,6 @@
 <html>
 <head>
-<link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico">
+<% include!("../common/header.stpl"); %>
 <style> 
 input[type=submit] {
 padding: 12px 12px;
@@ -9,6 +9,7 @@ box-sizing: border-box;
 </style>
 </head>
 <body>
+<% include!("../common/navbar.stpl"); %>
 
 <script>
 window.unlockedTimestampString = "<%- unlocked_timestamp_str %>";
@@ -16,19 +17,6 @@ window.spoilerTokenPrefix = "<%- spoiler_token_prefix %>";
 </script>
 
 <div class="container">
-    <div class="row">
-        <div class="col-3">
-        </div>
-        <div class="col-6 text-center my-2">
-            <a href="/">
-                <img src="/static/WebTitle.png" alt="Super Metroid Map Rando" style="width: 75%">
-            </a>
-        </div>
-        <div class="col-3" align=right>
-            <small>Version: <%= version %></small>
-        </div>
-    </div>
-
     <div class="row my-2">
         <div class="col-xl-9 mx-auto">
             <div class="container my-2">
@@ -39,8 +27,8 @@ window.spoilerTokenPrefix = "<%- spoiler_token_prefix %>";
                 <div class="card">
                     <div class="card-header">Customization</div>
                     <form id="customization-form" class="card-body container" method="POST" enctype="multipart/form-data" action="customize" onchange="saveForm(this)">
-                        <div class="form-group row my-2">
-                            <div class="col-sm-3">
+                        <div class="form-group row my-3">
+                            <div class="col-sm-4">
                             <label class="col-form-label" for="room_palettes">Room palettes</label>
                             </div>
                             <div class="col-sm-4 btn-group" role="group">
@@ -51,8 +39,8 @@ window.spoilerTokenPrefix = "<%- spoiler_token_prefix %>";
                             </div>
                         </div>
 
-                        <div class="form-group row my-2">
-                            <div class="col-sm-3">
+                        <div class="form-group row my-3">
+                            <div class="col-sm-4">
                             <label class="col-form-label" for="disable_music">Disable music</label>
                             </div>
                             <div class="col-sm-4 btn-group" role="group">
@@ -64,8 +52,20 @@ window.spoilerTokenPrefix = "<%- spoiler_token_prefix %>";
                         </div>
 
                         <div class="form-group row my-3">
-                            <label class="col-sm-3 col-form-label" for="rom">Base ROM</label>
-                            <input class="col-sm-9 form-control-file" type="file" id="baseRom" name="rom"
+                            <div class="col-sm-4">
+                            <label class="col-form-label" for="disable_beeping">Disable low-energy beeping</label>
+                            </div>
+                            <div class="col-sm-4 btn-group" role="group">
+                                <input type="radio" class="btn-check" name="disable_beeping" id="disableBeepingNo" value="false" checked>
+                                <label class="btn btn-outline-primary" for="disableBeepingNo">No</label>
+                                <input type="radio" class="btn-check" name="disable_beeping" id="disableBeepingYes" value="true">
+                                <label class="btn btn-outline-primary" for="disableBeepingYes">Yes</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group row my-3">
+                            <label class="col-sm-4 col-form-label" for="rom">Base ROM</label>
+                            <input class="col-sm-8 form-control-file" type="file" id="baseRom" name="rom"
                             onchange="saveROM(this, 'base')">
                         </div>
                         <input type="submit" class="btn btn-primary" value="Download ROM" />

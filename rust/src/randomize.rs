@@ -86,6 +86,7 @@ pub struct DifficultyConfig {
     pub item_placement_style: ItemPlacementStyle,
     pub item_priorities: Vec<ItemPriorityGroup>,
     pub filler_items: Vec<Item>,
+    pub early_filler_items: Vec<Item>,
     pub resource_multiplier: f32,
     pub escape_timer_multiplier: f32,
     pub save_animals: bool,
@@ -109,7 +110,6 @@ pub struct DifficultyConfig {
     pub fast_pause_menu: bool,
     pub respin: bool,
     pub infinite_space_jump: bool,
-    pub disable_beeping: bool,
     // Game variations:
     pub objectives: Objectives,
     pub disable_walljump: bool,
@@ -252,8 +252,14 @@ impl<'a> Preprocessor<'a> {
             let (_, unlocked_dst_node_id) =
                 game_data.unlocked_door_ptr_pair_map[&(dst_exit_ptr, dst_entrance_ptr)];
             // println!("({}, {}) <-> ({}, {})", src_room_id, src_node_id, dst_room_id, dst_node_id);
-            door_map.insert((src_room_id, unlocked_src_node_id), (dst_room_id, dst_node_id));
-            door_map.insert((dst_room_id, unlocked_dst_node_id), (src_room_id, src_node_id));
+            door_map.insert(
+                (src_room_id, unlocked_src_node_id),
+                (dst_room_id, dst_node_id),
+            );
+            door_map.insert(
+                (dst_room_id, unlocked_dst_node_id),
+                (src_room_id, src_node_id),
+            );
         }
         Preprocessor {
             game_data,
@@ -413,7 +419,8 @@ impl<'a> Preprocessor<'a> {
             // Strats for in-room runways:
             for runway in runways {
                 let effective_length =
-                    get_effective_runway_length(runway.length as f32, runway.open_end as f32) - unusable_tiles as f32;
+                    get_effective_runway_length(runway.length as f32, runway.open_end as f32)
+                        - unusable_tiles as f32;
                 if effective_length < 12.0 {
                     continue;
                 }
@@ -429,7 +436,8 @@ impl<'a> Preprocessor<'a> {
             // Strats for other-room runways:
             for runway in other_runways {
                 let effective_length =
-                    get_effective_runway_length(runway.length as f32, runway.open_end as f32) - unusable_tiles as f32;
+                    get_effective_runway_length(runway.length as f32, runway.open_end as f32)
+                        - unusable_tiles as f32;
                 if effective_length < 12.0 {
                     continue;
                 }
@@ -454,8 +462,10 @@ impl<'a> Preprocessor<'a> {
                         other_runway.length as f32,
                         other_runway.open_end as f32,
                     );
-                    let total_effective_length =
-                        in_room_effective_length + other_room_effective_length - 1.0 - unusable_tiles as f32;
+                    let total_effective_length = in_room_effective_length
+                        + other_room_effective_length
+                        - 1.0
+                        - unusable_tiles as f32;
                     if total_effective_length < 12.0 {
                         continue;
                     }
@@ -519,7 +529,11 @@ impl<'a> Preprocessor<'a> {
     ) -> Requirement {
         // println!("{} {} {}", room_id, node_id, _link.strat_name);
         let mut unlocked_node_id = node_id;
-        if self.game_data.unlocked_node_map.contains_key(&(room_id, node_id)) {
+        if self
+            .game_data
+            .unlocked_node_map
+            .contains_key(&(room_id, node_id))
+        {
             unlocked_node_id = self.game_data.unlocked_node_map[&(room_id, node_id)];
         }
         let (other_room_id, other_node_id) = self.door_map[&(room_id, unlocked_node_id)];
@@ -583,7 +597,11 @@ impl<'a> Preprocessor<'a> {
     ) -> Requirement {
         // println!("{} {} {}", room_id, node_id, _link.strat_name);
         let mut unlocked_node_id = node_id;
-        if self.game_data.unlocked_node_map.contains_key(&(room_id, node_id)) {
+        if self
+            .game_data
+            .unlocked_node_map
+            .contains_key(&(room_id, node_id))
+        {
             unlocked_node_id = self.game_data.unlocked_node_map[&(room_id, node_id)];
         }
         let (other_room_id, other_node_id) = self.door_map[&(room_id, unlocked_node_id)];
@@ -625,7 +643,7 @@ impl<'a> Preprocessor<'a> {
         let out = Requirement::make_or(req_vec);
         // println!(
         //     "{}, {}, {}: {:?}",
-        //     self.game_data.room_json_map[&room_id]["name"], 
+        //     self.game_data.room_json_map[&room_id]["name"],
         //     self.game_data.node_json_map[&(room_id, node_id)]["name"],
         //     _link.strat_name, out
         // );
@@ -643,10 +661,16 @@ impl<'a> Preprocessor<'a> {
         let mut req_or_list: Vec<Requirement> = Vec::new();
         for &node_id in node_ids {
             let mut unlocked_node_id = node_id;
-            if self.game_data.unlocked_node_map.contains_key(&(room_id, node_id)) {
+            if self
+                .game_data
+                .unlocked_node_map
+                .contains_key(&(room_id, node_id))
+            {
                 unlocked_node_id = self.game_data.unlocked_node_map[&(room_id, node_id)];
             }
-            if let Some(&(other_room_id, other_node_id)) = self.door_map.get(&(room_id, unlocked_node_id)) {
+            if let Some(&(other_room_id, other_node_id)) =
+                self.door_map.get(&(room_id, unlocked_node_id))
+            {
                 let leave_with_gmode_setup_vec = &self.game_data.node_leave_with_gmode_setup_map
                     [&(other_room_id, other_node_id)];
                 for leave_with_gmode_setup in leave_with_gmode_setup_vec {
@@ -689,10 +713,16 @@ impl<'a> Preprocessor<'a> {
         let mut req_or_list: Vec<Requirement> = Vec::new();
         for &node_id in node_ids {
             let mut unlocked_node_id = node_id;
-            if self.game_data.unlocked_node_map.contains_key(&(room_id, node_id)) {
+            if self
+                .game_data
+                .unlocked_node_map
+                .contains_key(&(room_id, node_id))
+            {
                 unlocked_node_id = self.game_data.unlocked_node_map[&(room_id, node_id)];
             }
-            if let Some(&(other_room_id, other_node_id)) = self.door_map.get(&(room_id, unlocked_node_id)) {
+            if let Some(&(other_room_id, other_node_id)) =
+                self.door_map.get(&(room_id, unlocked_node_id))
+            {
                 let gmode_immobile_opt = self
                     .game_data
                     .node_gmode_immobile_map
@@ -865,7 +895,8 @@ impl<'r> Randomizer<'r> {
             flag_vec[all_items_spawn_idx] = true;
         }
         if self.difficulty_tiers[0].acid_chozo {
-            let acid_chozo_without_space_jump_idx = self.game_data.flag_isv.index_by_key["f_AcidChozoWithoutSpaceJump"];
+            let acid_chozo_without_space_jump_idx =
+                self.game_data.flag_isv.index_by_key["f_AcidChozoWithoutSpaceJump"];
             flag_vec[acid_chozo_without_space_jump_idx] = true;
         }
         flag_vec
@@ -1011,39 +1042,43 @@ impl<'r> Randomizer<'r> {
             [Item::ETank, Item::ReserveTank, Item::Super, Item::PowerBomb]
                 .into_iter()
                 .collect();
+        let mut item_types_to_prioritize: Vec<Item> = vec![];
         let mut item_types_to_mix: Vec<Item> = vec![Item::Missile];
         let mut item_types_to_delay: Vec<Item> = vec![];
+        let mut item_types_to_extra_delay: Vec<Item> = vec![];
 
         for &item in &state.item_precedence {
-            if !expansion_item_set.contains(&item) || item == Item::Missile {
+            if item == Item::Missile || new_items_remaining[item as usize] == 0 {
                 continue;
             }
-            if self.difficulty_tiers[0].filler_items.contains(&item)
+            if self.difficulty_tiers[0].early_filler_items.contains(&item)
+                && new_items_remaining[item as usize]
+                    == self.initial_items_remaining[item as usize]
+            {
+                item_types_to_prioritize.push(item);
+                item_types_to_mix.push(item);
+            } else if self.difficulty_tiers[0].filler_items.contains(&item)
                 || state.items_remaining[item as usize]
                     < self.initial_items_remaining[item as usize]
             {
                 item_types_to_mix.push(item);
-            } else {
+            } else if expansion_item_set.contains(&item) {
                 item_types_to_delay.push(item);
+            } else {
+                item_types_to_extra_delay.push(item);
             }
         }
-
-        for &item in &state.item_precedence {
-            if expansion_item_set.contains(&item) || item == Item::Missile {
-                continue;
-            }
-            if self.difficulty_tiers[0].filler_items.contains(&item) {
-                item_types_to_mix.push(item);
-            } else {
-                item_types_to_delay.push(item);
-            }
-        }
-
-        // println!("mix: {:?}, delay: {:?}", item_types_to_mix, item_types_to_delay);
+        // println!("prioritize: {:?}, mix: {:?}, delay: {:?}, extra: {:?}", 
+        //     item_types_to_prioritize, item_types_to_mix, item_types_to_delay, item_types_to_extra_delay);
 
         let mut items_to_mix: Vec<Item> = Vec::new();
         for &item in &item_types_to_mix {
-            for _ in 0..new_items_remaining[item as usize] {
+            let mut cnt = new_items_remaining[item as usize];
+            if item_types_to_prioritize.contains(&item) {
+                println!("{:?}: {} {}", item, new_items_remaining[item as usize], self.initial_items_remaining[item as usize]);
+                cnt -= 1;
+            }
+            for _ in 0..cnt {
                 items_to_mix.push(item);
             }
         }
@@ -1053,9 +1088,17 @@ impl<'r> Randomizer<'r> {
                 items_to_delay.push(item);
             }
         }
-        let mut other_items_to_place: Vec<Item> = items_to_mix;
-        other_items_to_place.shuffle(rng);
+        let mut items_to_extra_delay: Vec<Item> = Vec::new();
+        for &item in &item_types_to_extra_delay {
+            for _ in 0..new_items_remaining[item as usize] {
+                items_to_extra_delay.push(item);
+            }
+        }
+        items_to_mix.shuffle(rng);
+        let mut other_items_to_place: Vec<Item> = item_types_to_prioritize;
+        other_items_to_place.extend(items_to_mix);
         other_items_to_place.extend(items_to_delay);
+        other_items_to_place.extend(items_to_extra_delay);
         other_items_to_place = other_items_to_place[0..num_other_items_to_place].to_vec();
         for &item in &other_items_to_place {
             new_items_remaining[item as usize] -= 1;

@@ -11,6 +11,7 @@ use anyhow::Result;
 pub struct CustomizeSettings {
     pub area_themed_palette: bool,
     pub disable_music: bool,
+    pub disable_beeping: bool,
 }
 
 fn remove_mother_brain_flashing(rom: &mut Rom) -> Result<()> {
@@ -41,6 +42,12 @@ pub fn customize_rom(
     }
     if settings.disable_music {
         rom.write_u8(snes2pc(0xcf8413), 0x6F)?;
+    }
+    if settings.disable_beeping {
+        rom.write_n(snes2pc(0x90EA92), &[0xEA; 4])?;
+        rom.write_n(snes2pc(0x90EAA0), &[0xEA; 4])?;
+        rom.write_n(snes2pc(0x90F33C), &[0xEA; 4])?;
+        rom.write_n(snes2pc(0x91E6DA), &[0xEA; 4])?;
     }
     Ok(())
 }

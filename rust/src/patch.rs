@@ -304,10 +304,6 @@ impl<'a> Patcher<'a> {
             patches.push("fast_pause_menu");
         }
 
-        if self.randomization.difficulty.disable_beeping {
-            patches.push("no_beeping");            
-        }
-
         if self.randomization.difficulty.item_dots_disappear {
             patches.push("item_dots_disappear");
         }

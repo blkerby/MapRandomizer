@@ -120,6 +120,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         // shine_charge_tiles: 32,
         progression_rate: ProgressionRate::Slow,
         filler_items: vec![Item::Missile],
+        early_filler_items: vec![],
         item_placement_style: ItemPlacementStyle::Neutral,
         item_priorities: vec![
             ItemPriorityGroup {
@@ -153,7 +154,6 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         fast_pause_menu: true,
         respin: false,
         infinite_space_jump: false,
-        disable_beeping: false,
         objectives: Objectives::Bosses,
         disable_walljump: false,
         maps_revealed: false,
@@ -203,7 +203,9 @@ fn main() -> Result<()> {
 
     let mut output_rom = input_rom.clone();
     let customize_settings = CustomizeSettings {
-        area_themed_palette: true
+        area_themed_palette: true,
+        disable_music: false,
+        disable_beeping: false,
         // area_themed_palette: false
     };
     customize_rom(&mut output_rom, &ips_patch, &customize_settings, &game_data)?;

@@ -20,17 +20,17 @@ about 15 seconds to load.
 <p><a href="https://version-66---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 66 (???)</a>:
 <ul>
 <li>Added customization option "Disable music".
-<li>TODO: "Disable low-energy beeping" is moved from Quality-of-life to Customization (on the seed page)
+<li>"Disable low-energy beeping" is moved from Quality-of-life to Customization (on the seed page)
 <li>"Save the Animals" option is moved from Skill Assumptions to Game Variations.
 <li>Fixed graphical glitch that could occur during the Bomb Torizo crumbling animation (a vanilla bug).
-<li>TODO: Item progression now includes "Early" filler item options, to prioritize placing at least one instance of
-    the item early if possible.
+<li>Item progression now includes "Early" filler item options, to prioritize placing at least one instance of
+    the item early if possible (even if it may not be needed progression).
     <ul>
     <li>The Quick preset now includes an Early ETank filler item.
     </ul>
 <li>Website updates:
     <ul>
-    <li>TODO: Navigation bar is added, and the site is reorganized.
+    <li>Navigation bar is added, and the site is reorganized.
     <li>TODO: Each GIF under "Skill Assumptions" only animates while hovering over the given tech.
     </ul>
 </ul>

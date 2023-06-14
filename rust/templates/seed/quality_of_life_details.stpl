@@ -58,7 +58,3 @@
     <div class="col-6">Lenient Space Jump:</div>
     <div class="col-6"><%= if infinite_space_jump { "Yes" } else { "No" }%></div>
 </div>
-<div class="row">
-    <div class="col-6">Disable low-energy beeping:</div>
-    <div class="col-6"><%= if disable_beeping { "Yes" } else { "No" }%></div>
-</div>

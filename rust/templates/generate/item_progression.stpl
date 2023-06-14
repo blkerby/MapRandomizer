@@ -52,7 +52,7 @@
                 <% for item in &prioritizable_items { %>
                     <div class="form-group row my-2">
                         <label class="col-sm-4 col-form-label text-end" for="item_priority_<%- item %>"><%= item %></label>
-                        <div class="col-sm-6 btn-group" role="group">
+                        <div class="col-sm-7 btn-group" role="group">
                             <% for priority in &item_priorities { %>
                                 <input type="radio" class="btn-check item-priority-input" name="item_priority_<%- item %>" value="<%- priority %>"
                                     id="itemPriority<%- item %><%- priority %>" autocomplete="off" 
@@ -77,15 +77,19 @@
                 <% for item in &prioritizable_items { %>
                     <div class="form-group row my-2">
                         <label class="col-sm-4 col-form-label text-end" for="filler_items_<%- item %>"><%= item %></label>
-                        <div class="col-sm-4 btn-group" role="group">
-                            <input type="radio" class="btn-check filler-items-input" name="filler_items_<%- item %>" value=false
+                        <div class="col-sm-7 btn-group" role="group">
+                            <input type="radio" class="btn-check filler-items-input" name="filler_items_<%- item %>" value="No"
                                 id="fillerItems<%- item %>No" autocomplete="off" 
                                 onclick="itemProgressionChanged()">
                             <label class="btn btn-outline-primary" for="fillerItems<%- item %>No">No</label>
-                            <input type="radio" class="btn-check filler-items-input" name="filler_items_<%- item %>" value=true
+                            <input type="radio" class="btn-check filler-items-input" name="filler_items_<%- item %>" value="Yes"
                                 id="fillerItems<%- item %>Yes" autocomplete="off" 
                                 onclick="itemProgressionChanged()">
                             <label class="btn btn-outline-primary" for="fillerItems<%- item %>Yes">Yes</label>
+                            <input type="radio" class="btn-check filler-items-input" name="filler_items_<%- item %>" value="Early"
+                                id="fillerItems<%- item %>Early" autocomplete="off" 
+                                onclick="itemProgressionChanged()">
+                            <label class="btn btn-outline-primary" for="fillerItems<%- item %>Early">Early</label>
                         </div>
                     </div>
                 <% }%>

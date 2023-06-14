@@ -1,26 +1,19 @@
 priority:
 - only animate GIFs on hover
-- proper front page
 - add pages for tech, strats, rooms.
+- credits
 - show objective progress in pause menu
+- sprite customization (?),
 - randomized start
 - help buttons for rest of settings (e.g. explain boss proficiency calculations)
 - logic simulator
-- credits
-- music options: vanilla, area-themed, or none
-- sprite customization (?),
 
-
-model stuff to try:
-- try using nvidia transformer engine (could be faster because of fused kernels)
-- work out a way to use both GPUs for training steps (not only generation)
-- expand room embeddings to include neighboring blocks as well
-- train on random subsets of rooms
-- increase replay buffer size
-  - if it helps significantly, then set it up to read from disk, to allow for an unbounded buffer
 
 
 later:
+- add objectives:
+  - Pirates: 4 space pirate rooms with gray doors
+  - Items: 4 special items (replacing missiles)
 - when tile above Samus gets explored (in speedways) make it get revealed too
 - fix missing Samus tile in Bomb message box (issue with map tile expansion patch)
 - add logic override for strat to run under tourian blue hoppers from left (except with ultra-low QoL)

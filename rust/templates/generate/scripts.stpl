@@ -105,7 +105,6 @@ function qualityOfLifePresetChanged() {
         document.getElementById("fastPauseMenuNo").checked = true;
         document.getElementById("respinNo").checked = true;
         document.getElementById("infiniteSpaceJumpNo").checked = true;
-        document.getElementById("disableBeepingNo").checked = true;
     } else {
         document.getElementById("ultraLowQoLNo").checked = true;
     }
@@ -128,7 +127,6 @@ function qualityOfLifePresetChanged() {
         document.getElementById("fastPauseMenuYes").checked = true;
         document.getElementById("respinNo").checked = true;
         document.getElementById("infiniteSpaceJumpNo").checked = true;
-        document.getElementById("disableBeepingNo").checked = true;
     }    
     if (document.getElementById("qualityOfLifeMax").checked) {
         document.getElementById("supersDoubleYes").checked = true;
@@ -149,7 +147,6 @@ function qualityOfLifePresetChanged() {
         document.getElementById("fastPauseMenuYes").checked = true;
         document.getElementById("respinYes").checked = true;
         document.getElementById("infiniteSpaceJumpYes").checked = true;
-        document.getElementById("disableBeepingYes").checked = true;
     }    
 }
 function qualityOfLifeSettingChanged() {
@@ -166,6 +163,7 @@ function itemProgressionPresetChanged() {
         <% for item in &prioritizable_items { %>
         document.getElementById("itemPriority<%- item %>Default").checked = true;
         <% } %>
+        document.getElementById("itemPriorityETankEarly").checked = true;
         document.getElementById("itemPriorityMorphEarly").checked = true;
 
         <% for item in &prioritizable_items { %>
@@ -173,7 +171,7 @@ function itemProgressionPresetChanged() {
         <% } %>
         document.getElementById("fillerItemsSuperYes").checked = true;
         document.getElementById("fillerItemsPowerBombYes").checked = true;
-        document.getElementById("fillerItemsETankYes").checked = true;
+        document.getElementById("fillerItemsETankEarly").checked = true;
         document.getElementById("fillerItemsReserveTankYes").checked = true;
         document.getElementById("fillerItemsChargeYes").checked = true;
         document.getElementById("fillerItemsIceYes").checked = true;

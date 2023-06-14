@@ -82,6 +82,7 @@ fn main() -> Result<()> {
         shine_charge_tiles: 16.0,
         progression_rate: ProgressionRate::Normal,
         filler_items: vec![Item::Missile],
+        early_filler_items: vec![],
         item_placement_style: ItemPlacementStyle::Neutral,
         item_priorities: vec![ItemPriorityGroup {
             name: "Default".to_string(),
@@ -109,7 +110,6 @@ fn main() -> Result<()> {
         fast_pause_menu: true,
         respin: false,
         infinite_space_jump: false,
-        disable_beeping: false,
         objectives: Objectives::Bosses,
         disable_walljump: false,
         maps_revealed: false,

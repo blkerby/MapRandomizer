@@ -166,25 +166,19 @@ struct GenerateTemplate<'a> {
 
 #[get("/")]
 async fn home(_app_data: web::Data<AppData>) -> impl Responder {
-    let home_template = HomeTemplate {
-        version: VERSION,
-    };
+    let home_template = HomeTemplate { version: VERSION };
     HttpResponse::Ok().body(home_template.render_once().unwrap())
 }
 
 #[get("/releases")]
 async fn releases(_app_data: web::Data<AppData>) -> impl Responder {
-    let changes_template = ReleasesTemplate {
-        version: VERSION,
-    };
+    let changes_template = ReleasesTemplate { version: VERSION };
     HttpResponse::Ok().body(changes_template.render_once().unwrap())
 }
 
 #[get("/about")]
 async fn about(_app_data: web::Data<AppData>) -> impl Responder {
-    let about_template = AboutTemplate {
-        version: VERSION,
-    };
+    let about_template = AboutTemplate { version: VERSION };
     HttpResponse::Ok().body(about_template.render_once().unwrap())
 }
 
@@ -259,7 +253,6 @@ struct RandomizeRequest {
     fast_pause_menu: Text<bool>,
     respin: Text<bool>,
     infinite_space_jump: Text<bool>,
-    disable_beeping: Text<bool>,
     objectives: Text<String>,
     disable_walljump: Text<bool>,
     maps_revealed: Text<bool>,
@@ -276,7 +269,8 @@ struct UnlockRequest {
 struct CustomizeRequest {
     rom: Bytes,
     room_palettes: Text<String>,
-    disable_music: Option<Text<bool>>,
+    disable_music: Text<bool>,
+    disable_beeping: Text<bool>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -309,7 +303,6 @@ struct SeedData {
     fast_pause_menu: bool,
     respin: bool,
     infinite_space_jump: bool,
-    disable_beeping: bool,
     objectives: String,
     disable_walljump: bool,
     maps_revealed: bool,
@@ -355,7 +348,6 @@ struct SeedHeaderTemplate<'a> {
     fast_pause_menu: bool,
     respin: bool,
     infinite_space_jump: bool,
-    disable_beeping: bool,
     objectives: String,
     disable_walljump: bool,
     maps_revealed: bool,
@@ -432,7 +424,6 @@ fn render_seed(seed_name: &str, seed_data: &SeedData) -> Result<(String, String)
         fast_pause_menu: seed_data.fast_pause_menu,
         respin: seed_data.respin,
         infinite_space_jump: seed_data.infinite_space_jump,
-        disable_beeping: seed_data.disable_beeping,
         objectives: seed_data.objectives.clone(),
         disable_walljump: seed_data.disable_walljump,
         maps_revealed: seed_data.maps_revealed,
@@ -660,7 +651,8 @@ async fn customize_seed(
 
     let settings = CustomizeSettings {
         area_themed_palette: req.room_palettes.0 == "area-themed",
-        disable_music: if let Some(x) = &req.disable_music { x.0 } else { false },
+        disable_music: req.disable_music.0,
+        disable_beeping: req.disable_beeping.0,
     };
     info!("CustomizeSettings: {:?}", settings);
     match customize_rom(&mut rom, &patch_ips, &settings, &app_data.game_data) {
@@ -783,6 +775,7 @@ fn get_difficulty_tiers(
             item_placement_style: difficulty.item_placement_style,
             item_priorities: difficulty.item_priorities.clone(),
             filler_items: difficulty.filler_items.clone(),
+            early_filler_items: difficulty.early_filler_items.clone(),
             resource_multiplier: f32::max(
                 difficulty.resource_multiplier,
                 preset.resource_multiplier,
@@ -818,7 +811,6 @@ fn get_difficulty_tiers(
             fast_pause_menu: difficulty.fast_pause_menu,
             respin: difficulty.respin,
             infinite_space_jump: difficulty.infinite_space_jump,
-            disable_beeping: difficulty.disable_beeping,
             objectives: difficulty.objectives,
             disable_walljump: difficulty.disable_walljump,
             maps_revealed: difficulty.maps_revealed,
@@ -928,10 +920,19 @@ async fn randomize(
             .as_object()
             .unwrap()
             .iter()
-            .filter(|(_k, v)| v.as_str().unwrap() == "true")
+            .filter(|(_k, v)| v.as_str().unwrap() != "No")
             .map(|(k, _v)| Item::try_from(app_data.game_data.item_isv.index_by_key[k]).unwrap()),
     );
+    let early_filler_items: Vec<Item> = filler_items_json
+        .as_object()
+        .unwrap()
+        .iter()
+        .filter(|(_k, v)| v.as_str().unwrap() == "Early")
+        .map(|(k, _v)| Item::try_from(app_data.game_data.item_isv.index_by_key[k]).unwrap())
+        .collect();
+
     info!("Filler items: {:?}", filler_items);
+    info!("Early filler items: {:?}", early_filler_items);
 
     let difficulty = DifficultyConfig {
         tech: tech_vec,
@@ -947,6 +948,7 @@ async fn randomize(
             ),
         },
         filler_items: filler_items,
+        early_filler_items: early_filler_items,
         item_placement_style: match req.item_placement_style.0.as_str() {
             "Neutral" => maprando::randomize::ItemPlacementStyle::Neutral,
             "Forced" => maprando::randomize::ItemPlacementStyle::Forced,
@@ -992,7 +994,6 @@ async fn randomize(
         fast_pause_menu: req.fast_pause_menu.0,
         respin: req.respin.0,
         infinite_space_jump: req.infinite_space_jump.0,
-        disable_beeping: req.disable_beeping.0,
         objectives: match req.objectives.0.as_str() {
             "Bosses" => Objectives::Bosses,
             "Minibosses" => Objectives::Minibosses,
@@ -1093,7 +1094,6 @@ async fn randomize(
         fast_pause_menu: req.fast_pause_menu.0,
         respin: req.respin.0,
         infinite_space_jump: req.infinite_space_jump.0,
-        disable_beeping: req.disable_beeping.0,
         objectives: req.objectives.0.clone(),
         disable_walljump: req.disable_walljump.0,
         maps_revealed: req.maps_revealed.0,
