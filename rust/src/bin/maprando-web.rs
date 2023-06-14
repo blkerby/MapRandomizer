@@ -59,6 +59,7 @@ struct AppData {
     game_data: GameData,
     preset_data: Vec<PresetData>,
     ignored_notable_strats: HashSet<String>,
+    implicit_tech: HashSet<String>,
     map_repository: MapRepository,
     seed_repository: SeedRepository,
     visualizer_files: Vec<(String, Vec<u8>)>, // (path, contents)
@@ -885,7 +886,7 @@ async fn randomize(
     }
 
     let tech_json: serde_json::Value = serde_json::from_str(&req.tech_json).unwrap();
-    let mut tech_vec: Vec<String> = Vec::new();
+    let mut tech_vec: Vec<String> = app_data.implicit_tech.iter().cloned().collect();
     let walljump_tech = "canWalljump";
     assert!(tech_json.as_object().unwrap().contains_key(walljump_tech));
     for (tech, is_enabled) in tech_json.as_object().unwrap().iter() {
@@ -1126,6 +1127,7 @@ fn init_presets(
     presets: Vec<Preset>,
     game_data: &GameData,
     ignored_notable_strats: &HashSet<String>,
+    implicit_tech: &HashSet<String>,
 ) -> Vec<PresetData> {
     let mut out: Vec<PresetData> = Vec::new();
     let mut cumulative_tech: HashSet<String> = HashSet::new();
@@ -1151,6 +1153,14 @@ fn init_presets(
             panic!("Unrecognized ignored tech \"{tech}\"");
         }
     }
+    for tech in implicit_tech {
+        if !game_data.tech_isv.index_by_key.contains_key(tech) {
+            panic!("Unrecognized implicit tech \"{tech}\"");
+        }
+        if ignored_tech.contains(tech) {
+            panic!("Tech is both ignored and implicit: \"{tech}\"");
+        }
+    }
 
     let all_notable_strats: HashSet<String> = game_data
         .links
@@ -1169,7 +1179,7 @@ fn init_presets(
         .tech_isv
         .keys
         .iter()
-        .filter(|&x| !ignored_tech.contains(x))
+        .filter(|&x| !ignored_tech.contains(x) && !implicit_tech.contains(x))
         .cloned()
         .collect();
     let visible_tech_set: HashSet<String> = visible_tech.iter().cloned().collect();
@@ -1299,6 +1309,20 @@ fn list_tech_gif_files() -> HashSet<String> {
     files
 }
 
+fn get_implicit_tech() -> HashSet<String> {
+    [
+        "canPseudoScrew",
+        "canMidAirMorph",
+        "canTurnaroundSpinJump",
+        "canCameraManip",
+        "canStopOnADime",
+        "canUseGrapple",
+        "canDisableEquipment",
+        "canEscapeEnemyGrab",
+        "canSpecialBeamAttack",
+    ].into_iter().map(|x| x.to_string()).collect()
+}
+
 fn build_app_data() -> AppData {
     let args = Args::parse();
     let sm_json_data_path = Path::new("../sm-json-data");
@@ -1318,11 +1342,13 @@ fn build_app_data() -> AppData {
     let presets: Vec<Preset> =
         serde_json::from_str(&std::fs::read_to_string(&"data/presets.json").unwrap()).unwrap();
     let ignored_notable_strats = get_ignored_notable_strats();
-    let preset_data = init_presets(presets, &game_data, &ignored_notable_strats);
+    let implicit_tech = get_implicit_tech();
+    let preset_data = init_presets(presets, &game_data, &ignored_notable_strats, &implicit_tech);
     AppData {
         game_data,
         preset_data,
         ignored_notable_strats,
+        implicit_tech,
         map_repository: MapRepository::new(maps_path).unwrap(),
         seed_repository: SeedRepository::new(&args.seed_repository_url).unwrap(),
         visualizer_files: load_visualizer_files(),
