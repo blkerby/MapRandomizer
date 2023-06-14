@@ -11,7 +11,7 @@
     document.getElementById("navigation-home").classList.add("active");
     </script>
     <div class="container col-xl-9 col-xxl-7">
-        <div class="row align-items-center rounded-3 border shadow-lg m-4">
+        <div class="row align-items-center rounded-3 border shadow-lg mx-1 my-4 p-0">
             <div class="col-lg-8 p-4">
                 <h2 class="fw-bold">Super Metroid Map Rando</h2>
                 <p class="lead">After planet Zebes exploded, Mother Brain put it back together again but arranged 
@@ -21,13 +21,13 @@
                     <a href="/generate" class="btn btn-primary btn-lg">Generate Game</a>
                 </div>
             </div>
-            <div class="col-lg-4 overflow-hidden text-center my-0">
+            <div class="col-lg-4 overflow-hidden text-center p-0 m-0">
                 <img src="/static/hero-map.png" height=360 style="image-rendering: pixelated;">
             </div>
         </div>
     </div>
     <div class="container col-xxl-10">
-        <div class="row m-5">
+        <div class="row mx-2 my-5">
             <div class="col-lg-6">
                 <h3>Important tips</h3>
                 <ul>

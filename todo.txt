@@ -11,6 +11,10 @@ priority:
 
 
 later:
+- model improvement:
+  - try using localized output: use token that room is placed in, instead of applying attention across all tokens
+  - try nvidia transformer engine
+  - increase model size, probably decrease pass factor and buffer size
 - add objectives:
   - Pirates: 4 space pirate rooms with gray doors
   - Items: 4 special items (replacing missiles)
@@ -149,8 +153,6 @@ later:
 - fix bug where suit color does not change when changing suits while taking damage (e.g. lava dive)?
 - fix bug where music is wrong after quick reload (even after going to next room).
 - clean up the web service, to reduce the amount of boilerplate plumbing settings around.
-- add front page to website
-- explain about doors being turned blue?
 - figure out why some rooms are dark (some FX other than palette FX?)
 - fixes/improvements to area palettes:
   - add back palette FX glows using correct palettes.
@@ -192,8 +194,10 @@ later:
 - fix internal checksum in output ROM
 - add README
 - fix suit graphics not showing after getting suit (consequence of skipping animation)?
+- have forced mode take into account return path?
 
 maybe someday?:
+- see if we can represent more room details on map: heat, water, gates, tunnels
 - minimizer mode? (select rooms to include randomly, hand-picked, and/or user-selected)
 - make map rando for other hacks (e.g. project base, subversion?)
   - would be a lot of work. we could invite others to help implement the logic
@@ -203,9 +207,7 @@ maybe someday?:
 rejected ideas (probably):
 - set boss flag immediately when boss dies.
 - balance boss distribution (one boss per area, corresponding to vanilla?)
-  to fix the timing with the hoppers?
 - consider moving the MB barriers to the right one tile (or two?), to make them interfere less with ice zeb skip.
-- have forced mode take into account return path? (probably a bad idea)
 - Remove Crocomire funny map behavior?
 - Option for anti-softlock patches (e.g. in Moat, Early Supers, etc.)?
   - disable acid trigger in Leodox room?

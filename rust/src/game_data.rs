@@ -1427,28 +1427,6 @@ impl GameData {
         assert!(found);
     }
 
-    fn override_acid_statue_room(&mut self, room_json: &mut JsonValue) {
-        // Add an alternative to Space Jump requirement for using the Acid chozo statue:
-        let mut found = false;
-        for node_json in room_json["nodes"].members_mut() {
-            if node_json["id"].as_i32().unwrap() == 3 {
-                for lock in node_json["locks"].members_mut() {
-                    for strat in lock["unlockStrats"].members_mut() {
-                        for req in strat["requires"].members_mut() {
-                            if req == &JsonValue::String("SpaceJump".to_string()) {
-                                *req = json::object!{
-                                    "or": ["SpaceJump", "f_AcidChozoWithoutSpaceJump"]
-                                };
-                                found = true;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        assert!(found);
-    }
-
     fn preprocess_room(&mut self, room_json: &JsonValue) -> Result<JsonValue> {
         // We apply some changes to the sm-json-data specific to Map Rando.
         let mut new_room_json = room_json.clone();
@@ -1501,8 +1479,6 @@ impl GameData {
             self.override_morph_ball_room(&mut new_room_json);
         } else if room_id == 139 {
             self.override_metal_pirates_room(&mut new_room_json);
-        } else if room_id == 149 {
-            self.override_acid_statue_room(&mut new_room_json);
         }
 
         for node_json in new_room_json["nodes"].members_mut() {
@@ -2490,6 +2466,12 @@ impl GameData {
         *game_data.helper_json_map.get_mut("h_lavaProof").unwrap() = json::object! {
             "name": "h_lavaProof",
             "requires": ["Varia", "Gravity"],
+        };
+        *game_data.helper_json_map.get_mut("h_canActivateAcidChozo").unwrap() = json::object! {
+            "name": "h_canActivateAcidChozo",
+            "requires": [{
+                "or": ["SpaceJump", "f_AcidChozoWithoutSpaceJump"]
+            }],
         };
 
         game_data.load_weapons()?;
