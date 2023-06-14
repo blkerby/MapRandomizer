@@ -12,6 +12,17 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
+        <p>This setting affects which items will be treated as filler items:
+        <ul>
+        <li><p><b>No</b>: The item is not treated as filler. This means it will only be placed if it is placed as a key item
+        (e.g. if it helps provide progression), or at the end of item placement when the remaining items are placed.</p>
+        <li><p><b>Yes</b>: This item is treated as filler. This means it is mixed into the pool of items, along with Missiles,
+        to fill up item locations on each step, without regard to whether it provides progression.</p>
+        <li><p><b>Early</b>: This item is treated as filler, and one instance of the item will be prioritized to be placed 
+        as early as possible.</p>
+        </ul>
+        </p>
+
         <p>Filler items are randomly mixed in with Missiles to fill up the remaining obtainable item locations on each randomization step
         (ones not already being filled by key items). If an item with multiple copies (Supers, Power Bombs, Energy Tanks, and Reserve Tanks)
         is placed as a key item, then additional copies are treated as filler on later steps even if not enabled as a filler item in these settings. </p>

@@ -53,7 +53,7 @@
     embarking on Map Rando it is recommended to first gain some experience with the vanilla game and then
     probably with another randomizer such as 
     <a href="https://randommetroidsolver.pythonanywhere.com/randomizer">VARIA Randomizer</a>
-    (to experience it with vanilla room layouts, select "Advanced" and disable "Anti-softlock layout patches"). 
+    (to play VARIA with vanilla room layouts, select "Advanced" and disable "Anti-softlock layout patches"). 
     It is also possible to play Map Rando without the map randomization, by selecting "Vanilla map" under 
     "Game variations" on the <a href="/generate">Generate</a> page.</p>
     
@@ -325,7 +325,7 @@
     <ul>
     <li>Game design: <i>Maddo</i>, <i>kyleb</i>
     <li>Map generation, randomizer, and web service frontend & backend: <i>Maddo</i>
-    <li>Logic data <a href="https://github.com/miketrethewey/sm-json-data">sm-json-data</a>: 
+    <li>Logic data (<a href="https://github.com/miketrethewey/sm-json-data">sm-json-data</a>): 
         <i>Rushlight</i>, <i>Miss Minnie T.</i>, <i>DIProgan</i>, <i>kyleb</i>, 
         <i>Osse101</i>, <i>Maddo</i>, <i>Bokyubi</i>
     <li>Spoiler map: <i>Selicre</i>
@@ -336,17 +336,18 @@
         <li><i>somerando</i> (scrolling sky, West Ocean G4 statue bug, save/load bug, etc.)
         <li><i>NobodyNada</i> (figured out BT statue crumble bug)
         <li><i>PJBoy</i> (explained Big Boy Room enemy initialization issue)
+        <li><i>AmoebaOfDoom</i> (suggestions on map patching)
         </ul>
     </ul>
 
     <p>Many people in the community have created and shared videos of interesting Super Metroid strats, which have 
     then contributed to the logic used by the randomizer:
     <ul>
-    <li>Special thanks go to <i>bobbob</i> and <i>insomniaspeed</i> who have been especially profilic in 
+    <li>Special thanks to <i>bobbob</i> and <i>insomniaspeed</i> who have been especially profilic in 
     creating & sharing strat videos.
     </ul>
 
-    <p>There are also many ASM patches written by other people for earlier projects, which this randomizer
+    <p>There are also many ASM patches written by people for earlier projects, which this randomizer
     reuses or builds on:</p>
     <ul>
     <li>Vanilla bugfixes: <i>total</i>, <i>PJBoy</i>, <i>strotlog</i>, <i>ouiche</i>
@@ -368,28 +369,30 @@
     <li>Respin: <i>Kejardon</i>
     </ul>
 
-    <p>Other randomizers have been a source of inspiration and ideas, particularly 
+    <p>Other randomizers have been a significant source of inspiration and ideas, particularly 
     <a href="https://randommetroidsolver.pythonanywhere.com/randomizer">VARIA Randomizer</a> 
     and <a href="https://samus.link/">SMZ3 Randomizer</a>.</p>
 
     <p>The following reference materials have been indispensible:
     <ul>
-    <li><a href="https://patrickjohnston.org/bank/index.html">Bank logs</a> by <i>PJBoy</i>. Essentially every change we make on the ROM side of the randomizer involves consulting this.
+    <li><a href="https://patrickjohnston.org/bank/index.html">Bank logs</a> by <i>PJBoy</i>. 
+        Basically every change we make on the ROM side of the randomizer involves consulting this.
     <li><a href="http://metroidconstruction.com/SMMM/">Super Metroid Mod Manual</a> by <i>grime</i>.
     <li><a href="https://www.raphnet.net/divers/retro_challenge_2019_03/qsnesdoc.html">SNES Graphics Information</a> by <i>Qwertie</i>.
     </ul>
 
-    <p>We've also received valuable feedback, suggestions, and bug reports from many players, too many to mention them all 
-    individually, but there are a few players who have been involved from an early period who we have to mention:
+    <p>We've also received valuable feedback, suggestions, and bug reports from many players. Though there are too many 
+    to mention them all individually, we are grateful for everyone who has shared their ideas and observations! There are 
+    a few players who have been involved from an early period who we do have to mention:
     <ul>
     <li><i>Osse</i>, who does a lot of careful playtesting and is a main contributor to the on-going logic work (alongside <i>kyleb</i>)
     <li><i>Joonie</i>, who gave very helpful feedback that guided much of the early development.
-    <li><i>somerando(cauuyjdp)</i>, who has reported a ton of bugs (along with sharing interesting strats, seeds, and ASM help).
+    <li><i>somerando(cauuyjdp)</i>, who has reported a ton of bugs (and shared interesting strats, seeds, and ASM help).
     <li><i>TarThoron</i>, who has been super helpful on the Discord, sharing a lot of knowledge and answering questions.
     </ul>
     </p>
 
-    <p>We also appreciate the people who have created and shared tools related to the randomizer:
+    <p>Thanks also to the people who have created and shared tools related to the randomizer:
     <ul>
     <li><i>ocesse_sm</i>: <a href="https://forum.metroidconstruction.com/index.php/topic,5168.msg72455.html#msg72455">widescreen patch</a>
     <li><i>chicdead26</i>: Map Rando package for <a href="https://emotracker.net/">EmoTracker</a>

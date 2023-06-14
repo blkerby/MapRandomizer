@@ -195,10 +195,10 @@ lr0 = 0.0002
 lr1 = 0.0002
 # lr_warmup_time = 16
 # lr_cooldown_time = 100
-num_candidates_min0 = 1
-num_candidates_max0 = 1.5
-num_candidates_min1 = 2
-num_candidates_max1 = 2
+num_candidates_min0 = 2
+num_candidates_max0 = 2.5
+num_candidates_min1 = 3.51
+num_candidates_max1 = 4
 
 # num_candidates0 = 40
 # num_candidates1 = 40
@@ -235,7 +235,7 @@ temperature_frac_min0 = 0.5
 temperature_frac_min1 = 0.5
 temperature_decay = 1.0
 
-annealing_start = 11008
+annealing_start = 16400
 annealing_time = 512
 
 pass_factor0 = 0.2
@@ -535,7 +535,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk2')
+            # save_session(session, pickle_name + '-bk3')
             # session.replay_buffer.resize(2 ** 20)
             # pickle.dump(session, open(pickle_name + '-small', 'wb'))
     if session.num_rounds % summary_freq == 0:

@@ -19,19 +19,28 @@ about 15 seconds to load.
 
 <p><a href="https://version-66---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 66 (???)</a>:
 <ul>
+<li>"Disable low-energy beeping" is moved from "Quality-of-life" to "Customization" (on the seed page).
 <li>Added customization option "Disable music".
-<li>"Disable low-energy beeping" is moved from Quality-of-life to Customization (on the seed page)
-<li>"Save the Animals" option is moved from Skill Assumptions to Game Variations.
+<li>"Save the Animals" option is moved from "Skill assumptions" to "Game variations".
 <li>Fixed graphical glitch that could occur during the Bomb Torizo crumbling animation (a vanilla bug).
 <li>Item progression now includes "Early" filler item options, to prioritize placing at least one instance of
-    the item early if possible (even if it may not be needed progression).
+    the item early if possible.
     <ul>
-    <li>The Quick preset now includes an Early ETank filler item.
+    <li>Particularly when combined with the existing Early key item option, the new Early filler item option creates
+    a stronger tendency for an item to be placed early. 
+    <li>The Quick preset now includes an Early ETank filler item and key item, making it very likely that at least
+    one ETank will be obtainable early in the game.
     </ul>
 <li>Website updates:
     <ul>
-    <li>Navigation bar is added, and the site is reorganized.
-    <li>TODO: Each GIF under "Skill Assumptions" only animates while hovering over the given tech.
+    <li>The site is reorganized:
+        <ul>
+        <li>A home page and navigation bar are added.
+        <li>The changelog is moved to a Releases page.
+        <li>A new About page is added.
+        </ul>
+    <li>Dark/light-mode toggle control is added.
+    <li>Each GIF under "Skill Assumptions" only animates while hovering over the given tech.
     </ul>
 </ul>
 
