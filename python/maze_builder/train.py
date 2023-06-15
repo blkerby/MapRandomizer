@@ -178,8 +178,8 @@ session = TrainingSession(envs,
 cpu_executor = None
 
 pickle_name = 'models/session-2023-06-08T14:55:16.779895.pkl'
-# # session = pickle.load(open(pickle_name, 'rb'))
-session = pickle.load(open(pickle_name + '-bk2', 'rb'))
+session = pickle.load(open(pickle_name, 'rb'))
+# session = pickle.load(open(pickle_name + '-bk2', 'rb'))
 session.envs = envs
 
 

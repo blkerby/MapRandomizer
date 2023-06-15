@@ -1,3 +1,8 @@
+<style>
+.navbar {
+  height: 64px;
+}
+</style>
 <nav class="navbar navbar-expand-md bg-body-secondary sticky-top">
   <div class="container-fluid col-xl-10 col-xxl-8">
     <a class="navbar-brand" href="/">
@@ -62,7 +67,8 @@
             }
             html[data-bs-theme=dark] .theme-icon-active {
               fill: white;
-            }            </style>
+            }
+            </style>
             <button class="btn btn-link nav-link py-2 px-0 px-lg-2 dropdown-toggle d-flex align-items-center m-2" id="bd-theme" type="button" aria-expanded="false" data-bs-toggle="dropdown" data-bs-display="static" aria-label="Toggle theme (auto)">
               <svg class="bi my-1 theme-icon-active" style="height:20px;width:20px;opacity:0.75;"><use href="#circle-half"></use></svg>
               <span class="d-md-none ms-2" id="bd-theme-text">Toggle theme</span>

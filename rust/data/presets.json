@@ -1,6 +1,6 @@
 [
   {
-    "name": "Beginner",
+    "name": "Basic",
     "shinespark_tiles": 33,
     "resource_multiplier": 3.0,
     "escape_timer_multiplier": 3.0,
@@ -18,7 +18,7 @@
     "notable_strats": []
   },
   {
-    "name": "Intermediate",
+    "name": "Medium",
     "shinespark_tiles": 32,
     "resource_multiplier": 2.0,
     "escape_timer_multiplier": 2.0,

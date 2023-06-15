@@ -1,14 +1,19 @@
 priority:
-- only animate GIFs on hover
 - add pages for tech, strats, rooms.
 - credits
 - show objective progress in pause menu
-- sprite customization (?),
+- add non-respawning farms to logic
+- overhaul how randomization/customization phases work: run customization on client (with Rust WebAssembly?)
+  - make it so that customization can use matching version from when the seed was generated
+  - include more options for customization
+  - ROM won't need to be provided for generation, only customization
+- sprite customization,
 - randomized start
 - help buttons for rest of settings (e.g. explain boss proficiency calculations)
 - logic simulator
 
 later:
+- fix escape timer tech mapping to use reverse Amphitheatre notable for can_acid_dive
 - model improvement:
   - try using localized output: use token that room is placed in, instead of applying attention across all tokens
   - try nvidia transformer engine
@@ -33,9 +38,6 @@ later:
 - handle (steep) slopes in runway length calculations
 - make more QoL options for stuff bobbob wants to turn off.
 - 10 super botwoon should be possible in Expert (and 30 missile in Insane?)
-- look into potential conflicts between map_area.asm and map_progress_maintain.asm
-  - AkumaGath17 mentioned discussion on metconst.
-- move "Save the Animals" option out of "Skill Assumptions" into QoL?
 - possibly add smoother map scrolling (8-directional) like Map Overhaul?
 - fix dark grid dots in slope tiles (Terminator/Croc Speedway)
 - adjust some of the transition marker letters:
@@ -55,7 +57,6 @@ later:
 - fix save animation colors (area-themed color looks a little bad?)
 - consider making Save the Animals option displayed more prominently
   - show Bomb Torizo room on map somehow during escape
-- customization option to disable low-energy beeping.
 - logic: metroid tank damage may need to be higher without some tech (multiplier doesn't apply)
 - fix palette issue in HUD map after Phantoon fight
 - fix how spoiler map sometimes won't show escape route
@@ -70,6 +71,7 @@ later:
 - Add override for Tourian Hopper run under strat from left to top (imyt strat)
 - add a tip that you can share a seed using the URL.
 - logic: ice moonfall (in dachora room)
+- logic (maybe): moondance (bowling alley), tas dance (green brin shaft)
 - make graph traversals faster by using previous step for initial local states (probably not worth it?):
   - we'd have to do a full graph traversal to get spoiler route as a separate step, to avoid getting weird long paths
 - in sm-json-data: add logical requirement for refills
@@ -88,8 +90,7 @@ later:
 - check if pants room internal door connects correctly in logic
 - fix apparent bug with Forced mode which is adding an extra wasted tier that never gets used (but just slows things down a bit)
 - add option (enabled on Challenge) to not treat tanks as filler items anymore after giving Varia (including the step where giving Varia)
-- (probably bad idea:) add third option for filler items: "After First"
-  - reorganize UI to only show this option for Supers, PowerBombs, ETanks, and Reserve Tanks.
+  - maybe more general option to postpone unneeded filler items aside from missiles
 
 - spoiler visualizer improvements:
   - refinements
@@ -127,8 +128,6 @@ later:
 - add crystal flash to logic when needed for energy
   - do we need sm-json-data to mark nodes which are unsafe for crystal flashing?
 - consider adding a mode that can require leaps-of-faith
-- speed up parts of MB: where Big Boy is latched on to MB, and death animation (shouldn't affect stand-up)
-- add more farms to logic
 - adjust elevator heatFrames when fast elevators enabled
 - make quick reload work while in pause menu?
 - refine cross room shinesparks:

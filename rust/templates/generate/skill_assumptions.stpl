@@ -1,11 +1,18 @@
-<div class="accordion my-2" id="accordion">
-    <div class="accordion-item">
-        <h2 class="accordion-header">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDifficulty">
-            Customize skill assumptions
+<div class="accordion p-0 m-0" id="accordion">
+    <div class="accordion-item p-0 m-0">
+        <h2 class="accordion-header p-0 m-0">
+            <style>
+            .accordion-button::after {
+                position: absolute;
+                z-index: 100;
+                right: 16px;
+            }
+            </style>
+            <button class="accordion-button collapsed my-0 d-block text-center customize-button" style="padding-top:11px;padding-bottom:11px;" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDifficulty">
+            Customize
             </button>
         </h2>
-        <div id="collapseDifficulty" class="accordion-collapse collapse p-0 my-0">
+        <div id="collapseDifficulty" class="accordion-collapse collapse p-0 m-0">
             <div class="form-group row m-2">
                 <label for="shinesparkTiles" class="col-sm-6 col-form-label">Shinespark tiles<br>
                 <small>(Smaller values assume ability to short-charge over shorter distances)</small>
@@ -71,7 +78,7 @@
 
             <div class="form-group row my-0">
                 <div class="col-sm-12">
-                    <div class="accordion my-0" id="accordion">
+                    <div class="accordion my-0" id="techAccordion">
                         <% include!("tech.stpl"); %>
                     </div>
                 </div>
