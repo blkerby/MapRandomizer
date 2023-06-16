@@ -18,7 +18,7 @@
                 <small>(Smaller values assume ability to short-charge over shorter distances)</small>
                 </label>
                 <div class="col-sm-2 my-2">
-                    <input type="text" class="form-control" name="shinespark_tiles" id="shinesparkTiles" value="32">
+                    <input type="text" class="form-control" name="shinespark_tiles" id="shinesparkTiles" value="33" onchange="techChanged()">
                 </div>
             </div>
 
@@ -27,7 +27,7 @@
                 <small>(Leniency factor on assumed energy & ammo usage)</small>
                 </label>
                 <div class="col-sm-2 my-2">
-                    <input type="text" class="form-control" name="resource_multiplier" id="resourceMultiplier" value="3.0">
+                    <input type="text" class="form-control" name="resource_multiplier" id="resourceMultiplier" value="3.0" onchange="techChanged()">
                 </div>
             </div>
 
@@ -36,7 +36,7 @@
                 <small>(Skill level at the Phantoon fight, between 0 and 1)</small>
                 </label>
                 <div class="col-sm-2 my-2">
-                    <input type="text" class="form-control" name="phantoon_proficiency" id="phantoonProficiency" value="0.0">
+                    <input type="text" class="form-control" name="phantoon_proficiency" id="phantoonProficiency" value="0.0" onchange="techChanged()">
                 </div>
             </div>
 
@@ -45,7 +45,7 @@
                 <small>(Skill level at the Draygon fight, between 0 and 1)</small>
                 </label>
                 <div class="col-sm-2 my-2">
-                    <input type="text" class="form-control" name="draygon_proficiency" id="draygonProficiency" value="0.0">
+                    <input type="text" class="form-control" name="draygon_proficiency" id="draygonProficiency" value="0.0" onchange="techChanged()">
                 </div>
             </div>
 
@@ -54,7 +54,7 @@
                 <small>(Skill level at the Ridley fight, between 0 and 1)</small>
                 </label>
                 <div class="col-sm-2 my-2">
-                    <input type="text" class="form-control" name="ridley_proficiency" id="ridleyProficiency" value="0.0">
+                    <input type="text" class="form-control" name="ridley_proficiency" id="ridleyProficiency" value="0.0" onchange="techChanged()">
                 </div>
             </div>
 
@@ -63,7 +63,7 @@
                 <small>(Skill level at the Botwoon fight, between 0 and 1)</small>
                 </label>
                 <div class="col-sm-2 my-2">
-                    <input type="text" class="form-control" name="botwoon_proficiency" id="botwoonProficiency" value="0.0">
+                    <input type="text" class="form-control" name="botwoon_proficiency" id="botwoonProficiency" value="0.0" onchange="techChanged()">
                 </div>
             </div>
 
@@ -72,7 +72,7 @@
                 <small>(Leniency factor on escape timer)</small>
                 </label>
                 <div class="col-sm-2 my-2">
-                    <input type="text" class="form-control" name="escape_timer_multiplier" id="escapeTimerMultiplier" value="3.0">
+                    <input type="text" class="form-control" name="escape_timer_multiplier" id="escapeTimerMultiplier" value="3.0" onchange="techChanged()">
                 </div>
             </div>
 

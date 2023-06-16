@@ -9,11 +9,11 @@
     padding: 12px 12px;
     box-sizing: border-box;
     }
-    html[data-bs-theme=dark] .customize-button {
+    html[data-bs-theme=dark] .customize-button.collapsed {
         background-color: #303030;
     }
-    html[data-bs-theme=light] .customize-button {
-        background-color: #f0f0f0;
+    html[data-bs-theme=light] .customize-button.collapsed {
+        background-color: #f4f4f4;
     }
     </style>
     </head>
