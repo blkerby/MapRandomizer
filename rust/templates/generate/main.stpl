@@ -48,13 +48,13 @@
                 </div>
             </div>            
 
-            <div class="container border rounded-3 p-0 mt-3 mb-4">
+            <div class="container border rounded-3 p-0 mt-3 mb-4 overflow-hidden">
                 <div class="form-group row">
                     <div class="col-lg-3 ml-0 mt-1 mb-1 align-items-center">
                         <% include!("help/skill.stpl"); %>
                         <label for="preset">Skill assumptions</label>
                     </div>
-                    <div class="col-lg-9 mt-0 btn-group" role="group">
+                    <div class="col-lg-9 mt-0 btn-group overflow-auto" role="group">
                     <% for (i, p) in preset_data.iter().enumerate() { 
                         let name = &p.preset.name;
                         let name_no_space = &p.preset.name.replace(" ", "");

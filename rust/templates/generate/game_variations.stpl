@@ -1,5 +1,5 @@
 <div class="form-group row">
-    <div class="col-lg-4 my-2">
+    <div class="col-lg-5 col-md-6 my-2">
         <% include!("help/variations/save_the_animals.stpl"); %>
         <label for="save_animals">Save the animals</label>
     </div>
@@ -12,7 +12,7 @@
 </div>
 
 <div class="form-group row">
-    <div class="col-lg-4 my-2">
+    <div class="col-lg-5 col-md-6 my-2">
         <% include!("help/variations/disable_walljump.stpl"); %>
         <label for="respin">Disable wall jumps (experimental)</label>
     </div>
@@ -25,7 +25,7 @@
 </div>
 
 <div class="form-group row">
-    <div class="col-lg-4 my-2">
+    <div class="col-lg-5 col-md-6 my-2">
         <% include!("help/variations/maps_revealed.stpl"); %>
         <label for="maps_revealed">Maps revealed from start</label>
     </div>
@@ -38,7 +38,7 @@
 </div>
 
 <div class="form-group row">
-    <div class="col-lg-4 my-2">
+    <div class="col-lg-5 col-md-6 my-2">
         <% include!("help/variations/vanilla_map.stpl"); %>
         <label for="respin">Vanilla map (no map randomization)</label>
     </div>
@@ -51,7 +51,7 @@
 </div>
 
 <div class="form-group row">
-    <div class="col-lg-4 my-2">
+    <div class="col-lg-5 col-md-6 my-2">
         <% include!("help/variations/ultra_low_qol.stpl"); %>
         <label for="infinite_space_jump">Ultra-low quality of life</label>
     </div>
@@ -64,11 +64,11 @@
 </div>
 
 <div class="form-group row">
-    <div class="col-lg-4 my-2">
+    <div class="col-lg-5 col-md-6 my-2">
         <% include!("help/race.stpl"); %>
         <label for="preset">Race mode</label>
     </div>
-    <div class="col-lg-2 btn-group my-2" role="group">
+    <div class="col-md-2 btn-group my-2" role="group">
         <input type="radio" class="btn-check" name="race_mode" id="raceModeNo" value="No" checked=true>
         <label class="btn btn-outline-primary" for="raceModeNo">No</label>
         <input type="radio" class="btn-check" name="race_mode" id="raceModeYes" value="Yes">
@@ -77,11 +77,11 @@
 </div>
 
 <div class="form-group row">
-    <div class="col-lg-4 my-2">
+    <div class="col-lg-5 col-md-6 my-2">
         <% include!("help/seed.stpl"); %>
         <label for="preset">Random seed</label>
     </div>
-    <div class="col-lg-3 my-2">
+    <div class="col-md-3 my-2">
     <input type="text" class="form-control" name="random_seed" id="randomSeed" value="">
     </div>
 </div>
