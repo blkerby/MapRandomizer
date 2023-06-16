@@ -1,10 +1,9 @@
 <style>
 .navbar {
   height: 64px;
-  background-color: #163c60;
 }
 </style>
-<nav class="navbar navbar-dark navbar-expand-md sticky-top">
+<nav class="navbar navbar-expand-md bg-body-secondary sticky-top">
   <div class="container-fluid col-xl-10 col-xxl-8">
     <a class="navbar-brand" href="/">
         <img src="/static/map_station_transparent.png" style="image-rendering: pixelated;">
@@ -35,13 +34,29 @@
       <ul class="navbar-nav align-items-center">
         <li class="nav-item">
             <a class="nav-link" href="https://github.com/blkerby/MapRandomizer">
-                <img src="/static/github-mark-white.svg" style="height:20px;opacity:0.9;" class="m-1">
+                <style>
+                html[data-bs-theme=light] img#github-icon {
+                  content:url("/static/github-mark.svg")
+                }
+                html[data-bs-theme=dark] img#github-icon {
+                  content:url("/static/github-mark-white.svg")
+                }
+                </style>
+                <img id="github-icon" style="height:20px;opacity:0.9;" class="m-1">
                 GitHub
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="https://discord.gg/Gc99YV2ZcB">
-                <img src="/static/discord-white.svg" style="height:20px;opacity:0.75;" class="m-1">
+                <style>
+                html[data-bs-theme=light] img#discord-icon {
+                  content:url("/static/discord-black.svg")
+                }
+                html[data-bs-theme=dark] img#discord-icon {
+                  content:url("/static/discord-white.svg")
+                }
+                </style>
+                <img id="discord-icon" style="height:20px;opacity:0.75;" class="m-1">
                 Discord
             </a>
         </li>
@@ -50,7 +65,7 @@
             html[data-bs-theme=dark] .theme-icon {
               fill: white;
             }
-            .theme-icon-active {
+            html[data-bs-theme=dark] .theme-icon-active {
               fill: white;
             }
             </style>
