@@ -242,6 +242,18 @@ function initializeSpoilerToken() {
     }
     document.getElementById("spoilerToken").value = localStorage["spoilerToken"];
 }
+function checkOtherOptions() {
+    if (document.getElementById("saveAnimalsYes").checked ||
+        document.getElementById("disableWallJumpYes").checked ||
+        document.getElementById("mapsRevealedYes").checked ||
+        document.getElementById("vanillaMapYes").checked ||
+        document.getElementById("ultraLowQoLYes").checked ||
+        document.getElementById("raceModeYes").checked) 
+    {
+        document.getElementById("collapseGameVariations").classList.remove("collapse");
+    }
+    document.getElementById("randomSeed").value = "";
+}
 </script>
 <% include!("../common/save_load_rom.stpl"); %>
 <% include!("../common/save_settings.stpl"); %>
@@ -252,5 +264,6 @@ presetChanged();
 gameVariationChanged();
 qualityOfLifePresetChanged();
 itemProgressionPresetChanged();
+checkOtherOptions();
 initializeSpoilerToken();
 </script>
