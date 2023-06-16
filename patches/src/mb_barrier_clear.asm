@@ -186,8 +186,8 @@ bomb_torizo:
 .skip:
 
 bowling_chozo:
-    lda $7ed822
-    and #$0010
+    lda $7ed823
+    and #$0001
     beq .skip  ; skip clearing if Bowling Alley Chozo hasn't been used
 
     jsl $8483D7
@@ -266,9 +266,9 @@ clear_barrier_draw:
 
 bowling_chozo_set_flag:
     jsl $90F084  ; run hi-jacked instruction
-    lda $7ed822  ; set flag to represent that Bowling statue has been used (flag bit unused by vanilla game)
-    ora #$0010
-    sta $7ed822
+    lda $7ed823  ; set flag to represent that Bowling statue has been used (flag bit unused by vanilla game)
+    ora #$0001
+    sta $7ed823
     rtl
 
 warnpc $84F280
