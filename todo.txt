@@ -1,3 +1,11 @@
+next release:
+- add to room logic page:
+  - obstacles
+  - raw room JSON
+- make tech logic pages
+- make index pages for room & tech
+
+
 priority:
 - add pages for tech, strats, rooms.
 - credits

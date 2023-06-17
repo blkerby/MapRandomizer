@@ -15,7 +15,8 @@ struct RoomStrat {
     to_node_id: usize,
     to_node_name: String,
     note: String,
-    requires_json: String,
+    requires: String,                  // new-line separated requirements
+    obstacles: Vec<(String, String)>,  // list of (obstacle name, obstacle requires)
 }
 
 #[derive(TemplateOnce, Clone)]
@@ -26,6 +27,7 @@ struct RoomTemplate {
     room_diagram_path: String,
     nodes: Vec<(usize, String)>,
     strats: Vec<RoomStrat>,
+    room_json: String,
 }
 
 #[derive(Default)]
@@ -83,6 +85,12 @@ fn make_room_template(
             for strat_json in link_to_json["strats"].members() {
                 let from_node_id = link_json["from"].as_usize().unwrap();
                 let to_node_id = link_to_json["id"].as_usize().unwrap();
+                let mut obstacles: Vec<(String, String)> = vec![];
+                for obstacle_json in strat_json["obstacles"].members() {
+                    let obstacle_id = obstacle_json["id"].as_str().unwrap().to_string();
+                    let obstacle_requires = make_requires(&obstacle_json["requires"]);
+                    obstacles.push((obstacle_id, obstacle_requires));
+                }
                 strats.push(RoomStrat {
                     name: strat_json["name"].as_str().unwrap().to_string(),
                     notable: strat_json["notable"].as_bool().unwrap_or(false),
@@ -91,7 +99,8 @@ fn make_room_template(
                     to_node_id,
                     to_node_name: node_name_map[&to_node_id].clone(),
                     note: game_data.parse_note(&strat_json["note"]).join(" "),
-                    requires_json: make_requires(&strat_json["requires"]),
+                    requires: make_requires(&strat_json["requires"]),
+                    obstacles,
                 });
             }
         }
@@ -103,6 +112,7 @@ fn make_room_template(
         room_diagram_path: room_diagram_listing[&room_id].clone(),
         nodes,
         strats,
+        room_json: room_json.pretty(2),
     }
 }
 

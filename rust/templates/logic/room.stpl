@@ -19,55 +19,94 @@ document.getElementById("navigation-logic").classList.add("active");
         </div>
     </div>
 
-    <div class="row my-2">
-        <div class="col-sm-6">
-            <label for="fromNode">From node</label>
-            <select id="fromNode" name="fromNode" class="form-select" onchange="updateSelect();">
-            <option value="any" selected>Any</option>
-            <% for (node_id, node_name) in &nodes { %>
-                <option class="from-node-option" value="<%= node_id %>"><%= node_id %>: <%= node_name %></option>
-            <% } %>
-            </select>
+    <div class="accordion">
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStrats">
+                Strats
+            </button>
+            </h2>        
+            <div id="collapseStrats" class="accordion-collapse collapse show">
+                <div class="row m-2">
+                    <div class="col-sm-6">
+                        <label for="fromNode">From node</label>
+                        <select id="fromNode" name="fromNode" class="form-select" onchange="updateSelect();">
+                        <option value="any" selected>Any</option>
+                        <% for (node_id, node_name) in &nodes { %>
+                            <option class="from-node-option" value="<%= node_id %>"><%= node_id %>: <%= node_name %></option>
+                        <% } %>
+                        </select>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="toNode">To node</label>
+                        <select id="toNode" name="toNode" class="form-select" onchange="updateSelect();">
+                        <option value="any" selected>Any</option>
+                        <% for (node_id, node_name) in &nodes { %>
+                            <option class="to-node-option" value="<%= node_id %>"><%= node_id %>: <%= node_name %></option>
+                        <% } %>
+                        </select>
+                    </div>
+                </div>
+                <hr class="mb-0">
+                <style>
+                html[data-bs-theme=dark] .table {
+                    --bs-table-hover-bg: #2b3035;
+                }
+                html[data-bs-theme=light] .table {
+                    --bs-table-hover-bg: #f4f5f6;
+                }
+                </style>
+                <table class="table table-hover mb-0">
+                <tbody>
+                <% for strat in strats { %>
+                <tr class="strat-row" data-from-node="<%= strat.from_node_id %>" data-to-node="<%= strat.to_node_id %>">
+                <td class="p-2">
+                    <p>Name: <%= strat.name %><br>
+                    <% if strat.notable { %>
+                    Notable: true<br>
+                    <% } %>
+                    From <%= strat.from_node_id %>: <%= strat.from_node_name %><br>
+                    To <%= strat.to_node_id %>: <%= strat.to_node_name %><br>
+                    </p>
+                    <% if strat.note.len() > 0 { %> 
+                        <p><%= strat.note %></p>
+                    <% } %>
+                    <% if strat.requires.len() > 0 { %>
+                        <p class="mb-0">Requires:
+                        <% if strat.requires.lines().count() > 1 { %>
+                            <pre><%= strat.requires %></pre>
+                        <% } else { %>
+                            <tt><%= strat.requires %></tt>
+                        <% } %>
+                        </p>
+                    <% } %>
+                    <% for (obstacle_id, obstacle_requires) in &strat.obstacles { %>
+                        <p class="mb-0">Obstacle <%= obstacle_id %>:
+                        <% if obstacle_requires.lines().count() > 1 { %>
+                            <pre><%= obstacle_requires %></pre>
+                        <% } else { %>
+                            <tt><%= obstacle_requires %></tt>
+                        <% } %>
+                        </p>
+                    <% } %>
+                </td>
+                </tr>
+                <% } %>
+                </tbody>
+                </table>
+            </div>
         </div>
-        <div class="col-sm-6">
-            <label for="toNode">To node</label>
-            <select id="toNode" name="toNode" class="form-select" onchange="updateSelect();">
-            <option value="any" selected>Any</option>
-            <% for (node_id, node_name) in &nodes { %>
-                <option class="to-node-option" value="<%= node_id %>"><%= node_id %>: <%= node_name %></option>
-            <% } %>
-            </select>
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRoomJSON">
+                Room JSON
+            </button>
+            </h2>        
+            <div id="collapseRoomJSON" class="accordion-collapse collapse">
+                <pre class="m-2"><%= room_json %></pre>
+            </div>
         </div>
     </div>
-
-    <h3 class="my-2">Strats</h3>
-    <table class="table table-hover my-2">
-    <tbody>
-    <% for strat in strats { %>
-    <tr class="strat-row" data-from-node="<%= strat.from_node_id %>" data-to-node="<%= strat.to_node_id %>">
-    <td>
-        <p>Name: <%= strat.name %><br>
-        <% if strat.notable { %>
-        Notable: true<br>
-        <% } %>
-        From <%= strat.from_node_id %>: <%= strat.from_node_name %><br>
-        To <%= strat.to_node_id %>: <%= strat.to_node_name %><br>
-        </p>
-        <% if strat.note.len() > 0 { %> 
-            <p><%= strat.note %></p>
-        <% } %>
-        <p class="mb-0">Requires:
-        <% if strat.requires_json.lines().count() > 1 { %>
-            <br><pre><%= strat.requires_json %></pre>
-        <% } else { %>
-            <tt><%= strat.requires_json %></tt>
-        <% } %>
-        </p>
-    </td>
-    </tr>
-    <% } %>
-    </tbody>
-    </table>
 </div>
 <script>
 function updateSelect() {
