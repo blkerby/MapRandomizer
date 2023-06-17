@@ -13,6 +13,7 @@ priority:
 - logic simulator
 
 later:
+- investigate problem when using quick reload (L+R+Select+Start) while unpausing with 0 energy.
 - make Save the Animals be required when the option is selected (maybe make the Ship not be there in escape otherwise)
 - investigate: ridley gray door closed when reserve triggered (in sapphron seed)
 - on generate page and seed page, show counts (and max counts) of selected tech/strats in each tier.
