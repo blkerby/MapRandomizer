@@ -1,4 +1,4 @@
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::time::SystemTime;
 
 use actix_easy_multipart::bytes::Bytes;
@@ -13,7 +13,8 @@ use clap::Parser;
 use hashbrown::{HashMap, HashSet};
 use log::{error, info};
 use maprando::customize::{customize_rom, CustomizeSettings};
-use maprando::game_data::{GameData, IndexedVec, Item, Map};
+use maprando::game_data::{GameData, IndexedVec, Item};
+use maprando::web::{Preset, PresetData, AppData, MapRepository};
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::{make_rom, Rom};
 use maprando::randomize::{
@@ -26,83 +27,11 @@ use rand::{RngCore, SeedableRng};
 use sailfish::TemplateOnce;
 use serde_derive::{Deserialize, Serialize};
 
-const VERSION: usize = 67;
+use maprando::web::VERSION;
+use maprando::web::logic::LogicData;
+
 const VISUALIZER_PATH: &'static str = "../visualizer/";
 const TECH_GIF_PATH: &'static str = "static/tech_gifs/";
-
-#[derive(Serialize, Deserialize, Clone)]
-struct Preset {
-    name: String,
-    shinespark_tiles: usize,
-    resource_multiplier: f32,
-    escape_timer_multiplier: f32,
-    phantoon_proficiency: f32,
-    draygon_proficiency: f32,
-    ridley_proficiency: f32,
-    botwoon_proficiency: f32,
-    tech: Vec<String>,
-    notable_strats: Vec<String>,
-}
-
-struct PresetData {
-    preset: Preset,
-    tech_setting: Vec<(String, bool)>,
-    notable_strat_setting: Vec<(String, bool)>,
-}
-
-struct MapRepository {
-    base_path: PathBuf,
-    filenames: Vec<String>,
-}
-
-struct AppData {
-    game_data: GameData,
-    preset_data: Vec<PresetData>,
-    ignored_notable_strats: HashSet<String>,
-    implicit_tech: HashSet<String>,
-    map_repository: MapRepository,
-    seed_repository: SeedRepository,
-    visualizer_files: Vec<(String, Vec<u8>)>, // (path, contents)
-    tech_gif_listing: HashSet<String>,
-    debug: bool,
-    static_visualizer: bool,
-}
-
-impl MapRepository {
-    fn new(base_path: &Path) -> Result<Self> {
-        let mut filenames: Vec<String> = Vec::new();
-        for path in std::fs::read_dir(base_path)? {
-            filenames.push(path?.file_name().into_string().unwrap());
-        }
-        filenames.sort();
-        info!("{} maps available", filenames.len());
-        Ok(MapRepository {
-            base_path: base_path.to_owned(),
-            filenames,
-        })
-    }
-
-    fn get_map(&self, seed: usize) -> Result<Map> {
-        let idx = seed % self.filenames.len();
-        let path = self.base_path.join(&self.filenames[idx]);
-        let map_string = std::fs::read_to_string(&path)
-            .with_context(|| format!("Unable to read map file at {}", path.display()))?;
-        info!("Map: {}", path.display());
-        let map: Map = serde_json::from_str(&map_string)
-            .with_context(|| format!("Unable to parse map file at {}", path.display()))?;
-        Ok(map)
-    }
-
-    fn get_vanilla_map(&self) -> Result<Map> {
-        let path = Path::new("data/vanilla_map.json");
-        let map_string = std::fs::read_to_string(&path)
-            .with_context(|| format!("Unable to read map file at {}", path.display()))?;
-        info!("Map: {}", path.display());
-        let map: Map = serde_json::from_str(&map_string)
-            .with_context(|| format!("Unable to parse map file at {}", path.display()))?;
-        Ok(map)
-    }
-}
 
 #[derive(TemplateOnce)]
 #[template(path = "errors/missing_input_rom.stpl")]
@@ -115,6 +44,10 @@ struct InvalidRomTemplate {}
 #[derive(TemplateOnce)]
 #[template(path = "errors/seed_not_found.stpl")]
 struct SeedNotFoundTemplate {}
+
+#[derive(TemplateOnce)]
+#[template(path = "errors/room_not_found.stpl")]
+struct RoomNotFoundTemplate {}
 
 #[derive(TemplateOnce)]
 #[template(path = "errors/file_not_found.stpl")]
@@ -531,6 +464,20 @@ async fn view_seed_redirect(info: web::Path<(String,)>) -> impl Responder {
         .insert_header((header::LOCATION, format!("{}/", info.0)))
         .finish()
 }
+
+#[get("/logic/room/{name}")]
+async fn logic_room(info: web::Path<(String,)>, app_data: web::Data<AppData>) -> impl Responder {
+    let room_name = &info.0;
+    if let Some(html) = app_data.logic_data.room_html.get(room_name) {
+        HttpResponse::Ok().body(html.clone())
+    } else {
+        let template = RoomNotFoundTemplate {};
+        HttpResponse::NotFound().body(template.render_once().unwrap())
+
+    }
+
+}
+
 
 #[get("/seed/{name}/")]
 async fn view_seed(info: web::Path<(String,)>, app_data: web::Data<AppData>) -> impl Responder {
@@ -1339,6 +1286,7 @@ fn build_app_data() -> AppData {
         escape_timings_path,
     )
     .unwrap();
+    let logic_data = LogicData::new(&game_data);
     let presets: Vec<Preset> =
         serde_json::from_str(&std::fs::read_to_string(&"data/presets.json").unwrap()).unwrap();
     let ignored_notable_strats = get_ignored_notable_strats();
@@ -1353,6 +1301,7 @@ fn build_app_data() -> AppData {
         seed_repository: SeedRepository::new(&args.seed_repository_url).unwrap(),
         visualizer_files: load_visualizer_files(),
         tech_gif_listing: list_tech_gif_files(),
+        logic_data,
         debug: args.debug,
         static_visualizer: args.static_visualizer,
     }
@@ -1384,6 +1333,7 @@ async fn main() {
             .service(customize_seed)
             .service(unlock_seed)
             .service(view_seed_redirect)
+            .service(logic_room)
             .service(actix_files::Files::new("/static", "static"))
     })
     .bind("0.0.0.0:8080")

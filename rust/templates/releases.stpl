@@ -19,7 +19,7 @@ about 15 seconds to load.
 
 <p><a href="https://version-67---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 67 (2023-06-15)</a>:
 <ul>
-<li>Fix issue where using the Bowling Alley statue could cause crashes in Big Boy Room.
+<li>Fix issue where using the Bowling Alley statue could cause crashes in Big Boy Room (a bug introduced in v65).
 <li>"Beginner" and "Intermediate" difficulties are renamed to "Basic" and "Medium" respectively.
 <li>Website update: reorganization of the Generate page.
 <li>Logic bugfix: Add HiJump requirement to East Cac Alley Spike Boost.

@@ -173,8 +173,8 @@ org $8FDB47 : db $1E, $05  ; room $DB31 - Metroid Room 2
 org $8FDB61 : db $1E, $05  ; room $DB31 - Metroid Room 2 (state: metroids gone)
 org $8FDB93 : db $1E, $05  ; room $DB7D - Metroid Room 3
 org $8FDBAD : db $1E, $05  ; room $DB7D - Metroid Room 3 (state: metroids gone)
-org $8FDCC7 : db $45, $06  ; room $DCB1 - Big Boy Room (state: pre-cutscene)
-org $8FDCE1 : db $1E, $05  ; room $DCB1 - Big Boy Room (state: post-cutscene)
+org $8FDCC7 : db $45, $06  ; room $DCB1 - Big Boy Room (state: normal state)
+org $8FDCE1 : db $45, $06  ; room $DCB1 - Big Boy Room (state: unused game state. We update this anyway.)
 org $8FDD3F : db $1E, $05  ; room $DD2E - Tourian Recharge Room
 org $8FDD72 : db $1E, $05  ; room $DD58 - Mother Brain Room
 org $8FDD8C : db $1E, $05  ; room $DD58 - Mother Brain Room (state: glass broken)

@@ -4,4 +4,5 @@ pub mod randomize;
 pub mod patch;
 pub mod spoiler_map;
 pub mod seed_repository;
+pub mod web;
 pub mod customize;

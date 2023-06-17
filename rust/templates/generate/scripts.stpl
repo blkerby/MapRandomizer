@@ -10,8 +10,6 @@ function presetChanged() {
             document.getElementById("draygonProficiency").value = <%= p.preset.draygon_proficiency %>;
             document.getElementById("ridleyProficiency").value = <%= p.preset.ridley_proficiency %>;
             document.getElementById("botwoonProficiency").value = <%= p.preset.botwoon_proficiency %>;
-            document.getElementById("saveAnimalsNo").checked = true;
-            document.getElementById("saveAnimalsYes").checked = false;
             <% for (tech, is_enabled) in &p.tech_setting { 
                 if *is_enabled { %>
                   document.getElementById("tech-<%- tech%>-Yes").checked = true;
@@ -251,6 +249,7 @@ function checkOtherOptions() {
         document.getElementById("raceModeYes").checked) 
     {
         document.getElementById("collapseGameVariations").classList.remove("collapse");
+        document.getElementById("collapseGameVariations").classList.add("show");
     }
     document.getElementById("randomSeed").value = "";
 }

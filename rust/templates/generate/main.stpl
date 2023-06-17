@@ -22,7 +22,7 @@
     <script>
     document.getElementById("navigation-generate").classList.add("active");
     </script>
-    <div class="container col-xl-10 col-xxl-8">
+    <div class="container col-xl-10 col-xxl-8 pb-4">
         <h3 class="mt-3 mb-2">Generate Game</h3>
         <form id="main-form" method="POST" enctype="multipart/form-data" action="/randomize" onchange="saveForm(this)"  onsubmit="prepareSubmit()">
             <div class="form-group row">

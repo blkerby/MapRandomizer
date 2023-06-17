@@ -21,11 +21,17 @@
         <li class="nav-item">
             <a id="navigation-generate" class="nav-link" href="/generate">Generate</a>
         </li>
-        <!--<li class="nav-item">
-            <a id="navigation-logic" class="nav-link" href="/logic">Logic</a>
-        </li>-->
         <li class="nav-item">
             <a id="navigation-releases" class="nav-link" href="/releases">Releases</a>
+        </li>
+        <li class="nav-item dropdown">
+          <a id="navigation-logic" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Logic
+          </a>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="/logic/tech">Tech</a></li>
+            <li><a class="dropdown-item" href="/logic/rooms">Rooms</a></li>
+          </ul>
         </li>
         <li class="nav-item">
             <a id="navigation-about" class="nav-link" href="/about">About</a>

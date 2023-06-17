@@ -446,6 +446,7 @@ pub struct GameData {
     pub room_idx_by_ptr: HashMap<RoomPtr, RoomGeometryRoomIdx>,
     pub room_idx_by_name: HashMap<String, RoomGeometryRoomIdx>,
     pub node_tile_coords: HashMap<(RoomId, NodeId), Vec<(usize, usize)>>,
+    pub room_shape: HashMap<RoomId, (usize, usize)>,
     pub area_names: Vec<String>,
     pub area_map_ptrs: Vec<isize>,
     pub tech_description: HashMap<String, String>,
@@ -2369,10 +2370,21 @@ impl GameData {
             }
 
             let room_id = self.room_id_by_ptr[&room.rom_address];
+            let mut max_x = 0;
+            let mut max_y = 0;
             for (node_id, tiles) in &room.node_tiles {
                 self.node_tile_coords
                     .insert((room_id, *node_id), tiles.clone());
+                let node_max_x = tiles.iter().map(|x| x.0).max().unwrap();
+                let node_max_y = tiles.iter().map(|x| x.1).max().unwrap();
+                if node_max_x > max_x {
+                    max_x = node_max_x;
+                }
+                if node_max_y > max_y {
+                    max_y = node_max_y;
+                }
             }
+            self.room_shape.insert(room_id, (max_x + 1, max_y + 1));
 
             if let Some(twin_rom_address) = room.twin_rom_address {
                 let room_id = self.raw_room_id_by_ptr[&twin_rom_address];

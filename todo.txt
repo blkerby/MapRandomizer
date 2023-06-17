@@ -13,6 +13,10 @@ priority:
 - logic simulator
 
 later:
+- make Save the Animals be required when the option is selected (maybe make the Ship not be there in escape otherwise)
+- investigate: ridley gray door closed when reserve triggered (in sapphron seed)
+- on generate page and seed page, show counts (and max counts) of selected tech/strats in each tier.
+  - on seed page: for each tier, show selected tech/strats or deselected tech/strat, whichever is a shorter list
 - fix escape timer tech mapping to use reverse Amphitheatre notable for can_acid_dive
 - model improvement:
   - try using localized output: use token that room is placed in, instead of applying attention across all tokens
