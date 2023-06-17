@@ -96,6 +96,7 @@ struct GenerateTemplate<'a> {
     strat_description: &'a HashMap<String, String>,
     strat_id_by_name: &'a HashMap<String, usize>,
     tech_gif_listing: &'a HashSet<String>,
+    tech_strat_counts: &'a HashMap<String, usize>,
 }
 
 #[get("/")]
@@ -145,6 +146,7 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         strat_description: &app_data.game_data.strat_description,
         strat_id_by_name: &app_data.game_data.notable_strat_isv.index_by_key,
         tech_gif_listing: &app_data.tech_gif_listing,
+        tech_strat_counts: &app_data.logic_data.tech_strat_counts,
     };
     HttpResponse::Ok().body(generate_template.render_once().unwrap())
 }
@@ -475,9 +477,18 @@ async fn logic_room(info: web::Path<(String,)>, app_data: web::Data<AppData>) ->
         HttpResponse::NotFound().body(template.render_once().unwrap())
 
     }
-
 }
 
+#[get("/logic/tech/{name}")]
+async fn logic_tech(info: web::Path<(String,)>, app_data: web::Data<AppData>) -> impl Responder {
+    let tech_name = &info.0;
+    if let Some(html) = app_data.logic_data.tech_html.get(tech_name) {
+        HttpResponse::Ok().body(html.clone())
+    } else {
+        let template = RoomNotFoundTemplate {};
+        HttpResponse::NotFound().body(template.render_once().unwrap())
+    }
+}
 
 #[get("/seed/{name}/")]
 async fn view_seed(info: web::Path<(String,)>, app_data: web::Data<AppData>) -> impl Responder {
@@ -1286,7 +1297,8 @@ fn build_app_data() -> AppData {
         escape_timings_path,
     )
     .unwrap();
-    let logic_data = LogicData::new(&game_data);
+    let tech_gif_listing = list_tech_gif_files();
+    let logic_data = LogicData::new(&game_data, &tech_gif_listing);
     let presets: Vec<Preset> =
         serde_json::from_str(&std::fs::read_to_string(&"data/presets.json").unwrap()).unwrap();
     let ignored_notable_strats = get_ignored_notable_strats();
@@ -1300,7 +1312,7 @@ fn build_app_data() -> AppData {
         map_repository: MapRepository::new(maps_path).unwrap(),
         seed_repository: SeedRepository::new(&args.seed_repository_url).unwrap(),
         visualizer_files: load_visualizer_files(),
-        tech_gif_listing: list_tech_gif_files(),
+        tech_gif_listing,
         logic_data,
         debug: args.debug,
         static_visualizer: args.static_visualizer,
@@ -1334,6 +1346,7 @@ async fn main() {
             .service(unlock_seed)
             .service(view_seed_redirect)
             .service(logic_room)
+            .service(logic_tech)
             .service(actix_files::Files::new("/static", "static"))
     })
     .bind("0.0.0.0:8080")

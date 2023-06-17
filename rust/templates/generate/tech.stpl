@@ -55,7 +55,11 @@
                                         </div>
                                     </div>                    
                                     <% if tech_dependencies[tech].len() > 0 { %>
-                                    <i>Dependencies: <%= tech_dependencies[tech].join(", ") %> </i>
+                                    <p><i>Dependencies: <%= tech_dependencies[tech].join(", ") %> </i></p>
+                                    <% } %>
+                                    <% if tech_strat_counts[tech] > 0 { %>
+                                        <p class="mt-3"><a href="/logic/tech/<%= tech%>">
+                                        <%= tech_strat_counts[tech]%> strat(s)</a></p>
                                     <% } %>
                                 </div>
                             </div>

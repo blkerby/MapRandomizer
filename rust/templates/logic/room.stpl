@@ -2,8 +2,7 @@
 <html lang="en-US">
 <head>
 <% include!("../common/header.stpl"); %>
-<meta name="keywords" content="Super Metroid, Map Randomizer, Map Rando, Map, Randomizer">
-<title>Logic - <%= room_name %></title>
+<title><%= room_name %></title>
 </head>
 <body>
 <% include!("../common/navbar.stpl"); %>
@@ -23,7 +22,7 @@ document.getElementById("navigation-logic").classList.add("active");
         <div class="accordion-item">
             <h2 class="accordion-header">
             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStrats">
-                Strats
+                Strats (<%= strats.len() %>)
             </button>
             </h2>        
             <div id="collapseStrats" class="accordion-collapse collapse show">
@@ -61,34 +60,7 @@ document.getElementById("navigation-logic").classList.add("active");
                 <% for strat in strats { %>
                 <tr class="strat-row" data-from-node="<%= strat.from_node_id %>" data-to-node="<%= strat.to_node_id %>">
                 <td class="p-2">
-                    <p>Name: <%= strat.name %><br>
-                    <% if strat.notable { %>
-                    Notable: true<br>
-                    <% } %>
-                    From <%= strat.from_node_id %>: <%= strat.from_node_name %><br>
-                    To <%= strat.to_node_id %>: <%= strat.to_node_name %><br>
-                    </p>
-                    <% if strat.note.len() > 0 { %> 
-                        <p><%= strat.note %></p>
-                    <% } %>
-                    <% if strat.requires.len() > 0 { %>
-                        <p class="mb-0">Requires:
-                        <% if strat.requires.lines().count() > 1 { %>
-                            <pre><%= strat.requires %></pre>
-                        <% } else { %>
-                            <tt><%= strat.requires %></tt>
-                        <% } %>
-                        </p>
-                    <% } %>
-                    <% for (obstacle_id, obstacle_requires) in &strat.obstacles { %>
-                        <p class="mb-0">Obstacle <%= obstacle_id %>:
-                        <% if obstacle_requires.lines().count() > 1 { %>
-                            <pre><%= obstacle_requires %></pre>
-                        <% } else { %>
-                            <tt><%= obstacle_requires %></tt>
-                        <% } %>
-                        </p>
-                    <% } %>
+                    <% include!("strat.stpl"); %>
                 </td>
                 </tr>
                 <% } %>
