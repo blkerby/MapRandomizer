@@ -265,7 +265,13 @@ remove_enemies:
     beq .vanilla_landing_site
     lda $7ED821
     and $0080
-    beq .empty_list
+    bne .vanilla_landing_site
+
+    lda #ship_dachora_pop  ;\
+    sta $07CF   ;} Enemy population pointer = dachora
+    lda #$85B9  ;\
+    sta $07D1   ;} Enemy set pointer = use same as dachora room
+    bra .end
 
 .vanilla_landing_site:
     lda #$8c0d
@@ -353,6 +359,9 @@ acid_chozo:
 
 bowling_chozo:
     dw $F0FF,$04C8,$018A,$0000,$2000,$0000,$0000,$0000,$FFFF
+
+ship_dachora_pop:
+    dw $E5FF,$0060,$0488,$0000,$0C00,$0000,$0001,$0000,$FFFF
 
 warnpc $A1F200
 
