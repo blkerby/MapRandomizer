@@ -33,11 +33,11 @@ patches = [
     # 'oob_death',
     # 'spinjumprestart',
     # 'new_game_extra',
-    'door_hurt',
-    "everest_tube"
+    # 'door_hurt',
+    # "everest_tube"
     # 'complementary_suits',
     # 'complementary_suits_noheat',
-    # 'escape',
+    'escape',
     # 'fast_big_boy_cutscene',
     # 'mb_barrier_clear',
     # 'mb_left_entrance',

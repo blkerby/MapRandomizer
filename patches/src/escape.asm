@@ -92,7 +92,17 @@ save_station:
     lda #$0017  ; run hi-jacked instruction
     jmp $8cf6  ; return to next instruction
 
-warnpc $84f940
+clear_ship_plm:
+    dw $B3D0, clear_ship_inst
+
+clear_ship_inst:
+    dw $0001, clear_ship_draw
+    dw $86BC
+
+clear_ship_draw:
+    dw $000C, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $0000
+
+warnpc $84f980
 
 ;;; Hi-jack escape start
 org $A9B270
@@ -131,6 +141,42 @@ room_setup:
     jsr $919c                   ; sets up room shaking
     plb
     jsl fix_timer_gfx
+
+    lda $079B  ; room pointer    
+    cmp #$91F8 ; landing site?
+    bne .end
+    lda save_animals_required
+    beq .end
+    lda $7ED821 
+    and $0080  ; check animals saved event
+    bne .end
+
+    ; animals were not saved (and were required to be), so remove the ship:
+    jsl $8483D7
+    db $42
+    db $45
+    dw clear_ship_plm
+
+    jsl $8483D7
+    db $42
+    db $46
+    dw clear_ship_plm
+
+    jsl $8483D7
+    db $42
+    db $47
+    dw clear_ship_plm
+
+    jsl $8483D7
+    db $42
+    db $48
+    dw clear_ship_plm
+
+    jsl $8483D7
+    db $42
+    db $49
+    dw clear_ship_plm
+
 .end:
     ;; run hi-jacked instruction, and go back to vanilla setup asm call
     lda $0018,x
@@ -201,10 +247,34 @@ org $A7C81E
     jsl post_kraid_music
 
 ;;; Bank A1 free space:
-org $a1f000
+org $a1f000  ; address must match value in patch.rs (for "Save the animals" option)
+save_animals_required:
+    dw $0001
+
+
+
+
 remove_enemies:
     ; Remove enemies (except special cases where they are needed such as elevators, dead bosses)
     phb : phk : plb             ; data bank=program bank ($8F)
+
+    lda $079B  ; room pointer    
+    cmp #$91F8 ; landing site?
+    bne .not_landing_site
+    lda save_animals_required
+    beq .vanilla_landing_site
+    lda $7ED821
+    and $0080
+    beq .empty_list
+
+.vanilla_landing_site:
+    lda #$8c0d
+    sta $07CF   ;} Enemy population pointer = vanilla list (for Ship)
+    lda #$8283
+    sta $07D1   ;} Enemy set pointer = vanilla list (for Ship)
+    bra .end
+
+.not_landing_site
     ldy #$0000
 .loop:
     lda enemy_table,y
@@ -222,15 +292,14 @@ remove_enemies:
     iny : iny
     lda enemy_table,y
     sta $07D1
-    plb
     bra .end
 .empty_list:
-    plb
     lda #$85a9  ;\
     sta $07CF   ;} Enemy population pointer = empty list
     lda #$80eb  ;\
     sta $07D1   ;} Enemy set pointer = empty list
 .end
+    plb
     rtl
 
 
@@ -256,7 +325,7 @@ enemy_table:
     dw $9dc7,$a0fd,$8663            ; spore spawn (vanilla data)
     dw $a59f,$9eb5,$85ef            ; kraid room (vanilla data)
     dw $daae,$e42d,$913e            ; tourian first room (vanilla data, for the elevator)
-    dw $91f8,$8c0d,$8283            ; landing site (vanilla data, for the ship)
+;    dw $91f8,$8c0d,$8283            ; landing site (vanilla data, for the ship)
     dw $9804,$8ed3,$82a3            ; bomb torizo (vanilla data, for the animals)
     dw $b1e5,acid_chozo,$86b1       ; acid chozo statue (so that the path can be opened)
     dw $C98E,bowling_chozo,$8C01    ; bowling chozo statue (so that bowling can be done)

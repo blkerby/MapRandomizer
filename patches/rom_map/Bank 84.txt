@@ -5,6 +5,6 @@ $F280 - $F300: escape_autosave.asm
 $F300 - $F380: escape_items.asm
 $F380 - $F580: escape.asm
 $F580 - $F900: ???
-$F900 - $F940: escape.asm
+$F900 - $F980: escape.asm
 $FA00 - $FC00: gray_doors.asm
 $FC00 - $FC40: fix_kraid_vomit.asm
