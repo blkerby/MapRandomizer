@@ -2,8 +2,8 @@ use hashbrown::{HashMap, HashSet};
 use log::info;
 
 use crate::{
-    game_data::{GameData, Map, RoomGeometryDoor, RoomGeometryItem, Item, ItemIdx},
-    randomize::{Randomization, ItemMarkers, Objectives},
+    game_data::{GameData, Item, ItemIdx, Map, RoomGeometryDoor, RoomGeometryItem},
+    randomize::{ItemMarkers, Objectives, Randomization},
 };
 
 use super::{snes2pc, xy_to_explored_bit_ptr, xy_to_map_offset, Rom};
@@ -121,13 +121,14 @@ impl<'a> MapPatcher<'a> {
     fn write_tiles(&mut self) -> Result<()> {
         let mut reserved_tiles: HashSet<TilemapWord> = vec![
             // Used on HUD:
-            0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
-            0x1C, 0x1D, 0x1E,
-            0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F, 
-            0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B,
+            0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D,
+            0x0E, 0x0F, 0x1C, 0x1D, 0x1E, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38,
+            0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46,
+            0x47, 0x48, 0x49, 0x4A, 0x4B,
             // Used by max_ammo_display:
-            
-        ].into_iter().collect();
+        ]
+        .into_iter()
+        .collect();
 
         let mut used_tiles: HashSet<TilemapWord> = HashSet::new();
 
@@ -146,7 +147,10 @@ impl<'a> MapPatcher<'a> {
                 let ptr = self.rom.read_u16(snes2pc(0x83B000 + area_idx * 2))?;
                 let size = self.rom.read_u16(snes2pc(0x83B00C + area_idx * 2))? as usize;
                 for i in 0..size {
-                    let word = (self.rom.read_u16(snes2pc(0x830000 + (ptr as usize) + i * 6 + 4))? & 0x3FF) as TilemapWord;
+                    let word = (self
+                        .rom
+                        .read_u16(snes2pc(0x830000 + (ptr as usize) + i * 6 + 4))?
+                        & 0x3FF) as TilemapWord;
                     used_tiles.insert(word);
                 }
             }
@@ -159,7 +163,11 @@ impl<'a> MapPatcher<'a> {
             }
         }
 
-        info!("Free tiles: {} (of {})", free_tiles.len() as isize - used_tiles.len() as isize, free_tiles.len());
+        info!(
+            "Free tiles: {} (of {})",
+            free_tiles.len() as isize - used_tiles.len() as isize,
+            free_tiles.len()
+        );
         if used_tiles.len() > free_tiles.len() {
             bail!("Not enough free tiles");
         }
@@ -186,17 +194,23 @@ impl<'a> MapPatcher<'a> {
                 let ptr = self.rom.read_u16(snes2pc(0x83B000 + area_idx * 2))?;
                 let size = self.rom.read_u16(snes2pc(0x83B00C + area_idx * 2))? as usize;
                 for i in 0..size {
-                    let old_word = self.rom.read_u16(snes2pc(0x830000 + (ptr as usize) + i * 6 + 4))? as TilemapWord;
+                    let old_word = self
+                        .rom
+                        .read_u16(snes2pc(0x830000 + (ptr as usize) + i * 6 + 4))?
+                        as TilemapWord;
                     let old_idx = old_word & 0x3FF;
                     let old_flip = old_word & 0xC000;
                     let new_idx = *tile_mapping.get(&old_idx).unwrap_or(&old_idx);
                     let new_word = new_idx | old_flip | 0x0C00;
-                    self.rom.write_u16(snes2pc(0x830000 + (ptr as usize) + i * 6 + 4), new_word as isize)?;
+                    self.rom.write_u16(
+                        snes2pc(0x830000 + (ptr as usize) + i * 6 + 4),
+                        new_word as isize,
+                    )?;
                 }
             }
         }
 
-        Ok(())        
+        Ok(())
     }
 
     fn write_tile_2bpp(
@@ -317,16 +331,16 @@ impl<'a> MapPatcher<'a> {
 
     fn index_vanilla_tiles(&mut self) -> Result<()> {
         self.index_basic(0x10, W, W, E, P, V)?; // Elevator: walls on left & right; passage on bottom
-        // let tile = self.render_basic_tile(BasicTile { left: W, right: W, up: E, down: P, interior: V })?;
-        // self.write_tile_4bpp(0x10, tile)?;
+                                                // let tile = self.render_basic_tile(BasicTile { left: W, right: W, up: E, down: P, interior: V })?;
+                                                // self.write_tile_4bpp(0x10, tile)?;
 
         self.index_basic(0x4F, W, W, W, P, V)?; // Elevator: walls on left, right, & top; passage on bottom
-        // let tile = self.render_basic_tile(BasicTile { left: W, right: W, up: W, down: P, interior: V })?;
-        // self.write_tile_4bpp(0x4F, tile)?;
-        
+                                                // let tile = self.render_basic_tile(BasicTile { left: W, right: W, up: W, down: P, interior: V })?;
+                                                // self.write_tile_4bpp(0x4F, tile)?;
+
         self.index_basic(0x5F, P, P, P, W, V)?; // Elevator: passages on left, right, & top; wall on bottom
-        // let tile = self.render_basic_tile(BasicTile { left: P, right: P, up: P, down: W, interior: V })?;
-        // self.write_tile_4bpp(0x5F, tile)?;
+                                                // let tile = self.render_basic_tile(BasicTile { left: P, right: P, up: P, down: W, interior: V })?;
+                                                // self.write_tile_4bpp(0x5F, tile)?;
 
         self.index_basic(0x1B, E, E, E, E, O)?; // Empty tile with no walls
         self.index_basic(0x20, W, W, W, W, O)?; // Empty tile with wall on all four sides
@@ -345,7 +359,7 @@ impl<'a> MapPatcher<'a> {
         self.index_basic(0x6F, W, W, W, W, I)?; // Item (dot) tile with a wall on all four sides
         self.index_basic(0x8E, W, E, W, E, I)?; // Item (dot) tile with a wall on top and left
         self.index_basic(0x8F, W, E, W, W, I)?; // Item (dot) tile with a wall on top, left, and bottom
-                                               // Note: there's no item tile with walls on left and right.
+                                                // Note: there's no item tile with walls on left and right.
         Ok(())
     }
 
@@ -543,11 +557,7 @@ impl<'a> MapPatcher<'a> {
     fn indicate_miniboss_tiles(&mut self, boss_tile: u16) -> Result<()> {
         self.patch_room(
             "Spore Spawn Room",
-            vec![
-                (0, 0, boss_tile),
-                (0, 1, boss_tile),
-                (0, 2, boss_tile),
-            ],
+            vec![(0, 0, boss_tile), (0, 1, boss_tile), (0, 2, boss_tile)],
         )?;
         self.patch_room(
             "Crocomire's Room",
@@ -562,20 +572,14 @@ impl<'a> MapPatcher<'a> {
                 // We don't mark the last tile, so the item can still be visible.
             ],
         )?;
-        self.patch_room(
-            "Botwoon's Room",
-            vec![
-                (0, 0, boss_tile),
-                (1, 0, boss_tile),
-            ],
-        )?;
+        self.patch_room("Botwoon's Room", vec![(0, 0, boss_tile), (1, 0, boss_tile)])?;
         self.patch_room(
             "Golden Torizo's Room",
             vec![
                 (0, 1, boss_tile),
                 (1, 1, boss_tile),
                 // We don't mark the top row of tiles, so the items can still be visible.
-            ]
+            ],
         )?;
 
         Ok(())
@@ -594,13 +598,7 @@ impl<'a> MapPatcher<'a> {
             ],
         )?;
 
-        self.patch_room(
-            "Metroid Room 2",
-            vec![
-                (0, 0, boss_tile),
-                (0, 1, boss_tile),
-            ],
-        )?;
+        self.patch_room("Metroid Room 2", vec![(0, 0, boss_tile), (0, 1, boss_tile)])?;
 
         self.patch_room(
             "Metroid Room 3",
@@ -614,38 +612,17 @@ impl<'a> MapPatcher<'a> {
             ],
         )?;
 
-        self.patch_room(
-            "Metroid Room 4",
-            vec![
-                (0, 0, boss_tile),
-                (0, 1, boss_tile),
-            ],
-        )?;
+        self.patch_room("Metroid Room 4", vec![(0, 0, boss_tile), (0, 1, boss_tile)])?;
 
         Ok(())
     }
 
     fn indicate_chozo_tiles(&mut self, boss_tile: u16) -> Result<()> {
-        self.patch_room(
-            "Bomb Torizo Room",
-            vec![
-                (0, 0, boss_tile),
-            ],
-        )?;
+        self.patch_room("Bomb Torizo Room", vec![(0, 0, boss_tile)])?;
 
-        self.patch_room(
-            "Bowling Alley",
-            vec![
-                (4, 1, boss_tile),
-            ],
-        )?;
+        self.patch_room("Bowling Alley", vec![(4, 1, boss_tile)])?;
 
-        self.patch_room(
-            "Acid Statue Room",
-            vec![
-                (0, 0, boss_tile),
-            ],
-        )?;
+        self.patch_room("Acid Statue Room", vec![(0, 0, boss_tile)])?;
 
         self.patch_room(
             "Golden Torizo's Room",
@@ -653,7 +630,7 @@ impl<'a> MapPatcher<'a> {
                 (0, 1, boss_tile),
                 (1, 1, boss_tile),
                 // We don't mark the top row of tiles, so the items can still be visible.
-            ]
+            ],
         )?;
 
         Ok(())
@@ -707,17 +684,22 @@ impl<'a> MapPatcher<'a> {
         match self.randomization.difficulty.objectives {
             Objectives::Bosses => {
                 self.indicate_boss_tiles(boss_tile)?;
-            },
+            }
             Objectives::Minibosses => {
                 self.indicate_miniboss_tiles(boss_tile)?;
-            },
+            }
             Objectives::Metroids => {
                 self.indicate_metroid_tiles(boss_tile)?;
-            },
+            }
             Objectives::Chozos => {
                 self.indicate_chozo_tiles(boss_tile)?;
-            },
+            }
         }
+
+        if self.randomization.difficulty.save_animals {
+            self.patch_room("Bomb Torizo Room", vec![(0, 0, boss_tile)])?;
+        }
+
         self.patch_room(
             "Mother Brain Room",
             vec![
@@ -1133,14 +1115,14 @@ impl<'a> MapPatcher<'a> {
         }
 
         let mut extended_map_palette: Vec<(u8, u16)> = vec![
-            (5, rgb(0, 23, 0)),   // Brinstar green
+            (5, rgb(0, 23, 0)),  // Brinstar green
             (3, rgb(25, 0, 0)),  // Norfair red
             (8, rgb(4, 18, 31)), // Maridia blue
-            (9, rgb(24, 22, 0)),  // Wrecked Ship yellow
-            (6, rgb(16, 2, 27)),  // Crateria purple
+            (9, rgb(24, 22, 0)), // Wrecked Ship yellow
+            (6, rgb(16, 2, 27)), // Crateria purple
         ];
         if !self.randomization.difficulty.ultra_low_qol {
-            extended_map_palette.push((12, rgb(5, 5, 5)));  // Dotted grid lines
+            extended_map_palette.push((12, rgb(5, 5, 5))); // Dotted grid lines
         }
 
         for &(i, color) in &extended_map_palette {
@@ -1250,16 +1232,16 @@ impl<'a> MapPatcher<'a> {
         if self.randomization.difficulty.transition_letters {
             for area in 0..NUM_AREAS {
                 let color_number = area_arrow_colors[area] as u8;
-    
-                let letter_tile_data =
-                    letter_tiles[area].map(|row| row.map(|c| if c == 3 { color_number } else { c }));
+
+                let letter_tile_data = letter_tiles[area]
+                    .map(|row| row.map(|c| if c == 3 { color_number } else { c }));
                 let letter_tile_idx = self.create_tile(letter_tile_data)?;
                 letter_tile_idxs.push(letter_tile_idx);
             }
         } else {
             for area in 0..NUM_AREAS {
                 let color_number = area_arrow_colors[area] as u8;
-    
+
                 let right_tile_data =
                     right_arrow_tile.map(|row| row.map(|c| if c == 3 { color_number } else { c }));
                 let right_tile_idx = self.create_tile(right_tile_data)?;
@@ -1269,7 +1251,7 @@ impl<'a> MapPatcher<'a> {
                     down_arrow_tile.map(|row| row.map(|c| if c == 3 { color_number } else { c }));
                 let down_tile_idx = self.create_tile(down_tile_data)?;
                 down_arrow_tile_idxs.push(down_tile_idx);
-            }    
+            }
         }
 
         for (src_ptr_pair, dst_ptr_pair, _) in &self.map.doors {
@@ -1303,7 +1285,7 @@ impl<'a> MapPatcher<'a> {
                         &self.game_data.room_geometry[dst_room_idx].doors[dst_door_idx],
                         right_arrow_tile_idxs[src_area],
                         down_arrow_tile_idxs[src_area],
-                    )?;    
+                    )?;
                 }
             }
         }
@@ -1336,23 +1318,38 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
-    fn add_items_disappear_data(&mut self, area_data: &[Vec<(ItemIdx, TilemapOffset, TilemapWord, Interior)>]) -> Result<()> {
+    fn add_items_disappear_data(
+        &mut self,
+        area_data: &[Vec<(ItemIdx, TilemapOffset, TilemapWord, Interior)>],
+    ) -> Result<()> {
         // Write per-area item listings, to be used by the patch `item_dots_disappear.asm`.
         let base_ptr = 0x83B000;
         let mut data_ptr = base_ptr + 24;
         for (area_idx, data) in area_data.iter().enumerate() {
-            self.rom.write_u16(snes2pc(base_ptr + area_idx * 2), (data_ptr & 0xFFFF) as isize)?;
-            self.rom.write_u16(snes2pc(base_ptr + 12 + area_idx * 2), data.len() as isize)?;
-            for interior in [Interior::Empty, Interior::Elevator, Interior::Item, Interior::MediumItem, Interior::MajorItem] {
+            self.rom.write_u16(
+                snes2pc(base_ptr + area_idx * 2),
+                (data_ptr & 0xFFFF) as isize,
+            )?;
+            self.rom
+                .write_u16(snes2pc(base_ptr + 12 + area_idx * 2), data.len() as isize)?;
+            for interior in [
+                Interior::Empty,
+                Interior::Elevator,
+                Interior::Item,
+                Interior::MediumItem,
+                Interior::MajorItem,
+            ] {
                 for &(item_idx, offset, word, interior1) in data {
                     if interior1 != interior {
                         continue;
                     }
                     assert!(interior != Interior::Empty && interior != Interior::Elevator);
-                    self.rom.write_u8(snes2pc(data_ptr), (item_idx as isize) >> 3)?;     // item byte index
-                    self.rom.write_u8(snes2pc(data_ptr + 1), 1 << ((item_idx as isize) & 7))?;  // item bitmask
-                    self.rom.write_u16(snes2pc(data_ptr + 2), offset as isize)?;  // tilemap offset
-                    self.rom.write_u16(snes2pc(data_ptr + 4), word as isize)?;  // tilemap word
+                    self.rom
+                        .write_u8(snes2pc(data_ptr), (item_idx as isize) >> 3)?; // item byte index
+                    self.rom
+                        .write_u8(snes2pc(data_ptr + 1), 1 << ((item_idx as isize) & 7))?; // item bitmask
+                    self.rom.write_u16(snes2pc(data_ptr + 2), offset as isize)?; // tilemap offset
+                    self.rom.write_u16(snes2pc(data_ptr + 4), word as isize)?; // tilemap word
                     data_ptr += 6;
                 }
             }
@@ -1363,11 +1360,15 @@ impl<'a> MapPatcher<'a> {
 
     fn indicate_major_items(&mut self) -> Result<()> {
         let markers = self.randomization.difficulty.item_markers;
-        let mut area_data: Vec<Vec<(ItemIdx, TilemapOffset, TilemapWord, Interior)>> = vec![vec![]; 6];
+        let mut area_data: Vec<Vec<(ItemIdx, TilemapOffset, TilemapWord, Interior)>> =
+            vec![vec![]; 6];
         for (i, &item) in self.randomization.item_placement.iter().enumerate() {
             let (room_id, node_id) = self.game_data.item_locations[i];
-            if self.randomization.difficulty.objectives == Objectives::Chozos && room_id == 19 {
-                // With Chozos objective, we don't draw item dot in Bomb Torizo Room since a boss X tile will be drawn instead.
+            if room_id == 19
+                && (self.randomization.difficulty.objectives == Objectives::Chozos
+                    || self.randomization.difficulty.save_animals)
+            {
+                // With Chozos objective or "Save the animals" option, we don't draw item dot in Bomb Torizo Room since a boss X tile will be drawn instead.
                 continue;
             }
             let item_ptr = self.game_data.node_ptr_map[&(room_id, node_id)];
@@ -1406,23 +1407,30 @@ impl<'a> MapPatcher<'a> {
                     if item.is_unique() {
                         basic_tile.interior = Interior::MajorItem;
                     }
-                },
+                }
                 ItemMarkers::ThreeTiered => {
                     if item.is_unique() {
                         basic_tile.interior = Interior::MajorItem;
                     } else if item != Item::Missile && basic_tile.interior != Interior::MajorItem {
                         basic_tile.interior = Interior::MediumItem;
-                    }        
-                },
+                    }
+                }
             }
             let tile1 = self.get_basic_tile(basic_tile)?;
             if self.randomization.difficulty.item_dots_disappear {
-                area_data[area].push((item_idx, offset as TilemapOffset, tile1 | 0x0C00, basic_tile.interior));
+                area_data[area].push((
+                    item_idx,
+                    offset as TilemapOffset,
+                    tile1 | 0x0C00,
+                    basic_tile.interior,
+                ));
                 basic_tile.interior = Interior::Empty;
-                let tile_empty = self.get_basic_tile(basic_tile)?;    
-                self.rom.write_u16(base_ptr + offset, (tile_empty | 0x0C00) as isize)?;    
+                let tile_empty = self.get_basic_tile(basic_tile)?;
+                self.rom
+                    .write_u16(base_ptr + offset, (tile_empty | 0x0C00) as isize)?;
             } else {
-                self.rom.write_u16(base_ptr + offset, (tile1 | 0x0C00) as isize)?;    
+                self.rom
+                    .write_u16(base_ptr + offset, (tile1 | 0x0C00) as isize)?;
             }
         }
         if self.randomization.difficulty.item_dots_disappear {
@@ -1494,46 +1502,62 @@ impl<'a> MapPatcher<'a> {
 
     fn darken_hud_grid(&mut self) -> Result<()> {
         // In HUD tiles, replace the white dotted grid lines with dark gray ones.
-        self.write_tile_2bpp(0x1C, [
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [1, 0, 0, 0, 0, 0, 0, 0],
-        ], false)?;
-        self.write_tile_2bpp(0x1D, [
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [1, 0, 1, 0, 1, 0, 1, 0],
-        ], false)?;
-        self.write_tile_2bpp(0x1E, [
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [1, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [1, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [1, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [1, 0, 0, 0, 0, 0, 0, 0],
-        ], false)?;
-        self.write_tile_2bpp(0x1F, [
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [1, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [1, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [1, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [1, 0, 1, 0, 1, 0, 1, 0],
-        ], false)?;
+        self.write_tile_2bpp(
+            0x1C,
+            [
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [1, 0, 0, 0, 0, 0, 0, 0],
+            ],
+            false,
+        )?;
+        self.write_tile_2bpp(
+            0x1D,
+            [
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [1, 0, 1, 0, 1, 0, 1, 0],
+            ],
+            false,
+        )?;
+        self.write_tile_2bpp(
+            0x1E,
+            [
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [1, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [1, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [1, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [1, 0, 0, 0, 0, 0, 0, 0],
+            ],
+            false,
+        )?;
+        self.write_tile_2bpp(
+            0x1F,
+            [
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [1, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [1, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [1, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [1, 0, 1, 0, 1, 0, 1, 0],
+            ],
+            false,
+        )?;
 
         // Patch slope tiles:
         let coords = vec![

@@ -17,6 +17,12 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-68---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 68 (???)</a>:
+<ul>
+<li>The game variation "Save the animals" now enforces that the player save the animals in order to beat the game.
+<li>Pages are added allowing users to browse the game logic by room or by tech.
+</ul>
+
 <p><a href="https://version-67---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 67 (2023-06-15)</a>:
 <ul>
 <li>Fix issue where using the Bowling Alley statue could cause crashes in Big Boy Room (a bug introduced in v65).
