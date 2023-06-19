@@ -19,8 +19,15 @@ about 15 seconds to load.
 
 <p><a href="https://version-68---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 68 (???)</a>:
 <ul>
-<li>The game variation "Save the animals" now enforces that the player save the animals in order to beat the game.
+<li>Updates to "Save the animals" option:
+    <ul>
+    <li>It now enforces that the player save the animals in order to beat the game.
+    <li>It causes Bomb Torizo Room to be marked with an "X" on the map like an objective (only revealed by visiting
+    the room or obtaining the map station in the area).
+    </ul>
 <li>Pages are added allowing users to browse the game logic by room or by tech.
+<li>Made some improvement to "Forced" mode item progression (e.g. on "Standard" or "Challenge" presets), to better select
+hard locations for key items.
 </ul>
 
 <p><a href="https://version-67---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 67 (2023-06-15)</a>:

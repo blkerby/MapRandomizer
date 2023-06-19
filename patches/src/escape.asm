@@ -249,10 +249,7 @@ org $A7C81E
 ;;; Bank A1 free space:
 org $a1f000  ; address must match value in patch.rs (for "Save the animals" option)
 save_animals_required:
-    dw $0001
-
-
-
+    dw $0000
 
 remove_enemies:
     ; Remove enemies (except special cases where they are needed such as elevators, dead bosses)

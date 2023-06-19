@@ -706,6 +706,8 @@ fn get_difficulty_tiers(
     let strat_set: HashSet<String> = difficulty.notable_strats.iter().cloned().collect();
 
     out.push(difficulty.clone());
+    out.last_mut().unwrap().tech.sort();
+    out.last_mut().unwrap().notable_strats.sort();
     for preset_data in presets.iter().rev() {
         let preset = &preset_data.preset;
         let mut tech_vec: Vec<String> = Vec::new();
@@ -714,6 +716,7 @@ fn get_difficulty_tiers(
                 tech_vec.push(tech.clone());
             }
         }
+        tech_vec.sort();
 
         let mut strat_vec: Vec<String> = app_data.ignored_notable_strats.iter().cloned().collect();
         for (strat, enabled) in &preset_data.notable_strat_setting {
@@ -721,6 +724,7 @@ fn get_difficulty_tiers(
                 strat_vec.push(strat.clone());
             }
         }
+        strat_vec.sort();
 
         // TODO: move some fields out of here so we don't have clone as much irrelevant stuff:
         let new_difficulty = DifficultyConfig {
@@ -1148,6 +1152,7 @@ fn init_presets(
         .cloned()
         .collect();
 
+    cumulative_tech.extend(implicit_tech.iter().cloned());
     for preset in presets {
         for tech in &preset.tech {
             if cumulative_tech.contains(tech) {
@@ -1162,6 +1167,9 @@ fn init_presets(
             cumulative_tech.insert(tech.clone());
         }
         let mut tech_setting: Vec<(String, bool)> = Vec::new();
+        for tech in implicit_tech {
+            tech_setting.push((tech.clone(), true));
+        }
         for tech in &visible_tech {
             tech_setting.push((tech.clone(), cumulative_tech.contains(tech)));
         }

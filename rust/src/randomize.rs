@@ -1142,6 +1142,11 @@ impl<'r> Randomizer<'r> {
         let num_vertices = self.game_data.vertex_isv.keys.len();
         let start_vertex_id = self.game_data.vertex_isv.index_by_key[&(8, 5, 0)]; // Landing site
 
+        // for &v in &state.key_visited_vertices {
+        //     println!("key visited: {:?}", self.game_data.vertex_isv.keys[v]);
+        // }
+        // println!("items: {:?}", state.global_state.items);
+
         for tier in 1..self.difficulty_tiers.len() {
             let difficulty = &self.difficulty_tiers[tier];
             let mut tmp_global = state.global_state.clone();
@@ -1167,6 +1172,7 @@ impl<'r> Randomizer<'r> {
                     }
                 }
                 if !is_reachable {
+                    println!("(i, tier): {}, {}", i, tier);
                     return (i, tier);
                 }
             }
@@ -1195,11 +1201,24 @@ impl<'r> Randomizer<'r> {
                 None => None,
             };
             for i in 0..key_items_to_place.len() {
-                let (hard_idx, tier) = self.find_hard_location(
-                    new_state,
-                    &new_bireachable_locations[i..],
-                    traverse_result,
-                );
+                let (hard_idx, tier) = if key_items_to_place.len() > 1 {
+                    // We're placing more than one key item in this step. Obtaining some of them could help make
+                    // others easier to obtain. So we use "new_state" to try to find locations that are still hard to
+                    // reach even with the new items.
+                    self.find_hard_location(
+                        new_state,
+                        &new_bireachable_locations[i..],
+                        traverse_result,
+                    )    
+                } else {
+                    // We're only placing one key item in this step. Try to find a location that is hard to reach
+                    // without already having the new item.
+                    self.find_hard_location(
+                        state,
+                        &new_bireachable_locations[i..],
+                        traverse_result,
+                    )    
+                };
                 info!(
                     "{:?} in tier {} (of {})",
                     key_items_to_place[i],

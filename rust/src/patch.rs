@@ -1189,6 +1189,11 @@ impl<'a> Patcher<'a> {
             self.rom.write_u8(snes2pc(0x838CF2), 0x11)?;
         }
 
+        if self.randomization.difficulty.save_animals {
+            // Change end-game behavior to require saving the animals. Address here must match escape.asm:
+            self.rom.write_u16(snes2pc(0xA1F000), 0xFFFF)?;
+        }
+
         Ok(())
     }
 

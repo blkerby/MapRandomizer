@@ -13,7 +13,8 @@
       </div>
       <div class="modal-body">
       <p>If enabled, the player will be required to save the animals during the escape. Bomb Torizo Room will be marked 
-      with an "X" like an objective. The escape timer will take into account the extra time needed for the detour. </p>
+      with an "X" like an objective (only revealed by visiting the room or obtaining the map station in the area). 
+      The escape timer will take into account the extra time needed for the detour. </p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

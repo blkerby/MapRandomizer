@@ -7,10 +7,13 @@ next release:
 
 
 priority:
-- add pages for tech, strats, rooms.
+- incrementally build graph traversal with increasing difficulty tiers, acquiring flags in the process.
+  - will allow better accounting of the difficulty of boss fights in forced mode
+  - should be faster too
 - credits
 - show objective progress in pause menu
 - add non-respawning farms to logic
+- add some 3-room shinecharge strats to logic (ones that can work with existing schema)
 - overhaul how randomization/customization phases work: run customization on client (with Rust WebAssembly?)
   - make it so that customization can use matching version from when the seed was generated
   - include more options for customization
@@ -22,7 +25,6 @@ priority:
 
 later:
 - investigate problem when using quick reload (L+R+Select+Start) while unpausing with 0 energy.
-- make Save the Animals be required when the option is selected (maybe make the Ship not be there in escape otherwise)
 - investigate: ridley gray door closed when reserve triggered (in sapphron seed)
 - on generate page and seed page, show counts (and max counts) of selected tech/strats in each tier.
   - on seed page: for each tier, show selected tech/strats or deselected tech/strat, whichever is a shorter list
