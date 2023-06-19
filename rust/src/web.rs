@@ -30,6 +30,7 @@ pub struct Preset {
 pub struct PresetData {
     pub preset: Preset,
     pub tech_setting: Vec<(String, bool)>,
+    pub implicit_tech: HashSet<String>,
     pub notable_strat_setting: Vec<(String, bool)>,
 }
 

@@ -1031,6 +1031,8 @@ impl<'r> Randomizer<'r> {
         key_items_to_place.push(filtered_item_precedence[num_key_items_to_place - 1 + attempt_num]);
         assert!(key_items_to_place.len() == num_key_items_to_place);
 
+        // println!("key items to place: {:?}", key_items_to_place);
+
         let mut new_items_remaining = state.items_remaining.clone();
         for &item in &key_items_to_place {
             new_items_remaining[item as usize] -= 1;
@@ -1100,6 +1102,9 @@ impl<'r> Randomizer<'r> {
         other_items_to_place.extend(items_to_delay);
         other_items_to_place.extend(items_to_extra_delay);
         other_items_to_place = other_items_to_place[0..num_other_items_to_place].to_vec();
+
+        // println!("other items to place: {:?}", other_items_to_place);
+
         for &item in &other_items_to_place {
             new_items_remaining[item as usize] -= 1;
         }
@@ -1147,12 +1152,28 @@ impl<'r> Randomizer<'r> {
         // }
         // println!("items: {:?}", state.global_state.items);
 
+        // println!("global_state: {:?}", state.global_state);
+        // print!("Flags: ");
+        // for (i, flag) in self.game_data.flag_isv.keys.iter().enumerate() {
+        //     if state.global_state.flags[i] {
+        //         print!("{} ", flag);
+        //     }
+        // }
+        // println!("");
+
         for tier in 1..self.difficulty_tiers.len() {
             let difficulty = &self.difficulty_tiers[tier];
             let mut tmp_global = state.global_state.clone();
             tmp_global.tech = self.get_tech_vec(tier);
             tmp_global.notable_strats = self.get_strat_vec(tier);
             tmp_global.shine_charge_tiles = difficulty.shine_charge_tiles;
+            // print!("tier:{} tech:", tier);
+            // for (i, tech) in self.game_data.tech_isv.keys.iter().enumerate() { 
+            //     if tmp_global.tech[i] {
+            //         print!("{} ", tech);
+            //     }
+            // }
+            // println!("");
             let traverse_result = traverse(
                 &self.links,
                 self.get_init_traverse(state, init_traverse),
@@ -1172,7 +1193,6 @@ impl<'r> Randomizer<'r> {
                     }
                 }
                 if !is_reachable {
-                    println!("(i, tier): {}, {}", i, tier);
                     return (i, tier);
                 }
             }

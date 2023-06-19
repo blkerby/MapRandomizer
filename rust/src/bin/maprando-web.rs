@@ -1189,6 +1189,7 @@ fn init_presets(
         out.push(PresetData {
             preset: preset,
             tech_setting: tech_setting,
+            implicit_tech: implicit_tech.clone(),
             notable_strat_setting: notable_strat_setting,
         });
     }

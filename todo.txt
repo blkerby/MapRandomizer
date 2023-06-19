@@ -2,6 +2,9 @@ next release:
 - add to room logic page:
   - obstacles
   - raw room JSON
+- debug tier 1 powerbomb in http://localhost:8080/seed/hIgESRf_Ss7PdhEdZzuN1w/
+- add pop-up when randomization is in progress
+- add pirates objective
 - make tech logic pages
 - make index pages for room & tech
 
@@ -24,6 +27,8 @@ priority:
 - logic simulator
 
 later:
+- fix issue with how filler item randomization changes between different key items, if one of the key items is also filler
+  (can make unnecessary key item be placed in forced mode instead of just giving a missile).
 - investigate problem when using quick reload (L+R+Select+Start) while unpausing with 0 energy.
 - investigate: ridley gray door closed when reserve triggered (in sapphron seed)
 - on generate page and seed page, show counts (and max counts) of selected tech/strats in each tier.
