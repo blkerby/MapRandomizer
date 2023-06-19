@@ -196,7 +196,7 @@
                 <div class="form-group row align-items-center">
                     <div class="col-lg-6 col-xl-5 m-2">
                         <% include!("help/quality/acid_chozo.stpl"); %>
-                        <label for="preset">Acid Chozo does not require Space Jump</label>
+                        <label for="preset">Acid Chozo usable without Space Jump</label>
                     </div>
                     <div class="col-2 btn-group m-2" role="group">
                         <input type="radio" class="btn-check" name="acid_chozo" id="acidChozoNo" value="false">
@@ -209,7 +209,7 @@
                 <div class="form-group row align-items-center">
                     <div class="col-lg-6 col-xl-5 m-2">
                         <% include!("help/quality/respin.stpl"); %>
-                        <label for="respin">Spin jump restart (respin)</label>
+                        <label for="respin">Respin (spin jump restart)</label>
                     </div>
                     <div class="col-2 btn-group m-2" role="group">
                         <input type="radio" class="btn-check" name="respin" id="respinNo" value="false" checked>

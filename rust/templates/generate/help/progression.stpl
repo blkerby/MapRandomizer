@@ -33,7 +33,7 @@
         <p>"Item progression" and "Skill assumptions" synergize with one another: harder item progression settings increase the
         likelihood that harder techniques selected in the "Skill assumptions" will actually be required to beat the game.
 
-        <p>The item progression settings can be tweaked by expanding "Customize item progression" settings below. Note that 
+        <p>The item progression settings can be tweaked by expanding "Customize" section below. Note that 
         selecting a preset again will override any customized selections.
       </div>
       <div class="modal-footer">

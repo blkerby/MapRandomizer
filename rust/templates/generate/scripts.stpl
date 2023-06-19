@@ -87,7 +87,7 @@ function prepareSubmit() {
     updateFillerItemsJSON();
 }
 function qualityOfLifePresetChanged() {
-    if (document.getElementById("qualityOfLifeNo").checked) {
+    if (document.getElementById("qualityOfLifeOff").checked) {
         document.getElementById("supersDoubleNo").checked = true;
         document.getElementById("motherBrainFightVanilla").checked = true;
         document.getElementById("escapeMovementItemsNo").checked = true;
@@ -109,6 +109,26 @@ function qualityOfLifePresetChanged() {
     } else {
         document.getElementById("ultraLowQoLNo").checked = true;
     }
+    if (document.getElementById("qualityOfLifeLow").checked) {
+        document.getElementById("supersDoubleYes").checked = true;
+        document.getElementById("motherBrainFightShort").checked = true;
+        document.getElementById("escapeMovementItemsNo").checked = true;
+        document.getElementById("escapeEnemiesClearedNo").checked = true;
+        document.getElementById("markMapStationsYes").checked = true;
+        document.getElementById("transitionLettersNo").checked = true;
+        document.getElementById("itemMarkersBasic").checked = false;
+        document.getElementById("itemMarkersMajors").checked = false;
+        document.getElementById("itemMarkersUniques").checked = true;
+        document.getElementById("itemMarkersThreeTiered").checked = false;
+        document.getElementById("itemDotsDisappearYes").checked = true;
+        document.getElementById("allItemsSpawnNo").checked = true;
+        document.getElementById("acidChozoNo").checked = true;
+        document.getElementById("fastElevatorsYes").checked = true;
+        document.getElementById("fastDoorsYes").checked = true;
+        document.getElementById("fastPauseMenuYes").checked = true;
+        document.getElementById("respinNo").checked = true;
+        document.getElementById("infiniteSpaceJumpNo").checked = true;
+    }    
     if (document.getElementById("qualityOfLifeDefault").checked) {
         document.getElementById("supersDoubleYes").checked = true;
         document.getElementById("motherBrainFightShort").checked = true;
@@ -151,7 +171,8 @@ function qualityOfLifePresetChanged() {
     }    
 }
 function qualityOfLifeSettingChanged() {
-    document.getElementById("qualityOfLifeNo").checked = false;
+    document.getElementById("qualityOfLifeOff").checked = false;
+    document.getElementById("qualityOfLifeLow").checked = false;
     document.getElementById("qualityOfLifeDefault").checked = false;
     document.getElementById("qualityOfLifeMax").checked = false;
     qualityOfLifePresetChanged();
@@ -224,7 +245,7 @@ function itemProgressionChanged() {
 }
 function gameVariationChanged() {
     if (document.getElementById("ultraLowQoLYes").checked) {
-        document.getElementById("qualityOfLifeNo").checked = true;
+        document.getElementById("qualityOfLifeOff").checked = true;
         qualityOfLifePresetChanged();
     }
 }

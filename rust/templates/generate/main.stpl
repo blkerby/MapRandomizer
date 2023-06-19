@@ -113,10 +113,13 @@
                         <% include!("help/quality.stpl"); %>
                         <label for="preset">Quality-of-life options</label>
                     </div>
-                    <div class="col-lg-3 btn-group mt-0" role="group">
-                        <input type="radio" class="btn-check" name="quality_of_life_preset" value="No"
-                            id="qualityOfLifeNo" autocomplete="off" onclick="qualityOfLifePresetChanged()">
-                        <label class="btn btn-outline-primary" for="qualityOfLifeNo">No</label>
+                    <div class="col-lg-4 btn-group mt-0" role="group">
+                        <input type="radio" class="btn-check" name="quality_of_life_preset" value="Off"
+                            id="qualityOfLifeOff" autocomplete="off" onclick="qualityOfLifePresetChanged()">
+                        <label class="btn btn-outline-primary" for="qualityOfLifeOff">Off</label>
+                        <input type="radio" class="btn-check" name="quality_of_life_preset" value="Low"
+                            id="qualityOfLifeLow" autocomplete="off" onclick="qualityOfLifePresetChanged()" checked>
+                        <label class="btn btn-outline-primary" for="qualityOfLifeLow">Low</label>
                         <input type="radio" class="btn-check" name="quality_of_life_preset" value="Default"
                             id="qualityOfLifeDefault" autocomplete="off" onclick="qualityOfLifePresetChanged()" checked>
                         <label class="btn btn-outline-primary" for="qualityOfLifeDefault">Default</label>

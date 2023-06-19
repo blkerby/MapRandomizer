@@ -12,17 +12,25 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <p>These options help provide a smoother, more intuitive, and less tedious game experience.</p>
+        <p>These options help provide a smoother, more intuitive, and less tedious game experience. Several presets are provided:</p>
 
-        <p>Players wanting a full experience of exploration may want to disable some of these options. Three presets are provided:</p>
+        <ul>
+        <li><p><strong>Off</strong>: All quality-of-life options are turned off. This is for players who want a full experience
+        of exploration, with a similar feel to the original game. This may involve a lot of wandering around and backtracking to get 
+        to figure out where to go. Map stations are harder to find and provide minimal assistance as all item dots look the same.</p>
+        <li><p><strong>Low</strong>: Many quality-of-life options are turned off, restoring some unintuitive but potentially
+        interesting vanilla game behavior: some items do not spawn until defeating Phantoon or waking the planet, 
+        Acid Chozo statue requires Space Jump to use it, and certain movement items may be needed to complete the escape. 
+        Map stations are somewhat less powerful because all ammo and tank items appear as small dots the same as Missiles.</p>
+        <li><p><strong>Default</strong>: Quality-of-life options are turned to their generally recommended settings (mostly on).
+        Map stations are very useful, with different item dot shapes to distinguish three tiers of items: Missiles, other 
+        ammo/tank items, and unique items.</p>
+        <li><p><strong>Max</strong>: All quality-of-life options are turned on to their highest settings. This includes 
+        Respin and Lenient Space Jump to more easily control Samus, and an extra-fast Mother Brain fight that completely skips
+        the second and third phases.</p>
+        </ul>
 
-        <p><ul>
-        <li><strong>No</strong>: All quality-of-life options are turned off.
-        <li><strong>Default</strong>: Quality-of-life options are turned to their generally recommended settings (mostly on).
-        <li><strong>Max</strong>: All quality-of-life options are turned on to their highest settings.    
-        </ul></p>
-
-        <p>Individual options may be customized by expanding the "Customize quality-of-life options" below.</p>
+        <p>Individual options may be customized by expanding the "Customize" section below.</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

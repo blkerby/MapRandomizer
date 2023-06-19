@@ -47,11 +47,11 @@
     <div class="col-6"><%= if all_items_spawn { "Yes" } else { "No" }%></div>
 </div>
 <div class="row">
-    <div class="col-6">Acid Chozo does not require Space Jump:</div>
+    <div class="col-6">Acid Chozo usable without Space Jump:</div>
     <div class="col-6"><%= if acid_chozo { "Yes" } else { "No" }%></div>
 </div>
 <div class="row">
-    <div class="col-6">Spin jump restart (respin):</div>
+    <div class="col-6">Respin (spin jump restart):</div>
     <div class="col-6"><%= if respin { "Yes" } else { "No" }%></div>
 </div>
 <div class="row">

@@ -1,13 +1,20 @@
 next release:
-- add to room logic page:
-  - obstacles
-  - raw room JSON
-- debug tier 1 powerbomb in http://localhost:8080/seed/hIgESRf_Ss7PdhEdZzuN1w/
 - add pop-up when randomization is in progress
 - add pirates objective
-- make tech logic pages
+- add strat difficulty to logic pages, filter control
+- add QoL preset: "Low":
+  - disable "All items spawn at start of game"
+  - disable "Acid Chozo does not require Space Jump"
+  - disable "Enemies cleared during escape"
+  - disable "Hyper Beam gives all movement items"
+  - reduce "Item markers" to Uniques
 - make index pages for room & tech
 
+credit ideas:
+- item collection percent
+- death count
+- map tile explored count
+- ... ?
 
 priority:
 - incrementally build graph traversal with increasing difficulty tiers, acquiring flags in the process.
@@ -27,6 +34,8 @@ priority:
 - logic simulator
 
 later:
+- press X to fast forward during credits?
+- QoL option for save station fast travel (in Max)
 - fix issue with how filler item randomization changes between different key items, if one of the key items is also filler
   (can make unnecessary key item be placed in forced mode instead of just giving a missile).
 - investigate problem when using quick reload (L+R+Select+Start) while unpausing with 0 energy.
