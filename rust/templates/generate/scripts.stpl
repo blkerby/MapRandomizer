@@ -80,11 +80,13 @@ function updateFillerItemsJSON() {
     });
     document.getElementById("json-filler-items").value = JSON.stringify(fillerItems);
 }
+submitModal = new bootstrap.Modal('#submitModal', {})
 function prepareSubmit() {
     updateTechJSON();
     updateStratJSON();
     updateItemPriorityJSON();
     updateFillerItemsJSON();
+    submitModal.show();
 }
 function qualityOfLifePresetChanged() {
     if (document.getElementById("qualityOfLifeOff").checked) {
@@ -289,4 +291,9 @@ qualityOfLifePresetChanged();
 itemProgressionPresetChanged();
 checkOtherOptions();
 initializeSpoilerToken();
+window.addEventListener('pageshow', (event) => {
+  if (event.persisted) {
+    submitModal.hide();
+  }
+});
 </script>

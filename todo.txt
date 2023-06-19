@@ -1,14 +1,10 @@
 next release:
-- add pop-up when randomization is in progress
+- make index pages for room & tech
+- add qoL option for energy refill before escape
 - add pirates objective
 - add strat difficulty to logic pages, filter control
-- add QoL preset: "Low":
-  - disable "All items spawn at start of game"
-  - disable "Acid Chozo does not require Space Jump"
-  - disable "Enemies cleared during escape"
-  - disable "Hyper Beam gives all movement items"
-  - reduce "Item markers" to Uniques
-- make index pages for room & tech
+- restore mother brain 2 closer to vanilla
+
 
 credit ideas:
 - item collection percent

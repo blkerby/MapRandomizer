@@ -163,6 +163,7 @@
             </div>
         </form>
     </div>
+    <% include!("submit_modal.stpl"); %>
     <% include!("scripts.stpl"); %>
     </body>
 </html>

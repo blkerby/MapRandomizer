@@ -1,0 +1,16 @@
+<!-- Modal -->
+<div class="modal fade" id="submitModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">Randomizing game</h1>
+      </div>
+      <div class="modal-body">
+        <p>Please wait while the randomized game is being generated.</p>
+      <div class="progress">
+        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%"></div>
+      </div>
+      </div>
+    </div>
+  </div>
+</div>

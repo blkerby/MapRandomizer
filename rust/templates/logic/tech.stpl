@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<% include!("../common/header.stpl"); %>
+<title><%= tech_name %></title>
+</head>
+<body>
+<% include!("../common/navbar.stpl"); %>
+<script>
+document.getElementById("navigation-logic").classList.add("active");
+</script>
+
+<div class="container col-xl-10 col-xxl-8 pb-4">
+    <h3 class="my-2"><%= tech_name %></h3>
+    <style>
+    html[data-bs-theme=dark] .tech-row:hover {
+        background-color: #2b3035;
+    }
+    html[data-bs-theme=light] .tech-row:hover {
+        background-color: #f4f5f6;
+    }
+    .png-tech {
+        position: absolute;
+    }
+    .tech-row:hover .png-tech {
+        opacity: 0;
+    }
+    </style>
+    <div class="row tech-row">
+        <div class="text-center col-sm-4 col-md-3 col-lg-2 p-3">
+            <% if tech_gif_listing.contains(&format!("{}.gif", tech_name)) { %>
+            <img class="png-tech" loading="lazy" src="/static/tech_gifs/<%= tech_name%>.png" style="width:128px;height:128px;">
+            <img class="gif-tech" loading="lazy" src="/static/tech_gifs/<%= tech_name%>.gif" style="width:128px;height:128px;">
+            <% } %>
+        </div>
+        <div class="col-sm-8 col-md-9 col-lg-10 p-3">
+            <p><%= tech_note %></p>
+            <% if tech_dependencies.len() > 0 { %>
+                <p><i>Dependencies: <%= tech_dependencies %></i></p>
+            <% } %>
+        </div>
+    </div>
+
+    <h3>Strats (<%= strats.len() %>)</h3>
+    <style>
+    html[data-bs-theme=dark] .table {
+        --bs-table-hover-bg: #2b3035;
+    html[data-bs-theme=light] .table {
+    }
+        --bs-table-hover-bg: #f4f5f6;
+    }
+    </style>
+    <table class="table table-hover mb-0">
+    <tbody>
+    <% for strat in strats { %>
+    <tr class="strat-row" data-from-node="<%= strat.from_node_id %>" data-to-node="<%= strat.to_node_id %>">
+    <td class="p-2">
+        <% include!("strat.stpl"); %>
+    </td>
+    </tr>
+    <% } %>
+    </tbody>
+    </table>
+
+</div>
+</body>
+</html>
