@@ -20,9 +20,9 @@ about 15 seconds to load.
 <p><a href="https://version-68---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 68 (???)</a>:
 <ul>
 <li>(TODO: validate) New objective "Pirates" is added.
-<li>"Short" Mother Brain is restored to behave more like vanilla:
+<li>The "Short" Mother Brain quality-of-life option now behaves like the vanilla game for phase 2:
     <ul>
-    <li>It now requires completing phase 2 of the fight, including getting damaged down to 100 energy or less.
+    <li>This implies that when the Mother Brain fight ends, Samus will have at most 100 energy.
     </ul>
 <li>New quality-of-life option "Refill energy for escape" is added (enabled by default).
 <li>New quality-of-life preset "Low" is added, and the preset "No" is renamed to "Off".

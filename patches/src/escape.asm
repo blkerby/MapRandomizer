@@ -7,6 +7,9 @@
 lorom
 arch snes.cpu
 
+!bank_a7_free_space_start = $A7FF82
+!bank_a7_free_space_end = $A7FFC0
+
 ;;; carry set if escape flag on, carry clear if off
 macro checkEscape()
     lda #$000e
@@ -130,6 +133,10 @@ escape_setup:
 
     lda no_refill_before_escape
     sta $1f64     ; mark refill as not yet complete (if enabled)
+
+    lda $7ED8BC   ; unlock metal pirates gray doors
+    ora #$0001
+    sta $7ED8BC
 
     rts
 
@@ -480,3 +487,15 @@ org $84F380
     RTL
 
 warnpc $84F580
+
+; hook for when dachora hits block above it
+org $A7F892
+    jsr dachora_hit_top
+
+org !bank_a7_free_space_start
+dachora_hit_top:
+    stz $0f78        ; despawn dachora by clearing its enemy ID
+    LDA #$003C       ; run hi-jacked instruction
+    rts
+
+warnpc !bank_a7_free_space_end

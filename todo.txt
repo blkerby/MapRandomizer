@@ -1,6 +1,7 @@
 next release:
 - make index page for room & tech
 - add strat difficulty to logic pages, filter control
+- unlock metal pirates gray door during escape
 
 - DONE: add pop-up when randomization is in progress
 
@@ -12,8 +13,6 @@ credit ideas:
 - ... ?
 
 priority:
-- unlock all gray doors during escape (eventually only when "enemies cleared during escape" is enabled)
-  - e.g. metal pirates
 - incrementally build graph traversal with increasing difficulty tiers, acquiring flags in the process.
   - will allow better accounting of the difficulty of boss fights in forced mode
   - should be faster too
@@ -31,6 +30,8 @@ priority:
 - logic simulator
 
 later:
+- unlock all gray doors during escape (eventually only when "enemies cleared during escape" is enabled)
+  - e.g. metal pirates
 - press X to fast forward during credits?
 - QoL option for save station fast travel (in Max)
 - fix issue with how filler item randomization changes between different key items, if one of the key items is also filler
