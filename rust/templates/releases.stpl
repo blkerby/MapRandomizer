@@ -20,9 +20,14 @@ about 15 seconds to load.
 <p><a href="https://version-68---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 68 (???)</a>:
 <ul>
 <li>(TODO: validate) New objective "Pirates" is added.
+<li>"Short" Mother Brain is restored to behave more like vanilla:
+    <ul>
+    <li>It now requires completing phase 2 of the fight, including getting damaged down to 100 energy or less.
+    </ul>
+<li>New quality-of-life option "Refill energy for escape" is added (enabled by default).
 <li>New quality-of-life preset "Low" is added, and the preset "No" is renamed to "Off".
 <li>Quality-of-life "Item markers" option "Basic" is renamed to "Simple".
-<li>Updates when "Save the animals" option is enabled:
+<li>New behavior when "Save the animals" option is enabled:
     <ul>
     <li>It now enforces that the player save the animals in order to beat the game.
     <li>It causes Bomb Torizo Room to be marked with an "X" on the map like an objective (only revealed by visiting

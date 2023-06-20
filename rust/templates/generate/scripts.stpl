@@ -93,6 +93,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("supersDoubleNo").checked = true;
         document.getElementById("motherBrainFightVanilla").checked = true;
         document.getElementById("escapeMovementItemsNo").checked = true;
+        document.getElementById("escapeRefillNo").checked = true;
         document.getElementById("escapeEnemiesClearedNo").checked = true;
         document.getElementById("markMapStationsNo").checked = true;
         document.getElementById("transitionLettersNo").checked = true;
@@ -112,6 +113,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("supersDoubleYes").checked = true;
         document.getElementById("motherBrainFightShort").checked = true;
         document.getElementById("escapeMovementItemsNo").checked = true;
+        document.getElementById("escapeRefillNo").checked = true;
         document.getElementById("escapeEnemiesClearedNo").checked = true;
         document.getElementById("markMapStationsYes").checked = true;
         document.getElementById("transitionLettersNo").checked = true;
@@ -129,6 +131,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("supersDoubleYes").checked = true;
         document.getElementById("motherBrainFightShort").checked = true;
         document.getElementById("escapeMovementItemsYes").checked = true;
+        document.getElementById("escapeRefillYes").checked = true;
         document.getElementById("escapeEnemiesClearedYes").checked = true;
         document.getElementById("markMapStationsYes").checked = true;
         document.getElementById("transitionLettersNo").checked = true;
@@ -146,6 +149,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("supersDoubleYes").checked = true;
         document.getElementById("motherBrainFightSkip").checked = true;
         document.getElementById("escapeMovementItemsYes").checked = true;
+        document.getElementById("escapeRefillYes").checked = true;
         document.getElementById("escapeEnemiesClearedYes").checked = true;
         document.getElementById("markMapStationsYes").checked = true;
         document.getElementById("transitionLettersYes").checked = true;

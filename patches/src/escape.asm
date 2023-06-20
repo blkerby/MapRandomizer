@@ -128,6 +128,9 @@ escape_setup:
     lda #$000d    ; Shaktool done digging
     jsl $8081FA
 
+    lda no_refill_before_escape
+    sta $1f64     ; mark refill as not yet complete (if enabled)
+
     rts
 
 org $8ff500
@@ -188,6 +191,21 @@ room_main:
     phk
     plb
     jsr $c124                   ; explosions etc
+
+    ;; refill samus health (CHANGE THIS)
+    lda $1f64
+    bne .refill_done
+    lda $09c2  
+    clc
+    adc #$0007
+    cmp $09c4
+    bcc .refill_not_finished
+    lda $09c4
+    sta $1f64  ; mark refill as complete
+.refill_not_finished:
+    sta $09c2
+.refill_done:
+
     plb
 .end:
     ;; run hi-jacked instruction, and goes back to vanilla room main asm call
@@ -251,6 +269,11 @@ org $a1f000  ; address must match value in patch.rs (for "Save the animals" opti
 save_animals_required:
     dw $0000
 
+org $a1f002  ; address must match value in patch.rs (for "Refill energy for escape" option)
+no_refill_before_escape:
+    dw $0000
+
+org $a1f004  ; address must match value in patch.rs (for "Enemies cleared during escape" option)
 remove_enemies:
     ; Remove enemies (except special cases where they are needed such as elevators, dead bosses)
     phb : phk : plb             ; data bank=program bank ($8F)

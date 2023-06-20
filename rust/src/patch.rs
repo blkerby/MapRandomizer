@@ -1074,7 +1074,15 @@ impl<'a> Patcher<'a> {
                 }
 
                 // After rainbow beam, skip to Mother Brain exploding:
-                self.rom.write_u16(snes2pc(0xA9BACC), 0xAEE1)?;
+                // self.rom.write_u16(snes2pc(0xA9BACC), 0xAEE1)?;
+
+                self.rom.write_n(snes2pc(0xA9BB24), &[0xEA; 3])?;
+
+                // Eliminate delay before firing rainbow beam or finishing Samus off:
+                self.rom.write_u16(snes2pc(0xA9BB00), 0x0000)?;
+
+                // After finishing Samus off (down to 100 energy or lower), skip to Mother Brain exploding:
+                self.rom.write_u16(snes2pc(0xA9BD9E), 0xAEE1)?;
 
                 self.rom.write_n(
                     snes2pc(0xA9AEFD),
@@ -1197,6 +1205,11 @@ impl<'a> Patcher<'a> {
             self.rom.write_u16(snes2pc(0xA1F000), 0xFFFF)?;
         }
 
+        if !self.randomization.difficulty.escape_refill {
+            // Disable the energy refill at the start of the escape. Address here must match escape.asm:
+            self.rom.write_u16(snes2pc(0xA1F002), 0x0001)?;
+        }
+
         Ok(())
     }
 
@@ -1252,7 +1265,7 @@ impl<'a> Patcher<'a> {
 
     fn undo_escape_enemy_clear(&mut self) -> Result<()> {
         // Skip the patch that clears enemies during escape
-        self.rom.write_u8(snes2pc(0xA1f000), 0x6B)?; // RTL
+        self.rom.write_u8(snes2pc(0xA1f004), 0x6B)?; // RTL
         Ok(())
     }
 

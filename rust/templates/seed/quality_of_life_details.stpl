@@ -27,6 +27,10 @@
     <div class="col-6"><%= if escape_movement_items { "Yes" } else { "No" }%></div>
 </div>
 <div class="row">
+    <div class="col-6">Refill energy for escape:</div>
+    <div class="col-6"><%= if escape_refill { "Yes" } else { "No" }%></div>
+</div>
+<div class="row">
     <div class="col-6">Enemies cleared during escape:</div>
     <div class="col-6"><%= if escape_enemies_cleared { "Yes" } else { "No" }%></div>
 </div>

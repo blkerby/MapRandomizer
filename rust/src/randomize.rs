@@ -99,6 +99,7 @@ pub struct DifficultyConfig {
     pub supers_double: bool,
     pub mother_brain_fight: MotherBrainFight,
     pub escape_movement_items: bool,
+    pub escape_refill: bool,
     pub escape_enemies_cleared: bool,
     pub mark_map_stations: bool,
     pub transition_letters: bool,

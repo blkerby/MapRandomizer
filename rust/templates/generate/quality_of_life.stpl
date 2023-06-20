@@ -111,6 +111,19 @@
 
                 <div class="form-group row align-items-center">
                     <div class="col-lg-6 col-xl-5 m-2">
+                        <% include!("help/quality/escape_refill.stpl"); %>
+                        <label for="preset">Refill energy for escape</label>
+                    </div>
+                    <div class="col-2 btn-group m-2" role="group">
+                        <input type="radio" class="btn-check" name="escape_refill" id="escapeRefillNo" value="false">
+                        <label class="btn btn-outline-primary" for="escapeRefillNo">No</label>
+                        <input type="radio" class="btn-check" name="escape_refill" id="escapeRefillYes" value="true" checked>
+                        <label class="btn btn-outline-primary" for="escapeRefillYes">Yes</label>
+                    </div>
+                </div>
+
+                <div class="form-group row align-items-center">
+                    <div class="col-lg-6 col-xl-5 m-2">
                         <% include!("help/quality/enemies_cleared.stpl"); %>
                         <label for="preset">Enemies cleared during escape</label>
                     </div>
