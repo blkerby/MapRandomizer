@@ -96,10 +96,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("escapeEnemiesClearedNo").checked = true;
         document.getElementById("markMapStationsNo").checked = true;
         document.getElementById("transitionLettersNo").checked = true;
-        document.getElementById("itemMarkersBasic").checked = true;
-        document.getElementById("itemMarkersMajors").checked = false;
-        document.getElementById("itemMarkersUniques").checked = false;
-        document.getElementById("itemMarkersThreeTiered").checked = false;
+        document.getElementById("itemMarkersSimple").checked = true;
         document.getElementById("itemDotsDisappearNo").checked = true;
         document.getElementById("allItemsSpawnNo").checked = true;
         document.getElementById("acidChozoNo").checked = true;
@@ -118,10 +115,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("escapeEnemiesClearedNo").checked = true;
         document.getElementById("markMapStationsYes").checked = true;
         document.getElementById("transitionLettersNo").checked = true;
-        document.getElementById("itemMarkersBasic").checked = false;
-        document.getElementById("itemMarkersMajors").checked = false;
         document.getElementById("itemMarkersUniques").checked = true;
-        document.getElementById("itemMarkersThreeTiered").checked = false;
         document.getElementById("itemDotsDisappearYes").checked = true;
         document.getElementById("allItemsSpawnNo").checked = true;
         document.getElementById("acidChozoNo").checked = true;
@@ -138,9 +132,6 @@ function qualityOfLifePresetChanged() {
         document.getElementById("escapeEnemiesClearedYes").checked = true;
         document.getElementById("markMapStationsYes").checked = true;
         document.getElementById("transitionLettersNo").checked = true;
-        document.getElementById("itemMarkersBasic").checked = false;
-        document.getElementById("itemMarkersMajors").checked = false;
-        document.getElementById("itemMarkersUniques").checked = false;
         document.getElementById("itemMarkersThreeTiered").checked = true;
         document.getElementById("itemDotsDisappearYes").checked = true;
         document.getElementById("allItemsSpawnYes").checked = true;
@@ -158,9 +149,6 @@ function qualityOfLifePresetChanged() {
         document.getElementById("escapeEnemiesClearedYes").checked = true;
         document.getElementById("markMapStationsYes").checked = true;
         document.getElementById("transitionLettersYes").checked = true;
-        document.getElementById("itemMarkersBasic").checked = false;
-        document.getElementById("itemMarkersMajors").checked = false;
-        document.getElementById("itemMarkersUniques").checked = false;
         document.getElementById("itemMarkersThreeTiered").checked = true;
         document.getElementById("itemDotsDisappearYes").checked = true;
         document.getElementById("allItemsSpawnYes").checked = true;

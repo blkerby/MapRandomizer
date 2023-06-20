@@ -4,6 +4,10 @@
 
 lorom
 
+!bank_84_freespace_start = $84FC40
+!bank_84_freespace_end = $84FCC0
+
+
 ; Hi-jack code that runs just before the escape starts
 ;org $A9B216
 org $A9B1F7
@@ -34,7 +38,7 @@ door_ptr:
 
 ; Free space in bank $84
 ; PLMs to clear the room (e.g., remove the pipes around where Mother Brain's tank would be)
-org $84F280
+org !bank_84_freespace_start
 
 clear_row_plm:
     dw $B3D0, clear_row_inst
@@ -69,7 +73,7 @@ floor_inst:
 floor_draw:
     dw $0006, $124B, $1339, $124C, $124D, $1339, $124E, $0000
 
-warnpc $84F300
+warnpc !bank_84_freespace_end
 
 ; Overwrite main ASM for Mother Brain room state with Mother Brain dead (unused state in vanilla game)
 org $8FDDB4

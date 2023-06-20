@@ -12,8 +12,9 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-      <p>If enabled, then the map and door connections from the vanilla game will be used, instead of 
-      the map being randomized.</p>
+      <p>If enabled, then the map from the vanilla game will be used, instead of the map being randomized. 
+      With this option, it is suggested to use "Neutral" item progression (instead of "Forced")
+      since otherwise the location of key items can be overly predictable.</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

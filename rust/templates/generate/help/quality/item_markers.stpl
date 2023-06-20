@@ -14,7 +14,7 @@
       <div class="modal-body">
         <p>This option affects the way that items are drawn on the map (pause menu map and HUD minimap). There are four choices:
         <ul>
-        <li><strong>Basic</strong>: All items are marked on the map with small dots.
+        <li><strong>Simple</strong>: All items are marked on the map with small dots.
         <li><strong>Majors</strong>: Unique items, E-Tanks, and Reserve Tanks are marked with large solid dots; 
         other items are marked with small dots.
         <li><strong>Uniques</strong>: Unique items are marked with large solid dots; other items are marked with small dots.

@@ -3,6 +3,12 @@ $1F5D: items collected before getting them all for free at hyper beam (to use in
        after credits). This is a snapshot of $09A4, captured in `escape.asm`, at the time of getting hyper beam.
 $1F60: fast_reload.asm
 $1F62: map area backup in pause menu (like $079F)
+$7ED823: randomizer-specific event flags:
+  $0001: bowling statue activated
+  $0002: pit room door unlocked
+  $0004: baby kraid room door unlocked
+  $0008: plasma room door unlocked
+  $0010: metal pirates room door unlocked
 $7FFE00: map area (copy of $1F5B to be saved to SRAM)
 $7FFE02: map area explored mask
 $7FFE04: copy of $1F5D (to be saved to SRAM for escape autosave)

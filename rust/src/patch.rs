@@ -213,6 +213,9 @@ fn apply_orig_ips_patches(rom: &mut Rom, randomization: &Randomization) -> Resul
         },
         Objectives::Chozos => {
             rom.write_u16(snes2pc(0x83AAD2), 0xEC20)?;
+        },
+        Objectives::Pirates => {
+            rom.write_u16(snes2pc(0x83AAD2), 0xEC80)?;
         }
     }
     Ok(())

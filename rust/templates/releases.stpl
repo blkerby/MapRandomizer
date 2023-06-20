@@ -19,16 +19,18 @@ about 15 seconds to load.
 
 <p><a href="https://version-68---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 68 (???)</a>:
 <ul>
+<li>(TODO: validate) New objective "Pirates" is added.
 <li>New quality-of-life preset "Low" is added, and the preset "No" is renamed to "Off".
-<li>Updates to "Save the animals" option:
+<li>Quality-of-life "Item markers" option "Basic" is renamed to "Simple".
+<li>Updates when "Save the animals" option is enabled:
     <ul>
     <li>It now enforces that the player save the animals in order to beat the game.
     <li>It causes Bomb Torizo Room to be marked with an "X" on the map like an objective (only revealed by visiting
     the room or obtaining the map station in the area).
     </ul>
-<li>A "Logic" tab is added to the website, allowing users to browse the game logic.
-<li>Some improvements to "Forced" mode item progression (e.g. on "Standard" or "Challenge" presets), to better select
-hard locations for key items.
+<li>A "Logic" section is added to the website, allowing users to browse the game logic.
+<li>Some small improvements are made to "Forced" item progression (e.g. on "Standard" or "Challenge" presets), 
+to better select hard locations for key items.
 </ul>
 
 <p><a href="https://version-67---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 67 (2023-06-15)</a>:

@@ -9,8 +9,8 @@
                         <label for="preset">Item markers</label>
                     </div>
                     <div class="col-lg-5 btn-group m-2" role="group">
-                        <input type="radio" class="btn-check" name="item_markers" id="itemMarkersBasic" value="Basic">
-                        <label class="btn btn-outline-primary" for="itemMarkersBasic">Basic</label>
+                        <input type="radio" class="btn-check" name="item_markers" id="itemMarkersSimple" value="Simple">
+                        <label class="btn btn-outline-primary" for="itemMarkersSimple">Simple</label>
                         <input type="radio" class="btn-check" name="item_markers" id="itemMarkersMajors" value="Majors">
                         <label class="btn btn-outline-primary" for="itemMarkersMajors">Majors</label>
                         <input type="radio" class="btn-check" name="item_markers" id="itemMarkersUniques" value="Uniques">

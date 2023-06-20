@@ -1,6 +1,9 @@
 arch snes.cpu
 lorom
 
+!bank_84_freespace_start = $84F200
+!bank_84_freespace_end = $84F300
+
 org $83AAD2
     dw $EB00  ; Set door ASM for Rinka Room toward Mother Brain (using Bosses as default objective)
 
@@ -220,6 +223,58 @@ golden_torizo_chozo:
 
     jmp motherbrain
 
+
+; OBJECTIVE: Pirates (must match address in patch.rs)
+warnpc $8FEC80
+org $8FEC80
+    ; clear barriers in mother brain room based on enemies defeated (gray doors unlocked) in Space Pirates rooms:
+
+pit_room:
+    lda $7ed823
+    and #$0002
+    beq .skip  ; skip clearing if enemies not defeated in Pit Room
+
+    jsl $8483D7
+    db $39
+    db $04
+    dw clear_barrier_plm
+.skip:
+
+baby_kraid_room:
+    lda $7ed823
+    and #$0004
+    beq .skip  ; skip clearing if enemies not defeated in Baby Kraid Room
+
+    jsl $8483D7
+    db $38
+    db $04
+    dw clear_barrier_plm
+.skip:
+
+plasma_room:
+    lda $7ed823
+    and #$0008
+    beq .skip  ; skip clearing if enemies not defeated in Plasma Room
+
+    jsl $8483D7
+    db $37
+    db $04
+    dw clear_barrier_plm
+.skip:
+
+metal_pirates_room:
+    lda $7ed823
+    and #$0010
+    beq .skip  ; skip clearing if enemies not defeated in Metal Pirates Room
+
+    jsl $8483D7
+    db $36
+    db $04
+    dw clear_barrier_plm
+.skip:
+
+    jmp motherbrain
+
 warnpc $8FED00
 
 org $83AAEA
@@ -240,7 +295,8 @@ org $8FEE00
     rts
 
 ; Remove invisible spikes where Mother Brain used to be (common routine used by both the left and right door ASMs)
-org $84F200
+org !bank_84_freespace_start
+
 remove_spikes:
     ; Remove invisible spikes
     lda #$8000   ; solid tile
@@ -271,9 +327,45 @@ bowling_chozo_set_flag:
     sta $7ed823
     rtl
 
-warnpc $84F280
+pirates_set_flag:
+    jsl $8081FA  ; run hi-jacked instruction (set zebes awake flag)
+
+    lda $079B   ; room pointer    
+    cmp #$975C  ; pit room?
+    bne .not_pit_room
+    lda $7ED823
+    ora $0002
+    sta $7ED823
+    rtl
+.not_pit_room:
+    cmp #$A521  ; baby kraid room?
+    bne .not_baby_kraid_room
+    lda $7ED823
+    ora $0004
+    sta $7ED823
+    rtl
+.not_baby_kraid_room:
+    cmp #$D2AA  ; plasma room?
+    bne .not_plasma_room
+    lda $7ED823
+    ora $0008
+    sta $7ED823
+    rtl
+.not_plasma_room:
+    cmp #$B62B  ; metal pirates room?
+    bne .not_metal_pirates_room
+    lda $7ED823
+    ora $0010
+    sta $7ED823
+.not_metal_pirates_room:
+    rtl
+
+warnpc !bank_84_freespace_end
 
 ; bowling chozo hook
 org $84D66B
     jsl bowling_chozo_set_flag
 
+; enemies (pirates) dead hook
+org $84BE0E
+    jsl pirates_set_flag

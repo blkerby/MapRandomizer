@@ -636,6 +636,43 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
+    fn indicate_pirates_tiles(&mut self, boss_tile: u16) -> Result<()> {
+        self.patch_room(
+            "Pit Room",
+            vec![(0, 0, boss_tile), (1, 0, boss_tile), (2, 0, boss_tile)],
+        )?;
+
+        self.patch_room(
+            "Baby Kraid Room",
+            vec![
+                (0, 0, boss_tile),
+                (1, 0, boss_tile),
+                (2, 0, boss_tile),
+                (3, 0, boss_tile),
+                (4, 0, boss_tile),
+                (5, 0, boss_tile),
+            ],
+        )?;
+
+        self.patch_room(
+            "Plasma Room",
+            vec![
+                (0, 0, boss_tile),
+                (1, 0, boss_tile),
+                (0, 1, boss_tile),
+                (1, 1, boss_tile),
+                (0, 2, boss_tile),
+            ],
+        )?;
+
+        self.patch_room(
+            "Metal Pirates Room",
+            vec![(0, 0, boss_tile), (1, 0, boss_tile), (2, 0, boss_tile)],
+        )?;
+
+        Ok(())
+    }
+
     fn indicate_special_tiles(&mut self) -> Result<()> {
         let refill_tile = self.create_tile([
             [2, 2, 2, 2, 2, 2, 2, 2],
@@ -693,6 +730,9 @@ impl<'a> MapPatcher<'a> {
             }
             Objectives::Chozos => {
                 self.indicate_chozo_tiles(boss_tile)?;
+            }
+            Objectives::Pirates => {
+                self.indicate_pirates_tiles(boss_tile)?;
             }
         }
 
@@ -1397,7 +1437,7 @@ impl<'a> MapPatcher<'a> {
                 basic_tile.interior = Interior::Item;
             }
             match markers {
-                ItemMarkers::Basic => {}
+                ItemMarkers::Simple => {}
                 ItemMarkers::Majors => {
                     if item.is_unique() || item == Item::ETank || item == Item::ReserveTank {
                         basic_tile.interior = Interior::MajorItem;

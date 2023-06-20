@@ -1,9 +1,10 @@
 next release:
-- make index pages for room & tech
-- add qoL option for energy refill before escape
-- add pirates objective
+- make index page for room & tech
 - add strat difficulty to logic pages, filter control
+- add qoL option for energy refill before escape
 - restore mother brain 2 closer to vanilla
+
+- DONE: add pop-up when randomization is in progress
 
 
 credit ideas:

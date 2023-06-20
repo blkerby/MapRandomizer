@@ -132,7 +132,7 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         version: VERSION,
         progression_rates: vec!["Fast", "Normal", "Slow"],
         item_placement_styles: vec!["Neutral", "Forced"],
-        objectives: vec!["Bosses", "Minibosses", "Metroids", "Chozos"],
+        objectives: vec!["Bosses", "Minibosses", "Metroids", "Chozos", "Pirates"],
         item_priorities: vec!["Early", "Default", "Late"]
             .iter()
             .map(|x| x.to_string())
@@ -943,7 +943,7 @@ async fn randomize(
         mark_map_stations: req.mark_map_stations.0,
         transition_letters: req.transition_letters.0,
         item_markers: match req.item_markers.0.as_str() {
-            "Basic" => ItemMarkers::Basic,
+            "Simple" => ItemMarkers::Simple,
             "Majors" => ItemMarkers::Majors,
             "Uniques" => ItemMarkers::Uniques,
             "3-Tiered" => ItemMarkers::ThreeTiered,
@@ -962,6 +962,7 @@ async fn randomize(
             "Minibosses" => Objectives::Minibosses,
             "Metroids" => Objectives::Metroids,
             "Chozos" => Objectives::Chozos,
+            "Pirates" => Objectives::Pirates,
             _ => panic!("Unrecognized objectives: {}", req.objectives.0),
         },
         disable_walljump: req.disable_walljump.0,

@@ -43,7 +43,7 @@ pub enum ItemPlacementStyle {
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
 pub enum ItemMarkers {
-    Basic,
+    Simple,
     Majors,
     Uniques,
     ThreeTiered,
@@ -55,6 +55,7 @@ pub enum Objectives {
     Minibosses,
     Metroids,
     Chozos,
+    Pirates,
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
