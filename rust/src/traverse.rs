@@ -402,8 +402,8 @@ fn apply_botwoon_requirement(
     let mut time: f32 = 0.0; // Cumulative time in seconds for the phase
     let charge_damage = get_charge_damage(&global);
 
-    // Assume an ammo accuracy rate of between 30% (on lowest difficulty) to 90% (on highest):
-    let accuracy = 0.3 + 0.6 * proficiency;
+    // Assume an ammo accuracy rate of between 25% (on lowest difficulty) to 90% (on highest):
+    let accuracy = 0.25 + 0.65 * proficiency;
 
     // Assume a firing rate of between 30% (on lowest difficulty) to 100% (on highest),
     let firing_rate = 0.3 + 0.7 * proficiency;
@@ -483,14 +483,14 @@ fn apply_botwoon_requirement(
         let gravity = global.items[Item::Gravity as usize];
 
         // Assumed average rate of boss attacks to Samus (per second), given minimal dodging skill:
-        let base_hit_rate = 0.05;
+        let base_hit_rate = 0.1;
 
         // Multiplier to boss damage based on items (Morph and Gravity) and proficiency (in dodging).
         let hit_rate_multiplier = match (morph, gravity) {
-            (false, false) => 1.0 - 0.5 * proficiency,
-            (false, true) => 0.8 - 0.4 * proficiency,
-            (true, false) => 0.5 - 0.25 * proficiency,
-            (true, true) => 0.2 - 0.2 * proficiency,
+            (false, false) => 1.0 * (1.0 - proficiency) + 0.25 * proficiency,
+            (false, true) => 0.8 * (1.0 - proficiency) + 0.2 * proficiency,
+            (true, false) => 0.7 * (1.0 - proficiency) + 0.125 * proficiency,
+            (true, true) => 0.5 * (1.0 - proficiency) + 0.0 * proficiency,
         };
         let hits = f32::round(base_hit_rate * hit_rate_multiplier * time);
         let damage_per_hit = 96.0 / suit_damage_factor(global) as f32;

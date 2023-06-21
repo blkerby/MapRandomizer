@@ -2,7 +2,7 @@
 <html lang="en-US">
 <head>
 <% include!("../common/header.stpl"); %>
-<title><%= tech_name %></title>
+<title><%= tech_name %> - Super Metroid Map Rando</title>
 </head>
 <body>
 <% include!("../common/navbar.stpl"); %>

@@ -42,17 +42,17 @@ fn main() -> Result<()> {
     // }
 
     let mut items = vec![false; game_data.item_isv.keys.len()];
-    items[Item::Missile as usize] = true;
+    // items[Item::Missile as usize] = true;
     // items[Item::SpaceJump as usize] = true;
     // items[Item::Super as usize] = true;
     items[Item::Morph as usize] = true;
-    items[Item::ScrewAttack as usize] = true;
-    // items[Item::Charge as usize] = true;
+    // items[Item::ScrewAttack as usize] = true;
+    items[Item::Charge as usize] = true;
     // items[Item::Wave as usize] = true;
     // items[Item::Ice as usize] = true;
     // items[Item::Spazer as usize] = true;
-    // items[Item::Plasma as usize] = true;
-    // items[Item::Varia as usize] = true;
+    items[Item::Plasma as usize] = true;
+    items[Item::Varia as usize] = true;
     // items[Item::Gravity as usize] = true;
 
     let weapon_mask = game_data.get_weapon_mask(&items);
@@ -62,7 +62,7 @@ fn main() -> Result<()> {
         flags: vec![false; game_data.flag_isv.keys.len()],
         items: items,
         max_energy: 20000,
-        max_missiles: 180,
+        max_missiles: 10,
         max_reserves: 0,
         max_supers: 0,
         max_power_bombs: 0,
@@ -90,14 +90,15 @@ fn main() -> Result<()> {
         }],
         resource_multiplier: 1.0,
         escape_timer_multiplier: 1.0,
-        phantoon_proficiency: 1.0,
-        draygon_proficiency: 1.0,
-        ridley_proficiency: 1.0,
+        phantoon_proficiency: 0.5,
+        draygon_proficiency: 0.5,
+        ridley_proficiency: 0.0,
         botwoon_proficiency: 1.0,
         save_animals: false,
         supers_double: true,
         mother_brain_fight: MotherBrainFight::Short,
         escape_enemies_cleared: true,
+        escape_refill: true,
         escape_movement_items: true,
         mark_map_stations: true,
         transition_letters: false,
@@ -124,7 +125,6 @@ fn main() -> Result<()> {
     //     "{:?}",
     //     apply_requirement(&Requirement::PhantoonFight {  }, &global_state, local_state, false, &difficulty)
     // );
-    // println!("{} links", game_data.links.len());
 
     // println!(
     //     "{:?}",

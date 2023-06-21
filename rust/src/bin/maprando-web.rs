@@ -471,6 +471,11 @@ async fn view_seed_redirect(info: web::Path<(String,)>) -> impl Responder {
         .finish()
 }
 
+#[get("/logic")]
+async fn logic(app_data: web::Data<AppData>) -> impl Responder {
+    HttpResponse::Ok().body(app_data.logic_data.index_html.clone())
+}
+
 #[get("/logic/room/{name}")]
 async fn logic_room(info: web::Path<(String,)>, app_data: web::Data<AppData>) -> impl Responder {
     let room_name = &info.0;
@@ -1112,7 +1117,6 @@ fn init_presets(
         "canIceZebetitesSkip",
         "canSpeedZebetitesSkip",
         "canRemorphZebetiteSkip",
-        "canDownBack",
         "canEscapeMorphLocation", // Special internal tech for "vanilla map" option
     ]
     .iter()
@@ -1295,6 +1299,7 @@ fn get_implicit_tech() -> HashSet<String> {
         "canDisableEquipment",
         "canEscapeEnemyGrab",
         "canSpecialBeamAttack",
+        "canDownBack",
     ].into_iter().map(|x| x.to_string()).collect()
 }
 
@@ -1362,6 +1367,7 @@ async fn main() {
             .service(customize_seed)
             .service(unlock_seed)
             .service(view_seed_redirect)
+            .service(logic)
             .service(logic_room)
             .service(logic_tech)
             .service(actix_files::Files::new("/static", "static"))

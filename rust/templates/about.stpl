@@ -3,14 +3,14 @@
     <head>
     <% include!("common/header.stpl"); %>
     <meta name="keywords" content="Super Metroid, Map Randomizer, Map Rando, Map, Randomizer">
-    <title>Super Metroid Map Rando - About</title>
+    <title>About - Super Metroid Map Rando</title>
     </head>
     <body>
     <% include!("common/navbar.stpl"); %>
     <script>
     document.getElementById("navigation-about").classList.add("active");
     </script>
-    <div class="container col-xl-8 col-xxl-6">
+    <div class="container col-lg-9 col-xl-7 col-xxl-6">
 
     <h3 class="my-3">About Map Rando</h3>
 

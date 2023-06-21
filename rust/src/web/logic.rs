@@ -27,6 +27,9 @@ struct RoomTemplate {
     version: usize,
     room_id: usize,
     room_name: String,
+    room_name_stripped: String,
+    area: String,
+    sub_area: String,
     room_diagram_path: String,
     nodes: Vec<(usize, String)>,
     strats: Vec<RoomStrat>,
@@ -35,17 +38,26 @@ struct RoomTemplate {
 
 #[derive(TemplateOnce, Clone)]
 #[template(path = "logic/tech.stpl")]
-struct TechTemplate<'a> {
+struct TechTemplate {
     version: usize,
     tech_name: String,
     tech_note: String,
     tech_dependencies: String,
     strats: Vec<RoomStrat>,
-    tech_gif_listing: &'a HashSet<String>,
+    tech_gif_listing: HashSet<String>,
+}
+
+#[derive(TemplateOnce)]
+#[template(path = "logic/logic.stpl")]
+struct LogicIndexTemplate<'a> {
+    version: usize,
+    rooms: &'a [RoomTemplate],
+    tech: &'a [TechTemplate],
 }
 
 #[derive(Default)]
 pub struct LogicData {
+    pub index_html: String,  // Logic index page
     pub room_html: HashMap<String, String>, // Map from room name (alphanumeric characters only) to rendered HTML.
     pub tech_html: HashMap<String, String>, // Map from tech name to rendered HTML.
     pub tech_strat_counts: HashMap<String, usize>, // Map from tech name to strat count using that tech.
@@ -123,7 +135,7 @@ fn make_tech_templates<'a>(
     game_data: &GameData,
     room_templates: &[RoomTemplate],
     tech_gif_listing: &'a HashSet<String>,
-) -> HashMap<String, TechTemplate<'a>> {
+) -> Vec<TechTemplate> {
     let mut tech_strat_ids: Vec<HashSet<(RoomId, NodeId, NodeId, String)>> =
         vec![HashSet::new(); game_data.tech_isv.keys.len()];
     for link in &game_data.links {
@@ -153,7 +165,7 @@ fn make_tech_templates<'a>(
         }
     }
 
-    let mut tech_templates: HashMap<String, TechTemplate> = HashMap::new();
+    let mut tech_templates: Vec<TechTemplate> = vec![];
     for (tech_idx, tech_ids) in tech_strat_ids.iter().enumerate() {
         let tech_name = game_data.tech_isv.keys[tech_idx].clone();
         let tech_note = game_data.tech_description[&tech_name].clone();
@@ -171,9 +183,9 @@ fn make_tech_templates<'a>(
             tech_note,
             tech_dependencies,
             strats,
-            tech_gif_listing,
+            tech_gif_listing: tech_gif_listing.clone(),
         };
-        tech_templates.insert(tech_name, template);
+        tech_templates.push(template);
     }
     tech_templates
 }
@@ -181,7 +193,6 @@ fn make_tech_templates<'a>(
 fn strip_name(s: &str) -> String {
     s.chars().filter(|x| x.is_ascii_alphanumeric()).collect()
 }
-
 
 fn make_room_template(
     room_json: &JsonValue,
@@ -237,6 +248,9 @@ fn make_room_template(
         version: VERSION,
         room_id,
         room_name,
+        room_name_stripped,
+        area: room_json["area"].as_str().unwrap().to_string(),
+        sub_area: room_json["subarea"].as_str().unwrap().to_string(),
         room_diagram_path: room_diagram_listing[&room_id].clone(),
         nodes,
         strats: room_strats,
@@ -256,13 +270,21 @@ impl LogicData {
                 .insert(strip_name(&template.room_name), html);
             room_templates.push(template);
         }
+        room_templates.sort_by_key(|x| (x.area.clone(), x.sub_area.clone(), x.room_name.clone()));
 
         let tech_templates = make_tech_templates(game_data, &room_templates, tech_gif_listing);
-        for (tech, template) in &tech_templates {
+        for template in &tech_templates {
             let html = template.clone().render_once().unwrap();
-            out.tech_strat_counts.insert(tech.clone(), template.strats.len());
-            out.tech_html.insert(tech.clone(), html);
+            out.tech_strat_counts.insert(template.tech_name.clone(), template.strats.len());
+            out.tech_html.insert(template.tech_name.clone(), html);
         }
+
+        let index_template = LogicIndexTemplate {
+            version: VERSION,
+            rooms: &room_templates,
+            tech: &tech_templates,
+        };
+        out.index_html = index_template.render_once().unwrap();
         out
     }
 }

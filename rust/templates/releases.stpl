@@ -3,14 +3,14 @@
 <head>
 <% include!("common/header.stpl"); %>
 <meta name="keywords" content="Super Metroid, Map Randomizer, Map Rando, Map, Randomizer">
-<title>Super Metroid Map Rando - Releases</title>
+<title>Releases - Super Metroid Map Rando</title>
 </head>
 <body>
 <% include!("common/navbar.stpl"); %>
 <script>
 document.getElementById("navigation-releases").classList.add("active");
 </script>
-<div class="container col-xl-8 col-xxl-6">
+<div class="container col-lg-9 col-xl-7 col-xxl-6">
 
 <h3 class="my-3">Release History</h3>
 <strong>Note</strong>: Previous versions of the rando can be accessed by clicking the links below. These may take
@@ -20,22 +20,30 @@ about 15 seconds to load.
 <p><a href="https://version-68---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 68 (???)</a>:
 <ul>
 <li>(TODO: validate) New objective "Pirates" is added.
-<li>The "Short" Mother Brain quality-of-life option now behaves like the vanilla game for phase 2:
+<li>Changes to quality-of-life options:
     <ul>
-    <li>This implies that when the Mother Brain fight ends, Samus will have at most 100 energy.
+    <li>With the "Short" Mother Brain quality-of-life option, the Mother Brain phase 2 fight is restored to behave like the vanilla game:
+        <ul>
+        <li>The fight doesn't end until Samus is at 100 energy or lower.
+        <li>Time can be saved by damaging Samus down before the rainbow beam.
+        </ul>
+    <li>New quality-of-life option "Refill energy for escape" is added (enabled by default).
+    <li>New quality-of-life preset "Low" is added, and the preset "No" is renamed to "Off".
+    <li>Quality-of-life "Item markers" option "Basic" is renamed to "Simple".
     </ul>
-<li>New quality-of-life option "Refill energy for escape" is added (enabled by default).
-<li>New quality-of-life preset "Low" is added, and the preset "No" is renamed to "Off".
-<li>Quality-of-life "Item markers" option "Basic" is renamed to "Simple".
 <li>New behavior when "Save the animals" option is enabled:
     <ul>
     <li>It now enforces that the player save the animals in order to beat the game.
     <li>It causes Bomb Torizo Room to be marked with an "X" on the map like an objective (only revealed by visiting
     the room or obtaining the map station in the area).
     </ul>
-<li>A "Logic" section is added to the website, allowing users to browse the game logic.
 <li>Some small improvements are made to "Forced" item progression (e.g. on "Standard" or "Challenge" presets), 
 to better select hard locations for key items.
+<li>Website update: A "Logic" section is added, allowing users to browse the game logic.
+<li>Logic updates:
+    <ul>
+    <li>Botwoon, Ridley, and Phantoon assumptions are adjusted to be more lenient on lower difficulty settings.
+    </ul>
 </ul>
 
 <p><a href="https://version-67---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 67 (2023-06-15)</a>:
