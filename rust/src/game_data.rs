@@ -413,7 +413,7 @@ pub struct GameData {
     weapon_json_map: HashMap<String, JsonValue>,
     non_ammo_weapon_mask: WeaponMask,
     tech_json_map: HashMap<String, JsonValue>,
-    helper_json_map: HashMap<String, JsonValue>,
+    pub helper_json_map: HashMap<String, JsonValue>,
     tech: HashMap<String, Option<Requirement>>,
     pub helpers: HashMap<String, Option<Requirement>>,
     pub room_json_map: HashMap<RoomId, JsonValue>,

@@ -93,41 +93,36 @@ fn make_requires(requires_json: &JsonValue) -> String {
     out.join("\n")
 }
 
-fn extract_tech_rec(req: &Requirement, tech: &mut HashSet<usize>, game_data: &GameData) {
-    match req {
-        Requirement::Tech(idx) => {
+fn extract_tech_rec(req: &JsonValue, tech: &mut HashSet<usize>, game_data: &GameData) {
+    if req.is_string() {
+        let value = req.as_str().unwrap();
+        if let Some(idx) = game_data.tech_isv.index_by_key.get(value) {
+            // Skipping tech dependencies, so that only techs that explicitly appear in a strat (or via a helper)
+            // will show up under the corresponding tech page.
             tech.insert(*idx);
-        }
-        Requirement::CanComeInCharged { shinespark_tech_id, shinespark_frames, .. } => {
-            if *shinespark_frames > 0 {
-                tech.insert(*shinespark_tech_id);
+        } else if let Some(helper_json) = game_data.helper_json_map.get(value) {
+            for r in helper_json["requires"].members() {
+                extract_tech_rec(r, tech, game_data);
             }
-        }
-        Requirement::ComeInWithRMode { .. } => {
+        } 
+    } else if req.is_object() && req.len() == 1 {
+        let (key, value) = req.entries().next().unwrap();
+        if key == "and" || key == "or" {
+            for x in value.members() {
+                extract_tech_rec(x, tech, game_data);
+            }
+        } else if key == "canShineCharge" && value["shinesparkFrames"].as_i32().unwrap() > 0 {
+            tech.insert(game_data.tech_isv.index_by_key["canShinespark"]);
+        } else if key == "canComeInCharged" && value["shinesparkFrames"].as_i32().unwrap() > 0 {
+            tech.insert(game_data.tech_isv.index_by_key["canShinespark"]);
+        } else if key == "comeInWithRMode" {
             tech.insert(game_data.tech_isv.index_by_key["canEnterRMode"]);
-        }
-        Requirement::ComeInWithGMode { artificial_morph, .. } => {
-            let gmode_tech_id = game_data.tech_isv.index_by_key["canEnterGMode"];
-            let gmode_immobile_tech_id = game_data.tech_isv.index_by_key["canEnterGModeImmobile"];
-            let artificial_morph_tech_id = game_data.tech_isv.index_by_key["canArtificialMorph"];
-    
-            tech.insert(gmode_tech_id);
-            tech.insert(gmode_immobile_tech_id);
-            if *artificial_morph {
-                tech.insert(artificial_morph_tech_id);
+        } else if key == "comeInWithGMode" {
+            tech.insert(game_data.tech_isv.index_by_key["canEnterGMode"]);
+            if value["artificialMorph"].as_bool().unwrap() {
+                tech.insert(game_data.tech_isv.index_by_key["canArtificialMorph"]);                    
             }
         }
-        Requirement::And(reqs) => {
-            for r in reqs {
-                extract_tech_rec(r, tech, game_data);
-            }
-        }
-        Requirement::Or(reqs) => {
-            for r in reqs {
-                extract_tech_rec(r, tech, game_data);
-            }
-        }
-        _ => {}
     }
 }
 
@@ -138,15 +133,24 @@ fn make_tech_templates<'a>(
 ) -> Vec<TechTemplate> {
     let mut tech_strat_ids: Vec<HashSet<(RoomId, NodeId, NodeId, String)>> =
         vec![HashSet::new(); game_data.tech_isv.keys.len()];
-    for link in &game_data.links {
-        let (room_id, from_node_id, _) = game_data.vertex_isv.keys[link.from_vertex_id];
-        let (_, to_node_id, _) = game_data.vertex_isv.keys[link.to_vertex_id];
-        let strat_name = link.strat_name.clone();
-        let ids = (room_id, from_node_id, to_node_id, strat_name);
-        let mut tech_set: HashSet<usize> = HashSet::new();
-        extract_tech_rec(&link.requirement, &mut tech_set, game_data);
-        for tech_idx in tech_set {
-            tech_strat_ids[tech_idx].insert(ids.clone());
+    for room_json in game_data.room_json_map.values() {
+        let room_id = room_json["id"].as_usize().unwrap();
+        for link_json in room_json["links"].members() {
+            for link_to_json in link_json["to"].members() {
+                for strat_json in link_to_json["strats"].members() {
+                    let from_node_id = link_json["from"].as_usize().unwrap();
+                    let to_node_id = link_to_json["id"].as_usize().unwrap();
+                    let strat_name = strat_json["name"].as_str().unwrap().to_string();
+                    let ids = (room_id, from_node_id, to_node_id, strat_name);
+                    let mut tech_set: HashSet<usize> = HashSet::new();
+                    for req in strat_json["requires"].members() {
+                        extract_tech_rec(req, &mut tech_set, game_data);
+                    }
+                    for tech_idx in tech_set {
+                        tech_strat_ids[tech_idx].insert(ids.clone());
+                    }
+                }
+            }
         }
     }
 
