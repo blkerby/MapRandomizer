@@ -3,8 +3,12 @@ use hashbrown::{HashMap, HashSet};
 use json::JsonValue;
 use sailfish::TemplateOnce;
 
-use crate::game_data::{GameData, NodeId, Requirement, RoomId};
+use crate::game_data::{GameData, NodeId, Requirement, RoomId, Link};
+use crate::randomize::{DifficultyConfig, DebugOptions};
+use crate::traverse::{apply_requirement, GlobalState, LocalState};
 use crate::web::VERSION;
+
+use super::PresetData;
 
 #[derive(Clone)]
 struct RoomStrat {
@@ -19,6 +23,7 @@ struct RoomStrat {
     note: String,
     requires: String,                         // new-line separated requirements
     obstacles: Vec<(String, String, String)>, // list of (obstacle name, obstacle requires, additional obstacles)
+    difficulty_tier: Option<String>,
 }
 
 #[derive(TemplateOnce, Clone)]
@@ -57,7 +62,7 @@ struct LogicIndexTemplate<'a> {
 
 #[derive(Default)]
 pub struct LogicData {
-    pub index_html: String,  // Logic index page
+    pub index_html: String,                        // Logic index page
     pub room_html: HashMap<String, String>, // Map from room name (alphanumeric characters only) to rendered HTML.
     pub tech_html: HashMap<String, String>, // Map from tech name to rendered HTML.
     pub tech_strat_counts: HashMap<String, usize>, // Map from tech name to strat count using that tech.
@@ -104,7 +109,7 @@ fn extract_tech_rec(req: &JsonValue, tech: &mut HashSet<usize>, game_data: &Game
             for r in helper_json["requires"].members() {
                 extract_tech_rec(r, tech, game_data);
             }
-        } 
+        }
     } else if req.is_object() && req.len() == 1 {
         let (key, value) = req.entries().next().unwrap();
         if key == "and" || key == "or" {
@@ -120,7 +125,7 @@ fn extract_tech_rec(req: &JsonValue, tech: &mut HashSet<usize>, game_data: &Game
         } else if key == "comeInWithGMode" {
             tech.insert(game_data.tech_isv.index_by_key["canEnterGMode"]);
             if value["artificialMorph"].as_bool().unwrap() {
-                tech.insert(game_data.tech_isv.index_by_key["canArtificialMorph"]);                    
+                tech.insert(game_data.tech_isv.index_by_key["canArtificialMorph"]);
             }
         }
     }
@@ -198,10 +203,122 @@ fn strip_name(s: &str) -> String {
     s.chars().filter(|x| x.is_ascii_alphanumeric()).collect()
 }
 
+fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
+    let mut tech_vec: Vec<String> = vec![];
+    for (tech_name, enabled) in &preset.tech_setting {
+        if *enabled {
+            tech_vec.push(tech_name.clone());
+        }
+    }
+    let mut strat_vec: Vec<String> = vec![];
+    for (strat_name, enabled) in &preset.notable_strat_setting {
+        if *enabled {
+            strat_vec.push(strat_name.clone());
+        }
+    }
+    // It's annoying how much irrelevant stuff we have to fill in here. TODO: restructure to make things cleaner
+    DifficultyConfig {
+        tech: tech_vec,
+        notable_strats: strat_vec,
+        shine_charge_tiles: preset.preset.shinespark_tiles as f32,
+        progression_rate: crate::randomize::ProgressionRate::Fast,
+        item_placement_style: crate::randomize::ItemPlacementStyle::Forced,
+        item_priorities: vec![],
+        filler_items: vec![],
+        early_filler_items: vec![],
+        resource_multiplier: preset.preset.resource_multiplier,
+        escape_timer_multiplier: preset.preset.escape_timer_multiplier,
+        save_animals: false,
+        phantoon_proficiency: preset.preset.phantoon_proficiency,
+        draygon_proficiency: preset.preset.draygon_proficiency,
+        ridley_proficiency: preset.preset.ridley_proficiency,
+        botwoon_proficiency: preset.preset.botwoon_proficiency,
+        supers_double: true,
+        mother_brain_fight: crate::randomize::MotherBrainFight::Short,
+        escape_movement_items: true,
+        escape_refill: true,
+        escape_enemies_cleared: true,
+        mark_map_stations: true,
+        transition_letters: false,
+        item_markers: crate::randomize::ItemMarkers::ThreeTiered,
+        item_dots_disappear: true,
+        all_items_spawn: true,
+        acid_chozo: true,
+        fast_elevators: true,
+        fast_doors: true,
+        fast_pause_menu: true,
+        respin: true,
+        infinite_space_jump: true,
+        objectives: crate::randomize::Objectives::Bosses,
+        disable_walljump: false,
+        maps_revealed: false,
+        vanilla_map: false,
+        ultra_low_qol: false,
+        debug_options: Some(DebugOptions{
+            new_game_extra: false,
+            extended_spoiler: false
+        }),
+    }
+}
+
+fn strip_cross_room_reqs(req: Requirement) -> Requirement {
+    match req {
+        Requirement::And(subreqs) => {
+            Requirement::And(subreqs.into_iter().map(strip_cross_room_reqs).collect())
+        },
+        Requirement::Or(subreqs) => {
+            Requirement::Or(subreqs.into_iter().map(strip_cross_room_reqs).collect())
+        },
+        Requirement::AdjacentJumpway { .. } => Requirement::Free,
+        Requirement::AdjacentRunway { .. } => Requirement::Free,
+        Requirement::CanComeInCharged { .. } => Requirement::Free,
+        Requirement::ComeInWithRMode { .. } => Requirement::Free,
+        Requirement::ComeInWithGMode { .. } => Requirement::Free,
+        _ => req,
+    }
+}
+
+fn get_strat_difficulty(
+    room_id: usize,
+    from_node_id: usize,
+    to_node_id: usize,
+    strat_name: String,
+    game_data: &GameData,
+    presets: &[PresetData],
+    difficulty_configs: &[DifficultyConfig],
+    global_states: &[GlobalState],
+    links_by_ids: &HashMap<(RoomId, NodeId, NodeId, String), Vec<Link>>,
+) -> Option<String> {
+    for (i, difficulty) in difficulty_configs.iter().enumerate() {
+        let global = &global_states[i];
+
+        let local = LocalState {
+            energy_used: 0,
+            reserves_used: 0,
+            missiles_used: 0,
+            supers_used: 0,
+            power_bombs_used: 0,
+        };
+
+        for link in &links_by_ids[&(room_id, from_node_id, to_node_id, strat_name.clone())] {
+            let req = strip_cross_room_reqs(link.requirement.clone());
+            let new_local = apply_requirement(&req, &global, local, false, difficulty);
+            if new_local.is_some() {
+                return Some(presets[i].preset.name.clone());
+            }
+        }
+    }
+    None
+}
+
 fn make_room_template(
     room_json: &JsonValue,
     room_diagram_listing: &HashMap<usize, String>,
     game_data: &GameData,
+    presets: &[PresetData],
+    difficulty_configs: &[DifficultyConfig],
+    global_states: &[GlobalState],
+    links_by_ids: &HashMap<(RoomId, NodeId, NodeId, String), Vec<Link>>,    
 ) -> RoomTemplate {
     let mut room_strats: Vec<RoomStrat> = vec![];
     let room_id = room_json["id"].as_usize().unwrap();
@@ -230,6 +347,18 @@ fn make_room_template(
                     }
                     obstacles.push((obstacle_id, obstacle_requires, additional.join(", ")));
                 }
+                let strat_name = strat_json["name"].as_str().unwrap().to_string();
+                let difficulty = get_strat_difficulty(
+                    room_id,
+                    from_node_id,
+                    to_node_id,
+                    strat_name,
+                    game_data,
+                    presets,
+                    difficulty_configs,
+                    global_states,
+                    links_by_ids,
+                );
                 let strat = RoomStrat {
                     room_name: room_name.clone(),
                     room_name_stripped: room_name_stripped.clone(),
@@ -242,6 +371,7 @@ fn make_room_template(
                     note: game_data.parse_note(&strat_json["note"]).join(" "),
                     requires: make_requires(&strat_json["requires"]),
                     obstacles,
+                    difficulty_tier: difficulty,
                 };
                 room_strats.push(strat);
             }
@@ -263,15 +393,61 @@ fn make_room_template(
 }
 
 impl LogicData {
-    pub fn new(game_data: &GameData, tech_gif_listing: &HashSet<String>) -> LogicData {
+    pub fn new(
+        game_data: &GameData,
+        tech_gif_listing: &HashSet<String>,
+        presets: &[PresetData],
+    ) -> LogicData {
         let mut out = LogicData::default();
         let room_diagram_listing = list_room_diagram_files();
         let mut room_templates: Vec<RoomTemplate> = vec![];
+        let difficulty_configs: Vec<DifficultyConfig> = presets.iter().map(get_difficulty_config).collect();
+
+        let mut global_states: Vec<GlobalState> = vec![];
+        for difficulty in &difficulty_configs {
+            let items = vec![true; game_data.item_isv.keys.len()];
+            let weapon_mask = game_data.get_weapon_mask(&items);
+            
+            let mut tech = vec![false; game_data.tech_isv.keys.len()];
+            for tech_name in &difficulty.tech {
+                tech[game_data.tech_isv.index_by_key[tech_name]] = true;
+            }
+    
+            let mut notable_strats = vec![false; game_data.notable_strat_isv.keys.len()];
+            for strat_name in &difficulty.notable_strats {
+                notable_strats[game_data.notable_strat_isv.index_by_key[strat_name]] = true;
+            }
+    
+            let global = GlobalState {
+                tech,
+                notable_strats,
+                items: items,
+                flags: vec![true; game_data.flag_isv.keys.len()],
+                max_energy: 1499,
+                max_reserves: 400,
+                max_missiles: 230,
+                max_supers: 50,
+                max_power_bombs: 50,
+                weapon_mask: weapon_mask,
+                shine_charge_tiles: difficulty.shine_charge_tiles,
+            };
+    
+            global_states.push(global);
+        }        
+
+        let mut links_by_ids: HashMap<(RoomId, NodeId, NodeId, String), Vec<Link>> = HashMap::new();
+        for link in &game_data.links {
+            let (link_room_id, link_from_node_id, _) = game_data.vertex_isv.keys[link.from_vertex_id];
+            let (_, link_to_node_id, _) = game_data.vertex_isv.keys[link.to_vertex_id];
+            let link_ids = (link_room_id, link_from_node_id, link_to_node_id, link.strat_name.clone());
+            links_by_ids.entry(link_ids).or_insert(vec![]).push(link.clone());
+        }
+
         for (_, room_json) in game_data.room_json_map.iter() {
-            let template = make_room_template(room_json, &room_diagram_listing, &game_data);
+            let template =
+                make_room_template(room_json, &room_diagram_listing, &game_data, presets, &difficulty_configs, &global_states, &links_by_ids);
             let html = template.clone().render_once().unwrap();
-            out.room_html
-                .insert(strip_name(&template.room_name), html);
+            out.room_html.insert(strip_name(&template.room_name), html);
             room_templates.push(template);
         }
         room_templates.sort_by_key(|x| (x.area.clone(), x.sub_area.clone(), x.room_name.clone()));
@@ -279,7 +455,8 @@ impl LogicData {
         let tech_templates = make_tech_templates(game_data, &room_templates, tech_gif_listing);
         for template in &tech_templates {
             let html = template.clone().render_once().unwrap();
-            out.tech_strat_counts.insert(template.tech_name.clone(), template.strats.len());
+            out.tech_strat_counts
+                .insert(template.tech_name.clone(), template.strats.len());
             out.tech_html.insert(template.tech_name.clone(), html);
         }
 
