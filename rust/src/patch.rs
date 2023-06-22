@@ -1072,14 +1072,9 @@ impl<'a> Patcher<'a> {
                 for addr in &[0x897D, 0x89AF, 0x89E1, 0x8A09, 0x8A31, 0x8A63, 0x8A95] {
                     self.rom.write_u16(snes2pc(0xA90000 + addr), 0x10)?; // cut delay in half for tubes to fall
                 }
-
-                // After rainbow beam, skip to Mother Brain exploding:
-                // self.rom.write_u16(snes2pc(0xA9BACC), 0xAEE1)?;
-
+                
+                // Skip the slow movement to the right when MB2 is preparing to finish Samus off
                 self.rom.write_n(snes2pc(0xA9BB24), &[0xEA; 3])?;
-
-                // Eliminate delay before firing rainbow beam or finishing Samus off:
-                self.rom.write_u16(snes2pc(0xA9BB00), 0x0000)?;
 
                 // After finishing Samus off (down to 100 energy or lower), skip to Mother Brain exploding:
                 self.rom.write_u16(snes2pc(0xA9BD9E), 0xAEE1)?;

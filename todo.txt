@@ -1,7 +1,7 @@
 next release:
-- add strat difficulty to tech pages, filter control
 - sort strats in room & tech pages.
 - sort rooms & tech on index page.
+- adjust links from generate page to tech page: auto-set difficulty filter, show filtered count
 
 - DONE: add pop-up when randomization is in progress
 

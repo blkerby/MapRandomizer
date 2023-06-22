@@ -50,6 +50,24 @@ org $A99D31
 org $A9B1B2
     dw $0050
 
+; End phase 2 sooner:
+; Reorder the timer check and the Samus health check, so if Samus health is low enough already then it doesn't wait for the timer.
+; (We don't eliminate the timer delay entirely as that could interfere with execution of the stand-up glitch.)
+org $A9BB06
+mb_phase_2_end_decide:
+    LDA $09C2
+    CMP #$0190             ;} If [Samus health] >= 400:
+    BMI .finish_samus      ;/
+    DEC $0FB2              ; Decrement Mother Brain's body function timer
+    BPL .done              ; If [Mother Brain's body function timer] >= 0: return
+    LDA #$B8EB
+    STA $0FA8              ;} Mother Brain's body function = $B8EB (firing rainbow beam)
+.done:
+    RTS                    ; Return
+warnpc $A9BB1A
+org $A9BB1A
+.finish_samus:
+
 ;; Hook to make Samus stand up before escape (in "Short" Mother Brain fight mode)
 
 org $A9FD00
