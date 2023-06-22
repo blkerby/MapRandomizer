@@ -36,7 +36,6 @@ struct RoomTemplate {
     room_name: String,
     room_name_stripped: String,
     area: String,
-    sub_area: String,
     room_diagram_path: String,
     nodes: Vec<(usize, String)>,
     strats: Vec<RoomStrat>,
@@ -63,6 +62,8 @@ struct LogicIndexTemplate<'a> {
     version: usize,
     rooms: &'a [RoomTemplate],
     tech: &'a [TechTemplate],
+    area_order: Vec<String>,
+    tech_difficulties: Vec<String>,
 }
 
 #[derive(Default)]
@@ -412,14 +413,25 @@ fn make_room_template(
         }
     }
     // let shape = *game_data.room_shape.get(&room_id).unwrap_or(&(1, 1));
+
+    let area = room_json["area"].as_str().unwrap().to_string();
+    let sub_area = room_json["subarea"].as_str().unwrap_or("").to_string();
+    let sub_sub_area = room_json["subsubarea"].as_str().unwrap_or("").to_string();
+    let full_area = if sub_sub_area != "" {
+        format!("{} {} {}", sub_sub_area, sub_area, area)
+    } else if sub_area != "" && sub_area != "Main" {
+        format!("{} {}", sub_area, area)
+    } else {
+        area
+    };
+
     RoomTemplate {
         version: VERSION,
         difficulty_names: presets.iter().map(|x| x.preset.name.clone()).collect(),
         room_id,
         room_name,
         room_name_stripped,
-        area: room_json["area"].as_str().unwrap().to_string(),
-        sub_area: room_json["subarea"].as_str().unwrap().to_string(),
+        area: full_area,
         room_diagram_path: room_diagram_listing[&room_id].clone(),
         nodes,
         strats: room_strats,
@@ -485,7 +497,7 @@ impl LogicData {
             out.room_html.insert(strip_name(&template.room_name), html);
             room_templates.push(template);
         }
-        room_templates.sort_by_key(|x| (x.area.clone(), x.sub_area.clone(), x.room_name.clone()));
+        room_templates.sort_by_key(|x| (x.area.clone(), x.room_name.clone()));
 
         let tech_templates = make_tech_templates(game_data, &room_templates, tech_gif_listing, presets, &global_states);
         for template in &tech_templates {
@@ -500,6 +512,28 @@ impl LogicData {
             version: VERSION,
             rooms: &room_templates,
             tech: &tech_templates,
+            area_order: vec![
+                "Central Crateria",
+                "West Crateria",
+                "East Crateria",
+                "Blue Brinstar",
+                "Green Brinstar",
+                "Pink Brinstar",
+                "Red Brinstar",
+                "Kraid Brinstar",
+                "East Upper Norfair",
+                "West Upper Norfair",
+                "Crocomire Upper Norfair",
+                "West Lower Norfair",
+                "East Lower Norfair",
+                "Outer Maridia",
+                "Pink Inner Maridia",
+                "Yellow Inner Maridia",
+                "Green Inner Maridia",
+                "Wrecked Ship",
+                "Tourian",
+            ].into_iter().map(|x| x.to_string()).collect(),
+            tech_difficulties: presets.iter().map(|x| x.preset.name.clone()).collect(),
         };
         out.index_html = index_template.render_once().unwrap();
         out

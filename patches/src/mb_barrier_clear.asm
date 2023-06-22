@@ -231,7 +231,7 @@ org $8FEC80
 
 pit_room:
     lda $7ed823
-    and #$0002
+    bit #$0002
     beq .skip  ; skip clearing if enemies not defeated in Pit Room
 
     jsl $8483D7
@@ -242,7 +242,7 @@ pit_room:
 
 baby_kraid_room:
     lda $7ed823
-    and #$0004
+    bit #$0004
     beq .skip  ; skip clearing if enemies not defeated in Baby Kraid Room
 
     jsl $8483D7
@@ -253,7 +253,7 @@ baby_kraid_room:
 
 plasma_room:
     lda $7ed823
-    and #$0008
+    bit #$0008
     beq .skip  ; skip clearing if enemies not defeated in Plasma Room
 
     jsl $8483D7
@@ -264,7 +264,7 @@ plasma_room:
 
 metal_pirates_room:
     lda $7ed823
-    and #$0010
+    bit #$0010
     beq .skip  ; skip clearing if enemies not defeated in Metal Pirates Room
 
     jsl $8483D7
@@ -334,28 +334,28 @@ pirates_set_flag:
     cmp #$975C  ; pit room?
     bne .not_pit_room
     lda $7ED823
-    ora $0002
+    ora #$0002
     sta $7ED823
     rtl
 .not_pit_room:
     cmp #$A521  ; baby kraid room?
     bne .not_baby_kraid_room
     lda $7ED823
-    ora $0004
+    ora #$0004
     sta $7ED823
     rtl
 .not_baby_kraid_room:
     cmp #$D2AA  ; plasma room?
     bne .not_plasma_room
     lda $7ED823
-    ora $0008
+    ora #$0008
     sta $7ED823
     rtl
 .not_plasma_room:
     cmp #$B62B  ; metal pirates room?
     bne .not_metal_pirates_room
     lda $7ED823
-    ora $0010
+    ora #$0010
     sta $7ED823
 .not_metal_pirates_room:
     rtl
