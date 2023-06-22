@@ -45,8 +45,8 @@ document.getElementById("navigation-logic").classList.add("active");
     <style>
     html[data-bs-theme=dark] .table {
         --bs-table-hover-bg: #2b3035;
-    html[data-bs-theme=light] .table {
     }
+    html[data-bs-theme=light] .table {
         --bs-table-hover-bg: #f4f5f6;
     }
     </style>

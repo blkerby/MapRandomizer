@@ -23,13 +23,15 @@ struct RoomStrat {
     note: String,
     requires: String,                         // new-line separated requirements
     obstacles: Vec<(String, String, String)>, // list of (obstacle name, obstacle requires, additional obstacles)
-    difficulty_tier: Option<String>,
+    difficulty_idx: usize,
+    difficulty_name: String,
 }
 
 #[derive(TemplateOnce, Clone)]
 #[template(path = "logic/room.stpl")]
 struct RoomTemplate {
     version: usize,
+    difficulty_names: Vec<String>,
     room_id: usize,
     room_name: String,
     room_name_stripped: String,
@@ -284,11 +286,10 @@ fn get_strat_difficulty(
     to_node_id: usize,
     strat_name: String,
     game_data: &GameData,
-    presets: &[PresetData],
     difficulty_configs: &[DifficultyConfig],
     global_states: &[GlobalState],
     links_by_ids: &HashMap<(RoomId, NodeId, NodeId, String), Vec<Link>>,
-) -> Option<String> {
+) -> usize {
     for (i, difficulty) in difficulty_configs.iter().enumerate() {
         let global = &global_states[i];
 
@@ -304,11 +305,11 @@ fn get_strat_difficulty(
             let req = strip_cross_room_reqs(link.requirement.clone());
             let new_local = apply_requirement(&req, &global, local, false, difficulty);
             if new_local.is_some() {
-                return Some(presets[i].preset.name.clone());
+                return i;
             }
         }
     }
-    None
+    difficulty_configs.len()
 }
 
 fn make_room_template(
@@ -348,17 +349,21 @@ fn make_room_template(
                     obstacles.push((obstacle_id, obstacle_requires, additional.join(", ")));
                 }
                 let strat_name = strat_json["name"].as_str().unwrap().to_string();
-                let difficulty = get_strat_difficulty(
+                let difficulty_idx = get_strat_difficulty(
                     room_id,
                     from_node_id,
                     to_node_id,
                     strat_name,
                     game_data,
-                    presets,
                     difficulty_configs,
                     global_states,
                     links_by_ids,
                 );
+                let difficulty_name = if difficulty_idx == difficulty_configs.len() {
+                    "None".to_string()
+                } else {
+                    presets[difficulty_idx].preset.name.clone()
+                };
                 let strat = RoomStrat {
                     room_name: room_name.clone(),
                     room_name_stripped: room_name_stripped.clone(),
@@ -371,7 +376,8 @@ fn make_room_template(
                     note: game_data.parse_note(&strat_json["note"]).join(" "),
                     requires: make_requires(&strat_json["requires"]),
                     obstacles,
-                    difficulty_tier: difficulty,
+                    difficulty_idx,
+                    difficulty_name,
                 };
                 room_strats.push(strat);
             }
@@ -380,6 +386,7 @@ fn make_room_template(
     // let shape = *game_data.room_shape.get(&room_id).unwrap_or(&(1, 1));
     RoomTemplate {
         version: VERSION,
+        difficulty_names: presets.iter().map(|x| x.preset.name.clone()).collect(),
         room_id,
         room_name,
         room_name_stripped,

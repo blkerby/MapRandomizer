@@ -18,35 +18,58 @@ document.getElementById("navigation-logic").classList.add("active");
         </div>
     </div>
 
+    <form id="filterForm">
+    <div class="row">
+        <div class="col-lg-2 my-2 d-flex align-items-center">
+            Difficulty filter
+        </div>
+        <div class="col-lg-9 my-2 btn-group overflow-auto" role="group">
+        <% for (i, difficulty) in difficulty_names.iter().enumerate() { 
+            let name_no_space = &difficulty.replace(" ", "");
+            let checked = if i == difficulty_names.len() - 1 { "checked" } else { "" }; 
+            %>
+            <input type="radio" class="btn-check difficulty-filter" name="preset" value="<%= i %>"
+                id="preset<%= i %>" autocomplete="off" onclick="presetChanged()" <%- checked %>>
+            <label class="btn btn-outline-secondary p-2" for="preset<%= i %>"><%= difficulty %></label>
+        <% } %>
+        </div>
+    </div>
+    </form>
+    <div class="row">
+        <div class="col-lg-2 my-2 d-flex align-items-center">
+            <label for="fromNode">From node</label>
+        </div>
+        <div class="col-sm-6 my-2">
+            <select id="fromNode" name="fromNode" class="form-select" onchange="updateSelect();">
+            <option value="any" selected>Any</option>
+            <% for (node_id, node_name) in &nodes { %>
+                <option class="from-node-option" value="<%= node_id %>"><%= node_id %>: <%= node_name %></option>
+            <% } %>
+            </select>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-2 my-2 d-flex align-items-center">
+            <label for="toNode">To node</label>
+        </div>
+        <div class="col-sm-6 my-2">
+            <select id="toNode" name="toNode" class="form-select" onchange="updateSelect();">
+            <option value="any" selected>Any</option>
+            <% for (node_id, node_name) in &nodes { %>
+                <option class="to-node-option" value="<%= node_id %>"><%= node_id %>: <%= node_name %></option>
+            <% } %>
+            </select>
+        </div>
+    </div>
+
     <div class="accordion">
-        <div class="accordion-item">
+        <div class="accordion-item my-3">
             <h2 class="accordion-header">
             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStrats">
-                Strats (<%= strats.len() %>)
+                Strats (<span id="stratCount"></span>)
             </button>
             </h2>        
             <div id="collapseStrats" class="accordion-collapse collapse show">
-                <div class="row m-2">
-                    <div class="col-sm-6">
-                        <label for="fromNode">From node</label>
-                        <select id="fromNode" name="fromNode" class="form-select" onchange="updateSelect();">
-                        <option value="any" selected>Any</option>
-                        <% for (node_id, node_name) in &nodes { %>
-                            <option class="from-node-option" value="<%= node_id %>"><%= node_id %>: <%= node_name %></option>
-                        <% } %>
-                        </select>
-                    </div>
-                    <div class="col-sm-6">
-                        <label for="toNode">To node</label>
-                        <select id="toNode" name="toNode" class="form-select" onchange="updateSelect();">
-                        <option value="any" selected>Any</option>
-                        <% for (node_id, node_name) in &nodes { %>
-                            <option class="to-node-option" value="<%= node_id %>"><%= node_id %>: <%= node_name %></option>
-                        <% } %>
-                        </select>
-                    </div>
-                </div>
-                <hr class="mb-0">
                 <style>
                 html[data-bs-theme=dark] .table {
                     --bs-table-hover-bg: #2b3035;
@@ -58,7 +81,10 @@ document.getElementById("navigation-logic").classList.add("active");
                 <table class="table table-hover mb-0">
                 <tbody>
                 <% for strat in strats { %>
-                <tr class="strat-row" data-from-node="<%= strat.from_node_id %>" data-to-node="<%= strat.to_node_id %>">
+                <tr class="strat-row" 
+                    data-from-node="<%= strat.from_node_id %>" 
+                    data-to-node="<%= strat.to_node_id %>"
+                    data-difficulty="<%= strat.difficulty_idx %>">
                 <td class="p-2">
                     <% include!("strat.stpl"); %>
                 </td>
@@ -68,7 +94,7 @@ document.getElementById("navigation-logic").classList.add("active");
                 </table>
             </div>
         </div>
-        <div class="accordion-item">
+        <div class="accordion-item my-3">
             <h2 class="accordion-header">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRoomJSON">
                 Room JSON
@@ -80,33 +106,53 @@ document.getElementById("navigation-logic").classList.add("active");
         </div>
     </div>
 </div>
+<% include!("../common/save_settings.stpl"); %>
 <script>
+function presetChanged() {
+    updateSelect();
+    saveForm(document.getElementById("filterForm"));
+}
+function getDifficultyFilter() {
+    var elems = document.getElementsByClassName("difficulty-filter");
+    for (var i = 0; i < elems.length; i++) {
+        console.log(elems[i].value);
+        if (elems[i].checked) {
+            return elems[i].value;
+        }
+    }
+    return -1;
+}
 function updateSelect() {
     var rows = document.getElementsByClassName("strat-row");
     var selectedFromNode = document.getElementById("fromNode").value;
     var selectedToNode = document.getElementById("toNode").value;
     var validFromSet = new Set();
     var validToSet = new Set();
+    var difficultyFilter = getDifficultyFilter();
 
     // Show/hide the matching set of Strats:
+    var cnt = 0;
     for (var i = 0; i < rows.length; i++) {
         var row = rows.item(i);
+        var validDifficulty = (row.getAttribute("data-difficulty") <= difficultyFilter);
         var rowFromNode = row.getAttribute("data-from-node");
         var rowToNode = row.getAttribute("data-to-node");
         var validFrom = (selectedFromNode == "any" || rowFromNode == selectedFromNode);
         var validTo = (selectedToNode == "any" || rowToNode == selectedToNode);
-        if (validFrom && validTo) {
+        if (validDifficulty && validFrom && validTo) {
             row.classList.remove("d-none");
+            cnt += 1;
         } else {
             row.classList.add("d-none");
         }
-        if (validFrom) {
+        if (validDifficulty && validFrom) {
             validToSet.add(rowToNode);
         }
-        if (validTo) {
+        if (validDifficulty && validTo) {
             validFromSet.add(rowFromNode);
         }
     }
+    document.getElementById("stratCount").innerHTML = cnt;
 
     // Color the to/from node options by whether they have any matching strats:
     var fromOptions = document.getElementsByClassName("from-node-option");
@@ -128,8 +174,9 @@ function updateSelect() {
             opt.classList.add("text-muted");
         }
     }
-
 }
+loadForm(document.getElementById("filterForm"));
+updateSelect();
 </script>
 </body>
 </html>
