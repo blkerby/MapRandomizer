@@ -484,7 +484,6 @@ async fn logic_room(info: web::Path<(String,)>, app_data: web::Data<AppData>) ->
     } else {
         let template = RoomNotFoundTemplate {};
         HttpResponse::NotFound().body(template.render_once().unwrap())
-
     }
 }
 

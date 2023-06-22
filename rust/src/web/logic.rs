@@ -51,6 +51,8 @@ struct TechTemplate {
     tech_name: String,
     tech_note: String,
     tech_dependencies: String,
+    tech_difficulty_idx: usize,
+    tech_difficulty_name: String,
     strats: Vec<RoomStrat>,
     tech_gif_listing: HashSet<String>,
 }
@@ -139,6 +141,7 @@ fn make_tech_templates<'a>(
     room_templates: &[RoomTemplate],
     tech_gif_listing: &'a HashSet<String>,
     presets: &[PresetData],
+    global_states: &[GlobalState],
 ) -> Vec<TechTemplate> {
     let mut tech_strat_ids: Vec<HashSet<(RoomId, NodeId, NodeId, String)>> =
         vec![HashSet::new(); game_data.tech_isv.keys.len()];
@@ -184,6 +187,20 @@ fn make_tech_templates<'a>(
         let tech_note = game_data.tech_description[&tech_name].clone();
         let tech_dependencies = game_data.tech_dependencies[&tech_name].join(", ");
         let mut strats: Vec<RoomStrat> = vec![];
+        let mut difficulty_idx = global_states.len();
+
+        for (i, global) in global_states.iter().enumerate() {
+            if global.tech[tech_idx] {
+                difficulty_idx = i;
+                break;
+            }
+        }
+        let difficulty_name = if difficulty_idx == global_states.len() {
+            "None".to_string()
+        } else {
+            presets[difficulty_idx].preset.name.clone()
+        };
+
         for strat_ids in tech_ids {
             // Infinitely-spawning farm strats aren't included (TODO: fix that?)
             if room_strat_map.contains_key(strat_ids) {
@@ -196,6 +213,8 @@ fn make_tech_templates<'a>(
             tech_name: tech_name.clone(),
             tech_note,
             tech_dependencies,
+            tech_difficulty_idx: difficulty_idx,
+            tech_difficulty_name: difficulty_name,
             strats,
             tech_gif_listing: tech_gif_listing.clone(),
         };
@@ -468,11 +487,12 @@ impl LogicData {
         }
         room_templates.sort_by_key(|x| (x.area.clone(), x.sub_area.clone(), x.room_name.clone()));
 
-        let tech_templates = make_tech_templates(game_data, &room_templates, tech_gif_listing, presets);
+        let tech_templates = make_tech_templates(game_data, &room_templates, tech_gif_listing, presets, &global_states);
         for template in &tech_templates {
             let html = template.clone().render_once().unwrap();
+            let strat_count = template.strats.iter().filter(|x| x.difficulty_idx <= template.tech_difficulty_idx).count();
             out.tech_strat_counts
-                .insert(template.tech_name.clone(), template.strats.len());
+                .insert(template.tech_name.clone(), strat_count);
             out.tech_html.insert(template.tech_name.clone(), html);
         }
 

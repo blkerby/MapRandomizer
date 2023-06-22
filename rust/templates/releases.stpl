@@ -24,8 +24,9 @@ about 15 seconds to load.
     <ul>
     <li>With the "Short" Mother Brain quality-of-life option, the Mother Brain phase 2 fight is restored to behave like the vanilla game:
         <ul>
-        <li>The fight doesn't end until Samus is at 100 energy or lower.
+        <li>Mother Brain will continue attacking Samus (e.g. with multiple rainbow beams) until the vanilla conditions are met to end the phase.
         <li>Time can be saved by damaging Samus down before the rainbow beam.
+        <li>With careful energy management and by disabling suits, Samus can end the fight with more energy (up to 340).
         </ul>
     <li>New quality-of-life option "Refill energy for escape" is added (enabled by default).
     <li>New quality-of-life preset "Low" is added, and the preset "No" is renamed to "Off".

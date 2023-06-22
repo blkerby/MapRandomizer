@@ -11,7 +11,7 @@ document.getElementById("navigation-logic").classList.add("active");
 </script>
 
 <div class="container col-xl-10 col-xxl-8 pb-4">
-    <h3 class="my-2"><%= tech_name %></h3>
+    <h3 class="my-2"><%= tech_name %> (<%= tech_difficulty_name %>)</h3>
     <style>
     html[data-bs-theme=dark] .tech-row:hover {
         background-color: #2b3035;

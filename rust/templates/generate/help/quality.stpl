@@ -20,8 +20,9 @@
         to figure out where to go. Map stations are harder to find and provide minimal assistance as all item dots look the same.</p>
         <li><p><strong>Low</strong>: Many quality-of-life options are turned off, restoring some unintuitive but potentially
         interesting vanilla game behavior: some items do not spawn until defeating Phantoon or waking the planet, 
-        Acid Chozo statue requires Space Jump to use it, and certain movement items may be needed to complete the escape. 
-        Map stations are somewhat less powerful because all ammo and tank items appear as small dots the same as Missiles.</p>
+        Acid Chozo statue requires Space Jump to use it, and completing the escape may require collecting certain movement items 
+        and/or executing the stand-up glitch. Map stations are somewhat less powerful because all ammo and tank items appear as 
+        small dots the same as Missiles.</p>
         <li><p><strong>Default</strong>: Quality-of-life options are turned to their generally recommended settings (mostly on).
         Map stations are very useful, with different item dot shapes to distinguish three tiers of items: Missiles, other 
         ammo/tank items, and unique items.</p>
