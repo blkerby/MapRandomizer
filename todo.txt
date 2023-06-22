@@ -1,7 +1,7 @@
 next release:
-- make index page for room & tech
-- add strat difficulty to logic pages, filter control
-- unlock metal pirates gray door during escape
+- add strat difficulty to tech pages, filter control
+- sort strats in room & tech pages.
+- sort rooms & tech on index page.
 
 - DONE: add pop-up when randomization is in progress
 

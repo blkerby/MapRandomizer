@@ -41,7 +41,25 @@ document.getElementById("navigation-logic").classList.add("active");
         </div>
     </div>
 
-    <h3>Strats (<%= strats.len() %>)</h3>
+    <form id="filterForm">
+    <div class="row">
+        <div class="col-lg-2 my-2 d-flex align-items-center">
+            Difficulty filter
+        </div>
+        <div class="col-lg-9 my-2 btn-group overflow-auto" role="group">
+        <% for (i, difficulty) in difficulty_names.iter().enumerate() { 
+            let name_no_space = &difficulty.replace(" ", "");
+            let checked = if i == difficulty_names.len() - 1 { "checked" } else { "" }; 
+            %>
+            <input type="radio" class="btn-check difficulty-filter" name="preset" value="<%= i %>"
+                id="preset<%= i %>" autocomplete="off" onclick="presetChanged()" <%- checked %>>
+            <label class="btn btn-outline-secondary p-2" for="preset<%= i %>"><%= difficulty %></label>
+        <% } %>
+        </div>
+    </div>
+    </form>
+
+    <h3>Strats (<span id="stratCount"></span>)</h3>
     <style>
     html[data-bs-theme=dark] .table {
         --bs-table-hover-bg: #2b3035;
@@ -53,7 +71,10 @@ document.getElementById("navigation-logic").classList.add("active");
     <table class="table table-hover mb-0">
     <tbody>
     <% for strat in strats { %>
-    <tr class="strat-row" data-from-node="<%= strat.from_node_id %>" data-to-node="<%= strat.to_node_id %>">
+    <tr class="strat-row" 
+        data-from-node="<%= strat.from_node_id %>" 
+        data-to-node="<%= strat.to_node_id %>"
+        data-difficulty="<%= strat.difficulty_idx %>">
     <td class="p-2">
         <% include!("strat.stpl"); %>
     </td>
@@ -61,7 +82,43 @@ document.getElementById("navigation-logic").classList.add("active");
     <% } %>
     </tbody>
     </table>
-
 </div>
+<% include!("../common/save_settings.stpl"); %>
+<script>
+function presetChanged() {
+    updateSelect();
+    saveForm(document.getElementById("filterForm"));
+}
+function getDifficultyFilter() {
+    var elems = document.getElementsByClassName("difficulty-filter");
+    for (var i = 0; i < elems.length; i++) {
+        console.log(elems[i].value);
+        if (elems[i].checked) {
+            return elems[i].value;
+        }
+    }
+    return -1;
+}
+function updateSelect() {
+    var rows = document.getElementsByClassName("strat-row");
+    var difficultyFilter = getDifficultyFilter();
+
+    // Show/hide the matching set of Strats:
+    var cnt = 0;
+    for (var i = 0; i < rows.length; i++) {
+        var row = rows.item(i);
+        var validDifficulty = (row.getAttribute("data-difficulty") <= difficultyFilter);
+        if (validDifficulty) {
+            row.classList.remove("d-none");
+            cnt += 1;
+        } else {
+            row.classList.add("d-none");
+        }
+    }
+    document.getElementById("stratCount").innerHTML = cnt;
+}
+loadForm(document.getElementById("filterForm"));
+updateSelect();
+</script>
 </body>
 </html>

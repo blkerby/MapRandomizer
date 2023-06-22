@@ -47,6 +47,7 @@ struct RoomTemplate {
 #[template(path = "logic/tech.stpl")]
 struct TechTemplate {
     version: usize,
+    difficulty_names: Vec<String>,
     tech_name: String,
     tech_note: String,
     tech_dependencies: String,
@@ -137,6 +138,7 @@ fn make_tech_templates<'a>(
     game_data: &GameData,
     room_templates: &[RoomTemplate],
     tech_gif_listing: &'a HashSet<String>,
+    presets: &[PresetData],
 ) -> Vec<TechTemplate> {
     let mut tech_strat_ids: Vec<HashSet<(RoomId, NodeId, NodeId, String)>> =
         vec![HashSet::new(); game_data.tech_isv.keys.len()];
@@ -190,6 +192,7 @@ fn make_tech_templates<'a>(
         }
         let template = TechTemplate {
             version: VERSION,
+            difficulty_names: presets.iter().map(|x| x.preset.name.clone()).collect(),
             tech_name: tech_name.clone(),
             tech_note,
             tech_dependencies,
@@ -263,19 +266,25 @@ fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
     }
 }
 
-fn strip_cross_room_reqs(req: Requirement) -> Requirement {
+fn strip_cross_room_reqs(req: Requirement, game_data: &GameData) -> Requirement {
     match req {
         Requirement::And(subreqs) => {
-            Requirement::And(subreqs.into_iter().map(strip_cross_room_reqs).collect())
+            Requirement::And(subreqs.into_iter().map(|x| strip_cross_room_reqs(x, game_data)).collect())
         },
         Requirement::Or(subreqs) => {
-            Requirement::Or(subreqs.into_iter().map(strip_cross_room_reqs).collect())
+            Requirement::Or(subreqs.into_iter().map(|x| strip_cross_room_reqs(x, game_data)).collect())
         },
         Requirement::AdjacentJumpway { .. } => Requirement::Free,
         Requirement::AdjacentRunway { .. } => Requirement::Free,
-        Requirement::CanComeInCharged { .. } => Requirement::Free,
-        Requirement::ComeInWithRMode { .. } => Requirement::Free,
-        Requirement::ComeInWithGMode { .. } => Requirement::Free,
+        Requirement::CanComeInCharged { .. } => {
+            Requirement::Tech(game_data.tech_isv.index_by_key["canShinespark"])
+        }
+        Requirement::ComeInWithRMode { .. } => {
+            Requirement::Tech(game_data.tech_isv.index_by_key["canEnterRMode"])
+        }
+        Requirement::ComeInWithGMode { .. } => {
+            Requirement::Tech(game_data.tech_isv.index_by_key["canEnterGMode"])
+        }
         _ => req,
     }
 }
@@ -302,7 +311,7 @@ fn get_strat_difficulty(
         };
 
         for link in &links_by_ids[&(room_id, from_node_id, to_node_id, strat_name.clone())] {
-            let req = strip_cross_room_reqs(link.requirement.clone());
+            let req = strip_cross_room_reqs(link.requirement.clone(), game_data);
             let new_local = apply_requirement(&req, &global, local, false, difficulty);
             if new_local.is_some() {
                 return i;
@@ -459,7 +468,7 @@ impl LogicData {
         }
         room_templates.sort_by_key(|x| (x.area.clone(), x.sub_area.clone(), x.room_name.clone()));
 
-        let tech_templates = make_tech_templates(game_data, &room_templates, tech_gif_listing);
+        let tech_templates = make_tech_templates(game_data, &room_templates, tech_gif_listing, presets);
         for template in &tech_templates {
             let html = template.clone().render_once().unwrap();
             out.tech_strat_counts
