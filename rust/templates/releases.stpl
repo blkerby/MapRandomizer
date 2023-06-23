@@ -17,22 +17,21 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-68---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 68 (???)</a>:
+<p><a href="https://version-68---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 68 (2023-06-22)</a>:
 <ul>
-<li>(TODO: validate) New objective "Pirates" is added.
+<li>New objective "Pirates" is added.
 <li>Changes to quality-of-life options:
     <ul>
     <li>With the "Short" Mother Brain quality-of-life option, the Mother Brain phase 2 fight is restored to behave like the vanilla game:
         <ul>
         <li>Mother Brain will continue attacking Samus (e.g. with multiple rainbow beams) until the vanilla conditions are met to end the phase.
         <li>Time can be saved by damaging Samus down before the rainbow beam.
-        <li>With careful energy management and by disabling suits, Samus can end the fight with more energy (up to 340).
         </ul>
     <li>New quality-of-life option "Refill energy for escape" is added (enabled by default).
     <li>New quality-of-life preset "Low" is added, and the preset "No" is renamed to "Off".
     <li>Quality-of-life "Item markers" option "Basic" is renamed to "Simple".
     </ul>
-<li>New behavior when "Save the animals" option is enabled:
+<li>New behaviors when "Save the animals" option is enabled:
     <ul>
     <li>It now enforces that the player save the animals in order to beat the game.
     <li>It causes Bomb Torizo Room to be marked with an "X" on the map like an objective (only revealed by visiting
@@ -41,10 +40,7 @@ about 15 seconds to load.
 <li>Some small improvements are made to "Forced" item progression (e.g. on "Standard" or "Challenge" presets), 
 to better select hard locations for key items.
 <li>Website update: A "Logic" section is added, allowing users to browse the game logic.
-<li>Logic updates:
-    <ul>
-    <li>Botwoon, Ridley, and Phantoon assumptions are adjusted to be more lenient on lower difficulty settings.
-    </ul>
+<li>Logic update: Botwoon, Ridley, and Phantoon assumptions are adjusted to be more lenient on lower difficulty settings.
 </ul>
 
 <p><a href="https://version-67---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 67 (2023-06-15)</a>:

@@ -223,11 +223,10 @@
     <h5>Endgame</h5>
     <ul>
     <li>Supers do double damage to Mother Brain (optional).
-    <li>The Mother Brain fight ends after the first Rainbow Beam attack (optional). 
+    <li>The Mother Brain fight ends after phase two (optional). 
         <ul>
-        <li>With this option, there is no reason to damage Samus down before the Rainbow Beam attack, there is no MB3 
-        fight, and the player does <i>not</i> get an energy refill from the Baby.
-        <li>In every case, the player does get Hyper Beam.
+        <li>Samus still gets Hyper Beam.
+        <li>Samus gets an energy refill at the start of the escape sequence (optional).
         </ul>
     <li>When acquiring Hyper Beam, Samus collects and equips the following items (optional):
         <ul>

@@ -14,6 +14,7 @@ use super::PresetData;
 struct RoomStrat {
     room_name: String,
     room_name_stripped: String,
+    area: String,
     strat_name: String,
     notable: bool,
     from_node_id: usize,
@@ -54,6 +55,7 @@ struct TechTemplate {
     tech_difficulty_name: String,
     strats: Vec<RoomStrat>,
     tech_gif_listing: HashSet<String>,
+    area_order: Vec<String>,
 }
 
 #[derive(TemplateOnce)]
@@ -62,7 +64,7 @@ struct LogicIndexTemplate<'a> {
     version: usize,
     rooms: &'a [RoomTemplate],
     tech: &'a [TechTemplate],
-    area_order: Vec<String>,
+    area_order: &'a [String],
     tech_difficulties: Vec<String>,
 }
 
@@ -143,6 +145,7 @@ fn make_tech_templates<'a>(
     tech_gif_listing: &'a HashSet<String>,
     presets: &[PresetData],
     global_states: &[GlobalState],
+    area_order: &[String],
 ) -> Vec<TechTemplate> {
     let mut tech_strat_ids: Vec<HashSet<(RoomId, NodeId, NodeId, String)>> =
         vec![HashSet::new(); game_data.tech_isv.keys.len()];
@@ -218,6 +221,7 @@ fn make_tech_templates<'a>(
             tech_difficulty_name: difficulty_name,
             strats,
             tech_gif_listing: tech_gif_listing.clone(),
+            area_order: area_order.to_vec(),
         };
         tech_templates.push(template);
     }
@@ -362,6 +366,17 @@ fn make_room_template(
         node_name_map.insert(node_id, node_name.to_string());
         nodes.push((node_id, node_name.to_string()));
     }
+    let area = room_json["area"].as_str().unwrap().to_string();
+    let sub_area = room_json["subarea"].as_str().unwrap_or("").to_string();
+    let sub_sub_area = room_json["subsubarea"].as_str().unwrap_or("").to_string();
+    let full_area = if sub_sub_area != "" {
+        format!("{} {} {}", sub_sub_area, sub_area, area)
+    } else if sub_area != "" && sub_area != "Main" {
+        format!("{} {}", sub_area, area)
+    } else {
+        area
+    };
+
     for link_json in room_json["links"].members() {
         for link_to_json in link_json["to"].members() {
             for strat_json in link_to_json["strats"].members() {
@@ -396,6 +411,7 @@ fn make_room_template(
                 let strat = RoomStrat {
                     room_name: room_name.clone(),
                     room_name_stripped: room_name_stripped.clone(),
+                    area: full_area.clone(),
                     strat_name: strat_json["name"].as_str().unwrap().to_string(),
                     notable: strat_json["notable"].as_bool().unwrap_or(false),
                     from_node_id,
@@ -413,17 +429,6 @@ fn make_room_template(
         }
     }
     // let shape = *game_data.room_shape.get(&room_id).unwrap_or(&(1, 1));
-
-    let area = room_json["area"].as_str().unwrap().to_string();
-    let sub_area = room_json["subarea"].as_str().unwrap_or("").to_string();
-    let sub_sub_area = room_json["subsubarea"].as_str().unwrap_or("").to_string();
-    let full_area = if sub_sub_area != "" {
-        format!("{} {} {}", sub_sub_area, sub_area, area)
-    } else if sub_area != "" && sub_area != "Main" {
-        format!("{} {}", sub_area, area)
-    } else {
-        area
-    };
 
     RoomTemplate {
         version: VERSION,
@@ -449,6 +454,28 @@ impl LogicData {
         let room_diagram_listing = list_room_diagram_files();
         let mut room_templates: Vec<RoomTemplate> = vec![];
         let difficulty_configs: Vec<DifficultyConfig> = presets.iter().map(get_difficulty_config).collect();
+
+        let area_order: Vec<String> = vec![
+            "Central Crateria",
+            "West Crateria",
+            "East Crateria",
+            "Blue Brinstar",
+            "Green Brinstar",
+            "Pink Brinstar",
+            "Red Brinstar",
+            "Kraid Brinstar",
+            "East Upper Norfair",
+            "West Upper Norfair",
+            "Crocomire Upper Norfair",
+            "West Lower Norfair",
+            "East Lower Norfair",
+            "Outer Maridia",
+            "Pink Inner Maridia",
+            "Yellow Inner Maridia",
+            "Green Inner Maridia",
+            "Wrecked Ship",
+            "Tourian",
+        ].into_iter().map(|x| x.to_string()).collect();
 
         let mut global_states: Vec<GlobalState> = vec![];
         for difficulty in &difficulty_configs {
@@ -499,7 +526,7 @@ impl LogicData {
         }
         room_templates.sort_by_key(|x| (x.area.clone(), x.room_name.clone()));
 
-        let tech_templates = make_tech_templates(game_data, &room_templates, tech_gif_listing, presets, &global_states);
+        let tech_templates = make_tech_templates(game_data, &room_templates, tech_gif_listing, presets, &global_states, &area_order);
         for template in &tech_templates {
             let html = template.clone().render_once().unwrap();
             let strat_count = template.strats.iter().filter(|x| x.difficulty_idx <= template.tech_difficulty_idx).count();
@@ -512,27 +539,7 @@ impl LogicData {
             version: VERSION,
             rooms: &room_templates,
             tech: &tech_templates,
-            area_order: vec![
-                "Central Crateria",
-                "West Crateria",
-                "East Crateria",
-                "Blue Brinstar",
-                "Green Brinstar",
-                "Pink Brinstar",
-                "Red Brinstar",
-                "Kraid Brinstar",
-                "East Upper Norfair",
-                "West Upper Norfair",
-                "Crocomire Upper Norfair",
-                "West Lower Norfair",
-                "East Lower Norfair",
-                "Outer Maridia",
-                "Pink Inner Maridia",
-                "Yellow Inner Maridia",
-                "Green Inner Maridia",
-                "Wrecked Ship",
-                "Tourian",
-            ].into_iter().map(|x| x.to_string()).collect(),
+            area_order: &area_order,
             tech_difficulties: presets.iter().map(|x| x.preset.name.clone()).collect(),
         };
         out.index_html = index_template.render_once().unwrap();

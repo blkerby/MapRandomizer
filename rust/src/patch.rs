@@ -1200,6 +1200,11 @@ impl<'a> Patcher<'a> {
             self.rom.write_u16(snes2pc(0xA1F000), 0xFFFF)?;
         }
 
+        if self.randomization.difficulty.escape_enemies_cleared {
+            // Change escape behavior to clear enemies. Address here must match escape.asm:
+            self.rom.write_u16(snes2pc(0xA1f004), 0xFFFF)?;
+        }
+
         if !self.randomization.difficulty.escape_refill {
             // Disable the energy refill at the start of the escape. Address here must match escape.asm:
             self.rom.write_u16(snes2pc(0xA1F002), 0x0001)?;
@@ -1255,12 +1260,6 @@ impl<'a> Patcher<'a> {
             .write_u8(snes2pc(0x809E21), (seconds % 10) + 16 * (seconds / 10))?;
         self.rom
             .write_u8(snes2pc(0x809E22), (minutes % 10) + 16 * (minutes / 10))?;
-        Ok(())
-    }
-
-    fn undo_escape_enemy_clear(&mut self) -> Result<()> {
-        // Skip the patch that clears enemies during escape
-        self.rom.write_u8(snes2pc(0xA1f004), 0x6B)?; // RTL
         Ok(())
     }
 
@@ -1348,8 +1347,5 @@ pub fn make_rom(
     patcher.apply_miscellaneous_patches()?;
     patcher.apply_mother_brain_fight_patches()?;
     patcher.apply_seed_hash()?;
-    if !randomization.difficulty.escape_enemies_cleared {
-        patcher.undo_escape_enemy_clear()?;
-    }
     Ok(rom)
 }

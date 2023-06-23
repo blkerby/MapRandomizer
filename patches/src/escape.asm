@@ -131,7 +131,7 @@ escape_setup:
     lda #$000d    ; Shaktool done digging
     jsl $8081FA
 
-    lda no_refill_before_escape
+    lda no_refill_before_escape_opt
     sta $1f64     ; mark refill as not yet complete (if enabled)
 
     lda $7ED8BC   ; unlock metal pirates gray doors
@@ -155,7 +155,7 @@ room_setup:
     lda $079B  ; room pointer    
     cmp #$91F8 ; landing site?
     bne .end
-    lda save_animals_required
+    lda save_animals_required_opt
     beq .end
     lda $7ED821 
     and $0080  ; check animals saved event
@@ -273,14 +273,17 @@ org $A7C81E
 
 ;;; Bank A1 free space:
 org $a1f000  ; address must match value in patch.rs (for "Save the animals" option)
-save_animals_required:
+save_animals_required_opt:
     dw $0000
 
 org $a1f002  ; address must match value in patch.rs (for "Refill energy for escape" option)
-no_refill_before_escape:
+no_refill_before_escape_opt:
     dw $0000
 
 org $a1f004  ; address must match value in patch.rs (for "Enemies cleared during escape" option)
+remove_enemies_opt:
+    dw $0000
+
 remove_enemies:
     ; Remove enemies (except special cases where they are needed such as elevators, dead bosses)
     phb : phk : plb             ; data bank=program bank ($8F)
@@ -288,7 +291,7 @@ remove_enemies:
     lda $079B  ; room pointer    
     cmp #$91F8 ; landing site?
     bne .not_landing_site
-    lda save_animals_required
+    lda save_animals_required_opt
     beq .vanilla_landing_site
     lda $7ED821
     and $0080
@@ -307,7 +310,10 @@ remove_enemies:
     sta $07D1   ;} Enemy set pointer = vanilla list (for Ship)
     bra .end
 
-.not_landing_site
+.not_landing_site:
+    lda remove_enemies_opt
+    beq .end
+
     ldy #$0000
 .loop:
     lda enemy_table,y
