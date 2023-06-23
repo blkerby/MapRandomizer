@@ -3,8 +3,8 @@ use hashbrown::{HashMap, HashSet};
 use json::JsonValue;
 use sailfish::TemplateOnce;
 
-use crate::game_data::{GameData, NodeId, Requirement, RoomId, Link};
-use crate::randomize::{DifficultyConfig, DebugOptions};
+use crate::game_data::{GameData, Link, NodeId, Requirement, RoomId};
+use crate::randomize::{DebugOptions, DifficultyConfig};
 use crate::traverse::{apply_requirement, GlobalState, LocalState};
 use crate::web::VERSION;
 
@@ -33,7 +33,7 @@ struct RoomStrat {
 struct RoomTemplate {
     version: usize,
     difficulty_names: Vec<String>,
-    room_id: usize,
+    room_id_: usize,
     room_name: String,
     room_name_stripped: String,
     area: String,
@@ -175,7 +175,7 @@ fn make_tech_templates<'a>(
         for strat in &template.strats {
             room_strat_map.insert(
                 (
-                    template.room_id,
+                    template.room_id_,
                     strat.from_node_id,
                     strat.to_node_id,
                     strat.strat_name.to_string(),
@@ -211,6 +211,15 @@ fn make_tech_templates<'a>(
                 strats.push(room_strat_map[strat_ids].clone());
             }
         }
+        strats.sort_by_key(|s| {
+            (
+                area_order.iter().position(|a| a == &s.area).unwrap(),
+                s.room_name.clone(),
+                s.from_node_id,
+                s.to_node_id,
+                s.strat_name.clone(),
+            )
+        });
         let template = TechTemplate {
             version: VERSION,
             difficulty_names: presets.iter().map(|x| x.preset.name.clone()).collect(),
@@ -283,21 +292,27 @@ fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
         maps_revealed: false,
         vanilla_map: false,
         ultra_low_qol: false,
-        debug_options: Some(DebugOptions{
+        debug_options: Some(DebugOptions {
             new_game_extra: false,
-            extended_spoiler: false
+            extended_spoiler: false,
         }),
     }
 }
 
 fn strip_cross_room_reqs(req: Requirement, game_data: &GameData) -> Requirement {
     match req {
-        Requirement::And(subreqs) => {
-            Requirement::And(subreqs.into_iter().map(|x| strip_cross_room_reqs(x, game_data)).collect())
-        },
-        Requirement::Or(subreqs) => {
-            Requirement::Or(subreqs.into_iter().map(|x| strip_cross_room_reqs(x, game_data)).collect())
-        },
+        Requirement::And(subreqs) => Requirement::And(
+            subreqs
+                .into_iter()
+                .map(|x| strip_cross_room_reqs(x, game_data))
+                .collect(),
+        ),
+        Requirement::Or(subreqs) => Requirement::Or(
+            subreqs
+                .into_iter()
+                .map(|x| strip_cross_room_reqs(x, game_data))
+                .collect(),
+        ),
         Requirement::AdjacentJumpway { .. } => Requirement::Free,
         Requirement::AdjacentRunway { .. } => Requirement::Free,
         Requirement::CanComeInCharged { .. } => {
@@ -352,7 +367,7 @@ fn make_room_template(
     presets: &[PresetData],
     difficulty_configs: &[DifficultyConfig],
     global_states: &[GlobalState],
-    links_by_ids: &HashMap<(RoomId, NodeId, NodeId, String), Vec<Link>>,    
+    links_by_ids: &HashMap<(RoomId, NodeId, NodeId, String), Vec<Link>>,
 ) -> RoomTemplate {
     let mut room_strats: Vec<RoomStrat> = vec![];
     let room_id = room_json["id"].as_usize().unwrap();
@@ -433,7 +448,7 @@ fn make_room_template(
     RoomTemplate {
         version: VERSION,
         difficulty_names: presets.iter().map(|x| x.preset.name.clone()).collect(),
-        room_id,
+        room_id_: room_id,
         room_name,
         room_name_stripped,
         area: full_area,
@@ -453,7 +468,8 @@ impl LogicData {
         let mut out = LogicData::default();
         let room_diagram_listing = list_room_diagram_files();
         let mut room_templates: Vec<RoomTemplate> = vec![];
-        let difficulty_configs: Vec<DifficultyConfig> = presets.iter().map(get_difficulty_config).collect();
+        let difficulty_configs: Vec<DifficultyConfig> =
+            presets.iter().map(get_difficulty_config).collect();
 
         let area_order: Vec<String> = vec![
             "Central Crateria",
@@ -475,23 +491,26 @@ impl LogicData {
             "Green Inner Maridia",
             "Wrecked Ship",
             "Tourian",
-        ].into_iter().map(|x| x.to_string()).collect();
+        ]
+        .into_iter()
+        .map(|x| x.to_string())
+        .collect();
 
         let mut global_states: Vec<GlobalState> = vec![];
         for difficulty in &difficulty_configs {
             let items = vec![true; game_data.item_isv.keys.len()];
             let weapon_mask = game_data.get_weapon_mask(&items);
-            
+
             let mut tech = vec![false; game_data.tech_isv.keys.len()];
             for tech_name in &difficulty.tech {
                 tech[game_data.tech_isv.index_by_key[tech_name]] = true;
             }
-    
+
             let mut notable_strats = vec![false; game_data.notable_strat_isv.keys.len()];
             for strat_name in &difficulty.notable_strats {
                 notable_strats[game_data.notable_strat_isv.index_by_key[strat_name]] = true;
             }
-    
+
             let global = GlobalState {
                 tech,
                 notable_strats,
@@ -505,31 +524,58 @@ impl LogicData {
                 weapon_mask: weapon_mask,
                 shine_charge_tiles: difficulty.shine_charge_tiles,
             };
-    
+
             global_states.push(global);
-        }        
+        }
 
         let mut links_by_ids: HashMap<(RoomId, NodeId, NodeId, String), Vec<Link>> = HashMap::new();
         for link in &game_data.links {
-            let (link_room_id, link_from_node_id, _) = game_data.vertex_isv.keys[link.from_vertex_id];
+            let (link_room_id, link_from_node_id, _) =
+                game_data.vertex_isv.keys[link.from_vertex_id];
             let (_, link_to_node_id, _) = game_data.vertex_isv.keys[link.to_vertex_id];
-            let link_ids = (link_room_id, link_from_node_id, link_to_node_id, link.strat_name.clone());
-            links_by_ids.entry(link_ids).or_insert(vec![]).push(link.clone());
+            let link_ids = (
+                link_room_id,
+                link_from_node_id,
+                link_to_node_id,
+                link.strat_name.clone(),
+            );
+            links_by_ids
+                .entry(link_ids)
+                .or_insert(vec![])
+                .push(link.clone());
         }
 
         for (_, room_json) in game_data.room_json_map.iter() {
-            let template =
-                make_room_template(room_json, &room_diagram_listing, &game_data, presets, &difficulty_configs, &global_states, &links_by_ids);
+            let template = make_room_template(
+                room_json,
+                &room_diagram_listing,
+                &game_data,
+                presets,
+                &difficulty_configs,
+                &global_states,
+                &links_by_ids,
+            );
             let html = template.clone().render_once().unwrap();
             out.room_html.insert(strip_name(&template.room_name), html);
             room_templates.push(template);
         }
         room_templates.sort_by_key(|x| (x.area.clone(), x.room_name.clone()));
 
-        let tech_templates = make_tech_templates(game_data, &room_templates, tech_gif_listing, presets, &global_states, &area_order);
+        let tech_templates = make_tech_templates(
+            game_data,
+            &room_templates,
+            tech_gif_listing,
+            presets,
+            &global_states,
+            &area_order,
+        );
         for template in &tech_templates {
             let html = template.clone().render_once().unwrap();
-            let strat_count = template.strats.iter().filter(|x| x.difficulty_idx <= template.tech_difficulty_idx).count();
+            let strat_count = template
+                .strats
+                .iter()
+                .filter(|x| x.difficulty_idx <= template.tech_difficulty_idx)
+                .count();
             out.tech_strat_counts
                 .insert(template.tech_name.clone(), strat_count);
             out.tech_html.insert(template.tech_name.clone(), html);

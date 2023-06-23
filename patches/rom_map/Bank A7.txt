@@ -1,0 +1,2 @@
+0000 - FF82: used by vanilla game
+FF82 - FFC0: escape.asm (for dachora)

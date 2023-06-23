@@ -69,32 +69,20 @@ document.getElementById("navigation-logic").classList.add("active");
         --bs-table-hover-bg: #f4f5f6;
     }
     </style>
-
-    <% for area in &area_order { %>
-        <div class="card my-2">
-            <div class="card-header">
-            <%= area %>
-            </div>
-            <div class="card-body px-2 py-1">
-                <table class="table table-hover mb-0">
-                <tbody>
-                <% for strat in &strats { %>
-                    <% if &strat.area == area { %>
-                        <tr class="strat-row" 
-                            data-from-node="<%= strat.from_node_id %>" 
-                            data-to-node="<%= strat.to_node_id %>"
-                            data-difficulty="<%= strat.difficulty_idx %>">
-                        <td class="p-2">
-                            <% include!("strat.stpl"); %>
-                        </td>
-                        </tr>
-                    <% } %>
-                <% } %>
-                </tbody>
-                </table>
-            </div>
-        </div>
+    <table class="table table-hover mb-0">
+    <tbody>
+    <% for strat in strats { %>
+    <tr class="strat-row" 
+        data-from-node="<%= strat.from_node_id %>" 
+        data-to-node="<%= strat.to_node_id %>"
+        data-difficulty="<%= strat.difficulty_idx %>">
+    <td class="p-2">
+        <% include!("strat.stpl"); %>
+    </td>
+    </tr>
     <% } %>
+    </tbody>
+    </table>
 </div>
 <% include!("../common/save_settings.stpl"); %>
 <script>
