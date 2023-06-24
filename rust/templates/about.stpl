@@ -516,6 +516,8 @@
     <li>Remove fake gray door that would be drawn during the Phantoon fight.
     <li>Fix to Bomb Torizo statue crumble animation (which otherwise could appear messed up, e.g. when encountering
     Bomb Torizo after Botwoon).
+    <li>Fix to camera alignment in door transitions, so graphics don't get permanently messed up after doing certain
+    strats.
     </ul>
     </small></p>
 

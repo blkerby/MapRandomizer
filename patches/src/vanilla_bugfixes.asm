@@ -2,11 +2,14 @@
 ;
 ; Authors: total, PJBoy, strotlog, ouiche, Maddo, NobodyNada
 
-;;; Some vanilla bugfixes included in all VARIA seeds
+;;; Some vanilla bugfixes
 ;;; compile with asar
 
 arch snes.cpu
 lorom
+
+!bank_80_free_space_start = $80D200
+!bank_80_free_space_end = $80D240
 
 ; Fix the crash that occurs when you kill an eye door whilst a eye door projectile is alive
 ; See the comments in the bank logs for $86:B6B9 for details on the bug
@@ -143,3 +146,15 @@ org $A9EF80
 ; that maxed out enemy projectiles)
 org $86A8FD
 	ADC $1B23, x   ; was: ADC $1B23
+
+
+;org $80AE29
+;	jsr fix_camera_alignment
+;
+;org !bank_80_free_space_start
+;fix_camera_alignment:
+;	LDA $B3 : AND #$FF00 : STA $B3
+;    LDA $B1 : AND #$FF00
+;    SEC
+;    RTS
+;warnpc !bank_80_free_space_end

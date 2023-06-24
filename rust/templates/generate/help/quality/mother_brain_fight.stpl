@@ -17,8 +17,8 @@
         <p><ul>
         <li><strong>Vanilla</strong>: The fight behaves as in the vanilla game. Some cutscenes are accelerated, but only in ways that
         should not interfere with how the player executes the fight (including the stand-up glitch).
-        <li><strong>Short</strong>: The fight ends immediately after Mother Brain finishes the first Rainbow Beam attack.
-        <li><strong>Skip</strong>: The fight is skipped entirely.
+        <li><strong>Short</strong>: The third phase of the fight is skipped.
+        <li><strong>Skip</strong>: The second and third phases of the fight are skipped.
         </ul></p>
 
         <p>With the "Short" and "Skip" options, Samus will not get an energy refill before the escape, as the cutscene is

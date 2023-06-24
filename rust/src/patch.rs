@@ -8,12 +8,13 @@ use std::path::Path;
 
 use crate::{
     game_data::{DoorPtr, DoorPtrPair, GameData, Item, Map, NodePtr, RoomGeometryDoor},
-    randomize::{Randomization, Objectives, MotherBrainFight},
+    randomize::{Randomization, Objectives, MotherBrainFight, StartLocation},
 };
 use anyhow::{ensure, Context, Result};
 use hashbrown::{HashMap, HashSet};
 use ips;
 use std::iter;
+use std::cmp::{min, max};
 
 const NUM_AREAS: usize = 6;
 
@@ -656,7 +657,7 @@ impl<'a> Patcher<'a> {
 
     fn fix_save_stations(&mut self) -> Result<()> {
         let save_station_ptrs = vec![
-            0x44C5, 0x44D3, 0x45CF, 0x45DD, 0x45EB, 0x45F9, 0x4607, 0x46D9, 0x46E7, 0x46F5, 0x4703,
+            0x44C5, 0x44D3, 0x44E1, 0x45CF, 0x45DD, 0x45EB, 0x45F9, 0x4607, 0x46D9, 0x46E7, 0x46F5, 0x4703,
             0x4711, 0x471F, 0x481B, 0x4917, 0x4925, 0x4933, 0x4941, 0x4A2F, 0x4A3D
         ];
 
@@ -1295,6 +1296,41 @@ impl<'a> Patcher<'a> {
         self.rom.write_n(snes2pc(0xdfff00), &seed_bytes)?;
         Ok(())
     }
+
+    fn set_start_location(&mut self) -> Result<()> {
+        // let start_locations: Vec<StartLocation> =
+        //     serde_json::from_str(&std::fs::read_to_string(&"data/start_locations.json").unwrap()).unwrap();
+        // let loc = start_locations.last().unwrap();
+        let loc = self.randomization.start_location.clone();
+        let room_addr = self.game_data.room_ptr_by_id[&loc.room_id];
+        let door_node_id = loc.door_load_node_id.unwrap_or(loc.node_id);
+        let (_, entrance_ptr) = self.game_data.reverse_door_ptr_pair_map[&(loc.room_id, door_node_id)];
+        // let room_width_screens = self.rom.read_u8(room_addr + 4)?;
+        // let room_height_screens = self.rom.read_u8(room_addr + 5)?;
+        // let room_width_pixels = room_width_screens * 256;
+        // let room_height_pixels = room_height_screens * 256;
+        let x_pixels = (loc.x * 16.0) as isize;
+        let y_pixels = (loc.y * 16.0) as isize - 24;
+        let mut screen_x = x_pixels & 0xFF00;
+        let mut screen_y = y_pixels & 0xFF00;
+        screen_x += (loc.camera_offset_x.unwrap_or(0.0) * 16.0) as isize;
+        screen_y += (loc.camera_offset_y.unwrap_or(0.0) * 16.0) as isize;
+        // screen_x = max(screen_x, 0);
+        // screen_x = min(screen_x, room_width_pixels - 0x100);
+        // screen_y = max(screen_y, 0);
+        // screen_y = min(screen_y, room_height_pixels - 0x100);
+        let samus_x = x_pixels - (screen_x + 0x80);
+        let samus_y = y_pixels - screen_y;
+        println!("screen: {:x} {:x}, samus: {:x} {:x}", screen_x, screen_y, samus_x, samus_y);
+        let station_addr = snes2pc(0x80C4E1);
+        self.rom.write_u16(station_addr, (room_addr & 0xFFFF) as isize)?;
+        self.rom.write_u16(station_addr + 2, (entrance_ptr.unwrap() & 0xFFFF) as isize)?;
+        self.rom.write_u16(station_addr + 6, screen_x)?;
+        self.rom.write_u16(station_addr + 8, screen_y)?;
+        self.rom.write_u16(station_addr + 10, ((samus_y as i16) as u16) as isize)?;
+        self.rom.write_u16(station_addr + 12, ((samus_x as i16) as u16) as isize)?;
+        Ok(())
+    }    
 }
 
 fn get_other_door_ptr_pair_map(map: &Map) -> HashMap<DoorPtrPair, DoorPtrPair> {
@@ -1326,6 +1362,7 @@ pub fn make_rom(
     };
     patcher.apply_ips_patches()?;
     patcher.place_items()?;
+    patcher.set_start_location()?;
     patcher.fix_save_stations()?;
     patcher.write_map_tilemaps()?;
     patcher.write_map_areas()?;

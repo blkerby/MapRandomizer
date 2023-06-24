@@ -58,7 +58,7 @@ document.getElementById("navigation-logic").classList.add("active");
     <h5>Additional information</h5>
     <p>Work is still on-going on the logic. Some things to be aware of:</p>
     <ul>
-    <li><p>More strats and tech will be added over time. The goal is that any strats that are humanly viable 
+    <li><p>More strats and tech will be added over time. The goal is that any useful strats that are humanly viable 
     should eventually be put into the logic.</p>
     <li><p>A few of the tech, the ones not listed on the Generate page (e.g. canDisableEquipment), are currently 
     ignored by the randomizer as they are implicitly assumed to be in logic on all settings.
@@ -66,6 +66,9 @@ document.getElementById("navigation-logic").classList.add("active");
     e.g. assuming unlimited resources, items, cross-room runway length, and obstacles being already cleared.
     The randomizer logic takes into account such situational details; just because a strat is listed as "Basic"
     in these pages does not mean it will necessarily be in logic on "Basic" settings in every situation.</p>
+    <li><p>The tech pages only list strats that reference the tech directly or by a helper, but not by a dependency.
+    For example, "canWalljump" does not list strats that require "canPreciseWalljump".
+    </p>
     </ul>
 
 

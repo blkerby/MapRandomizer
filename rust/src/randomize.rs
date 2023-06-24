@@ -77,6 +77,20 @@ pub struct ItemPriorityGroup {
     pub items: Vec<String>,
 }
 
+#[derive(Deserialize, Debug, Clone)]
+pub struct StartLocation {
+    pub name: String,
+    pub room_id: usize,
+    pub node_id: usize,
+    pub door_load_node_id: Option<usize>,
+    pub x: f32,
+    pub y: f32,
+    pub requires: Option<Vec<String>>,
+    // Don't use these, because they will mess up the door cap animations. Maybe we can find a fix for that someday.
+    pub camera_offset_x: Option<f32>,
+    pub camera_offset_y: Option<f32>,
+}
+
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
 pub struct DifficultyConfig {
     pub tech: Vec<String>,
@@ -172,6 +186,7 @@ pub struct Randomization {
     pub difficulty: DifficultyConfig,
     pub map: Map,
     pub item_placement: Vec<Item>,
+    pub start_location: StartLocation,
     pub spoiler_log: SpoilerLog,
     pub seed: usize,
     pub display_seed: usize,
@@ -1638,6 +1653,12 @@ impl<'r> Randomizer<'r> {
             all_items: spoiler_all_items,
             all_rooms: spoiler_all_rooms,
         };
+
+        // Messing around with starting location. TODO: fit this in properly
+        let start_locations: Vec<StartLocation> =
+            serde_json::from_str(&std::fs::read_to_string(&"data/start_locations.json").unwrap()).unwrap();
+        let loc = start_locations.last().unwrap();
+
         Ok(Randomization {
             difficulty: self.difficulty_tiers[0].clone(),
             map: self.map.clone(),
@@ -1645,6 +1666,7 @@ impl<'r> Randomizer<'r> {
             spoiler_log,
             seed,
             display_seed,
+            start_location: loc.clone(),
         })
     }
 

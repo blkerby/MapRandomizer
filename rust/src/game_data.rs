@@ -431,6 +431,7 @@ pub struct GameData {
     pub room_num_obstacles: HashMap<RoomId, usize>,
     pub door_ptr_pair_map: HashMap<DoorPtrPair, (RoomId, NodeId)>,
     pub unlocked_door_ptr_pair_map: HashMap<DoorPtrPair, (RoomId, NodeId)>,
+    pub reverse_door_ptr_pair_map: HashMap<(RoomId, NodeId), DoorPtrPair>,
     pub vertex_isv: IndexedVec<(RoomId, NodeId, ObstacleMask)>,
     pub item_locations: Vec<(RoomId, NodeId)>,
     pub item_vertex_ids: Vec<Vec<VertexId>>,
@@ -2253,6 +2254,7 @@ impl GameData {
         let dst_ptr = self.node_ptr_map.get(&dst).map(|x| *x);
         if src_ptr.is_some() || dst_ptr.is_some() {
             self.door_ptr_pair_map.insert((src_ptr, dst_ptr), src);
+            self.reverse_door_ptr_pair_map.insert(src, (src_ptr, dst_ptr));
             if self.unlocked_node_map.contains_key(&src) {
                 let src_room_id = src.0;
                 src = (src_room_id, self.unlocked_node_map[&src])

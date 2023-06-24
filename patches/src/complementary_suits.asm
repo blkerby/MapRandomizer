@@ -14,20 +14,28 @@
 lorom
 arch snes.cpu
 
-
 ; heat check: $8DE379
 ; periodic damage: $90E9CE
 ; lava animation: $9081C0
 
 
-;;; full heat protection with varia instead of varia or gravity
-org $8de37d
-	db $01
+;; full heat protection with varia instead of varia or gravity
+;org $8de37d
+;	db $01
+
+
+; hook heat protection check
+org $8DE379
+	jsl check_heat_protection
+	nop : nop
+	bcs $2A
+
+
 
 
 ;;; periodic damage modification (environmental damage)
-env_damage:
 org $90E9CE
+env_damage:
 	PHP
 	REP #$30
 	LDA $0A78        ;\
@@ -82,6 +90,20 @@ check_gravity_and_varia:
 	and #$0021
 	cmp #$0021
 	rts
+
+check_heat_protection:
+	lda $09A2
+	and #$0001       ; check if varia suit equipped
+	bne .protected
+	lda $0A44
+	cmp #$E86A    	 ; check if samus is appearing (initial fanfare during new/loading game)
+	beq .protected   
+	clc
+	rtl
+.protected:
+	sec
+	rtl
+
 warnpc $90F700
 
 
@@ -115,3 +137,5 @@ metroid_dmg:
 	lsr $12
 .novaria:
 	jmp $EEF2 		; continue routine
+
+	

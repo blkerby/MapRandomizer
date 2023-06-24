@@ -22,3 +22,11 @@
         <%= filler_items.join(", ") %>
     </div>
 </div>
+<% if early_filler_items.len() > 0 { %>
+<div class="row">
+    <div class="col-3">Early filler items:</div>
+    <div class="col-9">
+        <%= early_filler_items.join(", ") %>
+    </div>
+</div>
+<% } %>

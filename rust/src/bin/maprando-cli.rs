@@ -1,12 +1,15 @@
 use anyhow::{bail, Context, Result};
 use clap::Parser;
 use maprando::customize::{customize_rom, CustomizeSettings};
-use maprando::game_data::{Map, Item};
+use maprando::game_data::{Item, Map};
+use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::Rom;
-use maprando::randomize::{ProgressionRate, Randomization, Randomizer, DebugOptions, ItemPlacementStyle, ItemPriorityGroup, ItemMarkers, Objectives, MotherBrainFight};
+use maprando::randomize::{
+    DebugOptions, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, MotherBrainFight, Objectives,
+    ProgressionRate, Randomization, Randomizer,
+};
 use maprando::spoiler_map;
 use maprando::{game_data::GameData, patch::make_rom, randomize::DifficultyConfig};
-use maprando::patch::ips_write::create_ips_patch;
 use std::path::{Path, PathBuf};
 
 #[derive(Parser)]
@@ -111,26 +114,32 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
     //     // "canXRayStandUp"
     // ].iter().map(|x| x.to_string()).collect();
     // let tech = vec![];
-    
+
     let difficulty = DifficultyConfig {
         tech: game_data.tech_isv.keys.clone(),
         notable_strats: vec![],
         // tech,
         shine_charge_tiles: 16.0,
         // shine_charge_tiles: 32,
-        progression_rate: ProgressionRate::Slow,
+        progression_rate: ProgressionRate::Fast,
         filler_items: vec![Item::Missile],
         early_filler_items: vec![],
         item_placement_style: ItemPlacementStyle::Neutral,
         item_priorities: vec![
             ItemPriorityGroup {
                 name: "Default".to_string(),
-                items: game_data.item_isv.keys.iter().filter(|x| x != &"Varia" && x != &"Gravity").cloned().collect(),
+                items: game_data
+                    .item_isv
+                    .keys
+                    .iter()
+                    .filter(|x| x != &"Varia" && x != &"Gravity")
+                    .cloned()
+                    .collect(),
             },
             ItemPriorityGroup {
                 name: "Late".to_string(),
                 items: vec!["Varia".to_string(), "Gravity".to_string()],
-            }
+            },
         ],
         resource_multiplier: 1.0,
         escape_timer_multiplier: 1.0,
@@ -142,6 +151,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         supers_double: true,
         mother_brain_fight: MotherBrainFight::Short,
         escape_enemies_cleared: true,
+        escape_refill: true,
         escape_movement_items: true,
         mark_map_stations: true,
         transition_letters: false,
@@ -156,23 +166,27 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         infinite_space_jump: false,
         objectives: Objectives::Bosses,
         disable_walljump: false,
-        maps_revealed: false,
+        maps_revealed: true,
         vanilla_map: false,
         ultra_low_qol: false,
         debug_options: Some(DebugOptions {
             new_game_extra: true,
             extended_spoiler: true,
-        })
+        }),
     };
     let difficulty_tiers = [difficulty];
     let randomizer = Randomizer::new(&map, &difficulty_tiers, &game_data);
-    let max_attempts = if args.item_placement_seed.is_some() { 1 } else { 10 };
+    let max_attempts = if args.item_placement_seed.is_some() {
+        1
+    } else {
+        10
+    };
     for attempt_num in 0..max_attempts {
         let seed = match args.item_placement_seed {
             Some(s) => s,
-            None => attempt_num
+            None => attempt_num,
         };
-        if let Some(randomization) = randomizer.randomize(seed, 0) {
+        if let Some(randomization) = randomizer.randomize(seed, 1) {
             return Ok(randomization);
         } else {
             println!("Failed randomization attempt");
@@ -191,7 +205,12 @@ fn main() -> Result<()> {
     let room_geometry_path = Path::new("../room_geometry.json");
     let palettes_path = Path::new("../palettes.json");
     let escape_timings_path = Path::new("data/escape_timings.json");
-    let game_data = GameData::load(sm_json_data_path, room_geometry_path, palettes_path, escape_timings_path)?;
+    let game_data = GameData::load(
+        sm_json_data_path,
+        room_geometry_path,
+        palettes_path,
+        escape_timings_path,
+    )?;
 
     // Perform randomization (map selection & item placement):
     let randomization = get_randomization(&args, &game_data)?;

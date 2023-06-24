@@ -267,6 +267,7 @@ struct SeedHeaderTemplate<'a> {
     item_progression_preset: String,
     progression_rate: String,
     filler_items: Vec<String>,
+    early_filler_items: Vec<String>,
     item_placement_style: String,
     difficulty: &'a DifficultyConfig,
     notable_strats: Vec<String>,
@@ -338,6 +339,12 @@ fn render_seed(seed_name: &str, seed_data: &SeedData) -> Result<(String, String)
         filler_items: seed_data
             .difficulty
             .filler_items
+            .iter()
+            .map(|x| format!("{:?}", x))
+            .collect(),
+        early_filler_items: seed_data
+            .difficulty
+            .early_filler_items
             .iter()
             .map(|x| format!("{:?}", x))
             .collect(),
