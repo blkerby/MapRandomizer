@@ -93,9 +93,18 @@ check_new_game:
 
 gameplay_start:
     jsl check_new_game  : bne .end
+    
+    ; Keep track of the vanilla area for the starting room
+    lda $079f
+    pha
+
     stz $079f  ; use save slot for area 0, regardless of what the starting area is
     lda !current_save_slot
     jsl $818000  ; save new game
+
+    ; Restore the vanilla area for the starting room
+    pla
+    sta $079f
 .end:
     rtl
 

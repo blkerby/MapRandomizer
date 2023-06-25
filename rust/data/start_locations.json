@@ -261,7 +261,8 @@
         "door_load_node_id": 1,
         "x": 84,
         "y": 78,
-        "spicy": true
+        "spicy": true,
+        "requires": ["canDamageBoost", "canTrickyJump"]
     },
     {
         "name": "East Ocean Left",
@@ -656,7 +657,7 @@
         "y": 26
     },
     {
-        "name": "Acid Snakes Tunnel",
+        "name": "Acid Snakes Tunnel Farm",
         "room_id": 119,
         "node_id": 4,
         "door_load_node_id": 1,
@@ -665,7 +666,7 @@
         "requires": ["canHeatRun"]
     },
     {
-        "name": "Bat Cave",
+        "name": "Bat Cave Farm",
         "room_id": 100,
         "node_id": 3,
         "door_load_node_id": 2,
@@ -841,14 +842,16 @@
         "node_id": 1,
         "door_load_node_id": 2,
         "x": 18.5,
-        "y": 11
+        "y": 11,
+        "requires": ["canHeatRun", {"heatFrames": 160}]
     },
     {
         "name": "Rising Tide Right",
         "room_id": 92,
         "node_id": 2,
         "x": 76.5,
-        "y": 10
+        "y": 10,
+        "requires": ["canHeatRun", {"heatFrames": 40}]
     },
     {
         "name": "Single Chamber Left",
@@ -910,10 +913,10 @@
             "Getting to the left is easier when starting from a new game or loading from the menu:",
             "run left immediately, landing on the moving platform and running left off of it;",
             "do a short spin-jump to the left and then a second spin-jump to the left to land back on top of the moving platform;",
-            "crouch while riding the platform to avoid the last set of spikes.",
-            "It can also be done from a quick reload (after death or with L + R + Select + Start) but it is more difficult because the moving platform is not in an ideal position:",
-            "use ledge grabs on the floor to move quickly and minimize lava damage;",
-            "jump onto the moving platform after you are past the last spike."
+            "crouch while riding the platform to avoid the last spike.",
+            "It can also be done from a quick reload (after death or with L + R + Select + Start) but this is more difficult because the moving platform is not in an ideal position:",
+            "use spin jumps with ledge grabs onto the floor to move quickly and minimize lava damage;",
+            "spin jump onto the moving platform after you are past the last spike."
         ]        
     },
     {
@@ -1221,7 +1224,7 @@
         "x": 25.5,
         "y": 24,
         "spicy": true,
-        "requires": ["canHeatRun", {"heatFrames": 320}, "canWalljump"]
+        "requires": ["canHeatRun", {"heatFrames": 320}]
     },
     {
         "name": "Fast Pillars Setup Room",
@@ -1395,4 +1398,79 @@
         "y": 42,
         "requires": ["canHeatRun", {"heatFrames": 40}]
     },
+    {
+        "name": "Boyon Gate Hall Left",
+        "room_id": 200,
+        "node_id": 4,
+        "door_load_node_id": 3,
+        "x": 19,
+        "y": 10
+    },
+    {
+        "name": "Boyon Gate Hall Right",
+        "room_id": 200,
+        "node_id": 3,
+        "x": 26.5,
+        "y": 10
+    },
+    {
+        "name": "Crab Hole Top",
+        "room_id": 201,
+        "node_id": 1,
+        "x": 10.5,
+        "y": 13
+    },
+    {
+        "name": "Crab Hole Bottom",
+        "room_id": 201,
+        "node_id": 2,
+        "x": 11,
+        "y": 29
+    },
+    {
+        "name": "Crab Tunnel Left",
+        "room_id": 176,
+        "node_id": 1,
+        "x": 8.5,
+        "y": 13
+    },
+    {
+        "name": "Crab Tunnel Right",
+        "room_id": 176,
+        "node_id": 2,
+        "x": 53,
+        "y": 13
+    },
+    {
+        "name": "Fish Tank Top Right",
+        "room_id": 173,
+        "node_id": 2,
+        "x": 56,
+        "y": 8,
+        "spicy": true,
+        "requires": ["canSuitlessMaridia", "canCarefulJump"]
+    },
+    {
+        "name": "Fish Tank Left",
+        "room_id": 173,
+        "node_id": 1,
+        "x": 10.5,
+        "y": 23.5
+    },
+    {
+        "name": "Glass Tunnel Bottom",
+        "room_id": 170,
+        "node_id": 2,
+        "x": 8,
+        "y": 39.5
+    },
+    {
+        "name": "Glass Tunnel Top",
+        "room_id": 170,
+        "node_id": 4,
+        "door_load_node_id": 2,
+        "x": 8,
+        "y": 9
+    }
+
 ]

@@ -221,9 +221,9 @@ door_connect_beta = door_connect_bound / (door_connect_bound + door_connect_alph
 
 augment_frac = 0.0
 
-temperature_min0 = 0.1
+temperature_min0 = 0.05
 temperature_max0 = 10.0
-temperature_min1 = 0.01
+temperature_min1 = 0.05
 temperature_max1 = 10.0
 # temperature_min0 = 0.01
 # temperature_max0 = 10.0
@@ -535,7 +535,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk6')
+            # save_session(session, pickle_name + '-bk7')
             # session.replay_buffer.resize(2 ** 20)
             # pickle.dump(session, open(pickle_name + '-small', 'wb'))
     if session.num_rounds % summary_freq == 0:
