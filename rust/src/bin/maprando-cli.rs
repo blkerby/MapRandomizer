@@ -170,7 +170,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         vanilla_map: false,
         ultra_low_qol: false,
         debug_options: Some(DebugOptions {
-            new_game_extra: true,
+            new_game_extra: false,
             extended_spoiler: true,
         }),
     };

@@ -12,6 +12,9 @@ next release:
         let entrance_y = self.rom.read_u8(other_door_pair.1.unwrap() + 5)? as u8;
      ```
 - check if reloading from bottom/top of elevator works correctly (not skips back a save)
+- do something about screen shaking during samus appears (in start location: rising tide, amphitheatre)
+  - maybe get rid of shaking in general?
+
 
 credit ideas:
 - item collection percent

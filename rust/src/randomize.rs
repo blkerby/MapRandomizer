@@ -23,6 +23,7 @@ use std::{
     iter,
 };
 use strum::VariantNames;
+use serde_json;
 
 use crate::game_data::GameData;
 
@@ -85,7 +86,7 @@ pub struct StartLocation {
     pub door_load_node_id: Option<usize>,
     pub x: f32,
     pub y: f32,
-    pub requires: Option<Vec<String>>,
+    pub requires: Option<Vec<serde_json::Value>>,
     // Don't use these, because they will mess up the door cap animations. Maybe we can find a fix for that someday.
     pub camera_offset_x: Option<f32>,
     pub camera_offset_y: Option<f32>,
