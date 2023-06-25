@@ -1471,6 +1471,544 @@
         "door_load_node_id": 2,
         "x": 8,
         "y": 9
+    },
+    {
+        "name": "Main Street Top",
+        "room_id": 172,
+        "node_id": 4,
+        "x": 24,
+        "y": 10
+    },
+    {
+        "name": "Main Street Middle",
+        "room_id": 172,
+        "node_id": 9,
+        "door_load_node_id": 3,
+        "x": 7,
+        "y": 38,
+        "requires": ["canSuitlessMaridia"]
+    },
+    {
+        "name": "Main Street Bottom",
+        "room_id": 172,
+        "node_id": 8,
+        "door_load_node_id": 2,
+        "x": 20.5,
+        "y": 124
+    },
+    {
+        "name": "Mama Turtle Room",
+        "room_id": 178,
+        "node_id": 1,
+        "x": 41,
+        "y": 61
+    },
+    {
+        "name": "Mt. Everest Top Left",
+        "room_id": 174,
+        "node_id": 1,
+        "x": 8,
+        "y": 13
+    },
+    {
+        "name": "Mt. Everest Top Right",
+        "room_id": 174,
+        "node_id": 4,
+        "x": 90,
+        "y": 11
+    },
+    {
+        "name": "Mt. Everest Bottom Left",
+        "room_id": 174,
+        "node_id": 2,
+        "x": 66,
+        "y": 60
+    },
+    {
+        "name": "Mt. Everest Bottom Right",
+        "room_id": 174,
+        "node_id": 3,
+        "door_load_node_id": 2,
+        "x": 72,
+        "y": 61
+    },
+    {
+        "name": "Red Fish Room Top Left",
+        "room_id": 177,
+        "node_id": 1,
+        "x": 13,
+        "y": 8
+    },
+    {
+        "name": "Red Fish Room Top Right",
+        "room_id": 177,
+        "node_id": 2,
+        "x": 36,
+        "y": 9
+    },
+    {
+        "name": "West Glass Tube Tunnel",
+        "room_id": 169,
+        "node_id": 1,
+        "x": 8,
+        "y": 10
+    },
+    {
+        "name": "Aqueduct Top Left",
+        "room_id": 183,
+        "node_id": 9,
+        "door_load_node_id": 6,
+        "x": 8.5,
+        "y": 8
+    },
+    {
+        "name": "Aqueduct Center Left",
+        "room_id": 183,
+        "node_id": 1,
+        "x": 4.5,
+        "y": 26
+    },
+    {
+        "name": "Aqueduct Bottom",
+        "room_id": 183,
+        "node_id": 2,
+        "x": 40,
+        "y": 42
+    },
+    {
+        "name": "Below Botwoon Energy Tank",
+        "room_id": 205,
+        "node_id": 3,
+        "door_load_node_id": 1,
+        "x": 61.5,
+        "y": 12,
+        "spicy": true,
+        "enemy_attack_before_control": true
+    },
+    {
+        "name": "Botwoon Energy Tank Room Left",
+        "room_id": 186,
+        "node_id": 1,
+        "x": 8,
+        "y": 11
+    },
+    {
+        "name": "Botwoon Energy Tank Room Right",
+        "room_id": 186,
+        "node_id": 1,
+        "x": 104,
+        "y": 10
+    },
+    {
+        "name": "Botwoon Hallway Left",
+        "room_id": 184,
+        "node_id": 1,
+        "x": 8,
+        "y": 13
+    },
+    {
+        "name": "Botwoon Hallway Right",
+        "room_id": 184,
+        "node_id": 2,
+        "x": 60,
+        "y": 10
+    },
+    {
+        "name": "Botwoon's Room",
+        "room_id": 185,
+        "node_id": 2,
+        "x": 25.5,
+        "y": 11
+    },
+    {
+        "name": "Colosseum Right",
+        "room_id": 189,
+        "node_id": 3,
+        "x": 63.5,
+        "y": 8,
+        "spicy": true,
+        "requires": [{"spikeHits": 1}, "canDamageBoost", "canPreciseWalljump"]
+    },
+    {
+        "name": "Colosseum Left",
+        "room_id": 189,
+        "node_id": 1,
+        "x": 13.5,
+        "y": 10
+    },
+    {
+        "name": "Crab Shaft Top",
+        "room_id": 175,
+        "node_id": 3,
+        "x": 8,
+        "y": 7
+    },
+    {
+        "name": "Crab Shaft Center",
+        "room_id": 175,
+        "node_id": 3,
+        "x": 8,
+        "y": 42
+    },
+    {
+        "name": "Crab Shaft Bottom",
+        "room_id": 175,
+        "node_id": 2,
+        "x": 8,
+        "y": 60
+    },
+    {
+        "name": "East Cactus Alley Room Left",
+        "room_id": 196,
+        "node_id": 1,
+        "x": 5,
+        "y": 10
+    },
+    {
+        "name": "East Cactus Alley Room Right",
+        "room_id": 196,
+        "node_id": 4,
+        "door_load_node_id": 2,
+        "x": 77,
+        "y": 26
+    },
+    {
+        "name": "East Sand Hole",
+        "room_id": 208,
+        "node_id": 2,
+        "door_load_node_id": 1,
+        "x": 25,
+        "y": 11
+    },
+    {
+        "name": "Halfie Climb Room Right",
+        "room_id": 187,
+        "node_id": 3,
+        "x": 40,
+        "y": 39,
+        "spicy": true,
+        "note": ["To pass through the Oums, jump and aim down."]
+    },
+    {
+        "name": "The Precious Room",
+        "room_id": 192,
+        "node_id": 2,
+        "x": 8,
+        "y": 23
+    },
+    {
+        "name": "Maridia Elevator Room Center",
+        "room_id": 215,
+        "node_id": 2,
+        "x": 9,
+        "y": 76
+    },
+    {
+        "name": "Northwest Maridia Bug Room Left",
+        "room_id": 180,
+        "node_id": 1,
+        "x": 5.5,
+        "y": 10
+    },
+    {
+        "name": "Northwest Maridia Bug Room Center",
+        "room_id": 180,
+        "node_id": 3,
+        "door_load_node_id": 1,
+        "spicy": true,
+        "x": 39,
+        "y": 26
+    },
+    {
+        "name": "Kassiuz Room",
+        "room_id": 217,
+        "node_id": 1,
+        "x": 5.5,
+        "y": 59
+    },
+    {
+        "name": "Plasma Spark Room Top",
+        "room_id": 197,
+        "node_id": 5,
+        "door_load_node_id": 4,
+        "x": 39,
+        "y": 9
+    },
+    {
+        "name": "Plasma Spark Room Bottom",
+        "room_id": 197,
+        "node_id": 2,
+        "x": 52,
+        "y": 71,
+        "requires": ["canSuitlessMaridia"]
+    },
+    {
+        "name": "Pseudo Plasma Spark Room Top",
+        "room_id": 179,
+        "node_id": 1,
+        "x": 56.5,
+        "y": 26,
+        "requires": ["canWalljump"]
+    },
+    {
+        "name": "Thread The Needle Room",
+        "room_id": 214,
+        "node_id": 1,
+        "x": 53,
+        "y": 9
+    },
+    {
+        "name": "Watering Hole",
+        "room_id": 181,
+        "node_id": 1,
+        "x": 4,
+        "y": 12
+    },
+    {
+        "name": "East Pants Room",
+        "room_id": 322,
+        "node_id": 1,
+        "door_load_node_id": 2,
+        "x": 8,
+        "y": 10
+    },
+    {
+        "name": "East Sand Hall Left",
+        "room_id": 210,
+        "node_id": 1,
+        "x": 4,
+        "y": 10
+    },
+    {
+        "name": "East Sand Hall Right",
+        "room_id": 210,
+        "node_id": 1,
+        "x": 44.5,
+        "y": 10
+    },
+    {
+        "name": "Oasis",
+        "room_id": 198,
+        "node_id": 1,
+        "x": 8,
+        "y": 26
+    },
+    {
+        "name": "Shaktool Room Left",
+        "room_id": 222,
+        "node_id": 1,
+        "x": 5,
+        "y": 12
+    },
+    {
+        "name": "Shaktool Room Right",
+        "room_id": 222,
+        "node_id": 2,
+        "x": 59,
+        "y": 12
+    },
+    {
+        "name": "Spring Ball Room",
+        "room_id": 223,
+        "node_id": 1,
+        "x": 11,
+        "y": 10
+    },
+    {
+        "name": "West Sand Hall Left",
+        "room_id": 199,
+        "node_id": 1,
+        "x": 11,
+        "y": 12
+    },
+    {
+        "name": "West Sand Hall Right",
+        "room_id": 199,
+        "node_id": 1,
+        "x": 60.5,
+        "y": 10
+    },
+    {
+        "name": "Attic",
+        "room_id": 160,
+        "node_id": 1,
+        "x": 3,
+        "y": 10
+    },
+    {
+        "name": "Basement Left",
+        "room_id": 156,
+        "node_id": 2,
+        "x": 40,
+        "y": 7
+    },
+    {
+        "name": "Basement Right",
+        "room_id": 156,
+        "node_id": 3,
+        "x": 73,
+        "y": 13
+    },
+    {
+        "name": "Bowling Alley Top",
+        "room_id": 161,
+        "node_id": 1,
+        "x": 59,
+        "y": 10
+    },
+    {
+        "name": "Bowling Alley Center",
+        "room_id": 161,
+        "node_id": 2,
+        "x": 73.25,
+        "y": 27
+    },
+    {
+        "name": "Bowling Alley Bottom",
+        "room_id": 161,
+        "node_id": 3,
+        "x": 21,
+        "y": 44
+    },
+    {
+        "name": "Electric Death Room",
+        "room_id": 166,
+        "node_id": 1,
+        "x": 8,
+        "y": 7
+    },
+    {
+        "name": "Spiky Death Room",
+        "room_id": 165,
+        "node_id": 1,
+        "x": 4,
+        "y": 13
+    },
+    {
+        "name": "Sponge Bath",
+        "room_id": 164,
+        "node_id": 1,
+        "x": 4,
+        "y": 10
+    },
+    {
+        "name": "Wrecked Ship East Super Room",
+        "room_id": 163,
+        "node_id": 1,
+        "x": 37,
+        "y": 13
+    },
+    {
+        "name": "Wrecked Ship Energy Tank Room",
+        "room_id": 167,
+        "node_id": 1,
+        "x": 43,
+        "y": 10
+    },
+    {
+        "name": "Wrecked Ship Entrance",
+        "room_id": 154,
+        "node_id": 1,
+        "x": 24,
+        "y": 10
+    },
+    {
+        "name": "Wrecked Ship Main Shaft Top",
+        "room_id": 155,
+        "node_id": 1,
+        "x": 72,
+        "y": 29
+    },
+    {
+        "name": "Wrecked Ship Main Shaft Right",
+        "room_id": 155,
+        "node_id": 1,
+        "x": 92.5,
+        "y": 106
+    },
+    {
+        "name": "Wrecked Ship Main Shaft Bottom",
+        "room_id": 155,
+        "node_id": 7,
+        "x": 66,
+        "y": 118
+    },
+    {
+        "name": "Big Boy Room",
+        "room_id": 232,
+        "node_id": 2,
+        "x": 54,
+        "y": 13
+    },
+    {
+        "name": "Dust Torizo Room",
+        "room_id": 231,
+        "node_id": 2,
+        "x": 25,
+        "y": 12
+    },
+    {
+        "name": "Metroid Room 1 Right",
+        "room_id": 226,
+        "node_id": 1,
+        "x": 87,
+        "y": 12
+    },
+    {
+        "name": "Rinka Shaft",
+        "room_id": 236,
+        "node_id": 1,
+        "x": 11,
+        "y": 12
+    },
+    {
+        "name": "Seaweed Room",
+        "room_id": 233,
+        "node_id": 4,
+        "door_load_node_id": 1,
+        "x": 3.5,
+        "y": 9
+    },
+    {
+        "name": "Tourian Escape Room 1",
+        "room_id": 239,
+        "node_id": 1,
+        "x": 25,
+        "y": 10
+    },
+    {
+        "name": "Tourian Escape Room 2",
+        "room_id": 240,
+        "node_id": 1,
+        "x": 8,
+        "y": 8
+    },
+    {
+        "name": "Tourian Escape Room 3",
+        "room_id": 241,
+        "node_id": 1,
+        "x": 22,
+        "y": 9
+    },
+    {
+        "name": "Tourian Escape Room 4",
+        "room_id": 242,
+        "node_id": 2,
+        "x": 44.5,
+        "y": 45
+    },
+    {
+        "name": "Tourian Eye Door Room",
+        "room_id": 235,
+        "node_id": 1,
+        "x": 26,
+        "y": 12
+    },
+    {
+        "name": "Tourian First Room",
+        "room_id": 224,
+        "node_id": 3,
+        "x": 8.5,
+        "y": 58
     }
-
 ]

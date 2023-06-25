@@ -200,7 +200,7 @@ fn make_tech_templates<'a>(
             }
         }
         let difficulty_name = if difficulty_idx == global_states.len() {
-            "None".to_string()
+            "Beyond".to_string()
         } else {
             presets[difficulty_idx].preset.name.clone()
         };
@@ -220,9 +220,11 @@ fn make_tech_templates<'a>(
                 s.strat_name.clone(),
             )
         });
+        let mut difficulty_names: Vec<String> = presets.iter().map(|x| x.preset.name.clone()).collect();
+        difficulty_names.push("Beyond".to_string());
         let template = TechTemplate {
             version: VERSION,
-            difficulty_names: presets.iter().map(|x| x.preset.name.clone()).collect(),
+            difficulty_names,
             tech_name: tech_name.clone(),
             tech_note,
             tech_dependencies,
@@ -419,7 +421,7 @@ fn make_room_template(
                     links_by_ids,
                 );
                 let difficulty_name = if difficulty_idx == difficulty_configs.len() {
-                    "None".to_string()
+                    "Beyond".to_string()
                 } else {
                     presets[difficulty_idx].preset.name.clone()
                 };
@@ -444,10 +446,12 @@ fn make_room_template(
         }
     }
     // let shape = *game_data.room_shape.get(&room_id).unwrap_or(&(1, 1));
+    let mut difficulty_names: Vec<String> = presets.iter().map(|x| x.preset.name.clone()).collect();
+    difficulty_names.push("Beyond".to_string());
 
     RoomTemplate {
         version: VERSION,
-        difficulty_names: presets.iter().map(|x| x.preset.name.clone()).collect(),
+        difficulty_names,
         room_id_: room_id,
         room_name,
         room_name_stripped,

@@ -733,7 +733,7 @@ fn get_difficulty_tiers(
         }
         tech_vec.sort();
 
-        let mut strat_vec: Vec<String> = app_data.ignored_notable_strats.iter().cloned().collect();
+        let mut strat_vec: Vec<String> = vec![]; //= app_data.ignored_notable_strats.iter().cloned().collect();
         for (strat, enabled) in &preset_data.notable_strat_setting {
             if *enabled && strat_set.contains(strat) {
                 strat_vec.push(strat.clone());
@@ -1261,8 +1261,6 @@ fn get_ignored_notable_strats() -> HashSet<String> {
         "Metroid Room 4 Six PB Dodge Kill (Bottom to Top)",
         "Metroid Room 4 Three PB Dodge Kill (Bottom to Top)",
         "Partial Covern Ice Clip",
-        "Basement Speedball (Phantoon Dead)",
-        "Basement Speedball (Phantoon Alive)",
         "MickeyMouse Crumbleless MidAir Spring Ball",
         "Mickey Mouse Crumble IBJ",
         "Botwoon Hallway Puyo Ice Clip",

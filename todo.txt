@@ -1,6 +1,6 @@
 next release:
 - randomized start
-  - fix starting area
+  - randomize ship area
 - adjust area colors
   - darken wrecked ship a bit
   - maybe add a little color to tourian, a bit tan maybe (like the tourian sand)
@@ -23,6 +23,7 @@ credit ideas:
 - ... ?
 
 priority:
+- fix bug in escape room 1: top block of right transition seems solid (reported by somerando)
 - new map pool
   - bosses not cleared unless "enemies cleared" option is enabled
 - logic:
@@ -46,6 +47,7 @@ priority:
 - logic simulator
 
 later:
+- custom demos
 - include a check that the client and server are matching versions and give a more meaningful error when they aren't
 - look into botwoon requirements: 
   https://maprando.com/seed/-yvSvwjFlrfJN1NRxDi-Jw/data/visualizer/index.html

@@ -64,7 +64,7 @@ document.getElementById("navigation-logic").classList.add("active");
     ignored by the randomizer as they are implicitly assumed to be in logic on all settings.
     <li><p>The difficulty tier shown for a strat in these pages is based on the most favorable situation for executing it,
     e.g. assuming unlimited resources, items, cross-room runway length, and obstacles being already cleared.
-    The randomizer logic takes into account such situational details; just because a strat is listed as "Basic"
+    The randomizer logic takes into account such situational details: just because a strat is listed as "Basic"
     in these pages does not mean it will necessarily be in logic on "Basic" settings in every situation.</p>
     <li><p>The tech pages only list strats that reference the tech directly or by a helper, but not by a dependency.
     For example, "canWalljump" does not list strats that require "canPreciseWalljump".
