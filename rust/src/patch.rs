@@ -8,13 +8,12 @@ use std::path::Path;
 
 use crate::{
     game_data::{DoorPtr, DoorPtrPair, GameData, Item, Map, NodePtr, RoomGeometryDoor},
-    randomize::{Randomization, Objectives, MotherBrainFight, StartLocation},
+    randomize::{Randomization, Objectives, MotherBrainFight},
 };
 use anyhow::{ensure, Context, Result};
 use hashbrown::{HashMap, HashSet};
 use ips;
 use std::iter;
-use std::cmp::{min, max};
 
 const NUM_AREAS: usize = 6;
 

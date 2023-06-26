@@ -3,7 +3,8 @@ use anyhow::Result;
 use maprando::{
     game_data::{GameData, Item, Requirement},
     randomize::{
-        DifficultyConfig, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, ProgressionRate, Objectives, MotherBrainFight,
+        DifficultyConfig, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, MotherBrainFight,
+        Objectives, ProgressionRate,
     },
     traverse::{apply_requirement, GlobalState, LocalState},
 };
@@ -28,7 +29,16 @@ fn main() -> Result<()> {
     let room_geometry_path = Path::new("../room_geometry.json");
     let palette_path = Path::new("../palettes.json");
     let escape_timings_path = Path::new("data/escape_timings.json");
-    let game_data = GameData::load(sm_json_data_path, room_geometry_path, palette_path, escape_timings_path)?;
+    let start_locations_path = Path::new("data/start_locations.json");
+    let hub_locations_path = Path::new("data/hub_locations.json");
+    let game_data = GameData::load(
+        sm_json_data_path,
+        room_geometry_path,
+        palette_path,
+        escape_timings_path,
+        start_locations_path,
+        hub_locations_path,
+    )?;
 
     // let vertex_id_src = game_data.vertex_isv.index_by_key[&(77, 1, 0)];
     // let vertex_id_dst = game_data.vertex_isv.index_by_key[&(77, 3, 3)];
@@ -135,9 +145,15 @@ fn main() -> Result<()> {
 
     println!(
         "{:?}",
-        apply_requirement(&Requirement::RidleyFight {
-            can_be_patient_tech_id: game_data.tech_isv.index_by_key["canBePatient"]
-        }, &global_state, local_state, false, &difficulty)
+        apply_requirement(
+            &Requirement::RidleyFight {
+                can_be_patient_tech_id: game_data.tech_isv.index_by_key["canBePatient"]
+            },
+            &global_state,
+            local_state,
+            false,
+            &difficulty
+        )
     );
 
     // let mut name_set: HashSet<String> = HashSet::new();

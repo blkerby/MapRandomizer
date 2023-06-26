@@ -227,14 +227,14 @@
         "room_id": 184,
         "node_id": 1,
         "requires": ["canSuitlessMaridia", "canCarefulJump"],
-        "note": "Avoiding damage from the mochtroids requires some care.",
-        "devNote": "Farming the right side of the room is possible but too slow even for canBePatient"
+        "note": ["Avoiding damage from the mochtroids requires some care."],
+        "devNote": ["Farming the right side of the room is possible but too slow even for canBePatient"]
     },
     {
         "name": "Colosseum Top Right (1 Mochtroid)",
         "room_id": 189,
         "node_id": 3,
-        "requires": "never",
+        "requires": ["never"],
         "devNote": [
             "Keeping this disabled as the low energy drop rate may be insufficient if the neighboring room is heated.",
             "For the same reason, hubs for the other two doors are not added, nor for Halfie Climb Room."
@@ -245,14 +245,14 @@
         "room_id": 211,
         "node_id": 1,
         "requires": ["canSuitlessMaridia", "canTrickyJump"],
-        "note": "Stand in the door to stay safe from the Yapping Maws."
+        "note": ["Stand in the door to stay safe from the Yapping Maws."]
     },
     {
         "name": "Bug Sand Hole Right (Zoa Farm)",
         "room_id": 211,
         "node_id": 3,
-        "requires": "canTrickyJump",
-        "note": "Stand in the door to stay safe from the Yapping Maws."
+        "requires": ["canTrickyJump"],
+        "note": ["Stand in the door to stay safe from the Yapping Maws."]
     },
     {
         "name": "Butterfly Room Left (Zoa Farm)",

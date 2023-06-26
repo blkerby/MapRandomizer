@@ -2,28 +2,28 @@ pub mod escape_timer;
 
 use crate::{
     game_data::{
-        self, get_effective_runway_length, Capacity, FlagId, Item, ItemLocationId, Link, Map,
-        NodeId, Requirement, RoomId, TechId, VertexId,
+        self, get_effective_runway_length, Capacity, FlagId, HubLocation, Item, ItemLocationId,
+        Link, Map, NodeId, Requirement, RoomId, StartLocation, TechId, VertexId,
     },
     traverse::{
         apply_requirement, get_spoiler_route, is_bireachable, traverse, GlobalState, LinkIdx,
         LocalState, TraverseResult,
     },
 };
-use anyhow::Result;
+use anyhow::{bail, Result};
 use by_address::ByAddress;
 use hashbrown::{HashMap, HashSet};
 use log::info;
 use rand::SeedableRng;
 use rand::{seq::SliceRandom, Rng};
 use serde_derive::{Deserialize, Serialize};
+use serde_json;
 use std::{
     cmp::{max, min},
     convert::TryFrom,
     iter,
 };
 use strum::VariantNames;
-use serde_json;
 
 use crate::game_data::GameData;
 
@@ -76,21 +76,6 @@ pub struct DebugOptions {
 pub struct ItemPriorityGroup {
     pub name: String,
     pub items: Vec<String>,
-}
-
-#[derive(Deserialize, Debug, Clone)]
-pub struct StartLocation {
-    pub name: String,
-    pub room_id: usize,
-    pub node_id: usize,
-    pub door_load_node_id: Option<usize>,
-    pub x: f32,
-    pub y: f32,
-    pub requires: Option<Vec<serde_json::Value>>,
-    pub note: Option<Vec<String>>,
-    // Don't use these, because they will mess up the door cap animations. Maybe we can find a fix for that someday.
-    pub camera_offset_x: Option<f32>,
-    pub camera_offset_y: Option<f32>,
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
@@ -173,6 +158,8 @@ struct DebugData {
 // State that changes over the course of item placement attempts
 struct RandomizationState {
     step_num: usize,
+    start_location: StartLocation,
+    hub_location: HubLocation,
     item_precedence: Vec<Item>, // An ordering of the 21 distinct item names. The game will prioritize placing key items earlier in the list.
     item_location_state: Vec<ItemLocationState>, // Corresponds to GameData.item_locations (one record for each of 100 item locations)
     flag_location_state: Vec<FlagLocationState>, // Corresponds to GameData.flag_locations
@@ -923,7 +910,9 @@ impl<'r> Randomizer<'r> {
 
     fn update_reachability(&self, state: &mut RandomizationState) {
         let num_vertices = self.game_data.vertex_isv.keys.len();
-        let start_vertex_id = self.game_data.vertex_isv.index_by_key[&(8, 5, 0)]; // Landing site
+        // let start_vertex_id = self.game_data.vertex_isv.index_by_key[&(8, 5, 0)]; // Landing site
+        let start_vertex_id = self.game_data.vertex_isv.index_by_key
+            [&(state.hub_location.room_id, state.hub_location.node_id, 0)];
         let forward = traverse(
             &self.links,
             None,
@@ -1073,8 +1062,7 @@ impl<'r> Randomizer<'r> {
                 continue;
             }
             if self.difficulty_tiers[0].early_filler_items.contains(&item)
-                && new_items_remaining[item as usize]
-                    == self.initial_items_remaining[item as usize]
+                && new_items_remaining[item as usize] == self.initial_items_remaining[item as usize]
             {
                 item_types_to_prioritize.push(item);
                 item_types_to_mix.push(item);
@@ -1089,7 +1077,7 @@ impl<'r> Randomizer<'r> {
                 item_types_to_extra_delay.push(item);
             }
         }
-        // println!("prioritize: {:?}, mix: {:?}, delay: {:?}, extra: {:?}", 
+        // println!("prioritize: {:?}, mix: {:?}, delay: {:?}, extra: {:?}",
         //     item_types_to_prioritize, item_types_to_mix, item_types_to_delay, item_types_to_extra_delay);
 
         let mut items_to_mix: Vec<Item> = Vec::new();
@@ -1187,7 +1175,7 @@ impl<'r> Randomizer<'r> {
             tmp_global.notable_strats = self.get_strat_vec(tier);
             tmp_global.shine_charge_tiles = difficulty.shine_charge_tiles;
             // print!("tier:{} tech:", tier);
-            // for (i, tech) in self.game_data.tech_isv.keys.iter().enumerate() { 
+            // for (i, tech) in self.game_data.tech_isv.keys.iter().enumerate() {
             //     if tmp_global.tech[i] {
             //         print!("{} ", tech);
             //     }
@@ -1248,15 +1236,11 @@ impl<'r> Randomizer<'r> {
                         new_state,
                         &new_bireachable_locations[i..],
                         traverse_result,
-                    )    
+                    )
                 } else {
                     // We're only placing one key item in this step. Try to find a location that is hard to reach
                     // without already having the new item.
-                    self.find_hard_location(
-                        state,
-                        &new_bireachable_locations[i..],
-                        traverse_result,
-                    )    
+                    self.find_hard_location(state, &new_bireachable_locations[i..], traverse_result)
                 };
                 info!(
                     "{:?} in tier {} (of {})",
@@ -1388,6 +1372,8 @@ impl<'r> Randomizer<'r> {
             if let Some(select_res) = select_result {
                 new_state = RandomizationState {
                     step_num: state.step_num,
+                    start_location: state.start_location.clone(),
+                    hub_location: state.hub_location.clone(),
                     item_precedence: state.item_precedence.clone(),
                     item_location_state: state.item_location_state.clone(),
                     flag_location_state: state.flag_location_state.clone(),
@@ -1657,9 +1643,9 @@ impl<'r> Randomizer<'r> {
         };
 
         // Messing around with starting location. TODO: fit this in properly
-        let start_locations: Vec<StartLocation> =
-            serde_json::from_str(&std::fs::read_to_string(&"data/start_locations.json").unwrap()).unwrap();
-        let loc = start_locations.last().unwrap();
+        // let start_locations: Vec<StartLocation> =
+        //     serde_json::from_str(&std::fs::read_to_string(&"data/start_locations.json").unwrap()).unwrap();
+        // let loc = start_locations.last().unwrap();
 
         Ok(Randomization {
             difficulty: self.difficulty_tiers[0].clone(),
@@ -1668,7 +1654,8 @@ impl<'r> Randomizer<'r> {
             spoiler_log,
             seed,
             display_seed,
-            start_location: loc.clone(),
+            // start_location: loc.clone(),
+            start_location: state.start_location.clone(),
         })
     }
 
@@ -1693,28 +1680,93 @@ impl<'r> Randomizer<'r> {
         item_precedence
     }
 
-    pub fn randomize(&self, seed: usize, display_seed: usize) -> Option<Randomization> {
+    pub fn determine_start_location<R: Rng>(
+        &self,
+        num_attempts: usize,
+        rng: &mut R,
+    ) -> Result<(StartLocation, HubLocation)> {
+        for i in 0..num_attempts {
+            info!("start location attempt {}", i);
+            let start_loc_idx = rng.gen_range(0..self.game_data.start_locations.len());
+            let start_loc = self.game_data.start_locations[start_loc_idx].clone();
+            info!("start: {:?}", start_loc);
+
+            let num_vertices = self.game_data.vertex_isv.keys.len();
+            let start_vertex_id =
+                self.game_data.vertex_isv.index_by_key[&(start_loc.room_id, start_loc.node_id, 0)];
+            let global = self.get_initial_global_state();
+            let forward = traverse(
+                &self.links,
+                None,
+                &global,
+                num_vertices,
+                start_vertex_id,
+                false,
+                &self.difficulty_tiers[0],
+                self.game_data,
+            );
+            let reverse = traverse(
+                &self.links,
+                None,
+                &global,
+                num_vertices,
+                start_vertex_id,
+                false,
+                &self.difficulty_tiers[0],
+                self.game_data,
+            );
+
+            for hub in &self.game_data.hub_locations {
+                let hub_vertex_id =
+                    self.game_data.vertex_isv.index_by_key[&(hub.room_id, hub.node_id, 0)];
+                info!("hub: {:?}", hub);
+                if forward.local_states[hub_vertex_id].is_some() && reverse.local_states[hub_vertex_id].is_some() {
+                    return Ok((start_loc, hub.clone()));
+                }
+            }
+        }
+        bail!("Failed to find start location.")
+
+        // let mut ship_start = StartLocation::default();
+        // ship_start.name = "Ship".to_string();
+        // ship_start.room_id = 8;
+        // ship_start.node_id = 5;
+        // ship_start.door_load_node_id = Some(2);
+        // ship_start.x = 72.0;
+        // ship_start.y = 69.5;
+
+        // let mut ship_hub = HubLocation::default();
+        // ship_hub.name = "Ship".to_string();
+        // ship_hub.room_id = 8;
+        // ship_hub.node_id = 5;
+
+        // Ok((ship_start, ship_hub))
+        // None
+    }
+
+    fn get_initial_global_state(&self) -> GlobalState {
+        let items = vec![false; self.game_data.item_isv.keys.len()];
+        let weapon_mask = self.game_data.get_weapon_mask(&items);
+        GlobalState {
+            tech: self.get_tech_vec(0),
+            notable_strats: self.get_strat_vec(0),
+            items: items,
+            flags: self.get_initial_flag_vec(),
+            max_energy: 99,
+            max_reserves: 0,
+            max_missiles: 0,
+            max_supers: 0,
+            max_power_bombs: 0,
+            weapon_mask: weapon_mask,
+            shine_charge_tiles: self.difficulty_tiers[0].shine_charge_tiles,
+        }
+    }
+
+    pub fn randomize(&self, seed: usize, display_seed: usize) -> Result<Randomization> {
         let mut rng_seed = [0u8; 32];
         rng_seed[..8].copy_from_slice(&seed.to_le_bytes());
         let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
-        let initial_global_state = {
-            let items = vec![false; self.game_data.item_isv.keys.len()];
-            let weapon_mask = self.game_data.get_weapon_mask(&items);
-            GlobalState {
-                tech: self.get_tech_vec(0),
-                notable_strats: self.get_strat_vec(0),
-                items: items,
-                flags: self.get_initial_flag_vec(),
-                max_energy: 99,
-                max_reserves: 0,
-                max_missiles: 0,
-                max_supers: 0,
-                max_power_bombs: 0,
-                weapon_mask: weapon_mask,
-                shine_charge_tiles: self.difficulty_tiers[0].shine_charge_tiles,
-            }
-        };
-
+        let initial_global_state = self.get_initial_global_state();
         let initial_item_location_state = ItemLocationState {
             placed_item: None,
             collected: false,
@@ -1726,12 +1778,17 @@ impl<'r> Randomizer<'r> {
             bireachable: false,
             bireachable_vertex_id: None,
         };
+        let num_attempts_start_location = 10;
+        let (start_location, hub_location) =
+            self.determine_start_location(num_attempts_start_location, &mut rng)?;
         let item_precedence: Vec<Item> =
             self.get_item_precedence(&self.difficulty_tiers[0].item_priorities, &mut rng);
         info!("Item precedence: {:?}", item_precedence);
         let mut state = RandomizationState {
             step_num: 1,
             item_precedence,
+            start_location,
+            hub_location,
             item_location_state: vec![
                 initial_item_location_state;
                 self.game_data.item_locations.len()
@@ -1749,8 +1806,7 @@ impl<'r> Randomizer<'r> {
         };
         self.update_reachability(&mut state);
         if !state.item_location_state.iter().any(|x| x.bireachable) {
-            info!("No initially bireachable item locations");
-            return None;
+            bail!("No initially bireachable item locations");
         }
         let mut spoiler_summary_vec: Vec<SpoilerSummary> = Vec::new();
         let mut spoiler_details_vec: Vec<SpoilerDetails> = Vec::new();
@@ -1786,25 +1842,19 @@ impl<'r> Randomizer<'r> {
                         debug_data_vec.push(debug_data.clone());
                     }
                 }
-                None => return None,
+                None => bail!("Step failed"),
             }
             state.step_num += 1;
         }
         self.finish(&mut state);
-        match self.get_randomization(
+        self.get_randomization(
             &state,
             spoiler_summary_vec,
             spoiler_details_vec,
             debug_data_vec,
             seed,
             display_seed,
-        ) {
-            Ok(r) => Some(r),
-            Err(e) => {
-                info!("Failed randomization: {}", e);
-                None
-            }
-        }
+        )
     }
 }
 

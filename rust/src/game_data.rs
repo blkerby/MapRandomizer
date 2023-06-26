@@ -384,6 +384,30 @@ pub struct EscapeTimingRoom {
     pub timings: Vec<EscapeTimingGroup>,
 }
 
+#[derive(Deserialize, Debug, Clone, Default)]
+pub struct StartLocation {
+    pub name: String,
+    pub room_id: usize,
+    pub node_id: usize,
+    pub door_load_node_id: Option<usize>,
+    pub x: f32,
+    pub y: f32,
+    pub requires: Option<Vec<serde_json::Value>>,
+    pub note: Option<Vec<String>>,
+    // Don't use these, because they will mess up the door cap animations. Maybe we can find a fix for that someday.
+    pub camera_offset_x: Option<f32>,
+    pub camera_offset_y: Option<f32>,
+}
+
+#[derive(Deserialize, Debug, Clone, Default)]
+pub struct HubLocation {
+    pub name: String,
+    pub room_id: usize,
+    pub node_id: usize,
+    pub requires: Option<Vec<serde_json::Value>>,
+    pub note: Option<Vec<String>>,
+}
+
 #[derive(Clone, Debug)]
 pub struct EnemyVulnerabilities {
     pub hp: i32,
@@ -458,6 +482,8 @@ pub struct GameData {
     pub strat_description: HashMap<String, String>,
     pub palette_data: Vec<HashMap<TilesetIdx, [[u8; 3]; 128]>>,
     pub escape_timings: Vec<EscapeTimingRoom>,
+    pub start_locations: Vec<StartLocation>,
+    pub hub_locations: Vec<HubLocation>,
 }
 
 impl<T: Hash + Eq> IndexedVec<T> {
@@ -2356,6 +2382,18 @@ impl GameData {
         Ok(())
     }
 
+    fn load_start_locations(&mut self, path: &Path) -> Result<()> {
+        let start_locations_str = std::fs::read_to_string(path)?;
+        self.start_locations = serde_json::from_str(&start_locations_str)?;
+        Ok(())
+    }
+
+    fn load_hub_locations(&mut self, path: &Path) -> Result<()> {
+        let hub_locations_str = std::fs::read_to_string(path)?;
+        self.hub_locations = serde_json::from_str(&hub_locations_str)?;
+        Ok(())
+    }
+
     fn load_room_geometry(&mut self, room_geometry_path: &Path) -> Result<()> {
         let room_geometry_str = std::fs::read_to_string(room_geometry_path)?;
         self.room_geometry = serde_json::from_str(&room_geometry_str)?;
@@ -2460,6 +2498,8 @@ impl GameData {
         room_geometry_path: &Path,
         palette_path: &Path,
         escape_timings_path: &Path,
+        start_locations_path: &Path,
+        hub_locations_path: &Path,
     ) -> Result<GameData> {
         let mut game_data = GameData::default();
         game_data.sm_json_data_path = sm_json_data_path.to_owned();
@@ -2505,6 +2545,8 @@ impl GameData {
             .load_room_geometry(room_geometry_path)
             .context("Unable to load room geometry")?;
         game_data.load_escape_timings(escape_timings_path)?;
+        game_data.load_start_locations(start_locations_path)?;
+        game_data.load_hub_locations(hub_locations_path)?;
         game_data.area_names = vec![
             "Crateria",
             "Brinstar",

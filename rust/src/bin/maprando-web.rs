@@ -1033,8 +1033,11 @@ async fn randomize(
         info!("Map seed={map_seed}, item placement seed={item_placement_seed}");
         let randomizer = Randomizer::new(&map, &difficulty_tiers, &app_data.game_data);
         randomization = match randomizer.randomize(item_placement_seed, display_seed) {
-            Some(r) => r,
-            None => continue,
+            Ok(r) => r,
+            Err(e) => {
+                info!("Failed randomization: {:?}", e);
+                continue;
+            }
         };
         break;
     }
@@ -1313,6 +1316,8 @@ fn build_app_data() -> AppData {
     let room_geometry_path = Path::new("../room_geometry.json");
     let palette_path = Path::new("../palettes.json");
     let escape_timings_path = Path::new("data/escape_timings.json");
+    let start_locations_path = Path::new("data/start_locations.json");
+    let hub_locations_path = Path::new("data/hub_locations.json");
     let maps_path =
         Path::new("../maps/session-2022-06-03T17:19:29.727911.pkl-bk30-subarea-balance-2");
 
@@ -1321,6 +1326,8 @@ fn build_app_data() -> AppData {
         room_geometry_path,
         palette_path,
         escape_timings_path,
+        start_locations_path,
+        hub_locations_path,
     )
     .unwrap();
     let tech_gif_listing = list_tech_gif_files();
