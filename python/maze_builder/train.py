@@ -179,7 +179,7 @@ cpu_executor = None
 
 pickle_name = 'models/session-2023-06-08T14:55:16.779895.pkl'
 # session = pickle.load(open(pickle_name, 'rb'))
-session = pickle.load(open(pickle_name + '-bk6', 'rb'))
+session = pickle.load(open(pickle_name + '-bk8', 'rb'))
 session.envs = envs
 
 
@@ -535,7 +535,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk7')
+            # save_session(session, pickle_name + '-bk8')
             # session.replay_buffer.resize(2 ** 20)
             # pickle.dump(session, open(pickle_name + '-small', 'wb'))
     if session.num_rounds % summary_freq == 0:

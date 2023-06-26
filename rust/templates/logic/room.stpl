@@ -10,8 +10,21 @@
 document.getElementById("navigation-logic").classList.add("active");
 </script>
 
-<div class="container col-xl-10 col-xxl-8 pb-4">
-    <h3 class="my-2"><%= room_name %></h3>
+<div class="container col-xl-10 col-xxl-8 pt-2 pb-2">
+    <div class="row mb-0 pb-0">
+        <div class="col-sm-8">
+            <h3 class="mb-0 pb-0"><%= room_name %></h3>
+        </div>
+        <div class="col-sm-4 pb-2 hstack">
+            <div class="ms-auto">
+                <p class="my-auto"><small>Room ID: <%= room_id %></small></p>
+            </div>
+            <div class="vr mx-2"></div>
+            <div>
+                <small><a href="https://wiki.supermetroid.run/<%= room_name_url_encoded%>">Wiki</a></small>
+            </div>
+        </div>
+    </div>
     <div class="row my-2">
         <div class="col-12 overflow-auto">
             <img src="/<%- room_diagram_path %>">

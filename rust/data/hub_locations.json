@@ -1,0 +1,322 @@
+[
+    {
+        "name": "Landing Site (Ship)",
+        "room_id": 8,
+        "node_id": 5
+    },
+    {
+        "name": "Pre-Map Flyway (1 Reo, 3 Mellows)",
+        "room_id": 12,
+        "node_id": 1,
+        "note": ["The Reo drops Supers and Power Bombs at a 4% rate each."]
+    },
+    {
+        "name": "Gauntlet Energy Tank Room (Zebbo Farm)",
+        "room_id": 31,
+        "node_id": 1,
+        "note": ["The Zebbos drop Power Bombs at a 2% rate."]
+    },
+    {
+        "name": "Lower Mushrooms (2 Kagos)",
+        "room_id": 22,
+        "node_id": 1
+    },
+    {
+        "name": "Terminator Room (3 Wavers, 6 Geemers)",
+        "room_id": 20,
+        "node_id": 2,
+        "note": ["The Wavers drop Power Bombs at a 4% rate."]
+    },
+    {
+        "name": "Bowling Alley Path (3 Wavers, 3 Choots)",
+        "room_id": 33,
+        "node_id": 1,
+        "note": ["The Wavers and Choots drop Power Bombs at a 4% rate."]
+    },
+    {
+        "name": "Crateria Kihunter Room (2 Kihunters, 2 Scisers)",
+        "room_id": 24,
+        "node_id": 1,
+        "note": ["The Kihunters drop Supers at a 4% rate."]
+    },
+    {
+        "name": "East Ocean (2 Choots)",
+        "room_id": 34,
+        "node_id": 1,
+        "requires": ["canCarefulJump"],
+        "note": ["The Choots drop Power Bombs at a 4% rate."]
+    },
+    {
+        "name": "Forgotten Highway Kago Room (2 Kagos)",
+        "room_id": 35,
+        "node_id": 2
+    },
+    {
+        "name": "West Ocean (Zeb Farm)",
+        "room_id": 32,
+        "node_id": 6
+    },
+    {
+        "name": "Brinstar Pre-Map Room (1 Small Sidehopper, 2 Zeelas)",
+        "room_id": 47,
+        "node_id": 2,
+        "requires": ["canBePatient"],
+        "note": ["The Small Sidehopper drops Power Bombs at a 2% rate."]
+    },
+    {
+        "name": "Early Supers Room Left (Zeb Farm)",
+        "room_id": 45,
+        "node_id": 1
+    },
+    {
+        "name": "Early Supers Room Right (4 Wavers, 3 Small Sidehoppers)",
+        "room_id": 45,
+        "node_id": 1,
+        "note": ["The Wavers drop Power Bombs at a 4% rate."]
+    },
+    {
+        "name": "Etecoon Energy Tank Room (Zebbo Farm)",
+        "room_id": 51,
+        "node_id": 7,
+        "requires": ["canTrickyJump"],
+        "note": ["The Zebbos drop Power Bombs at a 2% rate."]
+    },
+    {
+        "name": "Green Hill Zone Left (Geega Farm)",
+        "room_id": 54,
+        "node_id": 1
+    },
+    {
+        "name": "Green Hill Zone Right (Small Sidehoppers)",
+        "room_id": 54,
+        "node_id": 3
+    },
+    {
+        "name": "Spore Spawn Kihunter Room (3 Kihunters)",
+        "room_id": 56,
+        "node_id": 1,
+        "note": ["The Kihunters drop Supers and Power Bombs at a 4% rate."]
+    },
+    {
+        "name": "Big Pink (Zeb Farm)",
+        "room_id": 59,
+        "node_id": 13
+    },
+    {
+        "name": "Dachora Room Top Left (3 Reos, 2 Zeelas)",
+        "room_id": 58,
+        "node_id": 1,
+        "note": ["The Reo drops Power Bombs at a 4% rate each."]
+    },
+    {
+        "name": "Spore Spawn Farming Room (Zeb Farm)",
+        "room_id": 64,
+        "node_id": 1
+    },
+    {
+        "name": "Spore Spawn Super Room (Zeb Farm)",
+        "room_id": 63,
+        "node_id": 1
+    },
+    {
+        "name": "Bat Room (2 Skrees)",
+        "room_id": 69,
+        "node_id": 2,
+        "requires": ["never"],
+        "note": ["The Skrees drop Supers and Power Bombs at a 2% rate each, low energy at a 8% rate, big energy at a 1.2% rate."],
+        "devNote": ["Keeping this disabled as the low energy drop rate is insufficient if the neighboring rooms are heated."]
+    },
+    {
+        "name": "Hellway (Zebbo Farm)",
+        "room_id": 74,
+        "node_id": 1
+    },
+    {
+        "name": "Red Brinstar Fireflea Room",
+        "room_id": 67,
+        "node_id": 2,
+        "requires": ["never"],
+        "devNote": ["Leaving this out because farming the Wavers seems too slow & difficult even for canBePatient."]
+    },
+    {
+        "name": "Red Tower (Geega Farm)",
+        "room_id": 66,
+        "node_id": 1
+    },
+    {
+        "name": "Kraid Eye Door Room (Zeb Farm)",
+        "room_id": 83,
+        "node_id": 1
+    },
+    {
+        "name": "Warehouse Kihunter Room (3 Kihunters)",
+        "room_id": 81,
+        "node_id": 5,
+        "note": ["The Kihunters drop Supers and Power Bombs at a 4% rate."]
+    },
+    {
+        "name": "Acid Snakes Tunnel (Gamet Farm)",
+        "room_id": 119,
+        "node_id": 4
+    },
+    {
+        "name": "Bat Cave (Gamet Farm)",
+        "room_id": 100,
+        "node_id": 3
+    },
+    {
+        "name": "Bubble Mountain (2 Wavers)",
+        "room_id": 97,
+        "node_id": 9
+    },
+    {
+        "name": "Purple Farming Room (Gamet Farm)",
+        "room_id": 96,
+        "node_id": 2
+    },
+    {
+        "name": "Upper Norfair Farming Room (Gamet Farm)",
+        "room_id": 94,
+        "node_id": 5
+    },
+    {
+        "name": "Ice Beam Gate Room Bottom (6 Mellas, 3 Small Desgeegas)",
+        "room_id": 106,
+        "node_id": 3
+    },
+    {
+        "name": "Grapple Tutorial Room 3 (Gamet Farm)",
+        "room_id": 131,
+        "node_id": 1
+    },
+    {
+        "name": "Post Crocomire Farming Room (Gamet Farm)",
+        "room_id": 123,
+        "node_id": 5
+    },
+    {
+        "name": "Boyon Gate Hall Left (Zebbo Farm)",
+        "room_id": 200,
+        "node_id": 4
+    },
+    {
+        "name": "Boyon Gate Hall Right (Zebbo Farm)",
+        "room_id": 200,
+        "node_id": 3
+    },
+    {
+        "name": "Below Botwoon Energy Tank (Zoa Farm)",
+        "room_id": 205,
+        "node_id": 1,
+        "requires": ["canSuitlessMaridia"]
+    },
+    {
+        "name": "Botwoon Energy Tank Room Left (4 Puyos)",
+        "room_id": 186,
+        "node_id": 1,
+        "requires": ["canSuitlessMaridia"]
+    },
+    {
+        "name": "Botwoon Energy Tank Room Right (Zoa Farm)",
+        "room_id": 186,
+        "node_id": 4,
+        "requires": ["canSuitlessMaridia"]
+    },
+    {
+        "name": "Botwoon Hallway Left (2 Mochtroids)",
+        "room_id": 184,
+        "node_id": 1,
+        "requires": ["canSuitlessMaridia", "canCarefulJump"],
+        "note": "Avoiding damage from the mochtroids requires some care.",
+        "devNote": "Farming the right side of the room is possible but too slow even for canBePatient"
+    },
+    {
+        "name": "Colosseum Top Right (1 Mochtroid)",
+        "room_id": 189,
+        "node_id": 3,
+        "requires": "never",
+        "devNote": [
+            "Keeping this disabled as the low energy drop rate may be insufficient if the neighboring room is heated.",
+            "For the same reason, hubs for the other two doors are not added, nor for Halfie Climb Room."
+        ]
+    },
+    {
+        "name": "Bug Sand Hole Left (Zoa Farm)",
+        "room_id": 211,
+        "node_id": 1,
+        "requires": ["canSuitlessMaridia", "canTrickyJump"],
+        "note": "Stand in the door to stay safe from the Yapping Maws."
+    },
+    {
+        "name": "Bug Sand Hole Right (Zoa Farm)",
+        "room_id": 211,
+        "node_id": 3,
+        "requires": "canTrickyJump",
+        "note": "Stand in the door to stay safe from the Yapping Maws."
+    },
+    {
+        "name": "Butterfly Room Left (Zoa Farm)",
+        "room_id": 213,
+        "node_id": 1,
+        "requires": ["canSuitlessMaridia"]
+    },
+    {
+        "name": "Butterfly Room Right (Zoa Farm)",
+        "room_id": 213,
+        "node_id": 2,
+        "requires": ["canSuitlessMaridia"]
+    },
+    {
+        "name": "Plasma Spark Room Right (2 Choots)",
+        "room_id": 197,
+        "node_id": 3,
+        "requires": ["canCarefulJump"]
+    },
+    {
+        "name": "Plasma Tutorial Room (6 Puyos)",
+        "room_id": 218,
+        "node_id": 1
+    },
+    {
+        "name": "Pseudo Plasma Spark Room (5+ Choots)",
+        "room_id": 179,
+        "node_id": 1
+    },
+    {
+        "name": "Plasma Climb Bottom (3 Puyos)",
+        "room_id": 217,
+        "node_id": 1
+    },
+    {
+        "name": "Thread the Needle Room (8 Choots, 7 Puyos)",
+        "room_id": 214,
+        "node_id": 1
+    },
+    {
+        "name": "Watering Hole (Zeb Farm)",
+        "room_id": 181,
+        "node_id": 1
+    },
+    {
+        "name": "East Pants Room Top (3 Puyos)",
+        "room_id": 322,
+        "node_id": 2,
+        "requires": ["canSuitlessMaridia"]
+    },
+    {
+        "name": "East Pants Room Bottom (2 Puyos)",
+        "room_id": 322,
+        "node_id": 3,
+        "requires": ["canSuitlessMaridia", "canPlayInSand"]
+    },
+    {
+        "name": "Wrecked Ship Main Shaft Top (Coverns or Atomics)",
+        "room_id": 155,
+        "node_id": 9
+    },
+    {
+        "name": "Attic (Coverns or Atomics & Kihunters)",
+        "room_id": 160,
+        "node_id": 1
+    }
+]

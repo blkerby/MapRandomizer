@@ -2,6 +2,7 @@ use glob::glob;
 use hashbrown::{HashMap, HashSet};
 use json::JsonValue;
 use sailfish::TemplateOnce;
+use urlencoding;
 
 use crate::game_data::{GameData, Link, NodeId, Requirement, RoomId};
 use crate::randomize::{DebugOptions, DifficultyConfig};
@@ -33,9 +34,10 @@ struct RoomStrat {
 struct RoomTemplate {
     version: usize,
     difficulty_names: Vec<String>,
-    room_id_: usize,
+    room_id: usize,
     room_name: String,
     room_name_stripped: String,
+    room_name_url_encoded: String,
     area: String,
     room_diagram_path: String,
     nodes: Vec<(usize, String)>,
@@ -175,7 +177,7 @@ fn make_tech_templates<'a>(
         for strat in &template.strats {
             room_strat_map.insert(
                 (
-                    template.room_id_,
+                    template.room_id,
                     strat.from_node_id,
                     strat.to_node_id,
                     strat.strat_name.to_string(),
@@ -452,7 +454,8 @@ fn make_room_template(
     RoomTemplate {
         version: VERSION,
         difficulty_names,
-        room_id_: room_id,
+        room_id,
+        room_name_url_encoded: urlencoding::encode(&room_name).into_owned(),
         room_name,
         room_name_stripped,
         area: full_area,

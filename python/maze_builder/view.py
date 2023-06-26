@@ -32,7 +32,8 @@ device = torch.device('cpu')
 # session = CPU_Unpickler(open('models/session-2023-05-10T14:34:48.668019.pkl-small.pkl', 'rb')).load()
 # session = CPU_Unpickler(open('models/session-2023-05-31T14:35:04.410129.pkl', 'rb')).load()
 # session = CPU_Unpickler(open('models/session-2023-05-31T21:25:13.243815.pkl', 'rb')).load()
-session = CPU_Unpickler(open('models/session-2023-06-02T23:26:53.466014.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2023-06-02T23:26:53.466014.pkl', 'rb')).load()
+session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small', 'rb')).load()
 #
 
 
@@ -47,8 +48,8 @@ print(min_reward, torch.mean((session.replay_buffer.episode_data.reward == min_r
 # ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 0)
 # ind = ind[(ind >= 200000) & (ind < 262144)].view(-1, 1)
 ind = torch.nonzero(session.replay_buffer.episode_data.reward == min_reward)
-i = int(random.randint(0, ind.shape[0] - 1))
-# i = 0
+# i = int(random.randint(0, ind.shape[0] - 1))
+i = 0
 num_rooms = len(session.envs[0].rooms)
 action = session.replay_buffer.episode_data.action[ind[i], :]
 step_indices = torch.tensor([num_rooms])
@@ -62,9 +63,9 @@ room_mask, room_position_x, room_position_y = reconstruct_room_data(action, step
 #
 # num_envs = 2
 # num_envs = 8
-# rooms = logic.rooms.all_rooms.rooms
+rooms = logic.rooms.all_rooms.rooms
 # rooms = logic.rooms.crateria_isolated.rooms
-rooms = logic.rooms.norfair_isolated.rooms
+# rooms = logic.rooms.norfair_isolated.rooms
 
 
 # doors = {}
@@ -100,8 +101,8 @@ env = MazeBuilderEnv(rooms,
                      map_x=session.envs[0].map_x,
                      map_y=session.envs[0].map_y,
                      num_envs=num_envs,
-                     # starting_room_name="Landing Site",
-                     starting_room_name="Business Center",
+                     starting_room_name="Landing Site",
+                     # starting_room_name="Business Center",
                      device=device,
                      must_areas_be_connected=False)
 env.room_position_x = room_position_x
