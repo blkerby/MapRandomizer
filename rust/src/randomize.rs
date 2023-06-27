@@ -17,7 +17,6 @@ use log::info;
 use rand::SeedableRng;
 use rand::{seq::SliceRandom, Rng};
 use serde_derive::{Deserialize, Serialize};
-use serde_json;
 use std::{
     cmp::{max, min},
     convert::TryFrom,
@@ -1685,7 +1684,7 @@ impl<'r> Randomizer<'r> {
         num_attempts: usize,
         rng: &mut R,
     ) -> Result<(StartLocation, HubLocation)> {
-        for i in 0..num_attempts {
+        'attempt: for i in 0..num_attempts {
             info!("start location attempt {}", i);
             let start_loc_idx = rng.gen_range(0..self.game_data.start_locations.len());
             let start_loc = self.game_data.start_locations[start_loc_idx].clone();
@@ -1711,7 +1710,7 @@ impl<'r> Randomizer<'r> {
                 &global,
                 num_vertices,
                 start_vertex_id,
-                false,
+                true,
                 &self.difficulty_tiers[0],
                 self.game_data,
             );
@@ -1721,6 +1720,10 @@ impl<'r> Randomizer<'r> {
                     self.game_data.vertex_isv.index_by_key[&(hub.room_id, hub.node_id, 0)];
                 info!("hub: {:?}", hub);
                 if forward.local_states[hub_vertex_id].is_some() && reverse.local_states[hub_vertex_id].is_some() {
+                    if hub.room_id == 8 {
+                        // Reject starting location if the Ship is initially bireachable from it.
+                        continue 'attempt;
+                    }
                     return Ok((start_loc, hub.clone()));
                 }
             }

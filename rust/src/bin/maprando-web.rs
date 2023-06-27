@@ -1035,7 +1035,7 @@ async fn randomize(
         randomization = match randomizer.randomize(item_placement_seed, display_seed) {
             Ok(r) => r,
             Err(e) => {
-                info!("Failed randomization: {:?}", e);
+                info!("Failed randomization: {}", e);
                 continue;
             }
         };
