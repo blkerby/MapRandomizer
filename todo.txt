@@ -1,6 +1,7 @@
 next release:
 - randomized start
   - randomize ship area
+  - check requires on starting locations
 - adjust area colors
   - darken wrecked ship a bit
   - maybe add a little color to tourian, a bit tan maybe (like the tourian sand)

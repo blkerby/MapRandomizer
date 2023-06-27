@@ -90,7 +90,6 @@ pub struct DifficultyConfig {
     pub early_filler_items: Vec<Item>,
     pub resource_multiplier: f32,
     pub escape_timer_multiplier: f32,
-    pub save_animals: bool,
     pub phantoon_proficiency: f32,
     pub draygon_proficiency: f32,
     pub ridley_proficiency: f32,
@@ -114,6 +113,8 @@ pub struct DifficultyConfig {
     pub infinite_space_jump: bool,
     // Game variations:
     pub objectives: Objectives,
+    pub randomized_start: bool,
+    pub save_animals: bool,
     pub disable_walljump: bool,
     pub maps_revealed: bool,
     pub vanilla_map: bool,
@@ -1684,6 +1685,22 @@ impl<'r> Randomizer<'r> {
         num_attempts: usize,
         rng: &mut R,
     ) -> Result<(StartLocation, HubLocation)> {
+        if !self.difficulty_tiers[0].randomized_start {
+            let mut ship_start = StartLocation::default();
+            ship_start.name = "Ship".to_string();
+            ship_start.room_id = 8;
+            ship_start.node_id = 5;
+            ship_start.door_load_node_id = Some(2);
+            ship_start.x = 72.0;
+            ship_start.y = 69.5;
+    
+            let mut ship_hub = HubLocation::default();
+            ship_hub.name = "Ship".to_string();
+            ship_hub.room_id = 8;
+            ship_hub.node_id = 5;
+    
+            return Ok((ship_start, ship_hub));
+        }
         'attempt: for i in 0..num_attempts {
             info!("start location attempt {}", i);
             let start_loc_idx = rng.gen_range(0..self.game_data.start_locations.len());
@@ -1718,33 +1735,17 @@ impl<'r> Randomizer<'r> {
             for hub in &self.game_data.hub_locations {
                 let hub_vertex_id =
                     self.game_data.vertex_isv.index_by_key[&(hub.room_id, hub.node_id, 0)];
-                info!("hub: {:?}", hub);
                 if forward.local_states[hub_vertex_id].is_some() && reverse.local_states[hub_vertex_id].is_some() {
                     if hub.room_id == 8 {
                         // Reject starting location if the Ship is initially bireachable from it.
                         continue 'attempt;
                     }
+                    info!("hub: {:?}", hub);
                     return Ok((start_loc, hub.clone()));
                 }
             }
         }
         bail!("Failed to find start location.")
-
-        // let mut ship_start = StartLocation::default();
-        // ship_start.name = "Ship".to_string();
-        // ship_start.room_id = 8;
-        // ship_start.node_id = 5;
-        // ship_start.door_load_node_id = Some(2);
-        // ship_start.x = 72.0;
-        // ship_start.y = 69.5;
-
-        // let mut ship_hub = HubLocation::default();
-        // ship_hub.name = "Ship".to_string();
-        // ship_hub.room_id = 8;
-        // ship_hub.node_id = 5;
-
-        // Ok((ship_start, ship_hub))
-        // None
     }
 
     fn get_initial_global_state(&self) -> GlobalState {
