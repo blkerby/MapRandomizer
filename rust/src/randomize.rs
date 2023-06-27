@@ -917,6 +917,7 @@ impl<'r> Randomizer<'r> {
             &self.links,
             None,
             &state.global_state,
+            LocalState::new(),
             num_vertices,
             start_vertex_id,
             false,
@@ -927,6 +928,7 @@ impl<'r> Randomizer<'r> {
             &self.links,
             None,
             &state.global_state,
+            LocalState::new(),
             num_vertices,
             start_vertex_id,
             true,
@@ -1185,6 +1187,7 @@ impl<'r> Randomizer<'r> {
                 &self.links,
                 self.get_init_traverse(state, init_traverse),
                 &tmp_global,
+                LocalState::new(),
                 num_vertices,
                 start_vertex_id,
                 false,
@@ -1705,16 +1708,27 @@ impl<'r> Randomizer<'r> {
             info!("start location attempt {}", i);
             let start_loc_idx = rng.gen_range(0..self.game_data.start_locations.len());
             let start_loc = self.game_data.start_locations[start_loc_idx].clone();
-            info!("start: {:?}", start_loc);
-
+            
+            info!("start: {:?}", start_loc);            
             let num_vertices = self.game_data.vertex_isv.keys.len();
             let start_vertex_id =
                 self.game_data.vertex_isv.index_by_key[&(start_loc.room_id, start_loc.node_id, 0)];
             let global = self.get_initial_global_state();
+            let local = apply_requirement(
+                &start_loc.requires_parsed.as_ref().unwrap(),
+                &global,
+                LocalState::new(),
+                false,
+                &self.difficulty_tiers[0],
+            );
+            if local.is_none() {
+                continue;
+            }
             let forward = traverse(
                 &self.links,
                 None,
                 &global,
+                local.unwrap(),
                 num_vertices,
                 start_vertex_id,
                 false,
@@ -1725,6 +1739,7 @@ impl<'r> Randomizer<'r> {
                 &self.links,
                 None,
                 &global,
+                LocalState::new(),
                 num_vertices,
                 start_vertex_id,
                 true,

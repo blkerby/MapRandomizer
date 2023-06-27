@@ -53,7 +53,7 @@
     {
         "name": "Crateria Super Room Top Left",
         "room_id": 29,
-        "node_id": 4,
+        "node_id": 1,
         "door_load_node_id": 1,
         "x": 4,
         "y": 10
@@ -677,14 +677,14 @@
     {
         "name": "Bubble Mountain Center",
         "room_id": 97,
-        "node_id": 6,
+        "node_id": 3,
         "x": 4.5,
         "y": 42
     },
     {
         "name": "Bubble Mountain Bottom Left",
         "room_id": 97,
-        "node_id": 6,
+        "node_id": 4,
         "x": 4,
         "y": 58
     },
@@ -734,7 +734,7 @@
     {
         "name": "Frog Speedway Right",
         "room_id": 93,
-        "node_id": 1,
+        "node_id": 2,
         "x": 88,
         "y": 10
     },
@@ -864,7 +864,7 @@
     {
         "name": "Single Chamber Right",
         "room_id": 103,
-        "node_id": 1,
+        "node_id": 5,
         "x": 83,
         "y": 7,
         "requires": ["canHeatRun", {"heatFrames": 100}]
@@ -1290,7 +1290,7 @@
         "node_id": 1,
         "x": 13.5,
         "y": 41,
-        "requires": ["canHeatRun", {"heatFrame": 120}]
+        "requires": ["canHeatRun", {"heatFrames": 120}]
     },
     {
         "name": "Main Hall Elevator",
@@ -1482,8 +1482,7 @@
     {
         "name": "Main Street Middle",
         "room_id": 172,
-        "node_id": 9,
-        "door_load_node_id": 3,
+        "node_id": 3,
         "x": 7,
         "y": 38,
         "requires": ["canSuitlessMaridia"]
@@ -1595,7 +1594,7 @@
     {
         "name": "Botwoon Energy Tank Room Right",
         "room_id": 186,
-        "node_id": 1,
+        "node_id": 4,
         "x": 104,
         "y": 10
     },
@@ -1646,7 +1645,7 @@
     {
         "name": "Crab Shaft Center",
         "room_id": 175,
-        "node_id": 3,
+        "node_id": 1,
         "x": 8,
         "y": 42
     },
@@ -1667,8 +1666,7 @@
     {
         "name": "East Cactus Alley Room Right",
         "room_id": 196,
-        "node_id": 4,
-        "door_load_node_id": 2,
+        "node_id": 2,
         "x": 77,
         "y": 26
     },
@@ -1782,7 +1780,7 @@
     {
         "name": "East Sand Hall Right",
         "room_id": 210,
-        "node_id": 1,
+        "node_id": 2,
         "x": 44.5,
         "y": 10
     },
@@ -1824,7 +1822,7 @@
     {
         "name": "West Sand Hall Right",
         "room_id": 199,
-        "node_id": 1,
+        "node_id": 2,
         "x": 60.5,
         "y": 10
     },
@@ -1922,7 +1920,7 @@
     {
         "name": "Wrecked Ship Main Shaft Right",
         "room_id": 155,
-        "node_id": 1,
+        "node_id": 6,
         "x": 92.5,
         "y": 106
     },
@@ -1995,7 +1993,8 @@
         "room_id": 242,
         "node_id": 2,
         "x": 44.5,
-        "y": 45
+        "y": 45,
+        "requires": [{"or": ["canWalljump", "h_canCrouchJumpDownGrab"]}]
     },
     {
         "name": "Tourian Eye Door Room",

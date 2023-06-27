@@ -397,6 +397,8 @@ pub struct StartLocation {
     // Don't use these, because they will mess up the door cap animations. Maybe we can find a fix for that someday.
     pub camera_offset_x: Option<f32>,
     pub camera_offset_y: Option<f32>,
+    #[serde(skip_deserializing)]
+    pub requires_parsed: Option<Requirement>,
 }
 
 #[derive(Deserialize, Debug, Clone, Default)]
@@ -406,6 +408,8 @@ pub struct HubLocation {
     pub node_id: usize,
     pub requires: Option<Vec<serde_json::Value>>,
     pub note: Option<Vec<String>>,
+    #[serde(skip_deserializing)]
+    pub requires_parsed: Option<Requirement>,
 }
 
 #[derive(Clone, Debug)]
@@ -791,6 +795,7 @@ impl GameData {
         Ok(reqs)
     }
 
+    // TODO: Find some way to have this not need to be mutable (e.g. resolve the helper dependencies in a first pass)
     fn parse_requirement(
         &mut self,
         req_json: &JsonValue,
@@ -2384,13 +2389,45 @@ impl GameData {
 
     fn load_start_locations(&mut self, path: &Path) -> Result<()> {
         let start_locations_str = std::fs::read_to_string(path)?;
-        self.start_locations = serde_json::from_str(&start_locations_str)?;
+        let mut start_locations: Vec<StartLocation> = serde_json::from_str(&start_locations_str)?;
+        for loc in &mut start_locations {
+            if loc.requires.is_none() {
+                loc.requires_parsed = Some(Requirement::Free);
+            } else {
+                let mut req_json_list: Vec<JsonValue> = vec![];
+                for req in loc.requires.as_ref().unwrap() {
+                    let req_str = req.to_string();
+                    let req_json = json::parse(&req_str).with_context(|| format!("Error parsing requires in {:?}", loc))?;
+                    req_json_list.push(req_json);
+                }    
+                let ctx = RequirementContext::default();
+                let req_list = self.parse_requires_list(&req_json_list, &ctx)?;
+                loc.requires_parsed = Some(Requirement::make_and(req_list));
+            }
+        }
+        self.start_locations = start_locations;
         Ok(())
     }
 
     fn load_hub_locations(&mut self, path: &Path) -> Result<()> {
         let hub_locations_str = std::fs::read_to_string(path)?;
-        self.hub_locations = serde_json::from_str(&hub_locations_str)?;
+        let mut hub_locations: Vec<HubLocation> = serde_json::from_str(&hub_locations_str)?;
+        for loc in &mut hub_locations {
+            if loc.requires.is_none() {
+                loc.requires_parsed = Some(Requirement::Free);
+            } else {
+                let mut req_json_list: Vec<JsonValue> = vec![];
+                for req in loc.requires.as_ref().unwrap() {
+                    let req_str = req.to_string();
+                    let req_json = json::parse(&req_str).with_context(|| format!("Error parsing requires in {:?}", loc))?;
+                    req_json_list.push(req_json);
+                }    
+                let ctx = RequirementContext::default();
+                let req_list = self.parse_requires_list(&req_json_list, &ctx)?;
+                loc.requires_parsed = Some(Requirement::make_and(req_list));
+            }
+        }
+        self.hub_locations = hub_locations;
         Ok(())
     }
 

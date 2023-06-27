@@ -919,6 +919,7 @@ pub fn traverse(
     links: &[Link],
     init_opt: Option<TraverseResult>,
     global: &GlobalState,
+    init_local: LocalState,
     num_vertices: usize,
     start_vertex_id: usize,
     reverse: bool,
@@ -942,7 +943,7 @@ pub fn traverse(
             step_trails: Vec::with_capacity(num_vertices * 10),
             start_trail_ids: vec![None; num_vertices],
         };
-        result.local_states[start_vertex_id] = Some(LocalState::new());
+        result.local_states[start_vertex_id] = Some(init_local);
         result.start_trail_ids[start_vertex_id] = Some(-1);
         result.cost[start_vertex_id] =
             compute_cost(result.local_states[start_vertex_id].unwrap(), global);
