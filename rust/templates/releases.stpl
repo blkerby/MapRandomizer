@@ -17,6 +17,11 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-69---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 69 (???)</a>:
+<ul>
+<li>New game variation "Randomized start location" is added (under "Other options").
+</ul>
+
 <p><a href="https://version-68---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 68 (2023-06-22)</a>:
 <ul>
 <li>New objective "Pirates" is added.

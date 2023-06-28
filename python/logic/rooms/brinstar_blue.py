@@ -31,7 +31,7 @@ rooms = [
             3: [(6, 2), (7, 2)],  # right door
             4: [(4, 2)],  # morph ball
             5: [(2, 2), (3, 2)],  # power bomb
-            6: [(2, 2)],  # junction right of sidehoppers
+            6: [(1, 2)],  # junction right of sidehoppers
         },
     ),
     Room(

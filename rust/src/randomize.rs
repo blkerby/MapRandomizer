@@ -1645,10 +1645,10 @@ impl<'r> Randomizer<'r> {
             all_rooms: spoiler_all_rooms,
         };
 
-        // Messing around with starting location. TODO: fit this in properly
-        // let start_locations: Vec<StartLocation> =
-        //     serde_json::from_str(&std::fs::read_to_string(&"data/start_locations.json").unwrap()).unwrap();
-        // let loc = start_locations.last().unwrap();
+        // Messing around with starting location. TODO: remove this
+        let start_locations: Vec<StartLocation> =
+            serde_json::from_str(&std::fs::read_to_string(&"data/start_locations.json").unwrap()).unwrap();
+        let loc = start_locations.last().unwrap();
 
         Ok(Randomization {
             difficulty: self.difficulty_tiers[0].clone(),
@@ -1657,8 +1657,8 @@ impl<'r> Randomizer<'r> {
             spoiler_log,
             seed,
             display_seed,
-            // start_location: loc.clone(),
-            start_location: state.start_location.clone(),
+            start_location: loc.clone(),
+            // start_location: state.start_location.clone(),
         })
     }
 

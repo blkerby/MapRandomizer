@@ -2,9 +2,8 @@ next release:
 - randomized start
   - randomize ship area
   - check requires on starting locations
-- adjust area colors
-  - darken wrecked ship a bit
-  - maybe add a little color to tourian, a bit tan maybe (like the tourian sand)
+- find way to fix camera to allow loading with non-integer multiple of screens:
+  - strotlog: https://discord.com/channels/127475613073145858/371734116955193354/1010231505626333247
 - fix OOB deaths
   - when getting grabbed by draygon (blandation)
   - running along bottom of aqueduct with speed booster (osse)
@@ -12,6 +11,9 @@ next release:
      ```let entrance_x = self.rom.read_u8(other_door_pair.1.unwrap() + 4)? as u8;
         let entrance_y = self.rom.read_u8(other_door_pair.1.unwrap() + 5)? as u8;
      ```
+- adjust area colors
+  - darken wrecked ship a bit
+  - maybe add a little color to tourian, a bit tan maybe (like the tourian sand)
 - check if reloading from bottom/top of elevator works correctly (not skips back a save)
 - do something about screen shaking during samus appears (in start location: rising tide, amphitheatre)
   - maybe get rid of shaking in general?

@@ -63,17 +63,19 @@
         "room_id": 29,
         "node_id": 4,
         "door_load_node_id": 1,
-        "x": 42,
+        "x": 42.5,
         "y": 10,
-        "spicy": true
+        "spicy": true,
+        "camera_offset_x": 2
     },
     {
         "name": "Crateria Super Room Bottom Left",
         "room_id": 29,
         "node_id": 2,
         "door_load_node_id": 2,
-        "x": 36,
-        "y": 122
+        "x": 35,
+        "y": 122,
+        "camera_offset_x": -2
     },
     {
         "name": "Crateria Super Room Bottom Right",
@@ -110,14 +112,16 @@
         "room_id": 8,
         "node_id": 1,
         "x": 29.5,
-        "y": 41
+        "y": 41,
+        "camera_offset_x": 5
     },
     {
         "name": "Landing Site Top Right",
         "room_id": 8,
         "node_id": 3,
         "x": 134,
-        "y": 24
+        "y": 24,
+        "camera_offset_x": -4
     },
     {
         "name": "Parlor Top Left",
@@ -262,7 +266,9 @@
         "x": 84,
         "y": 78,
         "spicy": true,
-        "requires": ["canDamageBoost", "canTrickyJump"]
+        "requires": ["canDamageBoost", "canTrickyJump"],
+        "camera_offset_x": -3,
+        "camera_offset_y": 1
     },
     {
         "name": "East Ocean Left",
@@ -1620,20 +1626,26 @@
         "y": 11
     },
     {
+        "name": "Colosseum Left",
+        "room_id": 189,
+        "node_id": 3,
+        "x": 44.5,
+        "y": 8,
+        "spicy": true,
+        "requires": [{"spikeHits": 1}, "canInsaneWalljump"],
+        "camera_offset_x": 10,
+        "devNote": ["This is as far left as we can adjust the camera without activating the Mochtroid."]
+    },
+    {
         "name": "Colosseum Right",
         "room_id": 189,
         "node_id": 3,
-        "x": 63.5,
+        "x": 64.5,
         "y": 8,
         "spicy": true,
-        "requires": [{"spikeHits": 1}, "canDamageBoost", "canPreciseWalljump"]
-    },
-    {
-        "name": "Colosseum Left",
-        "room_id": 189,
-        "node_id": 1,
-        "x": 13.5,
-        "y": 10
+        "requires": [{"spikeHits": 1}, "canDamageBoost", "canPreciseWalljump"],
+        "camera_offset_x": -12,
+        "devNote": ["This is as far right as we can adjust the camera without activating the Mochtroid."]
     },
     {
         "name": "Crab Shaft Top",
@@ -2001,7 +2013,8 @@
         "room_id": 235,
         "node_id": 1,
         "x": 26,
-        "y": 12
+        "y": 12,
+        "camera_offset_x": 2
     },
     {
         "name": "Tourian First Room",
@@ -2009,5 +2022,16 @@
         "node_id": 3,
         "x": 8.5,
         "y": 58
+    },
+    {
+        "name": "Amphitheatre Bottom Left",
+        "room_id": 136,
+        "node_id": 1,
+        "door_load_node_id": 1,
+        "x": 6,
+        "y": 69,
+        "spicy": true,
+        "requires": ["canHeatRun", {"heatFrames": 280}, "canConsecutiveWalljump"],
+        "camera_offset_y": -4
     }
 ]

@@ -148,13 +148,33 @@ org $86A8FD
 	ADC $1B23, x   ; was: ADC $1B23
 
 
-;org $80AE29
-;	jsr fix_camera_alignment
-;
-;org !bank_80_free_space_start
-;fix_camera_alignment:
-;	LDA $B3 : AND #$FF00 : STA $B3
-;    LDA $B1 : AND #$FF00
-;    SEC
-;    RTS
-;warnpc !bank_80_free_space_end
+; Graphical fix for loading to start location with camera not aligned to screen boundary, by strotlog:
+; (See discussion in Metconst: https://discord.com/channels/127475613073145858/371734116955193354/1010003248981225572)
+org $80C473
+	stz $091d
+
+org $80C47C
+	stz $091f
+
+; Graphical fix for going through door transition with camera not aligned to screen boundary, by PJBoy
+!layer1PositionX = $0911
+!layer1PositionY = $0915
+!bg1ScrollX = $B1
+!bg1ScrollY = $B3
+!bg2ScrollX = $B5
+!bg2ScrollY = $B7
+
+org $80AE29
+	jsr fix_camera_alignment
+
+org !bank_80_free_space_start
+fix_camera_alignment:
+	SEP #$20
+	LDA !layer1PositionX : STA !bg1ScrollX : STA !bg2ScrollX
+	LDA !layer1PositionY : STA !bg1ScrollY : STA !bg2ScrollY
+	REP #$20
+
+	LDA $B1 : SEC
+	RTS
+
+warnpc !bank_80_free_space_end
