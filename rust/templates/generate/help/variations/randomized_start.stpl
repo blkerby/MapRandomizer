@@ -1,0 +1,41 @@
+<!-- Button trigger modal -->
+<button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#randomizedStartModal">
+<i class="bi bi-question-circle"></i>
+</button>
+
+<!-- Modal -->
+<div class="modal" id="randomizedStartModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">Randomized start location</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+      <p>
+      If enabled, Samus will start the game at a random place on the map instead of at the Ship. Samus will not be able 
+      to save or refill at the starting location. The player will need to find the Ship in order to complete the
+      escape sequence.
+      </p>
+
+      <p>
+      <b>Details</b>: The logic ensures a pathway exists from the starting 
+      location to some "hub" room with enemies that can be defeated with Power Beam and which drop all types of 
+      resources (energy, Missiles, Supers, and Power Bombs). The logic follows certain rules with respect to
+      this hub room (similar to how the Ship is treated when not using randomized start):
+      <ul>
+      <li>There is always a path from the starting room to the hub and back without needing to collect items.
+      <li>Items are only in logic once there is a path to the item and back to the hub without using the item.
+      <li>The hub room is shown as the starting and ending point of routes in the spoiler map.
+      </ul>
+      </p>
+
+      <p>Currently, even when this option is enabled, Landing Site (containing the Ship) is still always in Crateria, 
+      though that will likely change in a future version of the randomizer.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

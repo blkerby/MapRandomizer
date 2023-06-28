@@ -1253,11 +1253,9 @@ struct Args {
 
 fn get_ignored_notable_strats() -> HashSet<String> {
     [
-        "Frozen Geemer Alcatraz Escape",
         "Suitless Botwoon Kill",
         "Maridia Bug Room Frozen Menu Bridge",
         "Breaking the Maridia Tube Gravity Jump",
-        "Crumble Shaft Consecutive Crumble Climb",
         "Metroid Room 1 PB Dodge Kill (Left to Right)",
         "Metroid Room 1 PB Dodge Kill (Right to Left)",
         "Metroid Room 2 PB Dodge Kill (Bottom to Top)",
@@ -1267,9 +1265,8 @@ fn get_ignored_notable_strats() -> HashSet<String> {
         "Metroid Room 4 Six PB Dodge Kill (Bottom to Top)",
         "Metroid Room 4 Three PB Dodge Kill (Bottom to Top)",
         "Partial Covern Ice Clip",
-        "MickeyMouse Crumbleless MidAir Spring Ball",
         "Mickey Mouse Crumble IBJ",
-        "Botwoon Hallway Puyo Ice Clip",
+        "G-Mode Morph Breaking the Maridia Tube Gravity Jump", // not usable because of canRiskPermanentLossOfAccess
         "Mt. Everest Cross Room Jump through Top Door", // currently unusable because of obstacleCleared requirement
     ]
     .iter()
