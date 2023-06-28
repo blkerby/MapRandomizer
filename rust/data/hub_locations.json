@@ -6,7 +6,7 @@
     },
     {
         "name": "Pre-Map Flyway (1 Reo, 3 Mellows)",
-        "room_id": 12,
+        "room_id": 14,
         "node_id": 1,
         "note": ["The Reo drops Supers and Power Bombs at a 4% rate each."]
     },
@@ -71,7 +71,7 @@
     {
         "name": "Early Supers Room Right (4 Wavers, 3 Small Sidehoppers)",
         "room_id": 45,
-        "node_id": 1,
+        "node_id": 2,
         "note": ["The Wavers drop Power Bombs at a 4% rate."]
     },
     {

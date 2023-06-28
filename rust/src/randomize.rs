@@ -1154,7 +1154,9 @@ impl<'r> Randomizer<'r> {
         // lower difficulty tiers. This function returns an index into `bireachable_locations`, identifying
         // a location with the hardest possible difficulty to reach.
         let num_vertices = self.game_data.vertex_isv.keys.len();
-        let start_vertex_id = self.game_data.vertex_isv.index_by_key[&(8, 5, 0)]; // Landing site
+        // let start_vertex_id = self.game_data.vertex_isv.index_by_key[&(8, 5, 0)]; // Landing site
+        let start_vertex_id = self.game_data.vertex_isv.index_by_key
+            [&(state.hub_location.room_id, state.hub_location.node_id, 0)];
 
         // for &v in &state.key_visited_vertices {
         //     println!("key visited: {:?}", self.game_data.vertex_isv.keys[v]);
@@ -1696,20 +1698,20 @@ impl<'r> Randomizer<'r> {
             ship_start.door_load_node_id = Some(2);
             ship_start.x = 72.0;
             ship_start.y = 69.5;
-    
+
             let mut ship_hub = HubLocation::default();
             ship_hub.name = "Ship".to_string();
             ship_hub.room_id = 8;
             ship_hub.node_id = 5;
-    
+
             return Ok((ship_start, ship_hub));
         }
         'attempt: for i in 0..num_attempts {
             info!("start location attempt {}", i);
             let start_loc_idx = rng.gen_range(0..self.game_data.start_locations.len());
             let start_loc = self.game_data.start_locations[start_loc_idx].clone();
-            
-            info!("start: {:?}", start_loc);            
+
+            info!("start: {:?}", start_loc);
             let num_vertices = self.game_data.vertex_isv.keys.len();
             let start_vertex_id =
                 self.game_data.vertex_isv.index_by_key[&(start_loc.room_id, start_loc.node_id, 0)];
@@ -1750,7 +1752,9 @@ impl<'r> Randomizer<'r> {
             for hub in &self.game_data.hub_locations {
                 let hub_vertex_id =
                     self.game_data.vertex_isv.index_by_key[&(hub.room_id, hub.node_id, 0)];
-                if forward.local_states[hub_vertex_id].is_some() && reverse.local_states[hub_vertex_id].is_some() {
+                if forward.local_states[hub_vertex_id].is_some()
+                    && reverse.local_states[hub_vertex_id].is_some()
+                {
                     if hub.room_id == 8 {
                         // Reject starting location if the Ship is initially bireachable from it.
                         continue 'attempt;
