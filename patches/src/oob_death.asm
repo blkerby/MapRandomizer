@@ -50,9 +50,15 @@ check_oob:
     rtl
 
 .oob:
-    ; check if we're on an elevator. Samus normally goes OOB on elevators and we don't want to trigger death in that case.
+    ; check if we're on an elevator ride. Samus normally goes OOB on elevators and we don't want to trigger death in that case.
     lda $0E18
     bne .skip
+
+    ; check if we're grabbed by Draygon. Samus can easily go OOB while grabbed by Draygon (while morphed) and we don't want to trigger death in that case.
+    lda $0A1F
+    and #$00FF
+    cmp #$001A
+    beq .skip
 
     lda #$0013
     sta $0998    ; set game state = $13 (death sequence start)

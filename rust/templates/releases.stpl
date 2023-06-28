@@ -20,6 +20,12 @@ about 15 seconds to load.
 <p><a href="https://version-69---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 69 (???)</a>:
 <ul>
 <li>New game variation "Randomized start location" is added (under "Other options").
+<li>Bugfixes:
+    <ul>
+    <li>Two slope tiles at the bottom of Aqueduct are patched to prevent Samus from going out-of-bounds.
+    <li>Going out-of-bounds while grabbed by Draygon no longer triggers death.
+    <li>Fixed an issue with the gray door that spawns at the start of the escape.
+    </ul>
 </ul>
 
 <p><a href="https://version-68---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 68 (2023-06-22)</a>:

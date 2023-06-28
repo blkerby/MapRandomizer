@@ -100,7 +100,7 @@
         }
         if game_variations.len() > 0 { %>
             <div class="row">
-                <div class="col-3">Game variations:</div>
+                <div class="col-3">Other options:</div>
                 <div class="col-9"><b><%- game_variations.join(", ") %></b></div>
             </div>
         <% } %>

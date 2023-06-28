@@ -20,9 +20,11 @@ next release:
 
 
 credit ideas:
+- unique item locations (map area + room name)
 - item collection percent
 - death count
 - map tile explored count
+- door transition count
 - ... ?
 
 priority:
@@ -50,6 +52,7 @@ priority:
 - logic simulator
 
 later:
+- consider idea from selicre: "what if there was a mode in which walljumps could be unlocked by visiting etecoons (and shinesparking by visiting dachora)?"
 - custom demos
 - include a check that the client and server are matching versions and give a more meaningful error when they aren't
 - look into botwoon requirements: 

@@ -227,7 +227,7 @@ impl<'a> Patcher<'a> {
         let patches_dir = Path::new("../patches/ips/");
         let mut patches = vec![
             "everest_tube",
-            "sandfalls",
+            "sandfalls3",
             "complementary_suits",
             "disable_map_icons",
             "escape",
@@ -548,9 +548,14 @@ impl<'a> Patcher<'a> {
         }
 
         // Get x & y position of door (which we will turn gray during escape).
-        let entrance_x = self.rom.read_u8(other_door_pair.1.unwrap() + 4)? as u8;
-        let entrance_y = self.rom.read_u8(other_door_pair.1.unwrap() + 5)? as u8;
-
+        // let entrance_x = self.orig_rom.read_u8(other_door_pair.1.unwrap() + 4)? as u8;
+        // let entrance_y = self.orig_rom.read_u8(other_door_pair.1.unwrap() + 5)? as u8;
+        // println!("entrance: {} {}", entrance_x, entrance_y);
+        let screen_x = self.orig_rom.read_u8(other_door_pair.1.unwrap() + 6)? as u8;
+        let screen_y = self.orig_rom.read_u8(other_door_pair.1.unwrap() + 7)? as u8;
+        let entrance_x = screen_x * 16 + 14;
+        let entrance_y = screen_y * 16 + 6;
+    
         let asm: Vec<u8> = vec![
             0xA9, 0x0E, 0x00, // LDA #$000E   (Escape flag)
             0x22, 0x33, 0x82, 0x80, // JSL $808233  (Check if flag is set)
