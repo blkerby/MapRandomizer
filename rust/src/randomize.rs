@@ -1647,7 +1647,7 @@ impl<'r> Randomizer<'r> {
             all_rooms: spoiler_all_rooms,
         };
 
-        // Messing around with starting location. TODO: remove this
+        // // Messing around with starting location. TODO: remove this
         // let start_locations: Vec<StartLocation> =
         //     serde_json::from_str(&std::fs::read_to_string(&"data/start_locations.json").unwrap()).unwrap();
         // let loc = start_locations.last().unwrap();

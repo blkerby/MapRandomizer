@@ -17,6 +17,12 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-70---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 70 (2023-06-30)</a>:
+<ul>
+<li>Fixed a severe graphical bug that occurred with the "Randomized start location" option when starting in 
+West Ocean, East Ocean, or Homing Geemer Room.
+</ul>
+
 <p><a href="https://version-69---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 69 (2023-06-28)</a>:
 <ul>
 <li>New game variation "Randomized start location" is added (under "Other options").

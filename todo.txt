@@ -50,6 +50,7 @@ priority:
 - randomized start
 - help buttons for rest of settings (e.g. explain boss proficiency calculations)
 - logic simulator
+- get rid of symlink for sm-json-data
 
 later:
 - "wild" item progression mode, where new item may be required to be used for the return path.

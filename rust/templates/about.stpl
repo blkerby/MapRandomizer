@@ -134,6 +134,8 @@
         leaves the room, the other door will still be gray when re-entering the room.
         </ul>
     <li>The green door at the bottom of Spore Spawn Room is replaced with a gray door.
+    <li>The solid wall PLM on the right side of Tourian Escape Room 1 is removed. Instead, during the escape, a gray door 
+    spawns on the right side of whichever room connects to Mother Brain Room.
     </ul>
 
     <h5>Item spawns</h5>
@@ -281,6 +283,20 @@
         </ul>
     </ul>
 
+    <h5>Layout changes</h5>
+    <ul>
+    <li>Changes to normalize transitions, to ensure Samus doesn't get stuck inside a wall after a transition:
+        <ul>
+        <li>A few sand tiles are changed to solid at the bottom of Aqueduct, Botwoon Energy Tank Room, and Bug Sand Hole.
+        <li>In the morph tunnel between Main Street and Mt. Everest, a few solid tiles are changed to air to allow room to stand.
+        </ul>
+    <li>Two slope tiles at the bottom of Aqueduct are patched to prevent going out-of-bounds.
+        <ul>
+        <li>In the vanilla game, when running with Speedbooster it is easy to unintentionally dip out-of-bounds there 
+        (and possible to fall all the way through the floor).
+        </ul>
+    </ul>
+
     <h5>Other changes</h5>
     <ul>
     <li>Missile Refill stations refill all ammo types: Missiles, Supers, and Power Bombs.
@@ -295,7 +311,11 @@
         <li>The pause menu is fixed so that glitched beams cannot occur.
         <li>GT code is disabled.
         <li>Going out-of-bounds triggers death. Going off-camera into screens that are normally inaccessible is fine,
-        as long as no part of Samus' hitbox goes outside the rectangle defining the room boundary.
+        as long as no part of Samus' hitbox goes outside the rectangle defining the room boundary. 
+            <ul>
+            <li>The out-of-bounds check is suspended when Samus is riding an elevator or grabbed by Draygon, as in those 
+            situations going out-of-bounds is normal and not a glitch.
+            </ul>
         </ul>
     <li>The wall on the right side of Tourian Escape Room 1 does not spawn. Instead, a gray door spawns when exiting
     Mother Brain Room at the beginning of the escape, in whichever room this leads into.
@@ -305,6 +325,7 @@
         through the right door before the fight starts.
         </ul>
     <li>Fix to vanilla bug where heat damage could cause Samus to lose blue speed.
+    <li>Heat does not damage Samus during the loading fanfare (applicable to the "Randomized start location" option).
     <li>Fixes to many graphical glitches, mainly ones that would happen because of modifying the doors and how they connect.<a href="#footnote-graphical-fixes"><sup>2</sup></a></p>
     </ul>
 
@@ -506,7 +527,7 @@
 
     <a id="footnote-graphical-fixes">
     <p><small>
-    <sup>2</sup>Specific graphical fixes include the following:
+    <sup>2</sup>Specific graphical fixes include the following (most of which are disabled when using the "Ultra-low quality-of-life" option):
     <ul>
     <li>Camera fix in Kraid's, Crocomire's, Shaktool's, and Spore Spawn's Room when entering from the "wrong" side.
     <li>Fix to background layer when exiting boss rooms without defeating the boss.
@@ -518,7 +539,7 @@
     <li>Fix to Bomb Torizo statue crumble animation (which otherwise could appear messed up, e.g. when encountering
     Bomb Torizo after Botwoon).
     <li>Fix to camera alignment in door transitions, so graphics don't get permanently messed up after doing certain
-    strats.
+    strats (or with "Randomized start location" option, where the camera sometimes starts unaligned to a screen boundary).
     </ul>
     </small></p>
 

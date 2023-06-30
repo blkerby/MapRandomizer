@@ -42,7 +42,7 @@ device = devices[0]
 executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
 # num_envs = 1
-num_envs = 2 ** 8
+num_envs = 2 ** 7
 # rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.norfair_isolated.rooms
 rooms = logic.rooms.all_rooms.rooms
@@ -178,8 +178,8 @@ session = TrainingSession(envs,
 cpu_executor = None
 
 pickle_name = 'models/session-2023-06-08T14:55:16.779895.pkl'
-# session = pickle.load(open(pickle_name, 'rb'))
-session = pickle.load(open(pickle_name + '-bk8', 'rb'))
+session = pickle.load(open(pickle_name, 'rb'))
+# session = pickle.load(open(pickle_name + '-bk8', 'rb'))
 session.envs = envs
 
 
@@ -211,9 +211,9 @@ cycle_weight = 0.0
 cycle_value_coef = 0.0
 compute_cycles = False
 
-door_connect_bound = 10.0
+door_connect_bound = 5.0
 # door_connect_bound = 0.0
-door_connect_alpha = 0.1
+door_connect_alpha = 0.05
 # door_connect_alpha = door_connect_alpha0 / math.sqrt(1 + session.num_rounds / lr_cooldown_time)
 door_connect_beta = door_connect_bound / (door_connect_bound + door_connect_alpha)
 # door_connect_bound = 0.0
@@ -535,9 +535,9 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk9')
+            # save_session(session, pickle_name + '-bk10')
             # session.replay_buffer.resize(2 ** 20)
-            # pickle.dump(session, open(pickle_name + '-small', 'wb'))
+            # pickle.dump(session, open(pickle_name + '-small-10', 'wb'))
     if session.num_rounds % summary_freq == 0:
         if num_candidates_max == 1:
             total_eval_loss = 0.0
