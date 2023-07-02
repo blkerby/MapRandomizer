@@ -65,8 +65,7 @@ later:
 - QoL option for save station fast travel (in Max)?
 - investigate problem when using quick reload (L+R+Select+Start) while unpausing with 0 energy.
 - investigate: ridley gray door closed when reserve triggered (in sapphron seed)
-- on generate page and seed page, show counts (and max counts) of selected tech/strats in each tier.
-  - on seed page: for each tier, show selected tech/strats or deselected tech/strat, whichever is a shorter list
+- on seed page: for each tier, show selected tech/strats or deselected tech/strat, whichever is a shorter list
 - fix escape timer tech mapping to use reverse Amphitheatre notable for can_acid_dive
 - model improvement:
   - try using localized output: use token that room is placed in, instead of applying attention across all tokens
@@ -74,7 +73,7 @@ later:
   - increase model size, probably decrease pass factor and buffer size
   - try again using action values, to reduce the amount of computation needed
 - add objectives:
-  - Items: 4 special items (replacing missiles)
+  - Larvas: 4 special items (replacing missiles)
   - Random
 - when tile above Samus gets explored (in speedways) make it get revealed too
 - fix missing Samus tile in Bomb message box (issue with map tile expansion patch)
@@ -102,13 +101,12 @@ later:
 - gravity seems to provide 50% heat reduction on elevator ride? (Remove this.)
    - https://clips.twitch.tv/RepleteShyManateeTBTacoLeft-Ip5vQynrc0SQYQUj
 - maybe make Mother Brain Room reveal all its tiles (and maybe explore them too? but probably not), to be more consistent with the other boss rooms
+   - on the other hand, what about minibosses and other objectives? maybe just leave all this alone?
 - fix save animation colors (area-themed color looks a little bad?)
 - logic: metroid tank damage may need to be higher without some tech (multiplier doesn't apply)
-- fix palette issue in HUD map after Phantoon fight
 - fix how spoiler map sometimes won't show escape route
 - see if it is possible to prevent song changes from messing up enemy behavior
 - fix problem with disappearing typewriter text when pausing as escape sequence starts
-- redo disable_walljump patch to disable the wall jump only, not disable wall-jump check (which breaks X-ray climb setups)
 - add tech for underwater single-sided wall-jumping (UWU)
   - limit to climbs of ~2 tiles
   - require HiJump
@@ -132,7 +130,6 @@ later:
  - kronic boost heatframes
  - metal pirates hitbox doesn't need plasma
 - take double-hits into account correctly with reserve energy.
-- use Fix Scroll Offsets from practice hack
 - check if pants room internal door connects correctly in logic
 - add option (enabled on Challenge) to not treat tanks as filler items anymore after giving Varia (including the step where giving Varia)
   - maybe more general option to postpone unneeded filler items aside from missiles
@@ -144,9 +141,9 @@ later:
     - show the route info in a separate panel below the step panel
     - initially show only Step 1, and center the screen over Landing Site.
        - Add button for "Show next step" and "Show all steps"
-  - eventually integrate with logic pages once those are implemented:
+  - integrate with logic pages:
     - double-clicking on room can go to our room page (instead of to wiki)
-    - clicking on a strat (in route info) goes to strat page
+    - clicking on a strat (in route info) goes to strat page (create these)
   - other possible improvements:
     - mouse-over a room shows an image of the room
       - or, there's a toggle to switch from map view to image view.

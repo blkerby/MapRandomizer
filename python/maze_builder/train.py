@@ -598,9 +598,11 @@ for i in range(1000000):
             ))
             # display_counts(counts1, 10, False)
             # display_counts(counts, 10, True)
-        counts = compute_door_connect_counts(only_success=True)
-        logging.info("Overall ({}):".format(torch.sum(session.replay_buffer.episode_data.reward == 0).item()))
-        display_counts(counts, 10, verbose=False)
-        # display_counts(counts, 64, verbose=True)
+        counts1 = compute_door_connect_counts(only_success=True)
+        ent1 = session.compute_door_stats_entropy(counts1)
+        logging.info("Overall ({}): ent1={:.6f}".format(
+            torch.sum(session.replay_buffer.episode_data.reward == 0).item(), ent1))
+        display_counts(counts1, 16, verbose=False)
+        # display_counts(counts1, 16, verbose=True)
 
         # logging.info(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects, dim=0)))
