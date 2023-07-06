@@ -42,7 +42,7 @@ device = devices[0]
 executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
 # num_envs = 1
-num_envs = 2 ** 7
+num_envs = 2 ** 11
 # rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.norfair_isolated.rooms
 rooms = logic.rooms.all_rooms.rooms
@@ -165,21 +165,24 @@ session = TrainingSession(envs,
 # logging.info("Constructed {} eval batches".format(num_eval_batches))
 # pickle.dump(eval_batches, open("eval_batches_zebes.pkl", "wb"))
 
-# eval_batches = pickle.load(open("eval_batches_zebes.pkl", "rb"))
+eval_batches = pickle.load(open("eval_batches_zebes.pkl", "rb"))
 
-# # for i in range(len(eval_batches)):
-# i = 0
-# for field in dir(eval_batches[i]):
-#     data = getattr(eval_batches[i], field)
-#     if isinstance(data, torch.Tensor):
-#         setattr(eval_batches[i], field, data.to(torch.device('cpu')))
+# for i in range(len(eval_batches)):
+#     i = 0
+#     for field in dir(eval_batches[i]):
+#         data = getattr(eval_batches[i], field)
+#         if isinstance(data, torch.Tensor):
+#             setattr(eval_batches[i], field, data.to(torch.device('cpu')))
 
 # cpu_executor = concurrent.futures.ProcessPoolExecutor()
 cpu_executor = None
 
 pickle_name = 'models/session-2023-06-08T14:55:16.779895.pkl'
-session = pickle.load(open(pickle_name, 'rb'))
-# session = pickle.load(open(pickle_name + '-bk8', 'rb'))
+# session = pickle.load(open(pickle_name, 'rb'))
+session = pickle.load(open(pickle_name + '-bk14', 'rb'))
+session.replay_buffer.size = 0
+session.replay_buffer.position = 0
+session.replay_buffer.resize(2 ** 23)
 session.envs = envs
 
 
@@ -195,10 +198,10 @@ lr0 = 0.00005
 lr1 = 0.00005
 # lr_warmup_time = 16
 # lr_cooldown_time = 100
-num_candidates_min0 = 31.5
-num_candidates_max0 = 32.5
-num_candidates_min1 = 31.5
-num_candidates_max1 = 32.5
+num_candidates_min0 = 1.0
+num_candidates_max0 = 1.0
+num_candidates_min1 = 1.0
+num_candidates_max1 = 1.0
 
 # num_candidates0 = 40
 # num_candidates1 = 40
@@ -211,7 +214,7 @@ cycle_weight = 0.0
 cycle_value_coef = 0.0
 compute_cycles = False
 
-door_connect_bound = 1.0
+door_connect_bound = 3.0
 # door_connect_bound = 0.0
 door_connect_alpha = 0.01
 # door_connect_alpha = door_connect_alpha0 / math.sqrt(1 + session.num_rounds / lr_cooldown_time)
@@ -221,8 +224,8 @@ door_connect_beta = door_connect_bound / (door_connect_bound + door_connect_alph
 
 augment_frac = 0.0
 
-temperature_min0 = 0.05
-temperature_max0 = 10.0
+temperature_min0 = 0.02
+temperature_max0 = 2.0
 temperature_min1 = 0.02
 temperature_max1 = 2.0
 # temperature_min0 = 0.01
@@ -235,11 +238,11 @@ temperature_frac_min0 = 0.5
 temperature_frac_min1 = 0.5
 temperature_decay = 1.0
 
-annealing_start = 53808
-annealing_time = 2048
+annealing_start = 59968
+annealing_time = session.replay_buffer.capacity // (num_envs * num_devices)
 
-pass_factor0 = 0.5
-pass_factor1 = 0.5
+pass_factor0 = 0.0
+pass_factor1 = 0.2
 print_freq = 16
 total_reward = 0
 total_loss = 0.0
@@ -535,26 +538,30 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk13')
+            # save_session(session, pickle_name + '-bk14')
             # session.replay_buffer.resize(2 ** 20)
             # pickle.dump(session, open(pickle_name + '-small-10', 'wb'))
     if session.num_rounds % summary_freq == 0:
         if num_candidates_max == 1:
             total_eval_loss = 0.0
             with torch.no_grad():
-                for data in eval_batches:
-                    eval_loss = session.eval_batch(data)
-                    total_eval_loss += eval_loss
+                with session.average_parameters.average_parameters(session.model.all_param_data()):
+                    for data in eval_batches:
+                        eval_loss = session.eval_batch(data)
+                        total_eval_loss += eval_loss
             mean_eval_loss = total_eval_loss / len(eval_batches)
         else:
             mean_eval_loss = float('nan')
         # summary_mean_test_loss = total_summary_eval_loss / total_summary_eval_loss_cnt
 
-        temperature_endpoints = [0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0,
-                                 20.0, 50.0, 100.0, 200.0, 500.0, 1000.0, 2000.0, 5000.0, 10000.0]
+        if num_candidates_max > 1:
+            temperature_endpoints = [0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0,
+                                     20.0, 50.0, 100.0, 200.0, 500.0, 1000.0, 2000.0, 5000.0, 10000.0]
+        else:
+            temperature_endpoints = [temperature_min1 / 2, temperature_max1 * 2]
         buffer_temperature = session.replay_buffer.episode_data.temperature[:session.replay_buffer.size]
         # round = (session.replay_buffer.position - torch.arange(session.replay_buffer.size) + session.replay_buffer.size) % session.replay_buffer.size
-        round = session.num_rounds - 1 - (session.replay_buffer.position - torch.arange(session.replay_buffer.size) + session.replay_buffer.size) % session.replay_buffer.size // (envs[0].num_envs * len(envs))
+        round = session.num_rounds - 1 - (session.replay_buffer.position - 1 - torch.arange(session.replay_buffer.size) + session.replay_buffer.size) % session.replay_buffer.size // (envs[0].num_envs * len(envs))
         round_window = summary_freq
         # round_window = session.replay_buffer.size
         # for k in range(13):
@@ -601,7 +608,7 @@ for i in range(1000000):
         counts1 = compute_door_connect_counts(only_success=True)
         ent1 = session.compute_door_stats_entropy(counts1)
         logging.info("Overall ({}): ent1={:.6f}".format(
-            torch.sum(session.replay_buffer.episode_data.reward == 0).item(), ent1))
+            torch.sum(session.replay_buffer.episode_data.reward[:session.replay_buffer.size] == 0).item(), ent1))
         display_counts(counts1, 16, verbose=False)
         # display_counts(counts1, 32, verbose=True)
 
