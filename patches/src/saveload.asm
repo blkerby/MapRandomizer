@@ -60,8 +60,6 @@ SaveSRAMItems: LDA $D7C0,Y : STA $700000,X : INX : INX : INY : INY : CPY #$0160 
 SaveSRAMMaps: LDA $CD52,Y : STA $700000,X : INX : INX : DEY : DEY : BPL SaveSRAMMaps	
 	PEA $7F7F : PLB : PLB : LDY #$00FE		;How much extra data to save per save
 SaveSRAMExtra: LDA $FE00,Y : STA $700000,X : INX : INX : DEY : DEY : BPL SaveSRAMExtra
-	LDY #$00FE : LDX #$1E10					;How much extra data to save globally (affects all saves)
-SaveSRAMExtraA: LDA $FF00,Y : STA $700000,X : INX : INX : DEY : DEY : BPL SaveSRAMExtraA
 SaveSeed:
 	LDX $12
 	LDA !seed_value_0 : STA $700000, X
@@ -79,7 +77,6 @@ LoadSRAMMaps: LDA $700000,X : STA $CD52,Y : INX : INX : DEY : DEY : BPL LoadSRAM
 	PEA $7F7F : PLB : PLB : LDY #$00FE		;How much extra data to load per save
 LoadSRAMExtra: LDA $700000,X : STA $FE00,Y : INX : INX : DEY : DEY : BPL LoadSRAMExtra
 	LDY #$00FE : LDX #$1E10					;How much extra data to load globally (affects all saves)
-LoadSRAMExtraA: LDA $700000,X : STA $FF00,Y : INX : INX : DEY : DEY : BPL LoadSRAMExtraA
 LoadSeed:
 	LDX $12
 	LDA $700000, X : CMP !seed_value_0 : BNE SetupClearSRAM

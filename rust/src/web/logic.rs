@@ -328,7 +328,8 @@ fn strip_cross_room_reqs(req: Requirement, game_data: &GameData) -> Requirement 
         }
         Requirement::ComeInWithGMode { .. } => {
             Requirement::Tech(game_data.tech_isv.index_by_key["canEnterGMode"])
-        }
+        },
+        Requirement::NotFlag(_) => Requirement::Free,
         _ => req,
     }
 }

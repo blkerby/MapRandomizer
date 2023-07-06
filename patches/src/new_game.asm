@@ -9,6 +9,9 @@ lorom
 !current_save_slot = $7e0952
 !area_explored_mask = $702600
 !initial_area_explored_mask = $B5F600  ; must match address in patch/map_tiles.rs
+!item_times = $7ffe06  ; must match credits.asm
+!timer1 = $701E10  ; must match credits.asm
+!timer2 = $701E12  ; must match credits.asm
 
 ;;; Hijack code that runs during initialization
 org $82801d
@@ -50,13 +53,27 @@ startup:
     lda #$0004
     sta $7ED821
 
-    ; If there are no existing save files, then clear map revealed tiles (persisted across deaths/reloads)
+    ; If there are no existing save files, then perform initialization:
     lda $0954
-    bne .skip_clear_revealed
+    bne .skip_init
 
     ; Initialize areas explored
     lda !initial_area_explored_mask
     sta !area_explored_mask
+
+    ; Initialize RTA timer
+    lda #$0000
+    sta !timer1
+    sta !timer2
+
+    ; Initialize item collection times:
+    lda #$0000
+    ldx #$0050
+.clear_item_times:
+    sta !item_times, x
+    dex
+    dex
+    bne .clear_item_times
 
     ; Copy initial revealed tiles from B5:F000 (e.g. to set map station tiles to revealed)
     ldx #$0600
@@ -68,7 +85,7 @@ startup:
     txa
     bne .copy_revealed
 
-.skip_clear_revealed:
+.skip_init:
 
     lda #$0006  ; Start in game state 6 (Loading game data) instead of 0 (Intro) or 5 (File select map)
     sta !GameStartState

@@ -2,6 +2,7 @@
 0010-0A10: Save slot 1
 0A10-1410: Save slot 2
 1410-1E10: Save slot 3
+1E10-1E14: RTA timer
 1FE0-2000: Save slot selection, etc.
 ---------- expanded SRAM: ----------
 2000-2600: map_progress_maintain.asm

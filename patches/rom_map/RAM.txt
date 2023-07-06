@@ -13,4 +13,5 @@ $7ED823: randomizer-specific event flags:
 $7FFE00: map area (copy of $1F5B to be saved to SRAM)
 $7FFE02: map area explored mask
 $7FFE04: copy of $1F5D (to be saved to SRAM for escape autosave)
+$7FFE06-7FFE86: item collection times (used in credits.asm)
 $7ed86c: bomb_torizo.asm

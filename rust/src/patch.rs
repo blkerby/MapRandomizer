@@ -242,6 +242,8 @@ impl<'a> Patcher<'a> {
             "crateria_tube_black",
             "seed_hash_display",
             "max_ammo_display",
+            "credits",
+            "sram_check_disable"
         ];
 
         if !self.randomization.difficulty.vanilla_map {

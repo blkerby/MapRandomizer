@@ -1,16 +1,7 @@
 next release:
 - randomized start
-  - randomize ship area
-  - check requires on starting locations
-- find way to fix camera to allow loading with non-integer multiple of screens:
-  - strotlog: https://discord.com/channels/127475613073145858/371734116955193354/1010231505626333247
-- fix OOB deaths
-  - when getting grabbed by draygon (blandation)
-  - running along bottom of aqueduct with speed booster (osse)
-- fix MB escape gray door spawn: should use orig_rom here?:
-     ```let entrance_x = self.rom.read_u8(other_door_pair.1.unwrap() + 4)? as u8;
-        let entrance_y = self.rom.read_u8(other_door_pair.1.unwrap() + 5)? as u8;
-     ```
+  - check requires on hub locations
+- fix quick-reload on last frame of pause/unpause
 - adjust area colors
   - darken wrecked ship a bit
   - maybe add a little color to tourian, a bit tan maybe (like the tourian sand)

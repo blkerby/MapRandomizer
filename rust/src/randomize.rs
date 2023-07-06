@@ -1574,11 +1574,14 @@ impl<'r> Randomizer<'r> {
             }
         }
 
-        let item_placement = state
+        let mut item_placement: Vec<Item> = state
             .item_location_state
             .iter()
             .map(|x| x.placed_item.unwrap())
             .collect();
+        for x in item_placement.iter_mut() {
+            *x = Item::XRayScope;
+        }
         let spoiler_all_items = state
             .item_location_state
             .iter()
