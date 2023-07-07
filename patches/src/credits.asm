@@ -12,7 +12,7 @@ lorom
 !bank_8b_free_space_start = $8bf770
 !bank_8b_free_space_end = $8bf900
 !bank_ce_free_space_start = $ceb240
-!bank_ce_free_space_end = $cec000
+!bank_ce_free_space_end = $ced000
 !scroll_speed = $7fffe8
 
 ;; Defines for the script and credits data
@@ -721,13 +721,13 @@ script:
     dw !draw, !blank
     dw !draw, !blank
     dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
 
     ;; change scroll speed to 2 pixels per frame
     dw !speed, $0002
 
     ;; Custom randomizer credits text
-    dw !draw, !blank
-    dw !draw, !blank
     dw !draw, !row*128  ; MAP RANDO CONTRIBUTORS
     dw !draw, !blank
     dw !draw, !row*129  ; MAIN DEVELOPER
@@ -735,10 +735,11 @@ script:
     dw !draw, !row*130
     dw !draw, !row*131
     dw !draw, !blank
-    dw !draw, !row*132  ; COCREATORS
+    dw !draw, !row*132  ; ADDITIONAL DEVELOPERS
     dw !draw, !blank
     dw !draw, !row*133
     dw !draw, !row*134
+    dw !draw, !blank
     dw !draw, !row*135
     dw !draw, !row*136
     dw !draw, !blank
@@ -746,8 +747,10 @@ script:
     dw !draw, !blank
     dw !draw, !row*138
     dw !draw, !row*139
+    dw !draw, !blank
     dw !draw, !row*140
     dw !draw, !row*141
+    dw !draw, !blank
     dw !draw, !row*142
     dw !draw, !row*143
     dw !draw, !blank
@@ -755,6 +758,17 @@ script:
     dw !draw, !blank
     dw !draw, !row*145
     dw !draw, !row*146
+    dw !draw, !blank
+    dw !draw, !row*156  ; SPECIAL THANKS TO
+    dw !draw, !blank
+    dw !draw, !row*157
+    dw !draw, !row*158
+    dw !draw, !blank
+    dw !draw, !row*159
+    dw !draw, !row*160
+    dw !draw, !blank
+    dw !draw, !row*161
+    dw !draw, !row*162
     dw !draw, !blank
     dw !draw, !row*147  ; SUPER METROID DISASSEMBLY
     dw !draw, !blank
@@ -768,6 +782,14 @@ script:
     dw !draw, !blank
     dw !draw, !blank
     dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
+
+    ;; Set scroll speed to 3 frames per pixel
+    dw !speed, $0003
+
     dw !draw, !row*153  ; PLAY THIS RANDOMIZER AT
     dw !draw, !blank
     dw !draw, !row*154
@@ -775,12 +797,136 @@ script:
     dw !draw, !blank
     dw !draw, !blank
     dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
 
     ;; Set scroll speed to 4 frames per pixel
     dw !speed, $0004
 
+    dw !draw, !row*221  ; RANDOMIZER SETTINGS
+    dw !draw, !blank
+    dw !draw, !row*222  ; SKILL ASSUMPTIONS
+    dw !draw, !row*223
+    dw !draw, !blank
+    dw !draw, !row*224  ; ITEM PROGRESSION
+    dw !draw, !row*225
+    dw !draw, !blank
+    dw !draw, !row*226  ; QUALITY OF LIFE
+    dw !draw, !row*227
+    dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
+
+    dw !draw, !row*206  ; GAMEPLAY STATISTICS
+    dw !draw, !blank
+    dw !draw, !row*207  ; SAVES
+    dw !draw, !row*208
+    dw !draw, !blank
+    dw !draw, !row*209  ; DEATHS
+    dw !draw, !row*210
+    dw !draw, !blank
+    dw !draw, !row*211  ; QUICK RELOADS
+    dw !draw, !row*212
+    dw !draw, !blank
+    dw !draw, !row*213  ; PREVIOUS QUICK RELOADS
+    dw !draw, !row*214
+    dw !draw, !blank
+    dw !draw, !row*215  ; RESETS
+    dw !draw, !row*216
+    dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
+
+    ;; Set scroll speed to 5 frames per pixel
+    dw !speed, $0005
+
+    dw !draw, !row*163  ; ITEM LOCATION AND COLLECT TIME
+    dw !draw, !blank
+    dw !draw, !row*164
+    dw !draw, !row*165
+    dw !draw, !blank
+    dw !draw, !row*166
+    dw !draw, !row*167
+    dw !draw, !blank
+    dw !draw, !row*168
+    dw !draw, !row*169
+    dw !draw, !blank
+    dw !draw, !row*170
+    dw !draw, !row*171
+    dw !draw, !blank
+    dw !draw, !row*172
+    dw !draw, !row*173
+    dw !draw, !blank
+    dw !draw, !row*174
+    dw !draw, !row*175
+    dw !draw, !blank
+    dw !draw, !row*176
+    dw !draw, !row*177
+    dw !draw, !blank
+    dw !draw, !row*178
+    dw !draw, !row*179
+    dw !draw, !blank
+    dw !draw, !row*180
+    dw !draw, !row*181
+    dw !draw, !blank
+    dw !draw, !row*182
+    dw !draw, !row*183
+    dw !draw, !blank
+    dw !draw, !row*184
+    dw !draw, !row*185
+    dw !draw, !blank
+    dw !draw, !row*186
+    dw !draw, !row*187
+    dw !draw, !blank
+    dw !draw, !row*188
+    dw !draw, !row*189
+    dw !draw, !blank
+    dw !draw, !row*190
+    dw !draw, !row*191
+    dw !draw, !blank
+    dw !draw, !row*192
+    dw !draw, !row*193
+    dw !draw, !blank
+    dw !draw, !row*194
+    dw !draw, !row*195
+    dw !draw, !blank
+    dw !draw, !row*196
+    dw !draw, !row*197
+    dw !draw, !blank
+    dw !draw, !row*198
+    dw !draw, !row*199
+    dw !draw, !blank
+    dw !draw, !row*200
+    dw !draw, !row*201
+    dw !draw, !blank
+    dw !draw, !row*202
+    dw !draw, !row*203
+    dw !draw, !blank
+    dw !draw, !row*204
+    dw !draw, !row*205
+
+    dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !row*217   ; FINAL TIME
+    dw !draw, !row*218
+    dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !row*219   ; THANKS FOR PLAYING
+    dw !draw, !row*220
+
+    ;; Set scroll speed to 6 frames per pixel
+    dw !speed, $0006
+
     ;; Scroll all text off and end credits
-    dw !set, $0017
+    dw !set, $0020
 -
     dw !draw, !blank
     dw !delay, -
@@ -798,7 +944,7 @@ credits:
     dw "             MADDO              " ;; 130
     dw "             maddo              " ;; 131
     !yellow
-    dw "           COCREATORS           " ;; 132
+    dw "     ADDITIONAL DEVELOPERS      " ;; 132
     !big
     dw "             KYLEB              " ;; 133
     dw "             kyleb              " ;; 134
@@ -831,8 +977,88 @@ credits:
     !green
     dw "    PLAY THIS RANDOMIZER AT     " ;; 153
     !big
-    dw "         MAPRANDO.COM           " ;; 154
+    dw "         MAPRANDO COM           " ;; 154
     dw "         maprando.com           " ;; 155
-    
+    !cyan
+    dw "       SPECIAL THANKS TO        " ;; 156
+    !big
+    dw "   BUGGMANN         SOMERANDO   " ;; 157
+    dw "   buggmann         somerando   " ;; 158
+    dw "   INSOMNIASPEED    BOBBOB      " ;; 159
+    dw "   insomniaspeed    bobbob      " ;; 160
+    dw "   SM RANDOMIZER COMMUNITIES    " ;; 161
+    dw "   sm randomizer communities    " ;; 162
+    !blue
+    dw " ITEM LOCATION AND COLLECT TIME " ;; 163
+    !big
+    dw "                    00'00'00^00 " ;; 164
+    dw "                    }} }} }} }} " ;; 165
+    dw "                    00'00'00^00 " ;; 166
+    dw "                    }} }} }} }} " ;; 167
+    dw "                    00'00'00^00 " ;; 168
+    dw "                    }} }} }} }} " ;; 169
+    dw "                    00'00'00^00 " ;; 170
+    dw "                    }} }} }} }} " ;; 171
+    dw "                    00'00'00^00 " ;; 172
+    dw "                    }} }} }} }} " ;; 173
+    dw "                    00'00'00^00 " ;; 174
+    dw "                    }} }} }} }} " ;; 175
+    dw "                    00'00'00^00 " ;; 176
+    dw "                    }} }} }} }} " ;; 177
+    dw "                    00'00'00^00 " ;; 178
+    dw "                    }} }} }} }} " ;; 179
+    dw "                    00'00'00^00 " ;; 180
+    dw "                    }} }} }} }} " ;; 181
+    dw "                    00'00'00^00 " ;; 182
+    dw "                    }} }} }} }} " ;; 183
+    dw "                    00'00'00^00 " ;; 184
+    dw "                    }} }} }} }} " ;; 185
+    dw "                    00'00'00^00 " ;; 186
+    dw "                    }} }} }} }} " ;; 187
+    dw "                    00'00'00^00 " ;; 188
+    dw "                    }} }} }} }} " ;; 189
+    dw "                    00'00'00^00 " ;; 190
+    dw "                    }} }} }} }} " ;; 191
+    dw "                    00'00'00^00 " ;; 192
+    dw "                    }} }} }} }} " ;; 193
+    dw "                    00'00'00^00 " ;; 194
+    dw "                    }} }} }} }} " ;; 195
+    dw "                    00'00'00^00 " ;; 196
+    dw "                    }} }} }} }} " ;; 197
+    dw "                    00'00'00^00 " ;; 198
+    dw "                    }} }} }} }} " ;; 199
+    dw "                    00'00'00^00 " ;; 200
+    dw "                    }} }} }} }} " ;; 201
+    dw "                    00'00'00^00 " ;; 202
+    dw "                    }} }} }} }} " ;; 203
+    dw "                    00'00'00^00 " ;; 204
+    dw "                    }} }} }} }} " ;; 205
+    !blue
+    dw "      GAMEPLAY STATISTICS       " ;; 206
+    !big
+    dw " SAVES                        0 " ;; 207
+    dw " saves                        } " ;; 208
+    dw " DEATHS                       0 " ;; 209
+    dw " deaths                       } " ;; 210
+    dw " QUICK RELOADS                0 " ;; 211
+    dw " quick reloads                } " ;; 212
+    dw " PREVIOUS QUICK RELOADS       0 " ;; 213
+    dw " previous quick reloads       } " ;; 214
+    dw " RESETS                       0 " ;; 215
+    dw " resets                       } " ;; 216
+    dw " FINAL TIME         00'00'00^00 " ;; 217
+    dw " final time         }} }} }} }} " ;; 218
+    dw "       THANKS FOR PLAYING       " ;; 219
+    dw "       thanks for playing       " ;; 220
+    !blue
+    dw "      RANDOMIZER SETTINGS       " ;; 221
+    !big
+    dw " SKILL ASSUMPTIONS        BASIC " ;; 222
+    dw " skill assumptions        basic " ;; 223
+    dw " ITEM PROGRESSION         QUICK " ;; 224
+    dw " item progression         quick " ;; 225
+    dw " QUALITY OF LIFE        DEFAULT " ;; 226
+    dw " quality of life        default " ;; 227
+
     dw $0000
 warnpc !bank_ce_free_space_end
