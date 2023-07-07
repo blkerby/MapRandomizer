@@ -42,7 +42,7 @@ device = devices[0]
 executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
 # num_envs = 1
-num_envs = 2 ** 11
+num_envs = 2 ** 7
 # rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.norfair_isolated.rooms
 rooms = logic.rooms.all_rooms.rooms
@@ -180,9 +180,9 @@ cpu_executor = None
 pickle_name = 'models/session-2023-06-08T14:55:16.779895.pkl'
 # session = pickle.load(open(pickle_name, 'rb'))
 session = pickle.load(open(pickle_name + '-bk14', 'rb'))
-session.replay_buffer.size = 0
-session.replay_buffer.position = 0
-session.replay_buffer.resize(2 ** 23)
+# session.replay_buffer.size = 0
+# session.replay_buffer.position = 0
+# session.replay_buffer.resize(2 ** 23)
 session.envs = envs
 
 
@@ -198,10 +198,10 @@ lr0 = 0.00005
 lr1 = 0.00005
 # lr_warmup_time = 16
 # lr_cooldown_time = 100
-num_candidates_min0 = 1.0
-num_candidates_max0 = 1.0
-num_candidates_min1 = 1.0
-num_candidates_max1 = 1.0
+num_candidates_min0 = 31.5
+num_candidates_max0 = 32.5
+num_candidates_min1 = 31.5
+num_candidates_max1 = 32.5
 
 # num_candidates0 = 40
 # num_candidates1 = 40
@@ -214,7 +214,7 @@ cycle_weight = 0.0
 cycle_value_coef = 0.0
 compute_cycles = False
 
-door_connect_bound = 3.0
+door_connect_bound = 1.0
 # door_connect_bound = 0.0
 door_connect_alpha = 0.01
 # door_connect_alpha = door_connect_alpha0 / math.sqrt(1 + session.num_rounds / lr_cooldown_time)
@@ -239,9 +239,9 @@ temperature_frac_min1 = 0.5
 temperature_decay = 1.0
 
 annealing_start = 59968
-annealing_time = session.replay_buffer.capacity // (num_envs * num_devices)
+annealing_time = 1 #session.replay_buffer.capacity // (num_envs * num_devices)
 
-pass_factor0 = 0.0
+pass_factor0 = 0.2
 pass_factor1 = 0.2
 print_freq = 16
 total_reward = 0
@@ -538,7 +538,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk14')
+            # save_session(session, pickle_name + '-bk15')
             # session.replay_buffer.resize(2 ** 20)
             # pickle.dump(session, open(pickle_name + '-small-10', 'wb'))
     if session.num_rounds % summary_freq == 0:

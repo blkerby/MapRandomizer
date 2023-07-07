@@ -11,8 +11,26 @@ lorom
 !bank_84_free_space_end = $84FE00
 !bank_8b_free_space_start = $8bf770
 !bank_8b_free_space_end = $8bf900
+!bank_ce_free_space_start = $ceb240
+!bank_ce_free_space_end = $cec000
 !scroll_speed = $7fffe8
 
+;; Defines for the script and credits data
+!speed = set_scroll
+!set = $9a17
+!delay = $9a0d
+!draw = $0000
+!end = $f6fe, $99fe
+!blank = $1fc0
+!row = $0040
+!pink = "table tables/pink.tbl,rtl"
+!yellow = "table tables/yellow.tbl,rtl"
+!cyan = "table tables/cyan.tbl,rtl"
+!blue = "table tables/blue.tbl,rtl"
+!green = "table tables/green.tbl,rtl"
+!orange = "table tables/orange.tbl,rtl"
+!purple = "table tables/purple.tbl,rtl"
+!big = "table tables/big.tbl,rtl"
 
 org $8095e5
 nmi:
@@ -474,17 +492,17 @@ patch4:
 copy:
     pha
     phx
-;    ldx #$0000
-;-
-;    lda.l credits, x
-;    cmp #$0000
-;    beq +
-;    sta $7f2000, x
-;    inx
-;    inx
-;    jmp -
-;+
-;
+    ldx #$0000
+-
+    lda.l credits, x
+    cmp #$0000
+    beq +
+    sta $7f2000, x
+    inx
+    inx
+    jmp -
++
+
 ;    ldx #$0000
 ;-
 ;    lda.l itemlocations, x
@@ -499,6 +517,7 @@ copy:
 ;+
 ;
 ;    jsl write_stats
+
     lda #$0002
     sta !scroll_speed
     plx
@@ -509,30 +528,311 @@ copy:
 
 warnpc !bank_8b_free_space_end
 
-org $DFD91B
-    dw $9A17, $0002
+;; New credits script in free space of bank $DF
+org $dfd91b
+script:
+    dw !set, $0002
 -
-    dw $0000, $1FC0
-    dw $9A0D, -
+    dw !draw, !blank
+    dw !delay, -
 
-    dw set_scroll, $0001
+    ;; Show a compact and sped up version of the original credits so we get time to add more
+    ;; change scroll speed to 1 pixel per frame
 
-    dw $0000, $0000
-    dw $0000, $1FC0
+    dw !speed, $0001
 
-    dw $0000, $0100
-    dw $0000, $1FC0
-    dw $0000, $01C0
-    dw $0000, $0200
+    dw !draw, !row*0      ;; SUPER METROID STAFF
+    dw !draw, !blank
+    dw !draw, !row*4      ;; PRODUCER
+    dw !draw, !blank
+    dw !draw, !row*7      ;; MAKOTO KANOH
+    dw !draw, !row*8
+    dw !draw, !blank
+    dw !draw, !row*9      ;; DIRECTOR
+    dw !draw, !blank
+    dw !draw, !row*10     ;; YOSHI SAKAMOTO
+    dw !draw, !row*11
+    dw !draw, !blank
+    dw !draw, !row*12     ;; BACK GROUND DESIGNERS
+    dw !draw, !blank
+    dw !draw, !row*13     ;; HIROFUMI MATSUOKA
+    dw !draw, !row*14
+    dw !draw, !blank
+    dw !draw, !row*15     ;; MASAHIKO MASHIMO
+    dw !draw, !row*16
+    dw !draw, !blank
+    dw !draw, !row*17     ;; HIROYUKI KIMURA
+    dw !draw, !row*18
+    dw !draw, !blank
+    dw !draw, !row*19     ;; OBJECT DESIGNERS
+    dw !draw, !blank
+    dw !draw, !row*20     ;; TOHRU OHSAWA
+    dw !draw, !row*21
+    dw !draw, !blank
+    dw !draw, !row*22     ;; TOMOYOSHI YAMANE
+    dw !draw, !row*23
+    dw !draw, !blank
+    dw !draw, !row*24     ;; SAMUS ORIGINAL DESIGNERS
+    dw !draw, !blank
+    dw !draw, !row*25     ;; HIROJI KIYOTAKE
+    dw !draw, !row*26
+    dw !draw, !blank
+    dw !draw, !row*27     ;; SAMUS DESIGNER
+    dw !draw, !blank
+    dw !draw, !row*28     ;; TOMOMI YAMANE
+    dw !draw, !row*29
+    dw !draw, !blank
+    dw !draw, !row*83     ;; SOUND PROGRAM
+    dw !draw, !row*107    ;; AND SOUND EFFECTS
+    dw !draw, !blank
+    dw !draw, !row*84     ;; KENJI YAMAMOTO
+    dw !draw, !row*85
+    dw !draw, !blank
+    dw !draw, !row*86     ;; MUSIC COMPOSERS
+    dw !draw, !blank
+    dw !draw, !row*84     ;; KENJI YAMAMOTO
+    dw !draw, !row*85
+    dw !draw, !blank
+    dw !draw, !row*87     ;; MINAKO HAMANO
+    dw !draw, !row*88
+    dw !draw, !blank
+    dw !draw, !row*30     ;; PROGRAM DIRECTOR
+    dw !draw, !blank
+    dw !draw, !row*31     ;; KENJI IMAI
+    dw !draw, !row*64
+    dw !draw, !blank
+    dw !draw, !row*65     ;; SYSTEM COORDINATOR
+    dw !draw, !blank
+    dw !draw, !row*66     ;; KENJI NAKAJIMA
+    dw !draw, !row*67
+    dw !draw, !blank
+    dw !draw, !row*68     ;; SYSTEM PROGRAMMER
+    dw !draw, !blank
+    dw !draw, !row*69     ;; YOSHIKAZU MORI
+    dw !draw, !row*70
+    dw !draw, !blank
+    dw !draw, !row*71     ;; SAMUS PROGRAMMER
+    dw !draw, !blank
+    dw !draw, !row*72     ;; ISAMU KUBOTA
+    dw !draw, !row*73
+    dw !draw, !blank
+    dw !draw, !row*74     ;; EVENT PROGRAMMER
+    dw !draw, !blank
+    dw !draw, !row*75     ;; MUTSURU MATSUMOTO
+    dw !draw, !row*76
+    dw !draw, !blank
+    dw !draw, !row*77     ;; ENEMY PROGRAMMER
+    dw !draw, !blank
+    dw !draw, !row*78     ;; YASUHIKO FUJI
+    dw !draw, !row*79
+    dw !draw, !blank
+    dw !draw, !row*80     ;; MAP PROGRAMMER
+    dw !draw, !blank
+    dw !draw, !row*81     ;; MOTOMU CHIKARAISHI
+    dw !draw, !row*82
+    dw !draw, !blank
+    dw !draw, !row*101    ;; ASSISTANT PROGRAMMER
+    dw !draw, !blank
+    dw !draw, !row*102    ;; KOUICHI ABE
+    dw !draw, !row*103
+    dw !draw, !blank
+    dw !draw, !row*104    ;; COORDINATORS
+    dw !draw, !blank
+    dw !draw, !row*105    ;; KATSUYA YAMANO
+    dw !draw, !row*106
+    dw !draw, !blank
+    dw !draw, !row*63     ;; TSUTOMU KANESHIGE
+    dw !draw, !row*96
+    dw !draw, !blank
+    dw !draw, !row*89    ;; PRINTED ART WORK
+    dw !draw, !blank
+    dw !draw, !row*90    ;; MASAFUMI SAKASHITA
+    dw !draw, !row*91
+    dw !draw, !blank
+    dw !draw, !row*92    ;; YASUO INOUE
+    dw !draw, !row*93
+    dw !draw, !blank
+    dw !draw, !row*94    ;; MARY COCOMA
+    dw !draw, !row*95
+    dw !draw, !blank
+    dw !draw, !row*99    ;; YUSUKE NAKANO
+    dw !draw, !row*100
+    dw !draw, !blank
+    dw !draw, !row*108   ;; SHINYA SANO
+    dw !draw, !row*109
+    dw !draw, !blank
+    dw !draw, !row*110   ;; NORIYUKI SATO
+    dw !draw, !row*111
+    dw !draw, !blank
+    dw !draw, !row*32    ;; SPECIAL THANKS TO
+    dw !draw, !blank
+    dw !draw, !row*33    ;; DAN OWSEN
+    dw !draw, !row*34
+    dw !draw, !blank
+    dw !draw, !row*35    ;; GEORGE SINFIELD
+    dw !draw, !row*36
+    dw !draw, !blank
+    dw !draw, !row*39    ;; MASARU OKADA
+    dw !draw, !row*40
+    dw !draw, !blank
+    dw !draw, !row*43    ;; TAKAHIRO HARADA
+    dw !draw, !row*44
+    dw !draw, !blank
+    dw !draw, !row*47    ;; KOHTA FUKUI
+    dw !draw, !row*48
+    dw !draw, !blank
+    dw !draw, !row*49    ;; KEISUKE TERASAKI
+    dw !draw, !row*50
+    dw !draw, !blank
+    dw !draw, !row*51    ;; MASARU YAMANAKA
+    dw !draw, !row*52
+    dw !draw, !blank
+    dw !draw, !row*53    ;; HITOSHI YAMAGAMI
+    dw !draw, !row*54
+    dw !draw, !blank
+    dw !draw, !row*57    ;; NOBUHIRO OZAKI
+    dw !draw, !row*58
+    dw !draw, !blank
+    dw !draw, !row*59    ;; KENICHI NAKAMURA
+    dw !draw, !row*60
+    dw !draw, !blank
+    dw !draw, !row*61    ;; TAKEHIKO HOSOKAWA
+    dw !draw, !row*62
+    dw !draw, !blank
+    dw !draw, !row*97    ;; SATOSHI MATSUMURA
+    dw !draw, !row*98
+    dw !draw, !blank
+    dw !draw, !row*122   ;; TAKESHI NAGAREDA
+    dw !draw, !row*123
+    dw !draw, !blank
+    dw !draw, !row*124   ;; MASAHIRO KAWANO
+    dw !draw, !row*125
+    dw !draw, !blank
+    dw !draw, !row*45    ;; HIRO YAMADA
+    dw !draw, !row*46
+    dw !draw, !blank
+    dw !draw, !row*112   ;; AND ALL OF R&D1 STAFFS
+    dw !draw, !row*113
+    dw !draw, !blank
+    dw !draw, !row*114   ;; GENERAL MANAGER
+    dw !draw, !blank
+    dw !draw, !row*5     ;; GUMPEI YOKOI
+    dw !draw, !row*6
+    dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
 
-    dw $9A17
-    dw $0023   ; Timer = 23h
+    ;; change scroll speed to 2 pixels per frame
+    dw !speed, $0002
 
-.blanks:
+    ;; Custom randomizer credits text
+    dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !row*128  ; MAP RANDO CONTRIBUTORS
+    dw !draw, !blank
+    dw !draw, !row*129  ; MAIN DEVELOPER
+    dw !draw, !blank
+    dw !draw, !row*130
+    dw !draw, !row*131
+    dw !draw, !blank
+    dw !draw, !row*132  ; COCREATORS
+    dw !draw, !blank
+    dw !draw, !row*133
+    dw !draw, !row*134
+    dw !draw, !row*135
+    dw !draw, !row*136
+    dw !draw, !blank
+    dw !draw, !row*137  ; LOGIC DATA
+    dw !draw, !blank
+    dw !draw, !row*138
+    dw !draw, !row*139
+    dw !draw, !row*140
+    dw !draw, !row*141
+    dw !draw, !row*142
+    dw !draw, !row*143
+    dw !draw, !blank
+    dw !draw, !row*144  ; SPOILER MAP
+    dw !draw, !blank
+    dw !draw, !row*145
+    dw !draw, !row*146
+    dw !draw, !blank
+    dw !draw, !row*147  ; SUPER METROID DISASSEMBLY
+    dw !draw, !blank
+    dw !draw, !row*148
+    dw !draw, !row*149
+    dw !draw, !blank
+    dw !draw, !row*150  ; SUPER METROID MOD MANUAL
+    dw !draw, !blank
+    dw !draw, !row*151
+    dw !draw, !row*152
+    dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !row*153  ; PLAY THIS RANDOMIZER AT
+    dw !draw, !blank
+    dw !draw, !row*154
+    dw !draw, !row*155
+    dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
+
+    ;; Set scroll speed to 4 frames per pixel
+    dw !speed, $0004
+
+    ;; Scroll all text off and end credits
+    dw !set, $0017
+-
+    dw !draw, !blank
+    dw !delay, -
+    dw !end
+
+
+;; Relocated credits tilemap to free space in bank CE
+org !bank_ce_free_space_start
+credits:
+    !pink
+    dw "     MAP RANDO CONTRIBUTORS     " ;; 128
+    !yellow
+    dw "         MAIN DEVELOPER         " ;; 129
+    !big
+    dw "             MADDO              " ;; 130
+    dw "             maddo              " ;; 131
+    !yellow
+    dw "           COCREATORS           " ;; 132
+    !big
+    dw "             KYLEB              " ;; 133
+    dw "             kyleb              " ;; 134
+    dw "            OSSE101             " ;; 135
+    dw "            osse!}!             " ;; 136
+    !cyan
+    dw "    LOGIC DATA MAIN AUTHORS     " ;; 137
+    !big
+    dw "   RUSHLIGHT          OSSE101   " ;; 138
+    dw "   rushlight          osse!}!   " ;; 139
+    dw "   MISS MINNIE T      KYLEB     " ;; 140
+    dw "   miss minnie t.     kyleb     " ;; 141
+    dw "   DIPROGAN                     " ;; 142
+    dw "   diprogan                     " ;; 143
+    !cyan
+    dw "          SPOILER MAP           " ;; 144
+    !big
+    dw "            SELICRE             " ;; 145
+    dw "            selicre             " ;; 146
+    !purple
+    dw "   SUPER METROID DISASSEMBLY    " ;; 147
+    !big
+    dw "      PJBOY      KEJARDON       " ;; 148
+    dw "      pjboy      kejardon       " ;; 149
+    !purple
+    dw "    SUPER METROID MOD MANUAL    " ;; 150
+    !big
+    dw "           BEGRIMED             " ;; 151
+    dw "           begrimed             " ;; 152
+    !green
+    dw "    PLAY THIS RANDOMIZER AT     " ;; 153
+    !big
+    dw "         MAPRANDO.COM           " ;; 154
+    dw "         maprando.com           " ;; 155
+    
     dw $0000
-    dw $1FC0
-    dw $9A0D
-    dw .blanks
-
-    dw $F6FE
-    dw $99FE
+warnpc !bank_ce_free_space_end
