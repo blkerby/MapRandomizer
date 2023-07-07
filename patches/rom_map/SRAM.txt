@@ -3,9 +3,14 @@
 0A10-1410: Save slot 2
 1410-1E10: Save slot 3
 1E10-1E14: RTA timer
+1E14-1E16: Saves counter
+1E16-1E18: Deaths counter
+1E18-1E1A: Quick reloads counter
+1E1A-1E1C: Quick loadbacks counter
+1E1C-1E1E: Resets counter
 1FE0-2000: Save slot selection, etc.
 ---------- expanded SRAM: ----------
-2000-2600: map_progress_maintain.asm
+2000-2600: Map revealed bits (map_progress_maintain.asm)
 2600-2602: Area explored bitmask, determines if an area map can show in pause map with Select (map_area.asm)
 2602-3000: Free space
 3000-4000: Temporary tilemap for applying dynamic item dot changes (in both pause menu map and HUD mini-map)

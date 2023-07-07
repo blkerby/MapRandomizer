@@ -142,7 +142,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
             },
         ],
         resource_multiplier: 1.0,
-        escape_timer_multiplier: 1.0,
+        escape_timer_multiplier: 3.0,
         phantoon_proficiency: 1.0,
         draygon_proficiency: 1.0,
         ridley_proficiency: 1.0,
@@ -171,7 +171,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         vanilla_map: false,
         ultra_low_qol: false,
         debug_options: Some(DebugOptions {
-            new_game_extra: false,
+            new_game_extra: true,
             extended_spoiler: true,
         }),
     };

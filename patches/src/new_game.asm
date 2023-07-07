@@ -5,6 +5,9 @@ arch snes.cpu
 lorom
 
 ;;; CONSTANTS
+
+incsrc "constants.asm"
+
 !GameStartState = $7ED914
 !current_save_slot = $7e0952
 !area_explored_mask = $702600
@@ -61,10 +64,15 @@ startup:
     lda !initial_area_explored_mask
     sta !area_explored_mask
 
-    ; Initialize RTA timer
+    ; Initialize RTA timer & global stats
     lda #$0000
-    sta !timer1
-    sta !timer2
+    sta !stat_timer
+    sta !stat_timer+2
+    sta !stat_saves
+    sta !stat_deaths
+    sta !stat_reloads
+    sta !stat_loadbacks
+    sta !stat_resets
 
     ; Initialize item collection times:
     lda #$0000
@@ -140,4 +148,4 @@ gameplay_start:
 .end:
     rtl
 
-warnpc $a1f300
+warnpc $a1f400

@@ -1579,9 +1579,6 @@ impl<'r> Randomizer<'r> {
             .iter()
             .map(|x| x.placed_item.unwrap())
             .collect();
-        for x in item_placement.iter_mut() {
-            *x = Item::XRayScope;
-        }
         let spoiler_all_items = state
             .item_location_state
             .iter()

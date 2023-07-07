@@ -4,16 +4,20 @@
 arch 65816
 lorom
 
+incsrc "constants.asm"
+
 !item_times = $7ffe06
-!timer1 = $701E10
-!timer2 = $701E12
 !bank_84_free_space_start = $84FD00
 !bank_84_free_space_end = $84FE00
 !bank_8b_free_space_start = $8bf770
 !bank_8b_free_space_end = $8bf900
 !bank_ce_free_space_start = $ceb240
 !bank_ce_free_space_end = $ced000
+!bank_df_free_space_start = $dfd4df
+!bank_df_free_space_end = $dfd91b
 !scroll_speed = $7fffe8
+
+!credits_tilemap_offset = $0034
 
 ;; Defines for the script and credits data
 !speed = set_scroll
@@ -54,13 +58,13 @@ org $808FA3 ;; overwrite unused routine
     ; increment vanilla 16-bit timer (used by message boxes)
     inc $05b8
     ; increment 32-bit timer in SRAM:
-    lda !timer1
+    lda !stat_timer
     inc
-    sta !timer1
+    sta !stat_timer
     bne .end
-    lda !timer2
+    lda !stat_timer+2
     inc
-    sta !timer2
+    sta !stat_timer+2
 .end:
     ply
     plx
@@ -295,9 +299,9 @@ collect_item:
     asl
     asl
     tax
-    lda !timer1
+    lda !stat_timer
     sta !item_times, x
-    lda !timer2
+    lda !stat_timer+2
     sta !item_times+2, x
     plx
     rts
@@ -516,7 +520,7 @@ copy:
 ;    jmp -
 ;+
 ;
-;    jsl write_stats
+    jsl write_stats
 
     lda #$0002
     sta !scroll_speed
@@ -525,8 +529,267 @@ copy:
     jsl $8b95ce
     rtl
 
-
 warnpc !bank_8b_free_space_end
+
+org !bank_df_free_space_start
+
+;; Draw full time as hh:mm:ss
+;; Pointer to first byte of SRAM in A
+draw_full_time:
+    phx
+    phb
+    pea $7f7f : plb : plb
+    tax
+    lda $700000, x
+    sta $16
+    lda $700002, x
+    sta $14
+    lda #$003c
+    sta $12
+    lda #$ffff
+    sta $1a
+    jsl div32 ;; frames in $14, rest in $16
+    ; Skip drawing frames:
+;    rep 6 : iny ;; Increment Y three positions forward to write the last value
+;    lda $14
+;    jsl draw_two
+;    tya
+;    sec
+;    sbc #$000C
+;    tay     ;; Skip back 6 characters to draw the top three things
+    lda $16
+    jsl draw_time
+    plb
+    plx
+    rtl
+
+;; Draw time as xx:yy:zz
+draw_time:
+    phx
+    phb
+    rep 6 : dey ;; Decrement Y by 3 characters so the time count fits
+    pea $7f7f : plb : plb
+    sta $004204
+    sep #$20
+    lda #$ff
+    sta $1a
+    lda #$3c
+    sta $004206
+    pha : pla :  pha : pla : rep #$20
+    lda $004216 ;; Seconds
+    sta $12
+    lda $004214 ;; First two groups (hours & minutes)
+    sta $004204
+    sep #$20
+    lda #$3c
+    sta $004206
+    pha : pla :  pha : pla : rep #$20
+    lda $004216
+    sta $14
+    lda $004214 ;; First group (hours)
+    jsl draw_two
+    iny : iny ;; Skip past separator
+    lda $14 ;; Second group (minutes)
+    jsl draw_two
+
+    iny : iny
+    lda $12 ;; Last group (seconds)
+    jsl draw_two
+
+    plb
+    plx
+    rtl
+
+;; Draw 5-digit value to credits tilemap
+;; A = number to draw, Y = row address
+draw_value:
+    phx
+    phb
+    pea $7f7f : plb : plb
+    sta $004204
+    lda #$0000
+    sta $1a     ;; Leading zeroes flag
+    sep #$20
+    lda #$64
+    sta $004206
+    pha : pla :  pha : pla : rep #$20
+    lda $004216 ;; Last two digits
+    sta $12
+    lda $004214 ;; Top three digits
+    jsl draw_three
+    lda $12
+    jsl draw_two
+.end:
+    plb
+    plx
+    rtl
+
+draw_three:
+    sta $004204
+    sep #$20
+    lda #$64
+    sta $004206
+    pha : pla :  pha : pla : rep #$20
+    lda $004214 ;; Hundreds
+    asl
+    tax
+    cmp $1a
+    beq +
+    lda.l numbers_top, x
+    sta !credits_tilemap_offset, y
+    lda.l numbers_bot, x
+    sta !credits_tilemap_offset+!row, y
+    dec $1a
++
+    iny : iny ;; Next number
+    lda $004216
+
+draw_two:
+    sta $004204
+    sep #$20
+    lda #$0a
+    sta $004206
+    pha : pla :  pha : pla : rep #$20
+    lda $004214
+    asl
+    tax
+    cmp $1a
+    beq +
+    lda.l numbers_top, x
+    sta !credits_tilemap_offset, y
+    lda.l numbers_bot, x
+    sta !credits_tilemap_offset+!row, y
+    dec $1a
++
+    lda $004216
+    asl
+    tax
+    cmp $1a
+    beq +
+    lda.l numbers_top, x
+    sta !credits_tilemap_offset+2, y
+    lda.l numbers_bot, x
+    sta !credits_tilemap_offset+!row+2, y
+    dec $1a
++
+    rep 4 : iny
+    rtl
+
+;; Loop through stat table and update RAM with numbers representing those stats
+write_stats:
+    phy
+    phb
+    php
+    pea $dfdf : plb : plb
+    rep #$30
+    ldx #$0000
+    ldy #$0000
+
+.loop:
+    ;; Get pointer to table
+    tya
+    asl : asl : asl
+    tax
+
+    ;; Load stat type
+    lda.l stats+4, x
+    beq .end
+    cmp #$0001
+    beq .number
+    cmp #$0002
+    beq .time
+    jmp .continue
+
+.number:
+    ;; Load statistic
+    lda.l stats, x
+    phx
+    tax
+    lda $700000, x
+    plx
+    pha
+
+    ;; Load row address
+    lda.l stats+2, x
+    tyx
+    tay
+    pla
+    jsl draw_value
+    txy
+    jmp .continue
+
+.time:
+    lda.l stats, x        ;; Get stat address
+    pha
+
+    ;; Load row address
+    lda.l stats+2, x
+    tyx
+    tay
+    pla
+    jsl draw_full_time
+    txy
+    jmp .continue
+
+.continue:
+    iny
+    jmp .loop
+
+.end:
+    plp
+    plb
+    ply
+    rtl
+
+;; 32-bit by 16-bit division routine total found somewhere
+;; ($14$16)/$12 : result in $16, remainder in $14
+div32:
+    phy
+    phx
+    php
+    rep #$30
+    sep #$10
+    sec
+    lda $14
+    sbc $12
+    bcs .uoflo
+    ldx #$11
+    rep #$10
+.ushftl:
+    rol $16
+    dex
+    beq .umend
+    rol $14
+    lda #$0000
+    rol
+    sta $18
+    sec
+    lda $14
+    sbc $12
+    tay
+    lda $18
+    sbc #$0000
+    bcc .ushftl
+    sty $14
+    bra .ushftl
+.uoflo:
+    lda #$ffff
+    sta $16
+    sta $14
+.umend:
+    plp
+    plx
+    ply
+    rtl
+
+numbers_top:
+    dw $2060, $2061, $2062, $2063, $2064, $2065, $2066, $2067, $2068, $2069, $206a, $206b, $206c, $206d, $206e, $206f
+numbers_bot:
+    dw $2070, $2071, $2072, $2073, $2074, $2075, $2076, $2077, $2078, $2079, $207a, $207b, $207c, $207d, $207e, $207f
+
+
+
+warnpc !bank_df_free_space_end
 
 ;; New credits script in free space of bank $DF
 org $dfd91b
@@ -723,7 +986,12 @@ script:
     dw !draw, !blank
     dw !draw, !blank
     dw !draw, !blank
-
+    dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
+    
     ;; change scroll speed to 2 pixels per frame
     dw !speed, $0002
 
@@ -767,8 +1035,13 @@ script:
     dw !draw, !row*159
     dw !draw, !row*160
     dw !draw, !blank
+    dw !draw, !row*228  ; AND
+    dw !draw, !blank
     dw !draw, !row*161
     dw !draw, !row*162
+    dw !draw, !blank
+    dw !draw, !row*229
+    dw !draw, !row*230
     dw !draw, !blank
     dw !draw, !row*147  ; SUPER METROID DISASSEMBLY
     dw !draw, !blank
@@ -794,7 +1067,6 @@ script:
     dw !draw, !blank
     dw !draw, !row*154
     dw !draw, !row*155
-    dw !draw, !blank
     dw !draw, !blank
     dw !draw, !blank
     dw !draw, !blank
@@ -828,10 +1100,10 @@ script:
     dw !draw, !row*209  ; DEATHS
     dw !draw, !row*210
     dw !draw, !blank
-    dw !draw, !row*211  ; QUICK RELOADS
+    dw !draw, !row*211  ; RELOADS
     dw !draw, !row*212
     dw !draw, !blank
-    dw !draw, !row*213  ; PREVIOUS QUICK RELOADS
+    dw !draw, !row*213  ; LOADBACKS
     dw !draw, !row*214
     dw !draw, !blank
     dw !draw, !row*215  ; RESETS
@@ -913,8 +1185,12 @@ script:
     dw !draw, !blank
     dw !draw, !blank
     dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
     dw !draw, !row*217   ; FINAL TIME
     dw !draw, !row*218
+    dw !draw, !blank
+    dw !draw, !blank
     dw !draw, !blank
     dw !draw, !blank
     dw !draw, !blank
@@ -922,8 +1198,8 @@ script:
     dw !draw, !row*219   ; THANKS FOR PLAYING
     dw !draw, !row*220
 
-    ;; Set scroll speed to 6 frames per pixel
-    dw !speed, $0006
+;    ;; Set scroll speed to 6 frames per pixel
+;    dw !speed, $0006
 
     ;; Scroll all text off and end credits
     dw !set, $0020
@@ -932,6 +1208,15 @@ script:
     dw !delay, -
     dw !end
 
+stats:
+    ;; STAT DATA ADDRESS, TILEMAP ADDRESS, TYPE (1 = Number, 2 = Time), UNUSED
+    dw !stat_saves,     !row*207,  1, 0    ;; Saves
+    dw !stat_deaths,    !row*209,  1, 0    ;; Deaths
+    dw !stat_reloads,   !row*211,  1, 0    ;; Reloads
+    dw !stat_loadbacks, !row*213,  1, 0    ;; Loadbacks
+    dw !stat_resets,    !row*215,  1, 0    ;; Resets
+    dw !stat_timer,     !row*217,  2, 0    ;; Final time
+    dw 0,              0,  0, 0    ;; (End of table)
 
 ;; Relocated credits tilemap to free space in bank CE
 org !bank_ce_free_space_start
@@ -950,7 +1235,7 @@ credits:
     dw "             kyleb              " ;; 134
     dw "            OSSE101             " ;; 135
     dw "            osse!}!             " ;; 136
-    !cyan
+    !orange
     dw "    LOGIC DATA MAIN AUTHORS     " ;; 137
     !big
     dw "   RUSHLIGHT          OSSE101   " ;; 138
@@ -984,55 +1269,55 @@ credits:
     !big
     dw "   BUGGMANN         SOMERANDO   " ;; 157
     dw "   buggmann         somerando   " ;; 158
-    dw "   INSOMNIASPEED    BOBBOB      " ;; 159
-    dw "   insomniaspeed    bobbob      " ;; 160
-    dw "   SM RANDOMIZER COMMUNITIES    " ;; 161
-    dw "   sm randomizer communities    " ;; 162
+    dw "   BOBBOB       INSOMNIASPEED   " ;; 159
+    dw "   bobbob       insomniaspeed   " ;; 160
+    dw "   ALL SUPER METROID HACKERS    " ;; 161
+    dw "   all super metroid hackers    " ;; 162
     !blue
     dw " ITEM LOCATION AND COLLECT TIME " ;; 163
     !big
-    dw "                    00'00'00^00 " ;; 164
-    dw "                    }} }} }} }} " ;; 165
-    dw "                    00'00'00^00 " ;; 166
-    dw "                    }} }} }} }} " ;; 167
-    dw "                    00'00'00^00 " ;; 168
-    dw "                    }} }} }} }} " ;; 169
-    dw "                    00'00'00^00 " ;; 170
-    dw "                    }} }} }} }} " ;; 171
-    dw "                    00'00'00^00 " ;; 172
-    dw "                    }} }} }} }} " ;; 173
-    dw "                    00'00'00^00 " ;; 174
-    dw "                    }} }} }} }} " ;; 175
-    dw "                    00'00'00^00 " ;; 176
-    dw "                    }} }} }} }} " ;; 177
-    dw "                    00'00'00^00 " ;; 178
-    dw "                    }} }} }} }} " ;; 179
-    dw "                    00'00'00^00 " ;; 180
-    dw "                    }} }} }} }} " ;; 181
-    dw "                    00'00'00^00 " ;; 182
-    dw "                    }} }} }} }} " ;; 183
-    dw "                    00'00'00^00 " ;; 184
-    dw "                    }} }} }} }} " ;; 185
-    dw "                    00'00'00^00 " ;; 186
-    dw "                    }} }} }} }} " ;; 187
-    dw "                    00'00'00^00 " ;; 188
-    dw "                    }} }} }} }} " ;; 189
-    dw "                    00'00'00^00 " ;; 190
-    dw "                    }} }} }} }} " ;; 191
-    dw "                    00'00'00^00 " ;; 192
-    dw "                    }} }} }} }} " ;; 193
-    dw "                    00'00'00^00 " ;; 194
-    dw "                    }} }} }} }} " ;; 195
-    dw "                    00'00'00^00 " ;; 196
-    dw "                    }} }} }} }} " ;; 197
-    dw "                    00'00'00^00 " ;; 198
-    dw "                    }} }} }} }} " ;; 199
-    dw "                    00'00'00^00 " ;; 200
-    dw "                    }} }} }} }} " ;; 201
-    dw "                    00'00'00^00 " ;; 202
-    dw "                    }} }} }} }} " ;; 203
-    dw "                    00'00'00^00 " ;; 204
-    dw "                    }} }} }} }} " ;; 205
+    dw "                       00.00.00 " ;; 164
+    dw "                       }}.}}.}} " ;; 165
+    dw "                       00.00.00 " ;; 166
+    dw "                       }}.}}.}} " ;; 167
+    dw "                       00.00.00 " ;; 168
+    dw "                       }}.}}.}} " ;; 169
+    dw "                       00.00.00 " ;; 170
+    dw "                       }}.}}.}} " ;; 171
+    dw "                       00.00.00 " ;; 172
+    dw "                       }}.}}.}} " ;; 173
+    dw "                       00.00.00 " ;; 174
+    dw "                       }}.}}.}} " ;; 175
+    dw "                       00.00.00 " ;; 176
+    dw "                       }}.}}.}} " ;; 177
+    dw "                       00.00.00 " ;; 178
+    dw "                       }}.}}.}} " ;; 179
+    dw "                       00.00.00 " ;; 180
+    dw "                       }}.}}.}} " ;; 181
+    dw "                       00.00.00 " ;; 182
+    dw "                       }}.}}.}} " ;; 183
+    dw "                       00.00.00 " ;; 184
+    dw "                       }}.}}.}} " ;; 185
+    dw "                       00.00.00 " ;; 186
+    dw "                       }}.}}.}} " ;; 187
+    dw "                       00.00.00 " ;; 188
+    dw "                       }}.}}.}} " ;; 189
+    dw "                       00.00.00 " ;; 190
+    dw "                       }}.}}.}} " ;; 191
+    dw "                       00.00.00 " ;; 192
+    dw "                       }}.}}.}} " ;; 193
+    dw "                       00.00.00 " ;; 194
+    dw "                       }}.}}.}} " ;; 195
+    dw "                       00.00.00 " ;; 196
+    dw "                       }}.}}.}} " ;; 197
+    dw "                       00.00.00 " ;; 198
+    dw "                       }}.}}.}} " ;; 199
+    dw "                       00.00.00 " ;; 200
+    dw "                       }}.}}.}} " ;; 201
+    dw "                       00.00.00 " ;; 202
+    dw "                       }}.}}.}} " ;; 203
+    dw "                       00.00.00 " ;; 204
+    dw "                       }}.}}.}} " ;; 205
     !blue
     dw "      GAMEPLAY STATISTICS       " ;; 206
     !big
@@ -1040,14 +1325,14 @@ credits:
     dw " saves                        } " ;; 208
     dw " DEATHS                       0 " ;; 209
     dw " deaths                       } " ;; 210
-    dw " QUICK RELOADS                0 " ;; 211
-    dw " quick reloads                } " ;; 212
-    dw " PREVIOUS QUICK RELOADS       0 " ;; 213
-    dw " previous quick reloads       } " ;; 214
+    dw " RELOADS                      0 " ;; 211
+    dw " reloads                      } " ;; 212
+    dw " LOADBACKS                    0 " ;; 213
+    dw " loadbacks                    } " ;; 214
     dw " RESETS                       0 " ;; 215
     dw " resets                       } " ;; 216
-    dw " FINAL TIME         00'00'00^00 " ;; 217
-    dw " final time         }} }} }} }} " ;; 218
+    dw " FINAL TIME            00.00.00 " ;; 217
+    dw " final time            }}.}}.}} " ;; 218
     dw "       THANKS FOR PLAYING       " ;; 219
     dw "       thanks for playing       " ;; 220
     !blue
@@ -1059,6 +1344,11 @@ credits:
     dw " item progression         quick " ;; 225
     dw " QUALITY OF LIFE        DEFAULT " ;; 226
     dw " quality of life        default " ;; 227
+    !cyan
+    dw "              AND               " ;; 228
+    !big
+    dw "   SM RANDOMIZER COMMUNITIES    " ;; 229
+    dw "   sm randomizer communities    " ;; 230
 
     dw $0000
 warnpc !bank_ce_free_space_end

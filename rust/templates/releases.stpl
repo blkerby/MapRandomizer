@@ -17,6 +17,15 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-71---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 71 (???)</a>:
+<ul>
+<li>Added customized credits, with gameplay statistics and item location information.
+<li>Logic updates:
+    <ul>
+    <li>TODO: ...
+    </ul>
+</ul>
+
 <p><a href="https://version-70---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 70 (2023-06-30)</a>:
 <ul>
 <li>Fixed a severe graphical bug that occurred with the "Randomized start location" option when starting in 
