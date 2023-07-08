@@ -170,6 +170,9 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         maps_revealed: true,
         vanilla_map: false,
         ultra_low_qol: false,
+        skill_assumptions_preset: Some("None".to_string()),
+        item_progression_preset: Some("None".to_string()),
+        quality_of_life_preset: Some("None".to_string()),
         debug_options: Some(DebugOptions {
             new_game_extra: true,
             extended_spoiler: true,

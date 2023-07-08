@@ -8,7 +8,7 @@ use std::path::Path;
 
 use crate::{
     game_data::{DoorPtr, DoorPtrPair, GameData, Item, Map, NodePtr, RoomGeometryDoor},
-    randomize::{Randomization, Objectives, MotherBrainFight, SpoilerItemSummary},
+    randomize::{MotherBrainFight, Objectives, Randomization, SpoilerItemSummary},
 };
 use anyhow::{ensure, Context, Result};
 use hashbrown::{HashMap, HashSet};
@@ -37,7 +37,10 @@ pub struct Rom {
 impl Rom {
     pub fn new(data: Vec<u8>) -> Self {
         let len = data.len();
-        Rom { data, touched: vec![false; len] }
+        Rom {
+            data,
+            touched: vec![false; len],
+        }
     }
 
     pub fn resize(&mut self, new_size: usize) {
@@ -187,11 +190,7 @@ fn apply_ips_patch(rom: &mut Rom, patch_path: &Path) -> Result<()> {
 
 fn apply_orig_ips_patches(rom: &mut Rom, randomization: &Randomization) -> Result<()> {
     let patches_dir = Path::new("../patches/ips/");
-    let mut patches: Vec<&'static str> = vec![
-        "mb_barrier",
-        "mb_barrier_clear",
-        "gray_doors",
-    ];
+    let mut patches: Vec<&'static str> = vec!["mb_barrier", "mb_barrier_clear", "gray_doors"];
     // if randomization.difficulty.ultra_low_qol {
     //     patches.push("ultra_low_qol_hud_expansion_opaque");
     // } else {
@@ -204,22 +203,22 @@ fn apply_orig_ips_patches(rom: &mut Rom, randomization: &Randomization) -> Resul
 
     // Overwrite door ASM for entering Mother Brain room from right, used for clearing objective barriers:
     match randomization.difficulty.objectives {
-        Objectives::Bosses => {},
+        Objectives::Bosses => {}
         Objectives::Minibosses => {
             rom.write_u16(snes2pc(0x83AAD2), 0xEB60)?;
-        },
+        }
         Objectives::Metroids => {
             rom.write_u16(snes2pc(0x83AAD2), 0xEBC0)?;
-        },
+        }
         Objectives::Chozos => {
             rom.write_u16(snes2pc(0x83AAD2), 0xEC20)?;
-        },
+        }
         Objectives::Pirates => {
             rom.write_u16(snes2pc(0x83AAD2), 0xEC80)?;
         }
     }
     Ok(())
-}    
+}
 
 impl<'a> Patcher<'a> {
     fn apply_ips_patches(&mut self) -> Result<()> {
@@ -244,7 +243,7 @@ impl<'a> Patcher<'a> {
             "max_ammo_display",
             "stats",
             "credits",
-            "sram_check_disable"
+            "sram_check_disable",
         ];
 
         if !self.randomization.difficulty.vanilla_map {
@@ -270,7 +269,7 @@ impl<'a> Patcher<'a> {
                 "fast_saves",
                 "fast_mother_brain_cutscene",
                 "fast_big_boy_cutscene",
-                "unexplore",    
+                "unexplore",
                 "fix_kraid_vomit",
                 "escape_autosave",
                 "map_area",
@@ -397,7 +396,7 @@ impl<'a> Patcher<'a> {
             let addr = 0x2000 + (tile_area as isize) * 0x100 + offset;
             asm.extend([0xAF, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // LDA $70:{addr}
             asm.extend([0x09, bitmask, 0x00]); // ORA #{bitmask}
-            asm.extend([0x8F, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // STA $70:{addr}    
+            asm.extend([0x8F, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // STA $70:{addr}
         }
         // Mark as explored (for elevators. Not needed for area transition arrows/letters except in ultra-low QoL mode):
         if explore || self.randomization.difficulty.ultra_low_qol {
@@ -416,8 +415,9 @@ impl<'a> Patcher<'a> {
                 let addr = 0xCD52 + tile_area as isize * 0x100 + offset;
                 asm.extend([0xAF, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x7E]); // LDA $7E:{addr}
                 asm.extend([0x09, bitmask, 0x00]); // ORA #{bitmask}
-                asm.extend([0x8F, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x7E]); // STA $7E:{addr}
-            }    
+                asm.extend([0x8F, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x7E]);
+                // STA $7E:{addr}
+            }
         }
         Ok(())
     }
@@ -509,10 +509,7 @@ impl<'a> Patcher<'a> {
     // pass through these tiles, so normally they wouldn't show up until the map station is
     // obtained. We change this by having these tiles be automatically marked revealed
     // when passing through the area transition (it isn't necessary to mark them explored):
-    fn auto_reveal_arrows(
-        &mut self,
-        extra_door_asm: &mut HashMap<DoorPtr, Vec<u8>>,
-    ) -> Result<()> {
+    fn auto_reveal_arrows(&mut self, extra_door_asm: &mut HashMap<DoorPtr, Vec<u8>>) -> Result<()> {
         for (src_pair, dst_pair, _bidirectional) in &self.map.doors {
             let (src_room_idx, src_door_idx) =
                 self.game_data.room_and_door_idxs_by_door_ptr_pair[src_pair];
@@ -558,7 +555,7 @@ impl<'a> Patcher<'a> {
         let screen_y = self.orig_rom.read_u8(other_door_pair.1.unwrap() + 7)? as u8;
         let entrance_x = screen_x * 16 + 14;
         let entrance_y = screen_y * 16 + 6;
-    
+
         let asm: Vec<u8> = vec![
             0xA9, 0x0E, 0x00, // LDA #$000E   (Escape flag)
             0x22, 0x33, 0x82, 0x80, // JSL $808233  (Check if flag is set)
@@ -600,13 +597,13 @@ impl<'a> Patcher<'a> {
         extra_door_asm.insert(0x1A600, toilet_exit_asm.clone()); // Aqueduct toilet door down
         extra_door_asm.insert(0x1A60C, toilet_exit_asm.clone()); // Aqueduct toilet door up
         if !self.randomization.difficulty.ultra_low_qol {
-            extra_door_asm.insert(0x191CE, boss_exit_asm.clone());   // Kraid left exit
-            extra_door_asm.insert(0x191DA, boss_exit_asm.clone());   // Kraid right exit
-            extra_door_asm.insert(0x1A96C, boss_exit_asm.clone());   // Draygon left exit
-            extra_door_asm.insert(0x1A978, boss_exit_asm.clone());   // Draygon right exit
-            extra_door_asm.insert(0x193DE, boss_exit_asm.clone());   // Crocomire left exit
-            extra_door_asm.insert(0x193EA, boss_exit_asm.clone());   // Crocomire top exit
-            extra_door_asm.insert(0x1A2C4, boss_exit_asm.clone());   // Phantoon exit    
+            extra_door_asm.insert(0x191CE, boss_exit_asm.clone()); // Kraid left exit
+            extra_door_asm.insert(0x191DA, boss_exit_asm.clone()); // Kraid right exit
+            extra_door_asm.insert(0x1A96C, boss_exit_asm.clone()); // Draygon left exit
+            extra_door_asm.insert(0x1A978, boss_exit_asm.clone()); // Draygon right exit
+            extra_door_asm.insert(0x193DE, boss_exit_asm.clone()); // Crocomire left exit
+            extra_door_asm.insert(0x193EA, boss_exit_asm.clone()); // Crocomire top exit
+            extra_door_asm.insert(0x1A2C4, boss_exit_asm.clone()); // Phantoon exit
         }
         self.auto_explore_elevators(&mut extra_door_asm)?;
         self.auto_reveal_arrows(&mut extra_door_asm)?;
@@ -664,8 +661,8 @@ impl<'a> Patcher<'a> {
 
     fn fix_save_stations(&mut self) -> Result<()> {
         let save_station_ptrs = vec![
-            0x44C5, 0x44D3, 0x44E1, 0x45CF, 0x45DD, 0x45EB, 0x45F9, 0x4607, 0x46D9, 0x46E7, 0x46F5, 0x4703,
-            0x4711, 0x471F, 0x481B, 0x4917, 0x4925, 0x4933, 0x4941, 0x4A2F, 0x4A3D
+            0x44C5, 0x44D3, 0x44E1, 0x45CF, 0x45DD, 0x45EB, 0x45F9, 0x4607, 0x46D9, 0x46E7, 0x46F5,
+            0x4703, 0x4711, 0x471F, 0x481B, 0x4917, 0x4925, 0x4933, 0x4941, 0x4A2F, 0x4A3D,
         ];
 
         let mut orig_door_map: HashMap<NodePtr, NodePtr> = HashMap::new();
@@ -1074,13 +1071,13 @@ impl<'a> Patcher<'a> {
         match self.randomization.difficulty.mother_brain_fight {
             MotherBrainFight::Vanilla => {
                 // See fast_mother_brain_fight.asm patch for baseline changes to speed up cutscenes.
-            },
+            }
             MotherBrainFight::Short => {
                 // Make Mother Brain 1 finish faster:
                 for addr in &[0x897D, 0x89AF, 0x89E1, 0x8A09, 0x8A31, 0x8A63, 0x8A95] {
                     self.rom.write_u16(snes2pc(0xA90000 + addr), 0x10)?; // cut delay in half for tubes to fall
                 }
-                
+
                 // Skip the slow movement to the right when MB2 is preparing to finish Samus off
                 self.rom.write_n(snes2pc(0xA9BB24), &[0xEA; 3])?;
 
@@ -1091,33 +1088,34 @@ impl<'a> Patcher<'a> {
                     snes2pc(0xA9AEFD),
                     &[
                         // (skip part where mother brain stumbles backwards before death; instead get hyper beam)
-                        0xA9, 0x03, 0x00,       // LDA #$0003
+                        0xA9, 0x03, 0x00, // LDA #$0003
                         0x22, 0xAD, 0xE4, 0x91, // JSL $91E4AD
-                        0xA9, 0x21, 0xAF,       // LDA #$AF21             ;\
-                        0x8D, 0xA8, 0x0F,       // STA $0FA8  [$7E:0FA8]  ;} Mother Brain's body function = $AF21
-                        0x60,                   // RTS
+                        0xA9, 0x21, 0xAF, // LDA #$AF21             ;\
+                        0x8D, 0xA8,
+                        0x0F, // STA $0FA8  [$7E:0FA8]  ;} Mother Brain's body function = $AF21
+                        0x60, // RTS
                     ],
-                )?;    
+                )?;
 
                 // Silence the music and make Samus stand up when Mother Brain starts to fade to corpse
                 self.rom.write_n(
                     snes2pc(0xA9B1BE),
-                    &[0x20, 0x00, 0xFD],  // JSR 0xFD00  (must match address in fast_mother_brain_cutscene.asm)
+                    &[0x20, 0x00, 0xFD], // JSR 0xFD00  (must match address in fast_mother_brain_cutscene.asm)
                 )?;
 
                 if self.randomization.difficulty.escape_movement_items {
                     // 0xA9FB70: new hyper beam collect routine in escape_items.asm.
                     self.rom.write_u24(snes2pc(0xA9AF01), 0xA9FB70)?;
-                }    
+                }
             }
             MotherBrainFight::Skip => {
                 // Make Mother Brain 1 finish faster:
                 for addr in &[0x897D, 0x89AF, 0x89E1, 0x8A09, 0x8A31, 0x8A63, 0x8A95] {
                     self.rom.write_u16(snes2pc(0xA90000 + addr), 0x10)?; // cut delay in half for tubes to fall
                 }
-        
+
                 // Skip MB2 and MB3:
-                self.rom.write_u16(snes2pc(0xA98D80), 0xAEE1)?; 
+                self.rom.write_u16(snes2pc(0xA98D80), 0xAEE1)?;
                 self.rom.write_n(
                     snes2pc(0xA9AEFD),
                     &[
@@ -1126,14 +1124,14 @@ impl<'a> Patcher<'a> {
                         0x22, 0xAD, 0xE4, 0x91, // JSL $91E4AD
                         0xEA, 0xEA, // nop : nop
                     ],
-                )?;    
+                )?;
                 self.rom.write_u16(snes2pc(0xA9AF07), 0xB115)?; // skip MB moving forward, drooling, exploding
                 self.rom.write_u16(snes2pc(0xA9B19F), 1)?; // accelerate fade to gray (which wouldn't have an effect here except for a delay)
 
                 if self.randomization.difficulty.escape_movement_items {
                     // 0xA9FB70: new hyper beam collect routine in escape_items.asm.
                     self.rom.write_u24(snes2pc(0xA9AF01), 0xA9FB70)?;
-                }    
+                }
             }
         }
 
@@ -1178,12 +1176,12 @@ impl<'a> Patcher<'a> {
 
         if self.randomization.difficulty.acid_chozo {
             // Remove Space Jump check
-            self.rom.write_n(snes2pc(0x84D195), &[0xEA, 0xEA])?;  // NOP : NOP
+            self.rom.write_n(snes2pc(0x84D195), &[0xEA, 0xEA])?; // NOP : NOP
         }
 
         if self.randomization.difficulty.infinite_space_jump {
             // self.rom.write_n(0x82493, &[0x80, 0x0D])?;  // BRA $0D  (Infinite Space Jump)
-            self.rom.write_n(snes2pc(0x90A493), &[0xEA, 0xEA])?;  // NOP : NOP  (Lenient Space Jump)
+            self.rom.write_n(snes2pc(0x90A493), &[0xEA, 0xEA])?; // NOP : NOP  (Lenient Space Jump)
         }
 
         if !self.randomization.difficulty.ultra_low_qol {
@@ -1253,7 +1251,7 @@ impl<'a> Patcher<'a> {
                     self.rom.write_u8(0x7D69A + 8, 2)?;
                 } else {
                     self.rom
-                    .write_u8(self.game_data.room_geometry[room_idx].rom_address + 8, 2)?;
+                        .write_u8(self.game_data.room_geometry[room_idx].rom_address + 8, 2)?;
                 }
             }
         }
@@ -1304,13 +1302,31 @@ impl<'a> Patcher<'a> {
         Ok(())
     }
 
+    fn write_letter(&mut self, letter: char, addr: usize) -> Result<()> {
+        if letter <= 'P' {
+            self.rom.write_u16(addr, letter as isize - 'A' as isize + 0x0020)?;
+            self.rom.write_u16(addr + 0x40, letter as isize - 'A' as isize + 0x0030)?;
+        } else {
+            self.rom.write_u16(addr, letter as isize - 'Q' as isize + 0x0040)?;
+            self.rom.write_u16(addr + 0x40, letter as isize - 'Q' as isize + 0x0050)?;
+        }
+        Ok(())
+    }
+
     fn write_digit(&mut self, digit: usize, addr: usize) -> Result<()> {
         self.rom.write_u16(addr, digit as isize + 0x0060)?;
         self.rom.write_u16(addr + 0x40, digit as isize + 0x0070)?;
         Ok(())
     }
 
-    fn write_item_credits(&mut self, idx: usize, step: usize, item: &str, item_idx: usize, area: &str) -> Result<()> {
+    fn write_item_credits(
+        &mut self,
+        idx: usize,
+        step: usize,
+        item: &str,
+        item_idx: usize,
+        area: &str,
+    ) -> Result<()> {
         let base_addr = snes2pc(0xceb240 + (164 - 128 + idx * 2) * 0x40);
         println!("{}: {} {:x}", idx, item, base_addr);
 
@@ -1334,18 +1350,39 @@ impl<'a> Patcher<'a> {
             let c = c.to_ascii_uppercase();
             if c >= 'A' && c <= 'Z' {
                 let word = 0x0C00 | (c as isize - 'A' as isize);
-                self.rom.write_u16(base_addr + (i + 5) * 2 + 0x40, word)?;    
+                self.rom.write_u16(base_addr + (i + 5) * 2 + 0x40, word)?;
             }
         }
 
         // Write stats address for collection time
         let stats_table_addr = snes2pc(0xdfdf80);
         let item_time_addr = 0xfe06;
-        self.rom.write_u16(stats_table_addr + idx * 8, (item_time_addr + 4 * item_idx) as isize)?;
+        self.rom.write_u16(
+            stats_table_addr + idx * 8,
+            (item_time_addr + 4 * item_idx) as isize,
+        )?;
+        Ok(())
+    }
+
+    fn write_preset(&mut self, row: usize, preset: Option<String>) -> Result<()> {
+        let preset = preset.unwrap_or("Custom".to_string());
+        let base_addr = snes2pc(0xceb240 + (row - 128) * 0x40);
+        println!("{}: {}", row, preset);
+        for (i, c) in preset.chars().enumerate() {
+            let c = c.to_ascii_uppercase();
+            if c >= 'A' && c <= 'Z' {
+                self.write_letter(c, base_addr + 0x3E - preset.len() * 2 + i * 2)?;
+            }
+        }
         Ok(())
     }
 
     fn apply_credits(&mut self) -> Result<()> {
+        // Write randomizer settings to credits tilemap
+        self.write_preset(222, self.randomization.difficulty.skill_assumptions_preset.clone())?;
+        self.write_preset(224, self.randomization.difficulty.item_progression_preset.clone())?;
+        self.write_preset(226, self.randomization.difficulty.quality_of_life_preset.clone())?;
+
         let item_name_pairs: Vec<(String, String)> = [
             ("ETank", "Energy Tank"),
             ("Missile", "Missile"),
@@ -1368,10 +1405,17 @@ impl<'a> Patcher<'a> {
             ("ScrewAttack", "Screw Attack"),
             ("Morph", "Morph Ball"),
             ("ReserveTank", "Reserve Tank"),
-        ].into_iter().map(|(x, y)| (x.to_string(), y.to_string())).collect();
-        let item_display_name_map: HashMap<String, String> = item_name_pairs.iter().cloned().collect();
-        let item_name_index: HashMap<String, usize> = 
-            item_name_pairs.iter().enumerate().map(|(i, x)| (x.0.clone(), i)).collect();
+        ]
+        .into_iter()
+        .map(|(x, y)| (x.to_string(), y.to_string()))
+        .collect();
+        let item_display_name_map: HashMap<String, String> =
+            item_name_pairs.iter().cloned().collect();
+        let item_name_index: HashMap<String, usize> = item_name_pairs
+            .iter()
+            .enumerate()
+            .map(|(i, x)| (x.0.clone(), i))
+            .collect();
 
         // Write item locations in credits tilemap
         let mut items_set: HashSet<String> = HashSet::new();
@@ -1380,7 +1424,13 @@ impl<'a> Patcher<'a> {
                 if !items_set.contains(&item_info.item) {
                     let item_name = item_display_name_map[&item_info.item].clone();
                     let item_idx = item_name_index[&item_info.item];
-                    self.write_item_credits(items_set.len(), step + 1, &item_name, item_idx, &item_info.location.area)?;
+                    self.write_item_credits(
+                        items_set.len(),
+                        step + 1,
+                        &item_name,
+                        item_idx,
+                        &item_info.location.area,
+                    )?;
                     items_set.insert(item_info.item.clone());
                 }
             }
@@ -1395,7 +1445,8 @@ impl<'a> Patcher<'a> {
         let loc = self.randomization.start_location.clone();
         let room_addr = self.game_data.room_ptr_by_id[&loc.room_id];
         let door_node_id = loc.door_load_node_id.unwrap_or(loc.node_id);
-        let (_, entrance_ptr) = self.game_data.reverse_door_ptr_pair_map[&(loc.room_id, door_node_id)];
+        let (_, entrance_ptr) =
+            self.game_data.reverse_door_ptr_pair_map[&(loc.room_id, door_node_id)];
         // let room_width_screens = self.rom.read_u8(room_addr + 4)?;
         // let room_height_screens = self.rom.read_u8(room_addr + 5)?;
         // let room_width_pixels = room_width_screens * 256;
@@ -1412,16 +1463,23 @@ impl<'a> Patcher<'a> {
         // screen_y = min(screen_y, room_height_pixels - 0x100);
         let samus_x = x_pixels - (screen_x + 0x80);
         let samus_y = y_pixels - screen_y;
-        println!("screen: {:x} {:x}, samus: {:x} {:x}", screen_x, screen_y, samus_x, samus_y);
+        println!(
+            "screen: {:x} {:x}, samus: {:x} {:x}",
+            screen_x, screen_y, samus_x, samus_y
+        );
         let station_addr = snes2pc(0x80C4E1);
-        self.rom.write_u16(station_addr, (room_addr & 0xFFFF) as isize)?;
-        self.rom.write_u16(station_addr + 2, (entrance_ptr.unwrap() & 0xFFFF) as isize)?;
+        self.rom
+            .write_u16(station_addr, (room_addr & 0xFFFF) as isize)?;
+        self.rom
+            .write_u16(station_addr + 2, (entrance_ptr.unwrap() & 0xFFFF) as isize)?;
         self.rom.write_u16(station_addr + 6, screen_x)?;
         self.rom.write_u16(station_addr + 8, screen_y)?;
-        self.rom.write_u16(station_addr + 10, ((samus_y as i16) as u16) as isize)?;
-        self.rom.write_u16(station_addr + 12, ((samus_x as i16) as u16) as isize)?;
+        self.rom
+            .write_u16(station_addr + 10, ((samus_y as i16) as u16) as isize)?;
+        self.rom
+            .write_u16(station_addr + 12, ((samus_x as i16) as u16) as isize)?;
         Ok(())
-    }    
+    }
 }
 
 fn get_other_door_ptr_pair_map(map: &Map) -> HashMap<DoorPtrPair, DoorPtrPair> {

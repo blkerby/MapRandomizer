@@ -119,6 +119,10 @@ pub struct DifficultyConfig {
     pub maps_revealed: bool,
     pub vanilla_map: bool,
     pub ultra_low_qol: bool,
+    // Presets:
+    pub skill_assumptions_preset: Option<String>,
+    pub item_progression_preset: Option<String>,
+    pub quality_of_life_preset: Option<String>,
     // Debug:
     #[serde(skip_serializing_if = "Option::is_none")]
     pub debug_options: Option<DebugOptions>,

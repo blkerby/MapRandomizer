@@ -127,6 +127,9 @@ fn main() -> Result<()> {
         maps_revealed: false,
         vanilla_map: false,
         ultra_low_qol: false,
+        skill_assumptions_preset: None,
+        item_progression_preset: None,
+        quality_of_life_preset: None,
         debug_options: None,
     };
 

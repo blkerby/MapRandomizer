@@ -797,6 +797,9 @@ fn get_difficulty_tiers(
             maps_revealed: difficulty.maps_revealed,
             vanilla_map: difficulty.vanilla_map,
             ultra_low_qol: difficulty.ultra_low_qol,
+            skill_assumptions_preset: difficulty.skill_assumptions_preset.clone(),
+            item_progression_preset: difficulty.item_progression_preset.clone(),
+            quality_of_life_preset: difficulty.quality_of_life_preset.clone(),
             debug_options: difficulty.debug_options.clone(),
         };
         if Some(&new_difficulty) != out.last() {
@@ -989,6 +992,9 @@ async fn randomize(
         maps_revealed: req.maps_revealed.0,
         vanilla_map: req.vanilla_map.0,
         ultra_low_qol: req.ultra_low_qol.0,
+        skill_assumptions_preset: req.preset.as_ref().map(|x| x.0.clone()),
+        item_progression_preset: req.item_progression_preset.as_ref().map(|x| x.0.clone()),
+        quality_of_life_preset: req.quality_of_life_preset.as_ref().map(|x| x.0.clone()),
         debug_options: if app_data.debug {
             Some(DebugOptions {
                 new_game_extra: true,

@@ -997,12 +997,12 @@ credits:
     !blue
     dw "      RANDOMIZER SETTINGS       " ;; 221
     !big
-    dw " SKILL ASSUMPTIONS        BASIC " ;; 222
-    dw " skill assumptions        basic " ;; 223
-    dw " ITEM PROGRESSION         QUICK " ;; 224
-    dw " item progression         quick " ;; 225
-    dw " QUALITY OF LIFE        DEFAULT " ;; 226
-    dw " quality of life        default " ;; 227
+    dw " SKILL ASSUMPTIONS              " ;; 222
+    dw " skill assumptions              " ;; 223
+    dw " ITEM PROGRESSION               " ;; 224
+    dw " item progression               " ;; 225
+    dw " QUALITY OF LIFE                " ;; 226
+    dw " quality of life                " ;; 227
     !cyan
     dw "              AND               " ;; 228
     !big

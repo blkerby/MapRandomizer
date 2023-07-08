@@ -297,6 +297,9 @@ fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
         maps_revealed: false,
         vanilla_map: false,
         ultra_low_qol: false,
+        skill_assumptions_preset: None,
+        item_progression_preset: None,
+        quality_of_life_preset: None,
         debug_options: Some(DebugOptions {
             new_game_extra: false,
             extended_spoiler: false,
