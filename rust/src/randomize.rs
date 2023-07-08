@@ -1578,7 +1578,7 @@ impl<'r> Randomizer<'r> {
             }
         }
 
-        let mut item_placement: Vec<Item> = state
+        let item_placement: Vec<Item> = state
             .item_location_state
             .iter()
             .map(|x| x.placed_item.unwrap())

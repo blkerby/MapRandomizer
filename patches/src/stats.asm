@@ -1,6 +1,3 @@
-; Parts of this are based on VARIA stats by total & ouiche
-; Adapted for Map Rando by Maddo.
-
 arch 65816
 lorom
 
@@ -26,6 +23,7 @@ org $82DC95
 org $808455
     jsl hook_boot
 
+; RTA timer based on VARIA patch by total & ouiche
 org $8095e5
 nmi:
     ;; copy from vanilla routine without lag counter reset
@@ -402,7 +400,7 @@ collect_XRayScope:
     jmp $8941
 
 collect_Plasma:
-    lda !idx_Spazer
+    lda !idx_Plasma
     jsr collect_item
     jmp $88B0
 

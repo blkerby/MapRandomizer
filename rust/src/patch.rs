@@ -8,7 +8,7 @@ use std::path::Path;
 
 use crate::{
     game_data::{DoorPtr, DoorPtrPair, GameData, Item, Map, NodePtr, RoomGeometryDoor},
-    randomize::{MotherBrainFight, Objectives, Randomization, SpoilerItemSummary},
+    randomize::{MotherBrainFight, Objectives, Randomization},
 };
 use anyhow::{ensure, Context, Result};
 use hashbrown::{HashMap, HashSet};
