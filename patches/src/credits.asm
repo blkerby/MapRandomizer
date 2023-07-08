@@ -6,7 +6,6 @@ lorom
 
 incsrc "constants.asm"
 
-!item_times = $7ffe06
 !bank_84_free_space_start = $84FD00
 !bank_84_free_space_end = $84FE00
 !bank_8b_free_space_start = $8bf770
@@ -300,9 +299,9 @@ collect_item:
     asl
     tax
     lda !stat_timer
-    sta !item_times, x
+    sta !stat_item_collection_times, x
     lda !stat_timer+2
-    sta !item_times+2, x
+    sta !stat_item_collection_times+2, x
     plx
     rts
 
@@ -481,6 +480,7 @@ patch2:
 patch3:
     phb : pea $df00 : plb : plb
     lda $0000, y
+
     tay
     plb
     jml $8b9a0c
@@ -492,7 +492,7 @@ patch4:
     sta $19fb
     jml $8b9a1f
 
-;; Copy custom credits tilemap data from $ceb240,x to $7f2000,x
+;; Copy custom credits tilemap data from ROM to $7f2000,x
 copy:
     pha
     phx
@@ -534,15 +534,15 @@ warnpc !bank_8b_free_space_end
 org !bank_df_free_space_start
 
 ;; Draw full time as hh:mm:ss
-;; Pointer to first byte of SRAM in A
+;; $18: Long pointer to 32-bit time in frames
 draw_full_time:
     phx
     phb
-    pea $7f7f : plb : plb
-    tax
-    lda $700000, x
+    lda [$18]
     sta $16
-    lda $700002, x
+    inc $18
+    inc $18
+    lda [$18]
     sta $14
     lda #$003c
     sta $12
@@ -680,9 +680,9 @@ write_stats:
     phy
     phb
     php
-    pea $dfdf : plb : plb
+    pea $7f7f : plb : plb
+    ;pea $dfdf : plb : plb
     rep #$30
-    ldx #$0000
     ldy #$0000
 
 .loop:
@@ -691,8 +691,14 @@ write_stats:
     asl : asl : asl
     tax
 
+    ;; Load statistic address
+    lda.l stats, x
+    sta $18
+    lda.l stats+2, x
+    sta $1A
+
     ;; Load stat type
-    lda.l stats+4, x
+    lda.l stats+6, x
     beq .end
     cmp #$0001
     beq .number
@@ -701,32 +707,20 @@ write_stats:
     jmp .continue
 
 .number:
-    ;; Load statistic
-    lda.l stats, x
-    phx
-    tax
-    lda $700000, x
-    plx
-    pha
-
     ;; Load row address
-    lda.l stats+2, x
+    lda.l stats+4, x
     tyx
     tay
-    pla
+    lda [$18]
     jsl draw_value
     txy
     jmp .continue
 
 .time:
-    lda.l stats, x        ;; Get stat address
-    pha
-
     ;; Load row address
-    lda.l stats+2, x
+    lda.l stats+4, x
     tyx
     tay
-    pla
     jsl draw_full_time
     txy
     jmp .continue
@@ -1209,13 +1203,13 @@ script:
     dw !end
 
 stats:
-    ;; STAT DATA ADDRESS, TILEMAP ADDRESS, TYPE (1 = Number, 2 = Time), UNUSED
-    dw !stat_saves,     !row*207,  1, 0    ;; Saves
-    dw !stat_deaths,    !row*209,  1, 0    ;; Deaths
-    dw !stat_reloads,   !row*211,  1, 0    ;; Reloads
-    dw !stat_loadbacks, !row*213,  1, 0    ;; Loadbacks
-    dw !stat_resets,    !row*215,  1, 0    ;; Resets
-    dw !stat_timer,     !row*217,  2, 0    ;; Final time
+    ;; STAT DATA ADDRESS, STAT DATA BANK, TILEMAP ADDRESS, TYPE (1 = Number, 2 = Time)
+    dw !stat_deaths,    $0070, !row*209,  1    ;; Deaths
+    dw !stat_saves,     $0070, !row*207,  1    ;; Saves
+    dw !stat_reloads,   $0070, !row*211,  1    ;; Reloads
+    dw !stat_loadbacks, $0070, !row*213,  1    ;; Loadbacks
+    dw !stat_resets,    $0070, !row*215,  1    ;; Resets
+    dw !stat_timer,     $0070, !row*217,  2    ;; Final time
     dw 0,              0,  0, 0    ;; (End of table)
 
 ;; Relocated credits tilemap to free space in bank CE
