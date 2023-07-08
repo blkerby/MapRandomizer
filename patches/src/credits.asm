@@ -8,10 +8,11 @@ incsrc "constants.asm"
 
 !bank_8b_free_space_start = $8bf770
 !bank_8b_free_space_end = $8bf900
-!bank_ce_free_space_start = $ceb240
+!bank_ce_free_space_start = $ceb240  ; must match address in patch.rs
 !bank_ce_free_space_end = $ced000
 !bank_df_free_space_start = $dfd4df
 !bank_df_free_space_end = $dfd91b
+!stats_table_address = $dfdf80  ; must match address in patch.rs
 !scroll_speed = $7fffe8
 
 !credits_tilemap_offset = $0034
@@ -166,6 +167,21 @@ draw_full_time:
     inc $18
     lda [$18]
     sta $14
+
+    bne .non_zero
+    lda $16
+    bne .non_zero
+    ; show blanks in place of time separators (colons)
+    lda #$007F  ; space
+    sta !credits_tilemap_offset-2, y
+    sta !credits_tilemap_offset-2+!row, y
+    sta !credits_tilemap_offset+4, y
+    sta !credits_tilemap_offset+4+!row, y
+    plb
+    plx
+    rtl
+
+.non_zero:
     lda #$003c
     sta $12
     lda #$ffff
@@ -824,14 +840,11 @@ script:
     dw !delay, -
     dw !end
 
+warnpc !stats_table_address
+
+org !stats_table_address
 stats:
     ;; STAT DATA ADDRESS, STAT DATA BANK, TILEMAP ADDRESS, TYPE (1 = Number, 2 = Time)
-    dw !stat_saves,     $0070, !row*207,  1    ;; Saves
-    dw !stat_deaths,    $0070, !row*209,  1    ;; Deaths
-    dw !stat_reloads,   $0070, !row*211,  1    ;; Reloads
-    dw !stat_loadbacks, $0070, !row*213,  1    ;; Loadbacks
-    dw !stat_resets,    $0070, !row*215,  1    ;; Resets
-    dw !stat_timer,     $0070, !row*217,  2    ;; Final time
     ;; Item collection times (stat data address will be overridden in patch.rs, based on the progression order of items)
     dw !stat_item_collection_times, $007E,  !row*164, 2
     dw !stat_item_collection_times, $007E,  !row*166, 2
@@ -854,7 +867,15 @@ stats:
     dw !stat_item_collection_times, $007E,  !row*200, 2
     dw !stat_item_collection_times, $007E,  !row*202, 2
     dw !stat_item_collection_times, $007E,  !row*204, 2
+    dw !stat_saves,     $0070, !row*207,  1    ;; Saves
+    dw !stat_deaths,    $0070, !row*209,  1    ;; Deaths
+    dw !stat_reloads,   $0070, !row*211,  1    ;; Reloads
+    dw !stat_loadbacks, $0070, !row*213,  1    ;; Loadbacks
+    dw !stat_resets,    $0070, !row*215,  1    ;; Resets
+    dw !stat_timer,     $0070, !row*217,  2    ;; Final time
     dw 0,              0,  0, 0    ;; (End of table)
+
+warnpc $e00000
 
 ;; Relocated credits tilemap to free space in bank CE
 org !bank_ce_free_space_start
@@ -914,48 +935,48 @@ credits:
     !blue
     dw " ITEM LOCATION AND COLLECT TIME " ;; 163
     !big
-    dw "                       00.00.00 " ;; 164
-    dw "                       }}.}}.}} " ;; 165
-    dw "                       00.00.00 " ;; 166
-    dw "                       }}.}}.}} " ;; 167
-    dw "                       00.00.00 " ;; 168
-    dw "                       }}.}}.}} " ;; 169
-    dw "                       00.00.00 " ;; 170
-    dw "                       }}.}}.}} " ;; 171
-    dw "                       00.00.00 " ;; 172
-    dw "                       }}.}}.}} " ;; 173
-    dw "                       00.00.00 " ;; 174
-    dw "                       }}.}}.}} " ;; 175
-    dw "                       00.00.00 " ;; 176
-    dw "                       }}.}}.}} " ;; 177
-    dw "                       00.00.00 " ;; 178
-    dw "                       }}.}}.}} " ;; 179
-    dw "                       00.00.00 " ;; 180
-    dw "                       }}.}}.}} " ;; 181
-    dw "                       00.00.00 " ;; 182
-    dw "                       }}.}}.}} " ;; 183
-    dw "                       00.00.00 " ;; 184
-    dw "                       }}.}}.}} " ;; 185
-    dw "                       00.00.00 " ;; 186
-    dw "                       }}.}}.}} " ;; 187
-    dw "                       00.00.00 " ;; 188
-    dw "                       }}.}}.}} " ;; 189
-    dw "                       00.00.00 " ;; 190
-    dw "                       }}.}}.}} " ;; 191
-    dw "                       00.00.00 " ;; 192
-    dw "                       }}.}}.}} " ;; 193
-    dw "                       00.00.00 " ;; 194
-    dw "                       }}.}}.}} " ;; 195
-    dw "                       00.00.00 " ;; 196
-    dw "                       }}.}}.}} " ;; 197
-    dw "                       00.00.00 " ;; 198
-    dw "                       }}.}}.}} " ;; 199
-    dw "                       00.00.00 " ;; 200
-    dw "                       }}.}}.}} " ;; 201
-    dw "                       00.00.00 " ;; 202
-    dw "                       }}.}}.}} " ;; 203
-    dw "                       00.00.00 " ;; 204
-    dw "                       }}.}}.}} " ;; 205
+    dw "   .                     .  .   " ;; 164
+    dw "   .                     .  .   " ;; 165
+    dw "   .                     .  .   " ;; 166
+    dw "   .                     .  .   " ;; 167
+    dw "   .                     .  .   " ;; 168
+    dw "   .                     .  .   " ;; 169
+    dw "   .                     .  .   " ;; 170
+    dw "   .                     .  .   " ;; 171
+    dw "   .                     .  .   " ;; 172
+    dw "   .                     .  .   " ;; 173
+    dw "   .                     .  .   " ;; 174
+    dw "   .                     .  .   " ;; 175
+    dw "   .                     .  .   " ;; 176
+    dw "   .                     .  .   " ;; 177
+    dw "   .                     .  .   " ;; 178
+    dw "   .                     .  .   " ;; 179
+    dw "   .                     .  .   " ;; 180
+    dw "   .                     .  .   " ;; 181
+    dw "   .                     .  .   " ;; 182
+    dw "   .                     .  .   " ;; 183
+    dw "   .                     .  .   " ;; 184
+    dw "   .                     .  .   " ;; 185
+    dw "   .                     .  .   " ;; 186
+    dw "   .                     .  .   " ;; 187
+    dw "   .                     .  .   " ;; 188
+    dw "   .                     .  .   " ;; 189
+    dw "   .                     .  .   " ;; 190
+    dw "   .                     .  .   " ;; 191
+    dw "   .                     .  .   " ;; 192
+    dw "   .                     .  .   " ;; 193
+    dw "   .                     .  .   " ;; 194
+    dw "   .                     .  .   " ;; 195
+    dw "   .                     .  .   " ;; 196
+    dw "   .                     .  .   " ;; 197
+    dw "   .                     .  .   " ;; 198
+    dw "   .                     .  .   " ;; 199
+    dw "   .                     .  .   " ;; 200
+    dw "   .                     .  .   " ;; 201
+    dw "   .                     .  .   " ;; 202
+    dw "   .                     .  .   " ;; 203
+    dw "   .                     .  .   " ;; 204
+    dw "   .                     .  .   " ;; 205
     !blue
     dw "      GAMEPLAY STATISTICS       " ;; 206
     !big

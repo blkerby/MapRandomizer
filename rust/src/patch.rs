@@ -8,7 +8,7 @@ use std::path::Path;
 
 use crate::{
     game_data::{DoorPtr, DoorPtrPair, GameData, Item, Map, NodePtr, RoomGeometryDoor},
-    randomize::{Randomization, Objectives, MotherBrainFight},
+    randomize::{Randomization, Objectives, MotherBrainFight, SpoilerItemSummary},
 };
 use anyhow::{ensure, Context, Result};
 use hashbrown::{HashMap, HashSet};
@@ -1304,6 +1304,90 @@ impl<'a> Patcher<'a> {
         Ok(())
     }
 
+    fn write_digit(&mut self, digit: usize, addr: usize) -> Result<()> {
+        self.rom.write_u16(addr, digit as isize + 0x0060)?;
+        self.rom.write_u16(addr + 0x40, digit as isize + 0x0070)?;
+        Ok(())
+    }
+
+    fn write_item_credits(&mut self, idx: usize, step: usize, item: &str, item_idx: usize, area: &str) -> Result<()> {
+        let base_addr = snes2pc(0xceb240 + (164 - 128 + idx * 2) * 0x40);
+        println!("{}: {} {:x}", idx, item, base_addr);
+
+        // Write step number
+        if step >= 10 {
+            self.write_digit(step / 10, base_addr + 2)?;
+        }
+        self.write_digit(step % 10, base_addr + 4)?;
+
+        // Write item text
+        for (i, c) in item.chars().enumerate() {
+            let c = c.to_ascii_uppercase();
+            if c >= 'A' && c <= 'Z' {
+                let word = 0x0400 | (c as isize - 'A' as isize);
+                self.rom.write_u16(base_addr + (i + 5) * 2, word)?;
+            }
+        }
+
+        // Write area text
+        for (i, c) in area.chars().enumerate() {
+            let c = c.to_ascii_uppercase();
+            if c >= 'A' && c <= 'Z' {
+                let word = 0x0C00 | (c as isize - 'A' as isize);
+                self.rom.write_u16(base_addr + (i + 5) * 2 + 0x40, word)?;    
+            }
+        }
+
+        // Write stats address for collection time
+        let stats_table_addr = snes2pc(0xdfdf80);
+        let item_time_addr = 0xfe06;
+        self.rom.write_u16(stats_table_addr + idx * 8, (item_time_addr + 4 * item_idx) as isize)?;
+        Ok(())
+    }
+
+    fn apply_credits(&mut self) -> Result<()> {
+        let item_name_pairs: Vec<(String, String)> = [
+            ("ETank", "Energy Tank"),
+            ("Missile", "Missile"),
+            ("Super", "Super Missile"),
+            ("PowerBomb", "Power Bomb"),
+            ("Bombs", "Bombs"),
+            ("Charge", "Charge Beam"),
+            ("Ice", "Ice Beam"),
+            ("HiJump", "HiJump Boots"),
+            ("SpeedBooster", "Speed Booster"),
+            ("Wave", "Wave Beam"),
+            ("Spazer", "Spazer"),
+            ("SpringBall", "Spring Ball"),
+            ("Varia", "Varia Suit"),
+            ("Gravity", "Gravity Suit"),
+            ("XRayScope", "XRay Scope"),
+            ("Plasma", "Plasma Beam"),
+            ("Grapple", "Grappling Beam"),
+            ("SpaceJump", "Space Jump"),
+            ("ScrewAttack", "Screw Attack"),
+            ("Morph", "Morph Ball"),
+            ("ReserveTank", "Reserve Tank"),
+        ].into_iter().map(|(x, y)| (x.to_string(), y.to_string())).collect();
+        let item_display_name_map: HashMap<String, String> = item_name_pairs.iter().cloned().collect();
+        let item_name_index: HashMap<String, usize> = 
+            item_name_pairs.iter().enumerate().map(|(i, x)| (x.0.clone(), i)).collect();
+
+        // Write item locations in credits tilemap
+        let mut items_set: HashSet<String> = HashSet::new();
+        for (step, step_summary) in self.randomization.spoiler_log.summary.iter().enumerate() {
+            for item_info in step_summary.items.iter() {
+                if !items_set.contains(&item_info.item) {
+                    let item_name = item_display_name_map[&item_info.item].clone();
+                    let item_idx = item_name_index[&item_info.item];
+                    self.write_item_credits(items_set.len(), step + 1, &item_name, item_idx, &item_info.location.area)?;
+                    items_set.insert(item_info.item.clone());
+                }
+            }
+        }
+        Ok(())
+    }
+
     fn set_start_location(&mut self) -> Result<()> {
         // let start_locations: Vec<StartLocation> =
         //     serde_json::from_str(&std::fs::read_to_string(&"data/start_locations.json").unwrap()).unwrap();
@@ -1391,5 +1475,6 @@ pub fn make_rom(
     patcher.apply_miscellaneous_patches()?;
     patcher.apply_mother_brain_fight_patches()?;
     patcher.apply_seed_hash()?;
+    patcher.apply_credits()?;
     Ok(rom)
 }

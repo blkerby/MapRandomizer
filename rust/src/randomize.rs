@@ -1907,10 +1907,10 @@ pub struct SpoilerRouteEntry {
 
 #[derive(Serialize, Deserialize)]
 pub struct SpoilerLocation {
-    area: String,
-    room: String,
-    node: String,
-    coords: (usize, usize),
+    pub area: String,
+    pub room: String,
+    pub node: String,
+    pub coords: (usize, usize),
 }
 
 #[derive(Serialize, Deserialize)]
@@ -1965,8 +1965,8 @@ pub struct SpoilerRoomLoc {
 
 #[derive(Serialize, Deserialize)]
 pub struct SpoilerItemSummary {
-    item: String,
-    location: SpoilerLocation,
+    pub item: String,
+    pub location: SpoilerLocation,
 }
 
 #[derive(Serialize, Deserialize)]
