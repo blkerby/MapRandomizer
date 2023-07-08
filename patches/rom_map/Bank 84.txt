@@ -8,4 +8,4 @@ $F900 - $F980: escape.asm
 $FA00 - $FC00: gray_doors.asm
 $FC00 - $FC40: fix_kraid_vomit.asm
 $FC40 - $FCC0: escape_autosave.asm
-$FD00 - $FE00: credits.asm
+$FD00 - $FE80: credits.asm

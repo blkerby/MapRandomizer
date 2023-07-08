@@ -242,6 +242,7 @@ impl<'a> Patcher<'a> {
             "crateria_tube_black",
             "seed_hash_display",
             "max_ammo_display",
+            "stats",
             "credits",
             "sram_check_disable"
         ];

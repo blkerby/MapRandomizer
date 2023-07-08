@@ -12,9 +12,6 @@ incsrc "constants.asm"
 !current_save_slot = $7e0952
 !area_explored_mask = $702600
 !initial_area_explored_mask = $B5F600  ; must match address in patch/map_tiles.rs
-!item_times = $7ffe06  ; must match credits.asm
-!timer1 = $701E10  ; must match credits.asm
-!timer2 = $701E12  ; must match credits.asm
 
 ;;; Hijack code that runs during initialization
 org $82801d
@@ -58,6 +55,15 @@ start_game:
     stz $079f
     stz $1F5B
 
+    ; Initialize item collection times:
+    lda #$0000
+    ldx #$0050
+.clear_item_times:
+    sta !stat_item_collection_times, x
+    dex
+    dex
+    bne .clear_item_times
+
     ; temporary extra stuff:
     lda #$F32F
 ;    lda #$F12F  ; (except Space Jump)
@@ -90,7 +96,7 @@ start_game:
     sta $7ED829
     sta $7ED82B
 
-    ; If there are no existing save files, then perform initialization:
+    ; If there are no existing save files, then perform global initialization:
     lda $0954
     bne .skip_init
 
@@ -107,15 +113,6 @@ start_game:
     sta !stat_reloads
     sta !stat_loadbacks
     sta !stat_resets
-
-    ; Initialize item collection times:
-    lda #$0000
-    ldx #$0050
-.clear_item_times:
-    sta !item_times, x
-    dex
-    dex
-    bne .clear_item_times
 
     ; Copy initial revealed tiles from B5:F000 (e.g. to set map station tiles to revealed)
     ldx #$0600

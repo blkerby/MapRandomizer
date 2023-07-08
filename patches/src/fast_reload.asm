@@ -14,14 +14,17 @@
 
 lorom
 
+incsrc "constants.asm"
 
 ; Hook Death Game event (19h)
 org !deathhook82
 deathhook:
     php
     rep #$30
+
     lda #$0001
     sta !QUICK_RELOAD ; Currently "quick reloading"
+
     jsl $82be17       ; Stop sounds
     jsl load_save_slot
 	jsl $80858C		  ; load map
@@ -106,6 +109,8 @@ check_reload:
     PLP
     jsr deathhook
     RTL
+
+
 warnpc !freespace82_end
 
 ; Hook setting up game
@@ -220,7 +225,15 @@ load_save_slot:
     beq .forward
 
     ; Load current save slot:
-.current
+.current:
+    ; if not reloading during death, then increment reload count
+    lda $0998
+    cmp #$0013
+    bcs .skip_inc_stat
+    lda !stat_reloads
+    inc
+    sta !stat_reloads
+.skip_inc_stat:
     lda $0952
     jml $818085
 
@@ -238,6 +251,10 @@ load_save_slot:
     sta $0952
     jsl $818085
     bcs .forward     ; If slot is empty/corrupt, go back to previous save again.
+
+    lda !stat_loadbacks
+    inc
+    sta !stat_loadbacks
     rtl
 
 warnpc $A18000

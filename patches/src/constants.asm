@@ -7,4 +7,4 @@
 !stat_resets = $701E1C
 
 ; Local stats (stored to normal RAM that goes into save files)
-!stat_item_collection_times = $7ffe06
+!stat_item_collection_times = $7efe06

@@ -1,6 +1,7 @@
 next release:
-- randomized start
-  - check requires on hub locations
+- credits:
+  - use different part of memory instead of $7F:FE00-$7F:FF00 for extra save data (since this gets overwritten by escape cutscene)
+- randomized start: check requires on hub locations
 - fix quick-reload on last frame of pause/unpause
 - adjust area colors
   - darken wrecked ship a bit
@@ -8,15 +9,6 @@ next release:
 - check if reloading from bottom/top of elevator works correctly (not skips back a save)
 - do something about screen shaking during samus appears (in start location: rising tide, amphitheatre)
   - maybe get rid of shaking in general?
-
-
-credit ideas:
-- unique item locations (map area + room name)
-- item collection percent
-- death count
-- map tile explored count
-- door transition count
-- ... ?
 
 priority:
 - fix bug in escape room 1: top block of right transition seems solid (reported by somerando)

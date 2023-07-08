@@ -11,8 +11,8 @@ $7ED823: randomizer-specific event flags:
   $0008: plasma room door unlocked
   $0010: metal pirates room door unlocked
 $7ed86c: bomb_torizo.asm
-$7FFE00: map area (copy of $1F5B to be saved to SRAM)
-$7FFE02: map area explored mask
-$7FFE04: copy of $1F5D (to be saved to SRAM for escape autosave)
-$7FFE06-7FFE86: item collection times (used in credits.asm)
+$7EFE00: map area (copy of $1F5B to be saved to SRAM)
+$7EFE02: map area explored mask
+$7EFE04: copy of $1F5D (to be saved to SRAM for escape autosave)
+$7EFE06-7FFE86: item collection times (used in credits.asm)
 $7fffe8: scroll speed (credits.asm)
