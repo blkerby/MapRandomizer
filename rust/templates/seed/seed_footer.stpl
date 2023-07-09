@@ -65,9 +65,9 @@
         <h6>Map info</h6>
         <ul>
         <li>Every Zebes room from the vanilla game is placed somewhere. Once all movement items are
-        collected, it is possible to reach every room without any tech.
+        collected, it is possible to reach every room with only Basic tech.
         <li>Phantoon's Room always connects to the same room as the broken map station, and both are 
-            in the same area as the broken save room.
+        in the same area as the broken save room.
         <li>The map uses special tiles to show the locations of map stations, refills, 
         and major bosses (G4 and Mother Brain). Items are consistently marked using dots.
         </ul>
@@ -107,11 +107,8 @@
             <div class="card-header">Known issues</div>
             <div class="card-body">
                 <ul>
-                <li>Certain room combinations appear with high frequency (not much randomness).
-                <li>Even if the tech is not selected, wall jumps and crouch-jump/down-grabs may be required in some places.
-                <li>Some sound effects are glitched (due to changing the music).
-                <li>Door transitions generally have some minor graphical glitches.
-                <li>The end credits are vanilla.
+                <li>Certain room combinations occur with high frequency (not much randomness).
+                <li>Minor graphical glitches often appear during door transitions.
                 </ul>
             </div>
         </div>

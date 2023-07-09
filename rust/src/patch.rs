@@ -1328,7 +1328,6 @@ impl<'a> Patcher<'a> {
         area: &str,
     ) -> Result<()> {
         let base_addr = snes2pc(0xceb240 + (164 - 128 + idx * 2) * 0x40);
-        println!("{}: {} {:x}", idx, item, base_addr);
 
         // Write step number
         if step >= 10 {
@@ -1367,7 +1366,6 @@ impl<'a> Patcher<'a> {
     fn write_preset(&mut self, row: usize, preset: Option<String>) -> Result<()> {
         let preset = preset.unwrap_or("Custom".to_string());
         let base_addr = snes2pc(0xceb240 + (row - 128) * 0x40);
-        println!("{}: {}", row, preset);
         for (i, c) in preset.chars().enumerate() {
             let c = c.to_ascii_uppercase();
             if c >= 'A' && c <= 'Z' {
@@ -1463,10 +1461,6 @@ impl<'a> Patcher<'a> {
         // screen_y = min(screen_y, room_height_pixels - 0x100);
         let samus_x = x_pixels - (screen_x + 0x80);
         let samus_y = y_pixels - screen_y;
-        println!(
-            "screen: {:x} {:x}, samus: {:x} {:x}",
-            screen_x, screen_y, samus_x, samus_y
-        );
         let station_addr = snes2pc(0x80C4E1);
         self.rom
             .write_u16(station_addr, (room_addr & 0xFFFF) as isize)?;

@@ -17,12 +17,30 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-71---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 71 (???)</a>:
+<p><a href="https://version-71---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 71 (2023-07-08)</a>:
 <ul>
-<li>Added customized credits, with gameplay statistics and item location information.
+<li>Added customized in-game credits, with gameplay statistics and item location information.
 <li>Logic updates:
     <ul>
-    <li>TODO: ...
+    <li>New tech:
+        <ul>
+        <li>canWallJumpInstantMorph (Hard)
+        <li>canAutoCancelWeapon (Very Hard)
+        <li>canUnderwaterWalljump (Extreme)
+        <li>canMoondance (Insane)
+        <li>canFrozenEnemyMoonfall (Insane)
+        </ul>
+    <li>New notable strats, including the following:
+        <ul>
+        <li>Spiky Acid Snake Frozen Platforms (Very Hard)
+        <li>Dodge the Three Musketeers (Expert)
+        <li>Pants Room Grapple Jump (Extreme)
+        <li>WS East Supers Robot Clip Run-In-Place (Insane)
+        </ul>
+    <li>Many corrections & refinements in Lower Norfair rooms.
+    <li>Many new strats using canSpeedKeep to break blocks. 
+    <li>Added canIframeSpikeJump requirement in Wrecked Ship Energy Tank Room (power off).
+    <li>Added missing Morph requirement to use Power Bombs in Golden Torizo Room.
     </ul>
 </ul>
 

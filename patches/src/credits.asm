@@ -872,7 +872,7 @@ stats:
     dw !stat_reloads,   $0070, !row*211,  1    ;; Reloads
     dw !stat_loadbacks, $0070, !row*213,  1    ;; Loadbacks
     dw !stat_resets,    $0070, !row*215,  1    ;; Resets
-    dw !stat_timer,     $0070, !row*217,  2    ;; Final time
+    dw !stat_final_time,     $0070, !row*217,  2    ;; Final time
     dw 0,              0,  0, 0    ;; (End of table)
 
 warnpc $e00000

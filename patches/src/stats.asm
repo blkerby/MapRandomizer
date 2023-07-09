@@ -23,6 +23,10 @@ org $82DC95
 org $808455
     jsl hook_boot
 
+; Capture final time when entering ship to leave the planet
+org $a2ab13
+    jsl hook_game_end
+
 ; RTA timer based on VARIA patch by total & ouiche
 org $8095e5
 nmi:
@@ -312,15 +316,38 @@ hook_boot:
     JSL $8B9146 ; run hi-jacked instruction
     rtl
 
+hook_game_end:
+    JSL $90F084 ; run hi-jacked instruction
+    pha
+
+    ; capture the final time:
+    lda !stat_timer
+    sta !stat_final_time
+    lda !stat_timer+2
+    sta !stat_final_time+2    
+    
+    pla
+    rtl
+
 collect_item:
     phx
     asl
     asl
     tax
+
+    ; check if we have already collected one of this type of item (do not overwrite the collection time in this case):
+    lda !stat_item_collection_times, x
+    bne .skip
+    lda !stat_item_collection_times+2, x
+    bne .skip
+
+    ; record the collection time
     lda !stat_timer
     sta !stat_item_collection_times, x
     lda !stat_timer+2
     sta !stat_item_collection_times+2, x
+
+.skip:
     plx
     rts
 
