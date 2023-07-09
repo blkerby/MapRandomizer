@@ -93,7 +93,8 @@
       "canResetFallSpeed",
       "canBounceBall",
       "canUseSpeedEchoes",
-      "canSunkenTileWideWallClimb"
+      "canSunkenTileWideWallClimb",
+      "canWallJumpInstantMorph"
     ],
     "notable_strats": [
       "Early Supers Mockball",
@@ -111,7 +112,10 @@
       "Golden Torizo Crumble Jump",
       "Ridley without Heat Protection",
       "Colosseum Mochtroid Ice Climb",
-      "Aqueduct Bootless Suitless Snail Climb"
+      "Aqueduct Bootless Suitless Snail Climb",
+      "HiJump E-Tank Return Through Crumble Blocks",
+      "Big Pink Return Through Crumble Blocks", 
+      "Blue Brin E-Tank Return Through Crumble Blocks"
     ]
   },
   {
@@ -154,7 +158,8 @@
       "canSamusEaterStandUp",
       "canWaterShineCharge",
       "canMoonwalk",
-      "canMoonfall"
+      "canMoonfall",
+      "canAutoCancelWeapon"
     ],
     "notable_strats": [
       "Pink Brinstar Power Bombs Crystal Flash Clip",
@@ -164,7 +169,6 @@
       "Climb Moonfall Block Break",
       "Red Tower Spark",
       "LN Fireflea Room Damage Boost Over the Fune",
-      "LN Spring Ball Maze Hotarubi Special",
       "Reverse Spring Ball Maze Crystal Flash Clip",
       "GT Supers Morph Bomb Springwall",
       "Golden Torizo Safe Spot",
@@ -220,7 +224,11 @@
       "Mickey Mouse Crumble Speedjump",
       "Crab Shaft Ice Only Crab Climb",
       "West Sand Hall Ice Beam Only (Center to Left)",
-      "West Sand Hall Ice Only (Center to Right)"
+      "West Sand Hall Ice Only (Center to Right)",
+      "KiHunter Shaft KiHunter Dodge",
+      "LN Firefleas Ice Bridge",
+      "LN Spring Ball Maze Air Speedball",
+      "Spiky Acid Snake Frozen Platforms"
     ]
   },
   {
@@ -312,7 +320,10 @@
       "East Sand Hall Spring Ball HiJump",
       "West Sand Hall Suitless Bootless Spring Ball",
       "East Sand Hall Suitless Bootless Evir Freeze (Center to Left)",
-      "East Sand Hall Suitless Bootless Evir Freeze (Center to Right)"
+      "East Sand Hall Suitless Bootless Evir Freeze (Center to Right)",
+      "Dodge the Three Musketeers",
+      "Kihunter Shaft Manipulation from Save Room",
+      "Blue Hopper Dodge"
     ]
   },
   {
@@ -342,7 +353,7 @@
       "canDiagonalBombJump",
       "canCrouchGateClip",
       "canInsaneWalljump",
-      "canMultiviolaIceClip"
+      "canUnderwaterWalljump"
     ],
     "notable_strats": [
       "Green Hill Zone Tunnel Crawl",
@@ -368,7 +379,14 @@
       "Aqueduct Left-Side X-Ray Climb (Upper)",
       "East Sand Hall Cross Room Jump with Ice or Damage Boost",
       "Mt. Everest Right Crab Climb with Only HiJump or Springball",
-      "Main Street G-Mode Overload Speed Blocks then use Frozen Crab"
+      "Main Street G-Mode Overload Speed Blocks then use Frozen Crab",
+      "Mickey Mouse Viola Ice Clip",
+      "LN Firefleas Top to Bottom Itemless Damageless",
+      "East Sand Hole Underwater Walljumps", 
+      "Golden Four Underwater Walljumps",
+      "Main Street Underwater Walljumps",
+      "Pants Room Grapple Jump",
+      "Mickey Mouse SpeedKeep onto Crumbles"
     ]
   },
   {
@@ -382,7 +400,9 @@
     "botwoon_proficiency": 1.0,
     "tech": [
       "canBePatient",
-      "canDownwardGModeSetup"
+      "canDownwardGModeSetup",
+      "canMoondance",
+      "canFrozenEnemyMoonfall"
     ],
     "notable_strats": [
       "Taco Tank in Blue Brinstar Energy Tank Room",
@@ -400,7 +420,9 @@
       "Crateria Supers G-Mode Up with PBs",
       "Back-Side Botwoon Super Only Fight",
       "Golden Torizo Missiles Only",
-      "Colosseum with no Equipment"
+      "Colosseum with no Equipment",
+      "Green Pirate Shaft Beetom Moondance",
+      "WS East Supers Robot Clip Run-In-Place"
     ]
   }
 ]

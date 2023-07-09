@@ -1271,7 +1271,7 @@ fn get_ignored_notable_strats() -> HashSet<String> {
         "Metroid Room 4 Six PB Dodge Kill (Bottom to Top)",
         "Metroid Room 4 Three PB Dodge Kill (Bottom to Top)",
         "Partial Covern Ice Clip",
-        "Mickey Mouse Crumble IBJ",
+        "Mickey Mouse Crumble Jump IBJ",
         "G-Mode Morph Breaking the Maridia Tube Gravity Jump", // not usable because of canRiskPermanentLossOfAccess
         "Mt. Everest Cross Room Jump through Top Door", // currently unusable because of obstacleCleared requirement
     ]
