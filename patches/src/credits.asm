@@ -897,12 +897,12 @@ credits:
     !orange
     dw "    LOGIC DATA MAIN AUTHORS     " ;; 137
     !big
-    dw "   RUSHLIGHT          OSSE101   " ;; 138
-    dw "   rushlight          osse!}!   " ;; 139
-    dw "   MISS MINNIE T      KYLEB     " ;; 140
-    dw "   miss minnie t.     kyleb     " ;; 141
-    dw "   DIPROGAN                     " ;; 142
-    dw "   diprogan                     " ;; 143
+    dw "    RUSHLIGHT        OSSE101    " ;; 138
+    dw "    rushlight        osse!}!    " ;; 139
+    dw "    MATRETHEWEY      KYLEB      " ;; 140
+    dw "    matrethewey      kyleb      " ;; 141
+    dw "    DIPROGAN                    " ;; 142
+    dw "    diprogan                    " ;; 143
     !cyan
     dw "          SPOILER MAP           " ;; 144
     !big
