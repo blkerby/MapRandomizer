@@ -649,7 +649,10 @@ class AttentionLayer(torch.nn.Module):
         K = self.key(X).view(n, s, self.num_heads, self.key_width)
         V = self.value(X).view(n, s, self.num_heads, self.value_width)
         A = compute_cross_attn(Q, K, V).reshape(n, s, self.num_heads * self.value_width)
-        out = self.layer_norm(X + self.dropout(self.post(A))).to(X.dtype)
+        P = self.post(A)
+        if self.dropout.p > 0.0:
+            P = self.dropout(P)
+        out = self.layer_norm(X + P).to(X.dtype)
         return out
 
 
@@ -674,7 +677,9 @@ class FeedforwardLayer(torch.nn.Module):
         # shape.append(self.arity)
         # A = torch.amax(A.reshape(*shape), dim=-1)
         A = self.lin2(A)
-        X = X + self.dropout(A)
+        if self.dropout.p > 0.0:
+            A = self.dropout(A)
+        X = X + A
         return self.layer_norm(X).to(X.dtype)
         # return X
 
@@ -903,7 +908,8 @@ class TransformerModel(torch.nn.Module):
             # X = X + global_embedding.view(n, 1, self.embedding_width) + self.pos_embedding.view(1, self.num_blocks, self.embedding_width)
             X = X + self.pos_embedding.to(dtype).view(1, self.num_blocks, self.embedding_width)
 
-            X = self.embed_dropout(X)
+            if self.embed_dropout.p > 0.0:
+                X = self.embed_dropout(X)
             for i in range(self.num_local_layers):
                 # X = self.transformer_layers[i](X)
                 X = self.attn_layers[i](X)

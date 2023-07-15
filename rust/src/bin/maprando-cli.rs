@@ -1,6 +1,6 @@
 use anyhow::{bail, Context, Result};
 use clap::Parser;
-use maprando::customize::{customize_rom, CustomizeSettings};
+use maprando::customize::{customize_rom, CustomizeSettings, SamusSpriteCustomizer};
 use maprando::game_data::{Item, Map};
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::Rom;
@@ -211,6 +211,7 @@ fn main() -> Result<()> {
     let escape_timings_path = Path::new("data/escape_timings.json");
     let start_locations_path = Path::new("data/start_locations.json");
     let hub_locations_path = Path::new("data/hub_locations.json");
+    let samus_spritesheet_layout_path = Path::new("data/samus_spritesheet_layout.json");
     let game_data = GameData::load(
         sm_json_data_path,
         room_geometry_path,
@@ -219,6 +220,8 @@ fn main() -> Result<()> {
         start_locations_path,
         hub_locations_path,
     )?;
+
+    let samus_customizer = SamusSpriteCustomizer::new(samus_spritesheet_layout_path)?;
 
     // Perform randomization (map selection & item placement):
     let randomization = get_randomization(&args, &game_data)?;
@@ -235,7 +238,7 @@ fn main() -> Result<()> {
         disable_beeping: false,
         // area_themed_palette: false
     };
-    customize_rom(&mut output_rom, &ips_patch, &customize_settings, &game_data)?;
+    customize_rom(&mut output_rom, &ips_patch, &None, &customize_settings, &game_data, &samus_customizer)?;
 
     // Save the outputs:
     if let Some(output_rom_path) = &args.output_rom {

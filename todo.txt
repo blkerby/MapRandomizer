@@ -1,6 +1,60 @@
 next release:
-- credits:
-  - use different part of memory instead of $7F:FE00-$7F:FF00 for extra save data (since this gets overwritten by escape cutscene)
+- add custom sprite support
+  - notes:
+  - tile graphics:
+    - $92d94e: animation definition pointers (1 word per Samus pose), points to animation definition in bank $92
+    - $92db48: animation definitions (target of pointers in table at $92d94e)
+      - 4 bytes per animation frame
+      - byte 0: top half, index into $92D91E
+      - byte 1: top half, multiplied by 7 and added to index for byte 0 to get pointer to tile definition.
+      - byte 2: bottom half, index into $92D938
+      - byte 3: bottom half, multiplied by 7 and added to index for byte 2 to get pointer to tile definition.
+      ; First byte indexes the top half tiles definitions pointer table ($D91E) for a pointer to a list of DMA entries that is indexed by the second byte
+      ; Third byte indexes the bottom half tiles definitions pointer table ($D938) for a pointer to a list of DMA entries that is indexed by the fourth byte
+    - $92cbee: tile definitions (DMA entries)
+      - 7 bytes per animation frame:
+        ; Samus tiles definition format:
+        ;     aaaaaa nnnn NNNN
+        ; where:
+        ;     a: Source address (banks $9B - $9F)
+        ;     n: Part 1 size, n = 0 means 10000h bytes are transferred
+        ;     N: Part 2 size, N = 0 means no bytes are transferred
+  - spritemaps:
+    - $929263: spritemap table indices, top half (1 word per Samus pose), index into spritemap table at $92808D
+    - $92945D: spritemap table indices, bottom half (1 word per Samus pose), index into spritemap table at $92808D
+    - $92808D: spritemap table: 1 word for each animation frame, starting at index given above, pointing into spritemaps in bank $92 (at $929657)
+    - $929657: spritemaps, in format described in PJ's bank logs at $A9:93EE:
+      ; Spritemap format is roughly:
+      ;     nnnn         ; Number of entries (2 bytes)
+      ;     xxxx yy aatt ; Entry 0 (5 bytes)
+      ;     ...          ; Entry 1...
+      ; Where:
+      ;     n = number of entries
+      ;     x = X offset of sprite from centre
+      ;     y = Y offset of sprite from centre
+      ;     a = attributes
+      ;     t = tile number
+
+      ; More specifically, a spritemap entry is:
+      ;     s000000xxxxxxxxx yyyyyyyy YXppPPPttttttttt
+      ; Where:
+      ;     s = size bit
+      ;     x = X offset of sprite from centre
+      ;     y = Y offset of sprite from centre
+      ;     Y = Y flip
+      ;     X = X flip
+      ;     P = palette
+      ;     p = priority (relative to background)
+      ;     t = tile number
+  - palettes: ...
+
+priority:
+- Fix bug with cross-room jump?:
+  - spoiler shows no logical path out of draygon until later than expected:
+    https://maprando.com/seed/O4j4-NDrcwckyTtJMVqxdw/data/visualizer/index.html
+- Slow progression item placement bug?:
+  - supers placed on same step as Screw, although Missiles still available as filler:
+    - https://maprando.com/seed/HwuYziIJUh-sCUM0YCAPRA/data/visualizer/index.html
 - randomized start: check requires on hub locations
 - fix quick-reload on last frame of pause/unpause
 - adjust area colors
@@ -9,8 +63,6 @@ next release:
 - check if reloading from bottom/top of elevator works correctly (not skips back a save)
 - do something about screen shaking during samus appears (in start location: rising tide, amphitheatre)
   - maybe get rid of shaking in general?
-
-priority:
 - fix bug in escape room 1: top block of right transition seems solid (reported by somerando)
 - new map pool
   - bosses not cleared unless "enemies cleared" option is enabled
@@ -36,6 +88,30 @@ priority:
 - get rid of symlink for sm-json-data
 
 later:
+- change how cross-room logic works?:
+  - unify cross-room strats to go under links, with annotations on the cross-room state (in new strat properties)
+  - replaces "initiateRemotely", allows obstacles and one-way cross-room paths to be handled properly
+- minimal items mode:
+  - could go in pending "Wild" item progression preset (along with option to allow items to be potentially required to be used in their return path)
+  - taking into account objectives & MB requirements, replace unneeded items with nothings (e.g. empty Missile container)
+  - keep item dots as they would have been (mixture of different possible types)
+  - there's no longer a guarantee that every room can be eventually reachable
+  - maybe allow customizabilty of which items can be removed:
+    - some people might still want to get certain items (e.g. beams)
+- consider "reserve tank behavior" QoL option in max:
+  - manually refilling to full doesn't empty the remaining reserves (requested by zero318)
+  - i-frames don't expire during reserve? (though this would break double-damage boost strats)
+  - no heat damage during reserve refill
+  - maybe?:
+    - energy recharge stations also refill reserve energy
+    - collecting etank also refills reserves?
+  - (not part of QoL:) fix crash when pausing on frame when auto reserve triggers 
+  - See existing patch for some of these: https://metroidconstruction.com/resource.php?id=418
+- consider bot-friendly API
+- add momentum conservation patch (in "Max" QoL)
+- use "crateria asleep" song somewhere:
+  - maybe in the initial part of crateria when zebes not awake.
+  - alternatively: in the wrecked ship, replacing one of the two nearly identical songs.
 - "wild" item progression mode, where new item may be required to be used for the return path.
 - consider idea from selicre: "what if there was a mode in which walljumps could be unlocked by visiting etecoons (and shinesparking by visiting dachora)?"
 - custom demos
@@ -83,6 +159,7 @@ later:
        - keep it 6 pixels?
 - gravity seems to provide 50% heat reduction on elevator ride? (Remove this.)
    - https://clips.twitch.tv/RepleteShyManateeTBTacoLeft-Ip5vQynrc0SQYQUj
+   - maybe during acid chozo drain too?
 - maybe make Mother Brain Room reveal all its tiles (and maybe explore them too? but probably not), to be more consistent with the other boss rooms
    - on the other hand, what about minibosses and other objectives? maybe just leave all this alone?
 - fix save animation colors (area-themed color looks a little bad?)
@@ -180,6 +257,11 @@ later:
   - fix cutscene between MB1 and MB2
   - fix background during Ridley fight
 - During escape, block backward path using room setup ASM instead of door ASM (so it can still work after leaving room another way)
+  - when going into room with no doorcap (e.g. escape room 1, glass tunnel) fix how gray door appears:
+    - shift to the right a tile.
+    - maybe use wall PLM instead of gray door
+  - or, possibly better idea: don't spawn a gray door or wall, just have it take you into post-MB-fight state of MB room
+    (like escape auto-save does).
 - make separate option for patching out major glitches?
   - include GT code, Spacetime beam (currently patched out)
   - make OOB cause instant death?

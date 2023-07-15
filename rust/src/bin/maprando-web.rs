@@ -1,3 +1,4 @@
+use std::io::Cursor;
 use std::path::Path;
 use std::time::SystemTime;
 
@@ -12,9 +13,8 @@ use base64::Engine;
 use clap::Parser;
 use hashbrown::{HashMap, HashSet};
 use log::{error, info};
-use maprando::customize::{customize_rom, CustomizeSettings};
+use maprando::customize::{customize_rom, CustomizeSettings, SamusSpriteCustomizer};
 use maprando::game_data::{GameData, IndexedVec, Item};
-use maprando::web::{Preset, PresetData, AppData, MapRepository};
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::{make_rom, Rom};
 use maprando::randomize::{
@@ -23,12 +23,13 @@ use maprando::randomize::{
 };
 use maprando::seed_repository::{Seed, SeedFile, SeedRepository};
 use maprando::spoiler_map;
+use maprando::web::{AppData, MapRepository, Preset, PresetData};
 use rand::{RngCore, SeedableRng};
 use sailfish::TemplateOnce;
 use serde_derive::{Deserialize, Serialize};
 
-use maprando::web::VERSION;
 use maprando::web::logic::LogicData;
+use maprando::web::VERSION;
 
 const VISUALIZER_PATH: &'static str = "../visualizer/";
 const TECH_GIF_PATH: &'static str = "static/tech_gifs/";
@@ -206,6 +207,7 @@ struct UnlockRequest {
 #[derive(MultipartForm)]
 struct CustomizeRequest {
     rom: Bytes,
+    spritesheet: Option<Bytes>,
     room_palettes: Text<String>,
     disable_music: Text<bool>,
     disable_beeping: Text<bool>,
@@ -619,6 +621,7 @@ async fn customize_seed(
         .await
         .unwrap();
     let mut rom = Rom::new(req.rom.data.to_vec());
+    let samus_sprite: Option<Vec<u8>> = req.spritesheet.as_ref().map(|x| x.data.to_vec());
 
     if rom.data.len() < 0x300000 {
         return HttpResponse::BadRequest().body("Invalid base ROM.");
@@ -630,7 +633,7 @@ async fn customize_seed(
         disable_beeping: req.disable_beeping.0,
     };
     info!("CustomizeSettings: {:?}", settings);
-    match customize_rom(&mut rom, &patch_ips, &settings, &app_data.game_data) {
+    match customize_rom(&mut rom, &patch_ips, &samus_sprite, &settings, &app_data.game_data, &app_data.samus_customizer) {
         Ok(()) => {}
         Err(err) => {
             return HttpResponse::InternalServerError()
@@ -1128,7 +1131,6 @@ fn init_presets(
 
     // Tech which is currently not used by any strat in logic, so we avoid showing on the website:
     let ignored_tech: HashSet<String> = [
-        "canWallIceClip",
         "canGrappleClip",
         "canShinesparkWithReserve",
         "canRiskPermanentLossOfAccess",
@@ -1313,7 +1315,10 @@ fn get_implicit_tech() -> HashSet<String> {
         "canEscapeEnemyGrab",
         "canSpecialBeamAttack",
         "canDownBack",
-    ].into_iter().map(|x| x.to_string()).collect()
+    ]
+    .into_iter()
+    .map(|x| x.to_string())
+    .collect()
 }
 
 fn build_app_data() -> AppData {
@@ -1326,6 +1331,7 @@ fn build_app_data() -> AppData {
     let hub_locations_path = Path::new("data/hub_locations.json");
     let maps_path =
         Path::new("../maps/session-2022-06-03T17:19:29.727911.pkl-bk30-subarea-balance-2");
+    let samus_spritesheet_layout_path = Path::new("data/samus_spritesheet_layout.json");
 
     let game_data = GameData::load(
         sm_json_data_path,
@@ -1336,6 +1342,7 @@ fn build_app_data() -> AppData {
         hub_locations_path,
     )
     .unwrap();
+    let samus_customizer = SamusSpriteCustomizer::new(samus_spritesheet_layout_path).unwrap();
     let tech_gif_listing = list_tech_gif_files();
     let presets: Vec<Preset> =
         serde_json::from_str(&std::fs::read_to_string(&"data/presets.json").unwrap()).unwrap();
@@ -1353,6 +1360,7 @@ fn build_app_data() -> AppData {
         visualizer_files: load_visualizer_files(),
         tech_gif_listing,
         logic_data,
+        samus_customizer,
         debug: args.debug,
         static_visualizer: args.static_visualizer,
     }

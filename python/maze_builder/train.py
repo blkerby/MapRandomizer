@@ -165,7 +165,7 @@ session = TrainingSession(envs,
 # logging.info("Constructed {} eval batches".format(num_eval_batches))
 # pickle.dump(eval_batches, open("eval_batches_zebes.pkl", "wb"))
 
-eval_batches = pickle.load(open("eval_batches_zebes.pkl", "rb"))
+# eval_batches = pickle.load(open("eval_batches_zebes.pkl", "rb"))
 
 # for i in range(len(eval_batches)):
 #     i = 0
@@ -179,7 +179,7 @@ cpu_executor = None
 
 pickle_name = 'models/session-2023-06-08T14:55:16.779895.pkl'
 # session = pickle.load(open(pickle_name, 'rb'))
-session = pickle.load(open(pickle_name + '-bk14', 'rb'))
+session = pickle.load(open(pickle_name + '-bk19', 'rb'))
 # session.replay_buffer.size = 0
 # session.replay_buffer.position = 0
 # session.replay_buffer.resize(2 ** 23)
@@ -214,7 +214,7 @@ cycle_weight = 0.0
 cycle_value_coef = 0.0
 compute_cycles = False
 
-door_connect_bound = 1.0
+door_connect_bound = 3.0
 # door_connect_bound = 0.0
 door_connect_alpha = 0.01
 # door_connect_alpha = door_connect_alpha0 / math.sqrt(1 + session.num_rounds / lr_cooldown_time)
@@ -260,7 +260,7 @@ total_min_door_frac = 0
 total_cycle_cost = 0.0
 save_freq = 256
 summary_freq = 256
-session.decay_amount = 0.01
+session.decay_amount = 0.2
 # session.decay_amount = 0.2
 session.optimizer.param_groups[0]['betas'] = (0.9, 0.9)
 session.optimizer.param_groups[0]['eps'] = 1e-5
@@ -339,17 +339,27 @@ def save_session(session, name):
         logging.info("Saving to {}".format(name))
         pickle.dump(session, open(name, 'wb'))
 
+dropout = 0.0
+session.model.embed_dropout.p = dropout
+for m in session.model.ff_layers:
+    m.dropout.p = dropout
+logging.info("{}".format(session.model))
+# for m in session.model.modules():
+#     if isinstance(m, torch.nn.Dropout):
+#         if m.p > 0.0:
+#             m.p = dropout
+
 
 min_door_value = max_possible_reward
 torch.set_printoptions(linewidth=120, threshold=10000)
 logging.info("Checkpoint path: {}".format(pickle_name))
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
 logging.info(
-    "map_x={}, map_y={}, num_envs={}, batch_size={}, pass_factor0={}, pass_factor1={}, lr0={}, lr1={}, num_candidates_min0={}, num_candidates_max0={}, num_candidates_min1={}, num_candidates_max1={}, replay_size={}/{}, hist_frac={}, hist_c={}, num_params={}, decay_amount={}, temperature_min0={}, temperature_min1={}, temperature_max0={}, temperature_max1={}, temperature_decay={}, ema_beta0={}, ema_beta1={}, explore_eps_factor={}, annealing_time={}, cycle_weight={}, cycle_value_coef={}, door_connect_alpha={}, door_connect_bound={}, augment_frac={}".format(
+    "map_x={}, map_y={}, num_envs={}, batch_size={}, pass_factor0={}, pass_factor1={}, lr0={}, lr1={}, num_candidates_min0={}, num_candidates_max0={}, num_candidates_min1={}, num_candidates_max1={}, replay_size={}/{}, hist_frac={}, hist_c={}, num_params={}, decay_amount={}, temperature_min0={}, temperature_min1={}, temperature_max0={}, temperature_max1={}, temperature_decay={}, ema_beta0={}, ema_beta1={}, explore_eps_factor={}, annealing_time={}, cycle_weight={}, cycle_value_coef={}, door_connect_alpha={}, door_connect_bound={}, augment_frac={}, dropout={}".format(
         map_x, map_y, session.envs[0].num_envs, batch_size, pass_factor0, pass_factor1, lr0, lr1, num_candidates_min0, num_candidates_max0, num_candidates_min1, num_candidates_max1, session.replay_buffer.size,
         session.replay_buffer.capacity, hist_frac, hist_c, num_params, session.decay_amount,
         temperature_min0, temperature_min1, temperature_max0, temperature_max1, temperature_decay, ema_beta0, ema_beta1, explore_eps_factor,
-        annealing_time, cycle_weight, cycle_value_coef, door_connect_alpha, door_connect_bound, augment_frac))
+        annealing_time, cycle_weight, cycle_value_coef, door_connect_alpha, door_connect_bound, augment_frac, dropout))
 logging.info(session.optimizer)
 logging.info("Starting training")
 for i in range(1000000):
@@ -538,9 +548,9 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk15')
+            # save_session(session, pickle_name + '-bk20')
             # session.replay_buffer.resize(2 ** 20)
-            # pickle.dump(session, open(pickle_name + '-small-10', 'wb'))
+            # pickle.dump(session, open(pickle_name + '-small-16', 'wb'))
     if session.num_rounds % summary_freq == 0:
         if num_candidates_max == 1:
             total_eval_loss = 0.0

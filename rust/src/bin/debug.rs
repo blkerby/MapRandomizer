@@ -51,7 +51,7 @@ fn main() -> Result<()> {
     //     }
     // }
 
-    let mut items = vec![false; game_data.item_isv.keys.len()];
+    let mut items = vec![true; game_data.item_isv.keys.len()];
     // items[Item::Missile as usize] = true;
     // items[Item::SpaceJump as usize] = true;
     // items[Item::Super as usize] = true;
@@ -61,18 +61,18 @@ fn main() -> Result<()> {
     // items[Item::Wave as usize] = true;
     // items[Item::Ice as usize] = true;
     // items[Item::Spazer as usize] = true;
-    items[Item::Plasma as usize] = true;
-    items[Item::Varia as usize] = true;
+    // items[Item::Plasma as usize] = true;
+    // items[Item::Varia as usize] = true;
     // items[Item::Gravity as usize] = true;
 
     let weapon_mask = game_data.get_weapon_mask(&items);
     let global_state = GlobalState {
-        tech: vec![true; game_data.tech_isv.keys.len()],
+        tech: vec![false; game_data.tech_isv.keys.len()],
         notable_strats: vec![true; game_data.notable_strat_isv.keys.len()],
         flags: vec![false; game_data.flag_isv.keys.len()],
         items: items,
-        max_energy: 20000,
-        max_missiles: 10,
+        max_energy: 100,
+        max_missiles: 0,
         max_reserves: 0,
         max_supers: 0,
         max_power_bombs: 0,
@@ -101,7 +101,7 @@ fn main() -> Result<()> {
         resource_multiplier: 1.0,
         escape_timer_multiplier: 1.0,
         phantoon_proficiency: 0.5,
-        draygon_proficiency: 0.5,
+        draygon_proficiency: 1.0,
         ridley_proficiency: 0.0,
         botwoon_proficiency: 1.0,
         supers_double: true,
@@ -140,25 +140,25 @@ fn main() -> Result<()> {
     //     apply_requirement(&Requirement::PhantoonFight {  }, &global_state, local_state, false, &difficulty)
     // );
 
-    // println!(
-    //     "{:?}",
-    //     apply_requirement(&Requirement::DraygonFight {
-    //         can_be_patient_tech_id: game_data.tech_isv.index_by_key["canBePatient"]
-    //     }, &global_state, local_state, false, &difficulty)
-    // );
-
     println!(
         "{:?}",
-        apply_requirement(
-            &Requirement::RidleyFight {
-                can_be_patient_tech_id: game_data.tech_isv.index_by_key["canBePatient"]
-            },
-            &global_state,
-            local_state,
-            false,
-            &difficulty
-        )
+        apply_requirement(&Requirement::DraygonFight {
+            can_be_patient_tech_id: game_data.tech_isv.index_by_key["canBePatient"]
+        }, &global_state, local_state, false, &difficulty)
     );
+
+    // println!(
+    //     "{:?}",
+    //     apply_requirement(
+    //         &Requirement::RidleyFight {
+    //             can_be_patient_tech_id: game_data.tech_isv.index_by_key["canBePatient"]
+    //         },
+    //         &global_state,
+    //         local_state,
+    //         false,
+    //         &difficulty
+    //     )
+    // );
 
     // let mut name_set: HashSet<String> = HashSet::new();
     // for link in &game_data.links {

@@ -670,7 +670,8 @@ pub fn apply_requirement(
             validate_missiles(new_local, global)
         }
         Requirement::MissilesCapacity(count) => {
-            if global.max_missiles >= *count {
+            let adjusted_count = multiply(*count, difficulty);
+            if global.max_missiles >= adjusted_count {
                 Some(local)
             } else {
                 None

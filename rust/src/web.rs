@@ -6,12 +6,13 @@ use std::path::{Path, PathBuf};
 use anyhow::{Context, Result};
 use log::info;
 
+use crate::customize::SamusSpriteCustomizer;
 use crate::game_data::{GameData, Map};
 use crate::seed_repository::SeedRepository;
 
 use self::logic::LogicData;
 
-pub const VERSION: usize = 71;
+pub const VERSION: usize = 72;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Preset {
@@ -49,6 +50,7 @@ pub struct AppData {
     pub visualizer_files: Vec<(String, Vec<u8>)>, // (path, contents)
     pub tech_gif_listing: HashSet<String>,
     pub logic_data: LogicData,
+    pub samus_customizer: SamusSpriteCustomizer,
     pub debug: bool,
     pub static_visualizer: bool,
 }

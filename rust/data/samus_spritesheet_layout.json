@@ -1,0 +1,6393 @@
+{
+  "comment": [
+    "From https://github.com/Artheau/SpriteSomething/blob/f3428d26c4299ed1f7f4e648de69d0e8d05f746a/resources/app/snes/metroid3/samus/manifests/layout.json",
+    "This file in some cases has a very specific ordering.  For instance, the first instance of any used_by list",
+    "will also be the pose that is used to import the image.  For this reason, some poses will be out of order",
+    "and this is intentional because a pose might be mirrored in its first occurance (grapple), or perhaps",
+    "the way that it will be present in the ROM is different before and after modification (e.g. screw attack)"
+  ],
+  "border_color": [0, 0, 127, 255],
+  "border_size": 1,
+  "layout": [
+    [
+      "palette_block"
+    ],
+    [
+      "file_select_head", "file_select_head1", "file_select_head2",
+      "file_select_visor", "file_select_visor1", "file_select_visor2", "file_select_visor3", "file_select_visor4",
+      "file_select_cursor_array", "file_select_piping"
+    ],
+    ["gun_port_left_aim_up2", "gun_port_left_aim_up1", "gun_port_left_aim_up0", "gun_port_right_aim_up0", "gun_port_right_aim_up1", "gun_port_right_aim_up2"],
+    ["gun_port_left_aim_diag_up2", "gun_port_left_aim_diag_up1", "gun_port_left_aim_diag_up0", "gun_port_right_aim_diag_up0", "gun_port_right_aim_diag_up1", "gun_port_right_aim_diag_up2"],
+    ["gun_port_left2", "gun_port_left1", "gun_port_left0", "gun_port_right0", "gun_port_right1", "gun_port_right2"],
+    ["gun_port_left_aim_diag_down2", "gun_port_left_aim_diag_down1", "gun_port_left_aim_diag_down0", "gun_port_right_aim_diag_down0", "gun_port_right_aim_diag_down1", "gun_port_right_aim_diag_down2"],
+    ["gun_port_left_aim_down2", "gun_port_left_aim_down1", "gun_port_left_aim_down0", "gun_port_rigth_aim_down0", "gun_port_right_aim_down1", "gun_port_right_aim_down2"],
+    [
+      "launcher8", "launcher7", "launcher6", "launcher5", "launcher4",
+      "launcher3", "launcher2", "launcher1", "launcher", "elevator",
+      "elevator_varia", "launcher_varia", "launcher1_varia", "launcher2_varia", "launcher3_varia",
+      "launcher4_varia", "launcher5_varia", "launcher6_varia", "launcher7_varia", "launcher8_varia"
+    ],
+    [
+      "stand_left_aim_up", "stand_left_aim_diag_up",
+      "stand_turn_left_aim_up", "stand_turn_neutral_aim_up", "stand_turn_right_aim_up",
+      "stand_right_aim_diag_up", "stand_right_aim_up"
+    ],
+    [
+      "stand_left_heavy3", "stand_left_heavy2", "stand_left_heavy1", "stand_left_heavy",
+      "stand_left3", "stand_left2", "stand_left1", "stand_left",
+
+      "stand_turn_left", "stand_turn_neutral", "stand_turn_right",
+
+      "stand_right", "stand_right1", "stand_right2", "stand_right3",
+      "stand_right_heavy", "stand_right_heavy1", "stand_right_heavy2", "stand_right_heavy3"
+    ],
+    [
+      "stand_left_aim_diag_down",
+      "stand_turn_left_aim_down", "stand_turn_neutral_aim_down", "stand_turn_right_aim_down",
+      "stand_right_aim_diag_down"
+    ],
+    [
+      "crouch_transition_left_aim_diag_down",
+      "crouch_transition_left",
+      "crouch_transition_left_aim_diag_up", "crouch_transition_left_aim_up",
+      "crouch_left_aim_up", "crouch_left_aim_diag_up",
+      "crouch_turn_left_aim_up", "crouch_turn_neutral_aim_up", "crouch_turn_right_aim_up",
+      "crouch_right_aim_diag_up", "crouch_right_aim_up",
+      "crouch_transition_right_aim_up", "crouch_transition_right_aim_diag_up",
+      "crouch_transition_right",
+      "crouch_transition_right_aim_diag_down"
+    ],
+    [
+      "crouch_left_heavy3", "crouch_left_heavy2", "crouch_left_heavy1", "crouch_left_heavy",
+      "crouch_left3", "crouch_left2", "crouch_left1", "crouch_left",
+      "crouch_turn_left", "crouch_turn_neutral", "crouch_turn_right",
+      "crouch_right", "crouch_right1", "crouch_right2", "crouch_right3",
+      "crouch_right_heavy", "crouch_right_heavy1", "crouch_right_heavy2", "crouch_right_heavy3"
+    ],
+    [
+      "crouch_left_aim_diag_down",
+      "crouch_turn_left_aim_down", "crouch_turn_neutral_aim_down", "crouch_turn_right_aim_down",
+      "crouch_right_aim_diag_down"
+    ],
+    [
+      "run_left9", "run_left8", "run_left7", "run_left6", "run_left5",
+      "run_left4", "run_left3", "run_left2", "run_left1", "run_left",
+      "run_right", "run_right1", "run_right2", "run_right3", "run_right4",
+      "run_right5", "run_right6", "run_right7", "run_right8", "run_right9"
+    ],
+    [
+      "run_left_aim_diag_up9", "run_left_aim_diag_up8", "run_left_aim_diag_up7", "run_left_aim_diag_up6", "run_left_aim_diag_up5",
+      "run_left_aim_diag_up4", "run_left_aim_diag_up3", "run_left_aim_diag_up2", "run_left_aim_diag_up1", "run_left_aim_diag_up",
+      "run_right_aim_diag_up", "run_right_aim_diag_up1", "run_right_aim_diag_up2", "run_right_aim_diag_up3", "run_right_aim_diag_up4",
+      "run_right_aim_diag_up5", "run_right_aim_diag_up6", "run_right_aim_diag_up7", "run_right_aim_diag_up8", "run_right_aim_diag_up9"
+    ],
+    [
+      "run_left_shooting9", "run_left_shooting8", "run_left_shooting7", "run_left_shooting6", "run_left_shooting5",
+      "run_left_shooting4", "run_left_shooting3", "run_left_shooting2", "run_left_shooting1", "run_left_shooting",
+      "run_right_shooting", "run_right_shooting1", "run_right_shooting2", "run_right_shooting3", "run_right_shooting4",
+      "run_right_shooting5", "run_right_shooting6", "run_right_shooting7", "run_right_shooting8", "run_right_shooting9"
+    ],
+    [
+      "run_left_aim_diag_down9", "run_left_aim_diag_down8", "run_left_aim_diag_down7", "run_left_aim_diag_down6", "run_left_aim_diag_down5",
+      "run_left_aim_diag_down4", "run_left_aim_diag_down3", "run_left_aim_diag_down2", "run_left_aim_diag_down1", "run_left_aim_diag_down",
+      "run_right_aim_diag_down", "run_right_aim_diag_down1", "run_right_aim_diag_down2", "run_right_aim_diag_down3", "run_right_aim_diag_down4",
+      "run_right_aim_diag_down5", "run_right_aim_diag_down6", "run_right_aim_diag_down7", "run_right_aim_diag_down8", "run_right_aim_diag_down9"
+    ],
+    [
+      "moonwalk_left_aim_diag_up5", "moonwalk_left_aim_diag_up4", "moonwalk_left_aim_diag_up3", "moonwalk_left_aim_diag_up2", "moonwalk_left_aim_diag_up1", "moonwalk_left_aim_diag_up",
+      "moonwalk_right_aim_diag_up", "moonwalk_right_aim_diag_up1", "moonwalk_right_aim_diag_up2", "moonwalk_right_aim_diag_up3", "moonwalk_right_aim_diag_up4", "moonwalk_right_aim_diag_up5"
+    ],
+    [
+      "moonwalk_left5", "moonwalk_left4", "moonwalk_left3", "moonwalk_left2", "moonwalk_left1", "moonwalk_left",
+      "moonwalk_right", "moonwalk_right1", "moonwalk_right2", "moonwalk_right3", "moonwalk_right4", "moonwalk_right5"
+    ],
+    [
+      "moonwalk_left_aim_diag_down5", "moonwalk_left_aim_diag_down4", "moonwalk_left_aim_diag_down3", "moonwalk_left_aim_diag_down2", "moonwalk_left_aim_diag_down1", "moonwalk_left_aim_diag_down",
+      "moonwalk_right_aim_diag_down", "moonwalk_right_aim_diag_down1", "moonwalk_right_aim_diag_down2", "moonwalk_right_aim_diag_down3", "moonwalk_right_aim_diag_down4", "moonwalk_right_aim_diag_down5"
+    ],
+    [
+      "jump_left_land1", "jump_left_land",
+      "jump_left5", "jump_left4", "jump_left3", "jump_left2", "jump_left1", "jump_left",
+      "jump_left_begin",
+      "jump_right_begin",
+      "jump_right", "jump_right1", "jump_right2", "jump_right3", "jump_right4", "jump_right5",
+      "jump_right_land", "jump_right_land1"
+    ],
+    [
+      "jump_left_aim_up_land1", "jump_left_aim_up_land",
+      "jump_left_aim_up1", "jump_left_aim_up",
+      "jump_left_aim_up_begin",
+      "jump_right_aim_up_begin",
+      "jump_right_aim_up", "jump_right_aim_up1",
+      "jump_right_aim_up_land", "jump_right_aim_up_land1"
+    ],
+    [
+      "jump_left_aim_diag_up_land1", "jump_left_aim_diag_up_land",
+      "jump_left_aim_diag_up1", "jump_left_aim_diag_up",
+      "jump_left_aim_diag_up_begin",
+      "jump_turn_left_aim_up", "jump_turn_neutral_aim_up", "jump_turn_right_aim_up",
+      "jump_right_aim_diag_up_begin",
+      "jump_right_aim_diag_up", "jump_right_aim_diag_up1",
+      "jump_right_aim_diag_up_land", "jump_right_aim_diag_up_land1"
+    ],
+    [
+      "jump_left_shoot_land1", "jump_left_shoot_land",
+      "jump_left_shoot1", "jump_left_shoot",
+      "jump_turn_left", "jump_turn_neutral", "jump_turn_right",
+      "jump_right_shoot", "jump_right_shoot1",
+      "jump_right_shoot_land", "jump_right_shoot_land1"
+    ],
+    [
+      "jump_left_aim_diag_down_land1", "jump_left_aim_diag_down_land",
+      "jump_left_aim_diag_down1", "jump_left_aim_diag_down",
+      "jump_left_aim_diag_down_begin",
+      "jump_turn_left_aim_down", "jump_turn_neutral_aim_down", "jump_turn_right_aim_down",
+      "jump_right_aim_diag_down_begin",
+      "jump_right_aim_diag_down", "jump_right_aim_diag_down1",
+      "jump_right_aim_diag_down_land", "jump_right_aim_diag_down_land1"
+    ],
+    [
+      "jump_left_aim_down1", "jump_left_aim_down",
+      "jump_right_aim_down", "jump_right_aim_down1"
+    ],
+    [
+      "fall_left4", "fall_left3", "fall_left2", "fall_left1", "fall_left",
+      "fall_right", "fall_right1", "fall_right2", "fall_right3", "fall_right4"
+    ],
+    [
+      "fall_left_aim_up2", "fall_left_aim_up1", "fall_left_aim_up",
+      "fall_right_aim_up", "fall_right_aim_up1", "fall_right_aim_up2"
+    ],
+    [
+      "fall_left_aim_diag_up2", "fall_left_aim_diag_up1", "fall_left_aim_diag_up",
+      "fall_turn_left_aim_up", "fall_turn_neutral_aim_up", "fall_turn_right_aim_up",
+      "fall_right_aim_diag_up", "fall_right_aim_diag_up1", "fall_right_aim_diag_up2"
+    ],
+
+    [
+      "fall_left_shoot4", "fall_left_shoot3", "fall_left_shoot2", "fall_left_shoot1", "fall_left_shoot",
+      "fall_turn_left", "fall_turn_neutral", "fall_turn_right",
+      "fall_right_shoot", "fall_right_shoot1", "fall_right_shoot2", "fall_right_shoot3", "fall_right_shoot4"
+    ],
+    [
+      "fall_left_aim_diag_down2", "fall_left_aim_diag_down1", "fall_left_aim_diag_down",
+      "fall_turn_left_aim_down", "fall_turn_neutral_aim_down", "fall_turn_right_aim_down",
+      "fall_right_aim_diag_down", "fall_right_aim_diag_down1", "fall_right_aim_diag_down2"
+    ],
+    [
+      "fall_left_aim_down1", "fall_left_aim_down",
+      "fall_right_aim_down", "fall_right_aim_down1"
+    ],
+    [
+      "xray_left4", "xray_left3", "xray_left2", "xray_left1", "xray_left",
+      "xray_right", "xray_right1", "xray_right2", "xray_right3", "xray_right4"
+    ],
+    [
+      "xray_crouch_left4", "xray_crouch_left3", "xray_crouch_left2", "xray_crouch_left1", "xray_crouch_left",
+      "xray_crouch_right", "xray_crouch_right1", "xray_crouch_right2", "xray_crouch_right3", "xray_crouch_right4"
+    ],
+    [
+      "grabbed_left_struggling5", "grabbed_left_struggling4", "grabbed_left_struggling3",
+      "grabbed_left_struggling2", "grabbed_left_struggling1", "grabbed_left_struggling",
+      "grabbed_left_aim_diag_down", "grabbed_left_shoot", "grabbed_left_aim_diag_up",
+      "grabbed_left",
+      "grabbed_right",
+      "grabbed_right_aim_diag_up", "grabbed_right_shoot", "grabbed_right_aim_diag_down",
+      "grabbed_right_struggling", "grabbed_right_struggling1", "grabbed_right_struggling2",
+      "grabbed_right_struggling3", "grabbed_right_struggling4", "grabbed_right_struggling5"
+    ],
+    [
+      "bonk_right1", "bonk_right", "bonk_left", "bonk_left1"
+    ],
+    [
+      "roll_out_left9", "roll_out_left8", "roll_out_left7", "roll_out_left6", "roll_out_left5",
+      "roll_out_left4", "roll_out_left3", "roll_out_left2", "roll_out_left1", "roll_out_left",
+      "roll_out_right", "roll_out_right1", "roll_out_right2", "roll_out_right3", "roll_out_right4",
+      "roll_out_right5", "roll_out_right6", "roll_out_right7", "roll_out_right8", "roll_out_right9"
+    ],
+    [
+      "spin_jump_left_land2", "spin_jump_left_land1", "spin_jump_left_land",
+      "spin_jump_left7", "spin_jump_left6", "spin_jump_left5", "spin_jump_left4",
+      "spin_jump_left3", "spin_jump_left2", "spin_jump_left1", "spin_jump_left",
+      "jump_left_start_spin_jump",
+      "jump_right_start_spin_jump",
+      "spin_jump_right", "spin_jump_right1", "spin_jump_right2", "spin_jump_right3",
+      "spin_jump_right4", "spin_jump_right5", "spin_jump_right6", "spin_jump_right7",
+      "spin_jump_right_land", "spin_jump_right_land1", "spin_jump_right_land2"
+    ],
+    [
+      "wall_jump_launch_left",
+      "wall_jump_left",
+      "grapple_wall_left",
+      "grapple_wall_right",
+      "wall_jump_right",
+      "wall_jump_launch_right"
+    ],
+    [
+      "shine_spark_left", "shine_spark_vertical_left", "shine_spark_vertical_right", "shine_spark_right"
+    ],
+    [
+      "sparks_left3", "sparks_left2", "sparks_left1", "sparks_left",
+      "space_jump_left7", "space_jump_left6", "space_jump_left5", "space_jump_left4",
+      "space_jump_left3", "space_jump_left2", "space_jump_left1", "space_jump_left",
+      "space_jump_right", "space_jump_right1", "space_jump_right2", "space_jump_right3",
+      "space_jump_right4", "space_jump_right5", "space_jump_right6", "space_jump_right7",
+      "sparks_right", "sparks_right1", "sparks_right2", "sparks_right3"
+    ],
+    [
+      "morph_left", "morph_left1",
+      "morphball_stand_left7", "morphball_stand_left6", "morphball_stand_left5", "morphball_stand_left4",
+      "morphball_stand_left3", "morphball_stand_left2", "morphball_stand_left1", "morphball_stand_left",
+      "morphball_stand_right", "morphball_stand_right1", "morphball_stand_right2", "morphball_stand_right3",
+      "morphball_stand_right4", "morphball_stand_right5", "morphball_stand_right6", "morphball_stand_right7",
+      "morph_right1", "morph_right"
+    ],
+    [
+      "morphball_roll_left7", "morphball_roll_left6", "morphball_roll_left5", "morphball_roll_left4",
+      "morphball_roll_left3", "morphball_roll_left2", "morphball_roll_left1", "morphball_roll_left",
+      "morphball_roll_right", "morphball_roll_right1", "morphball_roll_right2", "morphball_roll_right3",
+      "morphball_roll_right4", "morphball_roll_right5", "morphball_roll_right6", "morphball_roll_right7"
+    ],
+    [
+      "morphball_fall_left7", "morphball_fall_left6", "morphball_fall_left5", "morphball_fall_left4",
+      "morphball_fall_left3", "morphball_fall_left2", "morphball_fall_left1", "morphball_fall_left",
+      "morphball_fall_right", "morphball_fall_right1", "morphball_fall_right2", "morphball_fall_right3",
+      "morphball_fall_right4", "morphball_fall_right5", "morphball_fall_right6", "morphball_fall_right7"
+    ],
+    [
+      "crystal_bubble_left_small", "crystal_bubble_left_medium", "crystal_bubble_left_large",
+      "crystal_flash_left3", "crystal_flash_left2", "crystal_flash_left1", "crystal_flash_left",
+      "crystal_flash_right", "crystal_flash_right1", "crystal_flash_right2", "crystal_flash_right3",
+      "crystal_bubble_right_large", "crystal_bubble_right_medium", "crystal_bubble_right_small"
+    ],
+    [
+      "supplication_look_up_left3", "supplication_look_up_left2", "supplication_look_up_left1", "supplication_look_up_left",
+      "supplication_left3", "supplication_left2", "supplication_left1", "supplication_left",
+      "supplication_right", "supplication_right1", "supplication_right2", "supplication_right3",
+      "supplication_look_up_right", "supplication_look_up_right1", "supplication_look_up_right2", "supplication_look_up_right3"
+    ],
+    [
+      "supplication_left_collapse", "supplication_left_stand_attempt", "supplication_left_stand_attempt1", "supplication_left_stand_attempt2"
+    ],
+    [
+      "grapple_counterclockwise", "grapple_counterclockwise1", "grapple_counterclockwise2", "grapple_counterclockwise3",
+      "grapple_counterclockwise4", "grapple_counterclockwise5", "grapple_counterclockwise6", "grapple_counterclockwise7",
+      "grapple_counterclockwise8", "grapple_counterclockwise9", "grapple_counterclockwise10", "grapple_counterclockwise11",
+      "grapple_counterclockwise12", "grapple_counterclockwise13", "grapple_counterclockwise14", "grapple_counterclockwise15",
+      "grapple_counterclockwise_pulled_in", "grapple_counterclockwise_hanging"
+    ],
+    [
+      "grapple_clockwise", "grapple_clockwise1", "grapple_clockwise2", "grapple_clockwise3",
+      "grapple_clockwise4", "grapple_clockwise5", "grapple_clockwise6", "grapple_clockwise7",
+      "grapple_clockwise8", "grapple_clockwise9", "grapple_clockwise10", "grapple_clockwise11",
+      "grapple_clockwise12", "grapple_clockwise13", "grapple_clockwise14", "grapple_clockwise15",
+      "grapple_clockwise_pulled_in", "grapple_clockwise_hanging"
+    ],
+    [
+      "death_left7", "death_left6", "death_left5", "death_left4",
+      "death_left3", "death_left2", "death_left1", "death_left",
+      "death_right", "death_right1", "death_right2", "death_right3",
+      "death_right4", "death_right5", "death_right6", "death_right7"
+    ],
+    [
+      "death_left_pieces4", "death_left_pieces3", "death_left_pieces2", "death_left_pieces1", "death_left_pieces",
+      "death_right_pieces", "death_right_pieces1", "death_right_pieces2", "death_right_pieces3", "death_right_pieces4"
+    ]
+  ],
+  "dma_sequence": [
+    "stand_left", "stand_left1", "stand_left2", "stand_left3",
+    "stand_left_heavy", "stand_left_heavy1", "stand_left_heavy2", "stand_left_heavy3",
+    "stand_left_aim_up", "stand_left_aim_diag_up", "stand_left_aim_diag_down",
+    "run_left", "run_left1", "run_left2", "run_left3", "run_left4", "run_left5", "run_left6", "run_left7", "run_left8", "run_left9",
+    "run_left_aim_diag_up", "run_left_aim_diag_up1", "run_left_aim_diag_up2", "run_left_aim_diag_up3", "run_left_aim_diag_up4",
+    "run_left_aim_diag_up5", "run_left_aim_diag_up6", "run_left_aim_diag_up7", "run_left_aim_diag_up8", "run_left_aim_diag_up9",
+    "run_left_aim_diag_down", "run_left_aim_diag_down1", "run_left_aim_diag_down2", "run_left_aim_diag_down3", "run_left_aim_diag_down4",
+    "run_left_aim_diag_down5", "run_left_aim_diag_down6", "run_left_aim_diag_down7", "run_left_aim_diag_down8", "run_left_aim_diag_down9",
+    "run_left_shooting", "run_left_shooting1", "run_left_shooting2", "run_left_shooting3", "run_left_shooting4",
+    "run_left_shooting5", "run_left_shooting6", "run_left_shooting7", "run_left_shooting8", "run_left_shooting9",
+    "xray_crouch_left", "xray_left1", "xray_left2", "xray_left3", "xray_left4",
+    "morphball_stand_left", "morphball_stand_left1", "morphball_stand_left2", "morphball_stand_left3",
+    "morphball_stand_left4", "morphball_stand_left5", "morphball_stand_left6", "morphball_stand_left7",
+    "morphball_roll_left", "morphball_roll_left1", "morphball_roll_left2", "morphball_roll_left3",
+    "morphball_roll_left4", "morphball_roll_left5", "morphball_roll_left6", "morphball_roll_left7",
+    "morphball_fall_left", "morphball_fall_left1", "morphball_fall_left2", "morphball_fall_left3",
+    "morphball_fall_left4", "morphball_fall_left5", "morphball_fall_left6", "morphball_fall_left7",
+    "moonwalk_left", "moonwalk_left1", "moonwalk_left2", "moonwalk_left3", "moonwalk_left4", "moonwalk_left5",
+    "moonwalk_left_aim_diag_up", "moonwalk_left_aim_diag_up1", "moonwalk_left_aim_diag_up2",
+    "moonwalk_left_aim_diag_up3", "moonwalk_left_aim_diag_up4", "moonwalk_left_aim_diag_up5",
+    "moonwalk_left_aim_diag_down", "moonwalk_left_aim_diag_down1", "moonwalk_left_aim_diag_down2",
+    "moonwalk_left_aim_diag_down3", "moonwalk_left_aim_diag_down4", "moonwalk_left_aim_diag_down5",
+    "jump_left_start_spin_jump",
+    "spin_jump_left", "spin_jump_left1", "spin_jump_left2", "spin_jump_left3",
+    "spin_jump_left4", "spin_jump_left5", "spin_jump_left6", "spin_jump_left7",
+    "spin_jump_left_land", "spin_jump_left_land1", "spin_jump_left_land2",
+    "space_jump_left", "space_jump_left1", "space_jump_left2", "space_jump_left3",
+    "space_jump_left4", "space_jump_left5", "space_jump_left6", "space_jump_left7",
+    "jump_left_begin",
+    "jump_left", "jump_left1", "jump_left2", "jump_left3", "jump_left4", "jump_left5",
+    "jump_left_land", "jump_left_land1",
+    "jump_left_aim_up_begin",
+    "jump_left_aim_up_land", "jump_left_aim_up_land1",
+    "jump_left_aim_up", "jump_left_aim_up1",
+    "jump_left_aim_diag_up_begin",
+    "jump_left_aim_diag_up", "jump_left_aim_diag_up1",
+    "jump_left_aim_diag_up_land", "jump_left_aim_diag_up_land1",
+    "jump_left_shoot", "jump_left_shoot1",
+    "jump_left_shoot_land", "jump_left_shoot_land1",
+    "jump_left_aim_diag_down_begin",
+    "jump_left_aim_diag_down", "jump_left_aim_diag_down1",
+    "jump_left_aim_diag_down_land", "jump_left_aim_diag_down_land1",
+    "jump_left_aim_down", "jump_left_aim_down1",
+    "xray_left", "xray_crouch_left1", "xray_crouch_left2", "xray_crouch_left3", "xray_crouch_left4",
+    "stand_turn_left", "stand_turn_left_aim_up", "stand_turn_left_aim_down",
+    "crouch_turn_left",
+    "jump_turn_left", "jump_turn_left_aim_up", "jump_turn_left_aim_down",
+    "fall_left", "fall_left1", "fall_left2", "fall_left3", "fall_left4",
+    "fall_left_aim_diag_up", "fall_left_aim_diag_up1", "fall_left_aim_diag_up2",
+    "fall_left_aim_up", "fall_left_aim_up1", "fall_left_aim_up2",
+    "fall_left_shoot", "fall_left_shoot1", "fall_left_shoot2", "fall_left_shoot3", "fall_left_shoot4",
+    "fall_left_aim_diag_down", "fall_left_aim_diag_down1", "fall_left_aim_diag_down2",
+    "fall_left_aim_down", "fall_left_aim_down1",
+    "roll_out_left", "roll_out_left1", "roll_out_left2", "roll_out_left3", "roll_out_left4",
+    "roll_out_left5", "roll_out_left6", "roll_out_left7", "roll_out_left8", "roll_out_left9",
+    "morph_left", "morph_left1",
+    "bonk_left", "bonk_left1",
+    "sparks_left", "sparks_left1", "sparks_left2", "sparks_left3",
+    "fall_turn_left", "fall_turn_left_aim_up", "fall_turn_left_aim_down",
+    "crouch_turn_left_aim_up", "crouch_turn_left_aim_down",
+    "grabbed_left", "grabbed_left_aim_diag_up", "grabbed_left_shoot", "grabbed_left_aim_diag_down",
+    "grabbed_left_struggling", "grabbed_left_struggling1", "grabbed_left_struggling2",
+    "grabbed_left_struggling3", "grabbed_left_struggling4", "grabbed_left_struggling5",
+    "grapple_clockwise", "grapple_clockwise1", "grapple_clockwise2", "grapple_clockwise3",
+    "grapple_clockwise4", "grapple_clockwise5", "grapple_clockwise6", "grapple_clockwise7",
+    "grapple_clockwise8", "grapple_clockwise9", "grapple_clockwise10", "grapple_clockwise11",
+    "grapple_clockwise12", "grapple_clockwise13", "grapple_clockwise14", "grapple_clockwise15",
+    "grapple_clockwise_pulled_in", "grapple_clockwise_hanging",
+    "crouch_left", "crouch_left1", "crouch_left2", "crouch_left3",
+    "crouch_left_heavy", "crouch_left_heavy1", "crouch_left_heavy2", "crouch_left_heavy3",
+    "crouch_transition_left", "crouch_transition_left_aim_up",
+    "stand_right", "stand_right1", "stand_right2", "stand_right3",
+    "stand_right_heavy", "stand_right_heavy1", "stand_right_heavy2", "stand_right_heavy3",
+    "stand_right_aim_up", "stand_right_aim_diag_up", "stand_right_aim_diag_down",
+    "run_right", "run_right1", "run_right2", "run_right3", "run_right4",
+    "run_right5", "run_right6", "run_right7", "run_right8", "run_right9",
+    "run_right_aim_diag_up", "run_right_aim_diag_up1", "run_right_aim_diag_up2", "run_right_aim_diag_up3", "run_right_aim_diag_up4",
+    "run_right_aim_diag_up5", "run_right_aim_diag_up6", "run_right_aim_diag_up7", "run_right_aim_diag_up8", "run_right_aim_diag_up9",
+    "run_right_aim_diag_down", "run_right_aim_diag_down1", "run_right_aim_diag_down2", "run_right_aim_diag_down3", "run_right_aim_diag_down4",
+    "run_right_aim_diag_down5", "run_right_aim_diag_down6", "run_right_aim_diag_down7", "run_right_aim_diag_down8", "run_right_aim_diag_down9",
+    "run_right_shooting", "run_right_shooting1", "run_right_shooting2", "run_right_shooting3", "run_right_shooting4",
+    "run_right_shooting5", "run_right_shooting6", "run_right_shooting7", "run_right_shooting8", "run_right_shooting9",
+    "xray_crouch_right", "xray_right1", "xray_right2", "xray_right3", "xray_right4",
+    "morphball_stand_right", "morphball_stand_right1", "morphball_stand_right2", "morphball_stand_right3",
+    "morphball_stand_right4", "morphball_stand_right5", "morphball_stand_right6", "morphball_stand_right7",
+    "morphball_roll_right", "morphball_roll_right1", "morphball_roll_right2", "morphball_roll_right3",
+    "morphball_roll_right4", "morphball_roll_right5", "morphball_roll_right6", "morphball_roll_right7",
+    "morphball_fall_right", "morphball_fall_right1", "morphball_fall_right2", "morphball_fall_right3",
+    "morphball_fall_right4", "morphball_fall_right5", "morphball_fall_right6", "morphball_fall_right7",
+    "moonwalk_right", "moonwalk_right1", "moonwalk_right2", "moonwalk_right3", "moonwalk_right4", "moonwalk_right5",
+    "moonwalk_right_aim_diag_up", "moonwalk_right_aim_diag_up1", "moonwalk_right_aim_diag_up2",
+    "moonwalk_right_aim_diag_up3", "moonwalk_right_aim_diag_up4", "moonwalk_right_aim_diag_up5",
+    "moonwalk_right_aim_diag_down", "moonwalk_right_aim_diag_down1", "moonwalk_right_aim_diag_down2",
+    "moonwalk_right_aim_diag_down3", "moonwalk_right_aim_diag_down4", "moonwalk_right_aim_diag_down5",
+    "jump_right_start_spin_jump",
+    "spin_jump_right", "spin_jump_right1", "spin_jump_right2", "spin_jump_right3",
+    "spin_jump_right4", "spin_jump_right5", "spin_jump_right6", "spin_jump_right7",
+    "spin_jump_right_land", "spin_jump_right_land1", "spin_jump_right_land2",
+    "space_jump_right", "space_jump_right1", "space_jump_right2", "space_jump_right3",
+    "space_jump_right4", "space_jump_right5", "space_jump_right6", "space_jump_right7",
+    "jump_right_begin",
+    "jump_right", "jump_right1", "jump_right2", "jump_right3", "jump_right4", "jump_right5",
+    "jump_right_land", "jump_right_land1",
+    "jump_right_aim_up_begin",
+    "jump_right_aim_up_land", "jump_right_aim_up_land1",
+    "jump_right_aim_up", "jump_right_aim_up1",
+    "jump_right_aim_diag_up_begin",
+    "jump_right_aim_diag_up", "jump_right_aim_diag_up1",
+    "jump_right_aim_diag_up_land", "jump_right_aim_diag_up_land1",
+    "jump_right_shoot", "jump_right_shoot1",
+    "jump_right_shoot_land", "jump_right_shoot_land1",
+    "jump_right_aim_diag_down_begin",
+    "jump_right_aim_diag_down", "jump_right_aim_diag_down1",
+    "jump_right_aim_diag_down_land", "jump_right_aim_diag_down_land1",
+    "jump_right_aim_down", "jump_right_aim_down1",
+    "xray_right", "xray_crouch_right1", "xray_crouch_right2", "xray_crouch_right3", "xray_crouch_right4",
+    "stand_turn_right", "stand_turn_right_aim_up", "stand_turn_right_aim_down",
+    "crouch_turn_right",
+    "jump_turn_right", "jump_turn_right_aim_up", "jump_turn_right_aim_down",
+    "fall_right", "fall_right1", "fall_right2", "fall_right3", "fall_right4",
+    "fall_right_aim_diag_up", "fall_right_aim_diag_up1", "fall_right_aim_diag_up2",
+    "fall_right_aim_up", "fall_right_aim_up1", "fall_right_aim_up2",
+    "fall_right_shoot", "fall_right_shoot1", "fall_right_shoot2", "fall_right_shoot3", "fall_right_shoot4",
+    "fall_right_aim_diag_down", "fall_right_aim_diag_down1", "fall_right_aim_diag_down2",
+    "fall_right_aim_down", "fall_right_aim_down1",
+    "roll_out_right", "roll_out_right1", "roll_out_right2", "roll_out_right3", "roll_out_right4",
+    "roll_out_right5", "roll_out_right6", "roll_out_right7", "roll_out_right8", "roll_out_right9",
+    "morph_right", "morph_right1",
+    "bonk_right", "bonk_right1",
+    "sparks_right", "sparks_right1", "sparks_right2", "sparks_right3",
+    "fall_turn_right", "fall_turn_right_aim_up", "fall_turn_right_aim_down",
+    "crouch_turn_right_aim_up", "crouch_turn_right_aim_down",
+    "grabbed_right", "grabbed_right_aim_diag_up", "grabbed_right_shoot", "grabbed_right_aim_diag_down",
+    "grabbed_right_struggling", "grabbed_right_struggling1", "grabbed_right_struggling2",
+    "grabbed_right_struggling3", "grabbed_right_struggling4", "grabbed_right_struggling5",
+    "grapple_counterclockwise", "grapple_counterclockwise1", "grapple_counterclockwise2", "grapple_counterclockwise3",
+    "grapple_counterclockwise4", "grapple_counterclockwise5", "grapple_counterclockwise6", "grapple_counterclockwise7",
+    "grapple_counterclockwise8", "grapple_counterclockwise9", "grapple_counterclockwise10", "grapple_counterclockwise11",
+    "grapple_counterclockwise12", "grapple_counterclockwise13", "grapple_counterclockwise14", "grapple_counterclockwise15",
+    "grapple_counterclockwise_pulled_in", "grapple_counterclockwise_hanging",
+    "crouch_right", "crouch_right1", "crouch_right2", "crouch_right3",
+    "crouch_right_heavy", "crouch_right_heavy1", "crouch_right_heavy2", "crouch_right_heavy3",
+    "crouch_transition_right", "crouch_transition_right_aim_up",
+    "crouch_transition_left_aim_diag_up", "crouch_transition_left_aim_diag_down",
+    "crouch_left_aim_up", "crouch_left_aim_diag_up", "crouch_left_aim_diag_down",
+    "grapple_wall_left", "wall_jump_left", "wall_jump_launch_left",
+    "shine_spark_left", "shine_spark_vertical_left",
+    "crystal_flash_left", "crystal_flash_left1", "crystal_flash_left2", "crystal_flash_left3",
+    "crystal_bubble_left_small", "crystal_bubble_left_medium", "crystal_bubble_left_large",
+    "supplication_left", "supplication_left1", "supplication_left2", "supplication_left3",
+    "supplication_look_up_left", "supplication_look_up_left1", "supplication_look_up_left2", "supplication_look_up_left3",
+    "stand_turn_neutral_aim_up", "stand_turn_neutral_aim_down", "stand_turn_neutral",
+    "crouch_transition_right_aim_diag_up", "crouch_transition_right_aim_diag_down",
+    "crouch_right_aim_up", "crouch_right_aim_diag_up", "crouch_right_aim_diag_down",
+    "grapple_wall_right", "wall_jump_right", "wall_jump_launch_right",
+    "shine_spark_right", "shine_spark_vertical_right",
+    "crystal_flash_right", "crystal_flash_right1", "crystal_flash_right2", "crystal_flash_right3",
+    "crystal_bubble_right_small", "crystal_bubble_right_medium", "crystal_bubble_right_large",
+    "supplication_right", "supplication_right1", "supplication_right2", "supplication_right3",
+    "supplication_look_up_right", "supplication_look_up_right1", "supplication_look_up_right2", "supplication_look_up_right3",
+    "jump_turn_neutral", "jump_turn_neutral_aim_up", "jump_turn_neutral_aim_down",
+    "fall_turn_neutral", "fall_turn_neutral_aim_up", "fall_turn_neutral_aim_down",
+    "crouch_turn_neutral", "crouch_turn_neutral_aim_up", "crouch_turn_neutral_aim_down",
+    "supplication_left_collapse", "supplication_left_stand_attempt", "supplication_left_stand_attempt1", "supplication_left_stand_attempt2",
+    "elevator", "launcher", "launcher1", "launcher2", "launcher3", "launcher4",
+    "launcher5", "launcher6", "launcher7", "launcher8",
+    "elevator_varia", "launcher_varia", "launcher1_varia", "launcher2_varia", "launcher3_varia", "launcher4_varia",
+    "launcher5_varia", "launcher6_varia", "launcher7_varia", "launcher8_varia"
+  ],
+  "images": {
+    "elevator": {
+      "description": "Used when wearing power suit and standing on an elevator",
+      "dimensions": [-17, -24, 15, 32],
+      "shift": [0, -7],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x00", 0]
+      ]
+    },
+
+    "launcher": {
+      "description": "Used when wearing power suit and loading from a save point",
+      "dimensions": [-16, -31, 16, 25],
+      "palette": "0x38",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x00", 3],
+        ["0x00", 5],
+        ["0x00", 7],
+        ["0x00", 9],
+        ["0x00", 11],
+        ["0x00", 13],
+        ["0x00", 15],
+        ["0x00", 17],
+        ["0x00", 19],
+        ["0x00", 21],
+        ["0x00", 23],
+        ["0x00", 25],
+        ["0x00", 27],
+        ["0x00", 29],
+        ["0x00", 31],
+        ["0x00", 33],
+        ["0x00", 35],
+        ["0x00", 37],
+        ["0x00", 39],
+        ["0x00", 41],
+        ["0x00", 43],
+        ["0x00", 45],
+        ["0x00", 47],
+        ["0x00", 49],
+        ["0x00", 51],
+        ["0x00", 53],
+        ["0x00", 55],
+        ["0x00", 57],
+        ["0x00", 59],
+        ["0x00", 61],
+        ["0x00", 63],
+        ["0x00", 65],
+        ["0x00", 67],
+        ["0x00", 69],
+        ["0x00", 71],
+        ["0x00", 73],
+        ["0x00", 75],
+        ["0x00", 77],
+        ["0x00", 79],
+        ["0x00", 81],
+        ["0x00", 83],
+        ["0x00", 85],
+        ["0x00", 87],
+        ["0x00", 89],
+        ["0x00", 91],
+        ["0x00", 93],
+        ["0x00", 95]
+      ]
+    },
+
+    "launcher1": {
+      "parent": "launcher",
+      "used by": [
+        ["0x00", 2],
+        ["0x00", 8],
+        ["0x00", 14],
+        ["0x00", 20],
+        ["0x00", 26],
+        ["0x00", 32],
+        ["0x00", 38],
+        ["0x00", 44],
+        ["0x00", 50],
+        ["0x00", 56],
+        ["0x00", 62],
+        ["0x00", 68],
+        ["0x00", 74]
+      ]
+    },
+
+    "launcher2": {
+      "parent": "launcher",
+      "used by": [
+        ["0x00", 4],
+        ["0x00", 10],
+        ["0x00", 16],
+        ["0x00", 22],
+        ["0x00", 28],
+        ["0x00", 34],
+        ["0x00", 40],
+        ["0x00", 46],
+        ["0x00", 52],
+        ["0x00", 58],
+        ["0x00", 64],
+        ["0x00", 70],
+        ["0x00", 76]
+      ]
+    },
+
+    "launcher3": {
+      "parent": "launcher",
+      "used by": [
+        ["0x00", 6],
+        ["0x00", 12],
+        ["0x00", 18],
+        ["0x00", 24],
+        ["0x00", 30],
+        ["0x00", 36],
+        ["0x00", 42],
+        ["0x00", 48],
+        ["0x00", 54],
+        ["0x00", 60],
+        ["0x00", 66],
+        ["0x00", 72],
+        ["0x00", 78]
+      ]
+    },
+
+    "launcher4": {
+      "parent": "launcher",
+      "used by": [
+        ["0x00", 80]
+      ]
+    },
+
+    "launcher5": {
+      "parent": "launcher",
+      "used by": [
+        ["0x00", 82]
+      ]
+    },
+
+    "launcher6": {
+      "parent": "launcher",
+      "used by": [
+        ["0x00", 84],
+        ["0x00", 90]
+      ]
+    },
+
+    "launcher7": {
+      "parent": "launcher",
+      "used by": [
+        ["0x00", 86],
+        ["0x00", 92]
+      ]
+    },
+
+    "launcher8": {
+      "parent": "launcher",
+      "used by": [
+        ["0x00", 88],
+        ["0x00", 94]
+      ]
+    },
+
+    "elevator_varia": {
+      "description": "Used when wearing varia or gravity suit and standing on an elevator",
+      "parent": "elevator",
+      "used by": [
+        ["0x9B", 0]
+      ]
+    },
+
+    "launcher_varia": {
+      "description": "Used when wearing varia or gravity suit and loading from a save point",
+      "parent": "launcher",
+      "palette": "0x38",
+      "used by": [
+        ["0x9B", 3],
+        ["0x9B", 5],
+        ["0x9B", 7],
+        ["0x9B", 9],
+        ["0x9B", 11],
+        ["0x9B", 13],
+        ["0x9B", 15],
+        ["0x9B", 17],
+        ["0x9B", 19],
+        ["0x9B", 21],
+        ["0x9B", 23],
+        ["0x9B", 25],
+        ["0x9B", 27],
+        ["0x9B", 29],
+        ["0x9B", 31],
+        ["0x9B", 33],
+        ["0x9B", 35],
+        ["0x9B", 37],
+        ["0x9B", 39],
+        ["0x9B", 41],
+        ["0x9B", 43],
+        ["0x9B", 45],
+        ["0x9B", 47],
+        ["0x9B", 49],
+        ["0x9B", 51],
+        ["0x9B", 53],
+        ["0x9B", 55],
+        ["0x9B", 57],
+        ["0x9B", 59],
+        ["0x9B", 61],
+        ["0x9B", 63],
+        ["0x9B", 65],
+        ["0x9B", 67],
+        ["0x9B", 69],
+        ["0x9B", 71],
+        ["0x9B", 73],
+        ["0x9B", 75],
+        ["0x9B", 77],
+        ["0x9B", 79],
+        ["0x9B", 81],
+        ["0x9B", 83],
+        ["0x9B", 85],
+        ["0x9B", 87],
+        ["0x9B", 89],
+        ["0x9B", 91],
+        ["0x9B", 93],
+        ["0x9B", 95]
+      ]
+    },
+
+    "launcher1_varia": {
+      "parent": "launcher_varia",
+      "used by": [
+        ["0x9B", 2],
+        ["0x9B", 8],
+        ["0x9B", 14],
+        ["0x9B", 20],
+        ["0x9B", 26],
+        ["0x9B", 32],
+        ["0x9B", 38],
+        ["0x9B", 44],
+        ["0x9B", 50],
+        ["0x9B", 56],
+        ["0x9B", 62],
+        ["0x9B", 68],
+        ["0x9B", 74]
+      ]
+    },
+
+    "launcher2_varia": {
+      "parent": "launcher_varia",
+      "used by": [
+        ["0x9B", 4],
+        ["0x9B", 10],
+        ["0x9B", 16],
+        ["0x9B", 22],
+        ["0x9B", 28],
+        ["0x9B", 34],
+        ["0x9B", 40],
+        ["0x9B", 46],
+        ["0x9B", 52],
+        ["0x9B", 58],
+        ["0x9B", 64],
+        ["0x9B", 70],
+        ["0x9B", 76]
+      ]
+    },
+
+    "launcher3_varia": {
+      "parent": "launcher_varia",
+      "used by": [
+        ["0x9B", 6],
+        ["0x9B", 12],
+        ["0x9B", 18],
+        ["0x9B", 24],
+        ["0x9B", 30],
+        ["0x9B", 36],
+        ["0x9B", 42],
+        ["0x9B", 48],
+        ["0x9B", 54],
+        ["0x9B", 60],
+        ["0x9B", 66],
+        ["0x9B", 72],
+        ["0x9B", 78]
+      ]
+    },
+
+    "launcher4_varia": {
+      "parent": "launcher_varia",
+      "used by": [
+        ["0x9B", 80]
+      ]
+    },
+
+    "launcher5_varia": {
+      "parent": "launcher_varia",
+      "used by": [
+        ["0x9B", 82]
+      ]
+    },
+
+    "launcher6_varia": {
+      "parent": "launcher_varia",
+      "used by": [
+        ["0x9B", 84],
+        ["0x9B", 90]
+      ]
+    },
+
+    "launcher7_varia": {
+      "parent": "launcher_varia",
+      "used by": [
+        ["0x9B", 86],
+        ["0x9B", 92]
+      ]
+    },
+
+    "launcher8_varia": {
+      "parent": "launcher_varia",
+      "used by": [
+        ["0x9B", 88],
+        ["0x9B", 94]
+      ]
+    },
+
+    "stand_left": {
+      "description": "A neutral standing pose, used while...standing",
+      "dimensions": [-19, -21, 13, 27],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x02", 0],
+        ["0x8A", 0]
+      ]
+    },
+
+    "stand_left1": {
+      "parent": "stand_left",
+      "used by": [
+        ["0x02", 1]
+      ]
+    },
+
+    "stand_left2": {
+      "parent": "stand_left",
+      "used by": [
+        ["0x02", 2]
+      ]
+    },
+
+    "stand_left3": {
+      "parent": "stand_left",
+      "used by": [
+        ["0x02", 3]
+      ]
+    },
+
+    "stand_left_heavy": {
+      "description": "While standing with low health, begins to breathe heavily",
+      "parent": "stand_left",
+      "used by": [
+        ["0x02", 5]
+      ]
+    },
+
+    "stand_left_heavy1": {
+      "parent": "stand_left_heavy",
+      "used by": [
+        ["0x02", 6]
+      ]
+    },
+
+    "stand_left_heavy2": {
+      "parent": "stand_left_heavy",
+      "used by": [
+        ["0x02", 7]
+      ]
+    },
+
+    "stand_left_heavy3": {
+      "parent": "stand_left_heavy",
+      "used by": [
+        ["0x02", 8]
+      ]
+    },
+
+    "stand_right": {
+      "description": "A neutral standing pose, used while...standing",
+      "dimensions": [-13, -21, 19, 27],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x01", 0],
+        ["0x89", 0]
+      ]
+    },
+
+    "stand_right1": {
+      "parent": "stand_right",
+      "used by": [
+        ["0x01", 1]
+      ]
+    },
+
+    "stand_right2": {
+      "parent": "stand_right",
+      "used by": [
+        ["0x01", 2]
+      ]
+    },
+
+    "stand_right3": {
+      "parent": "stand_right",
+      "used by": [
+        ["0x01", 3]
+      ]
+    },
+
+    "stand_right_heavy": {
+      "description": "While standing with low health, begins to breathe heavily",
+      "parent": "stand_right",
+      "used by": [
+        ["0x01", 5]
+      ]
+    },
+
+    "stand_right_heavy1": {
+      "parent": "stand_right_heavy",
+      "used by": [
+        ["0x01", 6]
+      ]
+    },
+
+    "stand_right_heavy2": {
+      "parent": "stand_right_heavy",
+      "used by": [
+        ["0x01", 7]
+      ]
+    },
+
+    "stand_right_heavy3": {
+      "parent": "stand_right_heavy",
+      "used by": [
+        ["0x01", 8]
+      ]
+    },
+
+    "stand_left_aim_up": {
+      "description": "Standing, but aiming directly upwards",
+      "dimensions": [-19, -29, 13, 27],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x04", 1]
+      ]
+    },
+
+    "stand_left_aim_diag_up": {
+      "description": "Standing, but aiming diagonally upwards, or lifting the cannon further upwards",
+      "dimensions": [-27, -21, 13, 27],
+      "extra area": [
+        [-27, -29, -11, -21]
+      ],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x04", 0],
+        ["0x06", 0],
+        ["0xD0", 0]
+      ]
+    },
+
+    "stand_right_aim_up": {
+      "description": "Standing, but aiming directly upwards",
+      "dimensions": [-13, -29, 19, 27],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x03", 1]
+      ]
+    },
+
+    "stand_right_aim_diag_up": {
+      "description": "Standing, but aiming diagonally upwards, or lifting the cannon further upwards",
+      "dimensions": [-13, -21, 27, 27],
+      "extra area": [
+        [11, -29, 27, -21]
+      ],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x03", 0],
+        ["0x05", 0],
+        ["0xCF", 0]
+      ]
+    },
+
+    "stand_turn_left_aim_up": {
+      "description": "While standing and aiming up (or diag up), Samus is turning from right to left, or left to right, and is presently facing 'more left'",
+      "parent": "stand_turn_left",
+      "used by": [
+        ["0x8B", 2],
+        ["0x9C", 2],
+        ["0x8C", 0],
+        ["0x9D", 0],
+        ["0xC1", 2],
+        ["0xC2", 0]
+      ]
+    },
+
+    "stand_turn_neutral_aim_up": {
+      "description": "While standing and aiming up (or diag up), Samus is turning from right to left, or left to right, and is presently facing 'forward'",
+      "parent": "stand_turn_neutral",
+      "used by": [
+        ["0x8B", 1],
+        ["0x9C", 1],
+        ["0x8C", 1],
+        ["0x9D", 1],
+        ["0xC1", 1],
+        ["0xC2", 1]
+      ]
+    },
+
+    "stand_turn_right_aim_up": {
+      "description": "While standing and aiming up (or diag up), Samus is turning from right to left, or left to right, and is presently facing 'more right'",
+      "parent": "stand_turn_right",
+      "used by": [
+        ["0x8B", 0],
+        ["0x9C", 0],
+        ["0x8C", 2],
+        ["0x9D", 2],
+        ["0xC1", 0],
+        ["0xC2", 2]
+      ]
+    },
+
+    "stand_left_aim_diag_down": {
+      "description": "Standing, but aiming diagonally upwards, or lifting the cannon further upwards",
+      "parent": "stand_left_aim_diag_up",
+      "used by": [
+        ["0x08", 0],
+        ["0xD2", 0]
+      ]
+    },
+
+    "stand_right_aim_diag_down": {
+      "description": "Standing, but aiming diagonally downwards",
+      "parent": "stand_right_aim_diag_up",
+      "used by": [
+        ["0x07", 0],
+        ["0xD1", 0]
+      ]
+    },
+
+    "stand_turn_left_aim_down": {
+      "description": "While standing and aiming down (or diag down), Samus is turning from right to left, or left to right, and is presently facing 'more left'",
+      "parent": "stand_turn_left",
+      "used by": [
+        ["0x8D", 2],
+        ["0x8E", 0],
+        ["0xC3", 2],
+        ["0xC4", 0]
+      ]
+    },
+
+    "stand_turn_neutral_aim_down": {
+      "description": "While standing and aiming down (or diag down), Samus is turning from right to left, or left to right, and is presently facing 'forward'",
+      "parent": "stand_turn_neutral",
+      "used by": [
+        ["0x8D", 1],
+        ["0x8E", 1],
+        ["0xC3", 1],
+        ["0xC4", 1]
+      ]
+    },
+
+    "stand_turn_right_aim_down": {
+      "description": "While standing and aiming down (or diag down), Samus is turning from right to left, or left to right, and is presently facing 'more right'",
+      "parent": "stand_turn_right",
+      "used by": [
+        ["0x8D", 0],
+        ["0x8E", 2],
+        ["0xC3", 0],
+        ["0xC4", 2]
+      ]
+    },
+
+    "crouch_left": {
+      "description": "While crouching but not aiming, Samus breathes",
+      "dimensions": [-19, -24, 13, 16],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x28", 0],
+        ["0xB5", 0]
+      ]
+    },
+
+    "crouch_left1": {
+      "parent": "crouch_left",
+      "used by": [
+        ["0x28", 1]
+      ]
+    },
+
+    "crouch_left2": {
+      "parent": "crouch_left",
+      "used by": [
+        ["0x28", 2]
+      ]
+    },
+
+    "crouch_left3": {
+      "parent": "crouch_left",
+      "used by": [
+        ["0x28", 3]
+      ]
+    },
+
+    "crouch_left_heavy": {
+      "description": "While crouching with low health, begins to breathe heavily",
+      "parent": "crouch_left",
+      "used by": [
+        ["0x28", 5]
+      ]
+    },
+
+    "crouch_left_heavy1": {
+      "parent": "crouch_left_heavy",
+      "used by": [
+        ["0x28", 6]
+      ]
+    },
+
+    "crouch_left_heavy2": {
+      "parent": "crouch_left_heavy",
+      "used by": [
+        ["0x28", 7]
+      ]
+    },
+
+    "crouch_left_heavy3": {
+      "parent": "crouch_left_heavy",
+      "used by": [
+        ["0x28", 8]
+      ]
+    },
+
+    "crouch_right": {
+      "description": "While crouching but not aiming, Samus breathes",
+      "dimensions": [-13, -24, 19, 16],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x27", 0],
+        ["0xB4", 0]
+      ]
+    },
+
+    "crouch_right1": {
+      "parent": "crouch_right",
+      "used by": [
+        ["0x27", 1]
+      ]
+    },
+
+    "crouch_right2": {
+      "parent": "crouch_right",
+      "used by": [
+        ["0x27", 2]
+      ]
+    },
+
+    "crouch_right3": {
+      "parent": "crouch_right",
+      "used by": [
+        ["0x27", 3]
+      ]
+    },
+
+    "crouch_right_heavy": {
+      "description": "While crouching with low health, begins to breathe heavily",
+      "parent": "crouch_right",
+      "used by": [
+        ["0x27", 5]
+      ]
+    },
+
+    "crouch_right_heavy1": {
+      "parent": "crouch_right_heavy",
+      "used by": [
+        ["0x27", 6]
+      ]
+    },
+
+    "crouch_right_heavy2": {
+      "parent": "crouch_right_heavy",
+      "used by": [
+        ["0x27", 7]
+      ]
+    },
+
+    "crouch_right_heavy3": {
+      "parent": "crouch_right_heavy",
+      "used by": [
+        ["0x27", 8]
+      ]
+    },
+
+    "run_left": {
+      "description": "Normal running pose, used while...running",
+      "dimensions": [-22, -21, 18, 27],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x0A", 0]
+      ]
+    },
+
+    "run_left1": {
+      "parent": "run_left",
+      "used by": [
+        ["0x0A", 1]
+      ]
+    },
+
+    "run_left2": {
+      "parent": "run_left",
+      "used by": [
+        ["0x0A", 2]
+      ]
+    },
+
+    "run_left3": {
+      "parent": "run_left",
+      "used by": [
+        ["0x0A", 3]
+      ]
+    },
+
+    "run_left4": {
+      "parent": "run_left",
+      "used by": [
+        ["0x0A", 4]
+      ]
+    },
+
+    "run_left5": {
+      "parent": "run_left",
+      "used by": [
+        ["0x0A", 5]
+      ]
+    },
+
+    "run_left6": {
+      "parent": "run_left",
+      "used by": [
+        ["0x0A", 6]
+      ]
+    },
+
+    "run_left7": {
+      "parent": "run_left",
+      "used by": [
+        ["0x0A", 7]
+      ]
+    },
+
+    "run_left8": {
+      "parent": "run_left",
+      "used by": [
+        ["0x0A", 8]
+      ]
+    },
+
+    "run_left9": {
+      "parent": "run_left",
+      "used by": [
+        ["0x0A", 9]
+      ]
+    },
+
+    "run_right": {
+      "description": "Normal running pose, used while...running",
+      "dimensions": [-18, -21, 22, 27],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x09", 0]
+      ]
+    },
+
+    "run_right1": {
+      "parent": "run_right",
+      "used by": [
+        ["0x09", 1]
+      ]
+    },
+
+    "run_right2": {
+      "parent": "run_right",
+      "used by": [
+        ["0x09", 2]
+      ]
+    },
+
+    "run_right3": {
+      "parent": "run_right",
+      "used by": [
+        ["0x09", 3]
+      ]
+    },
+
+    "run_right4": {
+      "parent": "run_right",
+      "used by": [
+        ["0x09", 4]
+      ]
+    },
+
+    "run_right5": {
+      "parent": "run_right",
+      "used by": [
+        ["0x09", 5]
+      ]
+    },
+
+    "run_right6": {
+      "parent": "run_right",
+      "used by": [
+        ["0x09", 6]
+      ]
+    },
+
+    "run_right7": {
+      "parent": "run_right",
+      "used by": [
+        ["0x09", 7]
+      ]
+    },
+
+    "run_right8": {
+      "parent": "run_right",
+      "used by": [
+        ["0x09", 8]
+      ]
+    },
+
+    "run_right9": {
+      "parent": "run_right",
+      "used by": [
+        ["0x09", 9]
+      ]
+    },
+
+    "run_left_shooting": {
+      "description": "Running while firing the arm cannon, so that the arm is extended forward",
+      "parent": "run_left",
+      "used by": [
+        ["0x0C", 0]
+      ]
+    },
+
+    "run_left_shooting1": {
+      "parent": "run_left_shooting",
+      "used by": [
+        ["0x0C", 1]
+      ]
+    },
+
+    "run_left_shooting2": {
+      "parent": "run_left_shooting",
+      "used by": [
+        ["0x0C", 2]
+      ]
+    },
+
+    "run_left_shooting3": {
+      "parent": "run_left_shooting",
+      "used by": [
+        ["0x0C", 3]
+      ]
+    },
+
+    "run_left_shooting4": {
+      "parent": "run_left_shooting",
+      "used by": [
+        ["0x0C", 4]
+      ]
+    },
+
+    "run_left_shooting5": {
+      "parent": "run_left_shooting",
+      "used by": [
+        ["0x0C", 5]
+      ]
+    },
+
+    "run_left_shooting6": {
+      "parent": "run_left_shooting",
+      "used by": [
+        ["0x0C", 6]
+      ]
+    },
+
+    "run_left_shooting7": {
+      "parent": "run_left_shooting",
+      "used by": [
+        ["0x0C", 7]
+      ]
+    },
+
+    "run_left_shooting8": {
+      "parent": "run_left_shooting",
+      "used by": [
+        ["0x0C", 8]
+      ]
+    },
+
+    "run_left_shooting9": {
+      "parent": "run_left_shooting",
+      "used by": [
+        ["0x0C", 9]
+      ]
+    },
+
+    "run_right_shooting": {
+      "description": "Running while firing the arm cannon, so that the arm is extended forward",
+      "parent": "run_right",
+      "used by": [
+        ["0x0B", 0]
+      ]
+    },
+
+    "run_right_shooting1": {
+      "parent": "run_right_shooting",
+      "used by": [
+        ["0x0B", 1]
+      ]
+    },
+
+    "run_right_shooting2": {
+      "parent": "run_right_shooting",
+      "used by": [
+        ["0x0B", 2]
+      ]
+    },
+
+    "run_right_shooting3": {
+      "parent": "run_right_shooting",
+      "used by": [
+        ["0x0B", 3]
+      ]
+    },
+
+    "run_right_shooting4": {
+      "parent": "run_right_shooting",
+      "used by": [
+        ["0x0B", 4]
+      ]
+    },
+
+    "run_right_shooting5": {
+      "parent": "run_right_shooting",
+      "used by": [
+        ["0x0B", 5]
+      ]
+    },
+
+    "run_right_shooting6": {
+      "parent": "run_right_shooting",
+      "used by": [
+        ["0x0B", 6]
+      ]
+    },
+
+    "run_right_shooting7": {
+      "parent": "run_right_shooting",
+      "used by": [
+        ["0x0B", 7]
+      ]
+    },
+
+    "run_right_shooting8": {
+      "parent": "run_right_shooting",
+      "used by": [
+        ["0x0B", 8]
+      ]
+    },
+
+    "run_right_shooting9": {
+      "parent": "run_right_shooting",
+      "used by": [
+        ["0x0B", 9]
+      ]
+    },
+
+    "run_left_aim_diag_up": {
+      "description": "Running while aiming diagonally upwards",
+      "parent": "run_left",
+      "extra area": [
+        [-22, -29, -6, -21]
+      ],
+      "used by": [
+        ["0x10", 0]
+      ]
+    },
+
+    "run_left_aim_diag_up1": {
+      "parent": "run_left_aim_diag_up",
+      "used by": [
+        ["0x10", 1]
+      ]
+    },
+
+    "run_left_aim_diag_up2": {
+      "parent": "run_left_aim_diag_up",
+      "used by": [
+        ["0x10", 2]
+      ]
+    },
+
+    "run_left_aim_diag_up3": {
+      "parent": "run_left_aim_diag_up",
+      "used by": [
+        ["0x10", 3]
+      ]
+    },
+
+    "run_left_aim_diag_up4": {
+      "parent": "run_left_aim_diag_up",
+      "used by": [
+        ["0x10", 4]
+      ]
+    },
+
+    "run_left_aim_diag_up5": {
+      "parent": "run_left_aim_diag_up",
+      "used by": [
+        ["0x10", 5]
+      ]
+    },
+
+    "run_left_aim_diag_up6": {
+      "parent": "run_left_aim_diag_up",
+      "used by": [
+        ["0x10", 6]
+      ]
+    },
+
+    "run_left_aim_diag_up7": {
+      "parent": "run_left_aim_diag_up",
+      "used by": [
+        ["0x10", 7]
+      ]
+    },
+
+    "run_left_aim_diag_up8": {
+      "parent": "run_left_aim_diag_up",
+      "used by": [
+        ["0x10", 8]
+      ]
+    },
+
+    "run_left_aim_diag_up9": {
+      "parent": "run_left_aim_diag_up",
+      "used by": [
+        ["0x10", 9]
+      ]
+    },
+
+    "run_right_aim_diag_up": {
+      "description": "Running while aiming diagonally upwards",
+      "parent": "run_right",
+      "extra area": [
+        [6, -29, 22, -21]
+      ],
+      "used by": [
+        ["0x0F", 0]
+      ]
+    },
+
+    "run_right_aim_diag_up1": {
+      "parent": "run_right_aim_diag_up",
+      "used by": [
+        ["0x0F", 1]
+      ]
+    },
+
+    "run_right_aim_diag_up2": {
+      "parent": "run_right_aim_diag_up",
+      "used by": [
+        ["0x0F", 2]
+      ]
+    },
+
+    "run_right_aim_diag_up3": {
+      "parent": "run_right_aim_diag_up",
+      "used by": [
+        ["0x0F", 3]
+      ]
+    },
+
+    "run_right_aim_diag_up4": {
+      "parent": "run_right_aim_diag_up",
+      "used by": [
+        ["0x0F", 4]
+      ]
+    },
+
+    "run_right_aim_diag_up5": {
+      "parent": "run_right_aim_diag_up",
+      "used by": [
+        ["0x0F", 5]
+      ]
+    },
+
+    "run_right_aim_diag_up6": {
+      "parent": "run_right_aim_diag_up",
+      "used by": [
+        ["0x0F", 6]
+      ]
+    },
+
+    "run_right_aim_diag_up7": {
+      "parent": "run_right_aim_diag_up",
+      "used by": [
+        ["0x0F", 7]
+      ]
+    },
+
+    "run_right_aim_diag_up8": {
+      "parent": "run_right_aim_diag_up",
+      "used by": [
+        ["0x0F", 8]
+      ]
+    },
+
+    "run_right_aim_diag_up9": {
+      "parent": "run_right_aim_diag_up",
+      "used by": [
+        ["0x0F", 9]
+      ]
+    },
+
+    "run_left_aim_diag_down": {
+      "description": "Running while aiming diagonally downwards",
+      "parent": "run_left",
+      "used by": [
+        ["0x12", 0]
+      ]
+    },
+
+    "run_left_aim_diag_down1": {
+      "parent": "run_left_aim_diag_down",
+      "used by": [
+        ["0x12", 1]
+      ]
+    },
+
+    "run_left_aim_diag_down2": {
+      "parent": "run_left_aim_diag_down",
+      "used by": [
+        ["0x12", 2]
+      ]
+    },
+
+    "run_left_aim_diag_down3": {
+      "parent": "run_left_aim_diag_down",
+      "used by": [
+        ["0x12", 3]
+      ]
+    },
+
+    "run_left_aim_diag_down4": {
+      "parent": "run_left_aim_diag_down",
+      "used by": [
+        ["0x12", 4]
+      ]
+    },
+
+    "run_left_aim_diag_down5": {
+      "parent": "run_left_aim_diag_down",
+      "used by": [
+        ["0x12", 5]
+      ]
+    },
+
+    "run_left_aim_diag_down6": {
+      "parent": "run_left_aim_diag_down",
+      "used by": [
+        ["0x12", 6]
+      ]
+    },
+
+    "run_left_aim_diag_down7": {
+      "parent": "run_left_aim_diag_down",
+      "used by": [
+        ["0x12", 7]
+      ]
+    },
+
+    "run_left_aim_diag_down8": {
+      "parent": "run_left_aim_diag_down",
+      "used by": [
+        ["0x12", 8]
+      ]
+    },
+
+    "run_left_aim_diag_down9": {
+      "parent": "run_left_aim_diag_down",
+      "used by": [
+        ["0x12", 9]
+      ]
+    },
+
+    "run_right_aim_diag_down": {
+      "description": "Running while aiming diagonally downwards",
+      "parent": "run_right",
+      "used by": [
+        ["0x11", 0]
+      ]
+    },
+
+    "run_right_aim_diag_down1": {
+      "parent": "run_right_aim_diag_down",
+      "used by": [
+        ["0x11", 1]
+      ]
+    },
+
+    "run_right_aim_diag_down2": {
+      "parent": "run_right_aim_diag_down",
+      "used by": [
+        ["0x11", 2]
+      ]
+    },
+
+    "run_right_aim_diag_down3": {
+      "parent": "run_right_aim_diag_down",
+      "used by": [
+        ["0x11", 3]
+      ]
+    },
+
+    "run_right_aim_diag_down4": {
+      "parent": "run_right_aim_diag_down",
+      "used by": [
+        ["0x11", 4]
+      ]
+    },
+
+    "run_right_aim_diag_down5": {
+      "parent": "run_right_aim_diag_down",
+      "used by": [
+        ["0x11", 5]
+      ]
+    },
+
+    "run_right_aim_diag_down6": {
+      "parent": "run_right_aim_diag_down",
+      "used by": [
+        ["0x11", 6]
+      ]
+    },
+
+    "run_right_aim_diag_down7": {
+      "parent": "run_right_aim_diag_down",
+      "used by": [
+        ["0x11", 7]
+      ]
+    },
+
+    "run_right_aim_diag_down8": {
+      "parent": "run_right_aim_diag_down",
+      "used by": [
+        ["0x11", 8]
+      ]
+    },
+
+    "run_right_aim_diag_down9": {
+      "parent": "run_right_aim_diag_down",
+      "used by": [
+        ["0x11", 9]
+      ]
+    },
+
+    "jump_left_start_spin_jump": {
+      "description": "As Samus begins to do a spinjump/spacejump/screwattack, this pose shows her transitioning off the ground before spinning",
+      "dimensions": [-16, -21, 16, 27],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x1A", 0],
+        ["0x1C", 0],
+        ["0x82", 0],
+        ["0x84", 1]
+      ]
+    },
+
+    "spin_jump_left": {
+      "description": "Samus spin jumping counterclockwise",
+      "dimensions": [-16, -16, 16, 16],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "force": "lower",
+      "used by": [
+        ["0x1A", 1],
+        ["0x84", 3],
+        ["0x82", 28],
+        ["0x82", 29],
+        ["0x82", 30],
+        ["0x84", 49],
+        ["0x84", 50],
+        ["0x84", 51]
+      ]
+    },
+
+    "spin_jump_left1": {
+      "parent": "spin_jump_left",
+      "used by": [
+        ["0x1A", 2],
+        ["0x84", 4],
+        ["0x82", 31],
+        ["0x82", 32],
+        ["0x82", 33],
+        ["0x84", 52],
+        ["0x84", 53],
+        ["0x84", 54]
+      ]
+    },
+
+    "spin_jump_left2": {
+      "parent": "spin_jump_left",
+      "used by": [
+        ["0x1A", 3],
+        ["0x84", 5],
+        ["0x82", 34],
+        ["0x82", 35],
+        ["0x82", 36],
+        ["0x84", 55],
+        ["0x84", 56],
+        ["0x84", 57]
+      ]
+    },
+
+    "spin_jump_left3": {
+      "parent": "spin_jump_left",
+      "used by": [
+        ["0x1A", 4],
+        ["0x84", 6],
+        ["0x82", 37],
+        ["0x82", 38],
+        ["0x82", 39],
+        ["0x84", 58],
+        ["0x84", 59],
+        ["0x84", 60]
+      ]
+    },
+
+    "spin_jump_left4": {
+      "parent": "spin_jump_left",
+      "used by": [
+        ["0x1A", 5],
+        ["0x84", 7],
+        ["0x82", 40],
+        ["0x82", 41],
+        ["0x82", 42],
+        ["0x84", 61],
+        ["0x84", 62],
+        ["0x84", 63]
+      ]
+    },
+
+    "spin_jump_left5": {
+      "parent": "spin_jump_left",
+      "used by": [
+        ["0x1A", 6],
+        ["0x84", 8],
+        ["0x82", 43],
+        ["0x82", 44],
+        ["0x82", 45],
+        ["0x84", 64],
+        ["0x84", 65],
+        ["0x84", 66]
+      ]
+    },
+
+    "spin_jump_left6": {
+      "parent": "spin_jump_left",
+      "used by": [
+        ["0x1A", 7],
+        ["0x84", 9],
+        ["0x82", 46],
+        ["0x82", 47],
+        ["0x82", 48],
+        ["0x84", 67],
+        ["0x84", 68],
+        ["0x84", 69]
+      ]
+    },
+
+    "spin_jump_left7": {
+      "parent": "spin_jump_left",
+      "used by": [
+        ["0x1A", 8],
+        ["0x84", 10],
+        ["0x82", 49],
+        ["0x82", 50],
+        ["0x82", 51],
+        ["0x84", 70],
+        ["0x84", 71],
+        ["0x84", 72]
+      ]
+    },
+
+    "spin_jump_left_land": {
+      "description": "After a spin jump, Samus makes contact with the ground",
+      "parent": "jump_left_start_spin_jump",
+      "used by": [
+        ["0xA7", 0]
+      ]
+    },
+
+    "spin_jump_left_land1": {
+      "parent": "spin_jump_left_land",
+      "used by": [
+        ["0xA7", 1]
+      ]
+    },
+
+    "spin_jump_left_land2": {
+      "parent": "spin_jump_left_land",
+      "used by": [
+        ["0xA7", 2]
+      ]
+    },
+
+    "grapple_wall_left": {
+      "description": "Samus is grappled to a wall on the right, preparing to jump out to the left",
+      "dimensions": [-16, -20, 24, 20],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0xB8", 0]
+      ]
+    },
+
+    "wall_jump_left": {
+      "description": "Samus when she is priming to jump leftwards off of a right wall",
+      "dimensions": [-20, -20, 12, 20],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x1A", 11],
+        ["0x1C", 11],
+        ["0x82", 27],
+        ["0x82", 54]
+      ]
+    },
+
+    "wall_jump_launch_left": {
+      "description": "Samus when she is beginning the jump leftwards off of a right wall",
+      "dimensions": [-20, -16, 12, 24],
+      "shift": [0, -4],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x84", 0]
+      ]
+    },
+
+    "jump_right_start_spin_jump": {
+      "description": "As Samus begins to do a spinjump/spacejump/screwattack, this pose shows her transitioning off the ground before spinning",
+      "dimensions": [-16, -21, 16, 27],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x19", 0],
+        ["0x1B", 0],
+        ["0x81", 0],
+        ["0x83", 1]
+      ]
+    },
+
+    "spin_jump_right": {
+      "description": "Samus spin jumping clockwise",
+      "dimensions": [-16, -16, 16, 16],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "force": "lower",
+      "used by": [
+        ["0x19", 1],
+        ["0x83", 3],
+        ["0x81", 28],
+        ["0x81", 29],
+        ["0x81", 30],
+        ["0x83", 49],
+        ["0x83", 50],
+        ["0x83", 51]
+      ]
+    },
+
+    "spin_jump_right1": {
+      "parent": "spin_jump_right",
+      "used by": [
+        ["0x19", 2],
+        ["0x83", 4],
+        ["0x81", 31],
+        ["0x81", 32],
+        ["0x81", 33],
+        ["0x83", 52],
+        ["0x83", 53],
+        ["0x83", 54]
+      ]
+    },
+
+    "spin_jump_right2": {
+      "parent": "spin_jump_right",
+      "used by": [
+        ["0x19", 3],
+        ["0x83", 5],
+        ["0x81", 34],
+        ["0x81", 35],
+        ["0x81", 36],
+        ["0x83", 55],
+        ["0x83", 56],
+        ["0x83", 57]
+      ]
+    },
+
+    "spin_jump_right3": {
+      "parent": "spin_jump_right",
+      "used by": [
+        ["0x19", 4],
+        ["0x83", 6],
+        ["0x81", 37],
+        ["0x81", 38],
+        ["0x81", 39],
+        ["0x83", 58],
+        ["0x83", 59],
+        ["0x83", 60]
+      ]
+    },
+
+    "spin_jump_right4": {
+      "parent": "spin_jump_right",
+      "used by": [
+        ["0x19", 5],
+        ["0x83", 7],
+        ["0x81", 40],
+        ["0x81", 41],
+        ["0x81", 42],
+        ["0x83", 61],
+        ["0x83", 62],
+        ["0x83", 63]
+      ]
+    },
+
+    "spin_jump_right5": {
+      "parent": "spin_jump_right",
+      "used by": [
+        ["0x19", 6],
+        ["0x83", 8],
+        ["0x81", 43],
+        ["0x81", 44],
+        ["0x81", 45],
+        ["0x83", 64],
+        ["0x83", 65],
+        ["0x83", 66]
+      ]
+    },
+
+    "spin_jump_right6": {
+      "parent": "spin_jump_right",
+      "used by": [
+        ["0x19", 7],
+        ["0x83", 9],
+        ["0x81", 46],
+        ["0x81", 47],
+        ["0x81", 48],
+        ["0x83", 67],
+        ["0x83", 68],
+        ["0x83", 69]
+      ]
+    },
+
+    "spin_jump_right7": {
+      "parent": "spin_jump_right",
+      "used by": [
+        ["0x19", 8],
+        ["0x83", 10],
+        ["0x81", 49],
+        ["0x81", 50],
+        ["0x81", 51],
+        ["0x83", 70],
+        ["0x83", 71],
+        ["0x83", 72]
+      ]
+    },
+
+    "spin_jump_right_land": {
+      "description": "After a spin jump, Samus makes contact with the ground",
+      "parent": "jump_right_start_spin_jump",
+      "used by": [
+        ["0xA6", 0]
+      ]
+    },
+
+    "spin_jump_right_land1": {
+      "parent": "spin_jump_right_land",
+      "used by": [
+        ["0xA6", 1]
+      ]
+    },
+
+    "spin_jump_right_land2": {
+      "parent": "spin_jump_right_land",
+      "used by": [
+        ["0xA6", 2]
+      ]
+    },
+
+    "grapple_wall_right": {
+      "description": "Samus is grappled to a wall on the left, preparing to jump out to the right",
+      "dimensions": [-25, -20, 15, 20],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0xB9", 0]
+      ]
+    },
+
+    "wall_jump_right": {
+      "description": "Samus when she is priming to jump rightwards off of a left wall",
+      "dimensions": [-11, -20, 21, 20],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x19", 11],
+        ["0x1B", 11],
+        ["0x81", 27],
+        ["0x81", 54]
+      ]
+    },
+
+    "wall_jump_launch_right": {
+      "description": "Samus when she is beginning the jump rightwards off of a left wall",
+      "dimensions": [-12, -16, 20, 24],
+      "shift": [0, -4],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x83", 0]
+      ]
+    },
+
+    "space_jump_left": {
+      "description": "Samus space jumping counterclockwise, or combined with sparks for screw attack",
+      "dimensions": [-16, -16, 16, 16],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "force": "lower",
+      "used by": [
+        ["0x1C", 1],
+        ["0x82", 1],
+        ["0x82", 9],
+        ["0x82", 17],
+        ["0x84", 13],
+        ["0x84", 23],
+        ["0x84", 31],
+        ["0x84", 39],
+        ["0x82", 25]
+      ]
+    },
+
+    "space_jump_left1": {
+      "parent": "space_jump_left",
+      "used by": [
+        ["0x1C", 2],
+        ["0x82", 2],
+        ["0x82", 10],
+        ["0x82", 18],
+        ["0x84", 14],
+        ["0x84", 24],
+        ["0x84", 32],
+        ["0x84", 40]
+      ]
+    },
+
+    "space_jump_left2": {
+      "parent": "space_jump_left",
+      "used by": [
+        ["0x1C", 3],
+        ["0x82", 3],
+        ["0x82", 11],
+        ["0x82", 19],
+        ["0x84", 15],
+        ["0x84", 25],
+        ["0x84", 33],
+        ["0x84", 41]
+      ]
+    },
+
+    "space_jump_left3": {
+      "parent": "space_jump_left",
+      "used by": [
+        ["0x1C", 4],
+        ["0x82", 4],
+        ["0x82", 12],
+        ["0x82", 20],
+        ["0x84", 16],
+        ["0x84", 26],
+        ["0x84", 34],
+        ["0x84", 42]
+      ]
+    },
+
+    "space_jump_left4": {
+      "parent": "space_jump_left",
+      "used by": [
+        ["0x1C", 5],
+        ["0x82", 5],
+        ["0x82", 13],
+        ["0x82", 21],
+        ["0x84", 17],
+        ["0x84", 27],
+        ["0x84", 35],
+        ["0x84", 43]
+      ]
+    },
+
+    "space_jump_left5": {
+      "parent": "space_jump_left",
+      "used by": [
+        ["0x1C", 6],
+        ["0x82", 6],
+        ["0x82", 14],
+        ["0x82", 22],
+        ["0x84", 18],
+        ["0x84", 28],
+        ["0x84", 36],
+        ["0x84", 44]
+      ]
+    },
+
+    "space_jump_left6": {
+      "parent": "space_jump_left",
+      "used by": [
+        ["0x1C", 7],
+        ["0x82", 7],
+        ["0x82", 15],
+        ["0x82", 23],
+        ["0x84", 19],
+        ["0x84", 29],
+        ["0x84", 37],
+        ["0x84", 45]
+      ]
+    },
+
+    "space_jump_left7": {
+      "parent": "space_jump_left",
+      "used by": [
+        ["0x1C", 8],
+        ["0x82", 8],
+        ["0x82", 16],
+        ["0x82", 24],
+        ["0x84", 20],
+        ["0x84", 30],
+        ["0x84", 38],
+        ["0x84", 46]
+      ]
+    },
+
+    "space_jump_right": {
+      "description": "Samus space jumping clockwise, or combined with sparks for screw attack",
+      "dimensions": [-16, -16, 16, 16],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "force": "lower",
+      "used by": [
+        ["0x1B", 1],
+        ["0x81", 1],
+        ["0x81", 9],
+        ["0x81", 17],
+        ["0x83", 13],
+        ["0x83", 23],
+        ["0x83", 31],
+        ["0x83", 39],
+        ["0x81", 25]
+      ]
+    },
+
+    "space_jump_right1": {
+      "parent": "space_jump_right",
+      "used by": [
+        ["0x1B", 2],
+        ["0x81", 2],
+        ["0x81", 10],
+        ["0x81", 18],
+        ["0x83", 14],
+        ["0x83", 24],
+        ["0x83", 32],
+        ["0x83", 40]
+      ]
+    },
+
+    "space_jump_right2": {
+      "parent": "space_jump_right",
+      "used by": [
+        ["0x1B", 3],
+        ["0x81", 3],
+        ["0x81", 11],
+        ["0x81", 19],
+        ["0x83", 15],
+        ["0x83", 25],
+        ["0x83", 33],
+        ["0x83", 41]
+      ]
+    },
+
+    "space_jump_right3": {
+      "parent": "space_jump_right",
+      "used by": [
+        ["0x1B", 4],
+        ["0x81", 4],
+        ["0x81", 12],
+        ["0x81", 20],
+        ["0x83", 16],
+        ["0x83", 26],
+        ["0x83", 34],
+        ["0x83", 42]
+      ]
+    },
+
+    "space_jump_right4": {
+      "parent": "space_jump_right",
+      "used by": [
+        ["0x1B", 5],
+        ["0x81", 5],
+        ["0x81", 13],
+        ["0x81", 21],
+        ["0x83", 17],
+        ["0x83", 27],
+        ["0x83", 35],
+        ["0x83", 43]
+      ]
+    },
+
+    "space_jump_right5": {
+      "parent": "space_jump_right",
+      "used by": [
+        ["0x1B", 6],
+        ["0x81", 6],
+        ["0x81", 14],
+        ["0x81", 22],
+        ["0x83", 18],
+        ["0x83", 28],
+        ["0x83", 36],
+        ["0x83", 44]
+      ]
+    },
+
+    "space_jump_right6": {
+      "parent": "space_jump_right",
+      "used by": [
+        ["0x1B", 7],
+        ["0x81", 7],
+        ["0x81", 15],
+        ["0x81", 23],
+        ["0x83", 19],
+        ["0x83", 29],
+        ["0x83", 37],
+        ["0x83", 45]
+      ]
+    },
+
+    "space_jump_right7": {
+      "parent": "space_jump_right",
+      "used by": [
+        ["0x1B", 8],
+        ["0x81", 8],
+        ["0x81", 16],
+        ["0x81", 24],
+        ["0x83", 20],
+        ["0x83", 30],
+        ["0x83", 38],
+        ["0x83", 46]
+      ]
+    },
+
+    "morphball_stand_left": {
+      "description": "When the morphball is not moving, it rotates through these poses",
+      "dimensions": [-16, -15, 16, 9],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x41", 0],
+        ["0x7A", 0],
+        ["0xD8", 0]
+      ]
+    },
+
+    "morphball_stand_left1": {
+      "parent": "morphball_stand_left",
+      "used by": [
+        ["0x41", 1],
+        ["0x7A", 1]
+      ]
+    },
+
+    "morphball_stand_left2": {
+      "parent": "morphball_stand_left",
+      "used by": [
+        ["0x41", 2],
+        ["0x7A", 2]
+      ]
+    },
+
+    "morphball_stand_left3": {
+      "parent": "morphball_stand_left",
+      "used by": [
+        ["0x41", 3],
+        ["0x7A", 3]
+      ]
+    },
+
+    "morphball_stand_left4": {
+      "parent": "morphball_stand_left",
+      "used by": [
+        ["0x41", 4],
+        ["0x7A", 4]
+      ]
+    },
+
+    "morphball_stand_left5": {
+      "parent": "morphball_stand_left",
+      "used by": [
+        ["0x41", 5],
+        ["0x7A", 5]
+      ]
+    },
+
+    "morphball_stand_left6": {
+      "parent": "morphball_stand_left",
+      "used by": [
+        ["0x41", 6],
+        ["0x7A", 6]
+      ]
+    },
+
+    "morphball_stand_left7": {
+      "parent": "morphball_stand_left",
+      "used by": [
+        ["0x41", 7],
+        ["0x7A", 7]
+      ]
+    },
+
+    "morphball_stand_right": {
+      "description": "When the morphball is not moving, it rotates through these poses",
+      "dimensions": [-16, -15, 16, 9],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x1D", 0],
+        ["0x79", 0],
+        ["0xD7", 0],
+        ["0xE8", 0]
+      ]
+    },
+
+    "morphball_stand_right1": {
+      "parent": "morphball_stand_right",
+      "used by": [
+        ["0x1D", 1],
+        ["0x79", 1]
+      ]
+    },
+
+    "morphball_stand_right2": {
+      "parent": "morphball_stand_right",
+      "used by": [
+        ["0x1D", 2],
+        ["0x79", 2]
+      ]
+    },
+
+    "morphball_stand_right3": {
+      "parent": "morphball_stand_right",
+      "used by": [
+        ["0x1D", 3],
+        ["0x79", 3]
+      ]
+    },
+
+    "morphball_stand_right4": {
+      "parent": "morphball_stand_right",
+      "used by": [
+        ["0x1D", 4],
+        ["0x79", 4]
+      ]
+    },
+
+    "morphball_stand_right5": {
+      "parent": "morphball_stand_right",
+      "used by": [
+        ["0x1D", 5],
+        ["0x79", 5]
+      ]
+    },
+
+    "morphball_stand_right6": {
+      "parent": "morphball_stand_right",
+      "used by": [
+        ["0x1D", 6],
+        ["0x79", 6]
+      ]
+    },
+
+    "morphball_stand_right7": {
+      "parent": "morphball_stand_right",
+      "used by": [
+        ["0x1D", 7],
+        ["0x79", 7]
+      ]
+    },
+
+    "morphball_roll_left": {
+      "description": "When the morphball is rolling on the ground, it rotates through these poses",
+      "parent": "morphball_stand_left",
+      "used by": [
+        ["0x1F", 0],
+        ["0x7C", 0]
+      ]
+    },
+
+    "morphball_roll_left1": {
+      "parent": "morphball_roll_left",
+      "used by": [
+        ["0x1F", 1],
+        ["0x7C", 1]
+      ]
+    },
+
+    "morphball_roll_left2": {
+      "parent": "morphball_roll_left",
+      "used by": [
+        ["0x1F", 2],
+        ["0x7C", 2]
+      ]
+    },
+
+    "morphball_roll_left3": {
+      "parent": "morphball_roll_left",
+      "used by": [
+        ["0x1F", 3],
+        ["0x7C", 3]
+      ]
+    },
+
+    "morphball_roll_left4": {
+      "parent": "morphball_roll_left",
+      "used by": [
+        ["0x1F", 4],
+        ["0x7C", 4]
+      ]
+    },
+
+    "morphball_roll_left5": {
+      "parent": "morphball_roll_left",
+      "used by": [
+        ["0x1F", 5],
+        ["0x7C", 5]
+      ]
+    },
+
+    "morphball_roll_left6": {
+      "parent": "morphball_roll_left",
+      "used by": [
+        ["0x1F", 6],
+        ["0x7C", 6]
+      ]
+    },
+
+    "morphball_roll_left7": {
+      "parent": "morphball_roll_left",
+      "used by": [
+        ["0x1F", 7],
+        ["0x7C", 7]
+      ]
+    },
+
+    "morphball_roll_right": {
+      "description": "When the morphball is rolling on the ground, it rotates through these poses",
+      "parent": "morphball_stand_right",
+      "used by": [
+        ["0x1E", 0],
+        ["0x7B", 0]
+      ]
+    },
+
+    "morphball_roll_right1": {
+      "parent": "morphball_roll_right",
+      "used by": [
+        ["0x1E", 1],
+        ["0x7B", 1]
+      ]
+    },
+
+    "morphball_roll_right2": {
+      "parent": "morphball_roll_right",
+      "used by": [
+        ["0x1E", 2],
+        ["0x7B", 2]
+      ]
+    },
+
+    "morphball_roll_right3": {
+      "parent": "morphball_roll_right",
+      "used by": [
+        ["0x1E", 3],
+        ["0x7B", 3]
+      ]
+    },
+
+    "morphball_roll_right4": {
+      "parent": "morphball_roll_right",
+      "used by": [
+        ["0x1E", 4],
+        ["0x7B", 4]
+      ]
+    },
+
+    "morphball_roll_right5": {
+      "parent": "morphball_roll_right",
+      "used by": [
+        ["0x1E", 5],
+        ["0x7B", 5]
+      ]
+    },
+
+    "morphball_roll_right6": {
+      "parent": "morphball_roll_right",
+      "used by": [
+        ["0x1E", 6],
+        ["0x7B", 6]
+      ]
+    },
+
+    "morphball_roll_right7": {
+      "parent": "morphball_roll_right",
+      "used by": [
+        ["0x1E", 7],
+        ["0x7B", 7]
+      ]
+    },
+
+    "morphball_fall_left": {
+      "description": "When the morphball is either jumping or falling, it rotates through these poses",
+      "parent": "morphball_stand_left",
+      "used by": [
+        ["0x32", 0],
+        ["0x7E", 0],
+        ["0x80", 0]
+      ]
+    },
+
+    "morphball_fall_left1": {
+      "parent": "morphball_fall_left",
+      "used by": [
+        ["0x32", 1],
+        ["0x7E", 1],
+        ["0x80", 1]
+      ]
+    },
+
+    "morphball_fall_left2": {
+      "parent": "morphball_fall_left",
+      "used by": [
+        ["0x32", 2],
+        ["0x7E", 2],
+        ["0x80", 2]
+      ]
+    },
+
+    "morphball_fall_left3": {
+      "parent": "morphball_fall_left",
+      "used by": [
+        ["0x32", 3],
+        ["0x7E", 3],
+        ["0x80", 3]
+      ]
+    },
+
+    "morphball_fall_left4": {
+      "parent": "morphball_fall_left",
+      "used by": [
+        ["0x32", 4],
+        ["0x7E", 4],
+        ["0x80", 4]
+      ]
+    },
+
+    "morphball_fall_left5": {
+      "parent": "morphball_fall_left",
+      "used by": [
+        ["0x32", 5],
+        ["0x7E", 5],
+        ["0x80", 5]
+      ]
+    },
+
+    "morphball_fall_left6": {
+      "parent": "morphball_fall_left",
+      "used by": [
+        ["0x32", 6],
+        ["0x7E", 6],
+        ["0x80", 6]
+      ]
+    },
+
+    "morphball_fall_left7": {
+      "parent": "morphball_fall_left",
+      "used by": [
+        ["0x32", 7],
+        ["0x7E", 7],
+        ["0x80", 7]
+      ]
+    },
+
+    "morphball_fall_right": {
+      "description": "When the morphball is either jumping or falling, it rotates through these poses",
+      "parent": "morphball_stand_right",
+      "used by": [
+        ["0x31", 0],
+        ["0x7D", 0],
+        ["0x7F", 0]
+      ]
+    },
+
+    "morphball_fall_right1": {
+      "parent": "morphball_fall_right",
+      "used by": [
+        ["0x31", 1],
+        ["0x7D", 1],
+        ["0x7F", 1]
+      ]
+    },
+
+    "morphball_fall_right2": {
+      "parent": "morphball_fall_right",
+      "used by": [
+        ["0x31", 2],
+        ["0x7D", 2],
+        ["0x7F", 2]
+      ]
+    },
+
+    "morphball_fall_right3": {
+      "parent": "morphball_fall_right",
+      "used by": [
+        ["0x31", 3],
+        ["0x7D", 3],
+        ["0x7F", 3]
+      ]
+    },
+
+    "morphball_fall_right4": {
+      "parent": "morphball_fall_right",
+      "used by": [
+        ["0x31", 4],
+        ["0x7D", 4],
+        ["0x7F", 4]
+      ]
+    },
+
+    "morphball_fall_right5": {
+      "parent": "morphball_fall_right",
+      "used by": [
+        ["0x31", 5],
+        ["0x7D", 5],
+        ["0x7F", 5]
+      ]
+    },
+
+    "morphball_fall_right6": {
+      "parent": "morphball_fall_right",
+      "used by": [
+        ["0x31", 6],
+        ["0x7D", 6],
+        ["0x7F", 6]
+      ]
+    },
+
+    "morphball_fall_right7": {
+      "parent": "morphball_fall_right",
+      "used by": [
+        ["0x31", 7],
+        ["0x7D", 7],
+        ["0x7F", 7]
+      ]
+    },
+
+    "moonwalk_left": {
+      "description": "Samus is facing right, but walking backwards, i.e. walking left",
+      "dimensions": [-13, -27, 19, 29],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x4A", 0]
+      ]
+    },
+
+    "moonwalk_left1": {
+      "parent": "moonwalk_left",
+      "used by": [
+        ["0x4A", 1]
+      ]
+    },
+
+    "moonwalk_left2": {
+      "parent": "moonwalk_left",
+      "used by": [
+        ["0x4A", 2]
+      ]
+    },
+
+    "moonwalk_left3": {
+      "parent": "moonwalk_left",
+      "used by": [
+        ["0x4A", 3]
+      ]
+    },
+
+    "moonwalk_left4": {
+      "parent": "moonwalk_left",
+      "used by": [
+        ["0x4A", 4]
+      ]
+    },
+
+    "moonwalk_left5": {
+      "parent": "moonwalk_left",
+      "used by": [
+        ["0x4A", 5]
+      ]
+    },
+
+    "moonwalk_right": {
+      "description": "Samus is facing left, but walking backwards, i.e. walking right",
+      "dimensions": [-19, -27, 13, 29],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x49", 0]
+      ]
+    },
+
+    "moonwalk_right1": {
+      "parent": "moonwalk_right",
+      "used by": [
+        ["0x49", 1]
+      ]
+    },
+
+    "moonwalk_right2": {
+      "parent": "moonwalk_right",
+      "used by": [
+        ["0x49", 2]
+      ]
+    },
+
+    "moonwalk_right3": {
+      "parent": "moonwalk_right",
+      "used by": [
+        ["0x49", 3]
+      ]
+    },
+
+    "moonwalk_right4": {
+      "parent": "moonwalk_right",
+      "used by": [
+        ["0x49", 4]
+      ]
+    },
+
+    "moonwalk_right5": {
+      "parent": "moonwalk_right",
+      "used by": [
+        ["0x49", 5]
+      ]
+    },
+
+    "moonwalk_left_aim_diag_up": {
+      "description": "Samus is facing right, but walking backwards, and aiming diagonally up",
+      "parent": "moonwalk_left",
+      "used by": [
+        ["0x76", 0]
+      ]
+    },
+
+    "moonwalk_left_aim_diag_up1": {
+      "parent": "moonwalk_left_aim_diag_up",
+      "used by": [
+        ["0x76", 1]
+      ]
+    },
+
+    "moonwalk_left_aim_diag_up2": {
+      "parent": "moonwalk_left_aim_diag_up",
+      "used by": [
+        ["0x76", 2]
+      ]
+    },
+
+    "moonwalk_left_aim_diag_up3": {
+      "parent": "moonwalk_left_aim_diag_up",
+      "used by": [
+        ["0x76", 3]
+      ]
+    },
+
+    "moonwalk_left_aim_diag_up4": {
+      "parent": "moonwalk_left_aim_diag_up",
+      "used by": [
+        ["0x76", 4]
+      ]
+    },
+
+    "moonwalk_left_aim_diag_up5": {
+      "parent": "moonwalk_left_aim_diag_up",
+      "used by": [
+        ["0x76", 5]
+      ]
+    },
+
+    "moonwalk_right_aim_diag_up": {
+      "description": "Samus is facing left, but walking backwards, and aiming diagonally up",
+      "parent": "moonwalk_right",
+      "used by": [
+        ["0x75", 0]
+      ]
+    },
+
+    "moonwalk_right_aim_diag_up1": {
+      "parent": "moonwalk_right_aim_diag_up",
+      "used by": [
+        ["0x75", 1]
+      ]
+    },
+
+    "moonwalk_right_aim_diag_up2": {
+      "parent": "moonwalk_right_aim_diag_up",
+      "used by": [
+        ["0x75", 2]
+      ]
+    },
+
+    "moonwalk_right_aim_diag_up3": {
+      "parent": "moonwalk_right_aim_diag_up",
+      "used by": [
+        ["0x75", 3]
+      ]
+    },
+
+    "moonwalk_right_aim_diag_up4": {
+      "parent": "moonwalk_right_aim_diag_up",
+      "used by": [
+        ["0x75", 4]
+      ]
+    },
+
+    "moonwalk_right_aim_diag_up5": {
+      "parent": "moonwalk_right_aim_diag_up",
+      "used by": [
+        ["0x75", 5]
+      ]
+    },
+
+    "moonwalk_left_aim_diag_down": {
+      "description": "Samus is facing right, but walking backwards, and aiming diagonally down",
+      "parent": "moonwalk_left",
+      "used by": [
+        ["0x78", 0]
+      ]
+    },
+
+    "moonwalk_left_aim_diag_down1": {
+      "parent": "moonwalk_left_aim_diag_down",
+      "used by": [
+        ["0x78", 1]
+      ]
+    },
+
+    "moonwalk_left_aim_diag_down2": {
+      "parent": "moonwalk_left_aim_diag_down",
+      "used by": [
+        ["0x78", 2]
+      ]
+    },
+
+    "moonwalk_left_aim_diag_down3": {
+      "parent": "moonwalk_left_aim_diag_down",
+      "used by": [
+        ["0x78", 3]
+      ]
+    },
+
+    "moonwalk_left_aim_diag_down4": {
+      "parent": "moonwalk_left_aim_diag_down",
+      "used by": [
+        ["0x78", 4]
+      ]
+    },
+
+    "moonwalk_left_aim_diag_down5": {
+      "parent": "moonwalk_left_aim_diag_down",
+      "used by": [
+        ["0x78", 5]
+      ]
+    },
+
+    "moonwalk_right_aim_diag_down": {
+      "description": "Samus is facing left, but walking backwards, and aiming diagonally down",
+      "parent": "moonwalk_right",
+      "used by": [
+        ["0x77", 0]
+      ]
+    },
+
+    "moonwalk_right_aim_diag_down1": {
+      "parent": "moonwalk_right_aim_diag_down",
+      "used by": [
+        ["0x77", 1]
+      ]
+    },
+
+    "moonwalk_right_aim_diag_down2": {
+      "parent": "moonwalk_right_aim_diag_down",
+      "used by": [
+        ["0x77", 2]
+      ]
+    },
+
+    "moonwalk_right_aim_diag_down3": {
+      "parent": "moonwalk_right_aim_diag_down",
+      "used by": [
+        ["0x77", 3]
+      ]
+    },
+
+    "moonwalk_right_aim_diag_down4": {
+      "parent": "moonwalk_right_aim_diag_down",
+      "used by": [
+        ["0x77", 4]
+      ]
+    },
+
+    "moonwalk_right_aim_diag_down5": {
+      "parent": "moonwalk_right_aim_diag_down",
+      "used by": [
+        ["0x77", 5]
+      ]
+    },
+
+    "xray_left": {
+      "parent": "stand_left",
+      "used by": [
+        ["0xD6", 0]
+      ]
+    },
+
+    "xray_left1": {
+      "parent": "xray_left",
+      "used by": [
+        ["0xD6", 1]
+      ]
+    },
+
+    "xray_left2": {
+      "parent": "xray_left",
+      "used by": [
+        ["0xD6", 2]
+      ]
+    },
+
+    "xray_left3": {
+      "parent": "xray_left",
+      "used by": [
+        ["0xD6", 3]
+      ]
+    },
+
+    "xray_left4": {
+      "parent": "xray_left",
+      "used by": [
+        ["0xD6", 4]
+      ]
+    },
+
+    "xray_right": {
+      "parent": "stand_right",
+      "used by": [
+        ["0xD5", 0]
+      ]
+    },
+
+    "xray_right1": {
+      "parent": "xray_right",
+      "used by": [
+        ["0xD5", 1]
+      ]
+    },
+
+    "xray_right2": {
+      "parent": "xray_right",
+      "used by": [
+        ["0xD5", 2]
+      ]
+    },
+
+    "xray_right3": {
+      "parent": "xray_right",
+      "used by": [
+        ["0xD5", 3]
+      ]
+    },
+
+    "xray_right4": {
+      "parent": "xray_right",
+      "used by": [
+        ["0xD5", 4]
+      ]
+    },
+
+    "xray_crouch_left": {
+      "description": "While using the xray scope, a light cone appears from Samus's visor and she looks in the correct direction",
+      "parent": "crouch_left",
+      "used by": [
+        ["0xDA", 0]
+      ]
+    },
+
+    "xray_crouch_left1": {
+      "parent": "xray_crouch_left",
+      "used by": [
+        ["0xDA", 1]
+      ]
+    },
+
+    "xray_crouch_left2": {
+      "parent": "xray_crouch_left",
+      "used by": [
+        ["0xDA", 2]
+      ]
+    },
+
+    "xray_crouch_left3": {
+      "parent": "xray_crouch_left",
+      "used by": [
+        ["0xDA", 3]
+      ]
+    },
+
+    "xray_crouch_left4": {
+      "parent": "xray_crouch_left",
+      "used by": [
+        ["0xDA", 4]
+      ]
+    },
+
+    "xray_crouch_right": {
+      "description": "While using the xray scope, a light cone appears from Samus's visor and she looks in the correct direction",
+      "parent": "crouch_right",
+      "used by": [
+        ["0xD9", 0]
+      ]
+    },
+
+    "xray_crouch_right1": {
+      "parent": "xray_crouch_right",
+      "used by": [
+        ["0xD9", 1]
+      ]
+    },
+
+    "xray_crouch_right2": {
+      "parent": "xray_crouch_right",
+      "used by": [
+        ["0xD9", 2]
+      ]
+    },
+
+    "xray_crouch_right3": {
+      "parent": "xray_crouch_right",
+      "used by": [
+        ["0xD9", 3]
+      ]
+    },
+
+    "xray_crouch_right4": {
+      "parent": "xray_crouch_right",
+      "used by": [
+        ["0xD9", 4]
+      ]
+    },
+
+    "stand_turn_left": {
+      "description": "While standing, Samus is turning from right to left, or left to right, and is presently facing 'more left'",
+      "parent": "stand_turn_neutral",
+      "used by": [
+        ["0x25", 2],
+        ["0x26", 0],
+        ["0xBF", 2],
+        ["0xC0", 0]
+      ]
+    },
+
+    "stand_turn_neutral": {
+      "description": "While standing, Samus is turning from right to left, or left to right, and is presently facing 'forward'",
+      "dimensions": [-16, -21, 16, 27],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x25", 1],
+        ["0x26", 1],
+        ["0xBF", 1],
+        ["0xC0", 1]
+      ]
+    },
+
+    "stand_turn_right": {
+      "description": "While standing, Samus is turning from right to left, or left to right, and is presently facing 'more right'",
+      "parent": "stand_turn_neutral",
+      "used by": [
+        ["0x25", 0],
+        ["0x26", 2],
+        ["0xBF", 0],
+        ["0xC0", 2]
+      ]
+    },
+
+    "crouch_turn_left": {
+      "description": "While crouching, Samus is turning from right to left, or left to right, and is presently facing 'more left'",
+      "parent": "crouch_turn_neutral",
+      "used by": [
+        ["0x43", 2],
+        ["0x44", 0]
+      ]
+    },
+
+    "crouch_turn_neutral": {
+      "description": "While crouching, Samus is turning from right to left, or left to right, and is presently facing 'forward'",
+      "dimensions": [-16, -24, 16, 16],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x43", 1],
+        ["0x44", 1]
+      ]
+    },
+
+    "crouch_turn_right": {
+      "description": "While crouching, Samus is turning from right to left, or left to right, and is presently facing 'more right'",
+      "parent": "crouch_turn_neutral",
+      "used by": [
+        ["0x43", 0],
+        ["0x44", 2]
+      ]
+    },
+
+    "jump_left_begin": {
+      "description": "As Samus begins to jump in a non-spin way, she bends her knees to push off of the ground",
+      "dimensions": [-19, -27, 13, 29],
+      "spacer": 51,
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x4C", 0]
+      ]
+    },
+
+    "jump_left": {
+      "description": "When Samus jumps up without spinning, or when she is starting a vertical shinespark",
+      "dimensions": [-19, -27, 13, 29],
+      "spacer": 8,
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x4E", 0],
+        ["0xC8", 0]
+      ]
+    },
+
+    "jump_left1": {
+      "parent": "jump_left",
+      "spacer": 8,
+      "used by": [
+        ["0x4E", 1],
+        ["0xC8", 1]
+      ]
+    },
+
+    "jump_left2": {
+      "parent": "jump_left",
+      "spacer": 8,
+      "used by": [
+        ["0x4E", 2],
+        ["0xC8", 2]
+      ]
+    },
+
+    "jump_left3": {
+      "parent": "jump_left",
+      "spacer": 8,
+      "used by": [
+        ["0x4E", 3],
+        ["0xC8", 3]
+      ]
+    },
+
+    "jump_left4": {
+      "parent": "jump_left",
+      "spacer": 8,
+      "used by": [
+        ["0x4E", 4],
+        ["0xC8", 4]
+      ]
+    },
+
+    "jump_left5": {
+      "parent": "jump_left",
+      "spacer": 8,
+      "used by": [
+        ["0x4E", 5],
+        ["0xC8", 5]
+      ]
+    },
+
+    "jump_left_land": {
+      "description": "while facing left, Samus makes contact with the ground after a regular jump or a fall",
+      "dimensions": [-19, -27, 13, 29],
+      "spacer": 8,
+      "parent": "jump_left",
+      "used by": [
+        ["0xA5", 0]
+      ]
+    },
+
+    "jump_left_land1": {
+      "parent": "jump_left_land",
+      "dimensions": [-19, -27, 13, 29],
+      "spacer": 8,
+      "used by": [
+        ["0xA5", 1]
+      ]
+    },
+
+    "jump_right_begin": {
+      "description": "As Samus begins to jump in a non-spin way, she bends her knees to push off of the ground",
+      "dimensions": [-13, -27, 19, 29],
+      "spacer": -51,
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x4B", 0]
+      ]
+    },
+
+    "jump_right": {
+      "description": "When Samus jumps up without spinning, or when she is starting a lateral shinespark",
+      "dimensions": [-13, -27, 19, 29],
+      "spacer": -8,
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x4D", 0],
+        ["0xC7", 0]
+      ]
+    },
+
+    "jump_right1": {
+      "parent": "jump_right",
+      "spacer": -8,
+      "used by": [
+        ["0x4D", 1],
+        ["0xC7", 1]
+      ]
+    },
+
+    "jump_right2": {
+      "parent": "jump_right",
+      "spacer": -8,
+      "used by": [
+        ["0x4D", 2],
+        ["0xC7", 2]
+      ]
+    },
+
+    "jump_right3": {
+      "parent": "jump_right",
+      "spacer": -8,
+      "used by": [
+        ["0x4D", 3],
+        ["0xC7", 3]
+      ]
+    },
+
+    "jump_right4": {
+      "parent": "jump_right",
+      "spacer": -8,
+      "used by": [
+        ["0x4D", 4],
+        ["0xC7", 4]
+      ]
+    },
+
+    "jump_right5": {
+      "parent": "jump_right",
+      "spacer": -8,
+      "used by": [
+        ["0x4D", 5],
+        ["0xC7", 5]
+      ]
+    },
+
+    "jump_right_land": {
+      "description": "while facing right, Samus makes contact with the ground after a regular jump or a fall",
+      "dimensions": [-13, -27, 19, 29],
+      "spacer": -8,
+      "parent": "jump_right",
+      "used by": [
+        ["0xA4", 0]
+      ]
+    },
+
+    "jump_right_land1": {
+      "dimensions": [-13, -27, 19, 29],
+      "spacer": -8,
+      "parent": "jump_right_land",
+      "used by": [
+        ["0xA4", 1]
+      ]
+    },
+
+    "jump_left_aim_up_begin": {
+      "description": "As Samus begins to jump while aiming upwards, she bends her knees to push off of the ground",
+      "dimensions": [-19, -27, 13, 29],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "spacer": 51,
+      "used by": [
+        ["0x56", 0]
+      ]
+    },
+
+    "jump_left_aim_up": {
+      "description": "When Samus jumps and shoots upwards",
+      "dimensions": [-19, -27, 13, 29],
+      "extra area": [
+        [-27, -27, -19, 5]
+      ],
+      "spacer": 176,
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x16", 0]
+      ]
+    },
+
+    "jump_left_aim_up1": {
+      "parent": "jump_left_aim_up_begin",
+      "used by": [
+        ["0x16", 1]
+      ]
+    },
+
+    "jump_left_aim_up_land": {
+      "description": "while facing left and aiming up, Samus makes contact with the ground after a jump or a fall",
+      "parent": "jump_left_aim_up_begin",
+      "spacer": 8,
+      "used by": [
+        ["0xE1", 0]
+      ]
+    },
+
+    "jump_left_aim_up_land1": {
+      "parent": "jump_left_aim_up_land",
+      "spacer": 8,
+      "used by": [
+        ["0xE1", 1]
+      ]
+    },
+
+    "jump_right_aim_up_begin": {
+      "description": "As Samus begins to jump while aiming upwards, she bends her knees to push off of the ground",
+      "dimensions": [-13, -27, 19, 29],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "spacer": -51,
+      "used by": [
+        ["0x55", 0]
+      ]
+    },
+
+    "jump_right_aim_up": {
+      "description": "When Samus jumps and shoots upwards",
+      "dimensions": [-13, -27, 19, 29],
+      "extra area": [
+        [19, -27, 27, 5]
+      ],
+      "spacer": -176,
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x15", 0]
+      ]
+    },
+
+    "jump_right_aim_up1": {
+      "dimensions": [-13, -27, 19, 29],
+      "parent": "jump_right_aim_up_begin",
+      "used by": [
+        ["0x15", 1]
+      ]
+    },
+
+    "jump_right_aim_up_land": {
+      "description": "while facing right and aiming up, Samus makes contact with the ground after a jump or a fall",
+      "parent": "jump_right_aim_up_begin",
+      "spacer": -8,
+      "used by": [
+        ["0xE0", 0]
+      ]
+    },
+
+    "jump_right_aim_up_land1": {
+      "parent": "jump_right_aim_up_land",
+      "spacer": -8,
+      "used by": [
+        ["0xE0", 1]
+      ]
+    },
+
+    "jump_left_aim_diag_up_begin": {
+      "description": "As Samus begins to jump while aiming diagonally upwards, she bends her knees to push off of the ground",
+      "parent": "jump_left_aim_diag_up",
+      "used by": [
+        ["0x58", 0]
+      ]
+    },
+
+    "jump_left_aim_diag_up": {
+      "description": "When Samus jumps and shoots diagonally upwards",
+      "dimensions": [-19, -27, 13, 29],
+      "extra area": [
+        [-27, -27, -19, 5]
+      ],
+      "spacer": 168,
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x6A", 0]
+      ]
+    },
+
+    "jump_left_aim_diag_up1": {
+      "parent": "jump_left_aim_diag_up",
+      "used by": [
+        ["0x6A", 1]
+      ]
+    },
+
+    "jump_left_aim_diag_up_land": {
+      "description": "while facing left and aiming diagonally up, Samus makes contact with the ground after a jump or a fall",
+      "parent": "jump_left_aim_diag_up",
+      "used by": [
+        ["0xE3", 0]
+      ]
+    },
+
+    "jump_left_aim_diag_up_land1": {
+      "parent": "jump_left_aim_diag_up_land",
+      "used by": [
+        ["0xE3", 1]
+      ]
+    },
+
+    "jump_right_aim_diag_up_begin": {
+      "description": "As Samus begins to jump while aiming diagonally upwards, she bends her knees to push off of the ground",
+      "parent": "jump_right_aim_diag_up",
+      "used by": [
+        ["0x57", 0]
+      ]
+    },
+
+    "jump_right_aim_diag_up": {
+      "description": "When Samus jumps and shoots diagonally upwards",
+      "dimensions": [-13, -27, 19, 29],
+      "extra area": [
+        [19, -27, 27, 5]
+      ],
+      "spacer": -168,
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x69", 0]
+      ]
+    },
+
+    "jump_right_aim_diag_up1": {
+      "parent": "jump_right_aim_diag_up",
+      "used by": [
+        ["0x69", 1]
+      ]
+    },
+
+    "jump_right_aim_diag_up_land": {
+      "description": "while facing right and aiming diagonally up, Samus makes contact with the ground after a jump or a fall",
+      "parent": "jump_right_aim_diag_up",
+      "used by": [
+        ["0xE2", 0]
+      ]
+    },
+
+    "jump_right_aim_diag_up_land1": {
+      "parent": "jump_right_aim_diag_up_land",
+      "used by": [
+        ["0xE2", 1]
+      ]
+    },
+
+    "jump_left_shoot": {
+      "description": "When Samus jumps and shoots",
+      "parent": "jump_left",
+      "spacer": 210,
+      "used by": [
+        ["0x14", 0],
+        ["0x52", 0]
+      ]
+    },
+
+    "jump_left_shoot1": {
+      "parent": "jump_left_shoot",
+      "spacer": 8,
+      "used by": [
+        ["0x14", 1],
+        ["0x52", 1]
+      ]
+    },
+
+    "jump_left_shoot_land": {
+      "description": "while facing left and shooting, Samus makes contact with the ground after a jump or a fall.  Also used for falling out of crystal flash.",
+      "parent": "jump_left_shoot",
+      "spacer": 8,
+      "used by": [
+        ["0xE7", 0],
+        ["0xD4", 14],
+        ["0xD8", 3]
+      ]
+    },
+
+    "jump_left_shoot_land1": {
+      "parent": "jump_left_shoot_land",
+      "spacer": 8,
+      "used by": [
+        ["0xE7", 1]
+      ]
+    },
+
+    "jump_right_shoot": {
+      "description": "When Samus jumps and shoots",
+      "parent": "jump_right",
+      "spacer": -210,
+      "used by": [
+        ["0x13", 0],
+        ["0x51", 0]
+      ]
+    },
+
+    "jump_right_shoot1": {
+      "parent": "jump_right_shoot",
+      "spacer": -8,
+      "used by": [
+        ["0x13", 1],
+        ["0x51", 1]
+      ]
+    },
+
+    "jump_right_shoot_land": {
+      "description": "while facing right and shooting, Samus makes contact with the ground after a jump or a fall.  Also used for falling out of crystal flash.",
+      "parent": "jump_right_shoot",
+      "spacer": -8,
+      "used by": [
+        ["0xE6", 0],
+        ["0xD3", 14],
+        ["0xD7", 3]
+      ]
+    },
+
+    "jump_right_shoot_land1": {
+      "parent": "jump_right_shoot_land",
+      "spacer": -8,
+      "used by": [
+        ["0xE6", 1]
+      ]
+    },
+
+    "jump_left_aim_diag_down_begin": {
+      "description": "As Samus begins to jump while aiming diagonally upwards, she bends her knees to push off of the ground",
+      "parent": "jump_left_aim_diag_down",
+      "used by": [
+        ["0x5A", 0]
+      ]
+    },
+
+    "jump_left_aim_diag_down": {
+      "description": "When Samus jumps and shoots diagonally downwards",
+      "dimensions": [-19, -27, 13, 29],
+      "extra area": [
+        [-27, -11, -19, 21]
+      ],
+      "spacer": 168,
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x6C", 0]
+      ]
+    },
+
+    "jump_left_aim_diag_down1": {
+      "parent": "jump_left_aim_diag_down",
+      "used by": [
+        ["0x6C", 1]
+      ]
+    },
+
+    "jump_left_aim_diag_down_land": {
+      "description": "while facing left and aiming diagonally downwards (or downwards), Samus makes contact with the ground after a jump or a fall",
+      "parent": "jump_left_aim_diag_down",
+      "used by": [
+        ["0xE5", 0]
+      ]
+    },
+
+    "jump_left_aim_diag_down_land1": {
+      "parent": "jump_left_aim_diag_down_land",
+      "used by": [
+        ["0xE5", 1]
+      ]
+    },
+
+    "jump_right_aim_diag_down_begin": {
+      "description": "As Samus begins to jump while aiming diagonally upwards, she bends her knees to push off of the ground",
+      "parent": "jump_right_aim_diag_down",
+      "used by": [
+        ["0x59", 0]
+      ]
+    },
+
+    "jump_right_aim_diag_down": {
+      "description": "When Samus jumps and shoots diagonally downwards",
+      "dimensions": [-13, -27, 19, 29],
+      "extra area": [
+        [19, -11, 27, 21]
+      ],
+      "spacer": -168,
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x6B", 0]
+      ]
+    },
+
+    "jump_right_aim_diag_down1": {
+      "parent": "jump_right_aim_diag_down",
+      "used by": [
+        ["0x6B", 1]
+      ]
+    },
+
+    "jump_right_aim_diag_down_land": {
+      "description": "while facing right and aiming diagonally downwards (or downwards), Samus makes contact with the ground after a jump or a fall",
+      "parent": "jump_right_aim_diag_down",
+      "used by": [
+        ["0xE4", 0]
+      ]
+    },
+
+    "jump_right_aim_diag_down_land1": {
+      "parent": "jump_right_aim_diag_down_land",
+      "used by": [
+        ["0xE4", 1]
+      ]
+    },
+
+    "jump_left_aim_down": {
+      "description": "When Samus jumps and shoots downwards",
+      "parent": "jump_left",
+      "spacer": 261,
+      "used by": [
+        ["0x18", 0]
+      ]
+    },
+
+    "jump_left_aim_down1": {
+      "parent": "jump_left_aim_down",
+      "spacer": 8,
+      "used by": [
+        ["0x18", 1]
+      ]
+    },
+
+    "jump_right_aim_down": {
+      "description": "When Samus jumps and shoots downwards",
+      "parent": "jump_right",
+      "spacer": -261,
+      "used by": [
+        ["0x17", 0]
+      ]
+    },
+
+    "jump_right_aim_down1": {
+      "parent": "jump_right_aim_down",
+      "spacer": -8,
+      "used by": [
+        ["0x17", 1]
+      ]
+    },
+
+    "jump_turn_left": {
+      "description": "While jumping, Samus is turning from right to left, or left to right, and is presently facing 'more left'",
+      "parent": "jump_turn_neutral",
+      "used by": [
+        ["0x2F", 2],
+        ["0x30", 0]
+      ]
+    },
+
+    "jump_turn_neutral": {
+      "description": "While jumping, Samus is turning from right to left, or left to right, and is presently facing 'forward'",
+      "dimensions": [-16, -27, 16, 29],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x2F", 1],
+        ["0x30", 1]
+      ]
+    },
+
+    "jump_turn_right": {
+      "description": "While jumping, Samus is turning from right to left, or left to right, and is presently facing 'more right'",
+      "parent": "jump_turn_neutral",
+      "used by": [
+        ["0x2F", 0],
+        ["0x30", 2]
+      ]
+    },
+
+    "jump_turn_left_aim_up": {
+      "description": "While jumping and aiming up (or diag up), Samus is turning from right to left, or left to right, and is presently facing 'more left'",
+      "parent": "jump_turn_neutral_aim_up",
+      "used by": [
+        ["0x8F", 2],
+        ["0x90", 0],
+        ["0x9E", 2],
+        ["0x9F", 0]
+      ]
+    },
+
+    "jump_turn_neutral_aim_up": {
+      "description": "While jumping and aiming up (or diag up), Samus is turning from right to left, or left to right, and is presently facing 'forward'",
+      "parent": "jump_turn_neutral",
+      "used by": [
+        ["0x8F", 1],
+        ["0x90", 1],
+        ["0x9E", 1],
+        ["0x9F", 1]
+      ]
+    },
+
+    "jump_turn_right_aim_up": {
+      "description": "While jumping and aiming up (or diag up), Samus is turning from right to left, or left to right, and is presently facing 'more right'",
+      "parent": "jump_turn_neutral_aim_up",
+      "used by": [
+        ["0x8F", 0],
+        ["0x90", 2],
+        ["0x9E", 0],
+        ["0x9F", 2]
+      ]
+    },
+
+    "jump_turn_left_aim_down": {
+      "description": "While jumping and aiming down (or diag down), Samus is turning from right to left, or left to right, and is presently facing 'more left'",
+      "parent": "jump_turn_neutral_aim_down",
+      "used by": [
+        ["0x91", 2],
+        ["0x92", 0]
+      ]
+    },
+
+    "jump_turn_neutral_aim_down": {
+      "description": "While jumping and aiming down (or diag down), Samus is turning from right to left, or left to right, and is presently facing 'forward'",
+      "parent": "jump_turn_neutral",
+      "used by": [
+        ["0x91", 1],
+        ["0x92", 1]
+      ]
+    },
+
+    "jump_turn_right_aim_down": {
+      "description": "While jumping and aiming down (or diag down), Samus is turning from right to left, or left to right, and is presently facing 'more right'",
+      "parent": "jump_turn_neutral_aim_down",
+      "used by": [
+        ["0x91", 0],
+        ["0x92", 2]
+      ]
+    },
+
+    "fall_left": {
+      "description": "When Samus walks off of a ledge, or if she unmorphs in midair, or if she is falling after being hurt.  At first goes through poses 0-2 but after a long fall transitions to the remaining poses",
+      "dimensions": [-19, -27, 13, 29],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x2A", 0]
+      ],
+      "spacer": 51
+    },
+
+    "fall_left1": {
+      "parent": "fall_left",
+      "spacer": 8,
+      "used by": [
+        ["0x2A", 1]
+      ]
+    },
+
+    "fall_left2": {
+      "parent": "fall_left",
+      "used by": [
+        ["0x2A", 2]
+      ]
+    },
+
+    "fall_left3": {
+      "parent": "fall_left",
+      "used by": [
+        ["0x2A", 5]
+      ]
+    },
+
+    "fall_left4": {
+      "parent": "fall_left",
+      "used by": [
+        ["0x2A", 6]
+      ]
+    },
+
+    "fall_right": {
+      "description": "When Samus walks off of a ledge, or if she unmorphs in midair, or if she is falling after being hurt.  At first goes through poses 0-2 but after a long fall transitions to the remaining poses",
+      "dimensions": [-13, -27, 19, 29],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x29", 0]
+      ],
+      "spacer": -51
+    },
+
+    "fall_right1": {
+      "parent": "fall_right",
+      "spacer": -8,
+      "used by": [
+        ["0x29", 1]
+      ]
+    },
+
+    "fall_right2": {
+      "parent": "fall_right",
+      "used by": [
+        ["0x29", 2]
+      ]
+    },
+
+    "fall_right3": {
+      "parent": "fall_right",
+      "used by": [
+        ["0x29", 5]
+      ]
+    },
+
+    "fall_right4": {
+      "parent": "fall_right",
+      "used by": [
+        ["0x29", 6]
+      ]
+    },
+
+    "fall_left_aim_up": {
+      "description": "When Samus falls and shoots upwards",
+      "dimensions": [-19, -27, 13, 29],
+      "extra area": [
+        [-27, -27, -19, 5]
+      ],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x2C", 0]
+      ],
+      "spacer": 51
+    },
+
+    "fall_left_aim_up1": {
+      "dimensions": [-19, -27, 13, 29],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x2C", 1]
+      ]
+    },
+
+    "fall_left_aim_up2": {
+      "parent": "fall_left_aim_up1",
+      "used by": [
+        ["0x2C", 2]
+      ],
+      "spacer": 68
+    },
+
+    "fall_right_aim_up": {
+      "description": "When Samus falls and shoots upwards",
+      "dimensions": [-13, -27, 19, 29],
+      "extra area": [
+        [19, -27, 27, 5]
+      ],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x2B", 0]
+      ],
+      "spacer": -51
+    },
+
+    "fall_right_aim_up1": {
+      "dimensions": [-13, -27, 19, 29],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x2B", 1]
+      ]
+    },
+
+    "fall_right_aim_up2": {
+      "parent": "fall_right_aim_up1",
+      "used by": [
+        ["0x2B", 2]
+      ],
+      "spacer": -68
+    },
+
+    "fall_left_aim_diag_up": {
+      "description": "When Samus falls and shoots diagonally upwards",
+      "parent": "fall_left",
+      "used by": [
+        ["0x6E", 0]
+      ]
+    },
+
+    "fall_left_aim_diag_up1": {
+      "parent": "fall_left_aim_diag_up",
+      "spacer": 8,
+      "used by": [
+        ["0x6E", 1]
+      ]
+    },
+
+    "fall_left_aim_diag_up2": {
+      "parent": "fall_left_aim_diag_up",
+      "used by": [
+        ["0x6E", 2]
+      ],
+      "spacer": 68
+    },
+
+    "fall_right_aim_diag_up": {
+      "description": "When Samus falls and shoots diagonally upwards",
+      "parent": "fall_right",
+      "used by": [
+        ["0x6D", 0]
+      ]
+    },
+
+    "fall_right_aim_diag_up1": {
+      "parent": "fall_right_aim_diag_up",
+      "spacer": -8,
+      "used by": [
+        ["0x6D", 1]
+      ]
+    },
+
+    "fall_right_aim_diag_up2": {
+      "parent": "fall_right_aim_diag_up",
+      "used by": [
+        ["0x6D", 2]
+      ],
+      "spacer": -68
+    },
+
+    "fall_left_shoot": {
+      "description": "When Samus walks off of a ledge, or if she unmorphs in midair, or if she is falling after being hurt AND is shooting.  At first goes through poses 0-2 but after a long fall transitions to the remaining poses",
+      "parent": "fall_left",
+      "used by": [
+        ["0x68", 0]
+      ]
+    },
+
+    "fall_left_shoot1": {
+      "parent": "fall_left_shoot",
+      "spacer": 8,
+      "used by": [
+        ["0x68", 1]
+      ]
+    },
+
+    "fall_left_shoot2": {
+      "parent": "fall_left_shoot",
+      "used by": [
+        ["0x68", 2]
+      ]
+    },
+
+    "fall_left_shoot3": {
+      "parent": "fall_left_shoot",
+      "used by": [
+        ["0x68", 5]
+      ]
+    },
+
+    "fall_left_shoot4": {
+      "parent": "fall_left_shoot",
+      "used by": [
+        ["0x68", 6]
+      ]
+    },
+
+    "fall_right_shoot": {
+      "description": "When Samus walks off of a ledge, or if she unmorphs in midair, or if she is falling after being hurt AND is shooting.  At first goes through poses 0-2 but after a long fall transitions to the remaining poses",
+      "parent": "fall_right",
+      "used by": [
+        ["0x67", 0]
+      ]
+    },
+
+    "fall_right_shoot1": {
+      "parent": "fall_right_shoot",
+      "spacer": -8,
+      "used by": [
+        ["0x67", 1]
+      ]
+    },
+
+    "fall_right_shoot2": {
+      "parent": "fall_right_shoot",
+      "used by": [
+        ["0x67", 2]
+      ]
+    },
+
+    "fall_right_shoot3": {
+      "parent": "fall_right_shoot",
+      "used by": [
+        ["0x67", 5]
+      ]
+    },
+
+    "fall_right_shoot4": {
+      "parent": "fall_right_shoot",
+      "used by": [
+        ["0x67", 6]
+      ]
+    },
+
+    "fall_left_aim_diag_down": {
+      "description": "When Samus falls and shoots diagonally downwards",
+      "parent": "fall_left",
+      "used by": [
+        ["0x70", 0]
+      ]
+    },
+
+    "fall_left_aim_diag_down1": {
+      "parent": "fall_left_aim_diag_down",
+      "spacer": 8,
+      "used by": [
+        ["0x70", 1]
+      ]
+    },
+
+    "fall_left_aim_diag_down2": {
+      "parent": "fall_left_aim_diag_down",
+      "used by": [
+        ["0x70", 2]
+      ],
+      "spacer": 68
+    },
+
+    "fall_right_aim_diag_down": {
+      "description": "When Samus falls and shoots diagonally downwards",
+      "parent": "fall_right",
+      "used by": [
+        ["0x6F", 0]
+      ]
+    },
+
+    "fall_right_aim_diag_down1": {
+      "parent": "fall_right_aim_diag_down",
+      "spacer": -8,
+      "used by": [
+        ["0x6F", 1]
+      ]
+    },
+
+    "fall_right_aim_diag_down2": {
+      "parent": "fall_right_aim_diag_down",
+      "used by": [
+        ["0x6F", 2]
+      ],
+      "spacer": -68
+    },
+
+    "fall_left_aim_down": {
+      "description": "When Samus falls and shoots downwards",
+      "parent": "fall_left",
+      "used by": [
+        ["0x2E", 0]
+      ],
+      "spacer": 51
+    },
+
+    "fall_left_aim_down1": {
+      "parent": "fall_left_aim_down",
+      "spacer": 8,
+      "used by": [
+        ["0x2E", 1]
+      ]
+    },
+
+    "fall_right_aim_down": {
+      "description": "When Samus falls and shoots downwards",
+      "parent": "fall_right",
+      "used by": [
+        ["0x2D", 0]
+      ],
+      "spacer": -51
+    },
+
+    "fall_right_aim_down1": {
+      "parent": "fall_right_aim_down",
+      "spacer": -8,
+      "used by": [
+        ["0x2D", 1]
+      ]
+    },
+
+    "roll_out_left": {
+      "description": "Samus is damage boosting.  She faces right but because of damage she jumps to the left and rolls out.",
+      "dimensions": [-19, -24, 21, 24],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x50", 0]
+      ]
+    },
+
+    "roll_out_left1": {
+      "dimensions": [-20, -24, 20, 24],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x50", 1]
+      ]
+    },
+
+    "roll_out_left2": {
+      "parent": "roll_out_left1",
+      "used by": [
+        ["0x50", 2]
+      ]
+    },
+
+    "roll_out_left3": {
+      "parent": "roll_out_left1",
+      "used by": [
+        ["0x50", 3]
+      ]
+    },
+
+    "roll_out_left4": {
+      "parent": "roll_out_left1",
+      "used by": [
+        ["0x50", 4]
+      ]
+    },
+
+    "roll_out_left5": {
+      "parent": "roll_out_left1",
+      "used by": [
+        ["0x50", 5]
+      ]
+    },
+
+    "roll_out_left6": {
+      "parent": "roll_out_left1",
+      "used by": [
+        ["0x50", 6]
+      ]
+    },
+
+    "roll_out_left7": {
+      "parent": "roll_out_left1",
+      "used by": [
+        ["0x50", 7]
+      ]
+    },
+
+    "roll_out_left8": {
+      "parent": "roll_out_left1",
+      "used by": [
+        ["0x50", 8]
+      ]
+    },
+
+    "roll_out_left9": {
+      "parent": "roll_out_left1",
+      "used by": [
+        ["0x50", 9]
+      ]
+    },
+
+    "roll_out_right": {
+      "description": "Samus is damage boosting.  She faces left but because of damage she jumps to the right and rolls out.",
+      "dimensions": [-21, -24, 19, 24],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x4F", 0]
+      ]
+    },
+
+    "roll_out_right1": {
+      "dimensions": [-20, -24, 20, 24],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x4F", 1]
+      ]
+    },
+
+    "roll_out_right2": {
+      "parent": "roll_out_right1",
+      "used by": [
+        ["0x4F", 2]
+      ]
+    },
+
+    "roll_out_right3": {
+      "parent": "roll_out_right1",
+      "used by": [
+        ["0x4F", 3]
+      ]
+    },
+
+    "roll_out_right4": {
+      "parent": "roll_out_right1",
+      "used by": [
+        ["0x4F", 4]
+      ]
+    },
+
+    "roll_out_right5": {
+      "parent": "roll_out_right1",
+      "used by": [
+        ["0x4F", 5]
+      ]
+    },
+
+    "roll_out_right6": {
+      "parent": "roll_out_right1",
+      "used by": [
+        ["0x4F", 6]
+      ]
+    },
+
+    "roll_out_right7": {
+      "parent": "roll_out_right1",
+      "used by": [
+        ["0x4F", 7]
+      ]
+    },
+
+    "roll_out_right8": {
+      "parent": "roll_out_right1",
+      "used by": [
+        ["0x4F", 8]
+      ]
+    },
+
+    "roll_out_right9": {
+      "parent": "roll_out_right1",
+      "used by": [
+        ["0x4F", 9]
+      ]
+    },
+
+    "morph_left": {
+      "description": "When Samus is transitioning to or from the morphball, and when she converts between morphball and crystal flash",
+      "dimensions": [-16, -19, 16, 13],
+      "force": "upper",
+      "shift": [0, -4],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x38", 0],
+        ["0x3E", 1],
+        ["0xD8", 2],
+        ["0xE9", 1],
+        ["0xD4", 1],
+        ["0xD4", 3],
+        ["0xD4", 12],
+        ["0xD4", 13]
+      ]
+    },
+
+    "morph_left1": {
+      "description": "When Samus is transitioning to or from the morphball, and when she converts between morphball and crystal flash",
+      "dimensions": [-16, -13, 16, 11],
+      "force": "upper",
+      "shift": [0, -2],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x38", 1],
+        ["0x3E", 0],
+        ["0xD8", 1],
+        ["0xE9", 0],
+        ["0xD4", 0]
+      ]
+    },
+
+    "morph_right": {
+      "description": "When Samus is transitioning to or from the morphball, and when she converts between morphball and crystal flash",
+      "dimensions": [-16, -19, 16, 13],
+      "shift": [0, -4],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x37", 0],
+        ["0x3D", 1],
+        ["0xD7", 2],
+        ["0xE8", 2],
+        ["0xD3", 1],
+        ["0xD3", 3],
+        ["0xD3", 12],
+        ["0xD3", 13]
+      ]
+    },
+
+    "morph_right1": {
+      "description": "When Samus is transitioning to or from the morphball, and when she converts between morphball and crystal flash",
+      "dimensions": [-16, -13, 16, 11],
+      "shift": [0, -2],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x37", 1],
+        ["0x3D", 0],
+        ["0xD7", 1],
+        ["0xE8", 1],
+        ["0xD3", 0]
+      ]
+    },
+
+    "bonk_left": {
+      "description": "Samus is facing left and takes damage but does not boost.  This pose is also held for a long time leading up to the death animation.",
+      "dimensions": [-19, -24, 13, 32],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x54", 0],
+        ["0xD8", 4],
+        ["0xE9", 2],
+        ["0xE9", 4]
+      ]
+    },
+
+    "bonk_left1": {
+      "description": "Samus is facing left and takes damage but does not boost.  This pose is also held for a long time leading up to the death animation.",
+      "parent": "bonk_left",
+      "used by": [
+        ["0x54", 1],
+        ["0xD8", 5]
+      ]
+    },
+
+    "bonk_right": {
+      "description": "Samus is facing right and takes damage but does not boost.  This pose is also held for a long time leading up to the death animation.",
+      "dimensions": [-13, -24, 19, 32],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x53", 0],
+        ["0xD7", 4],
+        ["0xE8", 3],
+        ["0xE8", 5]
+      ]
+    },
+
+    "bonk_right1": {
+      "description": "Samus is facing right and takes damage but does not boost.  This pose is also held for a long time leading up to the death animation.",
+      "parent": "bonk_right",
+      "used by": [
+        ["0x53", 1],
+        ["0xD7", 5]
+      ]
+    },
+
+    "crouch_left_aim_up": {
+      "description": "Samus is crouching and aims straight up",
+      "dimensions": [-19, -32, 13, 16],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x86", 1]
+      ]
+    },
+
+    "crouch_left_aim_diag_up": {
+      "description": "Samus is crouching and aims diagonally up, or is lifting the cannon to aim directly up",
+      "dimensions": [-27, -24, 13, 16],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x72", 0],
+        ["0x86", 0]
+      ]
+    },
+
+    "crouch_left_aim_diag_down": {
+      "description": "Samus is crouching and aims diagonally down",
+      "dimensions": [-27, -24, 13, 16],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x74", 0],
+        ["0xB7", 0]
+      ]
+    },
+
+    "crouch_right_aim_up": {
+      "description": "Samus is crouching and aims straight up",
+      "dimensions": [-13, -32, 19, 16],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x85", 1]
+      ]
+    },
+
+    "crouch_right_aim_diag_up": {
+      "description": "Samus is crouching and aims diagonally up, or is lifting the cannon to aim directly up",
+      "dimensions": [-13, -24, 27, 16],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x71", 0],
+        ["0x85", 0]
+      ]
+    },
+
+    "crouch_right_aim_diag_down": {
+      "description": "Samus is crouching and aims diagonally down",
+      "dimensions": [-13, -24, 27, 16],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x73", 0],
+        ["0xB6", 0]
+      ]
+    },
+
+    "sparks_left": {
+      "description": "When using screw attack, a halo of sparks surrounds Samus, and pulses every few frames",
+      "parent": "sparks_right",
+      "used by": [
+        ["0x82", 2],
+        ["0x82", 3],
+        ["0x84", 23],
+        ["0x84", 24],
+        ["0x84", 25],
+        ["0x82", 1],
+        ["0x82", 24],
+        ["0x82", 29],
+        ["0x82", 30],
+        ["0x82", 31],
+        ["0x84", 50],
+        ["0x84", 51],
+        ["0x84", 52]
+      ]
+    },
+
+    "sparks_left1": {
+      "parent": "sparks_left",
+      "used by": [
+        ["0x82", 7],
+        ["0x82", 8],
+        ["0x82", 9],
+        ["0x84", 29],
+        ["0x84", 30],
+        ["0x84", 31],
+        ["0x82", 35],
+        ["0x82", 36],
+        ["0x82", 37],
+        ["0x84", 56],
+        ["0x84", 57],
+        ["0x84", 58]
+      ]
+    },
+
+    "sparks_left2": {
+      "parent": "sparks_left",
+      "used by": [
+        ["0x82", 13],
+        ["0x82", 14],
+        ["0x82", 15],
+        ["0x84", 35],
+        ["0x84", 36],
+        ["0x84", 37],
+        ["0x82", 41],
+        ["0x82", 42],
+        ["0x82", 43],
+        ["0x84", 62],
+        ["0x84", 63],
+        ["0x84", 64]
+      ]
+    },
+
+    "sparks_left3": {
+      "parent": "sparks_left",
+      "used by": [
+        ["0x82", 19],
+        ["0x82", 20],
+        ["0x82", 21],
+        ["0x84", 41],
+        ["0x84", 42],
+        ["0x84", 43],
+        ["0x82", 47],
+        ["0x82", 48],
+        ["0x82", 49],
+        ["0x84", 68],
+        ["0x84", 69],
+        ["0x84", 70]
+      ]
+    },
+
+    "sparks_right": {
+      "description": "When using screw attack, a halo of sparks surrounds Samus, and pulses every few frames",
+      "dimensions": [-12, -18, 12, -10],
+      "extra area": [
+        [-12, 10, 12, 18],
+        [-18, -11, -10, 13],
+        [10, -11, 18, 13],
+        [-16, -15, -8, -7],
+        [8, -15, 16, -7],
+        [-15, 7, -7, 15],
+        [7, 7, 15, 15]
+      ],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "force": "upper",
+      "import": "upper",
+      "used by": [
+        ["0x81", 2],
+        ["0x81", 3],
+        ["0x83", 23],
+        ["0x83", 24],
+        ["0x83", 25],
+        ["0x81", 1],
+        ["0x81", 25],
+        ["0x81", 29],
+        ["0x81", 30],
+        ["0x81", 31],
+        ["0x83", 50],
+        ["0x83", 51],
+        ["0x83", 52]
+      ]
+    },
+
+    "sparks_right1": {
+      "parent": "sparks_right",
+      "used by": [
+        ["0x81", 7],
+        ["0x81", 8],
+        ["0x81", 9],
+        ["0x83", 29],
+        ["0x83", 30],
+        ["0x83", 31],
+        ["0x81", 35],
+        ["0x81", 36],
+        ["0x81", 37],
+        ["0x83", 56],
+        ["0x83", 57],
+        ["0x83", 58]
+      ]
+    },
+
+    "sparks_right2": {
+      "parent": "sparks_right",
+      "used by": [
+        ["0x81", 13],
+        ["0x81", 14],
+        ["0x81", 15],
+        ["0x83", 35],
+        ["0x83", 36],
+        ["0x83", 37],
+        ["0x81", 41],
+        ["0x81", 42],
+        ["0x81", 43],
+        ["0x83", 62],
+        ["0x83", 63],
+        ["0x83", 64]
+      ]
+    },
+
+    "sparks_right3": {
+      "parent": "sparks_right",
+      "used by": [
+        ["0x81", 19],
+        ["0x81", 20],
+        ["0x81", 21],
+        ["0x83", 41],
+        ["0x83", 42],
+        ["0x83", 43],
+        ["0x81", 47],
+        ["0x81", 48],
+        ["0x81", 49],
+        ["0x83", 68],
+        ["0x83", 69],
+        ["0x83", 70]
+      ]
+    },
+
+    "fall_turn_left": {
+      "description": "While jumping, Samus is turning from right to left, or left to right, and is presently facing 'more left'",
+      "parent": "fall_turn_neutral",
+      "used by": [
+        ["0x87", 2],
+        ["0x88", 0]
+      ]
+    },
+
+    "fall_turn_neutral": {
+      "description": "While jumping, Samus is turning from right to left, or left to right, and is presently facing 'forward'",
+      "dimensions": [-16, -27, 16, 29],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x87", 1],
+        ["0x88", 1]
+      ]
+    },
+
+    "fall_turn_right": {
+      "description": "While jumping, Samus is turning from right to left, or left to right, and is presently facing 'more right'",
+      "parent": "fall_turn_neutral",
+      "used by": [
+        ["0x87", 0],
+        ["0x88", 2]
+      ]
+    },
+
+    "fall_turn_left_aim_up": {
+      "description": "While falling and aiming up (or diag up), Samus is turning from right to left, or left to right, and is presently facing 'more left'",
+      "parent": "fall_turn_neutral_aim_up",
+      "used by": [
+        ["0x93", 2],
+        ["0x94", 0],
+        ["0xA0", 2],
+        ["0xA1", 0]
+      ]
+    },
+
+    "fall_turn_neutral_aim_up": {
+      "description": "While falling and aiming up (or diag up), Samus is turning from right to left, or left to right, and is presently facing 'forward'",
+      "parent": "fall_turn_neutral",
+      "used by": [
+        ["0x93", 1],
+        ["0x94", 1],
+        ["0xA0", 1],
+        ["0xA1", 1]
+      ]
+    },
+
+    "fall_turn_right_aim_up": {
+      "description": "While falling and aiming up (or diag up), Samus is turning from right to left, or left to right, and is presently facing 'more right'",
+      "parent": "fall_turn_neutral_aim_up",
+      "used by": [
+        ["0x93", 0],
+        ["0x94", 2],
+        ["0xA0", 0],
+        ["0xA1", 2]
+      ]
+    },
+
+    "fall_turn_left_aim_down": {
+      "description": "While falling and aiming up (or diag up), Samus is turning from right to left, or left to right, and is presently facing 'more left'",
+      "parent": "fall_turn_neutral_aim_down",
+      "used by": [
+        ["0x95", 2],
+        ["0x96", 0]
+      ]
+    },
+
+    "fall_turn_neutral_aim_down": {
+      "description": "While falling and aiming up (or diag up), Samus is turning from right to left, or left to right, and is presently facing 'forward'",
+      "parent": "fall_turn_neutral",
+      "used by": [
+        ["0x95", 1],
+        ["0x96", 1]
+      ]
+    },
+
+    "fall_turn_right_aim_down": {
+      "description": "While falling and aiming up (or diag up), Samus is turning from right to left, or left to right, and is presently facing 'more right'",
+      "parent": "fall_turn_neutral_aim_down",
+      "used by": [
+        ["0x95", 0],
+        ["0x96", 2]
+      ]
+    },
+
+    "crouch_turn_left_aim_up": {
+      "description": "While crouching and aiming up (or diag up), Samus is turning from right to left, or left to right, and is presently facing 'more right'",
+      "parent": "crouch_turn_neutral_aim_up",
+      "used by": [
+        ["0x97", 2],
+        ["0x98", 0],
+        ["0xA2", 2],
+        ["0xA3", 0]
+      ]
+    },
+
+    "crouch_turn_neutral_aim_up": {
+      "description": "While crouching and aiming up (or diag up), Samus is turning from right to left, or left to right, and is presently facing 'more right'",
+      "parent": "crouch_turn_neutral",
+      "used by": [
+        ["0x97", 1],
+        ["0x98", 1],
+        ["0xA2", 1],
+        ["0xA3", 1]
+      ]
+    },
+
+    "crouch_turn_right_aim_up": {
+      "description": "While crouching and aiming up (or diag up), Samus is turning from right to left, or left to right, and is presently facing 'more right'",
+      "parent": "crouch_turn_neutral_aim_up",
+      "used by": [
+        ["0x97", 0],
+        ["0x98", 2],
+        ["0xA2", 0],
+        ["0xA3", 2]
+      ]
+    },
+
+    "crouch_turn_left_aim_down": {
+      "description": "While crouching and aiming diagonally down, Samus is turning from right to left, or left to right, and is presently facing 'more right'",
+      "parent": "crouch_turn_neutral_aim_down",
+      "used by": [
+        ["0x99", 2],
+        ["0x9A", 0]
+      ]
+    },
+
+    "crouch_turn_neutral_aim_down": {
+      "description": "While crouching and aiming diagonally down, Samus is turning from right to left, or left to right, and is presently facing 'more right'",
+      "parent": "crouch_turn_neutral",
+      "used by": [
+        ["0x99", 1],
+        ["0x9A", 1]
+      ]
+    },
+
+    "crouch_turn_right_aim_down": {
+      "description": "While crouching and aiming diagonally down, Samus is turning from right to left, or left to right, and is presently facing 'more right'",
+      "parent": "crouch_turn_neutral_aim_down",
+      "used by": [
+        ["0x99", 0],
+        ["0x9A", 2]
+      ]
+    },
+
+    "grabbed_left": {
+      "description": "Caught by Draygon",
+      "dimensions": [-19, -24, 13, 32],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0xBA", 0]
+      ]
+    },
+
+    "grabbed_left_aim_diag_up": {
+      "description": "Caught by Draygon and aiming diagonally upwards",
+      "parent": "grabbed_left",
+      "used by": [
+        ["0xBB", 0]
+      ]
+    },
+
+    "grabbed_left_shoot": {
+      "description": "Caught by Draygon and firing forwards",
+      "parent": "grabbed_left",
+      "used by": [
+        ["0xBC", 0]
+      ]
+    },
+
+    "grabbed_left_aim_diag_down": {
+      "description": "Caught by Draygon and aiming diagonally downwards",
+      "parent": "grabbed_left",
+      "used by": [
+        ["0xBD", 0]
+      ]
+    },
+
+    "grabbed_left_struggling": {
+      "description": "Caught by Draygon and trying to get away by moving the D-pad",
+      "parent": "grabbed_left",
+      "used by": [
+        ["0xBE", 0]
+      ]
+    },
+
+    "grabbed_left_struggling1": {
+      "parent": "grabbed_left_struggling",
+      "used by": [
+        ["0xBE", 1]
+      ]
+    },
+
+    "grabbed_left_struggling2": {
+      "parent": "grabbed_left_struggling",
+      "used by": [
+        ["0xBE", 2]
+      ]
+    },
+
+    "grabbed_left_struggling3": {
+      "parent": "grabbed_left_struggling",
+      "used by": [
+        ["0xBE", 3]
+      ]
+    },
+
+    "grabbed_left_struggling4": {
+      "parent": "grabbed_left_struggling",
+      "used by": [
+        ["0xBE", 4]
+      ]
+    },
+
+    "grabbed_left_struggling5": {
+      "parent": "grabbed_left_struggling",
+      "used by": [
+        ["0xBE", 5]
+      ]
+    },
+
+    "grabbed_right": {
+      "description": "Caught by Draygon",
+      "dimensions": [-13, -24, 19, 32],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0xEC", 0]
+      ]
+    },
+
+    "grabbed_right_aim_diag_up": {
+      "description": "Caught by Draygon and aiming diagonally upwards",
+      "parent": "grabbed_right",
+      "used by": [
+        ["0xED", 0]
+      ]
+    },
+
+    "grabbed_right_shoot": {
+      "description": "Caught by Draygon and firing forwards",
+      "parent": "grabbed_right",
+      "used by": [
+        ["0xEE", 0]
+      ]
+    },
+
+    "grabbed_right_aim_diag_down": {
+      "description": "Caught by Draygon and aiming diagonally downwards",
+      "parent": "grabbed_right",
+      "used by": [
+        ["0xEF", 0]
+      ]
+    },
+
+    "grabbed_right_struggling": {
+      "description": "Caught by Draygon and trying to get away by moving the D-pad",
+      "parent": "grabbed_right",
+      "used by": [
+        ["0xF0", 0]
+      ]
+    },
+
+    "grabbed_right_struggling1": {
+      "parent": "grabbed_right_struggling",
+      "used by": [
+        ["0xF0", 1]
+      ]
+    },
+
+    "grabbed_right_struggling2": {
+      "parent": "grabbed_right_struggling",
+      "used by": [
+        ["0xF0", 2]
+      ]
+    },
+
+    "grabbed_right_struggling3": {
+      "parent": "grabbed_right_struggling",
+      "used by": [
+        ["0xF0", 3]
+      ]
+    },
+
+    "grabbed_right_struggling4": {
+      "parent": "grabbed_right_struggling",
+      "used by": [
+        ["0xF0", 4]
+      ]
+    },
+
+    "grabbed_right_struggling5": {
+      "parent": "grabbed_right_struggling",
+      "used by": [
+        ["0xF0", 5]
+      ]
+    },
+
+    "crouch_transition_left": {
+      "description": "Samus is transitioning from crouching to standing, or vice versa",
+      "dimensions": [-19, -24, 13, 24],
+      "shift": [0, -8],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x36", 0],
+        ["0x3C", 0],
+        ["0xEB", 5]
+      ]
+    },
+
+    "crouch_transition_left_aim_up": {
+      "description": "Samus is transitioning from crouching to standing, or vice versa, while aiming upwards",
+      "dimensions": [-19, -32, 13, 24],
+      "shift": [0, -8],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0xF2", 0],
+        ["0xF8", 0]
+      ]
+    },
+
+    "crouch_transition_left_aim_diag_up": {
+      "description": "Samus is transitioning from crouching to standing, or vice versa, while aiming diagonally upwards",
+      "dimensions": [-27, -24, 13, 24],
+      "shift": [0, -8],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0xF4", 0],
+        ["0xFA", 0]
+      ]
+    },
+
+    "crouch_transition_left_aim_diag_down": {
+      "description": "Samus is transitioning from crouching to standing, or vice versa, while aiming diagonally downwards",
+      "dimensions": [-27, -24, 13, 24],
+      "shift": [0, -8],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0xF6", 0],
+        ["0xFC", 0]
+      ]
+    },
+
+    "crouch_transition_right": {
+      "description": "Samus is transitioning from crouching to standing, or vice versa",
+      "dimensions": [-13, -24, 19, 24],
+      "shift": [0, -8],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0x35", 0],
+        ["0x3B", 0],
+        ["0xEA", 5],
+        ["0xE8", 14]
+      ]
+    },
+
+    "crouch_transition_right_aim_up": {
+      "description": "Samus is transitioning from crouching to standing, or vice versa, while aiming upwards",
+      "dimensions": [-13, -32, 19, 24],
+      "shift": [0, -8],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0xF1", 0],
+        ["0xF7", 0]
+      ]
+    },
+
+    "crouch_transition_right_aim_diag_up": {
+      "description": "Samus is transitioning from crouching to standing, or vice versa, while aiming diagonally upwards",
+      "dimensions": [-13, -24, 27, 24],
+      "shift": [0, -8],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0xF3", 0],
+        ["0xF9", 0]
+      ]
+    },
+
+    "crouch_transition_right_aim_diag_down": {
+      "description": "Samus is transitioning from crouching to standing, or vice versa, while aiming diagonally downwards",
+      "dimensions": [-13, -24, 27, 24],
+      "shift": [0, -8],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0xF5", 0],
+        ["0xFB", 0]
+      ]
+    },
+
+    "shine_spark_left": {
+      "description": "Samus is shinesparking (i.e. super jumping) either laterally or diagonally",
+      "dimensions": [-16, -20, 24, 20],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0xCA", 0],
+        ["0xCE", 0]
+      ]
+    },
+
+    "shine_spark_right": {
+      "description": "Samus is shinesparking (i.e. super jumping) either laterally or diagonally",
+      "dimensions": [-24, -20, 16, 20],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0xC9", 0],
+        ["0xCD", 0]
+      ]
+    },
+
+    "shine_spark_vertical_left": {
+      "description": "Samus is shinesparking (i.e. super jumping) vertically while facing left",
+      "dimensions": [-16, -24, 16, 24],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0xCC", 0]
+      ]
+    },
+
+    "shine_spark_vertical_right": {
+      "description": "Samus is shinesparking (i.e. super jumping) vertically while facing right",
+      "dimensions": [-16, -24, 16, 24],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0xCB", 0]
+      ]
+    },
+
+    "crystal_flash_left": {
+      "description": "The floating silhouette inside of the crystal flash bubble",
+      "dimensions": [-12, -21, 12, 19],
+      "palette": "0x3C",
+      "import palette interval": [60, 75],
+      "force": "upper",
+      "import": "upper",
+      "used by": [
+        ["0xD4", 6],
+        ["0xD4", 2]
+      ]
+    },
+
+    "crystal_flash_left1": {
+      "parent": "crystal_flash_left",
+      "used by": [
+        ["0xD4", 7]
+      ]
+    },
+
+    "crystal_flash_left2": {
+      "parent": "crystal_flash_left",
+      "used by": [
+        ["0xD4", 8]
+      ]
+    },
+
+    "crystal_flash_left3": {
+      "parent": "crystal_flash_left",
+      "used by": [
+        ["0xD4", 9]
+      ]
+    },
+
+    "crystal_flash_right": {
+      "description": "The floating silhouette inside of the crystal flash bubble",
+      "dimensions": [-12, -21, 12, 19],
+      "palette": "0x3C",
+      "import palette interval": [60, 75],
+      "force": "upper",
+      "import": "upper",
+      "used by": [
+        ["0xD3", 6],
+        ["0xD3", 2]
+      ]
+    },
+
+    "crystal_flash_right1": {
+      "parent": "crystal_flash_right",
+      "used by": [
+        ["0xD3", 7]
+      ]
+    },
+
+    "crystal_flash_right2": {
+      "parent": "crystal_flash_right",
+      "used by": [
+        ["0xD3", 8]
+      ]
+    },
+
+    "crystal_flash_right3": {
+      "parent": "crystal_flash_right",
+      "used by": [
+        ["0xD3", 9]
+      ]
+    },
+
+    "crystal_bubble_left_small": {
+      "parent": "crystal_bubble_left_large",
+      "used by": [
+        ["0xD4", 0],
+        ["0xD4", 13]
+      ]
+    },
+
+    "crystal_bubble_left_medium": {
+      "parent": "crystal_bubble_left_large",
+      "used by": [
+        ["0xD4", 1],
+        ["0xD4", 12]
+      ]
+    },
+
+    "crystal_bubble_left_large": {
+      "description": "The pulsating bubble around crystal flash.  This is duplicated thrice to complete a full circle",
+      "dimensions": [-32, -32, 0, 0],
+      "palette": "0x3C",
+      "import palette interval": [60, 75],
+      "force": "lower",
+      "import": "lower",
+      "used by": [
+        ["0xD4", 2],
+        ["0xD4", 3],
+        ["0xD4", 6],
+        ["0xD4", 7],
+        ["0xD4", 8],
+        ["0xD4", 9]
+      ]
+    },
+
+    "crystal_bubble_right_small": {
+      "parent": "crystal_bubble_right_large",
+      "used by": [
+        ["0xD3", 0],
+        ["0xD3", 13]
+      ]
+    },
+
+    "crystal_bubble_right_medium": {
+      "parent": "crystal_bubble_right_large",
+      "used by": [
+        ["0xD3", 1],
+        ["0xD3", 12]
+      ]
+    },
+
+    "crystal_bubble_right_large": {
+      "description": "The pulsating bubble around crystal flash.  This is duplicated thrice to complete a full circle",
+      "dimensions": [0, -32, 32, 0],
+      "palette": "0x3C",
+      "import palette interval": [60, 75],
+      "force": "lower",
+      "import": "lower",
+      "used by": [
+        ["0xD3", 2],
+        ["0xD3", 3],
+        ["0xD3", 6],
+        ["0xD3", 7],
+        ["0xD3", 8],
+        ["0xD3", 9]
+      ]
+    },
+
+    "grapple_clockwise": {
+      "description": "While swinging forward/clockwise or backwards/counterclockwise (i.e. facing 'left'), the game chooses choose an appropriate angle subject to an 11.25 degree arc.  Upside-down poses are mirrored",
+      "dimensions": [-24, -17, 32, 15],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0xB3", 23],
+        ["0xB3", 39],
+        ["0xB3", 55],
+        ["0xB3", 7]
+      ]
+    },
+
+    "grapple_clockwise1": {
+      "parent": "grapple_clockwise",
+      "dimensions": [-27, -12, 29, 12],
+      "extra area": [
+        [-11, -20, 29, -12],
+        [-27, 12, 21, 20]
+      ],
+      "used by": [
+        ["0xB3", 22],
+        ["0xB3", 38],
+        ["0xB3", 54],
+        ["0xB3", 6]
+      ]
+    },
+
+    "grapple_clockwise2": {
+      "parent": "grapple_clockwise1",
+      "used by": [
+        ["0xB3", 21],
+        ["0xB3", 37],
+        ["0xB3", 53],
+        ["0xB3", 5]
+      ]
+    },
+
+    "grapple_clockwise3": {
+      "parent": "grapple_clockwise",
+      "dimensions": [-16, -20, 16, 20],
+      "extra area": [
+        [-8, -28, 24, -20],
+        [16, -20, 24, 12],
+        [-24, -12, -16, 20]
+      ],
+      "used by": [
+        ["0xB3", 20],
+        ["0xB3", 36],
+        ["0xB3", 52],
+        ["0xB3", 4]
+      ]
+    },
+
+    "grapple_clockwise4": {
+      "parent": "grapple_clockwise3",
+      "used by": [
+        ["0xB3", 19],
+        ["0xB3", 35],
+        ["0xB3", 51],
+        ["0xB3", 3]
+      ]
+    },
+
+    "grapple_clockwise5": {
+      "parent": "grapple_clockwise",
+      "dimensions": [-12, -31, 20, 17],
+      "extra area": [
+        [-20, 17, 12, 25],
+        [-20, -15, -12, 17]
+      ],
+      "used by": [
+        ["0xB3", 18],
+        ["0xB3", 34],
+        ["0xB3", 50],
+        ["0xB3", 2]
+      ]
+    },
+
+    "grapple_clockwise6": {
+      "parent": "grapple_clockwise5",
+      "used by": [
+        ["0xB3", 17],
+        ["0xB3", 33],
+        ["0xB3", 49],
+        ["0xB3", 1]
+      ]
+    },
+
+    "grapple_clockwise7": {
+      "parent": "grapple_clockwise",
+      "dimensions": [-16, -31, 16, 25],
+      "used by": [
+        ["0xB3", 16],
+        ["0xB3", 32],
+        ["0xB3", 48],
+        ["0xB3", 0]
+      ]
+    },
+
+    "grapple_clockwise8": {
+      "parent": "grapple_clockwise",
+      "dimensions": [-12, -23, 20, 25],
+      "extra area": [
+        [-20, -31, 12, -23],
+        [-20, -23, -12, 9]
+      ],
+      "used by": [
+        ["0xB3", 15],
+        ["0xB3", 31],
+        ["0xB3", 47],
+        ["0xB3", 63]
+      ]
+    },
+
+    "grapple_clockwise9": {
+      "parent": "grapple_clockwise8",
+      "used by": [
+        ["0xB3", 14],
+        ["0xB3", 30],
+        ["0xB3", 46],
+        ["0xB3", 62]
+      ]
+    },
+
+    "grapple_clockwise10": {
+      "parent": "grapple_clockwise",
+      "dimensions": [-27, -19, 21, 5],
+      "extra area": [
+        [-27, -27, 13, -19],
+        [-19, 5, 21, 13],
+        [-11, 13, 21, 21]
+      ],
+      "used by": [
+        ["0xB3", 13],
+        ["0xB3", 29],
+        ["0xB3", 45],
+        ["0xB3", 61]
+      ]
+    },
+
+    "grapple_clockwise11": {
+      "parent": "grapple_clockwise10",
+      "used by": [
+        ["0xB3", 12],
+        ["0xB3", 28],
+        ["0xB3", 44],
+        ["0xB3", 60]
+      ]
+    },
+
+    "grapple_clockwise12": {
+      "parent": "grapple_clockwise",
+      "dimensions": [-30, -11, 26, 13],
+      "extra area": [
+        [-30, -19, 18, -11],
+        [-14, 13, 26, 21]
+      ],
+      "used by": [
+        ["0xB3", 11],
+        ["0xB3", 27],
+        ["0xB3", 43],
+        ["0xB3", 59]
+      ]
+    },
+
+    "grapple_clockwise13": {
+      "parent": "grapple_clockwise12",
+      "used by": [
+        ["0xB3", 10],
+        ["0xB3", 26],
+        ["0xB3", 42],
+        ["0xB3", 58]
+      ]
+    },
+
+    "grapple_clockwise14": {
+      "parent": "grapple_clockwise",
+      "dimensions": [-32, -15, 24, 17],
+      "used by": [
+        ["0xB3", 9],
+        ["0xB3", 25],
+        ["0xB3", 41],
+        ["0xB3", 57]
+      ]
+    },
+
+    "grapple_clockwise15": {
+      "parent": "grapple_clockwise14",
+      "used by": [
+        ["0xB3", 8],
+        ["0xB3", 24],
+        ["0xB3", 40],
+        ["0xB3", 56]
+      ]
+    },
+
+    "grapple_clockwise_pulled_in": {
+      "description": "When Samus is begin pulled upward by the grapple but is not swinging",
+      "dimensions": [-16, -31, 16, 33],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0xB3", 64]
+      ]
+    },
+
+    "grapple_clockwise_hanging": {
+      "description": "When Samus is hanging from the grapple and not swinging",
+      "dimensions": [-16, -31, 16, 33],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0xB3", 65]
+      ]
+    },
+
+    "grapple_counterclockwise": {
+      "description": "While swinging forward/counterclockwise or backwards/clockwise (i.e. facing 'right'), the game chooses choose an appropriate angle subject to an 11.25 degree arc.  Upside-down poses are mirrored",
+      "dimensions": [-25, -15, 31, 17],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0xB2", 24],
+        ["0xB2", 40],
+        ["0xB2", 56],
+        ["0xB2", 8]
+      ]
+    },
+
+    "grapple_counterclockwise1": {
+      "parent": "grapple_counterclockwise",
+      "used by": [
+        ["0xB2", 23],
+        ["0xB2", 39],
+        ["0xB2", 55],
+        ["0xB2", 7]
+      ]
+    },
+
+    "grapple_counterclockwise2": {
+      "parent": "grapple_counterclockwise",
+      "dimensions": [-24, -11, 32, 13],
+      "extra area": [
+        [-16, -19, 32, -11],
+        [-24, 13, 16, 21]
+      ],
+      "used by": [
+        ["0xB2", 22],
+        ["0xB2", 38],
+        ["0xB2", 54],
+        ["0xB2", 6]
+      ]
+    },
+
+    "grapple_counterclockwise3": {
+      "parent": "grapple_counterclockwise2",
+      "used by": [
+        ["0xB2", 21],
+        ["0xB2", 37],
+        ["0xB2", 53],
+        ["0xB2", 5]
+      ]
+    },
+
+    "grapple_counterclockwise4": {
+      "parent": "grapple_counterclockwise",
+      "dimensions": [-23, -17, 25, 7],
+      "extra area": [
+        [-15, -25, 25, -17],
+        [-23, 7, 17, 15],
+        [-23, 15, 9, 23]
+      ],
+      "used by": [
+        ["0xB2", 20],
+        ["0xB2", 36],
+        ["0xB2", 52],
+        ["0xB2", 4]
+      ]
+    },
+
+    "grapple_counterclockwise5": {
+      "parent": "grapple_counterclockwise4",
+      "used by": [
+        ["0xB2", 19],
+        ["0xB2", 35],
+        ["0xB2", 51],
+        ["0xB2", 3]
+      ]
+    },
+
+    "grapple_counterclockwise6": {
+      "parent": "grapple_counterclockwise",
+      "dimensions": [-20, -22, 12, 26],
+      "extra area": [
+        [-12, -30, 20, -22],
+        [12, -22, 20, 10]
+      ],
+      "used by": [
+        ["0xB2", 18],
+        ["0xB2", 34],
+        ["0xB2", 50],
+        ["0xB2", 2]
+      ]
+    },
+
+    "grapple_counterclockwise7": {
+      "parent": "grapple_counterclockwise6",
+      "used by": [
+        ["0xB2", 17],
+        ["0xB2", 33],
+        ["0xB2", 49],
+        ["0xB2", 1]
+      ]
+    },
+
+    "grapple_counterclockwise8": {
+      "parent": "grapple_counterclockwise",
+      "dimensions": [-16, -30, 16, 26],
+      "used by": [
+        ["0xB2", 16],
+        ["0xB2", 32],
+        ["0xB2", 48],
+        ["0xB2", 0]
+      ]
+    },
+
+    "grapple_counterclockwise9": {
+      "parent": "grapple_counterclockwise",
+      "dimensions": [-20, -30, 12, 18],
+      "extra area": [
+        [-12, 18, 20, 26],
+        [12, -14, 20, 18]
+      ],
+      "used by": [
+        ["0xB2", 15],
+        ["0xB2", 31],
+        ["0xB2", 47],
+        ["0xB2", 63]
+      ]
+    },
+
+    "grapple_counterclockwise10": {
+      "parent": "grapple_counterclockwise9",
+      "used by": [
+        ["0xB2", 14],
+        ["0xB2", 30],
+        ["0xB2", 46],
+        ["0xB2", 62]
+      ]
+    },
+
+    "grapple_counterclockwise11": {
+      "parent": "grapple_counterclockwise",
+      "dimensions": [-17, -18, 15, 22],
+      "extra area": [
+        [-25, -26, 7, -18],
+        [-25, -18, -17, 14],
+        [15, -10, 23, 22]
+      ],
+      "used by": [
+        ["0xB2", 13],
+        ["0xB2", 29],
+        ["0xB2", 45],
+        ["0xB2", 61]
+      ]
+    },
+
+    "grapple_counterclockwise12": {
+      "parent": "grapple_counterclockwise11",
+      "used by": [
+        ["0xB2", 12],
+        ["0xB2", 28],
+        ["0xB2", 44],
+        ["0xB2", 60]
+      ]
+    },
+
+    "grapple_counterclockwise13": {
+      "parent": "grapple_counterclockwise",
+      "dimensions": [-30, -12, 26, 12],
+      "extra area": [
+        [-30, -20, 10, -12],
+        [-22, 12, 26, 20]
+      ],
+      "used by": [
+        ["0xB2", 11],
+        ["0xB2", 27],
+        ["0xB2", 43],
+        ["0xB2", 59]
+      ]
+    },
+
+    "grapple_counterclockwise14": {
+      "parent": "grapple_counterclockwise13",
+      "used by": [
+        ["0xB2", 10],
+        ["0xB2", 26],
+        ["0xB2", 42],
+        ["0xB2", 58]
+      ]
+    },
+
+    "grapple_counterclockwise15": {
+      "parent": "grapple_counterclockwise",
+      "dimensions": [-31, -17, 25, 15],
+      "used by": [
+        ["0xB2", 9],
+        ["0xB2", 25],
+        ["0xB2", 41],
+        ["0xB2", 57]
+      ]
+    },
+
+    "grapple_counterclockwise_pulled_in": {
+      "description": "When Samus is begin pulled upward by the grapple but is not swinging",
+      "dimensions": [-16, -30, 16, 34],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0xB2", 64]
+      ]
+    },
+
+    "grapple_counterclockwise_hanging": {
+      "description": "When Samus is hanging from the grapple and not swinging",
+      "dimensions": [-16, -30, 16, 34],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["0xB2", 65]
+      ]
+    },
+
+    "supplication_left": {
+      "description": "Samus is paralyzed/exhuasted/drained during the Metroid or Mother Brain sequences.  The first of these poses is held still for a short while while Samus gains hyper beam.",
+      "parent": "crouch_left",
+      "used by": [
+        ["0xE9", 8],
+        ["0xE9", 26],
+        ["0xE9", 29]
+      ]
+    },
+
+    "supplication_left1": {
+      "parent": "supplication_left",
+      "used by": [
+        ["0xE9", 9]
+      ]
+    },
+
+    "supplication_left2": {
+      "parent": "supplication_left",
+      "used by": [
+        ["0xE9", 10]
+      ]
+    },
+
+    "supplication_left3": {
+      "parent": "supplication_left",
+      "used by": [
+        ["0xE9", 11]
+      ]
+    },
+
+    "supplication_look_up_left": {
+      "description": "Samus is drained, but looks up to watch a storyline sequence",
+      "parent": "crouch_left",
+      "used by": [
+        ["0xEB", 0]
+      ]
+    },
+
+    "supplication_look_up_left1": {
+      "parent": "supplication_look_up_left",
+      "used by": [
+        ["0xEB", 1]
+      ]
+    },
+
+    "supplication_look_up_left2": {
+      "parent": "supplication_look_up_left",
+      "used by": [
+        ["0xEB", 2]
+      ]
+    },
+
+    "supplication_look_up_left3": {
+      "parent": "supplication_look_up_left",
+      "used by": [
+        ["0xEB", 3]
+      ]
+    },
+
+    "supplication_right": {
+      "description": "Samus is paralyzed/exhuasted/drained during the Metroid or Mother Brain sequences",
+      "parent": "crouch_right",
+      "used by": [
+        ["0xE8", 8]
+      ]
+    },
+
+    "supplication_right1": {
+      "parent": "supplication_right",
+      "used by": [
+        ["0xE8", 9]
+      ]
+    },
+
+    "supplication_right2": {
+      "parent": "supplication_right",
+      "used by": [
+        ["0xE8", 10]
+      ]
+    },
+
+    "supplication_right3": {
+      "parent": "supplication_right",
+      "used by": [
+        ["0xE8", 11]
+      ]
+    },
+
+    "supplication_look_up_right": {
+      "description": "Samus is drained, but looks up to watch a storyline sequence",
+      "parent": "crouch_right",
+      "used by": [
+        ["0xEA", 0]
+      ]
+    },
+
+    "supplication_look_up_right1": {
+      "parent": "supplication_look_up_right",
+      "used by": [
+        ["0xEA", 1]
+      ]
+    },
+
+    "supplication_look_up_right2": {
+      "parent": "supplication_look_up_right",
+      "used by": [
+        ["0xEA", 2]
+      ]
+    },
+
+    "supplication_look_up_right3": {
+      "parent": "supplication_look_up_right",
+      "used by": [
+        ["0xEA", 3]
+      ]
+    },
+
+    "supplication_left_collapse": {
+      "description": "After taking a rainbow beam to the face, this pose is used when Samus makes contact with the ground, before collapsing",
+      "dimensions": [-19, -19, 13, 29],
+      "parent": "crouch_transition_left",
+      "shift": [0, 0],
+      "used by": [
+        ["0xE9", 7]
+      ]
+    },
+
+    "supplication_left_stand_attempt": {
+      "description": "During the Mother Brain fight, while paralyzed, Samus makes several attempts to stand up",
+      "dimensions": [-19, -28, 13, 20],
+      "parent": "stand_left",
+      "shift": [0, 9],
+      "used by": [
+        ["0xE9", 14],
+        ["0xE9", 19],
+        ["0xE9", 23]
+      ]
+    },
+
+    "supplication_left_stand_attempt1": {
+      "dimensions": [-19, -21, 13, 27],
+      "parent": "supplication_left_stand_attempt",
+      "shift": [0, 2],
+      "used by": [
+        ["0xE9", 15],
+        ["0xE9", 20],
+        ["0xE9", 22]
+      ]
+    },
+
+    "supplication_left_stand_attempt2": {
+      "dimensions": [-19, -19, 13, 29],
+      "parent": "supplication_left_stand_attempt",
+      "shift": [0, 0],
+      "used by": [
+        ["0xE9", 16],
+        ["0xE9", 21]
+      ]
+    },
+
+    "death_left": {
+      "description": "Samus's body emerging from the broken suit during the death sequence",
+      "dimensions": [-12, -32, 20, 32],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "table": false,
+      "used by": [
+        ["death_left", 0]
+      ]
+    },
+
+    "death_left1": {
+      "parent": "death_left",
+      "palette": "0x2E",
+      "import palette interval": [45, 60],
+      "force": "lower",
+      "import": "lower",
+      "used by": [
+        ["death_left", 1]
+      ]
+    },
+
+    "death_left2": {
+      "parent": "death_left1",
+      "used by": [
+        ["death_left", 2]
+      ]
+    },
+
+    "death_left3": {
+      "parent": "death_left1",
+      "used by": [
+        ["death_left", 3]
+      ]
+    },
+
+    "death_left4": {
+      "parent": "death_left1",
+      "used by": [
+        ["death_left", 4]
+      ]
+    },
+
+    "death_left5": {
+      "parent": "death_left1",
+      "used by": [
+        ["death_left", 5]
+      ]
+    },
+
+    "death_left6": {
+      "parent": "death_left1",
+      "used by": [
+        ["death_left", 6],
+        ["death_left", 7]
+      ]
+    },
+
+    "death_left7": {
+      "parent": "death_left1",
+      "used by": [
+        ["death_left", 8]
+      ]
+    },
+
+    "death_left_pieces": {
+      "description": "Samus's suit pieces exploding during the death sequence",
+      "dimensions": [-9, -25, 15, 23],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "force": "upper",
+      "import": "upper",
+      "table": false,
+      "used by": [
+        ["death_left", 1]
+      ]
+    },
+
+    "death_left_pieces1": {
+      "parent": "death_left_pieces",
+      "dimensions": [-12, -25, 20, 23],
+      "used by": [
+        ["death_left", 2]
+      ]
+    },
+
+    "death_left_pieces2": {
+      "dimensions": [-18, -35, 22, 29],
+      "parent": "death_left_pieces",
+      "used by": [
+        ["death_left", 3]
+      ]
+    },
+
+    "death_left_pieces3": {
+      "dimensions": [-26, -42, 30, 38],
+      "parent": "death_left_pieces",
+      "used by": [
+        ["death_left", 4]
+      ]
+    },
+
+    "death_left_pieces4": {
+      "dimensions": [-36, -45, 36, 43],
+      "parent": "death_left_pieces",
+      "used by": [
+        ["death_left", 5]
+      ]
+    },
+
+    "death_right": {
+      "description": "Samus's body emerging from the broken suit during the death sequence",
+      "dimensions": [-20, -32, 12, 32],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "table": false,
+      "used by": [
+        ["death_right", 0]
+      ]
+    },
+
+    "death_right1": {
+      "parent": "death_right",
+      "palette": "0x2E",
+      "import palette interval": [45, 60],
+      "force": "lower",
+      "import": "lower",
+      "used by": [
+        ["death_right", 1]
+      ]
+    },
+
+    "death_right2": {
+      "parent": "death_right1",
+      "used by": [
+        ["death_right", 2]
+      ]
+    },
+
+    "death_right3": {
+      "parent": "death_right1",
+      "used by": [
+        ["death_right", 3]
+      ]
+    },
+
+    "death_right4": {
+      "parent": "death_right1",
+      "used by": [
+        ["death_right", 4]
+      ]
+    },
+
+    "death_right5": {
+      "parent": "death_right1",
+      "used by": [
+        ["death_right", 5]
+      ]
+    },
+
+    "death_right6": {
+      "parent": "death_right1",
+      "used by": [
+        ["death_right", 6],
+        ["death_right", 7]
+      ]
+    },
+
+    "death_right7": {
+      "parent": "death_right1",
+      "used by": [
+        ["death_right", 8]
+      ]
+    },
+
+    "death_right_pieces": {
+      "description": "Samus's suit pieces exploding during the death sequence",
+      "dimensions": [-15, -25, 9, 23],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "force": "upper",
+      "import": "upper",
+      "table": false,
+      "used by": [
+        ["death_right", 1]
+      ]
+    },
+
+    "death_right_pieces1": {
+      "parent": "death_right_pieces",
+      "dimensions": [-20, -25, 12, 23],
+      "used by": [
+        ["death_right", 2]
+      ]
+    },
+
+    "death_right_pieces2": {
+      "dimensions": [-22, -35, 18, 29],
+      "parent": "death_right_pieces",
+      "used by": [
+        ["death_right", 3]
+      ]
+    },
+
+    "death_right_pieces3": {
+      "dimensions": [-30, -42, 26, 38],
+      "parent": "death_right_pieces",
+      "used by": [
+        ["death_right", 4]
+      ]
+    },
+
+    "death_right_pieces4": {
+      "dimensions": [-36, -45, 36, 43],
+      "parent": "death_right_pieces",
+      "used by": [
+        ["death_right", 5]
+      ]
+    },
+
+    "file_select_head": {
+      "description": "Classically, these are three heads that turn to face the camera when the save file is selected",
+      "dimensions": [0, 0, 24, 24],
+      "palette": "0x02",
+      "import palette interval": [75, 90],
+      "used by": [
+        ["file_select", 0]
+      ]
+    },
+
+    "file_select_head1": {
+      "parent": "file_select_head",
+      "used by": [
+        ["file_select", 1]
+      ]
+    },
+
+    "file_select_head2": {
+      "parent": "file_select_head",
+      "used by": [
+        ["file_select", 2]
+      ]
+    },
+
+    "file_select_visor": {
+      "description": "Classically, there is a flash that goes across Samus's front-facing visor after the save file is selected",
+      "dimensions": [4, 10, 20, 18],
+      "palette": "0x02",
+      "import palette interval": [75, 90],
+      "used by": [
+        ["file_select", 3]
+      ]
+    },
+
+    "file_select_visor1": {
+      "parent": "file_select_visor",
+      "used by": [
+        ["file_select", 4]
+      ]
+    },
+
+    "file_select_visor2": {
+      "parent": "file_select_visor",
+      "used by": [
+        ["file_select", 5]
+      ]
+    },
+
+    "file_select_visor3": {
+      "parent": "file_select_visor",
+      "used by": [
+        ["file_select", 6]
+      ]
+    },
+
+    "file_select_visor4": {
+      "parent": "file_select_visor",
+      "used by": [
+        ["file_select", 7]
+      ]
+    },
+
+    "file_select_cursor_array": {
+      "description": "Classically, the cursor is constructed by rotating upwards through the list of missile bases, and the light on the tip moves up and down as 12321",
+      "dimensions": [0, 8, 16, 32],
+      "extra area": [
+        [0, 0, 8, 8]
+      ],
+      "palette": "0x02",
+      "import palette interval": [75, 90],
+      "used by": [
+        ["file_select", 8]
+      ]
+    },
+
+    "file_select_piping": {
+      "description": "This piping is used to construct the frame around SAMUS DATA in the menu",
+      "dimensions": [0, 0, 24, 8],
+      "extra area": [
+        [0, 16, 8, 24],
+        [16, 8, 24, 24]
+      ],
+      "palette": "0x02",
+      "import palette interval": [75, 90],
+      "used by": [
+        ["file_select", 9]
+      ]
+    },
+
+    "gun_port_right_aim_up0": {
+      "description": "These ports are superimposed over the cannon to simulate the cannon opening.  They progress in a fast sequence to give the illusion that the cannon is opening/closing in real-time.",
+      "dimensions": [0, 0, 8, 8],
+      "palette": "0x28",
+      "import palette interval": [0, 15],
+      "used by": [
+        ["gun", 0]
+      ]
+    },
+
+    "gun_port_right_aim_diag_up0": {
+      "parent": "gun_port_right_aim_up0",
+      "used by": [
+        ["gun", 1]
+      ]
+    },
+    "gun_port_right0": {
+      "parent": "gun_port_right_aim_up0",
+      "used by": [
+        ["gun", 2]
+      ]
+    },
+    "gun_port_right_aim_diag_down0": {
+      "parent": "gun_port_right_aim_up0",
+      "used by": [
+        ["gun", 3]
+      ]
+    },
+    "gun_port_rigth_aim_down0": {
+      "parent": "gun_port_right_aim_up0",
+      "used by": [
+        ["gun", 4]
+      ]
+    },
+    "gun_port_left_aim_down0": {
+      "parent": "gun_port_right_aim_up0",
+      "used by": [
+        ["gun", 5]
+      ]
+    },
+    "gun_port_left_aim_diag_down0": {
+      "parent": "gun_port_right_aim_up0",
+      "used by": [
+        ["gun", 6]
+      ]
+    },
+    "gun_port_left0": {
+      "parent": "gun_port_right_aim_up0",
+      "used by": [
+        ["gun", 7]
+      ]
+    },
+    "gun_port_left_aim_diag_up0": {
+      "parent": "gun_port_right_aim_up0",
+      "used by": [
+        ["gun", 8]
+      ]
+    },
+    "gun_port_left_aim_up0": {
+      "parent": "gun_port_right_aim_up0",
+      "used by": [
+        ["gun", 9]
+      ]
+    },
+    "gun_port_right_aim_up1": {
+      "parent": "gun_port_right_aim_up0",
+      "used by": [
+        ["gun", 10]
+      ]
+    },
+    "gun_port_right_aim_diag_up1": {
+      "parent": "gun_port_right_aim_up0",
+      "used by": [
+        ["gun", 11]
+      ]
+    },
+    "gun_port_right1": {
+      "parent": "gun_port_right_aim_up0",
+      "used by": [
+        ["gun", 12]
+      ]
+    },
+    "gun_port_right_aim_diag_down1": {
+      "parent": "gun_port_right_aim_up0",
+      "used by": [
+        ["gun", 13]
+      ]
+    },
+    "gun_port_right_aim_down1": {
+      "parent": "gun_port_right_aim_up0",
+      "used by": [
+        ["gun", 14]
+      ]
+    },
+    "gun_port_left_aim_down1": {
+      "parent": "gun_port_right_aim_up0",
+      "used by": [
+        ["gun", 15]
+      ]
+    },
+    "gun_port_left_aim_diag_down1": {
+      "parent": "gun_port_right_aim_up0",
+      "used by": [
+        ["gun", 16]
+      ]
+    },
+    "gun_port_left1": {
+      "parent": "gun_port_right_aim_up0",
+      "used by": [
+        ["gun", 17]
+      ]
+    },
+    "gun_port_left_aim_diag_up1": {
+      "parent": "gun_port_right_aim_up0",
+      "used by": [
+        ["gun", 18]
+      ]
+    },
+    "gun_port_left_aim_up1": {
+      "parent": "gun_port_right_aim_up0",
+      "used by": [
+        ["gun", 19]
+      ]
+    },
+    "gun_port_right_aim_up2": {
+      "parent": "gun_port_right_aim_up0",
+      "used by": [
+        ["gun", 20]
+      ]
+    },
+    "gun_port_right_aim_diag_up2": {
+      "parent": "gun_port_right_aim_up0",
+      "used by": [
+        ["gun", 21]
+      ]
+    },
+    "gun_port_right2": {
+      "parent": "gun_port_right_aim_up0",
+      "used by": [
+        ["gun", 22]
+      ]
+    },
+    "gun_port_right_aim_diag_down2": {
+      "parent": "gun_port_right_aim_up0",
+      "used by": [
+        ["gun", 23]
+      ]
+    },
+    "gun_port_right_aim_down2": {
+      "parent": "gun_port_right_aim_up0",
+      "used by": [
+        ["gun", 24]
+      ]
+    },
+    "gun_port_left_aim_down2": {
+      "parent": "gun_port_right_aim_up0",
+      "used by": [
+        ["gun", 25]
+      ]
+    },
+    "gun_port_left_aim_diag_down2": {
+      "parent": "gun_port_right_aim_up0",
+      "used by": [
+        ["gun", 26]
+      ]
+    },
+    "gun_port_left2": {
+      "parent": "gun_port_right_aim_up0",
+      "used by": [
+        ["gun", 27]
+      ]
+    },
+    "gun_port_left_aim_diag_up2": {
+      "parent": "gun_port_right_aim_up0",
+      "used by": [
+        ["gun", 28]
+      ]
+    },
+    "gun_port_left_aim_up2": {
+      "parent": "gun_port_right_aim_up0",
+      "used by": [
+        ["gun", 29]
+      ]
+    },
+
+    "palette_block": {
+      "description": "The rows are (top to bottom): power, varia, gravity, death, file select, and then one row with flash bubble colors, visor xray colors, then ship colors",
+      "scale": 8,
+      "dimensions": [0, 0, 15, 7],
+      "used by": [
+        ["palette_block", 0]
+      ]
+    }
+  }
+}

@@ -1,4 +1,5 @@
 mod room_palettes;
+mod samus_sprite;
 
 use room_palettes::apply_area_themed_palettes;
 use crate::{
@@ -6,6 +7,8 @@ use crate::{
     patch::{Rom, snes2pc},
 };
 use anyhow::Result;
+
+pub use self::samus_sprite::SamusSpriteCustomizer;
 
 #[derive(Debug)]
 pub struct CustomizeSettings {
@@ -24,11 +27,14 @@ fn remove_mother_brain_flashing(rom: &mut Rom) -> Result<()> {
     Ok(())
 }
 
+
 pub fn customize_rom(
     rom: &mut Rom,
     seed_patch: &[u8],
+    samus_sprite: &Option<Vec<u8>>,
     settings: &CustomizeSettings,
     game_data: &GameData,
+    samus_customizer: &SamusSpriteCustomizer,
 ) -> Result<()> {
     rom.resize(0x400000);
     let patch = ips::Patch::parse(seed_patch).unwrap();
@@ -48,6 +54,9 @@ pub fn customize_rom(
         rom.write_n(snes2pc(0x90EAA0), &[0xEA; 4])?;
         rom.write_n(snes2pc(0x90F33C), &[0xEA; 4])?;
         rom.write_n(snes2pc(0x91E6DA), &[0xEA; 4])?;
+    }
+    if let Some(x) = samus_sprite {
+        samus_customizer.apply(rom, x)?;
     }
     Ok(())
 }

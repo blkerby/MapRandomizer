@@ -17,6 +17,14 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-72---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 72 (???)</a>:
+<ul>
+<li>Logic updates:
+    <ul>
+    <li>Crocomire fight is now more lenient on lower settings (assumes more Missiles available).
+    </ul>
+</ul>
+
 <p><a href="https://version-71---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 71 (2023-07-08)</a>:
 <ul>
 <li>Added customized in-game credits, with gameplay statistics and item location information.

@@ -353,7 +353,8 @@
       "canDiagonalBombJump",
       "canCrouchGateClip",
       "canInsaneWalljump",
-      "canUnderwaterWalljump"
+      "canUnderwaterWalljump",
+      "canWallIceClip"
     ],
     "notable_strats": [
       "Green Hill Zone Tunnel Crawl",
