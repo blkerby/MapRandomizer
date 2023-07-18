@@ -1,13 +1,6 @@
 <div class="accordion p-0 m-0" id="accordion">
     <div class="accordion-item p-0 m-0">
         <h2 class="accordion-header p-0 m-0">
-            <style>
-            .accordion-button::after {
-                position: absolute;
-                z-index: 100;
-                right: 16px;
-            }
-            </style>
             <button class="accordion-button collapsed my-0 d-block text-center customize-button" style="padding-top:11px;padding-bottom:11px;" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDifficulty">
             Customize
             </button>

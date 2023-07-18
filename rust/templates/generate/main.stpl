@@ -15,6 +15,11 @@
     html[data-bs-theme=light] .customize-button.collapsed {
         background-color: #f4f4f4;
     }
+    .accordion-button::after {
+        position: absolute;
+        z-index: 100;
+        right: 16px;
+    }
     </style>
     </head>
     <body>

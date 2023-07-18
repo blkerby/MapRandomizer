@@ -1,8 +1,8 @@
 next release:
-- add newly approved sprites
-- pull in sm-json-data, implement clearsObstacles, adjust tech/notable tiers
 - randomized start: check requires on hub locations
 - add more random start locations, in item rooms (speed booster room, morph ball room, screw attack room bottom)
+- pull in sm-json-data, implement clearsObstacles, adjust tech/notable tiers
+- add newly approved sprites
 
 priority:
 - add momentum conservation patch (in "Max" QoL)
@@ -51,6 +51,8 @@ priority:
 - get rid of symlink for sm-json-data
 
 later:
+- in seed header, instead of having three "details" accordions, just have one, with 3 cards inside.
+  - instead of listing everything, for skill assumptions just show deltas from the presets.
 - gravity seems to provide 50% heat reduction on elevator ride? (Remove this.)
    - https://clips.twitch.tv/RepleteShyManateeTBTacoLeft-Ip5vQynrc0SQYQUj
    - maybe during acid chozo drain too?
