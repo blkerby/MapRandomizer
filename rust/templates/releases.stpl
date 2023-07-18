@@ -21,15 +21,13 @@ about 15 seconds to load.
 <ul>
 <li>New customization options:
     <ul>
-    <li>Customized Samus sprites: e.g., play as your favorite character from a different game.
-    <li>Split Screw Attack animation: when using Screw Attack without Space Jump, the animation
-    is now based on the spin-jump animation instead of the Space Jump animation, fixing a bug/quirk of
-    the vanilla game.
-    <li>Vanilla music option: the vanilla music for each room will play, meaning that almost every door transition 
-    will change the music.
-    <li>Help buttons are added to describe the customization options.
+    <li>Customized Samus sprites: e.g., play as a character from a different game.
+    <li>Split Screw Attack animation, for Screw Attack to no longer appear as though Space Jump as equipped
+    when it isn't.
+    <li>Vanilla music option
     </ul>
-<li>Reorganized "Seed Info" on seed page to be more readable.
+<li>Help buttons added to describe the customization options.
+<li>Improved organization and readability of "Seed Info" on the seed page.
 <li>Logic updates:
     <ul>
     <li>Crocomire fight is now more lenient on lower settings (assumes more Missiles available).

@@ -1,10 +1,10 @@
 next release:
-- randomized start: check requires on hub locations
-- add more random start locations, in item rooms (speed booster room, morph ball room, screw attack room bottom)
 - pull in sm-json-data, implement clearsObstacles, adjust tech/notable tiers
 - add newly approved sprites
 
 priority:
+- randomized start: check requires on hub locations
+- add more random start locations, in item rooms (speed booster room, morph ball room, screw attack room bottom)
 - add momentum conservation patch (in "Max" QoL)
 - add objectives:
   - Larvas: 4 special items (replacing missiles)
@@ -51,6 +51,9 @@ priority:
 - get rid of symlink for sm-json-data
 
 later:
+- enforce tech dependencies:
+  - e.g. enabling "canPreciseWalljump" should enable dependency "canWalljump"
+  - disabling "canWalljump" should disable dependent "canPreciseWalljump"
 - in seed header, instead of having three "details" accordions, just have one, with 3 cards inside.
   - instead of listing everything, for skill assumptions just show deltas from the presets.
 - gravity seems to provide 50% heat reduction on elevator ride? (Remove this.)

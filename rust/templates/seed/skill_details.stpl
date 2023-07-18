@@ -1,30 +1,30 @@
 <div class="row">
-    <div class="col-4">Shinespark tiles:</div>
-    <div class="col-8"><%= difficulty.shine_charge_tiles %></div>
+    <div class="col-7 col-sm-6 col-md-5 col-lg-4">Shinespark tiles:</div>
+    <div class="col-5 col-sm-6 col-md-7 col-lg-8"><%= difficulty.shine_charge_tiles %></div>
 </div>
 <div class="row">
-    <div class="col-4">Resource multiplier:</div>
-    <div class="col-8"><%= difficulty.resource_multiplier %></div>
+    <div class="col-7 col-sm-6 col-md-5 col-lg-4">Resource multiplier:</div>
+    <div class="col-5 col-sm-6 col-md-7 col-lg-8"><%= difficulty.resource_multiplier %></div>
 </div>
 <div class="row">
-    <div class="col-4">Escape timer multiplier:</div>
-    <div class="col-8"><%= difficulty.escape_timer_multiplier %></div>
+    <div class="col-7 col-sm-6 col-md-5 col-lg-4">Escape timer multiplier:</div>
+    <div class="col-5 col-sm-6 col-md-7 col-lg-8"><%= difficulty.escape_timer_multiplier %></div>
 </div>
 <div class="row">
-    <div class="col-4">Phantoon proficiency:</div>
-    <div class="col-8"><%= difficulty.phantoon_proficiency %></div>
+    <div class="col-7 col-sm-6 col-md-5 col-lg-4">Phantoon proficiency:</div>
+    <div class="col-5 col-sm-6 col-md-7 col-lg-8"><%= difficulty.phantoon_proficiency %></div>
 </div>
 <div class="row">
-    <div class="col-4">Draygon proficiency:</div>
-    <div class="col-8"><%= difficulty.draygon_proficiency %></div>
+    <div class="col-7 col-sm-6 col-md-5 col-lg-4">Draygon proficiency:</div>
+    <div class="col-5 col-sm-6 col-md-7 col-lg-8"><%= difficulty.draygon_proficiency %></div>
 </div>
 <div class="row">
-    <div class="col-4">Ridley proficiency:</div>
-    <div class="col-8"><%= difficulty.ridley_proficiency %></div>
+    <div class="col-7 col-sm-6 col-md-5 col-lg-4">Ridley proficiency:</div>
+    <div class="col-5 col-sm-6 col-md-7 col-lg-8"><%= difficulty.ridley_proficiency %></div>
 </div>
 <div class="row">
-    <div class="col-4">Botwoon proficiency:</div>
-    <div class="col-8"><%= difficulty.botwoon_proficiency %></div>
+    <div class="col-7 col-sm-6 col-md-5 col-lg-4">Botwoon proficiency:</div>
+    <div class="col-5 col-sm-6 col-md-7 col-lg-8"><%= difficulty.botwoon_proficiency %></div>
 </div>
 
 <div class="accordion mt-3">
@@ -46,17 +46,17 @@
     <div class="accordion-item my-0 p-0">
         <h2 class="accordion-header">
         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse<%- name_no_space %>Tech">
-            <%= p.preset.name %> Tech (<%= percent_enabled %>%)
+            <%= p.preset.name %> (<%= percent_enabled %>%)
         </button>
         </h2>
         <div id="collapse<%- name_no_space %>Tech" class="accordion-collapse collapse p-2">
             <div class="container">
                 <% for tech in p.preset.tech.iter() { %>
                     <div class="row">
-                        <div class="col-xs-11 col-sm-10 col-md-9 col-lg-8">
+                        <div class="col-9 col-sm-10 col-lg-8">
                             <%= tech %>:
                         </div>
-                        <div class="col-1">
+                        <div class="col-3 col-sm-2">
                             <%= if enabled_tech.contains(tech) { "Yes" } else { "No" } %>
                         </div>
                     </div>
@@ -66,10 +66,10 @@
                 <% } %>
                 <% for strat in &p.preset.notable_strats { %>
                     <div class="row">
-                        <div class="col-xs-11 col-sm-10 col-md-9 col-lg-8">
+                        <div class="col-9 col-sm-10 col-lg-8">
                             <%= strat %>:
                         </div>
-                        <div class="col-1">
+                        <div class="col-3 col-sm-2">
                             <%= if enabled_notables.contains(strat) { "Yes" } else { "No" } %>
                         </div>
                     </div>

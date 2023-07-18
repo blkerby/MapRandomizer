@@ -1,67 +1,67 @@
 <div class="row">
-    <div class="col-6">Item markers:</div>
-    <div class="col-6"><%= item_markers %></div>
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Item markers:</div>
+    <div class="col-4 col-sm-3"><%= item_markers %></div>
 </div>
 <div class="row">
-    <div class="col-6">Item dots disappear after collection:</div>
-    <div class="col-6"><%= if item_dots_disappear { "Yes" } else { "No" }%></div>
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Item dots disappear after collection:</div>
+    <div class="col-4 col-sm-3"><%= if item_dots_disappear { "Yes" } else { "No" }%></div>
 </div>
 <div class="row">
-    <div class="col-6">Map stations always visible on map:</div>
-    <div class="col-6"><%= if mark_map_stations { "Yes" } else { "No" }%></div>
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Map stations always visible on map:</div>
+    <div class="col-4 col-sm-3"><%= if mark_map_stations { "Yes" } else { "No" }%></div>
 </div>
 <div class="row">
-    <div class="col-6">Area transitions marked as letters on map:</div>
-    <div class="col-6"><%= if transition_letters { "Yes" } else { "No" }%></div>
-</div>
-<hr>
-<div class="row">
-    <div class="col-6">Mother Brain fight (phases 2 and 3):</div>
-    <div class="col-6"><%= mother_brain_fight %></div>
-</div>
-<div class="row">
-    <div class="col-6">Supers do double damage to Mother Brain:</div>
-    <div class="col-6"><%= if supers_double { "Yes" } else { "No" }%></div>
-</div>
-<div class="row">
-    <div class="col-6">Hyper Beam gives all movement items:</div>
-    <div class="col-6"><%= if escape_movement_items { "Yes" } else { "No" }%></div>
-</div>
-<div class="row">
-    <div class="col-6">Refill energy for escape:</div>
-    <div class="col-6"><%= if escape_refill { "Yes" } else { "No" }%></div>
-</div>
-<div class="row">
-    <div class="col-6">Enemies cleared during escape:</div>
-    <div class="col-6"><%= if escape_enemies_cleared { "Yes" } else { "No" }%></div>
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Area transitions marked as letters on map:</div>
+    <div class="col-4 col-sm-3"><%= if transition_letters { "Yes" } else { "No" }%></div>
 </div>
 <hr>
 <div class="row">
-    <div class="col-6">Fast elevators:</div>
-    <div class="col-6"><%= if fast_elevators { "Yes" } else { "No" }%></div>
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Mother Brain fight (phases 2 and 3):</div>
+    <div class="col-4 col-sm-3"><%= mother_brain_fight %></div>
 </div>
 <div class="row">
-    <div class="col-6">Fast doors:</div>
-    <div class="col-6"><%= if fast_doors { "Yes" } else { "No" }%></div>
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Supers do double damage to Mother Brain:</div>
+    <div class="col-4 col-sm-3"><%= if supers_double { "Yes" } else { "No" }%></div>
 </div>
 <div class="row">
-    <div class="col-6">Fast pause menu:</div>
-    <div class="col-6"><%= if fast_pause_menu { "Yes" } else { "No" }%></div>
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Hyper Beam gives all movement items:</div>
+    <div class="col-4 col-sm-3"><%= if escape_movement_items { "Yes" } else { "No" }%></div>
+</div>
+<div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Refill energy for escape:</div>
+    <div class="col-4 col-sm-3"><%= if escape_refill { "Yes" } else { "No" }%></div>
+</div>
+<div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Enemies cleared during escape:</div>
+    <div class="col-4 col-sm-3"><%= if escape_enemies_cleared { "Yes" } else { "No" }%></div>
 </div>
 <hr>
 <div class="row">
-    <div class="col-6">All items spawn at start of game:</div>
-    <div class="col-6"><%= if all_items_spawn { "Yes" } else { "No" }%></div>
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Fast elevators:</div>
+    <div class="col-4 col-sm-3"><%= if fast_elevators { "Yes" } else { "No" }%></div>
 </div>
 <div class="row">
-    <div class="col-6">Acid Chozo usable without Space Jump:</div>
-    <div class="col-6"><%= if acid_chozo { "Yes" } else { "No" }%></div>
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Fast doors:</div>
+    <div class="col-4 col-sm-3"><%= if fast_doors { "Yes" } else { "No" }%></div>
 </div>
 <div class="row">
-    <div class="col-6">Respin (spin jump restart):</div>
-    <div class="col-6"><%= if respin { "Yes" } else { "No" }%></div>
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Fast pause menu:</div>
+    <div class="col-4 col-sm-3"><%= if fast_pause_menu { "Yes" } else { "No" }%></div>
+</div>
+<hr>
+<div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">All items spawn at start of game:</div>
+    <div class="col-4 col-sm-3"><%= if all_items_spawn { "Yes" } else { "No" }%></div>
 </div>
 <div class="row">
-    <div class="col-6">Lenient Space Jump:</div>
-    <div class="col-6"><%= if infinite_space_jump { "Yes" } else { "No" }%></div>
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Acid Chozo usable without Space Jump:</div>
+    <div class="col-4 col-sm-3"><%= if acid_chozo { "Yes" } else { "No" }%></div>
+</div>
+<div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Respin (spin jump restart):</div>
+    <div class="col-4 col-sm-3"><%= if respin { "Yes" } else { "No" }%></div>
+</div>
+<div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Lenient Space Jump:</div>
+    <div class="col-4 col-sm-3"><%= if infinite_space_jump { "Yes" } else { "No" }%></div>
 </div>

@@ -2,44 +2,44 @@
     <div class="card-header">Seed Info</div>
     <div class="card-body container">
         <div class="row">
-            <div class="col-3">Seed name:</div>
-            <div class="col-9"><%= seed_name %></div>
+            <div class="col-5 col-sm-4 col-md-3">Seed name:</div>
+            <div class="col-7 col-sm-8 col-md-9"><%= seed_name %></div>
         </div>
         <div class="row">
-            <div class="col-3">Created:</div>
-            <div class="col-9" id="createdTimestamp"></div>
+            <div class="col-5 col-sm-4 col-md-3">Created:</div>
+            <div class="col-7 col-sm-8 col-md-9" id="createdTimestamp"></div>
         </div>
         <% if race_mode { %>
         <div class="row">
-            <div class="col-3">Spoiler unlocked:</div>
-            <div class="col-9" id="unlockedTimestamp"></div>
+            <div class="col-5 col-sm-4 col-md-3">Spoiler unlocked:</div>
+            <div class="col-7 col-sm-8 col-md-9" id="unlockedTimestamp"></div>
         </div>
         <% } %>
         <div class="row">
-            <div class="col-3">Version:</div>
-            <div class="col-9"><%= version %></div>
+            <div class="col-5 col-sm-4 col-md-3">Version:</div>
+            <div class="col-7 col-sm-8 col-md-9"><%= version %></div>
         </div>
         <% if !race_mode { %>
         <div class="row">
-            <div class="col-3">Random seed:</div>
-            <div class="col-9"><%= random_seed %></div>
+            <div class="col-5 col-sm-4 col-md-3">Random seed:</div>
+            <div class="col-7 col-sm-8 col-md-9"><%= random_seed %></div>
         </div>
         <% } %>
         <div class="row">
-            <div class="col-3">Objectives:</div>
-            <div class="col-9"><%= objectives %></div>
+            <div class="col-5 col-sm-4 col-md-3">Objectives:</div>
+            <div class="col-7 col-sm-8 col-md-9"><%= objectives %></div>
         </div>
         <div class="row">
-            <div class="col-3">Skill assumption:</div>
-            <div class="col-9"><%= preset %></div>
+            <div class="col-5 col-sm-4 col-md-3">Skill assumption:</div>
+            <div class="col-7 col-sm-8 col-md-9"><%= preset %></div>
         </div>
         <div class="row">
-            <div class="col-3">Item progression:</div>
-            <div class="col-9"><%= item_progression_preset %></div>
+            <div class="col-5 col-sm-4 col-md-3">Item progression:</div>
+            <div class="col-7 col-sm-8 col-md-9"><%= item_progression_preset %></div>
         </div>
         <div class="row">
-            <div class="col-3">Quality-of-life options:</div>
-            <div class="col-9"><%= quality_of_life_preset %></div>
+            <div class="col-5 col-sm-4 col-md-3">Quality-of-life options:</div>
+            <div class="col-7 col-sm-8 col-md-9"><%= quality_of_life_preset %></div>
         </div>
         <% 
         let mut game_variations = vec![];
@@ -63,8 +63,8 @@
         }
         if game_variations.len() > 0 { %>
             <div class="row">
-                <div class="col-3">Other options:</div>
-                <div class="col-9"><b><%- game_variations.join(", ") %></b></div>
+                <div class="col-5 col-sm-4 col-md-3">Other options:</div>
+                <div class="col-7 col-sm-8 col-md-9"><b><%- game_variations.join(", ") %></b></div>
             </div>
         <% } %>
     </div>
