@@ -177,7 +177,33 @@ fn item_to_plm_type(item: Item, orig_plm_type: isize) -> isize {
     orig_plm_type + (item_id - old_item_id) * 4
 }
 
-fn apply_ips_patch(rom: &mut Rom, patch_path: &Path) -> Result<()> {
+fn write_credits_big_letter(rom: &mut Rom, letter: char, addr: usize) -> Result<()> {
+    if letter <= 'P' {
+        rom.write_u16(addr, letter as isize - 'A' as isize + 0x0020)?;
+        rom.write_u16(addr + 0x40, letter as isize - 'A' as isize + 0x0030)?;
+    } else {
+        rom.write_u16(addr, letter as isize - 'Q' as isize + 0x0040)?;
+        rom.write_u16(addr + 0x40, letter as isize - 'Q' as isize + 0x0050)?;
+    }
+    Ok(())
+}
+
+fn write_credits_big_digit(rom: &mut Rom, digit: usize, addr: usize) -> Result<()> {
+    rom.write_u16(addr, digit as isize + 0x0060)?;
+    rom.write_u16(addr + 0x40, digit as isize + 0x0070)?;
+    Ok(())
+}
+
+pub fn write_credits_big_char(rom: &mut Rom, c: char, addr: usize) -> Result<()> {
+    if c >= '0' && c <= '9' {
+        write_credits_big_digit(rom, c as usize - '0' as usize, addr)?;
+    } else if c >= 'A' && c <= 'Z' {
+        write_credits_big_letter(rom, c, addr)?;
+    }
+    Ok(())
+}
+
+pub fn apply_ips_patch(rom: &mut Rom, patch_path: &Path) -> Result<()> {
     let patch_data = std::fs::read(&patch_path)
         .with_context(|| format!("Unable to read patch {}", patch_path.display()))?;
     let patch = ips::Patch::parse(&patch_data)
@@ -1302,23 +1328,6 @@ impl<'a> Patcher<'a> {
         Ok(())
     }
 
-    fn write_letter(&mut self, letter: char, addr: usize) -> Result<()> {
-        if letter <= 'P' {
-            self.rom.write_u16(addr, letter as isize - 'A' as isize + 0x0020)?;
-            self.rom.write_u16(addr + 0x40, letter as isize - 'A' as isize + 0x0030)?;
-        } else {
-            self.rom.write_u16(addr, letter as isize - 'Q' as isize + 0x0040)?;
-            self.rom.write_u16(addr + 0x40, letter as isize - 'Q' as isize + 0x0050)?;
-        }
-        Ok(())
-    }
-
-    fn write_digit(&mut self, digit: usize, addr: usize) -> Result<()> {
-        self.rom.write_u16(addr, digit as isize + 0x0060)?;
-        self.rom.write_u16(addr + 0x40, digit as isize + 0x0070)?;
-        Ok(())
-    }
-
     fn write_item_credits(
         &mut self,
         idx: usize,
@@ -1331,9 +1340,9 @@ impl<'a> Patcher<'a> {
 
         // Write step number
         if step >= 10 {
-            self.write_digit(step / 10, base_addr + 2)?;
+            write_credits_big_digit(self.rom, step / 10, base_addr + 2)?;
         }
-        self.write_digit(step % 10, base_addr + 4)?;
+        write_credits_big_digit(self.rom, step % 10, base_addr + 4)?;
 
         // Write item text
         for (i, c) in item.chars().enumerate() {
@@ -1369,7 +1378,7 @@ impl<'a> Patcher<'a> {
         for (i, c) in preset.chars().enumerate() {
             let c = c.to_ascii_uppercase();
             if c >= 'A' && c <= 'Z' {
-                self.write_letter(c, base_addr + 0x3E - preset.len() * 2 + i * 2)?;
+                write_credits_big_letter(self.rom, c, base_addr + 0x3E - preset.len() * 2 + i * 2)?;
             }
         }
         Ok(())

@@ -1,4 +1,3 @@
-use std::io::Cursor;
 use std::path::Path;
 use std::time::SystemTime;
 
@@ -13,7 +12,7 @@ use base64::Engine;
 use clap::Parser;
 use hashbrown::{HashMap, HashSet};
 use log::{error, info};
-use maprando::customize::{customize_rom, CustomizeSettings, SamusSpriteCustomizer};
+use maprando::customize::{customize_rom, CustomizeSettings, MusicSettings};
 use maprando::game_data::{GameData, IndexedVec, Item};
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::{make_rom, Rom};
@@ -23,7 +22,7 @@ use maprando::randomize::{
 };
 use maprando::seed_repository::{Seed, SeedFile, SeedRepository};
 use maprando::spoiler_map;
-use maprando::web::{AppData, MapRepository, Preset, PresetData};
+use maprando::web::{AppData, MapRepository, Preset, PresetData, SamusSpriteInfo, SamusSpriteCategory};
 use rand::{RngCore, SeedableRng};
 use sailfish::TemplateOnce;
 use serde_derive::{Deserialize, Serialize};
@@ -207,9 +206,11 @@ struct UnlockRequest {
 #[derive(MultipartForm)]
 struct CustomizeRequest {
     rom: Bytes,
-    spritesheet: Option<Bytes>,
+    custom_samus_sprite: Text<bool>,
+    samus_sprite: Text<String>,
+    vanilla_screw_attack_animation: Text<bool>,
     room_palettes: Text<String>,
-    disable_music: Text<bool>,
+    music: Text<String>,
     disable_beeping: Text<bool>,
 }
 
@@ -315,6 +316,7 @@ struct CustomizeSeedTemplate {
     unlocked_timestamp_str: String,
     seed_header: String,
     seed_footer: String,
+    samus_sprite_categories: Vec<SamusSpriteCategory>,
 }
 
 fn render_seed(seed_name: &str, seed_data: &SeedData) -> Result<(String, String)> {
@@ -540,6 +542,7 @@ async fn view_seed(info: web::Path<(String,)>, app_data: web::Data<AppData>) -> 
                 spoiler_token_prefix: spoiler_token_prefix.to_string(),
                 seed_header: String::from_utf8(header.to_vec()).unwrap(),
                 seed_footer: String::from_utf8(footer.to_vec()).unwrap(),
+                samus_sprite_categories: app_data.samus_sprite_categories.clone(),
             };
             HttpResponse::Ok().body(customize_template.render_once().unwrap())
         }
@@ -621,19 +624,25 @@ async fn customize_seed(
         .await
         .unwrap();
     let mut rom = Rom::new(req.rom.data.to_vec());
-    let samus_sprite: Option<Vec<u8>> = req.spritesheet.as_ref().map(|x| x.data.to_vec());
 
     if rom.data.len() < 0x300000 {
         return HttpResponse::BadRequest().body("Invalid base ROM.");
     }
 
     let settings = CustomizeSettings {
+        samus_sprite: if req.custom_samus_sprite.0 { Some(req.samus_sprite.0.clone()) } else { None },
+        vanilla_screw_attack_animation: req.vanilla_screw_attack_animation.0,
         area_themed_palette: req.room_palettes.0 == "area-themed",
-        disable_music: req.disable_music.0,
+        music: match req.music.0.as_str() {
+            "vanilla" => MusicSettings::Vanilla,
+            "area" => MusicSettings::AreaThemed,
+            "disabled" => MusicSettings::Disabled,
+            _ => panic!("Unexpected music option: {}", req.music.0.as_str()),
+        },
         disable_beeping: req.disable_beeping.0,
     };
     info!("CustomizeSettings: {:?}", settings);
-    match customize_rom(&mut rom, &patch_ips, &samus_sprite, &settings, &app_data.game_data, &app_data.samus_customizer) {
+    match customize_rom(&mut rom, &patch_ips, &settings, &app_data.game_data, &app_data.samus_sprite_categories) {
         Ok(()) => {}
         Err(err) => {
             return HttpResponse::InternalServerError()
@@ -1331,7 +1340,8 @@ fn build_app_data() -> AppData {
     let hub_locations_path = Path::new("data/hub_locations.json");
     let maps_path =
         Path::new("../maps/session-2022-06-03T17:19:29.727911.pkl-bk30-subarea-balance-2");
-    let samus_spritesheet_layout_path = Path::new("data/samus_spritesheet_layout.json");
+    let samus_sprites_path = Path::new("../MapRandoSprites/samus_sprites/manifest.json");
+    // let samus_spritesheet_layout_path = Path::new("data/samus_spritesheet_layout.json");
 
     let game_data = GameData::load(
         sm_json_data_path,
@@ -1342,7 +1352,7 @@ fn build_app_data() -> AppData {
         hub_locations_path,
     )
     .unwrap();
-    let samus_customizer = SamusSpriteCustomizer::new(samus_spritesheet_layout_path).unwrap();
+    // let samus_customizer = SamusSpriteCustomizer::new(samus_spritesheet_layout_path).unwrap();
     let tech_gif_listing = list_tech_gif_files();
     let presets: Vec<Preset> =
         serde_json::from_str(&std::fs::read_to_string(&"data/presets.json").unwrap()).unwrap();
@@ -1350,6 +1360,7 @@ fn build_app_data() -> AppData {
     let implicit_tech = get_implicit_tech();
     let preset_data = init_presets(presets, &game_data, &ignored_notable_strats, &implicit_tech);
     let logic_data = LogicData::new(&game_data, &tech_gif_listing, &preset_data);
+    let samus_sprite_categories: Vec<SamusSpriteCategory> = serde_json::from_str(&std::fs::read_to_string(&samus_sprites_path).unwrap()).unwrap();
     AppData {
         game_data,
         preset_data,
@@ -1360,7 +1371,8 @@ fn build_app_data() -> AppData {
         visualizer_files: load_visualizer_files(),
         tech_gif_listing,
         logic_data,
-        samus_customizer,
+        samus_sprite_categories,
+        // samus_customizer,
         debug: args.debug,
         static_visualizer: args.static_visualizer,
     }

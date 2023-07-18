@@ -6,7 +6,6 @@ use std::path::{Path, PathBuf};
 use anyhow::{Context, Result};
 use log::info;
 
-use crate::customize::SamusSpriteCustomizer;
 use crate::game_data::{GameData, Map};
 use crate::seed_repository::SeedRepository;
 
@@ -40,6 +39,21 @@ pub struct MapRepository {
     pub filenames: Vec<String>,
 }
 
+
+#[derive(Deserialize, Clone)]
+pub struct SamusSpriteInfo {
+    pub name: String,
+    pub display_name: String,
+    pub credits_name: Option<String>,
+    pub author: String,
+}
+
+#[derive(Deserialize, Clone)]
+pub struct SamusSpriteCategory {
+    pub category_name: String,
+    pub sprites: Vec<SamusSpriteInfo>,
+}
+
 pub struct AppData {
     pub game_data: GameData,
     pub preset_data: Vec<PresetData>,
@@ -49,8 +63,9 @@ pub struct AppData {
     pub seed_repository: SeedRepository,
     pub visualizer_files: Vec<(String, Vec<u8>)>, // (path, contents)
     pub tech_gif_listing: HashSet<String>,
+    pub samus_sprite_categories: Vec<SamusSpriteCategory>,
     pub logic_data: LogicData,
-    pub samus_customizer: SamusSpriteCustomizer,
+    // pub samus_customizer: SamusSpriteCustomizer,
     pub debug: bool,
     pub static_visualizer: bool,
 }

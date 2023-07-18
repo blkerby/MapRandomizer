@@ -214,7 +214,7 @@ cycle_weight = 0.0
 cycle_value_coef = 0.0
 compute_cycles = False
 
-door_connect_bound = 3.0
+door_connect_bound = 1.0
 # door_connect_bound = 0.0
 door_connect_alpha = 0.01
 # door_connect_alpha = door_connect_alpha0 / math.sqrt(1 + session.num_rounds / lr_cooldown_time)
@@ -260,7 +260,7 @@ total_min_door_frac = 0
 total_cycle_cost = 0.0
 save_freq = 256
 summary_freq = 256
-session.decay_amount = 0.2
+session.decay_amount = 0.01
 # session.decay_amount = 0.2
 session.optimizer.param_groups[0]['betas'] = (0.9, 0.9)
 session.optimizer.param_groups[0]['eps'] = 1e-5
@@ -548,7 +548,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk20')
+            # save_session(session, pickle_name + '-bk21')
             # session.replay_buffer.resize(2 ** 20)
             # pickle.dump(session, open(pickle_name + '-small-16', 'wb'))
     if session.num_rounds % summary_freq == 0:

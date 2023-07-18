@@ -1,68 +1,33 @@
 next release:
-- add custom sprite support
-  - notes:
-  - tile graphics:
-    - $92d94e: animation definition pointers (1 word per Samus pose), points to animation definition in bank $92
-    - $92db48: animation definitions (target of pointers in table at $92d94e)
-      - 4 bytes per animation frame
-      - byte 0: top half, index into $92D91E
-      - byte 1: top half, multiplied by 7 and added to index for byte 0 to get pointer to tile definition.
-      - byte 2: bottom half, index into $92D938
-      - byte 3: bottom half, multiplied by 7 and added to index for byte 2 to get pointer to tile definition.
-      ; First byte indexes the top half tiles definitions pointer table ($D91E) for a pointer to a list of DMA entries that is indexed by the second byte
-      ; Third byte indexes the bottom half tiles definitions pointer table ($D938) for a pointer to a list of DMA entries that is indexed by the fourth byte
-    - $92cbee: tile definitions (DMA entries)
-      - 7 bytes per animation frame:
-        ; Samus tiles definition format:
-        ;     aaaaaa nnnn NNNN
-        ; where:
-        ;     a: Source address (banks $9B - $9F)
-        ;     n: Part 1 size, n = 0 means 10000h bytes are transferred
-        ;     N: Part 2 size, N = 0 means no bytes are transferred
-  - spritemaps:
-    - $929263: spritemap table indices, top half (1 word per Samus pose), index into spritemap table at $92808D
-    - $92945D: spritemap table indices, bottom half (1 word per Samus pose), index into spritemap table at $92808D
-    - $92808D: spritemap table: 1 word for each animation frame, starting at index given above, pointing into spritemaps in bank $92 (at $929657)
-    - $929657: spritemaps, in format described in PJ's bank logs at $A9:93EE:
-      ; Spritemap format is roughly:
-      ;     nnnn         ; Number of entries (2 bytes)
-      ;     xxxx yy aatt ; Entry 0 (5 bytes)
-      ;     ...          ; Entry 1...
-      ; Where:
-      ;     n = number of entries
-      ;     x = X offset of sprite from centre
-      ;     y = Y offset of sprite from centre
-      ;     a = attributes
-      ;     t = tile number
-
-      ; More specifically, a spritemap entry is:
-      ;     s000000xxxxxxxxx yyyyyyyy YXppPPPttttttttt
-      ; Where:
-      ;     s = size bit
-      ;     x = X offset of sprite from centre
-      ;     y = Y offset of sprite from centre
-      ;     Y = Y flip
-      ;     X = X flip
-      ;     P = palette
-      ;     p = priority (relative to background)
-      ;     t = tile number
-  - palettes: ...
+- add newly approved sprites
+- pull in sm-json-data, implement clearsObstacles, adjust tech/notable tiers
+- randomized start: check requires on hub locations
+- add more random start locations, in item rooms (speed booster room, morph ball room, screw attack room bottom)
 
 priority:
+- add help buttons for customization options.
+- add momentum conservation patch (in "Max" QoL)
+- add objectives:
+  - Larvas: 4 special items (replacing missiles)
+  - Random
+- investigate resource_multiplier bug that happened in Osse's seed with resource_multiplier=8:
+  - https://maprando.com/seed/isnUf9YjIhvW-BJFrvFuyw/data/visualizer/index.html
+  - (was from enemykill not using multiplier)
 - Fix bug with cross-room jump?:
   - spoiler shows no logical path out of draygon until later than expected:
     https://maprando.com/seed/O4j4-NDrcwckyTtJMVqxdw/data/visualizer/index.html
 - Slow progression item placement bug?:
   - supers placed on same step as Screw, although Missiles still available as filler:
     - https://maprando.com/seed/HwuYziIJUh-sCUM0YCAPRA/data/visualizer/index.html
-- randomized start: check requires on hub locations
+  - possibly related: issue where filler items are re-randomized when trying new key item.
+    - maybe re-randomizing is ok, but on success it should try replacing key item with Missile (instead of having Missile be first key item tried)
 - fix quick-reload on last frame of pause/unpause
 - adjust area colors
   - darken wrecked ship a bit
   - maybe add a little color to tourian, a bit tan maybe (like the tourian sand)
 - check if reloading from bottom/top of elevator works correctly (not skips back a save)
 - do something about screen shaking during samus appears (in start location: rising tide, amphitheatre)
-  - maybe get rid of shaking in general?
+  - maybe customization option to get rid of shaking in general?
 - fix bug in escape room 1: top block of right transition seems solid (reported by somerando)
 - new map pool
   - bosses not cleared unless "enemies cleared" option is enabled
@@ -75,19 +40,25 @@ priority:
 - incrementally build graph traversal with increasing difficulty tiers, acquiring flags in the process.
   - will allow better accounting of the difficulty of boss fights in forced mode
   - should be faster too
-- credits
-- show objective progress in pause menu (also zebes awake, phantoon defeated)
+  - improved spoiler log route
+- show objective progress in pause menu (also zebes awake, phantoon defeated)?
+  - or maybe just make objective X's fade on map (if we do faded item dots)
 - overhaul how randomization/customization phases work: run customization on client (with Rust WebAssembly?)
   - make it so that customization can use matching version from when the seed was generated
   - include more options for customization
   - ROM won't need to be provided for generation, only customization
-- sprite customization,
-- randomized start
 - help buttons for rest of settings (e.g. explain boss proficiency calculations)
 - logic simulator
 - get rid of symlink for sm-json-data
 
 later:
+- gravity seems to provide 50% heat reduction on elevator ride? (Remove this.)
+   - https://clips.twitch.tv/RepleteShyManateeTBTacoLeft-Ip5vQynrc0SQYQUj
+   - maybe during acid chozo drain too?
+- add customization option for etank color
+- improve pause menu map scrolling:
+  - when fast pause is enabled, double map scroll speed (but keep beeping frequency the same)?
+  - allow moving diagonally
 - change how cross-room logic works?:
   - unify cross-room strats to go under links, with annotations on the cross-room state (in new strat properties)
   - replaces "initiateRemotely", allows obstacles and one-way cross-room paths to be handled properly
@@ -108,7 +79,6 @@ later:
   - (not part of QoL:) fix crash when pausing on frame when auto reserve triggers 
   - See existing patch for some of these: https://metroidconstruction.com/resource.php?id=418
 - consider bot-friendly API
-- add momentum conservation patch (in "Max" QoL)
 - use "crateria asleep" song somewhere:
   - maybe in the initial part of crateria when zebes not awake.
   - alternatively: in the wrecked ship, replacing one of the two nearly identical songs.
@@ -131,9 +101,6 @@ later:
   - try nvidia transformer engine
   - increase model size, probably decrease pass factor and buffer size
   - try again using action values, to reduce the amount of computation needed
-- add objectives:
-  - Larvas: 4 special items (replacing missiles)
-  - Random
 - when tile above Samus gets explored (in speedways) make it get revealed too
 - fix missing Samus tile in Bomb message box (issue with map tile expansion patch)
 - add logic override for strat to run under tourian blue hoppers from left (except with ultra-low QoL)
@@ -149,17 +116,12 @@ later:
   - same thing with spore spawn entering from bottom
 - handle (steep) slopes in runway length calculations
 - 10 super botwoon should be possible in Expert (and 30 missile in Insane?)
-- possibly add smoother map scrolling (8-directional) like Map Overhaul?
-- fix dark grid dots in slope tiles (Terminator/Croc Speedway)
-- adjust some of the transition marker letters:
+- possibly adjust some of the transition marker letters:
   - make the right part of the N thicker (possibly make it 7 pixels wide?)
   - make M and W be 7 pixels wide. 
     - Mirror them to put the gap in the correct place?
     - but if it has tiles on both the left & right, what do we do?
        - keep it 6 pixels?
-- gravity seems to provide 50% heat reduction on elevator ride? (Remove this.)
-   - https://clips.twitch.tv/RepleteShyManateeTBTacoLeft-Ip5vQynrc0SQYQUj
-   - maybe during acid chozo drain too?
 - maybe make Mother Brain Room reveal all its tiles (and maybe explore them too? but probably not), to be more consistent with the other boss rooms
    - on the other hand, what about minibosses and other objectives? maybe just leave all this alone?
 - fix save animation colors (area-themed color looks a little bad?)
@@ -295,9 +257,10 @@ later:
 - add README
 - fix suit graphics not showing after getting suit (consequence of skipping animation)?
 - have forced mode take into account return path?
+  - probably bad idea, because returning may not be required (before getting another item that makes it easier).
 
 maybe someday?:
-- see if we can represent more room details on map: heat, water, gates, tunnels
+- see if we can represent more room details on map: heat, water(?), gates, tunnels, sand
 - minimizer mode? (select rooms to include randomly, hand-picked, and/or user-selected)
 - make map rando for other hacks (e.g. project base, subversion?)
   - would be a lot of work. we could invite others to help implement the logic
@@ -353,6 +316,53 @@ title graphics notes:
   - title BG tilemap: $96:FC04 (0xB7C04)
 
 
+- samus sprites notes:
+  - tile graphics:
+    - $92d94e: animation definition pointers (1 word per Samus pose), points to animation definition in bank $92
+    - $92db48: animation definitions (target of pointers in table at $92d94e)
+      - 4 bytes per animation frame
+      - byte 0: top half, index into $92D91E
+      - byte 1: top half, multiplied by 7 and added to index for byte 0 to get pointer to tile definition.
+      - byte 2: bottom half, index into $92D938
+      - byte 3: bottom half, multiplied by 7 and added to index for byte 2 to get pointer to tile definition.
+      ; First byte indexes the top half tiles definitions pointer table ($D91E) for a pointer to a list of DMA entries that is indexed by the second byte
+      ; Third byte indexes the bottom half tiles definitions pointer table ($D938) for a pointer to a list of DMA entries that is indexed by the fourth byte
+    - $92cbee: tile definitions (DMA entries)
+      - 7 bytes per animation frame:
+        ; Samus tiles definition format:
+        ;     aaaaaa nnnn NNNN
+        ; where:
+        ;     a: Source address (banks $9B - $9F)
+        ;     n: Part 1 size, n = 0 means 10000h bytes are transferred
+        ;     N: Part 2 size, N = 0 means no bytes are transferred
+  - spritemaps:
+    - $929263: spritemap table indices, top half (1 word per Samus pose), index into spritemap table at $92808D
+    - $92945D: spritemap table indices, bottom half (1 word per Samus pose), index into spritemap table at $92808D
+    - $92808D: spritemap table: 1 word for each animation frame, starting at index given above, pointing into spritemaps in bank $92 (at $929657)
+    - $929657: spritemaps, in format described in PJ's bank logs at $A9:93EE:
+      ; Spritemap format is roughly:
+      ;     nnnn         ; Number of entries (2 bytes)
+      ;     xxxx yy aatt ; Entry 0 (5 bytes)
+      ;     ...          ; Entry 1...
+      ; Where:
+      ;     n = number of entries
+      ;     x = X offset of sprite from centre
+      ;     y = Y offset of sprite from centre
+      ;     a = attributes
+      ;     t = tile number
+
+      ; More specifically, a spritemap entry is:
+      ;     s000000xxxxxxxxx yyyyyyyy YXppPPPttttttttt
+      ; Where:
+      ;     s = size bit
+      ;     x = X offset of sprite from centre
+      ;     y = Y offset of sprite from centre
+      ;     Y = Y flip
+      ;     X = X flip
+      ;     P = palette
+      ;     p = priority (relative to background)
+      ;     t = tile number
+  - palettes: ...
 
 
 Notes on calculating PLM position (and comparing with Samus position):

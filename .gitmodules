@@ -2,3 +2,11 @@
 	path = sm-json-data
 	url = https://github.com/kjbranch/sm-json-data.git
 	branch = map-rando
+[submodule "MapRandoSprites"]
+	path = MapRandoSprites
+	url = https://github.com/blkerby/MapRandoSprites
+	branch = main
+[submodule "SpriteSomething"]
+	path = SpriteSomething
+	url = https://github.com/Artheau/SpriteSomething
+	branch = expanded

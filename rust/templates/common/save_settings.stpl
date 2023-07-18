@@ -2,7 +2,7 @@
 function saveForm(form) {
     data = {}
     for (const element of form.elements) {
-        if (element.type == "file" || element.type == "hidden") {
+        if (element.type == "file") {
             continue;
         }
         if (element.type == "radio" && !element.checked) {
@@ -28,7 +28,7 @@ function loadForm(form) {
     }
     data = JSON.parse(localStorage[form.id]);
     for (const element of form.elements) {
-        if (element.type == "file" || element.type == "hidden") {
+        if (element.type == "file") {
             continue;
         }
         if (element.name == "") {

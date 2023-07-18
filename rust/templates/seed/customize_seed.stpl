@@ -26,51 +26,118 @@ window.spoilerTokenPrefix = "<%- spoiler_token_prefix %>";
             <div class="container my-2">
                 <div class="card">
                     <div class="card-header">Customization</div>
-                    <form id="customization-form" class="card-body container" method="POST" enctype="multipart/form-data" action="customize" onchange="saveForm(this)">
+                    <form id="customization-form" class="card-body container py-0" method="POST" enctype="multipart/form-data" action="customize" onchange="saveForm(this)">
                         <div class="form-group row my-3">
-                            <label class="col-sm-4 col-form-label" for="spritesheet">Custom spritesheet</label>
-                            <input class="col-sm-8 form-control-file" type="file" id="spritesheet" name="spritesheet">
+                            <div class="col-md-4">
+                            <label class="col-form-label" for="custom_samus_sprite">Samus sprite</label>
+                            </div>
+                            <div class="col-md-6 col-lg-4 btn-group p-0" role="group" onclick="changeSamusSprite()">
+                                <input type="radio" class="btn-check" name="custom_samus_sprite" id="customSamusSpriteNo" value=false checked>
+                                <label class="btn btn-outline-primary" for="customSamusSpriteNo">Vanilla</label>
+                                <input type="radio" class="btn-check" name="custom_samus_sprite" id="customSamusSpriteYes" value=true>
+                                <label class="btn btn-outline-primary" for="customSamusSpriteYes">Custom</label>
+                            </div>
+                        </div>
+
+                        <style>
+                        html[data-bs-theme=dark] .sprite:hover:not(.selected) {
+                            background-color: #2b3035;
+                        }
+                        html[data-bs-theme=light] .sprite:hover:not(.selected) {
+                            background-color: #f4f5f6;
+                        }
+                        .sprite.selected {
+                            background-color: #0d6efd;
+                        }
+                        .sprite.selected .sprite-text {
+                            color: #ffffff;
+                        }
+                        .png-sprite {
+                            position: absolute;
+                        }
+                        .sprite:hover .png-sprite {
+                            opacity: 0;
+                        }
+                        .sprite:not(:hover) .gif-sprite {
+                            opacity: 0;
+                        }
+                        </style>
+
+                        <input type="hidden" id="samusSprite" name="samus_sprite" value="">
+                        <% for category in samus_sprite_categories { %>
+                            <div class="card-header d-none sprite-list mt-2"><%= category.category_name %></div>
+                            <div class="form-group row m-0 p-0 d-none sprite-list">
+                                <div class="d-flex align-content-start flex-wrap m-0 p-0">
+                                    <% for info in category.sprites { %>
+                                        <div id="spriteButton-<%= info.name %>" class="border p-2 m-0 sprite" style="width:150px" onclick="selectSprite(this)" data-name="<%= info.name%>">
+                                            <div class="row">
+                                                <div class="text-center">
+                                                    <img class="mx-auto png-sprite" src="/static/samus_sprites/<%= info.name %>.png" style="image-rendering: pixelated;width:120px">
+                                                    <img class="mx-auto gif-sprite" src="/static/samus_sprites/<%= info.name %>.gif" style="image-rendering: pixelated;width:120px">
+                                                </div>
+                                            </div>
+                                            <div class="row mt-2">
+                                                <p class="text-center sprite-text"><%= info.display_name %></p>
+                                            </div>
+                                        </div>
+                                    <% } %>
+                                </div>
+                            </div>
+                        <% } %>
+
+                        <div class="form-group row my-3">
+                            <div class="col-md-4">
+                            <label class="col-form-label" for="vanilla_screw_attack_animation">Screw Attack animation</label>
+                            </div>
+                            <div class="col-md-6 col-lg-4 btn-group p-0" role="group">
+                                <input type="radio" class="btn-check" name="vanilla_screw_attack_animation" id="screwAttackAnimationVanilla" value=true>
+                                <label class="btn btn-outline-primary" style="width:120px" for="screwAttackAnimationVanilla">Vanilla</label>
+                                <input type="radio" class="btn-check" name="vanilla_screw_attack_animation" id="screwAttackAnimationSplit" value=false checked>
+                                <label class="btn btn-outline-primary" style="width:120px" for="screwAttackAnimationSplit">Split</label>
+                            </div>
                         </div>
 
                         <div class="form-group row my-3">
-                            <div class="col-sm-4">
+                            <div class="col-md-4">
                             <label class="col-form-label" for="room_palettes">Room palettes</label>
                             </div>
-                            <div class="col-sm-4 btn-group" role="group">
-                                <input type="radio" class="btn-check" name="room_palettes" id="roomPalettesVanilla" value="vanilla" checked>
-                                <label class="btn btn-outline-primary" for="roomPalettesVanilla">Vanilla</label>
-                                <input type="radio" class="btn-check" name="room_palettes" id="roomPalettesAreaThemed" value="area-themed">
-                                <label class="btn btn-outline-primary" for="roomPalettesAreaThemed">Area-themed</label>
+                            <div class="col-md-6 col-lg-4 btn-group p-0" role="group">
+                                <input type="radio" class="btn-check" name="room_palettes" id="roomPalettesVanilla" value="vanilla">
+                                <label class="btn btn-outline-primary" style="width:120px" for="roomPalettesVanilla">Vanilla</label>
+                                <input type="radio" class="btn-check" name="room_palettes" id="roomPalettesAreaThemed" value="area-themed" checked>
+                                <label class="btn btn-outline-primary" style="width:120px" for="roomPalettesAreaThemed">Area-themed</label>
                             </div>
                         </div>
 
                         <div class="form-group row my-3">
-                            <div class="col-sm-4">
-                            <label class="col-form-label" for="disable_music">Disable music</label>
+                            <div class="col-md-4">
+                            <label class="col-form-label" for="music">Music</label>
                             </div>
-                            <div class="col-sm-4 btn-group" role="group">
-                                <input type="radio" class="btn-check" name="disable_music" id="disableMusicNo" value=false checked>
-                                <label class="btn btn-outline-primary" for="disableMusicNo">No</label>
-                                <input type="radio" class="btn-check" name="disable_music" id="disableMusicYes" value=true>
-                                <label class="btn btn-outline-primary" for="disableMusicYes">Yes</label>
+                            <div class="col-md-8 col-lg-6 btn-group p-0" role="group">
+                                <input type="radio" class="btn-check" name="music" id="musicVanilla" value="vanilla">
+                                <label class="btn btn-outline-primary" style="width:120px" for="musicVanilla">Vanilla</label>
+                                <input type="radio" class="btn-check" name="music" id="musicArea" value="area" checked>
+                                <label class="btn btn-outline-primary" style="width:120px" for="musicArea">Area-themed</label>
+                                <input type="radio" class="btn-check" name="music" id="musicDisabled" value="disabled">
+                                <label class="btn btn-outline-primary" style="width:120px" for="musicDisabled">Disabled</label>
                             </div>
                         </div>
 
                         <div class="form-group row my-3">
-                            <div class="col-sm-4">
-                            <label class="col-form-label" for="disable_beeping">Disable low-energy beeping</label>
+                            <div class="col-md-4">
+                            <label class="col-form-label" for="disable_beeping">Low-energy beeping</label>
                             </div>
-                            <div class="col-sm-4 btn-group" role="group">
+                            <div class="col-md-6 col-lg-4 btn-group p-0" role="group">
                                 <input type="radio" class="btn-check" name="disable_beeping" id="disableBeepingNo" value="false" checked>
-                                <label class="btn btn-outline-primary" for="disableBeepingNo">No</label>
+                                <label class="btn btn-outline-primary" style="width:120px" for="disableBeepingNo">Vanilla</label>
                                 <input type="radio" class="btn-check" name="disable_beeping" id="disableBeepingYes" value="true">
-                                <label class="btn btn-outline-primary" for="disableBeepingYes">Yes</label>
+                                <label class="btn btn-outline-primary" style="width:120px" for="disableBeepingYes">Disabled</label>
                             </div>
                         </div>
 
                         <div class="form-group row my-3">
-                            <label class="col-sm-4 col-form-label" for="rom">Base ROM</label>
-                            <input class="col-sm-8 form-control-file" type="file" id="baseRom" name="rom"
+                            <label class="col-md-4 col-form-label" for="rom">Base ROM</label>
+                            <input class="col-sm-8 form-control-file p-0" type="file" id="baseRom" name="rom"
                             onchange="saveROM(this, 'base')">
                         </div>
                         <input type="submit" class="btn btn-primary" value="Download ROM" />
@@ -88,8 +155,46 @@ window.spoilerTokenPrefix = "<%- spoiler_token_prefix %>";
 <% include!("../common/save_load_rom.stpl"); %>
 <% include!("../common/save_settings.stpl"); %>
 <script>
+function changeSamusSprite() {
+    var enabled = document.getElementById("customSamusSpriteYes").checked;
+    var spriteLists = document.getElementsByClassName("sprite-list");
+    for (var i = 0; i < spriteLists.length; i++) {
+        if (enabled) {
+            spriteLists[i].classList.remove("d-none");
+        } else {
+            spriteLists[i].classList.add("d-none");
+        }
+    }
+
+    var sprites = document.getElementsByClassName("sprite");
+    var selectedSpriteName = document.getElementById("samusSprite").value;
+    var selectedSprite = document.getElementById("spriteButton-" + selectedSpriteName);
+
+    // Unhighlight other sprites
+    for (var i = 0; i < sprites.length; i++) {
+        if (sprites[i] != selectedSprite) {
+            sprites[i].classList.remove("selected");
+        }
+    }
+
+    // Set the sprite selected class (to highlight it):
+    if (selectedSprite !== null) {
+        selectedSprite.classList.add("selected");
+    }
+    console.log("selected: " + selectedSpriteName + ": " + selectedSprite);
+
+    saveForm(document.getElementById("customization-form"));
+
+}
+function selectSprite (el) {
+    // Set the form field:
+    document.getElementById("samusSprite").value = el.getAttribute("data-name");
+    changeSamusSprite();
+};
+
 loadROM(document.getElementById("baseRom"), 'base');
 loadForm(document.getElementById("customization-form"));
+changeSamusSprite();
 </script>
 
 </body>

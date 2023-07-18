@@ -685,6 +685,16 @@ script:
     dw !draw, !row*151
     dw !draw, !row*152
     dw !draw, !blank
+    dw !draw, !row*231  ; SPRITESOMETHING
+    dw !draw, !blank
+    dw !draw, !row*232
+    dw !draw, !row*233
+    dw !draw, !blank
+    dw !draw, !row*234  ; (Sprite name)
+    dw !draw, !blank
+    dw !draw, !row*235  ; (Sprite author)
+    dw !draw, !row*236
+    dw !draw, !blank
     dw !draw, !blank
     dw !draw, !blank
     dw !draw, !blank
@@ -705,9 +715,8 @@ script:
     dw !draw, !blank
     dw !draw, !blank
     dw !draw, !blank
-
-    ;; Set scroll speed to 4 frames per pixel
-    dw !speed, $0004
+    dw !draw, !blank
+    dw !draw, !blank
 
     dw !draw, !row*221  ; RANDOMIZER SETTINGS
     dw !draw, !blank
@@ -830,11 +839,17 @@ script:
     dw !draw, !row*219   ; THANKS FOR PLAYING
     dw !draw, !row*220
 
-;    ;; Set scroll speed to 6 frames per pixel
-;    dw !speed, $0006
+
+    dw !set, $0018
+-
+    dw !draw, !blank
+    dw !delay, -
+
+    ;; Set scroll speed to 6 frames per pixel
+    dw !speed, $0006
 
     ;; Scroll all text off and end credits
-    dw !set, $0020
+    dw !set, $0008
 -
     dw !draw, !blank
     dw !delay, -
@@ -916,13 +931,13 @@ credits:
     !purple
     dw "    SUPER METROID MOD MANUAL    " ;; 150
     !big
-    dw "           BEGRIMED             " ;; 151
-    dw "           begrimed             " ;; 152
+    dw "            BEGRIMED            " ;; 151
+    dw "            begrimed            " ;; 152
     !green
     dw "    PLAY THIS RANDOMIZER AT     " ;; 153
     !big
-    dw "         MAPRANDO COM           " ;; 154
-    dw "         maprando.com           " ;; 155
+    dw "          MAPRANDO COM          " ;; 154
+    dw "          maprando.com          " ;; 155
     !cyan
     dw "       SPECIAL THANKS TO        " ;; 156
     !big
@@ -1008,6 +1023,16 @@ credits:
     !big
     dw "   SM RANDOMIZER COMMUNITIES    " ;; 229
     dw "   sm randomizer communities    " ;; 230
+    !purple
+    dw "        SPRITESOMETHING         " ;; 231
+    !big
+    dw "     ARTHEAU    MATRETHEWEY     " ;; 232
+    dw "     artheau    matrethewey     " ;; 233
+    !yellow
+    dw "                                " ;; 234 - sprite name (to be filled in by randomizer if custom sprite used)
+    !big
+    dw "                                " ;; 235 - sprite author (to be filled in by randomizer if custom sprite used)
+    dw "                                " ;; 236 - sprite author (to be filled in by randomizer if custom sprite used)
 
     dw $0000
 warnpc !bank_ce_free_space_end

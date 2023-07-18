@@ -19,6 +19,15 @@ about 15 seconds to load.
 
 <p><a href="https://version-72---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 72 (???)</a>:
 <ul>
+<li>New customization options:
+    <ul>
+    <li>Customized Samus sprites: e.g., play as your favorite character from a different game.
+    <li>Split Screw Attack animation: when using Screw Attack without Space Jump, the animation
+    is now based on the spin-jump animation instead of the Space Jump animation, fixing a bug/quirk of
+    the vanilla game.
+    <li>Vanilla music option: the vanilla music for each room will play, meaning that almost every door transition 
+    will change the music.
+    </ul>
 <li>Logic updates:
     <ul>
     <li>Crocomire fight is now more lenient on lower settings (assumes more Missiles available).

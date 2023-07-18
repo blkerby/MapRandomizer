@@ -1,6 +1,6 @@
 use anyhow::{bail, Context, Result};
 use clap::Parser;
-use maprando::customize::{customize_rom, CustomizeSettings, SamusSpriteCustomizer};
+use maprando::customize::{customize_rom, CustomizeSettings, MusicSettings};
 use maprando::game_data::{Item, Map};
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::Rom;
@@ -9,6 +9,7 @@ use maprando::randomize::{
     ProgressionRate, Randomization, Randomizer,
 };
 use maprando::spoiler_map;
+use maprando::web::{SamusSpriteInfo, SamusSpriteCategory};
 use maprando::{game_data::GameData, patch::make_rom, randomize::DifficultyConfig};
 use std::path::{Path, PathBuf};
 
@@ -211,7 +212,6 @@ fn main() -> Result<()> {
     let escape_timings_path = Path::new("data/escape_timings.json");
     let start_locations_path = Path::new("data/start_locations.json");
     let hub_locations_path = Path::new("data/hub_locations.json");
-    let samus_spritesheet_layout_path = Path::new("data/samus_spritesheet_layout.json");
     let game_data = GameData::load(
         sm_json_data_path,
         room_geometry_path,
@@ -220,8 +220,6 @@ fn main() -> Result<()> {
         start_locations_path,
         hub_locations_path,
     )?;
-
-    let samus_customizer = SamusSpriteCustomizer::new(samus_spritesheet_layout_path)?;
 
     // Perform randomization (map selection & item placement):
     let randomization = get_randomization(&args, &game_data)?;
@@ -233,12 +231,25 @@ fn main() -> Result<()> {
 
     let mut output_rom = input_rom.clone();
     let customize_settings = CustomizeSettings {
+        samus_sprite: Some("samus".to_string()),
+        vanilla_screw_attack_animation: false,
         area_themed_palette: true,
-        disable_music: false,
+        music: MusicSettings::AreaThemed,
         disable_beeping: false,
-        // area_themed_palette: false
     };
-    customize_rom(&mut output_rom, &ips_patch, &None, &customize_settings, &game_data, &samus_customizer)?;
+    customize_rom(&mut output_rom, &ips_patch, &customize_settings, &game_data, &[
+        SamusSpriteCategory {
+            category_name: "category".to_string(),
+            sprites: vec![
+                SamusSpriteInfo {
+                    name: "samus".to_string(),
+                    display_name: "Samus".to_string(),
+                    credits_name: None,
+                    author: "Nintendo".to_string(),
+                }
+            ]
+        }
+    ])?;
 
     // Save the outputs:
     if let Some(output_rom_path) = &args.output_rom {
