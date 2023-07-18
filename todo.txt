@@ -5,7 +5,6 @@ next release:
 - add more random start locations, in item rooms (speed booster room, morph ball room, screw attack room bottom)
 
 priority:
-- add help buttons for customization options.
 - add momentum conservation patch (in "Max" QoL)
 - add objectives:
   - Larvas: 4 special items (replacing missiles)

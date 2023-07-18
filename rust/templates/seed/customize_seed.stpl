@@ -29,13 +29,13 @@ window.spoilerTokenPrefix = "<%- spoiler_token_prefix %>";
                     <form id="customization-form" class="card-body container py-0" method="POST" enctype="multipart/form-data" action="customize" onchange="saveForm(this)">
                         <div class="form-group row my-3">
                             <div class="col-md-4">
-                            <label class="col-form-label" for="custom_samus_sprite">Samus sprite</label>
+                            <label class="col-form-label" for="custom_samus_sprite"><% include!("help/samus_sprite.stpl"); %>Samus sprite</label>
                             </div>
                             <div class="col-md-6 col-lg-4 btn-group p-0" role="group" onclick="changeSamusSprite()">
                                 <input type="radio" class="btn-check" name="custom_samus_sprite" id="customSamusSpriteNo" value=false checked>
-                                <label class="btn btn-outline-primary" for="customSamusSpriteNo">Vanilla</label>
+                                <label class="btn btn-outline-primary" style="width:120px" for="customSamusSpriteNo">Vanilla</label>
                                 <input type="radio" class="btn-check" name="custom_samus_sprite" id="customSamusSpriteYes" value=true>
-                                <label class="btn btn-outline-primary" for="customSamusSpriteYes">Custom</label>
+                                <label class="btn btn-outline-primary" style="width:120px" for="customSamusSpriteYes">Custom</label>
                             </div>
                         </div>
 
@@ -72,8 +72,8 @@ window.spoilerTokenPrefix = "<%- spoiler_token_prefix %>";
                                         <div id="spriteButton-<%= info.name %>" class="border p-2 m-0 sprite" style="width:150px" onclick="selectSprite(this)" data-name="<%= info.name%>">
                                             <div class="row">
                                                 <div class="text-center">
-                                                    <img class="mx-auto png-sprite" src="/static/samus_sprites/<%= info.name %>.png" style="image-rendering: pixelated;width:120px">
-                                                    <img class="mx-auto gif-sprite" src="/static/samus_sprites/<%= info.name %>.gif" style="image-rendering: pixelated;width:120px">
+                                                    <img class="mx-auto png-sprite" loading="lazy" src="/static/samus_sprites/<%= info.name %>.png" style="image-rendering: pixelated;width:120px;height:168px">
+                                                    <img class="mx-auto gif-sprite" loading="lazy" src="/static/samus_sprites/<%= info.name %>.gif" style="image-rendering: pixelated;width:120px;height:168px">
                                                 </div>
                                             </div>
                                             <div class="row mt-2">
@@ -87,7 +87,7 @@ window.spoilerTokenPrefix = "<%- spoiler_token_prefix %>";
 
                         <div class="form-group row my-3">
                             <div class="col-md-4">
-                            <label class="col-form-label" for="vanilla_screw_attack_animation">Screw Attack animation</label>
+                            <label class="col-form-label" for="vanilla_screw_attack_animation"><% include!("help/screw_attack.stpl"); %>Screw Attack animation</label>
                             </div>
                             <div class="col-md-6 col-lg-4 btn-group p-0" role="group">
                                 <input type="radio" class="btn-check" name="vanilla_screw_attack_animation" id="screwAttackAnimationVanilla" value=true>
@@ -99,7 +99,7 @@ window.spoilerTokenPrefix = "<%- spoiler_token_prefix %>";
 
                         <div class="form-group row my-3">
                             <div class="col-md-4">
-                            <label class="col-form-label" for="room_palettes">Room palettes</label>
+                            <label class="col-form-label" for="room_palettes"><% include!("help/room_palettes.stpl"); %>Room palettes</label>
                             </div>
                             <div class="col-md-6 col-lg-4 btn-group p-0" role="group">
                                 <input type="radio" class="btn-check" name="room_palettes" id="roomPalettesVanilla" value="vanilla">
@@ -111,7 +111,7 @@ window.spoilerTokenPrefix = "<%- spoiler_token_prefix %>";
 
                         <div class="form-group row my-3">
                             <div class="col-md-4">
-                            <label class="col-form-label" for="music">Music</label>
+                            <label class="col-form-label" for="music"><% include!("help/music.stpl"); %>Music</label>
                             </div>
                             <div class="col-md-8 col-lg-6 btn-group p-0" role="group">
                                 <input type="radio" class="btn-check" name="music" id="musicVanilla" value="vanilla">
@@ -125,7 +125,7 @@ window.spoilerTokenPrefix = "<%- spoiler_token_prefix %>";
 
                         <div class="form-group row my-3">
                             <div class="col-md-4">
-                            <label class="col-form-label" for="disable_beeping">Low-energy beeping</label>
+                            <label class="col-form-label" for="disable_beeping"><% include!("help/beeping.stpl"); %>Low-energy beeping</label>
                             </div>
                             <div class="col-md-6 col-lg-4 btn-group p-0" role="group">
                                 <input type="radio" class="btn-check" name="disable_beeping" id="disableBeepingNo" value="false" checked>
@@ -136,7 +136,7 @@ window.spoilerTokenPrefix = "<%- spoiler_token_prefix %>";
                         </div>
 
                         <div class="form-group row my-3">
-                            <label class="col-md-4 col-form-label" for="rom">Base ROM</label>
+                            <label class="col-md-4 col-form-label" for="rom"><% include!("help/base_rom.stpl"); %>Base ROM</label>
                             <input class="col-sm-8 form-control-file p-0" type="file" id="baseRom" name="rom"
                             onchange="saveROM(this, 'base')">
                         </div>

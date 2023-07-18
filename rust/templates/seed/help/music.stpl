@@ -1,0 +1,31 @@
+<!-- Button trigger modal -->
+<button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#musicModal">
+<i class="bi bi-question-circle"></i>
+</button>
+
+<!-- Modal -->
+<div class="modal" id="musicModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">Music</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>This setting determines which music plays in each room:</p>
+        <ul>
+        <li><p><strong>Vanilla</strong>: The same music plays as would in the vanilla game for the given room. On a
+        randomized map this implies that music will change across most door transitions, which increases the room load times.</p>
+        
+        <li><p><strong>Area-themed</strong>: The music is based on the area that the room belongs to on the randomized
+        map, which can help the areas to feel more coherent.</p>
+
+        <li><p><strong>Disabled</strong>: Music is disabled, though sound effects still play.</p>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
