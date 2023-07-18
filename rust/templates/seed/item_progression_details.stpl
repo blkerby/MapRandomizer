@@ -9,7 +9,7 @@
 <% for group in &difficulty.item_priorities { %>
     <% if group.name != "Default" && group.items.len() > 0 { %>
         <div class="row">
-            <div class="col-3"><%= group.name %> priority:</div>
+            <div class="col-3"><%= group.name %> key item priority:</div>
             <div class="col-9">
                 <%= group.items.join(", ") %>
             </div>

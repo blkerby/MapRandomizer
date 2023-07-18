@@ -297,6 +297,9 @@ struct SeedHeaderTemplate<'a> {
     maps_revealed: bool,
     vanilla_map: bool,
     ultra_low_qol: bool,
+    preset_data: &'a [PresetData],
+    enabled_tech: HashSet<String>,
+    enabled_notables: HashSet<String>
 }
 
 #[derive(TemplateOnce)]
@@ -319,7 +322,7 @@ struct CustomizeSeedTemplate {
     samus_sprite_categories: Vec<SamusSpriteCategory>,
 }
 
-fn render_seed(seed_name: &str, seed_data: &SeedData) -> Result<(String, String)> {
+fn render_seed(seed_name: &str, seed_data: &SeedData, app_data: &AppData) -> Result<(String, String)> {
     let ignored_notable_strats: HashSet<String> =
         seed_data.ignored_notable_strats.iter().cloned().collect();
     let notable_strats: Vec<String> = seed_data
@@ -329,6 +332,8 @@ fn render_seed(seed_name: &str, seed_data: &SeedData) -> Result<(String, String)
         .cloned()
         .filter(|x| !ignored_notable_strats.contains(x))
         .collect();
+    let enabled_tech: HashSet<String> = seed_data.difficulty.tech.iter().cloned().collect();
+    let enabled_notables: HashSet<String> = seed_data.difficulty.notable_strats.iter().cloned().collect();
     let seed_header_template = SeedHeaderTemplate {
         seed_name: seed_name.to_string(),
         version: VERSION,
@@ -381,6 +386,9 @@ fn render_seed(seed_name: &str, seed_data: &SeedData) -> Result<(String, String)
         maps_revealed: seed_data.maps_revealed,
         vanilla_map: seed_data.vanilla_map,
         ultra_low_qol: seed_data.ultra_low_qol,
+        preset_data: &app_data.preset_data,
+        enabled_tech,
+        enabled_notables,
     };
     let seed_header_html = seed_header_template.render_once()?;
 
@@ -415,7 +423,7 @@ async fn save_seed(
     files.push(SeedFile::new("patch.ips", patch_ips));
 
     // Write the seed header HTML and footer HTML
-    let (seed_header_html, seed_footer_html) = render_seed(seed_name, seed_data)?;
+    let (seed_header_html, seed_footer_html) = render_seed(seed_name, seed_data, app_data)?;
     files.push(SeedFile::new(
         "seed_header.html",
         seed_header_html.into_bytes(),

@@ -26,15 +26,56 @@
     <div class="col-4">Botwoon proficiency:</div>
     <div class="col-8"><%= difficulty.botwoon_proficiency %></div>
 </div>
-<div class="row">
-    <div class="col-4">Tech:</div>
-    <div class="col-8">
-        <%= difficulty.tech.join(", ") %>
+
+<div class="accordion mt-3">
+<% for (preset_idx, p) in preset_data.iter().enumerate() {
+    let name_no_space = p.preset.name.replace(" ", ""); 
+    let tech_enabled_count = p.preset.tech.iter().filter(|&x| enabled_tech.contains(x)).count();
+    let notable_enabled_count = p.preset.notable_strats.iter().filter(|&x| enabled_notables.contains(x)).count();
+    let total_enabled_count = tech_enabled_count + notable_enabled_count;
+    let total_count = p.preset.tech.len() + p.preset.notable_strats.len();
+    let frac_enabled = (total_enabled_count as f32) / (total_count as f32);
+    let mut percent_enabled = (frac_enabled * 100.0) as isize;
+    if percent_enabled == 0 && frac_enabled > 0.0 {
+        percent_enabled = 1;
+    }
+    if percent_enabled == 100 && frac_enabled < 1.0 {
+        percent_enabled = 99;
+    }
+    %>
+    <div class="accordion-item my-0 p-0">
+        <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse<%- name_no_space %>Tech">
+            <%= p.preset.name %> Tech (<%= percent_enabled %>%)
+        </button>
+        </h2>
+        <div id="collapse<%- name_no_space %>Tech" class="accordion-collapse collapse p-2">
+            <div class="container">
+                <% for tech in p.preset.tech.iter() { %>
+                    <div class="row">
+                        <div class="col-xs-11 col-sm-10 col-md-9 col-lg-8">
+                            <%= tech %>:
+                        </div>
+                        <div class="col-1">
+                            <%= if enabled_tech.contains(tech) { "Yes" } else { "No" } %>
+                        </div>
+                    </div>
+                <% } %>
+                <% if p.preset.notable_strats.len() > 0 { %>
+                <hr class="my-2">
+                <% } %>
+                <% for strat in &p.preset.notable_strats { %>
+                    <div class="row">
+                        <div class="col-xs-11 col-sm-10 col-md-9 col-lg-8">
+                            <%= strat %>:
+                        </div>
+                        <div class="col-1">
+                            <%= if enabled_notables.contains(strat) { "Yes" } else { "No" } %>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        </div>
     </div>
-</div>
-<div class="row">
-    <div class="col-4">Notable strats:</div>
-    <div class="col-8">
-        <%- notable_strats.join("<br>") %>
-    </div>
+<% } %>
 </div>

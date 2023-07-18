@@ -29,6 +29,7 @@ about 15 seconds to load.
     will change the music.
     <li>Help buttons are added to describe the customization options.
     </ul>
+<li>Reorganized "Seed Info" on seed page to be more readable.
 <li>Logic updates:
     <ul>
     <li>Crocomire fight is now more lenient on lower settings (assumes more Missiles available).
