@@ -21,9 +21,8 @@ about 15 seconds to load.
 <ul>
 <li>New customization options:
     <ul>
-    <li>Customized Samus sprites: e.g., play as a character from a different game.
-    <li>Split Screw Attack animation, for Screw Attack to no longer appear as though Space Jump as equipped
-    when it isn't.
+    <li>Customized Samus sprites
+    <li>Split Screw Attack animation
     <li>Vanilla music option
     </ul>
 <li>Help buttons added to describe the customization options.
@@ -31,16 +30,14 @@ about 15 seconds to load.
 <li>Logic updates:
     <ul>
     <li>Crocomire fight is now more lenient on lower settings (assumes more Missiles available).
-    <li>Ceiling clip tech are restructured and simplified:
+    <li>Ceiling clip tech are restructured and simplified (replacing existing ice clip and snail clip tech):
         <ul>
         <li>canCeilingClip (Hard) now includes the easiest ice clips, i.e. using a Mochtroid in Botwoon Hallway.
-        This eliminates the canMochtroidIceClip tech.
         <li>canXRayCeilingClip (Very Hard) is added, including ice clips and snail clips, but only in cases
-        where Morph and X-Ray are available to make the clip more lenient. This replaces canNonTrivialIceClip, 
-        canWallCrawlerIceClip, canSnailClip, canBeetomIceClip, canPuyoIceClip, and canMellaIceClip.
+        where Morph and X-Ray are available to make the clip more lenient.
         <li>canPreciseCeilingClip (Expert) is added, including ice clips and snail clips without the 
-        assistance of X-Ray. This replaces canPixelPerfectIceClip (which was a misnomer since these tricks
-        are not quite pixel perfect).
+        assistance of X-Ray.
+        </ul>
     <li>Adjustments to tech/strat difficulty tiers:
         <ul>
         <li>Snail clips are moved up in difficulty from Hard, to either Very Hard or Expert depending on 
