@@ -30,12 +30,39 @@ function presetChanged() {
             <% } %>
         }
     <% } %>
+    updateTierPercent();
+}
+
+function updateTierPercent() {
+    let presets = [];
+    <% for p in preset_data { 
+            let name_no_space = p.preset.name.replace(" ", ""); %>
+        presets.push("<%= name_no_space %>");
+    <% } %>
+    for (p of presets) {
+        let els = document.getElementsByClassName("tier-input-" + p);
+        let cnt = 0;
+        for (e of els) {
+            if (e.checked) {
+                cnt += 1;
+            }
+        }
+        let percent = Math.round(cnt / els.length * 100);
+        if (percent == 0 && cnt > 0) {
+            percent = 1;
+        }
+        if (percent == 100 && cnt < els.length) {
+            percent = 99;
+        }
+        document.getElementById("percent-tier-" + p).innerHTML = percent;
+    }
 }
 function techChanged() {
     <% for p in preset_data { 
            let name_no_space = p.preset.name.replace(" ", ""); %>
         document.getElementById("preset<%- name_no_space %>").checked = false;
     <% } %>
+    updateTierPercent();
 }
 function updateTechJSON() {
     techSelection = {}

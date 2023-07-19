@@ -28,7 +28,7 @@
 </div>
 
 <div class="accordion mt-3">
-<% for (preset_idx, p) in preset_data.iter().enumerate() {
+<% for p in preset_data.iter() {
     let name_no_space = p.preset.name.replace(" ", ""); 
     let tech_enabled_count = p.preset.tech.iter().filter(|&x| enabled_tech.contains(x)).count();
     let notable_enabled_count = p.preset.notable_strats.iter().filter(|&x| enabled_notables.contains(x)).count();

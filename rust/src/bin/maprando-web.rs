@@ -32,6 +32,7 @@ use maprando::web::VERSION;
 
 const VISUALIZER_PATH: &'static str = "../visualizer/";
 const TECH_GIF_PATH: &'static str = "static/tech_gifs/";
+const NOTABLE_GIF_PATH: &'static str = "static/notable_gifs/";
 
 #[derive(TemplateOnce)]
 #[template(path = "errors/missing_input_rom.stpl")]
@@ -96,6 +97,7 @@ struct GenerateTemplate<'a> {
     strat_description: &'a HashMap<String, String>,
     strat_id_by_name: &'a HashMap<String, usize>,
     tech_gif_listing: &'a HashSet<String>,
+    notable_gif_listing: &'a HashSet<String>,
     tech_strat_counts: &'a HashMap<String, usize>,
 }
 
@@ -146,6 +148,7 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         strat_description: &app_data.game_data.strat_description,
         strat_id_by_name: &app_data.game_data.notable_strat_isv.index_by_key,
         tech_gif_listing: &app_data.tech_gif_listing,
+        notable_gif_listing: &app_data.notable_gif_listing,
         tech_strat_counts: &app_data.logic_data.tech_strat_counts,
     };
     HttpResponse::Ok().body(generate_template.render_once().unwrap())
@@ -1320,6 +1323,16 @@ fn list_tech_gif_files() -> HashSet<String> {
     files
 }
 
+fn list_notable_gif_files() -> HashSet<String> {
+    let mut files: HashSet<String> = HashSet::new();
+    for entry_res in std::fs::read_dir(NOTABLE_GIF_PATH).unwrap() {
+        let entry = entry_res.unwrap();
+        let name = entry.file_name().to_str().unwrap().to_string();
+        files.insert(name);
+    }
+    files
+}
+
 fn get_implicit_tech() -> HashSet<String> {
     [
         "canPseudoScrew",
@@ -1362,6 +1375,7 @@ fn build_app_data() -> AppData {
     .unwrap();
     // let samus_customizer = SamusSpriteCustomizer::new(samus_spritesheet_layout_path).unwrap();
     let tech_gif_listing = list_tech_gif_files();
+    let notable_gif_listing = list_notable_gif_files();
     let presets: Vec<Preset> =
         serde_json::from_str(&std::fs::read_to_string(&"data/presets.json").unwrap()).unwrap();
     let ignored_notable_strats = get_ignored_notable_strats();
@@ -1378,6 +1392,7 @@ fn build_app_data() -> AppData {
         seed_repository: SeedRepository::new(&args.seed_repository_url).unwrap(),
         visualizer_files: load_visualizer_files(),
         tech_gif_listing,
+        notable_gif_listing,
         logic_data,
         samus_sprite_categories,
         // samus_customizer,

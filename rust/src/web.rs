@@ -63,6 +63,7 @@ pub struct AppData {
     pub seed_repository: SeedRepository,
     pub visualizer_files: Vec<(String, Vec<u8>)>, // (path, contents)
     pub tech_gif_listing: HashSet<String>,
+    pub notable_gif_listing: HashSet<String>,
     pub samus_sprite_categories: Vec<SamusSpriteCategory>,
     pub logic_data: LogicData,
     // pub samus_customizer: SamusSpriteCustomizer,
