@@ -440,7 +440,10 @@ impl<'a> Preprocessor<'a> {
                     shinespark_frames,
                     excess_shinespark_frames,
                 };
-                req_vec.push(Requirement::make_and(vec![req, runway.requirement.clone()]));
+                req_vec.push(Requirement::make_and(vec![
+                    req,
+                    self.preprocess_requirement(&runway.requirement, _link),
+                ]));
             }
 
             // Strats for other-room runways:
@@ -457,7 +460,10 @@ impl<'a> Preprocessor<'a> {
                     shinespark_frames,
                     excess_shinespark_frames,
                 };
-                req_vec.push(Requirement::make_and(vec![req, runway.requirement.clone()]));
+                req_vec.push(Requirement::make_and(vec![
+                    req,
+                    self.preprocess_requirement(&runway.requirement, _link),
+                ]));
             }
 
             // Strats for cross-room combined runways:
@@ -487,8 +493,8 @@ impl<'a> Preprocessor<'a> {
                     };
                     req_vec.push(Requirement::make_and(vec![
                         req,
-                        runway.requirement.clone(),
-                        other_runway.requirement.clone(),
+                        self.preprocess_requirement(&runway.requirement, _link),
+                        self.preprocess_requirement(&other_runway.requirement, _link),
                     ]));
                 }
             }
@@ -511,7 +517,7 @@ impl<'a> Preprocessor<'a> {
                 };
                 req_vec.push(Requirement::make_and(vec![
                     req,
-                    can_leave_charged.requirement.clone(),
+                    self.preprocess_requirement(&can_leave_charged.requirement, _link),
                 ]));
             }
 
@@ -582,7 +588,7 @@ impl<'a> Preprocessor<'a> {
                     }
                 }
             } else {
-                reqs.push(runway.requirement.clone());
+                reqs.push(self.preprocess_requirement(&runway.requirement, _link));
             }
             req_vec.push(Requirement::make_and(reqs));
         }
@@ -648,7 +654,7 @@ impl<'a> Preprocessor<'a> {
                 }
             }
             // println!("{}", jumpway.name);
-            req_vec.push(jumpway.requirement.clone());
+            req_vec.push(self.preprocess_requirement(&jumpway.requirement, _link));
         }
         let out = Requirement::make_or(req_vec);
         // println!(
