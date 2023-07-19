@@ -31,6 +31,25 @@ about 15 seconds to load.
 <li>Logic updates:
     <ul>
     <li>Crocomire fight is now more lenient on lower settings (assumes more Missiles available).
+    <li>Ceiling clip tech are restructured and simplified:
+        <ul>
+        <li>canCeilingClip (Hard) now includes the easiest ice clips, i.e. using a Mochtroid in Botwoon Hallway.
+        This eliminates the canMochtroidIceClip tech.
+        <li>canXRayCeilingClip (Very Hard) is added, including ice clips and snail clips, but only in cases
+        where Morph and X-Ray are available to make the clip more lenient. This replaces canNonTrivialIceClip, 
+        canWallCrawlerIceClip, canSnailClip, canBeetomIceClip, canPuyoIceClip, and canMellaIceClip.
+        <li>canPreciseCeilingClip (Expert) is added, including ice clips and snail clips without the 
+        assistance of X-Ray. This replaces canPixelPerfectIceClip (which was a misnomer since these tricks
+        are not quite pixel perfect).
+    <li>Adjustments to tech/strat difficulty tiers:
+        <ul>
+        <li>Snail clips are moved up in difficulty from Hard, to either Very Hard or Expert depending on 
+        whether Morph and X-Ray are available.
+        <li>canDodgeWhileShooting is moved from Medium to Hard.
+        <li>Aqueduct Bootless Suitless Snail Climb is moved from Hard to Very Hard.
+        <li>West Sand Hall Ice Beam Only strats are moved from Very Hard into Expert.
+        </ul>
+    <li>New tech is added: canSubmergedLeftFacingDoorXRayClimb.
     </ul>
 </ul>
 

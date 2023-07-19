@@ -117,7 +117,7 @@ pub enum Requirement {
     },
     HeatFrames(i32),
     LavaFrames(i32),
-    LavaPhysicsFrames(i32),
+    GravitylessLavaFrames(i32),
     AcidFrames(i32),
     Damage(i32),
     // Energy(i32),
@@ -757,10 +757,13 @@ impl GameData {
 
     fn load_helpers(&mut self) -> Result<()> {
         let helpers_json = read_json(&self.sm_json_data_path.join("helpers.json"))?;
-        ensure!(helpers_json["helpers"].is_array());
-        for helper in helpers_json["helpers"].members() {
-            self.helper_json_map
-                .insert(helper["name"].as_str().unwrap().to_owned(), helper.clone());
+        ensure!(helpers_json["helperCategories"].is_array());
+        for category_json in helpers_json["helperCategories"].members() {
+            ensure!(category_json["helpers"].is_array());
+            for helper in category_json["helpers"].members() {
+                self.helper_json_map
+                    .insert(helper["name"].as_str().unwrap().to_owned(), helper.clone());
+            }    
         }
         Ok(())
     }
@@ -889,16 +892,23 @@ impl GameData {
                     .as_i32()
                     .expect(&format!("invalid heatFrames in {}", req_json));
                 return Ok(Requirement::HeatFrames(frames));
+            } else if key == "gravitylessHeatFrames" {
+                // In Map Rando, Gravity doesn't affect heat frames, so this is treated the
+                // same as "heatFrames".
+                let frames = value
+                    .as_i32()
+                    .expect(&format!("invalid gravitylessHeatFrames in {}", req_json));
+                return Ok(Requirement::HeatFrames(frames));
             } else if key == "lavaFrames" {
                 let frames = value
                     .as_i32()
                     .expect(&format!("invalid lavaFrames in {}", req_json));
                 return Ok(Requirement::LavaFrames(frames));
-            } else if key == "lavaPhysicsFrames" {
+            } else if key == "gravitylessLavaFrames" {
                 let frames = value
                     .as_i32()
-                    .expect(&format!("invalid lavaPhysicsFrames in {}", req_json));
-                return Ok(Requirement::LavaPhysicsFrames(frames));
+                    .expect(&format!("invalid gravitylessLavaFrames in {}", req_json));
+                return Ok(Requirement::GravitylessLavaFrames(frames));
             } else if key == "acidFrames" {
                 let frames = value
                     .as_i32()
@@ -1717,6 +1727,13 @@ impl GameData {
                         }
                     }
                 }
+            }
+        }
+        if strat_json.has_key("clearsObstacles") {
+            ensure!(strat_json["clearsObstacles"].is_array());
+            for obstacle_id in strat_json["clearsObstacles"].members() {
+                let obstacle_idx = obstacles_idx_map[obstacle_id.as_str().unwrap()];
+                to_obstacles_bitmask |= 1 << obstacle_idx;
             }
         }
         Ok(to_obstacles_bitmask)

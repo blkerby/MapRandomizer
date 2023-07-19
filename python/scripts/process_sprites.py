@@ -89,7 +89,7 @@ def create_patches():
     os.chdir("..")
 
 
-create_static_thumbnails()
-create_animated_thumbnails()
-# create_patches()
+# create_static_thumbnails()
+# create_animated_thumbnails()
+create_patches()
 logging.info("Done!")

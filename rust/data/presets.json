@@ -41,8 +41,7 @@
       "canSpaceJumpWaterBounce",
       "canShinechargeMovement",
       "canMidairShinespark",
-      "canCrystalFlash",
-      "canDodgeWhileShooting"
+      "canCrystalFlash"
     ],
     "notable_strats": [
       "Draygon Grapple Kill",
@@ -72,10 +71,6 @@
       "canMockball",
       "canMochtroidIceClimb",
       "canCeilingClip",
-      "canMochtroidIceClip",
-      "canNonTrivialIceClip",
-      "canWallCrawlerIceClip",
-      "canSnailClip",
       "canIframeSpikeJump",
       "canCrumbleJump",
       "canCrossRoomJumpIntoWater",
@@ -94,7 +89,8 @@
       "canBounceBall",
       "canUseSpeedEchoes",
       "canSunkenTileWideWallClimb",
-      "canWallJumpInstantMorph"
+      "canWallJumpInstantMorph",
+      "canDodgeWhileShooting"
     ],
     "notable_strats": [
       "Early Supers Mockball",
@@ -111,11 +107,10 @@
       "Moat SpringBall Bounce",
       "Golden Torizo Crumble Jump",
       "Ridley without Heat Protection",
-      "Colosseum Mochtroid Ice Climb",
-      "Aqueduct Bootless Suitless Snail Climb",
       "HiJump E-Tank Return Through Crumble Blocks",
       "Big Pink Return Through Crumble Blocks", 
-      "Blue Brin E-Tank Return Through Crumble Blocks"
+      "Blue Brin E-Tank Return Through Crumble Blocks",
+      "Botwoon Hallway Mochtroid Ice Clip"
     ]
   },
   {
@@ -140,13 +135,11 @@
       "canFlatleyJump",
       "canShinechargeMovementComplex",
       "canMomentumConservingTurnaround",
-      "canBeetomIceClip",
-      "canPuyoIceClip",
-      "canMellaIceClip",
+      "canXRayCeilingClip",
       "canManipulateMellas",
       "canMidairWiggle",
       "canBlueSpaceJump",
-      "canSpeedKeep",
+      "canTemporaryBlue",
       "canXRayStandUp",
       "canPartialFloorClip",
       "canStationarySpinJump",
@@ -182,6 +175,7 @@
       "Halfie Climb Enter with Shinespark from the Bottom Right",
       "Fish Tank Entry Fall onto Frozen Fish",
       "Fish Tank Entry Reset Fall Speed",
+      "Fish Tank Wall Jump Entry", 
       "Fish Tank Top Left Flatley Jump",
       "Post Crocomire Farming Room Dboost",
       "PCJR Acid Shinespark",
@@ -223,12 +217,16 @@
       "Glass Tunnel Maridia Tube Clip",
       "Mickey Mouse Crumble Speedjump",
       "Crab Shaft Ice Only Crab Climb",
-      "West Sand Hall Ice Beam Only (Center to Left)",
-      "West Sand Hall Ice Only (Center to Right)",
       "KiHunter Shaft KiHunter Dodge",
       "LN Firefleas Ice Bridge",
       "LN Spring Ball Maze Air Speedball",
-      "Spiky Acid Snake Frozen Platforms"
+      "Spiky Acid Snake Frozen Platforms",
+      "Etecoon E-Tank Beetom Clip", 
+      "Aqueduct Snail Clip", 
+      "Indy Jones Mella Ice Clip",
+      "East Pants Room Puyo Clip",
+      "Aqueduct Bootless Suitless Snail Climb",
+      "Colosseum Mochtroid Ice Climb"
     ]
   },
   {
@@ -247,21 +245,20 @@
       "canDoubleBombJump",
       "canContinuousDboost",
       "can2HighWallMidAirMorph",
-      "canPixelPerfectIceClip",
+      "canPreciseCeilingClip",
       "canBabyMetroidAvoid",
       "canBombJumpWaterEscape",
       "canSandIBJ",
       "canSandfallBounce",
       "canBombJumpOnSand",
       "canFastWalljumpClimb",
-      "canDraygonTurretGrappleJump",
       "canDoubleSpringBallJumpMidAir",
       "canQuickCrumbleEscape",
       "canWallJumpBombBoost",
       "canStaggeredIBJ",
       "canRJump",
       "canStationaryLateralMidAirMorph",
-      "canSpeedKeepChain",
+      "canChainTemporaryBlue",
       "canSpaceJumpWaterEscape",
       "canBombIntoCrystalFlashClip",
       "canUnmorphBombBoost",
@@ -302,7 +299,7 @@
       "Screw Attack Room Descent and Shinespark Escape",
       "Gauntlet Entrance Blue SpaceJump",
       "Crab Hole Suitless Crab Climb No Jump Assist",
-      "Brinstar Reserve Speed Keep",
+      "Brinstar Reserve Temporary Blue",
       "Crab Hole Suitless Crab Climb Superless with Springball",
       "West Sand Hole Bootless Suitless IBJ",
       "East Ocean Space Jump Water Escape (Left to Right)",
@@ -319,11 +316,14 @@
       "Colosseum Spike Platforming with Move Assist (Left to Right)",
       "East Sand Hall Spring Ball HiJump",
       "West Sand Hall Suitless Bootless Spring Ball",
+      "West Sand Hall Ice Beam Only (Center to Left)",
+      "West Sand Hall Ice Only (Center to Right)",
       "East Sand Hall Suitless Bootless Evir Freeze (Center to Left)",
       "East Sand Hall Suitless Bootless Evir Freeze (Center to Right)",
       "Dodge the Three Musketeers",
       "Kihunter Shaft Manipulation from Save Room",
-      "Blue Hopper Dodge"
+      "Blue Hopper Dodge",
+      "Draygon Turret Grapple Jump"
     ]
   },
   {
@@ -339,6 +339,7 @@
       "canXRayClimb",
       "canLeftFacingDoorXRayClimb",
       "canRightFacingDoorXRayClimb",
+      "canSubmergedLeftFacingDoorXRayClimb",
       "canShinesparkDeepStuck",
       "canJumpIntoCrystalFlashClip",
       "canCrazyCrabClimb",
@@ -376,7 +377,7 @@
       "Writg HiJump and Only Screw", 
       "Writg Power Bomb Diagonal Bomb Jump",
       "Lava Dive Diagonal Bomb Jump",
-      "Climb Speedkeep Chain Through Bomb Blocks",
+      "Climb Temporary Blue Chain Through Bomb Blocks",
       "Aqueduct Left-Side X-Ray Climb (Upper)",
       "East Sand Hall Cross Room Jump with Ice or Damage Boost",
       "Mt. Everest Right Crab Climb with Only HiJump or Springball",
@@ -387,7 +388,8 @@
       "Golden Four Underwater Walljumps",
       "Main Street Underwater Walljumps",
       "Pants Room Grapple Jump",
-      "Mickey Mouse SpeedKeep onto Crumbles"
+      "Mickey Mouse Temporary Blue onto Crumbles",
+      "Reverse Amphitheatre Thread the Needle"     
     ]
   },
   {
@@ -423,7 +425,8 @@
       "Golden Torizo Missiles Only",
       "Colosseum with no Equipment",
       "Green Pirate Shaft Beetom Moondance",
-      "WS East Supers Robot Clip Run-In-Place"
+      "WS East Supers Robot Clip Run-In-Place",
+      "Crocomire with 5 Missiles"
     ]
   }
 ]

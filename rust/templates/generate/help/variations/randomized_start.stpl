@@ -12,14 +12,19 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-      <p>
-      If enabled, Samus will start the game at a random place on the map instead of at the Ship. Samus will not be able 
-      to save or refill at the starting location. The player will need to find the Ship in order to complete the
-      escape sequence.
+      <p>This setting determines where Samus begins the game:</p>
+      <ul>
+      <li><strong>Ship</strong>: Samus begins in Landing Site at the Ship.
+      <li><strong>Random</strong>: Samus begins in a random room somewhere on Zebes.
+      </ul></p>
+      
+      <p>If Random start is used, Samus will  not be able to save or refill at the starting location. The player 
+      will need to find the Ship in order to complete the escape sequence.
       </p>
 
+      <h5>Details</h5>
       <p>
-      <b>Details</b>: The logic ensures a pathway exists from the starting 
+      For Random start, the logic ensures a pathway exists from the starting 
       location to some "hub" room with enemies that can be defeated with Power Beam and which drop all types of 
       resources (energy, Missiles, Supers, and Power Bombs). The logic follows certain rules with respect to
       this hub room (similar to how the Ship is treated when not using randomized start):
@@ -30,7 +35,7 @@
       </ul>
       </p>
 
-      <p>Currently, even when this option is enabled, Landing Site (containing the Ship) is still always in Crateria, 
+      <p>Currently, even when Random start is enabled, Landing Site (containing the Ship) is still always in Crateria, 
       though that will likely change in a future version of the randomizer.</p>
       </div>
       <div class="modal-footer">

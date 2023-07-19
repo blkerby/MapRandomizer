@@ -259,9 +259,7 @@ function initializeSpoilerToken() {
     document.getElementById("spoilerToken").value = localStorage["spoilerToken"];
 }
 function checkOtherOptions() {
-    if (document.getElementById("randomizedStartYes").checked ||
-        document.getElementById("saveAnimalsYes").checked ||
-        document.getElementById("disableWallJumpYes").checked ||
+    if (document.getElementById("disableWallJumpYes").checked ||
         document.getElementById("mapsRevealedYes").checked ||
         document.getElementById("vanillaMapYes").checked ||
         document.getElementById("ultraLowQoLYes").checked ||

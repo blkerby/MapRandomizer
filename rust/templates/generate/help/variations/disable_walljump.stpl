@@ -18,10 +18,6 @@
       </p>
       <p>With this setting you can still get a wall-jump check, but pressing jump during the check will not
       actually trigger a wall jump.</p>
-      <p><b>Note</b>: The logic without wall jumps is not yet thoroughly tested, so it is possible you may encounter a bug
-      where a seed could be unbeatable due to the logic mistakenly assuming you can wall jump. If you think you may have
-      encountered such a seed, please let us know in the <a href="https://discord.gg/Gc99YV2ZcB">Discord</a>.
-      </p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

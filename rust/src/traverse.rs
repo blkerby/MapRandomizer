@@ -638,7 +638,7 @@ pub fn apply_requirement(
                 validate_energy(new_local, global)
             }
         }
-        Requirement::LavaPhysicsFrames(frames) => {
+        Requirement::GravitylessLavaFrames(frames) => {
             let varia = global.items[Item::Varia as usize];
             let mut new_local = local;
             if varia {

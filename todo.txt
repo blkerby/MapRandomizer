@@ -1,8 +1,11 @@
 next release:
-- pull in sm-json-data, implement clearsObstacles, adjust tech/notable tiers
-- add newly approved sprites
+- playtest
 
 priority:
+- add tech percentages on Generate page
+- order tech/strats in logical way in the UI
+  - for tech: descending order by # of strats
+  - for notable strats: by area/subarea/room
 - randomized start: check requires on hub locations
 - add more random start locations, in item rooms (speed booster room, morph ball room, screw attack room bottom)
 - add momentum conservation patch (in "Max" QoL)
@@ -49,13 +52,15 @@ priority:
 - help buttons for rest of settings (e.g. explain boss proficiency calculations)
 - logic simulator
 - get rid of symlink for sm-json-data
+- temporarily disable comeInWithGMode strats through sand since this will not be correct with how it
+  is currently set up (since there is no way to go up through sand)
 
 later:
+- move input ROM off Generate page (and into separate dialogue that only shows on first use).
+- set up a more robust way for users to save & select presets
 - enforce tech dependencies:
   - e.g. enabling "canPreciseWalljump" should enable dependency "canWalljump"
   - disabling "canWalljump" should disable dependent "canPreciseWalljump"
-- in seed header, instead of having three "details" accordions, just have one, with 3 cards inside.
-  - instead of listing everything, for skill assumptions just show deltas from the presets.
 - gravity seems to provide 50% heat reduction on elevator ride? (Remove this.)
    - https://clips.twitch.tv/RepleteShyManateeTBTacoLeft-Ip5vQynrc0SQYQUj
    - maybe during acid chozo drain too?
@@ -73,7 +78,7 @@ later:
   - there's no longer a guarantee that every room can be eventually reachable
   - maybe allow customizabilty of which items can be removed:
     - some people might still want to get certain items (e.g. beams)
-- consider "reserve tank behavior" QoL option in max:
+- consider "friendly reserve tank behavior" QoL option in max:
   - manually refilling to full doesn't empty the remaining reserves (requested by zero318)
   - i-frames don't expire during reserve? (though this would break double-damage boost strats)
   - no heat damage during reserve refill
@@ -256,9 +261,7 @@ later:
     - [0x31, 0x32, 0x33] -> [0x38, 0x39, 0x3A]
 - fix tiny bug: when bottom-left door of landing site is an area transition, the arrow shows up from the beginning
   of the game (due to running the door ASM while loading the game)
-- organize tech on website.
 - fix internal checksum in output ROM
-- add README
 - fix suit graphics not showing after getting suit (consequence of skipping animation)?
 - have forced mode take into account return path?
   - probably bad idea, because returning may not be required (before getting another item that makes it easier).
