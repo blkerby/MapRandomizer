@@ -641,7 +641,7 @@ async fn customize_seed(
     }
 
     let settings = CustomizeSettings {
-        samus_sprite: if req.custom_samus_sprite.0 { Some(req.samus_sprite.0.clone()) } else { None },
+        samus_sprite: if req.custom_samus_sprite.0 && req.samus_sprite.0 != "" { Some(req.samus_sprite.0.clone()) } else { None },
         vanilla_screw_attack_animation: req.vanilla_screw_attack_animation.0,
         area_themed_palette: req.room_palettes.0 == "area-themed",
         music: match req.music.0.as_str() {
