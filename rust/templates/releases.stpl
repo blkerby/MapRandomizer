@@ -17,7 +17,7 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-72---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 72 (2023-07-18)</a>:
+<p><a href="https://version-72---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 72 (2023-07-19)</a>:
 <ul>
 <li>New customization options:
     <ul>
@@ -27,9 +27,11 @@ about 15 seconds to load.
     </ul>
 <li>Help buttons added to describe the customization options.
 <li>Improved organization and readability of "Seed Info" on the seed page.
+<li>Animated GIFs are shown for notable strats up through Very Hard, on the Generate page.
 <li>Logic updates:
     <ul>
     <li>Crocomire fight is now more lenient on lower settings (assumes more Missiles available).
+    <li>Notable strat "Crocomire with 5 Missiles" is added (Insane).
     <li>Ceiling clip tech are restructured and simplified (replacing existing ice clip and snail clip tech):
         <ul>
         <li>canCeilingClip (Hard) now includes the easiest ice clips, i.e. using a Mochtroid in Botwoon Hallway.
