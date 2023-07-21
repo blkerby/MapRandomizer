@@ -44,10 +44,10 @@
       "canHyperGateShot"
     ],
     "notable_strats": [
-      "Draygon Grapple Kill",
-      "Back-Side Botwoon Fight with Charge and Wave",
       "Green Hill Zone Wall Jump to Top Right Door",
-      "Golden Torizo Horizontal Bomb Jump"
+      "Golden Torizo Horizontal Bomb Jump",
+      "Back-Side Botwoon Fight with Charge and Wave",
+      "Draygon Grapple Kill"
     ]
   },
   {
@@ -92,24 +92,35 @@
       "canOffScreenSuperShot"
     ],
     "notable_strats": [
-      "Early Supers Mockball",
       "Alcatraz Escape",
-      "Lower Norfair Pillar Room with Power Bombs",
+      "Moat SpringBall Bounce",
+
+      "Blue Brin E-Tank Return Through Crumble Blocks",
+
+      "Early Supers Mockball",
+
+      "Big Pink Return Through Crumble Blocks", 
+      "Big Pink Off Screen Super Block",
+
+      "Red Tower Hero Shot",
+
       "Bubble Mountain Damage Boost",
+      
+      "Croc Speedway Reverse Spark",
       "Crumble Shaft Top Item Precise Walljump",
       "Crumble Shaft Top Item Frozen Sova",
-      "Croc Speedway Reverse Spark",
-      "Amphitheatre Reverse Acid Dive",
-      "Big Pink Off Screen Super Block",
-      "Red Tower Hero Shot",
-      "Plasma Spark Fish Climb",
-      "Moat SpringBall Bounce",
-      "Golden Torizo Crumble Jump",
-      "Ridley without Heat Protection",
       "HiJump E-Tank Return Through Crumble Blocks",
-      "Big Pink Return Through Crumble Blocks", 
-      "Blue Brin E-Tank Return Through Crumble Blocks",
+
+      "Golden Torizo Crumble Jump",
+
+      "Amphitheatre Reverse Acid Dive",
+      "Lower Norfair Pillar Room with Power Bombs",
+      "Ridley without Heat Protection",
+
       "Botwoon Hallway Mochtroid Ice Clip",
+
+      "Plasma Spark Fish Climb",
+
       "Reverse Tourian Escape Room 4 Dodge While Climbing"
     ]
   },
@@ -155,78 +166,92 @@
       "canWrapAroundShot"
     ],
     "notable_strats": [
-      "Pink Brinstar Power Bombs Crystal Flash Clip",
-      "Pink Hopper Reverse Gate Glitch",
-      "X-Ray Exit Damage Boost",
       "Climb Behemoth Shinespark",
       "Climb Moonfall Block Break",
-      "Red Tower Spark",
-      "LN Fireflea Room Damage Boost Over the Fune",
-      "Reverse Spring Ball Maze Crystal Flash Clip",
-      "GT Supers Morph Bomb Springwall",
-      "Golden Torizo Safe Spot",
-      "Screw Attack Room Transition Screwjump",
-      "Screw Attack Room Springwall Morph Bombs",
-      "Screw Attack Room Transition Speedjump (Morph Bombs)",  
-      "Pants Room Shinespark",
-      "Draygon Grapple Quick Kill",
-      "Draygon Shinespark Kill",
-      "Pants Room Suitless Flatley Turnaround Climb",
-      "Halfie Climb Enter with Shinespark from the Bottom Right",
-      "Fish Tank Entry Fall onto Frozen Fish",
-      "Fish Tank Entry Reset Fall Speed",
-      "Fish Tank Wall Jump Entry", 
-      "Fish Tank Top Left Flatley Jump",
-      "Post Crocomire Farming Room Dboost",
-      "PCJR Acid Shinespark",
-      "Croc Escape SpringBall Freeze",
-      "Cathedral Entrance Left Door Frozen Sova Step",
-      "Sponge Bath Bull Boost",
-      "Etecoon Beetom Tricky Dodge",
-      "Big Pink Crystal Flash Standup - Super Block",
-      "Golden Torizo Supers Double Shinespark",
       "Landing Site Blue Space Jump (Bottom)",
-      "Pants Room Gravity Jump",
+      
+      "East Ocean Space Jump Water Escape with Ice (Left to Right)",
       "East Ocean Suitless Damage Boost Water Escape",
       "East Ocean Suitless Damage Boost Underwater Pillar",
-      "East Ocean Space Jump Water Escape with Ice (Left to Right)",
-      "PCJR Indiana Jones Grapple",
-      "PCJR Big Jump Shinespark",
-      "Frog Speedway Shot Block Overload (Speedless Speedway)",
-      "WS East Supers Crystal Flash Clip (Right to Left)",
-      "Butterfly Room Careful Jump",
-      "Double Chamber Shinespark to Wave Beam Door",
-      "Oasis Cross Room Jump with Screw Attack",
-      "Aqueduct Snail Walk",
       "West Ocean Bug Boost with Ice",
       "West Ocean Bug Ice Clip",
-      "Bug Sand Hole Damage Boost", 
-      "Bug Sand Hole Sand Jumps",
-      "Bug Sand Hole Speedy Jump Morph",
-      "Pants Room Suitless MidAir SpringBall Jump with HiJump",
+
+      "Brinstar Reserve Hole-in-One",
+      "Etecoon E-Tank Beetom Clip", 
+      "Etecoon Beetom Tricky Dodge",
+
+      "Big Pink Crystal Flash Standup - Super Block",
+      "Pink Hopper Reverse Gate Glitch",
+      "Pink Brinstar Power Bombs Crystal Flash Clip",
+
+      "X-Ray Exit Damage Boost",
+      "Red Tower Spark",
+      
+      "Cathedral Entrance Left Door Frozen Sova Step",
+      "Double Chamber Shinespark to Wave Beam Door",
+      "Frog Speedway Shot Block Overload (Speedless Speedway)",
+      "Spiky Acid Snake Frozen Platforms",
+
+      "Croc Escape SpringBall Freeze",
+      "Croc Speedway Reverse Speedball",
+
       "Grapple Tutorial 3 Frozen Gamet Bridge",
-      "Suitless Draygon",
+      "Post Crocomire Farming Room Dboost",
+      "PCJR Indiana Jones Grapple",
+      "PCJR Acid Shinespark",
+      "PCJR Big Jump Shinespark",
+      "Indy Jones Mella Ice Clip",
+
+      "Golden Torizo Safe Spot",
+      "GT Supers Morph Bomb Springwall",
+      "Golden Torizo Supers Double Shinespark",
+      "Screw Attack Room Springwall Morph Bombs",
+      "Screw Attack Room Transition Screwjump",
+      "Screw Attack Room Transition Speedjump (Morph Bombs)",  
+
+      "LN Firefleas Ice Bridge",
+      "LN Fireflea Room Damage Boost Over the Fune",
+      "LN Spring Ball Maze Air Speedball",
+      "Reverse Spring Ball Maze Crystal Flash Clip",
+      "Mickey Mouse Crumble Speedjump",
+      "KiHunter Shaft KiHunter Dodge",
       "Writg Frozen Pirate Platforms",
+      "Writg New Route with HiJump, Speed, and PowerBombs",
+
+      "Fish Tank Entry Fall onto Frozen Fish",
+      "Fish Tank Entry Reset Fall Speed",
+      "Fish Tank Top Left Flatley Jump",
+      "Fish Tank Wall Jump Entry", 
+      "Glass Tunnel Maridia Tube Clip",
+
+      "Aqueduct Snail Clip", 
+      "Aqueduct Snail Walk",
+      "Aqueduct Bootless Suitless Snail Climb",
       "Back-Side Botwoon Magic Pixel Beam Fight",
       "Back-Side Botwoon Plasma Shield Microwave",
       "Back-Side Botwoon Plasma Shield Fight",
-      "Writg New Route with HiJump, Speed, and PowerBombs",
-      "Brinstar Reserve Hole-in-One",
-      "Bowling Alley Missile Chozo Camera Unlock",
-      "Croc Speedway Reverse Speedball",
-      "Glass Tunnel Maridia Tube Clip",
-      "Mickey Mouse Crumble Speedjump",
+      "Colosseum Mochtroid Ice Climb",
       "Crab Shaft Ice Only Crab Climb",
-      "KiHunter Shaft KiHunter Dodge",
-      "LN Firefleas Ice Bridge",
-      "LN Spring Ball Maze Air Speedball",
-      "Spiky Acid Snake Frozen Platforms",
-      "Etecoon E-Tank Beetom Clip", 
-      "Aqueduct Snail Clip", 
-      "Indy Jones Mella Ice Clip",
+      "Draygon Grapple Quick Kill",
+      "Draygon Shinespark Kill",
+      "Suitless Draygon",
+      "Halfie Climb Enter with Shinespark from the Bottom Right",
+
+      "Bug Sand Hole Damage Boost", 
+      "Bug Sand Hole Sand Jumps",
+      "Bug Sand Hole Speedy Jump Morph",
+      "Butterfly Room Careful Jump",
+
+      "Oasis Cross Room Jump with Screw Attack",
+      "Pants Room Gravity Jump",
+      "Pants Room Shinespark",
+      "Pants Room Suitless MidAir SpringBall Jump with HiJump",
+      "Pants Room Suitless Flatley Turnaround Climb",
       "East Pants Room Puyo Clip",
-      "Aqueduct Bootless Suitless Snail Climb",
-      "Colosseum Mochtroid Ice Climb"
+
+      "Bowling Alley Missile Chozo Camera Unlock",
+      "Sponge Bath Bull Boost",
+      "WS East Supers Crystal Flash Clip (Right to Left)"
     ]
   },
   {
@@ -266,67 +291,82 @@
       "canBombJumpOnSand",
       "canCWJ",
       "canSandfallBounce"
-
     ],
     "notable_strats": [
+      "Landing Site Big Jump Blue Suit Bounce",
+      "Landing Site Blue Space Jump (Top)",
+
+      "Gauntlet Entrance Blue SpaceJump",
+
+      "East Ocean Space Jump Water Escape (Left to Right)",
+      "West Ocean Bug Boost with Wave or Spazer",
+      "West Ocean Bug Boost",
+
+      "Brinstar Reserve Temporary Blue",
+
+      "Big Pink SpeedBall into Raised Bomb Blocks",
       "Dachora Room Shinespark No Etanks No HiJump",
-      "Warehouse Kihunter Speedball",
       "Mission Impossible",
-      "Red Tower IBJ Between the Bottom Rippers",
-      "Red Tower Midair HBJ",
+
+      "Below Spazer Jump Shot Speedball",
       "X-Ray Access Damage Boost",
       "X-Ray Access Ice Bridge",
       "X-Ray Access SpikeJumps with HiJump",
-      "Landing Site Big Jump Blue Suit Bounce",
-      "Landing Site Blue Space Jump (Top)",
-      "West Ocean Bug Boost with Wave or Spazer",
-      "West Ocean Bug Boost",
-      "LN Fireflea Room Morph Over the Fune",
-      "East Cac Alley Cross Room Jump with Spring Ball, Bomb Boost",
-      "East Cac Alley Cross Room Jump with IBJ",
-      "Cacatac Alley Springball Spike Boost",
-      "Mama Turtle Wall Jump Bomb Boost",
-      "Post Crocomire Farming Room Speed Jump",
-      "PCJR Full Room Space Jump Through Speed Blocks",
-      "PCJR Springwall",
+      "Red Tower IBJ Between the Bottom Rippers",
+      "Red Tower Midair HBJ",
+
+      "Warehouse Kihunter Speedball",
+
       "Cathedral Entrance Sova Morph Only Boost",
       "Cathedral Entrance Speedjump (Right to Left)",
       "Cathedral Entrance Speedjump (Left to Right)",
       "Hijumpless Double Chamber Spike Speedjump",
       "Lava Dive Shinespark",
       "Lava Dive HiJumpless Suitless Double Springball Jump",
-      "Waveless Baby Skip",
-      "West Sand Hole Suitless Wall Jump Break Free",
-      "Crab Shaft Suitless Walljump Climb with HiJump",
-      "Fish Tank Insane Naked Jump Over Pirate (Left to Right)",
-      "Screw Attack Room Descent and Shinespark Escape",
-      "Gauntlet Entrance Blue SpaceJump",
-      "Crab Hole Suitless Crab Climb No Jump Assist",
-      "Brinstar Reserve Temporary Blue",
-      "Crab Hole Suitless Crab Climb Superless with Springball",
-      "West Sand Hole Bootless Suitless IBJ",
-      "East Ocean Space Jump Water Escape (Left to Right)",
-      "Grapple Tutorial 3 Double Gamet Boost",
       "Hjless Lava Dive",
       "Hjless Lava Dive BounceBall",
+
+      "Croc Escape SpringBall Bomb Boost",
+
+      "Grapple Tutorial 3 Double Gamet Boost",
+      "Post Crocomire Farming Room Speed Jump",
+      "PCJR Full Room Space Jump Through Speed Blocks",
+      "PCJR Springwall",
+
+      "Screw Attack Room Descent and Shinespark Escape",
+
+      "LN Fireflea Room Morph Over the Fune",
+      "Kihunter Shaft Manipulation from Save Room",
       "Writg New Low Ice Pirate Freeze", 
       "Writg Low Ice Pirate Freeze",
-      "Blue Hopper Room Roll Under Hoppers",
-      "Croc Escape SpringBall Bomb Boost",
-      "Big Pink SpeedBall into Raised Bomb Blocks",
-      "Below Spazer Jump Shot Speedball",
-      "Spring Ball Room Escape - Suitless, Bootless, Space Jump",
+      "Dodge the Three Musketeers",
+
+      "Crab Hole Suitless Crab Climb No Jump Assist",
+      "Crab Hole Suitless Crab Climb Superless with Springball",
+      "Fish Tank Insane Naked Jump Over Pirate (Left to Right)",
+      "Mama Turtle Wall Jump Bomb Boost",
+
+      "Crab Shaft Suitless Walljump Climb with HiJump",
       "Colosseum Spike Platforming with Move Assist (Left to Right)",
-      "East Sand Hall Spring Ball HiJump",
+      "Draygon Turret Grapple Jump",
+      "West Sand Hole Suitless Wall Jump Break Free",
+      "West Sand Hole Bootless Suitless IBJ",
+
+      "East Cac Alley Cross Room Jump with Spring Ball, Bomb Boost",
+      "East Cac Alley Cross Room Jump with IBJ",
+      "Cacatac Alley Springball Spike Boost",
+
       "West Sand Hall Suitless Bootless Spring Ball",
       "West Sand Hall Ice Beam Only (Center to Left)",
       "West Sand Hall Ice Only (Center to Right)",
+      "East Sand Hall Spring Ball HiJump",
       "East Sand Hall Suitless Bootless Evir Freeze (Center to Left)",
       "East Sand Hall Suitless Bootless Evir Freeze (Center to Right)",
-      "Dodge the Three Musketeers",
-      "Kihunter Shaft Manipulation from Save Room",
+      "Spring Ball Room Escape - Suitless, Bootless, Space Jump",
+
       "Blue Hopper Dodge",
-      "Draygon Turret Grapple Jump"
+      "Blue Hopper Room Roll Under Hoppers",
+      "Waveless Baby Skip"
     ]
   },
   {
@@ -360,39 +400,47 @@
 
     ],
     "notable_strats": [
+      "Climb Temporary Blue Chain Through Bomb Blocks",
+      "Golden Four Underwater Walljumps",
+      "West Ocean G-mode Overload PLMs by PBing Missile Item",
+
+      "Early Supers Crouch Gate Clip Damage Boost",
       "Green Hill Zone Tunnel Crawl",
+      "Etecoon Spikeway Aim Cancel Wiggle",
       "Etecoon Spikeway Tunnel Crawl",
       "Etecoon Spikeway Xray Wiggle",
-      "Etecoon Spikeway Aim Cancel Wiggle",
-      "Writg X-Ray Climb",
-      "West Ocean G-mode Overload PLMs by PBing Missile Item",
+
+      "Red Tower R-Mode Frozen Beetom X-Ray Climb",
+
       "Double Chamber HiJumpless Wall Jump",
-      "Bowling Alley Ceiling Bomb Jump",
-      "Early Supers Crouch Gate Clip Damage Boost",
+      "Lava Dive Diagonal Bomb Jump",
+
+      "Reverse Amphitheatre Thread the Needle",
+      "LN Firefleas Top to Bottom Itemless Damageless",
+      "Mickey Mouse Viola Ice Clip",
+      "Mickey Mouse Temporary Blue onto Crumbles",
+      "Writg HiJump and Only Screw", 
+      "Writg Power Bomb Diagonal Bomb Jump",
+      "Writg X-Ray Climb",
+
+      "Main Street G-Mode Overload Speed Blocks then use Frozen Crab",
+      "Main Street Underwater Walljumps",
+      "Mt. Everest Right Crab Climb with Only HiJump or Springball",
       "Everest Tricky Cross Room Jump (Right to Left)",
       "Everest Tricky Cross Room Jump (Right to Top)",
       "Everest Tricky Cross Room Jump with HiJump (Right to Top)",
-      "Oasis Cross Room Jump with Screw Attack and Speed through the Top Door",
-      "East Pants Room Suitless Puyo Clip",
-      "East Sand Hole Sandfall Bounce to Power Bombs",
-      "Red Tower R-Mode Frozen Beetom X-Ray Climb",
-      "Writg HiJump and Only Screw", 
-      "Writg Power Bomb Diagonal Bomb Jump",
-      "Lava Dive Diagonal Bomb Jump",
-      "Climb Temporary Blue Chain Through Bomb Blocks",
+
       "Aqueduct Left-Side X-Ray Climb (Upper)",
-      "East Sand Hall Cross Room Jump with Ice or Damage Boost",
-      "Mt. Everest Right Crab Climb with Only HiJump or Springball",
-      "Main Street G-Mode Overload Speed Blocks then use Frozen Crab",
-      "Mickey Mouse Viola Ice Clip",
-      "LN Firefleas Top to Bottom Itemless Damageless",
+      "Aqueduct G-Mode Overload PLMs - PB the Items",
+      "East Sand Hole Sandfall Bounce to Power Bombs",
       "East Sand Hole Underwater Walljumps", 
-      "Golden Four Underwater Walljumps",
-      "Main Street Underwater Walljumps",
+
+      "East Sand Hall Cross Room Jump with Ice or Damage Boost",
+      "Oasis Cross Room Jump with Screw Attack and Speed through the Top Door",
       "Pants Room Grapple Jump",
-      "Mickey Mouse Temporary Blue onto Crumbles",
-      "Reverse Amphitheatre Thread the Needle",
-      "Aqueduct G-Mode Overload PLMs - PB the Items"
+      "East Pants Room Suitless Puyo Clip",
+
+      "Bowling Alley Ceiling Bomb Jump"
     ]
   },
   {
@@ -411,26 +459,33 @@
       "canDownwardGModeSetup"
     ],
     "notable_strats": [
-      "Taco Tank in Blue Brinstar Energy Tank Room",
-      "Screw Attack Room Doorway CWJ",
-      "Mama Turtle Insane Walljump",
-      "Green Pirate Shaft Beetom Xray Climb",
-      "West Sand Hall Insane Bomb Jump",
-      "Main Street Crab Climb with Only Ice",
-      "Main Street Crab Climb with Only Ice and Supers",
-      "Mt. Everest Right Crab Climb with Only 2 Supers",
-      "Mt. Everest Right Crab Climb with Only 1 Super",
       "Climb G-Mode Morph Insane IBJ to Top",
       "Climb G-Mode Morph Blind Climb to the Top",
       "Crateria Supers G-Mode Morph Long Ceiling Bomb Jump",
       "Crateria Supers G-Mode Up with PBs",
-      "Back-Side Botwoon Super Only Fight",
-      "Golden Torizo Missiles Only",
-      "Colosseum with no Equipment",
+      "Green Pirate Shaft Beetom Xray Climb",
       "Green Pirate Shaft Beetom Moondance",
-      "WS East Supers Robot Clip Run-In-Place",
+
+      "Taco Tank in Blue Brinstar Energy Tank Room",
+
       "Crocomire with 5 Missiles",
-      "East Cac Alley G-Mode Morph, IBJ, HBJ"
+ 
+      "Golden Torizo Missiles Only",
+      "Screw Attack Room Doorway CWJ",
+      
+      "Main Street Crab Climb with Only Ice",
+      "Main Street Crab Climb with Only Ice and Supers",
+      "Mama Turtle Insane Walljump",
+      "Mt. Everest Right Crab Climb with Only 2 Supers",
+      "Mt. Everest Right Crab Climb with Only 1 Super",
+
+      "Back-Side Botwoon Super Only Fight",
+      "Colosseum with no Equipment",
+      "East Cac Alley G-Mode Morph, IBJ, HBJ",
+ 
+      "West Sand Hall Insane Bomb Jump",
+ 
+      "WS East Supers Robot Clip Run-In-Place"
     ]
   }
 ]
