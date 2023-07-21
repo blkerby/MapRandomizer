@@ -25,6 +25,7 @@ struct RoomStrat {
     note: String,
     requires: String,                         // new-line separated requirements
     obstacles: Vec<(String, String, String)>, // list of (obstacle name, obstacle requires, additional obstacles)
+    clears_obstacles: Vec<String>,
     difficulty_idx: usize,
     difficulty_name: String,
 }
@@ -222,7 +223,8 @@ fn make_tech_templates<'a>(
                 s.strat_name.clone(),
             )
         });
-        let mut difficulty_names: Vec<String> = presets.iter().map(|x| x.preset.name.clone()).collect();
+        let mut difficulty_names: Vec<String> =
+            presets.iter().map(|x| x.preset.name.clone()).collect();
         difficulty_names.push("Beyond".to_string());
         let template = TechTemplate {
             version: VERSION,
@@ -331,7 +333,7 @@ fn strip_cross_room_reqs(req: Requirement, game_data: &GameData) -> Requirement 
         }
         Requirement::ComeInWithGMode { .. } => {
             Requirement::Tech(game_data.tech_isv.index_by_key["canEnterGMode"])
-        },
+        }
         Requirement::NotFlag(_) => Requirement::Free,
         _ => req,
     }
@@ -432,6 +434,14 @@ fn make_room_template(
                 } else {
                     presets[difficulty_idx].preset.name.clone()
                 };
+                let clears_obstacles: Vec<String> = if strat_json.has_key("clearsObstacles") {
+                    strat_json["clearsObstacles"]
+                        .members()
+                        .map(|x| x.as_str().unwrap().to_string())
+                        .collect()
+                } else {
+                    vec![]
+                };
                 let strat = RoomStrat {
                     room_name: room_name.clone(),
                     room_name_stripped: room_name_stripped.clone(),
@@ -445,6 +455,7 @@ fn make_room_template(
                     note: game_data.parse_note(&strat_json["note"]).join(" "),
                     requires: make_requires(&strat_json["requires"]),
                     obstacles,
+                    clears_obstacles,
                     difficulty_idx,
                     difficulty_name,
                 };

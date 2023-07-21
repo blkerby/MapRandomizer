@@ -32,3 +32,7 @@ Notable: true<br>
     </p>
     <pre><%= obstacle_requires %></pre>
 <% } %>
+<% if strat.clears_obstacles.len() > 0 {
+      let obstacle_list = strat.clears_obstacles.join(", "); %>
+    Clears obstacles: <%= obstacle_list %>
+<% } %>
