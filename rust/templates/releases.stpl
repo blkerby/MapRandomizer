@@ -17,6 +17,30 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-73---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 73 (???)</a>:
+<ul>
+<li>Logic updates:
+    <ul>
+    <li>canBePatient is split into two tech:
+        <ul>
+        <li>canBeVeryPatient (Insane) is defined as canBePatient was before: doing the same thing for ~3 minutes.
+        <li>canBePatient (Extreme) is defined as doing the same thing for ~1.5 minutes.
+        </ul>
+    <li>Patience requirements are now added to X-ray climbs:
+        <ul>
+        <li>Climbing more than 4 screens now requires canBeVeryPatient (Insane).
+        <li>Climbing more than 2 screens now requires canBePatient (Extreme).
+        <li>Climbing 2 screens or less is now in logic on Expert.
+        </ul>
+    <li>X-ray climb tech are simplified and given more intuitive names:
+        <ul>
+        <li>canXRayClimb (Expert) now includes the basic setup, for getting stuck in a door on the left-side of a room.
+        <li>canLeftFacingDoorXRayClimb is replaced with canRightSideDoorStuck (Expert).
+        <li>canSubmergedLeftFacingDoorXRayClimb is replaced with canRightSideDoorStuckFromWater (Extreme).
+        </ul>
+    </ul>
+</ul>
+
 <p><a href="https://version-72---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 72 (2023-07-19)</a>:
 <ul>
 <li>New customization options:
