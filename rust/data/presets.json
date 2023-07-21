@@ -339,6 +339,7 @@
     "ridley_proficiency": 1.0,
     "botwoon_proficiency": 1.0,
     "tech": [
+      "canBePatient",
       "canEnterRMode",
       "canEnterGMode",
       "canEnterGModeImmobile",
@@ -404,7 +405,7 @@
     "ridley_proficiency": 1.0,
     "botwoon_proficiency": 1.0,
     "tech": [
-      "canBePatient",
+      "canBeVeryPatient",
       "canMoondance",
       "canFrozenEnemyMoonfall",
       "canDownwardGModeSetup"
