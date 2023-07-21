@@ -1,8 +1,8 @@
 next release:
+- DONE: show "clearsObstacles" in Logic pages
 - 
 
 priority:
-- show "clearsObstacles" in Logic pages
 - order tech/strats in logical way in the UI
   - for tech: descending order by # of strats
   - for notable strats: by area/subarea/room

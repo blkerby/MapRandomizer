@@ -119,6 +119,7 @@ pub enum Requirement {
     LavaFrames(i32),
     GravitylessLavaFrames(i32),
     AcidFrames(i32),
+    MetroidFrames(i32),
     Damage(i32),
     // Energy(i32),
     Missiles(i32),
@@ -865,6 +866,28 @@ impl GameData {
                 } else {
                     bail!("Unexpected ammo type in {}", req_json);
                 }
+            } else if key == "refill" {
+                let mut req_list_and: Vec<Requirement> = vec![];
+                for resource_type_json in value.members() {
+                    let resource_type = resource_type_json.as_str().unwrap();
+                    if resource_type == "Missile" {
+                        req_list_and.push(Requirement::MissileRefill);
+                    } else if resource_type == "Super" {
+                        req_list_and.push(Requirement::SuperRefill);
+                    } else if resource_type == "PowerBomb" {
+                        req_list_and.push(Requirement::PowerBombRefill);
+                    } else if resource_type == "RegularEnergy" {
+                        req_list_and.push(Requirement::EnergyRefill);
+                    } else if resource_type == "ReserveEnergy" {
+                        req_list_and.push(Requirement::ReserveRefill);
+                    } else if resource_type == "Energy" {
+                        req_list_and.push(Requirement::EnergyRefill);
+                        req_list_and.push(Requirement::ReserveRefill);
+                    } else {
+                        bail!("Unrecognized refill resource type: {}", resource_type);
+                    }
+                }
+                return Ok(Requirement::make_and(req_list_and));
             } else if key == "ammoDrain" {
                 // We patch out the ammo drain from the Mother Brain fight.
                 return Ok(Requirement::Free);
@@ -915,6 +938,11 @@ impl GameData {
                     .expect(&format!("invalid acidFrames in {}", req_json));
                 return Ok(Requirement::AcidFrames(frames));
                 // return Ok(Requirement::Damage(3 * frames / 2));
+            } else if key == "metroidFrames" {
+                let frames = value
+                    .as_i32()
+                    .expect(&format!("invalid metroidFrames in {}", req_json));
+                return Ok(Requirement::MetroidFrames(frames));
             } else if key == "draygonElectricityFrames" {
                 let frames = value
                     .as_i32()

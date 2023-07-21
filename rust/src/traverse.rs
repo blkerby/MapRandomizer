@@ -654,6 +654,12 @@ pub fn apply_requirement(
                 multiply(3 * frames / 2, difficulty) / suit_damage_factor(global);
             validate_energy(new_local, global)
         }
+        Requirement::MetroidFrames(frames) => {
+            let mut new_local = local;
+            new_local.energy_used +=
+                multiply(3 * frames / 4, difficulty) / suit_damage_factor(global);
+            validate_energy(new_local, global)
+        }
         Requirement::Damage(base_energy) => {
             let mut new_local = local;
             new_local.energy_used += base_energy / suit_damage_factor(global);
