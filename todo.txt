@@ -1,18 +1,29 @@
 next release:
 - DONE: show "clearsObstacles" in Logic pages
+- DONE: order tech/strats in logical way in the UI
+- DONE: add momentum conservation patch (in "Max" QoL)
+- move canGateGlitch to Very Hard?
+- improve crediting of patch & sprite authors
+  - reference in italics at bottom of QoL option help button
+  - list of sprite authors in custom sprite help button
+  - list sprite authors on About page
+  - mention matrethewey, artheau, and spritesomething on the About page.
 - logic updates (patience tech split, x-ray climb rework, obstacles rework, non-respawning farms)
-
+  - tricky CF at ammo refill stations
+- fix vanilla music option
+- use "crateria asleep" song somewhere:
+  - in crateria initially when zebes not awake.
+  - in subarea containing ship, use rain/lightning version
 priority:
-- order tech/strats in logical way in the UI
-  - for tech: descending order by # of strats (except where dependencies require different order)
-  - for notable strats: by area/subarea/room
+
 - randomized start: check requires on hub locations
   - make hub requirements consistent with new farm approach
 - add more random start locations, in item rooms (speed booster room, morph ball room, screw attack room bottom)
-- add momentum conservation patch (in "Max" QoL)
 - add objectives:
   - Larvas: 4 special items (replacing missiles)
   - Random
+- investigate panic during spoiler log construction:
+  - RUST_BACKTRACE=1 time cargo run --bin maprando-cli -- --map ../maps/session-2022-06-03T17:19:29.727911.pkl-bk30-subarea-balance-2/1000001.json --item-placement-seed 3 --input-rom ~/Downloads/Super\ Metroid\ \(JU\)\ \[\!\].smc --output-rom ~/Downloads/testrom.smc
 - investigate resource_multiplier bug that happened in Osse's seed with resource_multiplier=8:
   - https://maprando.com/seed/isnUf9YjIhvW-BJFrvFuyw/data/visualizer/index.html
   - (was from enemykill not using multiplier)
@@ -89,9 +100,6 @@ later:
   - (not part of QoL:) fix crash when pausing on frame when auto reserve triggers 
   - See existing patch for some of these: https://metroidconstruction.com/resource.php?id=418
 - consider bot-friendly API
-- use "crateria asleep" song somewhere:
-  - maybe in the initial part of crateria when zebes not awake.
-  - alternatively: in the wrecked ship, replacing one of the two nearly identical songs.
 - "wild" item progression mode, where new item may be required to be used for the return path.
 - consider idea from selicre: "what if there was a mode in which walljumps could be unlocked by visiting etecoons (and shinesparking by visiting dachora)?"
 - custom demos
@@ -139,11 +147,6 @@ later:
 - fix how spoiler map sometimes won't show escape route
 - see if it is possible to prevent song changes from messing up enemy behavior
 - fix problem with disappearing typewriter text when pausing as escape sequence starts
-- add tech for underwater single-sided wall-jumping (UWU)
-  - limit to climbs of ~2 tiles
-  - require HiJump
-  - require SpaceJump for breaking the water
-  - put in Insane tier
 - Add override for Tourian Hopper run under strat from left to top (imyt strat)
 - add a tip that you can share a seed using the URL.
 - logic: ice moonfall (in dachora room)
@@ -184,7 +187,6 @@ later:
     - show flags in the steps too (e.g. bosses) and be able to click on them too to show the route
       - come up with new icons for these: G4 bosses, minibosses, golden torizo, shaktool, maridia tube, acid chozo statue, mother brain
       - (mother brain needs to be added to the logic as a flag)
-- separate animation for screw attack without space jump (like in SMZ3?)
 - fix panic that is occasionally happening:
   thread 'actix-rt|system:0|arbiter:0' panicked at 'assertion failed: num_key_items_to_place >= 1', src/randomize.rs:671:9
 - find some way to have forced mode take into account difficulty of defeating bosses (and other flags)

@@ -15,7 +15,7 @@
       <p>If enabled, Space Jump behaves in air the same as it does underwater, making it easier to use by widening the window of time to press jump.
       </p>
 
-      <p><b>Note</b>: The randomizer logic currently does not take this setting into account. Therefore, even 
+      <p><b>Note</b>: The randomizer logic does not take this setting into account. Therefore, even 
       when it is enabled, the game will not require it to be used, and it may create sequence break opportunities.
       </p>
       </div>

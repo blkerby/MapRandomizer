@@ -164,6 +164,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         fast_pause_menu: true,
         respin: false,
         infinite_space_jump: false,
+        momentum_conservation: false,
         objectives: Objectives::Bosses,
         randomized_start: false,
         save_animals: false,

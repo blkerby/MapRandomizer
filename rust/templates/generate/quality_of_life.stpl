@@ -191,6 +191,54 @@
 <div class="row">
     <div class="col-sm-12">
         <div class="card m-2">
+            <div class="card-header">Samus control</div>
+            <div class="card-body">
+                <div class="form-group row align-items-center">
+                    <div class="col-lg-6 col-xl-5 m-2">
+                        <% include!("help/quality/respin.stpl"); %>
+                        <label for="respin">Respin</label>
+                    </div>
+                    <div class="col-2 btn-group m-2" role="group">
+                        <input type="radio" class="btn-check" name="respin" id="respinNo" value="false" checked>
+                        <label class="btn btn-outline-primary" for="respinNo">No</label>
+                        <input type="radio" class="btn-check" name="respin" id="respinYes" value="true">
+                        <label class="btn btn-outline-primary" for="respinYes">Yes</label>
+                    </div>
+                </div>
+
+                <div class="form-group row align-items-center">
+                    <div class="col-lg-6 col-xl-5 m-2">
+                        <% include!("help/quality/infinite_space_jump.stpl"); %>
+                        <label for="infinite_space_jump">Lenient Space Jump</label>
+                    </div>
+                    <div class="col-2 btn-group m-2" role="group">
+                        <input type="radio" class="btn-check" name="infinite_space_jump" id="infiniteSpaceJumpNo" value="false" checked>
+                        <label class="btn btn-outline-primary" for="infiniteSpaceJumpNo">No</label>
+                        <input type="radio" class="btn-check" name="infinite_space_jump" id="infiniteSpaceJumpYes" value="true">
+                        <label class="btn btn-outline-primary" for="infiniteSpaceJumpYes">Yes</label>
+                    </div>
+                </div>
+
+                <div class="form-group row align-items-center">
+                    <div class="col-lg-6 col-xl-5 m-2">
+                        <% include!("help/quality/momentum_conservation.stpl"); %>
+                        <label for="momentum_conservation">Momentum conservation</label>
+                    </div>
+                    <div class="col-2 btn-group m-2" role="group">
+                        <input type="radio" class="btn-check" name="momentum_conservation" id="momentumConservationNo" value="false" checked>
+                        <label class="btn btn-outline-primary" for="momentumConservationNo">No</label>
+                        <input type="radio" class="btn-check" name="momentum_conservation" id="momentumConservationYes" value="true">
+                        <label class="btn btn-outline-primary" for="momentumConservationYes">Yes</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="card m-2">
             <div class="card-header">Other</div>
             <div class="card-body">
                 <div class="form-group row align-items-center">
@@ -216,32 +264,6 @@
                         <label class="btn btn-outline-primary" for="acidChozoNo">No</label>
                         <input type="radio" class="btn-check" name="acid_chozo" id="acidChozoYes" value="true" checked>
                         <label class="btn btn-outline-primary" for="acidChozoYes">Yes</label>
-                    </div>
-                </div>
-
-                <div class="form-group row align-items-center">
-                    <div class="col-lg-6 col-xl-5 m-2">
-                        <% include!("help/quality/respin.stpl"); %>
-                        <label for="respin">Respin (spin jump restart)</label>
-                    </div>
-                    <div class="col-2 btn-group m-2" role="group">
-                        <input type="radio" class="btn-check" name="respin" id="respinNo" value="false" checked>
-                        <label class="btn btn-outline-primary" for="respinNo">No</label>
-                        <input type="radio" class="btn-check" name="respin" id="respinYes" value="true">
-                        <label class="btn btn-outline-primary" for="respinYes">Yes</label>
-                    </div>
-                </div>
-
-                <div class="form-group row align-items-center">
-                    <div class="col-lg-6 col-xl-5 m-2">
-                        <% include!("help/quality/infinite_space_jump.stpl"); %>
-                        <label for="infinite_space_jump">Lenient Space Jump</label>
-                    </div>
-                    <div class="col-2 btn-group m-2" role="group">
-                        <input type="radio" class="btn-check" name="infinite_space_jump" id="infiniteSpaceJumpNo" value="false" checked>
-                        <label class="btn btn-outline-primary" for="infiniteSpaceJumpNo">No</label>
-                        <input type="radio" class="btn-check" name="infinite_space_jump" id="infiniteSpaceJumpYes" value="true">
-                        <label class="btn btn-outline-primary" for="infiniteSpaceJumpYes">Yes</label>
                     </div>
                 </div>
             </div>

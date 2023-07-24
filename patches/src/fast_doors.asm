@@ -1,4 +1,5 @@
 ; Based on https://github.com/tewtal/sm_practice_hack/blob/723e3a6d18a3f66903cc067cd923e0a6b28aebf5/src/cutscenes.asm#L29
+; Author: NobodyNada
 
 arch snes.cpu
 

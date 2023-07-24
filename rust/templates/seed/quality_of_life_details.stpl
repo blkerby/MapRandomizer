@@ -50,18 +50,23 @@
 </div>
 <hr>
 <div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Respin:</div>
+    <div class="col-4 col-sm-3"><%= if respin { "Yes" } else { "No" }%></div>
+</div>
+<div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Lenient Space Jump:</div>
+    <div class="col-4 col-sm-3"><%= if infinite_space_jump { "Yes" } else { "No" }%></div>
+</div>
+<div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Momentum conservation:</div>
+    <div class="col-4 col-sm-3"><%= if momentum_conservation { "Yes" } else { "No" }%></div>
+</div>
+<hr>
+<div class="row">
     <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">All items spawn at start of game:</div>
     <div class="col-4 col-sm-3"><%= if all_items_spawn { "Yes" } else { "No" }%></div>
 </div>
 <div class="row">
     <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Acid Chozo usable without Space Jump:</div>
     <div class="col-4 col-sm-3"><%= if acid_chozo { "Yes" } else { "No" }%></div>
-</div>
-<div class="row">
-    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Respin (spin jump restart):</div>
-    <div class="col-4 col-sm-3"><%= if respin { "Yes" } else { "No" }%></div>
-</div>
-<div class="row">
-    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Lenient Space Jump:</div>
-    <div class="col-4 col-sm-3"><%= if infinite_space_jump { "Yes" } else { "No" }%></div>
 </div>

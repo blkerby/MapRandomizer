@@ -111,6 +111,7 @@ pub struct DifficultyConfig {
     pub fast_pause_menu: bool,
     pub respin: bool,
     pub infinite_space_jump: bool,
+    pub momentum_conservation: bool,
     // Game variations:
     pub objectives: Objectives,
     pub randomized_start: bool,

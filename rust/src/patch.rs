@@ -347,6 +347,10 @@ impl<'a> Patcher<'a> {
             patches.push("spinjumprestart");
         }
 
+        if self.randomization.difficulty.momentum_conservation {
+            patches.push("momentum_conservation");
+        }
+
         for patch_name in patches {
             let patch_path = patches_dir.join(patch_name.to_string() + ".ips");
             apply_ips_patch(&mut self.rom, &patch_path)?;

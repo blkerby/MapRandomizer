@@ -1,25 +1,26 @@
 <!-- Button trigger modal -->
-<button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#respinModal">
+<button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#momentumConservationModal">
 <i class="bi bi-question-circle"></i>
 </button>
 
 <!-- Modal -->
-<div class="modal" id="respinModal" tabindex="-1">
+<div class="modal" id="momentumConservationModal" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5">Respin (spin jump restart)</h1>
+        <h1 class="modal-title fs-5">Momentum conservation</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-      <p>If enabled, you can press jump to make Samus spin while mid-air. For example, this can be used after
-      having broken spin, or when falling or jumping without spin.</p>
+      <p>If enabled, the player may conserve Samus' horizontal momentum when landing from a spin jump by
+      holding run with Speedbooster equipped.
+      </p>
 
       <p><b>Note</b>: The randomizer logic does not take this setting into account. Therefore, even 
       when it is enabled, the game will not require it to be used, and it may create sequence break opportunities.
       </p>
 
-      <p><i>Patch by Kejardon.</i></p>
+      <p><i>Patch by scyzer, Nodever2, and OmegaDragnet7.</i></p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

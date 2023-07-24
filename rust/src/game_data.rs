@@ -143,10 +143,10 @@ pub enum Requirement {
     },
     PhantoonFight {},
     DraygonFight {
-        can_be_patient_tech_id: usize,
+        can_be_very_patient_tech_id: usize,
     },
     RidleyFight {
-        can_be_patient_tech_id: usize,
+        can_be_very_patient_tech_id: usize,
     },
     BotwoonFight {
         second_phase: bool,
@@ -1006,11 +1006,11 @@ impl GameData {
                     return Ok(Requirement::PhantoonFight {});
                 } else if enemy_set.contains("Draygon") {
                     return Ok(Requirement::DraygonFight {
-                        can_be_patient_tech_id: self.tech_isv.index_by_key["canBePatient"],
+                        can_be_very_patient_tech_id: self.tech_isv.index_by_key["canBeVeryPatient"],
                     });
                 } else if enemy_set.contains("Ridley") {
                     return Ok(Requirement::RidleyFight {
-                        can_be_patient_tech_id: self.tech_isv.index_by_key["canBePatient"],
+                        can_be_very_patient_tech_id: self.tech_isv.index_by_key["canBeVeryPatient"],
                     });
                 } else if enemy_set.contains("Botwoon 1") {
                     return Ok(Requirement::BotwoonFight {

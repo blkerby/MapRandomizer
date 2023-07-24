@@ -120,6 +120,7 @@ fn main() -> Result<()> {
         fast_pause_menu: true,
         respin: false,
         infinite_space_jump: false,
+        momentum_conservation: false,
         objectives: Objectives::Bosses,
         randomized_start: false,
         save_animals: false,
@@ -143,7 +144,7 @@ fn main() -> Result<()> {
     println!(
         "{:?}",
         apply_requirement(&Requirement::DraygonFight {
-            can_be_patient_tech_id: game_data.tech_isv.index_by_key["canBePatient"]
+            can_be_very_patient_tech_id: game_data.tech_isv.index_by_key["canBeVeryPatient"]
         }, &global_state, local_state, false, &difficulty)
     );
 

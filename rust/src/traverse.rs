@@ -214,7 +214,7 @@ fn apply_draygon_requirement(
     global: &GlobalState,
     mut local: LocalState,
     proficiency: f32,
-    can_be_patient_tech_id: usize,
+    can_be_very_patient_tech_id: usize,
 ) -> Option<LocalState> {
     let boss_hp: f32 = 6000.0;
     let charge_damage = get_charge_damage(&global);
@@ -249,7 +249,7 @@ fn apply_draygon_requirement(
         }
     };
 
-    if kill_time >= 180.0 && !global.tech[can_be_patient_tech_id] {
+    if kill_time >= 180.0 && !global.tech[can_be_very_patient_tech_id] {
         // We don't have enough patience to finish the fight:
         return None;
     }
@@ -280,7 +280,7 @@ fn apply_ridley_requirement(
     global: &GlobalState,
     mut local: LocalState,
     proficiency: f32,
-    can_be_patient_tech_id: usize,
+    can_be_very_patient_tech_id: usize,
 ) -> Option<LocalState> {
     let mut boss_hp: f32 = 18000.0;
     let mut time: f32 = 0.0; // Cumulative time in seconds for the fight
@@ -345,7 +345,7 @@ fn apply_ridley_requirement(
         return None;
     }
 
-    if time >= 180.0 && !global.tech[can_be_patient_tech_id] {
+    if time >= 180.0 && !global.tech[can_be_very_patient_tech_id] {
         // We don't have enough patience to finish the fight:
         return None;
     }
@@ -772,20 +772,20 @@ pub fn apply_requirement(
             apply_phantoon_requirement(global, local, difficulty.phantoon_proficiency)
         }
         Requirement::DraygonFight {
-            can_be_patient_tech_id,
+            can_be_very_patient_tech_id,
         } => apply_draygon_requirement(
             global,
             local,
             difficulty.draygon_proficiency,
-            *can_be_patient_tech_id,
+            *can_be_very_patient_tech_id,
         ),
         Requirement::RidleyFight {
-            can_be_patient_tech_id,
+            can_be_very_patient_tech_id,
         } => apply_ridley_requirement(
             global,
             local,
             difficulty.ridley_proficiency,
-            *can_be_patient_tech_id,
+            *can_be_very_patient_tech_id,
         ),
         Requirement::BotwoonFight { second_phase } => {
             apply_botwoon_requirement(global, local, difficulty.botwoon_proficiency, *second_phase)

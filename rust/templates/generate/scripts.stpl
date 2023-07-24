@@ -133,6 +133,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("fastPauseMenuNo").checked = true;
         document.getElementById("respinNo").checked = true;
         document.getElementById("infiniteSpaceJumpNo").checked = true;
+        document.getElementById("momentumConservationNo").checked = true;
     } else {
         document.getElementById("ultraLowQoLNo").checked = true;
     }
@@ -153,6 +154,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("fastPauseMenuYes").checked = true;
         document.getElementById("respinNo").checked = true;
         document.getElementById("infiniteSpaceJumpNo").checked = true;
+        document.getElementById("momentumConservationNo").checked = true;
     }    
     if (document.getElementById("qualityOfLifeDefault").checked) {
         document.getElementById("supersDoubleYes").checked = true;
@@ -171,6 +173,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("fastPauseMenuYes").checked = true;
         document.getElementById("respinNo").checked = true;
         document.getElementById("infiniteSpaceJumpNo").checked = true;
+        document.getElementById("momentumConservationNo").checked = true;
     }    
     if (document.getElementById("qualityOfLifeMax").checked) {
         document.getElementById("supersDoubleYes").checked = true;
@@ -189,6 +192,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("fastPauseMenuYes").checked = true;
         document.getElementById("respinYes").checked = true;
         document.getElementById("infiniteSpaceJumpYes").checked = true;
+        document.getElementById("momentumConservationYes").checked = true;
     }    
 }
 function qualityOfLifeSettingChanged() {

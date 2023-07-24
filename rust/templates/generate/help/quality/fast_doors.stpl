@@ -14,6 +14,8 @@
       <div class="modal-body">
         <p>If enabled, this doubles the speed of aligning the camera and scrolling through the door. It does not affect the speed 
         at which the game fades out to black or fades back in, so it should not disrupt the execution of strats across rooms.</p>
+
+        <p><i>Patch by NobodyNada.</i></p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
