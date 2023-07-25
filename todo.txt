@@ -14,10 +14,15 @@ next release:
 - use "crateria asleep" song somewhere:
   - in crateria initially when zebes not awake.
   - in subarea containing ship, use rain/lightning version
+- fix bank 8b.txt files
+
+
 priority:
 
 - randomized start: check requires on hub locations
   - make hub requirements consistent with new farm approach
+  - actually probably don't need to define hub rooms anymore:
+     - just check for ability to refill each resource type from the start location and get back
 - add more random start locations, in item rooms (speed booster room, morph ball room, screw attack room bottom)
 - add objectives:
   - Larvas: 4 special items (replacing missiles)

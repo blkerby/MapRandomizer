@@ -96,6 +96,8 @@
         <li>Supers do double damage to Mother Brain (a quality-of-life option).
         <% } %>
         <li>Hyper Beam destroys Super, Bomb, and Power Bomb blocks and can open blue & green gates from either side.
+        <li>In the event that you end up softlocked in all three save files, you can clear a save file and restart
+        the game from the beginning while retaining your map progress.
         </ul>
         <p>
     </div>

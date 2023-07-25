@@ -1,5 +1,5 @@
 mod room_palettes;
-mod vanilla_music;
+pub mod vanilla_music;
 
 use std::path::Path;
 

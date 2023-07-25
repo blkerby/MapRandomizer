@@ -326,5 +326,9 @@ pub fn override_music(rom: &mut Rom) -> Result<()> {
         (0xDEEF, 0x1E, 0x05), // room $DEDE - Tourian Escape Room 4 (play tourian music instead of escape music)
         (0xDF2C, 0x1E, 0x05), // room $DF1B - Upper Tourian Save Room (Tourian Map Room)
     ];
+    for (addr, song_set, song_index) in song_overrides {
+        rom.write_u8(addr, song_set)?;
+        rom.write_u8(addr + 1, song_index)?;
+    }
     Ok(())
 }

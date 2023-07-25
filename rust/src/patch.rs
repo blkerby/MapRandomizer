@@ -9,6 +9,7 @@ use std::path::Path;
 use crate::{
     game_data::{DoorPtr, DoorPtrPair, GameData, Item, Map, NodePtr, RoomGeometryDoor},
     randomize::{MotherBrainFight, Objectives, Randomization},
+    customize::vanilla_music::override_music,
 };
 use anyhow::{ensure, Context, Result};
 use hashbrown::{HashMap, HashSet};
@@ -271,10 +272,6 @@ impl<'a> Patcher<'a> {
             "credits",
             "sram_check_disable",
         ];
-
-        if !self.randomization.difficulty.vanilla_map {
-            patches.push("music");
-        }
 
         if self.randomization.difficulty.ultra_low_qol {
             patches.extend([
@@ -963,6 +960,10 @@ impl<'a> Patcher<'a> {
     }
 
     fn use_area_based_music(&mut self) -> Result<()> {
+        // Start by applying vanilla music (since even for tracks that we don't change below, we need
+        // to make sure they apply concrete tracks instead of "no change" like the vanilla game has):
+        override_music(&mut self.rom)?;
+
         let area_music: [[u16; 2]; NUM_AREAS] = [
             [
                 // (0x06, 0x05),   // Empty Crateria
