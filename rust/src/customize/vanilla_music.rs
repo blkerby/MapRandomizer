@@ -8,6 +8,7 @@
 use anyhow::Result;
 
 use crate::patch::Rom;
+use crate::patch::snes2pc;
 
 pub fn override_music(rom: &mut Rom) -> Result<()> {
     let song_overrides = vec![
@@ -327,8 +328,8 @@ pub fn override_music(rom: &mut Rom) -> Result<()> {
         (0xDF2C, 0x1E, 0x05), // room $DF1B - Upper Tourian Save Room (Tourian Map Room)
     ];
     for (addr, song_set, song_index) in song_overrides {
-        rom.write_u8(addr, song_set)?;
-        rom.write_u8(addr + 1, song_index)?;
+        rom.write_u8(snes2pc(0x8F0000 + addr), song_set)?;
+        rom.write_u8(snes2pc(0x8F0000 + addr + 1), song_index)?;
     }
     Ok(())
 }
