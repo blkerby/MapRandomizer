@@ -10,7 +10,7 @@ next release:
   - rename to heat frame multiplier
 - logic updates (patience tech split, x-ray climb rework, obstacles rework, non-respawning farms)
 - fix bank 8b.txt files
-
+- pull in latest sprites
 
 priority:
 - add CF health refill to logic
@@ -25,6 +25,11 @@ priority:
   - actually probably don't need to define hub rooms anymore:
      - just check for ability to refill each resource type from the start location and get back
 - add more random start locations, in item rooms (speed booster room, morph ball room, screw attack room bottom)
+- map improvements:
+  - represent heat, gates, tunnels, quicksand
+- take another look at boss fights
+  - create table to show in help button, to make boss logic more transparent (in addition to showing formulas)
+  - 5 Super phantoon fight probably needs more requirements than it currently has.
 - add objectives:
   - Larvas: 4 special items (replacing missiles)
   - Random
@@ -276,7 +281,6 @@ later:
   - probably bad idea, because returning may not be required (before getting another item that makes it easier).
 
 maybe someday?:
-- see if we can represent more room details on map: heat, water(?), gates, tunnels, sand
 - minimizer mode? (select rooms to include randomly, hand-picked, and/or user-selected)
 - make map rando for other hacks (e.g. project base, subversion?)
   - would be a lot of work. we could invite others to help implement the logic

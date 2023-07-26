@@ -124,6 +124,8 @@ pub enum Requirement {
     // Energy(i32),
     Missiles(i32),
     MissilesCapacity(i32),
+    SupersCapacity(i32),
+    PowerBombsCapacity(i32),
     Supers(i32),
     PowerBombs(i32),
     EnergyRefill,
@@ -863,6 +865,10 @@ impl GameData {
                     .expect(&format!("missing/invalid resource count in {}", req_json));
                 if resource_type == "Missile" {
                     return Ok(Requirement::MissilesCapacity(count as Capacity));
+                } else if resource_type == "Super" {
+                    return Ok(Requirement::SupersCapacity(count as Capacity));
+                } else if resource_type == "PowerBomb" {
+                    return Ok(Requirement::PowerBombsCapacity(count as Capacity));
                 } else {
                     bail!("Unexpected ammo type in {}", req_json);
                 }

@@ -38,6 +38,7 @@ about 15 seconds to load.
         <li>canLeftFacingDoorXRayClimb is replaced with canRightSideDoorStuck (Expert).
         <li>canSubmergedLeftFacingDoorXRayClimb is replaced with canRightSideDoorStuckFromWater (Extreme).
         </ul>
+    <li>New tech: canPauseAbuse (Expert)
     </ul>
 </ul>
 

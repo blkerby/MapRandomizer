@@ -284,6 +284,7 @@
       "canBombIntoCrystalFlashClip",
       "canUnmorphBombBoost",
       "canStaggeredIBJ",
+      "canPauseAbuse",
       "canWallJumpBombBoost",
       "canContinuousDboost",
       "canBabyMetroidAvoid",
@@ -455,6 +456,7 @@
     "tech": [
       "canBeVeryPatient",
       "canMoondance",
+      "canBombGrappleJump",
       "canFrozenEnemyMoonfall",
       "canDownwardGModeSetup"
     ],
@@ -478,8 +480,10 @@
       "Mama Turtle Insane Walljump",
       "Mt. Everest Right Crab Climb with Only 2 Supers",
       "Mt. Everest Right Crab Climb with Only 1 Super",
+      "Everest Double Crab Bomb-Grapple-Jump",
 
       "Back-Side Botwoon Super Only Fight",
+      "Botwoon Energy Tank Room Puyo Bomb-Grapple-Jump",
       "Colosseum with no Equipment",
       "East Cac Alley G-Mode Morph, IBJ, HBJ",
  
