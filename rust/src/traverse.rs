@@ -672,8 +672,18 @@ pub fn apply_requirement(
         // },
         Requirement::Missiles(count) => {
             let mut new_local = local;
-            new_local.missiles_used += multiply(*count, difficulty);
+            new_local.missiles_used += *count;
             validate_missiles(new_local, global)
+        }
+        Requirement::Supers(count) => {
+            let mut new_local = local;
+            new_local.supers_used += *count;
+            validate_supers(new_local, global)
+        }
+        Requirement::PowerBombs(count) => {
+            let mut new_local = local;
+            new_local.power_bombs_used += *count;
+            validate_power_bombs(new_local, global)
         }
         Requirement::MissilesCapacity(count) => {
             if global.max_missiles >= *count {
@@ -695,16 +705,6 @@ pub fn apply_requirement(
             } else {
                 None
             }
-        }
-        Requirement::Supers(count) => {
-            let mut new_local = local;
-            new_local.supers_used += multiply(*count, difficulty);
-            validate_supers(new_local, global)
-        }
-        Requirement::PowerBombs(count) => {
-            let mut new_local = local;
-            new_local.power_bombs_used += multiply(*count, difficulty);
-            validate_power_bombs(new_local, global)
         }
         Requirement::EnergyRefill => {
             let mut new_local = local;
