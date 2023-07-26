@@ -325,7 +325,7 @@ fn apply_ridley_requirement(
         );
         boss_hp = 0.0;
         time += charge_shots_to_use as f32 * 1.5 / firing_rate; // Assume max 1 charge shot per 1.5 seconds
-    } else if global.items[Item::Morph as usize]{
+    } else if global.items[Item::Morph as usize] {
         // Only use Power Bombs if Charge is not available:
         let pbs_available = global.max_power_bombs - local.power_bombs_used;
         let pbs_to_use = max(
@@ -564,6 +564,37 @@ fn suit_damage_factor(global: &GlobalState) -> Capacity {
     }
 }
 
+fn apply_gate_glitch_leniency(
+    mut local: LocalState,
+    global: &GlobalState,
+    green: bool,
+    heated: bool,
+    difficulty: &DifficultyConfig,
+) -> Option<LocalState> {
+    if heated {
+        local.energy_used +=
+            (difficulty.gate_glitch_leniency as f32 * difficulty.resource_multiplier * 60.0) as i32;
+        local = match validate_energy(local, global) {
+            Some(x) => x,
+            None => return None,
+        };
+    }
+    if green {
+        local.supers_used += difficulty.gate_glitch_leniency;
+        return validate_supers(local, global);
+    } else {
+        let missiles_available = global.max_missiles - local.missiles_used;
+        if missiles_available >= difficulty.gate_glitch_leniency {
+            local.missiles_used += difficulty.gate_glitch_leniency;
+            return validate_missiles(local, global);
+        } else {
+            local.missiles_used = global.max_missiles;
+            local.supers_used += difficulty.gate_glitch_leniency - missiles_available;
+            return validate_supers(local, global);
+        }
+    }
+}
+
 pub fn apply_requirement(
     req: &Requirement,
     global: &GlobalState,
@@ -685,6 +716,9 @@ pub fn apply_requirement(
             new_local.power_bombs_used += *count;
             validate_power_bombs(new_local, global)
         }
+        Requirement::GateGlitchLeniency { green, heated } => {
+            apply_gate_glitch_leniency(local, global, *green, *heated, difficulty)
+        }
         Requirement::MissilesCapacity(count) => {
             if global.max_missiles >= *count {
                 Some(local)
@@ -756,9 +790,14 @@ pub fn apply_requirement(
                 Some(new_local)
             }
         }
-        Requirement::ReserveTrigger { min_reserve_energy, max_reserve_energy } => {
+        Requirement::ReserveTrigger {
+            min_reserve_energy,
+            max_reserve_energy,
+        } => {
             if reverse {
-                if local.reserves_used > 0 || local.energy_used >= min(*max_reserve_energy, global.max_reserves) {
+                if local.reserves_used > 0
+                    || local.energy_used >= min(*max_reserve_energy, global.max_reserves)
+                {
                     None
                 } else {
                     let mut new_local = local;
@@ -767,7 +806,10 @@ pub fn apply_requirement(
                     Some(new_local)
                 }
             } else {
-                let reserve_energy = min(global.max_reserves - local.reserves_used, *max_reserve_energy);
+                let reserve_energy = min(
+                    global.max_reserves - local.reserves_used,
+                    *max_reserve_energy,
+                );
                 if reserve_energy >= *min_reserve_energy {
                     let mut new_local = local;
                     new_local.reserves_used = global.max_reserves;
@@ -819,7 +861,8 @@ pub fn apply_requirement(
                 } else {
                     if reverse {
                         if new_local.energy_used <= 28 {
-                            new_local.energy_used = 28 + shinespark_frames - excess_shinespark_frames;
+                            new_local.energy_used =
+                                28 + shinespark_frames - excess_shinespark_frames;
                         } else {
                             new_local.energy_used += shinespark_frames;
                         }

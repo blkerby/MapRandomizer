@@ -25,6 +25,15 @@
             </div>
 
             <div class="form-group row m-2">
+                <label for="gateGlitchLeniency" class="col-sm-6 col-form-label">Gate glitch leniency<br>
+                <small>(Expected failed attempts to get a successful gate glitch)</small>
+                </label>
+                <div class="col-sm-2 my-2">
+                    <input type="text" class="form-control" name="gate_glitch_leniency" id="gateGlitchLeniency" value="14.0" onchange="techChanged()">
+                </div>
+            </div>
+
+            <div class="form-group row m-2">
                 <label for="phantoonProficiency" class="col-sm-6 col-form-label">Phantoon proficiency<br>
                 <small>(Skill level at the Phantoon fight, between 0 and 1)</small>
                 </label>

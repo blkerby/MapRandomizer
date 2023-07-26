@@ -19,11 +19,12 @@ about 15 seconds to load.
 
 <p><a href="https://version-73---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 73 (???)</a>:
 <ul>
-<li>New quality-of-life option "Momentum conservation" (enabled in Max preset)
-<li>More custom sprite options
+<li>New quality-of-life option "Momentum conservation" is added (enabled in Max preset).
+<li>More custom sprite options are added.
 <li>On most settings the escape timer is tightened by 10% (except only 5% on Extreme, and 0% on Expert).
 <li>Logic updates:
     <ul>
+    <li>Preset heat damage multiplier is made more lenient in Extreme (by 5%) and Expert (by 10%).
     <li>canBePatient is split into two tech:
         <ul>
         <li>canBeVeryPatient (Insane) is defined as canBePatient was before: waiting or doing the same thing for ~3 minutes.

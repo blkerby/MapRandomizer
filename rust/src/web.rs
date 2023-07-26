@@ -19,6 +19,7 @@ pub struct Preset {
     pub shinespark_tiles: usize,
     pub resource_multiplier: f32,
     pub escape_timer_multiplier: f32,
+    pub gate_glitch_leniency: usize,
     pub phantoon_proficiency: f32,
     pub draygon_proficiency: f32,
     pub ridley_proficiency: f32,

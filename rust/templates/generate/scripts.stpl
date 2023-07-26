@@ -6,6 +6,7 @@ function presetChanged() {
             document.getElementById("shinesparkTiles").value = <%= p.preset.shinespark_tiles %>;
             document.getElementById("resourceMultiplier").value = <%= p.preset.resource_multiplier %>;
             document.getElementById("escapeTimerMultiplier").value = <%= p.preset.escape_timer_multiplier %>;
+            document.getElementById("gateGlitchLeniency").value = <%= p.preset.gate_glitch_leniency %>;
             document.getElementById("phantoonProficiency").value = <%= p.preset.phantoon_proficiency %>;
             document.getElementById("draygonProficiency").value = <%= p.preset.draygon_proficiency %>;
             document.getElementById("ridleyProficiency").value = <%= p.preset.ridley_proficiency %>;

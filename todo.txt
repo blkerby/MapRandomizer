@@ -3,14 +3,15 @@ next release:
 - DONE: order tech/strats in logical way in the UI
 - DONE: add momentum conservation patch (in "Max" QoL)
 - DONE: improve crediting of patch & sprite authors
-- VALIDATE: fix vanilla music option
 - DONE: remove old farms/refills from randomizer
 - DONE: pull in latest sprites
 - DONE: adjust escape timer multiplier & resource multiplier
-- gate glitch multiplier
-- rename resource multiplier to heat frame multiplier
-- logic updates (patience tech split, x-ray climb rework, obstacles rework, non-respawning farms)
-- fix bank 8b.txt files
+- DONE: gate glitch multiplier
+- DONE: rename resource multiplier to heat frame multiplier
+- DONE: fix bank 8b.txt files
+- DONE: logic updates (patience tech split, x-ray climb rework, obstacles rework, non-respawning farms)
+- DONE: update tech order after pulling in logic again
+- VALIDATE: fix vanilla music option
 
 priority:
 - add CF health refill to logic

@@ -89,6 +89,7 @@ pub struct DifficultyConfig {
     pub filler_items: Vec<Item>,
     pub early_filler_items: Vec<Item>,
     pub resource_multiplier: f32,
+    pub gate_glitch_leniency: i32,
     pub escape_timer_multiplier: f32,
     pub phantoon_proficiency: f32,
     pub draygon_proficiency: f32,

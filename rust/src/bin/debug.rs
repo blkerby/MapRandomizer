@@ -52,7 +52,7 @@ fn main() -> Result<()> {
     // }
 
     let mut items = vec![false; game_data.item_isv.keys.len()];
-    // items[Item::Missile as usize] = true;
+    items[Item::Missile as usize] = true;
     // items[Item::SpaceJump as usize] = true;
     // items[Item::Super as usize] = true;
     // items[Item::Morph as usize] = true;
@@ -100,6 +100,7 @@ fn main() -> Result<()> {
         }],
         resource_multiplier: 1.0,
         escape_timer_multiplier: 1.0,
+        gate_glitch_leniency: 0,
         phantoon_proficiency: 0.0,
         draygon_proficiency: 1.0,
         ridley_proficiency: 0.0,

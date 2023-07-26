@@ -134,6 +134,10 @@ pub enum Requirement {
     SuperRefill,
     PowerBombRefill,
     AmmoStationRefill,
+    GateGlitchLeniency {
+        green: bool,
+        heated: bool,
+    },
     EnergyDrain,
     ReserveTrigger {
         min_reserve_energy: i32,
@@ -813,6 +817,14 @@ impl GameData {
                 return Ok(Requirement::Never);
             } else if value == "i_ammoRefill" {
                 return Ok(Requirement::AmmoStationRefill);
+            } else if value == "i_BlueGateGlitchLeniency" {
+                return Ok(Requirement::GateGlitchLeniency { green: false, heated: false });
+            } else if value == "i_GreenGateGlitchLeniency" {
+                return Ok(Requirement::GateGlitchLeniency { green: true, heated: false });
+            } else if value == "i_HeatedBlueGateGlitchLeniency" {
+                return Ok(Requirement::GateGlitchLeniency { green: false, heated: true });
+            } else if value == "i_HeatedGreenGateGlitchLeniency" {
+                return Ok(Requirement::GateGlitchLeniency { green: true, heated: true });
             } else if let Some(&item_id) = self.item_isv.index_by_key.get(value) {
                 return Ok(Requirement::Item(item_id as ItemId));
             } else if let Some(&flag_id) = self.flag_isv.index_by_key.get(value) {
@@ -2517,6 +2529,23 @@ impl GameData {
         *game_data.helper_json_map.get_mut("h_useMissileRefillStation").unwrap() = json::object! {
             "name": "h_useMissileRefillStation",
             "requires": ["i_ammoRefill"],
+        };
+        // Gate glitch leniency
+        *game_data.helper_json_map.get_mut("h_BlueGateGlitchLeniency").unwrap() = json::object! {
+            "name": "h_BlueGateGlitchLeniency",
+            "requires": ["i_BlueGateGlitchLeniency"],
+        };
+        *game_data.helper_json_map.get_mut("h_GreenGateGlitchLeniency").unwrap() = json::object! {
+            "name": "h_GreenGateGlitchLeniency",
+            "requires": ["i_GreenGateGlitchLeniency"],
+        };
+        *game_data.helper_json_map.get_mut("h_HeatedBlueGateGlitchLeniency").unwrap() = json::object! {
+            "name": "h_BlueGateGlitchLeniency",
+            "requires": ["i_HeatedBlueGateGlitchLeniency"],
+        };
+        *game_data.helper_json_map.get_mut("h_HeatedGreenGateGlitchLeniency").unwrap() = json::object! {
+            "name": "h_GreenGateGlitchLeniency",
+            "requires": ["i_HeatedGreenGateGlitchLeniency"],
         };
 
         game_data.load_weapons()?;
