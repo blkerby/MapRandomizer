@@ -9,6 +9,11 @@ upstream_json = json.loads(upstream_json_str)
 upstream_sprite_names = set(k for k, v in upstream_json['m3']['approved'].items()
                             if v['usage'] is not None and ('global' in v['usage'] or ('maprando' in v['usage'])))
 
+upstream_sprite_names.remove("001.samus.1")
+upstream_sprite_names.remove("hitboxhelper.1")  # ignoring this one, since there are two versions and we're using the other one
+upstream_sprite_names.remove('super_controid.1')  # ignoring this one, since there are two versions and we're using the PG one
+map_rando_sprite_names.remove("samus.1")
+
 # Show differences between sprites in Map Rando and those in upstream listing:
 print(sorted(map_rando_sprite_names.difference(upstream_sprite_names)))
 print(sorted(upstream_sprite_names.difference(map_rando_sprite_names)))

@@ -19,14 +19,17 @@ about 15 seconds to load.
 
 <p><a href="https://version-73---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 73 (???)</a>:
 <ul>
+<li>New quality-of-life option "Momentum conservation" (enabled in Max preset)
+<li>More custom sprite options
+<li>On most settings the escape timer is tightened by 10% (except only 5% on Extreme, and 0% on Expert).
 <li>Logic updates:
     <ul>
     <li>canBePatient is split into two tech:
         <ul>
-        <li>canBeVeryPatient (Insane) is defined as canBePatient was before: doing the same thing for ~3 minutes.
-        <li>canBePatient (Extreme) is defined as doing the same thing for ~1.5 minutes.
+        <li>canBeVeryPatient (Insane) is defined as canBePatient was before: waiting or doing the same thing for ~3 minutes.
+        <li>canBePatient (Extreme) is defined as waiting or doing the same thing for ~1.5 minutes.
         </ul>
-    <li>Patience requirements are now added to X-ray climbs:
+    <li>canXRayClimb is moved from Extreme down to Expert, but patience requirements are added:
         <ul>
         <li>Climbing more than 4 screens now requires canBeVeryPatient (Insane).
         <li>Climbing more than 2 screens now requires canBePatient (Extreme).
@@ -34,11 +37,19 @@ about 15 seconds to load.
         </ul>
     <li>X-ray climb tech are simplified and given more intuitive names:
         <ul>
-        <li>canXRayClimb (Expert) now includes the basic setup, for getting stuck in a door on the left-side of a room.
-        <li>canLeftFacingDoorXRayClimb is replaced with canRightSideDoorStuck (Expert).
-        <li>canSubmergedLeftFacingDoorXRayClimb is replaced with canRightSideDoorStuckFromWater (Extreme).
+        <li>canXRayClimb (Expert) now includes the basic setup of getting stuck in a door on the left-side of a room.
+        <li>canRightSideDoorStuck (Expert) replaces the old tech canLeftFacingDoorXRayClimb.
+        <li>canRightSideDoorStuckFromWater (Extreme) replaces the old tech canSubmergedLeftFacingDoorXRayClimb.
         </ul>
     <li>New tech: canPauseAbuse (Expert)
+    <li>Non-respawning farms are added to the logic (but only those with good drop rates).
+        <ul>
+        <li>Farms of all kinds are now defined as regular strats and are visible in the logic pages.
+        </ul>
+    <li>Strat interaction with obstacles are reworked; their appearance in the logic pages is now more intuitive.
+        <ul>
+        <li>This also eliminates many cases where strats appeared to have a misleadingly low difficulty tier in the logic pages.
+        </ul>
     </ul>
 </ul>
 

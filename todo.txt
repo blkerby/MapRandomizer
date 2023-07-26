@@ -4,13 +4,13 @@ next release:
 - DONE: add momentum conservation patch (in "Max" QoL)
 - DONE: improve crediting of patch & sprite authors
 - VALIDATE: fix vanilla music option
-- remove old farms/refills from randomizer
+- DONE: remove old farms/refills from randomizer
+- DONE: pull in latest sprites
+- DONE: adjust escape timer multiplier & resource multiplier
 - gate glitch multiplier
-- adjust escape timer multiplier & resource multiplier
-  - rename to heat frame multiplier
+- rename resource multiplier to heat frame multiplier
 - logic updates (patience tech split, x-ray climb rework, obstacles rework, non-respawning farms)
 - fix bank 8b.txt files
-- pull in latest sprites
 
 priority:
 - add CF health refill to logic

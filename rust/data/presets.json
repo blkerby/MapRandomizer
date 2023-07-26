@@ -257,8 +257,8 @@
   {
     "name": "Expert",
     "shinespark_tiles": 17,
-    "resource_multiplier": 1.0,
-    "escape_timer_multiplier": 1.0,
+    "resource_multiplier": 1.1,
+    "escape_timer_multiplier": 1.1,
     "phantoon_proficiency": 1.0,
     "draygon_proficiency": 1.0,
     "ridley_proficiency": 1.0,
@@ -373,8 +373,8 @@
   {
     "name": "Extreme",
     "shinespark_tiles": 16,
-    "resource_multiplier": 1.0,
-    "escape_timer_multiplier": 1.0,
+    "resource_multiplier": 1.05,
+    "escape_timer_multiplier": 1.05,
     "phantoon_proficiency": 1.0,
     "draygon_proficiency": 1.0,
     "ridley_proficiency": 1.0,
