@@ -484,6 +484,16 @@
     <li>RTA timer and end-game credits: <i>total</i>, <i>ouiche</i>
     </ul>
 
+    <p>Custom sprites are made possible by 
+    <ul>
+    <li><a href="https://github.com/Artheau/SpriteSomething">SpriteSomething</a>
+    by <i>Artheau</i> and <i>matrethewey</i>
+    <li>Sprite artists:
+    <%- sprite_artists.iter().map(|x| format!("<i>{}</i>", x)).collect::<Vec<String>>().join(", ") %>
+    </ul>
+
+
+
     <p>Other randomizers have been a significant source of inspiration and ideas, particularly 
     <a href="https://randommetroidsolver.pythonanywhere.com/randomizer">VARIA Randomizer</a>, 
     and also <a href="https://samus.link/">SMZ3 Randomizer</a> which was the first randomizer that we played (Maddo and kyleb).</p>

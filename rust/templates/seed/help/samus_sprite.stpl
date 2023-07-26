@@ -13,6 +13,31 @@
       </div>
       <div class="modal-body">
         <p>Use this to select a character with a different appearance from the normal Samus sprite.</p>
+
+        <p>These sprites were created by many artists in the community, 
+        using <a href="https://github.com/Artheau/SpriteSomething">SpriteSomething</a>, a tool by Artheau and 
+        Minnie Trethewey:
+
+        <div class="row justify-content-center">
+          <div class="col-6">
+            <table class="table">
+              <th scope="col">Sprite</th>
+              <th scope="col">Author</th>
+              </tr>
+              </th>
+              <% for category in &samus_sprite_categories { %>
+                  <% for info in &category.sprites { %>
+                      <% if info.display_name == "Samus" { continue; } %>
+                      <tr>
+                      <td><%= info.display_name %></td>
+                      <td><%= info.authors.join(", ") %></td>
+                      </tr>
+                  <% } %>
+              <% } %>
+            </table>
+          </div>
+        </div>
+
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

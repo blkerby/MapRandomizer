@@ -34,9 +34,6 @@
       <li>The hub room is shown as the starting and ending point of routes in the spoiler map.
       </ul>
       </p>
-
-      <p>Currently, even when Random start is enabled, Landing Site (containing the Ship) is still always in Crateria, 
-      though that will likely change in a future version of the randomizer.</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

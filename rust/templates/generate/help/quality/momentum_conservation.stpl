@@ -12,8 +12,8 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-      <p>If enabled, the player may conserve Samus' horizontal momentum when landing from a spin jump by
-      holding run with Speedbooster equipped.
+      <p>If enabled, Samus' horizontal momentum is conserved when landing from a spin jump while holding run
+      and forward.
       </p>
 
       <p><b>Note</b>: The randomizer logic does not take this setting into account. Therefore, even 

@@ -89,7 +89,8 @@ pub fn customize_rom(
 
                     // Write the sprite author
                     let mut chars = vec![];
-                    for c in info.author.chars() {
+                    let author = info.authors.join(", ");
+                    for c in author.chars() {
                         let c = c.to_ascii_uppercase();
                         if (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == ' ' {
                             chars.push(c);

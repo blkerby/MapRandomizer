@@ -78,6 +78,7 @@ struct ReleasesTemplate {
 #[template(path = "about.stpl")]
 struct AboutTemplate {
     version: usize,
+    sprite_artists: Vec<String>,
 }
 
 #[derive(TemplateOnce)]
@@ -114,8 +115,24 @@ async fn releases(_app_data: web::Data<AppData>) -> impl Responder {
 }
 
 #[get("/about")]
-async fn about(_app_data: web::Data<AppData>) -> impl Responder {
-    let about_template = AboutTemplate { version: VERSION };
+async fn about(app_data: web::Data<AppData>) -> impl Responder {
+    let mut sprite_artists = vec![];
+
+    for category in &app_data.samus_sprite_categories {
+        for info in &category.sprites {
+            for author in &info.authors {
+                if info.display_name != "Samus" {
+                    sprite_artists.push(author.clone());
+                }
+            }
+        }
+    }
+    sprite_artists.sort_by_key(|x| x.to_lowercase());
+    sprite_artists.dedup();
+    let about_template = AboutTemplate { 
+        version: VERSION,
+        sprite_artists,
+    };
     HttpResponse::Ok().body(about_template.render_once().unwrap())
 }
 

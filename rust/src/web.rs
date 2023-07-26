@@ -45,7 +45,7 @@ pub struct SamusSpriteInfo {
     pub name: String,
     pub display_name: String,
     pub credits_name: Option<String>,
-    pub author: String,
+    pub authors: Vec<String>,
 }
 
 #[derive(Deserialize, Clone)]

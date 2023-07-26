@@ -2,23 +2,24 @@ next release:
 - DONE: show "clearsObstacles" in Logic pages
 - DONE: order tech/strats in logical way in the UI
 - DONE: add momentum conservation patch (in "Max" QoL)
-- move canGateGlitch to Very Hard?
-- improve crediting of patch & sprite authors
-  - reference in italics at bottom of QoL option help button
-  - list of sprite authors in custom sprite help button
-  - list sprite authors on About page
-  - mention matrethewey, artheau, and spritesomething on the About page.
+- DONE: improve crediting of patch & sprite authors
+- VALIDATE: fix vanilla music option
+- remove old farms/refills from randomizer
+- gate glitch multiplier
+- adjust escape timer multiplier & resource multiplier
+  - rename to heat frame multiplier
 - logic updates (patience tech split, x-ray climb rework, obstacles rework, non-respawning farms)
-  - tricky CF at ammo refill stations
-- fix vanilla music option
-- use "crateria asleep" song somewhere:
-  - in crateria initially when zebes not awake.
-  - in subarea containing ship, use rain/lightning version
 - fix bank 8b.txt files
 
 
 priority:
-
+- add CF health refill to logic
+  - tricky CF at ammo refill stations
+- add notable for underwater canGateGlitch (Very Hard)?
+- remove old-format farms and refills from randomizer
+- use "crateria asleep" song somewhere:
+  - in crateria initially when zebes not awake.
+  - in subarea containing ship, use rain/lightning version
 - randomized start: check requires on hub locations
   - make hub requirements consistent with new farm approach
   - actually probably don't need to define hub rooms anymore:
