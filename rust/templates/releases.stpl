@@ -22,7 +22,7 @@ about 15 seconds to load.
 <li>New quality-of-life option "Momentum conservation" is added (enabled in Max preset).
 <li>More custom sprite options are added.
 <li>Fix to the "Vanilla music" customization option (which was buggy and could cause crashes).
-<li>Website update: More animated GIFs are added, for notable strats in Expert.
+<li>Website update: More animated GIFs are added, for notable strats in Expert and Extreme.
 <li>Logic updates (highlights):
     <ul>
     <li>The escape timer is tightened by 10% (except only 5% on Extreme, and 0% on Expert).
