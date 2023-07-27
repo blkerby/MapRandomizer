@@ -17,16 +17,16 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-73---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 73 (???)</a>:
+<p><a href="https://version-73---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 73 (2022-07-27)</a>:
 <ul>
 <li>New quality-of-life option "Momentum conservation" is added (enabled in Max preset).
 <li>More custom sprite options are added.
 <li>Fix to the "Vanilla music" customization option (which was buggy and could cause crashes).
-<li>Website update: More animated GIFs added, for notable strats in Expert.
-<li>The escape timer is tightened by 10% (except only 5% on Extreme, and 0% on Expert).
-<li>Logic updates:
+<li>Website update: More animated GIFs are added, for notable strats in Expert.
+<li>Logic updates (highlights):
     <ul>
-    <li>Heat damage multiplier is made more lenient in Extreme (by 5%) and Expert (by 10%) presets.
+    <li>The escape timer is tightened by 10% (except only 5% on Extreme, and 0% on Expert).
+    <li>Heat damage multiplier is now more lenient in Extreme (by 5%) and Expert (by 10%).
     <li>New tech: 
         <ul>
         <li>canPauseAbuse (Expert)
@@ -36,13 +36,13 @@ about 15 seconds to load.
         <ul>
         <li>Farms of all kinds are now defined as regular strats and are visible in the logic pages.
         </ul>
-    <li>Strat interaction with obstacles are reworked; their appearance in the logic pages is now more intuitive.
+    <li>Obstacles are reworked and now appear more intuitively in the logic pages.
         <ul>
-        <li>This also eliminates many cases where strats appeared to have a misleadingly low difficulty tier in the logic pages.
+        <li>Strat difficulty tiers shown in the logic pages are now more accurate.
         </ul>
     <li>canBePatient is split into two tech:
         <ul>
-        <li>canBeVeryPatient (Insane) is defined as canBePatient was before: waiting or doing the same thing for ~3 minutes.
+        <li>canBeVeryPatient (Insane) is defined as waiting or doing the same thing for ~3 minutes.
         <li>canBePatient (Extreme) is defined as waiting or doing the same thing for ~1.5 minutes.
         </ul>
     <li>canXRayClimb is moved from Extreme down to Expert, but patience requirements are added:
@@ -53,12 +53,11 @@ about 15 seconds to load.
         </ul>
     <li>X-ray climb tech are simplified and given more intuitive names:
         <ul>
-        <li>canXRayClimb (Expert) now includes the basic setup of getting stuck in a door on the left-side of a room.
+        <li>canXRayClimb (Expert) now includes getting stuck in a left-side door.
         <li>canRightSideDoorStuck (Expert) replaces the old tech canLeftFacingDoorXRayClimb.
         <li>canRightSideDoorStuckFromWater (Extreme) replaces the old tech canSubmergedLeftFacingDoorXRayClimb.
         </ul>
     <li>Suitless bootless strats in West and East Sand Hall (with Ice or Spring Ball) are moved from Expert to Extreme.
-    <li>
     </ul>
 </ul>
 

@@ -482,6 +482,7 @@
     <li>Fast doors: <i>Kazuto</i>
     <li>Respin: <i>Kejardon</i>
     <li>RTA timer and end-game credits: <i>total</i>, <i>ouiche</i>
+    <li>Momentum conservation: <i>Scyzer</i>, <i>Nodever2</i>, <i>OmegaDragnet7</i>
     </ul>
 
     <p>Custom sprites are made possible by 
@@ -491,8 +492,6 @@
     <li>Sprite artists:
     <%- sprite_artists.iter().map(|x| format!("<i>{}</i>", x)).collect::<Vec<String>>().join(", ") %>
     </ul>
-
-
 
     <p>Other randomizers have been a significant source of inspiration and ideas, particularly 
     <a href="https://randommetroidsolver.pythonanywhere.com/randomizer">VARIA Randomizer</a>, 

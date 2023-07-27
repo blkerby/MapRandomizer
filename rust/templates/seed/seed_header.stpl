@@ -56,7 +56,7 @@
             game_variations.push("Maps revealed from start");
         }
         if vanilla_map {
-            game_variations.push("Vanilla map (no map randomization)");
+            game_variations.push("Vanilla map");
         }
         if ultra_low_qol {
             game_variations.push("Ultra-low quality of life");

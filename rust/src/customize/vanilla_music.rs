@@ -90,7 +90,7 @@ pub fn override_music(rom: &mut Rom) -> Result<()> {
         (0xA08C, 0x0F, 0x05), // room $A07B - Dachora Energy Refill Room
         (0xA0B5, 0x0F, 0x05), // room $A0A4 - Spore Spawn Farming Room
         (0xA0E3, 0x0F, 0x05), // room $A0D2 - Waterway Energy Tank Room
-        (0xA118, 0x09, 0x05), // room $A107 - First Missile Room (using song from when Zebes awake)
+        (0xA118, 0x00, 0x00), // room $A107 - First Missile Room (leaving as no change)
         (0xA141, 0x0F, 0x05), // room $A130 - Pink Brinstar Hopper Room
         (0xA16C, 0x0F, 0x05), // room $A15B - Hopper Energy Tank Room
         (0xA195, 0x0F, 0x05), // room $A184 - Big Pink Save Room
