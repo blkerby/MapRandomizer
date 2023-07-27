@@ -178,6 +178,7 @@
       "East Ocean Suitless Damage Boost Water Escape",
       "East Ocean Suitless Damage Boost Underwater Pillar",
       "West Ocean Bug Boost with Ice",
+      "West Ocean Bug Boost with Wave or Spazer",
       "West Ocean Bug Ice Clip",
 
       "Brinstar Reserve Hole-in-One",
@@ -188,6 +189,7 @@
       "Pink Hopper Reverse Gate Glitch",
       "Pink Brinstar Power Bombs Crystal Flash Clip",
 
+      "Below Spazer Jump Shot Speedball",
       "X-Ray Exit Damage Boost",
       "Red Tower Spark",
       
@@ -207,11 +209,11 @@
       "Indy Jones Mella Ice Clip",
 
       "Golden Torizo Safe Spot",
-      "GT Supers Morph Bomb Springwall",
+      "Golden Torizo Supers Springwall with Bombs",
       "Golden Torizo Supers Double Shinespark",
-      "Screw Attack Room Springwall Morph Bombs",
+      "Screw Attack Room Springwall with Bombs",
       "Screw Attack Room Transition Screwjump",
-      "Screw Attack Room Transition Speedjump (Morph Bombs)",  
+      "Screw Attack Room Transition Speedjump with Bombs",
 
       "LN Firefleas Ice Bridge",
       "LN Fireflea Room Damage Boost Over the Fune",
@@ -305,7 +307,6 @@
       "Gauntlet Entrance Blue SpaceJump",
 
       "East Ocean Space Jump Water Escape (Left to Right)",
-      "West Ocean Bug Boost with Wave or Spazer",
       "West Ocean Bug Boost",
 
       "Brinstar Reserve Temporary Blue",
@@ -314,7 +315,6 @@
       "Dachora Room Shinespark No Etanks No HiJump",
       "Mission Impossible",
 
-      "Below Spazer Jump Shot Speedball",
       "X-Ray Access Damage Boost",
       "X-Ray Access Ice Bridge",
       "X-Ray Access SpikeJumps with HiJump",
@@ -362,12 +362,7 @@
       "East Cac Alley Cross Room Jump with IBJ",
       "Cacatac Alley Springball Spike Boost",
 
-      "West Sand Hall Suitless Bootless Spring Ball",
-      "West Sand Hall Ice Beam Only (Center to Left)",
-      "West Sand Hall Ice Only (Center to Right)",
       "East Sand Hall Spring Ball HiJump",
-      "East Sand Hall Suitless Bootless Evir Freeze (Center to Left)",
-      "East Sand Hall Suitless Bootless Evir Freeze (Center to Right)",
       "Spring Ball Room Escape - Suitless, Bootless, Space Jump",
 
       "Blue Hopper Dodge",
@@ -442,6 +437,11 @@
       "East Sand Hole Sandfall Bounce to Power Bombs",
       "East Sand Hole Underwater Walljumps", 
 
+      "West Sand Hall Ice Beam Only (Center to Left)",
+      "West Sand Hall Ice Only (Center to Right)",
+      "West Sand Hall Suitless Bootless Spring Ball",
+      "East Sand Hall Suitless Bootless Evir Freeze (Center to Left)",
+      "East Sand Hall Suitless Bootless Evir Freeze (Center to Right)",
       "East Sand Hall Cross Room Jump with Ice or Damage Boost",
       "Oasis Cross Room Jump with Screw Attack and Speed through the Top Door",
       "Pants Room Grapple Jump",

@@ -6,8 +6,9 @@ use std::path::Path;
 use room_palettes::apply_area_themed_palettes;
 use crate::{
     game_data::GameData,
-    patch::{Rom, snes2pc, apply_ips_patch, write_credits_big_char}, web::{SamusSpriteInfo, SamusSpriteCategory},
+    patch::{Rom, snes2pc, apply_ips_patch, write_credits_big_char}, web::SamusSpriteCategory,
 };
+use crate::customize::vanilla_music::override_music;
 use anyhow::Result;
 
 #[derive(Debug)]
@@ -112,7 +113,7 @@ pub fn customize_rom(
     }
     match settings.music {
         MusicSettings::Vanilla => {
-            apply_ips_patch(rom, Path::new(&"../patches/ips/music.ips"))?;
+            override_music(rom)?;
         }
         MusicSettings::AreaThemed => {}
         MusicSettings::Disabled => {

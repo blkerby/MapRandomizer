@@ -233,8 +233,8 @@ pub fn override_music(rom: &mut Rom) -> Result<()> {
         (0xCDD8, 0x30, 0x06), // room $CDA8 - Wrecked Ship West Super Room - state: power on
         (0xCE07, 0x30, 0x05), // room $CDF1 - Wrecked Ship East Super Room - state: power off
         (0xCE21, 0x30, 0x06), // room $CDF1 - Wrecked Ship East Super Room - state: power on
-        (0xCE56, 0x30, 0x05), // room $CE40 - Gravity Suit Room - state: power off
-        (0xCE70, 0x30, 0x06), // room $CE40 - Gravity Suit Room - state: power on
+        (0xCE56, 0x00, 0x03), // room $CE40 - Gravity Suit Room - state: power off
+        (0xCE70, 0x00, 0x03), // room $CE40 - Gravity Suit Room - state: power on
         (0xCEA0, 0x30, 0x05), // room $CE8A - Wrecked Ship Save Room - state: power off
         (0xCEBA, 0x30, 0x06), // room $CE8A - Wrecked Ship Save Room - state: power on
         // Maridia

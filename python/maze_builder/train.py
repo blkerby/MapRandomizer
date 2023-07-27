@@ -241,8 +241,8 @@ temperature_decay = 1.0
 annealing_start = 59968
 annealing_time = 1 #session.replay_buffer.capacity // (num_envs * num_devices)
 
-pass_factor0 = 0.2
-pass_factor1 = 0.2
+pass_factor0 = 1.0
+pass_factor1 = 1.0
 print_freq = 16
 total_reward = 0
 total_loss = 0.0
@@ -548,7 +548,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk22')
+            # save_session(session, pickle_name + '-bk23')
             # session.replay_buffer.resize(2 ** 20)
             # pickle.dump(session, open(pickle_name + '-small-22', 'wb'))
     if session.num_rounds % summary_freq == 0:
