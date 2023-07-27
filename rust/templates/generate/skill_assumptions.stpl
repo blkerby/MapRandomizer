@@ -29,7 +29,7 @@
                 <small>(Expected failed attempts to get a successful gate glitch)</small>
                 </label>
                 <div class="col-sm-2 my-2">
-                    <input type="text" class="form-control" name="gate_glitch_leniency" id="gateGlitchLeniency" value="14.0" onchange="techChanged()">
+                    <input type="text" class="form-control" name="gate_glitch_leniency" id="gateGlitchLeniency" value="14" onchange="techChanged()">
                 </div>
             </div>
 
