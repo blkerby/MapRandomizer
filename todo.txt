@@ -1,17 +1,18 @@
-next release:
-- DONE: show "clearsObstacles" in Logic pages
-- DONE: order tech/strats in logical way in the UI
-- DONE: add momentum conservation patch (in "Max" QoL)
-- DONE: improve crediting of patch & sprite authors
-- DONE: remove old farms/refills from randomizer
-- DONE: pull in latest sprites
-- DONE: adjust escape timer multiplier & resource multiplier
-- DONE: gate glitch multiplier
-- DONE: rename resource multiplier to heat frame multiplier
-- DONE: fix bank 8b.txt files
-- DONE: logic updates (patience tech split, x-ray climb rework, obstacles rework, non-respawning farms)
-- DONE: update tech order after pulling in logic again
-- VALIDATE: fix vanilla music option
+next release (maybe):
+- map improvements
+  - (internal): use separate tile GFX for each area, to free up more tiles
+  - (internal): find different place for etank color, to free up a map tile color
+  - item dots fade (remove QoL option and unexplore)
+  - heated room color
+- use modal for sprite customization
+  - also etank color customization
+- enhancements to momentum conservation patch
+  - remove need to be holding dash
+  - retain speed when turning around with spin?
+    - maybe needs to be restricted somehow to avoid unintentional
+  - retain speed while unmorphing? but what should the inputs be?:
+    - jump while holding forward? (though then spring ball interferes somewhat)
+    
 
 priority:
 - add CF health refill to logic
