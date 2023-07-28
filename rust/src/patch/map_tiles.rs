@@ -1527,9 +1527,9 @@ impl<'a> MapPatcher<'a> {
     fn fix_hud_black(&mut self) -> Result<()> {
         // Use color 0 instead of color 3 for black in HUD map tiles:
         for idx in 0..0x30 {
-            if idx == 0x0F {
-                continue;
-            }
+            // if idx == 0x0F {
+            //     continue;
+            // }
             let mut tile = self.read_tile_2bpp(idx)?;
             for y in 0..8 {
                 for x in 0..8 {

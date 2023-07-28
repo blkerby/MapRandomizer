@@ -8,8 +8,9 @@ next release (maybe):
   - also etank color customization
 - enhancements to momentum conservation patch
   - remove need to be holding dash
+  - reset speed boost counter, to avoid making it too easy to get blue
   - retain speed when turning around with spin?
-    - maybe needs to be restricted somehow to avoid unintentional
+    - maybe needs to be restricted somehow to avoid unintentional/unwanted use?
   - retain horizontal speed while unmorphing (both on ground and mid-air)?
     - by pressing up (or jump, if spring ball not equipped) while holding forward
 

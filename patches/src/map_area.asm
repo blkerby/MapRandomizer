@@ -6,6 +6,7 @@ lorom
 
 !backup_area = $1F62
 !unexplored_gray = #$2529
+!unexplored_light_gray = #$35ad
 !area_explored_mask = $702600
 
 ;;; Hijack map usages of area ($079F) with new area ($1F5B)
@@ -273,18 +274,26 @@ update_pause_map_palette:
     lda !unexplored_gray
     sta $7EC0C2
 
-    ; Set unexplored white color: palette 6, color 1
+    ; Set unexplored white color: palette 6, color 2
     lda #$FFFF
     sta $7EC0C4
+
+    ; Set unexplored light gray color: palette 6, color 3
+    lda !unexplored_light_gray
+    sta $7EC0C6
 
 ;    ; Set color 3 to black (instead of red)
 ;    lda #$0000
 ;    sta $7EC066
 ;    sta $7EC046
 
-    ; Set explored color based on area:
+    ; Set explored color based on area: palette 2, color 1
     lda area_palettes_explored, x
     sta $7EC042
+
+    ; Set light explored color based on area: palette 2, color 3
+    lda area_palettes_explored_light, x
+    sta $7EC046
 
 ;    lda !backup_area
 ;    cmp $1F5B
@@ -302,6 +311,14 @@ update_pause_map_palette:
 
 area_palettes_explored:
     dw $6C50  ; Crateria
+    dw $02E0  ; Brinstar
+    dw $0019  ; Norfair
+    dw $02D8  ; Wrecked Ship
+    dw $7E44  ; Maridia
+    dw $5294  ; Tourian
+
+area_palettes_explored_light:
+    dw $7CD4  ; Crateria
     dw $02E0  ; Brinstar
     dw $0019  ; Norfair
     dw $02D8  ; Wrecked Ship
@@ -408,9 +425,17 @@ set_hud_map_colors:
     lda #$7FFF
     sta $7EC034
 
+    ; Set unexplored light gray: palette 6, color 3
+    lda !unexplored_light_gray
+    sta $7EC036
+
     ; Set explored color based on area: palette 2, color 1
     lda.l area_palettes_explored, x
     sta $7EC012
+
+    ; Set light explored color based on area: palette 2, color 3
+    lda.l area_palettes_explored_light, x
+    sta $7EC016
 
     ; Set palette 3, color 1 to pink color for full E-tank energy squares
     lda #$48FB
@@ -504,6 +529,9 @@ org $B6F032 : dw !unexplored_gray
 
 ; Unexplored white: palette 6, color 2
 org $B6F034 : dw $7FFF
+
+; Unexplored light gray: palette 6, color 3
+org $B6F036 : dw !unexplored_light_gray
 
 ;; Pause menu: Gray color for unexplored tiles in HUD (palette 3, color 1)
 ;org $B6F01A
