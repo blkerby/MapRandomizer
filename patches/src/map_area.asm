@@ -112,6 +112,20 @@ org $82E4A2
 org $90AB4A
     jsl samus_minimap_flash_hook : nop : nop
 
+; Indicate Samus position on HUD by flashing tile palette 0 instead of palette 7
+org $90AB56
+    AND #$E3FF     ; was: ORA #$1C00
+
+; Use palette 7 for full ETanks (instead of palette 2)
+org $809BDC
+    LDX #$3C31     ; was: LDX #$2831
+
+; Use palette 0 for full auto reserve
+org $80998B             
+    dw  $2033, $2046,
+        $2047, $2048,
+        $A033, $A046
+
 ;;; Put new code in free space at end of bank $82:
 org $82F70F
 
@@ -299,8 +313,11 @@ load_tileset_palette_hook:
     rts
 
 palette_clear_hook:
-    lda $C016  ; preserve pink color for full E-tank energy squares (2-bit palette 2, color 3, black in vanilla)
-    sta $C216
+    lda $C03A  ; preserve pink color for full E-tank energy squares (2-bit palette 7, color 1)
+    sta $C23A
+
+;    lda $C03C  ; preserve white color for full E-tank energy squares (2-bit palette 7, color 2)
+;    sta $C23C
 
 ;    lda $C03C  ; preserve off-white color in Samus indicator (2-bit palette 7, color 1)
 ;    sta $C23C
@@ -316,14 +333,11 @@ load_target_palette:
     lda $7EC012  ; explored color
     sta $7EC212
 
-    lda $7EC016  ; pink color for full E-tank energy squares (using color 3, used for black in vanilla)
-    sta $7EC216
+    lda $7EC03A  ; pink color for full E-tank energy squares (palette 7, color 1)
+    sta $7EC23A
 
- ;   lda $7EC03A
- ;   sta $7EC23A
-
-;    lda $7EC03C
-;    sta $7EC23C
+    lda $7EC03C  ; white color for full E-tank energy squares (palette 7, color 2)
+    sta $7EC23C
 
     rts
 
@@ -351,10 +365,15 @@ set_hud_map_colors:
     lda.l area_palettes_explored, x
     sta $7EC012
 
-    ; Set explored color 3 to pink color for full E-tank energy squares (used for black in vanilla)
+    ; Set palette 7, color 1 to pink color for full E-tank energy squares
     lda #$48FB
-    sta $7EC016
-;    sta $7EC01E
+;    sta $7EC016
+    sta $7EC03A
+
+    ; Set palette 7, color 2 to white color for full E-tank energy squares
+    lda #$7FFF
+    sta $7EC03C
+
 
 ;    ; Set unexplored color 3 to pink color for full E-tank energy squares (used for black in vanilla)
 ;    sta $7EC01E
@@ -422,9 +441,13 @@ simple_scroll_setup:
 
 warnpc $82F900
 
-; Pause menu: Pink color for full E-tank energy squares in HUD (palette 2, color 3)
-org $B6F016
+; Pause menu: Pink color for full E-tank energy squares in HUD (palette 7, color 1)
+org $B6F03A
     dw $48FB
+
+; Pause menu: White color for full E-tank energy squares in HUD (palette 7, color 2)
+org $B6F03C
+    dw $7FFF
 
 ; Pause menu: Gray color for unexplored tiles in HUD (palette 3, color 1)
 org $B6F01A

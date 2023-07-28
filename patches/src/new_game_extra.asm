@@ -79,9 +79,9 @@ start_game:
     sta $09C2  ; health
     sta $09C4  ; max health
 
-;    lda #400    ; full reserves
-;    sta $09D4  
-;    sta $09D6
+    lda #400    ; full reserves
+    sta $09D4  
+    sta $09D6
 
     lda #$00E6
     sta $09C6   ; missiles

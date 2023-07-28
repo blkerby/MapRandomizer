@@ -10,9 +10,8 @@ next release (maybe):
   - remove need to be holding dash
   - retain speed when turning around with spin?
     - maybe needs to be restricted somehow to avoid unintentional
-  - retain speed while unmorphing? but what should the inputs be?:
-    - jump while holding forward? (though then spring ball interferes somewhat)
-    
+  - retain horizontal speed while unmorphing (both on ground and mid-air)?
+    - by pressing up (or jump, if spring ball not equipped) while holding forward
 
 priority:
 - add CF health refill to logic
