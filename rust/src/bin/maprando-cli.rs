@@ -235,7 +235,7 @@ fn main() -> Result<()> {
     let customize_settings = CustomizeSettings {
         samus_sprite: Some("samus".to_string()),
         vanilla_screw_attack_animation: false,
-        area_themed_palette: true,
+        area_themed_palette: false,
         music: MusicSettings::AreaThemed,
         disable_beeping: false,
     };

@@ -226,7 +226,7 @@ impl<'a> MapPatcher<'a> {
         if switch_red_white {
             for y in 0..8 {
                 for x in 0..8 {
-                    if data[y][x] >= 3 {
+                    if data[y][x] >= 4 {
                         data[y][x] = 2;
                     }
                 }
@@ -402,7 +402,7 @@ impl<'a> MapPatcher<'a> {
             Interior::MajorItem => {
                 for i in 2..6 {
                     for j in 2..6 {
-                        data[i][j] = 2;
+                        data[i][j] = 3;
                     }
                 }
                 data[2][2] = 1;
@@ -1619,6 +1619,17 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
+    fn fix_fx_palettes(&mut self) -> Result<()> {
+        // use palette 7 for FX (water, lava, etc.) instead of palette 6
+        for addr in (snes2pc(0x8A8000)..snes2pc(0x8AE980)).step_by(2) {
+            let word = self.rom.read_u16(addr)?;
+            if word & 0x1C00 == 0x1800 {
+                self.rom.write_u16(addr, word | 0x1C00)?;
+            }
+        }
+        Ok(())
+    }
+
     pub fn apply_patches(&mut self) -> Result<()> {
         self.index_vanilla_tiles()?;
         self.fix_elevators()?;
@@ -1637,6 +1648,7 @@ impl<'a> MapPatcher<'a> {
         self.set_map_stations_explored()?;
         self.indicate_major_items()?;
         self.write_tiles()?;
+        self.fix_fx_palettes()?;
         // info!("Free tiles: {} (out of {})", self.free_tiles.len() - self.next_free_tile_idx, self.free_tiles.len());
         Ok(())
     }

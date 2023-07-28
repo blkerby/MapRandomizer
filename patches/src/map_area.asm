@@ -1,6 +1,9 @@
 arch snes.cpu
 lorom
 
+!bank_82_freespace_start = $82F70F
+!bank_82_freespace_end = $82FA00
+
 !backup_area = $1F62
 !unexplored_gray = #$2529
 !area_explored_mask = $702600
@@ -112,9 +115,9 @@ org $82E4A2
 org $90AB4A
     jsl samus_minimap_flash_hook : nop : nop
 
-;; Indicate Samus position on HUD by flashing tile palette 0 instead of palette 7
-;org $90AB56
-;    AND #$E3FF     ; was: ORA #$1C00
+; Indicate Samus position on HUD by flashing tile palette 0 instead of palette 7
+org $90AB56
+    AND #$E3FF     ; was: ORA #$1C00
 
 ; Use palette 3 for full ETanks (instead of palette 2)
 org $809BDC
@@ -133,14 +136,27 @@ org $809DBF : dw $3809, $3800, $3801, $3802, $3803, $3804, $3805, $3806, $3807, 
 org $809DD3 : dw $3809, $3800, $3801, $3802, $3803, $3804, $3805, $3806, $3807, $3808
 
 
-;; Use palette 0 for full auto reserve
-;org $80998B             
-;    dw  $2033, $2046,
-;        $2047, $2048,
-;        $A033, $A046
+; Use palette 0 for full auto reserve
+org $80998B             
+    dw  $2033, $2046,
+        $2047, $2048,
+        $A033, $A046
+
+; Use palette 7 for palette blends (FX: water, lava, etc.)
+org $89AB62 : STA $7EC03A   ; was: STA $7EC032
+org $89AB6A : STA $7EC03C   ; was: STA $7EC034
+org $89AB72 : nop : nop : nop : nop   ; was: STA $7EC036
+;org $89AB72 : STA $7EC03E   ; was: STA $7EC036
+
+org $89AC05 : STA $7EC23A   ; was: STA $7EC232
+org $89AC0D : STA $7EC23C   ; was: STA $7EC234
+org $89AC15 : nop : nop : nop : nop   ; was: STA $7EC236
+;org $89AC15 : STA $7EC23E   ; was: STA $7EC236
+
+
 
 ;;; Put new code in free space at end of bank $82:
-org $82F70F
+org !bank_82_freespace_start
 
 ;;; X = room header pointer
 load_area:
@@ -404,6 +420,12 @@ set_hud_map_colors:
     lda #$7FFF
     sta $7EC01C
 
+;    ; water FX: palette 3, color 1 & 2 
+;    lda #$0421
+;    STA $7EC03A
+;;    lda #$1084
+;    lda #$0C63
+;    STA $7EC03C
 
 ;    ; Set unexplored color 3 to pink color for full E-tank energy squares (used for black in vanilla)
 ;    sta $7EC01E
@@ -469,7 +491,7 @@ simple_scroll_setup:
     RTS
 
 
-warnpc $82F900
+warnpc !bank_82_freespace_end
 
 ; Pause menu: Pink color for full E-tank energy squares in HUD (palette 3, color 1)
 org $B6F01A : dw $48FB
