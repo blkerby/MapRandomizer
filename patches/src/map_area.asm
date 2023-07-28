@@ -354,18 +354,18 @@ palette_clear_hook:
 
 load_target_palette:
     ; Prevent HUD map colors from gradually changing (e.g. to blue/pink) during door transition:
-    lda $7EC01A  ; unexplored gray
+    lda $7EC01A  ; etank color (pink): palette 3, color 1 
     sta $7EC21A
 
-    lda $7EC012  ; explored color
+    lda $7EC012  ; explored color (area-themed): palette 2, color 1
     sta $7EC212
 
-;    lda $7EC03A  ; pink color for full E-tank energy squares (palette 7, color 1)
-;    sta $7EC23A
-;
-;    lda $7EC03C  ; white color for full E-tank energy squares (palette 7, color 2)
-;    sta $7EC23C
-;
+    lda $7EC032  ; unexplored gray: palette 6, color 1
+    sta $7EC232
+
+    lda $7EC034  ; unexplored white: palette 6, color 2
+    sta $7EC234
+
     rts
 
 load_target_palette_hook:
