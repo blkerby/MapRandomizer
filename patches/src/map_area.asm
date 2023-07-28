@@ -112,19 +112,32 @@ org $82E4A2
 org $90AB4A
     jsl samus_minimap_flash_hook : nop : nop
 
-; Indicate Samus position on HUD by flashing tile palette 0 instead of palette 7
-org $90AB56
-    AND #$E3FF     ; was: ORA #$1C00
+;; Indicate Samus position on HUD by flashing tile palette 0 instead of palette 7
+;org $90AB56
+;    AND #$E3FF     ; was: ORA #$1C00
 
-; Use palette 7 for full ETanks (instead of palette 2)
+; Use palette 3 for full ETanks (instead of palette 2)
 org $809BDC
-    LDX #$3C31     ; was: LDX #$2831
+    LDX #$2C31     ; was: LDX #$2831
 
-; Use palette 0 for full auto reserve
-org $80998B             
-    dw  $2033, $2046,
-        $2047, $2048,
-        $A033, $A046
+
+; Use palette 6 (gray/white, same as unexplored tiles) for fixed HUD (e.g. "ENERGY")
+org $80988B
+dw $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $381D, $381D, $381D, $381D, $381D, $381C,
+   $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $3812, $3812, $3823, $3812, $3812, $381E,
+   $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $2822, $2822, $2823, $2813, $3814, $381E,
+   $380F, $380B, $380C, $380D, $3832, $380F, $3809, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $3812, $3812, $A824, $2815, $3816, $381E
+
+; Use palette 6 (gray/white, same as unexplored tiles) for HUD digits
+org $809DBF : dw $3809, $3800, $3801, $3802, $3803, $3804, $3805, $3806, $3807, $3808
+org $809DD3 : dw $3809, $3800, $3801, $3802, $3803, $3804, $3805, $3806, $3807, $3808
+
+
+;; Use palette 0 for full auto reserve
+;org $80998B             
+;    dw  $2033, $2046,
+;        $2047, $2048,
+;        $A033, $A046
 
 ;;; Put new code in free space at end of bank $82:
 org $82F70F
@@ -236,9 +249,17 @@ update_pause_map_palette:
     tax
 ;    lda area_palettes_unexplored, x
 
-    ; Set unexplored color to gray:
+;    ; Set unexplored color to gray: palette 3, color 1
+;    lda !unexplored_gray
+;    sta $7EC062
+
+    ; Set unexplored gray color: palette 6, color 1
     lda !unexplored_gray
-    sta $7EC062
+    sta $7EC0C2
+
+    ; Set unexplored white color: palette 6, color 1
+    lda #$FFFF
+    sta $7EC0C4
 
 ;    ; Set color 3 to black (instead of red)
 ;    lda #$0000
@@ -313,8 +334,14 @@ load_tileset_palette_hook:
     rts
 
 palette_clear_hook:
-    lda $C03A  ; preserve pink color for full E-tank energy squares (2-bit palette 7, color 1)
-    sta $C23A
+    lda $C032  ; preserve gray unexplored color (2bpp palette 6, color 1)
+    sta $C232
+
+    lda $C034  ; preserve white unexplored color (2bpp palette 6, color 2)
+    sta $C234
+
+;    lda $C03A  ; preserve pink color for full E-tank energy squares (2-bit palette 7, color 1)
+;    sta $C23A
 
 ;    lda $C03C  ; preserve white color for full E-tank energy squares (2-bit palette 7, color 2)
 ;    sta $C23C
@@ -333,12 +360,12 @@ load_target_palette:
     lda $7EC012  ; explored color
     sta $7EC212
 
-    lda $7EC03A  ; pink color for full E-tank energy squares (palette 7, color 1)
-    sta $7EC23A
-
-    lda $7EC03C  ; white color for full E-tank energy squares (palette 7, color 2)
-    sta $7EC23C
-
+;    lda $7EC03A  ; pink color for full E-tank energy squares (palette 7, color 1)
+;    sta $7EC23A
+;
+;    lda $7EC03C  ; white color for full E-tank energy squares (palette 7, color 2)
+;    sta $7EC23C
+;
     rts
 
 load_target_palette_hook:
@@ -357,22 +384,25 @@ set_hud_map_colors:
     asl
     tax
 
-    ; Set unexplored color to gray:
+    ; Set unexplored gray: palette 6, color 1
     lda !unexplored_gray
-    sta $7EC01A
+    sta $7EC032
 
-    ; Set explored color based on area:
+    ; Set unexplored white: palette 6, color 2
+    lda #$7FFF
+    sta $7EC034
+
+    ; Set explored color based on area: palette 2, color 1
     lda.l area_palettes_explored, x
     sta $7EC012
 
-    ; Set palette 7, color 1 to pink color for full E-tank energy squares
+    ; Set palette 3, color 1 to pink color for full E-tank energy squares
     lda #$48FB
-;    sta $7EC016
-    sta $7EC03A
+    sta $7EC01A
 
-    ; Set palette 7, color 2 to white color for full E-tank energy squares
+    ; Set palette 3, color 2 to white color for full E-tank energy squares
     lda #$7FFF
-    sta $7EC03C
+    sta $7EC01C
 
 
 ;    ; Set unexplored color 3 to pink color for full E-tank energy squares (used for black in vanilla)
@@ -441,17 +471,21 @@ simple_scroll_setup:
 
 warnpc $82F900
 
-; Pause menu: Pink color for full E-tank energy squares in HUD (palette 7, color 1)
-org $B6F03A
-    dw $48FB
+; Pause menu: Pink color for full E-tank energy squares in HUD (palette 3, color 1)
+org $B6F01A : dw $48FB
 
-; Pause menu: White color for full E-tank energy squares in HUD (palette 7, color 2)
-org $B6F03C
-    dw $7FFF
+; Pause menu: White color for full E-tank energy squares in HUD (palette 3, color 2)
+org $B6F01C : dw $7FFF
 
-; Pause menu: Gray color for unexplored tiles in HUD (palette 3, color 1)
-org $B6F01A
-    dw !unexplored_gray
+; Unexplored gray: palette 6, color 1
+org $B6F032 : dw !unexplored_gray
+
+; Unexplored white: palette 6, color 2
+org $B6F034 : dw $7FFF
+
+;; Pause menu: Gray color for unexplored tiles in HUD (palette 3, color 1)
+;org $B6F01A
+;    dw !unexplored_gray
 
 ; Patch tile data for button letters. Changing the palettes to 3:
 org $858426            

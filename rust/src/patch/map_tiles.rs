@@ -180,12 +180,15 @@ impl<'a> MapPatcher<'a> {
             self.write_tile_4bpp(f as usize, data)?;
         }
 
+        let palette = 0x1800;
+        let palette_mask = 0x1C00;
+
         for i in 0..0x3000 {
             let old_word = self.rom.read_u16(base_ptr + i * 2)? as TilemapWord;
             let old_idx = old_word & 0x3FF;
             let old_flip = old_word & 0xC000;
             let new_idx = *tile_mapping.get(&old_idx).unwrap_or(&old_idx);
-            let new_word = new_idx | old_flip | 0x0C00;
+            let new_word = ((new_idx | old_flip) & !palette_mask) | palette;
             self.rom.write_u16(base_ptr + i * 2, new_word as isize)?;
         }
 
@@ -201,7 +204,7 @@ impl<'a> MapPatcher<'a> {
                     let old_idx = old_word & 0x3FF;
                     let old_flip = old_word & 0xC000;
                     let new_idx = *tile_mapping.get(&old_idx).unwrap_or(&old_idx);
-                    let new_word = new_idx | old_flip | 0x0C00;
+                    let new_word = ((new_idx | old_flip) & !palette_mask) | palette;
                     self.rom.write_u16(
                         snes2pc(0x830000 + (ptr as usize) + i * 6 + 4),
                         new_word as isize,
