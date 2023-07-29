@@ -4,6 +4,10 @@ next release (maybe):
   - (internal): find different place for etank color, to free up a map tile color
   - item dots fade (remove QoL option and unexplore)
   - heated room color
+  - notes:
+     - $8487E5: transfer to VRAM (for tile GFX)
+     - $82E488: load BG3 tiles into VRAM (hook into this to reload area-specific tiles, and redraw HUD)
+     - $84DFB6: load map explored
 - use modal for sprite customization
   - also etank color customization
 - enhancements to momentum conservation patch

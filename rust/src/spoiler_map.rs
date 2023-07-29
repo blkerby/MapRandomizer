@@ -5,6 +5,7 @@ use std::io::Cursor;
 use crate::{
     game_data::{GameData, Map},
     patch::{snes2pc, xy_to_map_offset, Rom},
+    patch::map_tiles::TILE_GFX_ADDR_4BPP,
 };
 
 // fn read_tile_2bpp(rom: &Rom, base_addr: usize, idx: usize) -> Result<[[u8; 8]; 8]> {
@@ -43,12 +44,12 @@ fn read_tile_4bpp(rom: &Rom, base_addr: usize, idx: usize) -> Result<[[u8; 8]; 8
     Ok(out)
 }
 
-fn render_tile(rom: &Rom, tilemap_word: u16) -> Result<[[u8; 8]; 8]> {
+fn render_tile(rom: &Rom, tilemap_word: u16, map_area: usize) -> Result<[[u8; 8]; 8]> {
     let idx = (tilemap_word & 0x3FF) as usize;
     let x_flip = tilemap_word & 0x4000 != 0;
     let y_flip = tilemap_word & 0x8000 != 0;
     // let tile = read_tile_2bpp(rom, snes2pc(0x9AB200), idx)?;
-    let tile = read_tile_4bpp(rom, snes2pc(0xB68000), idx)?;
+    let tile = read_tile_4bpp(rom, snes2pc(TILE_GFX_ADDR_4BPP + map_area * 0x10000), idx)?;
     let mut out = [[0u8; 8]; 8];
     for y in 0..8 {
         for x in 0..8 {
@@ -133,7 +134,7 @@ pub fn get_spoiler_map(
                 let offset = xy_to_map_offset(cell_x, cell_y);
                 let cell_ptr = game_data.area_map_ptrs[map_area] + offset;
                 let tilemap_word = rom.read_u16(cell_ptr as usize)? as u16;
-                let tile = render_tile(rom, tilemap_word)?;
+                let tile = render_tile(rom, tilemap_word, map_area)?;
                 for y in 0..8 {
                     for x in 0..8 {
                         let x1 = (global_room_x + local_x + 1) * 8 + x;

@@ -233,8 +233,9 @@ fn main() -> Result<()> {
 
     let mut output_rom = input_rom.clone();
     let customize_settings = CustomizeSettings {
-        samus_sprite: Some("samus".to_string()),
-        vanilla_screw_attack_animation: false,
+        // samus_sprite: Some("samus".to_string()),
+        samus_sprite: None,
+        vanilla_screw_attack_animation: true,
         area_themed_palette: false,
         music: MusicSettings::AreaThemed,
         disable_beeping: false,
@@ -268,25 +269,25 @@ fn main() -> Result<()> {
         std::fs::write(output_spoiler_log_path, spoiler_str)?;
     }
 
-    let spoiler_maps = spoiler_map::get_spoiler_map(&output_rom, &randomization.map, &game_data)?;
+    // let spoiler_maps = spoiler_map::get_spoiler_map(&output_rom, &randomization.map, &game_data)?;
 
-    if let Some(output_spoiler_map_assigned_path) = &args.output_spoiler_map_assigned {
-        println!(
-            "Writing spoiler map (assigned areas) to {}",
-            output_spoiler_map_assigned_path.display()
-        );
-        let spoiler_map_assigned = spoiler_maps.assigned.clone();
-        std::fs::write(output_spoiler_map_assigned_path, spoiler_map_assigned)?;
-    }
+    // if let Some(output_spoiler_map_assigned_path) = &args.output_spoiler_map_assigned {
+    //     println!(
+    //         "Writing spoiler map (assigned areas) to {}",
+    //         output_spoiler_map_assigned_path.display()
+    //     );
+    //     let spoiler_map_assigned = spoiler_maps.assigned.clone();
+    //     std::fs::write(output_spoiler_map_assigned_path, spoiler_map_assigned)?;
+    // }
 
-    if let Some(output_spoiler_map_vanilla_path) = &args.output_spoiler_map_vanilla {
-        println!(
-            "Writing spoiler map (vanilla areas) to {}",
-            output_spoiler_map_vanilla_path.display()
-        );
-        let spoiler_map_vanilla = spoiler_maps.vanilla.clone();
-        std::fs::write(output_spoiler_map_vanilla_path, spoiler_map_vanilla)?;
-    }
+    // if let Some(output_spoiler_map_vanilla_path) = &args.output_spoiler_map_vanilla {
+    //     println!(
+    //         "Writing spoiler map (vanilla areas) to {}",
+    //         output_spoiler_map_vanilla_path.display()
+    //     );
+    //     let spoiler_map_vanilla = spoiler_maps.vanilla.clone();
+    //     std::fs::write(output_spoiler_map_vanilla_path, spoiler_map_vanilla)?;
+    // }
 
     Ok(())
 }

@@ -1,7 +1,7 @@
 pub mod compress;
 pub mod decompress;
 pub mod ips_write;
-mod map_tiles;
+pub mod map_tiles;
 mod title;
 
 use std::path::Path;
@@ -1508,6 +1508,7 @@ pub fn make_rom(
     apply_orig_ips_patches(&mut orig_rom, randomization)?;
 
     let mut rom = orig_rom.clone();
+    rom.resize(0x400000);
     let mut patcher = Patcher {
         orig_rom: &mut orig_rom,
         rom: &mut rom,
@@ -1524,7 +1525,7 @@ pub fn make_rom(
     patcher.write_map_tilemaps()?;
     patcher.write_map_areas()?;
     patcher.make_map_revealed()?;
-    patcher.apply_map_tile_patches()?;
+    // patcher.apply_map_tile_patches()?;
     patcher.write_door_data()?;
     patcher.remove_non_blue_doors()?;
     if !randomization.difficulty.vanilla_map {
