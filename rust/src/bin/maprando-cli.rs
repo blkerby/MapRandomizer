@@ -233,8 +233,8 @@ fn main() -> Result<()> {
 
     let mut output_rom = input_rom.clone();
     let customize_settings = CustomizeSettings {
-        // samus_sprite: Some("samus".to_string()),
-        samus_sprite: None,
+        samus_sprite: Some("samus".to_string()),
+        // samus_sprite: None,
         vanilla_screw_attack_animation: true,
         area_themed_palette: false,
         music: MusicSettings::AreaThemed,
