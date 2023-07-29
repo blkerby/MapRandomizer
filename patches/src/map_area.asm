@@ -552,3 +552,5 @@ org $858426
 org $A7CA77 : dw #$48FB            ; 2bpp palette 2, color 3: pink color for E-tanks (instead of black)
 org $A7CA7B : dw !unexplored_gray   ; 2bpp palette 3, color 1: gray color for HUD dotted grid lines
 
+; TODO: Remove this (temporary, for testing only)
+org $8282FB : dl $E2A000  ; was: dl $9AB200

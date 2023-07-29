@@ -227,7 +227,8 @@ fn main() -> Result<()> {
     let randomization = get_randomization(&args, &game_data)?;
 
     // Generate the patched ROM:
-    let input_rom = Rom::load(&args.input_rom)?;
+    let mut input_rom = Rom::load(&args.input_rom)?;
+    input_rom.data.resize(0x400000, 0);
     let game_rom = make_rom(&input_rom, &randomization, &game_data)?;
     let ips_patch = create_ips_patch(&input_rom.data, &game_rom.data);
 

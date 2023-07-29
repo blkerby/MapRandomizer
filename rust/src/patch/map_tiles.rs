@@ -260,9 +260,9 @@ impl<'a> MapPatcher<'a> {
         mut data: [[u8; 8]; 8],
         switch_red_white: bool,
     ) -> Result<()> {
-        // for area_idx in 0..6 {
-        //     self.write_tile_2bpp_area(idx, data, switch_red_white, area_idx)?;
-        // }
+        for area_idx in 0..6 {
+            self.write_tile_2bpp_area(idx, data, switch_red_white, area_idx)?;
+        }
         Ok(())
     }
 
@@ -287,9 +287,9 @@ impl<'a> MapPatcher<'a> {
         idx: usize,
         mut data: [[u8; 8]; 8],
     ) -> Result<()> {
-        // for area_idx in 0..6 {
-        //     self.write_tile_4bpp_area(idx, data, area_idx)?;
-        // }
+        for area_idx in 0..6 {
+            self.write_tile_4bpp_area(idx, data, area_idx)?;
+        }
         Ok(())
     }
 
@@ -1714,7 +1714,7 @@ impl<'a> MapPatcher<'a> {
     }
 
     pub fn apply_patches(&mut self) -> Result<()> {
-        // self.initialize_tiles()?;
+        self.initialize_tiles()?;
         self.index_vanilla_tiles()?;
         self.fix_elevators()?;
         self.fix_item_dots()?;
