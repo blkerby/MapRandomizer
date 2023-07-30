@@ -2,7 +2,7 @@ arch snes.cpu
 lorom
 
 !bank_82_freespace_start = $82F70F
-!bank_82_freespace_end = $82FA00
+!bank_82_freespace_end = $82FA80
 
 !backup_area = $1F62
 !unexplored_gray = #$2529
@@ -241,6 +241,7 @@ check_start_select:
 switch_map_area:
     jsr next_area
     jsr update_pause_map_palette
+    jsl load_bg1_2_tiles
 	jsl $80858C     ;load explored bits for area
 	lda $7ED908,x : and #$00FF : sta $0789	;set flag of map station for next area
     jsl $8293C3		;update area label and construct new area map
@@ -542,9 +543,7 @@ load_bg3_tiles:
     sep #$30
     lda #$02
     sta $420B  ; perform DMA transfer on channel 1
-
-    inc $09c8
-
+    
     plp
     rtl
 
@@ -577,8 +576,6 @@ load_bg3_tiles_door_transition:
     LDA $05BC  ;\
     BMI .spin  ;} Wait for door transition VRAM update
 
-    inc $09c8
-    
     ;lda $1F5B
     ;lda $05F7
     ;sta $09c6
@@ -588,6 +585,38 @@ load_bg3_tiles_door_transition:
     ;lda #$0001
     ;sta $05F7
     ;jsl $809B44
+
+    plp
+    rtl
+
+load_bg1_2_tiles:
+    ; Load 4bpp tiles for the area into VRAM:
+    php
+    rep #$30
+
+    LDA #$0080
+    STA $2115  ; video port control
+    LDA #$0000
+    STA $2116  ; VRAM (destination) address = $0000
+
+    lda #$1801
+    STA $4310  ; DMA control: DMA transfer from CPU to VRAM, incrementing CPU address
+    
+    lda #$8000 ; source address = $8000
+    sta $4312
+
+    ; Set source bank to $E2 + map area:
+    lda $1F5B  ; map area (0-5)
+    clc
+    adc #$00E2
+    sta $4314
+
+    lda #$2000
+    sta $4315 ; transfer size = $2000 bytes
+
+    sep #$30
+    lda #$02
+    sta $420B  ; perform DMA transfer on channel 1
 
     plp
     rtl
@@ -686,5 +715,14 @@ org $82E46A : beq $1c
 org $82E472 : beq $14
 org $82E488
     jsl load_bg3_tiles_door_transition
-;    jsl load_bg3_tiles
     rep 6 : nop
+
+; Patch pause menu start to load BG1/2 tiles based on map area:
+org $828E87 
+    jsl load_bg1_2_tiles
+    rep 13 : nop
+
+; Patch pause menu start to load BG3 tiles based on map area:
+org $828EC7
+    jsl load_bg3_tiles
+    rep 13 : nop
