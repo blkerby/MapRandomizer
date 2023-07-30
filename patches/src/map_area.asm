@@ -592,7 +592,54 @@ load_bg3_tiles_door_transition:
     plp
     rtl
 
+
+reload_map_hook:
+    phx
+
+    LDA $830002,x  ; run hi-jacked instruction
+    BIT #$0040
+    beq .skip
+
+    ; clear HUD minimap
+    LDX #$0000             ;|
+    lda #$381f
+.clear_minimap_loop:
+    STA $7EC63C,x          ;|
+    STA $7EC67C,x          ;} HUD tilemap (1Ah..1Eh, 1..3) = 2C1Fh
+    STA $7EC6BC,x          ;|
+    INX                    ;|
+    INX                    ;|
+    CPX #$000A             ;|
+    BMI .clear_minimap_loop
+
+    ; update VRAM for HUD
+    LDX $0330       ;\
+    LDA #$00C0      ;|
+    STA $D0,x       ;|
+    INX             ;|
+    INX             ;|
+    LDA #$C608      ;|
+    STA $D0,x       ;|
+    INX             ;|
+    INX             ;} Queue transfer of $7E:C608..C7 to VRAM $5820..7F (HUD tilemap)
+    LDA #$007E      ;|
+    STA $D0,x       ;|
+    INX             ;|
+    LDA #$5820      ;|
+    STA $D0,x       ;|
+    INX             ;|
+    INX             ;|
+    STX $0330       ;/
+
+.skip:
+    plx
+    LDA $830002,x  ; run hi-jacked instruction
+    rtl
+
 warnpc !bank_82_freespace_end
+
+org $82DFB9
+    jsl reload_map_hook
 
 ; Pause menu: Pink color for full E-tank energy squares in HUD (palette 3, color 1)
 org $B6F01A : dw $48FB
@@ -641,7 +688,3 @@ org $82E488
     jsl load_bg3_tiles_door_transition
 ;    jsl load_bg3_tiles
     rep 6 : nop
-
-
-; TODO: Remove this, just for testing
-org $90A921 : BEQ $1E
