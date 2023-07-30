@@ -516,6 +516,52 @@ simple_scroll_setup:
     RTS
 
 
+load_bg3_tiles:
+;    ; Set bank to $E2 + map area:
+;    lda $1F5B  ; map area (0-5)
+;    clc
+;    adc #$00E2
+;    sep #$20
+;    pha
+;    plb
+;    rep #$20
+
+    php
+
+;    rep #$30
+;    LDA #$0080
+;    STA $2115  ; video port control
+;    LDA #$4000
+;    STA $2116  ; VRAM (destination) address = $4000
+
+    SEP #$30
+    LDA #$00               ;\
+    STA $2116              ;|
+    LDA #$40               ;|
+    STA $2117              ;|
+    LDA #$80               ;|
+    STA $2115
+    rep #$30
+
+    lda #$1801
+    STA $4310  ; DMA control: DMA transfer from CPU to VRAM, incrementing CPU address
+    
+    lda #$A000 ; source address = $E2A000
+    sta $4312
+    lda #$00E2
+    sta $4314
+
+
+    lda #$2000
+    sta $4315 ; transfer size = $1000 bytes
+
+    sep #$30
+    LDA #$02
+    STA $420B  ; perform DMA transfer on channel 1
+
+    plp
+    rtl
+
 warnpc !bank_82_freespace_end
 
 ; Pause menu: Pink color for full E-tank energy squares in HUD (palette 3, color 1)
@@ -553,4 +599,8 @@ org $A7CA77 : dw #$48FB            ; 2bpp palette 2, color 3: pink color for E-t
 org $A7CA7B : dw !unexplored_gray   ; 2bpp palette 3, color 1: gray color for HUD dotted grid lines
 
 ; TODO: Remove this (temporary, for testing only)
-org $8282FB : dl $E2A000  ; was: dl $9AB200
+;org $8282FB : dl $E2A000  ; was: dl $9AB200
+org $8282F4
+    jsl load_bg3_tiles
+    rep 13 : nop
+print pc
