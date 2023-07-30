@@ -27,9 +27,6 @@ enum Interior {
     MediumItem,
     MajorItem,
     Elevator,
-    FadedItem,
-    FadedMediumItem,
-    FadedMajorItem
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
@@ -39,6 +36,7 @@ struct BasicTile {
     up: Edge,
     down: Edge,
     interior: Interior,
+    faded: bool,
 }
 
 const NUM_AREAS: usize = 6;
@@ -143,7 +141,7 @@ impl<'a> MapPatcher<'a> {
         }
         Ok(out)
     }
-    
+
     fn write_tiles_area(&mut self, area_idx: usize) -> Result<()> {
         let mut reserved_tiles: HashSet<TilemapWord> = vec![
             // Used on HUD:
@@ -189,7 +187,8 @@ impl<'a> MapPatcher<'a> {
 
         info!(
             "Area {} free tiles: {} (of {})",
-            area_idx, free_tiles.len() as isize - used_tiles.len() as isize,
+            area_idx,
+            free_tiles.len() as isize - used_tiles.len() as isize,
             free_tiles.len()
         );
         if used_tiles.len() > free_tiles.len() {
@@ -271,19 +270,19 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
-
-    fn write_tile_2bpp(
-        &mut self,
-        idx: usize,
-        mut data: [[u8; 8]; 8],
-    ) -> Result<()> {
+    fn write_tile_2bpp(&mut self, idx: usize, data: [[u8; 8]; 8]) -> Result<()> {
         for area_idx in 0..6 {
             self.write_tile_2bpp_area(idx, data, area_idx)?;
         }
         Ok(())
     }
 
-    fn write_tile_4bpp_area(&mut self, idx: usize, data: [[u8; 8]; 8], area_idx: usize) -> Result<()> {
+    fn write_tile_4bpp_area(
+        &mut self,
+        idx: usize,
+        data: [[u8; 8]; 8],
+        area_idx: usize,
+    ) -> Result<()> {
         let base_addr = snes2pc(TILE_GFX_ADDR_4BPP + area_idx * 0x10000); // Location of pause-menu tile GFX in ROM
         for y in 0..8 {
             let addr = base_addr + idx * 32 + y * 2;
@@ -299,11 +298,7 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
-    fn write_tile_4bpp(
-        &mut self,
-        idx: usize,
-        mut data: [[u8; 8]; 8],
-    ) -> Result<()> {
+    fn write_tile_4bpp(&mut self, idx: usize, data: [[u8; 8]; 8]) -> Result<()> {
         for area_idx in 0..6 {
             self.write_tile_4bpp_area(idx, data, area_idx)?;
         }
@@ -334,6 +329,7 @@ impl<'a> MapPatcher<'a> {
                     up: tile.up,
                     down: tile.down,
                     interior: tile.interior,
+                    faded: tile.faded,
                 },
                 word | FLIP_X,
             );
@@ -344,6 +340,7 @@ impl<'a> MapPatcher<'a> {
                     up: tile.down,
                     down: tile.up,
                     interior: tile.interior,
+                    faded: tile.faded,
                 },
                 word | FLIP_Y,
             );
@@ -354,6 +351,7 @@ impl<'a> MapPatcher<'a> {
                     up: tile.down,
                     down: tile.up,
                     interior: tile.interior,
+                    faded: tile.faded,
                 },
                 word | FLIP_X | FLIP_Y,
             );
@@ -377,6 +375,7 @@ impl<'a> MapPatcher<'a> {
                 up,
                 down,
                 interior,
+                faded: false,
             },
             word,
         )?;
@@ -432,28 +431,29 @@ impl<'a> MapPatcher<'a> {
             data[7][i] = 3;
         }
 
+        let item_color = if tile.faded { 2 } else { 3 };
         match tile.interior {
             Interior::Empty => {}
             Interior::Item => {
-                data[3][3] = 3;
-                data[3][4] = 3;
-                data[4][3] = 3;
-                data[4][4] = 3;
+                data[3][3] = item_color;
+                data[3][4] = item_color;
+                data[4][3] = item_color;
+                data[4][4] = item_color;
             }
             Interior::MediumItem => {
-                data[2][3] = 3;
-                data[2][4] = 3;
-                data[5][3] = 3;
-                data[5][4] = 3;
-                data[3][2] = 3;
-                data[4][2] = 3;
-                data[3][5] = 3;
-                data[4][5] = 3;
+                data[2][3] = item_color;
+                data[2][4] = item_color;
+                data[5][3] = item_color;
+                data[5][4] = item_color;
+                data[3][2] = item_color;
+                data[4][2] = item_color;
+                data[3][5] = item_color;
+                data[4][5] = item_color;
             }
             Interior::MajorItem => {
                 for i in 2..6 {
                     for j in 2..6 {
-                        data[i][j] = 3;
+                        data[i][j] = item_color;
                     }
                 }
                 data[2][2] = 1;
@@ -465,33 +465,6 @@ impl<'a> MapPatcher<'a> {
                 // Use white instead of red for elevator platform:
                 data[5][3] = 3;
                 data[5][4] = 3;
-            },
-            Interior::FadedItem => {
-                data[3][3] = 2;
-                data[3][4] = 2;
-                data[4][3] = 2;
-                data[4][4] = 2;
-            }
-            Interior::FadedMediumItem => {
-                data[2][3] = 2;
-                data[2][4] = 2;
-                data[5][3] = 2;
-                data[5][4] = 2;
-                data[3][2] = 2;
-                data[4][2] = 2;
-                data[3][5] = 2;
-                data[4][5] = 2;
-            }
-            Interior::FadedMajorItem => {
-                for i in 2..6 {
-                    for j in 2..6 {
-                        data[i][j] = 2;
-                    }
-                }
-                data[2][2] = 1;
-                data[5][2] = 1;
-                data[2][5] = 1;
-                data[5][5] = 1;
             }
         }
         Ok(data)
@@ -603,6 +576,7 @@ impl<'a> MapPatcher<'a> {
                 up,
                 down,
                 interior,
+                faded: false,
             };
             word_tiles.push((x, y, self.get_basic_tile(basic_tile)?));
         }
@@ -1456,9 +1430,6 @@ impl<'a> MapPatcher<'a> {
             for interior in [
                 Interior::Empty,
                 Interior::Elevator,
-                Interior::FadedItem,
-                Interior::FadedMediumItem,
-                Interior::FadedMajorItem,
                 Interior::Item,
                 Interior::MediumItem,
                 Interior::MajorItem,
@@ -1549,16 +1520,14 @@ impl<'a> MapPatcher<'a> {
                     tile1 | 0x0C00,
                     basic_tile.interior,
                 ));
-                'faded_item: {
-                    if basic_tile.interior == Interior::MajorItem {
-                        basic_tile.interior = Interior::FadedMajorItem;
-                    } else if basic_tile.interior == Interior::MediumItem && orig_basic_tile.interior != Interior::FadedMajorItem {
-                        basic_tile.interior = Interior::FadedMediumItem;
-                    } else if basic_tile.interior == Interior::Item && (orig_basic_tile.interior == Interior::Empty || orig_basic_tile.interior == Interior::Item) {
-                        basic_tile.interior = Interior::FadedItem;
-                    } else {
-                        break 'faded_item;
-                    }
+                if basic_tile.interior == Interior::MajorItem
+                    || (basic_tile.interior == Interior::MediumItem
+                        && orig_basic_tile.interior != Interior::MajorItem)
+                    || (basic_tile.interior == Interior::Item
+                        && (orig_basic_tile.interior == Interior::Empty
+                            || orig_basic_tile.interior == Interior::Item))
+                {
+                    basic_tile.faded = true;
                     let tile_faded = self.get_basic_tile(basic_tile)?;
                     self.rom
                         .write_u16(base_ptr + offset, (tile_faded | 0x0C00) as isize)?;
@@ -1641,7 +1610,6 @@ impl<'a> MapPatcher<'a> {
                 }
             }
             self.write_tile_4bpp(idx, tile)?;
-
         }
         Ok(())
     }
