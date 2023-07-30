@@ -515,49 +515,73 @@ simple_scroll_setup:
 
     RTS
 
-
 load_bg3_tiles:
-;    ; Set bank to $E2 + map area:
-;    lda $1F5B  ; map area (0-5)
-;    clc
-;    adc #$00E2
-;    sep #$20
-;    pha
-;    plb
-;    rep #$20
-
     php
 
-;    rep #$30
-;    LDA #$0080
-;    STA $2115  ; video port control
-;    LDA #$4000
-;    STA $2116  ; VRAM (destination) address = $4000
-
-    SEP #$30
-    LDA #$00               ;\
-    STA $2116              ;|
-    LDA #$40               ;|
-    STA $2117              ;|
-    LDA #$80               ;|
-    STA $2115
     rep #$30
+    LDA #$0080
+    STA $2115  ; video port control
+    LDA #$4000
+    STA $2116  ; VRAM (destination) address = $4000
 
     lda #$1801
     STA $4310  ; DMA control: DMA transfer from CPU to VRAM, incrementing CPU address
     
-    lda #$A000 ; source address = $E2A000
+    lda #$A000 ; source address = $A000
     sta $4312
-    lda #$00E2
+
+    ; Set source bank to $E2 + map area:
+    lda $1F5B  ; map area (0-5)
+    clc
+    adc #$00E2
     sta $4314
 
-
-    lda #$2000
+    lda #$1000
     sta $4315 ; transfer size = $1000 bytes
 
     sep #$30
-    LDA #$02
-    STA $420B  ; perform DMA transfer on channel 1
+    lda #$02
+    sta $420B  ; perform DMA transfer on channel 1
+
+    inc $09c8
+
+    plp
+    rtl
+
+
+load_bg3_tiles_door_transition:
+    php
+
+    ; source = $E2A200 + map area * $10000
+    lda #$A000
+    sta $05C0
+    sep #$30
+    lda $1F5B  ; map area (0-5)
+    clc
+    adc #$E2
+    sta $05C2
+    rep #$30
+    
+    ; destination = $4000
+    lda #$4000
+    sta $05BE
+
+    ; size = $1000
+    lda #$1000
+    STA $05C3
+
+    LDA #$8000             ;\
+    TSB $05BC              ;} Flag door transition VRAM update
+
+.spin:
+    LDA $05BC  ;\
+    BMI .spin  ;} Wait for door transition VRAM update
+
+    lda $1F5B
+    sta $09c8
+    
+;    ; update HUD minimap
+;    jsl $90A91B
 
     plp
     rtl
@@ -598,9 +622,15 @@ org $858426
 org $A7CA77 : dw #$48FB            ; 2bpp palette 2, color 3: pink color for E-tanks (instead of black)
 org $A7CA7B : dw !unexplored_gray   ; 2bpp palette 3, color 1: gray color for HUD dotted grid lines
 
-; TODO: Remove this (temporary, for testing only)
+; Load BG3 tiles from source depending on map area:
 ;org $8282FB : dl $E2A000  ; was: dl $9AB200
 org $8282F4
     jsl load_bg3_tiles
     rep 13 : nop
-print pc
+
+; Patch door transition code to always reload BG3 tiles, based on map area:
+org $82E46A : beq $1c
+org $82E472 : beq $14
+org $82E488
+    jsl load_bg3_tiles_door_transition
+    rep 6 : nop
