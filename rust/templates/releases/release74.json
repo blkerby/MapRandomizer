@@ -1,0 +1,6 @@
+{
+    "date": "2023-07-27",
+    "notes": [
+        "Quick bugfix involving default value for gate glitch leniency, which in some cases cause seed generation to fail."
+    ]
+}

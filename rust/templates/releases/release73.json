@@ -1,0 +1,45 @@
+{
+    "date": "2023-07-27",
+    "notes": [
+        "New quality-of-life option \"Momentum conservation\" is added (enabled in Max preset).",
+        "More custom sprite options are added.",
+        "Fix to the \"Vanilla music\" customization option (which was buggy and could cause crashes).",
+        "Website update: More animated GIFs are added, for notable strats in Expert and Extreme.",
+        "Logic updates (highlights):",
+        [
+            "The escape timer is tightened by 10% (except only 5% in Extreme, and 0% on Expert).",
+            "Heat damage multiplier is now more lenient in Extreme (by 5%) and Expert (by 10%).",
+            "New tech:",
+            [
+                "canPauseAbuse (Expert)",
+                "canBombGrappleJump (Insane)"
+            ],
+            "Non-respawning farms are added to the logic (but only those with good drop rates).",
+            [
+                "Farms of all kinds are now defined as regular strats and are visible in the logic pages."
+            ],
+            "Obstacles are reworked and now appear more intuitively in the logic pages.",
+            [
+                "Strat difficulty tiers show in the logic pages are now more accurate."
+            ],
+            "canBePatient is split into two tech:",
+            [
+                "canBeVeryPatient (Insane) is defined as waiting or doing the same thing for ~3 minutes.",
+                "canBePatient (Extreme) is defined as waiting or doing the same thing for ~1.5 minutes."
+            ],
+            "canXRayClimb is moved from Extreme down to Expert, but patience requirements are added:",
+            [
+                "Climbing more than 4 screens now requires canBeVeryPatient (Insane)",
+                "Climbing more than 2 screens now requires canBePatient (Extreme)",
+                "Climbing 2 screens or less is now in logic on Expert"
+            ],
+            "X-Ray climb tech are simplified and given more intuitive names:",
+            [
+                "canXRayClimb (Expert) now includes getting stuck in a left-side door.",
+                "canRightSideDoorStuck (Expert) replaces the old tech canLeftFacingDoorXRayClimb.",
+                "canRightSideDoorStuckFromWater (Extreme) replaces the old tech canSubmergedLeftFacingDoorXRayClimb."
+            ],
+            "Suitless bootless strats in West and East Sand Hall (with Ice or Spring Ball) are moved from Expert to Extreme."
+        ]
+    ]
+}

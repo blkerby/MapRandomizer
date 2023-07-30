@@ -1,0 +1,22 @@
+about.stpl
+ #changes: Randomizer Changes
+  #map_enhancements: Map enhancements
+  #special_inputs: Special inputs
+  #save_load: Saving & loading
+  #doors: Doors
+  #item_spawns: Item spawns
+  #suit_behavior: Suit behavior
+  #endgame: Endgame
+  #fast_transitions: Fast transitions & cutscenes
+  #layout_changes: Layout changes
+  #other_changes: Other changes
+ #how_it_works: How it works
+  #map_generation: Map generation
+  #item_placement: Item placement
+  #escape_timer: Escape timer
+  #patching: ROM patching
+  #credits: Credits
+
+releases.stpl
+ #release74
+ #release1

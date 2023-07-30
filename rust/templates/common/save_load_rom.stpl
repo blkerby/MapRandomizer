@@ -1,5 +1,5 @@
-<script src="/static/localforage.js"></script>
-<script>
+<script src="/static/localforage.js" type="text/javascript"></script>
+<script type="text/javascript">
 async function saveROM(fileInput, key) {
     var file = fileInput.files[0];
     const reader = new FileReader();

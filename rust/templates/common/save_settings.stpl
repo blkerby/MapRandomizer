@@ -1,4 +1,4 @@
-<script>
+<script type="text/javascript">
 function saveForm(form) {
     data = {}
     for (const element of form.elements) {
