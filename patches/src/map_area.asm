@@ -275,12 +275,12 @@ update_pause_map_palette:
     lda !unexplored_gray
     sta $7EC0C2
 
-    ; Set unexplored white color: palette 6, color 2
-    lda #$FFFF
+    ; Set unexplored light gray color: palette 6, color 2
+    lda !unexplored_light_gray
     sta $7EC0C4
 
-    ; Set unexplored light gray color: palette 6, color 3
-    lda !unexplored_light_gray
+    ; Set unexplored white color: palette 6, color 3
+    lda #$FFFF
     sta $7EC0C6
 
 ;    ; Set color 3 to black (instead of red)
@@ -292,8 +292,12 @@ update_pause_map_palette:
     lda area_palettes_explored, x
     sta $7EC042
 
-    ; Set light explored color based on area: palette 2, color 3
+    ; Set light explored color based on area: palette 2, color 2
     lda area_palettes_explored_light, x
+    sta $7EC044
+
+    ; Set explored white: palette 2, color 3
+    lda #$7FFF
     sta $7EC046
 
 ;    lda !backup_area
@@ -422,20 +426,24 @@ set_hud_map_colors:
     lda !unexplored_gray
     sta $7EC032
 
-    ; Set unexplored white: palette 6, color 2
-    lda #$7FFF
+    ; Set unexplored light gray: palette 6, color 2
+    lda !unexplored_light_gray
     sta $7EC034
 
-    ; Set unexplored light gray: palette 6, color 3
-    lda !unexplored_light_gray
+    ; Set unexplored white: palette 6, color 3
+    lda #$7FFF
     sta $7EC036
 
     ; Set explored color based on area: palette 2, color 1
     lda.l area_palettes_explored, x
     sta $7EC012
 
-    ; Set light explored color based on area: palette 2, color 3
+    ; Set explored light color based on area: palette 2, color 2
     lda.l area_palettes_explored_light, x
+    sta $7EC014
+
+    ; Set explored white: palette 2, color 3
+    lda #$7FFF
     sta $7EC016
 
     ; Set palette 3, color 1 to pink color for full E-tank energy squares

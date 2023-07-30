@@ -123,6 +123,27 @@ impl<'a> MapPatcher<'a> {
         Ok(out)
     }
 
+    fn read_tile_4bpp(&self, idx: usize) -> Result<[[u8; 8]; 8]> {
+        let base_addr = snes2pc(0xB68000);
+        let mut out: [[u8; 8]; 8] = [[0; 8]; 8];
+        for y in 0..8 {
+            let addr = base_addr + idx * 32 + y * 2;
+            let data_0 = self.rom.read_u8(addr)?;
+            let data_1 = self.rom.read_u8(addr + 1)?;
+            let data_2 = self.rom.read_u8(addr + 16)?;
+            let data_3 = self.rom.read_u8(addr + 17)?;
+            for x in 0..8 {
+                let bit_0 = (data_0 >> (7 - x)) & 1;
+                let bit_1 = (data_1 >> (7 - x)) & 1;
+                let bit_2 = (data_2 >> (7 - x)) & 1;
+                let bit_3 = (data_3 >> (7 - x)) & 1;
+                let c = bit_0 | (bit_1 << 1) | (bit_2 << 2) | (bit_3 << 3);
+                out[y][x] = c as u8;
+            }
+        }
+        Ok(out)
+    }
+    
     fn write_tiles_area(&mut self, area_idx: usize) -> Result<()> {
         let mut reserved_tiles: HashSet<TilemapWord> = vec![
             // Used on HUD:
@@ -179,7 +200,7 @@ impl<'a> MapPatcher<'a> {
         for (&u, &f) in used_tiles.iter().zip(free_tiles.iter()) {
             tile_mapping.insert(u, f);
             let data = self.tile_gfx_map[&u];
-            self.write_tile_2bpp_area(f as usize, data, true, area_idx)?;
+            self.write_tile_2bpp_area(f as usize, data, area_idx)?;
             self.write_tile_4bpp_area(f as usize, data, area_idx)?;
         }
 
@@ -229,16 +250,13 @@ impl<'a> MapPatcher<'a> {
         &mut self,
         idx: usize,
         mut data: [[u8; 8]; 8],
-        switch_red_white: bool,
         area_idx: usize,
     ) -> Result<()> {
         let base_addr = snes2pc(TILE_GFX_ADDR_2BPP + area_idx * 0x10000); // Location of HUD tile GFX in ROM
-        if switch_red_white {
-            for y in 0..8 {
-                for x in 0..8 {
-                    if data[y][x] >= 4 {
-                        data[y][x] = 2;
-                    }
+        for y in 0..8 {
+            for x in 0..8 {
+                if data[y][x] >= 4 {
+                    data[y][x] = 3;
                 }
             }
         }
@@ -258,10 +276,9 @@ impl<'a> MapPatcher<'a> {
         &mut self,
         idx: usize,
         mut data: [[u8; 8]; 8],
-        switch_red_white: bool,
     ) -> Result<()> {
         for area_idx in 0..6 {
-            self.write_tile_2bpp_area(idx, data, switch_red_white, area_idx)?;
+            self.write_tile_2bpp_area(idx, data, area_idx)?;
         }
         Ok(())
     }
@@ -403,59 +420,27 @@ impl<'a> MapPatcher<'a> {
     fn render_basic_tile(&mut self, tile: BasicTile) -> Result<[[u8; 8]; 8]> {
         let mut data: [[u8; 8]; 8] = [[1; 8]; 8];
         for &i in &self.edge_pixels_map[&tile.left] {
-            data[i][0] = 2;
+            data[i][0] = 3;
         }
         for &i in &self.edge_pixels_map[&tile.right] {
-            data[i][7] = 2;
+            data[i][7] = 3;
         }
         for &i in &self.edge_pixels_map[&tile.up] {
-            data[0][i] = 2;
+            data[0][i] = 3;
         }
         for &i in &self.edge_pixels_map[&tile.down] {
-            data[7][i] = 2;
+            data[7][i] = 3;
         }
 
         match tile.interior {
             Interior::Empty => {}
             Interior::Item => {
-                data[3][3] = 2;
-                data[3][4] = 2;
-                data[4][3] = 2;
-                data[4][4] = 2;
-            }
-            Interior::MediumItem => {
-                data[2][3] = 2;
-                data[2][4] = 2;
-                data[5][3] = 2;
-                data[5][4] = 2;
-                data[3][2] = 2;
-                data[4][2] = 2;
-                data[3][5] = 2;
-                data[4][5] = 2;
-            }
-            Interior::MajorItem => {
-                for i in 2..6 {
-                    for j in 2..6 {
-                        data[i][j] = 2;
-                    }
-                }
-                data[2][2] = 1;
-                data[5][2] = 1;
-                data[2][5] = 1;
-                data[5][5] = 1;
-            }
-            Interior::Elevator => {
-                // Use white instead of red for elevator platform:
-                data[5][3] = 2;
-                data[5][4] = 2;
-            },
-            Interior::FadedItem => {
                 data[3][3] = 3;
                 data[3][4] = 3;
                 data[4][3] = 3;
                 data[4][4] = 3;
             }
-            Interior::FadedMediumItem => {
+            Interior::MediumItem => {
                 data[2][3] = 3;
                 data[2][4] = 3;
                 data[5][3] = 3;
@@ -465,10 +450,42 @@ impl<'a> MapPatcher<'a> {
                 data[3][5] = 3;
                 data[4][5] = 3;
             }
-            Interior::FadedMajorItem => {
+            Interior::MajorItem => {
                 for i in 2..6 {
                     for j in 2..6 {
                         data[i][j] = 3;
+                    }
+                }
+                data[2][2] = 1;
+                data[5][2] = 1;
+                data[2][5] = 1;
+                data[5][5] = 1;
+            }
+            Interior::Elevator => {
+                // Use white instead of red for elevator platform:
+                data[5][3] = 3;
+                data[5][4] = 3;
+            },
+            Interior::FadedItem => {
+                data[3][3] = 2;
+                data[3][4] = 2;
+                data[4][3] = 2;
+                data[4][4] = 2;
+            }
+            Interior::FadedMediumItem => {
+                data[2][3] = 2;
+                data[2][4] = 2;
+                data[5][3] = 2;
+                data[5][4] = 2;
+                data[3][2] = 2;
+                data[4][2] = 2;
+                data[3][5] = 2;
+                data[4][5] = 2;
+            }
+            Interior::FadedMajorItem => {
+                for i in 2..6 {
+                    for j in 2..6 {
+                        data[i][j] = 2;
                     }
                 }
                 data[2][2] = 1;
@@ -507,26 +524,26 @@ impl<'a> MapPatcher<'a> {
         }
 
         let elevator_tile_pause: [[u8; 8]; 8] = [
-            [0, 2, 1, 4, 4, 1, 2, 0],
-            [0, 2, 4, 4, 4, 4, 2, 0],
-            [0, 2, 1, 4, 4, 1, 2, 0],
-            [0, 2, 4, 4, 4, 4, 2, 0],
-            [0, 2, 1, 4, 4, 1, 2, 0],
-            [0, 2, 4, 4, 4, 4, 2, 0],
-            [0, 2, 1, 4, 4, 1, 2, 0],
-            [0, 2, 4, 4, 4, 4, 2, 0],
+            [0, 3, 1, 4, 4, 1, 3, 0],
+            [0, 3, 4, 4, 4, 4, 3, 0],
+            [0, 3, 1, 4, 4, 1, 3, 0],
+            [0, 3, 4, 4, 4, 4, 3, 0],
+            [0, 3, 1, 4, 4, 1, 3, 0],
+            [0, 3, 4, 4, 4, 4, 3, 0],
+            [0, 3, 1, 4, 4, 1, 3, 0],
+            [0, 3, 4, 4, 4, 4, 3, 0],
         ];
         let elevator_tile_hud: [[u8; 8]; 8] = [
-            [0, 2, 1, 0, 0, 1, 2, 0],
-            [0, 2, 0, 0, 0, 0, 2, 0],
-            [0, 2, 1, 0, 0, 1, 2, 0],
-            [0, 2, 0, 0, 0, 0, 2, 0],
-            [0, 2, 1, 0, 0, 1, 2, 0],
-            [0, 2, 0, 0, 0, 0, 2, 0],
-            [0, 2, 1, 0, 0, 1, 2, 0],
-            [0, 2, 0, 0, 0, 0, 2, 0],
+            [0, 3, 1, 0, 0, 1, 3, 0],
+            [0, 3, 0, 0, 0, 0, 3, 0],
+            [0, 3, 1, 0, 0, 1, 3, 0],
+            [0, 3, 0, 0, 0, 0, 3, 0],
+            [0, 3, 1, 0, 0, 1, 3, 0],
+            [0, 3, 0, 0, 0, 0, 3, 0],
+            [0, 3, 1, 0, 0, 1, 3, 0],
+            [0, 3, 0, 0, 0, 0, 3, 0],
         ];
-        self.write_tile_2bpp(ELEVATOR_TILE as usize, elevator_tile_hud, false)?;
+        self.write_tile_2bpp(ELEVATOR_TILE as usize, elevator_tile_hud)?;
         self.write_tile_4bpp(ELEVATOR_TILE as usize, elevator_tile_pause)?;
 
         // In top elevator rooms, replace down arrow tiles with elevator tiles:
@@ -739,34 +756,34 @@ impl<'a> MapPatcher<'a> {
 
     fn indicate_special_tiles(&mut self) -> Result<()> {
         let refill_tile = self.create_tile([
-            [2, 2, 2, 2, 2, 2, 2, 2],
-            [2, 2, 2, 1, 1, 2, 2, 2],
-            [2, 2, 2, 1, 1, 2, 2, 2],
-            [2, 1, 1, 1, 1, 1, 1, 2],
-            [2, 1, 1, 1, 1, 1, 1, 2],
-            [2, 2, 2, 1, 1, 2, 2, 2],
-            [2, 2, 2, 1, 1, 2, 2, 2],
-            [2, 2, 2, 2, 2, 2, 2, 2],
+            [3, 3, 3, 3, 3, 3, 3, 3],
+            [3, 3, 3, 1, 1, 3, 3, 3],
+            [3, 3, 3, 1, 1, 3, 3, 3],
+            [3, 1, 1, 1, 1, 1, 1, 3],
+            [3, 1, 1, 1, 1, 1, 1, 3],
+            [3, 3, 3, 1, 1, 3, 3, 3],
+            [3, 3, 3, 1, 1, 3, 3, 3],
+            [3, 3, 3, 3, 3, 3, 3, 3],
         ])?;
         let map_tile = self.create_tile([
-            [2, 2, 2, 2, 2, 2, 2, 2],
-            [2, 0, 0, 0, 0, 0, 0, 2],
-            [2, 0, 2, 2, 2, 2, 0, 2],
-            [2, 0, 2, 0, 0, 2, 0, 2],
-            [2, 0, 2, 0, 0, 2, 0, 2],
-            [2, 0, 2, 2, 2, 2, 0, 2],
-            [2, 0, 0, 0, 0, 0, 0, 2],
-            [2, 2, 2, 2, 2, 2, 2, 2],
+            [3, 3, 3, 3, 3, 3, 3, 3],
+            [3, 1, 1, 1, 1, 1, 1, 3],
+            [3, 1, 3, 3, 3, 3, 1, 3],
+            [3, 1, 3, 1, 1, 3, 1, 3],
+            [3, 1, 3, 1, 1, 3, 1, 3],
+            [3, 1, 3, 3, 3, 3, 1, 3],
+            [3, 1, 1, 1, 1, 1, 1, 3],
+            [3, 3, 3, 3, 3, 3, 3, 3],
         ])?;
         let boss_tile = self.create_tile([
-            [2, 2, 2, 2, 2, 2, 2, 2],
-            [2, 1, 1, 2, 2, 1, 1, 2],
-            [2, 1, 1, 1, 1, 1, 1, 2],
-            [2, 2, 1, 1, 1, 1, 2, 2],
-            [2, 2, 1, 1, 1, 1, 2, 2],
-            [2, 1, 1, 1, 1, 1, 1, 2],
-            [2, 1, 1, 2, 2, 1, 1, 2],
-            [2, 2, 2, 2, 2, 2, 2, 2],
+            [3, 3, 3, 3, 3, 3, 3, 3],
+            [3, 1, 1, 3, 3, 1, 1, 3],
+            [3, 1, 1, 1, 1, 1, 1, 3],
+            [3, 3, 1, 1, 1, 1, 3, 3],
+            [3, 3, 1, 1, 1, 1, 3, 3],
+            [3, 1, 1, 1, 1, 1, 1, 3],
+            [3, 1, 1, 3, 3, 1, 1, 3],
+            [3, 3, 3, 3, 3, 3, 3, 3],
         ])?;
 
         self.patch_room("Landing Site", vec![(4, 4, refill_tile)])?;
@@ -1439,6 +1456,9 @@ impl<'a> MapPatcher<'a> {
             for interior in [
                 Interior::Empty,
                 Interior::Elevator,
+                Interior::FadedItem,
+                Interior::FadedMediumItem,
+                Interior::FadedMajorItem,
                 Interior::Item,
                 Interior::MediumItem,
                 Interior::MajorItem,
@@ -1487,7 +1507,7 @@ impl<'a> MapPatcher<'a> {
             let base_ptr = self.game_data.area_map_ptrs[area] as usize;
             let offset = super::xy_to_map_offset(x0 + x, y0 + y) as usize;
             let tile0 = (self.rom.read_u16(base_ptr + offset)? & 0xC3FF) as TilemapWord;
-            let mut basic_tile = self
+            let orig_basic_tile = self
                 .reverse_map
                 .get(&tile0)
                 .with_context(|| {
@@ -1497,6 +1517,7 @@ impl<'a> MapPatcher<'a> {
                     )
                 })?
                 .clone();
+            let mut basic_tile = orig_basic_tile;
             if basic_tile.interior == Interior::Empty {
                 basic_tile.interior = Interior::Item;
             }
@@ -1528,10 +1549,20 @@ impl<'a> MapPatcher<'a> {
                     tile1 | 0x0C00,
                     basic_tile.interior,
                 ));
-                basic_tile.interior = Interior::Empty;
-                let tile_empty = self.get_basic_tile(basic_tile)?;
-                self.rom
-                    .write_u16(base_ptr + offset, (tile_empty | 0x0C00) as isize)?;
+                'faded_item: {
+                    if basic_tile.interior == Interior::MajorItem {
+                        basic_tile.interior = Interior::FadedMajorItem;
+                    } else if basic_tile.interior == Interior::MediumItem && orig_basic_tile.interior != Interior::FadedMajorItem {
+                        basic_tile.interior = Interior::FadedMediumItem;
+                    } else if basic_tile.interior == Interior::Item && (orig_basic_tile.interior == Interior::Empty || orig_basic_tile.interior == Interior::Item) {
+                        basic_tile.interior = Interior::FadedItem;
+                    } else {
+                        break 'faded_item;
+                    }
+                    let tile_faded = self.get_basic_tile(basic_tile)?;
+                    self.rom
+                        .write_u16(base_ptr + offset, (tile_faded | 0x0C00) as isize)?;
+                }
             } else {
                 self.rom
                     .write_u16(base_ptr + offset, (tile1 | 0x0C00) as isize)?;
@@ -1569,7 +1600,7 @@ impl<'a> MapPatcher<'a> {
                     }
                 }
             }
-            self.write_tile_2bpp(idx, data, false)?;
+            self.write_tile_2bpp(idx, data)?;
         }
 
         // Fix message boxes tilemaps: use palette 3 instead of 2 or 7
@@ -1587,19 +1618,30 @@ impl<'a> MapPatcher<'a> {
 
     fn fix_hud_black(&mut self) -> Result<()> {
         // Use color 0 instead of color 3 for black in HUD map tiles:
-        for idx in 0..0x30 {
-            // if idx == 0x0F {
-            //     continue;
-            // }
+        // Also use color 3 instead of color 2 for white
+        for idx in (0..0x30).chain(std::iter::once(0x4D)) {
             let mut tile = self.read_tile_2bpp(idx)?;
             for y in 0..8 {
                 for x in 0..8 {
                     if tile[y][x] == 3 {
                         tile[y][x] = 0;
+                    } else if tile[y][x] == 2 {
+                        tile[y][x] = 3;
                     }
                 }
             }
-            self.write_tile_2bpp(idx, tile, false)?;
+            self.write_tile_2bpp(idx, tile)?;
+
+            let mut tile = self.read_tile_4bpp(idx)?;
+            for y in 0..8 {
+                for x in 0..8 {
+                    if tile[y][x] == 2 {
+                        tile[y][x] = 3;
+                    }
+                }
+            }
+            self.write_tile_4bpp(idx, tile)?;
+
         }
         Ok(())
     }
@@ -1618,7 +1660,6 @@ impl<'a> MapPatcher<'a> {
                 [0, 0, 0, 0, 0, 0, 0, 0],
                 [1, 0, 0, 0, 0, 0, 0, 0],
             ],
-            false,
         )?;
         self.write_tile_2bpp(
             0x1D,
@@ -1632,7 +1673,6 @@ impl<'a> MapPatcher<'a> {
                 [0, 0, 0, 0, 0, 0, 0, 0],
                 [1, 0, 1, 0, 1, 0, 1, 0],
             ],
-            false,
         )?;
         self.write_tile_2bpp(
             0x1E,
@@ -1646,7 +1686,6 @@ impl<'a> MapPatcher<'a> {
                 [0, 0, 0, 0, 0, 0, 0, 0],
                 [1, 0, 0, 0, 0, 0, 0, 0],
             ],
-            false,
         )?;
         self.write_tile_2bpp(
             0x1F,
@@ -1660,7 +1699,6 @@ impl<'a> MapPatcher<'a> {
                 [0, 0, 0, 0, 0, 0, 0, 0],
                 [1, 0, 1, 0, 1, 0, 1, 0],
             ],
-            false,
         )?;
 
         // Patch slope tiles:
@@ -1675,7 +1713,7 @@ impl<'a> MapPatcher<'a> {
             for (x, y) in v {
                 tile[y][x] = 0;
             }
-            self.write_tile_2bpp(idx, tile, false)?;
+            self.write_tile_2bpp(idx, tile)?;
         }
         Ok(())
     }
@@ -1715,16 +1753,16 @@ impl<'a> MapPatcher<'a> {
 
     pub fn apply_patches(&mut self) -> Result<()> {
         self.initialize_tiles()?;
-        self.index_vanilla_tiles()?;
-        self.fix_elevators()?;
-        self.fix_item_dots()?;
-        self.fix_walls()?;
         if !self.randomization.difficulty.ultra_low_qol {
             self.fix_message_boxes()?;
             self.fix_hud_black()?;
             self.darken_hud_grid()?;
             self.fix_etank_color()?;
         }
+        self.index_vanilla_tiles()?;
+        self.fix_elevators()?;
+        self.fix_item_dots()?;
+        self.fix_walls()?;
         self.indicate_passages()?;
         self.indicate_doors()?;
         self.indicate_special_tiles()?;
