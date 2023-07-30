@@ -77,6 +77,38 @@ message_box_hook:
 reload_map_hook:
     jsl $80858C  ; run hi-jacked instruction (load map explored bits)
     jsl update_tilemap
+    
+    ; clear HUD minimap
+    LDX #$0000             ;|
+    lda #$381f
+.clear_minimap_loop:
+    STA $7EC63C,x          ;|
+    STA $7EC67C,x          ;} HUD tilemap (1Ah..1Eh, 1..3) = 2C1Fh
+    STA $7EC6BC,x          ;|
+    INX                    ;|
+    INX                    ;|
+    CPX #$000A             ;|
+    BMI .clear_minimap_loop
+
+    ; update VRAM for HUD
+    LDX $0330       ;\
+    LDA #$00C0      ;|
+    STA $D0,x       ;|
+    INX             ;|
+    INX             ;|
+    LDA #$C608      ;|
+    STA $D0,x       ;|
+    INX             ;|
+    INX             ;} Queue transfer of $7E:C608..C7 to VRAM $5820..7F (HUD tilemap)
+    LDA #$007E      ;|
+    STA $D0,x       ;|
+    INX             ;|
+    LDA #$5820      ;|
+    STA $D0,x       ;|
+    INX             ;|
+    INX             ;|
+    STX $0330       ;/
+
     rtl
 
 update_tilemap:

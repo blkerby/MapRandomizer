@@ -577,11 +577,17 @@ load_bg3_tiles_door_transition:
     LDA $05BC  ;\
     BMI .spin  ;} Wait for door transition VRAM update
 
-    lda $1F5B
-    sta $09c8
+    inc $09c8
     
-;    ; update HUD minimap
-;    jsl $90A91B
+    ;lda $1F5B
+    ;lda $05F7
+    ;sta $09c6
+
+    ; update HUD minimap
+    ; jsl $90A91B
+    ;lda #$0001
+    ;sta $05F7
+    ;jsl $809B44
 
     plp
     rtl
@@ -633,4 +639,9 @@ org $82E46A : beq $1c
 org $82E472 : beq $14
 org $82E488
     jsl load_bg3_tiles_door_transition
+;    jsl load_bg3_tiles
     rep 6 : nop
+
+
+; TODO: Remove this, just for testing
+org $90A921 : BEQ $1E
