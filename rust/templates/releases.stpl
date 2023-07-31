@@ -17,6 +17,27 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-75---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 75 (???)</a>:
+<ul>
+<li>Improvements to the appearance of the minimap and pause map:
+    <ul>
+    <li>When an item is collected, its dot now fades to a darker color instead of disappearing.
+    <li>Heated rooms are shown in a lighter color.
+    <li>Passage markings are added in some simple-shaped rooms to distinguish them from other rooms:
+        <ul>
+        <li>Ice Beam Tutorial Room
+        <li>Crab Tunnel
+        <li>Fast Rippers Room
+        <li>Shaktool Room
+        <li>Brinstar Pre-Map Room
+        <li>Final Missile Bombway
+        <li>Spiky Platforms Tunnel
+        <li>Pillar Room
+        <li>Big Boy Room
+        </ul>
+    </ul>
+</ul>
+
 <p><a href="https://version-74---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 74 (2023-07-27)</a>:
 <ul>
 <li>Quick bugfix involving default value for gate glitch leniency, which in some cases caused seed generation to fail.

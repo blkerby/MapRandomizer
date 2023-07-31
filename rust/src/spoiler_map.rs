@@ -68,15 +68,25 @@ fn get_color(value: u8, area: usize) -> Rgb<u8> {
             match area {
                 0 => Rgb([0x84, 0x10, 0xDE]), // Crateria
                 1 => Rgb([0x00, 0xBD, 0x00]), // Brinstar
-                2 => Rgb([0xCE, 0x00, 0x00]), // Norfair
+                2 => Rgb([0xB0, 0x00, 0x00]), // Norfair
                 3 => Rgb([0xC6, 0xB5, 0x00]), // Wrecked Ship
                 4 => Rgb([0x21, 0x94, 0xFF]), // Maridia
                 5 => Rgb([0xA5, 0xA5, 0xA5]), // Tourian
                 _ => panic!("Unexpected area {}", area),
             }
         }
-        2 => Rgb([0xFF, 0xFF, 0xFF]),
-        3 => Rgb([0x00, 0x00, 0x00]),
+        2 => {
+            match area {
+                0 => Rgb([0xA4, 0x30, 0xFE]), // Crateria
+                1 => Rgb([0x20, 0xDD, 0x20]), // Brinstar
+                2 => Rgb([0xFE, 0x40, 0x40]), // Norfair
+                3 => Rgb([0xE6, 0xD5, 0x20]), // Wrecked Ship
+                4 => Rgb([0x41, 0xB4, 0xFF]), // Maridia
+                5 => Rgb([0xC5, 0xC5, 0xC5]), // Tourian
+                _ => panic!("Unexpected area {}", area),
+            }
+        }
+        3 => Rgb([0xFF, 0xFF, 0xFF]),
         4 => Rgb([0x00, 0x00, 0x00]),
         _ => panic!("Unexpected color value {}", value),
     }

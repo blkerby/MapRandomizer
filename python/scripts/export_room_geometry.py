@@ -55,6 +55,7 @@ for room in rooms:
         "items": [] if room.items is None else [item_to_json(item) for item in room.items],
         "node_tiles": node_tiles_to_json(room.node_tiles),
         "twin_node_tiles": node_tiles_to_json(room.twin_node_tiles),
+        "heated": room.heated,
     }
     all_json.append(room_json)
 

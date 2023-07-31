@@ -331,6 +331,7 @@ pub struct RoomGeometry {
     pub items: Vec<RoomGeometryItem>,
     pub node_tiles: Vec<(usize, Vec<(usize, usize)>)>,
     pub twin_node_tiles: Option<Vec<(usize, Vec<(usize, usize)>)>>,
+    pub heated: bool,
 }
 
 #[derive(Deserialize)]

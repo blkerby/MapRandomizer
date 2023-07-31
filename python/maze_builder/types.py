@@ -66,6 +66,7 @@ class Room:
     items: Optional[List[Item]] = None
     node_tiles: Optional[Dict[int, List[Tuple[int, int]]]] = None
     twin_node_tiles: Optional[Dict[int, List[Tuple[int, int]]]] = None
+    heated: bool = False
 
     def populate(self):
         self.height = len(self.map)

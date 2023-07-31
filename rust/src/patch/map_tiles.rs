@@ -37,6 +37,7 @@ struct BasicTile {
     down: Edge,
     interior: Interior,
     faded: bool,
+    heated: bool,
 }
 
 const NUM_AREAS: usize = 6;
@@ -330,6 +331,7 @@ impl<'a> MapPatcher<'a> {
                     down: tile.down,
                     interior: tile.interior,
                     faded: tile.faded,
+                    heated: tile.heated,
                 },
                 word | FLIP_X,
             );
@@ -341,6 +343,7 @@ impl<'a> MapPatcher<'a> {
                     down: tile.up,
                     interior: tile.interior,
                     faded: tile.faded,
+                    heated: tile.heated,
                 },
                 word | FLIP_Y,
             );
@@ -352,6 +355,7 @@ impl<'a> MapPatcher<'a> {
                     down: tile.up,
                     interior: tile.interior,
                     faded: tile.faded,
+                    heated: tile.heated,
                 },
                 word | FLIP_X | FLIP_Y,
             );
@@ -376,6 +380,7 @@ impl<'a> MapPatcher<'a> {
                 down,
                 interior,
                 faded: false,
+                heated: false,
             },
             word,
         )?;
@@ -417,7 +422,8 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn render_basic_tile(&mut self, tile: BasicTile) -> Result<[[u8; 8]; 8]> {
-        let mut data: [[u8; 8]; 8] = [[1; 8]; 8];
+        let bg_color = if tile.heated { 2 } else { 1 };
+        let mut data: [[u8; 8]; 8] = [[bg_color; 8]; 8];
         for &i in &self.edge_pixels_map[&tile.left] {
             data[i][0] = 3;
         }
@@ -431,7 +437,15 @@ impl<'a> MapPatcher<'a> {
             data[7][i] = 3;
         }
 
-        let item_color = if tile.faded { 2 } else { 3 };
+        let item_color = if tile.faded {
+            if tile.heated {
+                1
+            } else {
+                2
+            }
+        } else {
+            3
+        };
         match tile.interior {
             Interior::Empty => {}
             Interior::Item => {
@@ -456,10 +470,10 @@ impl<'a> MapPatcher<'a> {
                         data[i][j] = item_color;
                     }
                 }
-                data[2][2] = 1;
-                data[5][2] = 1;
-                data[2][5] = 1;
-                data[5][5] = 1;
+                data[2][2] = bg_color;
+                data[5][2] = bg_color;
+                data[2][5] = bg_color;
+                data[5][5] = bg_color;
             }
             Interior::Elevator => {
                 // Use white instead of red for elevator platform:
@@ -577,6 +591,7 @@ impl<'a> MapPatcher<'a> {
                 down,
                 interior,
                 faded: false,
+                heated: false,
             };
             word_tiles.push((x, y, self.get_basic_tile(basic_tile)?));
         }
@@ -584,7 +599,7 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
-    fn indicate_boss_tiles(&mut self, boss_tile: u16) -> Result<()> {
+    fn indicate_boss_tiles(&mut self, boss_tile: u16, heated_boss_tile: u16) -> Result<()> {
         self.patch_room(
             "Kraid Room",
             vec![
@@ -604,12 +619,15 @@ impl<'a> MapPatcher<'a> {
                 (1, 1, boss_tile),
             ],
         )?;
-        self.patch_room("Ridley's Room", vec![(0, 0, boss_tile), (0, 1, boss_tile)])?;
+        self.patch_room(
+            "Ridley's Room",
+            vec![(0, 0, heated_boss_tile), (0, 1, heated_boss_tile)],
+        )?;
 
         Ok(())
     }
 
-    fn indicate_miniboss_tiles(&mut self, boss_tile: u16) -> Result<()> {
+    fn indicate_miniboss_tiles(&mut self, boss_tile: u16, heated_boss_tile: u16) -> Result<()> {
         self.patch_room(
             "Spore Spawn Room",
             vec![(0, 0, boss_tile), (0, 1, boss_tile), (0, 2, boss_tile)],
@@ -631,8 +649,8 @@ impl<'a> MapPatcher<'a> {
         self.patch_room(
             "Golden Torizo's Room",
             vec![
-                (0, 1, boss_tile),
-                (1, 1, boss_tile),
+                (0, 1, heated_boss_tile),
+                (1, 1, heated_boss_tile),
                 // We don't mark the top row of tiles, so the items can still be visible.
             ],
         )?;
@@ -672,18 +690,18 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
-    fn indicate_chozo_tiles(&mut self, boss_tile: u16) -> Result<()> {
+    fn indicate_chozo_tiles(&mut self, boss_tile: u16, heated_boss_tile: u16) -> Result<()> {
         self.patch_room("Bomb Torizo Room", vec![(0, 0, boss_tile)])?;
 
         self.patch_room("Bowling Alley", vec![(4, 1, boss_tile)])?;
 
-        self.patch_room("Acid Statue Room", vec![(0, 0, boss_tile)])?;
+        self.patch_room("Acid Statue Room", vec![(0, 0, heated_boss_tile)])?;
 
         self.patch_room(
             "Golden Torizo's Room",
             vec![
-                (0, 1, boss_tile),
-                (1, 1, boss_tile),
+                (0, 1, heated_boss_tile),
+                (1, 1, heated_boss_tile),
                 // We don't mark the top row of tiles, so the items can still be visible.
             ],
         )?;
@@ -691,7 +709,7 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
-    fn indicate_pirates_tiles(&mut self, boss_tile: u16) -> Result<()> {
+    fn indicate_pirates_tiles(&mut self, boss_tile: u16, heated_boss_tile: u16) -> Result<()> {
         self.patch_room(
             "Pit Room",
             vec![(0, 0, boss_tile), (1, 0, boss_tile), (2, 0, boss_tile)],
@@ -722,7 +740,11 @@ impl<'a> MapPatcher<'a> {
 
         self.patch_room(
             "Metal Pirates Room",
-            vec![(0, 0, boss_tile), (1, 0, boss_tile), (2, 0, boss_tile)],
+            vec![
+                (0, 0, heated_boss_tile),
+                (1, 0, heated_boss_tile),
+                (2, 0, heated_boss_tile),
+            ],
         )?;
 
         Ok(())
@@ -759,6 +781,16 @@ impl<'a> MapPatcher<'a> {
             [3, 1, 1, 3, 3, 1, 1, 3],
             [3, 3, 3, 3, 3, 3, 3, 3],
         ])?;
+        let heated_boss_tile = self.create_tile([
+            [3, 3, 3, 3, 3, 3, 3, 3],
+            [3, 2, 2, 3, 3, 2, 2, 3],
+            [3, 2, 2, 2, 2, 2, 2, 3],
+            [3, 3, 2, 2, 2, 2, 3, 3],
+            [3, 3, 2, 2, 2, 2, 3, 3],
+            [3, 2, 2, 2, 2, 2, 2, 3],
+            [3, 2, 2, 3, 3, 2, 2, 3],
+            [3, 3, 3, 3, 3, 3, 3, 3],
+        ])?;
 
         self.patch_room("Landing Site", vec![(4, 4, refill_tile)])?;
         for room in &self.game_data.room_geometry {
@@ -775,19 +807,19 @@ impl<'a> MapPatcher<'a> {
 
         match self.randomization.difficulty.objectives {
             Objectives::Bosses => {
-                self.indicate_boss_tiles(boss_tile)?;
+                self.indicate_boss_tiles(boss_tile, heated_boss_tile)?;
             }
             Objectives::Minibosses => {
-                self.indicate_miniboss_tiles(boss_tile)?;
+                self.indicate_miniboss_tiles(boss_tile, heated_boss_tile)?;
             }
             Objectives::Metroids => {
                 self.indicate_metroid_tiles(boss_tile)?;
             }
             Objectives::Chozos => {
-                self.indicate_chozo_tiles(boss_tile)?;
+                self.indicate_chozo_tiles(boss_tile, heated_boss_tile)?;
             }
             Objectives::Pirates => {
-                self.indicate_pirates_tiles(boss_tile)?;
+                self.indicate_pirates_tiles(boss_tile, heated_boss_tile)?;
             }
         }
 
@@ -837,6 +869,8 @@ impl<'a> MapPatcher<'a> {
 
     fn fix_walls(&mut self) -> Result<()> {
         // Add missing external walls to make sure they give double-pixel walls when touching an adjacent room:
+        // (Much of this will be overridden by changes below, e.g. ones adding doors, sand transitions.
+        // TODO: clean it up.)
         self.patch_room_basic(
             "West Ocean",
             vec![
@@ -908,6 +942,38 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
+    fn indicate_heat(&mut self) -> Result<()> {
+        // Make heated rooms appear lighter:
+        for (room_idx, room) in self.game_data.room_geometry.iter().enumerate() {
+            if !room.heated {
+                continue;
+            }
+            let area = self.map.area[room_idx];
+            let x0 = self.rom.read_u8(room.rom_address + 2)?;
+            let y0 = self.rom.read_u8(room.rom_address + 3)?;
+            for y in 0..room.map.len() {
+                for x in 0..room.map[0].len() {
+                    let base_ptr = self.game_data.area_map_ptrs[area] as usize;
+                    let offset = xy_to_map_offset(x0 + x as isize, y0 + y as isize) as usize;
+                    if room.map[y][x] == 0 {
+                        continue;
+                    }
+                    let word = (self.rom.read_u16(base_ptr + offset)? as TilemapWord) & 0xC3FF;
+                    let basic_tile_opt = self.reverse_map.get(&word);
+                    // println!("{} {} {} {:?}", room.name, x, y, basic_tile_opt);
+                    if let Some(basic_tile) = basic_tile_opt {
+                        let mut new_tile = basic_tile.clone();
+                        new_tile.heated = true;
+                        let modified_word = self.get_basic_tile(new_tile)?;
+                        self.rom
+                            .write_u16(base_ptr + offset, (modified_word | 0x0C00) as isize)?;
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+
     fn indicate_passages(&mut self) -> Result<()> {
         // Indicate hidden passages as 4-pixel-wide openings (and single pixel thick) instead of as solid walls:
 
@@ -927,6 +993,7 @@ impl<'a> MapPatcher<'a> {
             "Pit Room",
             vec![(0, 0, D, E, W, P, O), (0, 1, W, W, E, W, I)],
         )?;
+        self.patch_room_basic("Final Missile Bombway", vec![(1, 0, P, D, W, W, O)])?;
         self.patch_room_basic("Crateria Kihunter Room", vec![(1, 0, E, E, W, P, O)])?;
         self.patch_room_basic(
             "West Ocean",
@@ -951,6 +1018,7 @@ impl<'a> MapPatcher<'a> {
         self.patch_room_basic("Forgotten Highway Elevator", vec![(0, 0, W, W, D, P, V)])?;
 
         // Brinstar:
+        self.patch_room_basic("Brinstar Pre-Map Room", vec![(0, 0, D, P, W, W, O)])?;
         self.patch_room_basic(
             "Early Supers Room",
             vec![(0, 1, D, E, P, W, O), (2, 1, E, D, P, W, O)],
@@ -1052,7 +1120,11 @@ impl<'a> MapPatcher<'a> {
             vec![(0, 3, D, D, P, W, O), (1, 3, D, W, P, W, O)],
         )?;
         self.patch_room_basic("Shaktool Room", vec![(0, 0, D, P, W, W, O)])?;
-        self.patch_room_basic("Botwoon's Room", vec![(1, 0, P, D, W, W, O)])?;
+        self.patch_room_basic("Shaktool Room", vec![(3, 0, P, D, W, W, O)])?;
+        self.patch_room_basic(
+            "Botwoon's Room",
+            vec![(0, 0, D, P, W, W, O), (1, 0, E, D, W, W, O)],
+        )?;
         self.patch_room_basic(
             "Crab Shaft",
             vec![(0, 2, W, W, E, E, O), (0, 3, W, E, P, W, O)],
@@ -1066,6 +1138,7 @@ impl<'a> MapPatcher<'a> {
             "East Tunnel",
             vec![(0, 0, W, E, W, P, O), (0, 1, D, D, E, W, O)],
         )?;
+        self.patch_room_basic("Crab Tunnel", vec![(0, 0, D, P, W, W, O)])?;
         self.patch_room_basic("Crab Hole", vec![(0, 0, D, D, W, P, O)])?;
         self.patch_room_basic(
             "Fish Tank",
@@ -1087,6 +1160,7 @@ impl<'a> MapPatcher<'a> {
         self.patch_room_basic("Crocomire Speedway", vec![(12, 2, P, D, E, D, O)])?;
         self.patch_room_basic("Hi Jump Energy Tank Room", vec![(1, 0, P, D, W, W, I)])?;
         self.patch_room_basic("Ice Beam Gate Room", vec![(3, 2, D, E, E, P, O)])?;
+        self.patch_room_basic("Ice Beam Tutorial Room", vec![(0, 0, D, P, W, W, O)])?;
         self.patch_room_basic("Ice Beam Snake Room", vec![(0, 1, W, P, E, E, O)])?;
         self.patch_room_basic(
             "Bubble Mountain",
@@ -1096,7 +1170,16 @@ impl<'a> MapPatcher<'a> {
         self.patch_room_basic("Kronic Boost Room", vec![(1, 1, P, W, E, E, O)])?;
         self.patch_room_basic("Single Chamber", vec![(0, 0, D, P, W, E, O)])?;
         self.patch_room_basic("Volcano Room", vec![(1, 2, E, P, W, W, O)])?;
+        self.patch_room_basic("Spiky Platforms Tunnel", vec![(2, 0, P, E, W, W, O)])?;
         self.patch_room_basic("Fast Pillars Setup Room", vec![(0, 1, D, W, E, P, O)])?;
+        self.patch_room_basic(
+            "Pillar Room",
+            vec![
+                (0, 0, D, P, W, W, O),
+                (1, 0, E, P, W, W, O),
+                (2, 0, E, P, W, W, O),
+            ],
+        )?;
         self.patch_room_basic(
             "Lower Norfair Fireflea Room",
             vec![(1, 0, P, D, W, E, O), (1, 3, D, P, E, W, O)],
@@ -1124,8 +1207,38 @@ impl<'a> MapPatcher<'a> {
             ],
         )?;
         self.patch_room_basic("Screw Attack Room", vec![(0, 1, W, D, E, P, O)])?;
+        self.patch_room_basic("Fast Ripper Room", vec![(3, 0, P, D, W, W, O)])?;
         self.patch_room_basic("Golden Torizo's Room", vec![(0, 0, D, W, W, P, I)])?;
         self.patch_room_basic("Lower Norfair Elevator", vec![(0, 0, D, D, W, P, V)])?;
+
+        self.patch_room_basic("Big Boy Room", vec![(2, 0, P, E, W, W, O)])?;
+
+        Ok(())
+    }
+
+    fn indicate_sand(&mut self) -> Result<()> {
+        // Indicate sand transitions with a passage (4-pixel) on top and door (2-pixel) on bottom,
+        // so it appears a bit like a funnel:
+
+        self.patch_room_basic(
+            "Aqueduct",
+            vec![(1, 6, E, E, E, P, O), (3, 6, E, E, E, P, O)],
+        )?;
+
+        self.patch_room_basic("West Aqueduct Quicksand Room", vec![(0, 1, W, W, E, P, O)])?;
+        self.patch_room_basic("East Aqueduct Quicksand Room", vec![(0, 1, W, W, E, P, O)])?;
+        self.patch_room_basic("West Sand Hole", vec![(0, 1, W, E, E, P, O)])?;
+        self.patch_room_basic("East Sand Hole", vec![(1, 1, E, W, E, P, O)])?;
+        self.patch_room_basic("Botwoon Energy Tank Room", vec![
+            (2, 0, E, E, W, P, O),
+            (3, 0, E, E, W, P, I),
+        ])?;
+        self.patch_room_basic("Botwoon Quicksand Room", vec![
+            (0, 0, W, E, D, P, O),
+            (1, 0, E, W, D, P, O),
+        ])?;
+        self.patch_room_basic("Bug Sand Hole", vec![(0, 0, D, D, W, P, O)])?;
+        self.patch_room_basic("Plasma Beach Quicksand Room", vec![(0, 0, W, W, D, P, O)])?;
 
         Ok(())
     }
@@ -1489,6 +1602,7 @@ impl<'a> MapPatcher<'a> {
                 })?
                 .clone();
             let mut basic_tile = orig_basic_tile;
+            basic_tile.faded = false;
             if basic_tile.interior == Interior::Empty {
                 basic_tile.interior = Interior::Item;
             }
@@ -1588,7 +1702,10 @@ impl<'a> MapPatcher<'a> {
     fn fix_hud_black(&mut self) -> Result<()> {
         // Use color 0 instead of color 3 for black in HUD map tiles:
         // Also use color 3 instead of color 2 for white
-        for idx in (0..0x30).chain(std::iter::once(0x4D)) {
+        for idx in (0..0x30)
+            .chain(std::iter::once(0x4D))
+            .chain(std::iter::once(0x32))
+        {
             let mut tile = self.read_tile_2bpp(idx)?;
             for y in 0..8 {
                 for x in 0..8 {
@@ -1733,6 +1850,8 @@ impl<'a> MapPatcher<'a> {
         self.fix_walls()?;
         self.indicate_passages()?;
         self.indicate_doors()?;
+        self.indicate_heat()?;
+        self.indicate_sand()?;
         self.indicate_special_tiles()?;
         self.add_cross_area_arrows()?;
         self.set_map_stations_explored()?;
