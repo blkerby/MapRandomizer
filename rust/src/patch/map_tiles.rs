@@ -999,6 +999,12 @@ impl<'a> MapPatcher<'a> {
             "West Ocean",
             vec![(0, 5, W, P, E, W, I), (1, 5, E, E, E, W, O)],
         )?;
+        self.patch_room_basic("Gauntlet Entrance", vec![
+            (0, 0, D, P, W, W, O),
+            (1, 0, E, P, W, W, O),
+            (2, 0, E, P, W, W, O),
+            (3, 0, E, P, W, W, O),
+        ])?;
         self.patch_room_basic("Gauntlet Energy Tank Room", vec![(5, 0, P, D, W, W, I)])?;
         self.patch_room_basic(
             "Green Pirates Shaft",

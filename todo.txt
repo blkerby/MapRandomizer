@@ -1,19 +1,15 @@
 next release (maybe):
 - map improvements
-  - (internal): use separate tile GFX for each area, to free up more tiles
-  - (internal): find different place for etank color, to free up a map tile color
-  - item dots fade
-  - heated room color
-  - mark additional passages to help make rooms identifiable (crab tunnel, acid tutorial, fast rippers, etc.)
   - fix palette issues:
-    - HUD initial palette
-    - room-transition target palettes
+    - FX palettes (during transitions, etc.)
     - power bombs
     - x-Ray
     - message boxes
     - pause menu area-transition arrows
+  - samus position indicator palette (use different palette instead of orange?)
+  - new color for tourian
+  - accelerate pause menu fadeout (with QoL option)
   - fix spoiler map
-  - mark sand transitions with no bottom wall
   - remove item dots disappear QoL option 
   - remove unexplore
   - check to make sure ultra-low QoL can still work properly

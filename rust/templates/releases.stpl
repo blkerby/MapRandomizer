@@ -19,21 +19,24 @@ about 15 seconds to load.
 
 <p><a href="https://version-75---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 75 (???)</a>:
 <ul>
-<li>Improvements to the appearance of the minimap and pause map:
+<li>Readability improvements to the minimap and pause map:
     <ul>
-    <li>When an item is collected, its dot now fades to a darker color instead of disappearing.
+    <li>When an item is collected, its dot fades to a darker color instead of disappearing.
     <li>Heated rooms are shown in a lighter color.
+    <li>Sand transitions are marked distinctively from doors.
+    <li>Map station tiles now have a normal background color (instead of black), indicating whether the tile is explored.
     <li>Passage markings are added in some simple-shaped rooms to distinguish them from other rooms:
         <ul>
-        <li>Ice Beam Tutorial Room
-        <li>Crab Tunnel
-        <li>Fast Rippers Room
-        <li>Shaktool Room
-        <li>Brinstar Pre-Map Room
         <li>Final Missile Bombway
+        <li>Ice Beam Tutorial Room
+        <li>Brinstar Pre-Map Room
+        <li>Fast Rippers Room
         <li>Spiky Platforms Tunnel
         <li>Pillar Room
+        <li>Crab Tunnel
+        <li>Shaktool Room
         <li>Big Boy Room
+        <li>Gauntlet Entrance
         </ul>
     </ul>
 </ul>

@@ -137,7 +137,6 @@ dw $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, 
 org $809DBF : dw $3809, $3800, $3801, $3802, $3803, $3804, $3805, $3806, $3807, $3808
 org $809DD3 : dw $3809, $3800, $3801, $3802, $3803, $3804, $3805, $3806, $3807, $3808
 
-
 ; Use palette 0 for full auto reserve
 org $80998B             
     dw  $2033, $2046,
@@ -154,7 +153,7 @@ org $89AC05 : STA $7EC23A   ; was: STA $7EC232
 org $89AC0D : STA $7EC23C   ; was: STA $7EC234
 org $89AC15 : nop : nop : nop : nop   ; was: STA $7EC236
 ;org $89AC15 : STA $7EC23E   ; was: STA $7EC236
-
+org $89AC1E : nop : nop : nop : nop   ; was: STA $7EC236
 
 
 ;;; Put new code in free space at end of bank $82:
@@ -169,6 +168,7 @@ load_area:
     lda $0001,x
     and #$00FF
     sta $079F
+
     ;;; Load the new area number (for use in map) into $1F5B
     asl
     tay
@@ -374,11 +374,17 @@ load_tileset_palette_hook:
     rts
 
 palette_clear_hook:
-    lda $C032  ; preserve gray unexplored color (2bpp palette 6, color 1)
+    lda $C016  ; preserve unexplored white color (2bpp palette 2, color 3)
+    sta $C216
+
+    lda $C032  ; preserve unexplored gray color (2bpp palette 6, color 1)
     sta $C232
 
-    lda $C034  ; preserve white unexplored color (2bpp palette 6, color 2)
+    lda $C034  ; preserve unexplored light gray color (2bpp palette 6, color 2)
     sta $C234
+
+    lda $C036  ; preserve unexplored white color (2bpp palette 6, color 2)
+    sta $C236
 
 ;    lda $C03A  ; preserve pink color for full E-tank energy squares (2-bit palette 7, color 1)
 ;    sta $C23A
@@ -400,11 +406,23 @@ load_target_palette:
     lda $7EC012  ; explored color (area-themed): palette 2, color 1
     sta $7EC212
 
-    lda $7EC032  ; unexplored gray: palette 6, color 1
+    lda $7EC014  ; explored light color (area-themed): palette 2, color 2
+    sta $7EC214
+
+    lda $7EC016  ; explored white: palette 2, color 3
+    sta $7EC216
+
+    ;lda $7EC032  ; unexplored gray: palette 6, color 1
+    lda !unexplored_gray
     sta $7EC232
 
-    lda $7EC034  ; unexplored white: palette 6, color 2
+    ;lda $7EC034  ; unexplored light gray: palette 6, color 2
+    lda !unexplored_light_gray
     sta $7EC234
+
+    ;lda $7EC036  ; unexplored white: palette 6, color 3
+    lda #$7FFF
+    sta $7EC236
 
     rts
 
@@ -689,15 +707,11 @@ org $B6F01C : dw $7FFF
 ; Unexplored gray: palette 6, color 1
 org $B6F032 : dw !unexplored_gray
 
-; Unexplored white: palette 6, color 2
-org $B6F034 : dw $7FFF
+; Unexplored light gray: palette 6, color 2
+org $B6F034 : dw !unexplored_light_gray
 
-; Unexplored light gray: palette 6, color 3
-org $B6F036 : dw !unexplored_light_gray
-
-;; Pause menu: Gray color for unexplored tiles in HUD (palette 3, color 1)
-;org $B6F01A
-;    dw !unexplored_gray
+; Unexplored white: palette 6, color 3
+org $B6F036 : dw $7FFF
 
 ; Patch tile data for button letters. Changing the palettes to 3:
 org $858426            
