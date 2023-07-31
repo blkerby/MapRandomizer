@@ -24,6 +24,7 @@ about 15 seconds to load.
     <li>When an item is collected, its dot fades to a darker color instead of disappearing.
     <li>Heated rooms are shown in a lighter color.
     <li>Sand transitions are marked distinctively from doors.
+    <li>Area colors are adjusted; in particular, Tourian is no longer gray.
     <li>Map station tiles now have a normal background color (instead of black), indicating whether the tile is explored.
     <li>Passage markings are added in some simple-shaped rooms to distinguish them from other rooms:
         <ul>

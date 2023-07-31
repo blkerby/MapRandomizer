@@ -7,8 +7,7 @@ next release (maybe):
     - message boxes
     - pause menu area-transition arrows
   - samus position indicator palette (use different palette instead of orange?)
-  - fix heated slope tiles
-  - new color for tourian
+  - fix equipment screen
   - accelerate pause menu fadeout (with QoL option)
   - fix spoiler map
   - remove item dots disappear QoL option 

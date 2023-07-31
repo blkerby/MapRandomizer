@@ -960,7 +960,6 @@ impl<'a> MapPatcher<'a> {
                     }
                     let word = (self.rom.read_u16(base_ptr + offset)? as TilemapWord) & 0xC3FF;
                     let basic_tile_opt = self.reverse_map.get(&word);
-                    // println!("{} {} {} {:?}", room.name, x, y, basic_tile_opt);
                     if let Some(basic_tile) = basic_tile_opt {
                         let mut new_tile = basic_tile.clone();
                         new_tile.heated = true;
@@ -971,6 +970,38 @@ impl<'a> MapPatcher<'a> {
                 }
             }
         }
+
+        // Create heated slope tiles for Crocomire Speedway:
+        fn make_heated(mut tile: [[u8; 8]; 8]) -> [[u8; 8]; 8] {
+            for y in 0..8 {
+                for x in 0..8 {
+                    if tile[y][x] == 1 {
+                        tile[y][x] = 2;
+                    } else if tile[y][x] == 2{
+                        tile[y][x] = 3;
+                    }
+                }
+            }
+            tile
+        }
+        let slope1 = self.create_tile(make_heated(self.read_tile_4bpp(0x28)?))?;
+        let slope2 = self.create_tile(make_heated(self.read_tile_4bpp(0x29)?))?;
+        let slope3 = self.create_tile(make_heated(self.read_tile_4bpp(0x2A)?))?;
+        let slope4 = self.create_tile(make_heated(self.read_tile_4bpp(0x2B)?))?;
+        self.patch_room(
+            "Crocomire Speedway",
+            vec![
+                (4, 1, slope1 | FLIP_X),
+                (4, 0, slope2 | FLIP_X),
+                (3, 1, slope3 | FLIP_X),
+                (3, 0, slope4 | FLIP_X),
+                (6, 2, slope1 | FLIP_X),
+                (6, 1, slope2 | FLIP_X),
+                (5, 2, slope3 | FLIP_X),
+                (5, 1, slope4 | FLIP_X),
+            ],
+        )?;
+
         Ok(())
     }
 
