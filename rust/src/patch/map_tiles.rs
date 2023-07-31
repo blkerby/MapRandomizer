@@ -57,7 +57,7 @@ pub struct MapPatcher<'a> {
 const VANILLA_ELEVATOR_TILE: TilemapWord = 0xCE; // Index of elevator tile in vanilla game
 const ELEVATOR_TILE: TilemapWord = 0x12; // Index of elevator tile with TR's map patch
 pub const TILE_GFX_ADDR_4BPP: usize = 0xE28000; // Where to store area-specific tile graphics (must agree with map_area.asm)
-pub const TILE_GFX_ADDR_2BPP: usize = 0xE2A000; // Where to store area-specific tile graphics (must agree with map_area.asm)
+pub const TILE_GFX_ADDR_2BPP: usize = 0xE2C000; // Where to store area-specific tile graphics (must agree with map_area.asm)
 
 const FLIP_X: TilemapWord = 0x4000;
 const FLIP_Y: TilemapWord = 0x8000;
@@ -1865,7 +1865,7 @@ impl<'a> MapPatcher<'a> {
             // 4bpp tiles (for HUD minimap)
             let src_addr = snes2pc(0xB68000);
             let dst_addr = snes2pc(TILE_GFX_ADDR_4BPP + area_idx * 0x10000);
-            for i in (0..0x2000).step_by(2) {
+            for i in (0..0x4000).step_by(2) {
                 let word = self.rom.read_u16(src_addr + i)?;
                 self.rom.write_u16(dst_addr + i, word)?;
             }

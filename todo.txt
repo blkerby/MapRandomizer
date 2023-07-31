@@ -6,14 +6,11 @@ next release (maybe):
     - x-Ray
     - message boxes
     - pause menu area-transition arrows
-  - samus position indicator palette (use different palette instead of orange?)
-  - fix equipment screen
-  - accelerate pause menu fadeout (with QoL option)
-  - fix spoiler map
   - remove item dots disappear QoL option 
   - remove unexplore
   - check to make sure ultra-low QoL can still work properly
   - update help button text (e.g. for ultra-low QoL)
+  - accelerate pause menu fadeout (with QoL option)
   - increase map scroll speed
   - allow scrolling diagonally
   - add strat pages

@@ -4,6 +4,8 @@ lorom
 !bank_82_freespace_start = $82F70F
 !bank_82_freespace_end = $82FA80
 
+!tiles_2bpp_address = $C000
+
 !backup_area = $1F62
 ;!unexplored_gray = #$2108
 !unexplored_gray = #$18c6
@@ -316,7 +318,6 @@ update_pause_map_palette:
 
 
 area_palettes_explored:
-;    dw $6C50  ; Crateria
     dw $5c2e  ; Crateria
     dw $0200  ; Brinstar
     dw $0014  ; Norfair
@@ -556,7 +557,7 @@ load_bg3_tiles:
     lda #$1801
     STA $4310  ; DMA control: DMA transfer from CPU to VRAM, incrementing CPU address
     
-    lda #$A000 ; source address = $A000
+    lda #!tiles_2bpp_address ; source address
     sta $4312
 
     ; Set source bank to $E2 + map area:
@@ -580,7 +581,7 @@ load_bg3_tiles_door_transition:
     php
 
     ; source = $E2A200 + map area * $10000
-    lda #$A000
+    lda #!tiles_2bpp_address
     sta $05C0
     sep #$30
     lda $1F5B  ; map area (0-5)
@@ -639,7 +640,7 @@ load_bg1_2_tiles:
     adc #$00E2
     sta $4314
 
-    lda #$2000
+    lda #$4000
     sta $4315 ; transfer size = $2000 bytes
 
     sep #$30
@@ -729,7 +730,6 @@ org $A7CA77 : dw #$48FB            ; 2bpp palette 2, color 3: pink color for E-t
 org $A7CA7B : dw !unexplored_gray   ; 2bpp palette 3, color 1: gray color for HUD dotted grid lines
 
 ; Load BG3 tiles from source depending on map area:
-;org $8282FB : dl $E2A000  ; was: dl $9AB200
 org $8282F4
     jsl load_bg3_tiles
     rep 13 : nop
