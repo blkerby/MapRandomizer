@@ -5,7 +5,6 @@ next release (maybe):
     - power bombs
     - x-Ray
     - message boxes
-    - pause menu area-transition arrows
   - remove item dots disappear QoL option 
   - remove unexplore
   - check to make sure ultra-low QoL can still work properly

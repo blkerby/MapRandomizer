@@ -155,7 +155,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         escape_refill: true,
         escape_movement_items: true,
         mark_map_stations: true,
-        transition_letters: false,
+        transition_letters: true,
         item_markers: ItemMarkers::ThreeTiered,
         item_dots_disappear: true,
         all_items_spawn: true,

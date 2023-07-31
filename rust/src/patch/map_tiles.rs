@@ -1361,10 +1361,11 @@ impl<'a> MapPatcher<'a> {
 
         let mut extended_map_palette: Vec<(u8, u16)> = vec![
             (5, rgb(0, 23, 0)),  // Brinstar green
-            (3, rgb(25, 0, 0)),  // Norfair red
+            (7, rgb(25, 0, 0)),  // Norfair red
             (8, rgb(4, 18, 31)), // Maridia blue
             (9, rgb(24, 22, 0)), // Wrecked Ship yellow
             (6, rgb(16, 2, 27)), // Crateria purple
+            (11, rgb(29, 15, 10)), // Tourian
         ];
         if !self.randomization.difficulty.ultra_low_qol {
             extended_map_palette.push((12, rgb(6, 6, 6))); // Dotted grid lines
@@ -1374,17 +1375,17 @@ impl<'a> MapPatcher<'a> {
             self.rom
                 .write_u16(snes2pc(0xB6F000) + 2 * (0x20 + i as usize), color as isize)?;
             self.rom
-                .write_u16(snes2pc(0xB6F000) + 2 * (0x30 + i as usize), color as isize)?;
+                .write_u16(snes2pc(0xB6F000) + 2 * (0x60 + i as usize), color as isize)?;
         }
 
         // Set up arrows of different colors (one per area):
         let area_arrow_colors: Vec<usize> = vec![
             6,  // Crateria: purple (defined above)
             5,  // Brinstar: green (defined above)
-            3,  // Norfair: red (defined above)
+            7,  // Norfair: red (defined above)
             9,  // Wrecked Ship: yellow (defined above)
             8,  // Maridia: blue (defined above)
-            14, // Tourian: light gray (from vanilla palette)
+            11, // Tourian: orange
         ];
 
         let letter_tiles: Vec<[[u8; 8]; 8]> = vec![
