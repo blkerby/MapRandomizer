@@ -7,7 +7,7 @@ lorom
 !backup_area = $1F62
 ;!unexplored_gray = #$2108
 !unexplored_gray = #$18c6
-!unexplored_light_gray = #$318c
+!unexplored_light_gray = #$35ad
 !area_explored_mask = $702600
 
 ;;; Hijack map usages of area ($079F) with new area ($1F5B)
@@ -244,7 +244,7 @@ switch_map_area:
     jsr update_pause_map_palette
     jsl load_bg1_2_tiles
 	jsl $80858C     ;load explored bits for area
-	lda $7ED908,x : and #$00FF : sta $0789	;set flag of map station for next area
+	lda $7ED908,x : and #$00FF : sta $0789	;set flag of map station for next area (TODO: remove this, should be unnecessary now.)
     jsl $8293C3		;update area label and construct new area map
 
     lda $1F5B
@@ -317,20 +317,20 @@ update_pause_map_palette:
 
 area_palettes_explored:
 ;    dw $6C50  ; Crateria
-    dw $5c2d  ; Crateria
-    dw $02E0  ; Brinstar
-    dw $0019  ; Norfair
-    dw $02D8  ; Wrecked Ship
-    dw $7E44  ; Maridia
-    dw $5294  ; Tourian
+    dw $5c2e  ; Crateria
+    dw $0200  ; Brinstar
+    dw $0014  ; Norfair
+    dw $0210  ; Wrecked Ship
+    dw $6163  ; Maridia
+    dw $0174  ; Tourian
 
 area_palettes_explored_light:
-    dw $7d38  ; Crateria
-    dw $02E0  ; Brinstar
-    dw $0019  ; Norfair
-    dw $02D8  ; Wrecked Ship
-    dw $7E44  ; Maridia
-    dw $5294  ; Tourian
+    dw $7d35  ; Crateria
+    dw $2308  ; Brinstar
+    dw $1cdd  ; Norfair
+    dw $22d8  ; Wrecked Ship
+    dw $7E48  ; Maridia
+    dw $01fd  ; Tourian
 
 
 next_area:

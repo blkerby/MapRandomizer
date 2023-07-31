@@ -7,12 +7,14 @@ next release (maybe):
     - message boxes
     - pause menu area-transition arrows
   - samus position indicator palette (use different palette instead of orange?)
+  - fix heated slope tiles
   - new color for tourian
   - accelerate pause menu fadeout (with QoL option)
   - fix spoiler map
   - remove item dots disappear QoL option 
   - remove unexplore
   - check to make sure ultra-low QoL can still work properly
+  - update help button text (e.g. for ultra-low QoL)
   - increase map scroll speed
   - allow scrolling diagonally
   - add strat pages
@@ -20,10 +22,10 @@ next release (maybe):
      - $8487E5: transfer to VRAM (for tile GFX)
      - $82E488: load BG3 tiles into VRAM (hook into this to reload area-specific tiles, and redraw HUD)
      - $84DFB6: load map explored
-- use modal for sprite customization
-  - also etank color customization
 
 priority:
+- use modal for sprite customization
+  - also etank color customization
 - enhancements to momentum conservation patch
   - remove need to be holding dash
   - reset speed boost counter, to avoid making it too easy to get blue

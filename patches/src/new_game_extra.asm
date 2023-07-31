@@ -121,6 +121,7 @@ start_game:
     dex
     lda $B5F000, X
     sta $702000, X
+    sta $7ECD52, X   ; also mark explored
     txa
     bne .copy_revealed
 

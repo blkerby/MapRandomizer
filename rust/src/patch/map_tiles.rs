@@ -1336,7 +1336,7 @@ impl<'a> MapPatcher<'a> {
             (6, rgb(16, 2, 27)), // Crateria purple
         ];
         if !self.randomization.difficulty.ultra_low_qol {
-            extended_map_palette.push((12, rgb(5, 5, 5))); // Dotted grid lines
+            extended_map_palette.push((12, rgb(6, 6, 6))); // Dotted grid lines
         }
 
         for &(i, color) in &extended_map_palette {

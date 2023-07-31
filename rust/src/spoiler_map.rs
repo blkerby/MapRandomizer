@@ -61,28 +61,32 @@ fn render_tile(rom: &Rom, tilemap_word: u16, map_area: usize) -> Result<[[u8; 8]
     Ok(out)
 }
 
+fn get_rgb(r: isize, g: isize, b: isize)-> Rgb<u8> {
+    Rgb([(r * 255 / 31) as u8, (g * 255 / 31) as u8, (b * 255 / 31) as u8])
+}
+
 fn get_color(value: u8, area: usize) -> Rgb<u8> {
     match value {
-        0 => Rgb([0x00, 0x00, 0x00]),
+        0 => get_rgb(0, 0, 0),
         1 => {
             match area {
-                0 => Rgb([0x84, 0x10, 0xDE]), // Crateria
-                1 => Rgb([0x00, 0xBD, 0x00]), // Brinstar
-                2 => Rgb([0xB0, 0x00, 0x00]), // Norfair
-                3 => Rgb([0xC6, 0xB5, 0x00]), // Wrecked Ship
-                4 => Rgb([0x21, 0x94, 0xFF]), // Maridia
-                5 => Rgb([0xA5, 0xA5, 0xA5]), // Tourian
+                0 => get_rgb(14, 1, 23), // Crateria
+                1 => get_rgb(0, 16, 0), // Brinstar
+                2 => get_rgb(20, 0, 0), // Norfair
+                3 => get_rgb(16, 16, 0), // Wrecked Ship
+                4 => get_rgb(3, 11, 24), // Maridia
+                5 => get_rgb(20, 11, 0), // Tourian
                 _ => panic!("Unexpected area {}", area),
             }
         }
         2 => {
             match area {
-                0 => Rgb([0xA4, 0x30, 0xFE]), // Crateria
-                1 => Rgb([0x20, 0xDD, 0x20]), // Brinstar
-                2 => Rgb([0xFE, 0x40, 0x40]), // Norfair
-                3 => Rgb([0xE6, 0xD5, 0x20]), // Wrecked Ship
-                4 => Rgb([0x41, 0xB4, 0xFF]), // Maridia
-                5 => Rgb([0xC5, 0xC5, 0xC5]), // Tourian
+                0 => get_rgb(21, 9, 31), // Crateria
+                1 => get_rgb(8, 24, 8), // Brinstar
+                2 => get_rgb(29, 6, 7), // Norfair
+                3 => get_rgb(24, 22, 8), // Wrecked Ship
+                4 => get_rgb(8, 18, 31), // Maridia
+                5 => get_rgb(29, 15, 0), // Tourian
                 _ => panic!("Unexpected area {}", area),
             }
         }
