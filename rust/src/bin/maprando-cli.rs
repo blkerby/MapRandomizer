@@ -156,7 +156,6 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         mark_map_stations: true,
         transition_letters: true,
         item_markers: ItemMarkers::ThreeTiered,
-        item_dots_disappear: true,
         all_items_spawn: true,
         acid_chozo: true,
         fast_elevators: true,

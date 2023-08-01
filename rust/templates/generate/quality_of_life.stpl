@@ -22,19 +22,6 @@
 
                 <div class="form-group row align-items-center">
                     <div class="col-lg-6 col-xl-5 m-2">
-                        <% include!("help/quality/item_dots_disappear.stpl"); %>
-                        <label for="preset">Item dots disappear after collection</label>
-                    </div>
-                    <div class="col-2 btn-group m-2" role="group">
-                        <input type="radio" class="btn-check" name="item_dots_disappear" id="itemDotsDisappearNo" value="false">
-                        <label class="btn btn-outline-primary" for="itemDotsDisappearNo">No</label>
-                        <input type="radio" class="btn-check" name="item_dots_disappear" id="itemDotsDisappearYes" value="true" checked>
-                        <label class="btn btn-outline-primary" for="itemDotsDisappearYes">Yes</label>
-                    </div>
-                </div>
-
-                <div class="form-group row align-items-center">
-                    <div class="col-lg-6 col-xl-5 m-2">
                         <% include!("help/quality/map_stations.stpl"); %>
                         <label for="preset">Map stations always visible on map</label>
                     </div>

@@ -167,7 +167,8 @@ impl<'a> MapPatcher<'a> {
             }
         }
 
-        if self.randomization.difficulty.item_dots_disappear {
+        if !self.randomization.difficulty.ultra_low_qol {
+            // Check tiles used by disappearing/fading items
             let ptr = self.rom.read_u16(snes2pc(0x83B000 + area_idx * 2))?;
             let size = self.rom.read_u16(snes2pc(0x83B00C + area_idx * 2))? as usize;
             for i in 0..size {
@@ -216,7 +217,8 @@ impl<'a> MapPatcher<'a> {
             self.rom.write_u16(base_ptr + i * 2, new_word as isize)?;
         }
 
-        if self.randomization.difficulty.item_dots_disappear {
+        if !self.randomization.difficulty.ultra_low_qol {
+            // Write tiles for disappearing/fading items:
             let ptr = self.rom.read_u16(snes2pc(0x83B000 + area_idx * 2))?;
             let size = self.rom.read_u16(snes2pc(0x83B00C + area_idx * 2))? as usize;
             for i in 0..size {
@@ -1703,7 +1705,7 @@ impl<'a> MapPatcher<'a> {
                 }
             }
             let tile1 = self.get_basic_tile(basic_tile)?;
-            if self.randomization.difficulty.item_dots_disappear {
+            if !self.randomization.difficulty.ultra_low_qol {
                 area_data[area].push((
                     item_idx,
                     offset as TilemapOffset,
@@ -1727,7 +1729,7 @@ impl<'a> MapPatcher<'a> {
                     .write_u16(base_ptr + offset, (tile1 | 0x0C00) as isize)?;
             }
         }
-        if self.randomization.difficulty.item_dots_disappear {
+        if !self.randomization.difficulty.ultra_low_qol {
             self.add_items_disappear_data(&area_data)?;
         }
         Ok(())
