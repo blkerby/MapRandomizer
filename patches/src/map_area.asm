@@ -401,6 +401,13 @@ palette_clear_hook:
     lda $C036  ; preserve unexplored white color (2bpp palette 6, color 2)
     sta $C236
 
+    ; Preserve Samus location HUD indicator colors (PB door): palette 0, color 1-3
+    lda $C002
+    sta $C202
+    lda $C004
+    sta $C204
+    lda $C006
+    sta $C206
 
 ;    lda $C03A  ; preserve pink color for full E-tank energy squares (2-bit palette 7, color 1)
 ;    sta $C23A

@@ -80,7 +80,6 @@ priority:
 
 later:
 - fix item colors
-- fix samus indicator palette change through door transition
 - move enhanced Samus controls into separate option (instead of Max QoL)
 - enhancements to momentum conservation patch
   - remove need to be holding dash or to be in spin
