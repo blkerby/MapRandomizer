@@ -1360,15 +1360,20 @@ impl<'a> MapPatcher<'a> {
         }
 
         let mut extended_map_palette: Vec<(u8, u16)> = vec![
-            (5, rgb(0, 23, 0)),  // Brinstar green
-            (7, rgb(25, 0, 0)),  // Norfair red
+            (14, rgb(0, 23, 0)),  // Brinstar green
+            (10, rgb(25, 0, 0)),  // Norfair red
             (8, rgb(4, 18, 31)), // Maridia blue
             (9, rgb(24, 22, 0)), // Wrecked Ship yellow
-            (6, rgb(16, 2, 27)), // Crateria purple
-            (11, rgb(29, 15, 10)), // Tourian
+            (11, rgb(16, 2, 27)), // Crateria purple
+            (6, rgb(29, 15, 10)), // Tourian
         ];
         if !self.randomization.difficulty.ultra_low_qol {
-            extended_map_palette.push((12, rgb(6, 6, 6))); // Dotted grid lines
+            // Dotted grid lines
+            let i = 12;
+            let color = rgb(6, 6, 6);
+            self.rom
+                .write_u16(snes2pc(0xB6F000) + 2 * (0x40 + i), color as isize)?;
+
         }
 
         for &(i, color) in &extended_map_palette {
@@ -1380,12 +1385,12 @@ impl<'a> MapPatcher<'a> {
 
         // Set up arrows of different colors (one per area):
         let area_arrow_colors: Vec<usize> = vec![
-            6,  // Crateria: purple (defined above)
-            5,  // Brinstar: green (defined above)
-            7,  // Norfair: red (defined above)
+            11,  // Crateria: purple (defined above)
+            14,  // Brinstar: green (defined above)
+            10,  // Norfair: red (defined above)
             9,  // Wrecked Ship: yellow (defined above)
             8,  // Maridia: blue (defined above)
-            11, // Tourian: orange
+            6, // Tourian: orange
         ];
 
         let letter_tiles: Vec<[[u8; 8]; 8]> = vec![
@@ -1535,6 +1540,33 @@ impl<'a> MapPatcher<'a> {
                 }
             }
         }
+        Ok(())
+    }
+
+    fn fix_pause_palettes(&mut self) -> Result<()> {
+        // Much of the static content in the pause menu uses palette 2. We change these to use palette 4 instead,
+        // since palette 2 is used for explored map tiles. This allows us to use more colors in palette 2
+        // (e.g. for area transition arrows) without interfering with existing pause menu content.
+
+        // Copy palette 2 over to palette 4:
+        for i in 0..16 {
+            let color = self.rom.read_u16(snes2pc(0xB6F000) + 2 * (0x20 as usize + i as usize))?;
+            self.rom
+                .write_u16(snes2pc(0xB6F000) + 2 * (0x40 as usize + i as usize), color as isize)?;
+        }
+
+        // Substitute palette 2 with palette 4 in pause tilemaps:
+        let map_range = snes2pc(0xB6E000)..snes2pc(0xB6E800);
+        let equipment_range = snes2pc(0x82BF06)..snes2pc(0x82C02C);
+        for addr in map_range.chain(equipment_range).step_by(2) {
+            let mut word = self.rom.read_u16(addr)?;
+            let pal = (word >> 10) & 7;
+            if pal == 2 {
+                word = (word & !0x1C00) | (4 << 10);
+            }
+            self.rom.write_u16(addr, word)?;
+        }
+
         Ok(())
     }
 
@@ -1867,7 +1899,7 @@ impl<'a> MapPatcher<'a> {
             let src_addr = snes2pc(0xB68000);
             let dst_addr = snes2pc(TILE_GFX_ADDR_4BPP + area_idx * 0x10000);
             for i in (0..0x4000).step_by(2) {
-                let word = self.rom.read_u16(src_addr + i)?;
+                let mut word = self.rom.read_u16(src_addr + i)?;
                 self.rom.write_u16(dst_addr + i, word)?;
             }
         }
@@ -1877,6 +1909,7 @@ impl<'a> MapPatcher<'a> {
     pub fn apply_patches(&mut self) -> Result<()> {
         self.initialize_tiles()?;
         if !self.randomization.difficulty.ultra_low_qol {
+            self.fix_pause_palettes()?;
             self.fix_message_boxes()?;
             self.fix_hud_black()?;
             self.darken_hud_grid()?;

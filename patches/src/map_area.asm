@@ -750,3 +750,17 @@ org $828E87
 org $828EC7
     jsl load_bg3_tiles
     rep 13 : nop
+
+; Use palette 4 instead of palette 2 or non-map pause menu content
+; (to free up more colors in palette 2 for use in map tiles).
+; More of this palette switching happens in map_tiles.rs.
+org $82A63A : ORA #$1000   ; equipment screen: top of MAP
+org $82A658 : ORA #$1000   ; equipment screen: bottom of MAP
+org $82A676 : ORA #$1000   ; equipment screen: top of EXIT
+org $82A694 : ORA #$1000   ; equipment screen: bottom of EXIT
+org $82A7A8 : ORA #$1000   ; map screen: top of SAMUS
+org $82A7C6 : ORA #$1000   ; map screen: bottom of SAMUS
+org $82A7E4 : ORA #$1000   ; map screen: top of EXIT
+org $82A802 : ORA #$1000   ; map screen: bottom of EXIT
+
+

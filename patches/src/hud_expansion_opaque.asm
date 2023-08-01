@@ -90,13 +90,13 @@ org $9AB200
     incbin !this_dir/Data/Opaque/HUD_vanilla.gfx   ; restores vanilla font for message boxes
 
 org $82966F  ; Area Map Names
-    DW $280F, $280F, $38C2, $38D1, $38C0, $38D3, $38C4, $38D1, $38C8, $38C0, $280F, $280F ; Crateria
-    DW $280F, $280F, $38C1, $38D1, $38C8, $38CD, $38D2, $38D3, $38C0, $38D1, $280F, $280F ; Brinstar
-    DW $280F, $280F, $38CD, $38CE, $38D1, $38C5, $38C0, $38C8, $38D1, $280F, $280F, $280F ; Norfair
-    DW $38D6, $38D1, $38C4, $38C2, $38CA, $38C4, $38C3, $280F, $38D2, $38C7, $38C8, $38CF ; Wrecked Ship
-    DW $280F, $280F, $38CC, $38C0, $38D1, $38C8, $38C3, $38C8, $38C0, $280F, $280F, $280F ; Maridia
-    DW $280F, $280F, $38D3, $38CE, $38D4, $38D1, $38C8, $38C0, $38CD, $280F, $280F, $280F ; Tourian / debug
-    DW $280F, $280F, $280F, $38C2, $38CE, $38CB, $38CE, $38CD, $38D8, $280F, $280F, $280F ; Ceres
+    DW $300F, $300F, $30C2, $30D1, $30C0, $30D3, $30C4, $30D1, $30C8, $30C0, $300F, $300F ; Crateria
+    DW $300F, $300F, $30C1, $30D1, $30C8, $30CD, $30D2, $30D3, $30C0, $30D1, $300F, $300F ; Brinstar
+    DW $300F, $300F, $30CD, $30CE, $30D1, $30C5, $30C0, $30C8, $30D1, $300F, $300F, $300F ; Norfair
+    DW $30D6, $30D1, $30C4, $30C2, $30CA, $30C4, $30C3, $300F, $30D2, $30C7, $30C8, $30CF ; Wrecked Ship
+    DW $300F, $300F, $30CC, $30C0, $30D1, $30C8, $30C3, $30C8, $30C0, $300F, $300F, $300F ; Maridia
+    DW $300F, $300F, $30D3, $30CE, $30D4, $30D1, $30C8, $30C0, $30CD, $300F, $300F, $300F ; Tourian / debug
+    DW $300F, $300F, $300F, $30C2, $30CE, $30CB, $30CE, $30CD, $30D8, $300F, $300F, $300F ; Ceres
 
 org $899800
     incbin !this_dir/Data/pb_hdma.bin

@@ -5,13 +5,16 @@ next release (maybe):
     - power bombs
     - x-Ray
     - message boxes
+    - "auto" graphics (for background use color 0 instead of 3)
   - remove item dots disappear QoL option 
   - remove unexplore
   - check to make sure ultra-low QoL can still work properly
   - update help button text (e.g. for ultra-low QoL)
   - accelerate pause menu fadeout (with QoL option)
+    - further accelerate map select and map/equipment screen switch
   - increase map scroll speed
   - allow scrolling diagonally
+  - press L on map screen to select previous map
   - add strat pages
   - notes:
      - $8487E5: transfer to VRAM (for tile GFX)

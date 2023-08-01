@@ -19,12 +19,12 @@ about 15 seconds to load.
 
 <p><a href="https://version-75---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 75 (???)</a>:
 <ul>
-<li>Readability improvements to the minimap and pause map:
+<li>Improved readability of the minimap and pause map:
     <ul>
     <li>When an item is collected, its dot fades to a darker color instead of disappearing.
     <li>Heated rooms are shown in a lighter color.
-    <li>Sand transitions are marked distinctively from doors.
     <li>Area colors are adjusted; in particular, Tourian is no longer gray.
+    <li>Sand transitions are marked distinctively from doors.
     <li>Map station tiles now have a normal background color (instead of black), indicating whether the tile is explored.
     <li>Passage markings are added in some simple-shaped rooms to distinguish them from other rooms:
         <ul>
@@ -39,6 +39,10 @@ about 15 seconds to load.
         <li>Big Boy Room
         <li>Gauntlet Entrance
         </ul>
+    </ul>
+<li>Other pause menu changes:
+    <ul>
+    <li>Buggy colors in the pause menu are fixed; e.g., reserve tank energy is shown in white instead of green.
     </ul>
 </ul>
 
