@@ -128,16 +128,22 @@ org $809BDC
     LDX #$2C31     ; was: LDX #$2831
 
 
-; Use palette 6 (gray/white, same as unexplored tiles) for fixed HUD (e.g. "ENERGY")
+; Use palette 6 (gray/white, same as unexplored tiles) for fixed HUD (e.g. "ENERGY"),
+; For blank tiles, use palette 7, which has an opaque black (color 3).
 org $80988B
-dw $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $381D, $381D, $381D, $381D, $381D, $381C,
-   $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $3812, $3812, $3823, $3812, $3812, $381E,
-   $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $2822, $2822, $2823, $2813, $3814, $381E,
-   $380F, $380B, $380C, $380D, $3832, $380F, $3809, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $380F, $3812, $3812, $A824, $2815, $3816, $381E
+dw $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $381D, $381D, $381D, $381D, $381D, $381C,
+   $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3812, $3812, $3823, $3812, $3812, $381E,
+   $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $2822, $2822, $2823, $2813, $3814, $381E,
+   $3C0F, $380B, $380C, $380D, $3832, $3C0F, $3809, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3812, $3812, $A824, $2815, $3816, $381E
 
 ; Use palette 6 (gray/white, same as unexplored tiles) for HUD digits
 org $809DBF : dw $3809, $3800, $3801, $3802, $3803, $3804, $3805, $3806, $3807, $3808
 org $809DD3 : dw $3809, $3800, $3801, $3802, $3803, $3804, $3805, $3806, $3807, $3808
+
+; Use palette 7 (instead of 6) when initializing (clearing) FX tilemap:
+org $82E569 : lda #$1C4E   ; was: lda #$184E
+org $80A214 : lda #$1C4E   ; was: lda #$184E
+;org $80A2F7 : dw $1C4E   ; was: dw $184E  (not doing this, since it's overwritten in hud_expansion_opaque.asm instead)
 
 ; Use palette 0 for full auto reserve
 org $80998B             

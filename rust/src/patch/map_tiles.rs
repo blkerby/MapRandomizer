@@ -1771,7 +1771,8 @@ impl<'a> MapPatcher<'a> {
 
     fn fix_hud_black(&mut self) -> Result<()> {
         let mut tiles_to_change = vec![];
-        tiles_to_change.extend(0..0x30);
+        tiles_to_change.extend(0..0x0F);  // HUD digits, "ENERG"
+        tiles_to_change.extend(0x10..0x30);  // minimap dotted grid lines (skipping 0x0F = blank tile)
         tiles_to_change.push(0x32);  // "Y" of ENERGY
         tiles_to_change.push(0x4D);  // Save station tile
         tiles_to_change.extend([0x33, 0x46, 0x47, 0x48]);  // AUTO

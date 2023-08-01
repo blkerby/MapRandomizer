@@ -1,11 +1,11 @@
 next release (maybe):
 - map improvements
   - fix palette issues:
-    - FX palettes (during transitions, etc.)
+    - message boxes
+    - FX palettes (water, lava, during transitions, etc.)
     - power bombs
     - x-Ray
-    - message boxes
-    - "auto" graphics (for background use color 0 instead of 3)
+  - maybe add passages to Gauntlet ETank room to match Gauntlet Entrance?
   - remove item dots disappear QoL option 
   - remove unexplore
   - check to make sure ultra-low QoL can still work properly
@@ -16,10 +16,6 @@ next release (maybe):
   - allow scrolling diagonally
   - press L on map screen to select previous map
   - add strat pages
-  - notes:
-     - $8487E5: transfer to VRAM (for tile GFX)
-     - $82E488: load BG3 tiles into VRAM (hook into this to reload area-specific tiles, and redraw HUD)
-     - $84DFB6: load map explored
 
 priority:
 - use modal for sprite customization

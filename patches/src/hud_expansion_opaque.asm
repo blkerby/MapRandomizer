@@ -261,7 +261,7 @@ ClearLayer3_WRAM_Address:
 ClearLayer3_VRAM_Inc_Value:
     DW $0080, $0000
 ClearLayer3_ClearTile:
-    DW $180F
+    DW $1C0F    ; using palette 7 instead of palette 6
 
 ; Added function
 TransitionDMA_CalculateLayer2XPos:
