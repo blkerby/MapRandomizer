@@ -1770,12 +1770,15 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn fix_hud_black(&mut self) -> Result<()> {
+        let mut tiles_to_change = vec![];
+        tiles_to_change.extend(0..0x30);
+        tiles_to_change.push(0x32);  // "Y" of ENERGY
+        tiles_to_change.push(0x4D);  // Save station tile
+        tiles_to_change.extend([0x33, 0x46, 0x47, 0x48]);  // AUTO
+
         // Use color 0 instead of color 3 for black in HUD map tiles:
         // Also use color 3 instead of color 2 for white
-        for idx in (0..0x30)
-            .chain(std::iter::once(0x4D))
-            .chain(std::iter::once(0x32))
-        {
+        for idx in tiles_to_change {
             let mut tile = self.read_tile_2bpp(idx)?;
             for y in 0..8 {
                 for x in 0..8 {
