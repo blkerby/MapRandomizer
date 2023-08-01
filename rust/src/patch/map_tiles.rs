@@ -1366,12 +1366,12 @@ impl<'a> MapPatcher<'a> {
         }
 
         let extended_map_palette: Vec<(u8, u16)> = vec![
-            (14, rgb(0, 23, 0)),  // Brinstar green
-            (10, rgb(25, 0, 0)),  // Norfair red
-            (8, rgb(4, 18, 31)), // Maridia blue
-            (9, rgb(24, 22, 0)), // Wrecked Ship yellow
-            (11, rgb(16, 2, 27)), // Crateria purple
-            (6, rgb(29, 15, 10)), // Tourian
+            (14, rgb(4, 20, 4)),  // Brinstar green
+            (10, rgb(25, 3, 4)),  // Norfair red
+            (8, rgb(6, 15, 28)), // Maridia blue
+            (9, rgb(20, 19, 4)), // Wrecked Ship yellow
+            (11, rgb(18, 5, 27)), // Crateria purple
+            (6, rgb(25, 13, 0)), // Tourian
         ];
         // Dotted grid lines
         let i = 12;
@@ -1752,12 +1752,12 @@ impl<'a> MapPatcher<'a> {
             self.write_tile_2bpp(idx, data)?;
         }
 
-        // Fix message boxes tilemaps: use palette 3 instead of 2 or 7
+        // Fix message boxes tilemaps: use palette 3 instead of 2, 6, or 7
         for addr in (snes2pc(0x85877F)..snes2pc(0x859641)).step_by(2) {
             let mut word = self.rom.read_u16(addr)?;
             let pal = (word >> 10) & 7;
-            if pal == 2 || pal == 7 {
-                word &= 0xE3FF;
+            if pal == 2 || pal == 6 || pal == 7 {
+                word &= !0x1C00;
                 word |= 0x0C00;
                 self.rom.write_u16(addr, word)?;
             }

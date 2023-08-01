@@ -13,6 +13,7 @@ incsrc "constants.asm"
 !area_explored_mask = $702600
 !initial_area_explored_mask = $B5F600  ; must match address in patch/map_tiles.rs
 
+
 ;;; Hijack code that runs during initialization
 org $82801d
     jsl startup

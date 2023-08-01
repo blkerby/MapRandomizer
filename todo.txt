@@ -8,6 +8,7 @@ next release (maybe):
   - allow scrolling diagonally
   - press L on map screen to select previous map
   - add strat pages
+- fix "Other options" auto-collapse
 
 priority:
 - use modal for sprite customization
@@ -78,6 +79,8 @@ priority:
   is currently set up (since there is no way to go up through sand)
 
 later:
+- fix item colors
+- fix samus indicator palette change through door transition
 - move enhanced Samus controls into separate option (instead of Max QoL)
 - enhancements to momentum conservation patch
   - remove need to be holding dash or to be in spin

@@ -402,7 +402,6 @@ pub struct StartLocation {
     pub y: f32,
     pub requires: Option<Vec<serde_json::Value>>,
     pub note: Option<Vec<String>>,
-    // Don't use these, because they will mess up the door cap animations. Maybe we can find a fix for that someday.
     pub camera_offset_x: Option<f32>,
     pub camera_offset_y: Option<f32>,
     #[serde(skip_deserializing)]

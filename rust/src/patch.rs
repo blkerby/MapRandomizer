@@ -270,14 +270,12 @@ impl<'a> Patcher<'a> {
             "map_area",
             "map_progress_maintain",
             "item_dots_disappear",
-            "saveload",  // TODO: separate these again for ultra-low QoL
-            "fast_reload",
         ];
 
         if self.randomization.difficulty.ultra_low_qol {
             patches.extend([
                 "ultra_low_qol_vanilla_bugfixes",
-                // "ultra_low_qol_saveload",
+                "ultra_low_qol_saveload",
                 // "ultra_low_qol_new_game",
                 // "ultra_low_qol_map_area",
             ]);
@@ -296,6 +294,8 @@ impl<'a> Patcher<'a> {
                 "tourian_blue_hopper",
                 "boss_exit",
                 "oob_death",
+                "fast_reload",
+                "saveload",
             ]);
         }
 

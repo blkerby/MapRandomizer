@@ -720,6 +720,11 @@ reload_map_hook:
     LDA $830002,x  ; run hi-jacked instruction
     rtl
 
+start_game_hook:
+    jsl load_bg3_tiles
+    jsl $809A79  ; run hi-jacked instruction
+    rtl
+
 warnpc !bank_82_freespace_end
 
 org $82DFB9
@@ -752,13 +757,19 @@ org $858426
        $2C4E  ; Blank
 
 ; Phantoon power-on palette:
-org $A7CA77 : dw #$48FB            ; 2bpp palette 2, color 3: pink color for E-tanks (instead of black)
-org $A7CA7B : dw !unexplored_gray   ; 2bpp palette 3, color 1: gray color for HUD dotted grid lines
+;org $A7CA77 : dw #$48FB            ; 2bpp palette 2, color 3: pink color for E-tanks (instead of black)
+;org $A7CA7B : dw !unexplored_gray   ; 2bpp palette 3, color 1: gray color for HUD dotted grid lines
 
-; Load BG3 tiles from source depending on map area:
+org $A7CA7B : dw #$48FB            ; 2bpp palette 3, color 1: pink color for E-tanks
+org $A7CA97 : dw #$7FFF            ; 2bpp palette 6, color 3: white color for HUD text/digits
+
+; Skip loading BG3 tiles initially. They will be loaded later, once the map area is determined.
 org $8282F4
-    jsl load_bg3_tiles
-    rep 13 : nop
+    rep 17 : nop
+
+; hook start of game to load correct BG3 tiles based on area:
+org $828063
+    jsl start_game_hook
 
 ; Patch door transition code to always reload BG3 tiles, based on map area:
 org $82E46A : beq $1c
@@ -790,3 +801,11 @@ org $82A7E4 : ORA #$1000   ; map screen: top of EXIT
 org $82A802 : ORA #$1000   ; map screen: bottom of EXIT
 
 
+; Skip map select after game over:
+; (Map select on that screen uses different code and wouldn't work correctly with our modifications.)
+org $81911E
+    LDA #$0006  ; was: LDA #$0005
+
+; Use palette 6 instead of 3 when mini-map is disabled (during boss fights)
+org $90A7F1
+    ORA #$3800   ; was: ORA #$2C00
