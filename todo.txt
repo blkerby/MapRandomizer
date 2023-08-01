@@ -1,5 +1,6 @@
 next release (maybe):
 - map improvements
+  - fix little pause menu palette issue at top of equipment screen (green where gray should be)
   - check to make sure ultra-low QoL can still work properly
   - update help button text (e.g. for ultra-low QoL)
   - accelerate pause menu fadeout (with QoL option)

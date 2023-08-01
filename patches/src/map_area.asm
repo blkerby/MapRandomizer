@@ -158,6 +158,12 @@ org $80998B
         $2047, $2048,
         $A033, $A046
 
+; Use palette 6 for empty auto reserve
+org $809997             
+dw $3833, $3846,
+   $3847, $3848,
+   $B833, $B846
+
 ; Use palette 7 for palette blends (FX: water, lava, etc.)
 org $89AB62 : STA $7EC03A   ; was: STA $7EC032
 org $89AB6A : STA $7EC03C   ; was: STA $7EC034
