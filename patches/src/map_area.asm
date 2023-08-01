@@ -107,6 +107,10 @@ org $82E7C9
 org $82E1F7
     jsr palette_clear_hook
 
+; Don't preserve palette 7 color 1 (used for FX), let it fade to black:
+org $82E21E
+    nop : nop : nop  ; was: STA $C23A
+
 ;org $82E464
 ;org $82E55F
 ;org $82E780
@@ -145,6 +149,9 @@ org $82E569 : lda #$1C4E   ; was: lda #$184E
 org $80A214 : lda #$1C4E   ; was: lda #$184E
 ;org $80A2F7 : dw $1C4E   ; was: dw $184E  (not doing this, since it's overwritten in hud_expansion_opaque.asm instead)
 
+; For message boxes, skip modifying palette 6:
+org $858150 : rep $19 : nop
+
 ; Use palette 0 for full auto reserve
 org $80998B             
     dw  $2033, $2046,
@@ -156,6 +163,7 @@ org $89AB62 : STA $7EC03A   ; was: STA $7EC032
 org $89AB6A : STA $7EC03C   ; was: STA $7EC034
 org $89AB72 : nop : nop : nop : nop   ; was: STA $7EC036
 ;org $89AB72 : STA $7EC03E   ; was: STA $7EC036
+org $89AB7B : nop : nop : nop : nop   ; was: STA $7EC036
 
 org $89AC05 : STA $7EC23A   ; was: STA $7EC232
 org $89AC0D : STA $7EC23C   ; was: STA $7EC234
@@ -393,6 +401,7 @@ palette_clear_hook:
     lda $C036  ; preserve unexplored white color (2bpp palette 6, color 2)
     sta $C236
 
+
 ;    lda $C03A  ; preserve pink color for full E-tank energy squares (2-bit palette 7, color 1)
 ;    sta $C23A
 
@@ -418,6 +427,17 @@ load_target_palette:
 
     lda $7EC016  ; explored white: palette 2, color 3
     sta $7EC216
+
+    ; FX palette: target palette 6, colors 1-2 -> copy to palette 7, colors 1-2
+    lda $7EC032
+    sta $7EC23A
+    lda $7EC034
+    sta $7EC23C
+
+    ; FX palette: set palette 6 initial colors 1-2 to black
+    lda #$0000
+    sta $7EC03A
+    sta $7EC03C
 
     ;lda $7EC032  ; unexplored gray: palette 6, color 1
     lda !unexplored_gray
