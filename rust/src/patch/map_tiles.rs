@@ -147,11 +147,11 @@ impl<'a> MapPatcher<'a> {
         let mut reserved_tiles: HashSet<TilemapWord> = vec![
             // Used on HUD:
             0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D,
-            0x0E, 0x0F, 0x1C, 0x1D, 0x1E, 
+            0x0E, 0x0F, 0x1C, 0x1D, 0x1E,
             0x28, // slope tile that triggers tile above Samus to be marked explored
-            0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38,
-            0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46,
-            0x47, 0x48, 0x49, 0x4A, 0x4B,
+            0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D,
+            0x3E, 0x3F, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A,
+            0x4B,
             // Used by max_ammo_display:
         ]
         .into_iter()
@@ -977,7 +977,7 @@ impl<'a> MapPatcher<'a> {
                 for x in 0..8 {
                     if tile[y][x] == 1 {
                         tile[y][x] = 2;
-                    } else if tile[y][x] == 2{
+                    } else if tile[y][x] == 2 {
                         tile[y][x] = 3;
                     }
                 }
@@ -1030,19 +1030,25 @@ impl<'a> MapPatcher<'a> {
             "West Ocean",
             vec![(0, 5, W, P, E, W, I), (1, 5, E, E, E, W, O)],
         )?;
-        self.patch_room_basic("Gauntlet Entrance", vec![
-            (0, 0, D, P, W, W, O),
-            (1, 0, E, P, W, W, O),
-            (2, 0, E, P, W, W, O),
-            (3, 0, E, P, W, W, O),
-        ])?;
-        self.patch_room_basic("Gauntlet Energy Tank Room", vec![
-            (0, 0, D, P, W, W, O),
-            (2, 0, P, E, W, W, O),
-            (3, 0, P, E, W, W, O),
-            (4, 0, P, E, W, W, O),
-            (5, 0, P, D, W, W, I)            
-        ])?;
+        self.patch_room_basic(
+            "Gauntlet Entrance",
+            vec![
+                (0, 0, D, P, W, W, O),
+                (1, 0, E, P, W, W, O),
+                (2, 0, E, P, W, W, O),
+                (3, 0, E, P, W, W, O),
+            ],
+        )?;
+        self.patch_room_basic(
+            "Gauntlet Energy Tank Room",
+            vec![
+                (0, 0, D, P, W, W, O),
+                (2, 0, P, E, W, W, O),
+                (3, 0, P, E, W, W, O),
+                (4, 0, P, E, W, W, O),
+                (5, 0, P, D, W, W, I),
+            ],
+        )?;
         self.patch_room_basic(
             "Green Pirates Shaft",
             vec![
@@ -1272,14 +1278,14 @@ impl<'a> MapPatcher<'a> {
         self.patch_room_basic("East Aqueduct Quicksand Room", vec![(0, 1, W, W, E, P, O)])?;
         self.patch_room_basic("West Sand Hole", vec![(0, 1, W, E, E, P, O)])?;
         self.patch_room_basic("East Sand Hole", vec![(1, 1, E, W, E, P, O)])?;
-        self.patch_room_basic("Botwoon Energy Tank Room", vec![
-            (2, 0, E, E, W, P, O),
-            (3, 0, E, E, W, P, I),
-        ])?;
-        self.patch_room_basic("Botwoon Quicksand Room", vec![
-            (0, 0, W, E, D, P, O),
-            (1, 0, E, W, D, P, O),
-        ])?;
+        self.patch_room_basic(
+            "Botwoon Energy Tank Room",
+            vec![(2, 0, E, E, W, P, O), (3, 0, E, E, W, P, I)],
+        )?;
+        self.patch_room_basic(
+            "Botwoon Quicksand Room",
+            vec![(0, 0, W, E, D, P, O), (1, 0, E, W, D, P, O)],
+        )?;
         self.patch_room_basic("Bug Sand Hole", vec![(0, 0, D, D, W, P, O)])?;
         self.patch_room_basic("Plasma Beach Quicksand Room", vec![(0, 0, W, W, D, P, O)])?;
 
@@ -1368,10 +1374,10 @@ impl<'a> MapPatcher<'a> {
         let extended_map_palette: Vec<(u8, u16)> = vec![
             (14, rgb(4, 20, 4)),  // Brinstar green
             (10, rgb(25, 3, 4)),  // Norfair red
-            (8, rgb(6, 15, 28)), // Maridia blue
-            (9, rgb(20, 19, 4)), // Wrecked Ship yellow
+            (8, rgb(6, 15, 28)),  // Maridia blue
+            (9, rgb(20, 19, 4)),  // Wrecked Ship yellow
             (11, rgb(18, 5, 27)), // Crateria purple
-            (6, rgb(25, 13, 0)), // Tourian
+            (6, rgb(25, 13, 0)),  // Tourian
         ];
         // Dotted grid lines
         let i = 12;
@@ -1388,12 +1394,12 @@ impl<'a> MapPatcher<'a> {
 
         // Set up arrows of different colors (one per area):
         let area_arrow_colors: Vec<usize> = vec![
-            11,  // Crateria: purple (defined above)
-            14,  // Brinstar: green (defined above)
-            10,  // Norfair: red (defined above)
+            11, // Crateria: purple (defined above)
+            14, // Brinstar: green (defined above)
+            10, // Norfair: red (defined above)
             9,  // Wrecked Ship: yellow (defined above)
             8,  // Maridia: blue (defined above)
-            6, // Tourian: orange
+            6,  // Tourian: orange
         ];
 
         let letter_tiles: Vec<[[u8; 8]; 8]> = vec![
@@ -1553,9 +1559,13 @@ impl<'a> MapPatcher<'a> {
 
         // Copy palette 2 over to palette 4:
         for i in 0..16 {
-            let color = self.rom.read_u16(snes2pc(0xB6F000) + 2 * (0x20 as usize + i as usize))?;
-            self.rom
-                .write_u16(snes2pc(0xB6F000) + 2 * (0x40 as usize + i as usize), color as isize)?;
+            let color = self
+                .rom
+                .read_u16(snes2pc(0xB6F000) + 2 * (0x20 as usize + i as usize))?;
+            self.rom.write_u16(
+                snes2pc(0xB6F000) + 2 * (0x40 as usize + i as usize),
+                color as isize,
+            )?;
         }
 
         // Substitute palette 2 with palette 4 in pause tilemaps:
@@ -1679,37 +1689,39 @@ impl<'a> MapPatcher<'a> {
             if basic_tile.interior == Interior::Empty {
                 basic_tile.interior = Interior::Item;
             }
-            match markers {
-                ItemMarkers::Simple => {}
+            let interior = match markers {
+                ItemMarkers::Simple => Interior::Item,
                 ItemMarkers::Majors => {
                     if item.is_unique() || item == Item::ETank || item == Item::ReserveTank {
-                        basic_tile.interior = Interior::MajorItem;
+                        Interior::MajorItem
+                    } else {
+                        Interior::Item
                     }
                 }
                 ItemMarkers::Uniques => {
                     if item.is_unique() {
-                        basic_tile.interior = Interior::MajorItem;
+                        Interior::MajorItem
+                    } else {
+                        Interior::Item
                     }
                 }
                 ItemMarkers::ThreeTiered => {
                     if item.is_unique() {
-                        basic_tile.interior = Interior::MajorItem;
-                    } else if item != Item::Missile && basic_tile.interior != Interior::MajorItem {
-                        basic_tile.interior = Interior::MediumItem;
+                        Interior::MajorItem
+                    } else if item != Item::Missile {
+                        Interior::MediumItem
+                    } else {
+                        Interior::Item
                     }
                 }
-            }
+            };
+            basic_tile.interior = interior;
             let tile1 = self.get_basic_tile(basic_tile)?;
-            area_data[area].push((
-                item_idx,
-                offset as TilemapOffset,
-                tile1 | 0x0C00,
-                basic_tile.interior,
-            ));
-            if basic_tile.interior == Interior::MajorItem
-                || (basic_tile.interior == Interior::MediumItem
+            area_data[area].push((item_idx, offset as TilemapOffset, tile1 | 0x0C00, interior));
+            if interior == Interior::MajorItem
+                || (interior == Interior::MediumItem
                     && orig_basic_tile.interior != Interior::MajorItem)
-                || (basic_tile.interior == Interior::Item
+                || (interior == Interior::Item
                     && (orig_basic_tile.interior == Interior::Empty
                         || orig_basic_tile.interior == Interior::Item))
             {
@@ -1767,11 +1779,11 @@ impl<'a> MapPatcher<'a> {
 
     fn fix_hud_black(&mut self) -> Result<()> {
         let mut tiles_to_change = vec![];
-        tiles_to_change.extend(0..0x0F);  // HUD digits, "ENERG"
-        tiles_to_change.extend(0x10..0x30);  // minimap dotted grid lines (skipping 0x0F = blank tile)
-        tiles_to_change.push(0x32);  // "Y" of ENERGY
-        tiles_to_change.push(0x4D);  // Save station tile
-        tiles_to_change.extend([0x33, 0x46, 0x47, 0x48]);  // AUTO
+        tiles_to_change.extend(0..0x0F); // HUD digits, "ENERG"
+        tiles_to_change.extend(0x10..0x30); // minimap dotted grid lines (skipping 0x0F = blank tile)
+        tiles_to_change.push(0x32); // "Y" of ENERGY
+        tiles_to_change.push(0x4D); // Save station tile
+        tiles_to_change.extend([0x33, 0x46, 0x47, 0x48]); // AUTO
 
         // Use color 0 instead of color 3 for black in HUD map tiles:
         // Also use color 3 instead of color 2 for white
