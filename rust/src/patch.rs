@@ -267,45 +267,45 @@ impl<'a> Patcher<'a> {
             "stats",
             "credits",
             "sram_check_disable",
+            "map_area",
+            "map_progress_maintain",
+            "item_dots_disappear",
+            "saveload",  // TODO: separate these again for ultra-low QoL
+            "fast_reload",
         ];
 
         if self.randomization.difficulty.ultra_low_qol {
             patches.extend([
                 "ultra_low_qol_vanilla_bugfixes",
-                "ultra_low_qol_new_game",
-                "ultra_low_qol_saveload",
-                "ultra_low_qol_map_area",
+                // "ultra_low_qol_saveload",
+                // "ultra_low_qol_new_game",
+                // "ultra_low_qol_map_area",
             ]);
         } else {
             patches.extend([
                 "vanilla_bugfixes",
-                "saveload",
                 "itemsounds",
                 "missile_refill_all",
                 "decompression",
                 "aim_anything",
-                "fast_reload",
                 "fast_saves",
                 "fast_mother_brain_cutscene",
                 "fast_big_boy_cutscene",
                 "fix_kraid_vomit",
                 "escape_autosave",
-                "map_area",
-                "map_progress_maintain",
                 "tourian_blue_hopper",
                 "boss_exit",
                 "oob_death",
-                "item_dots_disappear",
             ]);
-
-            let mut new_game = "new_game";
-            if let Some(options) = &self.randomization.difficulty.debug_options {
-                if options.new_game_extra {
-                    new_game = "new_game_extra";
-                }
-            }
-            patches.push(new_game);
         }
+
+        let mut new_game = "new_game";
+        if let Some(options) = &self.randomization.difficulty.debug_options {
+            if options.new_game_extra {
+                new_game = "new_game_extra";
+            }
+        }
+        patches.push(new_game);
 
         if self.randomization.difficulty.all_items_spawn {
             patches.push("all_items_spawn");

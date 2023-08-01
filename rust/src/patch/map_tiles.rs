@@ -147,7 +147,9 @@ impl<'a> MapPatcher<'a> {
         let mut reserved_tiles: HashSet<TilemapWord> = vec![
             // Used on HUD:
             0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D,
-            0x0E, 0x0F, 0x1C, 0x1D, 0x1E, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38,
+            0x0E, 0x0F, 0x1C, 0x1D, 0x1E, 
+            0x28, // slope tile that triggers tile above Samus to be marked explored
+            0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38,
             0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46,
             0x47, 0x48, 0x49, 0x4A, 0x4B,
             // Used by max_ammo_display:
@@ -167,17 +169,15 @@ impl<'a> MapPatcher<'a> {
             }
         }
 
-        if !self.randomization.difficulty.ultra_low_qol {
-            // Check tiles used by disappearing/fading items
-            let ptr = self.rom.read_u16(snes2pc(0x83B000 + area_idx * 2))?;
-            let size = self.rom.read_u16(snes2pc(0x83B00C + area_idx * 2))? as usize;
-            for i in 0..size {
-                let word = (self
-                    .rom
-                    .read_u16(snes2pc(0x830000 + (ptr as usize) + i * 6 + 4))?
-                    & 0x3FF) as TilemapWord;
-                used_tiles.insert(word);
-            }
+        // Check tiles used by disappearing/fading items
+        let ptr = self.rom.read_u16(snes2pc(0x83B000 + area_idx * 2))?;
+        let size = self.rom.read_u16(snes2pc(0x83B00C + area_idx * 2))? as usize;
+        for i in 0..size {
+            let word = (self
+                .rom
+                .read_u16(snes2pc(0x830000 + (ptr as usize) + i * 6 + 4))?
+                & 0x3FF) as TilemapWord;
+            used_tiles.insert(word);
         }
 
         let mut free_tiles: Vec<TilemapWord> = Vec::new();
@@ -217,24 +217,22 @@ impl<'a> MapPatcher<'a> {
             self.rom.write_u16(base_ptr + i * 2, new_word as isize)?;
         }
 
-        if !self.randomization.difficulty.ultra_low_qol {
-            // Write tiles for disappearing/fading items:
-            let ptr = self.rom.read_u16(snes2pc(0x83B000 + area_idx * 2))?;
-            let size = self.rom.read_u16(snes2pc(0x83B00C + area_idx * 2))? as usize;
-            for i in 0..size {
-                let old_word = self
-                    .rom
-                    .read_u16(snes2pc(0x830000 + (ptr as usize) + i * 6 + 4))?
-                    as TilemapWord;
-                let old_idx = old_word & 0x3FF;
-                let old_flip = old_word & 0xC000;
-                let new_idx = *tile_mapping.get(&old_idx).unwrap_or(&old_idx);
-                let new_word = ((new_idx | old_flip) & !palette_mask) | palette;
-                self.rom.write_u16(
-                    snes2pc(0x830000 + (ptr as usize) + i * 6 + 4),
-                    new_word as isize,
-                )?;
-            }
+        // Write tiles for disappearing/fading items:
+        let ptr = self.rom.read_u16(snes2pc(0x83B000 + area_idx * 2))?;
+        let size = self.rom.read_u16(snes2pc(0x83B00C + area_idx * 2))? as usize;
+        for i in 0..size {
+            let old_word = self
+                .rom
+                .read_u16(snes2pc(0x830000 + (ptr as usize) + i * 6 + 4))?
+                as TilemapWord;
+            let old_idx = old_word & 0x3FF;
+            let old_flip = old_word & 0xC000;
+            let new_idx = *tile_mapping.get(&old_idx).unwrap_or(&old_idx);
+            let new_word = ((new_idx | old_flip) & !palette_mask) | palette;
+            self.rom.write_u16(
+                snes2pc(0x830000 + (ptr as usize) + i * 6 + 4),
+                new_word as isize,
+            )?;
         }
 
         Ok(())
@@ -1375,14 +1373,11 @@ impl<'a> MapPatcher<'a> {
             (11, rgb(16, 2, 27)), // Crateria purple
             (6, rgb(29, 15, 10)), // Tourian
         ];
-        if !self.randomization.difficulty.ultra_low_qol {
-            // Dotted grid lines
-            let i = 12;
-            let color = rgb(6, 6, 6);
-            self.rom
-                .write_u16(snes2pc(0xB6F000) + 2 * (0x40 + i), color as isize)?;
-
-        }
+        // Dotted grid lines
+        let i = 12;
+        let color = rgb(6, 6, 6);
+        self.rom
+            .write_u16(snes2pc(0xB6F000) + 2 * (0x40 + i), color as isize)?;
 
         for &(i, color) in &extended_map_palette {
             self.rom
@@ -1705,33 +1700,26 @@ impl<'a> MapPatcher<'a> {
                 }
             }
             let tile1 = self.get_basic_tile(basic_tile)?;
-            if !self.randomization.difficulty.ultra_low_qol {
-                area_data[area].push((
-                    item_idx,
-                    offset as TilemapOffset,
-                    tile1 | 0x0C00,
-                    basic_tile.interior,
-                ));
-                if basic_tile.interior == Interior::MajorItem
-                    || (basic_tile.interior == Interior::MediumItem
-                        && orig_basic_tile.interior != Interior::MajorItem)
-                    || (basic_tile.interior == Interior::Item
-                        && (orig_basic_tile.interior == Interior::Empty
-                            || orig_basic_tile.interior == Interior::Item))
-                {
-                    basic_tile.faded = true;
-                    let tile_faded = self.get_basic_tile(basic_tile)?;
-                    self.rom
-                        .write_u16(base_ptr + offset, (tile_faded | 0x0C00) as isize)?;
-                }
-            } else {
+            area_data[area].push((
+                item_idx,
+                offset as TilemapOffset,
+                tile1 | 0x0C00,
+                basic_tile.interior,
+            ));
+            if basic_tile.interior == Interior::MajorItem
+                || (basic_tile.interior == Interior::MediumItem
+                    && orig_basic_tile.interior != Interior::MajorItem)
+                || (basic_tile.interior == Interior::Item
+                    && (orig_basic_tile.interior == Interior::Empty
+                        || orig_basic_tile.interior == Interior::Item))
+            {
+                basic_tile.faded = true;
+                let tile_faded = self.get_basic_tile(basic_tile)?;
                 self.rom
-                    .write_u16(base_ptr + offset, (tile1 | 0x0C00) as isize)?;
+                    .write_u16(base_ptr + offset, (tile_faded | 0x0C00) as isize)?;
             }
         }
-        if !self.randomization.difficulty.ultra_low_qol {
-            self.add_items_disappear_data(&area_data)?;
-        }
+        self.add_items_disappear_data(&area_data)?;
         Ok(())
     }
 
@@ -1920,13 +1908,11 @@ impl<'a> MapPatcher<'a> {
 
     pub fn apply_patches(&mut self) -> Result<()> {
         self.initialize_tiles()?;
-        if !self.randomization.difficulty.ultra_low_qol {
-            self.fix_pause_palettes()?;
-            self.fix_message_boxes()?;
-            self.fix_hud_black()?;
-            self.darken_hud_grid()?;
-            self.fix_etank_color()?;
-        }
+        self.fix_pause_palettes()?;
+        self.fix_message_boxes()?;
+        self.fix_hud_black()?;
+        self.darken_hud_grid()?;
+        self.fix_etank_color()?;
         self.index_vanilla_tiles()?;
         self.fix_elevators()?;
         self.fix_item_dots()?;

@@ -26,7 +26,7 @@ about 15 seconds to load.
     <li>Area map colors are adjusted; in particular, Tourian is no longer gray.
     <li>Sand transitions are marked on the map differently from doors.
     <li>Map station tiles have a normal background color (instead of black).
-    <li>Passage markings are added in some simple-shaped rooms to distinguish them from other rooms:
+    <li>Passage markings are added in some simple-shaped rooms to make them more identifiable:
         <ul>
         <li>Final Missile Bombway
         <li>Ice Beam Tutorial Room
