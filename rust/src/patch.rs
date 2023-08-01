@@ -288,7 +288,6 @@ impl<'a> Patcher<'a> {
                 "fast_saves",
                 "fast_mother_brain_cutscene",
                 "fast_big_boy_cutscene",
-                "unexplore",
                 "fix_kraid_vomit",
                 "escape_autosave",
                 "map_area",
