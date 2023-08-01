@@ -21,10 +21,10 @@ about 15 seconds to load.
 <ul>
 <li>Improvements to map clarity (minimap and pause map):
     <ul>
-    <li>When an item is collected, its dot fades instead of disappearing.
-    <li>Heated rooms have a lighter color.
-    <li>Area colors are adjusted; in particular, Tourian is no longer gray.
-    <li>Sand transitions are marked distinctively from doors.
+    <li>When an item is collected, its dot on the map fades instead of disappearing.
+    <li>Heated rooms have a lighter map color.
+    <li>Area map colors are adjusted; in particular, Tourian is no longer gray.
+    <li>Sand transitions are marked on the map differently from doors.
     <li>Map station tiles have a normal background color (instead of black).
     <li>Passage markings are added in some simple-shaped rooms to distinguish them from other rooms:
         <ul>

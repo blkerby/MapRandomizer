@@ -8,7 +8,6 @@ use maprando::randomize::{
     DebugOptions, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, MotherBrainFight, Objectives,
     ProgressionRate, Randomization, Randomizer,
 };
-use maprando::spoiler_map;
 use maprando::web::{SamusSpriteInfo, SamusSpriteCategory};
 use maprando::{game_data::GameData, patch::make_rom, randomize::DifficultyConfig};
 use std::path::{Path, PathBuf};

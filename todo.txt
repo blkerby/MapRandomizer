@@ -1,6 +1,5 @@
 next release (maybe):
 - map improvements
-  - maybe add passages to Gauntlet ETank room to match Gauntlet Entrance?
   - remove item dots disappear QoL option 
   - remove unexplore
   - check to make sure ultra-low QoL can still work properly

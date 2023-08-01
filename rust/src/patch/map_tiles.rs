@@ -1036,7 +1036,13 @@ impl<'a> MapPatcher<'a> {
             (2, 0, E, P, W, W, O),
             (3, 0, E, P, W, W, O),
         ])?;
-        self.patch_room_basic("Gauntlet Energy Tank Room", vec![(5, 0, P, D, W, W, I)])?;
+        self.patch_room_basic("Gauntlet Energy Tank Room", vec![
+            (0, 0, D, P, W, W, O),
+            (2, 0, P, E, W, W, O),
+            (3, 0, P, E, W, W, O),
+            (4, 0, P, E, W, W, O),
+            (5, 0, P, D, W, W, I)            
+        ])?;
         self.patch_room_basic(
             "Green Pirates Shaft",
             vec![
@@ -1214,7 +1220,7 @@ impl<'a> MapPatcher<'a> {
             vec![
                 (0, 0, D, P, W, W, O),
                 (1, 0, E, P, W, W, O),
-                (2, 0, E, P, W, W, O),
+                (3, 0, P, D, W, W, O),
             ],
         )?;
         self.patch_room_basic(
@@ -1359,7 +1365,7 @@ impl<'a> MapPatcher<'a> {
             (b << 10) | (g << 5) | r
         }
 
-        let mut extended_map_palette: Vec<(u8, u16)> = vec![
+        let extended_map_palette: Vec<(u8, u16)> = vec![
             (14, rgb(0, 23, 0)),  // Brinstar green
             (10, rgb(25, 0, 0)),  // Norfair red
             (8, rgb(4, 18, 31)), // Maridia blue
@@ -1903,7 +1909,7 @@ impl<'a> MapPatcher<'a> {
             let src_addr = snes2pc(0xB68000);
             let dst_addr = snes2pc(TILE_GFX_ADDR_4BPP + area_idx * 0x10000);
             for i in (0..0x4000).step_by(2) {
-                let mut word = self.rom.read_u16(src_addr + i)?;
+                let word = self.rom.read_u16(src_addr + i)?;
                 self.rom.write_u16(dst_addr + i, word)?;
             }
         }

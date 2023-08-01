@@ -22,7 +22,7 @@ use maprando::randomize::{
 };
 use maprando::seed_repository::{Seed, SeedFile, SeedRepository};
 use maprando::spoiler_map;
-use maprando::web::{AppData, MapRepository, Preset, PresetData, SamusSpriteInfo, SamusSpriteCategory};
+use maprando::web::{AppData, MapRepository, Preset, PresetData, SamusSpriteCategory};
 use rand::{RngCore, SeedableRng};
 use sailfish::TemplateOnce;
 use serde_derive::{Deserialize, Serialize};
