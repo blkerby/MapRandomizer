@@ -1,2 +1,3 @@
 0000 - FF82: used by vanilla game
 FF82 - FFC0: escape.asm (for dachora)
+FFC0 - end: map_area (for kraid)

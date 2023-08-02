@@ -3,6 +3,10 @@ lorom
 
 !bank_82_freespace_start = $82F70F
 !bank_82_freespace_end = $82FA80
+!bank_a7_freespace_start = $A7FFC0
+!bank_a7_freespace_end = $A88000
+!bank_e8_freespace_start = $E88000
+!bank_e8_freespace_end = $E98000
 
 !tiles_2bpp_address = $C000
 
@@ -533,23 +537,6 @@ set_hud_map_colors:
     rts
 
 
-samus_minimap_flash_hook:
-    lda $0998
-    cmp #$000C
-    bne .normal
-
-    ; Paused: skip showing Samus indicator:
-    lda #$0001
-    rtl
-    
-    ; Run hi-jacked instructions (use frame counter to determine whether to show Samus indicator)
-.normal    
-    lda $05B5
-    and #$0008 
-
-    rtl
-
-
 simple_scroll_setup:
     ; Like $829028 but without using Samus position, just midpoints.
     JSR $A0F7    ; Reset pause menu animations
@@ -584,6 +571,26 @@ simple_scroll_setup:
 
     RTS
 
+warnpc !bank_82_freespace_end
+
+org !bank_e8_freespace_start
+
+samus_minimap_flash_hook:
+    lda $0998
+    cmp #$000C
+    bne .normal
+
+    ; Paused: skip showing Samus indicator:
+    lda #$0001
+    rtl
+    
+    ; Run hi-jacked instructions (use frame counter to determine whether to show Samus indicator)
+.normal    
+    lda $05B5
+    and #$0008 
+
+    rtl
+
 load_bg3_tiles:
     php
 
@@ -615,11 +622,42 @@ load_bg3_tiles:
     plp
     rtl
 
+load_bg3_tiles_kraid:
+    php
+
+    rep #$30
+    LDA #$0080
+    STA $2115  ; video port control
+    LDA #$2000
+    STA $2116  ; VRAM (destination) address = $2000
+
+    lda #$1801
+    STA $4310  ; DMA control: DMA transfer from CPU to VRAM, incrementing CPU address
+    
+    lda #!tiles_2bpp_address ; source address
+    sta $4312
+
+    ; Set source bank to $E2 + map area:
+    lda $1F5B  ; map area (0-5)
+    clc
+    adc #$00E2
+    sta $4314
+
+    lda #$1000
+    sta $4315 ; transfer size = $1000 bytes
+
+    sep #$30
+    lda #$02
+    sta $420B  ; perform DMA transfer on channel 1
+    
+    plp
+    rtl
+
 
 load_bg3_tiles_door_transition:
     php
 
-    ; source = $E2A200 + map area * $10000
+    ; source = $E2C000 + map area * $10000
     lda #!tiles_2bpp_address
     sta $05C0
     sep #$30
@@ -738,7 +776,7 @@ start_game_hook:
     jsl $809A79  ; run hi-jacked instruction
     rtl
 
-warnpc !bank_82_freespace_end
+warnpc !bank_e8_freespace_end
 
 org $82DFB9
     jsl reload_map_hook
@@ -822,3 +860,27 @@ org $81911E
 ; Use palette 6 instead of 3 when mini-map is disabled (during boss fights)
 org $90A7F1
     ORA #$3800   ; was: ORA #$2C00
+
+; Kraid load BG3 from area-specific tiles:
+org $A7C78B : lda #!tiles_2bpp_address
+org $A7C790 : jsr get_area_bg3_bank
+org $A7C7B1 : lda #!tiles_2bpp_address+$400
+org $A7C7B6 : jsr get_area_bg3_bank
+org $A7C7D7 : lda #!tiles_2bpp_address+$800
+org $A7C7DC : jsr get_area_bg3_bank
+org $A7C7FD : lda #!tiles_2bpp_address+$C00
+org $A7C802 : jsr get_area_bg3_bank
+
+org $A7C23A
+    jsl load_bg3_tiles_kraid
+    rep 13 : nop
+
+org !bank_a7_freespace_start
+get_area_bg3_bank:
+    ; Bank = $E2 + map area
+    lda #$00E2
+    clc
+    adc $1F5B  ; Map area
+    rts
+
+warnpc !bank_a7_freespace_end

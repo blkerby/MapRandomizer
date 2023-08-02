@@ -201,7 +201,7 @@ impl<'a> MapPatcher<'a> {
         for (&u, &f) in used_tiles.iter().zip(free_tiles.iter()) {
             tile_mapping.insert(u, f);
             let data = self.tile_gfx_map[&u];
-            self.write_tile_2bpp_area(f as usize, data, area_idx)?;
+            self.write_tile_2bpp_area(f as usize, data, Some(area_idx))?;
             self.write_tile_4bpp_area(f as usize, data, area_idx)?;
         }
 
@@ -250,9 +250,12 @@ impl<'a> MapPatcher<'a> {
         &mut self,
         idx: usize,
         mut data: [[u8; 8]; 8],
-        area_idx: usize,
+        area_idx: Option<usize,>,
     ) -> Result<()> {
-        let base_addr = snes2pc(TILE_GFX_ADDR_2BPP + area_idx * 0x10000); // Location of HUD tile GFX in ROM
+        let base_addr = match area_idx {
+            Some(area) => snes2pc(TILE_GFX_ADDR_2BPP + area * 0x10000), // New HUD tile GFX in ROM
+            None => snes2pc(0x9AB200), // Standard BG3 tiles (used during Kraid)
+        };
         for y in 0..8 {
             for x in 0..8 {
                 if data[y][x] >= 4 {
@@ -272,8 +275,9 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn write_tile_2bpp(&mut self, idx: usize, data: [[u8; 8]; 8]) -> Result<()> {
+        self.write_tile_2bpp_area(idx, data, None)?;
         for area_idx in 0..6 {
-            self.write_tile_2bpp_area(idx, data, area_idx)?;
+            self.write_tile_2bpp_area(idx, data, Some(area_idx))?;
         }
         Ok(())
     }
@@ -1372,12 +1376,12 @@ impl<'a> MapPatcher<'a> {
         }
 
         let extended_map_palette: Vec<(u8, u16)> = vec![
-            (14, rgb(4, 20, 4)),  // Brinstar green
-            (10, rgb(25, 3, 4)),  // Norfair red
-            (8, rgb(6, 15, 28)),  // Maridia blue
-            (9, rgb(20, 19, 4)),  // Wrecked Ship yellow
-            (11, rgb(18, 5, 27)), // Crateria purple
-            (6, rgb(25, 13, 0)),  // Tourian
+            (14, rgb(0, 24, 0)),  // Brinstar green
+            (10, rgb(29, 0, 0)),  // Norfair red
+            (8, rgb(4, 13, 31)),  // Maridia blue
+            (9, rgb(24, 12, 0)),  // Wrecked Ship yellow
+            (11, rgb(18, 3, 31)), // Crateria purple
+            (6, rgb(23, 12, 0)),  // Tourian
         ];
         // Dotted grid lines
         let i = 12;
@@ -1918,6 +1922,17 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
+    fn fix_kraid(&mut self) -> Result<()> {
+        // Fix Kraid to copy BG3 tiles from area-specific location:
+        
+        let map_area = 2;
+        // Kraid alive:
+        self.rom.write_u24(snes2pc(0x8FB817), TILE_GFX_ADDR_2BPP as isize + map_area * 0x10000)?;
+        // Kraid dead:
+        self.rom.write_u24(snes2pc(0x8FB842), TILE_GFX_ADDR_2BPP as isize + map_area * 0x10000)?;
+        Ok(())
+    }
+
     pub fn apply_patches(&mut self) -> Result<()> {
         self.initialize_tiles()?;
         self.fix_pause_palettes()?;
@@ -1939,6 +1954,7 @@ impl<'a> MapPatcher<'a> {
         self.indicate_major_items()?;
         self.write_tiles()?;
         self.fix_fx_palettes()?;
+        self.fix_kraid()?;
         // info!("Free tiles: {} (out of {})", self.free_tiles.len() - self.next_free_tile_idx, self.free_tiles.len());
         Ok(())
     }
