@@ -1,6 +1,8 @@
 arch snes.cpu
 lorom
 
+!bank_81_freespace_start = $81F100  ; TODO: remove this (not being used at the moment)
+!bank_81_freespace_end = $81F140
 !bank_82_freespace_start = $82F70F
 !bank_82_freespace_end = $82FA80
 !bank_a7_freespace_start = $A7FFC0
@@ -411,7 +413,7 @@ palette_clear_hook:
     lda $C036  ; preserve unexplored white color (2bpp palette 6, color 2)
     sta $C236
 
-    ; Preserve Samus location HUD indicator colors (PB door): palette 0, color 1-3
+    ; Preserve full Auto reserve color, PB door, Samus HUD indicator, etc.: palette 0, color 1-3
     lda $C002
     sta $C202
     lda $C004
@@ -852,14 +854,29 @@ org $82A7E4 : ORA #$1000   ; map screen: top of EXIT
 org $82A802 : ORA #$1000   ; map screen: bottom of EXIT
 
 
-; Skip map select after game over:
-; (Map select on that screen uses different code and wouldn't work correctly with our modifications.)
-org $81911E
-    LDA #$0006  ; was: LDA #$0005
+;; Skip map select after game over:
+;; (Map select on that screen uses different code and wouldn't work correctly with our modifications.)
+;org $81911A
+;    jmp game_over_load
+;
+;org !bank_81_freespace_start
+;game_over_load:
+;    lda $0952
+;    jsl $818085  ; load from save slot
+;    jsl $80858C
+;    LDA #$0006
+;    STA $0998    ; game state = 6 (loading game)
+;    RTS
+;warnpc !bank_81_freespace_end
 
 ; Use palette 6 instead of 3 when mini-map is disabled (during boss fights)
 org $90A7F1
     ORA #$3800   ; was: ORA #$2C00
+
+; Make slope tile $A8 have the same functionality as $28, to trigger automatically exploring tile above Samus.
+; (Tile $A8 is used in Crocomire Speedway, the heated version of $28 used in Terminator Room.)
+org $90AAFD
+    AND #$017F   ; was: AND #$01FF
 
 ; Kraid load BG3 from area-specific tiles:
 org $A7C78B : lda #!tiles_2bpp_address

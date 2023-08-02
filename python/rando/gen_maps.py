@@ -163,7 +163,7 @@ for ind_i in range(start_index, end_index):
                 indj = np.where(block_id == j)[0]
                 x_range = np.max(xs_max[indj]) - np.min(xs_min[indj])
                 y_range = np.max(ys_max[indj]) - np.min(ys_min[indj])
-                if x_range > 60 or y_range > 30:
+                if x_range > 60 or y_range > 29:
                     break
                 if not check_connected(indj, edges_list):
                     break

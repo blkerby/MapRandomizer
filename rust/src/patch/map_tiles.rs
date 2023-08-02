@@ -105,7 +105,7 @@ impl<'a> MapPatcher<'a> {
         }
     }
 
-    fn read_tile_2bpp(&self, idx: usize) -> Result<[[u8; 8]; 8]> {
+    fn read_map_tile_2bpp(&self, idx: usize) -> Result<[[u8; 8]; 8]> {
         let base_addr = snes2pc(0x9AB200); // Location of HUD tile GFX in ROM
         let mut out: [[u8; 8]; 8] = [[0; 8]; 8];
         for y in 0..8 {
@@ -122,11 +122,10 @@ impl<'a> MapPatcher<'a> {
         Ok(out)
     }
 
-    fn read_tile_4bpp(&self, idx: usize) -> Result<[[u8; 8]; 8]> {
-        let base_addr = snes2pc(0xB68000);
+    fn read_tile_4bpp(&self, base_addr: usize) -> Result<[[u8; 8]; 8]> {
         let mut out: [[u8; 8]; 8] = [[0; 8]; 8];
         for y in 0..8 {
-            let addr = base_addr + idx * 32 + y * 2;
+            let addr = base_addr + y * 2;
             let data_0 = self.rom.read_u8(addr)?;
             let data_1 = self.rom.read_u8(addr + 1)?;
             let data_2 = self.rom.read_u8(addr + 16)?;
@@ -143,6 +142,11 @@ impl<'a> MapPatcher<'a> {
         Ok(out)
     }
 
+    fn read_map_tile_4bpp(&self, idx: usize) -> Result<[[u8; 8]; 8]> {
+        let addr = snes2pc(0xB68000) + idx * 32;
+        self.read_tile_4bpp(addr)
+    }
+
     fn write_tiles_area(&mut self, area_idx: usize) -> Result<()> {
         let mut reserved_tiles: HashSet<TilemapWord> = vec![
             // Used on HUD:
@@ -152,6 +156,7 @@ impl<'a> MapPatcher<'a> {
             0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D,
             0x3E, 0x3F, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A,
             0x4B,
+            0xA8, // heated slope tile corresponding to 0x28
             // Used by max_ammo_display:
         ]
         .into_iter()
@@ -202,7 +207,7 @@ impl<'a> MapPatcher<'a> {
             tile_mapping.insert(u, f);
             let data = self.tile_gfx_map[&u];
             self.write_tile_2bpp_area(f as usize, data, Some(area_idx))?;
-            self.write_tile_4bpp_area(f as usize, data, area_idx)?;
+            self.write_map_tile_4bpp_area(f as usize, data, area_idx)?;
         }
 
         let palette = 0x1800;
@@ -282,7 +287,26 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
-    fn write_tile_4bpp_area(
+    fn write_tile_4bpp(
+        &mut self,
+        base_addr: usize,
+        data: [[u8; 8]; 8],
+    ) -> Result<()> {
+        for y in 0..8 {
+            let addr = base_addr + y * 2;
+            let data_0: u8 = (0..8).map(|x| (data[y][x] & 1) << (7 - x)).sum();
+            let data_1: u8 = (0..8).map(|x| ((data[y][x] >> 1) & 1) << (7 - x)).sum();
+            let data_2: u8 = (0..8).map(|x| ((data[y][x] >> 2) & 1) << (7 - x)).sum();
+            let data_3: u8 = (0..8).map(|x| ((data[y][x] >> 3) & 1) << (7 - x)).sum();
+            self.rom.write_u8(addr, data_0 as isize)?;
+            self.rom.write_u8(addr + 1, data_1 as isize)?;
+            self.rom.write_u8(addr + 16, data_2 as isize)?;
+            self.rom.write_u8(addr + 17, data_3 as isize)?;
+        }
+        Ok(())
+    }
+
+    fn write_map_tile_4bpp_area(
         &mut self,
         idx: usize,
         data: [[u8; 8]; 8],
@@ -303,9 +327,9 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
-    fn write_tile_4bpp(&mut self, idx: usize, data: [[u8; 8]; 8]) -> Result<()> {
+    fn write_map_tile_4bpp(&mut self, idx: usize, data: [[u8; 8]; 8]) -> Result<()> {
         for area_idx in 0..6 {
-            self.write_tile_4bpp_area(idx, data, area_idx)?;
+            self.write_map_tile_4bpp_area(idx, data, area_idx)?;
         }
         Ok(())
     }
@@ -535,7 +559,7 @@ impl<'a> MapPatcher<'a> {
             [0, 3, 0, 0, 0, 0, 3, 0],
         ];
         self.write_tile_2bpp(ELEVATOR_TILE as usize, elevator_tile_hud)?;
-        self.write_tile_4bpp(ELEVATOR_TILE as usize, elevator_tile_pause)?;
+        self.write_map_tile_4bpp(ELEVATOR_TILE as usize, elevator_tile_pause)?;
 
         // In top elevator rooms, replace down arrow tiles with elevator tiles:
         self.patch_room("Green Brinstar Elevator Room", vec![(0, 3, ELEVATOR_TILE)])?;
@@ -988,10 +1012,14 @@ impl<'a> MapPatcher<'a> {
             }
             tile
         }
-        let slope1 = self.create_tile(make_heated(self.read_tile_4bpp(0x28)?))?;
-        let slope2 = self.create_tile(make_heated(self.read_tile_4bpp(0x29)?))?;
-        let slope3 = self.create_tile(make_heated(self.read_tile_4bpp(0x2A)?))?;
-        let slope4 = self.create_tile(make_heated(self.read_tile_4bpp(0x2B)?))?;
+        let slope1 = 0xA8;  // We have to put this tile in a specific place because it (like 0x28) has special behavior to explore the tile above it.
+        let slope1_tile = make_heated(self.read_map_tile_4bpp(0x28)?);
+        self.write_tile_2bpp(0xA8, slope1_tile)?;
+        self.write_map_tile_4bpp(0xA8, slope1_tile)?;
+        // The remaining 3 slope tiles can go anywhere, so we assign them dynamically:
+        let slope2 = self.create_tile(make_heated(self.read_map_tile_4bpp(0x29)?))?;
+        let slope3 = self.create_tile(make_heated(self.read_map_tile_4bpp(0x2A)?))?;
+        let slope4 = self.create_tile(make_heated(self.read_map_tile_4bpp(0x2B)?))?;
         self.patch_room(
             "Crocomire Speedway",
             vec![
@@ -1379,9 +1407,9 @@ impl<'a> MapPatcher<'a> {
             (14, rgb(0, 24, 0)),  // Brinstar green
             (10, rgb(29, 0, 0)),  // Norfair red
             (8, rgb(4, 13, 31)),  // Maridia blue
-            (9, rgb(24, 12, 0)),  // Wrecked Ship yellow
+            (9, rgb(24, 22, 6)),  // Wrecked Ship yellow
             (11, rgb(18, 3, 31)), // Crateria purple
-            (6, rgb(23, 12, 0)),  // Tourian
+            (6, rgb(27, 14, 0)),  // Tourian
         ];
         // Dotted grid lines
         let i = 12;
@@ -1757,7 +1785,7 @@ impl<'a> MapPatcher<'a> {
     fn fix_message_boxes(&mut self) -> Result<()> {
         // Fix message boxes GFX: use white letters (color 2) instead of dark gray (color 1)
         for idx in 0xC0..0x100 {
-            let mut data = self.read_tile_2bpp(idx)?;
+            let mut data = self.read_map_tile_2bpp(idx)?;
             for y in 0..8 {
                 for x in 0..8 {
                     if data[y][x] == 1 {
@@ -1792,7 +1820,7 @@ impl<'a> MapPatcher<'a> {
         // Use color 0 instead of color 3 for black in HUD map tiles:
         // Also use color 3 instead of color 2 for white
         for idx in tiles_to_change {
-            let mut tile = self.read_tile_2bpp(idx)?;
+            let mut tile = self.read_map_tile_2bpp(idx)?;
             for y in 0..8 {
                 for x in 0..8 {
                     if tile[y][x] == 3 {
@@ -1804,7 +1832,7 @@ impl<'a> MapPatcher<'a> {
             }
             self.write_tile_2bpp(idx, tile)?;
 
-            let mut tile = self.read_tile_4bpp(idx)?;
+            let mut tile = self.read_map_tile_4bpp(idx)?;
             for y in 0..8 {
                 for x in 0..8 {
                     if tile[y][x] == 2 {
@@ -1812,7 +1840,7 @@ impl<'a> MapPatcher<'a> {
                     }
                 }
             }
-            self.write_tile_4bpp(idx, tile)?;
+            self.write_map_tile_4bpp(idx, tile)?;
         }
         Ok(())
     }
@@ -1880,7 +1908,7 @@ impl<'a> MapPatcher<'a> {
             (0x2B, vec![(0, 1)]),
         ];
         for (idx, v) in coords {
-            let mut tile = self.read_tile_2bpp(idx)?;
+            let mut tile = self.read_map_tile_2bpp(idx)?;
             for (x, y) in v {
                 tile[y][x] = 0;
             }
@@ -1924,12 +1952,50 @@ impl<'a> MapPatcher<'a> {
 
     fn fix_kraid(&mut self) -> Result<()> {
         // Fix Kraid to copy BG3 tiles from area-specific location:
-        
-        let map_area = 2;
+        let mut kraid_map_area: Option<isize> = None;
+        for (i, room) in self.game_data.room_geometry.iter().enumerate() {
+            if room.name == "Kraid Room" {
+                kraid_map_area = Some(self.randomization.map.area[i] as isize);
+            }
+        }
         // Kraid alive:
-        self.rom.write_u24(snes2pc(0x8FB817), TILE_GFX_ADDR_2BPP as isize + map_area * 0x10000)?;
+        self.rom.write_u24(snes2pc(0x8FB817), TILE_GFX_ADDR_2BPP as isize + kraid_map_area.unwrap() * 0x10000)?;
         // Kraid dead:
-        self.rom.write_u24(snes2pc(0x8FB842), TILE_GFX_ADDR_2BPP as isize + map_area * 0x10000)?;
+        self.rom.write_u24(snes2pc(0x8FB842), TILE_GFX_ADDR_2BPP as isize + kraid_map_area.unwrap() * 0x10000)?;
+        Ok(())
+    }
+
+    fn substitute_colors(&mut self, item_idx: usize, tiles: Vec<usize>, subst: Vec<(u8, u8)>) -> Result<()> {
+        for i in tiles {
+            let addr = snes2pc(0x898000 + item_idx * 0x100 + i * 0x20);
+            let mut tile = self.read_tile_4bpp(addr)?;
+            for y in 0..8 {
+                for x in 0..8 {
+                    let mut c = tile[x][y];
+                    for &(c_from, c_to) in subst.iter() {
+                        if tile[x][y] == c_from {
+                            c = c_to;
+                        }
+                    }
+                    tile[x][y] = c;
+                }
+            }
+            self.write_tile_4bpp(addr, tile)?;
+        }
+        Ok(())
+    }
+
+    fn fix_item_colors(&mut self) -> Result<()> {
+        // Bombs: keep pink color
+        self.substitute_colors(0, vec![0, 1, 2, 3], vec![(9, 13)])?;
+        // Speed Booster: dark blue -> dark area color
+        self.substitute_colors(10, vec![0, 1, 2, 3, 4, 5, 6, 7], vec![(13, 9)])?;
+        // Varia: keep pink color
+        self.substitute_colors(3, vec![0, 1, 2, 3, 4, 5, 6, 7], vec![(9, 13)])?;
+        // Space Jump: keep pink color
+        self.substitute_colors(6, vec![0, 1, 2, 3], vec![(9, 13)])?;
+        // Morph: keep pink color, dark blue -> dark area color
+        self.substitute_colors(7, vec![0, 1, 2, 3, 4, 5, 6, 7], vec![(9, 13), (13, 9)])?;
         Ok(())
     }
 
@@ -1955,6 +2021,7 @@ impl<'a> MapPatcher<'a> {
         self.write_tiles()?;
         self.fix_fx_palettes()?;
         self.fix_kraid()?;
+        self.fix_item_colors()?;
         // info!("Free tiles: {} (out of {})", self.free_tiles.len() - self.next_free_tile_idx, self.free_tiles.len());
         Ok(())
     }

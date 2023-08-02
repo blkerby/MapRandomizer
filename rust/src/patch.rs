@@ -214,11 +214,7 @@ pub fn apply_ips_patch(rom: &mut Rom, patch_path: &Path) -> Result<()> {
 fn apply_orig_ips_patches(rom: &mut Rom, randomization: &Randomization) -> Result<()> {
     let patches_dir = Path::new("../patches/ips/");
     let mut patches: Vec<&'static str> = vec!["mb_barrier", "mb_barrier_clear", "gray_doors"];
-    // if randomization.difficulty.ultra_low_qol {
-    //     patches.push("ultra_low_qol_hud_expansion_opaque");
-    // } else {
     patches.push("hud_expansion_opaque");
-    // }
     for patch_name in patches {
         let patch_path = patches_dir.join(patch_name.to_string() + ".ips");
         apply_ips_patch(rom, &patch_path)?;
@@ -270,12 +266,15 @@ impl<'a> Patcher<'a> {
             "map_area",
             "map_progress_maintain",
             "item_dots_disappear",
-        ];
+            "fast_reload",
+            "saveload",
+            "items_test",  // TODO: remove this
+    ];
 
         if self.randomization.difficulty.ultra_low_qol {
             patches.extend([
                 "ultra_low_qol_vanilla_bugfixes",
-                "ultra_low_qol_saveload",
+                // "ultra_low_qol_saveload",
                 // "ultra_low_qol_new_game",
                 // "ultra_low_qol_map_area",
             ]);
@@ -294,8 +293,6 @@ impl<'a> Patcher<'a> {
                 "tourian_blue_hopper",
                 "boss_exit",
                 "oob_death",
-                "fast_reload",
-                "saveload",
             ]);
         }
 
@@ -410,15 +407,14 @@ impl<'a> Patcher<'a> {
     ) -> Result<()> {
         let (offset, bitmask) = xy_to_explored_bit_ptr(x, y);
 
-        if !self.randomization.difficulty.ultra_low_qol {
-            // Mark as revealed (which will persist after deaths/reloads):
-            let addr = 0x2000 + (tile_area as isize) * 0x100 + offset;
-            asm.extend([0xAF, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // LDA $70:{addr}
-            asm.extend([0x09, bitmask, 0x00]); // ORA #{bitmask}
-            asm.extend([0x8F, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // STA $70:{addr}
-        }
+        // Mark as revealed (which will persist after deaths/reloads):
+        let addr = 0x2000 + (tile_area as isize) * 0x100 + offset;
+        asm.extend([0xAF, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // LDA $70:{addr}
+        asm.extend([0x09, bitmask, 0x00]); // ORA #{bitmask}
+        asm.extend([0x8F, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // STA $70:{addr}
+
         // Mark as explored (for elevators. Not needed for area transition arrows/letters except in ultra-low QoL mode):
-        if explore || self.randomization.difficulty.ultra_low_qol {
+        if explore {
             if current_area == tile_area {
                 // We want to write an explored bit to the current area's map, so we have to write it to
                 // the temporary copy at 0x07F7 (otherwise it wouldn't take effect and would just be overwritten
