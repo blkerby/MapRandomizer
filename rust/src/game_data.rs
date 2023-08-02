@@ -191,6 +191,7 @@ pub enum Requirement {
         room_id: RoomId,
         node_ids: Vec<NodeId>,
         mode: String,
+        mobility: String,
         artificial_morph: bool,
     },
     And(Vec<Requirement>),
@@ -1316,12 +1317,16 @@ impl GameData {
                 let artificial_morph = value["artificialMorph"]
                     .as_bool()
                     .with_context(|| format!("missing/invalid artificialMorph in {}", req_json))?;
+                let mobility = value["mobility"]
+                    .as_str()
+                    .unwrap_or("any");
 
                 return Ok(Requirement::ComeInWithGMode {
                     room_id: ctx.room_id,
                     node_ids,
                     mode: mode.to_string(),
                     artificial_morph,
+                    mobility: mobility.to_string(),
                 });
             } else if key == "itemNotCollectedAtNode" {
                 // TODO: implement this
@@ -2077,6 +2082,7 @@ impl GameData {
                                 room_id,
                                 node_ids: vec![node_id],
                                 mode: "direct".to_string(),
+                                mobility: "any".to_string(),
                                 artificial_morph,
                             },
                         });

@@ -364,11 +364,13 @@ impl<'a> Preprocessor<'a> {
                 node_ids,
                 mode,
                 artificial_morph,
+                mobility,
             } => self.preprocess_come_in_with_gmode(
                 *room_id,
                 node_ids,
                 mode,
                 *artificial_morph,
+                mobility,
                 link,
             ),
             Requirement::And(sub_reqs) => Requirement::make_and(
@@ -720,6 +722,7 @@ impl<'a> Preprocessor<'a> {
         node_ids: &[NodeId],
         mode: &str,
         artificial_morph: bool,
+        mobility: &str,
         link: &Link,
     ) -> Requirement {
         let gmode_tech_id = self.game_data.tech_isv.index_by_key["canEnterGMode"];
@@ -782,7 +785,16 @@ impl<'a> Preprocessor<'a> {
                         } else {
                             Requirement::Never
                         };
-                        req_and_list.push(Requirement::make_or(vec![mobile_req, immobile_req]));
+
+                        if mobility == "any" {
+                            req_and_list.push(Requirement::make_or(vec![mobile_req, immobile_req]));
+                        } else if mobility == "mobile" {
+                            req_and_list.push(mobile_req);
+                        } else if mobility == "immobile" {
+                            req_and_list.push(immobile_req);
+                        } else {
+                            panic!("Invalid mobility {}", mobility);
+                        }
 
                         req_or_list.push(Requirement::make_and(req_and_list));
                     }

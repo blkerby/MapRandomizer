@@ -268,7 +268,6 @@ impl<'a> Patcher<'a> {
             "item_dots_disappear",
             "fast_reload",
             "saveload",
-            "items_test",  // TODO: remove this
     ];
 
         if self.randomization.difficulty.ultra_low_qol {
