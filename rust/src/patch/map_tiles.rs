@@ -1919,7 +1919,7 @@ impl<'a> MapPatcher<'a> {
 
     fn fix_fx_palettes(&mut self) -> Result<()> {
         // use palette 7 for FX (water, lava, etc.) instead of palette 6
-        for addr in (snes2pc(0x8A8000)..snes2pc(0x8AE980)).step_by(2) {
+        for addr in (snes2pc(0x8A8000)..snes2pc(0x8AB180)).step_by(2) {
             let word = self.rom.read_u16(addr)?;
             if word & 0x1C00 == 0x1800 {
                 self.rom.write_u16(addr, word | 0x1C00)?;
