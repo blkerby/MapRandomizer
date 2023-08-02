@@ -77,6 +77,8 @@ message_box_hook:
 reload_map_hook:
     jsl $80858C  ; run hi-jacked instruction (load map explored bits)
     jsl update_tilemap
+    
+
     rtl
 
 update_tilemap:

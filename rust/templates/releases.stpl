@@ -17,12 +17,37 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-74---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 74 (2022-07-27)</a>:
+<p><a href="https://version-75---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 75 (???)</a>:
+<ul>
+<li>Improvements to map clarity (minimap and pause map):
+    <ul>
+    <li>When an item is collected, its dot on the map fades instead of disappearing.
+    <li>Heated rooms have a lighter map color.
+    <li>Area map colors are adjusted; in particular, Tourian is no longer gray.
+    <li>Sand transitions are marked on the map differently from doors.
+    <li>Map station tiles have a normal background color (instead of black).
+    <li>Passage markings are added in some simple-shaped rooms to make them more identifiable:
+        <ul>
+        <li>Final Missile Bombway
+        <li>Ice Beam Tutorial Room
+        <li>Brinstar Pre-Map Room
+        <li>Fast Rippers Room
+        <li>Spiky Platforms Tunnel
+        <li>Pillar Room
+        <li>Crab Tunnel
+        <li>Shaktool Room
+        <li>Big Boy Room
+        <li>Gauntlet Entrance
+        </ul>
+    </ul>
+</ul>
+
+<p><a href="https://version-74---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 74 (2023-07-27)</a>:
 <ul>
 <li>Quick bugfix involving default value for gate glitch leniency, which in some cases caused seed generation to fail.
 </ul>
 
-<p><a href="https://version-73---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 73 (2022-07-27)</a>:
+<p><a href="https://version-73---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 73 (2023-07-27)</a>:
 <ul>
 <li>New quality-of-life option "Momentum conservation" is added (enabled in Max preset).
 <li>More custom sprite options are added.

@@ -27,6 +27,7 @@ rooms = [
             3: [(4, 2)],
             4: [(4, 0), (4, 1), (4, 2)],
         },
+        heated=True,
     ),
     Room(
         name='Fast Pillars Setup Room',
@@ -49,6 +50,7 @@ rooms = [
             4: [(0, 0)],
             5: [(0, 2)],
         },
+        heated=True,
     ),
     Room(
         name='Pillar Room',
@@ -62,6 +64,7 @@ rooms = [
             1: [(0, 0), (1, 0)],
             2: [(2, 0), (3, 0)],
         },
+        heated=True,
     ),
     Room(
         name='The Worst Room In The Game',
@@ -87,6 +90,7 @@ rooms = [
             5: [(0, 2)],
             6: [(0, 4)],
         },
+        heated=True,
     ),
     Room(
         name='Amphitheatre',
@@ -111,6 +115,7 @@ rooms = [
                 (2, 0), (2, 1), (2, 2), (2, 3), (2, 4),
                 (3, 0), (3, 1), (3, 2), (3, 3), (3, 4)],
         },
+        heated=True,
     ),
     Room(
         name='Red Kihunter Shaft',
@@ -136,6 +141,7 @@ rooms = [
             5: [(0, 0)],
             6: [(1, 4)],
         },
+        heated=True,
     ),
     Room(
         # TODO: add this to wiki.supermetroid.run/List_of_rooms because it is missing.
@@ -174,6 +180,7 @@ rooms = [
             6: [(1, 0)],
             7: [(3, 0)],
         },
+        heated=True,
     ),
     Room(
         name='Metal Pirates Room',
@@ -188,6 +195,7 @@ rooms = [
             2: [(1, 0), (2, 0)],
             3: [(1, 0)],
         },
+        heated=True,
     ),
     Room(
         name='Plowerhouse Room',
@@ -202,6 +210,7 @@ rooms = [
             2: [(1, 0), (2, 0)],
             3: [(0, 0), (1, 0), (2, 0)],
         },
+        heated=True,
     ),
     Room(
         name='Lower Norfair Farming Room',
@@ -215,6 +224,7 @@ rooms = [
             1: [(0, 0), (1, 0)],
             2: [(1, 0), (2, 0)],
         },
+        heated=True,
     ),
     Room(
         name="Ridley's Room",
@@ -232,6 +242,7 @@ rooms = [
             2: [(0, 0)],
             3: [(0, 0), (0, 1)],
         },
+        heated=True,
     ),
     Room(
         name='Ridley Tank Room',
@@ -247,6 +258,7 @@ rooms = [
             1: [(0, 0)],
             2: [(0, 0)],
         },
+        heated=True,
     ),
     Room(
         name='Mickey Mouse Room',
@@ -278,6 +290,7 @@ rooms = [
             8: [(0, 3)],
             9: [(3, 2)],
         },
+        heated=True,
     ),
     Room(
         name='Lower Norfair Fireflea Room',
@@ -333,6 +346,7 @@ rooms = [
             4: [(2, 0)],
             5: [(3, 0)],
         },
+        heated=True,
     ),
     Room(
         name='Lower Norfair Escape Power Bomb Room',
@@ -353,6 +367,7 @@ rooms = [
             2: [(0, 0)],
             3: [(0, 0)],
         },
+        heated=True,
     ),
     Room(
         name="Three Musketeers' Room",
@@ -375,6 +390,7 @@ rooms = [
             3: [(0, 2)],
             4: [(1, 2)],
         },
+        heated=True,
     ),
     Room(
         name='Acid Statue Room',
@@ -398,6 +414,7 @@ rooms = [
             4: [(0, 1), (1, 1)],
             5: [(0, 2), (1, 2)],
         },
+        heated=True,
     ),
     Room(
         name="Golden Torizo's Room",
@@ -424,6 +441,7 @@ rooms = [
             4: [(1, 0)],
             5: [(0, 1), (1, 1)],
         },
+        heated=True,
     ),
     Room(
         name='Screw Attack Room',
@@ -448,6 +466,7 @@ rooms = [
             4: [(0, 2)],
             5: [(0, 1)],
         },
+        heated=True,
     ),
     Room(
         name='Golden Torizo Energy Recharge',
@@ -477,6 +496,7 @@ rooms = [
             2: [(3, 0)],
             3: [(2, 0)],
         },
+        heated=True,
     ),
 ]
 

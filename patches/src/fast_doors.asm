@@ -5,8 +5,8 @@ arch snes.cpu
 
 !bank_80_freespace_start = $80D100
 !bank_80_freespace_end = $80D140
-!bank_82_freespace_start = $82F900
-!bank_82_freespace_end = $82FA00
+!bank_82_freespace_start = $82FD80
+!bank_82_freespace_end = $82FE00
 
 
 !Speed = 2

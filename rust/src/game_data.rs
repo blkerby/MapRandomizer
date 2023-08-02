@@ -191,6 +191,7 @@ pub enum Requirement {
         room_id: RoomId,
         node_ids: Vec<NodeId>,
         mode: String,
+        mobility: String,
         artificial_morph: bool,
     },
     And(Vec<Requirement>),
@@ -331,6 +332,7 @@ pub struct RoomGeometry {
     pub items: Vec<RoomGeometryItem>,
     pub node_tiles: Vec<(usize, Vec<(usize, usize)>)>,
     pub twin_node_tiles: Option<Vec<(usize, Vec<(usize, usize)>)>>,
+    pub heated: bool,
 }
 
 #[derive(Deserialize)]
@@ -401,7 +403,6 @@ pub struct StartLocation {
     pub y: f32,
     pub requires: Option<Vec<serde_json::Value>>,
     pub note: Option<Vec<String>>,
-    // Don't use these, because they will mess up the door cap animations. Maybe we can find a fix for that someday.
     pub camera_offset_x: Option<f32>,
     pub camera_offset_y: Option<f32>,
     #[serde(skip_deserializing)]
@@ -1316,12 +1317,16 @@ impl GameData {
                 let artificial_morph = value["artificialMorph"]
                     .as_bool()
                     .with_context(|| format!("missing/invalid artificialMorph in {}", req_json))?;
+                let mobility = value["mobility"]
+                    .as_str()
+                    .unwrap_or("any");
 
                 return Ok(Requirement::ComeInWithGMode {
                     room_id: ctx.room_id,
                     node_ids,
                     mode: mode.to_string(),
                     artificial_morph,
+                    mobility: mobility.to_string(),
                 });
             } else if key == "itemNotCollectedAtNode" {
                 // TODO: implement this
@@ -2077,6 +2082,7 @@ impl GameData {
                                 room_id,
                                 node_ids: vec![node_id],
                                 mode: "direct".to_string(),
+                                mobility: "any".to_string(),
                                 artificial_morph,
                             },
                         });

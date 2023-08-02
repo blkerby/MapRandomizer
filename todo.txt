@@ -1,20 +1,19 @@
 next release (maybe):
 - map improvements
-  - (internal): use separate tile GFX for each area, to free up more tiles
-  - (internal): find different place for etank color, to free up a map tile color
-  - item dots fade (remove QoL option and unexplore)
-  - heated room color
-- use modal for sprite customization
-  - also etank color customization
-- enhancements to momentum conservation patch
-  - remove need to be holding dash
-  - retain speed when turning around with spin?
-    - maybe needs to be restricted somehow to avoid unintentional
-  - retain speed while unmorphing? but what should the inputs be?:
-    - jump while holding forward? (though then spring ball interferes somewhat)
-    
+  - fix little pause menu palette issue at top of equipment screen (green where gray should be)
+  - check to make sure ultra-low QoL can still work properly
+  - update help button text (e.g. for ultra-low QoL)
+  - accelerate pause menu fadeout (with QoL option)
+    - further accelerate map select and map/equipment screen switch
+  - increase map scroll speed
+  - allow scrolling diagonally
+  - press L on map screen to select previous map
+  - add strat pages
+- fix "Other options" auto-collapse
 
 priority:
+- use modal for sprite customization
+  - also etank color customization
 - add CF health refill to logic
   - tricky CF at ammo refill stations
 - add notable for underwater canGateGlitch (Very Hard)?
@@ -81,6 +80,15 @@ priority:
   is currently set up (since there is no way to go up through sand)
 
 later:
+- fix item colors
+- move enhanced Samus controls into separate option (instead of Max QoL)
+- enhancements to momentum conservation patch
+  - remove need to be holding dash or to be in spin
+  - reset speed boost counter whenever momentum conservation comes into play, to avoid making it too easy to get blue
+  - retain speed when turning around with spin?
+  - on ground, retain horizontal speed when unmorphing
+    - by pressing up (or jump, if spring ball not equipped) while holding forward
+  - in air, retain horizontal speed when soft unmorphing while holding forward
 - move input ROM off Generate page (and into separate dialogue that only shows on first use).
 - set up a more robust way for users to save & select presets
 - enforce tech dependencies:

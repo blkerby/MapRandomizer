@@ -178,7 +178,7 @@ org $82945C      ; We keep this instruction in the same place so that item_dots_
     ROL $26
     REP #$30
     LDA [$00],y            ;\
-    AND #$FBFF             ;} [$03] + [Y] = [[$00] + [Y]] & ~400h
+    AND #$EFFF             ;} [$03] + [Y] = [[$00] + [Y]] & ~1000h
     STA [$03],y            ;/
     BRA .BRANCH_NEXT_WITHOUT_MAP_DATA     ; Go to BRANCH_NEXT_WITHOUT_MAP_DATA
 
@@ -200,7 +200,7 @@ org $82945C      ; We keep this instruction in the same place so that item_dots_
     LDA [$00],y            ; A = [[$00] + [Y]]
     ASL $28                ;\
     BCC .not_explored       ;} If [$28] & (1 << [X]-1) != 0:
-    AND #$FBFF             ; A &= ~400h
+    AND #$EFFF             ; A &= ~1000h
 .not_explored:
     STA [$03],y            ; [$03] + [Y] = [A]
     DEX                    ; Decrement X
@@ -234,6 +234,11 @@ org $90A9C1
     STA $0B                
     ; PC should now be exactly $90A9D0:
     print "$90A9D0 =? ", pc
+
+; use palette 6 for unexplored tile in HUD minimap
+org $90AAB4 : ORA #$3800  ; row 0, was: ORA #$2C00
+org $90AADB : ORA #$3800  ; row 1, was: ORA #$2C00
+org $90AB18 : ORA #$3800  ; row 2, was: ORA #$2C00
 
 ; Patch HUD mini-map drawing to use map revealed bits instead of map data bits
 ; Vanilla logic: tile is non-blank if map station obtained AND map data bit is set

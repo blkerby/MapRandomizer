@@ -148,7 +148,7 @@ impl<'a> TitlePatcher<'a> {
     pub fn new(rom: &'a mut Rom) -> Self {
         Self {
             rom,
-            next_free_space_pc: 0x1C0000,
+            next_free_space_pc: snes2pc(0xB88000),
         }
     }
 

@@ -8,7 +8,6 @@ use maprando::randomize::{
     DebugOptions, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, MotherBrainFight, Objectives,
     ProgressionRate, Randomization, Randomizer,
 };
-use maprando::spoiler_map;
 use maprando::web::{SamusSpriteInfo, SamusSpriteCategory};
 use maprando::{game_data::GameData, patch::make_rom, randomize::DifficultyConfig};
 use std::path::{Path, PathBuf};
@@ -155,9 +154,8 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         escape_refill: true,
         escape_movement_items: true,
         mark_map_stations: true,
-        transition_letters: false,
+        transition_letters: true,
         item_markers: ItemMarkers::ThreeTiered,
-        item_dots_disappear: true,
         all_items_spawn: true,
         acid_chozo: true,
         fast_elevators: true,
@@ -227,15 +225,17 @@ fn main() -> Result<()> {
     let randomization = get_randomization(&args, &game_data)?;
 
     // Generate the patched ROM:
-    let input_rom = Rom::load(&args.input_rom)?;
+    let mut input_rom = Rom::load(&args.input_rom)?;
+    input_rom.data.resize(0x400000, 0);
     let game_rom = make_rom(&input_rom, &randomization, &game_data)?;
     let ips_patch = create_ips_patch(&input_rom.data, &game_rom.data);
 
     let mut output_rom = input_rom.clone();
     let customize_settings = CustomizeSettings {
         samus_sprite: Some("samus".to_string()),
-        vanilla_screw_attack_animation: false,
-        area_themed_palette: true,
+        // samus_sprite: None,
+        vanilla_screw_attack_animation: true,
+        area_themed_palette: false,
         music: MusicSettings::AreaThemed,
         disable_beeping: false,
     };
@@ -268,25 +268,25 @@ fn main() -> Result<()> {
         std::fs::write(output_spoiler_log_path, spoiler_str)?;
     }
 
-    let spoiler_maps = spoiler_map::get_spoiler_map(&output_rom, &randomization.map, &game_data)?;
+    // let spoiler_maps = spoiler_map::get_spoiler_map(&output_rom, &randomization.map, &game_data)?;
 
-    if let Some(output_spoiler_map_assigned_path) = &args.output_spoiler_map_assigned {
-        println!(
-            "Writing spoiler map (assigned areas) to {}",
-            output_spoiler_map_assigned_path.display()
-        );
-        let spoiler_map_assigned = spoiler_maps.assigned.clone();
-        std::fs::write(output_spoiler_map_assigned_path, spoiler_map_assigned)?;
-    }
+    // if let Some(output_spoiler_map_assigned_path) = &args.output_spoiler_map_assigned {
+    //     println!(
+    //         "Writing spoiler map (assigned areas) to {}",
+    //         output_spoiler_map_assigned_path.display()
+    //     );
+    //     let spoiler_map_assigned = spoiler_maps.assigned.clone();
+    //     std::fs::write(output_spoiler_map_assigned_path, spoiler_map_assigned)?;
+    // }
 
-    if let Some(output_spoiler_map_vanilla_path) = &args.output_spoiler_map_vanilla {
-        println!(
-            "Writing spoiler map (vanilla areas) to {}",
-            output_spoiler_map_vanilla_path.display()
-        );
-        let spoiler_map_vanilla = spoiler_maps.vanilla.clone();
-        std::fs::write(output_spoiler_map_vanilla_path, spoiler_map_vanilla)?;
-    }
+    // if let Some(output_spoiler_map_vanilla_path) = &args.output_spoiler_map_vanilla {
+    //     println!(
+    //         "Writing spoiler map (vanilla areas) to {}",
+    //         output_spoiler_map_vanilla_path.display()
+    //     );
+    //     let spoiler_map_vanilla = spoiler_maps.vanilla.clone();
+    //     std::fs::write(output_spoiler_map_vanilla_path, spoiler_map_vanilla)?;
+    // }
 
     Ok(())
 }

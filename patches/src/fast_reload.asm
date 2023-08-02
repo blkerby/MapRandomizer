@@ -6,8 +6,8 @@
 !deathhook82 = $82DDC7 ;$82 used for death hook (game state $19)
 
 ;free space: make sure it doesnt override anything you have
-!freespace82_start = $82FA00
-!freespace82_end = $82FA80
+!freespace82_start = $82FE00
+!freespace82_end = $82FE80
 !freespacea0 = $a0fe00 ;$A0 used for instant save reload
 
 !QUICK_RELOAD = $1f60 ;dont need to touch this

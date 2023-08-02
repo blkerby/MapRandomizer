@@ -3,10 +3,6 @@
     <div class="col-4 col-sm-3"><%= item_markers %></div>
 </div>
 <div class="row">
-    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Item dots disappear after collection:</div>
-    <div class="col-4 col-sm-3"><%= if item_dots_disappear { "Yes" } else { "No" }%></div>
-</div>
-<div class="row">
     <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Map stations always visible on map:</div>
     <div class="col-4 col-sm-3"><%= if mark_map_stations { "Yes" } else { "No" }%></div>
 </div>

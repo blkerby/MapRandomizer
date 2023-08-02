@@ -108,6 +108,7 @@ rooms = [
             4: [(1, 0), (1, 1)],
             5: [(2, 1)],
         },
+        heated=True,
     ),
     Room(
         name='Cathedral',
@@ -129,6 +130,7 @@ rooms = [
             3: [(2, 1)],
             4: [(1, 0), (1, 1)],
         },
+        heated=True,
     ),
     Room(
         name='Rising Tide',
@@ -142,6 +144,7 @@ rooms = [
             1: [(0, 0), (1, 0), (2, 0)],
             2: [(3, 0), (4, 0)],
         },
+        heated=True,
     ),
     Room(
         name='Frog Speedway',
@@ -175,6 +178,7 @@ rooms = [
             4: [(0, 0), (1, 0)],
             5: [(0, 1), (1, 1)],
         },
+        heated=True,
     ),
     Room(
         name='Purple Shaft',
@@ -195,6 +199,7 @@ rooms = [
             2: [(0, 1)],
             3: [(0, 2)],
         },
+        heated=True,
     ),
     Room(
         name='Purple Farming Room',
@@ -207,6 +212,7 @@ rooms = [
             1: [(0, 0)],
             2: [(0, 0)],
         },
+        heated=True,
     ),
     Room(
         name='Frog Savestation',
@@ -283,6 +289,7 @@ rooms = [
             2: [(1, 0)],
             3: [(1, 0)],
         },
+        heated=True,
     ),
     Room(
         name='Norfair Reserve Tank Room',
@@ -301,6 +308,7 @@ rooms = [
             3: [(0, 0)],
             4: [(0, 0)],
         },
+        heated=True,
     ),
     Room(
         name='Bat Cave',
@@ -318,6 +326,7 @@ rooms = [
             2: [(0, 0)],
             3: [(0, 0)],
         },
+        heated=True,
     ),
     Room(
         name='Speed Booster Hall',
@@ -336,7 +345,8 @@ rooms = [
         node_tiles={
             1: [(0, 0), (1, 0), (2, 0), (3, 0), (3, 1), (4, 0), (4, 1), (5, 0), (5, 1)],
             2: [(6, 1), (7, 1), (8, 1), (9, 1), (10, 1), (11, 1)],
-        }
+        },
+        heated=True,
     ),
     Room(
         name='Speed Booster Room',
@@ -352,6 +362,7 @@ rooms = [
             1: [(0, 0)],
             2: [(0, 0)],
         },
+        heated=True,
     ),
     Room(
         name='Single Chamber',
@@ -379,6 +390,7 @@ rooms = [
             4: [(0, 1)],
             5: [(1, 0), (2, 0), (3, 0), (4, 0), (5, 0)],
         },
+        heated=True,
     ),
     Room(
         name='Double Chamber',
@@ -402,6 +414,7 @@ rooms = [
             4: [(1, 0), (2, 0)],
             5: [(2, 1), (3, 1)],
         },
+        heated=True,
     ),
     Room(
         name='Wave Beam Room',
@@ -456,7 +469,8 @@ rooms = [
         node_tiles={
             1: [(0, 0)],
             2: [(1, 0)],
-        }
+        },
+        heated=True,
     ),
     Room(
         name='Ice Beam Snake Room',
@@ -478,6 +492,7 @@ rooms = [
             4: [(0, 1)],
             5: [(0, 1)],
         },
+        heated=True,
     ),
     Room(
         name='Ice Beam Room',
@@ -506,6 +521,7 @@ rooms = [
             1: [(0, 0)],
             2: [(1, 0)],
         },
+        heated=True,
     ),
     Room(
         name='Crumble Shaft',
@@ -528,6 +544,7 @@ rooms = [
             2: [(0, 3)],
             3: [(0, 0)],
         },
+        heated=True,
     ),
     Room(
         name='Nutella Refill',
@@ -555,6 +572,7 @@ rooms = [
             1: [(0, 0), (1, 0)],
             2: [(2, 0), (3, 0)],
         },
+        heated=True,
     ),
     Room(
         name='Kronic Boost Room',
@@ -578,6 +596,7 @@ rooms = [
             5: [(1, 0)],
             6: [(1, 1)],
         },
+        heated=True,
     ),
     Room(
         name='Magdollite Tunnel',
@@ -591,6 +610,7 @@ rooms = [
             1: [(0, 0), (1, 0)],
             2: [(1, 0), (2, 0)],
         },
+        heated=True,
     ),
     Room(
         name='Lava Dive Room',
@@ -608,6 +628,7 @@ rooms = [
             1: [(0, 0), (1, 0), (1, 1)],
             2: [(1, 2), (2, 0), (2, 1), (2, 2), (3, 0), (3, 1)],
         },
+        heated=True,
     ),
     Room(
         name='Volcano Room',
@@ -625,6 +646,7 @@ rooms = [
             1: [(2, 0), (2, 1), (2, 2)],
             2: [(0, 2), (1, 2)],
         },
+        heated=True,
     ),
     Room(
         name='Spiky Platforms Tunnel',
@@ -638,6 +660,7 @@ rooms = [
             1: [(0, 0), (1, 0)],
             2: [(2, 0), (3, 0)],
         },
+        heated=True,
     ),
     Room(
         name='Red Pirate Shaft',
@@ -670,6 +693,7 @@ rooms = [
             2: [(3, 0)],
             3: [(2, 0), (3, 0)],
         },
+        heated=True,
     ),
     Room(
         name='Crocomire Speedway',
@@ -698,6 +722,7 @@ rooms = [
             5: [(12, 1)],
             6: [(12, 2)],
         },
+        heated=True,
     ),
     Room(
         name='Crocomire Escape',
@@ -721,6 +746,7 @@ rooms = [
             2: [(2, 0), (3, 0), (0, 1), (1, 1), (2, 1), (3, 1)],
             3: [(1, 0)],
         },
+        heated=True,
     ),
     Room(
         name="Crocomire's Room",
@@ -779,6 +805,7 @@ rooms = [
             1: [(0, 0)],
             2: [(0, 0)],
         },
+        heated=True,
     ),
     Room(
         name='Post Crocomire Shaft',
@@ -951,6 +978,7 @@ rooms = [
             3: [(0, 0)],
             4: [(0, 0)],
         },
+        heated=True,
     ),
     Room(
         name='Lower Norfair Elevator Save Room',
