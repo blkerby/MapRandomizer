@@ -40,13 +40,16 @@
       "canPreciseWalljump",
       "canShinechargeMovement",
       "canGravityJump",
+      "canNeutralDamageBoost",
       "canSpaceJumpWaterBounce",
       "canBombHorizontally",
       "canCrystalFlash",
       "canHyperGateShot"
     ],
     "notable_strats": [
+      "Blue Brinstar E-Tank Ceiling Damage Boost",
       "Green Hill Zone Wall Jump to Top Right Door",
+      "Double Chamber Walljump Climb Using the Kamer",
       "Golden Torizo Horizontal Bomb Jump",
       "Back-Side Botwoon Fight with Charge and Wave",
       "Draygon Grapple Kill"
@@ -70,7 +73,7 @@
       "canIframeSpikeJump",
       "canJumpIntoIBJ",
       "canMockball",
-      "canDamageBoost",
+      "canHorizontalDamageBoost",
       "canSuitlessLavaDive",
       "canSpringwall",
       "canLateralMidAirMorph",
@@ -113,6 +116,8 @@
       "Crumble Shaft Top Item Precise Walljump",
       "Crumble Shaft Top Item Frozen Sova",
       "HiJump E-Tank Return Through Crumble Blocks",
+
+      "Post Crocomire Farming Room Damage Boost",
 
       "Golden Torizo Crumble Jump",
 
@@ -202,7 +207,6 @@
       "Croc Speedway Reverse Speedball",
 
       "Grapple Tutorial 3 Frozen Gamet Bridge",
-      "Post Crocomire Farming Room Dboost",
       "PCJR Indiana Jones Grapple",
       "PCJR Acid Shinespark",
       "PCJR Big Jump Shinespark",
@@ -221,6 +225,7 @@
       "Reverse Spring Ball Maze Crystal Flash Clip",
       "Mickey Mouse Crumble Speedjump",
       "KiHunter Shaft KiHunter Dodge",
+      "Dodge the Three Musketeers Going Down",
       "Writg Frozen Pirate Platforms",
       "Writg New Route with HiJump, Speed, and PowerBombs",
 
@@ -231,7 +236,6 @@
       "Glass Tunnel Maridia Tube Clip",
 
       "Aqueduct Snail Clip", 
-      "Aqueduct Snail Walk",
       "Aqueduct Bootless Suitless Snail Climb",
       "Back-Side Botwoon Magic Pixel Beam Fight",
       "Back-Side Botwoon Plasma Shield Microwave",
@@ -293,7 +297,6 @@
       "canStaggeredIBJ",
       "canPauseAbuse",
       "canWallJumpBombBoost",
-      "canContinuousDboost",
       "canBabyMetroidAvoid",
       "canSandIBJ",
       "canBombJumpOnSand",
@@ -345,7 +348,6 @@
       "Kihunter Shaft Manipulation from Save Room",
       "Writg New Low Ice Pirate Freeze", 
       "Writg Low Ice Pirate Freeze",
-      "Dodge the Three Musketeers",
 
       "Crab Hole Suitless Crab Climb No Jump Assist",
       "Crab Hole Suitless Crab Climb Superless with Springball",
@@ -367,7 +369,7 @@
 
       "Blue Hopper Dodge",
       "Blue Hopper Room Roll Under Hoppers",
-      "Waveless Baby Skip"
+      "Baby Skip Without Wave or Speed"
     ]
   },
   {
@@ -420,7 +422,8 @@
       "Reverse Amphitheatre Thread the Needle",
       "LN Firefleas Top to Bottom Itemless Damageless",
       "Mickey Mouse Viola Ice Clip",
-      "Mickey Mouse Temporary Blue onto Crumbles",
+      "Mickey Mouse Temporary Blue Crumble Jump without SpringBall",
+      "Dodge the 3 Musketeers Going Up",
       "Writg HiJump and Only Screw", 
       "Writg Power Bomb Diagonal Bomb Jump",
       "Writg X-Ray Climb",
@@ -462,7 +465,7 @@
       "canBeVeryPatient",
       "canMoondance",
       "canBombGrappleJump",
-      "canFrozenEnemyMoonfall",
+      "canEnemyStuckMoonfall",
       "canDownwardGModeSetup"
     ],
     "notable_strats": [
@@ -472,8 +475,13 @@
       "Crateria Supers G-Mode Up with PBs",
       "Green Pirate Shaft Beetom Xray Climb",
       "Green Pirate Shaft Beetom Moondance",
+      "Green Pirate Shaft Beetom Stuck Moonfall",
 
       "Taco Tank in Blue Brinstar Energy Tank Room",
+
+      "Green Brinstar Shaft Zeela Stuck Moonfall",
+
+      "Dachora Room Reo Zeela Stuck Moonfall",
 
       "Crocomire with 5 Missiles",
  
@@ -487,6 +495,7 @@
       "Mt. Everest Right Crab Climb with Only 1 Super",
       "Everest Double Crab Bomb-Grapple-Jump",
 
+      "Aqueduct Snail Stuck Moonfall",
       "Back-Side Botwoon Super Only Fight",
       "Botwoon Energy Tank Room Puyo Bomb-Grapple-Jump",
       "Colosseum with no Equipment",
@@ -495,7 +504,9 @@
       "West Sand Hall Insane Bomb Jump",
  
       "Bowling Alley Ceiling Bomb Jump",
-      "WS East Supers Robot Clip Run-In-Place"
+      "WS East Supers Robot Clip Run-In-Place",
+
+      "Baby Skip With Nothing"
     ]
   }
 ]
