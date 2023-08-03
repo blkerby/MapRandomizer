@@ -21,8 +21,12 @@ about 15 seconds to load.
 <ul>
 <li>Improvements to map clarity (minimap and pause map):
     <ul>
+    <li>Heated rooms are distinguished on the map by a lighter color.
     <li>When an item is collected, its dot on the map fades instead of disappearing.
-    <li>Heated rooms have a lighter map color.
+        <ul>
+        <li>This obsoletes the quality-of-life option "Item dots disappear after collection" and the unexplore
+        special input, which are now removed.
+        </ul>
     <li>Area map colors are adjusted; in particular, Tourian is no longer gray.
     <li>Sand transitions are marked on the map differently from doors.
     <li>Map station tiles have a normal background color (instead of black).
@@ -44,9 +48,8 @@ about 15 seconds to load.
     <ul>
     <li>canDamageBoost is split into canNeutralDamageBoost (Medium) and canHorizontalDamageBoost (Hard).
     <li>canFrozenEnemyMoonfall is renamed to canEnemyStuckMoonfall (Insane), and many strats are added.
-    <li>In Norfair Reserve Tank Room, requirements are added to deal with the Dragons, making the logic more lenient.
     <li>Frozen Pirate Plasma Escape now requires "canTrickyUseFrozenEnemies" (Hard).
-    <li>The logic for walljumping up the left side of Double Chamber is refined (made more lenient on lower settings, tightened on higher settings).
+    <li>The logic is refined in Norfair Reserve Tank Room and Double Chamber (made more lenient on lower settings, tightened on higher settings).
     </ul>
 </ul>
 
