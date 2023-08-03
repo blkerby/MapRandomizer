@@ -771,7 +771,7 @@ impl GameData {
             for helper in category_json["helpers"].members() {
                 self.helper_json_map
                     .insert(helper["name"].as_str().unwrap().to_owned(), helper.clone());
-            }    
+            }
         }
         Ok(())
     }
@@ -819,13 +819,25 @@ impl GameData {
             } else if value == "i_ammoRefill" {
                 return Ok(Requirement::AmmoStationRefill);
             } else if value == "i_BlueGateGlitchLeniency" {
-                return Ok(Requirement::GateGlitchLeniency { green: false, heated: false });
+                return Ok(Requirement::GateGlitchLeniency {
+                    green: false,
+                    heated: false,
+                });
             } else if value == "i_GreenGateGlitchLeniency" {
-                return Ok(Requirement::GateGlitchLeniency { green: true, heated: false });
+                return Ok(Requirement::GateGlitchLeniency {
+                    green: true,
+                    heated: false,
+                });
             } else if value == "i_HeatedBlueGateGlitchLeniency" {
-                return Ok(Requirement::GateGlitchLeniency { green: false, heated: true });
+                return Ok(Requirement::GateGlitchLeniency {
+                    green: false,
+                    heated: true,
+                });
             } else if value == "i_HeatedGreenGateGlitchLeniency" {
-                return Ok(Requirement::GateGlitchLeniency { green: true, heated: true });
+                return Ok(Requirement::GateGlitchLeniency {
+                    green: true,
+                    heated: true,
+                });
             } else if let Some(&item_id) = self.item_isv.index_by_key.get(value) {
                 return Ok(Requirement::Item(item_id as ItemId));
             } else if let Some(&flag_id) = self.flag_isv.index_by_key.get(value) {
@@ -1317,9 +1329,7 @@ impl GameData {
                 let artificial_morph = value["artificialMorph"]
                     .as_bool()
                     .with_context(|| format!("missing/invalid artificialMorph in {}", req_json))?;
-                let mobility = value["mobility"]
-                    .as_str()
-                    .unwrap_or("any");
+                let mobility = value["mobility"].as_str().unwrap_or("any");
 
                 return Ok(Requirement::ComeInWithGMode {
                     room_id: ctx.room_id,
@@ -1424,75 +1434,6 @@ impl GameData {
                 }];
             }
         }
-
-        room_json["links"] = json::array![
-            {
-                "from": 1,
-                "to": [
-                {
-                    "id": 3,
-                    "strats": [
-                    {
-                        "name": "Base",
-                        "notable": false,
-                        "requires": [
-                            {"or": [
-                                "h_canUsePowerBombs",
-                                "f_ShaktoolDoneDigging"
-                            ]}
-                        ]
-                    }
-                    ]
-                }
-                ]
-            },
-            {
-                "from": 2,
-                "to": [
-                {
-                    "id": 3,
-                    "strats": [
-                    {
-                        "name": "Base",
-                        "notable": false,
-                        "requires": [
-                            {"or": [
-                                "h_canUsePowerBombs",
-                                "f_ShaktoolDoneDigging"
-                            ]}
-                        ]
-                    }
-                    ],
-                    "note": "Use the snails to dig through the sand."
-                }
-                ]
-            },
-            {
-                "from": 3,
-                "to": [
-                {
-                    "id": 1,
-                    "strats": [
-                    {
-                        "name": "Base",
-                        "notable": false,
-                        "requires": []
-                    }
-                    ]
-                },
-                {
-                    "id": 2,
-                    "strats": [
-                    {
-                        "name": "Base",
-                        "notable": false,
-                        "requires": []
-                    }
-                    ]
-                }
-                ]
-            }
-        ];
     }
 
     fn override_metal_pirates_room(&mut self, room_json: &mut JsonValue) {
@@ -1629,13 +1570,6 @@ impl GameData {
                             ]
                         }
                     ];
-                }
-
-                if unlocked_node_json["nodeType"] == "item" {
-                    unlock_strats.push(json::object! {
-                        "name": "All Items Spawn From Start",
-                        "requires": ["f_AllItemsSpawn"]
-                    })?;
                 }
 
                 extra_nodes.push(unlocked_node_json);
@@ -2247,12 +2181,14 @@ impl GameData {
         let dst_ptr = self.node_ptr_map.get(&dst).map(|x| *x);
         if src_ptr.is_some() || dst_ptr.is_some() {
             self.door_ptr_pair_map.insert((src_ptr, dst_ptr), src);
-            self.reverse_door_ptr_pair_map.insert(src, (src_ptr, dst_ptr));
+            self.reverse_door_ptr_pair_map
+                .insert(src, (src_ptr, dst_ptr));
             if self.unlocked_node_map.contains_key(&src) {
                 let src_room_id = src.0;
                 src = (src_room_id, self.unlocked_node_map[&src])
             }
-            self.unlocked_door_ptr_pair_map.insert((src_ptr, dst_ptr), src);
+            self.unlocked_door_ptr_pair_map
+                .insert((src_ptr, dst_ptr), src);
         }
     }
 
@@ -2288,7 +2224,8 @@ impl GameData {
                     if self.unlocked_node_map.contains_key(&(room_id, node_id)) {
                         unlocked_node_id = self.unlocked_node_map[&(room_id, node_id)];
                     }
-                    self.flag_locations.push((room_id, unlocked_node_id, flag_id));
+                    self.flag_locations
+                        .push((room_id, unlocked_node_id, flag_id));
                 }
             }
         }
@@ -2317,11 +2254,11 @@ impl GameData {
 
     pub fn get_weapon_mask(&self, items: &[bool]) -> WeaponMask {
         let mut weapon_mask = 0;
-        let implicit_item_requires: HashSet<String> = vec![
-            "PowerBeam",
-            "canUseGrapple",
-            "canSpecialBeamAttack",
-        ].into_iter().map(|x| x.to_string()).collect();
+        let implicit_item_requires: HashSet<String> =
+            vec!["PowerBeam", "canUseGrapple", "canSpecialBeamAttack"]
+                .into_iter()
+                .map(|x| x.to_string())
+                .collect();
         // TODO: possibly make this more efficient. We could avoid dealing with strings
         // and just use a pre-computed item bitmask per weapon. But not sure yet if it matters.
         'weapon: for (i, weapon_name) in self.weapon_isv.keys.iter().enumerate() {
@@ -2359,9 +2296,10 @@ impl GameData {
                 let mut req_json_list: Vec<JsonValue> = vec![];
                 for req in loc.requires.as_ref().unwrap() {
                     let req_str = req.to_string();
-                    let req_json = json::parse(&req_str).with_context(|| format!("Error parsing requires in {:?}", loc))?;
+                    let req_json = json::parse(&req_str)
+                        .with_context(|| format!("Error parsing requires in {:?}", loc))?;
                     req_json_list.push(req_json);
-                }    
+                }
                 let ctx = RequirementContext::default();
                 let req_list = self.parse_requires_list(&req_json_list, &ctx)?;
                 loc.requires_parsed = Some(Requirement::make_and(req_list));
@@ -2381,9 +2319,10 @@ impl GameData {
                 let mut req_json_list: Vec<JsonValue> = vec![];
                 for req in loc.requires.as_ref().unwrap() {
                     let req_str = req.to_string();
-                    let req_json = json::parse(&req_str).with_context(|| format!("Error parsing requires in {:?}", loc))?;
+                    let req_json = json::parse(&req_str)
+                        .with_context(|| format!("Error parsing requires in {:?}", loc))?;
                     req_json_list.push(req_json);
-                }    
+                }
                 let ctx = RequirementContext::default();
                 let req_list = self.parse_requires_list(&req_json_list, &ctx)?;
                 loc.requires_parsed = Some(Requirement::make_and(req_list));
@@ -2525,33 +2464,88 @@ impl GameData {
             "name": "h_lavaProof",
             "requires": ["Varia", "Gravity"],
         };
-        *game_data.helper_json_map.get_mut("h_canActivateAcidChozo").unwrap() = json::object! {
+        // Gate glitch leniency
+        *game_data
+            .helper_json_map
+            .get_mut("h_BlueGateGlitchLeniency")
+            .unwrap() = json::object! {
+            "name": "h_BlueGateGlitchLeniency",
+            "requires": ["i_BlueGateGlitchLeniency"],
+        };
+        *game_data
+            .helper_json_map
+            .get_mut("h_GreenGateGlitchLeniency")
+            .unwrap() = json::object! {
+            "name": "h_GreenGateGlitchLeniency",
+            "requires": ["i_GreenGateGlitchLeniency"],
+        };
+        *game_data
+            .helper_json_map
+            .get_mut("h_HeatedBlueGateGlitchLeniency")
+            .unwrap() = json::object! {
+            "name": "h_BlueGateGlitchLeniency",
+            "requires": ["i_HeatedBlueGateGlitchLeniency"],
+        };
+        *game_data
+            .helper_json_map
+            .get_mut("h_HeatedGreenGateGlitchLeniency")
+            .unwrap() = json::object! {
+            "name": "h_GreenGateGlitchLeniency",
+            "requires": ["i_HeatedGreenGateGlitchLeniency"],
+        };
+        // Other:
+        *game_data
+            .helper_json_map
+            .get_mut("h_AllItemsSpawned")
+            .unwrap() = json::object! {
+            "name": "h_AllItemsSpawned",
+            "requires": ["f_AllItemsSpawn"]  // internal flag "f_AllItemsSpawn" gets set at start if QoL option enabled
+        };
+        *game_data
+            .helper_json_map
+            .get_mut("h_EverestMorphTunnelExpanded")
+            .unwrap() = json::object! {
+            "name": "h_EverestMorphTunnelExpanded",
+            "requires": []  // This morph tunnel is always expanded, so there are no requirements.
+        };
+        *game_data
+            .helper_json_map
+            .get_mut("h_canActivateAcidChozo")
+            .unwrap() = json::object! {
             "name": "h_canActivateAcidChozo",
             "requires": [{
                 "or": ["SpaceJump", "f_AcidChozoWithoutSpaceJump"]
             }],
         };
+        *game_data
+            .helper_json_map
+            .get_mut("h_ShaktoolVanillaFlag")
+            .unwrap() = json::object! {
+            "name": "h_ShaktoolVanillaFlag",
+            "requires": ["never"],
+        };
+        *game_data
+            .helper_json_map
+            .get_mut("h_ShaktoolCameraFix")
+            .unwrap() = json::object! {
+            "name": "h_ShaktoolCameraFix",
+            "requires": [],
+        };
         // Ammo station refill
-        *game_data.helper_json_map.get_mut("h_useMissileRefillStation").unwrap() = json::object! {
+        *game_data
+            .helper_json_map
+            .get_mut("h_useMissileRefillStation")
+            .unwrap() = json::object! {
             "name": "h_useMissileRefillStation",
             "requires": ["i_ammoRefill"],
         };
-        // Gate glitch leniency
-        *game_data.helper_json_map.get_mut("h_BlueGateGlitchLeniency").unwrap() = json::object! {
-            "name": "h_BlueGateGlitchLeniency",
-            "requires": ["i_BlueGateGlitchLeniency"],
-        };
-        *game_data.helper_json_map.get_mut("h_GreenGateGlitchLeniency").unwrap() = json::object! {
-            "name": "h_GreenGateGlitchLeniency",
-            "requires": ["i_GreenGateGlitchLeniency"],
-        };
-        *game_data.helper_json_map.get_mut("h_HeatedBlueGateGlitchLeniency").unwrap() = json::object! {
-            "name": "h_BlueGateGlitchLeniency",
-            "requires": ["i_HeatedBlueGateGlitchLeniency"],
-        };
-        *game_data.helper_json_map.get_mut("h_HeatedGreenGateGlitchLeniency").unwrap() = json::object! {
-            "name": "h_GreenGateGlitchLeniency",
-            "requires": ["i_HeatedGreenGateGlitchLeniency"],
+        // Wall on right side of Tourian Escape Room 1 does not spawn in the randomizer:
+        *game_data
+            .helper_json_map
+            .get_mut("h_AccessTourianEscape1RightDoor")
+            .unwrap() = json::object! {
+            "name": "h_AccessTourianEscape1RightDoor",
+            "requires": [],
         };
 
         game_data.load_weapons()?;

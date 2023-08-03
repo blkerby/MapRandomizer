@@ -17,7 +17,7 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-75---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 75 (???)</a>:
+<p><a href="https://version-75---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 75 (2023-08-02)</a>:
 <ul>
 <li>Improvements to map clarity (minimap and pause map):
     <ul>
@@ -39,6 +39,14 @@ about 15 seconds to load.
         <li>Big Boy Room
         <li>Gauntlet Entrance
         </ul>
+    </ul>
+<li>Logic updates (highlights):
+    <ul>
+    <li>canDamageBoost is split into canNeutralDamageBoost (Medium) and canHorizontalDamageBoost (Hard).
+    <li>canFrozenEnemyMoonfall is renamed to canEnemyStuckMoonfall (Insane), and many strats are added.
+    <li>In Norfair Reserve Tank Room, requirements are added to deal with the Dragons, making the logic more lenient.
+    <li>Frozen Pirate Plasma Escape now requires "canTrickyUseFrozenEnemies" (Hard).
+    <li>The logic for walljumping up the left side of Double Chamber is refined (made more lenient on lower settings, tightened on higher settings).
     </ul>
 </ul>
 
