@@ -1999,6 +1999,23 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
+    fn fix_acid(&mut self) -> Result<()> {
+        // In the vanilla game, unlike other FX, acid uses palette 0 (same as Power Bomb doors). We made palette 0
+        // not fade through transitions, since we use it for the non-empty Reserve Tank color
+        // (and Samus location indicator on the mini-map). This wouldn't look right when entering
+        // or exiting a room with acid, as the acid would appear/disappear abruptly. So we change
+        // acid to use the FX palette (which normally would be palette 6, but we moved it to palette 7
+        // so that unexplored map tiles could use palette 6).
+
+        for addr in (snes2pc(0x8A8840)..snes2pc(0x8A9080)).step_by(2) {
+            let word = self.rom.read_u16(addr)?;
+            if word & 0x1C00 == 0x0000 {
+                self.rom.write_u16(addr, word | 0x1C00)?;
+            }
+        }
+        Ok(())
+    }
+
     pub fn apply_patches(&mut self) -> Result<()> {
         self.initialize_tiles()?;
         self.fix_pause_palettes()?;
@@ -2022,6 +2039,7 @@ impl<'a> MapPatcher<'a> {
         self.fix_fx_palettes()?;
         self.fix_kraid()?;
         self.fix_item_colors()?;
+        self.fix_acid()?;
         // info!("Free tiles: {} (out of {})", self.free_tiles.len() - self.next_free_tile_idx, self.free_tiles.len());
         Ok(())
     }
