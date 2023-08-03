@@ -57,9 +57,6 @@
         <li>Press Select in the pause map to cycle through maps of explored areas.
         <li>Press L + R + Select + Start simultaneously to quick reload from the last save. 
         Repeat to cycle through previous saves.
-        <li>Press Angle Up + Item Cancel simultaneously to mark the current tile un-explored on the map.  
-        To be effective, these inputs must be
-        held while exiting the tile, since otherwise the game will immediately re-explore the tile.
         </ul>
         <% } %>
         <h6>Map info</h6>

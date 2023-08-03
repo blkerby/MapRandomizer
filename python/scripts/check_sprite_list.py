@@ -13,7 +13,7 @@ upstream_sprite_names.remove("001.samus.1")
 upstream_sprite_names.remove('samus_classic.1')  # ignoring this one for now, since it seems very similar to vanilla
 upstream_sprite_names.remove("hitboxhelper.1")  # ignoring this one, since there are two versions and we're using the other one
 upstream_sprite_names.remove('super_controid.1')  # ignoring this one, since there are two versions and we're using the other one (PG)
-upstream_sprite_names.remove('super_fusion_typeb_orange.1')  # ignoring this one, since there are two versions and we're using the other one
+upstream_sprite_names.remove('samus_fusion_typeb_orange.1')  # ignoring this one, since there are two versions and we're using the other one
 map_rando_sprite_names.remove("samus.1")
 
 # Show differences between sprites in Map Rando and those in upstream listing:
