@@ -453,20 +453,12 @@ load_target_palette:
     lda $7EC034
     sta $7EC23C
 
-    ; FX palette: set palette 6 initial colors 1-2 to black
-    lda #$0000
-    sta $7EC03A
-    sta $7EC03C
-
-    ;lda $7EC032  ; unexplored gray: palette 6, color 1
     lda !unexplored_gray
     sta $7EC232
 
-    ;lda $7EC034  ; unexplored light gray: palette 6, color 2
     lda !unexplored_light_gray
     sta $7EC234
 
-    ;lda $7EC036  ; unexplored white: palette 6, color 3
     lda #$7FFF
     sta $7EC236
 
