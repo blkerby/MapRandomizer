@@ -4,8 +4,6 @@ import random
 import graph_tool
 import graph_tool.inference
 import graph_tool.topology
-from rando.sm_json_data import SMJsonData, GameState, Link, DifficultyConfig
-from rando.items import Randomizer
 from logic.rooms.all_rooms import rooms
 import json
 import logging
@@ -17,7 +15,7 @@ import argparse
 #
 parser = argparse.ArgumentParser(
     'gen_maps',
-    'Generate random maps with area assignment (filtering by successful item randomization)')
+    'Generate random maps with area assignment')
 parser.add_argument('session_file')
 parser.add_argument('start_index')
 parser.add_argument('end_index')
@@ -45,7 +43,8 @@ session_name = args.session_file
 start_index = int(args.start_index)
 end_index = int(args.end_index)
 session = CPU_Unpickler(open('models/{}'.format(session_name), 'rb')).load()
-ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 343)
+ind = torch.nonzero(session.replay_buffer.episode_data.reward == 0)
+logging.info("{} maps".format(ind.shape[0]))
 os.makedirs(f'maps/{session_name}', exist_ok=True)
 episode_data_action = session.replay_buffer.episode_data.action[ind[start_index:end_index], :]
 del session
@@ -94,28 +93,12 @@ def get_map(ind_i):
     return map
 
 
-sm_json_data_path = "sm-json-data/"
-sm_json_data = SMJsonData(sm_json_data_path)
-tech = set(sm_json_data.tech_name_set)
-difficulty = DifficultyConfig(tech=tech, shine_charge_tiles=33, resource_multiplier=1.2)
 for room in rooms:
     room.populate()
 
 for ind_i in range(start_index, end_index):
     logging.info("ind_i={} ({}-{})".format(ind_i, start_index, end_index))
     map = get_map(ind_i - start_index)
-
-    randomizer = Randomizer(map, sm_json_data, difficulty)
-    for i in range(0, 100):
-        np.random.seed(i)
-        random.seed(i)
-        success = randomizer.randomize()
-        if success:
-            break
-    else:
-        continue
-
-    logging.info("Successful item randomization")
 
     xs_min = np.array([p[0] for p in map['rooms']])
     ys_min = np.array([p[1] for p in map['rooms']])

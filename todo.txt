@@ -1,23 +1,27 @@
 next release (maybe):
+- new map pool (preliminary version)
+- check that phantoon is reachable at the end
+- after placing all key items, include one more step to collect remaining items
+- fix palette issues:
+  - lava/water FX (e.g. in crocomire escape, spiky acid snakes tunnel, main st): disappears after unpausing
+  - water FX tiles when loading into underwater save room.
+  - pirates when entering tourian escape room 3
+
+priority:
 - map improvements
   - fix little pause menu palette issue at top of equipment screen (green where gray should be)
-  - check to make sure ultra-low QoL can still work properly
-  - update help button text (e.g. for ultra-low QoL)
   - accelerate pause menu fadeout (with QoL option)
     - further accelerate map select and map/equipment screen switch
   - increase map scroll speed
   - allow scrolling diagonally
   - press L on map screen to select previous map
-  - add strat pages
-- fix "Other options" auto-collapse
-
-priority:
+- add strat pages
 - use modal for sprite customization
   - also etank color customization
 - add CF health refill to logic
   - tricky CF at ammo refill stations
 - add notable for underwater canGateGlitch (Very Hard)?
-- remove old-format farms and refills from randomizer
+- remove old-format farms and refills from sm-json-data?
 - use "crateria asleep" song somewhere:
   - in crateria initially when zebes not awake.
   - in subarea containing ship, use rain/lightning version

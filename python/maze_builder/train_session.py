@@ -8,10 +8,6 @@ from maze_builder.replay import ReplayBuffer
 from maze_builder.types import EpisodeData, TrainingData
 from model_average import ExponentialAverage
 import concurrent.futures
-import logging
-from dataclasses import dataclass
-import util
-import numpy as np
 
 
 # TODO: try using torch.multinomial instead of implementing this from scratch?
