@@ -606,8 +606,8 @@ load_bg3_tiles:
     adc #$00E2
     sta $4314
 
-    lda #$1000
-    sta $4315 ; transfer size = $1000 bytes
+    lda #$E00
+    sta $4315 ; transfer size = $E00 bytes
 
     sep #$30
     lda #$02

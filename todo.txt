@@ -1,11 +1,12 @@
-next release (maybe):
+next release:
+- fix FX/palette issues:
+  - lava/water FX (e.g. in crocomire escape, spiky acid snakes tunnel, main st): disappears after unpausing
+  - water FX tiles when loading into underwater save room.
+  - acid FX palette should fade in/out in transitions.
+  - pirates when entering tourian escape room 3
 - new map pool (preliminary version)
 - check that phantoon is reachable at the end
 - after placing all key items, include one more step to collect remaining items
-- fix palette issues:
-  - lava/water FX (e.g. in crocomire escape, spiky acid snakes tunnel, main st): disappears after unpausing
-  - water FX tiles when loading into underwater save room.
-  - pirates when entering tourian escape room 3
 
 priority:
 - map improvements
@@ -14,7 +15,7 @@ priority:
     - further accelerate map select and map/equipment screen switch
   - increase map scroll speed
   - allow scrolling diagonally
-  - press L on map screen to select previous map
+  - button on map screen to select previous map; maybe X/Y for back/forward (Y for more convenient alternative to Select)
 - add strat pages
 - use modal for sprite customization
   - also etank color customization
