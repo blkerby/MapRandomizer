@@ -194,7 +194,7 @@ def compute_balance_cost(save_idxs, refill_idxs, map_idxs, dist_matrix, hallway_
     refill_neighbors_cnt = np.sum((refill_dist == 1) | (refill_dist == 2))
     map_dist_cost = np.mean(dist_matrix[landing_site_idx, map_idxs])
     
-    overall_save_cost = save_coverage_cost + 0.2 * save_cap_cnt + 0.3 * save_neighbors_cnt
+    overall_save_cost = save_coverage_cost + 0.1 * save_cap_cnt + 0.3 * save_neighbors_cnt
     overall_refill_cost = refill_coverage_cost + 0.1 * refill_cap_cost + 0.2 * refill_neighbors_cnt
     overall_cost = overall_save_cost + overall_refill_cost + map_dist_cost
     return overall_cost

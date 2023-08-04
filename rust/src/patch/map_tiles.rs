@@ -1120,6 +1120,7 @@ impl<'a> MapPatcher<'a> {
                 (2, 10, P, W, E, E, O),
             ],
         )?;
+        self.patch_room_basic("Spore Spawn Room", vec![(0, 2, W, W, P, D, O)])?;
         self.patch_room_basic(
             "Big Pink",
             vec![

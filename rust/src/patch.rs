@@ -252,7 +252,6 @@ impl<'a> Patcher<'a> {
             "tourian_map",
             "tourian_eye_door",
             "no_explosions_before_escape",
-            "escape_room_1",
             "sound_effect_disables",
             "title_map_animation",
             "shaktool",
@@ -892,7 +891,7 @@ impl<'a> Patcher<'a> {
             0xC89C, 0xC86C, 0xC884, // up pink/yellow/green door
             0xDB48, 0xDB4C, 0xDB52, 0xDB56, 0xDB5A,
             0xDB60, // eye doors
-                    // 0xC8CA, // wall in Escape Room 1 (TODO: Check if this is needed)
+            0xC8CA, // wall in Escape Room 1
         ];
         let gray_door_plm_types: HashMap<isize, isize> = vec![
             (0xC848, 0xBAF4), // left gray door
@@ -1170,13 +1169,6 @@ impl<'a> Patcher<'a> {
 
         // In Shaktool room, skip setting screens to red scroll (so that it won't glitch out when entering from the right):
         self.rom.write_u8(snes2pc(0x84B8DC), 0x60)?; // RTS
-
-        // Stop wall from spawning in Tourian Escape Room 1:
-        self.rom.write_u16(snes2pc(0x84BB34), 0x86BC)?;
-        self.rom.write_u16(snes2pc(0x84BB44), 0x86BC)?;
-        // Alternative way to stop the wall from spawning, but would need to be applied earlier to the
-        // original ROM before the door data was rewritten:
-        // self.rom.write_u8(snes2pc(0x83AA8F), 0x04)?;  // Door direction = 0x04
 
         // Restore acid in Tourian Escape Room 4:
         self.rom.write_u16(snes2pc(0x8FDF03), 0xC953)?; // Vanilla setup ASM pointer (to undo effect of `no_explosions_before_escape` patch)
@@ -1493,6 +1485,13 @@ pub fn make_rom(
 ) -> Result<Rom> {
     let mut orig_rom = base_rom.clone();
     apply_orig_ips_patches(&mut orig_rom, randomization)?;
+
+    // Remove solid wall that spawns in Tourian Escape Room 1 while coming through right door.
+    // Note that this wall spawns in two ways: 1) as a normal PLM which spawns when entering through either door
+    // (and which we remove in `remove_non_blue_doors`), and 2) as a door cap closing when coming in from the right 
+    // (removed here). Both of these have to be removed in order to successfully get rid of this wall.
+    // (The change has to be applied to the original ROM before doors are reconnected based on the randomized map.)
+    orig_rom.write_u8(snes2pc(0x83AA8F), 0x01)?;  // Door direction = 0x01
 
     let mut rom = orig_rom.clone();
     let mut patcher = Patcher {

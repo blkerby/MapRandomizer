@@ -1,6 +1,4 @@
 next release:
-- check that phantoon is reachable at the end
-- after placing all key items, include one more step to collect remaining items
 - new map pool (preliminary version)
 
 priority:
@@ -80,7 +78,8 @@ priority:
   is currently set up (since there is no way to go up through sand)
 
 later:
-- fix item colors
+- check why Tourian Escape Room 1 runway isn't allowing Speedball strat into Wrecked Ship Main Shaft (on Expert)
+- remove invisible solid tile in Tourian Escape Room 1, above transition
 - move enhanced Samus controls into separate option (instead of Max QoL)
 - enhancements to momentum conservation patch
   - remove need to be holding dash or to be in spin
