@@ -170,7 +170,6 @@ struct RandomizationState {
     flag_location_state: Vec<FlagLocationState>, // Corresponds to GameData.flag_locations
     items_remaining: Vec<usize>, // Corresponds to GameData.items_isv (one count for each of 21 distinct item names)
     global_state: GlobalState,
-    done: bool, // Have all key items been placed?
     debug_data: Option<DebugData>,
     previous_debug_data: Option<DebugData>,
     key_visited_vertices: HashSet<usize>,
@@ -1051,18 +1050,26 @@ impl<'r> Randomizer<'r> {
             num_key_items_to_place,
             min(num_bireachable, num_key_items_remaining),
         );
-        assert!(num_key_items_to_place >= 1);
-        if num_key_items_to_place - 1 + attempt_num >= num_key_items_remaining {
-            return None;
-        }
+        let mut key_items_to_place: Vec<Item> = vec![];
 
-        // If we will be placing `k` key items, we let the first `k - 1` items to place remain fixed based on the
-        // item precedence order, while we vary the last key item across attempts (to try to find some choice that
-        // will expand the set of bireachable item locations).
-        let mut key_items_to_place: Vec<Item> =
-            filtered_item_precedence[0..(num_key_items_to_place - 1)].to_vec();
-        key_items_to_place.push(filtered_item_precedence[num_key_items_to_place - 1 + attempt_num]);
-        assert!(key_items_to_place.len() == num_key_items_to_place);
+        if num_key_items_to_place >= 1 {
+            if num_key_items_to_place - 1 + attempt_num >= num_key_items_remaining {
+                return None;
+            }
+
+            // If we will be placing `k` key items, we let the first `k - 1` items to place remain fixed based on the
+            // item precedence order, while we vary the last key item across attempts (to try to find some choice that
+            // will expand the set of bireachable item locations).
+            key_items_to_place
+                .extend(filtered_item_precedence[0..(num_key_items_to_place - 1)].iter());
+            key_items_to_place
+                .push(filtered_item_precedence[num_key_items_to_place - 1 + attempt_num]);
+            assert!(key_items_to_place.len() == num_key_items_to_place);
+        } else {
+            if attempt_num > 0 {
+                return None;
+            }
+        }
 
         // println!("key items to place: {:?}", key_items_to_place);
 
@@ -1326,11 +1333,138 @@ impl<'r> Randomizer<'r> {
         assert!(idx == remaining_items.len());
     }
 
+    fn provides_progression(
+        &self,
+        old_state: &RandomizationState,
+        new_state: &mut RandomizationState,
+        select: &SelectItemsOutput,
+        placed_uncollected_bireachable_items: &[Item],
+        num_unplaced_bireachable: usize,
+    ) -> bool {
+        // Collect all the items that would be collectible in this scenario:
+        // 1) Items that were already placed on an earlier step; this is only applicable to filler items
+        // (normally Missiles) on Slow progression, which became one-way reachable on an earlier step but are now
+        // bireachable.
+        // 2) Key items,
+        // 3) Other items
+        for &item in placed_uncollected_bireachable_items.iter().chain(
+            select
+                .key_items
+                .iter()
+                .chain(select.other_items.iter())
+                .take(num_unplaced_bireachable),
+        ) {
+            new_state.global_state.collect(item, self.game_data);
+        }
+
+        // info!("Trying placing {:?}", key_items_to_place);
+
+        self.update_reachability(new_state);
+        let num_bireachable = new_state
+            .item_location_state
+            .iter()
+            .filter(|x| x.bireachable)
+            .count();
+        let num_reachable = new_state
+            .item_location_state
+            .iter()
+            .filter(|x| x.reachable)
+            .count();
+        let num_one_way_reachable = num_reachable - num_bireachable;
+
+        // Maximum acceptable number of one-way-reachable items. This is to try to avoid extreme
+        // cases where the player would gain access to very large areas that they cannot return from:
+        let one_way_reachable_limit = 20;
+        // let one_way_reachable_limit = 100;
+
+        // Check if all items are already bireachable. It isn't necessary for correctness to check this case, 
+        // but it speeds up the last step, where no further progress is possible (meaning there is no point 
+        // trying a bunch of possible key items to place to try to make more progress.
+        let all_items_bireachable = num_bireachable == new_state.item_location_state.len();
+
+        let gives_expansion = if all_items_bireachable {
+            true
+        } else if self.difficulty_tiers[0].progression_rate == ProgressionRate::Slow {
+            iter::zip(
+                &new_state.item_location_state,
+                &old_state.item_location_state,
+            )
+            .any(|(n, o)| n.bireachable && !o.reachable)
+        } else {
+            iter::zip(
+                &new_state.item_location_state,
+                &old_state.item_location_state,
+            )
+            .any(|(n, o)| n.bireachable && !o.bireachable)
+        };
+
+        num_one_way_reachable < one_way_reachable_limit && gives_expansion
+    }
+
+    fn multi_attempt_select_items<R: Rng + Clone>(
+        &self,
+        state: &RandomizationState,
+        placed_uncollected_bireachable_items: &[Item],
+        num_unplaced_bireachable: usize,
+        num_unplaced_oneway_reachable: usize,
+        rng: &mut R,
+    ) -> (SelectItemsOutput, RandomizationState) {
+        let mut attempt_num = 0;
+        let mut selection = self.select_items(
+            state,
+            num_unplaced_bireachable,
+            num_unplaced_oneway_reachable,
+            attempt_num,
+            rng,
+        ).unwrap();
+
+        loop {
+            let mut new_state: RandomizationState = RandomizationState {
+                step_num: state.step_num,
+                start_location: state.start_location.clone(),
+                hub_location: state.hub_location.clone(),
+                item_precedence: state.item_precedence.clone(),
+                item_location_state: state.item_location_state.clone(),
+                flag_location_state: state.flag_location_state.clone(),
+                items_remaining: selection.new_items_remaining.clone(),
+                global_state: state.global_state.clone(),
+                debug_data: None,
+                previous_debug_data: None,
+                key_visited_vertices: HashSet::new(),
+            };
+
+            if self.provides_progression(
+                &state,
+                &mut new_state,
+                &selection,
+                &placed_uncollected_bireachable_items,
+                num_unplaced_bireachable,
+            ) {
+                return (selection, new_state);
+            }
+
+            let new_selection = self.select_items(
+                state,
+                num_unplaced_bireachable,
+                num_unplaced_oneway_reachable,
+                attempt_num,
+                rng,
+            );
+            if let Some(s) = new_selection {
+                selection = s;
+            } else {
+                info!("Exhausted key item placement attempts");
+                return (selection, new_state);
+            }
+            attempt_num += 1;
+        }
+    }
+
     fn step<R: Rng + Clone>(
         &self,
         state: &mut RandomizationState,
         rng: &mut R,
-    ) -> Option<(SpoilerSummary, SpoilerDetails)> {
+    ) -> (SpoilerSummary, SpoilerDetails) {
         let orig_global_state = state.global_state.clone();
         let mut spoiler_flag_summaries: Vec<SpoilerFlagSummary> = Vec::new();
         let mut spoiler_flag_details: Vec<SpoilerFlagDetails> = Vec::new();
@@ -1385,102 +1519,12 @@ impl<'r> Randomizer<'r> {
         }
         unplaced_bireachable.shuffle(rng);
         unplaced_oneway_reachable.shuffle(rng);
-        let mut attempt_num = 0;
-        let mut new_state: RandomizationState;
-        let mut key_items_to_place: Vec<Item>;
-        let mut other_items_to_place: Vec<Item>;
-        loop {
-            let select_result = self.select_items(
-                state,
-                unplaced_bireachable.len(),
-                unplaced_oneway_reachable.len(),
-                attempt_num,
-                rng,
-            );
-            if let Some(select_res) = select_result {
-                new_state = RandomizationState {
-                    step_num: state.step_num,
-                    start_location: state.start_location.clone(),
-                    hub_location: state.hub_location.clone(),
-                    item_precedence: state.item_precedence.clone(),
-                    item_location_state: state.item_location_state.clone(),
-                    flag_location_state: state.flag_location_state.clone(),
-                    items_remaining: select_res.new_items_remaining,
-                    global_state: state.global_state.clone(),
-                    done: false,
-                    debug_data: None,
-                    previous_debug_data: None,
-                    key_visited_vertices: HashSet::new(),
-                };
-                key_items_to_place = select_res.key_items;
-                other_items_to_place = select_res.other_items;
-
-                // info!("Trying placing {:?}", key_items_to_place);
-                for &item in placed_uncollected_bireachable_items.iter().chain(
-                    key_items_to_place
-                        .iter()
-                        .chain(other_items_to_place.iter())
-                        .take(unplaced_bireachable.len()),
-                ) {
-                    new_state.global_state.collect(item, self.game_data);
-                }
-
-                if iter::zip(&new_state.items_remaining, &self.initial_items_remaining)
-                    .all(|(x, y)| x < y)
-                {
-                    // At least one instance of each item have been placed. This should be enough
-                    // to ensure the game is beatable, so we are done.
-                    new_state.done = true;
-                    break;
-                } else {
-                    // println!("not all collected:");
-                    // for (i, (x, y)) in iter::zip(&new_state.items_remaining, &self.initial_items_remaining).enumerate() {
-                    //     if x >= y {
-                    //         println!("item={}, remaining={x} ,initial={y}", self.game_data.item_isv.keys[i]);
-                    //     }
-                    // }
-                    // println!("");
-                }
-
-                self.update_reachability(&mut new_state);
-                let num_bireachable = new_state
-                    .item_location_state
-                    .iter()
-                    .filter(|x| x.bireachable)
-                    .count();
-                let num_reachable = new_state
-                    .item_location_state
-                    .iter()
-                    .filter(|x| x.reachable)
-                    .count();
-                let num_one_way_reachable = num_reachable - num_bireachable;
-
-                // Maximum acceptable number of one-way-reachable items. This is to try to avoid extreme
-                // cases where the player would gain access to very large areas that they cannot return from:
-                let one_way_reachable_limit = 20;
-                // let one_way_reachable_limit = 100;
-
-                let gives_expansion =
-                    if self.difficulty_tiers[0].progression_rate == ProgressionRate::Slow {
-                        iter::zip(&new_state.item_location_state, &state.item_location_state)
-                            .any(|(n, o)| n.bireachable && !o.reachable)
-                    } else {
-                        iter::zip(&new_state.item_location_state, &state.item_location_state)
-                            .any(|(n, o)| n.bireachable && !o.bireachable)
-                    };
-
-                if num_one_way_reachable < one_way_reachable_limit && gives_expansion {
-                    // Progress: the new items unlock at least one bireachable item location that wasn't reachable before.
-                    break;
-                }
-            } else {
-                info!("Exhausted key item placement attempts");
-                return None;
-            }
-            // println!("attempt failed");
-            attempt_num += 1;
-        }
-
+        let (selection, mut new_state) = self.multi_attempt_select_items(
+            &state,
+            &placed_uncollected_bireachable_items,
+            unplaced_bireachable.len(),
+            unplaced_oneway_reachable.len(),
+            rng);
         new_state.previous_debug_data = state.debug_data.clone();
         new_state.key_visited_vertices = state.key_visited_vertices.clone();
 
@@ -1500,8 +1544,8 @@ impl<'r> Randomizer<'r> {
                 &mut new_state,
                 &unplaced_bireachable,
                 &unplaced_oneway_reachable,
-                &key_items_to_place,
-                &other_items_to_place,
+                &selection.key_items,
+                &selection.other_items,
             );
         } else {
             // In Normal and Fast progression, only place items at bireachable locations. We defer placing items at
@@ -1512,8 +1556,8 @@ impl<'r> Randomizer<'r> {
                 &mut new_state,
                 &unplaced_bireachable,
                 &[],
-                &key_items_to_place,
-                &other_items_to_place,
+                &selection.key_items,
+                &selection.other_items,
             );
         }
 
@@ -1531,7 +1575,7 @@ impl<'r> Randomizer<'r> {
         let spoiler_details =
             self.get_spoiler_details(&orig_global_state, state, &new_state, spoiler_flag_details);
         *state = new_state;
-        Some((spoiler_summary, spoiler_details))
+        (spoiler_summary, spoiler_details)
     }
 
     fn get_randomization(
@@ -1845,7 +1889,6 @@ impl<'r> Randomizer<'r> {
             ],
             items_remaining: self.initial_items_remaining.clone(),
             global_state: initial_global_state,
-            done: false,
             debug_data: None,
             previous_debug_data: None,
             key_visited_vertices: HashSet::new(),
@@ -1857,7 +1900,8 @@ impl<'r> Randomizer<'r> {
         let mut spoiler_summary_vec: Vec<SpoilerSummary> = Vec::new();
         let mut spoiler_details_vec: Vec<SpoilerDetails> = Vec::new();
         let mut debug_data_vec: Vec<DebugData> = Vec::new();
-        while !state.done {
+        loop {
+            let (spoiler_summary, spoiler_details) = self.step(&mut state, &mut rng);
             let cnt_collected = state
                 .item_location_state
                 .iter()
@@ -1879,16 +1923,30 @@ impl<'r> Randomizer<'r> {
                 .filter(|x| x.bireachable)
                 .count();
             info!("step={0}, bireachable={cnt_bireachable}, reachable={cnt_reachable}, placed={cnt_placed}, collected={cnt_collected}", state.step_num);
-            match self.step(&mut state, &mut rng) {
-                Some((spoiler_summary, spoiler_details)) => {
-                    spoiler_summary_vec.push(spoiler_summary);
-                    spoiler_details_vec.push(spoiler_details);
-                    // Append `debug_data` is present (which it always should be except after the final step)
-                    if let Some(debug_data) = &state.previous_debug_data {
-                        debug_data_vec.push(debug_data.clone());
-                    }
+
+            if spoiler_summary.items.len() > 0 || spoiler_summary.flags.len() > 0 {
+                // If we gained anything on this step (an item or a flag), generate a spoiler step:
+                spoiler_summary_vec.push(spoiler_summary);
+                spoiler_details_vec.push(spoiler_details);
+                // Append `debug_data`
+                debug_data_vec.push(state.previous_debug_data.as_ref().unwrap().clone());
+            } else {
+                // No further progress was made on the last step. So we are done with this attempt: either we have
+                // succeeded or we have failed.
+
+                // Check that at least one instance of each item can be collected.
+                if !state.global_state.items.iter().all(|&b| b) {
+                    bail!("Attempt failed: Key items not all collectible");
                 }
-                None => bail!("Step failed"),
+
+                // Check that Phantoon can be defeated. This is to rule out the possibility that Phantoon may be locked 
+                // behind Bowling Alley.
+                if !state.flag_location_state[self.game_data.flag_isv.index_by_key["f_DefeatedPhantoon"]].bireachable {
+                    bail!("Attempt failed: Phantoon not defeated");
+                }
+
+                // Success:
+                break;
             }
             state.step_num += 1;
         }

@@ -1,12 +1,7 @@
 next release:
-- fix FX/palette issues:
-  - lava/water FX (e.g. in crocomire escape, spiky acid snakes tunnel, main st): disappears after unpausing
-  - water FX tiles when loading into underwater save room.
-  - acid FX palette should fade in/out in transitions.
-  - pirates when entering tourian escape room 3
-- new map pool (preliminary version)
 - check that phantoon is reachable at the end
 - after placing all key items, include one more step to collect remaining items
+- new map pool (preliminary version)
 
 priority:
 - map improvements

@@ -17,6 +17,12 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-76---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 76 (???)</a>:
+<ul>
+<li>Fixed several graphical issues involving FX palettes and tiles (bugs introduced in version 75).
+</ul>
+</p>
+
 <p><a href="https://version-75---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 75 (2023-08-02)</a>:
 <ul>
 <li>Improvements to map clarity (minimap and pause map):
