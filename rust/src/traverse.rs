@@ -633,12 +633,15 @@ pub fn apply_requirement(
                 None
             }
         }
-        Requirement::NotFlag(flag_id) => {
-            if !global.flags[*flag_id] {
-                Some(local)
-            } else {
-                None
-            }
+        Requirement::NotFlag(_flag_id) => {
+            // We're ignoring this for now. It should be safe because all strats relying on a "not" flag will be
+            // guarded by "canRiskPermanentLossOfAccess" if there is not an alternative strat with the flag set.
+            Some(local)
+            // if !global.flags[*flag_id] {
+            //     Some(local)
+            // } else {
+            //     None
+            // }
         }
         Requirement::HeatFrames(frames) => {
             let varia = global.items[Item::Varia as usize];

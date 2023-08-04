@@ -17,16 +17,17 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-76---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 76 (???)</a>:
+<p><a href="https://version-76---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 76 (2023-08-04)</a>:
 <ul>
-<li>TODO: New map pool with more variety in the possible room connections.
-<li>A passage marking is added to the map for Spore Spawn Room, to make it appear distinct from Red Pirate Shaft.
+<li>New map pool with more variety in room connections.
+<li>Added a passage marking to the map for Spore Spawn Room, to make it appear distinct from Red Pirate Shaft.
 <li>Removed invisible solid tile in the right doorway of Tourian Escape Room 1.
 <li>Fixed several graphical issues involving FX palettes and tiles (bugs introduced in version 75).
-<li>Fixed issue where items often showed with "Route Unavailable" in the spoiler map:
+<li>Fixed issue where many items showed with "Route Unavailable" in the spoiler map:
     <ul>
     <li>Now "Route Unavailable" should only occur for logically unobtainable items (e.g., the Main Street Missile item on Basic settings).
     </ul>
+<li>Logic update: Fixed bug in Three Musketeers Room.
 </ul>
 </p>
 

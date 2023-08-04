@@ -78,6 +78,7 @@ priority:
   is currently set up (since there is no way to go up through sand)
 
 later:
+- handle runways with conditional physics (Volcano Room, Amphitheatre, East Pants Room)
 - check why Tourian Escape Room 1 runway isn't allowing Speedball strat into Wrecked Ship Main Shaft (on Expert)
 - remove invisible solid tile in Tourian Escape Room 1, above transition
 - move enhanced Samus controls into separate option (instead of Max QoL)

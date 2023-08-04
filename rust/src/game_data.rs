@@ -1,4 +1,5 @@
 use anyhow::{bail, ensure, Context, Result};
+// use log::info;
 use hashbrown::{HashMap, HashSet};
 use json::{self, JsonValue};
 use num_enum::TryFromPrimitive;
@@ -1150,12 +1151,12 @@ impl GameData {
                             bail!("Obstacle name {} not found", obstacle_name);
                         }
                     }
+                    return Ok(Requirement::Free);
                 } else {
-                    // No obstacle state in context. This happens with cross-room strats. We're not ready to
-                    // deal with obstacles yet here, so we just keep these out of logic.
-                    return Ok(Requirement::Never);
+                    // No obstacle state in context. This happens with cross-room strats, in which case
+                    // all obstacles should be cleared:
+                    return Ok(Requirement::Free);
                 }
-                return Ok(Requirement::Free);
             } else if key == "adjacentRunway" {
                 if ctx.from_obstacles_bitmask != 0 {
                     return Ok(Requirement::Never);
@@ -1857,7 +1858,10 @@ impl GameData {
                                     .as_bool()
                                     .unwrap_or(true),
                             };
+                            // info!("Runway: {:?}", runway);
                             runway_vec.push(runway);
+                        } else {
+                            // info!("Invalid physics in runway: {} - {}", room_json["name"], runway_json["name"])
                         }
                     }
                 }

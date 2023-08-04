@@ -498,6 +498,7 @@ impl<'a> Preprocessor<'a> {
                         self.preprocess_requirement(&runway.requirement, _link),
                         self.preprocess_requirement(&other_runway.requirement, _link),
                     ]));
+                    // println!("{} - {}: {:?}", runway.name, other_runway.name, req_vec.last().unwrap());
                 }
             }
 
@@ -523,7 +524,7 @@ impl<'a> Preprocessor<'a> {
                 ]));
             }
 
-            // println!("Strats: {:?}\n", req_vec);
+            // println!("Strats: {:?} {:?}\n", _link.strat_notes, req_vec);
             let out = Requirement::make_or(req_vec);
             out
         } else {
@@ -2136,14 +2137,14 @@ impl<'a> Randomizer<'a> {
             let (_, _, to_obstacles_mask) = self.game_data.vertex_isv.keys[link.to_vertex_id];
             // info!("local: {:?}", local_state);
             // info!("{:?}", link);
-            let new_local_state = apply_requirement(
+            let new_local_state_opt = apply_requirement(
                 &link.requirement,
                 &global_state,
                 *local_state,
                 false,
                 difficulty,
-            )
-            .unwrap();
+            );
+            let new_local_state = new_local_state_opt.unwrap();
             let energy_remaining: Option<Capacity> =
                 if new_local_state.energy_used != local_state.energy_used {
                     Some(global_state.max_energy - new_local_state.energy_used)
