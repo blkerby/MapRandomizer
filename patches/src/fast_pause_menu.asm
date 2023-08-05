@@ -8,8 +8,8 @@ org $828D32
 ; Set fade delay to 0 when fading out pause screen:
 ; (Not using this, since the fast unpause makes the delay at the end of the fade feel more jarring,
 ; and it can disrupt pause buffering strats such as spring-ball jumps.)
-;org $82A5CC
-;    stz $0723
+org $82A5CC
+    stz $0723
 
 ; Set fade delay to 0 when fading in map -> equipment
 org $8291CD

@@ -13,6 +13,7 @@ lorom
 !tiles_2bpp_address = $C000
 
 !backup_area = $1F62
+!map_switch_direction = $1F66
 ;!unexplored_gray = #$2108
 !unexplored_gray = #$18c6
 !unexplored_light_gray = #$35ad
@@ -246,10 +247,17 @@ check_start_select:
     php
     rep #$30
 
+    stz !map_switch_direction
     lda $8F        ; load newly pressed input
-    bit #$2000
-    beq .skip      ; if select is not newly pressed, continue as normal
+    bit #$6000
+    bne .switch      ; if select/Y (next map) is not newly pressed, continue as normal
 
+    bit #$0040
+    beq .skip      ; if X (previous map) is not newly pressed, continue as normal
+    lda #$0001
+    sta !map_switch_direction
+
+.switch:
     ; switch to next area map:
     lda #$0037
     jsl $809049    ; play sound "move cursor"
@@ -268,7 +276,13 @@ check_start_select:
 
 
 switch_map_area:
+    lda !map_switch_direction
+    beq .next
+    jsr prev_area
+    jmp .update
+.next:
     jsr next_area
+.update:
     jsr update_pause_map_palette
     jsl load_bg1_2_tiles
 	jsl $80858C     ;load explored bits for area
@@ -373,6 +387,22 @@ next_area:
     lda $05E7       ; load bitmask
     and !area_explored_mask     ; test if area is explored
     beq next_area   ; if not, skip this area and try the next one.
+
+    rts
+
+prev_area:
+    lda $1F5B
+    dec
+    cmp #$ffff
+    bne .done
+    lda #$0005
+.done:
+    sta $1F5B
+
+    jsl $80818E     ; convert map area to bitmask
+    lda $05E7       ; load bitmask
+    and !area_explored_mask     ; test if area is explored
+    beq prev_area   ; if not, skip this area and try the next one.
 
     rts
 

@@ -129,7 +129,7 @@ async fn about(app_data: web::Data<AppData>) -> impl Responder {
     }
     sprite_artists.sort_by_key(|x| x.to_lowercase());
     sprite_artists.dedup();
-    let about_template = AboutTemplate { 
+    let about_template = AboutTemplate {
         version: VERSION,
         sprite_artists,
     };
@@ -320,7 +320,7 @@ struct SeedHeaderTemplate<'a> {
     ultra_low_qol: bool,
     preset_data: &'a [PresetData],
     enabled_tech: HashSet<String>,
-    enabled_notables: HashSet<String>
+    enabled_notables: HashSet<String>,
 }
 
 #[derive(TemplateOnce)]
@@ -343,7 +343,11 @@ struct CustomizeSeedTemplate {
     samus_sprite_categories: Vec<SamusSpriteCategory>,
 }
 
-fn render_seed(seed_name: &str, seed_data: &SeedData, app_data: &AppData) -> Result<(String, String)> {
+fn render_seed(
+    seed_name: &str,
+    seed_data: &SeedData,
+    app_data: &AppData,
+) -> Result<(String, String)> {
     let ignored_notable_strats: HashSet<String> =
         seed_data.ignored_notable_strats.iter().cloned().collect();
     let notable_strats: Vec<String> = seed_data
@@ -354,7 +358,12 @@ fn render_seed(seed_name: &str, seed_data: &SeedData, app_data: &AppData) -> Res
         .filter(|x| !ignored_notable_strats.contains(x))
         .collect();
     let enabled_tech: HashSet<String> = seed_data.difficulty.tech.iter().cloned().collect();
-    let enabled_notables: HashSet<String> = seed_data.difficulty.notable_strats.iter().cloned().collect();
+    let enabled_notables: HashSet<String> = seed_data
+        .difficulty
+        .notable_strats
+        .iter()
+        .cloned()
+        .collect();
     let seed_header_template = SeedHeaderTemplate {
         seed_name: seed_name.to_string(),
         version: VERSION,
@@ -528,6 +537,28 @@ async fn logic_room(info: web::Path<(String,)>, app_data: web::Data<AppData>) ->
     }
 }
 
+#[get("/logic/room/{room_name}/{from_node}/{to_node}/{strat_name}")]
+async fn logic_strat(
+    info: web::Path<(String, usize, usize, String)>,
+    app_data: web::Data<AppData>,
+) -> impl Responder {
+    let room_name = &info.0;
+    let from_node = info.1;
+    let to_node = info.2;
+    let strat_name = &info.3;
+    if let Some(html) = app_data.logic_data.strat_html.get(&(
+        room_name.clone(),
+        from_node,
+        to_node,
+        strat_name.clone(),
+    )) {
+        HttpResponse::Ok().body(html.clone())
+    } else {
+        let template = RoomNotFoundTemplate {};
+        HttpResponse::NotFound().body(template.render_once().unwrap())
+    }
+}
+
 #[get("/logic/tech/{name}")]
 async fn logic_tech(info: web::Path<(String,)>, app_data: web::Data<AppData>) -> impl Responder {
     let tech_name = &info.0;
@@ -659,7 +690,11 @@ async fn customize_seed(
     }
 
     let settings = CustomizeSettings {
-        samus_sprite: if req.custom_samus_sprite.0 && req.samus_sprite.0 != "" { Some(req.samus_sprite.0.clone()) } else { None },
+        samus_sprite: if req.custom_samus_sprite.0 && req.samus_sprite.0 != "" {
+            Some(req.samus_sprite.0.clone())
+        } else {
+            None
+        },
         vanilla_screw_attack_animation: req.vanilla_screw_attack_animation.0,
         area_themed_palette: req.room_palettes.0 == "area-themed",
         music: match req.music.0.as_str() {
@@ -671,7 +706,13 @@ async fn customize_seed(
         disable_beeping: req.disable_beeping.0,
     };
     info!("CustomizeSettings: {:?}", settings);
-    match customize_rom(&mut rom, &patch_ips, &settings, &app_data.game_data, &app_data.samus_sprite_categories) {
+    match customize_rom(
+        &mut rom,
+        &patch_ips,
+        &settings,
+        &app_data.game_data,
+        &app_data.samus_sprite_categories,
+    ) {
         Ok(()) => {}
         Err(err) => {
             return HttpResponse::InternalServerError()
@@ -1405,7 +1446,8 @@ fn build_app_data() -> AppData {
     let implicit_tech = get_implicit_tech();
     let preset_data = init_presets(presets, &game_data, &ignored_notable_strats, &implicit_tech);
     let logic_data = LogicData::new(&game_data, &tech_gif_listing, &preset_data);
-    let samus_sprite_categories: Vec<SamusSpriteCategory> = serde_json::from_str(&std::fs::read_to_string(&samus_sprites_path).unwrap()).unwrap();
+    let samus_sprite_categories: Vec<SamusSpriteCategory> =
+        serde_json::from_str(&std::fs::read_to_string(&samus_sprites_path).unwrap()).unwrap();
     AppData {
         game_data,
         preset_data,
@@ -1452,6 +1494,7 @@ async fn main() {
             .service(view_seed_redirect)
             .service(logic)
             .service(logic_room)
+            .service(logic_strat)
             .service(logic_tech)
             .service(actix_files::Files::new("/static", "static"))
     })

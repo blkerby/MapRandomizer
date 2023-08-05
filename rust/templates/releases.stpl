@@ -17,6 +17,26 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-77---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 77 (???)</a>:
+<ul>
+<li>More ways to switch maps in the pause menu:
+    <ul>
+    <li>Y can be pressed in the pause menu to switch to the next map, as an alternative to Select.
+    <li>X can be pressed in the pause menu to switch to the previous map.
+    </ul>
+<li>Improvements to "Fast pause menu" quality-of-life option (Default):
+    <ul>
+    <li>Map scrolling is twice as fast.
+    <li>Diagonal map scrolling is possible.
+    <li>The fade-out of the pause menu during unpausing is twice as fast.
+        <ul>
+        <li>It is now consistent with the speed of pause menu fade-in while pausing.
+        <li>Fade-in/fade-out of gameplay remains unaffected.
+        </ul>
+    </ul>
+<li>Website update: Logic pages are added for individual strats, to make it easy to share a link to a strat.
+</ul>
+
 <p><a href="https://version-76---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 76 (2023-08-04)</a>:
 <ul>
 <li>New map pool with more variety in room connections.

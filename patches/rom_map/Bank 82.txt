@@ -4,3 +4,4 @@ FA90 - FD00: seed_hash_display
 FD00 - FD80: item_dots_disappear
 FD80 - FE00: fast_doors
 FE00 - FE80: fast_reload
+FE80 - FF00: zebes_asleep_music

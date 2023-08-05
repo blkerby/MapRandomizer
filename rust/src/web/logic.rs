@@ -17,6 +17,7 @@ struct RoomStrat {
     room_name_stripped: String,
     area: String,
     strat_name: String,
+    strat_name_stripped: String,
     notable: bool,
     from_node_id: usize,
     from_node_name: String,
@@ -61,6 +62,20 @@ struct TechTemplate {
     area_order: Vec<String>,
 }
 
+#[derive(TemplateOnce, Clone)]
+#[template(path = "logic/strat_page.stpl")]
+struct StratTemplate {
+    version: usize,
+    room_id: usize,
+    room_name: String,
+    room_name_stripped: String,
+    room_name_url_encoded: String,
+    area: String,
+    room_diagram_path: String,
+    strat_name: String,
+    strat: RoomStrat,
+}
+
 #[derive(TemplateOnce)]
 #[template(path = "logic/logic.stpl")]
 struct LogicIndexTemplate<'a> {
@@ -73,10 +88,11 @@ struct LogicIndexTemplate<'a> {
 
 #[derive(Default)]
 pub struct LogicData {
-    pub index_html: String,                        // Logic index page
+    pub index_html: String,                            // Logic index page
     pub room_html: HashMap<String, String>, // Map from room name (alphanumeric characters only) to rendered HTML.
     pub tech_html: HashMap<String, String>, // Map from tech name to rendered HTML.
     pub tech_strat_counts: HashMap<String, usize>, // Map from tech name to strat count using that tech.
+    pub strat_html: HashMap<(String, usize, usize, String), String>, // Map from (room name, from node ID, to node ID, strat name) to rendered HTML.
 }
 
 fn list_room_diagram_files() -> HashMap<usize, String> {
@@ -244,7 +260,14 @@ fn make_tech_templates<'a>(
 }
 
 fn strip_name(s: &str) -> String {
-    s.chars().filter(|x| x.is_ascii_alphanumeric()).collect()
+    let mut out = String::new();
+    for word in s.split_inclusive(|x: char| !x.is_ascii_alphabetic()) {
+        let mut capitalized_word = word[0..1].to_ascii_uppercase() + &word[1..];
+        let stripped_word: String = capitalized_word.chars().filter(|x| x.is_ascii_alphanumeric()).collect();
+        out += &stripped_word;
+    }
+    out
+    // s.chars().filter(|x| x.is_ascii_alphanumeric()).collect()
 }
 
 fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
@@ -443,11 +466,13 @@ fn make_room_template(
                 } else {
                     vec![]
                 };
+                let strat_name = strat_json["name"].as_str().unwrap().to_string();
                 let strat = RoomStrat {
                     room_name: room_name.clone(),
                     room_name_stripped: room_name_stripped.clone(),
                     area: full_area.clone(),
-                    strat_name: strat_json["name"].as_str().unwrap().to_string(),
+                    strat_name: strat_name.clone(),
+                    strat_name_stripped: strip_name(&strat_name),
                     notable: strat_json["notable"].as_bool().unwrap_or(false),
                     from_node_id,
                     from_node_name: node_name_map[&from_node_id].clone(),
@@ -480,6 +505,23 @@ fn make_room_template(
         nodes,
         strats: room_strats,
         room_json: room_json.pretty(2),
+    }
+}
+
+fn make_strat_template(
+    room: &RoomTemplate,
+    strat: &RoomStrat,
+) -> StratTemplate {
+    StratTemplate {
+        version: VERSION,
+        room_id: room.room_id,
+        room_name: room.room_name.clone(),
+        room_name_stripped: room.room_name_stripped.clone(),
+        room_name_url_encoded: room.room_name_url_encoded.clone(),
+        area: room.area.clone(),
+        room_diagram_path: room.room_diagram_path.clone(),
+        strat_name: strat.strat_name.clone(),
+        strat: strat.clone(),
     }
 }
 
@@ -580,8 +622,17 @@ impl LogicData {
                 &links_by_ids,
             );
             let html = template.clone().render_once().unwrap();
-            out.room_html.insert(strip_name(&template.room_name), html);
-            room_templates.push(template);
+            let stripped_room_name = strip_name(&template.room_name);
+            out.room_html.insert(stripped_room_name.clone(), html);
+            room_templates.push(template.clone());
+
+            for strat in &template.strats {
+                let strat_template = make_strat_template(&template, &strat);
+                let strat_html = strat_template.render_once().unwrap();
+                let stripped_strat_name = strip_name(&strat.strat_name);
+                out.strat_html
+                    .insert((stripped_room_name.clone(), strat.from_node_id, strat.to_node_id, stripped_strat_name), strat_html);
+            }
         }
         room_templates.sort_by_key(|x| (x.area.clone(), x.room_name.clone()));
 

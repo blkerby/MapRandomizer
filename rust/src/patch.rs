@@ -267,7 +267,7 @@ impl<'a> Patcher<'a> {
             "item_dots_disappear",
             "fast_reload",
             "saveload",
-    ];
+        ];
 
         if self.randomization.difficulty.ultra_low_qol {
             patches.extend([
@@ -333,6 +333,10 @@ impl<'a> Patcher<'a> {
 
         if self.randomization.difficulty.momentum_conservation {
             patches.push("momentum_conservation");
+        }
+
+        if !self.randomization.difficulty.vanilla_map {
+            patches.push("zebes_asleep_music");
         }
 
         for patch_name in patches {

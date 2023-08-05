@@ -1,31 +1,21 @@
 next release:
-- map improvements
-  - allow scrolling diagonally
-  - increase map scroll speed
-  - button on map screen to select previous map; maybe X/Y for back/forward (Y for more convenient alternative to Select)
-  - fix little pause menu palette issue at top of equipment screen (green where gray should be)
-  - accelerate pause menu fadeout (with QoL option)
-    - further accelerate map select and map/equipment screen switch
-- add strat pages
-- palette bug in when switching back from equipment to pause map (affecting tourian arrow color).
-- randomized start: check requires on hub locations
+- DONE: add strat pages
+- DONE: randomized start: check requires on hub locations
 
 priority:
+- use "crateria asleep" song somewhere:
+  - in crateria initially when zebes not awake.
+  - in subarea containing ship, use rain/lightning version
 - use modal for sprite customization
   - also etank color customization
 - add CF health refill to logic
   - tricky CF at ammo refill stations
 - add notable for underwater canGateGlitch (Very Hard)?
 - remove old-format farms and refills from sm-json-data?
-- use "crateria asleep" song somewhere:
-  - in crateria initially when zebes not awake.
-  - in subarea containing ship, use rain/lightning version
-- make hub requirements consistent with new farm approach
+- make hub requirements consistent with new farm approach?
   - actually probably don't need to define hub rooms anymore:
       - just check for ability to refill each resource type from the start location and get back
 - add more random start locations, in item rooms (speed booster room, morph ball room, screw attack room bottom)
-- map improvements:
-  - represent heat, gates, tunnels, quicksand
 - take another look at boss fights
   - create table to show in help button, to make boss logic more transparent (in addition to showing formulas)
   - 5 Super phantoon fight probably needs more requirements than it currently has.
@@ -46,13 +36,9 @@ priority:
   - possibly related: issue where filler items are re-randomized when trying new key item.
     - maybe re-randomizing is ok, but on success it should try replacing key item with Missile (instead of having Missile be first key item tried)
 - fix quick-reload on last frame of pause/unpause
-- adjust area colors
-  - darken wrecked ship a bit
-  - maybe add a little color to tourian, a bit tan maybe (like the tourian sand)
 - check if reloading from bottom/top of elevator works correctly (not skips back a save)
 - do something about screen shaking during samus appears (in start location: rising tide, amphitheatre)
   - maybe customization option to get rid of shaking in general?
-- fix bug in escape room 1: top block of right transition seems solid (reported by somerando)
 - new map pool
   - bosses not cleared unless "enemies cleared" option is enabled
 - logic:
@@ -78,6 +64,9 @@ priority:
   is currently set up (since there is no way to go up through sand)
 
 later:
+- palette bug in when switching back from equipment to pause map (affecting tourian arrow color).
+- map improvements
+  - fix little pause menu palette issue at top of equipment screen (green where gray should be)
 - handle runways with conditional physics (Volcano Room, Amphitheatre, East Pants Room)
 - check why Tourian Escape Room 1 runway isn't allowing Speedball strat into Wrecked Ship Main Shaft (on Expert)
 - remove invisible solid tile in Tourian Escape Room 1, above transition
@@ -124,6 +113,7 @@ later:
 - "wild" item progression mode, where new item may be required to be used for the return path.
 - consider idea from selicre: "what if there was a mode in which walljumps could be unlocked by visiting etecoons (and shinesparking by visiting dachora)?"
 - custom demos
+- randomized title screen
 - include a check that the client and server are matching versions and give a more meaningful error when they aren't
 - look into botwoon requirements: 
   https://maprando.com/seed/-yvSvwjFlrfJN1NRxDi-Jw/data/visualizer/index.html

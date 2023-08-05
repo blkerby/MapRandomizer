@@ -1827,8 +1827,17 @@ impl<'r> Randomizer<'r> {
                         // Reject starting location if the Ship is initially bireachable from it.
                         continue 'attempt;
                     }
-                    info!("hub: {:?}", hub);
-                    return Ok((start_loc, hub.clone()));
+
+                    let local = apply_requirement(
+                        &hub.requires_parsed.as_ref().unwrap(),
+                        &global,
+                        LocalState::new(),
+                        false,
+                        &self.difficulty_tiers[0],
+                    );
+                    if local.is_some() {
+                        return Ok((start_loc, hub.clone()));
+                    }
                 }
             }
         }
