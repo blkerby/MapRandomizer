@@ -1,15 +1,16 @@
 next release:
-- new map pool (preliminary version)
-
-priority:
 - map improvements
+  - allow scrolling diagonally
+  - increase map scroll speed
+  - button on map screen to select previous map; maybe X/Y for back/forward (Y for more convenient alternative to Select)
   - fix little pause menu palette issue at top of equipment screen (green where gray should be)
   - accelerate pause menu fadeout (with QoL option)
     - further accelerate map select and map/equipment screen switch
-  - increase map scroll speed
-  - allow scrolling diagonally
-  - button on map screen to select previous map; maybe X/Y for back/forward (Y for more convenient alternative to Select)
 - add strat pages
+- palette bug in when switching back from equipment to pause map (affecting tourian arrow color).
+- randomized start: check requires on hub locations
+
+priority:
 - use modal for sprite customization
   - also etank color customization
 - add CF health refill to logic
@@ -19,10 +20,9 @@ priority:
 - use "crateria asleep" song somewhere:
   - in crateria initially when zebes not awake.
   - in subarea containing ship, use rain/lightning version
-- randomized start: check requires on hub locations
-  - make hub requirements consistent with new farm approach
+- make hub requirements consistent with new farm approach
   - actually probably don't need to define hub rooms anymore:
-     - just check for ability to refill each resource type from the start location and get back
+      - just check for ability to refill each resource type from the start location and get back
 - add more random start locations, in item rooms (speed booster room, morph ball room, screw attack room bottom)
 - map improvements:
   - represent heat, gates, tunnels, quicksand
