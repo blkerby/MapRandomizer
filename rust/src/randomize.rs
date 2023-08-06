@@ -1805,6 +1805,17 @@ impl<'r> Randomizer<'r> {
                 &self.difficulty_tiers[0],
                 self.game_data,
             );
+            let forward0 = traverse(
+                &self.links,
+                None,
+                &global,
+                LocalState::new(),
+                num_vertices,
+                start_vertex_id,
+                false,
+                &self.difficulty_tiers[0],
+                self.game_data,
+            );
             let reverse = traverse(
                 &self.links,
                 None,
@@ -1817,11 +1828,19 @@ impl<'r> Randomizer<'r> {
                 self.game_data,
             );
 
+            // We require several conditions for a start location to be valid with a given hub location:
+            // 1) The hub location must be one-way reachable from the start location, including initial start location 
+            // requirements (e.g. including requirements to reach the starting node from the actual start location, which 
+            // may not be at a node)
+            // 2) The starting node (not the actual start location) must be bireachable from the hub location
+            // (ie. there must be a logical round-trip path from the hub to the starting node and back)
+            // 3) Any logical requirements on the hub must be satisfied.
+            // 4) The Ship must not be bireachable from the hub.
             for hub in &self.game_data.hub_locations {
                 let hub_vertex_id =
                     self.game_data.vertex_isv.index_by_key[&(hub.room_id, hub.node_id, 0)];
                 if forward.local_states[hub_vertex_id].is_some()
-                    && reverse.local_states[hub_vertex_id].is_some()
+                    && is_bireachable(&global, &forward0.local_states[hub_vertex_id], &reverse.local_states[hub_vertex_id])            
                 {
                     if hub.room_id == 8 {
                         // Reject starting location if the Ship is initially bireachable from it.

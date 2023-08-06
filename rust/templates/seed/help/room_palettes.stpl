@@ -14,7 +14,7 @@
       <div class="modal-body">
         <p>This setting controls the palettes for rooms (affecting foregrounds and backgrounds):</p>
         <ul>
-        <li><p><strong>Vanilla</strong>: Rooms use their usual palette from the vanilla game.</p>
+        <li><p><strong>Vanilla</strong>: Rooms use the palette from the original game.</p>
 
         <li><p><strong>Area-themed</strong>: Rooms use a palette based on the area in which they appear in 
         the randomized map. This adds variety and can help the randomized areas to feel more coherent.</p>

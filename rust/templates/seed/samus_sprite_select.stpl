@@ -6,7 +6,7 @@
     </div>
 </div>
 <div class="row mt-2">
-    <p id="selectedSpriteDisplayName" class="text-center text-secondary">Samus</p>
+    <p id="selectedSpriteDisplayName" class="text-center text-body">Samus</p>
 </div>
 
 </button>
