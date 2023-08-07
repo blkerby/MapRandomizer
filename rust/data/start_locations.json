@@ -332,7 +332,11 @@
         "room_id": 42,
         "node_id": 2,
         "x": 27.5,
-        "y": 13
+        "y": 13,
+        "requires": [
+            "canSuitlessMaridia",
+            "h_canCrouchJumpDownGrab"
+        ]
     },
     {
         "name": "Blue Brinstar Energy Tank Room Bottom",
@@ -1008,7 +1012,7 @@
         "requires": ["canHeatRun", {"heatFrames": 70}]
     },
     {
-        "name": "Hi Jump Energy Tank Room",
+        "name": "Hi Jump Energy Tank Room Left",
         "room_id": 88,
         "node_id": 1,
         "x": 6,
@@ -2033,5 +2037,330 @@
         "spicy": true,
         "requires": ["canHeatRun", {"heatFrames": 280}, "canConsecutiveWalljump"],
         "camera_offset_y": -4
+    },
+    {
+        "name": "Crateria Map Room",
+        "room_id": 15,
+        "node_id": 1,
+        "x": 3.5,
+        "y": 10
+    },
+    {
+        "name": "Crateria Save Room",
+        "room_id": 16,
+        "node_id": 1,
+        "x": 12.5,
+        "y": 10
+    },
+    {
+        "name": "The Final Missile",
+        "room_id": 17,
+        "node_id": 1,
+        "x": 11.5,
+        "y": 10
+    },
+    {
+        "name": "Gauntlet Energy Tank Room Right",
+        "room_id": 31,
+        "node_id": 2,
+        "x": 92,
+        "y": 10
+    },
+    {
+        "name": "Statues Room Top",
+        "room_id": 27,
+        "node_id": 1,
+        "x": 13.5,
+        "y": 10
+    },
+    {
+        "name": "Statues Room Bottom",
+        "room_id": 27,
+        "node_id": 1,
+        "x": 8,
+        "y": 21,
+        "camera_offset_y": -4
+    },
+    {
+        "name": "Terminator Room",
+        "room_id": 20,
+        "node_id": 2,
+        "x": 89,
+        "y": 11
+    },
+    {
+        "name": "The Moat Left",
+        "room_id": 7,
+        "node_id": 1,
+        "x": 13,
+        "y": 25
+    },
+    {
+        "name": "The Moat Right",
+        "room_id": 7,
+        "node_id": 2,
+        "x": 28,
+        "y": 10
+    },
+    {
+        "name": "Billy Mays Room",
+        "room_id": 43,
+        "node_id": 1,
+        "x": 11.5,
+        "y": 13
+    },
+    {
+        "name": "First Missile Room",
+        "room_id": 40,
+        "node_id": 1,
+        "x": 10.5,
+        "y": 10
+    },
+    {
+        "name": "Morph Ball Room Right",
+        "room_id": 38,
+        "node_id": 3,
+        "x": 104,
+        "y": 45
+    },
+    {
+        "name": "Brinstar Map Room",
+        "room_id": 48,
+        "node_id": 1,
+        "x": 12.5,
+        "y": 10
+    },
+    {
+        "name": "Brinstar Reserve Tank Room",
+        "room_id": 46,
+        "node_id": 1,
+        "x": 6.5,
+        "y": 12
+    },
+    {
+        "name": "Etecoon Energy Tank Room Top",
+        "room_id": 51,
+        "node_id": 2,
+        "x": 20,
+        "y": 10,
+        "camera_offset_x": -4
+    },
+    {
+        "name": "Etecoon Save Room",
+        "room_id": 315,
+        "node_id": 1,
+        "x": 12.5,
+        "y": 10
+    },
+    {
+        "name": "Etecoon Super Room",
+        "room_id": 52,
+        "node_id": 1,
+        "x": 10,
+        "y": 11
+    },
+    {
+        "name": "Green Brinstar Missile Refill",
+        "room_id": 316,
+        "node_id": 1,
+        "x": 12.5,
+        "y": 10
+    },
+    {
+        "name": "Big Pink Save Room",
+        "room_id": 318,
+        "node_id": 1,
+        "x": 12.5,
+        "y": 10
+    },
+    {
+        "name": "Dachora Energy Refill",
+        "room_id": 317,
+        "node_id": 1,
+        "x": 12.5,
+        "y": 10
+    },
+    {
+        "name": "Hopper Energy Tank Room",
+        "room_id": 62,
+        "node_id": 1,
+        "x": 6,
+        "y": 13
+    },
+    {
+        "name": "Spore Spawn Super Room Bottom",
+        "room_id": 63,
+        "node_id": 2,
+        "x": 20.5,
+        "y": 139
+    },
+    {
+        "name": "Sloaters Refill",
+        "room_id": 319,
+        "node_id": 1,
+        "x": 12.5,
+        "y": 10
+    },
+    {
+        "name": "Spazer Room",
+        "room_id": 71,
+        "node_id": 1,
+        "x": 6.5,
+        "y": 13
+    },
+    {
+        "name": "Kraid Recharge Station",
+        "room_id": 301,
+        "node_id": 1,
+        "x": 12,
+        "y": 12
+    },
+    {
+        "name": "Kraid Save Room",
+        "room_id": 300,
+        "node_id": 1,
+        "x": 5.5,
+        "y": 12
+    },
+    {
+        "name": "Varia Suit Room",
+        "room_id": 85,
+        "node_id": 1,
+        "x": 11,
+        "y": 12
+    },
+    {
+        "name": "Warehouse Entrance Pit",
+        "room_id": 78,
+        "node_id": 3,
+        "x": 26,
+        "y": 21,
+        "camera_offset_x": 2,
+        "camera_offset_y": -6,
+        "requires": [
+            "canPreciseWalljump"
+        ]
+    },
+    {
+        "name": "Frog Savestation",
+        "room_id": 302,
+        "node_id": 1,
+        "x": 5.5,
+        "y": 12
+    },
+    {
+        "name": "Lower Norfair Elevator Save Room",
+        "room_id": 310,
+        "node_id": 1,
+        "x": 12.5,
+        "y": 10
+    },
+    {
+        "name": "Nutella Refill",
+        "room_id": 308,
+        "node_id": 2,
+        "x": 10,
+        "y": 12
+    },
+    {
+        "name": "Speed Booster Room",
+        "room_id": 102,
+        "node_id": 1,
+        "x": 6,
+        "y": 11,
+        "requires": ["canHeatRun", {"heatFrames": 60}]
+    },
+    {
+        "name": "Wave Beam Room",
+        "room_id": 105,
+        "node_id": 1,
+        "x": 3.5,
+        "y": 10
+    },
+    {
+        "name": "Crocomire Save Room",
+        "room_id": 303,
+        "node_id": 1,
+        "x": 3,
+        "y": 10
+    },
+    {
+        "name": "Hi Jump Boots Room",
+        "room_id": 89,
+        "node_id": 1,
+        "x": 11.5,
+        "y": 10
+    },
+    {
+        "name": "Hi Jump Energy Tank Room Right",
+        "room_id": 88,
+        "node_id": 2,
+        "x": 20.5,
+        "y": 10
+    },
+    {
+        "name": "Ice Beam Room",
+        "room_id": 109,
+        "node_id": 1,
+        "x": 5.5,
+        "y": 10
+    },
+    {
+        "name": "Norfair Map Room",
+        "room_id": 87,
+        "node_id": 1,
+        "x": 12.5,
+        "y": 10
+    },
+    {
+        "name": "Grapple Beam Room",
+        "room_id": 128,
+        "node_id": 2,
+        "x": 10.5,
+        "y": 42
+    },
+    {
+        "name": "Post Crocomire Power Bomb Room",
+        "room_id": 124,
+        "node_id": 1,
+        "x": 12,
+        "y": 10,
+        "requires": [
+            "canHeatRun", {"heatFrames": 40}
+        ]
+    },
+    {
+        "name": "Post Crocomire Save Room",
+        "room_id": 311,
+        "node_id": 1,
+        "x": 5.5,
+        "y": 12
+    },
+    {
+        "name": "Screw Attack Room Middle",
+        "room_id": 151,
+        "node_id": 2,
+        "x": 8,
+        "y": 34,
+        "requires": [
+            "canHeatRun", 
+            {"heatFrames": 60},
+            {"or": [
+                "canWalljump",
+                "h_canCrouchJumpDownGrab"
+            ]}
+        ],
+        "camera_offset_y": -8
+    },
+    {
+        "name": "Screw Attack Room Bottom",
+        "room_id": 151,
+        "node_id": 1,
+        "x": 4.5,
+        "y": 43,
+        "requires": [
+            "canHeatRun", 
+            {"heatFrames": 40}
+        ]
     }
 ]

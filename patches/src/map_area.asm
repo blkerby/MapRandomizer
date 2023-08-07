@@ -5,7 +5,7 @@ lorom
 !bank_81_freespace_end = $81F140
 !bank_82_freespace_start = $82F70F
 !bank_82_freespace_end = $82FA80
-!etank_color = $82FFFE   ; must match addess customize.rs
+!etank_color = $82FFFE   ; must match addess customize.rs (be careful moving this, will probably break customization on old versions)
 !bank_a7_freespace_start = $A7FFC0
 !bank_a7_freespace_end = $A88000
 !bank_e8_freespace_start = $E88000
@@ -890,6 +890,7 @@ org $82A7C6 : ORA #$1000   ; map screen: bottom of SAMUS
 org $82A7E4 : ORA #$1000   ; map screen: top of EXIT
 org $82A802 : ORA #$1000   ; map screen: bottom of EXIT
 
+org !etank_color : dw $48FB  ; default pink E-tank color
 
 ;; Skip map select after game over:
 ;; (Map select on that screen uses different code and wouldn't work correctly with our modifications.)
