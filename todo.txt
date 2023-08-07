@@ -2,12 +2,15 @@ next release:
 - DONE: add strat pages
 - DONE: randomized start: check requires on hub locations
 - DONE: use "crateria asleep" song somewhere
+- DONE: use modal for sprite customization
+- etank color customization
+- fix palette bug in when switching back from equipment to pause map (affecting tourian arrow color).
+- add more starting locations, in item rooms
+- check x-ray item color: replace dark blue with dark area color?
+- brighten the tourian and WS area transition arrow colors
 
 priority:
-
-- use modal for sprite customization
-  - also etank color customization
-- add more random start locations, in item rooms (speed booster room, morph ball room, screw attack room bottom)
+- randomized title screen
 - caution tape on doors leading to (otherwise unforeseeable) risk of death/softlock?
 - enhancements to momentum conservation patch
   - remove need to be holding dash or to be in spin
@@ -71,7 +74,6 @@ later:
   - make it so that customization can use matching version from when the seed was generated
   - include more options for customization
   - ROM won't need to be provided for generation, only customization
-- palette bug in when switching back from equipment to pause map (affecting tourian arrow color).
 - map improvements
   - fix little pause menu palette issue at top of equipment screen (green where gray should be)
 - handle runways with conditional physics (Volcano Room, Amphitheatre, East Pants Room)
@@ -107,7 +109,6 @@ later:
 - "wild" item progression mode, where new item may be required to be used for the return path.
 - consider idea from selicre: "what if there was a mode in which walljumps could be unlocked by visiting etecoons (and shinesparking by visiting dachora)?"
 - custom demos
-- randomized title screen
 - include a check that the client and server are matching versions and give a more meaningful error when they aren't
 - look into botwoon requirements: 
   https://maprando.com/seed/-yvSvwjFlrfJN1NRxDi-Jw/data/visualizer/index.html

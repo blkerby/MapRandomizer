@@ -70,6 +70,7 @@ pub struct AppData {
     // pub samus_customizer: SamusSpriteCustomizer,
     pub debug: bool,
     pub static_visualizer: bool,
+    pub etank_colors: Vec<Vec<String>>,  // colors in HTML hex format, e.g "#ff0000"
 }
 
 impl MapRepository {

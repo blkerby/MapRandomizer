@@ -7,6 +7,20 @@ padding: 12px 12px;
 box-sizing: border-box;
 }
 </style>
+<style>
+html[data-bs-theme=dark] .custom-button:hover {
+    background-color: #3b4045;
+}
+html[data-bs-theme=light] .custom-button:hover {
+    background-color: #e8eaec;
+}
+html[data-bs-theme=dark] .custom-button:not(:hover) {
+    background-color: #2b3035;
+}
+html[data-bs-theme=light] .custom-button:not(:hover) {
+    background-color: #f4f5f6;
+}
+</style>
 </head>
 <body>
 <% include!("../common/navbar.stpl"); %>
@@ -41,8 +55,27 @@ window.spoilerTokenPrefix = "<%- spoiler_token_prefix %>";
 
                         <div id="spriteSelectDiv" class="form-group row my-3 d-none">
                             <div class="col-md-4"></div>
-                            <div class="col-md-6 col-lg-4 p-0" role="group" onclick="changeSamusSprite()">
+                            <div class="col-md-6 col-lg-4 p-0" role="group">
                                 <% include!("samus_sprite_select.stpl"); %>
+                            </div>
+                        </div>
+
+                        <div class="form-group row my-3">
+                            <div class="col-md-4">
+                            <label class="col-form-label" for="custom_etank_color"><% include!("help/energy_tank_color.stpl"); %>Energy tank color</label>
+                            </div>
+                            <div class="col-md-6 col-lg-4 btn-group p-0" role="group" onclick="updateEnergyTankColor()">
+                                <input type="radio" class="btn-check" name="custom_etank_color" id="customEnergyTankNo" value=false checked>
+                                <label class="btn btn-outline-primary" style="width:120px" for="customEnergyTankNo">Vanilla</label>
+                                <input type="radio" class="btn-check" name="custom_etank_color" id="customEnergyTankYes" value=true>
+                                <label class="btn btn-outline-primary" style="width:120px" for="customEnergyTankYes">Custom</label>
+                            </div>
+                        </div>
+
+                        <div id="energyTankSelectDiv" class="form-group row my-3 d-none">
+                            <div class="col-md-4"></div>
+                            <div class="col-md-6 col-lg-4 p-0" role="group">
+                                <% include!("energy_tank_select.stpl"); %>
                             </div>
                         </div>
 
@@ -149,17 +182,46 @@ function changeSamusSprite() {
     selectedSpriteImage.src = "/static/samus_sprites/" + selectedSpriteName + ".png";
 
     saveForm(document.getElementById("customization-form"));
-
 }
 function selectSprite (el) {
     // Set the form field:
     document.getElementById("samusSprite").value = el.getAttribute("data-name");
     changeSamusSprite();
 };
+function updateEnergyTankColor() {
+    var enabled = document.getElementById("customEnergyTankYes").checked;
+    var energyTankSelectDiv = document.getElementById("energyTankSelectDiv");
+    if (enabled) {
+        energyTankSelectDiv.classList.remove("d-none");
+    } else {
+        energyTankSelectDiv.classList.add("d-none");
+    }
+
+    var selectedETankSVG = document.getElementById("selectedETankSVG");
+    var selectedETankColor = document.getElementById("etankColor").value;
+    var svg = "";
+    for (let y = 0; y < 2; y++) {
+        for (let x = 0; x < 7; x++) {
+            var xPixel = x * 24 + 3;
+            var yPixel = y * 24 + 4;
+            svg += `<rect x="${xPixel}" y="${yPixel}" width="18" height="15" fill="white"/>`;
+            svg += `<rect x="${xPixel + 3}" y="${yPixel + 3}" width="15" height="12" fill="#${selectedETankColor}"/>`;
+        }
+    }
+    selectedETankSVG.innerHTML = svg;
+
+    saveForm(document.getElementById("customization-form"));
+}
+function changeEnergyTankColor(btn) {
+    color = btn.getAttribute("data-color");
+    document.getElementById("etankColor").value = color;
+    updateEnergyTankColor();
+}
 
 loadROM(document.getElementById("baseRom"), 'base');
 loadForm(document.getElementById("customization-form"));
 changeSamusSprite();
+updateEnergyTankColor();
 </script>
 
 </body>

@@ -1,5 +1,5 @@
 <!-- Button trigger modal -->
-<button type="button" class="btn-secondary mr-1 px-2 py-1 rounded" style="width:150px" data-bs-toggle="modal" data-bs-target="#samusSpriteSelectModal">
+<button type="button" class="btn-secondary mr-1 px-2 py-1 rounded custom-button" style="width:150px" data-bs-toggle="modal" data-bs-target="#samusSpriteSelectModal">
 <div class="row">
     <div class="text-center">
         <img id="selectedSpriteImage" class="mx-auto" loading="lazy" src="/static/samus_sprites/samus.png" style="image-rendering: pixelated;width:120px;height:168px">

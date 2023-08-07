@@ -5,6 +5,7 @@ lorom
 !bank_81_freespace_end = $81F140
 !bank_82_freespace_start = $82F70F
 !bank_82_freespace_end = $82FA80
+!etank_color = $82FFFE   ; must match addess customize.rs
 !bank_a7_freespace_start = $A7FFC0
 !bank_a7_freespace_end = $A88000
 !bank_e8_freespace_start = $E88000
@@ -187,6 +188,8 @@ org $89AC1E : nop : nop : nop : nop   ; was: STA $7EC236
 
 ;;; Put new code in free space at end of bank $82:
 org !bank_82_freespace_start
+
+dw $48FB  ; pink e-tank color (configurable)
 
 ;;; X = room header pointer
 load_area:
@@ -535,7 +538,8 @@ set_hud_map_colors:
     sta $7EC016
 
     ; Set palette 3, color 1 to pink color for full E-tank energy squares
-    lda #$48FB
+    ; lda #$48FB
+    lda !etank_color
     sta $7EC01A
 
     ; Set palette 3, color 2 to white color for full E-tank energy squares
@@ -805,11 +809,11 @@ warnpc !bank_e8_freespace_end
 org $82DFB9
     jsl reload_map_hook
 
-; Pause menu: Pink color for full E-tank energy squares in HUD (palette 3, color 1)
-org $B6F01A : dw $48FB
-
-; Pause menu: White color for full E-tank energy squares in HUD (palette 3, color 2)
-org $B6F01C : dw $7FFF
+;; Pause menu: Pink color for full E-tank energy squares in HUD (palette 3, color 1)
+;org $B6F01A : dw $48FB
+;
+;; Pause menu: White color for full E-tank energy squares in HUD (palette 3, color 2)
+;org $B6F01C : dw $7FFF
 
 ; Unexplored gray: palette 6, color 1
 org $B6F032 : dw !unexplored_gray

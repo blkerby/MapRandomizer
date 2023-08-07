@@ -228,11 +228,13 @@ struct UnlockRequest {
 struct CustomizeRequest {
     rom: Bytes,
     custom_samus_sprite: Text<bool>,
+    custom_etank_color: Text<bool>,
     samus_sprite: Text<String>,
     vanilla_screw_attack_animation: Text<bool>,
     room_palettes: Text<String>,
     music: Text<String>,
     disable_beeping: Text<bool>,
+    etank_color: Text<String>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -341,6 +343,7 @@ struct CustomizeSeedTemplate {
     seed_header: String,
     seed_footer: String,
     samus_sprite_categories: Vec<SamusSpriteCategory>,
+    etank_colors: Vec<Vec<String>>,
 }
 
 fn render_seed(
@@ -603,6 +606,7 @@ async fn view_seed(info: web::Path<(String,)>, app_data: web::Data<AppData>) -> 
                 seed_header: String::from_utf8(header.to_vec()).unwrap(),
                 seed_footer: String::from_utf8(footer.to_vec()).unwrap(),
                 samus_sprite_categories: app_data.samus_sprite_categories.clone(),
+                etank_colors: app_data.etank_colors.clone(),
             };
             HttpResponse::Ok().body(customize_template.render_once().unwrap())
         }
@@ -704,6 +708,11 @@ async fn customize_seed(
             _ => panic!("Unexpected music option: {}", req.music.0.as_str()),
         },
         disable_beeping: req.disable_beeping.0,
+        etank_color: if req.custom_etank_color.0 { Some((
+            u8::from_str_radix(&req.etank_color.0[0..2], 16).unwrap() / 8,
+            u8::from_str_radix(&req.etank_color.0[2..4], 16).unwrap() / 8,
+            u8::from_str_radix(&req.etank_color.0[4..6], 16).unwrap() / 8,
+        )) } else { None },
     };
     info!("CustomizeSettings: {:?}", settings);
     match customize_rom(
@@ -1423,6 +1432,7 @@ fn build_app_data() -> AppData {
     let escape_timings_path = Path::new("data/escape_timings.json");
     let start_locations_path = Path::new("data/start_locations.json");
     let hub_locations_path = Path::new("data/hub_locations.json");
+    let etank_colors_path = Path::new("data/etank_colors.json");
     let maps_path =
         Path::new("../maps/session-2023-06-08T14:55:16.779895.pkl-bk24-subarea-balance-2");
     let samus_sprites_path = Path::new("../MapRandoSprites/samus_sprites/manifest.json");
@@ -1442,6 +1452,8 @@ fn build_app_data() -> AppData {
     let notable_gif_listing = list_notable_gif_files();
     let presets: Vec<Preset> =
         serde_json::from_str(&std::fs::read_to_string(&"data/presets.json").unwrap()).unwrap();
+    let etank_colors: Vec<Vec<String>> =
+        serde_json::from_str(&std::fs::read_to_string(&etank_colors_path).unwrap()).unwrap();
     let ignored_notable_strats = get_ignored_notable_strats();
     let implicit_tech = get_implicit_tech();
     let preset_data = init_presets(presets, &game_data, &ignored_notable_strats, &implicit_tech);
@@ -1463,6 +1475,7 @@ fn build_app_data() -> AppData {
         // samus_customizer,
         debug: args.debug,
         static_visualizer: args.static_visualizer,
+        etank_colors,
     }
 }
 

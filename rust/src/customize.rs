@@ -25,6 +25,7 @@ pub struct CustomizeSettings {
     pub area_themed_palette: bool,
     pub music: MusicSettings,
     pub disable_beeping: bool,
+    pub etank_color: Option<(u8, u8, u8)>,
 }
 
 fn remove_mother_brain_flashing(rom: &mut Rom) -> Result<()> {
@@ -125,6 +126,13 @@ pub fn customize_rom(
         rom.write_n(snes2pc(0x90EAA0), &[0xEA; 4])?;
         rom.write_n(snes2pc(0x90F33C), &[0xEA; 4])?;
         rom.write_n(snes2pc(0x91E6DA), &[0xEA; 4])?;
+    }
+    if let Some((r, g, b)) = settings.etank_color {
+        let color = (r as isize) | ((g as isize) << 5) | ((b as isize) << 10);
+        rom.write_u16(snes2pc(0x82FFFE), color)?;  // Gameplay ETank color
+        // rom.write_u16(snes2pc(0xB6F01A), color)?;  
+        rom.write_u16(snes2pc(0x8EE416), color)?;  // Main menu
+        rom.write_u16(snes2pc(0xA7CA7B), color)?;  // During Phantoon power-on
     }
     Ok(())
 }
