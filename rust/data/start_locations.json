@@ -2362,5 +2362,127 @@
             "canHeatRun", 
             {"heatFrames": 40}
         ]
+    },
+    {
+        "name": "Red Kihunter Shaft Save Room",
+        "room_id": 312,
+        "node_id": 1,
+        "x": 5.5,
+        "y": 12
+    },
+    {
+        "name": "Glass Tunnel Save Room",
+        "room_id": 171,
+        "node_id": 1,
+        "x": 5.5,
+        "y": 12
+    },
+    {
+        "name": "Aqueduct Save Room",
+        "room_id": 182,
+        "node_id": 1,
+        "x": 12.5,
+        "y": 10
+    },
+    {
+        "name": "Draygon Save Room",
+        "room_id": 190,
+        "node_id": 1,
+        "x": 5.5,
+        "y": 12
+    },
+    {
+        "name": "Maridia Health Refill Room",
+        "room_id": 191,
+        "node_id": 1,
+        "x": 6,
+        "y": 12
+    },
+    {
+        "name": "Maridia Missile Refill Room",
+        "room_id": 188,
+        "node_id": 1,
+        "x": 6,
+        "y": 12
+    },
+    {
+        "name": "Space Jump Room",
+        "room_id": 194,
+        "node_id": 1,
+        "x": 10,
+        "y": 13
+    },
+    {
+        "name": "West Sand Hole",
+        "room_id": 209,
+        "node_id": 2,
+        "door_load_node_id": 1,
+        "x": 17,
+        "y": 12,
+        "camera_offset_x": -6,
+        "camera_offset_y": 1
+    },
+    {
+        "name": "Forgotten Highway Save Room",
+        "room_id": 216,
+        "node_id": 1,
+        "x": 5.5,
+        "y": 12
+    },
+    {
+        "name": "Gravity Suit Room",
+        "room_id": 162,
+        "node_id": 2,
+        "x": 11.5,
+        "y": 10
+    },
+    {
+        "name": "Wrecked Ship East Missile Room",
+        "room_id": 168,
+        "node_id": 1,
+        "x": 7,
+        "y": 10
+    },
+    {
+        "name": "Wrecked Ship Map Room",
+        "room_id": 157,
+        "node_id": 1,
+        "x": 12.5,
+        "y": 10
+    },
+    {
+        "name": "Wrecked Ship Save Room",
+        "room_id": 304,
+        "node_id": 1,
+        "x": 5.5,
+        "y": 12
+    },
+    {
+        "name": "Wrecked Ship West Super Room",
+        "room_id": 159,
+        "node_id": 1,
+        "x": 8,
+        "y": 12
+    },
+    {
+        "name": "Lower Tourian Save Room",
+        "room_id": 237,
+        "node_id": 1,
+        "x": 12.5,
+        "y": 10
+    },
+    {
+        "name": "Tourian Recharge Room",
+        "room_id": 234,
+        "node_id": 1,
+        "x": 11,
+        "y": 12
+    },
+    {
+        "name": "Tourian Map Room",
+        "room_id": 225,
+        "node_id": 1,
+        "x": 3.5,
+        "y": 10
     }
 ]

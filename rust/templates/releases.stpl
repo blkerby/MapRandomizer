@@ -17,9 +17,9 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-77---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 77 (???)</a>:
+<p><a href="https://version-77---sm-map-randomizer-544gn3gvwq-uc.a.run.app/">Version 77 (2023-08-07)</a>:
 <ul>
-<li>Added customization option to change E-Tank color in the HUD.
+<li>New customization option to change E-Tank color in the HUD.
 <li>More ways to switch maps in the pause menu:
     <ul>
     <li>Y can be pressed in the pause menu to switch to the next map, as an alternative to Select.
@@ -36,7 +36,7 @@ about 15 seconds to load.
         </ul>
     </ul>
 <li>"Zebes asleep" music now plays in Crateria before the planet is awake.
-<li>More starting locations are added for Random start (in item rooms).
+<li>More starting locations are added for Random start (mainly in refill, save, item, and map rooms).
 <li>Website update: Logic pages are added for individual strats, to make it easy to share a link to a strat.
 </ul>
 
