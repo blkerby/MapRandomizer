@@ -1410,7 +1410,7 @@ impl<'a> MapPatcher<'a> {
             (8, rgb(4, 13, 31)),  // Maridia blue
             (9, rgb(24, 22, 6)),  // Wrecked Ship yellow
             (11, rgb(18, 3, 31)), // Crateria purple
-            (6, rgb(27, 14, 0)),  // Tourian
+            (6, rgb(29, 15, 0)),  // Tourian
         ];
         // Dotted grid lines
         let i = 12;

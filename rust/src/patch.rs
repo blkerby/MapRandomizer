@@ -299,6 +299,7 @@ impl<'a> Patcher<'a> {
             if options.new_game_extra {
                 new_game = "new_game_extra";
             }
+            // patches.push("items_test")
         }
         patches.push(new_game);
 

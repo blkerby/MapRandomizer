@@ -3,11 +3,10 @@ next release:
 - DONE: randomized start: check requires on hub locations
 - DONE: use "crateria asleep" song somewhere
 - DONE: use modal for sprite customization
-- etank color customization
-- fix palette bug in when switching back from equipment to pause map (affecting tourian arrow color).
+- DONE: etank color customization
+- DONE: brighten the tourian area transition arrow color
+- DONE: fix palette bug in when switching back from equipment to pause map (affecting tourian arrow color).
 - add more starting locations, in item rooms
-- check x-ray item color: replace dark blue with dark area color?
-- brighten the tourian and WS area transition arrow colors
 
 priority:
 - randomized title screen

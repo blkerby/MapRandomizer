@@ -185,11 +185,22 @@ org $89AC15 : nop : nop : nop : nop   ; was: STA $7EC236
 ;org $89AC15 : STA $7EC23E   ; was: STA $7EC236
 org $89AC1E : nop : nop : nop : nop   ; was: STA $7EC236
 
+org $82920B
+    jsr fix_map_palette
 
 ;;; Put new code in free space at end of bank $82:
 org !bank_82_freespace_start
 
-dw $48FB  ; pink e-tank color (configurable)
+; when switching from equipment screen to map screen, restore palette for flashing reserve tank arrow color
+; (used on map screen for tourian arrows)
+fix_map_palette:
+    lda $B6F0CC
+    sta $7EC0CC
+    lda $B6F0D6
+    sta $7EC0D6
+    ;stz $073F  ; run hi-jacked instruction
+    lda #$0000
+    rts
 
 ;;; X = room header pointer
 load_area:
