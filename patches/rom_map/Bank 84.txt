@@ -3,7 +3,8 @@ $F100 - $F1FF: missile_refill_all.asm
 $F200 - $F300: mb_barrier_clear.asm (to remove invisible spikes after Mother Brain defeaed)
 $F300 - $F380: escape_items.asm
 $F380 - $F580: escape.asm
-$F580 - $F900: ???
+$F580 - $F600: hazard_markers
+$F600 - $F900: [FREE]
 $F900 - $F980: escape.asm
 $FA00 - $FC00: gray_doors.asm
 $FC00 - $FC40: fix_kraid_vomit.asm

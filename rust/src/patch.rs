@@ -300,6 +300,7 @@ impl<'a> Patcher<'a> {
                 new_game = "new_game_extra";
             }
             // patches.push("items_test")
+            patches.push("hazard_markers");
         }
         patches.push(new_game);
 
@@ -1472,6 +1473,54 @@ impl<'a> Patcher<'a> {
             .write_u16(station_addr + 12, ((samus_x as i16) as u16) as isize)?;
         Ok(())
     }
+
+    fn write_hazard_markers(&mut self) -> Result<()> {
+        let B = 15; // black
+        let W = 12; // white
+        let hazard_tiles: Vec<[[u8; 8]; 8]> = vec![
+            [
+                [B, 3, 3, 3, B, B, B, 3],
+                [B, B, B, B, B, B, B, B],
+                [6, 6, 6, 6, 5, 5, 5, 6],
+                [B, B, B, B, B, B, B, B],
+                [3, 3, B, B, B, 3, 3, 3],
+                [3, 3, 3, B, B, B, 3, 3],
+                [B, 3, 3, 3, B, B, B, 3],
+                [B, B, 3, 3, 3, B, B, B],
+            ],
+            [
+                [B, B, B, 3, 3, 3, B, B],
+                [3, B, B, B, 3, 3, 3, B],
+                [2, 2, B, B, B, 2, 2, 2],
+                [2, 2, 2, B, B, B, 2, 2],
+                [B, 7, B, B, 7, 7, 7, 7],
+                [5, 5, 4, 4, 4, 4, 4, 4],
+                [B, 7, B, B, 7, 7, 7, 7],
+                [2, B, B, B, 2, 2, 2, B],
+            ],
+            [
+                [2, 2, B, B, B, 2, 2, 2],
+                [2, 2, 2, B, B, B, 2, 2],
+                [B, 2, 2, 2, B, B, B, 2],
+                [B, B, 2, 2, 2, B, B, B],
+                [B, B, B, 1, 1, 1, B, B],
+                [1, B, B, B, 1, 1, 1, B],
+                [1, 1, B, B, B, 1, 1, 1],
+                [1, 1, 1, B, B, B, 1, 1],
+            ],
+            [
+                [B, 5, B, B, 5, 5, 5, 5],
+                [5, 4, 4, 4, W, W, 4, 4],
+                [B, 6, B, B, 6, 6, 6, 6],
+                [1, B, B, B, 1, 1, 1, B],
+                [1, 1, B, B, B, 1, 1, 1],
+                [1, 1, 1, B, B, B, 1, 1],
+                [B, 1, 1, 1, B, B, B, 1],
+                [B, B, 1, 1, 1, B, B, B],
+            ]
+        ];
+        Ok(())
+    }
 }
 
 fn get_other_door_ptr_pair_map(map: &Map) -> HashMap<DoorPtrPair, DoorPtrPair> {
@@ -1525,6 +1574,7 @@ pub fn make_rom(
     if !randomization.difficulty.ultra_low_qol {
         patcher.setup_reload_cre()?;
     }
+    patcher.write_hazard_markers()?;
     patcher.fix_twin_rooms()?;
     patcher.fix_crateria_scrolling_sky()?;
     patcher.apply_title_screen_patches()?;

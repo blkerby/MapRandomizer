@@ -15,8 +15,8 @@ priority:
 - door color randomization
 - set up a more robust way for users to save & select presets
 - move input ROM off Generate page (and into separate dialogue that only shows on first use).
-- convert tech/strat AVIs to WebM & WebP
-  - WebM for full playback using <video>
+- convert tech/strat AVIs to WebM & WebP (using ffmpeg CLI)
+  - WebM/VP9 for full playback using HTML5 <video>
   - WebP for thumbnails
   - use image-rendering: pixelated
 - add CF health refill to logic
