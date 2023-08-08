@@ -1,16 +1,10 @@
 next release:
-- DONE: add strat pages
-- DONE: randomized start: check requires on hub locations
-- DONE: use "crateria asleep" song somewhere
-- DONE: use modal for sprite customization
-- DONE: etank color customization
-- DONE: brighten the tourian area transition arrow color
-- DONE: fix palette bug in when switching back from equipment to pause map (affecting tourian arrow color).
-- add more starting locations, in item rooms
+- caution tape on doors leading to (otherwise unforeseeable) risk of death/softlock?
 
 priority:
+- from alphanimal: When "disable music" is on, could you just make it load vanilla audio channels, so some sound effects don't get messed up
+- controller config special settings (moonwalk) customization
 - randomized title screen
-- caution tape on doors leading to (otherwise unforeseeable) risk of death/softlock?
 - enhancements to momentum conservation patch
   - remove need to be holding dash or to be in spin
   - reset speed boost counter whenever momentum conservation comes into play, to avoid making it too easy to get blue
@@ -29,6 +23,7 @@ priority:
 - make hub requirements consistent with new farm approach?
   - actually probably don't need to define hub rooms anymore:
       - just check for ability to refill each resource type from the start location and get back
+- logic pages (tech/room/strat): add way to fill out items/flags/resources/obstacles to simulate logic
 - take another look at boss fights
   - create table to show in help button, to make boss logic more transparent (in addition to showing formulas)
   - 5 Super phantoon fight probably needs more requirements than it currently has.
@@ -203,7 +198,6 @@ later:
 - make quick reload work while in pause menu?
 - refine cross room shinesparks:
     - slopes
-- controller config special settings (moonwalk) customization
 - consider overhauling how cross-room logic is encoded:
   - canComeInCharged should be in a special part of the "node" (symmetric to "canLeaveCharged"), not in "links"
   - same thing for adjacentRunway
