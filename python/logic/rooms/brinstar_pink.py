@@ -7,6 +7,7 @@ UP = Direction.UP
 DOWN = Direction.DOWN
 ELEVATOR = DoorSubtype.ELEVATOR
 
+
 rooms = [
     Room(
         name='Dachora Room',
@@ -21,9 +22,9 @@ rooms = [
             [1, 1, 1, 1, 1, 0, 0],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18DA2, 0x18CE2),  # Green Brinstar Main Shaft
-            DoorIdentifier(LEFT, 0, 6, 0x18DBA, 0x18F6A),  # Dachora Energy Refill Room
-            DoorIdentifier(RIGHT, 6, 0, 0x18DAE, 0x18DD2),  # Big Pink
+            DoorIdentifier(LEFT, 0, 0, 0x18DA2, 0x18CE2, 0),  # Green Brinstar Main Shaft
+            DoorIdentifier(LEFT, 0, 6, 0x18DBA, 0x18F6A, 0),  # Dachora Energy Refill Room
+            DoorIdentifier(RIGHT, 6, 0, 0x18DAE, 0x18DD2, 0),  # Big Pink
         ],
         # parts=[[0, 2], [1]],
         # transient_part_connections=[(0, 1)],  # speed blocks
@@ -40,7 +41,7 @@ rooms = [
         rom_address=0x7A07B,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(RIGHT, 0, 0, 0x18F6A, 0x18DBA),  # Dachora Room
+            DoorIdentifier(RIGHT, 0, 0, 0x18F6A, 0x18DBA, 0),  # Dachora Room
         ],
         node_tiles={
             1: [(0, 0)],  # door
@@ -63,15 +64,15 @@ rooms = [
             [1, 0, 0, 0, 0],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 1, 0, 0x18DF6, 0x18FD6),  # Big Pink Save Room
-            DoorIdentifier(LEFT, 2, 2, 0x18DD2, 0x18DAE),  # Dachora Room
-            DoorIdentifier(LEFT, 2, 3, 0x18E02, 0x18E62),  # Pink Brinstar Power Bomb Room (top)
-            DoorIdentifier(LEFT, 2, 4, 0x18DDE, 0x18E6E),  # Pink Brinstar Power Bomb Room (bottom)
-            DoorIdentifier(LEFT, 0, 9, 0x18E0E, 0x18F8E),  # Waterway Energy Tank Room
-            DoorIdentifier(RIGHT, 3, 0, 0x18DC6, 0x18E32),  # Spore Spawn Kihunter Room
-            DoorIdentifier(RIGHT, 3, 4, 0x18E1A, 0x18FB2),  # Pink Brinstar Hopper Room
-            DoorIdentifier(RIGHT, 4, 5, 0x18E26, 0x18F82),  # Spore Spawn Farming Room
-            DoorIdentifier(RIGHT, 3, 6, 0x18DEA, 0x18E7A),  # Green Hill Zone
+            DoorIdentifier(LEFT, 1, 0, 0x18DF6, 0x18FD6, 0),  # Big Pink Save Room
+            DoorIdentifier(LEFT, 2, 2, 0x18DD2, 0x18DAE, 0),  # Dachora Room
+            DoorIdentifier(LEFT, 2, 3, 0x18E02, 0x18E62, None),  # Pink Brinstar Power Bomb Room (top)
+            DoorIdentifier(LEFT, 2, 4, 0x18DDE, 0x18E6E, 0),  # Pink Brinstar Power Bomb Room (bottom)
+            DoorIdentifier(LEFT, 0, 9, 0x18E0E, 0x18F8E, 0),  # Waterway Energy Tank Room
+            DoorIdentifier(RIGHT, 3, 0, 0x18DC6, 0x18E32, 0),  # Spore Spawn Kihunter Room
+            DoorIdentifier(RIGHT, 3, 4, 0x18E1A, 0x18FB2, 0),  # Pink Brinstar Hopper Room
+            DoorIdentifier(RIGHT, 4, 5, 0x18E26, 0x18F82, 0),  # Spore Spawn Farming Room
+            DoorIdentifier(RIGHT, 3, 6, 0x18DEA, 0x18E7A, 0),  # Green Hill Zone
         ],
         parts=[[0, 1, 2, 4, 5, 6, 8], [3], [7]],
         transient_part_connections=[(1, 0),  # crumble blocks
@@ -106,7 +107,7 @@ rooms = [
         rom_address=0x7A184,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(RIGHT, 0, 0, 0x18FD6, 0x18DF6)  # Big Pink
+            DoorIdentifier(RIGHT, 0, 0, 0x18FD6, 0x18DF6, 0)  # Big Pink
         ],
         node_tiles={
             1: [(0, 0)],  # door
@@ -121,8 +122,8 @@ rooms = [
             [1, 1],
         ],
         door_ids=[
-            DoorIdentifier(RIGHT, 1, 0, 0x18E62, 0x18E02),  # Big Pink (top)
-            DoorIdentifier(RIGHT, 1, 1, 0x18E6E, 0x18DDE),  # Big Pink (bottom)
+            DoorIdentifier(RIGHT, 1, 0, 0x18E62, 0x18E02, 0),  # Big Pink (top)
+            DoorIdentifier(RIGHT, 1, 1, 0x18E6E, 0x18DDE, 0),  # Big Pink (bottom)
         ],
         parts=[[0], [1]],
         transient_part_connections=[(0, 1)],  # crumble blocks
@@ -145,8 +146,8 @@ rooms = [
             [1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 1, 0x18FB2, 0x18E1A),  # Big Pink
-            DoorIdentifier(RIGHT, 1, 1, 0x18FBE, 0x18FCA),  # Hopper Energy Tank Room
+            DoorIdentifier(LEFT, 0, 1, 0x18FB2, 0x18E1A, 0),  # Big Pink
+            DoorIdentifier(RIGHT, 1, 1, 0x18FBE, 0x18FCA, 0),  # Hopper Energy Tank Room
         ],
         node_tiles={
             1: [(0, 0), (0, 1)],  # left door
@@ -158,7 +159,7 @@ rooms = [
         rom_address=0x7A15B,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18FCA, 0x18FBE),  # Pink Brinstar Hopper Room
+            DoorIdentifier(LEFT, 0, 0, 0x18FCA, 0x18FBE, 0),  # Pink Brinstar Hopper Room
         ],
         items=[
             Item(0, 0, 0x78824),
@@ -183,8 +184,8 @@ rooms = [
             [1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18D2A, 0x18E4A),  # Spore Spawn Room
-            DoorIdentifier(LEFT, 0, 8, 0x18D1E, 0x18F76),  # Spore Spawn Farming Room
+            DoorIdentifier(LEFT, 0, 0, 0x18D2A, 0x18E4A, 0),  # Spore Spawn Room
+            DoorIdentifier(LEFT, 0, 8, 0x18D1E, 0x18F76, 0),  # Spore Spawn Farming Room
         ],
         parts=[[0], [1]],
         transient_part_connections=[(0, 1)],  # crumble blocks
@@ -203,8 +204,8 @@ rooms = [
         rom_address=0x7A0A4,
         map=[[1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18F82, 0x18E26),  # Big Pink
-            DoorIdentifier(RIGHT, 2, 0, 0x18F76, 0x18D1E),  # Spore Spawn Super Room
+            DoorIdentifier(LEFT, 0, 0, 0x18F82, 0x18E26, 0),  # Big Pink
+            DoorIdentifier(RIGHT, 2, 0, 0x18F76, 0x18D1E, 0),  # Spore Spawn Super Room
         ],
         node_tiles={
             1: [(0, 0), (1, 0)],  # left door
@@ -216,7 +217,7 @@ rooms = [
         rom_address=0x7A0D2,
         map=[[1, 1, 1, 1, 1, 1, 1]],
         door_ids=[
-            DoorIdentifier(RIGHT, 6, 0, 0x18F8E, 0x18E0E),  # Big Pink
+            DoorIdentifier(RIGHT, 6, 0, 0x18F8E, 0x18E0E, 0),  # Big Pink
         ],
         items=[
             Item(0, 0, 0x787FA),
@@ -227,7 +228,6 @@ rooms = [
         },
     ),
 ]
-
 
 for room in rooms:
     room.area = Area.BRINSTAR

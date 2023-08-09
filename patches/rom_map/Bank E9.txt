@@ -1,0 +1,2 @@
+8000-8280: hazard tiles (hazard_markers.asm)
+8280-82??: hazard tilemap

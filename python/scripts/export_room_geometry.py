@@ -23,6 +23,7 @@ def door_id_to_json(door_id: DoorIdentifier):
         'exit_ptr': door_id.exit_ptr if door_id.exit_ptr is not None else None,
         'entrance_ptr': door_id.entrance_ptr if door_id.entrance_ptr is not None else None,
         'subtype': subtype_dict[door_id.subtype],
+        'offset': door_id.offset,
     }
 
 def item_to_json(item: Item):

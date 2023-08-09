@@ -1,5 +1,6 @@
 next release:
 - caution tape on doors leading to (otherwise unforeseeable) risk of death/softlock?
+- restore tourian blue hoppers to vanilla
 
 priority:
 - from alphanimal: When "disable music" is on, could you just make it load vanilla audio channels, so some sound effects don't get messed up

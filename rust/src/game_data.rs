@@ -306,6 +306,7 @@ pub struct RoomGeometryDoor {
     pub exit_ptr: Option<usize>,
     pub entrance_ptr: Option<usize>,
     pub subtype: String,
+    pub offset: Option<usize>,
 }
 
 #[derive(Deserialize, Default, Clone)]

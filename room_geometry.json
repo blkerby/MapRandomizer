@@ -6,8 +6,8 @@
         "twin_rom_address": null,
         "map": [[1, 1], [1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 101086, "entrance_ptr": 100918, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 101098, "entrance_ptr": 100810, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 101086, "entrance_ptr": 100918, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 101098, "entrance_ptr": 100810, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -24,10 +24,10 @@
         "twin_rom_address": null,
         "map": [[0, 0, 1, 1, 1, 1, 1, 1, 1], [0, 0, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1], [0, 0, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 2, "exit_ptr": 100654, "entrance_ptr": 100678, "subtype": "normal"},
-            {"direction": "left", "x": 0, "y": 4, "exit_ptr": 100630, "entrance_ptr": 100714, "subtype": "normal"},
-            {"direction": "right", "x": 8, "y": 1, "exit_ptr": 100666, "entrance_ptr": 100786, "subtype": "normal"},
-            {"direction": "right", "x": 8, "y": 4, "exit_ptr": 100642, "entrance_ptr": 101062, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 2, "exit_ptr": 100654, "entrance_ptr": 100678, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 0, "y": 4, "exit_ptr": 100630, "entrance_ptr": 100714, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 8, "y": 1, "exit_ptr": 100666, "entrance_ptr": 100786, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 8, "y": 4, "exit_ptr": 100642, "entrance_ptr": 101062, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1, 2, 3]],
         "durable_part_connections": [],
@@ -52,8 +52,8 @@
         "twin_rom_address": null,
         "map": [[1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 101062, "entrance_ptr": 100642, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 101074, "entrance_ptr": 100906, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 101062, "entrance_ptr": 100642, "subtype": "normal", "offset": null},
+            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 101074, "entrance_ptr": 100906, "subtype": "normal", "offset": null}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -70,13 +70,13 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1, 1], [0, 1, 0, 1, 0], [0, 1, 0, 1, 0], [0, 1, 0, 0, 0], [0, 1, 0, 0, 0]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 100702, "entrance_ptr": 101362, "subtype": "normal"},
-            {"direction": "left", "x": 1, "y": 2, "exit_ptr": 100762, "entrance_ptr": 100798, "subtype": "normal"},
-            {"direction": "left", "x": 1, "y": 3, "exit_ptr": 100774, "entrance_ptr": 101518, "subtype": "normal"},
-            {"direction": "right", "x": 4, "y": 0, "exit_ptr": 100714, "entrance_ptr": 100630, "subtype": "normal"},
-            {"direction": "right", "x": 3, "y": 2, "exit_ptr": 100738, "entrance_ptr": 101302, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 3, "exit_ptr": 100726, "entrance_ptr": 101326, "subtype": "normal"},
-            {"direction": "down", "x": 1, "y": 4, "exit_ptr": 100750, "entrance_ptr": 101182, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 100702, "entrance_ptr": 101362, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 1, "y": 2, "exit_ptr": 100762, "entrance_ptr": 100798, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 1, "y": 3, "exit_ptr": 100774, "entrance_ptr": 101518, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 4, "y": 0, "exit_ptr": 100714, "entrance_ptr": 100630, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 3, "y": 2, "exit_ptr": 100738, "entrance_ptr": 101302, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 3, "exit_ptr": 100726, "entrance_ptr": 101326, "subtype": "normal", "offset": 0},
+            {"direction": "down", "x": 1, "y": 4, "exit_ptr": 100750, "entrance_ptr": 101182, "subtype": "normal", "offset": 1}
         ],
         "parts": [[0, 1, 2, 3, 4, 5, 6]],
         "durable_part_connections": [],
@@ -102,11 +102,11 @@
         "twin_rom_address": null,
         "map": [[0, 1, 1], [0, 1, 0], [0, 1, 0], [0, 1, 0], [0, 1, 0], [0, 1, 0], [0, 1, 0], [0, 1, 1], [1, 1, 0]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 8, "exit_ptr": 101230, "entrance_ptr": 109364, "subtype": "normal"},
-            {"direction": "right", "x": 2, "y": 0, "exit_ptr": 101194, "entrance_ptr": 101482, "subtype": "normal"},
-            {"direction": "right", "x": 2, "y": 7, "exit_ptr": 101206, "entrance_ptr": 101494, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 8, "exit_ptr": 101218, "entrance_ptr": 101242, "subtype": "normal"},
-            {"direction": "up", "x": 1, "y": 0, "exit_ptr": 101182, "entrance_ptr": 100750, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 8, "exit_ptr": 101230, "entrance_ptr": 109364, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 2, "y": 0, "exit_ptr": 101194, "entrance_ptr": 101482, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 2, "y": 7, "exit_ptr": 101206, "entrance_ptr": 101494, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 8, "exit_ptr": 101218, "entrance_ptr": 101242, "subtype": "normal", "offset": 0},
+            {"direction": "up", "x": 1, "y": 0, "exit_ptr": 101182, "entrance_ptr": 100750, "subtype": "normal", "offset": 1}
         ],
         "parts": [[0, 1, 2, 3, 4]],
         "durable_part_connections": [],
@@ -123,8 +123,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1], [1, 0, 0]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 101242, "entrance_ptr": 101218, "subtype": "normal"},
-            {"direction": "right", "x": 2, "y": 0, "exit_ptr": 101254, "entrance_ptr": 101266, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 101242, "entrance_ptr": 101218, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 2, "y": 0, "exit_ptr": 101254, "entrance_ptr": 101266, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -141,8 +141,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 101302, "entrance_ptr": 100738, "subtype": "normal"},
-            {"direction": "right", "x": 2, "y": 0, "exit_ptr": 101314, "entrance_ptr": 101290, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 101302, "entrance_ptr": 100738, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 2, "y": 0, "exit_ptr": 101314, "entrance_ptr": 101290, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -159,8 +159,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 101326, "entrance_ptr": 100726, "subtype": "normal"},
-            {"direction": "right", "x": 2, "y": 0, "exit_ptr": 101338, "entrance_ptr": 101422, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 101326, "entrance_ptr": 100726, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 2, "y": 0, "exit_ptr": 101338, "entrance_ptr": 101422, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -176,7 +176,7 @@
         "rom_address": 498068,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 101422, "entrance_ptr": 101338, "subtype": "normal"}],
+        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 101422, "entrance_ptr": 101338, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -191,7 +191,7 @@
         "rom_address": 496597,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 100798, "entrance_ptr": 100762, "subtype": "normal"}],
+        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 100798, "entrance_ptr": 100762, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -206,7 +206,7 @@
         "rom_address": 498320,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 101530, "entrance_ptr": 101506, "subtype": "normal"}],
+        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 101530, "entrance_ptr": 101506, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -222,8 +222,8 @@
         "twin_rom_address": null,
         "map": [[1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 101506, "entrance_ptr": 101530, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 101518, "entrance_ptr": 100774, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 101506, "entrance_ptr": 101530, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 101518, "entrance_ptr": 100774, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -239,7 +239,7 @@
         "rom_address": 497668,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 101290, "entrance_ptr": 101314, "subtype": "normal"}],
+        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 101290, "entrance_ptr": 101314, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -255,8 +255,8 @@
         "twin_rom_address": null,
         "map": [[0, 0, 0, 1, 1, 1], [0, 1, 1, 1, 1, 0], [1, 1, 1, 0, 0, 0]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 2, "exit_ptr": 101350, "entrance_ptr": 101434, "subtype": "normal"},
-            {"direction": "right", "x": 5, "y": 0, "exit_ptr": 101362, "entrance_ptr": 100702, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 2, "exit_ptr": 101350, "entrance_ptr": 101434, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 5, "y": 0, "exit_ptr": 101362, "entrance_ptr": 100702, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -273,10 +273,10 @@
         "twin_rom_address": null,
         "map": [[1], [1], [1], [1], [1], [1], [1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 6, "exit_ptr": 101446, "entrance_ptr": 101398, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 101470, "entrance_ptr": 101146, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 4, "exit_ptr": 101434, "entrance_ptr": 101350, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 6, "exit_ptr": 101458, "entrance_ptr": 102886, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 6, "exit_ptr": 101446, "entrance_ptr": 101398, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 101470, "entrance_ptr": 101146, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 4, "exit_ptr": 101434, "entrance_ptr": 101350, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 6, "exit_ptr": 101458, "entrance_ptr": 102886, "subtype": "normal", "offset": 0}
         ],
         "parts": [[1], [0, 2, 3]],
         "durable_part_connections": [],
@@ -293,8 +293,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 101410, "entrance_ptr": 101374, "subtype": "normal"},
-            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 101398, "entrance_ptr": 101446, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 101410, "entrance_ptr": 101374, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 101398, "entrance_ptr": 101446, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -311,8 +311,8 @@
         "twin_rom_address": null,
         "map": [[1], [1], [1], [1]],
         "doors": [
-            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 101374, "entrance_ptr": 101410, "subtype": "normal"},
-            {"direction": "down", "x": 0, "y": 3, "exit_ptr": 101386, "entrance_ptr": 101542, "subtype": "elevator"}
+            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 101374, "entrance_ptr": 101410, "subtype": "normal", "offset": 0},
+            {"direction": "down", "x": 0, "y": 3, "exit_ptr": 101386, "entrance_ptr": 101542, "subtype": "elevator", "offset": null}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -329,9 +329,9 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1], [0, 1, 0], [0, 1, 0]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 100906, "entrance_ptr": 101074, "subtype": "normal"},
-            {"direction": "right", "x": 2, "y": 0, "exit_ptr": 100918, "entrance_ptr": 101086, "subtype": "normal"},
-            {"direction": "down", "x": 1, "y": 2, "exit_ptr": 100930, "entrance_ptr": 101110, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 100906, "entrance_ptr": 101074, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 2, "y": 0, "exit_ptr": 100918, "entrance_ptr": 101086, "subtype": "normal", "offset": 0},
+            {"direction": "down", "x": 1, "y": 2, "exit_ptr": 100930, "entrance_ptr": 101110, "subtype": "normal", "offset": 1}
         ],
         "parts": [[0, 1, 2]],
         "durable_part_connections": [],
@@ -348,8 +348,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 102886, "entrance_ptr": 101458, "subtype": "normal"},
-            {"direction": "right", "x": 4, "y": 0, "exit_ptr": 102898, "entrance_ptr": 102934, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 102886, "entrance_ptr": 101458, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 4, "y": 0, "exit_ptr": 102898, "entrance_ptr": 102934, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -366,8 +366,8 @@
         "twin_rom_address": null,
         "map": [[1], [1], [1], [1]],
         "doors": [
-            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 101110, "entrance_ptr": 100930, "subtype": "normal"},
-            {"direction": "down", "x": 0, "y": 3, "exit_ptr": 101122, "entrance_ptr": 102586, "subtype": "elevator"}
+            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 101110, "entrance_ptr": 100930, "subtype": "normal", "offset": 1},
+            {"direction": "down", "x": 0, "y": 3, "exit_ptr": 101122, "entrance_ptr": 102586, "subtype": "elevator", "offset": null}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -384,8 +384,8 @@
         "twin_rom_address": null,
         "map": [[1], [1], [1], [1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 101266, "entrance_ptr": 101254, "subtype": "normal"},
-            {"direction": "down", "x": 0, "y": 3, "exit_ptr": 101278, "entrance_ptr": 102070, "subtype": "elevator"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 101266, "entrance_ptr": 101254, "subtype": "normal", "offset": 0},
+            {"direction": "down", "x": 0, "y": 3, "exit_ptr": 101278, "entrance_ptr": 102070, "subtype": "elevator", "offset": null}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -402,8 +402,8 @@
         "twin_rom_address": null,
         "map": [[1], [1], [1], [1], [1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 102934, "entrance_ptr": 102898, "subtype": "normal"},
-            {"direction": "down", "x": 0, "y": 4, "exit_ptr": 102946, "entrance_ptr": 108944, "subtype": "elevator"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 102934, "entrance_ptr": 102898, "subtype": "normal", "offset": 0},
+            {"direction": "down", "x": 0, "y": 4, "exit_ptr": 102946, "entrance_ptr": 108944, "subtype": "elevator", "offset": null}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -419,7 +419,7 @@
         "rom_address": 496554,
         "twin_rom_address": null,
         "map": [[1, 1]],
-        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 100786, "entrance_ptr": 100666, "subtype": "normal"}],
+        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 100786, "entrance_ptr": 100666, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -435,8 +435,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1], [1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 101482, "entrance_ptr": 101194, "subtype": "normal"},
-            {"direction": "left", "x": 0, "y": 7, "exit_ptr": 101494, "entrance_ptr": 101206, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 101482, "entrance_ptr": 101194, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 0, "y": 7, "exit_ptr": 101494, "entrance_ptr": 101206, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0], [1]],
         "durable_part_connections": [],
@@ -453,8 +453,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 100690, "entrance_ptr": 101134, "subtype": "normal"},
-            {"direction": "right", "x": 4, "y": 0, "exit_ptr": 100678, "entrance_ptr": 100654, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 100690, "entrance_ptr": 101134, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 4, "y": 0, "exit_ptr": 100678, "entrance_ptr": 100654, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -471,8 +471,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 101146, "entrance_ptr": 101470, "subtype": "normal"},
-            {"direction": "right", "x": 5, "y": 0, "exit_ptr": 101134, "entrance_ptr": 100690, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 101146, "entrance_ptr": 101470, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 5, "y": 0, "exit_ptr": 101134, "entrance_ptr": 100690, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -489,14 +489,14 @@
         "twin_rom_address": 497295,
         "map": [[1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 0, 0, 1, 0, 0], [1, 1, 1, 1, 1, 1, 0, 0], [1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 5, "y": 2, "exit_ptr": 101158, "entrance_ptr": 100894, "subtype": "normal"},
-            {"direction": "left", "x": 0, "y": 4, "exit_ptr": 100810, "entrance_ptr": 101098, "subtype": "normal"},
-            {"direction": "right", "x": 7, "y": 0, "exit_ptr": 100846, "entrance_ptr": 106976, "subtype": "normal"},
-            {"direction": "right", "x": 7, "y": 1, "exit_ptr": 100858, "entrance_ptr": 106892, "subtype": "normal"},
-            {"direction": "right", "x": 2, "y": 2, "exit_ptr": 100834, "entrance_ptr": 100882, "subtype": "normal"},
-            {"direction": "right", "x": 5, "y": 2, "exit_ptr": 101170, "entrance_ptr": 106904, "subtype": "normal"},
-            {"direction": "right", "x": 5, "y": 3, "exit_ptr": 100870, "entrance_ptr": 107264, "subtype": "normal"},
-            {"direction": "right", "x": 7, "y": 4, "exit_ptr": 100822, "entrance_ptr": 106928, "subtype": "normal"}
+            {"direction": "left", "x": 5, "y": 2, "exit_ptr": 101158, "entrance_ptr": 100894, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 0, "y": 4, "exit_ptr": 100810, "entrance_ptr": 101098, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 7, "y": 0, "exit_ptr": 100846, "entrance_ptr": 106976, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 7, "y": 1, "exit_ptr": 100858, "entrance_ptr": 106892, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 2, "y": 2, "exit_ptr": 100834, "entrance_ptr": 100882, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 5, "y": 2, "exit_ptr": 101170, "entrance_ptr": 106904, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 5, "y": 3, "exit_ptr": 100870, "entrance_ptr": 107264, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 7, "y": 4, "exit_ptr": 100822, "entrance_ptr": 106928, "subtype": "normal", "offset": 0}
         ],
         "parts": [[1, 6, 7], [2, 3, 4], [0, 5]],
         "durable_part_connections": [],
@@ -526,8 +526,8 @@
         "twin_rom_address": null,
         "map": [[1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 100882, "entrance_ptr": 100834, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 100894, "entrance_ptr": 101158, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 100882, "entrance_ptr": 100834, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 100894, "entrance_ptr": 101158, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -544,8 +544,8 @@
         "twin_rom_address": null,
         "map": [[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 4, "exit_ptr": 100966, "entrance_ptr": 107108, "subtype": "normal"},
-            {"direction": "right", "x": 6, "y": 4, "exit_ptr": 100978, "entrance_ptr": 100990, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 4, "exit_ptr": 100966, "entrance_ptr": 107108, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 6, "y": 4, "exit_ptr": 100978, "entrance_ptr": 100990, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -562,8 +562,8 @@
         "twin_rom_address": null,
         "map": [[1], [1], [1], [1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 100990, "entrance_ptr": 100978, "subtype": "normal"},
-            {"direction": "down", "x": 0, "y": 3, "exit_ptr": 101002, "entrance_ptr": 101014, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 100990, "entrance_ptr": 100978, "subtype": "normal", "offset": 0},
+            {"direction": "down", "x": 0, "y": 3, "exit_ptr": 101002, "entrance_ptr": 101014, "subtype": "normal", "offset": 1}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -580,8 +580,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1], [1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 101038, "entrance_ptr": 101026, "subtype": "normal"},
-            {"direction": "up", "x": 3, "y": 0, "exit_ptr": 101014, "entrance_ptr": 101002, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 101038, "entrance_ptr": 101026, "subtype": "normal", "offset": 0},
+            {"direction": "up", "x": 3, "y": 0, "exit_ptr": 101014, "entrance_ptr": 101002, "subtype": "normal", "offset": 1}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -598,8 +598,8 @@
         "twin_rom_address": null,
         "map": [[1], [1], [1], [1]],
         "doors": [
-            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 100942, "entrance_ptr": 101050, "subtype": "normal"},
-            {"direction": "down", "x": 0, "y": 3, "exit_ptr": 100954, "entrance_ptr": 107924, "subtype": "elevator"}
+            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 100942, "entrance_ptr": 101050, "subtype": "normal", "offset": 1},
+            {"direction": "down", "x": 0, "y": 3, "exit_ptr": 100954, "entrance_ptr": 107924, "subtype": "elevator", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -616,8 +616,8 @@
         "twin_rom_address": null,
         "map": [[1]],
         "doors": [
-            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 101026, "entrance_ptr": 101038, "subtype": "normal"},
-            {"direction": "down", "x": 0, "y": 0, "exit_ptr": 101050, "entrance_ptr": 100942, "subtype": "normal"}
+            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 101026, "entrance_ptr": 101038, "subtype": "normal", "offset": 0},
+            {"direction": "down", "x": 0, "y": 0, "exit_ptr": 101050, "entrance_ptr": 100942, "subtype": "normal", "offset": 1}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -634,11 +634,11 @@
         "twin_rom_address": null,
         "map": [[1], [1], [1], [1], [1], [1], [1], [1], [1], [1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 4, "exit_ptr": 102442, "entrance_ptr": 102154, "subtype": "normal"},
-            {"direction": "left", "x": 0, "y": 6, "exit_ptr": 102454, "entrance_ptr": 102502, "subtype": "normal"},
-            {"direction": "left", "x": 0, "y": 9, "exit_ptr": 102478, "entrance_ptr": 102910, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 102430, "entrance_ptr": 102526, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 9, "exit_ptr": 102466, "entrance_ptr": 102646, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 4, "exit_ptr": 102442, "entrance_ptr": 102154, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 0, "y": 6, "exit_ptr": 102454, "entrance_ptr": 102502, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 0, "y": 9, "exit_ptr": 102478, "entrance_ptr": 102910, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 102430, "entrance_ptr": 102526, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 9, "exit_ptr": 102466, "entrance_ptr": 102646, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1, 2, 3, 4]],
         "durable_part_connections": [],
@@ -655,8 +655,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1, 1, 1, 1, 1], [1, 1, 0, 0, 1, 1, 0, 0]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 102490, "entrance_ptr": 102514, "subtype": "normal"},
-            {"direction": "right", "x": 7, "y": 0, "exit_ptr": 102502, "entrance_ptr": 102454, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 102490, "entrance_ptr": 102514, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 7, "y": 0, "exit_ptr": 102502, "entrance_ptr": 102454, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -672,7 +672,7 @@
         "rom_address": 500430,
         "twin_rom_address": null,
         "map": [[1, 1]],
-        "doors": [{"direction": "right", "x": 1, "y": 0, "exit_ptr": 102514, "entrance_ptr": 102490, "subtype": "normal"}],
+        "doors": [{"direction": "right", "x": 1, "y": 0, "exit_ptr": 102514, "entrance_ptr": 102490, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -688,8 +688,8 @@
         "twin_rom_address": null,
         "map": [[1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 102646, "entrance_ptr": 102466, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 102658, "entrance_ptr": 102670, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 102646, "entrance_ptr": 102466, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 102658, "entrance_ptr": 102670, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -706,9 +706,9 @@
         "twin_rom_address": null,
         "map": [[1, 1], [1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 102670, "entrance_ptr": 102658, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 102694, "entrance_ptr": 102706, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 1, "exit_ptr": 102682, "entrance_ptr": 107372, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 102670, "entrance_ptr": 102658, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 102694, "entrance_ptr": 102706, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 1, "exit_ptr": 102682, "entrance_ptr": 107372, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1, 2]],
         "durable_part_connections": [],
@@ -724,7 +724,7 @@
         "rom_address": 500807,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 102706, "entrance_ptr": 102694, "subtype": "normal"}],
+        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 102706, "entrance_ptr": 102694, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -740,8 +740,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 102526, "entrance_ptr": 102430, "subtype": "normal"},
-            {"direction": "right", "x": 2, "y": 0, "exit_ptr": 102538, "entrance_ptr": 102574, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 102526, "entrance_ptr": 102430, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 2, "y": 0, "exit_ptr": 102538, "entrance_ptr": 102574, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -758,12 +758,12 @@
         "twin_rom_address": null,
         "map": [[1, 0, 0], [1, 0, 0], [1, 0, 0], [1, 1, 1], [1, 0, 0], [1, 0, 0], [1, 0, 0], [1, 0, 0]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 3, "exit_ptr": 102562, "entrance_ptr": 102622, "subtype": "normal"},
-            {"direction": "left", "x": 0, "y": 5, "exit_ptr": 102574, "entrance_ptr": 102538, "subtype": "normal"},
-            {"direction": "left", "x": 0, "y": 7, "exit_ptr": 102550, "entrance_ptr": 102634, "subtype": "normal"},
-            {"direction": "right", "x": 2, "y": 3, "exit_ptr": 102598, "entrance_ptr": 107648, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 4, "exit_ptr": 102610, "entrance_ptr": 103018, "subtype": "normal"},
-            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 102586, "entrance_ptr": 101122, "subtype": "elevator"}
+            {"direction": "left", "x": 0, "y": 3, "exit_ptr": 102562, "entrance_ptr": 102622, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 0, "y": 5, "exit_ptr": 102574, "entrance_ptr": 102538, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 0, "y": 7, "exit_ptr": 102550, "entrance_ptr": 102634, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 2, "y": 3, "exit_ptr": 102598, "entrance_ptr": 107648, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 4, "exit_ptr": 102610, "entrance_ptr": 103018, "subtype": "normal", "offset": 0},
+            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 102586, "entrance_ptr": 101122, "subtype": "elevator", "offset": null}
         ],
         "parts": [[0, 1, 2, 4, 5], [3]],
         "durable_part_connections": [],
@@ -779,7 +779,7 @@
         "rom_address": 500654,
         "twin_rom_address": null,
         "map": [[1, 1, 1]],
-        "doors": [{"direction": "right", "x": 2, "y": 0, "exit_ptr": 102634, "entrance_ptr": 102550, "subtype": "normal"}],
+        "doors": [{"direction": "right", "x": 2, "y": 0, "exit_ptr": 102634, "entrance_ptr": 102550, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -794,7 +794,7 @@
         "rom_address": 500604,
         "twin_rom_address": null,
         "map": [[1, 1], [1, 0]],
-        "doors": [{"direction": "right", "x": 1, "y": 0, "exit_ptr": 102622, "entrance_ptr": 102562, "subtype": "normal"}],
+        "doors": [{"direction": "right", "x": 1, "y": 0, "exit_ptr": 102622, "entrance_ptr": 102562, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -809,7 +809,7 @@
         "rom_address": 501556,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 103018, "entrance_ptr": 102610, "subtype": "normal"}],
+        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 103018, "entrance_ptr": 102610, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -824,7 +824,7 @@
         "rom_address": 501272,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 102910, "entrance_ptr": 102478, "subtype": "normal"}],
+        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 102910, "entrance_ptr": 102478, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -840,9 +840,9 @@
         "twin_rom_address": null,
         "map": [[0, 0, 0, 0, 0, 1, 0, 0], [0, 0, 0, 0, 0, 1, 0, 0], [1, 1, 1, 1, 1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 2, "exit_ptr": 102046, "entrance_ptr": 102022, "subtype": "normal"},
-            {"direction": "right", "x": 7, "y": 2, "exit_ptr": 102058, "entrance_ptr": 102082, "subtype": "normal"},
-            {"direction": "up", "x": 5, "y": 0, "exit_ptr": 102070, "entrance_ptr": 101278, "subtype": "elevator"}
+            {"direction": "left", "x": 0, "y": 2, "exit_ptr": 102046, "entrance_ptr": 102022, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 7, "y": 2, "exit_ptr": 102058, "entrance_ptr": 102082, "subtype": "normal", "offset": 0},
+            {"direction": "up", "x": 5, "y": 0, "exit_ptr": 102070, "entrance_ptr": 101278, "subtype": "elevator", "offset": null}
         ],
         "parts": [[0, 1, 2]],
         "durable_part_connections": [],
@@ -859,9 +859,9 @@
         "twin_rom_address": null,
         "map": [[1], [1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 102082, "entrance_ptr": 102058, "subtype": "normal"},
-            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 102106, "entrance_ptr": 102310, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 102094, "entrance_ptr": 102118, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 102082, "entrance_ptr": 102058, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 102106, "entrance_ptr": 102310, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 102094, "entrance_ptr": 102118, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1, 2]],
         "durable_part_connections": [],
@@ -877,7 +877,7 @@
         "rom_address": 499975,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 102310, "entrance_ptr": 102106, "subtype": "normal"}],
+        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 102310, "entrance_ptr": 102106, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -893,8 +893,8 @@
         "twin_rom_address": null,
         "map": [[0, 0, 1], [0, 0, 1], [1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 2, "y": 0, "exit_ptr": 102130, "entrance_ptr": 102370, "subtype": "normal"},
-            {"direction": "left", "x": 0, "y": 2, "exit_ptr": 102118, "entrance_ptr": 102094, "subtype": "normal"}
+            {"direction": "left", "x": 2, "y": 0, "exit_ptr": 102130, "entrance_ptr": 102370, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 0, "y": 2, "exit_ptr": 102118, "entrance_ptr": 102094, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -911,8 +911,8 @@
         "twin_rom_address": null,
         "map": [[1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 102382, "entrance_ptr": 102394, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 102370, "entrance_ptr": 102130, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 102382, "entrance_ptr": 102394, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 102370, "entrance_ptr": 102130, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -928,7 +928,7 @@
         "rom_address": 500184,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 102394, "entrance_ptr": 102382, "subtype": "normal"}],
+        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 102394, "entrance_ptr": 102382, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -944,16 +944,16 @@
         "twin_rom_address": null,
         "map": [[1, 0, 0, 0], [1, 0, 0, 0], [1, 0, 0, 0], [1, 0, 0, 0], [1, 0, 0, 0], [1, 0, 0, 0], [1, 0, 0, 0], [1, 1, 1, 1], [1, 0, 1, 0], [1, 0, 1, 0], [1, 1, 1, 0], [0, 0, 1, 0]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 4, "exit_ptr": 101554, "entrance_ptr": 101698, "subtype": "normal"},
-            {"direction": "left", "x": 0, "y": 5, "exit_ptr": 101650, "entrance_ptr": 102406, "subtype": "normal"},
-            {"direction": "left", "x": 0, "y": 6, "exit_ptr": 101578, "entrance_ptr": 101770, "subtype": "normal"},
-            {"direction": "left", "x": 1, "y": 7, "exit_ptr": 101638, "entrance_ptr": 101614, "subtype": "normal"},
-            {"direction": "left", "x": 0, "y": 10, "exit_ptr": 101566, "entrance_ptr": 102166, "subtype": "normal"},
-            {"direction": "left", "x": 2, "y": 11, "exit_ptr": 101626, "entrance_ptr": 102214, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 4, "exit_ptr": 101590, "entrance_ptr": 101710, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 6, "exit_ptr": 101602, "entrance_ptr": 101794, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 7, "exit_ptr": 101614, "entrance_ptr": 101638, "subtype": "normal"},
-            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 101542, "entrance_ptr": 101386, "subtype": "elevator"}
+            {"direction": "left", "x": 0, "y": 4, "exit_ptr": 101554, "entrance_ptr": 101698, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 0, "y": 5, "exit_ptr": 101650, "entrance_ptr": 102406, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 0, "y": 6, "exit_ptr": 101578, "entrance_ptr": 101770, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 1, "y": 7, "exit_ptr": 101638, "entrance_ptr": 101614, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 0, "y": 10, "exit_ptr": 101566, "entrance_ptr": 102166, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 2, "y": 11, "exit_ptr": 101626, "entrance_ptr": 102214, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 4, "exit_ptr": 101590, "entrance_ptr": 101710, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 6, "exit_ptr": 101602, "entrance_ptr": 101794, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 7, "exit_ptr": 101614, "entrance_ptr": 101638, "subtype": "normal", "offset": 0},
+            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 101542, "entrance_ptr": 101386, "subtype": "elevator", "offset": null}
         ],
         "parts": [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]],
         "durable_part_connections": [],
@@ -986,8 +986,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1], [1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 101710, "entrance_ptr": 101590, "subtype": "normal"},
-            {"direction": "right", "x": 2, "y": 1, "exit_ptr": 101722, "entrance_ptr": 101734, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 101710, "entrance_ptr": 101590, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 2, "y": 1, "exit_ptr": 101722, "entrance_ptr": 101734, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -1003,7 +1003,7 @@
         "rom_address": 498695,
         "twin_rom_address": null,
         "map": [[1, 1]],
-        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 101734, "entrance_ptr": 101722, "subtype": "normal"}],
+        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 101734, "entrance_ptr": 101722, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -1019,8 +1019,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 101686, "entrance_ptr": 101746, "subtype": "normal"},
-            {"direction": "right", "x": 2, "y": 0, "exit_ptr": 101698, "entrance_ptr": 101554, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 101686, "entrance_ptr": 101746, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 2, "y": 0, "exit_ptr": 101698, "entrance_ptr": 101554, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -1036,7 +1036,7 @@
         "rom_address": 498741,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 101746, "entrance_ptr": 101686, "subtype": "normal"}],
+        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 101746, "entrance_ptr": 101686, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -1052,8 +1052,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1], [1, 1, 0]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 101758, "entrance_ptr": 101782, "subtype": "normal"},
-            {"direction": "right", "x": 2, "y": 0, "exit_ptr": 101770, "entrance_ptr": 101578, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 101758, "entrance_ptr": 101782, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 2, "y": 0, "exit_ptr": 101770, "entrance_ptr": 101578, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -1069,7 +1069,7 @@
         "rom_address": 498825,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 101782, "entrance_ptr": 101758, "subtype": "normal"}],
+        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 101782, "entrance_ptr": 101758, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -1084,7 +1084,7 @@
         "rom_address": 500225,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 102406, "entrance_ptr": 101650, "subtype": "normal"}],
+        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 102406, "entrance_ptr": 101650, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -1099,7 +1099,7 @@
         "rom_address": 500266,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 102418, "entrance_ptr": 102226, "subtype": "normal"}],
+        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 102418, "entrance_ptr": 102226, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -1115,8 +1115,8 @@
         "twin_rom_address": null,
         "map": [[1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 102178, "entrance_ptr": 102190, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 102166, "entrance_ptr": 101566, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 102178, "entrance_ptr": 102190, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 102166, "entrance_ptr": 101566, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -1133,10 +1133,10 @@
         "twin_rom_address": null,
         "map": [[1, 1, 0, 0, 0], [1, 1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 102202, "entrance_ptr": 102238, "subtype": "normal"},
-            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 102226, "entrance_ptr": 102418, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 102190, "entrance_ptr": 102178, "subtype": "normal"},
-            {"direction": "right", "x": 4, "y": 1, "exit_ptr": 102214, "entrance_ptr": 101626, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 102202, "entrance_ptr": 102238, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 102226, "entrance_ptr": 102418, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 102190, "entrance_ptr": 102178, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 4, "y": 1, "exit_ptr": 102214, "entrance_ptr": 101626, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 2], [1, 3]],
         "durable_part_connections": [],
@@ -1152,7 +1152,7 @@
         "rom_address": 499793,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 102238, "entrance_ptr": 102202, "subtype": "normal"}],
+        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 102238, "entrance_ptr": 102202, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -1168,9 +1168,9 @@
         "twin_rom_address": null,
         "map": [[1, 1, 0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 0, 0, 0, 0], [0, 0, 1, 1, 1, 1, 0, 0], [0, 0, 0, 0, 1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 102010, "entrance_ptr": 101866, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 102022, "entrance_ptr": 102046, "subtype": "normal"},
-            {"direction": "right", "x": 7, "y": 3, "exit_ptr": 102034, "entrance_ptr": 102142, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 102010, "entrance_ptr": 101866, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 102022, "entrance_ptr": 102046, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 7, "y": 3, "exit_ptr": 102034, "entrance_ptr": 102142, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1, 2]],
         "durable_part_connections": [],
@@ -1187,8 +1187,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 102142, "entrance_ptr": 102034, "subtype": "normal"},
-            {"direction": "right", "x": 5, "y": 0, "exit_ptr": 102154, "entrance_ptr": 102442, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 102142, "entrance_ptr": 102034, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 5, "y": 0, "exit_ptr": 102154, "entrance_ptr": 102442, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -1205,8 +1205,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 101938, "entrance_ptr": 101830, "subtype": "normal"},
-            {"direction": "up", "x": 3, "y": 0, "exit_ptr": 101950, "entrance_ptr": 101974, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 101938, "entrance_ptr": 101830, "subtype": "normal", "offset": 0},
+            {"direction": "up", "x": 3, "y": 0, "exit_ptr": 101950, "entrance_ptr": 101974, "subtype": "normal", "offset": 2}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -1223,8 +1223,8 @@
         "twin_rom_address": null,
         "map": [[1], [1], [1]],
         "doors": [
-            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 101962, "entrance_ptr": 101674, "subtype": "normal"},
-            {"direction": "down", "x": 0, "y": 2, "exit_ptr": 101974, "entrance_ptr": 101950, "subtype": "normal"}
+            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 101962, "entrance_ptr": 101674, "subtype": "normal", "offset": 0},
+            {"direction": "down", "x": 0, "y": 2, "exit_ptr": 101974, "entrance_ptr": 101950, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0], [1]],
         "durable_part_connections": [[1, 0]],
@@ -1241,9 +1241,9 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1, 1, 1, 1], [0, 0, 0, 0, 1, 0, 0], [0, 0, 0, 0, 1, 0, 0], [0, 0, 0, 0, 1, 0, 0], [0, 0, 0, 0, 1, 0, 0], [0, 0, 0, 0, 1, 0, 0], [1, 1, 1, 1, 1, 0, 0]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 101794, "entrance_ptr": 101602, "subtype": "normal"},
-            {"direction": "left", "x": 0, "y": 6, "exit_ptr": 101818, "entrance_ptr": 102250, "subtype": "normal"},
-            {"direction": "right", "x": 6, "y": 0, "exit_ptr": 101806, "entrance_ptr": 101842, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 101794, "entrance_ptr": 101602, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 0, "y": 6, "exit_ptr": 101818, "entrance_ptr": 102250, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 6, "y": 0, "exit_ptr": 101806, "entrance_ptr": 101842, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1, 2]],
         "durable_part_connections": [],
@@ -1259,7 +1259,7 @@
         "rom_address": 499835,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 102250, "entrance_ptr": 101818, "subtype": "normal"}],
+        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 102250, "entrance_ptr": 101818, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -1275,15 +1275,15 @@
         "twin_rom_address": null,
         "map": [[0, 1, 1, 1, 0], [0, 0, 1, 1, 0], [0, 0, 1, 1, 0], [0, 0, 1, 1, 0], [0, 0, 1, 1, 0], [0, 0, 1, 1, 1], [0, 0, 1, 1, 0], [1, 1, 1, 0, 0], [1, 0, 0, 0, 0], [1, 0, 0, 0, 0]],
         "doors": [
-            {"direction": "left", "x": 1, "y": 0, "exit_ptr": 101878, "entrance_ptr": 102358, "subtype": "normal"},
-            {"direction": "left", "x": 2, "y": 2, "exit_ptr": 101842, "entrance_ptr": 101806, "subtype": "normal"},
-            {"direction": "left", "x": 2, "y": 3, "exit_ptr": 101890, "entrance_ptr": 101986, "subtype": "normal"},
-            {"direction": "left", "x": 2, "y": 4, "exit_ptr": 101854, "entrance_ptr": 101998, "subtype": "normal"},
-            {"direction": "left", "x": 0, "y": 9, "exit_ptr": 101902, "entrance_ptr": 102286, "subtype": "normal"},
-            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 101830, "entrance_ptr": 101938, "subtype": "normal"},
-            {"direction": "right", "x": 3, "y": 4, "exit_ptr": 101914, "entrance_ptr": 102322, "subtype": "normal"},
-            {"direction": "right", "x": 4, "y": 5, "exit_ptr": 101926, "entrance_ptr": 102274, "subtype": "normal"},
-            {"direction": "right", "x": 3, "y": 6, "exit_ptr": 101866, "entrance_ptr": 102010, "subtype": "normal"}
+            {"direction": "left", "x": 1, "y": 0, "exit_ptr": 101878, "entrance_ptr": 102358, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 2, "y": 2, "exit_ptr": 101842, "entrance_ptr": 101806, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 2, "y": 3, "exit_ptr": 101890, "entrance_ptr": 101986, "subtype": "normal", "offset": null},
+            {"direction": "left", "x": 2, "y": 4, "exit_ptr": 101854, "entrance_ptr": 101998, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 0, "y": 9, "exit_ptr": 101902, "entrance_ptr": 102286, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 101830, "entrance_ptr": 101938, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 3, "y": 4, "exit_ptr": 101914, "entrance_ptr": 102322, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 4, "y": 5, "exit_ptr": 101926, "entrance_ptr": 102274, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 3, "y": 6, "exit_ptr": 101866, "entrance_ptr": 102010, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1, 2, 4, 5, 6, 8], [3], [7]],
         "durable_part_connections": [],
@@ -1314,7 +1314,7 @@
         "rom_address": 500100,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 102358, "entrance_ptr": 101878, "subtype": "normal"}],
+        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 102358, "entrance_ptr": 101878, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -1330,8 +1330,8 @@
         "twin_rom_address": null,
         "map": [[1, 1], [1, 1]],
         "doors": [
-            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 101986, "entrance_ptr": 101890, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 1, "exit_ptr": 101998, "entrance_ptr": 101854, "subtype": "normal"}
+            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 101986, "entrance_ptr": 101890, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 1, "exit_ptr": 101998, "entrance_ptr": 101854, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0], [1]],
         "durable_part_connections": [],
@@ -1348,8 +1348,8 @@
         "twin_rom_address": null,
         "map": [[1, 1], [1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 102322, "entrance_ptr": 101914, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 1, "exit_ptr": 102334, "entrance_ptr": 102346, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 102322, "entrance_ptr": 101914, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 1, "exit_ptr": 102334, "entrance_ptr": 102346, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -1365,7 +1365,7 @@
         "rom_address": 500059,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 102346, "entrance_ptr": 102334, "subtype": "normal"}],
+        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 102346, "entrance_ptr": 102334, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -1381,8 +1381,8 @@
         "twin_rom_address": null,
         "map": [[1, 1], [0, 1], [0, 1], [0, 1], [0, 1], [0, 1], [0, 1], [0, 1], [1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 101674, "entrance_ptr": 101962, "subtype": "normal"},
-            {"direction": "left", "x": 0, "y": 8, "exit_ptr": 101662, "entrance_ptr": 102262, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 101674, "entrance_ptr": 101962, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 0, "y": 8, "exit_ptr": 101662, "entrance_ptr": 102262, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0], [1]],
         "durable_part_connections": [],
@@ -1399,8 +1399,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 102274, "entrance_ptr": 101926, "subtype": "normal"},
-            {"direction": "right", "x": 2, "y": 0, "exit_ptr": 102262, "entrance_ptr": 101662, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 102274, "entrance_ptr": 101926, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 2, "y": 0, "exit_ptr": 102262, "entrance_ptr": 101662, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -1416,7 +1416,7 @@
         "rom_address": 499922,
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1, 1, 1, 1]],
-        "doors": [{"direction": "right", "x": 6, "y": 0, "exit_ptr": 102286, "entrance_ptr": 101902, "subtype": "normal"}],
+        "doors": [{"direction": "right", "x": 6, "y": 0, "exit_ptr": 102286, "entrance_ptr": 101902, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -1432,9 +1432,9 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1], [1, 1, 0]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 102958, "entrance_ptr": 107396, "subtype": "normal"},
-            {"direction": "right", "x": 2, "y": 0, "exit_ptr": 102970, "entrance_ptr": 102718, "subtype": "normal"},
-            {"direction": "down", "x": 0, "y": 1, "exit_ptr": 102982, "entrance_ptr": 103150, "subtype": "elevator"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 102958, "entrance_ptr": 107396, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 2, "y": 0, "exit_ptr": 102970, "entrance_ptr": 102718, "subtype": "normal", "offset": 0},
+            {"direction": "down", "x": 0, "y": 1, "exit_ptr": 102982, "entrance_ptr": 103150, "subtype": "elevator", "offset": null}
         ],
         "parts": [[0, 1, 2]],
         "durable_part_connections": [],
@@ -1451,9 +1451,9 @@
         "twin_rom_address": null,
         "map": [[1, 0], [1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 102718, "entrance_ptr": 102970, "subtype": "normal"},
-            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 102730, "entrance_ptr": 102754, "subtype": "normal"},
-            {"direction": "up", "x": 1, "y": 1, "exit_ptr": 102742, "entrance_ptr": 102766, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 102718, "entrance_ptr": 102970, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 102730, "entrance_ptr": 102754, "subtype": "normal", "offset": 0},
+            {"direction": "up", "x": 1, "y": 1, "exit_ptr": 102742, "entrance_ptr": 102766, "subtype": "normal", "offset": 2}
         ],
         "parts": [[0, 1, 2]],
         "durable_part_connections": [],
@@ -1469,7 +1469,7 @@
         "rom_address": 500913,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 102754, "entrance_ptr": 102730, "subtype": "normal"}],
+        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 102754, "entrance_ptr": 102730, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -1485,9 +1485,9 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1], [0, 1, 0, 0]],
         "doors": [
-            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 102790, "entrance_ptr": 103006, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 1, "exit_ptr": 102778, "entrance_ptr": 102802, "subtype": "normal"},
-            {"direction": "down", "x": 0, "y": 0, "exit_ptr": 102766, "entrance_ptr": 102742, "subtype": "normal"}
+            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 102790, "entrance_ptr": 103006, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 1, "exit_ptr": 102778, "entrance_ptr": 102802, "subtype": "normal", "offset": 0},
+            {"direction": "down", "x": 0, "y": 0, "exit_ptr": 102766, "entrance_ptr": 102742, "subtype": "normal", "offset": 2}
         ],
         "parts": [[0, 1, 2]],
         "durable_part_connections": [],
@@ -1503,7 +1503,7 @@
         "rom_address": 501515,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 103006, "entrance_ptr": 102790, "subtype": "normal"}],
+        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 103006, "entrance_ptr": 102790, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -1519,8 +1519,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 102802, "entrance_ptr": 102778, "subtype": "normal"},
-            {"direction": "right", "x": 5, "y": 0, "exit_ptr": 102814, "entrance_ptr": 102826, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 102802, "entrance_ptr": 102778, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 5, "y": 0, "exit_ptr": 102814, "entrance_ptr": 102826, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -1537,9 +1537,9 @@
         "twin_rom_address": null,
         "map": [[1, 0], [1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 102826, "entrance_ptr": 102814, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 102850, "entrance_ptr": 102922, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 1, "exit_ptr": 102838, "entrance_ptr": 102862, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 102826, "entrance_ptr": 102814, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 102850, "entrance_ptr": 102922, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 1, "exit_ptr": 102838, "entrance_ptr": 102862, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1, 2]],
         "durable_part_connections": [],
@@ -1555,7 +1555,7 @@
         "rom_address": 501313,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 102922, "entrance_ptr": 102850, "subtype": "normal"}],
+        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 102922, "entrance_ptr": 102850, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -1571,8 +1571,8 @@
         "twin_rom_address": null,
         "map": [[1, 1], [1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 102862, "entrance_ptr": 102838, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 1, "exit_ptr": 102874, "entrance_ptr": 102994, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 102862, "entrance_ptr": 102838, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 1, "exit_ptr": 102874, "entrance_ptr": 102994, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -1588,7 +1588,7 @@
         "rom_address": 501474,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 102994, "entrance_ptr": 102874, "subtype": "normal"}],
+        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 102994, "entrance_ptr": 102874, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -1604,8 +1604,8 @@
         "twin_rom_address": null,
         "map": [[1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 107372, "entrance_ptr": 102682, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 107360, "entrance_ptr": 107324, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 107372, "entrance_ptr": 102682, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 107360, "entrance_ptr": 107324, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -1622,9 +1622,9 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1], [1, 0, 0, 0]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 107384, "entrance_ptr": 107336, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 1, "exit_ptr": 107396, "entrance_ptr": 102958, "subtype": "normal"},
-            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 107408, "entrance_ptr": 107792, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 107384, "entrance_ptr": 107336, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 1, "exit_ptr": 107396, "entrance_ptr": 102958, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 107408, "entrance_ptr": 107792, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1], [2]],
         "durable_part_connections": [],
@@ -1641,10 +1641,10 @@
         "twin_rom_address": null,
         "map": [[1], [1], [1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 107324, "entrance_ptr": 107360, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 1, "exit_ptr": 107336, "entrance_ptr": 107384, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 2, "exit_ptr": 107348, "entrance_ptr": 107300, "subtype": "normal"},
-            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 107312, "entrance_ptr": 107420, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 107324, "entrance_ptr": 107360, "subtype": "normal", "offset": null},
+            {"direction": "right", "x": 0, "y": 1, "exit_ptr": 107336, "entrance_ptr": 107384, "subtype": "normal", "offset": null},
+            {"direction": "right", "x": 0, "y": 2, "exit_ptr": 107348, "entrance_ptr": 107300, "subtype": "normal", "offset": 0},
+            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 107312, "entrance_ptr": 107420, "subtype": "normal", "offset": 1}
         ],
         "parts": [[0, 1, 2, 3]],
         "durable_part_connections": [],
@@ -1660,7 +1660,7 @@
         "rom_address": 511698,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 107300, "entrance_ptr": 107348, "subtype": "normal"}],
+        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 107300, "entrance_ptr": 107348, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -1676,11 +1676,11 @@
         "twin_rom_address": null,
         "map": [[1, 1, 0], [1, 1, 0], [1, 1, 1], [1, 1, 0], [1, 1, 0], [1, 1, 0], [1, 1, 1], [1, 1, 0]],
         "doors": [
-            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 107456, "entrance_ptr": 107576, "subtype": "normal"},
-            {"direction": "right", "x": 2, "y": 2, "exit_ptr": 107468, "entrance_ptr": 107612, "subtype": "normal"},
-            {"direction": "right", "x": 2, "y": 6, "exit_ptr": 107444, "entrance_ptr": 107480, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 7, "exit_ptr": 107432, "entrance_ptr": 107540, "subtype": "normal"},
-            {"direction": "down", "x": 1, "y": 7, "exit_ptr": 107420, "entrance_ptr": 107312, "subtype": "normal"}
+            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 107456, "entrance_ptr": 107576, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 2, "y": 2, "exit_ptr": 107468, "entrance_ptr": 107612, "subtype": "normal", "offset": null},
+            {"direction": "right", "x": 2, "y": 6, "exit_ptr": 107444, "entrance_ptr": 107480, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 7, "exit_ptr": 107432, "entrance_ptr": 107540, "subtype": "normal", "offset": 0},
+            {"direction": "down", "x": 1, "y": 7, "exit_ptr": 107420, "entrance_ptr": 107312, "subtype": "normal", "offset": 1}
         ],
         "parts": [[0, 2, 3, 4], [1]],
         "durable_part_connections": [],
@@ -1707,10 +1707,10 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 2, "exit_ptr": 107480, "entrance_ptr": 107444, "subtype": "normal"},
-            {"direction": "right", "x": 3, "y": 2, "exit_ptr": 107492, "entrance_ptr": 107528, "subtype": "normal"},
-            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 107504, "entrance_ptr": 107588, "subtype": "normal"},
-            {"direction": "up", "x": 3, "y": 0, "exit_ptr": 107516, "entrance_ptr": 107600, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 2, "exit_ptr": 107480, "entrance_ptr": 107444, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 3, "y": 2, "exit_ptr": 107492, "entrance_ptr": 107528, "subtype": "normal", "offset": 0},
+            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 107504, "entrance_ptr": 107588, "subtype": "normal", "offset": 1},
+            {"direction": "up", "x": 3, "y": 0, "exit_ptr": 107516, "entrance_ptr": 107600, "subtype": "normal", "offset": 1}
         ],
         "parts": [[0, 1, 2, 3]],
         "durable_part_connections": [],
@@ -1727,12 +1727,12 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1], [0, 1, 1, 1, 1, 0], [0, 1, 1, 1, 1, 0]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 107576, "entrance_ptr": 107456, "subtype": "normal"},
-            {"direction": "left", "x": 1, "y": 2, "exit_ptr": 107612, "entrance_ptr": 107468, "subtype": "normal"},
-            {"direction": "right", "x": 5, "y": 0, "exit_ptr": 107624, "entrance_ptr": 107696, "subtype": "normal"},
-            {"direction": "down", "x": 1, "y": 3, "exit_ptr": 107588, "entrance_ptr": 107504, "subtype": "normal"},
-            {"direction": "down", "x": 4, "y": 3, "exit_ptr": 107600, "entrance_ptr": 107516, "subtype": "normal"},
-            {"direction": "up", "x": 2, "y": 0, "exit_ptr": 107564, "entrance_ptr": 107636, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 107576, "entrance_ptr": 107456, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 1, "y": 2, "exit_ptr": 107612, "entrance_ptr": 107468, "subtype": "normal", "offset": null},
+            {"direction": "right", "x": 5, "y": 0, "exit_ptr": 107624, "entrance_ptr": 107696, "subtype": "normal", "offset": 0},
+            {"direction": "down", "x": 1, "y": 3, "exit_ptr": 107588, "entrance_ptr": 107504, "subtype": "normal", "offset": 1},
+            {"direction": "down", "x": 4, "y": 3, "exit_ptr": 107600, "entrance_ptr": 107516, "subtype": "normal", "offset": 1},
+            {"direction": "up", "x": 2, "y": 0, "exit_ptr": 107564, "entrance_ptr": 107636, "subtype": "normal", "offset": 1}
         ],
         "parts": [[0, 1, 2, 3, 4, 5]],
         "durable_part_connections": [],
@@ -1761,9 +1761,9 @@
         "twin_rom_address": null,
         "map": [[1, 0], [1, 0], [1, 0], [1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 2, "exit_ptr": 107696, "entrance_ptr": 107624, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 3, "exit_ptr": 107720, "entrance_ptr": 108296, "subtype": "normal"},
-            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 107708, "entrance_ptr": 107744, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 2, "exit_ptr": 107696, "entrance_ptr": 107624, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 3, "exit_ptr": 107720, "entrance_ptr": 108296, "subtype": "normal", "offset": 0},
+            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 107708, "entrance_ptr": 107744, "subtype": "normal", "offset": 1}
         ],
         "parts": [[0, 1, 2]],
         "durable_part_connections": [],
@@ -1780,8 +1780,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 107540, "entrance_ptr": 107432, "subtype": "normal"},
-            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 107552, "entrance_ptr": 107768, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 107540, "entrance_ptr": 107432, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 107552, "entrance_ptr": 107768, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0], [1]],
         "durable_part_connections": [],
@@ -1798,8 +1798,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1], [0, 0, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 107648, "entrance_ptr": 102598, "subtype": "normal"},
-            {"direction": "down", "x": 2, "y": 1, "exit_ptr": 107636, "entrance_ptr": 107564, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 107648, "entrance_ptr": 102598, "subtype": "normal", "offset": 0},
+            {"direction": "down", "x": 2, "y": 1, "exit_ptr": 107636, "entrance_ptr": 107564, "subtype": "normal", "offset": 1}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -1815,7 +1815,7 @@
         "rom_address": 512085,
         "twin_rom_address": null,
         "map": [[0, 1, 1], [0, 1, 1], [0, 1, 1], [1, 1, 1]],
-        "doors": [{"direction": "left", "x": 0, "y": 3, "exit_ptr": 107528, "entrance_ptr": 107492, "subtype": "normal"}],
+        "doors": [{"direction": "left", "x": 0, "y": 3, "exit_ptr": 107528, "entrance_ptr": 107492, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -1831,8 +1831,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 0]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 107732, "entrance_ptr": 107684, "subtype": "normal"},
-            {"direction": "down", "x": 0, "y": 2, "exit_ptr": 107744, "entrance_ptr": 107708, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 107732, "entrance_ptr": 107684, "subtype": "normal", "offset": 0},
+            {"direction": "down", "x": 0, "y": 2, "exit_ptr": 107744, "entrance_ptr": 107708, "subtype": "normal", "offset": 1}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -1849,8 +1849,8 @@
         "twin_rom_address": null,
         "map": [[1, 0, 0, 0], [1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 107672, "entrance_ptr": 107660, "subtype": "normal"},
-            {"direction": "right", "x": 3, "y": 1, "exit_ptr": 107684, "entrance_ptr": 107732, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 107672, "entrance_ptr": 107660, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 3, "y": 1, "exit_ptr": 107684, "entrance_ptr": 107732, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -1866,7 +1866,7 @@
         "rom_address": 512315,
         "twin_rom_address": null,
         "map": [[1, 1], [1, 0], [1, 0]],
-        "doors": [{"direction": "right", "x": 1, "y": 0, "exit_ptr": 107660, "entrance_ptr": 107672, "subtype": "normal"}],
+        "doors": [{"direction": "right", "x": 1, "y": 0, "exit_ptr": 107660, "entrance_ptr": 107672, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -1881,7 +1881,7 @@
         "rom_address": 513893,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 108584, "entrance_ptr": 108356, "subtype": "normal"}],
+        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 108584, "entrance_ptr": 108356, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -1908,14 +1908,14 @@
             [0, 0, 1, 0, 0, 0]
         ],
         "doors": [
-            {"direction": "left", "x": 0, "y": 5, "exit_ptr": 108296, "entrance_ptr": 107720, "subtype": "normal"},
-            {"direction": "left", "x": 0, "y": 6, "exit_ptr": 108356, "entrance_ptr": 108584, "subtype": "normal"},
-            {"direction": "right", "x": 5, "y": 5, "exit_ptr": 108344, "entrance_ptr": 108500, "subtype": "normal"},
-            {"direction": "down", "x": 2, "y": 9, "exit_ptr": 108032, "entrance_ptr": 108152, "subtype": "normal"},
-            {"direction": "down", "x": 1, "y": 6, "exit_ptr": 108308, "entrance_ptr": 108248, "subtype": "sand"},
-            {"direction": "down", "x": 3, "y": 6, "exit_ptr": 108320, "entrance_ptr": 108272, "subtype": "sand"},
-            {"direction": "up", "x": 0, "y": 4, "exit_ptr": 108332, "entrance_ptr": 108392, "subtype": "normal"},
-            {"direction": "up", "x": 2, "y": 0, "exit_ptr": 108044, "entrance_ptr": 107948, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 5, "exit_ptr": 108296, "entrance_ptr": 107720, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 0, "y": 6, "exit_ptr": 108356, "entrance_ptr": 108584, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 5, "y": 5, "exit_ptr": 108344, "entrance_ptr": 108500, "subtype": "normal", "offset": 0},
+            {"direction": "down", "x": 2, "y": 9, "exit_ptr": 108032, "entrance_ptr": 108152, "subtype": "normal", "offset": null},
+            {"direction": "down", "x": 1, "y": 6, "exit_ptr": 108308, "entrance_ptr": 108248, "subtype": "sand", "offset": null},
+            {"direction": "down", "x": 3, "y": 6, "exit_ptr": 108320, "entrance_ptr": 108272, "subtype": "sand", "offset": null},
+            {"direction": "up", "x": 0, "y": 4, "exit_ptr": 108332, "entrance_ptr": 108392, "subtype": "normal", "offset": 1},
+            {"direction": "up", "x": 2, "y": 0, "exit_ptr": 108044, "entrance_ptr": 107948, "subtype": "normal", "offset": null}
         ],
         "parts": [[0, 1, 2, 6], [4], [5], [3, 7]],
         "durable_part_connections": [],
@@ -1945,8 +1945,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1]],
         "doors": [
-            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 108404, "entrance_ptr": 108812, "subtype": "normal"},
-            {"direction": "down", "x": 0, "y": 0, "exit_ptr": 108392, "entrance_ptr": 108332, "subtype": "normal"}
+            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 108404, "entrance_ptr": 108812, "subtype": "normal", "offset": 0},
+            {"direction": "down", "x": 0, "y": 0, "exit_ptr": 108392, "entrance_ptr": 108332, "subtype": "normal", "offset": 1}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -1963,8 +1963,8 @@
         "twin_rom_address": null,
         "map": [[1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 108812, "entrance_ptr": 108404, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 108824, "entrance_ptr": 108620, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 108812, "entrance_ptr": 108404, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 108824, "entrance_ptr": 108620, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0], [1]],
         "durable_part_connections": [[0, 1]],
@@ -1981,10 +1981,10 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 108620, "entrance_ptr": 108824, "subtype": "normal"},
-            {"direction": "right", "x": 6, "y": 0, "exit_ptr": 108656, "entrance_ptr": 108764, "subtype": "normal"},
-            {"direction": "down", "x": 2, "y": 0, "exit_ptr": 108632, "entrance_ptr": null, "subtype": "sand"},
-            {"direction": "down", "x": 3, "y": 0, "exit_ptr": 108644, "entrance_ptr": null, "subtype": "sand"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 108620, "entrance_ptr": 108824, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 6, "y": 0, "exit_ptr": 108656, "entrance_ptr": 108764, "subtype": "normal", "offset": 0},
+            {"direction": "down", "x": 2, "y": 0, "exit_ptr": 108632, "entrance_ptr": null, "subtype": "sand", "offset": null},
+            {"direction": "down", "x": 3, "y": 0, "exit_ptr": 108644, "entrance_ptr": null, "subtype": "sand", "offset": null}
         ],
         "parts": [[0, 1], [2], [3]],
         "durable_part_connections": [],
@@ -2001,10 +2001,10 @@
         "twin_rom_address": null,
         "map": [[1, 0, 0, 0, 0], [1, 0, 0, 0, 0], [1, 1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 108800, "entrance_ptr": 108896, "subtype": "normal"},
-            {"direction": "left", "x": 0, "y": 2, "exit_ptr": 108764, "entrance_ptr": 108656, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 108776, "entrance_ptr": 108512, "subtype": "normal"},
-            {"direction": "right", "x": 4, "y": 2, "exit_ptr": 108788, "entrance_ptr": 108692, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 108800, "entrance_ptr": 108896, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 0, "y": 2, "exit_ptr": 108764, "entrance_ptr": 108656, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 108776, "entrance_ptr": 108512, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 4, "y": 2, "exit_ptr": 108788, "entrance_ptr": 108692, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1, 2, 3]],
         "durable_part_connections": [],
@@ -2020,7 +2020,7 @@
         "rom_address": 514117,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 108692, "entrance_ptr": 108788, "subtype": "normal"}],
+        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 108692, "entrance_ptr": 108788, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -2036,9 +2036,9 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 108512, "entrance_ptr": 108776, "subtype": "normal"},
-            {"direction": "right", "x": 6, "y": 0, "exit_ptr": 108524, "entrance_ptr": 108680, "subtype": "normal"},
-            {"direction": "right", "x": 6, "y": 1, "exit_ptr": 108536, "entrance_ptr": 108596, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 108512, "entrance_ptr": 108776, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 6, "y": 0, "exit_ptr": 108524, "entrance_ptr": 108680, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 6, "y": 1, "exit_ptr": 108536, "entrance_ptr": 108596, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1, 2]],
         "durable_part_connections": [],
@@ -2055,8 +2055,8 @@
         "twin_rom_address": null,
         "map": [[1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 108680, "entrance_ptr": 108524, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 108668, "entrance_ptr": 108848, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 108680, "entrance_ptr": 108524, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 108668, "entrance_ptr": 108848, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -2072,7 +2072,7 @@
         "rom_address": 514516,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 108848, "entrance_ptr": 108668, "subtype": "normal"}],
+        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 108848, "entrance_ptr": 108668, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -2088,8 +2088,8 @@
         "twin_rom_address": null,
         "map": [[1, 1], [1, 0], [1, 0]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 108596, "entrance_ptr": 108536, "subtype": "normal"},
-            {"direction": "left", "x": 0, "y": 2, "exit_ptr": 108608, "entrance_ptr": 108908, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 108596, "entrance_ptr": 108536, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 0, "y": 2, "exit_ptr": 108608, "entrance_ptr": 108908, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -2106,8 +2106,8 @@
         "twin_rom_address": null,
         "map": [[1, 1], [1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 108920, "entrance_ptr": 108836, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 108908, "entrance_ptr": 108608, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 108920, "entrance_ptr": 108836, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 108908, "entrance_ptr": 108608, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -2123,7 +2123,7 @@
         "rom_address": 514474,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 108836, "entrance_ptr": 108920, "subtype": "normal"}],
+        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 108836, "entrance_ptr": 108920, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -2139,8 +2139,8 @@
         "twin_rom_address": null,
         "map": [[1], [1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 108860, "entrance_ptr": 108380, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 108872, "entrance_ptr": 108884, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 108860, "entrance_ptr": 108380, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 108872, "entrance_ptr": 108884, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -2157,8 +2157,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1, 1], [1, 1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 108884, "entrance_ptr": 108872, "subtype": "normal"},
-            {"direction": "right", "x": 4, "y": 1, "exit_ptr": 108896, "entrance_ptr": 108800, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 108884, "entrance_ptr": 108872, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 4, "y": 1, "exit_ptr": 108896, "entrance_ptr": 108800, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -2175,10 +2175,10 @@
         "twin_rom_address": null,
         "map": [[0, 1, 1, 0], [0, 1, 1, 0], [1, 1, 1, 1], [0, 1, 1, 1], [0, 1, 1, 1], [0, 1, 1, 1]],
         "doors": [
-            {"direction": "right", "x": 2, "y": 1, "exit_ptr": 107960, "entrance_ptr": 107984, "subtype": "normal"},
-            {"direction": "right", "x": 3, "y": 3, "exit_ptr": 107972, "entrance_ptr": 108080, "subtype": "normal"},
-            {"direction": "right", "x": 3, "y": 5, "exit_ptr": 107936, "entrance_ptr": 108368, "subtype": "normal"},
-            {"direction": "down", "x": 0, "y": 2, "exit_ptr": 107948, "entrance_ptr": 108044, "subtype": "normal"}
+            {"direction": "right", "x": 2, "y": 1, "exit_ptr": 107960, "entrance_ptr": 107984, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 3, "y": 3, "exit_ptr": 107972, "entrance_ptr": 108080, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 3, "y": 5, "exit_ptr": 107936, "entrance_ptr": 108368, "subtype": "normal", "offset": 0},
+            {"direction": "down", "x": 0, "y": 2, "exit_ptr": 107948, "entrance_ptr": 108044, "subtype": "normal", "offset": 1}
         ],
         "parts": [[0, 1, 2, 3]],
         "durable_part_connections": [],
@@ -2195,9 +2195,9 @@
         "twin_rom_address": null,
         "map": [[1], [1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 108128, "entrance_ptr": 108104, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 1, "exit_ptr": 108140, "entrance_ptr": 108164, "subtype": "normal"},
-            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 108152, "entrance_ptr": 108032, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 108128, "entrance_ptr": 108104, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 1, "exit_ptr": 108140, "entrance_ptr": 108164, "subtype": "normal", "offset": 0},
+            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 108152, "entrance_ptr": 108032, "subtype": "normal", "offset": 1}
         ],
         "parts": [[0, 1, 2]],
         "durable_part_connections": [],
@@ -2214,9 +2214,9 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 108092, "entrance_ptr": 107828, "subtype": "normal"},
-            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 108104, "entrance_ptr": 108128, "subtype": "normal"},
-            {"direction": "up", "x": 2, "y": 0, "exit_ptr": 108116, "entrance_ptr": 108212, "subtype": "sand"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 108092, "entrance_ptr": 107828, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 108104, "entrance_ptr": 108128, "subtype": "normal", "offset": 0},
+            {"direction": "up", "x": 2, "y": 0, "exit_ptr": 108116, "entrance_ptr": 108212, "subtype": "sand", "offset": null}
         ],
         "parts": [[0, 1], [2]],
         "durable_part_connections": [],
@@ -2233,8 +2233,8 @@
         "twin_rom_address": null,
         "map": [[1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 107816, "entrance_ptr": 107780, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 107828, "entrance_ptr": 108092, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 107816, "entrance_ptr": 107780, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 107828, "entrance_ptr": 108092, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -2250,7 +2250,7 @@
         "rom_address": 512950,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 108008, "entrance_ptr": 107804, "subtype": "normal"}],
+        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 108008, "entrance_ptr": 107804, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -2266,10 +2266,10 @@
         "twin_rom_address": null,
         "map": [[1, 1]],
         "doors": [
-            {"direction": "down", "x": 0, "y": 0, "exit_ptr": 108716, "entrance_ptr": null, "subtype": "sand"},
-            {"direction": "down", "x": 1, "y": 0, "exit_ptr": 108728, "entrance_ptr": null, "subtype": "sand"},
-            {"direction": "up", "x": 0, "y": 0, "exit_ptr": null, "entrance_ptr": 108632, "subtype": "sand"},
-            {"direction": "up", "x": 1, "y": 0, "exit_ptr": null, "entrance_ptr": 108644, "subtype": "sand"}
+            {"direction": "down", "x": 0, "y": 0, "exit_ptr": 108716, "entrance_ptr": null, "subtype": "sand", "offset": null},
+            {"direction": "down", "x": 1, "y": 0, "exit_ptr": 108728, "entrance_ptr": null, "subtype": "sand", "offset": null},
+            {"direction": "up", "x": 0, "y": 0, "exit_ptr": null, "entrance_ptr": 108632, "subtype": "sand", "offset": null},
+            {"direction": "up", "x": 1, "y": 0, "exit_ptr": null, "entrance_ptr": 108644, "subtype": "sand", "offset": null}
         ],
         "parts": [[0], [1], [2], [3]],
         "durable_part_connections": [],
@@ -2286,9 +2286,9 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 108500, "entrance_ptr": 108344, "subtype": "normal"},
-            {"direction": "up", "x": 2, "y": 0, "exit_ptr": null, "entrance_ptr": 108716, "subtype": "sand"},
-            {"direction": "up", "x": 3, "y": 0, "exit_ptr": null, "entrance_ptr": 108728, "subtype": "sand"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 108500, "entrance_ptr": 108344, "subtype": "normal", "offset": 0},
+            {"direction": "up", "x": 2, "y": 0, "exit_ptr": null, "entrance_ptr": 108716, "subtype": "sand", "offset": null},
+            {"direction": "up", "x": 3, "y": 0, "exit_ptr": null, "entrance_ptr": 108728, "subtype": "sand", "offset": null}
         ],
         "parts": [[0], [1], [2]],
         "durable_part_connections": [],
@@ -2305,8 +2305,8 @@
         "twin_rom_address": null,
         "map": [[1], [1]],
         "doors": [
-            {"direction": "down", "x": 0, "y": 1, "exit_ptr": 108260, "entrance_ptr": 108200, "subtype": "sand"},
-            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 108248, "entrance_ptr": 108308, "subtype": "sand"}
+            {"direction": "down", "x": 0, "y": 1, "exit_ptr": 108260, "entrance_ptr": 108200, "subtype": "sand", "offset": null},
+            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 108248, "entrance_ptr": 108308, "subtype": "sand", "offset": null}
         ],
         "parts": [[0], [1]],
         "durable_part_connections": [],
@@ -2323,8 +2323,8 @@
         "twin_rom_address": null,
         "map": [[1], [1]],
         "doors": [
-            {"direction": "down", "x": 0, "y": 1, "exit_ptr": 108284, "entrance_ptr": 108224, "subtype": "sand"},
-            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 108272, "entrance_ptr": 108320, "subtype": "sand"}
+            {"direction": "down", "x": 0, "y": 1, "exit_ptr": 108284, "entrance_ptr": 108224, "subtype": "sand", "offset": null},
+            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 108272, "entrance_ptr": 108320, "subtype": "sand", "offset": null}
         ],
         "parts": [[0], [1]],
         "durable_part_connections": [],
@@ -2341,8 +2341,8 @@
         "twin_rom_address": null,
         "map": [[1, 1], [1, 1]],
         "doors": [
-            {"direction": "down", "x": 1, "y": 1, "exit_ptr": 108236, "entrance_ptr": 108188, "subtype": "sand"},
-            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 108224, "entrance_ptr": 108284, "subtype": "sand"}
+            {"direction": "down", "x": 1, "y": 1, "exit_ptr": 108236, "entrance_ptr": 108188, "subtype": "sand", "offset": null},
+            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 108224, "entrance_ptr": 108284, "subtype": "sand", "offset": null}
         ],
         "parts": [[0], [1]],
         "durable_part_connections": [],
@@ -2359,8 +2359,8 @@
         "twin_rom_address": null,
         "map": [[1, 1], [1, 1]],
         "doors": [
-            {"direction": "down", "x": 0, "y": 1, "exit_ptr": 108212, "entrance_ptr": 108116, "subtype": "sand"},
-            {"direction": "up", "x": 1, "y": 0, "exit_ptr": 108200, "entrance_ptr": 108260, "subtype": "sand"}
+            {"direction": "down", "x": 0, "y": 1, "exit_ptr": 108212, "entrance_ptr": 108116, "subtype": "sand", "offset": null},
+            {"direction": "up", "x": 1, "y": 0, "exit_ptr": 108200, "entrance_ptr": 108260, "subtype": "sand", "offset": null}
         ],
         "parts": [[0], [1]],
         "durable_part_connections": [],
@@ -2377,9 +2377,9 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 108164, "entrance_ptr": 108140, "subtype": "normal"},
-            {"direction": "right", "x": 2, "y": 0, "exit_ptr": 108176, "entrance_ptr": 108416, "subtype": "normal"},
-            {"direction": "up", "x": 1, "y": 0, "exit_ptr": 108188, "entrance_ptr": 108236, "subtype": "sand"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 108164, "entrance_ptr": 108140, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 2, "y": 0, "exit_ptr": 108176, "entrance_ptr": 108416, "subtype": "normal", "offset": 0},
+            {"direction": "up", "x": 1, "y": 0, "exit_ptr": 108188, "entrance_ptr": 108236, "subtype": "sand", "offset": null}
         ],
         "parts": [[0, 1], [2]],
         "durable_part_connections": [],
@@ -2396,9 +2396,9 @@
         "twin_rom_address": null,
         "map": [[1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 108080, "entrance_ptr": 107972, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 108056, "entrance_ptr": 107876, "subtype": "normal"},
-            {"direction": "down", "x": 0, "y": 0, "exit_ptr": 108068, "entrance_ptr": null, "subtype": "sand"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 108080, "entrance_ptr": 107972, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 108056, "entrance_ptr": 107876, "subtype": "normal", "offset": 0},
+            {"direction": "down", "x": 0, "y": 0, "exit_ptr": 108068, "entrance_ptr": null, "subtype": "sand", "offset": null}
         ],
         "parts": [[0, 1], [2]],
         "durable_part_connections": [],
@@ -2415,8 +2415,8 @@
         "twin_rom_address": null,
         "map": [[1]],
         "doors": [
-            {"direction": "down", "x": 0, "y": 0, "exit_ptr": 108704, "entrance_ptr": null, "subtype": "sand"},
-            {"direction": "up", "x": 0, "y": 0, "exit_ptr": null, "entrance_ptr": 108068, "subtype": "sand"}
+            {"direction": "down", "x": 0, "y": 0, "exit_ptr": 108704, "entrance_ptr": null, "subtype": "sand", "offset": null},
+            {"direction": "up", "x": 0, "y": 0, "exit_ptr": null, "entrance_ptr": 108068, "subtype": "sand", "offset": null}
         ],
         "parts": [[0], [1]],
         "durable_part_connections": [],
@@ -2433,9 +2433,9 @@
         "twin_rom_address": null,
         "map": [[1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 108368, "entrance_ptr": 107936, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 108380, "entrance_ptr": 108860, "subtype": "normal"},
-            {"direction": "up", "x": 0, "y": 0, "exit_ptr": null, "entrance_ptr": 108704, "subtype": "sand"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 108368, "entrance_ptr": 107936, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 108380, "entrance_ptr": 108860, "subtype": "normal", "offset": 0},
+            {"direction": "up", "x": 0, "y": 0, "exit_ptr": null, "entrance_ptr": 108704, "subtype": "sand", "offset": null}
         ],
         "parts": [[0, 1], [2]],
         "durable_part_connections": [],
@@ -2452,8 +2452,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 107876, "entrance_ptr": 108056, "subtype": "normal"},
-            {"direction": "right", "x": 6, "y": 0, "exit_ptr": 107888, "entrance_ptr": 107900, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 107876, "entrance_ptr": 108056, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 6, "y": 0, "exit_ptr": 107888, "entrance_ptr": 107900, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -2470,9 +2470,9 @@
         "twin_rom_address": null,
         "map": [[1], [1], [1], [1], [1], [1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 5, "exit_ptr": 107900, "entrance_ptr": 107888, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 4, "exit_ptr": 107912, "entrance_ptr": 108020, "subtype": "normal"},
-            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 107924, "entrance_ptr": 100954, "subtype": "elevator"}
+            {"direction": "left", "x": 0, "y": 5, "exit_ptr": 107900, "entrance_ptr": 107888, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 4, "exit_ptr": 107912, "entrance_ptr": 108020, "subtype": "normal", "offset": 0},
+            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 107924, "entrance_ptr": 100954, "subtype": "elevator", "offset": null}
         ],
         "parts": [[0, 1, 2]],
         "durable_part_connections": [],
@@ -2488,7 +2488,7 @@
         "rom_address": 512991,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 108020, "entrance_ptr": 107912, "subtype": "normal"}],
+        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 108020, "entrance_ptr": 107912, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -2504,8 +2504,8 @@
         "twin_rom_address": null,
         "map": [[1], [1], [1], [1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 3, "exit_ptr": 107984, "entrance_ptr": 107960, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 107996, "entrance_ptr": 107840, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 3, "exit_ptr": 107984, "entrance_ptr": 107960, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 107996, "entrance_ptr": 107840, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -2522,8 +2522,8 @@
         "twin_rom_address": null,
         "map": [[1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 107840, "entrance_ptr": 107996, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 107852, "entrance_ptr": 107864, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 107840, "entrance_ptr": 107996, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 107852, "entrance_ptr": 107864, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -2539,7 +2539,7 @@
         "rom_address": 512682,
         "twin_rom_address": null,
         "map": [[1, 1], [1, 1], [1, 1]],
-        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 107864, "entrance_ptr": 107852, "subtype": "normal"}],
+        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 107864, "entrance_ptr": 107852, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -2555,10 +2555,10 @@
         "twin_rom_address": 513690,
         "map": [[1, 1], [1, 1], [1, 1], [1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 3, "exit_ptr": 108416, "entrance_ptr": 108176, "subtype": "normal"},
-            {"direction": "left", "x": 1, "y": 3, "exit_ptr": 108452, "entrance_ptr": 108428, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 3, "exit_ptr": 108428, "entrance_ptr": 108452, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 2, "exit_ptr": 108440, "entrance_ptr": 108740, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 3, "exit_ptr": 108416, "entrance_ptr": 108176, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 1, "y": 3, "exit_ptr": 108452, "entrance_ptr": 108428, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 3, "exit_ptr": 108428, "entrance_ptr": 108452, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 2, "exit_ptr": 108440, "entrance_ptr": 108740, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1, 2, 3]],
         "durable_part_connections": [],
@@ -2575,8 +2575,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 108740, "entrance_ptr": 108440, "subtype": "normal"},
-            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 108752, "entrance_ptr": 108488, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 108740, "entrance_ptr": 108440, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 108752, "entrance_ptr": 108488, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -2592,7 +2592,7 @@
         "rom_address": 513744,
         "twin_rom_address": null,
         "map": [[1, 0], [1, 1]],
-        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 108488, "entrance_ptr": 108752, "subtype": "normal"}],
+        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 108488, "entrance_ptr": 108752, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -2608,10 +2608,10 @@
         "twin_rom_address": null,
         "map": [[1], [1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 107768, "entrance_ptr": 107552, "subtype": "normal"},
-            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 107792, "entrance_ptr": 107408, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 107780, "entrance_ptr": 107816, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 1, "exit_ptr": 107804, "entrance_ptr": 108008, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 107768, "entrance_ptr": 107552, "subtype": "normal", "offset": null},
+            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 107792, "entrance_ptr": 107408, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 107780, "entrance_ptr": 107816, "subtype": "normal", "offset": null},
+            {"direction": "right", "x": 0, "y": 1, "exit_ptr": 107804, "entrance_ptr": 108008, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1, 2, 3]],
         "durable_part_connections": [],
@@ -2628,9 +2628,9 @@
         "twin_rom_address": null,
         "map": [[0, 0, 0, 0, 1, 0, 0, 0], [0, 0, 0, 0, 1, 0, 0, 0], [1, 1, 1, 1, 1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 2, "exit_ptr": 104530, "entrance_ptr": 104518, "subtype": "normal"},
-            {"direction": "right", "x": 7, "y": 2, "exit_ptr": 104542, "entrance_ptr": 104674, "subtype": "normal"},
-            {"direction": "up", "x": 4, "y": 0, "exit_ptr": 104554, "entrance_ptr": 104182, "subtype": "elevator"}
+            {"direction": "left", "x": 0, "y": 2, "exit_ptr": 104530, "entrance_ptr": 104518, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 7, "y": 2, "exit_ptr": 104542, "entrance_ptr": 104674, "subtype": "normal", "offset": 0},
+            {"direction": "up", "x": 4, "y": 0, "exit_ptr": 104554, "entrance_ptr": 104182, "subtype": "elevator", "offset": null}
         ],
         "parts": [[0, 1, 2]],
         "durable_part_connections": [],
@@ -2647,10 +2647,10 @@
         "twin_rom_address": null,
         "map": [[1], [1], [1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 104674, "entrance_ptr": 104542, "subtype": "normal"},
-            {"direction": "left", "x": 0, "y": 2, "exit_ptr": 104710, "entrance_ptr": 104602, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 104686, "entrance_ptr": 104746, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 2, "exit_ptr": 104722, "entrance_ptr": 104770, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 104674, "entrance_ptr": 104542, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 0, "y": 2, "exit_ptr": 104710, "entrance_ptr": 104602, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 104686, "entrance_ptr": 104746, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 2, "exit_ptr": 104722, "entrance_ptr": 104770, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1, 2, 3]],
         "durable_part_connections": [],
@@ -2667,8 +2667,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104770, "entrance_ptr": 104722, "subtype": "normal"},
-            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 104782, "entrance_ptr": 104842, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104770, "entrance_ptr": 104722, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 104782, "entrance_ptr": 104842, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -2685,9 +2685,9 @@
         "twin_rom_address": null,
         "map": [[1], [1], [1], [1], [1], [1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104818, "entrance_ptr": 104758, "subtype": "normal"},
-            {"direction": "left", "x": 0, "y": 5, "exit_ptr": 104842, "entrance_ptr": 104782, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 1, "exit_ptr": 104830, "entrance_ptr": 104854, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104818, "entrance_ptr": 104758, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 0, "y": 5, "exit_ptr": 104842, "entrance_ptr": 104782, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 1, "exit_ptr": 104830, "entrance_ptr": 104854, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1, 2]],
         "durable_part_connections": [],
@@ -2704,8 +2704,8 @@
         "twin_rom_address": null,
         "map": [[0, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 104854, "entrance_ptr": 104830, "subtype": "normal"},
-            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 104866, "entrance_ptr": 104950, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 104854, "entrance_ptr": 104830, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 104866, "entrance_ptr": 104950, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0], [1]],
         "durable_part_connections": [],
@@ -2722,10 +2722,10 @@
         "twin_rom_address": null,
         "map": [[1, 0, 0], [1, 0, 0], [1, 0, 0], [1, 0, 0], [1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104950, "entrance_ptr": 104866, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 104962, "entrance_ptr": 105130, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 3, "exit_ptr": 104974, "entrance_ptr": 105142, "subtype": "normal"},
-            {"direction": "down", "x": 2, "y": 4, "exit_ptr": 104938, "entrance_ptr": 104998, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104950, "entrance_ptr": 104866, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 104962, "entrance_ptr": 105130, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 3, "exit_ptr": 104974, "entrance_ptr": 105142, "subtype": "normal", "offset": 0},
+            {"direction": "down", "x": 2, "y": 4, "exit_ptr": 104938, "entrance_ptr": 104998, "subtype": "normal", "offset": 1}
         ],
         "parts": [[0, 1, 2, 3]],
         "durable_part_connections": [],
@@ -2741,7 +2741,7 @@
         "rom_address": 505665,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 105142, "entrance_ptr": 104974, "subtype": "normal"}],
+        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 105142, "entrance_ptr": 104974, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -2757,8 +2757,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1, 1, 1], [0, 1, 0, 0, 0, 0], [0, 1, 0, 0, 0, 0]],
         "doors": [
-            {"direction": "left", "x": 1, "y": 2, "exit_ptr": 104986, "entrance_ptr": 105022, "subtype": "normal"},
-            {"direction": "up", "x": 5, "y": 0, "exit_ptr": 104998, "entrance_ptr": 104938, "subtype": "normal"}
+            {"direction": "left", "x": 1, "y": 2, "exit_ptr": 104986, "entrance_ptr": 105022, "subtype": "normal", "offset": 0},
+            {"direction": "up", "x": 5, "y": 0, "exit_ptr": 104998, "entrance_ptr": 104938, "subtype": "normal", "offset": 1}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -2775,8 +2775,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 105010, "entrance_ptr": 104806, "subtype": "normal"},
-            {"direction": "right", "x": 2, "y": 0, "exit_ptr": 105022, "entrance_ptr": 104986, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 105010, "entrance_ptr": 104806, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 2, "y": 0, "exit_ptr": 105022, "entrance_ptr": 104986, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -2793,8 +2793,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104794, "entrance_ptr": 104662, "subtype": "normal"},
-            {"direction": "right", "x": 2, "y": 0, "exit_ptr": 104806, "entrance_ptr": 105010, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104794, "entrance_ptr": 104662, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 2, "y": 0, "exit_ptr": 104806, "entrance_ptr": 105010, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -2811,8 +2811,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104650, "entrance_ptr": 104638, "subtype": "normal"},
-            {"direction": "right", "x": 2, "y": 0, "exit_ptr": 104662, "entrance_ptr": 104794, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104650, "entrance_ptr": 104638, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 2, "y": 0, "exit_ptr": 104662, "entrance_ptr": 104794, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -2829,8 +2829,8 @@
         "twin_rom_address": null,
         "map": [[1], [1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 104626, "entrance_ptr": 105058, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 104638, "entrance_ptr": 104650, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 104626, "entrance_ptr": 105058, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 104638, "entrance_ptr": 104650, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -2846,7 +2846,7 @@
         "rom_address": 505496,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 105058, "entrance_ptr": 104626, "subtype": "normal"}],
+        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 105058, "entrance_ptr": 104626, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -2862,8 +2862,8 @@
         "twin_rom_address": null,
         "map": [[0, 0, 0, 1], [0, 0, 1, 1], [0, 0, 0, 1], [1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 3, "exit_ptr": 104746, "entrance_ptr": 104686, "subtype": "normal"},
-            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 104758, "entrance_ptr": 104818, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 3, "exit_ptr": 104746, "entrance_ptr": 104686, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 104758, "entrance_ptr": 104818, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0], [1]],
         "durable_part_connections": [],
@@ -2880,9 +2880,9 @@
         "twin_rom_address": null,
         "map": [[1, 1, 0], [0, 1, 0], [0, 1, 0], [0, 1, 1], [0, 1, 1], [0, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 105106, "entrance_ptr": 104890, "subtype": "normal"},
-            {"direction": "left", "x": 1, "y": 3, "exit_ptr": 105130, "entrance_ptr": 104962, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 105118, "entrance_ptr": 104914, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 105106, "entrance_ptr": 104890, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 1, "y": 3, "exit_ptr": 105130, "entrance_ptr": 104962, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 105118, "entrance_ptr": 104914, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1, 2]],
         "durable_part_connections": [],
@@ -2899,9 +2899,9 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1, 1], [1, 1, 0, 0, 0]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104878, "entrance_ptr": 105046, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 1, "exit_ptr": 104890, "entrance_ptr": 105106, "subtype": "normal"},
-            {"direction": "down", "x": 4, "y": 0, "exit_ptr": 104902, "entrance_ptr": 104926, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104878, "entrance_ptr": 105046, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 1, "exit_ptr": 104890, "entrance_ptr": 105106, "subtype": "normal", "offset": 0},
+            {"direction": "down", "x": 4, "y": 0, "exit_ptr": 104902, "entrance_ptr": 104926, "subtype": "normal", "offset": 1}
         ],
         "parts": [[0, 1], [2]],
         "durable_part_connections": [],
@@ -2918,8 +2918,8 @@
         "twin_rom_address": null,
         "map": [[1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104914, "entrance_ptr": 105118, "subtype": "normal"},
-            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 104926, "entrance_ptr": 104902, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104914, "entrance_ptr": 105118, "subtype": "normal", "offset": 0},
+            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 104926, "entrance_ptr": 104902, "subtype": "normal", "offset": 1}
         ],
         "parts": [[0], [1]],
         "durable_part_connections": [],
@@ -2936,8 +2936,8 @@
         "twin_rom_address": null,
         "map": [[0, 1, 0, 0], [0, 1, 0, 0], [1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 1, "y": 0, "exit_ptr": 105034, "entrance_ptr": 103930, "subtype": "normal"},
-            {"direction": "right", "x": 3, "y": 2, "exit_ptr": 105046, "entrance_ptr": 104878, "subtype": "normal"}
+            {"direction": "left", "x": 1, "y": 0, "exit_ptr": 105034, "entrance_ptr": 103930, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 3, "y": 2, "exit_ptr": 105046, "entrance_ptr": 104878, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -2954,8 +2954,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 0], [1, 1, 0], [1, 1, 1]],
         "doors": [
-            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 104518, "entrance_ptr": 104530, "subtype": "normal"},
-            {"direction": "right", "x": 2, "y": 2, "exit_ptr": 104506, "entrance_ptr": 104566, "subtype": "normal"}
+            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 104518, "entrance_ptr": 104530, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 2, "y": 2, "exit_ptr": 104506, "entrance_ptr": 104566, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0], [1]],
         "durable_part_connections": [[0, 1]],
@@ -2972,8 +2972,8 @@
         "twin_rom_address": null,
         "map": [[1, 1], [1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104566, "entrance_ptr": 104506, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 1, "exit_ptr": 104578, "entrance_ptr": 105094, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104566, "entrance_ptr": 104506, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 1, "exit_ptr": 104578, "entrance_ptr": 105094, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0], [1]],
         "durable_part_connections": [],
@@ -2990,9 +2990,9 @@
         "twin_rom_address": null,
         "map": [[1], [1], [1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 2, "exit_ptr": 105094, "entrance_ptr": 104578, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 105070, "entrance_ptr": 104590, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 1, "exit_ptr": 105082, "entrance_ptr": 104614, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 2, "exit_ptr": 105094, "entrance_ptr": 104578, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 105070, "entrance_ptr": 104590, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 1, "exit_ptr": 105082, "entrance_ptr": 104614, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1, 2]],
         "durable_part_connections": [],
@@ -3008,7 +3008,7 @@
         "rom_address": 504581,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 104614, "entrance_ptr": 105082, "subtype": "normal"}],
+        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 104614, "entrance_ptr": 105082, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -3024,8 +3024,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104590, "entrance_ptr": 105070, "subtype": "normal"},
-            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 104602, "entrance_ptr": 104710, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104590, "entrance_ptr": 105070, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 104602, "entrance_ptr": 104710, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0], [1]],
         "durable_part_connections": [],
@@ -3042,13 +3042,13 @@
         "twin_rom_address": null,
         "map": [[1], [1], [1], [1], [1], [1], [1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 3, "exit_ptr": 103102, "entrance_ptr": 103210, "subtype": "normal"},
-            {"direction": "left", "x": 0, "y": 4, "exit_ptr": 103174, "entrance_ptr": 104386, "subtype": "normal"},
-            {"direction": "left", "x": 0, "y": 5, "exit_ptr": 103126, "entrance_ptr": 103450, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 3, "exit_ptr": 103114, "entrance_ptr": 103078, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 5, "exit_ptr": 103162, "entrance_ptr": 104470, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 6, "exit_ptr": 103138, "entrance_ptr": 103426, "subtype": "normal"},
-            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 103150, "entrance_ptr": 102982, "subtype": "elevator"}
+            {"direction": "left", "x": 0, "y": 3, "exit_ptr": 103102, "entrance_ptr": 103210, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 0, "y": 4, "exit_ptr": 103174, "entrance_ptr": 104386, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 0, "y": 5, "exit_ptr": 103126, "entrance_ptr": 103450, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 3, "exit_ptr": 103114, "entrance_ptr": 103078, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 5, "exit_ptr": 103162, "entrance_ptr": 104470, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 6, "exit_ptr": 103138, "entrance_ptr": 103426, "subtype": "normal", "offset": 0},
+            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 103150, "entrance_ptr": 102982, "subtype": "elevator", "offset": null}
         ],
         "parts": [[0, 1, 2, 3, 4, 5, 6]],
         "durable_part_connections": [],
@@ -3064,7 +3064,7 @@
         "rom_address": 503988,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 104386, "entrance_ptr": 103174, "subtype": "normal"}],
+        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 104386, "entrance_ptr": 103174, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -3080,8 +3080,8 @@
         "twin_rom_address": null,
         "map": [[1, 1], [1, 0]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 103462, "entrance_ptr": 103414, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 103450, "entrance_ptr": 103126, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 103462, "entrance_ptr": 103414, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 103450, "entrance_ptr": 103126, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -3097,7 +3097,7 @@
         "rom_address": 502245,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 103414, "entrance_ptr": 103462, "subtype": "normal"}],
+        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 103414, "entrance_ptr": 103462, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -3113,8 +3113,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1], [1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 103078, "entrance_ptr": 103114, "subtype": "normal"},
-            {"direction": "right", "x": 2, "y": 0, "exit_ptr": 103090, "entrance_ptr": 103054, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 103078, "entrance_ptr": 103114, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 2, "y": 0, "exit_ptr": 103090, "entrance_ptr": 103054, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -3131,8 +3131,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1], [1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 103054, "entrance_ptr": 103090, "subtype": "normal"},
-            {"direction": "right", "x": 2, "y": 1, "exit_ptr": 103066, "entrance_ptr": 104242, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 103054, "entrance_ptr": 103090, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 2, "y": 1, "exit_ptr": 103066, "entrance_ptr": 104242, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -3149,8 +3149,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104242, "entrance_ptr": 103066, "subtype": "normal"},
-            {"direction": "right", "x": 4, "y": 0, "exit_ptr": 104254, "entrance_ptr": 103774, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104242, "entrance_ptr": 103066, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 4, "y": 0, "exit_ptr": 104254, "entrance_ptr": 103774, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -3167,8 +3167,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1, 1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104410, "entrance_ptr": 104458, "subtype": "normal"},
-            {"direction": "right", "x": 7, "y": 0, "exit_ptr": 104422, "entrance_ptr": 104206, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104410, "entrance_ptr": 104458, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 7, "y": 0, "exit_ptr": 104422, "entrance_ptr": 104206, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -3185,9 +3185,9 @@
         "twin_rom_address": null,
         "map": [[1, 1], [1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104206, "entrance_ptr": 104422, "subtype": "normal"},
-            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 104230, "entrance_ptr": 104434, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 104218, "entrance_ptr": 103786, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104206, "entrance_ptr": 104422, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 104230, "entrance_ptr": 104434, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 104218, "entrance_ptr": 103786, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1, 2]],
         "durable_part_connections": [],
@@ -3204,9 +3204,9 @@
         "twin_rom_address": null,
         "map": [[1], [1], [1]],
         "doors": [
-            {"direction": "right", "x": 0, "y": 1, "exit_ptr": 104134, "entrance_ptr": 104350, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 2, "exit_ptr": 104122, "entrance_ptr": 104086, "subtype": "normal"},
-            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 104110, "entrance_ptr": 103798, "subtype": "normal"}
+            {"direction": "right", "x": 0, "y": 1, "exit_ptr": 104134, "entrance_ptr": 104350, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 2, "exit_ptr": 104122, "entrance_ptr": 104086, "subtype": "normal", "offset": 0},
+            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 104110, "entrance_ptr": 103798, "subtype": "normal", "offset": 1}
         ],
         "parts": [[0, 1, 2]],
         "durable_part_connections": [],
@@ -3222,7 +3222,7 @@
         "rom_address": 503889,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 104350, "entrance_ptr": 104134, "subtype": "normal"}],
+        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 104350, "entrance_ptr": 104134, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -3238,8 +3238,8 @@
         "twin_rom_address": null,
         "map": [[1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104470, "entrance_ptr": 103162, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 104458, "entrance_ptr": 104410, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104470, "entrance_ptr": 103162, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 104458, "entrance_ptr": 104410, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -3256,13 +3256,13 @@
         "twin_rom_address": null,
         "map": [[1, 1], [1, 1], [1, 1], [1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 103762, "entrance_ptr": 103738, "subtype": "normal"},
-            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 103834, "entrance_ptr": 104398, "subtype": "normal"},
-            {"direction": "left", "x": 0, "y": 2, "exit_ptr": 103774, "entrance_ptr": 104254, "subtype": "normal"},
-            {"direction": "left", "x": 0, "y": 3, "exit_ptr": 103786, "entrance_ptr": 104218, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 103822, "entrance_ptr": 104362, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 1, "exit_ptr": 103810, "entrance_ptr": 103882, "subtype": "normal"},
-            {"direction": "down", "x": 0, "y": 3, "exit_ptr": 103798, "entrance_ptr": 104110, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 103762, "entrance_ptr": 103738, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 103834, "entrance_ptr": 104398, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 0, "y": 2, "exit_ptr": 103774, "entrance_ptr": 104254, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 0, "y": 3, "exit_ptr": 103786, "entrance_ptr": 104218, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 103822, "entrance_ptr": 104362, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 1, "exit_ptr": 103810, "entrance_ptr": 103882, "subtype": "normal", "offset": 0},
+            {"direction": "down", "x": 0, "y": 3, "exit_ptr": 103798, "entrance_ptr": 104110, "subtype": "normal", "offset": 1}
         ],
         "parts": [[0, 1, 2, 3, 4, 5, 6]],
         "durable_part_connections": [],
@@ -3278,7 +3278,7 @@
         "rom_address": 504029,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 104398, "entrance_ptr": 103834, "subtype": "normal"}],
+        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 104398, "entrance_ptr": 103834, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -3294,8 +3294,8 @@
         "twin_rom_address": null,
         "map": [[1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 103750, "entrance_ptr": 103726, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 103738, "entrance_ptr": 103762, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 103750, "entrance_ptr": 103726, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 103738, "entrance_ptr": 103762, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -3311,7 +3311,7 @@
         "rom_address": 502874,
         "twin_rom_address": null,
         "map": [[1, 1]],
-        "doors": [{"direction": "right", "x": 1, "y": 0, "exit_ptr": 103726, "entrance_ptr": 103750, "subtype": "normal"}],
+        "doors": [{"direction": "right", "x": 1, "y": 0, "exit_ptr": 103726, "entrance_ptr": 103750, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -3327,8 +3327,8 @@
         "twin_rom_address": null,
         "map": [[1], [1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 104362, "entrance_ptr": 103822, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 104374, "entrance_ptr": 103846, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 104362, "entrance_ptr": 103822, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 104374, "entrance_ptr": 103846, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -3345,8 +3345,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0], [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 103846, "entrance_ptr": 104374, "subtype": "normal"},
-            {"direction": "right", "x": 11, "y": 1, "exit_ptr": 103858, "entrance_ptr": 103870, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 103846, "entrance_ptr": 104374, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 11, "y": 1, "exit_ptr": 103858, "entrance_ptr": 103870, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -3362,7 +3362,7 @@
         "rom_address": 503067,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 103870, "entrance_ptr": 103858, "subtype": "normal"}],
+        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 103870, "entrance_ptr": 103858, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -3378,11 +3378,11 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1, 1, 1], [1, 0, 0, 0, 0, 0], [1, 0, 0, 0, 0, 0], [1, 0, 0, 0, 0, 0]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 103882, "entrance_ptr": 103810, "subtype": "normal"},
-            {"direction": "right", "x": 5, "y": 0, "exit_ptr": 103930, "entrance_ptr": 105034, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 1, "exit_ptr": 103894, "entrance_ptr": 103942, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 2, "exit_ptr": 103906, "entrance_ptr": 103954, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 3, "exit_ptr": 103918, "entrance_ptr": 103990, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 103882, "entrance_ptr": 103810, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 5, "y": 0, "exit_ptr": 103930, "entrance_ptr": 105034, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 1, "exit_ptr": 103894, "entrance_ptr": 103942, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 2, "exit_ptr": 103906, "entrance_ptr": 103954, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 3, "exit_ptr": 103918, "entrance_ptr": 103990, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 2, 3, 4], [1]],
         "durable_part_connections": [],
@@ -3399,9 +3399,9 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1], [1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 103942, "entrance_ptr": 103894, "subtype": "normal"},
-            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 103954, "entrance_ptr": 103906, "subtype": "normal"},
-            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 103966, "entrance_ptr": 103978, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 103942, "entrance_ptr": 103894, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 103954, "entrance_ptr": 103906, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 103966, "entrance_ptr": 103978, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1, 2]],
         "durable_part_connections": [],
@@ -3417,7 +3417,7 @@
         "rom_address": 503262,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 103978, "entrance_ptr": 103966, "subtype": "normal"}],
+        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 103978, "entrance_ptr": 103966, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -3433,10 +3433,10 @@
         "twin_rom_address": null,
         "map": [[0, 0, 0, 1, 0, 0, 0], [0, 0, 0, 1, 0, 0, 0], [0, 0, 0, 1, 1, 1, 1], [1, 1, 1, 1, 0, 0, 0]],
         "doors": [
-            {"direction": "left", "x": 3, "y": 0, "exit_ptr": 103186, "entrance_ptr": 103246, "subtype": "normal"},
-            {"direction": "left", "x": 3, "y": 2, "exit_ptr": 103198, "entrance_ptr": 103030, "subtype": "normal"},
-            {"direction": "left", "x": 0, "y": 3, "exit_ptr": 103222, "entrance_ptr": 103306, "subtype": "normal"},
-            {"direction": "right", "x": 6, "y": 2, "exit_ptr": 103210, "entrance_ptr": 103102, "subtype": "normal"}
+            {"direction": "left", "x": 3, "y": 0, "exit_ptr": 103186, "entrance_ptr": 103246, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 3, "y": 2, "exit_ptr": 103198, "entrance_ptr": 103030, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 0, "y": 3, "exit_ptr": 103222, "entrance_ptr": 103306, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 6, "y": 2, "exit_ptr": 103210, "entrance_ptr": 103102, "subtype": "normal", "offset": 1}
         ],
         "parts": [[1, 2, 3], [0]],
         "durable_part_connections": [],
@@ -3453,8 +3453,8 @@
         "twin_rom_address": null,
         "map": [[1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 103042, "entrance_ptr": 103270, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 103030, "entrance_ptr": 103198, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 103042, "entrance_ptr": 103270, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 103030, "entrance_ptr": 103198, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -3471,9 +3471,9 @@
         "twin_rom_address": null,
         "map": [[1, 0], [1, 1], [1, 0]],
         "doors": [
-            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 103282, "entrance_ptr": 103234, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 1, "exit_ptr": 103294, "entrance_ptr": 103258, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 2, "exit_ptr": 103270, "entrance_ptr": 103042, "subtype": "normal"}
+            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 103282, "entrance_ptr": 103234, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 1, "exit_ptr": 103294, "entrance_ptr": 103258, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 2, "exit_ptr": 103270, "entrance_ptr": 103042, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1, 2]],
         "durable_part_connections": [],
@@ -3489,7 +3489,7 @@
         "rom_address": 501904,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 103258, "entrance_ptr": 103294, "subtype": "normal"}],
+        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 103258, "entrance_ptr": 103294, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -3505,8 +3505,8 @@
         "twin_rom_address": null,
         "map": [[1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 103234, "entrance_ptr": 103282, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 103246, "entrance_ptr": 103186, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 103234, "entrance_ptr": 103282, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 103246, "entrance_ptr": 103186, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -3523,8 +3523,8 @@
         "twin_rom_address": null,
         "map": [[1], [1], [1], [1]],
         "doors": [
-            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 103306, "entrance_ptr": 103222, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 3, "exit_ptr": 103318, "entrance_ptr": 103330, "subtype": "normal"}
+            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 103306, "entrance_ptr": 103222, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 3, "exit_ptr": 103318, "entrance_ptr": 103330, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -3541,8 +3541,8 @@
         "twin_rom_address": null,
         "map": [[1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104326, "entrance_ptr": 104278, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 104338, "entrance_ptr": 104302, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104326, "entrance_ptr": 104278, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 104338, "entrance_ptr": 104302, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -3559,8 +3559,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104302, "entrance_ptr": 104338, "subtype": "normal"},
-            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 104314, "entrance_ptr": 104074, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104302, "entrance_ptr": 104338, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 104314, "entrance_ptr": 104074, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -3577,10 +3577,10 @@
         "twin_rom_address": null,
         "map": [[0, 1], [1, 1], [0, 1]],
         "doors": [
-            {"direction": "left", "x": 1, "y": 0, "exit_ptr": 104038, "entrance_ptr": 104098, "subtype": "normal"},
-            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 104074, "entrance_ptr": 104314, "subtype": "normal"},
-            {"direction": "left", "x": 1, "y": 2, "exit_ptr": 104062, "entrance_ptr": 104146, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 104050, "entrance_ptr": 104026, "subtype": "normal"}
+            {"direction": "left", "x": 1, "y": 0, "exit_ptr": 104038, "entrance_ptr": 104098, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 104074, "entrance_ptr": 104314, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 1, "y": 2, "exit_ptr": 104062, "entrance_ptr": 104146, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 104050, "entrance_ptr": 104026, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1, 2, 3]],
         "durable_part_connections": [],
@@ -3597,8 +3597,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104086, "entrance_ptr": 104122, "subtype": "normal"},
-            {"direction": "right", "x": 2, "y": 0, "exit_ptr": 104098, "entrance_ptr": 104038, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104086, "entrance_ptr": 104122, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 2, "y": 0, "exit_ptr": 104098, "entrance_ptr": 104038, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -3615,8 +3615,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1], [0, 1, 1, 1], [0, 1, 1, 0]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104158, "entrance_ptr": 104170, "subtype": "normal"},
-            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 104146, "entrance_ptr": 104062, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104158, "entrance_ptr": 104170, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 104146, "entrance_ptr": 104062, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -3633,8 +3633,8 @@
         "twin_rom_address": null,
         "map": [[0, 0, 1], [0, 0, 1], [1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 2, "y": 0, "exit_ptr": 104014, "entrance_ptr": 104002, "subtype": "normal"},
-            {"direction": "left", "x": 0, "y": 2, "exit_ptr": 104026, "entrance_ptr": 104050, "subtype": "normal"}
+            {"direction": "left", "x": 2, "y": 0, "exit_ptr": 104014, "entrance_ptr": 104002, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 0, "y": 2, "exit_ptr": 104026, "entrance_ptr": 104050, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -3651,8 +3651,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 103990, "entrance_ptr": 103918, "subtype": "normal"},
-            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 104002, "entrance_ptr": 104014, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 103990, "entrance_ptr": 103918, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 104002, "entrance_ptr": 104014, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -3669,8 +3669,8 @@
         "twin_rom_address": null,
         "map": [[1], [1], [1]],
         "doors": [
-            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 104434, "entrance_ptr": 104230, "subtype": "normal"},
-            {"direction": "down", "x": 0, "y": 2, "exit_ptr": 104446, "entrance_ptr": 104290, "subtype": "normal"}
+            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 104434, "entrance_ptr": 104230, "subtype": "normal", "offset": 0},
+            {"direction": "down", "x": 0, "y": 2, "exit_ptr": 104446, "entrance_ptr": 104290, "subtype": "normal", "offset": 1}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -3687,9 +3687,9 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104266, "entrance_ptr": 103366, "subtype": "normal"},
-            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 104278, "entrance_ptr": 104326, "subtype": "normal"},
-            {"direction": "up", "x": 3, "y": 0, "exit_ptr": 104290, "entrance_ptr": 104446, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104266, "entrance_ptr": 103366, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 104278, "entrance_ptr": 104326, "subtype": "normal", "offset": 0},
+            {"direction": "up", "x": 3, "y": 0, "exit_ptr": 104290, "entrance_ptr": 104446, "subtype": "normal", "offset": 1}
         ],
         "parts": [[0, 1, 2]],
         "durable_part_connections": [],
@@ -3706,11 +3706,11 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1], [0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1], [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 103330, "entrance_ptr": 103318, "subtype": "normal"},
-            {"direction": "left", "x": 12, "y": 0, "exit_ptr": 103342, "entrance_ptr": 103438, "subtype": "normal"},
-            {"direction": "right", "x": 12, "y": 1, "exit_ptr": 103354, "entrance_ptr": 104482, "subtype": "normal"},
-            {"direction": "right", "x": 12, "y": 2, "exit_ptr": 103366, "entrance_ptr": 104266, "subtype": "normal"},
-            {"direction": "down", "x": 12, "y": 2, "exit_ptr": 103378, "entrance_ptr": 103402, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 103330, "entrance_ptr": 103318, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 12, "y": 0, "exit_ptr": 103342, "entrance_ptr": 103438, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 12, "y": 1, "exit_ptr": 103354, "entrance_ptr": 104482, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 12, "y": 2, "exit_ptr": 103366, "entrance_ptr": 104266, "subtype": "normal", "offset": 0},
+            {"direction": "down", "x": 12, "y": 2, "exit_ptr": 103378, "entrance_ptr": 103402, "subtype": "normal", "offset": 1}
         ],
         "parts": [[0], [1, 2, 3, 4]],
         "durable_part_connections": [],
@@ -3734,8 +3734,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1], [1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 103426, "entrance_ptr": 103138, "subtype": "normal"},
-            {"direction": "right", "x": 3, "y": 1, "exit_ptr": 103438, "entrance_ptr": 103342, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 103426, "entrance_ptr": 103138, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 3, "y": 1, "exit_ptr": 103438, "entrance_ptr": 103342, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0], [1]],
         "durable_part_connections": [],
@@ -3752,8 +3752,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1, 1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 103390, "entrance_ptr": 103474, "subtype": "normal"},
-            {"direction": "up", "x": 3, "y": 0, "exit_ptr": 103402, "entrance_ptr": 103378, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 103390, "entrance_ptr": 103474, "subtype": "normal", "offset": 0},
+            {"direction": "up", "x": 3, "y": 0, "exit_ptr": 103402, "entrance_ptr": 103378, "subtype": "normal", "offset": 1}
         ],
         "parts": [[0], [1]],
         "durable_part_connections": [[1, 0]],
@@ -3770,10 +3770,10 @@
         "twin_rom_address": null,
         "map": [[1, 1], [1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 103486, "entrance_ptr": 103534, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 103474, "entrance_ptr": 103390, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 1, "exit_ptr": 103510, "entrance_ptr": 103522, "subtype": "normal"},
-            {"direction": "down", "x": 0, "y": 1, "exit_ptr": 103498, "entrance_ptr": 103546, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 103486, "entrance_ptr": 103534, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 103474, "entrance_ptr": 103390, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 1, "exit_ptr": 103510, "entrance_ptr": 103522, "subtype": "normal", "offset": 0},
+            {"direction": "down", "x": 0, "y": 1, "exit_ptr": 103498, "entrance_ptr": 103546, "subtype": "normal", "offset": 1}
         ],
         "parts": [[0, 1, 2, 3]],
         "durable_part_connections": [],
@@ -3789,7 +3789,7 @@
         "rom_address": 502494,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 103534, "entrance_ptr": 103486, "subtype": "normal"}],
+        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 103534, "entrance_ptr": 103486, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -3805,10 +3805,10 @@
         "twin_rom_address": null,
         "map": [[1], [1], [1], [1], [1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 103558, "entrance_ptr": 103618, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 3, "exit_ptr": 103570, "entrance_ptr": 103594, "subtype": "normal"},
-            {"direction": "down", "x": 0, "y": 4, "exit_ptr": 103582, "entrance_ptr": 103630, "subtype": "normal"},
-            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 103546, "entrance_ptr": 103498, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 103558, "entrance_ptr": 103618, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 3, "exit_ptr": 103570, "entrance_ptr": 103594, "subtype": "normal", "offset": 0},
+            {"direction": "down", "x": 0, "y": 4, "exit_ptr": 103582, "entrance_ptr": 103630, "subtype": "normal", "offset": 1},
+            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 103546, "entrance_ptr": 103498, "subtype": "normal", "offset": 1}
         ],
         "parts": [[0, 1, 2, 3]],
         "durable_part_connections": [],
@@ -3824,7 +3824,7 @@
         "rom_address": 502587,
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1]],
-        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 103594, "entrance_ptr": 103570, "subtype": "normal"}],
+        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 103594, "entrance_ptr": 103570, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -3840,8 +3840,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1, 1, 0, 0, 0], [1, 1, 1, 1, 1, 0, 0, 0], [1, 1, 1, 1, 1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 103642, "entrance_ptr": 103702, "subtype": "normal"},
-            {"direction": "up", "x": 6, "y": 2, "exit_ptr": 103630, "entrance_ptr": 103582, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 103642, "entrance_ptr": 103702, "subtype": "normal", "offset": 0},
+            {"direction": "up", "x": 6, "y": 2, "exit_ptr": 103630, "entrance_ptr": 103582, "subtype": "normal", "offset": 1}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -3864,8 +3864,8 @@
         "twin_rom_address": null,
         "map": [[1], [1], [1]],
         "doors": [
-            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 103714, "entrance_ptr": 103678, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 2, "exit_ptr": 103702, "entrance_ptr": 103642, "subtype": "normal"}
+            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 103714, "entrance_ptr": 103678, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 2, "exit_ptr": 103702, "entrance_ptr": 103642, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -3882,8 +3882,8 @@
         "twin_rom_address": null,
         "map": [[1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 103678, "entrance_ptr": 103714, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 103690, "entrance_ptr": 103654, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 103678, "entrance_ptr": 103714, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 103690, "entrance_ptr": 103654, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -3900,8 +3900,8 @@
         "twin_rom_address": null,
         "map": [[1], [1], [1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 2, "exit_ptr": 103654, "entrance_ptr": 103690, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 103666, "entrance_ptr": 103606, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 2, "exit_ptr": 103654, "entrance_ptr": 103690, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 103666, "entrance_ptr": 103606, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -3918,8 +3918,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1], [1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 103606, "entrance_ptr": 103666, "subtype": "normal"},
-            {"direction": "right", "x": 2, "y": 0, "exit_ptr": 103618, "entrance_ptr": 103558, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 103606, "entrance_ptr": 103666, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 2, "y": 0, "exit_ptr": 103618, "entrance_ptr": 103558, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0], [1]],
         "durable_part_connections": [],
@@ -3935,7 +3935,7 @@
         "rom_address": 504210,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 104482, "entrance_ptr": 103354, "subtype": "normal"}],
+        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 104482, "entrance_ptr": 103354, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -3950,7 +3950,7 @@
         "rom_address": 502453,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 103522, "entrance_ptr": 103510, "subtype": "normal"}],
+        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 103522, "entrance_ptr": 103510, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -3966,9 +3966,9 @@
         "twin_rom_address": null,
         "map": [[1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104194, "entrance_ptr": 104494, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 104170, "entrance_ptr": 104158, "subtype": "normal"},
-            {"direction": "down", "x": 0, "y": 0, "exit_ptr": 104182, "entrance_ptr": 104554, "subtype": "elevator"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 104194, "entrance_ptr": 104494, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 104170, "entrance_ptr": 104158, "subtype": "normal", "offset": 0},
+            {"direction": "down", "x": 0, "y": 0, "exit_ptr": 104182, "entrance_ptr": 104554, "subtype": "elevator", "offset": null}
         ],
         "parts": [[0, 1, 2]],
         "durable_part_connections": [],
@@ -3984,7 +3984,7 @@
         "rom_address": 504251,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 104494, "entrance_ptr": 104194, "subtype": "normal"}],
+        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 104494, "entrance_ptr": 104194, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -4000,8 +4000,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 106928, "entrance_ptr": 100822, "subtype": "normal"},
-            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 106940, "entrance_ptr": 107000, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 106928, "entrance_ptr": 100822, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 106940, "entrance_ptr": 107000, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -4018,13 +4018,13 @@
         "twin_rom_address": null,
         "map": [[0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 1, 0], [1, 1, 1, 1, 1, 0], [0, 0, 0, 0, 1, 1], [0, 0, 0, 0, 1, 0]],
         "doors": [
-            {"direction": "left", "x": 4, "y": 3, "exit_ptr": 107000, "entrance_ptr": 106940, "subtype": "normal"},
-            {"direction": "left", "x": 4, "y": 6, "exit_ptr": 107024, "entrance_ptr": 107240, "subtype": "normal"},
-            {"direction": "right", "x": 4, "y": 3, "exit_ptr": 107072, "entrance_ptr": 107288, "subtype": "normal"},
-            {"direction": "right", "x": 4, "y": 4, "exit_ptr": 107012, "entrance_ptr": 107216, "subtype": "normal"},
-            {"direction": "right", "x": 5, "y": 6, "exit_ptr": 107060, "entrance_ptr": 107252, "subtype": "normal"},
-            {"direction": "down", "x": 4, "y": 7, "exit_ptr": 107036, "entrance_ptr": 107156, "subtype": "normal"},
-            {"direction": "up", "x": 4, "y": 0, "exit_ptr": 107048, "entrance_ptr": 106952, "subtype": "normal"}
+            {"direction": "left", "x": 4, "y": 3, "exit_ptr": 107000, "entrance_ptr": 106940, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 4, "y": 6, "exit_ptr": 107024, "entrance_ptr": 107240, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 4, "y": 3, "exit_ptr": 107072, "entrance_ptr": 107288, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 4, "y": 4, "exit_ptr": 107012, "entrance_ptr": 107216, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 5, "y": 6, "exit_ptr": 107060, "entrance_ptr": 107252, "subtype": "normal", "offset": 0},
+            {"direction": "down", "x": 4, "y": 7, "exit_ptr": 107036, "entrance_ptr": 107156, "subtype": "normal", "offset": 1},
+            {"direction": "up", "x": 4, "y": 0, "exit_ptr": 107048, "entrance_ptr": 106952, "subtype": "normal", "offset": 1}
         ],
         "parts": [[0, 1, 2, 3, 4, 5, 6]],
         "durable_part_connections": [],
@@ -4051,9 +4051,9 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 106976, "entrance_ptr": 100846, "subtype": "normal"},
-            {"direction": "right", "x": 6, "y": 0, "exit_ptr": 106964, "entrance_ptr": 106988, "subtype": "normal"},
-            {"direction": "down", "x": 4, "y": 0, "exit_ptr": 106952, "entrance_ptr": 107048, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 106976, "entrance_ptr": 100846, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 6, "y": 0, "exit_ptr": 106964, "entrance_ptr": 106988, "subtype": "normal", "offset": 0},
+            {"direction": "down", "x": 4, "y": 0, "exit_ptr": 106952, "entrance_ptr": 107048, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1, 2]],
         "durable_part_connections": [],
@@ -4070,9 +4070,9 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 107168, "entrance_ptr": 107192, "subtype": "normal"},
-            {"direction": "right", "x": 4, "y": 0, "exit_ptr": 107180, "entrance_ptr": 107204, "subtype": "normal"},
-            {"direction": "up", "x": 2, "y": 0, "exit_ptr": 107156, "entrance_ptr": 107036, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 107168, "entrance_ptr": 107192, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 4, "y": 0, "exit_ptr": 107180, "entrance_ptr": 107204, "subtype": "normal", "offset": 0},
+            {"direction": "up", "x": 2, "y": 0, "exit_ptr": 107156, "entrance_ptr": 107036, "subtype": "normal", "offset": 1}
         ],
         "parts": [[0, 1, 2]],
         "durable_part_connections": [],
@@ -4088,7 +4088,7 @@
         "rom_address": 511179,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 107192, "entrance_ptr": 107168, "subtype": "normal"}],
+        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 107192, "entrance_ptr": 107168, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -4103,7 +4103,7 @@
         "rom_address": 511251,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 107204, "entrance_ptr": 107180, "subtype": "normal"}],
+        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 107204, "entrance_ptr": 107180, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -4118,7 +4118,7 @@
         "rom_address": 511400,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 107240, "entrance_ptr": 107024, "subtype": "normal"}],
+        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 107240, "entrance_ptr": 107024, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -4134,9 +4134,9 @@
         "twin_rom_address": null,
         "map": [[0, 0, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1], [0, 1, 1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 2, "y": 0, "exit_ptr": 106892, "entrance_ptr": 100858, "subtype": "normal"},
-            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 106904, "entrance_ptr": 101170, "subtype": "normal"},
-            {"direction": "left", "x": 1, "y": 2, "exit_ptr": 106916, "entrance_ptr": 107276, "subtype": "normal"}
+            {"direction": "left", "x": 2, "y": 0, "exit_ptr": 106892, "entrance_ptr": 100858, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 106904, "entrance_ptr": 101170, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 1, "y": 2, "exit_ptr": 106916, "entrance_ptr": 107276, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0], [1], [2]],
         "durable_part_connections": [],
@@ -4153,8 +4153,8 @@
         "twin_rom_address": null,
         "map": [[1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 107264, "entrance_ptr": 100870, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 107276, "entrance_ptr": 106916, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 107264, "entrance_ptr": 100870, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 107276, "entrance_ptr": 106916, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -4170,7 +4170,7 @@
         "rom_address": 511473,
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1]],
-        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 107252, "entrance_ptr": 107060, "subtype": "normal"}],
+        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 107252, "entrance_ptr": 107060, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -4186,8 +4186,8 @@
         "twin_rom_address": null,
         "map": [[1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 107216, "entrance_ptr": 107012, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 107228, "entrance_ptr": 107084, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 107216, "entrance_ptr": 107012, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 107228, "entrance_ptr": 107084, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -4204,8 +4204,8 @@
         "twin_rom_address": null,
         "map": [[1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 107084, "entrance_ptr": 107228, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 107096, "entrance_ptr": 107120, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 107084, "entrance_ptr": 107228, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 107096, "entrance_ptr": 107120, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -4222,9 +4222,9 @@
         "twin_rom_address": null,
         "map": [[1], [1], [1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 107132, "entrance_ptr": 107144, "subtype": "normal"},
-            {"direction": "left", "x": 0, "y": 2, "exit_ptr": 107120, "entrance_ptr": 107096, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 1, "exit_ptr": 107108, "entrance_ptr": 100966, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 107132, "entrance_ptr": 107144, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 0, "y": 2, "exit_ptr": 107120, "entrance_ptr": 107096, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 1, "exit_ptr": 107108, "entrance_ptr": 100966, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1, 2]],
         "durable_part_connections": [],
@@ -4240,7 +4240,7 @@
         "rom_address": 511015,
         "twin_rom_address": null,
         "map": [[1, 1, 1], [1, 1, 1]],
-        "doors": [{"direction": "right", "x": 2, "y": 0, "exit_ptr": 107144, "entrance_ptr": 107132, "subtype": "normal"}],
+        "doors": [{"direction": "right", "x": 2, "y": 0, "exit_ptr": 107144, "entrance_ptr": 107132, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -4255,7 +4255,7 @@
         "rom_address": 510638,
         "twin_rom_address": null,
         "map": [[1, 1, 1]],
-        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 106988, "entrance_ptr": 106964, "subtype": "normal"}],
+        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 106988, "entrance_ptr": 106964, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -4270,7 +4270,7 @@
         "rom_address": 511626,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 107288, "entrance_ptr": 107072, "subtype": "normal"}],
+        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 107288, "entrance_ptr": 107072, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -4286,9 +4286,9 @@
         "twin_rom_address": null,
         "map": [[1], [1], [1], [1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 3, "exit_ptr": 108932, "entrance_ptr": 108968, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 3, "exit_ptr": 108956, "entrance_ptr": 109376, "subtype": "normal"},
-            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 108944, "entrance_ptr": 102946, "subtype": "elevator"}
+            {"direction": "left", "x": 0, "y": 3, "exit_ptr": 108932, "entrance_ptr": 108968, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 3, "exit_ptr": 108956, "entrance_ptr": 109376, "subtype": "normal", "offset": 0},
+            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 108944, "entrance_ptr": 102946, "subtype": "elevator", "offset": null}
         ],
         "parts": [[0, 1, 2]],
         "durable_part_connections": [],
@@ -4304,7 +4304,7 @@
         "rom_address": 515867,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 109376, "entrance_ptr": 108956, "subtype": "normal"}],
+        "doors": [{"direction": "left", "x": 0, "y": 0, "exit_ptr": 109376, "entrance_ptr": 108956, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -4320,8 +4320,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 108980, "entrance_ptr": 108992, "subtype": "normal"},
-            {"direction": "right", "x": 5, "y": 0, "exit_ptr": 108968, "entrance_ptr": 108932, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 108980, "entrance_ptr": 108992, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 5, "y": 0, "exit_ptr": 108968, "entrance_ptr": 108932, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -4338,8 +4338,8 @@
         "twin_rom_address": null,
         "map": [[1], [1]],
         "doors": [
-            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 108992, "entrance_ptr": 108980, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 1, "exit_ptr": 109004, "entrance_ptr": 109016, "subtype": "normal"}
+            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 108992, "entrance_ptr": 108980, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 1, "exit_ptr": 109004, "entrance_ptr": 109016, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -4356,8 +4356,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 109016, "entrance_ptr": 109004, "subtype": "normal"},
-            {"direction": "right", "x": 5, "y": 0, "exit_ptr": 109028, "entrance_ptr": 109040, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 109016, "entrance_ptr": 109004, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 5, "y": 0, "exit_ptr": 109028, "entrance_ptr": 109040, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -4374,8 +4374,8 @@
         "twin_rom_address": null,
         "map": [[1], [1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 109040, "entrance_ptr": 109028, "subtype": "normal"},
-            {"direction": "down", "x": 0, "y": 1, "exit_ptr": 109052, "entrance_ptr": 109064, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 109040, "entrance_ptr": 109028, "subtype": "normal", "offset": 0},
+            {"direction": "down", "x": 0, "y": 1, "exit_ptr": 109052, "entrance_ptr": 109064, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -4392,8 +4392,8 @@
         "twin_rom_address": null,
         "map": [[1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 109076, "entrance_ptr": 109088, "subtype": "normal"},
-            {"direction": "up", "x": 1, "y": 0, "exit_ptr": 109064, "entrance_ptr": 109052, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 109076, "entrance_ptr": 109088, "subtype": "normal", "offset": 0},
+            {"direction": "up", "x": 1, "y": 0, "exit_ptr": 109064, "entrance_ptr": 109052, "subtype": "normal", "offset": 2}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -4410,8 +4410,8 @@
         "twin_rom_address": null,
         "map": [[1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 109100, "entrance_ptr": 109112, "subtype": "normal"},
-            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 109088, "entrance_ptr": 109076, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 109100, "entrance_ptr": 109112, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 109088, "entrance_ptr": 109076, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -4428,8 +4428,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 109124, "entrance_ptr": 109136, "subtype": "normal"},
-            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 109112, "entrance_ptr": 109100, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 109124, "entrance_ptr": 109136, "subtype": "normal", "offset": null},
+            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 109112, "entrance_ptr": 109100, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -4446,9 +4446,9 @@
         "twin_rom_address": null,
         "map": [[1], [1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 109160, "entrance_ptr": 109172, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 109136, "entrance_ptr": 109124, "subtype": "normal"},
-            {"direction": "right", "x": 0, "y": 1, "exit_ptr": 109148, "entrance_ptr": 109208, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 109160, "entrance_ptr": 109172, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 0, "y": 0, "exit_ptr": 109136, "entrance_ptr": 109124, "subtype": "normal", "offset": null},
+            {"direction": "right", "x": 0, "y": 1, "exit_ptr": 109148, "entrance_ptr": 109208, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1, 2]],
         "durable_part_connections": [],
@@ -4464,7 +4464,7 @@
         "rom_address": 515374,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 109172, "entrance_ptr": 109160, "subtype": "normal"}],
+        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 109172, "entrance_ptr": 109160, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -4480,8 +4480,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 109208, "entrance_ptr": 109148, "subtype": "normal"},
-            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 109220, "entrance_ptr": 109232, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 109208, "entrance_ptr": 109148, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 109220, "entrance_ptr": 109232, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -4498,9 +4498,9 @@
         "twin_rom_address": null,
         "map": [[1], [1], [1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 109232, "entrance_ptr": 109220, "subtype": "normal"},
-            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 109244, "entrance_ptr": 109268, "subtype": "normal"},
-            {"direction": "left", "x": 0, "y": 2, "exit_ptr": 109256, "entrance_ptr": 109184, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 109232, "entrance_ptr": 109220, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 109244, "entrance_ptr": 109268, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 0, "y": 2, "exit_ptr": 109256, "entrance_ptr": 109184, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1, 2]],
         "durable_part_connections": [],
@@ -4516,7 +4516,7 @@
         "rom_address": 515619,
         "twin_rom_address": null,
         "map": [[1]],
-        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 109268, "entrance_ptr": 109244, "subtype": "normal"}],
+        "doors": [{"direction": "right", "x": 0, "y": 0, "exit_ptr": 109268, "entrance_ptr": 109244, "subtype": "normal", "offset": 0}],
         "parts": [[0]],
         "durable_part_connections": [],
         "transient_part_connections": [],
@@ -4532,8 +4532,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 109196, "entrance_ptr": 109280, "subtype": "normal"},
-            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 109184, "entrance_ptr": 109256, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 0, "exit_ptr": 109196, "entrance_ptr": 109280, "subtype": "normal", "offset": null},
+            {"direction": "right", "x": 3, "y": 0, "exit_ptr": 109184, "entrance_ptr": 109256, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0], [1]],
         "durable_part_connections": [],
@@ -4550,8 +4550,8 @@
         "twin_rom_address": null,
         "map": [[1, 1]],
         "doors": [
-            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 109280, "entrance_ptr": 109196, "subtype": "normal"},
-            {"direction": "down", "x": 0, "y": 0, "exit_ptr": 109292, "entrance_ptr": 109304, "subtype": "normal"}
+            {"direction": "right", "x": 1, "y": 0, "exit_ptr": 109280, "entrance_ptr": 109196, "subtype": "normal", "offset": null},
+            {"direction": "down", "x": 0, "y": 0, "exit_ptr": 109292, "entrance_ptr": 109304, "subtype": "normal", "offset": 2}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -4568,8 +4568,8 @@
         "twin_rom_address": null,
         "map": [[1], [1]],
         "doors": [
-            {"direction": "right", "x": 0, "y": 1, "exit_ptr": 109316, "entrance_ptr": 109328, "subtype": "normal"},
-            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 109304, "entrance_ptr": 109292, "subtype": "normal"}
+            {"direction": "right", "x": 0, "y": 1, "exit_ptr": 109316, "entrance_ptr": 109328, "subtype": "normal", "offset": 0},
+            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 109304, "entrance_ptr": 109292, "subtype": "normal", "offset": 2}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -4586,8 +4586,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 109328, "entrance_ptr": 109316, "subtype": "normal"},
-            {"direction": "right", "x": 5, "y": 0, "exit_ptr": 109340, "entrance_ptr": 109352, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 109328, "entrance_ptr": 109316, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 5, "y": 0, "exit_ptr": 109340, "entrance_ptr": 109352, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],
@@ -4604,8 +4604,8 @@
         "twin_rom_address": null,
         "map": [[1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1], [1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 3, "exit_ptr": 109352, "entrance_ptr": 109340, "subtype": "normal"},
-            {"direction": "right", "x": 2, "y": 1, "exit_ptr": 109364, "entrance_ptr": 101230, "subtype": "normal"}
+            {"direction": "left", "x": 0, "y": 3, "exit_ptr": 109352, "entrance_ptr": 109340, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 2, "y": 1, "exit_ptr": 109364, "entrance_ptr": 101230, "subtype": "normal", "offset": 0}
         ],
         "parts": [[0, 1]],
         "durable_part_connections": [],

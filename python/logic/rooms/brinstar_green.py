@@ -7,6 +7,7 @@ UP = Direction.UP
 DOWN = Direction.DOWN
 ELEVATOR = DoorSubtype.ELEVATOR
 
+
 rooms = [
     Room(
         name='Green Brinstar Main Shaft',
@@ -26,16 +27,16 @@ rooms = [
             [0, 0, 1, 0],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 4, 0x18CB2, 0x18D42),  # Brinstar Pre-Map Room
-            DoorIdentifier(LEFT, 0, 5, 0x18D12, 0x19006),  # Green Brinstar Main Shaft Save Room
-            DoorIdentifier(LEFT, 0, 6, 0x18CCA, 0x18D8A),  # Green Brinstar Fireflea Room (TODO: fix to 0x18CCA in sm-json-data)
-            DoorIdentifier(LEFT, 1, 7, 0x18D06, 0x18CEE),  # Green Brinstar Main Shaft (from Etecoons)
-            DoorIdentifier(LEFT, 0, 10, 0x18CBE, 0x18F16),  # Green Brinstar Beetom Room
-            DoorIdentifier(LEFT, 2, 11, 0x18CFA, 0x18F46),  # Etecoon Energy Tank Room
-            DoorIdentifier(RIGHT, 0, 4, 0x18CD6, 0x18D4E),  # Early Supers Room
-            DoorIdentifier(RIGHT, 0, 6, 0x18CE2, 0x18DA2),  # Dachora Room
-            DoorIdentifier(RIGHT, 0, 7, 0x18CEE, 0x18D06),  # Green Brinstar Main Shaft (to Etecoons)
-            DoorIdentifier(UP, 0, 0, 0x18CA6, 0x18C0A, ELEVATOR),  # Green Brinstar Elevator Room
+            DoorIdentifier(LEFT, 0, 4, 0x18CB2, 0x18D42, 0),  # Brinstar Pre-Map Room
+            DoorIdentifier(LEFT, 0, 5, 0x18D12, 0x19006, 0),  # Green Brinstar Main Shaft Save Room
+            DoorIdentifier(LEFT, 0, 6, 0x18CCA, 0x18D8A, 0),  # Green Brinstar Fireflea Room (TODO: fix to 0x18CCA in sm-json-data)
+            DoorIdentifier(LEFT, 1, 7, 0x18D06, 0x18CEE, 0),  # Green Brinstar Main Shaft (from Etecoons)
+            DoorIdentifier(LEFT, 0, 10, 0x18CBE, 0x18F16, 0),  # Green Brinstar Beetom Room
+            DoorIdentifier(LEFT, 2, 11, 0x18CFA, 0x18F46, 0),  # Etecoon Energy Tank Room
+            DoorIdentifier(RIGHT, 0, 4, 0x18CD6, 0x18D4E, 0),  # Early Supers Room
+            DoorIdentifier(RIGHT, 0, 6, 0x18CE2, 0x18DA2, 0),  # Dachora Room
+            DoorIdentifier(RIGHT, 0, 7, 0x18CEE, 0x18D06, 0),  # Green Brinstar Main Shaft (to Etecoons)
+            DoorIdentifier(UP, 0, 0, 0x18CA6, 0x18C0A, None, ELEVATOR),  # Green Brinstar Elevator Room
         ],
         items=[
             Item(3, 7, 0x784AC),
@@ -67,8 +68,8 @@ rooms = [
             [1, 1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 1, 0x18D4E, 0x18CD6),  # Green Brinstar Main Shaft
-            DoorIdentifier(RIGHT, 2, 1, 0x18D5A, 0x18D66),  # Brinstar Reserve Tank Room
+            DoorIdentifier(LEFT, 0, 1, 0x18D4E, 0x18CD6, 0),  # Green Brinstar Main Shaft
+            DoorIdentifier(RIGHT, 2, 1, 0x18D5A, 0x18D66, 0),  # Brinstar Reserve Tank Room
         ],
         items=[
             Item(1, 1, 0x78518),
@@ -87,7 +88,7 @@ rooms = [
         rom_address=0x79C07,
         map=[[1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18D66, 0x18D5A),  # Early Supers Room
+            DoorIdentifier(LEFT, 0, 0, 0x18D66, 0x18D5A, 0),  # Early Supers Room
         ],
         items=[
             Item(0, 0, 0x7852C),
@@ -106,8 +107,8 @@ rooms = [
         rom_address=0x79B9D,
         map=[[1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18D36, 0x18D72),  # Brinstar Map Room
-            DoorIdentifier(RIGHT, 2, 0, 0x18D42, 0x18CB2),  # Green Brinstar Main Shaft
+            DoorIdentifier(LEFT, 0, 0, 0x18D36, 0x18D72, 0),  # Brinstar Map Room
+            DoorIdentifier(RIGHT, 2, 0, 0x18D42, 0x18CB2, 0),  # Green Brinstar Main Shaft
         ],
         node_tiles={
             1: [(0, 0)],  # left door
@@ -119,7 +120,7 @@ rooms = [
         rom_address=0x79C35,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(RIGHT, 0, 0, 0x18D72, 0x18D36),  # Brinstar Pre-Map Room
+            DoorIdentifier(RIGHT, 0, 0, 0x18D72, 0x18D36, 0),  # Brinstar Pre-Map Room
         ],
         node_tiles={
             1: [(0, 0)],  # door
@@ -134,8 +135,8 @@ rooms = [
             [1, 1, 0],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 1, 0x18D7E, 0x18D96),  # Green Brinstar Missile Refill Room
-            DoorIdentifier(RIGHT, 2, 0, 0x18D8A, 0x18CCA),  # Green Brinstar Main Shaft
+            DoorIdentifier(LEFT, 0, 1, 0x18D7E, 0x18D96, 0),  # Green Brinstar Missile Refill Room
+            DoorIdentifier(RIGHT, 2, 0, 0x18D8A, 0x18CCA, 0),  # Green Brinstar Main Shaft
         ],
         node_tiles={
             1: [(0, 0), (1, 0), (0, 1), (1, 1)],  # left door (tile (1, 1) is black but reachable)
@@ -148,7 +149,7 @@ rooms = [
         rom_address=0x79C89,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(RIGHT, 0, 0, 0x18D96, 0x18D7E),  # Green Brinstar Fireflea Room
+            DoorIdentifier(RIGHT, 0, 0, 0x18D96, 0x18D7E, 0),  # Green Brinstar Fireflea Room
         ],
         node_tiles={
             1: [(0, 0)],  # door
@@ -161,7 +162,7 @@ rooms = [
         rom_address=0x7A201,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(RIGHT, 0, 0, 0x19006, 0x18D12),  # Green Brinstar Main Shaft
+            DoorIdentifier(RIGHT, 0, 0, 0x19006, 0x18D12, 0),  # Green Brinstar Main Shaft
         ],
         node_tiles={
             1: [(0, 0)],  # door
@@ -174,7 +175,7 @@ rooms = [
         rom_address=0x7A22A,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(RIGHT, 0, 0, 0x19012, 0x18F52),  # Etecoon Energy Tank Room
+            DoorIdentifier(RIGHT, 0, 0, 0x19012, 0x18F52, 0),  # Etecoon Energy Tank Room
         ],
         node_tiles={
             1: [(0, 0)],  # door
@@ -186,8 +187,8 @@ rooms = [
         rom_address=0x79FE5,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18F22, 0x18F2E),  # Etecoon Energy Tank Room
-            DoorIdentifier(RIGHT, 0, 0, 0x18F16, 0x18CBE),  # Green Brinstar Main Shaft
+            DoorIdentifier(LEFT, 0, 0, 0x18F22, 0x18F2E, 0),  # Etecoon Energy Tank Room
+            DoorIdentifier(RIGHT, 0, 0, 0x18F16, 0x18CBE, 0),  # Green Brinstar Main Shaft
         ],
         node_tiles={
             1: [(0, 0)],  # left door
@@ -202,10 +203,10 @@ rooms = [
             [1, 1, 1, 1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18F3A, 0x18F5E),  # Etecoon Super Room
-            DoorIdentifier(LEFT, 0, 1, 0x18F52, 0x19012),  # Etecoon Save Room
-            DoorIdentifier(RIGHT, 1, 0, 0x18F2E, 0x18F22),  # Green Brinstar Beetom Room
-            DoorIdentifier(RIGHT, 4, 1, 0x18F46, 0x18CFA),  # Green Brinstar Main Shaft
+            DoorIdentifier(LEFT, 0, 0, 0x18F3A, 0x18F5E, 0),  # Etecoon Super Room
+            DoorIdentifier(LEFT, 0, 1, 0x18F52, 0x19012, 0),  # Etecoon Save Room
+            DoorIdentifier(RIGHT, 1, 0, 0x18F2E, 0x18F22, 0),  # Green Brinstar Beetom Room
+            DoorIdentifier(RIGHT, 4, 1, 0x18F46, 0x18CFA, 0),  # Green Brinstar Main Shaft
         ],
         parts=[[0, 2], [1, 3]],
         transient_part_connections=[(0, 1)],  # crumble blocks
@@ -228,7 +229,7 @@ rooms = [
         rom_address=0x7A051,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(RIGHT, 0, 0, 0x18F5E, 0x18F3A),  # Etecoon Energy Tank Room
+            DoorIdentifier(RIGHT, 0, 0, 0x18F5E, 0x18F3A, 0),  # Etecoon Energy Tank Room
         ],
         items=[
             Item(0, 0, 0x787D0),
@@ -248,9 +249,9 @@ rooms = [
             [0, 0, 0, 0, 1, 1, 1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18E7A, 0x18DEA),  # Big Pink
-            DoorIdentifier(RIGHT, 1, 0, 0x18E86, 0x18E9E),  # Morph Ball Room
-            DoorIdentifier(RIGHT, 7, 3, 0x18E92, 0x18EFE),  # Noob Bridge
+            DoorIdentifier(LEFT, 0, 0, 0x18E7A, 0x18DEA, 0),  # Big Pink
+            DoorIdentifier(RIGHT, 1, 0, 0x18E86, 0x18E9E, 0),  # Morph Ball Room
+            DoorIdentifier(RIGHT, 7, 3, 0x18E92, 0x18EFE, 0),  # Noob Bridge
         ],
         items=[
             Item(3, 1, 0x78676),
@@ -267,8 +268,8 @@ rooms = [
         rom_address=0x79FBA,
         map=[[1, 1, 1, 1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18EFE, 0x18E92),  # Green Hill Zone
-            DoorIdentifier(RIGHT, 5, 0, 0x18F0A, 0x1902A),  # Red Tower
+            DoorIdentifier(LEFT, 0, 0, 0x18EFE, 0x18E92, 0),  # Green Hill Zone
+            DoorIdentifier(RIGHT, 5, 0, 0x18F0A, 0x1902A, 0),  # Red Tower
         ],
         node_tiles={
             1: [(0, 0), (1, 0), (2, 0), (3, 0)],  # left door
@@ -280,8 +281,8 @@ rooms = [
         rom_address=0x79D9C,
         map=[[1, 1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18E32, 0x18DC6),  # Big Pink
-            DoorIdentifier(UP, 3, 0, 0x18E3E, 0x18E56),  # Spore Spawn Room
+            DoorIdentifier(LEFT, 0, 0, 0x18E32, 0x18DC6, 0),  # Big Pink
+            DoorIdentifier(UP, 3, 0, 0x18E3E, 0x18E56, 2),  # Spore Spawn Room
         ],
         node_tiles={
             1: [(0, 0), (1, 0), (2, 0)],  # left door
@@ -297,8 +298,8 @@ rooms = [
             [1],
         ],
         door_ids=[
-            DoorIdentifier(RIGHT, 0, 0, 0x18E4A, 0x18D2A),  # Spore Spawn Super Room
-            DoorIdentifier(DOWN, 0, 2, 0x18E56, 0x18E3E),  # Spore Spawn Kihunter Room
+            DoorIdentifier(RIGHT, 0, 0, 0x18E4A, 0x18D2A, 0),  # Spore Spawn Super Room
+            DoorIdentifier(DOWN, 0, 2, 0x18E56, 0x18E3E, 0),  # Spore Spawn Kihunter Room
         ],
         parts=[[0], [1]],  # Assuming that defeating Spore Spawn from above is not necessarily permitted in logic
         durable_part_connections=[(1, 0)],  # Blocks cleared when Spore Spawn defeated
@@ -310,7 +311,6 @@ rooms = [
         }
     ),
 ]
-
 
 for room in rooms:
     room.area = Area.BRINSTAR
