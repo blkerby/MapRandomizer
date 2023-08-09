@@ -1,6 +1,9 @@
 next release:
 - caution tape on doors leading to (otherwise unforeseeable) risk of death/softlock?
 - restore tourian blue hoppers to vanilla
+- add sprites?
+- bosses not cleared unless "enemies cleared" option is enabled?
+
 
 priority:
 - from alphanimal: When "disable music" is on, could you just make it load vanilla audio channels, so some sound effects don't get messed up
@@ -52,8 +55,6 @@ priority:
 - check if reloading from bottom/top of elevator works correctly (not skips back a save)
 - do something about screen shaking during samus appears (in start location: rising tide, amphitheatre)
   - maybe customization option to get rid of shaking in general?
-- new map pool
-  - bosses not cleared unless "enemies cleared" option is enabled
 - handle canShinesparkWithReserve in randomizer (and remove it from being ignored)
 - incrementally build graph traversal with increasing difficulty tiers, acquiring flags in the process.
   - will allow better accounting of the difficulty of boss fights in forced mode

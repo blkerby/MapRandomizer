@@ -5,14 +5,19 @@ lorom
 !bank_8f_free_space_start = $8FFE80
 !bank_8f_free_space_end = $8FFF00
 
+!bank_b5_free_space_start = $B5F700
+!bank_b5_free_space_end = $B5F800
+
+
+
 !hazard_tilemap_start = $E98280
 !hazard_tilemap_size = #$0020
 
-; landing site: testing using setup ASM
-org $8F922B : dw spawn_right_hazard
-org $8F9245 : dw spawn_right_hazard
-org $8F925F : dw spawn_right_hazard
-org $8F9279 : dw spawn_right_hazard
+; landing site: testing using extra setup ASM
+org $8F9223 : dw spawn_right_hazard
+org $8F923D : dw spawn_right_hazard
+org $8F9257 : dw spawn_right_hazard
+org $8F9271 : dw spawn_right_hazard
 
 org $82E7A8
     jsl load_hazard_tiles
@@ -21,11 +26,28 @@ org $82E845
     jsl load_hazard_tilemap
     rep 3 : nop
 
-org !bank_8f_free_space_start
+; hook extra setup ASM to run right before normal setup ASM
+org $8FE893
+    jsl run_extra_setup_asm
+    nop : nop
+
+org !bank_b5_free_space_start
+
+run_extra_setup_asm:
+    ; get extra setup ASM pointer (vanilla-unused pointer in room state), to run in bank B5
+    LDX $07BB
+    LDA $0010,x
+    beq .skip
+    sta $00         ; write setup ASM pointer temporarily to direct page $00, so we can jump to it with JSR.
+    ldx #$0000
+    jsr ($0000,x)
+.skip:
+    ; run hi-jacked instructions
+    LDX $07BB
+    LDA $0018,x
+    rtl
 
 spawn_right_hazard:
-    JSL $88A7D8  ; vanilla setup ASM (scrolling sky)
-
     jsl $8483D7
     db $8F
     db $46
@@ -36,9 +58,16 @@ spawn_right_hazard:
     db $46
     dw down_hazard_transition_plm
 
+    inc $09c8  ; testing
     rts
 
+warnpc !bank_b5_free_space_end
+
+org !bank_8f_free_space_start
+
+
 warnpc !bank_8f_free_space_end
+
 
 org !bank_84_free_space_start
 
