@@ -223,7 +223,7 @@ fn main() -> Result<()> {
     )?;
 
     // Perform randomization (map selection & item placement):
-    let mut randomization = get_randomization(&args, &game_data)?;
+    let randomization = get_randomization(&args, &game_data)?;
 
     // // Override start location:
     // randomization.start_location = game_data.start_locations.last().unwrap().clone();

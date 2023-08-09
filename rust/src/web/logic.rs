@@ -262,7 +262,7 @@ fn make_tech_templates<'a>(
 fn strip_name(s: &str) -> String {
     let mut out = String::new();
     for word in s.split_inclusive(|x: char| !x.is_ascii_alphabetic()) {
-        let mut capitalized_word = word[0..1].to_ascii_uppercase() + &word[1..];
+        let capitalized_word = word[0..1].to_ascii_uppercase() + &word[1..];
         let stripped_word: String = capitalized_word.chars().filter(|x| x.is_ascii_alphanumeric()).collect();
         out += &stripped_word;
     }

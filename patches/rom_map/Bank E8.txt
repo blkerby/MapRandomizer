@@ -1,2 +1,2 @@
-8000-8100: Hazard marker tiles
+whole bank: map_area
 
