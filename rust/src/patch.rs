@@ -7,7 +7,7 @@ mod title;
 use std::path::Path;
 
 use crate::{
-    game_data::{DoorPtr, DoorPtrPair, GameData, Item, Map, NodePtr, RoomGeometryDoor},
+    game_data::{DoorPtr, DoorPtrPair, GameData, Item, Map, NodePtr, RoomGeometryDoor, RoomPtr},
     randomize::{MotherBrainFight, Objectives, Randomization},
     customize::vanilla_music::override_music,
 };
@@ -144,6 +144,7 @@ pub struct Patcher<'a> {
     pub game_data: &'a GameData,
     pub map: &'a Map,
     pub other_door_ptr_pair_map: HashMap<DoorPtrPair, DoorPtrPair>,
+    pub extra_setup_asm: HashMap<RoomPtr, Vec<u8>>,
 }
 
 pub fn xy_to_map_offset(x: isize, y: isize) -> isize {
@@ -1473,6 +1474,44 @@ impl<'a> Patcher<'a> {
             .write_u16(station_addr + 12, ((samus_x as i16) as u16) as isize)?;
         Ok(())
     }
+
+    fn apply_hazard_markers(&mut self) -> Result<()> {
+        let right_hazard_plm_id = 0xF580;  // must match address in hazard_markers.asm
+
+        self.extra_setup_asm.insert(snes2pc(0x8f91f8), vec![
+            0x22, 0xD7, 0x83, 0x84,  // jsl $8483D7
+            0x8F, 0x46,   // X and Y coordinates in 16x16 tiles
+            (right_hazard_plm_id & 0x00FF) as u8, (right_hazard_plm_id >> 8) as u8,
+        ]);
+        Ok(())
+    }
+
+    fn apply_extra_setup_asm(&mut self) -> Result<()> {
+        // remove unused pointer from Bomb Torizo room (Zebes ablaze state), to avoid misinterpreting it as an
+        // extra setup ASM pointer.
+        self.rom.write_u16(snes2pc(0x8f985f), 0x0000)?;
+
+        let mut next_addr = snes2pc(0xB5F800);
+
+        for (&room_ptr, asm) in &self.extra_setup_asm {
+            for (_, state_ptr) in self.get_room_state_ptrs(room_ptr)? {
+                println!("{:x} {:x}: {}", room_ptr, state_ptr, asm.len());
+                let mut asm = asm.clone();
+                asm.push(0x60);  // RTS
+                self.rom.write_n(next_addr, &asm)?;
+                self.rom.write_u16(state_ptr + 16, (next_addr & 0xFFFF) as isize)?;
+                next_addr += asm.len();
+            }
+        }
+        assert!(next_addr <= snes2pc(0xB68000));
+
+        // for &room_ptr in self.game_data.room_id_by_ptr.keys() {
+        //     for (_, state_ptr) in self.get_room_state_ptrs(room_ptr)? {
+        //         println!("unused?: {:x} {:x} {:x}", room_ptr, pc2snes(state_ptr + 16), self.rom.read_u16(state_ptr + 16)?);
+        //     }
+        // }
+        Ok(())
+    }
 }
 
 fn get_other_door_ptr_pair_map(map: &Map) -> HashMap<DoorPtrPair, DoorPtrPair> {
@@ -1507,6 +1546,7 @@ pub fn make_rom(
         game_data,
         map: &randomization.map,
         other_door_ptr_pair_map: get_other_door_ptr_pair_map(&randomization.map),
+        extra_setup_asm: HashMap::new(),
         // door_room_map: get_door_room_map(&self.game_data.)
     };
     patcher.apply_ips_patches()?;
@@ -1534,5 +1574,7 @@ pub fn make_rom(
     patcher.apply_mother_brain_fight_patches()?;
     patcher.apply_seed_hash()?;
     patcher.apply_credits()?;
+    patcher.apply_hazard_markers()?;
+    patcher.apply_extra_setup_asm()?;
     Ok(rom)
 }

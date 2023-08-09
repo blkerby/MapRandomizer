@@ -1,6 +1,6 @@
 lorom
 
-!bank_84_free_space_start = $84F580
+!bank_84_free_space_start = $84F580   ; must match address in patch.rs
 !bank_84_free_space_end = $84F680
 !bank_8f_free_space_start = $8FFE80
 !bank_8f_free_space_end = $8FFF00
@@ -13,11 +13,6 @@ lorom
 !hazard_tilemap_start = $E98280
 !hazard_tilemap_size = #$0020
 
-; landing site: testing using extra setup ASM
-org $8F9223 : dw spawn_right_hazard
-org $8F923D : dw spawn_right_hazard
-org $8F9257 : dw spawn_right_hazard
-org $8F9271 : dw spawn_right_hazard
 
 org $82E7A8
     jsl load_hazard_tiles
@@ -47,20 +42,6 @@ run_extra_setup_asm:
     LDA $0018,x
     rtl
 
-spawn_right_hazard:
-    jsl $8483D7
-    db $8F
-    db $46
-    dw right_hazard_transition_plm
-
-    jsl $8483D7
-    db $40
-    db $46
-    dw down_hazard_transition_plm
-
-    inc $09c8  ; testing
-    rts
-
 warnpc !bank_b5_free_space_end
 
 org !bank_8f_free_space_start
@@ -71,6 +52,15 @@ warnpc !bank_8f_free_space_end
 
 org !bank_84_free_space_start
 
+; These PLMs definitions must go here first, as they are referenced in patch.rs
+right_hazard_transition_plm:
+    dw $B3D0, right_hazard_transition_inst
+
+down_hazard_plm:
+    dw $B3D0, down_hazard_inst
+
+down_hazard_transition_plm:
+    dw $B3D0, down_hazard_transition_inst
 
 load_hazard_tiles:
     jsl $80B271  ; run hi-jacked instruction (decompress CRE tiles from $B98000 to VRAM $2800)
@@ -119,29 +109,6 @@ load_hazard_tilemap:
 
     rtl
 
-right_hazard_plm:
-    dw $B3D0, right_hazard_inst
-
-right_hazard_inst:
-    dw $0001, right_hazard_draw
-    dw $86BC
-
-right_hazard_draw:
-    dw $8004, $00E0, $00E1, $08E1, $08E0, $0000
-
-down_hazard_plm:
-    dw $B3D0, down_hazard_inst
-
-down_hazard_inst:
-    dw $0001, down_hazard_draw
-    dw $86BC
-
-down_hazard_draw:
-    dw $0004, $00E2, $00E3, $04E3, $04E2, $0000
-
-right_hazard_transition_plm:
-    dw $B3D0, right_hazard_transition_inst
-
 right_hazard_transition_inst:
     dw $0001, right_hazard_transition_draw
     dw $86BC
@@ -149,8 +116,12 @@ right_hazard_transition_inst:
 right_hazard_transition_draw:
     dw $8004, $90E0, $90E1, $98E1, $98E0, $0000
 
-down_hazard_transition_plm:
-    dw $B3D0, down_hazard_transition_inst
+down_hazard_inst:
+    dw $0001, down_hazard_draw
+    dw $86BC
+
+down_hazard_draw:
+    dw $0004, $00E2, $00E3, $04E3, $04E2, $0000
 
 down_hazard_transition_inst:
     dw $0001, down_hazard_transition_draw
