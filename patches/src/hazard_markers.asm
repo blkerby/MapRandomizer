@@ -1,7 +1,7 @@
 lorom
 
 !bank_84_free_space_start = $84F580
-!bank_84_free_space_end = $84F600
+!bank_84_free_space_end = $84F680
 !bank_8f_free_space_start = $8FFE80
 !bank_8f_free_space_end = $8FFF00
 
@@ -29,7 +29,13 @@ spawn_right_hazard:
     jsl $8483D7
     db $8F
     db $46
-    dw right_hazard_plm
+    dw right_hazard_transition_plm
+
+    jsl $8483D7
+    db $40
+    db $46
+    dw down_hazard_transition_plm
+
     rts
 
 warnpc !bank_8f_free_space_end
@@ -93,5 +99,35 @@ right_hazard_inst:
 
 right_hazard_draw:
     dw $8004, $00E0, $00E1, $08E1, $08E0, $0000
+
+down_hazard_plm:
+    dw $B3D0, down_hazard_inst
+
+down_hazard_inst:
+    dw $0001, down_hazard_draw
+    dw $86BC
+
+down_hazard_draw:
+    dw $0004, $00E2, $00E3, $04E3, $04E2, $0000
+
+right_hazard_transition_plm:
+    dw $B3D0, right_hazard_transition_inst
+
+right_hazard_transition_inst:
+    dw $0001, right_hazard_transition_draw
+    dw $86BC
+
+right_hazard_transition_draw:
+    dw $8004, $90E0, $90E1, $98E1, $98E0, $0000
+
+down_hazard_transition_plm:
+    dw $B3D0, down_hazard_transition_inst
+
+down_hazard_transition_inst:
+    dw $0001, down_hazard_transition_draw
+    dw $86BC
+
+down_hazard_transition_draw:
+    dw $0004, $90E2, $90E3, $94E3, $94E2, $0000
 
 warnpc !bank_84_free_space_end
