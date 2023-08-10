@@ -21,7 +21,7 @@ document.getElementById("navigation-logic").classList.add("active");
     <div class="row">
         <div class="col-lg-6">
             <% for area in area_order { %>
-                <div class="card my-2">
+                <div class="card my-2" id="<%= area.replace(" ", "") %>">
                     <div class="card-header">
                     <%= area %>
                     </div>
@@ -38,7 +38,7 @@ document.getElementById("navigation-logic").classList.add("active");
 
         <div class="col-lg-6">
             <% for (tech_difficulty_idx, tech_difficulty_name) in tech_difficulties.iter().enumerate() { %>
-                <div class="card my-2">
+                <div class="card my-2" id="<%= tech_difficulty_name.replace(" ", "") %>Tech">
                     <div class="card-header">
                     <%= tech_difficulty_name %> Tech
                     </div>
