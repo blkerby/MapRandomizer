@@ -4,8 +4,16 @@ next release:
 
 
 priority:
+- from alphanimal: When "disable music" is on, could you just make it load vanilla audio channels, so some sound effects don't get messed up
 - controller config special settings (moonwalk) customization
 - randomized title screen
+- enhancements to momentum conservation patch
+  - remove need to be holding dash or to be in spin
+  - reset speed boost counter whenever momentum conservation comes into play, to avoid making it too easy to get blue
+  - retain speed when turning around with spin?
+  - on ground, retain horizontal speed when unmorphing
+    - by pressing up (or jump, if spring ball not equipped) while holding forward
+  - in air, retain horizontal speed when soft unmorphing while holding forward
 - door color randomization
 - set up a more robust way for users to save & select presets
 - move input ROM off Generate page (and into separate dialogue that only shows on first use).
@@ -13,13 +21,6 @@ priority:
   - WebM/VP9 for full playback using HTML5 <video>
   - WebP for thumbnails
   - use image-rendering: pixelated
-- enhancements to momentum conservation patch, possible ideas:?
-  - remove need to be holding dash or to be in spin
-  - reset speed boost counter whenever momentum conservation comes into play, to avoid making it too easy to get blue
-  - retain speed when turning around with spin?
-  - on ground, retain horizontal speed when unmorphing
-    - by pressing up (or jump, if spring ball not equipped) while holding forward
-  - in air, retain horizontal speed when soft unmorphing while holding forward
 - add CF health refill to logic
   - tricky CF at ammo refill stations
 - logic: add some 3-room shinecharge strats to logic (ones that can work with existing schema)

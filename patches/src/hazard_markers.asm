@@ -15,15 +15,11 @@ lorom
 
 
 org $82E7A8
-    jsl load_hazard_tiles_initial_hook
+    jsl load_hazard_tiles
 
 org $82E845
-    jsl load_hazard_tilemap_initial_hook
+    jsl load_hazard_tilemap
     rep 3 : nop
-
-org $82E492
-    jsl load_hazard_tiles_and_tilemap_door_hook
-    nop : nop
 
 ; hook extra setup ASM to run right before normal setup ASM
 org $8FE893
@@ -66,11 +62,9 @@ down_hazard_plm:
 down_hazard_transition_plm:
     dw $B3D0, down_hazard_transition_inst
 
-load_hazard_tiles_initial_hook:
-    jsl $80B271  ; run hi-jacked instruction (decompress CRE tiles from $B98000 to VRAM $2800)
-    jmp load_hazard_tiles
-
 load_hazard_tiles:
+    jsl $80B271  ; run hi-jacked instruction (decompress CRE tiles from $B98000 to VRAM $2800)
+
     LDA #$0080
     STA $2115  ; video port control
     lda #$1801
@@ -98,12 +92,10 @@ load_hazard_tiles:
 
     rtl
 
-load_hazard_tilemap_initial_hook:
+load_hazard_tilemap:
     JSL $80B0FF  ; run hi-jacked instruction (Decompress CRE tile table to $7E:A000)
     dl $7EA000
-    jmp load_hazard_tilemap
 
-load_hazard_tilemap:
     ldy !hazard_tilemap_size
     ldx #$0000
 .loop:
@@ -115,17 +107,6 @@ load_hazard_tilemap:
     dey
     bne .loop
 
-    rtl
-
-; We reload the hazard tiles & tilemap tiles on every door transition to avoid it getting overwritten when 
-; CRE tiles/tilemaps are reloaded. This may be slight overkill, but it's simple and reliable and only a tiny amount of
-; data transferred.
-load_hazard_tiles_and_tilemap_door_hook:
-    jsl load_hazard_tiles
-    jsl load_hazard_tilemap
-    ; run hi-jacked instructions
-    lda $0791
-    and #$0003
     rtl
 
 right_hazard_transition_inst:
