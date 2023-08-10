@@ -268,6 +268,7 @@ impl<'a> Patcher<'a> {
             "item_dots_disappear",
             "fast_reload",
             "saveload",
+            "hazard_markers",
         ];
 
         if self.randomization.difficulty.ultra_low_qol {
@@ -289,7 +290,7 @@ impl<'a> Patcher<'a> {
                 "fast_big_boy_cutscene",
                 "fix_kraid_vomit",
                 "escape_autosave",
-                "tourian_blue_hopper",
+                // "tourian_blue_hopper",
                 "boss_exit",
                 "oob_death",
             ]);
@@ -301,7 +302,6 @@ impl<'a> Patcher<'a> {
                 new_game = "new_game_extra";
             }
             // patches.push("items_test")
-            patches.push("hazard_markers");
         }
         patches.push(new_game);
 
@@ -1476,13 +1476,16 @@ impl<'a> Patcher<'a> {
     }
 
     fn apply_door_hazard_marker(&mut self, door_ptr_pair: DoorPtrPair) -> Result<()> {
-        let other_door_ptr_pair = self.other_door_ptr_pair_map[&door_ptr_pair];
+        let mut other_door_ptr_pair = self.other_door_ptr_pair_map[&door_ptr_pair];
+        if other_door_ptr_pair == (Some(0x1A600), Some(0x1A678)) {
+            // For the Toilet, pass through to room above:
+            other_door_ptr_pair = self.other_door_ptr_pair_map[&(Some(0x1A60C), Some(0x1A5AC))];
+        }
         let (room_idx, door_idx) = self.game_data.room_and_door_idxs_by_door_ptr_pair[&other_door_ptr_pair];
         let room = &self.game_data.room_geometry[room_idx];
         let door = &room.doors[door_idx];
         let room_ptr = room.rom_address;
 
-        // TODO: handle Toilet case
         let plm_id: u16;
         let tile_x: u8;
         let tile_y: u8;
@@ -1502,7 +1505,8 @@ impl<'a> Patcher<'a> {
             panic!("Unsupported door direction for hazard marker: {}", door.direction);
         }
 
-        self.extra_setup_asm.insert(room_ptr, vec![
+        println!("{:x} {:x} {:x} {:x}", room_ptr, tile_x, tile_y, plm_id);
+        self.extra_setup_asm.entry(room_ptr).or_insert(vec![]).extend(vec![
             0x22, 0xD7, 0x83, 0x84,  // jsl $8483D7
             tile_x as u8, tile_y as u8,   // X and Y coordinates in 16x16 tiles
             (plm_id & 0x00FF) as u8, (plm_id >> 8) as u8,
@@ -1512,10 +1516,19 @@ impl<'a> Patcher<'a> {
     }
 
     fn apply_hazard_markers(&mut self) -> Result<()> {
+        let door_ptr_pairs = vec![
+            (Some(0x18DDE), Some(0x18E6E)),  // Big Pink crumble blocks (left),
+            (Some(0x19312), Some(0x1934E)),  // Ice Beam Gate Room crumbles (top left)
+            (Some(0x1AA14), Some(0x1AA20)),  // Tourian Blue Hoppers (left)
+            (Some(0x1A42C), Some(0x1A474)),  // Mt. Everest (top)
+            (Some(0x1A678), Some(0x1A600)),  // Oasis (top)
+            (Some(0x1A3F0), Some(0x1A444)),  // Fish Tank (top left)
+            (Some(0x1A3FC), Some(0x1A450)),  // Fish Tank (top right)
 
-        self.apply_door_hazard_marker((Some(0x18916), Some(0x1896A)))?; // Landing Site
-        self.apply_door_hazard_marker((Some(0x1A42C), Some(0x1A474)))?; // Mt. Everest
-
+        ];
+        for pair in door_ptr_pairs {
+            self.apply_door_hazard_marker(pair)?;    
+        }
         Ok(())
     }
 
@@ -1528,7 +1541,6 @@ impl<'a> Patcher<'a> {
 
         for (&room_ptr, asm) in &self.extra_setup_asm {
             for (_, state_ptr) in self.get_room_state_ptrs(room_ptr)? {
-                println!("{:x} {:x}: {}", room_ptr, state_ptr, asm.len());
                 let mut asm = asm.clone();
                 asm.push(0x60);  // RTS
                 self.rom.write_n(next_addr, &asm)?;

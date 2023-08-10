@@ -1,8 +1,6 @@
 next release:
 - caution tape on doors leading to (otherwise unforeseeable) risk of death/softlock?
 - restore tourian blue hoppers to vanilla
-- add sprites?
-- bosses not cleared unless "enemies cleared" option is enabled?
 
 
 priority:
