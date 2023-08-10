@@ -21,13 +21,14 @@ about 15 seconds to load.
 <ul>
 <li>Hazard markers are added to doors leading into the following locations (either directly or via the Toilet):
     <ul>
-    <li>Mt. Everest (top)
-    <li>Oasis (top)
-    <li>Fish Tank (top left)
-    <li>Fish Tank (top right)
-    <li>Big Pink crumble blocks (left)
-    <li>Ice Beam Gate Room crumbles (top left)
-    <li>Tourian Blue Hoppers (left)
+    <li>Mt. Everest top door
+    <li>Oasis top door
+    <li>Fish Tank top left door
+    <li>Fish Tank top right door
+    <li>Amphitheatre left door
+    <li>Tourian Blue Hoppers left door
+    <li>Big Pink crumble block left door
+    <li>Ice Beam Gate Room crumble block top left door
     </ul>
 <li>Enemy positioning is restored to vanilla in the Tourian Blue Hoppers room.
 <li>Website update: Remaining animated GIFs are added for notable strats (Insane).

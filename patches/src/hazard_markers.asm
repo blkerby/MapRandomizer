@@ -26,9 +26,9 @@ org $82E42E
     rep 3 : nop
 
 ; hook extra setup ASM to run right before normal setup ASM
+; (careful: escape.asm hijacks the instruction after this)
 org $8FE893
-    jsl run_extra_setup_asm
-    nop : nop
+    jsr run_extra_setup_asm_wrapper
 
 org !bank_b5_free_space_start
 
@@ -50,6 +50,9 @@ warnpc !bank_b5_free_space_end
 
 org !bank_8f_free_space_start
 
+run_extra_setup_asm_wrapper:
+    jsl run_extra_setup_asm
+    rts
 
 warnpc !bank_8f_free_space_end
 
@@ -80,17 +83,8 @@ load_hazard_tiles:
     STA $2116  ; VRAM (destination) address = $2A00
     lda #$8000 
     sta $4312  ; source address = $8000
-    lda #$140
-    sta $4315 ; transfer size = $140 bytes
-    lda #$0002
-    sta $420B  ; perform DMA transfer on channel 1
-
-    LDA #$2B00
-    STA $2116  ; VRAM (destination) address = $2B00
-    lda #$8140 
-    sta $4312  ; source address = $8140
-    lda #$140
-    sta $4315 ; transfer size = $140 bytes
+    lda #$100
+    sta $4315 ; transfer size = $100 bytes
     lda #$0002
     sta $420B  ; perform DMA transfer on channel 1
 
@@ -119,8 +113,8 @@ reload_hazard_tiles:
     jsl $80B0FF
     dl $7E2000
 
-    ; Copy hazard tiles from $E98000-$E98140 to $7E7400
-    ldx #$13F
+    ; Copy hazard tiles from $E98000-$E98100 to $7E7400
+    ldx #$00FF
 .loop
     lda $E98000,x
     sta $7E7400,x
