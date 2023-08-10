@@ -18,7 +18,11 @@ org $82E7A8
     jsl load_hazard_tiles
 
 org $82E845
-    jsl load_hazard_tilemap
+    jsl load_hazard_tilemap_initial_hook
+    rep 3 : nop
+
+org $82E42E
+    jsl reload_hazard_tiles
     rep 3 : nop
 
 ; hook extra setup ASM to run right before normal setup ASM
@@ -92,10 +96,11 @@ load_hazard_tiles:
 
     rtl
 
-load_hazard_tilemap:
+load_hazard_tilemap_initial_hook:
     JSL $80B0FF  ; run hi-jacked instruction (Decompress CRE tile table to $7E:A000)
     dl $7EA000
-
+; falls through to below:
+load_hazard_tilemap:
     ldy !hazard_tilemap_size
     ldx #$0000
 .loop:
@@ -106,6 +111,25 @@ load_hazard_tilemap:
     dey
     dey
     bne .loop
+
+    rtl
+
+reload_hazard_tiles:
+    ; run-hijacked instruction (decompress room tiles)
+    jsl $80B0FF
+    dl $7E2000
+
+    ; Copy hazard tiles from $E98000-$E98140 to $7E7400
+    ldx #$13F
+.loop
+    lda $E98000,x
+    sta $7E7400,x
+    dex
+    dex
+    bpl .loop
+
+    ; Copy hazard tilemap (definition of 16 x 16 tiles from 8 x 8 tiles)
+    jsl load_hazard_tilemap
 
     rtl
 
