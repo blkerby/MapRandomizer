@@ -1,0 +1,2 @@
+whole bank: map_area
+

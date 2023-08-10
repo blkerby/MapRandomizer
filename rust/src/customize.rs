@@ -118,6 +118,7 @@ pub fn customize_rom(
         }
         MusicSettings::AreaThemed => {}
         MusicSettings::Disabled => {
+            override_music(rom)?;
             rom.write_u8(snes2pc(0xcf8413), 0x6F)?;
         }
     }

@@ -16,8 +16,8 @@ rooms = [
             [1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18ADE, 0x18A36),  # Crateria Kihunter Room
-            DoorIdentifier(RIGHT, 1, 0, 0x18AEA, 0x189CA),  # West Ocean
+            DoorIdentifier(LEFT, 0, 0, 0x18ADE, 0x18A36, 0),  # Crateria Kihunter Room
+            DoorIdentifier(RIGHT, 1, 0, 0x18AEA, 0x189CA, 0),  # West Ocean
         ],
         items=[
             Item(0, 0, 0x78248),
@@ -39,10 +39,10 @@ rooms = [
             [1, 1, 1, 1, 1, 1, 1, 1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 2, 0x1892E, 0x18946),  # Gauntlet Entrance
-            DoorIdentifier(LEFT, 0, 4, 0x18916, 0x1896A),  # Parlor and Alcatraz
-            DoorIdentifier(RIGHT, 8, 1, 0x1893A, 0x189B2),  # Crateria Power Bomb Room
-            DoorIdentifier(RIGHT, 8, 4, 0x18922, 0x18AC6),  # Crateria Tube
+            DoorIdentifier(LEFT, 0, 2, 0x1892E, 0x18946, 0),  # Gauntlet Entrance
+            DoorIdentifier(LEFT, 0, 4, 0x18916, 0x1896A, 0),  # Parlor and Alcatraz
+            DoorIdentifier(RIGHT, 8, 1, 0x1893A, 0x189B2, 0),  # Crateria Power Bomb Room
+            DoorIdentifier(RIGHT, 8, 4, 0x18922, 0x18AC6, 0),  # Crateria Tube
         ],
         node_tiles={
             1: [(0, 2), (1, 2)],  # top left door
@@ -64,8 +64,8 @@ rooms = [
         rom_address=0x795D4,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18AC6, 0x18922),  # Landing Site
-            DoorIdentifier(RIGHT, 0, 0, 0x18AD2, 0x18A2A),  # Crateria Kihunter Room
+            DoorIdentifier(LEFT, 0, 0, 0x18AC6, 0x18922, None),  # Landing Site
+            DoorIdentifier(RIGHT, 0, 0, 0x18AD2, 0x18A2A, None),  # Crateria Kihunter Room
         ],
         node_tiles={
             1: [(0, 0)],
@@ -83,13 +83,13 @@ rooms = [
             [0, 1, 0, 0, 0],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1895E, 0x18BF2),  # Terminator Room
-            DoorIdentifier(LEFT, 1, 2, 0x1899A, 0x189BE),  # Crateria Save Room
-            DoorIdentifier(LEFT, 1, 3, 0x189A6, 0x18C8E),  # Final Missile Bombway
-            DoorIdentifier(RIGHT, 4, 0, 0x1896A, 0x18916),  # Landing Site
-            DoorIdentifier(RIGHT, 3, 2, 0x18982, 0x18BB6),  # Flyway
-            DoorIdentifier(RIGHT, 1, 3, 0x18976, 0x18BCE),  # Pre-Map Flyway
-            DoorIdentifier(DOWN, 1, 4, 0x1898E, 0x18B3E),  # Climb
+            DoorIdentifier(LEFT, 0, 0, 0x1895E, 0x18BF2, 0),  # Terminator Room
+            DoorIdentifier(LEFT, 1, 2, 0x1899A, 0x189BE, 0),  # Crateria Save Room
+            DoorIdentifier(LEFT, 1, 3, 0x189A6, 0x18C8E, 0),  # Final Missile Bombway
+            DoorIdentifier(RIGHT, 4, 0, 0x1896A, 0x18916, 0),  # Landing Site
+            DoorIdentifier(RIGHT, 3, 2, 0x18982, 0x18BB6, 0),  # Flyway
+            DoorIdentifier(RIGHT, 1, 3, 0x18976, 0x18BCE, 0),  # Pre-Map Flyway
+            DoorIdentifier(DOWN, 1, 4, 0x1898E, 0x18B3E, 1),  # Climb
         ],
         node_tiles={
             1: [(0, 0)],  # top left door
@@ -117,11 +117,11 @@ rooms = [
             [1, 1, 0],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 8, 0x18B6E, 0x1AB34),  # Tourian Escape Room 4
-            DoorIdentifier(RIGHT, 2, 0, 0x18B4A, 0x18C6A),  # Crateria Super Room (top)
-            DoorIdentifier(RIGHT, 2, 7, 0x18B56, 0x18C76),  # Crateria Super Room (bottom)
-            DoorIdentifier(RIGHT, 1, 8, 0x18B62, 0x18B7A),  # Pit Room
-            DoorIdentifier(UP, 1, 0, 0x18B3E, 0x1898E),  # Parlor and Alcatraz
+            DoorIdentifier(LEFT, 0, 8, 0x18B6E, 0x1AB34, 0),  # Tourian Escape Room 4
+            DoorIdentifier(RIGHT, 2, 0, 0x18B4A, 0x18C6A, 0),  # Crateria Super Room (top)
+            DoorIdentifier(RIGHT, 2, 7, 0x18B56, 0x18C76, 0),  # Crateria Super Room (bottom)
+            DoorIdentifier(RIGHT, 1, 8, 0x18B62, 0x18B7A, 0),  # Pit Room
+            DoorIdentifier(UP, 1, 0, 0x18B3E, 0x1898E, 1),  # Parlor and Alcatraz
         ],
         node_tiles={
             1: [(1, 0)],  # top door
@@ -140,8 +140,8 @@ rooms = [
             [1, 0, 0]
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18B7A, 0x18B62),  # Climb
-            DoorIdentifier(RIGHT, 2, 0, 0x18B86, 0x18B92),  # Blue Brinstar Elevator Room
+            DoorIdentifier(LEFT, 0, 0, 0x18B7A, 0x18B62, 0),  # Climb
+            DoorIdentifier(RIGHT, 2, 0, 0x18B86, 0x18B92, 0),  # Blue Brinstar Elevator Room
         ],
         items=[
             Item(0, 1, 0x783EE),
@@ -157,8 +157,8 @@ rooms = [
         rom_address=0x79879,
         map=[[1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18BB6, 0x18982),  # Parlor and Alcatraz
-            DoorIdentifier(RIGHT, 2, 0, 0x18BC2, 0x18BAA),  # Bomb Torizo Room
+            DoorIdentifier(LEFT, 0, 0, 0x18BB6, 0x18982, 0),  # Parlor and Alcatraz
+            DoorIdentifier(RIGHT, 2, 0, 0x18BC2, 0x18BAA, 0),  # Bomb Torizo Room
         ],
         node_tiles={
             1: [(0, 0), (1, 0)],  # left door
@@ -170,8 +170,8 @@ rooms = [
         rom_address=0x798E2,
         map=[[1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18BCE, 0x18976),  # Parlor and Alcatraz
-            DoorIdentifier(RIGHT, 2, 0, 0x18BDA, 0x18C2E),  # Crateria Map Room
+            DoorIdentifier(LEFT, 0, 0, 0x18BCE, 0x18976, 0),  # Parlor and Alcatraz
+            DoorIdentifier(RIGHT, 2, 0, 0x18BDA, 0x18C2E, 0),  # Crateria Map Room
         ],
         node_tiles={
             1: [(0, 0), (1, 0)],  # left door
@@ -183,7 +183,7 @@ rooms = [
         rom_address=0x79994,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18C2E, 0x18BDA),  # Pre-Map Flyway
+            DoorIdentifier(LEFT, 0, 0, 0x18C2E, 0x18BDA, 0),  # Pre-Map Flyway
         ],
         node_tiles={
             1: [(0, 0)],  # door
@@ -195,7 +195,7 @@ rooms = [
         rom_address=0x793D5,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(RIGHT, 0, 0, 0x189BE, 0x1899A),  # Parlor and Alcatraz
+            DoorIdentifier(RIGHT, 0, 0, 0x189BE, 0x1899A, 0),  # Parlor and Alcatraz
         ],
         node_tiles={
             1: [(0, 0)],  # door
@@ -207,7 +207,7 @@ rooms = [
         rom_address=0x79A90,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(RIGHT, 0, 0, 0x18C9A, 0x18C82),  # Final Missile Bombway
+            DoorIdentifier(RIGHT, 0, 0, 0x18C9A, 0x18C82, 0),  # Final Missile Bombway
         ],
         items=[
             Item(0, 0, 0x78486),
@@ -222,8 +222,8 @@ rooms = [
         rom_address=0x79A44,
         map=[[1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18C82, 0x18C9A),  # The Final Missile
-            DoorIdentifier(RIGHT, 1, 0, 0x18C8E, 0x189A6),  # Parlor and Alcatraz
+            DoorIdentifier(LEFT, 0, 0, 0x18C82, 0x18C9A, 0),  # The Final Missile
+            DoorIdentifier(RIGHT, 1, 0, 0x18C8E, 0x189A6, 0),  # Parlor and Alcatraz
         ],
         node_tiles={
             1: [(0, 0)],  # left door
@@ -235,7 +235,7 @@ rooms = [
         rom_address=0x79804,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18BAA, 0x18BC2),  # Flyway
+            DoorIdentifier(LEFT, 0, 0, 0x18BAA, 0x18BC2, 0),  # Flyway
         ],
         items=[
             Item(0, 0, 0x78404),
@@ -256,8 +256,8 @@ rooms = [
             [1, 1, 1, 0, 0, 0],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 2, 0x18BE6, 0x18C3A),  # Green Pirates Shaft
-            DoorIdentifier(RIGHT, 5, 0, 0x18BF2, 0x1895E),  # Parlor and Alcatraz
+            DoorIdentifier(LEFT, 0, 2, 0x18BE6, 0x18C3A, 0),  # Green Pirates Shaft
+            DoorIdentifier(RIGHT, 5, 0, 0x18BF2, 0x1895E, 0),  # Parlor and Alcatraz
         ],
         items=[
             Item(0, 2, 0x78432),
@@ -281,10 +281,10 @@ rooms = [
             [1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 6, 0x18C46, 0x18C16),  # Lower Mushrooms
-            DoorIdentifier(RIGHT, 0, 0, 0x18C5E, 0x18B1A),  # Gauntlet Energy Tank Room
-            DoorIdentifier(RIGHT, 0, 4, 0x18C3A, 0x18BE6),  # Terminator Room
-            DoorIdentifier(RIGHT, 0, 6, 0x18C52, 0x191E6),  # Statues Hallway
+            DoorIdentifier(LEFT, 0, 6, 0x18C46, 0x18C16, 0),  # Lower Mushrooms
+            DoorIdentifier(RIGHT, 0, 0, 0x18C5E, 0x18B1A, 0),  # Gauntlet Energy Tank Room
+            DoorIdentifier(RIGHT, 0, 4, 0x18C3A, 0x18BE6, 0),  # Terminator Room
+            DoorIdentifier(RIGHT, 0, 6, 0x18C52, 0x191E6, 0),  # Statues Hallway
         ],
         parts=[[1], [0, 2, 3]],
         transient_part_connections=[(0, 1)],  # crumble blocks
@@ -309,8 +309,8 @@ rooms = [
         rom_address=0x79969,
         map=[[1, 1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18C22, 0x18BFE),  # Green Brinstar Elevator Room
-            DoorIdentifier(RIGHT, 3, 0, 0x18C16, 0x18C46),  # Green Pirates Shaft
+            DoorIdentifier(LEFT, 0, 0, 0x18C22, 0x18BFE, 0),  # Green Brinstar Elevator Room
+            DoorIdentifier(RIGHT, 3, 0, 0x18C16, 0x18C46, 0),  # Green Pirates Shaft
         ],
         node_tiles={
             1: [(0, 0), (1, 0), (2, 0)],  # left door
@@ -327,8 +327,8 @@ rooms = [
             [1],
         ],
         door_ids=[
-            DoorIdentifier(RIGHT, 0, 0, 0x18BFE, 0x18C22),  # Lower Mushrooms
-            DoorIdentifier(DOWN, 0, 3, 0x18C0A, 0x18CA6, ELEVATOR),
+            DoorIdentifier(RIGHT, 0, 0, 0x18BFE, 0x18C22, 0),  # Lower Mushrooms
+            DoorIdentifier(DOWN, 0, 3, 0x18C0A, 0x18CA6, None, ELEVATOR),
         ],
         node_tiles={
             1: [(0, 0)],  # right door
@@ -344,9 +344,9 @@ rooms = [
             [0, 1, 0],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18A2A, 0x18AD2),  # Crateria Tube
-            DoorIdentifier(RIGHT, 2, 0, 0x18A36, 0x18ADE),  # The Moat
-            DoorIdentifier(DOWN, 1, 2, 0x18A42, 0x18AF6),  # Red Brinstar Elevator Room
+            DoorIdentifier(LEFT, 0, 0, 0x18A2A, 0x18AD2, 0),  # Crateria Tube
+            DoorIdentifier(RIGHT, 2, 0, 0x18A36, 0x18ADE, 0),  # The Moat
+            DoorIdentifier(DOWN, 1, 2, 0x18A42, 0x18AF6, 1),  # Red Brinstar Elevator Room
         ],
         node_tiles={
             1: [(0, 0)],  # left door
@@ -359,8 +359,8 @@ rooms = [
         rom_address=0x7A5ED,
         map=[[1, 1, 1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x191E6, 0x18C52),  # Green Pirates Shaft
-            DoorIdentifier(RIGHT, 4, 0, 0x191F2, 0x19216),  # Statues Room
+            DoorIdentifier(LEFT, 0, 0, 0x191E6, 0x18C52, 0),  # Green Pirates Shaft
+            DoorIdentifier(RIGHT, 4, 0, 0x191F2, 0x19216, 0),  # Statues Room
         ],
         node_tiles={
             1: [(0, 0), (1, 0), (2, 0), (3, 0)],  # left door
@@ -377,8 +377,8 @@ rooms = [
             [1],
         ],
         door_ids=[
-            DoorIdentifier(UP, 0, 0, 0x18AF6, 0x18A42),  # Crateria Kihunter Room
-            DoorIdentifier(DOWN, 0, 3, 0x18B02, 0x190BA, ELEVATOR),  # Caterpillar Room
+            DoorIdentifier(UP, 0, 0, 0x18AF6, 0x18A42, 1),  # Crateria Kihunter Room
+            DoorIdentifier(DOWN, 0, 3, 0x18B02, 0x190BA, None, ELEVATOR),  # Caterpillar Room
         ],
         node_tiles={
             1: [(0, 0)],  # top door
@@ -396,8 +396,8 @@ rooms = [
             [1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18B92, 0x18B86),  # Pit Room
-            DoorIdentifier(DOWN, 0, 3, 0x18B9E, 0x18EB6, ELEVATOR),  # Morph Ball Room
+            DoorIdentifier(LEFT, 0, 0, 0x18B92, 0x18B86, 0),  # Pit Room
+            DoorIdentifier(DOWN, 0, 3, 0x18B9E, 0x18EB6, None, ELEVATOR),  # Morph Ball Room
         ],
         node_tiles={
             1: [(0, 0)],  # left door
@@ -415,8 +415,8 @@ rooms = [
             [1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x19216, 0x191F2),  # Statues Hallway
-            DoorIdentifier(DOWN, 0, 4, 0x19222, 0x1A990, ELEVATOR),  # Tourian First Room
+            DoorIdentifier(LEFT, 0, 0, 0x19216, 0x191F2, 0),  # Statues Hallway
+            DoorIdentifier(DOWN, 0, 4, 0x19222, 0x1A990, None, ELEVATOR),  # Tourian First Room
         ],
         node_tiles={
             1: [(0, 0)],  # left door
@@ -430,7 +430,7 @@ rooms = [
         rom_address=0x793AA,
         map=[[1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x189B2, 0x1893A),  # Landing Site
+            DoorIdentifier(LEFT, 0, 0, 0x189B2, 0x1893A, 0),  # Landing Site
         ],
         items=[
             Item(1, 0, 0x781CC),
@@ -454,8 +454,8 @@ rooms = [
             [1, 1, 1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18C6A, 0x18B4A),  # Climb (top)
-            DoorIdentifier(LEFT, 0, 7, 0x18C76, 0x18B56),  # Climb (bottom)
+            DoorIdentifier(LEFT, 0, 0, 0x18C6A, 0x18B4A, 0),  # Climb (top)
+            DoorIdentifier(LEFT, 0, 7, 0x18C76, 0x18B56, 0),  # Climb (bottom)
         ],
         parts=[[0], [1]],
         transient_part_connections=[(1, 0)],  # speed blocks
@@ -477,8 +477,8 @@ rooms = [
         rom_address=0x792B3,
         map=[[1, 1, 1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18952, 0x18B0E),  # Gauntlet Energy Tank Room
-            DoorIdentifier(RIGHT, 4, 0, 0x18946, 0x1892E),  # Landing Site
+            DoorIdentifier(LEFT, 0, 0, 0x18952, 0x18B0E, 0),  # Gauntlet Energy Tank Room
+            DoorIdentifier(RIGHT, 4, 0, 0x18946, 0x1892E, 0),  # Landing Site
         ],
         node_tiles={
             1: [(0, 0), (1, 0)],  # left door
@@ -490,8 +490,8 @@ rooms = [
         rom_address=0x7965B,
         map=[[1, 1, 1, 1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18B1A, 0x18C5E),  # Green Pirates Shaft
-            DoorIdentifier(RIGHT, 5, 0, 0x18B0E, 0x18952),  # Gauntlet Entrance
+            DoorIdentifier(LEFT, 0, 0, 0x18B1A, 0x18C5E, 0),  # Green Pirates Shaft
+            DoorIdentifier(RIGHT, 5, 0, 0x18B0E, 0x18952, 0),  # Gauntlet Entrance
         ],
         items=[
             Item(5, 0, 0x78264),
@@ -516,14 +516,14 @@ rooms = [
             [1, 1, 1, 1, 1, 1, 1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 5, 2, 0x18B26, 0x18A1E),  # Bowling Alley Path (east)
-            DoorIdentifier(LEFT, 0, 4, 0x189CA, 0x18AEA),  # The Moat
-            DoorIdentifier(RIGHT, 7, 0, 0x189EE, 0x1A1E0),  # Attic
-            DoorIdentifier(RIGHT, 7, 1, 0x189FA, 0x1A18C),  # Bowling Alley (top)
-            DoorIdentifier(RIGHT, 2, 2, 0x189E2, 0x18A12),  # Bowling Alley Path (west)
-            DoorIdentifier(RIGHT, 5, 2, 0x18B32, 0x1A198),  # Bowling Alley (middle)
-            DoorIdentifier(RIGHT, 5, 3, 0x18A06, 0x1A300),  # Gravity Suit Room
-            DoorIdentifier(RIGHT, 7, 4, 0x189D6, 0x1A1B0),  # Wrecked Ship Entrance
+            DoorIdentifier(LEFT, 5, 2, 0x18B26, 0x18A1E, 0),  # Bowling Alley Path (east)
+            DoorIdentifier(LEFT, 0, 4, 0x189CA, 0x18AEA, 0),  # The Moat
+            DoorIdentifier(RIGHT, 7, 0, 0x189EE, 0x1A1E0, 0),  # Attic
+            DoorIdentifier(RIGHT, 7, 1, 0x189FA, 0x1A18C, 0),  # Bowling Alley (top)
+            DoorIdentifier(RIGHT, 2, 2, 0x189E2, 0x18A12, 0),  # Bowling Alley Path (west)
+            DoorIdentifier(RIGHT, 5, 2, 0x18B32, 0x1A198, 0),  # Bowling Alley (middle)
+            DoorIdentifier(RIGHT, 5, 3, 0x18A06, 0x1A300, 0),  # Gravity Suit Room
+            DoorIdentifier(RIGHT, 7, 4, 0x189D6, 0x1A1B0, 0),  # Wrecked Ship Entrance
         ],
         parts=[[1, 6, 7], [2, 3, 4], [0, 5]],
         transient_part_connections=[(1, 0)],  # crumble block
@@ -560,8 +560,8 @@ rooms = [
         rom_address=0x79461,
         map=[[1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18A12, 0x189E2),  # West Ocean
-            DoorIdentifier(RIGHT, 1, 0, 0x18A1E, 0x18B26),  # West Ocean (Homing Geemer Room)
+            DoorIdentifier(LEFT, 0, 0, 0x18A12, 0x189E2, 0),  # West Ocean
+            DoorIdentifier(RIGHT, 1, 0, 0x18A1E, 0x18B26, 0),  # West Ocean (Homing Geemer Room)
         ],
         node_tiles={
             1: [(0, 0)],  # left door
@@ -580,8 +580,8 @@ rooms = [
             [1, 1, 1, 1, 1, 1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 4, 0x18A66, 0x1A264),  # Electric Death Room
-            DoorIdentifier(RIGHT, 6, 4, 0x18A72, 0x18A7E),  # Forgotten Highway Kago Room
+            DoorIdentifier(LEFT, 0, 4, 0x18A66, 0x1A264, 0),  # Electric Death Room
+            DoorIdentifier(RIGHT, 6, 4, 0x18A72, 0x18A7E, 0),  # Forgotten Highway Kago Room
         ],
         node_tiles={
             1: [(0, 4), (1, 4)],  # left door
@@ -600,8 +600,8 @@ rooms = [
             [1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18A7E, 0x18A72),  # East Ocean
-            DoorIdentifier(DOWN, 0, 3, 0x18A8A, 0x18A96),  # Crab Maze
+            DoorIdentifier(LEFT, 0, 0, 0x18A7E, 0x18A72, 0),  # East Ocean
+            DoorIdentifier(DOWN, 0, 3, 0x18A8A, 0x18A96, 1),  # Crab Maze
         ],
         node_tiles={
             1: [(0, 0)],  # left door
@@ -616,8 +616,8 @@ rooms = [
             [1, 1, 1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 1, 0x18AAE, 0x18AA2),  # Forgotten Highway Elbow
-            DoorIdentifier(UP, 3, 0, 0x18A96, 0x18A8A),  # Forgotten Highway Kago Room
+            DoorIdentifier(LEFT, 0, 1, 0x18AAE, 0x18AA2, 0),  # Forgotten Highway Elbow
+            DoorIdentifier(UP, 3, 0, 0x18A96, 0x18A8A, 1),  # Forgotten Highway Kago Room
         ],
         node_tiles={
             1: [(3, 0), (3, 1)],  # top right door
@@ -635,8 +635,8 @@ rooms = [
             [1],
         ],
         door_ids=[
-            DoorIdentifier(UP, 0, 0, 0x18A4E, 0x18ABA),  # Forgotten Highway Elbow
-            DoorIdentifier(DOWN, 0, 3, 0x18A5A, 0x1A594, ELEVATOR),  # Maridia Elevator Room
+            DoorIdentifier(UP, 0, 0, 0x18A4E, 0x18ABA, 1),  # Forgotten Highway Elbow
+            DoorIdentifier(DOWN, 0, 3, 0x18A5A, 0x1A594, 0, ELEVATOR),  # Maridia Elevator Room
         ],
         node_tiles={
             1: [(0, 0)],  # top door
@@ -648,8 +648,8 @@ rooms = [
         rom_address=0x795A8,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(RIGHT, 0, 0, 0x18AA2, 0x18AAE),  # Crab Maze
-            DoorIdentifier(DOWN, 0, 0, 0x18ABA, 0x18A4E),  # Forgotten Highway Elevator
+            DoorIdentifier(RIGHT, 0, 0, 0x18AA2, 0x18AAE, 0),  # Crab Maze
+            DoorIdentifier(DOWN, 0, 0, 0x18ABA, 0x18A4E, 1),  # Forgotten Highway Elevator
         ],
         node_tiles={
             1: [(0, 0)],  # right door

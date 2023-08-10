@@ -298,7 +298,7 @@ pub struct Link {
     pub strat_notes: Vec<String>,
 }
 
-#[derive(Deserialize, Default, Clone)]
+#[derive(Deserialize, Default, Clone, Debug)]
 pub struct RoomGeometryDoor {
     pub direction: String,
     pub x: usize,
@@ -306,6 +306,7 @@ pub struct RoomGeometryDoor {
     pub exit_ptr: Option<usize>,
     pub entrance_ptr: Option<usize>,
     pub subtype: String,
+    pub offset: Option<usize>,
 }
 
 #[derive(Deserialize, Default, Clone)]

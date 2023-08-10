@@ -147,7 +147,7 @@ impl<'a> MapPatcher<'a> {
         self.read_tile_4bpp(addr)
     }
 
-    fn write_tiles_area(&mut self, area_idx: usize) -> Result<()> {
+    fn write_map_tiles_area(&mut self, area_idx: usize) -> Result<()> {
         let mut reserved_tiles: HashSet<TilemapWord> = vec![
             // Used on HUD:
             0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D,
@@ -243,9 +243,9 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
-    fn write_tiles(&mut self) -> Result<()> {
+    fn write_map_tiles(&mut self) -> Result<()> {
         for area in 0..6 {
-            self.write_tiles_area(area)?;
+            self.write_map_tiles_area(area)?;
         }
 
         Ok(())
@@ -2000,6 +2000,118 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
+    // Write the tile graphics for the hazard markers on door frames (indicating doors leading to danger in the next room)
+    fn write_hazard_tiles(&mut self) -> Result<()> {
+        let b = 15; // black
+        let w = 12; // white
+        let hazard_tile1: [[u8; 8]; 8] =
+            [
+                [b, 3, 3, 3, b, b, b, 3],
+                [b, b, b, b, b, b, b, b],
+                [6, 6, 6, 6, 5, 5, 5, 6],
+                [b, b, b, b, b, b, b, b],
+                [3, 3, b, b, b, 3, 3, 3],
+                [3, 3, 3, b, b, b, 3, 3],
+                [b, 3, 3, 3, b, b, b, 3],
+                [b, b, 3, 3, 3, b, b, b],
+            ];
+        let hazard_tile2: [[u8; 8]; 8] =
+            [
+                [b, b, b, 3, 3, 3, b, b],
+                [3, b, b, b, 3, 3, 3, b],
+                [2, 2, b, b, b, 2, 2, 2],
+                [2, 2, 2, b, b, b, 2, 2],
+                [b, 7, b, b, 7, 7, 7, 7],
+                [5, 5, 4, 4, 4, 4, 4, 4],
+                [b, 7, b, b, 7, 7, 7, 7],
+                [2, b, b, b, 2, 2, 2, b],
+            ];
+        let hazard_tile3: [[u8; 8]; 8] =
+            [
+                [2, 2, b, b, b, 2, 2, 2],
+                [2, 2, 2, b, b, b, 2, 2],
+                [b, 2, 2, 2, b, b, b, 2],
+                [b, b, 2, 2, 2, b, b, b],
+                [b, b, b, 1, 1, 1, b, b],
+                [1, b, b, b, 1, 1, 1, b],
+                [1, 1, b, b, b, 1, 1, 1],
+                [1, 1, 1, b, b, b, 1, 1],
+            ];
+        let hazard_tile4: [[u8; 8]; 8] =
+            [
+                [b, 5, b, b, 5, 5, 5, 5],
+                [5, 4, 4, 4, w, w, 4, 4],
+                [b, 6, b, b, 6, 6, 6, 6],
+                [1, b, b, b, 1, 1, 1, b],
+                [1, 1, b, b, b, 1, 1, 1],
+                [1, 1, 1, b, b, b, 1, 1],
+                [b, 1, 1, 1, b, b, b, 1],
+                [b, b, 1, 1, 1, b, b, b],
+            ];
+
+        fn diagonal_flip_tile(tile: [[u8; 8]; 8]) -> [[u8; 8]; 8] {
+            let mut out = [[0u8; 8]; 8];
+            for y in 0..8 {
+                for x in 0..8 {
+                    out[y][x] = tile[x][y];
+                }
+            }
+            out
+        }
+
+        // Write 8x8 tiles:
+        let base_addr = snes2pc(0xE98000);
+        self.write_tile_4bpp(base_addr, hazard_tile1)?;
+        self.write_tile_4bpp(base_addr + 0x20, hazard_tile2)?;
+        self.write_tile_4bpp(base_addr + 0x40, hazard_tile3)?;
+        self.write_tile_4bpp(base_addr + 0x60, hazard_tile4)?;
+        self.write_tile_4bpp(base_addr + 0x80, diagonal_flip_tile(hazard_tile1))?;
+        self.write_tile_4bpp(base_addr + 0xA0, diagonal_flip_tile(hazard_tile2))?;
+        self.write_tile_4bpp(base_addr + 0xC0, diagonal_flip_tile(hazard_tile3))?;
+        self.write_tile_4bpp(base_addr + 0xE0, diagonal_flip_tile(hazard_tile4))?;
+
+        // Write 16x16 tiles (tilemap):
+        let base_addr = snes2pc(0xE98280);
+        let hazard_tile1_idx = 0x2A0;
+        let hazard_tile2_idx = 0x2A1;
+        let hazard_tile3_idx = 0x2A2;
+        let hazard_tile4_idx = 0x2A3;
+        let flip_hazard_tile1_idx = 0x2A4;
+        let flip_hazard_tile2_idx = 0x2A5;
+        let flip_hazard_tile3_idx = 0x2A6;
+        let flip_hazard_tile4_idx = 0x2A7;
+        let door_frame1_idx = 0x342;
+        let door_frame2_idx = 0x352;
+        let door_frame3_idx = 0x362;
+        let door_frame4_idx = 0x372;
+        let flip_door_frame1_idx = 0x367;
+        let flip_door_frame2_idx = 0x366;
+        let flip_door_frame3_idx = 0x365;
+        let flip_door_frame4_idx = 0x364;
+        // Top fourth of door going right:
+        self.rom.write_u16(base_addr, hazard_tile1_idx | 0x2000)?;      // top-left quarter (palette 0)
+        self.rom.write_u16(base_addr + 2, door_frame1_idx | 0x2400)?;   // top-right quarter (palette 1)
+        self.rom.write_u16(base_addr + 4, hazard_tile2_idx | 0x2000)?;  // top-left quarter (palette 0)
+        self.rom.write_u16(base_addr + 6, door_frame2_idx | 0x2400)?;   // top-right quarter (palette 1)
+        // Second-from top fourth of door going right:
+        self.rom.write_u16(base_addr + 8, hazard_tile3_idx | 0x2000)?;   // top-left quarter (palette 0)
+        self.rom.write_u16(base_addr + 10, door_frame3_idx | 0x2400)?;   // top-right quarter (palette 1)
+        self.rom.write_u16(base_addr + 12, hazard_tile4_idx | 0x2000)?;  // top-left quarter (palette 0)
+        self.rom.write_u16(base_addr + 14, door_frame4_idx | 0x2400)?;   // top-right quarter (palette 1)
+        // Left fourth of door going down:
+        self.rom.write_u16(base_addr + 16, flip_hazard_tile1_idx | 0x2000)?;  // top-left quarter (palette 0)
+        self.rom.write_u16(base_addr + 18, flip_hazard_tile2_idx | 0x2000)?;  // top-left quarter (palette 0)
+        self.rom.write_u16(base_addr + 20, flip_door_frame1_idx | 0x6400)?;   // top-right quarter (palette 1, X flip)
+        self.rom.write_u16(base_addr + 22, flip_door_frame2_idx | 0x6400)?;   // top-right quarter (palette 1, X flip)
+        // Second-from left fourth of door going down:
+        self.rom.write_u16(base_addr + 24, flip_hazard_tile3_idx | 0x2000)?;  // top-left quarter (palette 0)
+        self.rom.write_u16(base_addr + 26, flip_hazard_tile4_idx | 0x2000)?;  // top-left quarter (palette 0)
+        self.rom.write_u16(base_addr + 28, flip_door_frame3_idx | 0x6400)?;   // top-right quarter (palette 1, X flip)
+        self.rom.write_u16(base_addr + 30, flip_door_frame4_idx | 0x6400)?;   // top-right quarter (palette 1, X flip)
+
+        Ok(())
+    }
+
     pub fn apply_patches(&mut self) -> Result<()> {
         self.initialize_tiles()?;
         self.fix_pause_palettes()?;
@@ -2019,7 +2131,8 @@ impl<'a> MapPatcher<'a> {
         self.add_cross_area_arrows()?;
         self.set_map_stations_explored()?;
         self.indicate_major_items()?;
-        self.write_tiles()?;
+        self.write_map_tiles()?;
+        self.write_hazard_tiles()?;
         self.fix_fx_palettes()?;
         self.fix_kraid()?;
         self.fix_item_colors()?;

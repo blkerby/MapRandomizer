@@ -8,7 +8,7 @@
   </div>
 </button>
 
-<input type="hidden" id="etankColor" name="etank_color" value="#de3894">
+<input type="hidden" id="etankColor" name="etank_color" value="de3894">
 
 <!-- Modal -->
 <div class="modal" id="energyTankSelectModal" tabindex="-1">

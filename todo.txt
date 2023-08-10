@@ -1,16 +1,12 @@
 next release:
-- DONE: add strat pages
-- DONE: randomized start: check requires on hub locations
-- DONE: use "crateria asleep" song somewhere
-- DONE: use modal for sprite customization
-- DONE: etank color customization
-- DONE: brighten the tourian area transition arrow color
-- DONE: fix palette bug in when switching back from equipment to pause map (affecting tourian arrow color).
-- add more starting locations, in item rooms
+- caution tape on doors leading to (otherwise unforeseeable) risk of death/softlock?
+- restore tourian blue hoppers to vanilla
+
 
 priority:
+- from alphanimal: When "disable music" is on, could you just make it load vanilla audio channels, so some sound effects don't get messed up
+- controller config special settings (moonwalk) customization
 - randomized title screen
-- caution tape on doors leading to (otherwise unforeseeable) risk of death/softlock?
 - enhancements to momentum conservation patch
   - remove need to be holding dash or to be in spin
   - reset speed boost counter whenever momentum conservation comes into play, to avoid making it too easy to get blue
@@ -21,6 +17,10 @@ priority:
 - door color randomization
 - set up a more robust way for users to save & select presets
 - move input ROM off Generate page (and into separate dialogue that only shows on first use).
+- convert tech/strat AVIs to WebM & WebP (using ffmpeg CLI)
+  - WebM/VP9 for full playback using HTML5 <video>
+  - WebP for thumbnails
+  - use image-rendering: pixelated
 - add CF health refill to logic
   - tricky CF at ammo refill stations
 - logic: add some 3-room shinecharge strats to logic (ones that can work with existing schema)
@@ -29,6 +29,7 @@ priority:
 - make hub requirements consistent with new farm approach?
   - actually probably don't need to define hub rooms anymore:
       - just check for ability to refill each resource type from the start location and get back
+- logic pages (tech/room/strat): add way to fill out items/flags/resources/obstacles to simulate logic
 - take another look at boss fights
   - create table to show in help button, to make boss logic more transparent (in addition to showing formulas)
   - 5 Super phantoon fight probably needs more requirements than it currently has.
@@ -52,8 +53,6 @@ priority:
 - check if reloading from bottom/top of elevator works correctly (not skips back a save)
 - do something about screen shaking during samus appears (in start location: rising tide, amphitheatre)
   - maybe customization option to get rid of shaking in general?
-- new map pool
-  - bosses not cleared unless "enemies cleared" option is enabled
 - handle canShinesparkWithReserve in randomizer (and remove it from being ignored)
 - incrementally build graph traversal with increasing difficulty tiers, acquiring flags in the process.
   - will allow better accounting of the difficulty of boss fights in forced mode
@@ -172,25 +171,7 @@ later:
 - check if pants room internal door connects correctly in logic
 - add option (enabled on Challenge) to not treat tanks as filler items anymore after giving Varia (including the step where giving Varia)
   - maybe more general option to postpone unneeded filler items aside from missiles
-- spoiler visualizer improvements:
-  - refinements
-    - get rid of "Route Unavailable"
-    - show faded item if some node in the room is reachable but the item itself is not (or is only one-way reachable)
-    - make it so you can click on an item in the step panel and it will show the route to the item
-    - show the route info in a separate panel below the step panel
-    - initially show only Step 1, and center the screen over Landing Site.
-       - Add button for "Show next step" and "Show all steps"
-  - integrate with logic pages:
-    - double-clicking on room can go to our room page (instead of to wiki)
-    - clicking on a strat (in route info) goes to strat page (create these)
-  - other possible improvements:
-    - mouse-over a room shows an image of the room
-      - or, there's a toggle to switch from map view to image view.
-    - add controls to properly zoom
-    - once available, use junction bounding boxes to plot the paths more accurately, and avoid having lines going outside of the room's tiles
-    - show flags in the steps too (e.g. bosses) and be able to click on them too to show the route
-      - come up with new icons for these: G4 bosses, minibosses, golden torizo, shaktool, maridia tube, acid chozo statue, mother brain
-      - (mother brain needs to be added to the logic as a flag)
+- spoiler visualizer improvements (see GitHub issue)
 - fix panic that is occasionally happening:
   thread 'actix-rt|system:0|arbiter:0' panicked at 'assertion failed: num_key_items_to_place >= 1', src/randomize.rs:671:9
 - find some way to have forced mode take into account difficulty of defeating bosses (and other flags)
@@ -203,7 +184,6 @@ later:
 - make quick reload work while in pause menu?
 - refine cross room shinesparks:
     - slopes
-- controller config special settings (moonwalk) customization
 - consider overhauling how cross-room logic is encoded:
   - canComeInCharged should be in a special part of the "node" (symmetric to "canLeaveCharged"), not in "links"
   - same thing for adjacentRunway

@@ -12,8 +12,8 @@ rooms = [
         rom_address=0x7CA08,
         map=[[1, 1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A1B0, 0x189D6),  # West Ocean
-            DoorIdentifier(RIGHT, 3, 0, 0x1A1BC, 0x1A1F8),  # Wrecked Ship Main Shaft
+            DoorIdentifier(LEFT, 0, 0, 0x1A1B0, 0x189D6, 0),  # West Ocean
+            DoorIdentifier(RIGHT, 3, 0, 0x1A1BC, 0x1A1F8, 0),  # Wrecked Ship Main Shaft
         ],
         node_tiles={
             1: [(0, 0), (1, 0)],
@@ -34,13 +34,13 @@ rooms = [
             [0, 0, 0, 0, 1, 0],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 4, 3, 0x1A1F8, 0x1A1BC),  # Wrecked Ship Entrance
-            DoorIdentifier(LEFT, 4, 6, 0x1A210, 0x1A2E8),  # Wrecked Ship West Super Room
-            DoorIdentifier(RIGHT, 4, 3, 0x1A240, 0x1A318),  # Wrecked Ship Save Room
-            DoorIdentifier(RIGHT, 4, 4, 0x1A204, 0x1A2D0),  # Sponge Bath
-            DoorIdentifier(RIGHT, 5, 6, 0x1A234, 0x1A2F4),  # Wrecked Ship East Super Room
-            DoorIdentifier(DOWN, 4, 7, 0x1A21C, 0x1A294),  # Basement
-            DoorIdentifier(UP, 4, 0, 0x1A228, 0x1A1C8),  # Attic
+            DoorIdentifier(LEFT, 4, 3, 0x1A1F8, 0x1A1BC, 0),  # Wrecked Ship Entrance
+            DoorIdentifier(LEFT, 4, 6, 0x1A210, 0x1A2E8, 0),  # Wrecked Ship West Super Room
+            DoorIdentifier(RIGHT, 4, 3, 0x1A240, 0x1A318, 0),  # Wrecked Ship Save Room
+            DoorIdentifier(RIGHT, 4, 4, 0x1A204, 0x1A2D0, 0),  # Sponge Bath
+            DoorIdentifier(RIGHT, 5, 6, 0x1A234, 0x1A2F4, 0),  # Wrecked Ship East Super Room
+            DoorIdentifier(DOWN, 4, 7, 0x1A21C, 0x1A294, 1),  # Basement
+            DoorIdentifier(UP, 4, 0, 0x1A228, 0x1A1C8, 1),  # Attic
         ],
         items=[
             Item(0, 5, 0x7C265),
@@ -62,9 +62,9 @@ rooms = [
         rom_address=0x7CA52,
         map=[[1, 1, 1, 1, 1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A1E0, 0x189EE),  # West Ocean
-            DoorIdentifier(RIGHT, 6, 0, 0x1A1D4, 0x1A1EC),  # Assembly Line
-            DoorIdentifier(DOWN, 4, 0, 0x1A1C8, 0x1A228),  # Wrecked Ship Main Shaft
+            DoorIdentifier(LEFT, 0, 0, 0x1A1E0, 0x189EE, 0),  # West Ocean
+            DoorIdentifier(RIGHT, 6, 0, 0x1A1D4, 0x1A1EC, 0),  # Assembly Line
+            DoorIdentifier(DOWN, 4, 0, 0x1A1C8, 0x1A228, 0),  # Wrecked Ship Main Shaft
         ],
         node_tiles={
             1: [(0, 0), (1, 0), (2, 0), (3, 0)],
@@ -77,9 +77,9 @@ rooms = [
         rom_address=0x7CC6F,
         map=[[1, 1, 1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A2A0, 0x1A2B8),  # Wrecked Ship Map Room
-            DoorIdentifier(RIGHT, 4, 0, 0x1A2AC, 0x1A2C4),  # Phantoon's Room
-            DoorIdentifier(UP, 2, 0, 0x1A294, 0x1A21C),  # Wrecked Ship Main Shaft
+            DoorIdentifier(LEFT, 0, 0, 0x1A2A0, 0x1A2B8, 0),  # Wrecked Ship Map Room
+            DoorIdentifier(RIGHT, 4, 0, 0x1A2AC, 0x1A2C4, 0),  # Phantoon's Room
+            DoorIdentifier(UP, 2, 0, 0x1A294, 0x1A21C, 1),  # Wrecked Ship Main Shaft
         ],
         node_tiles={
             1: [(0, 0)],
@@ -92,7 +92,7 @@ rooms = [
         rom_address=0x7CCCB,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(RIGHT, 0, 0, 0x1A2B8, 0x1A2A0),  # Basement
+            DoorIdentifier(RIGHT, 0, 0, 0x1A2B8, 0x1A2A0, 0),  # Basement
         ],
         node_tiles={
             1: [(0, 0)],
@@ -104,7 +104,7 @@ rooms = [
         rom_address=0x7CD13,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A2C4, 0x1A2AC),  # Basement
+            DoorIdentifier(LEFT, 0, 0, 0x1A2C4, 0x1A2AC, 0),  # Basement
         ],
         node_tiles={
             1: [(0, 0)],
@@ -116,7 +116,7 @@ rooms = [
         rom_address=0x7CDA8,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(RIGHT, 0, 0, 0x1A2E8, 0x1A210),  # Wrecked Ship Main Shaft
+            DoorIdentifier(RIGHT, 0, 0, 0x1A2E8, 0x1A210, 0),  # Wrecked Ship Main Shaft
         ],
         items=[
             Item(0, 0, 0x7C357),
@@ -135,9 +135,9 @@ rooms = [
             [0, 1, 1, 1, 1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 2, 0, 0x1A18C, 0x189FA),  # West Ocean (top)
-            DoorIdentifier(LEFT, 0, 1, 0x1A198, 0x18B32),  # West Ocean (Homing Geemer Room)
-            DoorIdentifier(LEFT, 1, 2, 0x1A1A4, 0x1A30C),  # Gravity Suit Room
+            DoorIdentifier(LEFT, 2, 0, 0x1A18C, 0x189FA, 0),  # West Ocean (top)
+            DoorIdentifier(LEFT, 0, 1, 0x1A198, 0x18B32, 0),  # West Ocean (Homing Geemer Room)
+            DoorIdentifier(LEFT, 1, 2, 0x1A1A4, 0x1A30C, 0),  # Gravity Suit Room
         ],
         parts=[[0], [1], [2]],
         transient_part_connections=[(1, 2)],  # bowling sequence, by morphing into statue
@@ -160,8 +160,8 @@ rooms = [
         rom_address=0x7CE40,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A300, 0x18A06),  # West Ocean
-            DoorIdentifier(RIGHT, 0, 0, 0x1A30C, 0x1A1A4),  # Bowling Alley
+            DoorIdentifier(LEFT, 0, 0, 0x1A300, 0x18A06, 0),  # West Ocean
+            DoorIdentifier(RIGHT, 0, 0, 0x1A30C, 0x1A1A4, 0),  # Bowling Alley
         ],
         items=[
             Item(0, 0, 0x7C36D),
@@ -177,7 +177,7 @@ rooms = [
         rom_address=0x7CDF1,
         map=[[1, 1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A2F4, 0x1A234),  # Wrecked Ship Main Shaft
+            DoorIdentifier(LEFT, 0, 0, 0x1A2F4, 0x1A234, 0),  # Wrecked Ship Main Shaft
         ],
         items=[
             Item(3, 0, 0x7C365),
@@ -192,8 +192,8 @@ rooms = [
         rom_address=0x7CD5C,
         map=[[1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A2D0, 0x1A204),  # Wrecked Ship Main Shaft
-            DoorIdentifier(RIGHT, 1, 0, 0x1A2DC, 0x1A24C),  # Spiky Death Room
+            DoorIdentifier(LEFT, 0, 0, 0x1A2D0, 0x1A204, 0),  # Wrecked Ship Main Shaft
+            DoorIdentifier(RIGHT, 1, 0, 0x1A2DC, 0x1A24C, 0),  # Spiky Death Room
         ],
         node_tiles={
             1: [(0, 0)],
@@ -205,8 +205,8 @@ rooms = [
         rom_address=0x7CB8B,
         map=[[1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A24C, 0x1A2DC),  # Sponge Bath
-            DoorIdentifier(RIGHT, 1, 0, 0x1A258, 0x1A270),  # Electric Death Room
+            DoorIdentifier(LEFT, 0, 0, 0x1A24C, 0x1A2DC, 0),  # Sponge Bath
+            DoorIdentifier(RIGHT, 1, 0, 0x1A258, 0x1A270, 0),  # Electric Death Room
         ],
         node_tiles={
             1: [(0, 0)],
@@ -222,9 +222,9 @@ rooms = [
             [1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A27C, 0x1A288),  # Wrecked Ship Energy Tank Room
-            DoorIdentifier(LEFT, 0, 2, 0x1A270, 0x1A258),  # Spiky Death Room
-            DoorIdentifier(RIGHT, 0, 1, 0x1A264, 0x18A66),  # East Ocean
+            DoorIdentifier(LEFT, 0, 0, 0x1A27C, 0x1A288, 0),  # Wrecked Ship Energy Tank Room
+            DoorIdentifier(LEFT, 0, 2, 0x1A270, 0x1A258, 0),  # Spiky Death Room
+            DoorIdentifier(RIGHT, 0, 1, 0x1A264, 0x18A66, 0),  # East Ocean
         ],
         node_tiles={
             1: [(0, 0)],
@@ -240,7 +240,7 @@ rooms = [
             [1, 1, 1],
         ],
         door_ids=[
-            DoorIdentifier(RIGHT, 2, 0, 0x1A288, 0x1A27C),  # Electric Death Room
+            DoorIdentifier(RIGHT, 2, 0, 0x1A288, 0x1A27C, 0),  # Electric Death Room
         ],
         items=[
             Item(0, 0, 0x7C337),
@@ -255,7 +255,7 @@ rooms = [
         rom_address=0x7CAAE,
         map=[[1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A1EC, 0x1A1D4),  # Attic
+            DoorIdentifier(LEFT, 0, 0, 0x1A1EC, 0x1A1D4, 0),  # Attic
         ],
         items=[
             Item(2, 0, 0x7C319),
@@ -270,7 +270,7 @@ rooms = [
         rom_address=0x7CE8A,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1A318, 0x1A240),  # Wrecked Ship Main Shaft
+            DoorIdentifier(LEFT, 0, 0, 0x1A318, 0x1A240, 0),  # Wrecked Ship Main Shaft
         ],
         node_tiles={
             1: [(0, 0)],

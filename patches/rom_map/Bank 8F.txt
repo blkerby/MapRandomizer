@@ -7,3 +7,4 @@ F500-F700:  Used by `escape` patch
 F700-F800:  Used by `gray_doors` patch
 F800-F900:  Used by `escape_autosave` patch
 F900-FE00:  Used for tileset table & pointers for area-themed palettes
+FE00-FE80:  hazard_markers.asm

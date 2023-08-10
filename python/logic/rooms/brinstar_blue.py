@@ -17,9 +17,9 @@ rooms = [
             [1, 1, 1, 1, 1, 1, 1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 2, 0x18E9E, 0x18E86),  # Green Hill Zone
-            DoorIdentifier(RIGHT, 7, 2, 0x18EAA, 0x18EC2),  # Construction Zone
-            DoorIdentifier(UP, 5, 0, 0x18EB6, 0x18B9E, ELEVATOR),  # Blue Brinstar Elevator Room
+            DoorIdentifier(LEFT, 0, 2, 0x18E9E, 0x18E86, 0),  # Green Hill Zone
+            DoorIdentifier(RIGHT, 7, 2, 0x18EAA, 0x18EC2, 0),  # Construction Zone
+            DoorIdentifier(UP, 5, 0, 0x18EB6, 0x18B9E, None, ELEVATOR),  # Blue Brinstar Elevator Room
         ],
         items=[
             Item(4, 2, 0x786DE),
@@ -42,9 +42,9 @@ rooms = [
             [1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18EC2, 0x18EAA),  # Morph Ball Room
-            DoorIdentifier(LEFT, 0, 1, 0x18EDA, 0x18FA6),  # First Missile Room
-            DoorIdentifier(RIGHT, 0, 0, 0x18ECE, 0x18EE6),  # Blue Brinstar Energy Tank Room
+            DoorIdentifier(LEFT, 0, 0, 0x18EC2, 0x18EAA, 0),  # Morph Ball Room
+            DoorIdentifier(LEFT, 0, 1, 0x18EDA, 0x18FA6, 0),  # First Missile Room
+            DoorIdentifier(RIGHT, 0, 0, 0x18ECE, 0x18EE6, 0),  # Blue Brinstar Energy Tank Room
         ],
         node_tiles={
             1: [(0, 0)],  # left door
@@ -57,7 +57,7 @@ rooms = [
         rom_address=0x7A107,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(RIGHT, 0, 0, 0x18FA6, 0x18EDA),  # Construction Zone
+            DoorIdentifier(RIGHT, 0, 0, 0x18FA6, 0x18EDA, 0),  # Construction Zone
         ],
         items=[
             Item(0, 0, 0x78802),
@@ -76,8 +76,8 @@ rooms = [
             [1, 1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 2, 0, 0x18EF2, 0x18FE2),  # Blue Brinstar Boulder Room
-            DoorIdentifier(LEFT, 0, 2, 0x18EE6, 0x18ECE),  # Construction Zone
+            DoorIdentifier(LEFT, 2, 0, 0x18EF2, 0x18FE2, 0),  # Blue Brinstar Boulder Room
+            DoorIdentifier(LEFT, 0, 2, 0x18EE6, 0x18ECE, 0),  # Construction Zone
         ],
         items=[
             Item(1, 2, 0x7879E),
@@ -95,8 +95,8 @@ rooms = [
         rom_address=0x7A1AD,
         map=[[1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18FEE, 0x18FFA),  # Billy Mays Room
-            DoorIdentifier(RIGHT, 1, 0, 0x18FE2, 0x18EF2),  # Blue Brinstar Energy Tank Room
+            DoorIdentifier(LEFT, 0, 0, 0x18FEE, 0x18FFA, 0),  # Billy Mays Room
+            DoorIdentifier(RIGHT, 1, 0, 0x18FE2, 0x18EF2, 0),  # Blue Brinstar Energy Tank Room
         ],
         node_tiles={
             1: [(0, 0)],  # left door
@@ -108,7 +108,7 @@ rooms = [
         rom_address=0x7A1D8,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(RIGHT, 0, 0, 0x18FFA, 0x18FEE),  # Blue Brinstar Boulder Room
+            DoorIdentifier(RIGHT, 0, 0, 0x18FFA, 0x18FEE, 0),  # Blue Brinstar Boulder Room
         ],
         items=[
             Item(0, 0, 0x78836),
