@@ -1483,19 +1483,30 @@ impl<'a> Patcher<'a> {
         let room_ptr = room.rom_address;
 
         // TODO: handle Toilet case
-        println!("{:?}", door);
+        let plm_id: u16;
+        let tile_x: u8;
+        let tile_y: u8;
         if door.direction == "right" {
-            let right_hazard_plm_id = 0xF580;  // must match address in hazard_markers.asm
-            let tile_x = door.x * 16 + 15;
-            let tile_y = door.y * 16 + 6;
-            self.extra_setup_asm.insert(room_ptr, vec![
-                0x22, 0xD7, 0x83, 0x84,  // jsl $8483D7
-                tile_x as u8, tile_y as u8,   // X and Y coordinates in 16x16 tiles
-                (right_hazard_plm_id & 0x00FF) as u8, (right_hazard_plm_id >> 8) as u8,
-            ]);    
+            plm_id = 0xF580;  // must match address in hazard_markers.asm
+            tile_x = (door.x * 16 + 15) as u8;
+            tile_y = (door.y * 16 + 6) as u8;
+        } else if door.direction == "down" {
+            if door.offset == Some(0) {
+                plm_id = 0xF588; // hazard marking overlaid on transition tiles
+            } else {
+                plm_id = 0xF584;
+            }
+            tile_x = (door.x * 16 + 6) as u8;
+            tile_y = (door.y * 16 + 15 - door.offset.unwrap_or(0)) as u8;
         } else {
             panic!("Unsupported door direction for hazard marker: {}", door.direction);
         }
+
+        self.extra_setup_asm.insert(room_ptr, vec![
+            0x22, 0xD7, 0x83, 0x84,  // jsl $8483D7
+            tile_x as u8, tile_y as u8,   // X and Y coordinates in 16x16 tiles
+            (plm_id & 0x00FF) as u8, (plm_id >> 8) as u8,
+        ]);
 
         Ok(())
     }
@@ -1503,6 +1514,7 @@ impl<'a> Patcher<'a> {
     fn apply_hazard_markers(&mut self) -> Result<()> {
 
         self.apply_door_hazard_marker((Some(0x18916), Some(0x1896A)))?; // Landing Site
+        self.apply_door_hazard_marker((Some(0x1A42C), Some(0x1A474)))?; // Mt. Everest
 
         Ok(())
     }
