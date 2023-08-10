@@ -1475,14 +1475,35 @@ impl<'a> Patcher<'a> {
         Ok(())
     }
 
-    fn apply_hazard_markers(&mut self) -> Result<()> {
-        let right_hazard_plm_id = 0xF580;  // must match address in hazard_markers.asm
+    fn apply_door_hazard_marker(&mut self, door_ptr_pair: DoorPtrPair) -> Result<()> {
+        let other_door_ptr_pair = self.other_door_ptr_pair_map[&door_ptr_pair];
+        let (room_idx, door_idx) = self.game_data.room_and_door_idxs_by_door_ptr_pair[&other_door_ptr_pair];
+        let room = &self.game_data.room_geometry[room_idx];
+        let door = &room.doors[door_idx];
+        let room_ptr = room.rom_address;
 
-        self.extra_setup_asm.insert(snes2pc(0x8f91f8), vec![
-            0x22, 0xD7, 0x83, 0x84,  // jsl $8483D7
-            0x8F, 0x46,   // X and Y coordinates in 16x16 tiles
-            (right_hazard_plm_id & 0x00FF) as u8, (right_hazard_plm_id >> 8) as u8,
-        ]);
+        // TODO: handle Toilet case
+        println!("{:?}", door);
+        if door.direction == "right" {
+            let right_hazard_plm_id = 0xF580;  // must match address in hazard_markers.asm
+            let tile_x = door.x * 16 + 15;
+            let tile_y = door.y * 16 + 6;
+            self.extra_setup_asm.insert(room_ptr, vec![
+                0x22, 0xD7, 0x83, 0x84,  // jsl $8483D7
+                tile_x as u8, tile_y as u8,   // X and Y coordinates in 16x16 tiles
+                (right_hazard_plm_id & 0x00FF) as u8, (right_hazard_plm_id >> 8) as u8,
+            ]);    
+        } else {
+            panic!("Unsupported door direction for hazard marker: {}", door.direction);
+        }
+
+        Ok(())
+    }
+
+    fn apply_hazard_markers(&mut self) -> Result<()> {
+
+        self.apply_door_hazard_marker((Some(0x18916), Some(0x1896A)))?; // Landing Site
+
         Ok(())
     }
 
