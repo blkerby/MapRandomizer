@@ -54,7 +54,7 @@
         <% if !ultra_low_qol { %>
         <h6>Special inputs</h6>
         <ul>
-        <li>Press Select in the pause map to cycle through maps of explored areas.
+        <li>Press Select or X/Y in the pause map to cycle through maps of explored areas.
         <li>Press L + R + Select + Start simultaneously to quick reload from the last save. 
         Repeat to cycle through previous saves.
         </ul>
@@ -94,7 +94,8 @@
         <% } %>
         <li>Hyper Beam destroys Super, Bomb, and Power Bomb blocks and can open blue & green gates from either side.
         <li>In the event that you end up softlocked in all three save files, you can clear a save file and restart
-        the game from the beginning while retaining your map progress.
+        the game from the beginning while retaining your map progress. (Map progress will be deleted only if all 
+        three save files are clear at the same time.)
         </ul>
         <p>
     </div>

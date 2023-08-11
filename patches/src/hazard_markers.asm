@@ -79,12 +79,21 @@ load_hazard_tiles:
     lda #$00E9
     sta $4314  ; Set source bank to $E9
 
-    LDA #$2A00
-    STA $2116  ; VRAM (destination) address = $2A00
+    LDA #$2A20
+    STA $2116  ; VRAM (destination) address = $2A20
     lda #$8000 
     sta $4312  ; source address = $8000
-    lda #$100
-    sta $4315 ; transfer size = $100 bytes
+    lda #$0080
+    sta $4315 ; transfer size = $80 bytes
+    lda #$0002
+    sta $420B  ; perform DMA transfer on channel 1
+
+    LDA #$2B20
+    STA $2116  ; VRAM (destination) address = $2B20
+    lda #$8080 
+    sta $4312  ; source address = $8080
+    lda #$0080
+    sta $4315 ; transfer size = $80 bytes
     lda #$0002
     sta $420B  ; perform DMA transfer on channel 1
 
@@ -113,14 +122,23 @@ reload_hazard_tiles:
     jsl $80B0FF
     dl $7E2000
 
-    ; Copy hazard tiles from $E98000-$E98100 to $7E7400
-    ldx #$00FF
-.loop
+    ; Copy hazard tiles from $E98000-$E98080 to $7E7440
+    ldx #$007F
+-
     lda $E98000,x
-    sta $7E7400,x
+    sta $7E7440,x
     dex
     dex
-    bpl .loop
+    bpl -
+
+    ; Copy hazard tiles from $E98080-$E98100 to $7E7640
+    ldx #$007F
+-
+    lda $E98080,x
+    sta $7E7640,x
+    dex
+    dex
+    bpl -
 
     ; Copy hazard tilemap (definition of 16 x 16 tiles from 8 x 8 tiles)
     jsl load_hazard_tilemap

@@ -1,12 +1,12 @@
 next release:
-- caution tape on doors leading to (otherwise unforeseeable) risk of death/softlock?
-- restore tourian blue hoppers to vanilla
+- fix graphical bug in kraid eye door room (hazard tiles)
+
 
 
 priority:
-- controller config special settings (moonwalk) customization
-- randomized title screen
 - door color randomization
+- randomized title screen
+- controller config special settings (moonwalk) customization
 - set up a more robust way for users to save & select presets
 - move input ROM off Generate page (and into separate dialogue that only shows on first use).
 - convert tech/strat AVIs to WebM & WebP (using ffmpeg CLI)
