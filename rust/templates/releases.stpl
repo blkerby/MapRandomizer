@@ -17,6 +17,16 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-79---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release79">Version 79 (2023-08-12)</a>:
+<ul>
+<li>Some more improvement to map clarity (minimap and pause map):
+    <ul>
+    <li>Gray doors are marked on the map.
+    <li>The "Save The Animals" option no longer causes Bomb Torizo Room to be marked with an X on the map.
+    </ul>
+<li>Fixed graphical glitches in Kraid Room and Kraid Eye Door Room involving hazard tiles (introduced in version 78).
+</ul>
+
 <p><a href="https://version-78---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release78">Version 78 (2023-08-10)</a>:
 <ul>
 <li>Hazard markers are added to doors leading into the following locations (either directly or via the Toilet):

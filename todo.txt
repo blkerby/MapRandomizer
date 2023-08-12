@@ -1,10 +1,11 @@
 next release:
 - DONE: fix graphical bug in kraid eye door room (hazard tiles)
-- fix graphical bug in kraid room (hazard tiles)
-- palette customization overhaul (free up dependence on changing door colors)
-
+- DONE: fix graphical bug in kraid room (hazard tiles)
+- gray doors marked on map
+- no longer mark BT with X on Save The Animals
 
 priority:
+- palette customization overhaul (free up dependence on changing door colors)
 - door color randomization
 - randomized title screen
 - controller config special settings (moonwalk) customization

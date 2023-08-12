@@ -18,6 +18,7 @@ enum Edge {
     Passage,
     Door,
     Wall,
+    GrayDoor,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
@@ -263,8 +264,10 @@ impl<'a> MapPatcher<'a> {
         };
         for y in 0..8 {
             for x in 0..8 {
-                if data[y][x] >= 4 {
+                if data[y][x] > 4 {
                     data[y][x] = 3;
+                } else if data[y][x] == 4 {
+                    data[y][x] = 0;
                 }
             }
         }
@@ -452,17 +455,81 @@ impl<'a> MapPatcher<'a> {
     fn render_basic_tile(&mut self, tile: BasicTile) -> Result<[[u8; 8]; 8]> {
         let bg_color = if tile.heated { 2 } else { 1 };
         let mut data: [[u8; 8]; 8] = [[bg_color; 8]; 8];
-        for &i in &self.edge_pixels_map[&tile.left] {
-            data[i][0] = 3;
+
+        if tile.left == Edge::GrayDoor {
+            data[0][0] = 3;
+            data[1][0] = 4;
+            data[2][0] = 15;
+            data[3][0] = 15;
+            data[4][0] = 15;
+            data[5][0] = 15;
+            data[6][0] = 4;
+            data[7][0] = 3;
+            data[2][1] = 4;
+            data[3][1] = 4;
+            data[4][1] = 4;
+            data[5][1] = 4;
+        } else {
+            for &i in &self.edge_pixels_map[&tile.left] {
+                data[i][0] = 3;
+            }    
         }
-        for &i in &self.edge_pixels_map[&tile.right] {
-            data[i][7] = 3;
+
+        if tile.right == Edge::GrayDoor {
+            data[0][7] = 3;
+            data[1][7] = 4;
+            data[2][7] = 15;
+            data[3][7] = 15;
+            data[4][7] = 15;
+            data[5][7] = 15;
+            data[6][7] = 4;
+            data[7][7] = 3;
+            data[2][6] = 4;
+            data[3][6] = 4;
+            data[4][6] = 4;
+            data[5][6] = 4;
+        } else {
+            for &i in &self.edge_pixels_map[&tile.right] {
+                data[i][7] = 3;
+            }    
         }
-        for &i in &self.edge_pixels_map[&tile.up] {
-            data[0][i] = 3;
+
+        if tile.up == Edge::GrayDoor {
+            data[0][0] = 3;
+            data[0][1] = 4;
+            data[0][2] = 15;
+            data[0][3] = 15;
+            data[0][4] = 15;
+            data[0][5] = 15;
+            data[0][6] = 4;
+            data[0][7] = 3;
+            data[1][2] = 4;
+            data[1][3] = 4;
+            data[1][4] = 4;
+            data[1][5] = 4;
+        } else {
+            for &i in &self.edge_pixels_map[&tile.up] {
+                data[0][i] = 3;
+            }    
         }
-        for &i in &self.edge_pixels_map[&tile.down] {
-            data[7][i] = 3;
+
+        if tile.down == Edge::GrayDoor {
+            data[7][0] = 3;
+            data[7][1] = 4;
+            data[7][2] = 15;
+            data[7][3] = 15;
+            data[7][4] = 15;
+            data[7][5] = 15;
+            data[7][6] = 4;
+            data[7][7] = 3;
+            data[6][2] = 4;
+            data[6][3] = 4;
+            data[6][4] = 4;
+            data[6][5] = 4;
+        } else {
+            for &i in &self.edge_pixels_map[&tile.down] {
+                data[7][i] = 3;
+            }
         }
 
         let item_color = if tile.faded {
@@ -849,10 +916,6 @@ impl<'a> MapPatcher<'a> {
             Objectives::Pirates => {
                 self.indicate_pirates_tiles(boss_tile, heated_boss_tile)?;
             }
-        }
-
-        if self.randomization.difficulty.save_animals {
-            self.patch_room("Bomb Torizo Room", vec![(0, 0, boss_tile)])?;
         }
 
         self.patch_room(
@@ -1295,6 +1358,78 @@ impl<'a> MapPatcher<'a> {
 
         self.patch_room_basic("Big Boy Room", vec![(2, 0, P, E, W, W, O)])?;
 
+        Ok(())
+    }
+
+    fn indicate_gray_doors(&mut self) -> Result<()> {
+        // Indicate gray doors by a gray bubble with black border. Some of these may be later overwritten
+        // by an X depending on the objective setting.
+
+        // Pirate rooms:
+        self.patch_room_basic(
+            "Pit Room",
+            vec![
+                (0, 0, Edge::GrayDoor, E, W, P, O),
+                (2, 0, E, Edge::GrayDoor, W, W, O),
+            ],
+        )?;
+        self.patch_room_basic("Baby Kraid Room", vec![
+            (0, 0, Edge::GrayDoor, E, W, W, O),
+            (5, 0, E, Edge::GrayDoor, W, W, O),
+        ])?;
+        self.patch_room_basic("Plasma Room", vec![
+            (0, 0, Edge::GrayDoor, E, W, E, O),
+        ])?;
+        self.patch_room_basic("Metal Pirates Room", vec![
+            (0, 0, Edge::GrayDoor, E, W, W, O),
+            (2, 0, E, Edge::GrayDoor, W, W, O),
+        ])?;
+
+        // Boss rooms:
+        self.patch_room_basic(
+            "Kraid Room",
+            vec![
+                (0, 1, Edge::GrayDoor, E, E, W, O),
+                (1, 1, E, Edge::GrayDoor, E, W, O),
+            ]
+        )?;
+        self.patch_room_basic(
+            "Phantoon's Room",
+            vec![
+                (0, 0, Edge::GrayDoor, W, W, W, O),
+            ]
+        )?;
+        self.patch_room_basic(
+            "Draygon's Room",
+            vec![
+                (0, 1, Edge::GrayDoor, E, E, W, O),
+                (1, 0, E, Edge::GrayDoor, W, E, O),
+            ]
+        )?;
+        self.patch_room_basic(
+            "Ridley's Room",
+            vec![
+                (0, 0, W, Edge::GrayDoor, W, E, O),
+                (0, 1, Edge::GrayDoor, W, E, W, O),
+            ]
+        )?;
+
+        // Miniboss rooms:
+        self.patch_room_basic(
+            "Bomb Torizo Room", vec![(0, 0, Edge::GrayDoor, W, W, W, O)]
+        )?;
+        self.patch_room_basic(
+            "Spore Spawn Room", vec![(0, 2, W, W, P, Edge::GrayDoor, O)]
+        )?;
+        self.patch_room_basic("Crocomire's Room", vec![
+            (3, 0, E, E, Edge::GrayDoor, W, O),
+        ])?;
+        self.patch_room_basic("Botwoon's Room", vec![
+            (0, 0, Edge::GrayDoor, P, W, W, O),
+        ])?;
+        self.patch_room_basic("Golden Torizo's Room", vec![
+            (1, 1, E, Edge::GrayDoor, E, W, O),
+        ])?;
         Ok(())
     }
 
@@ -2127,6 +2262,7 @@ impl<'a> MapPatcher<'a> {
         self.fix_walls()?;
         self.indicate_passages()?;
         self.indicate_doors()?;
+        self.indicate_gray_doors()?;
         self.indicate_heat()?;
         self.indicate_sand()?;
         self.indicate_special_tiles()?;

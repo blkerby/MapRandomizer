@@ -90,8 +90,9 @@ fn get_color(value: u8, area: usize) -> Rgb<u8> {
                 _ => panic!("Unexpected area {}", area),
             }
         }
-        3 => Rgb([0xFF, 0xFF, 0xFF]),
-        4 => Rgb([0x00, 0x00, 0x00]),
+        3 => get_rgb(31, 31, 31), // Wall/passage (white)
+        4 => get_rgb(0, 0, 0), // Opaque black (used in elevators, covers up dotted grid background)
+        15 => get_rgb(12, 12, 12), // Gray door
         _ => panic!("Unexpected color value {}", value),
     }
 }
