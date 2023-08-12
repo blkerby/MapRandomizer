@@ -1961,8 +1961,10 @@ impl<'a> MapPatcher<'a> {
         }
         // Kraid alive:
         self.rom.write_u24(snes2pc(0x8FB817), TILE_GFX_ADDR_2BPP as isize + kraid_map_area.unwrap() * 0x10000)?;
+        self.rom.write_u16(snes2pc(0x8FB81C), 0x0C00)?;  // avoid overwriting hazard tiles with (unneeded) message box tiles
         // Kraid dead:
         self.rom.write_u24(snes2pc(0x8FB842), TILE_GFX_ADDR_2BPP as isize + kraid_map_area.unwrap() * 0x10000)?;
+        self.rom.write_u16(snes2pc(0x8FB847), 0x0C00)?;  // avoid overwriting hazard tiles with (unneeded) message box tiles
         Ok(())
     }
 
@@ -2072,14 +2074,14 @@ impl<'a> MapPatcher<'a> {
 
         // Write 16x16 tiles (tilemap):
         let base_addr = snes2pc(0xE98280);
-        let hazard_tile1_idx = 0x2A2;
-        let hazard_tile2_idx = 0x2A3;
-        let hazard_tile3_idx = 0x2A4;
-        let hazard_tile4_idx = 0x2A5;
-        let flip_hazard_tile1_idx = 0x2B2;
-        let flip_hazard_tile2_idx = 0x2B3;
-        let flip_hazard_tile3_idx = 0x2B4;
-        let flip_hazard_tile4_idx = 0x2B5;
+        let hazard_tile1_idx = 0x260;
+        let hazard_tile2_idx = 0x261;
+        let hazard_tile3_idx = 0x262;
+        let hazard_tile4_idx = 0x263;
+        let flip_hazard_tile1_idx = 0x264;
+        let flip_hazard_tile2_idx = 0x265;
+        let flip_hazard_tile3_idx = 0x266;
+        let flip_hazard_tile4_idx = 0x267;
         let door_frame1_idx = 0x342;
         let door_frame2_idx = 0x352;
         let door_frame3_idx = 0x362;

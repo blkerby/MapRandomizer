@@ -1,6 +1,7 @@
 next release:
-- fix graphical bug in kraid eye door room (hazard tiles)
-
+- DONE: fix graphical bug in kraid eye door room (hazard tiles)
+- fix graphical bug in kraid room (hazard tiles)
+- palette customization overhaul (free up dependence on changing door colors)
 
 
 priority:
@@ -32,13 +33,6 @@ priority:
   - On model side, spread out the placement of potential save rooms (single-tile rooms).
   - Define "distance" in a way that accounts for ease of access (e.g. possible item/tech dependencies)
 - Improve area clustering
-- enhancements to momentum conservation patch
-  - remove need to be holding dash or to be in spin
-  - reset speed boost counter whenever momentum conservation comes into play, to avoid making it too easy to get blue
-  - retain speed when turning around with spin?
-  - on ground, retain horizontal speed when unmorphing
-    - by pressing up (or jump, if spring ball not equipped) while holding forward
-  - in air, retain horizontal speed when soft unmorphing while holding forward
 - investigate panic during spoiler log construction:
   - RUST_BACKTRACE=1 time cargo run --bin maprando-cli -- --map ../maps/session-2022-06-03T17:19:29.727911.pkl-bk30-subarea-balance-2/1000001.json --item-placement-seed 3 --input-rom ~/Downloads/Super\ Metroid\ \(JU\)\ \[\!\].smc --output-rom ~/Downloads/testrom.smc
 - investigate resource_multiplier bug that happened in Osse's seed with resource_multiplier=8:
@@ -70,6 +64,13 @@ priority:
   is currently set up (since there is no way to go up through sand)
 
 later:
+- enhancements to momentum conservation patch
+  - remove need to be holding dash or to be in spin
+  - reset speed boost counter whenever momentum conservation comes into play, to avoid making it too easy to get blue
+  - retain speed when turning around with spin?
+  - on ground, retain horizontal speed when unmorphing
+    - by pressing up (or jump, if spring ball not equipped) while holding forward
+  - in air, retain horizontal speed when soft unmorphing while holding forward
 - add animated GIFs on room/tech/strat pages for notable strats.
 - maybe overhaul how randomization/customization phases work: run customization on client (with Rust WebAssembly?)
   - make it so that customization can use matching version from when the seed was generated

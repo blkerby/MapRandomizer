@@ -682,8 +682,8 @@ load_bg3_tiles_kraid:
     adc #$00E2
     sta $4314
 
-    lda #$1000
-    sta $4315 ; transfer size = $1000 bytes
+    lda #$0C00
+    sta $4315 ; transfer size = $0C00 bytes
 
     sep #$30
     lda #$02

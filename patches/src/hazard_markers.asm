@@ -14,7 +14,7 @@ lorom
 !hazard_tilemap_size = #$0020
 
 
-org $82E7A8
+org $82E7BB
     jsl load_hazard_tiles
 
 org $82E845
@@ -70,7 +70,7 @@ down_hazard_transition_plm:
     dw $B3D0, down_hazard_transition_inst
 
 load_hazard_tiles:
-    jsl $80B271  ; run hi-jacked instruction (decompress CRE tiles from $B98000 to VRAM $2800)
+    jsl $80B271  ; run hi-jacked instruction (Decompress [tileset tiles pointer] to VRAM $0000)
 
     LDA #$0080
     STA $2115  ; video port control
@@ -79,21 +79,12 @@ load_hazard_tiles:
     lda #$00E9
     sta $4314  ; Set source bank to $E9
 
-    LDA #$2A20
-    STA $2116  ; VRAM (destination) address = $2A20
+    LDA #$2600
+    STA $2116  ; VRAM (destination) address = $2600
     lda #$8000 
     sta $4312  ; source address = $8000
-    lda #$0080
-    sta $4315 ; transfer size = $80 bytes
-    lda #$0002
-    sta $420B  ; perform DMA transfer on channel 1
-
-    LDA #$2B20
-    STA $2116  ; VRAM (destination) address = $2B20
-    lda #$8080 
-    sta $4312  ; source address = $8080
-    lda #$0080
-    sta $4315 ; transfer size = $80 bytes
+    lda #$0100
+    sta $4315 ; transfer size = $100 bytes
     lda #$0002
     sta $420B  ; perform DMA transfer on channel 1
 
@@ -122,20 +113,11 @@ reload_hazard_tiles:
     jsl $80B0FF
     dl $7E2000
 
-    ; Copy hazard tiles from $E98000-$E98080 to $7E7440
-    ldx #$007F
+    ; Copy hazard tiles from $E98000-$E98100 to $7E6C00
+    ldx #$00FE
 -
     lda $E98000,x
-    sta $7E7440,x
-    dex
-    dex
-    bpl -
-
-    ; Copy hazard tiles from $E98080-$E98100 to $7E7640
-    ldx #$007F
--
-    lda $E98080,x
-    sta $7E7640,x
+    sta $7E6C00,x
     dex
     dex
     bpl -

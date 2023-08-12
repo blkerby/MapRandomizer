@@ -551,11 +551,11 @@ impl LogicData {
             "Crocomire Upper Norfair",
             "West Lower Norfair",
             "East Lower Norfair",
+            "Wrecked Ship",
             "Outer Maridia",
             "Pink Inner Maridia",
             "Yellow Inner Maridia",
             "Green Inner Maridia",
-            "Wrecked Ship",
             "Tourian",
         ]
         .into_iter()
