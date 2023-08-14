@@ -37,9 +37,9 @@ run_extra_setup_asm:
     LDX $07BB
     LDA $0010,x
     beq .skip
-    sta $00         ; write setup ASM pointer temporarily to direct page $00, so we can jump to it with JSR.
+    sta $1F68         ; write setup ASM pointer temporarily to $1F68, so we can jump to it with JSR. (Is there a less awkward way to do this?)
     ldx #$0000
-    jsr ($0000,x)
+    jsr ($1F68,x)
 .skip:
     ; run hi-jacked instructions
     LDX $07BB

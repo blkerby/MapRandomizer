@@ -5,6 +5,7 @@ $1F60: fast_reload.asm
 $1F62: map area backup in pause menu (like $079F)
 $1F64: escape refill complete
 $1F66: map switch direction in pause menu
+$1F68: temporary value in hazard_markers.asm
 $7ED823: randomizer-specific event flags:
   $0001: bowling statue activated
   $0002: pit room door unlocked

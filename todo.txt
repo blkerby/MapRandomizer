@@ -1,10 +1,13 @@
 next release:
 - DONE: fix graphical bug in kraid eye door room (hazard tiles)
 - DONE: fix graphical bug in kraid room (hazard tiles)
-- gray doors marked on map
-- no longer mark BT with X on Save The Animals
+- DONE: gray doors marked on map
+- DONE: no longer mark BT with X on Save The Animals
+- DONE: fix memory corruption in tourian escape room 1
+- fix hopper AI
 
 priority:
+- tighten heat frames in spiky platforms random start
 - palette customization overhaul (free up dependence on changing door colors)
 - door color randomization
 - randomized title screen

@@ -1505,7 +1505,6 @@ impl<'a> Patcher<'a> {
             panic!("Unsupported door direction for hazard marker: {}", door.direction);
         }
 
-        println!("{:x} {:x} {:x} {:x}", room_ptr, tile_x, tile_y, plm_id);
         self.extra_setup_asm.entry(room_ptr).or_insert(vec![]).extend(vec![
             0x22, 0xD7, 0x83, 0x84,  // jsl $8483D7
             tile_x as u8, tile_y as u8,   // X and Y coordinates in 16x16 tiles
@@ -1548,7 +1547,7 @@ impl<'a> Patcher<'a> {
                 next_addr += asm.len();
             }
         }
-        assert!(next_addr <= snes2pc(0xB68000));
+        assert!(next_addr <= snes2pc(0xB5FA00));
 
         // for &room_ptr in self.game_data.room_id_by_ptr.keys() {
         //     for (_, state_ptr) in self.get_room_state_ptrs(room_ptr)? {
@@ -1582,6 +1581,9 @@ pub fn make_rom(
     // (removed here). Both of these have to be removed in order to successfully get rid of this wall.
     // (The change has to be applied to the original ROM before doors are reconnected based on the randomized map.)
     orig_rom.write_u8(snes2pc(0x83AA8F), 0x01)?;  // Door direction = 0x01
+    // Even though there is no door cap closing animation, we need to move the door cap X out of the way to the left,
+    // otherwise corrupts the hazard marker PLM somehow:
+    orig_rom.write_u8(snes2pc(0x83AA90), 0x1E)?;  // Door cap X = 0x1E
 
     let mut rom = orig_rom.clone();
     let mut patcher = Patcher {
