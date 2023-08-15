@@ -1,6 +1,6 @@
 [submodule "sm-json-data"]
 	path = sm-json-data
-	url = https://github.com/miketrethewey/sm-json-data.git
+	url = https://github.com/vg-json-data/sm-json-data.git
 [submodule "MapRandoSprites"]
 	path = MapRandoSprites
 	url = https://github.com/blkerby/MapRandoSprites

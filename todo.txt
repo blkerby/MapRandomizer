@@ -4,12 +4,11 @@ next release:
 - DONE: gray doors marked on map
 - DONE: no longer mark BT with X on Save The Animals
 - DONE: fix memory corruption in tourian escape room 1
-- fix hopper AI
-- check if memory corruption issue with hazard tiles happens in other rooms: crateria tube, glass tunnel
+- DONE: fix hopper AI
+- tighten heat frames in spiky platforms random start
 
 
 priority:
-- tighten heat frames in spiky platforms random start
 - palette customization overhaul (free up dependence on changing door colors)
 - door color randomization
 - randomized title screen

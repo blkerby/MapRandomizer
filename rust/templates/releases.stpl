@@ -17,18 +17,24 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-79---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release79">Version 79 (2023-08-12)</a>:
+<p><a href="https://version-79---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release79">Version 79 (2023-08-15)</a>:
 <ul>
 <li>Some more improvement to map clarity (minimap and pause map):
     <ul>
     <li>Gray doors are marked on the map.
-    <li>The "Save The Animals" option no longer causes Bomb Torizo Room to be marked with an X on the map.
+    <li>The "Save The Animals" option no longer causes Bomb Torizo Room to be marked with an X on the map
+        (so the item dot shape is now visible again).
     </ul>
 <li>Fixed some bugs involving hazard markers (introduced in version 78):
     <ul>
     <li>Fixed graphical glitches in Kraid Room and Kraid Eye Door Room.
     <li>Fixed memory corruption bug in Tourian Escape Room 1 when hazard markers occur on the right.
     </ul>
+<li>Fixed RNG initialization in rooms with Sidehoppers, Dessgeegas, and Beetoms.
+    <ul>
+    <li>Enemies in these rooms should now consistently behave like they do in the vanilla game.
+    </ul>
+<li>Logic updates: Heat frames tightened in several rooms.
 </ul>
 
 <p><a href="https://version-78---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release78">Version 78 (2023-08-10)</a>:
