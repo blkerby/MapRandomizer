@@ -6,7 +6,7 @@ use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::Rom;
 use maprando::randomize::{
     DebugOptions, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, MotherBrainFight, Objectives,
-    ProgressionRate, Randomization, Randomizer,
+    ProgressionRate, Randomization, Randomizer, ItemDotChange,
 };
 use maprando::spoiler_map;
 use maprando::web::{SamusSpriteInfo, SamusSpriteCategory};
@@ -157,6 +157,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         mark_map_stations: true,
         transition_letters: true,
         item_markers: ItemMarkers::ThreeTiered,
+        item_dot_change: ItemDotChange::Fade,
         all_items_spawn: true,
         acid_chozo: true,
         fast_elevators: true,

@@ -17,7 +17,7 @@ use maprando::game_data::{GameData, IndexedVec, Item};
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::{make_rom, Rom};
 use maprando::randomize::{
-    DebugOptions, DifficultyConfig, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup,
+    DebugOptions, DifficultyConfig, ItemMarkers, ItemDotChange, ItemPlacementStyle, ItemPriorityGroup,
     MotherBrainFight, Objectives, Randomization, Randomizer,
 };
 use maprando::seed_repository::{Seed, SeedFile, SeedRepository};
@@ -202,6 +202,7 @@ struct RandomizeRequest {
     mark_map_stations: Text<bool>,
     transition_letters: Text<bool>,
     item_markers: Text<String>,
+    item_dot_change: Text<String>,
     all_items_spawn: Text<bool>,
     acid_chozo: Text<bool>,
     fast_elevators: Text<bool>,
@@ -260,6 +261,7 @@ struct SeedData {
     mark_map_stations: bool,
     transition_letters: bool,
     item_markers: String,
+    item_dot_change: String,
     all_items_spawn: bool,
     acid_chozo: bool,
     fast_elevators: bool,
@@ -307,6 +309,7 @@ struct SeedHeaderTemplate<'a> {
     mark_map_stations: bool,
     transition_letters: bool,
     item_markers: String,
+    item_dot_change: String,
     all_items_spawn: bool,
     acid_chozo: bool,
     fast_elevators: bool,
@@ -405,6 +408,7 @@ fn render_seed(
         escape_movement_items: seed_data.escape_movement_items,
         mark_map_stations: seed_data.mark_map_stations,
         item_markers: seed_data.item_markers.clone(),
+        item_dot_change: seed_data.item_dot_change.clone(),
         transition_letters: seed_data.transition_letters,
         all_items_spawn: seed_data.all_items_spawn,
         acid_chozo: seed_data.acid_chozo,
@@ -879,6 +883,7 @@ fn get_difficulty_tiers(
             mark_map_stations: difficulty.mark_map_stations,
             transition_letters: difficulty.transition_letters,
             item_markers: difficulty.item_markers,
+            item_dot_change: difficulty.item_dot_change,
             all_items_spawn: difficulty.all_items_spawn,
             acid_chozo: difficulty.acid_chozo,
             fast_elevators: difficulty.fast_elevators,
@@ -1068,6 +1073,11 @@ async fn randomize(
             "3-Tiered" => ItemMarkers::ThreeTiered,
             _ => panic!("Unrecognized item_markers: {}", req.item_markers.0),
         },
+        item_dot_change: match req.item_dot_change.0.as_str() {
+            "Fade" => ItemDotChange::Fade,
+            "Disappear" => ItemDotChange::Disappear,
+            _ => panic!("Unrecognized item_dot_change: {}", req.item_dot_change.0),
+        },
         all_items_spawn: req.all_items_spawn.0,
         acid_chozo: req.acid_chozo.0,
         fast_elevators: req.fast_elevators.0,
@@ -1176,6 +1186,7 @@ async fn randomize(
         mark_map_stations: req.mark_map_stations.0,
         transition_letters: req.transition_letters.0,
         item_markers: req.item_markers.0.clone(),
+        item_dot_change: req.item_dot_change.0.clone(),
         all_items_spawn: req.all_items_spawn.0,
         acid_chozo: req.acid_chozo.0,
         fast_elevators: req.fast_elevators.0,

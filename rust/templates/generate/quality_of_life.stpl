@@ -22,6 +22,19 @@
 
                 <div class="form-group row align-items-center">
                     <div class="col-lg-6 col-xl-5 m-2">
+                        <% include!("help/quality/item_dot_change.stpl"); %>
+                        <label for="preset">Item dots after collection</label>
+                    </div>
+                    <div class="col-3 btn-group m-2" role="group">
+                        <input type="radio" class="btn-check" name="item_dot_change" id="itemDotChangeFade" value="Fade" checked>
+                        <label class="btn btn-outline-primary" for="itemDotChangeFade">Fade</label>
+                        <input type="radio" class="btn-check" name="item_dot_change" id="itemDotChangeDisappear" value="Disappear">
+                        <label class="btn btn-outline-primary" for="itemDotChangeDisappear">Disappear</label>
+                    </div>
+                </div>
+
+                <div class="form-group row align-items-center">
+                    <div class="col-lg-6 col-xl-5 m-2">
                         <% include!("help/quality/map_stations.stpl"); %>
                         <label for="preset">Map stations always visible on map</label>
                     </div>

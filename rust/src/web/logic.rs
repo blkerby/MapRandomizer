@@ -308,6 +308,7 @@ fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
         mark_map_stations: true,
         transition_letters: false,
         item_markers: crate::randomize::ItemMarkers::ThreeTiered,
+        item_dot_change: crate::randomize::ItemDotChange::Fade,
         all_items_spawn: true,
         acid_chozo: true,
         fast_elevators: true,

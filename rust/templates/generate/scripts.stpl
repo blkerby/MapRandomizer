@@ -126,6 +126,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("markMapStationsNo").checked = true;
         document.getElementById("transitionLettersNo").checked = true;
         document.getElementById("itemMarkersSimple").checked = true;
+        document.getElementById("itemDotChangeFade").checked = true;
         document.getElementById("allItemsSpawnNo").checked = true;
         document.getElementById("acidChozoNo").checked = true;
         document.getElementById("fastElevatorsNo").checked = true;
@@ -146,6 +147,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("markMapStationsYes").checked = true;
         document.getElementById("transitionLettersNo").checked = true;
         document.getElementById("itemMarkersUniques").checked = true;
+        document.getElementById("itemDotChangeFade").checked = true;
         document.getElementById("allItemsSpawnNo").checked = true;
         document.getElementById("acidChozoNo").checked = true;
         document.getElementById("fastElevatorsYes").checked = true;
@@ -164,6 +166,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("markMapStationsYes").checked = true;
         document.getElementById("transitionLettersNo").checked = true;
         document.getElementById("itemMarkersThreeTiered").checked = true;
+        document.getElementById("itemDotChangeFade").checked = true;
         document.getElementById("allItemsSpawnYes").checked = true;
         document.getElementById("acidChozoYes").checked = true;
         document.getElementById("fastElevatorsYes").checked = true;
@@ -182,6 +185,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("markMapStationsYes").checked = true;
         document.getElementById("transitionLettersYes").checked = true;
         document.getElementById("itemMarkersThreeTiered").checked = true;
+        document.getElementById("itemDotChangeFade").checked = true;
         document.getElementById("allItemsSpawnYes").checked = true;
         document.getElementById("acidChozoYes").checked = true;
         document.getElementById("fastElevatorsYes").checked = true;

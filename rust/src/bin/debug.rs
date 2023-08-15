@@ -4,7 +4,7 @@ use maprando::{
     game_data::{GameData, Item, Requirement},
     randomize::{
         DifficultyConfig, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, MotherBrainFight,
-        Objectives, ProgressionRate,
+        Objectives, ProgressionRate, ItemDotChange,
     },
     traverse::{apply_requirement, GlobalState, LocalState},
 };
@@ -113,6 +113,7 @@ fn main() -> Result<()> {
         mark_map_stations: true,
         transition_letters: false,
         item_markers: ItemMarkers::ThreeTiered,
+        item_dot_change: ItemDotChange::Fade,
         all_items_spawn: true,
         acid_chozo: true,
         fast_elevators: true,

@@ -3,7 +3,7 @@ use log::info;
 
 use crate::{
     game_data::{GameData, Item, ItemIdx, Map, RoomGeometryDoor, RoomGeometryItem},
-    randomize::{ItemMarkers, Objectives, Randomization},
+    randomize::{ItemDotChange, ItemMarkers, Objectives, Randomization},
 };
 
 use super::{snes2pc, xy_to_explored_bit_ptr, xy_to_map_offset, Rom};
@@ -155,10 +155,9 @@ impl<'a> MapPatcher<'a> {
             0x0E, 0x0F, 0x1C, 0x1D, 0x1E,
             0x28, // slope tile that triggers tile above Samus to be marked explored
             0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D,
-            0x3E, 0x3F, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A,
-            0x4B,
+            0x3E, 0x3F, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B,
             0xA8, // heated slope tile corresponding to 0x28
-            // Used by max_ammo_display:
+                  // Used by max_ammo_display:
         ]
         .into_iter()
         .collect();
@@ -256,7 +255,7 @@ impl<'a> MapPatcher<'a> {
         &mut self,
         idx: usize,
         mut data: [[u8; 8]; 8],
-        area_idx: Option<usize,>,
+        area_idx: Option<usize>,
     ) -> Result<()> {
         let base_addr = match area_idx {
             Some(area) => snes2pc(TILE_GFX_ADDR_2BPP + area * 0x10000), // New HUD tile GFX in ROM
@@ -290,11 +289,7 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
-    fn write_tile_4bpp(
-        &mut self,
-        base_addr: usize,
-        data: [[u8; 8]; 8],
-    ) -> Result<()> {
+    fn write_tile_4bpp(&mut self, base_addr: usize, data: [[u8; 8]; 8]) -> Result<()> {
         for y in 0..8 {
             let addr = base_addr + y * 2;
             let data_0: u8 = (0..8).map(|x| (data[y][x] & 1) << (7 - x)).sum();
@@ -472,7 +467,7 @@ impl<'a> MapPatcher<'a> {
         } else {
             for &i in &self.edge_pixels_map[&tile.left] {
                 data[i][0] = 3;
-            }    
+            }
         }
 
         if tile.right == Edge::GrayDoor {
@@ -491,7 +486,7 @@ impl<'a> MapPatcher<'a> {
         } else {
             for &i in &self.edge_pixels_map[&tile.right] {
                 data[i][7] = 3;
-            }    
+            }
         }
 
         if tile.up == Edge::GrayDoor {
@@ -510,7 +505,7 @@ impl<'a> MapPatcher<'a> {
         } else {
             for &i in &self.edge_pixels_map[&tile.up] {
                 data[0][i] = 3;
-            }    
+            }
         }
 
         if tile.down == Edge::GrayDoor {
@@ -1075,7 +1070,7 @@ impl<'a> MapPatcher<'a> {
             }
             tile
         }
-        let slope1 = 0xA8;  // We have to put this tile in a specific place because it (like 0x28) has special behavior to explore the tile above it.
+        let slope1 = 0xA8; // We have to put this tile in a specific place because it (like 0x28) has special behavior to explore the tile above it.
         let slope1_tile = make_heated(self.read_map_tile_4bpp(0x28)?);
         self.write_tile_2bpp(0xA8, slope1_tile)?;
         self.write_map_tile_4bpp(0xA8, slope1_tile)?;
@@ -1373,17 +1368,21 @@ impl<'a> MapPatcher<'a> {
                 (2, 0, E, Edge::GrayDoor, W, W, O),
             ],
         )?;
-        self.patch_room_basic("Baby Kraid Room", vec![
-            (0, 0, Edge::GrayDoor, E, W, W, O),
-            (5, 0, E, Edge::GrayDoor, W, W, O),
-        ])?;
-        self.patch_room_basic("Plasma Room", vec![
-            (0, 0, Edge::GrayDoor, E, W, E, O),
-        ])?;
-        self.patch_room_basic("Metal Pirates Room", vec![
-            (0, 0, Edge::GrayDoor, E, W, W, O),
-            (2, 0, E, Edge::GrayDoor, W, W, O),
-        ])?;
+        self.patch_room_basic(
+            "Baby Kraid Room",
+            vec![
+                (0, 0, Edge::GrayDoor, E, W, W, O),
+                (5, 0, E, Edge::GrayDoor, W, W, O),
+            ],
+        )?;
+        self.patch_room_basic("Plasma Room", vec![(0, 0, Edge::GrayDoor, E, W, E, O)])?;
+        self.patch_room_basic(
+            "Metal Pirates Room",
+            vec![
+                (0, 0, Edge::GrayDoor, E, W, W, O),
+                (2, 0, E, Edge::GrayDoor, W, W, O),
+            ],
+        )?;
 
         // Boss rooms:
         self.patch_room_basic(
@@ -1391,45 +1390,33 @@ impl<'a> MapPatcher<'a> {
             vec![
                 (0, 1, Edge::GrayDoor, E, E, W, O),
                 (1, 1, E, Edge::GrayDoor, E, W, O),
-            ]
+            ],
         )?;
-        self.patch_room_basic(
-            "Phantoon's Room",
-            vec![
-                (0, 0, Edge::GrayDoor, W, W, W, O),
-            ]
-        )?;
+        self.patch_room_basic("Phantoon's Room", vec![(0, 0, Edge::GrayDoor, W, W, W, O)])?;
         self.patch_room_basic(
             "Draygon's Room",
             vec![
                 (0, 1, Edge::GrayDoor, E, E, W, O),
                 (1, 0, E, Edge::GrayDoor, W, E, O),
-            ]
+            ],
         )?;
         self.patch_room_basic(
             "Ridley's Room",
             vec![
                 (0, 0, W, Edge::GrayDoor, W, E, O),
                 (0, 1, Edge::GrayDoor, W, E, W, O),
-            ]
+            ],
         )?;
 
         // Miniboss rooms:
+        self.patch_room_basic("Bomb Torizo Room", vec![(0, 0, Edge::GrayDoor, W, W, W, O)])?;
+        self.patch_room_basic("Spore Spawn Room", vec![(0, 2, W, W, P, Edge::GrayDoor, O)])?;
+        self.patch_room_basic("Crocomire's Room", vec![(3, 0, E, E, Edge::GrayDoor, W, O)])?;
+        self.patch_room_basic("Botwoon's Room", vec![(0, 0, Edge::GrayDoor, P, W, W, O)])?;
         self.patch_room_basic(
-            "Bomb Torizo Room", vec![(0, 0, Edge::GrayDoor, W, W, W, O)]
+            "Golden Torizo's Room",
+            vec![(1, 1, E, Edge::GrayDoor, E, W, O)],
         )?;
-        self.patch_room_basic(
-            "Spore Spawn Room", vec![(0, 2, W, W, P, Edge::GrayDoor, O)]
-        )?;
-        self.patch_room_basic("Crocomire's Room", vec![
-            (3, 0, E, E, Edge::GrayDoor, W, O),
-        ])?;
-        self.patch_room_basic("Botwoon's Room", vec![
-            (0, 0, Edge::GrayDoor, P, W, W, O),
-        ])?;
-        self.patch_room_basic("Golden Torizo's Room", vec![
-            (1, 1, E, Edge::GrayDoor, E, W, O),
-        ])?;
         Ok(())
     }
 
@@ -1540,12 +1527,12 @@ impl<'a> MapPatcher<'a> {
         }
 
         let extended_map_palette: Vec<(u8, u16)> = vec![
-            (14, rgb(0, 24, 0)),  // Brinstar green
-            (10, rgb(29, 0, 0)),  // Norfair red
-            (8, rgb(4, 13, 31)),  // Maridia blue
-            (9, rgb(24, 22, 6)),  // Wrecked Ship yellow
-            (11, rgb(18, 3, 31)), // Crateria purple
-            (6, rgb(29, 15, 0)),  // Tourian,
+            (14, rgb(0, 24, 0)),   // Brinstar green
+            (10, rgb(29, 0, 0)),   // Norfair red
+            (8, rgb(4, 13, 31)),   // Maridia blue
+            (9, rgb(24, 22, 6)),   // Wrecked Ship yellow
+            (11, rgb(18, 3, 31)),  // Crateria purple
+            (6, rgb(29, 15, 0)),   // Tourian,
             (15, rgb(18, 12, 14)), // Gray door
         ];
         // Dotted grid lines
@@ -1887,14 +1874,21 @@ impl<'a> MapPatcher<'a> {
             basic_tile.interior = interior;
             let tile1 = self.get_basic_tile(basic_tile)?;
             area_data[area].push((item_idx, offset as TilemapOffset, tile1 | 0x0C00, interior));
-            if interior == Interior::MajorItem
-                || (interior == Interior::MediumItem
-                    && orig_basic_tile.interior != Interior::MajorItem)
-                || (interior == Interior::Item
-                    && (orig_basic_tile.interior == Interior::Empty
-                        || orig_basic_tile.interior == Interior::Item))
-            {
-                basic_tile.faded = true;
+            if self.randomization.difficulty.item_dot_change == ItemDotChange::Fade {
+                if interior == Interior::MajorItem
+                    || (interior == Interior::MediumItem
+                        && orig_basic_tile.interior != Interior::MajorItem)
+                    || (interior == Interior::Item
+                        && (orig_basic_tile.interior == Interior::Empty
+                            || orig_basic_tile.interior == Interior::Item))
+                {
+                    basic_tile.faded = true;
+                    let tile_faded = self.get_basic_tile(basic_tile)?;
+                    self.rom
+                        .write_u16(base_ptr + offset, (tile_faded | 0x0C00) as isize)?;
+                }
+            } else {
+                basic_tile.interior = Interior::Empty;
                 let tile_faded = self.get_basic_tile(basic_tile)?;
                 self.rom
                     .write_u16(base_ptr + offset, (tile_faded | 0x0C00) as isize)?;
@@ -2096,15 +2090,26 @@ impl<'a> MapPatcher<'a> {
             }
         }
         // Kraid alive:
-        self.rom.write_u24(snes2pc(0x8FB817), TILE_GFX_ADDR_2BPP as isize + kraid_map_area.unwrap() * 0x10000)?;
-        self.rom.write_u16(snes2pc(0x8FB81C), 0x0C00)?;  // avoid overwriting hazard tiles with (unneeded) message box tiles
-        // Kraid dead:
-        self.rom.write_u24(snes2pc(0x8FB842), TILE_GFX_ADDR_2BPP as isize + kraid_map_area.unwrap() * 0x10000)?;
-        self.rom.write_u16(snes2pc(0x8FB847), 0x0C00)?;  // avoid overwriting hazard tiles with (unneeded) message box tiles
+        self.rom.write_u24(
+            snes2pc(0x8FB817),
+            TILE_GFX_ADDR_2BPP as isize + kraid_map_area.unwrap() * 0x10000,
+        )?;
+        self.rom.write_u16(snes2pc(0x8FB81C), 0x0C00)?; // avoid overwriting hazard tiles with (unneeded) message box tiles
+                                                        // Kraid dead:
+        self.rom.write_u24(
+            snes2pc(0x8FB842),
+            TILE_GFX_ADDR_2BPP as isize + kraid_map_area.unwrap() * 0x10000,
+        )?;
+        self.rom.write_u16(snes2pc(0x8FB847), 0x0C00)?; // avoid overwriting hazard tiles with (unneeded) message box tiles
         Ok(())
     }
 
-    fn substitute_colors(&mut self, item_idx: usize, tiles: Vec<usize>, subst: Vec<(u8, u8)>) -> Result<()> {
+    fn substitute_colors(
+        &mut self,
+        item_idx: usize,
+        tiles: Vec<usize>,
+        subst: Vec<(u8, u8)>,
+    ) -> Result<()> {
         for i in tiles {
             let addr = snes2pc(0x898000 + item_idx * 0x100 + i * 0x20);
             let mut tile = self.read_tile_4bpp(addr)?;
@@ -2142,50 +2147,46 @@ impl<'a> MapPatcher<'a> {
     fn write_hazard_tiles(&mut self) -> Result<()> {
         let b = 15; // black
         let w = 12; // white
-        let hazard_tile1: [[u8; 8]; 8] =
-            [
-                [b, 3, 3, 3, b, b, b, 3],
-                [b, b, b, b, b, b, b, b],
-                [6, 6, 6, 6, 5, 5, 5, 6],
-                [b, b, b, b, b, b, b, b],
-                [3, 3, b, b, b, 3, 3, 3],
-                [3, 3, 3, b, b, b, 3, 3],
-                [b, 3, 3, 3, b, b, b, 3],
-                [b, b, 3, 3, 3, b, b, b],
-            ];
-        let hazard_tile2: [[u8; 8]; 8] =
-            [
-                [b, b, b, 3, 3, 3, b, b],
-                [3, b, b, b, 3, 3, 3, b],
-                [2, 2, b, b, b, 2, 2, 2],
-                [2, 2, 2, b, b, b, 2, 2],
-                [b, 7, b, b, 7, 7, 7, 7],
-                [5, 5, 4, 4, 4, 4, 4, 4],
-                [b, 7, b, b, 7, 7, 7, 7],
-                [2, b, b, b, 2, 2, 2, b],
-            ];
-        let hazard_tile3: [[u8; 8]; 8] =
-            [
-                [2, 2, b, b, b, 2, 2, 2],
-                [2, 2, 2, b, b, b, 2, 2],
-                [b, 2, 2, 2, b, b, b, 2],
-                [b, b, 2, 2, 2, b, b, b],
-                [b, b, b, 1, 1, 1, b, b],
-                [1, b, b, b, 1, 1, 1, b],
-                [1, 1, b, b, b, 1, 1, 1],
-                [1, 1, 1, b, b, b, 1, 1],
-            ];
-        let hazard_tile4: [[u8; 8]; 8] =
-            [
-                [b, 5, b, b, 5, 5, 5, 5],
-                [5, 4, 4, 4, w, w, 4, 4],
-                [b, 6, b, b, 6, 6, 6, 6],
-                [1, b, b, b, 1, 1, 1, b],
-                [1, 1, b, b, b, 1, 1, 1],
-                [1, 1, 1, b, b, b, 1, 1],
-                [b, 1, 1, 1, b, b, b, 1],
-                [b, b, 1, 1, 1, b, b, b],
-            ];
+        let hazard_tile1: [[u8; 8]; 8] = [
+            [b, 3, 3, 3, b, b, b, 3],
+            [b, b, b, b, b, b, b, b],
+            [6, 6, 6, 6, 5, 5, 5, 6],
+            [b, b, b, b, b, b, b, b],
+            [3, 3, b, b, b, 3, 3, 3],
+            [3, 3, 3, b, b, b, 3, 3],
+            [b, 3, 3, 3, b, b, b, 3],
+            [b, b, 3, 3, 3, b, b, b],
+        ];
+        let hazard_tile2: [[u8; 8]; 8] = [
+            [b, b, b, 3, 3, 3, b, b],
+            [3, b, b, b, 3, 3, 3, b],
+            [2, 2, b, b, b, 2, 2, 2],
+            [2, 2, 2, b, b, b, 2, 2],
+            [b, 7, b, b, 7, 7, 7, 7],
+            [5, 5, 4, 4, 4, 4, 4, 4],
+            [b, 7, b, b, 7, 7, 7, 7],
+            [2, b, b, b, 2, 2, 2, b],
+        ];
+        let hazard_tile3: [[u8; 8]; 8] = [
+            [2, 2, b, b, b, 2, 2, 2],
+            [2, 2, 2, b, b, b, 2, 2],
+            [b, 2, 2, 2, b, b, b, 2],
+            [b, b, 2, 2, 2, b, b, b],
+            [b, b, b, 1, 1, 1, b, b],
+            [1, b, b, b, 1, 1, 1, b],
+            [1, 1, b, b, b, 1, 1, 1],
+            [1, 1, 1, b, b, b, 1, 1],
+        ];
+        let hazard_tile4: [[u8; 8]; 8] = [
+            [b, 5, b, b, 5, 5, 5, 5],
+            [5, 4, 4, 4, w, w, 4, 4],
+            [b, 6, b, b, 6, 6, 6, 6],
+            [1, b, b, b, 1, 1, 1, b],
+            [1, 1, b, b, b, 1, 1, 1],
+            [1, 1, 1, b, b, b, 1, 1],
+            [b, 1, 1, 1, b, b, b, 1],
+            [b, b, 1, 1, 1, b, b, b],
+        ];
 
         fn diagonal_flip_tile(tile: [[u8; 8]; 8]) -> [[u8; 8]; 8] {
             let mut out = [[0u8; 8]; 8];
@@ -2227,25 +2228,40 @@ impl<'a> MapPatcher<'a> {
         let flip_door_frame3_idx = 0x365;
         let flip_door_frame4_idx = 0x364;
         // Top fourth of door going right:
-        self.rom.write_u16(base_addr, hazard_tile1_idx | 0x2000)?;      // top-left quarter (palette 0)
-        self.rom.write_u16(base_addr + 2, door_frame1_idx | 0x2400)?;   // top-right quarter (palette 1)
-        self.rom.write_u16(base_addr + 4, hazard_tile2_idx | 0x2000)?;  // top-left quarter (palette 0)
-        self.rom.write_u16(base_addr + 6, door_frame2_idx | 0x2400)?;   // top-right quarter (palette 1)
-        // Second-from top fourth of door going right:
-        self.rom.write_u16(base_addr + 8, hazard_tile3_idx | 0x2000)?;   // top-left quarter (palette 0)
-        self.rom.write_u16(base_addr + 10, door_frame3_idx | 0x2400)?;   // top-right quarter (palette 1)
-        self.rom.write_u16(base_addr + 12, hazard_tile4_idx | 0x2000)?;  // top-left quarter (palette 0)
-        self.rom.write_u16(base_addr + 14, door_frame4_idx | 0x2400)?;   // top-right quarter (palette 1)
-        // Left fourth of door going down:
-        self.rom.write_u16(base_addr + 16, flip_hazard_tile1_idx | 0x2000)?;  // top-left quarter (palette 0)
-        self.rom.write_u16(base_addr + 18, flip_hazard_tile2_idx | 0x2000)?;  // top-left quarter (palette 0)
-        self.rom.write_u16(base_addr + 20, flip_door_frame1_idx | 0x6400)?;   // top-right quarter (palette 1, X flip)
-        self.rom.write_u16(base_addr + 22, flip_door_frame2_idx | 0x6400)?;   // top-right quarter (palette 1, X flip)
-        // Second-from left fourth of door going down:
-        self.rom.write_u16(base_addr + 24, flip_hazard_tile3_idx | 0x2000)?;  // top-left quarter (palette 0)
-        self.rom.write_u16(base_addr + 26, flip_hazard_tile4_idx | 0x2000)?;  // top-left quarter (palette 0)
-        self.rom.write_u16(base_addr + 28, flip_door_frame3_idx | 0x6400)?;   // top-right quarter (palette 1, X flip)
-        self.rom.write_u16(base_addr + 30, flip_door_frame4_idx | 0x6400)?;   // top-right quarter (palette 1, X flip)
+        self.rom.write_u16(base_addr, hazard_tile1_idx | 0x2000)?; // top-left quarter (palette 0)
+        self.rom
+            .write_u16(base_addr + 2, door_frame1_idx | 0x2400)?; // top-right quarter (palette 1)
+        self.rom
+            .write_u16(base_addr + 4, hazard_tile2_idx | 0x2000)?; // top-left quarter (palette 0)
+        self.rom
+            .write_u16(base_addr + 6, door_frame2_idx | 0x2400)?; // top-right quarter (palette 1)
+                                                                  // Second-from top fourth of door going right:
+        self.rom
+            .write_u16(base_addr + 8, hazard_tile3_idx | 0x2000)?; // top-left quarter (palette 0)
+        self.rom
+            .write_u16(base_addr + 10, door_frame3_idx | 0x2400)?; // top-right quarter (palette 1)
+        self.rom
+            .write_u16(base_addr + 12, hazard_tile4_idx | 0x2000)?; // top-left quarter (palette 0)
+        self.rom
+            .write_u16(base_addr + 14, door_frame4_idx | 0x2400)?; // top-right quarter (palette 1)
+                                                                   // Left fourth of door going down:
+        self.rom
+            .write_u16(base_addr + 16, flip_hazard_tile1_idx | 0x2000)?; // top-left quarter (palette 0)
+        self.rom
+            .write_u16(base_addr + 18, flip_hazard_tile2_idx | 0x2000)?; // top-left quarter (palette 0)
+        self.rom
+            .write_u16(base_addr + 20, flip_door_frame1_idx | 0x6400)?; // top-right quarter (palette 1, X flip)
+        self.rom
+            .write_u16(base_addr + 22, flip_door_frame2_idx | 0x6400)?; // top-right quarter (palette 1, X flip)
+                                                                        // Second-from left fourth of door going down:
+        self.rom
+            .write_u16(base_addr + 24, flip_hazard_tile3_idx | 0x2000)?; // top-left quarter (palette 0)
+        self.rom
+            .write_u16(base_addr + 26, flip_hazard_tile4_idx | 0x2000)?; // top-left quarter (palette 0)
+        self.rom
+            .write_u16(base_addr + 28, flip_door_frame3_idx | 0x6400)?; // top-right quarter (palette 1, X flip)
+        self.rom
+            .write_u16(base_addr + 30, flip_door_frame4_idx | 0x6400)?; // top-right quarter (palette 1, X flip)
 
         Ok(())
     }
