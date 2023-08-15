@@ -269,6 +269,7 @@ impl<'a> Patcher<'a> {
             "fast_reload",
             "saveload",
             "hazard_markers",
+            "rng_fix",
         ];
 
         if self.randomization.difficulty.ultra_low_qol {
@@ -592,21 +593,6 @@ impl<'a> Patcher<'a> {
 
         Ok(())
     }
-
-    // This doesn't work (changing enemy set in door ASM):
-    // fn fix_tourian_blue_hopper(&mut self, extra_door_asm: &mut HashMap<DoorPtr, Vec<u8>>) -> Result<()> {
-    //     let door_pair = (Some(0x1AA14), Some(0x1AA20));
-    //     let other_door_pair = self.other_door_ptr_pair_map[&door_pair];
-    //     // When entering from the left, switch to alternative enemy set that moves the
-    //     // leftmost Hopper to the right. See `tourian_blue_hopper.asm` which creates the new enemy set.
-    //     let asm: Vec<u8> = vec![
-    //         // 0xa9, 0x00, 0xf2,  // lda #$F200  ;\
-    //         0xa9, 0xa9, 0x85,
-    //        0x8d, 0xcf, 0x07,  // sta $07CF   ;} Enemy set pointer = $A1F200
-    //     ];
-    //     extra_door_asm.entry(other_door_pair.0.unwrap()).or_default().extend(asm);
-    //     Ok(())
-    // }
 
     // Returns map from door data PC address to 1) new custom door ASM pointer, 2) end of custom door ASM
     // where an RTS or JMP instruction must be added (based on the connecting door).
@@ -1005,7 +991,6 @@ impl<'a> Patcher<'a> {
             "Big Boy Room",
             "Kraid Room",
             "Phantoon's Room",
-            "Blue Hopper Room",
         ]
         .map(|x| x.to_string());
         for (room_idx, room) in self.game_data.room_geometry.iter().enumerate() {
