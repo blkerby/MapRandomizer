@@ -79,8 +79,8 @@ load_hazard_tiles:
     lda #$00E9
     sta $4314  ; Set source bank to $E9
 
-    LDA #$2600
-    STA $2116  ; VRAM (destination) address = $2600
+    LDA #$2780
+    STA $2116  ; VRAM (destination) address = $2780
     lda #$8000 
     sta $4312  ; source address = $8000
     lda #$0100
@@ -113,11 +113,11 @@ reload_hazard_tiles:
     jsl $80B0FF
     dl $7E2000
 
-    ; Copy hazard tiles from $E98000-$E98100 to $7E6C00
+    ; Copy hazard tiles from $E98000-$E98100 to $7E6F00
     ldx #$00FE
 -
     lda $E98000,x
-    sta $7E6C00,x
+    sta $7E6F00,x
     dex
     dex
     bpl -

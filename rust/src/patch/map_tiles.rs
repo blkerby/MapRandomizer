@@ -2210,14 +2210,14 @@ impl<'a> MapPatcher<'a> {
 
         // Write 16x16 tiles (tilemap):
         let base_addr = snes2pc(0xE98280);
-        let hazard_tile1_idx = 0x260;
-        let hazard_tile2_idx = 0x261;
-        let hazard_tile3_idx = 0x262;
-        let hazard_tile4_idx = 0x263;
-        let flip_hazard_tile1_idx = 0x264;
-        let flip_hazard_tile2_idx = 0x265;
-        let flip_hazard_tile3_idx = 0x266;
-        let flip_hazard_tile4_idx = 0x267;
+        let hazard_tile1_idx = 0x278;
+        let hazard_tile2_idx = 0x279;
+        let hazard_tile3_idx = 0x27a;
+        let hazard_tile4_idx = 0x27b;
+        let flip_hazard_tile1_idx = 0x27c;
+        let flip_hazard_tile2_idx = 0x27d;
+        let flip_hazard_tile3_idx = 0x27e;
+        let flip_hazard_tile4_idx = 0x27f;
         let door_frame1_idx = 0x342;
         let door_frame2_idx = 0x352;
         let door_frame3_idx = 0x362;

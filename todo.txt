@@ -5,6 +5,8 @@ next release:
 - DONE: no longer mark BT with X on Save The Animals
 - DONE: fix memory corruption in tourian escape room 1
 - fix hopper AI
+- check if memory corruption issue with hazard tiles happens in other rooms: crateria tube, glass tunnel
+
 
 priority:
 - tighten heat frames in spiky platforms random start
