@@ -19,8 +19,12 @@ about 15 seconds to load.
 
 <p><a href="https://version-80---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release80">Version 80 (???)</a>:
 <ul>
-<li>Option "Items dots after collection" is added with two options "Fade" and "Disappear" (under "Other options").
+<li>Option to make item dots disappear after collection is added back, under "Other options".
 <li>Option "Area transitions marked as letters on map" is moved to "Other options".
+<li>Adjustments to "Challenge" item progression:
+    <ul>
+    <li>Morph is set to "Default" priority instead of "Late".
+    <li>Screw Attack is set to "Late" priority instead of "Default".
 <li>TODO: Some minor adjustments to area-themed palettes.
 <li>Logic updates:
     <ul>

@@ -247,7 +247,7 @@ function itemProgressionPresetChanged() {
         <% for item in &prioritizable_items { %>
         document.getElementById("itemPriority<%- item %>Default").checked = true;
         <% } %>
-        document.getElementById("itemPriorityMorphLate").checked = true;
+        document.getElementById("itemPriorityScrewAttackLate").checked = true;
         document.getElementById("itemPriorityVariaLate").checked = true;
         document.getElementById("itemPriorityGravityLate").checked = true;
 
