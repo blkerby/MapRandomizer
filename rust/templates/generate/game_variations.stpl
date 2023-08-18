@@ -1,5 +1,31 @@
 <div class="form-group row">
     <div class="col-lg-4 col-md-6 my-2">
+        <% include!("help/variations/item_dot_change.stpl"); %>
+        <label for="preset">Item dots after collection</label>
+    </div>
+    <div class="col-3 btn-group my-2" role="group">
+        <input type="radio" class="btn-check" name="item_dot_change" id="itemDotChangeFade" value="Fade" checked>
+        <label class="btn btn-outline-primary" for="itemDotChangeFade">Fade</label>
+        <input type="radio" class="btn-check" name="item_dot_change" id="itemDotChangeDisappear" value="Disappear">
+        <label class="btn btn-outline-primary" for="itemDotChangeDisappear">Disappear</label>
+    </div>
+</div>
+
+<div class="form-group row">
+    <div class="col-lg-4 col-md-6 my-2">
+        <% include!("help/variations/transition_letters.stpl"); %>
+        <label for="preset">Area transition markers on map</label>
+    </div>
+    <div class="col-3 btn-group my-2" role="group">
+        <input type="radio" class="btn-check" name="transition_letters" id="transitionLettersNo" value="false" checked>
+        <label class="btn btn-outline-primary" for="transitionLettersNo">Arrows</label>
+        <input type="radio" class="btn-check" name="transition_letters" id="transitionLettersYes" value="true">
+        <label class="btn btn-outline-primary" for="transitionLettersYes">Letters</label>
+    </div>
+</div>
+
+<div class="form-group row">
+    <div class="col-lg-4 col-md-6 my-2">
         <% include!("help/variations/disable_walljump.stpl"); %>
         <label for="respin">Disable wall jumps</label>
     </div>

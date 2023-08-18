@@ -571,7 +571,7 @@ fn apply_gate_glitch_leniency(
     heated: bool,
     difficulty: &DifficultyConfig,
 ) -> Option<LocalState> {
-    if heated {
+    if heated && !global.items[Item::Varia as usize] {
         local.energy_used +=
             (difficulty.gate_glitch_leniency as f32 * difficulty.resource_multiplier * 60.0) as i32;
         local = match validate_energy(local, global) {

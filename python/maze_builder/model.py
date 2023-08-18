@@ -910,7 +910,7 @@ class TransformerModel(torch.nn.Module):
 
             if self.embed_dropout.p > 0.0:
                 X = self.embed_dropout(X)
-            for i in range(self.num_local_layers):
+            for i in range(len(self.attn_layers)):
                 # X = self.transformer_layers[i](X)
                 X = self.attn_layers[i](X)
                 X = self.ff_layers[i](X)

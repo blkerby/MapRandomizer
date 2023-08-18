@@ -26,10 +26,6 @@
         </div>
         <% } %>
         <div class="row">
-            <div class="col-5 col-sm-4 col-md-3">Objectives:</div>
-            <div class="col-7 col-sm-8 col-md-9"><%= objectives %></div>
-        </div>
-        <div class="row">
             <div class="col-5 col-sm-4 col-md-3">Skill assumption:</div>
             <div class="col-7 col-sm-8 col-md-9"><%= preset %></div>
         </div>
@@ -41,13 +37,29 @@
             <div class="col-5 col-sm-4 col-md-3">Quality-of-life options:</div>
             <div class="col-7 col-sm-8 col-md-9"><%= quality_of_life_preset %></div>
         </div>
+        <div class="row">
+            <div class="col-5 col-sm-4 col-md-3">Objectives:</div>
+            <div class="col-7 col-sm-8 col-md-9"><%= objectives %></div>
+        </div>
+        <div class="row">
+            <div class="col-5 col-sm-4 col-md-3">Start location:</div>
+            <div class="col-7 col-sm-8 col-md-9">
+                <%= if difficulty.randomized_start { "Random" } else { "Ship" } %>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-5 col-sm-4 col-md-3">Save the animals:</div>
+            <div class="col-7 col-sm-8 col-md-9">
+                <%= if difficulty.save_animals { "Yes" } else { "No" } %>
+            </div>
+        </div>
         <% 
         let mut game_variations = vec![];
-        if difficulty.randomized_start {
-            game_variations.push("Randomized start location");
+        if item_dot_change == "Disappear" {
+            game_variations.push("Item dots disappear after collection");
         }
-        if difficulty.save_animals {
-            game_variations.push("Save the animals");
+        if transition_letters {
+            game_variations.push("Area transitions marked as letters");
         }
         if disable_walljump {
             game_variations.push("Disable wall jumps");

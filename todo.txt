@@ -1,6 +1,7 @@
 next release:
-- add back item dots disappear option
+- add back item dots disappear option (put under other options?)
 - palette customization overhaul (free up dependence on changing door colors)
+- fix ridley logic to take into account if double damage supers option is disabled
 
 priority:
 - door color randomization

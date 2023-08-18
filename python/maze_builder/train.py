@@ -13,13 +13,13 @@ import logic.rooms.crateria
 from datetime import datetime
 import pickle
 import maze_builder.model
-from maze_builder.model import Model, DoorLocalModel, TransformerModel
+from maze_builder.model import Model, DoorLocalModel, TransformerModel, AttentionLayer, FeedforwardLayer
 from maze_builder.train_session import TrainingSession
 from maze_builder.replay import ReplayBuffer
 from model_average import ExponentialAverage
 import io
-import logic.rooms.crateria_isolated
-import logic.rooms.norfair_isolated
+# import logic.rooms.crateria_isolated
+# import logic.rooms.norfair_isolated
 import logic.rooms.all_rooms
 
 
@@ -95,6 +95,11 @@ logging.info("max_possible_reward = {}".format(max_possible_reward))
 #     arity=2,
 # ).to(device)
 
+embedding_width = 512
+key_width = 32
+value_width = 32
+attn_heads = 8
+hidden_width = 2048
 model = TransformerModel(
     rooms=envs[0].rooms,
     num_outputs=envs[0].num_doors + envs[0].num_missing_connects + 1,
@@ -102,11 +107,11 @@ model = TransformerModel(
     map_y=env_config.map_y,
     block_size_x=8,
     block_size_y=8,
-    embedding_width=512,
-    key_width=32,
-    value_width=32,
-    attn_heads=8,
-    hidden_width=2048,
+    embedding_width=embedding_width,
+    key_width=key_width,
+    value_width=value_width,
+    attn_heads=attn_heads,
+    hidden_width=hidden_width,
     arity=1,
     num_local_layers=2,
     embed_dropout=0.1,
@@ -179,11 +184,25 @@ cpu_executor = None
 
 pickle_name = 'models/session-2023-06-08T14:55:16.779895.pkl'
 # session = pickle.load(open(pickle_name, 'rb'))
-session = pickle.load(open(pickle_name + '-bk25', 'rb'))
+session = pickle.load(open(pickle_name + '-bk26', 'rb'))
 # session.replay_buffer.size = 0
 # session.replay_buffer.position = 0
 # session.replay_buffer.resize(2 ** 23)
 session.envs = envs
+
+session.model.attn_layers.append(AttentionLayer(
+    input_width=embedding_width,
+    key_width=key_width,
+    value_width=value_width,
+    num_heads=attn_heads,
+    dropout=0.0).to(device))
+session.model.ff_layers.append(FeedforwardLayer(
+    input_width=embedding_width,
+    hidden_width=hidden_width,
+    arity=1,
+    dropout=0.0).to(device))
+session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
+session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=0.995)
 
 
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
@@ -548,7 +567,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk25')
+            # save_session(session, pickle_name + '-bk26')
             # session.replay_buffer.resize(2 ** 20)
             # pickle.dump(session, open(pickle_name + '-small-22', 'wb'))
     if session.num_rounds % summary_freq == 0:

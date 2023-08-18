@@ -17,6 +17,18 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-80---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release80">Version 80 (???)</a>:
+<ul>
+<li>Option "Items dots after collection" is added with two options "Fade" and "Disappear" (under "Other options").
+<li>Option "Area transitions marked as letters on map" is moved to "Other options".
+<li>TODO: Some minor adjustments to area-themed palettes.
+<li>Logic updates:
+    <ul>
+    <li>Fixed bug where heated gate glitch leniency did not take into account Varia suit.
+    <li>Notable strat "East Ocean Space Jump Water Escape (Left to Right)" is moved from Expert to Extreme.
+    </ul>
+</ul>
+
 <p><a href="https://version-79---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release79">Version 79 (2023-08-15)</a>:
 <ul>
 <li>Some more improvement to map clarity (minimap and pause map):
