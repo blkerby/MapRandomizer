@@ -18,6 +18,18 @@ fn encode_palette(pal: &[[u8; 3]]) -> Vec<u8> {
     out
 }
 
+pub fn decode_palette(pal_bytes: &[u8]) -> [[u8; 3]; 128] {
+    let mut out = [[0u8; 3]; 128];
+    for i in 0..128 {
+        let c = pal_bytes[i * 2] as u16 | ((pal_bytes[i * 2 + 1] as u16) << 8);
+        let r = (c & 31) * 8;
+        let g = ((c >> 5) & 31) * 8;
+        let b = ((c >> 10) & 31) * 8;
+        out[i] = [r as u8, g as u8, b as u8];
+    }
+    out
+}
+
 // Returns list of (event_ptr, state_ptr):
 fn get_room_state_ptrs(rom: &Rom, room_ptr: usize) -> Result<Vec<(usize, usize)>> {
     let mut pos = 11;
@@ -129,7 +141,7 @@ fn fix_phantoon_power_on(rom: &mut Rom, game_data: &GameData) -> Result<()> {
         bail!("Invalid Phantoon area: {phantoon_area}")
     }
     if phantoon_area != 3 {
-        let powered_on_palette = &game_data.palette_data[phantoon_area][&4];
+        let powered_on_palette = &game_data.tileset_palette_themes[phantoon_area][&4].palette;
         let encoded_palette = encode_palette(powered_on_palette);
         rom.write_n(snes2pc(0xA7CA61), &encoded_palette[0..224])?;
         rom.write_u16(snes2pc(0xA7CA7B), 0x48FB)?; // 2bpp palette 3, color 1: pink color for E-tanks (instead of black)
@@ -154,12 +166,12 @@ fn fix_mother_brain(rom: &mut Rom, game_data: &GameData) -> Result<()> {
     let mother_brain_room_ptr = 0x7DD58;
     let area = get_room_map_area(rom, mother_brain_room_ptr)?;
     if area != 5 {
-        let palette = &game_data.palette_data[area][&14];
+        let theme = &game_data.tileset_palette_themes[area][&14];
         // let encoded_palette = encode_palette(palette);
         // rom.write_n(snes2pc(0xA9D082), &encoded_palette[104..128])?;
     
         for i in 0..6 {
-            let faded_palette: Vec<[u8; 3]> = palette
+            let faded_palette: Vec<[u8; 3]> = theme.palette
                 .iter()
                 .map(|&c| c.map(|x| (x as usize * (6 - i as usize) / 6) as u8))
                 .collect();
@@ -184,6 +196,7 @@ fn fix_mother_brain(rom: &mut Rom, game_data: &GameData) -> Result<()> {
 pub fn apply_area_themed_palettes(rom: &mut Rom, game_data: &GameData) -> Result<()> {
     let new_tile_table_snes = 0x8FF900;
     let new_tile_pointers_snes = 0x8FFD00;
+    let tile_pointers_free_space_end = 0x8FFE00;
     let pal_free_space_start_snes = 0xE18000;
     let pal_free_space_end_snes = pal_free_space_start_snes + 0x8000;
     let mut pal_free_space_snes = pal_free_space_start_snes;
@@ -191,9 +204,9 @@ pub fn apply_area_themed_palettes(rom: &mut Rom, game_data: &GameData) -> Result
     let mut next_tile_idx = 29;
     let mut tile_table: Vec<u8> = rom.read_n(snes2pc(0x8FE6A2), next_tile_idx * 9)?.to_vec();
     let mut tile_map: HashMap<(AreaIdx, TilesetIdx), TilesetIdx> = HashMap::new();
-    for (area_idx, area_palette_data) in game_data.palette_data.iter().enumerate() {
-        for (&tileset_idx, pal) in area_palette_data {
-            let encoded_pal = encode_palette(pal);
+    for (area_idx, area_theme_data) in game_data.tileset_palette_themes.iter().enumerate() {
+        for (&tileset_idx, theme) in area_theme_data {
+            let encoded_pal = encode_palette(&theme.palette);
             let compressed_pal = compress(&encoded_pal);
             rom.write_n(snes2pc(pal_free_space_snes), &compressed_pal)?;
 
@@ -212,6 +225,7 @@ pub fn apply_area_themed_palettes(rom: &mut Rom, game_data: &GameData) -> Result
     );
     assert!(pal_free_space_snes <= pal_free_space_end_snes);
     assert!(tile_table.len() <= new_tile_pointers_snes - new_tile_table_snes);
+    assert!(new_tile_pointers_snes + 2 * tile_table.len() / 9 <= tile_pointers_free_space_end);
 
     rom.write_n(snes2pc(new_tile_table_snes), &tile_table)?;
     for i in 0..tile_table.len() / 9 {

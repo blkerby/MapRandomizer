@@ -28,8 +28,9 @@ about 15 seconds to load.
 <li>TODO: Some minor adjustments to area-themed palettes.
 <li>Logic updates:
     <ul>
-    <li>Fixed bug where heated gate glitch leniency did not take into account Varia suit.
+    <li>Fixed randomizer bug where heated gate glitch leniency did not take into account Varia suit.
     <li>Notable strat "East Ocean Space Jump Water Escape (Left to Right)" is moved from Expert to Extreme.
+    <li>Several more strats are added in East Ocean.
     </ul>
 </ul>
 

@@ -1,5 +1,6 @@
 use anyhow::{bail, ensure, Context, Result};
 // use log::info;
+use crate::customize::room_palettes::decode_palette;
 use hashbrown::{HashMap, HashSet};
 use json::{self, JsonValue};
 use num_enum::TryFromPrimitive;
@@ -431,6 +432,10 @@ pub struct EnemyVulnerabilities {
     pub power_bomb_damage: i32,
 }
 
+pub struct ThemedTileset {
+    pub palette: [[u8; 3]; 128],
+}
+
 // TODO: Clean this up, e.g. pull out a separate structure to hold
 // temporary data used only during loading, replace any
 // remaining JsonValue types in the main struct with something
@@ -494,7 +499,7 @@ pub struct GameData {
     pub strat_area: HashMap<String, String>,
     pub strat_room: HashMap<String, String>,
     pub strat_description: HashMap<String, String>,
-    pub palette_data: Vec<HashMap<TilesetIdx, [[u8; 3]; 128]>>,
+    pub tileset_palette_themes: Vec<HashMap<TilesetIdx, ThemedTileset>>,
     pub escape_timings: Vec<EscapeTimingRoom>,
     pub start_locations: Vec<StartLocation>,
     pub hub_locations: Vec<HubLocation>,
@@ -2384,7 +2389,7 @@ impl GameData {
         let file = File::open(json_path)?;
         let json_value: serde_json::Value = serde_json::from_reader(file)?;
         for area_json in json_value.as_array().unwrap() {
-            let mut pal_map: HashMap<TilesetIdx, [[u8; 3]; 128]> = HashMap::new();
+            let mut pal_map: HashMap<TilesetIdx, ThemedTileset> = HashMap::new();
             for (tileset_idx_str, palette) in area_json.as_object().unwrap().iter() {
                 let tileset_idx: usize = tileset_idx_str.parse()?;
                 let mut pal = [[0u8; 3]; 128];
@@ -2403,9 +2408,47 @@ impl GameData {
                 //         pal[i][j] = 0;
                 //     }
                 // }
-                pal_map.insert(tileset_idx, pal);
+                pal_map.insert(tileset_idx, ThemedTileset { palette: pal });
             }
-            self.palette_data.push(pal_map);
+            self.tileset_palette_themes.push(pal_map);
+        }
+        Ok(())
+    }
+
+    fn load_themes(&mut self, base_path: &Path) -> Result<()> {
+        let tileset_idxs = vec![
+            vec![0, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 26, 27, 28],
+            vec![0, 2, 3, 4, 5, 9, 10, 11, 12, 13, 14, 26, 27, 28],
+            vec![0, 2, 3, 4, 5, 6, 7, 11, 12, 13, 14, 26, 27, 28],
+            vec![0, 2, 3, 6, 7, 9, 10, 11, 12, 13, 14, 26, 27, 28],
+            vec![0, 2, 3, 4, 5, 6, 7, 9, 10, 13, 14, 26, 27, 28],
+            vec![0, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 26, 27, 28],
+        ];
+
+        for (area_idx, area) in [
+            "crateria",
+            "brinstar",
+            "norfair",
+            "wrecked_ship",
+            "maridia",
+            "tourian",
+        ].into_iter().enumerate() {
+            let sce_path = base_path.join(area).join("Export/Tileset/SCE");
+            let mut pal_map: HashMap<TilesetIdx, ThemedTileset> = HashMap::new();
+            for tileset_dir in std::fs::read_dir(sce_path)? {
+                let tileset_dir = tileset_dir?;
+                let tileset_idx =
+                    usize::from_str_radix(tileset_dir.file_name().to_str().unwrap(), 16)?;
+                if !tileset_idxs[area_idx].contains(&tileset_idx) {
+                    continue;
+                }
+                let tileset_path = tileset_dir.path();
+                let palette_path = tileset_path.join("palette.snes");
+                let palette_bytes = std::fs::read(palette_path)?;
+                let palette = decode_palette(&palette_bytes);
+                pal_map.insert(tileset_idx, ThemedTileset { palette });
+            }
+            self.tileset_palette_themes.push(pal_map);
         }
         Ok(())
     }
@@ -2444,6 +2487,9 @@ impl GameData {
         start_locations_path: &Path,
         hub_locations_path: &Path,
     ) -> Result<GameData> {
+        // TODO: pass this in as in argument:
+        let palette_theme_path = Path::new("/home/kerby/roms/palette_xml/");
+
         let mut game_data = GameData::default();
         game_data.sm_json_data_path = sm_json_data_path.to_owned();
 
@@ -2586,7 +2632,8 @@ impl GameData {
             0x1AC000, // Maridia
             0x1AD000, // Tourian
         ];
-        game_data.load_palette(palette_path)?;
+        // game_data.load_palette(palette_path)?;
+        game_data.load_themes(palette_theme_path)?;
 
         Ok(game_data)
     }

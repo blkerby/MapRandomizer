@@ -1,4 +1,4 @@
-mod room_palettes;
+pub mod room_palettes;
 pub mod vanilla_music;
 
 use std::path::Path;
