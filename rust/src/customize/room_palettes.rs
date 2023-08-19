@@ -193,13 +193,46 @@ fn fix_mother_brain(rom: &mut Rom, game_data: &GameData) -> Result<()> {
     Ok(())
 }
 
+struct AllocatorBlock {
+    start_addr_snes: usize,
+    end_addr_snes: usize,
+    current_addr_snes: usize
+}
+
+struct Allocator {
+    blocks: Vec<AllocatorBlock>,
+}
+
+impl Allocator {
+    pub fn new(blocks: Vec<(usize, usize)>) -> Self {
+        Allocator {
+            blocks: blocks.into_iter().map(|(start, end)| AllocatorBlock {
+                start_addr_snes: start,
+                end_addr_snes: end,
+                current_addr_snes: start,
+            }).collect()
+        }
+    }
+
+    pub fn allocate(&mut self, size: usize) -> Result<usize> {
+        for block in &mut self.blocks {
+            if block.end_addr_snes - block.current_addr_snes >= size {
+                let addr = block.current_addr_snes;
+                block.current_addr_snes += size;
+                println!("success: allocated {} bytes", size);
+                return Ok(addr);
+            }
+        }
+        bail!("Failed to allocate {} bytes", size);
+    }
+}
+
 pub fn apply_area_themed_palettes(rom: &mut Rom, game_data: &GameData) -> Result<()> {
     let new_tile_table_snes = 0x8FF900;
     let new_tile_pointers_snes = 0x8FFD00;
     let tile_pointers_free_space_end = 0x8FFE00;
-    let pal_free_space_start_snes = 0xE18000;
-    let pal_free_space_end_snes = pal_free_space_start_snes + 0x8000;
-    let mut pal_free_space_snes = pal_free_space_start_snes;
+
+    let mut allocator = Allocator::new(vec![(0xE18000, 0xE20000)]);
 
     let mut next_tile_idx = 29;
     let mut tile_table: Vec<u8> = rom.read_n(snes2pc(0x8FE6A2), next_tile_idx * 9)?.to_vec();
@@ -208,6 +241,7 @@ pub fn apply_area_themed_palettes(rom: &mut Rom, game_data: &GameData) -> Result
         for (&tileset_idx, theme) in area_theme_data {
             let encoded_pal = encode_palette(&theme.palette);
             let compressed_pal = compress(&encoded_pal);
+            let pal_free_space_snes = allocator.allocate(compressed_pal.len())?;
             rom.write_n(snes2pc(pal_free_space_snes), &compressed_pal)?;
 
             let data = tile_table[(tileset_idx * 9)..(tileset_idx * 9 + 6)].to_vec();
@@ -216,14 +250,12 @@ pub fn apply_area_themed_palettes(rom: &mut Rom, game_data: &GameData) -> Result
             tile_map.insert((area_idx, tileset_idx), next_tile_idx);
 
             next_tile_idx += 1;
-            pal_free_space_snes += compressed_pal.len();
         }
     }
     println!(
         "Tileset table size: {}, next_tile_idx={next_tile_idx}",
         tile_table.len()
     );
-    assert!(pal_free_space_snes <= pal_free_space_end_snes);
     assert!(tile_table.len() <= new_tile_pointers_snes - new_tile_table_snes);
     assert!(new_tile_pointers_snes + 2 * tile_table.len() / 9 <= tile_pointers_free_space_end);
 

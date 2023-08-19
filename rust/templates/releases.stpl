@@ -25,6 +25,7 @@ about 15 seconds to load.
     <ul>
     <li>Morph is set to "Default" priority instead of "Late".
     <li>Screw Attack is set to "Late" priority instead of "Default".
+    </ul>
 <li>TODO: Some minor adjustments to area-themed palettes.
 <li>Logic updates:
     <ul>

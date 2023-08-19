@@ -434,6 +434,8 @@ pub struct EnemyVulnerabilities {
 
 pub struct ThemedTileset {
     pub palette: [[u8; 3]; 128],
+    pub gfx8x8: Vec<u8>,
+    pub gfx16x16: Vec<u8>,
 }
 
 // TODO: Clean this up, e.g. pull out a separate structure to hold
@@ -2385,35 +2387,35 @@ impl GameData {
         Ok(())
     }
 
-    fn load_palette(&mut self, json_path: &Path) -> Result<()> {
-        let file = File::open(json_path)?;
-        let json_value: serde_json::Value = serde_json::from_reader(file)?;
-        for area_json in json_value.as_array().unwrap() {
-            let mut pal_map: HashMap<TilesetIdx, ThemedTileset> = HashMap::new();
-            for (tileset_idx_str, palette) in area_json.as_object().unwrap().iter() {
-                let tileset_idx: usize = tileset_idx_str.parse()?;
-                let mut pal = [[0u8; 3]; 128];
-                for (i, color) in palette.as_array().unwrap().iter().enumerate() {
-                    let color_arr = color.as_array().unwrap();
-                    let r = color_arr[0].as_i64().unwrap();
-                    let g = color_arr[1].as_i64().unwrap();
-                    let b = color_arr[2].as_i64().unwrap();
-                    pal[i][0] = r as u8;
-                    pal[i][1] = g as u8;
-                    pal[i][2] = b as u8;
-                }
+    // fn load_palette(&mut self, json_path: &Path) -> Result<()> {
+    //     let file = File::open(json_path)?;
+    //     let json_value: serde_json::Value = serde_json::from_reader(file)?;
+    //     for area_json in json_value.as_array().unwrap() {
+    //         let mut pal_map: HashMap<TilesetIdx, ThemedTileset> = HashMap::new();
+    //         for (tileset_idx_str, palette) in area_json.as_object().unwrap().iter() {
+    //             let tileset_idx: usize = tileset_idx_str.parse()?;
+    //             let mut pal = [[0u8; 3]; 128];
+    //             for (i, color) in palette.as_array().unwrap().iter().enumerate() {
+    //                 let color_arr = color.as_array().unwrap();
+    //                 let r = color_arr[0].as_i64().unwrap();
+    //                 let g = color_arr[1].as_i64().unwrap();
+    //                 let b = color_arr[2].as_i64().unwrap();
+    //                 pal[i][0] = r as u8;
+    //                 pal[i][1] = g as u8;
+    //                 pal[i][2] = b as u8;
+    //             }
 
-                // for i in 0..128 {
-                //     for j in 0..3 {
-                //         pal[i][j] = 0;
-                //     }
-                // }
-                pal_map.insert(tileset_idx, ThemedTileset { palette: pal });
-            }
-            self.tileset_palette_themes.push(pal_map);
-        }
-        Ok(())
-    }
+    //             // for i in 0..128 {
+    //             //     for j in 0..3 {
+    //             //         pal[i][j] = 0;
+    //             //     }
+    //             // }
+    //             pal_map.insert(tileset_idx, ThemedTileset { palette: pal });
+    //         }
+    //         self.tileset_palette_themes.push(pal_map);
+    //     }
+    //     Ok(())
+    // }
 
     fn load_themes(&mut self, base_path: &Path) -> Result<()> {
         let tileset_idxs = vec![
@@ -2446,7 +2448,18 @@ impl GameData {
                 let palette_path = tileset_path.join("palette.snes");
                 let palette_bytes = std::fs::read(palette_path)?;
                 let palette = decode_palette(&palette_bytes);
-                pal_map.insert(tileset_idx, ThemedTileset { palette });
+
+                let gfx8x8_path = tileset_path.join("8x8tiles.gfx");
+                let gfx8x8_bytes = std::fs::read(gfx8x8_path)?;
+
+                let gfx16x16_path = tileset_path.join("16x16tiles.ttb");
+                let gfx16x16_bytes = std::fs::read(gfx16x16_path)?;
+                
+                pal_map.insert(tileset_idx, ThemedTileset { 
+                    palette,
+                    gfx8x8: gfx8x8_bytes,
+                    gfx16x16: gfx16x16_bytes,
+                });
             }
             self.tileset_palette_themes.push(pal_map);
         }

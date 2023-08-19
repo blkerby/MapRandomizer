@@ -1,5 +1,6 @@
 next release:
 - palette customization overhaul (free up dependence on changing door colors)
+- option to ensure initial save point access (with random start)
 
 priority:
 - door color randomization
