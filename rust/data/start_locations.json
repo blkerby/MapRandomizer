@@ -775,7 +775,7 @@
     {
         "name": "Kronic Boost Room Right",
         "room_id": 113,
-        "node_id": 6,
+        "node_id": 5,
         "door_load_node_id": 3,
         "x": 26,
         "y": 25,

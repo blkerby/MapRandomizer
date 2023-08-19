@@ -1,9 +1,10 @@
 use crate::{
     game_data::{AreaIdx, GameData, TilesetIdx},
-    patch::{compress::compress, snes2pc, Rom},
+    patch::{compress::compress, snes2pc, pc2snes, Rom},
 };
 use anyhow::{Result, bail};
 use hashbrown::HashMap;
+use hashbrown::hash_map::Entry;
 
 fn encode_palette(pal: &[[u8; 3]]) -> Vec<u8> {
     let mut out: Vec<u8> = vec![];
@@ -219,7 +220,7 @@ impl Allocator {
             if block.end_addr_snes - block.current_addr_snes >= size {
                 let addr = block.current_addr_snes;
                 block.current_addr_snes += size;
-                println!("success: allocated {} bytes", size);
+                println!("success: allocated {} bytes: ending at {:x}", size, block.current_addr_snes);
                 return Ok(addr);
             }
         }
@@ -232,7 +233,14 @@ pub fn apply_area_themed_palettes(rom: &mut Rom, game_data: &GameData) -> Result
     let new_tile_pointers_snes = 0x8FFD00;
     let tile_pointers_free_space_end = 0x8FFE00;
 
-    let mut allocator = Allocator::new(vec![(0xE18000, 0xE20000)]);
+    let mut allocator = Allocator::new(vec![
+        (snes2pc(0xE18000), snes2pc(0xE20000)),
+        (snes2pc(0xEA8000), snes2pc(0xF80000)),
+    ]);
+
+    let mut pal_map: HashMap<Vec<u8>, usize> = HashMap::new();
+    let mut gfx8_map: HashMap<Vec<u8>, usize> = HashMap::new();
+    let mut gfx16_map: HashMap<Vec<u8>, usize> = HashMap::new();
 
     let mut next_tile_idx = 29;
     let mut tile_table: Vec<u8> = rom.read_n(snes2pc(0x8FE6A2), next_tile_idx * 9)?.to_vec();
@@ -241,12 +249,50 @@ pub fn apply_area_themed_palettes(rom: &mut Rom, game_data: &GameData) -> Result
         for (&tileset_idx, theme) in area_theme_data {
             let encoded_pal = encode_palette(&theme.palette);
             let compressed_pal = compress(&encoded_pal);
-            let pal_free_space_snes = allocator.allocate(compressed_pal.len())?;
-            rom.write_n(snes2pc(pal_free_space_snes), &compressed_pal)?;
+            // let pal_addr = allocator.allocate(compressed_pal.len())?;
+            let pal_addr = match pal_map.entry(encoded_pal.clone()) {
+                Entry::Occupied(x) => {
+                    *x.get()
+                },
+                Entry::Vacant(view) => {
+                    let addr = allocator.allocate(compressed_pal.len())?;
+                    view.insert(addr);
+                    addr
+                }
+            };
+            rom.write_n(pal_addr, &compressed_pal)?;
 
-            let data = tile_table[(tileset_idx * 9)..(tileset_idx * 9 + 6)].to_vec();
-            tile_table.extend(&data);
-            tile_table.extend(&pal_free_space_snes.to_le_bytes()[0..3]);
+            let compressed_gfx8 = compress(&theme.gfx8x8);
+            let gfx8_addr = match gfx8_map.entry(theme.gfx8x8.clone()) {
+                Entry::Occupied(x) => {
+                    *x.get()
+                },
+                Entry::Vacant(view) => {
+                    let addr = allocator.allocate(compressed_gfx8.len())?;
+                    view.insert(addr);
+                    addr
+                }
+            };
+            rom.write_n(gfx8_addr, &compressed_gfx8)?;
+
+            let compressed_gfx16 = compress(&theme.gfx16x16);
+            let gfx16_addr = match gfx16_map.entry(theme.gfx16x16.clone()) {
+                Entry::Occupied(x) => {
+                    *x.get()
+                }
+                Entry::Vacant(view) => {
+                    let addr = allocator.allocate(compressed_gfx16.len())?;
+                    view.insert(addr);
+                    addr
+                }
+            };
+            rom.write_n(gfx16_addr, &compressed_gfx16)?;
+
+            // let data = tile_table[(tileset_idx * 9)..(tileset_idx * 9 + 6)].to_vec();
+            // tile_table.extend(&data);
+            tile_table.extend(&pc2snes(gfx16_addr).to_le_bytes()[0..3]);
+            tile_table.extend(&pc2snes(gfx8_addr).to_le_bytes()[0..3]);
+            tile_table.extend(&pc2snes(pal_addr).to_le_bytes()[0..3]);
             tile_map.insert((area_idx, tileset_idx), next_tile_idx);
 
             next_tile_idx += 1;
