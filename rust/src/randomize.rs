@@ -123,6 +123,7 @@ pub struct DifficultyConfig {
     pub objectives: Objectives,
     pub randomized_start: bool,
     pub save_animals: bool,
+    pub early_save: bool,
     pub disable_walljump: bool,
     pub maps_revealed: bool,
     pub vanilla_map: bool,
@@ -161,6 +162,11 @@ struct FlagLocationState {
 }
 
 #[derive(Clone)]
+struct SaveLocationState {
+    pub bireachable: bool,
+}
+
+#[derive(Clone)]
 struct DebugData {
     global_state: GlobalState,
     forward: TraverseResult,
@@ -173,6 +179,7 @@ struct RandomizationState {
     start_location: StartLocation,
     hub_location: HubLocation,
     item_precedence: Vec<Item>, // An ordering of the 21 distinct item names. The game will prioritize placing key items earlier in the list.
+    save_location_state: Vec<SaveLocationState>, // Corresponds to GameData.item_locations (one record for each of 100 item locations)
     item_location_state: Vec<ItemLocationState>, // Corresponds to GameData.item_locations (one record for each of 100 item locations)
     flag_location_state: Vec<FlagLocationState>, // Corresponds to GameData.flag_locations
     items_remaining: Vec<usize>, // Corresponds to GameData.items_isv (one count for each of 21 distinct item names)
@@ -1008,6 +1015,19 @@ impl<'r> Randomizer<'r> {
                 }
             }
         }
+
+        for (i, (room_id, node_id)) in self.game_data.save_locations.iter().enumerate() {
+            state.save_location_state[i].bireachable = false;
+            let vertex_id = self.game_data.vertex_isv.index_by_key[&(*room_id, *node_id, 0)];
+            if is_bireachable(
+                &state.global_state,
+                &forward.local_states[vertex_id],
+                &reverse.local_states[vertex_id],
+            ) {
+                state.save_location_state[i].bireachable = true;
+            }
+        }
+
         // Store TraverseResults to use for constructing spoiler log
         state.debug_data = Some(DebugData {
             global_state: state.global_state.clone(),
@@ -1385,8 +1405,8 @@ impl<'r> Randomizer<'r> {
         let one_way_reachable_limit = 20;
         // let one_way_reachable_limit = 100;
 
-        // Check if all items are already bireachable. It isn't necessary for correctness to check this case, 
-        // but it speeds up the last step, where no further progress is possible (meaning there is no point 
+        // Check if all items are already bireachable. It isn't necessary for correctness to check this case,
+        // but it speeds up the last step, where no further progress is possible (meaning there is no point
         // trying a bunch of possible key items to place to try to make more progress.
         let all_items_bireachable = num_bireachable == new_state.item_location_state.len();
 
@@ -1418,13 +1438,15 @@ impl<'r> Randomizer<'r> {
         rng: &mut R,
     ) -> (SelectItemsOutput, RandomizationState) {
         let mut attempt_num = 0;
-        let mut selection = self.select_items(
-            state,
-            num_unplaced_bireachable,
-            num_unplaced_oneway_reachable,
-            attempt_num,
-            rng,
-        ).unwrap();
+        let mut selection = self
+            .select_items(
+                state,
+                num_unplaced_bireachable,
+                num_unplaced_oneway_reachable,
+                attempt_num,
+                rng,
+            )
+            .unwrap();
 
         loop {
             let mut new_state: RandomizationState = RandomizationState {
@@ -1434,6 +1456,7 @@ impl<'r> Randomizer<'r> {
                 item_precedence: state.item_precedence.clone(),
                 item_location_state: state.item_location_state.clone(),
                 flag_location_state: state.flag_location_state.clone(),
+                save_location_state: state.save_location_state.clone(),
                 items_remaining: selection.new_items_remaining.clone(),
                 global_state: state.global_state.clone(),
                 debug_data: None,
@@ -1532,7 +1555,8 @@ impl<'r> Randomizer<'r> {
             &placed_uncollected_bireachable_items,
             unplaced_bireachable.len(),
             unplaced_oneway_reachable.len(),
-            rng);
+            rng,
+        );
         new_state.previous_debug_data = state.debug_data.clone();
         new_state.key_visited_vertices = state.key_visited_vertices.clone();
 
@@ -1836,8 +1860,8 @@ impl<'r> Randomizer<'r> {
             );
 
             // We require several conditions for a start location to be valid with a given hub location:
-            // 1) The hub location must be one-way reachable from the start location, including initial start location 
-            // requirements (e.g. including requirements to reach the starting node from the actual start location, which 
+            // 1) The hub location must be one-way reachable from the start location, including initial start location
+            // requirements (e.g. including requirements to reach the starting node from the actual start location, which
             // may not be at a node)
             // 2) The starting node (not the actual start location) must be bireachable from the hub location
             // (ie. there must be a logical round-trip path from the hub to the starting node and back)
@@ -1847,10 +1871,15 @@ impl<'r> Randomizer<'r> {
                 let hub_vertex_id =
                     self.game_data.vertex_isv.index_by_key[&(hub.room_id, hub.node_id, 0)];
                 if forward.local_states[hub_vertex_id].is_some()
-                    && is_bireachable(&global, &forward0.local_states[hub_vertex_id], &reverse.local_states[hub_vertex_id])            
+                    && is_bireachable(
+                        &global,
+                        &forward0.local_states[hub_vertex_id],
+                        &reverse.local_states[hub_vertex_id],
+                    )
                 {
                     if hub.room_id == 8 {
                         // Reject starting location if the Ship is initially bireachable from it.
+                        // (Note: The Ship is first in hub_locations.json, so this check happens before other hubs are considered.)
                         continue 'attempt;
                     }
 
@@ -1904,6 +1933,9 @@ impl<'r> Randomizer<'r> {
             bireachable: false,
             bireachable_vertex_id: None,
         };
+        let initial_save_location_state = SaveLocationState {
+            bireachable: false,
+        };
         let num_attempts_start_location = 10;
         let (start_location, hub_location) =
             self.determine_start_location(num_attempts_start_location, &mut rng)?;
@@ -1922,6 +1954,10 @@ impl<'r> Randomizer<'r> {
             flag_location_state: vec![
                 initial_flag_location_state;
                 self.game_data.flag_locations.len()
+            ],
+            save_location_state: vec![
+                initial_save_location_state;
+                self.game_data.save_locations.len()
             ],
             items_remaining: self.initial_items_remaining.clone(),
             global_state: initial_global_state,
@@ -1975,14 +2011,23 @@ impl<'r> Randomizer<'r> {
                     bail!("Attempt failed: Key items not all collectible");
                 }
 
-                // Check that Phantoon can be defeated. This is to rule out the possibility that Phantoon may be locked 
+                // Check that Phantoon can be defeated. This is to rule out the possibility that Phantoon may be locked
                 // behind Bowling Alley.
-                if !state.flag_location_state[self.game_data.flag_isv.index_by_key["f_DefeatedPhantoon"]].bireachable {
+                if !state.flag_location_state
+                    [self.game_data.flag_isv.index_by_key["f_DefeatedPhantoon"]]
+                    .bireachable
+                {
                     bail!("Attempt failed: Phantoon not defeated");
                 }
 
                 // Success:
                 break;
+            }
+
+            if state.step_num == 1 && self.difficulty_tiers[0].early_save {
+                if !state.save_location_state.iter().any(|x| x.bireachable) {
+                    bail!("Attempt failed: no accessible save location");
+                }
             }
             state.step_num += 1;
         }

@@ -320,6 +320,7 @@ fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
         objectives: crate::randomize::Objectives::Bosses,
         save_animals: false,
         randomized_start: false,
+        early_save: false,
         disable_walljump: false,
         maps_revealed: false,
         vanilla_map: false,

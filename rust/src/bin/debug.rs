@@ -125,6 +125,7 @@ fn main() -> Result<()> {
         objectives: Objectives::Bosses,
         randomized_start: false,
         save_animals: false,
+        early_save: false,
         disable_walljump: false,
         maps_revealed: false,
         vanilla_map: false,

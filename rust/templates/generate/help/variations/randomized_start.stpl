@@ -19,8 +19,9 @@
       </ul></p>
       
       <p>If Random start is used, generally Samus will not be able to save or refill at the starting location. 
-      In some cases, finding a save station will be challenging. The player will need to find the Ship in order
-      to complete the escape sequence.
+      The player will need to find the Ship in order to complete the escape sequence.
+      In some cases, finding a save station will be challenging; if this is unwanted, consider using the 
+      option "Guaranteed early save station" (under "Other options"). 
       </p>
 
       <h5>Details</h5>

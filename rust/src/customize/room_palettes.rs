@@ -220,7 +220,7 @@ impl Allocator {
             if block.end_addr_snes - block.current_addr_snes >= size {
                 let addr = block.current_addr_snes;
                 block.current_addr_snes += size;
-                println!("success: allocated {} bytes: ending at {:x}", size, block.current_addr_snes);
+                // println!("success: allocated {} bytes: ending at {:x}", size, block.current_addr_snes);
                 return Ok(addr);
             }
         }
@@ -310,6 +310,10 @@ pub fn apply_area_themed_palettes(rom: &mut Rom, game_data: &GameData) -> Result
             tile_map.insert((area_idx, tileset_idx), tile_idx);
         }
     }
+    println!("Number of unique pal: {}", pal_map.len());
+    println!("Number of unique gfx8: {}", gfx8_map.len());
+    println!("Number of unique gfx16: {}", gfx16_map.len());
+    println!("Number of unique tile_idx: {}", tile_idx_map.len());
     println!(
         "Tileset table size: {}, next_tile_idx={next_tile_idx}",
         tile_table.len()

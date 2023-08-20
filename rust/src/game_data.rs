@@ -482,6 +482,7 @@ pub struct GameData {
     pub item_vertex_ids: Vec<Vec<VertexId>>,
     pub flag_locations: Vec<(RoomId, NodeId, FlagId)>,
     pub flag_vertex_ids: Vec<Vec<VertexId>>,
+    pub save_locations: Vec<(RoomId, NodeId)>,
     pub links: Vec<Link>,
     pub room_geometry: Vec<RoomGeometry>,
     pub room_and_door_idxs_by_door_ptr_pair:
@@ -1473,6 +1474,18 @@ impl GameData {
         assert!(found);
     }
 
+    fn override_tourian_save_room(&mut self, room_json: &mut JsonValue) {
+        // Remove the "save" utility, as we have a map here instead.
+        let mut found = false;
+        for node_json in room_json["nodes"].members_mut() {
+            if node_json["id"].as_i32().unwrap() == 2 {
+                node_json.remove("utility");
+                found = true;
+            }
+        }
+        assert!(found);
+    }
+
     fn preprocess_room(&mut self, room_json: &JsonValue) -> Result<JsonValue> {
         // We apply some changes to the sm-json-data specific to Map Rando.
         let mut new_room_json = room_json.clone();
@@ -1525,6 +1538,8 @@ impl GameData {
             self.override_morph_ball_room(&mut new_room_json);
         } else if room_id == 139 {
             self.override_metal_pirates_room(&mut new_room_json);
+        } else if room_id == 225 {
+            self.override_tourian_save_room(&mut new_room_json);
         }
 
         for node_json in new_room_json["nodes"].members_mut() {
@@ -2227,6 +2242,11 @@ impl GameData {
         for (&(room_id, node_id), node_json) in &self.node_json_map {
             if node_json["nodeType"] == "item" {
                 self.item_locations.push((room_id, node_id));
+            }
+            if node_json.has_key("utility") {
+                if node_json["utility"].members().any(|x| x == "save") {
+                    self.save_locations.push((room_id, node_id));
+                }
             }
             if node_json.has_key("yields") {
                 ensure!(node_json["yields"].len() >= 1);

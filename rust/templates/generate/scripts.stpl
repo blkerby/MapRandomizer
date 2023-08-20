@@ -285,6 +285,7 @@ function initializeSpoilerToken() {
 function checkOtherOptions() {
     if (document.getElementById("itemDotChangeDisappear").checked ||
         document.getElementById("transitionLettersYes").checked ||
+        document.getElementById("earlySaveYes").checked ||
         document.getElementById("disableWallJumpYes").checked ||
         document.getElementById("mapsRevealedYes").checked ||
         document.getElementById("vanillaMapYes").checked ||

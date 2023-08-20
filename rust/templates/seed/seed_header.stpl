@@ -61,6 +61,9 @@
         if transition_letters {
             game_variations.push("Area transitions marked as letters");
         }
+        if early_save {
+            game_variations.push("Guaranteed early save station");
+        }
         if disable_walljump {
             game_variations.push("Disable wall jumps");
         }
@@ -76,7 +79,7 @@
         if game_variations.len() > 0 { %>
             <div class="row">
                 <div class="col-5 col-sm-4 col-md-3">Other options:</div>
-                <div class="col-7 col-sm-8 col-md-9"><b><%- game_variations.join(", ") %></b></div>
+                <div class="col-7 col-sm-8 col-md-9"><%- game_variations.join("<br>") %></div>
             </div>
         <% } %>
     </div>

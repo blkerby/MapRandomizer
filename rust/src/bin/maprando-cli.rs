@@ -170,6 +170,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         // objectives: Objectives::Bosses,
         randomized_start: false,
         save_animals: false,
+        early_save: false,
         disable_walljump: false,
         maps_revealed: true,
         vanilla_map: false,
