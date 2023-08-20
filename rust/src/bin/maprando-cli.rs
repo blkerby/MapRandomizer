@@ -242,8 +242,8 @@ fn main() -> Result<()> {
         // samus_sprite: None,
         vanilla_screw_attack_animation: true,
         area_themed_palette: true,
-        // music: MusicSettings::AreaThemed,
-        music: MusicSettings::Vanilla,
+        music: MusicSettings::AreaThemed,
+        // music: MusicSettings::Vanilla,
         disable_beeping: false,
         etank_color: None,
     };

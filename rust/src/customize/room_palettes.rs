@@ -234,15 +234,17 @@ pub fn apply_area_themed_palettes(rom: &mut Rom, game_data: &GameData) -> Result
     let tile_pointers_free_space_end = 0x8FFE00;
 
     let mut allocator = Allocator::new(vec![
+        (snes2pc(0xBAC629), snes2pc(0xC2C2BB)),  // Vanilla tile GFX, tilemaps, and palettes, which we overwrite
         (snes2pc(0xE18000), snes2pc(0xE20000)),
-        (snes2pc(0xEA8000), snes2pc(0xF80000)),
+        (snes2pc(0xEA8000), snes2pc(0xF30000)),
     ]);
 
     let mut pal_map: HashMap<Vec<u8>, usize> = HashMap::new();
     let mut gfx8_map: HashMap<Vec<u8>, usize> = HashMap::new();
     let mut gfx16_map: HashMap<Vec<u8>, usize> = HashMap::new();
+    let mut tile_idx_map: HashMap<(usize, usize, usize), usize> = HashMap::new();
 
-    let mut next_tile_idx = 29;
+    let mut next_tile_idx = 0;
     let mut tile_table: Vec<u8> = rom.read_n(snes2pc(0x8FE6A2), next_tile_idx * 9)?.to_vec();
     let mut tile_map: HashMap<(AreaIdx, TilesetIdx), TilesetIdx> = HashMap::new();
     for (area_idx, area_theme_data) in game_data.tileset_palette_themes.iter().enumerate() {
@@ -288,14 +290,24 @@ pub fn apply_area_themed_palettes(rom: &mut Rom, game_data: &GameData) -> Result
             };
             rom.write_n(gfx16_addr, &compressed_gfx16)?;
 
+
             // let data = tile_table[(tileset_idx * 9)..(tileset_idx * 9 + 6)].to_vec();
             // tile_table.extend(&data);
-            tile_table.extend(&pc2snes(gfx16_addr).to_le_bytes()[0..3]);
-            tile_table.extend(&pc2snes(gfx8_addr).to_le_bytes()[0..3]);
-            tile_table.extend(&pc2snes(pal_addr).to_le_bytes()[0..3]);
-            tile_map.insert((area_idx, tileset_idx), next_tile_idx);
-
-            next_tile_idx += 1;
+            let tile_idx = match tile_idx_map.entry((gfx16_addr, gfx8_addr, pal_addr)) {
+                Entry::Occupied(x) => {
+                    *x.get()
+                }
+                Entry::Vacant(view) => {
+                    let idx = next_tile_idx;
+                    view.insert(idx);
+                    tile_table.extend(&pc2snes(gfx16_addr).to_le_bytes()[0..3]);
+                    tile_table.extend(&pc2snes(gfx8_addr).to_le_bytes()[0..3]);
+                    tile_table.extend(&pc2snes(pal_addr).to_le_bytes()[0..3]);     
+                    next_tile_idx += 1;
+                    idx
+                }
+            };
+            tile_map.insert((area_idx, tileset_idx), tile_idx);
         }
     }
     println!(

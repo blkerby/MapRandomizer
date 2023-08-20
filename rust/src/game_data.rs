@@ -2421,15 +2421,15 @@ impl GameData {
     // }
 
     fn load_themes(&mut self, base_path: &Path) -> Result<()> {
-        let tileset_idxs = vec![
-            vec![0, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 26, 27, 28],
-            vec![0, 2, 3, 4, 5, 9, 10, 11, 12, 13, 14, 26, 27, 28],
-            vec![0, 2, 3, 4, 5, 6, 7, 11, 12, 13, 14, 26, 27, 28],
-            vec![0, 2, 3, 6, 7, 9, 10, 11, 12, 13, 14, 26, 27, 28],
-            vec![0, 2, 3, 4, 5, 6, 7, 9, 10, 13, 14, 26, 27, 28],
-            vec![0, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 26, 27, 28],
-        ];
-
+        // let tileset_idxs = vec![
+        //     vec![0, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 26, 27, 28],
+        //     vec![0, 2, 3, 4, 5, 9, 10, 11, 12, 13, 14, 26, 27, 28],
+        //     vec![0, 2, 3, 4, 5, 6, 7, 11, 12, 13, 14, 26, 27, 28],
+        //     vec![0, 2, 3, 6, 7, 9, 10, 11, 12, 13, 14, 26, 27, 28],
+        //     vec![0, 2, 3, 4, 5, 6, 7, 9, 10, 13, 14, 26, 27, 28],
+        //     vec![0, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 26, 27, 28],
+        // ];
+        let tileset_idxs = vec![0, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 26, 27, 28];
         for (area_idx, area) in [
             "crateria",
             "brinstar",
@@ -2444,7 +2444,10 @@ impl GameData {
                 let tileset_dir = tileset_dir?;
                 let tileset_idx =
                     usize::from_str_radix(tileset_dir.file_name().to_str().unwrap(), 16)?;
-                if !tileset_idxs[area_idx].contains(&tileset_idx) {
+                // if !tileset_idxs[area_idx].contains(&tileset_idx) {
+                //     continue;
+                // }
+                if !tileset_idxs.contains(&tileset_idx) {
                     continue;
                 }
                 let tileset_path = tileset_dir.path();
