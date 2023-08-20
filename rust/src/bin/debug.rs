@@ -27,14 +27,14 @@ use std::path::Path;
 fn main() -> Result<()> {
     let sm_json_data_path = Path::new("../sm-json-data");
     let room_geometry_path = Path::new("../room_geometry.json");
-    let palette_path = Path::new("../palettes.json");
+    let palette_theme_path = Path::new("../palette_smart_exports");
     let escape_timings_path = Path::new("data/escape_timings.json");
     let start_locations_path = Path::new("data/start_locations.json");
     let hub_locations_path = Path::new("data/hub_locations.json");
     let game_data = GameData::load(
         sm_json_data_path,
         room_geometry_path,
-        palette_path,
+        palette_theme_path,
         escape_timings_path,
         start_locations_path,
         hub_locations_path,

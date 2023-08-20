@@ -2521,14 +2521,11 @@ impl GameData {
     pub fn load(
         sm_json_data_path: &Path,
         room_geometry_path: &Path,
-        palette_path: &Path,
+        palette_theme_path: &Path,
         escape_timings_path: &Path,
         start_locations_path: &Path,
         hub_locations_path: &Path,
     ) -> Result<GameData> {
-        // TODO: pass this in as in argument:
-        let palette_theme_path = Path::new("/home/kerby/roms/palette_xml/");
-
         let mut game_data = GameData::default();
         game_data.sm_json_data_path = sm_json_data_path.to_owned();
 
