@@ -2441,15 +2441,10 @@ impl GameData {
     // }
 
     fn load_themes(&mut self, base_path: &Path) -> Result<()> {
-        // let tileset_idxs = vec![
-        //     vec![0, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 26, 27, 28],
-        //     vec![0, 2, 3, 4, 5, 9, 10, 11, 12, 13, 14, 26, 27, 28],
-        //     vec![0, 2, 3, 4, 5, 6, 7, 11, 12, 13, 14, 26, 27, 28],
-        //     vec![0, 2, 3, 6, 7, 9, 10, 11, 12, 13, 14, 26, 27, 28],
-        //     vec![0, 2, 3, 4, 5, 6, 7, 9, 10, 13, 14, 26, 27, 28],
-        //     vec![0, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 26, 27, 28],
-        // ];
-        let tileset_idxs = vec![0, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 26, 27, 28];
+        let ignored_tileset_idxs = vec![
+            1, // Red Crateria
+            15, 16, 17, 18, 19, 20  // Ceres
+        ];
         for (area_idx, area) in [
             "crateria",
             "brinstar",
@@ -2467,7 +2462,7 @@ impl GameData {
                 // if !tileset_idxs[area_idx].contains(&tileset_idx) {
                 //     continue;
                 // }
-                if !tileset_idxs.contains(&tileset_idx) {
+                if ignored_tileset_idxs.contains(&tileset_idx) {
                     continue;
                 }
                 let tileset_path = tileset_dir.path();

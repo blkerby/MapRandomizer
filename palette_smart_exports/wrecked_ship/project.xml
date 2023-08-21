@@ -1,5 +1,5 @@
 <Config Version="1.19.8615.19380">
-  <ROMfile>..\..\palette_roms\wrecked_ship.sfc</ROMfile>
+  <ROMfile>..\..\palette_roms\vanilla.sfc</ROMfile>
   <PatchQuickmet>true</PatchQuickmet>
   <SaveNames>true</SaveNames>
   <LevelBufferAmount>200</LevelBufferAmount>

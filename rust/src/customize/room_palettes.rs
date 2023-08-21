@@ -195,9 +195,9 @@ fn fix_mother_brain(rom: &mut Rom, game_data: &GameData) -> Result<()> {
 }
 
 struct AllocatorBlock {
-    start_addr_snes: usize,
-    end_addr_snes: usize,
-    current_addr_snes: usize
+    start_addr: usize,
+    end_addr: usize,
+    current_addr: usize
 }
 
 struct Allocator {
@@ -208,19 +208,19 @@ impl Allocator {
     pub fn new(blocks: Vec<(usize, usize)>) -> Self {
         Allocator {
             blocks: blocks.into_iter().map(|(start, end)| AllocatorBlock {
-                start_addr_snes: start,
-                end_addr_snes: end,
-                current_addr_snes: start,
+                start_addr: start,
+                end_addr: end,
+                current_addr: start,
             }).collect()
         }
     }
 
     pub fn allocate(&mut self, size: usize) -> Result<usize> {
         for block in &mut self.blocks {
-            if block.end_addr_snes - block.current_addr_snes >= size {
-                let addr = block.current_addr_snes;
-                block.current_addr_snes += size;
-                // println!("success: allocated {} bytes: ending at {:x}", size, block.current_addr_snes);
+            if block.end_addr - block.current_addr >= size {
+                let addr = block.current_addr;
+                block.current_addr += size;
+                // println!("success: allocated {} bytes: ending at {:x}", size, pc2snes(block.current_addr));
                 return Ok(addr);
             }
         }
@@ -236,7 +236,7 @@ pub fn apply_area_themed_palettes(rom: &mut Rom, game_data: &GameData) -> Result
     let mut allocator = Allocator::new(vec![
         (snes2pc(0xBAC629), snes2pc(0xC2C2BB)),  // Vanilla tile GFX, tilemaps, and palettes, which we overwrite
         (snes2pc(0xE18000), snes2pc(0xE20000)),
-        (snes2pc(0xEA8000), snes2pc(0xF30000)),
+        (snes2pc(0xEA8000), snes2pc(0xF00000)),
     ]);
 
     let mut pal_map: HashMap<Vec<u8>, usize> = HashMap::new();
@@ -251,7 +251,6 @@ pub fn apply_area_themed_palettes(rom: &mut Rom, game_data: &GameData) -> Result
         for (&tileset_idx, theme) in area_theme_data {
             let encoded_pal = encode_palette(&theme.palette);
             let compressed_pal = compress(&encoded_pal);
-            // let pal_addr = allocator.allocate(compressed_pal.len())?;
             let pal_addr = match pal_map.entry(encoded_pal.clone()) {
                 Entry::Occupied(x) => {
                     *x.get()
