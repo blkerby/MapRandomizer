@@ -17,7 +17,7 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-80---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release80">Version 80 (???)</a>:
+<p><a href="https://version-80---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release80">Version 80 (2023-08-20)</a>:
 <ul>
 <li>Changes to "Other options":
     <ul>

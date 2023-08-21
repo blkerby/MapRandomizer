@@ -5,6 +5,7 @@ next release:
 priority:
 - door color randomization
 - randomized title screen
+- add "Maybe" option for "Save the animals"
 - controller config special settings (moonwalk) customization
 - set up a more robust way for users to save & select presets
 - move input ROM off Generate page (and into separate dialogue that only shows on first use).

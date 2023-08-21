@@ -81,9 +81,9 @@
         <li>Map tiles preserved in this way appear gray, the same as tiles revealed by map stations.
         <li>Map progress is only cleared by creating a new file when all three save slots are empty.
         </ul>
-    <li>Maps are color-coded by area.
+    <li>Maps are color-coded by area. Lighter shades are used to represent heated rooms.
     <li>The location of an area's map station is always visible (optional).
-    <li>Item dots disappear after collection (optional).
+    <li>Item dots fade or disappear after collection.
     <li>Area transitions are marked, identifying the neighboring area using either colored arrows or letters (color-blind-friendly option).
     </ul>
 
