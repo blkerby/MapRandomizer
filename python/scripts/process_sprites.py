@@ -79,7 +79,7 @@ def create_patches():
         sprite_sheet_filename = sprite_json['name'] + '.png'
         output_patch_filename = sprite_json['name'] + '.ips'
         tmpfile = "/tmp/out.sfc"
-        os.system("python SpriteSomething.py "
+        os.system("python3.8 SpriteSomething.py "
                   "--cli=1 --mode=inject-new "
                   f"--sprite=../{sprite_path}/{sprite_sheet_filename} "
                   f"--dest-filename={tmpfile} "

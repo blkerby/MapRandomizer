@@ -39,20 +39,11 @@ fn remove_mother_brain_flashing(rom: &mut Rom) -> Result<()> {
 }
 
 
-pub fn customize_rom(
+fn apply_custom_samus_sprite(
     rom: &mut Rom,
-    seed_patch: &[u8],
     settings: &CustomizeSettings,
-    game_data: &GameData,
-    samus_sprite_categories: &[SamusSpriteCategory],
+    samus_sprite_categories: &[SamusSpriteCategory],        
 ) -> Result<()> {
-    rom.resize(0x400000);
-    let patch = ips::Patch::parse(seed_patch).unwrap();
-    // .with_context(|| format!("Unable to parse patch {}", patch_path.display()))?;
-    for hunk in patch.hunks() {
-        rom.write_n(hunk.offset(), hunk.payload())?;
-    }
-
     if settings.samus_sprite.is_some() || !settings.vanilla_screw_attack_animation {
         let sprite_name = settings.samus_sprite.clone().unwrap_or("samus".to_string());
         let patch_path_str = format!("../patches/samus_sprites/{}.ips", sprite_name);
@@ -108,10 +99,28 @@ pub fn customize_rom(
         }
     }
 
+    Ok(())
+}
+
+pub fn customize_rom(
+    rom: &mut Rom,
+    seed_patch: &[u8],
+    settings: &CustomizeSettings,
+    game_data: &GameData,
+    samus_sprite_categories: &[SamusSpriteCategory],
+) -> Result<()> {
+    rom.resize(0x400000);
+    let patch = ips::Patch::parse(seed_patch).unwrap();
+    // .with_context(|| format!("Unable to parse patch {}", patch_path.display()))?;
+    for hunk in patch.hunks() {
+        rom.write_n(hunk.offset(), hunk.payload())?;
+    }
+
     remove_mother_brain_flashing(rom)?;
     if settings.area_themed_palette {
         apply_area_themed_palettes(rom, game_data)?;
     }
+    apply_custom_samus_sprite(rom, settings, samus_sprite_categories)?;
     match settings.music {
         MusicSettings::Vanilla => {
             override_music(rom)?;
