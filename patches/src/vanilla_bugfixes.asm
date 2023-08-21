@@ -178,3 +178,8 @@ fix_camera_alignment:
 	RTS
 
 warnpc !bank_80_free_space_end
+
+
+; skip loading special x-ray blocks (only used in BT room during escape, and we repurpose the space for other things)
+org $84836A
+	BRA $2C   ; was: BEQ $2C

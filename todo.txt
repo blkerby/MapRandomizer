@@ -1,13 +1,14 @@
 next release:
-- palette customization overhaul (free up dependence on changing door colors)
-- option to ensure initial save point access (with random start)
+- door color randomization
+  - make sure door locks are taken into account in cross-room strats
 
 priority:
-- door color randomization
 - randomized title screen
 - add "Maybe" option for "Save the animals"
 - controller config special settings (moonwalk) customization
 - set up a more robust way for users to save & select presets
+- overhaul two-phase randomization/customization process
+  - create ROM in customization only
 - move input ROM off Generate page (and into separate dialogue that only shows on first use).
 - convert tech/strat AVIs to WebM & WebP (using ffmpeg CLI)
   - WebM/VP9 for full playback using HTML5 <video>

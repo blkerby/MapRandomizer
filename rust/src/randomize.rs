@@ -140,6 +140,7 @@ pub struct DifficultyConfig {
 // Includes preprocessing specific to the map:
 pub struct Randomizer<'a> {
     pub map: &'a Map,
+    pub locked_doors: Vec<LockedDoor>, // Locked doors (not including gray doors)
     pub game_data: &'a GameData,
     pub difficulty_tiers: &'a [DifficultyConfig],
     pub links: Vec<Link>,
@@ -171,6 +172,19 @@ struct DebugData {
     global_state: GlobalState,
     forward: TraverseResult,
     reverse: TraverseResult,
+}
+
+pub enum DoorType {
+    Red,
+    Green,
+    Yellow,
+}
+
+pub struct LockedDoor {
+    pub src_ptr_pair: DoorPtrPair,
+    pub dst_ptr_pair: DoorPtrPair,
+    pub door_type: DoorType,
+    pub bidirectional: bool,  // if true, the door is locked on both sides, with a shared state
 }
 
 // State that changes over the course of item placement attempts
@@ -894,6 +908,7 @@ impl<'r> Randomizer<'r> {
         difficulty_tiers: &'r [DifficultyConfig],
         game_data: &'r GameData,
     ) -> Randomizer<'r> {
+        let locked_doors: Vec<LockedDoor> = vec![];
         let mut preprocessor = Preprocessor::new(game_data, map);
         let mut links: Vec<Link> = game_data
             .links
@@ -945,6 +960,7 @@ impl<'r> Randomizer<'r> {
 
         Randomizer {
             map,
+            locked_doors,
             initial_items_remaining,
             game_data,
             links,
