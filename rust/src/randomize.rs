@@ -3,7 +3,7 @@ pub mod escape_timer;
 use crate::{
     game_data::{
         self, get_effective_runway_length, Capacity, FlagId, HubLocation, Item, ItemLocationId,
-        Link, Map, NodeId, Requirement, RoomId, StartLocation, TechId, VertexId,
+        Link, Map, NodeId, Requirement, RoomId, StartLocation, TechId, VertexId, DoorPtrPair,
     },
     traverse::{
         apply_requirement, get_spoiler_route, is_bireachable, traverse, GlobalState, LinkIdx,
@@ -835,6 +835,57 @@ impl<'a> Preprocessor<'a> {
         // );
         out
     }
+}
+
+fn get_randomizable_doors(game_data: &GameData) -> HashSet<DoorPtrPair> {
+    // Gray doors, which we do not want to randomize:
+    let gray_doors: HashSet<DoorPtrPair> = vec![
+        // Pirate rooms:
+        (0x18B7A, 0x18B62), // Pit Room left
+        (0x18B86, 0x18B92), // Pit Room right
+        (0x19192, 0x1917A), // Baby Kraid left
+        (0x1919E, 0x191AA), // Baby Kraid right
+        (0x1A558, 0x1A54C), // Plasma Room
+        (0x19A32, 0x19966), // Metal Pirates left
+        (0x19A3E, 0x19A1A), // Metal Pirates right
+        // Bosses:
+        (0x19192, 0x1917A), // Kraid left
+        (0x1919E, 0x191AA), // Kraid right
+        (0x1A2C4, 0x1A2AC), // Phantoon
+        (0x1A978, 0x1A924), // Draygon left
+        (0x1A96C, 0x1A840), // Draygon right
+        (0x198B2, 0x19A62), // Ridley left
+        (0x198BE, 0x198CA), // Ridley right
+        // Minibosses:
+        (0x18BAA, 0x18BC2), // Bomb Torizo
+        (0x18E56, 0x18E3E), // Spore Spawn bottom
+        (0x193EA, 0x193D2), // Crocomire top
+        (0x1A90C, 0x1A774), // Botwoon left
+        (0x19882, 0x19A86), // Golden Torizo right
+    ].into_iter().map(|(x, y)| (Some(x), Some(y))).collect();
+
+    let mut out: Vec<DoorPtrPair> = vec![];
+    for room in &game_data.room_geometry {
+        for door in &room.doors {
+            let pair = (door.exit_ptr, door.entrance_ptr);
+            let has_door_cap = door.offset.is_some();
+            if has_door_cap && !gray_doors.contains(&pair) {
+                out.push(pair);
+            }
+        }
+    }
+    out.into_iter().collect()
+}
+
+fn get_randomizable_door_connections(game_data: &GameData, map: &Map) -> Vec<(DoorPtrPair, DoorPtrPair)> {
+    let doors = get_randomizable_doors(game_data);
+    let mut out: Vec<(DoorPtrPair, DoorPtrPair)> = vec![];
+    for (src_door_ptr_pair, dst_door_ptr_pair, _bidirectional) in &map.doors {
+        if doors.contains(src_door_ptr_pair) && doors.contains(dst_door_ptr_pair) {
+            out.push((*src_door_ptr_pair, *dst_door_ptr_pair));
+        }
+    }
+    out
 }
 
 impl<'r> Randomizer<'r> {
