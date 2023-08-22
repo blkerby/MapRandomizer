@@ -1,6 +1,8 @@
 next release:
 - door color randomization
   - make sure door locks are taken into account in cross-room strats
+- exclude save stations from having door locks on them
+- fix custom sprites (pink gravity suit)
 
 priority:
 - randomized title screen

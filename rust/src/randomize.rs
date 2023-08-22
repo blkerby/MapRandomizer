@@ -181,7 +181,7 @@ struct DebugData {
     reverse: TraverseResult,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub enum DoorType {
     Red,
     Green,

@@ -472,6 +472,7 @@ org $84F380
     TYX
     TAY
 
+    LDA #$0000
     STA $7EDF0C,x          ; PLM $DF0C = 0
     LDA #$8469             ;\
     STA $1CD7,x            ;} PLM pre-instruction = RTS
