@@ -73,6 +73,7 @@
     <h5 id="map_enhancements">Map enhancements</h5>
     <ul>
     <li>Map tiles are modified to show the locations of doors and in-room passages or false walls.
+    <li>Non-blue doors are specifically indicated on the map.
     <li>Special map tiles show the locations of map stations, refills, objectives, and Mother Brain.
     <li>Items are consistently marked using dots. Depending on the settings, different dot shapes identify
     different tiers of items.
@@ -93,10 +94,6 @@
     <li>Pressing L + R + Select + Start during gameplay does a quick reload from the last save.
     Repeating this input combination cycles through previous saves; Samus just has to still be in the initial
     facing-forward pose from the last reload.
-    <li>Pressing Angle Up + Item Cancel during gameplay marks the current tile un-explored on the map.
-    To be effective, these inputs must be held while exiting the tile, since otherwise the game will
-    immediately re-explore the tile. This is mainly useful when playing with the "Item dots disappear" option disabled,
-    to create a reminder to return to an item that could not be obtained.
     </ul>
 
     <h5>Saving & loading</h5>
@@ -136,6 +133,17 @@
     <li>The green door at the bottom of Spore Spawn Room is replaced with a gray door.
     <li>The solid wall PLM on the right side of Tourian Escape Room 1 is removed. Instead, during the escape, a gray door
     spawns on the right side of whichever room connects to Mother Brain Room.
+    <li>Hazard markers (yellow & black stripes) are shown on doors leading into the following locations, either directly or via the Toilet:
+        <ul>
+        <li>Mt. Everest top door
+        <li>Oasis top door
+        <li>Fish Tank top left door
+        <li>Fish Tank top right door
+        <li>Amphitheatre left door
+        <li>Tourian Blue Hoppers left door
+        <li>Big Pink crumble block left door
+        <li>Ice Beam Gate Room crumble block top left door
+        </ul>
     </ul>
 
     <h5 id="item_spawns">Item spawns</h5>
@@ -237,6 +245,7 @@
         Speed Booster, Grapple, X-Ray.
         </ul>
     <li>Hyper Beam destroys Super, Bomb, and Power Bomb blocks and opens blue & green gates from either side.
+    (Note that it does <i>not</i> destroy Speed, Grapple, or crumble blocks.)
     <li>An auto-save is made after Mother Brain is defeated, immediately before the escape begins.
     <li>Enemies are cleared during the escape (optional).
     <li>The escape timer is adapted based on the estimated time required to return to the Ship.
@@ -304,8 +313,6 @@
     <li>The music for each room is based on its area & sub-area on the randomized map.
     <li>Angle up/down can be bound to any button.
     <li>Item fanfares are removed, replaced with short sound effects that do not interrupt gameplay.
-    <li>The position of the Hopper on the left side of the Tourian Blue Hopper Room is adjusted when entering from the left,
-    to avoid Samus taking an unavoidable hit.
     <li>Major glitches are disabled:
         <ul>
         <li>The pause menu is fixed so that glitched beams cannot occur.
@@ -317,8 +324,6 @@
             situations going out-of-bounds is normal and not a glitch.
             </ul>
         </ul>
-    <li>The wall on the right side of Tourian Escape Room 1 does not spawn. Instead, a gray door spawns when exiting
-    Mother Brain Room at the beginning of the escape, in whichever room this leads into.
     <li>During the first phase of the Kraid fight, Samus's X position is no longer restricted to the left screen.
         <ul>
         <li>This allows the room to function properly when entering from the right, giving the player an option to exit back
@@ -343,9 +348,6 @@
     <li>Every door transition connects to a compatible door transition, e.g., sand connects to sand, and elevators
     connect to elevators.
     </ul>
-    <p>It took about a year to develop the initial model architecture and training process, including about two months of
-    continuous training on a pair of RTX 3080 Ti GPUs. Work is on-going to train a new model to improve the diversity of
-    room connections (i.e., reduce the model quirkiness where it almost always connects certain groups of rooms together).</p>
 
     <p>Maps produced by the model go through a few steps of post-processing:
     <ul>
@@ -356,7 +358,13 @@
     <li>The other map station rooms are likewise moved to ensure there is one in each area.
     <li>Save and refill rooms are moved to improve the balance of their distribution.
     </ul>
-    The processed maps are then collected and stored off. The randomizer currently uses a pool of approximately 73,000 maps.</p>
+    The processed maps are then collected and stored off. The randomizer currently uses a pool of approximately 14,000 maps.</p>
+
+    <p>It took about a year to develop the initial model architecture and training process, including about two months of
+    continuous training on a pair of RTX 3080 Ti GPUs. The original model suffered from some quirkiness where it almost 
+    always connected certain groups of rooms together. A newer model is still in process of training, with improvements 
+    leading to greater variety in room connections; though not yet finished training, a preliminary map pool based on
+    the new model already shows great improvement and is currently used in the randomizer.</p>
 
     <h5 id="item_placement">Item placement</h5>
     <p>Item placement happens by forward fill: items are first placed in locations that are bireachable

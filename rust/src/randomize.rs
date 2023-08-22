@@ -2,8 +2,8 @@ pub mod escape_timer;
 
 use crate::{
     game_data::{
-        self, get_effective_runway_length, Capacity, FlagId, HubLocation, Item, ItemLocationId,
-        Link, Map, NodeId, Requirement, RoomId, StartLocation, TechId, VertexId, DoorPtrPair,
+        self, get_effective_runway_length, Capacity, DoorPtrPair, FlagId, HubLocation, Item,
+        ItemLocationId, Link, Map, NodeId, Requirement, RoomId, StartLocation, TechId, VertexId,
     },
     traverse::{
         apply_requirement, get_spoiler_route, is_bireachable, traverse, GlobalState, LinkIdx,
@@ -65,6 +65,12 @@ pub enum Objectives {
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
+pub enum DoorsMode {
+    Blue,
+    Ammo,
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
 pub enum MotherBrainFight {
     Vanilla,
     Short,
@@ -121,6 +127,7 @@ pub struct DifficultyConfig {
     pub momentum_conservation: bool,
     // Game variations:
     pub objectives: Objectives,
+    pub doors_mode: DoorsMode,
     pub randomized_start: bool,
     pub save_animals: bool,
     pub early_save: bool,
@@ -140,7 +147,7 @@ pub struct DifficultyConfig {
 // Includes preprocessing specific to the map:
 pub struct Randomizer<'a> {
     pub map: &'a Map,
-    pub locked_doors: Vec<LockedDoor>, // Locked doors (not including gray doors)
+    pub locked_doors: &'a [LockedDoor], // Locked doors (not including gray doors)
     pub game_data: &'a GameData,
     pub difficulty_tiers: &'a [DifficultyConfig],
     pub links: Vec<Link>,
@@ -174,17 +181,19 @@ struct DebugData {
     reverse: TraverseResult,
 }
 
+#[derive(Clone, Copy)]
 pub enum DoorType {
     Red,
     Green,
     Yellow,
 }
 
+#[derive(Clone, Copy)]
 pub struct LockedDoor {
     pub src_ptr_pair: DoorPtrPair,
     pub dst_ptr_pair: DoorPtrPair,
     pub door_type: DoorType,
-    pub bidirectional: bool,  // if true, the door is locked on both sides, with a shared state
+    pub bidirectional: bool, // if true, the door is locked on both sides, with a shared state
 }
 
 // State that changes over the course of item placement attempts
@@ -206,6 +215,7 @@ struct RandomizationState {
 pub struct Randomization {
     pub difficulty: DifficultyConfig,
     pub map: Map,
+    pub locked_doors: Vec<LockedDoor>,
     pub item_placement: Vec<Item>,
     pub start_location: StartLocation,
     pub spoiler_log: SpoilerLog,
@@ -876,7 +886,10 @@ fn get_randomizable_doors(game_data: &GameData) -> HashSet<DoorPtrPair> {
         (0x193EA, 0x193D2), // Crocomire top
         (0x1A90C, 0x1A774), // Botwoon left
         (0x19882, 0x19A86), // Golden Torizo right
-    ].into_iter().map(|(x, y)| (Some(x), Some(y))).collect();
+    ]
+    .into_iter()
+    .map(|(x, y)| (Some(x), Some(y)))
+    .collect();
 
     let mut out: Vec<DoorPtrPair> = vec![];
     for room in &game_data.room_geometry {
@@ -891,7 +904,10 @@ fn get_randomizable_doors(game_data: &GameData) -> HashSet<DoorPtrPair> {
     out.into_iter().collect()
 }
 
-fn get_randomizable_door_connections(game_data: &GameData, map: &Map) -> Vec<(DoorPtrPair, DoorPtrPair)> {
+fn get_randomizable_door_connections(
+    game_data: &GameData,
+    map: &Map,
+) -> Vec<(DoorPtrPair, DoorPtrPair)> {
     let doors = get_randomizable_doors(game_data);
     let mut out: Vec<(DoorPtrPair, DoorPtrPair)> = vec![];
     for (src_door_ptr_pair, dst_door_ptr_pair, _bidirectional) in &map.doors {
@@ -902,13 +918,54 @@ fn get_randomizable_door_connections(game_data: &GameData, map: &Map) -> Vec<(Do
     out
 }
 
+pub fn randomize_doors(
+    game_data: &GameData,
+    map: &Map,
+    difficulty: &DifficultyConfig,
+    seed: usize,
+) -> Vec<LockedDoor> {
+    let mut rng_seed = [0u8; 32];
+    rng_seed[..8].copy_from_slice(&seed.to_le_bytes());
+    let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
+    match difficulty.doors_mode {
+        DoorsMode::Blue => {
+            vec![]
+        },
+        DoorsMode::Ammo => {
+            let red_doors_cnt = 15;
+            let green_doors_cnt = 12;
+            let yellow_doors_cnt = 6;
+            let total_cnt = red_doors_cnt + green_doors_cnt + yellow_doors_cnt;
+            let mut door_types = vec![];
+            door_types.extend(vec![DoorType::Red; red_doors_cnt]);
+            door_types.extend(vec![DoorType::Green; green_doors_cnt]);
+            door_types.extend(vec![DoorType::Yellow; yellow_doors_cnt]);
+            
+            let door_conns = get_randomizable_door_connections(game_data, map);
+            let mut out: Vec<LockedDoor> = vec![];
+            let idxs = rand::seq::index::sample(&mut rng, door_conns.len(), total_cnt);            
+            for (i, idx) in idxs.into_iter().enumerate() {
+                let conn = &door_conns[idx];
+                let door = LockedDoor {
+                    src_ptr_pair: conn.0,
+                    dst_ptr_pair: conn.1,
+                    door_type: door_types[i],
+                    bidirectional: true,
+                };
+                out.push(door);
+            }
+            out
+        }
+    }
+}
+
 impl<'r> Randomizer<'r> {
     pub fn new(
         map: &'r Map,
+        locked_doors: &'r [LockedDoor],
         difficulty_tiers: &'r [DifficultyConfig],
         game_data: &'r GameData,
     ) -> Randomizer<'r> {
-        let locked_doors: Vec<LockedDoor> = vec![];
         let mut preprocessor = Preprocessor::new(game_data, map);
         let mut links: Vec<Link> = game_data
             .links
@@ -1821,6 +1878,7 @@ impl<'r> Randomizer<'r> {
         Ok(Randomization {
             difficulty: self.difficulty_tiers[0].clone(),
             map: self.map.clone(),
+            locked_doors: self.locked_doors.to_vec(),
             item_placement,
             spoiler_log,
             seed,
@@ -2000,9 +2058,7 @@ impl<'r> Randomizer<'r> {
             bireachable: false,
             bireachable_vertex_id: None,
         };
-        let initial_save_location_state = SaveLocationState {
-            bireachable: false,
-        };
+        let initial_save_location_state = SaveLocationState { bireachable: false };
         let num_attempts_start_location = 10;
         let (start_location, hub_location) =
             self.determine_start_location(num_attempts_start_location, &mut rng)?;

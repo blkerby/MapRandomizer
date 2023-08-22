@@ -318,6 +318,7 @@ fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
         infinite_space_jump: false,
         momentum_conservation: false,
         objectives: crate::randomize::Objectives::Bosses,
+        doors_mode: crate::randomize::DoorsMode::Ammo,
         save_animals: false,
         randomized_start: false,
         early_save: false,

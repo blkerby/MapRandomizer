@@ -18,7 +18,7 @@ use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::{make_rom, Rom};
 use maprando::randomize::{
     DebugOptions, DifficultyConfig, ItemMarkers, ItemDotChange, ItemPlacementStyle, ItemPriorityGroup,
-    MotherBrainFight, Objectives, Randomization, Randomizer,
+    MotherBrainFight, Objectives, Randomization, Randomizer, DoorsMode, randomize_doors,
 };
 use maprando::seed_repository::{Seed, SeedFile, SeedRepository};
 use maprando::spoiler_map;
@@ -212,6 +212,7 @@ struct RandomizeRequest {
     infinite_space_jump: Text<bool>,
     momentum_conservation: Text<bool>,
     objectives: Text<String>,
+    doors: Text<String>,
     randomized_start: Text<bool>,
     save_animals: Text<bool>,
     early_save: Text<bool>,
@@ -272,6 +273,7 @@ struct SeedData {
     infinite_space_jump: bool,
     momentum_conservation: bool,
     objectives: String,
+    doors: String,
     early_save: bool,
     disable_walljump: bool,
     maps_revealed: bool,
@@ -321,6 +323,7 @@ struct SeedHeaderTemplate<'a> {
     infinite_space_jump: bool,
     momentum_conservation: bool,
     objectives: String,
+    doors: String,
     early_save: bool,
     disable_walljump: bool,
     maps_revealed: bool,
@@ -422,6 +425,7 @@ fn render_seed(
         infinite_space_jump: seed_data.infinite_space_jump,
         momentum_conservation: seed_data.momentum_conservation,
         objectives: seed_data.objectives.clone(),
+        doors: seed_data.doors.clone(),
         early_save: seed_data.early_save,
         disable_walljump: seed_data.disable_walljump,
         maps_revealed: seed_data.maps_revealed,
@@ -897,6 +901,7 @@ fn get_difficulty_tiers(
             infinite_space_jump: difficulty.infinite_space_jump,
             momentum_conservation: difficulty.momentum_conservation,
             objectives: difficulty.objectives,
+            doors_mode: difficulty.doors_mode,
             early_save: difficulty.early_save,
             disable_walljump: difficulty.disable_walljump,
             maps_revealed: difficulty.maps_revealed,
@@ -1099,6 +1104,11 @@ async fn randomize(
             "Pirates" => Objectives::Pirates,
             _ => panic!("Unrecognized objectives: {}", req.objectives.0),
         },
+        doors_mode: match req.doors.0.as_str() {
+            "Blue" => DoorsMode::Blue,
+            "Ammo" => DoorsMode::Ammo,
+            _ => panic!("Unrecognized doors mode: {}", req.doors.0),
+        },
         early_save: req.early_save.0,
         disable_walljump: req.disable_walljump.0,
         maps_revealed: req.maps_revealed.0,
@@ -1137,6 +1147,7 @@ async fn randomize(
         difficulty_tiers[0]
     );
     let mut map_seed: usize;
+    let mut door_randomization_seed: usize;
     let mut item_placement_seed: usize;
     loop {
         attempt_num += 1;
@@ -1150,9 +1161,11 @@ async fn randomize(
         } else {
             app_data.map_repository.get_map(map_seed).unwrap()
         };
+        door_randomization_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
         item_placement_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
-        info!("Map seed={map_seed}, item placement seed={item_placement_seed}");
-        let randomizer = Randomizer::new(&map, &difficulty_tiers, &app_data.game_data);
+        info!("Map seed={map_seed}, door randomization seed={door_randomization_seed}, item placement seed={item_placement_seed}");
+        let locked_doors = randomize_doors(&app_data.game_data, &map, &difficulty_tiers[0], door_randomization_seed);
+        let randomizer = Randomizer::new(&map, &locked_doors, &difficulty_tiers, &app_data.game_data);
         randomization = match randomizer.randomize(item_placement_seed, display_seed) {
             Ok(r) => r,
             Err(e) => {
@@ -1202,6 +1215,7 @@ async fn randomize(
         infinite_space_jump: req.infinite_space_jump.0,
         momentum_conservation: req.momentum_conservation.0,
         objectives: req.objectives.0.clone(),
+        doors: req.doors.0.clone(),
         early_save: req.early_save.0,
         disable_walljump: req.disable_walljump.0,
         maps_revealed: req.maps_revealed.0,

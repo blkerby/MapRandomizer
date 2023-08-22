@@ -6,7 +6,7 @@ use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::Rom;
 use maprando::randomize::{
     DebugOptions, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, MotherBrainFight, Objectives,
-    ProgressionRate, Randomization, Randomizer, ItemDotChange,
+    ProgressionRate, Randomization, Randomizer, ItemDotChange, DoorsMode, randomize_doors,
 };
 use maprando::spoiler_map;
 use maprando::web::{SamusSpriteInfo, SamusSpriteCategory};
@@ -168,6 +168,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         momentum_conservation: false,
         objectives: Objectives::Pirates,
         // objectives: Objectives::Bosses,
+        doors_mode: DoorsMode::Ammo,
         randomized_start: false,
         save_animals: false,
         early_save: false,
@@ -184,7 +185,6 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         }),
     };
     let difficulty_tiers = [difficulty];
-    let randomizer = Randomizer::new(&map, &difficulty_tiers, &game_data);
     let max_attempts = if args.item_placement_seed.is_some() {
         1
     } else {
@@ -195,6 +195,8 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
             Some(s) => s,
             None => attempt_num,
         };
+        let locked_doors = randomize_doors(game_data, &map, &difficulty_tiers[0], seed);
+        let randomizer = Randomizer::new(&map, &locked_doors, &difficulty_tiers, &game_data);
         if let Ok(randomization) = randomizer.randomize(seed, 1) {
             return Ok(randomization);
         } else {

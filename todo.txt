@@ -64,6 +64,7 @@ priority:
   is currently set up (since there is no way to go up through sand)
 
 later:
+- for forced mode, also use tier below Basic?
 - enhancements to momentum conservation patch
   - remove need to be holding dash or to be in spin
   - reset speed boost counter whenever momentum conservation comes into play, to avoid making it too easy to get blue
@@ -176,12 +177,9 @@ later:
 - add option (enabled on Challenge) to not treat tanks as filler items anymore after giving Varia (including the step where giving Varia)
   - maybe more general option to postpone unneeded filler items aside from missiles
 - spoiler visualizer improvements (see GitHub issue)
-- fix panic that is occasionally happening:
-  thread 'actix-rt|system:0|arbiter:0' panicked at 'assertion failed: num_key_items_to_place >= 1', src/randomize.rs:671:9
 - find some way to have forced mode take into account difficulty of defeating bosses (and other flags)
   - for each flag, identify its tier using just the flag edge (not redoing a full graph traversal)
   - then for the item placement, have the graph traversal treat that flag not as free but as whatever difficulty it was.
-- consider putting back the save confirmation.
 - fix graphics in door transitions?
 - fix (sometimes?) glitched right door in GT. X-Ray showed a plasma beam inside it
 - adjust elevator heatFrames when fast elevators enabled

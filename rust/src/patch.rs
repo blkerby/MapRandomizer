@@ -8,7 +8,7 @@ use std::path::Path;
 
 use crate::{
     game_data::{DoorPtr, DoorPtrPair, GameData, Item, Map, NodePtr, RoomGeometryDoor, RoomPtr},
-    randomize::{MotherBrainFight, Objectives, Randomization},
+    randomize::{MotherBrainFight, Objectives, Randomization, LockedDoor},
     customize::vanilla_music::override_music,
 };
 use anyhow::{ensure, Context, Result};
@@ -1516,6 +1516,22 @@ impl<'a> Patcher<'a> {
         Ok(())
     }
 
+    fn apply_single_locked_door(&mut self, door: LockedDoor) -> Result<()> {
+        Ok(())
+    }
+
+    fn apply_locked_doors(&mut self) -> Result<()> {
+        for door in &self.randomization.locked_doors {
+            let mut door = *door;
+            self.apply_single_locked_door(door)?;
+            if door.bidirectional {
+                std::mem::swap(&mut door.src_ptr_pair, &mut door.dst_ptr_pair);
+                self.apply_single_locked_door(door)?;
+            }
+        }
+        Ok(())
+    }
+
     fn apply_extra_setup_asm(&mut self) -> Result<()> {
         // remove unused pointer from Bomb Torizo room (Zebes ablaze state), to avoid misinterpreting it as an
         // extra setup ASM pointer.
@@ -1607,6 +1623,7 @@ pub fn make_rom(
     patcher.apply_seed_hash()?;
     patcher.apply_credits()?;
     patcher.apply_hazard_markers()?;
+    patcher.apply_locked_doors()?;
     patcher.apply_extra_setup_asm()?;
     Ok(rom)
 }
