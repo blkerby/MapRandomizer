@@ -1,7 +1,9 @@
 next release:
 - door color randomization
+  - map tiles
+  - take into account in logic
   - make sure door locks are taken into account in cross-room strats
-- exclude save stations from having door locks on them
+  - exclude save stations from having door locks on them
 - fix custom sprites (pink gravity suit)
 
 priority:
