@@ -639,6 +639,6 @@ for i in range(1000000):
         logging.info("Overall ({}): ent1={:.6f}".format(
             torch.sum(session.replay_buffer.episode_data.reward[:session.replay_buffer.size] == 0).item(), ent1))
         display_counts(counts1, 16, verbose=False)
-        # display_counts(counts1, 32, verbose=True)
+        # display_counts(counts1, 100, verbose=True)
 
         # logging.info(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects, dim=0)))

@@ -3,7 +3,7 @@ use log::info;
 
 use crate::{
     game_data::{GameData, Item, ItemIdx, Map, RoomGeometryDoor, RoomGeometryItem},
-    randomize::{ItemDotChange, ItemMarkers, Objectives, Randomization},
+    randomize::{DoorType, ItemDotChange, ItemMarkers, Objectives, Randomization},
 };
 
 use super::{snes2pc, xy_to_explored_bit_ptr, xy_to_map_offset, Rom};
@@ -19,6 +19,9 @@ enum Edge {
     Door,
     Wall,
     GrayDoor,
+    RedDoor,
+    GreenDoor,
+    YellowDoor,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
@@ -447,17 +450,34 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
+    fn get_door_color(&self, edge: Edge) -> u8 {
+        match edge {
+            Edge::GrayDoor => 15,
+            Edge::RedDoor => 7,
+            Edge::GreenDoor => 14,
+            Edge::YellowDoor => 6,
+            _ => panic!("Unexpected door edge: {:?}", edge),
+        }
+    }
+
     fn render_basic_tile(&mut self, tile: BasicTile) -> Result<[[u8; 8]; 8]> {
         let bg_color = if tile.heated { 2 } else { 1 };
         let mut data: [[u8; 8]; 8] = [[bg_color; 8]; 8];
+        let door_edges = [
+            Edge::GrayDoor,
+            Edge::RedDoor,
+            Edge::GreenDoor,
+            Edge::YellowDoor,
+        ];
 
-        if tile.left == Edge::GrayDoor {
+        if door_edges.contains(&tile.left) {
+            let color = self.get_door_color(tile.left);
             data[0][0] = 3;
             data[1][0] = 4;
-            data[2][0] = 15;
-            data[3][0] = 15;
-            data[4][0] = 15;
-            data[5][0] = 15;
+            data[2][0] = color;
+            data[3][0] = color;
+            data[4][0] = color;
+            data[5][0] = color;
             data[6][0] = 4;
             data[7][0] = 3;
             data[2][1] = 4;
@@ -470,13 +490,14 @@ impl<'a> MapPatcher<'a> {
             }
         }
 
-        if tile.right == Edge::GrayDoor {
+        if door_edges.contains(&tile.right) {
+            let color = self.get_door_color(tile.right);
             data[0][7] = 3;
             data[1][7] = 4;
-            data[2][7] = 15;
-            data[3][7] = 15;
-            data[4][7] = 15;
-            data[5][7] = 15;
+            data[2][7] = color;
+            data[3][7] = color;
+            data[4][7] = color;
+            data[5][7] = color;
             data[6][7] = 4;
             data[7][7] = 3;
             data[2][6] = 4;
@@ -489,13 +510,14 @@ impl<'a> MapPatcher<'a> {
             }
         }
 
-        if tile.up == Edge::GrayDoor {
+        if door_edges.contains(&tile.up) {
+            let color = self.get_door_color(tile.up);
             data[0][0] = 3;
             data[0][1] = 4;
-            data[0][2] = 15;
-            data[0][3] = 15;
-            data[0][4] = 15;
-            data[0][5] = 15;
+            data[0][2] = color;
+            data[0][3] = color;
+            data[0][4] = color;
+            data[0][5] = color;
             data[0][6] = 4;
             data[0][7] = 3;
             data[1][2] = 4;
@@ -508,13 +530,14 @@ impl<'a> MapPatcher<'a> {
             }
         }
 
-        if tile.down == Edge::GrayDoor {
+        if door_edges.contains(&tile.down) {
+            let color = self.get_door_color(tile.down);
             data[7][0] = 3;
             data[7][1] = 4;
-            data[7][2] = 15;
-            data[7][3] = 15;
-            data[7][4] = 15;
-            data[7][5] = 15;
+            data[7][2] = color;
+            data[7][3] = color;
+            data[7][4] = color;
+            data[7][5] = color;
             data[7][6] = 4;
             data[7][7] = 3;
             data[6][2] = 4;
@@ -1420,6 +1443,56 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
+    fn indicate_locked_doors(&mut self) -> Result<()> {
+        for locked_door in &self.randomization.locked_doors {
+            let mut ptr_pairs = vec![locked_door.src_ptr_pair];
+            if locked_door.bidirectional {
+                ptr_pairs.push(locked_door.dst_ptr_pair);
+            }
+            for ptr_pair in ptr_pairs {
+                let (room_idx, door_idx) =
+                    self.game_data.room_and_door_idxs_by_door_ptr_pair[&ptr_pair];
+                let room = &self.game_data.room_geometry[room_idx];
+                let door = &room.doors[door_idx];
+                let area = self.map.area[room_idx];
+                let x0 = self.rom.read_u8(room.rom_address + 2)? as isize;
+                let y0 = self.rom.read_u8(room.rom_address + 3)? as isize;
+                let base_ptr = self.game_data.area_map_ptrs[area] as usize;
+                let offset =
+                    super::xy_to_map_offset(x0 + door.x as isize, y0 + door.y as isize) as usize;
+                let tile = (self.rom.read_u16(base_ptr + offset)? & 0xC3FF) as TilemapWord;
+                let basic_tile_opt = self.reverse_map.get(&tile);
+                let edge = match locked_door.door_type {
+                    DoorType::Red => Edge::RedDoor,
+                    DoorType::Green => Edge::GreenDoor,
+                    DoorType::Yellow => Edge::YellowDoor,
+                };
+                if let Some(basic_tile) = basic_tile_opt {
+                    let mut new_tile = *basic_tile;
+                    match door.direction.as_str() {
+                        "left" => {
+                            new_tile.left = edge;
+                        }
+                        "right" => {
+                            new_tile.right = edge;
+                        }
+                        "up" => {
+                            new_tile.up = edge;
+                        }
+                        "down" => {
+                            new_tile.down = edge;
+                        },
+                        _ => panic!("Unexpected door direction: {:?}", door.direction)
+                    }
+                    let modified_word = self.get_basic_tile(new_tile)?;
+                    self.rom
+                        .write_u16(base_ptr + offset, (modified_word | 0x0C00) as isize)?;
+                }
+            }
+        }
+        Ok(())
+    }
+
     fn indicate_sand(&mut self) -> Result<()> {
         // Indicate sand transitions with a passage (4-pixel) on top and door (2-pixel) on bottom,
         // so it appears a bit like a funnel:
@@ -1534,6 +1607,7 @@ impl<'a> MapPatcher<'a> {
             (11, rgb(18, 3, 31)),  // Crateria purple
             (6, rgb(29, 15, 0)),   // Tourian,
             (15, rgb(18, 12, 14)), // Gray door
+            (7, rgb(27, 7, 18)),   // Red (pink) door
         ];
         // Dotted grid lines
         let i = 12;
@@ -2280,6 +2354,7 @@ impl<'a> MapPatcher<'a> {
         self.indicate_passages()?;
         self.indicate_doors()?;
         self.indicate_gray_doors()?;
+        self.indicate_locked_doors()?;
         self.indicate_heat()?;
         self.indicate_sand()?;
         self.indicate_special_tiles()?;

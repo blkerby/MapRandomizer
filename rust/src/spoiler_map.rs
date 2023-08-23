@@ -92,6 +92,9 @@ fn get_color(value: u8, area: usize) -> Rgb<u8> {
         }
         3 => get_rgb(31, 31, 31), // Wall/passage (white)
         4 => get_rgb(0, 0, 0), // Opaque black (used in elevators, covers up dotted grid background)
+        6 => get_rgb(29, 15, 0), // Yellow (orange) door
+        7 => get_rgb(27, 7, 18), // Red (pink) door
+        14 => get_rgb(0, 24, 0), // Green door
         15 => get_rgb(18, 12, 14), // Gray door
         _ => panic!("Unexpected color value {}", value),
     }
