@@ -700,6 +700,8 @@ async fn customize_seed(
     if rom.data.len() < 0x300000 {
         return HttpResponse::BadRequest().body("Invalid base ROM.");
     }
+    let rom_digest = crypto_hash::hex_digest(crypto_hash::Algorithm::MD5, &rom.data);
+    info!("MD5 digest: {rom_digest}");
 
     let settings = CustomizeSettings {
         samus_sprite: if req.custom_samus_sprite.0 && req.samus_sprite.0 != "" {
