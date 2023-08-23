@@ -862,9 +862,9 @@ impl<'a> Preprocessor<'a> {
 }
 
 fn get_randomizable_doors(game_data: &GameData) -> HashSet<DoorPtrPair> {
-    // Gray doors, which we do not want to randomize:
-    let gray_doors: HashSet<DoorPtrPair> = vec![
-        // Pirate rooms:
+    // Doors which we do not want to randomize:
+    let non_randomizable_doors: HashSet<DoorPtrPair> = vec![
+        // Gray doors - Pirate rooms:
         (0x18B7A, 0x18B62), // Pit Room left
         (0x18B86, 0x18B92), // Pit Room right
         (0x19192, 0x1917A), // Baby Kraid left
@@ -872,7 +872,7 @@ fn get_randomizable_doors(game_data: &GameData) -> HashSet<DoorPtrPair> {
         (0x1A558, 0x1A54C), // Plasma Room
         (0x19A32, 0x19966), // Metal Pirates left
         (0x19A3E, 0x19A1A), // Metal Pirates right
-        // Bosses:
+        // Gray doors - Bosses:
         (0x19192, 0x1917A), // Kraid left
         (0x1919E, 0x191AA), // Kraid right
         (0x1A2C4, 0x1A2AC), // Phantoon
@@ -880,12 +880,51 @@ fn get_randomizable_doors(game_data: &GameData) -> HashSet<DoorPtrPair> {
         (0x1A96C, 0x1A840), // Draygon right
         (0x198B2, 0x19A62), // Ridley left
         (0x198BE, 0x198CA), // Ridley right
-        // Minibosses:
+        // Gray doors - Minibosses:
         (0x18BAA, 0x18BC2), // Bomb Torizo
         (0x18E56, 0x18E3E), // Spore Spawn bottom
         (0x193EA, 0x193D2), // Crocomire top
         (0x1A90C, 0x1A774), // Botwoon left
         (0x19882, 0x19A86), // Golden Torizo right
+        // Save stations:
+        (0x189BE, 0x1899A), // Crateria Save Room
+        (0x19006, 0x18D12), // Green Brinstar Main Shaft Save Room
+        (0x19012, 0x18F52), // Etecoon Save Room
+        (0x18FD6, 0x18DF6), // Big Pink Save Room
+        (0x1926A, 0x190D2), // Caterpillar Save Room
+        (0x1925E, 0x19186), // Warehouse Save Room
+        (0x1A828, 0x1A744), // Aqueduct Save Room
+        (0x1A888, 0x1A7EC), // Draygon Save Room left
+        (0x1A87C, 0x1A930), // Draygon Save Room right
+        (0x1A5F4, 0x1A588), // Forgotten Highway Save Room
+        (0x1A324, 0x1A354), // Glass Tunnel Save Room
+        (0x19822, 0x193BA), // Crocomire Save Room
+        (0x19462, 0x19456), // Post Crocomire Save Room
+        (0x1982E, 0x19702), // Lower Norfair Elevator Save Room
+        (0x19816, 0x192FA), // Frog Savestation left
+        (0x1980A, 0x197DA), // Frog Savestation right
+        (0x197CE, 0x1959A), // Bubble Mountain Save Room
+        (0x19AB6, 0x19A0E), // Red Kihunter Shaft Save Room
+        (0x1A318, 0x1A240), // Wrecked Ship Save Room
+        (0x1AAD4, 0x1AABC), // Lower Tourian Save Room
+        // Map stations:
+        (0x18C2E, 0x18BDA), // Crateria Map Room
+        (0x18D72, 0x18D36), // Brinstar Map Room
+        (0x197C2, 0x19306), // Norfair Map Room
+        (0x1A5E8, 0x1A51C), // Maridia Map Room
+        (0x1A2B8, 0x1A2A0), // Wrecked Ship Map Room
+        (0x1AB40, 0x1A99C), // Tourian Map Room (Upper Tourian Save Room)
+        // Refill stations:
+        (0x18D96, 0x18D7E), // Green Brinstar Missile Refill Room
+        (0x18F6A, 0x18DBA), // Dachora Energy Refill Room
+        (0x191FE, 0x1904E), // Sloaters Refill
+        (0x1A894, 0x1A8F4), // Maridia Missile Refill Room
+        (0x1A930, 0x1A87C), // Maridia Health Refill Room
+        (0x19786, 0x19756), // Nutella Refill left
+        (0x19792, 0x1976E), // Nutella Refill right
+        (0x1920A, 0x191C2), // Kraid Recharge Station
+        (0x198A6, 0x19A7A), // Golden Torizo Energy Recharge
+        (0x1AA74, 0x1AA68), // Tourian Recharge Room
     ]
     .into_iter()
     .map(|(x, y)| (Some(x), Some(y)))
@@ -896,7 +935,7 @@ fn get_randomizable_doors(game_data: &GameData) -> HashSet<DoorPtrPair> {
         for door in &room.doors {
             let pair = (door.exit_ptr, door.entrance_ptr);
             let has_door_cap = door.offset.is_some();
-            if has_door_cap && !gray_doors.contains(&pair) {
+            if has_door_cap && !non_randomizable_doors.contains(&pair) {
                 out.push(pair);
             }
         }
@@ -933,8 +972,8 @@ pub fn randomize_doors(
         },
         DoorsMode::Ammo => {
             let red_doors_cnt = 15;
-            let green_doors_cnt = 12;
-            let yellow_doors_cnt = 6;
+            let green_doors_cnt = 10;
+            let yellow_doors_cnt = 5;
             let total_cnt = red_doors_cnt + green_doors_cnt + yellow_doors_cnt;
             let mut door_types = vec![];
             door_types.extend(vec![DoorType::Red; red_doors_cnt]);

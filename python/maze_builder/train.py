@@ -184,25 +184,25 @@ cpu_executor = None
 
 pickle_name = 'models/session-2023-06-08T14:55:16.779895.pkl'
 # session = pickle.load(open(pickle_name, 'rb'))
-session = pickle.load(open(pickle_name + '-bk27', 'rb'))
+session = pickle.load(open(pickle_name + '-bk29', 'rb'))
 # session.replay_buffer.size = 0
 # session.replay_buffer.position = 0
 # session.replay_buffer.resize(2 ** 23)
 session.envs = envs
 
-session.model.attn_layers.append(AttentionLayer(
-    input_width=embedding_width,
-    key_width=key_width,
-    value_width=value_width,
-    num_heads=attn_heads,
-    dropout=0.0).to(device))
-session.model.ff_layers.append(FeedforwardLayer(
-    input_width=embedding_width,
-    hidden_width=hidden_width,
-    arity=1,
-    dropout=0.0).to(device))
-session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
-session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=0.995)
+# session.model.attn_layers.append(AttentionLayer(
+#     input_width=embedding_width,
+#     key_width=key_width,
+#     value_width=value_width,
+#     num_heads=attn_heads,
+#     dropout=0.0).to(device))
+# session.model.ff_layers.append(FeedforwardLayer(
+#     input_width=embedding_width,
+#     hidden_width=hidden_width,
+#     arity=1,
+#     dropout=0.0).to(device))
+# session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
+# session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=0.995)
 
 
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
@@ -217,8 +217,8 @@ lr0 = 0.00005
 lr1 = 0.00005
 # lr_warmup_time = 16
 # lr_cooldown_time = 100
-num_candidates_min0 = 31.5
-num_candidates_max0 = 32.5
+num_candidates_min0 = 63.5
+num_candidates_max0 = 64.5
 num_candidates_min1 = 63.5
 num_candidates_max1 = 64.5
 
@@ -245,8 +245,8 @@ augment_frac = 0.0
 
 temperature_min0 = 0.02
 temperature_max0 = 2.0
-temperature_min1 = 0.02
-temperature_max1 = 2.0
+temperature_min1 = 0.01
+temperature_max1 = 1.0
 # temperature_min0 = 0.01
 # temperature_max0 = 10.0
 # temperature_min1 = 0.01
@@ -257,8 +257,8 @@ temperature_frac_min0 = 0.5
 temperature_frac_min1 = 0.5
 temperature_decay = 1.0
 
-annealing_start = 140640
-annealing_time = session.replay_buffer.capacity // (num_envs * num_devices) // 16
+annealing_start = 169792
+annealing_time = session.replay_buffer.capacity // (num_envs * num_devices) // 32
 
 pass_factor0 = 1.0
 pass_factor1 = 1.0
@@ -567,7 +567,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk28')
+            # save_session(session, pickle_name + '-bk29')
             # session.replay_buffer.resize(2 ** 20)
             # pickle.dump(session, open(pickle_name + '-small-22', 'wb'))
     if session.num_rounds % summary_freq == 0:

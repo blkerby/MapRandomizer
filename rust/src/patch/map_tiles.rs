@@ -2354,10 +2354,10 @@ impl<'a> MapPatcher<'a> {
         self.indicate_passages()?;
         self.indicate_doors()?;
         self.indicate_gray_doors()?;
-        self.indicate_locked_doors()?;
-        self.indicate_heat()?;
         self.indicate_sand()?;
+        self.indicate_heat()?;
         self.indicate_special_tiles()?;
+        self.indicate_locked_doors()?;
         self.add_cross_area_arrows()?;
         self.set_map_stations_explored()?;
         self.indicate_major_items()?;

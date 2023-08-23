@@ -1,11 +1,12 @@
 next release:
 - door color randomization
-  - map tiles
   - take into account in logic
-  - make sure door locks are taken into account in cross-room strats
-  - exclude save stations from having door locks on them
+    - with cross-room strats in particular
+  - make hyper beam unlock red, green, yellow doors
 
 priority:
+- add door flags to refine logic
+- add door lock bypass strats to logic
 - randomized title screen
 - add "Maybe" option for "Save the animals"
 - controller config special settings (moonwalk) customization
@@ -67,6 +68,7 @@ priority:
   is currently set up (since there is no way to go up through sand)
 
 later:
+- see if we can do something about silent snails with Zebes asleep music
 - for forced mode, also use tier below Basic?
 - enhancements to momentum conservation patch
   - remove need to be holding dash or to be in spin
@@ -118,13 +120,9 @@ later:
 - include a check that the client and server are matching versions and give a more meaningful error when they aren't
 - look into botwoon requirements: 
   https://maprando.com/seed/-yvSvwjFlrfJN1NRxDi-Jw/data/visualizer/index.html
-- unlock all gray doors during escape (eventually only when "enemies cleared during escape" is enabled)
-  - e.g. metal pirates
-- press X to fast forward during credits?
 - QoL option for save station fast travel (in Max)?
 - investigate problem when using quick reload (L+R+Select+Start) while unpausing with 0 energy.
 - investigate: ridley gray door closed when reserve triggered (in sapphron seed)
-- on seed page: for each tier, show selected tech/strats or deselected tech/strat, whichever is a shorter list
 - fix escape timer tech mapping to use reverse Amphitheatre notable for can_acid_dive
 - model improvement:
   - try using localized output: use token that room is placed in, instead of applying attention across all tokens
@@ -159,7 +157,6 @@ later:
 - fix how spoiler map sometimes won't show escape route
 - see if it is possible to prevent song changes from messing up enemy behavior
 - fix problem with disappearing typewriter text when pausing as escape sequence starts
-- Add override for Tourian Hopper run under strat from left to top (imyt strat)
 - add a tip that you can share a seed using the URL.
 - logic (maybe): moondance (bowling alley), tas dance (green brin shaft)
 - make graph traversals faster by using previous step for initial local states (probably not worth it?):
