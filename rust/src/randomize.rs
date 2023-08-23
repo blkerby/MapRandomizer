@@ -236,13 +236,46 @@ struct VertexInfo {
     node_name: String,
 }
 
+fn get_door_requirement(locked_door_idx: Option<usize>, locked_doors: &[LockedDoor], game_data: &GameData) -> Requirement {
+    if let Some(idx) = locked_door_idx {
+        let locked_door = &locked_doors[idx];
+        let ptr_pair = locked_door.src_ptr_pair;
+        let (room_idx, _) = game_data.room_and_door_idxs_by_door_ptr_pair[&ptr_pair];
+        let heated = game_data.room_geometry[room_idx].heated;
+        match locked_door.door_type {
+            DoorType::Red => {
+                if heated {
+                    Requirement::Or(vec![Requirement::And(vec![Requirement::Missiles(5), Requirement::HeatFrames(50)]), 
+                                         Requirement::Supers(1)])
+                } else {
+                    Requirement::Or(vec![Requirement::Missiles(5), Requirement::Supers(1)])
+                }
+            },
+            DoorType::Green => {
+                Requirement::Supers(1)
+            },
+            DoorType::Yellow => {
+                if heated {
+                    Requirement::And(vec![Requirement::PowerBombs(1), Requirement::HeatFrames(110)])
+                } else {
+                    Requirement::PowerBombs(1)
+                }
+            }
+        }
+    } else {
+        Requirement::Free
+    }
+}
+
 fn add_door_links(
     src_room_id: RoomId,
     src_node_id: NodeId,
     dst_room_id: RoomId,
     dst_node_id: NodeId,
+    locked_door_idx: Option<usize>,
     game_data: &GameData,
     links: &mut Vec<Link>,
+    locked_doors: &[LockedDoor],
 ) {
     for obstacle_bitmask in 0..(1 << game_data.room_num_obstacles[&src_room_id]) {
         let from_vertex_id =
@@ -256,7 +289,7 @@ fn add_door_links(
         links.push(Link {
             from_vertex_id,
             to_vertex_id,
-            requirement: game_data::Requirement::Free,
+            requirement: get_door_requirement(locked_door_idx, locked_doors, game_data),
             notable_strat_name: None,
             strat_name: "(Door transition)".to_string(),
             strat_notes: vec![],
@@ -1005,6 +1038,14 @@ impl<'r> Randomizer<'r> {
         difficulty_tiers: &'r [DifficultyConfig],
         game_data: &'r GameData,
     ) -> Randomizer<'r> {
+        let mut locked_door_map: HashMap<DoorPtrPair, usize> = HashMap::new();
+        for (i, door) in locked_doors.iter().enumerate() {
+            locked_door_map.insert(door.src_ptr_pair, i);
+            if door.bidirectional {
+                locked_door_map.insert(door.dst_ptr_pair, i);
+            }
+        }
+
         let mut preprocessor = Preprocessor::new(game_data, map);
         let mut links: Vec<Link> = game_data
             .links
@@ -1021,18 +1062,22 @@ impl<'r> Randomizer<'r> {
                 game_data.door_ptr_pair_map[&(src_exit_ptr, src_entrance_ptr)];
             let (_, unlocked_src_node_id) =
                 game_data.unlocked_door_ptr_pair_map[&(src_exit_ptr, src_entrance_ptr)];
+            let src_locked_door_idx = locked_door_map.get(&(src_exit_ptr, src_entrance_ptr)).map(|x| *x);
             let (dst_room_id, dst_node_id) =
                 game_data.door_ptr_pair_map[&(dst_exit_ptr, dst_entrance_ptr)];
             let (_, unlocked_dst_node_id) =
                 game_data.unlocked_door_ptr_pair_map[&(dst_exit_ptr, dst_entrance_ptr)];
+            let dst_locked_door_idx = locked_door_map.get(&(dst_exit_ptr, dst_entrance_ptr)).map(|x| *x);
 
             add_door_links(
                 src_room_id,
                 unlocked_src_node_id,
                 dst_room_id,
                 dst_node_id,
+                src_locked_door_idx,
                 game_data,
                 &mut links,
+                locked_doors,
             );
             if bidirectional {
                 add_door_links(
@@ -1040,8 +1085,10 @@ impl<'r> Randomizer<'r> {
                     unlocked_dst_node_id,
                     src_room_id,
                     src_node_id,
+                    dst_locked_door_idx,
                     game_data,
                     &mut links,
+                    locked_doors,
                 );
             }
         }

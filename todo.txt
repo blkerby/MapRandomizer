@@ -1,6 +1,7 @@
 next release:
 - door color randomization
   - take into account in logic
+    - heat frames for yellow doors
     - with cross-room strats in particular
   - make hyper beam unlock red, green, yellow doors
 
