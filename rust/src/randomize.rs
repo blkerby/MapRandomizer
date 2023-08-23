@@ -236,7 +236,11 @@ struct VertexInfo {
     node_name: String,
 }
 
-fn get_door_requirement(locked_door_idx: Option<usize>, locked_doors: &[LockedDoor], game_data: &GameData) -> Requirement {
+fn get_door_requirement(
+    locked_door_idx: Option<usize>,
+    locked_doors: &[LockedDoor],
+    game_data: &GameData,
+) -> Requirement {
     if let Some(idx) = locked_door_idx {
         let locked_door = &locked_doors[idx];
         let ptr_pair = locked_door.src_ptr_pair;
@@ -245,18 +249,24 @@ fn get_door_requirement(locked_door_idx: Option<usize>, locked_doors: &[LockedDo
         match locked_door.door_type {
             DoorType::Red => {
                 if heated {
-                    Requirement::Or(vec![Requirement::And(vec![Requirement::Missiles(5), Requirement::HeatFrames(50)]), 
-                                         Requirement::Supers(1)])
+                    Requirement::Or(vec![
+                        Requirement::And(vec![
+                            Requirement::Missiles(5),
+                            Requirement::HeatFrames(50),
+                        ]),
+                        Requirement::Supers(1),
+                    ])
                 } else {
                     Requirement::Or(vec![Requirement::Missiles(5), Requirement::Supers(1)])
                 }
-            },
-            DoorType::Green => {
-                Requirement::Supers(1)
-            },
+            }
+            DoorType::Green => Requirement::Supers(1),
             DoorType::Yellow => {
                 if heated {
-                    Requirement::And(vec![Requirement::PowerBombs(1), Requirement::HeatFrames(110)])
+                    Requirement::And(vec![
+                        Requirement::PowerBombs(1),
+                        Requirement::HeatFrames(110),
+                    ])
                 } else {
                     Requirement::PowerBombs(1)
                 }
@@ -300,6 +310,8 @@ fn add_door_links(
 struct Preprocessor<'a> {
     game_data: &'a GameData,
     door_map: HashMap<(RoomId, NodeId), (RoomId, NodeId)>,
+    locked_doors: &'a [LockedDoor],
+    locked_door_map: &'a HashMap<DoorPtrPair, usize>,
     // Cache of previously-processed or currently-processing inputs. This is used to avoid infinite
     // recursion in cases of circular dependencies (e.g. cycles of leaveWithGMode)
     preprocessed_output: HashMap<ByAddress<&'a Requirement>, Option<Requirement>>,
@@ -321,8 +333,14 @@ struct Preprocessor<'a> {
 // }
 
 impl<'a> Preprocessor<'a> {
-    pub fn new(game_data: &'a GameData, map: &'a Map) -> Self {
+    pub fn new(
+        game_data: &'a GameData,
+        map: &'a Map,
+        locked_doors: &'a [LockedDoor],
+        locked_door_map: &'a HashMap<DoorPtrPair, usize>,
+    ) -> Self {
         let mut door_map: HashMap<(RoomId, NodeId), (RoomId, NodeId)> = HashMap::new();
+        let mut locked_node_map: HashMap<(RoomId, NodeId), &'a LockedDoor> = HashMap::new();
         for &((src_exit_ptr, src_entrance_ptr), (dst_exit_ptr, dst_entrance_ptr), _) in &map.doors {
             let (src_room_id, src_node_id) =
                 game_data.door_ptr_pair_map[&(src_exit_ptr, src_entrance_ptr)];
@@ -341,10 +359,14 @@ impl<'a> Preprocessor<'a> {
                 (dst_room_id, unlocked_dst_node_id),
                 (src_room_id, src_node_id),
             );
+
+            // if let Some(idx) = locked_door_map.get((src_exit_ptr, ))
         }
         Preprocessor {
             game_data,
             door_map,
+            locked_doors,
+            locked_door_map,
             preprocessed_output: HashMap::new(),
         }
     }
@@ -1002,7 +1024,7 @@ pub fn randomize_doors(
     match difficulty.doors_mode {
         DoorsMode::Blue => {
             vec![]
-        },
+        }
         DoorsMode::Ammo => {
             let red_doors_cnt = 15;
             let green_doors_cnt = 10;
@@ -1012,10 +1034,10 @@ pub fn randomize_doors(
             door_types.extend(vec![DoorType::Red; red_doors_cnt]);
             door_types.extend(vec![DoorType::Green; green_doors_cnt]);
             door_types.extend(vec![DoorType::Yellow; yellow_doors_cnt]);
-            
+
             let door_conns = get_randomizable_door_connections(game_data, map);
             let mut out: Vec<LockedDoor> = vec![];
-            let idxs = rand::seq::index::sample(&mut rng, door_conns.len(), total_cnt);            
+            let idxs = rand::seq::index::sample(&mut rng, door_conns.len(), total_cnt);
             for (i, idx) in idxs.into_iter().enumerate() {
                 let conn = &door_conns[idx];
                 let door = LockedDoor {
@@ -1046,7 +1068,7 @@ impl<'r> Randomizer<'r> {
             }
         }
 
-        let mut preprocessor = Preprocessor::new(game_data, map);
+        let mut preprocessor = Preprocessor::new(game_data, map, locked_doors, &locked_door_map);
         let mut links: Vec<Link> = game_data
             .links
             .iter()
@@ -1062,12 +1084,16 @@ impl<'r> Randomizer<'r> {
                 game_data.door_ptr_pair_map[&(src_exit_ptr, src_entrance_ptr)];
             let (_, unlocked_src_node_id) =
                 game_data.unlocked_door_ptr_pair_map[&(src_exit_ptr, src_entrance_ptr)];
-            let src_locked_door_idx = locked_door_map.get(&(src_exit_ptr, src_entrance_ptr)).map(|x| *x);
+            let src_locked_door_idx = locked_door_map
+                .get(&(src_exit_ptr, src_entrance_ptr))
+                .map(|x| *x);
             let (dst_room_id, dst_node_id) =
                 game_data.door_ptr_pair_map[&(dst_exit_ptr, dst_entrance_ptr)];
             let (_, unlocked_dst_node_id) =
                 game_data.unlocked_door_ptr_pair_map[&(dst_exit_ptr, dst_entrance_ptr)];
-            let dst_locked_door_idx = locked_door_map.get(&(dst_exit_ptr, dst_entrance_ptr)).map(|x| *x);
+            let dst_locked_door_idx = locked_door_map
+                .get(&(dst_exit_ptr, dst_entrance_ptr))
+                .map(|x| *x);
 
             add_door_links(
                 src_room_id,
