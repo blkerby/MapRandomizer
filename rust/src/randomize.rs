@@ -3,7 +3,7 @@ pub mod escape_timer;
 use crate::{
     game_data::{
         self, get_effective_runway_length, Capacity, DoorPtrPair, FlagId, HubLocation, Item,
-        ItemLocationId, Link, Map, NodeId, Requirement, RoomId, StartLocation, TechId, VertexId,
+        ItemLocationId, Link, Map, NodeId, Requirement, RoomId, StartLocation, TechId, VertexId, ItemId,
     },
     traverse::{
         apply_requirement, get_spoiler_route, is_bireachable, traverse, GlobalState, LinkIdx,
@@ -264,11 +264,15 @@ fn get_door_requirement(
             DoorType::Yellow => {
                 if heated {
                     Requirement::And(vec![
+                        Requirement::Item(Item::Morph as ItemId),
                         Requirement::PowerBombs(1),
                         Requirement::HeatFrames(110),
                     ])
                 } else {
-                    Requirement::PowerBombs(1)
+                    Requirement::And(vec![
+                        Requirement::Item(Item::Morph as ItemId),
+                        Requirement::PowerBombs(1),
+                    ])
                 }
             }
         }
@@ -311,7 +315,7 @@ struct Preprocessor<'a> {
     game_data: &'a GameData,
     door_map: HashMap<(RoomId, NodeId), (RoomId, NodeId)>,
     locked_doors: &'a [LockedDoor],
-    locked_door_map: &'a HashMap<DoorPtrPair, usize>,
+    locked_node_map: HashMap<(RoomId, NodeId), usize>,
     // Cache of previously-processed or currently-processing inputs. This is used to avoid infinite
     // recursion in cases of circular dependencies (e.g. cycles of leaveWithGMode)
     preprocessed_output: HashMap<ByAddress<&'a Requirement>, Option<Requirement>>,
@@ -340,7 +344,7 @@ impl<'a> Preprocessor<'a> {
         locked_door_map: &'a HashMap<DoorPtrPair, usize>,
     ) -> Self {
         let mut door_map: HashMap<(RoomId, NodeId), (RoomId, NodeId)> = HashMap::new();
-        let mut locked_node_map: HashMap<(RoomId, NodeId), &'a LockedDoor> = HashMap::new();
+        let mut locked_node_map: HashMap<(RoomId, NodeId), usize> = HashMap::new();
         for &((src_exit_ptr, src_entrance_ptr), (dst_exit_ptr, dst_entrance_ptr), _) in &map.doors {
             let (src_room_id, src_node_id) =
                 game_data.door_ptr_pair_map[&(src_exit_ptr, src_entrance_ptr)];
@@ -360,13 +364,18 @@ impl<'a> Preprocessor<'a> {
                 (src_room_id, src_node_id),
             );
 
-            // if let Some(idx) = locked_door_map.get((src_exit_ptr, ))
+            if let Some(&idx) = locked_door_map.get(&(src_exit_ptr, src_entrance_ptr)) {
+                locked_node_map.insert((src_room_id, unlocked_src_node_id), idx);
+            }
+            if let Some(&idx) = locked_door_map.get(&(dst_exit_ptr, dst_entrance_ptr)) {
+                locked_node_map.insert((dst_room_id, unlocked_dst_node_id), idx);
+            }
         }
         Preprocessor {
             game_data,
             door_map,
             locked_doors,
-            locked_door_map,
+            locked_node_map,
             preprocessed_output: HashMap::new(),
         }
     }
@@ -494,11 +503,21 @@ impl<'a> Preprocessor<'a> {
         unusable_tiles: i32,
         _link: &Link,
     ) -> Requirement {
-        if let Some(&(other_room_id, other_node_id)) = self.door_map.get(&(room_id, node_id)) {
+        let mut unlocked_node_id = node_id;
+        if self
+            .game_data
+            .unlocked_node_map
+            .contains_key(&(room_id, node_id))
+        {
+            unlocked_node_id = self.game_data.unlocked_node_map[&(room_id, node_id)];
+        }
+        if let Some(&(other_room_id, other_node_id)) = self.door_map.get(&(room_id, unlocked_node_id)) {
             let runways = &self.game_data.node_runways_map[&(room_id, node_id)];
             let other_runways = &self.game_data.node_runways_map[&(other_room_id, other_node_id)];
             let can_leave_charged_vec =
                 &self.game_data.node_can_leave_charged_map[&(other_room_id, other_node_id)];
+            let locked_door_idx = self.locked_node_map.get(&(room_id, unlocked_node_id)).map(|x| *x);
+            let door_req = get_door_requirement(locked_door_idx, self.locked_doors, self.game_data);
             let mut req_vec: Vec<Requirement> = vec![];
 
             // let from_triple = self.game_data.vertex_isv.keys[_link.from_vertex_id];
@@ -556,6 +575,7 @@ impl<'a> Preprocessor<'a> {
                     excess_shinespark_frames,
                 };
                 req_vec.push(Requirement::make_and(vec![
+                    door_req.clone(),
                     req,
                     self.preprocess_requirement(&runway.requirement, _link),
                 ]));
@@ -587,6 +607,7 @@ impl<'a> Preprocessor<'a> {
                         excess_shinespark_frames,
                     };
                     req_vec.push(Requirement::make_and(vec![
+                        door_req.clone(),
                         req,
                         self.preprocess_requirement(&runway.requirement, _link),
                         self.preprocess_requirement(&other_runway.requirement, _link),
@@ -612,6 +633,7 @@ impl<'a> Preprocessor<'a> {
                     excess_shinespark_frames,
                 };
                 req_vec.push(Requirement::make_and(vec![
+                    door_req.clone(),
                     req,
                     self.preprocess_requirement(&can_leave_charged.requirement, _link),
                 ]));
@@ -650,6 +672,8 @@ impl<'a> Preprocessor<'a> {
         }
         let (other_room_id, other_node_id) = self.door_map[&(room_id, unlocked_node_id)];
         let runways = &self.game_data.node_runways_map[&(other_room_id, other_node_id)];
+        let locked_door_idx = self.locked_node_map.get(&(room_id, unlocked_node_id)).map(|x| *x);
+        let door_req = get_door_requirement(locked_door_idx, self.locked_doors, self.game_data);
         let mut req_vec: Vec<Requirement> = vec![];
         for runway in runways {
             let effective_length =
@@ -661,7 +685,7 @@ impl<'a> Preprocessor<'a> {
             if effective_length < used_tiles {
                 continue;
             }
-            let mut reqs: Vec<Requirement> = vec![];
+            let mut reqs: Vec<Requirement> = vec![door_req.clone()];
             if let Some(physics_str) = physics.as_ref() {
                 if physics_str == "normal" {
                     if runway.physics == "water" {
@@ -724,6 +748,8 @@ impl<'a> Preprocessor<'a> {
         //     (other_room_id, other_node_id) = self.door_map[&(321, 2)];
         // }
         let jumpways = &self.game_data.node_jumpways_map[&(other_room_id, other_node_id)];
+        let locked_door_idx = self.locked_node_map.get(&(room_id, unlocked_node_id)).map(|x| *x);
+        let door_req = get_door_requirement(locked_door_idx, self.locked_doors, self.game_data);
         let mut req_vec: Vec<Requirement> = vec![];
         for jumpway in jumpways {
             if jumpway.jumpway_type != jumpway_type {
@@ -750,7 +776,8 @@ impl<'a> Preprocessor<'a> {
                 }
             }
             // println!("{}", jumpway.name);
-            req_vec.push(self.preprocess_requirement(&jumpway.requirement, _link));
+            let jumpway_req = self.preprocess_requirement(&jumpway.requirement, _link);
+            req_vec.push(Requirement::make_and(vec![door_req.clone(), jumpway_req]));
         }
         let out = Requirement::make_or(req_vec);
         // println!(
@@ -783,10 +810,13 @@ impl<'a> Preprocessor<'a> {
             if let Some(&(other_room_id, other_node_id)) =
                 self.door_map.get(&(room_id, unlocked_node_id))
             {
+                let locked_door_idx = self.locked_node_map.get(&(room_id, unlocked_node_id)).map(|x| *x);
+                let door_req = get_door_requirement(locked_door_idx, self.locked_doors, self.game_data);
                 let leave_with_gmode_setup_vec = &self.game_data.node_leave_with_gmode_setup_map
                     [&(other_room_id, other_node_id)];
                 for leave_with_gmode_setup in leave_with_gmode_setup_vec {
                     let mut req_and_list: Vec<Requirement> = Vec::new();
+                    req_and_list.push(door_req.clone());
                     req_and_list.push(
                         self.preprocess_requirement(&leave_with_gmode_setup.requirement, link),
                     );
@@ -836,6 +866,8 @@ impl<'a> Preprocessor<'a> {
             if let Some(&(other_room_id, other_node_id)) =
                 self.door_map.get(&(room_id, unlocked_node_id))
             {
+                let locked_door_idx = self.locked_node_map.get(&(room_id, unlocked_node_id)).map(|x| *x);
+                let door_req = get_door_requirement(locked_door_idx, self.locked_doors, self.game_data);
                 let gmode_immobile_opt = self
                     .game_data
                     .node_gmode_immobile_map
@@ -846,6 +878,7 @@ impl<'a> Preprocessor<'a> {
                         .node_leave_with_gmode_setup_map[&(other_room_id, other_node_id)];
                     for leave_with_gmode_setup in leave_with_gmode_setup_vec {
                         let mut req_and_list: Vec<Requirement> = Vec::new();
+                        req_and_list.push(door_req.clone());
                         req_and_list.push(
                             self.preprocess_requirement(&leave_with_gmode_setup.requirement, link),
                         );
@@ -898,9 +931,10 @@ impl<'a> Preprocessor<'a> {
                         &self.game_data.node_leave_with_gmode_map[&(other_room_id, other_node_id)];
                     for leave_with_gmode in leave_with_gmode_vec {
                         if !artificial_morph || leave_with_gmode.artificial_morph {
-                            req_or_list.push(
-                                self.preprocess_requirement(&leave_with_gmode.requirement, link),
-                            );
+                            let mut req_and_list: Vec<Requirement> = Vec::new();
+                            req_and_list.push(door_req.clone());
+                            req_and_list.push(self.preprocess_requirement(&leave_with_gmode.requirement, link));
+                            req_or_list.push(Requirement::make_and(req_and_list));
                         }
                     }
                 }
@@ -935,6 +969,8 @@ fn get_randomizable_doors(game_data: &GameData) -> HashSet<DoorPtrPair> {
         (0x1A96C, 0x1A840), // Draygon right
         (0x198B2, 0x19A62), // Ridley left
         (0x198BE, 0x198CA), // Ridley right
+        (0x1AA8C, 0x1AAE0), // Mother Brain left
+        (0x1AA80, 0x1AAC8), // Mother Brain right
         // Gray doors - Minibosses:
         (0x18BAA, 0x18BC2), // Bomb Torizo
         (0x18E56, 0x18E3E), // Spore Spawn bottom
@@ -1026,9 +1062,9 @@ pub fn randomize_doors(
             vec![]
         }
         DoorsMode::Ammo => {
-            let red_doors_cnt = 15;
-            let green_doors_cnt = 10;
-            let yellow_doors_cnt = 5;
+            let red_doors_cnt = 30;
+            let green_doors_cnt = 15;
+            let yellow_doors_cnt = 10;
             let total_cnt = red_doors_cnt + green_doors_cnt + yellow_doors_cnt;
             let mut door_types = vec![];
             door_types.extend(vec![DoorType::Red; red_doors_cnt]);

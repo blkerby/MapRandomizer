@@ -1,7 +1,7 @@
 lorom
 
-!bank_84_free_space_start = $84F580   ; must match address in patch.rs
-!bank_84_free_space_end = $84F680
+!bank_84_free_space_start = $84F800   ; must match address in patch.rs
+!bank_84_free_space_end = $84F900
 !bank_8f_free_space_start = $8FFE80
 !bank_8f_free_space_end = $8FFF00
 

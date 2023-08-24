@@ -7,6 +7,8 @@
 lorom
 arch snes.cpu
 
+!bank_84_free_space_start = $84F380
+!bank_84_free_space_end = $84F600
 !bank_a7_free_space_start = $A7FF82
 !bank_a7_free_space_end = $A7FFC0
 
@@ -36,6 +38,21 @@ org $82DF5C
 ; Hi-jack activate save station
 org $848cf3
     jmp save_station
+
+; Hi-jack red door Super check
+org $84bd58
+    jsr super_door_check
+    bcs $22
+
+; Hi-jack green door Super check
+org $84bd90
+    jsr super_door_check
+    bcc $12
+
+; Hi-jack yellow door PB check
+org $84bd2e
+    jsr pb_door_check
+    bcc $12
 
 ; Hi-jack bomb block PB reaction
 org $84cee8
@@ -73,6 +90,18 @@ escape_hyper_check:
 .end:
     rts
 
+escape_hyper_door_check:
+    %checkEscape() : bcc .nohit
+    lda $1d77,x
+    bit #$0008                  ; check for plasma (hyper = wave+plasma)
+    beq .nohit
+    sec                         ; set carry flag
+    bra .end
+.nohit:
+    clc                         ; reset carry flag
+.end:
+    rts
+
 super_check:
     cmp #$0200                  ; vanilla check for supers
     beq .end
@@ -80,10 +109,26 @@ super_check:
 .end:
     rts
 
+super_door_check:
+    pha
+    cmp #$0200                  ; vanilla check for supers
+    beq .end
+    jsr escape_hyper_door_check
+.end:
+    pla
+    rts
+
 pb_check:
     cmp #$0300                  ; vanilla check for PBs
     beq .end
     jsr escape_hyper_check
+.end:
+    rts
+
+pb_door_check:
+    cmp #$0300                  ; vanilla check for PBs
+    beq .end
+    jsr escape_hyper_door_check
 .end:
     rts
 
@@ -95,6 +140,7 @@ save_station:
     lda #$0017  ; run hi-jacked instruction
     jmp $8cf6  ; return to next instruction
 
+;;; PLM for clearing the Ship (for failure to "Save the animals")
 clear_ship_plm:
     dw $B3D0, clear_ship_inst
 
@@ -105,7 +151,7 @@ clear_ship_inst:
 clear_ship_draw:
     dw $000C, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $0000
 
-warnpc $84f980
+warnpc $84fa00
 
 ;;; Hi-jack escape start
 org $A9B270
@@ -399,7 +445,7 @@ ship_dachora_pop:
 warnpc $A1F200
 
 ; Free space in any bank (but the position must agree with what is used in patch.rs)
-org $84F380
+org !bank_84_free_space_start
 
 ;;; Spawn hard-coded PLM with room argument ;;;
 ;; (This is a small tweak of $84:83D7 from vanilla, to allow us to set the room argument)
@@ -425,7 +471,7 @@ org $84F380
     BPL $F7                ; If [Y] >= 0: go to LOOP
     LDA $06,s              ;\
     CLC                    ;|
-    ADC #$0005             ;} Adjust return address
+    ADC #$0006             ;} Adjust return address
     STA $06,s              ;/
     PLX
     PLY
@@ -453,8 +499,8 @@ org $84F380
     ASL A                  ;|
     STA $1C87,x            ;/
 
-    LDY #$0004             ; 
-    LDA ($06,s),y          ; A = [return address + 4]  (PLM room argument)
+    LDY #$0005             ; 
+    LDA ($06,s),y          ; A = [return address + 5]  (PLM room argument)
     STA $1DC7,x
 
     LDY #$0003             ;\
@@ -463,7 +509,7 @@ org $84F380
     TAX
     LDA $06,s              ;\
     CLC                    ;|
-    ADC #$0005             ;} Adjust return address
+    ADC #$0006             ;} Adjust return address
     STA $06,s              ;/
     PHK                    ;\
     PLB                    ;} DB = $84
@@ -493,7 +539,7 @@ org $84F380
     CLC
     RTL
 
-warnpc $84F580
+warnpc !bank_84_free_space_end
 
 ; hook for when dachora hits block above it
 org $A7F892

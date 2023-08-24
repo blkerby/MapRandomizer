@@ -150,7 +150,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         ridley_proficiency: 1.0,
         botwoon_proficiency: 1.0,
         supers_double: true,
-        mother_brain_fight: MotherBrainFight::Short,
+        mother_brain_fight: MotherBrainFight::Skip,
         escape_enemies_cleared: true,
         escape_refill: true,
         escape_movement_items: true,

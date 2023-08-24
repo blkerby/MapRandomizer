@@ -583,7 +583,7 @@ impl<'a> Patcher<'a> {
             0x90, 0x09, // BCC $09  (Skip spawning gray door if not in escape)
             0x22, 0x80, 0xF3, 0x84, // JSL $84F380  (Spawn hard-coded PLM with room argument)
             entrance_x, entrance_y, 0x42, 0xC8,
-            0x10, // PLM type 0xC8CA (gray door), argument 0x10 (always closed)
+            0x00, 0x10, // PLM type 0xC8CA (gray door), argument 0x1000 (always closed)
         ];
 
         extra_door_asm
@@ -1490,14 +1490,14 @@ impl<'a> Patcher<'a> {
         let tile_x: u8;
         let tile_y: u8;
         if door.direction == "right" {
-            plm_id = 0xF580; // must match address in hazard_markers.asm
+            plm_id = 0xF800; // must match address in hazard_markers.asm
             tile_x = (door.x * 16 + 15) as u8;
             tile_y = (door.y * 16 + 6) as u8;
         } else if door.direction == "down" {
             if door.offset == Some(0) {
-                plm_id = 0xF588; // hazard marking overlaid on transition tiles
+                plm_id = 0xF808; // hazard marking overlaid on transition tiles
             } else {
-                plm_id = 0xF584;
+                plm_id = 0xF804;
             }
             tile_x = (door.x * 16 + 6) as u8;
             tile_y = (door.y * 16 + 15 - door.offset.unwrap_or(0)) as u8;
@@ -1572,6 +1572,7 @@ impl<'a> Patcher<'a> {
         let room_ptr = room.rom_address;
         // TODO: Instead of using extra setup ASM to spawn the doors, it would probably be better to just rewrite 
         // the room PLM list, to add the new door PLMs.
+        println!("state: {}", state_index);
         self.extra_setup_asm
             .entry(room_ptr)
             .or_insert(vec![])
@@ -1584,7 +1585,7 @@ impl<'a> Patcher<'a> {
                 y as u8, // X and Y coordinates in 16x16 tiles
                 (plm_id & 0x00FF) as u8,
                 (plm_id >> 8) as u8,
-                state_index, // PLM argument (index for door unlock state)
+                state_index, 0x00, // PLM argument (index for door unlock state)
             ]);
 
         Ok(())
@@ -1634,7 +1635,7 @@ impl<'a> Patcher<'a> {
                 next_addr += asm.len();
             }
         }
-        assert!(next_addr <= snes2pc(0xB5FC00));
+        assert!(next_addr <= snes2pc(0xB5FF00));
 
         // for &room_ptr in self.game_data.room_id_by_ptr.keys() {
         //     for (_, state_ptr) in self.get_room_state_ptrs(room_ptr)? {

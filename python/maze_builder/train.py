@@ -183,8 +183,8 @@ session = TrainingSession(envs,
 cpu_executor = None
 
 pickle_name = 'models/session-2023-06-08T14:55:16.779895.pkl'
-# session = pickle.load(open(pickle_name, 'rb'))
-session = pickle.load(open(pickle_name + '-bk29', 'rb'))
+session = pickle.load(open(pickle_name, 'rb'))
+# session = pickle.load(open(pickle_name + '-bk29', 'rb'))
 # session.replay_buffer.size = 0
 # session.replay_buffer.position = 0
 # session.replay_buffer.resize(2 ** 23)
