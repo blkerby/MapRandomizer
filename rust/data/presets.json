@@ -43,6 +43,9 @@
       "canNeutralDamageBoost",
       "canSpaceJumpWaterBounce",
       "canBombHorizontally",
+      "canPseudoScrew",
+      "canDisableEquipment",
+      "canCameraManip",
       "canCrystalFlash",
       "canHyperGateShot"
     ],
@@ -514,6 +517,7 @@
       "East Sand Hole Insane Walljump Morph",
  
       "West Sand Hall Insane Bomb Jump",
+      "Spring Ball Room Escape - Suitless, Bootless, Bomb into Springball Jump",
  
       "Bowling Alley Ceiling Bomb Jump",
       "WS East Supers Robot Clip Run-In-Place",

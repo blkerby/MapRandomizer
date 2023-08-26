@@ -1572,7 +1572,6 @@ impl<'a> Patcher<'a> {
         let room_ptr = room.rom_address;
         // TODO: Instead of using extra setup ASM to spawn the doors, it would probably be better to just rewrite 
         // the room PLM list, to add the new door PLMs.
-        println!("state: {}", state_index);
         self.extra_setup_asm
             .entry(room_ptr)
             .or_insert(vec![])

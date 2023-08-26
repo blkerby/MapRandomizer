@@ -1442,15 +1442,12 @@ fn list_notable_gif_files() -> HashSet<String> {
 
 fn get_implicit_tech() -> HashSet<String> {
     [
-        "canPseudoScrew",
+        "canSpecialBeamAttack",
         "canMidAirMorph",
         "canTurnaroundSpinJump",
-        "canCameraManip",
         "canStopOnADime",
         "canUseGrapple",
-        "canDisableEquipment",
         "canEscapeEnemyGrab",
-        "canSpecialBeamAttack",
         "canDownBack",
     ]
     .into_iter()
