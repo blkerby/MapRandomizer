@@ -14,11 +14,12 @@
       <div class="modal-body">
         <p>This setting determines the types of non-gray doors that exist in the game:</p>
         <ul>
-        <li><p><strong>Blue</strong>: All remaining doors are blue.</p>
-        <li><p><strong>Ammo</strong>: Some red, green, and yellow doors are randomly mixed in.</p>
+        <li><p><strong>Blue</strong>: All doors are blue, except for gray doors.</p>
+        <li><p><strong>Ammo</strong>: Red, green, and yellow doors are randomly mixed in.</p>
         </ul>
-        <p>Gray doors are unaffected by this setting and always exist in boss/miniboss rooms
-        and the four Pirates rooms (Pit Room, Baby Kraid Room, Plasma Room, and Metal Pirates Room).</p>
+        <p>Gray doors are unaffected by this setting and always exist in the same set of
+        rooms: boss/miniboss rooms and the four Pirates rooms (Pit Room, Baby Kraid Room, 
+        Plasma Room, and Metal Pirates Room).</p>
         <p>For ammo doors, both sides of the door will have the same color and share a
         lock, so that unlocking one side of the door also unlocks the other.
         </p>

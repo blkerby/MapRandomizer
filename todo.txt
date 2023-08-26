@@ -1,12 +1,15 @@
 next release:
-- door color randomization
-  - take into account in logic
-    - with cross-room strats in particular
-  - make hyper beam unlock red, green, yellow doors
+- standard/quick progression should have suits & screw set to Late priority
 
 priority:
+- find what is making pink door look blue (until pause/unpause) in Red Brinstar Elevator Room (etc.?) 
+  - probably related to the dark FX?
+- optimize/speed up the randomizer
 - add door flags to refine logic
 - add door lock bypass strats to logic
+- make ammo doors disappear when unlocked
+  - probably restrict ammo doors to locations without item dots, to avoid this getting too complicated to implement.
+  - what about gray doors? (leave how they are, since they're part of room identity)
 - randomized title screen
 - add "Maybe" option for "Save the animals"
 - controller config special settings (moonwalk) customization
@@ -68,6 +71,7 @@ priority:
   is currently set up (since there is no way to go up through sand)
 
 later:
+- fix palette fade issue when entering MB room from left (Mother Brain starts from white?)
 - possibly bad idea: should getting map station add arrows to other maps (ones leading into current map)?
 - see if we can do something about silent snails with Zebes asleep music
 - for forced mode, also use tier below Basic?

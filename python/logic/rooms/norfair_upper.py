@@ -443,7 +443,7 @@ rooms = [
             DoorIdentifier(LEFT, 3, 0, 0x19312, 0x1934E, 0),  # Ice Beam Tutorial Room
             DoorIdentifier(LEFT, 3, 2, 0x1931E, 0x19276, 0),  # Ice Beam Acid Room
             DoorIdentifier(LEFT, 0, 3, 0x19336, 0x1938A, 0),  # Crumble Shaft
-            DoorIdentifier(RIGHT, 6, 2, 0x1932A, 0x192BE, 1),  # Business Center
+            DoorIdentifier(RIGHT, 6, 2, 0x1932A, 0x192BE, 0),  # Business Center
         ],
         parts=[[1, 2, 3], [0]],
         transient_part_connections=[(1, 0)],  # crumble blocks
@@ -454,7 +454,7 @@ rooms = [
             3: [(0, 3), (1, 3), (2, 3), (3, 3)],
             4: [(4, 2), (5, 2), (6, 2)],
             5: [(3, 2)],
-            6: [(3, 1)],
+            6: [(3, 0), (3, 1)],
         },
     ),
     Room(

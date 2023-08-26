@@ -205,6 +205,9 @@ function itemProgressionPresetChanged() {
         <% } %>
         document.getElementById("itemPriorityETankEarly").checked = true;
         document.getElementById("itemPriorityMorphEarly").checked = true;
+        document.getElementById("itemPriorityScrewAttackLate").checked = true;
+        document.getElementById("itemPriorityVariaLate").checked = true;
+        document.getElementById("itemPriorityGravityLate").checked = true;
 
         <% for item in &prioritizable_items { %>
         document.getElementById("fillerItems<%- item %>No").checked = true;
@@ -226,7 +229,9 @@ function itemProgressionPresetChanged() {
         <% for item in &prioritizable_items { %>
         document.getElementById("itemPriority<%- item %>Default").checked = true;
         <% } %>
-
+        document.getElementById("itemPriorityScrewAttackLate").checked = true;
+        document.getElementById("itemPriorityVariaLate").checked = true;
+        document.getElementById("itemPriorityGravityLate").checked = true;
         <% for item in &prioritizable_items { %>
         document.getElementById("fillerItems<%- item %>No").checked = true;
         <% } %>
@@ -250,7 +255,6 @@ function itemProgressionPresetChanged() {
         document.getElementById("itemPriorityScrewAttackLate").checked = true;
         document.getElementById("itemPriorityVariaLate").checked = true;
         document.getElementById("itemPriorityGravityLate").checked = true;
-
         <% for item in &prioritizable_items { %>
         document.getElementById("fillerItems<%- item %>No").checked = true;
         <% } %>

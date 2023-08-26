@@ -153,9 +153,9 @@
                     <label for="doors">Doors</label>
                 </div>
                 <div class="col-lg-3 btn-group my-2" role="group">
-                    <input type="radio" class="btn-check" name="doors" id="doorsBlue" value="Blue">
+                    <input type="radio" class="btn-check" name="doors" id="doorsBlue" value="Blue" checked=true>
                     <label class="btn btn-outline-primary" for="doorsBlue">Blue</label>
-                    <input type="radio" class="btn-check" name="doors" id="doorsAmmo" value="Ammo" checked=true>
+                    <input type="radio" class="btn-check" name="doors" id="doorsAmmo" value="Ammo">
                     <label class="btn btn-outline-primary" for="doorsAmmo">Ammo</label>
                 </div>
             </div>

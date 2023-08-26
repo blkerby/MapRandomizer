@@ -33,7 +33,6 @@
     can't get out of. The randomizer includes many features that reduce these risks but do not eliminate them
     (for more detail and a full list of changes, see <a href="#changes">below</a>):
     <ul>
-    <li>Pink, green, and yellow doors are replaced with blue doors.
     <li>Gray doors do not immediately close behind Samus when entering a room. This allows the player a chance to
     turn around if they encounter a boss they are not prepared for.
     <li>The logic is designed so that going down a one-way path is unlikely to be required.
@@ -108,7 +107,10 @@
 
     <h5 id="doors">Doors</h5>
     <ul>
-    <li>Pink, green, and yellow doors are replaced with blue doors.
+    <li>By default, pink, green, and yellow doors are replaced with blue doors.
+        <ul>
+        <li>If the "Ammo" doors option, then pink, green, and yellow doors are randomized.
+        </ul>
     <li>Gray doors are replaced with blue doors, with the exception of boss/miniboss rooms and the following four
     Space Pirate rooms where gray doors are retained (and can awaken the planet):
         <ul>
@@ -244,8 +246,8 @@
         <li>Varia Suit, Gravity Suit, Morph Ball, Bombs, Spring Ball, Screw Attack, Hi-Jump Boots, Space Jump,
         Speed Booster, Grapple, X-Ray.
         </ul>
-    <li>Hyper Beam destroys Super, Bomb, and Power Bomb blocks and opens blue & green gates from either side.
-    (Note that it does <i>not</i> destroy Speed, Grapple, or crumble blocks.)
+    <li>Hyper Beam destroys Super, Bomb, and Power Bomb blocks, opens blue & green gates from either side, and
+    opens pink, green, and yellow doors. (Note that it does <i>not</i> destroy Speed, Grapple, or crumble blocks.)
     <li>An auto-save is made after Mother Brain is defeated, immediately before the escape begins.
     <li>Enemies are cleared during the escape (optional).
     <li>The escape timer is adapted based on the estimated time required to return to the Ship.
@@ -450,6 +452,7 @@
     <li>Logic data (<a href="https://github.com/miketrethewey/sm-json-data">sm-json-data</a>):
         <i>Rushlight</i>, <i>Minnie Trethewey</i>, <i>DIProgan</i>, <i>kyleb</i>,
         <i>Osse101</i>, <i>Maddo</i>, <i>Bokyubi</i>
+    <li>Area-themed palettes: <i>kyleb</i>
     <li>Spoiler map: <i>Selicre</i>
     <li>Tech animated GIFs: <i>Osse101</i>
     <li>ASM help:
