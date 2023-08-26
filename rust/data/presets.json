@@ -70,6 +70,7 @@
       "canPlayInSand",
       "canDodgeWhileShooting",
       "canTrickyUseFrozenEnemies",
+      "canTrickySpringBallJump",
       "canIframeSpikeJump",
       "canJumpIntoIBJ",
       "canMockball",
@@ -314,6 +315,7 @@
       "East Ocean Shinespark Water Escape", 
 
       "Brinstar Reserve Temporary Blue",
+      "Green Hill Zone X-Ray Wiggle",      
 
       "Big Pink SpeedBall into Raised Bomb Blocks",
       "Dachora Room Shinespark No Etanks No HiJump",
@@ -350,6 +352,7 @@
       "Writg New Low Ice Pirate Freeze", 
       "Writg Low Ice Pirate Freeze",
 
+      "Main Street Climb with Ice and Spring Ball",
       "Crab Hole Suitless Crab Climb No Jump Assist",
       "Crab Hole Suitless Crab Climb Superless with Springball",
       "Fish Tank Insane Naked Jump Over Pirate (Left to Right)",
@@ -410,6 +413,7 @@
       "West Ocean G-mode Overload PLMs by PBing Missile Item",
       "East Ocean Space Jump Water Escape (Left to Right)",
       "East Ocean Shinespark Water Escape With Lower Choot Alive",
+      "East Ocean Springball Bounce to the Door with SpaceJump",
 
       "Blue Brinstar Energy Tank G-Mode Flashing Lights",
 
@@ -507,6 +511,7 @@
       "Botwoon Energy Tank Room Puyo Bomb-Grapple-Jump",
       "Colosseum with no Equipment",
       "East Cac Alley G-Mode Morph, IBJ, HBJ",
+      "East Sand Hole Insane Walljump Morph",
  
       "West Sand Hall Insane Bomb Jump",
  
