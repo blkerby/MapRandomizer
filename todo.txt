@@ -64,7 +64,6 @@ priority:
   - or maybe just make objective X's fade on map (if we do faded item dots)
 - help buttons for rest of settings (e.g. explain boss proficiency calculations)
 - logic simulator
-- get rid of symlink for sm-json-data
 - temporarily disable comeInWithGMode strats through sand since this will not be correct with how it
   is currently set up (since there is no way to go up through sand)
 

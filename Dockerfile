@@ -31,6 +31,7 @@ COPY --from=build /rust/target/release/maprando-web /rust
 COPY patches /patches
 COPY gfx /gfx
 COPY sm-json-data /sm-json-data
+RUN ln -s /sm-json-data /rust/static/sm-json-data
 COPY MapRandoSprites /MapRandoSprites
 COPY room_geometry.json /
 COPY palette_smart_exports /palette_smart_exports
