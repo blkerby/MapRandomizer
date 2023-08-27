@@ -17,7 +17,13 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-81---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release80">Version 81 (2023-08-26)</a>:
+<p><a href="https://version-82---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release82">Version 82 (2023-08-27)</a>:
+<ul>
+<li>Fixed issue that could cause a crash when leaving Mother Brain Room on the left before the escape 
+    (a bug introduced in version 81).
+</ul>
+
+<p><a href="https://version-81---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release81">Version 81 (2023-08-26)</a>:
 <ul>
 <li>New "Ammo" doors option is added, for randomizing door colors (disabled by default).
 <li>All item progression presets now have Late priority for Varia, Gravity, and Screw Attack.

@@ -4,6 +4,7 @@ next release:
 priority:
 - find what is making pink door look blue (until pause/unpause) in Red Brinstar Elevator Room (etc.?) 
   - probably related to the dark FX?
+- fix doors in homing geemer (probably east pants room too)
 - optimize/speed up the randomizer
 - add door flags to refine logic
 - add door lock bypass strats to logic

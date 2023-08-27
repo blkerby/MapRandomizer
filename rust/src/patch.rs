@@ -580,7 +580,7 @@ impl<'a> Patcher<'a> {
         let asm: Vec<u8> = vec![
             0xA9, 0x0E, 0x00, // LDA #$000E   (Escape flag)
             0x22, 0x33, 0x82, 0x80, // JSL $808233  (Check if flag is set)
-            0x90, 0x09, // BCC $09  (Skip spawning gray door if not in escape)
+            0x90, 0x0A, // BCC $0A  (Skip spawning gray door if not in escape)
             0x22, 0x80, 0xF3, 0x84, // JSL $84F380  (Spawn hard-coded PLM with room argument)
             entrance_x, entrance_y, 0x42, 0xC8,
             0x00, 0x10, // PLM type 0xC8CA (gray door), argument 0x1000 (always closed)
