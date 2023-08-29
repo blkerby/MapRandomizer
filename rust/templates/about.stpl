@@ -494,6 +494,7 @@
     <li>Respin: <i>Kejardon</i>
     <li>RTA timer and end-game credits: <i>total</i>, <i>ouiche</i>
     <li>Momentum conservation: <i>Scyzer</i>, <i>Nodever2</i>, <i>OmegaDragnet7</i>
+    <li>Graphical fix to vertical door PLMs: <i>JAM</i>
     </ul>
 
     <p>Custom sprites are made possible by
@@ -561,6 +562,7 @@
     Bomb Torizo after Botwoon).
     <li>Fix to camera alignment in door transitions, so graphics don't get permanently messed up after doing certain
     strats (or with "Randomized start location" option, where the camera sometimes starts unaligned to a screen boundary).
+    <li>Fix to graphical bug where red and green door PLMs are not intially drawn when entering Red Brinstar Elevator Room.
     </ul>
     </small></p>
 

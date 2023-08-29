@@ -345,7 +345,12 @@ impl<'a> Preprocessor<'a> {
     ) -> Self {
         let mut door_map: HashMap<(RoomId, NodeId), (RoomId, NodeId)> = HashMap::new();
         let mut locked_node_map: HashMap<(RoomId, NodeId), usize> = HashMap::new();
-        for &((src_exit_ptr, src_entrance_ptr), (dst_exit_ptr, dst_entrance_ptr), _) in &map.doors {
+        for &((src_exit_ptr, src_entrance_ptr), (dst_exit_ptr, dst_entrance_ptr), bidirectional) in &map.doors {
+            if !bidirectional {
+                // For now we omit sand connections from cross-room strats, because the fact that you can't
+                // go back up would make the strats unsound (with the current way cross-room strats are interpreted)
+                continue;
+            }
             let (src_room_id, src_node_id) =
                 game_data.door_ptr_pair_map[&(src_exit_ptr, src_entrance_ptr)];
             let (_, unlocked_src_node_id) =
@@ -643,10 +648,10 @@ impl<'a> Preprocessor<'a> {
             let out = Requirement::make_or(req_vec);
             out
         } else {
-            println!(
-                "In canComeInCharged, ({}, {}) is not door node?",
-                room_id, node_id
-            );
+            // println!(
+            //     "In canComeInCharged, ({}, {}) is not door node?",
+            //     room_id, node_id
+            // );
             Requirement::Never
         }
     }
@@ -1016,6 +1021,9 @@ fn get_randomizable_doors(game_data: &GameData) -> HashSet<DoorPtrPair> {
         (0x1920A, 0x191C2), // Kraid Recharge Station
         (0x198A6, 0x19A7A), // Golden Torizo Energy Recharge
         (0x1AA74, 0x1AA68), // Tourian Recharge Room
+        // Pants room interior door
+        (0x1A7A4, 0x1A78C), // Left door
+        (0x1A78C, 0x1A7A4), // Right door
     ]
     .into_iter()
     .map(|(x, y)| (Some(x), Some(y)))

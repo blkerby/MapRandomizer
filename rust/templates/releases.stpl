@@ -17,12 +17,29 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-83---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release83">Version 83 (???)</a>:
+<p><a href="https://version-83---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release83">Version 83 (2023-08-29)</a>:
 <ul>
-<li>Fix several bugs involving ammo doors:
+<li>Fixes to several bugs:
     <ul>
-    <li>Fixed bug where an ammo door could be placed in Kraid's room, conflicting with the gray doors.
-    <li>Fixed bug where Spore Spawn Room gray door lock shared an unlocked state with some ammo door in a different room.
+    <li>Ammo door were sometimes placed in Kraid's room, conflicting with the gray doors.
+    <li>Spore Spawn Room gray door shared a state with an ammo door in a different room.
+    <li>Ammo doors did not spawn correctly in Homing Geemer Room and Aqueduct.
+    <li>Red and green ammo door graphics in Red Brinstar Elevator Room did not initially appear.
+    <li>Item dot was not drawn in Bomb Torizo Room with the "Save the animals" option.
+    </ul>
+<li>Logic updates:
+    <ul>
+    <li>New tech "canSpeedball" (Very Hard).
+        <ul>
+        <li>This helps limit the difficulty of tricks enabled by "canMockball" (Hard)
+        </ul>
+    <li>New notable strats:
+        <ul>
+        <li>Big Pink Zeb Ice Clip (Expert)
+        <li>Big Pink Reo Ice Clip (Extreme)
+        <li>Big Pink Wall Ice Clip the Mission Impossible Crumble Blocks (Extreme)
+        <li>Green Hills Grapple Gate Glitch (Extreme)
+        </ul>
     </ul>
 </ul>
 

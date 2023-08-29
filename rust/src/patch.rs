@@ -294,6 +294,7 @@ impl<'a> Patcher<'a> {
                 // "tourian_blue_hopper",
                 "boss_exit",
                 "oob_death",
+                "jam_vertical_doors_fix",
             ]);
         }
 
@@ -582,8 +583,8 @@ impl<'a> Patcher<'a> {
             0x22, 0x33, 0x82, 0x80, // JSL $808233  (Check if flag is set)
             0x90, 0x0A, // BCC $0A  (Skip spawning gray door if not in escape)
             0x22, 0x80, 0xF3, 0x84, // JSL $84F380  (Spawn hard-coded PLM with room argument)
-            entrance_x, entrance_y, 0x42, 0xC8,
-            0x00, 0x10, // PLM type 0xC8CA (gray door), argument 0x1000 (always closed)
+            entrance_x, entrance_y, 0x42, 0xC8, 0x00,
+            0x10, // PLM type 0xC8CA (gray door), argument 0x1000 (always closed)
         ];
 
         extra_door_asm
@@ -1569,10 +1570,10 @@ impl<'a> Patcher<'a> {
             (DoorType::Red, "up") => 0xC89C,
             (a, b) => panic!("Unexpected door type: {:?} {}", a, b),
         };
-        let room_ptr = room.rom_address;
-        // TODO: Instead of using extra setup ASM to spawn the doors, it would probably be better to just rewrite 
+        // TODO: Instead of using extra setup ASM to spawn the doors, it would probably be better to just rewrite
         // the room PLM list, to add the new door PLMs.
-        self.extra_setup_asm
+        let mut write_asm = |room_ptr: usize, x: usize, y: usize| {
+            self.extra_setup_asm
             .entry(room_ptr)
             .or_insert(vec![])
             .extend(vec![
@@ -1584,9 +1585,25 @@ impl<'a> Patcher<'a> {
                 y as u8, // X and Y coordinates in 16x16 tiles
                 (plm_id & 0x00FF) as u8,
                 (plm_id >> 8) as u8,
-                state_index, 0x00, // PLM argument (index for door unlock state)
+                state_index,
+                0x00, // PLM argument (index for door unlock state)
             ]);
-
+        };
+        if room.rom_address == 0x7D5A7 {
+            // Aqueduct
+            write_asm(room.rom_address, x, y - 64);
+        } else {
+            write_asm(room.rom_address, x, y);
+        }
+        if room.rom_address == 0x793FE && door.x == 5 && door.y == 2 {
+            // Homing Geemer Room
+            write_asm(room.twin_rom_address.unwrap(), x % 16, y % 16);
+        }
+        if room.rom_address == 0x7D646 && door.x == 1 && door.y == 2 {
+            // East Pants Room
+            write_asm(room.twin_rom_address.unwrap(), x % 16, y % 16 + 16);
+        }
+        
         Ok(())
     }
 
@@ -1594,10 +1611,10 @@ impl<'a> Patcher<'a> {
         // PLM arguments used for gray door states (we reserve all of them even though not all are used)
         let reserved_state_indexes: HashSet<u8> = [
             0x2, 0x3, 0x4, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0x11, 0x12, 0x14, 0x15, 0x16, 0x17, 0x18,
-            0x19, 0x1a, 0x1b, 0x1c, 0x24, 0x25, 0x2c, 0x2d, 0x2e, 0x2f, 0x31, 0x36, 0x37, 0x3e, 0x40,
-            0x41, 0x42, 0x43, 0x46, 0x47, 0x48, 0x4f, 0x50, 0x59, 0x5a, 0x5b, 0x5d, 0x60, 0x80,
-            0x81, 0x82, 0x83, 0x86, 0x87, 0x88, 0x89, 0x8a, 0x91, 0x93, 0x97, 0x9c, 0x9d, 0x9e,
-            0x9f, 0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xaa, 0xab, 0xac,
+            0x19, 0x1a, 0x1b, 0x1c, 0x24, 0x25, 0x2c, 0x2d, 0x2e, 0x2f, 0x31, 0x36, 0x37, 0x3e,
+            0x40, 0x41, 0x42, 0x43, 0x46, 0x47, 0x48, 0x4f, 0x50, 0x59, 0x5a, 0x5b, 0x5d, 0x60,
+            0x80, 0x81, 0x82, 0x83, 0x86, 0x87, 0x88, 0x89, 0x8a, 0x91, 0x93, 0x97, 0x9c, 0x9d,
+            0x9e, 0x9f, 0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xaa, 0xab, 0xac,
         ]
         .into_iter()
         .collect();

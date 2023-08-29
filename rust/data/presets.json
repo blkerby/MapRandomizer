@@ -149,6 +149,7 @@
       "canPrepareForNextRoom",
       "canMomentumConservingTurnaround",
       "canSpringBallBombJump",
+      "canSpeedball",
       "canShinechargeMovementComplex",
       "canWaterShineCharge",
       "canTemporaryBlue",
@@ -318,9 +319,10 @@
       "East Ocean Shinespark Water Escape", 
 
       "Brinstar Reserve Temporary Blue",
-      "Green Hill Zone X-Ray Wiggle",      
+      "Green Hill Zone X-Ray Wiggle",
 
-      "Big Pink SpeedBall into Raised Bomb Blocks",
+      "Big Pink Speedball into Raised Bomb Blocks",
+      "Big Pink Zeb Ice Clip",
       "Dachora Room Shinespark No Etanks No HiJump",
       "Mission Impossible",
 
@@ -422,9 +424,13 @@
 
       "Early Supers Crouch Gate Clip Damage Boost",
       "Green Hill Zone Tunnel Crawl",
+      "Green Hills Grapple Gate Glitch",
       "Etecoon Spikeway Aim Cancel Wiggle",
       "Etecoon Spikeway Tunnel Crawl",
       "Etecoon Spikeway Xray Wiggle",
+
+      "Big Pink Reo Ice Clip",
+      "Big Pink Wall Ice Clip the Mission Impossible Crumble Blocks",
 
       "Red Tower R-Mode Frozen Beetom X-Ray Climb",
 

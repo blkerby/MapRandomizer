@@ -33,7 +33,7 @@ org $8FE893
 org !bank_b5_free_space_start
 
 run_extra_setup_asm:
-    ; get extra setup ASM pointer (vanilla-unused pointer in room state), to run in bank B5
+    ; get extra setup ASM pointer to run in bank B5 (using pointer in room state almost completely unused by vanilla, only for X-ray override in BT Room in escape)
     LDX $07BB
     LDA $0010,x
     beq .skip

@@ -1885,11 +1885,9 @@ impl<'a> MapPatcher<'a> {
             vec![vec![]; 6];
         for (i, &item) in self.randomization.item_placement.iter().enumerate() {
             let (room_id, node_id) = self.game_data.item_locations[i];
-            if room_id == 19
-                && (self.randomization.difficulty.objectives == Objectives::Chozos
-                    || self.randomization.difficulty.save_animals)
+            if room_id == 19 && self.randomization.difficulty.objectives == Objectives::Chozos
             {
-                // With Chozos objective or "Save the animals" option, we don't draw item dot in Bomb Torizo Room since a boss X tile will be drawn instead.
+                // With Chozos objective, we don't draw item dot in Bomb Torizo Room since an objective X tile will be drawn instead.
                 continue;
             }
             let item_ptr = self.game_data.node_ptr_map[&(room_id, node_id)];
