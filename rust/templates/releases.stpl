@@ -17,6 +17,15 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-83---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release83">Version 83 (???)</a>:
+<ul>
+<li>Fix several bugs involving ammo doors:
+    <ul>
+    <li>Fixed bug where an ammo door could be placed in Kraid's room, conflicting with the gray doors.
+    <li>Fixed bug where Spore Spawn Room gray door lock shared an unlocked state with some ammo door in a different room.
+    </ul>
+</ul>
+
 <p><a href="https://version-82---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release82">Version 82 (2023-08-27)</a>:
 <ul>
 <li>Fixed issue that could cause a crash when leaving Mother Brain Room on the left before the escape 

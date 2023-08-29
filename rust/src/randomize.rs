@@ -962,8 +962,8 @@ fn get_randomizable_doors(game_data: &GameData) -> HashSet<DoorPtrPair> {
         (0x19A32, 0x19966), // Metal Pirates left
         (0x19A3E, 0x19A1A), // Metal Pirates right
         // Gray doors - Bosses:
-        (0x19192, 0x1917A), // Kraid left
-        (0x1919E, 0x191AA), // Kraid right
+        (0x191CE, 0x191B6), // Kraid left
+        (0x191DA, 0x19252), // Kraid right
         (0x1A2C4, 0x1A2AC), // Phantoon
         (0x1A978, 0x1A924), // Draygon left
         (0x1A96C, 0x1A840), // Draygon right

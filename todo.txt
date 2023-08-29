@@ -1,7 +1,19 @@
 next release:
-- standard/quick progression should have suits & screw set to Late priority
+- draw item dot in BT room even with Save the Animals
+- fix buggy gray door during escape (right side of Kraid)
+  - https://www.twitch.tv/oatsngoats/clip/ChillyObliviousSoybeanHumbleLife-NmNxK64LNynYBlgO
+- fix bugs causing asymmetric doors
+  - homing geemer room
+  - aqueduct/kago room (?)
+  - 
+- fix palette in equipment screen
+
+- exclude downward g-mode setups through sand
 
 priority:
+- balance door randomization across areas to avoid running out of tiles?
+  - handle lack of tiles more gracefully?
+- make doors disappear from map tiles once unlocked
 - find what is making pink door look blue (until pause/unpause) in Red Brinstar Elevator Room (etc.?) 
   - probably related to the dark FX?
 - fix doors in homing geemer (probably east pants room too)

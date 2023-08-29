@@ -9,12 +9,12 @@ import os
 
 # input_rom_path = '/home/kerby/Downloads/Super Metroid (JU) [!].smc'
 # input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.5.3-tinystates-ntsc.sfc'
-input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.5.6-tinystates-ntsc.sfc'
+input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.5.8.1-tinystates-ntsc.sfc'
 # input_rom_path = '/home/kerby/Downloads/Practice-v2.5.1-suits.sfc'
 # input_rom_path = '/home/kerby/Downloads/smmr-v8-66-115673117270825932886574167490559/smmr-v8-66-115673117270825932886574167490559.sfc'
 # input_rom_path = '/home/kerby/Downloads/smmr-v0-30-115673117270825932886574167490559.sfc'
 # input_rom_path = '/home/kerby/Downloads/smmr-v0-5-115673117270825932886574167490559.sfc'
-output_rom_path = '/home/kerby/Downloads/roms/maptest.smc'
+output_rom_path = '/home/kerby/Downloads/roms/sm-prachack-2.5.8.1-doorhurt-blue.smc'
 orig_rom = Rom(open(input_rom_path, 'rb'))
 rom = Rom(open(input_rom_path, 'rb'))
 
@@ -36,11 +36,11 @@ patches = [
     # 'oob_death',
     # 'spinjumprestart',
     # 'new_game_extra',
-    # 'door_hurt',
+    'door_hurt',
     # "everest_tube"
     # 'complementary_suits',
     # 'complementary_suits_noheat',
-    'escape',
+    # 'escape',
     # 'fast_big_boy_cutscene',
     # 'mb_barrier_clear',
     # 'mb_left_entrance',
@@ -136,48 +136,48 @@ for i in range(32):
 # # #     map_patcher.write_tile_2bpp(idx, vanilla_text_tiles[i], switch_red_white=False)
 # #
 
-# plm_types_to_remove = [
-#     0xC88A, 0xC85A, 0xC872,  # right pink/yellow/green door
-#     0xC890, 0xC860, 0xC878,  # left pink/yellow/green door
-#     0xC896, 0xC866, 0xC87E,  # down pink/yellow/green door
-#     0xC89C, 0xC86C, 0xC884,  # up pink/yellow/green door
-#     0xDB48, 0xDB4C, 0xDB52, 0xDB56, 0xDB5A, 0xDB60,  # eye doors
-#     0xC8CA,  # wall in Escape Room 1
+plm_types_to_remove = [
+    0xC88A, 0xC85A, 0xC872,  # right pink/yellow/green door
+    0xC890, 0xC860, 0xC878,  # left pink/yellow/green door
+    0xC896, 0xC866, 0xC87E,  # down pink/yellow/green door
+    0xC89C, 0xC86C, 0xC884,  # up pink/yellow/green door
+    0xDB48, 0xDB4C, 0xDB52, 0xDB56, 0xDB5A, 0xDB60,  # eye doors
+    0xC8CA,  # wall in Escape Room 1
+]
+gray_door_plm_types = {
+    0xC848: 0xBAF4,  # left gray door
+    0xC842: 0xF940,  # right gray door
+    0xC854: 0xF946,  # up gray door
+    0xC84E: 0xF94C,  # down gray door
+}
+# boss_room_names = [
+#     "Kraid Room",
+#     "Phantoon's Room",
+#     "Draygon's Room",
+#     "Ridley's Room",
+#     "Crocomire's Room",
+#     "Botwoon's Room",
+#     "Bomb Torizo Room",
 # ]
-# gray_door_plm_types = {
-#     0xC848: 0xBAF4,  # left gray door
-#     0xC842: 0xF940,  # right gray door
-#     0xC854: 0xF946,  # up gray door
-#     0xC84E: 0xF94C,  # down gray door
-# }
-# # boss_room_names = [
-# #     "Kraid Room",
-# #     "Phantoon's Room",
-# #     "Draygon's Room",
-# #     "Ridley's Room",
-# #     "Crocomire's Room",
-# #     "Botwoon's Room",
-# #     "Bomb Torizo Room",
-# # ]
-# for room_obj in rooms:
-#     room = RomRoom(rom, room_obj)
-#     states = room.load_states(rom)
-#     for state in states:
-#         ptr = state.plm_set_ptr + 0x70000
-#         while True:
-#             plm_type = rom.read_u16(ptr)
-#             if plm_type == 0:
-#                 break
-#             # Remove PLMs for doors that we don't want: pink, green, yellow, Eye doors, spawning wall in escape
-#             main_var_high = rom.read_u8(ptr + 5)
-#             if plm_type in plm_types_to_remove or plm_type in gray_door_plm_types:
-#                 # print(room_obj.name)
-#                 rom.write_u16(ptr, 0xB63B)  # right continuation arrow (should have no effect, giving a blue door)
-#                 rom.write_u16(ptr + 2, 0)  # position = (0, 0)
-#             # elif plm_type in gray_door_plm_types:
-#             #     new_type = gray_door_plm_types[plm_type]
-#             #     rom.write_u16(ptr, new_type)
-#             ptr += 6
+for room_obj in rooms:
+    room = RomRoom(rom, room_obj)
+    states = room.load_states(rom)
+    for state in states:
+        ptr = state.plm_set_ptr + 0x70000
+        while True:
+            plm_type = rom.read_u16(ptr)
+            if plm_type == 0:
+                break
+            # Remove PLMs for doors that we don't want: pink, green, yellow, Eye doors, spawning wall in escape
+            main_var_high = rom.read_u8(ptr + 5)
+            if plm_type in plm_types_to_remove or plm_type in gray_door_plm_types:
+                # print(room_obj.name)
+                rom.write_u16(ptr, 0xB63B)  # right continuation arrow (should have no effect, giving a blue door)
+                rom.write_u16(ptr + 2, 0)  # position = (0, 0)
+            # elif plm_type in gray_door_plm_types:
+            #     new_type = gray_door_plm_types[plm_type]
+            #     rom.write_u16(ptr, new_type)
+            ptr += 6
 
 # stop lava rising in Climb
 # rom.write_u16(snes2pc(0x838060), 0xffff)
