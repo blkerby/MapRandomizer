@@ -1485,23 +1485,22 @@ impl<'a> Patcher<'a> {
             self.game_data.room_and_door_idxs_by_door_ptr_pair[&other_door_ptr_pair];
         let room = &self.game_data.room_geometry[room_idx];
         let door = &room.doors[door_idx];
-        let room_ptr = room.rom_address;
 
         let plm_id: u16;
-        let tile_x: u8;
-        let tile_y: u8;
+        let tile_x: usize;
+        let tile_y: usize;
         if door.direction == "right" {
             plm_id = 0xF800; // must match address in hazard_markers.asm
-            tile_x = (door.x * 16 + 15) as u8;
-            tile_y = (door.y * 16 + 6) as u8;
+            tile_x = door.x * 16 + 15;
+            tile_y = door.y * 16 + 6;
         } else if door.direction == "down" {
             if door.offset == Some(0) {
                 plm_id = 0xF808; // hazard marking overlaid on transition tiles
             } else {
                 plm_id = 0xF804;
             }
-            tile_x = (door.x * 16 + 6) as u8;
-            tile_y = (door.y * 16 + 15 - door.offset.unwrap_or(0)) as u8;
+            tile_x = door.x * 16 + 6;
+            tile_y = door.y * 16 + 15 - door.offset.unwrap_or(0);
         } else {
             panic!(
                 "Unsupported door direction for hazard marker: {}",
@@ -1509,7 +1508,8 @@ impl<'a> Patcher<'a> {
             );
         }
 
-        self.extra_setup_asm
+        let mut write_asm = |room_ptr: usize, x: usize, y: usize| {
+            self.extra_setup_asm
             .entry(room_ptr)
             .or_insert(vec![])
             .extend(vec![
@@ -1517,12 +1517,27 @@ impl<'a> Patcher<'a> {
                 0xD7,
                 0x83,
                 0x84, // jsl $8483D7
-                tile_x as u8,
-                tile_y as u8, // X and Y coordinates in 16x16 tiles
+                x as u8,
+                y as u8, // X and Y coordinates in 16x16 tiles
                 (plm_id & 0x00FF) as u8,
                 (plm_id >> 8) as u8,
             ]);
+        };
 
+        if room.rom_address == 0x7D5A7 {
+            // Aqueduct
+            write_asm(room.rom_address, tile_x, tile_y - 64);
+        } else {
+            write_asm(room.rom_address, tile_x, tile_y);
+        }
+        if room.rom_address == 0x793FE && door.x == 5 && door.y == 2 {
+            // Homing Geemer Room
+            write_asm(room.twin_rom_address.unwrap(), tile_x % 16, tile_y % 16);
+        }
+        if room.rom_address == 0x7D646 && door.x == 1 && door.y == 2 {
+            // East Pants Room
+            write_asm(room.twin_rom_address.unwrap(), tile_x % 16, tile_y % 16 + 16);
+        }
         Ok(())
     }
 
