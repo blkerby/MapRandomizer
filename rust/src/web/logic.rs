@@ -5,7 +5,7 @@ use sailfish::TemplateOnce;
 use urlencoding;
 
 use crate::game_data::{GameData, Link, NodeId, Requirement, RoomId};
-use crate::randomize::{DebugOptions, DifficultyConfig};
+use crate::randomize::{DebugOptions, DifficultyConfig, SaveAnimals};
 use crate::traverse::{apply_requirement, GlobalState, LocalState};
 use crate::web::VERSION;
 
@@ -319,7 +319,7 @@ fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
         momentum_conservation: false,
         objectives: crate::randomize::Objectives::Bosses,
         doors_mode: crate::randomize::DoorsMode::Ammo,
-        save_animals: false,
+        save_animals: SaveAnimals::No,
         randomized_start: false,
         early_save: false,
         disable_walljump: false,

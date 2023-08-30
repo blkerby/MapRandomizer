@@ -18,7 +18,7 @@ use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::{make_rom, Rom};
 use maprando::randomize::{
     DebugOptions, DifficultyConfig, ItemMarkers, ItemDotChange, ItemPlacementStyle, ItemPriorityGroup,
-    MotherBrainFight, Objectives, Randomization, Randomizer, DoorsMode, randomize_doors,
+    MotherBrainFight, Objectives, Randomization, Randomizer, DoorsMode, randomize_doors, SaveAnimals,
 };
 use maprando::seed_repository::{Seed, SeedFile, SeedRepository};
 use maprando::spoiler_map;
@@ -214,7 +214,7 @@ struct RandomizeRequest {
     objectives: Text<String>,
     doors: Text<String>,
     randomized_start: Text<bool>,
-    save_animals: Text<bool>,
+    save_animals: Text<String>,
     early_save: Text<bool>,
     disable_walljump: Text<bool>,
     maps_revealed: Text<bool>,
@@ -274,6 +274,7 @@ struct SeedData {
     momentum_conservation: bool,
     objectives: String,
     doors: String,
+    save_animals: String,
     early_save: bool,
     disable_walljump: bool,
     maps_revealed: bool,
@@ -324,6 +325,7 @@ struct SeedHeaderTemplate<'a> {
     momentum_conservation: bool,
     objectives: String,
     doors: String,
+    save_animals: String,
     early_save: bool,
     disable_walljump: bool,
     maps_revealed: bool,
@@ -426,6 +428,7 @@ fn render_seed(
         momentum_conservation: seed_data.momentum_conservation,
         objectives: seed_data.objectives.clone(),
         doors: seed_data.doors.clone(),
+        save_animals: seed_data.save_animals.clone(),
         early_save: seed_data.early_save,
         disable_walljump: seed_data.disable_walljump,
         maps_revealed: seed_data.maps_revealed,
@@ -1058,7 +1061,15 @@ async fn randomize(
         escape_timer_multiplier: req.escape_timer_multiplier.0,
         gate_glitch_leniency: req.gate_glitch_leniency.0,
         randomized_start: req.randomized_start.0,
-        save_animals: req.save_animals.0,
+        save_animals: match req.save_animals.0.as_str() {
+            "No" => SaveAnimals::No,
+            "Maybe" => SaveAnimals::Maybe,
+            "Yes" => SaveAnimals::Yes,
+            _ => panic!(
+                "Unrecognized save_animals options {}",
+                req.save_animals.0.as_str()
+            ),
+        },
         phantoon_proficiency: req.phantoon_proficiency.0,
         draygon_proficiency: req.draygon_proficiency.0,
         ridley_proficiency: req.ridley_proficiency.0,
@@ -1218,6 +1229,7 @@ async fn randomize(
         momentum_conservation: req.momentum_conservation.0,
         objectives: req.objectives.0.clone(),
         doors: req.doors.0.clone(),
+        save_animals: req.save_animals.0.clone(),
         early_save: req.early_save.0,
         disable_walljump: req.disable_walljump.0,
         maps_revealed: req.maps_revealed.0,

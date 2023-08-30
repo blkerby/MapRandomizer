@@ -1,19 +1,16 @@
 next release:
-- exclude downward g-mode setups through sand
-
-priority:
 - fix palette in equipment screen
+- make ammo doors disappear from map tiles once unlocked
+  - probably restrict ammo doors to locations without item dots, to avoid this getting too complicated to implement.
+- add door flags to refine logic
+- add "Maybe" option for "Save the animals"
+  
+priority:
+- add door lock bypass strats to logic
 - balance door randomization across areas to avoid running out of tiles?
   - handle lack of tiles more gracefully?
-- make doors disappear from map tiles once unlocked
 - optimize/speed up the randomizer
-- add door flags to refine logic
-- add door lock bypass strats to logic
-- make ammo doors disappear when unlocked
-  - probably restrict ammo doors to locations without item dots, to avoid this getting too complicated to implement.
-  - what about gray doors? (leave how they are, since they're part of room identity)
 - randomized title screen
-- add "Maybe" option for "Save the animals"
 - controller config special settings (moonwalk) customization
 - set up a more robust way for users to save & select presets
 - overhaul two-phase randomization/customization process

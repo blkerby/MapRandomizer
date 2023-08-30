@@ -4,7 +4,7 @@ use maprando::{
     game_data::{GameData, Item, Requirement},
     randomize::{
         DifficultyConfig, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, MotherBrainFight,
-        Objectives, ProgressionRate, ItemDotChange, DoorsMode,
+        Objectives, ProgressionRate, ItemDotChange, DoorsMode, SaveAnimals,
     },
     traverse::{apply_requirement, GlobalState, LocalState},
 };
@@ -125,7 +125,7 @@ fn main() -> Result<()> {
         objectives: Objectives::Bosses,
         doors_mode: DoorsMode::Ammo,
         randomized_start: false,
-        save_animals: false,
+        save_animals: SaveAnimals::No,
         early_save: false,
         disable_walljump: false,
         maps_revealed: false,

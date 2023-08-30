@@ -17,6 +17,12 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-84---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release84">Version 84 (???)</a>:
+<ul>
+<li>Added a "Maybe" option for "Save the animals".
+<li>Fixed bug that caused hazard markings not to appear in Homing Geemer Room, East Pants Room, and Aqueduct.
+</ul>
+
 <p><a href="https://version-83---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release83">Version 83 (2023-08-29)</a>:
 <ul>
 <li>Fixes to several bugs:

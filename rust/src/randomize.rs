@@ -2,7 +2,7 @@ pub mod escape_timer;
 
 use crate::{
     game_data::{
-        self, get_effective_runway_length, Capacity, DoorPtrPair, FlagId, HubLocation, Item,
+        get_effective_runway_length, Capacity, DoorPtrPair, FlagId, HubLocation, Item,
         ItemLocationId, Link, Map, NodeId, Requirement, RoomId, StartLocation, TechId, VertexId, ItemId,
     },
     traverse::{
@@ -71,6 +71,13 @@ pub enum DoorsMode {
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
+pub enum SaveAnimals {
+    No,
+    Maybe,
+    Yes,
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
 pub enum MotherBrainFight {
     Vanilla,
     Short,
@@ -129,7 +136,7 @@ pub struct DifficultyConfig {
     pub objectives: Objectives,
     pub doors_mode: DoorsMode,
     pub randomized_start: bool,
-    pub save_animals: bool,
+    pub save_animals: SaveAnimals,
     pub early_save: bool,
     pub disable_walljump: bool,
     pub maps_revealed: bool,

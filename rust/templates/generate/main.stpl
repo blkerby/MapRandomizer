@@ -178,10 +178,12 @@
                     <% include!("help/variations/save_the_animals.stpl"); %>
                     <label for="save_animals">Save the animals</label>
                 </div>
-                <div class="col-lg-2 btn-group my-2" role="group">
-                    <input type="radio" class="btn-check" name="save_animals" id="saveAnimalsNo" value="false" checked=true>
+                <div class="col-lg-3 btn-group my-2" role="group">
+                    <input type="radio" class="btn-check" name="save_animals" id="saveAnimalsNo" value="No" checked=true>
                     <label class="btn btn-outline-primary" for="saveAnimalsNo">No</label>
-                    <input type="radio" class="btn-check" name="save_animals" id="saveAnimalsYes" value="true">
+                    <input type="radio" class="btn-check" name="save_animals" id="saveAnimalsMaybe" value="Maybe">
+                    <label class="btn btn-outline-primary" for="saveAnimalsMaybe">Maybe</label>
+                    <input type="radio" class="btn-check" name="save_animals" id="saveAnimalsYes" value="Yes">
                     <label class="btn btn-outline-primary" for="saveAnimalsYes">Yes</label>
                 </div>
             </div>
