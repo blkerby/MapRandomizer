@@ -3,7 +3,6 @@ next release:
 - make ammo doors disappear from map tiles once unlocked
   - probably restrict ammo doors to locations without item dots, to avoid this getting too complicated to implement.
 - add door flags to refine logic
-- add "Maybe" option for "Save the animals"
   
 priority:
 - add door lock bypass strats to logic

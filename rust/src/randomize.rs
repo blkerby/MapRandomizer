@@ -1031,6 +1031,42 @@ fn get_randomizable_doors(game_data: &GameData) -> HashSet<DoorPtrPair> {
         // Pants room interior door
         (0x1A7A4, 0x1A78C), // Left door
         (0x1A78C, 0x1A7A4), // Right door
+        // Items: (to avoid an interaction in map tiles between doors disappearing and items disappearing)
+        (0x18FA6, 0x18EDA), // First Missile Room
+        (0x18FFA, 0x18FEE), // Billy Mays Room
+        (0x18D66, 0x18D5A), // Brinstar Reserve Tank Room
+        (0x18F3A, 0x18F5E), // Etecoon Energy Tank Room (top left door)
+        (0x18F5E, 0x18F3A), // Etecoon Supers Room
+        (0x18E02, 0x18E62), // Big Pink (top door to Pink Brinstar Power Bomb Room)
+        (0x18FCA, 0x18FBE), // Hopper Energy Tank Room
+        (0x19132, 0x19126), // Spazer Room
+        (0x19162, 0x1914A), // Warehouse Energy Tank Room
+        (0x19252, 0x191DA), // Varia Suit Room
+        (0x18ADE, 0x18A36), // The Moat (left door)
+        (0x18C9A, 0x18C82), // The Final Missile
+        (0x18BE6, 0x18C3A), // Terminator Room (left door)
+        (0x18B0E, 0x18952), // Gauntlet Energy Tank Room (right door)
+        (0x1A924, 0x1A978), // Space Jump Room
+        (0x19A62, 0x198B2), // Ridley Tank Room
+        (0x199D2, 0x19A9E), // Lower Norfair Escape Power Bomb Room (left door)
+        (0x199DE, 0x199C6), // Lower Norfair Escape Power Bomb Room (top door)
+        (0x19876, 0x1983A), // Golden Torizo's Room (left door)
+        (0x19A86, 0x19882), // Screw Attack Room (left door)
+        (0x1941A, 0x192D6), // Hi Jump Energy Tank Room (right door)
+        (0x193F6, 0x19426), // Hi Jump Boots Room
+        (0x1929A, 0x19732), // Cathedral (right door)
+        (0x1953A, 0x19552), // Green Bubbles Missile Room
+        (0x195B2, 0x195BE), // Speed Booster Hall
+        (0x195BE, 0x195B2), // Speed Booster Room
+        (0x1962A, 0x1961E), // Wave Beam Room
+        (0x1935A, 0x1937E), // Ice Beam Room
+        (0x1938A, 0x19336), // Crumble Shaft (top right door)
+        (0x19402, 0x192E2), // Crocomire Escape (left door)
+        (0x1946E, 0x1943E), // Post Crocomire Power Bomb Room
+        (0x19516, 0x194DA), // Grapple Beam Room (bottom right door)
+        (0x1A2E8, 0x1A210), // Wrecked Ship West Super Room
+        (0x1A300, 0x18A06), // Gravity Suit Room (left door)
+        (0x1A30C, 0x1A1A4), // Gravity Suit Room (right door)
     ]
     .into_iter()
     .map(|(x, y)| (Some(x), Some(y)))
