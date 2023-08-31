@@ -1604,7 +1604,6 @@ impl<'a> MapPatcher<'a> {
     fn add_cross_area_arrows(&mut self) -> Result<()> {
         // Replace colors to palette used for map tiles in the pause menu, for drawing arrows marking
         // cross-area connections:
-        // TODO: Fix color of reserve energy in equipment menu, which gets messed up by this.
         fn rgb(r: u16, g: u16, b: u16) -> u16 {
             (b << 10) | (g << 5) | r
         }

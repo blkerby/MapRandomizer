@@ -188,18 +188,47 @@ org $89AC1E : nop : nop : nop : nop   ; was: STA $7EC236
 org $82920B
     jsr fix_map_palette
 
+org $829237
+    jsr fix_equipment_palette
+
 ;;; Put new code in free space at end of bank $82:
 org !bank_82_freespace_start
 
-; when switching from equipment screen to map screen, restore palette for flashing reserve tank arrow color
-; (used on map screen for tourian arrows)
+; when switching from equipment screen to map screen, restore certain palette colors
 fix_map_palette:
+    ; flashing reserve tank arrow color (used on map screen for tourian arrows)
     lda $B6F0CC
     sta $7EC0CC
     lda $B6F0D6
     sta $7EC0D6
-    ;stz $073F  ; run hi-jacked instruction
-    lda #$0000
+
+    ; green door color:
+    lda $B6F05C
+    sta $7EC05C
+    ; pink door color:
+    lda $B6F0CE
+    sta $7EC0CE
+    ; gray door color:
+    lda $B6F0DE
+    sta $7EC0DE
+    sta $7EC05E
+
+    lda #$0000  ; run hi-jacked instruction
+    rts
+
+fix_equipment_palette:
+    ; Fix color used for pink doors on map screen
+    lda #$6E7A
+    sta $7EC0CE
+    ; Fix color used for green doors on map screen
+    lda #$5EF7
+    sta $7EC05C
+    ; Fix color used for gray doors on map screen
+    lda #$318C
+    sta $7EC0DE
+    sta $7EC05E
+
+    lda #$0001 ; run hi-jacked instruction
     rts
 
 ;;; X = room header pointer

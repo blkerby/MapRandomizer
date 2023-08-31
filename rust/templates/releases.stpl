@@ -21,7 +21,11 @@ about 15 seconds to load.
 <ul>
 <li>Added a "Maybe" option for "Save the animals".
 <li>Ammo door markers now disappear from the map after they are unlocked.
-<li>Fixed bug where hazard markings did not show in Homing Geemer Room, East Pants Room, and Aqueduct.
+<li>Bugfixes:
+    <ul>
+    <li>Hazard markings did not show in Homing Geemer Room, East Pants Room, and Aqueduct.
+    <li>Some palette colors were messed up in the equipment screen of the pause menu.
+    </ul>
 </ul>
 
 <p><a href="https://version-83---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release83">Version 83 (2023-08-29)</a>:
