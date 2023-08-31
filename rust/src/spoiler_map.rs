@@ -1,10 +1,11 @@
 use anyhow::Result;
+use hashbrown::HashMap;
 use image::{Rgb, RgbImage, Rgba, RgbaImage};
 use std::io::Cursor;
 
 use crate::{
-    game_data::{GameData, Map},
-    patch::{snes2pc, xy_to_map_offset, Rom},
+    game_data::{GameData, Map, AreaIdx},
+    patch::{snes2pc, xy_to_map_offset, Rom, map_tiles::{TilemapOffset, TilemapWord}},
     patch::map_tiles::TILE_GFX_ADDR_4BPP,
 };
 
@@ -106,6 +107,22 @@ pub struct SpoilerMaps {
     pub grid: Vec<u8>,
 }
 
+fn get_map_overrides(rom: &Rom) -> Result<HashMap<(AreaIdx, TilemapOffset), TilemapWord>> {
+    let mut out = HashMap::new();
+    let base_ptr_pc = snes2pc(0x83B000);
+    for area_idx in 0..6 {
+        let data_ptr_snes = rom.read_u16(base_ptr_pc + 2 * area_idx)?;
+        let data_ptr_pc = snes2pc(0x830000 + data_ptr_snes as usize);
+        let size = rom.read_u16(base_ptr_pc + 12 + 2 * area_idx)? as usize;
+        for i in 0..size {
+            let offset = rom.read_u16(data_ptr_pc + 6 * i + 2)?;
+            let word = rom.read_u16(data_ptr_pc + 6 * i + 4)?;
+            out.insert((area_idx, offset as TilemapOffset), word as TilemapWord);
+        }
+    }
+    Ok(out)
+}
+
 pub fn get_spoiler_map(
     rom: &Rom,
     map: &Map,
@@ -118,6 +135,7 @@ pub fn get_spoiler_map(
     let mut img_vanilla = RgbImage::new(width, height);
     let mut img_grid = RgbaImage::new(width, height);
     let grid_val = Rgba([0x29, 0x29, 0x29, 0xFF]);
+    let map_overrides = get_map_overrides(rom)?;
 
     for y in (7..height).step_by(8) {
         for x in (0..width).step_by(2) {
@@ -151,7 +169,10 @@ pub fn get_spoiler_map(
                 let cell_y = area_room_y + local_y as isize;
                 let offset = xy_to_map_offset(cell_x, cell_y);
                 let cell_ptr = game_data.area_map_ptrs[map_area] + offset;
-                let tilemap_word = rom.read_u16(cell_ptr as usize)? as u16;
+                let mut tilemap_word = rom.read_u16(cell_ptr as usize)? as u16;
+                if let Some(new_word) = map_overrides.get(&(map_area, offset as TilemapOffset)) {
+                    tilemap_word = *new_word;
+                }
                 let tile = render_tile(rom, tilemap_word, map_area)?;
                 for y in 0..8 {
                     for x in 0..8 {

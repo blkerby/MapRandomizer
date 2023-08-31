@@ -1,10 +1,11 @@
 next release:
 - fix palette in equipment screen
 - make ammo doors disappear from map tiles once unlocked
-  - probably restrict ammo doors to locations without item dots, to avoid this getting too complicated to implement.
-- add door flags to refine logic
+  - reload tilemap (or at least the specific tile) after unlocking door
+  - avoid having two ammo doors in same tile
   
 priority:
+- add door flags to refine logic
 - add door lock bypass strats to logic
 - balance door randomization across areas to avoid running out of tiles?
   - handle lack of tiles more gracefully?

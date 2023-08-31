@@ -10,8 +10,8 @@
 ; and memory watch to see the vanilla RNG value at $05E5 when the music finishes loading, setting a breakpoint 
 ; at $82E112).
 
-!bank_83_free_space_start = $83B400
-!bank_83_free_space_end = $83B500
+!bank_83_free_space_start = $83B700
+!bank_83_free_space_end = $83B800
 
 org $82E66A
     jsl load_music_hook

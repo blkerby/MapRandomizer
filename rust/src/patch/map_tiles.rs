@@ -9,8 +9,8 @@ use crate::{
 use super::{snes2pc, xy_to_explored_bit_ptr, xy_to_map_offset, Rom};
 use anyhow::{bail, Context, Result};
 
-type TilemapOffset = u16;
-type TilemapWord = u16;
+pub type TilemapOffset = u16;
+pub type TilemapWord = u16;
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
 enum Edge {
@@ -56,6 +56,8 @@ pub struct MapPatcher<'a> {
     reverse_map: HashMap<TilemapWord, BasicTile>,
     tile_gfx_map: HashMap<TilemapWord, [[u8; 8]; 8]>,
     edge_pixels_map: HashMap<Edge, Vec<usize>>,
+    locked_door_state_indices: &'a [usize],
+    area_data: Vec<Vec<(ItemIdx, TilemapOffset, TilemapWord, Interior)>>,
 }
 
 const VANILLA_ELEVATOR_TILE: TilemapWord = 0xCE; // Index of elevator tile in vanilla game
@@ -89,6 +91,7 @@ impl<'a> MapPatcher<'a> {
         game_data: &'a GameData,
         map: &'a Map,
         randomization: &'a Randomization,
+        locked_door_state_indices: &'a [usize],
     ) -> Self {
         let mut pixels_map: HashMap<Edge, Vec<usize>> = HashMap::new();
         pixels_map.insert(Edge::Empty, vec![]);
@@ -106,6 +109,8 @@ impl<'a> MapPatcher<'a> {
             reverse_map: HashMap::new(),
             tile_gfx_map: HashMap::new(),
             edge_pixels_map: pixels_map,
+            locked_door_state_indices,
+            area_data: vec![vec![]; 6],
         }
     }
 
@@ -1444,7 +1449,7 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn indicate_locked_doors(&mut self) -> Result<()> {
-        for locked_door in &self.randomization.locked_doors {
+        for (i, locked_door) in self.randomization.locked_doors.iter().enumerate() {
             let mut ptr_pairs = vec![locked_door.src_ptr_pair];
             if locked_door.bidirectional {
                 ptr_pairs.push(locked_door.dst_ptr_pair);
@@ -1485,8 +1490,13 @@ impl<'a> MapPatcher<'a> {
                         _ => panic!("Unexpected door direction: {:?}", door.direction)
                     }
                     let modified_word = self.get_basic_tile(new_tile)?;
-                    self.rom
-                        .write_u16(base_ptr + offset, (modified_word | 0x0C00) as isize)?;
+                    self.rom.write_u16(base_ptr + offset, (tile | 0x0C00) as isize)?;
+
+                    // Here, to make doors disappear once unlocked, we're (slightly awkwardly) reusing the mechanism for
+                    // making item dots disappear. Door bits are stored at $D8B0, which is 512 bits after $D870 where 
+                    // the item bits start.
+                    let item_idx = self.locked_door_state_indices[i] + 512;
+                    self.area_data[area].push((item_idx, offset as TilemapOffset, modified_word | 0x0C00, Interior::Empty));
                 }
             }
         }
@@ -1864,7 +1874,7 @@ impl<'a> MapPatcher<'a> {
                     if interior1 != interior {
                         continue;
                     }
-                    assert!(interior != Interior::Empty && interior != Interior::Elevator);
+                    assert!(interior != Interior::Elevator);
                     self.rom
                         .write_u8(snes2pc(data_ptr), (item_idx as isize) >> 3)?; // item byte index
                     self.rom
@@ -1875,14 +1885,12 @@ impl<'a> MapPatcher<'a> {
                 }
             }
         }
-        assert!(data_ptr <= 0x83B300);
+        assert!(data_ptr <= 0x83B600);
         Ok(())
     }
 
     fn indicate_major_items(&mut self) -> Result<()> {
         let markers = self.randomization.difficulty.item_markers;
-        let mut area_data: Vec<Vec<(ItemIdx, TilemapOffset, TilemapWord, Interior)>> =
-            vec![vec![]; 6];
         for (i, &item) in self.randomization.item_placement.iter().enumerate() {
             let (room_id, node_id) = self.game_data.item_locations[i];
             if room_id == 19 && self.randomization.difficulty.objectives == Objectives::Chozos
@@ -1945,7 +1953,7 @@ impl<'a> MapPatcher<'a> {
             };
             basic_tile.interior = interior;
             let tile1 = self.get_basic_tile(basic_tile)?;
-            area_data[area].push((item_idx, offset as TilemapOffset, tile1 | 0x0C00, interior));
+            self.area_data[area].push((item_idx, offset as TilemapOffset, tile1 | 0x0C00, interior));
             if self.randomization.difficulty.item_dot_change == ItemDotChange::Fade {
                 if interior == Interior::MajorItem
                     || (interior == Interior::MediumItem
@@ -1966,7 +1974,7 @@ impl<'a> MapPatcher<'a> {
                     .write_u16(base_ptr + offset, (tile_faded | 0x0C00) as isize)?;
             }
         }
-        self.add_items_disappear_data(&area_data)?;
+        self.add_items_disappear_data(&self.area_data.clone())?;
         Ok(())
     }
 

@@ -3,7 +3,7 @@ pub mod escape_timer;
 use crate::{
     game_data::{
         get_effective_runway_length, Capacity, DoorPtrPair, FlagId, HubLocation, Item,
-        ItemLocationId, Link, Map, NodeId, Requirement, RoomId, StartLocation, TechId, VertexId, ItemId,
+        ItemLocationId, Link, Map, NodeId, Requirement, RoomId, StartLocation, TechId, VertexId, ItemId, RoomGeometryRoomIdx,
     },
     traverse::{
         apply_requirement, get_spoiler_route, is_bireachable, traverse, GlobalState, LinkIdx,
@@ -1108,6 +1108,15 @@ pub fn randomize_doors(
     let mut rng_seed = [0u8; 32];
     rng_seed[..8].copy_from_slice(&seed.to_le_bytes());
     let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
+
+    let get_loc = |ptr_pair: DoorPtrPair| -> (RoomGeometryRoomIdx, usize, usize) {
+        let (room_idx, door_idx) = game_data.room_and_door_idxs_by_door_ptr_pair[&ptr_pair];
+        let room = &game_data.room_geometry[room_idx];
+        let door = &room.doors[door_idx];
+        (room_idx, door.x, door.y)
+    };
+    let mut used_locs: HashSet<(RoomGeometryRoomIdx, usize, usize)> = HashSet::new();
+
     match difficulty.doors_mode {
         DoorsMode::Blue => {
             vec![]
@@ -1133,7 +1142,16 @@ pub fn randomize_doors(
                     door_type: door_types[i],
                     bidirectional: true,
                 };
-                out.push(door);
+
+                // Make sure we don't put two ammo doors in the same tile (since that would interfere
+                // with the mechanism for making the doors disappear from the map).
+                let src_loc = get_loc(door.src_ptr_pair);
+                let dst_loc = get_loc(door.dst_ptr_pair);
+                if !used_locs.contains(&src_loc) && !used_locs.contains(&dst_loc) {
+                    used_locs.insert(src_loc);
+                    used_locs.insert(dst_loc);
+                    out.push(door);
+                }
             }
             out
         }

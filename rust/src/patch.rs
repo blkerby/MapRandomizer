@@ -145,6 +145,7 @@ pub struct Patcher<'a> {
     pub map: &'a Map,
     pub other_door_ptr_pair_map: HashMap<DoorPtrPair, DoorPtrPair>,
     pub extra_setup_asm: HashMap<RoomPtr, Vec<u8>>,
+    pub locked_door_state_indices: Vec<usize>,
 }
 
 pub fn xy_to_map_offset(x: isize, y: isize) -> isize {
@@ -872,7 +873,7 @@ impl<'a> Patcher<'a> {
     }
 
     fn apply_map_tile_patches(&mut self) -> Result<()> {
-        map_tiles::MapPatcher::new(&mut self.rom, self.game_data, self.map, self.randomization)
+        map_tiles::MapPatcher::new(&mut self.rom, self.game_data, self.map, self.randomization, &self.locked_door_state_indices)
             .apply_patches()?;
         Ok(())
     }
@@ -1622,9 +1623,9 @@ impl<'a> Patcher<'a> {
         Ok(())
     }
 
-    fn apply_locked_doors(&mut self) -> Result<()> {
+    fn assign_locked_door_states(&mut self) {
         // PLM arguments used for gray door states (we reserve all of them even though not all are used)
-        let reserved_state_indexes: HashSet<u8> = [
+        let reserved_state_indexes: HashSet<usize> = [
             0x2, 0x3, 0x4, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0x11, 0x12, 0x14, 0x15, 0x16, 0x17, 0x18,
             0x19, 0x1a, 0x1b, 0x1c, 0x24, 0x25, 0x2c, 0x2d, 0x2e, 0x2f, 0x31, 0x36, 0x37, 0x3e,
             0x40, 0x41, 0x42, 0x43, 0x46, 0x47, 0x48, 0x4f, 0x50, 0x59, 0x5a, 0x5b, 0x5d, 0x60,
@@ -1633,18 +1634,29 @@ impl<'a> Patcher<'a> {
         ]
         .into_iter()
         .collect();
-        let mut next_state_index = 0;
+        let mut next_state_index: usize = 0;
+        let mut state_idxs: Vec<usize> = vec![];
+
         for door in &self.randomization.locked_doors {
             let mut door = *door;
             while reserved_state_indexes.contains(&next_state_index) {
                 next_state_index += 1;
             }
-            self.apply_single_locked_door(door, next_state_index)?;
+            state_idxs.push(next_state_index);
+            next_state_index += 1;
+        }
+        self.locked_door_state_indices = state_idxs;
+    }
+
+    fn apply_locked_doors(&mut self) -> Result<()> {
+        self.assign_locked_door_states();
+        for (i, door) in self.randomization.locked_doors.iter().enumerate() {
+            let mut door = *door;
+            self.apply_single_locked_door(door, self.locked_door_state_indices[i] as u8)?;
             if door.bidirectional {
                 std::mem::swap(&mut door.src_ptr_pair, &mut door.dst_ptr_pair);
-                self.apply_single_locked_door(door, next_state_index)?;
+                self.apply_single_locked_door(door, self.locked_door_state_indices[i] as u8)?;
             }
-            next_state_index += 1;
         }
         Ok(())
     }
@@ -1713,6 +1725,7 @@ pub fn make_rom(
         map: &randomization.map,
         other_door_ptr_pair_map: get_other_door_ptr_pair_map(&randomization.map),
         extra_setup_asm: HashMap::new(),
+        locked_door_state_indices: vec![],
         // door_room_map: get_door_room_map(&self.game_data.)
     };
     patcher.apply_ips_patches()?;
@@ -1722,6 +1735,7 @@ pub fn make_rom(
     patcher.write_map_tilemaps()?;
     patcher.write_map_areas()?;
     patcher.make_map_revealed()?;
+    patcher.apply_locked_doors()?;
     patcher.apply_map_tile_patches()?;
     patcher.write_door_data()?;
     patcher.remove_non_blue_doors()?;
@@ -1741,7 +1755,6 @@ pub fn make_rom(
     patcher.apply_seed_hash()?;
     patcher.apply_credits()?;
     patcher.apply_hazard_markers()?;
-    patcher.apply_locked_doors()?;
     patcher.apply_extra_setup_asm()?;
     Ok(rom)
 }
