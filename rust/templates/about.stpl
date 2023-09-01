@@ -509,12 +509,15 @@
     <a href="https://randommetroidsolver.pythonanywhere.com/randomizer">VARIA Randomizer</a>,
     and also <a href="https://samus.link/">SMZ3 Randomizer</a> which was the first randomizer that we played (Maddo and kyleb).</p>
 
-    <p>The following reference materials have been indispensible:
+    <p>The following tools and reference materials have been indispensible:
     <ul>
     <li><a href="https://patrickjohnston.org/bank/index.html">Bank logs</a> by <i>PJBoy</i>.
         Basically every change we make on the ROM side of the randomizer involves consulting this.
     <li><a href="http://metroidconstruction.com/SMMM/">Super Metroid Mod Manual</a> by <i>grime</i>.
     <li><a href="https://www.raphnet.net/divers/retro_challenge_2019_03/qsnesdoc.html">SNES Graphics Information</a> by <i>Qwertie</i>.
+    <li><a href="https://github.com/MethylScottrick/SMME-Binaries">Super Metroid Music Editor (SMME)</a> by Scottrick.
+    We used this to consolidate the channels of the prologue music to make it work better during gameplay (less
+    tendency to cut out while sound effects play).
     </ul>
 
     <p>We've also received valuable feedback, suggestions, and bug reports from many players. Though there are too many

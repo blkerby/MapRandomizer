@@ -21,6 +21,7 @@ about 15 seconds to load.
 <ul>
 <li>Added a "Maybe" option for "Save the animals".
 <li>Ammo door markers now disappear from the map after they are unlocked.
+<li>While Zebes is asleep, prologue music is now used in the Crateria sub-area containing the Ship.
 <li>Bugfixes:
     <ul>
     <li>Hazard markings did not show in Homing Geemer Room, East Pants Room, and Aqueduct.

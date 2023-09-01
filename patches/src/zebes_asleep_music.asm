@@ -21,28 +21,30 @@ music_load_hook:
     lda $07C9
     rep #$20
 
-    ; Landing Site:
-    cmp #$0606
-    bne +
-    lda #$0005
-    sta $07C9
-    jmp .skip
-+
+;    ; Landing Site:
+;    cmp #$0606
+;    bne +
+;    lda #$0005
+;    sta $07C9
+;    jmp .skip
+;+
 
-    ; Crateria Pirates:
+    ; Crateria Pirates -> Zebes asleep
     cmp #$0905
     bne +
     lda #$0006
     sta $07CB
+    lda #$0007
+    sta $07C9
     jmp .skip
 +
 
-    ; Return to Crateria (Crateria subarea not containing the Ship)
+    ; Return to Crateria (Crateria subarea containing the Ship) -> intro song
     cmp #$0C05
     bne +
-    lda #$0006
+    lda #$0036
     sta $07CB
-    lda #$0007
+    lda #$0005  
     sta $07C9
 +
 

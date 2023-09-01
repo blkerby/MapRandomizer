@@ -1,9 +1,8 @@
 next release:
-- fix palette in equipment screen
-- make ammo doors disappear from map tiles once unlocked
-  - reload tilemap (or at least the specific tile) after unlocking door
-  - avoid having two ammo doors in same tile
-  
+- add scottrick & SMME to credits/about
+  - add note about intro music to release notes
+
+
 priority:
 - add door flags to refine logic
 - add door lock bypass strats to logic

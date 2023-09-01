@@ -271,6 +271,7 @@ impl<'a> Patcher<'a> {
             "saveload",
             "hazard_markers",
             "rng_fix",
+            "intro_song",
         ];
 
         if self.randomization.difficulty.ultra_low_qol {
@@ -947,8 +948,8 @@ impl<'a> Patcher<'a> {
         let area_music: [[u16; 2]; NUM_AREAS] = [
             [
                 // (0x06, 0x05),   // Empty Crateria
-                0x0509, // Crateria Space Pirates
                 0x050C, // Return to Crateria
+                0x0509, // Crateria Space Pirates
             ],
             [
                 0x050F, // Green Brinstar
@@ -1010,11 +1011,11 @@ impl<'a> Patcher<'a> {
                     continue;
                 }
                 let mut new_song = area_music[area][subarea];
-                if room.name == "Landing Site" {
-                    // Set all Landing Site states to use the same track, the one that plays in vanilla before
-                    // Power Bombs but after Zebes is awake:
-                    new_song = 0x0606;
-                }
+                // if room.name == "Landing Site" {
+                //     // Set all Landing Site states to use the same track, the one that plays in vanilla before
+                //     // Power Bombs but after Zebes is awake:
+                //     new_song = 0x0606;
+                // }
                 self.rom.write_u16(state_ptr + 4, new_song as isize)?;
                 if room.name == "Pants Room" {
                     // Set music for East Pants Room:
