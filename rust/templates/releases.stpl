@@ -17,15 +17,17 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-84---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release84">Version 84 (???)</a>:
+<p><a href="https://version-84---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release84">Version 84 (2023-09-01)</a>:
 <ul>
 <li>Added a "Maybe" option for "Save the animals".
-<li>Ammo door markers now disappear from the map after they are unlocked.
-<li>While Zebes is asleep, prologue music is now used in the Crateria sub-area containing the Ship.
-<li>Bugfixes:
+<li>Ammo door markers disappear from the map after they are unlocked.
+<li>While Zebes is asleep, prologue music is used in the Crateria sub-area containing the Ship.
+<li>Fixes to some bugs:
     <ul>
-    <li>Hazard markings did not show in Homing Geemer Room, East Pants Room, and Aqueduct.
-    <li>Some palette colors were messed up in the equipment screen of the pause menu.
+    <li>Hazard markings didn't show up in Homing Geemer Room, East Pants Room, and Aqueduct.
+    <li>Palette colors were messed up in the equipment screen of the pause menu.
+    <li>Quick reloading on the same frame as another game state change (e.g., death, pause, unpause) caused strange behavior.
+    <li>When quick reloading in item/elevator rooms, sometimes the music would not change tracks.
     </ul>
 </ul>
 
