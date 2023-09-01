@@ -267,7 +267,10 @@
 
       "Bowling Alley Missile Chozo Camera Unlock",
       "Sponge Bath Bull Boost",
-      "WS East Supers Crystal Flash Clip (Right to Left)"
+      "WS East Supers Crystal Flash Clip (Right to Left)",
+
+      "Metroid Room 4 Top Metroid Avoid",
+      "Metroid Room 2 Bottom Door Metroid Avoid"
     ]
   },
   {
@@ -376,6 +379,7 @@
       "East Sand Hall Spring Ball HiJump",
       "Spring Ball Room Escape - Suitless, Bootless, Space Jump",
 
+      "Metroid Room 4 Bottom Metroid Avoid",
       "Blue Hopper Dodge",
       "Blue Hopper Room Roll Under Hoppers",
       "Baby Skip Without Wave or Speed"
