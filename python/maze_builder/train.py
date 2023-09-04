@@ -42,7 +42,7 @@ device = devices[0]
 executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
 # num_envs = 1
-num_envs = 2 ** 6
+num_envs = 2 ** 5
 # rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.norfair_isolated.rooms
 rooms = logic.rooms.all_rooms.rooms
@@ -217,10 +217,10 @@ lr0 = 0.00005
 lr1 = 0.00005
 # lr_warmup_time = 16
 # lr_cooldown_time = 100
-num_candidates_min0 = 63.5
-num_candidates_max0 = 64.5
-num_candidates_min1 = 63.5
-num_candidates_max1 = 64.5
+num_candidates_min0 = 127.5
+num_candidates_max0 = 128.5
+num_candidates_min1 = 127.5
+num_candidates_max1 = 128.5
 
 # num_candidates0 = 40
 # num_candidates1 = 40
@@ -233,7 +233,7 @@ cycle_weight = 0.0
 cycle_value_coef = 0.0
 compute_cycles = False
 
-door_connect_bound = 3.0
+door_connect_bound = 5.0
 # door_connect_bound = 0.0
 door_connect_alpha = 0.01
 # door_connect_alpha = door_connect_alpha0 / math.sqrt(1 + session.num_rounds / lr_cooldown_time)
@@ -243,8 +243,8 @@ door_connect_beta = door_connect_bound / (door_connect_bound + door_connect_alph
 
 augment_frac = 0.0
 
-temperature_min0 = 0.02
-temperature_max0 = 2.0
+temperature_min0 = 0.01
+temperature_max0 = 1.0
 temperature_min1 = 0.01
 temperature_max1 = 1.0
 # temperature_min0 = 0.01
@@ -257,12 +257,12 @@ temperature_frac_min0 = 0.5
 temperature_frac_min1 = 0.5
 temperature_decay = 1.0
 
-annealing_start = 169792
-annealing_time = session.replay_buffer.capacity // (num_envs * num_devices) // 32
+annealing_start = 187536
+annealing_time = 1 # session.replay_buffer.capacity // (num_envs * num_devices) // 32
 
 pass_factor0 = 1.0
 pass_factor1 = 1.0
-print_freq = 16
+print_freq = 32
 total_reward = 0
 total_loss = 0.0
 total_loss_cnt = 0
@@ -277,8 +277,8 @@ total_ent = 0.0
 total_round_cnt = 0
 total_min_door_frac = 0
 total_cycle_cost = 0.0
-save_freq = 256
-summary_freq = 256
+save_freq = 512
+summary_freq = 512
 session.decay_amount = 0.01
 # session.decay_amount = 0.2
 session.optimizer.param_groups[0]['betas'] = (0.9, 0.9)
@@ -567,7 +567,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk30')
+            # save_session(session, pickle_name + '-bk32')
             # session.replay_buffer.resize(2 ** 20)
             # pickle.dump(session, open(pickle_name + '-small-22', 'wb'))
     if session.num_rounds % summary_freq == 0:

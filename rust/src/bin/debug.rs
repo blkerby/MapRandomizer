@@ -31,6 +31,8 @@ fn main() -> Result<()> {
     let escape_timings_path = Path::new("data/escape_timings.json");
     let start_locations_path = Path::new("data/start_locations.json");
     let hub_locations_path = Path::new("data/hub_locations.json");
+    let mosaic_path = Path::new("../Mosaic");
+
     let game_data = GameData::load(
         sm_json_data_path,
         room_geometry_path,
@@ -38,6 +40,7 @@ fn main() -> Result<()> {
         escape_timings_path,
         start_locations_path,
         hub_locations_path,
+        mosaic_path,
     )?;
 
     // let vertex_id_src = game_data.vertex_isv.index_by_key[&(77, 1, 0)];

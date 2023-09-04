@@ -1,3 +1,6 @@
+pub mod themed_retiling;
+mod smart_xml;
+
 use anyhow::{bail, ensure, Context, Result};
 // use log::info;
 use crate::customize::room_palettes::decode_palette;
@@ -12,6 +15,8 @@ use std::hash::Hash;
 use std::path::{Path, PathBuf};
 use strum::VariantNames;
 use strum_macros::{EnumString, EnumVariantNames};
+
+use self::themed_retiling::RetiledThemeData;
 
 #[derive(Deserialize, Clone)]
 pub struct Map {
@@ -432,11 +437,12 @@ pub struct EnemyVulnerabilities {
     pub power_bomb_damage: i32,
 }
 
-pub struct ThemedTileset {
+pub struct ThemedPaletteTileset {
     pub palette: [[u8; 3]; 128],
     pub gfx8x8: Vec<u8>,
     pub gfx16x16: Vec<u8>,
 }
+
 
 // TODO: Clean this up, e.g. pull out a separate structure to hold
 // temporary data used only during loading, replace any
@@ -502,7 +508,8 @@ pub struct GameData {
     pub strat_area: HashMap<String, String>,
     pub strat_room: HashMap<String, String>,
     pub strat_description: HashMap<String, String>,
-    pub tileset_palette_themes: Vec<HashMap<TilesetIdx, ThemedTileset>>,
+    pub tileset_palette_themes: Vec<HashMap<TilesetIdx, ThemedPaletteTileset>>,
+    pub retiled_theme_data: Option<RetiledThemeData>,
     pub escape_timings: Vec<EscapeTimingRoom>,
     pub start_locations: Vec<StartLocation>,
     pub hub_locations: Vec<HubLocation>,
@@ -2454,7 +2461,7 @@ impl GameData {
             "tourian",
         ].into_iter().enumerate() {
             let sce_path = base_path.join(area).join("Export/Tileset/SCE");
-            let mut pal_map: HashMap<TilesetIdx, ThemedTileset> = HashMap::new();
+            let mut pal_map: HashMap<TilesetIdx, ThemedPaletteTileset> = HashMap::new();
             for tileset_dir in std::fs::read_dir(sce_path)? {
                 let tileset_dir = tileset_dir?;
                 let tileset_idx =
@@ -2476,7 +2483,7 @@ impl GameData {
                 let gfx16x16_path = tileset_path.join("16x16tiles.ttb");
                 let gfx16x16_bytes = std::fs::read(gfx16x16_path)?;
                 
-                pal_map.insert(tileset_idx, ThemedTileset { 
+                pal_map.insert(tileset_idx, ThemedPaletteTileset { 
                     palette,
                     gfx8x8: gfx8x8_bytes,
                     gfx16x16: gfx16x16_bytes,
@@ -2520,6 +2527,7 @@ impl GameData {
         escape_timings_path: &Path,
         start_locations_path: &Path,
         hub_locations_path: &Path,
+        mosaic_path: &Path,
     ) -> Result<GameData> {
         let mut game_data = GameData::default();
         game_data.sm_json_data_path = sm_json_data_path.to_owned();
@@ -2665,6 +2673,7 @@ impl GameData {
         ];
         // game_data.load_palette(palette_path)?;
         game_data.load_themes(palette_theme_path)?;
+        game_data.retiled_theme_data = Some(themed_retiling::load_theme_data(mosaic_path)?);
 
         Ok(game_data)
     }

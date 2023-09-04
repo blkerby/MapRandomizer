@@ -1,14 +1,17 @@
 next release:
-- add scottrick & SMME to credits/about
-  - add note about intro music to release notes
-
+- optimize/speed up the randomizer
+  - start logging the seed generation latency
+- prototype of retiling (debug mode only)
+- use resetRoom in randomizer: unclear obstacles
+  - add resetRoom to PCJR Mella farm (see if it's missing in others)
 
 priority:
+- try using other zebes asleep music, to see if snails make a sound?
+- make script to convert norfair cre to cre.
 - add door flags to refine logic
 - add door lock bypass strats to logic
 - balance door randomization across areas to avoid running out of tiles?
   - handle lack of tiles more gracefully?
-- optimize/speed up the randomizer
 - randomized title screen
 - controller config special settings (moonwalk) customization
 - set up a more robust way for users to save & select presets
@@ -232,7 +235,6 @@ later:
 - Make Gravity-only Samus palette different from Gravity+Varia.
     - Figure out how this can work with custom sprites.
 - Consider rejecting cases where the set of bireachable item locations grows too slow or too fast.
-- fix color of reserve tank energy in equipment menu (got messed up by colored arrows)
 - move GFX colors:
   - Morph Ball room (blue brinstar), tileset 7:
     - [0x31, 0x32, 0x33] -> [0x38, 0x39, 0x3A]
@@ -249,7 +251,6 @@ maybe someday?:
 - minimizer mode? (select rooms to include randomly, hand-picked, and/or user-selected)
 - make map rando for other hacks (e.g. project base, subversion?)
   - would be a lot of work. we could invite others to help implement the logic
-- multitroid support
 
 
 rejected ideas (probably):

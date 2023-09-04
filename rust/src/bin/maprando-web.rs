@@ -1480,6 +1480,7 @@ fn build_app_data() -> AppData {
         Path::new("../maps/session-2023-06-08T14:55:16.779895.pkl-bk24-subarea-balance-2");
     let samus_sprites_path = Path::new("../MapRandoSprites/samus_sprites/manifest.json");
     // let samus_spritesheet_layout_path = Path::new("data/samus_spritesheet_layout.json");
+    let mosaic_path = Path::new("../Mosaic");
 
     let game_data = GameData::load(
         sm_json_data_path,
@@ -1488,6 +1489,7 @@ fn build_app_data() -> AppData {
         escape_timings_path,
         start_locations_path,
         hub_locations_path,
+        mosaic_path,
     )
     .unwrap();
     // let samus_customizer = SamusSpriteCustomizer::new(samus_spritesheet_layout_path).unwrap();

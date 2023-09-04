@@ -1,4 +1,4 @@
-FROM rust:1.67.0 as build
+FROM rust:1.72.0 as build
 
 # First get Cargo to download the crates.io index (which takes a long time)
 RUN cargo new --bin rust

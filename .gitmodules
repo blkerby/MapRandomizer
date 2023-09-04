@@ -9,3 +9,6 @@
 	path = SpriteSomething
 	url = https://github.com/Artheau/SpriteSomething
 	branch = expanded
+[submodule "Mosaic"]
+	path = Mosaic
+	url = https://github.com/amoebaOfDoom/Mosaic
