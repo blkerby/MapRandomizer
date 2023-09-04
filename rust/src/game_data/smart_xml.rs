@@ -100,7 +100,7 @@ pub struct LevelData {
     pub layer_2: Layer2,
 }
 
-#[derive(Debug, Deserialize, Default)]
+#[derive(Debug, Deserialize, Default, PartialEq, Eq, Hash, Clone)]
 pub struct BGDataData {
     #[serde(rename="Type", default)]
     pub type_: String,
@@ -112,7 +112,7 @@ pub struct BGDataData {
     pub size: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, PartialEq, Eq, Hash, Clone)]
 pub struct BGData {
     #[serde(rename="Data", default)]
     pub data: Vec<BGDataData>,

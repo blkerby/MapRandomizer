@@ -12,13 +12,14 @@ use base64::Engine;
 use clap::Parser;
 use hashbrown::{HashMap, HashSet};
 use log::{error, info};
-use maprando::customize::{customize_rom, CustomizeSettings, MusicSettings};
+use maprando::customize::{customize_rom, AreaTheming, CustomizeSettings, MusicSettings};
 use maprando::game_data::{GameData, IndexedVec, Item};
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::{make_rom, Rom};
 use maprando::randomize::{
-    DebugOptions, DifficultyConfig, ItemMarkers, ItemDotChange, ItemPlacementStyle, ItemPriorityGroup,
-    MotherBrainFight, Objectives, Randomization, Randomizer, DoorsMode, randomize_doors, SaveAnimals,
+    randomize_doors, DebugOptions, DifficultyConfig, DoorsMode, ItemDotChange, ItemMarkers,
+    ItemPlacementStyle, ItemPriorityGroup, MotherBrainFight, Objectives, Randomization, Randomizer,
+    SaveAnimals,
 };
 use maprando::seed_repository::{Seed, SeedFile, SeedRepository};
 use maprando::spoiler_map;
@@ -717,7 +718,13 @@ async fn customize_seed(
             None
         },
         vanilla_screw_attack_animation: req.vanilla_screw_attack_animation.0,
-        area_themed_palette: req.room_palettes.0 == "area-themed",
+        area_theming: if app_data.debug {
+            AreaTheming::Tiles
+        } else if req.room_palettes.0 == "area-themed" {
+            AreaTheming::Palettes
+        } else {
+            AreaTheming::Vanilla
+        },
         music: match req.music.0.as_str() {
             "vanilla" => MusicSettings::Vanilla,
             "area" => MusicSettings::AreaThemed,
@@ -725,11 +732,15 @@ async fn customize_seed(
             _ => panic!("Unexpected music option: {}", req.music.0.as_str()),
         },
         disable_beeping: req.disable_beeping.0,
-        etank_color: if req.custom_etank_color.0 { Some((
-            u8::from_str_radix(&req.etank_color.0[0..2], 16).unwrap() / 8,
-            u8::from_str_radix(&req.etank_color.0[2..4], 16).unwrap() / 8,
-            u8::from_str_radix(&req.etank_color.0[4..6], 16).unwrap() / 8,
-        )) } else { None },
+        etank_color: if req.custom_etank_color.0 {
+            Some((
+                u8::from_str_radix(&req.etank_color.0[0..2], 16).unwrap() / 8,
+                u8::from_str_radix(&req.etank_color.0[2..4], 16).unwrap() / 8,
+                u8::from_str_radix(&req.etank_color.0[4..6], 16).unwrap() / 8,
+            ))
+        } else {
+            None
+        },
     };
     info!("CustomizeSettings: {:?}", settings);
     match customize_rom(
@@ -1177,8 +1188,14 @@ async fn randomize(
         door_randomization_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
         item_placement_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
         info!("Map seed={map_seed}, door randomization seed={door_randomization_seed}, item placement seed={item_placement_seed}");
-        let locked_doors = randomize_doors(&app_data.game_data, &map, &difficulty_tiers[0], door_randomization_seed);
-        let randomizer = Randomizer::new(&map, &locked_doors, &difficulty_tiers, &app_data.game_data);
+        let locked_doors = randomize_doors(
+            &app_data.game_data,
+            &map,
+            &difficulty_tiers[0],
+            door_randomization_seed,
+        );
+        let randomizer =
+            Randomizer::new(&map, &locked_doors, &difficulty_tiers, &app_data.game_data);
         randomization = match randomizer.randomize(item_placement_seed, display_seed) {
             Ok(r) => r,
             Err(e) => {

@@ -2,6 +2,7 @@ use crate::{
     game_data::{AreaIdx, GameData, TilesetIdx},
     patch::{compress::compress, snes2pc, pc2snes, Rom},
 };
+use super::Allocator;
 use anyhow::{Result, bail};
 use hashbrown::HashMap;
 use hashbrown::hash_map::Entry;
@@ -194,39 +195,6 @@ fn fix_mother_brain(rom: &mut Rom, game_data: &GameData) -> Result<()> {
     Ok(())
 }
 
-struct AllocatorBlock {
-    start_addr: usize,
-    end_addr: usize,
-    current_addr: usize
-}
-
-struct Allocator {
-    blocks: Vec<AllocatorBlock>,
-}
-
-impl Allocator {
-    pub fn new(blocks: Vec<(usize, usize)>) -> Self {
-        Allocator {
-            blocks: blocks.into_iter().map(|(start, end)| AllocatorBlock {
-                start_addr: start,
-                end_addr: end,
-                current_addr: start,
-            }).collect()
-        }
-    }
-
-    pub fn allocate(&mut self, size: usize) -> Result<usize> {
-        for block in &mut self.blocks {
-            if block.end_addr - block.current_addr >= size {
-                let addr = block.current_addr;
-                block.current_addr += size;
-                // println!("success: allocated {} bytes: ending at {:x}", size, pc2snes(block.current_addr));
-                return Ok(addr);
-            }
-        }
-        bail!("Failed to allocate {} bytes", size);
-    }
-}
 
 pub fn apply_area_themed_palettes(rom: &mut Rom, game_data: &GameData) -> Result<()> {
     let new_tile_table_snes = 0x8FF900;
