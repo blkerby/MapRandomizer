@@ -36,4 +36,4 @@ COPY room_geometry.json /
 COPY palette_smart_exports /palette_smart_exports
 COPY visualizer /visualizer
 WORKDIR /rust
-CMD ["/rust/maprando-web"]
+ENTRYPOINT ["/rust/maprando-web"]
