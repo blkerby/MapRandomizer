@@ -1,3 +1,5 @@
+use std::alloc::GlobalAlloc;
+
 use super::Allocator;
 use crate::{
     game_data::{GameData, AreaIdx, TilesetIdx, RoomPtr},
@@ -25,7 +27,7 @@ pub fn apply_retiling(rom: &mut Rom, game_data: &GameData) -> Result<()> {
         (snes2pc(0xE6B000), snes2pc(0xE70000)),
         (snes2pc(0xE7B000), snes2pc(0xE80000)),
         (snes2pc(0xE99000), snes2pc(0xEA0000)),
-        (snes2pc(0xEA8000), snes2pc(0xFFFFFF)),
+        (snes2pc(0xEA8000), snes2pc(0xF80000)),
     ]);
 
     let mut pal_map: HashMap<Vec<u8>, usize> = HashMap::new();
@@ -33,16 +35,34 @@ pub fn apply_retiling(rom: &mut Rom, game_data: &GameData) -> Result<()> {
     let mut gfx16_map: HashMap<Vec<u8>, usize> = HashMap::new();
     let mut level_data_map: HashMap<Vec<u8>, usize> = HashMap::new();
 
-    // let mut tile_table: Vec<u8> = rom.read_n(snes2pc(0x8FE6A2), next_tile_idx * 9)?.to_vec();
     let base_theme = &retiled_theme_data.themes["Base"];
     let num_tilesets = base_theme.sce_tilesets.keys().max().unwrap() + 1;
     assert!(new_tile_pointers_snes + 2 * num_tilesets <= tile_pointers_free_space_end);
 
+    // Write CRE 8x8 tile graphics and update pointers to it:
+    let cre_gfx8x8_addr = allocator.allocate(retiled_theme_data.cre_tileset.compressed_gfx8x8.len())?;
+    rom.write_n(cre_gfx8x8_addr, &retiled_theme_data.cre_tileset.compressed_gfx8x8)?;
+    rom.write_u8(snes2pc(0x82E415), (pc2snes(cre_gfx8x8_addr) >> 16) as isize)?;
+    rom.write_u16(snes2pc(0x82E419), (pc2snes(cre_gfx8x8_addr) & 0xFFFF) as isize)?;
+    rom.write_u8(snes2pc(0x82E797), (pc2snes(cre_gfx8x8_addr) >> 16) as isize)?;
+    rom.write_u16(snes2pc(0x82E79B), (pc2snes(cre_gfx8x8_addr) & 0xFFFF) as isize)?;
+    
+    // Write CRE 16x16 tile graphics and update pointers to it:
+    let cre_gfx16x16_addr = allocator.allocate(retiled_theme_data.cre_tileset.compressed_gfx16x16.len())?;
+    rom.write_n(cre_gfx16x16_addr, &retiled_theme_data.cre_tileset.compressed_gfx16x16)?;
+    rom.write_u8(snes2pc(0x82E83D), (pc2snes(cre_gfx16x16_addr) >> 16) as isize)?;
+    rom.write_u16(snes2pc(0x82E841), (pc2snes(cre_gfx16x16_addr) & 0xFFFF) as isize)?;
+    rom.write_u8(snes2pc(0x82EAED), (pc2snes(cre_gfx16x16_addr) >> 16) as isize)?;
+    rom.write_u16(snes2pc(0x82EAF1), (pc2snes(cre_gfx16x16_addr) & 0xFFFF) as isize)?;
+    
+    // Write SCE tileset:
     for (&tileset_idx, tileset) in base_theme.sce_tilesets.iter() {
         if tileset_idx >= 0x0F && tileset_idx <= 0x14 {
             // Skip Ceres tilesets
             continue;
         }
+
+        // Write SCE palette:
         let compressed_pal = &tileset.compressed_palette;
         let pal_addr = match pal_map.entry(compressed_pal.clone()) {
             Entry::Occupied(x) => *x.get(),
@@ -54,6 +74,7 @@ pub fn apply_retiling(rom: &mut Rom, game_data: &GameData) -> Result<()> {
         };
         rom.write_n(pal_addr, &compressed_pal)?;
 
+        // Write SCE 8x8 graphics:
         let compressed_gfx8 = &tileset.compressed_gfx8x8;
         let gfx8_addr = match gfx8_map.entry(compressed_gfx8.clone()) {
             Entry::Occupied(x) => *x.get(),
@@ -65,6 +86,7 @@ pub fn apply_retiling(rom: &mut Rom, game_data: &GameData) -> Result<()> {
         };
         rom.write_n(gfx8_addr, &compressed_gfx8)?;
 
+        // Write SCE 16x16 graphics:
         let compressed_gfx16 = &tileset.compressed_gfx16x16;
         let gfx16_addr = match gfx16_map.entry(compressed_gfx16.clone()) {
             Entry::Occupied(x) => *x.get(),
@@ -76,6 +98,7 @@ pub fn apply_retiling(rom: &mut Rom, game_data: &GameData) -> Result<()> {
         };
         rom.write_n(gfx16_addr, &compressed_gfx16)?;
 
+        // Update tileset pointers:
         let tile_table_entry_addr = new_tile_table_snes + 9 * tileset_idx;
         rom.write_u24(snes2pc(tile_table_entry_addr), pc2snes(gfx16_addr) as isize)?;
         rom.write_u24(snes2pc(tile_table_entry_addr + 3), pc2snes(gfx8_addr) as isize)?;
@@ -94,6 +117,7 @@ pub fn apply_retiling(rom: &mut Rom, game_data: &GameData) -> Result<()> {
         (new_tile_pointers_snes & 0xFFFF) as isize,
     )?;
 
+    // Create mapping of room pointers and vanilla BGData pointers:
     let mut room_ptr_map: HashMap<(usize, usize), RoomPtr> = HashMap::new();
     let mut bg_ptr_map: HashMap<(usize, usize, usize), u16> = HashMap::new();
     for &room_ptr in game_data.room_ptr_by_id.values() {
@@ -108,6 +132,7 @@ pub fn apply_retiling(rom: &mut Rom, game_data: &GameData) -> Result<()> {
         }
     }
 
+    // Write room level data:
     let theme = &retiled_theme_data.themes["OuterCrateria"];
     for room in &theme.rooms {
         let room_ptr_opt = room_ptr_map.get(&(room.area, room.index));
@@ -141,8 +166,6 @@ pub fn apply_retiling(rom: &mut Rom, game_data: &GameData) -> Result<()> {
                 }
             };
             rom.write_n(level_data_addr, &level_data)?;
-    
-            println!("{:x} {:x}", pc2snes(level_data_addr), state_ptr);
             rom.write_u24(state_ptr, pc2snes(level_data_addr) as isize)?;
         }
     }
