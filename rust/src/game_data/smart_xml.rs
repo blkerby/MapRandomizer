@@ -20,8 +20,16 @@ where
     Ok(out)
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct FX1 {
+    #[serde(deserialize_with="from_hex", default)]
+    pub roomarea: usize,
+    #[serde(deserialize_with="from_hex", default)]
+    pub roomindex: usize,
+    #[serde(deserialize_with="from_hex", default)]
+    pub fromdoor: usize,
+    #[serde(default)]
+    pub default: bool,
     #[serde(deserialize_with="from_hex")]
     pub surfacestart: usize,
     #[serde(deserialize_with="from_hex")]
@@ -52,7 +60,7 @@ pub struct FX1List {
     pub fx1: Vec<FX1>,
 }
 
-#[derive(Debug, Deserialize, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, Deserialize, PartialEq, Eq)]
 pub enum Layer2Type {
     Layer2,
     BGData,

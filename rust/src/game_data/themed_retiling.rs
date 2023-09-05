@@ -13,7 +13,7 @@ fn compress_lookup(data: &[u8], name: &str) -> Result<Vec<u8>> {
     let digest = crypto_hash::hex_digest(crypto_hash::Algorithm::SHA256, &data);
     let path = Path::new(COMPRESSED_LOOKUP_PATH).join(digest);
     let data =
-        std::fs::read(path).with_context(|| format!("Unable to read compressed data for {}", name))?;
+        std::fs::read(path).with_context(|| format!("Unable to read compressed data for {}. Need to re-run compress-retiling?", name))?;
     Ok(data)
 }
 
@@ -24,12 +24,36 @@ pub struct BGDataReference {
     pub room_state_index: usize,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct FX1Reference {
+    pub room_area: usize,
+    pub room_index: usize,
+    pub state_index: usize,
+    pub fx_index: usize,
+}
+
+#[derive(Debug, PartialEq, Eq, Hash, Clone)]
+pub struct FX1Door {
+    pub room_area: usize,
+    pub room_index: usize,
+    pub door_index: usize,
+}
+
+pub struct FX1 {
+    pub fx1_reference: Option<FX1Reference>,
+    pub fx1_door: Option<FX1Door>,
+    pub fx1_data: smart_xml::FX1,
+}
+
 pub struct RetiledRoomState {
     pub tileset_idx: u8,
     pub compressed_level_data: Vec<u8>,
+    pub layer2_type: smart_xml::Layer2Type,
     pub bgdata_content: smart_xml::BGData,
     pub bgdata_reference: Option<BGDataReference>,
-    // TODO: add FX
+    pub bg_scroll_speed_x: u8,
+    pub bg_scroll_speed_y: u8,
+    pub fx1: Vec<FX1>,
 }
 
 pub struct RetiledRoom {
@@ -133,6 +157,18 @@ pub fn extract_uncompressed_level_data(state_xml: &smart_xml::RoomState) -> Vec<
     level_data
 }
 
+fn make_fx1(fx1: &smart_xml::FX1) -> FX1 {
+    FX1 { 
+        fx1_reference: None, 
+        fx1_door: if fx1.default { None } else { Some(FX1Door {
+            room_area: fx1.roomarea,
+            room_index: fx1.roomindex,
+            door_index: fx1.fromdoor,
+        })}, 
+        fx1_data: fx1.clone() 
+    }
+}
+
 fn load_room(room_path: &Path) -> Result<RetiledRoom> {
     let room_str = std::fs::read_to_string(room_path)?;
     println!("{}: {}", room_path.display(), room_str.len());
@@ -144,11 +180,16 @@ fn load_room(room_path: &Path) -> Result<RetiledRoom> {
         //     println!("{}:\n {:?}", room_path.display(), level_data);
         // }
         let compressed_level_data = compress_lookup(&level_data, room_path.to_str().unwrap())?;
+
         let state = RetiledRoomState {
             tileset_idx: state_xml.gfx_set as u8,
             compressed_level_data,
+            layer2_type: state_xml.layer2_type,
             bgdata_content: state_xml.bg_data.clone(),
             bgdata_reference: None,
+            bg_scroll_speed_x: state_xml.layer2_xscroll as u8,
+            bg_scroll_speed_y: state_xml.layer2_yscroll as u8,
+            fx1: state_xml.fx1s.fx1.iter().map(make_fx1).collect(),
         };
         states.push(state);
     }
@@ -264,6 +305,49 @@ fn resolve_bgdata_references(
     }
 }
 
+fn make_fx_mapping(base_theme: &RetiledTheme) -> HashMap<FX1Door, FX1Reference> {
+    let mut out = HashMap::new();
+    for room in &base_theme.rooms {
+        for (i, state) in room.states.iter().enumerate() {
+            for (j, fx) in state.fx1.iter().enumerate() {
+                if let Some(door) = &fx.fx1_door {
+                    out.insert(
+                        door.clone(),
+                        FX1Reference {
+                            room_area: room.area,
+                            room_index: room.index,
+                            state_index: i,
+                            fx_index: j,
+                        },
+                    );    
+                }
+            }
+        }
+    }
+    out
+}
+
+fn resolve_fx_references(
+    theme: &mut RetiledTheme,
+    fx_mapping: &HashMap<FX1Door, FX1Reference>,
+) {
+    for room in &mut theme.rooms {
+        for (i, state) in (&mut room.states).iter_mut().enumerate() {
+            for (j, fx) in state.fx1.iter_mut().enumerate() {
+                if let Some(door) = &fx.fx1_door {
+                    let r = fx_mapping.get(door);
+
+                    if let Some(fx_ref) = r {
+                        fx.fx1_reference = Some(fx_ref.clone());
+                    } else {
+                        panic!("Unrecognized FX door in room {}, state {}, FX {}", room.path, i, j);
+                    }
+                }
+            }
+        }
+    }
+}
+
 pub fn load_theme_data(mosaic_path: &Path) -> Result<RetiledThemeData> {
     let cre_tileset = load_cre_tileset(mosaic_path)?;
     let theme_names = ["Base", "OuterCrateria"];
@@ -271,10 +355,13 @@ pub fn load_theme_data(mosaic_path: &Path) -> Result<RetiledThemeData> {
     for name in theme_names {
         themes.insert(name.to_string(), load_theme(mosaic_path, name)?);
     }
-    let base_theme = &themes["Base"];
-    let bg_mapping = make_bgdata_mapping(base_theme);
+    let bg_mapping = make_bgdata_mapping(&themes["Base"]);
     for theme in themes.values_mut() {
         resolve_bgdata_references(theme, &bg_mapping);
+    }
+    let fx_mapping = make_fx_mapping(&themes["Base"]);
+    for theme in themes.values_mut() {
+        resolve_fx_references(theme, &fx_mapping);
     }
     Ok(RetiledThemeData {
         themes,

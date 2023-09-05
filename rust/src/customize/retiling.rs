@@ -1,15 +1,54 @@
-use std::alloc::GlobalAlloc;
+use std::{alloc::GlobalAlloc, path::Path};
 
 use super::Allocator;
 use crate::{
-    game_data::{GameData, AreaIdx, TilesetIdx, RoomPtr},
-    patch::{snes2pc, pc2snes, Rom, get_room_state_ptrs},
+    game_data::{GameData, AreaIdx, TilesetIdx, RoomPtr, smart_xml::{Layer2Type}, themed_retiling::{FX1, FX1Reference}, DoorPtr},
+    patch::{snes2pc, pc2snes, Rom, get_room_state_ptrs, apply_ips_patch},
 };
-use anyhow::{bail, Result};
+use anyhow::{bail, Result, Context};
 use hashbrown::hash_map::Entry;
 use hashbrown::HashMap;
 
+fn get_fx_data(fx_list: &[FX1], fx_door_ptr_map: &HashMap<FX1Reference, DoorPtr>) -> Result<Vec<u8>> {
+    let mut out: Vec<u8> = vec![];
+    for fx in fx_list {
+        if fx.fx1_data.default {
+            out.extend(0u16.to_le_bytes());
+        } else {
+            let fx_ref = fx.fx1_reference.context("Missing door info for non-default FX")?;
+            let door_ptr = *fx_door_ptr_map.get(&fx_ref).context("Unrecognized FX door info")?;
+            out.extend((door_ptr as u16).to_le_bytes());
+        }
+        out.extend((fx.fx1_data.surfacestart as u16).to_le_bytes());
+        out.extend((fx.fx1_data.surfacenew as u16).to_le_bytes());
+        out.extend((fx.fx1_data.surfacespeed as u16).to_le_bytes());
+        out.extend([fx.fx1_data.surfacedelay as u8]);
+        out.extend([fx.fx1_data.type_ as u8]);
+        out.extend([fx.fx1_data.transparency1_a as u8]);
+        out.extend([fx.fx1_data.transparency2_b as u8]);
+        out.extend([fx.fx1_data.liquidflags_c as u8]);
+        out.extend([fx.fx1_data.paletteflags as u8]);
+        out.extend([fx.fx1_data.animationflags as u8]);
+        out.extend([fx.fx1_data.paletteblend as u8]);
+    }
+    if out.len() == 0 {
+        out.extend(vec![0xFF, 0xFF]);
+    }
+    Ok(out)
+}
+
 pub fn apply_retiling(rom: &mut Rom, game_data: &GameData) -> Result<()> {
+    let patch_names = vec![
+        "Scrolling Sky v1.5",
+        // "Area FX",
+        // "area_fx",
+        "Bowling",
+    ];
+    for name in &patch_names {
+        let patch_path_str = format!("../patches/ips/{}.ips", name);
+        apply_ips_patch(rom, Path::new(&patch_path_str))?;    
+    }
+
     let retiled_theme_data = game_data.retiled_theme_data.as_ref().unwrap();
 
     let new_tile_table_snes = 0x8FF900;
@@ -30,10 +69,17 @@ pub fn apply_retiling(rom: &mut Rom, game_data: &GameData) -> Result<()> {
         (snes2pc(0xEA8000), snes2pc(0xF80000)),
     ]);
 
+    let mut fx_allocator = Allocator::new(vec![
+        (snes2pc(0x838000), snes2pc(0x8388FC)),
+        (snes2pc(0x839AC2), snes2pc(0x83A18A)),
+        (snes2pc(0x83F000), snes2pc(0x840000)),
+    ]);
+
     let mut pal_map: HashMap<Vec<u8>, usize> = HashMap::new();
     let mut gfx8_map: HashMap<Vec<u8>, usize> = HashMap::new();
     let mut gfx16_map: HashMap<Vec<u8>, usize> = HashMap::new();
     let mut level_data_map: HashMap<Vec<u8>, usize> = HashMap::new();
+    let mut fx_data_map: HashMap<Vec<u8>, usize> = HashMap::new();
 
     let base_theme = &retiled_theme_data.themes["Base"];
     let num_tilesets = base_theme.sce_tilesets.keys().max().unwrap() + 1;
@@ -117,9 +163,10 @@ pub fn apply_retiling(rom: &mut Rom, game_data: &GameData) -> Result<()> {
         (new_tile_pointers_snes & 0xFFFF) as isize,
     )?;
 
-    // Create mapping of room pointers and vanilla BGData pointers:
+    // Create mapping of room pointers, BGData pointers, and FX door pointers:
     let mut room_ptr_map: HashMap<(usize, usize), RoomPtr> = HashMap::new();
     let mut bg_ptr_map: HashMap<(usize, usize, usize), u16> = HashMap::new();
+    let mut fx_door_ptr_map: HashMap<FX1Reference, DoorPtr> = HashMap::new();
     for &room_ptr in game_data.room_ptr_by_id.values() {
         let area = rom.read_u8(room_ptr + 1)?;
         let index = rom.read_u8(room_ptr)?;
@@ -129,10 +176,24 @@ pub fn apply_retiling(rom: &mut Rom, game_data: &GameData) -> Result<()> {
         for (state_idx, (_event_ptr, state_ptr)) in state_ptrs.iter().enumerate() {
             let bg_ptr = rom.read_u16(state_ptr + 22)? as u16;
             bg_ptr_map.insert((area as usize, index as usize, state_idx), bg_ptr);
+
+            let fx_ptr = rom.read_u16(state_ptr + 6)? as usize;
+            for i in 0..4 {
+                let door_ptr = rom.read_u16(snes2pc(0x830000 + fx_ptr + i * 16))?;
+                if door_ptr == 0 {
+                    break;
+                }
+                fx_door_ptr_map.insert(FX1Reference {
+                    room_area: area as usize,
+                    room_index: index as usize,
+                    state_index: state_idx as usize,
+                    fx_index: i,
+                }, door_ptr as DoorPtr);
+            }
         }
     }
 
-    // Write room level data:
+    // Write room data:
     let theme = &retiled_theme_data.themes["OuterCrateria"];
     for room in &theme.rooms {
         let room_ptr_opt = room_ptr_map.get(&(room.area, room.index));
@@ -148,14 +209,30 @@ pub fn apply_retiling(rom: &mut Rom, game_data: &GameData) -> Result<()> {
             let state = &room.states[state_idx];
             let (_event_ptr, state_ptr) = state_ptrs[state_idx];
 
+            // Write the tileset index
             rom.write_u8(state_ptr + 3, state.tileset_idx as isize)?;
-            if let Some(bg_ref) = &state.bgdata_reference {
+
+            // Write (or clear) the BGData pointer:
+            if state.layer2_type == Layer2Type::BGData {
+                let bg_ref = state.bgdata_reference.as_ref().unwrap();
                 let bg_ptr = bg_ptr_map[&(bg_ref.room_area, bg_ref.room_index, bg_ref.room_state_index)];
                 rom.write_u16(state_ptr + 22, bg_ptr as isize)?;
             } else {
                 rom.write_u16(state_ptr + 22, 0)?;
             }
 
+            // Write BG scroll speeds:
+            println!("{:x} {:x}", state.bg_scroll_speed_x, state.bg_scroll_speed_y);
+            let mut speed_x = state.bg_scroll_speed_x;
+            let mut speed_y = state.bg_scroll_speed_y;
+            if state.layer2_type == Layer2Type::BGData { 
+                speed_x |= 0x01;
+                speed_y |= 0x01;
+            }
+            rom.write_u8(state_ptr + 12, speed_x as isize)?;
+            rom.write_u8(state_ptr + 13, speed_y as isize)?;
+
+            // Write level data:
             let level_data = &state.compressed_level_data;
             let level_data_addr = match level_data_map.entry(level_data.clone()) {
                 Entry::Occupied(x) => *x.get(),
@@ -167,6 +244,19 @@ pub fn apply_retiling(rom: &mut Rom, game_data: &GameData) -> Result<()> {
             };
             rom.write_n(level_data_addr, &level_data)?;
             rom.write_u24(state_ptr, pc2snes(level_data_addr) as isize)?;
+
+            // Write FX:
+            let fx_data = get_fx_data(&state.fx1, &fx_door_ptr_map)?;
+            let fx_data_addr = match fx_data_map.entry(fx_data.clone()) {
+                Entry::Occupied(x) => *x.get(),
+                Entry::Vacant(view) => {
+                    let addr = fx_allocator.allocate(fx_data.len())?;
+                    view.insert(addr);
+                    addr
+                }
+            };
+            rom.write_n(fx_data_addr, &fx_data)?;
+            rom.write_u16(state_ptr + 6, (pc2snes(fx_data_addr) & 0xFFFF) as isize)?;
         }
     }
 

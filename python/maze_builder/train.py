@@ -217,10 +217,10 @@ lr0 = 0.00005
 lr1 = 0.00005
 # lr_warmup_time = 16
 # lr_cooldown_time = 100
-num_candidates_min0 = 127.5
-num_candidates_max0 = 128.5
-num_candidates_min1 = 127.5
-num_candidates_max1 = 128.5
+num_candidates_min0 = 255.5
+num_candidates_max0 = 256.5
+num_candidates_min1 = 255.5
+num_candidates_max1 = 256.5
 
 # num_candidates0 = 40
 # num_candidates1 = 40
