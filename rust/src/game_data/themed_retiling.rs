@@ -1,19 +1,27 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
 use hashbrown::HashMap;
 use std::path::Path;
 
-use crate::{
-    game_data::smart_xml::{self, Layer2Type},
-    patch::compress::compress,
-};
+use crate::game_data::smart_xml::{self, Layer2Type};
 
 use super::smart_xml::Screen;
 
+// TODO: don't hard-code this
+static COMPRESSED_LOOKUP_PATH: &'static str = "../compressed_data";
+
+fn compress_lookup(data: &[u8], name: &str) -> Result<Vec<u8>> {
+    let digest = crypto_hash::hex_digest(crypto_hash::Algorithm::SHA256, &data);
+    let path = Path::new(COMPRESSED_LOOKUP_PATH).join(digest);
+    let data =
+        std::fs::read(path).with_context(|| format!("Unable to read compressed data for {}", name))?;
+    Ok(data)
+}
+
 #[derive(Debug, Clone)]
 pub struct BGDataReference {
-    room_area: usize,
-    room_index: usize,
-    room_state_index: usize,
+    pub room_area: usize,
+    pub room_index: usize,
+    pub room_state_index: usize,
 }
 
 pub struct RetiledRoomState {
@@ -25,6 +33,7 @@ pub struct RetiledRoomState {
 }
 
 pub struct RetiledRoom {
+    pub path: String,
     pub area: usize,
     pub index: usize,
     pub states: Vec<RetiledRoomState>,
@@ -52,8 +61,8 @@ pub struct RetiledThemeData {
     pub cre_tileset: RetiledCRETileset,
 }
 
-fn extract_screen_words(screen: &Screen, out: &mut [u8], width: usize, height: usize) {
-    let base_pos = (screen.y * width + screen.x) * 16 * 2;
+fn extract_screen_words(screen: &Screen, out: &mut [u8], width: usize, _height: usize) {
+    let base_pos = (screen.y * width * 256 + screen.x * 16) * 2;
     assert!(screen.data.len() == 256);
     for y in 0..16 {
         for x in 0..16 {
@@ -65,8 +74,8 @@ fn extract_screen_words(screen: &Screen, out: &mut [u8], width: usize, height: u
     }
 }
 
-fn extract_screen_bytes(screen: &Screen, out: &mut [u8], width: usize, height: usize) {
-    let base_pos = (screen.y * width + screen.x) * 16;
+fn extract_screen_bytes(screen: &Screen, out: &mut [u8], width: usize, _height: usize) {
+    let base_pos = screen.y * width * 256 + screen.x * 16;
     assert!(screen.data.len() == 256);
     for y in 0..16 {
         for x in 0..16 {
@@ -89,42 +98,52 @@ fn extract_all_screen_bytes(screens: &[Screen], out: &mut [u8], width: usize, he
     }
 }
 
+pub fn extract_uncompressed_level_data(state_xml: &smart_xml::RoomState) -> Vec<u8> {
+    let height = state_xml.level_data.height;
+    let width = state_xml.level_data.width;
+    let num_tiles = height * width * 256;
+    let level_data_size = if state_xml.layer2_type == Layer2Type::Layer2 {
+        2 + num_tiles * 5
+    } else {
+        2 + num_tiles * 3
+    };
+    let mut level_data = vec![0u8; level_data_size];
+    level_data[0] = ((num_tiles * 2) & 0xFF) as u8;
+    level_data[1] = ((num_tiles * 2) >> 8) as u8;
+    extract_all_screen_words(
+        &state_xml.level_data.layer_1.screen,
+        &mut level_data[2..],
+        width,
+        height,
+    );
+    extract_all_screen_bytes(
+        &state_xml.level_data.bts.screen,
+        &mut level_data[2 + num_tiles * 2..],
+        width,
+        height,
+    );
+    if state_xml.layer2_type == Layer2Type::Layer2 {
+        extract_all_screen_words(
+            &state_xml.level_data.layer_2.screen,
+            &mut level_data[2 + num_tiles * 3..],
+            width,
+            height,
+        );
+    }
+    level_data
+}
+
 fn load_room(room_path: &Path) -> Result<RetiledRoom> {
     let room_str = std::fs::read_to_string(room_path)?;
     println!("{}: {}", room_path.display(), room_str.len());
     let room: smart_xml::Room = serde_xml_rs::from_str(room_str.as_str()).unwrap();
     let mut states: Vec<RetiledRoomState> = vec![];
     for state_xml in &room.states.state {
-        let height = state_xml.level_data.height;
-        let width = state_xml.level_data.width;
-        let num_tiles = height * width * 256;
-        let level_data_size = if state_xml.layer2_type == Layer2Type::Layer2 {
-            num_tiles * 5
-        } else {
-            num_tiles * 3
-        };
-        let mut level_data = vec![0u8; level_data_size];
-        extract_all_screen_words(
-            &state_xml.level_data.layer_1.screen,
-            &mut level_data,
-            width,
-            height,
-        );
-        extract_all_screen_bytes(
-            &state_xml.level_data.bts.screen,
-            &mut level_data[num_tiles * 2..],
-            width,
-            height,
-        );
-        if state_xml.layer2_type == Layer2Type::Layer2 {
-            extract_all_screen_words(
-                &state_xml.level_data.layer_2.screen,
-                &mut level_data[num_tiles * 3..],
-                width,
-                height,
-            );
-        }
-        let compressed_level_data = compress(&level_data);
+        let level_data = extract_uncompressed_level_data(state_xml);
+        // if room_path.file_name().unwrap().to_str().unwrap().starts_with("LANDING SITE") {
+        //     println!("{}:\n {:?}", room_path.display(), level_data);
+        // }
+        let compressed_level_data = compress_lookup(&level_data, room_path.to_str().unwrap())?;
         let state = RetiledRoomState {
             tileset_idx: state_xml.gfx_set as u8,
             compressed_level_data,
@@ -133,11 +152,11 @@ fn load_room(room_path: &Path) -> Result<RetiledRoom> {
         };
         states.push(state);
     }
-    // println!("{:?}", room);
     Ok(RetiledRoom {
+        path: room_path.as_os_str().to_str().unwrap().to_string(),
         area: room.area,
         index: room.index,
-        states: vec![],
+        states,
     })
 }
 
@@ -156,12 +175,12 @@ fn load_cre_tileset(mosaic_path: &Path) -> Result<RetiledCRETileset> {
     let tileset_path = mosaic_path.join("Projects/Base/Export/Tileset/CRE/00/");
 
     let gfx8x8_path = tileset_path.join("8x8tiles.gfx");
-    let gfx8x8_bytes = std::fs::read(gfx8x8_path)?;
-    let compressed_gfx8x8 = compress(&gfx8x8_bytes);
+    let gfx8x8_bytes = std::fs::read(&gfx8x8_path)?;
+    let compressed_gfx8x8 = compress_lookup(&gfx8x8_bytes, gfx8x8_path.to_str().unwrap())?;
 
     let gfx16x16_path = tileset_path.join("16x16tiles.ttb");
-    let gfx16x16_bytes = std::fs::read(gfx16x16_path)?;
-    let compressed_gfx16x16 = compress(&gfx16x16_bytes);
+    let gfx16x16_bytes = std::fs::read(&gfx16x16_path)?;
+    let compressed_gfx16x16 = compress_lookup(&gfx16x16_bytes, gfx16x16_path.to_str().unwrap())?;
 
     Ok(RetiledCRETileset {
         compressed_gfx8x8,
@@ -179,16 +198,16 @@ fn load_all_sce_tilesets(project_path: &Path) -> Result<HashMap<usize, RetiledSC
         let tileset_path = tileset_dir.path();
 
         let palette_path = tileset_path.join("palette.snes");
-        let palette_bytes = std::fs::read(palette_path)?;
-        let compressed_palette = compress(&palette_bytes);
+        let palette_bytes = std::fs::read(&palette_path)?;
+        let compressed_palette = compress_lookup(&palette_bytes, palette_path.to_str().unwrap())?;
 
         let gfx8x8_path = tileset_path.join("8x8tiles.gfx");
-        let gfx8x8_bytes = std::fs::read(gfx8x8_path)?;
-        let compressed_gfx8x8 = compress(&gfx8x8_bytes);
+        let gfx8x8_bytes = std::fs::read(&gfx8x8_path)?;
+        let compressed_gfx8x8 = compress_lookup(&gfx8x8_bytes, gfx8x8_path.to_str().unwrap())?;
 
         let gfx16x16_path = tileset_path.join("16x16tiles.ttb");
-        let gfx16x16_bytes = std::fs::read(gfx16x16_path)?;
-        let compressed_gfx16x16 = compress(&gfx16x16_bytes);
+        let gfx16x16_bytes = std::fs::read(&gfx16x16_path)?;
+        let compressed_gfx16x16 = compress_lookup(&gfx16x16_bytes, gfx16x16_path.to_str().unwrap())?;
 
         let tileset = RetiledSCETileset {
             compressed_palette,
@@ -229,14 +248,17 @@ fn make_bgdata_mapping(base_theme: &RetiledTheme) -> HashMap<smart_xml::BGData, 
     out
 }
 
-fn resolve_bgdata_references(theme: &mut RetiledTheme, bg_mapping: &HashMap<smart_xml::BGData, BGDataReference>) {
+fn resolve_bgdata_references(
+    theme: &mut RetiledTheme,
+    bg_mapping: &HashMap<smart_xml::BGData, BGDataReference>,
+) {
     for room in &mut theme.rooms {
         for (i, state) in (&mut room.states).iter_mut().enumerate() {
             let r = bg_mapping.get(&state.bgdata_content);
             if let Some(bg_ref) = r {
                 state.bgdata_reference = Some(bg_ref.clone());
             } else {
-                panic!("Unrecognized BGData in area {}, room {}, state {}", room.area, room.index, i);
+                panic!("Unrecognized BGData in room {}, state {}", room.path, i);
             }
         }
     }
@@ -244,10 +266,7 @@ fn resolve_bgdata_references(theme: &mut RetiledTheme, bg_mapping: &HashMap<smar
 
 pub fn load_theme_data(mosaic_path: &Path) -> Result<RetiledThemeData> {
     let cre_tileset = load_cre_tileset(mosaic_path)?;
-    let theme_names = [
-        "Base",
-        "OuterCrateria",
-    ];
+    let theme_names = ["Base", "OuterCrateria"];
     let mut themes = HashMap::new();
     for name in theme_names {
         themes.insert(name.to_string(), load_theme(mosaic_path, name)?);

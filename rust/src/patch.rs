@@ -202,6 +202,30 @@ pub fn write_credits_big_char(rom: &mut Rom, c: char, addr: usize) -> Result<()>
     Ok(())
 }
 
+// Returns list of (event_ptr, state_ptr):
+pub fn get_room_state_ptrs(rom: &Rom, room_ptr: usize) -> Result<Vec<(usize, usize)>> {
+    let mut pos = 11;
+    let mut ptr_pairs: Vec<(usize, usize)> = Vec::new();
+    loop {
+        let ptr = rom.read_u16(room_ptr + pos)? as usize;
+        if ptr == 0xE5E6 {
+            // This is the standard state, which is the last one.
+            ptr_pairs.push((ptr, room_ptr + pos + 2));
+            return Ok(ptr_pairs);
+        } else if ptr == 0xE612 || ptr == 0xE629 {
+            // This is an event state.
+            let state_ptr = 0x70000 + rom.read_u16(room_ptr + pos + 3)?;
+            ptr_pairs.push((ptr, state_ptr as usize));
+            pos += 5;
+        } else {
+            // This is another kind of state.
+            let state_ptr = 0x70000 + rom.read_u16(room_ptr + pos + 2)?;
+            ptr_pairs.push((ptr, state_ptr as usize));
+            pos += 4;
+        }
+    }
+}
+
 pub fn apply_ips_patch(rom: &mut Rom, patch_path: &Path) -> Result<()> {
     let patch_data = std::fs::read(&patch_path)
         .with_context(|| format!("Unable to read patch {}", patch_path.display()))?;
@@ -849,30 +873,6 @@ impl<'a> Patcher<'a> {
         Ok(())
     }
 
-    // Returns list of (event_ptr, state_ptr):
-    fn get_room_state_ptrs(&self, room_ptr: usize) -> Result<Vec<(usize, usize)>> {
-        let mut pos = 11;
-        let mut ptr_pairs: Vec<(usize, usize)> = Vec::new();
-        loop {
-            let ptr = self.rom.read_u16(room_ptr + pos)? as usize;
-            if ptr == 0xE5E6 {
-                // This is the standard state, which is the last one.
-                ptr_pairs.push((ptr, room_ptr + pos + 2));
-                return Ok(ptr_pairs);
-            } else if ptr == 0xE612 || ptr == 0xE629 {
-                // This is an event state.
-                let state_ptr = 0x70000 + self.rom.read_u16(room_ptr + pos + 3)?;
-                ptr_pairs.push((ptr, state_ptr as usize));
-                pos += 5;
-            } else {
-                // This is another kind of state.
-                let state_ptr = 0x70000 + self.rom.read_u16(room_ptr + pos + 2)?;
-                ptr_pairs.push((ptr, state_ptr as usize));
-                pos += 4;
-            }
-        }
-    }
-
     fn apply_map_tile_patches(&mut self) -> Result<()> {
         map_tiles::MapPatcher::new(&mut self.rom, self.game_data, self.map, self.randomization, &self.locked_door_state_indices)
             .apply_patches()?;
@@ -913,7 +913,7 @@ impl<'a> Patcher<'a> {
         .map(|x| x.to_string())
         .collect();
         for room in &self.game_data.room_geometry {
-            let event_state_ptrs = self.get_room_state_ptrs(room.rom_address)?;
+            let event_state_ptrs = get_room_state_ptrs(&self.rom, room.rom_address)?;
             for &(event_ptr, state_ptr) in &event_state_ptrs {
                 let plm_set_ptr = self.rom.read_u16(state_ptr + 20)? as usize;
                 let mut ptr = plm_set_ptr + 0x70000;
@@ -1001,7 +1001,7 @@ impl<'a> Patcher<'a> {
             }
             let area = self.map.area[room_idx];
             let subarea = self.map.subarea[room_idx];
-            let event_state_ptrs = self.get_room_state_ptrs(room.rom_address)?;
+            let event_state_ptrs = get_room_state_ptrs(&self.rom, room.rom_address)?;
             for &(_event_ptr, state_ptr) in &event_state_ptrs {
                 let song = self.rom.read_u16(state_ptr + 4)? as u16;
                 if songs_to_keep.contains(&song) && room.name != "Golden Torizo Energy Recharge" {
@@ -1670,7 +1670,7 @@ impl<'a> Patcher<'a> {
         let mut next_addr = snes2pc(0xB5F800);
 
         for (&room_ptr, asm) in &self.extra_setup_asm {
-            for (_, state_ptr) in self.get_room_state_ptrs(room_ptr)? {
+            for (_, state_ptr) in get_room_state_ptrs(&self.rom, room_ptr)? {
                 let mut asm = asm.clone();
                 asm.push(0x60); // RTS
                 self.rom.write_n(next_addr, &asm)?;
@@ -1681,11 +1681,6 @@ impl<'a> Patcher<'a> {
         }
         assert!(next_addr <= snes2pc(0xB5FF00));
 
-        // for &room_ptr in self.game_data.room_id_by_ptr.keys() {
-        //     for (_, state_ptr) in self.get_room_state_ptrs(room_ptr)? {
-        //         println!("unused?: {:x} {:x} {:x}", room_ptr, pc2snes(state_ptr + 16), self.rom.read_u16(state_ptr + 16)?);
-        //     }
-        // }
         Ok(())
     }
 }

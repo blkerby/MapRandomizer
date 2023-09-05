@@ -1,5 +1,5 @@
 pub mod themed_retiling;
-mod smart_xml;
+pub mod smart_xml;
 
 use anyhow::{bail, ensure, Context, Result};
 // use log::info;
