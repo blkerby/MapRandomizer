@@ -434,7 +434,7 @@ org $849F09
   DW $0004, $2BBE, $2BBF, $2FBF, $2FBE
   DW $0000
 
-org $83B480
+org $83B800
 
 !NullGlow = $F745
 ;!Statue_3 = $F749

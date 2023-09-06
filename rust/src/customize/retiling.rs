@@ -168,7 +168,7 @@ pub fn apply_retiling(rom: &mut Rom, game_data: &GameData, theme_name: &str) -> 
     let mut room_ptr_map: HashMap<(usize, usize), RoomPtr> = HashMap::new();
     let mut bg_ptr_map: HashMap<(usize, usize, usize), u16> = HashMap::new();
     let mut fx_door_ptr_map: HashMap<FX1Reference, DoorPtr> = HashMap::new();
-    for &room_ptr in game_data.room_ptr_by_id.values() {
+    for &room_ptr in game_data.raw_room_id_by_ptr.keys() {
         let area = rom.read_u8(room_ptr + 1)?;
         let index = rom.read_u8(room_ptr)?;
         room_ptr_map.insert((area as usize, index as usize), room_ptr);
