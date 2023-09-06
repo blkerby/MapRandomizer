@@ -102,20 +102,6 @@
     </div>
 </div>
 
-<div class="row my-2">
-    <div class="col-sm-12">
-        <div class="card">
-            <div class="card-header">Known issues</div>
-            <div class="card-body">
-                <ul>
-                <li>Certain room combinations occur with high frequency (not much randomness).
-                <li>Minor graphical glitches often appear during door transitions.
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-
 <div>
     <a id="footnote-pit-room">
     <small>

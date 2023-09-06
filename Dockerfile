@@ -16,17 +16,12 @@ WORKDIR /maps
 RUN wget https://storage.googleapis.com/super-metroid-map-rando/maps/session-2023-06-08T14:55:16.779895.pkl-bk24-subarea-balance-2.tgz
 RUN mv session-2023-06-08T14:55:16.779895.pkl-bk24-subarea-balance-2.tgz maps.tar.gz && tar xfz maps.tar.gz
 
-# Now copy over everything else and build the real binary
+# Now copy over the source code and build the real binary
 COPY rust /rust
 WORKDIR /rust
 RUN cargo build --release --bin maprando-web
 
-# Now restart with a slim base image and just copy over the binary and data needed at runtime.
-#FROM debian:buster-slim
-#COPY --from=build /maps /maps
-#COPY --from=build /rust/data /rust/data
-#COPY --from=build /rust/static /rust/static
-#COPY --from=build /rust/target/release/maprando-web /rust
+# Now copy over data needed at runtime, that wasn't needed to build the binary.
 COPY Mosaic /Mosaic
 COPY compressed_data /compressed_data
 COPY patches /patches
