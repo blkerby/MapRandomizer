@@ -54,6 +54,8 @@ pub struct RetiledRoomState {
     pub bg_scroll_speed_x: u8,
     pub bg_scroll_speed_y: u8,
     pub fx1: Vec<FX1>,
+    pub setup_asm: u16,
+    pub main_asm: u16,
 }
 
 pub struct RetiledRoom {
@@ -171,14 +173,10 @@ fn make_fx1(fx1: &smart_xml::FX1) -> FX1 {
 
 fn load_room(room_path: &Path) -> Result<RetiledRoom> {
     let room_str = std::fs::read_to_string(room_path)?;
-    println!("{}: {}", room_path.display(), room_str.len());
     let room: smart_xml::Room = serde_xml_rs::from_str(room_str.as_str()).unwrap();
     let mut states: Vec<RetiledRoomState> = vec![];
     for state_xml in &room.states.state {
         let level_data = extract_uncompressed_level_data(state_xml);
-        // if room_path.file_name().unwrap().to_str().unwrap().starts_with("LANDING SITE") {
-        //     println!("{}:\n {:?}", room_path.display(), level_data);
-        // }
         let compressed_level_data = compress_lookup(&level_data, room_path.to_str().unwrap())?;
 
         let state = RetiledRoomState {
@@ -190,6 +188,8 @@ fn load_room(room_path: &Path) -> Result<RetiledRoom> {
             bg_scroll_speed_x: state_xml.layer2_xscroll as u8,
             bg_scroll_speed_y: state_xml.layer2_yscroll as u8,
             fx1: state_xml.fx1s.fx1.iter().map(make_fx1).collect(),
+            setup_asm: state_xml.layer1_2 as u16,
+            main_asm: state_xml.fx2 as u16,
         };
         states.push(state);
     }

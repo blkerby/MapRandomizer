@@ -246,7 +246,7 @@ fn main() -> Result<()> {
         samus_sprite: Some("samus".to_string()),
         // samus_sprite: None,
         vanilla_screw_attack_animation: true,
-        area_theming: maprando::customize::AreaTheming::Tiles,
+        area_theming: maprando::customize::AreaTheming::Tiles("OuterCrateria".to_string()),
         music: MusicSettings::AreaThemed,
         // music: MusicSettings::Vanilla,
         disable_beeping: false,

@@ -144,6 +144,10 @@ pub struct RoomState {
     pub layer2_yscroll: usize,
     #[serde(rename="BGData")]
     pub bg_data: BGData,
+    #[serde(rename="FX2", deserialize_with="from_hex")]
+    pub fx2: usize,
+    #[serde(rename="layer1_2", deserialize_with="from_hex")]
+    pub layer1_2: usize,
 }
 
 #[derive(Debug, Deserialize)]

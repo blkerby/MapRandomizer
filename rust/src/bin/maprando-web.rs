@@ -718,8 +718,8 @@ async fn customize_seed(
             None
         },
         vanilla_screw_attack_animation: req.vanilla_screw_attack_animation.0,
-        area_theming: if app_data.debug {
-            AreaTheming::Tiles
+        area_theming: if let Some(theme) = &app_data.mosaic_theme {
+            AreaTheming::Tiles(theme.to_owned())
         } else if req.room_palettes.0 == "area-themed" {
             AreaTheming::Palettes
         } else {
@@ -1412,6 +1412,8 @@ struct Args {
     #[arg(long, action)]
     debug: bool,
     #[arg(long, action)]
+    mosaic_theme: Option<String>,
+    #[arg(long, action)]
     static_visualizer: bool,
 }
 
@@ -1536,6 +1538,7 @@ fn build_app_data() -> AppData {
         samus_sprite_categories,
         // samus_customizer,
         debug: args.debug,
+        mosaic_theme: args.mosaic_theme,
         static_visualizer: args.static_visualizer,
         etank_colors,
     }

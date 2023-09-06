@@ -62,7 +62,7 @@ pub enum MusicSettings {
 pub enum AreaTheming {
     Vanilla,
     Palettes,
-    Tiles,
+    Tiles(String),
 }
 
 #[derive(Debug)]
@@ -168,13 +168,13 @@ pub fn customize_rom(
     }
 
     remove_mother_brain_flashing(rom)?;
-    match settings.area_theming {
+    match &settings.area_theming {
         AreaTheming::Vanilla => {}
         AreaTheming::Palettes => {
             apply_area_themed_palettes(rom, game_data)?;
         }
-        AreaTheming::Tiles => {
-            apply_retiling(rom, game_data)?;
+        AreaTheming::Tiles(theme) => {
+            apply_retiling(rom, game_data, &theme)?;
         }
     }
     apply_custom_samus_sprite(rom, settings, samus_sprite_categories)?;

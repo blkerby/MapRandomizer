@@ -37,11 +37,12 @@ fn get_fx_data(fx_list: &[FX1], fx_door_ptr_map: &HashMap<FX1Reference, DoorPtr>
     Ok(out)
 }
 
-pub fn apply_retiling(rom: &mut Rom, game_data: &GameData) -> Result<()> {
+pub fn apply_retiling(rom: &mut Rom, game_data: &GameData, theme_name: &str) -> Result<()> {
+    // "theme" is just a temporary argument, to hard-code a constant theme through the whole game.
+    // It will be eliminated once we have all the themes are are ready to assign them based on area.
     let patch_names = vec![
         "Scrolling Sky v1.5",
-        // "Area FX",
-        // "area_fx",
+        "Area FX",
         "Bowling",
     ];
     for name in &patch_names {
@@ -194,7 +195,7 @@ pub fn apply_retiling(rom: &mut Rom, game_data: &GameData) -> Result<()> {
     }
 
     // Write room data:
-    let theme = &retiled_theme_data.themes["OuterCrateria"];
+    let theme = &retiled_theme_data.themes[theme_name];
     for room in &theme.rooms {
         let room_ptr_opt = room_ptr_map.get(&(room.area, room.index));
         if room_ptr_opt.is_none() {
@@ -222,7 +223,6 @@ pub fn apply_retiling(rom: &mut Rom, game_data: &GameData) -> Result<()> {
             }
 
             // Write BG scroll speeds:
-            println!("{:x} {:x}", state.bg_scroll_speed_x, state.bg_scroll_speed_y);
             let mut speed_x = state.bg_scroll_speed_x;
             let mut speed_y = state.bg_scroll_speed_y;
             if state.layer2_type == Layer2Type::BGData { 
@@ -257,6 +257,10 @@ pub fn apply_retiling(rom: &mut Rom, game_data: &GameData) -> Result<()> {
             };
             rom.write_n(fx_data_addr, &fx_data)?;
             rom.write_u16(state_ptr + 6, (pc2snes(fx_data_addr) & 0xFFFF) as isize)?;
+
+            // Write setup & main ASM pointers:
+            rom.write_u16(state_ptr + 18, state.main_asm as isize)?;
+            rom.write_u16(state_ptr + 24, state.setup_asm as isize)?;
         }
     }
 

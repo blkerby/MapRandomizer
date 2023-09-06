@@ -1,11 +1,13 @@
 next release:
-- optimize/speed up the randomizer
-  - start logging the seed generation latency
 - prototype of retiling (debug mode only)
 - use resetRoom in randomizer: unclear obstacles
   - add resetRoom to PCJR Mella farm (see if it's missing in others)
+- optimize/speed up the randomizer
+  - start logging the seed generation latency
+
 
 priority:
+- speed booster hall: heat frames could be slightly less?
 - try using other zebes asleep music, to see if snails make a sound?
 - make script to convert norfair cre to cre.
 - add door flags to refine logic
