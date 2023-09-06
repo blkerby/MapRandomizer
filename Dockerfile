@@ -1,4 +1,4 @@
-FROM rust:1.67.0 as build
+FROM rust:1.72.0 as build
 
 # First get Cargo to download the crates.io index (which takes a long time)
 RUN cargo new --bin rust
@@ -21,14 +21,13 @@ COPY rust /rust
 WORKDIR /rust
 RUN cargo build --release --bin maprando-web
 
-# Compress the tile data for Mosaic
-RUN wget https://edit-sm.art/download/AmoebaCompress.1.0.0.0.zip
-RUN unzip AmoebaCompress.1.0.0.0.zip
-RUN chmod u+x publish/linux-x64/AmoebaCompress
-RUN cargo build --bin compress-retiling
-COPY Mosaic /Mosaic
-RUN cargo run --bin compress-retiling -- --compressor publish/linux-x64/AmoebaCompress
-
+# Now restart with a slim base image and just copy over the binary and data needed at runtime.
+FROM debian:buster-slim
+COPY --from=build /maps /maps
+COPY --from=build /rust/data /rust/data
+COPY --from=build /rust/static /rust/static
+COPY --from=build /rust/target/release/maprando-web /rust
+COPY compressed_data /compressed_data
 COPY patches /patches
 COPY gfx /gfx
 COPY sm-json-data /sm-json-data
@@ -36,4 +35,5 @@ COPY MapRandoSprites /MapRandoSprites
 COPY room_geometry.json /
 COPY palette_smart_exports /palette_smart_exports
 COPY visualizer /visualizer
-CMD ["/rust/target/release/maprando-web"]
+WORKDIR /rust
+CMD ["/rust/maprando-web"]
