@@ -22,11 +22,12 @@ WORKDIR /rust
 RUN cargo build --release --bin maprando-web
 
 # Now restart with a slim base image and just copy over the binary and data needed at runtime.
-FROM debian:buster-slim
-COPY --from=build /maps /maps
-COPY --from=build /rust/data /rust/data
-COPY --from=build /rust/static /rust/static
-COPY --from=build /rust/target/release/maprando-web /rust
+#FROM debian:buster-slim
+#COPY --from=build /maps /maps
+#COPY --from=build /rust/data /rust/data
+#COPY --from=build /rust/static /rust/static
+#COPY --from=build /rust/target/release/maprando-web /rust
+COPY Mosaic /Mosaic
 COPY compressed_data /compressed_data
 COPY patches /patches
 COPY gfx /gfx
@@ -36,4 +37,4 @@ COPY room_geometry.json /
 COPY palette_smart_exports /palette_smart_exports
 COPY visualizer /visualizer
 WORKDIR /rust
-CMD ["/rust/maprando-web"]
+CMD ["/rust/target/release/maprando-web"]
