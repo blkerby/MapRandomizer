@@ -1,10 +1,12 @@
+# Super Metroid Map Rando
+
 This is the repository for the [Super Metroid Map Rando](https://maprando.com) project, which randomly rearranges how the Super Metroid rooms connect to each other, creating fresh randomized worlds for players to explore.
 
-# Development
+## Development
 
 If you are interested in contributing, feel free to reach out on the [Discord](https://discord.gg/Gc99YV2ZcB). There are a few ways to run the randomizer for development:
 
-## Run the web service using Docker
+### Run the web service using Docker
 
 Install [Docker](https://docs.docker.com/get-docker/) if it is not already installed on your system. 
 
@@ -15,21 +17,33 @@ git clone --recurse-submodules https://github.com/blkerby/MapRandomizer
 cd MapRandomizer
 ```
 
+#### Docker Compose build and run
+
+```sh
+docker-compose up --build
+```
+
+#### Manual Docker build and run
+
 Build the Docker image:
+
 ```sh
 docker build . -t map-rando
 ```
+
 Run the web service:
+
 ```sh
 docker run -p 0.0.0.0:8080:8080 map-rando /rust/maprando-web --seed-repository-url mem
 ```
+
 Open a browser and navigate to [localhost:8080](http://localhost:8080) and you should see your locally running copy of the [Map Rando website](https://maprando.com).
 
 With the option "--seed-repository-url mem", any randomized seeds that you generate are stored in memory. You can also use "--seed-repository-url file:my-seeds" to store the seed data as local files under "my-seeds", where you could inspect the data.
 
-## Run the web service using Cargo
+### Run the web service using Cargo
 
-Building and running locally using Cargo is generally faster than using Docker, as you can take advantage of incremental compilation. 
+Building and running locally using Cargo is generally faster than using Docker, as you can take advantage of incremental compilation.
 
 Install the stable Rust toolchain (e.g. using [rustup](https://rustup.rs/)).
 
@@ -56,7 +70,7 @@ cd rust
 cargo run --bin maprando-web -- --seed-repository-url mem
 ```
 
-## Run the CLI using Cargo
+### Run the CLI using Cargo
 
 As an alternative to using the web service, a CLI tool can also be used to generate a seed,  to get results with fewer steps. At the moment, the CLI tool has many randomization options hard-coded into it and is intended for development rather than general use.
 

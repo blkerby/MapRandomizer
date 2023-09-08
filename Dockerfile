@@ -45,4 +45,4 @@ RUN ln -s /sm-json-data /rust/static/sm-json-data
 # Since the bin is the most likely thing to have changed, copy it last to avoid invalidating the rest of the steps
 COPY --from=build /rust/target/release/maprando-web /rust
 WORKDIR /rust
-CMD ["/rust/maprando-web"]
+ENTRYPOINT ["/rust/maprando-web"]
