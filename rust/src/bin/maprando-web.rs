@@ -1,4 +1,5 @@
 use std::path::Path;
+use std::process::Command;
 use std::thread;
 use std::time::SystemTime;
 
@@ -1528,8 +1529,7 @@ fn build_app_data() -> AppData {
     let start_locations_path = Path::new("data/start_locations.json");
     let hub_locations_path = Path::new("data/hub_locations.json");
     let etank_colors_path = Path::new("data/etank_colors.json");
-    let maps_path =
-        Path::new("../maps/session-2023-06-08T14:55:16.779895.pkl-bk24-subarea-balance-2");
+    let maps_path = Path::new("../maps");
     let samus_sprites_path = Path::new("../MapRandoSprites/samus_sprites/manifest.json");
     // let samus_spritesheet_layout_path = Path::new("data/samus_spritesheet_layout.json");
 
@@ -1579,6 +1579,24 @@ async fn main() {
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info"))
         .format_timestamp_millis()
         .init();
+
+    // Extracting the maps here instead of during docker build saves nearly 250MB on image size
+    // This requres the build stage be FROM the same distro release or you may get the following error:
+    // /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.29' not found (required by /rust/maprando-web)
+    info!("Extracting maps");
+    Command::new("tar")
+        .args([
+            "xfz", "/maps/maps.tar.gz",
+            "--directory", "/maps",
+            "--strip-components", "1",
+        ])
+        .output()
+        .expect("Could not extract maps");
+    Command::new("rm")
+        .args(["/maps/maps.tar.gz"])
+        .output()
+        .expect("Could not delete map archive");
+
     let app_data = web::Data::new(build_app_data());
 
     HttpServer::new(move || {
