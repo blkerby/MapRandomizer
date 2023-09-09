@@ -71,6 +71,7 @@ pub struct AppData {
     pub debug: bool,
     pub static_visualizer: bool,
     pub etank_colors: Vec<Vec<String>>,  // colors in HTML hex format, e.g "#ff0000"
+    pub parallelism: usize,
 }
 
 impl MapRepository {

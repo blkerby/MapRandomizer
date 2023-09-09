@@ -1159,7 +1159,7 @@ async fn randomize(
     rng_seed[9] = if race_mode { 1 } else { 0 };
     let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
     let max_attempts = 300;
-    let max_threads = thread::available_parallelism().unwrap().get();
+    let max_threads = app_data.parallelism;
     let mut attempt_num;
     let mut attempts_triggered = 0;
     let randomization: Randomization;
@@ -1449,6 +1449,8 @@ struct Args {
     debug: bool,
     #[arg(long, action)]
     static_visualizer: bool,
+    #[arg(long)]
+    parallelism: Option<usize>,
 }
 
 fn get_ignored_notable_strats() -> HashSet<String> {
@@ -1571,6 +1573,7 @@ fn build_app_data() -> AppData {
         debug: args.debug,
         static_visualizer: args.static_visualizer,
         etank_colors,
+        parallelism: args.parallelism.unwrap_or(thread::available_parallelism().unwrap().get()),
     }
 }
 
