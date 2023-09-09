@@ -15,9 +15,9 @@ RUN rm /rust/src/*.rs
 # Download the map dataset, extraction will occur in-container to reduce image size
 WORKDIR /maps
 RUN wget https://storage.googleapis.com/super-metroid-map-rando/maps/session-2023-06-08T14:55:16.779895.pkl-bk24-subarea-balance-2.tgz \
-    -O maps.tar.gz
-# Keeping this as backup in case in-container extraction breaks
-# RUN tar xfz maps.tar.gz --directory /maps --strip-components 1 && rm maps.tar.gz
+    -O maps.tar.gz \
+    && tar xfz maps.tar.gz --directory /maps \
+    && rm maps.tar.gz
 
 # Now copy over everything else and build the real binary
 COPY rust /rust
