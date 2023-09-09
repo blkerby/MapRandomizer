@@ -112,16 +112,17 @@ class TrainingSession():
         return reward
 
     def compute_candidate_penalties(self, room_mask, room_position_x, room_position_y,
-                                    action_env_id, action_room_id, action_x, action_y, env_id):
+                                    action_env_id, action_room_id, action_x, action_y, env_id,
+                                    adjust_left_right, adjust_down_up):
         device = room_mask.device
         env = self.envs[env_id]
         num_candidates = action_env_id.shape[0]
 
         data_tuples = [
-            (env.room_left, env.room_right, self.door_connect_adjust_left_right),
-            (env.room_right, env.room_left, torch.transpose(self.door_connect_adjust_left_right, 0, 1)),
-            (env.room_down, env.room_up, self.door_connect_adjust_down_up),
-            (env.room_up, env.room_down, torch.transpose(self.door_connect_adjust_down_up, 0, 1)),
+            (env.room_left, env.room_right, adjust_left_right),
+            (env.room_right, env.room_left, torch.transpose(adjust_left_right, 0, 1)),
+            (env.room_down, env.room_up, adjust_down_up),
+            (env.room_up, env.room_down, torch.transpose(adjust_down_up, 0, 1)),
         ]
         penalty = torch.zeros([num_candidates], device=device)
         for room_dir, room_dir_opp, adjust in data_tuples:
@@ -154,7 +155,7 @@ class TrainingSession():
             map_door_i = nz_match_idxs[:, 1]
             cand_door_i = cand_door_idx[cand_i]
 
-            penalty_value = adjust.to(device)[cand_door_i, map_door_i]  # TODO: keep `adjust` on device
+            penalty_value = adjust[cand_door_i, map_door_i]
             penalty_cand_idx = cand_idx[cand_i]
             penalty.scatter_add_(dim=0, index=penalty_cand_idx, src=penalty_value)
 
@@ -162,7 +163,8 @@ class TrainingSession():
 
     def forward_action(self, model, room_mask, room_position_x, room_position_y, action_candidates,
                              steps_remaining, temperature,
-                             env_id, use_connectivity: bool, cycle_value_coef: float,
+                             env_id, use_connectivity: bool, cycle_value_coef: float, adjust_left_right,
+                            adjust_down_up,
                              executor):
         # print({k: v.shape for k, v in locals().items() if hasattr(v, 'shape')})
         #
@@ -263,7 +265,8 @@ class TrainingSession():
         # door_connect_cost1 = self.door_connect_adjust.to(expected_valid.device)[map_door_id_valid, room_door_id_valid]
         # door_connect_cost2 = self.door_connect_adjust.to(expected_valid.device)[room_door_id_valid, map_door_id_valid]
         door_connect_cost = self.compute_candidate_penalties(
-            room_mask, room_position_x, room_position_y, action_env_id_valid, action_room_id_valid, action_x_valid, action_y_valid, env_id)
+            room_mask, room_position_x, room_position_y, action_env_id_valid, action_room_id_valid, action_x_valid, action_y_valid, env_id,
+            adjust_left_right, adjust_down_up)
         expected_valid = expected_valid - door_connect_cost
 
         expected_flat = torch.full([num_envs * num_candidates], -1e15, device=logodds_valid.device)
@@ -277,7 +280,7 @@ class TrainingSession():
                              temperature_decay: float, explore_eps: torch.tensor,
                              env_id, use_connectivity: bool, cycle_value_coef: float,
                              render, executor) -> EpisodeData:
-        with torch.no_grad():
+        with (torch.no_grad()):
             device = self.envs[env_id].device
             env = self.envs[env_id]
             env.reset()
@@ -291,6 +294,9 @@ class TrainingSession():
             # explore_eps = explore_eps.to(device).unsqueeze(1)
             # torch.cuda.synchronize()
             # logging.debug("Averaging parameters")
+
+            adjust_left_right = self.door_connect_adjust_left_right.to(device)
+            adjust_down_up = self.door_connect_adjust_down_up.to(device)
             for j in range(episode_length):
                 if render:
                     env.render()
@@ -321,7 +327,7 @@ class TrainingSession():
                     action_expected, raw_logodds = self.forward_action(
                         model, env.room_mask, env.room_position_x, env.room_position_y,
                         action_candidates, steps_remaining, temperature, env_id, use_connectivity, cycle_value_coef,
-                        executor)
+                        adjust_left_right, adjust_down_up, executor)
                     curr_temperature = temperature * temperature_decay ** (j / (episode_length - 1))
                     probs = torch.softmax(action_expected / torch.unsqueeze(curr_temperature, 1), dim=1)
                     action_index = _rand_choice(probs)
@@ -353,7 +359,7 @@ class TrainingSession():
                 prob0_list.append(selected_prob0.to('cpu'))
                 cand_count_list.append(candidate_count.to(torch.float32).to('cpu'))
 
-            torch.cuda.synchronize(device)
+            # torch.cuda.synchronize(device)
             door_connects_tensor = env.current_door_connects().to('cpu')
             part_adjacency_matrix = env.compute_part_adjacency_matrix(env.room_mask, env.room_position_x, env.room_position_y)
             missing_connects_tensor = env.compute_missing_connections(part_adjacency_matrix).to('cpu')

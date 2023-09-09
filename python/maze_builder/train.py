@@ -35,14 +35,15 @@ start_time = datetime.now()
 pickle_name = 'models/session-{}.pkl'.format(start_time.isoformat())
 
 # devices = [torch.device('cpu')]
-devices = [torch.device('cuda:1'), torch.device('cuda:0')]
-# devices = [torch.device('cuda:0')]
+# devices = [torch.device('cuda:1'), torch.device('cuda:0')]
+devices = [torch.device('cuda:0'), torch.device('cuda:1')]
+# devices = [torch.device('cuda:1')]
 num_devices = len(devices)
 device = devices[0]
 executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
 # num_envs = 1
-num_envs = 2 ** 5
+num_envs = 2 ** 6
 # rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.norfair_isolated.rooms
 rooms = logic.rooms.all_rooms.rooms
@@ -182,9 +183,30 @@ session = TrainingSession(envs,
 # cpu_executor = concurrent.futures.ProcessPoolExecutor()
 cpu_executor = None
 
+
+# def location_mapper(s, device):
+#     if device == 'cpu':
+#         return torch.device('cpu')
+#     else:
+#         return torch.device('cuda:0')
+
+class Unpickler(pickle.Unpickler):
+    def find_class(self, module, name):
+        if module == 'torch.storage' and name == '_load_from_bytes':
+            # return lambda b: torch.load(io.BytesIO(b), map_location='cpu')
+            return lambda b: torch.load(io.BytesIO(b), map_location={
+                'cpu': 'cpu',
+                'cuda:0': 'cuda:0',
+                'cuda:1': 'cuda:0',
+            })
+        else:
+            return super().find_class(module, name)
+
+
 pickle_name = 'models/session-2023-06-08T14:55:16.779895.pkl'
-session = pickle.load(open(pickle_name, 'rb'))
-# session = pickle.load(open(pickle_name + '-bk29', 'rb'))
+# session = pickle.load(open(pickle_name, 'rb'))
+session = Unpickler(open(pickle_name, 'rb')).load()
+# session = Unpickler(open(pickle_name + '-bk32', 'rb')).load()
 # session.replay_buffer.size = 0
 # session.replay_buffer.position = 0
 # session.replay_buffer.resize(2 ** 23)
@@ -262,7 +284,8 @@ annealing_time = 1 # session.replay_buffer.capacity // (num_envs * num_devices) 
 
 pass_factor0 = 1.0
 pass_factor1 = 1.0
-print_freq = 32
+print_freq = 16
+# print_freq = 1
 total_reward = 0
 total_loss = 0.0
 total_loss_cnt = 0
@@ -277,8 +300,8 @@ total_ent = 0.0
 total_round_cnt = 0
 total_min_door_frac = 0
 total_cycle_cost = 0.0
-save_freq = 512
-summary_freq = 512
+save_freq = 256
+summary_freq = 256
 session.decay_amount = 0.01
 # session.decay_amount = 0.2
 session.optimizer.param_groups[0]['betas'] = (0.9, 0.9)
@@ -642,3 +665,11 @@ for i in range(1000000):
         # display_counts(counts1, 100, verbose=True)
 
         # logging.info(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects, dim=0)))
+
+
+
+# obj = session.envs[1]
+# for name in dir(obj):
+#     x = getattr(obj,  name)
+#     if isinstance(x, torch.Tensor):
+#         print(name, x.device)
