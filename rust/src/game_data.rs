@@ -196,6 +196,10 @@ pub enum Requirement {
         mobility: String,
         artificial_morph: bool,
     },
+    DoorUnlocked {
+        room_id: RoomId,
+        node_id: NodeId,
+    },
     And(Vec<Requirement>),
     Or(Vec<Requirement>),
 }
@@ -1119,12 +1123,6 @@ impl GameData {
                 // Currently this is used only in the Early Supers quick crumble and Mission Impossible strats and is
                 // redundant in both cases, so we treat it as free.
                 return Ok(Requirement::Free);
-            } else if key == "resetRoom" {
-                // In all the places where this is required (excluding runways and canComeInCharged which we are not
-                // yet taking into account), it seems to be essentially unnecessary (ignoring the
-                // possibility of needing to take a small amount of heat damage in an adjacent room to exit and
-                // reenter), so for now we treat it as free.
-                return Ok(Requirement::Free);
             } else if key == "previousStratProperty" {
                 // This is only used in one place in Crumble Shaft, where it doesn't seem to be necessary.
                 return Ok(Requirement::Free);
@@ -1347,6 +1345,41 @@ impl GameData {
                     mode: mode.to_string(),
                     artificial_morph,
                     mobility: mobility.to_string(),
+                });
+            } else if key == "resetRoom" {
+                if ctx.from_obstacles_bitmask != 0 {
+                    return Ok(Requirement::Never);
+                }
+                let mut node_ids: Vec<NodeId> = Vec::new();
+                for from_node in value["fromNodes"].members() {
+                    let mut unlocked_node_id = from_node.as_usize().unwrap();
+                    if self
+                        .unlocked_node_map
+                        .contains_key(&(ctx.room_id, unlocked_node_id))
+                    {
+                        unlocked_node_id = self.unlocked_node_map[&(ctx.room_id, unlocked_node_id)];
+                    }
+                    node_ids.push(unlocked_node_id);
+                }
+                let mut reqs_or: Vec<Requirement> = vec![];
+                for node_id in node_ids {
+                    reqs_or.push(Requirement::DoorUnlocked {
+                        room_id: ctx.room_id,
+                        node_id,
+                    });
+                }
+                return Ok(Requirement::make_or(reqs_or));
+            } else if key == "doorUnlockedAtNode" {
+                let mut unlocked_node_id = value.as_usize().unwrap();
+                if self
+                    .unlocked_node_map
+                    .contains_key(&(ctx.room_id, unlocked_node_id))
+                {
+                    unlocked_node_id = self.unlocked_node_map[&(ctx.room_id, unlocked_node_id)];
+                }
+                return Ok(Requirement::DoorUnlocked {
+                    room_id: ctx.room_id,
+                    node_id: unlocked_node_id,
                 });
             } else if key == "itemNotCollectedAtNode" {
                 // TODO: implement this

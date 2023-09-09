@@ -486,6 +486,10 @@ impl<'a> Preprocessor<'a> {
                 mobility,
                 link,
             ),
+            Requirement::DoorUnlocked {
+                room_id,
+                node_id
+            } => self.preprocess_door_unlocked(*room_id, *node_id),
             Requirement::And(sub_reqs) => Requirement::make_and(
                 sub_reqs
                     .iter()
@@ -959,6 +963,24 @@ impl<'a> Preprocessor<'a> {
         //     self.game_data.room_json_map[&room_id]["name"], room_id, node_ids, link.strat_name, out
         // );
         out
+    }
+
+    fn preprocess_door_unlocked(
+        &mut self,
+        room_id: RoomId,
+        node_id: NodeId,
+    ) -> Requirement {
+        let mut unlocked_node_id = node_id;
+        if self
+            .game_data
+            .unlocked_node_map
+            .contains_key(&(room_id, node_id))
+        {
+            unlocked_node_id = self.game_data.unlocked_node_map[&(room_id, node_id)];
+        }
+        let locked_door_idx = self.locked_node_map.get(&(room_id, unlocked_node_id)).map(|x| *x);
+        let door_req = get_door_requirement(locked_door_idx, self.locked_doors, self.game_data);
+        return door_req
     }
 }
 

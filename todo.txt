@@ -1,7 +1,3 @@
-next release:
-- add scottrick & SMME to credits/about
-  - add note about intro music to release notes
-
 
 priority:
 - add door flags to refine logic
