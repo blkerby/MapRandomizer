@@ -1,4 +1,6 @@
 use std::path::Path;
+use std::process::Command;
+use std::thread;
 use std::time::SystemTime;
 
 use actix_easy_multipart::bytes::Bytes;
@@ -355,6 +357,14 @@ struct CustomizeSeedTemplate {
     seed_footer: String,
     samus_sprite_categories: Vec<SamusSpriteCategory>,
     etank_colors: Vec<Vec<String>>,
+}
+
+struct Attempt {
+    attempt_num: usize,
+    thread_handle: Option<thread::JoinHandle<Result<Randomization, anyhow::Error>>>,
+    map_seed: usize,
+    door_randomization_seed: usize,
+    item_placement_seed: usize,
 }
 
 fn render_seed(
@@ -1148,44 +1158,87 @@ async fn randomize(
     rng_seed[..8].copy_from_slice(&random_seed.to_le_bytes());
     rng_seed[9] = if race_mode { 1 } else { 0 };
     let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
-    let max_attempts = 200;
-    let mut attempt_num = 0;
+    let max_attempts = 300;
+    let max_threads = thread::available_parallelism().unwrap().get();
+    let mut attempt_num;
+    let mut attempts_triggered = 0;
     let randomization: Randomization;
     // info!(
     //     "Random seed={random_seed}, difficulty={:?}",
     //     difficulty_tiers[0]
     // );
     info!(
-        "Random seed={random_seed}, difficulty={:?}",
+        "Random seed={random_seed}, max_threads={max_threads}, max_attempts={max_attempts}, difficulty={:?}",
         difficulty_tiers[0]
     );
-    let mut map_seed: usize;
-    let mut door_randomization_seed: usize;
-    let mut item_placement_seed: usize;
+
+    let map_seed: usize;
+    let door_randomization_seed: usize;
+    let item_placement_seed: usize;
+    let mut attempt: Attempt;
+    let mut attempts: Vec<Attempt> = Vec::new();
     loop {
-        attempt_num += 1;
-        if attempt_num > max_attempts {
+        // If we need a thread
+        if (attempts.len() < max_threads) && (attempts_triggered < max_attempts) {
+            attempts_triggered += 1;
+            attempt = Attempt{
+                attempt_num: attempts_triggered,
+                thread_handle: None,
+                map_seed: ((rng.next_u64() & 0xFFFFFFFF) as usize),
+                door_randomization_seed: ((rng.next_u64() & 0xFFFFFFFF) as usize),
+                item_placement_seed: ((rng.next_u64() & 0xFFFFFFFF) as usize),
+            };
+            let difficulty_tiers_local = difficulty_tiers.clone();
+            let app_data_local = app_data.clone();
+            let map_seed_local = attempt.map_seed.clone();
+            let door_randomization_seed_local = attempt.door_randomization_seed.clone();
+            let item_placement_seed_local = attempt.item_placement_seed.clone();
+            let attempts_triggered_local = attempts_triggered.clone();
+            attempt.thread_handle = Some(thread::spawn(move || {
+                let map = if difficulty.vanilla_map {
+                    app_data_local.map_repository.get_vanilla_map(attempts_triggered_local).unwrap()
+                } else {
+                    app_data_local.map_repository.get_map(attempts_triggered_local, map_seed_local).unwrap()
+                };
+                info!("Attempt {attempts_triggered_local}/{max_attempts}: Map seed={map_seed_local}, door randomization seed={door_randomization_seed_local}, item placement seed={item_placement_seed_local}");
+                let locked_doors = randomize_doors(&app_data_local.game_data, &map, &difficulty_tiers_local[0], door_randomization_seed_local);
+                let randomizer = Randomizer::new(&map, &locked_doors, &difficulty_tiers_local, &app_data_local.game_data);
+                return randomizer.randomize(attempts_triggered_local, item_placement_seed_local, display_seed);
+            }));
+            // Insert at position 0 so attempts pop off in the order they were created, simpler than using a VecDeque
+            attempts.insert(0, attempt);
+
+            // If we still need another thread
+            if (attempts.len() < max_threads) && (attempts_triggered < max_attempts) {
+                // Skip consuming and trigger another
+                continue;
+            }
+        }
+
+        // If we've run out of attempts
+        if attempts.len() == 0 {
+            error!("Failed too many randomization attempts {attempts_triggered}/{max_attempts}: random_seed={random_seed}");
             return HttpResponse::InternalServerError()
                 .body("Failed too many randomization attempts");
         }
-        map_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
-        let map = if difficulty.vanilla_map {
-            app_data.map_repository.get_vanilla_map().unwrap()
-        } else {
-            app_data.map_repository.get_map(map_seed).unwrap()
-        };
-        door_randomization_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
-        item_placement_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
-        info!("Map seed={map_seed}, door randomization seed={door_randomization_seed}, item placement seed={item_placement_seed}");
-        let locked_doors = randomize_doors(&app_data.game_data, &map, &difficulty_tiers[0], door_randomization_seed);
-        let randomizer = Randomizer::new(&map, &locked_doors, &difficulty_tiers, &app_data.game_data);
-        randomization = match randomizer.randomize(item_placement_seed, display_seed) {
+
+        // Evaluate the oldest attempt
+        attempt = attempts.pop().unwrap();
+        attempt_num = attempt.attempt_num;
+        randomization = match attempt.thread_handle.expect("thread_handle expected to be set").join().unwrap() {
             Ok(r) => r,
             Err(e) => {
-                info!("Failed randomization: {}", e);
+                info!("Failed randomization {attempt_num}/{max_attempts}: {}", e);
                 continue;
             }
         };
+        map_seed = attempt.map_seed;
+        door_randomization_seed = attempt.door_randomization_seed;
+        item_placement_seed = attempt.item_placement_seed;
+        info!(
+            "Successful attempt {attempt_num}/{attempts_triggered}/{max_attempts}: display_seed={}, random_seed={random_seed}, map_seed={map_seed}, door_randomization_seed={door_randomization_seed}, item_placement_seed={item_placement_seed}",
+            randomization.display_seed,
+        );
         break;
     }
 
@@ -1476,8 +1529,7 @@ fn build_app_data() -> AppData {
     let start_locations_path = Path::new("data/start_locations.json");
     let hub_locations_path = Path::new("data/hub_locations.json");
     let etank_colors_path = Path::new("data/etank_colors.json");
-    let maps_path =
-        Path::new("../maps/session-2023-06-08T14:55:16.779895.pkl-bk24-subarea-balance-2");
+    let maps_path = Path::new("../maps/session-2023-06-08T14:55:16.779895.pkl-bk24-subarea-balance-2");
     let samus_sprites_path = Path::new("../MapRandoSprites/samus_sprites/manifest.json");
     // let samus_spritesheet_layout_path = Path::new("data/samus_spritesheet_layout.json");
 
@@ -1527,6 +1579,7 @@ async fn main() {
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info"))
         .format_timestamp_millis()
         .init();
+
     let app_data = web::Data::new(build_app_data());
 
     HttpServer::new(move || {
@@ -1552,6 +1605,7 @@ async fn main() {
             .service(logic_room)
             .service(logic_strat)
             .service(logic_tech)
+            .service(actix_files::Files::new("/static/sm-json-data", "../sm-json-data"))
             .service(actix_files::Files::new("/static", "static"))
     })
     .bind("0.0.0.0:8080")
