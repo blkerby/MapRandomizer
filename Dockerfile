@@ -16,8 +16,7 @@ RUN rm /rust/src/*.rs
 WORKDIR /maps
 RUN wget https://storage.googleapis.com/super-metroid-map-rando/maps/session-2023-06-08T14:55:16.779895.pkl-bk24-subarea-balance-2.tgz \
     -O maps.tar.gz
-# Keeping this as backup in case in-container extraction breaks
-# RUN tar xfz maps.tar.gz --directory /maps --strip-components 1 && rm maps.tar.gz
+RUN tar xfz maps.tar.gz --directory /maps && rm maps.tar.gz
 
 # Now copy over everything else and build the real binary
 COPY rust /rust
