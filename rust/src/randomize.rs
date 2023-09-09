@@ -686,6 +686,9 @@ impl<'a> Preprocessor<'a> {
         {
             unlocked_node_id = self.game_data.unlocked_node_map[&(room_id, node_id)];
         }
+        // if !self.door_map.contains_key(&(room_id, unlocked_node_id)) {
+        //     info!("Ignoring adjacent runway with unrecognized node: room_id={}, node_id={}", room_id, node_id);
+        // }
         let (other_room_id, other_node_id) = self.door_map[&(room_id, unlocked_node_id)];
         let runways = &self.game_data.node_runways_map[&(other_room_id, other_node_id)];
         let locked_door_idx = self.locked_node_map.get(&(room_id, unlocked_node_id)).map(|x| *x);

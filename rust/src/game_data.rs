@@ -1351,7 +1351,7 @@ impl GameData {
                     return Ok(Requirement::Never);
                 }
                 let mut node_ids: Vec<NodeId> = Vec::new();
-                for from_node in value["fromNodes"].members() {
+                for from_node in value["nodes"].members() {
                     let mut unlocked_node_id = from_node.as_usize().unwrap();
                     if self
                         .unlocked_node_map
@@ -1893,7 +1893,8 @@ impl GameData {
                             .members()
                             .map(|x| x.clone())
                             .collect();
-                        let ctx = RequirementContext::default();
+                        let mut ctx = RequirementContext::default();
+                        ctx.room_id = room_id;
                         let requirement =
                             Requirement::make_and(self.parse_requires_list(&requires_json, &ctx)?);
                         if strat_json.has_key("obstacles") {
@@ -1935,7 +1936,8 @@ impl GameData {
                         .members()
                         .map(|x| x.clone())
                         .collect();
-                    let ctx = RequirementContext::default();
+                    let mut ctx = RequirementContext::default();
+                    ctx.room_id = room_id;
                     let requirement =
                         Requirement::make_and(self.parse_requires_list(&requires_json, &ctx)?);
 
@@ -1970,7 +1972,8 @@ impl GameData {
                             .members()
                             .map(|x| x.clone())
                             .collect();
-                        let ctx = RequirementContext::default();
+                        let mut ctx = RequirementContext::default();
+                        ctx.room_id = room_id;
                         let requirement =
                             Requirement::make_and(self.parse_requires_list(&requires_json, &ctx)?);
                         if strat_json.has_key("obstacles") {
