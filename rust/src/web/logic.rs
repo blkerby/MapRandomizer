@@ -1,4 +1,4 @@
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use glob::glob;
 use hashbrown::{HashMap, HashSet};

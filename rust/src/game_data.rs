@@ -2481,7 +2481,7 @@ impl GameData {
             1, // Red Crateria
             15, 16, 17, 18, 19, 20  // Ceres
         ];
-        for (area_idx, area) in [
+        for (_area_idx, area) in [
             "crateria",
             "brinstar",
             "norfair",
@@ -2511,8 +2511,8 @@ impl GameData {
 
                 let gfx16x16_path = tileset_path.join("16x16tiles.ttb");
                 let gfx16x16_bytes = std::fs::read(gfx16x16_path)?;
-                
-                pal_map.insert(tileset_idx, ThemedTileset { 
+
+                pal_map.insert(tileset_idx, ThemedTileset {
                     palette,
                     gfx8x8: gfx8x8_bytes,
                     gfx16x16: gfx16x16_bytes,
