@@ -1010,7 +1010,7 @@ impl<'a> Patcher<'a> {
                     // We want it to behave like the other Refill rooms and use area-themed music.
                     continue;
                 }
-                let mut new_song = area_music[area][subarea];
+                let new_song = area_music[area][subarea];
                 // if room.name == "Landing Site" {
                 //     // Set all Landing Site states to use the same track, the one that plays in vanilla before
                 //     // Power Bombs but after Zebes is awake:
@@ -1620,7 +1620,7 @@ impl<'a> Patcher<'a> {
             // East Pants Room
             write_asm(room.twin_rom_address.unwrap(), x % 16, y % 16 + 16);
         }
-        
+
         Ok(())
     }
 
@@ -1638,8 +1638,7 @@ impl<'a> Patcher<'a> {
         let mut next_state_index: usize = 0;
         let mut state_idxs: Vec<usize> = vec![];
 
-        for door in &self.randomization.locked_doors {
-            let mut door = *door;
+        for _door in &self.randomization.locked_doors {
             while reserved_state_indexes.contains(&next_state_index) {
                 next_state_index += 1;
             }

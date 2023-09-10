@@ -1,5 +1,4 @@
 use std::path::Path;
-use std::process::Command;
 use std::thread;
 use std::time::SystemTime;
 
@@ -306,7 +305,7 @@ struct SeedHeaderTemplate<'a> {
     early_filler_items: Vec<String>,
     item_placement_style: String,
     difficulty: &'a DifficultyConfig,
-    notable_strats: Vec<String>,
+    _notable_strats: Vec<String>,
     quality_of_life_preset: String,
     supers_double: bool,
     mother_brain_fight: String,
@@ -414,7 +413,7 @@ fn render_seed(
             .collect(),
         item_placement_style: format!("{:?}", seed_data.difficulty.item_placement_style),
         difficulty: &seed_data.difficulty,
-        notable_strats,
+        _notable_strats: notable_strats,
         quality_of_life_preset: seed_data
             .quality_of_life_preset
             .clone()

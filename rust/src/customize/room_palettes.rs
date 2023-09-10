@@ -195,7 +195,7 @@ fn fix_mother_brain(rom: &mut Rom, game_data: &GameData) -> Result<()> {
 }
 
 struct AllocatorBlock {
-    start_addr: usize,
+    _start_addr: usize,
     end_addr: usize,
     current_addr: usize
 }
@@ -208,7 +208,7 @@ impl Allocator {
     pub fn new(blocks: Vec<(usize, usize)>) -> Self {
         Allocator {
             blocks: blocks.into_iter().map(|(start, end)| AllocatorBlock {
-                start_addr: start,
+                _start_addr: start,
                 end_addr: end,
                 current_addr: start,
             }).collect()
