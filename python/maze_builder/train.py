@@ -18,9 +18,9 @@ from maze_builder.train_session import TrainingSession
 from maze_builder.replay import ReplayBuffer
 from model_average import ExponentialAverage
 import io
-# import logic.rooms.crateria_isolated
+import logic.rooms.crateria_isolated
 # import logic.rooms.norfair_isolated
-import logic.rooms.all_rooms
+# import logic.rooms.all_rooms
 
 
 logging.basicConfig(format='%(asctime)s %(message)s',
@@ -35,25 +35,26 @@ start_time = datetime.now()
 pickle_name = 'models/session-{}.pkl'.format(start_time.isoformat())
 
 # devices = [torch.device('cpu')]
-devices = [torch.device('cuda:1'), torch.device('cuda:0')]
+# devices = [torch.device('cuda:1'), torch.device('cuda:0')]
+devices = [torch.device('cuda:0'), torch.device('cuda:1')]
 # devices = [torch.device('cuda:0')]
 num_devices = len(devices)
 device = devices[0]
 executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
 # num_envs = 1
-num_envs = 2 ** 6
-# rooms = logic.rooms.crateria_isolated.rooms
+num_envs = 2 ** 10
+rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.norfair_isolated.rooms
-rooms = logic.rooms.all_rooms.rooms
+# rooms = logic.rooms.all_rooms.rooms
 episode_length = len(rooms)
 
 # map_x = 32
 # map_y = 32
-map_x = 72
-map_y = 72
-# map_x = 48
-# map_y = 48
+# map_x = 72
+# map_y = 72
+map_x = 48
+map_y = 48
 
 env_config = EnvConfig(
     rooms=rooms,
@@ -100,38 +101,41 @@ key_width = 32
 value_width = 32
 attn_heads = 8
 hidden_width = 2048
-model = TransformerModel(
-    rooms=envs[0].rooms,
-    num_outputs=envs[0].num_doors + envs[0].num_missing_connects + 1,
-    map_x=env_config.map_x,
-    map_y=env_config.map_y,
-    block_size_x=8,
-    block_size_y=8,
-    embedding_width=embedding_width,
-    key_width=key_width,
-    value_width=value_width,
-    attn_heads=attn_heads,
-    hidden_width=hidden_width,
-    arity=1,
-    num_local_layers=2,
-    embed_dropout=0.1,
-    ff_dropout=0.1,
-    attn_dropout=0.0,
-    num_global_layers=0,
-    global_width=0,
-    global_hidden_width=0,
-    global_ff_dropout=0.0,
-).to(device)
-logging.info("{}".format(model))
+models = [
+    TransformerModel(
+        rooms=envs[0].rooms,
+        num_outputs=envs[0].num_doors + envs[0].num_missing_connects + 1,
+        map_x=env_config.map_x,
+        map_y=env_config.map_y,
+        block_size_x=8,
+        block_size_y=8,
+        embedding_width=embedding_width,
+        key_width=key_width,
+        value_width=value_width,
+        attn_heads=attn_heads,
+        hidden_width=hidden_width,
+        arity=1,
+        num_local_layers=2,
+        embed_dropout=0.1,
+        ff_dropout=0.1,
+        attn_dropout=0.0,
+        num_global_layers=0,
+        global_width=0,
+        global_hidden_width=0,
+        global_ff_dropout=0.0,
+    ).to(devices[i])
+    for i in range(len(devices))
+]
+logging.info("{}".format(models[0]))
 
 # model.state_value_lin.weight.data.zero_()
 # model.state_value_lin.bias.data.zero_()
-model.global_value.data.zero_()
+models[0].global_value.data.zero_()
 # model.output_lin.weight.data.zero_()
-optimizer = torch.optim.Adam(model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
-replay_size = 2 ** 23
+optimizer = torch.optim.Adam(models[0].parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
+replay_size = 2 ** 20
 session = TrainingSession(envs,
-                          model=model,
+                          models=models,
                           optimizer=optimizer,
                           ema_beta=0.999,
                           replay_size=replay_size,
@@ -182,13 +186,13 @@ session = TrainingSession(envs,
 # cpu_executor = concurrent.futures.ProcessPoolExecutor()
 cpu_executor = None
 
-pickle_name = 'models/session-2023-06-08T14:55:16.779895.pkl'
-session = pickle.load(open(pickle_name, 'rb'))
+# pickle_name = 'models/session-2023-06-08T14:55:16.779895.pkl'
+# session = pickle.load(open(pickle_name, 'rb'))
 # session = pickle.load(open(pickle_name + '-bk29', 'rb'))
 # session.replay_buffer.size = 0
 # session.replay_buffer.position = 0
 # session.replay_buffer.resize(2 ** 23)
-session.envs = envs
+# session.envs = envs
 
 # session.model.attn_layers.append(AttentionLayer(
 #     input_width=embedding_width,
@@ -205,7 +209,7 @@ session.envs = envs
 # session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=0.995)
 
 
-num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
+num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.models[0].parameters())
 # session.replay_buffer.resize(2 ** 23)
 # session.replay_buffer.resize(2 ** 18)
 
@@ -213,14 +217,14 @@ num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in sessio
 hist_c = 1.0
 hist_frac = 1.0
 batch_size = 2 ** 10
-lr0 = 0.00005
-lr1 = 0.00005
+lr0 = 0.0005
+lr1 = 0.0005
 # lr_warmup_time = 16
 # lr_cooldown_time = 100
-num_candidates_min0 = 63.5
-num_candidates_max0 = 64.5
-num_candidates_min1 = 63.5
-num_candidates_max1 = 64.5
+num_candidates_min0 = 16
+num_candidates_max0 = 16
+num_candidates_min1 = 16
+num_candidates_max1 = 16
 
 # num_candidates0 = 40
 # num_candidates1 = 40
@@ -233,9 +237,9 @@ cycle_weight = 0.0
 cycle_value_coef = 0.0
 compute_cycles = False
 
-door_connect_bound = 10.0
+door_connect_bound = 5.0
 # door_connect_bound = 0.0
-door_connect_alpha = 0.02
+door_connect_alpha = 0.05
 # door_connect_alpha = door_connect_alpha0 / math.sqrt(1 + session.num_rounds / lr_cooldown_time)
 door_connect_beta = door_connect_bound / (door_connect_bound + door_connect_alpha)
 # door_connect_bound = 0.0
@@ -243,10 +247,10 @@ door_connect_beta = door_connect_bound / (door_connect_bound + door_connect_alph
 
 augment_frac = 0.0
 
-temperature_min0 = 0.02
-temperature_max0 = 2.0
-temperature_min1 = 0.01
-temperature_max1 = 1.0
+temperature_min0 = 0.1
+temperature_max0 = 10.0
+temperature_min1 = 0.1
+temperature_max1 = 10.0
 # temperature_min0 = 0.01
 # temperature_max0 = 10.0
 # temperature_min1 = 0.01
@@ -257,12 +261,12 @@ temperature_frac_min0 = 0.5
 temperature_frac_min1 = 0.5
 temperature_decay = 1.0
 
-annealing_start = 169792
-annealing_time = session.replay_buffer.capacity // (num_envs * num_devices) // 32
+annealing_start = 1
+annealing_time = 1 #session.replay_buffer.capacity // (num_envs * num_devices) // 32
 
-pass_factor0 = 1.0
-pass_factor1 = 1.0
-print_freq = 16
+pass_factor0 = 0.5
+pass_factor1 = 0.5
+print_freq = 8
 total_reward = 0
 total_loss = 0.0
 total_loss_cnt = 0
@@ -277,8 +281,8 @@ total_ent = 0.0
 total_round_cnt = 0
 total_min_door_frac = 0
 total_cycle_cost = 0.0
-save_freq = 256
-summary_freq = 256
+save_freq = 128
+summary_freq = 128
 session.decay_amount = 0.01
 # session.decay_amount = 0.2
 session.optimizer.param_groups[0]['betas'] = (0.9, 0.9)
@@ -356,13 +360,37 @@ def display_counts(counts, top_n: int, verbose: bool):
 def save_session(session, name):
     with util.DelayedKeyboardInterrupt():
         logging.info("Saving to {}".format(name))
+        models = session.models
+        optimizer = session.optimizer
+        torch.save(models[0].state_dict(), open(name + '-model', 'wb'))
+        torch.save(optimizer.state_dict(), open(name + '-optimizer', 'wb'))
+        session.models = None
+        session.optimizer = None
         pickle.dump(session, open(name, 'wb'))
+        session.models = models
+        session.optimizer = optimizer
 
-dropout = 0.0
-session.model.embed_dropout.p = dropout
-for m in session.model.ff_layers:
-    m.dropout.p = dropout
-logging.info("{}".format(session.model))
+def load_session(name):
+    logging.info("Loading {}".format(name))
+    session = pickle.load(open(name, 'rb'))
+    session.models = models
+    session.optimizer = optimizer
+    session.models[0].load_state_dict(torch.load(open(name + '-model', 'rb')))
+    session.optimizer.load_state_dict(torch.load(open(name + '-optimizer', 'rb')))
+    return session
+
+
+# pickle_name = 'models/session-2023-09-10T21:57:55.976519.pkl'
+# session = load_session(pickle_name)
+
+
+dropout = session.models[0].embed_dropout.p
+# session.model.embed_dropout.p = dropout
+# for m in session.model.ff_layers:
+#     m.dropout.p = dropout
+# logging.info("{}".format(session.model))
+
+
 # for m in session.model.modules():
 #     if isinstance(m, torch.nn.Dropout):
 #         if m.p > 0.0:
@@ -372,7 +400,7 @@ logging.info("{}".format(session.model))
 min_door_value = max_possible_reward
 torch.set_printoptions(linewidth=120, threshold=10000)
 logging.info("Checkpoint path: {}".format(pickle_name))
-num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
+num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.models[0].parameters())
 logging.info(
     "map_x={}, map_y={}, num_envs={}, batch_size={}, pass_factor0={}, pass_factor1={}, lr0={}, lr1={}, num_candidates_min0={}, num_candidates_max0={}, num_candidates_min1={}, num_candidates_max1={}, replay_size={}/{}, hist_frac={}, hist_c={}, num_params={}, decay_amount={}, temperature_min0={}, temperature_min1={}, temperature_max0={}, temperature_max1={}, temperature_decay={}, ema_beta0={}, ema_beta1={}, explore_eps_factor={}, annealing_time={}, cycle_weight={}, cycle_value_coef={}, door_connect_alpha={}, door_connect_bound={}, augment_frac={}, dropout={}".format(
         map_x, map_y, session.envs[0].num_envs, batch_size, pass_factor0, pass_factor1, lr0, lr1, num_candidates_min0, num_candidates_max0, num_candidates_min1, num_candidates_max1, session.replay_buffer.size,
@@ -574,7 +602,7 @@ for i in range(1000000):
         if num_candidates_max == 1:
             total_eval_loss = 0.0
             with torch.no_grad():
-                with session.average_parameters.average_parameters(session.model.all_param_data()):
+                with session.average_parameters.average_parameters(session.models[0].all_param_data()):
                     for data in eval_batches:
                         eval_loss = session.eval_batch(data)
                         total_eval_loss += eval_loss
