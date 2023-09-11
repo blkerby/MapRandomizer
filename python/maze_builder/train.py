@@ -255,9 +255,9 @@ cycle_weight = 0.0
 cycle_value_coef = 0.0
 compute_cycles = False
 
-door_connect_bound = 5.0
+door_connect_bound = 10.0
 # door_connect_bound = 0.0
-door_connect_alpha = 0.01
+door_connect_alpha = 0.02
 # door_connect_alpha = door_connect_alpha0 / math.sqrt(1 + session.num_rounds / lr_cooldown_time)
 door_connect_beta = door_connect_bound / (door_connect_bound + door_connect_alpha)
 # door_connect_bound = 0.0
