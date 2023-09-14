@@ -850,37 +850,40 @@ pub fn apply_requirement(
         }
         Requirement::ShineCharge {
             used_tiles,
-            shinespark_frames,
-            excess_shinespark_frames,
-            shinespark_tech_id,
         } => {
-            if (global.tech[*shinespark_tech_id] || *shinespark_frames == 0)
-                && global.items[Item::SpeedBooster as usize]
+            if global.items[Item::SpeedBooster as usize]
                 && *used_tiles >= global.shine_charge_tiles
             {
+                Some(local)
+            } else {
+                None
+            }
+        }
+        Requirement::Shinespark {
+            frames,
+            excess_frames,
+            shinespark_tech_id,
+        } => {
+            if global.tech[*shinespark_tech_id] {
                 let mut new_local = local;
-                if *shinespark_frames == 0 {
-                    Some(new_local)
-                } else {
-                    if reverse {
-                        if new_local.energy_used <= 28 {
-                            new_local.energy_used =
-                                28 + shinespark_frames - excess_shinespark_frames;
-                        } else {
-                            new_local.energy_used += shinespark_frames;
-                        }
-                        validate_energy(new_local, global)
+                if reverse {
+                    if new_local.energy_used <= 28 {
+                        new_local.energy_used =
+                            28 + frames - excess_frames;
                     } else {
-                        new_local.energy_used += shinespark_frames - excess_shinespark_frames + 28;
-                        if let Some(mut new_local) = validate_energy(new_local, global) {
-                            let energy_remaining = global.max_energy - new_local.energy_used - 1;
-                            new_local.energy_used +=
-                                std::cmp::min(*excess_shinespark_frames, energy_remaining);
-                            new_local.energy_used -= 28;
-                            Some(new_local)
-                        } else {
-                            None
-                        }
+                        new_local.energy_used += frames;
+                    }
+                    validate_energy(new_local, global)
+                } else {
+                    new_local.energy_used += frames - excess_frames + 28;
+                    if let Some(mut new_local) = validate_energy(new_local, global) {
+                        let energy_remaining = global.max_energy - new_local.energy_used - 1;
+                        new_local.energy_used +=
+                            std::cmp::min(*excess_frames, energy_remaining);
+                        new_local.energy_used -= 28;
+                        Some(new_local)
+                    } else {
+                        None
                     }
                 }
             } else {

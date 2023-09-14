@@ -6,6 +6,7 @@
 - clean up gpu setup
 
 priority:
+- consider making "guaranteed early save" the default
 - speed booster hall: heat frames could be slightly less?
 - try using other zebes asleep music, to see if snails make a sound?
 - make script to convert norfair cre to cre.

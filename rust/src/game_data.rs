@@ -117,10 +117,12 @@ pub enum Requirement {
     Flag(FlagId),
     NotFlag(FlagId),
     ShineCharge {
+        used_tiles: f32
+    },
+    Shinespark {
         shinespark_tech_id: usize,
-        used_tiles: f32,
-        shinespark_frames: i32,
-        excess_shinespark_frames: i32,
+        frames: i32,
+        excess_frames: i32,
     },
     HeatFrames(i32),
     LavaFrames(i32),
@@ -182,12 +184,9 @@ pub enum Requirement {
         min_right_position: Option<f32>,
     },
     CanComeInCharged {
-        shinespark_tech_id: usize,
         room_id: RoomId,
         node_id: NodeId,
         frames_remaining: i32,
-        shinespark_frames: i32,
-        excess_shinespark_frames: i32,
         unusable_tiles: i32,
     },
     ComeInWithRMode {
@@ -278,7 +277,6 @@ pub struct CanLeaveCharged {
     pub used_tiles: i32,
     pub open_end: i32,
     pub requirement: Requirement,
-    pub shinespark_frames: Option<i32>,
 }
 
 #[derive(Debug)]
@@ -945,6 +943,17 @@ impl GameData {
             } else if key == "ammoDrain" {
                 // We patch out the ammo drain from the Mother Brain fight.
                 return Ok(Requirement::Free);
+            } else if key == "shinespark" {
+                let frames = value["frames"]
+                    .as_i32()
+                    .expect(&format!("missing/invalid frames in {}", req_json));
+                let excess_frames =
+                    value["excessFrames"].as_i32().unwrap_or(0);
+                return Ok(Requirement::Shinespark {
+                    shinespark_tech_id: self.tech_isv.index_by_key["canShinespark"],
+                    frames,
+                    excess_frames,
+                });    
             } else if key == "canShineCharge" {
                 let used_tiles = value["usedTiles"]
                     .as_f32()
@@ -952,17 +961,9 @@ impl GameData {
                 let open_end = value["openEnd"]
                     .as_f32()
                     .expect(&format!("missing/invalid openEnd in {}", req_json));
-                let shinespark_frames = value["shinesparkFrames"]
-                    .as_i32()
-                    .expect(&format!("missing/invalid shinesparkFrames in {}", req_json));
-                let excess_shinespark_frames =
-                    value["excessShinesparkFrames"].as_i32().unwrap_or(0);
                 // TODO: take slopes into account
                 return Ok(Requirement::ShineCharge {
                     used_tiles: get_effective_runway_length(used_tiles, open_end),
-                    shinespark_frames,
-                    excess_shinespark_frames,
-                    shinespark_tech_id: self.tech_isv.index_by_key["canShinespark"],
                 });
             } else if key == "heatFrames" {
                 let frames = value
@@ -1275,11 +1276,6 @@ impl GameData {
                 let frames_remaining = value["framesRemaining"]
                     .as_i32()
                     .with_context(|| format!("missing/invalid framesRemaining in {}", req_json))?;
-                let shinespark_frames = value["shinesparkFrames"]
-                    .as_i32()
-                    .with_context(|| format!("missing/invalid shinesparkFrames in {}", req_json))?;
-                let excess_shinespark_frames =
-                    value["excessShinesparkFrames"].as_i32().unwrap_or(0);
                 let unusable_tiles = value["unusableTiles"].as_i32().unwrap_or(0);
                 // if value["fromNode"].as_usize().unwrap() != ctx.src_node_id {
                 //     println!("In roomId={}, canComeInCharged fromNode={}, from nodeId={}", ctx.room_id,
@@ -1293,13 +1289,10 @@ impl GameData {
                     unlocked_node_id = self.unlocked_node_map[&(ctx.room_id, unlocked_node_id)];
                 }
                 return Ok(Requirement::CanComeInCharged {
-                    shinespark_tech_id: self.tech_isv.index_by_key["canShinespark"],
                     room_id: ctx.room_id,
                     node_id: unlocked_node_id,
                     // node_id: ctx.src_node_id,
                     frames_remaining,
-                    shinespark_frames,
-                    excess_shinespark_frames,
                     unusable_tiles,
                 });
                 // return Ok(Requirement::Never);
@@ -1997,7 +1990,6 @@ impl GameData {
                             frames_remaining: can_leave_charged_json["framesRemaining"]
                                 .as_i32()
                                 .context("Expecting integer framesRemaining")?,
-                            shinespark_frames: can_leave_charged_json["shinesparkFrames"].as_i32(),
                             requirement,
                         };
                         can_leave_charged_vec.push(can_leave_charged);

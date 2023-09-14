@@ -452,20 +452,14 @@ impl<'a> Preprocessor<'a> {
                 link,
             ),
             Requirement::CanComeInCharged {
-                shinespark_tech_id,
                 room_id,
                 node_id,
                 frames_remaining,
-                shinespark_frames,
-                excess_shinespark_frames,
                 unusable_tiles,
             } => self.preprocess_can_come_in_charged(
-                *shinespark_tech_id,
                 *room_id,
                 *node_id,
                 *frames_remaining,
-                *shinespark_frames,
-                *excess_shinespark_frames,
                 *unusable_tiles,
                 link,
             ),
@@ -510,12 +504,9 @@ impl<'a> Preprocessor<'a> {
 
     fn preprocess_can_come_in_charged(
         &mut self,
-        shinespark_tech_id: TechId,
         room_id: RoomId,
         node_id: NodeId,
         frames_remaining: i32,
-        shinespark_frames: i32,
-        excess_shinespark_frames: i32,
         unusable_tiles: i32,
         _link: &Link,
     ) -> Requirement {
@@ -565,10 +556,7 @@ impl<'a> Preprocessor<'a> {
                     continue;
                 }
                 let req = Requirement::ShineCharge {
-                    shinespark_tech_id,
                     used_tiles: effective_length,
-                    shinespark_frames,
-                    excess_shinespark_frames,
                 };
                 req_vec.push(Requirement::make_and(vec![
                     req,
@@ -585,10 +573,7 @@ impl<'a> Preprocessor<'a> {
                     continue;
                 }
                 let req = Requirement::ShineCharge {
-                    shinespark_tech_id,
                     used_tiles: effective_length,
-                    shinespark_frames,
-                    excess_shinespark_frames,
                 };
                 req_vec.push(Requirement::make_and(vec![
                     door_req.clone(),
@@ -617,10 +602,7 @@ impl<'a> Preprocessor<'a> {
                         continue;
                     }
                     let req = Requirement::ShineCharge {
-                        shinespark_tech_id,
                         used_tiles: total_effective_length,
-                        shinespark_frames,
-                        excess_shinespark_frames,
                     };
                     req_vec.push(Requirement::make_and(vec![
                         door_req.clone(),
@@ -642,11 +624,7 @@ impl<'a> Preprocessor<'a> {
                     can_leave_charged.open_end as f32,
                 );
                 let req = Requirement::ShineCharge {
-                    shinespark_tech_id,
                     used_tiles: effective_length,
-                    shinespark_frames: shinespark_frames
-                        + can_leave_charged.shinespark_frames.unwrap_or(0),
-                    excess_shinespark_frames,
                 };
                 req_vec.push(Requirement::make_and(vec![
                     door_req.clone(),

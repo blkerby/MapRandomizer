@@ -151,9 +151,7 @@ fn extract_tech_rec(req: &JsonValue, tech: &mut HashSet<usize>, game_data: &Game
             for x in value.members() {
                 extract_tech_rec(x, tech, game_data);
             }
-        } else if key == "canShineCharge" && value["shinesparkFrames"].as_i32().unwrap() > 0 {
-            tech.insert(game_data.tech_isv.index_by_key["canShinespark"]);
-        } else if key == "canComeInCharged" && value["shinesparkFrames"].as_i32().unwrap() > 0 {
+        } else if key == "shinespark" {
             tech.insert(game_data.tech_isv.index_by_key["canShinespark"]);
         } else if key == "comeInWithRMode" {
             tech.insert(game_data.tech_isv.index_by_key["canEnterRMode"]);
