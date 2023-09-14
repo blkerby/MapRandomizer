@@ -17,6 +17,11 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-86---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release86">Version 86 (2023-09-14)</a>:
+<ul>
+<li>New experimental customization option "Tile theme".
+</ul>
+
 <p><a href="https://version-85---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release85">Version 85 (2023-09-09)</a>:
 <ul>
 <li>Parallelism is used to accelerate seed generation, so timeouts should not occur as frequently.
