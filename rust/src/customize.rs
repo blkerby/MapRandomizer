@@ -175,6 +175,8 @@ pub fn customize_rom(
         }
         AreaTheming::Tiles(theme) => {
             apply_retiling(rom, game_data, &theme)?;
+            // // Failed attempt to put Dachora further back, e.g. so it doesn't go in front of Crateria tube:
+            // rom.write_u8(snes2pc(0xA0E5FF + 0x39), 0x06)?;
         }
     }
     apply_custom_samus_sprite(rom, settings, samus_sprite_categories)?;

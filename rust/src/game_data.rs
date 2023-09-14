@@ -2649,6 +2649,13 @@ impl GameData {
             "name": "h_ShaktoolCameraFix",
             "requires": [],
         };
+        *game_data
+            .helper_json_map
+            .get_mut("h_KraidCameraFix")
+            .unwrap() = json::object! {
+            "name": "h_KraidCameraFix",
+            "requires": [],
+        };
         // Ammo station refill
         *game_data
             .helper_json_map
