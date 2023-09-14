@@ -3,8 +3,8 @@
         <% include!("help/tile_theme.stpl"); %>
         <label for="preset">Tile theme (experimental)</label>
     </div>
-    <div class="col-3 my-2 p-0" role="group">
-        <select name="tile_theme" class="form-select">
+    <div class="col-lg-4 my-2" role="group">
+        <select id="tileTheme" name="tile_theme" class="form-select">
             <option value="none" selected>None</option>
             <option value="OuterCrateria">Outer Crateria</option>
         </select>

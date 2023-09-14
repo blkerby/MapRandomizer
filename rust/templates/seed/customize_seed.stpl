@@ -20,6 +20,18 @@ html[data-bs-theme=dark] .custom-button:not(:hover) {
 html[data-bs-theme=light] .custom-button:not(:hover) {
     background-color: #f4f5f6;
 }
+html[data-bs-theme=dark] .customize-button.collapsed {
+    background-color: #303030;
+}
+html[data-bs-theme=light] .customize-button.collapsed {
+    background-color: #f4f4f4;
+}
+.accordion-button::after {
+    position: absolute;
+    z-index: 100;
+    right: 16px;
+}
+
 </style>
 </head>
 <body>
@@ -232,11 +244,18 @@ function changeEnergyTankColor(btn) {
     document.getElementById("etankColor").value = color;
     updateEnergyTankColor();
 }
+function checkOtherOptions() {
+    if (document.getElementById("tileTheme").value != "none") {
+        document.getElementById("collapseOtherOptions").classList.remove("collapse");
+        document.getElementById("collapseOtherOptions").classList.add("show");
+    }
+}
 
 loadROM(document.getElementById("baseRom"), 'base');
 loadForm(document.getElementById("customization-form"));
 changeSamusSprite();
 updateEnergyTankColor();
+checkOtherOptions();
 </script>
 
 </body>
