@@ -1,3 +1,8 @@
+- cross-room strat cleanup
+- mosaic preview release
+- release map pool with more variety
+- split off toilet from aqueduct
+- clean up gpu setup
 
 priority:
 - add door flags to refine logic
