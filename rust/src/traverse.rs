@@ -902,6 +902,9 @@ pub fn apply_requirement(
         Requirement::ComeInWithGMode { .. } => {
             panic!("ComeInWithGMode should be resolved during preprocessing")
         }
+        Requirement::DoorUnlocked { .. } => {
+            panic!("DoorUnlocked should be resolved during preprocessing")
+        }
         Requirement::And(reqs) => {
             let mut new_local = local;
             if reverse {

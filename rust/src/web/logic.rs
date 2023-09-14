@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use glob::glob;
 use hashbrown::{HashMap, HashSet};
 use json::JsonValue;
@@ -97,10 +99,16 @@ pub struct LogicData {
 
 fn list_room_diagram_files() -> HashMap<usize, String> {
     let mut out: HashMap<usize, String> = HashMap::new();
-    for entry in glob("static/sm-json-data/region/*/roomDiagrams/*.png").unwrap() {
+    for entry in glob("../sm-json-data/region/*/roomDiagrams/*.png").unwrap() {
         match entry {
             Ok(path) => {
-                let path_string = path.to_str().unwrap().to_string();
+                let mut new_path = PathBuf::new();
+                new_path = new_path.join("static");
+                for c in path.components().skip(1) {
+                    new_path = new_path.join(c);
+                }
+
+                let path_string = new_path.to_str().unwrap().to_string();
                 let segments: Vec<&str> = path_string.split("_").collect();
                 let subregion = segments[0];
                 if subregion == "ceres" {
@@ -361,6 +369,7 @@ fn strip_cross_room_reqs(req: Requirement, game_data: &GameData) -> Requirement 
         Requirement::ComeInWithGMode { .. } => {
             Requirement::Tech(game_data.tech_isv.index_by_key["canEnterGMode"])
         }
+        Requirement::DoorUnlocked { .. } => Requirement::Free,
         Requirement::NotFlag(_) => Requirement::Free,
         _ => req,
     }

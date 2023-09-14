@@ -164,6 +164,7 @@
       "canPartialFloorClip",
       "canTurnaroundAimCancel",
       "canBombAboveIBJ",
+      "canBombJumpWaterEscape",
       "canEscapeSand",
       "canMidairWiggle",
       "canGrappleJump",
@@ -247,6 +248,7 @@
       "Back-Side Botwoon Plasma Shield Microwave",
       "Back-Side Botwoon Plasma Shield Fight",
       "Colosseum Mochtroid Ice Climb",
+      "Crab Shaft Suitless Walljump Climb with HiJump",
       "Crab Shaft Ice Only Crab Climb",
       "Draygon Grapple Quick Kill",
       "Draygon Shinespark Kill",
@@ -296,7 +298,6 @@
       "canSpaceJumpWaterEscape",
       "can2HighWallMidAirMorph",
       "canPreciseCeilingClip",
-      "canBombJumpWaterEscape",
       "canFastWalljumpClimb",
       "canQuickCrumbleEscape",
       "canHBJ",
@@ -308,7 +309,6 @@
       "canWallJumpBombBoost",
       "canBabyMetroidAvoid",
       "canSandIBJ",
-      "canBombJumpOnSand",
       "canCWJ",
       "canSandfallBounce"
     ],
@@ -359,6 +359,7 @@
       "Kihunter Shaft Manipulation from Save Room",
       "Writg New Low Ice Pirate Freeze", 
       "Writg Low Ice Pirate Freeze",
+      "WRITG with PowerBombs and a Jump Assist",
 
       "Main Street Climb with Ice and Spring Ball",
       "Crab Hole Suitless Crab Climb No Jump Assist",
@@ -366,7 +367,6 @@
       "Fish Tank Insane Naked Jump Over Pirate (Left to Right)",
       "Mama Turtle Wall Jump Bomb Boost",
 
-      "Crab Shaft Suitless Walljump Climb with HiJump",
       "Colosseum Spike Platforming with Move Assist (Left to Right)",
       "Draygon Turret Grapple Jump",
       "West Sand Hole Suitless Wall Jump Break Free",
@@ -376,6 +376,8 @@
       "East Cac Alley Cross Room Jump with IBJ",
       "Cacatac Alley Springball Spike Boost",
 
+      "West Sand Hall Suitless Bootless Spring Ball",
+      "West Sand Hall Ice Beam Only (Center to Left)",
       "East Sand Hall Spring Ball HiJump",
       "Spring Ball Room Escape - Suitless, Bootless, Space Jump",
 
@@ -402,8 +404,8 @@
       "canEnterGModeImmobile",
       "canArtificialMorph",
       "canOffScreenMovement",
+      "canUpwardGModeSetup",
       "canRightSideDoorStuckFromWater",
-      "canCeilingBombJump",
       "canDiagonalBombJump",
       "canInsaneWalljump",
       "canUnderwaterWalljump",
@@ -414,9 +416,9 @@
       "canCrouchGateClip",
       "canWallIceClip",
       "canSuperJump"
-
     ],
     "notable_strats": [
+      "Landing Site Crystal Flash X-Ray Climb",
       "Climb Temporary Blue Chain Through Bomb Blocks",
       "Golden Four Underwater Walljumps",
       "West Ocean G-mode Overload PLMs by PBing Missile Item",
@@ -462,14 +464,11 @@
       "East Sand Hole Sandfall Bounce to Power Bombs",
       "East Sand Hole Underwater Walljumps", 
 
-      "West Sand Hall Ice Beam Only (Center to Left)",
+      "West Sand Hall Suitless Damage Boost (Center to Left)",
       "West Sand Hall Ice Only (Center to Right)",
-      "West Sand Hall Suitless Bootless Spring Ball",
       "East Sand Hall Suitless Bootless Evir Freeze (Center to Left)",
       "East Sand Hall Suitless Bootless Evir Freeze (Center to Right)",
       "East Sand Hall Cross Room Jump with Ice or Damage Boost",
-      "Oasis Cross Room Jump with Screw Attack and Speed through the Top Door",
-      "Pants Room Grapple Jump",
       "East Pants Room Suitless Puyo Clip",
       "G-Mode Morph Reverse Shaktool"
     ]
@@ -487,13 +486,16 @@
     "tech": [
       "canBeVeryPatient",
       "canMoondance",
+      "canCeilingBombJump",
       "canBombGrappleJump",
       "canEnemyStuckMoonfall",
-      "canDownwardGModeSetup"
+      "canDownwardGModeSetup",
+      "canUnderwaterBombIntoSpringBallJump"
     ],
     "notable_strats": [
       "Climb G-Mode Morph Insane IBJ to Top",
       "Climb G-Mode Morph Blind Climb to the Top",
+      "Climb Morph Tunnel SpeedBall",
       "Crateria Supers G-Mode Morph Long Ceiling Bomb Jump",
       "Crateria Supers G-Mode Up with PBs",
       "Green Pirate Shaft Beetom Xray Climb",
@@ -524,10 +526,12 @@
       "Botwoon Energy Tank Room Puyo Bomb-Grapple-Jump",
       "Colosseum with no Equipment",
       "East Cac Alley G-Mode Morph, IBJ, HBJ",
+      "Cacatac Alley HiJumpless Double SpringBall Jump and Bomb-Grapple-Jump", 
       "East Sand Hole Insane Walljump Morph",
- 
+
       "West Sand Hall Insane Bomb Jump",
-      "Spring Ball Room Escape - Suitless, Bootless, Bomb into Springball Jump",
+      "Oasis Cross Room Jump with Screw Attack and Speed through the Top Door",
+      "Pants Room Grapple Jump",
  
       "Bowling Alley Ceiling Bomb Jump",
       "WS East Supers Robot Clip Run-In-Place",

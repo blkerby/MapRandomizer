@@ -17,6 +17,27 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-85---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release85">Version 85 (2023-09-09)</a>:
+<ul>
+<li>Parallelism is used to accelerate seed generation, so timeouts should not occur as frequently.
+<li>Logic updates (highlights):
+    <ul>
+    <li>New tech:
+        <ul>
+        <li>canUpwardGModeSetup (Extreme)
+        <li>canUnderwaterBombIntoSpringBallJump (Insane)
+        </ul>
+    <li>New notable strats:
+        <ul>
+        <li>WRITG with PowerBombs and a Jump Assist (Expert)
+        <li>West Sand Hall Suitless Damage Boost Center to Left (Extreme)
+        <li>Landing Site Crystal Flash X-Ray Climb (Extreme)
+        <li>Cacatac Alley HiJumpless Double SpringBall Jump and Bomb-Grapple-Jump (Insane)
+        <li>Climb Morph Tunnel SpeedBall (Insane)
+        </ul>
+    </ul>
+</ul>
+
 <p><a href="https://version-84---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release84">Version 84 (2023-09-01)</a>:
 <ul>
 <li>Added a "Maybe" option for "Save the animals".

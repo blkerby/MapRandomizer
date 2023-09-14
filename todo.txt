@@ -1,9 +1,9 @@
-next release:
-- prototype of retiling (debug mode only)
-- use resetRoom in randomizer: unclear obstacles
-  - add resetRoom to PCJR Mella farm (see if it's missing in others)
-- optimize/speed up the randomizer
-  - start logging the seed generation latency
+- start logging the seed generation latency
+- cross-room strat cleanup
+- mosaic preview release
+- release map pool with more variety
+- split off toilet from aqueduct
+- clean up gpu setup
 
 priority:
 - speed booster hall: heat frames could be slightly less?
@@ -68,7 +68,6 @@ priority:
   - or maybe just make objective X's fade on map (if we do faded item dots)
 - help buttons for rest of settings (e.g. explain boss proficiency calculations)
 - logic simulator
-- get rid of symlink for sm-json-data
 - temporarily disable comeInWithGMode strats through sand since this will not be correct with how it
   is currently set up (since there is no way to go up through sand)
 

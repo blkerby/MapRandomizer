@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  map_rando:
+    container_name: map_rando
+    image: map-rando
+    build:
+      context: .
+    command:
+      --seed-repository-url mem
+      # --seed-repository-url file:my-seeds
+    ports:
+      - '8080:8080'
+    volumes:
+      - ./my-seeds:/rust/my-seeds

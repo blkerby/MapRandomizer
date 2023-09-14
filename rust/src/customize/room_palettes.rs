@@ -195,7 +195,6 @@ fn fix_mother_brain(rom: &mut Rom, game_data: &GameData) -> Result<()> {
     Ok(())
 }
 
-
 pub fn apply_area_themed_palettes(rom: &mut Rom, game_data: &GameData) -> Result<()> {
     let new_tile_table_snes = 0x8FF900;
     let new_tile_pointers_snes = 0x8FFD00;

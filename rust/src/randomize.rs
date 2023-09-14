@@ -486,6 +486,10 @@ impl<'a> Preprocessor<'a> {
                 mobility,
                 link,
             ),
+            Requirement::DoorUnlocked {
+                room_id,
+                node_id
+            } => self.preprocess_door_unlocked(*room_id, *node_id),
             Requirement::And(sub_reqs) => Requirement::make_and(
                 sub_reqs
                     .iter()
@@ -682,6 +686,9 @@ impl<'a> Preprocessor<'a> {
         {
             unlocked_node_id = self.game_data.unlocked_node_map[&(room_id, node_id)];
         }
+        // if !self.door_map.contains_key(&(room_id, unlocked_node_id)) {
+        //     info!("Ignoring adjacent runway with unrecognized node: room_id={}, node_id={}", room_id, node_id);
+        // }
         let (other_room_id, other_node_id) = self.door_map[&(room_id, unlocked_node_id)];
         let runways = &self.game_data.node_runways_map[&(other_room_id, other_node_id)];
         let locked_door_idx = self.locked_node_map.get(&(room_id, unlocked_node_id)).map(|x| *x);
@@ -959,6 +966,24 @@ impl<'a> Preprocessor<'a> {
         //     self.game_data.room_json_map[&room_id]["name"], room_id, node_ids, link.strat_name, out
         // );
         out
+    }
+
+    fn preprocess_door_unlocked(
+        &mut self,
+        room_id: RoomId,
+        node_id: NodeId,
+    ) -> Requirement {
+        let mut unlocked_node_id = node_id;
+        if self
+            .game_data
+            .unlocked_node_map
+            .contains_key(&(room_id, node_id))
+        {
+            unlocked_node_id = self.game_data.unlocked_node_map[&(room_id, node_id)];
+        }
+        let locked_door_idx = self.locked_node_map.get(&(room_id, unlocked_node_id)).map(|x| *x);
+        let door_req = get_door_requirement(locked_door_idx, self.locked_doors, self.game_data);
+        return door_req
     }
 }
 
@@ -1613,6 +1638,7 @@ impl<'r> Randomizer<'r> {
 
     fn place_items(
         &self,
+        attempt_num_rando: usize,
         state: &RandomizationState,
         new_state: &mut RandomizationState,
         bireachable_locations: &[ItemLocationId],
@@ -1621,10 +1647,10 @@ impl<'r> Randomizer<'r> {
         other_items_to_place: &[Item],
     ) {
         info!(
-            "Placing {:?}, {:?}",
+            "[attempt {attempt_num_rando}] Placing {:?}, {:?}",
             key_items_to_place, other_items_to_place
         );
-        // println!("# bireachable = {}", bireachable_locations.len());
+        // println!("[attempt {attempt_num_rando}] # bireachable = {}", bireachable_locations.len());
         let mut new_bireachable_locations: Vec<ItemLocationId> = bireachable_locations.to_vec();
         if self.difficulty_tiers.len() > 1 {
             let traverse_result = match state.previous_debug_data.as_ref() {
@@ -1647,7 +1673,7 @@ impl<'r> Randomizer<'r> {
                     self.find_hard_location(state, &new_bireachable_locations[i..], traverse_result)
                 };
                 info!(
-                    "{:?} in tier {} (of {})",
+                    "[attempt {attempt_num_rando}] {:?} in tier {} (of {})",
                     key_items_to_place[i],
                     tier,
                     self.difficulty_tiers.len()
@@ -1684,14 +1710,14 @@ impl<'r> Randomizer<'r> {
         }
     }
 
-    fn finish(&self, state: &mut RandomizationState) {
+    fn finish(&self, attempt_num_rando: usize, state: &mut RandomizationState) {
         let mut remaining_items: Vec<Item> = Vec::new();
         for item_id in 0..self.game_data.item_isv.keys.len() {
             for _ in 0..state.items_remaining[item_id] {
                 remaining_items.push(Item::try_from(item_id).unwrap());
             }
         }
-        info!("Finishing with {:?}", remaining_items);
+        info!("[attempt {attempt_num_rando}] Finishing with {:?}", remaining_items);
         let mut idx = 0;
         for item_loc_state in &mut state.item_location_state {
             if item_loc_state.placed_item.is_none() {
@@ -1772,6 +1798,7 @@ impl<'r> Randomizer<'r> {
 
     fn multi_attempt_select_items<R: Rng + Clone>(
         &self,
+        attempt_num_rando: usize,
         state: &RandomizationState,
         placed_uncollected_bireachable_items: &[Item],
         num_unplaced_bireachable: usize,
@@ -1825,7 +1852,7 @@ impl<'r> Randomizer<'r> {
             if let Some(s) = new_selection {
                 selection = s;
             } else {
-                info!("Exhausted key item placement attempts");
+                info!("[attempt {attempt_num_rando}] Exhausted key item placement attempts");
                 return (selection, new_state);
             }
             attempt_num += 1;
@@ -1834,6 +1861,7 @@ impl<'r> Randomizer<'r> {
 
     fn step<R: Rng + Clone>(
         &self,
+        attempt_num_rando: usize,
         state: &mut RandomizationState,
         rng: &mut R,
     ) -> (SpoilerSummary, SpoilerDetails) {
@@ -1892,6 +1920,7 @@ impl<'r> Randomizer<'r> {
         unplaced_bireachable.shuffle(rng);
         unplaced_oneway_reachable.shuffle(rng);
         let (selection, mut new_state) = self.multi_attempt_select_items(
+            attempt_num_rando,
             &state,
             &placed_uncollected_bireachable_items,
             unplaced_bireachable.len(),
@@ -1913,6 +1942,7 @@ impl<'r> Randomizer<'r> {
             // with non-key items, to minimize the possibility of them being usable to break from the
             // intended sequence.
             self.place_items(
+                attempt_num_rando,
                 &state,
                 &mut new_state,
                 &unplaced_bireachable,
@@ -1925,6 +1955,7 @@ impl<'r> Randomizer<'r> {
             // one-way-reachable locations so that they may get key items placed there later after
             // becoming bireachable.
             self.place_items(
+                attempt_num_rando,
                 &state,
                 &mut new_state,
                 &unplaced_bireachable,
@@ -2128,6 +2159,7 @@ impl<'r> Randomizer<'r> {
 
     pub fn determine_start_location<R: Rng>(
         &self,
+        attempt_num_rando: usize,
         num_attempts: usize,
         rng: &mut R,
     ) -> Result<(StartLocation, HubLocation)> {
@@ -2148,11 +2180,11 @@ impl<'r> Randomizer<'r> {
             return Ok((ship_start, ship_hub));
         }
         'attempt: for i in 0..num_attempts {
-            info!("start location attempt {}", i);
+            info!("[attempt {attempt_num_rando}] start location attempt {}", i);
             let start_loc_idx = rng.gen_range(0..self.game_data.start_locations.len());
             let start_loc = self.game_data.start_locations[start_loc_idx].clone();
 
-            info!("start: {:?}", start_loc);
+            info!("[attempt {attempt_num_rando}] start: {:?}", start_loc);
             let num_vertices = self.game_data.vertex_isv.keys.len();
             let start_vertex_id =
                 self.game_data.vertex_isv.index_by_key[&(start_loc.room_id, start_loc.node_id, 0)];
@@ -2238,7 +2270,7 @@ impl<'r> Randomizer<'r> {
                 }
             }
         }
-        bail!("Failed to find start location.")
+        bail!("[attempt {attempt_num_rando}] Failed to find start location.")
     }
 
     fn get_initial_global_state(&self) -> GlobalState {
@@ -2259,7 +2291,7 @@ impl<'r> Randomizer<'r> {
         }
     }
 
-    pub fn randomize(&self, seed: usize, display_seed: usize) -> Result<Randomization> {
+    pub fn randomize(&self, attempt_num_rando: usize, seed: usize, display_seed: usize) -> Result<Randomization> {
         let mut rng_seed = [0u8; 32];
         rng_seed[..8].copy_from_slice(&seed.to_le_bytes());
         let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
@@ -2278,10 +2310,10 @@ impl<'r> Randomizer<'r> {
         let initial_save_location_state = SaveLocationState { bireachable: false };
         let num_attempts_start_location = 10;
         let (start_location, hub_location) =
-            self.determine_start_location(num_attempts_start_location, &mut rng)?;
+            self.determine_start_location(attempt_num_rando, num_attempts_start_location, &mut rng)?;
         let item_precedence: Vec<Item> =
             self.get_item_precedence(&self.difficulty_tiers[0].item_priorities, &mut rng);
-        info!("Item precedence: {:?}", item_precedence);
+        info!("[attempt {attempt_num_rando}] Item precedence: {:?}", item_precedence);
         let mut state = RandomizationState {
             step_num: 1,
             item_precedence,
@@ -2307,13 +2339,13 @@ impl<'r> Randomizer<'r> {
         };
         self.update_reachability(&mut state);
         if !state.item_location_state.iter().any(|x| x.bireachable) {
-            bail!("No initially bireachable item locations");
+            bail!("[attempt {attempt_num_rando}] No initially bireachable item locations");
         }
         let mut spoiler_summary_vec: Vec<SpoilerSummary> = Vec::new();
         let mut spoiler_details_vec: Vec<SpoilerDetails> = Vec::new();
         let mut debug_data_vec: Vec<DebugData> = Vec::new();
         loop {
-            let (spoiler_summary, spoiler_details) = self.step(&mut state, &mut rng);
+            let (spoiler_summary, spoiler_details) = self.step(attempt_num_rando, &mut state, &mut rng);
             let cnt_collected = state
                 .item_location_state
                 .iter()
@@ -2334,7 +2366,7 @@ impl<'r> Randomizer<'r> {
                 .iter()
                 .filter(|x| x.bireachable)
                 .count();
-            info!("step={0}, bireachable={cnt_bireachable}, reachable={cnt_reachable}, placed={cnt_placed}, collected={cnt_collected}", state.step_num);
+            info!("[attempt {attempt_num_rando}] step={0}, bireachable={cnt_bireachable}, reachable={cnt_reachable}, placed={cnt_placed}, collected={cnt_collected}", state.step_num);
 
             if spoiler_summary.items.len() > 0 || spoiler_summary.flags.len() > 0 {
                 // If we gained anything on this step (an item or a flag), generate a spoiler step:
@@ -2348,7 +2380,7 @@ impl<'r> Randomizer<'r> {
 
                 // Check that at least one instance of each item can be collected.
                 if !state.global_state.items.iter().all(|&b| b) {
-                    bail!("Attempt failed: Key items not all collectible");
+                    bail!("[attempt {attempt_num_rando}] Attempt failed: Key items not all collectible");
                 }
 
                 // Check that Phantoon can be defeated. This is to rule out the possibility that Phantoon may be locked
@@ -2357,7 +2389,7 @@ impl<'r> Randomizer<'r> {
                     [self.game_data.flag_isv.index_by_key["f_DefeatedPhantoon"]]
                     .bireachable
                 {
-                    bail!("Attempt failed: Phantoon not defeated");
+                    bail!("[attempt {attempt_num_rando}] Attempt failed: Phantoon not defeated");
                 }
 
                 // Success:
@@ -2366,12 +2398,12 @@ impl<'r> Randomizer<'r> {
 
             if state.step_num == 1 && self.difficulty_tiers[0].early_save {
                 if !state.save_location_state.iter().any(|x| x.bireachable) {
-                    bail!("Attempt failed: no accessible save location");
+                    bail!("[attempt {attempt_num_rando}] Attempt failed: no accessible save location");
                 }
             }
             state.step_num += 1;
         }
-        self.finish(&mut state);
+        self.finish(attempt_num_rando, &mut state);
         self.get_randomization(
             &state,
             spoiler_summary_vec,
