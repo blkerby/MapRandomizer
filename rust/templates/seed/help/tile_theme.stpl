@@ -1,0 +1,25 @@
+<!-- Button trigger modal -->
+<button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#tileThemeModal">
+<i class="bi bi-question-circle"></i>
+</button>
+
+<!-- Modal -->
+<div class="modal" id="tileThemeModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">Tile theme</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>If enabled, the rooms in the game will be retiled using the selected theme. This affects only the
+        graphical appearance of the rooms.</p>
+        <p>Note: This option is still under development and may contain bugs. If you notice any issues, please 
+        let us know on the <a href="https://discord.gg/Gc99YV2ZcB">Discord</a>.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

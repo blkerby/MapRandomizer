@@ -5,7 +5,6 @@ next release:
 - optimize/speed up the randomizer
   - start logging the seed generation latency
 
-
 priority:
 - speed booster hall: heat frames could be slightly less?
 - try using other zebes asleep music, to see if snails make a sound?

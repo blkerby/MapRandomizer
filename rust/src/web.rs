@@ -69,7 +69,6 @@ pub struct AppData {
     pub logic_data: LogicData,
     // pub samus_customizer: SamusSpriteCustomizer,
     pub debug: bool,
-    pub mosaic_theme: Option<String>,
     pub static_visualizer: bool,
     pub etank_colors: Vec<Vec<String>>,  // colors in HTML hex format, e.g "#ff0000"
 }
