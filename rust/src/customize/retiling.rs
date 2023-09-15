@@ -72,7 +72,8 @@ pub fn apply_retiling(rom: &mut Rom, game_data: &GameData, theme_name: &str) -> 
 
     let mut fx_allocator = Allocator::new(vec![
         (snes2pc(0x838000), snes2pc(0x8388FC)),
-        (snes2pc(0x839AC2), snes2pc(0x83A18A)),
+        (snes2pc(0x839AC2), snes2pc(0x83A0A4)),
+        (snes2pc(0x83A0D4), snes2pc(0x83A18A)),
         (snes2pc(0x83F000), snes2pc(0x840000)),
     ]);
 
@@ -246,21 +247,29 @@ pub fn apply_retiling(rom: &mut Rom, game_data: &GameData, theme_name: &str) -> 
             rom.write_u24(state_ptr, pc2snes(level_data_addr) as isize)?;
 
             // Write FX:
-            let fx_data = get_fx_data(&state.fx1, &fx_door_ptr_map)?;
-            let fx_data_addr = match fx_data_map.entry(fx_data.clone()) {
-                Entry::Occupied(x) => *x.get(),
-                Entry::Vacant(view) => {
-                    let addr = fx_allocator.allocate(fx_data.len())?;
-                    view.insert(addr);
-                    addr
-                }
-            };
-            rom.write_n(fx_data_addr, &fx_data)?;
-            rom.write_u16(state_ptr + 6, (pc2snes(fx_data_addr) & 0xFFFF) as isize)?;
+            if pc2snes(room_ptr) & 0xFFFF == 0xDD58 {
+                // Skip for Mother Brain Room, which has special FX not in the FX list.
+            } else {
+                let fx_data = get_fx_data(&state.fx1, &fx_door_ptr_map)?;
+                let fx_data_addr = match fx_data_map.entry(fx_data.clone()) {
+                    Entry::Occupied(x) => *x.get(),
+                    Entry::Vacant(view) => {
+                        let addr = fx_allocator.allocate(fx_data.len())?;
+                        view.insert(addr);
+                        addr
+                    }
+                };
+                rom.write_n(fx_data_addr, &fx_data)?;
+                rom.write_u16(state_ptr + 6, (pc2snes(fx_data_addr) & 0xFFFF) as isize)?;    
+            }
 
-            // Write setup & main ASM pointers:
-            rom.write_u16(state_ptr + 18, state.main_asm as isize)?;
-            rom.write_u16(state_ptr + 24, state.setup_asm as isize)?;
+            if pc2snes(state_ptr) & 0xFFFF == 0xDDA2 {
+                // Don't overwrite ASM for special Mother Brain Room state used by randomizer for escape sequence.
+            } else {
+                // Write setup & main ASM pointers:
+                rom.write_u16(state_ptr + 18, state.main_asm as isize)?;
+                rom.write_u16(state_ptr + 24, state.setup_asm as isize)?;
+            }
         }
     }
 
