@@ -17,6 +17,11 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-87---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release87">Version 87 (2023-09-16)</a>:
+<ul>
+<li>Many bugfixes to the experimental customization option "Tile theme".
+</ul>
+
 <p><a href="https://version-86---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release86">Version 86 (2023-09-14)</a>:
 <ul>
 <li>New experimental customization option "Tile theme".
