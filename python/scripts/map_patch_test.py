@@ -14,7 +14,7 @@ input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.5.8.1-tin
 # input_rom_path = '/home/kerby/Downloads/smmr-v8-66-115673117270825932886574167490559/smmr-v8-66-115673117270825932886574167490559.sfc'
 # input_rom_path = '/home/kerby/Downloads/smmr-v0-30-115673117270825932886574167490559.sfc'
 # input_rom_path = '/home/kerby/Downloads/smmr-v0-5-115673117270825932886574167490559.sfc'
-output_rom_path = '/home/kerby/Downloads/roms/sm-prachack-2.5.8.1-doorhurt-blue.smc'
+output_rom_path = '/home/kerby/Downloads/roms/sm-prachack-2.5.8.1-doorhurt-blue-everest.smc'
 orig_rom = Rom(open(input_rom_path, 'rb'))
 rom = Rom(open(input_rom_path, 'rb'))
 
@@ -37,7 +37,7 @@ patches = [
     # 'spinjumprestart',
     # 'new_game_extra',
     'door_hurt',
-    # "everest_tube"
+    "everest_tube"
     # 'complementary_suits',
     # 'complementary_suits_noheat',
     # 'escape',

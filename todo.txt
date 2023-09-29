@@ -7,6 +7,8 @@
 
 priority:
 - consider making "guaranteed early save" the default
+- consider implementing farm QoL option to combine drop tiers
+  - $86F106: drop logic
 - speed booster hall: heat frames could be slightly less?
 - try using other zebes asleep music, to see if snails make a sound?
 - make script to convert norfair cre to cre.
@@ -73,6 +75,7 @@ priority:
   is currently set up (since there is no way to go up through sand)
 
 later:
+- make item music tracks consistent, to eliminate music restarts that can happen between two item rooms
 - fix palette fade issue when entering MB room from left (Mother Brain starts from white?)
 - possibly bad idea: should getting map station add arrows to other maps (ones leading into current map)?
 - see if we can do something about silent snails with Zebes asleep music

@@ -205,8 +205,8 @@ class Unpickler(pickle.Unpickler):
 
 pickle_name = 'models/session-2023-06-08T14:55:16.779895.pkl'
 # session = pickle.load(open(pickle_name, 'rb'))
-session = Unpickler(open(pickle_name, 'rb')).load()
-# session = Unpickler(open(pickle_name + '-bk32', 'rb')).load()
+# session = Unpickler(open(pickle_name, 'rb')).load()
+session = Unpickler(open(pickle_name + '-bk34', 'rb')).load()
 # session.replay_buffer.size = 0
 # session.replay_buffer.position = 0
 # session.replay_buffer.resize(2 ** 23)
@@ -236,7 +236,7 @@ hist_c = 1.0
 hist_frac = 1.0
 batch_size = 2 ** 10
 lr0 = 0.00005
-lr1 = 0.00005
+lr1 = lr0
 # lr_warmup_time = 16
 # lr_cooldown_time = 100
 num_candidates_min0 = 255.5
@@ -366,8 +366,8 @@ def display_counts(counts, top_n: int, verbose: bool):
             y_second = session.envs[0].room_right[top_door_id_second, 2]
         if verbose:
             logging.info(name)
-            for i in range(top_n):
-                logging.info("{:.4f}: {} ({}, {}) -> {} ({}, {})".format(
+            for i in range(min(top_n, len(top_frac))):
+                logging.info("{:.6f}: {} ({}, {}) -> {} ({}, {})".format(
                     top_frac[i], rooms[room_id_first[i]].name, x_first[i], y_first[i], 
                     rooms[room_id_second[i]].name, x_second[i], y_second[i]))
         else:
@@ -590,9 +590,9 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk32')
-            # session.replay_buffer.resize(2 ** 20)
-            # pickle.dump(session, open(pickle_name + '-small-22', 'wb'))
+            # save_session(session, pickle_name + '-bk34')
+            # session.replay_buffer.resize(2 ** 18)
+            # pickle.dump(session, open(pickle_name + '-small-34', 'wb'))
     if session.num_rounds % summary_freq == 0:
         if num_candidates_max == 1:
             total_eval_loss = 0.0
@@ -662,7 +662,7 @@ for i in range(1000000):
         logging.info("Overall ({}): ent1={:.6f}".format(
             torch.sum(session.replay_buffer.episode_data.reward[:session.replay_buffer.size] == 0).item(), ent1))
         display_counts(counts1, 16, verbose=False)
-        # display_counts(counts1, 100, verbose=True)
+        # display_counts(counts1, 5000000, verbose=True)
 
         # logging.info(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects, dim=0)))
 

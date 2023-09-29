@@ -135,6 +135,10 @@ def compute_room_distance_matrix(map):
     return distance_matrix.astype(np.float32)
 
 
+def compute_area_vec(map):
+    return np.array(map['area'])
+
+
 def get_rooms_in_area(map, area):
     return [i for i in range(len(map['rooms'])) if map['area'][i] == area]
 
@@ -169,7 +173,7 @@ def compute_hallway_cap_mask(dist_matrix):
     return hallway_cap_mask
 
 
-def compute_balance_cost(save_idxs, refill_idxs, map_idxs, dist_matrix, hallway_cap_mask):
+def compute_balance_cost(save_idxs, refill_idxs, map_idxs, dist_matrix, hallway_cap_mask, area_vec):
     # For each room, find the distance (measured by number of door transitions) to the nearest save and to the
     # nearest refill. Then average these distances to get an overall cost which we will try to minimize.
 
@@ -192,11 +196,14 @@ def compute_balance_cost(save_idxs, refill_idxs, map_idxs, dist_matrix, hallway_
     refill_cap_cost = np.sum(hallway_cap_mask[refill_idxs])
     refill_dist = dist_matrix[np.array(refill_idxs).reshape(1, -1), np.array(refill_idxs).reshape(-1, 1)]
     refill_neighbors_cnt = np.sum((refill_dist == 1) | (refill_dist == 2))
-    map_dist_cost = np.mean(dist_matrix[landing_site_idx, map_idxs])
+
+    area_match = area_vec.reshape(-1, 1) == area_vec.reshape(1, -1)
+    area_masked_dist_matrix = np.where(area_match, dist_matrix, np.zeros_like(dist_matrix))
+    map_dist_cost = np.mean(area_masked_dist_matrix[:, map_idxs])
     
-    overall_save_cost = save_coverage_cost + 0.1 * save_cap_cnt + 0.3 * save_neighbors_cnt
+    overall_save_cost = 2.0 * save_coverage_cost + 0.1 * save_cap_cnt + 0.3 * save_neighbors_cnt
     overall_refill_cost = refill_coverage_cost + 0.1 * refill_cap_cost + 0.2 * refill_neighbors_cnt
-    overall_cost = overall_save_cost + overall_refill_cost + map_dist_cost
+    overall_cost = overall_save_cost + overall_refill_cost + 10.0 * map_dist_cost
     return overall_cost
 
 
@@ -253,6 +260,7 @@ def redistribute_saves_and_refills(map, num_steps):
                             for d in range(3)]
     dist_matrix = compute_room_distance_matrix(map)
     hallway_cap_mask = compute_hallway_cap_mask(dist_matrix)
+    area_vec = compute_area_vec(map)
 
     def compute_balance_cost_for_indexes(idxs_by_doortype):
         save_idxs = [idx for doortype in range(3)
@@ -265,7 +273,7 @@ def redistribute_saves_and_refills(map, num_steps):
                         (num_saves_by_doortype[doortype] + num_refills_by_doortype[doortype]):(
                         num_saves_by_doortype[doortype] + num_refills_by_doortype[doortype]
                         + num_maps_by_doortype[doortype])]]
-        return compute_balance_cost(save_idxs, refill_idxs, map_idxs, dist_matrix, hallway_cap_mask)
+        return compute_balance_cost(save_idxs, refill_idxs, map_idxs, dist_matrix, hallway_cap_mask, area_vec)
 
     current_cost = compute_balance_cost_for_indexes(all_indexes_by_doortype)
     current_indexes_by_doortype = all_indexes_by_doortype
@@ -398,37 +406,18 @@ def balance_utilities(map):
     map = balance_maps(map)
     if map is None:
         return None
-    map = redistribute_saves_and_refills(map, num_steps=1000)
+    map = redistribute_saves_and_refills(map, num_steps=2000)
     return map
 
 
 # import json
-#
-# map = json.load(open('maps/maps/session-2022-06-03T17:19:29.727911.pkl-bk30-small/7.json', 'rb'))
+# map = json.load(open('maps/session-2023-06-08T14:55:16.779895.pkl-bk24-subarea-balance-2/10006.json', 'rb'))
 # map = balance_utilities(map)
-# # map = place_phantoon_and_friends(map)
-#
-#
-# # save_indexes_by_doortype, refill_indexes_by_doortype, other_indexes_by_doortype = get_room_indexes_by_doortype()
-# # save_indexes = [i for idxs in save_indexes_by_doortype for i in idxs]
-# # refill_indexes = [i for idxs in refill_indexes_by_doortype for i in idxs]
-# # # print(compute_balance_cost(save_indexes, refill_indexes, compute_room_distance_matrix(map)))
-# # print("save=",compute_balance_cost(save_indexes, refill_indexes, compute_room_distance_matrix(map), save_weight=1.0))
-# # print("refill=",compute_balance_cost(save_indexes, refill_indexes, compute_room_distance_matrix(map), save_weight=0.0))
-# # map = balance_map(map)
-# # # map = balance_map(map)
-# # save_indexes_by_doortype, refill_indexes_by_doortype, other_indexes_by_doortype = get_room_indexes_by_doortype()
-# # save_indexes = [i for idxs in save_indexes_by_doortype for i in idxs]
-# # refill_indexes = [i for idxs in refill_indexes_by_doortype for i in idxs]
-# # # print(compute_balance_cost(save_indexes, refill_indexes, compute_room_distance_matrix(map)))
-# # print("save=",compute_balance_cost(save_indexes, refill_indexes, compute_room_distance_matrix(map), save_weight=1.0))
-# # print("refill=",compute_balance_cost(save_indexes, refill_indexes, compute_room_distance_matrix(map), save_weight=0.0))
-# #
 # from maze_builder.display import MapDisplay
-#
 # display = MapDisplay(72, 72, 20)
-# display.display_assigned_areas_with_saves(map)
-# # display.display_assigned_areas(map)
-# # display.display_assigned_areas_with_ws(map)
-# # # display.display_vanilla_areas(map)
+# # display.display_assigned_areas_with_saves(map)
+# display.display_assigned_areas_with_maps(map)
+# # # display.display_assigned_areas(map)
+# # # display.display_assigned_areas_with_ws(map)
+# # # # display.display_vanilla_areas(map)
 # display.image.show()
