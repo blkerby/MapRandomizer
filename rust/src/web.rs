@@ -11,7 +11,7 @@ use crate::seed_repository::SeedRepository;
 
 use self::logic::LogicData;
 
-pub const VERSION: usize = 87;
+pub const VERSION: usize = 88;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Preset {

@@ -827,6 +827,15 @@ class MazeBuilderEnv:
 
         return adjacency_matrix
 
+    def compute_distance_matrix(self, adjacency_matrix):
+        n = adjacency_matrix.shape[0]
+        k = adjacency_matrix.shape[1]
+        A = torch.where(torch.eye(k) == 1, 0, torch.where(adjacency_matrix > 0, 1, 0x3fff))
+        for i in range(8):
+            A = torch.amin(torch.transpose(A, 1, 2).view(n, k, k, 1) + A.view(n, k, 1, k), dim=1)
+            print(torch.mean(A[:, :-1, :-1].to(torch.float), dim=[1, 2]))
+        # print(torch.amax(A[:, :-1, :-1], dim=[1, 2]))
+        return A
 
     def compute_component_matrices(self, adjacency_matrix):
         component_matrix = adjacency_matrix

@@ -58,8 +58,8 @@ Download and extract the pool of randomized maps:
 
 ```sh
 mkdir maps && cd maps
-wget https://storage.googleapis.com/super-metroid-map-rando/maps/session-2023-06-08T14:55:16.779895.pkl-bk24-subarea-balance-2.tgz
-mv session-2023-06-08T14:55:16.779895.pkl-bk24-subarea-balance-2.tgz maps.tar.gz && tar xfz maps.tar.gz
+wget https://storage.googleapis.com/super-metroid-map-rando/maps/session-2023-06-08T14:55:16.779895.pkl-small-34-subarea-balance-2.tgz
+mv session-2023-06-08T14:55:16.779895.pkl-small-34-subarea-balance-2.tgz maps.tar.gz && tar xfz maps.tar.gz
 cd ..
 ```
 
@@ -78,5 +78,5 @@ After cloning the GitHub repository and downloading/extracting the maps (as abov
 
 ```sh
 cd rust
-cargo run --bin maprando-cli -- --map ../maps/session-2023-06-08T14:55:16.779895.pkl-bk24-subarea-balance-2/10005.json --item-placement-seed 1 --input-rom YOUR-PATH-TO-VANILLA-ROM --output-rom OUTPUT-ROM-FILENAME
+cargo run --bin maprando-cli -- --map ../maps/session-2023-06-08T14:55:16.779895.pkl-small-34-subarea-balance-2/10005.json --item-placement-seed 1 --input-rom YOUR-PATH-TO-VANILLA-ROM --output-rom OUTPUT-ROM-FILENAME
 ```

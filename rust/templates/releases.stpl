@@ -17,6 +17,17 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-88---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release88">Version 88 (2023-09-30)</a>:
+<ul>
+<li>New map pool:
+    <ul>
+    <li>Further increase in variety of room connections
+    <li>Some tendency for map stations to be centrally located in their area (rather than being closer to Landing Site)
+    <li>Minor improvements to balancing of save stations
+    </ul>
+<li>A few more fixes to the experimental customization option "Tile theme".
+</ul>
+
 <p><a href="https://version-87---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release87">Version 87 (2023-09-16)</a>:
 <ul>
 <li>Many bugfixes to the experimental customization option "Tile theme".

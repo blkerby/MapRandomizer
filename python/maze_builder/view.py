@@ -5,8 +5,8 @@ import logging
 from maze_builder.env import MazeBuilderEnv
 from maze_builder.types import reconstruct_room_data, Direction
 import logic.rooms.all_rooms
-import logic.rooms.crateria_isolated
-import logic.rooms.norfair_isolated
+# import logic.rooms.crateria_isolated
+# import logic.rooms.norfair_isolated
 import pickle
 import concurrent.futures
 import random
@@ -37,8 +37,8 @@ device = torch.device('cpu')
 # session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-10', 'rb')).load()
 # session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-16', 'rb')).load()
 session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-22', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-34', 'rb')).load()
 #
-
 
 print(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects.to(torch.float32), dim=0)))
 min_reward = torch.min(session.replay_buffer.episode_data.reward)
@@ -58,6 +58,85 @@ num_rooms = len(session.envs[0].rooms)
 action = session.replay_buffer.episode_data.action[ind[i], :]
 step_indices = torch.tensor([num_rooms])
 room_mask, room_position_x, room_position_y = reconstruct_room_data(action, step_indices, num_rooms)
+import time
+
+import torch
+import logging
+from maze_builder.env import MazeBuilderEnv
+from maze_builder.types import reconstruct_room_data, Direction
+import logic.rooms.all_rooms
+# import logic.rooms.crateria_isolated
+# import logic.rooms.norfair_isolated
+import pickle
+import concurrent.futures
+import random
+
+logging.basicConfig(format='%(asctime)s %(message)s',
+                    level=logging.INFO,
+                    handlers=[logging.FileHandler("train.log"),
+                              logging.StreamHandler()])
+
+torch.set_printoptions(linewidth=120, threshold=10000)
+import io
+
+
+class CPU_Unpickler(pickle.Unpickler):
+    def find_class(self, module, name):
+        if module == 'torch.storage' and name == '_load_from_bytes':
+            return lambda b: torch.load(io.BytesIO(b), map_location='cpu')
+        else:
+            return super().find_class(module, name)
+
+device = torch.device('cpu')
+# session = CPU_Unpickler(open('models/07-31-session-2022-06-03T17:19:29.727911.pkl-bk30-small', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2023-05-10T14:34:48.668019.pkl-small.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2023-05-31T14:35:04.410129.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2023-05-31T21:25:13.243815.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2023-06-02T23:26:53.466014.pkl', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-10', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-16', 'rb')).load()
+session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-22', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-34', 'rb')).load()
+#
+
+print(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects.to(torch.float32), dim=0)))
+min_reward = torch.min(session.replay_buffer.episode_data.reward)
+print(min_reward, torch.mean((session.replay_buffer.episode_data.reward == min_reward).to(torch.float32)),
+      session.replay_buffer.episode_data.reward.shape[0])
+
+# ind = torch.nonzero((session.replay_buffer.episode_data.reward >= 340) & (session.replay_buffer.episode_data.temperature > 0.5))
+# ind = torch.nonzero((session.replay_buffer.episode_data.reward >= 343) & (session.replay_buffer.episode_data.temperature < 0.05))
+# ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 343)
+# ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 0)
+# ind = ind[(ind >= 200000) & (ind < 262144)].view(-1, 1)
+ind = torch.nonzero(session.replay_buffer.episode_data.reward == min_reward)
+i = int(random.randint(0, ind.shape[0] - 1))
+print(len(ind), i)
+# i = 2
+num_rooms = len(session.envs[0].rooms)
+
+
+action = session.replay_buffer.episode_data.action[ind[i], :]
+# action = session.replay_buffer.episode_data.action[ind[:16], :]
+step_indices = torch.tensor([num_rooms])
+room_mask, room_position_x, room_position_y = reconstruct_room_data(action, step_indices, num_rooms)
+
+
+# env = session.envs[0]
+# A = env.compute_part_adjacency_matrix(room_mask, room_position_x, room_position_y)
+# # A = env.compute_part_adjacency_matrix(env.room_mask, env.room_position_x, env.room_position_y)
+# D = env.compute_distance_matrix(A)
+
+
+# env = session.envs[0]
+# A = env.compute_part_adjacency_matrix(room_mask, room_position_x, room_position_y)
+# # A = env.compute_part_adjacency_matrix(env.room_mask, env.room_position_x, env.room_position_y)
+# D = env.compute_distance_matrix(A)
+# M = env.compute_missing_connections(A)
+# print(torch.sum(M, dim=1))
+
+
 
 # print(torch.where(session.replay_buffer.episode_data.missing_connects[ind[i, 0], :] == False))
 # print(torch.where(room_mask[0, :251] == False))
