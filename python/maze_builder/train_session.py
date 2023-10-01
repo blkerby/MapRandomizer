@@ -363,6 +363,8 @@ class TrainingSession():
             door_connects_tensor = env.current_door_connects().to('cpu')
             part_adjacency_matrix = env.compute_part_adjacency_matrix(env.room_mask, env.room_position_x, env.room_position_y)
             missing_connects_tensor = env.compute_missing_connections(part_adjacency_matrix).to('cpu')
+            distance_matrix = env.compute_distance_matrix(part_adjacency_matrix)
+            save_distances = env.compute_save_distances(distance_matrix).to('cpu')
             reward_tensor = self.compute_reward(door_connects_tensor, missing_connects_tensor, use_connectivity)
             selected_raw_logodds_tensor = torch.stack(selected_raw_logodds_list, dim=1)
             action_tensor = torch.stack(action_list, dim=1)
@@ -391,6 +393,7 @@ class TrainingSession():
                 reward=reward_tensor,
                 door_connects=door_connects_tensor,
                 missing_connects=missing_connects_tensor,
+                save_distances=save_distances,
                 cycle_cost=None,  # populated later in generate_round_model
                 action=action_tensor.to(torch.uint8),
                 prob=prob_tensor,
@@ -438,6 +441,7 @@ class TrainingSession():
             reward=torch.cat([d.reward for d in episode_data_list], dim=0),
             door_connects=torch.cat([d.door_connects for d in episode_data_list], dim=0),
             missing_connects=torch.cat([d.missing_connects for d in episode_data_list], dim=0),
+            save_distances=torch.cat([d.save_distances for d in episode_data_list], dim=0),
             cycle_cost=torch.cat([d.cycle_cost for d in episode_data_list], dim=0),
             action=torch.cat([d.action for d in episode_data_list], dim=0),
             prob=torch.cat([d.prob for d in episode_data_list], dim=0),

@@ -131,8 +131,9 @@ room_mask, room_position_x, room_position_y = reconstruct_room_data(action, step
 
 # env = session.envs[0]
 # A = env.compute_part_adjacency_matrix(room_mask, room_position_x, room_position_y)
-# # A = env.compute_part_adjacency_matrix(env.room_mask, env.room_position_x, env.room_position_y)
+# A = env.compute_part_adjacency_matrix(env.room_mask, env.room_position_x, env.room_position_y)
 # D = env.compute_distance_matrix(A)
+# S = env.compute_save_distances(D)
 # M = env.compute_missing_connections(A)
 # print(torch.sum(M, dim=1))
 
@@ -194,6 +195,13 @@ env.room_mask = room_mask
 env.render(0)
 env.map_display.image.show()
 
+A = env.compute_part_adjacency_matrix(room_mask, room_position_x, room_position_y)
+D = env.compute_distance_matrix(A)
+S = env.compute_save_distances(D)
+
+
+
+
 # for i in range(num_rooms + 1):
 #     step_indices = torch.tensor([i])
 #     room_mask, room_position_x, room_position_y = reconstruct_room_data(action, step_indices, num_rooms)
@@ -223,3 +231,4 @@ env.map_display.image.show()
 #     # render=True)
 # end_time = time.perf_counter()
 # print(end_time - start_time)
+print(len(env.single_tile_idxs))

@@ -205,12 +205,32 @@ class Unpickler(pickle.Unpickler):
 
 pickle_name = 'models/session-2023-06-08T14:55:16.779895.pkl'
 # session = pickle.load(open(pickle_name, 'rb'))
-# session = Unpickler(open(pickle_name, 'rb')).load()
-session = Unpickler(open(pickle_name + '-bk34', 'rb')).load()
+session = Unpickler(open(pickle_name, 'rb')).load()
+# session = Unpickler(open(pickle_name + '-bk35', 'rb')).load()
 # session.replay_buffer.size = 0
 # session.replay_buffer.position = 0
 # session.replay_buffer.resize(2 ** 23)
 session.envs = envs
+
+# batch_size = 64
+# num_batches = session.replay_buffer.capacity // batch_size
+# save_distances_list = []
+# for i in range(num_batches):
+#     print("{}/{}".format(i, num_batches))
+#     batch_start = i * batch_size
+#     batch_end = (i + 1) * batch_size
+#     batch_action = session.replay_buffer.episode_data.action[batch_start:batch_end]
+#     num_rooms = len(envs[0].rooms)
+#     step_indices = torch.tensor([num_rooms])
+#     room_mask, room_position_x, room_position_y = reconstruct_room_data(batch_action, step_indices, num_rooms)
+#     with torch.no_grad():
+#         A = session.envs[0].compute_part_adjacency_matrix(room_mask.to(device), room_position_x.to(device), room_position_y.to(device))
+#         D = session.envs[0].compute_distance_matrix(A)
+#         S = torch.clamp_max(session.envs[0].compute_save_distances(D), 255).to(torch.uint8)
+#         save_distances_list.append(S)
+# save_distances = torch.cat(save_distances_list, dim=0)
+# session.replay_buffer.episode_data.save_distances = save_distances.to('cpu')
+
 
 # session.model.attn_layers.append(AttentionLayer(
 #     input_width=embedding_width,
@@ -285,7 +305,6 @@ annealing_time = 1 # session.replay_buffer.capacity // (num_envs * num_devices) 
 pass_factor0 = 1.0
 pass_factor1 = 1.0
 print_freq = 16
-# print_freq = 1
 total_reward = 0
 total_loss = 0.0
 total_loss_cnt = 0
@@ -299,6 +318,7 @@ total_prob0 = 0.0
 total_ent = 0.0
 total_round_cnt = 0
 total_min_door_frac = 0
+total_save_distances = 0.0
 total_cycle_cost = 0.0
 save_freq = 256
 summary_freq = 256
@@ -458,6 +478,8 @@ for i in range(1000000):
         total_test_loss += torch.mean(data.test_loss)
         total_prob += torch.mean(data.prob)
         total_prob0 += torch.mean(data.prob0)
+        S = data.save_distances.to(torch.float)
+        total_save_distances += torch.nanmean(torch.where(S == 255.0, float('nan'), S))
         total_cycle_cost += torch.nanmean(data.cycle_cost)
         total_round_cnt += 1
 
@@ -539,12 +561,14 @@ for i in range(1000000):
         new_loss = total_loss / total_loss_cnt
         new_reward = total_reward / total_round_cnt
         new_cycle_cost = total_cycle_cost / total_round_cnt
+        new_save_distances = total_save_distances / total_round_cnt
         new_test_loss = total_test_loss / total_round_cnt
         new_prob = total_prob / total_round_cnt
         new_prob0 = total_prob0 / total_round_cnt
         new_ent = total_ent / total_round_cnt
         min_door_frac = total_min_door_frac / total_round_cnt
         total_reward = 0
+        total_save_distances = 0.0
         total_cycle_cost = 0.0
         total_test_loss = 0.0
         total_prob = 0.0
@@ -559,7 +583,7 @@ for i in range(1000000):
         # buffer_mean_rooms_missing = buffer_mean_pass * len(rooms)
 
         logging.info(
-            "{}: cost={:.3f} (min={:d}, frac={:.6f}), p={:.5f} | loss={:.4f}, cost={:.2f} (min={:d}, frac={:.4f}), ent={:.4f}, p={:.4f}, nc_min={:.1f}, nc_max={:.1f}, f={:.3f}".format(
+            "{}: cost={:.3f} (min={:d}, frac={:.6f}), p={:.5f} | loss={:.4f}, cost={:.2f} (min={:d}, frac={:.4f}), ent={:.4f}, save={:.4f}, p={:.4f}, nc_min={:.1f}, nc_max={:.1f}, f={:.3f}".format(
                 session.num_rounds, buffer_mean_reward, buffer_min_reward,
                 buffer_frac_min_reward,
                 # buffer_doors,
@@ -574,6 +598,7 @@ for i in range(1000000):
                 min_door_frac,
                 # new_cycle_cost,
                 new_ent,
+                new_save_distances,
                 new_prob,
                 num_candidates_min,
                 num_candidates_max,
@@ -590,7 +615,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk34')
+            # save_session(session, pickle_name + '-bk35')
             # session.replay_buffer.resize(2 ** 18)
             # pickle.dump(session, open(pickle_name + '-small-34', 'wb'))
     if session.num_rounds % summary_freq == 0:
@@ -637,6 +662,10 @@ for i in range(1000000):
             buffer_min_reward = torch.min(buffer_reward)
             buffer_frac_min = torch.mean((buffer_reward == buffer_min_reward).to(torch.float32))
 
+            S = session.replay_buffer.episode_data.save_distances[ind].to(torch.float32)
+            S = torch.where(S == 255.0, float('nan'), S)
+            buffer_save_dist = torch.nanmean(S)
+
             buffer_test_loss = session.replay_buffer.episode_data.test_loss[ind]
             buffer_mean_test_loss = torch.mean(buffer_test_loss)
             buffer_cycle_cost = session.replay_buffer.episode_data.cycle_cost[ind]
@@ -651,9 +680,9 @@ for i in range(1000000):
             counts1 = compute_door_connect_counts(only_success=True, ind=ind)
             ent = session.compute_door_stats_entropy(counts)
             ent1 = session.compute_door_stats_entropy(counts1)
-            logging.info("[{:.3f}, {:.3f}]: cost={:.3f} (min={}, frac={:.6f}), cycle={:.6f}, ent={:.6f}, ent1={:.6f}, eval={:.6f}, test={:.6f}, p={:.4f}, p0={:.5f}, cnt={}, temp={:.4f}".format(
+            logging.info("[{:.3f}, {:.3f}]: cost={:.3f} (min={}, frac={:.6f}), save={:.6f}, ent={:.6f}, ent1={:.6f}, eval={:.6f}, test={:.6f}, p={:.4f}, p0={:.5f}, cnt={}, temp={:.4f}".format(
                 temp_low, temp_high, buffer_mean_reward, buffer_min_reward,
-                buffer_frac_min, buffer_mean_cycle_cost, ent, ent1, mean_eval_loss, buffer_mean_test_loss, buffer_mean_prob, buffer_mean_prob0, ind.shape[0], buffer_mean_temp
+                buffer_frac_min, buffer_save_dist, ent, ent1, mean_eval_loss, buffer_mean_test_loss, buffer_mean_prob, buffer_mean_prob0, ind.shape[0], buffer_mean_temp
             ))
             # display_counts(counts1, 10, False)
             # display_counts(counts, 10, True)
