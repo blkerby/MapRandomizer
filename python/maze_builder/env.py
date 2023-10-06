@@ -71,9 +71,11 @@ class MazeBuilderEnv:
 
         self.init_room_data()
         self.init_part_data()
-        # Index single-tile rooms that have the same shape as a save station room (so no up or down doors):
+        # Index single-tile rooms that have the same shape as a save station room (so no up or down doors).
+        # Include Landing Site as well since the Ship can be used as a save.
         def is_potential_save_room(room):
-            return room.width == 1 and room.height == 1 and room.door_up[0][0] == 0 and room.door_down[0][0] == 0
+            return room.name == "Landing Site" or (room.width == 1 and room.height == 1 and room.door_up[0][0] == 0 and room.door_down[0][0] == 0
+                and room.sand_up[0][0] == 0 and room.sand_down[0][0] == 0)
         self.potential_save_idxs = torch.tensor(
             [i for i in range(len(rooms)) if is_potential_save_room(rooms[i])],
             dtype=torch.int64, device=device)
@@ -83,6 +85,7 @@ class MazeBuilderEnv:
         self.init_cpu_data()
         self.num_doors = int(torch.sum(self.room_door_count))
         self.num_missing_connects = self.missing_connection_src.shape[0]
+        self.num_save_dist = self.potential_save_idxs.shape[0]
         # self.num_missing_connects = self.num_parts * 2
         self.max_reward = self.num_doors // 2 + self.num_missing_connects
         self.reset()
