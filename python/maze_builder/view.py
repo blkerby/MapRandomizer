@@ -36,8 +36,9 @@ device = torch.device('cpu')
 # session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-10', 'rb')).load()
 # session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-16', 'rb')).load()
 # session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-22', 'rb')).load()
-session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-34', 'rb')).load()
-# session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-43', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-34', 'rb')).load()
+session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-43', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-50', 'rb')).load()
 #
 
 print(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects.to(torch.float32), dim=0)))
@@ -45,12 +46,20 @@ min_reward = torch.min(session.replay_buffer.episode_data.reward)
 print(min_reward, torch.mean((session.replay_buffer.episode_data.reward == min_reward).to(torch.float32)),
       session.replay_buffer.episode_data.reward.shape[0])
 
+S = session.replay_buffer.episode_data.save_distances.to(torch.float32)
+S = torch.where(S == 255, torch.full_like(S, float('nan')), S)
+S = torch.nanmean(S, dim=1)
+print(torch.nanmean(S))
+
 # ind = torch.nonzero((session.replay_buffer.episode_data.reward >= 340) & (session.replay_buffer.episode_data.temperature > 0.5))
 # ind = torch.nonzero((session.replay_buffer.episode_data.reward >= 343) & (session.replay_buffer.episode_data.temperature < 0.05))
 # ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 343)
 # ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 0)
 # ind = ind[(ind >= 200000) & (ind < 262144)].view(-1, 1)
-ind = torch.nonzero(session.replay_buffer.episode_data.reward == min_reward)
+num_feasible = torch.nonzero((session.replay_buffer.episode_data.reward == min_reward)).shape[0]
+
+ind = torch.nonzero((session.replay_buffer.episode_data.reward == min_reward) & (S < 4.20))
+print("success rate: ", ind.shape[0] / num_feasible)
 i = int(random.randint(0, ind.shape[0] - 1))
 print(len(ind), i)
 # i = 2
@@ -135,9 +144,9 @@ env.room_mask = room_mask
 env.render(0)
 env.map_display.image.show()
 
-A = env.compute_part_adjacency_matrix(room_mask, room_position_x, room_position_y)
-D = env.compute_distance_matrix(A)
-S = env.compute_save_distances(D)
+# A = env.compute_part_adjacency_matrix(room_mask, room_position_x, room_position_y)
+# D = env.compute_distance_matrix(A)
+# S = env.compute_save_distances(D)
 
 
 

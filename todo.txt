@@ -1,11 +1,10 @@
-- start logging the seed generation latency
-- cross-room strat cleanup
-- mosaic preview release
-- release map pool with more variety
-- split off toilet from aqueduct
-- clean up gpu setup
 
 priority:
+- clarify gate glitch leniency: that it doesn't apply to Pink Hopper Room gate
+- consider prioritizing item placement at closer item locations relative to previous key item(s)
+- start logging the seed generation latency
+- cross-room strat cleanup
+- split off toilet from aqueduct
 - consider making "guaranteed early save" the default
 - consider implementing farm QoL option to combine drop tiers
   - $86F106: drop logic

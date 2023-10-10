@@ -927,6 +927,7 @@ impl<'a> Preprocessor<'a> {
                     let leave_with_gmode_vec =
                         &self.game_data.node_leave_with_gmode_map[&(other_room_id, other_node_id)];
                     for leave_with_gmode in leave_with_gmode_vec {
+                        // TODO: fix to handle case where Morph item is collected
                         if !artificial_morph || leave_with_gmode.artificial_morph {
                             let mut req_and_list: Vec<Requirement> = Vec::new();
                             req_and_list.push(door_req.clone());

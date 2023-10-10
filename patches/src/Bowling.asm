@@ -29,7 +29,7 @@ OpenBowlingStairs_2:
   PHX
   PHY
 
-  LDA #$0000
+  STZ $12
   LDX #$15EE
   LDY #$000D
 -
@@ -39,9 +39,10 @@ OpenBowlingStairs_2:
   DEY
   BNE -
   LDA #$1000
+  STA $12
   JSR UpdateTileType
 
-  LDA #$0000
+  STZ $12
   LDX #$19AE
   LDY #$0008
 -
@@ -51,20 +52,20 @@ OpenBowlingStairs_2:
   DEY
   BNE -
   LDA #$1000
+  STA $12
   JSR UpdateTileType
 
-  LDA #$0000
+  STZ $12
   LDX #$1A78
   JSR UpdateTileType
-  LDA #$0000
   LDX #$1A7A
   JSR UpdateTileType
 
-  LDA #$0000
   LDX #$1B38
   JSR UpdateTileType
 
   LDA #$1000
+  STA $12
   LDX #$1BF8
   JSR UpdateTileType
 
@@ -76,6 +77,7 @@ CloseBowlingStairs_2:
   PHY
 
   LDA #$A000
+  STA $12
   LDX #$15EE
   LDY #$000D
 -
@@ -85,9 +87,11 @@ CloseBowlingStairs_2:
   DEY
   BNE -
   LDA #$8000
+  STA $12
   JSR UpdateTileType
 
   LDA #$8000
+  STA $12
   LDX #$19AE
   LDY #$0009
 -
@@ -97,18 +101,14 @@ CloseBowlingStairs_2:
   DEY
   BNE -
 
-  LDA #$8000
   LDX #$1A78
   JSR UpdateTileType
-  LDA #$8000
   LDX #$1A7A
   JSR UpdateTileType
 
-  LDA #$8000
   LDX #$1B38
   JSR UpdateTileType
 
-  LDA #$8000
   LDX #$1BF8
   JSR UpdateTileType
 
@@ -117,7 +117,6 @@ CloseBowlingStairs_2:
   RTL
 
 UpdateTileType:
-  STA $12
   LDA $7F0002,X
   AND #$0FFF
   ORA $12

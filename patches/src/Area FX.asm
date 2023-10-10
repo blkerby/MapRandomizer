@@ -1,8 +1,5 @@
 lorom
 
-
-bank $83 
-
 ; Use tileset index to figure out glows instead of area
 org $89AC62
   JSR GetTilesetIndex ;LDA $079F
@@ -50,8 +47,6 @@ GetTilesetIndex:
   AND #$00FF
   RTS
 
-bank auto
-
 CallGlowHandler:
   PHB
   PHK
@@ -60,12 +55,10 @@ CallGlowHandler:
   PHX
   ASL
   TAX
-  JSR (GlowHandlerTable,x)
+  JSR (GlowHandlerTable,X)
   PLX
   PLB
   RTS
-
-bank $83
 
 MaskGlowBits:
   LDA $000D,X
@@ -126,8 +119,6 @@ GlowHandlerTable:
   DW Handler_Area_1 ;SpoSpo
   DW Handler_Area_3 ;Phantoon
 
-bank auto
-
 ProcessEscapeMask:
   LDA #$000E
   JSL $808233
@@ -144,7 +135,7 @@ ProcessEscapeMask_Default:
 
 EscapeGlowTable:
   DB $06 ;Crateria Surface
-  DB $19 ;Inner Crateria
+  DB $18 ;Inner Crateria
   DB $1D ;Tourian
 
 EscapeMaskTable:
@@ -331,10 +322,10 @@ org $8DF799
   DW #HeavySandColorsInit, $F541
 org $8DC686 ; overwrite unused garbage data
 SandFloorColorsInit:
-  JSL UpdateSandFloorColors
+  JSL UpdateSandFloorColors:
   RTS
 HeavySandColorsInit:
-  JSL UpdateHeavySandColors
+  JSL UpdateHeavySandColors:
   RTS
 warnpc $8DC696
 
@@ -434,7 +425,7 @@ org $849F09
   DW $0004, $2BBE, $2BBF, $2FBF, $2FBE
   DW $0000
 
-org $83B800
+org $83B480
 
 !NullGlow = $F745
 ;!Statue_3 = $F749

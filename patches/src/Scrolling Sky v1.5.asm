@@ -28,6 +28,10 @@ org $8FC116 ;Normal scrolling sky room main asm
   JSL RoomMainASM
   RTS
 
+org $8F91CE
+  JSL ExplosingNoSkySetupASM
+  RTS
+
 org $8FC120
   JSL RoomMainASM
 
@@ -222,6 +226,13 @@ ScrollingSkySectionTable_010: ;optimized vanilla (4 screens) -3 tiles
   DW $0350 : DD !repeated : DW $9F80
   DW $0360 : DD $00000000 : DW $9F90
   DW $03D0 : DD $00000000 : DW $0000
+
+ExplosingNoSkySetupASM:
+  LDA #$0006
+  STA $183E
+  LDA #$FFFF
+  STA $1840
+  RTL
 
 warnpc $88FFFF
 
