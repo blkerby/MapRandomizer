@@ -425,7 +425,7 @@ org $849F09
   DW $0004, $2BBE, $2BBF, $2FBF, $2FBE
   DW $0000
 
-org $83B480
+org $83B800
 
 !NullGlow = $F745
 ;!Statue_3 = $F749
@@ -550,3 +550,5 @@ AnimTypeTable:
   DW Anim_Area_4 ;Draygon
   DW Anim_Area_1 ;SpoSpo
   DW Anim_Area_3 ;Phantoon
+
+warnpc $83BA00
