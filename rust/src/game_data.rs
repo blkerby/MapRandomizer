@@ -1,5 +1,5 @@
-pub mod themed_retiling;
 pub mod smart_xml;
+pub mod themed_retiling;
 
 use anyhow::{bail, ensure, Context, Result};
 // use log::info;
@@ -117,7 +117,7 @@ pub enum Requirement {
     Flag(FlagId),
     NotFlag(FlagId),
     ShineCharge {
-        used_tiles: f32
+        used_tiles: f32,
     },
     Shinespark {
         shinespark_tech_id: usize,
@@ -301,9 +301,11 @@ pub struct Link {
     pub from_vertex_id: VertexId,
     pub to_vertex_id: VertexId,
     pub requirement: Requirement,
+    pub entrance_condition: Option<EntranceCondition>,
     pub notable_strat_name: Option<String>,
     pub strat_name: String,
     pub strat_notes: Vec<String>,
+    pub sublinks: Vec<Link>,
 }
 
 #[derive(Deserialize, Default, Clone, Debug)]
@@ -445,6 +447,96 @@ pub struct ThemedPaletteTileset {
     pub gfx16x16: Vec<u8>,
 }
 
+#[derive(Clone, Debug)]
+pub struct RunwayGeometry {
+    pub length: f32,
+    pub open_end: f32,
+    pub gentle_up_tiles: f32,
+    pub gentle_down_tiles: f32,
+    pub steep_up_tiles: f32,
+    pub steep_down_tiles: f32,
+    pub starting_down_tiles: f32,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum Physics {
+    Air,
+    Water,
+    Lava,
+    Acid
+}
+
+fn parse_physics(physics: &str) -> Result<Physics> {
+    Ok(match physics {
+        "air" => Physics::Air,
+        "water" => Physics::Water,
+        "lava" => Physics::Lava,
+        "acid" => Physics::Acid,
+        _ => bail!(format!("Unrecognized physics '{}'", physics))
+    })
+}
+
+#[derive(Clone, Debug)]
+pub enum ExitCondition {
+    LeaveWithRunway { effective_length: f32, heated: bool, physics: Option<Physics> },
+    LeaveShinecharged { frames_required: i32 },
+    LeaveWithSpark {},
+}
+
+fn parse_exit_condition(exit_json: &JsonValue, heated: bool, physics: Option<Physics>) -> Result<ExitCondition> {
+    ensure!(exit_json.is_object());
+    ensure!(exit_json.len() == 1);
+    let (key, value) = exit_json.entries().next().unwrap();
+    ensure!(value.is_object());
+    match key {
+        "leaveWithRunway" => {
+            let runway_geometry = parse_runway_geometry(value)?;
+            let runway_effective_length = compute_runway_effective_length(&runway_geometry);
+            Ok(ExitCondition::LeaveWithRunway {
+                effective_length: runway_effective_length,
+                heated,
+                physics,
+            })
+        }
+        "leaveShinecharged" => {
+            Ok(ExitCondition::LeaveShinecharged { 
+                frames_required: value["framesRequired"].as_i32().context("Expecting integer 'framesRequired'")?, 
+            })
+        }
+        "leaveWithSpark" => {
+            Ok(ExitCondition::LeaveWithSpark {})
+        }
+        _ => {
+            bail!(format!("Unrecognized exit condition: {}", key));
+        }
+    }
+}
+
+
+#[derive(Clone, Debug)]
+pub enum EntranceCondition {
+    ComeInRunning {
+        speed_booster: Option<bool>,
+        min_tiles: f32,
+        max_tiles: f32,
+    },
+    ComeInJumping {
+        speed_booster: Option<bool>,
+        min_tiles: f32,
+        max_tiles: f32,
+    },
+    ComeInShinecharging {
+        effective_length: f32,
+        heated: bool,
+    },
+    ComeInShinecharged {
+        frames_required: i32,
+    },
+    ComeInWithSpark {},
+    ComeInStutterShinecharging {},
+    ComeInWithBombBoost {},
+    ComeInWithDoorStuckSetup {},
+}
 
 // TODO: Clean this up, e.g. pull out a separate structure to hold
 // temporary data used only during loading, replace any
@@ -480,6 +572,7 @@ pub struct GameData {
     pub node_leave_with_gmode_setup_map: HashMap<(RoomId, NodeId), Vec<LeaveWithGModeSetup>>,
     pub node_gmode_immobile_map: HashMap<(RoomId, NodeId), GModeImmobile>,
     pub node_ptr_map: HashMap<(RoomId, NodeId), NodePtr>,
+    pub node_exits: HashMap<(RoomId, NodeId), Vec<(Link, ExitCondition)>>,
     pub unlocked_node_map: HashMap<(RoomId, NodeId), NodeId>,
     pub room_num_obstacles: HashMap<RoomId, usize>,
     pub door_ptr_pair_map: HashMap<DoorPtrPair, (RoomId, NodeId)>,
@@ -550,6 +643,75 @@ struct RequirementContext<'a> {
     _from_node_id: NodeId, // Usable for debugging
     from_obstacles_bitmask: ObstacleMask,
     obstacles_idx_map: Option<&'a HashMap<String, usize>>,
+}
+
+fn parse_runway_geometry(runway: &JsonValue) -> Result<RunwayGeometry> {
+    Ok(RunwayGeometry {
+        length: runway["length"].as_f32().context("Expecting 'length'")?,
+        open_end: runway["openEnd"].as_f32().context("Expecting 'openEnd'")?,
+        gentle_up_tiles: runway["gentleUpTiles"].as_f32().unwrap_or(0.0),
+        gentle_down_tiles: runway["gentleDownTiles"].as_f32().unwrap_or(0.0),
+        steep_up_tiles: runway["steepUpTiles"].as_f32().unwrap_or(0.0),
+        steep_down_tiles: runway["steepDownTiles"].as_f32().unwrap_or(0.0),
+        starting_down_tiles: runway["startingDownTiles"].as_f32().unwrap_or(0.0),
+    })
+}
+
+fn compute_runway_effective_length(geom: &RunwayGeometry) -> f32 {
+    let effective_length =
+        geom.length - geom.starting_down_tiles - 9.0 / 16.0 * (1.0 - geom.open_end)
+            + 1.0 / 3.0 * geom.steep_up_tiles
+            + 1.0 / 7.0 * geom.steep_down_tiles
+            + 5.0 / 27.0 * geom.gentle_up_tiles
+            + 5.0 / 59.0 * geom.gentle_down_tiles;
+    effective_length
+}
+
+fn parse_entrance_condition(entrance_json: &JsonValue, heated: bool) -> Result<EntranceCondition> {
+    ensure!(entrance_json.is_object());
+    ensure!(entrance_json.len() == 1);
+    let (key, value) = entrance_json.entries().next().unwrap();
+    ensure!(value.is_object());
+    match key {
+        "comeInRunning" => Ok(EntranceCondition::ComeInRunning {
+            speed_booster: value["speedBooster"].as_bool(),
+            min_tiles: value["minTiles"]
+                .as_f32()
+                .context("Expecting number 'minTiles'")?,
+            max_tiles: value["maxTiles"]
+                .as_f32()
+                .unwrap_or(255.0),
+        }),
+        "comeInJumping" => Ok(EntranceCondition::ComeInJumping {
+            speed_booster: value["speedBooster"].as_bool(),
+            min_tiles: value["minTiles"]
+                .as_f32()
+                .context("Expecting number 'minTiles'")?,
+            max_tiles: value["maxTiles"]
+                .as_f32()
+                .unwrap_or(255.0)
+        }),
+        "comeInShinecharging" => {
+            let runway_geometry = parse_runway_geometry(value)?;
+            let runway_effective_length = compute_runway_effective_length(&runway_geometry);
+            Ok(EntranceCondition::ComeInShinecharging {
+                effective_length: runway_effective_length,
+                heated,
+            })
+        }
+        "comeInShinecharged" => Ok(EntranceCondition::ComeInShinecharged {
+            frames_required: value["framesRequired"]
+                .as_i32()
+                .context("Expecting integer 'framesRequired'")?,
+        }),
+        "comeInWithSpark" => Ok(EntranceCondition::ComeInWithSpark {}),
+        "comeInStutterShinecharging" => Ok(EntranceCondition::ComeInStutterShinecharging {}),
+        "comeInWithBombBoost" => Ok(EntranceCondition::ComeInWithBombBoost {}),
+        "comeInWithDoorStuckSetup" => Ok(EntranceCondition::ComeInWithDoorStuckSetup {}),
+        _ => {
+            bail!(format!("Unrecognized entrance condition: {}", key));
+        }
+    }
 }
 
 impl GameData {
@@ -947,13 +1109,12 @@ impl GameData {
                 let frames = value["frames"]
                     .as_i32()
                     .expect(&format!("missing/invalid frames in {}", req_json));
-                let excess_frames =
-                    value["excessFrames"].as_i32().unwrap_or(0);
+                let excess_frames = value["excessFrames"].as_i32().unwrap_or(0);
                 return Ok(Requirement::Shinespark {
                     shinespark_tech_id: self.tech_isv.index_by_key["canShinespark"],
                     frames,
                     excess_frames,
-                });    
+                });
             } else if key == "canShineCharge" {
                 let used_tiles = value["usedTiles"]
                     .as_f32()
@@ -1406,7 +1567,7 @@ impl GameData {
                 bail!("Error processing region path: {}", entry.err().unwrap());
             }
         }
-        // Add Pants Room in-room transition
+        // Add Pants Room in-room transition (TODO: replace this with proper separate room for East Pants Room)
         let from_vertex_id = self.vertex_isv.index_by_key[&(220, 2, 0)]; // Pants Room
         let to_vertex_id = self.vertex_isv.index_by_key[&(322, 1, 0)]; // East Pants Room
         self.links.push(Link {
@@ -1416,6 +1577,8 @@ impl GameData {
             notable_strat_name: None,
             strat_name: "Pants Room in-room transition".to_string(),
             strat_notes: vec![],
+            entrance_condition: None,
+            sublinks: vec![],
         });
         Ok(())
     }
@@ -1820,11 +1983,7 @@ impl GameData {
         }
         bail!("No match for node {} in roomEnvironments", node_id);
     }
-
-    // fn get_origin_node(&self, requirement_json: &JsonValue) -> Option<NodeId> {
-
-    // }
-
+    
     fn process_room(&mut self, room_json: &JsonValue) -> Result<()> {
         let room_id = room_json["id"].as_usize().unwrap();
         self.room_json_map.insert(room_id, room_json.clone());
@@ -1879,7 +2038,7 @@ impl GameData {
             for obstacle_bitmask in 0..(1 << num_obstacles) {
                 self.vertex_isv.add(&(room_id, node_id, obstacle_bitmask));
             }
-        }
+        }        
         for node_json in room_json["nodes"].members() {
             let node_id = node_json["id"].as_usize().unwrap();
             if node_json.has_key("runways") {
@@ -2117,13 +2276,37 @@ impl GameData {
         // Process links:
         ensure!(room_json["links"].is_array());
         for link_json in room_json["links"].members() {
+            let from_node_id = link_json["from"].as_usize().unwrap();
+            // TODO: deal with heated room more explicitly for Volcano Room, instead of guessing based on node ID:
+            let from_heated = self.get_room_heated(room_json, from_node_id)?;
             ensure!(link_json["to"].is_array());
             for link_to_json in link_json["to"].members() {
                 ensure!(link_to_json["strats"].is_array());
+                let to_node_id = link_to_json["id"].as_usize().unwrap();
+                let to_heated = self.get_room_heated(room_json, to_node_id)?;
+                let physics: Option<Physics> = if let Ok(physics_str) = self.get_node_physics(&self.node_json_map[&(room_id, to_node_id)]) {
+                    Some(parse_physics(&physics_str)?)
+                } else {
+                    None
+                };
+
                 for strat_json in link_to_json["strats"].members() {
+                    let entrance_condition: Option<EntranceCondition> =
+                        if strat_json.has_key("entranceCondition") {
+                            ensure!(strat_json["entranceCondition"].is_object());
+                            Some(parse_entrance_condition(&strat_json["entranceCondition"], from_heated)?)
+                        } else {
+                            None
+                        };
+                    let exit_condition: Option<ExitCondition> =
+                        if strat_json.has_key("exitCondition") {
+                            ensure!(strat_json["exitCondition"].is_object());
+                            Some(parse_exit_condition(&strat_json["exitCondition"], to_heated, physics)?)
+                        } else {
+                            None
+                        };
+
                     for from_obstacles_bitmask in 0..(1 << num_obstacles) {
-                        let from_node_id = link_json["from"].as_usize().unwrap();
-                        let to_node_id = link_to_json["id"].as_usize().unwrap();
                         ensure!(strat_json["requires"].is_array());
                         let mut requires_json: Vec<JsonValue> = strat_json["requires"]
                             .members()
@@ -2188,6 +2371,7 @@ impl GameData {
                             from_vertex_id,
                             to_vertex_id,
                             requirement,
+                            entrance_condition: entrance_condition.clone(),
                             notable_strat_name: if notable {
                                 Some(notable_strat_name)
                             } else {
@@ -2195,8 +2379,15 @@ impl GameData {
                             },
                             strat_name,
                             strat_notes,
+                            sublinks: vec![],
                         };
-                        self.links.push(link);
+                        if exit_condition.is_some() {
+                            self.node_exits.entry((room_id, to_node_id))
+                                .or_insert(vec![])
+                                .push((link, exit_condition.unwrap().clone()));
+                        } else {
+                            self.links.push(link);
+                        }
                     }
                 }
             }
@@ -2371,7 +2562,11 @@ impl GameData {
                 let req_list = self.parse_requires_list(&req_json_list, &ctx)?;
                 loc.requires_parsed = Some(Requirement::make_and(req_list));
             }
-            if !self.vertex_isv.index_by_key.contains_key(&(loc.room_id, loc.node_id, 0)) {
+            if !self
+                .vertex_isv
+                .index_by_key
+                .contains_key(&(loc.room_id, loc.node_id, 0))
+            {
                 panic!("Bad starting location: {:?}", loc);
             }
         }
@@ -2478,7 +2673,7 @@ impl GameData {
     fn load_themes(&mut self, base_path: &Path) -> Result<()> {
         let ignored_tileset_idxs = vec![
             1, // Red Crateria
-            15, 16, 17, 18, 19, 20  // Ceres
+            15, 16, 17, 18, 19, 20, // Ceres
         ];
         for (_area_idx, area) in [
             "crateria",
@@ -2487,7 +2682,10 @@ impl GameData {
             "wrecked_ship",
             "maridia",
             "tourian",
-        ].into_iter().enumerate() {
+        ]
+        .into_iter()
+        .enumerate()
+        {
             let sce_path = base_path.join(area).join("Export/Tileset/SCE");
             let mut pal_map: HashMap<TilesetIdx, ThemedPaletteTileset> = HashMap::new();
             for tileset_dir in std::fs::read_dir(sce_path)? {
@@ -2510,12 +2708,15 @@ impl GameData {
 
                 let gfx16x16_path = tileset_path.join("16x16tiles.ttb");
                 let gfx16x16_bytes = std::fs::read(gfx16x16_path)?;
-                
-                pal_map.insert(tileset_idx, ThemedPaletteTileset { 
-                    palette,
-                    gfx8x8: gfx8x8_bytes,
-                    gfx16x16: gfx16x16_bytes,
-                });
+
+                pal_map.insert(
+                    tileset_idx,
+                    ThemedPaletteTileset {
+                        palette,
+                        gfx8x8: gfx8x8_bytes,
+                        gfx16x16: gfx16x16_bytes,
+                    },
+                );
             }
             self.tileset_palette_themes.push(pal_map);
         }

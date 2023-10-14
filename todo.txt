@@ -1,3 +1,7 @@
+- mosaic: 
+  - OuterCrateria:
+    - HiJump ETank room - fix BG parallax
+    - Etecoon ETank room - clear space below crumbles (take care that BG looks ok)
 
 priority:
 - clarify gate glitch leniency: that it doesn't apply to Pink Hopper Room gate

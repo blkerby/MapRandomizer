@@ -43,7 +43,9 @@ session_name = args.session_file
 start_index = int(args.start_index)
 end_index = int(args.end_index)
 session = CPU_Unpickler(open('models/{}'.format(session_name), 'rb')).load()
-ind = torch.nonzero(session.replay_buffer.episode_data.reward == 0)
+ind = torch.nonzero(
+    (session.replay_buffer.episode_data.reward == 0) &
+    (torch.mean(session.replay_buffer.episode_data.save_distances.to(torch.float), dim=1) < 4.20))
 logging.info("{} maps".format(ind.shape[0]))
 os.makedirs(f'maps/{session_name}', exist_ok=True)
 episode_data_action = session.replay_buffer.episode_data.action[ind[start_index:end_index], :]

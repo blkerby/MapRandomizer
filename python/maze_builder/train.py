@@ -205,11 +205,11 @@ class Unpickler(pickle.Unpickler):
 
 pickle_name = 'models/session-2023-06-08T14:55:16.779895.pkl'
 # session = pickle.load(open(pickle_name, 'rb'))
-# session = Unpickler(open(pickle_name, 'rb')).load()
+session = Unpickler(open(pickle_name, 'rb')).load()
 # session = Unpickler(open(pickle_name + '-bk36', 'rb')).load()
 # session = Unpickler(open(pickle_name + '-bk35', 'rb')).load()
 # session = Unpickler(open(pickle_name + '-bk43', 'rb')).load()
-session = Unpickler(open(pickle_name + '-bk50', 'rb')).load()
+# session = Unpickler(open(pickle_name + '-bk51', 'rb')).load()
 # session.replay_buffer.size = 0
 # session.replay_buffer.position = 0
 # session.replay_buffer.resize(2 ** 23)
@@ -633,9 +633,9 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk50')
-            # session.replay_buffer.resize(2 ** 16)
-            # pickle.dump(session, open(pickle_name + '-small-50', 'wb'))
+            # save_session(session, pickle_name + '-bk51')
+            # session.replay_buffer.resize(2 ** 19)
+            # pickle.dump(session, open(pickle_name + '-small-51', 'wb'))
     if session.num_rounds % summary_freq == 0:
         if num_candidates_max == 1:
             total_eval_loss = 0.0

@@ -2,8 +2,9 @@ pub mod escape_timer;
 
 use crate::{
     game_data::{
-        get_effective_runway_length, Capacity, DoorPtrPair, FlagId, HubLocation, Item,
-        ItemLocationId, Link, Map, NodeId, Requirement, RoomId, StartLocation, TechId, VertexId, ItemId, RoomGeometryRoomIdx,
+        get_effective_runway_length, Capacity, DoorPtrPair, EntranceCondition, ExitCondition,
+        FlagId, HubLocation, Item, ItemId, ItemLocationId, Link, Map, NodeId, Physics, Requirement,
+        RoomGeometryRoomIdx, RoomId, StartLocation, VertexId,
     },
     traverse::{
         apply_requirement, get_spoiler_route, is_bireachable, traverse, GlobalState, LinkIdx,
@@ -311,11 +312,26 @@ fn add_door_links(
             from_vertex_id,
             to_vertex_id,
             requirement: get_door_requirement(locked_door_idx, locked_doors, game_data),
+            entrance_condition: None,
             notable_strat_name: None,
             strat_name: "(Door transition)".to_string(),
             strat_notes: vec![],
+            sublinks: vec![],
         });
     }
+}
+
+fn compute_run_frames(tiles: f32) -> i32 {
+    let frames = if tiles <= 7.0 {
+        9.0 + 4.0 * tiles
+    } else if tiles <= 16.0 {
+        15.0 + 3.0 * tiles
+    } else if tiles <= 42.0 {
+        32.0 + 2.0 * tiles
+    } else {
+        47.0 + 64.0 / 39.0 * tiles
+    };
+    frames.ceil() as i32
 }
 
 struct Preprocessor<'a> {
@@ -343,6 +359,23 @@ struct Preprocessor<'a> {
 //     }
 // }
 
+fn compute_shinecharge_frames(other_runway_length: f32, runway_length: f32) -> (i32, i32) {
+    let combined_length = other_runway_length + runway_length;
+    if combined_length > 31.3 {
+        // Dash can be held the whole time:
+        let total_time = compute_run_frames(combined_length);
+        let other_time = compute_run_frames(other_runway_length);
+        return (other_time, total_time - other_time);
+    }
+    // Combined runway is too short to hold dash the whole time. A shortcharge is needed:
+    let total_time = 85.0;  // 85 frames to charge a shinespark (assuming a good enough 1-tap)
+    let initial_speed = 0.125;
+    let acceleration = 2.0 * (combined_length - initial_speed * total_time) / (total_time * total_time);
+    let other_time = (f32::sqrt(initial_speed * initial_speed + 2.0 * acceleration * other_runway_length) - initial_speed) / acceleration;
+    let other_time = other_time.ceil() as i32;
+    (other_time, total_time as i32 - other_time)
+}
+
 impl<'a> Preprocessor<'a> {
     pub fn new(
         game_data: &'a GameData,
@@ -352,7 +385,9 @@ impl<'a> Preprocessor<'a> {
     ) -> Self {
         let mut door_map: HashMap<(RoomId, NodeId), (RoomId, NodeId)> = HashMap::new();
         let mut locked_node_map: HashMap<(RoomId, NodeId), usize> = HashMap::new();
-        for &((src_exit_ptr, src_entrance_ptr), (dst_exit_ptr, dst_entrance_ptr), bidirectional) in &map.doors {
+        for &((src_exit_ptr, src_entrance_ptr), (dst_exit_ptr, dst_entrance_ptr), bidirectional) in
+            &map.doors
+        {
             if !bidirectional {
                 // For now we omit sand connections from cross-room strats, because the fact that you can't
                 // go back up would make the strats unsound (with the current way cross-room strats are interpreted)
@@ -389,6 +424,159 @@ impl<'a> Preprocessor<'a> {
             locked_doors,
             locked_node_map,
             preprocessed_output: HashMap::new(),
+        }
+    }
+
+    fn get_come_in_running_reqs(
+        &self,
+        exit_link: &Link,
+        exit_condition: &ExitCondition,
+        speed_booster: Option<bool>,
+        min_tiles: f32,
+        max_tiles: f32,
+    ) -> Option<Requirement> {
+        match exit_condition {
+            ExitCondition::LeaveWithRunway {
+                effective_length,
+                heated,
+                physics,
+            } => {
+                if *effective_length < min_tiles {
+                    return None;
+                }
+                let mut reqs: Vec<Requirement> = vec![];
+                if speed_booster == Some(true) {
+                    reqs.push(Requirement::Item(Item::SpeedBooster as ItemId));
+                }
+                if speed_booster == Some(false) {
+                    reqs.push(Requirement::Tech(
+                        self.game_data.tech_isv.index_by_key["canDisableEquipment"],
+                    ));
+                }
+                if physics != &Some(Physics::Air) {
+                    reqs.push(Requirement::Item(Item::Gravity as ItemId));
+                    // TODO: in sm-json-data, add physics property to leaveWithRunway schema (for door nodes with multiple possible physics)
+                }
+                if *heated {
+                    let heat_frames = if exit_link.from_vertex_id == exit_link.to_vertex_id {
+                        compute_run_frames(min_tiles) * 2 + 20
+                    } else {
+                        if *effective_length > max_tiles {
+                            // 10 heat frames to position after stopping on a dime, before resuming running
+                            compute_run_frames(*effective_length - max_tiles)
+                                + compute_run_frames(max_tiles)
+                                + 10
+                        } else {
+                            compute_run_frames(*effective_length)
+                        }
+                    };
+                    reqs.push(Requirement::HeatFrames(heat_frames));
+                }
+                Some(Requirement::make_and(reqs))
+            }
+            _ => None,
+        }
+    }
+
+    fn get_come_in_shinecharging_reqs(
+        &self,
+        exit_link: &Link,
+        exit_condition: &ExitCondition,
+        runway_length: f32,
+        runway_heated: bool,
+    ) -> Option<Requirement> {
+        match exit_condition {
+            ExitCondition::LeaveWithRunway {
+                effective_length,
+                heated,
+                physics,
+            } => {
+                let mut reqs: Vec<Requirement> = vec![];
+                let combined_runway_length = *effective_length + runway_length;
+                reqs.push(Requirement::ShineCharge { used_tiles: combined_runway_length });
+                if physics != &Some(Physics::Air) {
+                    reqs.push(Requirement::Item(Item::Gravity as ItemId));
+                }
+                if exit_link.from_vertex_id == exit_link.to_vertex_id {
+                    // Runway in the other room starts and ends at the door so we need to run both directions:
+                    if runway_heated && *heated {
+                        // Both rooms are heated. Heat frames are optimized by minimizing runway usage in the source room. 
+                        // But since the shortcharge difficulty is not known here, we conservatively assume up to 33 tiles 
+                        // of the combined runway may need to be used. (TODO: Instead add a Requirement enum case to handle this more accurately.)
+                        let other_runway_length = f32::min(*effective_length, 33.0 - runway_length);
+                        let heat_frames_1 = compute_run_frames(other_runway_length) + 20;
+                        let heat_frames_2 = i32::max(85, compute_run_frames(other_runway_length + runway_length));
+                        // Add 5 lenience frames (partly to account for the possibility of some inexactness in our calculations)
+                        reqs.push(Requirement::HeatFrames(heat_frames_1 + heat_frames_2 + 5));
+                    } else if !runway_heated && *heated {
+                        // Only the destination room is heated. Heat frames are optimized by using the full runway in 
+                        // the source room.
+                        let (_, heat_frames) = compute_shinecharge_frames(*effective_length, runway_length);
+                        reqs.push(Requirement::HeatFrames(heat_frames + 5));
+                    } else if runway_heated && !*heated {
+                        // Only the source room is heated. As in the first case above, heat frames are optimized by 
+                        // minimizing runway usage in the source room. (TODO: Use new Requirement enum case.)
+                        let other_runway_length = f32::min(*effective_length, 33.0 - runway_length);
+                        let heat_frames_1 = compute_run_frames(other_runway_length) + 20;
+                        let (heat_frames_2, _) = compute_shinecharge_frames(other_runway_length, runway_length);
+                        reqs.push(Requirement::HeatFrames(heat_frames_1 + heat_frames_2 + 5));
+                    }
+                } else if runway_heated || *heated {
+                    // Runway in the other room starts at a different node and runs toward the door. The full combined
+                    // runway is used.
+                    let (frames_1, frames_2) = compute_shinecharge_frames(*effective_length, runway_length);
+                    let mut heat_frames = 5;
+                    if *heated {
+                        // Heat frames for source room
+                        heat_frames += frames_1;
+                    }
+                    if runway_heated {
+                        // Heat frames for destination room
+                        heat_frames += frames_2;
+                    }
+                    reqs.push(Requirement::HeatFrames(heat_frames));
+                }
+                Some(Requirement::make_and(reqs))
+            }
+            _ => None,
+        }
+    }
+
+    fn get_cross_room_reqs(
+        &self,
+        exit_link: &Link,
+        exit_condition: &ExitCondition,
+        entrance_condition: &EntranceCondition,
+    ) -> Option<Requirement> {
+        let (exit_room_id, exit_node_id, exit_obstacle_mask) =
+            self.game_data.vertex_isv.keys[exit_link.from_vertex_id];
+
+        match entrance_condition {
+            EntranceCondition::ComeInRunning {
+                speed_booster,
+                min_tiles,
+                max_tiles,
+            } => self.get_come_in_running_reqs(
+                exit_link,
+                exit_condition,
+                *speed_booster,
+                *min_tiles,
+                *max_tiles,
+            ),
+            EntranceCondition::ComeInJumping {
+                speed_booster,
+                min_tiles,
+                max_tiles,
+            } => self.get_come_in_running_reqs(
+                exit_link,
+                exit_condition,
+                *speed_booster,
+                *min_tiles,
+                *max_tiles,
+            ),
+            EntranceCondition::ComeInShinecharging { effective_length, heated } => {
+                self.get_come_in_shinecharging_reqs(exit_link, exit_condition, *effective_length, *heated)
+            }
         }
     }
 
@@ -480,10 +668,9 @@ impl<'a> Preprocessor<'a> {
                 mobility,
                 link,
             ),
-            Requirement::DoorUnlocked {
-                room_id,
-                node_id
-            } => self.preprocess_door_unlocked(*room_id, *node_id),
+            Requirement::DoorUnlocked { room_id, node_id } => {
+                self.preprocess_door_unlocked(*room_id, *node_id)
+            }
             Requirement::And(sub_reqs) => Requirement::make_and(
                 sub_reqs
                     .iter()
@@ -518,12 +705,17 @@ impl<'a> Preprocessor<'a> {
         {
             unlocked_node_id = self.game_data.unlocked_node_map[&(room_id, node_id)];
         }
-        if let Some(&(other_room_id, other_node_id)) = self.door_map.get(&(room_id, unlocked_node_id)) {
+        if let Some(&(other_room_id, other_node_id)) =
+            self.door_map.get(&(room_id, unlocked_node_id))
+        {
             let runways = &self.game_data.node_runways_map[&(room_id, node_id)];
             let other_runways = &self.game_data.node_runways_map[&(other_room_id, other_node_id)];
             let can_leave_charged_vec =
                 &self.game_data.node_can_leave_charged_map[&(other_room_id, other_node_id)];
-            let locked_door_idx = self.locked_node_map.get(&(room_id, unlocked_node_id)).map(|x| *x);
+            let locked_door_idx = self
+                .locked_node_map
+                .get(&(room_id, unlocked_node_id))
+                .map(|x| *x);
             let door_req = get_door_requirement(locked_door_idx, self.locked_doors, self.game_data);
             let mut req_vec: Vec<Requirement> = vec![];
 
@@ -669,7 +861,10 @@ impl<'a> Preprocessor<'a> {
         // }
         let (other_room_id, other_node_id) = self.door_map[&(room_id, unlocked_node_id)];
         let runways = &self.game_data.node_runways_map[&(other_room_id, other_node_id)];
-        let locked_door_idx = self.locked_node_map.get(&(room_id, unlocked_node_id)).map(|x| *x);
+        let locked_door_idx = self
+            .locked_node_map
+            .get(&(room_id, unlocked_node_id))
+            .map(|x| *x);
         let door_req = get_door_requirement(locked_door_idx, self.locked_doors, self.game_data);
         let mut req_vec: Vec<Requirement> = vec![];
         for runway in runways {
@@ -745,7 +940,10 @@ impl<'a> Preprocessor<'a> {
         //     (other_room_id, other_node_id) = self.door_map[&(321, 2)];
         // }
         let jumpways = &self.game_data.node_jumpways_map[&(other_room_id, other_node_id)];
-        let locked_door_idx = self.locked_node_map.get(&(room_id, unlocked_node_id)).map(|x| *x);
+        let locked_door_idx = self
+            .locked_node_map
+            .get(&(room_id, unlocked_node_id))
+            .map(|x| *x);
         let door_req = get_door_requirement(locked_door_idx, self.locked_doors, self.game_data);
         let mut req_vec: Vec<Requirement> = vec![];
         for jumpway in jumpways {
@@ -807,8 +1005,12 @@ impl<'a> Preprocessor<'a> {
             if let Some(&(other_room_id, other_node_id)) =
                 self.door_map.get(&(room_id, unlocked_node_id))
             {
-                let locked_door_idx = self.locked_node_map.get(&(room_id, unlocked_node_id)).map(|x| *x);
-                let door_req = get_door_requirement(locked_door_idx, self.locked_doors, self.game_data);
+                let locked_door_idx = self
+                    .locked_node_map
+                    .get(&(room_id, unlocked_node_id))
+                    .map(|x| *x);
+                let door_req =
+                    get_door_requirement(locked_door_idx, self.locked_doors, self.game_data);
                 let leave_with_gmode_setup_vec = &self.game_data.node_leave_with_gmode_setup_map
                     [&(other_room_id, other_node_id)];
                 for leave_with_gmode_setup in leave_with_gmode_setup_vec {
@@ -863,8 +1065,12 @@ impl<'a> Preprocessor<'a> {
             if let Some(&(other_room_id, other_node_id)) =
                 self.door_map.get(&(room_id, unlocked_node_id))
             {
-                let locked_door_idx = self.locked_node_map.get(&(room_id, unlocked_node_id)).map(|x| *x);
-                let door_req = get_door_requirement(locked_door_idx, self.locked_doors, self.game_data);
+                let locked_door_idx = self
+                    .locked_node_map
+                    .get(&(room_id, unlocked_node_id))
+                    .map(|x| *x);
+                let door_req =
+                    get_door_requirement(locked_door_idx, self.locked_doors, self.game_data);
                 let gmode_immobile_opt = self
                     .game_data
                     .node_gmode_immobile_map
@@ -931,7 +1137,9 @@ impl<'a> Preprocessor<'a> {
                         if !artificial_morph || leave_with_gmode.artificial_morph {
                             let mut req_and_list: Vec<Requirement> = Vec::new();
                             req_and_list.push(door_req.clone());
-                            req_and_list.push(self.preprocess_requirement(&leave_with_gmode.requirement, link));
+                            req_and_list.push(
+                                self.preprocess_requirement(&leave_with_gmode.requirement, link),
+                            );
                             req_or_list.push(Requirement::make_and(req_and_list));
                         }
                     }
@@ -947,11 +1155,7 @@ impl<'a> Preprocessor<'a> {
         out
     }
 
-    fn preprocess_door_unlocked(
-        &mut self,
-        room_id: RoomId,
-        node_id: NodeId,
-    ) -> Requirement {
+    fn preprocess_door_unlocked(&mut self, room_id: RoomId, node_id: NodeId) -> Requirement {
         let mut unlocked_node_id = node_id;
         if self
             .game_data
@@ -960,9 +1164,12 @@ impl<'a> Preprocessor<'a> {
         {
             unlocked_node_id = self.game_data.unlocked_node_map[&(room_id, node_id)];
         }
-        let locked_door_idx = self.locked_node_map.get(&(room_id, unlocked_node_id)).map(|x| *x);
+        let locked_door_idx = self
+            .locked_node_map
+            .get(&(room_id, unlocked_node_id))
+            .map(|x| *x);
         let door_req = get_door_requirement(locked_door_idx, self.locked_doors, self.game_data);
-        return door_req
+        return door_req;
     }
 }
 
@@ -1696,7 +1903,10 @@ impl<'r> Randomizer<'r> {
                 remaining_items.push(Item::try_from(item_id).unwrap());
             }
         }
-        info!("[attempt {attempt_num_rando}] Finishing with {:?}", remaining_items);
+        info!(
+            "[attempt {attempt_num_rando}] Finishing with {:?}",
+            remaining_items
+        );
         let mut idx = 0;
         for item_loc_state in &mut state.item_location_state {
             if item_loc_state.placed_item.is_none() {
@@ -2270,7 +2480,12 @@ impl<'r> Randomizer<'r> {
         }
     }
 
-    pub fn randomize(&self, attempt_num_rando: usize, seed: usize, display_seed: usize) -> Result<Randomization> {
+    pub fn randomize(
+        &self,
+        attempt_num_rando: usize,
+        seed: usize,
+        display_seed: usize,
+    ) -> Result<Randomization> {
         let mut rng_seed = [0u8; 32];
         rng_seed[..8].copy_from_slice(&seed.to_le_bytes());
         let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
@@ -2288,11 +2503,17 @@ impl<'r> Randomizer<'r> {
         };
         let initial_save_location_state = SaveLocationState { bireachable: false };
         let num_attempts_start_location = 10;
-        let (start_location, hub_location) =
-            self.determine_start_location(attempt_num_rando, num_attempts_start_location, &mut rng)?;
+        let (start_location, hub_location) = self.determine_start_location(
+            attempt_num_rando,
+            num_attempts_start_location,
+            &mut rng,
+        )?;
         let item_precedence: Vec<Item> =
             self.get_item_precedence(&self.difficulty_tiers[0].item_priorities, &mut rng);
-        info!("[attempt {attempt_num_rando}] Item precedence: {:?}", item_precedence);
+        info!(
+            "[attempt {attempt_num_rando}] Item precedence: {:?}",
+            item_precedence
+        );
         let mut state = RandomizationState {
             step_num: 1,
             item_precedence,
@@ -2324,7 +2545,8 @@ impl<'r> Randomizer<'r> {
         let mut spoiler_details_vec: Vec<SpoilerDetails> = Vec::new();
         let mut debug_data_vec: Vec<DebugData> = Vec::new();
         loop {
-            let (spoiler_summary, spoiler_details) = self.step(attempt_num_rando, &mut state, &mut rng);
+            let (spoiler_summary, spoiler_details) =
+                self.step(attempt_num_rando, &mut state, &mut rng);
             let cnt_collected = state
                 .item_location_state
                 .iter()
@@ -2377,7 +2599,9 @@ impl<'r> Randomizer<'r> {
 
             if state.step_num == 1 && self.difficulty_tiers[0].early_save {
                 if !state.save_location_state.iter().any(|x| x.bireachable) {
-                    bail!("[attempt {attempt_num_rando}] Attempt failed: no accessible save location");
+                    bail!(
+                        "[attempt {attempt_num_rando}] Attempt failed: no accessible save location"
+                    );
                 }
             }
             state.step_num += 1;

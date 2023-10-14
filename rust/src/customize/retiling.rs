@@ -1,11 +1,11 @@
-use std::{alloc::GlobalAlloc, path::Path};
+use std::path::Path;
 
 use super::Allocator;
 use crate::{
-    game_data::{GameData, AreaIdx, TilesetIdx, RoomPtr, smart_xml::{Layer2Type}, themed_retiling::{FX1, FX1Reference}, DoorPtr},
+    game_data::{GameData, RoomPtr, smart_xml::Layer2Type, themed_retiling::{FX1, FX1Reference}, DoorPtr},
     patch::{snes2pc, pc2snes, Rom, get_room_state_ptrs, apply_ips_patch},
 };
-use anyhow::{bail, Result, Context};
+use anyhow::{Result, Context};
 use hashbrown::hash_map::Entry;
 use hashbrown::HashMap;
 

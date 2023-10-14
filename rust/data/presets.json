@@ -347,6 +347,7 @@
       "Hjless Lava Dive BounceBall",
 
       "Croc Escape SpringBall Bomb Boost",
+      "Croc Escape Ice Only Geruta Platforming",
 
       "Grapple Tutorial 3 Double Gamet Boost",
       "Post Crocomire Farming Room Speed Jump",
@@ -415,7 +416,8 @@
       "canXMode",
       "canCrouchGateClip",
       "canWallIceClip",
-      "canSuperJump"
+      "canSuperJump",
+      "canSpeedKeep"
     ],
     "notable_strats": [
       "Landing Site Crystal Flash X-Ray Climb",
@@ -498,6 +500,8 @@
       "Climb Morph Tunnel SpeedBall",
       "Crateria Supers G-Mode Morph Long Ceiling Bomb Jump",
       "Crateria Supers G-Mode Up with PBs",
+      "Crateria Supers In-Room X-Mode BlueSuit",
+      "Climb Supers In-Room SpeedKeep for Temporary Blue",
       "Green Pirate Shaft Beetom Xray Climb",
       "Green Pirate Shaft Beetom Moondance",
       "Green Pirate Shaft Beetom Stuck Moonfall",
@@ -513,6 +517,7 @@
  
       "Golden Torizo Missiles Only",
       "Screw Attack Room Doorway CWJ",
+      "Lower Norfair Jail Crystal Flash Clip",
       
       "Main Street Crab Climb with Only Ice",
       "Main Street Crab Climb with Only Ice and Supers",
