@@ -4,7 +4,7 @@ use crate::{
     game_data::{
         get_effective_runway_length, Capacity, DoorPtrPair, EntranceCondition, ExitCondition,
         FlagId, HubLocation, Item, ItemId, ItemLocationId, Link, Map, NodeId, Physics, Requirement,
-        RoomGeometryRoomIdx, RoomId, StartLocation, VertexId,
+        RoomGeometryRoomIdx, RoomId, StartLocation, VertexId, DoorPosition,
     },
     traverse::{
         apply_requirement, get_spoiler_route, is_bireachable, traverse, GlobalState, LinkIdx,
@@ -341,7 +341,14 @@ struct Preprocessor<'a> {
     locked_node_map: HashMap<(RoomId, NodeId), usize>,
     // Cache of previously-processed or currently-processing inputs. This is used to avoid infinite
     // recursion in cases of circular dependencies (e.g. cycles of leaveWithGMode)
+    // This is the old-style cross-room logical requirements (in process of being deprecated):
     preprocessed_output: HashMap<ByAddress<&'a Requirement>, Option<Requirement>>,
+    // Similar cache for the new style of cross-room strats. The keys are references to links with
+    // entrance conditions that need to be resolved: the values are lists of possible resolutions of the link
+    // (which have no entrance conditions), where `from_vertex_id` has been replaced by one in a connecting 
+    // room with a matching exit condition, and any necessary requirements from the cross-room strat have
+    // been added):
+    preprocessed_links: HashMap<ByAddress<&'a Link>, Option<Vec<Link>>>,
 }
 
 // // TODO: Remove this if heatFrames are removed from runways in sm-json-data.
@@ -424,6 +431,7 @@ impl<'a> Preprocessor<'a> {
             locked_doors,
             locked_node_map,
             preprocessed_output: HashMap::new(),
+            preprocessed_links: HashMap::new(),
         }
     }
 
@@ -453,7 +461,7 @@ impl<'a> Preprocessor<'a> {
                         self.game_data.tech_isv.index_by_key["canDisableEquipment"],
                     ));
                 }
-                if physics != &Some(Physics::Air) {
+                if *physics != Some(Physics::Air) {
                     reqs.push(Requirement::Item(Item::Gravity as ItemId));
                     // TODO: in sm-json-data, add physics property to leaveWithRunway schema (for door nodes with multiple possible physics)
                 }
@@ -494,7 +502,7 @@ impl<'a> Preprocessor<'a> {
                 let mut reqs: Vec<Requirement> = vec![];
                 let combined_runway_length = *effective_length + runway_length;
                 reqs.push(Requirement::ShineCharge { used_tiles: combined_runway_length });
-                if physics != &Some(Physics::Air) {
+                if *physics != Some(Physics::Air) {
                     reqs.push(Requirement::Item(Item::Gravity as ItemId));
                 }
                 if exit_link.from_vertex_id == exit_link.to_vertex_id {
@@ -503,7 +511,7 @@ impl<'a> Preprocessor<'a> {
                         // Both rooms are heated. Heat frames are optimized by minimizing runway usage in the source room. 
                         // But since the shortcharge difficulty is not known here, we conservatively assume up to 33 tiles 
                         // of the combined runway may need to be used. (TODO: Instead add a Requirement enum case to handle this more accurately.)
-                        let other_runway_length = f32::min(*effective_length, 33.0 - runway_length);
+                        let other_runway_length = f32::max(0.0, f32::min(*effective_length, 33.0 - runway_length));
                         let heat_frames_1 = compute_run_frames(other_runway_length) + 20;
                         let heat_frames_2 = i32::max(85, compute_run_frames(other_runway_length + runway_length));
                         // Add 5 lenience frames (partly to account for the possibility of some inexactness in our calculations)
@@ -516,7 +524,7 @@ impl<'a> Preprocessor<'a> {
                     } else if runway_heated && !*heated {
                         // Only the source room is heated. As in the first case above, heat frames are optimized by 
                         // minimizing runway usage in the source room. (TODO: Use new Requirement enum case.)
-                        let other_runway_length = f32::min(*effective_length, 33.0 - runway_length);
+                        let other_runway_length = f32::max(0.0, f32::min(*effective_length, 33.0 - runway_length));
                         let heat_frames_1 = compute_run_frames(other_runway_length) + 20;
                         let (heat_frames_2, _) = compute_shinecharge_frames(other_runway_length, runway_length);
                         reqs.push(Requirement::HeatFrames(heat_frames_1 + heat_frames_2 + 5));
@@ -542,11 +550,189 @@ impl<'a> Preprocessor<'a> {
         }
     }
 
+    fn get_come_in_shinecharged_reqs(
+        &self,
+        exit_link: &Link,
+        exit_condition: &ExitCondition,
+        frames_required: i32,
+    ) -> Option<Requirement> {
+        match exit_condition {
+            ExitCondition::LeaveShinecharged { frames_remaining } => {
+                if *frames_remaining < frames_required {
+                    None
+                } else {
+                    Some(Requirement::Free)
+                }
+            }
+            ExitCondition::LeaveWithRunway { effective_length, heated, physics } => {
+                let mut reqs: Vec<Requirement> = vec![];
+                reqs.push(Requirement::ShineCharge { used_tiles: *effective_length });
+                if *physics != Some(Physics::Air) {
+                    reqs.push(Requirement::Item(Item::Gravity as ItemId));
+                }
+                if *heated {
+                    if exit_link.from_vertex_id == exit_link.to_vertex_id {
+                        let runway_length = f32::min(33.0, *effective_length);
+                        let run_frames = compute_run_frames(runway_length);
+                        let heat_frames_1 = run_frames + 20;
+                        let heat_frames_2 = i32::max(85, run_frames);
+                        reqs.push(Requirement::HeatFrames(heat_frames_1 + heat_frames_2 + 5));
+                    } else {
+                        let heat_frames = i32::max(85, compute_run_frames(*effective_length));
+                        reqs.push(Requirement::HeatFrames(heat_frames + 5));
+                    }
+                }
+                Some(Requirement::make_and(reqs))
+            }
+            _ => None
+        }
+    }
+
+    fn get_come_in_stutter_shinecharging_reqs(
+        &self,
+        exit_link: &Link,
+        exit_condition: &ExitCondition,
+        min_tiles: f32,
+    ) -> Option<Requirement> {
+        match exit_condition {
+            ExitCondition::LeaveWithRunway { effective_length, heated, physics } => {
+                if *physics != Some(Physics::Air) {
+                    return None;
+                }
+                if *effective_length < min_tiles {
+                    return None;
+                }
+                let mut reqs: Vec<Requirement> = vec![];
+                reqs.push(Requirement::Tech(
+                    self.game_data.tech_isv.index_by_key["canStutterWaterShineCharge"],
+                ));
+                reqs.push(Requirement::Item(Item::SpeedBooster as ItemId));
+                if *heated {
+                    let heat_frames = if exit_link.from_vertex_id == exit_link.to_vertex_id {
+                        compute_run_frames(min_tiles) * 2 + 20
+                    } else {
+                        compute_run_frames(*effective_length)
+                    };
+                    reqs.push(Requirement::HeatFrames(heat_frames));
+                }
+                Some(Requirement::make_and(reqs))
+            }
+            _ => None
+        }
+    }
+
+    fn get_come_in_with_spark_reqs(
+        &self,
+        exit_link: &Link,
+        exit_condition: &ExitCondition,
+    ) -> Option<Requirement> {
+        match exit_condition {
+            ExitCondition::LeaveWithSpark { } => {
+                Some(Requirement::Free)
+            }
+            ExitCondition::LeaveShinecharged { .. } => {
+                Some(Requirement::Free)
+            }
+            ExitCondition::LeaveWithRunway {
+                effective_length,
+                heated,
+                physics,
+            } => {
+                let mut reqs: Vec<Requirement> = vec![];
+                reqs.push(Requirement::ShineCharge { used_tiles: *effective_length });
+                if *physics != Some(Physics::Air) {
+                    reqs.push(Requirement::Item(Item::Gravity as ItemId));
+                }
+                if *heated {
+                    if exit_link.from_vertex_id == exit_link.to_vertex_id {
+                        let runway_length = f32::min(33.0, *effective_length);
+                        let run_frames = compute_run_frames(runway_length);
+                        let heat_frames_1 = run_frames + 20;
+                        let heat_frames_2 = i32::max(85, run_frames);
+                        reqs.push(Requirement::HeatFrames(heat_frames_1 + heat_frames_2 + 5));
+                    } else {
+                        let heat_frames = i32::max(85, compute_run_frames(*effective_length));
+                        reqs.push(Requirement::HeatFrames(heat_frames + 5));
+                    }
+                }
+                Some(Requirement::make_and(reqs))
+            }
+            _ => None,
+        }
+    }
+
+    fn get_come_in_with_bomb_boost_reqs(
+        &self,
+        exit_link: &Link,
+        exit_condition: &ExitCondition,
+    ) -> Option<Requirement> {
+        match exit_condition {
+            ExitCondition::LeaveWithRunway { effective_length, heated, physics } => {
+                let mut reqs: Vec<Requirement> = vec![];
+                if *physics != Some(Physics::Air) {
+                    return None;
+                }
+                reqs.push(Requirement::And(vec![
+                    Requirement::Item(Item::Morph as ItemId),
+                    Requirement::Or(vec![
+                        Requirement::Item(Item::Bombs as ItemId),
+                        Requirement::PowerBombs(1),
+                    ]),
+                ]));
+                if *heated {
+                    let mut heat_frames = 100;
+                    if exit_link.from_vertex_id != exit_link.to_vertex_id {
+                        heat_frames += compute_run_frames(*effective_length);
+                    }
+                    reqs.push(Requirement::HeatFrames(heat_frames));
+                }
+                Some(Requirement::make_and(reqs))
+            }
+            _ => None
+        }
+    }
+
+    fn get_come_in_with_door_stuck_setup_reqs(
+        &self,
+        exit_link: &Link,
+        exit_condition: &ExitCondition,
+    ) -> Option<Requirement> {
+        let (room_id, node_id, _) = self.game_data.vertex_isv.keys[exit_link.to_vertex_id];
+        let door_position = *self.game_data.door_position.get(&(room_id, node_id)).unwrap();
+        match exit_condition {
+            ExitCondition::LeaveWithRunway { effective_length, heated, physics } => {
+                let mut reqs: Vec<Requirement> = vec![];
+                reqs.push(Requirement::Tech(
+                    self.game_data.tech_isv.index_by_key["canStationarySpinJump"],
+                ));
+                if door_position == DoorPosition::Right {
+                    reqs.push(Requirement::Tech(
+                        self.game_data.tech_isv.index_by_key["canRightSideDoorStuck"],
+                    ));
+                    if *physics != Some(Physics::Air) {
+                        reqs.push(Requirement::Or(vec![
+                            Requirement::Item(Item::Gravity as ItemId),
+                            Requirement::Tech(
+                                self.game_data.tech_isv.index_by_key["canRightSideDoorStuckFromWater"],
+                            )
+                        ]));
+                    }
+                }
+                if *heated {
+                    reqs.push(Requirement::HeatFrames(100));
+                }
+                Some(Requirement::make_and(reqs))
+            }
+            _ => None
+        }
+    }
+
     fn get_cross_room_reqs(
         &self,
         exit_link: &Link,
         exit_condition: &ExitCondition,
         entrance_condition: &EntranceCondition,
+        game_data: &GameData,
     ) -> Option<Requirement> {
         let (exit_room_id, exit_node_id, exit_obstacle_mask) =
             self.game_data.vertex_isv.keys[exit_link.from_vertex_id];
@@ -577,17 +763,51 @@ impl<'a> Preprocessor<'a> {
             EntranceCondition::ComeInShinecharging { effective_length, heated } => {
                 self.get_come_in_shinecharging_reqs(exit_link, exit_condition, *effective_length, *heated)
             }
+            EntranceCondition::ComeInShinecharged { frames_required } => {
+                self.get_come_in_shinecharged_reqs(exit_link, exit_condition, *frames_required)
+            }
+            EntranceCondition::ComeInWithSpark {} => {
+                self.get_come_in_with_spark_reqs(exit_link, exit_condition)
+            }
+            EntranceCondition::ComeInStutterShinecharging { min_tiles } => {
+                self.get_come_in_stutter_shinecharging_reqs(exit_link, exit_condition, *min_tiles)
+            }
+            EntranceCondition::ComeInWithBombBoost {} => {
+                self.get_come_in_with_bomb_boost_reqs(exit_link, exit_condition)
+            }
+            EntranceCondition::ComeInWithDoorStuckSetup {} => {
+                self.get_come_in_with_door_stuck_setup_reqs(exit_link, exit_condition)
+            }
         }
     }
 
-    fn preprocess_link(&mut self, link: &'a Link) -> Link {
-        Link {
-            from_vertex_id: link.from_vertex_id,
-            to_vertex_id: link.to_vertex_id,
-            requirement: self.preprocess_requirement(&link.requirement, link),
-            notable_strat_name: link.notable_strat_name.clone(),
-            strat_name: link.strat_name.clone(),
-            strat_notes: link.strat_notes.clone(),
+    fn preprocess_link(&mut self, link: &'a Link) -> Vec<Link> {
+        if link.entrance_condition.is_some() {
+            // // Process new-style cross room strats:
+            // let key = ByAddress(link);
+            // if self.preprocessed_links.contains_key(&key) {
+            //     if let Some(val) = &self.preprocessed_links[&key] {
+            //         return val.clone();
+            //     } else {
+            //         // Circular dependency detected, which cannot be satisfied.
+            //         // println!("Circular requirement: {:?}", req);
+            //         return Requirement::Never;
+            //     }
+            // }
+            // self.preprocessed_output.insert(key, None);
+            vec![]
+        } else {
+            // Process old-style cross-room logical requirements (to be deprecated):
+            vec![Link {
+                from_vertex_id: link.from_vertex_id,
+                to_vertex_id: link.to_vertex_id,
+                requirement: self.preprocess_requirement(&link.requirement, link),
+                entrance_condition: None,
+                notable_strat_name: link.notable_strat_name.clone(),
+                strat_name: link.strat_name.clone(),
+                strat_notes: link.strat_notes.clone(),
+                sublinks: vec![],
+            }]
         }
     }
 
@@ -1389,6 +1609,7 @@ impl<'r> Randomizer<'r> {
             .links
             .iter()
             .map(|x| preprocessor.preprocess_link(x))
+            .flatten()
             .collect();
         for door in &map.doors {
             let src_exit_ptr = door.0 .0;
@@ -2384,6 +2605,7 @@ impl<'r> Randomizer<'r> {
                 LocalState::new(),
                 false,
                 &self.difficulty_tiers[0],
+                self.game_data,
             );
             if local.is_none() {
                 continue;
@@ -2452,6 +2674,7 @@ impl<'r> Randomizer<'r> {
                         LocalState::new(),
                         false,
                         &self.difficulty_tiers[0],
+                        self.game_data,
                     );
                     if local.is_some() {
                         return Ok((start_loc, hub.clone()));
@@ -2798,6 +3021,7 @@ impl<'a> Randomizer<'a> {
                 *local_state,
                 false,
                 difficulty,
+                self.game_data,
             );
             let new_local_state = new_local_state_opt.unwrap();
             let energy_remaining: Option<Capacity> =
@@ -2872,6 +3096,7 @@ impl<'a> Randomizer<'a> {
                 local_state,
                 true,
                 difficulty,
+                self.game_data,
             )
             .unwrap();
             // Here we make an assumption that any negative change in resource usage represents

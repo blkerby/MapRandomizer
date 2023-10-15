@@ -601,6 +601,7 @@ pub fn apply_requirement(
     local: LocalState,
     reverse: bool,
     difficulty: &DifficultyConfig,
+    game_data: &GameData,
 ) -> Option<LocalState> {
     match req {
         Requirement::Free => Some(local),
@@ -645,16 +646,16 @@ pub fn apply_requirement(
         }
         Requirement::HeatFrames(frames) => {
             let varia = global.items[Item::Varia as usize];
-            // let gravity = global.items[Item::Gravity as usize];
             let mut new_local = local;
             if varia {
                 Some(new_local)
-            // } else if gravity {
-            //     new_local.energy_used += multiply(frames / 8, difficulty);
-            //     validate_energy(new_local, global)
             } else {
-                new_local.energy_used += multiply(frames / 4, difficulty);
-                validate_energy(new_local, global)
+                if !global.tech[game_data.heat_run_tech_id] {
+                    None
+                } else {
+                    new_local.energy_used += multiply(frames / 4, difficulty);
+                    validate_energy(new_local, global)    
+                }
             }
         }
         Requirement::LavaFrames(frames) => {
@@ -912,11 +913,11 @@ pub fn apply_requirement(
             let mut new_local = local;
             if reverse {
                 for req in reqs.into_iter().rev() {
-                    new_local = apply_requirement(req, global, new_local, reverse, difficulty)?;
+                    new_local = apply_requirement(req, global, new_local, reverse, difficulty, game_data)?;
                 }
             } else {
                 for req in reqs {
-                    new_local = apply_requirement(req, global, new_local, reverse, difficulty)?;
+                    new_local = apply_requirement(req, global, new_local, reverse, difficulty, game_data)?;
                 }
             }
             Some(new_local)
@@ -925,7 +926,7 @@ pub fn apply_requirement(
             let mut best_local = None;
             let mut best_cost = f32::INFINITY;
             for req in reqs {
-                if let Some(new_local) = apply_requirement(req, global, local, reverse, difficulty)
+                if let Some(new_local) = apply_requirement(req, global, local, reverse, difficulty, game_data)
                 {
                     let cost = compute_cost(new_local, global);
                     if cost < best_cost {
@@ -996,7 +997,7 @@ pub fn traverse(
     start_vertex_id: usize,
     reverse: bool,
     difficulty: &DifficultyConfig,
-    _game_data: &GameData, // May be used for debugging
+    game_data: &GameData,
 ) -> TraverseResult {
     let mut modified_vertices: HashSet<usize> = HashSet::new();
     let mut result: TraverseResult;
@@ -1050,6 +1051,7 @@ pub fn traverse(
                     src_local_state,
                     reverse,
                     difficulty,
+                    game_data,
                 ) {
                     let dst_new_cost = compute_cost(dst_new_local_state, global);
                     if dst_new_cost < dst_old_cost {

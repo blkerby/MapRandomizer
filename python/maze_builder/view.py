@@ -37,8 +37,8 @@ device = torch.device('cpu')
 # session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-16', 'rb')).load()
 # session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-22', 'rb')).load()
 # session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-34', 'rb')).load()
-session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-43', 'rb')).load()
-# session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-50', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-43', 'rb')).load()
+session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-50', 'rb')).load()
 #
 
 print(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects.to(torch.float32), dim=0)))

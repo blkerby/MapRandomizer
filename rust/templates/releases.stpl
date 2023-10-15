@@ -20,10 +20,15 @@ about 15 seconds to load.
 <p><a href="https://version-89---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release89">Version 89 (2023-10-13)</a>:
 <ul>
 <li>New tile theme option "InnerCrateria" (under "Other options" on the customization/seed page).
+<li>New map pool with improvements to balance of save stations.
 <li>Logic updates (highlights):
     <ul>
     <li>TODO: bugfixes
-    <li>TODO: Begin showing more cross-room strats in the logic pages (e.g., "Leave with Runway" and "Leave Shinecharged" strats).
+    <li>Start of a process to refine cross-room strats:
+        <ul>
+        <li>More cross-room strats are now shown in the logic pages (e.g., "Leave with Runway" and "Leave Shinecharged" strats).
+        <li>Heat frames are calculated more accurately for cross-room strats using runways.
+        </ul>
     <li>New tech "canSpeedKeep" (Insane).
     <li>New notable strats:
         <ul>

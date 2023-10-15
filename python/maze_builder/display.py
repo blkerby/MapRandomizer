@@ -151,7 +151,7 @@ class MapDisplay:
 
         colors = []
         for i, area in enumerate(map['area']):
-            if ' Save Room' in rooms[i].name:
+            if ' Save' in rooms[i].name:
                 color_idx = 6
             elif 'Refill' in rooms[i].name or 'Recharge' in rooms[i].name:
                 color_idx = 7

@@ -396,7 +396,7 @@ fn get_strat_difficulty(
 
         for link in &links_by_ids[&(room_id, from_node_id, to_node_id, strat_name.clone())] {
             let req = strip_cross_room_reqs(link.requirement.clone(), game_data);
-            let new_local = apply_requirement(&req, &global, local, false, difficulty);
+            let new_local = apply_requirement(&req, &global, local, false, difficulty, game_data);
             if new_local.is_some() {
                 return i;
             }
@@ -605,7 +605,7 @@ impl LogicData {
         }
 
         let mut links_by_ids: HashMap<(RoomId, NodeId, NodeId, String), Vec<Link>> = HashMap::new();
-        for link in &game_data.links {
+        for link in game_data.all_links() {
             let (link_room_id, link_from_node_id, _) =
                 game_data.vertex_isv.keys[link.from_vertex_id];
             let (_, link_to_node_id, _) = game_data.vertex_isv.keys[link.to_vertex_id];

@@ -144,7 +144,7 @@ fn main() -> Result<()> {
 
     println!(
         "{:?}",
-        apply_requirement(&Requirement::PhantoonFight {  }, &global_state, local_state, false, &difficulty)
+        apply_requirement(&Requirement::PhantoonFight {  }, &global_state, local_state, false, &difficulty, &game_data)
     );
 
     // println!(

@@ -1360,8 +1360,7 @@ fn init_presets(
     }
 
     let all_notable_strats: HashSet<String> = game_data
-        .links
-        .iter()
+        .all_links()
         .filter_map(|x| x.notable_strat_name.clone())
         .collect();
     if !ignored_notable_strats.is_subset(&all_notable_strats) {
@@ -1482,7 +1481,6 @@ fn get_ignored_notable_strats() -> HashSet<String> {
         "G-Mode Morph Breaking the Maridia Tube Gravity Jump", // not usable because of canRiskPermanentLossOfAccess
         "Mt. Everest Cross Room Jump through Top Door", // currently unusable because of obstacleCleared requirement
         "Gauntlet Entrance Shinecharge Under Yapping Maw", // currently unusable because of obstacleCleared requirement
-        
     ]
     .iter()
     .map(|x| x.to_string())
@@ -1544,7 +1542,7 @@ fn build_app_data() -> AppData {
     let start_locations_path = Path::new("data/start_locations.json");
     let hub_locations_path = Path::new("data/hub_locations.json");
     let etank_colors_path = Path::new("data/etank_colors.json");
-    let maps_path = Path::new("../maps/session-2023-06-08T14:55:16.779895.pkl-small-34-subarea-balance-2");
+    let maps_path = Path::new("../maps/session-2023-06-08T14:55:16.779895.pkl-small-51-subarea-balance-2");
     let samus_sprites_path = Path::new("../MapRandoSprites/samus_sprites/manifest.json");
     // let samus_spritesheet_layout_path = Path::new("data/samus_spritesheet_layout.json");
     let mosaic_path = Path::new("../Mosaic");

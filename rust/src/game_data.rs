@@ -476,10 +476,29 @@ fn parse_physics(physics: &str) -> Result<Physics> {
     })
 }
 
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum DoorPosition {
+    Left,
+    Right,
+    Top,
+    Bottom,
+}
+
+fn parse_door_position(door_position: &str) -> Result<DoorPosition> {
+    Ok(match door_position {
+        "left" => DoorPosition::Left,
+        "right" => DoorPosition::Right,
+        "top" => DoorPosition::Top,
+        "bottom" => DoorPosition::Bottom,
+        _ => bail!(format!("Unrecognized door position '{}'", door_position))
+    })
+}
+
+
 #[derive(Clone, Debug)]
 pub enum ExitCondition {
     LeaveWithRunway { effective_length: f32, heated: bool, physics: Option<Physics> },
-    LeaveShinecharged { frames_required: i32 },
+    LeaveShinecharged { frames_remaining: i32 },
     LeaveWithSpark {},
 }
 
@@ -500,7 +519,7 @@ fn parse_exit_condition(exit_json: &JsonValue, heated: bool, physics: Option<Phy
         }
         "leaveShinecharged" => {
             Ok(ExitCondition::LeaveShinecharged { 
-                frames_required: value["framesRequired"].as_i32().context("Expecting integer 'framesRequired'")?, 
+                frames_remaining: value["framesRemaining"].as_i32().context("Expecting integer 'framesRemaining'")?, 
             })
         }
         "leaveWithSpark" => {
@@ -533,7 +552,9 @@ pub enum EntranceCondition {
         frames_required: i32,
     },
     ComeInWithSpark {},
-    ComeInStutterShinecharging {},
+    ComeInStutterShinecharging {
+        min_tiles: f32,
+    },
     ComeInWithBombBoost {},
     ComeInWithDoorStuckSetup {},
 }
@@ -578,6 +599,7 @@ pub struct GameData {
     pub door_ptr_pair_map: HashMap<DoorPtrPair, (RoomId, NodeId)>,
     pub unlocked_door_ptr_pair_map: HashMap<DoorPtrPair, (RoomId, NodeId)>,
     pub reverse_door_ptr_pair_map: HashMap<(RoomId, NodeId), DoorPtrPair>,
+    pub door_position: HashMap<(RoomId, NodeId), DoorPosition>,
     pub vertex_isv: IndexedVec<(RoomId, NodeId, ObstacleMask)>,
     pub item_locations: Vec<(RoomId, NodeId)>,
     pub item_vertex_ids: Vec<Vec<VertexId>>,
@@ -608,6 +630,7 @@ pub struct GameData {
     pub escape_timings: Vec<EscapeTimingRoom>,
     pub start_locations: Vec<StartLocation>,
     pub hub_locations: Vec<HubLocation>,
+    pub heat_run_tech_id: TechId,  // Cached since it is used frequently in graph traversal, and to avoid needing to store it in every HeatFrames req.
 }
 
 impl<T: Hash + Eq> IndexedVec<T> {
@@ -705,7 +728,11 @@ fn parse_entrance_condition(entrance_json: &JsonValue, heated: bool) -> Result<E
                 .context("Expecting integer 'framesRequired'")?,
         }),
         "comeInWithSpark" => Ok(EntranceCondition::ComeInWithSpark {}),
-        "comeInStutterShinecharging" => Ok(EntranceCondition::ComeInStutterShinecharging {}),
+        "comeInStutterShinecharging" => Ok(EntranceCondition::ComeInStutterShinecharging {
+            min_tiles: value["minTiles"]
+                .as_f32()
+                .context("Expecting number 'minTiles'")?,
+        }),
         "comeInWithBombBoost" => Ok(EntranceCondition::ComeInWithBombBoost {}),
         "comeInWithDoorStuckSetup" => Ok(EntranceCondition::ComeInWithDoorStuckSetup {}),
         _ => {
@@ -739,6 +766,7 @@ impl GameData {
                 self.load_tech_rec(tech_json)?;
             }
         }
+        self.heat_run_tech_id = *self.tech_isv.index_by_key.get("canHeatRun").unwrap();
         Ok(())
     }
 
@@ -1969,6 +1997,10 @@ impl GameData {
     }
 
     fn get_room_heated(&self, room_json: &JsonValue, node_id: NodeId) -> Result<bool> {
+        if !room_json.has_key("roomEnvironments") {
+            // TODO: add roomEnvironments to Toilet Bowl so we don't need to skip this here
+            return Ok(false);
+        }
         ensure!(room_json["roomEnvironments"].is_array());
         for env in room_json["roomEnvironments"].members() {
             if env.has_key("entranceNodes") {
@@ -1982,6 +2014,10 @@ impl GameData {
                 .context("Expecting 'heated' to be a bool")?);
         }
         bail!("No match for node {} in roomEnvironments", node_id);
+    }
+
+    pub fn all_links(&self) -> impl Iterator<Item = &Link> {
+        self.links.iter().chain(self.node_exits.values().flatten().map(|x| &x.0))
     }
     
     fn process_room(&mut self, room_json: &JsonValue) -> Result<()> {
@@ -2384,7 +2420,7 @@ impl GameData {
                         if exit_condition.is_some() {
                             self.node_exits.entry((room_id, to_node_id))
                                 .or_insert(vec![])
-                                .push((link, exit_condition.unwrap().clone()));
+                                .push((link, exit_condition.clone().unwrap()));
                         } else {
                             self.links.push(link);
                         }
@@ -2423,13 +2459,13 @@ impl GameData {
                 connection["nodes"][1]["roomid"].as_usize().unwrap(),
                 connection["nodes"][1]["nodeid"].as_usize().unwrap(),
             );
-            self.add_connection(src_pair, dst_pair);
-            self.add_connection(dst_pair, src_pair);
+            self.add_connection(src_pair, dst_pair, &connection["nodes"][0]);
+            self.add_connection(dst_pair, src_pair, &connection["nodes"][1]);
         }
         Ok(())
     }
 
-    fn add_connection(&mut self, mut src: (RoomId, NodeId), dst: (RoomId, NodeId)) {
+    fn add_connection(&mut self, mut src: (RoomId, NodeId), dst: (RoomId, NodeId), conn: &JsonValue) {
         let src_ptr = self.node_ptr_map.get(&src).map(|x| *x);
         let dst_ptr = self.node_ptr_map.get(&dst).map(|x| *x);
         if src_ptr.is_some() || dst_ptr.is_some() {
@@ -2442,6 +2478,8 @@ impl GameData {
             }
             self.unlocked_door_ptr_pair_map
                 .insert((src_ptr, dst_ptr), src);
+            let pos = parse_door_position(conn["position"].as_str().unwrap()).unwrap();
+            self.door_position.insert(src, pos);
         }
     }
 
