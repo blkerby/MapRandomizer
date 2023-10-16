@@ -246,6 +246,19 @@ impl Requirement {
             Requirement::Or(out_reqs)
         }
     }
+
+    pub fn make_shinecharge(tiles: f32) -> Requirement {
+        if tiles < 12.0 {
+            // An effective runway length of 12 is the minimum possible length of shortcharge supported in the logic.
+            // Strats requiring shorter runways than this are discarded to save processing time during generation.
+            // Technically it is humanly viable to go as low as about 10.5, but below 12 the precision needed is so much
+            // that it would not be reasonable to require on any settings (especially considering that it could
+            // involve heated rooms so a first try success could be required).
+            Requirement::Never
+        } else {
+            Requirement::ShineCharge { used_tiles: tiles }
+        }
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -671,6 +684,19 @@ struct RequirementContext<'a> {
 fn parse_runway_geometry(runway: &JsonValue) -> Result<RunwayGeometry> {
     Ok(RunwayGeometry {
         length: runway["length"].as_f32().context("Expecting 'length'")?,
+        open_end: runway["openEnd"].as_f32().context("Expecting 'openEnd'")?,
+        gentle_up_tiles: runway["gentleUpTiles"].as_f32().unwrap_or(0.0),
+        gentle_down_tiles: runway["gentleDownTiles"].as_f32().unwrap_or(0.0),
+        steep_up_tiles: runway["steepUpTiles"].as_f32().unwrap_or(0.0),
+        steep_down_tiles: runway["steepDownTiles"].as_f32().unwrap_or(0.0),
+        starting_down_tiles: runway["startingDownTiles"].as_f32().unwrap_or(0.0),
+    })
+}
+
+fn parse_runway_geometry_shinecharge(runway: &JsonValue) -> Result<RunwayGeometry> {
+    // for some reason "canShinecharge" requirements use "usedTiles" instead of "length":
+    Ok(RunwayGeometry {
+        length: runway["usedTiles"].as_f32().context("Expecting 'usedTiles'")?,
         open_end: runway["openEnd"].as_f32().context("Expecting 'openEnd'")?,
         gentle_up_tiles: runway["gentleUpTiles"].as_f32().unwrap_or(0.0),
         gentle_down_tiles: runway["gentleDownTiles"].as_f32().unwrap_or(0.0),
@@ -1144,16 +1170,9 @@ impl GameData {
                     excess_frames,
                 });
             } else if key == "canShineCharge" {
-                let used_tiles = value["usedTiles"]
-                    .as_f32()
-                    .expect(&format!("missing/invalid usedTiles in {}", req_json));
-                let open_end = value["openEnd"]
-                    .as_f32()
-                    .expect(&format!("missing/invalid openEnd in {}", req_json));
-                // TODO: take slopes into account
-                return Ok(Requirement::ShineCharge {
-                    used_tiles: get_effective_runway_length(used_tiles, open_end),
-                });
+                let runway_geometry = parse_runway_geometry_shinecharge(value)?;
+                let effective_length = compute_runway_effective_length(&runway_geometry);
+                return Ok(Requirement::make_shinecharge(effective_length));
             } else if key == "heatFrames" {
                 let frames = value
                     .as_i32()
@@ -2343,6 +2362,9 @@ impl GameData {
                         };
 
                     for from_obstacles_bitmask in 0..(1 << num_obstacles) {
+                        if entrance_condition.is_some() && from_obstacles_bitmask != 0 {
+                            continue;
+                        }
                         ensure!(strat_json["requires"].is_array());
                         let mut requires_json: Vec<JsonValue> = strat_json["requires"]
                             .members()
@@ -2399,6 +2421,9 @@ impl GameData {
                                 .insert(notable_strat_name.clone(), notable_strat_note.join(" "));
                         }
                         let requirement = Requirement::make_and(requires_vec);
+                        if let Requirement::Never = requirement {
+                            continue;
+                        }
                         let from_vertex_id = self.vertex_isv.index_by_key
                             [&(room_id, from_node_id, from_obstacles_bitmask)];
                         let to_vertex_id = self.vertex_isv.index_by_key

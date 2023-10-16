@@ -501,7 +501,7 @@ impl<'a> Preprocessor<'a> {
             } => {
                 let mut reqs: Vec<Requirement> = vec![];
                 let combined_runway_length = *effective_length + runway_length;
-                reqs.push(Requirement::ShineCharge { used_tiles: combined_runway_length });
+                reqs.push(Requirement::make_shinecharge(combined_runway_length));
                 if *physics != Some(Physics::Air) {
                     reqs.push(Requirement::Item(Item::Gravity as ItemId));
                 }
@@ -566,7 +566,7 @@ impl<'a> Preprocessor<'a> {
             }
             ExitCondition::LeaveWithRunway { effective_length, heated, physics } => {
                 let mut reqs: Vec<Requirement> = vec![];
-                reqs.push(Requirement::ShineCharge { used_tiles: *effective_length });
+                reqs.push(Requirement::make_shinecharge(*effective_length));
                 if *physics != Some(Physics::Air) {
                     reqs.push(Requirement::Item(Item::Gravity as ItemId));
                 }
@@ -639,7 +639,7 @@ impl<'a> Preprocessor<'a> {
                 physics,
             } => {
                 let mut reqs: Vec<Requirement> = vec![];
-                reqs.push(Requirement::ShineCharge { used_tiles: *effective_length });
+                reqs.push(Requirement::make_shinecharge(*effective_length));
                 if *physics != Some(Physics::Air) {
                     reqs.push(Requirement::Item(Item::Gravity as ItemId));
                 }
@@ -700,7 +700,7 @@ impl<'a> Preprocessor<'a> {
         let (room_id, node_id, _) = self.game_data.vertex_isv.keys[exit_link.to_vertex_id];
         let door_position = *self.game_data.door_position.get(&(room_id, node_id)).unwrap();
         match exit_condition {
-            ExitCondition::LeaveWithRunway { effective_length, heated, physics } => {
+            ExitCondition::LeaveWithRunway { heated, physics, .. } => {
                 let mut reqs: Vec<Requirement> = vec![];
                 reqs.push(Requirement::Tech(
                     self.game_data.tech_isv.index_by_key["canStationarySpinJump"],
@@ -732,11 +732,7 @@ impl<'a> Preprocessor<'a> {
         exit_link: &Link,
         exit_condition: &ExitCondition,
         entrance_condition: &EntranceCondition,
-        game_data: &GameData,
     ) -> Option<Requirement> {
-        let (exit_room_id, exit_node_id, exit_obstacle_mask) =
-            self.game_data.vertex_isv.keys[exit_link.from_vertex_id];
-
         match entrance_condition {
             EntranceCondition::ComeInRunning {
                 speed_booster,
@@ -782,15 +778,63 @@ impl<'a> Preprocessor<'a> {
     }
 
     fn preprocess_link(&mut self, link: &'a Link) -> Vec<Link> {
-        if link.entrance_condition.is_some() {
+        if let Some(entrance_condition) = &link.entrance_condition {
             // Process new-style cross room strats:
             let key = ByAddress(link);
             if self.preprocessed_links.contains_key(&key) {
                 let val = &self.preprocessed_links[&key];
                 val.clone()
             } else {
-                let new_links: Vec<Link> = vec![];
-                self.preprocessed_links.insert(key, new_links.clone());
+                // Create an initially empty preprocessed output, to avoid infinite recursion in case of cycles of
+                // matching entrance/exit conditions.
+                self.preprocessed_links.insert(key, vec![]);
+
+                let mut new_links: Vec<Link> = vec![];
+                let (room_id, node_id, _) = self.game_data.vertex_isv.keys[link.from_vertex_id];
+                let mut unlocked_node_id = node_id;
+                if self
+                    .game_data
+                    .unlocked_node_map
+                    .contains_key(&(room_id, node_id))
+                {
+                    unlocked_node_id = self.game_data.unlocked_node_map[&(room_id, node_id)];
+                }
+                if let Some(&(other_room_id, other_node_id)) =
+                    self.door_map.get(&(room_id, unlocked_node_id))
+                {
+                    if let Some(exits) = self.game_data.node_exits.get(&(other_room_id, other_node_id)) {
+                        for (raw_exit_link, exit_condition) in exits {
+                            let exit_links = self.preprocess_link(raw_exit_link);
+                            for exit_link in &exit_links {
+                                let req_opt = self.get_cross_room_reqs(exit_link, exit_condition, entrance_condition);
+                                if let Some(req) = req_opt {
+                                    if let Requirement::Never = req {
+                                        continue;
+                                    }
+                                    let mut strat_notes = exit_link.strat_notes.clone();
+                                    strat_notes.extend(link.strat_notes.clone());
+                                    let mut sublinks = exit_link.sublinks.clone();
+                                    if sublinks.is_empty() {
+                                        sublinks.push(exit_link.clone());
+                                    }
+                                    sublinks.push(link.clone());
+                                    new_links.push(Link {
+                                        from_vertex_id: exit_link.from_vertex_id,
+                                        to_vertex_id: link.to_vertex_id,
+                                        requirement: req,
+                                        entrance_condition: None,
+                                        notable_strat_name: None,  // TODO: Replace with list of notable strats and use them
+                                        strat_name: format!("{}, {}", exit_link.strat_name, link.strat_name),
+                                        strat_notes: strat_notes,
+                                        sublinks,
+                                    });
+                                    // println!("Other room, node: {}, {}: {:?}, {:?}", other_room_id, other_node_id, exit_condition, new_links.last().unwrap());
+                                }    
+                            }
+                        }
+                    }
+                }        
+                *self.preprocessed_links.get_mut(&key).unwrap() = new_links.clone();
                 new_links
             }
         } else {
@@ -961,12 +1005,7 @@ impl<'a> Preprocessor<'a> {
                 let effective_length =
                     get_effective_runway_length(runway.length as f32, runway.open_end as f32)
                         - unusable_tiles as f32;
-                if effective_length < 12.0 {
-                    continue;
-                }
-                let req = Requirement::ShineCharge {
-                    used_tiles: effective_length,
-                };
+                let req = Requirement::make_shinecharge(effective_length);
                 req_vec.push(Requirement::make_and(vec![
                     req,
                     self.preprocess_requirement(&runway.requirement, _link),
@@ -978,12 +1017,7 @@ impl<'a> Preprocessor<'a> {
                 let effective_length =
                     get_effective_runway_length(runway.length as f32, runway.open_end as f32)
                         - unusable_tiles as f32;
-                if effective_length < 12.0 {
-                    continue;
-                }
-                let req = Requirement::ShineCharge {
-                    used_tiles: effective_length,
-                };
+                let req = Requirement::make_shinecharge(effective_length);
                 req_vec.push(Requirement::make_and(vec![
                     door_req.clone(),
                     req,
@@ -1007,12 +1041,7 @@ impl<'a> Preprocessor<'a> {
                         + other_room_effective_length
                         - 1.0
                         - unusable_tiles as f32;
-                    if total_effective_length < 12.0 {
-                        continue;
-                    }
-                    let req = Requirement::ShineCharge {
-                        used_tiles: total_effective_length,
-                    };
+                    let req = Requirement::make_shinecharge(total_effective_length);
                     req_vec.push(Requirement::make_and(vec![
                         door_req.clone(),
                         req,

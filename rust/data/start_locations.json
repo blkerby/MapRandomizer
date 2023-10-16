@@ -723,7 +723,6 @@
         "node_id": 2,
         "x": 41.5,
         "y": 16,
-        "camera_offset_x": 0,
         "camera_offset_y": 4,
         "spicy": true,
         "requires": [

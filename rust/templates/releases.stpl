@@ -24,9 +24,10 @@ about 15 seconds to load.
 <li>Logic updates (highlights):
     <ul>
     <li>TODO: bugfixes
-    <li>Start of a process to refine cross-room strats:
+    <li>Start of a process to refine cross-room strats (only partially complete):
         <ul>
         <li>More cross-room strats are now shown in the logic pages (e.g., "Leave with Runway" and "Leave Shinecharged" strats).
+        <li>Effective runway lengths are calculated more accurately for shortcharges, taking slopes into account.
         <li>Heat frames are calculated more accurately for cross-room strats using runways.
         </ul>
     <li>New tech "canSpeedKeep" (Insane).
