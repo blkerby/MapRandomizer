@@ -721,11 +721,20 @@
         "name": "Cathedral Right",
         "room_id": 91,
         "node_id": 2,
-        "x": 32.5,
-        "y": 23,
-        "camera_offset_x": -1,
+        "x": 41.5,
+        "y": 16,
+        "camera_offset_x": 0,
+        "camera_offset_y": 4,
         "spicy": true,
-        "requires": ["canHeatRun", {"heatFrames": 240}]
+        "requires": [
+            "canHeatRun",
+            {"enemyDamage": {
+                "enemy": "Sova",
+                "type": "contact",
+                "hits": 1
+            }},
+            {"heatFrames": 120}
+        ]
     },
     {
         "name": "Double Chamber Left",
