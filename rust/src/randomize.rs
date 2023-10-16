@@ -348,7 +348,7 @@ struct Preprocessor<'a> {
     // (which have no entrance conditions), where `from_vertex_id` has been replaced by one in a connecting 
     // room with a matching exit condition, and any necessary requirements from the cross-room strat have
     // been added):
-    preprocessed_links: HashMap<ByAddress<&'a Link>, Option<Vec<Link>>>,
+    preprocessed_links: HashMap<ByAddress<&'a Link>, Vec<Link>>,
 }
 
 // // TODO: Remove this if heatFrames are removed from runways in sm-json-data.
@@ -783,19 +783,16 @@ impl<'a> Preprocessor<'a> {
 
     fn preprocess_link(&mut self, link: &'a Link) -> Vec<Link> {
         if link.entrance_condition.is_some() {
-            // // Process new-style cross room strats:
-            // let key = ByAddress(link);
-            // if self.preprocessed_links.contains_key(&key) {
-            //     if let Some(val) = &self.preprocessed_links[&key] {
-            //         return val.clone();
-            //     } else {
-            //         // Circular dependency detected, which cannot be satisfied.
-            //         // println!("Circular requirement: {:?}", req);
-            //         return Requirement::Never;
-            //     }
-            // }
-            // self.preprocessed_output.insert(key, None);
-            vec![]
+            // Process new-style cross room strats:
+            let key = ByAddress(link);
+            if self.preprocessed_links.contains_key(&key) {
+                let val = &self.preprocessed_links[&key];
+                val.clone()
+            } else {
+                let new_links: Vec<Link> = vec![];
+                self.preprocessed_links.insert(key, new_links.clone());
+                new_links
+            }
         } else {
             // Process old-style cross-room logical requirements (to be deprecated):
             vec![Link {

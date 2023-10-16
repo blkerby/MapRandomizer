@@ -180,7 +180,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         item_progression_preset: Some("None".to_string()),
         quality_of_life_preset: Some("None".to_string()),
         debug_options: Some(DebugOptions {
-            new_game_extra: true,
+            new_game_extra: false,
             extended_spoiler: true,
         }),
     };
@@ -230,10 +230,10 @@ fn main() -> Result<()> {
     )?;
 
     // Perform randomization (map selection & item placement):
-    let randomization = get_randomization(&args, &game_data)?;
+    let mut randomization = get_randomization(&args, &game_data)?;
 
-    // // Override start location:
-    // randomization.start_location = game_data.start_locations.last().unwrap().clone();
+    // Override start location:
+    randomization.start_location = game_data.start_locations.last().unwrap().clone();
 
     // Generate the patched ROM:
     let mut input_rom = Rom::load(&args.input_rom)?;

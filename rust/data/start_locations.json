@@ -699,16 +699,6 @@
         "y": 58
     },
     {
-        "name": "Cathedral",
-        "room_id": 91,
-        "node_id": 4,
-        "door_load_node_id": 2,
-        "x": 24.5,
-        "y": 10,
-        "spicy": true,
-        "requires": ["canHeatRun"]
-    },
-    {
         "name": "Cathedral Entrance",
         "room_id": 90,
         "node_id": 3,
@@ -717,6 +707,25 @@
         "y": 22,
         "spicy": true,
         "requires": ["canHeatRun"]
+    },
+    {
+        "name": "Cathedral Left",
+        "room_id": 91,
+        "node_id": 1,
+        "x": 6.5,
+        "y": 26,
+        "spicy": true,
+        "requires": ["canHeatRun", {"heatFrames": 180}]
+    },
+    {
+        "name": "Cathedral Right",
+        "room_id": 91,
+        "node_id": 2,
+        "x": 32.5,
+        "y": 23,
+        "camera_offset_x": -1,
+        "spicy": true,
+        "requires": ["canHeatRun", {"heatFrames": 240}]
     },
     {
         "name": "Double Chamber Left",

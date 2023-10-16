@@ -1,6 +1,7 @@
 next release:
 - show entrance/exit conditions in logic pages
 - finish making new cross-room logic work
+  - make sure exit condition uses unlocked node (for gray doors in boss rooms, etc.)
 
 - mosaic: 
   - OuterCrateria:
