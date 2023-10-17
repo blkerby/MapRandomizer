@@ -26,8 +26,9 @@ struct RoomStrat {
     to_node_id: usize,
     to_node_name: String,
     note: String,
+    entrance_condition: Option<String>,
     requires: String,                         // new-line separated requirements
-    obstacles: Vec<(String, String, String)>, // list of (obstacle name, obstacle requires, additional obstacles)
+    exit_condition: Option<String>,
     clears_obstacles: Vec<String>,
     difficulty_idx: usize,
     difficulty_name: String,
@@ -394,7 +395,12 @@ fn get_strat_difficulty(
             power_bombs_used: 0,
         };
 
-        for link in &links_by_ids[&(room_id, from_node_id, to_node_id, strat_name.clone())] {
+        let key = (room_id, from_node_id, to_node_id, strat_name.clone());
+        if !links_by_ids.contains_key(&key) {
+            // println!("`links_by_ids` is missing key {:?}", key);
+            return difficulty_configs.len();
+        }
+        for link in &links_by_ids[&key] {
             let req = strip_cross_room_reqs(link.requirement.clone(), game_data);
             let new_local = apply_requirement(&req, &global, local, false, difficulty, game_data);
             if new_local.is_some() {
@@ -442,16 +448,6 @@ fn make_room_template(
             for strat_json in link_to_json["strats"].members() {
                 let from_node_id = link_json["from"].as_usize().unwrap();
                 let to_node_id = link_to_json["id"].as_usize().unwrap();
-                let mut obstacles: Vec<(String, String, String)> = vec![];
-                for obstacle_json in strat_json["obstacles"].members() {
-                    let obstacle_id = obstacle_json["id"].as_str().unwrap().to_string();
-                    let obstacle_requires = make_requires(&obstacle_json["requires"]);
-                    let mut additional: Vec<String> = vec![];
-                    for x in obstacle_json["additionalObstacles"].members() {
-                        additional.push(x.as_str().unwrap().to_string());
-                    }
-                    obstacles.push((obstacle_id, obstacle_requires, additional.join(", ")));
-                }
                 let strat_name = strat_json["name"].as_str().unwrap().to_string();
                 let difficulty_idx = get_strat_difficulty(
                     room_id,
@@ -476,6 +472,16 @@ fn make_room_template(
                 } else {
                     vec![]
                 };
+                let entrance_condition: Option<String> = if strat_json.has_key("entranceCondition") {
+                    Some(strat_json["entranceCondition"].pretty(2))
+                } else {
+                    None
+                };
+                let exit_condition: Option<String> = if strat_json.has_key("exitCondition") {
+                    Some(strat_json["exitCondition"].pretty(2))
+                } else {
+                    None
+                };
                 let strat_name = strat_json["name"].as_str().unwrap().to_string();
                 let strat = RoomStrat {
                     room_name: room_name.clone(),
@@ -489,8 +495,9 @@ fn make_room_template(
                     to_node_id,
                     to_node_name: node_name_map[&to_node_id].clone(),
                     note: game_data.parse_note(&strat_json["note"]).join(" "),
+                    entrance_condition,
                     requires: make_requires(&strat_json["requires"]),
-                    obstacles,
+                    exit_condition,
                     clears_obstacles,
                     difficulty_idx,
                     difficulty_name,

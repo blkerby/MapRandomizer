@@ -22,15 +22,17 @@ Notable: true<br>
 <% if strat.note.len() > 0 { %> 
     <p><%= strat.note %></p>
 <% } %>
+<% if let Some(entrance_condition) = strat.entrance_condition { %>
+    <p class="mb-0">Entrance condition:</p>
+    <pre><%= entrance_condition %></pre>
+<% } %>
 <% if strat.requires.len() > 0 { %>
     <p class="mb-0">Requires:</p>
     <pre><%= strat.requires %></pre>
 <% } %>
-<% for (obstacle_id, obstacle_requires, additional_obstacles) in &strat.obstacles { %>
-    <p class="mb-0">Obstacle <%= obstacle_id %><% if additional_obstacles.len() > 0 { %>
-    (additional: <%= additional_obstacles %>)<% } %>:
-    </p>
-    <pre><%= obstacle_requires %></pre>
+<% if let Some(exit_condition) = strat.exit_condition { %>
+    <p class="mb-0">Exit condition:</p>
+    <pre><%= exit_condition %></pre>
 <% } %>
 <% if strat.clears_obstacles.len() > 0 {
       let obstacle_list = strat.clears_obstacles.join(", "); %>
