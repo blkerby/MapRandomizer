@@ -14,7 +14,7 @@ RUN rm /rust/src/*.rs
 
 # Download the map dataset, extraction will occur in-container to reduce image size
 WORKDIR /maps
-RUN wget https://storage.googleapis.com/super-metroid-map-rando/maps/session-2023-06-08T14:55:16.779895.pkl-small-34-subarea-balance-2.tgz \
+RUN wget https://storage.googleapis.com/super-metroid-map-rando/maps/session-2023-06-08T14:55:16.779895.pkl-small-51-subarea-balance-2.tgz \
     -O maps.tar.gz
 RUN tar xfz maps.tar.gz --directory /maps && rm maps.tar.gz
 
