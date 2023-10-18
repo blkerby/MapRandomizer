@@ -283,7 +283,7 @@ pub struct Jumpway {
     pub requirement: Requirement,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CanLeaveCharged {
     // TODO: add more details like slopes
     pub frames_remaining: i32,
@@ -2158,7 +2158,7 @@ impl GameData {
                                 requirement: Requirement::Free,
                                 entrance_condition: None,
                                 notable_strat_name: None,
-                                strat_name: runway_json["name"].as_str().unwrap().to_string(),
+                                strat_name: strat_json["name"].as_str().unwrap().to_string(),
                                 strat_notes: vec![],
                                 sublinks: vec![],
                             };
@@ -2249,9 +2249,34 @@ impl GameData {
                             frames_remaining: can_leave_charged_json["framesRemaining"]
                                 .as_i32()
                                 .context("Expecting integer framesRemaining")?,
-                            requirement,
+                            requirement: requirement.clone(),
                         };
-                        can_leave_charged_vec.push(can_leave_charged);
+                        can_leave_charged_vec.push(can_leave_charged.clone());
+
+                        // Temporary while migration is in process -- Create new-style exit-condition strat:
+                        let vertex_id = self.vertex_isv.index_by_key
+                            [&(room_id, node_id, 0)];
+                        let link = Link {
+                            from_vertex_id: vertex_id,
+                            to_vertex_id: vertex_id,
+                            requirement: requirement,
+                            entrance_condition: None,
+                            notable_strat_name: None,
+                            strat_name: strat_json["name"].as_str().unwrap().to_string(),
+                            strat_notes: vec![],
+                            sublinks: vec![],
+                        };
+                        let exit_condition = if can_leave_charged.frames_remaining > 0 {
+                            ExitCondition::LeaveShinecharged { 
+                                frames_remaining: can_leave_charged.frames_remaining,
+                            }
+                        } else {
+                            ExitCondition::LeaveWithSpark {}
+                        };
+                        self.node_exits
+                            .entry((room_id, node_id))
+                            .or_insert(vec![])
+                            .push((link, exit_condition));
                     }
                 }
                 self.node_can_leave_charged_map
