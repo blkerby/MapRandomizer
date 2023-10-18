@@ -803,14 +803,22 @@ impl<'a> Preprocessor<'a> {
                     self.door_map.get(&(room_id, unlocked_node_id))
                 {
                     if let Some(exits) = self.game_data.node_exits.get(&(other_room_id, other_node_id)) {
+                        let locked_door_idx = self
+                            .locked_node_map
+                            .get(&(other_room_id, other_node_id))
+                            .map(|x| *x);
+                        let door_req = get_door_requirement(locked_door_idx, self.locked_doors, self.game_data);
+            
                         for (raw_exit_link, exit_condition) in exits {
                             let exit_links = self.preprocess_link(raw_exit_link);
                             for exit_link in &exit_links {
                                 let req_opt = self.get_cross_room_reqs(exit_link, exit_condition, entrance_condition);
-                                if let Some(req) = req_opt {
+                                if let Some(mut req) = req_opt {
                                     if let Requirement::Never = req {
                                         continue;
                                     }
+                                    req = Requirement::make_and(vec![req, door_req.clone()]);
+                                    println!("{:?}", door_req);
                                     let mut strat_notes = exit_link.strat_notes.clone();
                                     strat_notes.extend(link.strat_notes.clone());
                                     let mut sublinks = exit_link.sublinks.clone();

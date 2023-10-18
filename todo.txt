@@ -1,5 +1,4 @@
 next release:
-- show entrance/exit conditions in logic pages
 - finish making new cross-room logic work
   - make sure exit condition uses unlocked node (for gray doors in boss rooms, etc.)
   - create dummy "leaveWithRunway" strats from node runways
@@ -83,6 +82,17 @@ priority:
   is currently set up (since there is no way to go up through sand)
 
 later:
+- strats to add to logic:
+  - enemy stuck moonfalls in Pink Brin Power Bomb and West Ocean
+  - R-mode forced stand-up clips (needs testing):
+    - GT Room
+    - double chamber: right side (CF grapple clip too), if no walljumps
+    - Acid Statue Room (no need for HiJump)
+    - Mickey Mouse Room (alternative to CF grapple clip?)
+    - West Ocean (alternative to ice clip?)
+    - Wrecked Ship East Super Room: alternative to CF clip (farm the Coverns)
+    - PCJR: up through crumble? (not sure if this can work, since enemy hit kills momentum and crumble respawns. If it works, where you can jump back up before crumble respawns, then CF clip would probably also work)
+  - moondance in Bowling Alley top
 - make item music tracks consistent, to eliminate music restarts that can happen between two item rooms
 - fix palette fade issue when entering MB room from left (Mother Brain starts from white?)
 - possibly bad idea: should getting map station add arrows to other maps (ones leading into current map)?

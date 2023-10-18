@@ -476,7 +476,7 @@ pub enum Physics {
     Air,
     Water,
     Lava,
-    Acid
+    Acid,
 }
 
 fn parse_physics(physics: &str) -> Result<Physics> {
@@ -485,7 +485,7 @@ fn parse_physics(physics: &str) -> Result<Physics> {
         "water" => Physics::Water,
         "lava" => Physics::Lava,
         "acid" => Physics::Acid,
-        _ => bail!(format!("Unrecognized physics '{}'", physics))
+        _ => bail!(format!("Unrecognized physics '{}'", physics)),
     })
 }
 
@@ -503,19 +503,28 @@ fn parse_door_position(door_position: &str) -> Result<DoorPosition> {
         "right" => DoorPosition::Right,
         "top" => DoorPosition::Top,
         "bottom" => DoorPosition::Bottom,
-        _ => bail!(format!("Unrecognized door position '{}'", door_position))
+        _ => bail!(format!("Unrecognized door position '{}'", door_position)),
     })
 }
 
-
 #[derive(Clone, Debug)]
 pub enum ExitCondition {
-    LeaveWithRunway { effective_length: f32, heated: bool, physics: Option<Physics> },
-    LeaveShinecharged { frames_remaining: i32 },
+    LeaveWithRunway {
+        effective_length: f32,
+        heated: bool,
+        physics: Option<Physics>,
+    },
+    LeaveShinecharged {
+        frames_remaining: i32,
+    },
     LeaveWithSpark {},
 }
 
-fn parse_exit_condition(exit_json: &JsonValue, heated: bool, physics: Option<Physics>) -> Result<ExitCondition> {
+fn parse_exit_condition(
+    exit_json: &JsonValue,
+    heated: bool,
+    physics: Option<Physics>,
+) -> Result<ExitCondition> {
     ensure!(exit_json.is_object());
     ensure!(exit_json.len() == 1);
     let (key, value) = exit_json.entries().next().unwrap();
@@ -530,20 +539,17 @@ fn parse_exit_condition(exit_json: &JsonValue, heated: bool, physics: Option<Phy
                 physics,
             })
         }
-        "leaveShinecharged" => {
-            Ok(ExitCondition::LeaveShinecharged { 
-                frames_remaining: value["framesRemaining"].as_i32().context("Expecting integer 'framesRemaining'")?, 
-            })
-        }
-        "leaveWithSpark" => {
-            Ok(ExitCondition::LeaveWithSpark {})
-        }
+        "leaveShinecharged" => Ok(ExitCondition::LeaveShinecharged {
+            frames_remaining: value["framesRemaining"]
+                .as_i32()
+                .context("Expecting integer 'framesRemaining'")?,
+        }),
+        "leaveWithSpark" => Ok(ExitCondition::LeaveWithSpark {}),
         _ => {
             bail!(format!("Unrecognized exit condition: {}", key));
         }
     }
 }
-
 
 #[derive(Clone, Debug)]
 pub enum EntranceCondition {
@@ -607,6 +613,7 @@ pub struct GameData {
     pub node_gmode_immobile_map: HashMap<(RoomId, NodeId), GModeImmobile>,
     pub node_ptr_map: HashMap<(RoomId, NodeId), NodePtr>,
     pub node_exits: HashMap<(RoomId, NodeId), Vec<(Link, ExitCondition)>>,
+    pub node_lock_req_json: HashMap<(RoomId, NodeId), JsonValue>,
     pub unlocked_node_map: HashMap<(RoomId, NodeId), NodeId>,
     pub room_num_obstacles: HashMap<RoomId, usize>,
     pub door_ptr_pair_map: HashMap<DoorPtrPair, (RoomId, NodeId)>,
@@ -643,7 +650,7 @@ pub struct GameData {
     pub escape_timings: Vec<EscapeTimingRoom>,
     pub start_locations: Vec<StartLocation>,
     pub hub_locations: Vec<HubLocation>,
-    pub heat_run_tech_id: TechId,  // Cached since it is used frequently in graph traversal, and to avoid needing to store it in every HeatFrames req.
+    pub heat_run_tech_id: TechId, // Cached since it is used frequently in graph traversal, and to avoid needing to store it in every HeatFrames req.
 }
 
 impl<T: Hash + Eq> IndexedVec<T> {
@@ -696,7 +703,9 @@ fn parse_runway_geometry(runway: &JsonValue) -> Result<RunwayGeometry> {
 fn parse_runway_geometry_shinecharge(runway: &JsonValue) -> Result<RunwayGeometry> {
     // for some reason "canShinecharge" requirements use "usedTiles" instead of "length":
     Ok(RunwayGeometry {
-        length: runway["usedTiles"].as_f32().context("Expecting 'usedTiles'")?,
+        length: runway["usedTiles"]
+            .as_f32()
+            .context("Expecting 'usedTiles'")?,
         open_end: runway["openEnd"].as_f32().context("Expecting 'openEnd'")?,
         gentle_up_tiles: runway["gentleUpTiles"].as_f32().unwrap_or(0.0),
         gentle_down_tiles: runway["gentleDownTiles"].as_f32().unwrap_or(0.0),
@@ -727,18 +736,14 @@ fn parse_entrance_condition(entrance_json: &JsonValue, heated: bool) -> Result<E
             min_tiles: value["minTiles"]
                 .as_f32()
                 .context("Expecting number 'minTiles'")?,
-            max_tiles: value["maxTiles"]
-                .as_f32()
-                .unwrap_or(255.0),
+            max_tiles: value["maxTiles"].as_f32().unwrap_or(255.0),
         }),
         "comeInJumping" => Ok(EntranceCondition::ComeInJumping {
             speed_booster: value["speedBooster"].as_bool(),
             min_tiles: value["minTiles"]
                 .as_f32()
                 .context("Expecting number 'minTiles'")?,
-            max_tiles: value["maxTiles"]
-                .as_f32()
-                .unwrap_or(255.0)
+            max_tiles: value["maxTiles"].as_f32().unwrap_or(255.0),
         }),
         "comeInShinecharging" => {
             let runway_geometry = parse_runway_geometry(value)?;
@@ -1788,6 +1793,7 @@ impl GameData {
         for node_json in new_room_json["nodes"].members_mut() {
             let node_id = node_json["id"].as_usize().unwrap();
 
+            // TODO: get rid of dummy nodes that we're creating here.
             if node_json.has_key("locks")
                 && (!["door", "entrance"].contains(&node_json["nodeType"].as_str().unwrap())
                     || door_lock_allowed_room_ids.contains(&room_id))
@@ -1840,6 +1846,16 @@ impl GameData {
                 }
 
                 extra_nodes.push(unlocked_node_json);
+
+
+                let mut unlock_reqs = json::object! {
+                    "or": unlock_strats.members()
+                            .map(|x| json::object!{"and": x["requires"].clone()})
+                            .collect::<Vec<JsonValue>>()
+                };
+                if room_id != 12 { // Exclude lock requirements in Pit Room since with randomizer changes these become free
+                    self.node_lock_req_json.insert((room_id, node_id), unlock_reqs);
+                }
 
                 if lock.has_key("lock") {
                     ensure!(lock["lock"].is_array());
@@ -2036,9 +2052,11 @@ impl GameData {
     }
 
     pub fn all_links(&self) -> impl Iterator<Item = &Link> {
-        self.links.iter().chain(self.node_exits.values().flatten().map(|x| &x.0))
+        self.links
+            .iter()
+            .chain(self.node_exits.values().flatten().map(|x| &x.0))
     }
-    
+
     fn process_room(&mut self, room_json: &JsonValue) -> Result<()> {
         let room_id = room_json["id"].as_usize().unwrap();
         self.room_json_map.insert(room_id, room_json.clone());
@@ -2093,7 +2111,7 @@ impl GameData {
             for obstacle_bitmask in 0..(1 << num_obstacles) {
                 self.vertex_isv.add(&(room_id, node_id, obstacle_bitmask));
             }
-        }        
+        }
         for node_json in room_json["nodes"].members() {
             let node_id = node_json["id"].as_usize().unwrap();
             if node_json.has_key("runways") {
@@ -2339,7 +2357,9 @@ impl GameData {
                 ensure!(link_to_json["strats"].is_array());
                 let to_node_id = link_to_json["id"].as_usize().unwrap();
                 let to_heated = self.get_room_heated(room_json, to_node_id)?;
-                let physics: Option<Physics> = if let Ok(physics_str) = self.get_node_physics(&self.node_json_map[&(room_id, to_node_id)]) {
+                let physics: Option<Physics> = if let Ok(physics_str) =
+                    self.get_node_physics(&self.node_json_map[&(room_id, to_node_id)])
+                {
                     Some(parse_physics(&physics_str)?)
                 } else {
                     None
@@ -2349,14 +2369,21 @@ impl GameData {
                     let entrance_condition: Option<EntranceCondition> =
                         if strat_json.has_key("entranceCondition") {
                             ensure!(strat_json["entranceCondition"].is_object());
-                            Some(parse_entrance_condition(&strat_json["entranceCondition"], from_heated)?)
+                            Some(parse_entrance_condition(
+                                &strat_json["entranceCondition"],
+                                from_heated,
+                            )?)
                         } else {
                             None
                         };
                     let exit_condition: Option<ExitCondition> =
                         if strat_json.has_key("exitCondition") {
                             ensure!(strat_json["exitCondition"].is_object());
-                            Some(parse_exit_condition(&strat_json["exitCondition"], to_heated, physics)?)
+                            Some(parse_exit_condition(
+                                &strat_json["exitCondition"],
+                                to_heated,
+                                physics,
+                            )?)
                         } else {
                             None
                         };
@@ -2420,6 +2447,19 @@ impl GameData {
                             self.strat_description
                                 .insert(notable_strat_name.clone(), notable_strat_note.join(" "));
                         }
+
+                        if exit_condition.is_some() {
+                            if let Some(lock_req_json) =
+                                self.node_lock_req_json.get(&(room_id, to_node_id))
+                            {
+                                // This accounts for requirements to unlock a gray door before performing a cross-room
+                                // strat through it:
+                                println!("lock: {}", lock_req_json.pretty(2));
+                                requires_vec
+                                    .push(self.parse_requirement(&lock_req_json.clone(), &ctx)?);
+                            }
+                        }
+
                         let requirement = Requirement::make_and(requires_vec);
                         if let Requirement::Never = requirement {
                             continue;
@@ -2443,7 +2483,8 @@ impl GameData {
                             sublinks: vec![],
                         };
                         if exit_condition.is_some() {
-                            self.node_exits.entry((room_id, to_node_id))
+                            self.node_exits
+                                .entry((room_id, to_node_id))
                                 .or_insert(vec![])
                                 .push((link, exit_condition.clone().unwrap()));
                         } else {
@@ -2490,7 +2531,12 @@ impl GameData {
         Ok(())
     }
 
-    fn add_connection(&mut self, mut src: (RoomId, NodeId), dst: (RoomId, NodeId), conn: &JsonValue) {
+    fn add_connection(
+        &mut self,
+        mut src: (RoomId, NodeId),
+        dst: (RoomId, NodeId),
+        conn: &JsonValue,
+    ) {
         let src_ptr = self.node_ptr_map.get(&src).map(|x| *x);
         let dst_ptr = self.node_ptr_map.get(&dst).map(|x| *x);
         if src_ptr.is_some() || dst_ptr.is_some() {
