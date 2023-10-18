@@ -17,14 +17,14 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-89---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release89">Version 89 (2023-10-13)</a>:
+<p><a href="https://version-89---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release89">Version 89 (2023-10-18)</a>:
 <ul>
 <li>New tile theme option "InnerCrateria" (under "Other options" on the customization/seed page).
-<li>New map pool with improvements to balance of save stations.
+<li>New map pool with improved balance of save stations.
 <li>Logic updates (highlights):
     <ul>
-    <li>TODO: bugfixes
-    <li>Start of a process to refine cross-room strats (only partially complete):
+    <li>Fixes to several logic bugs.
+    <li>Start a process of refining cross-room strats (only partially complete):
         <ul>
         <li>More cross-room strats are now shown in the logic pages (e.g., "Leave with Runway" and "Leave Shinecharged" strats).
         <li>Effective runway lengths are calculated more accurately for shortcharges, taking slopes into account.
@@ -33,6 +33,11 @@ about 15 seconds to load.
     <li>New tech "canSpeedKeep" (Insane).
     <li>New notable strats:
         <ul>
+            <li>East Ocean Floor Shinespark Left (Very Hard)
+            <li>West Ocean Floor Shinecharge, Fast Spacejump Wallclimb to Gravity Door (Very Hard)
+            <li>West Ocean Floor Shinecharge, Fast Wallclimb to Gravity Door (Expert)
+            <li>West Ocean Shinespark, Morph Tunnel Rush (Expert)
+            <li>PCJR Left Side Diagonal Shinespark (Expert)
             <li>Croc Escape Ice Only Geruta Platforming (Expert)
             <li>Crateria Supers In-Room X-Mode BlueSuit (Extreme)
             <li>Climb Supers In-Room SpeedKeep for Temporary Blue (Insane)
