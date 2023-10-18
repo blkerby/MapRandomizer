@@ -1847,8 +1847,7 @@ impl GameData {
 
                 extra_nodes.push(unlocked_node_json);
 
-
-                let mut unlock_reqs = json::object! {
+                let unlock_reqs = json::object! {
                     "or": unlock_strats.members()
                             .map(|x| json::object!{"and": x["requires"].clone()})
                             .collect::<Vec<JsonValue>>()
@@ -2141,7 +2140,7 @@ impl GameData {
                                 length: runway_json["length"].as_i32().unwrap(),
                                 open_end: runway_json["openEnd"].as_i32().unwrap(),
                                 requirement,
-                                physics,
+                                physics: physics.clone(),
                                 heated,
                                 usable_coming_in: runway_json["usableComingIn"]
                                     .as_bool()
@@ -2149,6 +2148,34 @@ impl GameData {
                             };
                             // info!("Runway: {:?}", runway);
                             runway_vec.push(runway);
+
+                            // Temporary while migration is in process -- Create new-style exit-condition strat:
+                            let vertex_id = self.vertex_isv.index_by_key
+                                [&(room_id, node_id, 0)];
+                            let link = Link {
+                                from_vertex_id: vertex_id,
+                                to_vertex_id: vertex_id,
+                                requirement: Requirement::Free,
+                                entrance_condition: None,
+                                notable_strat_name: None,
+                                strat_name: runway_json["name"].as_str().unwrap().to_string(),
+                                strat_notes: vec![],
+                                sublinks: vec![],
+                            };
+                            let runway_geometry = parse_runway_geometry(runway_json)?;
+                            let effective_length = compute_runway_effective_length(&runway_geometry);                
+                            let exit_condition = ExitCondition::LeaveWithRunway { 
+                                effective_length,
+                                heated,
+                                physics: Some(parse_physics(&physics)?),
+                            };
+                            if room_id == 48 {
+                                println!("{}: {:?}", room_id, link);
+                            }
+                            self.node_exits
+                                .entry((room_id, node_id))
+                                .or_insert(vec![])
+                                .push((link, exit_condition));
                         } else {
                             // info!("Invalid physics in runway: {} - {}", room_json["name"], runway_json["name"])
                         }
