@@ -698,7 +698,8 @@ impl<'a> Preprocessor<'a> {
         exit_condition: &ExitCondition,
     ) -> Option<Requirement> {
         let (room_id, node_id, _) = self.game_data.vertex_isv.keys[exit_link.to_vertex_id];
-        let door_position = *self.game_data.door_position.get(&(room_id, node_id)).unwrap();
+        let door_position = *self.game_data.door_position.get(&(room_id, node_id)).expect(
+            &format!("door_position not found for ({}, {})", room_id, node_id));
         match exit_condition {
             ExitCondition::LeaveWithRunway { heated, physics, .. } => {
                 let mut reqs: Vec<Requirement> = vec![];
@@ -812,13 +813,14 @@ impl<'a> Preprocessor<'a> {
                         for (raw_exit_link, exit_condition) in exits {
                             let exit_links = self.preprocess_link(raw_exit_link);
                             for exit_link in &exit_links {
-                                let req_opt = self.get_cross_room_reqs(exit_link, exit_condition, entrance_condition);
-                                if let Some(mut req) = req_opt {
-                                    if let Requirement::Never = req {
+                                let cross_req_opt = self.get_cross_room_reqs(exit_link, exit_condition, entrance_condition);
+                                if let Some(mut cross_req) = cross_req_opt {
+                                    if let Requirement::Never = cross_req {
                                         continue;
                                     }
-                                    req = Requirement::make_and(vec![req, door_req.clone()]);
-                                    println!("{:?}", door_req);
+                                    let req = Requirement::make_and(vec![
+                                        exit_link.requirement.clone(), cross_req, door_req.clone(), link.requirement.clone()]);
+                                    // println!("{:?}", door_req);
                                     let mut strat_notes = exit_link.strat_notes.clone();
                                     strat_notes.extend(link.strat_notes.clone());
                                     let mut sublinks = exit_link.sublinks.clone();
@@ -832,7 +834,7 @@ impl<'a> Preprocessor<'a> {
                                         requirement: req,
                                         entrance_condition: None,
                                         notable_strat_name: None,  // TODO: Replace with list of notable strats and use them
-                                        strat_name: format!("{}, {}", exit_link.strat_name, link.strat_name),
+                                        strat_name: format!("{}; {}", exit_link.strat_name, link.strat_name),
                                         strat_notes: strat_notes,
                                         sublinks,
                                     });

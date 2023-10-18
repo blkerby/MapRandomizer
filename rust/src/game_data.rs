@@ -2169,9 +2169,6 @@ impl GameData {
                                 heated,
                                 physics: Some(parse_physics(&physics)?),
                             };
-                            if room_id == 48 {
-                                println!("{}: {:?}", room_id, link);
-                            }
                             self.node_exits
                                 .entry((room_id, node_id))
                                 .or_insert(vec![])
@@ -2505,7 +2502,7 @@ impl GameData {
                             {
                                 // This accounts for requirements to unlock a gray door before performing a cross-room
                                 // strat through it:
-                                println!("lock: {}", lock_req_json.pretty(2));
+                                // println!("lock: {}", lock_req_json.pretty(2));
                                 requires_vec
                                     .push(self.parse_requirement(&lock_req_json.clone(), &ctx)?);
                             }
@@ -2618,13 +2615,14 @@ impl GameData {
             self.door_ptr_pair_map.insert((src_ptr, dst_ptr), src);
             self.reverse_door_ptr_pair_map
                 .insert(src, (src_ptr, dst_ptr));
+            let pos = parse_door_position(conn["position"].as_str().unwrap()).unwrap();
+            self.door_position.insert(src, pos);
             if self.unlocked_node_map.contains_key(&src) {
                 let src_room_id = src.0;
                 src = (src_room_id, self.unlocked_node_map[&src])
             }
             self.unlocked_door_ptr_pair_map
                 .insert((src_ptr, dst_ptr), src);
-            let pos = parse_door_position(conn["position"].as_str().unwrap()).unwrap();
             self.door_position.insert(src, pos);
         }
     }
@@ -2922,7 +2920,7 @@ impl GameData {
     }
 
     fn extract_all_strat_dependencies(&mut self) -> Result<()> {
-        let links = self.links.clone();
+        let links: Vec<Link> = self.all_links().cloned().collect();
         for link in &links {
             if let Some(notable_strat_name) = link.notable_strat_name.clone() {
                 let deps: HashSet<String> = self.extract_tech_dependencies(&link.requirement);

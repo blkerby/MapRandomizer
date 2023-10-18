@@ -1,11 +1,12 @@
 next release:
 - finish making new cross-room logic work
   - create dummy "leaveWithRunway" strats from node runways
-  
+
 - mosaic: 
   - OuterCrateria:
     - HiJump ETank room - fix BG parallax
     - Etecoon ETank room - clear space below crumbles (take care that BG looks ok)
+- share this seed: http://localhost:8080/seed/5nvXsrr3E8uKU5Y1FhxpIg/data/visualizer/index.html
 
 priority:
 - clarify gate glitch leniency: that it doesn't apply to Pink Hopper Room gate
