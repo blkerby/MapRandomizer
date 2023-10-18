@@ -2409,9 +2409,8 @@ impl GameData {
                 ensure!(link_to_json["strats"].is_array());
                 let to_node_id = link_to_json["id"].as_usize().unwrap();
                 let to_heated = self.get_room_heated(room_json, to_node_id)?;
-                let physics: Option<Physics> = if let Ok(physics_str) =
-                    self.get_node_physics(&self.node_json_map[&(room_id, to_node_id)])
-                {
+                let physics_res = self.get_node_physics(&self.node_json_map[&(room_id, to_node_id)]);
+                let physics: Option<Physics> = if let Ok(physics_str) = &physics_res {
                     Some(parse_physics(&physics_str)?)
                 } else {
                     None
@@ -2523,14 +2522,14 @@ impl GameData {
                         let link = Link {
                             from_vertex_id,
                             to_vertex_id,
-                            requirement,
+                            requirement: requirement.clone(),
                             entrance_condition: entrance_condition.clone(),
                             notable_strat_name: if notable {
                                 Some(notable_strat_name)
                             } else {
                                 None
                             },
-                            strat_name,
+                            strat_name: strat_name.clone(),
                             strat_notes,
                             sublinks: vec![],
                         };
@@ -2541,6 +2540,30 @@ impl GameData {
                                 .push((link, exit_condition.clone().unwrap()));
                         } else {
                             self.links.push(link);
+                        }
+
+                        // Temporary while in the middle of migration -- create old-style runway:
+                        if from_node_id == to_node_id {
+                            if let Some(ExitCondition::LeaveWithRunway { heated, physics, .. }) = exit_condition {
+                                if let Ok(physics_str) = &physics_res {
+                                    let mut runway_reqs = vec![requirement];
+                                    if physics != Some(Physics::Air) {
+                                        runway_reqs.push(Requirement::Item(Item::Gravity as usize));
+                                    }
+                                    // println!("{}", strat_json["exitCondition"].pretty(2));
+                                    self.node_runways_map.entry((room_id, to_node_id))
+                                        .or_insert(vec![])
+                                        .push(Runway { 
+                                            name: strat_name,
+                                            length: strat_json["exitCondition"]["leaveWithRunway"]["length"].as_f32().unwrap() as i32,
+                                            open_end: strat_json["exitCondition"]["leaveWithRunway"]["openEnd"].as_i32().unwrap(),
+                                            requirement: Requirement::make_and(runway_reqs),
+                                            physics: physics_str.to_string(),
+                                            heated: heated,
+                                            usable_coming_in: false,
+                                        });
+                                }
+                            }
                         }
                     }
                 }
