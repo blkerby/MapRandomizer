@@ -65,8 +65,6 @@
         collected, it is possible to reach every room with only Basic tech.
         <li>Phantoon's Room always connects to the same room as the broken map station, and both are 
         in the same area as the broken save room.
-        <li>The map uses special tiles to show the locations of map stations, refills, 
-        and objectives. Items are consistently marked using dots.
         </ul>
         
         <h6>Item info</h6>
