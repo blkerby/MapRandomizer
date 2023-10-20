@@ -2845,10 +2845,14 @@ impl<'r> Randomizer<'r> {
 
                 // Check that Phantoon can be defeated. This is to rule out the possibility that Phantoon may be locked
                 // behind Bowling Alley.
-                if !state.flag_location_state
-                    [self.game_data.flag_isv.index_by_key["f_DefeatedPhantoon"]]
-                    .bireachable
-                {
+                let phantoon_flag_id = self.game_data.flag_isv.index_by_key["f_DefeatedPhantoon"];
+                let mut phantoon_defeated = false;
+                for (i, (_, _, flag_id)) in self.game_data.flag_locations.iter().enumerate() {
+                    if *flag_id == phantoon_flag_id && state.flag_location_state[i].bireachable {
+                        phantoon_defeated = true;
+                    }
+                }
+                if !phantoon_defeated {
                     bail!("[attempt {attempt_num_rando}] Attempt failed: Phantoon not defeated");
                 }
 
