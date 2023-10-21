@@ -135,6 +135,7 @@ class EpisodeData:
     door_connects: torch.tensor  # 2D bool: (num_episodes, num_doors)
     missing_connects: torch.tensor  # 2D bool: (num_episodes, num_missing_connects)
     save_distances: torch.tensor  # 2D bool: (num_episodes, num_non_potential_save_idxs)
+    graph_diameter: torch.tensor  # 1D bool: (num_episodes)
     cycle_cost: torch.tensor  # 1D float32: num_episodes
     reward: torch.tensor  # 1D int64: num_episodes
     temperature: torch.tensor  # 1D float32: num_episodes
@@ -161,6 +162,7 @@ class EpisodeData:
                 num_episodes * episode_length, -1),
             save_distances=self.save_distances.to(device).unsqueeze(1).repeat(1, episode_length, 1).view(
                 num_episodes * episode_length, -1),
+            graph_diameter=self.graph_diameter.to(device).unsqueeze(1).repeat(1, episode_length).view(-1),
             cycle_cost=self.cycle_cost.to(device).unsqueeze(1).repeat(1, episode_length).view(-1),
             steps_remaining=steps_remaining.unsqueeze(0).repeat(num_episodes, 1).view(-1),
             room_mask=room_mask,
@@ -175,6 +177,7 @@ class TrainingData:
     door_connects: torch.tensor  # 2D bool: (num_transitions, num_doors)
     missing_connects: torch.tensor  # 2D bool: (num_transitions, num_missing_connects)
     save_distances: torch.tensor  # 2D bool: (num_transitions, num_non_potential_save_idxs)
+    graph_diameter: torch.tensor  # 1D bool: (num_transitions)
     cycle_cost: torch.tensor  # 1D float32: num_transitions
     steps_remaining: torch.tensor  # 1D uint64: num_transitions
     round_frac: torch.tensor  # 1D float32: num_transitions
