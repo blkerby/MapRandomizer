@@ -163,7 +163,7 @@ class TrainingSession():
 
     def forward_action(self, model, room_mask, room_position_x, room_position_y, action_candidates,
                              steps_remaining, temperature,
-                             env_id, save_dist_coef: float, adjust_left_right,
+                             env_id, save_dist_coef: float, graph_diam_coef: float, adjust_left_right,
                             adjust_down_up,
                              executor):
         # print({k: v.shape for k, v in locals().items() if hasattr(v, 'shape')})
@@ -253,6 +253,7 @@ class TrainingSession():
         expected_valid = torch.sum(logprobs_valid, dim=1)  # / 2
 
         pred_save_dist = raw_preds_valid[:, num_logodds:(num_logodds + env.num_save_dist)]
+        pred_graph_diam = raw_preds_valid[:, num_logodds + env.num_save_dist]
 
         # Note: for steps with no valid candidates (i.e. when no more rooms can be placed), we won't generate any
         # predictions, and the test_loss will be computed just based on these zero log-odds filler values.
@@ -269,7 +270,7 @@ class TrainingSession():
             room_mask, room_position_x, room_position_y, action_env_id_valid, action_room_id_valid, action_x_valid, action_y_valid, env_id,
             adjust_left_right, adjust_down_up)
         save_dist_cost = torch.sum(pred_save_dist, dim=1)
-        expected_valid = expected_valid - door_connect_cost - save_dist_cost * save_dist_coef
+        expected_valid = expected_valid - door_connect_cost - save_dist_cost * save_dist_coef - pred_graph_diam * graph_diam_coef
 
         expected_flat = torch.full([num_envs * num_candidates], -1e15, device=logodds_valid.device)
         expected_flat[valid_flat_ind] = expected_valid
@@ -280,7 +281,7 @@ class TrainingSession():
 
     def generate_round_inner(self, model, episode_length: int, num_candidates_min: float, num_candidates_max: float, temperature: torch.tensor,
                              temperature_decay: float, explore_eps: torch.tensor,
-                             env_id, save_dist_coef: float,
+                             env_id, save_dist_coef: float, graph_diam_coef: float,
                              render, executor) -> EpisodeData:
         with (torch.no_grad()):
             device = self.envs[env_id].device
@@ -328,7 +329,7 @@ class TrainingSession():
                     # print("inner", env_id, j, env.device, model.state_value_lin.weight.device)
                     action_expected, raw_logodds = self.forward_action(
                         model, env.room_mask, env.room_position_x, env.room_position_y,
-                        action_candidates, steps_remaining, temperature, env_id, save_dist_coef,
+                        action_candidates, steps_remaining, temperature, env_id, save_dist_coef, graph_diam_coef,
                         adjust_left_right, adjust_down_up, executor)
                     curr_temperature = temperature * temperature_decay ** (j / (episode_length - 1))
                     probs = torch.softmax(action_expected / torch.unsqueeze(curr_temperature, 1), dim=1)
@@ -413,6 +414,7 @@ class TrainingSession():
                              explore_eps: torch.tensor,
                              compute_cycles: bool,
                              save_dist_coef: float,
+                             graph_diam_coef: float,
                              executor: concurrent.futures.ThreadPoolExecutor,
                              cpu_executor: concurrent.futures.ProcessPoolExecutor,
                              render=False) -> EpisodeData:
@@ -423,7 +425,7 @@ class TrainingSession():
             # print("gen", i, env.device, model.state_value_lin.weight.device)
             future = executor.submit(lambda i=i, model=model: self.generate_round_inner(
                 model, episode_length, num_candidates_min, num_candidates_max, temperature, temperature_decay, explore_eps, render=render,
-                env_id=i, save_dist_coef=save_dist_coef, executor=executor))
+                env_id=i, save_dist_coef=save_dist_coef, graph_diam_coef=graph_diam_coef, executor=executor))
             futures_list.append(future)
 
         episode_data_list = []
@@ -460,6 +462,7 @@ class TrainingSession():
                        explore_eps: torch.tensor,
                        compute_cycles: bool,
                        save_dist_coef: float,
+                       graph_diam_coef: float,
                        executor: Optional[concurrent.futures.ThreadPoolExecutor],
                        cpu_executor: concurrent.futures.ProcessPoolExecutor,
                        render=False) -> EpisodeData:
@@ -473,11 +476,12 @@ class TrainingSession():
                                              explore_eps=explore_eps,
                                              compute_cycles=compute_cycles,
                                              save_dist_coef=save_dist_coef,
+                                             graph_diam_coef=graph_diam_coef,
                                              executor=executor,
                                              cpu_executor=cpu_executor,
                                              render=render)
 
-    def train_batch(self, data: TrainingData, save_dist_weight: float, augment_frac: float):
+    def train_batch(self, data: TrainingData, save_dist_weight: float, graph_diam_weight: float, augment_frac: float):
         self.model.train()
 
         env = self.envs[0]
@@ -489,7 +493,9 @@ class TrainingSession():
         all_binary_outputs = torch.cat([data.door_connects, data.missing_connects], dim=1)
         num_binary_outputs = all_binary_outputs.shape[1]
         state_value_raw_logodds = raw_preds[:, :num_binary_outputs]
-        pred_save_dist = raw_preds[:, num_binary_outputs:]
+        num_save_dist_outputs = data.save_distances.shape[1]
+        pred_save_dist = raw_preds[:, num_binary_outputs:(num_binary_outputs + num_save_dist_outputs)]
+        pred_graph_diam = raw_preds[:, num_binary_outputs + num_save_dist_outputs]
 
         all_binary_outputs = torch.cat([data.door_connects, data.missing_connects], dim=1)
         binary_loss = torch.nn.functional.binary_cross_entropy_with_logits(state_value_raw_logodds,
@@ -497,7 +503,10 @@ class TrainingSession():
 
         save_dist_mask = (data.save_distances != 255)
         save_dist_loss = torch.mean(torch.where(save_dist_mask, (pred_save_dist - data.save_distances.to(torch.float)) ** 2, torch.zeros_like(pred_save_dist)))
-        loss = binary_loss + save_dist_loss * save_dist_weight
+
+        graph_diam_loss = torch.mean((pred_graph_diam - data.graph_diameter.to(torch.float)) ** 2)
+
+        loss = binary_loss + save_dist_loss * save_dist_weight + graph_diam_loss * graph_diam_weight
 
         self.optimizer.zero_grad()
         self.grad_scaler.scale(loss).backward()
@@ -506,7 +515,7 @@ class TrainingSession():
         self.model.decay(self.decay_amount * self.optimizer.param_groups[0]['lr'])
         self.model.project()
         self.average_parameters.update(self.model.all_param_data())
-        return loss.item(), binary_loss.item(), save_dist_loss.item()
+        return loss.item(), binary_loss.item(), save_dist_loss.item(), graph_diam_loss.item()
 
     # def eval_batch(self, data: TrainingData):
     #     self.model.eval()

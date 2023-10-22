@@ -209,22 +209,22 @@ pickle_name = 'models/session-2023-06-08T14:55:16.779895.pkl'
 # session = Unpickler(open(pickle_name + '-bk36', 'rb')).load()
 # session = Unpickler(open(pickle_name + '-bk35', 'rb')).load()
 # session = Unpickler(open(pickle_name + '-bk43', 'rb')).load()
-session = Unpickler(open(pickle_name + '-bk54', 'rb')).load()
+# session = Unpickler(open(pickle_name + '-bk54', 'rb')).load()  # After backfilling graph diameter data
+session = Unpickler(open(pickle_name + '-bk58', 'rb')).load()
 # session.replay_buffer.size = 0
 # session.replay_buffer.position = 0
 # session.replay_buffer.resize(2 ** 23)
 session.envs = envs
 
-# num_save_dist = session.replay_buffer.episode_data.save_distances.shape[1]
-# embedding_width = session.model.global_query.data.shape[1]
-#
-# session.model.global_query.data = torch.cat([session.model.global_query.data[:-1, :], torch.randn([num_save_dist, embedding_width], device=device) / math.sqrt(embedding_width)])
-# session.model.global_value.data = torch.cat([session.model.global_value.data[:-1, :], torch.zeros([num_save_dist, embedding_width], device=device)])
+# # Add new outputs to the model (for continued training):
+# num_new_outputs = 1
+# session.model.global_query.data = torch.cat([session.model.global_query.data, torch.randn([num_new_outputs, embedding_width], device=device) / math.sqrt(embedding_width)])
+# session.model.global_value.data = torch.cat([session.model.global_value.data, torch.zeros([num_new_outputs, embedding_width], device=device)])
 # session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
 # session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=0.995)
 
 
-
+# # Backfill new output data:
 # batch_size = 64
 # num_batches = session.replay_buffer.capacity // batch_size
 # # save_distances_list = []
@@ -290,6 +290,9 @@ explore_eps_factor = 0.0
 save_loss_weight = 0.005
 save_dist_coef = 0.05
 
+graph_diam_weight = 0.0002
+graph_diam_coef = 0.0  # 0.5
+
 door_connect_bound = 10.0
 # door_connect_bound = 0.0
 door_connect_alpha = 0.02
@@ -324,6 +327,7 @@ total_reward = 0
 total_loss = 0.0
 total_binary_loss = 0.0
 total_save_loss = 0.0
+total_graph_diam_loss = 0.0
 total_loss_cnt = 0
 # total_eval_loss = 0.0
 # total_eval_loss_cnt = 0
@@ -435,11 +439,11 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 logging.info("Checkpoint path: {}".format(pickle_name))
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
 logging.info(
-    "map_x={}, map_y={}, num_envs={}, batch_size={}, pass_factor0={}, pass_factor1={}, lr0={}, lr1={}, num_candidates_min0={}, num_candidates_max0={}, num_candidates_min1={}, num_candidates_max1={}, replay_size={}/{}, hist_frac={}, hist_c={}, num_params={}, decay_amount={}, temperature_min0={}, temperature_min1={}, temperature_max0={}, temperature_max1={}, temperature_decay={}, ema_beta0={}, ema_beta1={}, explore_eps_factor={}, annealing_time={}, save_loss_weight={}, save_dist_coef={}, door_connect_alpha={}, door_connect_bound={}, augment_frac={}, dropout={}".format(
+    "map_x={}, map_y={}, num_envs={}, batch_size={}, pass_factor0={}, pass_factor1={}, lr0={}, lr1={}, num_candidates_min0={}, num_candidates_max0={}, num_candidates_min1={}, num_candidates_max1={}, replay_size={}/{}, hist_frac={}, hist_c={}, num_params={}, decay_amount={}, temperature_min0={}, temperature_min1={}, temperature_max0={}, temperature_max1={}, temperature_decay={}, ema_beta0={}, ema_beta1={}, explore_eps_factor={}, annealing_time={}, save_loss_weight={}, save_dist_coef={}, graph_diam_weight={}, graph_diam_coef={}, door_connect_alpha={}, door_connect_bound={}, augment_frac={}, dropout={}".format(
         map_x, map_y, session.envs[0].num_envs, batch_size, pass_factor0, pass_factor1, lr0, lr1, num_candidates_min0, num_candidates_max0, num_candidates_min1, num_candidates_max1, session.replay_buffer.size,
         session.replay_buffer.capacity, hist_frac, hist_c, num_params, session.decay_amount,
         temperature_min0, temperature_min1, temperature_max0, temperature_max1, temperature_decay, ema_beta0, ema_beta1, explore_eps_factor,
-        annealing_time, save_loss_weight, save_dist_coef, door_connect_alpha, door_connect_bound, augment_frac, dropout))
+        annealing_time, save_loss_weight, save_dist_coef, graph_diam_weight, graph_diam_coef, door_connect_alpha, door_connect_bound, augment_frac, dropout))
 logging.info(session.optimizer)
 logging.info("Starting training")
 for i in range(1000000):
@@ -482,6 +486,7 @@ for i in range(1000000):
             explore_eps=explore_eps,
             compute_cycles=False,
             save_dist_coef=save_dist_coef,
+            graph_diam_coef=graph_diam_coef,
             executor=executor,
             cpu_executor=cpu_executor,
             render=False)
@@ -546,10 +551,11 @@ for i in range(1000000):
     for j in range(num_batches):
         data = session.replay_buffer.sample(batch_size, hist, c=hist_c, device=device)
         with util.DelayedKeyboardInterrupt():
-            loss, binary_loss, save_loss = session.train_batch(data, save_dist_weight=save_loss_weight, augment_frac=augment_frac)
+            loss, binary_loss, save_loss, graph_diam_loss = session.train_batch(data, save_dist_weight=save_loss_weight, graph_diam_weight=graph_diam_weight, augment_frac=augment_frac)
             total_loss += loss
             total_binary_loss += binary_loss
             total_save_loss += save_loss
+            total_graph_diam_loss += graph_diam_loss
             total_loss_cnt += 1
                 # prof.step()
         # logging.info("Done")
@@ -582,6 +588,7 @@ for i in range(1000000):
         new_loss = total_loss / total_loss_cnt
         new_binary_loss = total_binary_loss / total_loss_cnt
         new_save_loss = total_save_loss / total_loss_cnt
+        new_graph_diam_loss = total_graph_diam_loss / total_loss_cnt
         new_reward = total_reward / total_round_cnt
         new_cycle_cost = total_cycle_cost / total_round_cnt
         new_save_distances = total_save_distances / total_round_cnt
@@ -608,7 +615,7 @@ for i in range(1000000):
         # buffer_mean_rooms_missing = buffer_mean_pass * len(rooms)
 
         logging.info(
-            "{}: cost={:.3f} (min={:d}, frac={:.6f}), p={:.5f} | loss={:.4f}, ({:.4f}, {:.4f}), cost={:.2f} (min={:d}, frac={:.4f}), ent={:.4f}, save={:.4f}, diam={:.3f}, p={:.4f}".format(
+            "{}: cost={:.3f} (min={:d}, frac={:.6f}), p={:.5f} | loss={:.4f}, ({:.4f}, {:.4f}, {:.4f}), cost={:.2f} (min={:d}, frac={:.4f}), ent={:.4f}, save={:.4f}, diam={:.3f}, p={:.4f}".format(
                 session.num_rounds, buffer_mean_reward, buffer_min_reward,
                 buffer_frac_min_reward,
                 # buffer_doors,
@@ -620,6 +627,7 @@ for i in range(1000000):
                 new_loss,
                 new_binary_loss,
                 new_save_loss,
+                new_graph_diam_loss,
                 new_reward,
                 min_door_value,
                 min_door_frac,
@@ -632,6 +640,7 @@ for i in range(1000000):
         total_loss = 0.0
         total_binary_loss = 0.0
         total_save_loss = 0.0
+        total_graph_diam_loss = 0.0
         total_loss_cnt = 0
         # total_eval_loss = 0.0
         # total_eval_loss_cnt = 0
@@ -642,7 +651,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk54')
+            # save_session(session, pickle_name + '-bk59')
             # session.replay_buffer.resize(2 ** 19)
             # pickle.dump(session, open(pickle_name + '-small-51', 'wb'))
     if session.num_rounds % summary_freq == 0:
@@ -753,3 +762,7 @@ for i in range(1000000):
 # torch.nanmean((S - torch.nanmean(S, dim=0, keepdim=True)) ** 2)
 
 # session.replay_buffer.episode_data.save_distances[0]
+# ind = session.replay_buffer.episode_data.reward == 0
+# diam = session.replay_buffer.episode_data.graph_diameter[ind].to(torch.float)
+# print(torch.mean(diam), torch.var(diam), torch.min(diam), torch.max(diam))
+

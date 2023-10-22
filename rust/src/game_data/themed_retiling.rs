@@ -350,7 +350,7 @@ fn resolve_fx_references(
 
 pub fn load_theme_data(mosaic_path: &Path) -> Result<RetiledThemeData> {
     let cre_tileset = load_cre_tileset(mosaic_path)?;
-    let theme_names = ["Base", "OuterCrateria", "InnerCrateria"];
+    let theme_names = ["Base", "OuterCrateria", "InnerCrateria", "GreenBrinstar"];
     let mut themes = HashMap::new();
     for name in theme_names {
         themes.insert(name.to_string(), load_theme(mosaic_path, name)?);

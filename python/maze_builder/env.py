@@ -861,7 +861,7 @@ class MazeBuilderEnv:
         return torch.clamp_max(A, 255).to(torch.uint8)
 
     def compute_graph_diameter(self, distance_matrix):
-        return torch.amax(torch.where(distance_matrix == 255, 0, distance_matrix), dim=[1, 2])
+        return torch.amax(torch.where(distance_matrix == 255, torch.zeros_like(distance_matrix), distance_matrix), dim=[1, 2])
 
     def compute_component_matrices(self, adjacency_matrix):
         component_matrix = adjacency_matrix
