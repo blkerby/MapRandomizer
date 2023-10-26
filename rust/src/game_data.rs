@@ -508,6 +508,9 @@ fn parse_door_position(door_position: &str) -> Result<DoorPosition> {
 }
 
 #[derive(Clone, Debug)]
+pub struct GModeRegainMobility {}
+
+#[derive(Clone, Debug)]
 pub enum ExitCondition {
     LeaveWithRunway {
         effective_length: f32,
@@ -518,6 +521,12 @@ pub enum ExitCondition {
         frames_remaining: i32,
     },
     LeaveWithSpark {},
+    LeaveWithGModeSetup {
+        knockback: bool,
+    },
+    LeaveWithGMode {
+        morphed: bool,
+    },
 }
 
 fn parse_exit_condition(
@@ -545,10 +554,32 @@ fn parse_exit_condition(
                 .context("Expecting integer 'framesRemaining'")?,
         }),
         "leaveWithSpark" => Ok(ExitCondition::LeaveWithSpark {}),
+        "leaveWithGModeSetup" => Ok(ExitCondition::LeaveWithGModeSetup {
+            knockback: value["knockback"].as_bool().unwrap_or(true),
+        }),
+        "leaveWithGMode" => Ok(ExitCondition::LeaveWithGMode {
+            morphed: value["morphed"]
+                .as_bool()
+                .context("Expecting boolean 'morphed'")?,
+        }),
         _ => {
             bail!(format!("Unrecognized exit condition: {}", key));
         }
     }
+}
+
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub enum GModeMode {
+    Direct,
+    Indirect,
+    Any,
+}
+
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub enum GModeMobility {
+    Mobile,
+    Immobile,
+    Any,
 }
 
 #[derive(Clone, Debug)]
@@ -576,116 +607,15 @@ pub enum EntranceCondition {
     },
     ComeInWithBombBoost {},
     ComeInWithDoorStuckSetup {},
-}
-
-// TODO: Clean this up, e.g. pull out a separate structure to hold
-// temporary data used only during loading, replace any
-// remaining JsonValue types in the main struct with something
-// more structured; combine maps with the same keys; also maybe unify the room geometry data
-// with sm-json-data and cut back on the amount of different
-// keys/IDs/indexes for rooms, nodes, and doors.
-#[derive(Default)]
-pub struct GameData {
-    sm_json_data_path: PathBuf,
-    pub tech_isv: IndexedVec<String>,
-    pub notable_strat_isv: IndexedVec<String>,
-    pub flag_isv: IndexedVec<String>,
-    pub item_isv: IndexedVec<String>,
-    weapon_isv: IndexedVec<String>,
-    enemy_attack_damage: HashMap<(String, String), Capacity>,
-    enemy_vulnerabilities: HashMap<String, EnemyVulnerabilities>,
-    enemy_json: HashMap<String, JsonValue>,
-    weapon_json_map: HashMap<String, JsonValue>,
-    non_ammo_weapon_mask: WeaponMask,
-    tech_json_map: HashMap<String, JsonValue>,
-    pub helper_json_map: HashMap<String, JsonValue>,
-    tech: HashMap<String, Option<Requirement>>,
-    pub helpers: HashMap<String, Option<Requirement>>,
-    pub room_json_map: HashMap<RoomId, JsonValue>,
-    pub room_obstacle_idx_map: HashMap<RoomId, HashMap<String, usize>>,
-    pub node_json_map: HashMap<(RoomId, NodeId), JsonValue>,
-    pub node_spawn_at_map: HashMap<(RoomId, NodeId), NodeId>,
-    pub node_runways_map: HashMap<(RoomId, NodeId), Vec<Runway>>,
-    pub node_jumpways_map: HashMap<(RoomId, NodeId), Vec<Jumpway>>,
-    pub node_can_leave_charged_map: HashMap<(RoomId, NodeId), Vec<CanLeaveCharged>>,
-    pub node_leave_with_gmode_map: HashMap<(RoomId, NodeId), Vec<LeaveWithGMode>>,
-    pub node_leave_with_gmode_setup_map: HashMap<(RoomId, NodeId), Vec<LeaveWithGModeSetup>>,
-    pub node_gmode_immobile_map: HashMap<(RoomId, NodeId), GModeImmobile>,
-    pub node_ptr_map: HashMap<(RoomId, NodeId), NodePtr>,
-    pub node_exits: HashMap<(RoomId, NodeId), Vec<(Link, ExitCondition)>>,
-    pub node_lock_req_json: HashMap<(RoomId, NodeId), JsonValue>,
-    pub unlocked_node_map: HashMap<(RoomId, NodeId), NodeId>,
-    pub room_num_obstacles: HashMap<RoomId, usize>,
-    pub door_ptr_pair_map: HashMap<DoorPtrPair, (RoomId, NodeId)>,
-    pub unlocked_door_ptr_pair_map: HashMap<DoorPtrPair, (RoomId, NodeId)>,
-    pub reverse_door_ptr_pair_map: HashMap<(RoomId, NodeId), DoorPtrPair>,
-    pub door_position: HashMap<(RoomId, NodeId), DoorPosition>,
-    pub vertex_isv: IndexedVec<(RoomId, NodeId, ObstacleMask)>,
-    pub item_locations: Vec<(RoomId, NodeId)>,
-    pub item_vertex_ids: Vec<Vec<VertexId>>,
-    pub flag_locations: Vec<(RoomId, NodeId, FlagId)>,
-    pub flag_vertex_ids: Vec<Vec<VertexId>>,
-    pub save_locations: Vec<(RoomId, NodeId)>,
-    pub links: Vec<Link>,
-    pub room_geometry: Vec<RoomGeometry>,
-    pub room_and_door_idxs_by_door_ptr_pair:
-        HashMap<DoorPtrPair, (RoomGeometryRoomIdx, RoomGeometryDoorIdx)>,
-    pub room_ptr_by_id: HashMap<RoomId, RoomPtr>,
-    pub room_id_by_ptr: HashMap<RoomPtr, RoomId>,
-    pub raw_room_id_by_ptr: HashMap<RoomPtr, RoomId>, // Does not replace twin room pointer with corresponding main room pointer
-    pub room_idx_by_ptr: HashMap<RoomPtr, RoomGeometryRoomIdx>,
-    pub room_idx_by_name: HashMap<String, RoomGeometryRoomIdx>,
-    pub node_tile_coords: HashMap<(RoomId, NodeId), Vec<(usize, usize)>>,
-    pub room_shape: HashMap<RoomId, (usize, usize)>,
-    pub area_names: Vec<String>,
-    pub area_map_ptrs: Vec<isize>,
-    pub tech_description: HashMap<String, String>,
-    pub tech_dependencies: HashMap<String, Vec<String>>,
-    pub strat_dependencies: HashMap<String, Vec<String>>,
-    pub strat_area: HashMap<String, String>,
-    pub strat_room: HashMap<String, String>,
-    pub strat_description: HashMap<String, String>,
-    pub tileset_palette_themes: Vec<HashMap<TilesetIdx, ThemedPaletteTileset>>,
-    pub retiled_theme_data: Option<RetiledThemeData>,
-    pub escape_timings: Vec<EscapeTimingRoom>,
-    pub start_locations: Vec<StartLocation>,
-    pub hub_locations: Vec<HubLocation>,
-    pub heat_run_tech_id: TechId, // Cached since it is used frequently in graph traversal, and to avoid needing to store it in every HeatFrames req.
-}
-
-impl<T: Hash + Eq> IndexedVec<T> {
-    pub fn add<U: ToOwned<Owned = T> + ?Sized>(&mut self, name: &U) -> usize {
-        if !self.index_by_key.contains_key(&name.to_owned()) {
-            let idx = self.keys.len();
-            self.index_by_key.insert(name.to_owned(), self.keys.len());
-            self.keys.push(name.to_owned());
-            idx
-        } else {
-            self.index_by_key[&name.to_owned()]
-        }
-    }
-}
-
-fn read_json(path: &Path) -> Result<JsonValue> {
-    let file = File::open(path).with_context(|| format!("unable to open {}", path.display()))?;
-    let json_str = std::io::read_to_string(file)
-        .with_context(|| format!("unable to read {}", path.display()))?;
-    let json_data =
-        json::parse(&json_str).with_context(|| format!("unable to parse {}", path.display()))?;
-    Ok(json_data)
-}
-
-// TODO: Take steep slopes into account here:
-pub fn get_effective_runway_length(used_tiles: f32, open_end: f32) -> f32 {
-    used_tiles + open_end * 0.5
-}
-
-#[derive(Default)]
-struct RequirementContext<'a> {
-    room_id: RoomId,
-    _from_node_id: NodeId, // Usable for debugging
-    from_obstacles_bitmask: ObstacleMask,
-    obstacles_idx_map: Option<&'a HashMap<String, usize>>,
+    ComeInSpeedballing {
+        effective_runway_length: f32,
+    },
+    ComeInWithRMode {},
+    ComeInWithGMode {
+        mode: GModeMode,
+        morphed: bool,
+        mobility: GModeMobility,
+    },
 }
 
 fn parse_runway_geometry(runway: &JsonValue) -> Result<RunwayGeometry> {
@@ -766,10 +696,145 @@ fn parse_entrance_condition(entrance_json: &JsonValue, heated: bool) -> Result<E
         }),
         "comeInWithBombBoost" => Ok(EntranceCondition::ComeInWithBombBoost {}),
         "comeInWithDoorStuckSetup" => Ok(EntranceCondition::ComeInWithDoorStuckSetup {}),
+        "comeInSpeedballing" => {
+            let runway_geometry = parse_runway_geometry(&value["runway"])?;
+            let effective_runway_length = compute_runway_effective_length(&runway_geometry);
+            Ok(EntranceCondition::ComeInSpeedballing {
+                effective_runway_length,
+            })
+        },
+        "comeInWithRMode" => Ok(EntranceCondition::ComeInWithRMode {}),
+        "comeInWithGMode" => {
+            let mode = match value["mode"].as_str().context("Expected string 'mode'")? {
+                "direct" => GModeMode::Direct,
+                "indirect" => GModeMode::Indirect,
+                "any" => GModeMode::Any,
+                m => bail!("Unrecognized 'mode': {}", m),
+            };
+            let morphed = value["morphed"].as_bool().context("Expected bool 'morphed'")?;
+            let mobility = match value["mobility"].as_str().unwrap_or("any") {
+                "mobile" => GModeMobility::Mobile,
+                "immobile" => GModeMobility::Immobile,
+                "any" => GModeMobility::Any,
+                m => bail!("Unrecognized 'mobility': {}", m)
+            };
+            Ok(EntranceCondition::ComeInWithGMode { mode, morphed, mobility })
+        },
         _ => {
             bail!(format!("Unrecognized entrance condition: {}", key));
         }
     }
+}
+
+// TODO: Clean this up, e.g. pull out a separate structure to hold
+// temporary data used only during loading, replace any
+// remaining JsonValue types in the main struct with something
+// more structured; combine maps with the same keys; also maybe unify the room geometry data
+// with sm-json-data and cut back on the amount of different
+// keys/IDs/indexes for rooms, nodes, and doors.
+#[derive(Default)]
+pub struct GameData {
+    sm_json_data_path: PathBuf,
+    pub tech_isv: IndexedVec<String>,
+    pub notable_strat_isv: IndexedVec<String>,
+    pub flag_isv: IndexedVec<String>,
+    pub item_isv: IndexedVec<String>,
+    weapon_isv: IndexedVec<String>,
+    enemy_attack_damage: HashMap<(String, String), Capacity>,
+    enemy_vulnerabilities: HashMap<String, EnemyVulnerabilities>,
+    enemy_json: HashMap<String, JsonValue>,
+    weapon_json_map: HashMap<String, JsonValue>,
+    non_ammo_weapon_mask: WeaponMask,
+    tech_json_map: HashMap<String, JsonValue>,
+    pub helper_json_map: HashMap<String, JsonValue>,
+    tech: HashMap<String, Option<Requirement>>,
+    pub helpers: HashMap<String, Option<Requirement>>,
+    pub room_json_map: HashMap<RoomId, JsonValue>,
+    pub room_obstacle_idx_map: HashMap<RoomId, HashMap<String, usize>>,
+    pub node_json_map: HashMap<(RoomId, NodeId), JsonValue>,
+    pub node_spawn_at_map: HashMap<(RoomId, NodeId), NodeId>,
+    pub node_runways_map: HashMap<(RoomId, NodeId), Vec<Runway>>,
+    pub node_jumpways_map: HashMap<(RoomId, NodeId), Vec<Jumpway>>,
+    pub node_can_leave_charged_map: HashMap<(RoomId, NodeId), Vec<CanLeaveCharged>>,
+    pub node_leave_with_gmode_map: HashMap<(RoomId, NodeId), Vec<LeaveWithGMode>>,
+    pub node_leave_with_gmode_setup_map: HashMap<(RoomId, NodeId), Vec<LeaveWithGModeSetup>>,
+    pub node_gmode_immobile_map: HashMap<(RoomId, NodeId), GModeImmobile>,
+    pub node_ptr_map: HashMap<(RoomId, NodeId), NodePtr>,
+    pub node_exits: HashMap<(RoomId, NodeId), Vec<(Link, ExitCondition)>>,
+    pub node_gmode_regain_mobility: HashMap<(RoomId, NodeId), Vec<(Link, GModeRegainMobility)>>,
+    pub node_lock_req_json: HashMap<(RoomId, NodeId), JsonValue>,
+    pub unlocked_node_map: HashMap<(RoomId, NodeId), NodeId>,
+    pub room_num_obstacles: HashMap<RoomId, usize>,
+    pub door_ptr_pair_map: HashMap<DoorPtrPair, (RoomId, NodeId)>,
+    pub unlocked_door_ptr_pair_map: HashMap<DoorPtrPair, (RoomId, NodeId)>,
+    pub reverse_door_ptr_pair_map: HashMap<(RoomId, NodeId), DoorPtrPair>,
+    pub door_position: HashMap<(RoomId, NodeId), DoorPosition>,
+    pub vertex_isv: IndexedVec<(RoomId, NodeId, ObstacleMask)>,
+    pub item_locations: Vec<(RoomId, NodeId)>,
+    pub item_vertex_ids: Vec<Vec<VertexId>>,
+    pub flag_locations: Vec<(RoomId, NodeId, FlagId)>,
+    pub flag_vertex_ids: Vec<Vec<VertexId>>,
+    pub save_locations: Vec<(RoomId, NodeId)>,
+    pub links: Vec<Link>,
+    pub room_geometry: Vec<RoomGeometry>,
+    pub room_and_door_idxs_by_door_ptr_pair:
+        HashMap<DoorPtrPair, (RoomGeometryRoomIdx, RoomGeometryDoorIdx)>,
+    pub room_ptr_by_id: HashMap<RoomId, RoomPtr>,
+    pub room_id_by_ptr: HashMap<RoomPtr, RoomId>,
+    pub raw_room_id_by_ptr: HashMap<RoomPtr, RoomId>, // Does not replace twin room pointer with corresponding main room pointer
+    pub room_idx_by_ptr: HashMap<RoomPtr, RoomGeometryRoomIdx>,
+    pub room_idx_by_name: HashMap<String, RoomGeometryRoomIdx>,
+    pub node_tile_coords: HashMap<(RoomId, NodeId), Vec<(usize, usize)>>,
+    pub room_shape: HashMap<RoomId, (usize, usize)>,
+    pub area_names: Vec<String>,
+    pub area_map_ptrs: Vec<isize>,
+    pub tech_description: HashMap<String, String>,
+    pub tech_dependencies: HashMap<String, Vec<String>>,
+    pub strat_dependencies: HashMap<String, Vec<String>>,
+    pub strat_area: HashMap<String, String>,
+    pub strat_room: HashMap<String, String>,
+    pub strat_description: HashMap<String, String>,
+    pub tileset_palette_themes: Vec<HashMap<TilesetIdx, ThemedPaletteTileset>>,
+    pub retiled_theme_data: Option<RetiledThemeData>,
+    pub escape_timings: Vec<EscapeTimingRoom>,
+    pub start_locations: Vec<StartLocation>,
+    pub hub_locations: Vec<HubLocation>,
+    pub heat_run_tech_id: TechId, // Cached since it is used frequently in graph traversal, and to avoid needing to store it in every HeatFrames req.
+}
+
+impl<T: Hash + Eq> IndexedVec<T> {
+    pub fn add<U: ToOwned<Owned = T> + ?Sized>(&mut self, name: &U) -> usize {
+        if !self.index_by_key.contains_key(&name.to_owned()) {
+            let idx = self.keys.len();
+            self.index_by_key.insert(name.to_owned(), self.keys.len());
+            self.keys.push(name.to_owned());
+            idx
+        } else {
+            self.index_by_key[&name.to_owned()]
+        }
+    }
+}
+
+fn read_json(path: &Path) -> Result<JsonValue> {
+    let file = File::open(path).with_context(|| format!("unable to open {}", path.display()))?;
+    let json_str = std::io::read_to_string(file)
+        .with_context(|| format!("unable to read {}", path.display()))?;
+    let json_data =
+        json::parse(&json_str).with_context(|| format!("unable to parse {}", path.display()))?;
+    Ok(json_data)
+}
+
+// TODO: Take steep slopes into account here:
+pub fn get_effective_runway_length(used_tiles: f32, open_end: f32) -> f32 {
+    used_tiles + open_end * 0.5
+}
+
+#[derive(Default)]
+struct RequirementContext<'a> {
+    room_id: RoomId,
+    _from_node_id: NodeId, // Usable for debugging
+    from_obstacles_bitmask: ObstacleMask,
+    obstacles_idx_map: Option<&'a HashMap<String, usize>>,
 }
 
 impl GameData {
@@ -1852,8 +1917,10 @@ impl GameData {
                             .map(|x| json::object!{"and": x["requires"].clone()})
                             .collect::<Vec<JsonValue>>()
                 };
-                if room_id != 12 { // Exclude lock requirements in Pit Room since with randomizer changes these become free
-                    self.node_lock_req_json.insert((room_id, node_id), unlock_reqs);
+                if room_id != 12 {
+                    // Exclude lock requirements in Pit Room since with randomizer changes these become free
+                    self.node_lock_req_json
+                        .insert((room_id, node_id), unlock_reqs);
                 }
 
                 if lock.has_key("lock") {
@@ -2150,8 +2217,7 @@ impl GameData {
                             runway_vec.push(runway);
 
                             // Temporary while migration is in process -- Create new-style exit-condition strat:
-                            let vertex_id = self.vertex_isv.index_by_key
-                                [&(room_id, node_id, 0)];
+                            let vertex_id = self.vertex_isv.index_by_key[&(room_id, node_id, 0)];
                             let link = Link {
                                 from_vertex_id: vertex_id,
                                 to_vertex_id: vertex_id,
@@ -2163,8 +2229,9 @@ impl GameData {
                                 sublinks: vec![],
                             };
                             let runway_geometry = parse_runway_geometry(runway_json)?;
-                            let effective_length = compute_runway_effective_length(&runway_geometry);                
-                            let exit_condition = ExitCondition::LeaveWithRunway { 
+                            let effective_length =
+                                compute_runway_effective_length(&runway_geometry);
+                            let exit_condition = ExitCondition::LeaveWithRunway {
                                 effective_length,
                                 heated,
                                 physics: Some(parse_physics(&physics)?),
@@ -2251,8 +2318,7 @@ impl GameData {
                         can_leave_charged_vec.push(can_leave_charged.clone());
 
                         // Temporary while migration is in process -- Create new-style exit-condition strat:
-                        let vertex_id = self.vertex_isv.index_by_key
-                            [&(room_id, node_id, 0)];
+                        let vertex_id = self.vertex_isv.index_by_key[&(room_id, node_id, 0)];
                         let effective_length = get_effective_runway_length(
                             can_leave_charged.used_tiles as f32,
                             can_leave_charged.open_end as f32,
@@ -2261,7 +2327,8 @@ impl GameData {
                             requirement,
                             Requirement::ShineCharge {
                                 used_tiles: effective_length,
-                            }]);
+                            },
+                        ]);
                         let link = Link {
                             from_vertex_id: vertex_id,
                             to_vertex_id: vertex_id,
@@ -2273,7 +2340,7 @@ impl GameData {
                             sublinks: vec![],
                         };
                         let exit_condition = if can_leave_charged.frames_remaining > 0 {
-                            ExitCondition::LeaveShinecharged { 
+                            ExitCondition::LeaveShinecharged {
                                 frames_remaining: can_leave_charged.frames_remaining,
                             }
                         } else {
@@ -2415,7 +2482,8 @@ impl GameData {
                 ensure!(link_to_json["strats"].is_array());
                 let to_node_id = link_to_json["id"].as_usize().unwrap();
                 let to_heated = self.get_room_heated(room_json, to_node_id)?;
-                let physics_res = self.get_node_physics(&self.node_json_map[&(room_id, to_node_id)]);
+                let physics_res =
+                    self.get_node_physics(&self.node_json_map[&(room_id, to_node_id)]);
                 let physics: Option<Physics> = if let Ok(physics_str) = &physics_res {
                     Some(parse_physics(&physics_str)?)
                 } else {
@@ -2441,6 +2509,13 @@ impl GameData {
                                 to_heated,
                                 physics,
                             )?)
+                        } else {
+                            None
+                        };
+                    let gmode_regain_mobility: Option<GModeRegainMobility> =
+                        if strat_json.has_key("gModeRegainMobility") {
+                            ensure!(strat_json["gModeRegainMobility"].is_object());
+                            Some(GModeRegainMobility {})
                         } else {
                             None
                         };
@@ -2539,7 +2614,18 @@ impl GameData {
                             strat_notes,
                             sublinks: vec![],
                         };
-                        if exit_condition.is_some() {
+                        if gmode_regain_mobility.is_some() {
+                            if entrance_condition.is_some() || exit_condition.is_some() {
+                                bail!("gModeRegainMobility combined with entranceCondition or exitCondition is not allowed.");
+                            }
+                            if from_node_id != to_node_id {
+                                bail!("gModeRegainMobility `from` and `to` node must be equal.");
+                            }
+                            self.node_gmode_regain_mobility
+                                .entry((room_id, to_node_id))
+                                .or_insert(vec![])
+                                .push((link, gmode_regain_mobility.clone().unwrap()))
+                        } else if exit_condition.is_some() {
                             self.node_exits
                                 .entry((room_id, to_node_id))
                                 .or_insert(vec![])
@@ -2550,19 +2636,30 @@ impl GameData {
 
                         // Temporary while in the middle of migration -- create old-style runway:
                         if from_node_id == to_node_id {
-                            if let Some(ExitCondition::LeaveWithRunway { heated, physics, .. }) = exit_condition {
+                            if let Some(ExitCondition::LeaveWithRunway {
+                                heated, physics, ..
+                            }) = exit_condition
+                            {
                                 if let Ok(physics_str) = &physics_res {
                                     let mut runway_reqs = vec![requirement];
                                     if physics != Some(Physics::Air) {
                                         runway_reqs.push(Requirement::Item(Item::Gravity as usize));
                                     }
                                     // println!("{}", strat_json["exitCondition"].pretty(2));
-                                    self.node_runways_map.entry((room_id, to_node_id))
+                                    self.node_runways_map
+                                        .entry((room_id, to_node_id))
                                         .or_insert(vec![])
-                                        .push(Runway { 
+                                        .push(Runway {
                                             name: strat_name,
-                                            length: strat_json["exitCondition"]["leaveWithRunway"]["length"].as_f32().unwrap() as i32,
-                                            open_end: strat_json["exitCondition"]["leaveWithRunway"]["openEnd"].as_i32().unwrap(),
+                                            length: strat_json["exitCondition"]["leaveWithRunway"]
+                                                ["length"]
+                                                .as_f32()
+                                                .unwrap()
+                                                as i32,
+                                            open_end: strat_json["exitCondition"]
+                                                ["leaveWithRunway"]["openEnd"]
+                                                .as_i32()
+                                                .unwrap(),
                                             requirement: Requirement::make_and(runway_reqs),
                                             physics: physics_str.to_string(),
                                             heated: heated,

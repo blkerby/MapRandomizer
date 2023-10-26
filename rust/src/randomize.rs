@@ -2,9 +2,10 @@ pub mod escape_timer;
 
 use crate::{
     game_data::{
-        get_effective_runway_length, Capacity, DoorPtrPair, EntranceCondition, ExitCondition,
-        FlagId, HubLocation, Item, ItemId, ItemLocationId, Link, Map, NodeId, Physics, Requirement,
-        RoomGeometryRoomIdx, RoomId, StartLocation, VertexId, DoorPosition,
+        get_effective_runway_length, Capacity, DoorPosition, DoorPtrPair, EntranceCondition,
+        ExitCondition, FlagId, GModeMobility, GModeMode, HubLocation, Item, ItemId, ItemLocationId,
+        Link, Map, NodeId, Physics, Requirement, RoomGeometryRoomIdx, RoomId, StartLocation,
+        VertexId,
     },
     traverse::{
         apply_requirement, get_spoiler_route, is_bireachable, traverse, GlobalState, LinkIdx,
@@ -345,7 +346,7 @@ struct Preprocessor<'a> {
     preprocessed_output: HashMap<ByAddress<&'a Requirement>, Option<Requirement>>,
     // Similar cache for the new style of cross-room strats. The keys are references to links with
     // entrance conditions that need to be resolved: the values are lists of possible resolutions of the link
-    // (which have no entrance conditions), where `from_vertex_id` has been replaced by one in a connecting 
+    // (which have no entrance conditions), where `from_vertex_id` has been replaced by one in a connecting
     // room with a matching exit condition, and any necessary requirements from the cross-room strat have
     // been added):
     preprocessed_links: HashMap<ByAddress<&'a Link>, Vec<Link>>,
@@ -375,10 +376,14 @@ fn compute_shinecharge_frames(other_runway_length: f32, runway_length: f32) -> (
         return (other_time, total_time - other_time);
     }
     // Combined runway is too short to hold dash the whole time. A shortcharge is needed:
-    let total_time = 85.0;  // 85 frames to charge a shinespark (assuming a good enough 1-tap)
+    let total_time = 85.0; // 85 frames to charge a shinespark (assuming a good enough 1-tap)
     let initial_speed = 0.125;
-    let acceleration = 2.0 * (combined_length - initial_speed * total_time) / (total_time * total_time);
-    let other_time = (f32::sqrt(initial_speed * initial_speed + 2.0 * acceleration * other_runway_length) - initial_speed) / acceleration;
+    let acceleration =
+        2.0 * (combined_length - initial_speed * total_time) / (total_time * total_time);
+    let other_time =
+        (f32::sqrt(initial_speed * initial_speed + 2.0 * acceleration * other_runway_length)
+            - initial_speed)
+            / acceleration;
     let other_time = other_time.ceil() as i32;
     (other_time, total_time as i32 - other_time)
 }
@@ -508,31 +513,37 @@ impl<'a> Preprocessor<'a> {
                 if exit_link.from_vertex_id == exit_link.to_vertex_id {
                     // Runway in the other room starts and ends at the door so we need to run both directions:
                     if runway_heated && *heated {
-                        // Both rooms are heated. Heat frames are optimized by minimizing runway usage in the source room. 
-                        // But since the shortcharge difficulty is not known here, we conservatively assume up to 33 tiles 
+                        // Both rooms are heated. Heat frames are optimized by minimizing runway usage in the source room.
+                        // But since the shortcharge difficulty is not known here, we conservatively assume up to 33 tiles
                         // of the combined runway may need to be used. (TODO: Instead add a Requirement enum case to handle this more accurately.)
-                        let other_runway_length = f32::max(0.0, f32::min(*effective_length, 33.0 - runway_length));
+                        let other_runway_length =
+                            f32::max(0.0, f32::min(*effective_length, 33.0 - runway_length));
                         let heat_frames_1 = compute_run_frames(other_runway_length) + 20;
-                        let heat_frames_2 = i32::max(85, compute_run_frames(other_runway_length + runway_length));
+                        let heat_frames_2 =
+                            i32::max(85, compute_run_frames(other_runway_length + runway_length));
                         // Add 5 lenience frames (partly to account for the possibility of some inexactness in our calculations)
                         reqs.push(Requirement::HeatFrames(heat_frames_1 + heat_frames_2 + 5));
                     } else if !runway_heated && *heated {
-                        // Only the destination room is heated. Heat frames are optimized by using the full runway in 
+                        // Only the destination room is heated. Heat frames are optimized by using the full runway in
                         // the source room.
-                        let (_, heat_frames) = compute_shinecharge_frames(*effective_length, runway_length);
+                        let (_, heat_frames) =
+                            compute_shinecharge_frames(*effective_length, runway_length);
                         reqs.push(Requirement::HeatFrames(heat_frames + 5));
                     } else if runway_heated && !*heated {
-                        // Only the source room is heated. As in the first case above, heat frames are optimized by 
+                        // Only the source room is heated. As in the first case above, heat frames are optimized by
                         // minimizing runway usage in the source room. (TODO: Use new Requirement enum case.)
-                        let other_runway_length = f32::max(0.0, f32::min(*effective_length, 33.0 - runway_length));
+                        let other_runway_length =
+                            f32::max(0.0, f32::min(*effective_length, 33.0 - runway_length));
                         let heat_frames_1 = compute_run_frames(other_runway_length) + 20;
-                        let (heat_frames_2, _) = compute_shinecharge_frames(other_runway_length, runway_length);
+                        let (heat_frames_2, _) =
+                            compute_shinecharge_frames(other_runway_length, runway_length);
                         reqs.push(Requirement::HeatFrames(heat_frames_1 + heat_frames_2 + 5));
                     }
                 } else if runway_heated || *heated {
                     // Runway in the other room starts at a different node and runs toward the door. The full combined
                     // runway is used.
-                    let (frames_1, frames_2) = compute_shinecharge_frames(*effective_length, runway_length);
+                    let (frames_1, frames_2) =
+                        compute_shinecharge_frames(*effective_length, runway_length);
                     let mut heat_frames = 5;
                     if *heated {
                         // Heat frames for source room
@@ -564,7 +575,11 @@ impl<'a> Preprocessor<'a> {
                     Some(Requirement::Free)
                 }
             }
-            ExitCondition::LeaveWithRunway { effective_length, heated, physics } => {
+            ExitCondition::LeaveWithRunway {
+                effective_length,
+                heated,
+                physics,
+            } => {
                 let mut reqs: Vec<Requirement> = vec![];
                 reqs.push(Requirement::make_shinecharge(*effective_length));
                 if *physics != Some(Physics::Air) {
@@ -584,7 +599,7 @@ impl<'a> Preprocessor<'a> {
                 }
                 Some(Requirement::make_and(reqs))
             }
-            _ => None
+            _ => None,
         }
     }
 
@@ -595,7 +610,11 @@ impl<'a> Preprocessor<'a> {
         min_tiles: f32,
     ) -> Option<Requirement> {
         match exit_condition {
-            ExitCondition::LeaveWithRunway { effective_length, heated, physics } => {
+            ExitCondition::LeaveWithRunway {
+                effective_length,
+                heated,
+                physics,
+            } => {
                 if *physics != Some(Physics::Air) {
                     return None;
                 }
@@ -617,7 +636,7 @@ impl<'a> Preprocessor<'a> {
                 }
                 Some(Requirement::make_and(reqs))
             }
-            _ => None
+            _ => None,
         }
     }
 
@@ -627,12 +646,8 @@ impl<'a> Preprocessor<'a> {
         exit_condition: &ExitCondition,
     ) -> Option<Requirement> {
         match exit_condition {
-            ExitCondition::LeaveWithSpark { } => {
-                Some(Requirement::Free)
-            }
-            ExitCondition::LeaveShinecharged { .. } => {
-                Some(Requirement::Free)
-            }
+            ExitCondition::LeaveWithSpark {} => Some(Requirement::Free),
+            ExitCondition::LeaveShinecharged { .. } => Some(Requirement::Free),
             ExitCondition::LeaveWithRunway {
                 effective_length,
                 heated,
@@ -667,7 +682,11 @@ impl<'a> Preprocessor<'a> {
         exit_condition: &ExitCondition,
     ) -> Option<Requirement> {
         match exit_condition {
-            ExitCondition::LeaveWithRunway { effective_length, heated, physics } => {
+            ExitCondition::LeaveWithRunway {
+                effective_length,
+                heated,
+                physics,
+            } => {
                 let mut reqs: Vec<Requirement> = vec![];
                 if *physics != Some(Physics::Air) {
                     return None;
@@ -688,7 +707,7 @@ impl<'a> Preprocessor<'a> {
                 }
                 Some(Requirement::make_and(reqs))
             }
-            _ => None
+            _ => None,
         }
     }
 
@@ -698,10 +717,18 @@ impl<'a> Preprocessor<'a> {
         exit_condition: &ExitCondition,
     ) -> Option<Requirement> {
         let (room_id, node_id, _) = self.game_data.vertex_isv.keys[exit_link.to_vertex_id];
-        let door_position = *self.game_data.door_position.get(&(room_id, node_id)).expect(
-            &format!("door_position not found for ({}, {})", room_id, node_id));
+        let door_position = *self
+            .game_data
+            .door_position
+            .get(&(room_id, node_id))
+            .expect(&format!(
+                "door_position not found for ({}, {})",
+                room_id, node_id
+            ));
         match exit_condition {
-            ExitCondition::LeaveWithRunway { heated, physics, .. } => {
+            ExitCondition::LeaveWithRunway {
+                heated, physics, ..
+            } => {
                 let mut reqs: Vec<Requirement> = vec![];
                 reqs.push(Requirement::Tech(
                     self.game_data.tech_isv.index_by_key["canStationarySpinJump"],
@@ -714,8 +741,9 @@ impl<'a> Preprocessor<'a> {
                         reqs.push(Requirement::Or(vec![
                             Requirement::Item(Item::Gravity as ItemId),
                             Requirement::Tech(
-                                self.game_data.tech_isv.index_by_key["canRightSideDoorStuckFromWater"],
-                            )
+                                self.game_data.tech_isv.index_by_key
+                                    ["canRightSideDoorStuckFromWater"],
+                            ),
                         ]));
                     }
                 }
@@ -724,7 +752,110 @@ impl<'a> Preprocessor<'a> {
                 }
                 Some(Requirement::make_and(reqs))
             }
-            _ => None
+            _ => None,
+        }
+    }
+
+    fn get_come_in_with_r_mode_reqs(&self, exit_condition: &ExitCondition) -> Option<Requirement> {
+        match exit_condition {
+            ExitCondition::LeaveWithGModeSetup { .. } => {
+                let mut reqs: Vec<Requirement> = vec![];
+                reqs.push(Requirement::Tech(
+                    self.game_data.tech_isv.index_by_key["canEnterRMode"],
+                ));
+                reqs.push(Requirement::Item(Item::XRayScope as ItemId));
+                reqs.push(Requirement::ReserveTrigger {
+                    min_reserve_energy: 1,
+                    max_reserve_energy: 400,
+                });
+                Some(Requirement::make_and(reqs))
+            }
+            _ => None,
+        }
+    }
+
+    fn get_come_in_with_g_mode_reqs(
+        &self,
+        exit_condition: &ExitCondition,
+        entrance_link: &Link,
+        mode: GModeMode,
+        entrance_morphed: bool,
+        mobility: GModeMobility,
+    ) -> Option<Requirement> {
+        let (room_id, node_id, _) = self.game_data.vertex_isv.keys[entrance_link.from_vertex_id];
+        let empty_vec = vec![];
+        let regain_mobility_vec = self
+            .game_data
+            .node_gmode_regain_mobility
+            .get(&(room_id, node_id))
+            .unwrap_or(&empty_vec);
+        match exit_condition {
+            ExitCondition::LeaveWithGModeSetup { knockback } => {
+                if mode == GModeMode::Indirect {
+                    return None;
+                }
+                let mut reqs: Vec<Requirement> = vec![];
+                reqs.push(Requirement::Tech(
+                    self.game_data.tech_isv.index_by_key["canEnterGMode"],
+                ));
+                if entrance_morphed {
+                    reqs.push(Requirement::Or(vec![
+                        Requirement::Tech(self.game_data.tech_isv.index_by_key["canArtificialMorph"]),
+                        Requirement::Item(Item::Morph as ItemId),
+                    ]));
+                }
+                reqs.push(Requirement::Item(Item::XRayScope as ItemId));
+
+                let mobile_req = if *knockback {
+                    Requirement::ReserveTrigger {
+                        min_reserve_energy: 1,
+                        max_reserve_energy: 4,
+                    }
+                } else {
+                    Requirement::Never
+                };
+                let immobile_req = if regain_mobility_vec.len() > 0 {
+                    let mut immobile_req_or_vec: Vec<Requirement> = Vec::new();
+                    for (regain_mobility_link, _) in regain_mobility_vec {
+                        immobile_req_or_vec.push(Requirement::make_and(vec![
+                            Requirement::Tech(self.game_data.tech_isv.index_by_key["canEnterGModeImmobile"]),
+                            Requirement::ReserveTrigger {
+                                min_reserve_energy: 1,
+                                max_reserve_energy: 400,
+                            },
+                            regain_mobility_link.requirement.clone(),
+                        ]));
+                    }
+                    Requirement::make_or(immobile_req_or_vec)
+                } else {
+                    Requirement::Never
+                };
+
+                match mobility {
+                    GModeMobility::Any => {
+                        reqs.push(Requirement::make_or(vec![mobile_req, immobile_req]));
+                    },
+                    GModeMobility::Mobile => {
+                        reqs.push(mobile_req);
+                    },
+                    GModeMobility::Immobile => {
+                        reqs.push(immobile_req);
+                    },
+                }
+
+                Some(Requirement::make_and(reqs))
+            }
+            ExitCondition::LeaveWithGMode { morphed } => {
+                if mode == GModeMode::Direct {
+                    return None;
+                }
+                if !morphed && entrance_morphed {
+                    Some(Requirement::Item(Item::Morph as ItemId))
+                } else {
+                    Some(Requirement::Free)
+                }
+            }
+            _ => None,
         }
     }
 
@@ -732,6 +863,7 @@ impl<'a> Preprocessor<'a> {
         &self,
         exit_link: &Link,
         exit_condition: &ExitCondition,
+        entrance_link: &Link,
         entrance_condition: &EntranceCondition,
     ) -> Option<Requirement> {
         match entrance_condition {
@@ -757,9 +889,15 @@ impl<'a> Preprocessor<'a> {
                 *min_tiles,
                 *max_tiles,
             ),
-            EntranceCondition::ComeInShinecharging { effective_length, heated } => {
-                self.get_come_in_shinecharging_reqs(exit_link, exit_condition, *effective_length, *heated)
-            }
+            EntranceCondition::ComeInShinecharging {
+                effective_length,
+                heated,
+            } => self.get_come_in_shinecharging_reqs(
+                exit_link,
+                exit_condition,
+                *effective_length,
+                *heated,
+            ),
             EntranceCondition::ComeInShinecharged { frames_required } => {
                 self.get_come_in_shinecharged_reqs(exit_link, exit_condition, *frames_required)
             }
@@ -775,6 +913,50 @@ impl<'a> Preprocessor<'a> {
             EntranceCondition::ComeInWithDoorStuckSetup {} => {
                 self.get_come_in_with_door_stuck_setup_reqs(exit_link, exit_condition)
             }
+            EntranceCondition::ComeInSpeedballing {
+                effective_runway_length,
+            } => {
+                let mut req_or: Vec<Requirement> = vec![];
+                if let Some(req) = self.get_come_in_shinecharging_reqs(
+                    exit_link,
+                    exit_condition,
+                    *effective_runway_length - 5.0,
+                    false,
+                ) {
+                    req_or.push(Requirement::make_and(vec![
+                        Requirement::Tech(
+                            self.game_data.tech_isv.index_by_key["canSlowShortCharge"],
+                        ),
+                        req,
+                    ]));
+                } else if let Some(req) = self.get_come_in_shinecharging_reqs(
+                    exit_link,
+                    exit_condition,
+                    *effective_runway_length - 14.0,
+                    false,
+                ) {
+                    req_or.push(req);
+                }
+                if req_or.is_empty() {
+                    None
+                } else {
+                    Some(Requirement::make_or(req_or))
+                }
+            }
+            EntranceCondition::ComeInWithRMode {} => {
+                self.get_come_in_with_r_mode_reqs(exit_condition)
+            }
+            EntranceCondition::ComeInWithGMode {
+                mode,
+                morphed,
+                mobility,
+            } => self.get_come_in_with_g_mode_reqs(
+                exit_condition,
+                entrance_link,
+                *mode,
+                *morphed,
+                *mobility,
+            ),
         }
     }
 
@@ -803,23 +985,40 @@ impl<'a> Preprocessor<'a> {
                 if let Some(&(other_room_id, other_node_id)) =
                     self.door_map.get(&(room_id, unlocked_node_id))
                 {
-                    if let Some(exits) = self.game_data.node_exits.get(&(other_room_id, other_node_id)) {
+                    if let Some(exits) = self
+                        .game_data
+                        .node_exits
+                        .get(&(other_room_id, other_node_id))
+                    {
                         let locked_door_idx = self
                             .locked_node_map
                             .get(&(other_room_id, other_node_id))
                             .map(|x| *x);
-                        let door_req = get_door_requirement(locked_door_idx, self.locked_doors, self.game_data);
-            
+                        let door_req = get_door_requirement(
+                            locked_door_idx,
+                            self.locked_doors,
+                            self.game_data,
+                        );
+
                         for (raw_exit_link, exit_condition) in exits {
                             let exit_links = self.preprocess_link(raw_exit_link);
                             for exit_link in &exit_links {
-                                let cross_req_opt = self.get_cross_room_reqs(exit_link, exit_condition, entrance_condition);
-                                if let Some(mut cross_req) = cross_req_opt {
+                                let cross_req_opt = self.get_cross_room_reqs(
+                                    exit_link,
+                                    exit_condition,
+                                    link,
+                                    entrance_condition,
+                                );
+                                if let Some(cross_req) = cross_req_opt {
                                     if let Requirement::Never = cross_req {
                                         continue;
                                     }
                                     let req = Requirement::make_and(vec![
-                                        exit_link.requirement.clone(), cross_req, door_req.clone(), link.requirement.clone()]);
+                                        exit_link.requirement.clone(),
+                                        cross_req,
+                                        door_req.clone(),
+                                        link.requirement.clone(),
+                                    ]);
                                     // println!("{:?}", door_req);
                                     let mut strat_notes = exit_link.strat_notes.clone();
                                     strat_notes.extend(link.strat_notes.clone());
@@ -833,17 +1032,20 @@ impl<'a> Preprocessor<'a> {
                                         to_vertex_id: link.to_vertex_id,
                                         requirement: req,
                                         entrance_condition: None,
-                                        notable_strat_name: None,  // TODO: Replace with list of notable strats and use them
-                                        strat_name: format!("{}; {}", exit_link.strat_name, link.strat_name),
+                                        notable_strat_name: None, // TODO: Replace with list of notable strats and use them
+                                        strat_name: format!(
+                                            "{}; {}",
+                                            exit_link.strat_name, link.strat_name
+                                        ),
                                         strat_notes: strat_notes,
                                         sublinks,
                                     });
                                     // println!("Other room, node: {}, {}: {:?}, {:?}", other_room_id, other_node_id, exit_condition, new_links.last().unwrap());
-                                }    
+                                }
                             }
                         }
                     }
-                }        
+                }
                 *self.preprocessed_links.get_mut(&key).unwrap() = new_links.clone();
                 new_links
             }
@@ -1360,12 +1562,12 @@ impl<'a> Preprocessor<'a> {
                         };
                         let immobile_req = if let Some(gmode_immobile) = gmode_immobile_opt {
                             let mut immobile_req_vec: Vec<Requirement> = Vec::new();
-                            immobile_req_vec.push(gmode_immobile.requirement.clone());
                             immobile_req_vec.push(Requirement::Tech(gmode_immobile_tech_id));
                             immobile_req_vec.push(Requirement::ReserveTrigger {
                                 min_reserve_energy: 1,
                                 max_reserve_energy: 400,
                             });
+                            immobile_req_vec.push(gmode_immobile.requirement.clone());
                             Requirement::make_and(immobile_req_vec)
                         } else {
                             Requirement::Never
