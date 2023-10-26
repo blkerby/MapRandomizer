@@ -723,6 +723,16 @@ pub fn apply_requirement(
         Requirement::GateGlitchLeniency { green, heated } => {
             apply_gate_glitch_leniency(local, global, *green, *heated, difficulty)
         }
+        Requirement::HeatedDoorStuckLeniency { heat_frames } => {
+            if !global.items[Item::Varia as usize] {
+                let mut new_local = local;
+                new_local.energy_used +=
+                    (difficulty.door_stuck_leniency as f32 * difficulty.resource_multiplier * *heat_frames as f32) as i32;
+                validate_energy(new_local, global)
+            } else {
+                Some(local)
+            }
+        }
         Requirement::MissilesCapacity(count) => {
             if global.max_missiles >= *count {
                 Some(local)

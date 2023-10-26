@@ -145,6 +145,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         resource_multiplier: 1.0,
         escape_timer_multiplier: 3.0,
         gate_glitch_leniency: 0,
+        door_stuck_leniency: 0,
         phantoon_proficiency: 1.0,
         draygon_proficiency: 1.0,
         ridley_proficiency: 1.0,

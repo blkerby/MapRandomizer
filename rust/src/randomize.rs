@@ -111,6 +111,7 @@ pub struct DifficultyConfig {
     pub early_filler_items: Vec<Item>,
     pub resource_multiplier: f32,
     pub gate_glitch_leniency: i32,
+    pub door_stuck_leniency: i32,
     pub escape_timer_multiplier: f32,
     pub phantoon_proficiency: f32,
     pub draygon_proficiency: f32,
@@ -715,6 +716,7 @@ impl<'a> Preprocessor<'a> {
         &self,
         exit_link: &Link,
         exit_condition: &ExitCondition,
+        entrance_heated: bool,
     ) -> Option<Requirement> {
         let (room_id, node_id, _) = self.game_data.vertex_isv.keys[exit_link.to_vertex_id];
         let door_position = *self
@@ -747,8 +749,19 @@ impl<'a> Preprocessor<'a> {
                         ]));
                     }
                 }
+                let mut heat_frames_per_attempt = 0;
                 if *heated {
-                    reqs.push(Requirement::HeatFrames(100));
+                    heat_frames_per_attempt += 100;
+                }
+                if entrance_heated {
+                    heat_frames_per_attempt += 50;
+                }
+                if heat_frames_per_attempt > 0 {
+                    reqs.push(Requirement::HeatFrames(heat_frames_per_attempt));
+                    reqs.push(Requirement::HeatedDoorStuckLeniency {
+                        heat_frames: heat_frames_per_attempt,
+                    })
+
                 }
                 Some(Requirement::make_and(reqs))
             }
@@ -910,8 +923,8 @@ impl<'a> Preprocessor<'a> {
             EntranceCondition::ComeInWithBombBoost {} => {
                 self.get_come_in_with_bomb_boost_reqs(exit_link, exit_condition)
             }
-            EntranceCondition::ComeInWithDoorStuckSetup {} => {
-                self.get_come_in_with_door_stuck_setup_reqs(exit_link, exit_condition)
+            EntranceCondition::ComeInWithDoorStuckSetup { heated } => {
+                self.get_come_in_with_door_stuck_setup_reqs(exit_link, exit_condition, *heated)
             }
             EntranceCondition::ComeInSpeedballing {
                 effective_runway_length,

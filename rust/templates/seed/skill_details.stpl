@@ -1,14 +1,22 @@
 <div class="row">
-    <div class="col-7 col-sm-6 col-md-5 col-lg-4">Shinespark tiles:</div>
+    <div class="col-7 col-sm-6 col-md-5 col-lg-4">Shinecharge tiles:</div>
     <div class="col-5 col-sm-6 col-md-7 col-lg-8"><%= difficulty.shine_charge_tiles %></div>
 </div>
 <div class="row">
-    <div class="col-7 col-sm-6 col-md-5 col-lg-4">Resource multiplier:</div>
+    <div class="col-7 col-sm-6 col-md-5 col-lg-4">Heat damage multiplier:</div>
     <div class="col-5 col-sm-6 col-md-7 col-lg-8"><%= difficulty.resource_multiplier %></div>
+</div>
+<div class="row">
+    <div class="col-7 col-sm-6 col-md-5 col-lg-4">Escape timer multiplier:</div>
+    <div class="col-5 col-sm-6 col-md-7 col-lg-8"><%= difficulty.escape_timer_multiplier %></div>
 </div>
 <div class="row">
     <div class="col-7 col-sm-6 col-md-5 col-lg-4">Gate glitch leniency:</div>
     <div class="col-5 col-sm-6 col-md-7 col-lg-8"><%= difficulty.gate_glitch_leniency %></div>
+</div>
+<div class="row">
+    <div class="col-7 col-sm-6 col-md-5 col-lg-4">Door stuck leniency:</div>
+    <div class="col-5 col-sm-6 col-md-7 col-lg-8"><%= difficulty.door_stuck_leniency %></div>
 </div>
 <div class="row">
     <div class="col-7 col-sm-6 col-md-5 col-lg-4">Phantoon proficiency:</div>
@@ -25,10 +33,6 @@
 <div class="row">
     <div class="col-7 col-sm-6 col-md-5 col-lg-4">Botwoon proficiency:</div>
     <div class="col-5 col-sm-6 col-md-7 col-lg-8"><%= difficulty.botwoon_proficiency %></div>
-</div>
-<div class="row">
-    <div class="col-7 col-sm-6 col-md-5 col-lg-4">Escape timer multiplier:</div>
-    <div class="col-5 col-sm-6 col-md-7 col-lg-8"><%= difficulty.escape_timer_multiplier %></div>
 </div>
 
 <div class="accordion mt-3">

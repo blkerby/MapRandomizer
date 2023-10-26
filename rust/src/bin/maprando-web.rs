@@ -180,6 +180,7 @@ struct RandomizeRequest {
     shinespark_tiles: Text<f32>,
     resource_multiplier: Text<f32>,
     gate_glitch_leniency: Text<i32>,
+    door_stuck_leniency: Text<i32>,
     phantoon_proficiency: Text<f32>,
     draygon_proficiency: Text<f32>,
     ridley_proficiency: Text<f32>,
@@ -892,6 +893,10 @@ fn get_difficulty_tiers(
                 difficulty.gate_glitch_leniency,
                 preset.gate_glitch_leniency as i32,
             ),
+            door_stuck_leniency: i32::max(
+                difficulty.door_stuck_leniency,
+                preset.door_stuck_leniency as i32,
+            ),
             escape_timer_multiplier: difficulty.escape_timer_multiplier,
             randomized_start: difficulty.randomized_start,
             save_animals: difficulty.save_animals,
@@ -1081,6 +1086,7 @@ async fn randomize(
         resource_multiplier: req.resource_multiplier.0,
         escape_timer_multiplier: req.escape_timer_multiplier.0,
         gate_glitch_leniency: req.gate_glitch_leniency.0,
+        door_stuck_leniency: req.door_stuck_leniency.0,
         randomized_start: req.randomized_start.0,
         save_animals: match req.save_animals.0.as_str() {
             "No" => SaveAnimals::No,

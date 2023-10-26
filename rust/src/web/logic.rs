@@ -303,6 +303,7 @@ fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
         resource_multiplier: preset.preset.resource_multiplier,
         escape_timer_multiplier: preset.preset.escape_timer_multiplier,
         gate_glitch_leniency: preset.preset.gate_glitch_leniency as i32,
+        door_stuck_leniency: preset.preset.door_stuck_leniency as i32,
         phantoon_proficiency: preset.preset.phantoon_proficiency,
         draygon_proficiency: preset.preset.draygon_proficiency,
         ridley_proficiency: preset.preset.ridley_proficiency,

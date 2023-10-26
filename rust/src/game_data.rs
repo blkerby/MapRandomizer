@@ -147,6 +147,9 @@ pub enum Requirement {
         green: bool,
         heated: bool,
     },
+    HeatedDoorStuckLeniency {
+        heat_frames: i32,
+    },
     EnergyDrain,
     ReserveTrigger {
         min_reserve_energy: i32,
@@ -606,7 +609,9 @@ pub enum EntranceCondition {
         min_tiles: f32,
     },
     ComeInWithBombBoost {},
-    ComeInWithDoorStuckSetup {},
+    ComeInWithDoorStuckSetup {
+        heated: bool,
+    },
     ComeInSpeedballing {
         effective_runway_length: f32,
     },
@@ -695,7 +700,9 @@ fn parse_entrance_condition(entrance_json: &JsonValue, heated: bool) -> Result<E
                 .context("Expecting number 'minTiles'")?,
         }),
         "comeInWithBombBoost" => Ok(EntranceCondition::ComeInWithBombBoost {}),
-        "comeInWithDoorStuckSetup" => Ok(EntranceCondition::ComeInWithDoorStuckSetup {}),
+        "comeInWithDoorStuckSetup" => Ok(EntranceCondition::ComeInWithDoorStuckSetup {
+            heated,
+        }),
         "comeInSpeedballing" => {
             let runway_geometry = parse_runway_geometry(&value["runway"])?;
             let effective_runway_length = compute_runway_effective_length(&runway_geometry);

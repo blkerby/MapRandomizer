@@ -104,6 +104,7 @@ fn main() -> Result<()> {
         resource_multiplier: 1.0,
         escape_timer_multiplier: 1.0,
         gate_glitch_leniency: 0,
+        door_stuck_leniency: 0,
         phantoon_proficiency: 0.0,
         draygon_proficiency: 1.0,
         ridley_proficiency: 0.0,
