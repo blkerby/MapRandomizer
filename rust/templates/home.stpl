@@ -27,28 +27,59 @@
         </div>
     </div>
     <div class="container col-xxl-10">
-        <div class="row mx-2 my-5">
-            <div class="col-lg-6">
+        <div class="row mx-2 mt-5 mb-3 justify-content-center">
+            <div class="col-lg-8">
                 <h3>Important tips</h3>
                 <ul>
-                    <li>Save frequently to avoid losing progress in case of unexpected death.
+                    <li>Saves are fast. Save often, to avoid losing progress.
                     <li>Don't go a way you can't come back from, except as a last resort.
                     <li>Before giving up, check the spoiler map to see what the game intended.
-                    <li>There is a community happy to help if you need it. Find us on
+                    <li>This game can be challenging. There is a community happy to help if you need it. Find us on
                         <a href="https://discord.gg/Gc99YV2ZcB">Discord</a>!
-                        This is a work in progress, so we appreciate feedback.
                 </ul>
             </div>
-            <div class="col-lg-6">
-                <h3>Things to know</h3>
+        </div>
+        <div class="row mx-2 my-3 justify-content-center">
+            <div class="col-lg-8">
+                <h3>How to not get stuck</h3>
+                <p>Randomized maps can lead to tricky scenarios. The game should always be beatable, but there are many
+                ways that a player could get stuck. If selecting any difficulty higher than "Basic", it is recommended to
+                take a close look at the list of tricks it expects. You can disable any trick if you don't want to do it.
+                If a trick is enabled that you don't know about, it could end up being required, making it seem as if 
+                there's no way to progress. If this happens, the spoiler map and/or 
+                <a href="https://discord.gg/Gc99YV2ZcB">Discord</a> community can help you find your way.
+                </p>
+                
+                <p>It is very possible to get caught in places that you can't escape. For example, you could fall down through 
+                crumble blocks or water without the items needed to get out. Learning to manage these kinds of risks is one 
+                of the unique challenges of this randomizer. The game provides features to make it less painful in case you do 
+                get stuck, and to help you prevent getting stuck:
+                </p>
+                
+                <p>
                 <ul>
-                <li>Even on low difficulty settings, this can be a challenging randomizer.
-                <li>Expect to encounter dangerous enemies and softlock risks early on.
-                <li>Rolling saves allow you to go back to an earlier save if you get stuck.
-                <li>The game usually won't expect you to go down a one-way for an item,
-                    only if there is some way back <i>without</i> using the item.
-                <li>Many options are available to add variety and fit your style of play.
+                <li>Save animations are accelerated, to incentivize saving often. A recent save is the simplest way to limit 
+                how much a softlock (or death) will set you back.
+                <li>There is a shortcut to quickly reload your saves by pressing L + R + Select + Start.
+                <li>If you save in an area you can't escape, you can load an earlier save by repeating the quick reload shortcut.
+                <li>Hazard stripes appear on certain doors where the other side has an immediate risk of softlock or death.
+                <li>The game logic won't expect you to go down a one-way for an item unless there is some way out <i>without</i> 
+                using the item (though this could be by some other path that loops around).
                 </ul>
+                </p>
+
+                <p>It's usually best to explore all other options first, before considering going down a one-way path. A common
+                mistake for new players is to go down one-way paths without even realizing it. It can take some practice to learn 
+                to consistently be aware when you are going down a way that you can't come back from. 
+
+                <p>You may encounter a scenario where a one-way path opens up to a large area with many items that you can collect. 
+                This kind of "rabbit hole" is the most dangerous softlock risk in the game. It can be tempting to fully explore 
+                such an area, hoping or expecting to find an item that will let you get back out. Beware that this strategy is 
+                likely to fail, and if you use all three save slots in this area then you will be permanently stuck. Instead, 
+                taking into account how the game's logic works, when going down a one-way, prioritize finding out if there is a 
+                path back out without relying on collecting items. If you cannot find such a path, it is usually best to cut your 
+                losses and immediately reload to an earlier save and try going a different way.
+                </p>
             </div>
         </div>
     </div>

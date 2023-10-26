@@ -35,6 +35,7 @@
     <ul>
     <li>Gray doors do not immediately close behind Samus when entering a room. This allows the player a chance to
     turn around if they encounter a boss they are not prepared for.
+    <li>Hazard markings occur on certain doors, ones with immediate risk of death or softlock on the other side.
     <li>The logic is designed so that going down a one-way path is unlikely to be required.
     <li>Samus quickly respawns after death without needing to go through the game-over menu.
     <li>The player can immediately reload to the last save by pressing L + R + Select + Start.

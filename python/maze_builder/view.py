@@ -38,7 +38,9 @@ device = torch.device('cpu')
 # session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-22', 'rb')).load()
 # session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-34', 'rb')).load()
 # session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-43', 'rb')).load()
-session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-50', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-50', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-61', 'rb')).load()
+session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-63', 'rb')).load()
 #
 
 print(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects.to(torch.float32), dim=0)))
@@ -58,13 +60,24 @@ print(torch.nanmean(S))
 # ind = ind[(ind >= 200000) & (ind < 262144)].view(-1, 1)
 num_feasible = torch.nonzero((session.replay_buffer.episode_data.reward == min_reward)).shape[0]
 
-ind = torch.nonzero((session.replay_buffer.episode_data.reward == min_reward) & (S < 4.20))
+ind = torch.nonzero(
+    (session.replay_buffer.episode_data.reward == min_reward) &
+    (S < 3.90) &
+    (session.replay_buffer.episode_data.graph_diameter <= 45)
+)
+# print(torch.where(session.replay_buffer.episode_data.graph_diameter[ind] == 29))
+
 print("success rate: ", ind.shape[0] / num_feasible)
 i = int(random.randint(0, ind.shape[0] - 1))
 print(len(ind), i)
 # i = 2
+# i = 389
 num_rooms = len(session.envs[0].rooms)
-
+print("mean save_distance:", torch.mean(session.replay_buffer.episode_data.save_distances[ind].to(torch.float)))
+print("mean diam:", torch.mean(session.replay_buffer.episode_data.graph_diameter[ind].to(torch.float)))
+print("max diam:", torch.max(session.replay_buffer.episode_data.graph_diameter[ind]))
+print("min diam:", torch.min(session.replay_buffer.episode_data.graph_diameter[ind]))
+print("diam:", session.replay_buffer.episode_data.graph_diameter[ind[i]])
 
 action = session.replay_buffer.episode_data.action[ind[i], :]
 # action = session.replay_buffer.episode_data.action[ind[:16], :]

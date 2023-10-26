@@ -2253,10 +2253,19 @@ impl GameData {
                         // Temporary while migration is in process -- Create new-style exit-condition strat:
                         let vertex_id = self.vertex_isv.index_by_key
                             [&(room_id, node_id, 0)];
+                        let effective_length = get_effective_runway_length(
+                            can_leave_charged.used_tiles as f32,
+                            can_leave_charged.open_end as f32,
+                        );
+                        let req = Requirement::make_and(vec![
+                            requirement,
+                            Requirement::ShineCharge {
+                                used_tiles: effective_length,
+                            }]);
                         let link = Link {
                             from_vertex_id: vertex_id,
                             to_vertex_id: vertex_id,
-                            requirement: requirement,
+                            requirement: req,
                             entrance_condition: None,
                             notable_strat_name: None,
                             strat_name: strat_json["name"].as_str().unwrap().to_string(),

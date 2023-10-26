@@ -252,8 +252,10 @@ class TrainingSession():
         logprobs_valid = -torch.logaddexp(-logodds_valid, torch.zeros_like(logodds_valid))
         expected_valid = torch.sum(logprobs_valid, dim=1)  # / 2
 
-        pred_save_dist = raw_preds_valid[:, num_logodds:(num_logodds + env.num_save_dist)]
-        pred_graph_diam = raw_preds_valid[:, num_logodds + env.num_save_dist]
+        num_save_dist = len(env.non_potential_save_idxs)
+        pred_save_dist = raw_preds_valid[:, num_logodds:(num_logodds + num_save_dist)]
+        pred_graph_diam = raw_preds_valid[:, num_logodds + num_save_dist]
+        # print("score idx: ", num_logodds + num_save_dist, "num_logodds =", num_logodds, "num_save_dist =", num_save_dist)
 
         # Note: for steps with no valid candidates (i.e. when no more rooms can be placed), we won't generate any
         # predictions, and the test_loss will be computed just based on these zero log-odds filler values.
@@ -496,6 +498,7 @@ class TrainingSession():
         num_save_dist_outputs = data.save_distances.shape[1]
         pred_save_dist = raw_preds[:, num_binary_outputs:(num_binary_outputs + num_save_dist_outputs)]
         pred_graph_diam = raw_preds[:, num_binary_outputs + num_save_dist_outputs]
+        # print("train idx: ", num_binary_outputs + num_save_dist_outputs, "num_binary_outputs =", num_binary_outputs, "num_save_dist_outputs =", num_save_dist_outputs)
 
         all_binary_outputs = torch.cat([data.door_connects, data.missing_connects], dim=1)
         binary_loss = torch.nn.functional.binary_cross_entropy_with_logits(state_value_raw_logodds,

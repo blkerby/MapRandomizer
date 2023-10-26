@@ -210,7 +210,7 @@ pickle_name = 'models/session-2023-06-08T14:55:16.779895.pkl'
 # session = Unpickler(open(pickle_name + '-bk35', 'rb')).load()
 # session = Unpickler(open(pickle_name + '-bk43', 'rb')).load()
 # session = Unpickler(open(pickle_name + '-bk54', 'rb')).load()  # After backfilling graph diameter data
-session = Unpickler(open(pickle_name + '-bk58', 'rb')).load()
+session = Unpickler(open(pickle_name + '-bk63', 'rb')).load()
 # session.replay_buffer.size = 0
 # session.replay_buffer.position = 0
 # session.replay_buffer.resize(2 ** 23)
@@ -288,10 +288,10 @@ explore_eps_factor = 0.0
 # temperature_min = 0.02
 # temperature_max = 2.0
 save_loss_weight = 0.005
-save_dist_coef = 0.05
+save_dist_coef = 0.02
 
 graph_diam_weight = 0.0002
-graph_diam_coef = 0.0  # 0.5
+graph_diam_coef = 0.2
 
 door_connect_bound = 10.0
 # door_connect_bound = 0.0
@@ -651,9 +651,9 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk59')
-            # session.replay_buffer.resize(2 ** 19)
-            # pickle.dump(session, open(pickle_name + '-small-51', 'wb'))
+            # save_session(session, pickle_name + '-bk63')
+            # session.replay_buffer.resize(2 ** 15)
+            # pickle.dump(session, open(pickle_name + '-small-63', 'wb'))
     if session.num_rounds % summary_freq == 0:
         if num_candidates_max == 1:
             total_eval_loss = 0.0

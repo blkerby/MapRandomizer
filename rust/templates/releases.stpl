@@ -17,6 +17,29 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-90---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release90">Version 90 (???)</a>:
+<ul>
+<li>New tile theme option "Green Brinstar" (under "Other options" on the customization/seed page).
+<li>TODO: New map pool with improved map connectivity (e.g., shorter treks on average to get from one end of the map to the other).
+    <ul>
+    <li>This also includes further improvements to save station balancing.
+    </ul>
+<li>TODO: New setting "Heated door stuck setup leniency" under "Skill assumptions".
+<li>Bugfixes:
+    <ul>
+    <li>Fix to bug where Phantoon could be locked behind Bowling Alley.
+    <li>Fix to bug where certain cross-room shinesparks could be missing logical requirements.
+<li>Website updates:
+    <ul>
+    <li>Updated the home page with a section about how to avoid getting stuck.
+    <li>Animated GIFs are added for more tech and notable strats.
+    </ul>
+<li>Logic updates (highlights):
+    <ul>
+    <li>...
+    </ul>
+</ul>
+
 <p><a href="https://version-89---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release89">Version 89 (2023-10-18)</a>:
 <ul>
 <li>New tile theme option "InnerCrateria" (under "Other options" on the customization/seed page).
