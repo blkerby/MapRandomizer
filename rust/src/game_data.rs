@@ -2379,9 +2379,29 @@ impl GameData {
                             Requirement::make_and(self.parse_requires_list(&requires_json, &ctx)?);
                         let leave_with_gmode_setup = LeaveWithGModeSetup {
                             knockback,
-                            requirement,
+                            requirement: requirement.clone(),
                         };
                         leave_with_gmode_setup_vec.push(leave_with_gmode_setup);
+
+                        // Temporary while migration is in process -- Create new-style exit-condition strat:
+                        let vertex_id = self.vertex_isv.index_by_key[&(room_id, node_id, 0)];
+                        let link = Link {
+                            from_vertex_id: vertex_id,
+                            to_vertex_id: vertex_id,
+                            requirement,
+                            entrance_condition: None,
+                            notable_strat_name: None,
+                            strat_name: strat_json["name"].as_str().unwrap().to_string(),
+                            strat_notes: vec![],
+                            sublinks: vec![],
+                        };
+                        let exit_condition = ExitCondition::LeaveWithGModeSetup {
+                            knockback,
+                        };
+                        self.node_exits
+                            .entry((room_id, node_id))
+                            .or_insert(vec![])
+                            .push((link, exit_condition));
                     }
                 }
                 self.node_leave_with_gmode_setup_map
@@ -2407,13 +2427,34 @@ impl GameData {
                         ctx.room_id = room_id;
                         let requirement =
                             Requirement::make_and(self.parse_requires_list(&requires_json, &ctx)?);
+                        let artificial_morph = leave_with_gmode_json["leavesWithArtificialMorph"]
+                            .as_bool()
+                            .context("Expecting field leavesWithArtificialMorph")?;
                         let leave_with_gmode = LeaveWithGMode {
-                            artificial_morph: leave_with_gmode_json["leavesWithArtificialMorph"]
-                                .as_bool()
-                                .context("Expecting field leavesWithArtificialMorph")?,
-                            requirement,
+                            artificial_morph,
+                            requirement: requirement.clone(),
                         };
                         leave_with_gmode_vec.push(leave_with_gmode);
+
+                        // Temporary while migration is in process -- Create new-style exit-condition strat:
+                        let vertex_id = self.vertex_isv.index_by_key[&(room_id, node_id, 0)];
+                        let link = Link {
+                            from_vertex_id: vertex_id,
+                            to_vertex_id: vertex_id,
+                            requirement,
+                            entrance_condition: None,
+                            notable_strat_name: None,
+                            strat_name: strat_json["name"].as_str().unwrap().to_string(),
+                            strat_notes: vec![],
+                            sublinks: vec![],
+                        };
+                        let exit_condition = ExitCondition::LeaveWithGMode {
+                            morphed: artificial_morph,
+                        };
+                        self.node_exits
+                            .entry((room_id, node_id))
+                            .or_insert(vec![])
+                            .push((link, exit_condition));
                     }
                 }
                 self.node_leave_with_gmode_map
@@ -2425,6 +2466,7 @@ impl GameData {
 
             // Implicit leaveWithGMode:
             if !node_json.has_key("spawnAt") && node_json["nodeType"].as_str().unwrap() == "door" {
+                // Old style of cross-room strat:
                 for artificial_morph in [false, true] {
                     self.node_leave_with_gmode_map
                         .get_mut(&(room_id, node_id))
@@ -2440,6 +2482,32 @@ impl GameData {
                             },
                         });
                 }
+
+                // New style of cross-room strat:
+                let vertex_id = self.vertex_isv.index_by_key[&(room_id, node_id, 0)];
+                for morphed in [false, true] {
+                    let link = Link {
+                        from_vertex_id: vertex_id,
+                        to_vertex_id: vertex_id,
+                        requirement: Requirement::Free,
+                        entrance_condition: Some(EntranceCondition::ComeInWithGMode { 
+                            mode: GModeMode::Direct, 
+                            morphed, 
+                            mobility: GModeMobility::Any,
+                        }),
+                        notable_strat_name: None,
+                        strat_name: "G-Mode Go Back Through Door".to_string(),
+                        strat_notes: vec![],
+                        sublinks: vec![],
+                    };
+                    let exit_condition = ExitCondition::LeaveWithGMode {
+                        morphed,
+                    };
+                    self.node_exits
+                        .entry((room_id, node_id))
+                        .or_insert(vec![])
+                        .push((link, exit_condition));
+                }
             }
 
             if node_json.has_key("gModeImmobile") {
@@ -2453,9 +2521,26 @@ impl GameData {
                 ctx.room_id = room_id;
                 let requirement =
                     Requirement::make_and(self.parse_requires_list(&requires_json, &ctx)?);
-                let gmode_immobile = GModeImmobile { requirement };
+                let gmode_immobile = GModeImmobile { requirement: requirement.clone() };
                 self.node_gmode_immobile_map
                     .insert((room_id, node_id), gmode_immobile);
+
+                // Temporary while migration is in process -- Create new-style strat with gModeRegainMobility:
+                let vertex_id = self.vertex_isv.index_by_key[&(room_id, node_id, 0)];
+                let link = Link {
+                    from_vertex_id: vertex_id,
+                    to_vertex_id: vertex_id,
+                    requirement: requirement,
+                    entrance_condition: None,
+                    notable_strat_name: None,
+                    strat_name: "G-Mode Immobile".to_string(),
+                    strat_notes: vec![],
+                    sublinks: vec![],
+                };
+                self.node_gmode_regain_mobility
+                    .entry((room_id, node_id))
+                    .or_insert(vec![])
+                    .push((link, GModeRegainMobility {}));
             }
 
             if node_json.has_key("spawnAt") {
@@ -2634,38 +2719,38 @@ impl GameData {
                             self.links.push(link);
                         }
 
-                        // Temporary while in the middle of migration -- create old-style runway:
+                        // Temporary while in the middle of migration -- create old-style runways, etc.:
                         if from_node_id == to_node_id {
-                            if let Some(ExitCondition::LeaveWithRunway {
-                                heated, physics, ..
-                            }) = exit_condition
-                            {
-                                if let Ok(physics_str) = &physics_res {
-                                    let mut runway_reqs = vec![requirement];
-                                    if physics != Some(Physics::Air) {
-                                        runway_reqs.push(Requirement::Item(Item::Gravity as usize));
+                            match exit_condition {
+                                Some(ExitCondition::LeaveWithRunway { heated, physics, .. }) => {
+                                    if let Ok(physics_str) = &physics_res {
+                                        let mut runway_reqs = vec![requirement];
+                                        if physics != Some(Physics::Air) {
+                                            runway_reqs.push(Requirement::Item(Item::Gravity as usize));
+                                        }
+                                        // println!("{}", strat_json["exitCondition"].pretty(2));
+                                        self.node_runways_map
+                                            .entry((room_id, to_node_id))
+                                            .or_insert(vec![])
+                                            .push(Runway {
+                                                name: strat_name,
+                                                length: strat_json["exitCondition"]["leaveWithRunway"]
+                                                    ["length"]
+                                                    .as_f32()
+                                                    .unwrap()
+                                                    as i32,
+                                                open_end: strat_json["exitCondition"]
+                                                    ["leaveWithRunway"]["openEnd"]
+                                                    .as_i32()
+                                                    .unwrap(),
+                                                requirement: Requirement::make_and(runway_reqs),
+                                                physics: physics_str.to_string(),
+                                                heated: heated,
+                                                usable_coming_in: false,
+                                            });
                                     }
-                                    // println!("{}", strat_json["exitCondition"].pretty(2));
-                                    self.node_runways_map
-                                        .entry((room_id, to_node_id))
-                                        .or_insert(vec![])
-                                        .push(Runway {
-                                            name: strat_name,
-                                            length: strat_json["exitCondition"]["leaveWithRunway"]
-                                                ["length"]
-                                                .as_f32()
-                                                .unwrap()
-                                                as i32,
-                                            open_end: strat_json["exitCondition"]
-                                                ["leaveWithRunway"]["openEnd"]
-                                                .as_i32()
-                                                .unwrap(),
-                                            requirement: Requirement::make_and(runway_reqs),
-                                            physics: physics_str.to_string(),
-                                            heated: heated,
-                                            usable_coming_in: false,
-                                        });
-                                }
+                                },
+                                _ => {}
                             }
                         }
                     }

@@ -22,7 +22,7 @@ about 15 seconds to load.
 <li>New tile theme option "Green Brinstar" (under "Other options" on the customization/seed page).
 <li>TODO: New map pool with improved map connectivity (e.g., shorter treks on average to get from one end of the map to the other).
     <ul>
-    <li>This also includes further improvements to save station balancing.
+    <li>Also includes some more improvement to save station balancing.
     </ul>
 <li>TODO: New setting "Heated door stuck setup leniency" under "Skill assumptions".
 <li>Bugfixes:
@@ -31,8 +31,8 @@ about 15 seconds to load.
     <li>Fix to bug where certain cross-room shinesparks could be missing logical requirements.
 <li>Website updates:
     <ul>
-    <li>Updated the home page with a section about how to avoid getting stuck.
-    <li>Animated GIFs are added for more tech and notable strats.
+    <li>Home page updated with a new section "How to not get stuck".
+    <li>Animated GIFs added for more tech and notable strats.
     </ul>
 <li>Logic updates (highlights):
     <ul>

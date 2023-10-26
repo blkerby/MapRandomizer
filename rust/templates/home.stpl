@@ -43,9 +43,9 @@
             <div class="col-lg-8">
                 <h3>How to not get stuck</h3>
                 <p>Randomized maps can lead to tricky scenarios. The game should always be beatable, but there are many
-                ways that a player could get stuck. If selecting any difficulty higher than "Basic", it is recommended to
-                take a close look at the list of tricks it expects. You can disable any trick if you don't want to do it.
-                If a trick is enabled that you don't know about, it could end up being required, making it seem as if 
+                ways that you could get stuck. If selecting a difficulty higher than "Basic", it is recommended to
+                take a close look at the list of tricks that are expected. You can disable any trick if you don't want to do it.
+                If a trick is enabled that you don't know about, the game could require it, making it seem as if 
                 there's no way to progress. If this happens, the spoiler map and/or 
                 <a href="https://discord.gg/Gc99YV2ZcB">Discord</a> community can help you find your way.
                 </p>
@@ -70,7 +70,7 @@
 
                 <p>It's usually best to explore all other options first, before considering going down a one-way path. A common
                 mistake for new players is to go down one-way paths without even realizing it. It can take some practice to learn 
-                to consistently be aware when you are going down a way that you can't come back from. 
+                to consistently be aware when you are going a way that you can't come back from. 
 
                 <p>You may encounter a scenario where a one-way path opens up to a large area with many items that you can collect. 
                 This kind of "rabbit hole" is the most dangerous softlock risk in the game. It can be tempting to fully explore 

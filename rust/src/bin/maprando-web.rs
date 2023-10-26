@@ -1480,7 +1480,7 @@ fn get_ignored_notable_strats() -> HashSet<String> {
         "Mickey Mouse Crumble Jump IBJ",
         "G-Mode Morph Breaking the Maridia Tube Gravity Jump", // not usable because of canRiskPermanentLossOfAccess
         "Mt. Everest Cross Room Jump through Top Door", // currently unusable because of obstacleCleared requirement
-        "Gauntlet Entrance Shinecharge Under Yapping Maw", // currently unusable because of obstacleCleared requirement
+        "Halfie Climb Room Xray Climb Grapple Clip" // currently unusable because of door bypass
     ]
     .iter()
     .map(|x| x.to_string())

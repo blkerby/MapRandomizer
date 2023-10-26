@@ -1,11 +1,12 @@
 next release:
+- DONE: implement comeInSpeedballing
+- DONE: implement new schema for g-mode strats
 - add leniency setting for heated X-ray door stuck setups (similar to gate glitch leniency setting)
 - play-test Green Brinstar theme, and do a round of fixes
-- implement comeInSpeedballing
 - prepare the new map pool
 - change "Item progression" preset names:
-  - Quick -> Friendly
-  - Standard -> Moderate
+  - Quick -> Friendly?
+  - Standard -> Moderate?
 
 
 priority:

@@ -1996,8 +1996,7 @@
     {
         "name": "Seaweed Room",
         "room_id": 233,
-        "node_id": 4,
-        "door_load_node_id": 1,
+        "node_id": 1,
         "x": 3.5,
         "y": 9
     },
