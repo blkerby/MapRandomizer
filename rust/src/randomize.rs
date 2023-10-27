@@ -33,7 +33,7 @@ use self::escape_timer::SpoilerEscape;
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
 pub enum ProgressionRate {
     Slow,
-    Normal,
+    Uniform,
     Fast,
 }
 
@@ -2070,7 +2070,7 @@ impl<'r> Randomizer<'r> {
     ) -> Option<SelectItemsOutput> {
         let num_items_to_place = match self.difficulty_tiers[0].progression_rate {
             ProgressionRate::Slow => num_bireachable + num_oneway_reachable,
-            ProgressionRate::Normal => num_bireachable,
+            ProgressionRate::Uniform => num_bireachable,
             ProgressionRate::Fast => num_bireachable,
         };
         let filtered_item_precedence: Vec<Item> = state
@@ -2086,7 +2086,7 @@ impl<'r> Randomizer<'r> {
         let num_items_remaining: usize = state.items_remaining.iter().sum();
         let mut num_key_items_to_place = match self.difficulty_tiers[0].progression_rate {
             ProgressionRate::Slow => 1,
-            ProgressionRate::Normal => f32::ceil(
+            ProgressionRate::Uniform => f32::ceil(
                 (num_key_items_remaining as f32) / (num_items_remaining as f32)
                     * (num_items_to_place as f32),
             ) as usize,

@@ -224,7 +224,7 @@ function itemProgressionPresetChanged() {
         document.getElementById("fillerItemsPlasmaYes").checked = true;
     }
     if (document.getElementById("itemProgressionPresetStandard").checked) {
-        document.getElementById("progressionRateNormal").checked = true;
+        document.getElementById("progressionRateUniform").checked = true;
 
         document.getElementById("itemPlacementStyleForced").checked = true;
         <% for item in &prioritizable_items { %>

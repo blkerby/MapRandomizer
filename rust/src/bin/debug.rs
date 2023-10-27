@@ -93,7 +93,7 @@ fn main() -> Result<()> {
         tech: vec![],
         notable_strats: vec![],
         shine_charge_tiles: 16.0,
-        progression_rate: ProgressionRate::Normal,
+        progression_rate: ProgressionRate::Uniform,
         filler_items: vec![Item::Missile],
         early_filler_items: vec![],
         item_placement_style: ItemPlacementStyle::Neutral,

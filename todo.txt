@@ -6,8 +6,11 @@ next release:
 - play-test Green Brinstar theme, and do a round of fixes
 - prepare the new map pool
 - change "Item progression" preset names:
-  - Quick -> Friendly?
-  - Standard -> Moderate?
+  - Quick -> Normal?
+  - Standard -> Balanced?
+- change "Progression rate":
+  - Normal -> Uniform
+- update item progression doc
 
 
 priority:

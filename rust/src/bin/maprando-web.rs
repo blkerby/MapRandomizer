@@ -151,7 +151,7 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
     prioritizable_items.sort();
     let generate_template = GenerateTemplate {
         version: VERSION,
-        progression_rates: vec!["Fast", "Normal", "Slow"],
+        progression_rates: vec!["Fast", "Uniform", "Slow"],
         item_placement_styles: vec!["Neutral", "Forced"],
         objectives: vec!["Bosses", "Minibosses", "Metroids", "Chozos", "Pirates"],
         item_priorities: vec!["Early", "Default", "Late"]
@@ -1065,7 +1065,7 @@ async fn randomize(
         shine_charge_tiles: req.shinespark_tiles.0,
         progression_rate: match req.progression_rate.0.as_str() {
             "Slow" => maprando::randomize::ProgressionRate::Slow,
-            "Normal" => maprando::randomize::ProgressionRate::Normal,
+            "Uniform" => maprando::randomize::ProgressionRate::Uniform,
             "Fast" => maprando::randomize::ProgressionRate::Fast,
             _ => panic!(
                 "Unrecognized progression rate {}",
