@@ -57,9 +57,7 @@
                 
                 <p>
                 <ul>
-                <li>Save animations are accelerated, to incentivize saving often. A recent save is the simplest way to limit 
-                how much a softlock (or death) will set you back.
-                <li>There is a shortcut to quickly reload your saves by pressing L + R + Select + Start.
+                <li>You can quickly reload your saves using the shortcut L + R + Select + Start.
                 <li>If you save in an area you can't escape, you can load an earlier save by repeating the quick reload shortcut.
                 <li>Hazard stripes appear on certain doors where the other side has an immediate risk of softlock or death.
                 <li>The game logic won't expect you to go down a one-way for an item unless there is some way out <i>without</i> 

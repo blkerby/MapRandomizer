@@ -17,25 +17,28 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-90---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release90">Version 90 (???)</a>:
+<p><a href="https://version-90---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release90">Version 90 (2023-10-28)</a>:
 <ul>
 <li>The lower two item progression presets are renamed:
+    <ul>
     <li>"Quick" is renamed to "Normal".
     <li>"Standard" is renamed to "Tricky".
     <li>"Challenge" remains unchanged.
-<li>The item progression rate "Normal" is renamed to "Uniform" (to avoid confusion with "Normal" item progression preset).
+    </ul>
+<li>The item progression rate "Normal" is renamed to "Uniform".
 <li>MSU-1 support is now included.
-<li>The map pool is updated:
+<li>New map pool:
     <ul>
-    <li>Maps are now more connected; i.e., shorter treks are needed to get from one end of the map to the other.
+    <li>Maps are more connected, having shorter paths from one end of the map to the other.
     <li>Save station balancing is improved a little more.
     </ul>
 <li>A new setting "Heated door stuck setup leniency" is added under "Skill assumptions".
-<li>A new tile theme option "Green Brinstar" is available (under "Other options" on the customization/seed page).
+<li>A new tile theme option "Green Brinstar" is available.
 <li>Bugfixes:
     <ul>
     <li>Fix to bug where Phantoon could be locked behind Bowling Alley.
     <li>Fix to bug where certain cross-room shinesparks could be missing logical requirements.
+    </ul>
 <li>Website updates:
     <ul>
     <li>Home page updated with a new section "How to not get stuck".
@@ -43,7 +46,13 @@ about 15 seconds to load.
     </ul>
 <li>Logic updates (highlights):
     <ul>
-    <li>...
+    <li>Many new cross-room shinespark strats are added.
+    <li>New notable strats:
+        <ul>
+        <li>Gauntlet Entrance Shinecharge Under Yapping Maw (Very Hard)
+        <li>Warehouse Kihunter Room Tunnel Charge (Very Hard)
+        <li>Warehouse Kihunter Room Bottom Spark Out (Very Hard)
+        </ul>
     </ul>
 </ul>
 
