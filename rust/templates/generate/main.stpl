@@ -65,15 +65,15 @@
                         <label for="preset">Item progression</label>
                     </div>
                     <div class="col-lg-5 btn-group mt-0" role="group">
-                        <input type="radio" class="btn-check" name="item_progression_preset" value="Quick"
-                            id="itemProgressionPresetQuick" autocomplete="off" 
+                        <input type="radio" class="btn-check" name="item_progression_preset" value="Normal"
+                            id="itemProgressionPresetNormal" autocomplete="off" 
                             onclick="itemProgressionPresetChanged()" checked>
-                        <label class="btn btn-outline-primary" for="itemProgressionPresetQuick">Quick</label>
+                        <label class="btn btn-outline-primary" for="itemProgressionPresetNormal">Normal</label>
 
-                        <input type="radio" class="btn-check" name="item_progression_preset" value="Standard"
-                            id="itemProgressionPresetStandard" autocomplete="off" 
+                        <input type="radio" class="btn-check" name="item_progression_preset" value="Tricky"
+                            id="itemProgressionPresetTricky" autocomplete="off" 
                             onclick="itemProgressionPresetChanged()">
-                        <label class="btn btn-outline-primary" for="itemProgressionPresetStandard">Standard</label>
+                        <label class="btn btn-outline-primary" for="itemProgressionPresetTricky">Tricky</label>
 
                         <input type="radio" class="btn-check" name="item_progression_preset" value="Challenge"
                             id="itemProgressionPresetChallenge" autocomplete="off" 

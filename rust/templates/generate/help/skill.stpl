@@ -16,34 +16,33 @@
         This affects where the randomizer may place key items on any given step. Anything selected here
         is "fair game" for the player to be required to do in order to progress.</p>
 
-        <p>The presets can be summarized as follows:</p>
+        <p>Examples of expected techniques from the presets are as follows (expand the "Customize" section to
+        see complete details along with animations):</p>
 
         <p><ul>
-        <li><p><strong>Basic</strong>: Basic tech is required: wall jumps, shinesparks, infinite bomb jumps,
-        simple uses of frozen enemies, and navigating heated rooms without Varia (but only with plenty of extra energy).</p>
-        <li><p><strong>Medium</strong>: Essential underwater movement tech may be required, including crouch jumps, 
-        down grabs, Spring Ball jumps, and Gravity jumps.</p>
-        <li><p><strong>Hard</strong>: Common tech may be required, such as mockballs, damage boosts, 
-        gate glitching, snail climbs, Spring Ball jumps off of walls, snail clips, trickier uses of frozen enemies,
-        and simple ice clips.</p>
-        <li><p><strong>Very Hard</strong>: Obscure or precise tech may be required, such as
-        Flatley jumps, grapple jumps, crystal flash stand-ups, evading Metroids, and trickier ice clips 
-        assisted by X-ray.</p>
-        <li><p><strong>Expert</strong>: Highly precise or unforgiving tech may be required, such as
-        CWJ, Baby Metroid skip, double Spring Ball jumps, crystal flash clips, precise ice clips, and short X-ray climbs.</p>
-        <li><p><strong>Extreme</strong>: Repetitive or complex tech may be required, such as
-        longer X-ray climbs, long tunnel crawls, crazy crab climbs, Multiviola ice clip, and glitched X-ray modes
-        (G-mode, R-mode, X-mode).</p>
-        <li><p><strong>Insane</strong>: Extraordinarily difficult or time-consuming tech may be required,
-        such as Taco Tank, crossing Colosseum with no movement items, and very slow & tricky crab climbs.</p>
+        <li><p><strong>Basic</strong>: Wall jumps, shinesparks, simple uses of frozen enemies, 
+        and navigating heated rooms without Varia (but only with plenty of extra energy).</p>
+        <li><p><strong>Medium</strong>: Infinite bomb jumps, sequences of 3 or more wall jumps, and underwater 
+        movement tech such as crouch jumps, down grabs, mid-air Spring Ball jumps, and Gravity jumps.</p>
+        <li><p><strong>Hard</strong>: Mockballs, damage boosts, gate glitching, Spring Ball jumps off of 
+        walls, cross-room jumps from air to water rooms, trickier climbing on enemies, and simple ice clips 
+        using Mochtroids.</p>
+        <li><p><strong>Very Hard</strong>: Speedballs, temporary blue suit, Flatley jumps, grapple jumps, 
+        crystal flash stand-ups, evading Metroids, and trickier ice clips (and snail clips) assisted by X-ray.</p>
+        <li><p><strong>Expert</strong>: CWJ, Baby Metroid skip, stutter water shortcharges, 
+        double Spring Ball jumps, crystal flash clips, precise ice clips, and short X-ray climbs.</p>
+        <li><p><strong>Extreme</strong>: Longer X-ray climbs, long tunnel crawls, crazy crab climbs, Multiviola ice clip, 
+        and glitched X-ray modes (G-mode, R-mode, X-mode).</p>
+        <li><p><strong>Insane</strong>: Taco Tank, crossing Colosseum with no movement items, and very slow & tricky crab climbs.</p>
         </ul></p>
 
         <p>Select one of the preset difficulty levels and then, if desired, refine it by expanding the
         "Customize" section below and modifying the selections. Note that if you then
         select a preset again, it will override any customized settings that you made. </p>
 
-        <p>The "Customize" section also contains animations and details about the tricks. It's recommended to take
-        a look to make sure you understand the kinds of things that you may be expected to be able to do!</p>
+        <p>The descriptions above are only a summary. The "Customize" section lists the tricks in detail, with animations. 
+        It's recommended to take a look to make sure you understand all the kinds of things that you may be expected 
+        to be able to do!</p>
 
       </div>
       <div class="modal-footer">

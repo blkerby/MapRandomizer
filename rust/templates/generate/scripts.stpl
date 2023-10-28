@@ -197,7 +197,7 @@ function qualityOfLifeSettingChanged() {
     qualityOfLifePresetChanged();
 }
 function itemProgressionPresetChanged() {
-    if (document.getElementById("itemProgressionPresetQuick").checked) {
+    if (document.getElementById("itemProgressionPresetNormal").checked) {
         document.getElementById("progressionRateFast").checked = true;
 
         document.getElementById("itemPlacementStyleNeutral").checked = true;
@@ -223,7 +223,7 @@ function itemProgressionPresetChanged() {
         document.getElementById("fillerItemsSpazerYes").checked = true;
         document.getElementById("fillerItemsPlasmaYes").checked = true;
     }
-    if (document.getElementById("itemProgressionPresetStandard").checked) {
+    if (document.getElementById("itemProgressionPresetTricky").checked) {
         document.getElementById("progressionRateUniform").checked = true;
 
         document.getElementById("itemPlacementStyleForced").checked = true;
@@ -262,8 +262,8 @@ function itemProgressionPresetChanged() {
     }
 }
 function itemProgressionChanged() {
-    document.getElementById("itemProgressionPresetQuick").checked = false;
-    document.getElementById("itemProgressionPresetStandard").checked = false;
+    document.getElementById("itemProgressionPresetNormal").checked = false;
+    document.getElementById("itemProgressionPresetTricky").checked = false;
     document.getElementById("itemProgressionPresetChallenge").checked = false;
 }
 function gameVariationChanged() {

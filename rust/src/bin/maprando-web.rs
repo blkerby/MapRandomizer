@@ -1548,7 +1548,7 @@ fn build_app_data() -> AppData {
     let start_locations_path = Path::new("data/start_locations.json");
     let hub_locations_path = Path::new("data/hub_locations.json");
     let etank_colors_path = Path::new("data/etank_colors.json");
-    let maps_path = Path::new("../maps/session-2023-06-08T14:55:16.779895.pkl-small-51-subarea-balance-2");
+    let maps_path = Path::new("../maps/session-2023-06-08T14:55:16.779895.pkl-small-64-subarea-balance-2");
     let samus_sprites_path = Path::new("../MapRandoSprites/samus_sprites/manifest.json");
     // let samus_spritesheet_layout_path = Path::new("data/samus_spritesheet_layout.json");
     let mosaic_path = Path::new("../Mosaic");

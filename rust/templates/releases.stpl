@@ -19,12 +19,19 @@ about 15 seconds to load.
 
 <p><a href="https://version-90---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release90">Version 90 (???)</a>:
 <ul>
-<li>New tile theme option "Green Brinstar" (under "Other options" on the customization/seed page).
-<li>TODO: New map pool with improved map connectivity (e.g., shorter treks on average to get from one end of the map to the other).
+<li>The lower two item progression presets are renamed:
+    <li>"Quick" is renamed to "Normal".
+    <li>"Standard" is renamed to "Tricky".
+    <li>"Challenge" remains unchanged.
+<li>The item progression rate "Normal" is renamed to "Uniform" (to avoid confusion with "Normal" item progression preset).
+<li>MSU-1 support is now included.
+<li>The map pool is updated:
     <ul>
-    <li>Also includes some more improvement to save station balancing.
+    <li>Maps are now more connected; i.e., shorter treks are needed to get from one end of the map to the other.
+    <li>Save station balancing is improved a little more.
     </ul>
-<li>TODO: New setting "Heated door stuck setup leniency" under "Skill assumptions".
+<li>A new setting "Heated door stuck setup leniency" is added under "Skill assumptions".
+<li>A new tile theme option "Green Brinstar" is available (under "Other options" on the customization/seed page).
 <li>Bugfixes:
     <ul>
     <li>Fix to bug where Phantoon could be locked behind Bowling Alley.

@@ -2,18 +2,17 @@ next release:
 - DONE: implement comeInSpeedballing
 - DONE: implement new schema for g-mode strats
 - DONE: add leniency setting for heated X-ray door stuck setups (similar to gate glitch leniency setting)
+- DONE: play-test Green Brinstar theme, and do a round of fixes
+- DONE: change "Item progression" preset names
+- DONE: change "Progression rate" name "Normal" -> "Uniform"
+  DONE: update item progression doc
+- pull in Mosaic changes
 - generate a bunch of seeds and check logic for cross-room strats to make sure working as intended
-- play-test Green Brinstar theme, and do a round of fixes
 - prepare the new map pool
-- change "Item progression" preset names:
-  - Quick -> Normal?
-  - Standard -> Balanced?
-- change "Progression rate":
-  - Normal -> Uniform
-- update item progression doc
 
 
 priority:
+- Map pool split: Tame vs. Wild
 - clarify gate glitch leniency: that it doesn't apply to Pink Hopper Room gate
 - consider prioritizing item placement at closer item locations relative to previous key item(s)
 - start logging the seed generation latency

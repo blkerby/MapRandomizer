@@ -34,7 +34,7 @@
                     <li>Saves are fast. Save often, to avoid losing progress.
                     <li>Don't go a way you can't come back from, except as a last resort.
                     <li>Before giving up, check the spoiler map to see what the game intended.
-                    <li>This game can be challenging. There is a community happy to help if you need it. Find us on
+                    <li>This game can be challenging. There is a community happy to help. Find us on
                         <a href="https://discord.gg/Gc99YV2ZcB">Discord</a>!
                 </ul>
             </div>
@@ -44,10 +44,9 @@
                 <h3>How to not get stuck</h3>
                 <p>Randomized maps can lead to tricky scenarios. The game should always be beatable, but there are many
                 ways that you could get stuck. If selecting a difficulty higher than "Basic", it is recommended to
-                take a close look at the list of tricks that are expected. You can disable any trick if you don't want to do it.
-                If a trick is enabled that you don't know about, the game could require it, making it seem as if 
-                there's no way to progress. If this happens, the spoiler map and/or 
-                <a href="https://discord.gg/Gc99YV2ZcB">Discord</a> community can help you find your way.
+                take a close look at the list of tricks that are expected. If a trick is enabled that you don't know 
+                about, the game could require it, making it seem as if there's no way to progress. You can disable any 
+                trick if you don't want to do it.
                 </p>
                 
                 <p>It is very possible to get caught in places that you can't escape. For example, you could fall down through 
@@ -68,9 +67,8 @@
                 </ul>
                 </p>
 
-                <p>It's usually best to explore all other options first, before considering going down a one-way path. A common
-                mistake for new players is to go down one-way paths without even realizing it. It can take some practice to learn 
-                to consistently be aware when you are going a way that you can't come back from. 
+                <p>It's usually best to explore all other options first, before considering going down a one-way path. It can 
+                take some practice to learn to consistently be aware when you are going a way that you can't come back from. 
 
                 <p>You may encounter a scenario where a one-way path opens up to a large area with many items that you can collect. 
                 This kind of "rabbit hole" is the most dangerous softlock risk in the game. It can be tempting to fully explore 
