@@ -70,6 +70,7 @@ class ReplayBuffer:
         missing_connects = self.episode_data.missing_connects[episode_indices, :]
         save_distances = self.episode_data.save_distances[episode_indices, :]
         graph_diameter = self.episode_data.graph_diameter[episode_indices]
+        mc_distances = self.episode_data.mc_distances[episode_indices, :]
         cycle_cost = self.episode_data.cycle_cost[episode_indices]
         action = self.episode_data.action[episode_indices, :, :].to(torch.int64)
         steps_remaining = episode_length - step_indices
@@ -82,6 +83,7 @@ class ReplayBuffer:
             missing_connects=missing_connects.to(device),
             save_distances=save_distances.to(device),
             graph_diameter=graph_diameter.to(device),
+            mc_distances=mc_distances.to(device),
             cycle_cost=cycle_cost.to(device),
             steps_remaining=steps_remaining.to(device),
             round_frac=round_frac.to(device),

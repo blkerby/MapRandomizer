@@ -863,6 +863,9 @@ class MazeBuilderEnv:
     def compute_graph_diameter(self, distance_matrix):
         return torch.amax(torch.where(distance_matrix == 255, torch.zeros_like(distance_matrix), distance_matrix), dim=[1, 2])
 
+    def compute_mc_distances(self, distance_matrix):
+        return distance_matrix[:, self.missing_connection_src, self.missing_connection_dst]
+
     def compute_component_matrices(self, adjacency_matrix):
         component_matrix = adjacency_matrix
         for i in range(8):

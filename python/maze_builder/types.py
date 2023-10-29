@@ -136,9 +136,11 @@ class EpisodeData:
     missing_connects: torch.tensor  # 2D bool: (num_episodes, num_missing_connects)
     save_distances: torch.tensor  # 2D bool: (num_episodes, num_non_potential_save_idxs)
     graph_diameter: torch.tensor  # 1D bool: (num_episodes)
+    mc_distances: torch.tensor  # 2D bool: (num_episodes, num_non_potential_save_idxs)
     cycle_cost: torch.tensor  # 1D float32: num_episodes
     reward: torch.tensor  # 1D int64: num_episodes
     temperature: torch.tensor  # 1D float32: num_episodes
+    mc_dist_coef: torch.tensor  # 1D float32: num_episodes
     prob: torch.tensor  # 1D float32: num_episodes  (average probability of selected action)
     prob0: torch.tensor  # 1D float32: num_episodes  (average probability of selected action / probability given uniform distribution)
     cand_count: torch.tensor  # 1D float: num_episodes  (average number of candidates per round)
@@ -163,6 +165,8 @@ class EpisodeData:
             save_distances=self.save_distances.to(device).unsqueeze(1).repeat(1, episode_length, 1).view(
                 num_episodes * episode_length, -1),
             graph_diameter=self.graph_diameter.to(device).unsqueeze(1).repeat(1, episode_length).view(-1),
+            mc_distances=self.mc_distances.to(device).unsqueeze(1).repeat(1, episode_length, 1).view(
+                num_episodes * episode_length, -1),
             cycle_cost=self.cycle_cost.to(device).unsqueeze(1).repeat(1, episode_length).view(-1),
             steps_remaining=steps_remaining.unsqueeze(0).repeat(num_episodes, 1).view(-1),
             room_mask=room_mask,
@@ -178,6 +182,7 @@ class TrainingData:
     missing_connects: torch.tensor  # 2D bool: (num_transitions, num_missing_connects)
     save_distances: torch.tensor  # 2D bool: (num_transitions, num_non_potential_save_idxs)
     graph_diameter: torch.tensor  # 1D bool: (num_transitions)
+    mc_distances: torch.tensor  # 2D bool: (num_transitions, num_non_potential_save_idxs)
     cycle_cost: torch.tensor  # 1D float32: num_transitions
     steps_remaining: torch.tensor  # 1D uint64: num_transitions
     round_frac: torch.tensor  # 1D float32: num_transitions
