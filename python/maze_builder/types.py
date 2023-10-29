@@ -146,33 +146,33 @@ class EpisodeData:
     cand_count: torch.tensor  # 1D float: num_episodes  (average number of candidates per round)
     test_loss: torch.tensor  # 1D float32: num_episodes  (average cross-entropy loss at data-generation time)
 
-    def training_data(self, num_rooms, device):
-        num_episodes = self.reward.shape[0]
-        episode_length = self.action.shape[1]
-        num_transitions = num_episodes * episode_length
-        steps_remaining = (episode_length - torch.arange(episode_length, device=device))
-        action = self.action.to(device).unsqueeze(1).repeat(1, episode_length, 1, 1).view(num_transitions,
-                                                                                          episode_length, 3)
-        step_indices = torch.arange(episode_length, device=device).unsqueeze(0).repeat(num_episodes, 1).view(-1)
-        room_mask, room_position_x, room_position_y = reconstruct_room_data(action, step_indices, num_rooms)
-
-        return TrainingData(
-            reward=self.reward.to(device).unsqueeze(1).repeat(1, episode_length).view(-1),
-            door_connects=self.door_connects.to(device).unsqueeze(1).repeat(1, episode_length, 1).view(
-                num_episodes * episode_length, -1),
-            missing_connects=self.missing_connects.to(device).unsqueeze(1).repeat(1, episode_length, 1).view(
-                num_episodes * episode_length, -1),
-            save_distances=self.save_distances.to(device).unsqueeze(1).repeat(1, episode_length, 1).view(
-                num_episodes * episode_length, -1),
-            graph_diameter=self.graph_diameter.to(device).unsqueeze(1).repeat(1, episode_length).view(-1),
-            mc_distances=self.mc_distances.to(device).unsqueeze(1).repeat(1, episode_length, 1).view(
-                num_episodes * episode_length, -1),
-            cycle_cost=self.cycle_cost.to(device).unsqueeze(1).repeat(1, episode_length).view(-1),
-            steps_remaining=steps_remaining.unsqueeze(0).repeat(num_episodes, 1).view(-1),
-            room_mask=room_mask,
-            room_position_x=room_position_x,
-            room_position_y=room_position_y,
-        )
+    # def training_data(self, num_rooms, device):
+    #     num_episodes = self.reward.shape[0]
+    #     episode_length = self.action.shape[1]
+    #     num_transitions = num_episodes * episode_length
+    #     steps_remaining = (episode_length - torch.arange(episode_length, device=device))
+    #     action = self.action.to(device).unsqueeze(1).repeat(1, episode_length, 1, 1).view(num_transitions,
+    #                                                                                       episode_length, 3)
+    #     step_indices = torch.arange(episode_length, device=device).unsqueeze(0).repeat(num_episodes, 1).view(-1)
+    #     room_mask, room_position_x, room_position_y = reconstruct_room_data(action, step_indices, num_rooms)
+    #
+    #     return TrainingData(
+    #         reward=self.reward.to(device).unsqueeze(1).repeat(1, episode_length).view(-1),
+    #         door_connects=self.door_connects.to(device).unsqueeze(1).repeat(1, episode_length, 1).view(
+    #             num_episodes * episode_length, -1),
+    #         missing_connects=self.missing_connects.to(device).unsqueeze(1).repeat(1, episode_length, 1).view(
+    #             num_episodes * episode_length, -1),
+    #         save_distances=self.save_distances.to(device).unsqueeze(1).repeat(1, episode_length, 1).view(
+    #             num_episodes * episode_length, -1),
+    #         graph_diameter=self.graph_diameter.to(device).unsqueeze(1).repeat(1, episode_length).view(-1),
+    #         mc_distances=self.mc_distances.to(device).unsqueeze(1).repeat(1, episode_length, 1).view(
+    #             num_episodes * episode_length, -1),
+    #         cycle_cost=self.cycle_cost.to(device).unsqueeze(1).repeat(1, episode_length).view(-1),
+    #         steps_remaining=steps_remaining.unsqueeze(0).repeat(num_episodes, 1).view(-1),
+    #         room_mask=room_mask,
+    #         room_position_x=room_position_x,
+    #         room_position_y=room_position_y,
+    #     )
 
 
 @dataclass
@@ -187,6 +187,7 @@ class TrainingData:
     steps_remaining: torch.tensor  # 1D uint64: num_transitions
     round_frac: torch.tensor  # 1D float32: num_transitions
     temperature: torch.tensor  # 1D float32: num_transitions
+    mc_dist_coef: torch.tensor  # 1D float32: num_transitions
     room_mask: torch.tensor  # 2D uint64: (num_transitions, num_rooms)
     room_position_x: torch.tensor  # 2D uint64: (num_transitions, num_rooms)
     room_position_y: torch.tensor  # 2D uint64: (num_transitions, num_rooms)

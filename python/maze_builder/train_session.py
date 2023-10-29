@@ -187,6 +187,7 @@ class TrainingSession():
         all_room_position_y = room_position_y.unsqueeze(1).repeat(1, num_candidates, 1)
         all_steps_remaining = steps_remaining.unsqueeze(1).repeat(1, num_candidates)
         all_temperature = temperature.unsqueeze(1).repeat(1, num_candidates)
+        all_mc_dist_coef = mc_dist_coef.unsqueeze(1).repeat(1, num_candidates)
 
         # print(action_candidates.device, action_room_id.device)
         all_room_mask[torch.arange(num_envs, device=action_candidates.device).view(-1, 1),
@@ -210,6 +211,7 @@ class TrainingSession():
         round_frac_flat = torch.zeros([num_envs * num_candidates], device=action_candidates.device,
                                       dtype=torch.float32)
         temperature_flat = all_temperature.view(num_envs * num_candidates)
+        mc_dist_coef_flat = all_mc_dist_coef.view(num_envs * num_candidates)
         valid_flat = valid.view(num_envs * num_candidates)
         valid_flat_ind = torch.nonzero(valid_flat)[:, 0]
 
@@ -225,14 +227,14 @@ class TrainingSession():
         room_mask_valid = room_mask_flat[valid_flat, :]
         room_position_x_valid = room_position_x_flat[valid_flat, :]
         room_position_y_valid = room_position_y_flat[valid_flat, :]
-        map_door_id_valid = map_door_id_flat[valid_flat]
-        room_door_id_valid = room_door_id_flat[valid_flat]
+        # map_door_id_valid = map_door_id_flat[valid_flat]
+        # room_door_id_valid = room_door_id_flat[valid_flat]
         steps_remaining_valid = steps_remaining_flat[valid_flat]
         round_frac_valid = round_frac_flat[valid_flat]
         temperature_valid = temperature_flat[valid_flat]
+        mc_dist_coef_valid = mc_dist_coef_flat[valid_flat]
 
-        # torch.cuda.synchronize()
-        # logging.info("Creating map")
+        # mc_dist_coef_valid = mc_dist_coef[action_env_id_valid]
 
         env = self.envs[env_id]
         # map_flat = env.compute_map(room_mask_flat, room_position_x_flat, room_position_y_flat)
@@ -245,9 +247,10 @@ class TrainingSession():
         # flat_raw_logodds, _, flat_expected = model.forward_multiclass(
         #     map_flat, room_mask_flat, room_position_x_flat, room_position_y_flat, steps_remaining_flat, round_frac_flat,
         #     temperature_flat, env)
+
         raw_preds_valid = model.forward_multiclass(
             room_mask_valid, room_position_x_valid, room_position_y_valid, steps_remaining_valid, round_frac_valid,
-            temperature_valid, augment_frac=0.0)
+            temperature_valid, mc_dist_coef_valid, augment_frac=0.0)
 
         num_logodds = env.num_doors + env.num_missing_connects
         logodds_valid = raw_preds_valid[:, :num_logodds]
@@ -278,8 +281,8 @@ class TrainingSession():
             room_mask, room_position_x, room_position_y, action_env_id_valid, action_room_id_valid, action_x_valid, action_y_valid, env_id,
             adjust_left_right, adjust_down_up)
         save_dist_cost = torch.sum(pred_save_dist, dim=1)
-        mc_dist_cost = torch.sum(pred_mc_dist * mc_dist_coef[action_env_id_valid].view(-1, 1), dim=1)
-        expected_valid = expected_valid - door_connect_cost - save_dist_cost * save_dist_coef - pred_graph_diam * graph_diam_coef - mc_dist_cost
+        mc_dist_cost = torch.sum(pred_mc_dist, dim=1)
+        expected_valid = expected_valid - door_connect_cost - save_dist_cost * save_dist_coef - pred_graph_diam * graph_diam_coef - mc_dist_cost * mc_dist_coef_valid
 
         expected_flat = torch.full([num_envs * num_candidates], -1e15, device=logodds_valid.device)
         expected_flat[valid_flat_ind] = expected_valid
@@ -507,7 +510,7 @@ class TrainingSession():
         # map = env.compute_map(data.room_mask, data.room_position_x, data.room_position_y)
         raw_preds = self.model.forward_multiclass(
             data.room_mask, data.room_position_x, data.room_position_y, data.steps_remaining, data.round_frac,
-            data.temperature, augment_frac=augment_frac)
+            data.temperature, data.mc_dist_coef, augment_frac=augment_frac)
 
         all_binary_outputs = torch.cat([data.door_connects, data.missing_connects], dim=1)
         num_binary_outputs = all_binary_outputs.shape[1]
