@@ -271,7 +271,7 @@ for room_obj in rooms:
 # old_y = rom.read_u8(0x7D5A7 + 3)
 # rom.write_u8(0x7D5A7 + 3, old_y - 4)
 
-map_patcher.apply_map_patches()
+# map_patcher.apply_map_patches()
 # #
 #
 # # data = [[0 for _ in range(8)] for _ in range(8)]
