@@ -388,10 +388,26 @@ impl<'a> MapPatcher<'a> {
         let data = self.render_basic_tile(tile)?;
         self.tile_gfx_map.insert(word, data);
         self.index_basic_tile_case(tile, word);
-        if tile.liquid_type != LiquidType::None {
+        if tile.interior == Interior::Save || tile.interior == Interior::Elevator {
             return Ok(());
         }
-        if tile.interior == Interior::Save || tile.interior == Interior::Elevator {
+        self.index_basic_tile_case(
+            BasicTile {
+                left: tile.right,
+                right: tile.left,
+                up: tile.down,
+                down: tile.up,
+                interior: tile.interior,
+                faded: tile.faded,
+                heated: tile.heated,
+                liquid_type: tile.liquid_type,
+                liquid_sublevel: tile.liquid_sublevel,
+            },
+            word | FLIP_X | FLIP_Y,
+        );
+        if tile.liquid_type != LiquidType::None {
+            // For the checkered water pattern, 180 degree rotation works (i.e., flip in X and Y direction),
+            // but other flips do not.
             return Ok(());
         }
         self.index_basic_tile_case(
@@ -421,20 +437,6 @@ impl<'a> MapPatcher<'a> {
                 liquid_sublevel: tile.liquid_sublevel,
             },
             word | FLIP_Y,
-        );
-        self.index_basic_tile_case(
-            BasicTile {
-                left: tile.right,
-                right: tile.left,
-                up: tile.down,
-                down: tile.up,
-                interior: tile.interior,
-                faded: tile.faded,
-                heated: tile.heated,
-                liquid_type: tile.liquid_type,
-                liquid_sublevel: tile.liquid_sublevel,
-            },
-            word | FLIP_X | FLIP_Y,
         );
         Ok(())
     }
@@ -1205,6 +1207,9 @@ impl<'a> MapPatcher<'a> {
                 let basic_tile_opt = self.reverse_map.get(&word);
                 if let Some(basic_tile) = basic_tile_opt {
                     let mut new_tile = basic_tile.clone();
+                    if [Interior::Save, Interior::Refill, Interior::Objective, Interior::MapStation].contains(&basic_tile.interior) {
+                        continue;
+                    }
                     for &i in idxs {
                         let dir = &room.doors[i].direction;
                         if dir == "left" {

@@ -363,7 +363,7 @@ struct CustomizeSeedTemplate {
 
 struct Attempt {
     attempt_num: usize,
-    thread_handle: Option<thread::JoinHandle<Result<Randomization, anyhow::Error>>>,
+    thread_handle: Option<thread::JoinHandle<Result<(Randomization, Rom), anyhow::Error>>>,
     map_seed: usize,
     door_randomization_seed: usize,
     item_placement_seed: usize,
@@ -1180,6 +1180,7 @@ async fn randomize(
     let mut attempt_num;
     let mut attempts_triggered = 0;
     let randomization: Randomization;
+    let output_rom: Rom;
     // info!(
     //     "Random seed={random_seed}, difficulty={:?}",
     //     difficulty_tiers[0]
@@ -1211,7 +1212,8 @@ async fn randomize(
             let door_randomization_seed_local = attempt.door_randomization_seed.clone();
             let item_placement_seed_local = attempt.item_placement_seed.clone();
             let attempts_triggered_local = attempts_triggered.clone();
-            attempt.thread_handle = Some(thread::spawn(move || {
+            let local_rom = rom.clone();
+            attempt.thread_handle = Some(thread::spawn(move || -> Result<(Randomization, Rom)> {
                 let map = if difficulty.vanilla_map {
                     app_data_local.map_repository.get_vanilla_map(attempts_triggered_local).unwrap()
                 } else {
@@ -1220,7 +1222,9 @@ async fn randomize(
                 info!("Attempt {attempts_triggered_local}/{max_attempts}: Map seed={map_seed_local}, door randomization seed={door_randomization_seed_local}, item placement seed={item_placement_seed_local}");
                 let locked_doors = randomize_doors(&app_data_local.game_data, &map, &difficulty_tiers_local[0], door_randomization_seed_local);
                 let randomizer = Randomizer::new(&map, &locked_doors, &difficulty_tiers_local, &app_data_local.game_data);
-                return randomizer.randomize(attempts_triggered_local, item_placement_seed_local, display_seed);
+                let randomization = randomizer.randomize(attempts_triggered_local, item_placement_seed_local, display_seed)?;
+                let output_rom = make_rom(&local_rom, &randomization, &app_data_local.game_data)?;
+                Ok((randomization, output_rom))
             }));
             // Insert at position 0 so attempts pop off in the order they were created, simpler than using a VecDeque
             attempts.insert(0, attempt);
@@ -1242,7 +1246,7 @@ async fn randomize(
         // Evaluate the oldest attempt
         attempt = attempts.pop().unwrap();
         attempt_num = attempt.attempt_num;
-        randomization = match attempt.thread_handle.expect("thread_handle expected to be set").join().unwrap() {
+        (randomization, output_rom) = match attempt.thread_handle.expect("thread_handle expected to be set").join().unwrap() {
             Ok(r) => r,
             Err(e) => {
                 info!("Failed randomization {attempt_num}/{max_attempts}: {}", e);
@@ -1306,8 +1310,6 @@ async fn randomize(
         vanilla_map: req.vanilla_map.0,
         ultra_low_qol: req.ultra_low_qol.0,
     };
-
-    let output_rom = make_rom(&rom, &randomization, &app_data.game_data).unwrap();
 
     let seed_name = get_seed_name(&seed_data);
     save_seed(
