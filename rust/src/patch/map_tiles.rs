@@ -30,8 +30,15 @@ enum Interior {
     Item,
     MediumItem,
     MajorItem,
-    Elevator,
+    Elevator
+}
+
+#[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
+enum LiquidType {
+    None,
     Water,
+    Lava,
+    Acid,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
@@ -43,6 +50,8 @@ struct BasicTile {
     interior: Interior,
     faded: bool,
     heated: bool,
+    liquid_type: LiquidType,
+    liquid_sublevel: isize,
 }
 
 const NUM_AREAS: usize = 6;
@@ -359,7 +368,7 @@ impl<'a> MapPatcher<'a> {
         let data = self.render_basic_tile(tile)?;
         self.tile_gfx_map.insert(word, data);
         self.index_basic_tile_case(tile, word);
-        if tile.interior != Interior::Elevator && tile.interior != Interior::Water {
+        if tile.interior != Interior::Elevator && tile.liquid_type == LiquidType::None {
             self.index_basic_tile_case(
                 BasicTile {
                     left: tile.right,
@@ -369,6 +378,8 @@ impl<'a> MapPatcher<'a> {
                     interior: tile.interior,
                     faded: tile.faded,
                     heated: tile.heated,
+                    liquid_type: tile.liquid_type,
+                    liquid_sublevel: tile.liquid_sublevel,
                 },
                 word | FLIP_X,
             );
@@ -381,6 +392,8 @@ impl<'a> MapPatcher<'a> {
                     interior: tile.interior,
                     faded: tile.faded,
                     heated: tile.heated,
+                    liquid_type: tile.liquid_type,
+                    liquid_sublevel: tile.liquid_sublevel,
                 },
                 word | FLIP_Y,
             );
@@ -393,6 +406,8 @@ impl<'a> MapPatcher<'a> {
                     interior: tile.interior,
                     faded: tile.faded,
                     heated: tile.heated,
+                    liquid_type: tile.liquid_type,
+                    liquid_sublevel: tile.liquid_sublevel,
                 },
                 word | FLIP_X | FLIP_Y,
             );
@@ -418,6 +433,8 @@ impl<'a> MapPatcher<'a> {
                 interior,
                 faded: false,
                 heated: false,
+                liquid_type: LiquidType::None,
+                liquid_sublevel: 0,
             },
             word,
         )?;
@@ -472,6 +489,47 @@ impl<'a> MapPatcher<'a> {
         let bg_color = if tile.heated { 2 } else { 1 };
         let mut data: [[u8; 8]; 8] = [[bg_color; 8]; 8];
 
+        let liquid_color = match (tile.liquid_type, tile.heated) {
+            (LiquidType::None, _) => 3, // Color is irrelevant in this case
+            (LiquidType::Water, _) => 0,
+            (LiquidType::Lava | LiquidType::Acid, false) => 2,
+            (LiquidType::Lava | LiquidType::Acid, true) => 1,
+        };
+        // data[1][2] = water_color;
+        // data[1][3] = water_color;
+        // data[1][6] = water_color;
+        // data[1][7] = water_color;
+        // data[3][0] = water_color;
+        // data[3][1] = water_color;
+        // data[3][4] = water_color;
+        // data[3][5] = water_color;
+        // data[5][2] = water_color;
+        // data[5][3] = water_color;
+        // data[5][6] = water_color;
+        // data[5][7] = water_color;
+        // data[7][0] = water_color;
+        // data[7][1] = water_color;
+        // data[7][4] = water_color;
+        // data[7][5] = water_color;
+        if tile.liquid_type != LiquidType::None {
+            if tile.liquid_sublevel == 0 {
+                data[0][1] = liquid_color;
+                data[0][5] = liquid_color;
+            }
+            if tile.liquid_sublevel <= 1 {
+                data[2][3] = liquid_color;
+                data[2][7] = liquid_color;
+            }
+            if tile.liquid_sublevel <= 2 {
+                data[4][1] = liquid_color;
+                data[4][5] = liquid_color;
+            }
+            if tile.liquid_sublevel <= 3 {
+                data[6][3] = liquid_color;
+                data[6][7] = liquid_color;
+            }
+        }
+    
         let item_color = if tile.faded {
             if tile.heated {
                 1
@@ -514,33 +572,6 @@ impl<'a> MapPatcher<'a> {
                 // Use white instead of red for elevator platform:
                 data[5][3] = 3;
                 data[5][4] = 3;
-            }
-            Interior::Water => {
-                let water_color = 0;
-                // data[1][2] = water_color;
-                // data[1][3] = water_color;
-                // data[1][6] = water_color;
-                // data[1][7] = water_color;
-                // data[3][0] = water_color;
-                // data[3][1] = water_color;
-                // data[3][4] = water_color;
-                // data[3][5] = water_color;
-                // data[5][2] = water_color;
-                // data[5][3] = water_color;
-                // data[5][6] = water_color;
-                // data[5][7] = water_color;
-                // data[7][0] = water_color;
-                // data[7][1] = water_color;
-                // data[7][4] = water_color;
-                // data[7][5] = water_color;
-                data[1][2] = water_color;
-                data[1][6] = water_color;
-                data[3][0] = water_color;
-                data[3][4] = water_color;
-                data[5][2] = water_color;
-                data[5][6] = water_color;
-                data[7][0] = water_color;
-                data[7][4] = water_color;
             }
         }
 
@@ -754,7 +785,9 @@ impl<'a> MapPatcher<'a> {
                 interior,
                 faded: false,
                 heated: false,
-            };
+                liquid_type: LiquidType::None,
+                liquid_sublevel: 0,
+        };
             word_tiles.push((x, y, self.get_basic_tile(basic_tile)?));
         }
         self.patch_room(room_name, word_tiles)?;
@@ -1547,21 +1580,21 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
-    fn indicate_water_room(&mut self, room_name: &str, water_level: isize) -> Result<()> {
-        let room_idx = self.game_data.room_idx_by_name[room_name];
+    fn indicate_liquid_room(&mut self, room_name: &str, liquid_type: LiquidType, liquid_level: isize, liquid_sublevel: isize) -> Result<()> {
+        let room_idx = *self.game_data.room_idx_by_name.get(room_name).with_context(|| format!("Room not found: {}", room_name))?;
         let room = &self.game_data.room_geometry[room_idx];
         let height = room.map.len() as isize;
         let width = room.map[0].len() as isize;
-        for y in water_level..height {
+        for y in liquid_level..height {
             for x in 0..width {
                 if room.map[y as usize][x as usize] != 0 {
                     match self.get_room_basic_tile(room_name, x, y) {
                         Ok(mut basic_tile) => {
-                            match basic_tile.interior {
-                                Interior::Empty | Interior::Elevator => {
-                                    basic_tile.interior = Interior::Water;
-                                },
-                                _ => {}
+                            basic_tile.liquid_type = liquid_type;
+                            if y == liquid_level {
+                                basic_tile.liquid_sublevel = liquid_sublevel;
+                            } else {
+                                basic_tile.liquid_sublevel = 0;
                             }
                             let tile = self.get_basic_tile(basic_tile)?;
                             self.patch_room(room_name, vec![(x, y, tile)])?;    
@@ -1576,48 +1609,76 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
-    fn indicate_water(&mut self) -> Result<()> {
-        self.indicate_water_room("Glass Tunnel", 0)?;
-        self.indicate_water_room("Glass Tunnel Save Room", 0)?;
-        self.indicate_water_room("Main Street", 0)?;
-        self.indicate_water_room("Mt. Everest", 0)?;
-        self.indicate_water_room("Fish Tank", 0)?;
-        self.indicate_water_room("Mama Turtle Room", 0)?;
-        self.indicate_water_room("Red Fish Room", 1)?;
-        self.indicate_water_room("Crab Shaft", 0)?;
-        self.indicate_water_room("Pseudo Plasma Spark Room", 2)?;
-        self.indicate_water_room("Watering Hole", 2)?;
-        self.indicate_water_room("Plasma Spark Room", 4)?;
-        self.indicate_water_room("Bug Sand Hole", 0)?; // bottom half
-        self.indicate_water_room("Plasma Beach Quicksand Room", 0)?;
-        self.indicate_water_room("Butterfly Room", 0)?;
-        self.indicate_water_room("West Cactus Alley Room", 1)?;  // bottom half?
-        self.indicate_water_room("East Cactus Alley Room", 1)?;
-        self.indicate_water_room("Aqueduct", 0)?;
-        self.indicate_water_room("Botwoon Hallway", 0)?;
-        self.indicate_water_room("Botwoon's Room", 0)?;
-        self.indicate_water_room("Botwoon Energy Tank Room", 0)?;
-        self.indicate_water_room("Botwoon Quicksand Room", 0)?;
-        self.indicate_water_room("Below Botwoon Energy Tank", 0)?;
-        self.indicate_water_room("Halfie Climb Room", 1)?;
-        self.indicate_water_room("Maridia Missile Refill Room", 0)?;
-        self.indicate_water_room("Colosseum", 1)?;
-        self.indicate_water_room("The Precious Room", 1)?;
-        self.indicate_water_room("Draygon's Room", 1)?;
-        self.indicate_water_room("Space Jump Room", 1)?;
-        self.indicate_water_room("Crab Tunnel", 0)?;
-        self.indicate_water_room("Crab Hole", 0)?;
-        self.indicate_water_room("Maridia Map Room", 0)?;
-        self.indicate_water_room("West Sand Hall Tunnel", 0)?;
-        self.indicate_water_room("West Sand Hall", 0)?;
-        self.indicate_water_room("East Sand Hall", 0)?;
-        self.indicate_water_room("West Sand Hole", 0)?;
-        self.indicate_water_room("East Sand Hole", 0)?;
-        self.indicate_water_room("West Aqueduct Quicksand Room", 0)?;
-        self.indicate_water_room("East Aqueduct Quicksand Room", 0)?;
-        self.indicate_water_room("Oasis", 0)?;
-        self.indicate_water_room("Spring Ball Room", 1)?;
-        self.indicate_water_room("Pants Room", 2)?;  // bottom half?
+    fn indicate_liquid(&mut self) -> Result<()> {
+        // Blue Boulder Room? Maridia Bug room? Thread the Needle?
+
+        // Crateria:
+        self.indicate_liquid_room("The Moat", LiquidType::Water, 1, 0)?;
+        self.indicate_liquid_room("West Ocean", LiquidType::Water, 5, 0)?;
+        self.indicate_liquid_room("East Ocean", LiquidType::Water, 5, 0)?;
+        self.indicate_liquid_room("Gauntlet Entrance", LiquidType::Acid, 0, 2)?;
+        self.indicate_liquid_room("Gauntlet Energy Tank Room", LiquidType::Acid, 0, 2)?;
+        self.indicate_liquid_room("Crateria Power Bomb Room", LiquidType::Acid, 0, 2)?;
+
+        // Brinstar:
+        self.indicate_liquid_room("Waterway Energy Tank Room", LiquidType::Water, 0, 2)?;
+        self.indicate_liquid_room("Bat Room", LiquidType::Water, 0, 2)?;
+        self.indicate_liquid_room("Below Spazer", LiquidType::Water, 1, 2)?;
+        
+        // Norfair:
+        self.indicate_liquid_room("Volcano Room", LiquidType::Lava, 2, 2)?;
+        self.indicate_liquid_room("Lava Dive Room", LiquidType::Lava, 1, 0)?;
+        self.indicate_liquid_room("Amphitheatre", LiquidType::Acid, 1, 0)?;
+
+        // Wrecked Ship:
+        self.indicate_liquid_room("Sponge Bath", LiquidType::Water, 0, 2)?;
+
+        // Maridia:
+        self.indicate_liquid_room("Glass Tunnel", LiquidType::Water, 0, 0)?;
+        self.indicate_liquid_room("Glass Tunnel Save Room", LiquidType::Water, 0, 0)?;
+        self.indicate_liquid_room("Main Street", LiquidType::Water, 0, 0)?;
+        self.indicate_liquid_room("Mt. Everest", LiquidType::Water, 0, 0)?;
+        self.indicate_liquid_room("Fish Tank", LiquidType::Water, 0, 0)?;
+        self.indicate_liquid_room("Mama Turtle Room", LiquidType::Water, 0, 0)?;
+        self.indicate_liquid_room("Red Fish Room", LiquidType::Water, 1, 0)?;
+        self.indicate_liquid_room("Crab Shaft", LiquidType::Water, 0, 0)?;
+        self.indicate_liquid_room("Pseudo Plasma Spark Room", LiquidType::Water, 2, 0)?;
+        self.indicate_liquid_room("Watering Hole", LiquidType::Water, 2, 0)?;
+        self.indicate_liquid_room("Plasma Spark Room", LiquidType::Water, 4, 0)?;
+        self.indicate_liquid_room("Bug Sand Hole", LiquidType::Water, 0, 0)?; // bottom half
+        self.indicate_liquid_room("Plasma Beach Quicksand Room", LiquidType::Water, 0, 0)?;
+        self.indicate_liquid_room("Butterfly Room", LiquidType::Water, 0, 0)?;
+        self.indicate_liquid_room("West Cactus Alley Room", LiquidType::Water, 1, 0)?;  // bottom half?
+        self.indicate_liquid_room("East Cactus Alley Room", LiquidType::Water, 1, 0)?;
+        self.indicate_liquid_room("Aqueduct", LiquidType::Water, 0, 0)?;
+        self.indicate_liquid_room("Botwoon Hallway", LiquidType::Water, 0, 0)?;
+        self.indicate_liquid_room("Botwoon's Room", LiquidType::Water, 0, 0)?;
+        self.indicate_liquid_room("Botwoon Energy Tank Room", LiquidType::Water, 0, 0)?;
+        self.indicate_liquid_room("Botwoon Quicksand Room", LiquidType::Water, 0, 0)?;
+        self.indicate_liquid_room("Below Botwoon Energy Tank", LiquidType::Water, 0, 0)?;
+        self.indicate_liquid_room("Halfie Climb Room", LiquidType::Water, 1, 0)?;
+        self.indicate_liquid_room("Maridia Missile Refill Room", LiquidType::Water, 0, 0)?;
+        self.indicate_liquid_room("Colosseum", LiquidType::Water, 1, 0)?;
+        self.indicate_liquid_room("The Precious Room", LiquidType::Water, 0, 3)?;
+        self.indicate_liquid_room("Draygon's Room", LiquidType::Water, 1, 0)?;
+        self.indicate_liquid_room("Space Jump Room", LiquidType::Water, 1, 0)?;
+        self.indicate_liquid_room("Crab Tunnel", LiquidType::Water, 0, 0)?;
+        self.indicate_liquid_room("Crab Hole", LiquidType::Water, 0, 0)?;
+        self.indicate_liquid_room("Maridia Map Room", LiquidType::Water, 0, 0)?;
+        self.indicate_liquid_room("West Sand Hall Tunnel", LiquidType::Water, 0, 0)?;
+        self.indicate_liquid_room("West Sand Hall", LiquidType::Water, 0, 0)?;
+        self.indicate_liquid_room("East Sand Hall", LiquidType::Water, 0, 0)?;
+        self.indicate_liquid_room("West Sand Hole", LiquidType::Water, 0, 0)?;
+        self.indicate_liquid_room("East Sand Hole", LiquidType::Water, 0, 0)?;
+        self.indicate_liquid_room("West Aqueduct Quicksand Room", LiquidType::Water, 0, 0)?;
+        self.indicate_liquid_room("East Aqueduct Quicksand Room", LiquidType::Water, 0, 0)?;
+        self.indicate_liquid_room("Oasis", LiquidType::Water, 0, 0)?;
+        self.indicate_liquid_room("Spring Ball Room", LiquidType::Water, 1, 0)?;
+        self.indicate_liquid_room("Pants Room", LiquidType::Water, 2, 0)?;  // bottom half?
+
+        // Tourian:
+        self.indicate_liquid_room("Metroid Room 1", LiquidType::Acid, 0, 2)?;
+        self.indicate_liquid_room("Metroid Room 3", LiquidType::Acid, 0, 2)?;
 
         Ok(())
     }
@@ -2480,7 +2541,7 @@ impl<'a> MapPatcher<'a> {
         self.indicate_gray_doors()?;
         self.indicate_sand()?;
         self.indicate_heat()?;
-        self.indicate_water()?;
+        self.indicate_liquid()?;
         self.indicate_special_tiles()?;
         self.indicate_locked_doors()?;
         self.add_cross_area_arrows()?;
