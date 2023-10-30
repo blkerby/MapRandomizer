@@ -31,6 +31,7 @@ enum Interior {
     MediumItem,
     MajorItem,
     Elevator,
+    Water,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
@@ -358,7 +359,7 @@ impl<'a> MapPatcher<'a> {
         let data = self.render_basic_tile(tile)?;
         self.tile_gfx_map.insert(word, data);
         self.index_basic_tile_case(tile, word);
-        if tile.interior != Interior::Elevator {
+        if tile.interior != Interior::Elevator && tile.interior != Interior::Water {
             self.index_basic_tile_case(
                 BasicTile {
                     left: tile.right,
@@ -470,6 +471,79 @@ impl<'a> MapPatcher<'a> {
     fn render_basic_tile(&mut self, tile: BasicTile) -> Result<[[u8; 8]; 8]> {
         let bg_color = if tile.heated { 2 } else { 1 };
         let mut data: [[u8; 8]; 8] = [[bg_color; 8]; 8];
+
+        let item_color = if tile.faded {
+            if tile.heated {
+                1
+            } else {
+                2
+            }
+        } else {
+            3
+        };
+        match tile.interior {
+            Interior::Empty => {}
+            Interior::Item => {
+                data[3][3] = item_color;
+                data[3][4] = item_color;
+                data[4][3] = item_color;
+                data[4][4] = item_color;
+            }
+            Interior::MediumItem => {
+                data[2][3] = item_color;
+                data[2][4] = item_color;
+                data[5][3] = item_color;
+                data[5][4] = item_color;
+                data[3][2] = item_color;
+                data[4][2] = item_color;
+                data[3][5] = item_color;
+                data[4][5] = item_color;
+            }
+            Interior::MajorItem => {
+                for i in 2..6 {
+                    for j in 2..6 {
+                        data[i][j] = item_color;
+                    }
+                }
+                data[2][2] = bg_color;
+                data[5][2] = bg_color;
+                data[2][5] = bg_color;
+                data[5][5] = bg_color;
+            }
+            Interior::Elevator => {
+                // Use white instead of red for elevator platform:
+                data[5][3] = 3;
+                data[5][4] = 3;
+            }
+            Interior::Water => {
+                let water_color = 0;
+                // data[1][2] = water_color;
+                // data[1][3] = water_color;
+                // data[1][6] = water_color;
+                // data[1][7] = water_color;
+                // data[3][0] = water_color;
+                // data[3][1] = water_color;
+                // data[3][4] = water_color;
+                // data[3][5] = water_color;
+                // data[5][2] = water_color;
+                // data[5][3] = water_color;
+                // data[5][6] = water_color;
+                // data[5][7] = water_color;
+                // data[7][0] = water_color;
+                // data[7][1] = water_color;
+                // data[7][4] = water_color;
+                // data[7][5] = water_color;
+                data[1][2] = water_color;
+                data[1][6] = water_color;
+                data[3][0] = water_color;
+                data[3][4] = water_color;
+                data[5][2] = water_color;
+                data[5][6] = water_color;
+                data[7][0] = water_color;
+                data[7][4] = water_color;
+            }
+        }
+
         let door_edges = [
             Edge::GrayDoor,
             Edge::RedDoor,
@@ -557,50 +631,6 @@ impl<'a> MapPatcher<'a> {
             }
         }
 
-        let item_color = if tile.faded {
-            if tile.heated {
-                1
-            } else {
-                2
-            }
-        } else {
-            3
-        };
-        match tile.interior {
-            Interior::Empty => {}
-            Interior::Item => {
-                data[3][3] = item_color;
-                data[3][4] = item_color;
-                data[4][3] = item_color;
-                data[4][4] = item_color;
-            }
-            Interior::MediumItem => {
-                data[2][3] = item_color;
-                data[2][4] = item_color;
-                data[5][3] = item_color;
-                data[5][4] = item_color;
-                data[3][2] = item_color;
-                data[4][2] = item_color;
-                data[3][5] = item_color;
-                data[4][5] = item_color;
-            }
-            Interior::MajorItem => {
-                for i in 2..6 {
-                    for j in 2..6 {
-                        data[i][j] = item_color;
-                    }
-                }
-                data[2][2] = bg_color;
-                data[5][2] = bg_color;
-                data[2][5] = bg_color;
-                data[5][5] = bg_color;
-            }
-            Interior::Elevator => {
-                // Use white instead of red for elevator platform:
-                data[5][3] = 3;
-                data[5][4] = 3;
-            }
-        }
         Ok(data)
     }
 
@@ -676,6 +706,18 @@ impl<'a> MapPatcher<'a> {
         self.patch_room("Aqueduct", vec![(2, 3, ELEVATOR_TILE)])?;
 
         Ok(())
+    }
+
+    fn get_room_basic_tile(&self, room_name: &str, x: isize, y: isize) -> Result<BasicTile> {
+        let room_idx = self.game_data.room_idx_by_name[room_name];
+        let room = &self.game_data.room_geometry[room_idx];
+        let area = self.map.area[room_idx];
+        let x0 = self.rom.read_u8(room.rom_address + 2)? as isize;
+        let y0 = self.rom.read_u8(room.rom_address + 3)? as isize;
+        let base_ptr = self.game_data.area_map_ptrs[area] as usize;
+        let offset = super::xy_to_map_offset(x0 + x, y0 + y) as usize;
+        let word = (self.rom.read_u16(base_ptr + offset)? as TilemapWord) & 0xC3FF;
+        self.reverse_map.get(&word).context("Basic tile not found").map(|x| *x)
     }
 
     fn patch_room(
@@ -1502,6 +1544,81 @@ impl<'a> MapPatcher<'a> {
                 }
             }
         }
+        Ok(())
+    }
+
+    fn indicate_water_room(&mut self, room_name: &str, water_level: isize) -> Result<()> {
+        let room_idx = self.game_data.room_idx_by_name[room_name];
+        let room = &self.game_data.room_geometry[room_idx];
+        let height = room.map.len() as isize;
+        let width = room.map[0].len() as isize;
+        for y in water_level..height {
+            for x in 0..width {
+                if room.map[y as usize][x as usize] != 0 {
+                    match self.get_room_basic_tile(room_name, x, y) {
+                        Ok(mut basic_tile) => {
+                            match basic_tile.interior {
+                                Interior::Empty | Interior::Elevator => {
+                                    basic_tile.interior = Interior::Water;
+                                },
+                                _ => {}
+                            }
+                            let tile = self.get_basic_tile(basic_tile)?;
+                            self.patch_room(room_name, vec![(x, y, tile)])?;    
+                        }
+                        Err(e) => {
+                            println!("{} {} {:?}", x, y, e);
+                        }
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+
+    fn indicate_water(&mut self) -> Result<()> {
+        self.indicate_water_room("Glass Tunnel", 0)?;
+        self.indicate_water_room("Glass Tunnel Save Room", 0)?;
+        self.indicate_water_room("Main Street", 0)?;
+        self.indicate_water_room("Mt. Everest", 0)?;
+        self.indicate_water_room("Fish Tank", 0)?;
+        self.indicate_water_room("Mama Turtle Room", 0)?;
+        self.indicate_water_room("Red Fish Room", 1)?;
+        self.indicate_water_room("Crab Shaft", 0)?;
+        self.indicate_water_room("Pseudo Plasma Spark Room", 2)?;
+        self.indicate_water_room("Watering Hole", 2)?;
+        self.indicate_water_room("Plasma Spark Room", 4)?;
+        self.indicate_water_room("Bug Sand Hole", 0)?; // bottom half
+        self.indicate_water_room("Plasma Beach Quicksand Room", 0)?;
+        self.indicate_water_room("Butterfly Room", 0)?;
+        self.indicate_water_room("West Cactus Alley Room", 1)?;  // bottom half?
+        self.indicate_water_room("East Cactus Alley Room", 1)?;
+        self.indicate_water_room("Aqueduct", 0)?;
+        self.indicate_water_room("Botwoon Hallway", 0)?;
+        self.indicate_water_room("Botwoon's Room", 0)?;
+        self.indicate_water_room("Botwoon Energy Tank Room", 0)?;
+        self.indicate_water_room("Botwoon Quicksand Room", 0)?;
+        self.indicate_water_room("Below Botwoon Energy Tank", 0)?;
+        self.indicate_water_room("Halfie Climb Room", 1)?;
+        self.indicate_water_room("Maridia Missile Refill Room", 0)?;
+        self.indicate_water_room("Colosseum", 1)?;
+        self.indicate_water_room("The Precious Room", 1)?;
+        self.indicate_water_room("Draygon's Room", 1)?;
+        self.indicate_water_room("Space Jump Room", 1)?;
+        self.indicate_water_room("Crab Tunnel", 0)?;
+        self.indicate_water_room("Crab Hole", 0)?;
+        self.indicate_water_room("Maridia Map Room", 0)?;
+        self.indicate_water_room("West Sand Hall Tunnel", 0)?;
+        self.indicate_water_room("West Sand Hall", 0)?;
+        self.indicate_water_room("East Sand Hall", 0)?;
+        self.indicate_water_room("West Sand Hole", 0)?;
+        self.indicate_water_room("East Sand Hole", 0)?;
+        self.indicate_water_room("West Aqueduct Quicksand Room", 0)?;
+        self.indicate_water_room("East Aqueduct Quicksand Room", 0)?;
+        self.indicate_water_room("Oasis", 0)?;
+        self.indicate_water_room("Spring Ball Room", 1)?;
+        self.indicate_water_room("Pants Room", 2)?;  // bottom half?
+
         Ok(())
     }
 
@@ -2363,6 +2480,7 @@ impl<'a> MapPatcher<'a> {
         self.indicate_gray_doors()?;
         self.indicate_sand()?;
         self.indicate_heat()?;
+        self.indicate_water()?;
         self.indicate_special_tiles()?;
         self.indicate_locked_doors()?;
         self.add_cross_area_arrows()?;
