@@ -328,7 +328,7 @@ draw_power_bomb:
         lda #$0036
         ora !select_mask
         sta !row2_power_bomb_tile0
-        lda #$0037
+        lda #$4036  ; Save a tile by horizontally reflecting the left half of the PB icon
         ora !select_mask
         sta !row2_power_bomb_tile1
         ;; display vanilla digits on row 3
@@ -411,7 +411,7 @@ org $858A4F
         dw $280F, $280F
 
 org $858A8F
-        dw $3036, $3037
+        dw $3036, $7036
 
 ;;; 9A/$B200: Standard BG3 tiles ;;;
 org $9AB542

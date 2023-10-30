@@ -178,16 +178,18 @@ impl<'a> MapPatcher<'a> {
 
     fn write_map_tiles_area(&mut self, area_idx: usize) -> Result<()> {
         let mut reserved_tiles: HashSet<TilemapWord> = vec![
-            // Used on HUD:
-            0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D,
+            // Used on HUD: (skipping "%", which is unused)
+            0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0B, 0x0C, 0x0D,
             0x0E, 0x0F, 0x1C, 0x1D, 0x1E,
             0x28, // slope tile that triggers tile above Samus to be marked explored
-            0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3A, 0x3B, 
+            0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x38, 0x39, 0x3A, 0x3B, 
             // Max ammo display digits: (removed in favor of normal digit graphics)
             // 0x3C, 0x3D, 0x3E, 0x3F, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 
             0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B,
             0xA8, // heated slope tile corresponding to 0x28
-                  // Used by max_ammo_display:
+            // Message box letters and punctuation (skipping unused ones: "Q", "->", "'", "-", "!")
+            0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0xCD, 0xCE, 0xCF,
+            0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7, 0xD8, 0xD9, 0xDA, 0xDD, 0xDE,
         ]
         .into_iter()
         .collect();
@@ -216,7 +218,7 @@ impl<'a> MapPatcher<'a> {
         }
 
         let mut free_tiles: Vec<TilemapWord> = Vec::new();
-        for word in 0..192 {
+        for word in 0..224 {
             if !reserved_tiles.contains(&word) {
                 free_tiles.push(word);
             }
@@ -240,6 +242,14 @@ impl<'a> MapPatcher<'a> {
             self.write_map_tile_4bpp_area(f as usize, data, area_idx)?;
         }
 
+        // Write garbage tiles to remaining "free" tiles, for testing to make sure they're unused:
+        for i in used_tiles.len() .. free_tiles.len() {
+            let data = [[0, 1, 2, 3, 0, 1, 2, 3]; 8];
+            let f = free_tiles[i];
+            self.write_tile_2bpp_area(f as usize, data, Some(area_idx))?;
+            self.write_map_tile_4bpp_area(f as usize, data, area_idx)?;
+        }
+        
         let palette = 0x1800;
         let palette_mask = 0x1C00;
 
@@ -607,15 +617,18 @@ impl<'a> MapPatcher<'a> {
                 data[4][5] = item_color;
             }
             Interior::MajorItem => {
-                for i in 2..6 {
-                    for j in 2..6 {
-                        data[i][j] = item_color;
-                    }
-                }
-                data[2][2] = bg_color;
-                data[5][2] = bg_color;
-                data[2][5] = bg_color;
-                data[5][5] = bg_color;
+                data[2][3] = item_color;
+                data[2][4] = item_color;
+                data[3][2] = item_color;
+                data[3][3] = item_color;
+                data[3][4] = item_color;
+                data[3][5] = item_color;
+                data[4][2] = item_color;
+                data[4][3] = item_color;
+                data[4][4] = item_color;
+                data[4][5] = item_color;
+                data[5][3] = item_color;
+                data[5][4] = item_color;
             }
             Interior::Elevator => {
                 // Use white instead of red for elevator platform:
@@ -1683,7 +1696,7 @@ impl<'a> MapPatcher<'a> {
                             self.patch_room(room_name, vec![(x, y, tile)])?;    
                         }
                         Err(e) => {
-                            println!("{} {} {:?}", x, y, e);
+                            // println!("{} {} {:?}", x, y, e);
                         }
                     }
                 }
@@ -1694,52 +1707,52 @@ impl<'a> MapPatcher<'a> {
 
     fn indicate_liquid(&mut self) -> Result<()> {
         // Crateria:
-        self.indicate_liquid_room("The Moat", LiquidType::Water, 0, 5)?;
+        self.indicate_liquid_room("The Moat", LiquidType::Water, 1, 0)?;
         self.indicate_liquid_room("West Ocean", LiquidType::Water, 5, 0)?;
         self.indicate_liquid_room("East Ocean", LiquidType::Water, 5, 0)?;
-        self.indicate_liquid_room("Bowling Alley Path", LiquidType::Water, 0, 5)?;
-        self.indicate_liquid_room("Crab Maze", LiquidType::Water, 1, 5)?;
-        self.indicate_liquid_room("Statues Room", LiquidType::Water, 0, 5)?;
-        self.indicate_liquid_room("Gauntlet Entrance", LiquidType::Acid, 0, 5)?;
-        self.indicate_liquid_room("Gauntlet Energy Tank Room", LiquidType::Acid, 0, 5)?;
-        self.indicate_liquid_room("Crateria Power Bomb Room", LiquidType::Acid, 0, 5)?;
+        // self.indicate_liquid_room("Bowling Alley Path", LiquidType::Water, 0, 5)?;
+        // self.indicate_liquid_room("Crab Maze", LiquidType::Water, 1, 5)?;
+        self.indicate_liquid_room("Statues Room", LiquidType::Water, 1, 0)?;
+        // self.indicate_liquid_room("Gauntlet Entrance", LiquidType::Acid, 0, 5)?;
+        // self.indicate_liquid_room("Gauntlet Energy Tank Room", LiquidType::Acid, 0, 5)?;
+        // self.indicate_liquid_room("Crateria Power Bomb Room", LiquidType::Acid, 0, 5)?;
         // self.indicate_liquid_room("Crateria Super Room", LiquidType::Acid, 7, 5)?;
 
         // Brinstar:
-        self.indicate_liquid_room("Blue Brinstar Boulder Room", LiquidType::Water, 0, 5)?;
-        self.indicate_liquid_room("Waterway Energy Tank Room", LiquidType::Water, 0, 5)?;
-        self.indicate_liquid_room("Bat Room", LiquidType::Water, 0, 5)?;
-        self.indicate_liquid_room("Below Spazer", LiquidType::Water, 1, 5)?;
+        // self.indicate_liquid_room("Blue Brinstar Boulder Room", LiquidType::Water, 0, 5)?;
+        // self.indicate_liquid_room("Waterway Energy Tank Room", LiquidType::Water, 0, 5)?;
+        // self.indicate_liquid_room("Bat Room", LiquidType::Water, 0, 5)?;
+        // self.indicate_liquid_room("Below Spazer", LiquidType::Water, 1, 5)?;
         
         // Norfair:
-        self.indicate_liquid_room("Ice Beam Tutorial Room", LiquidType::Lava, 0, 5)?;
-        self.indicate_liquid_room("Ice Beam Acid Room", LiquidType::Lava, 0, 5)?;
-        self.indicate_liquid_room("Crocomire Escape", LiquidType::Lava, 1, 5)?;
-        self.indicate_liquid_room("Crocomire's Room", LiquidType::Acid, 0, 5)?;
-        self.indicate_liquid_room("Post Crocomire Missile Room", LiquidType::Acid, 0, 5)?;
-        self.indicate_liquid_room("Post Crocomire Jump Room", LiquidType::Acid, 2, 5)?;
-        self.indicate_liquid_room("Grapple Tutorial Room 1", LiquidType::Water, 0, 5)?;
-        self.indicate_liquid_room("Grapple Tutorial Room 3", LiquidType::Water, 0, 5)?;        
+        // self.indicate_liquid_room("Ice Beam Tutorial Room", LiquidType::Lava, 0, 5)?;
+        // self.indicate_liquid_room("Ice Beam Acid Room", LiquidType::Lava, 0, 5)?;
+        // self.indicate_liquid_room("Crocomire Escape", LiquidType::Lava, 1, 5)?;
+        // self.indicate_liquid_room("Crocomire's Room", LiquidType::Acid, 0, 5)?;
+        // self.indicate_liquid_room("Post Crocomire Missile Room", LiquidType::Acid, 0, 5)?;
+        // self.indicate_liquid_room("Post Crocomire Jump Room", LiquidType::Acid, 2, 5)?;
+        self.indicate_liquid_room("Grapple Tutorial Room 1", LiquidType::Water, 1, 0)?;
+        self.indicate_liquid_room("Grapple Tutorial Room 3", LiquidType::Water, 1, 0)?;        
         // self.indicate_liquid_room("Acid Snakes Tunnel", LiquidType::Lava, 0, 5)?;
-        self.indicate_liquid_room("Spiky Acid Snakes Tunnel", LiquidType::Lava, 0, 5)?;
-        self.indicate_liquid_room("Magdollite Tunnel", LiquidType::Lava, 0, 5)?;
-        self.indicate_liquid_room("Cathedral", LiquidType::Lava, 1, 5)?;
-        self.indicate_liquid_room("Rising Tide", LiquidType::Lava, 0, 5)?;
-        self.indicate_liquid_room("Bat Cave", LiquidType::Lava, 1, 5)?;
-        self.indicate_liquid_room("Volcano Room", LiquidType::Lava, 2, 5)?;
-        self.indicate_liquid_room("Spiky Platforms Tunnel", LiquidType::Lava, 0, 5)?;
-        self.indicate_liquid_room("Lava Dive Room", LiquidType::Lava, 1, 0)?;
-        self.indicate_liquid_room("Main Hall", LiquidType::Acid, 2, 5)?;
-        self.indicate_liquid_room("Acid Statue Room", LiquidType::Acid, 0, 5)?;
-        self.indicate_liquid_room("Fast Ripper Room", LiquidType::Acid, 0, 5)?;
-        self.indicate_liquid_room("Pillar Room", LiquidType::Acid, 0, 5)?;
-        self.indicate_liquid_room("Amphitheatre", LiquidType::Acid, 1, 0)?;
+        // self.indicate_liquid_room("Spiky Acid Snakes Tunnel", LiquidType::Lava, 0, 5)?;
+        // self.indicate_liquid_room("Magdollite Tunnel", LiquidType::Lava, 0, 5)?;
+        // self.indicate_liquid_room("Cathedral", LiquidType::Lava, 1, 5)?;
+        // self.indicate_liquid_room("Rising Tide", LiquidType::Lava, 0, 5)?;
+        // self.indicate_liquid_room("Bat Cave", LiquidType::Lava, 1, 5)?;
+        // self.indicate_liquid_room("Volcano Room", LiquidType::Lava, 2, 5)?;
+        // self.indicate_liquid_room("Spiky Platforms Tunnel", LiquidType::Lava, 0, 5)?;
+        // self.indicate_liquid_room("Lava Dive Room", LiquidType::Lava, 1, 0)?;
+        // self.indicate_liquid_room("Main Hall", LiquidType::Acid, 2, 5)?;
+        // self.indicate_liquid_room("Acid Statue Room", LiquidType::Acid, 0, 5)?;
+        // self.indicate_liquid_room("Fast Ripper Room", LiquidType::Acid, 0, 5)?;
+        // self.indicate_liquid_room("Pillar Room", LiquidType::Acid, 0, 5)?;
+        // self.indicate_liquid_room("Amphitheatre", LiquidType::Acid, 1, 0)?;
 
         // Wrecked Ship:
-        self.indicate_liquid_room("Sponge Bath", LiquidType::Water, 0, 5)?;
-        self.indicate_liquid_room("Spiky Death Room", LiquidType::Water, 0, 5)?;
-        self.indicate_liquid_room("Electric Death Room", LiquidType::Water, 2, 5)?;
-        self.indicate_liquid_room("Wrecked Ship Energy Tank Room", LiquidType::Water, 0, 5)?;
+        // self.indicate_liquid_room("Sponge Bath", LiquidType::Water, 0, 5)?;
+        // self.indicate_liquid_room("Spiky Death Room", LiquidType::Water, 0, 5)?;
+        // self.indicate_liquid_room("Electric Death Room", LiquidType::Water, 2, 5)?;
+        self.indicate_liquid_room("Wrecked Ship Energy Tank Room", LiquidType::Water, 1, 0)?;
 
         // Maridia:
         self.indicate_liquid_room("Glass Tunnel", LiquidType::Water, 0, 0)?;
@@ -1747,19 +1760,19 @@ impl<'a> MapPatcher<'a> {
         self.indicate_liquid_room("Main Street", LiquidType::Water, 0, 0)?;
         self.indicate_liquid_room("Mt. Everest", LiquidType::Water, 0, 0)?;
         self.indicate_liquid_room("Fish Tank", LiquidType::Water, 0, 0)?;
-        self.indicate_liquid_room("Mama Turtle Room", LiquidType::Water, 2, 5)?;
+        self.indicate_liquid_room("Mama Turtle Room", LiquidType::Water, 2, 0)?;
         self.indicate_liquid_room("Red Fish Room", LiquidType::Water, 1, 0)?;
         self.indicate_liquid_room("Crab Shaft", LiquidType::Water, 0, 0)?;
-        self.indicate_liquid_room("Pseudo Plasma Spark Room", LiquidType::Water, 1, 5)?;
-        self.indicate_liquid_room("Northwest Maridia Bug Room", LiquidType::Water, 1, 5)?;
-        self.indicate_liquid_room("Watering Hole", LiquidType::Water, 1, 5)?;
-        self.indicate_liquid_room("Plasma Spark Room", LiquidType::Water, 3, 5)?;
-        self.indicate_liquid_room("Maridia Elevator Room", LiquidType::Water, 5, 5)?;
-        self.indicate_liquid_room("Thread The Needle Room", LiquidType::Water, 0, 5)?;
+        self.indicate_liquid_room("Pseudo Plasma Spark Room", LiquidType::Water, 2, 0)?;
+        // self.indicate_liquid_room("Northwest Maridia Bug Room", LiquidType::Water, 1, 5)?;
+        self.indicate_liquid_room("Watering Hole", LiquidType::Water, 2, 0)?;
+        self.indicate_liquid_room("Plasma Spark Room", LiquidType::Water, 4, 0)?;
+        // self.indicate_liquid_room("Maridia Elevator Room", LiquidType::Water, 5, 5)?;
+        // self.indicate_liquid_room("Thread The Needle Room", LiquidType::Water, 0, 5)?;
         self.indicate_liquid_room("Bug Sand Hole", LiquidType::Water, 0, 5)?;
         self.indicate_liquid_room("Plasma Beach Quicksand Room", LiquidType::Water, 0, 0)?;
         self.indicate_liquid_room("Butterfly Room", LiquidType::Water, 0, 0)?;
-        self.indicate_liquid_room("West Cactus Alley Room", LiquidType::Water, 0, 5)?;
+        self.indicate_liquid_room("West Cactus Alley Room", LiquidType::Water, 1, 0)?;
         self.indicate_liquid_room("East Cactus Alley Room", LiquidType::Water, 1, 0)?;
         self.indicate_liquid_room("Aqueduct", LiquidType::Water, 0, 0)?;
         self.indicate_liquid_room("Aqueduct Save Room", LiquidType::Water, 0, 0)?;
@@ -1771,7 +1784,7 @@ impl<'a> MapPatcher<'a> {
         self.indicate_liquid_room("Halfie Climb Room", LiquidType::Water, 1, 0)?;
         self.indicate_liquid_room("Maridia Missile Refill Room", LiquidType::Water, 0, 0)?;
         self.indicate_liquid_room("Colosseum", LiquidType::Water, 1, 0)?;
-        self.indicate_liquid_room("The Precious Room", LiquidType::Water, 0, 5)?;
+        self.indicate_liquid_room("The Precious Room", LiquidType::Water, 1, 0)?;
         self.indicate_liquid_room("Draygon's Room", LiquidType::Water, 0, 0)?;
         self.indicate_liquid_room("Space Jump Room", LiquidType::Water, 1, 0)?;
         self.indicate_liquid_room("Crab Tunnel", LiquidType::Water, 0, 0)?;
@@ -1786,15 +1799,15 @@ impl<'a> MapPatcher<'a> {
         self.indicate_liquid_room("East Aqueduct Quicksand Room", LiquidType::Water, 0, 0)?;
         self.indicate_liquid_room("Oasis", LiquidType::Water, 0, 0)?;
         self.indicate_liquid_room("Pants Room", LiquidType::Water, 2, 0)?;
-        self.indicate_liquid_room("Shaktool Room", LiquidType::Water, 0, 5)?;
-        self.indicate_liquid_room("Spring Ball Room", LiquidType::Water, 0, 5)?;
+        // self.indicate_liquid_room("Shaktool Room", LiquidType::Water, 0, 5)?;
+        self.indicate_liquid_room("Spring Ball Room", LiquidType::Water, 1, 0)?;
 
         // Tourian:
-        self.indicate_liquid_room("Tourian First Room", LiquidType::Acid, 3, 5)?;
-        self.indicate_liquid_room("Metroid Room 1", LiquidType::Acid, 0, 5)?;
-        self.indicate_liquid_room("Metroid Room 3", LiquidType::Acid, 0, 5)?;
-        self.indicate_liquid_room("Mother Brain Room", LiquidType::Acid, 0, 5)?;
-        self.indicate_liquid_room("Tourian Escape Room 4", LiquidType::Acid, 3, 5)?;
+        // self.indicate_liquid_room("Tourian First Room", LiquidType::Acid, 3, 5)?;
+        // self.indicate_liquid_room("Metroid Room 1", LiquidType::Acid, 0, 5)?;
+        // self.indicate_liquid_room("Metroid Room 3", LiquidType::Acid, 0, 5)?;
+        // self.indicate_liquid_room("Mother Brain Room", LiquidType::Acid, 0, 5)?;
+        // self.indicate_liquid_room("Tourian Escape Room 4", LiquidType::Acid, 3, 5)?;
 
         Ok(())
     }

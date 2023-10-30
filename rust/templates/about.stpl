@@ -41,12 +41,13 @@
     <li>Save animations are accelerated, to incentivize saving often.
     <li>The player can immediately reload to the last save by pressing L + R + Select + Start.
     <li>Rolling saves allow the player to return to previous saves.
+    <li>Map progress is retained after dying or reloading, helping the player keep track of potential dangers.
     </ul>
 
     <p>Except for the doors, room layouts are generally exactly the same as the vanilla game. For a few special door
     transitions (sand or morph tunnels), minimal adaptations are made to the tiles near the transitions to make them
-    connect properly. However, no platforms are added or removed, and no changes are made to special blocks such as
-    bomb blocks, crumble blocks, or Power Bomb blocks, e.g. to convert some of them to shot blocks as is sometimes
+    connect properly. However, no platforms are added or removed, and no changes are made to special objects such as
+    gates, bomb blocks, crumble blocks, or Power Bomb blocks, e.g. to convert some of them to shot blocks as is sometimes
     done in other randomizers.<a href="#footnote-softlock"><sup>1</sup></a></p>
 
     <p>Even with the quality-of-life changes, it takes practice to master the wide variety of challenging
