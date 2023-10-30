@@ -386,7 +386,10 @@ extract_two_digits:
 ;;; HUD digits tilemap for row 1
 HUD_digits_tilemap_row1:
         ;;     0      1      2      3      4      5      6      7      8      9
-	dw $0045, $003C, $003D, $003E, $003F, $0040, $0041, $0042, $0043, $0044
+;	dw $0045, $003C, $003D, $003E, $003F, $0040, $0041, $0042, $0043, $0044
+; Use normal digits instead of custom ones (conserves space for more map tiles):
+	dw $0000, $0001, $0002, $0003, $0004, $0005, $0006, $0007, $0008, $0009
+
 
 ;;; next patch start address (msu1)
 warnpc $80D02F

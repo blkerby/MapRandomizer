@@ -72,6 +72,10 @@ ind = torch.nonzero(
     (session.replay_buffer.episode_data.mc_dist_coef > 0.0)
 )[:, 0]
 
+print(sorted(M[ind].tolist()))
+print(sorted(torch.amax(session.replay_buffer.episode_data.mc_distances[ind], dim=1).tolist()))
+print(torch.mean(torch.amax(session.replay_buffer.episode_data.mc_distances[ind], dim=1).to(torch.float)))
+
 # print(sorted(M[ind].tolist()))
 # print(torch.where(session.replay_buffer.episode_data.graph_diameter[ind] == 29))
 
