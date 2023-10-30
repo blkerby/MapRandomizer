@@ -1030,7 +1030,7 @@ impl<'a> Preprocessor<'a> {
                                         exit_link.requirement.clone(),
                                         cross_req,
                                         door_req.clone(),
-                                        link.requirement.clone(),
+                                        self.preprocess_requirement(&link.requirement, &link),
                                     ]);
                                     // println!("{:?}", door_req);
                                     let mut strat_notes = exit_link.strat_notes.clone();

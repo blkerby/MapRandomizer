@@ -40,7 +40,8 @@ device = torch.device('cpu')
 # session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-43', 'rb')).load()
 # session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-50', 'rb')).load()
 # session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-61', 'rb')).load()
-session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-63', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-63', 'rb')).load()
+session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-70', 'rb')).load()
 #
 
 print(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects.to(torch.float32), dim=0)))
@@ -51,7 +52,11 @@ print(min_reward, torch.mean((session.replay_buffer.episode_data.reward == min_r
 S = session.replay_buffer.episode_data.save_distances.to(torch.float32)
 S = torch.where(S == 255, torch.full_like(S, float('nan')), S)
 S = torch.nanmean(S, dim=1)
-print(torch.nanmean(S))
+# print(torch.nanmean(S))
+
+M = session.replay_buffer.episode_data.mc_distances.to(torch.float32)
+M = torch.where(M == 255, torch.full_like(M, float('nan')), M)
+M = torch.nanmean(M, dim=1)
 
 # ind = torch.nonzero((session.replay_buffer.episode_data.reward >= 340) & (session.replay_buffer.episode_data.temperature > 0.5))
 # ind = torch.nonzero((session.replay_buffer.episode_data.reward >= 343) & (session.replay_buffer.episode_data.temperature < 0.05))
@@ -62,9 +67,12 @@ num_feasible = torch.nonzero((session.replay_buffer.episode_data.reward == min_r
 
 ind = torch.nonzero(
     (session.replay_buffer.episode_data.reward == min_reward) &
-    (S < 3.90) &
-    (session.replay_buffer.episode_data.graph_diameter <= 45)
-)
+    # (S < 3.90) &
+    # (session.replay_buffer.episode_data.graph_diameter <= 45) &
+    (session.replay_buffer.episode_data.mc_dist_coef > 0.0)
+)[:, 0]
+
+# print(sorted(M[ind].tolist()))
 # print(torch.where(session.replay_buffer.episode_data.graph_diameter[ind] == 29))
 
 print("success rate: ", ind.shape[0] / num_feasible)

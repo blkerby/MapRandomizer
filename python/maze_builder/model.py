@@ -824,7 +824,7 @@ class TransformerModel(torch.nn.Module):
                                      steps_remaining.view(-1, 1) / self.num_rooms,
                                      round_frac.view(-1, 1),
                                      torch.log(temperature.view(-1, 1)),
-                                     # mc_dist_coef.view(-1, 1),
+                                     mc_dist_coef.view(-1, 1),
                                      ], dim=1).to(dtype)
             global_embedding = self.global_lin(global_data)
 

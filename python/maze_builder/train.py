@@ -210,7 +210,7 @@ pickle_name = 'models/session-2023-06-08T14:55:16.779895.pkl'
 # session = Unpickler(open(pickle_name + '-bk35', 'rb')).load()
 # session = Unpickler(open(pickle_name + '-bk43', 'rb')).load()
 # session = Unpickler(open(pickle_name + '-bk54', 'rb')).load()  # After backfilling graph diameter data
-session = Unpickler(open(pickle_name + '-bk69', 'rb')).load()
+session = Unpickler(open(pickle_name + '-bk70', 'rb')).load()
 # session.replay_buffer.size = 0
 # session.replay_buffer.position = 0
 # session.replay_buffer.resize(2 ** 23)
@@ -220,6 +220,15 @@ session.envs = envs
 # num_new_outputs = session.envs[0].num_missing_connects
 # session.model.global_query.data = torch.cat([session.model.global_query.data, torch.randn([num_new_outputs, embedding_width], device=device) / math.sqrt(embedding_width)])
 # session.model.global_value.data = torch.cat([session.model.global_value.data, torch.zeros([num_new_outputs, embedding_width], device=device)])
+# session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
+# session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=0.995)
+
+# # Add new global input feature to the model:
+# num_new_inputs = 1
+# session.model.global_lin.weight.data = torch.cat([
+#     session.model.global_lin.weight.data,
+#     torch.zeros([embedding_width, num_new_inputs], device=device)
+# ], dim=1)
 # session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
 # session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=0.995)
 
@@ -677,9 +686,9 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk69')
-            # session.replay_buffer.resize(2 ** 19)
-            # pickle.dump(session, open(pickle_name + '-small-64', 'wb'))
+            # save_session(session, pickle_name + '-bk70')
+            # session.replay_buffer.resize(2 ** 16)
+            # pickle.dump(session, open(pickle_name + '-small-70', 'wb'))
     if session.num_rounds % summary_freq == 0:
         if num_candidates_max == 1:
             total_eval_loss = 0.0
