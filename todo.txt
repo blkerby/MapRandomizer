@@ -3,6 +3,8 @@ upcoming:
 - make randomizer more efficient
 
 priority:
+- don't put ammo doors next to objective tiles
+- "Random" objective option? (but what will tracker look like)
 - Map pool split: Tame vs. Wild
 - clarify gate glitch leniency: that it doesn't apply to Pink Hopper Room gate
 - consider prioritizing item placement at closer item locations relative to previous key item(s)

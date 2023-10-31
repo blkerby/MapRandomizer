@@ -5,13 +5,13 @@ org $89AC62
   JSR GetTilesetIndex ;LDA $079F
   ASL
   TAY
-  LDA GlowTypeTable,Y ;DB is $83
+  LDA.w GlowTypeTable,Y ;DB is $83
 
 org $89AC98
   JSR GetTilesetIndex ;LDA $079F
   ASL
   TAY
-  LDA AnimTypeTable,Y
+  LDA.w AnimTypeTable,Y
 
 ; Force on excape glow bits during escape event
 org $89AB90
@@ -78,7 +78,7 @@ ForceGlowMask:
   JSR GetTilesetIndex
   ASL
   TAY
-  LDA GlowTypeTable,Y ;DB is $83
+  LDA.w GlowTypeTable,Y ;DB is $83
   STA $AF
   LDY #$0000
 
@@ -315,6 +315,111 @@ UpdateHeavySandColors: ;DB is 8D
   PLX
   RTL
 
+; Dynamically load tiles on room init
+LoadSpeecialRoomTiles:
+  PHK
+  PLB
+; TODO, make some kind of check here to load different data
+LoadSpeecialRoomTiles_Tube:
+  LDY $0330
+  LDA #$03E0
+  STA $00D0,Y
+  LDA #$8A00
+  STA $00D3,Y
+  LDA.w #TubeGfx_1
+  STA $00D2,Y
+  LDA #$3E00 ; area after the CRE
+  STA $00D5,Y
+  TYA
+  CLC
+  ADC #$0007
+  TAY
+  LDA #$0400
+  STA $00D0,Y
+  LDA #$8A00
+  STA $00D3,Y
+  LDA.w #TubeGfx_2
+  STA $00D2,Y
+  LDA #$2400 ; overwrite vileplumes
+  STA $00D5,Y
+  TYA
+  CLC
+  ADC #$0007
+  STA $0330
+  RTL
+
+org $8AB700
+TubeGfx_1:
+  DB $3F, $FF, $9F, $FF, $E7, $FF, $79, $FF, $1E, $FF, $87, $FF, $E1, $FF, $F8, $FF, $FF, $01, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00
+  DB $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $7F, $FF, $9F, $FF, $E7, $FF, $79, $FF, $FF, $9F, $FF, $67, $FF, $19, $FF, $06, $FF, $01, $FF, $00, $FF, $00, $FF, $00
+  DB $1F, $FF, $07, $FF, $C1, $3F, $30, $CF, $0E, $F1, $C1, $3E, $F0, $0F, $3E, $C1, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00
+  DB $1E, $FF, $C7, $FF, $F1, $FF, $3E, $FF, $07, $FF, $81, $7F, $70, $8F, $0C, $F3, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00
+  DB $07, $F8, $E0, $1F, $1E, $E1, $81, $7E, $F8, $07, $FF, $00, $FF, $00, $1F, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00
+  DB $C3, $3C, $F8, $07, $0E, $F1, $E1, $1E, $1C, $E3, $83, $7C, $F0, $0F, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00
+  DB $C0, $00, $3E, $00, $01, $00, $00, $00, $00, $00, $00, $00, $00, $FF, $00, $FF, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $FF, $FF, $FF
+  DB $FF, $00, $07, $00, $F0, $00, $0F, $00, $00, $00, $00, $00, $00, $00, $00, $FF, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $FF
+  DB $FF, $FF, $FF, $FF, $FF, $FF, $F4, $E6, $FC, $F9, $B9, $BF, $E7, $FF, $9E, $FF, $FF, $79, $FF, $E6, $FF, $98, $FF, $60, $FF, $80, $FF, $00, $FF, $04, $FF, $18
+  DB $F6, $FC, $CC, $FC, $9E, $DC, $2E, $3E, $FF, $7E, $EE, $F4, $84, $FC, $18, $F8, $FE, $84, $FE, $08, $FF, $18, $FF, $2C, $FF, $0C, $FE, $04, $FE, $04, $FC, $08
+  DB $78, $FF, $E3, $FF, $97, $E6, $7E, $F8, $E8, $F7, $89, $FE, $0E, $F1, $F4, $CF, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00
+  DB $FC, $EE, $86, $1C, $84, $FC, $0A, $F6, $77, $8E, $8E, $7F, $5E, $FC, $7C, $BC, $FE, $2C, $FE, $00, $FE, $00, $FF, $00, $FF, $02, $FF, $04, $FE, $48, $FE, $38
+  DB $DB, $3C, $3F, $E0, $71, $8F, $86, $7B, $3C, $C4, $C5, $3E, $0B, $F0, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $03, $FF, $00, $FF, $04, $FF, $00, $FF, $00
+  DB $EC, $18, $1C, $FC, $FC, $FE, $BE, $7F, $0F, $EE, $E7, $1E, $36, $46, $D7, $2E, $FC, $08, $FC, $08, $FE, $F8, $FF, $1C, $FF, $0C, $FF, $0C, $FF, $04, $FF, $04
+  DB $FF, $80, $F8, $18, $0F, $07, $B2, $43, $0C, $0E, $38, $00, $C1, $04, $00, $DD, $FF, $00, $FF, $00, $FF, $03, $FF, $01, $FF, $06, $FF, $00, $FF, $00, $FF, $DD
+  DB $06, $04, $7E, $0C, $8C, $8C, $4C, $4C, $38, $38, $18, $18, $BC, $58, $78, $B8, $FE, $04, $FE, $08, $FE, $08, $FE, $48, $FC, $30, $FC, $10, $FC, $50, $FC, $B0
+  DB $00, $00, $00, $00, $00, $00, $00, $00, $03, $03, $0F, $0E, $3F, $3F, $FF, $FF, $00, $00, $00, $00, $00, $00, $00, $00, $03, $01, $0F, $06, $3F, $17, $FF, $3E
+  DB $30, $68, $18, $14, $1C, $3A, $7A, $FE, $FC, $FA, $FC, $F4, $DC, $FC, $FD, $F6, $78, $00, $1C, $04, $3E, $08, $FE, $7A, $FE, $B8, $FC, $E4, $FD, $98, $FF, $64
+  DB $C0, $C0, $F0, $F0, $FC, $FC, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $C0, $C0, $F0, $F0, $FC, $FC, $FF, $7F, $FF, $9F, $FF, $67, $FF, $19, $FF, $06
+  DB $00, $00, $00, $00, $00, $00, $00, $00, $C0, $C0, $F0, $F0, $FC, $FC, $FF, $FF, $00, $00, $00, $00, $00, $00, $00, $00, $C0, $C0, $F0, $F0, $FC, $FC, $FF, $7F
+  DB $88, $D4, $5E, $FD, $FF, $FB, $7F, $7F, $DF, $FF, $F7, $FF, $FF, $FF, $1E, $1E, $FC, $04, $FF, $08, $FF, $A0, $7F, $76, $FF, $89, $FF, $77, $FF, $FF, $1E, $1E
+  DB $BC, $5E, $97, $EB, $DF, $FE, $FF, $FF, $FE, $F7, $FF, $FF, $7E, $7C, $18, $18, $FE, $00, $FF, $00, $FF, $08, $FF, $9F, $FF, $C9, $FF, $FF, $7E, $78, $18, $18
+  DB $FF, $B0, $80, $0C, $B0, $FF, $FF, $30, $30, $30, $30, $30, $30, $30, $30, $FF, $FF, $B0, $FF, $0C, $FF, $B0, $FF, $30, $FF, $30, $FF, $30, $FF, $30, $FF, $FF
+  DB $FB, $74, $5F, $30, $70, $F0, $FB, $04, $00, $00, $00, $00, $04, $00, $00, $FF, $FF, $70, $FF, $10, $FF, $70, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $FF
+  DB $88, $FF, $88, $F8, $88, $88, $A8, $8F, $8F, $8F, $88, $88, $88, $88, $F9, $88, $F8, $77, $FF, $77, $FF, $07, $F8, $07, $F8, $07, $FF, $07, $FF, $07, $FF, $07
+  DB $00, $FF, $30, $00, $40, $00, $00, $FF, $FF, $FF, $80, $00, $80, $00, $00, $00, $00, $FF, $F0, $F0, $C0, $C0, $00, $FF, $00, $FF, $80, $80, $80, $80, $00, $00
+  DB $FF, $FF, $00, $00, $00, $00, $00, $FF, $00, $00, $00, $00, $00, $00, $00, $00, $00, $FF, $00, $00, $00, $00, $00, $FF, $FF, $FF, $00, $00, $00, $00, $00, $00
+  DB $F0, $F0, $00, $00, $00, $00, $FF, $FF, $00, $00, $00, $00, $00, $00, $00, $00, $0F, $FF, $00, $00, $00, $00, $00, $FF, $FF, $FF, $00, $00, $00, $00, $00, $00
+  DB $00, $00, $00, $00, $00, $00, $F0, $F0, $00, $00, $00, $00, $00, $00, $00, $00, $FF, $FF, $00, $00, $00, $00, $0F, $FF, $FF, $FF, $00, $00, $00, $00, $00, $00
+  DB $00, $00, $00, $00, $00, $00, $00, $00, $FF, $00, $00, $00, $00, $00, $00, $00, $FF, $FF, $00, $00, $00, $00, $FF, $FF, $FF, $FF, $00, $00, $00, $00, $00, $00
+  DB $8F, $F8, $F8, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $00, $FF, $88, $FF, $A8, $FF, $FF, $FF, $88, $FF, $FF, $FF, $FF, $FF, $FF
+  ;DB $F7, $08, $88, $FF, $FF, $FF, $FF, $FF, $FF, $F7, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $00, $FF, $00, $FF, $08, $FF, $FF, $FF, $08, $FF, $FF, $FF, $FF, $FF, $FF
+TubeGfx_2:
+  DB $FF, $FF, $FF, $FF, $FF, $FD, $FA, $F8, $FF, $FD, $FF, $FA, $FF, $FD, $8A, $FA, $FF, $FF, $FF, $F8, $FF, $FF, $FF, $8F, $FF, $FF, $FF, $AF, $FF, $8F, $FD, $07
+  DB $FF, $FF, $FF, $FF, $FF, $55, $AA, $00, $FF, $55, $FD, $A8, $AA, $00, $AA, $AA, $FF, $FF, $FF, $00, $FF, $FF, $FF, $FF, $FF, $FF, $FD, $FD, $AA, $AA, $55, $FF
+  DB $FF, $FF, $FF, $FF, $FF, $55, $AA, $00, $FA, $50, $55, $00, $AA, $00, $AA, $AA, $FF, $FF, $FF, $00, $FF, $FF, $FF, $FF, $FA, $FA, $55, $55, $AA, $AA, $55, $FF
+  DB $FF, $FF, $FF, $FF, $FE, $54, $AA, $00, $AA, $00, $55, $00, $AA, $00, $AA, $AA, $FF, $FF, $FF, $00, $FE, $FE, $FF, $FF, $AA, $AA, $55, $55, $AA, $AA, $55, $FF
+  DB $FF, $FF, $FF, $FF, $AA, $00, $AA, $00, $AA, $00, $55, $00, $AA, $00, $AA, $AA, $FF, $FF, $FF, $00, $AA, $AA, $FF, $FF, $AA, $AA, $55, $55, $AA, $AA, $55, $FF
+  DB $FF, $FF, $FF, $FF, $AA, $00, $AA, $00, $AA, $00, $55, $00, $AA, $00, $55, $00, $FF, $FF, $FF, $00, $AA, $AA, $FF, $FF, $AA, $AA, $55, $55, $AA, $AA, $FF, $FF
+  DB $FE, $F8, $F8, $F8, $FE, $F8, $AD, $F8, $88, $F8, $F8, $F8, $F8, $F8, $88, $F8, $FE, $8E, $FD, $8D, $FE, $8E, $FD, $25, $F8, $00, $FF, $8F, $F8, $88, $F8, $00
+  DB $AA, $00, $00, $00, $00, $00, $45, $00, $00, $00, $00, $00, $00, $00, $00, $00, $AA, $AA, $45, $45, $2A, $2A, $55, $55, $00, $00, $FF, $FF, $00, $00, $00, $00
+  DB $AA, $00, $00, $00, $00, $00, $45, $00, $00, $00, $FF, $00, $00, $00, $00, $00, $AA, $AA, $45, $45, $2A, $2A, $55, $55, $00, $00, $FF, $FF, $00, $00, $00, $00
+  DB $AA, $00, $00, $00, $00, $00, $45, $00, $00, $00, $00, $00, $00, $00, $00, $00, $AA, $AA, $45, $45, $2A, $2A, $55, $55, $00, $00, $00, $00, $00, $00, $00, $00
+  DB $AA, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $AA, $AA, $41, $41, $28, $28, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+  DB $8C, $F8, $AC, $F8, $F8, $8F, $8F, $F8, $8F, $F8, $F8, $8F, $F8, $8F, $AF, $F8, $FC, $04, $FC, $04, $F8, $07, $FF, $07, $FF, $07, $F8, $07, $F8, $07, $FF, $07
+  DB $00, $00, $00, $00, $FF, $FF, $00, $00, $FF, $00, $3F, $FF, $00, $FF, $FF, $00, $00, $00, $00, $00, $00, $FF, $00, $00, $FF, $FF, $00, $FF, $00, $FF, $FF, $FF
+  DB $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $FC, $FC, $FF, $FF, $F0, $00, $00, $00, $00, $00, $FF, $FF, $00, $00, $00, $00, $03, $FF, $00, $FF, $F0, $F0
+  DB $00, $00, $00, $00, $0F, $00, $00, $00, $00, $00, $00, $00, $C0, $C0, $00, $00, $00, $00, $00, $00, $FF, $FF, $00, $00, $00, $00, $FF, $FF, $3F, $FF, $00, $00
+  DB $00, $00, $00, $00, $C0, $00, $00, $00, $00, $00, $FF, $00, $03, $00, $00, $00, $00, $00, $00, $00, $C0, $C0, $00, $00, $00, $00, $FF, $FF, $FF, $FF, $00, $00
+  DB $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $FF, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $FF, $FF, $00, $00
+  DB $8F, $F8, $FB, $88, $8A, $F8, $FF, $8F, $FA, $88, $D8, $AF, $F8, $8F, $89, $88, $FF, $07, $FF, $07, $FE, $06, $F8, $07, $FE, $06, $F8, $07, $F8, $07, $FF, $07
+  DB $E0, $00, $00, $00, $00, $00, $FF, $FF, $00, $00, $3F, $FF, $0F, $FF, $00, $00, $E0, $E0, $00, $00, $00, $00, $00, $FF, $00, $00, $00, $FF, $00, $FF, $00, $00
+  DB $00, $00, $00, $00, $00, $00, $0F, $00, $00, $00, $C0, $C0, $F0, $F0, $00, $00, $00, $00, $00, $00, $00, $00, $FF, $FF, $00, $00, $3F, $FF, $0F, $FF, $00, $00
+  DB $00, $00, $00, $00, $00, $00, $C0, $00, $00, $00, $FC, $00, $0F, $00, $00, $00, $00, $00, $00, $00, $00, $00, $C0, $C0, $00, $00, $FC, $FC, $FF, $FF, $00, $00
+  DB $00, $00, $00, $00, $00, $00, $FF, $00, $00, $00, $0F, $0F, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $FF, $FF, $00, $00, $F0, $FF, $FF, $FF, $00, $00
+  DB $00, $00, $00, $00, $00, $00, $F0, $00, $00, $00, $FF, $FF, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $FF, $FF, $00, $00, $00, $FF, $FF, $FF, $00, $00
+  DB $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $F0, $FF, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $FF, $FF, $00, $00, $00, $FF, $FF, $FF, $00, $00
+  DB $F8, $88, $88, $88, $8F, $8F, $88, $8F, $A8, $88, $88, $8F, $8F, $F8, $88, $FF, $FF, $07, $FF, $07, $F8, $07, $F8, $07, $FF, $07, $F8, $07, $F8, $77, $FF, $77
+  DB $80, $00, $60, $00, $FF, $FF, $00, $FF, $38, $00, $03, $FF, $FF, $00, $00, $FC, $80, $80, $E0, $E0, $00, $FF, $00, $FF, $F8, $F8, $00, $FF, $00, $FF, $FC, $FF
+  DB $00, $00, $00, $00, $C0, $C0, $FF, $FF, $00, $00, $FC, $FC, $C0, $3F, $00, $00, $00, $00, $00, $00, $3F, $FF, $00, $FF, $00, $00, $03, $FF, $00, $FF, $00, $FF
+  DB $00, $00, $00, $00, $07, $00, $00, $00, $00, $00, $00, $00, $FF, $FF, $00, $00, $00, $00, $00, $00, $FF, $FF, $FF, $FF, $00, $00, $FF, $FF, $00, $FF, $00, $FF
+  DB $00, $00, $00, $00, $FC, $00, $00, $00, $00, $00, $0F, $00, $FF, $FF, $FF, $00, $00, $00, $00, $00, $FC, $FC, $FF, $FF, $00, $00, $FF, $FF, $00, $FF, $00, $FF
+  DB $00, $00, $00, $00, $00, $00, $FF, $00, $00, $00, $FF, $00, $00, $00, $FF, $00, $00, $00, $00, $00, $00, $00, $FF, $FF, $00, $00, $FF, $FF, $FF, $FF, $00, $FF
+  DB $00, $00, $00, $00, $FF, $FF, $F0, $FF, $FF, $00, $FF, $FF, $FF, $00, $00, $00, $00, $00, $00, $00, $00, $FF, $00, $FF, $FF, $FF, $00, $FF, $00, $FF, $00, $FF
+  DB $F7, $08, $88, $FF, $FF, $FF, $FF, $FF, $FF, $F7, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $00, $FF, $00, $FF, $08, $FF, $FF, $FF, $08, $FF, $FF, $FF, $FF, $FF, $FF
+
+org $8FC11B ; Room init code for ocean rooms no longer used due to scrolling sky
+  JSL LoadSpeecialRoomTiles
+  RTS
+
 ; force the sand glows to load their colors on init
 org $8DF795
   DW #SandFloorColorsInit, $F4E9
@@ -322,10 +427,10 @@ org $8DF799
   DW #HeavySandColorsInit, $F541
 org $8DC686 ; overwrite unused garbage data
 SandFloorColorsInit:
-  JSL UpdateSandFloorColors:
+  JSL UpdateSandFloorColors
   RTS
 HeavySandColorsInit:
-  JSL UpdateHeavySandColors:
+  JSL UpdateHeavySandColors
   RTS
 warnpc $8DC696
 
@@ -425,6 +530,50 @@ org $849F09
   DW $0004, $2BBE, $2BBF, $2FBF, $2FBE
   DW $0000
 
+;Move Maridia tube tilemap tiles
+org $8498D1
+  DW $0001, $C7ED
+  DW $0000
+org $8498D7
+  DW $0001, $87ED
+  DW $0000
+org $8498DD
+  DW $0001, $83F2
+  DW $0000
+org $8498E3
+  DW $000C, $83F2, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $87F2
+  DB $00, $01
+  DW $000C, $03EE, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $07EE
+  DB $00, $02
+  DW $000C, $03EF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $07EF
+  DB $00, $03
+  DW $000C, $0BEF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $0FEF
+  DW $0000
+org $849953
+  DW $0001, $03E2
+  DB $00, $04
+  DW $000C, $0BEE, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $0FEE
+  DB $00, $05
+  DW $000C, $83F0, $83F1, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $87F1, $87F0
+  DW $0000
+org $849991
+  DW $000C, $83F2, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $87F2
+  DB $00, $01
+  DW $000C, $03EE, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $07EE
+  DB $00, $02
+  DW $000C, $03EF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $07EF
+  DW $0000
+org $8499E5
+  DW $0001, $03E2
+  DB $00, $03
+  DW $000C, $0BEF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $0FEF
+  DB $00, $04
+  DW $000C, $0BEE, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $0FEE
+  DB $00, $05
+  DW $000C, $83F0, $83F1, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $87F1, $87F0
+  DW $0000
+
+
 org $83B800
 
 !NullGlow = $F745
@@ -471,11 +620,11 @@ Glow_Area_0b:
 Glow_Area_1:
   DW !Blue_BG_, !Purp_BG_, !Beacon__, !SpoSpoBG, !NullGlow, !SandFlor, !HevySand, !SamusHot
 Glow_Area_2:
-  DW !SamusHot, !Nor_Hot1, !Nor_Hot2, !Nor_Hot3, !Nor_Hot4, !SandFlor, !HevySand, !SamusHot
+  DW !NullGlow, !Nor_Hot1, !Nor_Hot2, !Nor_Hot3, !Nor_Hot4, !SandFlor, !HevySand, !SamusHot
 Glow_Area_3:
   DW !WS_Green, !NullGlow, !NullGlow, !NullGlow, !NullGlow, !SandFlor, !HevySand, !SamusHot
 Glow_Area_4:
-  DW !SandFlor, !HevySand, !Waterfal, !NullGlow, !NullGlow, !SandFlor, !HevySand, !SamusHot
+  DW !NullGlow, !NullGlow, !Waterfal, !NullGlow, !NullGlow, !SandFlor, !HevySand, !SamusHot
 Glow_Area_5:
   DW !Tor_4Esc, !Tourian1, !Tor_3Esc, !Tor_1Esc, !Tor_2Esc, !SandFlor, !HevySand, !SamusHot
 Glow_Area_6:
