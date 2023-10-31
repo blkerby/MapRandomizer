@@ -12,3 +12,4 @@ rust/target/
 seeds/
 package-lock.json
 tmp/
+patches/ips/items_test*.ips
