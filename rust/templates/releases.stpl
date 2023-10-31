@@ -17,13 +17,10 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-91---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release91">Version 91 (???)</a>:
+<p><a href="https://version-91---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release91">Version 91 (2023-10-30)</a>:
 <ul>
-<li>Improvement to map clarity:
-    <ul>
-    <li>Significant bodies of water are indicated on the map by a checkered pattern.
-    </ul>
-<li>TODO: Several bugfixes to "Green Brinstar" tile theme.
+<li>Significant bodies of water are indicated on the map by a dark/checkered background.
+<li>Several bugfixes to "Green Brinstar" tile theme.
 </ul>
 
 <p><a href="https://version-90---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release90">Version 90 (2023-10-28)</a>:

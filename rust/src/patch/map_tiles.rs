@@ -611,12 +611,16 @@ impl<'a> MapPatcher<'a> {
             Interior::MediumItem => {
                 data[2][3] = item_color;
                 data[2][4] = item_color;
+                data[3][2] = item_color;
+                data[3][3] = bg_color;
+                data[3][4] = bg_color;
+                data[3][5] = item_color;
+                data[4][2] = item_color;
+                data[4][3] = bg_color;
+                data[4][4] = bg_color;
+                data[4][5] = item_color;
                 data[5][3] = item_color;
                 data[5][4] = item_color;
-                data[3][2] = item_color;
-                data[4][2] = item_color;
-                data[3][5] = item_color;
-                data[4][5] = item_color;
             }
             Interior::MajorItem => {
                 data[2][3] = item_color;

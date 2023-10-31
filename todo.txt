@@ -1,15 +1,6 @@
-next release:
-- DONE: implement comeInSpeedballing
-- DONE: implement new schema for g-mode strats
-- DONE: add leniency setting for heated X-ray door stuck setups (similar to gate glitch leniency setting)
-- DONE: play-test Green Brinstar theme, and do a round of fixes
-- DONE: change "Item progression" preset names
-- DONE: change "Progression rate" name "Normal" -> "Uniform"
-  DONE: update item progression doc
-- DONE: pull in Mosaic changes
-- DONE: generate a bunch of seeds and check logic for cross-room strats to make sure working as intended
-- DONE: prepare the new map pool
-
+upcoming:
+- proper saving/loading of custom presets
+- make randomizer more efficient
 
 priority:
 - Map pool split: Tame vs. Wild
@@ -87,6 +78,7 @@ priority:
   is currently set up (since there is no way to go up through sand)
 
 later:
+- remove dead code for drawing lava/acid on map tiles.
 - strats to add to logic:
   - tricky dash jump to get out of alcatraz with Morph + HiJump + SpeedBooster only (no wall jump or bombs)
   - ice clip through crumble in Green Brin Main Shaft? (in case internal door is not blue)
