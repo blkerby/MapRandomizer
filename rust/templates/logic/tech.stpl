@@ -25,6 +25,12 @@ document.getElementById("navigation-logic").classList.add("active");
     .tech-row:hover .png-tech {
         opacity: 0;
     }
+    .strat-row:hover .png-tech {
+        opacity: 0;
+    }
+    .strat-row:not(:hover) .gif-tech {
+        opacity: 0;
+    }
     </style>
 
     <div class="row tech-row">

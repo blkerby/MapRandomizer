@@ -10,7 +10,8 @@ use crate::{
     traverse::{
         apply_requirement, get_spoiler_route, is_bireachable, traverse, GlobalState, LinkIdx,
         LocalState, TraverseResult,
-    }, web::logic::strip_name,
+    },
+    web::logic::strip_name,
 };
 use anyhow::{bail, Result};
 use by_address::ByAddress;
@@ -244,6 +245,7 @@ struct VertexInfo {
     room_name: String,
     room_coords: (usize, usize),
     node_name: String,
+    node_id: usize,
 }
 
 fn get_door_requirement(
@@ -761,7 +763,6 @@ impl<'a> Preprocessor<'a> {
                     reqs.push(Requirement::HeatedDoorStuckLeniency {
                         heat_frames: heat_frames_per_attempt,
                     })
-
                 }
                 Some(Requirement::make_and(reqs))
             }
@@ -813,7 +814,9 @@ impl<'a> Preprocessor<'a> {
                 ));
                 if entrance_morphed {
                     reqs.push(Requirement::Or(vec![
-                        Requirement::Tech(self.game_data.tech_isv.index_by_key["canArtificialMorph"]),
+                        Requirement::Tech(
+                            self.game_data.tech_isv.index_by_key["canArtificialMorph"],
+                        ),
                         Requirement::Item(Item::Morph as ItemId),
                     ]));
                 }
@@ -831,7 +834,9 @@ impl<'a> Preprocessor<'a> {
                     let mut immobile_req_or_vec: Vec<Requirement> = Vec::new();
                     for (regain_mobility_link, _) in regain_mobility_vec {
                         immobile_req_or_vec.push(Requirement::make_and(vec![
-                            Requirement::Tech(self.game_data.tech_isv.index_by_key["canEnterGModeImmobile"]),
+                            Requirement::Tech(
+                                self.game_data.tech_isv.index_by_key["canEnterGModeImmobile"],
+                            ),
                             Requirement::ReserveTrigger {
                                 min_reserve_energy: 1,
                                 max_reserve_energy: 400,
@@ -847,13 +852,13 @@ impl<'a> Preprocessor<'a> {
                 match mobility {
                     GModeMobility::Any => {
                         reqs.push(Requirement::make_or(vec![mobile_req, immobile_req]));
-                    },
+                    }
                     GModeMobility::Mobile => {
                         reqs.push(mobile_req);
-                    },
+                    }
                     GModeMobility::Immobile => {
                         reqs.push(immobile_req);
-                    },
+                    }
                 }
 
                 Some(Requirement::make_and(reqs))
@@ -3106,9 +3111,13 @@ pub struct SpoilerRouteEntry {
     area: String,
     room: String,
     node: String,
+    short_room: String,
+    from_node_id: usize,
+    to_node_id: usize,
     obstacles_bitmask: usize,
     coords: (usize, usize),
     strat_name: String,
+    short_strat_name: String,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     strat_notes: Vec<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -3210,6 +3219,14 @@ pub struct SpoilerLog {
     pub all_rooms: Vec<SpoilerRoomLoc>,
 }
 
+struct ResourcesRemaining {
+    energy: Option<Capacity>,
+    reserves: Option<Capacity>,
+    missiles: Option<Capacity>,
+    supers: Option<Capacity>,
+    power_bombs: Option<Capacity>,
+}
+
 impl<'a> Randomizer<'a> {
     fn get_vertex_info(&self, vertex_id: usize) -> VertexInfo {
         let (room_id, node_id, _obstacle_bitmask) = self.game_data.vertex_isv.keys[vertex_id];
@@ -3231,6 +3248,7 @@ impl<'a> Randomizer<'a> {
                 .as_str()
                 .unwrap()
                 .to_string(),
+            node_id,
         }
     }
 
@@ -3258,6 +3276,51 @@ impl<'a> Randomizer<'a> {
         }
     }
 
+    fn get_resources_remaining(
+        &self,
+        global_state: &GlobalState,
+        local_state: LocalState,
+        new_local_state: LocalState,
+    ) -> ResourcesRemaining {
+        let energy_remaining: Option<Capacity> =
+            if new_local_state.energy_used != local_state.energy_used {
+                Some(global_state.max_energy - new_local_state.energy_used)
+            } else {
+                None
+            };
+        let reserves_remaining: Option<Capacity> =
+            if new_local_state.reserves_used != local_state.reserves_used {
+                Some(global_state.max_reserves - new_local_state.reserves_used)
+            } else {
+                None
+            };
+        let missiles_remaining: Option<Capacity> =
+            if new_local_state.missiles_used != local_state.missiles_used {
+                Some(global_state.max_missiles - new_local_state.missiles_used)
+            } else {
+                None
+            };
+        let supers_remaining: Option<Capacity> =
+            if new_local_state.supers_used != local_state.supers_used {
+                Some(global_state.max_supers - new_local_state.supers_used)
+            } else {
+                None
+            };
+        let power_bombs_remaining: Option<Capacity> =
+            if new_local_state.power_bombs_used != local_state.power_bombs_used {
+                Some(global_state.max_power_bombs - new_local_state.power_bombs_used)
+            } else {
+                None
+            };
+        ResourcesRemaining {
+            energy: energy_remaining,
+            reserves: reserves_remaining,
+            missiles: missiles_remaining,
+            supers: supers_remaining,
+            power_bombs: power_bombs_remaining,
+        }
+    }
+
     fn get_spoiler_route(
         &self,
         global_state: &GlobalState,
@@ -3270,10 +3333,13 @@ impl<'a> Randomizer<'a> {
         // global_state.print_debug(self.game_data);
         for &link_idx in link_idxs {
             let link = &self.links[link_idx as usize];
-            let to_vertex_info = self.get_vertex_info(link.to_vertex_id);
-            let (_, _, to_obstacles_mask) = self.game_data.vertex_isv.keys[link.to_vertex_id];
-            // info!("local: {:?}", local_state);
-            // info!("{:?}", link);
+            let raw_link = &self.links[link_idx as usize];
+            let sublinks = if raw_link.sublinks.len() > 0 {
+                raw_link.sublinks.clone()
+            } else {
+                vec![raw_link.clone()]
+            };
+
             let new_local_state_opt = apply_requirement(
                 &link.requirement,
                 &global_state,
@@ -3283,53 +3349,36 @@ impl<'a> Randomizer<'a> {
                 self.game_data,
             );
             let new_local_state = new_local_state_opt.unwrap();
-            let energy_remaining: Option<Capacity> =
-                if new_local_state.energy_used != local_state.energy_used {
-                    Some(global_state.max_energy - new_local_state.energy_used)
-                } else {
-                    None
-                };
-            let reserves_remaining: Option<Capacity> =
-                if new_local_state.reserves_used != local_state.reserves_used {
-                    Some(global_state.max_reserves - new_local_state.reserves_used)
-                } else {
-                    None
-                };
-            let missiles_remaining: Option<Capacity> =
-                if new_local_state.missiles_used != local_state.missiles_used {
-                    Some(global_state.max_missiles - new_local_state.missiles_used)
-                } else {
-                    None
-                };
-            let supers_remaining: Option<Capacity> =
-                if new_local_state.supers_used != local_state.supers_used {
-                    Some(global_state.max_supers - new_local_state.supers_used)
-                } else {
-                    None
-                };
-            let power_bombs_remaining: Option<Capacity> =
-                if new_local_state.power_bombs_used != local_state.power_bombs_used {
-                    Some(global_state.max_power_bombs - new_local_state.power_bombs_used)
-                } else {
-                    None
-                };
+            let new_resources = self.get_resources_remaining(&global_state, *local_state, *local_state);
+            for (i, link) in sublinks.iter().enumerate() {
+                let last = i == sublinks.len() - 1;
+                let from_vertex_info = self.get_vertex_info(link.from_vertex_id);
+                let to_vertex_info = self.get_vertex_info(link.to_vertex_id);
+                let (_, _, to_obstacles_mask) = self.game_data.vertex_isv.keys[link.to_vertex_id];
+                // info!("local: {:?}", local_state);
+                // info!("{:?}", link);
 
-            let spoiler_entry = SpoilerRouteEntry {
-                area: to_vertex_info.area_name,
-                room: to_vertex_info.room_name,
-                node: to_vertex_info.node_name,
-                obstacles_bitmask: to_obstacles_mask,
-                coords: to_vertex_info.room_coords,
-                strat_name: link.strat_name.clone(),
-                strat_notes: link.strat_notes.clone(),
-                energy_remaining,
-                reserves_remaining,
-                missiles_remaining,
-                supers_remaining,
-                power_bombs_remaining,
-            };
-            // info!("spoiler: {:?}", spoiler_entry);
-            route.push(spoiler_entry);
+                let spoiler_entry = SpoilerRouteEntry {
+                    area: to_vertex_info.area_name,
+                    short_room: strip_name(&to_vertex_info.room_name),
+                    room: to_vertex_info.room_name,
+                    node: to_vertex_info.node_name,
+                    from_node_id: from_vertex_info.node_id,
+                    to_node_id: to_vertex_info.node_id,
+                    obstacles_bitmask: to_obstacles_mask,
+                    coords: to_vertex_info.room_coords,
+                    strat_name: link.strat_name.clone(),
+                    short_strat_name: strip_name(&link.strat_name),
+                    strat_notes: link.strat_notes.clone(),
+                    energy_remaining: if last { new_resources.energy } else { None },
+                    reserves_remaining: if last { new_resources.reserves } else { None },
+                    missiles_remaining: if last { new_resources.missiles } else { None },
+                    supers_remaining: if last { new_resources.supers } else { None },
+                    power_bombs_remaining: if last { new_resources.power_bombs } else { None },
+                };
+                // info!("spoiler: {:?}", spoiler_entry);
+                route.push(spoiler_entry);
+            }
             *local_state = new_local_state;
         }
         // info!("local: {:?}", local_state);
@@ -3400,9 +3449,12 @@ impl<'a> Randomizer<'a> {
         local_state = local_state_end_forward;
         for i in (0..link_idxs.len()).rev() {
             let link_idx = link_idxs[i];
-            let link = &self.links[link_idx as usize];
-            let to_vertex_info = self.get_vertex_info(link.to_vertex_id);
-            let (_, _, to_obstacles_mask) = self.game_data.vertex_isv.keys[link.to_vertex_id];
+            let raw_link = &self.links[link_idx as usize];
+            let sublinks = if raw_link.sublinks.len() > 0 {
+                raw_link.sublinks.clone()
+            } else {
+                vec![raw_link.clone()]
+            };
             let consumption = consumption_vec[i];
             let mut new_local_state = LocalState {
                 energy_used: max(0, local_state.energy_used + consumption.energy_used),
@@ -3423,52 +3475,34 @@ impl<'a> Randomizer<'a> {
             assert!(new_local_state.missiles_used <= global_state.max_missiles);
             assert!(new_local_state.supers_used <= global_state.max_supers);
             assert!(new_local_state.power_bombs_used <= global_state.max_power_bombs);
-            let energy_remaining: Option<Capacity> =
-                if new_local_state.energy_used != local_state.energy_used {
-                    Some(global_state.max_energy - new_local_state.energy_used)
-                } else {
-                    None
+            let new_resources = self.get_resources_remaining(&global_state, local_state, local_state);
+
+            for (i, link) in sublinks.iter().enumerate() {
+                let last = i == sublinks.len() - 1;
+                let from_vertex_info = self.get_vertex_info(link.from_vertex_id);
+                let to_vertex_info = self.get_vertex_info(link.to_vertex_id);
+                let (_, _, to_obstacles_mask) = self.game_data.vertex_isv.keys[link.to_vertex_id];
+                let spoiler_entry = SpoilerRouteEntry {
+                    area: to_vertex_info.area_name,
+                    short_room: strip_name(&to_vertex_info.room_name),
+                    room: to_vertex_info.room_name,
+                    from_node_id: from_vertex_info.node_id,
+                    to_node_id: to_vertex_info.node_id,
+                    node: to_vertex_info.node_name,
+                    obstacles_bitmask: to_obstacles_mask,
+                    coords: to_vertex_info.room_coords,
+                    strat_name: link.strat_name.clone(),
+                    short_strat_name: strip_name(&link.strat_name),
+                    strat_notes: link.strat_notes.clone(),
+                    energy_remaining: if last { new_resources.energy } else { None },
+                    reserves_remaining: if last { new_resources.reserves } else { None },
+                    missiles_remaining: if last { new_resources.missiles } else { None },
+                    supers_remaining: if last { new_resources.supers } else { None },
+                    power_bombs_remaining: if last { new_resources.power_bombs } else { None },
                 };
-            let reserves_remaining: Option<Capacity> =
-                if new_local_state.reserves_used != local_state.reserves_used {
-                    Some(global_state.max_reserves - new_local_state.reserves_used)
-                } else {
-                    None
-                };
-            let missiles_remaining: Option<Capacity> =
-                if new_local_state.missiles_used != local_state.missiles_used {
-                    Some(global_state.max_missiles - new_local_state.missiles_used)
-                } else {
-                    None
-                };
-            let supers_remaining: Option<Capacity> =
-                if new_local_state.supers_used != local_state.supers_used {
-                    Some(global_state.max_supers - new_local_state.supers_used)
-                } else {
-                    None
-                };
-            let power_bombs_remaining: Option<Capacity> =
-                if new_local_state.power_bombs_used != local_state.power_bombs_used {
-                    Some(global_state.max_power_bombs - new_local_state.power_bombs_used)
-                } else {
-                    None
-                };
-            let spoiler_entry = SpoilerRouteEntry {
-                area: to_vertex_info.area_name,
-                room: to_vertex_info.room_name,
-                node: to_vertex_info.node_name,
-                obstacles_bitmask: to_obstacles_mask,
-                coords: to_vertex_info.room_coords,
-                strat_name: link.strat_name.clone(),
-                strat_notes: link.strat_notes.clone(),
-                energy_remaining,
-                reserves_remaining,
-                missiles_remaining,
-                supers_remaining,
-                power_bombs_remaining,
-            };
-            route.push(spoiler_entry);
-            local_state = new_local_state;
+                route.push(spoiler_entry);
+                local_state = new_local_state;
+            }
         }
         route
     }

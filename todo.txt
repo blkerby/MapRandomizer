@@ -1,13 +1,14 @@
 upcoming:
 - link spoiler route to strat pages
+  - process sublinks
 - create high-quality videos and link to them
 - DONE: include videos on pages for notable strats
+
+priority:
 - make randomizer more efficient
 - add CF health refill to logic
   - include tricky CF at ammo refill stations
 - proper saving/loading of custom presets
-
-priority:
 - help finish the cross-room strat migration
 - don't put ammo doors next to objective tiles
 - "Random" objective option? (but what will tracker look like)

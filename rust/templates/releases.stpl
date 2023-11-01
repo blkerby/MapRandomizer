@@ -21,8 +21,9 @@ about 15 seconds to load.
 <ul>
 <li>Website updates:
     <ul>
-    <li>Animated GIFs for notable strats are now embedded in the logic pages.
+    <li>Animated GIFs for notable strats are now embedded in room, tech, and strat logic pages.
     <li>Double-clicking a room in the interactive spoiler map now opens the room's logic page.
+    <li>In spoiler map routes, non-trivial steps are hyperlinked to the strat's logic page.
     </ul>
 </ul>
 

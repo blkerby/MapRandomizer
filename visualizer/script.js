@@ -388,14 +388,15 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 					si.innerHTML += `${k.node}<br>`;
 					let out = "";
 					if (k.strat_name != "Base" && k.strat_name != "(Door transition)") {
+						let strat_url = `/logic/room/${k.short_room}/${k.from_node_id}/${k.to_node_id}/${k.short_strat_name}`;
 						if (k.strat_notes) {
 							let title = "";
 							for (let i of k.strat_notes) {
 								title += `${i} `;
 							}
-							out += `Strat: <abbr title="${title}">${k.strat_name}</abbr><br>`;
+							out += `Strat: <a href=${strat_url}><abbr title="${title}">${k.strat_name}</abbr></a><br>`;
 						} else {
-							out += `Strat: ${k.strat_name}<br>`;
+							out += `Strat: <a href=${strat_url}>${k.strat_name}</a><br>`;
 						}
 					}
 					if (k.energy_remaining) {

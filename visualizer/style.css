@@ -4,6 +4,9 @@ body {
 	margin: 0;
 	overflow: hidden;
 }
+a {
+	color: white;	
+}
 #map {
 	position: absolute;
 	width: 1776px;
