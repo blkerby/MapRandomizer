@@ -89,6 +89,15 @@ document.getElementById("navigation-logic").classList.add("active");
                 html[data-bs-theme=light] .table {
                     --bs-table-hover-bg: #f4f5f6;
                 }
+                .png-tech {
+                    position: absolute;
+                }
+                .strat-row:hover .png-tech {
+                    opacity: 0;
+                }
+                .strat-row:not(:hover) .gif-tech {
+                    opacity: 0;
+                }
                 </style>
                 <table class="table table-hover mb-0">
                 <tbody>

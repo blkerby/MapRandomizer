@@ -19,9 +19,30 @@
 Notable: true<br>
 <% } %>
 </p>
-<% if strat.note.len() > 0 { %> 
-    <p><%= strat.note %></p>
+
+<% if strat.notable { %>
+    <div class="row my-2">
+        <div class="text-center col-sm-4 col-md-3 col-lg-2">
+            <% let name = strat.notable_strat_name; %>
+            <% if notable_gif_listing.contains(&format!("{}.png", name)) { %>
+            <img class="png-tech" loading="lazy" src="/static/notable_gifs/<%- name%>.png" style="width:128px;height:128px;">
+            <% } %>
+            <% if notable_gif_listing.contains(&format!("{}.gif", name)) { %>
+            <img class="gif-tech" loading="lazy" src="/static/notable_gifs/<%- name%>.gif" style="width:128px;height:128px;">
+            <% } %>
+        </div>
+        <div class="col-sm-8 col-md-9 col-lg-10">
+            <% if strat.note.len() > 0 { %> 
+                <p><%= strat.note %></p>
+            <% } %>
+        </div>
+    </div>
+<% } else { %>
+    <% if strat.note.len() > 0 { %> 
+        <p><%= strat.note %></p>
+    <% } %>
 <% } %>
+
 <% if let Some(entrance_condition) = strat.entrance_condition { %>
     <p class="mb-0">Entrance condition:</p>
     <pre><%= entrance_condition %></pre>

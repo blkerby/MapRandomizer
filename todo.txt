@@ -1,4 +1,6 @@
 upcoming:
+- link spoiler log to strat pages
+- DONE: include videos on pages for notable strats
 - make randomizer more efficient
 - add CF health refill to logic
   - include tricky CF at ammo refill stations

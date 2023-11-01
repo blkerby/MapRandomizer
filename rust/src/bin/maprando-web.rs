@@ -1575,7 +1575,7 @@ fn build_app_data() -> AppData {
     let ignored_notable_strats = get_ignored_notable_strats();
     let implicit_tech = get_implicit_tech();
     let preset_data = init_presets(presets, &game_data, &ignored_notable_strats, &implicit_tech);
-    let logic_data = LogicData::new(&game_data, &tech_gif_listing, &preset_data);
+    let logic_data = LogicData::new(&game_data, &tech_gif_listing, &notable_gif_listing, &preset_data);
     let samus_sprite_categories: Vec<SamusSpriteCategory> =
         serde_json::from_str(&std::fs::read_to_string(&samus_sprites_path).unwrap()).unwrap();
     AppData {

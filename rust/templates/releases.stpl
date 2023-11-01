@@ -17,6 +17,14 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-92---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release91">Version 92 (???)</a>:
+<ul>
+<li>Website updates:
+    <ul>
+    <li>Animated GIFs for notable strats are now embedded in the logic pages.
+    </ul>
+</ul>
+
 <p><a href="https://version-91---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release91">Version 91 (2023-10-30)</a>:
 <ul>
 <li>Significant bodies of water are indicated on the map by a dark/checkered background.
