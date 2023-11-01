@@ -1,26 +1,25 @@
 upcoming:
-- proper saving/loading of custom presets
 - make randomizer more efficient
+- add CF health refill to logic
+  - include tricky CF at ammo refill stations
+- proper saving/loading of custom presets
 
 priority:
+- help finish the cross-room strat migration
 - don't put ammo doors next to objective tiles
 - "Random" objective option? (but what will tracker look like)
 - Map pool split: Tame vs. Wild
 - clarify gate glitch leniency: that it doesn't apply to Pink Hopper Room gate
 - consider prioritizing item placement at closer item locations relative to previous key item(s)
 - start logging the seed generation latency
-- cross-room strat cleanup
 - split off toilet from aqueduct
 - consider making "guaranteed early save" the default
 - consider implementing farm QoL option to combine drop tiers
   - $86F106: drop logic
 - speed booster hall: heat frames could be slightly less?
 - try using other zebes asleep music, to see if snails make a sound?
-- make script to convert norfair cre to cre.
 - add door flags to refine logic
 - add door lock bypass strats to logic
-- balance door randomization across areas to avoid running out of tiles?
-  - handle lack of tiles more gracefully?
 - randomized title screen
 - controller config special settings (moonwalk) customization
 - set up a more robust way for users to save & select presets
@@ -31,8 +30,6 @@ priority:
   - WebM/VP9 for full playback using HTML5 <video>
   - WebP for thumbnails
   - use image-rendering: pixelated
-- add CF health refill to logic
-  - tricky CF at ammo refill stations
 - logic: add some 3-room shinecharge strats to logic (ones that can work with existing schema)
 - add notable for underwater canGateGlitch (Very Hard)?
 - remove old-format farms and refills from sm-json-data?
@@ -47,11 +44,8 @@ priority:
   - Larvas: 4 special items (replacing missiles)
   - Random
 - Improve save station balancing
-  - On model side, spread out the placement of potential save rooms (single-tile rooms).
-  - Define "distance" in a way that accounts for ease of access (e.g. possible item/tech dependencies)
+  - Define "distance" in a way that accounts for ease of access (e.g. possible item/tech dependencies)?
 - Improve area clustering
-- investigate panic during spoiler log construction:
-  - RUST_BACKTRACE=1 time cargo run --bin maprando-cli -- --map ../maps/session-2022-06-03T17:19:29.727911.pkl-bk30-subarea-balance-2/1000001.json --item-placement-seed 3 --input-rom ~/Downloads/Super\ Metroid\ \(JU\)\ \[\!\].smc --output-rom ~/Downloads/testrom.smc
 - investigate resource_multiplier bug that happened in Osse's seed with resource_multiplier=8:
   - https://maprando.com/seed/isnUf9YjIhvW-BJFrvFuyw/data/visualizer/index.html
   - (was from enemykill not using multiplier)
@@ -63,21 +57,17 @@ priority:
     - https://maprando.com/seed/HwuYziIJUh-sCUM0YCAPRA/data/visualizer/index.html
   - possibly related: issue where filler items are re-randomized when trying new key item.
     - maybe re-randomizing is ok, but on success it should try replacing key item with Missile (instead of having Missile be first key item tried)
-- fix quick-reload on last frame of pause/unpause
-- check if reloading from bottom/top of elevator works correctly (not skips back a save)
-- do something about screen shaking during samus appears (in start location: rising tide, amphitheatre)
-  - maybe customization option to get rid of shaking in general?
+- fix quick reloading from bottom/top of elevator (to not skip back a save)
+- maybe customization option to get rid of screen shaking 
 - handle canShinesparkWithReserve in randomizer (and remove it from being ignored)
 - incrementally build graph traversal with increasing difficulty tiers, acquiring flags in the process.
   - will allow better accounting of the difficulty of boss fights in forced mode
   - should be faster too
   - improved spoiler log route
 - show objective progress in pause menu (also zebes awake, phantoon defeated)?
-  - or maybe just make objective X's fade on map (if we do faded item dots)
+  - or maybe make objective X's fade after collection?
 - help buttons for rest of settings (e.g. explain boss proficiency calculations)
 - logic simulator
-- temporarily disable comeInWithGMode strats through sand since this will not be correct with how it
-  is currently set up (since there is no way to go up through sand)
 
 later:
 - remove dead code for drawing lava/acid on map tiles.
@@ -119,8 +109,6 @@ later:
   - make it so that customization can use matching version from when the seed was generated
   - include more options for customization
   - ROM won't need to be provided for generation, only customization
-- map improvements
-  - fix little pause menu palette issue at top of equipment screen (green where gray should be)
 - handle runways with conditional physics (Volcano Room, Amphitheatre, East Pants Room)
 - check why Tourian Escape Room 1 runway isn't allowing Speedball strat into Wrecked Ship Main Shaft (on Expert)
 - remove invisible solid tile in Tourian Escape Room 1, above transition
