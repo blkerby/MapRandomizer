@@ -1318,7 +1318,7 @@ impl<'a> MapPatcher<'a> {
         )?;
         self.patch_room_basic("Crateria Super Room", vec![(3, 0, E, W, W, P, I)])?;
         self.patch_room_basic("Landing Site", vec![(2, 2, P, E, E, E, O)])?;
-        self.patch_room_basic("Parlor and Alcatraz", vec![(1, 0, P, E, W, E, O)])?;
+        self.patch_room_basic("Parlor And Alcatraz", vec![(1, 0, P, E, W, E, O)])?;
         self.patch_room_basic(
             "Pit Room",
             vec![(0, 0, D, E, W, P, O), (0, 1, W, W, E, W, I)],
@@ -1485,7 +1485,7 @@ impl<'a> MapPatcher<'a> {
         self.patch_room_basic("Pseudo Plasma Spark Room", vec![(1, 2, E, P, E, W, O)])?;
         self.patch_room_basic("Watering Hole", vec![(0, 1, W, W, E, P, O)])?;
         self.patch_room_basic(
-            "East Tunnel",
+            "Boyon Gate Hall",
             vec![(0, 0, W, E, W, P, O), (0, 1, D, D, E, W, O)],
         )?;
         self.patch_room_basic("Crab Tunnel", vec![(0, 0, D, P, W, W, O)])?;

@@ -273,7 +273,7 @@ fn make_tech_templates<'a>(
     tech_templates
 }
 
-fn strip_name(s: &str) -> String {
+pub fn strip_name(s: &str) -> String {
     let mut out = String::new();
     for word in s.split_inclusive(|x: char| !x.is_ascii_alphabetic()) {
         let capitalized_word = word[0..1].to_ascii_uppercase() + &word[1..];

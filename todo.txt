@@ -1,5 +1,6 @@
 upcoming:
-- link spoiler log to strat pages
+- link spoiler route to strat pages
+- create high-quality videos and link to them
 - DONE: include videos on pages for notable strats
 - make randomizer more efficient
 - add CF health refill to logic

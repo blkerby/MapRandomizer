@@ -17,11 +17,12 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-92---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release91">Version 92 (???)</a>:
+<p><a href="https://version-92---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release92">Version 92 (???)</a>:
 <ul>
 <li>Website updates:
     <ul>
     <li>Animated GIFs for notable strats are now embedded in the logic pages.
+    <li>Double-clicking a room in the interactive spoiler map now opens the room's logic page.
     </ul>
 </ul>
 

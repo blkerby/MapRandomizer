@@ -64,7 +64,7 @@
         "heated": false
     },
     {
-        "name": "Parlor and Alcatraz",
+        "name": "Parlor And Alcatraz",
         "area": 0,
         "rom_address": 496381,
         "twin_rom_address": null,
@@ -1064,7 +1064,7 @@
         "heated": false
     },
     {
-        "name": "Green Brinstar Missile Refill Room",
+        "name": "Green Brinstar Missile Refill",
         "area": 1,
         "rom_address": 498825,
         "twin_rom_address": null,
@@ -1254,7 +1254,7 @@
         "heated": false
     },
     {
-        "name": "Dachora Energy Refill Room",
+        "name": "Dachora Energy Refill",
         "area": 1,
         "rom_address": 499835,
         "twin_rom_address": null,
@@ -1498,7 +1498,7 @@
         "heated": false
     },
     {
-        "name": "Warehouse Save Room",
+        "name": "Kraid Save Room",
         "area": 1,
         "rom_address": 501515,
         "twin_rom_address": null,
@@ -1598,7 +1598,7 @@
         "heated": false
     },
     {
-        "name": "West Tunnel",
+        "name": "West Glass Tube Tunnel",
         "area": 4,
         "rom_address": 511828,
         "twin_rom_address": null,
@@ -1616,7 +1616,7 @@
         "heated": false
     },
     {
-        "name": "East Tunnel",
+        "name": "Boyon Gate Hall",
         "area": 4,
         "rom_address": 511872,
         "twin_rom_address": null,

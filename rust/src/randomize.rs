@@ -10,7 +10,7 @@ use crate::{
     traverse::{
         apply_requirement, get_spoiler_route, is_bireachable, traverse, GlobalState, LinkIdx,
         LocalState, TraverseResult,
-    },
+    }, web::logic::strip_name,
 };
 use anyhow::{bail, Result};
 use by_address::ByAddress;
@@ -2739,10 +2739,12 @@ impl<'r> Randomizer<'r> {
             .zip(self.game_data.room_geometry.iter())
             .map(|((room_idx, c), g)| {
                 let room = self.game_data.room_id_by_ptr[&g.rom_address];
-                let room = self.game_data.room_json_map[&room]["name"]
-                    .as_str()
-                    .unwrap()
-                    .to_string();
+                // let room = self.game_data.room_json_map[&room]["name"]
+                //     .as_str()
+                //     .unwrap()
+                //     .to_string();
+                let room = g.name.clone();
+                let short_name = strip_name(&room);
                 let height = g.map.len();
                 let width = g.map[0].len();
                 let mut map_reachable_step: Vec<Vec<u8>> = vec![vec![255; width]; height];
@@ -2762,6 +2764,7 @@ impl<'r> Randomizer<'r> {
                 }
                 SpoilerRoomLoc {
                     room,
+                    short_name,
                     map: g.map.clone(),
                     map_reachable_step,
                     map_bireachable_step,
@@ -3172,6 +3175,7 @@ pub struct SpoilerItemLoc {
 pub struct SpoilerRoomLoc {
     // here temporarily, most likely, since these can be baked into the web UI
     room: String,
+    short_name: String,
     map: Vec<Vec<u8>>,
     map_reachable_step: Vec<Vec<u8>>,
     map_bireachable_step: Vec<Vec<u8>>,

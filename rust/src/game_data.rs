@@ -1820,6 +1820,26 @@ impl GameData {
         let mut extra_links: Vec<JsonValue> = Vec::new();
         let room_id = room_json["id"].as_usize().unwrap();
 
+        if room_json["name"].as_str().unwrap() == "Upper Tourian Save Room" {
+            new_room_json["name"] = JsonValue::String("Tourian Map Room".to_string());
+        }
+        if room_json["name"].as_str().unwrap() == "Wrecked Ship East Missile Room" {
+            // TODO: Update this in sm-json-data to match Wiki name
+            new_room_json["name"] = JsonValue::String("Assembly Line".to_string());
+        }
+        if room_json["name"].as_str().unwrap() == "Noob Bridge aka A Bridge Too Far" {
+            // TODO: Update this in sm-json-data to match Wiki name
+            new_room_json["name"] = JsonValue::String("Noob Bridge".to_string());
+        }
+        if room_json["name"].as_str().unwrap() == "West (Glass Tube) Tunnel" {
+            // TODO: Update this in sm-json-data to match Wiki name
+            new_room_json["name"] = JsonValue::String("West Glass Tube Tunnel".to_string());
+        }
+        if room_json["name"].as_str().unwrap() == "Plasma Climb aka Kassiuz Room" {
+            // TODO: Update this in sm-json-data to match Wiki name
+            new_room_json["name"] = JsonValue::String("Kassiuz Room".to_string());
+        }
+
         // Rooms where we want the logic to take into account the gray door locks (elsewhere the gray doors are changed to blue):
         // Be sure to keep this consistent with patches where the gray doors are actually changed in the ROM, in
         // "patch.rs" and "gray_doors.asm".
