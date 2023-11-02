@@ -1,11 +1,16 @@
 upcoming:
-- link spoiler route to strat pages
-  - process sublinks
 - create high-quality videos and link to them
+- link from generate page notable strat name to strat page.
 - make unexplored gray slightly lighter (unheated in particular, but maybe both)
+- DONE: link spoiler route to strat pages
 - DONE: include videos on pages for notable strats
 
 priority:
+- Adapt randomizer to region file split
+- make tech and notable strat names in the Generate page link to the corresponding logic page.
+  - need special handling for reusable notables though
+- List notable strats in the main logic page.
+- add a logic page for each difficulty tier (similar to the sections within the Generate page)
 - make randomizer more efficient
 - add CF health refill to logic
   - include tricky CF at ammo refill stations

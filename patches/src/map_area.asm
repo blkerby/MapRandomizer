@@ -15,9 +15,10 @@ lorom
 
 !backup_area = $1F62
 !map_switch_direction = $1F66
-;!unexplored_gray = #$2108
-!unexplored_gray = #$18c6
-!unexplored_light_gray = #$35ad
+!unexplored_gray = #$2529
+;!unexplored_gray = #$18c6
+;!unexplored_light_gray = #$35ad
+!unexplored_light_gray = #$3def
 !area_explored_mask = $702600
 
 ;;; Hijack map usages of area ($079F) with new area ($1F5B)
@@ -401,19 +402,19 @@ update_pause_map_palette:
 
 
 area_palettes_explored:
-    dw $5c2e  ; Crateria
-    dw $0200  ; Brinstar
-    dw $0014  ; Norfair
+    dw $6430  ; Crateria
+    dw $0220  ; Brinstar
+    dw $0015  ; Norfair
     dw $0210  ; Wrecked Ship
-    dw $6163  ; Maridia
+    dw $6983  ; Maridia
     dw $0174  ; Tourian
 
 area_palettes_explored_light:
-    dw $7d35  ; Crateria
+    dw $7d78  ; Crateria
     dw $2308  ; Brinstar
-    dw $1cdd  ; Norfair
+    dw $1cdf  ; Norfair
     dw $22d8  ; Wrecked Ship
-    dw $7E48  ; Maridia
+    dw $7e68  ; Maridia
     dw $01fd  ; Tourian
 
 

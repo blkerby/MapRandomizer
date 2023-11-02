@@ -17,14 +17,20 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-92---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release92">Version 92 (???)</a>:
+<p><a href="https://version-92---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release92">Version 92 (2023-11-02)</a>:
 <ul>
+<li>Some map colors are brightened, to improve contrast with water rooms.
 <li>Website updates:
     <ul>
-    <li>Animated GIFs for notable strats are now embedded in room, tech, and strat logic pages.
-    <li>Clicking on an animated GIF opens a high-quality video with input display.
-    <li>Double-clicking a room in the interactive spoiler map now opens the room's logic page.
-    <li>In spoiler map routes, non-trivial steps are hyperlinked to the strat's logic page.
+    <li>Room, tech, and strat logic pages now include animated GIFs for notable strats.
+    <li>Clicking on an animated GIF opens a full video with input display.
+    <li>Double-clicking a room in the interactive spoiler map opens the room's logic page.
+    <li>In spoiler map routes, non-trivial steps link to the strat's logic page.
+    </ul>
+<li>Tile themes:
+    <ul>
+    <li>Fix to the Maridia tube across all themes.
+    <li>Various minor improvements to the "Green Brinstar" theme.
     </ul>
 </ul>
 
