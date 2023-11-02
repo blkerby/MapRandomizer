@@ -2014,7 +2014,6 @@ impl GameData {
                     }
                 }
                 if found {
-                    println!("room: {}, old strat: {}, new strat: {}", room_json["name"], strat.pretty(2), new_strat.pretty(2));
                     new_strats.push(new_strat);    
                 }
             }
