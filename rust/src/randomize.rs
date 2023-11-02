@@ -3349,7 +3349,7 @@ impl<'a> Randomizer<'a> {
                 self.game_data,
             );
             let new_local_state = new_local_state_opt.unwrap();
-            let new_resources = self.get_resources_remaining(&global_state, *local_state, *local_state);
+            let new_resources = self.get_resources_remaining(&global_state, *local_state, new_local_state);
             for (i, link) in sublinks.iter().enumerate() {
                 let last = i == sublinks.len() - 1;
                 let from_vertex_info = self.get_vertex_info(link.from_vertex_id);
@@ -3475,7 +3475,7 @@ impl<'a> Randomizer<'a> {
             assert!(new_local_state.missiles_used <= global_state.max_missiles);
             assert!(new_local_state.supers_used <= global_state.max_supers);
             assert!(new_local_state.power_bombs_used <= global_state.max_power_bombs);
-            let new_resources = self.get_resources_remaining(&global_state, local_state, local_state);
+            let new_resources = self.get_resources_remaining(&global_state, local_state, new_local_state);
 
             for (i, link) in sublinks.iter().enumerate() {
                 let last = i == sublinks.len() - 1;
