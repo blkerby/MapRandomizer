@@ -2,6 +2,7 @@ upcoming:
 - link spoiler route to strat pages
   - process sublinks
 - create high-quality videos and link to them
+- make unexplored gray slightly lighter (unheated in particular, but maybe both)
 - DONE: include videos on pages for notable strats
 
 priority:

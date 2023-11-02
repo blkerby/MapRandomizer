@@ -200,7 +200,6 @@ function changeSamusSprite() {
     if (selectedSprite !== null) {
         selectedSprite.classList.add("selected");
     }
-    console.log("selected: " + selectedSpriteName + ": " + selectedSprite);
 
     var selectedSpriteDisplayName = selectedSprite.getAttribute("data-display-name");
     document.getElementById("selectedSpriteDisplayName").innerHTML = selectedSpriteDisplayName;

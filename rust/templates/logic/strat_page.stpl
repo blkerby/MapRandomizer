@@ -10,6 +10,8 @@
 document.getElementById("navigation-logic").classList.add("active");
 </script>
 
+<% include!("../common/video-modal.stpl"); %>
+
 <div class="container col-xl-10 col-xxl-8 pt-2 pb-2 mb-4">
     <div class="row mb-0 pb-0">
         <div class="col-sm-8">

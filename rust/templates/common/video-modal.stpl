@@ -1,0 +1,24 @@
+<!-- Modal -->
+<div class="modal" id="videoModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-body">
+        <video id="video" width=100% controls style="image-rendering: pixelated;">
+        <source id="videoSource" src="https://storage.cloud.google.com/super-metroid-map-rando-videos-webm/Baby%20Skip%20Without%20Wave%20or%20Speed.webm">
+        </video>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+document.getElementById("videoModal").addEventListener('hidden.bs.modal', (event) => {
+  document.getElementById("video").pause();
+});
+function startVideo(url) {
+  console.log("starting video ", url);
+  video.pause();
+  document.getElementById("videoSource").setAttribute("src", url);
+  video.load();
+  video.play();
+}
+</script>

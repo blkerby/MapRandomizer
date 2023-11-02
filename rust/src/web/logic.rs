@@ -11,7 +11,7 @@ use crate::randomize::{DebugOptions, DifficultyConfig, SaveAnimals};
 use crate::traverse::{apply_requirement, GlobalState, LocalState};
 use crate::web::VERSION;
 
-use super::PresetData;
+use super::{PresetData, HQ_VIDEO_URL_ROOT};
 
 #[derive(Clone)]
 struct RoomStrat<'a> {
@@ -51,6 +51,7 @@ struct RoomTemplate<'a> {
     strats: Vec<RoomStrat<'a>>,
     room_json: String,
     notable_gif_listing: &'a HashSet<String>,
+    hq_video_url_root: String,
 }
 
 #[derive(TemplateOnce, Clone)]
@@ -67,6 +68,7 @@ struct TechTemplate<'a> {
     tech_gif_listing: &'a HashSet<String>,
     notable_gif_listing: &'a HashSet<String>,
     area_order: Vec<String>,
+    hq_video_url_root: String,
 }
 
 #[derive(TemplateOnce, Clone)]
@@ -82,6 +84,7 @@ struct StratTemplate<'a> {
     strat_name: String,
     strat: RoomStrat<'a>,
     notable_gif_listing: &'a HashSet<String>,
+    hq_video_url_root: String,
 }
 
 #[derive(TemplateOnce)]
@@ -178,6 +181,7 @@ fn make_tech_templates<'a>(
     presets: &[PresetData],
     global_states: &[GlobalState],
     area_order: &[String],
+    hq_video_url_root: &str,
 ) -> Vec<TechTemplate<'a>> {
     let mut tech_strat_ids: Vec<HashSet<(RoomId, NodeId, NodeId, String)>> =
         vec![HashSet::new(); game_data.tech_isv.keys.len()];
@@ -267,6 +271,7 @@ fn make_tech_templates<'a>(
             tech_gif_listing: tech_gif_listing,
             notable_gif_listing: notable_gif_listing,
             area_order: area_order.to_vec(),
+            hq_video_url_root: hq_video_url_root.to_string(),
         };
         tech_templates.push(template);
     }
@@ -428,6 +433,7 @@ fn make_room_template<'a>(
     global_states: &[GlobalState],
     links_by_ids: &HashMap<(RoomId, NodeId, NodeId, String), Vec<Link>>,
     notable_gif_listing: &'a HashSet<String>,
+    hq_video_url_root: &str,
 ) -> RoomTemplate<'a> {
     let mut room_strats: Vec<RoomStrat> = vec![];
     let room_id = room_json["id"].as_usize().unwrap();
@@ -535,6 +541,7 @@ fn make_room_template<'a>(
         strats: room_strats,
         room_json: room_json.pretty(2),
         notable_gif_listing,
+        hq_video_url_root: hq_video_url_root.to_string(),
     }
 }
 
@@ -542,6 +549,7 @@ fn make_strat_template<'a>(
     room: &RoomTemplate<'a>,
     strat: &RoomStrat<'a>,
     notable_gif_listing: &'a HashSet<String>,
+    hq_video_url_root: &str,
 ) -> StratTemplate<'a> {
     StratTemplate {
         version: VERSION,
@@ -554,6 +562,7 @@ fn make_strat_template<'a>(
         strat_name: strat.strat_name.clone(),
         strat: strat.clone(),
         notable_gif_listing,
+        hq_video_url_root: hq_video_url_root.to_string(),
     }
 }
 
@@ -569,6 +578,7 @@ impl LogicData {
         let mut room_templates: Vec<RoomTemplate> = vec![];
         let difficulty_configs: Vec<DifficultyConfig> =
             presets.iter().map(get_difficulty_config).collect();
+        let hq_video_url_root = HQ_VIDEO_URL_ROOT;
 
         let area_order: Vec<String> = vec![
             "Central Crateria",
@@ -654,6 +664,7 @@ impl LogicData {
                 &global_states,
                 &links_by_ids,
                 notable_gif_listing,
+                hq_video_url_root,
             );
             let html = template.clone().render_once().unwrap();
             let stripped_room_name = strip_name(&template.room_name);
@@ -661,7 +672,7 @@ impl LogicData {
             room_templates.push(template.clone());
 
             for strat in &template.strats {
-                let strat_template = make_strat_template(&template, &strat, notable_gif_listing);
+                let strat_template = make_strat_template(&template, &strat, notable_gif_listing, hq_video_url_root);
                 let strat_html = strat_template.render_once().unwrap();
                 let stripped_strat_name = strip_name(&strat.strat_name);
                 out.strat_html
@@ -678,6 +689,7 @@ impl LogicData {
             presets,
             &global_states,
             &area_order,
+            hq_video_url_root,
         );
         for template in &tech_templates {
             let html = template.clone().render_once().unwrap();

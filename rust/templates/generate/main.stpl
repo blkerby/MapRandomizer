@@ -24,6 +24,7 @@
     </head>
     <body>
     <% include!("../common/navbar.stpl"); %>
+    <% include!("../common/video-modal.stpl"); %>        
     <script>
     document.getElementById("navigation-generate").classList.add("active");
     </script>

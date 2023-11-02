@@ -37,7 +37,7 @@ patches = [
     # 'spinjumprestart',
     # 'new_game_extra',
     'door_hurt',
-    "everest_tube"
+    "everest_tube",
     # 'complementary_suits',
     # 'complementary_suits_noheat',
     # 'escape',
@@ -53,7 +53,7 @@ patches = [
     # 'bomb_torizo',
     # 'decompression',
     # 'fast_reload',
-    # 'hud_expansion_opaque',
+    'hud_expansion_opaque',
     # 'mb_barrier',
     # 'mb_barrier_clear',
     # 'saveload',

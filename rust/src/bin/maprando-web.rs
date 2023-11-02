@@ -24,7 +24,7 @@ use maprando::randomize::{
 };
 use maprando::seed_repository::{Seed, SeedFile, SeedRepository};
 use maprando::spoiler_map;
-use maprando::web::{AppData, MapRepository, Preset, PresetData, SamusSpriteCategory};
+use maprando::web::{AppData, MapRepository, Preset, PresetData, SamusSpriteCategory, HQ_VIDEO_URL_ROOT};
 use rand::{RngCore, SeedableRng};
 use sailfish::TemplateOnce;
 use serde_derive::{Deserialize, Serialize};
@@ -102,6 +102,7 @@ struct GenerateTemplate<'a> {
     tech_gif_listing: &'a HashSet<String>,
     notable_gif_listing: &'a HashSet<String>,
     tech_strat_counts: &'a HashMap<String, usize>,
+    hq_video_url_root: &'a str,
 }
 
 #[get("/")]
@@ -169,6 +170,7 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         tech_gif_listing: &app_data.tech_gif_listing,
         notable_gif_listing: &app_data.notable_gif_listing,
         tech_strat_counts: &app_data.logic_data.tech_strat_counts,
+        hq_video_url_root: HQ_VIDEO_URL_ROOT,
     };
     HttpResponse::Ok().body(generate_template.render_once().unwrap())
 }
