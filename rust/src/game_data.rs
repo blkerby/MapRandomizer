@@ -2004,14 +2004,19 @@ impl GameData {
             for strat in new_room_json["strats"].members_mut() {
                 let json_obstacle_flag_name = JsonValue::String(obstacle_flag_name.clone());
                 let mut new_strat = strat.clone();
+                let mut found = false;
                 for req in new_strat["requires"].members_mut() {
                     if req == &json_obstacle_flag_name {
                         *req = json::object! {
                             "obstaclesCleared": [obstacle_flag_name.to_string()]
                         };
+                        found = true;
                     }
                 }
-                new_strats.push(new_strat);
+                if found {
+                    println!("room: {}, old strat: {}, new strat: {}", room_json["name"], strat.pretty(2), new_strat.pretty(2));
+                    new_strats.push(new_strat);    
+                }
             }
             for strat in new_strats {
                 new_room_json["strats"].push(strat).unwrap();
