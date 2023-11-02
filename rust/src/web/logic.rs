@@ -187,21 +187,17 @@ fn make_tech_templates<'a>(
         vec![HashSet::new(); game_data.tech_isv.keys.len()];
     for room_json in game_data.room_json_map.values() {
         let room_id = room_json["id"].as_usize().unwrap();
-        for link_json in room_json["links"].members() {
-            for link_to_json in link_json["to"].members() {
-                for strat_json in link_to_json["strats"].members() {
-                    let from_node_id = link_json["from"].as_usize().unwrap();
-                    let to_node_id = link_to_json["id"].as_usize().unwrap();
-                    let strat_name = strat_json["name"].as_str().unwrap().to_string();
-                    let ids = (room_id, from_node_id, to_node_id, strat_name);
-                    let mut tech_set: HashSet<usize> = HashSet::new();
-                    for req in strat_json["requires"].members() {
-                        extract_tech_rec(req, &mut tech_set, game_data);
-                    }
-                    for tech_idx in tech_set {
-                        tech_strat_ids[tech_idx].insert(ids.clone());
-                    }
-                }
+        for strat_json in room_json["strats"].members() {
+            let from_node_id = strat_json["link"][0].as_usize().unwrap();
+            let to_node_id = strat_json["link"][1].as_usize().unwrap();
+            let strat_name = strat_json["name"].as_str().unwrap().to_string();
+            let ids = (room_id, from_node_id, to_node_id, strat_name);
+            let mut tech_set: HashSet<usize> = HashSet::new();
+            for req in strat_json["requires"].members() {
+                extract_tech_rec(req, &mut tech_set, game_data);
+            }
+            for tech_idx in tech_set {
+                tech_strat_ids[tech_idx].insert(ids.clone());
             }
         }
     }
@@ -458,71 +454,67 @@ fn make_room_template<'a>(
         area
     };
 
-    for link_json in room_json["links"].members() {
-        for link_to_json in link_json["to"].members() {
-            for strat_json in link_to_json["strats"].members() {
-                let from_node_id = link_json["from"].as_usize().unwrap();
-                let to_node_id = link_to_json["id"].as_usize().unwrap();
-                let strat_name = strat_json["name"].as_str().unwrap().to_string();
-                let difficulty_idx = get_strat_difficulty(
-                    room_id,
-                    from_node_id,
-                    to_node_id,
-                    strat_name,
-                    game_data,
-                    difficulty_configs,
-                    global_states,
-                    links_by_ids,
-                );
-                let difficulty_name = if difficulty_idx == difficulty_configs.len() {
-                    "Beyond".to_string()
-                } else {
-                    presets[difficulty_idx].preset.name.clone()
-                };
-                let clears_obstacles: Vec<String> = if strat_json.has_key("clearsObstacles") {
-                    strat_json["clearsObstacles"]
-                        .members()
-                        .map(|x| x.as_str().unwrap().to_string())
-                        .collect()
-                } else {
-                    vec![]
-                };
-                let entrance_condition: Option<String> = if strat_json.has_key("entranceCondition") {
-                    Some(strat_json["entranceCondition"].pretty(2))
-                } else {
-                    None
-                };
-                let exit_condition: Option<String> = if strat_json.has_key("exitCondition") {
-                    Some(strat_json["exitCondition"].pretty(2))
-                } else {
-                    None
-                };
-                let strat_name = strat_json["name"].as_str().unwrap().to_string();
-                let reusable_strat_name = strat_json["reusableRoomwideNotable"].as_str().map(|x| x.to_string());
-                let strat = RoomStrat {
-                    room_name: room_name.clone(),
-                    room_name_stripped: room_name_stripped.clone(),
-                    area: full_area.clone(),
-                    strat_name: strat_name.clone(),
-                    strat_name_stripped: strip_name(&strat_name),
-                    notable_strat_name: reusable_strat_name.unwrap_or(strat_name),
-                    notable: strat_json["notable"].as_bool().unwrap_or(false),
-                    from_node_id,
-                    from_node_name: node_name_map[&from_node_id].clone(),
-                    to_node_id,
-                    to_node_name: node_name_map[&to_node_id].clone(),
-                    note: game_data.parse_note(&strat_json["note"]).join(" "),
-                    entrance_condition,
-                    requires: make_requires(&strat_json["requires"]),
-                    exit_condition,
-                    clears_obstacles,
-                    difficulty_idx,
-                    difficulty_name,
-                    notable_gif_listing,
-                };
-                room_strats.push(strat);
-            }
-        }
+    for strat_json in room_json["strats"].members() {
+        let from_node_id = strat_json["link"][0].as_usize().unwrap();
+        let to_node_id = strat_json["link"][1].as_usize().unwrap();
+        let strat_name = strat_json["name"].as_str().unwrap().to_string();
+        let difficulty_idx = get_strat_difficulty(
+            room_id,
+            from_node_id,
+            to_node_id,
+            strat_name,
+            game_data,
+            difficulty_configs,
+            global_states,
+            links_by_ids,
+        );
+        let difficulty_name = if difficulty_idx == difficulty_configs.len() {
+            "Beyond".to_string()
+        } else {
+            presets[difficulty_idx].preset.name.clone()
+        };
+        let clears_obstacles: Vec<String> = if strat_json.has_key("clearsObstacles") {
+            strat_json["clearsObstacles"]
+                .members()
+                .map(|x| x.as_str().unwrap().to_string())
+                .collect()
+        } else {
+            vec![]
+        };
+        let entrance_condition: Option<String> = if strat_json.has_key("entranceCondition") {
+            Some(strat_json["entranceCondition"].pretty(2))
+        } else {
+            None
+        };
+        let exit_condition: Option<String> = if strat_json.has_key("exitCondition") {
+            Some(strat_json["exitCondition"].pretty(2))
+        } else {
+            None
+        };
+        let strat_name = strat_json["name"].as_str().unwrap().to_string();
+        let reusable_strat_name = strat_json["reusableRoomwideNotable"].as_str().map(|x| x.to_string());
+        let strat = RoomStrat {
+            room_name: room_name.clone(),
+            room_name_stripped: room_name_stripped.clone(),
+            area: full_area.clone(),
+            strat_name: strat_name.clone(),
+            strat_name_stripped: strip_name(&strat_name),
+            notable_strat_name: reusable_strat_name.unwrap_or(strat_name),
+            notable: strat_json["notable"].as_bool().unwrap_or(false),
+            from_node_id,
+            from_node_name: node_name_map[&from_node_id].clone(),
+            to_node_id,
+            to_node_name: node_name_map[&to_node_id].clone(),
+            note: game_data.parse_note(&strat_json["note"]).join(" "),
+            entrance_condition,
+            requires: make_requires(&strat_json["requires"]),
+            exit_condition,
+            clears_obstacles,
+            difficulty_idx,
+            difficulty_name,
+            notable_gif_listing,
+        };
+        room_strats.push(strat);
     }
     // let shape = *game_data.room_shape.get(&room_id).unwrap_or(&(1, 1));
     let mut difficulty_names: Vec<String> = presets.iter().map(|x| x.preset.name.clone()).collect();

@@ -1685,8 +1685,14 @@ impl GameData {
                 if path_str.contains("ceres") || path_str.contains("roomDiagrams") {
                     continue;
                 }
-                self.process_region(&read_json(&path)?)
-                    .with_context(|| format!("Processing {}", path_str))?;
+
+                let room_json = read_json(&path)?;
+                let room_name = room_json["name"].clone();
+                let preprocessed_room_json = self
+                    .preprocess_room(&room_json)
+                    .with_context(|| format!("Preprocessing room {}", room_name))?;
+                self.process_room(&preprocessed_room_json)
+                    .with_context(|| format!("Processing room {}", room_name))?;
             } else {
                 bail!("Error processing region path: {}", entry.err().unwrap());
             }
@@ -1707,31 +1713,12 @@ impl GameData {
         Ok(())
     }
 
-    fn process_region(&mut self, region_json: &JsonValue) -> Result<()> {
-        ensure!(region_json["rooms"].is_array());
-        for room_json in region_json["rooms"].members() {
-            let room_name = room_json["name"].clone();
-            let preprocessed_room_json = self
-                .preprocess_room(room_json)
-                .with_context(|| format!("Preprocessing room {}", room_name))?;
-            self.process_room(&preprocessed_room_json)
-                .with_context(|| format!("Processing room {}", room_name))?;
-        }
-        Ok(())
-    }
-
     fn override_morph_ball_room(&mut self, room_json: &mut JsonValue) {
         // Override the Careful Jump strat to get out from Morph Ball location:
         //
-        room_json["links"]
+        room_json["strats"]
             .members_mut()
-            .find(|x| x["from"].as_i32().unwrap() == 4)
-            .unwrap()["to"]
-            .members_mut()
-            .find(|x| x["id"].as_i32().unwrap() == 2)
-            .unwrap()["strats"]
-            .members_mut()
-            .find(|x| x["name"].as_str().unwrap() == "Careful Jump")
+            .find(|x| x["link"][0].as_i32().unwrap() == 4 && x["link"][1].as_i32().unwrap() == 2 && x["name"].as_str().unwrap() == "Careful Jump")
             .unwrap()
             .insert(
                 "requires",
@@ -1817,7 +1804,7 @@ impl GameData {
             .unwrap()
             + 1;
         let mut extra_nodes: Vec<JsonValue> = Vec::new();
-        let mut extra_links: Vec<JsonValue> = Vec::new();
+        let mut extra_strats: Vec<JsonValue> = Vec::new();
         let room_id = room_json["id"].as_usize().unwrap();
 
         if room_json["name"].as_str().unwrap() == "Upper Tourian Save Room" {
@@ -1869,8 +1856,6 @@ impl GameData {
             "f_UsedAcidChozoStatue",
         ];
 
-        let mut obstacle_flag: Option<String> = None;
-
         // TODO: handle overrides in a more structured/robust way
         if room_id == 222 {
             self.override_shaktool_room(&mut new_room_json);
@@ -1881,6 +1866,8 @@ impl GameData {
         } else if room_id == 225 {
             self.override_tourian_save_room(&mut new_room_json);
         }
+
+        let mut obstacle_flag: Option<String> = None;
 
         for node_json in new_room_json["nodes"].members_mut() {
             let node_id = node_json["id"].as_usize().unwrap();
@@ -1959,45 +1946,33 @@ impl GameData {
                     }
                 }
 
-                let mut link_forward = json::object! {
-                    "from": node_id,
-                    "to": [{
-                        "id": next_node_id,
-                        "strats": unlock_strats.clone(),
-                    }]
-                };
-
                 if yields != JsonValue::Null
-                    && obstacle_flags.contains(&yields[0].as_str().unwrap())
+                    && obstacle_flags.contains(&yields[0].as_str().unwrap()) 
                 {
-                    obstacle_flag = Some(yields[0].as_str().unwrap().to_string());
-                    for strat in link_forward["to"][0]["strats"].members_mut() {
-                        let mut obstacles = if strat["obstacles"].is_array() {
-                            strat["obstacles"].clone()
-                        } else {
-                            JsonValue::Array(vec![])
-                        };
-                        obstacles.push(json::object! {
-                            "id": obstacle_flag.as_ref().unwrap().to_string(),
-                            "requires": []
-                        })?;
-                        strat["obstacles"] = obstacles;
-                    }
+                    obstacle_flag = Some(yields[0].as_str().unwrap().to_string())
                 }
 
-                let link_backward = json::object! {
-                    "from": next_node_id,
-                    "to": [{
-                        "id": node_id,
-                        "strats": [{
-                            "name": "Base",
-                            "notable": false,
-                            "requires": [],
-                        }],
-                    }]
+                // Strats from locked node to unlocked node
+                for strat in unlock_strats.members() {
+                    let mut new_strat = strat.clone();
+                    new_strat["link"] = json::array![node_id, next_node_id];
+                    if let Some(obs) = &obstacle_flag {
+                        if !new_strat.has_key("clearsObstacles") {
+                            new_strat["clearsObstacles"] = json::array![];
+                        }
+                        new_strat["clearsObstacles"].push(JsonValue::String(obs.clone()))?;
+                    }
+                    extra_strats.push(new_strat);
+                }
+
+                // Strat back from unlocked node to locked node
+                let strat_backward = json::object! {
+                    "link": [next_node_id, node_id],
+                    "name": "Base",
+                    "notable": false,
+                    "requires": [],
                 };
-                extra_links.push(link_forward);
-                extra_links.push(link_backward);
+                extra_strats.push(strat_backward);
 
                 next_node_id += 1;
             }
@@ -2006,8 +1981,8 @@ impl GameData {
         for extra_node in extra_nodes {
             new_room_json["nodes"].push(extra_node).unwrap();
         }
-        for extra_link in extra_links {
-            new_room_json["links"].push(extra_link).unwrap();
+        for strat in extra_strats {
+            new_room_json["strats"].push(strat).unwrap();
         }
 
         if obstacle_flag.is_some() {
@@ -2021,38 +1996,25 @@ impl GameData {
                     "name": obstacle_flag_name.to_string(),
                 })
                 .unwrap();
-            ensure!(new_room_json["links"].is_array());
-            for link in new_room_json["links"].members_mut() {
-                ensure!(link["to"].is_array());
-                for to_json in link["to"].members_mut() {
-                    let mut new_strats: Vec<JsonValue> = Vec::new();
-                    ensure!(to_json["strats"].is_array());
-                    // For each strat requiring one of the "obstacle flags" listed above, create an alternative strat
-                    // depending on the corresponding obstacle instead:
-                    for strat in to_json["strats"].members() {
-                        let json_obstacle_flag_name = JsonValue::String(obstacle_flag_name.clone());
-                        let pos = strat["requires"]
-                            .members()
-                            .position(|x| x == &json_obstacle_flag_name);
-                        if let Some(i) = pos {
-                            let mut new_strat = strat.clone();
-                            if !new_strat.has_key("obstacles") {
-                                new_strat["obstacles"] = json::array![];
-                            }
-                            new_strat["requires"].array_remove(i);
-                            new_strat["obstacles"]
-                                .push(json::object! {
-                                    "id": obstacle_flag_name.to_string(),
-                                    "requires": ["never"]
-                                })
-                                .unwrap();
-                            new_strats.push(new_strat);
-                        }
-                    }
-                    for strat in new_strats {
-                        to_json["strats"].push(strat).unwrap();
+            ensure!(new_room_json["strats"].is_array());
+
+            // For each strat requiring one of the "obstacle flags" listed above, create an alternative strat
+            // depending on the corresponding obstacle instead:
+            let mut new_strats: Vec<JsonValue> = Vec::new();
+            for strat in new_room_json["strats"].members_mut() {
+                let json_obstacle_flag_name = JsonValue::String(obstacle_flag_name.clone());
+                let mut new_strat = strat.clone();
+                for req in new_strat["requires"].members_mut() {
+                    if req == &json_obstacle_flag_name {
+                        *req = json::object! {
+                            "obstaclesCleared": [obstacle_flag_name.to_string()]
+                        };
                     }
                 }
+                new_strats.push(new_strat);
+            }
+            for strat in new_strats {
+                new_room_json["strats"].push(strat).unwrap();
             }
         }
         Ok(new_room_json)
@@ -2583,203 +2545,198 @@ impl GameData {
             roomwide_notable.insert(strat["name"].as_str().unwrap().to_string(), strat.clone());
         }
 
-        // Process links:
-        ensure!(room_json["links"].is_array());
-        for link_json in room_json["links"].members() {
-            let from_node_id = link_json["from"].as_usize().unwrap();
+        // Process strats:
+        ensure!(room_json["strats"].is_array());
+        for strat_json in room_json["strats"].members() {
+            let from_node_id = strat_json["link"][0].as_usize().unwrap();
+            let to_node_id = strat_json["link"][1].as_usize().unwrap();
             // TODO: deal with heated room more explicitly for Volcano Room, instead of guessing based on node ID:
             let from_heated = self.get_room_heated(room_json, from_node_id)?;
-            ensure!(link_json["to"].is_array());
-            for link_to_json in link_json["to"].members() {
-                ensure!(link_to_json["strats"].is_array());
-                let to_node_id = link_to_json["id"].as_usize().unwrap();
-                let to_heated = self.get_room_heated(room_json, to_node_id)?;
-                let physics_res =
-                    self.get_node_physics(&self.node_json_map[&(room_id, to_node_id)]);
-                let physics: Option<Physics> = if let Ok(physics_str) = &physics_res {
-                    Some(parse_physics(&physics_str)?)
+
+            let to_heated = self.get_room_heated(room_json, to_node_id)?;
+            let physics_res =
+                self.get_node_physics(&self.node_json_map[&(room_id, to_node_id)]);
+            let physics: Option<Physics> = if let Ok(physics_str) = &physics_res {
+                Some(parse_physics(&physics_str)?)
+            } else {
+                None
+            };
+
+            let entrance_condition: Option<EntranceCondition> =
+                if strat_json.has_key("entranceCondition") {
+                    ensure!(strat_json["entranceCondition"].is_object());
+                    Some(parse_entrance_condition(
+                        &strat_json["entranceCondition"],
+                        from_heated,
+                    )?)
+                } else {
+                    None
+                };
+            let exit_condition: Option<ExitCondition> =
+                if strat_json.has_key("exitCondition") {
+                    ensure!(strat_json["exitCondition"].is_object());
+                    Some(parse_exit_condition(
+                        &strat_json["exitCondition"],
+                        to_heated,
+                        physics,
+                    )?)
+                } else {
+                    None
+                };
+            let gmode_regain_mobility: Option<GModeRegainMobility> =
+                if strat_json.has_key("gModeRegainMobility") {
+                    ensure!(strat_json["gModeRegainMobility"].is_object());
+                    Some(GModeRegainMobility {})
                 } else {
                     None
                 };
 
-                for strat_json in link_to_json["strats"].members() {
-                    let entrance_condition: Option<EntranceCondition> =
-                        if strat_json.has_key("entranceCondition") {
-                            ensure!(strat_json["entranceCondition"].is_object());
-                            Some(parse_entrance_condition(
-                                &strat_json["entranceCondition"],
-                                from_heated,
-                            )?)
-                        } else {
-                            None
-                        };
-                    let exit_condition: Option<ExitCondition> =
-                        if strat_json.has_key("exitCondition") {
-                            ensure!(strat_json["exitCondition"].is_object());
-                            Some(parse_exit_condition(
-                                &strat_json["exitCondition"],
-                                to_heated,
-                                physics,
-                            )?)
-                        } else {
-                            None
-                        };
-                    let gmode_regain_mobility: Option<GModeRegainMobility> =
-                        if strat_json.has_key("gModeRegainMobility") {
-                            ensure!(strat_json["gModeRegainMobility"].is_object());
-                            Some(GModeRegainMobility {})
-                        } else {
-                            None
-                        };
+            for from_obstacles_bitmask in 0..(1 << num_obstacles) {
+                if entrance_condition.is_some() && from_obstacles_bitmask != 0 {
+                    continue;
+                }
+                ensure!(strat_json["requires"].is_array());
+                let mut requires_json: Vec<JsonValue> = strat_json["requires"]
+                    .members()
+                    .map(|x| x.clone())
+                    .collect();
 
-                    for from_obstacles_bitmask in 0..(1 << num_obstacles) {
-                        if entrance_condition.is_some() && from_obstacles_bitmask != 0 {
-                            continue;
+                let to_obstacles_bitmask = self.get_obstacle_data(
+                    strat_json,
+                    room_json,
+                    from_obstacles_bitmask,
+                    &obstacles_idx_map,
+                    &mut requires_json,
+                )?;
+                let ctx = RequirementContext {
+                    room_id,
+                    _from_node_id: from_node_id,
+                    from_obstacles_bitmask,
+                    obstacles_idx_map: Some(&obstacles_idx_map),
+                };
+                let mut requires_vec = self.parse_requires_list(&requires_json, &ctx)?;
+                let strat_name = strat_json["name"].as_str().unwrap().to_string();
+                let strat_notes = self.parse_note(&strat_json["note"]);
+                let notable = strat_json["notable"].as_bool().unwrap_or(false);
+                let mut notable_strat_name = strat_name.clone();
+                if notable {
+                    let mut notable_strat_note: Vec<String> = strat_notes.clone();
+                    if strat_json.has_key("reusableRoomwideNotable") {
+                        notable_strat_name = strat_json["reusableRoomwideNotable"]
+                            .as_str()
+                            .unwrap()
+                            .to_string();
+                        if !roomwide_notable.contains_key(&notable_strat_name) {
+                            bail!(
+                                "Unrecognized reusable notable strat name: {}",
+                                notable_strat_name
+                            );
                         }
-                        ensure!(strat_json["requires"].is_array());
-                        let mut requires_json: Vec<JsonValue> = strat_json["requires"]
-                            .members()
-                            .map(|x| x.clone())
-                            .collect();
+                        notable_strat_note =
+                            self.parse_note(&roomwide_notable[&notable_strat_name]["note"]);
+                    }
+                    let strat_id = self.notable_strat_isv.add(&notable_strat_name);
+                    requires_vec.push(Requirement::Strat(strat_id));
+                    let area = format!(
+                        "{} - {}",
+                        room_json["area"].as_str().unwrap(),
+                        room_json["subarea"].as_str().unwrap()
+                    );
+                    self.strat_area.insert(notable_strat_name.clone(), area);
+                    self.strat_room.insert(
+                        notable_strat_name.clone(),
+                        room_json["name"].as_str().unwrap().to_string(),
+                    );
+                    self.strat_description
+                        .insert(notable_strat_name.clone(), notable_strat_note.join(" "));
+                }
 
-                        let to_obstacles_bitmask = self.get_obstacle_data(
-                            strat_json,
-                            room_json,
-                            from_obstacles_bitmask,
-                            &obstacles_idx_map,
-                            &mut requires_json,
-                        )?;
-                        let ctx = RequirementContext {
-                            room_id,
-                            _from_node_id: from_node_id,
-                            from_obstacles_bitmask,
-                            obstacles_idx_map: Some(&obstacles_idx_map),
-                        };
-                        let mut requires_vec = self.parse_requires_list(&requires_json, &ctx)?;
-                        let strat_name = strat_json["name"].as_str().unwrap().to_string();
-                        let strat_notes = self.parse_note(&strat_json["note"]);
-                        let notable = strat_json["notable"].as_bool().unwrap_or(false);
-                        let mut notable_strat_name = strat_name.clone();
-                        if notable {
-                            let mut notable_strat_note: Vec<String> = strat_notes.clone();
-                            if strat_json.has_key("reusableRoomwideNotable") {
-                                notable_strat_name = strat_json["reusableRoomwideNotable"]
-                                    .as_str()
-                                    .unwrap()
-                                    .to_string();
-                                if !roomwide_notable.contains_key(&notable_strat_name) {
-                                    bail!(
-                                        "Unrecognized reusable notable strat name: {}",
-                                        notable_strat_name
-                                    );
+                if exit_condition.is_some() {
+                    if let Some(lock_req_json) =
+                        self.node_lock_req_json.get(&(room_id, to_node_id))
+                    {
+                        // This accounts for requirements to unlock a gray door before performing a cross-room
+                        // strat through it:
+                        // println!("lock: {}", lock_req_json.pretty(2));
+                        requires_vec
+                            .push(self.parse_requirement(&lock_req_json.clone(), &ctx)?);
+                    }
+                }
+
+                let requirement = Requirement::make_and(requires_vec);
+                if let Requirement::Never = requirement {
+                    continue;
+                }
+                let from_vertex_id = self.vertex_isv.index_by_key
+                    [&(room_id, from_node_id, from_obstacles_bitmask)];
+                let to_vertex_id = self.vertex_isv.index_by_key
+                    [&(room_id, to_node_id, to_obstacles_bitmask)];
+                let link = Link {
+                    from_vertex_id,
+                    to_vertex_id,
+                    requirement: requirement.clone(),
+                    entrance_condition: entrance_condition.clone(),
+                    notable_strat_name: if notable {
+                        Some(notable_strat_name)
+                    } else {
+                        None
+                    },
+                    strat_name: strat_name.clone(),
+                    strat_notes,
+                    sublinks: vec![],
+                };
+                if gmode_regain_mobility.is_some() {
+                    if entrance_condition.is_some() || exit_condition.is_some() {
+                        bail!("gModeRegainMobility combined with entranceCondition or exitCondition is not allowed.");
+                    }
+                    if from_node_id != to_node_id {
+                        bail!("gModeRegainMobility `from` and `to` node must be equal.");
+                    }
+                    self.node_gmode_regain_mobility
+                        .entry((room_id, to_node_id))
+                        .or_insert(vec![])
+                        .push((link, gmode_regain_mobility.clone().unwrap()))
+                } else if exit_condition.is_some() {
+                    self.node_exits
+                        .entry((room_id, to_node_id))
+                        .or_insert(vec![])
+                        .push((link, exit_condition.clone().unwrap()));
+                } else {
+                    self.links.push(link);
+                }
+
+                // Temporary while in the middle of migration -- create old-style runways, etc.:
+                if from_node_id == to_node_id {
+                    match exit_condition {
+                        Some(ExitCondition::LeaveWithRunway { heated, physics, .. }) => {
+                            if let Ok(physics_str) = &physics_res {
+                                let mut runway_reqs = vec![requirement];
+                                if physics != Some(Physics::Air) {
+                                    runway_reqs.push(Requirement::Item(Item::Gravity as usize));
                                 }
-                                notable_strat_note =
-                                    self.parse_note(&roomwide_notable[&notable_strat_name]["note"]);
+                                // println!("{}", strat_json["exitCondition"].pretty(2));
+                                self.node_runways_map
+                                    .entry((room_id, to_node_id))
+                                    .or_insert(vec![])
+                                    .push(Runway {
+                                        name: strat_name,
+                                        length: strat_json["exitCondition"]["leaveWithRunway"]
+                                            ["length"]
+                                            .as_f32()
+                                            .unwrap()
+                                            as i32,
+                                        open_end: strat_json["exitCondition"]
+                                            ["leaveWithRunway"]["openEnd"]
+                                            .as_i32()
+                                            .unwrap(),
+                                        requirement: Requirement::make_and(runway_reqs),
+                                        physics: physics_str.to_string(),
+                                        heated: heated,
+                                        usable_coming_in: false,
+                                    });
                             }
-                            let strat_id = self.notable_strat_isv.add(&notable_strat_name);
-                            requires_vec.push(Requirement::Strat(strat_id));
-                            let area = format!(
-                                "{} - {}",
-                                room_json["area"].as_str().unwrap(),
-                                room_json["subarea"].as_str().unwrap()
-                            );
-                            self.strat_area.insert(notable_strat_name.clone(), area);
-                            self.strat_room.insert(
-                                notable_strat_name.clone(),
-                                room_json["name"].as_str().unwrap().to_string(),
-                            );
-                            self.strat_description
-                                .insert(notable_strat_name.clone(), notable_strat_note.join(" "));
-                        }
-
-                        if exit_condition.is_some() {
-                            if let Some(lock_req_json) =
-                                self.node_lock_req_json.get(&(room_id, to_node_id))
-                            {
-                                // This accounts for requirements to unlock a gray door before performing a cross-room
-                                // strat through it:
-                                // println!("lock: {}", lock_req_json.pretty(2));
-                                requires_vec
-                                    .push(self.parse_requirement(&lock_req_json.clone(), &ctx)?);
-                            }
-                        }
-
-                        let requirement = Requirement::make_and(requires_vec);
-                        if let Requirement::Never = requirement {
-                            continue;
-                        }
-                        let from_vertex_id = self.vertex_isv.index_by_key
-                            [&(room_id, from_node_id, from_obstacles_bitmask)];
-                        let to_vertex_id = self.vertex_isv.index_by_key
-                            [&(room_id, to_node_id, to_obstacles_bitmask)];
-                        let link = Link {
-                            from_vertex_id,
-                            to_vertex_id,
-                            requirement: requirement.clone(),
-                            entrance_condition: entrance_condition.clone(),
-                            notable_strat_name: if notable {
-                                Some(notable_strat_name)
-                            } else {
-                                None
-                            },
-                            strat_name: strat_name.clone(),
-                            strat_notes,
-                            sublinks: vec![],
-                        };
-                        if gmode_regain_mobility.is_some() {
-                            if entrance_condition.is_some() || exit_condition.is_some() {
-                                bail!("gModeRegainMobility combined with entranceCondition or exitCondition is not allowed.");
-                            }
-                            if from_node_id != to_node_id {
-                                bail!("gModeRegainMobility `from` and `to` node must be equal.");
-                            }
-                            self.node_gmode_regain_mobility
-                                .entry((room_id, to_node_id))
-                                .or_insert(vec![])
-                                .push((link, gmode_regain_mobility.clone().unwrap()))
-                        } else if exit_condition.is_some() {
-                            self.node_exits
-                                .entry((room_id, to_node_id))
-                                .or_insert(vec![])
-                                .push((link, exit_condition.clone().unwrap()));
-                        } else {
-                            self.links.push(link);
-                        }
-
-                        // Temporary while in the middle of migration -- create old-style runways, etc.:
-                        if from_node_id == to_node_id {
-                            match exit_condition {
-                                Some(ExitCondition::LeaveWithRunway { heated, physics, .. }) => {
-                                    if let Ok(physics_str) = &physics_res {
-                                        let mut runway_reqs = vec![requirement];
-                                        if physics != Some(Physics::Air) {
-                                            runway_reqs.push(Requirement::Item(Item::Gravity as usize));
-                                        }
-                                        // println!("{}", strat_json["exitCondition"].pretty(2));
-                                        self.node_runways_map
-                                            .entry((room_id, to_node_id))
-                                            .or_insert(vec![])
-                                            .push(Runway {
-                                                name: strat_name,
-                                                length: strat_json["exitCondition"]["leaveWithRunway"]
-                                                    ["length"]
-                                                    .as_f32()
-                                                    .unwrap()
-                                                    as i32,
-                                                open_end: strat_json["exitCondition"]
-                                                    ["leaveWithRunway"]["openEnd"]
-                                                    .as_i32()
-                                                    .unwrap(),
-                                                requirement: Requirement::make_and(runway_reqs),
-                                                physics: physics_str.to_string(),
-                                                heated: heated,
-                                                usable_coming_in: false,
-                                            });
-                                    }
-                                },
-                                _ => {}
-                            }
-                        }
+                        },
+                        _ => {}
                     }
                 }
             }
