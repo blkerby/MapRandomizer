@@ -748,6 +748,8 @@ for i in range(1000000):
             buffer_tame1 = torch.nanmean(S[tame_mask, :])
             buffer_wild1 = torch.nanmean(S[wild_mask, :])
 
+            tame_success_rate = torch.sum(tame_mask) / torch.sum(session.replay_buffer.episode_data.mc_dist_coef[ind] > 0.0)
+
             buffer_graph_diam = session.replay_buffer.episode_data.graph_diameter[ind].to(torch.float32)
             buffer_mean_graph_diam = torch.mean(buffer_graph_diam)
             buffer_mean_graph_diam1 = torch.mean(buffer_graph_diam[success_mask])
@@ -767,9 +769,9 @@ for i in range(1000000):
             counts1 = compute_door_connect_counts(only_success=True, ind=ind)
             ent = session.compute_door_stats_entropy(counts)
             ent1 = session.compute_door_stats_entropy(counts1)
-            logging.info("[{:.3f}, {:.3f}]: cost={:.3f} (min={}, frac={:.6f}), ent1={:.6f}, save1={:.6f}, diam1={:.3f}, tame1={:.3f}, wild1={:.3f}, test={:.6f}, p={:.4f}, p0={:.5f}, cnt={}, temp={:.4f}".format(
+            logging.info("[{:.3f}, {:.3f}]: cost={:.3f} (min={}, frac={:.6f}), ts={:.4f}, ent1={:.6f}, save1={:.6f}, diam1={:.3f}, tame1={:.3f}, wild1={:.3f}, test={:.6f}, p={:.4f}, cnt={}, temp={:.4f}".format(
                 temp_low, temp_high, buffer_mean_reward, buffer_min_reward,
-                buffer_frac_min, ent1, buffer_save_dist1, buffer_mean_graph_diam1, buffer_tame1, buffer_wild1, buffer_mean_test_loss, buffer_mean_prob, buffer_mean_prob0, ind.shape[0], buffer_mean_temp
+                buffer_frac_min, tame_success_rate, ent1, buffer_save_dist1, buffer_mean_graph_diam1, buffer_tame1, buffer_wild1, buffer_mean_test_loss, buffer_mean_prob, ind.shape[0], buffer_mean_temp
             ))
             # display_counts(counts1, 10, False)
             # display_counts(counts, 10, True)
