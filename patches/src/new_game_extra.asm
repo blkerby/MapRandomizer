@@ -89,8 +89,8 @@ start_game:
     lda #$0032
     sta $09CA   ; supers
     sta $09CC   ; max supers
-    sta $09CE   ; power bombs
-    sta $09D0   ; max power bombs
+;    sta $09CE   ; power bombs
+;    sta $09D0   ; max power bombs
 
     lda #$0101     ; set G4 bosses defeated
     sta $7ED829

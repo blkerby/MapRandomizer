@@ -949,8 +949,8 @@ impl<'a> Patcher<'a> {
         let area_music: [[u16; 2]; NUM_AREAS] = [
             [
                 // (0x06, 0x05),   // Empty Crateria
-                0x050C, // Return to Crateria
-                0x0509, // Crateria Space Pirates
+                0x050C, // Return to Crateria (ASM can replace with intro track or storm track)
+                0x0509, // Crateria Space Pirates (ASM can replace with zebes asleep track, with or without storm)
             ],
             [
                 0x050F, // Green Brinstar
@@ -961,8 +961,8 @@ impl<'a> Patcher<'a> {
                 0x0518, // Lower Norfair
             ],
             [
-                0x0530, // Wrecked Ship (off)
-                0x0630, // Wrecked Ship (on)
+                0x0530, // Wrecked Ship (power off)
+                0x0530, // Wrecked Ship (power off)  (power on version, 0x630, to be replaced by ASM)
             ],
             [
                 0x061B, // Outer Maridia
