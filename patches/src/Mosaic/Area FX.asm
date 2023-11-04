@@ -471,6 +471,11 @@ CeilingInstructionList:
 Ceiling_:
   DW #CeilingInstructionList, $0040, $26D0 ; Maridia sand ceiling
 
+; Wait for Ws awake, not area boss awake
+org $8781BA
+  LDA #$0058
+  JSL $808233
+
 ;Move vileplume tilemap tiles
 org $849E0D
   DW $0002, $37D9, $87D8

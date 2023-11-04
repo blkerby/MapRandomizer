@@ -9,6 +9,7 @@
             <option value="OuterCrateria">Outer Crateria</option>
             <option value="InnerCrateria">Inner Crateria</option>
             <option value="GreenBrinstar">Green Brinstar</option>
+            <option value="UpperNorfair">Upper Norfair</option>
         </select>
     </div>
 </div>
