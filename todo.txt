@@ -1,12 +1,8 @@
 upcoming:
-- create high-quality videos and link to them
-- link from generate page notable strat name to strat page.
-- make unexplored gray slightly lighter (unheated in particular, but maybe both)
-- DONE: link spoiler route to strat pages
-- DONE: include videos on pages for notable strats
+- during the escape, lock the Bomb Torizo door until animals are saved (to prevent accidentally leaving before the flag is set).
+- try to implement frame advance: https://stackoverflow.com/questions/4298084/html5-frame-by-frame-viewing-frame-seeking
 
 priority:
-- Adapt randomizer to region file split
 - make tech and notable strat names in the Generate page link to the corresponding logic page.
   - need special handling for reusable notables though
 - List notable strats in the main logic page.

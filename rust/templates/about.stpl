@@ -57,7 +57,7 @@
     <a href="https://randommetroidsolver.pythonanywhere.com/randomizer">VARIA Randomizer</a>
     (to play VARIA with vanilla room layouts, select "Advanced" and disable "Anti-softlock layout patches").
     It is also possible to play Map Rando without the map randomization, by selecting "Vanilla map" under
-    "Game variations" on the <a href="/generate">Generate</a> page.</p>
+    "Other options" on the <a href="/generate">Generate</a> page.</p>
 
     <p>Work is still on-going to improve the accessibility of Map Rando and to create more resources to help new players.
     There's a <a href="https://discord.gg/Gc99YV2ZcB">Discord</a> community that's happy to help and where players can
@@ -84,15 +84,17 @@
         <li>Map tiles preserved in this way appear gray, the same as tiles revealed by map stations.
         <li>Map progress is only cleared by creating a new file when all three save slots are empty.
         </ul>
-    <li>Maps are color-coded by area. Lighter shades are used to represent heated rooms.
+    <li>Maps are color-coded by area. Lighter shades are used to represent heated rooms. A dark, checkered pattern
+        is used to represent rooms (or screens within rooms) that are submerged in water.
     <li>The location of an area's map station is always visible (optional).
-    <li>Item dots fade or disappear after collection.
-    <li>Area transitions are marked, identifying the neighboring area using either colored arrows or letters (color-blind-friendly option).
+    <li>Item dots fade after collection (or disappear, depending on the settings).
+    <li>Area transitions are marked, identifying the neighboring area using colored arrows (or letters, a color-blind-friendly option).
     </ul>
 
     <h5 id="special_inputs">Special inputs</h5>
     <ul>
-    <li>Pressing Select in the pause map cycles through maps of explored areas.
+    <li>Pressing Select in the pause map cycles through maps of explored areas. Alternatively, press Y or X
+    to cycle forwards or backwards, respectively.
     <li>Pressing L + R + Select + Start during gameplay does a quick reload from the last save.
     Repeating this input combination cycles through previous saves; Samus just has to still be in the initial
     facing-forward pose from the last reload.
@@ -112,7 +114,9 @@
     <ul>
     <li>By default, pink, green, and yellow doors are replaced with blue doors.
         <ul>
-        <li>If the "Ammo" doors option is enabled, then pink, green, and yellow doors are randomized.
+        <li>If the "Ammo" doors option is enabled, then pink, green, and yellow doors are randomized. To limit the
+        risk of softlocks due to doors, the two sides of the door always have the same color, and unlocking one side
+        automatically unlocks the other side as well.
         </ul>
     <li>Gray doors are replaced with blue doors, with the exception of boss/miniboss rooms and the following four
     Space Pirate rooms where gray doors are retained:
@@ -126,7 +130,7 @@
         <ul>
         <li>An item in the room is collected (applicable in Bomb Torizo Room, Golden Torizo Room, Plasma Room, and Pit Room).
         <li>A boss in the room is hurt.
-        <li>All enemies in the room are defeated.
+        <li>All enemies in the room are defeated (causing the door to simultaneously close and unlock).
         </ul>
     <li>A gray door is added on the right side of Metal Pirates Room (the vanilla game only has one on the left):
         <ul>
@@ -200,11 +204,18 @@
         <td>50%</td>
         </tr>
         <tr>
-        <td>Gravity</td>
+        <td>Gravity (Map Rando)</td>
         <td>0%</td>
         <td>50%</td>
         <td>0%</td>
         <td>50%</td>
+        </tr>
+        <tr>
+        <td>Gravity (vanilla)</td>
+        <td>100%</td>
+        <td>100%</td>
+        <td>0%</td>
+        <td>75%</td>
         </tr>
         <tr>
         <td>Varia + Gravity</td>
@@ -215,7 +226,7 @@
         </tr>
     </tbody>
     </table>
-    <p>Note that the only row that differs from the vanilla game is the one with Gravity alone. </p>
+    <p>Note that the only case where the randomizer differs from the vanilla game is with Gravity alone. </p>
     <h5 id="endgame">Endgame</h5>
     <ul>
     <li>Supers do double damage to Mother Brain (optional).
@@ -230,12 +241,13 @@
         Speed Booster, Grapple, X-Ray.
         </ul>
     <li>Hyper Beam destroys Super, Bomb, and Power Bomb blocks, opens blue & green gates from either side, and
-    opens pink, green, and yellow doors. (Note that it does <i>not</i> destroy Speed, Grapple, or crumble blocks.)
+    opens pink, green, and yellow doors. Note that Hyper Beam does <i>not</i> destroy Speed, Grapple, or crumble blocks.
     <li>An auto-save is made after Mother Brain is defeated, immediately before the escape begins.
     <li>Enemies are cleared during the escape (optional).
     <li>The escape timer is adapted based on the estimated time required to return to the Ship.
         <ul>
         <li>If the "Save the animals" option is enabled, time is also included for a detour to Bomb Torizo Room.
+        <li>Leniency time is included based on selected Skill Assumptions.
         </ul>
     </ul>
 
@@ -254,7 +266,7 @@
         <ul>
         <li>The whole-screen flashing during the MB1 death animation is removed (for photo-sensitive players & viewers).
         <li>The delay after MB1 head falls to the ground is eliminated.
-        <li>If the default Short Mother Brain fight is disabled, then the part where Baby Metroid is latched onto MB2 is
+        <li>For settings where MB3 is not skipped, the part where Baby Metroid is latched onto MB2 is
         accelerated, as is the MB3 death animation. These should not affect the execution of the stand-up glitch.
         </ul>
     <li>Fast doors (optional):
@@ -315,7 +327,7 @@
         through the right door before the fight starts.
         </ul>
     <li>Fix to vanilla bug where heat damage could cause Samus to lose blue speed.
-    <li>Heat does not damage Samus during the loading fanfare (applicable to the "Randomized start location" option).
+    <li>Heat does not damage Samus during the loading fanfare (applicable to the "Random" start location option).
     <li>Fixes to many graphical glitches, mainly ones that would happen because of modifying the doors and how they connect.<a href="#footnote-graphical-fixes"><sup>2</sup></a></p>
     </ul>
 
@@ -343,13 +355,14 @@
     <li>The other map station rooms are likewise moved to ensure there is one in each area.
     <li>Save and refill rooms are moved to improve the balance of their distribution.
     </ul>
-    The processed maps are then collected and stored off. The randomizer currently uses a pool of approximately 14,000 maps.</p>
+    The processed maps are then collected and stored off. The randomizer currently uses a pool of approximately 12,000 maps.</p>
 
     <p>It took about a year to develop the initial model architecture and training process, including about two months of
     continuous training on a pair of RTX 3080 Ti GPUs. The original model suffered from some quirkiness where it almost 
     always connected certain groups of rooms together. A newer model is still in process of training, with improvements 
-    leading to greater variety in room connections and better balancing of save stations; though not yet finished training, 
-    a preliminary map pool based on the new model already shows great improvement and is currently used in the randomizer.</p>
+    leading to greater variety in room connections, better balancing of save stations, and better connectivity (shorter
+    paths from one end of the map to the other); though not yet finished training, a preliminary map pool based on the 
+    new model already shows great improvement and is currently used in the randomizer.</p>
 
     <h5 id="item_placement">Item placement</h5>
     <p>Item placement happens by forward fill: items are first placed in locations that are bireachable
@@ -360,16 +373,16 @@
     placed in them, a subset of these locations is selected to place key items in, either randomly (if "Neutral" item
     placement is selected), or by prioritizing those that require more difficult techniques to reach (if "Forced" is
     selected). Key items are selected to ensure that progression is unlocked (i.e., at least one new item location
-    becomes bireachable). Filler items are placed in the remaining two-way reachable item locations for a given step.
+    becomes bireachable). Filler items are placed in the remaining bireachable item locations for a given step.
     On "Slow" progression (e.g. in "Challenge" mode), filler items are also placed in the one-way reachable
-    item locations (otherwise, one-way reachable locations will be left open to fill on later steps).
+    item locations; otherwise, one-way reachable locations will be left open to fill on later steps.
     The process then repeats with the next set of key items. If on a given step there is no key item that can provide
     progression, then the randomizer retries with a different map. For more details, see the "Item progression" section
     of the <a href="/generate">Generate</a> page.</p>
 
     <p>The logic used to determine reachability of item locations is based on the
     <a href="https://github.com/miketrethewey/sm-json-data">sm-json-data</a> project.
-    This is a massive repository of Super Metroid strats, currently consisting of about 100,000 lines of manually
+    This is a massive repository of Super Metroid strats, currently consisting of over 100,000 lines of manually
     crafted JSON. For each room, it defines a set of logically meaningful nodes (points or regions within the room)
     and defines tech, item, and resource requirements for strats traversing between nodes. In heated rooms,
     this includes heat damage requirements. It also includes information about runways in front of doors and other
@@ -377,7 +390,7 @@
 
     <p>Spoiler data is also generated during the process of item placement, recording which nodes (including item locations)
     are reachable and/or bireachable on each step, and constructing an obtain & return path for each bireachable item
-    location.</p>
+    location, which is used in the implementation of the interactive spoiler map.</p>
 
     <h5 id="escape_timer">Escape timer</h5>
     <p>The escape timer is determined by computing the fastest path from Mother Brain Room to the Ship (including a
@@ -414,7 +427,8 @@
     execute the escape in time; in this case the player would need to reload to an earlier save (before the escape auto-save)
     and go back and collect the necessary movement items before reattempting Mother Brain and the escape. A similar scenario
     could happen if the player needs more energy for the escape (e.g. to perform a shinespark or acid dive): it's possible
-    they could need to go back and collect more tanks or redo the Mother Brain fight with less energy loss.
+    they could need to go back and collect more tanks or redo the Mother Brain fight with less energy loss (if the option
+    "Refill energy for escape" is disabled).
 
     <h5 id="patching">ROM patching</h5>
     <p>The final step is to construct a ROM patch which applies the item placements, door connections,
@@ -438,7 +452,7 @@
     <li>Area-themed palettes: <i>kyleb</i>
     <li>Tile themes (experimental): <i>AmoebaOfDoom</i>, <i>Maddo</i>, <i>Tundain</i>, <i>chicdead26</i>
     <li>Spoiler map: <i>Selicre</i>
-    <li>Tech animated GIFs: <i>Osse101</i>
+    <li>Tech animated GIFs and videos: <i>Osse101</i>
     <li>ASM help:
         <ul>
         <li><i>Buggmann</i> (created the title screen animation patch)
@@ -479,6 +493,7 @@
     <li>RTA timer and end-game credits: <i>total</i>, <i>ouiche</i>
     <li>Momentum conservation: <i>Scyzer</i>, <i>Nodever2</i>, <i>OmegaDragnet7</i>
     <li>Graphical fix to vertical door PLMs: <i>JAM</i>
+    <li>MSU-1 patch (to allow playing the game with customized music): <i>DarkShock</i>
     </ul>
 
     <p>Custom sprites are made possible by
@@ -549,7 +564,8 @@
     Bomb Torizo after Botwoon).
     <li>Fix to camera alignment in door transitions, so graphics don't get permanently messed up after doing certain
     strats (or with "Randomized start location" option, where the camera sometimes starts unaligned to a screen boundary).
-    <li>Fix to graphical bug where red and green door PLMs are not intially drawn when entering Red Brinstar Elevator Room.
+    <li>Fix to graphical bug where red and green door PLMs are not intially drawn when entering Red Brinstar Elevator Room 
+    or Forgotten Highway Elevator.
     </ul>
     </small></p>
 
