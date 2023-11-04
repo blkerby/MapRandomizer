@@ -17,6 +17,25 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
+<p><a href="https://version-93---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release93">Version 93 (???)</a>:
+<ul>
+<li>Change Crateria music to use the full variety of available tracks:
+    <ul>
+    <li>The subarea containing the Ship continues to play the Prologue song initially:
+        <ul>
+        <li>If Power Bombs are obtained, it plays the "Return to Crateria" song.
+        <li>If Zebes is awake, without Power Bombs, it plays the plain stormy track (no music).
+        </ul>
+    <li>The subarea not containing the Ship initially plays the stormy Zebes asleep music.
+        <ul>
+        <li>If Zebes is awake, it plays the "Space Pirates" music.
+        <li>If Power Bombs are obtained, without Zebes awake, it plays the non-stormy Zebes asleep music.
+        </ul>
+    </ul>
+<li>Change Wrecked Ship music to no longer depend on subarea, only on if Phantoon is defeated.
+<li>TODO: A new tile theme option "Upper Norfair" is available.
+</ul>
+
 <p><a href="https://version-92---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release92">Version 92 (2023-11-02)</a>:
 <ul>
 <li>Some map colors are brightened, to improve contrast with water rooms.

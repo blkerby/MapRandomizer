@@ -962,7 +962,7 @@ impl<'a> Patcher<'a> {
             ],
             [
                 0x0530, // Wrecked Ship (power off)
-                0x0530, // Wrecked Ship (power off)  (power on version, 0x630, to be replaced by ASM)
+                0x0530, // Wrecked Ship (power off)  (power on version, 0x0630, to be used by ASM)
             ],
             [
                 0x061B, // Outer Maridia

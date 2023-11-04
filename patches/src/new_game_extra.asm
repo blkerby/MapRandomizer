@@ -92,9 +92,9 @@ start_game:
 ;    sta $09CE   ; power bombs
 ;    sta $09D0   ; max power bombs
 
-    lda #$0101     ; set G4 bosses defeated
-    sta $7ED829
-    sta $7ED82B
+;    lda #$0101     ; set G4 bosses defeated
+;    sta $7ED829
+;    sta $7ED82B
 
     ; If there are no existing save files, then perform global initialization:
     lda $0954

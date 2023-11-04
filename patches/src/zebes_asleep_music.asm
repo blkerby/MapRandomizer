@@ -47,6 +47,9 @@ crateria_pirates_check:
 return_to_crateria_check:
     cmp #$0C05  ; Is this Return to Crateria track (Crateria subarea containing Ship)
     bne wrecked_ship_check  ; Skip if not Return to Crateria track
+    lda $09D0  ; Max PB count != 0 ?
+    bne done   ; PBs in Crateria subarea containing the Ship -> keep Return to Crateria track
+
     lda $7ED820
     bit #$0001  ; Is Zebes awake
     bne .zebes_awake
@@ -59,9 +62,6 @@ return_to_crateria_check:
     jmp done
 
 .zebes_awake:
-    lda $09D0  ; Max PB count != 0 ?
-    bne done   ; Zebes awake in Crateria subarea containing the Ship, with PBs -> keep Return to Crateria track
-+
     lda #$0006 ; Zebes awake in Crateria subarea containing the Ship, without PBs -> plain storm track
     sta $07CB
     lda #$0006  
@@ -69,7 +69,7 @@ return_to_crateria_check:
     jmp done
 
 wrecked_ship_check:
-    cmp #$3005  ; Is this Wrecked Ship  track?
+    cmp #$3005  ; Is this Wrecked Ship track?
     bne done
     lda $7ed82b
     and #$0001
