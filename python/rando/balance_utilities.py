@@ -203,7 +203,7 @@ def compute_balance_cost(save_idxs, refill_idxs, map_idxs, dist_matrix, hallway_
     
     overall_save_cost = 2.0 * save_coverage_cost + 0.1 * save_cap_cnt + 0.3 * save_neighbors_cnt
     overall_refill_cost = refill_coverage_cost + 0.1 * refill_cap_cost + 0.2 * refill_neighbors_cnt
-    overall_cost = overall_save_cost + overall_refill_cost + 10.0 * map_dist_cost
+    overall_cost = overall_save_cost + overall_refill_cost + 20.0 * map_dist_cost
     return overall_cost
 
 
@@ -410,14 +410,14 @@ def balance_utilities(map):
     return map
 
 
-# import json
-# map = json.load(open('maps/session-2023-06-08T14:55:16.779895.pkl-bk24-subarea-balance-2/10006.json', 'rb'))
-# map = balance_utilities(map)
-# from maze_builder.display import MapDisplay
-# display = MapDisplay(72, 72, 20)
-# # display.display_assigned_areas_with_saves(map)
-# display.display_assigned_areas_with_maps(map)
-# # # display.display_assigned_areas(map)
-# # # display.display_assigned_areas_with_ws(map)
-# # # # display.display_vanilla_areas(map)
-# display.image.show()
+import json
+map = json.load(open('maps/session-2023-06-08T14:55:16.779895.pkl-bk24-subarea-balance-2/10006.json', 'rb'))
+map = balance_utilities(map)
+from maze_builder.display import MapDisplay
+display = MapDisplay(72, 72, 20)
+# display.display_assigned_areas_with_saves(map)
+display.display_assigned_areas_with_maps(map)
+# # display.display_assigned_areas(map)
+# # display.display_assigned_areas_with_ws(map)
+# # # display.display_vanilla_areas(map)
+display.image.show()

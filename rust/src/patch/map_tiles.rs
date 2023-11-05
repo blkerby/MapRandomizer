@@ -518,7 +518,7 @@ impl<'a> MapPatcher<'a> {
         let mut data: [[u8; 8]; 8] = [[bg_color; 8]; 8];
 
         let liquid_color = match (tile.liquid_type, tile.heated) {
-            (LiquidType::None, _) => 3, // Color is irrelevant in this case
+            (LiquidType::None, _) => bg_color,
             (LiquidType::Water, _) => 0,
             (LiquidType::Lava | LiquidType::Acid, false) => 2,
             (LiquidType::Lava | LiquidType::Acid, true) => 1,
@@ -612,12 +612,12 @@ impl<'a> MapPatcher<'a> {
                 data[2][3] = item_color;
                 data[2][4] = item_color;
                 data[3][2] = item_color;
-                data[3][3] = bg_color;
-                data[3][4] = bg_color;
+                data[3][3] = liquid_color;
+                data[3][4] = liquid_color;
                 data[3][5] = item_color;
                 data[4][2] = item_color;
-                data[4][3] = bg_color;
-                data[4][4] = bg_color;
+                data[4][3] = liquid_color;
+                data[4][4] = liquid_color;
                 data[4][5] = item_color;
                 data[5][3] = item_color;
                 data[5][4] = item_color;

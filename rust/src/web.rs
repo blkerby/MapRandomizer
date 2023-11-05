@@ -1,6 +1,6 @@
 pub mod logic;
 
-use hashbrown::HashSet;
+use hashbrown::{HashSet, HashMap};
 use serde_derive::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 use anyhow::{Context, Result};
@@ -62,7 +62,7 @@ pub struct AppData {
     pub preset_data: Vec<PresetData>,
     pub ignored_notable_strats: HashSet<String>,
     pub implicit_tech: HashSet<String>,
-    pub map_repository: MapRepository,
+    pub map_repositories: HashMap<String, MapRepository>,
     pub seed_repository: SeedRepository,
     pub visualizer_files: Vec<(String, Vec<u8>)>, // (path, contents)
     pub tech_gif_listing: HashSet<String>,

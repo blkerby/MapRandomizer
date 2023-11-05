@@ -12,8 +12,10 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <p>This setting how the rooms are arranged in the randomized map. Specifically, it affects how difficult it 
-        may be to loop back around after going down a one-way path (e.g. through crumble blocks):
+        <p>This setting affects how the rooms are arranged in the randomized map. On all settings, the randomizer
+        guarantees that one-ways (such as falling through crumble blocks) always loop back around somehow,
+        though the path back could be long and require certain items. This setting affects the typical length of 
+        such paths:
         <ul>
         <li><strong>Tame</strong>: One-way paths tend to have relatively short paths that loop back around.
         <li><strong>Wild</strong>: One-way paths often only have long paths that loop back around, due to a 
@@ -22,19 +24,21 @@
         </p>
 
         <p>"Tame" maps are more friendly and should be relatively straightforward to navigate once you 
-        reach a "go mode" item set. Even before "go mode" they will typically be easier to deal with.
+        reach a "go mode" item set. Even before "go mode" they will typically be less trouble to deal with.
+        Softlock risks should still be expected due to not having items needed to complete a loop back
+        out of a one-way.
         </p>
 
         <h5>Details</h5>
         <p>
-        The "one-ways" considered are situations where navigation in a "wrong" direction might not be not possible, 
-        even with all items collected, without the use of techniques above Basic:
+        The "one-ways" considered here are situations where navigation in a "wrong" direction might not be not possible
+        within the room, even with all items collected, without the use of techniques above Basic:
         <ul>
-        <li>Crumble blocks in Spore Spawn Super Room, Green Pirates Shaft, and many other rooms.
+        <li>Crumble blocks in Spore Spawn Super Room, Green Pirates Shaft, Big Pink, and many other rooms.
         <li>Sand transitions.
         <li>Green gates (whether or not they are glitchable).
         <li>Speed blocks in Crateria Super Room and Crocomire Speedway.
-        <li>Big Pink morph tunnel blocked by a Super.
+        <li>Big Pink morph tunnel Super block.
         <li>Acid in Amphitheatre.
         <li>The barriers in Spore Spawn's Room, Crocomire's Room, and Botwoon's Room.
         <li>Acid and solid block in Acid Statue Room.
@@ -43,12 +47,14 @@
         <li>Mother Brain Room, Aqueduct, and Bowling Alley (top vs. rest) are also treated as zero-way.
         </ul>
         </p>
-        Likewise, in measuring the length of paths to reverse a "one-way", the types of paths considered are those 
-        which will be possible with all item collected, without the use of techniques above Basic. For example, 
+        
+        <p>Likewise, in measuring the length of paths to reverse a "one-way", the types of paths considered are those 
+        which will be possible with all item collected but without the use of techniques above Basic. For example, 
         using an X-ray climb to bypass crumble blocks would not count as a short way to loop back around; however, 
         using Gravity Suit to go up through water would count, even if the player might not obtain Gravity Suit 
         until late in the game. 
         </p>
+
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

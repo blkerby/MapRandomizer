@@ -54,12 +54,14 @@ git clone --recurse-submodules https://github.com/blkerby/MapRandomizer
 cd MapRandomizer
 ```
 
-Download and extract the pool of randomized maps:
+Download and extract the randomized map pools:
 
 ```sh
 mkdir maps && cd maps
+wget https://storage.googleapis.com/super-metroid-map-rando/maps/session-2023-06-08T14:55:16.779895.pkl-small-71-subarea-balance-2.tgz
+mv session-2023-06-08T14:55:16.779895.pkl-small-71-subarea-balance-2.tgz tame-maps.tar.gz && tar xfz tame-maps.tar.gz
 wget https://storage.googleapis.com/super-metroid-map-rando/maps/session-2023-06-08T14:55:16.779895.pkl-small-64-subarea-balance-2.tgz
-mv session-2023-06-08T14:55:16.779895.pkl-small-64-subarea-balance-2.tgz maps.tar.gz && tar xfz maps.tar.gz
+mv session-2023-06-08T14:55:16.779895.pkl-small-64-subarea-balance-2.tgz wild-maps.tar.gz && tar xfz wild-maps.tar.gz
 cd ..
 ```
 

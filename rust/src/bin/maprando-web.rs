@@ -1214,6 +1214,7 @@ async fn randomize(
             };
             let difficulty_tiers_local = difficulty_tiers.clone();
             let app_data_local = app_data.clone();
+            let map_layout = req.map_layout.0.clone();
             let map_seed_local = attempt.map_seed.clone();
             let door_randomization_seed_local = attempt.door_randomization_seed.clone();
             let item_placement_seed_local = attempt.item_placement_seed.clone();
@@ -1221,9 +1222,14 @@ async fn randomize(
             let local_rom = rom.clone();
             attempt.thread_handle = Some(thread::spawn(move || -> Result<(Randomization, Rom)> {
                 let map = if difficulty.vanilla_map {
-                    app_data_local.map_repository.get_vanilla_map(attempts_triggered_local).unwrap()
+                    // TODO: this is hacky, clean it up:
+                    app_data_local.map_repositories["Tame"].get_vanilla_map(attempts_triggered_local).unwrap()
                 } else {
-                    app_data_local.map_repository.get_map(attempts_triggered_local, map_seed_local).unwrap()
+                    if !app_data_local.map_repositories.contains_key(&map_layout) {
+                        // TODO: it doesn't make sense to panic on things like this.
+                        panic!("Unrecognized map layout option: {}", map_layout);
+                    }
+                    app_data_local.map_repositories[&map_layout].get_map(attempts_triggered_local, map_seed_local).unwrap()
                 };
                 info!("Attempt {attempts_triggered_local}/{max_attempts}: Map seed={map_seed_local}, door randomization seed={door_randomization_seed_local}, item placement seed={item_placement_seed_local}");
                 let locked_doors = randomize_doors(&app_data_local.game_data, &map, &difficulty_tiers_local[0], door_randomization_seed_local);
@@ -1557,7 +1563,8 @@ fn build_app_data() -> AppData {
     let start_locations_path = Path::new("data/start_locations.json");
     let hub_locations_path = Path::new("data/hub_locations.json");
     let etank_colors_path = Path::new("data/etank_colors.json");
-    let maps_path = Path::new("../maps/session-2023-06-08T14:55:16.779895.pkl-small-64-subarea-balance-2");
+    let tame_maps_path = Path::new("../maps/session-2023-06-08T14:55:16.779895.pkl-small-71-subarea-balance-2");
+    let wild_maps_path = Path::new("../maps/session-2023-06-08T14:55:16.779895.pkl-small-64-subarea-balance-2");
     let samus_sprites_path = Path::new("../MapRandoSprites/samus_sprites/manifest.json");
     // let samus_spritesheet_layout_path = Path::new("data/samus_spritesheet_layout.json");
     let mosaic_path = Path::new("../Mosaic");
@@ -1590,7 +1597,10 @@ fn build_app_data() -> AppData {
         preset_data,
         ignored_notable_strats,
         implicit_tech,
-        map_repository: MapRepository::new(maps_path).unwrap(),
+        map_repositories: vec![
+            ("Tame".to_string(), MapRepository::new(tame_maps_path).unwrap()),
+            ("Wild".to_string(), MapRepository::new(wild_maps_path).unwrap()),
+        ].into_iter().collect(), 
         seed_repository: SeedRepository::new(&args.seed_repository_url).unwrap(),
         visualizer_files: load_visualizer_files(),
         tech_gif_listing,

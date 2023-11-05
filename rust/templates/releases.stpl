@@ -17,9 +17,9 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-93---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release93">Version 93 (???)</a>:
+<p><a href="https://version-93---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release93">Version 93 (2023-11-05)</a>:
 <ul>
-<li>TODO: A new "Map layout" option is added, with two options "Tame" and "Wild":
+<li>A new "Map layout" option is added, with two options "Tame" and "Wild":
     <ul>
     <li>"Tame" uses a new map pool in which return paths from one-ways are shorter on average.
     <li>"Wild" uses the same map pool as in previous versions.
@@ -37,8 +37,8 @@ about 15 seconds to load.
         <li>If Power Bombs are obtained, without Zebes awake, it plays the non-stormy Zebes asleep music.
         </ul>
     </ul>
-<li>Change Wrecked Ship music to no longer depend on subarea, only on if Phantoon is defeated.
-<li>TODO: A new tile theme option "Upper Norfair" is available.
+<li>Wrecked Ship music is changed to no longer depend on subarea, only on if Phantoon is defeated.
+<li>A new tile theme option "Upper Norfair" is available.
 </ul>
 
 <p><a href="https://version-92---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release92">Version 92 (2023-11-02)</a>:

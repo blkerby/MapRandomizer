@@ -12,11 +12,14 @@ COPY rust/Cargo.toml /rust/Cargo.toml
 RUN cargo build --release
 RUN rm /rust/src/*.rs
 
-# Download the map dataset, extraction will occur in-container to reduce image size
+# Download the map datasets, extraction will occur in-container to reduce image size
 WORKDIR /maps
 RUN wget https://storage.googleapis.com/super-metroid-map-rando/maps/session-2023-06-08T14:55:16.779895.pkl-small-64-subarea-balance-2.tgz \
-    -O maps.tar.gz
-RUN tar xfz maps.tar.gz --directory /maps && rm maps.tar.gz
+    -O wild-maps.tar.gz
+RUN tar xfz wild-maps.tar.gz --directory /maps && rm wild-maps.tar.gz
+RUN wget https://storage.googleapis.com/super-metroid-map-rando/maps/session-2023-06-08T14:55:16.779895.pkl-small-71-subarea-balance-2.tgz \
+    -O tame-maps.tar.gz
+RUN tar xfz tame-maps.tar.gz --directory /maps && rm tame-maps.tar.gz
 
 # Now copy over the source code and build the real binary
 COPY rust /rust
