@@ -1,0 +1,58 @@
+<!-- Button trigger modal -->
+<button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#mapLayoutModal">
+<i class="bi bi-question-circle"></i>
+</button>
+
+<!-- Modal -->
+<div class="modal" id="mapLayoutModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">Map layout</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>This setting how the rooms are arranged in the randomized map. Specifically, it affects how difficult it 
+        may be to loop back around after going down a one-way path (e.g. through crumble blocks):
+        <ul>
+        <li><strong>Tame</strong>: One-way paths tend to have relatively short paths that loop back around.
+        <li><strong>Wild</strong>: One-way paths often only have long paths that loop back around, due to a 
+        higher degree of randomness in how the maps are generated.
+        </ul>
+        </p>
+
+        <p>"Tame" maps are more friendly and should be relatively straightforward to navigate once you 
+        reach a "go mode" item set. Even before "go mode" they will typically be easier to deal with.
+        </p>
+
+        <h5>Details</h5>
+        <p>
+        The "one-ways" considered are situations where navigation in a "wrong" direction might not be not possible, 
+        even with all items collected, without the use of techniques above Basic:
+        <ul>
+        <li>Crumble blocks in Spore Spawn Super Room, Green Pirates Shaft, and many other rooms.
+        <li>Sand transitions.
+        <li>Green gates (whether or not they are glitchable).
+        <li>Speed blocks in Crateria Super Room and Crocomire Speedway.
+        <li>Big Pink morph tunnel blocked by a Super.
+        <li>Acid in Amphitheatre.
+        <li>The barriers in Spore Spawn's Room, Crocomire's Room, and Botwoon's Room.
+        <li>Acid and solid block in Acid Statue Room.
+        <li>Bowling Alley Chozo.
+        <li>The walls separating the Main Street morph tunnel from the rest of the room (a "zero-way"). 
+        <li>Mother Brain Room, Aqueduct, and Bowling Alley (top vs. rest) are also treated as zero-way.
+        </ul>
+        </p>
+        Likewise, in measuring the length of paths to reverse a "one-way", the types of paths considered are those 
+        which will be possible with all item collected, without the use of techniques above Basic. For example, 
+        using an X-ray climb to bypass crumble blocks would not count as a short way to loop back around; however, 
+        using Gravity Suit to go up through water would count, even if the player might not obtain Gravity Suit 
+        until late in the game. 
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

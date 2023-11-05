@@ -52,6 +52,10 @@
             </div>
         </div>
         <div class="row">
+            <div class="col-5 col-sm-4 col-md-3">Map layout:</div>
+            <div class="col-7 col-sm-8 col-md-9"><%= map_layout %></div>
+        </div>
+        <div class="row">
             <div class="col-5 col-sm-4 col-md-3">Save the animals:</div>
             <div class="col-7 col-sm-8 col-md-9"><%= save_animals %></div>
         </div>

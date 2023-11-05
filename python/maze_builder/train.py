@@ -210,7 +210,7 @@ pickle_name = 'models/session-2023-06-08T14:55:16.779895.pkl'
 # session = Unpickler(open(pickle_name + '-bk35', 'rb')).load()
 # session = Unpickler(open(pickle_name + '-bk43', 'rb')).load()
 # session = Unpickler(open(pickle_name + '-bk54', 'rb')).load()  # After backfilling graph diameter data
-session = Unpickler(open(pickle_name + '-bk70', 'rb')).load()
+session = Unpickler(open(pickle_name + '-bk71', 'rb')).load()
 # session.replay_buffer.size = 0
 # session.replay_buffer.position = 0
 # session.replay_buffer.resize(2 ** 23)
@@ -303,7 +303,7 @@ save_loss_weight = 0.005
 save_dist_coef = 0.02
 
 mc_dist_weight = 0.001
-mc_dist_coef_tame = 0.1
+mc_dist_coef_tame = 0.2
 mc_dist_coef_wild = 0.0
 
 graph_diam_weight = 0.0002
@@ -686,9 +686,9 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk70')
-            # session.replay_buffer.resize(2 ** 16)
-            # pickle.dump(session, open(pickle_name + '-small-70', 'wb'))
+            # save_session(session, pickle_name + '-bk71')
+            # session.replay_buffer.resize(2 ** 21)
+            # pickle.dump(session, open(pickle_name + '-small-71', 'wb'))
     if session.num_rounds % summary_freq == 0:
         if num_candidates_max == 1:
             total_eval_loss = 0.0

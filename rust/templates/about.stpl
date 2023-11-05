@@ -344,6 +344,9 @@
     <li>The rooms do not overlap.
     <li>Every door transition connects to a compatible door transition, e.g., sand connects to sand, and elevators
     connect to elevators.
+    <li>Every room has a path to and from every other room. This means that for every room containing one-ways
+    (e.g., crumble blocks, green gates), there must be some path that loops back around. This is to avoid creating 
+    areas which the player could either never reach or never escape from.
     </ul>
 
     <p>Maps produced by the model go through a few steps of post-processing:

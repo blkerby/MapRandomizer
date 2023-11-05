@@ -19,7 +19,12 @@ about 15 seconds to load.
 
 <p><a href="https://version-93---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release93">Version 93 (???)</a>:
 <ul>
-<li>Change Crateria music to use the full variety of available tracks:
+<li>TODO: A new "Map layout" option is added, with two options "Tame" and "Wild":
+    <ul>
+    <li>"Tame" uses a new map pool in which return paths from one-ways are shorter on average.
+    <li>"Wild" uses the same map pool as in previous versions.
+    </ul>
+<li>Crateria music is changed to use the full variety of available tracks:
     <ul>
     <li>The subarea containing the Ship continues to play the Prologue song initially:
         <ul>

@@ -2617,7 +2617,7 @@ impl<'r> Randomizer<'r> {
                 &selection.other_items,
             );
         } else {
-            // In Normal and Fast progression, only place items at bireachable locations. We defer placing items at
+            // In Uniform and Fast progression, only place items at bireachable locations. We defer placing items at
             // one-way-reachable locations so that they may get key items placed there later after
             // becoming bireachable.
             self.place_items(
