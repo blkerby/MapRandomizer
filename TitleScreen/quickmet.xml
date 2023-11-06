@@ -1,0 +1,43 @@
+<Quickmet>
+  <Energy>99</Energy>
+  <MaxEnergy>199</MaxEnergy>
+  <Missiles>5</Missiles>
+  <MaxMissiles>10</MaxMissiles>
+  <SuperMissiles>5</SuperMissiles>
+  <MaxSuperMissiles>10</MaxSuperMissiles>
+  <PowerBombs>5</PowerBombs>
+  <MaxPowerBombs>10</MaxPowerBombs>
+  <ReserveEnergy>0</ReserveEnergy>
+  <MaxReserveEneregy>0</MaxReserveEneregy>
+  <CollectedItems>0000</CollectedItems>
+  <EquippedItems>0000</EquippedItems>
+  <CollectedBeams>0000</CollectedBeams>
+  <EquippedBeams>0000</EquippedBeams>
+  <AreaMap0>00</AreaMap0>
+  <AreaMap1>00</AreaMap1>
+  <AreaMap2>00</AreaMap2>
+  <AreaMap3>00</AreaMap3>
+  <AreaMap4>00</AreaMap4>
+  <AreaMap5>00</AreaMap5>
+  <AreaMap6>00</AreaMap6>
+  <AreaMap7>00</AreaMap7>
+  <Events>
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  </Events>
+  <Items>
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  </Items>
+  <Doors>
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  </Doors>
+</Quickmet>

@@ -1,0 +1,314 @@
+<Config Version="1.19.8657.42371">
+  <ROMfile>vanilla.sfc</ROMfile>
+  <PatchQuickmet>true</PatchQuickmet>
+  <SaveNames>true</SaveNames>
+  <LevelBufferAmount>200</LevelBufferAmount>
+  <EXLOROM>false</EXLOROM>
+  <LoadASMonImportFromXML>false</LoadASMonImportFromXML>
+  <ScanROMonImportFromROM>false</ScanROMonImportFromROM>
+  <ApplyASMonImportFromROM>false</ApplyASMonImportFromROM>
+  <LogLevel>Debug</LogLevel>
+  <PaletteFormat>TPL</PaletteFormat>
+  <RoomNameSpaceBankAny>
+    <Space start="DFD500" end="DFFFFF" />
+  </RoomNameSpaceBankAny>
+  <UserFreeSpace>
+    <Space start="80C4C5" end="80CD06" />
+    <Space start="80CD8E" end="80FFBF" />
+    <Space start="81A40E" end="81A545" />
+    <Space start="81AA1C" end="81AAAB" />
+    <Space start="81B71A" end="81EF19" />
+    <Space start="82876C" end="828919" />
+    <Space start="82964A" end="82965E" />
+    <Space start="82966F" end="829716" />
+    <Space start="829727" end="829E26" />
+    <Space start="82C74D" end="82C7CA" />
+    <Space start="82C83B" end="82CAA0" />
+    <Space start="82F70F" end="83ABEF" />
+    <Space start="83AD66" end="83FFFD" />
+    <Space start="85869B" end="85FFFF" />
+    <Space start="8CC383" end="8CD5DE" />
+    <Space start="8CF3E9" end="8CFFFF" />
+    <Space start="8F8000" end="8F9193" />
+    <Space start="8F91F8" end="8FC115" />
+    <Space start="8FC215" end="8FC8C6" />
+    <Space start="8FC98E" end="8FE26B" />
+    <Space start="8FE301" end="8FE51E" />
+    <Space start="8FE6A2" end="8FE82B" />
+    <Space start="8FE99A" end="8FFFFF" />
+    <Space start="918885" end="9189FC" />
+    <Space start="918ACE" end="919345" />
+    <Space start="9193CC" end="919EE1" />
+    <Space start="97E7DE" end="97F986" />
+    <Space start="A18000" end="A1FFFF" />
+    <Space start="A28687" end="A286A6" />
+    <Space start="A28912" end="A28931" />
+    <Space start="A28B60" end="A28B7F" />
+    <Space start="A2998D" end="A299AC" />
+    <Space start="A29E6A" end="A29E89" />
+    <Space start="A2A38B" end="A2A3AA" />
+    <Space start="A2A59E" end="A2A5BD" />
+    <Space start="A2AFF3" end="A2B012" />
+    <Space start="A2B20C" end="A2B22B" />
+    <Space start="A2B264" end="A2B283" />
+    <Space start="A2B2BC" end="A2B2DB" />
+    <Space start="A2BA5B" end="A2BA9A" />
+    <Space start="A2BE1C" end="A2BE3B" />
+    <Space start="A2C0D1" end="A2C0F0" />
+    <Space start="A2C5FA" end="A2C619" />
+    <Space start="A2CA2B" end="A2CA4A" />
+    <Space start="A2D80C" end="A2D82B" />
+    <Space start="A2E17B" end="A2E19A" />
+    <Space start="A2E2C0" end="A2E2DF" />
+    <Space start="A2E457" end="A2E476" />
+    <Space start="A2E57B" end="A2E59A" />
+    <Space start="A2E978" end="A2E997" />
+    <Space start="A2EDC7" end="A2EDE6" />
+    <Space start="A2F49A" end="A2FFFF" />
+    <Space start="A38687" end="A386A6" />
+    <Space start="A388F0" end="A3890F" />
+    <Space start="A38C0F" end="A38C2E" />
+    <Space start="A3900A" end="A39029" />
+    <Space start="A3965B" end="A3967A" />
+    <Space start="A3980B" end="A3982A" />
+    <Space start="A39B7B" end="A39BBA" />
+    <Space start="A3A051" end="A3A070" />
+    <Space start="A3A725" end="A3A744" />
+    <Space start="A3AA48" end="A3AA67" />
+    <Space start="A3AF85" end="A3AFA4" />
+    <Space start="A3B085" end="A3B0C4" />
+    <Space start="A3B217" end="A3B236" />
+    <Space start="A3B3A1" end="A3B3C0" />
+    <Space start="A3B5B3" end="A3B5D2" />
+    <Space start="A3B702" end="A3B721" />
+    <Space start="A3C63E" end="A3C65D" />
+    <Space start="A3C8A6" end="A3C8C5" />
+    <Space start="A3DA9C" end="A3DABB" />
+    <Space start="A3DFA2" end="A3DFC1" />
+    <Space start="A3E23C" end="A3E25B" />
+    <Space start="A3E57C" end="A3E59B" />
+    <Space start="A3E5B0" end="A3E5EF" />
+    <Space start="A3E9AF" end="A3E9CE" />
+    <Space start="A3F313" end="A3FFFF" />
+    <Space start="A4B87D" end="A4B89C" />
+    <Space start="A4F6C0" end="A4FFFF" />
+    <Space start="A5A1F7" end="A5A216" />
+    <Space start="A5E359" end="A5E378" />
+    <Space start="A5F960" end="A5FFFF" />
+    <Space start="A68687" end="A686A6" />
+    <Space start="A68B09" end="A68B28" />
+    <Space start="A68CFB" end="A68D1A" />
+    <Space start="A69470" end="A6948F" />
+    <Space start="A6998C" end="A699AB" />
+    <Space start="A6E14F" end="A6E16E" />
+    <Space start="A6E1AF" end="A6E1CE" />
+    <Space start="A6E23F" end="A6E25E" />
+    <Space start="A6F4EC" end="A6F50B" />
+    <Space start="A6FEBC" end="A6FFFF" />
+    <Space start="A78687" end="A786A6" />
+    <Space start="A7CA01" end="A7CA20" />
+    <Space start="A7E7FE" end="A7E81D" />
+    <Space start="A7F225" end="A7F244" />
+    <Space start="A7FF82" end="A7FFFF" />
+    <Space start="A88687" end="A886A6" />
+    <Space start="A88F8C" end="A88FAB" />
+    <Space start="A89379" end="A89398" />
+    <Space start="A8959D" end="A895BC" />
+    <Space start="A899AC" end="A899CB" />
+    <Space start="A89F4F" end="A89F6E" />
+    <Space start="A8AAFE" end="A8AB1D" />
+    <Space start="A8AC1C" end="A8AC3B" />
+    <Space start="A8B65E" end="A8B67D" />
+    <Space start="A8C143" end="A8C162" />
+    <Space start="A8C6B3" end="A8C6D2" />
+    <Space start="A8D821" end="A8D840" />
+    <Space start="A8DBC7" end="A8DBE6" />
+    <Space start="A8E230" end="A8E24F" />
+    <Space start="A8E587" end="A8E5A6" />
+    <Space start="A8E7AC" end="A8E7CB" />
+    <Space start="A8E99A" end="A8E9F9" />
+    <Space start="A8F9BE" end="A8FFFF" />
+    <Space start="A99472" end="A99491" />
+    <Space start="A9D6BC" end="A9D6DB" />
+    <Space start="A9EBAC" end="A9EBCB" />
+    <Space start="A9F8A6" end="A9F8C5" />
+    <Space start="A9F8E6" end="A9F905" />
+    <Space start="A9FB70" end="A9FFFF" />
+    <Space start="AA8687" end="AA86A6" />
+    <Space start="AAD745" end="AAD764" />
+    <Space start="AAD911" end="AAD930" />
+    <Space start="AAE2BD" end="AAE2DC" />
+    <Space start="AAE31D" end="AAE33C" />
+    <Space start="AAF7D5" end="ABE9FF" />
+    <Space start="ABF800" end="ADA5FF" />
+    <Space start="ADB600" end="ADDDFF" />
+    <Space start="ADF444" end="AFE1FF" />
+    <Space start="AFE800" end="AFFFFF" />
+    <Space start="B0EE00" end="B1FFFF" />
+    <Space start="B28687" end="B28746" />
+    <Space start="B2FEAA" end="B2FFFF" />
+    <Space start="B38687" end="B386A6" />
+    <Space start="B3878B" end="B387AA" />
+    <Space start="B389FD" end="B38A1C" />
+    <Space start="B38AC1" end="B38AE0" />
+    <Space start="B38EDC" end="B38EFB" />
+    <Space start="B39319" end="B39338" />
+    <Space start="B3E525" end="B3E544" />
+    <Space start="B3E944" end="B3E963" />
+    <Space start="B3ED80" end="B492C5" />
+    <Space start="B4DD89" end="B5EFFF" />
+    <Space start="B98000" end="B9A633" />
+    <Space start="BAC629" end="C18DA9" />
+    <Space start="C1B6F6" end="DED1BF" />
+    <Space start="DF8000" end="DFD4DE" />
+    <Space start="E08000" end="FFFFFF" />
+  </UserFreeSpace>
+  <UserReservedSpace>
+    <Space start="A28000" end="A28686" />
+    <Space start="A38000" end="A38686" />
+    <Space start="A48000" end="A48686" />
+    <Space start="A58000" end="A58686" />
+    <Space start="A68000" end="A68686" />
+    <Space start="A78000" end="A78686" />
+    <Space start="A88000" end="A88686" />
+    <Space start="A98000" end="A98686" />
+    <Space start="AA8000" end="AA8686" />
+    <Space start="B28000" end="B28686" />
+    <Space start="B38000" end="B38686" />
+  </UserReservedSpace>
+  <ScannedFreeSpace />
+  <ASMUsedSpaceBankAny>
+    <Space start="82DEFD" end="82DF00" />
+    <Space start="82E833" end="82E83A" />
+    <Space start="82EADB" end="82EAE2" />
+    <Space start="83B800" end="83B98B" />
+    <Space start="8498D1" end="849A3E" />
+    <Space start="849CC5" end="849CCE" />
+    <Space start="849E0D" end="849E28" />
+    <Space start="849E45" end="849EB4" />
+    <Space start="849ED1" end="849F24" />
+    <Space start="84D3CF" end="84D3D4" />
+    <Space start="84D3EC" end="84D3F1" />
+    <Space start="8781BA" end="8781C0" />
+    <Space start="878279" end="87827A" />
+    <Space start="87827F" end="878280" />
+    <Space start="878285" end="878286" />
+    <Space start="87828B" end="87828C" />
+    <Space start="878291" end="878292" />
+    <Space start="87C964" end="87CA7D" />
+    <Space start="88A7D8" end="88A815" />
+    <Space start="88AD76" end="88AF41" />
+    <Space start="88F600" end="88FAFE" />
+    <Space start="89AB90" end="89AB92" />
+    <Space start="89ABA3" end="89ABA5" />
+    <Space start="89ABFB" end="89ABFD" />
+    <Space start="89AC25" end="89AC27" />
+    <Space start="89AC57" end="89AC59" />
+    <Space start="89AC62" end="89AC69" />
+    <Space start="89AC98" end="89AC9F" />
+    <Space start="89AF60" end="89B0AA" />
+    <Space start="8AB180" end="8AB4D7" />
+    <Space start="8AB500" end="8AB5CF" />
+    <Space start="8AB600" end="8AB6AC" />
+    <Space start="8AB700" end="8ABEDF" />
+    <Space start="8DC686" end="8DC68F" />
+    <Space start="8DEC59" end="8DEC5E" />
+    <Space start="8DF795" end="8DF79C" />
+    <Space start="8F91C9" end="8F91D2" />
+    <Space start="8FC116" end="8FC123" />
+    <Space start="90EA57" end="90EA5E" />
+  </ASMUsedSpaceBankAny>
+  <PLMBank>
+    <option>Default</option>
+    <patch>false</patch>
+    <bank>0x8F</bank>
+  </PLMBank>
+  <PLMScrollBank>
+    <option>Default</option>
+    <patch>false</patch>
+    <bank>0x8F</bank>
+  </PLMScrollBank>
+  <ScrollBank>
+    <option>Default</option>
+    <patch>false</patch>
+    <bank>0x8F</bank>
+  </ScrollBank>
+  <EnemyTypeBank>
+    <option>Default</option>
+    <patch>false</patch>
+    <bank>0xB4</bank>
+  </EnemyTypeBank>
+  <EnemyBank>
+    <banks>
+      <Area1>0xA1</Area1>
+      <Area2>0xA1</Area2>
+      <Area3>0xA1</Area3>
+      <Area4>0xA1</Area4>
+      <Area5>0xA1</Area5>
+      <Area6>0xA1</Area6>
+      <Area7>0xA1</Area7>
+      <Area8>0xA1</Area8>
+    </banks>
+    <option>Default</option>
+    <patch>false</patch>
+  </EnemyBank>
+  <StateConditions>
+    <StateCondition TestCodeAddress="E5E6">
+      <Arguments />
+      <Name>Default (no condition)</Name>
+    </StateCondition>
+    <StateCondition TestCodeAddress="E5EB">
+      <Arguments>
+        <ArgType Name="Incoming Door" Type="Door" Action="IncomingDoor" />
+      </Arguments>
+      <Name>Incoming door</Name>
+    </StateCondition>
+    <StateCondition TestCodeAddress="E5FF">
+      <Arguments>
+        <ArgType Name="Event" Action="Areas" FixedValue="0" />
+      </Arguments>
+      <Name>Area main boss is dead</Name>
+    </StateCondition>
+    <StateCondition TestCodeAddress="E60F">
+      <Arguments />
+      <Name>Never (always false)</Name>
+    </StateCondition>
+    <StateCondition TestCodeAddress="E612">
+      <Arguments>
+        <ArgType Name="Event Bit" Type="Byte" Action="Events" />
+      </Arguments>
+      <Name>Event bit is set</Name>
+    </StateCondition>
+    <StateCondition TestCodeAddress="E629">
+      <Arguments>
+        <ArgType Name="Boss Type" Type="Byte" Action="Areas" />
+      </Arguments>
+      <Name>Boss type is dead</Name>
+    </StateCondition>
+    <StateCondition TestCodeAddress="E640">
+      <Arguments>
+        <ArgType Name="Equipment" Action="Equipment" FixedValue="4" />
+      </Arguments>
+      <Name>Morphball collected</Name>
+    </StateCondition>
+    <StateCondition TestCodeAddress="E652">
+      <Arguments>
+        <ArgType Name="Equipment" Action="Equipment" FixedValue="4" />
+        <ArgType Name="Missiles" Action="MaxMissiles" FixedValue="1" />
+      </Arguments>
+      <Name>Morphball and missiles collected</Name>
+    </StateCondition>
+    <StateCondition TestCodeAddress="E669">
+      <Arguments>
+        <ArgType Name="Power Bombs" Action="MaxPowerBombs" FixedValue="1" />
+      </Arguments>
+      <Name>Power bombs collected</Name>
+    </StateCondition>
+    <StateCondition TestCodeAddress="E678">
+      <Arguments>
+        <ArgType Name="Equipment" Action="Equipment" FixedValue="512" />
+      </Arguments>
+      <Name>Speed booster collected</Name>
+    </StateCondition>
+  </StateConditions>
+</Config>

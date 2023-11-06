@@ -1,0 +1,764 @@
+<Room>
+  <Saves />
+  <index>0F</index>
+  <area>01</area>
+  <x>1D</x>
+  <y>0A</y>
+  <width>01</width>
+  <height>02</height>
+  <upscroll>70</upscroll>
+  <dnscroll>A0</dnscroll>
+  <specialGFX>00</specialGFX>
+  <Doors>
+    <Door>
+      <toroom area="01" index="0E" />
+      <bitflag>00</bitflag>
+      <direction>05</direction>
+      <tilex>E</tilex>
+      <tiley>6</tiley>
+      <screenx>07</screenx>
+      <screeny>02</screeny>
+      <distance>8000</distance>
+      <doorcode>0000</doorcode>
+    </Door>
+    <Door>
+      <toroom area="01" index="10" />
+      <bitflag>00</bitflag>
+      <direction>04</direction>
+      <tilex>1</tilex>
+      <tiley>6</tiley>
+      <screenx>00</screenx>
+      <screeny>02</screeny>
+      <distance>8000</distance>
+      <doorcode>0000</doorcode>
+    </Door>
+    <Door>
+      <toroom area="01" index="18" />
+      <bitflag>00</bitflag>
+      <direction>05</direction>
+      <tilex>E</tilex>
+      <tiley>6</tiley>
+      <screenx>00</screenx>
+      <screeny>00</screeny>
+      <distance>8000</distance>
+      <doorcode>0000</doorcode>
+    </Door>
+  </Doors>
+  <States>
+    <State condition="E612">
+      <Arg>00</Arg>
+      <LevelData Width="1" Height="2">
+        <Layer1>
+          <Screen X="0" Y="0">
+        8081 8081 8081 8081 8081 8081 8081 8081 8081 8081 8081 8081 8081 8081 8081 8081
+        8081 8081 8081 8081 8081 8081 8081 8081 8081 8081 8081 8081 8081 8081 8081 8081
+        81EB 81E9 11BE 11BD 11BE 89E9 00FF 89E9 89E9 89E9 11BE 11BD 11BE 89E9 81EB 89E9
+        81E9 81E9 00FF 00FF 00FF 00FF 00FF 00FF 00FF 89E9 00FF 00FF 00FF 00FF 89E9 819D
+        819D 819D 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 819D 819D
+        81E9 81E9 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 81E9 81E9
+        9440 C40C 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF C00C 9040
+        9460 D42C 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF D02C 9060
+        9C60 DC2C 00FF 00FF 80FF 81EB C19A C19A C19A C19A 81EB 80FF 00FF 00FF D82C 9860
+        9C40 DC0C 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF D80C 9840
+        81EC 81EC 81EC 81EC C19A C19A C19A C19A C19A C19A C19A C19A 81E9 819F 81E9 81E9
+        81EC 81EB 81EB 81EC 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 81E9 81EB 81E9 819D
+        81EB 81EC 81EB 81EB 00FF 00FF C19A C19A C19A C19A 00FF 00FF 819D 81E9 81E9 81E9
+        81BC 81BC 81EC 81EC 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 81E9 81E9 81BC 81BC
+        81EB 81E9 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 81EB 81E9
+        81E9 819D 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 81E9 819D
+      </Screen>
+          <Screen X="0" Y="1">
+        819D 819D 00FF 00FF 00FF 00FF C19A C19A C19A C19A 00FF 00FF 00FF 00FF 819D 819D
+        81BC 80FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 80FF 81BC
+        81EB 81E9 81E9 81E9 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 81E9 81EB
+        81E9 819D 81E9 819D 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 819D 81E9
+        81BC 81BC 81BC 81E9 81E9 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 819D 819D
+        81E9 81E9 819F 819F 81E9 81E9 81EA 81EA 00FF 00FF 81EA 81E9 81EA 81EA 81E9 81E9
+        9440 C40C 00FF 00FF 00FF 81E9 81E9 81E9 00FF 00FF 81E9 81E9 81EB 81E9 81BC 81BC
+        9460 D42C 00FF 00FF 00FF 81E9 81E9 81E9 00FF 00FF 819D 81EC 81E9 81E9 81EC 81E9
+        9C60 DC2C 00FF 00FF 00FF 81E9 819F 81E9 00FF 00FF 81E9 81E9 819D 81E9 81E9 819D
+        9C40 DC0C 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 81E9 81E9 81E9 81EC 819D 819D
+        81E9 81E9 819F 819F 81E9 81E9 819F 819F 81EA 81E9 81E9 819F 819F 81E9 81E9 81E9
+        81BC 81BC 81BC 81BC 81BC 81E9 81EC 81E9 81EC 81EC 81E9 81E9 81EB 81E9 81BC 81BC
+        81EB 81EC 81E9 81EB 81EC 81EB 81E9 81EC 81E9 81E9 81EB 81EC 81EB 81EC 81EB 81EB
+        81EC 81EC 81EC 81EB 81EB 81EB 81EC 81EB 81EB 81EC 81EB 81EB 81EC 81EB 81EC 81EC
+        81EB 81EC 81EC 81EC 81EC 81EC 81EC 81EC 81EB 81EC 81EB 81EC 81EB 81EB 81EB 81EB
+        81EB 81EC 81EB 81EC 81EC 81EC 81EB 81EB 81EB 81EC 81EC 81EB 81EC 81EC 81EB 81EC
+      </Screen>
+        </Layer1>
+        <BTS>
+          <Screen X="0" Y="0">
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 D2 92 D2 00 00 00 00 00 D2 92 D2 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 41 00 00 00 00 00 00 00 00 00 00 00 00 40 01
+        00 FF 00 00 00 00 00 00 00 00 00 00 00 00 FF 01
+        00 FE 00 00 00 00 00 00 00 00 00 00 00 00 FE 01
+        00 FD 00 00 00 00 00 00 00 00 00 00 00 00 FD 01
+        00 00 00 00 04 04 04 04 04 04 04 04 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+      </Screen>
+          <Screen X="0" Y="1">
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        02 41 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        02 FF 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        02 FE 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        02 FD 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+      </Screen>
+        </BTS>
+      </LevelData>
+      <GFXset>06</GFXset>
+      <music>0000</music>
+      <FX1s>
+        <FX1 default="true">
+          <surfacestart>FFFF</surfacestart>
+          <surfacenew>FFFF</surfacenew>
+          <surfacespeed>0000</surfacespeed>
+          <surfacedelay>00</surfacedelay>
+          <type>00</type>
+          <transparency1_A>02</transparency1_A>
+          <transparency2_B>02</transparency2_B>
+          <liquidflags_C>00</liquidflags_C>
+          <paletteflags>00</paletteflags>
+          <animationflags>00</animationflags>
+          <paletteblend>00</paletteblend>
+        </FX1>
+      </FX1s>
+      <Enemies killcount="02">
+        <Enemy>
+          <ID>DCFF</ID>
+          <X>0058</X>
+          <Y>0078</Y>
+          <tilemap>0003</tilemap>
+          <special>2001</special>
+          <gfx>0000</gfx>
+          <speed>0002</speed>
+          <speed2>0000</speed2>
+        </Enemy>
+        <Enemy>
+          <ID>DCFF</ID>
+          <X>00A8</X>
+          <Y>0094</Y>
+          <tilemap>0002</tilemap>
+          <special>2001</special>
+          <gfx>0000</gfx>
+          <speed>0002</speed>
+          <speed2>0000</speed2>
+        </Enemy>
+        <Enemy>
+          <ID>EA7F</ID>
+          <X>0048</X>
+          <Y>0088</Y>
+          <tilemap>0000</tilemap>
+          <special>A000</special>
+          <gfx>0000</gfx>
+          <speed>0000</speed>
+          <speed2>0000</speed2>
+        </Enemy>
+        <Enemy>
+          <ID>EA7F</ID>
+          <X>00B8</X>
+          <Y>0088</Y>
+          <tilemap>0000</tilemap>
+          <special>A000</special>
+          <gfx>0000</gfx>
+          <speed>0000</speed>
+          <speed2>0000</speed2>
+        </Enemy>
+        <Enemy>
+          <ID>EA7F</ID>
+          <X>00E8</X>
+          <Y>0116</Y>
+          <tilemap>0000</tilemap>
+          <special>A000</special>
+          <gfx>0000</gfx>
+          <speed>0000</speed>
+          <speed2>0000</speed2>
+        </Enemy>
+        <Enemy>
+          <ID>EA7F</ID>
+          <X>00E8</X>
+          <Y>0166</Y>
+          <tilemap>0000</tilemap>
+          <special>A000</special>
+          <gfx>0000</gfx>
+          <speed>0000</speed>
+          <speed2>0000</speed2>
+        </Enemy>
+        <Enemy>
+          <ID>EA7F</ID>
+          <X>0018</X>
+          <Y>0116</Y>
+          <tilemap>0000</tilemap>
+          <special>A000</special>
+          <gfx>0000</gfx>
+          <speed>0000</speed>
+          <speed2>0000</speed2>
+        </Enemy>
+      </Enemies>
+      <EnemyTypes>
+        <Enemy>
+          <GFX>DCFF</GFX>
+          <palette>0001</palette>
+        </Enemy>
+        <Enemy>
+          <GFX>EA7F</GFX>
+          <palette>0002</palette>
+        </Enemy>
+      </EnemyTypes>
+      <layer2_type>BGData</layer2_type>
+      <layer2_xscroll>C0</layer2_xscroll>
+      <layer2_yscroll>C0</layer2_yscroll>
+      <ScrollData>01 00 </ScrollData>
+      <roomvar>0000</roomvar>
+      <FX2>0000</FX2>
+      <PLMs>
+        <PLM>
+          <type>B703</type>
+          <x>04</x>
+          <y>0B</y>
+          <ScrollData>
+            <Change screen="00" scroll="02" />
+            <Change screen="01" scroll="01" />
+          </ScrollData>
+        </PLM>
+        <PLM>
+          <type>B63B</type>
+          <x>05</x>
+          <y>0B</y>
+          <arg>8000</arg>
+        </PLM>
+        <PLM>
+          <type>B63B</type>
+          <x>06</x>
+          <y>0B</y>
+          <arg>8000</arg>
+        </PLM>
+        <PLM>
+          <type>B63B</type>
+          <x>07</x>
+          <y>0B</y>
+          <arg>8000</arg>
+        </PLM>
+        <PLM>
+          <type>B63B</type>
+          <x>08</x>
+          <y>0B</y>
+          <arg>8000</arg>
+        </PLM>
+        <PLM>
+          <type>B63B</type>
+          <x>09</x>
+          <y>0B</y>
+          <arg>8000</arg>
+        </PLM>
+        <PLM>
+          <type>B63B</type>
+          <x>0A</x>
+          <y>0B</y>
+          <arg>8000</arg>
+        </PLM>
+        <PLM>
+          <type>B63B</type>
+          <x>0B</x>
+          <y>0B</y>
+          <arg>8000</arg>
+        </PLM>
+        <PLM>
+          <type>C88A</type>
+          <x>0E</x>
+          <y>06</y>
+          <arg>0032</arg>
+        </PLM>
+      </PLMs>
+      <BGData>
+        <Data Type="DECOMP">
+          <SOURCE>
+            09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 
+            09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 
+            09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 
+            09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 
+            09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 
+            09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 
+            09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 
+            09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 
+            09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 
+            09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 
+            09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 
+            09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 
+            09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 
+            09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 
+            09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 
+            09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 
+            09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 
+            09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 
+            09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 
+            09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 
+            09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 
+            09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 
+            09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 
+            09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 
+            09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 
+            09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 
+            09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 
+            09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 
+            09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 
+            09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 
+            09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 
+            09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 
+            09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 
+            09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 
+            09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 
+            09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 
+            09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 
+            09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 
+            09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 
+            09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 
+            09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 
+            09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 
+            09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 
+            09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 
+            09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 
+            09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 
+            09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 
+            09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 
+            09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 
+            09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 
+            09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 
+            09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 
+            09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 
+            09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 
+            09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 
+            09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 
+            09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 
+            09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 
+            09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 
+            09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 
+            09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 
+            09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 
+            09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 
+            09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 
+          </SOURCE>
+          <DEST>4000</DEST>
+          <Section>Tiles2</Section>
+        </Data>
+      </BGData>
+      <layer1_2>91BC</layer1_2>
+    </State>
+    <State condition="default">
+      <LevelData Width="1" Height="2">
+        <Layer1>
+          <Screen X="0" Y="0">
+        8081 8081 8081 8081 8081 8081 8081 8081 8081 8081 8081 8081 8081 8081 8081 8081
+        8081 8081 8081 8081 8081 8081 8081 8081 8081 8081 8081 8081 8081 8081 8081 8081
+        81EB 81E9 11BE 11BD 11BE 89E9 00FF 89E9 89E9 89E9 11BE 11BD 11BE 89E9 81EB 89E9
+        81E9 81E9 00FF 00FF 00FF 00FF 00FF 00FF 00FF 89E9 00FF 00FF 00FF 00FF 89E9 819D
+        819D 819D 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 819D 819D
+        81E9 81E9 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 81E9 81E9
+        9440 C40C 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF C00C 9040
+        9460 D42C 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF D02C 9060
+        9C60 DC2C 00FF 00FF 80FF 81EB C19A C19A C19A C19A 81EB 80FF 00FF 00FF D82C 9860
+        9C40 DC0C 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF D80C 9840
+        81EC 81EC 81EC 81EC C19A C19A C19A C19A C19A C19A C19A C19A 81E9 819F 81E9 81E9
+        81EC 81EB 81EB 81EC 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 81E9 81EB 81E9 819D
+        81EB 81EC 81EB 81EB 00FF 00FF C19A C19A C19A C19A 00FF 00FF 819D 81E9 81E9 81E9
+        81BC 81BC 81EC 81EC 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 81E9 81E9 81BC 81BC
+        81EB 81E9 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 81EB 81E9
+        81E9 819D 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 81E9 819D
+      </Screen>
+          <Screen X="0" Y="1">
+        819D 819D 00FF 00FF 00FF 00FF C19A C19A C19A C19A 00FF 00FF 00FF 00FF 819D 819D
+        81BC 80FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 80FF 81BC
+        81EB 81E9 81E9 81E9 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 81E9 81EB
+        81E9 819D 81E9 819D 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 819D 81E9
+        81BC 81BC 81BC 81E9 81E9 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 819D 819D
+        81E9 81E9 819F 819F 81E9 81E9 81EA 81EA 00FF 00FF 81EA 81E9 81EA 81EA 81E9 81E9
+        9440 C40C 00FF 00FF 00FF 81E9 81E9 81E9 00FF 00FF 81E9 81E9 81EB 81E9 81BC 81BC
+        9460 D42C 00FF 00FF 00FF 81E9 81E9 81E9 00FF 00FF 819D 81EC 81E9 81E9 81EC 81E9
+        9C60 DC2C 00FF 00FF 00FF 81E9 819F 81E9 00FF 00FF 81E9 81E9 819D 81E9 81E9 819D
+        9C40 DC0C 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 81E9 81E9 81E9 81EC 819D 819D
+        81E9 81E9 819F 819F 81E9 81E9 819F 819F 81EA 81E9 81E9 819F 819F 81E9 81E9 81E9
+        81BC 81BC 81BC 81BC 81BC 81E9 81EC 81E9 81EC 81EC 81E9 81E9 81EB 81E9 81BC 81BC
+        81EB 81EC 81E9 81EB 81EC 81EB 81E9 81EC 81E9 81E9 81EB 81EC 81EB 81EC 81EB 81EB
+        81EC 81EC 81EC 81EB 81EB 81EB 81EC 81EB 81EB 81EC 81EB 81EB 81EC 81EB 81EC 81EC
+        81EB 81EC 81EC 81EC 81EC 81EC 81EC 81EC 81EB 81EC 81EB 81EC 81EB 81EB 81EB 81EB
+        81EB 81EC 81EB 81EC 81EC 81EC 81EB 81EB 81EB 81EC 81EC 81EB 81EC 81EC 81EB 81EC
+      </Screen>
+        </Layer1>
+        <BTS>
+          <Screen X="0" Y="0">
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 D2 92 D2 00 00 00 00 00 D2 92 D2 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 41 00 00 00 00 00 00 00 00 00 00 00 00 40 01
+        00 FF 00 00 00 00 00 00 00 00 00 00 00 00 FF 01
+        00 FE 00 00 00 00 00 00 00 00 00 00 00 00 FE 01
+        00 FD 00 00 00 00 00 00 00 00 00 00 00 00 FD 01
+        00 00 00 00 04 04 04 04 04 04 04 04 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+      </Screen>
+          <Screen X="0" Y="1">
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        02 41 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        02 FF 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        02 FE 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        02 FD 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+      </Screen>
+        </BTS>
+      </LevelData>
+      <GFXset>06</GFXset>
+      <music>0000</music>
+      <FX1s>
+        <FX1 default="true">
+          <surfacestart>FFFF</surfacestart>
+          <surfacenew>FFFF</surfacenew>
+          <surfacespeed>0000</surfacespeed>
+          <surfacedelay>00</surfacedelay>
+          <type>00</type>
+          <transparency1_A>2A</transparency1_A>
+          <transparency2_B>02</transparency2_B>
+          <liquidflags_C>00</liquidflags_C>
+          <paletteflags>00</paletteflags>
+          <animationflags>00</animationflags>
+          <paletteblend>00</paletteblend>
+        </FX1>
+      </FX1s>
+      <Enemies killcount="00">
+        <Enemy>
+          <ID>D87F</ID>
+          <X>002E</X>
+          <Y>00C0</Y>
+          <tilemap>0000</tilemap>
+          <special>2400</special>
+          <gfx>0000</gfx>
+          <speed>8A03</speed>
+          <speed2>0050</speed2>
+        </Enemy>
+        <Enemy>
+          <ID>D87F</ID>
+          <X>00DE</X>
+          <Y>00B3</Y>
+          <tilemap>0000</tilemap>
+          <special>2400</special>
+          <gfx>0000</gfx>
+          <speed>C803</speed>
+          <speed2>0050</speed2>
+        </Enemy>
+        <Enemy>
+          <ID>D87F</ID>
+          <X>00DB</X>
+          <Y>00B7</Y>
+          <tilemap>0000</tilemap>
+          <special>2400</special>
+          <gfx>0000</gfx>
+          <speed>F802</speed>
+          <speed2>0050</speed2>
+        </Enemy>
+        <Enemy>
+          <ID>D87F</ID>
+          <X>00D9</X>
+          <Y>00B1</Y>
+          <tilemap>0000</tilemap>
+          <special>2400</special>
+          <gfx>0000</gfx>
+          <speed>EC02</speed>
+          <speed2>0050</speed2>
+        </Enemy>
+        <Enemy>
+          <ID>D87F</ID>
+          <X>00D7</X>
+          <Y>00C1</Y>
+          <tilemap>0000</tilemap>
+          <special>2400</special>
+          <gfx>0000</gfx>
+          <speed>F403</speed>
+          <speed2>0050</speed2>
+        </Enemy>
+        <Enemy>
+          <ID>D87F</ID>
+          <X>00B3</X>
+          <Y>01D3</Y>
+          <tilemap>0000</tilemap>
+          <special>2400</special>
+          <gfx>0000</gfx>
+          <speed>C402</speed>
+          <speed2>0050</speed2>
+        </Enemy>
+        <Enemy>
+          <ID>D87F</ID>
+          <X>00B9</X>
+          <Y>01DB</Y>
+          <tilemap>0000</tilemap>
+          <special>2400</special>
+          <gfx>0000</gfx>
+          <speed>D003</speed>
+          <speed2>0050</speed2>
+        </Enemy>
+        <Enemy>
+          <ID>D87F</ID>
+          <X>00BB</X>
+          <Y>01EA</Y>
+          <tilemap>0000</tilemap>
+          <special>2400</special>
+          <gfx>0000</gfx>
+          <speed>DC03</speed>
+          <speed2>0050</speed2>
+        </Enemy>
+        <Enemy>
+          <ID>D87F</ID>
+          <X>00AE</X>
+          <Y>01DC</Y>
+          <tilemap>0000</tilemap>
+          <special>2400</special>
+          <gfx>0000</gfx>
+          <speed>BB02</speed>
+          <speed2>0050</speed2>
+        </Enemy>
+        <Enemy>
+          <ID>D87F</ID>
+          <X>00D5</X>
+          <Y>01F0</Y>
+          <tilemap>0000</tilemap>
+          <special>2400</special>
+          <gfx>0000</gfx>
+          <speed>0303</speed>
+          <speed2>0080</speed2>
+        </Enemy>
+        <Enemy>
+          <ID>EA7F</ID>
+          <X>0048</X>
+          <Y>0088</Y>
+          <tilemap>0000</tilemap>
+          <special>A000</special>
+          <gfx>0000</gfx>
+          <speed>0000</speed>
+          <speed2>0000</speed2>
+        </Enemy>
+        <Enemy>
+          <ID>EA7F</ID>
+          <X>00B8</X>
+          <Y>0088</Y>
+          <tilemap>0000</tilemap>
+          <special>A000</special>
+          <gfx>0000</gfx>
+          <speed>0000</speed>
+          <speed2>0001</speed2>
+        </Enemy>
+        <Enemy>
+          <ID>EA7F</ID>
+          <X>00E8</X>
+          <Y>0116</Y>
+          <tilemap>0000</tilemap>
+          <special>A000</special>
+          <gfx>0000</gfx>
+          <speed>0000</speed>
+          <speed2>0000</speed2>
+        </Enemy>
+        <Enemy>
+          <ID>EA7F</ID>
+          <X>00E8</X>
+          <Y>0166</Y>
+          <tilemap>0000</tilemap>
+          <special>A000</special>
+          <gfx>0000</gfx>
+          <speed>0000</speed>
+          <speed2>0000</speed2>
+        </Enemy>
+        <Enemy>
+          <ID>EA7F</ID>
+          <X>0018</X>
+          <Y>0116</Y>
+          <tilemap>0000</tilemap>
+          <special>A000</special>
+          <gfx>0000</gfx>
+          <speed>0000</speed>
+          <speed2>0000</speed2>
+        </Enemy>
+      </Enemies>
+      <EnemyTypes>
+        <Enemy>
+          <GFX>D87F</GFX>
+          <palette>0007</palette>
+        </Enemy>
+        <Enemy>
+          <GFX>EA7F</GFX>
+          <palette>0007</palette>
+        </Enemy>
+      </EnemyTypes>
+      <layer2_type>BGData</layer2_type>
+      <layer2_xscroll>C0</layer2_xscroll>
+      <layer2_yscroll>C0</layer2_yscroll>
+      <ScrollData>01 00 </ScrollData>
+      <roomvar>0000</roomvar>
+      <FX2>0000</FX2>
+      <PLMs>
+        <PLM>
+          <type>B703</type>
+          <x>04</x>
+          <y>0B</y>
+          <ScrollData>
+            <Change screen="00" scroll="02" />
+            <Change screen="01" scroll="01" />
+          </ScrollData>
+        </PLM>
+        <PLM>
+          <type>B63B</type>
+          <x>05</x>
+          <y>0B</y>
+          <arg>8000</arg>
+        </PLM>
+        <PLM>
+          <type>B63B</type>
+          <x>06</x>
+          <y>0B</y>
+          <arg>8000</arg>
+        </PLM>
+        <PLM>
+          <type>B63B</type>
+          <x>07</x>
+          <y>0B</y>
+          <arg>8000</arg>
+        </PLM>
+        <PLM>
+          <type>B63B</type>
+          <x>08</x>
+          <y>0B</y>
+          <arg>8000</arg>
+        </PLM>
+        <PLM>
+          <type>B63B</type>
+          <x>09</x>
+          <y>0B</y>
+          <arg>8000</arg>
+        </PLM>
+        <PLM>
+          <type>B63B</type>
+          <x>0A</x>
+          <y>0B</y>
+          <arg>8000</arg>
+        </PLM>
+        <PLM>
+          <type>B63B</type>
+          <x>0B</x>
+          <y>0B</y>
+          <arg>8000</arg>
+        </PLM>
+        <PLM>
+          <type>C88A</type>
+          <x>0E</x>
+          <y>06</y>
+          <arg>0032</arg>
+        </PLM>
+      </PLMs>
+      <BGData>
+        <Data Type="DECOMP">
+          <SOURCE>
+            09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 
+            09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 
+            09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 
+            09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 
+            09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 
+            09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 
+            09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 
+            09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 
+            09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 
+            09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 
+            09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 
+            09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 
+            09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 
+            09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 
+            09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 
+            09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 
+            09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 
+            09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 
+            09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 
+            09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 
+            09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 
+            09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 
+            09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 
+            09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 
+            09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 
+            09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 
+            09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 
+            09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 
+            09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 
+            09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 
+            09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 
+            09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 
+            09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 
+            09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 
+            09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 
+            09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 
+            09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 
+            09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 
+            09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 
+            09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 
+            09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 
+            09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 
+            09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 
+            09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 
+            09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 
+            09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 
+            09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 
+            09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 
+            09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 
+            09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 
+            09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 
+            09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 
+            09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 
+            09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 
+            09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 
+            09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 
+            09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 
+            09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 09AE 09AB 09AC 09AD 
+            09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 
+            09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 09BE 09BB 09BC 09BD 
+            09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 
+            09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 09CA 09CB 09CC 09CD 
+            09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 
+            09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 09DA 09DB 09DC 09DD 
+          </SOURCE>
+          <DEST>4000</DEST>
+          <Section>Tiles2</Section>
+        </Data>
+      </BGData>
+      <layer1_2>91D5</layer1_2>
+    </State>
+  </States>
+</Room>

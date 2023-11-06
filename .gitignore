@@ -11,3 +11,5 @@ roms/
 rust/target/
 seeds/
 package-lock.json
+**/*.sfc
+**/*.smc
