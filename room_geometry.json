@@ -64,7 +64,7 @@
         "heated": false
     },
     {
-        "name": "Parlor and Alcatraz",
+        "name": "Parlor And Alcatraz",
         "area": 0,
         "rom_address": 496381,
         "twin_rom_address": null,
@@ -1064,7 +1064,7 @@
         "heated": false
     },
     {
-        "name": "Green Brinstar Missile Refill Room",
+        "name": "Green Brinstar Missile Refill",
         "area": 1,
         "rom_address": 498825,
         "twin_rom_address": null,
@@ -1254,7 +1254,7 @@
         "heated": false
     },
     {
-        "name": "Dachora Energy Refill Room",
+        "name": "Dachora Energy Refill",
         "area": 1,
         "rom_address": 499835,
         "twin_rom_address": null,
@@ -1498,7 +1498,7 @@
         "heated": false
     },
     {
-        "name": "Warehouse Save Room",
+        "name": "Kraid Save Room",
         "area": 1,
         "rom_address": 501515,
         "twin_rom_address": null,
@@ -1598,7 +1598,7 @@
         "heated": false
     },
     {
-        "name": "West Tunnel",
+        "name": "West Glass Tube Tunnel",
         "area": 4,
         "rom_address": 511828,
         "twin_rom_address": null,
@@ -1616,7 +1616,7 @@
         "heated": false
     },
     {
-        "name": "East Tunnel",
+        "name": "Boyon Gate Hall",
         "area": 4,
         "rom_address": 511872,
         "twin_rom_address": null,
@@ -3436,13 +3436,13 @@
             {"direction": "left", "x": 3, "y": 0, "exit_ptr": 103186, "entrance_ptr": 103246, "subtype": "normal", "offset": 0},
             {"direction": "left", "x": 3, "y": 2, "exit_ptr": 103198, "entrance_ptr": 103030, "subtype": "normal", "offset": 0},
             {"direction": "left", "x": 0, "y": 3, "exit_ptr": 103222, "entrance_ptr": 103306, "subtype": "normal", "offset": 0},
-            {"direction": "right", "x": 6, "y": 2, "exit_ptr": 103210, "entrance_ptr": 103102, "subtype": "normal", "offset": 1}
+            {"direction": "right", "x": 6, "y": 2, "exit_ptr": 103210, "entrance_ptr": 103102, "subtype": "normal", "offset": 0}
         ],
         "parts": [[1, 2, 3], [0]],
         "durable_part_connections": [],
         "transient_part_connections": [[1, 0]],
         "items": [],
-        "node_tiles": [[1, [[3, 0]]], [2, [[3, 2]]], [3, [[0, 3], [1, 3], [2, 3], [3, 3]]], [4, [[4, 2], [5, 2], [6, 2]]], [5, [[3, 2]]], [6, [[3, 1]]]],
+        "node_tiles": [[1, [[3, 0]]], [2, [[3, 2]]], [3, [[0, 3], [1, 3], [2, 3], [3, 3]]], [4, [[4, 2], [5, 2], [6, 2]]], [5, [[3, 2]]], [6, [[3, 0], [3, 1]]]],
         "twin_node_tiles": null,
         "heated": false
     },
@@ -3586,7 +3586,7 @@
         "durable_part_connections": [],
         "transient_part_connections": [],
         "items": [],
-        "node_tiles": [[1, [[1, 0]]], [2, [[0, 1]]], [3, [[1, 2]]], [4, [[1, 0]]], [5, [[1, 0]]], [6, [[1, 1]]]],
+        "node_tiles": [[1, [[1, 0]]], [2, [[0, 1]]], [3, [[1, 2]]], [4, [[1, 0]]], [5, [[1, 1]]]],
         "twin_node_tiles": null,
         "heated": true
     },

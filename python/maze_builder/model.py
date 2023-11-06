@@ -814,7 +814,7 @@ class TransformerModel(torch.nn.Module):
 
 
     def forward_multiclass(self, room_mask, room_position_x, room_position_y, steps_remaining, round_frac,
-                           temperature, augment_frac: float):
+                           temperature, mc_dist_coef, augment_frac: float):
         n = room_mask.shape[0]
         device = room_mask.device
         dtype = torch.float16
@@ -823,7 +823,9 @@ class TransformerModel(torch.nn.Module):
             global_data = torch.cat([room_mask.to(torch.float32),
                                      steps_remaining.view(-1, 1) / self.num_rooms,
                                      round_frac.view(-1, 1),
-                                     torch.log(temperature.view(-1, 1))], dim=1).to(dtype)
+                                     torch.log(temperature.view(-1, 1)),
+                                     mc_dist_coef.view(-1, 1),
+                                     ], dim=1).to(dtype)
             global_embedding = self.global_lin(global_data)
 
             # Initialize embeddings by replicating the global embedding across all blocks
@@ -910,7 +912,7 @@ class TransformerModel(torch.nn.Module):
 
             if self.embed_dropout.p > 0.0:
                 X = self.embed_dropout(X)
-            for i in range(self.num_local_layers):
+            for i in range(len(self.attn_layers)):
                 # X = self.transformer_layers[i](X)
                 X = self.attn_layers[i](X)
                 X = self.ff_layers[i](X)

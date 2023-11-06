@@ -1,0 +1,24 @@
+<EnemyVulnerabilityTable>
+  <Power>0x02</Power>
+  <Wave>0x02</Wave>
+  <Ice>0x02</Ice>
+  <Ice_Wave>0x02</Ice_Wave>
+  <Spazer>0x02</Spazer>
+  <Spazer_Wave>0x02</Spazer_Wave>
+  <Spazer_Ice>0x02</Spazer_Ice>
+  <Spazer_Ice_Wave>0x02</Spazer_Ice_Wave>
+  <Plasma>0x02</Plasma>
+  <Plasma_Wave>0x02</Plasma_Wave>
+  <Plasma_Ice>0x02</Plasma_Ice>
+  <Plasma_Ice_Wave>0x02</Plasma_Ice_Wave>
+  <Missile>0x02</Missile>
+  <SuperMissile>0x02</SuperMissile>
+  <Bomb>0x02</Bomb>
+  <PowerBomb>0x02</PowerBomb>
+  <SpeedBooster>0x02</SpeedBooster>
+  <ShineSpark>0x02</ShineSpark>
+  <ScrewAttack>0x02</ScrewAttack>
+  <ChargedBeam>0x02</ChargedBeam>
+  <PseudoScrew>0x02</PseudoScrew>
+  <Unused>0x02</Unused>
+</EnemyVulnerabilityTable>

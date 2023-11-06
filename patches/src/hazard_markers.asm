@@ -1,7 +1,7 @@
 lorom
 
-!bank_84_free_space_start = $84F580   ; must match address in patch.rs
-!bank_84_free_space_end = $84F680
+!bank_84_free_space_start = $84F800   ; must match address in patch.rs
+!bank_84_free_space_end = $84F900
 !bank_8f_free_space_start = $8FFE80
 !bank_8f_free_space_end = $8FFF00
 
@@ -33,13 +33,13 @@ org $8FE893
 org !bank_b5_free_space_start
 
 run_extra_setup_asm:
-    ; get extra setup ASM pointer (vanilla-unused pointer in room state), to run in bank B5
+    ; get extra setup ASM pointer to run in bank B5 (using pointer in room state almost completely unused by vanilla, only for X-ray override in BT Room in escape)
     LDX $07BB
     LDA $0010,x
     beq .skip
-    sta $00         ; write setup ASM pointer temporarily to direct page $00, so we can jump to it with JSR.
+    sta $1F68         ; write setup ASM pointer temporarily to $1F68, so we can jump to it with JSR. (Is there a less awkward way to do this?)
     ldx #$0000
-    jsr ($0000,x)
+    jsr ($1F68,x)
 .skip:
     ; run hi-jacked instructions
     LDX $07BB
@@ -79,8 +79,8 @@ load_hazard_tiles:
     lda #$00E9
     sta $4314  ; Set source bank to $E9
 
-    LDA #$2600
-    STA $2116  ; VRAM (destination) address = $2600
+    LDA #$2780
+    STA $2116  ; VRAM (destination) address = $2780
     lda #$8000 
     sta $4312  ; source address = $8000
     lda #$0100
@@ -113,11 +113,11 @@ reload_hazard_tiles:
     jsl $80B0FF
     dl $7E2000
 
-    ; Copy hazard tiles from $E98000-$E98100 to $7E6C00
+    ; Copy hazard tiles from $E98000-$E98100 to $7E6F00
     ldx #$00FE
 -
     lda $E98000,x
-    sta $7E6C00,x
+    sta $7E6F00,x
     dex
     dex
     bpl -

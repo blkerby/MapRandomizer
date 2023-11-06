@@ -145,7 +145,7 @@ rooms = [
     ),
     Room(
         # TODO: add this to wiki.supermetroid.run/List_of_rooms because it is missing.
-        name='Green Brinstar Missile Refill Room',
+        name='Green Brinstar Missile Refill',
         rom_address=0x79C89,
         map=[[1]],
         door_ids=[

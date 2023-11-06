@@ -32,19 +32,6 @@
                         <label class="btn btn-outline-primary" for="markMapStationsYes">Yes</label>
                     </div>
                 </div>
-
-                <div class="form-group row align-items-center">
-                    <div class="col-lg-6 col-xl-5 m-2">
-                        <% include!("help/quality/transition_letters.stpl"); %>
-                        <label for="preset">Area transitions marked as letters on map</label>
-                    </div>
-                    <div class="col-2 btn-group m-2" role="group">
-                        <input type="radio" class="btn-check" name="transition_letters" id="transitionLettersNo" value="false" checked>
-                        <label class="btn btn-outline-primary" for="transitionLettersNo">No</label>
-                        <input type="radio" class="btn-check" name="transition_letters" id="transitionLettersYes" value="true">
-                        <label class="btn btn-outline-primary" for="transitionLettersYes">Yes</label>
-                    </div>
-                </div>
             </div>
         </div>
     </div>

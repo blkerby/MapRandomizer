@@ -1,9 +1,10 @@
-FROM rust:1.67.0 as build
+FROM rust:1.67.0-buster as build
 
-# First get Cargo to download the crates.io index (which takes a long time)
+# First get Cargo to download the crates.io index (which takes a long time) via `cargo install lazy_static`
+# Both `cargo update` and `crater search` no longer update the crates.io index, see: https://github.com/rust-lang/cargo/issues/3377
 RUN cargo new --bin rust
 WORKDIR /rust
-RUN cargo update
+RUN cargo install lazy_static; exit 0
 
 # Now use a dummy binary to build the project dependencies (allowing the results to be cached)
 COPY rust/Cargo.lock /rust/Cargo.lock
@@ -11,29 +12,40 @@ COPY rust/Cargo.toml /rust/Cargo.toml
 RUN cargo build --release
 RUN rm /rust/src/*.rs
 
-# Download and extract the map dataset
+# Download the map datasets, extraction will occur in-container to reduce image size
 WORKDIR /maps
-RUN wget https://storage.googleapis.com/super-metroid-map-rando/maps/session-2023-06-08T14:55:16.779895.pkl-bk24-subarea-balance-2.tgz
-RUN mv session-2023-06-08T14:55:16.779895.pkl-bk24-subarea-balance-2.tgz maps.tar.gz && tar xfz maps.tar.gz
+RUN wget https://storage.googleapis.com/super-metroid-map-rando/maps/session-2023-06-08T14:55:16.779895.pkl-small-64-subarea-balance-2.tgz \
+    -O wild-maps.tar.gz
+RUN tar xfz wild-maps.tar.gz --directory /maps && rm wild-maps.tar.gz
+RUN wget https://storage.googleapis.com/super-metroid-map-rando/maps/session-2023-06-08T14:55:16.779895.pkl-small-71-subarea-balance-2.tgz \
+    -O tame-maps.tar.gz
+RUN tar xfz tame-maps.tar.gz --directory /maps && rm tame-maps.tar.gz
 
-# Now copy over everything else and build the real binary
+# Now copy over the source code and build the real binary
 COPY rust /rust
 WORKDIR /rust
 RUN cargo build --release --bin maprando-web
 
 # Now restart with a slim base image and just copy over the binary and data needed at runtime.
 FROM debian:buster-slim
-RUN apt-get update && apt-get install libssl1.1
-COPY --from=build /maps /maps
-COPY --from=build /rust/data /rust/data
-COPY --from=build /rust/static /rust/static
-COPY --from=build /rust/target/release/maprando-web /rust
+RUN apt-get update && apt-get install -y \
+    libssl1.1 \
+    && rm -rf /var/lib/apt/lists/*
+COPY Mosaic /Mosaic
+COPY compressed_data /compressed_data
 COPY patches /patches
 COPY gfx /gfx
 COPY sm-json-data /sm-json-data
 COPY MapRandoSprites /MapRandoSprites
 COPY room_geometry.json /
-COPY palettes.json /
+COPY palette_smart_exports /palette_smart_exports
 COPY visualizer /visualizer
+# Both stages will run in parallel until the build stage is refernced,
+# at which point this stage will wait for the `build` stage to complete, so delay these until last
+COPY --from=build /maps /maps
+COPY --from=build /rust/data /rust/data
+COPY --from=build /rust/static /rust/static
+# Since the bin is the most likely thing to have changed, copy it last to avoid invalidating the rest of the steps
+COPY --from=build /rust/target/release/maprando-web /rust
 WORKDIR /rust
-CMD ["/rust/maprando-web"]
+ENTRYPOINT ["/rust/maprando-web"]

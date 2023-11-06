@@ -67,9 +67,8 @@ document.getElementById("navigation-logic").classList.add("active");
     The randomizer logic takes into account such situational details: just because a strat is listed as "Basic"
     in these pages does not mean it will necessarily be in logic on "Basic" settings in every situation.</p>
     <li><p>The tech pages only list strats that reference the tech directly or by a helper, but not by a dependency.
-    For example, "canWalljump" does not list strats that require "canPreciseWalljump".
+    For example, "canWalljump" does not list strats that require "canPreciseWalljump". This is to avoid cluttering the 
+    lower-level tech pages with strats that more properly belong to higher-level tech pages.
     </p>
     </ul>
-
-
 </div>

@@ -328,7 +328,7 @@ draw_power_bomb:
         lda #$0036
         ora !select_mask
         sta !row2_power_bomb_tile0
-        lda #$0037
+        lda #$4036  ; Save a tile by horizontally reflecting the left half of the PB icon
         ora !select_mask
         sta !row2_power_bomb_tile1
         ;; display vanilla digits on row 3
@@ -386,7 +386,10 @@ extract_two_digits:
 ;;; HUD digits tilemap for row 1
 HUD_digits_tilemap_row1:
         ;;     0      1      2      3      4      5      6      7      8      9
-	dw $0045, $003C, $003D, $003E, $003F, $0040, $0041, $0042, $0043, $0044
+;	dw $0045, $003C, $003D, $003E, $003F, $0040, $0041, $0042, $0043, $0044
+; Use normal digits instead of custom ones (conserves space for more map tiles):
+	dw $0000, $0001, $0002, $0003, $0004, $0005, $0006, $0007, $0008, $0009
+
 
 ;;; next patch start address (msu1)
 warnpc $80D02F
@@ -408,7 +411,7 @@ org $858A4F
         dw $280F, $280F
 
 org $858A8F
-        dw $3036, $3037
+        dw $3036, $7036
 
 ;;; 9A/$B200: Standard BG3 tiles ;;;
 org $9AB542

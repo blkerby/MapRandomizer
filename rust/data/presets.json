@@ -4,6 +4,7 @@
     "shinespark_tiles": 33,
     "resource_multiplier": 3.0,
     "gate_glitch_leniency": 14,
+    "door_stuck_leniency": 2,
     "escape_timer_multiplier": 3.0,
     "phantoon_proficiency": 0.0,
     "draygon_proficiency": 0.0,
@@ -22,6 +23,7 @@
     "name": "Medium",
     "shinespark_tiles": 32,
     "gate_glitch_leniency": 14,
+    "door_stuck_leniency": 2,
     "resource_multiplier": 2.0,
     "escape_timer_multiplier": 2.0,
     "phantoon_proficiency": 0.3,
@@ -43,6 +45,9 @@
       "canNeutralDamageBoost",
       "canSpaceJumpWaterBounce",
       "canBombHorizontally",
+      "canPseudoScrew",
+      "canDisableEquipment",
+      "canCameraManip",
       "canCrystalFlash",
       "canHyperGateShot"
     ],
@@ -59,6 +64,7 @@
     "name": "Hard",
     "shinespark_tiles": 26,
     "gate_glitch_leniency": 14,
+    "door_stuck_leniency": 2,
     "resource_multiplier": 1.5,
     "escape_timer_multiplier": 1.5,
     "phantoon_proficiency": 0.5,
@@ -70,6 +76,7 @@
       "canPlayInSand",
       "canDodgeWhileShooting",
       "canTrickyUseFrozenEnemies",
+      "canTrickySpringBallJump",
       "canIframeSpikeJump",
       "canJumpIntoIBJ",
       "canMockball",
@@ -117,8 +124,6 @@
       "Crumble Shaft Top Item Frozen Sova",
       "HiJump E-Tank Return Through Crumble Blocks",
 
-      "Post Crocomire Farming Room Damage Boost",
-
       "Golden Torizo Crumble Jump",
 
       "Amphitheatre Reverse Acid Dive",
@@ -136,6 +141,7 @@
     "name": "Very Hard",
     "shinespark_tiles": 20,
     "gate_glitch_leniency": 7,
+    "door_stuck_leniency": 2,
     "resource_multiplier": 1.2,
     "escape_timer_multiplier": 1.2,
     "phantoon_proficiency": 0.7,
@@ -147,6 +153,7 @@
       "canPrepareForNextRoom",
       "canMomentumConservingTurnaround",
       "canSpringBallBombJump",
+      "canSpeedball",
       "canShinechargeMovementComplex",
       "canWaterShineCharge",
       "canTemporaryBlue",
@@ -161,6 +168,7 @@
       "canPartialFloorClip",
       "canTurnaroundAimCancel",
       "canBombAboveIBJ",
+      "canBombJumpWaterEscape",
       "canEscapeSand",
       "canMidairWiggle",
       "canGrappleJump",
@@ -178,13 +186,18 @@
       "Climb Behemoth Shinespark",
       "Climb Moonfall Block Break",
       "Landing Site Blue Space Jump (Bottom)",
+      "Gauntlet Entrance Shinecharge Under Yapping Maw",
       
       "East Ocean Space Jump Water Escape with Ice (Left to Right)",
+      "East Ocean Space Jump Water Escape with Ice and XRay Standup", 
       "East Ocean Suitless Damage Boost Water Escape",
       "East Ocean Suitless Damage Boost Underwater Pillar",
+      "East Ocean Floor Shinespark Left", 
+
       "West Ocean Bug Boost with Ice",
       "West Ocean Bug Boost with Wave or Spazer",
       "West Ocean Bug Ice Clip",
+      "West Ocean Floor Shinecharge, Fast Spacejump Wallclimb to Gravity Door", 
 
       "Brinstar Reserve Hole-in-One",
       "Etecoon E-Tank Beetom Clip", 
@@ -197,6 +210,9 @@
       "Below Spazer Jump Shot Speedball",
       "X-Ray Exit Damage Boost",
       "Red Tower Spark",
+
+      "Warehouse Kihunter Room Tunnel Charge",
+      "Warehouse Kihunter Room Bottom Spark Out",
       
       "Cathedral Entrance Left Door Frozen Sova Step",
       "Double Chamber Shinespark to Wave Beam Door",
@@ -206,6 +222,7 @@
       "Croc Escape SpringBall Freeze",
       "Croc Speedway Reverse Speedball",
 
+      "Post Crocomire Farming Room Damage Boost",
       "Grapple Tutorial 3 Frozen Gamet Bridge",
       "PCJR Indiana Jones Grapple",
       "PCJR Acid Shinespark",
@@ -237,10 +254,12 @@
 
       "Aqueduct Snail Clip", 
       "Aqueduct Bootless Suitless Snail Climb",
+      "Botwoon Hallway Reverse Shinespark",
       "Back-Side Botwoon Magic Pixel Beam Fight",
       "Back-Side Botwoon Plasma Shield Microwave",
       "Back-Side Botwoon Plasma Shield Fight",
       "Colosseum Mochtroid Ice Climb",
+      "Crab Shaft Suitless Walljump Climb with HiJump",
       "Crab Shaft Ice Only Crab Climb",
       "Draygon Grapple Quick Kill",
       "Draygon Shinespark Kill",
@@ -261,13 +280,17 @@
 
       "Bowling Alley Missile Chozo Camera Unlock",
       "Sponge Bath Bull Boost",
-      "WS East Supers Crystal Flash Clip (Right to Left)"
+      "WS East Supers Crystal Flash Clip (Right to Left)",
+
+      "Metroid Room 4 Top Metroid Avoid",
+      "Metroid Room 2 Bottom Door Metroid Avoid"
     ]
   },
   {
     "name": "Expert",
     "shinespark_tiles": 17,
     "gate_glitch_leniency": 2,
+    "door_stuck_leniency": 2,
     "resource_multiplier": 1.1,
     "escape_timer_multiplier": 1.1,
     "phantoon_proficiency": 1.0,
@@ -287,7 +310,6 @@
       "canSpaceJumpWaterEscape",
       "can2HighWallMidAirMorph",
       "canPreciseCeilingClip",
-      "canBombJumpWaterEscape",
       "canFastWalljumpClimb",
       "canQuickCrumbleEscape",
       "canHBJ",
@@ -299,7 +321,6 @@
       "canWallJumpBombBoost",
       "canBabyMetroidAvoid",
       "canSandIBJ",
-      "canBombJumpOnSand",
       "canCWJ",
       "canSandfallBounce"
     ],
@@ -308,13 +329,17 @@
       "Landing Site Blue Space Jump (Top)",
 
       "Gauntlet Entrance Blue SpaceJump",
-
-      "East Ocean Space Jump Water Escape (Left to Right)",
+      
       "West Ocean Bug Boost",
+      "West Ocean Shinespark, Morph Tunnel Rush", 
+      "West Ocean Floor Shinecharge, Fast Wallclimb to Gravity Door", 
+      "East Ocean Shinespark Water Escape", 
 
       "Brinstar Reserve Temporary Blue",
+      "Green Hill Zone X-Ray Wiggle",
 
-      "Big Pink SpeedBall into Raised Bomb Blocks",
+      "Big Pink Speedball into Raised Bomb Blocks",
+      "Big Pink Zeb Ice Clip",
       "Dachora Room Shinespark No Etanks No HiJump",
       "Mission Impossible",
 
@@ -336,11 +361,13 @@
       "Hjless Lava Dive BounceBall",
 
       "Croc Escape SpringBall Bomb Boost",
+      "Croc Escape Ice Only Geruta Platforming",
 
       "Grapple Tutorial 3 Double Gamet Boost",
       "Post Crocomire Farming Room Speed Jump",
       "PCJR Full Room Space Jump Through Speed Blocks",
       "PCJR Springwall",
+      "PCJR Left Side Diagonal Shinespark",
 
       "Screw Attack Room Descent and Shinespark Escape",
 
@@ -348,13 +375,14 @@
       "Kihunter Shaft Manipulation from Save Room",
       "Writg New Low Ice Pirate Freeze", 
       "Writg Low Ice Pirate Freeze",
+      "WRITG with PowerBombs and a Jump Assist",
 
+      "Main Street Climb with Ice and Spring Ball",
       "Crab Hole Suitless Crab Climb No Jump Assist",
       "Crab Hole Suitless Crab Climb Superless with Springball",
       "Fish Tank Insane Naked Jump Over Pirate (Left to Right)",
       "Mama Turtle Wall Jump Bomb Boost",
 
-      "Crab Shaft Suitless Walljump Climb with HiJump",
       "Colosseum Spike Platforming with Move Assist (Left to Right)",
       "Draygon Turret Grapple Jump",
       "West Sand Hole Suitless Wall Jump Break Free",
@@ -364,9 +392,12 @@
       "East Cac Alley Cross Room Jump with IBJ",
       "Cacatac Alley Springball Spike Boost",
 
+      "West Sand Hall Suitless Bootless Spring Ball",
+      "West Sand Hall Ice Beam Only (Center to Left)",
       "East Sand Hall Spring Ball HiJump",
       "Spring Ball Room Escape - Suitless, Bootless, Space Jump",
 
+      "Metroid Room 4 Bottom Metroid Avoid",
       "Blue Hopper Dodge",
       "Blue Hopper Room Roll Under Hoppers",
       "Baby Skip Without Wave or Speed"
@@ -376,6 +407,7 @@
     "name": "Extreme",
     "shinespark_tiles": 16,
     "gate_glitch_leniency": 1,
+    "door_stuck_leniency": 1,
     "resource_multiplier": 1.05,
     "escape_timer_multiplier": 1.05,
     "phantoon_proficiency": 1.0,
@@ -389,8 +421,8 @@
       "canEnterGModeImmobile",
       "canArtificialMorph",
       "canOffScreenMovement",
+      "canUpwardGModeSetup",
       "canRightSideDoorStuckFromWater",
-      "canCeilingBombJump",
       "canDiagonalBombJump",
       "canInsaneWalljump",
       "canUnderwaterWalljump",
@@ -400,21 +432,29 @@
       "canXMode",
       "canCrouchGateClip",
       "canWallIceClip",
-      "canSuperJump"
-
+      "canSuperJump",
+      "canSpeedKeep"
     ],
     "notable_strats": [
+      "Landing Site Crystal Flash X-Ray Climb",
       "Climb Temporary Blue Chain Through Bomb Blocks",
       "Golden Four Underwater Walljumps",
       "West Ocean G-mode Overload PLMs by PBing Missile Item",
+      "East Ocean Space Jump Water Escape (Left to Right)",
+      "East Ocean Shinespark Water Escape With Lower Choot Alive",
+      "East Ocean Springball Bounce to the Door with SpaceJump",
 
       "Blue Brinstar Energy Tank G-Mode Flashing Lights",
 
       "Early Supers Crouch Gate Clip Damage Boost",
       "Green Hill Zone Tunnel Crawl",
+      "Green Hills Grapple Gate Glitch",
       "Etecoon Spikeway Aim Cancel Wiggle",
       "Etecoon Spikeway Tunnel Crawl",
       "Etecoon Spikeway Xray Wiggle",
+
+      "Big Pink Reo Ice Clip",
+      "Big Pink Wall Ice Clip the Mission Impossible Crumble Blocks",
 
       "Red Tower R-Mode Frozen Beetom X-Ray Climb",
 
@@ -442,14 +482,11 @@
       "East Sand Hole Sandfall Bounce to Power Bombs",
       "East Sand Hole Underwater Walljumps", 
 
-      "West Sand Hall Ice Beam Only (Center to Left)",
+      "West Sand Hall Suitless Damage Boost (Center to Left)",
       "West Sand Hall Ice Only (Center to Right)",
-      "West Sand Hall Suitless Bootless Spring Ball",
       "East Sand Hall Suitless Bootless Evir Freeze (Center to Left)",
       "East Sand Hall Suitless Bootless Evir Freeze (Center to Right)",
       "East Sand Hall Cross Room Jump with Ice or Damage Boost",
-      "Oasis Cross Room Jump with Screw Attack and Speed through the Top Door",
-      "Pants Room Grapple Jump",
       "East Pants Room Suitless Puyo Clip",
       "G-Mode Morph Reverse Shaktool"
     ]
@@ -458,6 +495,7 @@
     "name": "Insane",
     "shinespark_tiles": 14,
     "gate_glitch_leniency": 0,
+    "door_stuck_leniency": 0,
     "resource_multiplier": 1.0,
     "escape_timer_multiplier": 1.0,
     "phantoon_proficiency": 1.0,
@@ -467,18 +505,24 @@
     "tech": [
       "canBeVeryPatient",
       "canMoondance",
+      "canCeilingBombJump",
       "canBombGrappleJump",
       "canEnemyStuckMoonfall",
-      "canDownwardGModeSetup"
+      "canDownwardGModeSetup",
+      "canUnderwaterBombIntoSpringBallJump"
     ],
     "notable_strats": [
       "Climb G-Mode Morph Insane IBJ to Top",
       "Climb G-Mode Morph Blind Climb to the Top",
+      "Climb Morph Tunnel SpeedBall",
       "Crateria Supers G-Mode Morph Long Ceiling Bomb Jump",
       "Crateria Supers G-Mode Up with PBs",
+      "Crateria Supers In-Room X-Mode BlueSuit",
+      "Climb Supers In-Room SpeedKeep for Temporary Blue",
       "Green Pirate Shaft Beetom Xray Climb",
       "Green Pirate Shaft Beetom Moondance",
       "Green Pirate Shaft Beetom Stuck Moonfall",
+      "East Ocean Speedy Springball Bounce to the Door",       
 
       "Taco Tank in Blue Brinstar Energy Tank Room",
 
@@ -490,6 +534,7 @@
  
       "Golden Torizo Missiles Only",
       "Screw Attack Room Doorway CWJ",
+      "Lower Norfair Jail Crystal Flash Clip",
       
       "Main Street Crab Climb with Only Ice",
       "Main Street Crab Climb with Only Ice and Supers",
@@ -503,8 +548,12 @@
       "Botwoon Energy Tank Room Puyo Bomb-Grapple-Jump",
       "Colosseum with no Equipment",
       "East Cac Alley G-Mode Morph, IBJ, HBJ",
- 
+      "Cacatac Alley HiJumpless Double SpringBall Jump and Bomb-Grapple-Jump", 
+      "East Sand Hole Insane Walljump Morph",
+
       "West Sand Hall Insane Bomb Jump",
+      "Oasis Cross Room Jump with Screw Attack and Speed through the Top Door",
+      "Pants Room Grapple Jump",
  
       "Bowling Alley Ceiling Bomb Jump",
       "WS East Supers Robot Clip Run-In-Place",

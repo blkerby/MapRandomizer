@@ -7,9 +7,9 @@ mod title;
 use std::path::Path;
 
 use crate::{
-    game_data::{DoorPtr, DoorPtrPair, GameData, Item, Map, NodePtr, RoomGeometryDoor, RoomPtr},
-    randomize::{MotherBrainFight, Objectives, Randomization},
     customize::vanilla_music::override_music,
+    game_data::{DoorPtr, DoorPtrPair, GameData, Item, Map, NodePtr, RoomGeometryDoor, RoomPtr},
+    randomize::{DoorType, LockedDoor, MotherBrainFight, Objectives, Randomization, SaveAnimals},
 };
 use anyhow::{ensure, Context, Result};
 use hashbrown::{HashMap, HashSet};
@@ -145,6 +145,7 @@ pub struct Patcher<'a> {
     pub map: &'a Map,
     pub other_door_ptr_pair_map: HashMap<DoorPtrPair, DoorPtrPair>,
     pub extra_setup_asm: HashMap<RoomPtr, Vec<u8>>,
+    pub locked_door_state_indices: Vec<usize>,
 }
 
 pub fn xy_to_map_offset(x: isize, y: isize) -> isize {
@@ -199,6 +200,30 @@ pub fn write_credits_big_char(rom: &mut Rom, c: char, addr: usize) -> Result<()>
         write_credits_big_letter(rom, c, addr)?;
     }
     Ok(())
+}
+
+// Returns list of (event_ptr, state_ptr):
+pub fn get_room_state_ptrs(rom: &Rom, room_ptr: usize) -> Result<Vec<(usize, usize)>> {
+    let mut pos = 11;
+    let mut ptr_pairs: Vec<(usize, usize)> = Vec::new();
+    loop {
+        let ptr = rom.read_u16(room_ptr + pos)? as usize;
+        if ptr == 0xE5E6 {
+            // This is the standard state, which is the last one.
+            ptr_pairs.push((ptr, room_ptr + pos + 2));
+            return Ok(ptr_pairs);
+        } else if ptr == 0xE612 || ptr == 0xE629 {
+            // This is an event state.
+            let state_ptr = 0x70000 + rom.read_u16(room_ptr + pos + 3)?;
+            ptr_pairs.push((ptr, state_ptr as usize));
+            pos += 5;
+        } else {
+            // This is another kind of state.
+            let state_ptr = 0x70000 + rom.read_u16(room_ptr + pos + 2)?;
+            ptr_pairs.push((ptr, state_ptr as usize));
+            pos += 4;
+        }
+    }
 }
 
 pub fn apply_ips_patch(rom: &mut Rom, patch_path: &Path) -> Result<()> {
@@ -269,6 +294,9 @@ impl<'a> Patcher<'a> {
             "fast_reload",
             "saveload",
             "hazard_markers",
+            "rng_fix",
+            "intro_song",
+            "msu1"
         ];
 
         if self.randomization.difficulty.ultra_low_qol {
@@ -293,6 +321,7 @@ impl<'a> Patcher<'a> {
                 // "tourian_blue_hopper",
                 "boss_exit",
                 "oob_death",
+                "jam_vertical_doors_fix",
             ]);
         }
 
@@ -579,10 +608,10 @@ impl<'a> Patcher<'a> {
         let asm: Vec<u8> = vec![
             0xA9, 0x0E, 0x00, // LDA #$000E   (Escape flag)
             0x22, 0x33, 0x82, 0x80, // JSL $808233  (Check if flag is set)
-            0x90, 0x09, // BCC $09  (Skip spawning gray door if not in escape)
+            0x90, 0x0A, // BCC $0A  (Skip spawning gray door if not in escape)
             0x22, 0x80, 0xF3, 0x84, // JSL $84F380  (Spawn hard-coded PLM with room argument)
-            entrance_x, entrance_y, 0x42, 0xC8,
-            0x10, // PLM type 0xC8CA (gray door), argument 0x10 (always closed)
+            entrance_x, entrance_y, 0x42, 0xC8, 0x00,
+            0x10, // PLM type 0xC8CA (gray door), argument 0x1000 (always closed)
         ];
 
         extra_door_asm
@@ -592,21 +621,6 @@ impl<'a> Patcher<'a> {
 
         Ok(())
     }
-
-    // This doesn't work (changing enemy set in door ASM):
-    // fn fix_tourian_blue_hopper(&mut self, extra_door_asm: &mut HashMap<DoorPtr, Vec<u8>>) -> Result<()> {
-    //     let door_pair = (Some(0x1AA14), Some(0x1AA20));
-    //     let other_door_pair = self.other_door_ptr_pair_map[&door_pair];
-    //     // When entering from the left, switch to alternative enemy set that moves the
-    //     // leftmost Hopper to the right. See `tourian_blue_hopper.asm` which creates the new enemy set.
-    //     let asm: Vec<u8> = vec![
-    //         // 0xa9, 0x00, 0xf2,  // lda #$F200  ;\
-    //         0xa9, 0xa9, 0x85,
-    //        0x8d, 0xcf, 0x07,  // sta $07CF   ;} Enemy set pointer = $A1F200
-    //     ];
-    //     extra_door_asm.entry(other_door_pair.0.unwrap()).or_default().extend(asm);
-    //     Ok(())
-    // }
 
     // Returns map from door data PC address to 1) new custom door ASM pointer, 2) end of custom door ASM
     // where an RTS or JMP instruction must be added (based on the connecting door).
@@ -860,32 +874,8 @@ impl<'a> Patcher<'a> {
         Ok(())
     }
 
-    // Returns list of (event_ptr, state_ptr):
-    fn get_room_state_ptrs(&self, room_ptr: usize) -> Result<Vec<(usize, usize)>> {
-        let mut pos = 11;
-        let mut ptr_pairs: Vec<(usize, usize)> = Vec::new();
-        loop {
-            let ptr = self.rom.read_u16(room_ptr + pos)? as usize;
-            if ptr == 0xE5E6 {
-                // This is the standard state, which is the last one.
-                ptr_pairs.push((ptr, room_ptr + pos + 2));
-                return Ok(ptr_pairs);
-            } else if ptr == 0xE612 || ptr == 0xE629 {
-                // This is an event state.
-                let state_ptr = 0x70000 + self.rom.read_u16(room_ptr + pos + 3)?;
-                ptr_pairs.push((ptr, state_ptr as usize));
-                pos += 5;
-            } else {
-                // This is another kind of state.
-                let state_ptr = 0x70000 + self.rom.read_u16(room_ptr + pos + 2)?;
-                ptr_pairs.push((ptr, state_ptr as usize));
-                pos += 4;
-            }
-        }
-    }
-
     fn apply_map_tile_patches(&mut self) -> Result<()> {
-        map_tiles::MapPatcher::new(&mut self.rom, self.game_data, self.map, self.randomization)
+        map_tiles::MapPatcher::new(&mut self.rom, self.game_data, self.map, self.randomization, &self.locked_door_state_indices)
             .apply_patches()?;
         Ok(())
     }
@@ -896,8 +886,7 @@ impl<'a> Patcher<'a> {
             0xC890, 0xC860, 0xC878, // left pink/yellow/green door
             0xC896, 0xC866, 0xC87E, // down pink/yellow/green door
             0xC89C, 0xC86C, 0xC884, // up pink/yellow/green door
-            0xDB48, 0xDB4C, 0xDB52, 0xDB56, 0xDB5A,
-            0xDB60, // eye doors
+            0xDB48, 0xDB4C, 0xDB52, 0xDB56, 0xDB5A, 0xDB60, // eye doors
             0xC8CA, // wall in Escape Room 1
         ];
         let gray_door_plm_types: HashMap<isize, isize> = vec![
@@ -925,7 +914,7 @@ impl<'a> Patcher<'a> {
         .map(|x| x.to_string())
         .collect();
         for room in &self.game_data.room_geometry {
-            let event_state_ptrs = self.get_room_state_ptrs(room.rom_address)?;
+            let event_state_ptrs = get_room_state_ptrs(&self.rom, room.rom_address)?;
             for &(event_ptr, state_ptr) in &event_state_ptrs {
                 let plm_set_ptr = self.rom.read_u16(state_ptr + 20)? as usize;
                 let mut ptr = plm_set_ptr + 0x70000;
@@ -960,8 +949,8 @@ impl<'a> Patcher<'a> {
         let area_music: [[u16; 2]; NUM_AREAS] = [
             [
                 // (0x06, 0x05),   // Empty Crateria
-                0x0509, // Crateria Space Pirates
-                0x050C, // Return to Crateria
+                0x050C, // Return to Crateria (ASM can replace with intro track or storm track)
+                0x0509, // Crateria Space Pirates (ASM can replace with zebes asleep track, with or without storm)
             ],
             [
                 0x050F, // Green Brinstar
@@ -972,8 +961,8 @@ impl<'a> Patcher<'a> {
                 0x0518, // Lower Norfair
             ],
             [
-                0x0530, // Wrecked Ship (off)
-                0x0630, // Wrecked Ship (on)
+                0x0530, // Wrecked Ship (power off)
+                0x0530, // Wrecked Ship (power off)  (power on version, 0x0630, to be used by ASM)
             ],
             [
                 0x061B, // Outer Maridia
@@ -1005,7 +994,6 @@ impl<'a> Patcher<'a> {
             "Big Boy Room",
             "Kraid Room",
             "Phantoon's Room",
-            "Blue Hopper Room",
         ]
         .map(|x| x.to_string());
         for (room_idx, room) in self.game_data.room_geometry.iter().enumerate() {
@@ -1014,7 +1002,7 @@ impl<'a> Patcher<'a> {
             }
             let area = self.map.area[room_idx];
             let subarea = self.map.subarea[room_idx];
-            let event_state_ptrs = self.get_room_state_ptrs(room.rom_address)?;
+            let event_state_ptrs = get_room_state_ptrs(&self.rom, room.rom_address)?;
             for &(_event_ptr, state_ptr) in &event_state_ptrs {
                 let song = self.rom.read_u16(state_ptr + 4)? as u16;
                 if songs_to_keep.contains(&song) && room.name != "Golden Torizo Energy Recharge" {
@@ -1023,12 +1011,12 @@ impl<'a> Patcher<'a> {
                     // We want it to behave like the other Refill rooms and use area-themed music.
                     continue;
                 }
-                let mut new_song = area_music[area][subarea];
-                if room.name == "Landing Site" {
-                    // Set all Landing Site states to use the same track, the one that plays in vanilla before
-                    // Power Bombs but after Zebes is awake:
-                    new_song = 0x0606;
-                }
+                let new_song = area_music[area][subarea];
+                // if room.name == "Landing Site" {
+                //     // Set all Landing Site states to use the same track, the one that plays in vanilla before
+                //     // Power Bombs but after Zebes is awake:
+                //     new_song = 0x0606;
+                // }
                 self.rom.write_u16(state_ptr + 4, new_song as isize)?;
                 if room.name == "Pants Room" {
                     // Set music for East Pants Room:
@@ -1218,7 +1206,7 @@ impl<'a> Patcher<'a> {
             self.rom.write_u8(snes2pc(0x838CF2), 0x11)?;
         }
 
-        if self.randomization.difficulty.save_animals {
+        if self.randomization.difficulty.save_animals == SaveAnimals::Yes  {
             // Change end-game behavior to require saving the animals. Address here must match escape.asm:
             self.rom.write_u16(snes2pc(0xA1F000), 0xFFFF)?;
         }
@@ -1377,9 +1365,24 @@ impl<'a> Patcher<'a> {
 
     fn apply_credits(&mut self) -> Result<()> {
         // Write randomizer settings to credits tilemap
-        self.write_preset(222, self.randomization.difficulty.skill_assumptions_preset.clone())?;
-        self.write_preset(224, self.randomization.difficulty.item_progression_preset.clone())?;
-        self.write_preset(226, self.randomization.difficulty.quality_of_life_preset.clone())?;
+        self.write_preset(
+            222,
+            self.randomization
+                .difficulty
+                .skill_assumptions_preset
+                .clone(),
+        )?;
+        self.write_preset(
+            224,
+            self.randomization
+                .difficulty
+                .item_progression_preset
+                .clone(),
+        )?;
+        self.write_preset(
+            226,
+            self.randomization.difficulty.quality_of_life_preset.clone(),
+        )?;
 
         let item_name_pairs: Vec<(String, String)> = [
             ("ETank", "Energy Tank"),
@@ -1481,53 +1484,180 @@ impl<'a> Patcher<'a> {
             // For the Toilet, pass through to room above:
             other_door_ptr_pair = self.other_door_ptr_pair_map[&(Some(0x1A60C), Some(0x1A5AC))];
         }
-        let (room_idx, door_idx) = self.game_data.room_and_door_idxs_by_door_ptr_pair[&other_door_ptr_pair];
+        let (room_idx, door_idx) =
+            self.game_data.room_and_door_idxs_by_door_ptr_pair[&other_door_ptr_pair];
         let room = &self.game_data.room_geometry[room_idx];
         let door = &room.doors[door_idx];
-        let room_ptr = room.rom_address;
 
         let plm_id: u16;
-        let tile_x: u8;
-        let tile_y: u8;
+        let tile_x: usize;
+        let tile_y: usize;
         if door.direction == "right" {
-            plm_id = 0xF580;  // must match address in hazard_markers.asm
-            tile_x = (door.x * 16 + 15) as u8;
-            tile_y = (door.y * 16 + 6) as u8;
+            plm_id = 0xF800; // must match address in hazard_markers.asm
+            tile_x = door.x * 16 + 15;
+            tile_y = door.y * 16 + 6;
         } else if door.direction == "down" {
             if door.offset == Some(0) {
-                plm_id = 0xF588; // hazard marking overlaid on transition tiles
+                plm_id = 0xF808; // hazard marking overlaid on transition tiles
             } else {
-                plm_id = 0xF584;
+                plm_id = 0xF804;
             }
-            tile_x = (door.x * 16 + 6) as u8;
-            tile_y = (door.y * 16 + 15 - door.offset.unwrap_or(0)) as u8;
+            tile_x = door.x * 16 + 6;
+            tile_y = door.y * 16 + 15 - door.offset.unwrap_or(0);
         } else {
-            panic!("Unsupported door direction for hazard marker: {}", door.direction);
+            panic!(
+                "Unsupported door direction for hazard marker: {}",
+                door.direction
+            );
         }
 
-        println!("{:x} {:x} {:x} {:x}", room_ptr, tile_x, tile_y, plm_id);
-        self.extra_setup_asm.entry(room_ptr).or_insert(vec![]).extend(vec![
-            0x22, 0xD7, 0x83, 0x84,  // jsl $8483D7
-            tile_x as u8, tile_y as u8,   // X and Y coordinates in 16x16 tiles
-            (plm_id & 0x00FF) as u8, (plm_id >> 8) as u8,
-        ]);
+        let mut write_asm = |room_ptr: usize, x: usize, y: usize| {
+            self.extra_setup_asm
+            .entry(room_ptr)
+            .or_insert(vec![])
+            .extend(vec![
+                0x22,
+                0xD7,
+                0x83,
+                0x84, // jsl $8483D7
+                x as u8,
+                y as u8, // X and Y coordinates in 16x16 tiles
+                (plm_id & 0x00FF) as u8,
+                (plm_id >> 8) as u8,
+            ]);
+        };
 
+        if room.rom_address == 0x7D5A7 {
+            // Aqueduct
+            write_asm(room.rom_address, tile_x, tile_y - 64);
+        } else {
+            write_asm(room.rom_address, tile_x, tile_y);
+        }
+        if room.rom_address == 0x793FE && door.x == 5 && door.y == 2 {
+            // Homing Geemer Room
+            write_asm(room.twin_rom_address.unwrap(), tile_x % 16, tile_y % 16);
+        }
+        if room.rom_address == 0x7D646 && door.x == 1 && door.y == 2 {
+            // East Pants Room
+            write_asm(room.twin_rom_address.unwrap(), tile_x % 16, tile_y % 16 + 16);
+        }
         Ok(())
     }
 
     fn apply_hazard_markers(&mut self) -> Result<()> {
         let door_ptr_pairs = vec![
-            (Some(0x1A42C), Some(0x1A474)),  // Mt. Everest (top)
-            (Some(0x1A678), Some(0x1A600)),  // Oasis (top)
-            (Some(0x1A3F0), Some(0x1A444)),  // Fish Tank (top left)
-            (Some(0x1A3FC), Some(0x1A450)),  // Fish Tank (top right)
-            (Some(0x19996), Some(0x1997E)),  // Amphitheatre (left)
-            (Some(0x1AA14), Some(0x1AA20)),  // Tourian Blue Hoppers (left)
-            (Some(0x18DDE), Some(0x18E6E)),  // Big Pink crumble blocks (left),
-            (Some(0x19312), Some(0x1934E)),  // Ice Beam Gate Room crumbles (top left)
+            (Some(0x1A42C), Some(0x1A474)), // Mt. Everest (top)
+            (Some(0x1A678), Some(0x1A600)), // Oasis (top)
+            (Some(0x1A3F0), Some(0x1A444)), // Fish Tank (top left)
+            (Some(0x1A3FC), Some(0x1A450)), // Fish Tank (top right)
+            (Some(0x19996), Some(0x1997E)), // Amphitheatre (left)
+            (Some(0x1AA14), Some(0x1AA20)), // Tourian Blue Hoppers (left)
+            (Some(0x18DDE), Some(0x18E6E)), // Big Pink crumble blocks (left),
+            (Some(0x19312), Some(0x1934E)), // Ice Beam Gate Room crumbles (top left)
         ];
         for pair in door_ptr_pairs {
-            self.apply_door_hazard_marker(pair)?;    
+            self.apply_door_hazard_marker(pair)?;
+        }
+        Ok(())
+    }
+
+    fn apply_single_locked_door(&mut self, locked_door: LockedDoor, state_index: u8) -> Result<()> {
+        let (room_idx, door_idx) =
+            self.game_data.room_and_door_idxs_by_door_ptr_pair[&locked_door.src_ptr_pair];
+        let room = &self.game_data.room_geometry[room_idx];
+        let door = &room.doors[door_idx];
+        let (x, y) = match door.direction.as_str() {
+            "right" => (door.x * 16 + 14 - door.offset.unwrap_or(0), door.y * 16 + 6),
+            "left" => (door.x * 16 + 1 + door.offset.unwrap_or(0), door.y * 16 + 6),
+            "up" => (door.x * 16 + 6, door.y * 16 + 1 + door.offset.unwrap_or(0)),
+            "down" => (door.x * 16 + 6, door.y * 16 + 14 - door.offset.unwrap_or(0)),
+            _ => panic!("Unexpected door direction: {}", door.direction),
+        };
+        let plm_id = match (locked_door.door_type, door.direction.as_str()) {
+            (DoorType::Yellow, "right") => 0xC85A,
+            (DoorType::Yellow, "left") => 0xC860,
+            (DoorType::Yellow, "down") => 0xC866,
+            (DoorType::Yellow, "up") => 0xC86C,
+            (DoorType::Green, "right") => 0xC872,
+            (DoorType::Green, "left") => 0xC878,
+            (DoorType::Green, "down") => 0xC87E,
+            (DoorType::Green, "up") => 0xC884,
+            (DoorType::Red, "right") => 0xC88A,
+            (DoorType::Red, "left") => 0xC890,
+            (DoorType::Red, "down") => 0xC896,
+            (DoorType::Red, "up") => 0xC89C,
+            (a, b) => panic!("Unexpected door type: {:?} {}", a, b),
+        };
+        // TODO: Instead of using extra setup ASM to spawn the doors, it would probably be better to just rewrite
+        // the room PLM list, to add the new door PLMs.
+        let mut write_asm = |room_ptr: usize, x: usize, y: usize| {
+            self.extra_setup_asm
+            .entry(room_ptr)
+            .or_insert(vec![])
+            .extend(vec![
+                0x22,
+                0x80,
+                0xF3,
+                0x84, // JSL $84F380  (Spawn hard-coded PLM with room argument)
+                x as u8,
+                y as u8, // X and Y coordinates in 16x16 tiles
+                (plm_id & 0x00FF) as u8,
+                (plm_id >> 8) as u8,
+                state_index,
+                0x00, // PLM argument (index for door unlock state)
+            ]);
+        };
+        if room.rom_address == 0x7D5A7 {
+            // Aqueduct
+            write_asm(room.rom_address, x, y - 64);
+        } else {
+            write_asm(room.rom_address, x, y);
+        }
+        if room.rom_address == 0x793FE && door.x == 5 && door.y == 2 {
+            // Homing Geemer Room
+            write_asm(room.twin_rom_address.unwrap(), x % 16, y % 16);
+        }
+        if room.rom_address == 0x7D646 && door.x == 1 && door.y == 2 {
+            // East Pants Room
+            write_asm(room.twin_rom_address.unwrap(), x % 16, y % 16 + 16);
+        }
+
+        Ok(())
+    }
+
+    fn assign_locked_door_states(&mut self) {
+        // PLM arguments used for gray door states (we reserve all of them even though not all are used)
+        let reserved_state_indexes: HashSet<usize> = [
+            0x2, 0x3, 0x4, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0x11, 0x12, 0x14, 0x15, 0x16, 0x17, 0x18,
+            0x19, 0x1a, 0x1b, 0x1c, 0x24, 0x25, 0x2c, 0x2d, 0x2e, 0x2f, 0x31, 0x36, 0x37, 0x3e,
+            0x40, 0x41, 0x42, 0x43, 0x46, 0x47, 0x48, 0x4f, 0x50, 0x59, 0x5a, 0x5b, 0x5d, 0x60,
+            0x80, 0x81, 0x82, 0x83, 0x86, 0x87, 0x88, 0x89, 0x8a, 0x91, 0x93, 0x97, 0x9c, 0x9d,
+            0x9e, 0x9f, 0xa0, 0xa1, 0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xaa, 0xab, 0xac,
+        ]
+        .into_iter()
+        .collect();
+        let mut next_state_index: usize = 0;
+        let mut state_idxs: Vec<usize> = vec![];
+
+        for _door in &self.randomization.locked_doors {
+            while reserved_state_indexes.contains(&next_state_index) {
+                next_state_index += 1;
+            }
+            state_idxs.push(next_state_index);
+            next_state_index += 1;
+        }
+        self.locked_door_state_indices = state_idxs;
+    }
+
+    fn apply_locked_doors(&mut self) -> Result<()> {
+        self.assign_locked_door_states();
+        for (i, door) in self.randomization.locked_doors.iter().enumerate() {
+            let mut door = *door;
+            self.apply_single_locked_door(door, self.locked_door_state_indices[i] as u8)?;
+            if door.bidirectional {
+                std::mem::swap(&mut door.src_ptr_pair, &mut door.dst_ptr_pair);
+                self.apply_single_locked_door(door, self.locked_door_state_indices[i] as u8)?;
+            }
         }
         Ok(())
     }
@@ -1540,21 +1670,17 @@ impl<'a> Patcher<'a> {
         let mut next_addr = snes2pc(0xB5F800);
 
         for (&room_ptr, asm) in &self.extra_setup_asm {
-            for (_, state_ptr) in self.get_room_state_ptrs(room_ptr)? {
+            for (_, state_ptr) in get_room_state_ptrs(&self.rom, room_ptr)? {
                 let mut asm = asm.clone();
-                asm.push(0x60);  // RTS
+                asm.push(0x60); // RTS
                 self.rom.write_n(next_addr, &asm)?;
-                self.rom.write_u16(state_ptr + 16, (next_addr & 0xFFFF) as isize)?;
+                self.rom
+                    .write_u16(state_ptr + 16, (next_addr & 0xFFFF) as isize)?;
                 next_addr += asm.len();
             }
         }
-        assert!(next_addr <= snes2pc(0xB68000));
+        assert!(next_addr <= snes2pc(0xB5FF00));
 
-        // for &room_ptr in self.game_data.room_id_by_ptr.keys() {
-        //     for (_, state_ptr) in self.get_room_state_ptrs(room_ptr)? {
-        //         println!("unused?: {:x} {:x} {:x}", room_ptr, pc2snes(state_ptr + 16), self.rom.read_u16(state_ptr + 16)?);
-        //     }
-        // }
         Ok(())
     }
 }
@@ -1578,10 +1704,13 @@ pub fn make_rom(
 
     // Remove solid wall that spawns in Tourian Escape Room 1 while coming through right door.
     // Note that this wall spawns in two ways: 1) as a normal PLM which spawns when entering through either door
-    // (and which we remove in `remove_non_blue_doors`), and 2) as a door cap closing when coming in from the right 
+    // (and which we remove in `remove_non_blue_doors`), and 2) as a door cap closing when coming in from the right
     // (removed here). Both of these have to be removed in order to successfully get rid of this wall.
     // (The change has to be applied to the original ROM before doors are reconnected based on the randomized map.)
-    orig_rom.write_u8(snes2pc(0x83AA8F), 0x01)?;  // Door direction = 0x01
+    orig_rom.write_u8(snes2pc(0x83AA8F), 0x01)?; // Door direction = 0x01
+                                                 // Even though there is no door cap closing animation, we need to move the door cap X out of the way to the left,
+                                                 // otherwise corrupts the hazard marker PLM somehow:
+    orig_rom.write_u8(snes2pc(0x83AA90), 0x1E)?; // Door cap X = 0x1E
 
     let mut rom = orig_rom.clone();
     let mut patcher = Patcher {
@@ -1592,6 +1721,7 @@ pub fn make_rom(
         map: &randomization.map,
         other_door_ptr_pair_map: get_other_door_ptr_pair_map(&randomization.map),
         extra_setup_asm: HashMap::new(),
+        locked_door_state_indices: vec![],
         // door_room_map: get_door_room_map(&self.game_data.)
     };
     patcher.apply_ips_patches()?;
@@ -1601,6 +1731,7 @@ pub fn make_rom(
     patcher.write_map_tilemaps()?;
     patcher.write_map_areas()?;
     patcher.make_map_revealed()?;
+    patcher.apply_locked_doors()?;
     patcher.apply_map_tile_patches()?;
     patcher.write_door_data()?;
     patcher.remove_non_blue_doors()?;

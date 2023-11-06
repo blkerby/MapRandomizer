@@ -1,0 +1,30 @@
+<!-- Button trigger modal -->
+<button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#transitionLettersModal">
+<i class="bi bi-question-circle"></i>
+</button>
+
+<!-- Modal -->
+<div class="modal" id="transitionLettersModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">Area transitions marked as letters on map</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>This option affects how transitions between areas are marked on the map:</p>
+
+        <ul>
+        <li><strong>Arrows</strong>: An arrow is used, showing the direction of the transition.
+        <li><strong>Letters</strong>: A letter is used, the first letter of the name of the neighboring area.
+        </ul>
+
+        <p>In both cases, transitions markers (arrows or letters) are colored according to the neighboring area's color.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

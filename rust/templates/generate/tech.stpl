@@ -34,11 +34,13 @@
                         <% } %>
                         <div class="row m-0 p-3 tech-row">
                             <div class="text-center col-sm-4 col-md-3 col-lg-2 my-0">
-                                <% if tech_gif_listing.contains(&format!("{}.png", tech)) { %>
+                                <% if tech_gif_listing.contains(&format!("{}.png", tech)) {
+                                    let video_url = format!("{}/{}.webm", hq_video_url_root, tech);
+                                    %>
+                                <a href="#" onclick='startVideo("<%- video_url %>")' data-bs-toggle="modal" data-bs-target="#videoModal">
                                 <img class="png-tech" loading="lazy" src="/static/tech_gifs/<%- tech%>.png" style="width:128px;height:128px;">
-                                <% } %>
-                                <% if tech_gif_listing.contains(&format!("{}.gif", tech)) { %>
                                 <img class="gif-tech" loading="lazy" src="/static/tech_gifs/<%- tech%>.gif" style="width:128px;height:128px;">
+                                </a>
                                 <% } %>
                             </div>
                             <div class="col-sm-8 col-md-9 col-lg-10 my-0">
@@ -84,11 +86,13 @@
                         <hr class="m-0">
                         <div class="row m-0 p-3 tech-row">
                             <div class="text-center col-sm-4 col-md-3 col-lg-2">
-                                <% if notable_gif_listing.contains(&format!("{}.png", strat)) { %>
+                                <% if notable_gif_listing.contains(&format!("{}.png", strat)) {
+                                    let video_url = format!("{}/{}.webm", hq_video_url_root, strat);
+                                    %>
+                                <a href="#" onclick='startVideo("<%- video_url %>")' data-bs-toggle="modal" data-bs-target="#videoModal">
                                 <img class="png-tech" loading="lazy" src="/static/notable_gifs/<%- strat%>.png" style="width:128px;height:128px;">
-                                <% } %>
-                                <% if notable_gif_listing.contains(&format!("{}.gif", strat)) { %>
                                 <img class="gif-tech" loading="lazy" src="/static/notable_gifs/<%- strat%>.gif" style="width:128px;height:128px;">
+                                </a>
                                 <% } %>
                             </div>
                             <div class="col-sm-8 col-md-9 col-lg-10">

@@ -1,7 +1,46 @@
 <div class="form-group row">
     <div class="col-lg-4 col-md-6 my-2">
+        <% include!("help/variations/item_dot_change.stpl"); %>
+        <label for="preset">Item dots after collection</label>
+    </div>
+    <div class="col-3 btn-group my-2" role="group">
+        <input type="radio" class="btn-check" name="item_dot_change" id="itemDotChangeFade" value="Fade" checked>
+        <label class="btn btn-outline-primary" for="itemDotChangeFade">Fade</label>
+        <input type="radio" class="btn-check" name="item_dot_change" id="itemDotChangeDisappear" value="Disappear">
+        <label class="btn btn-outline-primary" for="itemDotChangeDisappear">Disappear</label>
+    </div>
+</div>
+
+<div class="form-group row">
+    <div class="col-lg-4 col-md-6 my-2">
+        <% include!("help/variations/transition_letters.stpl"); %>
+        <label for="preset">Area transition markers on map</label>
+    </div>
+    <div class="col-3 btn-group my-2" role="group">
+        <input type="radio" class="btn-check" name="transition_letters" id="transitionLettersNo" value="false" checked>
+        <label class="btn btn-outline-primary" for="transitionLettersNo">Arrows</label>
+        <input type="radio" class="btn-check" name="transition_letters" id="transitionLettersYes" value="true">
+        <label class="btn btn-outline-primary" for="transitionLettersYes">Letters</label>
+    </div>
+</div>
+
+<div class="form-group row">
+    <div class="col-lg-4 col-md-6 my-2">
+        <% include!("help/variations/early_save.stpl"); %>
+        <label for="early_save">Guaranteed early save station</label>
+    </div>
+    <div class="col-2 btn-group my-2" role="group">
+        <input type="radio" class="btn-check" name="early_save" id="earlySaveNo" value="false" checked>
+        <label class="btn btn-outline-primary" for="earlySaveNo">No</label>
+        <input type="radio" class="btn-check" name="early_save" id="earlySaveYes" value="true">
+        <label class="btn btn-outline-primary" for="earlySaveYes">Yes</label>
+    </div>
+</div>
+
+<div class="form-group row">
+    <div class="col-lg-4 col-md-6 my-2">
         <% include!("help/variations/disable_walljump.stpl"); %>
-        <label for="respin">Disable wall jumps</label>
+        <label for="disable_walljump">Disable wall jumps</label>
     </div>
     <div class="col-2 btn-group my-2" role="group">
         <input type="radio" class="btn-check" name="disable_walljump" id="disableWallJumpNo" value="false" checked>
@@ -27,7 +66,7 @@
 <div class="form-group row">
     <div class="col-lg-4 col-md-6 my-2">
         <% include!("help/variations/vanilla_map.stpl"); %>
-        <label for="respin">Vanilla map</label>
+        <label for="vanilla_map">Vanilla map</label>
     </div>
     <div class="col-2 btn-group my-2" role="group">
         <input type="radio" class="btn-check" name="vanilla_map" id="vanillaMapNo" value="false" checked>
@@ -40,7 +79,7 @@
 <div class="form-group row">
     <div class="col-lg-4 col-md-6 my-2">
         <% include!("help/variations/ultra_low_qol.stpl"); %>
-        <label for="infinite_space_jump">Ultra-low quality of life</label>
+        <label for="ultra_low_qol">Ultra-low quality of life</label>
     </div>
     <div class="col-2 btn-group my-2" role="group">
         <input type="radio" class="btn-check" name="ultra_low_qol" id="ultraLowQoLNo" value="false" checked>
@@ -53,7 +92,7 @@
 <div class="form-group row">
     <div class="col-lg-4 col-md-6 my-2">
         <% include!("help/race.stpl"); %>
-        <label for="preset">Race mode</label>
+        <label for="race_mode">Race mode</label>
     </div>
     <div class="col-md-2 btn-group my-2" role="group">
         <input type="radio" class="btn-check" name="race_mode" id="raceModeNo" value="No" checked=true>
@@ -66,7 +105,7 @@
 <div class="form-group row">
     <div class="col-lg-4 col-md-6 my-2">
         <% include!("help/seed.stpl"); %>
-        <label for="preset">Random seed</label>
+        <label for="random_seed">Random seed</label>
     </div>
     <div class="col-md-3 my-2">
     <input type="text" class="form-control" name="random_seed" id="randomSeed" value="">

@@ -1,22 +1,41 @@
-next release:
-- DONE: fix graphical bug in kraid eye door room (hazard tiles)
-- DONE: fix graphical bug in kraid room (hazard tiles)
-- gray doors marked on map
-- no longer mark BT with X on Save The Animals
+upcoming:
+- during the escape, lock the Bomb Torizo door until animals are saved (to prevent accidentally leaving before the flag is set).
+- try to implement frame advance: https://stackoverflow.com/questions/4298084/html5-frame-by-frame-viewing-frame-seeking
 
 priority:
-- palette customization overhaul (free up dependence on changing door colors)
-- door color randomization
+- make tech and notable strat names in the Generate page link to the corresponding logic page.
+  - need special handling for reusable notables though
+- List notable strats in the main logic page.
+- add a logic page for each difficulty tier (similar to the sections within the Generate page)
+- make randomizer more efficient
+- add CF health refill to logic
+  - include tricky CF at ammo refill stations
+- proper saving/loading of custom presets
+- help finish the cross-room strat migration
+- don't put ammo doors next to objective tiles
+- "Random" objective option? (but what will tracker look like)
+- Map pool split: Tame vs. Wild
+- clarify gate glitch leniency: that it doesn't apply to Pink Hopper Room gate
+- consider prioritizing item placement at closer item locations relative to previous key item(s)
+- start logging the seed generation latency
+- split off toilet from aqueduct
+- consider making "guaranteed early save" the default
+- consider implementing farm QoL option to combine drop tiers
+  - $86F106: drop logic
+- speed booster hall: heat frames could be slightly less?
+- try using other zebes asleep music, to see if snails make a sound?
+- add door flags to refine logic
+- add door lock bypass strats to logic
 - randomized title screen
 - controller config special settings (moonwalk) customization
 - set up a more robust way for users to save & select presets
+- overhaul two-phase randomization/customization process
+  - create ROM in customization only
 - move input ROM off Generate page (and into separate dialogue that only shows on first use).
 - convert tech/strat AVIs to WebM & WebP (using ffmpeg CLI)
   - WebM/VP9 for full playback using HTML5 <video>
   - WebP for thumbnails
   - use image-rendering: pixelated
-- add CF health refill to logic
-  - tricky CF at ammo refill stations
 - logic: add some 3-room shinecharge strats to logic (ones that can work with existing schema)
 - add notable for underwater canGateGlitch (Very Hard)?
 - remove old-format farms and refills from sm-json-data?
@@ -31,11 +50,8 @@ priority:
   - Larvas: 4 special items (replacing missiles)
   - Random
 - Improve save station balancing
-  - On model side, spread out the placement of potential save rooms (single-tile rooms).
-  - Define "distance" in a way that accounts for ease of access (e.g. possible item/tech dependencies)
+  - Define "distance" in a way that accounts for ease of access (e.g. possible item/tech dependencies)?
 - Improve area clustering
-- investigate panic during spoiler log construction:
-  - RUST_BACKTRACE=1 time cargo run --bin maprando-cli -- --map ../maps/session-2022-06-03T17:19:29.727911.pkl-bk30-subarea-balance-2/1000001.json --item-placement-seed 3 --input-rom ~/Downloads/Super\ Metroid\ \(JU\)\ \[\!\].smc --output-rom ~/Downloads/testrom.smc
 - investigate resource_multiplier bug that happened in Osse's seed with resource_multiplier=8:
   - https://maprando.com/seed/isnUf9YjIhvW-BJFrvFuyw/data/visualizer/index.html
   - (was from enemykill not using multiplier)
@@ -47,24 +63,46 @@ priority:
     - https://maprando.com/seed/HwuYziIJUh-sCUM0YCAPRA/data/visualizer/index.html
   - possibly related: issue where filler items are re-randomized when trying new key item.
     - maybe re-randomizing is ok, but on success it should try replacing key item with Missile (instead of having Missile be first key item tried)
-- fix quick-reload on last frame of pause/unpause
-- check if reloading from bottom/top of elevator works correctly (not skips back a save)
-- do something about screen shaking during samus appears (in start location: rising tide, amphitheatre)
-  - maybe customization option to get rid of shaking in general?
+- fix quick reloading from bottom/top of elevator (to not skip back a save)
+- maybe customization option to get rid of screen shaking 
 - handle canShinesparkWithReserve in randomizer (and remove it from being ignored)
 - incrementally build graph traversal with increasing difficulty tiers, acquiring flags in the process.
   - will allow better accounting of the difficulty of boss fights in forced mode
   - should be faster too
   - improved spoiler log route
 - show objective progress in pause menu (also zebes awake, phantoon defeated)?
-  - or maybe just make objective X's fade on map (if we do faded item dots)
+  - or maybe make objective X's fade after collection?
 - help buttons for rest of settings (e.g. explain boss proficiency calculations)
 - logic simulator
-- get rid of symlink for sm-json-data
-- temporarily disable comeInWithGMode strats through sand since this will not be correct with how it
-  is currently set up (since there is no way to go up through sand)
 
 later:
+- remove dead code for drawing lava/acid on map tiles.
+- strats to add to logic:
+  - tricky dash jump to get out of alcatraz with Morph + HiJump + SpeedBooster only (no wall jump or bombs)
+  - ice clip through crumble in Green Brin Main Shaft? (in case internal door is not blue)
+  - add notable (Medium) for reverse shaktool
+  - spore spawn plasma SBA
+  - enemy stuck moonfalls in Pink Brin Power Bomb and West Ocean
+  - R-mode forced stand-up clips (needs testing):
+    - GT Room
+    - double chamber: right side (CF grapple clip too), if no walljumps
+    - Acid Statue Room (no need for HiJump)
+    - Mickey Mouse Room (alternative to CF grapple clip?)
+    - West Ocean (alternative to ice clip?)
+    - Wrecked Ship East Super Room: alternative to CF clip (farm the Coverns)
+    - PCJR: up through crumble? (not sure if this can work, since enemy hit kills momentum and crumble respawns. If it works, where you can jump back up before crumble respawns, then CF clip would probably also work)
+  - moondance in Bowling Alley top
+- mosaic visual cues etc.:
+  - InnerCrateria: 
+    - Metal Pirates
+    - top left of East Cac Alley, brick edge is wrong
+    - Wasteland fake bricks (replace with pipes?)
+    - Big Pink too many fake tiles in transition between fungal and brick
+- make item music tracks consistent, to eliminate music restarts that can happen between two item rooms
+- fix palette fade issue when entering MB room from left (Mother Brain starts from white?)
+- possibly bad idea: should getting map station add arrows to other maps (ones leading into current map)?
+- see if we can do something about silent snails with Zebes asleep music
+- for forced mode, also use tier below Basic?
 - enhancements to momentum conservation patch
   - remove need to be holding dash or to be in spin
   - reset speed boost counter whenever momentum conservation comes into play, to avoid making it too easy to get blue
@@ -77,8 +115,6 @@ later:
   - make it so that customization can use matching version from when the seed was generated
   - include more options for customization
   - ROM won't need to be provided for generation, only customization
-- map improvements
-  - fix little pause menu palette issue at top of equipment screen (green where gray should be)
 - handle runways with conditional physics (Volcano Room, Amphitheatre, East Pants Room)
 - check why Tourian Escape Room 1 runway isn't allowing Speedball strat into Wrecked Ship Main Shaft (on Expert)
 - remove invisible solid tile in Tourian Escape Room 1, above transition
@@ -115,13 +151,9 @@ later:
 - include a check that the client and server are matching versions and give a more meaningful error when they aren't
 - look into botwoon requirements: 
   https://maprando.com/seed/-yvSvwjFlrfJN1NRxDi-Jw/data/visualizer/index.html
-- unlock all gray doors during escape (eventually only when "enemies cleared during escape" is enabled)
-  - e.g. metal pirates
-- press X to fast forward during credits?
 - QoL option for save station fast travel (in Max)?
 - investigate problem when using quick reload (L+R+Select+Start) while unpausing with 0 energy.
 - investigate: ridley gray door closed when reserve triggered (in sapphron seed)
-- on seed page: for each tier, show selected tech/strats or deselected tech/strat, whichever is a shorter list
 - fix escape timer tech mapping to use reverse Amphitheatre notable for can_acid_dive
 - model improvement:
   - try using localized output: use token that room is placed in, instead of applying attention across all tokens
@@ -156,7 +188,6 @@ later:
 - fix how spoiler map sometimes won't show escape route
 - see if it is possible to prevent song changes from messing up enemy behavior
 - fix problem with disappearing typewriter text when pausing as escape sequence starts
-- Add override for Tourian Hopper run under strat from left to top (imyt strat)
 - add a tip that you can share a seed using the URL.
 - logic (maybe): moondance (bowling alley), tas dance (green brin shaft)
 - make graph traversals faster by using previous step for initial local states (probably not worth it?):
@@ -177,12 +208,9 @@ later:
 - add option (enabled on Challenge) to not treat tanks as filler items anymore after giving Varia (including the step where giving Varia)
   - maybe more general option to postpone unneeded filler items aside from missiles
 - spoiler visualizer improvements (see GitHub issue)
-- fix panic that is occasionally happening:
-  thread 'actix-rt|system:0|arbiter:0' panicked at 'assertion failed: num_key_items_to_place >= 1', src/randomize.rs:671:9
 - find some way to have forced mode take into account difficulty of defeating bosses (and other flags)
   - for each flag, identify its tier using just the flag edge (not redoing a full graph traversal)
   - then for the item placement, have the graph traversal treat that flag not as free but as whatever difficulty it was.
-- consider putting back the save confirmation.
 - fix graphics in door transitions?
 - fix (sometimes?) glitched right door in GT. X-Ray showed a plasma beam inside it
 - adjust elevator heatFrames when fast elevators enabled
@@ -232,7 +260,6 @@ later:
 - Make Gravity-only Samus palette different from Gravity+Varia.
     - Figure out how this can work with custom sprites.
 - Consider rejecting cases where the set of bireachable item locations grows too slow or too fast.
-- fix color of reserve tank energy in equipment menu (got messed up by colored arrows)
 - move GFX colors:
   - Morph Ball room (blue brinstar), tileset 7:
     - [0x31, 0x32, 0x33] -> [0x38, 0x39, 0x3A]
@@ -249,7 +276,6 @@ maybe someday?:
 - minimizer mode? (select rooms to include randomly, hand-picked, and/or user-selected)
 - make map rando for other hacks (e.g. project base, subversion?)
   - would be a lot of work. we could invite others to help implement the logic
-- multitroid support
 
 
 rejected ideas (probably):

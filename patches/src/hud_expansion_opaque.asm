@@ -375,6 +375,7 @@ LoadFX_Return:
     LDA $ABF0,y ; Displaced code
     RTS
 
+warnpc $89AF60
 
 ;----------------------------
 ; Repoint Data

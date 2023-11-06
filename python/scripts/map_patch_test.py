@@ -7,8 +7,9 @@ import io
 import os
 
 
-# input_rom_path = '/home/kerby/Downloads/Super Metroid (JU) [!].smc'
-input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.5.3-tinystates-ntsc.sfc'
+input_rom_path = '/home/kerby/Downloads/Super Metroid (JU) [!].smc'
+# input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.5.3-tinystates-ntsc.sfc'
+# input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.5.8.1-tinystates-ntsc.sfc'
 # input_rom_path = '/home/kerby/Downloads/Practice-v2.5.1-suits.sfc'
 # input_rom_path = '/home/kerby/Downloads/smmr-v8-66-115673117270825932886574167490559/smmr-v8-66-115673117270825932886574167490559.sfc'
 # input_rom_path = '/home/kerby/Downloads/smmr-v0-30-115673117270825932886574167490559.sfc'
@@ -28,15 +29,15 @@ area_arr = [rom.read_u8(room.rom_address + 1) for room in rooms]
 
 
 patches = [
-    'credits',
-    'new_game_extra',
+    # 'credits',
+    # 'new_game_extra',
     # 'disable_walljump'
     # 'holes',
     # 'oob_death',
     # 'spinjumprestart',
     # 'new_game_extra',
-    # 'door_hurt',
-    # "everest_tube"
+    'door_hurt',
+    "everest_tube",
     # 'complementary_suits',
     # 'complementary_suits_noheat',
     # 'escape',
@@ -52,7 +53,7 @@ patches = [
     # 'bomb_torizo',
     # 'decompression',
     # 'fast_reload',
-    # 'hud_expansion_opaque',
+    'hud_expansion_opaque',
     # 'mb_barrier',
     # 'mb_barrier_clear',
     # 'saveload',
@@ -130,10 +131,11 @@ for i in range(32):
 # # No longer restrict Samus X position to left screen during start of Kraid fight
 # rom.write_u8(snes2pc(0xA7C9EE), 0x60)
 #
-# map_patcher = MapPatcher(rom, area_arr)
+map_patcher = MapPatcher(rom, area_arr)
 # # # for i, idx in enumerate(new_text_tile_idxs):
 # # #     map_patcher.write_tile_2bpp(idx, vanilla_text_tiles[i], switch_red_white=False)
 # #
+
 plm_types_to_remove = [
     0xC88A, 0xC85A, 0xC872,  # right pink/yellow/green door
     0xC890, 0xC860, 0xC878,  # left pink/yellow/green door
@@ -276,24 +278,24 @@ for room_obj in rooms:
 # # for i in range(32):
 # #     map_patcher.write_tile_2bpp(i + 256, data)
 # #
-# import numpy as np
-# image = np.zeros([256, 128])
-# for i in range(512):
-#     data = map_patcher.read_tile_2bpp(i)
-#     x = i // 16
-#     y = i % 16
-#     x0 = x * 8
-#     x1 = (x + 1) * 8
-#     y0 = y * 8
-#     y1 = (y + 1) * 8
-#     image[x0:x1, y0:y1] = data
-#     # for row in data:
-#     #     print(''.join('{:x}'.format(x) for x in row))
-#     # data = read_tile_4bpp(rom, snes2pc(0xB68000), i)
-#     # for row in data:
-#     #     print(''.join('{:x}'.format(x) for x in row))
-# from matplotlib import pyplot as plt
-# plt.imshow(image)
+import numpy as np
+image = np.zeros([256, 128])
+for i in range(512):
+    data = map_patcher.read_tile_2bpp(i)
+    x = i // 16
+    y = i % 16
+    x0 = x * 8
+    x1 = (x + 1) * 8
+    y0 = y * 8
+    y1 = (y + 1) * 8
+    image[x0:x1, y0:y1] = data
+    # for row in data:
+    #     print(''.join('{:x}'.format(x) for x in row))
+    # data = read_tile_4bpp(rom, snes2pc(0xB68000), i)
+    # for row in data:
+    #     print(''.join('{:x}'.format(x) for x in row))
+from matplotlib import pyplot as plt
+plt.imshow(image)
 
 # # rom.write_u16(snes2pc(0x819124), 0x0009)   # File select index 9 - load
 #

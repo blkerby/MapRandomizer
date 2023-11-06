@@ -66,8 +66,12 @@ class ReplayBuffer:
         step_indices = torch.randint(high=episode_length + 1, size=[n])
         reward = self.episode_data.reward[episode_indices]
         temperature = self.episode_data.temperature[episode_indices]
+        mc_dist_coef = self.episode_data.mc_dist_coef[episode_indices]
         door_connects = self.episode_data.door_connects[episode_indices, :]
         missing_connects = self.episode_data.missing_connects[episode_indices, :]
+        save_distances = self.episode_data.save_distances[episode_indices, :]
+        graph_diameter = self.episode_data.graph_diameter[episode_indices]
+        mc_distances = self.episode_data.mc_distances[episode_indices, :]
         cycle_cost = self.episode_data.cycle_cost[episode_indices]
         action = self.episode_data.action[episode_indices, :, :].to(torch.int64)
         steps_remaining = episode_length - step_indices
@@ -78,10 +82,14 @@ class ReplayBuffer:
             reward=reward.to(device),
             door_connects=door_connects.to(device),
             missing_connects=missing_connects.to(device),
+            save_distances=save_distances.to(device),
+            graph_diameter=graph_diameter.to(device),
+            mc_distances=mc_distances.to(device),
             cycle_cost=cycle_cost.to(device),
             steps_remaining=steps_remaining.to(device),
             round_frac=round_frac.to(device),
             temperature=temperature.to(device),
+            mc_dist_coef=mc_dist_coef.to(device),
             room_mask=room_mask.to(device),
             room_position_x=room_position_x.to(device),
             room_position_y=room_position_y.to(device),

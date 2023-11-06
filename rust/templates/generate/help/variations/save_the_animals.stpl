@@ -12,8 +12,13 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-      <p>If enabled, the player will be required to save the animals during the escape. 
-      The escape timer will take into account the extra time needed for the detour. </p>
+      <p>This setting affects whether saving the animals (Etecoons and Dachora) will be possible 
+      and/or required in the escape:</p>
+      <ul>
+      <li><strong>No</strong>: Saving the animals might not be possible to do.
+      <li><strong>Maybe</strong>: Extra escape time is given, making it possible but not required to save the animals.
+      <li><strong>Yes</strong>: Extra escape time is given, and the player is required to save the animals.
+      </ul></p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

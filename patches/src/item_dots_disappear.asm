@@ -41,6 +41,9 @@ org $85846D
     jsl message_box_hook   ; reload map after message boxes (e.g. after item collect or map station activation)
     nop
 
+org $848AB8
+    jsl door_unlocked_hook
+
 ; Free space in bank $82:
 org !bank_82_freespace_start
 
@@ -59,7 +62,7 @@ transfer_pause_tilemap_hook:
 warnpc !bank_82_freespace_end
 
 ; Free space in any bank:
-org $83B300
+org $83B600
 
 unpause_hook:
     jsl update_tilemap
@@ -78,11 +81,17 @@ reload_map_hook:
     jsl $80858C  ; run hi-jacked instruction (load map explored bits)
     jsl update_tilemap
     
+    rtl
 
+door_unlocked_hook:
+    sta $7ED8B0,x ; run hi-jacked instruction (store new door unlocked bit)
+    jsl update_tilemap
     rtl
 
 update_tilemap:
     php
+    phx
+    phy
     rep #$30
 
     ; $00 <- long pointer to original map tilemap in ROM, for current area
@@ -146,5 +155,9 @@ update_tilemap:
     bne .item_loop
 
 .done:
+    ply
+    plx
     plp
     rtl
+
+warnpc $83B700

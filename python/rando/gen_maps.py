@@ -12,7 +12,7 @@ import pickle
 import argparse
 
 # PYTHONPATH=. python rando/gen_maps.py session-2022-06-03T17:19:29.727911.pkl-bk30 2100000 2350000
-#
+
 parser = argparse.ArgumentParser(
     'gen_maps',
     'Generate random maps with area assignment')
@@ -37,14 +37,51 @@ class CPU_Unpickler(pickle.Unpickler):
             return super().find_class(module, name)
 
 device = torch.device('cpu')
-# session_name = '07-31-session-2022-06-03T17:19:29.727911.pkl-bk30-small'
-# session_name = 'session-2022-06-03T17:19:29.727911.pkl-bk30'
+session_name = 'session-2023-06-08T14:55:16.779895.pkl-small-71'
+
 session_name = args.session_file
 start_index = int(args.start_index)
 end_index = int(args.end_index)
 session = CPU_Unpickler(open('models/{}'.format(session_name), 'rb')).load()
-ind = torch.nonzero(session.replay_buffer.episode_data.reward == 0)
+
+max_mc_dist = torch.amax(session.replay_buffer.episode_data.mc_distances, dim=1)
+mean_mc_dist = torch.mean(session.replay_buffer.episode_data.mc_distances.to(torch.float), dim=1)
+
+common_mask = (
+    (session.replay_buffer.episode_data.reward == 0) &
+    (torch.mean(session.replay_buffer.episode_data.save_distances.to(torch.float), dim=1) < 4.00) &
+    (session.replay_buffer.episode_data.graph_diameter <= 45)
+)
+
+tame_ind = torch.nonzero(
+    common_mask &
+    (session.replay_buffer.episode_data.mc_dist_coef > 0.0) &
+    (max_mc_dist <= 12)
+)
+wild_ind = torch.nonzero(
+    common_mask &
+    (session.replay_buffer.episode_data.mc_dist_coef == 0.0) &
+    (max_mc_dist >= 18)
+)
+
+def print_summary(ind):
+    print("cnt:", len(ind))
+    print("save:", torch.mean(session.replay_buffer.episode_data.save_distances[ind].to(torch.float)))
+    print("diam:", torch.mean(session.replay_buffer.episode_data.graph_diameter[ind].to(torch.float)))
+    print("mean_mc", torch.mean(session.replay_buffer.episode_data.mc_distances[ind].to(torch.float)))
+    print("max_mc", torch.mean(torch.amax(session.replay_buffer.episode_data.mc_distances[ind], dim=-1).to(torch.float)))
+    print()
+
+print("--- Tame ---")
+print_summary(tame_ind)
+print("--- Wild ---")
+print_summary(wild_ind)
+
+ind = tame_ind
+# ind = wild_ind
 logging.info("{} maps".format(ind.shape[0]))
+# os._exit(0)
+
 os.makedirs(f'maps/{session_name}', exist_ok=True)
 episode_data_action = session.replay_buffer.episode_data.action[ind[start_index:end_index], :]
 del session

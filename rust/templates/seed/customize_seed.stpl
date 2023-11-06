@@ -20,6 +20,18 @@ html[data-bs-theme=dark] .custom-button:not(:hover) {
 html[data-bs-theme=light] .custom-button:not(:hover) {
     background-color: #f4f5f6;
 }
+html[data-bs-theme=dark] .customize-button.collapsed {
+    background-color: #303030;
+}
+html[data-bs-theme=light] .customize-button.collapsed {
+    background-color: #f4f4f4;
+}
+.accordion-button::after {
+    position: absolute;
+    z-index: 100;
+    right: 16px;
+}
+
 </style>
 </head>
 <body>
@@ -134,7 +146,22 @@ window.spoilerTokenPrefix = "<%- spoiler_token_prefix %>";
                             <input class="col-sm-8 form-control-file p-0" type="file" id="baseRom" name="rom"
                             onchange="saveROM(this, 'base')">
                         </div>
-                        <input type="submit" class="btn btn-primary" value="Download ROM" />
+
+                        <div class="accordion my-2" id="accordionOtherOptions">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed customize-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOtherOptions">
+                                    Other options
+                                    </button>
+                                </h2>
+                                <div id="collapseOtherOptions" class="accordion-collapse collapse m-2">
+                                    <% include!("other_options.stpl"); %>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <input type="submit" class="btn btn-primary my-2" value="Download ROM" />
                     </form>
                 </div>
             </div>
@@ -173,7 +200,6 @@ function changeSamusSprite() {
     if (selectedSprite !== null) {
         selectedSprite.classList.add("selected");
     }
-    console.log("selected: " + selectedSpriteName + ": " + selectedSprite);
 
     var selectedSpriteDisplayName = selectedSprite.getAttribute("data-display-name");
     document.getElementById("selectedSpriteDisplayName").innerHTML = selectedSpriteDisplayName;
@@ -217,11 +243,18 @@ function changeEnergyTankColor(btn) {
     document.getElementById("etankColor").value = color;
     updateEnergyTankColor();
 }
+function checkOtherOptions() {
+    if (document.getElementById("tileTheme").value != "none") {
+        document.getElementById("collapseOtherOptions").classList.remove("collapse");
+        document.getElementById("collapseOtherOptions").classList.add("show");
+    }
+}
 
 loadROM(document.getElementById("baseRom"), 'base');
 loadForm(document.getElementById("customization-form"));
 changeSamusSprite();
 updateEnergyTankColor();
+checkOtherOptions();
 </script>
 
 </body>

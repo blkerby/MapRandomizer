@@ -6,7 +6,7 @@ use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::Rom;
 use maprando::randomize::{
     DebugOptions, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, MotherBrainFight, Objectives,
-    ProgressionRate, Randomization, Randomizer,
+    ProgressionRate, Randomization, Randomizer, ItemDotChange, DoorsMode, randomize_doors, SaveAnimals,
 };
 use maprando::spoiler_map;
 use maprando::web::{SamusSpriteInfo, SamusSpriteCategory};
@@ -145,18 +145,20 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         resource_multiplier: 1.0,
         escape_timer_multiplier: 3.0,
         gate_glitch_leniency: 0,
+        door_stuck_leniency: 0,
         phantoon_proficiency: 1.0,
         draygon_proficiency: 1.0,
         ridley_proficiency: 1.0,
         botwoon_proficiency: 1.0,
         supers_double: true,
-        mother_brain_fight: MotherBrainFight::Short,
+        mother_brain_fight: MotherBrainFight::Skip,
         escape_enemies_cleared: true,
         escape_refill: true,
         escape_movement_items: true,
         mark_map_stations: true,
         transition_letters: true,
         item_markers: ItemMarkers::ThreeTiered,
+        item_dot_change: ItemDotChange::Fade,
         all_items_spawn: true,
         acid_chozo: true,
         fast_elevators: true,
@@ -167,8 +169,10 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         momentum_conservation: false,
         objectives: Objectives::Pirates,
         // objectives: Objectives::Bosses,
+        doors_mode: DoorsMode::Ammo,
         randomized_start: false,
-        save_animals: false,
+        save_animals: SaveAnimals::No,
+        early_save: false,
         disable_walljump: false,
         maps_revealed: true,
         vanilla_map: false,
@@ -182,7 +186,6 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         }),
     };
     let difficulty_tiers = [difficulty];
-    let randomizer = Randomizer::new(&map, &difficulty_tiers, &game_data);
     let max_attempts = if args.item_placement_seed.is_some() {
         1
     } else {
@@ -193,7 +196,9 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
             Some(s) => s,
             None => attempt_num,
         };
-        if let Ok(randomization) = randomizer.randomize(seed, 1) {
+        let locked_doors = randomize_doors(game_data, &map, &difficulty_tiers[0], seed);
+        let randomizer = Randomizer::new(&map, &locked_doors, &difficulty_tiers, &game_data);
+        if let Ok(randomization) = randomizer.randomize(attempt_num, seed, 1) {
             return Ok(randomization);
         } else {
             println!("Failed randomization attempt");
@@ -210,23 +215,25 @@ fn main() -> Result<()> {
     let args = Args::parse();
     let sm_json_data_path = Path::new("../sm-json-data");
     let room_geometry_path = Path::new("../room_geometry.json");
-    let palettes_path = Path::new("../palettes.json");
+    let palette_theme_path = Path::new("../palette_smart_exports");
     let escape_timings_path = Path::new("data/escape_timings.json");
     let start_locations_path = Path::new("data/start_locations.json");
     let hub_locations_path = Path::new("data/hub_locations.json");
+    let mosaic_path = Path::new("../Mosaic");
     let game_data = GameData::load(
         sm_json_data_path,
         room_geometry_path,
-        palettes_path,
+        palette_theme_path,
         escape_timings_path,
         start_locations_path,
         hub_locations_path,
+        mosaic_path,
     )?;
 
     // Perform randomization (map selection & item placement):
-    let randomization = get_randomization(&args, &game_data)?;
+    let mut randomization = get_randomization(&args, &game_data)?;
 
-    // // Override start location:
+    // Override start location:
     // randomization.start_location = game_data.start_locations.last().unwrap().clone();
 
     // Generate the patched ROM:
@@ -240,9 +247,9 @@ fn main() -> Result<()> {
         samus_sprite: Some("samus".to_string()),
         // samus_sprite: None,
         vanilla_screw_attack_animation: true,
-        area_themed_palette: false,
-        // music: MusicSettings::AreaThemed,
-        music: MusicSettings::Vanilla,
+        area_theming: maprando::customize::AreaTheming::Tiles("OuterCrateria".to_string()),
+        music: MusicSettings::AreaThemed,
+        // music: MusicSettings::Vanilla,
         disable_beeping: false,
         etank_color: None,
     };

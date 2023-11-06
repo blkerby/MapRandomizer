@@ -9,7 +9,7 @@ ELEVATOR = DoorSubtype.ELEVATOR
 
 rooms = [
     Room(
-        name='West Tunnel',
+        name='West Glass Tube Tunnel',
         rom_address=0x7CF54,
         map=[[1]],
         door_ids=[
@@ -22,7 +22,7 @@ rooms = [
         },
     ),
     Room(
-        name='East Tunnel',
+        name='Boyon Gate Hall',
         rom_address=0x7CF80,
         map=[
             [1, 1, 1, 1],

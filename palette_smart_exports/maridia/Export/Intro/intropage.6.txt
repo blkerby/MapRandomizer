@@ -1,0 +1,10 @@
+[Run B228]
+[Wait 0001]
+[Speed 0005]
+[Goto 01,04]
+CERES STATION WAS UNDER
+[Goto 01,06]
+ATTACK!!
+[Run ADD4]
+[Wait 0080]
+[Run B240]

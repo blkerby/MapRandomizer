@@ -65,8 +65,6 @@
         collected, it is possible to reach every room with only Basic tech.
         <li>Phantoon's Room always connects to the same room as the broken map station, and both are 
         in the same area as the broken save room.
-        <li>The map uses special tiles to show the locations of map stations, refills, 
-        and objectives. Items are consistently marked using dots.
         </ul>
         
         <h6>Item info</h6>
@@ -92,26 +90,13 @@
         <% if supers_double { %>
         <li>Supers do double damage to Mother Brain (a quality-of-life option).
         <% } %>
-        <li>Hyper Beam destroys Super, Bomb, and Power Bomb blocks and can open blue & green gates from either side.
+        <li>Hyper Beam destroys Super, Bomb, and Power Bomb blocks, can open blue & green gates from either side,
+        and can unlock pink, green, and yellow doors.
         <li>In the event that you end up softlocked in all three save files, you can clear a save file and restart
         the game from the beginning while retaining your map progress. (Map progress will be deleted only if all 
         three save files are clear at the same time.)
         </ul>
         <p>
-    </div>
-</div>
-
-<div class="row my-2">
-    <div class="col-sm-12">
-        <div class="card">
-            <div class="card-header">Known issues</div>
-            <div class="card-body">
-                <ul>
-                <li>Certain room combinations occur with high frequency (not much randomness).
-                <li>Minor graphical glitches often appear during door transitions.
-                </ul>
-            </div>
-        </div>
     </div>
 </div>
 

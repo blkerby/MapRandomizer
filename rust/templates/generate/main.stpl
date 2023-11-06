@@ -24,6 +24,7 @@
     </head>
     <body>
     <% include!("../common/navbar.stpl"); %>
+    <% include!("../common/video-modal.stpl"); %>        
     <script>
     document.getElementById("navigation-generate").classList.add("active");
     </script>
@@ -65,15 +66,15 @@
                         <label for="preset">Item progression</label>
                     </div>
                     <div class="col-lg-5 btn-group mt-0" role="group">
-                        <input type="radio" class="btn-check" name="item_progression_preset" value="Quick"
-                            id="itemProgressionPresetQuick" autocomplete="off" 
+                        <input type="radio" class="btn-check" name="item_progression_preset" value="Normal"
+                            id="itemProgressionPresetNormal" autocomplete="off" 
                             onclick="itemProgressionPresetChanged()" checked>
-                        <label class="btn btn-outline-primary" for="itemProgressionPresetQuick">Quick</label>
+                        <label class="btn btn-outline-primary" for="itemProgressionPresetNormal">Normal</label>
 
-                        <input type="radio" class="btn-check" name="item_progression_preset" value="Standard"
-                            id="itemProgressionPresetStandard" autocomplete="off" 
+                        <input type="radio" class="btn-check" name="item_progression_preset" value="Tricky"
+                            id="itemProgressionPresetTricky" autocomplete="off" 
                             onclick="itemProgressionPresetChanged()">
-                        <label class="btn btn-outline-primary" for="itemProgressionPresetStandard">Standard</label>
+                        <label class="btn btn-outline-primary" for="itemProgressionPresetTricky">Tricky</label>
 
                         <input type="radio" class="btn-check" name="item_progression_preset" value="Challenge"
                             id="itemProgressionPresetChallenge" autocomplete="off" 
@@ -149,7 +150,20 @@
 
             <div class="form-group row">
                 <div class="col-lg-3 my-2 pt-1">
-                    <% include!("help/variations/randomized_start.stpl"); %>
+                    <% include!("help/doors.stpl"); %>
+                    <label for="doors">Doors</label>
+                </div>
+                <div class="col-lg-3 btn-group my-2" role="group">
+                    <input type="radio" class="btn-check" name="doors" id="doorsBlue" value="Blue" checked=true>
+                    <label class="btn btn-outline-primary" for="doorsBlue">Blue</label>
+                    <input type="radio" class="btn-check" name="doors" id="doorsAmmo" value="Ammo">
+                    <label class="btn btn-outline-primary" for="doorsAmmo">Ammo</label>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-lg-3 my-2 pt-1">
+                    <% include!("help/randomized_start.stpl"); %>
                     <label for="randomized_start">Start location</label>
                 </div>
                 <div class="col-lg-3 btn-group my-2" role="group">
@@ -162,13 +176,28 @@
 
             <div class="form-group row">
                 <div class="col-lg-3 my-2 pt-1">
+                    <% include!("help/map_layout.stpl"); %>
+                    <label for="map_layout">Map layout</label>
+                </div>
+                <div class="col-lg-3 btn-group my-2" role="group">
+                    <input type="radio" class="btn-check" name="map_layout" id="mapLayoutTame" value="Tame" checked=true>
+                    <label class="btn btn-outline-primary" for="mapLayoutTame">Tame</label>
+                    <input type="radio" class="btn-check" name="map_layout" id="mapLayoutWild" value="Wild">
+                    <label class="btn btn-outline-primary" for="mapLayoutWild">Wild</label>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-lg-3 my-2 pt-1">
                     <% include!("help/variations/save_the_animals.stpl"); %>
                     <label for="save_animals">Save the animals</label>
                 </div>
-                <div class="col-lg-2 btn-group my-2" role="group">
-                    <input type="radio" class="btn-check" name="save_animals" id="saveAnimalsNo" value="false" checked=true>
+                <div class="col-lg-3 btn-group my-2" role="group">
+                    <input type="radio" class="btn-check" name="save_animals" id="saveAnimalsNo" value="No" checked=true>
                     <label class="btn btn-outline-primary" for="saveAnimalsNo">No</label>
-                    <input type="radio" class="btn-check" name="save_animals" id="saveAnimalsYes" value="true">
+                    <input type="radio" class="btn-check" name="save_animals" id="saveAnimalsMaybe" value="Maybe">
+                    <label class="btn btn-outline-primary" for="saveAnimalsMaybe">Maybe</label>
+                    <input type="radio" class="btn-check" name="save_animals" id="saveAnimalsYes" value="Yes">
                     <label class="btn btn-outline-primary" for="saveAnimalsYes">Yes</label>
                 </div>
             </div>

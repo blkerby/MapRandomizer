@@ -39,47 +39,42 @@ deathhook:
     
 warnpc $82DDF1
 
-; Hook state $08 (main gameplay)
-org $828BB3
-    JSL hook_main
+; Hook main game loop
+org $82897A
+    jsl hook_main
 
-; Hook state $14 (Samus ran out of health, black out surroundings)
-org $82DD6B
-    JSL hook_14
-
-; Hook state $15 (Samus ran out of health, black out surroundings)
-org $82DD74
-    JSL hook_15
-
-; Hook state $16 (Samus ran out of health, starting death animation)
-org $82DD8A
-    JSL hook_16
-
-; Hook state $17 (Samus ran out of health, flashing)
-org $82DDA9
-    JSL hook_17
+; $08, $14, $15, $16, $17
 
 org !freespace82_start
 
 hook_main:
-    JSL $A09169  ; run hi-jacked instruction
-    JMP check_reload
-
-hook_14:
-    JSL $808FF7  ; run hi-jacked instruction
-    JMP check_reload
-
-hook_15:
-    JSL $908A00  ; run hi-jacked instruction
-    JMP check_reload
-
-hook_16:
-    JSL $9BB43C  ; run hi-jacked instruction
-    JMP check_reload
-
-hook_17:
-    JSL $908998 ; run hi-jacked instruction
-    JMP check_reload
+    lda $0998
+    cmp #$0007
+    beq .check
+    cmp #$0008
+    beq .check
+    cmp #$000c
+    beq .check
+    cmp #$0012
+    beq .check
+    cmp #$0013
+    beq .check
+    cmp #$0014
+    beq .check
+    cmp #$0015
+    beq .check
+    cmp #$0016
+    beq .check
+    cmp #$0017
+    beq .check
+    cmp #$0018
+    beq .check
+    ; inapplicable game state, so skip check for quick reload inputs.
+    jsl $808338  ; run hi-jacked instruction
+    rtl
+.check:
+    jsl $808338  ; run hi-jacked instruction
+    jmp check_reload
 
 
 check_reload:
@@ -159,7 +154,7 @@ setup_game_2:
     jsl $82e071
     jml $80a0d2
 .quick
-    jml $80a0d5
+    jml $80a0d9
 
 setup_game_3:
     jsl $82be17       ; Stop sounds
@@ -199,7 +194,6 @@ setup_game_3:
 
     lda $07c9
     jsl $808fc1
-
 
     jml $80a122
 

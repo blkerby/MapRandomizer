@@ -17,14 +17,279 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-79---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release79">Version 79 (2023-08-12)</a>:
+<p><a href="https://version-93---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release93">Version 93 (2023-11-05)</a>:
+<ul>
+<li>A new "Map layout" option is added, with two options "Tame" and "Wild":
+    <ul>
+    <li>"Tame" uses a new map pool in which return paths from one-ways are shorter on average.
+    <li>"Wild" uses the same map pool as in previous versions.
+    </ul>
+<li>Crateria music is changed to use the full variety of available tracks:
+    <ul>
+    <li>The subarea containing the Ship continues to play the Prologue song initially:
+        <ul>
+        <li>If Power Bombs are obtained, it plays the "Return to Crateria" song.
+        <li>If Zebes is awake, without Power Bombs, it plays the plain stormy track (no music).
+        </ul>
+    <li>The subarea not containing the Ship initially plays the stormy Zebes asleep music.
+        <ul>
+        <li>If Zebes is awake, it plays the "Space Pirates" music.
+        <li>If Power Bombs are obtained, without Zebes awake, it plays the non-stormy Zebes asleep music.
+        </ul>
+    </ul>
+<li>Wrecked Ship music is changed to no longer depend on subarea, only on if Phantoon is defeated.
+<li>A new tile theme option "Upper Norfair" is available.
+</ul>
+
+<p><a href="https://version-92---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release92">Version 92 (2023-11-02)</a>:
+<ul>
+<li>Some map colors are brightened, to improve contrast with water rooms.
+<li>Website updates:
+    <ul>
+    <li>Room, tech, and strat logic pages now include animated GIFs for notable strats.
+    <li>Clicking on an animated GIF opens a full video with input display.
+    <li>Double-clicking a room in the interactive spoiler map opens the room's logic page.
+    <li>In spoiler map routes, non-trivial steps link to the strat's logic page.
+    </ul>
+<li>Tile themes:
+    <ul>
+    <li>Fix to the Maridia tube across all themes.
+    <li>Various minor improvements to the "Green Brinstar" theme.
+    </ul>
+<li>Logic update:
+    <ul>
+    <li>New notable strat "Botwoon Hallway Reverse Shinespark" (Very Hard).
+    </ul>
+</ul>
+
+<p><a href="https://version-91---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release91">Version 91 (2023-10-30)</a>:
+<ul>
+<li>Significant bodies of water are indicated on the map by a dark/checkered background.
+<li>Several bugfixes to "Green Brinstar" tile theme.
+</ul>
+
+<p><a href="https://version-90---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release90">Version 90 (2023-10-28)</a>:
+<ul>
+<li>The lower two item progression presets are renamed:
+    <ul>
+    <li>"Quick" is renamed to "Normal".
+    <li>"Standard" is renamed to "Tricky".
+    <li>"Challenge" remains unchanged.
+    </ul>
+<li>The item progression rate "Normal" is renamed to "Uniform".
+<li>MSU-1 support is now included.
+<li>New map pool:
+    <ul>
+    <li>Maps are more connected, having shorter paths from one end of the map to the other.
+    <li>Save station balancing is improved a little more.
+    </ul>
+<li>A new setting "Heated door stuck setup leniency" is added under "Skill assumptions".
+<li>A new tile theme option "Green Brinstar" is available.
+<li>Bugfixes:
+    <ul>
+    <li>Fix to bug where Phantoon could be locked behind Bowling Alley.
+    <li>Fix to bug where certain cross-room shinesparks could be missing logical requirements.
+    </ul>
+<li>Website updates:
+    <ul>
+    <li>Home page updated with a new section "How to not get stuck".
+    <li>Animated GIFs added for more tech and notable strats.
+    </ul>
+<li>Logic updates (highlights):
+    <ul>
+    <li>Many new cross-room shinespark strats are added.
+    <li>New notable strats:
+        <ul>
+        <li>Gauntlet Entrance Shinecharge Under Yapping Maw (Very Hard)
+        <li>Warehouse Kihunter Room Tunnel Charge (Very Hard)
+        <li>Warehouse Kihunter Room Bottom Spark Out (Very Hard)
+        </ul>
+    </ul>
+</ul>
+
+<p><a href="https://version-89---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release89">Version 89 (2023-10-18)</a>:
+<ul>
+<li>New tile theme option "InnerCrateria" (under "Other options" on the customization/seed page).
+<li>New map pool with improved balance of save stations.
+<li>Logic updates (highlights):
+    <ul>
+    <li>Fixes to several logic bugs.
+    <li>Start a process of refining cross-room strats (only partially complete):
+        <ul>
+        <li>More cross-room strats are now shown in the logic pages (e.g., "Leave with Runway" and "Leave Shinecharged" strats).
+        <li>Effective runway lengths are calculated more accurately for shortcharges, taking slopes into account.
+        <li>Heat frames are calculated more accurately for cross-room strats using runways.
+        </ul>
+    <li>New tech "canSpeedKeep" (Insane).
+    <li>New notable strats:
+        <ul>
+            <li>East Ocean Floor Shinespark Left (Very Hard)
+            <li>West Ocean Floor Shinecharge, Fast Spacejump Wallclimb to Gravity Door (Very Hard)
+            <li>West Ocean Floor Shinecharge, Fast Wallclimb to Gravity Door (Expert)
+            <li>West Ocean Shinespark, Morph Tunnel Rush (Expert)
+            <li>PCJR Left Side Diagonal Shinespark (Expert)
+            <li>Croc Escape Ice Only Geruta Platforming (Expert)
+            <li>Crateria Supers In-Room X-Mode BlueSuit (Extreme)
+            <li>Climb Supers In-Room SpeedKeep for Temporary Blue (Insane)
+            <li>Lower Norfair Jail Crystal Flash Clip (Insane)
+        </ul>
+    </ul>
+</ul>
+
+<p><a href="https://version-88---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release88">Version 88 (2023-09-30)</a>:
+<ul>
+<li>New map pool:
+    <ul>
+    <li>Further increase in variety of room connections
+    <li>Some tendency for map stations to be centrally located in their area (rather than being closer to Landing Site)
+    <li>Minor improvements to balancing of save stations
+    </ul>
+<li>A few more fixes to the experimental customization option "Tile theme".
+</ul>
+
+<p><a href="https://version-87---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release87">Version 87 (2023-09-16)</a>:
+<ul>
+<li>Many bugfixes to the experimental customization option "Tile theme".
+</ul>
+
+<p><a href="https://version-86---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release86">Version 86 (2023-09-14)</a>:
+<ul>
+<li>New experimental customization option "Tile theme".
+</ul>
+
+<p><a href="https://version-85---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release85">Version 85 (2023-09-09)</a>:
+<ul>
+<li>Parallelism is used to accelerate seed generation, so timeouts should not occur as frequently.
+<li>Logic updates (highlights):
+    <ul>
+    <li>New tech:
+        <ul>
+        <li>canUpwardGModeSetup (Extreme)
+        <li>canUnderwaterBombIntoSpringBallJump (Insane)
+        </ul>
+    <li>New notable strats:
+        <ul>
+        <li>WRITG with PowerBombs and a Jump Assist (Expert)
+        <li>West Sand Hall Suitless Damage Boost Center to Left (Extreme)
+        <li>Landing Site Crystal Flash X-Ray Climb (Extreme)
+        <li>Cacatac Alley HiJumpless Double SpringBall Jump and Bomb-Grapple-Jump (Insane)
+        <li>Climb Morph Tunnel SpeedBall (Insane)
+        </ul>
+    </ul>
+</ul>
+
+<p><a href="https://version-84---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release84">Version 84 (2023-09-01)</a>:
+<ul>
+<li>Added a "Maybe" option for "Save the animals".
+<li>Ammo door markers disappear from the map after they are unlocked.
+<li>While Zebes is asleep, prologue music is used in the Crateria sub-area containing the Ship.
+<li>Fixes to some bugs:
+    <ul>
+    <li>Hazard markings didn't show up in Homing Geemer Room, East Pants Room, and Aqueduct.
+    <li>Palette colors were messed up in the equipment screen of the pause menu.
+    <li>Quick reloading on the same frame as another game state change (e.g., death, pause, unpause) caused strange behavior.
+    <li>When quick reloading in item/elevator rooms, sometimes the music would not change tracks.
+    </ul>
+</ul>
+
+<p><a href="https://version-83---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release83">Version 83 (2023-08-29)</a>:
+<ul>
+<li>Fixes to several bugs:
+    <ul>
+    <li>Ammo door were sometimes placed in Kraid's room, conflicting with the gray doors.
+    <li>Spore Spawn Room gray door shared a state with an ammo door in a different room.
+    <li>Ammo doors did not spawn correctly in Homing Geemer Room and Aqueduct.
+    <li>Red and green ammo door graphics in Red Brinstar Elevator Room did not initially appear.
+    <li>Item dot was not drawn in Bomb Torizo Room with the "Save the animals" option.
+    </ul>
+<li>Logic updates:
+    <ul>
+    <li>New tech "canSpeedball" (Very Hard).
+        <ul>
+        <li>This helps limit the difficulty of tricks enabled by "canMockball" (Hard)
+        </ul>
+    <li>New notable strats:
+        <ul>
+        <li>Big Pink Zeb Ice Clip (Expert)
+        <li>Big Pink Reo Ice Clip (Extreme)
+        <li>Big Pink Wall Ice Clip the Mission Impossible Crumble Blocks (Extreme)
+        <li>Green Hills Grapple Gate Glitch (Extreme)
+        </ul>
+    </ul>
+</ul>
+
+<p><a href="https://version-82---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release82">Version 82 (2023-08-27)</a>:
+<ul>
+<li>Fixed issue that could cause a crash when leaving Mother Brain Room on the left before the escape 
+    (a bug introduced in version 81).
+</ul>
+
+<p><a href="https://version-81---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release81">Version 81 (2023-08-26)</a>:
+<ul>
+<li>New "Ammo" doors option is added, for randomizing door colors (disabled by default).
+<li>All item progression presets now have Late priority for Varia, Gravity, and Screw Attack.
+<li>Logic updates: 
+    <ul>
+    <li>The following tech can now be toggled (previously they were implicitly assumed):
+        <ul>
+        <li>canDisableEquipment (Medium)
+        <li>canPseudoScrew (Medium)
+        <li>canCameraManip (Medium)
+        </ul>
+    <li>New tech canTrickySpringBallJump is added (Hard).
+        <ul>
+        <li>This helps limit the difficulty of strats enabled by canSpringBallJumpMidAir (Medium).
+        </ul>
+    <li>New notable strats are added:
+        <ul>
+        <li>Main Street Climb with Ice and Spring Ball (Expert)
+        <li>East Ocean Springball Bounce to the Door with SpaceJump (Extreme)
+        <li>Spring Ball Room Escape - Suitless, Bootless, Bomb into Springball Jump (Insane)
+        <li>East Sand Hole Insane Walljump Morph (Insane)
+        </ul>
+    <li>Green Hill Zone X-Ray Wiggle is now a notable strat and is moved from Very Hard to Expert.
+    </ul>
+</ul>
+
+<p><a href="https://version-80---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release80">Version 80 (2023-08-20)</a>:
+<ul>
+<li>Changes to "Other options":
+    <ul>
+    <li>New option "Guaranteed early save station" is added (disabled by default).
+    <li>Option to make item dots disappear after collection is added back.
+    <li>Option "Area transitions marked as letters on map" is moved to "Other options".
+    </ul>
+<li>Adjustments to "Challenge" item progression:
+    <ul>
+    <li>Morph is set to "Default" priority instead of "Late".
+    <li>Screw Attack is set to "Late" priority instead of "Default".
+    </ul>
+<li>Logic updates:
+    <ul>
+    <li>Fixed randomizer bug where heated gate glitch leniency did not take into account Varia suit.
+    <li>Notable strat "East Ocean Space Jump Water Escape (Left to Right)" is moved from Expert to Extreme.
+    <li>Several more strats are added in East Ocean.
+    </ul>
+</ul>
+
+<p><a href="https://version-79---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release79">Version 79 (2023-08-15)</a>:
 <ul>
 <li>Some more improvement to map clarity (minimap and pause map):
     <ul>
     <li>Gray doors are marked on the map.
-    <li>The "Save The Animals" option no longer causes Bomb Torizo Room to be marked with an X on the map.
+    <li>The "Save The Animals" option no longer causes Bomb Torizo Room to be marked with an X on the map
+        (so the item dot shape is now visible again).
     </ul>
-<li>Fixed graphical glitches in Kraid Room and Kraid Eye Door Room involving hazard tiles (introduced in version 78).
+<li>Fixed some bugs involving hazard markers (introduced in version 78):
+    <ul>
+    <li>Fixed graphical glitches in Kraid Room and Kraid Eye Door Room.
+    <li>Fixed memory corruption bug in Tourian Escape Room 1 when hazard markers occur on the right.
+    </ul>
+<li>Fixed RNG initialization in rooms with Sidehoppers, Dessgeegas, and Beetoms.
+    <ul>
+    <li>Enemies in these rooms should now consistently behave like they do in the vanilla game.
+    </ul>
+<li>Logic updates: Heat frames tightened in several rooms.
 </ul>
 
 <p><a href="https://version-78---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release78">Version 78 (2023-08-10)</a>:

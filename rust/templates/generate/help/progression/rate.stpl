@@ -15,16 +15,16 @@
         <p>This setting affects the quantity of key items that the randomizer places on each step:</p> 
         
         <ul>
-        <li><p><strong>Fast</strong>: Key items are placed at double the normal rate, concentrating them in locations 
+        <li><p><strong>Fast</strong>: Key items are placed at double that of a uniform rate, concentrating them in locations 
         accessible earlier in the game. By the time 50% of items are obtainable, all key items should be obtainable.</p>
-        <li><p><strong>Normal</strong>: Key items are placed at a uniform rate. By the middle of the game there will likely 
-            be many possible ways to progress.</p>
+        <li><p><strong>Uniform</strong>: Key items are placed at a uniform rate. By the middle of the game there will likely 
+        be many possible ways to progress.</p>
         <li><p><strong>Slow</strong>: At most one key item is placed at each step. This tends to limit the player to a
-            linear progression sequence, with many key items not being accessible until near the end of the game.</p>
+        linear progression sequence, with many key items not being accessible until near the end of the game.</p>
         </ul>
 
         <h5>Details</h5>
-        <p>With a Normal progression rate, on a given step, the proportion of item locations to fill with key items (as opposed to filler items)
+        <p>With a Uniform progression rate, on a given step, the proportion of item locations to fill with key items (as opposed to filler items)
         is targeted to match the fraction of key items among all unplaced items; in other words, the amount of key items to be
         placed is roughly equal to the expected (average) amount if items were to be drawn completely randomly from the pool of unplaced items.</p>
 

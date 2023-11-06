@@ -699,16 +699,6 @@
         "y": 58
     },
     {
-        "name": "Cathedral",
-        "room_id": 91,
-        "node_id": 4,
-        "door_load_node_id": 2,
-        "x": 24.5,
-        "y": 10,
-        "spicy": true,
-        "requires": ["canHeatRun"]
-    },
-    {
         "name": "Cathedral Entrance",
         "room_id": 90,
         "node_id": 3,
@@ -717,6 +707,33 @@
         "y": 22,
         "spicy": true,
         "requires": ["canHeatRun"]
+    },
+    {
+        "name": "Cathedral Left",
+        "room_id": 91,
+        "node_id": 1,
+        "x": 6.5,
+        "y": 26,
+        "spicy": true,
+        "requires": ["canHeatRun", {"heatFrames": 180}]
+    },
+    {
+        "name": "Cathedral Right",
+        "room_id": 91,
+        "node_id": 2,
+        "x": 41.5,
+        "y": 16,
+        "camera_offset_y": 4,
+        "spicy": true,
+        "requires": [
+            "canHeatRun",
+            {"enemyDamage": {
+                "enemy": "Sova",
+                "type": "contact",
+                "hits": 1
+            }},
+            {"heatFrames": 120}
+        ]
     },
     {
         "name": "Double Chamber Left",
@@ -775,7 +792,7 @@
     {
         "name": "Kronic Boost Room Right",
         "room_id": 113,
-        "node_id": 6,
+        "node_id": 5,
         "door_load_node_id": 3,
         "x": 26,
         "y": 25,
@@ -917,7 +934,7 @@
         "node_id": 1,
         "x": 26.5,
         "y": 9,
-        "requires": ["canHeatRun", {"heatFrames": 390}],
+        "requires": ["canHeatRun", {"heatFrames": 340}],
         "spicy": true,
         "note": [
             "Getting to the left is easier when starting from a new game or loading from the menu:",
@@ -927,7 +944,8 @@
             "It can also be done from a quick reload (after death or with L + R + Select + Start) but this is more difficult because the moving platform is not in an ideal position:",
             "use spin jumps with ledge grabs onto the floor to move quickly and minimize lava damage;",
             "spin jump onto the moving platform after you are past the last spike."
-        ]        
+        ],
+        "devNote": ["This could be done in 320 heat frames, but we use a higher value since we don't want this coming into logic below Expert."]
     },
     {
         "name": "Spiky Platforms Tunnel Right",
@@ -1978,8 +1996,7 @@
     {
         "name": "Seaweed Room",
         "room_id": 233,
-        "node_id": 4,
-        "door_load_node_id": 1,
+        "node_id": 1,
         "x": 3.5,
         "y": 9
     },

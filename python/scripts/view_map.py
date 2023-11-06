@@ -11,16 +11,18 @@ from rando.items import Randomizer, ItemPlacementStrategy
 # map = json.load(open('maps/session-2022-06-03T17:19:29.727911.pkl-bk30/927666.json', 'r'))
 # map = json.load(open('maps/session-2022-06-03T17:19:29.727911.pkl-bk30/611640.json', 'r'))
 # map = json.load(open('maps/session-2022-06-03T17:19:29.727911.pkl-bk30-subarea-balance/1111166.json', 'r'))
-map = json.load(open('maps/session-2022-06-03T17:19:29.727911.pkl-bk30-subarea-balance/6066.json', 'r'))
+# map = json.load(open('maps/session-2022-06-03T17:19:29.727911.pkl-bk30-subarea-balance/6066.json', 'r'))
+map = json.load(open('maps/session-2023-06-08T14:55:16.779895.pkl-small-51-subarea-balance-2/10003.json', 'r'))
 
-map2 = re
+#
 # map = json.load(open('maps/testmap.json', 'r'))
 display = MapDisplay(72, 72, 20)
 xy = np.array(map['rooms'])
 for room in rooms:
     room.populate()
 # display.display_vanilla_areas(map)
-display.display_assigned_areas(map)
+# display.display_assigned_areas(map)
+display.display_assigned_areas_with_saves(map)
 display.image.show()
 
 # sm_json_data_path = "sm-json-data/"

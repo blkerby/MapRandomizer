@@ -73,7 +73,7 @@ rooms = [
         },
     ),
     Room(
-        name='Parlor and Alcatraz',
+        name='Parlor And Alcatraz',
         rom_address=0x792FD,
         map=[
             [1, 1, 1, 1, 1],

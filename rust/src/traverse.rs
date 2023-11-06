@@ -571,7 +571,7 @@ fn apply_gate_glitch_leniency(
     heated: bool,
     difficulty: &DifficultyConfig,
 ) -> Option<LocalState> {
-    if heated {
+    if heated && !global.items[Item::Varia as usize] {
         local.energy_used +=
             (difficulty.gate_glitch_leniency as f32 * difficulty.resource_multiplier * 60.0) as i32;
         local = match validate_energy(local, global) {
@@ -601,6 +601,7 @@ pub fn apply_requirement(
     local: LocalState,
     reverse: bool,
     difficulty: &DifficultyConfig,
+    game_data: &GameData,
 ) -> Option<LocalState> {
     match req {
         Requirement::Free => Some(local),
@@ -645,16 +646,16 @@ pub fn apply_requirement(
         }
         Requirement::HeatFrames(frames) => {
             let varia = global.items[Item::Varia as usize];
-            // let gravity = global.items[Item::Gravity as usize];
             let mut new_local = local;
             if varia {
                 Some(new_local)
-            // } else if gravity {
-            //     new_local.energy_used += multiply(frames / 8, difficulty);
-            //     validate_energy(new_local, global)
             } else {
-                new_local.energy_used += multiply(frames / 4, difficulty);
-                validate_energy(new_local, global)
+                if !global.tech[game_data.heat_run_tech_id] {
+                    None
+                } else {
+                    new_local.energy_used += multiply(frames / 4, difficulty);
+                    validate_energy(new_local, global)    
+                }
             }
         }
         Requirement::LavaFrames(frames) => {
@@ -721,6 +722,16 @@ pub fn apply_requirement(
         }
         Requirement::GateGlitchLeniency { green, heated } => {
             apply_gate_glitch_leniency(local, global, *green, *heated, difficulty)
+        }
+        Requirement::HeatedDoorStuckLeniency { heat_frames } => {
+            if !global.items[Item::Varia as usize] {
+                let mut new_local = local;
+                new_local.energy_used +=
+                    (difficulty.door_stuck_leniency as f32 * difficulty.resource_multiplier * *heat_frames as f32) as i32;
+                validate_energy(new_local, global)
+            } else {
+                Some(local)
+            }
         }
         Requirement::MissilesCapacity(count) => {
             if global.max_missiles >= *count {
@@ -850,37 +861,40 @@ pub fn apply_requirement(
         }
         Requirement::ShineCharge {
             used_tiles,
-            shinespark_frames,
-            excess_shinespark_frames,
-            shinespark_tech_id,
         } => {
-            if (global.tech[*shinespark_tech_id] || *shinespark_frames == 0)
-                && global.items[Item::SpeedBooster as usize]
+            if global.items[Item::SpeedBooster as usize]
                 && *used_tiles >= global.shine_charge_tiles
             {
+                Some(local)
+            } else {
+                None
+            }
+        }
+        Requirement::Shinespark {
+            frames,
+            excess_frames,
+            shinespark_tech_id,
+        } => {
+            if global.tech[*shinespark_tech_id] {
                 let mut new_local = local;
-                if *shinespark_frames == 0 {
-                    Some(new_local)
-                } else {
-                    if reverse {
-                        if new_local.energy_used <= 28 {
-                            new_local.energy_used =
-                                28 + shinespark_frames - excess_shinespark_frames;
-                        } else {
-                            new_local.energy_used += shinespark_frames;
-                        }
-                        validate_energy(new_local, global)
+                if reverse {
+                    if new_local.energy_used <= 28 {
+                        new_local.energy_used =
+                            28 + frames - excess_frames;
                     } else {
-                        new_local.energy_used += shinespark_frames - excess_shinespark_frames + 28;
-                        if let Some(mut new_local) = validate_energy(new_local, global) {
-                            let energy_remaining = global.max_energy - new_local.energy_used - 1;
-                            new_local.energy_used +=
-                                std::cmp::min(*excess_shinespark_frames, energy_remaining);
-                            new_local.energy_used -= 28;
-                            Some(new_local)
-                        } else {
-                            None
-                        }
+                        new_local.energy_used += frames;
+                    }
+                    validate_energy(new_local, global)
+                } else {
+                    new_local.energy_used += frames - excess_frames + 28;
+                    if let Some(mut new_local) = validate_energy(new_local, global) {
+                        let energy_remaining = global.max_energy - new_local.energy_used - 1;
+                        new_local.energy_used +=
+                            std::cmp::min(*excess_frames, energy_remaining);
+                        new_local.energy_used -= 28;
+                        Some(new_local)
+                    } else {
+                        None
                     }
                 }
             } else {
@@ -902,15 +916,18 @@ pub fn apply_requirement(
         Requirement::ComeInWithGMode { .. } => {
             panic!("ComeInWithGMode should be resolved during preprocessing")
         }
+        Requirement::DoorUnlocked { .. } => {
+            panic!("DoorUnlocked should be resolved during preprocessing")
+        }
         Requirement::And(reqs) => {
             let mut new_local = local;
             if reverse {
                 for req in reqs.into_iter().rev() {
-                    new_local = apply_requirement(req, global, new_local, reverse, difficulty)?;
+                    new_local = apply_requirement(req, global, new_local, reverse, difficulty, game_data)?;
                 }
             } else {
                 for req in reqs {
-                    new_local = apply_requirement(req, global, new_local, reverse, difficulty)?;
+                    new_local = apply_requirement(req, global, new_local, reverse, difficulty, game_data)?;
                 }
             }
             Some(new_local)
@@ -919,7 +936,7 @@ pub fn apply_requirement(
             let mut best_local = None;
             let mut best_cost = f32::INFINITY;
             for req in reqs {
-                if let Some(new_local) = apply_requirement(req, global, local, reverse, difficulty)
+                if let Some(new_local) = apply_requirement(req, global, local, reverse, difficulty, game_data)
                 {
                     let cost = compute_cost(new_local, global);
                     if cost < best_cost {
@@ -990,7 +1007,7 @@ pub fn traverse(
     start_vertex_id: usize,
     reverse: bool,
     difficulty: &DifficultyConfig,
-    _game_data: &GameData, // May be used for debugging
+    game_data: &GameData,
 ) -> TraverseResult {
     let mut modified_vertices: HashSet<usize> = HashSet::new();
     let mut result: TraverseResult;
@@ -1044,6 +1061,7 @@ pub fn traverse(
                     src_local_state,
                     reverse,
                     difficulty,
+                    game_data,
                 ) {
                     let dst_new_cost = compute_cost(dst_new_local_state, global);
                     if dst_new_cost < dst_old_cost {

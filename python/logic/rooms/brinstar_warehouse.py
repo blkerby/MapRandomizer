@@ -84,7 +84,7 @@ rooms = [
     ),
     Room(
         # TODO: add this to wiki.supermetroid.run/List_of_rooms because it is missing.
-        name='Warehouse Save Room',
+        name='Kraid Save Room',
         rom_address=0x7A70B,
         map=[[1]],
         door_ids=[

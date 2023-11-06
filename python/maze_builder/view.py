@@ -1,12 +1,11 @@
-import time
 
 import torch
 import logging
 from maze_builder.env import MazeBuilderEnv
 from maze_builder.types import reconstruct_room_data, Direction
 import logic.rooms.all_rooms
-import logic.rooms.crateria_isolated
-import logic.rooms.norfair_isolated
+# import logic.rooms.crateria_isolated
+# import logic.rooms.norfair_isolated
 import pickle
 import concurrent.futures
 import random
@@ -36,28 +35,83 @@ device = torch.device('cpu')
 # session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small', 'rb')).load()
 # session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-10', 'rb')).load()
 # session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-16', 'rb')).load()
-session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-22', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-22', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-34', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-43', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-50', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-61', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-63', 'rb')).load()
+session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-70', 'rb')).load()
 #
-
 
 print(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects.to(torch.float32), dim=0)))
 min_reward = torch.min(session.replay_buffer.episode_data.reward)
 print(min_reward, torch.mean((session.replay_buffer.episode_data.reward == min_reward).to(torch.float32)),
       session.replay_buffer.episode_data.reward.shape[0])
 
+S = session.replay_buffer.episode_data.save_distances.to(torch.float32)
+S = torch.where(S == 255, torch.full_like(S, float('nan')), S)
+S = torch.nanmean(S, dim=1)
+# print(torch.nanmean(S))
+
+M = session.replay_buffer.episode_data.mc_distances.to(torch.float32)
+M = torch.where(M == 255, torch.full_like(M, float('nan')), M)
+M = torch.nanmean(M, dim=1)
+
 # ind = torch.nonzero((session.replay_buffer.episode_data.reward >= 340) & (session.replay_buffer.episode_data.temperature > 0.5))
 # ind = torch.nonzero((session.replay_buffer.episode_data.reward >= 343) & (session.replay_buffer.episode_data.temperature < 0.05))
 # ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 343)
 # ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 0)
 # ind = ind[(ind >= 200000) & (ind < 262144)].view(-1, 1)
-ind = torch.nonzero(session.replay_buffer.episode_data.reward == min_reward)
+num_feasible = torch.nonzero((session.replay_buffer.episode_data.reward == min_reward)).shape[0]
+
+ind = torch.nonzero(
+    (session.replay_buffer.episode_data.reward == min_reward) &
+    # (S < 3.90) &
+    # (session.replay_buffer.episode_data.graph_diameter <= 45) &
+    (session.replay_buffer.episode_data.mc_dist_coef > 0.0)
+)[:, 0]
+
+print(sorted(M[ind].tolist()))
+print(sorted(torch.amax(session.replay_buffer.episode_data.mc_distances[ind], dim=1).tolist()))
+print(torch.mean(torch.amax(session.replay_buffer.episode_data.mc_distances[ind], dim=1).to(torch.float)))
+
+# print(sorted(M[ind].tolist()))
+# print(torch.where(session.replay_buffer.episode_data.graph_diameter[ind] == 29))
+
+print("success rate: ", ind.shape[0] / num_feasible)
 i = int(random.randint(0, ind.shape[0] - 1))
 print(len(ind), i)
 # i = 2
+# i = 389
 num_rooms = len(session.envs[0].rooms)
+print("mean save_distance:", torch.mean(session.replay_buffer.episode_data.save_distances[ind].to(torch.float)))
+print("mean diam:", torch.mean(session.replay_buffer.episode_data.graph_diameter[ind].to(torch.float)))
+print("max diam:", torch.max(session.replay_buffer.episode_data.graph_diameter[ind]))
+print("min diam:", torch.min(session.replay_buffer.episode_data.graph_diameter[ind]))
+print("diam:", session.replay_buffer.episode_data.graph_diameter[ind[i]])
+
 action = session.replay_buffer.episode_data.action[ind[i], :]
+# action = session.replay_buffer.episode_data.action[ind[:16], :]
 step_indices = torch.tensor([num_rooms])
 room_mask, room_position_x, room_position_y = reconstruct_room_data(action, step_indices, num_rooms)
+
+
+# env = session.envs[0]
+# A = env.compute_part_adjacency_matrix(room_mask, room_position_x, room_position_y)
+# # A = env.compute_part_adjacency_matrix(env.room_mask, env.room_position_x, env.room_position_y)
+# D = env.compute_distance_matrix(A)
+
+
+# env = session.envs[0]
+# A = env.compute_part_adjacency_matrix(room_mask, room_position_x, room_position_y)
+# A = env.compute_part_adjacency_matrix(env.room_mask, env.room_position_x, env.room_position_y)
+# D = env.compute_distance_matrix(A)
+# S = env.compute_save_distances(D)
+# M = env.compute_missing_connections(A)
+# print(torch.sum(M, dim=1))
+
+
 
 # print(torch.where(session.replay_buffer.episode_data.missing_connects[ind[i, 0], :] == False))
 # print(torch.where(room_mask[0, :251] == False))
@@ -115,6 +169,13 @@ env.room_mask = room_mask
 env.render(0)
 env.map_display.image.show()
 
+# A = env.compute_part_adjacency_matrix(room_mask, room_position_x, room_position_y)
+# D = env.compute_distance_matrix(A)
+# S = env.compute_save_distances(D)
+
+
+
+
 # for i in range(num_rooms + 1):
 #     step_indices = torch.tensor([i])
 #     room_mask, room_position_x, room_position_y = reconstruct_room_data(action, step_indices, num_rooms)
@@ -144,3 +205,4 @@ env.map_display.image.show()
 #     # render=True)
 # end_time = time.perf_counter()
 # print(end_time - start_time)
+# print(len(env.single_tile_idxs))

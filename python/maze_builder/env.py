@@ -71,9 +71,21 @@ class MazeBuilderEnv:
 
         self.init_room_data()
         self.init_part_data()
+        # Index single-tile rooms that have the same shape as a save station room (so no up or down doors).
+        # Include Landing Site as well since the Ship can be used as a save.
+        def is_potential_save_room(room):
+            return room.name == "Landing Site" or (room.width == 1 and room.height == 1 and room.door_up[0][0] == 0 and room.door_down[0][0] == 0
+                and room.sand_up[0][0] == 0 and room.sand_down[0][0] == 0)
+        self.potential_save_idxs = torch.tensor(
+            [i for i in range(len(rooms)) if is_potential_save_room(rooms[i])],
+            dtype=torch.int64, device=device)
+        self.non_potential_save_idxs = torch.tensor(
+            [i for i in range(len(rooms)) if not is_potential_save_room(rooms[i])],
+            dtype=torch.int64, device=device)
         self.init_cpu_data()
         self.num_doors = int(torch.sum(self.room_door_count))
         self.num_missing_connects = self.missing_connection_src.shape[0]
+        self.num_save_dist = self.potential_save_idxs.shape[0]
         # self.num_missing_connects = self.num_parts * 2
         self.max_reward = self.num_doors // 2 + self.num_missing_connects
         self.reset()
@@ -827,6 +839,32 @@ class MazeBuilderEnv:
 
         return adjacency_matrix
 
+    def compute_distance_matrix(self, adjacency_matrix):
+        A = adjacency_matrix.to(torch.int16)
+        n = adjacency_matrix.shape[0]
+        k = adjacency_matrix.shape[1]
+        A = torch.where(torch.eye(k, device=adjacency_matrix.device) == 1, torch.zeros_like(A),
+                        torch.where(adjacency_matrix > 0, torch.full_like(A, 1), torch.full_like(A, 0xff)))
+        for i in range(8):
+            A1 = torch.transpose(A, 1, 2).view(n, k, k, 1)
+            A2 = A.view(n, k, 1, k)
+            A_sum = A1 + A2
+            A = torch.amin(A_sum, dim=1)
+        # print(torch.amax(A[:, :-1, :-1], dim=[1, 2]))
+        return A
+
+    def compute_save_distances(self, distance_matrix):
+        n = distance_matrix.shape[0]
+        A1 = distance_matrix[torch.arange(n).view(-1, 1, 1), self.non_potential_save_idxs.view(1, -1, 1), self.potential_save_idxs.view(1, 1, -1)]
+        A2 = distance_matrix[torch.arange(n).view(-1, 1, 1), self.potential_save_idxs.view(1, 1, -1), self.non_potential_save_idxs.view(1, -1, 1)]
+        A = torch.amin(A1, dim=2) + torch.amin(A2, dim=2)
+        return torch.clamp_max(A, 255).to(torch.uint8)
+
+    def compute_graph_diameter(self, distance_matrix):
+        return torch.amax(torch.where(distance_matrix == 255, torch.zeros_like(distance_matrix), distance_matrix), dim=[1, 2])
+
+    def compute_mc_distances(self, distance_matrix):
+        return distance_matrix[:, self.missing_connection_src, self.missing_connection_dst]
 
     def compute_component_matrices(self, adjacency_matrix):
         component_matrix = adjacency_matrix

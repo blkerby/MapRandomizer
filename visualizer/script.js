@@ -110,7 +110,7 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 	doors = c;
 }).then(_ => fetch(`../spoiler.json`)).then(c => c.json()).then(c => {
 	// generate map
-	let map = new Array(72*72);
+	let map = new Array(72*72).fill(-1);
 	for (let i in c.all_rooms) {
 		let v = c.all_rooms[i];
 		for (let y = 0; y < v.map.length; y++) {
@@ -183,8 +183,9 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 			let y = ((ev.offsetY / 24)|0) - 1;
 			if (x >= 0 && x < 72 && y >= 0 && y < 72) {
 				let tile = map[y*72+x];
-				if (tile > 0) {
+				if (tile >= 0) {
 					el.innerText = c.all_rooms[tile].room;
+					el.dataset.shortName = c.all_rooms[tile].short_name;
 					el.style.left = ev.offsetX + 16 + "px";
 					el.style.top = ev.offsetY + "px";
 					el.classList.remove("hidden");
@@ -297,7 +298,7 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 	}
 	document.getElementById("map").ondblclick = ev => {
 		if (!el.classList.contains("hidden")) {
-			window.open("https://wiki.supermetroid.run/" + encodeURIComponent(el.innerText), "_blank")
+			window.open("/logic/room/" + el.dataset.shortName.replace(/\s+/g, ''))
 		}
 	}
 	items: for (let v of c.all_items) {
@@ -387,14 +388,15 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 					si.innerHTML += `${k.node}<br>`;
 					let out = "";
 					if (k.strat_name != "Base" && k.strat_name != "(Door transition)") {
+						let strat_url = `/logic/room/${k.short_room}/${k.from_node_id}/${k.to_node_id}/${k.short_strat_name}`;
 						if (k.strat_notes) {
 							let title = "";
 							for (let i of k.strat_notes) {
 								title += `${i} `;
 							}
-							out += `Strat: <abbr title="${title}">${k.strat_name}</abbr><br>`;
+							out += `Strat: <a href=${strat_url}><abbr title="${title}">${k.strat_name}</abbr></a><br>`;
 						} else {
-							out += `Strat: ${k.strat_name}<br>`;
+							out += `Strat: <a href=${strat_url}>${k.strat_name}</a><br>`;
 						}
 					}
 					if (k.energy_remaining) {

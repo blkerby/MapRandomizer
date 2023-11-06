@@ -20,7 +20,6 @@
       <li>Patching out major glitches: Spacetime beam, GT code, and out-of-bounds (death trigger)
       <li>Removal of item fanfares
       <li>Fast decompression (for quicker room loading)
-      <li>Adjustment to the position of the left enemy in Tourian Blue Hopper Room
       <li>Camera fix when entering Kraid's, Crocomire's, or Spore Spawn's room
       <li>Graphical fixes when exiting boss rooms
       <li>Graphical fix to Bomb Torizo statue crumble animation
