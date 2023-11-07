@@ -1,0 +1,27 @@
+<DemoData>
+  <RoomData>
+    <Room Area="01" Id="2F" />
+    <Door Area="01" Id="2E" DoorIndex="01" />
+    <ScreenX>00</ScreenX>
+    <ScreenY>01</ScreenY>
+    <TileX>0</TileX>
+    <TileY>0</TileY>
+    <SamusX>FFBF</SamusX>
+    <SamusY>008B</SamusY>
+    <Frames>013F</Frames>
+    <RoomSetupCode>892B</RoomSetupCode>
+  </RoomData>
+  <MovieData>
+    <EquipmentFlags>0104</EquipmentFlags>
+    <MissileCount>0019</MissileCount>
+    <SuperMissileCount>0005</SuperMissileCount>
+    <PowerBombCount>0000</PowerBombCount>
+    <HealthCount>012B</HealthCount>
+    <CollectedBeamFlags>0000</CollectedBeamFlags>
+    <EquippedBeamFlags>0000</EquippedBeamFlags>
+    <MovieInstructions InitCode="83BF" PreInstructionCode="8A9B">
+      <MovieInstruction Frames="0200" CurrentInput="0000" NewInput="0000" />
+    </MovieInstructions>
+  </MovieData>
+  <Setup>8A53</Setup>
+</DemoData>

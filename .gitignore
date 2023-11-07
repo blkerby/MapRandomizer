@@ -11,5 +11,7 @@ roms/
 rust/target/
 seeds/
 package-lock.json
+**/*.sfc
+**/*.smc
 tmp/
 patches/ips/items_test*.ips
