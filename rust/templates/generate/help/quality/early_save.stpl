@@ -15,6 +15,8 @@
         <p>This option ensures that a save station will be accessible early in the game, no later than
         during the second logical progression step. This has an effect only when using Random start location.
         </p>
+        <p>The Wrecked Ship Save Room, which is unusable until after Phantoon is defeated, does not count
+        as a logical save station for the purposes of this option.</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

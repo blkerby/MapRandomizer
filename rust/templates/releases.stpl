@@ -26,15 +26,14 @@ about 15 seconds to load.
     </ul>
 <li>Website update:
     <ul>
-    <li>Video playback controls are improved. 
-    Advancing forward and back by a frame is possible by pressing "." or "," respectively.
+    <li>Video playback controls are improved. Press "." or "," to move forward/back by a frame.
     </ul>
 <li>A development version of the randomizer/website is available at <a href="http://dev.maprando.com">dev.maprando.com</a>.
     <ul>
     <li>The development version will give a preview of the upcoming release.
     <li>It may have a higher chance of containing bugs.
-    <li>It may take longer to load, as fewer resources are allocated to it.
-    <li>Feel free to try it out and give us early feedback on new versions.
+    <li>It may run more slowly, as fewer resources are allocated to it.
+    <li>Feel free to try it out and give us early feedback on new features.
     </ul>
 </ul>
 
