@@ -24,7 +24,9 @@ use maprando::randomize::{
 };
 use maprando::seed_repository::{Seed, SeedFile, SeedRepository};
 use maprando::spoiler_map;
-use maprando::web::{AppData, MapRepository, Preset, PresetData, SamusSpriteCategory, HQ_VIDEO_URL_ROOT};
+use maprando::web::{
+    AppData, MapRepository, Preset, PresetData, SamusSpriteCategory, VersionInfo, HQ_VIDEO_URL_ROOT,
+};
 use rand::{RngCore, SeedableRng};
 use sailfish::TemplateOnce;
 use serde_derive::{Deserialize, Serialize};
@@ -67,26 +69,26 @@ struct AlreadyUnlockedTemplate {}
 #[derive(TemplateOnce)]
 #[template(path = "home.stpl")]
 struct HomeTemplate {
-    version: usize,
+    version_info: VersionInfo,
 }
 
 #[derive(TemplateOnce)]
 #[template(path = "releases.stpl")]
 struct ReleasesTemplate {
-    version: usize,
+    version_info: VersionInfo,
 }
 
 #[derive(TemplateOnce)]
 #[template(path = "about.stpl")]
 struct AboutTemplate {
-    version: usize,
+    version_info: VersionInfo,
     sprite_artists: Vec<String>,
 }
 
 #[derive(TemplateOnce)]
 #[template(path = "generate/main.stpl")]
 struct GenerateTemplate<'a> {
-    version: usize,
+    version_info: VersionInfo,
     progression_rates: Vec<&'static str>,
     item_placement_styles: Vec<&'static str>,
     objectives: Vec<&'static str>,
@@ -106,14 +108,18 @@ struct GenerateTemplate<'a> {
 }
 
 #[get("/")]
-async fn home(_app_data: web::Data<AppData>) -> impl Responder {
-    let home_template = HomeTemplate { version: VERSION };
+async fn home(app_data: web::Data<AppData>) -> impl Responder {
+    let home_template = HomeTemplate {
+        version_info: app_data.version_info.clone(),
+    };
     HttpResponse::Ok().body(home_template.render_once().unwrap())
 }
 
 #[get("/releases")]
-async fn releases(_app_data: web::Data<AppData>) -> impl Responder {
-    let changes_template = ReleasesTemplate { version: VERSION };
+async fn releases(app_data: web::Data<AppData>) -> impl Responder {
+    let changes_template = ReleasesTemplate {
+        version_info: app_data.version_info.clone(),
+    };
     HttpResponse::Ok().body(changes_template.render_once().unwrap())
 }
 
@@ -133,7 +139,7 @@ async fn about(app_data: web::Data<AppData>) -> impl Responder {
     sprite_artists.sort_by_key(|x| x.to_lowercase());
     sprite_artists.dedup();
     let about_template = AboutTemplate {
-        version: VERSION,
+        version_info: app_data.version_info.clone(),
         sprite_artists,
     };
     HttpResponse::Ok().body(about_template.render_once().unwrap())
@@ -151,7 +157,7 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         .collect();
     prioritizable_items.sort();
     let generate_template = GenerateTemplate {
-        version: VERSION,
+        version_info: app_data.version_info.clone(),
         progression_rates: vec!["Fast", "Uniform", "Slow"],
         item_placement_styles: vec!["Neutral", "Forced"],
         objectives: vec!["Bosses", "Minibosses", "Metroids", "Chozos", "Pirates"],
@@ -303,7 +309,7 @@ struct SeedHeaderTemplate<'a> {
     seed_name: String,
     timestamp: usize, // Milliseconds since UNIX epoch
     random_seed: usize,
-    version: usize,
+    version_info: VersionInfo,
     race_mode: bool,
     preset: String,
     item_progression_preset: String,
@@ -357,7 +363,7 @@ struct SeedFooterTemplate {
 #[derive(TemplateOnce)]
 #[template(path = "seed/customize_seed.stpl")]
 struct CustomizeSeedTemplate {
-    version: usize,
+    version_info: VersionInfo,
     spoiler_token_prefix: String,
     unlocked_timestamp_str: String,
     seed_header: String,
@@ -397,7 +403,7 @@ fn render_seed(
         .collect();
     let seed_header_template = SeedHeaderTemplate {
         seed_name: seed_name.to_string(),
-        version: VERSION,
+        version_info: app_data.version_info.clone(),
         random_seed: seed_data.random_seed,
         race_mode: seed_data.race_mode,
         timestamp: seed_data.timestamp,
@@ -632,7 +638,7 @@ async fn view_seed(info: web::Path<(String,)>, app_data: web::Data<AppData>) -> 
     match (seed_header, seed_footer) {
         (Ok(header), Ok(footer)) => {
             let customize_template = CustomizeSeedTemplate {
-                version: VERSION,
+                version_info: app_data.version_info.clone(),
                 unlocked_timestamp_str: String::from_utf8(unlocked_timestamp_str.unwrap_or(vec![]))
                     .unwrap(),
                 spoiler_token_prefix: spoiler_token_prefix.to_string(),
@@ -1205,7 +1211,7 @@ async fn randomize(
         // If we need a thread
         if (attempts.len() < max_threads) && (attempts_triggered < max_attempts) {
             attempts_triggered += 1;
-            attempt = Attempt{
+            attempt = Attempt {
                 attempt_num: attempts_triggered,
                 thread_handle: None,
                 map_seed: ((rng.next_u64() & 0xFFFFFFFF) as usize),
@@ -1223,18 +1229,36 @@ async fn randomize(
             attempt.thread_handle = Some(thread::spawn(move || -> Result<(Randomization, Rom)> {
                 let map = if difficulty.vanilla_map {
                     // TODO: this is hacky, clean it up:
-                    app_data_local.map_repositories["Tame"].get_vanilla_map(attempts_triggered_local).unwrap()
+                    app_data_local.map_repositories["Tame"]
+                        .get_vanilla_map(attempts_triggered_local)
+                        .unwrap()
                 } else {
                     if !app_data_local.map_repositories.contains_key(&map_layout) {
                         // TODO: it doesn't make sense to panic on things like this.
                         panic!("Unrecognized map layout option: {}", map_layout);
                     }
-                    app_data_local.map_repositories[&map_layout].get_map(attempts_triggered_local, map_seed_local).unwrap()
+                    app_data_local.map_repositories[&map_layout]
+                        .get_map(attempts_triggered_local, map_seed_local)
+                        .unwrap()
                 };
                 info!("Attempt {attempts_triggered_local}/{max_attempts}: Map seed={map_seed_local}, door randomization seed={door_randomization_seed_local}, item placement seed={item_placement_seed_local}");
-                let locked_doors = randomize_doors(&app_data_local.game_data, &map, &difficulty_tiers_local[0], door_randomization_seed_local);
-                let randomizer = Randomizer::new(&map, &locked_doors, &difficulty_tiers_local, &app_data_local.game_data);
-                let randomization = randomizer.randomize(attempts_triggered_local, item_placement_seed_local, display_seed)?;
+                let locked_doors = randomize_doors(
+                    &app_data_local.game_data,
+                    &map,
+                    &difficulty_tiers_local[0],
+                    door_randomization_seed_local,
+                );
+                let randomizer = Randomizer::new(
+                    &map,
+                    &locked_doors,
+                    &difficulty_tiers_local,
+                    &app_data_local.game_data,
+                );
+                let randomization = randomizer.randomize(
+                    attempts_triggered_local,
+                    item_placement_seed_local,
+                    display_seed,
+                )?;
                 let output_rom = make_rom(&local_rom, &randomization, &app_data_local.game_data)?;
                 Ok((randomization, output_rom))
             }));
@@ -1258,7 +1282,12 @@ async fn randomize(
         // Evaluate the oldest attempt
         attempt = attempts.pop().unwrap();
         attempt_num = attempt.attempt_num;
-        (randomization, output_rom) = match attempt.thread_handle.expect("thread_handle expected to be set").join().unwrap() {
+        (randomization, output_rom) = match attempt
+            .thread_handle
+            .expect("thread_handle expected to be set")
+            .join()
+            .unwrap()
+        {
             Ok(r) => r,
             Err(e) => {
                 info!("Failed randomization {attempt_num}/{max_attempts}: {}", e);
@@ -1482,6 +1511,8 @@ struct Args {
     static_visualizer: bool,
     #[arg(long)]
     parallelism: Option<usize>,
+    #[arg(long, action)]
+    dev: bool,
 }
 
 fn get_ignored_notable_strats() -> HashSet<String> {
@@ -1501,7 +1532,7 @@ fn get_ignored_notable_strats() -> HashSet<String> {
         "Mickey Mouse Crumble Jump IBJ",
         "G-Mode Morph Breaking the Maridia Tube Gravity Jump", // not usable because of canRiskPermanentLossOfAccess
         "Mt. Everest Cross Room Jump through Top Door", // currently unusable because of obstacleCleared requirement
-        "Halfie Climb Room Xray Climb Grapple Clip" // currently unusable because of door bypass
+        "Halfie Climb Room Xray Climb Grapple Clip",    // currently unusable because of door bypass
     ]
     .iter()
     .map(|x| x.to_string())
@@ -1563,8 +1594,10 @@ fn build_app_data() -> AppData {
     let start_locations_path = Path::new("data/start_locations.json");
     let hub_locations_path = Path::new("data/hub_locations.json");
     let etank_colors_path = Path::new("data/etank_colors.json");
-    let tame_maps_path = Path::new("../maps/session-2023-06-08T14:55:16.779895.pkl-small-71-subarea-balance-2");
-    let wild_maps_path = Path::new("../maps/session-2023-06-08T14:55:16.779895.pkl-small-64-subarea-balance-2");
+    let tame_maps_path =
+        Path::new("../maps/session-2023-06-08T14:55:16.779895.pkl-small-71-subarea-balance-2");
+    let wild_maps_path =
+        Path::new("../maps/session-2023-06-08T14:55:16.779895.pkl-small-64-subarea-balance-2");
     let samus_sprites_path = Path::new("../MapRandoSprites/samus_sprites/manifest.json");
     // let samus_spritesheet_layout_path = Path::new("data/samus_spritesheet_layout.json");
     let mosaic_path = Path::new("../Mosaic");
@@ -1589,7 +1622,17 @@ fn build_app_data() -> AppData {
     let ignored_notable_strats = get_ignored_notable_strats();
     let implicit_tech = get_implicit_tech();
     let preset_data = init_presets(presets, &game_data, &ignored_notable_strats, &implicit_tech);
-    let logic_data = LogicData::new(&game_data, &tech_gif_listing, &notable_gif_listing, &preset_data);
+    let version_info = VersionInfo {
+        version: VERSION,
+        dev: args.dev,
+    };
+    let logic_data = LogicData::new(
+        &game_data,
+        &tech_gif_listing,
+        &notable_gif_listing,
+        &preset_data,
+        &version_info,
+    );
     let samus_sprite_categories: Vec<SamusSpriteCategory> =
         serde_json::from_str(&std::fs::read_to_string(&samus_sprites_path).unwrap()).unwrap();
     AppData {
@@ -1598,9 +1641,17 @@ fn build_app_data() -> AppData {
         ignored_notable_strats,
         implicit_tech,
         map_repositories: vec![
-            ("Tame".to_string(), MapRepository::new(tame_maps_path).unwrap()),
-            ("Wild".to_string(), MapRepository::new(wild_maps_path).unwrap()),
-        ].into_iter().collect(), 
+            (
+                "Tame".to_string(),
+                MapRepository::new(tame_maps_path).unwrap(),
+            ),
+            (
+                "Wild".to_string(),
+                MapRepository::new(wild_maps_path).unwrap(),
+            ),
+        ]
+        .into_iter()
+        .collect(),
         seed_repository: SeedRepository::new(&args.seed_repository_url).unwrap(),
         visualizer_files: load_visualizer_files(),
         tech_gif_listing,
@@ -1609,9 +1660,15 @@ fn build_app_data() -> AppData {
         samus_sprite_categories,
         // samus_customizer,
         debug: args.debug,
+        version_info: VersionInfo {
+            version: VERSION,
+            dev: args.dev,
+        },
         static_visualizer: args.static_visualizer,
         etank_colors,
-        parallelism: args.parallelism.unwrap_or(thread::available_parallelism().unwrap().get()),
+        parallelism: args
+            .parallelism
+            .unwrap_or(thread::available_parallelism().unwrap().get()),
     }
 }
 
@@ -1646,7 +1703,10 @@ async fn main() {
             .service(logic_room)
             .service(logic_strat)
             .service(logic_tech)
-            .service(actix_files::Files::new("/static/sm-json-data", "../sm-json-data"))
+            .service(actix_files::Files::new(
+                "/static/sm-json-data",
+                "../sm-json-data",
+            ))
             .service(actix_files::Files::new("/static", "static"))
     })
     .bind("0.0.0.0:8080")

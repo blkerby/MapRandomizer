@@ -11,7 +11,7 @@ use crate::randomize::{DebugOptions, DifficultyConfig, SaveAnimals};
 use crate::traverse::{apply_requirement, GlobalState, LocalState};
 use crate::web::VERSION;
 
-use super::{PresetData, HQ_VIDEO_URL_ROOT};
+use super::{PresetData, VersionInfo, HQ_VIDEO_URL_ROOT};
 
 #[derive(Clone)]
 struct RoomStrat<'a> {
@@ -28,7 +28,7 @@ struct RoomStrat<'a> {
     to_node_name: String,
     note: String,
     entrance_condition: Option<String>,
-    requires: String,                         // new-line separated requirements
+    requires: String, // new-line separated requirements
     exit_condition: Option<String>,
     clears_obstacles: Vec<String>,
     difficulty_idx: usize,
@@ -39,7 +39,7 @@ struct RoomStrat<'a> {
 #[derive(TemplateOnce, Clone)]
 #[template(path = "logic/room.stpl")]
 struct RoomTemplate<'a> {
-    version: usize,
+    version_info: VersionInfo,
     difficulty_names: Vec<String>,
     room_id: usize,
     room_name: String,
@@ -57,7 +57,7 @@ struct RoomTemplate<'a> {
 #[derive(TemplateOnce, Clone)]
 #[template(path = "logic/tech.stpl")]
 struct TechTemplate<'a> {
-    version: usize,
+    version_info: VersionInfo,
     difficulty_names: Vec<String>,
     tech_name: String,
     tech_note: String,
@@ -74,7 +74,7 @@ struct TechTemplate<'a> {
 #[derive(TemplateOnce, Clone)]
 #[template(path = "logic/strat_page.stpl")]
 struct StratTemplate<'a> {
-    version: usize,
+    version_info: VersionInfo,
     room_id: usize,
     room_name: String,
     room_name_stripped: String,
@@ -90,7 +90,7 @@ struct StratTemplate<'a> {
 #[derive(TemplateOnce)]
 #[template(path = "logic/logic.stpl")]
 struct LogicIndexTemplate<'a> {
-    version: usize,
+    version_info: VersionInfo,
     rooms: &'a [RoomTemplate<'a>],
     tech: &'a [TechTemplate<'a>],
     area_order: &'a [String],
@@ -99,7 +99,7 @@ struct LogicIndexTemplate<'a> {
 
 #[derive(Default)]
 pub struct LogicData {
-    pub index_html: String,                            // Logic index page
+    pub index_html: String,                        // Logic index page
     pub room_html: HashMap<String, String>, // Map from room name (alphanumeric characters only) to rendered HTML.
     pub tech_html: HashMap<String, String>, // Map from tech name to rendered HTML.
     pub tech_strat_counts: HashMap<String, usize>, // Map from tech name to strat count using that tech.
@@ -182,6 +182,7 @@ fn make_tech_templates<'a>(
     global_states: &[GlobalState],
     area_order: &[String],
     hq_video_url_root: &str,
+    version_info: &VersionInfo,
 ) -> Vec<TechTemplate<'a>> {
     let mut tech_strat_ids: Vec<HashSet<(RoomId, NodeId, NodeId, String)>> =
         vec![HashSet::new(); game_data.tech_isv.keys.len()];
@@ -256,7 +257,7 @@ fn make_tech_templates<'a>(
             presets.iter().map(|x| x.preset.name.clone()).collect();
         difficulty_names.push("Beyond".to_string());
         let template = TechTemplate {
-            version: VERSION,
+            version_info: version_info.clone(),
             difficulty_names,
             tech_name: tech_name.clone(),
             tech_note,
@@ -278,7 +279,10 @@ pub fn strip_name(s: &str) -> String {
     let mut out = String::new();
     for word in s.split_inclusive(|x: char| !x.is_ascii_alphabetic()) {
         let capitalized_word = word[0..1].to_ascii_uppercase() + &word[1..];
-        let stripped_word: String = capitalized_word.chars().filter(|x| x.is_ascii_alphanumeric()).collect();
+        let stripped_word: String = capitalized_word
+            .chars()
+            .filter(|x| x.is_ascii_alphanumeric())
+            .collect();
         out += &stripped_word;
     }
     out
@@ -430,6 +434,7 @@ fn make_room_template<'a>(
     links_by_ids: &HashMap<(RoomId, NodeId, NodeId, String), Vec<Link>>,
     notable_gif_listing: &'a HashSet<String>,
     hq_video_url_root: &str,
+    version_info: &VersionInfo,
 ) -> RoomTemplate<'a> {
     let mut room_strats: Vec<RoomStrat> = vec![];
     let room_id = room_json["id"].as_usize().unwrap();
@@ -492,7 +497,9 @@ fn make_room_template<'a>(
             None
         };
         let strat_name = strat_json["name"].as_str().unwrap().to_string();
-        let reusable_strat_name = strat_json["reusableRoomwideNotable"].as_str().map(|x| x.to_string());
+        let reusable_strat_name = strat_json["reusableRoomwideNotable"]
+            .as_str()
+            .map(|x| x.to_string());
         let strat = RoomStrat {
             room_name: room_name.clone(),
             room_name_stripped: room_name_stripped.clone(),
@@ -521,7 +528,7 @@ fn make_room_template<'a>(
     difficulty_names.push("Beyond".to_string());
 
     RoomTemplate {
-        version: VERSION,
+        version_info: version_info.clone(),
         difficulty_names,
         room_id,
         room_name_url_encoded: urlencoding::encode(&room_name).into_owned(),
@@ -542,9 +549,10 @@ fn make_strat_template<'a>(
     strat: &RoomStrat<'a>,
     notable_gif_listing: &'a HashSet<String>,
     hq_video_url_root: &str,
+    version_info: &VersionInfo,
 ) -> StratTemplate<'a> {
     StratTemplate {
-        version: VERSION,
+        version_info: version_info.clone(),
         room_id: room.room_id,
         room_name: room.room_name.clone(),
         room_name_stripped: room.room_name_stripped.clone(),
@@ -564,6 +572,7 @@ impl LogicData {
         tech_gif_listing: &HashSet<String>,
         notable_gif_listing: &HashSet<String>,
         presets: &[PresetData],
+        version_info: &VersionInfo,
     ) -> LogicData {
         let mut out = LogicData::default();
         let room_diagram_listing = list_room_diagram_files();
@@ -657,6 +666,7 @@ impl LogicData {
                 &links_by_ids,
                 notable_gif_listing,
                 hq_video_url_root,
+                version_info,
             );
             let html = template.clone().render_once().unwrap();
             let stripped_room_name = strip_name(&template.room_name);
@@ -664,11 +674,24 @@ impl LogicData {
             room_templates.push(template.clone());
 
             for strat in &template.strats {
-                let strat_template = make_strat_template(&template, &strat, notable_gif_listing, hq_video_url_root);
+                let strat_template = make_strat_template(
+                    &template,
+                    &strat,
+                    notable_gif_listing,
+                    hq_video_url_root,
+                    version_info,
+                );
                 let strat_html = strat_template.render_once().unwrap();
                 let stripped_strat_name = strip_name(&strat.strat_name);
-                out.strat_html
-                    .insert((stripped_room_name.clone(), strat.from_node_id, strat.to_node_id, stripped_strat_name), strat_html);
+                out.strat_html.insert(
+                    (
+                        stripped_room_name.clone(),
+                        strat.from_node_id,
+                        strat.to_node_id,
+                        stripped_strat_name,
+                    ),
+                    strat_html,
+                );
             }
         }
         room_templates.sort_by_key(|x| (x.area.clone(), x.room_name.clone()));
@@ -682,6 +705,7 @@ impl LogicData {
             &global_states,
             &area_order,
             hq_video_url_root,
+            version_info,
         );
         for template in &tech_templates {
             let html = template.clone().render_once().unwrap();
@@ -696,7 +720,7 @@ impl LogicData {
         }
 
         let index_template = LogicIndexTemplate {
-            version: VERSION,
+            version_info: version_info.clone(),
             rooms: &room_templates,
             tech: &tech_templates,
             area_order: &area_order,

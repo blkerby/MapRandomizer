@@ -101,7 +101,10 @@
         </li>
         <li class="nav-item">
             <a class="nav-link m-1" href="/">
-              v<%= version %>
+              v<%= version_info.version %>
+              <% if version_info.dev { %>
+              (DEV)
+              <% } %>
             </a>
         </li>
       </ul>

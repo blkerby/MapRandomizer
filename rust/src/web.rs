@@ -57,6 +57,12 @@ pub struct SamusSpriteCategory {
     pub sprites: Vec<SamusSpriteInfo>,
 }
 
+#[derive(Clone)]
+pub struct VersionInfo {
+    pub version: usize,
+    pub dev: bool,
+}
+
 pub struct AppData {
     pub game_data: GameData,
     pub preset_data: Vec<PresetData>,
@@ -71,6 +77,7 @@ pub struct AppData {
     pub logic_data: LogicData,
     // pub samus_customizer: SamusSpriteCustomizer,
     pub debug: bool,
+    pub version_info: VersionInfo,
     pub static_visualizer: bool,
     pub etank_colors: Vec<Vec<String>>,  // colors in HTML hex format, e.g "#ff0000"
     pub parallelism: usize,

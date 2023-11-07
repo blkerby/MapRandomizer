@@ -17,7 +17,12 @@
         <% } %>
         <div class="row">
             <div class="col-5 col-sm-4 col-md-3">Version:</div>
-            <div class="col-7 col-sm-8 col-md-9"><%= version %></div>
+            <div class="col-7 col-sm-8 col-md-9">
+            <%= version_info.version %>
+            <% if version_info.dev { %>
+            (DEV)
+            <% } %>
+            </div>
         </div>
         <% if !race_mode { %>
         <div class="row">
