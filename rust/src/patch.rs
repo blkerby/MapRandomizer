@@ -898,6 +898,7 @@ impl<'a> Patcher<'a> {
         .into_iter()
         .collect();
         let keep_gray_door_room_names: Vec<String> = vec![
+            "Bomb Torizo Room",
             "Kraid Room",
             "Phantoon's Room",
             "Draygon's Room",
@@ -932,7 +933,12 @@ impl<'a> Patcher<'a> {
                         self.rom.write_u16(ptr + 2, 0)?; // position = (0, 0)
                     } else if gray_door_plm_types.contains_key(&plm_type) {
                         let new_type = gray_door_plm_types[&plm_type];
-                        self.rom.write_u16(ptr, new_type)?;
+
+                        // Don't replace the gray doors in BT Room. In particular we want to leave its escape-state gray door
+                        // vanilla (so that it closes immediately and doesn't unlock until animals are saved).
+                        if room.name != "Bomb Torizo Room" {
+                            self.rom.write_u16(ptr, new_type)?;
+                        }
                     }
                     ptr += 6;
                 }

@@ -14,6 +14,46 @@
 document.getElementById("videoModal").addEventListener('hidden.bs.modal', (event) => {
   document.getElementById("video").pause();
 });
+
+document.addEventListener('keydown', (ev) => {
+  if (!document.getElementById("videoModal").classList.contains("show")) {
+    return;
+  }
+
+  const video = document.getElementById('video')
+  switch (ev.key) {
+    case ",": 
+      if (!video.paused) {
+        video.pause();
+      }
+      video.currentTime -= 1 / 60;
+      break;
+    case ".": 
+      if (!video.paused) {
+        video.pause();
+      }
+      video.currentTime += 1 / 60;
+      break;
+    case " ":
+      if (video.paused) {
+        video.play();
+      } else {
+        video.pause();
+      }
+      break;
+    case "f":
+    case "F":
+      video.requestFullscreen();
+      break;
+    case "ArrowRight":
+      video.currentTime += 5;
+      break;
+    case "ArrowLeft":
+      video.currentTime -= 5;
+      break;
+  }
+});
+
 function startVideo(url) {
   console.log("starting video ", url);
   video.pause();

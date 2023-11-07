@@ -1,13 +1,23 @@
 upcoming:
-- during the escape, lock the Bomb Torizo door until animals are saved (to prevent accidentally leaving before the flag is set).
-- try to implement frame advance: https://stackoverflow.com/questions/4298084/html5-frame-by-frame-viewing-frame-seeking
+- DONE: try to implement frame advance: https://stackoverflow.com/questions/4298084/html5-frame-by-frame-viewing-frame-seeking
+- DONE: during the escape, lock the Bomb Torizo door until animals are saved (to prevent accidentally leaving before the flag is set).
+- DONE: make "guaranteed early save" check phantoon defeated if broken save
+- Set up "dev" serving process:
+  - Create/start dev service.
+  - Create CLI flag to identify if running or not "dev"
+  - Create friendly DNS record ("dev.maprando.com")
+  - Generate build timestamp (in Dockerfile) and show on seed page
+- adapt to Pants Room changes
 
 priority:
+- make randomizer more efficient
+- revamp strat page: 
+  - embed the video directly near the top? 
+  - collapse the room diagram
 - make tech and notable strat names in the Generate page link to the corresponding logic page.
   - need special handling for reusable notables though
 - List notable strats in the main logic page.
 - add a logic page for each difficulty tier (similar to the sections within the Generate page)
-- make randomizer more efficient
 - add CF health refill to logic
   - include tricky CF at ammo refill stations
 - proper saving/loading of custom presets
@@ -76,6 +86,7 @@ priority:
 - logic simulator
 
 later:
+- model the bridge doors in West Ocean properly (can be used for bypassing locks on bottom-left/right doors)
 - remove dead code for drawing lava/acid on map tiles.
 - strats to add to logic:
   - tricky dash jump to get out of alcatraz with Morph + HiJump + SpeedBooster only (no wall jump or bombs)

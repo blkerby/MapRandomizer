@@ -126,6 +126,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("escapeEnemiesClearedNo").checked = true;
         document.getElementById("markMapStationsNo").checked = true;
         document.getElementById("itemMarkersSimple").checked = true;
+        document.getElementById("earlySaveNo").checked = true;
         document.getElementById("allItemsSpawnNo").checked = true;
         document.getElementById("acidChozoNo").checked = true;
         document.getElementById("fastElevatorsNo").checked = true;
@@ -145,6 +146,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("escapeEnemiesClearedNo").checked = true;
         document.getElementById("markMapStationsYes").checked = true;
         document.getElementById("itemMarkersUniques").checked = true;
+        document.getElementById("earlySaveNo").checked = true;
         document.getElementById("allItemsSpawnNo").checked = true;
         document.getElementById("acidChozoNo").checked = true;
         document.getElementById("fastElevatorsYes").checked = true;
@@ -162,6 +164,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("escapeEnemiesClearedYes").checked = true;
         document.getElementById("markMapStationsYes").checked = true;
         document.getElementById("itemMarkersThreeTiered").checked = true;
+        document.getElementById("earlySaveYes").checked = true;
         document.getElementById("allItemsSpawnYes").checked = true;
         document.getElementById("acidChozoYes").checked = true;
         document.getElementById("fastElevatorsYes").checked = true;
@@ -179,6 +182,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("escapeEnemiesClearedYes").checked = true;
         document.getElementById("markMapStationsYes").checked = true;
         document.getElementById("itemMarkersThreeTiered").checked = true;
+        document.getElementById("earlySaveYes").checked = true;
         document.getElementById("allItemsSpawnYes").checked = true;
         document.getElementById("acidChozoYes").checked = true;
         document.getElementById("fastElevatorsYes").checked = true;
@@ -290,7 +294,6 @@ function initializeSpoilerToken() {
 function checkOtherOptions() {
     if (document.getElementById("itemDotChangeDisappear").checked ||
         document.getElementById("transitionLettersYes").checked ||
-        document.getElementById("earlySaveYes").checked ||
         document.getElementById("disableWallJumpYes").checked ||
         document.getElementById("mapsRevealedYes").checked ||
         document.getElementById("vanillaMapYes").checked ||

@@ -67,9 +67,6 @@
         if transition_letters {
             game_variations.push("Area transitions marked as letters");
         }
-        if early_save {
-            game_variations.push("Guaranteed early save station");
-        }
         if disable_walljump {
             game_variations.push("Disable wall jumps");
         }

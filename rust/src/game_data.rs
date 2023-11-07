@@ -2832,7 +2832,11 @@ impl GameData {
             }
             if node_json.has_key("utility") {
                 if node_json["utility"].members().any(|x| x == "save") {
-                    self.save_locations.push((room_id, node_id));
+                    if room_id != 304 {
+                        // room_id: 304 is the broken save room, which is not a logical save for the purposes of 
+                        // guaranteed early save station, which is all this is currently used for.
+                        self.save_locations.push((room_id, node_id));
+                    }
                 }
             }
             if node_json.has_key("yields") {
