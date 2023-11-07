@@ -17,13 +17,16 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-94---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release94">Version 94 (???)</a>:
+<p><a href="https://version-94---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release94">Version 94 (2023-11-07)</a>:
 <ul>
-<li>During the escape, the gray door in Bomb Torizo Room spawns and behaves as it does in vanilla.
+<li>During the escape, the gray door in Bomb Torizo Room spawns and behaves as it does in vanilla, unlocking only
+    after the animals are saved.
 <li>"Guaranteed early save station" is converted to a quality-of-life option and is enabled by default.
     <ul>
     <li>This option no longer considers the Wrecked Ship Save Room to be a logical save.
     </ul>
+<li>Ammo doors will not be placed on the left door of Amphitheatre or Tourian Blue Hopper Room
+    (as the logic is not yet set up to be able to model the extra requirements these can create).
 <li>Website update:
     <ul>
     <li>Video playback controls are improved. Press "." or "," to move forward/back by a frame.

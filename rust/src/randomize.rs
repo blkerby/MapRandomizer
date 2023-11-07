@@ -1649,9 +1649,12 @@ impl<'a> Preprocessor<'a> {
     }
 }
 
-fn get_randomizable_doors(game_data: &GameData) -> HashSet<DoorPtrPair> {
+fn get_randomizable_doors(
+    game_data: &GameData,
+    difficulty: &DifficultyConfig,
+) -> HashSet<DoorPtrPair> {
     // Doors which we do not want to randomize:
-    let non_randomizable_doors: HashSet<DoorPtrPair> = vec![
+    let mut non_randomizable_doors: HashSet<DoorPtrPair> = vec![
         // Gray doors - Pirate rooms:
         (0x18B7A, 0x18B62), // Pit Room left
         (0x18B86, 0x18B92), // Pit Room right
@@ -1718,6 +1721,9 @@ fn get_randomizable_doors(game_data: &GameData) -> HashSet<DoorPtrPair> {
         // Pants room interior door
         (0x1A7A4, 0x1A78C), // Left door
         (0x1A78C, 0x1A7A4), // Right door
+        // Bad doors that logic would not be able to properly account for (yet):
+        (0x19996, 0x1997E), // Amphitheatre left door
+        (0x1AA14, 0x1AA20), // Tourian Blue Hopper Room left door
         // Items: (to avoid an interaction in map tiles between doors disappearing and items disappearing)
         (0x18FA6, 0x18EDA), // First Missile Room
         (0x18FFA, 0x18FEE), // Billy Mays Room
@@ -1759,6 +1765,47 @@ fn get_randomizable_doors(game_data: &GameData) -> HashSet<DoorPtrPair> {
     .map(|(x, y)| (Some(x), Some(y)))
     .collect();
 
+    // Avoid placing an ammo door on a tile with an objective "X", as it looks bad.
+    match difficulty.objectives {
+        Objectives::Bosses => {
+            // The boss doors are all gray and were already excluded above.
+        },
+        Objectives::Minibosses => {
+            // Spore Spawn Room right door:
+            non_randomizable_doors.insert((Some(0x18E4A), Some(0x18D2A)));
+            // Crocomire left door:
+            non_randomizable_doors.insert((Some(0x193DE), Some(0x19432)));
+            // Botwoon right door:
+            non_randomizable_doors.insert((Some(0x1A918), Some(0x1A84C)));
+            // Golden Torizo left door:
+            non_randomizable_doors.insert((Some(0x19876), Some(0x1983A)));
+        },
+        Objectives::Metroids => {
+            // Metroid Room 1 left door:
+            non_randomizable_doors.insert((Some(0x1A9B4), Some(0x1A9C0)));
+            // Metroid Room 1 right door:
+            non_randomizable_doors.insert((Some(0x1A9A8), Some(0x1A984)));
+            // Metroid Room 2 top right door:
+            non_randomizable_doors.insert((Some(0x1A9C0), Some(0x1A9B4)));
+            // Metroid Room 2 bottom right door:
+            non_randomizable_doors.insert((Some(0x1A9CC), Some(0x1A9D8)));
+            // Metroid Room 3 left door:
+            non_randomizable_doors.insert((Some(0x1A9D8), Some(0x1A9CC)));
+            // Metroid Room 3 right door:
+            non_randomizable_doors.insert((Some(0x1A9E4), Some(0x1A9F0)));
+            // Metroid Room 4 left door:
+            non_randomizable_doors.insert((Some(0x1A9F0), Some(0x1A9E4)));
+            // Metroid Room 4 bottom door:
+            non_randomizable_doors.insert((Some(0x1A9FC), Some(0x1AA08)));            
+        },
+        Objectives::Chozos => {
+            // All the door tiles with X's have a gray door, so are covered above.
+        },
+        Objectives::Pirates => {
+            // These doors are all gray, so are covered above.
+        },
+    }
+
     let mut out: Vec<DoorPtrPair> = vec![];
     for room in &game_data.room_geometry {
         for door in &room.doors {
@@ -1775,8 +1822,9 @@ fn get_randomizable_doors(game_data: &GameData) -> HashSet<DoorPtrPair> {
 fn get_randomizable_door_connections(
     game_data: &GameData,
     map: &Map,
+    difficulty: &DifficultyConfig,
 ) -> Vec<(DoorPtrPair, DoorPtrPair)> {
-    let doors = get_randomizable_doors(game_data);
+    let doors = get_randomizable_doors(game_data, difficulty);
     let mut out: Vec<(DoorPtrPair, DoorPtrPair)> = vec![];
     for (src_door_ptr_pair, dst_door_ptr_pair, _bidirectional) in &map.doors {
         if doors.contains(src_door_ptr_pair) && doors.contains(dst_door_ptr_pair) {
@@ -1818,7 +1866,7 @@ pub fn randomize_doors(
             door_types.extend(vec![DoorType::Green; green_doors_cnt]);
             door_types.extend(vec![DoorType::Yellow; yellow_doors_cnt]);
 
-            let door_conns = get_randomizable_door_connections(game_data, map);
+            let door_conns = get_randomizable_door_connections(game_data, map, difficulty);
             let mut out: Vec<LockedDoor> = vec![];
             let idxs = rand::seq::index::sample(&mut rng, door_conns.len(), total_cnt);
             for (i, idx) in idxs.into_iter().enumerate() {
@@ -3349,7 +3397,8 @@ impl<'a> Randomizer<'a> {
                 self.game_data,
             );
             let new_local_state = new_local_state_opt.unwrap();
-            let new_resources = self.get_resources_remaining(&global_state, *local_state, new_local_state);
+            let new_resources =
+                self.get_resources_remaining(&global_state, *local_state, new_local_state);
             for (i, link) in sublinks.iter().enumerate() {
                 let last = i == sublinks.len() - 1;
                 let from_vertex_info = self.get_vertex_info(link.from_vertex_id);
@@ -3374,7 +3423,11 @@ impl<'a> Randomizer<'a> {
                     reserves_remaining: if last { new_resources.reserves } else { None },
                     missiles_remaining: if last { new_resources.missiles } else { None },
                     supers_remaining: if last { new_resources.supers } else { None },
-                    power_bombs_remaining: if last { new_resources.power_bombs } else { None },
+                    power_bombs_remaining: if last {
+                        new_resources.power_bombs
+                    } else {
+                        None
+                    },
                 };
                 // info!("spoiler: {:?}", spoiler_entry);
                 route.push(spoiler_entry);
@@ -3475,7 +3528,8 @@ impl<'a> Randomizer<'a> {
             assert!(new_local_state.missiles_used <= global_state.max_missiles);
             assert!(new_local_state.supers_used <= global_state.max_supers);
             assert!(new_local_state.power_bombs_used <= global_state.max_power_bombs);
-            let new_resources = self.get_resources_remaining(&global_state, local_state, new_local_state);
+            let new_resources =
+                self.get_resources_remaining(&global_state, local_state, new_local_state);
 
             for (i, link) in sublinks.iter().enumerate() {
                 let last = i == sublinks.len() - 1;
@@ -3498,7 +3552,11 @@ impl<'a> Randomizer<'a> {
                     reserves_remaining: if last { new_resources.reserves } else { None },
                     missiles_remaining: if last { new_resources.missiles } else { None },
                     supers_remaining: if last { new_resources.supers } else { None },
-                    power_bombs_remaining: if last { new_resources.power_bombs } else { None },
+                    power_bombs_remaining: if last {
+                        new_resources.power_bombs
+                    } else {
+                        None
+                    },
                 };
                 route.push(spoiler_entry);
                 local_state = new_local_state;
