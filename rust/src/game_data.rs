@@ -1697,19 +1697,6 @@ impl GameData {
                 bail!("Error processing region path: {}", entry.err().unwrap());
             }
         }
-        // Add Pants Room in-room transition (TODO: replace this with proper separate room for East Pants Room)
-        let from_vertex_id = self.vertex_isv.index_by_key[&(220, 2, 0)]; // Pants Room
-        let to_vertex_id = self.vertex_isv.index_by_key[&(322, 1, 0)]; // East Pants Room
-        self.links.push(Link {
-            from_vertex_id,
-            to_vertex_id,
-            requirement: Requirement::Free,
-            notable_strat_name: None,
-            strat_name: "Pants Room in-room transition".to_string(),
-            strat_notes: vec![],
-            entrance_condition: None,
-            sublinks: vec![],
-        });
         Ok(())
     }
 
