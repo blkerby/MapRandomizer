@@ -9,7 +9,19 @@
   <upscroll>70</upscroll>
   <dnscroll>70</dnscroll>
   <specialGFX>00</specialGFX>
-  <Doors />
+  <Doors>
+    <Door>
+      <toroom area="07" index="14" />
+      <bitflag>00</bitflag>
+      <direction>00</direction>
+      <tilex>0</tilex>
+      <tiley>0</tiley>
+      <screenx>00</screenx>
+      <screeny>00</screeny>
+      <distance>8000</distance>
+      <doorcode>0000</doorcode>
+    </Door>
+  </Doors>
   <States>
     <State condition="default">
       <LevelData Width="1" Height="1">
