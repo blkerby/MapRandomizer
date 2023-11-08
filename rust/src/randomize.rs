@@ -13,7 +13,7 @@ use crate::{
     },
     web::logic::strip_name,
 };
-use anyhow::{bail, Result};
+use anyhow::{bail, Result, Context};
 use by_address::ByAddress;
 use hashbrown::{HashMap, HashSet};
 use log::info;
@@ -1335,7 +1335,12 @@ impl<'a> Preprocessor<'a> {
         // if !self.door_map.contains_key(&(room_id, unlocked_node_id)) {
         //     info!("Ignoring adjacent runway with unrecognized node: room_id={}, node_id={}", room_id, node_id);
         // }
-        let (other_room_id, other_node_id) = self.door_map[&(room_id, unlocked_node_id)];
+
+        let (other_room_id, other_node_id) = *self
+            .door_map
+            .get(&(room_id, unlocked_node_id))
+            .with_context(|| format!("No door_map entry for ({}, {}): {:?}", room_id, unlocked_node_id, _link))
+            .unwrap();
         let runways = &self.game_data.node_runways_map[&(other_room_id, other_node_id)];
         let locked_door_idx = self
             .locked_node_map
@@ -1769,7 +1774,7 @@ fn get_randomizable_doors(
     match difficulty.objectives {
         Objectives::Bosses => {
             // The boss doors are all gray and were already excluded above.
-        },
+        }
         Objectives::Minibosses => {
             // Spore Spawn Room right door:
             non_randomizable_doors.insert((Some(0x18E4A), Some(0x18D2A)));
@@ -1779,7 +1784,7 @@ fn get_randomizable_doors(
             non_randomizable_doors.insert((Some(0x1A918), Some(0x1A84C)));
             // Golden Torizo left door:
             non_randomizable_doors.insert((Some(0x19876), Some(0x1983A)));
-        },
+        }
         Objectives::Metroids => {
             // Metroid Room 1 left door:
             non_randomizable_doors.insert((Some(0x1A9B4), Some(0x1A9C0)));
@@ -1796,14 +1801,14 @@ fn get_randomizable_doors(
             // Metroid Room 4 left door:
             non_randomizable_doors.insert((Some(0x1A9F0), Some(0x1A9E4)));
             // Metroid Room 4 bottom door:
-            non_randomizable_doors.insert((Some(0x1A9FC), Some(0x1AA08)));            
-        },
+            non_randomizable_doors.insert((Some(0x1A9FC), Some(0x1AA08)));
+        }
         Objectives::Chozos => {
             // All the door tiles with X's have a gray door, so are covered above.
-        },
+        }
         Objectives::Pirates => {
             // These doors are all gray, so are covered above.
-        },
+        }
     }
 
     let mut out: Vec<DoorPtrPair> = vec![];
@@ -1946,6 +1951,28 @@ impl<'r> Randomizer<'r> {
                 &mut links,
                 locked_doors,
             );
+            // if (src_room_id, unlocked_src_node_id) == (220, 2) {
+            //     println!("pants");
+            // }
+            // if src_room_id == 220 || dst_room_id == 220 || src_room_id == 322 || dst_room_id == 322 {
+            //     println!("({:x}, {:x}) ({:x}, {:x}) ({}, {})  ({}, {}) {}", 
+            //     src_exit_ptr.unwrap(), src_entrance_ptr.unwrap(),
+            //     dst_exit_ptr.unwrap(), dst_entrance_ptr.unwrap(),
+            //     src_room_id, src_node_id, dst_room_id, dst_node_id, bidirectional);
+            // }
+            if (src_room_id, unlocked_src_node_id) == (322, 2) {
+                // For East Pants Room right door, add a corresponding (one-way) link for Pants Room too:
+                add_door_links(
+                    220,
+                    2,
+                    dst_room_id,
+                    dst_node_id,
+                    src_locked_door_idx,
+                    game_data,
+                    &mut links,
+                    locked_doors,
+                );    
+            }
             if bidirectional {
                 add_door_links(
                     dst_room_id,
