@@ -17,7 +17,7 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-94---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release94">Version 94 (2023-11-07)</a>:
+<p><a href="https://version-94---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release94">Version 94 (2023-11-08)</a>:
 <ul>
 <li>During the escape, the gray door in Bomb Torizo Room spawns and behaves as it does in vanilla, unlocking only
     after the animals are saved.
