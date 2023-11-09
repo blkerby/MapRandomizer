@@ -1,6 +1,6 @@
 <Room>
   <Saves />
-  <index>08</index>
+  <index>24</index>
   <area>07</area>
   <x>00</x>
   <y>00</y>
@@ -11,40 +11,7 @@
   <specialGFX>00</specialGFX>
   <Doors>
     <Door>
-      <toroom area="07" index="07" />
-      <bitflag>00</bitflag>
-      <direction>00</direction>
-      <tilex>0</tilex>
-      <tiley>0</tiley>
-      <screenx>00</screenx>
-      <screeny>00</screeny>
-      <distance>8000</distance>
-      <doorcode>0000</doorcode>
-    </Door>
-    <Door>
-      <toroom area="07" index="09" />
-      <bitflag>00</bitflag>
-      <direction>00</direction>
-      <tilex>0</tilex>
-      <tiley>0</tiley>
-      <screenx>00</screenx>
-      <screeny>00</screeny>
-      <distance>8000</distance>
-      <doorcode>0000</doorcode>
-    </Door>
-    <Door>
-      <toroom area="07" index="1E" />
-      <bitflag>00</bitflag>
-      <direction>00</direction>
-      <tilex>0</tilex>
-      <tiley>0</tiley>
-      <screenx>00</screenx>
-      <screeny>00</screeny>
-      <distance>8000</distance>
-      <doorcode>0000</doorcode>
-    </Door>
-    <Door>
-      <toroom area="07" index="22" />
+      <toroom area="07" index="0E" />
       <bitflag>00</bitflag>
       <direction>00</direction>
       <tilex>0</tilex>
@@ -62,20 +29,20 @@
           <Screen X="0" Y="0">
         00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
         00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
-        03FF 0514 0336 010F 010F 010F 010F 050E 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
-        03FF 03FF 03FF 03FF 03FF 03FF 0D14 0D0E 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
-        03FF 0D14 0B36 090F 090F 090F 0D0E 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
-        03FF 0739 02B8 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
-        03FF 0510 0337 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
-        03FF 0739 02B8 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
-        0D14 0D0D 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
         00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
-        00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
-        00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
-        00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
-        00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
-        00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
-        00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
+        00FF 04FF 04FF 04FF 04FF 04FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
+        00FF 04FF 04FF 04FF 04FF 04FF 04FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
+        00FF 04FF 04FF 04FF 04FF 04FF 04FF 04FF 04FF 04FF 00FF 00FF 00FF 04FF 00FF 00FF
+        04FF 00FF 00FF 00FF 00FF 00FF 00FF 04FF 00FF 00FF 04FF 00FF 00FF 00FF 00FF 04FF
+        00FF 00FF 00FF 00FF 00FF 00FF 00FF 04FF 00FF 00FF 04FF 04FF 04FF 04FF 845F 847B
+        00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 04FF 04FF 845F 847B 845F 04FF
+        00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 04FF 04FF 04FF 04FF 84BB 04FF
+        00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 04FF 04FF 04FF 06F7 8375 06E6
+        00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 06E8 06EA 06F6 818C 85A0 8580
+        00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 02EF 818C 8580 85A0 8995 851D 851D
+        00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 85A0 85A0 8995 851D 851D 851D 851D 851D
+        00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 04FF 00FF
+        00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 04FF 00FF
       </Screen>
         </Layer1>
         <BTS>
@@ -119,7 +86,7 @@
       </Screen>
         </Layer2>
       </LevelData>
-      <GFXset>00</GFXset>
+      <GFXset>0B</GFXset>
       <music>0000</music>
       <FX1s>
         <FX1 default="true">

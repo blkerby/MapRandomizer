@@ -1,6 +1,6 @@
 <Room>
   <Saves />
-  <index>08</index>
+  <index>20</index>
   <area>07</area>
   <x>00</x>
   <y>00</y>
@@ -10,17 +10,6 @@
   <dnscroll>70</dnscroll>
   <specialGFX>00</specialGFX>
   <Doors>
-    <Door>
-      <toroom area="07" index="07" />
-      <bitflag>00</bitflag>
-      <direction>00</direction>
-      <tilex>0</tilex>
-      <tiley>0</tiley>
-      <screenx>00</screenx>
-      <screeny>00</screeny>
-      <distance>8000</distance>
-      <doorcode>0000</doorcode>
-    </Door>
     <Door>
       <toroom area="07" index="09" />
       <bitflag>00</bitflag>
@@ -33,18 +22,7 @@
       <doorcode>0000</doorcode>
     </Door>
     <Door>
-      <toroom area="07" index="1E" />
-      <bitflag>00</bitflag>
-      <direction>00</direction>
-      <tilex>0</tilex>
-      <tiley>0</tiley>
-      <screenx>00</screenx>
-      <screeny>00</screeny>
-      <distance>8000</distance>
-      <doorcode>0000</doorcode>
-    </Door>
-    <Door>
-      <toroom area="07" index="22" />
+      <toroom area="07" index="23" />
       <bitflag>00</bitflag>
       <direction>00</direction>
       <tilex>0</tilex>
@@ -62,13 +40,13 @@
           <Screen X="0" Y="0">
         00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
         00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
-        03FF 0514 0336 010F 010F 010F 010F 050E 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
-        03FF 03FF 03FF 03FF 03FF 03FF 0D14 0D0E 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
-        03FF 0D14 0B36 090F 090F 090F 0D0E 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
-        03FF 0739 02B8 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
-        03FF 0510 0337 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
-        03FF 0739 02B8 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
-        0D14 0D0D 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
+        8210 8210 8210 8210 8210 8210 8210 860A 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
+        8210 8210 8E09 8A1B 8A1C 8A1C 8A1D 8E0B 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
+        8210 8E09 1E08 0384 0382 0397 0386 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
+        8210 860A 00FF 0385 0383 0395 0386 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
+        8210 860A 00FF 0388 0389 039A 038B 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
+        8210 860A 00FF 00FF 039C 038B 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
+        8A07 8E0B 00FF 00FF 038F 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
         00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
         00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
         00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
@@ -84,7 +62,7 @@
         00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
         00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
         00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 D2 00 00 00 00 00 00 00 00 00 00 00 00 00
         00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
         00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
         00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
@@ -119,7 +97,7 @@
       </Screen>
         </Layer2>
       </LevelData>
-      <GFXset>00</GFXset>
+      <GFXset>0B</GFXset>
       <music>0000</music>
       <FX1s>
         <FX1 default="true">
