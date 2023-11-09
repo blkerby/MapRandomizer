@@ -998,8 +998,36 @@ pub struct TraverseResult {
     pub start_trail_ids: Vec<Option<StepTrailId>>,
 }
 
+pub struct LinksData {
+    pub links: Vec<Link>,
+    pub links_by_src: Vec<Vec<(LinkIdx, Link)>>,
+    pub links_by_dst: Vec<Vec<(LinkIdx, Link)>>,
+}
+
+impl LinksData {
+    pub fn new(links: Vec<Link>, num_vertices: usize) -> Self {
+        let mut links_by_src: Vec<Vec<(LinkIdx, Link)>> = vec![Vec::new(); num_vertices];
+        let mut links_by_dst: Vec<Vec<(LinkIdx, Link)>> = vec![Vec::new(); num_vertices];
+
+        for (idx, link) in links.iter().enumerate() {
+            let mut reversed_link = link.clone();
+            swap(
+                &mut reversed_link.from_vertex_id,
+                &mut reversed_link.to_vertex_id,
+            );
+            links_by_dst[reversed_link.from_vertex_id].push((idx as LinkIdx, reversed_link));
+            links_by_src[link.from_vertex_id].push((idx as LinkIdx, link.clone()));
+        }
+        Self {
+            links,
+            links_by_src,
+            links_by_dst,
+        }
+    }
+}
+
 pub fn traverse(
-    links: &[Link],
+    links_data: &LinksData,
     init_opt: Option<TraverseResult>,
     global: &GlobalState,
     init_local: LocalState,
@@ -1033,19 +1061,11 @@ pub fn traverse(
         modified_vertices.insert(start_vertex_id);
     }
 
-    let mut links_by_src: Vec<Vec<(LinkIdx, Link)>> = vec![Vec::new(); num_vertices];
-    for (idx, link) in links.iter().enumerate() {
-        if reverse {
-            let mut reversed_link = link.clone();
-            swap(
-                &mut reversed_link.from_vertex_id,
-                &mut reversed_link.to_vertex_id,
-            );
-            links_by_src[reversed_link.from_vertex_id].push((idx as LinkIdx, reversed_link));
-        } else {
-            links_by_src[link.from_vertex_id].push((idx as LinkIdx, link.clone()));
-        }
-    }
+    let links_by_src: &Vec<Vec<(LinkIdx, Link)>> = if reverse {
+        &links_data.links_by_src
+    } else {
+        &links_data.links_by_dst
+    };
 
     while modified_vertices.len() > 0 {
         let mut new_modified_vertices: HashSet<usize> = HashSet::new();

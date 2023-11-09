@@ -30,6 +30,7 @@ use maprando::web::{
 use rand::{RngCore, SeedableRng};
 use sailfish::TemplateOnce;
 use serde_derive::{Deserialize, Serialize};
+use std::time::Instant;
 
 use maprando::web::logic::LogicData;
 use maprando::web::VERSION;
@@ -1207,6 +1208,8 @@ async fn randomize(
     let item_placement_seed: usize;
     let mut attempt: Attempt;
     let mut attempts: Vec<Attempt> = Vec::new();
+
+    let time_start_attempts = Instant::now();
     loop {
         // If we need a thread
         if (attempts.len() < max_threads) && (attempts_triggered < max_attempts) {
@@ -1304,6 +1307,7 @@ async fn randomize(
         break;
     }
 
+    info!("Wall-clock time for attempts: {:?} sec", time_start_attempts.elapsed().as_secs_f32());
     let timestamp = match SystemTime::now().duration_since(SystemTime::UNIX_EPOCH) {
         Ok(n) => n.as_millis() as usize,
         Err(_) => panic!("SystemTime before UNIX EPOCH!"),
