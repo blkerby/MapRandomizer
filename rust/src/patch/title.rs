@@ -14,7 +14,7 @@ pub struct TitlePatcher<'a> {
     next_free_space_pc: usize,
 }
 
-fn read_image(path: &Path) -> Result<Array3<u8>> {
+pub fn read_image(path: &Path) -> Result<Array3<u8>> {
     let img = ImageReader::open(path)
         .with_context(|| format!("Unable to open image: {}", path.display()))?
         .decode()
@@ -202,10 +202,7 @@ impl<'a> TitlePatcher<'a> {
         Ok(())
     }
 
-    pub fn patch_title_background(&mut self) -> Result<()> {
-        let image_path = Path::new("../gfx/title/Title3.png");
-
-        let img = read_image(image_path)?;
+    pub fn patch_title_background(&mut self, img: &Array3<u8>) -> Result<()> {
         assert!(img.dim() == (224, 256, 3));
 
         // Compute title background palette, tile GFX, and tilemap:

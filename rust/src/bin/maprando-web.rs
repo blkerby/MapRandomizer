@@ -1322,8 +1322,7 @@ async fn randomize(
                 randomization,
                 output_rom,
             });
-        }    
-        None
+        }
     });
 
     if output_opt.is_none() {
@@ -1629,6 +1628,7 @@ fn build_app_data() -> AppData {
     let samus_sprites_path = Path::new("../MapRandoSprites/samus_sprites/manifest.json");
     // let samus_spritesheet_layout_path = Path::new("data/samus_spritesheet_layout.json");
     let mosaic_path = Path::new("../Mosaic");
+    let title_screen_path = Path::new("../TitleScreen/Images");
 
     let game_data = GameData::load(
         sm_json_data_path,
@@ -1638,6 +1638,7 @@ fn build_app_data() -> AppData {
         start_locations_path,
         hub_locations_path,
         mosaic_path,
+        title_screen_path,
     )
     .unwrap();
     // let samus_customizer = SamusSpriteCustomizer::new(samus_spritesheet_layout_path).unwrap();

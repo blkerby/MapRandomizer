@@ -32,6 +32,7 @@ fn main() -> Result<()> {
     let start_locations_path = Path::new("data/start_locations.json");
     let hub_locations_path = Path::new("data/hub_locations.json");
     let mosaic_path = Path::new("../Mosaic");
+    let title_screen_path = Path::new("../TitleScreen/Images");
 
     let game_data = GameData::load(
         sm_json_data_path,
@@ -41,6 +42,7 @@ fn main() -> Result<()> {
         start_locations_path,
         hub_locations_path,
         mosaic_path,
+        title_screen_path,
     )?;
 
     // let vertex_id_src = game_data.vertex_isv.index_by_key[&(77, 1, 0)];

@@ -2,7 +2,7 @@ pub mod compress;
 pub mod decompress;
 pub mod ips_write;
 pub mod map_tiles;
-mod title;
+pub mod title;
 
 use std::path::Path;
 
@@ -14,7 +14,11 @@ use crate::{
 use anyhow::{ensure, Context, Result};
 use hashbrown::{HashMap, HashSet};
 use ips;
+use ndarray::Array3;
+use rand::{Rng, SeedableRng};
 use std::iter;
+
+use self::title::read_image;
 
 const NUM_AREAS: usize = 6;
 
@@ -296,7 +300,7 @@ impl<'a> Patcher<'a> {
             "hazard_markers",
             "rng_fix",
             "intro_song",
-            "msu1"
+            "msu1",
         ];
 
         if self.randomization.difficulty.ultra_low_qol {
@@ -875,8 +879,14 @@ impl<'a> Patcher<'a> {
     }
 
     fn apply_map_tile_patches(&mut self) -> Result<()> {
-        map_tiles::MapPatcher::new(&mut self.rom, self.game_data, self.map, self.randomization, &self.locked_door_state_indices)
-            .apply_patches()?;
+        map_tiles::MapPatcher::new(
+            &mut self.rom,
+            self.game_data,
+            self.map,
+            self.randomization,
+            &self.locked_door_state_indices,
+        )
+        .apply_patches()?;
         Ok(())
     }
 
@@ -1212,7 +1222,7 @@ impl<'a> Patcher<'a> {
             self.rom.write_u8(snes2pc(0x838CF2), 0x11)?;
         }
 
-        if self.randomization.difficulty.save_animals == SaveAnimals::Yes  {
+        if self.randomization.difficulty.save_animals == SaveAnimals::Yes {
             // Change end-game behavior to require saving the animals. Address here must match escape.asm:
             self.rom.write_u16(snes2pc(0xA1F000), 0xFFFF)?;
         }
@@ -1231,8 +1241,39 @@ impl<'a> Patcher<'a> {
     }
 
     fn apply_title_screen_patches(&mut self) -> Result<()> {
+        let mut rng_seed = [0u8; 32];
+        rng_seed[..8].copy_from_slice(&self.randomization.seed.to_le_bytes());
+        let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
+
+        // let image_path = Path::new("../gfx/title/Title3.png");
+        // let img = read_image(image_path)?;
+        let mut img = Array3::<u8>::zeros((224, 256, 3));
+        let top_left_idx = rng.gen_range(0..self.game_data.title_screen_data.top_left.len());
+        let top_right_idx = rng.gen_range(0..self.game_data.title_screen_data.top_right.len());
+        let bottom_left_idx = rng.gen_range(0..self.game_data.title_screen_data.bottom_left.len());
+        let bottom_right_idx =
+            rng.gen_range(0..self.game_data.title_screen_data.bottom_right.len());
+
+        let top_left_slice = self.game_data.title_screen_data.top_left[top_left_idx]
+            .slice(ndarray::s![32..144, 0..128, ..]);
+        let top_right_slice = self.game_data.title_screen_data.top_right[top_right_idx]
+            .slice(ndarray::s![32..144, 128..256, ..]);
+        let bottom_left_slice = self.game_data.title_screen_data.bottom_left[bottom_left_idx]
+            .slice(ndarray::s![112..224, 0..128, ..]);
+        let bottom_right_slice = self.game_data.title_screen_data.bottom_right[bottom_right_idx]
+            .slice(ndarray::s![112..224, 128..256, ..]);
+
+        img.slice_mut(ndarray::s![0..112, 0..128, ..])
+            .assign(&top_left_slice);
+        img.slice_mut(ndarray::s![0..112, 128..256, ..])
+            .assign(&top_right_slice);
+        img.slice_mut(ndarray::s![112..224, 0..128, ..])
+            .assign(&bottom_left_slice);
+        img.slice_mut(ndarray::s![112..224, 128..256, ..])
+            .assign(&bottom_right_slice);
+
         let mut title_patcher = title::TitlePatcher::new(&mut self.rom);
-        title_patcher.patch_title_background()?;
+        title_patcher.patch_title_background(&img)?;
         title_patcher.patch_title_foreground()?;
         Ok(())
     }
@@ -1519,18 +1560,18 @@ impl<'a> Patcher<'a> {
 
         let mut write_asm = |room_ptr: usize, x: usize, y: usize| {
             self.extra_setup_asm
-            .entry(room_ptr)
-            .or_insert(vec![])
-            .extend(vec![
-                0x22,
-                0xD7,
-                0x83,
-                0x84, // jsl $8483D7
-                x as u8,
-                y as u8, // X and Y coordinates in 16x16 tiles
-                (plm_id & 0x00FF) as u8,
-                (plm_id >> 8) as u8,
-            ]);
+                .entry(room_ptr)
+                .or_insert(vec![])
+                .extend(vec![
+                    0x22,
+                    0xD7,
+                    0x83,
+                    0x84, // jsl $8483D7
+                    x as u8,
+                    y as u8, // X and Y coordinates in 16x16 tiles
+                    (plm_id & 0x00FF) as u8,
+                    (plm_id >> 8) as u8,
+                ]);
         };
 
         if room.rom_address == 0x7D5A7 {
@@ -1545,7 +1586,11 @@ impl<'a> Patcher<'a> {
         }
         if room.rom_address == 0x7D646 && door.x == 1 && door.y == 2 {
             // East Pants Room
-            write_asm(room.twin_rom_address.unwrap(), tile_x % 16, tile_y % 16 + 16);
+            write_asm(
+                room.twin_rom_address.unwrap(),
+                tile_x % 16,
+                tile_y % 16 + 16,
+            );
         }
         Ok(())
     }
@@ -1598,20 +1643,20 @@ impl<'a> Patcher<'a> {
         // the room PLM list, to add the new door PLMs.
         let mut write_asm = |room_ptr: usize, x: usize, y: usize| {
             self.extra_setup_asm
-            .entry(room_ptr)
-            .or_insert(vec![])
-            .extend(vec![
-                0x22,
-                0x80,
-                0xF3,
-                0x84, // JSL $84F380  (Spawn hard-coded PLM with room argument)
-                x as u8,
-                y as u8, // X and Y coordinates in 16x16 tiles
-                (plm_id & 0x00FF) as u8,
-                (plm_id >> 8) as u8,
-                state_index,
-                0x00, // PLM argument (index for door unlock state)
-            ]);
+                .entry(room_ptr)
+                .or_insert(vec![])
+                .extend(vec![
+                    0x22,
+                    0x80,
+                    0xF3,
+                    0x84, // JSL $84F380  (Spawn hard-coded PLM with room argument)
+                    x as u8,
+                    y as u8, // X and Y coordinates in 16x16 tiles
+                    (plm_id & 0x00FF) as u8,
+                    (plm_id >> 8) as u8,
+                    state_index,
+                    0x00, // PLM argument (index for door unlock state)
+                ]);
         };
         if room.rom_address == 0x7D5A7 {
             // Aqueduct

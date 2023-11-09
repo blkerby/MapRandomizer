@@ -4,6 +4,7 @@ pub mod themed_retiling;
 use anyhow::{bail, ensure, Context, Result};
 // use log::info;
 use crate::customize::room_palettes::decode_palette;
+use crate::patch::title::read_image;
 use hashbrown::{HashMap, HashSet};
 use json::{self, JsonValue};
 use num_enum::TryFromPrimitive;
@@ -763,6 +764,15 @@ impl LinksDataGroup {
     }
 }
 
+type TitleScreenQuadrant = ndarray::Array3<u8>;
+
+#[derive(Default)]
+pub struct TitleScreenData {
+    pub top_left: Vec<TitleScreenQuadrant>,
+    pub top_right: Vec<TitleScreenQuadrant>,
+    pub bottom_left: Vec<TitleScreenQuadrant>,
+    pub bottom_right: Vec<TitleScreenQuadrant>,
+}
 
 // TODO: Clean this up, e.g. pull out a separate structure to hold
 // temporary data used only during loading, replace any
@@ -841,6 +851,7 @@ pub struct GameData {
     pub start_locations: Vec<StartLocation>,
     pub hub_locations: Vec<HubLocation>,
     pub heat_run_tech_id: TechId, // Cached since it is used frequently in graph traversal, and to avoid needing to store it in every HeatFrames req.
+    pub title_screen_data: TitleScreenData,
 }
 
 impl<T: Hash + Eq> IndexedVec<T> {
@@ -3171,6 +3182,26 @@ impl GameData {
         self.base_links_data = LinksDataGroup::new(self.base_links.clone(), self.vertex_isv.keys.len(), 0);
     }
 
+    pub fn load_title_screens(&mut self, title_screen_path: &Path) -> Result<()> {
+        for file in title_screen_path.read_dir()? {
+            let file = file?;
+            let filename = file.file_name().into_string().unwrap();
+            let img = read_image(&file.path())?;
+
+            if filename.starts_with("TL") {
+                self.title_screen_data.top_left.push(img);
+            } else if filename.starts_with("TR") {
+                self.title_screen_data.top_right.push(img);
+            } else if filename.starts_with("BL") {
+                self.title_screen_data.bottom_left.push(img);
+            } else if filename.starts_with("BR") {
+                self.title_screen_data.bottom_right.push(img);
+            }
+        }
+
+        Ok(())
+    }
+
     pub fn load(
         sm_json_data_path: &Path,
         room_geometry_path: &Path,
@@ -3179,6 +3210,7 @@ impl GameData {
         start_locations_path: &Path,
         hub_locations_path: &Path,
         mosaic_path: &Path,
+        title_screen_path: &Path,
     ) -> Result<GameData> {
         let mut game_data = GameData::default();
         game_data.sm_json_data_path = sm_json_data_path.to_owned();
@@ -3333,6 +3365,7 @@ impl GameData {
         // game_data.load_palette(palette_path)?;
         game_data.load_themes(palette_theme_path)?;
         game_data.retiled_theme_data = Some(themed_retiling::load_theme_data(mosaic_path)?);
+        game_data.load_title_screens(title_screen_path)?;
 
         Ok(game_data)
     }

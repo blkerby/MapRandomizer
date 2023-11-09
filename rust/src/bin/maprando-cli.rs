@@ -221,6 +221,7 @@ fn main() -> Result<()> {
     let start_locations_path = Path::new("data/start_locations.json");
     let hub_locations_path = Path::new("data/hub_locations.json");
     let mosaic_path = Path::new("../Mosaic");
+    let title_screen_path = Path::new("../TitleScreen/Images");
     let game_data = GameData::load(
         sm_json_data_path,
         room_geometry_path,
@@ -229,6 +230,7 @@ fn main() -> Result<()> {
         start_locations_path,
         hub_locations_path,
         mosaic_path,
+        title_screen_path,
     )?;
 
     // Perform randomization (map selection & item placement):
