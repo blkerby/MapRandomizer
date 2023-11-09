@@ -15,3 +15,6 @@ package-lock.json
 **/*.smc
 tmp/
 patches/ips/items_test*.ips
+**/FlameGraph/
+**/perf.data
+**/out.perf-folded

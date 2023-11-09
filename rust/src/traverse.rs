@@ -6,7 +6,7 @@ use std::{
 use hashbrown::HashSet;
 
 use crate::{
-    game_data::{Capacity, EnemyVulnerabilities, GameData, Item, Link, Requirement, WeaponMask},
+    game_data::{Capacity, EnemyVulnerabilities, GameData, Item, Link, LinkIdx, Requirement, WeaponMask, LinksDataGroup},
     randomize::DifficultyConfig,
 };
 
@@ -982,7 +982,6 @@ pub fn is_bireachable(
 }
 
 pub type StepTrailId = i32;
-pub type LinkIdx = u32;
 
 #[derive(Clone)]
 pub struct StepTrail {
@@ -999,7 +998,8 @@ pub struct TraverseResult {
 }
 
 pub fn traverse(
-    links: &[Link],
+    base_links_data: &LinksDataGroup,
+    seed_links_data: &LinksDataGroup,
     init_opt: Option<TraverseResult>,
     global: &GlobalState,
     init_local: LocalState,
@@ -1033,26 +1033,24 @@ pub fn traverse(
         modified_vertices.insert(start_vertex_id);
     }
 
-    let mut links_by_src: Vec<Vec<(LinkIdx, Link)>> = vec![Vec::new(); num_vertices];
-    for (idx, link) in links.iter().enumerate() {
-        if reverse {
-            let mut reversed_link = link.clone();
-            swap(
-                &mut reversed_link.from_vertex_id,
-                &mut reversed_link.to_vertex_id,
-            );
-            links_by_src[reversed_link.from_vertex_id].push((idx as LinkIdx, reversed_link));
-        } else {
-            links_by_src[link.from_vertex_id].push((idx as LinkIdx, link.clone()));
-        }
-    }
+    let base_links_by_src: &Vec<Vec<(LinkIdx, Link)>> = if reverse {
+        &base_links_data.links_by_src
+    } else {
+        &base_links_data.links_by_dst
+    };
+    let seed_links_by_src: &Vec<Vec<(LinkIdx, Link)>> = if reverse {
+        &seed_links_data.links_by_src
+    } else {
+        &seed_links_data.links_by_dst
+    };
 
     while modified_vertices.len() > 0 {
         let mut new_modified_vertices: HashSet<usize> = HashSet::new();
         for &src_id in &modified_vertices {
             let src_local_state = result.local_states[src_id].unwrap();
             let src_trail_id = result.start_trail_ids[src_id].unwrap();
-            for &(link_idx, ref link) in &links_by_src[src_id] {
+            let all_src_links = base_links_by_src[src_id].iter().chain(seed_links_by_src[src_id].iter());
+            for &(link_idx, ref link) in all_src_links {
                 let dst_id = link.to_vertex_id;
                 let dst_old_cost = result.cost[dst_id];
                 if let Some(dst_new_local_state) = apply_requirement(

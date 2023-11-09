@@ -4,16 +4,16 @@ use crate::{
     game_data::{
         get_effective_runway_length, Capacity, DoorPosition, DoorPtrPair, EntranceCondition,
         ExitCondition, FlagId, GModeMobility, GModeMode, HubLocation, Item, ItemId, ItemLocationId,
-        Link, Map, NodeId, Physics, Requirement, RoomGeometryRoomIdx, RoomId, StartLocation,
-        VertexId,
+        Link, LinkIdx, LinksDataGroup, Map, NodeId, Physics, Requirement, RoomGeometryRoomIdx,
+        RoomId, StartLocation, VertexId,
     },
     traverse::{
-        apply_requirement, get_spoiler_route, is_bireachable, traverse, GlobalState, LinkIdx,
+        apply_requirement, get_spoiler_route, is_bireachable, traverse, GlobalState,
         LocalState, TraverseResult,
     },
     web::logic::strip_name,
 };
-use anyhow::{bail, Result, Context};
+use anyhow::{bail, Context, Result};
 use by_address::ByAddress;
 use hashbrown::{HashMap, HashSet};
 use log::info;
@@ -161,7 +161,8 @@ pub struct Randomizer<'a> {
     pub locked_doors: &'a [LockedDoor], // Locked doors (not including gray doors)
     pub game_data: &'a GameData,
     pub difficulty_tiers: &'a [DifficultyConfig],
-    pub links: Vec<Link>,
+    pub base_links_data: &'a LinksDataGroup,
+    pub seed_links_data: LinksDataGroup,
     pub initial_items_remaining: Vec<usize>, // Corresponds to GameData.items_isv (one count per distinct item name)
 }
 
@@ -1339,7 +1340,12 @@ impl<'a> Preprocessor<'a> {
         let (other_room_id, other_node_id) = *self
             .door_map
             .get(&(room_id, unlocked_node_id))
-            .with_context(|| format!("No door_map entry for ({}, {}): {:?}", room_id, unlocked_node_id, _link))
+            .with_context(|| {
+                format!(
+                    "No door_map entry for ({}, {}): {:?}",
+                    room_id, unlocked_node_id, _link
+                )
+            })
             .unwrap();
         let runways = &self.game_data.node_runways_map[&(other_room_id, other_node_id)];
         let locked_door_idx = self
@@ -1898,12 +1904,68 @@ pub fn randomize_doors(
     }
 }
 
+fn is_req_possible(req: &Requirement, tech_active: &[bool], strats_active: &[bool]) -> bool {
+    match req {
+        Requirement::Tech(tech_id) => tech_active[*tech_id],
+        Requirement::Strat(strat_id) => strats_active[*strat_id],
+        Requirement::And(reqs) => {
+            reqs.iter().all(|x| is_req_possible(x, tech_active, strats_active))
+        },
+        Requirement::Or(reqs) => {
+            reqs.iter().any(|x| is_req_possible(x, tech_active, strats_active))
+        },
+        _ => true
+    }
+}
+
+pub fn filter_links(links: &[Link], game_data: &GameData, difficulty: &DifficultyConfig) -> Vec<Link> {
+    let mut out = vec![];
+    let tech_vec = get_tech_vec(game_data, difficulty);
+    let strat_vec = get_strat_vec(game_data, difficulty);
+    for link in links {
+        if is_req_possible(&link.requirement, &tech_vec, &strat_vec) {
+            out.push(link.clone())
+        }
+    }
+    out
+}
+
+fn get_tech_vec(game_data: &GameData, difficulty: &DifficultyConfig) -> Vec<bool> {
+    let tech_set: HashSet<String> = difficulty
+        .tech
+        .iter()
+        .map(|x| x.clone())
+        .collect();
+    game_data
+        .tech_isv
+        .keys
+        .iter()
+        .map(|x| tech_set.contains(x))
+        .collect()
+}
+
+fn get_strat_vec(game_data: &GameData, difficulty: &DifficultyConfig) -> Vec<bool> {
+    let strat_set: HashSet<String> = difficulty
+        .notable_strats
+        .iter()
+        .map(|x| x.clone())
+        .collect();
+    game_data
+        .notable_strat_isv
+        .keys
+        .iter()
+        .map(|x| strat_set.contains(x))
+        .collect()
+}
+
 impl<'r> Randomizer<'r> {
     pub fn new(
         map: &'r Map,
         locked_doors: &'r [LockedDoor],
         difficulty_tiers: &'r [DifficultyConfig],
         game_data: &'r GameData,
+        base_links_data: &'r LinksDataGroup,
+        seed_links: &'r [Link],
     ) -> Randomizer<'r> {
         let mut locked_door_map: HashMap<DoorPtrPair, usize> = HashMap::new();
         for (i, door) in locked_doors.iter().enumerate() {
@@ -1914,8 +1976,7 @@ impl<'r> Randomizer<'r> {
         }
 
         let mut preprocessor = Preprocessor::new(game_data, map, locked_doors, &locked_door_map);
-        let mut links: Vec<Link> = game_data
-            .links
+        let mut preprocessed_seed_links: Vec<Link> = seed_links
             .iter()
             .map(|x| preprocessor.preprocess_link(x))
             .flatten()
@@ -1948,14 +2009,14 @@ impl<'r> Randomizer<'r> {
                 dst_node_id,
                 src_locked_door_idx,
                 game_data,
-                &mut links,
+                &mut preprocessed_seed_links,
                 locked_doors,
             );
             // if (src_room_id, unlocked_src_node_id) == (220, 2) {
             //     println!("pants");
             // }
             // if src_room_id == 220 || dst_room_id == 220 || src_room_id == 322 || dst_room_id == 322 {
-            //     println!("({:x}, {:x}) ({:x}, {:x}) ({}, {})  ({}, {}) {}", 
+            //     println!("({:x}, {:x}) ({:x}, {:x}) ({}, {})  ({}, {}) {}",
             //     src_exit_ptr.unwrap(), src_entrance_ptr.unwrap(),
             //     dst_exit_ptr.unwrap(), dst_entrance_ptr.unwrap(),
             //     src_room_id, src_node_id, dst_room_id, dst_node_id, bidirectional);
@@ -1969,9 +2030,9 @@ impl<'r> Randomizer<'r> {
                     dst_node_id,
                     src_locked_door_idx,
                     game_data,
-                    &mut links,
+                    &mut preprocessed_seed_links,
                     locked_doors,
-                );    
+                );
             }
             if bidirectional {
                 add_door_links(
@@ -1981,7 +2042,7 @@ impl<'r> Randomizer<'r> {
                     src_node_id,
                     dst_locked_door_idx,
                     game_data,
-                    &mut links,
+                    &mut preprocessed_seed_links,
                     locked_doors,
                 );
             }
@@ -2000,39 +2061,25 @@ impl<'r> Randomizer<'r> {
             locked_doors,
             initial_items_remaining,
             game_data,
-            links,
+            base_links_data,
+            seed_links_data: LinksDataGroup::new(
+                preprocessed_seed_links,
+                game_data.vertex_isv.keys.len(),
+                base_links_data.links.len(),
+            ),
             difficulty_tiers,
         }
     }
 
-    fn get_tech_vec(&self, tier: usize) -> Vec<bool> {
-        let tech_set: HashSet<String> = self.difficulty_tiers[tier]
-            .tech
-            .iter()
-            .map(|x| x.clone())
-            .collect();
-        self.game_data
-            .tech_isv
-            .keys
-            .iter()
-            .map(|x| tech_set.contains(x))
-            .collect()
+    pub fn get_link(&self, idx: usize) -> &Link {
+        let base_links_len = self.base_links_data.links.len();
+        if idx < base_links_len {
+            &self.base_links_data.links[idx]
+        } else {
+            &self.seed_links_data.links[idx - base_links_len]
+        }
     }
-
-    fn get_strat_vec(&self, tier: usize) -> Vec<bool> {
-        let strat_set: HashSet<String> = self.difficulty_tiers[tier]
-            .notable_strats
-            .iter()
-            .map(|x| x.clone())
-            .collect();
-        self.game_data
-            .notable_strat_isv
-            .keys
-            .iter()
-            .map(|x| strat_set.contains(x))
-            .collect()
-    }
-
+    
     fn get_initial_flag_vec(&self) -> Vec<bool> {
         let mut flag_vec = vec![false; self.game_data.flag_isv.keys.len()];
         let tourian_open_idx = self.game_data.flag_isv.index_by_key["f_TourianOpen"];
@@ -2055,7 +2102,8 @@ impl<'r> Randomizer<'r> {
         let start_vertex_id = self.game_data.vertex_isv.index_by_key
             [&(state.hub_location.room_id, state.hub_location.node_id, 0)];
         let forward = traverse(
-            &self.links,
+            &self.base_links_data,
+            &self.seed_links_data,
             None,
             &state.global_state,
             LocalState::new(),
@@ -2066,7 +2114,8 @@ impl<'r> Randomizer<'r> {
             self.game_data,
         );
         let reverse = traverse(
-            &self.links,
+            &self.base_links_data,
+            &self.seed_links_data,
             None,
             &state.global_state,
             LocalState::new(),
@@ -2337,8 +2386,8 @@ impl<'r> Randomizer<'r> {
         for tier in 1..self.difficulty_tiers.len() {
             let difficulty = &self.difficulty_tiers[tier];
             let mut tmp_global = state.global_state.clone();
-            tmp_global.tech = self.get_tech_vec(tier);
-            tmp_global.notable_strats = self.get_strat_vec(tier);
+            tmp_global.tech = get_tech_vec(&self.game_data, difficulty);
+            tmp_global.notable_strats = get_strat_vec(&self.game_data, difficulty);
             tmp_global.shine_charge_tiles = difficulty.shine_charge_tiles;
             // print!("tier:{} tech:", tier);
             // for (i, tech) in self.game_data.tech_isv.keys.iter().enumerate() {
@@ -2348,7 +2397,8 @@ impl<'r> Randomizer<'r> {
             // }
             // println!("");
             let traverse_result = traverse(
-                &self.links,
+                &self.base_links_data,
+                &self.seed_links_data,
                 self.get_init_traverse(state, init_traverse),
                 &tmp_global,
                 LocalState::new(),
@@ -2430,7 +2480,7 @@ impl<'r> Randomizer<'r> {
                 let route =
                     get_spoiler_route(&state.debug_data.as_ref().unwrap().forward, hard_vertex_id);
                 for &link_idx in &route {
-                    let vertex_id = self.links[link_idx as usize].to_vertex_id;
+                    let vertex_id = self.get_link(link_idx as usize).to_vertex_id;
                     new_state.key_visited_vertices.insert(vertex_id);
                 }
             }
@@ -2945,7 +2995,8 @@ impl<'r> Randomizer<'r> {
                 continue;
             }
             let forward = traverse(
-                &self.links,
+                &self.base_links_data,
+                &self.seed_links_data,
                 None,
                 &global,
                 local.unwrap(),
@@ -2956,7 +3007,8 @@ impl<'r> Randomizer<'r> {
                 self.game_data,
             );
             let forward0 = traverse(
-                &self.links,
+                &self.base_links_data,
+                &self.seed_links_data,
                 None,
                 &global,
                 LocalState::new(),
@@ -2967,7 +3019,8 @@ impl<'r> Randomizer<'r> {
                 self.game_data,
             );
             let reverse = traverse(
-                &self.links,
+                &self.base_links_data,
+                &self.seed_links_data,
                 None,
                 &global,
                 LocalState::new(),
@@ -3023,8 +3076,8 @@ impl<'r> Randomizer<'r> {
         let items = vec![false; self.game_data.item_isv.keys.len()];
         let weapon_mask = self.game_data.get_weapon_mask(&items);
         GlobalState {
-            tech: self.get_tech_vec(0),
-            notable_strats: self.get_strat_vec(0),
+            tech: get_tech_vec(&self.game_data, &self.difficulty_tiers[0]),
+            notable_strats: get_strat_vec(&self.game_data, &self.difficulty_tiers[0]),
             items: items,
             flags: self.get_initial_flag_vec(),
             max_energy: 99,
@@ -3407,8 +3460,8 @@ impl<'a> Randomizer<'a> {
         // info!("global: {:?}", global_state);
         // global_state.print_debug(self.game_data);
         for &link_idx in link_idxs {
-            let link = &self.links[link_idx as usize];
-            let raw_link = &self.links[link_idx as usize];
+            let link = self.get_link(link_idx as usize);
+            let raw_link = self.get_link(link_idx as usize);
             let sublinks = if raw_link.sublinks.len() > 0 {
                 raw_link.sublinks.clone()
             } else {
@@ -3477,7 +3530,7 @@ impl<'a> Randomizer<'a> {
 
         let mut local_state = LocalState::new();
         for &link_idx in link_idxs {
-            let link = &self.links[link_idx as usize];
+            let link = self.get_link(link_idx as usize);
             let new_local_state = apply_requirement(
                 &link.requirement,
                 &global_state,
@@ -3529,7 +3582,7 @@ impl<'a> Randomizer<'a> {
         local_state = local_state_end_forward;
         for i in (0..link_idxs.len()).rev() {
             let link_idx = link_idxs[i];
-            let raw_link = &self.links[link_idx as usize];
+            let raw_link = self.get_link(link_idx as usize);
             let sublinks = if raw_link.sublinks.len() > 0 {
                 raw_link.sublinks.clone()
             } else {

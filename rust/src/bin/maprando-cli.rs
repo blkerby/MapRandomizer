@@ -197,7 +197,8 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
             None => attempt_num,
         };
         let locked_doors = randomize_doors(game_data, &map, &difficulty_tiers[0], seed);
-        let randomizer = Randomizer::new(&map, &locked_doors, &difficulty_tiers, &game_data);
+        let randomizer = Randomizer::new(&map, &locked_doors, &difficulty_tiers, &game_data,
+            &game_data.base_links_data, &game_data.seed_links);
         if let Ok(randomization) = randomizer.randomize(attempt_num, seed, 1) {
             return Ok(randomization);
         } else {

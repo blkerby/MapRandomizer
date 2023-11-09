@@ -17,8 +17,9 @@ document.getElementById("navigation-releases").classList.add("active");
 about 15 seconds to load.
 <br><br>
 
-<p><a href="https://version-94---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release94">Version 94 (2023-11-08)</a>:
+<p><a href="https://version-94---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release94">Version 94 (2023-11-09)</a>:
 <ul>
+<li>Randomizer performance is improved, running much faster.
 <li>During the escape, the gray door in Bomb Torizo Room spawns and behaves as it does in vanilla, unlocking only
     after the animals are saved.
 <li>"Guaranteed early save station" is converted to a quality-of-life option and is enabled by default.
@@ -33,10 +34,9 @@ about 15 seconds to load.
     </ul>
 <li>A development version of the randomizer/website is available at <a href="http://dev.maprando.com">dev.maprando.com</a>.
     <ul>
-    <li>The development version will give a preview of the upcoming release.
+    <li>The development version will give a preview of upcoming changes.
     <li>It may have a higher chance of containing bugs.
-    <li>It may run more slowly, as fewer resources are allocated to it.
-    <li>Feel free to try it out and give us early feedback on new features.
+    <li>Try it out and give us early feedback on new features!
     </ul>
 <li>Logic update:
     <ul>
