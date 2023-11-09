@@ -86,6 +86,7 @@ class MazeBuilderEnv:
         self.num_doors = int(torch.sum(self.room_door_count))
         self.num_missing_connects = self.missing_connection_src.shape[0]
         self.num_save_dist = self.potential_save_idxs.shape[0]
+        self.num_non_save_dist = self.non_potential_save_idxs.shape[0]
         # self.num_missing_connects = self.num_parts * 2
         self.max_reward = self.num_doors // 2 + self.num_missing_connects
         self.reset()
@@ -839,7 +840,7 @@ class MazeBuilderEnv:
 
         return adjacency_matrix
 
-    def compute_distance_matrix(self, adjacency_matrix):
+    def compute_distance_matrix_batch(self, adjacency_matrix):
         A = adjacency_matrix.to(torch.int16)
         n = adjacency_matrix.shape[0]
         k = adjacency_matrix.shape[1]
@@ -852,6 +853,18 @@ class MazeBuilderEnv:
             A = torch.amin(A_sum, dim=1)
         # print(torch.amax(A[:, :-1, :-1], dim=[1, 2]))
         return A
+
+    def compute_distance_matrix(self, adjacency_matrix):
+        n = adjacency_matrix.shape[0]
+        batch_size = 32
+        out_list = []
+        for i in range((n + batch_size - 1) // batch_size):
+            start = i * batch_size
+            end = (i + 1) * batch_size
+            batch_adjacency_matrix = adjacency_matrix[start:end]
+            batch_out = self.compute_distance_matrix_batch(batch_adjacency_matrix)
+            out_list.append(batch_out)
+        return torch.cat(out_list, dim=0)
 
     def compute_save_distances(self, distance_matrix):
         n = distance_matrix.shape[0]

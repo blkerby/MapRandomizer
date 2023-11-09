@@ -503,14 +503,12 @@ class TrainingSession():
                                              cpu_executor=cpu_executor,
                                              render=render)
 
-    def train_batch(self, data: TrainingData, save_dist_weight: float, graph_diam_weight: float, mc_dist_weight: float, augment_frac: float):
-        self.model.train()
-
+    def compute_losses(self, data: TrainingData, save_dist_weight: float, graph_diam_weight: float, mc_dist_weight: float):
         env = self.envs[0]
         # map = env.compute_map(data.room_mask, data.room_position_x, data.room_position_y)
         raw_preds = self.model.forward_multiclass(
             data.room_mask, data.room_position_x, data.room_position_y, data.steps_remaining, data.round_frac,
-            data.temperature, data.mc_dist_coef, augment_frac=augment_frac)
+            data.temperature, data.mc_dist_coef)
 
         all_binary_outputs = torch.cat([data.door_connects, data.missing_connects], dim=1)
         num_binary_outputs = all_binary_outputs.shape[1]
@@ -535,25 +533,26 @@ class TrainingSession():
         mc_dist_loss = torch.mean(torch.where(mc_dist_mask, (pred_mc_dist - data.mc_distances.to(torch.float)) ** 2, torch.zeros_like(pred_mc_dist)))
 
         loss = binary_loss + save_dist_loss * save_dist_weight + graph_diam_loss * graph_diam_weight + mc_dist_loss * mc_dist_weight
+        return loss, binary_loss.item(), save_dist_loss.item(), graph_diam_loss.item(), mc_dist_loss.item()
+
+
+    def train_batch(self, data: TrainingData, save_dist_weight: float, graph_diam_weight: float, mc_dist_weight: float):
+        self.model.train()
+        losses = self.compute_losses(data, save_dist_weight, graph_diam_weight, mc_dist_weight)
+        overall_loss = losses[0]
 
         self.optimizer.zero_grad()
-        self.grad_scaler.scale(loss).backward()
+        self.grad_scaler.scale(overall_loss).backward()
         self.grad_scaler.step(self.optimizer)
         self.grad_scaler.update()
         self.model.decay(self.decay_amount * self.optimizer.param_groups[0]['lr'])
         self.model.project()
         self.average_parameters.update(self.model.all_param_data())
-        return loss.item(), binary_loss.item(), save_dist_loss.item(), graph_diam_loss.item(), mc_dist_loss.item()
+        return losses
 
-    # def eval_batch(self, data: TrainingData):
-    #     self.model.eval()
-    #     with torch.no_grad():
-    #         raw_preds = self.model.forward_multiclass(
-    #             data.room_mask, data.room_position_x, data.room_position_y, data.steps_remaining, data.round_frac,
-    #             data.temperature, augment_frac=0.0)
-    #         state_value_raw_logodds = raw_preds[:, :-1]
-    #         all_outputs = torch.cat([data.door_connects, data.missing_connects], dim=1)
-    #         loss = torch.nn.functional.binary_cross_entropy_with_logits(state_value_raw_logodds,
-    #                                                                     all_outputs.to(state_value_raw_logodds.dtype))
-    #     return loss.item()
-    #
+    def eval_batch(self, data: TrainingData, save_dist_weight: float, graph_diam_weight: float, mc_dist_weight: float):
+        self.model.eval()
+        with torch.no_grad():
+            losses = self.compute_losses(data, save_dist_weight, graph_diam_weight, mc_dist_weight)
+        return losses[0].item()
+

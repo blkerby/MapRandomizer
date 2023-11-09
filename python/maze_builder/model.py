@@ -733,7 +733,7 @@ class TransformerModel(torch.nn.Module):
         self.num_blocks_x = map_x // block_size_x
         self.num_blocks_y = map_y // block_size_y
         self.num_blocks = self.num_blocks_x * self.num_blocks_y
-        self.global_lin = torch.nn.Linear(self.num_rooms + 3, embedding_width)
+        self.global_lin = torch.nn.Linear(self.num_rooms + 4, embedding_width)
         self.pos_embedding = torch.nn.Parameter(torch.randn([self.num_blocks, embedding_width]) / math.sqrt(embedding_width))
         self.room_embedding = torch.nn.Parameter(
             torch.randn([self.num_rooms, self.block_size, embedding_width]) / math.sqrt(embedding_width))
@@ -814,7 +814,7 @@ class TransformerModel(torch.nn.Module):
 
 
     def forward_multiclass(self, room_mask, room_position_x, room_position_y, steps_remaining, round_frac,
-                           temperature, mc_dist_coef, augment_frac: float):
+                           temperature, mc_dist_coef):
         n = room_mask.shape[0]
         device = room_mask.device
         dtype = torch.float16
@@ -835,45 +835,45 @@ class TransformerModel(torch.nn.Module):
             adj_room_position_x = room_position_x + self.room_half_size_x.to(device).view(1, -1)
             adj_room_position_y = room_position_y + self.room_half_size_y.to(device).view(1, -1)
 
-            if augment_frac > 0.0:
-                min_room_position_x = torch.min(adj_room_position_x, dim=1)[0]
-                max_room_position_x = torch.max(adj_room_position_x, dim=1)[0]
-                min_shift_x = -torch.clamp(min_room_position_x, max=4)
-                max_shift_x = torch.clamp(self.map_x - max_room_position_x, max=4)
-
-                min_room_position_y = torch.min(adj_room_position_y, dim=1)[0]
-                max_room_position_y = torch.max(adj_room_position_y, dim=1)[0]
-                min_shift_y = -torch.clamp(min_room_position_y, max=4)
-                max_shift_y = torch.clamp(self.map_y - max_room_position_y, max=4)
-
-                augment_shift_x = self.augment_shift_x.to(device)  # TODO: just keep these on the device
-                augment_shift_y = self.augment_shift_y.to(device)
-                augment_valid_x_min = augment_shift_x.view(1, -1) >= min_shift_x.view(-1, 1)
-                augment_valid_x_max = augment_shift_x.view(1, -1) < max_shift_x.view(-1, 1)
-                augment_valid_y_min = augment_shift_y.view(1, -1) >= min_shift_y.view(-1, 1)
-                augment_valid_y_max = augment_shift_y.view(1, -1) < max_shift_y.view(-1, 1)
-                augment_valid = augment_valid_x_min & augment_valid_x_max & augment_valid_y_min & augment_valid_y_max
-                augment_weight = torch.where(augment_valid, self.augment_weight.to(device).view(1, -1),
-                                             torch.zeros_like(self.augment_weight.to(device)).view(1, -1))
-                augment_idx = torch.multinomial(augment_weight, num_samples=1, replacement=True)[:, 0]
-                augment_selected = torch.rand([n], device=device) < augment_frac
-                augment_idx = torch.where(augment_selected, augment_idx, torch.full_like(augment_idx, self.no_augment_idx))
-
-                augment_x = augment_shift_x[augment_idx]
-                augment_y = augment_shift_y[augment_idx]
-                adj_room_position_x = adj_room_position_x + augment_x.view(-1, 1)
-                adj_room_position_y = adj_room_position_y + augment_y.view(-1, 1)
-
-                augment_embedding = self.augment_embedding.to(dtype)[augment_idx, :]
-            else:
-                augment_embedding = self.augment_embedding.to(dtype)[self.no_augment_idx, :]
+            # if augment_frac > 0.0:
+            #     min_room_position_x = torch.min(adj_room_position_x, dim=1)[0]
+            #     max_room_position_x = torch.max(adj_room_position_x, dim=1)[0]
+            #     min_shift_x = -torch.clamp(min_room_position_x, max=4)
+            #     max_shift_x = torch.clamp(self.map_x - max_room_position_x, max=4)
+            #
+            #     min_room_position_y = torch.min(adj_room_position_y, dim=1)[0]
+            #     max_room_position_y = torch.max(adj_room_position_y, dim=1)[0]
+            #     min_shift_y = -torch.clamp(min_room_position_y, max=4)
+            #     max_shift_y = torch.clamp(self.map_y - max_room_position_y, max=4)
+            #
+            #     augment_shift_x = self.augment_shift_x.to(device)  # TODO: just keep these on the device
+            #     augment_shift_y = self.augment_shift_y.to(device)
+            #     augment_valid_x_min = augment_shift_x.view(1, -1) >= min_shift_x.view(-1, 1)
+            #     augment_valid_x_max = augment_shift_x.view(1, -1) < max_shift_x.view(-1, 1)
+            #     augment_valid_y_min = augment_shift_y.view(1, -1) >= min_shift_y.view(-1, 1)
+            #     augment_valid_y_max = augment_shift_y.view(1, -1) < max_shift_y.view(-1, 1)
+            #     augment_valid = augment_valid_x_min & augment_valid_x_max & augment_valid_y_min & augment_valid_y_max
+            #     augment_weight = torch.where(augment_valid, self.augment_weight.to(device).view(1, -1),
+            #                                  torch.zeros_like(self.augment_weight.to(device)).view(1, -1))
+            #     augment_idx = torch.multinomial(augment_weight, num_samples=1, replacement=True)[:, 0]
+            #     augment_selected = torch.rand([n], device=device) < augment_frac
+            #     augment_idx = torch.where(augment_selected, augment_idx, torch.full_like(augment_idx, self.no_augment_idx))
+            #
+            #     augment_x = augment_shift_x[augment_idx]
+            #     augment_y = augment_shift_y[augment_idx]
+            #     adj_room_position_x = adj_room_position_x + augment_x.view(-1, 1)
+            #     adj_room_position_y = adj_room_position_y + augment_y.view(-1, 1)
+            #
+            #     augment_embedding = self.augment_embedding.to(dtype)[augment_idx, :]
+            # else:
+            #     augment_embedding = self.augment_embedding.to(dtype)[self.no_augment_idx, :]
 
             # assert torch.min(adj_room_position_x) >= 0
             # assert torch.max(adj_room_position_x) < self.map_x
             # assert torch.min(adj_room_position_y) >= 0
             # assert torch.max(adj_room_position_y) < self.map_y
 
-            global_embedding = global_embedding + augment_embedding
+            # global_embedding = global_embedding + augment_embedding
 
             nz = torch.nonzero(room_mask)
             nz_env_idx = nz[:, 0]
