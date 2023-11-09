@@ -48,6 +48,7 @@ pub type DoorPtr = usize; // PC address of door data for exiting given door
 pub type DoorPtrPair = (Option<DoorPtr>, Option<DoorPtr>); // PC addresses of door data for exiting & entering given door (from vanilla door connection)
 pub type TilesetIdx = usize; // Tileset index
 pub type AreaIdx = usize; // Area index (0..5)
+pub type LinkIdx = u32;
 
 #[derive(Default, Clone)]
 pub struct IndexedVec<T: Hash + Eq> {
@@ -733,6 +734,36 @@ fn parse_entrance_condition(entrance_json: &JsonValue, heated: bool) -> Result<E
     }
 }
 
+#[derive(Default)]
+pub struct LinksDataGroup {
+    pub links: Vec<Link>,
+    pub links_by_src: Vec<Vec<(LinkIdx, Link)>>,
+    pub links_by_dst: Vec<Vec<(LinkIdx, Link)>>,
+}
+
+impl LinksDataGroup {
+    pub fn new(links: Vec<Link>, num_vertices: usize, start_idx: usize) -> Self {
+        let mut links_by_src: Vec<Vec<(LinkIdx, Link)>> = vec![Vec::new(); num_vertices];
+        let mut links_by_dst: Vec<Vec<(LinkIdx, Link)>> = vec![Vec::new(); num_vertices];
+
+        for (idx, link) in links.iter().enumerate() {
+            let mut reversed_link = link.clone();
+            std::mem::swap(
+                &mut reversed_link.from_vertex_id,
+                &mut reversed_link.to_vertex_id,
+            );
+            links_by_dst[reversed_link.from_vertex_id].push(((start_idx + idx) as LinkIdx, reversed_link));
+            links_by_src[link.from_vertex_id].push(((start_idx + idx) as LinkIdx, link.clone()));
+        }
+        Self {
+            links,
+            links_by_src,
+            links_by_dst,
+        }
+    }
+}
+
+
 // TODO: Clean this up, e.g. pull out a separate structure to hold
 // temporary data used only during loading, replace any
 // remaining JsonValue types in the main struct with something
@@ -783,6 +814,9 @@ pub struct GameData {
     pub flag_vertex_ids: Vec<Vec<VertexId>>,
     pub save_locations: Vec<(RoomId, NodeId)>,
     pub links: Vec<Link>,
+    pub base_links: Vec<Link>,
+    pub base_links_data: LinksDataGroup,
+    pub seed_links: Vec<Link>,
     pub room_geometry: Vec<RoomGeometry>,
     pub room_and_door_idxs_by_door_ptr_pair:
         HashMap<DoorPtrPair, (RoomGeometryRoomIdx, RoomGeometryDoorIdx)>,
@@ -3101,6 +3135,42 @@ impl GameData {
         Ok(())
     }
 
+    fn is_base_req(req: &Requirement) -> bool {
+        match req {
+            Requirement::AdjacentRunway { .. } => false,
+            Requirement::AdjacentJumpway { .. } => false,
+            Requirement::CanComeInCharged { .. } => false,
+            Requirement::ComeInWithRMode { .. } => false,
+            Requirement::ComeInWithGMode { .. } => false,
+            Requirement::DoorUnlocked { .. } => false,
+            Requirement::And(and_reqs) => {
+                and_reqs.iter().all(|x| Self::is_base_req(x))
+            },
+            Requirement::Or(or_reqs) => {
+                or_reqs.iter().all(|x| Self::is_base_req(x))
+            },
+            _ => true
+        }
+    }
+
+    fn is_base_link(link: &Link) -> bool {
+        if link.entrance_condition.is_some() {
+            return false;
+        }
+        Self::is_base_req(&link.requirement)
+    }
+
+    fn filter_links(&mut self) {
+        for link in &self.links {
+            if Self::is_base_link(link) {
+                self.base_links.push(link.clone());
+            } else {
+                self.seed_links.push(link.clone());
+            }
+        }
+        self.base_links_data = LinksDataGroup::new(self.base_links.clone(), self.vertex_isv.keys.len(), 0);
+    }
+
     pub fn load(
         sm_json_data_path: &Path,
         room_geometry_path: &Path,
@@ -3229,6 +3299,7 @@ impl GameData {
         game_data.load_weapons()?;
         game_data.load_enemies()?;
         game_data.load_regions()?;
+        game_data.filter_links();
         game_data.load_connections()?;
         game_data.populate_target_locations()?;
         game_data.extract_all_tech_dependencies()?;
