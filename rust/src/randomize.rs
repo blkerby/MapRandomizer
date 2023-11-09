@@ -1903,6 +1903,60 @@ pub fn randomize_doors(
     }
 }
 
+fn is_req_possible(req: &Requirement, tech_active: &[bool], strats_active: &[bool]) -> bool {
+    match req {
+        Requirement::Tech(tech_id) => tech_active[*tech_id],
+        Requirement::Strat(strat_id) => strats_active[*strat_id],
+        Requirement::And(reqs) => {
+            reqs.iter().all(|x| is_req_possible(x, tech_active, strats_active))
+        },
+        Requirement::Or(reqs) => {
+            reqs.iter().any(|x| is_req_possible(x, tech_active, strats_active))
+        },
+        _ => true
+    }
+}
+
+pub fn filter_links(links: &[Link], game_data: &GameData, difficulty: &DifficultyConfig) -> Vec<Link> {
+    let mut out = vec![];
+    let tech_vec = get_tech_vec(game_data, difficulty);
+    let strat_vec = get_strat_vec(game_data, difficulty);
+    for link in links {
+        if is_req_possible(&link.requirement, &tech_vec, &strat_vec) {
+            out.push(link.clone())
+        }
+    }
+    out
+}
+
+fn get_tech_vec(game_data: &GameData, difficulty: &DifficultyConfig) -> Vec<bool> {
+    let tech_set: HashSet<String> = difficulty
+        .tech
+        .iter()
+        .map(|x| x.clone())
+        .collect();
+    game_data
+        .tech_isv
+        .keys
+        .iter()
+        .map(|x| tech_set.contains(x))
+        .collect()
+}
+
+fn get_strat_vec(game_data: &GameData, difficulty: &DifficultyConfig) -> Vec<bool> {
+    let strat_set: HashSet<String> = difficulty
+        .notable_strats
+        .iter()
+        .map(|x| x.clone())
+        .collect();
+    game_data
+        .notable_strat_isv
+        .keys
+        .iter()
+        .map(|x| strat_set.contains(x))
+        .collect()
+}
+
 impl<'r> Randomizer<'r> {
     pub fn new(
         map: &'r Map,
@@ -2023,35 +2077,6 @@ impl<'r> Randomizer<'r> {
         }
     }
     
-    
-    fn get_tech_vec(&self, tier: usize) -> Vec<bool> {
-        let tech_set: HashSet<String> = self.difficulty_tiers[tier]
-            .tech
-            .iter()
-            .map(|x| x.clone())
-            .collect();
-        self.game_data
-            .tech_isv
-            .keys
-            .iter()
-            .map(|x| tech_set.contains(x))
-            .collect()
-    }
-
-    fn get_strat_vec(&self, tier: usize) -> Vec<bool> {
-        let strat_set: HashSet<String> = self.difficulty_tiers[tier]
-            .notable_strats
-            .iter()
-            .map(|x| x.clone())
-            .collect();
-        self.game_data
-            .notable_strat_isv
-            .keys
-            .iter()
-            .map(|x| strat_set.contains(x))
-            .collect()
-    }
-
     fn get_initial_flag_vec(&self) -> Vec<bool> {
         let mut flag_vec = vec![false; self.game_data.flag_isv.keys.len()];
         let tourian_open_idx = self.game_data.flag_isv.index_by_key["f_TourianOpen"];
@@ -2358,8 +2383,8 @@ impl<'r> Randomizer<'r> {
         for tier in 1..self.difficulty_tiers.len() {
             let difficulty = &self.difficulty_tiers[tier];
             let mut tmp_global = state.global_state.clone();
-            tmp_global.tech = self.get_tech_vec(tier);
-            tmp_global.notable_strats = self.get_strat_vec(tier);
+            tmp_global.tech = get_tech_vec(&self.game_data, difficulty);
+            tmp_global.notable_strats = get_strat_vec(&self.game_data, difficulty);
             tmp_global.shine_charge_tiles = difficulty.shine_charge_tiles;
             // print!("tier:{} tech:", tier);
             // for (i, tech) in self.game_data.tech_isv.keys.iter().enumerate() {
@@ -3048,8 +3073,8 @@ impl<'r> Randomizer<'r> {
         let items = vec![false; self.game_data.item_isv.keys.len()];
         let weapon_mask = self.game_data.get_weapon_mask(&items);
         GlobalState {
-            tech: self.get_tech_vec(0),
-            notable_strats: self.get_strat_vec(0),
+            tech: get_tech_vec(&self.game_data, &self.difficulty_tiers[0]),
+            notable_strats: get_strat_vec(&self.game_data, &self.difficulty_tiers[0]),
             items: items,
             flags: self.get_initial_flag_vec(),
             max_energy: 99,
