@@ -1185,9 +1185,9 @@ async fn randomize(
         vec![difficulty.clone()]
     };
 
-    // let filtered_base_links = filter_links(&app_data.game_data.base_links, &app_data.game_data, &difficulty);
-    // let filtered_base_links_data = LinksDataGroup::new(filtered_base_links, app_data.game_data.vertex_isv.keys.len(), 0);
-    // let filtered_seed_links = filter_links(&app_data.game_data.seed_links, &app_data.game_data, &difficulty);
+    let filtered_base_links = filter_links(&app_data.game_data.base_links, &app_data.game_data, &difficulty);
+    let filtered_base_links_data = LinksDataGroup::new(filtered_base_links, app_data.game_data.vertex_isv.keys.len(), 0);
+    let filtered_seed_links = filter_links(&app_data.game_data.seed_links, &app_data.game_data, &difficulty);
 
     let mut rng_seed = [0u8; 32];
     rng_seed[..8].copy_from_slice(&random_seed.to_le_bytes());
@@ -1236,7 +1236,9 @@ async fn randomize(
                 let door_randomization_seed_local = attempt.door_randomization_seed.clone();
                 let item_placement_seed_local = attempt.item_placement_seed.clone();
                 let attempts_triggered_local = attempts_triggered.clone();
-                let local_rom = rom.clone();
+                let rom_ref = &rom;
+                let filtered_base_links_data_ref = &filtered_base_links_data;
+                let filtered_seed_links_ref = &filtered_seed_links;
                 attempt.thread_handle = Some(scope.spawn(move || -> Result<(Randomization, Rom)> {
                     let map = if difficulty.vanilla_map {
                         // TODO: this is hacky, clean it up:
@@ -1264,13 +1266,15 @@ async fn randomize(
                         &locked_doors,
                         &difficulty_tiers_local,
                         &app_data_local.game_data,
+                        filtered_base_links_data_ref,
+                        filtered_seed_links_ref,
                     );
                     let randomization = randomizer.randomize(
                         attempts_triggered_local,
                         item_placement_seed_local,
                         display_seed,
                     )?;
-                    let output_rom = make_rom(&local_rom, &randomization, &app_data_local.game_data)?;
+                    let output_rom = make_rom(rom_ref, &randomization, &app_data_local.game_data)?;
                     Ok((randomization, output_rom))
                 }));
                 // Insert at position 0 so attempts pop off in the order they were created, simpler than using a VecDeque

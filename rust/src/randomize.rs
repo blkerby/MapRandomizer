@@ -161,6 +161,7 @@ pub struct Randomizer<'a> {
     pub locked_doors: &'a [LockedDoor], // Locked doors (not including gray doors)
     pub game_data: &'a GameData,
     pub difficulty_tiers: &'a [DifficultyConfig],
+    pub base_links_data: &'a LinksDataGroup,
     pub seed_links_data: LinksDataGroup,
     pub initial_items_remaining: Vec<usize>, // Corresponds to GameData.items_isv (one count per distinct item name)
 }
@@ -1963,6 +1964,8 @@ impl<'r> Randomizer<'r> {
         locked_doors: &'r [LockedDoor],
         difficulty_tiers: &'r [DifficultyConfig],
         game_data: &'r GameData,
+        base_links_data: &'r LinksDataGroup,
+        seed_links: &'r [Link],
     ) -> Randomizer<'r> {
         let mut locked_door_map: HashMap<DoorPtrPair, usize> = HashMap::new();
         for (i, door) in locked_doors.iter().enumerate() {
@@ -1973,8 +1976,7 @@ impl<'r> Randomizer<'r> {
         }
 
         let mut preprocessor = Preprocessor::new(game_data, map, locked_doors, &locked_door_map);
-        let mut seed_links: Vec<Link> = game_data
-            .seed_links
+        let mut preprocessed_seed_links: Vec<Link> = seed_links
             .iter()
             .map(|x| preprocessor.preprocess_link(x))
             .flatten()
@@ -2007,7 +2009,7 @@ impl<'r> Randomizer<'r> {
                 dst_node_id,
                 src_locked_door_idx,
                 game_data,
-                &mut seed_links,
+                &mut preprocessed_seed_links,
                 locked_doors,
             );
             // if (src_room_id, unlocked_src_node_id) == (220, 2) {
@@ -2028,7 +2030,7 @@ impl<'r> Randomizer<'r> {
                     dst_node_id,
                     src_locked_door_idx,
                     game_data,
-                    &mut seed_links,
+                    &mut preprocessed_seed_links,
                     locked_doors,
                 );
             }
@@ -2040,7 +2042,7 @@ impl<'r> Randomizer<'r> {
                     src_node_id,
                     dst_locked_door_idx,
                     game_data,
-                    &mut seed_links,
+                    &mut preprocessed_seed_links,
                     locked_doors,
                 );
             }
@@ -2059,19 +2061,20 @@ impl<'r> Randomizer<'r> {
             locked_doors,
             initial_items_remaining,
             game_data,
+            base_links_data,
             seed_links_data: LinksDataGroup::new(
-                seed_links,
+                preprocessed_seed_links,
                 game_data.vertex_isv.keys.len(),
-                game_data.base_links.len(),
+                base_links_data.links.len(),
             ),
             difficulty_tiers,
         }
     }
 
     pub fn get_link(&self, idx: usize) -> &Link {
-        let base_links_len = self.game_data.base_links.len();
+        let base_links_len = self.base_links_data.links.len();
         if idx < base_links_len {
-            &self.game_data.base_links[idx]
+            &self.base_links_data.links[idx]
         } else {
             &self.seed_links_data.links[idx - base_links_len]
         }
@@ -2099,7 +2102,7 @@ impl<'r> Randomizer<'r> {
         let start_vertex_id = self.game_data.vertex_isv.index_by_key
             [&(state.hub_location.room_id, state.hub_location.node_id, 0)];
         let forward = traverse(
-            &self.game_data.base_links_data,
+            &self.base_links_data,
             &self.seed_links_data,
             None,
             &state.global_state,
@@ -2111,7 +2114,7 @@ impl<'r> Randomizer<'r> {
             self.game_data,
         );
         let reverse = traverse(
-            &self.game_data.base_links_data,
+            &self.base_links_data,
             &self.seed_links_data,
             None,
             &state.global_state,
@@ -2394,7 +2397,7 @@ impl<'r> Randomizer<'r> {
             // }
             // println!("");
             let traverse_result = traverse(
-                &self.game_data.base_links_data,
+                &self.base_links_data,
                 &self.seed_links_data,
                 self.get_init_traverse(state, init_traverse),
                 &tmp_global,
@@ -2992,7 +2995,7 @@ impl<'r> Randomizer<'r> {
                 continue;
             }
             let forward = traverse(
-                &self.game_data.base_links_data,
+                &self.base_links_data,
                 &self.seed_links_data,
                 None,
                 &global,
@@ -3004,7 +3007,7 @@ impl<'r> Randomizer<'r> {
                 self.game_data,
             );
             let forward0 = traverse(
-                &self.game_data.base_links_data,
+                &self.base_links_data,
                 &self.seed_links_data,
                 None,
                 &global,
@@ -3016,7 +3019,7 @@ impl<'r> Randomizer<'r> {
                 self.game_data,
             );
             let reverse = traverse(
-                &self.game_data.base_links_data,
+                &self.base_links_data,
                 &self.seed_links_data,
                 None,
                 &global,
