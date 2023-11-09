@@ -1272,6 +1272,18 @@ impl<'a> Patcher<'a> {
         img.slice_mut(ndarray::s![112..224, 128..256, ..])
             .assign(&bottom_right_slice);
 
+        let map = &self.game_data.title_screen_data.map_station;
+        for y in 0..224 {
+            for x in 0..256 {
+                if map[(y, x, 0)] == 0 && map[(y, x, 1)] == 0 && map[(y, x, 2)] == 0 {
+                    continue;
+                }
+                img[(y, x, 0)] = map[(y, x, 0)];
+                img[(y, x, 1)] = map[(y, x, 1)];
+                img[(y, x, 2)] = map[(y, x, 2)];
+            }
+        }
+
         let mut title_patcher = title::TitlePatcher::new(&mut self.rom);
         title_patcher.patch_title_background(&img)?;
         title_patcher.patch_title_foreground()?;

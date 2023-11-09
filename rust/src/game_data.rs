@@ -764,14 +764,15 @@ impl LinksDataGroup {
     }
 }
 
-type TitleScreenQuadrant = ndarray::Array3<u8>;
+type TitleScreenImage = ndarray::Array3<u8>;
 
 #[derive(Default)]
 pub struct TitleScreenData {
-    pub top_left: Vec<TitleScreenQuadrant>,
-    pub top_right: Vec<TitleScreenQuadrant>,
-    pub bottom_left: Vec<TitleScreenQuadrant>,
-    pub bottom_right: Vec<TitleScreenQuadrant>,
+    pub top_left: Vec<TitleScreenImage>,
+    pub top_right: Vec<TitleScreenImage>,
+    pub bottom_left: Vec<TitleScreenImage>,
+    pub bottom_right: Vec<TitleScreenImage>,
+    pub map_station: TitleScreenImage,
 }
 
 // TODO: Clean this up, e.g. pull out a separate structure to hold
@@ -3196,6 +3197,8 @@ impl GameData {
                 self.title_screen_data.bottom_left.push(img);
             } else if filename.starts_with("BR") {
                 self.title_screen_data.bottom_right.push(img);
+            } else if filename == "map.png" {
+                self.title_screen_data.map_station = img;
             }
         }
 
