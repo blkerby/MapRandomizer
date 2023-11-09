@@ -1,6 +1,6 @@
 <Room>
   <Saves />
-  <index>03</index>
+  <index>18</index>
   <area>07</area>
   <x>00</x>
   <y>00</y>
@@ -11,29 +11,7 @@
   <specialGFX>00</specialGFX>
   <Doors>
     <Door>
-      <toroom area="07" index="00" />
-      <bitflag>00</bitflag>
-      <direction>00</direction>
-      <tilex>0</tilex>
-      <tiley>0</tiley>
-      <screenx>00</screenx>
-      <screeny>00</screeny>
-      <distance>8000</distance>
-      <doorcode>0000</doorcode>
-    </Door>
-    <Door>
-      <toroom area="07" index="04" />
-      <bitflag>00</bitflag>
-      <direction>00</direction>
-      <tilex>0</tilex>
-      <tiley>0</tiley>
-      <screenx>00</screenx>
-      <screeny>00</screeny>
-      <distance>8000</distance>
-      <doorcode>0000</doorcode>
-    </Door>
-    <Door>
-      <toroom area="07" index="19" />
+      <toroom area="07" index="17" />
       <bitflag>00</bitflag>
       <direction>00</direction>
       <tilex>0</tilex>
@@ -56,13 +34,13 @@
         00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
         00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
         00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
-        00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 8507 051C
-        00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 8505 010E
-        00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 0521 0520 051C 011A
-        00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 051E 051C 010E 011A 010D
-        00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 053E 010E 011A 010D 010D
-        00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 051E 8508 011A 010D 010D 010D
-        00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 011C 011D 011C 011D 0114 010D 010D 010D
+        00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 8520 8507
+        00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 8560 8171
+        00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 8560 8507
+        00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 8520 8171
+        00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 1108 110A 812E 816F
+        00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 1108 1109 8544 8186 8187
+        00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 810D 810D 8127 8128 816E 8190 8191 8176
         00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
         00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
       </Screen>
@@ -80,8 +58,8 @@
         00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
         00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
         00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 00 00 00 00 12 13 00 00
+        00 00 00 00 00 00 00 00 00 00 00 12 13 00 00 00
         00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
         00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
         00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
@@ -108,21 +86,21 @@
       </Screen>
         </Layer2>
       </LevelData>
-      <GFXset>09</GFXset>
+      <GFXset>04</GFXset>
       <music>0000</music>
       <FX1s>
         <FX1 default="true">
-          <surfacestart>00B8</surfacestart>
+          <surfacestart>FFFF</surfacestart>
           <surfacenew>FFFF</surfacenew>
           <surfacespeed>0000</surfacespeed>
           <surfacedelay>00</surfacedelay>
-          <type>02</type>
+          <type>00</type>
           <transparency1_A>02</transparency1_A>
-          <transparency2_B>1E</transparency2_B>
-          <liquidflags_C>0B</liquidflags_C>
-          <paletteflags>1F</paletteflags>
-          <animationflags>03</animationflags>
-          <paletteblend>02</paletteblend>
+          <transparency2_B>02</transparency2_B>
+          <liquidflags_C>00</liquidflags_C>
+          <paletteflags>00</paletteflags>
+          <animationflags>00</animationflags>
+          <paletteblend>00</paletteblend>
         </FX1>
       </FX1s>
       <Enemies killcount="00" />
@@ -130,7 +108,7 @@
       <layer2_type>Layer2</layer2_type>
       <layer2_xscroll>00</layer2_xscroll>
       <layer2_yscroll>00</layer2_yscroll>
-      <ScrollData const="0000" />
+      <ScrollData>00 </ScrollData>
       <roomvar>0000</roomvar>
       <FX2>0000</FX2>
       <PLMs />
