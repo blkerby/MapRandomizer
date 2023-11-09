@@ -1193,7 +1193,7 @@ async fn randomize(
     rng_seed[..8].copy_from_slice(&random_seed.to_le_bytes());
     rng_seed[9] = if race_mode { 1 } else { 0 };
     let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
-    let max_attempts = 2000;
+    let max_attempts = 10000;
     let max_threads = app_data.parallelism;
     // info!(
     //     "Random seed={random_seed}, difficulty={:?}",
