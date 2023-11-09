@@ -1,6 +1,6 @@
 <Room>
   <Saves />
-  <index>07</index>
+  <index>1F</index>
   <area>07</area>
   <x>00</x>
   <y>00</y>
@@ -11,7 +11,7 @@
   <specialGFX>00</specialGFX>
   <Doors>
     <Door>
-      <toroom area="07" index="06" />
+      <toroom area="07" index="11" />
       <bitflag>00</bitflag>
       <direction>00</direction>
       <tilex>0</tilex>
@@ -22,18 +22,7 @@
       <doorcode>0000</doorcode>
     </Door>
     <Door>
-      <toroom area="07" index="08" />
-      <bitflag>00</bitflag>
-      <direction>00</direction>
-      <tilex>0</tilex>
-      <tiley>0</tiley>
-      <screenx>00</screenx>
-      <screeny>00</screeny>
-      <distance>8000</distance>
-      <doorcode>0000</doorcode>
-    </Door>
-    <Door>
-      <toroom area="07" index="12" />
+      <toroom area="07" index="1F" />
       <bitflag>00</bitflag>
       <direction>00</direction>
       <tilex>0</tilex>
@@ -56,13 +45,13 @@
         00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
         00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
         00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
-        00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 0162 0173
-        00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 0162 0178
-        00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 0963 0961
-        00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 005F 007C 005F 0162
-        00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 0114 0114 0114 0114 00BD 00F4 00BD 0162
-        00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 0116 0116 0116 0116 00BE 0116 00BE 0162
-        00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 0116 0116 0116 0116 00BE 0116 00BE 0162
+        8207 860B 04FF 04FF 04FF 04FF 04FF 04FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
+        8610 860A 04FF 04FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
+        8610 860A 00FF 04FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
+        8610 860A 00FF 820B 860B 00FF 04FF 04FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
+        8610 8609 1608 1A08 1E08 0278 0279 04FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
+        8610 8210 1609 160D 1617 1298 1299 1617 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
+        8610 8210 8210 860F 8618 8618 8618 8618 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
         00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
         00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
       </Screen>
@@ -80,8 +69,8 @@
         00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
         00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
         00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+        00 00 52 92 D2 00 00 00 00 00 00 00 00 00 00 00
+        00 00 13 57 40 40 40 40 00 00 00 00 00 00 00 00
         00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
         00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
         00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
@@ -108,21 +97,21 @@
       </Screen>
         </Layer2>
       </LevelData>
-      <GFXset>0C</GFXset>
+      <GFXset>0B</GFXset>
       <music>0000</music>
       <FX1s>
         <FX1 default="true">
-          <surfacestart>FFFF</surfacestart>
+          <surfacestart>00B8</surfacestart>
           <surfacenew>FFFF</surfacenew>
           <surfacespeed>0000</surfacespeed>
           <surfacedelay>00</surfacedelay>
-          <type>00</type>
+          <type>06</type>
           <transparency1_A>02</transparency1_A>
-          <transparency2_B>02</transparency2_B>
+          <transparency2_B>18</transparency2_B>
           <liquidflags_C>00</liquidflags_C>
-          <paletteflags>20</paletteflags>
+          <paletteflags>00</paletteflags>
           <animationflags>00</animationflags>
-          <paletteblend>00</paletteblend>
+          <paletteblend>48</paletteblend>
         </FX1>
       </FX1s>
       <Enemies killcount="00" />

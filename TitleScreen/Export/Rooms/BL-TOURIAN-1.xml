@@ -1,6 +1,6 @@
 <Room>
   <Saves />
-  <index>0A</index>
+  <index>1D</index>
   <area>07</area>
   <x>00</x>
   <y>00</y>
@@ -11,18 +11,7 @@
   <specialGFX>00</specialGFX>
   <Doors>
     <Door>
-      <toroom area="07" index="09" />
-      <bitflag>00</bitflag>
-      <direction>00</direction>
-      <tilex>0</tilex>
-      <tiley>0</tiley>
-      <screenx>00</screenx>
-      <screeny>00</screeny>
-      <distance>8000</distance>
-      <doorcode>0000</doorcode>
-    </Door>
-    <Door>
-      <toroom area="07" index="0B" />
+      <toroom area="07" index="0E" />
       <bitflag>00</bitflag>
       <direction>00</direction>
       <tilex>0</tilex>
@@ -45,13 +34,13 @@
         00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
         00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
         00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
-        8ABC 8317 0305 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
-        8B06 8B50 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
-        8306 8B50 0300 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
-        8306 8B50 00FF 00FF 00FF 00FF 0303 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
-        8306 8B50 00FF 00FF 00FF 00FF 0323 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
-        8306 8B50 0346 0301 030F 0301 0323 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
-        8306 8707 8307 8308 832F 834C 8307 8308 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
+        8541 8540 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
+        8561 8560 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
+        8561 8560 04FF 04FF 04FF 04FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
+        8507 8506 0503 04FF 04FF 04FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
+        8527 8526 0523 0183 1145 1146 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
+        8561 8560 818A 818C 8165 8166 0503 0144 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
+        8581 8580 8169 8169 814A 814B 858B 818C 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
         00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
         00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF 00FF
       </Screen>
@@ -97,7 +86,7 @@
       </Screen>
         </Layer2>
       </LevelData>
-      <GFXset>06</GFXset>
+      <GFXset>0D</GFXset>
       <music>0000</music>
       <FX1s>
         <FX1 default="true">
@@ -119,7 +108,7 @@
       <layer2_type>Layer2</layer2_type>
       <layer2_xscroll>00</layer2_xscroll>
       <layer2_yscroll>00</layer2_yscroll>
-      <ScrollData const="0000" />
+      <ScrollData>00 </ScrollData>
       <roomvar>0000</roomvar>
       <FX2>0000</FX2>
       <PLMs />
