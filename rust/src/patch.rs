@@ -16,6 +16,7 @@ use hashbrown::{HashMap, HashSet};
 use ips;
 use ndarray::Array3;
 use rand::{Rng, SeedableRng};
+use log::info;
 use std::iter;
 
 use self::title::read_image;
@@ -1240,6 +1241,8 @@ impl<'a> Patcher<'a> {
         Ok(())
     }
 
+
+
     fn apply_title_screen_patches(&mut self) -> Result<()> {
         let mut rng_seed = [0u8; 32];
         rng_seed[..8].copy_from_slice(&self.randomization.seed.to_le_bytes());
@@ -1248,46 +1251,52 @@ impl<'a> Patcher<'a> {
         // let image_path = Path::new("../gfx/title/Title3.png");
         // let img = read_image(image_path)?;
         let mut img = Array3::<u8>::zeros((224, 256, 3));
-        let top_left_idx = rng.gen_range(0..self.game_data.title_screen_data.top_left.len());
-        let top_right_idx = rng.gen_range(0..self.game_data.title_screen_data.top_right.len());
-        let bottom_left_idx = rng.gen_range(0..self.game_data.title_screen_data.bottom_left.len());
-        let bottom_right_idx =
-            rng.gen_range(0..self.game_data.title_screen_data.bottom_right.len());
-
-        let top_left_slice = self.game_data.title_screen_data.top_left[top_left_idx]
-            .slice(ndarray::s![32..144, 0..128, ..]);
-        let top_right_slice = self.game_data.title_screen_data.top_right[top_right_idx]
-            .slice(ndarray::s![32..144, 128..256, ..]);
-        let bottom_left_slice = self.game_data.title_screen_data.bottom_left[bottom_left_idx]
-            .slice(ndarray::s![112..224, 0..128, ..]);
-        let bottom_right_slice = self.game_data.title_screen_data.bottom_right[bottom_right_idx]
-            .slice(ndarray::s![112..224, 128..256, ..]);
-
-        img.slice_mut(ndarray::s![0..112, 0..128, ..])
-            .assign(&top_left_slice);
-        img.slice_mut(ndarray::s![0..112, 128..256, ..])
-            .assign(&top_right_slice);
-        img.slice_mut(ndarray::s![112..224, 0..128, ..])
-            .assign(&bottom_left_slice);
-        img.slice_mut(ndarray::s![112..224, 128..256, ..])
-            .assign(&bottom_right_slice);
-
-        let map = &self.game_data.title_screen_data.map_station;
-        for y in 0..224 {
-            for x in 0..256 {
-                if map[(y, x, 0)] == 0 && map[(y, x, 1)] == 0 && map[(y, x, 2)] == 0 {
-                    continue;
+        loop {
+            let top_left_idx = rng.gen_range(0..self.game_data.title_screen_data.top_left.len());
+            let top_right_idx = rng.gen_range(0..self.game_data.title_screen_data.top_right.len());
+            let bottom_left_idx = rng.gen_range(0..self.game_data.title_screen_data.bottom_left.len());
+            let bottom_right_idx =
+                rng.gen_range(0..self.game_data.title_screen_data.bottom_right.len());
+    
+            let top_left_slice = self.game_data.title_screen_data.top_left[top_left_idx]
+                .slice(ndarray::s![32..144, 0..128, ..]);
+            let top_right_slice = self.game_data.title_screen_data.top_right[top_right_idx]
+                .slice(ndarray::s![32..144, 128..256, ..]);
+            let bottom_left_slice = self.game_data.title_screen_data.bottom_left[bottom_left_idx]
+                .slice(ndarray::s![112..224, 0..128, ..]);
+            let bottom_right_slice = self.game_data.title_screen_data.bottom_right[bottom_right_idx]
+                .slice(ndarray::s![112..224, 128..256, ..]);
+    
+            img.slice_mut(ndarray::s![0..112, 0..128, ..])
+                .assign(&top_left_slice);
+            img.slice_mut(ndarray::s![0..112, 128..256, ..])
+                .assign(&top_right_slice);
+            img.slice_mut(ndarray::s![112..224, 0..128, ..])
+                .assign(&bottom_left_slice);
+            img.slice_mut(ndarray::s![112..224, 128..256, ..])
+                .assign(&bottom_right_slice);
+    
+            let map = &self.game_data.title_screen_data.map_station;
+            for y in 0..224 {
+                for x in 0..256 {
+                    if map[(y, x, 0)] == 0 && map[(y, x, 1)] == 0 && map[(y, x, 2)] == 0 {
+                        continue;
+                    }
+                    img[(y, x, 0)] = map[(y, x, 0)];
+                    img[(y, x, 1)] = map[(y, x, 1)];
+                    img[(y, x, 2)] = map[(y, x, 2)];
                 }
-                img[(y, x, 0)] = map[(y, x, 0)];
-                img[(y, x, 1)] = map[(y, x, 1)];
-                img[(y, x, 2)] = map[(y, x, 2)];
             }
+    
+            let mut title_patcher = title::TitlePatcher::new(&mut self.rom);
+            let bg_result = title_patcher.patch_title_background(&img);
+            if bg_result.is_err() {
+                info!("Failed title screen randomization: {}", bg_result.unwrap_err());
+                continue;
+            }
+            title_patcher.patch_title_foreground()?;
+            return Ok(());
         }
-
-        let mut title_patcher = title::TitlePatcher::new(&mut self.rom);
-        title_patcher.patch_title_background(&img)?;
-        title_patcher.patch_title_foreground()?;
-        Ok(())
     }
 
     fn setup_reload_cre(&mut self) -> Result<()> {

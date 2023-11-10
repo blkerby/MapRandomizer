@@ -3,7 +3,7 @@ use std::path::Path;
 use crate::{game_data::IndexedVec, patch::compress::compress};
 
 use super::{decompress::decompress, pc2snes, snes2pc, PcAddr, Rom};
-use anyhow::{Context, Result};
+use anyhow::{Context, Result, ensure};
 use hashbrown::HashMap;
 use image::{io::Reader as ImageReader, Rgb};
 use ndarray::{concatenate, Array2, Array3, Axis};
@@ -45,7 +45,7 @@ struct Graphics {
     tilemap: Array2<u8>,      // indices into `tiles`
 }
 
-fn encode_mode7_graphics(image: &Array3<u8>) -> Graphics {
+fn encode_mode7_graphics(image: &Array3<u8>) -> Result<Graphics> {
     let (height, width, _) = image.dim();
 
     let mut tilemap: Array2<u8> = Array2::zeros([height / 8, width / 8]);
@@ -75,7 +75,7 @@ fn encode_mode7_graphics(image: &Array3<u8>) -> Graphics {
             process_tile(tile_y, tile_x);
         }
     }
-    assert!(tile_isv.keys.len() <= 256);
+    ensure!(tile_isv.keys.len() <= 256);
 
     let mut new_tiles: Vec<[[u8; 8]; 8]> = Vec::new();
     let mut color_isv: IndexedVec<(u8, u8, u8)> = IndexedVec::default();
@@ -95,11 +95,11 @@ fn encode_mode7_graphics(image: &Array3<u8>) -> Graphics {
         new_tiles.push(new_tile);
     }
 
-    Graphics {
+    Ok(Graphics {
         palette: color_isv.keys,
         tiles: new_tiles,
         tilemap,
-    }
+    })
 }
 
 fn decode_tile_4bpp(tile: &[u8; 32]) -> [[u8; 8]; 8] {
@@ -206,7 +206,7 @@ impl<'a> TitlePatcher<'a> {
         assert!(img.dim() == (224, 256, 3));
 
         // Compute title background palette, tile GFX, and tilemap:
-        let graphics = encode_mode7_graphics(&img);
+        let graphics = encode_mode7_graphics(&img)?;
         println!(
             "Title background distinct colors: {}",
             graphics.palette.len()
