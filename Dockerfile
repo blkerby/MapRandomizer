@@ -37,6 +37,7 @@ COPY patches /patches
 COPY gfx /gfx
 COPY sm-json-data /sm-json-data
 COPY MapRandoSprites /MapRandoSprites
+COPY TitleScreen /TitleScreen
 COPY room_geometry.json /
 COPY palette_smart_exports /palette_smart_exports
 COPY visualizer /visualizer
