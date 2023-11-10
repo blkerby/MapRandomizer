@@ -1,16 +1,8 @@
-upcoming:
-- DONE: try to implement frame advance: https://stackoverflow.com/questions/4298084/html5-frame-by-frame-viewing-frame-seeking
-- DONE: during the escape, lock the Bomb Torizo door until animals are saved (to prevent accidentally leaving before the flag is set).
-- DONE: make "guaranteed early save" check phantoon defeated if broken save
-- Set up "dev" serving process:
-  - Create/start dev service.
-  - Create CLI flag to identify if running or not "dev"
-  - Create friendly DNS record ("dev.maprando.com")
-  - Generate build timestamp (in Dockerfile) and show on seed page
-- adapt to Pants Room changes
-
 priority:
-- make randomizer more efficient
+- help finish the cross-room strat migration
+- proper saving/loading of custom presets
+- "Random" objective option? (but what will tracker look like)
+- make randomizer more efficient: 
 - revamp strat page: 
   - embed the video directly near the top? 
   - collapse the room diagram
@@ -20,20 +12,13 @@ priority:
 - add a logic page for each difficulty tier (similar to the sections within the Generate page)
 - add CF health refill to logic
   - include tricky CF at ammo refill stations
-- proper saving/loading of custom presets
-- help finish the cross-room strat migration
-- don't put ammo doors next to objective tiles
-- "Random" objective option? (but what will tracker look like)
-- Map pool split: Tame vs. Wild
 - clarify gate glitch leniency: that it doesn't apply to Pink Hopper Room gate
 - consider prioritizing item placement at closer item locations relative to previous key item(s)
 - start logging the seed generation latency
 - split off toilet from aqueduct
-- consider making "guaranteed early save" the default
 - consider implementing farm QoL option to combine drop tiers
   - $86F106: drop logic
 - speed booster hall: heat frames could be slightly less?
-- try using other zebes asleep music, to see if snails make a sound?
 - add door flags to refine logic
 - add door lock bypass strats to logic
 - randomized title screen

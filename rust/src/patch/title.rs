@@ -39,6 +39,13 @@ fn rgb_to_u16(rgb: (u8, u8, u8)) -> u16 {
     (r as u16) | (g as u16) << 5 | (b as u16) << 10
 }
 
+fn u16_to_rgb(color: u16) -> (u8, u8, u8) {
+    let r = color & 0x1F;
+    let g = (color >> 5) & 0x1F;
+    let b = (color >> 10) & 0x1F;
+    (r as u8, g as u8, b as u8)
+}
+
 struct Graphics {
     palette: Vec<(u8, u8, u8)>,
     tiles: Vec<[[u8; 8]; 8]>, // indices into `palette`
@@ -199,6 +206,58 @@ impl<'a> TitlePatcher<'a> {
             .write_u8(snes2pc(0x8B9BB9), (tilemap_snes_addr >> 16) as isize)?;
         self.rom
             .write_u16(snes2pc(0x8B9BBD), (tilemap_snes_addr & 0xFFFF) as isize)?;
+        Ok(())
+    }
+
+    pub fn patch_title_blue_light(&mut self) -> Result<()> {
+        // If we want to alter the subtractive effect while the camera pans, before zooming out:
+        // self.rom.write_u8(snes2pc(0x8B8675), 0x20 | 0x10)?;  // red value to subtract = 0x10
+        // self.rom.write_u8(snes2pc(0x8B8679), 0x40 | 0x10)?;  // green value to subtract = 0x10
+        // self.rom.write_u8(snes2pc(0x8B867D), 0x80 | 0x00)?;  // blue value to subtract = 0x00
+
+        // Don't disable the effect during the second camera pan (top right to top left):
+        self.rom.write_u8(snes2pc(0x8B8682), 0x60)?;
+
+        Ok(())
+    }
+
+    pub fn patch_title_gradient(&mut self) -> Result<()> {
+        // Make the title gradient gray (vs. blue-tinted) and less extreme
+        for i in 3..16 {
+            let base_addr_snes = self.rom.read_u16(snes2pc(0x8CBC5D + i * 2))? + 0x8c0000;
+            for j in 0..256 {
+                let addr_pc = snes2pc((base_addr_snes + j * 2) as usize);
+                let mut num_lines = self.rom.read_u8(addr_pc)?;
+                let mut c = self.rom.read_u8(addr_pc + 1)?;
+                let mut color_plane_mask = c & 0xE0;
+                let mut intensity = c & 0x1F;
+                if color_plane_mask == 0xE0 {
+                    // Effect applied to all 3 color planes (used for subtractive mode, at top of screen)
+                    // Reduce the effect to avoid too much darkening at the top of the screen:
+                    intensity = intensity / 3;
+                    if intensity > 3 {
+                        intensity = 3;
+                    }
+                    // intensity = 0;
+                } else if color_plane_mask == 0xC0 {
+                    // Effect applied to only blue and green color planes (used for additive mode, at bottom of screen)
+                    // Apply the effect to all 3 color planes, producing a grayscale gradient instead of cyan.
+                    // Reduce the intensity of the effect, to avoid washing out the bottom of the screen.
+                    color_plane_mask = 0xE0;
+                    if intensity > 3 {
+                        // Stretch out the length of each gradient band beyond this point:
+                        num_lines += 3;
+                    }
+                } else if c == 0 {
+                    break;
+                } else {
+                    panic!("Unexpected title screen gradient control: {:x}", c);
+                }
+                c = color_plane_mask | intensity;
+                self.rom.write_u8(addr_pc, num_lines)?;
+                self.rom.write_u8(addr_pc + 1, c)?;
+            }
+        }
         Ok(())
     }
 
