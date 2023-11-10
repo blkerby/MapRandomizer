@@ -13,11 +13,13 @@ document.getElementById("navigation-releases").classList.add("active");
 <div class="container col-lg-9 col-xl-7 col-xxl-6">
 
 <h3 class="my-3">Release History</h3>
-<strong>Note</strong>: Previous versions of the rando can be accessed by clicking the links below. These may take
-about 15 seconds to load.
-<br><br>
 
-<p><a href="https://version-94---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release94">Version 94 (2023-11-09)</a>:
+<p><a id="release95">Version 95 (2023-11-10)</a>:
+<ul>
+<li>Title screens are randomized.
+</ul>
+
+<p><a id="release94">Version 94 (2023-11-09)</a>:
 <ul>
 <li>Randomizer performance is improved, running much faster.
 <li>During the escape, the gray door in Bomb Torizo Room spawns and behaves as it does in vanilla, unlocking only
@@ -44,7 +46,7 @@ about 15 seconds to load.
     </ul>
 </ul>
 
-<p><a href="https://version-93---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release93">Version 93 (2023-11-05)</a>:
+<p><a id="release93">Version 93 (2023-11-05)</a>:
 <ul>
 <li>A new "Map layout" option is added, with two options "Tame" and "Wild":
     <ul>
@@ -68,7 +70,7 @@ about 15 seconds to load.
 <li>A new tile theme option "Upper Norfair" is available.
 </ul>
 
-<p><a href="https://version-92---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release92">Version 92 (2023-11-02)</a>:
+<p><a id="release92">Version 92 (2023-11-02)</a>:
 <ul>
 <li>Some map colors are brightened, to improve contrast with water rooms.
 <li>Website updates:
@@ -89,13 +91,13 @@ about 15 seconds to load.
     </ul>
 </ul>
 
-<p><a href="https://version-91---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release91">Version 91 (2023-10-30)</a>:
+<p><a id="release91">Version 91 (2023-10-30)</a>:
 <ul>
 <li>Significant bodies of water are indicated on the map by a dark/checkered background.
 <li>Several bugfixes to "Green Brinstar" tile theme.
 </ul>
 
-<p><a href="https://version-90---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release90">Version 90 (2023-10-28)</a>:
+<p><a id="release90">Version 90 (2023-10-28)</a>:
 <ul>
 <li>The lower two item progression presets are renamed:
     <ul>
@@ -134,7 +136,7 @@ about 15 seconds to load.
     </ul>
 </ul>
 
-<p><a href="https://version-89---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release89">Version 89 (2023-10-18)</a>:
+<p><a id="release89">Version 89 (2023-10-18)</a>:
 <ul>
 <li>New tile theme option "InnerCrateria" (under "Other options" on the customization/seed page).
 <li>New map pool with improved balance of save stations.
@@ -163,7 +165,7 @@ about 15 seconds to load.
     </ul>
 </ul>
 
-<p><a href="https://version-88---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release88">Version 88 (2023-09-30)</a>:
+<p><a id="release88">Version 88 (2023-09-30)</a>:
 <ul>
 <li>New map pool:
     <ul>
@@ -174,17 +176,17 @@ about 15 seconds to load.
 <li>A few more fixes to the experimental customization option "Tile theme".
 </ul>
 
-<p><a href="https://version-87---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release87">Version 87 (2023-09-16)</a>:
+<p><a id="release87">Version 87 (2023-09-16)</a>:
 <ul>
 <li>Many bugfixes to the experimental customization option "Tile theme".
 </ul>
 
-<p><a href="https://version-86---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release86">Version 86 (2023-09-14)</a>:
+<p><a id="release86">Version 86 (2023-09-14)</a>:
 <ul>
 <li>New experimental customization option "Tile theme".
 </ul>
 
-<p><a href="https://version-85---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release85">Version 85 (2023-09-09)</a>:
+<p><a id="release85">Version 85 (2023-09-09)</a>:
 <ul>
 <li>Parallelism is used to accelerate seed generation, so timeouts should not occur as frequently.
 <li>Logic updates (highlights):
@@ -205,7 +207,7 @@ about 15 seconds to load.
     </ul>
 </ul>
 
-<p><a href="https://version-84---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release84">Version 84 (2023-09-01)</a>:
+<p><a id="release84">Version 84 (2023-09-01)</a>:
 <ul>
 <li>Added a "Maybe" option for "Save the animals".
 <li>Ammo door markers disappear from the map after they are unlocked.
@@ -219,7 +221,7 @@ about 15 seconds to load.
     </ul>
 </ul>
 
-<p><a href="https://version-83---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release83">Version 83 (2023-08-29)</a>:
+<p><a id="release83">Version 83 (2023-08-29)</a>:
 <ul>
 <li>Fixes to several bugs:
     <ul>
@@ -245,13 +247,13 @@ about 15 seconds to load.
     </ul>
 </ul>
 
-<p><a href="https://version-82---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release82">Version 82 (2023-08-27)</a>:
+<p><a id="release82">Version 82 (2023-08-27)</a>:
 <ul>
 <li>Fixed issue that could cause a crash when leaving Mother Brain Room on the left before the escape 
     (a bug introduced in version 81).
 </ul>
 
-<p><a href="https://version-81---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release81">Version 81 (2023-08-26)</a>:
+<p><a id="release81">Version 81 (2023-08-26)</a>:
 <ul>
 <li>New "Ammo" doors option is added, for randomizing door colors (disabled by default).
 <li>All item progression presets now have Late priority for Varia, Gravity, and Screw Attack.
@@ -278,7 +280,7 @@ about 15 seconds to load.
     </ul>
 </ul>
 
-<p><a href="https://version-80---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release80">Version 80 (2023-08-20)</a>:
+<p><a id="release80">Version 80 (2023-08-20)</a>:
 <ul>
 <li>Changes to "Other options":
     <ul>
@@ -299,7 +301,7 @@ about 15 seconds to load.
     </ul>
 </ul>
 
-<p><a href="https://version-79---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release79">Version 79 (2023-08-15)</a>:
+<p><a id="release79">Version 79 (2023-08-15)</a>:
 <ul>
 <li>Some more improvement to map clarity (minimap and pause map):
     <ul>
@@ -319,7 +321,7 @@ about 15 seconds to load.
 <li>Logic updates: Heat frames tightened in several rooms.
 </ul>
 
-<p><a href="https://version-78---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release78">Version 78 (2023-08-10)</a>:
+<p><a id="release78">Version 78 (2023-08-10)</a>:
 <ul>
 <li>Hazard markers are added to doors leading into the following locations (either directly or via the Toilet):
     <ul>
@@ -336,7 +338,7 @@ about 15 seconds to load.
 <li>Website update: Remaining animated GIFs are added for notable strats (Insane).
 </ul>
 
-<p><a href="https://version-77---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release77">Version 77 (2023-08-07)</a>:
+<p><a id="release77">Version 77 (2023-08-07)</a>:
 <ul>
 <li>New customization option to change E-Tank color in the HUD.
 <li>More ways to switch maps in the pause menu:
@@ -359,7 +361,7 @@ about 15 seconds to load.
 <li>Website update: Logic pages are added for individual strats, to make it easy to share a link to a strat.
 </ul>
 
-<p><a href="https://version-76---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release76">Version 76 (2023-08-04)</a>:
+<p><a id="release76">Version 76 (2023-08-04)</a>:
 <ul>
 <li>New map pool with more variety in room connections.
 <li>Added a passage marking to the map for Spore Spawn Room, to make it appear distinct from Red Pirate Shaft.
@@ -373,7 +375,7 @@ about 15 seconds to load.
 </ul>
 </p>
 
-<p><a href="https://version-75---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release75">Version 75 (2023-08-02)</a>:
+<p><a id="release75">Version 75 (2023-08-02)</a>:
 <ul>
 <li>Improvements to map clarity (minimap and pause map):
     <ul>
@@ -409,12 +411,12 @@ about 15 seconds to load.
     </ul>
 </ul>
 
-<p><a href="https://version-74---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release74">Version 74 (2023-07-27)</a>:
+<p><a id="release74">Version 74 (2023-07-27)</a>:
     <ul>
     <li>Quick bugfix involving default value for gate glitch leniency, which in some cases caused seed generation to fail.
     </ul>
 
-<p><a href="https://version-73---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release73">Version 73 (2023-07-27)</a>:
+<p><a id="release73">Version 73 (2023-07-27)</a>:
     <ul>
     <li>New quality-of-life option "Momentum conservation" is added (enabled in Max preset).
     <li>More custom sprite options are added.
@@ -458,7 +460,7 @@ about 15 seconds to load.
         </ul>
     </ul>
 
-<p><a href="https://version-72---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release72">Version 72 (2023-07-19)</a>:
+<p><a id="release72">Version 72 (2023-07-19)</a>:
     <ul>
     <li>New customization options:
         <ul>
@@ -493,7 +495,7 @@ about 15 seconds to load.
         </ul>
     </ul>
 
-<p><a href="https://version-71---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release71">Version 71 (2023-07-08)</a>:
+<p><a id="release71">Version 71 (2023-07-08)</a>:
     <ul>
     <li>Added customized in-game credits, with gameplay statistics and item location information.
     <li>Logic updates:
@@ -520,13 +522,13 @@ about 15 seconds to load.
         </ul>
     </ul>
 
-<p><a href="https://version-70---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release70">Version 70 (2023-06-30)</a>:
+<p><a id="release70">Version 70 (2023-06-30)</a>:
     <ul>
     <li>Fixed a severe graphical bug that occurred with the "Randomized start location" option when starting in
     West Ocean, East Ocean, or Homing Geemer Room.
     </ul>
 
-<p><a href="https://version-69---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release69">Version 69 (2023-06-28)</a>:
+<p><a id="release69">Version 69 (2023-06-28)</a>:
     <ul>
     <li>New game variation "Randomized start location" is added (under "Other options").
     <li>Bugfixes:
@@ -537,7 +539,7 @@ about 15 seconds to load.
         </ul>
     </ul>
 
-<p><a href="https://version-68---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release68">Version 68 (2023-06-22)</a>:
+<p><a id="release68">Version 68 (2023-06-22)</a>:
     <ul>
     <li>New objective "Pirates" is added.
     <li>Changes to quality-of-life options:
@@ -563,7 +565,7 @@ about 15 seconds to load.
     <li>Logic update: Botwoon, Ridley, and Phantoon assumptions are adjusted to be more lenient on lower difficulty settings.
     </ul>
 
-<p><a href="https://version-67---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release67">Version 67 (2023-06-15)</a>:
+<p><a id="release67">Version 67 (2023-06-15)</a>:
     <ul>
     <li>Fix issue where using the Bowling Alley statue could cause crashes in Big Boy Room (a bug introduced in v65).
     <li>"Beginner" and "Intermediate" difficulties are renamed to "Basic" and "Medium" respectively.
@@ -571,7 +573,7 @@ about 15 seconds to load.
     <li>Logic bugfix: Add HiJump requirement to East Cac Alley Spike Boost.
     </ul>
 
-<p><a href="https://version-66---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release66">Version 66 (2023-06-14)</a>:
+<p><a id="release66">Version 66 (2023-06-14)</a>:
     <ul>
     <li>"Disable low-energy beeping" is moved from "Quality-of-life" to "Customization" (on the seed page).
     <li>Added customization option "Disable music".
@@ -598,7 +600,7 @@ about 15 seconds to load.
         </ul>
     </ul>
 
-<p><a href="https://version-65---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release65">Version 65 (2023-06-10)</a>:
+<p><a id="release65">Version 65 (2023-06-10)</a>:
     <ul>
     <li>New quality-of-life option "Acid Chozo does not require Space Jump" is added (enabled by default).
     <li>New objective option "Chozos" is added.
@@ -635,7 +637,7 @@ about 15 seconds to load.
         </ul>
     </ul>
 
-<p><a href="https://version-64---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release64">Version 64 (2023-06-01)</a>:
+<p><a id="release64">Version 64 (2023-06-01)</a>:
     <ul>
     <li>The effects of Infinite Space Jump (quality-of-life option) are now less extreme and it is renamed "Lenient Space Jump":
         <ul>
@@ -665,7 +667,7 @@ about 15 seconds to load.
         </ul>
     </ul>
 
-<p><a href="https://version-63---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release63">Version 63 (2023-05-22)</a>:
+<p><a id="release63">Version 63 (2023-05-22)</a>:
     <ul>
     <li>Added quality-of-life options (disabled by default):
         <ul>
@@ -681,7 +683,7 @@ about 15 seconds to load.
         </ul>
     </ul>
 
-<p><a href="https://version-62---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release62">Version 62 (2023-05-17)</a>:
+<p><a id="release62">Version 62 (2023-05-17)</a>:
     <ul>
     <li>Logic updates:
         <ul>
@@ -703,7 +705,7 @@ about 15 seconds to load.
     </ul>
 
 
-<p><a href="https://version-61---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release61">Version 61 (2023-05-07)</a>:
+<p><a id="release61">Version 61 (2023-05-07)</a>:
     <ul>
     <li>"Fast doors" option no longer affects Samus' position after door transitions.
     <li>Fixed graphical glitch that occurred when Kraid's Room was connected to East Pants Room.
@@ -717,12 +719,12 @@ about 15 seconds to load.
         </ul>
     </ul>
 
-<p><a href="https://version-60---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release60">Version 60 (2023-05-04)</a>:
+<p><a id="release60">Version 60 (2023-05-04)</a>:
     <ul>
     <li>Quality-of-life option "Item dots disappear after collection" is added (enabled by default).
     </ul>
 
-<p><a href="https://version-59---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release59">Version 59 (2023-05-03)</a>:
+<p><a id="release59">Version 59 (2023-05-03)</a>:
     <ul>
     <li>Fixed issue with "Map stations always visible on map" (bug introduced in version 58).
         <ul>
@@ -730,7 +732,7 @@ about 15 seconds to load.
         </ul>
     </ul>
 
-<p><a href="https://version-58---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release58">Version 58 (2023-05-03)</a>:
+<p><a id="release58">Version 58 (2023-05-03)</a>:
     <ul>
     <li>Seed hash is shown in the options menu before game start (using enemy names, similar to other Super Metroid randomizers).
     <li>Map tile progress is always maintained, even after dying, reloading, resetting, or switching/creating save files.
@@ -743,7 +745,7 @@ about 15 seconds to load.
     <li>Fixed issue with the palette transition after the Phantoon fight (a bug introduced in version 57).
     </ul>
 
-<p><a href="https://version-57---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release57">Version 57 (2023-05-01)</a>:
+<p><a id="release57">Version 57 (2023-05-01)</a>:
     <ul>
     <li>Maps of other explored areas can be viewed in the pause menu by pressing Select.
     <li>Explored map tiles are colored based on area.
@@ -753,14 +755,14 @@ about 15 seconds to load.
     <li>The interactive spoiler map now has a grid in the background similar to the in-game map.
     </ul>
 
-<p><a href="https://version-56---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release56">Version 56 (2023-04-28)</a>:
+<p><a id="release56">Version 56 (2023-04-28)</a>:
     <ul>
     <li>Mother Brain Room has acid again (fixes a bug introduced in version 55).
     <li>Quick reload (L + R + Select + Start) can be used to cycle through previous saves.
     <li>When using quick reload during the death animation, audio is now less glitchy.
     </ul>
 
-<p><a href="https://version-55---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release55">Version 55 (2023-04-27)</a>:
+<p><a id="release55">Version 55 (2023-04-27)</a>:
     <ul>
     <li>Reworked "Mother Brain fight" quality-of-life setting (affecting Mother Brain phases 2 and 3):
         <ul>
@@ -786,7 +788,7 @@ about 15 seconds to load.
     <li>In the controller settings, angle up/down can now be bound to any button.
     </ul>
 
-<p><a href="https://version-54---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release54">Version 54 (2023-04-12)</a>:
+<p><a id="release54">Version 54 (2023-04-12)</a>:
     <ul>
     <li>Tourian Blue Hopper Room is restored to have vanilla enemy behavior when entering from the top.
         <ul>
@@ -795,7 +797,7 @@ about 15 seconds to load.
     <li>An issue is fixed that caused enemy farms not to be logic (a bug since version 29).
     </ul>
 
-<p><a href="https://version-53---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release53">Version 53 (2023-04-10)</a>:
+<p><a id="release53">Version 53 (2023-04-10)</a>:
     <ul>
     <li>A new "Objectives" setting is added, determining the condition for the barriers in Mother Brain Room to clear:
         <ul>
@@ -807,7 +809,7 @@ about 15 seconds to load.
     "Hyper Beam gives all movement items" was enabled (a bug introduced in version 52).
     </ul>
 
-<p><a href="https://version-52---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release52">Version 52 (2023-04-10)</a>:
+<p><a id="release52">Version 52 (2023-04-10)</a>:
     <ul>
     <li>A new quality-of-life option "Short Mother Brain fight" is added and enabled by default.
         <ul>
@@ -828,14 +830,14 @@ about 15 seconds to load.
         </ul>
     </ul>
 
-<p><a href="https://version-51---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release51">Version 51 (2023-03-30)</a>:
+<p><a id="release51">Version 51 (2023-03-30)</a>:
     <ul>
     <li>Some improvements/fixes to the interactive spoiler map.
     <li>Descriptions added to notable strats.
     <li>Logic updates.
     </ul>
 
-<p><a href="https://version-50---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release50">Version 50 (2023-03-26)</a>:
+<p><a id="release50">Version 50 (2023-03-26)</a>:
     <ul>
     <li>Fixed a couple bugs that previously could occur when using "fast doors".
         <ul>
@@ -849,12 +851,12 @@ about 15 seconds to load.
         </ul>
     </ul>
 
-<p><a href="https://version-49---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release49">Version 49 (2023-03-24)</a>:
+<p><a id="release49">Version 49 (2023-03-24)</a>:
     <ul>
     <li>Fixed an issue that sometimes caused the game to crash in Bomb Torizo Room (a bug introduced in version 48).
     </ul>
 
-<p><a href="https://version-48---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release48">Version 48 (2023-03-20)</a>:
+<p><a id="release48">Version 48 (2023-03-20)</a>:
     <ul>
     <li>All boss and miniboss rooms (except for Mother Brain) now have gray doors.
     <li>Gray doors now have a consistent behavior throughout the game:
@@ -871,7 +873,7 @@ about 15 seconds to load.
     <li>A couple logic bugs are fixed to align with the behavior of complementary suits introduced in Version 47.
     </ul>
 
-<p><a href="https://version-47---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release47">Version 47 (2023-03-17)</a>:
+<p><a id="release47">Version 47 (2023-03-17)</a>:
     <ul>
     <li>Interactive spoiler map visualizer is added.
         <ul>
@@ -919,7 +921,7 @@ about 15 seconds to load.
         </ul>
     </ul>
 
-<p><a href="https://version-46---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release46">Version 46 (2023-03-13)</a>:
+<p><a id="release46">Version 46 (2023-03-13)</a>:
     <ul>
     <li>Bug is fixed which had caused gray doors not to appear in Pit Room (old Mother Brain room) when
     using the quality-of-life option "All items spawn at start of game".
@@ -935,7 +937,7 @@ about 15 seconds to load.
         </ul>
     </ul>
 
-<p><a href="https://version-45---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release45">Version 45 (2023-03-09)</a>:
+<p><a id="release45">Version 45 (2023-03-09)</a>:
     <ul>
     <li>Logic updates:
         <ul>
@@ -976,7 +978,7 @@ about 15 seconds to load.
         </ul>
     </ul>
 
-<p><a href="https://version-44---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release44">Version 44 (2023-03-05)</a>:
+<p><a id="release44">Version 44 (2023-03-05)</a>:
     <ul>
     <li>A quality-of-life option is added to spawn all items from the start of the game, and is enabled by default:
         <ul>
@@ -995,7 +997,7 @@ about 15 seconds to load.
         </ul>
     </ul>
 
-<p><a href="https://version-43---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release43">Version 43 (2023-03-04)</a>:
+<p><a id="release43">Version 43 (2023-03-04)</a>:
     <ul>
     <li>Gray doors are restored in a few special rooms to bring them closer to vanilla, while continuing to avoid
         surprise softlocks:
@@ -1037,7 +1039,7 @@ about 15 seconds to load.
     <li>Fixed a logic bug involving the flag for the Maridia Tube being broken earlier than it should be.
     </ul>
 
-<p><a href="https://version-42---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release42">Version 42 (2023-03-03)</a>:
+<p><a id="release42">Version 42 (2023-03-03)</a>:
     <ul>
     <li>Escape timer base rate is reduced from 1.8 to 1.6 seconds per screen, and adjustments are made
     for elevators and speedways.
@@ -1079,7 +1081,7 @@ about 15 seconds to load.
     <li>Bug where tiles sometimes wrap around vertically on the pause map is (mostly) fixed.
     </ul>
 
-<p><a href="https://version-41---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release41">Version 41 (2023-02-26)</a>:
+<p><a id="release41">Version 41 (2023-02-26)</a>:
     <ul>
     <li>In the Tourian Blue Hopper Room, the left enemy position is adjusted four tiles to the right,
     so Samus can leave without taking damage when entering from the left.
@@ -1090,7 +1092,7 @@ about 15 seconds to load.
     <li>When Grapple and X-Ray are collected with Hyper Beam (with "streamlined escape" option), they are now visible in the HUD.
     </ul>
 
-<p><a href="https://version-40---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release40">Version 40 (2023-02-24)</a>:
+<p><a id="release40">Version 40 (2023-02-24)</a>:
     <ul>
     <li>In Open mode, beams now have a more reasonable chance of being accessible earlier.
     <li>"Early Morph" mode is available, along with the ability to customize item priority more generally.
@@ -1101,7 +1103,7 @@ about 15 seconds to load.
     <li>Strat notes are added to the spoiler log.
     </ul>
 
-<p><a href="https://version-39---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release39">Version 39 (2023-02-21)</a>:
+<p><a id="release39">Version 39 (2023-02-21)</a>:
     <ul>
     <li>Speed up parts of the game where Samus does not have control or cannot do anything useful:
         <ul>
@@ -1115,7 +1117,7 @@ about 15 seconds to load.
         </ul>
     </ul>
 
-<p><a href="https://version-38---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release38">Version 38 (2023-02-20)</a>:
+<p><a id="release38">Version 38 (2023-02-20)</a>:
     <ul>
     <li>Refinements to balancing algorithm:
         <ul>
@@ -1125,7 +1127,7 @@ about 15 seconds to load.
     <li>Logic updates (<a href="https://github.com/kjbranch/sm-json-data/compare/01ed640...kjbranch:sm-json-data:d4e5e1a">diff</a>)
     </ul>
 
-<p><a href="https://version-37---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release37">Version 37 (2023-02-18)</a>:
+<p><a id="release37">Version 37 (2023-02-18)</a>:
     <ul>
     <li>Bomb Torizo's door now closes if you pick up the item in the room (rather than if you have Morph Bombs).
     <li>Improvements to Phantoon and Draygon logic which make the fights more lenient, especially
@@ -1140,7 +1142,7 @@ about 15 seconds to load.
     <li>Pause-menu tiles next to area names are corrected to be black instead of transparent.
     </ul>
 
-<p><a href="https://version-36---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release36">Version 36 (2023-02-14)</a>:
+<p><a id="release36">Version 36 (2023-02-14)</a>:
     <ul>
     <li>Map glitch in the top and bottom rows of tiles should no longer occur.
     <li>Samus animation is no longer glitched when transitioning from water FX to non-water FX rooms.
@@ -1155,7 +1157,7 @@ about 15 seconds to load.
         </ul>
     </ul>
 
-<p><a href="https://version-35---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release35">Version 35 (2023-02-08)</a>:
+<p><a id="release35">Version 35 (2023-02-08)</a>:
     <ul>
     <li>Improvements to Botwoon and Golden Torizo logic which overall make the fights more lenient, especially
     at lower difficulty settings:
@@ -1186,7 +1188,7 @@ about 15 seconds to load.
     <li>Some adjustments to the area-themed palettes.
     </ul>
 
-<p><a href="https://version-34---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release34">Version 34 (2023-02-06)</a>:
+<p><a id="release34">Version 34 (2023-02-06)</a>:
     <ul>
     <li>Area-themed room palettes are here!
         <ul>
@@ -1225,7 +1227,7 @@ about 15 seconds to load.
         </ul>
     </ul>
 
-<p><a href="https://version-33---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release33">Version 33 (2023-02-01)</a>:
+<p><a id="release33">Version 33 (2023-02-01)</a>:
     <ul>
     <li>Improved logic for Ridley fight:
         <ul>
@@ -1248,13 +1250,13 @@ about 15 seconds to load.
     <li>Fixed a few bugs that occasionally caused the server to crash with "Service Unavailable".
     </ul>
 
-<p><a href="https://version-32---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release32">Version 32 (2023-01-30)</a>:
+<p><a id="release32">Version 32 (2023-01-30)</a>:
     <ul>
     <li>Major items are now indicated by large dots on the map.
     <li>A few quality-of-life changes (including major item marking) can be switched off.
     </ul>
 
-<p><a href="https://version-31---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release31">Version 31 (2023-01-29)</a>:
+<p><a id="release31">Version 31 (2023-01-29)</a>:
     <ul>
     <li>The website now remembers the user's settings (using local storage in the browser).
     <li>The "Random seed" field can be left blank and the randomizer will automatically choose a seed.
@@ -1267,12 +1269,12 @@ about 15 seconds to load.
     </ul>
 
 
-<p><a href="https://version-30---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release30">Version 30 (2023-01-27)</a>:
+<p><a id="release30">Version 30 (2023-01-27)</a>:
     <ul>
     <li>Fix an issue that caused the game to crash when entering Tourian Eye Door Room.
     </ul>
 
-<p><a href="https://version-29---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release29">Version 29 (2023-01-27)</a>:
+<p><a id="release29">Version 29 (2023-01-27)</a>:
     <ul>
         <li>The randomizer is rewritten in Rust. This is an internal change but it has some observable effects:
         <ul>
@@ -1301,7 +1303,7 @@ about 15 seconds to load.
         <li>Elevator tiles are restored to their vanilla form with blue/pink pixels indicating if they have been explored.
     </ul>
 
-<p><a href="https://version-28---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release28">Version 28 (2023-01-10)</a>:
+<p><a id="release28">Version 28 (2023-01-10)</a>:
     <ul>
         <li>Overhaul of the item placement algorithm:
         <ul>
@@ -1335,7 +1337,7 @@ about 15 seconds to load.
         <li>When going down Warehouse Entrance elevator, an elevator map tile is revealed which was previously missed.
     </ul>
 
-<p><a href="https://version-27---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release27">Version 27 (2023-01-08)</a>:
+<p><a id="release27">Version 27 (2023-01-08)</a>:
     <ul>
         <li>Enable Bowling Alley chozo during escape (to be able to activate bowling).
         <li>Adjustments to escape timer, which overall make it more lenient:
@@ -1348,7 +1350,7 @@ about 15 seconds to load.
         </ul>
     </ul>
 
-<p><a href="https://version-26---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release26">Version 26 (2023-01-06)</a>:
+<p><a id="release26">Version 26 (2023-01-06)</a>:
     <ul>
         <li>Fix the far right platform in Mother Brain Room to be solid tiles instead of slopes,
             to avoid the possibility of falling through the tiles and being trapped by running into the room (since
@@ -1357,7 +1359,7 @@ about 15 seconds to load.
         <li>Logic updates from sm-json-data (<a href="https://github.com/kjbranch/sm-json-data/compare/5339470..6bef471cc81db2c857c619a29c1dff326215f992">diff</a>).
     </ul>
 
-<p><a href="https://version-25---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release25">Version 25 (2023-01-04)</a>:
+<p><a id="release25">Version 25 (2023-01-04)</a>:
     <ul>
         <li>Arrows on the pause menu map are colored according to the destination area:
         <ul>
@@ -1370,13 +1372,13 @@ about 15 seconds to load.
         </ul>
     </ul>
 
-<p><a href="https://version-24---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release24">Version 24 (2023-01-03)</a>:
+<p><a id="release24">Version 24 (2023-01-03)</a>:
     <ul>
         <li>When Samus dies, skip game over screens, reloading immediately from last save.
         <li>Reload from last save during gameplay by pressing L + R + Select + Start.
     </ul>
 
-<p><a href="https://version-23---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release23">Version 23 (2023-01-03)</a>:
+<p><a id="release23">Version 23 (2023-01-03)</a>:
     <ul>
         <li>A couple improvements applicable before acquiring the area map:
         <ul>
@@ -1387,12 +1389,12 @@ about 15 seconds to load.
             new map patch).
     </ul>
 
-<p><a href="https://version-22---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release22">Version 22 (2023-01-02)</a>:
+<p><a id="release22">Version 22 (2023-01-02)</a>:
     <ul>
         <li>Fix crash that happened in Version 21 when picking up X-Ray.
     </ul>
 
-<p><a href="https://version-21---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release21">Version 21 (2023-01-02)</a>:
+<p><a id="release21">Version 21 (2023-01-02)</a>:
     <ul>
         <li>Escape timer is tailored to the seed based on the distance back to the ship.
         <ul>
@@ -1405,7 +1407,7 @@ about 15 seconds to load.
         </ul>
     </ul>
 
-<p><a href="https://version-20---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release20">Version 20 (2023-01-01)</a>:
+<p><a id="release20">Version 20 (2023-01-01)</a>:
     <ul>
     <li>During the Kraid, Draygon, Ridley, and Golden Torizo fights, restore gray door locks, making it no longer
         possible to run through the room without defeating the boss.
@@ -1423,7 +1425,7 @@ about 15 seconds to load.
     </ul>
 
 
-<p><a href="https://version-19---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release19">Version 19 (2022-12-30)</a>:
+<p><a id="release19">Version 19 (2022-12-30)</a>:
     <ul>
     <li>During the escape, enemies and bosses no longer spawn.
     <li>During the escape, entering Kraid's room no longer cancels the escape music.
@@ -1441,7 +1443,7 @@ about 15 seconds to load.
     </ul>
 
 
-<p><a href="https://version-18---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release18">Version 18 (2022-12-29)</a>:
+<p><a id="release18">Version 18 (2022-12-29)</a>:
     <ul>
     <li>Improvements to map/mini-map:
         <ul>
@@ -1450,18 +1452,18 @@ about 15 seconds to load.
         </ul>
     </ul>
 
-<p><a href="https://version-17---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release17">Version 17 (2022-12-27)</a>:
+<p><a id="release17">Version 17 (2022-12-27)</a>:
     <ul>
     <li>Music is based on map area! (This causes some glitches with sound effects which can be fixed later.)
     </ul>
 
-<p><a href="https://version-16---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release16">Version 16 (2022-12-26)</a>:
+<p><a id="release16">Version 16 (2022-12-26)</a>:
     <ul>
     <li>Tech is partially cleaned up and grouped by difficulty for easier navigation.
     <li>Logic updates (<a href="https://github.com/kjbranch/sm-json-data/compare/5339470..6bef471cc81db2c857c619a29c1dff326215f992">diff</a>).
     </ul>
 
-<p><a href="https://version-15---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release15">Version 15 (2022-12-26)</a>:
+<p><a id="release15">Version 15 (2022-12-26)</a>:
     <ul>
     <li>Refining the behavior introduced in version 10 on how Phantoon's Room is placed:
         <ul>
@@ -1475,13 +1477,13 @@ about 15 seconds to load.
     <li>Add "Map Rando" to the title screen.
     </ul>
 
-<p><a href="https://version-14---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release14">Version 14 (2022-12-24)</a>:
+<p><a id="release14">Version 14 (2022-12-24)</a>:
     <ul>
     <li>With the rolling save functionality introduced in version 13, also advance the current save slot. This ensures
         that after a reset the default save slot to load will be the one most recently saved.
     </ul>
 
-<p><a href="https://version-13---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release13">Version 13 (2022-12-23)</a>:
+<p><a id="release13">Version 13 (2022-12-23)</a>:
     <ul>
     <li>Supers now do double damage to Mother Brain 2.
     <li>Saving at a different save station from the last save will advance to the next slot before saving (wrapping
@@ -1489,13 +1491,13 @@ about 15 seconds to load.
     <li>Fix graphical glitches that sometimes occurred when leaving Phantoon's Room before defeating Phantoon.
     </ul>
 
-<p><a href="https://version-12---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release12">Version 12 (2022-12-23)</a>:
+<p><a id="release12">Version 12 (2022-12-23)</a>:
     <ul>
     <li>Fix an issue that caused new games (other than the first new game) to start at the wrong save location.
     <li>Fix graphical glitches that sometimes occurred when leaving Crocomire's Room before defeating Crocomire.
     </ul>
 
-<p><a href="https://version-11---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release11">Version 11 (2022-12-22)</a>:
+<p><a id="release11">Version 11 (2022-12-22)</a>:
     <ul>
     <li>Using a Missile Refill station refills all ammo types: Missiles, Supers, and Power Bombs.
     <li>The current tile can be un-explored (i.e., turned back to black/blue on the map) by pressing Angle Up and Item Cancel
@@ -1505,7 +1507,7 @@ about 15 seconds to load.
     <li>Restore rising acid in Tourian Escape Room 4 (unintentionally removed in version 8).
     </ul>
 
-<p><a href="https://version-10---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release10">Version 10 (2022-12-21)</a>:
+<p><a id="release10">Version 10 (2022-12-21)</a>:
     <ul>
     <li>Replace the special behavior for Wrecked Ship introduced in version 9 with the following instead:
         <ul>
@@ -1517,7 +1519,7 @@ about 15 seconds to load.
         difficulty config used to generate the ROM.
     </ul>
 
-<p><a href="https://version-9---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release9">Version 9 (2022-12-21)</a>:
+<p><a id="release9">Version 9 (2022-12-21)</a>:
     <ul>
     <li>Spread out the distribution of Save Room and Refill Rooms more evenly.
     <li>Add special behavior for the Wrecked Ship area:
@@ -1529,7 +1531,7 @@ about 15 seconds to load.
     <li>Various corrections to the logic used for item placement (<a href="https://github.com/kjbranch/sm-json-data/compare/a544435..5339470">diff</a>).
     </ul>
 
-<p><a href="https://version-8---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release8">Version 8 (2022-12-19)</a>:
+<p><a id="release8">Version 8 (2022-12-19)</a>:
     <ul>
     <li>Add blue door in Tourian Eye Door Room, removing Gadora graphics.
     <li>Remove explosions & shaking in Tourian Escape rooms when not in escape sequence.
@@ -1548,7 +1550,7 @@ about 15 seconds to load.
         </ul>
     </ul>
 
-<p><a href="https://version-7---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release7">Version 7 (2022-12-18)</a>:
+<p><a id="release7">Version 7 (2022-12-18)</a>:
     <ul>
     <li>Map station tiles are visible from the start of the game.
     <li>Spoiler log is simplified; areas and a summary section are added.
@@ -1558,7 +1560,7 @@ about 15 seconds to load.
         Big Pink that wasn't supposed to be there.
     </ul>
 
-<p><a href="https://version-6---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release6">Version 6 (2022-12-17)</a>:
+<p><a id="release6">Version 6 (2022-12-17)</a>:
     <ul>
     <li>Upper Tourian Save Room is replaced with a map station.
     <li>Entering Tourian First Room no longer gives the area map.
@@ -1567,7 +1569,7 @@ about 15 seconds to load.
     <li>Fixed a problem where the new tiles (e.g., the concentric square map tile) overwrote water graphics.
     </ul>
 
-<p><a href="https://version-5---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release5">Version 5 (2022-12-16)</a>:
+<p><a id="release5">Version 5 (2022-12-16)</a>:
     <ul>
     <li>Fixed graphics after leaving Kraid.
     <li>Unlocked camera in Spore Spawn Room so that entering from the right with Spore Spawn alive does not glitch the graphics.
@@ -1584,27 +1586,27 @@ about 15 seconds to load.
     <li>Added a description of Open/Closed item placement, and a link to the new <a href="https://discord.gg/Gc99YV2ZcB">Discord</a> server.
     </ul>
 
-<p><a href="https://version-4---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release4">Version 4 (2022-12-14)</a>:
+<p><a id="release4">Version 4 (2022-12-14)</a>:
     <ul>
     <li>Mother Brain rainbow beam no longer drains ammo (in case ammo is needed in the escape).
     <li>Mother Brain is marked defeated after the Mother Brain fight, so that if the player re-enters Mother Brain room
         Mother Brain will not spawn again.
     </ul>
 
-<p><a href="https://version-3---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release3">Version 3 (2022-12-14)</a>:
+<p><a id="release3">Version 3 (2022-12-14)</a>:
     <ul>
     <li>Stop Crateria map from getting messed up when save station is used.
     <li>Skip map screens in file select. This was originally a temporary change for debugging the save map problem, but
         seemed worth keeping as a tiny quality-of-life change, making it faster to restart after resetting.
     </ul>
 
-<p><a href="https://version-2---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release2">Version 2 (2022-12-13)</a>:
+<p><a id="release2">Version 2 (2022-12-13)</a>:
     <ul>
     <li>Fixed left door entrance to Crocomire Room and Mother Brain room.
     <li>Disabled demo (which was broken).
     </ul>
 
-<p><a href="https://version-1---sm-map-randomizer-544gn3gvwq-uc.a.run.app/" id="release1">Version 1 (2022-12-11)</a>:
+<p><a id="release1">Version 1 (2022-12-11)</a>:
     <ul>
     <li>Initial release
     </ul>
