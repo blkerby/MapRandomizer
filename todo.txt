@@ -1,3 +1,9 @@
+next release:
+  - fix main menu colors
+  - brighten map red some more?
+  - pull in new logic
+  - "Random" objective?
+
 priority:
 - help finish the cross-room strat migration
 - proper saving/loading of custom presets
