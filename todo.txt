@@ -1,7 +1,6 @@
-next release:
-  - fix main menu colors
+
+upcoming:
   - brighten map red some more?
-  - pull in new logic
   - "Random" objective?
 
 priority:

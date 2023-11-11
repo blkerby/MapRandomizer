@@ -215,8 +215,8 @@ impl<'a> TitlePatcher<'a> {
         // self.rom.write_u8(snes2pc(0x8B8679), 0x40 | 0x10)?;  // green value to subtract = 0x10
         // self.rom.write_u8(snes2pc(0x8B867D), 0x80 | 0x00)?;  // blue value to subtract = 0x00
 
-        // Don't disable the effect during the second camera pan (top right to top left):
-        self.rom.write_u8(snes2pc(0x8B8682), 0x60)?;
+        // Don't disable the effect for the second camera pan (top right to top left):
+        self.rom.write_n(snes2pc(0x8B9D43), &[0xEA; 3])?;
 
         Ok(())
     }
