@@ -12,12 +12,41 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-      <p>If enabled, then certain enemy drop types give double their normal value:
+      <p>If enabled, then certain enemy drops are improved:
       <ul>
       <li>Small energy drops give 10 energy.
-      <li>Super Missile drops give 2 Super Missiles.
-      <li>Power Bomb drops give 2 Power Bombs.
+      <li>Respawning enemies drop Power Bombs at double the normal rate.
       </ul>
+      </p>
+
+      <h5>Details</h5>
+      <p>
+      The enemies with improved Power Bomb drop rate are Gamets, Zebs, Geegas, Zebbos, Zoas, and Coverns.
+      Drop rates of enemy projectiles are not affected. The increased Power Bomb drop rate comes out of the
+      Missile drop rate. The resulting drop rates are shown in the following table:
+
+      <table class="table w-auto table-striped table-bordered mx-auto">
+      <thead>
+        <tr>
+        <th scope="col">Enemy</th>
+        <th scope="col">Nothing</th>
+        <th scope="col">Small Energy</th>
+        <th scope="col">Large Energy</th>
+        <th scope="col">Missile</th>
+        <th scope="col">Super</th>
+        <th scope="col">Power Bomb</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr><td>Gamet</td><td>2%</td><td>24%</td><td>24%</td><td>20%</td><td>24%</td><td>8%</td></tr>
+          <tr><td>Zeb</td><td>2%</td><td>24%</td><td>24%</td><td>20%</td><td>24%</td><td>8%</td></tr>
+          <tr><td>Geega</td><td>2%</td><td>24%</td><td>24%</td><td>20%</td><td>24%</td><td>8%</td></tr>
+          <tr><td>Zebbo</td><td>0%</td><td>0%</td><td>56%</td><td>2%</td><td>40%</td><td>4%</td></tr>
+          <tr><td>Zoa</td><td>2%</td><td>0%</td><td>40%</td><td>24%</td><td>28%</td><td>8%</td></tr>
+          <tr><td>Covern</td><td>0%</td><td>20%</td><td>38%</td><td>20%</td><td>8%</td><td>16%</td></tr>
+      </tbody>
+      </table>
+  
       </p>
       </div>
       <div class="modal-footer">
