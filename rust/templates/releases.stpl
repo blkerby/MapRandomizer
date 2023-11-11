@@ -18,6 +18,7 @@ document.getElementById("navigation-releases").classList.add("active");
 <ul>
 <li>New quality-of-life option "Enemy drops are buffed" is added (enabled by default).
 <li>Title screens are randomized.
+<li>Fixed an issue that caused spoiler "obtain" and "return" routes to be swapped, among other odd behavior (a bug introduced in v94).
 </ul>
 
 <p><a id="release94">Version 94 (2023-11-09)</a>:

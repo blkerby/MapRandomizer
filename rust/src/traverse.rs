@@ -1034,14 +1034,14 @@ pub fn traverse(
     }
 
     let base_links_by_src: &Vec<Vec<(LinkIdx, Link)>> = if reverse {
-        &base_links_data.links_by_src
-    } else {
         &base_links_data.links_by_dst
+    } else {
+        &base_links_data.links_by_src
     };
     let seed_links_by_src: &Vec<Vec<(LinkIdx, Link)>> = if reverse {
-        &seed_links_data.links_by_src
-    } else {
         &seed_links_data.links_by_dst
+    } else {
+        &seed_links_data.links_by_src
     };
 
     while modified_vertices.len() > 0 {
