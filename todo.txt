@@ -2,12 +2,12 @@
 upcoming:
   - brighten map red some more?
   - "Random" objective?
+  - add robots.txt for dev service
 
 priority:
 - help finish the cross-room strat migration
 - proper saving/loading of custom presets
-- "Random" objective option? (but what will tracker look like)
-- make randomizer more efficient: 
+- make randomizer more efficient: (retry on same map multiple times)
 - revamp strat page: 
   - embed the video directly near the top? 
   - collapse the room diagram
