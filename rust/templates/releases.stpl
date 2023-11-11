@@ -14,7 +14,7 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release95">Version 95 (2023-11-10)</a>:
+<p><a id="release95">Version 95 (2023-11-11)</a>:
 <ul>
 <li>New quality-of-life option "Enemy drops are buffed" is added (enabled by default).
 <li>Title screens are randomized.
