@@ -161,6 +161,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         item_dot_change: ItemDotChange::Fade,
         all_items_spawn: true,
         acid_chozo: true,
+        buffed_drops: true,
         fast_elevators: true,
         fast_doors: true,
         fast_pause_menu: true,

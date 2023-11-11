@@ -16,6 +16,7 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <p><a id="release95">Version 95 (2023-11-10)</a>:
 <ul>
+<li>New quality-of-life option "Enemy drops are buffed" is added (enabled by default).
 <li>Title screens are randomized.
 </ul>
 

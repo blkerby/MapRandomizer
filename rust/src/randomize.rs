@@ -130,6 +130,7 @@ pub struct DifficultyConfig {
     pub item_dot_change: ItemDotChange,
     pub all_items_spawn: bool,
     pub acid_chozo: bool,
+    pub buffed_drops: bool,
     pub fast_elevators: bool,
     pub fast_doors: bool,
     pub fast_pause_menu: bool,

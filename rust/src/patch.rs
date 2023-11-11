@@ -372,6 +372,10 @@ impl<'a> Patcher<'a> {
             patches.push("momentum_conservation");
         }
 
+        if self.randomization.difficulty.buffed_drops {
+            patches.push("buffed_drops");
+        }
+
         if !self.randomization.difficulty.vanilla_map {
             patches.push("zebes_asleep_music");
         }

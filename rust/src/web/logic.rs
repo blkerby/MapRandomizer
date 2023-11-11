@@ -331,6 +331,7 @@ fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
         item_dot_change: crate::randomize::ItemDotChange::Fade,
         all_items_spawn: true,
         acid_chozo: true,
+        buffed_drops: true,
         fast_elevators: true,
         fast_doors: true,
         fast_pause_menu: true,
