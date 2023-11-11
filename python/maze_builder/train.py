@@ -213,7 +213,7 @@ pickle_name = 'models/session-2023-11-08T16:16:55.811707.pkl'
 # session = Unpickler(open(pickle_name + '-bk43', 'rb')).load()
 # session = Unpickler(open(pickle_name + '-bk54', 'rb')).load()  # After backfilling graph diameter data
 # old_session = Unpickler(open(pickle_name + '-bk72', 'rb')).load()
-session = Unpickler(open(pickle_name + '-bk1', 'rb')).load()  # After backfilling graph diameter data
+session = Unpickler(open(pickle_name + '-bk9', 'rb')).load()  # After backfilling graph diameter data
 
 
 # # Perform model surgery to add Toilet as decoupled room:
@@ -311,14 +311,14 @@ num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in sessio
 hist_c = 1.0
 hist_frac = 1.0
 batch_size = 2 ** 10
-lr0 = 0.0001
+lr0 = 0.0003
 lr1 = lr0
 # lr_warmup_time = 16
 # lr_cooldown_time = 100
-num_candidates_min0 = 1
-num_candidates_max0 = 1
-num_candidates_min1 = 1
-num_candidates_max1 = 1
+num_candidates_min0 = 0.5
+num_candidates_max0 = 1.5
+num_candidates_min1 = 1.5
+num_candidates_max1 = 2.5
 
 # num_candidates0 = 40
 # num_candidates1 = 40
@@ -343,8 +343,6 @@ door_connect_beta = door_connect_bound / (door_connect_bound + door_connect_alph
 # door_connect_bound = 0.0
 # door_connect_alpha = 1e-15
 
-augment_frac = 0.0
-
 temperature_min0 = 0.01
 temperature_max0 = 100.0
 temperature_min1 = 0.01
@@ -359,8 +357,8 @@ temperature_frac_min0 = 0.5
 temperature_frac_min1 = 0.5
 temperature_decay = 1.0
 
-annealing_start = 0
-annealing_time = 1  # session.replay_buffer.capacity // (num_envs * num_devices) // 32
+annealing_start = 14336
+annealing_time = session.replay_buffer.capacity // (num_envs * num_devices)
 
 pass_factor0 = 0.1
 pass_factor1 = 0.1
@@ -679,7 +677,7 @@ for i in range(1000000):
         # buffer_mean_rooms_missing = buffer_mean_pass * len(rooms)
 
         logging.info(
-            "{}: loss={:.4f}, ({:.4f}, {:.4f}, {:.4f}, {:.4f}), cost={:.2f} (min={:d}, frac={:.4f}), ent={:.4f}, save={:.4f}, diam={:.3f}, mc={:.3f}, p={:.4f}".format(
+            "{}: loss={:.4f}, ({:.4f}, {:.4f}, {:.4f}, {:.4f}), cost={:.2f} (min={:d}, frac={:.4f}), ent={:.4f}, save={:.4f}, diam={:.3f}, mc={:.3f}, p={:.4f}, p0={:.4f}, frac={:.4f}".format(
                 session.num_rounds,
                 new_loss,
                 new_binary_loss,
@@ -694,7 +692,9 @@ for i in range(1000000):
                 new_save_distances,
                 new_graph_diameter,
                 new_mc_distances,
-                new_prob
+                new_prob,
+                new_prob0,
+                frac,
             ))
         total_loss = 0.0
         total_binary_loss = 0.0
@@ -711,23 +711,28 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk2')
+            # save_session(session, pickle_name + '-bk9')
             # session.replay_buffer.resize(2 ** 19)
             # pickle.dump(session, open(pickle_name + '-small-1', 'wb'))
     if session.num_rounds % summary_freq == 0:
         if num_candidates_max == 1:
             total_eval_loss = 0.0
+            total_other_losses = [0.0, 0.0, 0.0, 0.0]
             with torch.no_grad():
                 with session.average_parameters.average_parameters(session.model.all_param_data()):
                     for data in eval_batches:
-                        eval_loss = session.eval_batch(data,
+                        eval_loss, other_losses = session.eval_batch(data,
                             save_dist_weight = save_loss_weight,
                             graph_diam_weight = graph_diam_weight,
                             mc_dist_weight = mc_dist_weight)
                         total_eval_loss += eval_loss
+                        for i in range(len(total_other_losses)):
+                            total_other_losses[i] += other_losses[i]
             mean_eval_loss = total_eval_loss / len(eval_batches)
+            mean_other_losses = [x / len(eval_batches) for x in total_other_losses]
         else:
             mean_eval_loss = float('nan')
+            mean_other_losses = [float('nan'), float('nan'), float('nan'), float('nan')]
         # summary_mean_test_loss = total_summary_eval_loss / total_summary_eval_loss_cnt
 
         if num_candidates_max > 1:
@@ -797,14 +802,15 @@ for i in range(1000000):
             counts1 = compute_door_connect_counts(only_success=True, ind=ind)
             ent = session.compute_door_stats_entropy(counts)
             ent1 = session.compute_door_stats_entropy(counts1)
-            # logging.info("[{:.3f}, {:.3f}]: cost={:.3f} (min={}, frac={:.6f}), ts={:.4f}, ent1={:.6f}, save1={:.6f}, diam1={:.3f}, tame1={:.3f}, wild1={:.3f}, test={:.6f}, p={:.4f}, cnt={}, temp={:.4f}".format(
-            #     temp_low, temp_high, buffer_mean_reward, buffer_min_reward,
-            #     buffer_frac_min, tame_success_rate, ent1, buffer_save_dist1, buffer_mean_graph_diam1, buffer_tame1, buffer_wild1, buffer_mean_test_loss, buffer_mean_prob, ind.shape[0], buffer_mean_temp
-            # ))
-            logging.info("[{:.3f}, {:.3f}]: cost={:.3f} (min={}, frac={:.6f}), eval={:.4f}, test={:.6f}, p={:.4f}, cnt={}, temp={:.4f}".format(
+            logging.info("[{:.3f}, {:.3f}]: cost={:.3f} (min={}, frac={:.6f}), ts={:.4f}, ent1={:.6f}, save1={:.6f}, diam1={:.3f}, tame1={:.3f}, wild1={:.3f}, test={:.6f}, p={:.4f}, cnt={}, temp={:.4f}".format(
                 temp_low, temp_high, buffer_mean_reward, buffer_min_reward,
-                buffer_frac_min, mean_eval_loss, buffer_mean_test_loss, buffer_mean_prob, ind.shape[0], buffer_mean_temp
+                buffer_frac_min, tame_success_rate, ent1, buffer_save_dist1, buffer_mean_graph_diam1, buffer_tame1, buffer_wild1, buffer_mean_test_loss, buffer_mean_prob, ind.shape[0], buffer_mean_temp
             ))
+            # logging.info("[{:.3f}, {:.3f}]: cost={:.3f} (min={}, frac={:.6f}), eval={:.4f} ({:.4f}, {:.4f}, {:.4f}, {:.4f}), test={:.6f}, p={:.4f}, cnt={}, temp={:.4f}".format(
+            #     temp_low, temp_high, buffer_mean_reward, buffer_min_reward, buffer_frac_min,
+            #     mean_eval_loss, mean_other_losses[0], mean_other_losses[1], mean_other_losses[2], mean_other_losses[3],
+            #     buffer_mean_test_loss, buffer_mean_prob, ind.shape[0], buffer_mean_temp
+            # ))
             # display_counts(counts1, 10, False)
             # display_counts(counts, 10, True)
         # counts1 = compute_door_connect_counts(only_success=True)

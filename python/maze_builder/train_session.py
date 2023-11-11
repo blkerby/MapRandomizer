@@ -250,7 +250,7 @@ class TrainingSession():
 
         raw_preds_valid = model.forward_multiclass(
             room_mask_valid, room_position_x_valid, room_position_y_valid, steps_remaining_valid, round_frac_valid,
-            temperature_valid, mc_dist_coef_valid, augment_frac=0.0)
+            temperature_valid, mc_dist_coef_valid)
 
         num_logodds = env.num_doors + env.num_missing_connects
         logodds_valid = raw_preds_valid[:, :num_logodds]
@@ -554,5 +554,5 @@ class TrainingSession():
         self.model.eval()
         with torch.no_grad():
             losses = self.compute_losses(data, save_dist_weight, graph_diam_weight, mc_dist_weight)
-        return losses[0].item()
+        return losses[0].item(), losses[1:]
 
