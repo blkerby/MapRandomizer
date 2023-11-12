@@ -13,14 +13,16 @@ use base64::Engine;
 use clap::Parser;
 use hashbrown::{HashMap, HashSet};
 use log::{error, info};
-use maprando::customize::{customize_rom, AreaTheming, CustomizeSettings, MusicSettings};
+use maprando::customize::{
+    customize_rom, AreaTheming, ControllerConfig, CustomizeSettings, MusicSettings, parse_controller_button,
+};
 use maprando::game_data::{GameData, IndexedVec, Item, LinksDataGroup};
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::{make_rom, Rom};
 use maprando::randomize::{
-    randomize_doors, DebugOptions, DifficultyConfig, DoorsMode, ItemDotChange, ItemMarkers,
-    ItemPlacementStyle, ItemPriorityGroup, MotherBrainFight, Objectives, Randomization, Randomizer,
-    SaveAnimals, filter_links,
+    filter_links, randomize_doors, DebugOptions, DifficultyConfig, DoorsMode, ItemDotChange,
+    ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, MotherBrainFight, Objectives,
+    Randomization, Randomizer, SaveAnimals,
 };
 use maprando::seed_repository::{Seed, SeedFile, SeedRepository};
 use maprando::spoiler_map;
@@ -245,15 +247,22 @@ struct UnlockRequest {
 struct CustomizeRequest {
     rom: Bytes,
     custom_samus_sprite: Text<bool>,
-    custom_etank_color: Text<bool>,
     samus_sprite: Text<String>,
+    custom_etank_color: Text<bool>,
+    etank_color: Text<String>,
     vanilla_screw_attack_animation: Text<bool>,
     room_palettes: Text<String>,
+    tile_theme: Text<String>,
     music: Text<String>,
     disable_beeping: Text<bool>,
     disable_shaking: Text<bool>,
-    etank_color: Text<String>,
-    tile_theme: Text<String>,
+    control_shot: Text<String>,
+    control_jump: Text<String>,
+    control_dash: Text<String>,
+    control_item_select: Text<String>,
+    control_item_cancel: Text<String>,
+    control_angle_up: Text<String>,
+    control_angle_down: Text<String>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -379,7 +388,8 @@ struct CustomizeSeedTemplate {
 
 struct Attempt<'a> {
     attempt_num: usize,
-    thread_handle: Option<thread::ScopedJoinHandle<'a, Result<(Randomization, Rom), anyhow::Error>>>,
+    thread_handle:
+        Option<thread::ScopedJoinHandle<'a, Result<(Randomization, Rom), anyhow::Error>>>,
     map_seed: usize,
     door_randomization_seed: usize,
     item_placement_seed: usize,
@@ -746,6 +756,15 @@ async fn customize_seed(
         } else {
             None
         },
+        etank_color: if req.custom_etank_color.0 {
+            Some((
+                u8::from_str_radix(&req.etank_color.0[0..2], 16).unwrap() / 8,
+                u8::from_str_radix(&req.etank_color.0[2..4], 16).unwrap() / 8,
+                u8::from_str_radix(&req.etank_color.0[4..6], 16).unwrap() / 8,
+            ))
+        } else {
+            None
+        },
         vanilla_screw_attack_animation: req.vanilla_screw_attack_animation.0,
         area_theming: if req.tile_theme.0 != "none" {
             AreaTheming::Tiles(req.tile_theme.0.to_owned())
@@ -762,14 +781,14 @@ async fn customize_seed(
         },
         disable_beeping: req.disable_beeping.0,
         disable_shaking: req.disable_shaking.0,
-        etank_color: if req.custom_etank_color.0 {
-            Some((
-                u8::from_str_radix(&req.etank_color.0[0..2], 16).unwrap() / 8,
-                u8::from_str_radix(&req.etank_color.0[2..4], 16).unwrap() / 8,
-                u8::from_str_radix(&req.etank_color.0[4..6], 16).unwrap() / 8,
-            ))
-        } else {
-            None
+        controller_config: ControllerConfig {
+            shot: parse_controller_button(&req.control_shot.0).unwrap(),
+            jump: parse_controller_button(&req.control_jump.0).unwrap(),
+            dash: parse_controller_button(&req.control_dash.0).unwrap(),
+            item_select: parse_controller_button(&req.control_item_select.0).unwrap(),
+            item_cancel: parse_controller_button(&req.control_item_cancel.0).unwrap(),
+            angle_up: parse_controller_button(&req.control_angle_up.0).unwrap(),
+            angle_down: parse_controller_button(&req.control_angle_down.0).unwrap(),
         },
     };
     info!("CustomizeSettings: {:?}", settings);
@@ -1193,9 +1212,21 @@ async fn randomize(
         vec![difficulty.clone()]
     };
 
-    let filtered_base_links = filter_links(&app_data.game_data.base_links, &app_data.game_data, &difficulty);
-    let filtered_base_links_data = LinksDataGroup::new(filtered_base_links, app_data.game_data.vertex_isv.keys.len(), 0);
-    let filtered_seed_links = filter_links(&app_data.game_data.seed_links, &app_data.game_data, &difficulty);
+    let filtered_base_links = filter_links(
+        &app_data.game_data.base_links,
+        &app_data.game_data,
+        &difficulty,
+    );
+    let filtered_base_links_data = LinksDataGroup::new(
+        filtered_base_links,
+        app_data.game_data.vertex_isv.keys.len(),
+        0,
+    );
+    let filtered_seed_links = filter_links(
+        &app_data.game_data.seed_links,
+        &app_data.game_data,
+        &difficulty,
+    );
 
     let mut rng_seed = [0u8; 32];
     rng_seed[..8].copy_from_slice(&random_seed.to_le_bytes());
@@ -1287,20 +1318,20 @@ async fn randomize(
                 }));
                 // Insert at position 0 so attempts pop off in the order they were created, simpler than using a VecDeque
                 attempts.insert(0, attempt);
-    
+
                 // If we still need another thread
                 if (attempts.len() < max_threads) && (attempts_triggered < max_attempts) {
                     // Skip consuming and trigger another
                     continue;
                 }
             }
-    
+
             // If we've run out of attempts
             if attempts.len() == 0 {
                 error!("Failed too many randomization attempts {attempts_triggered}/{max_attempts}: random_seed={random_seed}");
                 return None;
             }
-    
+
             // Evaluate the oldest attempt
             attempt = attempts.pop().unwrap();
             attempt_num = attempt.attempt_num;
@@ -1338,7 +1369,10 @@ async fn randomize(
     }
     let output = output_opt.unwrap();
 
-    info!("Wall-clock time for attempts: {:?} sec", time_start_attempts.elapsed().as_secs_f32());
+    info!(
+        "Wall-clock time for attempts: {:?} sec",
+        time_start_attempts.elapsed().as_secs_f32()
+    );
     let timestamp = match SystemTime::now().duration_since(SystemTime::UNIX_EPOCH) {
         Ok(n) => n.as_millis() as usize,
         Err(_) => panic!("SystemTime before UNIX EPOCH!"),

@@ -1,6 +1,6 @@
 use anyhow::{bail, Context, Result};
 use clap::Parser;
-use maprando::customize::{customize_rom, CustomizeSettings, MusicSettings};
+use maprando::customize::{customize_rom, CustomizeSettings, MusicSettings, ControllerConfig};
 use maprando::game_data::{Item, Map};
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::Rom;
@@ -250,13 +250,14 @@ fn main() -> Result<()> {
     let customize_settings = CustomizeSettings {
         samus_sprite: Some("samus".to_string()),
         // samus_sprite: None,
+        etank_color: None,
         vanilla_screw_attack_animation: true,
         area_theming: maprando::customize::AreaTheming::Tiles("OuterCrateria".to_string()),
         music: MusicSettings::AreaThemed,
         // music: MusicSettings::Vanilla,
         disable_beeping: false,
         disable_shaking: false,
-        etank_color: None,
+        controller_config: ControllerConfig::default(),        
     };
     customize_rom(&mut output_rom, &ips_patch, &customize_settings, &game_data, &[
         SamusSpriteCategory {

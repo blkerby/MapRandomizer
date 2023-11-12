@@ -65,15 +65,40 @@ pub enum AreaTheming {
     Tiles(String),
 }
 
+#[derive(Default, Debug, Copy, Clone)]
+pub enum ControllerButton {
+    #[default]
+    Default,
+    X,
+    Y,
+    A,
+    B,
+    Select,
+    L,
+    R,
+}
+
+#[derive(Default, Debug)]
+pub struct ControllerConfig {
+    pub shot: ControllerButton,
+    pub jump: ControllerButton,
+    pub dash: ControllerButton,
+    pub item_select: ControllerButton,
+    pub item_cancel: ControllerButton,
+    pub angle_up: ControllerButton,
+    pub angle_down: ControllerButton,
+}
+
 #[derive(Debug)]
 pub struct CustomizeSettings {
     pub samus_sprite: Option<String>,
+    pub etank_color: Option<(u8, u8, u8)>,
     pub vanilla_screw_attack_animation: bool,
     pub area_theming: AreaTheming,
     pub music: MusicSettings,
     pub disable_beeping: bool,
     pub disable_shaking: bool,
-    pub etank_color: Option<(u8, u8, u8)>,
+    pub controller_config: ControllerConfig,
 }
 
 fn remove_mother_brain_flashing(rom: &mut Rom) -> Result<()> {
@@ -154,6 +179,52 @@ fn apply_custom_samus_sprite(
     Ok(())
 }
 
+pub fn parse_controller_button(s: &str) -> Result<ControllerButton> {
+    Ok(match s {
+        "X" => ControllerButton::X,
+        "Y" => ControllerButton::Y,
+        "A" => ControllerButton::A,
+        "B" => ControllerButton::B,
+        "Select" => ControllerButton::Select,
+        "L" => ControllerButton::L,
+        "R" => ControllerButton::R,
+        _ => bail!("Unexpected controller button: {}", s)
+    })
+}
+
+fn get_button_code(mut controller_button: ControllerButton, default: ControllerButton) -> isize {
+    if let ControllerButton::Default = controller_button {
+        controller_button = default;
+    }
+    match controller_button {
+        ControllerButton::X => 0x0040,
+        ControllerButton::Y => 0x4000,
+        ControllerButton::A => 0x0080,
+        ControllerButton::B => 0x8000,
+        ControllerButton::Select => 0x2000,
+        ControllerButton::L => 0x0020,
+        ControllerButton::R => 0x0010,
+        ControllerButton::Default => panic!("Unexpected Default controller button")
+    }
+}
+
+fn apply_controller_config(rom: &mut Rom, controller_config: &ControllerConfig) -> Result<()> {
+    let control_data = vec![
+        (0x81B325, controller_config.jump, ControllerButton::A),
+        (0x81B32B, controller_config.dash, ControllerButton::B),
+        (0x81B331, controller_config.shot, ControllerButton::X),
+        (0x81B337, controller_config.item_cancel, ControllerButton::Y),
+        (0x81B33D, controller_config.item_select, ControllerButton::Select),
+        (0x81B343, controller_config.angle_up, ControllerButton::R),
+        (0x81B349, controller_config.angle_down, ControllerButton::L),
+    ];
+    for (addr, button, default) in control_data {
+        let code = get_button_code(button, default);
+        rom.write_u16(snes2pc(addr), code)?;
+    }
+    Ok(())
+}
+
 pub fn customize_rom(
     rom: &mut Rom,
     seed_patch: &[u8],
@@ -181,6 +252,13 @@ pub fn customize_rom(
         }
     }
     apply_custom_samus_sprite(rom, settings, samus_sprite_categories)?;
+    if let Some((r, g, b)) = settings.etank_color {
+        let color = (r as isize) | ((g as isize) << 5) | ((b as isize) << 10);
+        rom.write_u16(snes2pc(0x82FFFE), color)?; // Gameplay ETank color
+                                                  // rom.write_u16(snes2pc(0xB6F01A), color)?;
+        rom.write_u16(snes2pc(0x8EE416), color)?; // Main menu
+        rom.write_u16(snes2pc(0xA7CA7B), color)?; // During Phantoon power-on
+    }
     match settings.music {
         MusicSettings::Vanilla => {
             override_music(rom)?;
@@ -201,12 +279,6 @@ pub fn customize_rom(
         // Disable screen shaking globally, by setting the shake displacements to zero (this should be timing-neutral?)
         rom.write_n(snes2pc(0xA0872D), &[0; 288])?;
     }
-    if let Some((r, g, b)) = settings.etank_color {
-        let color = (r as isize) | ((g as isize) << 5) | ((b as isize) << 10);
-        rom.write_u16(snes2pc(0x82FFFE), color)?; // Gameplay ETank color
-                                                  // rom.write_u16(snes2pc(0xB6F01A), color)?;
-        rom.write_u16(snes2pc(0x8EE416), color)?; // Main menu
-        rom.write_u16(snes2pc(0xA7CA7B), color)?; // During Phantoon power-on
-    }
+    apply_controller_config(rom, &settings.controller_config)?;
     Ok(())
 }
