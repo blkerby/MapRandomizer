@@ -255,6 +255,7 @@ fn main() -> Result<()> {
         music: MusicSettings::AreaThemed,
         // music: MusicSettings::Vanilla,
         disable_beeping: false,
+        disable_shaking: false,
         etank_color: None,
     };
     customize_rom(&mut output_rom, &ips_patch, &customize_settings, &game_data, &[

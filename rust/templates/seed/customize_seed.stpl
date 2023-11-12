@@ -117,6 +117,21 @@ window.spoilerTokenPrefix = "<%- spoiler_token_prefix %>";
 
                         <div class="form-group row my-3">
                             <div class="col-md-4">
+                                <label class="col-form-label" for="tile_theme"><% include!("help/tile_theme.stpl"); %>Tile theme (experimental)</label>
+                            </div>
+                            <div class="col-md-6 col-lg-4 btn-group p-0" role="group">
+                                <select id="tileTheme" name="tile_theme" class="form-select">
+                                    <option value="none" selected>None</option>
+                                    <option value="OuterCrateria">Outer Crateria</option>
+                                    <option value="InnerCrateria">Inner Crateria</option>
+                                    <option value="GreenBrinstar">Green Brinstar</option>
+                                    <option value="UpperNorfair">Upper Norfair</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group row my-3">
+                            <div class="col-md-4">
                             <label class="col-form-label" for="music"><% include!("help/music.stpl"); %>Music</label>
                             </div>
                             <div class="col-md-8 col-lg-6 btn-group p-0" role="group">
@@ -142,24 +157,65 @@ window.spoilerTokenPrefix = "<%- spoiler_token_prefix %>";
                         </div>
 
                         <div class="form-group row my-3">
+                            <div class="col-md-4">
+                            <label class="col-form-label" for="disable_shaking"><% include!("help/shaking.stpl"); %>Screen shaking</label>
+                            </div>
+                            <div class="col-md-6 col-lg-4 btn-group p-0" role="group">
+                                <input type="radio" class="btn-check" name="disable_shaking" id="disableShakingNo" value="false" checked>
+                                <label class="btn btn-outline-primary" style="width:120px" for="disableShakingNo">Vanilla</label>
+                                <input type="radio" class="btn-check" name="disable_shaking" id="disableShakingYes" value="true">
+                                <label class="btn btn-outline-primary" style="width:120px" for="disableShakingYes">Disabled</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group row my-3">
                             <label class="col-md-4 col-form-label" for="rom"><% include!("help/base_rom.stpl"); %>Base ROM</label>
                             <input class="col-sm-8 form-control-file p-0" type="file" id="baseRom" name="rom"
                             onchange="saveROM(this, 'base')">
                         </div>
 
-                        <div class="accordion my-2" id="accordionOtherOptions">
-                            <div class="accordion-item">
-                                <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed customize-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOtherOptions">
-                                    Other options
-                                    </button>
-                                </h2>
-                                <div id="collapseOtherOptions" class="accordion-collapse collapse m-2">
-                                    <% include!("other_options.stpl"); %>
+                        <div class="row my-3">
+                            <div class="col-lg-8 accordion" id="accordionControllerConfig">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed customize-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseControllerConfig">
+                                        Controller config
+                                        </button>
+                                    </h2>
+                                    <div id="collapseControllerConfig" class="accordion-collapse collapse m-2">
+                                        <% let actions = vec![
+                                            ("Shot", "control_shot"),
+                                            ("Jump", "control_jump"),
+                                            ("Dash", "control_dash"),
+                                            ("Item Select", "control_item_select"),
+                                            ("Item Cancel", "control_item_cancel"),
+                                            ("Angle Up", "control_angle_up"),
+                                            ("Angle Down", "control_angle_down"),
+                                        ];
+                                        for (action_name, form_name) in actions {
+                                        %>
+                                        <div class="form-group row">
+                                            <div class="col-md-6 my-2 px-2 text-end pt-1">
+                                                <p><label for="preset"><%= action_name %></label></p>
+                                            </div>
+                                            <div class="col-sm-3 my-2 px-2" role="group">
+                                                <select id="<%- form_name %>" name="<%- form_name %>" class="form-select">
+                                                    <option value="" selected></option>
+                                                    <option value="X">X</option>
+                                                    <option value="Y">Y</option>
+                                                    <option value="A">A</option>
+                                                    <option value="B">B</option>
+                                                    <option value="Select">Select</option>
+                                                    <option value="L">L</option>
+                                                    <option value="R">R</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <% } %>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-
 
                         <input type="submit" class="btn btn-primary my-2" value="Download ROM" />
                     </form>

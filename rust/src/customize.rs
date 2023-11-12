@@ -72,6 +72,7 @@ pub struct CustomizeSettings {
     pub area_theming: AreaTheming,
     pub music: MusicSettings,
     pub disable_beeping: bool,
+    pub disable_shaking: bool,
     pub etank_color: Option<(u8, u8, u8)>,
 }
 
@@ -195,6 +196,10 @@ pub fn customize_rom(
         rom.write_n(snes2pc(0x90EAA0), &[0xEA; 4])?;
         rom.write_n(snes2pc(0x90F33C), &[0xEA; 4])?;
         rom.write_n(snes2pc(0x91E6DA), &[0xEA; 4])?;
+    }
+    if settings.disable_shaking {
+        // Disable screen shaking globally, by setting the shake displacements to zero (this should be timing-neutral?)
+        rom.write_n(snes2pc(0xA0872D), &[0; 288])?;
     }
     if let Some((r, g, b)) = settings.etank_color {
         let color = (r as isize) | ((g as isize) << 5) | ((b as isize) << 10);

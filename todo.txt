@@ -1,10 +1,13 @@
 
 upcoming:
-  - brighten map red some more?
   - "Random" objective?
+  - customization option to get rid of screen shaking 
+  - controller config special settings (moonwalk) customization
   - add robots.txt for dev service
 
 priority:
+- add door flags to refine logic
+- add door lock bypass strats to logic
 - help finish the cross-room strat migration
 - proper saving/loading of custom presets
 - make randomizer more efficient: (retry on same map multiple times)
@@ -21,13 +24,7 @@ priority:
 - consider prioritizing item placement at closer item locations relative to previous key item(s)
 - start logging the seed generation latency
 - split off toilet from aqueduct
-- consider implementing farm QoL option to combine drop tiers
-  - $86F106: drop logic
 - speed booster hall: heat frames could be slightly less?
-- add door flags to refine logic
-- add door lock bypass strats to logic
-- randomized title screen
-- controller config special settings (moonwalk) customization
 - set up a more robust way for users to save & select presets
 - overhaul two-phase randomization/customization process
   - create ROM in customization only
@@ -64,7 +61,6 @@ priority:
   - possibly related: issue where filler items are re-randomized when trying new key item.
     - maybe re-randomizing is ok, but on success it should try replacing key item with Missile (instead of having Missile be first key item tried)
 - fix quick reloading from bottom/top of elevator (to not skip back a save)
-- maybe customization option to get rid of screen shaking 
 - handle canShinesparkWithReserve in randomizer (and remove it from being ignored)
 - incrementally build graph traversal with increasing difficulty tiers, acquiring flags in the process.
   - will allow better accounting of the difficulty of boss fights in forced mode

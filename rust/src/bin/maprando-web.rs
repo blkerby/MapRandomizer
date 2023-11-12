@@ -251,6 +251,7 @@ struct CustomizeRequest {
     room_palettes: Text<String>,
     music: Text<String>,
     disable_beeping: Text<bool>,
+    disable_shaking: Text<bool>,
     etank_color: Text<String>,
     tile_theme: Text<String>,
 }
@@ -760,6 +761,7 @@ async fn customize_seed(
             _ => panic!("Unexpected music option: {}", req.music.0.as_str()),
         },
         disable_beeping: req.disable_beeping.0,
+        disable_shaking: req.disable_shaking.0,
         etank_color: if req.custom_etank_color.0 {
             Some((
                 u8::from_str_radix(&req.etank_color.0[0..2], 16).unwrap() / 8,
