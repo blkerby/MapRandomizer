@@ -1,11 +1,15 @@
 
 upcoming:
-  - "Random" objective?
-  - customization option to get rid of screen shaking 
-  - controller config special settings (moonwalk) customization
+  - controller binding:
+    - implment moonwalk customization, and quick reload
+  - improve Lenient Space Jump
+    - windows opens same as vanilla, but never closes.
   - add robots.txt for dev service
+  - clear SRAM more fully when saved seed does not match:
+    - save slot position is apparently being retained (e.g. starting with cursor on slot 3)
 
 priority:
+- "Random" objective?
 - add door flags to refine logic
 - add door lock bypass strats to logic
 - help finish the cross-room strat migration
