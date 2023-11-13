@@ -18,7 +18,12 @@ document.getElementById("navigation-releases").classList.add("active");
 <ul>
 <li>New customization option to disable screen shaking.
 <li>New customization option to set controller bindings.
-<li>Fixed issue where cross-room strats could fail to take into account a gray door in certain situations.
+<li>Quality-of-life option "Lenient Space Jump" (Max) is reworked:
+    <ul>
+    <li>When enabled, there is no longer a maximum downward speed limit to use Space Jump.
+    <li>This option no longer affects the minimum downward speed limit (to avoid disrupting short-hop mockball strats).
+    </ul>
+<li>Fixed logic bug where cross-room strats could fail to take into account a gray door in certain cases.
 </ul>
 
 <p><a id="release95">Version 95 (2023-11-11)</a>:

@@ -12,7 +12,9 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-      <p>If enabled, Space Jump behaves in air the same as it does underwater, making it easier to use by widening the window of time to press jump.
+      <p>
+      If enabled, the maximum limit on vertical speed to use Space Jump is removed, making it easier to use. 
+      The minimum limit on vertical speed is unaffected (to avoid disrupting short-hop mockball strats).
       </p>
 
       <p><b>Note</b>: The randomizer logic does not take this setting into account. Therefore, even 

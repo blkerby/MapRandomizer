@@ -1,14 +1,15 @@
 
 upcoming:
-  - fix problem with cross-room strats and gray doors:
-    - https://maprando.com/seed/zJPKPGJuycaToj1RL7kIZg/data/visualizer/index.html
   - improve Lenient Space Jump
     - windows opens same as vanilla, but never closes.
+  - improve Respin: do not activate when holding a button that would break spin (up, down, angle-up, angle-down, shoot)
   - add robots.txt for dev service
-  - clear SRAM more fully when saved seed does not match:
-    - save slot position is apparently being retained (e.g. starting with cursor on slot 3)
+  - DONE: fix problem with cross-room strats and gray doors:
+    - https://maprando.com/seed/zJPKPGJuycaToj1RL7kIZg/data/visualizer/index.html
 
 priority:
+- clear SRAM more fully when saved seed does not match:
+  - save slot position is apparently being retained (e.g. starting with cursor on slot 3)
 - "Random" objective?
 - add door flags to refine logic
 - add door lock bypass strats to logic
@@ -49,7 +50,7 @@ priority:
   - 5 Super phantoon fight probably needs more requirements than it currently has.
 - add objectives:
   - Larvas: 4 special items (replacing missiles)
-  - Random
+  - Random?
 - Improve save station balancing
   - Define "distance" in a way that accounts for ease of access (e.g. possible item/tech dependencies)?
 - Improve area clustering

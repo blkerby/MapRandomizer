@@ -1207,7 +1207,11 @@ impl<'a> Patcher<'a> {
 
         if self.randomization.difficulty.infinite_space_jump {
             // self.rom.write_n(0x82493, &[0x80, 0x0D])?;  // BRA $0D  (Infinite Space Jump)
-            self.rom.write_n(snes2pc(0x90A493), &[0xEA, 0xEA])?; // NOP : NOP  (Lenient Space Jump)
+            // self.rom.write_n(snes2pc(0x90A493), &[0xEA, 0xEA])?; // NOP : NOP  (old Lenient Space Jump)
+
+            // Lenient Space Jump: Remove check on maximum Y speed for Space Jump to trigger:
+            self.rom.write_n(snes2pc(0x90A4A0), &[0xEA, 0xEA])?;  // NOP : NOP
+            self.rom.write_n(snes2pc(0x90A4AF), &[0xEA, 0xEA])?;  // NOP : NOP
         }
 
         if !self.randomization.difficulty.ultra_low_qol {
