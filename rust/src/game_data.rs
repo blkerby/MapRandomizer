@@ -2244,10 +2244,20 @@ impl GameData {
 
                             // Temporary while migration is in process -- Create new-style exit-condition strat:
                             let vertex_id = self.vertex_isv.index_by_key[&(room_id, node_id, 0)];
+                            let lock_req = if let Some(lock_req_json) =
+                                self.node_lock_req_json.get(&(room_id, node_id))
+                            {
+                                // This accounts for requirements to unlock a gray door before performing a cross-room
+                                // strat through it:
+                                self.parse_requirement(&lock_req_json.clone(), &ctx)?
+                            } else {
+                                Requirement::Free
+                            };
+    
                             let link = Link {
                                 from_vertex_id: vertex_id,
                                 to_vertex_id: vertex_id,
-                                requirement: Requirement::Free,
+                                requirement: lock_req,
                                 entrance_condition: None,
                                 notable_strat_name: None,
                                 strat_name: strat_json["name"].as_str().unwrap().to_string(),
@@ -2349,8 +2359,18 @@ impl GameData {
                             can_leave_charged.used_tiles as f32,
                             can_leave_charged.open_end as f32,
                         );
+                        let lock_req = if let Some(lock_req_json) =
+                            self.node_lock_req_json.get(&(room_id, node_id))
+                        {
+                            // This accounts for requirements to unlock a gray door before performing a cross-room
+                            // strat through it:
+                            self.parse_requirement(&lock_req_json.clone(), &ctx)?
+                        } else {
+                            Requirement::Free
+                        };                        
                         let req = Requirement::make_and(vec![
                             requirement,
+                            lock_req,
                             Requirement::ShineCharge {
                                 used_tiles: effective_length,
                             },
@@ -2411,10 +2431,19 @@ impl GameData {
 
                         // Temporary while migration is in process -- Create new-style exit-condition strat:
                         let vertex_id = self.vertex_isv.index_by_key[&(room_id, node_id, 0)];
+                        let lock_req = if let Some(lock_req_json) =
+                            self.node_lock_req_json.get(&(room_id, node_id))
+                        {
+                            // This accounts for requirements to unlock a gray door before performing a cross-room
+                            // strat through it:
+                            self.parse_requirement(&lock_req_json.clone(), &ctx)?
+                        } else {
+                            Requirement::Free
+                        };
                         let link = Link {
                             from_vertex_id: vertex_id,
                             to_vertex_id: vertex_id,
-                            requirement,
+                            requirement: Requirement::make_and(vec![requirement, lock_req]),
                             entrance_condition: None,
                             notable_strat_name: None,
                             strat_name: strat_json["name"].as_str().unwrap().to_string(),
@@ -2464,10 +2493,19 @@ impl GameData {
 
                         // Temporary while migration is in process -- Create new-style exit-condition strat:
                         let vertex_id = self.vertex_isv.index_by_key[&(room_id, node_id, 0)];
+                        let lock_req = if let Some(lock_req_json) =
+                            self.node_lock_req_json.get(&(room_id, node_id))
+                        {
+                            // This accounts for requirements to unlock a gray door before performing a cross-room
+                            // strat through it:
+                            self.parse_requirement(&lock_req_json.clone(), &ctx)?
+                        } else {
+                            Requirement::Free
+                        };
                         let link = Link {
                             from_vertex_id: vertex_id,
                             to_vertex_id: vertex_id,
-                            requirement,
+                            requirement: Requirement::make_and(vec![requirement, lock_req]),
                             entrance_condition: None,
                             notable_strat_name: None,
                             strat_name: strat_json["name"].as_str().unwrap().to_string(),
@@ -2694,7 +2732,8 @@ impl GameData {
                     {
                         // This accounts for requirements to unlock a gray door before performing a cross-room
                         // strat through it:
-                        // println!("lock: {}", lock_req_json.pretty(2));
+                        // TODO: Also consider the possibility of the gray door being open due to having just
+                        // entered
                         requires_vec
                             .push(self.parse_requirement(&lock_req_json.clone(), &ctx)?);
                     }

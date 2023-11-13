@@ -1,5 +1,7 @@
 
 upcoming:
+  - fix problem with cross-room strats and gray doors:
+    - https://maprando.com/seed/zJPKPGJuycaToj1RL7kIZg/data/visualizer/index.html
   - improve Lenient Space Jump
     - windows opens same as vanilla, but never closes.
   - add robots.txt for dev service

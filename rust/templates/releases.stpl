@@ -14,10 +14,11 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release95">Version 96 (2023-11-11)</a>:
+<p><a id="release95">Version 96 (2023-11-13)</a>:
 <ul>
 <li>New customization option to disable screen shaking.
 <li>New customization option to set controller bindings.
+<li>Fixed issue where cross-room strats could fail to take into account a gray door in certain situations.
 </ul>
 
 <p><a id="release95">Version 95 (2023-11-11)</a>:
