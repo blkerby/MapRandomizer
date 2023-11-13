@@ -1,7 +1,5 @@
 
 upcoming:
-  - controller binding:
-    - implment moonwalk customization, and quick reload
   - improve Lenient Space Jump
     - windows opens same as vanilla, but never closes.
   - add robots.txt for dev service

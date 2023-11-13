@@ -14,7 +14,7 @@ use clap::Parser;
 use hashbrown::{HashMap, HashSet};
 use log::{error, info};
 use maprando::customize::{
-    customize_rom, AreaTheming, ControllerConfig, CustomizeSettings, MusicSettings, parse_controller_button,
+    customize_rom, AreaTheming, ControllerConfig, CustomizeSettings, MusicSettings, parse_controller_button, ControllerButton,
 };
 use maprando::game_data::{GameData, IndexedVec, Item, LinksDataGroup};
 use maprando::patch::ips_write::create_ips_patch;
@@ -263,6 +263,15 @@ struct CustomizeRequest {
     control_item_cancel: Text<String>,
     control_angle_up: Text<String>,
     control_angle_down: Text<String>,
+    quick_reload_x: Option<Text<String>>,
+    quick_reload_y: Option<Text<String>>,
+    quick_reload_a: Option<Text<String>>,
+    quick_reload_b: Option<Text<String>>,
+    quick_reload_l: Option<Text<String>>,
+    quick_reload_r: Option<Text<String>>,
+    quick_reload_select: Option<Text<String>>,
+    quick_reload_start: Option<Text<String>>,
+    moonwalk: Text<bool>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -730,6 +739,29 @@ async fn unlock_seed(
         .finish()
 }
 
+fn get_quick_reload_buttons(req: &CustomizeRequest) -> Vec<ControllerButton> {
+    let mut quick_reload_buttons = vec![];
+    let setting_button_mapping = vec![
+        (&req.quick_reload_a, ControllerButton::A),
+        (&req.quick_reload_b, ControllerButton::B),
+        (&req.quick_reload_x, ControllerButton::X),
+        (&req.quick_reload_y, ControllerButton::Y),
+        (&req.quick_reload_l, ControllerButton::L),
+        (&req.quick_reload_r, ControllerButton::R),
+        (&req.quick_reload_select, ControllerButton::Select),
+        (&req.quick_reload_start, ControllerButton::Start),
+    ];
+
+    for (setting, button) in setting_button_mapping {
+        if let Some(x) = setting {
+            if x.0 == "on" {
+                quick_reload_buttons.push(button);    
+            }
+        }    
+    }
+    quick_reload_buttons
+}
+
 #[post("/seed/{name}/customize")]
 async fn customize_seed(
     req: MultipartForm<CustomizeRequest>,
@@ -789,6 +821,8 @@ async fn customize_seed(
             item_cancel: parse_controller_button(&req.control_item_cancel.0).unwrap(),
             angle_up: parse_controller_button(&req.control_angle_up.0).unwrap(),
             angle_down: parse_controller_button(&req.control_angle_down.0).unwrap(),
+            quick_reload_buttons: get_quick_reload_buttons(&req),
+            moonwalk: req.moonwalk.0,
         },
     };
     info!("CustomizeSettings: {:?}", settings);

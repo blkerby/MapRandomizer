@@ -8,6 +8,7 @@
 ;free space: make sure it doesnt override anything you have
 !freespace82_start = $82FE00
 !freespace82_end = $82FE80
+!button_combo = $82FE7E   ; This should be inside free space, and also consistent with reference in customize.rs
 !freespacea0 = $a0fe00 ;$A0 used for instant save reload
 
 !QUICK_RELOAD = $1f60 ;dont need to touch this
@@ -88,13 +89,13 @@ check_reload:
     beq .noreset
 
     lda $8B      ; Controller 1 input
-    and #$3030   ; L + R + Select + Start
-    cmp #$3030
-    bne .noreset ; If any of the 4 inputs are not currently held, then do not reset.
+    and !button_combo   ; L + R + Select + Start (or customized reset inputs)
+    cmp !button_combo
+    bne .noreset ; If any of the inputs are not currently held, then do not reset.
 
     lda $8F      ; Newly pressed controller 1 input
-    and #$3030   ; L + R + Select + Start
-    bne .reset   ; Reset only if at least one of the 4 inputs is newly pressed
+    and !button_combo   ; L + R + Select + Start
+    bne .reset   ; Reset only if at least one of the inputs is newly pressed
 .noreset
     PLA
     PLP
@@ -105,6 +106,9 @@ check_reload:
     jsr deathhook
     RTL
 
+
+org !button_combo
+    dw $0303  ; L + R + Select + Start  (overridable by the customizer)
 
 warnpc !freespace82_end
 

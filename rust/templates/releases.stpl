@@ -17,7 +17,7 @@ document.getElementById("navigation-releases").classList.add("active");
 <p><a id="release95">Version 96 (2023-11-11)</a>:
 <ul>
 <li>New customization option to disable screen shaking.
-<li>New customization option for pre-setting controller bindings.
+<li>New customization option to set controller bindings.
 </ul>
 
 <p><a id="release95">Version 95 (2023-11-11)</a>:

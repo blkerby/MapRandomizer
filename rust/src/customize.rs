@@ -73,9 +73,10 @@ pub enum ControllerButton {
     Y,
     A,
     B,
-    Select,
     L,
     R,
+    Select,
+    Start,
 }
 
 #[derive(Default, Debug)]
@@ -87,6 +88,8 @@ pub struct ControllerConfig {
     pub item_cancel: ControllerButton,
     pub angle_up: ControllerButton,
     pub angle_down: ControllerButton,
+    pub quick_reload_buttons: Vec<ControllerButton>,
+    pub moonwalk: bool,
 }
 
 #[derive(Debug)]
@@ -192,7 +195,7 @@ pub fn parse_controller_button(s: &str) -> Result<ControllerButton> {
     })
 }
 
-fn get_button_code(mut controller_button: ControllerButton, default: ControllerButton) -> isize {
+fn get_button_mask(mut controller_button: ControllerButton, default: ControllerButton) -> isize {
     if let ControllerButton::Default = controller_button {
         controller_button = default;
     }
@@ -201,10 +204,11 @@ fn get_button_code(mut controller_button: ControllerButton, default: ControllerB
         ControllerButton::Y => 0x4000,
         ControllerButton::A => 0x0080,
         ControllerButton::B => 0x8000,
-        ControllerButton::Select => 0x2000,
         ControllerButton::L => 0x0020,
         ControllerButton::R => 0x0010,
-        ControllerButton::Default => panic!("Unexpected Default controller button")
+        ControllerButton::Select => 0x2000,
+        ControllerButton::Start => 0x1000,
+        _ => panic!("Unexpected controller button: {:?}", controller_button)
     }
 }
 
@@ -219,9 +223,26 @@ fn apply_controller_config(rom: &mut Rom, controller_config: &ControllerConfig) 
         (0x81B349, controller_config.angle_down, ControllerButton::L),
     ];
     for (addr, button, default) in control_data {
-        let code = get_button_code(button, default);
-        rom.write_u16(snes2pc(addr), code)?;
+        let mask = get_button_mask(button, default);
+        rom.write_u16(snes2pc(addr), mask)?;
     }
+    
+    let mut quick_reload_mask = 0x0000;
+    for &button in &controller_config.quick_reload_buttons {
+        quick_reload_mask |= get_button_mask(button, ControllerButton::Default);
+    }
+    if quick_reload_mask == 0x0000 {
+        // The user probably intended to disable quick-reload entirely (rather than having quick reload trigger
+        // when not holding any buttons), so that's what we do, effectively, by requiring all 12 buttons to be pressed:
+        quick_reload_mask = 0xFFFF;
+    }
+    rom.write_u16(snes2pc(0x82FE7E), quick_reload_mask)?;
+
+    if controller_config.moonwalk {
+        apply_ips_patch(rom, Path::new("../patches/ips/enable_moonwalk.ips"))?;
+    }
+    // $82FE7E
+
     Ok(())
 }
 
