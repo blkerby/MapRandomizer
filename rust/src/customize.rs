@@ -323,8 +323,8 @@ pub fn customize_rom(
             // Disable BG shaking globally, by setting the shake displacements to zero (this should be timing-neutral?)
             rom.write_n(snes2pc(0xA0872D), &[0; 288])?;
             // Disable enemy shaking:
-            rom.write_n(snes2pc(0xA09488), &[0xEA; 5])?;  // 4 * NOP
-            rom.write_n(snes2pc(0xA0948F), &[0xEA; 5])?;  // 4 * NOP
+            rom.write_n(snes2pc(0xA09488), &[0xEA; 5])?;  // 5 * NOP
+            rom.write_n(snes2pc(0xA0948F), &[0xEA; 5])?;  // 5 * NOP
             // rom.write_u8(snes2pc(0xA08712), 0x60)?;  // RTS
 
             // Disable enemy projectile shaking, by setting the displacements to zero:

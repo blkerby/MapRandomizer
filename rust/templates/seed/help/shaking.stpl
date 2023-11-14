@@ -12,8 +12,8 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <p>This setting affects whether screen shaking happens, e.g., during the escape sequence, bosses, and in rooms
-        where lava or acid rises.</p>
+        <p>This setting affects the graphical appearance of screen shaking, e.g., during the escape sequence, bosses, 
+        and in rooms where lava or acid rises.</p>
         <ul>
         <li><p><strong>Vanilla</strong>: Screen shaking happens as in the vanilla game (which has up to 3-pixel displacements).</p>
 

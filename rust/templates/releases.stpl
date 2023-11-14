@@ -14,7 +14,7 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release95">Version 96 (2023-11-13)</a>:
+<p><a id="release95">Version 96 (2023-11-14)</a>:
 <ul>
 <li>New customization option to reduce or disable screen shaking.
 <li>New customization option to set controller bindings.

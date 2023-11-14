@@ -1,13 +1,5 @@
-
-upcoming:
-  - improve Lenient Space Jump
-    - windows opens same as vanilla, but never closes.
-  - improve Respin: do not activate when holding a button that would break spin (up, down, angle-up, angle-down, shoot)
-  - add robots.txt for dev service
-  - DONE: fix problem with cross-room strats and gray doors:
-    - https://maprando.com/seed/zJPKPGJuycaToj1RL7kIZg/data/visualizer/index.html
-
 priority:
+  - add robots.txt for dev service
 - clear SRAM more fully when saved seed does not match:
   - save slot position is apparently being retained (e.g. starting with cursor on slot 3)
 - "Random" objective?
