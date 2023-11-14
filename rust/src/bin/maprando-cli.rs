@@ -235,7 +235,7 @@ fn main() -> Result<()> {
     )?;
 
     // Perform randomization (map selection & item placement):
-    let mut randomization = get_randomization(&args, &game_data)?;
+    let randomization = get_randomization(&args, &game_data)?;
 
     // Override start location:
     // randomization.start_location = game_data.start_locations.last().unwrap().clone();
@@ -256,7 +256,7 @@ fn main() -> Result<()> {
         music: MusicSettings::AreaThemed,
         // music: MusicSettings::Vanilla,
         disable_beeping: false,
-        disable_shaking: false,
+        shaking: maprando::customize::ShakingSetting::Vanilla,
         controller_config: ControllerConfig::default(),        
     };
     customize_rom(&mut output_rom, &ips_patch, &customize_settings, &game_data, &[

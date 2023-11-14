@@ -2,6 +2,7 @@ pub mod retiling;
 pub mod room_palettes;
 pub mod vanilla_music;
 
+use std::cmp::min;
 use anyhow::{bail, Result};
 use std::path::Path;
 
@@ -92,6 +93,13 @@ pub struct ControllerConfig {
     pub moonwalk: bool,
 }
 
+#[derive(Debug, Copy, Clone)]
+pub enum ShakingSetting {
+    Vanilla,
+    Reduced,
+    Disabled
+}
+
 #[derive(Debug)]
 pub struct CustomizeSettings {
     pub samus_sprite: Option<String>,
@@ -100,7 +108,7 @@ pub struct CustomizeSettings {
     pub area_theming: AreaTheming,
     pub music: MusicSettings,
     pub disable_beeping: bool,
-    pub disable_shaking: bool,
+    pub shaking: ShakingSetting,
     pub controller_config: ControllerConfig,
 }
 
@@ -296,9 +304,32 @@ pub fn customize_rom(
         rom.write_n(snes2pc(0x90F33C), &[0xEA; 4])?;
         rom.write_n(snes2pc(0x91E6DA), &[0xEA; 4])?;
     }
-    if settings.disable_shaking {
-        // Disable screen shaking globally, by setting the shake displacements to zero (this should be timing-neutral?)
-        rom.write_n(snes2pc(0xA0872D), &[0; 288])?;
+    match settings.shaking {
+        ShakingSetting::Vanilla => {},
+        ShakingSetting::Reduced => {
+            // Limit BG shaking to 1-pixel displacements:
+            for i in 0..144 {
+                let mut x = rom.read_u16(snes2pc(0xA0872D + i * 2))?;
+                rom.write_u16(snes2pc(0xA0872D + i * 2), min(x, 1))?;
+            }
+            // (Enemies already only shake up to 1 pixel)
+            // Limit enemy projectile shaking to 1-pixel displacements:
+            for i in 0..144 {
+                let mut x = rom.read_u16(snes2pc(0x86846B + i * 2))?;
+                rom.write_u16(snes2pc(0x86846B + i * 2), min(x, 1))?;
+            }
+        },
+        ShakingSetting::Disabled => {
+            // Disable BG shaking globally, by setting the shake displacements to zero (this should be timing-neutral?)
+            rom.write_n(snes2pc(0xA0872D), &[0; 288])?;
+            // Disable enemy shaking:
+            rom.write_n(snes2pc(0xA09488), &[0xEA; 5])?;  // 4 * NOP
+            rom.write_n(snes2pc(0xA0948F), &[0xEA; 5])?;  // 4 * NOP
+            // rom.write_u8(snes2pc(0xA08712), 0x60)?;  // RTS
+
+            // Disable enemy projectile shaking, by setting the displacements to zero:
+            rom.write_n(snes2pc(0x86846B), &[0; 144])?;
+        }
     }
     apply_controller_config(rom, &settings.controller_config)?;
     Ok(())

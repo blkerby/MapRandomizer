@@ -14,7 +14,7 @@ use clap::Parser;
 use hashbrown::{HashMap, HashSet};
 use log::{error, info};
 use maprando::customize::{
-    customize_rom, AreaTheming, ControllerConfig, CustomizeSettings, MusicSettings, parse_controller_button, ControllerButton,
+    customize_rom, AreaTheming, ControllerConfig, CustomizeSettings, MusicSettings, parse_controller_button, ControllerButton, ShakingSetting,
 };
 use maprando::game_data::{GameData, IndexedVec, Item, LinksDataGroup};
 use maprando::patch::ips_write::create_ips_patch;
@@ -255,7 +255,7 @@ struct CustomizeRequest {
     tile_theme: Text<String>,
     music: Text<String>,
     disable_beeping: Text<bool>,
-    disable_shaking: Text<bool>,
+    shaking: Text<String>,
     control_shot: Text<String>,
     control_jump: Text<String>,
     control_dash: Text<String>,
@@ -812,7 +812,12 @@ async fn customize_seed(
             _ => panic!("Unexpected music option: {}", req.music.0.as_str()),
         },
         disable_beeping: req.disable_beeping.0,
-        disable_shaking: req.disable_shaking.0,
+        shaking: match req.shaking.0.as_str() {
+            "Vanilla" => ShakingSetting::Vanilla,
+            "Reduced" => ShakingSetting::Reduced,
+            "Disabled" => ShakingSetting::Disabled,
+            _ => panic!("Unexpected shaking option: {}", req.shaking.0.as_str()),
+        },
         controller_config: ControllerConfig {
             shot: parse_controller_button(&req.control_shot.0).unwrap(),
             jump: parse_controller_button(&req.control_jump.0).unwrap(),

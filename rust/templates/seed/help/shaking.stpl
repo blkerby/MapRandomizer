@@ -15,7 +15,9 @@
         <p>This setting affects whether screen shaking happens, e.g., during the escape sequence, bosses, and in rooms
         where lava or acid rises.</p>
         <ul>
-        <li><p><strong>Vanilla</strong>: Screen shaking happens as in the vanilla game.</p>
+        <li><p><strong>Vanilla</strong>: Screen shaking happens as in the vanilla game (which has up to 3-pixel displacements).</p>
+
+        <li><p><strong>Reduced</strong>: Screen shaking is capped to 1-pixel displacements.</p>
 
         <li><p><strong>Disabled</strong>: Screen shaking is disabled.</p>
         </ul>
