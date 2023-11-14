@@ -16,7 +16,7 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <p><a id="release95">Version 96 (2023-11-13)</a>:
 <ul>
-<li>New customization option to disable screen shaking.
+<li>New customization option to reduce or disable screen shaking.
 <li>New customization option to set controller bindings.
 <li>Quality-of-life option "Lenient Space Jump" (Max) is reworked:
     <ul>
