@@ -1016,6 +1016,7 @@ fn get_difficulty_tiers(
             objectives: difficulty.objectives,
             doors_mode: difficulty.doors_mode,
             early_save: difficulty.early_save,
+            area_assignment: difficulty.area_assignment,
             disable_walljump: difficulty.disable_walljump,
             maps_revealed: difficulty.maps_revealed,
             vanilla_map: difficulty.vanilla_map,
@@ -1141,11 +1142,6 @@ async fn randomize(
     info!("Filler items: {:?}", filler_items);
     info!("Early filler items: {:?}", early_filler_items);
 
-    let area_assignment = match req.area_assignment.0.as_str() {
-        "Standard" => AreaAssignment::Standard,
-        "Random" => AreaAssignment::Random,
-        _ => panic!("Unrecognized ship area option: {}", req.area_assignment.0),
-    };
     let difficulty = DifficultyConfig {
         tech: tech_vec,
         notable_strats: strat_vec,
@@ -1238,6 +1234,11 @@ async fn randomize(
             _ => panic!("Unrecognized doors mode: {}", req.doors.0),
         },
         early_save: req.early_save.0,
+        area_assignment: match req.area_assignment.0.as_str() {
+            "Standard" => AreaAssignment::Standard,
+            "Random" => AreaAssignment::Random,
+            _ => panic!("Unrecognized ship area option: {}", req.area_assignment.0),
+        },
         disable_walljump: req.disable_walljump.0,
         maps_revealed: req.maps_revealed.0,
         vanilla_map: req.vanilla_map.0,
@@ -1341,7 +1342,7 @@ async fn randomize(
                             .get_map(attempts_triggered_local, map_seed_local)
                             .unwrap()
                     };
-                    if area_assignment == AreaAssignment::Random {
+                    if difficulty.area_assignment == AreaAssignment::Random {
                         randomize_map_areas(&mut map, map_seed_local);
                     }
                     info!("Attempt {attempts_triggered_local}/{max_attempts}: Map seed={map_seed_local}, door randomization seed={door_randomization_seed_local}, item placement seed={item_placement_seed_local}");

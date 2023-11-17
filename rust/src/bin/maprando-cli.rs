@@ -6,7 +6,7 @@ use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::Rom;
 use maprando::randomize::{
     DebugOptions, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, MotherBrainFight, Objectives,
-    ProgressionRate, Randomization, Randomizer, ItemDotChange, DoorsMode, randomize_doors, SaveAnimals,
+    ProgressionRate, Randomization, Randomizer, ItemDotChange, DoorsMode, randomize_doors, SaveAnimals, AreaAssignment,
 };
 use maprando::spoiler_map;
 use maprando::web::{SamusSpriteInfo, SamusSpriteCategory};
@@ -173,6 +173,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         doors_mode: DoorsMode::Ammo,
         randomized_start: false,
         save_animals: SaveAnimals::No,
+        area_assignment: AreaAssignment::Standard,
         early_save: false,
         disable_walljump: false,
         maps_revealed: true,

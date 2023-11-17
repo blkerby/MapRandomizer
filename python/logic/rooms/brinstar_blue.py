@@ -124,4 +124,4 @@ rooms = [
 
 for room in rooms:
     room.area = Area.BRINSTAR
-    room.sub_area = SubArea.CRATERIA_AND_BLUE_BRINSTAR
+    room.sub_area = SubArea.BLUE_BRINSTAR

@@ -9,7 +9,7 @@ use std::path::Path;
 use crate::{
     customize::vanilla_music::override_music,
     game_data::{DoorPtr, DoorPtrPair, GameData, Item, Map, NodePtr, RoomGeometryDoor, RoomPtr},
-    randomize::{DoorType, LockedDoor, MotherBrainFight, Objectives, Randomization, SaveAnimals},
+    randomize::{DoorType, LockedDoor, MotherBrainFight, Objectives, Randomization, SaveAnimals, AreaAssignment},
 };
 use anyhow::{ensure, Context, Result};
 use hashbrown::{HashMap, HashSet};
@@ -1817,7 +1817,7 @@ pub fn make_rom(
     patcher.apply_map_tile_patches()?;
     patcher.write_door_data()?;
     patcher.remove_non_blue_doors()?;
-    if !randomization.difficulty.vanilla_map {
+    if !randomization.difficulty.vanilla_map || randomization.difficulty.area_assignment == AreaAssignment::Random {
         patcher.use_area_based_music()?;
     }
     patcher.setup_door_specific_fx()?;

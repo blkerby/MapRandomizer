@@ -10,6 +10,7 @@ ELEVATOR = DoorSubtype.ELEVATOR
 rooms = [
     Room(
         name='Tourian First Room',
+        sub_area=SubArea.UPPER_TOURIAN,
         rom_address=0x7DAAE,
         map=[
             [1],
@@ -31,6 +32,7 @@ rooms = [
     Room(
         # name='Upper Tourian Save Room',
         name='Tourian Map Room',
+        sub_area=SubArea.UPPER_TOURIAN,
         rom_address=0x7DF1B,
         map=[[1]],
         door_ids=[
@@ -43,6 +45,7 @@ rooms = [
     ),
     Room(
         name='Metroid Room 1',
+        sub_area=SubArea.UPPER_TOURIAN,
         rom_address=0x7DAE1,
         map=[[1, 1, 1, 1, 1, 1]],
         door_ids=[
@@ -58,6 +61,7 @@ rooms = [
     ),
     Room(
         name='Metroid Room 2',
+        sub_area=SubArea.UPPER_TOURIAN,
         rom_address=0x7DB31,
         map=[
             [1],
@@ -74,6 +78,7 @@ rooms = [
     ),
     Room(
         name='Metroid Room 3',
+        sub_area=SubArea.UPPER_TOURIAN,
         rom_address=0x7DB7D,
         map=[[1, 1, 1, 1, 1, 1]],
         door_ids=[
@@ -87,6 +92,7 @@ rooms = [
     ),
     Room(
         name='Metroid Room 4',
+        sub_area=SubArea.UPPER_TOURIAN,
         rom_address=0x7DBCD,
         map=[
             [1],
@@ -103,6 +109,7 @@ rooms = [
     ),
     Room(
         name='Blue Hopper Room',
+        sub_area=SubArea.LOWER_TOURIAN,
         rom_address=0x7DC19,
         map=[[1, 1]],
         door_ids=[
@@ -116,6 +123,7 @@ rooms = [
     ),
     Room(
         name='Dust Torizo Room',
+        sub_area=SubArea.LOWER_TOURIAN,
         rom_address=0x7DC65,
         map=[[1, 1]],
         door_ids=[
@@ -129,6 +137,7 @@ rooms = [
     ),
     Room(
         name='Big Boy Room',
+        sub_area=SubArea.LOWER_TOURIAN,
         rom_address=0x7DCB1,
         map=[[1, 1, 1, 1]],
         door_ids=[
@@ -142,6 +151,7 @@ rooms = [
     ),
     Room(
         name='Seaweed Room',
+        sub_area=SubArea.LOWER_TOURIAN,
         rom_address=0x7DCFF,
         map=[
             [1],
@@ -161,6 +171,7 @@ rooms = [
     ),
     Room(
         name='Tourian Recharge Room',
+        sub_area=SubArea.LOWER_TOURIAN,
         rom_address=0x7DD2E,
         map=[[1]],
         door_ids=[
@@ -174,6 +185,7 @@ rooms = [
     ),
     Room(
         name='Tourian Eye Door Room',
+        sub_area=SubArea.LOWER_TOURIAN,
         rom_address=0x7DDC4,
         map=[[1, 1, 1, 1]],
         door_ids=[
@@ -187,6 +199,7 @@ rooms = [
     ),
     Room(
         name='Rinka Shaft',
+        sub_area=SubArea.LOWER_TOURIAN,
         rom_address=0x7DDF3,
         map=[
             [1],
@@ -206,6 +219,7 @@ rooms = [
     ),
     Room(
         name='Lower Tourian Save Room',
+        sub_area=SubArea.LOWER_TOURIAN,
         rom_address=0x7DE23,
         map=[[1]],
         door_ids=[
@@ -218,6 +232,7 @@ rooms = [
     ),
     Room(
         name='Mother Brain Room',
+        sub_area=SubArea.LOWER_TOURIAN,
         rom_address=0x7DD58,
         map=[[1, 1, 1, 1]],
         door_ids=[
@@ -244,6 +259,7 @@ rooms = [
     ),
     Room(
         name='Tourian Escape Room 1',
+        sub_area=SubArea.ESCAPE_TOURIAN,
         rom_address=0x7DE4D,
         map=[[1, 1]],
         door_ids=[
@@ -257,6 +273,7 @@ rooms = [
     ),
     Room(
         name='Tourian Escape Room 2',
+        sub_area=SubArea.ESCAPE_TOURIAN,
         rom_address=0x7DE7A,
         map=[
             [1],
@@ -273,6 +290,7 @@ rooms = [
     ),
     Room(
         name='Tourian Escape Room 3',
+        sub_area=SubArea.ESCAPE_TOURIAN,
         rom_address=0x7DEA7,
         map=[
             [1, 1, 1, 1, 1, 1],
@@ -289,6 +307,7 @@ rooms = [
     ),
     Room(
         name='Tourian Escape Room 4',
+        sub_area=SubArea.ESCAPE_TOURIAN,
         rom_address=0x7DEDE,
         map=[
             [1, 1, 1],
@@ -311,4 +330,3 @@ rooms = [
 
 for room in rooms:
     room.area = Area.TOURIAN
-    room.sub_area = SubArea.TOURIAN

@@ -129,8 +129,8 @@ start_game:
 
     ; Unlock Tourian statues room (to avoid camera glitching when entering from bottom, and also to ensure game is
     ; beatable since we don't take it into account as an obstacle in the item randomization logic)
-;    lda #$0004
-    lda #$0044   ; set escape flag
+    lda #$0004
+;    lda #$0044   ; set escape flag
     sta $7ED821
 
     lda #$0006  ; Start in game state 6 (Loading game data) instead of 0 (Intro) or 5 (File select map)

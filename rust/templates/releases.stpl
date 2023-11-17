@@ -14,7 +14,15 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release95">Version 96 (2023-11-14)</a>:
+<p><a id="release97">Version 97 (2023-11-17)</a>:
+<ul>
+<li>New option for random "Area assignment".
+    <ul>
+    <li>When enabled, the Ship may no longer be in Crateria.
+    </ul>
+</ul>
+
+<p><a id="release96">Version 96 (2023-11-14)</a>:
 <ul>
 <li>New customization option to reduce or disable screen shaking.
 <li>New customization option to set controller bindings.

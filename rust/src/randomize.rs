@@ -149,6 +149,7 @@ pub struct DifficultyConfig {
     pub randomized_start: bool,
     pub save_animals: SaveAnimals,
     pub early_save: bool,
+    pub area_assignment: AreaAssignment,
     pub disable_walljump: bool,
     pub maps_revealed: bool,
     pub vanilla_map: bool,
@@ -263,8 +264,15 @@ pub fn randomize_map_areas(map: &mut Map, seed: usize) {
 
     let mut area_mapping: Vec<usize> = (0..6).collect();
     area_mapping.shuffle(&mut rng);
+
+    let mut subarea_mapping: Vec<Vec<usize>> = vec![(0..2).collect(); 6];
+    for i in 0..6 {
+        subarea_mapping[i].shuffle(&mut rng);
+    }
+
     for i in 0..map.area.len() {
         map.area[i] = area_mapping[map.area[i]];
+        map.subarea[i] = subarea_mapping[map.area[i]][map.subarea[i]];
     }
 }
 
