@@ -22,7 +22,7 @@ use maprando::patch::{make_rom, Rom};
 use maprando::randomize::{
     filter_links, randomize_doors, DebugOptions, DifficultyConfig, DoorsMode, ItemDotChange,
     ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, MotherBrainFight, Objectives,
-    Randomization, Randomizer, SaveAnimals,
+    Randomization, Randomizer, SaveAnimals, AreaAssignment, randomize_map_areas,
 };
 use maprando::seed_repository::{Seed, SeedFile, SeedRepository};
 use maprando::spoiler_map;
@@ -232,6 +232,7 @@ struct RandomizeRequest {
     map_layout: Text<String>,
     save_animals: Text<String>,
     early_save: Text<bool>,
+    area_assignment: Text<String>,
     disable_walljump: Text<bool>,
     maps_revealed: Text<bool>,
     vanilla_map: Text<bool>,
@@ -312,6 +313,7 @@ struct SeedData {
     map_layout: String,
     save_animals: String,
     early_save: bool,
+    area_assignment: String,
     disable_walljump: bool,
     maps_revealed: bool,
     vanilla_map: bool,
@@ -365,6 +367,7 @@ struct SeedHeaderTemplate<'a> {
     map_layout: String,
     save_animals: String,
     early_save: bool,
+    area_assignment: String,
     disable_walljump: bool,
     maps_revealed: bool,
     vanilla_map: bool,
@@ -479,6 +482,7 @@ fn render_seed(
         map_layout: seed_data.map_layout.clone(),
         save_animals: seed_data.save_animals.clone(),
         early_save: seed_data.early_save,
+        area_assignment: seed_data.area_assignment.clone(),
         disable_walljump: seed_data.disable_walljump,
         maps_revealed: seed_data.maps_revealed,
         vanilla_map: seed_data.vanilla_map,
@@ -1137,6 +1141,11 @@ async fn randomize(
     info!("Filler items: {:?}", filler_items);
     info!("Early filler items: {:?}", early_filler_items);
 
+    let area_assignment = match req.area_assignment.0.as_str() {
+        "Standard" => AreaAssignment::Standard,
+        "Random" => AreaAssignment::Random,
+        _ => panic!("Unrecognized ship area option: {}", req.area_assignment.0),
+    };
     let difficulty = DifficultyConfig {
         tech: tech_vec,
         notable_strats: strat_vec,
@@ -1318,7 +1327,7 @@ async fn randomize(
                 let filtered_base_links_data_ref = &filtered_base_links_data;
                 let filtered_seed_links_ref = &filtered_seed_links;
                 attempt.thread_handle = Some(scope.spawn(move || -> Result<(Randomization, Rom)> {
-                    let map = if difficulty.vanilla_map {
+                    let mut map = if difficulty.vanilla_map {
                         // TODO: this is hacky, clean it up:
                         app_data_local.map_repositories["Tame"]
                             .get_vanilla_map(attempts_triggered_local)
@@ -1332,6 +1341,9 @@ async fn randomize(
                             .get_map(attempts_triggered_local, map_seed_local)
                             .unwrap()
                     };
+                    if area_assignment == AreaAssignment::Random {
+                        randomize_map_areas(&mut map, map_seed_local);
+                    }
                     info!("Attempt {attempts_triggered_local}/{max_attempts}: Map seed={map_seed_local}, door randomization seed={door_randomization_seed_local}, item placement seed={item_placement_seed_local}");
                     let locked_doors = randomize_doors(
                         &app_data_local.game_data,
@@ -1456,6 +1468,7 @@ async fn randomize(
         map_layout: req.map_layout.0.clone(),
         save_animals: req.save_animals.0.clone(),
         early_save: req.early_save.0,
+        area_assignment: req.area_assignment.0.clone(),
         disable_walljump: req.disable_walljump.0,
         maps_revealed: req.maps_revealed.0,
         vanilla_map: req.vanilla_map.0,

@@ -66,6 +66,9 @@
         </div>
         <% 
         let mut game_variations = vec![];
+        if area_assignment == "Random" {
+            game_variations.push("Random area assignment");
+        }
         if item_dot_change == "Disappear" {
             game_variations.push("Item dots disappear after collection");
         }

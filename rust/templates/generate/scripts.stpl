@@ -296,7 +296,8 @@ function initializeSpoilerToken() {
     document.getElementById("spoilerToken").value = localStorage["spoilerToken"];
 }
 function checkOtherOptions() {
-    if (document.getElementById("itemDotChangeDisappear").checked ||
+    if (document.getElementById("areaAssignmentRandom").checked ||
+        document.getElementById("itemDotChangeDisappear").checked ||
         document.getElementById("transitionLettersYes").checked ||
         document.getElementById("disableWallJumpYes").checked ||
         document.getElementById("mapsRevealedYes").checked ||

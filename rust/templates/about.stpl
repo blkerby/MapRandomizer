@@ -70,7 +70,7 @@
     <p>Aside from randomizing the map and items, many small changes are made to improve quality-of-life
     and adapt the game to behave "as it should" in the context of map and item randomization. The following are
     the changes that are either built into the randomizer or enabled by default (See the <a href="/generate">Generate</a>
-    page for descriptions of all quality-of-life options, including those disabled by default):</p>
+    page for more details and descriptions of all quality-of-life options, including those disabled by default):</p>
 
     <h5 id="map_enhancements">Map enhancements</h5>
     <ul>
@@ -306,6 +306,11 @@
     <h5 id="other_changes">Other changes</h5>
     <ul>
     <li>Missile Refill stations refill all ammo types: Missiles, Supers, and Power Bombs.
+    <li>Enemy drops are buffed (optional):
+      <ul>
+      <li>Small energy drops give 10 energy.
+      <li>Respawning enemies drop Power Bombs at double the normal rate.
+      </ul>        
     <li>The Acid Chozo statue can be activated without Space Jump (optional).
     <li>The music for each room is based on its area & sub-area on the randomized map.
     <li>Angle up/down can be bound to any button.

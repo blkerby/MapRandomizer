@@ -1,5 +1,18 @@
 <div class="form-group row">
     <div class="col-lg-4 col-md-6 my-2">
+        <% include!("help/variations/area_assignment.stpl"); %>
+        <label for="preset">Area assignment</label>
+    </div>
+    <div class="col-3 btn-group my-2" role="group">
+        <input type="radio" class="btn-check" name="area_assignment" id="areaAssignmentStandard" value="Standard" checked>
+        <label class="btn btn-outline-primary" for="areaAssignmentStandard">Standard</label>
+        <input type="radio" class="btn-check" name="area_assignment" id="areaAssignmentRandom" value="Random">
+        <label class="btn btn-outline-primary" for="areaAssignmentRandom">Random</label>
+    </div>
+</div>
+
+<div class="form-group row">
+    <div class="col-lg-4 col-md-6 my-2">
         <% include!("help/variations/item_dot_change.stpl"); %>
         <label for="preset">Item dots after collection</label>
     </div>

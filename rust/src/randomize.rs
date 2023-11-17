@@ -74,6 +74,12 @@ pub enum DoorsMode {
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
+pub enum AreaAssignment {
+    Standard,
+    Random,
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
 pub enum SaveAnimals {
     No,
     Maybe,
@@ -248,6 +254,18 @@ struct VertexInfo {
     room_coords: (usize, usize),
     node_name: String,
     node_id: usize,
+}
+
+pub fn randomize_map_areas(map: &mut Map, seed: usize) {
+    let mut rng_seed = [0u8; 32];
+    rng_seed[..8].copy_from_slice(&seed.to_le_bytes());
+    let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
+
+    let mut area_mapping: Vec<usize> = (0..6).collect();
+    area_mapping.shuffle(&mut rng);
+    for i in 0..map.area.len() {
+        map.area[i] = area_mapping[map.area[i]];
+    }
 }
 
 fn get_door_requirement(

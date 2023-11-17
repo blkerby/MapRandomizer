@@ -1,3 +1,8 @@
+next release:
+- option to randomize Ship area
+  - define subareas in vanilla map.
+- increase contrast between cool/heated map tiles, e.g. in Norfair
+
 priority:
   - add robots.txt for dev service
 - clear SRAM more fully when saved seed does not match:
@@ -69,6 +74,8 @@ priority:
 - logic simulator
 
 later:
+- logic: for strats that require coming in with Screw Attack (e.g. Mickey Mouse Room bottom, Blue Hopper Room) we need to 
+  come in with normal physics from the other room
 - model the bridge doors in West Ocean properly (can be used for bypassing locks on bottom-left/right doors)
 - remove dead code for drawing lava/acid on map tiles.
 - strats to add to logic:
