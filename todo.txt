@@ -1,13 +1,14 @@
 next release:
 - option to randomize Ship area
   - define subareas in vanilla map.
+- maybe move vanilla map option into "Map layout"
+- troubleshoot "Reduced" screen shaking option
 - increase contrast between cool/heated map tiles, e.g. in Norfair
 
 priority:
   - add robots.txt for dev service
 - clear SRAM more fully when saved seed does not match:
   - save slot position is apparently being retained (e.g. starting with cursor on slot 3)
-- "Random" objective?
 - add door flags to refine logic
 - add door lock bypass strats to logic
 - help finish the cross-room strat migration
@@ -271,6 +272,7 @@ later:
 - have forced mode take into account return path?
   - probably bad idea, because returning may not be required (before getting another item that makes it easier).
 - Do something about Crocomire funny map behavior (especially when entering from left door)?
+- "Random" objective?
 
 
 maybe someday?:

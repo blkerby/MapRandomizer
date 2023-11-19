@@ -314,7 +314,7 @@ pub fn customize_rom(
             }
             // (Enemies already only shake up to 1 pixel)
             // Limit enemy projectile shaking to 1-pixel displacements:
-            for i in 0..144 {
+            for i in 0..72 {
                 let mut x = rom.read_u16(snes2pc(0x86846B + i * 2))?;
                 rom.write_u16(snes2pc(0x86846B + i * 2), min(x, 1))?;
             }
