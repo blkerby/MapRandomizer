@@ -84,13 +84,13 @@ pub struct AppData {
 }
 
 impl MapRepository {
-    pub fn new(base_path: &Path) -> Result<Self> {
+    pub fn new(name: &str, base_path: &Path) -> Result<Self> {
         let mut filenames: Vec<String> = Vec::new();
         for path in std::fs::read_dir(base_path)? {
             filenames.push(path?.file_name().into_string().unwrap());
         }
         filenames.sort();
-        info!("{} maps available", filenames.len());
+        info!("{}: {} maps available ({})", name, filenames.len(), base_path.display());
         Ok(MapRepository {
             base_path: base_path.to_owned(),
             filenames,

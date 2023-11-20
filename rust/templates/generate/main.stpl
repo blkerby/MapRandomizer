@@ -150,6 +150,21 @@
 
             <div class="form-group row">
                 <div class="col-lg-3 my-2 pt-1">
+                    <% include!("help/map_layout.stpl"); %>
+                    <label for="map_layout">Map layout</label>
+                </div>
+                <div class="col-lg-4 btn-group my-2" role="group">
+                    <input type="radio" class="btn-check" name="map_layout" id="mapLayoutVanilla" value="Vanilla">
+                    <label class="btn btn-outline-primary" for="mapLayoutVanilla">Vanilla</label>
+                    <input type="radio" class="btn-check" name="map_layout" id="mapLayoutTame" value="Tame" checked=true>
+                    <label class="btn btn-outline-primary" for="mapLayoutTame">Tame</label>
+                    <input type="radio" class="btn-check" name="map_layout" id="mapLayoutWild" value="Wild">
+                    <label class="btn btn-outline-primary" for="mapLayoutWild">Wild</label>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-lg-3 my-2 pt-1">
                     <% include!("help/doors.stpl"); %>
                     <label for="doors">Doors</label>
                 </div>
@@ -171,19 +186,6 @@
                     <label class="btn btn-outline-primary" for="randomizedStartNo">Ship</label>
                     <input type="radio" class="btn-check" name="randomized_start" id="randomizedStartYes" value="true">
                     <label class="btn btn-outline-primary" for="randomizedStartYes">Random</label>
-                </div>
-            </div>
-
-            <div class="form-group row">
-                <div class="col-lg-3 my-2 pt-1">
-                    <% include!("help/map_layout.stpl"); %>
-                    <label for="map_layout">Map layout</label>
-                </div>
-                <div class="col-lg-3 btn-group my-2" role="group">
-                    <input type="radio" class="btn-check" name="map_layout" id="mapLayoutTame" value="Tame" checked=true>
-                    <label class="btn btn-outline-primary" for="mapLayoutTame">Tame</label>
-                    <input type="radio" class="btn-check" name="map_layout" id="mapLayoutWild" value="Wild">
-                    <label class="btn btn-outline-primary" for="mapLayoutWild">Wild</label>
                 </div>
             </div>
 

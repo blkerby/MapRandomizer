@@ -19,8 +19,9 @@ document.getElementById("navigation-releases").classList.add("active");
 <li>New option for random "Area assignment".
     <ul>
     <li>When enabled, the Ship may no longer be in Crateria.
-    <li>Fix bug in the new "Reduced" screen shake option.
     </ul>
+<li>Fixed bug in the new "Reduced" screen shake option (introduced in v96).
+<li>Move "Vanilla" map option from "Other options" into the "Map layout" setting.
 </ul>
 
 <p><a id="release96">Version 96 (2023-11-14)</a>:

@@ -12,24 +12,31 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <p>This setting affects how the rooms are arranged in the randomized map. On all settings, the randomizer
-        guarantees that one-ways (such as falling through crumble blocks) always loop back around somehow,
-        though the path back could be long and require certain items. This setting affects the typical length of 
-        such paths:
+        <p>This setting affects how the rooms are arranged on the map:
         <ul>
-        <li><strong>Tame</strong>: One-way paths tend to have relatively short paths that loop back around.
-        <li><strong>Wild</strong>: One-way paths often only have long paths that loop back around, due to a 
-        higher degree of randomness in how the maps are generated.
+        <li><strong>Vanilla</strong>: The rooms are arranged as they are in the vanilla game, i.e. there is no
+        map randomization.
+        <li><strong>Tame</strong>: The rooms are arranged in a random but relatively friendly way: one-ways 
+        tend to have short return paths that loop back around.
+        <li><strong>Wild</strong>: The rooms are arranged in a more random and less friendly way: there will
+        often be one-ways with only long return paths.
         </ul>
         </p>
 
-        <p>"Tame" maps are more friendly and should be relatively straightforward to navigate once you 
-        reach a "go mode" item set. Even before "go mode" they will typically be less trouble to deal with.
-        Softlock risks should still be expected due to not having items needed to complete a loop back
-        out of a one-way.
+        <p>Be aware that randomized maps (even "Tame" ones) tend to be much more difficult than the vanilla map: 
+        expect to encounter frequent risks of death & softlock, particularly at the beginning of the game. 
+        "Tame" maps should be relatively straightforward to navigate once you have collected enough items, but
+        reaching that point probably won't be easy. "Wild" maps are even more spicy and tend to contain some very long
+        one-way loops (like the Lower Norfair loop in the vanilla map, or even longer).
         </p>
 
         <h5>Details</h5>
+
+        <p>On all settings, the randomizer
+        guarantees that one-ways (such as falling through crumble blocks) always loop back around somehow,
+        though the path back could be long and require certain items. This setting ("Tame" vs. "Wild") affects 
+        the typical length of such paths.</p>
+        
         <p>
         The "one-ways" considered here are situations where navigation in a "wrong" direction might not be not possible
         within the room, even with all items collected, without the use of techniques above Basic:
@@ -49,10 +56,7 @@
         </p>
         
         <p>Likewise, in measuring the length of paths to reverse a "one-way", the types of paths considered are those 
-        which will be possible with all item collected but without the use of techniques above Basic. For example, 
-        using an X-ray climb to bypass crumble blocks would not count as a short way to loop back around; however, 
-        using Gravity Suit to go up through water would count, even if the player might not obtain Gravity Suit 
-        until late in the game. 
+        which will be possible with all items collected but without the use of techniques above Basic.
         </p>
 
       </div>

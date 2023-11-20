@@ -301,7 +301,6 @@ function checkOtherOptions() {
         document.getElementById("transitionLettersYes").checked ||
         document.getElementById("disableWallJumpYes").checked ||
         document.getElementById("mapsRevealedYes").checked ||
-        document.getElementById("vanillaMapYes").checked ||
         document.getElementById("ultraLowQoLYes").checked ||
         document.getElementById("raceModeYes").checked) 
     {

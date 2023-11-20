@@ -235,7 +235,6 @@ struct RandomizeRequest {
     area_assignment: Text<String>,
     disable_walljump: Text<bool>,
     maps_revealed: Text<bool>,
-    vanilla_map: Text<bool>,
     ultra_low_qol: Text<bool>,
 }
 
@@ -1104,7 +1103,9 @@ async fn randomize(
             tech_vec.push(tech.to_string());
         }
     }
-    if req.vanilla_map.0 {
+
+    let vanilla_map = req.map_layout.0 == "Vanilla";
+    if vanilla_map {
         tech_vec.push("canEscapeMorphLocation".to_string());
     }
 
@@ -1241,7 +1242,7 @@ async fn randomize(
         },
         disable_walljump: req.disable_walljump.0,
         maps_revealed: req.maps_revealed.0,
-        vanilla_map: req.vanilla_map.0,
+        vanilla_map,
         ultra_low_qol: req.ultra_low_qol.0,
         skill_assumptions_preset: req.preset.as_ref().map(|x| x.0.clone()),
         item_progression_preset: req.item_progression_preset.as_ref().map(|x| x.0.clone()),
@@ -1328,20 +1329,13 @@ async fn randomize(
                 let filtered_base_links_data_ref = &filtered_base_links_data;
                 let filtered_seed_links_ref = &filtered_seed_links;
                 attempt.thread_handle = Some(scope.spawn(move || -> Result<(Randomization, Rom)> {
-                    let mut map = if difficulty.vanilla_map {
-                        // TODO: this is hacky, clean it up:
-                        app_data_local.map_repositories["Tame"]
-                            .get_vanilla_map(attempts_triggered_local)
-                            .unwrap()
-                    } else {
-                        if !app_data_local.map_repositories.contains_key(&map_layout) {
-                            // TODO: it doesn't make sense to panic on things like this.
-                            panic!("Unrecognized map layout option: {}", map_layout);
-                        }
-                        app_data_local.map_repositories[&map_layout]
-                            .get_map(attempts_triggered_local, map_seed_local)
-                            .unwrap()
-                    };
+                    if !app_data_local.map_repositories.contains_key(&map_layout) {
+                        // TODO: it doesn't make sense to panic on things like this.
+                        panic!("Unrecognized map layout option: {}", map_layout);
+                    }
+                    let mut map = app_data_local.map_repositories[&map_layout]
+                        .get_map(attempts_triggered_local, map_seed_local)
+                        .unwrap();
                     if difficulty.area_assignment == AreaAssignment::Random {
                         randomize_map_areas(&mut map, map_seed_local);
                     }
@@ -1472,7 +1466,7 @@ async fn randomize(
         area_assignment: req.area_assignment.0.clone(),
         disable_walljump: req.disable_walljump.0,
         maps_revealed: req.maps_revealed.0,
-        vanilla_map: req.vanilla_map.0,
+        vanilla_map,
         ultra_low_qol: req.ultra_low_qol.0,
     };
 
@@ -1717,6 +1711,8 @@ fn build_app_data() -> AppData {
     let start_locations_path = Path::new("data/start_locations.json");
     let hub_locations_path = Path::new("data/hub_locations.json");
     let etank_colors_path = Path::new("data/etank_colors.json");
+    let vanilla_map_path =
+        Path::new("../maps/vanilla");
     let tame_maps_path =
         Path::new("../maps/session-2023-06-08T14:55:16.779895.pkl-small-71-subarea-balance-2");
     let wild_maps_path =
@@ -1767,12 +1763,16 @@ fn build_app_data() -> AppData {
         implicit_tech,
         map_repositories: vec![
             (
+                "Vanilla".to_string(),
+                MapRepository::new("Vanilla", vanilla_map_path).unwrap(),
+            ),
+            (
                 "Tame".to_string(),
-                MapRepository::new(tame_maps_path).unwrap(),
+                MapRepository::new("Tame", tame_maps_path).unwrap(),
             ),
             (
                 "Wild".to_string(),
-                MapRepository::new(wild_maps_path).unwrap(),
+                MapRepository::new("Wild", wild_maps_path).unwrap(),
             ),
         ]
         .into_iter()

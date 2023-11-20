@@ -47,6 +47,10 @@
             <div class="col-7 col-sm-8 col-md-9"><%= objectives %></div>
         </div>
         <div class="row">
+            <div class="col-5 col-sm-4 col-md-3">Map layout:</div>
+            <div class="col-7 col-sm-8 col-md-9"><%= map_layout %></div>
+        </div>
+        <div class="row">
             <div class="col-5 col-sm-4 col-md-3">Doors:</div>
             <div class="col-7 col-sm-8 col-md-9"><%= doors %></div>
         </div>
@@ -55,10 +59,6 @@
             <div class="col-7 col-sm-8 col-md-9">
                 <%= if difficulty.randomized_start { "Random" } else { "Ship" } %>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-5 col-sm-4 col-md-3">Map layout:</div>
-            <div class="col-7 col-sm-8 col-md-9"><%= map_layout %></div>
         </div>
         <div class="row">
             <div class="col-5 col-sm-4 col-md-3">Save the animals:</div>
@@ -80,9 +80,6 @@
         }
         if maps_revealed {
             game_variations.push("Maps revealed from start");
-        }
-        if vanilla_map {
-            game_variations.push("Vanilla map");
         }
         if ultra_low_qol {
             game_variations.push("Ultra-low quality of life");

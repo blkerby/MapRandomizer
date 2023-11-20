@@ -1,12 +1,13 @@
 next release:
-- option to randomize Ship area
-  - define subareas in vanilla map.
-- maybe move vanilla map option into "Map layout"
-- troubleshoot "Reduced" screen shaking option
+- DONE: option to randomize Ship area (and define subareas in vanilla map).
+- DONE: troubleshoot "Reduced" screen shaking option
+- DONE: move vanilla map option into "Map layout"
+- integrate "bypassesDoorShell" property
 - increase contrast between cool/heated map tiles, e.g. in Norfair
 
 priority:
-  - add robots.txt for dev service
+- "flashing" customization option?
+- add robots.txt for dev service
 - clear SRAM more fully when saved seed does not match:
   - save slot position is apparently being retained (e.g. starting with cursor on slot 3)
 - add door flags to refine logic
