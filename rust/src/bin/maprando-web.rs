@@ -1277,19 +1277,17 @@ async fn randomize(
         &app_data.game_data,
         &difficulty,
     );
-
+    let map_layout = req.map_layout.0.clone();
+                
     let mut rng_seed = [0u8; 32];
     rng_seed[..8].copy_from_slice(&random_seed.to_le_bytes());
     rng_seed[9] = if race_mode { 1 } else { 0 };
     let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
     let max_attempts = 10000;
-    let max_threads = app_data.parallelism;
-    // info!(
-    //     "Random seed={random_seed}, difficulty={:?}",
-    //     difficulty_tiers[0]
-    // );
+    let max_attempts_per_map = if vanilla_map { max_attempts } else { 10 };
+    let max_map_attempts = max_attempts / max_attempts_per_map;
     info!(
-        "Random seed={random_seed}, max_threads={max_threads}, max_attempts={max_attempts}, difficulty={:?}",
+        "Random seed={random_seed}, max_attempts_per_map={max_attempts_per_map}, max_map_attempts={max_map_attempts}, difficulty={:?}",
         difficulty_tiers[0]
     );
 
@@ -1302,113 +1300,69 @@ async fn randomize(
     }
 
     let time_start_attempts = Instant::now();
-    let output_opt: Option<AttemptOutput> = thread::scope(|scope| {
-        let mut attempt: Attempt;
-        let mut attempts: Vec<Attempt> = Vec::new();
-        let mut attempt_num;
-        let mut attempts_triggered = 0;
-        loop {
-            // If we need a thread
-            if (attempts.len() < max_threads) && (attempts_triggered < max_attempts) {
-                attempts_triggered += 1;
-                attempt = Attempt {
-                    attempt_num: attempts_triggered,
-                    thread_handle: None,
-                    map_seed: ((rng.next_u64() & 0xFFFFFFFF) as usize),
-                    door_randomization_seed: ((rng.next_u64() & 0xFFFFFFFF) as usize),
-                    item_placement_seed: ((rng.next_u64() & 0xFFFFFFFF) as usize),
-                };
-                let difficulty_tiers_local = difficulty_tiers.clone();
-                let app_data_local = app_data.clone();
-                let map_layout = req.map_layout.0.clone();
-                let map_seed_local = attempt.map_seed.clone();
-                let door_randomization_seed_local = attempt.door_randomization_seed.clone();
-                let item_placement_seed_local = attempt.item_placement_seed.clone();
-                let attempts_triggered_local = attempts_triggered.clone();
-                let rom_ref = &rom;
-                let filtered_base_links_data_ref = &filtered_base_links_data;
-                let filtered_seed_links_ref = &filtered_seed_links;
-                attempt.thread_handle = Some(scope.spawn(move || -> Result<(Randomization, Rom)> {
-                    if !app_data_local.map_repositories.contains_key(&map_layout) {
-                        // TODO: it doesn't make sense to panic on things like this.
-                        panic!("Unrecognized map layout option: {}", map_layout);
-                    }
-                    let mut map = app_data_local.map_repositories[&map_layout]
-                        .get_map(attempts_triggered_local, map_seed_local)
-                        .unwrap();
-                    if difficulty.area_assignment == AreaAssignment::Random {
-                        randomize_map_areas(&mut map, map_seed_local);
-                    }
-                    info!("Attempt {attempts_triggered_local}/{max_attempts}: Map seed={map_seed_local}, door randomization seed={door_randomization_seed_local}, item placement seed={item_placement_seed_local}");
-                    let locked_doors = randomize_doors(
-                        &app_data_local.game_data,
-                        &map,
-                        &difficulty_tiers_local[0],
-                        door_randomization_seed_local,
-                    );
-                    let randomizer = Randomizer::new(
-                        &map,
-                        &locked_doors,
-                        &difficulty_tiers_local,
-                        &app_data_local.game_data,
-                        filtered_base_links_data_ref,
-                        filtered_seed_links_ref,
-                    );
-                    let randomization = randomizer.randomize(
-                        attempts_triggered_local,
-                        item_placement_seed_local,
-                        display_seed,
-                    )?;
-                    let output_rom = make_rom(rom_ref, &randomization, &app_data_local.game_data)?;
-                    Ok((randomization, output_rom))
-                }));
-                // Insert at position 0 so attempts pop off in the order they were created, simpler than using a VecDeque
-                attempts.insert(0, attempt);
+    let mut attempt_num = 0;
+    let mut output_opt: Option<AttemptOutput> = None;
+    'attempts: for _ in 0..max_map_attempts {
+        let map_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
+        let door_randomization_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
 
-                // If we still need another thread
-                if (attempts.len() < max_threads) && (attempts_triggered < max_attempts) {
-                    // Skip consuming and trigger another
-                    continue;
-                }
-            }
+        if !app_data.map_repositories.contains_key(&map_layout) {
+            // TODO: it doesn't make sense to panic on things like this.
+            panic!("Unrecognized map layout option: {}", map_layout);
+        }
+        let mut map = app_data.map_repositories[&map_layout]
+            .get_map(attempt_num, map_seed)
+            .unwrap();
+        if difficulty.area_assignment == AreaAssignment::Random {
+            randomize_map_areas(&mut map, map_seed);
+        }
+        let locked_doors = randomize_doors(
+            &app_data.game_data,
+            &map,
+            &difficulty_tiers[0],
+            door_randomization_seed,
+        );
+        let randomizer = Randomizer::new(
+            &map,
+            &locked_doors,
+            &difficulty_tiers,
+            &app_data.game_data,
+            &filtered_base_links_data,
+            &filtered_seed_links,
+        );
+        for _ in 0..max_attempts_per_map {
+            let item_placement_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
+            attempt_num += 1;
 
-            // If we've run out of attempts
-            if attempts.len() == 0 {
-                error!("Failed too many randomization attempts {attempts_triggered}/{max_attempts}: random_seed={random_seed}");
-                return None;
-            }
-
-            // Evaluate the oldest attempt
-            attempt = attempts.pop().unwrap();
-            attempt_num = attempt.attempt_num;
-            let (randomization, output_rom) = match attempt
-                .thread_handle
-                .expect("thread_handle expected to be set")
-                .join()
-                .unwrap()
-            {
-                Ok(r) => r,
-                Err(e) => {
-                    info!("Failed randomization {attempt_num}/{max_attempts}: {}", e);
-                    continue;
-                }
+            info!("Attempt {attempt_num}/{max_attempts}: Map seed={map_seed}, door randomization seed={door_randomization_seed}, item placement seed={item_placement_seed}");
+            let randomization_result = randomizer.randomize(
+                attempt_num,
+                item_placement_seed,
+                display_seed,
+            );
+            let randomization = match randomization_result {
+                Ok(x) => x,
+                Err(_) => continue
             };
-            let map_seed = attempt.map_seed;
-            let door_randomization_seed = attempt.door_randomization_seed;
-            let item_placement_seed = attempt.item_placement_seed;
+            let output_rom_result = make_rom(&rom, &randomization, &app_data.game_data);
+            let output_rom = match output_rom_result {
+                Ok(x) => x,
+                Err(_) => continue
+            };
             info!(
-                "Successful attempt {attempt_num}/{attempts_triggered}/{max_attempts}: display_seed={}, random_seed={random_seed}, map_seed={map_seed}, door_randomization_seed={door_randomization_seed}, item_placement_seed={item_placement_seed}",
+                "Successful attempt {attempt_num}/{attempt_num}/{max_attempts}: display_seed={}, random_seed={random_seed}, map_seed={map_seed}, door_randomization_seed={door_randomization_seed}, item_placement_seed={item_placement_seed}",
                 randomization.display_seed,
             );
-            return Some(AttemptOutput {
+            output_opt = Some(AttemptOutput {
                 map_seed,
                 door_randomization_seed,
                 item_placement_seed,
                 randomization,
                 output_rom,
             });
+            break 'attempts;
         }
-    });
+    }
 
     if output_opt.is_none() {
         return HttpResponse::InternalServerError().body("Failed too many randomization attempts");
