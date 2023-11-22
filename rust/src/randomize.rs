@@ -8,8 +8,8 @@ use crate::{
         RoomId, StartLocation, VertexId,
     },
     traverse::{
-        apply_requirement, get_spoiler_route, is_bireachable, traverse, GlobalState,
-        LocalState, TraverseResult,
+        apply_requirement, check_bireachable_history, get_spoiler_route, is_bireachable, traverse,
+        GlobalState, LocalState, TraverseResult,
     },
     web::logic::strip_name,
 };
@@ -1021,14 +1021,18 @@ impl<'a> Preprocessor<'a> {
             if let Some(&(other_room_id, other_node_id)) =
                 self.door_map.get(&(room_id, unlocked_node_id))
             {
-                let node_id_spawn = *self.game_data
+                let node_id_spawn = *self
+                    .game_data
                     .node_spawn_at_map
                     .get(&(other_room_id, other_node_id))
                     .unwrap_or(&other_node_id);
                 // println!("Connecting door bypass strat: ({}, {}) to ({}, {}): {}", room_id, node_id, other_room_id, node_id_spawn, link.strat_name);
                 self.game_data.vertex_isv.index_by_key[&(other_room_id, node_id_spawn, 0)]
             } else {
-                panic!("bypassesDoorShell strat with no door: room_id={}, node_id={}, strat: {}", room_id, node_id, link.strat_name);
+                panic!(
+                    "bypassesDoorShell strat with no door: room_id={}, node_id={}, strat: {}",
+                    room_id, node_id, link.strat_name
+                );
             }
         } else {
             link.to_vertex_id
@@ -1091,7 +1095,9 @@ impl<'a> Preprocessor<'a> {
                                     if !exit_link.bypasses_door_shell {
                                         req_and_list.push(door_req.clone());
                                     }
-                                    req_and_list.push(self.preprocess_requirement(&link.requirement, &link));
+                                    req_and_list.push(
+                                        self.preprocess_requirement(&link.requirement, &link),
+                                    );
                                     let req = Requirement::make_and(req_and_list);
                                     // println!("{:?}", door_req);
                                     let mut strat_notes = exit_link.strat_notes.clone();
@@ -1106,7 +1112,7 @@ impl<'a> Preprocessor<'a> {
                                         to_vertex_id,
                                         requirement: req,
                                         entrance_condition: None,
-                                        bypasses_door_shell: false,  // any door shell bypass has already been processed by replacing to_vertex_id with other side of door
+                                        bypasses_door_shell: false, // any door shell bypass has already been processed by replacing to_vertex_id with other side of door
                                         notable_strat_name: None, // TODO: Replace with list of notable strats and use them
                                         strat_name: format!(
                                             "{}; {}",
@@ -1965,17 +1971,21 @@ fn is_req_possible(req: &Requirement, tech_active: &[bool], strats_active: &[boo
     match req {
         Requirement::Tech(tech_id) => tech_active[*tech_id],
         Requirement::Strat(strat_id) => strats_active[*strat_id],
-        Requirement::And(reqs) => {
-            reqs.iter().all(|x| is_req_possible(x, tech_active, strats_active))
-        },
-        Requirement::Or(reqs) => {
-            reqs.iter().any(|x| is_req_possible(x, tech_active, strats_active))
-        },
-        _ => true
+        Requirement::And(reqs) => reqs
+            .iter()
+            .all(|x| is_req_possible(x, tech_active, strats_active)),
+        Requirement::Or(reqs) => reqs
+            .iter()
+            .any(|x| is_req_possible(x, tech_active, strats_active)),
+        _ => true,
     }
 }
 
-pub fn filter_links(links: &[Link], game_data: &GameData, difficulty: &DifficultyConfig) -> Vec<Link> {
+pub fn filter_links(
+    links: &[Link],
+    game_data: &GameData,
+    difficulty: &DifficultyConfig,
+) -> Vec<Link> {
     let mut out = vec![];
     let tech_vec = get_tech_vec(game_data, difficulty);
     let strat_vec = get_strat_vec(game_data, difficulty);
@@ -1988,11 +1998,7 @@ pub fn filter_links(links: &[Link], game_data: &GameData, difficulty: &Difficult
 }
 
 fn get_tech_vec(game_data: &GameData, difficulty: &DifficultyConfig) -> Vec<bool> {
-    let tech_set: HashSet<String> = difficulty
-        .tech
-        .iter()
-        .map(|x| x.clone())
-        .collect();
+    let tech_set: HashSet<String> = difficulty.tech.iter().map(|x| x.clone()).collect();
     game_data
         .tech_isv
         .keys
@@ -2136,7 +2142,7 @@ impl<'r> Randomizer<'r> {
             &self.seed_links_data.links[idx - base_links_len]
         }
     }
-    
+
     fn get_initial_flag_vec(&self) -> Vec<bool> {
         let mut flag_vec = vec![false; self.game_data.flag_isv.keys.len()];
         let tourian_open_idx = self.game_data.flag_isv.index_by_key["f_TourianOpen"];
@@ -2158,7 +2164,7 @@ impl<'r> Randomizer<'r> {
         // let start_vertex_id = self.game_data.vertex_isv.index_by_key[&(8, 5, 0)]; // Landing site
         let start_vertex_id = self.game_data.vertex_isv.index_by_key
             [&(state.hub_location.room_id, state.hub_location.node_id, 0)];
-        let forward = traverse(
+        let mut forward = traverse(
             &self.base_links_data,
             &self.seed_links_data,
             None,
@@ -2170,7 +2176,7 @@ impl<'r> Randomizer<'r> {
             &self.difficulty_tiers[0],
             self.game_data,
         );
-        let reverse = traverse(
+        let mut reverse = traverse(
             &self.base_links_data,
             &self.seed_links_data,
             None,
@@ -2193,10 +2199,12 @@ impl<'r> Randomizer<'r> {
                 if forward.local_states[v].is_some() {
                     state.item_location_state[i].reachable = true;
                     if !state.item_location_state[i].bireachable
-                        && is_bireachable(
+                        && check_bireachable_history(
                             &state.global_state,
-                            &forward.local_states[v],
-                            &reverse.local_states[v],
+                            v,
+                            &mut forward,
+                            &mut reverse,
+                            &self.game_data,
                         )
                     {
                         state.item_location_state[i].bireachable = true;
@@ -2214,10 +2222,12 @@ impl<'r> Randomizer<'r> {
 
             for &v in vertex_ids {
                 if !state.flag_location_state[i].bireachable
-                    && is_bireachable(
+                    && check_bireachable_history(
                         &state.global_state,
-                        &forward.local_states[v],
-                        &reverse.local_states[v],
+                        v,
+                        &mut forward,
+                        &mut reverse,
+                        &self.game_data,
                     )
                 {
                     state.flag_location_state[i].bireachable = true;
@@ -2229,10 +2239,12 @@ impl<'r> Randomizer<'r> {
         for (i, (room_id, node_id)) in self.game_data.save_locations.iter().enumerate() {
             state.save_location_state[i].bireachable = false;
             let vertex_id = self.game_data.vertex_isv.index_by_key[&(*room_id, *node_id, 0)];
-            if is_bireachable(
+            if check_bireachable_history(
                 &state.global_state,
-                &forward.local_states[vertex_id],
-                &reverse.local_states[vertex_id],
+                vertex_id,
+                &mut forward,
+                &mut reverse,
+                &self.game_data,
             ) {
                 state.save_location_state[i].bireachable = true;
             }

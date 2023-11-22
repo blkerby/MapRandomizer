@@ -2,10 +2,10 @@ next release:
 - DONE: integrate "bypassesDoorShell" property
 - DONE: subtract 0.25 tiles from cross-room runways?
 - DONE: increase contrast between cool/heated map tiles, e.g. in Norfair
+- DONE: make randomizer more efficient: (retry on same map multiple times)
 - add CF refill strats
 - keep multiple "maximal" local states for each vertex (i.e. ones not dominated by another across all resource dimensions)
   - important to properly handle energy/ammo trade-off with CF opportunities
-- make randomizer more efficient: (retry on same map multiple times)
 
 priority:
 - add physics/heated override to runway geometry

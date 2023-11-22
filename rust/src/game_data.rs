@@ -825,6 +825,7 @@ pub struct GameData {
     pub item_vertex_ids: Vec<Vec<VertexId>>,
     pub flag_locations: Vec<(RoomId, NodeId, FlagId)>,
     pub flag_vertex_ids: Vec<Vec<VertexId>>,
+    pub target_vertices: IndexedVec<VertexId>,
     pub save_locations: Vec<(RoomId, NodeId)>,
     pub links: Vec<Link>,
     pub base_links: Vec<Link>,
@@ -2940,6 +2941,7 @@ impl GameData {
             for obstacle_bitmask in 0..(1 << num_obstacles) {
                 let vertex_id = self.vertex_isv.index_by_key[&(room_id, node_id, obstacle_bitmask)];
                 vertex_ids.push(vertex_id);
+                self.target_vertices.add(&vertex_id);
             }
             self.item_vertex_ids.push(vertex_ids);
         }
@@ -2950,9 +2952,16 @@ impl GameData {
             for obstacle_bitmask in 0..(1 << num_obstacles) {
                 let vertex_id = self.vertex_isv.index_by_key[&(room_id, node_id, obstacle_bitmask)];
                 vertex_ids.push(vertex_id);
+                self.target_vertices.add(&vertex_id);
             }
             self.flag_vertex_ids.push(vertex_ids);
         }
+
+        for &(room_id, node_id) in &self.save_locations {
+            let vertex_id = self.vertex_isv.index_by_key[&(room_id, node_id, 0)];
+            self.target_vertices.add(&vertex_id);
+        }
+        
         Ok(())
     }
 

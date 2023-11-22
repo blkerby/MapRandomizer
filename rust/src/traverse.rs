@@ -6,7 +6,10 @@ use std::{
 use hashbrown::HashSet;
 
 use crate::{
-    game_data::{Capacity, EnemyVulnerabilities, GameData, Item, Link, LinkIdx, Requirement, WeaponMask, LinksDataGroup},
+    game_data::{
+        Capacity, EnemyVulnerabilities, GameData, Item, Link, LinkIdx, LinksDataGroup, Requirement,
+        WeaponMask,
+    },
     randomize::DifficultyConfig,
 };
 
@@ -510,7 +513,7 @@ fn compute_cost(local: LocalState, global: &GlobalState) -> f32 {
     let missiles_cost = (local.missiles_used as f32) / (global.max_missiles as f32 + eps);
     let supers_cost = (local.supers_used as f32) / (global.max_supers as f32 + eps);
     let power_bombs_cost = (local.power_bombs_used as f32) / (global.max_power_bombs as f32 + eps);
-    energy_cost + reserve_cost + missiles_cost + supers_cost + power_bombs_cost
+    5.0 * energy_cost + 5.0 * reserve_cost + missiles_cost + supers_cost + power_bombs_cost
 }
 
 fn validate_energy(mut local: LocalState, global: &GlobalState) -> Option<LocalState> {
@@ -654,7 +657,7 @@ pub fn apply_requirement(
                     None
                 } else {
                     new_local.energy_used += multiply(frames / 4, difficulty);
-                    validate_energy(new_local, global)    
+                    validate_energy(new_local, global)
                 }
             }
         }
@@ -726,8 +729,9 @@ pub fn apply_requirement(
         Requirement::HeatedDoorStuckLeniency { heat_frames } => {
             if !global.items[Item::Varia as usize] {
                 let mut new_local = local;
-                new_local.energy_used +=
-                    (difficulty.door_stuck_leniency as f32 * difficulty.resource_multiplier * *heat_frames as f32) as i32;
+                new_local.energy_used += (difficulty.door_stuck_leniency as f32
+                    * difficulty.resource_multiplier
+                    * *heat_frames as f32) as i32;
                 validate_energy(new_local, global)
             } else {
                 Some(local)
@@ -859,11 +863,8 @@ pub fn apply_requirement(
         Requirement::BotwoonFight { second_phase } => {
             apply_botwoon_requirement(global, local, difficulty.botwoon_proficiency, *second_phase)
         }
-        Requirement::ShineCharge {
-            used_tiles,
-        } => {
-            if global.items[Item::SpeedBooster as usize]
-                && *used_tiles >= global.shine_charge_tiles
+        Requirement::ShineCharge { used_tiles } => {
+            if global.items[Item::SpeedBooster as usize] && *used_tiles >= global.shine_charge_tiles
             {
                 Some(local)
             } else {
@@ -879,8 +880,7 @@ pub fn apply_requirement(
                 let mut new_local = local;
                 if reverse {
                     if new_local.energy_used <= 28 {
-                        new_local.energy_used =
-                            28 + frames - excess_frames;
+                        new_local.energy_used = 28 + frames - excess_frames;
                     } else {
                         new_local.energy_used += frames;
                     }
@@ -889,8 +889,7 @@ pub fn apply_requirement(
                     new_local.energy_used += frames - excess_frames + 28;
                     if let Some(mut new_local) = validate_energy(new_local, global) {
                         let energy_remaining = global.max_energy - new_local.energy_used - 1;
-                        new_local.energy_used +=
-                            std::cmp::min(*excess_frames, energy_remaining);
+                        new_local.energy_used += std::cmp::min(*excess_frames, energy_remaining);
                         new_local.energy_used -= 28;
                         Some(new_local)
                     } else {
@@ -923,11 +922,13 @@ pub fn apply_requirement(
             let mut new_local = local;
             if reverse {
                 for req in reqs.into_iter().rev() {
-                    new_local = apply_requirement(req, global, new_local, reverse, difficulty, game_data)?;
+                    new_local =
+                        apply_requirement(req, global, new_local, reverse, difficulty, game_data)?;
                 }
             } else {
                 for req in reqs {
-                    new_local = apply_requirement(req, global, new_local, reverse, difficulty, game_data)?;
+                    new_local =
+                        apply_requirement(req, global, new_local, reverse, difficulty, game_data)?;
                 }
             }
             Some(new_local)
@@ -936,7 +937,8 @@ pub fn apply_requirement(
             let mut best_local = None;
             let mut best_cost = f32::INFINITY;
             for req in reqs {
-                if let Some(new_local) = apply_requirement(req, global, local, reverse, difficulty, game_data)
+                if let Some(new_local) =
+                    apply_requirement(req, global, local, reverse, difficulty, game_data)
                 {
                     let cost = compute_cost(new_local, global);
                     if cost < best_cost {
@@ -981,6 +983,43 @@ pub fn is_bireachable(
     true
 }
 
+
+// To check if a vertex (item or flag location) is bireachable, we consider not only the final "best" local states
+// (set of resources used to reach the location), but also the history of cumulative "best" local states from earlier
+// in the traversal. The reason is that the heuristic used to convert the multidimensional local states into a 
+// scalar value loses some information. The main concern has to do with routes which use a Crystal Flash for an
+// energy refill. These routes will generally reach the target vertex later but with a higher heuristic score 
+// (due to energy being weighted higher than other resources); but there may
+// not be enough ammo to support this, particularly if both the forward and reverse path would use a Crystal Flash,
+// which would be common. So by keeping a history of the older routes, which tend to make a different trade-off by
+// conserving ammo at the expense of some energy, we can get a more accurate (though sometimes still imperfect) view of 
+// which vertices are bireachable.
+pub fn check_bireachable_history(
+    global: &GlobalState,
+    vertex_id: usize,
+    forward: &mut TraverseResult,
+    reverse: &mut TraverseResult,
+    game_data: &GameData,
+) -> bool {
+    let target_idx = game_data.target_vertices.index_by_key[&vertex_id];
+    for i in (0..forward.local_state_history[target_idx].len()).rev() {
+        for j in (0..reverse.local_state_history[target_idx].len()).rev() {
+            let forward_state = forward.local_state_history[target_idx][i];
+            let reverse_state = reverse.local_state_history[target_idx][j];
+            if is_bireachable(global, &Some(forward_state), &Some(reverse_state)) {
+                // A valid combination of forward & return routes has been found.
+                // Update the local_states and start_trail_ids so that spoiler log can use these routes.
+                forward.local_states[i] = Some(forward_state);
+                reverse.local_states[j] = Some(reverse_state);
+                forward.start_trail_ids[i] = Some(forward.start_trail_ids_history[target_idx][i]);
+                reverse.start_trail_ids[j] = Some(reverse.start_trail_ids_history[target_idx][j]);
+                return true;
+            }
+        }
+    }
+    false
+}
+
 pub type StepTrailId = i32;
 
 #[derive(Clone)]
@@ -992,9 +1031,11 @@ pub struct StepTrail {
 #[derive(Clone)]
 pub struct TraverseResult {
     pub local_states: Vec<Option<LocalState>>,
+    pub local_state_history: Vec<Vec<LocalState>>,
     pub cost: Vec<f32>,
     pub step_trails: Vec<StepTrail>,
     pub start_trail_ids: Vec<Option<StepTrailId>>,
+    pub start_trail_ids_history: Vec<Vec<StepTrailId>>,
 }
 
 pub fn traverse(
@@ -1022,9 +1063,11 @@ pub fn traverse(
     } else {
         result = TraverseResult {
             local_states: vec![None; num_vertices],
+            local_state_history: vec![vec![]; game_data.target_vertices.keys.len()],
             cost: vec![f32::INFINITY; num_vertices],
             step_trails: Vec::with_capacity(num_vertices * 10),
             start_trail_ids: vec![None; num_vertices],
+            start_trail_ids_history: vec![vec![]; game_data.target_vertices.keys.len()],
         };
         result.local_states[start_vertex_id] = Some(init_local);
         result.start_trail_ids[start_vertex_id] = Some(-1);
@@ -1049,7 +1092,9 @@ pub fn traverse(
         for &src_id in &modified_vertices {
             let src_local_state = result.local_states[src_id].unwrap();
             let src_trail_id = result.start_trail_ids[src_id].unwrap();
-            let all_src_links = base_links_by_src[src_id].iter().chain(seed_links_by_src[src_id].iter());
+            let all_src_links = base_links_by_src[src_id]
+                .iter()
+                .chain(seed_links_by_src[src_id].iter());
             for &(link_idx, ref link) in all_src_links {
                 let dst_id = link.to_vertex_id;
                 let dst_old_cost = result.cost[dst_id];
@@ -1070,6 +1115,12 @@ pub fn traverse(
                         let new_trail_id = result.step_trails.len() as StepTrailId;
                         result.step_trails.push(new_step_trail);
                         result.local_states[dst_id] = Some(dst_new_local_state);
+                        // TODO: we could replace this lookup with a simple numeric comparison if we ordered the
+                        // vertices in such a way that target vertices are at the beginning:
+                        if let Some(&i) = game_data.target_vertices.index_by_key.get(&dst_id) {
+                            result.local_state_history[i].push(dst_new_local_state);
+                            result.start_trail_ids_history[i].push(new_trail_id);
+                        }
                         result.start_trail_ids[dst_id] = Some(new_trail_id);
                         result.cost[dst_id] = dst_new_cost;
                         new_modified_vertices.insert(dst_id);
@@ -1079,6 +1130,10 @@ pub fn traverse(
         }
         modified_vertices = new_modified_vertices;
     }
+
+    // for x in &result.local_state_history {
+    //     println!("{}", x.len());
+    // }
 
     result
 }
