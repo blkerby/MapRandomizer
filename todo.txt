@@ -1,9 +1,11 @@
 next release:
 - DONE: integrate "bypassesDoorShell" property
 - DONE: subtract 0.25 tiles from cross-room runways?
+- DONE: increase contrast between cool/heated map tiles, e.g. in Norfair
 - add CF refill strats
+- keep multiple "maximal" local states for each vertex (i.e. ones not dominated by another across all resource dimensions)
+  - important to properly handle energy/ammo trade-off with CF opportunities
 - make randomizer more efficient: (retry on same map multiple times)
-- increase contrast between cool/heated map tiles, e.g. in Norfair
 
 priority:
 - add physics/heated override to runway geometry
@@ -78,6 +80,8 @@ priority:
 - logic simulator
 
 later:
+- bug reported by somerando: on vanilla MB, escape sequence starts immediately on reload, instead of waiting for you to move.
+  - also, death by waiting the escape timer out will load to previous save
 - "flashing" customization option?
 - "friendly" map pool option that tries to put easier rooms closer to ship, harder rooms further away
 - Vanilla items option?

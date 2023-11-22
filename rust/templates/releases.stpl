@@ -14,8 +14,9 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release98">Version 98 (2023-11-20)</a>:
+<p><a id="release98">Version 98 (2023-11-22)</a>:
 <ul>
+<li>Map colors are brightened further to improve contrast.
 <li>Logic updates:
     <ul>
     <li>Strats are beginning to be added for bypassing door locks.

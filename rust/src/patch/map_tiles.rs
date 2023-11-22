@@ -1938,7 +1938,7 @@ impl<'a> MapPatcher<'a> {
         ];
         // Dotted grid lines
         let i = 12;
-        let color = rgb(6, 6, 6);
+        let color = rgb(8, 8, 8);
         self.rom
             .write_u16(snes2pc(0xB6F000) + 2 * (0x40 + i), color as isize)?;
 
