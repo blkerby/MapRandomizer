@@ -345,6 +345,7 @@ fn add_door_links(
             to_vertex_id,
             requirement: get_door_requirement(locked_door_idx, locked_doors, game_data),
             entrance_condition: None,
+            bypasses_door_shell: false,
             notable_strat_name: None,
             strat_name: "(Door transition)".to_string(),
             strat_notes: vec![],
@@ -1007,6 +1008,31 @@ impl<'a> Preprocessor<'a> {
     }
 
     fn preprocess_link(&mut self, link: &'a Link) -> Vec<Link> {
+        let to_vertex_id = if link.bypasses_door_shell {
+            let (room_id, node_id, _) = self.game_data.vertex_isv.keys[link.to_vertex_id];
+            let mut unlocked_node_id = node_id;
+            if self
+                .game_data
+                .unlocked_node_map
+                .contains_key(&(room_id, node_id))
+            {
+                unlocked_node_id = self.game_data.unlocked_node_map[&(room_id, node_id)];
+            }
+            if let Some(&(other_room_id, other_node_id)) =
+                self.door_map.get(&(room_id, unlocked_node_id))
+            {
+                let node_id_spawn = *self.game_data
+                    .node_spawn_at_map
+                    .get(&(other_room_id, other_node_id))
+                    .unwrap_or(&other_node_id);
+                // println!("Connecting door bypass strat: ({}, {}) to ({}, {}): {}", room_id, node_id, other_room_id, node_id_spawn, link.strat_name);
+                self.game_data.vertex_isv.index_by_key[&(other_room_id, node_id_spawn, 0)]
+            } else {
+                panic!("bypassesDoorShell strat with no door: room_id={}, node_id={}, strat: {}", room_id, node_id, link.strat_name);
+            }
+        } else {
+            link.to_vertex_id
+        };
         if let Some(entrance_condition) = &link.entrance_condition {
             // Process new-style cross room strats:
             let key = ByAddress(link);
@@ -1059,12 +1085,14 @@ impl<'a> Preprocessor<'a> {
                                     if let Requirement::Never = cross_req {
                                         continue;
                                     }
-                                    let req = Requirement::make_and(vec![
-                                        exit_link.requirement.clone(),
-                                        cross_req,
-                                        door_req.clone(),
-                                        self.preprocess_requirement(&link.requirement, &link),
-                                    ]);
+                                    let mut req_and_list = vec![];
+                                    req_and_list.push(exit_link.requirement.clone());
+                                    req_and_list.push(cross_req);
+                                    if !exit_link.bypasses_door_shell {
+                                        req_and_list.push(door_req.clone());
+                                    }
+                                    req_and_list.push(self.preprocess_requirement(&link.requirement, &link));
+                                    let req = Requirement::make_and(req_and_list);
                                     // println!("{:?}", door_req);
                                     let mut strat_notes = exit_link.strat_notes.clone();
                                     strat_notes.extend(link.strat_notes.clone());
@@ -1075,9 +1103,10 @@ impl<'a> Preprocessor<'a> {
                                     sublinks.push(link.clone());
                                     new_links.push(Link {
                                         from_vertex_id: exit_link.from_vertex_id,
-                                        to_vertex_id: link.to_vertex_id,
+                                        to_vertex_id,
                                         requirement: req,
                                         entrance_condition: None,
+                                        bypasses_door_shell: false,  // any door shell bypass has already been processed by replacing to_vertex_id with other side of door
                                         notable_strat_name: None, // TODO: Replace with list of notable strats and use them
                                         strat_name: format!(
                                             "{}; {}",
@@ -1096,12 +1125,13 @@ impl<'a> Preprocessor<'a> {
                 new_links
             }
         } else {
-            // Process old-style cross-room logical requirements (to be deprecated):
+            // Process old-style cross-room logical requirements:
             vec![Link {
                 from_vertex_id: link.from_vertex_id,
-                to_vertex_id: link.to_vertex_id,
+                to_vertex_id,
                 requirement: self.preprocess_requirement(&link.requirement, link),
                 entrance_condition: None,
+                bypasses_door_shell: false, // any door shell bypass has already been processed by replacing to_vertex_id with other side of door
                 notable_strat_name: link.notable_strat_name.clone(),
                 strat_name: link.strat_name.clone(),
                 strat_notes: link.strat_notes.clone(),

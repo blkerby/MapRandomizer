@@ -118,12 +118,12 @@ fn list_room_diagram_files() -> HashMap<usize, String> {
                 }
 
                 let path_string = new_path.to_str().unwrap().to_string();
-                let segments: Vec<&str> = path_string.split("_").collect();
+                let segments: Vec<&str> = path_string.split(|c| c == '_' || c == '.').collect();
                 let subregion = segments[0];
                 if subregion == "ceres" {
                     continue;
                 }
-                let room_id: usize = str::parse(segments[1]).unwrap();
+                let room_id: usize = str::parse(segments[2]).unwrap();
                 // let img = image::open(path).unwrap();
                 // println!("{:?}", img.dimensions());
                 out.insert(room_id, path_string);

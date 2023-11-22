@@ -320,6 +320,7 @@ pub struct Link {
     pub to_vertex_id: VertexId,
     pub requirement: Requirement,
     pub entrance_condition: Option<EntranceCondition>,
+    pub bypasses_door_shell: bool,
     pub notable_strat_name: Option<String>,
     pub strat_name: String,
     pub strat_notes: Vec<String>,
@@ -684,7 +685,8 @@ fn parse_entrance_condition(entrance_json: &JsonValue, heated: bool) -> Result<E
         }),
         "comeInShinecharging" => {
             let runway_geometry = parse_runway_geometry(value)?;
-            let runway_effective_length = compute_runway_effective_length(&runway_geometry);
+            // Subtract 0.25 tiles since the door transition skips over approximately that much distance beyond the door shell tile:
+            let runway_effective_length = compute_runway_effective_length(&runway_geometry) - 0.25;
             Ok(EntranceCondition::ComeInShinecharging {
                 effective_length: runway_effective_length,
                 heated,
@@ -2259,6 +2261,7 @@ impl GameData {
                                 to_vertex_id: vertex_id,
                                 requirement: lock_req,
                                 entrance_condition: None,
+                                bypasses_door_shell: false,
                                 notable_strat_name: None,
                                 strat_name: strat_json["name"].as_str().unwrap().to_string(),
                                 strat_notes: vec![],
@@ -2380,6 +2383,7 @@ impl GameData {
                             to_vertex_id: vertex_id,
                             requirement: req,
                             entrance_condition: None,
+                            bypasses_door_shell: false,
                             notable_strat_name: None,
                             strat_name: strat_json["name"].as_str().unwrap().to_string(),
                             strat_notes: vec![],
@@ -2445,6 +2449,7 @@ impl GameData {
                             to_vertex_id: vertex_id,
                             requirement: Requirement::make_and(vec![requirement, lock_req]),
                             entrance_condition: None,
+                            bypasses_door_shell: false,
                             notable_strat_name: None,
                             strat_name: strat_json["name"].as_str().unwrap().to_string(),
                             strat_notes: vec![],
@@ -2507,6 +2512,7 @@ impl GameData {
                             to_vertex_id: vertex_id,
                             requirement: Requirement::make_and(vec![requirement, lock_req]),
                             entrance_condition: None,
+                            bypasses_door_shell: false,
                             notable_strat_name: None,
                             strat_name: strat_json["name"].as_str().unwrap().to_string(),
                             strat_notes: vec![],
@@ -2559,6 +2565,7 @@ impl GameData {
                             morphed, 
                             mobility: GModeMobility::Any,
                         }),
+                        bypasses_door_shell: false,
                         notable_strat_name: None,
                         strat_name: "G-Mode Go Back Through Door".to_string(),
                         strat_notes: vec![],
@@ -2596,6 +2603,7 @@ impl GameData {
                     to_vertex_id: vertex_id,
                     requirement: requirement,
                     entrance_condition: None,
+                    bypasses_door_shell: false,
                     notable_strat_name: None,
                     strat_name: "G-Mode Immobile".to_string(),
                     strat_notes: vec![],
@@ -2752,6 +2760,7 @@ impl GameData {
                     to_vertex_id,
                     requirement: requirement.clone(),
                     entrance_condition: entrance_condition.clone(),
+                    bypasses_door_shell: strat_json["bypassesDoorShell"].as_bool().unwrap_or(false),
                     notable_strat_name: if notable {
                         Some(notable_strat_name)
                     } else {
@@ -3205,7 +3214,7 @@ impl GameData {
     }
 
     fn is_base_link(link: &Link) -> bool {
-        if link.entrance_condition.is_some() {
+        if link.entrance_condition.is_some() || link.bypasses_door_shell {
             return false;
         }
         Self::is_base_req(&link.requirement)

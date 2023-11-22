@@ -14,6 +14,26 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
+<p><a id="release98">Version 98 (2023-11-20)</a>:
+<ul>
+<li>Logic updates:
+    <ul>
+    <li>Strats are beginning to be added for bypassing door locks.
+    <li>New notable strats:
+        <ul>
+        <li>Bubble Mountain Right Side Delayed Walljumps (Very Hard)
+        <li>Draygon Shinespark out the Right with a Gravity Jump (Very Hard)
+        <li>Butterfly Room Door Lock Wall Ice Clip (Extreme)
+        </ul>
+    <li>Notable strat "Big Pink Reo Ice Clip" is split into two notable strats:
+        <ul>
+        <li>Big Pink Reo Ice Clip With Morph and X-Ray (Extreme)
+        <li>Big Pink Reo Ice Clip Without Morph and X-Ray (Insane)
+        </ul>
+    </ul>
+</ul>
+
+
 <p><a id="release97">Version 97 (2023-11-19)</a>:
 <ul>
 <li>New option for random "Area assignment".

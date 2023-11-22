@@ -1930,8 +1930,8 @@ impl<'a> MapPatcher<'a> {
             (14, rgb(0, 24, 0)),   // Brinstar green
             (10, rgb(29, 0, 0)),   // Norfair red
             (8, rgb(4, 13, 31)),   // Maridia blue
-            (9, rgb(24, 22, 6)),   // Wrecked Ship yellow
-            (11, rgb(18, 3, 31)),  // Crateria purple
+            (9, rgb(23, 24, 9)),   // Wrecked Ship yellow
+            (11, rgb(20, 3, 31)),  // Crateria purple
             (6, rgb(29, 15, 0)),   // Tourian,
             (15, rgb(18, 12, 14)), // Gray door
             (7, rgb(27, 7, 18)),   // Red (pink) door

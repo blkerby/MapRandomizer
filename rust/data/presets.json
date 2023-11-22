@@ -180,7 +180,8 @@
       "canMoonfall",
       "canAutoCancelWeapon",
       "canSamusEaterStandUp",
-      "canWrapAroundShot"
+      "canWrapAroundShot",
+      "can10PowerBombCrystalFlash"
     ],
     "notable_strats": [
       "Climb Behemoth Shinespark",
@@ -214,6 +215,7 @@
       "Warehouse Kihunter Room Tunnel Charge",
       "Warehouse Kihunter Room Bottom Spark Out",
       
+      "Bubble Mountain Right Side Delayed Walljumps",
       "Cathedral Entrance Left Door Frozen Sova Step",
       "Double Chamber Shinespark to Wave Beam Door",
       "Frog Speedway Shot Block Overload (Speedless Speedway)",
@@ -264,6 +266,7 @@
       "Draygon Grapple Quick Kill",
       "Draygon Shinespark Kill",
       "Suitless Draygon",
+      "Draygon Shinespark out the Right with a Gravity Jump",
       "Halfie Climb Enter with Shinespark from the Bottom Right",
 
       "Bug Sand Hole Damage Boost", 
@@ -454,7 +457,7 @@
       "Etecoon Spikeway Tunnel Crawl",
       "Etecoon Spikeway Xray Wiggle",
 
-      "Big Pink Reo Ice Clip",
+      "Big Pink Reo Ice Clip With Morph and X-Ray",
       "Big Pink Wall Ice Clip the Mission Impossible Crumble Blocks",
 
       "Red Tower R-Mode Frozen Beetom X-Ray Climb",
@@ -482,6 +485,8 @@
       "Aqueduct G-Mode Overload PLMs - PB the Items",
       "East Sand Hole Sandfall Bounce to Power Bombs",
       "East Sand Hole Underwater Walljumps", 
+
+      "Butterfly Room Door Lock Wall Ice Clip",
 
       "West Sand Hall Suitless Damage Boost (Center to Left)",
       "West Sand Hall Ice Only (Center to Right)",
@@ -530,6 +535,7 @@
       "Green Brinstar Shaft Zeela Stuck Moonfall",
 
       "Dachora Room Reo Zeela Stuck Moonfall",
+      "Big Pink Reo Ice Clip Without Morph and X-Ray",
 
       "Crocomire with 5 Missiles",
  
