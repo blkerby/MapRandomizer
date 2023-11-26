@@ -1009,10 +1009,10 @@ pub fn check_bireachable_history(
             if is_bireachable(global, &Some(forward_state), &Some(reverse_state)) {
                 // A valid combination of forward & return routes has been found.
                 // Update the local_states and start_trail_ids so that spoiler log can use these routes.
-                forward.local_states[i] = Some(forward_state);
-                reverse.local_states[j] = Some(reverse_state);
-                forward.start_trail_ids[i] = Some(forward.start_trail_ids_history[target_idx][i]);
-                reverse.start_trail_ids[j] = Some(reverse.start_trail_ids_history[target_idx][j]);
+                forward.local_states[vertex_id] = Some(forward_state);
+                reverse.local_states[vertex_id] = Some(reverse_state);
+                forward.start_trail_ids[vertex_id] = Some(forward.start_trail_ids_history[target_idx][i]);
+                reverse.start_trail_ids[vertex_id] = Some(reverse.start_trail_ids_history[target_idx][j]);
                 return true;
             }
         }
