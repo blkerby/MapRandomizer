@@ -22,7 +22,7 @@ document.getElementById("navigation-releases").classList.add("active");
     <li>Crystal Flash strats for refilling energy are added to logic.
     <li>Cross-room moondance strats are starting to be added.
     <li>Strats for bypassing door locks are starting to be added.
-    <li>New difficulty tier "Beyond" is added for strats above "Insane".
+    <li>New difficulty tier "Beyond" is added to the Generate page, for strats above "Insane".
         <ul>
         <li>"Beyond" strats are not enabled in any preset but can be toggled on individually.
         </ul>
@@ -32,6 +32,11 @@ document.getElementById("navigation-releases").classList.add("active");
         <li>Tech "canCrumbleJump" is moved from Hard to Very Hard.
         <li>Notable strat "Cacatac Alley HiJumpless Double SpringBall Jump and Bomb-Grapple-Jump" is moved from Insane to Beyond.
         <li>Notable strat "Everest Double Crab Bomb-Grapple-Jump" is moved from Insane to Beyond.
+        </ul>
+    <li>New tech:
+        <ul>
+        <li>can10PowerBombCrystalFlash (Very Hard)
+        <li>canExtendedMoondance (Insane)
         </ul>
     <li>New notable strats:
         <ul>
