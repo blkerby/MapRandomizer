@@ -1,6 +1,9 @@
 <script>
 function presetChanged() {
     <% for p in preset_data { 
+        if p.preset.name == "Beyond" {
+            continue;
+        }
         let name_no_space = p.preset.name.replace(" ", ""); %>
         if (document.getElementById("preset<%- name_no_space %>").checked) {
             document.getElementById("shinesparkTiles").value = <%= p.preset.shinespark_tiles %>;

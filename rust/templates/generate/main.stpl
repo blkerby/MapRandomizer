@@ -46,6 +46,9 @@
                     <div class="col-lg-9 mt-0 btn-group overflow-auto" role="group">
                     <% for (i, p) in preset_data.iter().enumerate() { 
                         let name = &p.preset.name;
+                        if name == "Beyond" {
+                            continue;
+                        }
                         let name_no_space = &p.preset.name.replace(" ", "");
                         let checked = if i == 0 { "checked" } else { "" }; 
                         %>

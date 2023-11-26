@@ -536,12 +536,10 @@
       "Taco Tank in Blue Brinstar Energy Tank Room",
 
       "Green Brinstar Shaft Zeela Stuck Moonfall",
-      "Sporespawn Moondance Clip",
  
       "Dachora Room Reo Zeela Stuck Moonfall",
       "Dachora Room Blockade Extended Moondance",
       "Big Pink Reo Ice Clip Without Morph and X-Ray",
-      "Big Pink Extended Moondance Clip",
 
       "Red Tower Door Frame Extended Moondance",
 
@@ -556,14 +554,12 @@
       "Mama Turtle Insane Walljump",
       "Mt. Everest Right Crab Climb with Only 2 Supers",
       "Mt. Everest Right Crab Climb with Only 1 Super",
-      "Everest Double Crab Bomb-Grapple-Jump",
 
       "Aqueduct Snail Stuck Moonfall",
       "Back-Side Botwoon Super Only Fight",
       "Botwoon Energy Tank Room Puyo Bomb-Grapple-Jump",
       "Colosseum with no Equipment",
       "East Cac Alley G-Mode Morph, IBJ, HBJ",
-      "Cacatac Alley HiJumpless Double SpringBall Jump and Bomb-Grapple-Jump", 
       "East Sand Hole Insane Walljump Morph",
 
       "West Sand Hall Insane Bomb Jump",
@@ -573,9 +569,27 @@
       "Bowling Alley Ceiling Bomb Jump",
       "WS East Supers Robot Clip Run-In-Place",
 
-      "Baby Skip With Nothing",
-
-      "TAS Dance"
+      "Baby Skip With Nothing"
+    ]
+  },
+  {
+    "name": "Beyond",
+    "shinespark_tiles": 14,
+    "gate_glitch_leniency": 0,
+    "door_stuck_leniency": 0,
+    "resource_multiplier": 1.0,
+    "escape_timer_multiplier": 1.0,
+    "phantoon_proficiency": 1.0,
+    "draygon_proficiency": 1.0,
+    "ridley_proficiency": 1.0,
+    "botwoon_proficiency": 1.0,
+    "tech": [],
+    "notable_strats": [
+      "Sporespawn Moondance Clip",
+      "TAS Dance",
+      "Big Pink Extended Moondance Clip",
+      "Cacatac Alley HiJumpless Double SpringBall Jump and Bomb-Grapple-Jump",
+      "Everest Double Crab Bomb-Grapple-Jump"
     ]
   }
 ]

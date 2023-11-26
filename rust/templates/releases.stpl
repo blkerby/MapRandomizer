@@ -14,7 +14,7 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release98">Version 98 (2023-11-22)</a>:
+<p><a id="release98">Version 98 (2023-11-25)</a>:
 <ul>
 <li>Map colors are brightened further to improve contrast.
 <li>Logic updates:
@@ -22,13 +22,29 @@ document.getElementById("navigation-releases").classList.add("active");
     <li>Crystal Flash strats for refilling energy are added to logic.
     <li>Cross-room moondance strats are starting to be added.
     <li>Strats for bypassing door locks are starting to be added.
-    <li>Tech "canCrystalFlash" is moved from Medium to Hard.
-    <li>Tech "canCrumbleJump" is moved from Hard to Very Hard.
+    <li>New difficulty tier "Beyond" is added for strats above "Insane".
+        <ul>
+        <li>"Beyond" strats are not enabled in any preset but can be toggled on individually.
+        </ul>
+    <li>Some tech/strats are moved into a higher difficulty tier:
+        <ul>
+        <li>Tech "canCrystalFlash" is moved from Medium to Hard.
+        <li>Tech "canCrumbleJump" is moved from Hard to Very Hard.
+        <li>Notable strat "Cacatac Alley HiJumpless Double SpringBall Jump and Bomb-Grapple-Jump" is moved from Insane to Beyond.
+        <li>Notable strat "Everest Double Crab Bomb-Grapple-Jump" is moved from Insane to Beyond.
+        </ul>
     <li>New notable strats:
         <ul>
         <li>Bubble Mountain Right Side Delayed Walljumps (Very Hard)
         <li>Draygon Shinespark out the Right with a Gravity Jump (Very Hard)
+        <li>Etecoon Shaft Moonfall Spark (Expert)
+        <li>Tourian Blue Hopper Crystal Flash (Expert)
         <li>Butterfly Room Door Lock Wall Ice Clip (Extreme)
+        <li>Dachora Room Blockade Extended Moondance (Insane)
+        <li>Red Tower Door Frame Extended Moondance (Insane)
+        <li>Sporespawn Moondance Clip (Beyond)
+        <li>Big Pink Extended Moondance Clip (Beyond)
+        <li>TAS Dance (Beyond)
         </ul>
     <li>Notable strat "Big Pink Reo Ice Clip" is split into two notable strats:
         <ul>
