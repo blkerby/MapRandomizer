@@ -48,7 +48,6 @@
       "canPseudoScrew",
       "canDisableEquipment",
       "canCameraManip",
-      "canCrystalFlash",
       "canHyperGateShot"
     ],
     "notable_strats": [
@@ -75,6 +74,7 @@
       "canCrossRoomJumpIntoWater",
       "canPlayInSand",
       "canDodgeWhileShooting",
+      "canCrystalFlash",
       "canTrickyUseFrozenEnemies",
       "canTrickySpringBallJump",
       "canIframeSpikeJump",
@@ -87,7 +87,6 @@
       "canStaggeredWalljump",
       "canHitbox",
       "canResetFallSpeed",
-      "canCrumbleJump",
       "canGateGlitch",
       "canDelayedWalljump",
       "canWallJumpInstantMorph",
@@ -169,6 +168,7 @@
       "canTurnaroundAimCancel",
       "canBombAboveIBJ",
       "canBombJumpWaterEscape",
+      "canCrumbleJump",
       "canEscapeSand",
       "canMidairWiggle",
       "canGrappleJump",
@@ -340,7 +340,8 @@
 
       "Brinstar Reserve Temporary Blue",
       "Green Hill Zone X-Ray Wiggle",
-
+      "Etecoon Shaft Moonfall Spark",
+ 
       "Big Pink Speedball into Raised Bomb Blocks",
       "Big Pink Zeb Ice Clip",
       "Dachora Room Shinespark No Etanks No HiJump",
@@ -403,6 +404,7 @@
       "Metroid Room 4 Bottom Metroid Avoid",
       "Blue Hopper Dodge",
       "Blue Hopper Room Roll Under Hoppers",
+      "Tourian Blue Hopper Crystal Flash",
       "Baby Skip Without Wave or Speed"
     ]
   },
@@ -511,6 +513,7 @@
     "tech": [
       "canBeVeryPatient",
       "canMoondance",
+      "canExtendedMoondance",
       "canCeilingBombJump",
       "canBombGrappleJump",
       "canEnemyStuckMoonfall",
@@ -533,9 +536,14 @@
       "Taco Tank in Blue Brinstar Energy Tank Room",
 
       "Green Brinstar Shaft Zeela Stuck Moonfall",
-
+      "Sporespawn Moondance Clip",
+ 
       "Dachora Room Reo Zeela Stuck Moonfall",
+      "Dachora Room Blockade Extended Moondance",
       "Big Pink Reo Ice Clip Without Morph and X-Ray",
+      "Big Pink Extended Moondance Clip",
+
+      "Red Tower Door Frame Extended Moondance",
 
       "Crocomire with 5 Missiles",
  
@@ -565,7 +573,9 @@
       "Bowling Alley Ceiling Bomb Jump",
       "WS East Supers Robot Clip Run-In-Place",
 
-      "Baby Skip With Nothing"
+      "Baby Skip With Nothing",
+
+      "TAS Dance"
     ]
   }
 ]

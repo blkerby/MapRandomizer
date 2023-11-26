@@ -19,7 +19,11 @@ document.getElementById("navigation-releases").classList.add("active");
 <li>Map colors are brightened further to improve contrast.
 <li>Logic updates:
     <ul>
-    <li>Strats are beginning to be added for bypassing door locks.
+    <li>Crystal Flash strats for refilling energy are added to logic.
+    <li>Cross-room moondance strats are starting to be added.
+    <li>Strats for bypassing door locks are starting to be added.
+    <li>Tech "canCrystalFlash" is moved from Medium to Hard.
+    <li>Tech "canCrumbleJump" is moved from Hard to Very Hard.
     <li>New notable strats:
         <ul>
         <li>Bubble Mountain Right Side Delayed Walljumps (Very Hard)

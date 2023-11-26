@@ -3,14 +3,19 @@ next release:
 - DONE: subtract 0.25 tiles from cross-room runways?
 - DONE: increase contrast between cool/heated map tiles, e.g. in Norfair
 - DONE: make randomizer more efficient: (retry on same map multiple times)
-- add CF refill strats
-- keep multiple "maximal" local states for each vertex (i.e. ones not dominated by another across all resource dimensions)
+- DONE: keep multiple "maximal" local states for each vertex (i.e. ones not dominated by another across all resource dimensions)
   - important to properly handle energy/ammo trade-off with CF opportunities
+- DONE: move canCrystalFlash to Hard.
+- DONE: move canCrumbleJump to Very Hard.
+- PENDING: add CF refill strats
+- make it so that ETank/Reserve make both become filler afterward?
 
 priority:
+- make space jump Late on Tricky/Challenge.
+- walljump item
+- have way to delay processing of strats with heavy ammo usage (e.g. CF)
 - add physics/heated override to runway geometry
 - fix toilet to restore x position on exit?
-- walljump item
 - leniency for shinecharge frames
 - add robots.txt for dev service
 - clear SRAM more fully when saved seed does not match:
@@ -80,6 +85,7 @@ priority:
 - logic simulator
 
 later:
+- consider "Other option" for shinespark not to drain energy
 - bug reported by somerando: on vanilla MB, escape sequence starts immediately on reload, instead of waiting for you to move.
   - also, death by waiting the escape timer out will load to previous save
 - "flashing" customization option?

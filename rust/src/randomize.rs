@@ -906,6 +906,26 @@ impl<'a> Preprocessor<'a> {
         }
     }
 
+    fn get_come_in_with_stored_fall_speed_reqs(
+        &self,
+        exit_condition: &ExitCondition,
+        fall_speed_in_tiles_needed: i32,
+    ) -> Option<Requirement> {
+        match exit_condition {
+            ExitCondition::LeaveWithStoredFallSpeed {
+                fall_speed_in_tiles,
+            } => {
+                if *fall_speed_in_tiles != fall_speed_in_tiles_needed {
+                    return None;
+                }
+                return Some(Requirement::Tech(
+                    self.game_data.tech_isv.index_by_key["canMoonfall"],
+                ));
+            }
+            _ => None,
+        }
+    }
+
     fn get_cross_room_reqs(
         &self,
         exit_link: &Link,
@@ -1004,6 +1024,9 @@ impl<'a> Preprocessor<'a> {
                 *morphed,
                 *mobility,
             ),
+            EntranceCondition::ComeInWithStoredFallSpeed {
+                fall_speed_in_tiles,
+            } => self.get_come_in_with_stored_fall_speed_reqs(exit_condition, *fall_speed_in_tiles),
         }
     }
 
