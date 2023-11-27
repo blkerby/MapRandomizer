@@ -513,7 +513,7 @@ fn compute_cost(local: LocalState, global: &GlobalState) -> f32 {
     let missiles_cost = (local.missiles_used as f32) / (global.max_missiles as f32 + eps);
     let supers_cost = (local.supers_used as f32) / (global.max_supers as f32 + eps);
     let power_bombs_cost = (local.power_bombs_used as f32) / (global.max_power_bombs as f32 + eps);
-    5.0 * energy_cost + 5.0 * reserve_cost + missiles_cost + supers_cost + power_bombs_cost
+    50.0 * (energy_cost + reserve_cost) + missiles_cost + supers_cost + power_bombs_cost
 }
 
 fn validate_energy(mut local: LocalState, global: &GlobalState) -> Option<LocalState> {
@@ -1001,18 +1001,17 @@ pub fn check_bireachable_history(
     reverse: &mut TraverseResult,
     game_data: &GameData,
 ) -> bool {
-    let target_idx = game_data.target_vertices.index_by_key[&vertex_id];
-    for i in (0..forward.local_state_history[target_idx].len()).rev() {
-        for j in (0..reverse.local_state_history[target_idx].len()).rev() {
-            let forward_state = forward.local_state_history[target_idx][i];
-            let reverse_state = reverse.local_state_history[target_idx][j];
+    for i in 0..forward.local_state_history[vertex_id].len() {
+        for j in 0..reverse.local_state_history[vertex_id].len() {
+            let forward_state = forward.local_state_history[vertex_id][i];
+            let reverse_state = reverse.local_state_history[vertex_id][j];
             if is_bireachable(global, &Some(forward_state), &Some(reverse_state)) {
                 // A valid combination of forward & return routes has been found.
                 // Update the local_states and start_trail_ids so that spoiler log can use these routes.
                 forward.local_states[vertex_id] = Some(forward_state);
                 reverse.local_states[vertex_id] = Some(reverse_state);
-                forward.start_trail_ids[vertex_id] = Some(forward.start_trail_ids_history[target_idx][i]);
-                reverse.start_trail_ids[vertex_id] = Some(reverse.start_trail_ids_history[target_idx][j]);
+                forward.start_trail_ids[vertex_id] = Some(forward.start_trail_ids_history[vertex_id][i]);
+                reverse.start_trail_ids[vertex_id] = Some(reverse.start_trail_ids_history[vertex_id][j]);
                 return true;
             }
         }
@@ -1063,11 +1062,11 @@ pub fn traverse(
     } else {
         result = TraverseResult {
             local_states: vec![None; num_vertices],
-            local_state_history: vec![vec![]; game_data.target_vertices.keys.len()],
+            local_state_history: vec![vec![]; num_vertices],
             cost: vec![f32::INFINITY; num_vertices],
             step_trails: Vec::with_capacity(num_vertices * 10),
             start_trail_ids: vec![None; num_vertices],
-            start_trail_ids_history: vec![vec![]; game_data.target_vertices.keys.len()],
+            start_trail_ids_history: vec![vec![]; num_vertices],
         };
         result.local_states[start_vertex_id] = Some(init_local);
         result.start_trail_ids[start_vertex_id] = Some(-1);
@@ -1089,9 +1088,11 @@ pub fn traverse(
 
     while modified_vertices.len() > 0 {
         let mut new_modified_vertices: HashSet<usize> = HashSet::new();
+        let old_local_states = result.local_states.clone();
+        let old_start_trail_ids = result.start_trail_ids.clone();
         for &src_id in &modified_vertices {
-            let src_local_state = result.local_states[src_id].unwrap();
-            let src_trail_id = result.start_trail_ids[src_id].unwrap();
+            let src_local_state = old_local_states[src_id].unwrap();
+            let src_trail_id = old_start_trail_ids[src_id].unwrap();
             let all_src_links = base_links_by_src[src_id]
                 .iter()
                 .chain(seed_links_by_src[src_id].iter());
@@ -1110,17 +1111,13 @@ pub fn traverse(
                     if dst_new_cost < dst_old_cost {
                         let new_step_trail = StepTrail {
                             prev_trail_id: src_trail_id,
-                            link_idx: link_idx,
+                            link_idx,
                         };
                         let new_trail_id = result.step_trails.len() as StepTrailId;
                         result.step_trails.push(new_step_trail);
                         result.local_states[dst_id] = Some(dst_new_local_state);
-                        // TODO: we could replace this lookup with a simple numeric comparison if we ordered the
-                        // vertices in such a way that target vertices are at the beginning:
-                        if let Some(&i) = game_data.target_vertices.index_by_key.get(&dst_id) {
-                            result.local_state_history[i].push(dst_new_local_state);
-                            result.start_trail_ids_history[i].push(new_trail_id);
-                        }
+                        result.local_state_history[dst_id].push(dst_new_local_state);
+                        result.start_trail_ids_history[dst_id].push(new_trail_id);
                         result.start_trail_ids[dst_id] = Some(new_trail_id);
                         result.cost[dst_id] = dst_new_cost;
                         new_modified_vertices.insert(dst_id);

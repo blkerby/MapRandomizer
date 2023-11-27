@@ -2870,7 +2870,7 @@ impl<'r> Randomizer<'r> {
         state: &RandomizationState,
         spoiler_summaries: Vec<SpoilerSummary>,
         spoiler_details: Vec<SpoilerDetails>,
-        debug_data_vec: Vec<DebugData>,
+        mut debug_data_vec: Vec<DebugData>,
         seed: usize,
         display_seed: usize,
     ) -> Result<Randomization> {
@@ -2881,7 +2881,7 @@ impl<'r> Randomizer<'r> {
         let mut map_tile_bireachable_step: HashMap<(RoomId, (usize, usize)), usize> =
             HashMap::new();
 
-        for (step, debug_data) in debug_data_vec.iter().enumerate() {
+        for (step, debug_data) in debug_data_vec.iter_mut().enumerate() {
             // println!("step={}, global_state={:?}", step, debug_data.global_state);
             for (v, (room_id, node_id, _obstacle_bitmask)) in
                 self.game_data.vertex_isv.keys.iter().enumerate()
@@ -2889,10 +2889,12 @@ impl<'r> Randomizer<'r> {
                 if node_bireachable_step.contains_key(&(*room_id, *node_id)) {
                     continue;
                 }
-                if is_bireachable(
+                if check_bireachable_history(
                     &debug_data.global_state,
-                    &debug_data.forward.local_states[v],
-                    &debug_data.reverse.local_states[v],
+                    v,
+                    &mut debug_data.forward,
+                    &mut debug_data.reverse,
+                    &self.game_data,
                 ) {
                     node_bireachable_step.insert((*room_id, *node_id), step);
                     let room_ptr = self.game_data.room_ptr_by_id[room_id];
