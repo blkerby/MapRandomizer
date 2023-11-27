@@ -8,8 +8,8 @@ use crate::{
         RoomId, StartLocation, VertexId,
     },
     traverse::{
-        apply_requirement, check_bireachable_history, get_spoiler_route, is_bireachable, traverse,
-        GlobalState, LocalState, TraverseResult,
+        apply_requirement, get_bireachable_idxs, get_spoiler_route, traverse,
+        GlobalState, LocalState, TraverseResult, NUM_COST_METRICS, IMPOSSIBLE_LOCAL_STATE,
     },
     web::logic::strip_name,
 };
@@ -2219,16 +2219,15 @@ impl<'r> Randomizer<'r> {
             state.item_location_state[i].bireachable_vertex_id = None;
 
             for &v in vertex_ids {
-                if forward.local_states[v].is_some() {
+                if forward.cost[v].iter().any(|&x| f32::is_finite(x)) {
                     state.item_location_state[i].reachable = true;
                     if !state.item_location_state[i].bireachable
-                        && check_bireachable_history(
+                        && get_bireachable_idxs(
                             &state.global_state,
                             v,
                             &mut forward,
                             &mut reverse,
-                            &self.game_data,
-                        )
+                        ).is_some()
                     {
                         state.item_location_state[i].bireachable = true;
                         state.item_location_state[i].bireachable_vertex_id = Some(v);
@@ -2245,13 +2244,12 @@ impl<'r> Randomizer<'r> {
 
             for &v in vertex_ids {
                 if !state.flag_location_state[i].bireachable
-                    && check_bireachable_history(
+                    && get_bireachable_idxs(
                         &state.global_state,
                         v,
                         &mut forward,
                         &mut reverse,
-                        &self.game_data,
-                    )
+                    ).is_some()
                 {
                     state.flag_location_state[i].bireachable = true;
                     state.flag_location_state[i].bireachable_vertex_id = Some(v);
@@ -2262,13 +2260,12 @@ impl<'r> Randomizer<'r> {
         for (i, (room_id, node_id)) in self.game_data.save_locations.iter().enumerate() {
             state.save_location_state[i].bireachable = false;
             let vertex_id = self.game_data.vertex_isv.index_by_key[&(*room_id, *node_id, 0)];
-            if check_bireachable_history(
+            if get_bireachable_idxs(
                 &state.global_state,
                 vertex_id,
                 &mut forward,
                 &mut reverse,
-                &self.game_data,
-            ) {
+            ).is_some() {
                 state.save_location_state[i].bireachable = true;
             }
         }
@@ -2436,9 +2433,9 @@ impl<'r> Randomizer<'r> {
             let mut out = init.clone();
             for v in 0..init.local_states.len() {
                 if !state.key_visited_vertices.contains(&v) {
-                    out.local_states[v] = None;
-                    out.cost[v] = f32::INFINITY;
-                    out.start_trail_ids[v] = None;
+                    out.local_states[v] = [IMPOSSIBLE_LOCAL_STATE; NUM_COST_METRICS];
+                    out.cost[v] = [f32::INFINITY; NUM_COST_METRICS];
+                    out.start_trail_ids[v] = [-1; NUM_COST_METRICS];
                 }
             }
             Some(out)
@@ -2504,7 +2501,7 @@ impl<'r> Randomizer<'r> {
             for (i, &item_location_id) in bireachable_locations.iter().enumerate() {
                 let mut is_reachable = false;
                 for &v in &self.game_data.item_vertex_ids[item_location_id] {
-                    if traverse_result.local_states[v].is_some() {
+                    if traverse_result.cost[v].iter().any(|&x| f32::is_finite(x)) {
                         is_reachable = true;
                     }
                 }
@@ -2569,8 +2566,12 @@ impl<'r> Randomizer<'r> {
                 let hard_vertex_id = state.item_location_state[hard_loc]
                     .bireachable_vertex_id
                     .unwrap();
+                let forward = &state.debug_data.as_ref().unwrap().forward;
+                let reverse = &state.debug_data.as_ref().unwrap().reverse;
+                let (forward_cost_idx, _) = get_bireachable_idxs(
+                    &state.global_state, hard_vertex_id, forward, reverse).unwrap();
                 let route =
-                    get_spoiler_route(&state.debug_data.as_ref().unwrap().forward, hard_vertex_id);
+                    get_spoiler_route(&state.debug_data.as_ref().unwrap().forward, hard_vertex_id, forward_cost_idx);
                 for &link_idx in &route {
                     let vertex_id = self.get_link(link_idx as usize).to_vertex_id;
                     new_state.key_visited_vertices.insert(vertex_id);
@@ -2889,13 +2890,12 @@ impl<'r> Randomizer<'r> {
                 if node_bireachable_step.contains_key(&(*room_id, *node_id)) {
                     continue;
                 }
-                if check_bireachable_history(
+                if get_bireachable_idxs(
                     &debug_data.global_state,
                     v,
                     &mut debug_data.forward,
                     &mut debug_data.reverse,
-                    &self.game_data,
-                ) {
+                ).is_some() {
                     node_bireachable_step.insert((*room_id, *node_id), step);
                     let room_ptr = self.game_data.room_ptr_by_id[room_id];
                     let room_idx = self.game_data.room_idx_by_ptr[&room_ptr];
@@ -2913,7 +2913,7 @@ impl<'r> Randomizer<'r> {
                 if node_reachable_step.contains_key(&(*room_id, *node_id)) {
                     continue;
                 }
-                if debug_data.forward.local_states[v].is_some() {
+                if debug_data.forward.cost[v].iter().any(|&x| f32::is_finite(x)) {
                     node_reachable_step.insert((*room_id, *node_id), step);
                     let room_ptr = self.game_data.room_ptr_by_id[room_id];
                     let room_idx = self.game_data.room_idx_by_ptr[&room_ptr];
@@ -3136,12 +3136,13 @@ impl<'r> Randomizer<'r> {
             for hub in &self.game_data.hub_locations {
                 let hub_vertex_id =
                     self.game_data.vertex_isv.index_by_key[&(hub.room_id, hub.node_id, 0)];
-                if forward.local_states[hub_vertex_id].is_some()
-                    && is_bireachable(
+                if forward.cost[hub_vertex_id].iter().any(|&x| f32::is_finite(x))
+                    && get_bireachable_idxs(
                         &global,
-                        &forward0.local_states[hub_vertex_id],
-                        &reverse.local_states[hub_vertex_id],
-                    )
+                        hub_vertex_id,
+                        &forward0,
+                        &reverse,
+                    ).is_some()
                 {
                     if hub.room_id == 8 {
                         // Reject starting location if the Ship is initially bireachable from it.
@@ -3747,10 +3748,14 @@ impl<'a> Randomizer<'a> {
         // info!("vertex_id: {}", vertex_id);
         // info!("forward: {:?}", state.debug_data.as_ref().unwrap().forward.local_states[vertex_id]);
         // info!("reverse: {:?}", state.debug_data.as_ref().unwrap().reverse.local_states[vertex_id]);
+        let forward = &state.debug_data.as_ref().unwrap().forward;
+        let reverse = &state.debug_data.as_ref().unwrap().reverse;
+        let (forward_cost_idx, reverse_cost_idx) = get_bireachable_idxs(
+            &state.global_state, vertex_id, forward, reverse).unwrap();
         let forward_link_idxs: Vec<LinkIdx> =
-            get_spoiler_route(&state.debug_data.as_ref().unwrap().forward, vertex_id);
+            get_spoiler_route(forward, vertex_id, forward_cost_idx);
         let reverse_link_idxs: Vec<LinkIdx> =
-            get_spoiler_route(&state.debug_data.as_ref().unwrap().reverse, vertex_id);
+            get_spoiler_route(reverse, vertex_id, reverse_cost_idx);
         let mut local_state = LocalState::new();
         // info!("obtain");
         let obtain_route = self.get_spoiler_route(

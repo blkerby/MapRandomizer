@@ -3,7 +3,7 @@ use std::{
     mem::swap,
 };
 
-use hashbrown::HashSet;
+use hashbrown::{HashMap, HashSet};
 
 use crate::{
     game_data::{
@@ -506,14 +506,29 @@ fn apply_botwoon_requirement(
     validate_energy(local, global)
 }
 
-fn compute_cost(local: LocalState, global: &GlobalState) -> f32 {
+pub const IMPOSSIBLE_LOCAL_STATE: LocalState = LocalState {
+    energy_used: 0x3FFF,
+    reserves_used: 0x3FFF,
+    missiles_used: 0x3FFF,
+    supers_used: 0x3FFF,
+    power_bombs_used: 0x3FFF,
+};
+
+pub const NUM_COST_METRICS: usize = 2;
+
+fn compute_cost(local: LocalState, global: &GlobalState) -> [f32; NUM_COST_METRICS] {
     let eps = 1e-15;
     let energy_cost = (local.energy_used as f32) / (global.max_energy as f32 + eps);
     let reserve_cost = (local.reserves_used as f32) / (global.max_reserves as f32 + eps);
     let missiles_cost = (local.missiles_used as f32) / (global.max_missiles as f32 + eps);
     let supers_cost = (local.supers_used as f32) / (global.max_supers as f32 + eps);
     let power_bombs_cost = (local.power_bombs_used as f32) / (global.max_power_bombs as f32 + eps);
-    50.0 * (energy_cost + reserve_cost) + missiles_cost + supers_cost + power_bombs_cost
+    
+    let ammo_sensitive_cost_metric =
+        energy_cost + reserve_cost + 10.0 * (missiles_cost + supers_cost + power_bombs_cost);
+    let energy_sensitive_cost_metric =
+        10.0 * (energy_cost + reserve_cost) + missiles_cost + supers_cost + power_bombs_cost;
+    [ammo_sensitive_cost_metric, energy_sensitive_cost_metric]
 }
 
 fn validate_energy(mut local: LocalState, global: &GlobalState) -> Option<LocalState> {
@@ -935,13 +950,14 @@ pub fn apply_requirement(
         }
         Requirement::Or(reqs) => {
             let mut best_local = None;
-            let mut best_cost = f32::INFINITY;
+            let mut best_cost = [f32::INFINITY; NUM_COST_METRICS];
             for req in reqs {
                 if let Some(new_local) =
                     apply_requirement(req, global, local, reverse, difficulty, game_data)
                 {
                     let cost = compute_cost(new_local, global);
-                    if cost < best_cost {
+                    // TODO: Maybe do something better than just using the first cost metric.
+                    if cost[0] < best_cost[0] {
                         best_cost = cost;
                         best_local = Some(new_local);
                     }
@@ -952,16 +968,11 @@ pub fn apply_requirement(
     }
 }
 
-pub fn is_bireachable(
+pub fn is_bireachable_state(
     global: &GlobalState,
-    forward_local_state: &Option<LocalState>,
-    reverse_local_state: &Option<LocalState>,
+    forward: LocalState,
+    reverse: LocalState,
 ) -> bool {
-    if forward_local_state.is_none() || reverse_local_state.is_none() {
-        return false;
-    }
-    let forward = forward_local_state.unwrap();
-    let reverse = reverse_local_state.unwrap();
     if forward.reserves_used + reverse.reserves_used > global.max_reserves {
         return false;
     }
@@ -983,40 +994,26 @@ pub fn is_bireachable(
     true
 }
 
-
-// To check if a vertex (item or flag location) is bireachable, we consider not only the final "best" local states
-// (set of resources used to reach the location), but also the history of cumulative "best" local states from earlier
-// in the traversal. The reason is that the heuristic used to convert the multidimensional local states into a 
-// scalar value loses some information. The main concern has to do with routes which use a Crystal Flash for an
-// energy refill. These routes will generally reach the target vertex later but with a higher heuristic score 
-// (due to energy being weighted higher than other resources); but there may
-// not be enough ammo to support this, particularly if both the forward and reverse path would use a Crystal Flash,
-// which would be common. So by keeping a history of the older routes, which tend to make a different trade-off by
-// conserving ammo at the expense of some energy, we can get a more accurate (though sometimes still imperfect) view of 
-// which vertices are bireachable.
-pub fn check_bireachable_history(
+// If the given vertex is bireachable, returns a pair of cost metric indexes (between 0 and NUM_COST_METRICS),
+// indicating which forward route and backward route, respectively, combine to give a successful full route.
+// Otherwise returns None.
+pub fn get_bireachable_idxs(
     global: &GlobalState,
     vertex_id: usize,
-    forward: &mut TraverseResult,
-    reverse: &mut TraverseResult,
-    game_data: &GameData,
-) -> bool {
-    for i in 0..forward.local_state_history[vertex_id].len() {
-        for j in 0..reverse.local_state_history[vertex_id].len() {
-            let forward_state = forward.local_state_history[vertex_id][i];
-            let reverse_state = reverse.local_state_history[vertex_id][j];
-            if is_bireachable(global, &Some(forward_state), &Some(reverse_state)) {
+    forward: &TraverseResult,
+    reverse: &TraverseResult,
+) -> Option<(usize, usize)> {
+    for forward_cost_idx in 0..NUM_COST_METRICS {
+        for reverse_cost_idx in 0..NUM_COST_METRICS {
+            let forward_state = forward.local_states[vertex_id][forward_cost_idx];
+            let reverse_state = reverse.local_states[vertex_id][reverse_cost_idx];
+            if is_bireachable_state(global, forward_state, reverse_state) {
                 // A valid combination of forward & return routes has been found.
-                // Update the local_states and start_trail_ids so that spoiler log can use these routes.
-                forward.local_states[vertex_id] = Some(forward_state);
-                reverse.local_states[vertex_id] = Some(reverse_state);
-                forward.start_trail_ids[vertex_id] = Some(forward.start_trail_ids_history[vertex_id][i]);
-                reverse.start_trail_ids[vertex_id] = Some(reverse.start_trail_ids_history[vertex_id][j]);
-                return true;
+                return Some((forward_cost_idx, reverse_cost_idx));
             }
         }
     }
-    false
+    None
 }
 
 pub type StepTrailId = i32;
@@ -1029,12 +1026,10 @@ pub struct StepTrail {
 
 #[derive(Clone)]
 pub struct TraverseResult {
-    pub local_states: Vec<Option<LocalState>>,
-    pub local_state_history: Vec<Vec<LocalState>>,
-    pub cost: Vec<f32>,
+    pub local_states: Vec<[LocalState; NUM_COST_METRICS]>,
+    pub cost: Vec<[f32; NUM_COST_METRICS]>,
     pub step_trails: Vec<StepTrail>,
-    pub start_trail_ids: Vec<Option<StepTrailId>>,
-    pub start_trail_ids_history: Vec<Vec<StepTrailId>>,
+    pub start_trail_ids: Vec<[StepTrailId; NUM_COST_METRICS]>,
 }
 
 pub fn traverse(
@@ -1049,30 +1044,33 @@ pub fn traverse(
     difficulty: &DifficultyConfig,
     game_data: &GameData,
 ) -> TraverseResult {
-    let mut modified_vertices: HashSet<usize> = HashSet::new();
+    let mut modified_vertices: HashMap<usize, [bool; NUM_COST_METRICS]> = HashMap::new();
     let mut result: TraverseResult;
 
     if let Some(init) = init_opt {
-        for (v, local) in init.local_states.iter().enumerate() {
-            if local.is_some() {
-                modified_vertices.insert(v);
+        for (v, cost) in init.cost.iter().enumerate() {
+            let valid = cost.map(|x| f32::is_finite(x));
+            if valid.iter().any(|&x| x) {
+                modified_vertices.insert(v, valid);
             }
         }
         result = init;
     } else {
         result = TraverseResult {
-            local_states: vec![None; num_vertices],
-            local_state_history: vec![vec![]; num_vertices],
-            cost: vec![f32::INFINITY; num_vertices],
+            local_states: vec![[IMPOSSIBLE_LOCAL_STATE; NUM_COST_METRICS]; num_vertices],
+            cost: vec![[f32::INFINITY; NUM_COST_METRICS]; num_vertices],
             step_trails: Vec::with_capacity(num_vertices * 10),
-            start_trail_ids: vec![None; num_vertices],
-            start_trail_ids_history: vec![vec![]; num_vertices],
+            start_trail_ids: vec![[-1; NUM_COST_METRICS]; num_vertices],
         };
-        result.local_states[start_vertex_id] = Some(init_local);
-        result.start_trail_ids[start_vertex_id] = Some(-1);
-        result.cost[start_vertex_id] =
-            compute_cost(result.local_states[start_vertex_id].unwrap(), global);
-        modified_vertices.insert(start_vertex_id);
+        let first_metric = {
+            let mut x = [false; NUM_COST_METRICS];
+            x[0] = true;
+            x
+        };
+        result.local_states[start_vertex_id] = [init_local; NUM_COST_METRICS];
+        result.start_trail_ids[start_vertex_id] = [-1; NUM_COST_METRICS];
+        result.cost[start_vertex_id] = compute_cost(init_local, global);
+        modified_vertices.insert(start_vertex_id, first_metric);
     }
 
     let base_links_by_src: &Vec<Vec<(LinkIdx, Link)>> = if reverse {
@@ -1087,40 +1085,54 @@ pub fn traverse(
     };
 
     while modified_vertices.len() > 0 {
-        let mut new_modified_vertices: HashSet<usize> = HashSet::new();
-        let old_local_states = result.local_states.clone();
-        let old_start_trail_ids = result.start_trail_ids.clone();
-        for &src_id in &modified_vertices {
-            let src_local_state = old_local_states[src_id].unwrap();
-            let src_trail_id = old_start_trail_ids[src_id].unwrap();
-            let all_src_links = base_links_by_src[src_id]
-                .iter()
-                .chain(seed_links_by_src[src_id].iter());
-            for &(link_idx, ref link) in all_src_links {
-                let dst_id = link.to_vertex_id;
-                let dst_old_cost = result.cost[dst_id];
-                if let Some(dst_new_local_state) = apply_requirement(
-                    &link.requirement,
-                    global,
-                    src_local_state,
-                    reverse,
-                    difficulty,
-                    game_data,
-                ) {
-                    let dst_new_cost = compute_cost(dst_new_local_state, global);
-                    if dst_new_cost < dst_old_cost {
+        let mut new_modified_vertices: HashMap<usize, [bool; NUM_COST_METRICS]> = HashMap::new();
+        for (&src_id, &modified_costs) in &modified_vertices {
+            let src_local_state_arr = result.local_states[src_id];
+            let src_trail_id_arr = result.start_trail_ids[src_id];
+            for src_cost_idx in 0..NUM_COST_METRICS {
+                if !modified_costs[src_cost_idx] {
+                    continue;
+                }
+                let src_trail_id = src_trail_id_arr[src_cost_idx];
+                let src_local_state = src_local_state_arr[src_cost_idx];
+                let all_src_links = base_links_by_src[src_id]
+                    .iter()
+                    .chain(seed_links_by_src[src_id].iter());
+                for &(link_idx, ref link) in all_src_links {
+                    let dst_id = link.to_vertex_id;
+                    let dst_old_cost_arr = result.cost[dst_id];
+                    if let Some(dst_new_local_state) = apply_requirement(
+                        &link.requirement,
+                        global,
+                        src_local_state,
+                        reverse,
+                        difficulty,
+                        game_data,
+                    ) {
+                        let dst_new_cost_arr = compute_cost(dst_new_local_state, global);
                         let new_step_trail = StepTrail {
                             prev_trail_id: src_trail_id,
                             link_idx,
                         };
                         let new_trail_id = result.step_trails.len() as StepTrailId;
-                        result.step_trails.push(new_step_trail);
-                        result.local_states[dst_id] = Some(dst_new_local_state);
-                        result.local_state_history[dst_id].push(dst_new_local_state);
-                        result.start_trail_ids_history[dst_id].push(new_trail_id);
-                        result.start_trail_ids[dst_id] = Some(new_trail_id);
-                        result.cost[dst_id] = dst_new_cost;
-                        new_modified_vertices.insert(dst_id);
+                        let mut any_improvement: bool = false;
+                        let mut improved_arr: [bool; NUM_COST_METRICS] = new_modified_vertices
+                            .get(&dst_id)
+                            .map(|x| *x)
+                            .unwrap_or([false; NUM_COST_METRICS]);
+                        for dst_cost_idx in 0..NUM_COST_METRICS {
+                            if dst_new_cost_arr[dst_cost_idx] < dst_old_cost_arr[dst_cost_idx] {
+                                result.local_states[dst_id][dst_cost_idx] = dst_new_local_state;
+                                result.start_trail_ids[dst_id][dst_cost_idx] = new_trail_id;
+                                result.cost[dst_id][dst_cost_idx] = dst_new_cost_arr[dst_cost_idx];
+                                improved_arr[dst_cost_idx] = true;
+                                any_improvement = true;
+                            }
+                        }
+                        if any_improvement {
+                            new_modified_vertices.insert(dst_id, improved_arr);
+                            result.step_trails.push(new_step_trail);
+                        }
                     }
                 }
             }
@@ -1160,8 +1172,8 @@ impl GlobalState {
     }
 }
 
-pub fn get_spoiler_route(traverse_result: &TraverseResult, vertex_id: usize) -> Vec<LinkIdx> {
-    let mut trail_id = traverse_result.start_trail_ids[vertex_id].unwrap();
+pub fn get_spoiler_route(traverse_result: &TraverseResult, vertex_id: usize, cost_idx: usize) -> Vec<LinkIdx> {
+    let mut trail_id = traverse_result.start_trail_ids[vertex_id][cost_idx];
     let mut steps: Vec<LinkIdx> = Vec::new();
     while trail_id != -1 {
         let step_trail = &traverse_result.step_trails[trail_id as usize];
