@@ -10,6 +10,7 @@ ELEVATOR = DoorSubtype.ELEVATOR
 rooms = [
     Room(
         name='The Moat',
+        sub_area=SubArea.CENTRAL_CRATERIA,
         rom_address=0x795FF,
         map=[
             [1, 1],
@@ -30,6 +31,7 @@ rooms = [
     ),
     Room(
         name='Landing Site',
+        sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x791F8,
         map=[
             [0, 0, 1, 1, 1, 1, 1, 1, 1],
@@ -61,6 +63,7 @@ rooms = [
     ),
     Room(
         name='Crateria Tube',
+        sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x795D4,
         map=[[1]],
         door_ids=[
@@ -74,6 +77,7 @@ rooms = [
     ),
     Room(
         name='Parlor And Alcatraz',
+        sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x792FD,
         map=[
             [1, 1, 1, 1, 1],
@@ -104,6 +108,7 @@ rooms = [
     ),
     Room(
         name='Climb',
+        sub_area=SubArea.SOUTH_CRATERIA,
         rom_address=0x796BA,
         map=[
             [0, 1, 1],
@@ -134,6 +139,7 @@ rooms = [
     ),
     Room(
         name='Pit Room',
+        sub_area=SubArea.SOUTH_CRATERIA,
         rom_address=0x7975C,
         map=[
             [1, 1, 1],
@@ -154,6 +160,7 @@ rooms = [
     ),
     Room(
         name='Flyway',
+        sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x79879,
         map=[[1, 1, 1]],
         door_ids=[
@@ -167,6 +174,7 @@ rooms = [
     ),
     Room(
         name='Pre-Map Flyway',
+        sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x798E2,
         map=[[1, 1, 1]],
         door_ids=[
@@ -180,6 +188,7 @@ rooms = [
     ),
     Room(
         name='Crateria Map Room',
+        sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x79994,
         map=[[1]],
         door_ids=[
@@ -192,6 +201,7 @@ rooms = [
     ),
     Room(
         name='Crateria Save Room',
+        sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x793D5,
         map=[[1]],
         door_ids=[
@@ -204,6 +214,7 @@ rooms = [
     ),
     Room(
         name='The Final Missile',
+        sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x79A90,
         map=[[1]],
         door_ids=[
@@ -219,6 +230,7 @@ rooms = [
     ),
     Room(
         name='Final Missile Bombway',
+        sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x79A44,
         map=[[1, 1]],
         door_ids=[
@@ -232,6 +244,7 @@ rooms = [
     ),
     Room(
         name='Bomb Torizo Room',
+        sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x79804,
         map=[[1]],
         door_ids=[
@@ -249,6 +262,7 @@ rooms = [
     ),
     Room(
         name='Terminator Room',
+        sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x7990D,
         map=[
             [0, 0, 0, 1, 1, 1],
@@ -270,6 +284,7 @@ rooms = [
     ),
     Room(
         name='Green Pirates Shaft',
+        sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x799BD,
         map=[
             [1],
@@ -306,6 +321,7 @@ rooms = [
     ),
     Room(
         name='Lower Mushrooms',
+        sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x79969,
         map=[[1, 1, 1, 1]],
         door_ids=[
@@ -319,6 +335,7 @@ rooms = [
     ),
     Room(
         name='Green Brinstar Elevator Room',
+        sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x79938,
         map=[
             [1],
@@ -337,6 +354,7 @@ rooms = [
     ),
     Room(
         name='Crateria Kihunter Room',
+        sub_area=SubArea.CENTRAL_CRATERIA,
         rom_address=0x7948C,
         map=[
             [1, 1, 1],
@@ -356,6 +374,7 @@ rooms = [
     ),
     Room(
         name='Statues Hallway',
+        sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x7A5ED,
         map=[[1, 1, 1, 1, 1]],
         door_ids=[
@@ -369,6 +388,7 @@ rooms = [
     ),
     Room(
         name='Red Brinstar Elevator Room',
+        sub_area=SubArea.CENTRAL_CRATERIA,
         rom_address=0x7962A,
         map=[
             [1],
@@ -388,6 +408,7 @@ rooms = [
     Room(
         # TODO: add this to wiki.supermetroid.run/List_of_rooms because it is missing.
         name='Blue Brinstar Elevator Room',
+        sub_area=SubArea.SOUTH_CRATERIA,
         rom_address=0x797B5,
         map=[
             [1],
@@ -406,6 +427,7 @@ rooms = [
     ),
     Room(
         name='Statues Room',
+        sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x7A66A,
         map=[
             [1],
@@ -427,6 +449,7 @@ rooms = [
     ),
     Room(
         name='Crateria Power Bomb Room',
+        sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x793AA,
         map=[[1, 1]],
         door_ids=[
@@ -442,6 +465,7 @@ rooms = [
     ),
     Room(
         name='Crateria Super Room',
+        sub_area=SubArea.SOUTH_CRATERIA,
         rom_address=0x799F9,
         map=[
             [1, 1, 1, 1],
@@ -474,6 +498,7 @@ rooms = [
     ),
     Room(
         name='Gauntlet Entrance',
+        sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x792B3,
         map=[[1, 1, 1, 1, 1]],
         door_ids=[
@@ -487,6 +512,7 @@ rooms = [
     ),
     Room(
         name='Gauntlet Energy Tank Room',
+        sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x7965B,
         map=[[1, 1, 1, 1, 1, 1]],
         door_ids=[
@@ -505,6 +531,7 @@ rooms = [
     ),
     Room(
         name='West Ocean',
+        sub_area=SubArea.CENTRAL_CRATERIA,
         rom_address=0x793FE,
         twin_rom_address=0x7968F,
         map=[
@@ -557,6 +584,7 @@ rooms = [
     ),
     Room(
         name='Bowling Alley Path',
+        sub_area=SubArea.CENTRAL_CRATERIA,
         rom_address=0x79461,
         map=[[1, 1]],
         door_ids=[
@@ -570,6 +598,7 @@ rooms = [
     ),
     Room(
         name='East Ocean',
+        sub_area=SubArea.EAST_CRATERIA,
         rom_address=0x794FD,
         map=[  # This map could be trimmed, but it's like this in the game
             [0, 0, 0, 0, 0, 0, 0],
@@ -592,6 +621,7 @@ rooms = [
     ),
     Room(
         name='Forgotten Highway Kago Room',
+        sub_area=SubArea.EAST_CRATERIA,
         rom_address=0x79552,
         map=[
             [1],
@@ -610,6 +640,7 @@ rooms = [
     ),
     Room(
         name='Crab Maze',
+        sub_area=SubArea.EAST_CRATERIA,
         rom_address=0x7957D,
         map=[
             [1, 1, 1, 1],
@@ -627,6 +658,7 @@ rooms = [
     ),
     Room(
         name='Forgotten Highway Elevator',
+        sub_area=SubArea.EAST_CRATERIA,
         rom_address=0x794CC,
         map=[
             [1],
@@ -645,6 +677,7 @@ rooms = [
     ),
     Room(
         name='Forgotten Highway Elbow',  # Add to list on wiki.supermetroid.run
+        sub_area=SubArea.EAST_CRATERIA,
         rom_address=0x795A8,
         map=[[1]],
         door_ids=[
@@ -660,4 +693,3 @@ rooms = [
 
 for room in rooms:
     room.area = Area.CRATERIA
-    room.sub_area = SubArea.CRATERIA_AND_BLUE_BRINSTAR

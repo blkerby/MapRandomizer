@@ -177,4 +177,4 @@ rooms = [
 
 for room in rooms:
     room.area = Area.BRINSTAR
-    room.sub_area = SubArea.RED_BRINSTAR_AND_WAREHOUSE
+    room.sub_area = SubArea.WAREHOUSE_BRINSTAR

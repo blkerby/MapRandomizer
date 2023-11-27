@@ -43,7 +43,7 @@ class DoorData:
 class MazeBuilderEnv:
     def __init__(self, rooms: List[Room], map_x: int, map_y: int, num_envs: int, must_areas_be_connected: bool, starting_room_name: str, device):
         self.device = device
-        rooms = rooms + [Room(name='Dummy room', map=[[]], door_ids=[], sub_area=SubArea.CRATERIA_AND_BLUE_BRINSTAR)]
+        rooms = rooms + [Room(name='Dummy room', map=[[]], door_ids=[], sub_area=SubArea.WEST_CRATERIA)]
         for room in rooms:
             room.populate()
         room_names = [room.name for room in rooms]
@@ -93,15 +93,25 @@ class MazeBuilderEnv:
 
         self.map_display = None
         self.color_map = {
-            SubArea.CRATERIA_AND_BLUE_BRINSTAR: (0x80, 0x80, 0x80),
-            SubArea.GREEN_AND_PINK_BRINSTAR: (0x80, 0xff, 0x80),
-            SubArea.RED_BRINSTAR_AND_WAREHOUSE: (0x60, 0xc0, 0x60),
+            SubArea.WEST_CRATERIA: (0x80, 0x80, 0x80),
+            SubArea.SOUTH_CRATERIA: (0x80, 0x80, 0x80),
+            SubArea.CENTRAL_CRATERIA: (0x80, 0x80, 0x80),
+            SubArea.EAST_CRATERIA: (0x80, 0x80, 0x80),
+            SubArea.BLUE_BRINSTAR: (0x80, 0x80, 0x80),
+            SubArea.GREEN_BRINSTAR: (0x80, 0xff, 0x80),
+            SubArea.PINK_BRINSTAR: (0x80, 0xff, 0x80),
+            SubArea.RED_BRINSTAR: (0x60, 0xc0, 0x60),
+            SubArea.WAREHOUSE_BRINSTAR: (0x60, 0xc0, 0x60),
             SubArea.UPPER_NORFAIR: (0xff, 0x80, 0x80),
             SubArea.LOWER_NORFAIR: (0xc0, 0x60, 0x60),
             SubArea.OUTER_MARIDIA: (0x80, 0x80, 0xff),
-            SubArea.INNER_MARIDIA: (0x60, 0x60, 0xc0),
+            SubArea.GREEN_MARIDIA: (0x60, 0x60, 0xc0),
+            SubArea.PINK_MARIDIA: (0x60, 0x60, 0xc0),
+            SubArea.YELLOW_MARIDIA: (0x60, 0x60, 0xc0),
             SubArea.WRECKED_SHIP: (0xff, 0xff, 0x80),
-            SubArea.TOURIAN: (0xc0, 0xc0, 0xc0),
+            SubArea.UPPER_TOURIAN: (0xc0, 0xc0, 0xc0),
+            SubArea.LOWER_TOURIAN: (0xc0, 0xc0, 0xc0),
+            SubArea.ESCAPE_TOURIAN: (0xc0, 0xc0, 0xc0),
         }
 
     def init_cpu_data(self):

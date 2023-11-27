@@ -1,5 +1,5 @@
 from logic.rooms.all_rooms import rooms
-from maze_builder.types import Area, DoorSubtype, Direction
+from maze_builder.types import Area, SubArea, DoorSubtype, Direction
 from rando.rom import Rom, RomRoom, snes2pc, pc2snes
 import json
 
@@ -15,11 +15,35 @@ area_offsets = [
     (-2, 4),  # Tourian
 ]
 
+subarea_mapping = {
+    SubArea.WEST_CRATERIA: 0,
+    SubArea.SOUTH_CRATERIA: 0,
+    SubArea.CENTRAL_CRATERIA: 1,
+    SubArea.EAST_CRATERIA: 1,
+    SubArea.BLUE_BRINSTAR: 0,
+    SubArea.GREEN_BRINSTAR: 0,
+    SubArea.PINK_BRINSTAR: 0,
+    SubArea.RED_BRINSTAR: 1,
+    SubArea.WAREHOUSE_BRINSTAR: 1,
+    SubArea.UPPER_NORFAIR: 0,
+    SubArea.LOWER_NORFAIR: 1,
+    SubArea.OUTER_MARIDIA: 0,
+    SubArea.GREEN_MARIDIA: 0,
+    SubArea.PINK_MARIDIA: 1,
+    SubArea.YELLOW_MARIDIA: 1,
+    SubArea.WRECKED_SHIP: 0,
+    SubArea.UPPER_TOURIAN: 0,
+    SubArea.LOWER_TOURIAN: 1,
+    SubArea.ESCAPE_TOURIAN: 0,
+}
+
 output_rooms = []
 output_doors = []
 output_areas = []
+output_subareas = []
 
 for room in rooms:
+    print(room.name)
     addr = room.rom_address
     area = rom.read_u8(addr + 1)
     x0 = rom.read_u8(addr + 2)
@@ -39,12 +63,15 @@ for room in rooms:
         if door.direction in [Direction.RIGHT, Direction.DOWN]:
             output_doors.append([[exit_ptr, entrance_ptr], [entrance_ptr, exit_ptr], bidirectional])
     output_areas.append(area)
+    output_subareas.append(subarea_mapping[room.sub_area])
+
+
 
 output_json = {
     'rooms': output_rooms,
     'doors': output_doors,
     'area': output_areas,
-    'subarea': len(output_rooms) * [0],
+    'subarea': output_subareas,
 }
 
 json.dump(output_json, open('rust/data/vanilla_map.json', 'w'))

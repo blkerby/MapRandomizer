@@ -12,6 +12,7 @@ SAND = DoorSubtype.SAND
 rooms = [
     Room(
         name='Aqueduct Save Room',
+        sub_area=SubArea.PINK_MARIDIA,
         rom_address=0x7D765,
         map=[[1]],
         door_ids=[
@@ -24,6 +25,7 @@ rooms = [
     ),
     Room(
         name='Aqueduct',
+        sub_area=SubArea.PINK_MARIDIA,
         rom_address=0x7D5A7,
         map=[
             [1, 1, 1, 1, 1, 1],
@@ -59,6 +61,7 @@ rooms = [
     ),
     Room(
         name='Toilet',
+        sub_area=SubArea.PINK_MARIDIA,
         rom_address=0x7D408,
         map=[
             [1],
@@ -83,6 +86,7 @@ rooms = [
     ),
     Room(
         name='Botwoon Hallway',
+        sub_area=SubArea.PINK_MARIDIA,
         rom_address=0x7D617,
         map=[[1, 1, 1, 1]],
         door_ids=[
@@ -96,6 +100,7 @@ rooms = [
     ),
     Room(
         name="Botwoon's Room",
+        sub_area=SubArea.PINK_MARIDIA,
         rom_address=0x7D95E,
         map=[[1, 1]],
         door_ids=[
@@ -117,6 +122,7 @@ rooms = [
     ),
     Room(
         name="Botwoon Energy Tank Room",
+        sub_area=SubArea.PINK_MARIDIA,
         rom_address=0x7D7E4,
         map=[[1, 1, 1, 1, 1, 1, 1]],
         door_ids=[
@@ -142,6 +148,7 @@ rooms = [
     ),
     Room(
         name='Halfie Climb Room',
+        sub_area=SubArea.PINK_MARIDIA,
         rom_address=0x7D913,
         map=[
             [1, 0, 0, 0, 0],
@@ -163,6 +170,7 @@ rooms = [
     ),
     Room(
         name='Maridia Missile Refill Room',
+        sub_area=SubArea.PINK_MARIDIA,
         rom_address=0x7D845,
         map=[[1]],
         door_ids=[
@@ -175,6 +183,7 @@ rooms = [
     ),
     Room(
         name='Colosseum',
+        sub_area=SubArea.PINK_MARIDIA,
         rom_address=0x7D72A,
         map=[
             [1, 1, 1, 1, 1, 1, 1],
@@ -193,6 +202,7 @@ rooms = [
     ),
     Room(
         name='Draygon Save Room',
+        sub_area=SubArea.PINK_MARIDIA,
         rom_address=0x7D81A,
         map=[[1]],
         door_ids=[
@@ -206,6 +216,7 @@ rooms = [
     ),
     Room(
         name='Maridia Health Refill Room',
+        sub_area=SubArea.PINK_MARIDIA,
         rom_address=0x7D9D4,
         map=[[1]],
         door_ids=[
@@ -218,6 +229,7 @@ rooms = [
     ),
     Room(
         name='The Precious Room',
+        sub_area=SubArea.PINK_MARIDIA,
         rom_address=0x7D78F,
         map=[
             [1, 1],
@@ -239,6 +251,7 @@ rooms = [
     ),
     Room(
         name="Draygon's Room",
+        sub_area=SubArea.PINK_MARIDIA,
         rom_address=0x7DA60,
         map=[
             [1, 1],
@@ -256,6 +269,7 @@ rooms = [
     ),
     Room(
         name='Space Jump Room',
+        sub_area=SubArea.PINK_MARIDIA,
         rom_address=0x7D9AA,
         map=[[1]],
         door_ids=[
@@ -271,6 +285,7 @@ rooms = [
     ),
     Room(
         name='West Cactus Alley Room',
+        sub_area=SubArea.PINK_MARIDIA,
         rom_address=0x7D9FE,
         map=[
             [1],
@@ -287,6 +302,7 @@ rooms = [
     ),
     Room(
         name='East Cactus Alley Room',
+        sub_area=SubArea.PINK_MARIDIA,
         rom_address=0x7DA2B,
         map=[
             [1, 1, 1, 1, 1],
@@ -305,6 +321,7 @@ rooms = [
     ),
     Room(
         name='Plasma Spark Room',
+        sub_area=SubArea.YELLOW_MARIDIA,
         rom_address=0x7D340,
         map=[
             [0, 1, 1, 0],
@@ -330,6 +347,7 @@ rooms = [
     ),
     Room(
         name='Oasis',
+        sub_area=SubArea.GREEN_MARIDIA,
         rom_address=0x7D48E,
         map=[
             [1],
@@ -351,6 +369,7 @@ rooms = [
     ),
     Room(
         name='West Sand Hall',
+        sub_area=SubArea.GREEN_MARIDIA,
         rom_address=0x7D461,
         map=[[1, 1, 1, 1]],
         door_ids=[
@@ -369,6 +388,7 @@ rooms = [
     ),
     Room(
         name='West Sand Hall Tunnel',
+        sub_area=SubArea.OUTER_MARIDIA,
         rom_address=0x7D252,
         map=[[1]],
         door_ids=[
@@ -382,6 +402,7 @@ rooms = [
     ),
     Room(
         name='Maridia Map Room',
+        sub_area=SubArea.OUTER_MARIDIA,
         rom_address=0x7D3B6,
         map=[[1]],
         door_ids=[
@@ -394,6 +415,7 @@ rooms = [
     ),
     Room(
         name='Botwoon Quicksand Room',
+        sub_area=SubArea.YELLOW_MARIDIA,
         rom_address=0x7D898,
         map=[[1, 1]],
         door_ids=[
@@ -415,6 +437,7 @@ rooms = [
     ),
     Room(
         name='Below Botwoon Energy Tank',
+        sub_area=SubArea.YELLOW_MARIDIA,
         rom_address=0x7D6FD,
         map=[[1, 1, 1, 1]],
         door_ids=[
@@ -433,6 +456,7 @@ rooms = [
     ),
     Room(
         name='West Aqueduct Quicksand Room',
+        sub_area=SubArea.YELLOW_MARIDIA,
         rom_address=0x7D54D,
         map=[
             [1],
@@ -452,6 +476,7 @@ rooms = [
     ),
     Room(
         name='East Aqueduct Quicksand Room',
+        sub_area=SubArea.YELLOW_MARIDIA,
         rom_address=0x7D57A,
         map=[
             [1],
@@ -471,6 +496,7 @@ rooms = [
     ),
     Room(
         name='East Sand Hole',
+        sub_area=SubArea.YELLOW_MARIDIA,
         rom_address=0x7D51E,
         map=[
             [1, 1],
@@ -496,6 +522,7 @@ rooms = [
     ),
     Room(
         name='West Sand Hole',
+        sub_area=SubArea.YELLOW_MARIDIA,
         rom_address=0x7D4EF,
         map=[
             [1, 1],
@@ -524,6 +551,7 @@ rooms = [
     ),
     Room(
         name='East Sand Hall',
+        sub_area=SubArea.GREEN_MARIDIA,
         rom_address=0x7D4C2,
         map=[[1, 1, 1]],
         door_ids=[
@@ -542,6 +570,7 @@ rooms = [
     ),
     Room(
         name='Bug Sand Hole',
+        sub_area=SubArea.YELLOW_MARIDIA,
         rom_address=0x7D433,
         map=[[1]],
         door_ids=[
@@ -560,6 +589,7 @@ rooms = [
     ),
     Room(
         name='Plasma Beach Quicksand Room',
+        sub_area=SubArea.YELLOW_MARIDIA,
         rom_address=0x7D86E,
         map=[[1]],
         door_ids=[
@@ -576,6 +606,7 @@ rooms = [
     ),
     Room(
         name='Butterfly Room',
+        sub_area=SubArea.YELLOW_MARIDIA,
         rom_address=0x7D5EC,
         map=[[1]],
         door_ids=[
@@ -594,6 +625,7 @@ rooms = [
     ),
     Room(
         name='Thread The Needle Room',
+        sub_area=SubArea.YELLOW_MARIDIA,
         rom_address=0x7D2D9,
         map=[[1, 1, 1, 1, 1, 1, 1]],
         door_ids=[
@@ -607,6 +639,7 @@ rooms = [
     ),
     Room(
         name='Maridia Elevator Room',
+        sub_area=SubArea.YELLOW_MARIDIA,
         rom_address=0x7D30B,
         map=[
             [1],
@@ -629,6 +662,7 @@ rooms = [
     ),
     Room(
         name='Forgotten Highway Save Room',
+        sub_area=SubArea.YELLOW_MARIDIA,
         rom_address=0x7D3DF,
         map=[[1]],
         door_ids=[
@@ -641,6 +675,7 @@ rooms = [
     ),
     Room(
         name='Kassiuz Room',
+        sub_area=SubArea.YELLOW_MARIDIA,
         rom_address=0x7D387,
         map=[
             [1],
@@ -659,6 +694,7 @@ rooms = [
     ),
     Room(
         name='Plasma Tutorial Room',
+        sub_area=SubArea.YELLOW_MARIDIA,
         rom_address=0x7D27E,
         map=[[1]],
         door_ids=[
@@ -672,6 +708,7 @@ rooms = [
     ),
     Room(
         name='Plasma Room',
+        sub_area=SubArea.YELLOW_MARIDIA,
         rom_address=0x7D2AA,
         map=[
             [1, 1],
@@ -692,6 +729,7 @@ rooms = [
     ),
     Room(
         name='Pants Room',
+        sub_area=SubArea.GREEN_MARIDIA,
         rom_address=0x7D646,
         twin_rom_address=0x7D69A,
         map=[
@@ -721,6 +759,7 @@ rooms = [
     ),
     Room(
         name='Shaktool Room',
+        sub_area=SubArea.GREEN_MARIDIA,
         rom_address=0x7D8C5,
         map=[[1, 1, 1, 1]],
         door_ids=[
@@ -735,6 +774,7 @@ rooms = [
     ),
     Room(
         name='Spring Ball Room',
+        sub_area=SubArea.GREEN_MARIDIA,
         rom_address=0x7D6D0,
         map=[
             [1, 0],
@@ -753,6 +793,7 @@ rooms = [
     ),
     Room(
         name='Crab Hole',
+        sub_area=SubArea.OUTER_MARIDIA,
         rom_address=0x7D21C,
         map=[
             [1],
@@ -774,4 +815,3 @@ rooms = [
 ]
 for room in rooms:
     room.area = Area.MARIDIA
-    room.sub_area = SubArea.INNER_MARIDIA

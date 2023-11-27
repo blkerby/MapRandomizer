@@ -7,9 +7,9 @@ import io
 import os
 
 
-input_rom_path = '/home/kerby/Downloads/Super Metroid (JU) [!].smc'
+# input_rom_path = '/home/kerby/Downloads/Super Metroid (JU) [!].smc'
 # input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.5.3-tinystates-ntsc.sfc'
-# input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.5.8.1-tinystates-ntsc.sfc'
+input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.5.8.1-tinystates-ntsc.sfc'
 # input_rom_path = '/home/kerby/Downloads/Practice-v2.5.1-suits.sfc'
 # input_rom_path = '/home/kerby/Downloads/smmr-v8-66-115673117270825932886574167490559/smmr-v8-66-115673117270825932886574167490559.sfc'
 # input_rom_path = '/home/kerby/Downloads/smmr-v0-30-115673117270825932886574167490559.sfc'
@@ -37,7 +37,7 @@ patches = [
     # 'spinjumprestart',
     # 'new_game_extra',
     'door_hurt',
-    "everest_tube",
+    # "everest_tube",
     # 'complementary_suits',
     # 'complementary_suits_noheat',
     # 'escape',
@@ -53,7 +53,7 @@ patches = [
     # 'bomb_torizo',
     # 'decompression',
     # 'fast_reload',
-    'hud_expansion_opaque',
+    # 'hud_expansion_opaque',
     # 'mb_barrier',
     # 'mb_barrier_clear',
     # 'saveload',
@@ -106,23 +106,23 @@ def write_colors(addr, colors):
         x = r | (g << 5) | (b << 10)
         rom.write_u16(addr + i * 2, x)
 
-
-power_suit_colors = read_colors(snes2pc(0x9B9400), 32)
-varia_suit_colors = read_colors(snes2pc(0x9B9520), 32)
-combined_suit_colors = read_colors(snes2pc(0x9B9800), 32)
-
-gravity_suit_colors = []
-for i in range(32):
-    p = power_suit_colors[i]
-    v = varia_suit_colors[i]
-    c = combined_suit_colors[i]
-    g = []
-    for j in range(3):
-        x = max(0, min(31, p[j] + c[j] - v[j]))
-        # x = p[j] + c[j] - v[j]
-        g.append(x)
-    print(g)
-    gravity_suit_colors.append(g)
+#
+# power_suit_colors = read_colors(snes2pc(0x9B9400), 32)
+# varia_suit_colors = read_colors(snes2pc(0x9B9520), 32)
+# combined_suit_colors = read_colors(snes2pc(0x9B9800), 32)
+#
+# gravity_suit_colors = []
+# for i in range(32):
+#     p = power_suit_colors[i]
+#     v = varia_suit_colors[i]
+#     c = combined_suit_colors[i]
+#     g = []
+#     for j in range(3):
+#         x = max(0, min(31, p[j] + c[j] - v[j]))
+#         # x = p[j] + c[j] - v[j]
+#         g.append(x)
+#     print(g)
+#     gravity_suit_colors.append(g)
 
 # write_colors(snes2pc(0x9BFF00), gravity_suit_colors)
 
@@ -319,6 +319,8 @@ plt.imshow(image)
 
 # Shaktool camera
 # rom.write_u8(snes2pc(0x84B8DC), 0x60)  # RTS
+
+# rom.write_n(snes2pc(0xA0872D), 288, bytes(288 * [0]))
 
 rom.save(output_rom_path)
 print("Wrote to", output_rom_path)
