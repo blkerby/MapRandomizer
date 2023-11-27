@@ -346,7 +346,23 @@ LoadSpeecialRoomTiles_Tube:
   CLC
   ADC #$0007
   STA $0330
+
+  LDA #$8A00
+  STA $0605
+  LDA #LoadSpeecialRoomTiles_UnpauseHook
+  STA $0604
+
   RTL
+
+LoadSpeecialRoomTiles_UnpauseHook:
+  PHP
+  JSL $80836F ; force blank and lag a frame
+  JSL LoadSpeecialRoomTiles_Tube
+  JSL $808C83 ; process dma queue immediatly
+  JSL $808382 ; unforce blank and lag a frame
+  PLP
+  RTL
+
 
 org $8AB700
 TubeGfx_1:
