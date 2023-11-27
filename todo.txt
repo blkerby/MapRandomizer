@@ -8,9 +8,11 @@ next release:
 - DONE: move canCrystalFlash to Hard.
 - DONE: move canCrumbleJump to Very Hard.
 - PENDING: add CF refill strats
-- make it so that ETank/Reserve make both become filler afterward?
+- Track local state history at all nodes, to make spoiler map bireachable nodes be correct.
+- pull in latest Mosaic to get tube fix after unpause
 
 priority:
+- figure out what to do with ETank/Reserve logic
 - make space jump Late on Tricky/Challenge.
 - walljump item
 - have way to delay processing of strats with heavy ammo usage (e.g. CF)
