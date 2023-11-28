@@ -150,15 +150,28 @@ async fn about(app_data: web::Data<AppData>) -> impl Responder {
 
 #[get("/generate")]
 async fn generate(app_data: web::Data<AppData>) -> impl Responder {
-    let mut prioritizable_items: Vec<String> = app_data
-        .game_data
-        .item_isv
-        .keys
-        .iter()
-        .cloned()
-        .filter(|x| x != "Missile")
-        .collect();
-    prioritizable_items.sort();
+    let mut prioritizable_items: Vec<String> = [
+        "ETank",
+        "ReserveTank",
+        "Super",
+        "PowerBomb",
+        "Charge",
+        "Ice",
+        "Wave",
+        "Spazer",
+        "Plasma",
+        "Morph",
+        "Bombs",
+        "Grapple",
+        "HiJump",
+        "SpaceJump",
+        "SpeedBooster",
+        "SpringBall",
+        "XRayScope",
+        "Varia",
+        "Gravity",
+        "ScrewAttack",
+    ].into_iter().map(|x| x.to_string()).collect();
     let generate_template = GenerateTemplate {
         version_info: app_data.version_info.clone(),
         progression_rates: vec!["Fast", "Uniform", "Slow"],

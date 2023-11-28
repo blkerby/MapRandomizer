@@ -1,0 +1,34 @@
+<!-- Button trigger modal -->
+<button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#randomTankModal">
+<i class="bi bi-question-circle"></i>
+</button>
+
+<!-- Modal -->
+<div class="modal" id="randomTankModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">Random tank priority</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>This setting affects how the key item priority order of Energy Tank vs. Reserve Tank works from step to step:
+        <ul>
+        <li><p><b>No</b>: All items, including Energy Tanks and Reserve Tanks, maintain a consistent item priority
+        across steps. This means it is more likely that you only get one type of tank for much of the seed
+        (especially if tanks are not enabled as filler items).</p>
+        <li><p><b>Yes</b>: The priority of Energy Tanks and Reserve Tanks, relative to each other, is re-randomized
+        on every step. This makes it more likely that you get a mixture of the two types of tanks.</p>
+        </ul>
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+

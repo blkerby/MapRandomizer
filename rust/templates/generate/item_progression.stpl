@@ -41,7 +41,7 @@
 <div class="form-group row">
     <div class="col-lg-3 m-2">
         <% include!("help/progression/random_tank.stpl"); %>
-        <label for="preset">Re-randomize tank priority</label>
+        <label for="preset">Random tank priority</label>
     </div>
     <div class="col-lg-3 btn-group m-2" role="group">
     <% for &name in &["No", "Yes"] {
@@ -102,10 +102,12 @@
                                 id="fillerItems<%- item %>No" autocomplete="off" 
                                 onclick="itemProgressionChanged()">
                             <label class="btn btn-outline-primary" for="fillerItems<%- item %>No">No</label>
+                            <% if ["Super", "PowerBomb", "ETank", "ReserveTank"].contains(&item.as_str()) { %>
                             <input type="radio" class="btn-check filler-items-input" name="filler_items_<%- item %>" value="Semi"
                                 id="fillerItems<%- item %>Semi" autocomplete="off" 
                                 onclick="itemProgressionChanged()">
                             <label class="btn btn-outline-primary" for="fillerItems<%- item %>Semi">Semi</label>
+                            <% } %>
                             <input type="radio" class="btn-check filler-items-input" name="filler_items_<%- item %>" value="Yes"
                                 id="fillerItems<%- item %>Yes" autocomplete="off" 
                                 onclick="itemProgressionChanged()">
