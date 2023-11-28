@@ -14,6 +14,26 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
+<p><a id="release98">Version 99 (2023-11-28)</a>:
+<ul>
+<li>Changes to item progression logic relating to ETanks and Reserve Tanks:
+    <ul>
+    <li>The filler item option "No" is renamed to "Semi", and a new "No" option is introduced.
+        <ul>
+        <li>"Semi": after the first instance of the item is collectible, it becomes a filler item on later steps.
+        <li>"No": the item is never used as filler.
+        </ul>
+    <li>In the "Challenge" preset, Super and PowerBomb are "Semi" filler items, while ETank and ReserveTank are "No".
+        <ul>
+        <li>This reduces access to extra tanks not required for progression.
+        </ul>
+    <li>A new option "Re-randomize tank priority" is added and is enabled on all item progression presets.
+        <ul>
+        <li>This makes it more likely to get a mixture of ETank and ReserveTank items, rather than all of one type.
+        </ul>
+    </ul>
+</ul>
+
 <p><a id="release98">Version 98 (2023-11-27)</a>:
 <ul>
 <li>Map colors are brightened further to improve contrast.

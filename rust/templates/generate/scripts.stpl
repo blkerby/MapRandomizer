@@ -210,8 +210,8 @@ function qualityOfLifeSettingChanged() {
 function itemProgressionPresetChanged() {
     if (document.getElementById("itemProgressionPresetNormal").checked) {
         document.getElementById("progressionRateFast").checked = true;
-
         document.getElementById("itemPlacementStyleNeutral").checked = true;
+        document.getElementById("randomTankYes").checked = true;
         <% for item in &prioritizable_items { %>
         document.getElementById("itemPriority<%- item %>Default").checked = true;
         <% } %>
@@ -236,8 +236,8 @@ function itemProgressionPresetChanged() {
     }
     if (document.getElementById("itemProgressionPresetTricky").checked) {
         document.getElementById("progressionRateUniform").checked = true;
-
         document.getElementById("itemPlacementStyleForced").checked = true;
+        document.getElementById("randomTankYes").checked = true;
         <% for item in &prioritizable_items { %>
         document.getElementById("itemPriority<%- item %>Default").checked = true;
         <% } %>
@@ -259,8 +259,8 @@ function itemProgressionPresetChanged() {
     }
     if (document.getElementById("itemProgressionPresetChallenge").checked) {
         document.getElementById("progressionRateSlow").checked = true;
-
         document.getElementById("itemPlacementStyleForced").checked = true;
+        document.getElementById("randomTankYes").checked = true;
         <% for item in &prioritizable_items { %>
         document.getElementById("itemPriority<%- item %>Default").checked = true;
         <% } %>

@@ -8,8 +8,8 @@ use crate::{
         RoomId, StartLocation, VertexId,
     },
     traverse::{
-        apply_requirement, get_bireachable_idxs, get_spoiler_route, traverse,
-        GlobalState, LocalState, TraverseResult, NUM_COST_METRICS, IMPOSSIBLE_LOCAL_STATE,
+        apply_requirement, get_bireachable_idxs, get_spoiler_route, traverse, GlobalState,
+        LocalState, TraverseResult, IMPOSSIBLE_LOCAL_STATE, NUM_COST_METRICS,
     },
     web::logic::strip_name,
 };
@@ -112,6 +112,7 @@ pub struct DifficultyConfig {
     // pub notable_strats: Vec<String>,
     pub shine_charge_tiles: f32,
     pub progression_rate: ProgressionRate,
+    pub random_tank: bool,
     pub item_placement_style: ItemPlacementStyle,
     pub item_priorities: Vec<ItemPriorityGroup>,
     pub semi_filler_items: Vec<Item>,
@@ -2223,12 +2224,8 @@ impl<'r> Randomizer<'r> {
                 if forward.cost[v].iter().any(|&x| f32::is_finite(x)) {
                     state.item_location_state[i].reachable = true;
                     if !state.item_location_state[i].bireachable
-                        && get_bireachable_idxs(
-                            &state.global_state,
-                            v,
-                            &mut forward,
-                            &mut reverse,
-                        ).is_some()
+                        && get_bireachable_idxs(&state.global_state, v, &mut forward, &mut reverse)
+                            .is_some()
                     {
                         state.item_location_state[i].bireachable = true;
                         state.item_location_state[i].bireachable_vertex_id = Some(v);
@@ -2245,12 +2242,8 @@ impl<'r> Randomizer<'r> {
 
             for &v in vertex_ids {
                 if !state.flag_location_state[i].bireachable
-                    && get_bireachable_idxs(
-                        &state.global_state,
-                        v,
-                        &mut forward,
-                        &mut reverse,
-                    ).is_some()
+                    && get_bireachable_idxs(&state.global_state, v, &mut forward, &mut reverse)
+                        .is_some()
                 {
                     state.flag_location_state[i].bireachable = true;
                     state.flag_location_state[i].bireachable_vertex_id = Some(v);
@@ -2261,12 +2254,9 @@ impl<'r> Randomizer<'r> {
         for (i, (room_id, node_id)) in self.game_data.save_locations.iter().enumerate() {
             state.save_location_state[i].bireachable = false;
             let vertex_id = self.game_data.vertex_isv.index_by_key[&(*room_id, *node_id, 0)];
-            if get_bireachable_idxs(
-                &state.global_state,
-                vertex_id,
-                &mut forward,
-                &mut reverse,
-            ).is_some() {
+            if get_bireachable_idxs(&state.global_state, vertex_id, &mut forward, &mut reverse)
+                .is_some()
+            {
                 state.save_location_state[i].bireachable = true;
             }
         }
@@ -2296,9 +2286,7 @@ impl<'r> Randomizer<'r> {
             .item_precedence
             .iter()
             .copied()
-            .filter(|&item| {
-                state.items_remaining[item as usize] > 0
-            })
+            .filter(|&item| state.items_remaining[item as usize] > 0)
             .collect();
         let num_key_items_remaining = filtered_item_precedence.len();
         let num_items_remaining: usize = state.items_remaining.iter().sum();
@@ -2369,8 +2357,9 @@ impl<'r> Randomizer<'r> {
                 item_types_to_prioritize.push(item);
                 item_types_to_mix.push(item);
             } else if self.difficulty_tiers[0].filler_items.contains(&item)
-                || (self.difficulty_tiers[0].semi_filler_items.contains(&item) && state.items_remaining[item as usize]
-                    < self.initial_items_remaining[item as usize])
+                || (self.difficulty_tiers[0].semi_filler_items.contains(&item)
+                    && state.items_remaining[item as usize]
+                        < self.initial_items_remaining[item as usize])
             {
                 item_types_to_mix.push(item);
             } else if expansion_item_set.contains(&item) {
@@ -2568,10 +2557,14 @@ impl<'r> Randomizer<'r> {
                     .unwrap();
                 let forward = &state.debug_data.as_ref().unwrap().forward;
                 let reverse = &state.debug_data.as_ref().unwrap().reverse;
-                let (forward_cost_idx, _) = get_bireachable_idxs(
-                    &state.global_state, hard_vertex_id, forward, reverse).unwrap();
-                let route =
-                    get_spoiler_route(&state.debug_data.as_ref().unwrap().forward, hard_vertex_id, forward_cost_idx);
+                let (forward_cost_idx, _) =
+                    get_bireachable_idxs(&state.global_state, hard_vertex_id, forward, reverse)
+                        .unwrap();
+                let route = get_spoiler_route(
+                    &state.debug_data.as_ref().unwrap().forward,
+                    hard_vertex_id,
+                    forward_cost_idx,
+                );
                 for &link_idx in &route {
                     let vertex_id = self.get_link(link_idx as usize).to_vertex_id;
                     new_state.key_visited_vertices.insert(vertex_id);
@@ -2895,7 +2888,9 @@ impl<'r> Randomizer<'r> {
                     v,
                     &mut debug_data.forward,
                     &mut debug_data.reverse,
-                ).is_some() {
+                )
+                .is_some()
+                {
                     node_bireachable_step.insert((*room_id, *node_id), step);
                     let room_ptr = self.game_data.room_ptr_by_id[room_id];
                     let room_idx = self.game_data.room_idx_by_ptr[&room_ptr];
@@ -2913,7 +2908,10 @@ impl<'r> Randomizer<'r> {
                 if node_reachable_step.contains_key(&(*room_id, *node_id)) {
                     continue;
                 }
-                if debug_data.forward.cost[v].iter().any(|&x| f32::is_finite(x)) {
+                if debug_data.forward.cost[v]
+                    .iter()
+                    .any(|&x| f32::is_finite(x))
+                {
                     node_reachable_step.insert((*room_id, *node_id), step);
                     let room_ptr = self.game_data.room_ptr_by_id[room_id];
                     let room_idx = self.game_data.room_idx_by_ptr[&room_ptr];
@@ -3045,6 +3043,20 @@ impl<'r> Randomizer<'r> {
         item_precedence
     }
 
+    fn rerandomize_tank_precedence<R: Rng>(
+        &self,
+        item_precedence: &mut [Item],
+        rng: &mut R,
+    ) {
+        if rng.gen_bool(0.5) {
+            return;
+        }
+        let etank_idx = item_precedence.iter().position(|&x| x == Item::ETank).unwrap();
+        let reserve_idx = item_precedence.iter().position(|&x| x == Item::ReserveTank).unwrap();
+        item_precedence[etank_idx] = Item::ReserveTank;
+        item_precedence[reserve_idx] = Item::ETank;
+    }
+
     pub fn determine_start_location<R: Rng>(
         &self,
         attempt_num_rando: usize,
@@ -3136,13 +3148,10 @@ impl<'r> Randomizer<'r> {
             for hub in &self.game_data.hub_locations {
                 let hub_vertex_id =
                     self.game_data.vertex_isv.index_by_key[&(hub.room_id, hub.node_id, 0)];
-                if forward.cost[hub_vertex_id].iter().any(|&x| f32::is_finite(x))
-                    && get_bireachable_idxs(
-                        &global,
-                        hub_vertex_id,
-                        &forward0,
-                        &reverse,
-                    ).is_some()
+                if forward.cost[hub_vertex_id]
+                    .iter()
+                    .any(|&x| f32::is_finite(x))
+                    && get_bireachable_idxs(&global, hub_vertex_id, &forward0, &reverse).is_some()
                 {
                     if hub.room_id == 8 {
                         // Reject starting location if the Ship is initially bireachable from it.
@@ -3250,6 +3259,9 @@ impl<'r> Randomizer<'r> {
         let mut spoiler_details_vec: Vec<SpoilerDetails> = Vec::new();
         let mut debug_data_vec: Vec<DebugData> = Vec::new();
         loop {
+            if self.difficulty_tiers[0].random_tank {
+                self.rerandomize_tank_precedence(&mut state.item_precedence, &mut rng);
+            }
             let (spoiler_summary, spoiler_details) =
                 self.step(attempt_num_rando, &mut state, &mut rng);
             let cnt_collected = state
@@ -3750,8 +3762,8 @@ impl<'a> Randomizer<'a> {
         // info!("reverse: {:?}", state.debug_data.as_ref().unwrap().reverse.local_states[vertex_id]);
         let forward = &state.debug_data.as_ref().unwrap().forward;
         let reverse = &state.debug_data.as_ref().unwrap().reverse;
-        let (forward_cost_idx, reverse_cost_idx) = get_bireachable_idxs(
-            &state.global_state, vertex_id, forward, reverse).unwrap();
+        let (forward_cost_idx, reverse_cost_idx) =
+            get_bireachable_idxs(&state.global_state, vertex_id, forward, reverse).unwrap();
         let forward_link_idxs: Vec<LinkIdx> =
             get_spoiler_route(forward, vertex_id, forward_cost_idx);
         let reverse_link_idxs: Vec<LinkIdx> =

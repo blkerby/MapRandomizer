@@ -6,6 +6,10 @@
     <div class="col-6 col-sm-5 col-md-4 col-lg-3">Item placement:</div>
     <div class="col-6 col-sm-7 col-md-8 col-lg-9"><%= item_placement_style %></div>
 </div>
+<div class="row">
+    <div class="col-6 col-sm-5 col-md-4 col-lg-3">Re-randomize tank priority:</div>
+    <div class="col-6 col-sm-7 col-md-8 col-lg-9"><%= if random_tank { "Yes" } else { "No" } %></div>
+</div>
 <% for group in &difficulty.item_priorities { %>
     <% if group.name != "Default" && group.items.len() > 0 { %>
         <div class="row">

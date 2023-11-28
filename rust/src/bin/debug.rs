@@ -96,6 +96,7 @@ fn main() -> Result<()> {
         notable_strats: vec![],
         shine_charge_tiles: 16.0,
         progression_rate: ProgressionRate::Uniform,
+        random_tank: true,
         semi_filler_items: vec![],
         filler_items: vec![Item::Missile],
         early_filler_items: vec![],

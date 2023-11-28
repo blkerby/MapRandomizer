@@ -201,6 +201,7 @@ struct RandomizeRequest {
     strat_json: Text<String>,
     progression_rate: Text<String>,
     item_placement_style: Text<String>,
+    random_tank: Text<String>,
     item_progression_preset: Option<Text<String>>,
     item_priority_json: Text<String>,
     filler_items_json: Text<String>,
@@ -337,6 +338,7 @@ struct SeedHeaderTemplate<'a> {
     preset: String,
     item_progression_preset: String,
     progression_rate: String,
+    random_tank: bool,
     filler_items: Vec<String>,
     early_filler_items: Vec<String>,
     item_placement_style: String,
@@ -439,6 +441,7 @@ fn render_seed(
             .clone()
             .unwrap_or("Custom".to_string()),
         progression_rate: format!("{:?}", seed_data.difficulty.progression_rate),
+        random_tank: seed_data.difficulty.random_tank,
         filler_items: seed_data
             .difficulty
             .filler_items
@@ -961,6 +964,7 @@ fn get_difficulty_tiers(
                 preset.shinespark_tiles as f32,
             ),
             progression_rate: difficulty.progression_rate,
+            random_tank: difficulty.random_tank,
             item_placement_style: difficulty.item_placement_style,
             item_priorities: difficulty.item_priorities.clone(),
             semi_filler_items: difficulty.semi_filler_items.clone(),
@@ -1164,6 +1168,11 @@ async fn randomize(
                 "Unrecognized progression rate {}",
                 req.progression_rate.0.as_str()
             ),
+        },
+        random_tank: match req.random_tank.0.as_str() {
+            "No" => false,
+            "Yes" => true,
+            _ => panic!("Unrecognized random_tank {}", req.random_tank.0.as_str())
         },
         filler_items: filler_items,
         semi_filler_items: semi_filler_items,

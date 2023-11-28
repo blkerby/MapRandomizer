@@ -2,6 +2,8 @@ v99:
 - ETank/Reserve item progression settings:
   - new filler option: rename "No" to "Semi", and make "No" mean never filler
   - new option to group ETanks/Reserve Tanks for key item progression
+- fix logic bug in Etecoon ETank room: add back Base strat [2, 3]
+- 10 PB CF strat in Cathedral Entrance
 - adjust heat damage multipliers
 
 v98:
