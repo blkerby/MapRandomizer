@@ -34,7 +34,7 @@ document.getElementById("navigation-releases").classList.add("active");
     </ul>
 </ul>
 
-<p><a id="release98">Version 98 (2023-11-27)</a>:
+<p><a id="release98">Version 98 (2023-11-28)</a>:
 <ul>
 <li>Map colors are brightened further to improve contrast.
 <li>Logic updates:
