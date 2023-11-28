@@ -114,6 +114,7 @@ pub struct DifficultyConfig {
     pub progression_rate: ProgressionRate,
     pub item_placement_style: ItemPlacementStyle,
     pub item_priorities: Vec<ItemPriorityGroup>,
+    pub semi_filler_items: Vec<Item>,
     pub filler_items: Vec<Item>,
     pub early_filler_items: Vec<Item>,
     pub resource_multiplier: f32,
@@ -2296,8 +2297,7 @@ impl<'r> Randomizer<'r> {
             .iter()
             .copied()
             .filter(|&item| {
-                state.items_remaining[item as usize] == self.initial_items_remaining[item as usize]
-                    || (item == Item::Missile && state.items_remaining[item as usize] > 0)
+                state.items_remaining[item as usize] > 0
             })
             .collect();
         let num_key_items_remaining = filtered_item_precedence.len();
@@ -2369,8 +2369,8 @@ impl<'r> Randomizer<'r> {
                 item_types_to_prioritize.push(item);
                 item_types_to_mix.push(item);
             } else if self.difficulty_tiers[0].filler_items.contains(&item)
-                || state.items_remaining[item as usize]
-                    < self.initial_items_remaining[item as usize]
+                || (self.difficulty_tiers[0].semi_filler_items.contains(&item) && state.items_remaining[item as usize]
+                    < self.initial_items_remaining[item as usize])
             {
                 item_types_to_mix.push(item);
             } else if expansion_item_set.contains(&item) {

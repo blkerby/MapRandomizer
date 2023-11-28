@@ -82,6 +82,10 @@
                                 id="fillerItems<%- item %>No" autocomplete="off" 
                                 onclick="itemProgressionChanged()">
                             <label class="btn btn-outline-primary" for="fillerItems<%- item %>No">No</label>
+                            <input type="radio" class="btn-check filler-items-input" name="filler_items_<%- item %>" value="Semi"
+                                id="fillerItems<%- item %>Semi" autocomplete="off" 
+                                onclick="itemProgressionChanged()">
+                            <label class="btn btn-outline-primary" for="fillerItems<%- item %>Semi">Semi</label>
                             <input type="radio" class="btn-check filler-items-input" name="filler_items_<%- item %>" value="Yes"
                                 id="fillerItems<%- item %>Yes" autocomplete="off" 
                                 onclick="itemProgressionChanged()">

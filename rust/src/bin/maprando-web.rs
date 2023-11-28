@@ -963,6 +963,7 @@ fn get_difficulty_tiers(
             progression_rate: difficulty.progression_rate,
             item_placement_style: difficulty.item_placement_style,
             item_priorities: difficulty.item_priorities.clone(),
+            semi_filler_items: difficulty.semi_filler_items.clone(),
             filler_items: difficulty.filler_items.clone(),
             early_filler_items: difficulty.early_filler_items.clone(),
             resource_multiplier: f32::max(
@@ -1123,13 +1124,20 @@ async fn randomize(
 
     let filler_items_json: serde_json::Value =
         serde_json::from_str(&req.filler_items_json.0).unwrap();
+    let semi_filler_items: Vec<Item> = filler_items_json
+        .as_object()
+        .unwrap()
+        .iter()
+        .filter(|(_k, v)| v.as_str().unwrap() == "Semi")
+        .map(|(k, _v)| Item::try_from(app_data.game_data.item_isv.index_by_key[k]).unwrap())
+        .collect();
     let mut filler_items = vec![Item::Missile];
     filler_items.extend(
         filler_items_json
             .as_object()
             .unwrap()
             .iter()
-            .filter(|(_k, v)| v.as_str().unwrap() != "No")
+            .filter(|(_k, v)| v.as_str().unwrap() == "Yes" || v.as_str().unwrap() == "Early")
             .map(|(k, _v)| Item::try_from(app_data.game_data.item_isv.index_by_key[k]).unwrap()),
     );
     let early_filler_items: Vec<Item> = filler_items_json
@@ -1141,6 +1149,7 @@ async fn randomize(
         .collect();
 
     info!("Filler items: {:?}", filler_items);
+    info!("Semi-filler items: {:?}", semi_filler_items);
     info!("Early filler items: {:?}", early_filler_items);
 
     let difficulty = DifficultyConfig {
@@ -1157,6 +1166,7 @@ async fn randomize(
             ),
         },
         filler_items: filler_items,
+        semi_filler_items: semi_filler_items,
         early_filler_items: early_filler_items,
         item_placement_style: match req.item_placement_style.0.as_str() {
             "Neutral" => maprando::randomize::ItemPlacementStyle::Neutral,

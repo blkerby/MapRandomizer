@@ -123,6 +123,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         shine_charge_tiles: 16.0,
         // shine_charge_tiles: 32,
         progression_rate: ProgressionRate::Fast,
+        semi_filler_items: vec![],
         filler_items: vec![Item::Missile],
         early_filler_items: vec![],
         item_placement_style: ItemPlacementStyle::Neutral,

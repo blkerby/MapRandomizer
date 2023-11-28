@@ -270,6 +270,8 @@ function itemProgressionPresetChanged() {
         <% for item in &prioritizable_items { %>
         document.getElementById("fillerItems<%- item %>No").checked = true;
         <% } %>
+        document.getElementById("fillerItemsSuperSemi").checked = true;
+        document.getElementById("fillerItemsPowerBombSemi").checked = true;
     }
 }
 function itemProgressionChanged() {

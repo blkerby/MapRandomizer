@@ -311,6 +311,7 @@ fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
         item_placement_style: crate::randomize::ItemPlacementStyle::Forced,
         item_priorities: vec![],
         filler_items: vec![],
+        semi_filler_items: vec![],
         early_filler_items: vec![],
         resource_multiplier: preset.preset.resource_multiplier,
         escape_timer_multiplier: preset.preset.escape_timer_multiplier,
