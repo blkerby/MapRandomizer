@@ -217,6 +217,7 @@ function itemProgressionPresetChanged() {
         <% } %>
         document.getElementById("itemPriorityETankEarly").checked = true;
         document.getElementById("itemPriorityMorphEarly").checked = true;
+        document.getElementById("itemPrioritySpaceJumpLate").checked = true;
         document.getElementById("itemPriorityScrewAttackLate").checked = true;
         document.getElementById("itemPriorityVariaLate").checked = true;
         document.getElementById("itemPriorityGravityLate").checked = true;
@@ -232,7 +233,6 @@ function itemProgressionPresetChanged() {
         document.getElementById("fillerItemsIceYes").checked = true;
         document.getElementById("fillerItemsWaveYes").checked = true;
         document.getElementById("fillerItemsSpazerYes").checked = true;
-        document.getElementById("fillerItemsPlasmaYes").checked = true;
     }
     if (document.getElementById("itemProgressionPresetTricky").checked) {
         document.getElementById("progressionRateUniform").checked = true;
@@ -241,6 +241,7 @@ function itemProgressionPresetChanged() {
         <% for item in &prioritizable_items { %>
         document.getElementById("itemPriority<%- item %>Default").checked = true;
         <% } %>
+        document.getElementById("itemPrioritySpaceJumpLate").checked = true;
         document.getElementById("itemPriorityScrewAttackLate").checked = true;
         document.getElementById("itemPriorityVariaLate").checked = true;
         document.getElementById("itemPriorityGravityLate").checked = true;
@@ -255,7 +256,6 @@ function itemProgressionPresetChanged() {
         document.getElementById("fillerItemsIceYes").checked = true;
         document.getElementById("fillerItemsWaveYes").checked = true;
         document.getElementById("fillerItemsSpazerYes").checked = true;
-        document.getElementById("fillerItemsPlasmaYes").checked = true;
     }
     if (document.getElementById("itemProgressionPresetChallenge").checked) {
         document.getElementById("progressionRateSlow").checked = true;
@@ -264,6 +264,7 @@ function itemProgressionPresetChanged() {
         <% for item in &prioritizable_items { %>
         document.getElementById("itemPriority<%- item %>Default").checked = true;
         <% } %>
+        document.getElementById("itemPrioritySpaceJumpLate").checked = true;
         document.getElementById("itemPriorityScrewAttackLate").checked = true;
         document.getElementById("itemPriorityVariaLate").checked = true;
         document.getElementById("itemPriorityGravityLate").checked = true;

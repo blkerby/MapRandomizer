@@ -164,13 +164,13 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         "Bombs",
         "Grapple",
         "HiJump",
-        "SpaceJump",
         "SpeedBooster",
         "SpringBall",
         "XRayScope",
+        "SpaceJump",
+        "ScrewAttack",
         "Varia",
         "Gravity",
-        "ScrewAttack",
     ].into_iter().map(|x| x.to_string()).collect();
     let generate_template = GenerateTemplate {
         version_info: app_data.version_info.clone(),

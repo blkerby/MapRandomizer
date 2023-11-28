@@ -32,6 +32,8 @@ document.getElementById("navigation-releases").classList.add("active");
         <li>This makes it more likely to get a mixture of Energy Tank and Reserve Tank items, rather than all of one type.
         </ul>
     </ul>
+<li>"SpaceJump" now has "Late" item priority across all item progression presets.
+<li>Change to "Normal" and "Tricky" item progression preset: "Plasma" is no longer a filler item.
 </ul>
 
 <p><a id="release98">Version 98 (2023-11-28)</a>:
