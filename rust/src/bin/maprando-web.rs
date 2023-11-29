@@ -1379,7 +1379,10 @@ async fn randomize(
             let output_rom_result = make_rom(&rom, &randomization, &app_data.game_data);
             let output_rom = match output_rom_result {
                 Ok(x) => x,
-                Err(_) => continue
+                Err(e) => {
+                    info!("Attempt {attempt_num}/{max_attempts}: {}", e);
+                    continue;
+                }
             };
             info!(
                 "Successful attempt {attempt_num}/{attempt_num}/{max_attempts}: display_seed={}, random_seed={random_seed}, map_seed={map_seed}, door_randomization_seed={door_randomization_seed}, item_placement_seed={item_placement_seed}",
