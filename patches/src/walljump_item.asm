@@ -97,3 +97,24 @@ msg:
 msg_end:
 
 warnpc !bank_85_free_space_end
+
+
+org $909E4B
+    lda $09A2
+    and #$0400
+    bne walljump_enemy_check
+    beq walljump_skip
+warnpc $909E57
+org $909E57
+walljump_enemy_check:
+
+org $909E6C
+    lda $09A2
+    and #$0400
+    bne walljump_block_check
+    beq walljump_skip
+warnpc $909E78
+org $909E78
+walljump_block_check:
+org $909E88
+walljump_skip:
