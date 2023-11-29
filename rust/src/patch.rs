@@ -1877,6 +1877,7 @@ impl<'a> Patcher<'a> {
             5 => 4,
             6 => 5,
             7 => 6,
+            0xf => 7,
             y => y,
         }));
         let frames: [[[u8; 16]; 16]; 2] = [frame_1, frame_2];
