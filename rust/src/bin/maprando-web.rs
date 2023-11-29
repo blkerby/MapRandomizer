@@ -167,6 +167,7 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         "SpeedBooster",
         "SpringBall",
         "XRayScope",
+        "WallJump",
         "SpaceJump",
         "ScrewAttack",
         "Varia",

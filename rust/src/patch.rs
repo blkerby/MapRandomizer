@@ -181,79 +181,80 @@ fn item_to_plm_type(item: Item, orig_plm_type: isize) -> isize {
     // Item container: 0 = none, 1 = chozo orb, 2 = shot block (scenery)
     let item_container = (orig_plm_type - 0xEED7) / 84;
 
-    let plm_table: [[isize; 21]; 3] = [[0xF600; 21]; 3];
-
-    // let plm_table: [[isize; 21]; 3] = [
-    //     [
-    //         0xEED7, // Energy tank
-    //         0xEEDB, // Missile tank
-    //         0xEEDF, // Super missile tank
-    //         0xEEE3, // Power bomb tank
-    //         0xEEE7, // Bombs
-    //         0xEEEB, // Charge beam
-    //         0xEEEF, // Ice beam
-    //         0xEEF3, // Hi-jump
-    //         0xEEF7, // Speed booster
-    //         0xEEFB, // Wave beam
-    //         0xEEFF, // Spazer beam
-    //         0xEF03, // Spring ball
-    //         0xEF07, // Varia suit
-    //         0xEF0B, // Gravity suit
-    //         0xEF0F, // X-ray scope
-    //         0xEF13, // Plasma beam
-    //         0xEF17, // Grapple beam
-    //         0xEF1B, // Space jump
-    //         0xEF1F, // Screw attack
-    //         0xEF23, // Morph ball
-    //         0xEF27, // Reserve tank            
-    //     ],
-    //     [
-    //         0xEF2B, // Energy tank, chozo orb
-    //         0xEF2F, // Missile tank, chozo orb
-    //         0xEF33, // Super missile tank, chozo orb
-    //         0xEF37, // Power bomb tank, chozo orb
-    //         0xEF3B, // Bombs, chozo orb
-    //         0xEF3F, // Charge beam, chozo orb
-    //         0xEF43, // Ice beam, chozo orb
-    //         0xEF47, // Hi-jump, chozo orb
-    //         0xEF4B, // Speed booster, chozo orb
-    //         0xEF4F, // Wave beam, chozo orb
-    //         0xEF53, // Spazer beam, chozo orb
-    //         0xEF57, // Spring ball, chozo orb
-    //         0xEF5B, // Varia suit, chozo orb
-    //         0xEF5F, // Gravity suit, chozo orb
-    //         0xEF63, // X-ray scope, chozo orb
-    //         0xEF67, // Plasma beam, chozo orb
-    //         0xEF6B, // Grapple beam, chozo orb
-    //         0xEF6F, // Space jump, chozo orb
-    //         0xEF73, // Screw attack, chozo orb
-    //         0xEF77, // Morph ball, chozo orb
-    //         0xEF7B, // Reserve tank, chozo orb            
-    //     ],
-    //     [
-    //         0xEF7F, // Energy tank, shot block
-    //         0xEF83, // Missile tank, shot block
-    //         0xEF87, // Super missile tank, shot block
-    //         0xEF8B, // Power bomb tank, shot block
-    //         0xEF8F, // Bombs, shot block
-    //         0xEF93, // Charge beam, shot block
-    //         0xEF97, // Ice beam, shot block
-    //         0xEF9B, // Hi-jump, shot block
-    //         0xEF9F, // Speed booster, shot block
-    //         0xEFA3, // Wave beam, shot block
-    //         0xEFA7, // Spazer beam, shot block
-    //         0xEFAB, // Spring ball, shot block
-    //         0xEFAF, // Varia suit, shot block
-    //         0xEFB3, // Gravity suit, shot block
-    //         0xEFB7, // X-ray scope, shot block
-    //         0xEFBB, // Plasma beam, shot block
-    //         0xEFBF, // Grapple beam, shot block
-    //         0xEFC3, // Space jump, shot block
-    //         0xEFC7, // Screw attack, shot block
-    //         0xEFCB, // Morph ball, shot block
-    //         0xEFCF, // Reserve tank, shot block            
-    //     ]
-    // ];
+    let plm_table: [[isize; 22]; 3] = [
+        [
+            0xEED7, // Energy tank
+            0xEEDB, // Missile tank
+            0xEEDF, // Super missile tank
+            0xEEE3, // Power bomb tank
+            0xEEE7, // Bombs
+            0xEEEB, // Charge beam
+            0xEEEF, // Ice beam
+            0xEEF3, // Hi-jump
+            0xEEF7, // Speed booster
+            0xEEFB, // Wave beam
+            0xEEFF, // Spazer beam
+            0xEF03, // Spring ball
+            0xEF07, // Varia suit
+            0xEF0B, // Gravity suit
+            0xEF0F, // X-ray scope
+            0xEF13, // Plasma beam
+            0xEF17, // Grapple beam
+            0xEF1B, // Space jump
+            0xEF1F, // Screw attack
+            0xEF23, // Morph ball
+            0xEF27, // Reserve tank   
+            0xF600, // Wall-jump boots         
+        ],
+        [
+            0xEF2B, // Energy tank, chozo orb
+            0xEF2F, // Missile tank, chozo orb
+            0xEF33, // Super missile tank, chozo orb
+            0xEF37, // Power bomb tank, chozo orb
+            0xEF3B, // Bombs, chozo orb
+            0xEF3F, // Charge beam, chozo orb
+            0xEF43, // Ice beam, chozo orb
+            0xEF47, // Hi-jump, chozo orb
+            0xEF4B, // Speed booster, chozo orb
+            0xEF4F, // Wave beam, chozo orb
+            0xEF53, // Spazer beam, chozo orb
+            0xEF57, // Spring ball, chozo orb
+            0xEF5B, // Varia suit, chozo orb
+            0xEF5F, // Gravity suit, chozo orb
+            0xEF63, // X-ray scope, chozo orb
+            0xEF67, // Plasma beam, chozo orb
+            0xEF6B, // Grapple beam, chozo orb
+            0xEF6F, // Space jump, chozo orb
+            0xEF73, // Screw attack, chozo orb
+            0xEF77, // Morph ball, chozo orb
+            0xEF7B, // Reserve tank, chozo orb            
+            0xF600, // Wall-jump boots (TODO: use chozo orb version)    
+        ],
+        [
+            0xEF7F, // Energy tank, shot block
+            0xEF83, // Missile tank, shot block
+            0xEF87, // Super missile tank, shot block
+            0xEF8B, // Power bomb tank, shot block
+            0xEF8F, // Bombs, shot block
+            0xEF93, // Charge beam, shot block
+            0xEF97, // Ice beam, shot block
+            0xEF9B, // Hi-jump, shot block
+            0xEF9F, // Speed booster, shot block
+            0xEFA3, // Wave beam, shot block
+            0xEFA7, // Spazer beam, shot block
+            0xEFAB, // Spring ball, shot block
+            0xEFAF, // Varia suit, shot block
+            0xEFB3, // Gravity suit, shot block
+            0xEFB7, // X-ray scope, shot block
+            0xEFBB, // Plasma beam, shot block
+            0xEFBF, // Grapple beam, shot block
+            0xEFC3, // Space jump, shot block
+            0xEFC7, // Screw attack, shot block
+            0xEFCB, // Morph ball, shot block
+            0xEFCF, // Reserve tank, shot block            
+            0xF600, // Wall-jump boots         
+        ]
+    ];
     
     plm_table[item_container as usize][item_id as usize]
 }
@@ -1568,6 +1569,7 @@ impl<'a> Patcher<'a> {
             ("ScrewAttack", "Screw Attack"),
             ("Morph", "Morph Ball"),
             ("ReserveTank", "Reserve Tank"),
+            ("WallJump", "WallJump Boots"),
         ]
         .into_iter()
         .map(|(x, y)| (x.to_string(), y.to_string()))

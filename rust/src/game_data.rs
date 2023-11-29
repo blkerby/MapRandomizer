@@ -94,6 +94,7 @@ pub enum Item {
     ScrewAttack,  // 18
     Morph,        // 19
     ReserveTank,  // 20
+    WallJump,     // 21
 }
 
 impl Item {
@@ -1024,6 +1025,7 @@ impl GameData {
         for item_name in Item::VARIANTS {
             self.item_isv.add(&item_name.to_string());
         }
+        self.item_isv.add("WallJump");
         ensure!(item_json["gameFlags"].is_array());
         for flag_name in item_json["gameFlags"].members() {
             self.flag_isv.add(flag_name.as_str().unwrap());

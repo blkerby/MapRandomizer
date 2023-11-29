@@ -5,12 +5,13 @@ v100:
     - DONE: message box (bank $85))
     - DONE: make walljump activation be conditional on the item being collected
     - PLM instruction list, etc. (bank $84)
-  - add WallJump collectible option
-    - make applying the patch be conditional on the setting
-  - add WallJump to item list, for item progression options
+      - make separate instruction lists for chozo/scenery PLMs
+  - DONE: add WallJump collectible option
+    - DONE: make applying the patch be conditional on the setting
+  - DONE: add WallJump to item list, for item progression options
   - integrate into logic: replace canWalljump with item requirement
   - add to stats/credits
-  - add to spoiler map icons
+  - DONE: add to spoiler map icons
 
 v99:
 - ETank/Reserve item progression settings:

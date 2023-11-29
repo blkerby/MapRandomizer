@@ -2144,11 +2144,16 @@ impl<'r> Randomizer<'r> {
         }
 
         let mut initial_items_remaining: Vec<usize> = vec![1; game_data.item_isv.keys.len()];
+        initial_items_remaining[Item::WallJump as usize] = 0;
         initial_items_remaining[Item::Missile as usize] = 46;
         initial_items_remaining[Item::Super as usize] = 10;
         initial_items_remaining[Item::PowerBomb as usize] = 10;
         initial_items_remaining[Item::ETank as usize] = 14;
         initial_items_remaining[Item::ReserveTank as usize] = 4;
+        if difficulty_tiers[0].wall_jump == WallJump::Collectible {
+            initial_items_remaining[Item::Missile as usize] -= 1;
+            initial_items_remaining[Item::WallJump as usize] = 1;
+        }
         assert!(initial_items_remaining.iter().sum::<usize>() == game_data.item_locations.len());
 
         Randomizer {
