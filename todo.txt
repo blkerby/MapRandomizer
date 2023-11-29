@@ -1,11 +1,14 @@
 v100:
 - walljump boots:
   - ROM patch:
-    - PLM graphics: $899100?
+    - DONE: PLM graphics: $899100?
+    - DONE: message box (bank $85))
     - PLM instruction list, etc. (bank $84)
-    - message box (bank $85))
     - make walljump activation be conditional on the item being collected
-  - add to item list, for item progression options
+  - add WallJump collectible option
+    - make applying the patch be conditional on the setting
+  - add WallJump to item list, for item progression options
+  - integrate into logic: replace canWalljump with item requirement
   - add to stats/credits
   - add to spoiler map icons
 
