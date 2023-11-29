@@ -8,7 +8,9 @@ lorom
 org !bank_84_free_space_start
 
 ; These PLM entries must be at an address matching what is in `patch.rs`, starting here at $84F600
-dw $EE64, inst    ; PLM $F600 (wall-jump boots)
+dw $EE64, inst        ; PLM $F600 (wall-jump boots)
+dw $EE64, inst_orb    ; PLM $F604 (wall-jump boots, chozo orb)
+dw $EE8E, inst_sce    ; PLM $F608 (wall-jump boots, scenery shot block)
 
 ;;; Instruction list - PLM $F600 (wall-jump boots)
 inst:
@@ -29,6 +31,61 @@ inst:
     db $1E
 .end
     dw $8724, $DFA9                        ; Go to $DFA9
+
+
+;;; Instruction list - PLM $F604 (wall-jump boots, chozo orb)
+inst_orb:
+    dw $8764, $9100                        ; Load item PLM GFX
+    db $01, $01, $01, $01, $01, $01, $01, $01
+    dw $887C, .end                         ; Go to end if the room argument item is set
+    dw $8A2E, $DFAF                        ; Call $DFAF (item orb)
+    dw $8A2E, $DFC7                        ; Call $DFC7 (item orb burst)
+    dw $8A24, .triggered                   ; Set link instruction for when triggered
+    dw $86C1, $DF89                        ; Pre-instruction = go to link instruction if triggered
+    dw $874E                               ; Timer = 16h
+    db $16
+.animate:
+    dw $E04F                               ; Draw item frame 0
+    dw $E067                               ; Draw item frame 1
+    dw $8724, .animate                     ; Go to $E1FD
+.triggered:
+    dw $8899                               ; Set the room argument item
+    dw MISCFX                              ; Queue item sound (landing/walljump sound)
+    db $04                            
+    dw $88F3, $0400                        ; Pick up equipment $0400 and display message box $1E
+    db $1E
+.end
+    dw $0001, $A2B5
+    dw $86BC                               ; Delete
+
+
+;;; Instruction list - PLM $F608 (wall-jump boots, scenery shot block)
+inst_sce:
+    dw $8764, $9100                        ; Load item PLM GFX
+    db $01, $01, $01, $01, $01, $01, $01, $01
+.start:
+    dw $8A2E, $E007                        ; Call $E007 (item shot block)
+    dw $887C, .end                         ; Go to end if the room argument item is set
+    dw $8A24, .triggered                   ; Set link instruction for when triggered
+    dw $86C1, $DF89                        ; Pre-instruction = go to link instruction if triggered
+    dw $874E                               ; Timer = 16h
+    db $16
+.animate:
+    dw $E04F                               ; Draw item frame 0
+    dw $E067                               ; Draw item frame 1
+    dw $873F, .animate
+    dw $8A2E, $E020                        ; Call $E020 (item shot block reconcealing)
+    dw $8724, .start                       ; Go to start
+.triggered:
+    dw $8899                               ; Set the room argument item
+    dw MISCFX                              ; Queue item sound (landing/walljump sound)
+    db $04                            
+    dw $88F3, $0400                        ; Pick up equipment $0400 and display message box $1E
+    db $1E
+.end
+    dw $8A2E, $E032                        ; Call $E032 (empty item shot block reconcealing)
+    dw $8724, .start
+
 
 ; from itemsounds.asm:
 MISCFX:

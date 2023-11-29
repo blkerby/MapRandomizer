@@ -181,6 +181,8 @@ fn item_to_plm_type(item: Item, orig_plm_type: isize) -> isize {
     // Item container: 0 = none, 1 = chozo orb, 2 = shot block (scenery)
     let item_container = (orig_plm_type - 0xEED7) / 84;
 
+    // let plm_table: [[isize; 22]; 3] = [[0xF608; 22]; 3];
+
     let plm_table: [[isize; 22]; 3] = [
         [
             0xEED7, // Energy tank
@@ -228,7 +230,7 @@ fn item_to_plm_type(item: Item, orig_plm_type: isize) -> isize {
             0xEF73, // Screw attack, chozo orb
             0xEF77, // Morph ball, chozo orb
             0xEF7B, // Reserve tank, chozo orb            
-            0xF600, // Wall-jump boots (TODO: use chozo orb version)    
+            0xF604, // Wall-jump boots, chozo orb
         ],
         [
             0xEF7F, // Energy tank, shot block
@@ -252,7 +254,7 @@ fn item_to_plm_type(item: Item, orig_plm_type: isize) -> isize {
             0xEFC7, // Screw attack, shot block
             0xEFCB, // Morph ball, shot block
             0xEFCF, // Reserve tank, shot block            
-            0xF600, // Wall-jump boots         
+            0xF608, // Wall-jump boots, shot block       
         ]
     ];
     
