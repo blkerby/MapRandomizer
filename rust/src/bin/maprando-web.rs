@@ -22,7 +22,7 @@ use maprando::patch::{make_rom, Rom};
 use maprando::randomize::{
     filter_links, randomize_doors, DebugOptions, DifficultyConfig, DoorsMode, ItemDotChange,
     ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, MotherBrainFight, Objectives,
-    Randomization, Randomizer, SaveAnimals, AreaAssignment, randomize_map_areas,
+    Randomization, Randomizer, SaveAnimals, AreaAssignment, WallJump, randomize_map_areas,
 };
 use maprando::seed_repository::{Seed, SeedFile, SeedRepository};
 use maprando::spoiler_map;
@@ -247,7 +247,7 @@ struct RandomizeRequest {
     save_animals: Text<String>,
     early_save: Text<bool>,
     area_assignment: Text<String>,
-    disable_walljump: Text<bool>,
+    wall_jump: Text<String>,
     maps_revealed: Text<bool>,
     ultra_low_qol: Text<bool>,
 }
@@ -327,7 +327,7 @@ struct SeedData {
     save_animals: String,
     early_save: bool,
     area_assignment: String,
-    disable_walljump: bool,
+    wall_jump: String,
     maps_revealed: bool,
     vanilla_map: bool,
     ultra_low_qol: bool,
@@ -382,7 +382,6 @@ struct SeedHeaderTemplate<'a> {
     save_animals: String,
     early_save: bool,
     area_assignment: String,
-    disable_walljump: bool,
     maps_revealed: bool,
     vanilla_map: bool,
     ultra_low_qol: bool,
@@ -498,7 +497,6 @@ fn render_seed(
         save_animals: seed_data.save_animals.clone(),
         early_save: seed_data.early_save,
         area_assignment: seed_data.area_assignment.clone(),
-        disable_walljump: seed_data.disable_walljump,
         maps_revealed: seed_data.maps_revealed,
         vanilla_map: seed_data.vanilla_map,
         ultra_low_qol: seed_data.ultra_low_qol,
@@ -1034,7 +1032,7 @@ fn get_difficulty_tiers(
             doors_mode: difficulty.doors_mode,
             early_save: difficulty.early_save,
             area_assignment: difficulty.area_assignment,
-            disable_walljump: difficulty.disable_walljump,
+            wall_jump: difficulty.wall_jump,
             maps_revealed: difficulty.maps_revealed,
             vanilla_map: difficulty.vanilla_map,
             ultra_low_qol: difficulty.ultra_low_qol,
@@ -1114,7 +1112,7 @@ async fn randomize(
     let walljump_tech = "canWalljump";
     assert!(tech_json.as_object().unwrap().contains_key(walljump_tech));
     for (tech, is_enabled) in tech_json.as_object().unwrap().iter() {
-        if tech == walljump_tech && req.disable_walljump.0 {
+        if tech == walljump_tech && req.wall_jump.0 == "Disabled" {
             continue;
         }
         if is_enabled.as_bool().unwrap() {
@@ -1272,7 +1270,15 @@ async fn randomize(
             "Random" => AreaAssignment::Random,
             _ => panic!("Unrecognized ship area option: {}", req.area_assignment.0),
         },
-        disable_walljump: req.disable_walljump.0,
+        wall_jump: match req.wall_jump.0.as_str() {
+            "Vanilla" => maprando::randomize::WallJump::Vanilla,
+            "Collectible" => maprando::randomize::WallJump::Collectible,
+            "Disabled" => maprando::randomize::WallJump::Disabled,
+            _ => panic!(
+                "Unrecognized wall_jump setting {}",
+                req.wall_jump.0.as_str()
+            ),
+        },
         maps_revealed: req.maps_revealed.0,
         vanilla_map,
         ultra_low_qol: req.ultra_low_qol.0,
@@ -1453,7 +1459,7 @@ async fn randomize(
         save_animals: req.save_animals.0.clone(),
         early_save: req.early_save.0,
         area_assignment: req.area_assignment.0.clone(),
-        disable_walljump: req.disable_walljump.0,
+        wall_jump: req.wall_jump.0.clone(),
         maps_revealed: req.maps_revealed.0,
         vanilla_map,
         ultra_low_qol: req.ultra_low_qol.0,

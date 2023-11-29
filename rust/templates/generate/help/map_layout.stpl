@@ -30,6 +30,9 @@
         one-way loops (like the Lower Norfair loop in the vanilla map, or even longer).
         </p>
 
+        <p>When using Vanilla map, it is suggested to use "Neutral" item progression (instead of "Forced")
+        since otherwise the location of key items may be overly predictable.</p>        
+
         <h5>Details</h5>
 
         <p>On all settings, the randomizer

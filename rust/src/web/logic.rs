@@ -7,7 +7,7 @@ use sailfish::TemplateOnce;
 use urlencoding;
 
 use crate::game_data::{GameData, Link, NodeId, Requirement, RoomId};
-use crate::randomize::{DebugOptions, DifficultyConfig, SaveAnimals, AreaAssignment};
+use crate::randomize::{DebugOptions, DifficultyConfig, SaveAnimals, AreaAssignment, WallJump};
 use crate::traverse::{apply_requirement, GlobalState, LocalState};
 use crate::web::VERSION;
 
@@ -346,7 +346,7 @@ fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
         randomized_start: false,
         early_save: false,
         area_assignment: AreaAssignment::Standard,
-        disable_walljump: false,
+        wall_jump: WallJump::Vanilla,
         maps_revealed: false,
         vanilla_map: false,
         ultra_low_qol: false,

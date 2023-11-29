@@ -302,7 +302,9 @@ function initializeSpoilerToken() {
     document.getElementById("spoilerToken").value = localStorage["spoilerToken"];
 }
 function checkOtherOptions() {
-    if (document.getElementById("areaAssignmentRandom").checked ||
+    if (document.getElementById("wallJumpCollectible").checked ||
+        document.getElementById("wallJumpDisabled").checked ||
+        document.getElementById("areaAssignmentRandom").checked ||
         document.getElementById("itemDotChangeDisappear").checked ||
         document.getElementById("transitionLettersYes").checked ||
         document.getElementById("disableWallJumpYes").checked ||

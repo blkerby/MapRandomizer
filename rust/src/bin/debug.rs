@@ -4,7 +4,7 @@ use maprando::{
     game_data::{GameData, Item, Requirement},
     randomize::{
         DifficultyConfig, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, MotherBrainFight,
-        Objectives, ProgressionRate, ItemDotChange, DoorsMode, SaveAnimals, AreaAssignment,
+        Objectives, ProgressionRate, ItemDotChange, DoorsMode, SaveAnimals, AreaAssignment, WallJump,
     },
     traverse::{apply_requirement, GlobalState, LocalState},
 };
@@ -137,7 +137,7 @@ fn main() -> Result<()> {
         save_animals: SaveAnimals::No,
         early_save: false,
         area_assignment: AreaAssignment::Standard,
-        disable_walljump: false,
+        wall_jump: WallJump::Vanilla,
         maps_revealed: false,
         vanilla_map: false,
         ultra_low_qol: false,

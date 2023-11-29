@@ -80,6 +80,13 @@ pub enum AreaAssignment {
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
+pub enum WallJump {
+    Vanilla,
+    Collectible,
+    Disabled,
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
 pub enum SaveAnimals {
     No,
     Maybe,
@@ -152,7 +159,7 @@ pub struct DifficultyConfig {
     pub save_animals: SaveAnimals,
     pub early_save: bool,
     pub area_assignment: AreaAssignment,
-    pub disable_walljump: bool,
+    pub wall_jump: WallJump,
     pub maps_revealed: bool,
     pub vanilla_map: bool,
     pub ultra_low_qol: bool,

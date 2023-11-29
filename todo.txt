@@ -3,8 +3,8 @@ v100:
   - ROM patch:
     - DONE: PLM graphics: $899100?
     - DONE: message box (bank $85))
+    - DONE: make walljump activation be conditional on the item being collected
     - PLM instruction list, etc. (bank $84)
-    - make walljump activation be conditional on the item being collected
   - add WallJump collectible option
     - make applying the patch be conditional on the setting
   - add WallJump to item list, for item progression options

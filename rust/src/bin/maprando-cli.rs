@@ -177,7 +177,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         save_animals: SaveAnimals::No,
         area_assignment: AreaAssignment::Standard,
         early_save: false,
-        disable_walljump: false,
+        wall_jump: maprando::randomize::WallJump::Collectible,
         maps_revealed: true,
         vanilla_map: false,
         ultra_low_qol: false,
