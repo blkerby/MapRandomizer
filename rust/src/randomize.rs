@@ -1005,7 +1005,8 @@ impl<'a> Preprocessor<'a> {
                         ),
                         req,
                     ]));
-                } else if let Some(req) = self.get_come_in_shinecharging_reqs(
+                }
+                if let Some(req) = self.get_come_in_shinecharging_reqs(
                     exit_link,
                     exit_condition,
                     *effective_runway_length - 14.0,
