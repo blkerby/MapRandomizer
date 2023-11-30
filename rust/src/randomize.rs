@@ -160,6 +160,7 @@ pub struct DifficultyConfig {
     pub early_save: bool,
     pub area_assignment: AreaAssignment,
     pub wall_jump: WallJump,
+    pub disable_etank_refill: bool,
     pub maps_revealed: bool,
     pub vanilla_map: bool,
     pub ultra_low_qol: bool,

@@ -84,6 +84,9 @@
             }
             _ => {}
         }
+        if disable_etank_refill {
+            game_variations.push("E-Tank refill disabled");
+        }
         if maps_revealed {
             game_variations.push("Maps revealed from start");
         }

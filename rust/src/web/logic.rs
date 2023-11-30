@@ -347,6 +347,7 @@ fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
         early_save: false,
         area_assignment: AreaAssignment::Standard,
         wall_jump: WallJump::Vanilla,
+        disable_etank_refill: false,
         maps_revealed: false,
         vanilla_map: false,
         ultra_low_qol: false,

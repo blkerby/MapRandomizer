@@ -466,6 +466,10 @@ impl<'a> Patcher<'a> {
             patches.push("zebes_asleep_music");
         }
 
+        if self.randomization.difficulty.disable_etank_refill {
+            patches.push("disable_etank_refill");
+        }
+
         for patch_name in patches {
             let patch_path = patches_dir.join(patch_name.to_string() + ".ips");
             apply_ips_patch(&mut self.rom, &patch_path)?;
