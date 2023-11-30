@@ -14,7 +14,15 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release98">Version 99 (2023-11-29)</a>:
+<p><a id="release100">Version 100 (2023-11-29)</a>:
+<ul>
+<li>New "Wall jump" option "Collectible" (under "Other options").
+    <ul>
+    <li>When enabled, a "Wall-jump boots" item is placed, and wall jumping is possible only after collecting it.
+    </ul>
+</ul>
+
+<p><a id="release99">Version 99 (2023-11-29)</a>:
 <ul>
 <li>Changes to item progression logic relating to Energy Tanks and Reserve Tanks:
     <ul>
