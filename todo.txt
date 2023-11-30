@@ -10,8 +10,10 @@ v100:
     - DONE: make applying the patch be conditional on the setting
   - DONE: add WallJump to item list, for item progression options
   - DONE: integrate into logic: replace canWalljump with item requirement
-  - add to stats/credits
+  - DONE: add to stats/credits
   - DONE: add to spoiler map icons
+- fix some issue with logic:
+  - Precious Room Delayed Walljump is Extreme for some reason.
 
 v99:
 - ETank/Reserve item progression settings:
