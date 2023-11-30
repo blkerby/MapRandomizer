@@ -1,9 +1,13 @@
 lorom
 
+incsrc "constants.asm"
+
 !bank_84_free_space_start = $84F600
 !bank_84_free_space_end = $84F700
 !bank_85_free_space_start = $8596B0
 !bank_85_free_space_end = $859800
+
+!idx_WallJump = #$0015
 
 org !bank_84_free_space_start
 
@@ -27,7 +31,7 @@ inst:
     dw $8899                               ; Set the room argument item
     dw MISCFX                              ; Queue item sound (landing/walljump sound)
     db $04                            
-    dw $88F3, $0400                        ; Pick up equipment $0400 and display message box $1E
+    dw collect_WallJump, $0400             ; Pick up equipment $0400 and display message box $1E
     db $1E
 .end
     dw $8724, $DFA9                        ; Go to $DFA9
@@ -52,7 +56,7 @@ inst_orb:
     dw $8899                               ; Set the room argument item
     dw MISCFX                              ; Queue item sound (landing/walljump sound)
     db $04                            
-    dw $88F3, $0400                        ; Pick up equipment $0400 and display message box $1E
+    dw collect_WallJump, $0400                        ; Pick up equipment $0400 and display message box $1E
     db $1E
 .end
     dw $0001, $A2B5
@@ -80,7 +84,7 @@ inst_sce:
     dw $8899                               ; Set the room argument item
     dw MISCFX                              ; Queue item sound (landing/walljump sound)
     db $04                            
-    dw $88F3, $0400                        ; Pick up equipment $0400 and display message box $1E
+    dw collect_WallJump, $0400                        ; Pick up equipment $0400 and display message box $1E
     db $1E
 .end
     dw $8A2E, $E032                        ; Call $E032 (empty item shot block reconcealing)
@@ -95,6 +99,34 @@ MISCFX:
 	INY
 	JSL $80914D
 	RTS
+
+; from stats.asm:
+collect_item:
+    phx
+    asl
+    asl
+    tax
+
+    ; check if we have already collected one of this type of item (do not overwrite the collection time in this case):
+    lda !stat_item_collection_times, x
+    bne .skip
+    lda !stat_item_collection_times+2, x
+    bne .skip
+
+    ; record the collection time
+    lda !stat_timer
+    sta !stat_item_collection_times, x
+    lda !stat_timer+2
+    sta !stat_item_collection_times+2, x
+
+.skip:
+    plx
+    rts
+
+collect_WallJump:
+    lda !idx_WallJump
+    jsr collect_item
+    jmp $88F3
 
 warnpc !bank_84_free_space_end
 
