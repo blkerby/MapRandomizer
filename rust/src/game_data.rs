@@ -747,8 +747,8 @@ fn parse_entrance_condition(entrance_json: &JsonValue, heated: bool) -> Result<E
                 morphed,
                 mobility,
             })
-        },
-        "comeInWithStoredFallSpeed" => Ok(EntranceCondition::ComeInWithStoredFallSpeed { 
+        }
+        "comeInWithStoredFallSpeed" => Ok(EntranceCondition::ComeInWithStoredFallSpeed {
             fall_speed_in_tiles: value["fallSpeedInTiles"]
                 .as_i32()
                 .context("Expecting integer 'fallSpeedInTiles")?,
@@ -3020,15 +3020,17 @@ impl GameData {
         weapon_mask
     }
 
-    fn load_escape_timings(&mut self, escape_timings_path: &Path) -> Result<()> {
-        let escape_timings_str = std::fs::read_to_string(escape_timings_path)?;
+    fn load_escape_timings(&mut self, path: &Path) -> Result<()> {
+        let escape_timings_str = std::fs::read_to_string(path)
+            .with_context(|| format!("Unable to load escape timings at {}", path.display()))?;
         self.escape_timings = serde_json::from_str(&escape_timings_str)?;
         assert_eq!(self.escape_timings.len(), self.room_geometry.len());
         Ok(())
     }
 
     fn load_start_locations(&mut self, path: &Path) -> Result<()> {
-        let start_locations_str = std::fs::read_to_string(path)?;
+        let start_locations_str = std::fs::read_to_string(path)
+            .with_context(|| format!("Unable to load start locations at {}", path.display()))?;
         let mut start_locations: Vec<StartLocation> = serde_json::from_str(&start_locations_str)?;
         for loc in &mut start_locations {
             if loc.requires.is_none() {
@@ -3058,7 +3060,8 @@ impl GameData {
     }
 
     fn load_hub_locations(&mut self, path: &Path) -> Result<()> {
-        let hub_locations_str = std::fs::read_to_string(path)?;
+        let hub_locations_str = std::fs::read_to_string(path)
+            .with_context(|| format!("Unable to load hub locations at {}", path.display()))?;
         let mut hub_locations: Vec<HubLocation> = serde_json::from_str(&hub_locations_str)?;
         for loc in &mut hub_locations {
             if loc.requires.is_none() {
@@ -3080,8 +3083,9 @@ impl GameData {
         Ok(())
     }
 
-    fn load_room_geometry(&mut self, room_geometry_path: &Path) -> Result<()> {
-        let room_geometry_str = std::fs::read_to_string(room_geometry_path)?;
+    fn load_room_geometry(&mut self, path: &Path) -> Result<()> {
+        let room_geometry_str = std::fs::read_to_string(path)
+            .with_context(|| format!("Unable to load room geometry at {}", path.display()))?;
         self.room_geometry = serde_json::from_str(&room_geometry_str)?;
         for (room_idx, room) in self.room_geometry.iter().enumerate() {
             self.room_idx_by_name.insert(room.name.clone(), room_idx);
@@ -3171,7 +3175,10 @@ impl GameData {
         {
             let sce_path = base_path.join(area).join("Export/Tileset/SCE");
             let mut pal_map: HashMap<TilesetIdx, ThemedPaletteTileset> = HashMap::new();
-            for tileset_dir in std::fs::read_dir(sce_path)? {
+            let tilesets_it = std::fs::read_dir(&sce_path).with_context(|| {
+                format!("Unable to read Mosaic tilesets at {}", sce_path.display())
+            })?;
+            for tileset_dir in tilesets_it {
                 let tileset_dir = tileset_dir?;
                 let tileset_idx =
                     usize::from_str_radix(tileset_dir.file_name().to_str().unwrap(), 16)?;
@@ -3183,14 +3190,26 @@ impl GameData {
                 }
                 let tileset_path = tileset_dir.path();
                 let palette_path = tileset_path.join("palette.snes");
-                let palette_bytes = std::fs::read(palette_path)?;
+                let palette_bytes = std::fs::read(&palette_path).with_context(|| {
+                    format!(
+                        "Unable to load Mosaic palette at {}",
+                        palette_path.display()
+                    )
+                })?;
                 let palette = decode_palette(&palette_bytes);
 
                 let gfx8x8_path = tileset_path.join("8x8tiles.gfx");
-                let gfx8x8_bytes = std::fs::read(gfx8x8_path)?;
+                let gfx8x8_bytes = std::fs::read(&gfx8x8_path).with_context(|| {
+                    format!("Unable to load Mosaic 8x8 gfx at {}", gfx8x8_path.display())
+                })?;
 
                 let gfx16x16_path = tileset_path.join("16x16tiles.ttb");
-                let gfx16x16_bytes = std::fs::read(gfx16x16_path)?;
+                let gfx16x16_bytes = std::fs::read(&gfx16x16_path).with_context(|| {
+                    format!(
+                        "Unable to load Mosaic 16x16 gfx at {}",
+                        gfx16x16_path.display()
+                    )
+                })?;
 
                 pal_map.insert(
                     tileset_idx,
@@ -3265,8 +3284,11 @@ impl GameData {
             LinksDataGroup::new(self.base_links.clone(), self.vertex_isv.keys.len(), 0);
     }
 
-    pub fn load_title_screens(&mut self, title_screen_path: &Path) -> Result<()> {
-        for file in title_screen_path.read_dir()? {
+    pub fn load_title_screens(&mut self, path: &Path) -> Result<()> {
+        let file_it = path
+            .read_dir()
+            .with_context(|| format!("Unable to read title screen directory at {}", path.display()))?;
+        for file in file_it {
             let file = file?;
             let filename = file.file_name().into_string().unwrap();
             let img = read_image(&file.path())?;

@@ -12,8 +12,12 @@ static COMPRESSED_LOOKUP_PATH: &'static str = "../compressed_data";
 fn compress_lookup(data: &[u8], name: &str) -> Result<Vec<u8>> {
     let digest = crypto_hash::hex_digest(crypto_hash::Algorithm::SHA256, &data);
     let path = Path::new(COMPRESSED_LOOKUP_PATH).join(digest);
-    let data =
-        std::fs::read(path).with_context(|| format!("Unable to read compressed data for {}. Need to re-run compress-retiling?", name))?;
+    let data = std::fs::read(path).with_context(|| {
+        format!(
+            "Unable to read compressed data for {}. Need to re-run compress-retiling?",
+            name
+        )
+    })?;
     Ok(data)
 }
 
@@ -160,20 +164,26 @@ pub fn extract_uncompressed_level_data(state_xml: &smart_xml::RoomState) -> Vec<
 }
 
 fn make_fx1(fx1: &smart_xml::FX1) -> FX1 {
-    FX1 { 
-        fx1_reference: None, 
-        fx1_door: if fx1.default { None } else { Some(FX1Door {
-            room_area: fx1.roomarea,
-            room_index: fx1.roomindex,
-            door_index: fx1.fromdoor,
-        })}, 
-        fx1_data: fx1.clone() 
+    FX1 {
+        fx1_reference: None,
+        fx1_door: if fx1.default {
+            None
+        } else {
+            Some(FX1Door {
+                room_area: fx1.roomarea,
+                room_index: fx1.roomindex,
+                door_index: fx1.fromdoor,
+            })
+        },
+        fx1_data: fx1.clone(),
     }
 }
 
 fn load_room(room_path: &Path) -> Result<RetiledRoom> {
-    let room_str = std::fs::read_to_string(room_path)?;
-    let room: smart_xml::Room = serde_xml_rs::from_str(room_str.as_str()).unwrap();
+    let room_str = std::fs::read_to_string(room_path)
+        .with_context(|| format!("Unable to load room at {}", room_path.display()))?;
+    let room: smart_xml::Room = serde_xml_rs::from_str(room_str.as_str())
+        .with_context(|| format!("Unable to parse XML in {}", room_path.display()))?;
     let mut states: Vec<RetiledRoomState> = vec![];
     for state_xml in &room.states.state {
         let level_data = extract_uncompressed_level_data(state_xml);
@@ -204,8 +214,9 @@ fn load_room(room_path: &Path) -> Result<RetiledRoom> {
 fn load_all_rooms(project_path: &Path) -> Result<Vec<RetiledRoom>> {
     let rooms_dir_path = project_path.join("Export/Rooms/");
     let mut out = vec![];
-
-    for room_file_path in std::fs::read_dir(rooms_dir_path)? {
+    let room_it = std::fs::read_dir(&rooms_dir_path)
+        .with_context(|| format!("Unable to list rooms at {}", rooms_dir_path.display()))?;
+    for room_file_path in room_it {
         let room_file_path = room_file_path?;
         out.push(load_room(&room_file_path.path())?);
     }
@@ -216,11 +227,17 @@ fn load_cre_tileset(mosaic_path: &Path) -> Result<RetiledCRETileset> {
     let tileset_path = mosaic_path.join("Projects/Base/Export/Tileset/CRE/00/");
 
     let gfx8x8_path = tileset_path.join("8x8tiles.gfx");
-    let gfx8x8_bytes = std::fs::read(&gfx8x8_path)?;
+    let gfx8x8_bytes = std::fs::read(&gfx8x8_path)
+        .with_context(|| format!("Unable to load CRE 8x8 gfx at {}", gfx8x8_path.display()))?;
     let compressed_gfx8x8 = compress_lookup(&gfx8x8_bytes, gfx8x8_path.to_str().unwrap())?;
 
     let gfx16x16_path = tileset_path.join("16x16tiles.ttb");
-    let gfx16x16_bytes = std::fs::read(&gfx16x16_path)?;
+    let gfx16x16_bytes = std::fs::read(&gfx16x16_path).with_context(|| {
+        format!(
+            "Unable to load CRE 16x16 gfx at {}",
+            gfx16x16_path.display()
+        )
+    })?;
     let compressed_gfx16x16 = compress_lookup(&gfx16x16_bytes, gfx16x16_path.to_str().unwrap())?;
 
     Ok(RetiledCRETileset {
@@ -232,23 +249,28 @@ fn load_cre_tileset(mosaic_path: &Path) -> Result<RetiledCRETileset> {
 fn load_all_sce_tilesets(project_path: &Path) -> Result<HashMap<usize, RetiledSCETileset>> {
     let tilesets_path = project_path.join("Export/Tileset/SCE");
     let mut out = HashMap::new();
-
-    for tileset_dir in std::fs::read_dir(tilesets_path)? {
+    let tileset_it = std::fs::read_dir(&tilesets_path)
+        .with_context(|| format!("Unable to list tilesets at {}", tilesets_path.display()))?;
+    for tileset_dir in tileset_it {
         let tileset_dir = tileset_dir?;
         let tileset_idx = usize::from_str_radix(tileset_dir.file_name().to_str().unwrap(), 16)?;
         let tileset_path = tileset_dir.path();
 
         let palette_path = tileset_path.join("palette.snes");
-        let palette_bytes = std::fs::read(&palette_path)?;
+        let palette_bytes = std::fs::read(&palette_path)
+            .with_context(|| format!("Unable to read palette at {}", palette_path.display()))?;
         let compressed_palette = compress_lookup(&palette_bytes, palette_path.to_str().unwrap())?;
 
         let gfx8x8_path = tileset_path.join("8x8tiles.gfx");
-        let gfx8x8_bytes = std::fs::read(&gfx8x8_path)?;
+        let gfx8x8_bytes = std::fs::read(&gfx8x8_path)
+            .with_context(|| format!("Unable to read 8x8 gfx at {}", gfx8x8_path.display()))?;
         let compressed_gfx8x8 = compress_lookup(&gfx8x8_bytes, gfx8x8_path.to_str().unwrap())?;
 
         let gfx16x16_path = tileset_path.join("16x16tiles.ttb");
-        let gfx16x16_bytes = std::fs::read(&gfx16x16_path)?;
-        let compressed_gfx16x16 = compress_lookup(&gfx16x16_bytes, gfx16x16_path.to_str().unwrap())?;
+        let gfx16x16_bytes = std::fs::read(&gfx16x16_path)
+            .with_context(|| format!("Unable to read 16x16 gfx at {}", gfx16x16_path.display()))?;
+        let compressed_gfx16x16 =
+            compress_lookup(&gfx16x16_bytes, gfx16x16_path.to_str().unwrap())?;
 
         let tileset = RetiledSCETileset {
             compressed_palette,
@@ -319,7 +341,7 @@ fn make_fx_mapping(base_theme: &RetiledTheme) -> HashMap<FX1Door, FX1Reference> 
                             state_index: i,
                             fx_index: j,
                         },
-                    );    
+                    );
                 }
             }
         }
@@ -327,10 +349,7 @@ fn make_fx_mapping(base_theme: &RetiledTheme) -> HashMap<FX1Door, FX1Reference> 
     out
 }
 
-fn resolve_fx_references(
-    theme: &mut RetiledTheme,
-    fx_mapping: &HashMap<FX1Door, FX1Reference>,
-) {
+fn resolve_fx_references(theme: &mut RetiledTheme, fx_mapping: &HashMap<FX1Door, FX1Reference>) {
     for room in &mut theme.rooms {
         for (i, state) in (&mut room.states).iter_mut().enumerate() {
             for (j, fx) in state.fx1.iter_mut().enumerate() {
@@ -340,7 +359,10 @@ fn resolve_fx_references(
                     if let Some(fx_ref) = r {
                         fx.fx1_reference = Some(fx_ref.clone());
                     } else {
-                        panic!("Unrecognized FX door in room {}, state {}, FX {}", room.path, i, j);
+                        panic!(
+                            "Unrecognized FX door in room {}, state {}, FX {}",
+                            room.path, i, j
+                        );
                     }
                 }
             }
@@ -350,7 +372,13 @@ fn resolve_fx_references(
 
 pub fn load_theme_data(mosaic_path: &Path) -> Result<RetiledThemeData> {
     let cre_tileset = load_cre_tileset(mosaic_path)?;
-    let theme_names = ["Base", "OuterCrateria", "InnerCrateria", "GreenBrinstar", "UpperNorfair"];
+    let theme_names = [
+        "Base",
+        "OuterCrateria",
+        "InnerCrateria",
+        "GreenBrinstar",
+        "UpperNorfair",
+    ];
     let mut themes = HashMap::new();
     for name in theme_names {
         themes.insert(name.to_string(), load_theme(mosaic_path, name)?);
