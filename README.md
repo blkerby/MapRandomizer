@@ -4,11 +4,21 @@ This is the repository for the [Super Metroid Map Rando](https://maprando.com) p
 
 ## Development
 
-If you are interested in contributing, feel free to reach out on the [Discord](https://discord.gg/Gc99YV2ZcB). There are a few ways to run the randomizer for development:
+If you are interested in contributing, feel free to reach out on the [Discord](https://discord.gg/Gc99YV2ZcB). There are a few ways to run the randomizer for development, described in detail below.
 
-### Run the web service using Docker
+- Run the web service using Docker
+- Run the web service using Cargo
+- Run the CLI using Cargo
 
-Install [Docker](https://docs.docker.com/get-docker/) if it is not already installed on your system. 
+### Clone the repository
+
+If you are running on Windows, be sure to first enable symlinks in Git:
+
+```sh
+git config --global core.symlinks true
+```
+
+You likely also need to enable "Developer Mode" in Windows settings in order for Git to have permissions to create symlinks.
 
 Clone the repository:
 
@@ -16,6 +26,11 @@ Clone the repository:
 git clone --recurse-submodules https://github.com/blkerby/MapRandomizer
 cd MapRandomizer
 ```
+
+### Run the web service using Docker
+
+Install [Docker](https://docs.docker.com/get-docker/) if it is not already installed on your system. 
+
 
 #### Docker Compose build and run
 
@@ -47,14 +62,7 @@ Building and running locally using Cargo is generally faster than using Docker, 
 
 Install the stable Rust toolchain (e.g. using [rustup](https://rustup.rs/)).
 
-Clone the GitHub repository:
-
-```sh
-git clone --recurse-submodules https://github.com/blkerby/MapRandomizer
-cd MapRandomizer
-```
-
-Download and extract the randomized map pools:
+After cloning the GitHub repository, download and extract the randomized map pools:
 
 ```sh
 mkdir maps && cd maps
