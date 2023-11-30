@@ -55,13 +55,13 @@
 <div class="form-group row">
     <div class="col-lg-4 col-md-6 my-2">
         <% include!("help/variations/disable_etank_refill.stpl"); %>
-        <label for="disable_etank_refill">Disable E-Tank energy refill</label>
+        <label for="disable_etank_refill">E-Tank energy refill</label>
     </div>
-    <div class="col-2 btn-group my-2" role="group">
+    <div class="col-3 btn-group my-2" role="group">
         <input type="radio" class="btn-check" name="disable_etank_refill" id="disableEtankRefillNo" value="false" checked>
-        <label class="btn btn-outline-primary" for="disableEtankRefillNo">No</label>
+        <label class="btn btn-outline-primary" for="disableEtankRefillNo">Vanilla</label>
         <input type="radio" class="btn-check" name="disable_etank_refill" id="disableEtankRefillYes" value="true">
-        <label class="btn btn-outline-primary" for="disableEtankRefillYes">Yes</label>
+        <label class="btn btn-outline-primary" for="disableEtankRefillYes">Disabled</label>
     </div>
 </div>
 

@@ -304,6 +304,7 @@ function initializeSpoilerToken() {
 function checkOtherOptions() {
     if (document.getElementById("wallJumpCollectible").checked ||
         document.getElementById("wallJumpDisabled").checked ||
+        document.getElementById("disableEtankRefillYes").checked ||
         document.getElementById("areaAssignmentRandom").checked ||
         document.getElementById("itemDotChangeDisappear").checked ||
         document.getElementById("transitionLettersYes").checked ||
