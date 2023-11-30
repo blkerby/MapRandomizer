@@ -14,7 +14,7 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release98">Version 99 (2023-11-28)</a>:
+<p><a id="release98">Version 99 (2023-11-29)</a>:
 <ul>
 <li>Changes to item progression logic relating to Energy Tanks and Reserve Tanks:
     <ul>
