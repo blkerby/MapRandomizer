@@ -943,6 +943,7 @@ impl GameData {
             }
         }
         self.heat_run_tech_id = *self.tech_isv.index_by_key.get("canHeatRun").unwrap();
+        self.wall_jump_tech_id = *self.tech_isv.index_by_key.get("canWalljump").unwrap();
         Ok(())
     }
 
