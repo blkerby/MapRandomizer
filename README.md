@@ -10,15 +10,17 @@ If you are interested in contributing, feel free to reach out on the [Discord](h
 - Run the web service using Cargo
 - Run the CLI using Cargo
 
-### Clone the repository
+### Using Windows
 
-If you are running on Windows, be sure to first enable symlinks in Git:
+If you are running on Windows, be sure to enable symlinks in Git before cloning the repository:
 
 ```sh
 git config --global core.symlinks true
 ```
 
 You likely also need to enable "Developer Mode" in Windows settings in order for Git to have permissions to create symlinks.
+
+### Clone the repository
 
 Clone the repository:
 
