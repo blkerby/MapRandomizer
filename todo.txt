@@ -1,27 +1,27 @@
+v100:
+- walljump boots:
+  - ROM patch:
+    - DONE: PLM graphics: $899100?
+    - DONE: message box (bank $85))
+    - DONE: make walljump activation be conditional on the item being collected
+    - DONE: PLM instruction list, etc. (bank $84)
+      - DONE: make separate instruction lists for chozo/scenery PLMs
+  - DONE: add WallJump collectible option
+    - DONE: make applying the patch be conditional on the setting
+  - DONE: add WallJump to item list, for item progression options
+  - DONE: integrate into logic: replace canWalljump with item requirement
+  - add to stats/credits
+  - DONE: add to spoiler map icons
+
 v99:
 - ETank/Reserve item progression settings:
   - new filler option: rename "No" to "Semi", and make "No" mean never filler
   - new option to group ETanks/Reserve Tanks for key item progression
 - fix logic bug in Etecoon ETank room: add back Base strat [2, 3]
-- 10 PB CF strat in Cathedral Entrance
-- adjust heat damage multipliers
-
-v98:
-- DONE: integrate "bypassesDoorShell" property
-- DONE: subtract 0.25 tiles from cross-room runways?
-- DONE: increase contrast between cool/heated map tiles, e.g. in Norfair
-- DONE: make randomizer more efficient: (retry on same map multiple times)
-- DONE: keep multiple "maximal" local states for each vertex (i.e. ones not dominated by another across all resource dimensions)
-  - important to properly handle energy/ammo trade-off with CF opportunities
-- DONE: move canCrystalFlash to Hard.
-- DONE: move canCrumbleJump to Very Hard.
-- DONE: add CF refill strats
-- DONE: pull in latest Mosaic to get tube fix after unpause
 
 priority:
-- make space jump Late on Tricky/Challenge.
+- adjust heat damage multipliers?
 - walljump item
-- have way to delay processing of strats with heavy ammo usage (e.g. CF)
 - add physics/heated override to runway geometry
 - fix toilet to restore x position on exit?
 - leniency for shinecharge frames

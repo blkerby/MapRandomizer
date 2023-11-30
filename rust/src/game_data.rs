@@ -94,6 +94,7 @@ pub enum Item {
     ScrewAttack,  // 18
     Morph,        // 19
     ReserveTank,  // 20
+    WallJump,     // 21
 }
 
 impl Item {
@@ -118,6 +119,7 @@ pub enum Requirement {
     Item(ItemId),
     Flag(FlagId),
     NotFlag(FlagId),
+    Walljump,
     ShineCharge {
         used_tiles: f32,
     },
@@ -876,6 +878,7 @@ pub struct GameData {
     pub start_locations: Vec<StartLocation>,
     pub hub_locations: Vec<HubLocation>,
     pub heat_run_tech_id: TechId, // Cached since it is used frequently in graph traversal, and to avoid needing to store it in every HeatFrames req.
+    pub wall_jump_tech_id: TechId,
     pub title_screen_data: TitleScreenData,
 }
 
@@ -1024,6 +1027,7 @@ impl GameData {
         for item_name in Item::VARIANTS {
             self.item_isv.add(&item_name.to_string());
         }
+        self.item_isv.add("WallJump");
         ensure!(item_json["gameFlags"].is_array());
         for flag_name in item_json["gameFlags"].members() {
             self.flag_isv.add(flag_name.as_str().unwrap());
@@ -1198,6 +1202,8 @@ impl GameData {
             let value = req_json.as_str().unwrap();
             if value == "never" {
                 return Ok(Requirement::Never);
+            } else if value == "canWalljump" {
+                return Ok(Requirement::Walljump);
             } else if value == "i_ammoRefill" {
                 return Ok(Requirement::AmmoStationRefill);
             } else if value == "i_BlueGateGlitchLeniency" {

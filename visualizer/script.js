@@ -94,7 +94,8 @@ let item_plm = {
 	"SpaceJump": 17,
 	"ScrewAttack": 18,
 	"Morph": 19,
-	"ReserveTank": 20
+	"ReserveTank": 20,
+	"WallJump": 21,
 };
 let change_item = (old_plm,id) => {
 	let old_id = ((old_plm - 0xEED7) / 4) % 21;

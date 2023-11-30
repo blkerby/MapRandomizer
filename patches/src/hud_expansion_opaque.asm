@@ -1,5 +1,8 @@
 lorom
 
+!bank_85_free_space_start = $859643
+!bank_85_free_space_end = $8596B0
+
 ; Set this to the relative path between the assembler and this file (eg. ROMProject/ASM)
 ; If the assembler is in the same directory, then leave it as '.'
 !this_dir = HUD_Expansion
@@ -288,7 +291,7 @@ org $8580AA
 org $8580E8
     JSR ClearLayer3ForMessageClose ; 81F3 Clear message box BG3 tilemap
 
-org $859650
+org !bank_85_free_space_start
 ; Instead of always clearing the screen, it swaps the bottom rows
 ; of the graphics with the textbox letters with the FX graphics
 ClearLayer3ForMessageClose:
@@ -343,6 +346,7 @@ ClearLayer3_Return:
     JSR $81F3 ; displaced code
     RTS
 
+warnpc !bank_85_free_space_end
 
 ; load FX
 org $89AC31

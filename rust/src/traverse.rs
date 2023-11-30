@@ -10,7 +10,7 @@ use crate::{
         Capacity, EnemyVulnerabilities, GameData, Item, Link, LinkIdx, LinksDataGroup, Requirement,
         WeaponMask,
     },
-    randomize::DifficultyConfig,
+    randomize::{DifficultyConfig, WallJump},
 };
 
 // TODO: move tech and notable_strats out of this struct, since these do not change from step to step.
@@ -661,6 +661,27 @@ pub fn apply_requirement(
             // } else {
             //     None
             // }
+        }
+        Requirement::Walljump => {
+            match difficulty.wall_jump {
+                WallJump::Vanilla => {
+                    if global.tech[game_data.wall_jump_tech_id] {
+                        Some(local)
+                    } else {
+                        None
+                    }        
+                }
+                WallJump::Collectible => {
+                    if global.tech[game_data.wall_jump_tech_id] && global.items[Item::WallJump as usize] {
+                        Some(local)
+                    } else {
+                        None
+                    }        
+                },
+                WallJump::Disabled => {
+                    None
+                }
+            }
         }
         Requirement::HeatFrames(frames) => {
             let varia = global.items[Item::Varia as usize];

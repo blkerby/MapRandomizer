@@ -105,6 +105,21 @@ fn update_tile(tile: &mut [[u8; 8]; 8], value: u8, coords: &[(usize, usize)]) {
     }
 }
 
+pub fn write_tile_4bpp(rom: &mut Rom, base_addr: usize, data: [[u8; 8]; 8]) -> Result<()> {
+    for y in 0..8 {
+        let addr = base_addr + y * 2;
+        let data_0: u8 = (0..8).map(|x| (data[y][x] & 1) << (7 - x)).sum();
+        let data_1: u8 = (0..8).map(|x| ((data[y][x] >> 1) & 1) << (7 - x)).sum();
+        let data_2: u8 = (0..8).map(|x| ((data[y][x] >> 2) & 1) << (7 - x)).sum();
+        let data_3: u8 = (0..8).map(|x| ((data[y][x] >> 3) & 1) << (7 - x)).sum();
+        rom.write_u8(addr, data_0 as isize)?;
+        rom.write_u8(addr + 1, data_1 as isize)?;
+        rom.write_u8(addr + 16, data_2 as isize)?;
+        rom.write_u8(addr + 17, data_3 as isize)?;
+    }
+    Ok(())
+}
+
 impl<'a> MapPatcher<'a> {
     pub fn new(
         rom: &'a mut Rom,
@@ -330,18 +345,7 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn write_tile_4bpp(&mut self, base_addr: usize, data: [[u8; 8]; 8]) -> Result<()> {
-        for y in 0..8 {
-            let addr = base_addr + y * 2;
-            let data_0: u8 = (0..8).map(|x| (data[y][x] & 1) << (7 - x)).sum();
-            let data_1: u8 = (0..8).map(|x| ((data[y][x] >> 1) & 1) << (7 - x)).sum();
-            let data_2: u8 = (0..8).map(|x| ((data[y][x] >> 2) & 1) << (7 - x)).sum();
-            let data_3: u8 = (0..8).map(|x| ((data[y][x] >> 3) & 1) << (7 - x)).sum();
-            self.rom.write_u8(addr, data_0 as isize)?;
-            self.rom.write_u8(addr + 1, data_1 as isize)?;
-            self.rom.write_u8(addr + 16, data_2 as isize)?;
-            self.rom.write_u8(addr + 17, data_3 as isize)?;
-        }
-        Ok(())
+        write_tile_4bpp(&mut self.rom, base_addr, data)
     }
 
     fn write_map_tile_4bpp_area(

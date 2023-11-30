@@ -9,7 +9,7 @@ use std::path::Path;
 use crate::{
     customize::vanilla_music::override_music,
     game_data::{DoorPtr, DoorPtrPair, GameData, Item, Map, NodePtr, RoomGeometryDoor, RoomPtr},
-    randomize::{DoorType, LockedDoor, MotherBrainFight, Objectives, Randomization, SaveAnimals, AreaAssignment},
+    randomize::{DoorType, LockedDoor, MotherBrainFight, Objectives, Randomization, SaveAnimals, AreaAssignment, WallJump},
 };
 use anyhow::{ensure, Context, Result};
 use hashbrown::{HashMap, HashSet};
@@ -19,7 +19,7 @@ use rand::{Rng, SeedableRng};
 use log::info;
 use std::iter;
 
-use self::title::read_image;
+use self::{title::read_image, map_tiles::write_tile_4bpp};
 
 const NUM_AREAS: usize = 6;
 
@@ -177,8 +177,88 @@ fn xy_to_explored_bit_ptr(x: isize, y: isize) -> (isize, u8) {
 
 fn item_to_plm_type(item: Item, orig_plm_type: isize) -> isize {
     let item_id = item as isize;
-    let old_item_id = ((orig_plm_type - 0xEED7) / 4) % 21;
-    orig_plm_type + (item_id - old_item_id) * 4
+    
+    // Item container: 0 = none, 1 = chozo orb, 2 = shot block (scenery)
+    let item_container = (orig_plm_type - 0xEED7) / 84;
+
+    // let plm_table: [[isize; 22]; 3] = [[0xF608; 22]; 3];
+
+    let plm_table: [[isize; 22]; 3] = [
+        [
+            0xEED7, // Energy tank
+            0xEEDB, // Missile tank
+            0xEEDF, // Super missile tank
+            0xEEE3, // Power bomb tank
+            0xEEE7, // Bombs
+            0xEEEB, // Charge beam
+            0xEEEF, // Ice beam
+            0xEEF3, // Hi-jump
+            0xEEF7, // Speed booster
+            0xEEFB, // Wave beam
+            0xEEFF, // Spazer beam
+            0xEF03, // Spring ball
+            0xEF07, // Varia suit
+            0xEF0B, // Gravity suit
+            0xEF0F, // X-ray scope
+            0xEF13, // Plasma beam
+            0xEF17, // Grapple beam
+            0xEF1B, // Space jump
+            0xEF1F, // Screw attack
+            0xEF23, // Morph ball
+            0xEF27, // Reserve tank   
+            0xF600, // Wall-jump boots         
+        ],
+        [
+            0xEF2B, // Energy tank, chozo orb
+            0xEF2F, // Missile tank, chozo orb
+            0xEF33, // Super missile tank, chozo orb
+            0xEF37, // Power bomb tank, chozo orb
+            0xEF3B, // Bombs, chozo orb
+            0xEF3F, // Charge beam, chozo orb
+            0xEF43, // Ice beam, chozo orb
+            0xEF47, // Hi-jump, chozo orb
+            0xEF4B, // Speed booster, chozo orb
+            0xEF4F, // Wave beam, chozo orb
+            0xEF53, // Spazer beam, chozo orb
+            0xEF57, // Spring ball, chozo orb
+            0xEF5B, // Varia suit, chozo orb
+            0xEF5F, // Gravity suit, chozo orb
+            0xEF63, // X-ray scope, chozo orb
+            0xEF67, // Plasma beam, chozo orb
+            0xEF6B, // Grapple beam, chozo orb
+            0xEF6F, // Space jump, chozo orb
+            0xEF73, // Screw attack, chozo orb
+            0xEF77, // Morph ball, chozo orb
+            0xEF7B, // Reserve tank, chozo orb            
+            0xF604, // Wall-jump boots, chozo orb
+        ],
+        [
+            0xEF7F, // Energy tank, shot block
+            0xEF83, // Missile tank, shot block
+            0xEF87, // Super missile tank, shot block
+            0xEF8B, // Power bomb tank, shot block
+            0xEF8F, // Bombs, shot block
+            0xEF93, // Charge beam, shot block
+            0xEF97, // Ice beam, shot block
+            0xEF9B, // Hi-jump, shot block
+            0xEF9F, // Speed booster, shot block
+            0xEFA3, // Wave beam, shot block
+            0xEFA7, // Spazer beam, shot block
+            0xEFAB, // Spring ball, shot block
+            0xEFAF, // Varia suit, shot block
+            0xEFB3, // Gravity suit, shot block
+            0xEFB7, // X-ray scope, shot block
+            0xEFBB, // Plasma beam, shot block
+            0xEFBF, // Grapple beam, shot block
+            0xEFC3, // Space jump, shot block
+            0xEFC7, // Screw attack, shot block
+            0xEFCB, // Morph ball, shot block
+            0xEFCF, // Reserve tank, shot block            
+            0xF608, // Wall-jump boots, shot block       
+        ]
+    ];
+    
+    plm_table[item_container as usize][item_id as usize]
 }
 
 fn write_credits_big_letter(rom: &mut Rom, letter: char, addr: usize) -> Result<()> {
@@ -302,6 +382,7 @@ impl<'a> Patcher<'a> {
             "rng_fix",
             "intro_song",
             "msu1",
+            "walljump_item",
         ];
 
         if self.randomization.difficulty.ultra_low_qol {
@@ -360,8 +441,14 @@ impl<'a> Patcher<'a> {
             patches.push("fast_pause_menu");
         }
 
-        if self.randomization.difficulty.disable_walljump {
-            patches.push("disable_walljump");
+        match self.randomization.difficulty.wall_jump {
+            WallJump::Vanilla => {}
+            WallJump::Collectible => {
+                patches.push("walljump_item");
+            }
+            WallJump::Disabled => {
+                patches.push("disable_walljump");
+            }
         }
 
         if self.randomization.difficulty.respin {
@@ -1400,6 +1487,10 @@ impl<'a> Patcher<'a> {
             write_credits_big_digit(self.rom, step / 10, base_addr + 2)?;
         }
         write_credits_big_digit(self.rom, step % 10, base_addr + 4)?;
+        
+        // Write colon after step number:
+        self.rom.write_u16(base_addr + 6, 0x5A)?;
+        self.rom.write_u16(base_addr + 6 + 0x40, 0x5A)?;
 
         // Write item text
         for (i, c) in item.chars().enumerate() {
@@ -1444,21 +1535,21 @@ impl<'a> Patcher<'a> {
     fn apply_credits(&mut self) -> Result<()> {
         // Write randomizer settings to credits tilemap
         self.write_preset(
-            222,
+            224,
             self.randomization
                 .difficulty
                 .skill_assumptions_preset
                 .clone(),
         )?;
         self.write_preset(
-            224,
+            226,
             self.randomization
                 .difficulty
                 .item_progression_preset
                 .clone(),
         )?;
         self.write_preset(
-            226,
+            228,
             self.randomization.difficulty.quality_of_life_preset.clone(),
         )?;
 
@@ -1484,6 +1575,7 @@ impl<'a> Patcher<'a> {
             ("ScrewAttack", "Screw Attack"),
             ("Morph", "Morph Ball"),
             ("ReserveTank", "Reserve Tank"),
+            ("WallJump", "WallJump Boots"),
         ]
         .into_iter()
         .map(|(x, y)| (x.to_string(), y.to_string()))
@@ -1765,6 +1857,53 @@ impl<'a> Patcher<'a> {
 
         Ok(())
     }
+
+    fn write_walljump_item_graphics(&mut self) -> Result<()> {
+        let f = 0xF;
+        let frame_1: [[u8; 16]; 16] = [
+            [0, 0, 0, f, f, f, f, f, f, f, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, f, 4, 4, 5, 6, 6, f, f, f, f, 0, 0, 0],
+            [0, 0, 0, f, 4, 5, 6, 6, f, f, 6, 4, f, 0, 0, 0],
+            [0, 0, 0, f, 5, 6, 6, f, f, 6, 4, 5, f, 0, 0, 0],
+            [0, 0, 0, f, 5, 6, f, f, 6, 4, 5, f, f, 0, 0, 0],
+            [0, 0, 0, f, 6, 6, f, 6, 4, 5, 6, f, 0, 0, 0, 0],
+            [0, 0, f, f, f, f, 6, f, 6, 5, f, 0, 0, 0, 0, 0],
+            [0, 0, f, 5, 6, 6, f, 6, f, 6, f, 0, 0, 0, 0, 0],
+            [0, 0, f, 4, 5, 6, f, 5, 6, f, f, 0, 0, 0, 0, 0],
+            [0, 0, f, f, 6, 5, f, 6, f, f, 0, 0, 0, 0, 0, 0],
+            [0, f, 6, f, f, 5, f, f, f, 6, f, 0, 0, 0, 0, 0],
+            [f, f, 6, 6, f, f, f, 6, 4, 5, f, f, 0, 0, 0, 0],
+            [f, 6, 6, 4, 6, f, 6, 6, 6, 6, 6, 6, f, f, 0, 0],
+            [f, 6, 4, 4, 6, f, 5, 5, 5, 4, 4, 4, 5, 5, f, f],
+            [f, 6, 5, 5, 6, f, f, f, 6, 6, 6, 6, 6, 6, 6, f],
+            [f, f, f, f, f, 0, 0, 0, f, f, f, f, f, f, f, f],
+        ];
+        let frame_2 = frame_1.map(|row| row.map(|x| match x {
+            4 => 0xb,
+            5 => 4,
+            6 => 5,
+            7 => 6,
+            0xf => 7,
+            y => y,
+        }));
+        let frames: [[[u8; 16]; 16]; 2] = [frame_1, frame_2];
+        let mut addr = snes2pc(0x899100);
+        for f in 0..2 {
+            for tile_y in 0..2 {
+                for tile_x in 0..2 {
+                    let mut tile: [[u8; 8]; 8] = [[0; 8]; 8];
+                    for y in 0..8 {
+                        for x in 0..8 {
+                            tile[y][x] = frames[f][tile_y * 8 + y][tile_x * 8 + x];
+                        }
+                    }
+                    write_tile_4bpp(self.rom, addr, tile)?;
+                    addr += 32;
+                }
+            }
+        }
+        Ok(())
+    }
 }
 
 fn get_other_door_ptr_pair_map(map: &Map) -> HashMap<DoorPtrPair, DoorPtrPair> {
@@ -1830,6 +1969,7 @@ pub fn make_rom(
     patcher.customize_escape_timer()?;
     patcher.apply_miscellaneous_patches()?;
     patcher.apply_mother_brain_fight_patches()?;
+    patcher.write_walljump_item_graphics()?;
     patcher.apply_seed_hash()?;
     patcher.apply_credits()?;
     patcher.apply_hazard_markers()?;

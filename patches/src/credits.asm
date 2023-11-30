@@ -667,13 +667,13 @@ script:
     dw !draw, !row*159
     dw !draw, !row*160
     dw !draw, !blank
-    dw !draw, !row*228  ; AND
+    dw !draw, !row*230  ; AND
     dw !draw, !blank
     dw !draw, !row*161
     dw !draw, !row*162
     dw !draw, !blank
-    dw !draw, !row*229
-    dw !draw, !row*230
+    dw !draw, !row*231
+    dw !draw, !row*232
     dw !draw, !blank
     dw !draw, !row*147  ; SUPER METROID DISASSEMBLY
     dw !draw, !blank
@@ -685,10 +685,10 @@ script:
     dw !draw, !row*151
     dw !draw, !row*152
     dw !draw, !blank
-    dw !draw, !row*231  ; SPRITESOMETHING
+    dw !draw, !row*233  ; SPRITESOMETHING
     dw !draw, !blank
-    dw !draw, !row*232
-    dw !draw, !row*233
+    dw !draw, !row*237
+    dw !draw, !row*238
     dw !draw, !blank
     dw !draw, !row*234  ; (Sprite name)
     dw !draw, !blank
@@ -718,37 +718,37 @@ script:
     dw !draw, !blank
     dw !draw, !blank
 
-    dw !draw, !row*221  ; RANDOMIZER SETTINGS
+    dw !draw, !row*223  ; RANDOMIZER SETTINGS
     dw !draw, !blank
-    dw !draw, !row*222  ; SKILL ASSUMPTIONS
-    dw !draw, !row*223
-    dw !draw, !blank
-    dw !draw, !row*224  ; ITEM PROGRESSION
+    dw !draw, !row*224  ; SKILL ASSUMPTIONS
     dw !draw, !row*225
     dw !draw, !blank
-    dw !draw, !row*226  ; QUALITY OF LIFE
+    dw !draw, !row*226  ; ITEM PROGRESSION
     dw !draw, !row*227
+    dw !draw, !blank
+    dw !draw, !row*228  ; QUALITY OF LIFE
+    dw !draw, !row*229
     dw !draw, !blank
     dw !draw, !blank
     dw !draw, !blank
     dw !draw, !blank
 
-    dw !draw, !row*206  ; GAMEPLAY STATISTICS
+    dw !draw, !row*208  ; GAMEPLAY STATISTICS
     dw !draw, !blank
-    dw !draw, !row*207  ; SAVES
-    dw !draw, !row*208
-    dw !draw, !blank
-    dw !draw, !row*209  ; DEATHS
+    dw !draw, !row*209  ; SAVES
     dw !draw, !row*210
     dw !draw, !blank
-    dw !draw, !row*211  ; RELOADS
+    dw !draw, !row*211  ; DEATHS
     dw !draw, !row*212
     dw !draw, !blank
-    dw !draw, !row*213  ; LOADBACKS
+    dw !draw, !row*213  ; RELOADS
     dw !draw, !row*214
     dw !draw, !blank
-    dw !draw, !row*215  ; RESETS
+    dw !draw, !row*215  ; LOADBACKS
     dw !draw, !row*216
+    dw !draw, !blank
+    dw !draw, !row*217  ; RESETS
+    dw !draw, !row*218
     dw !draw, !blank
     dw !draw, !blank
     dw !draw, !blank
@@ -821,23 +821,23 @@ script:
     dw !draw, !blank
     dw !draw, !row*204
     dw !draw, !row*205
+    dw !draw, !blank
+    dw !draw, !row*206
+    dw !draw, !row*207
 
     dw !draw, !blank
     dw !draw, !blank
     dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !row*217   ; FINAL TIME
-    dw !draw, !row*218
-    dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !row*219   ; THANKS FOR PLAYING
+    dw !draw, !row*219   ; FINAL TIME
     dw !draw, !row*220
+    dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !row*221   ; THANKS FOR PLAYING
+    dw !draw, !row*222
 
 
     dw !set, $0018
@@ -882,12 +882,13 @@ stats:
     dw !stat_item_collection_times, $007E,  !row*200, 2
     dw !stat_item_collection_times, $007E,  !row*202, 2
     dw !stat_item_collection_times, $007E,  !row*204, 2
-    dw !stat_saves,     $0070, !row*207,  1    ;; Saves
-    dw !stat_deaths,    $0070, !row*209,  1    ;; Deaths
-    dw !stat_reloads,   $0070, !row*211,  1    ;; Reloads
-    dw !stat_loadbacks, $0070, !row*213,  1    ;; Loadbacks
-    dw !stat_resets,    $0070, !row*215,  1    ;; Resets
-    dw !stat_final_time,     $0070, !row*217,  2    ;; Final time
+    dw !stat_item_collection_times, $007E,  !row*206, 2
+    dw !stat_saves,     $0070, !row*209,  1    ;; Saves
+    dw !stat_deaths,    $0070, !row*211,  1    ;; Deaths
+    dw !stat_reloads,   $0070, !row*213,  1    ;; Reloads
+    dw !stat_loadbacks, $0070, !row*215,  1    ;; Loadbacks
+    dw !stat_resets,    $0070, !row*217,  1    ;; Resets
+    dw !stat_final_time,     $0070, !row*219,  2    ;; Final time
     dw 0,              0,  0, 0    ;; (End of table)
 
 warnpc $e00000
@@ -950,89 +951,91 @@ credits:
     !blue
     dw " ITEM LOCATION AND COLLECT TIME " ;; 163
     !big
-    dw "   .                     .  .   " ;; 164
-    dw "   .                     .  .   " ;; 165
-    dw "   .                     .  .   " ;; 166
-    dw "   .                     .  .   " ;; 167
-    dw "   .                     .  .   " ;; 168
-    dw "   .                     .  .   " ;; 169
-    dw "   .                     .  .   " ;; 170
-    dw "   .                     .  .   " ;; 171
-    dw "   .                     .  .   " ;; 172
-    dw "   .                     .  .   " ;; 173
-    dw "   .                     .  .   " ;; 174
-    dw "   .                     .  .   " ;; 175
-    dw "   .                     .  .   " ;; 176
-    dw "   .                     .  .   " ;; 177
-    dw "   .                     .  .   " ;; 178
-    dw "   .                     .  .   " ;; 179
-    dw "   .                     .  .   " ;; 180
-    dw "   .                     .  .   " ;; 181
-    dw "   .                     .  .   " ;; 182
-    dw "   .                     .  .   " ;; 183
-    dw "   .                     .  .   " ;; 184
-    dw "   .                     .  .   " ;; 185
-    dw "   .                     .  .   " ;; 186
-    dw "   .                     .  .   " ;; 187
-    dw "   .                     .  .   " ;; 188
-    dw "   .                     .  .   " ;; 189
-    dw "   .                     .  .   " ;; 190
-    dw "   .                     .  .   " ;; 191
-    dw "   .                     .  .   " ;; 192
-    dw "   .                     .  .   " ;; 193
-    dw "   .                     .  .   " ;; 194
-    dw "   .                     .  .   " ;; 195
-    dw "   .                     .  .   " ;; 196
-    dw "   .                     .  .   " ;; 197
-    dw "   .                     .  .   " ;; 198
-    dw "   .                     .  .   " ;; 199
-    dw "   .                     .  .   " ;; 200
-    dw "   .                     .  .   " ;; 201
-    dw "   .                     .  .   " ;; 202
-    dw "   .                     .  .   " ;; 203
-    dw "   .                     .  .   " ;; 204
-    dw "   .                     .  .   " ;; 205
+    dw "                         .  .   " ;; 164
+    dw "                         .  .   " ;; 165
+    dw "                         .  .   " ;; 166
+    dw "                         .  .   " ;; 167
+    dw "                         .  .   " ;; 168
+    dw "                         .  .   " ;; 169
+    dw "                         .  .   " ;; 170
+    dw "                         .  .   " ;; 171
+    dw "                         .  .   " ;; 172
+    dw "                         .  .   " ;; 173
+    dw "                         .  .   " ;; 174
+    dw "                         .  .   " ;; 175
+    dw "                         .  .   " ;; 176
+    dw "                         .  .   " ;; 177
+    dw "                         .  .   " ;; 178
+    dw "                         .  .   " ;; 179
+    dw "                         .  .   " ;; 180
+    dw "                         .  .   " ;; 181
+    dw "                         .  .   " ;; 182
+    dw "                         .  .   " ;; 183
+    dw "                         .  .   " ;; 184
+    dw "                         .  .   " ;; 185
+    dw "                         .  .   " ;; 186
+    dw "                         .  .   " ;; 187
+    dw "                         .  .   " ;; 188
+    dw "                         .  .   " ;; 189
+    dw "                         .  .   " ;; 190
+    dw "                         .  .   " ;; 191
+    dw "                         .  .   " ;; 192
+    dw "                         .  .   " ;; 193
+    dw "                         .  .   " ;; 194
+    dw "                         .  .   " ;; 195
+    dw "                         .  .   " ;; 196
+    dw "                         .  .   " ;; 197
+    dw "                         .  .   " ;; 198
+    dw "                         .  .   " ;; 199
+    dw "                         .  .   " ;; 200
+    dw "                         .  .   " ;; 201
+    dw "                         .  .   " ;; 202
+    dw "                         .  .   " ;; 203
+    dw "                         .  .   " ;; 204
+    dw "                         .  .   " ;; 205
+    dw "                         .  .   " ;; 206
+    dw "                         .  .   " ;; 207
     !blue
-    dw "      GAMEPLAY STATISTICS       " ;; 206
+    dw "      GAMEPLAY STATISTICS       " ;; 208
     !big
-    dw " SAVES                        0 " ;; 207
-    dw " saves                        } " ;; 208
-    dw " DEATHS                       0 " ;; 209
-    dw " deaths                       } " ;; 210
-    dw " RELOADS                      0 " ;; 211
-    dw " reloads                      } " ;; 212
-    dw " LOADBACKS                    0 " ;; 213
-    dw " loadbacks                    } " ;; 214
-    dw " RESETS                       0 " ;; 215
-    dw " resets                       } " ;; 216
-    dw " FINAL TIME            00.00.00 " ;; 217
-    dw " final time            }}.}}.}} " ;; 218
-    dw "       THANKS FOR PLAYING       " ;; 219
-    dw "       thanks for playing       " ;; 220
+    dw " SAVES                        0 " ;; 209
+    dw " saves                        } " ;; 210
+    dw " DEATHS                       0 " ;; 211
+    dw " deaths                       } " ;; 212
+    dw " RELOADS                      0 " ;; 213
+    dw " reloads                      } " ;; 214
+    dw " LOADBACKS                    0 " ;; 215
+    dw " loadbacks                    } " ;; 216
+    dw " RESETS                       0 " ;; 217
+    dw " resets                       } " ;; 218
+    dw " FINAL TIME            00.00.00 " ;; 219
+    dw " final time            }}.}}.}} " ;; 220
+    dw "       THANKS FOR PLAYING       " ;; 221
+    dw "       thanks for playing       " ;; 222
     !blue
-    dw "      RANDOMIZER SETTINGS       " ;; 221
+    dw "      RANDOMIZER SETTINGS       " ;; 223
     !big
-    dw " SKILL ASSUMPTIONS              " ;; 222
-    dw " skill assumptions              " ;; 223
-    dw " ITEM PROGRESSION               " ;; 224
-    dw " item progression               " ;; 225
-    dw " QUALITY OF LIFE                " ;; 226
-    dw " quality of life                " ;; 227
+    dw " SKILL ASSUMPTIONS              " ;; 224
+    dw " skill assumptions              " ;; 225
+    dw " ITEM PROGRESSION               " ;; 226
+    dw " item progression               " ;; 227
+    dw " QUALITY OF LIFE                " ;; 228
+    dw " quality of life                " ;; 229
     !cyan
-    dw "              AND               " ;; 228
+    dw "              AND               " ;; 230
     !big
-    dw "   SM RANDOMIZER COMMUNITIES    " ;; 229
-    dw "   sm randomizer communities    " ;; 230
+    dw "   SM RANDOMIZER COMMUNITIES    " ;; 231
+    dw "   sm randomizer communities    " ;; 232
     !purple
-    dw "        SPRITESOMETHING         " ;; 231
-    !big
-    dw "     ARTHEAU    MATRETHEWEY     " ;; 232
-    dw "     artheau    matrethewey     " ;; 233
+    dw "        SPRITESOMETHING         " ;; 233
     !yellow
     dw "                                " ;; 234 - sprite name (to be filled in by randomizer if custom sprite used)
     !big
     dw "                                " ;; 235 - sprite author (to be filled in by randomizer if custom sprite used)
     dw "                                " ;; 236 - sprite author (to be filled in by randomizer if custom sprite used)
+    !big
+    dw "     ARTHEAU    MATRETHEWEY     " ;; 237
+    dw "     artheau    matrethewey     " ;; 238
 
     dw $0000
 warnpc !bank_ce_free_space_end

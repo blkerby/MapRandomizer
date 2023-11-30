@@ -80,6 +80,13 @@ pub enum AreaAssignment {
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
+pub enum WallJump {
+    Vanilla,
+    Collectible,
+    Disabled,
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
 pub enum SaveAnimals {
     No,
     Maybe,
@@ -152,7 +159,7 @@ pub struct DifficultyConfig {
     pub save_animals: SaveAnimals,
     pub early_save: bool,
     pub area_assignment: AreaAssignment,
-    pub disable_walljump: bool,
+    pub wall_jump: WallJump,
     pub maps_revealed: bool,
     pub vanilla_map: bool,
     pub ultra_low_qol: bool,
@@ -2137,11 +2144,16 @@ impl<'r> Randomizer<'r> {
         }
 
         let mut initial_items_remaining: Vec<usize> = vec![1; game_data.item_isv.keys.len()];
+        initial_items_remaining[Item::WallJump as usize] = 0;
         initial_items_remaining[Item::Missile as usize] = 46;
         initial_items_remaining[Item::Super as usize] = 10;
         initial_items_remaining[Item::PowerBomb as usize] = 10;
         initial_items_remaining[Item::ETank as usize] = 14;
         initial_items_remaining[Item::ReserveTank as usize] = 4;
+        if difficulty_tiers[0].wall_jump == WallJump::Collectible {
+            initial_items_remaining[Item::Missile as usize] -= 1;
+            initial_items_remaining[Item::WallJump as usize] = 1;
+        }
         assert!(initial_items_remaining.iter().sum::<usize>() == game_data.item_locations.len());
 
         Randomizer {
@@ -3297,8 +3309,10 @@ impl<'r> Randomizer<'r> {
                 // succeeded or we have failed.
 
                 // Check that at least one instance of each item can be collected.
-                if !state.global_state.items.iter().all(|&b| b) {
-                    bail!("[attempt {attempt_num_rando}] Attempt failed: Key items not all collectible");
+                for i in 0..self.initial_items_remaining.len() {
+                    if self.initial_items_remaining[i] > 0 && !state.global_state.items[i] {
+                        bail!("[attempt {attempt_num_rando}] Attempt failed: Key items not all collectible");
+                    }
                 }
 
                 // Check that Phantoon can be defeated. This is to rule out the possibility that Phantoon may be locked

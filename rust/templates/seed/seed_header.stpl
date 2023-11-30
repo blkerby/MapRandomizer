@@ -75,8 +75,14 @@
         if transition_letters {
             game_variations.push("Area transitions marked as letters");
         }
-        if disable_walljump {
-            game_variations.push("Disable wall jumps");
+        match difficulty.wall_jump {
+            WallJump::Collectible => {
+                game_variations.push("Collectible wall jump");
+            }
+            WallJump::Disabled => {
+                game_variations.push("Disabled wall jump");
+            }
+            _ => {}
         }
         if maps_revealed {
             game_variations.push("Maps revealed from start");

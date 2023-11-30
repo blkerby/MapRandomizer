@@ -1,0 +1,30 @@
+<!-- Button trigger modal -->
+<button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#wallJumpModal">
+<i class="bi bi-question-circle"></i>
+</button>
+
+<!-- Modal -->
+<div class="modal" id="wallJumpModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">Wall jump</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+      <p>This affects how the wall jump ability works in the game.</p>
+      <ul>
+      <li><strong>Vanilla</strong>: Wall jumping behaves like in the vanilla game.
+      <li><strong>Collectible</strong>: A special new "WallJump" item is added to the game (replacing one "Missile" pack), and
+      wall jumping is only possible after collecting this item.
+      <li><strong>Disabled</strong>: The ability to wall jump is removed from the game.
+      </ul>
+      <p>Regardless of this setting, it is always possible to get a wall-jump check (the pose that Samus makes when moving away
+      from a nearby wall), even if pressing jump during the check will not trigger a wall jump.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
