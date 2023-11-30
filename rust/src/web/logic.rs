@@ -528,8 +528,7 @@ fn make_room_template<'a>(
         room_strats.push(strat);
     }
     // let shape = *game_data.room_shape.get(&room_id).unwrap_or(&(1, 1));
-    let mut difficulty_names: Vec<String> = presets.iter().map(|x| x.preset.name.clone()).collect();
-    difficulty_names.push("Beyond".to_string());
+    let difficulty_names: Vec<String> = presets.iter().map(|x| x.preset.name.clone()).collect();
 
     RoomTemplate {
         version_info: version_info.clone(),
@@ -581,8 +580,12 @@ impl LogicData {
         let mut out = LogicData::default();
         let room_diagram_listing = list_room_diagram_files();
         let mut room_templates: Vec<RoomTemplate> = vec![];
-        let difficulty_configs: Vec<DifficultyConfig> =
+        let mut difficulty_configs: Vec<DifficultyConfig> =
             presets.iter().map(get_difficulty_config).collect();
+        
+        // Remove the "Beyond" difficulty tier: everything above Insane will be labeled as "Beyond" already. 
+        difficulty_configs.pop();
+
         let hq_video_url_root = HQ_VIDEO_URL_ROOT;
 
         let area_order: Vec<String> = vec![

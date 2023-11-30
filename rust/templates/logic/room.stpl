@@ -39,7 +39,7 @@ document.getElementById("navigation-logic").classList.add("active");
         <div class="col-lg-2 my-2 d-flex align-items-center">
             Difficulty filter
         </div>
-        <div class="col-lg-9 my-2 btn-group overflow-auto" role="group">
+        <div class="col-lg-10 my-2 btn-group overflow-auto" role="group">
         <% for (i, difficulty) in difficulty_names.iter().enumerate() { 
             let checked = if i == difficulty_names.len() - 1 { "checked" } else { "" }; 
             %>
