@@ -1702,6 +1702,7 @@ fn get_implicit_tech() -> HashSet<String> {
 }
 
 fn build_app_data() -> AppData {
+    let start_time = Instant::now();
     let args = Args::parse();
     let sm_json_data_path = Path::new("../sm-json-data");
     let room_geometry_path = Path::new("../room_geometry.json");
@@ -1755,7 +1756,7 @@ fn build_app_data() -> AppData {
     );
     let samus_sprite_categories: Vec<SamusSpriteCategory> =
         serde_json::from_str(&std::fs::read_to_string(&samus_sprites_path).unwrap()).unwrap();
-    AppData {
+    let app_data = AppData {
         game_data,
         preset_data,
         ignored_notable_strats,
@@ -1793,7 +1794,9 @@ fn build_app_data() -> AppData {
         parallelism: args
             .parallelism
             .unwrap_or(thread::available_parallelism().unwrap().get()),
-    }
+    };
+    info!("Start-up time: {:.3}s", start_time.elapsed().as_secs_f32());
+    app_data
 }
 
 #[actix_web::main]

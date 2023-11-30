@@ -283,8 +283,9 @@ fn load_all_sce_tilesets(project_path: &Path) -> Result<HashMap<usize, RetiledSC
 }
 
 fn load_theme(mosaic_path: &Path, theme_name: &str) -> Result<RetiledTheme> {
+    let base_path = mosaic_path.join("Projects").join("Base");
     let project_path = mosaic_path.join("Projects").join(theme_name);
-    let sce_tilesets = load_all_sce_tilesets(&project_path)?;
+    let sce_tilesets = load_all_sce_tilesets(&base_path)?;
     let rooms = load_all_rooms(&project_path)?;
 
     Ok(RetiledTheme {
