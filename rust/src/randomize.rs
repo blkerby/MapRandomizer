@@ -1017,7 +1017,12 @@ impl<'a> Preprocessor<'a> {
                 if req_or.is_empty() {
                     None
                 } else {
-                    Some(Requirement::make_or(req_or))
+                    Some(Requirement::make_and(vec![
+                        Requirement::Tech(
+                            self.game_data.tech_isv.index_by_key["canSpeedball"],
+                        ),
+                        Requirement::make_or(req_or)
+                    ]))
                 }
             }
             EntranceCondition::ComeInWithRMode {} => {
