@@ -1,6 +1,7 @@
 use anyhow::{Context, Result};
 use hashbrown::HashMap;
 use std::path::Path;
+use log::info;
 
 use crate::game_data::smart_xml::{self, Layer2Type};
 
@@ -83,12 +84,12 @@ pub struct RetiledSCETileset {
 pub struct RetiledTheme {
     pub name: String,
     pub rooms: Vec<RetiledRoom>,
-    pub sce_tilesets: HashMap<usize, RetiledSCETileset>,
 }
 
 pub struct RetiledThemeData {
     pub themes: HashMap<String, RetiledTheme>,
     pub cre_tileset: RetiledCRETileset,
+    pub sce_tilesets: HashMap<usize, RetiledSCETileset>,
 }
 
 fn extract_screen_words(screen: &Screen, out: &mut [u8], width: usize, _height: usize) {
@@ -283,15 +284,12 @@ fn load_all_sce_tilesets(project_path: &Path) -> Result<HashMap<usize, RetiledSC
 }
 
 fn load_theme(mosaic_path: &Path, theme_name: &str) -> Result<RetiledTheme> {
-    let base_path = mosaic_path.join("Projects").join("Base");
     let project_path = mosaic_path.join("Projects").join(theme_name);
-    let sce_tilesets = load_all_sce_tilesets(&base_path)?;
     let rooms = load_all_rooms(&project_path)?;
 
     Ok(RetiledTheme {
         name: theme_name.to_string(),
         rooms,
-        sce_tilesets,
     })
 }
 
@@ -382,6 +380,7 @@ pub fn load_theme_data(mosaic_path: &Path) -> Result<RetiledThemeData> {
     ];
     let mut themes = HashMap::new();
     for name in theme_names {
+        info!("Loading theme: {}", name);
         themes.insert(name.to_string(), load_theme(mosaic_path, name)?);
     }
     let bg_mapping = make_bgdata_mapping(&themes["Base"]);
@@ -392,8 +391,12 @@ pub fn load_theme_data(mosaic_path: &Path) -> Result<RetiledThemeData> {
     for theme in themes.values_mut() {
         resolve_fx_references(theme, &fx_mapping);
     }
+    let base_path = mosaic_path.join("Projects").join("Base");
+    info!("Loading tilesets");
+    let sce_tilesets = load_all_sce_tilesets(&base_path)?;
     Ok(RetiledThemeData {
         themes,
         cre_tileset,
+        sce_tilesets,
     })
 }

@@ -1733,6 +1733,8 @@ fn build_app_data() -> AppData {
         title_screen_path,
     )
     .unwrap();
+
+    info!("Loading logic data");
     // let samus_customizer = SamusSpriteCustomizer::new(samus_spritesheet_layout_path).unwrap();
     let tech_gif_listing = list_tech_gif_files();
     let notable_gif_listing = list_notable_gif_files();

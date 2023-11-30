@@ -16,6 +16,7 @@ use std::hash::Hash;
 use std::path::{Path, PathBuf};
 use strum::VariantNames;
 use strum_macros::{EnumString, EnumVariantNames};
+use log::info;
 
 use self::themed_retiling::RetiledThemeData;
 
@@ -3285,6 +3286,7 @@ impl GameData {
     }
 
     pub fn load_title_screens(&mut self, path: &Path) -> Result<()> {
+        info!("Loading title screens");
         let file_it = path
             .read_dir()
             .with_context(|| format!("Unable to read title screen directory at {}", path.display()))?;
@@ -3305,7 +3307,6 @@ impl GameData {
                 self.title_screen_data.map_station = img;
             }
         }
-
         Ok(())
     }
 

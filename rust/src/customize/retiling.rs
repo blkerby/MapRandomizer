@@ -84,7 +84,7 @@ pub fn apply_retiling(rom: &mut Rom, game_data: &GameData, theme_name: &str) -> 
     let mut fx_data_map: HashMap<Vec<u8>, usize> = HashMap::new();
 
     let base_theme = &retiled_theme_data.themes["Base"];
-    let num_tilesets = base_theme.sce_tilesets.keys().max().unwrap() + 1;
+    let num_tilesets = retiled_theme_data.sce_tilesets.keys().max().unwrap() + 1;
     assert!(new_tile_pointers_snes + 2 * num_tilesets <= tile_pointers_free_space_end);
 
     // Write CRE 8x8 tile graphics and update pointers to it:
@@ -104,7 +104,7 @@ pub fn apply_retiling(rom: &mut Rom, game_data: &GameData, theme_name: &str) -> 
     rom.write_u16(snes2pc(0x82EAF1), (pc2snes(cre_gfx16x16_addr) & 0xFFFF) as isize)?;
     
     // Write SCE tileset:
-    for (&tileset_idx, tileset) in base_theme.sce_tilesets.iter() {
+    for (&tileset_idx, tileset) in retiled_theme_data.sce_tilesets.iter() {
         if tileset_idx >= 0x0F && tileset_idx <= 0x14 {
             // Skip Ceres tilesets
             continue;
