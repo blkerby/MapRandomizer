@@ -119,6 +119,7 @@ pub enum Requirement {
     Item(ItemId),
     Flag(FlagId),
     NotFlag(FlagId),
+    Walljump,
     ShineCharge {
         used_tiles: f32,
     },
@@ -877,6 +878,7 @@ pub struct GameData {
     pub start_locations: Vec<StartLocation>,
     pub hub_locations: Vec<HubLocation>,
     pub heat_run_tech_id: TechId, // Cached since it is used frequently in graph traversal, and to avoid needing to store it in every HeatFrames req.
+    pub wall_jump_tech_id: TechId,
     pub title_screen_data: TitleScreenData,
 }
 
@@ -1200,6 +1202,8 @@ impl GameData {
             let value = req_json.as_str().unwrap();
             if value == "never" {
                 return Ok(Requirement::Never);
+            } else if value == "canWalljump" {
+                return Ok(Requirement::Walljump);
             } else if value == "i_ammoRefill" {
                 return Ok(Requirement::AmmoStationRefill);
             } else if value == "i_BlueGateGlitchLeniency" {

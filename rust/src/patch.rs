@@ -1487,6 +1487,10 @@ impl<'a> Patcher<'a> {
             write_credits_big_digit(self.rom, step / 10, base_addr + 2)?;
         }
         write_credits_big_digit(self.rom, step % 10, base_addr + 4)?;
+        
+        // Write colon after step number:
+        self.rom.write_u16(base_addr + 6, 0x5A)?;
+        self.rom.write_u16(base_addr + 6 + 0x40, 0x5A)?;
 
         // Write item text
         for (i, c) in item.chars().enumerate() {
@@ -1531,21 +1535,21 @@ impl<'a> Patcher<'a> {
     fn apply_credits(&mut self) -> Result<()> {
         // Write randomizer settings to credits tilemap
         self.write_preset(
-            222,
+            224,
             self.randomization
                 .difficulty
                 .skill_assumptions_preset
                 .clone(),
         )?;
         self.write_preset(
-            224,
+            226,
             self.randomization
                 .difficulty
                 .item_progression_preset
                 .clone(),
         )?;
         self.write_preset(
-            226,
+            228,
             self.randomization.difficulty.quality_of_life_preset.clone(),
         )?;
 

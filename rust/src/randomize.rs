@@ -3309,8 +3309,10 @@ impl<'r> Randomizer<'r> {
                 // succeeded or we have failed.
 
                 // Check that at least one instance of each item can be collected.
-                if !state.global_state.items.iter().all(|&b| b) {
-                    bail!("[attempt {attempt_num_rando}] Attempt failed: Key items not all collectible");
+                for i in 0..self.initial_items_remaining.len() {
+                    if self.initial_items_remaining[i] > 0 && !state.global_state.items[i] {
+                        bail!("[attempt {attempt_num_rando}] Attempt failed: Key items not all collectible");
+                    }
                 }
 
                 // Check that Phantoon can be defeated. This is to rule out the possibility that Phantoon may be locked

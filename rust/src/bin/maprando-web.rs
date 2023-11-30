@@ -1381,13 +1381,16 @@ async fn randomize(
             );
             let randomization = match randomization_result {
                 Ok(x) => x,
-                Err(_) => continue
+                Err(e) => {
+                    info!("Attempt {attempt_num}/{max_attempts}: Randomization failed: {}", e);
+                    continue;
+                }
             };
             let output_rom_result = make_rom(&rom, &randomization, &app_data.game_data);
             let output_rom = match output_rom_result {
                 Ok(x) => x,
                 Err(e) => {
-                    info!("Attempt {attempt_num}/{max_attempts}: {}", e);
+                    info!("Attempt {attempt_num}/{max_attempts}: Failed to write ROM: {}", e);
                     continue;
                 }
             };

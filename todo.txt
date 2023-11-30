@@ -4,12 +4,12 @@ v100:
     - DONE: PLM graphics: $899100?
     - DONE: message box (bank $85))
     - DONE: make walljump activation be conditional on the item being collected
-    - PLM instruction list, etc. (bank $84)
-      - make separate instruction lists for chozo/scenery PLMs
+    - DONE: PLM instruction list, etc. (bank $84)
+      - DONE: make separate instruction lists for chozo/scenery PLMs
   - DONE: add WallJump collectible option
     - DONE: make applying the patch be conditional on the setting
   - DONE: add WallJump to item list, for item progression options
-  - integrate into logic: replace canWalljump with item requirement
+  - DONE: integrate into logic: replace canWalljump with item requirement
   - add to stats/credits
   - DONE: add to spoiler map icons
 
