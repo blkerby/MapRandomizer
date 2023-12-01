@@ -790,6 +790,30 @@ impl LinksDataGroup {
     }
 }
 
+fn get_ignored_notable_strats() -> HashSet<String> {
+    [
+        "Suitless Botwoon Kill",
+        "Maridia Bug Room Frozen Menu Bridge",
+        "Breaking the Maridia Tube Gravity Jump",
+        "Metroid Room 1 PB Dodge Kill (Left to Right)",
+        "Metroid Room 1 PB Dodge Kill (Right to Left)",
+        "Metroid Room 2 PB Dodge Kill (Bottom to Top)",
+        "Metroid Room 3 PB Dodge Kill (Left to Right)",
+        "Metroid Room 3 PB Dodge Kill (Right to Left)",
+        "Metroid Room 4 Three PB Kill (Top to Bottom)",
+        "Metroid Room 4 Six PB Dodge Kill (Bottom to Top)",
+        "Metroid Room 4 Three PB Dodge Kill (Bottom to Top)",
+        "Partial Covern Ice Clip",
+        "Mickey Mouse Crumble Jump IBJ",
+        "G-Mode Morph Breaking the Maridia Tube Gravity Jump", // not usable because of canRiskPermanentLossOfAccess
+        "Mt. Everest Cross Room Jump through Top Door", // currently unusable because of obstacleCleared requirement
+        "Halfie Climb Room Xray Climb Grapple Clip",    // currently unusable because of door bypass
+    ]
+    .iter()
+    .map(|x| x.to_string())
+    .collect()
+}
+
 type TitleScreenImage = ndarray::Array3<u8>;
 
 #[derive(Default)]
@@ -826,6 +850,7 @@ pub struct GameData {
     pub helpers: HashMap<String, Option<Requirement>>,
     pub room_json_map: HashMap<RoomId, JsonValue>,
     pub room_obstacle_idx_map: HashMap<RoomId, HashMap<String, usize>>,
+    pub ignored_notable_strats: HashSet<String>,
     pub node_json_map: HashMap<(RoomId, NodeId), JsonValue>,
     pub node_spawn_at_map: HashMap<(RoomId, NodeId), NodeId>,
     pub node_runways_map: HashMap<(RoomId, NodeId), Vec<Runway>>,
@@ -1775,6 +1800,16 @@ impl GameData {
                 bail!("Error processing region path: {}", entry.err().unwrap());
             }
         }
+
+        let ignored_notable_strats = get_ignored_notable_strats();
+        if !ignored_notable_strats.is_subset(&self.ignored_notable_strats) {
+            let diff: Vec<String> = ignored_notable_strats
+                .difference(&self.ignored_notable_strats)
+                .cloned()
+                .collect();
+            panic!("Unrecognized ignored notable strats: {:?}", diff);
+        }
+    
         Ok(())
     }
 
@@ -1864,6 +1899,9 @@ impl GameData {
 
     fn preprocess_room(&mut self, room_json: &JsonValue) -> Result<JsonValue> {
         // We apply some changes to the sm-json-data specific to Map Rando.
+
+        let ignored_notable_strats = get_ignored_notable_strats();
+
         let mut new_room_json = room_json.clone();
         ensure!(room_json["nodes"].is_array());
         let mut next_node_id = room_json["nodes"]
@@ -2088,6 +2126,16 @@ impl GameData {
             }
             for strat in new_strats {
                 new_room_json["strats"].push(strat).unwrap();
+            }
+        }
+
+        for strat_json in new_room_json["strats"].members_mut() {
+            let strat_name = strat_json["name"].as_str().unwrap();
+            if ignored_notable_strats.contains(strat_name) {
+                if strat_json["notable"].as_bool() == Some(true) {
+                    self.ignored_notable_strats.insert(strat_name.to_string());
+                }
+                strat_json["notable"] = JsonValue::Boolean(false);
             }
         }
         Ok(new_room_json)

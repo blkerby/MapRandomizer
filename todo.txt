@@ -1,5 +1,6 @@
 v100:
-- scale back some of the heated map tile brightness a bit? 
+- fix how ignored_notable_strats show in logic pages.
+- DONE: scale back some of the heated map tile brightness a bit? 
   - contrast between faded vs. non-faded dots seems a bit less than ideal, for some areas
 - DONE?: include walljump boots in item percentage post-credits
 - DONE: implement bit in the ROM to indicate if walljump boots option is enabled (for item tracking)
@@ -12,7 +13,6 @@ v99:
 
 priority:
 - adjust heat damage multipliers?
-- walljump item
 - add physics/heated override to runway geometry
 - fix toilet to restore x position on exit?
 - leniency for shinecharge frames
@@ -30,11 +30,8 @@ priority:
   - need special handling for reusable notables though
 - List notable strats in the main logic page.
 - add a logic page for each difficulty tier (similar to the sections within the Generate page)
-- add CF health refill to logic
-  - include tricky CF at ammo refill stations
 - clarify gate glitch leniency: that it doesn't apply to Pink Hopper Room gate
 - consider prioritizing item placement at closer item locations relative to previous key item(s)
-- start logging the seed generation latency
 - split off toilet from aqueduct
 - speed booster hall: heat frames could be slightly less?
 - set up a more robust way for users to save & select presets

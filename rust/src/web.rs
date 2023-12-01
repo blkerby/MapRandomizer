@@ -66,7 +66,6 @@ pub struct VersionInfo {
 pub struct AppData {
     pub game_data: GameData,
     pub preset_data: Vec<PresetData>,
-    pub ignored_notable_strats: HashSet<String>,
     pub implicit_tech: HashSet<String>,
     pub map_repositories: HashMap<String, MapRepository>,
     pub seed_repository: SeedRepository,

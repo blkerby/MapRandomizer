@@ -302,7 +302,6 @@ struct SeedData {
     preset: Option<String>,
     item_progression_preset: Option<String>,
     difficulty: DifficultyConfig,
-    ignored_notable_strats: Vec<String>,
     quality_of_life_preset: Option<String>,
     supers_double: bool,
     mother_brain_fight: String,
@@ -426,14 +425,11 @@ fn render_seed(
     seed_data: &SeedData,
     app_data: &AppData,
 ) -> Result<(String, String)> {
-    let ignored_notable_strats: HashSet<String> =
-        seed_data.ignored_notable_strats.iter().cloned().collect();
     let notable_strats: Vec<String> = seed_data
         .difficulty
         .notable_strats
         .iter()
         .cloned()
-        .filter(|x| !ignored_notable_strats.contains(x))
         .collect();
     let enabled_tech: HashSet<String> = seed_data.difficulty.tech.iter().cloned().collect();
     let enabled_notables: HashSet<String> = seed_data
@@ -959,7 +955,7 @@ fn get_difficulty_tiers(
         }
         tech_vec.sort();
 
-        let mut strat_vec: Vec<String> = vec![]; //= app_data.ignored_notable_strats.iter().cloned().collect();
+        let mut strat_vec: Vec<String> = vec![];
         for (strat, enabled) in &preset_data.notable_strat_setting {
             if *enabled && strat_set.contains(strat) {
                 strat_vec.push(strat.clone());
@@ -1127,7 +1123,7 @@ async fn randomize(
     }
 
     let strat_json: serde_json::Value = serde_json::from_str(&req.strat_json).unwrap();
-    let mut strat_vec: Vec<String> = app_data.ignored_notable_strats.iter().cloned().collect();
+    let mut strat_vec: Vec<String> = vec![];
     for (strat, is_enabled) in strat_json.as_object().unwrap().iter() {
         if is_enabled.as_bool().unwrap() {
             strat_vec.push(strat.to_string());
@@ -1437,7 +1433,6 @@ async fn randomize(
         preset: req.preset.as_ref().map(|x| x.0.clone()),
         item_progression_preset: req.item_progression_preset.as_ref().map(|x| x.0.clone()),
         difficulty: difficulty_tiers[0].clone(),
-        ignored_notable_strats: app_data.ignored_notable_strats.iter().cloned().collect(),
         quality_of_life_preset: req.quality_of_life_preset.as_ref().map(|x| x.0.clone()),
         supers_double: req.supers_double.0,
         mother_brain_fight: req.mother_brain_fight.0.clone(),
@@ -1491,7 +1486,6 @@ async fn randomize(
 fn init_presets(
     presets: Vec<Preset>,
     game_data: &GameData,
-    ignored_notable_strats: &HashSet<String>,
     implicit_tech: &HashSet<String>,
 ) -> Vec<PresetData> {
     let mut out: Vec<PresetData> = Vec::new();
@@ -1529,13 +1523,6 @@ fn init_presets(
         .all_links()
         .filter_map(|x| x.notable_strat_name.clone())
         .collect();
-    if !ignored_notable_strats.is_subset(&all_notable_strats) {
-        let diff: Vec<String> = ignored_notable_strats
-            .difference(&all_notable_strats)
-            .cloned()
-            .collect();
-        panic!("Unrecognized ignored notable strats: {:?}", diff);
-    }
 
     let visible_tech: Vec<String> = game_data
         .tech_isv
@@ -1546,9 +1533,9 @@ fn init_presets(
         .collect();
     let visible_tech_set: HashSet<String> = visible_tech.iter().cloned().collect();
 
+    // TODO: remove this
     let visible_notable_strats: HashSet<String> = all_notable_strats
         .iter()
-        .filter(|&x| !ignored_notable_strats.contains(x))
         .cloned()
         .collect();
 
@@ -1629,30 +1616,6 @@ struct Args {
     parallelism: Option<usize>,
     #[arg(long, action)]
     dev: bool,
-}
-
-fn get_ignored_notable_strats() -> HashSet<String> {
-    [
-        "Suitless Botwoon Kill",
-        "Maridia Bug Room Frozen Menu Bridge",
-        "Breaking the Maridia Tube Gravity Jump",
-        "Metroid Room 1 PB Dodge Kill (Left to Right)",
-        "Metroid Room 1 PB Dodge Kill (Right to Left)",
-        "Metroid Room 2 PB Dodge Kill (Bottom to Top)",
-        "Metroid Room 3 PB Dodge Kill (Left to Right)",
-        "Metroid Room 3 PB Dodge Kill (Right to Left)",
-        "Metroid Room 4 Three PB Kill (Top to Bottom)",
-        "Metroid Room 4 Six PB Dodge Kill (Bottom to Top)",
-        "Metroid Room 4 Three PB Dodge Kill (Bottom to Top)",
-        "Partial Covern Ice Clip",
-        "Mickey Mouse Crumble Jump IBJ",
-        "G-Mode Morph Breaking the Maridia Tube Gravity Jump", // not usable because of canRiskPermanentLossOfAccess
-        "Mt. Everest Cross Room Jump through Top Door", // currently unusable because of obstacleCleared requirement
-        "Halfie Climb Room Xray Climb Grapple Clip",    // currently unusable because of door bypass
-    ]
-    .iter()
-    .map(|x| x.to_string())
-    .collect()
 }
 
 fn load_visualizer_files() -> Vec<(String, Vec<u8>)> {
@@ -1742,9 +1705,8 @@ fn build_app_data() -> AppData {
         serde_json::from_str(&std::fs::read_to_string(&"data/presets.json").unwrap()).unwrap();
     let etank_colors: Vec<Vec<String>> =
         serde_json::from_str(&std::fs::read_to_string(&etank_colors_path).unwrap()).unwrap();
-    let ignored_notable_strats = get_ignored_notable_strats();
     let implicit_tech = get_implicit_tech();
-    let preset_data = init_presets(presets, &game_data, &ignored_notable_strats, &implicit_tech);
+    let preset_data = init_presets(presets, &game_data, &implicit_tech);
     let version_info = VersionInfo {
         version: VERSION,
         dev: args.dev,
@@ -1761,7 +1723,6 @@ fn build_app_data() -> AppData {
     let app_data = AppData {
         game_data,
         preset_data,
-        ignored_notable_strats,
         implicit_tech,
         map_repositories: vec![
             (
