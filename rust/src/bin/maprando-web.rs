@@ -1323,7 +1323,7 @@ async fn randomize(
     rng_seed[9] = if race_mode { 1 } else { 0 };
     let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
     let max_attempts = 10000;
-    let max_attempts_per_map = if vanilla_map { max_attempts } else { 10 };
+    let max_attempts_per_map = 10;
     let max_map_attempts = max_attempts / max_attempts_per_map;
     info!(
         "Random seed={random_seed}, max_attempts_per_map={max_attempts_per_map}, max_map_attempts={max_map_attempts}, difficulty={:?}",
