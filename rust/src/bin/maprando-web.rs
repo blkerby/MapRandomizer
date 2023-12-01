@@ -22,7 +22,7 @@ use maprando::patch::{make_rom, Rom};
 use maprando::randomize::{
     filter_links, randomize_doors, DebugOptions, DifficultyConfig, DoorsMode, ItemDotChange,
     ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, MotherBrainFight, Objectives,
-    Randomization, Randomizer, SaveAnimals, AreaAssignment, WallJump, randomize_map_areas,
+    Randomization, Randomizer, SaveAnimals, AreaAssignment, WallJump, EtankRefill, randomize_map_areas,
 };
 use maprando::seed_repository::{Seed, SeedFile, SeedRepository};
 use maprando::spoiler_map;
@@ -249,7 +249,7 @@ struct RandomizeRequest {
     early_save: Text<bool>,
     area_assignment: Text<String>,
     wall_jump: Text<String>,
-    disable_etank_refill: Text<bool>,
+    etank_refill: Text<String>,
     maps_revealed: Text<bool>,
     ultra_low_qol: Text<bool>,
 }
@@ -330,7 +330,7 @@ struct SeedData {
     early_save: bool,
     area_assignment: String,
     wall_jump: String,
-    disable_etank_refill: bool,
+    etank_refill: String,
     maps_revealed: bool,
     vanilla_map: bool,
     ultra_low_qol: bool,
@@ -385,7 +385,7 @@ struct SeedHeaderTemplate<'a> {
     save_animals: String,
     early_save: bool,
     area_assignment: String,
-    disable_etank_refill: bool,
+    etank_refill: String,
     maps_revealed: bool,
     vanilla_map: bool,
     ultra_low_qol: bool,
@@ -501,7 +501,7 @@ fn render_seed(
         save_animals: seed_data.save_animals.clone(),
         early_save: seed_data.early_save,
         area_assignment: seed_data.area_assignment.clone(),
-        disable_etank_refill: seed_data.disable_etank_refill,
+        etank_refill: seed_data.etank_refill.clone(),
         maps_revealed: seed_data.maps_revealed,
         vanilla_map: seed_data.vanilla_map,
         ultra_low_qol: seed_data.ultra_low_qol,
@@ -1038,7 +1038,7 @@ fn get_difficulty_tiers(
             early_save: difficulty.early_save,
             area_assignment: difficulty.area_assignment,
             wall_jump: difficulty.wall_jump,
-            disable_etank_refill: difficulty.disable_etank_refill,
+            etank_refill: difficulty.etank_refill,
             maps_revealed: difficulty.maps_revealed,
             vanilla_map: difficulty.vanilla_map,
             ultra_low_qol: difficulty.ultra_low_qol,
@@ -1285,7 +1285,15 @@ async fn randomize(
                 req.wall_jump.0.as_str()
             ),
         },
-        disable_etank_refill: req.disable_etank_refill.0,
+        etank_refill: match req.etank_refill.0.as_str() {
+            "Disabled" => maprando::randomize::EtankRefill::Disabled,
+            "Vanilla" => maprando::randomize::EtankRefill::Vanilla,
+            "Full" => maprando::randomize::EtankRefill::Full,
+            _ => panic!(
+                "Unrecognized etank_refill setting {}",
+                req.etank_refill.0.as_str()
+            ),
+        },
         maps_revealed: req.maps_revealed.0,
         vanilla_map,
         ultra_low_qol: req.ultra_low_qol.0,
@@ -1470,7 +1478,7 @@ async fn randomize(
         early_save: req.early_save.0,
         area_assignment: req.area_assignment.0.clone(),
         wall_jump: req.wall_jump.0.clone(),
-        disable_etank_refill: req.disable_etank_refill.0,
+        etank_refill: req.etank_refill.0.clone(),
         maps_revealed: req.maps_revealed.0,
         vanilla_map,
         ultra_low_qol: req.ultra_low_qol.0,

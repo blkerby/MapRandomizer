@@ -87,6 +87,13 @@ pub enum WallJump {
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
+pub enum EtankRefill {
+    Disabled,
+    Vanilla,
+    Full,
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
 pub enum SaveAnimals {
     No,
     Maybe,
@@ -160,7 +167,7 @@ pub struct DifficultyConfig {
     pub early_save: bool,
     pub area_assignment: AreaAssignment,
     pub wall_jump: WallJump,
-    pub disable_etank_refill: bool,
+    pub etank_refill: EtankRefill,
     pub maps_revealed: bool,
     pub vanilla_map: bool,
     pub ultra_low_qol: bool,

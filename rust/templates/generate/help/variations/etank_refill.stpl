@@ -1,10 +1,10 @@
 <!-- Button trigger modal -->
-<button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#disableEtankRefillModal">
+<button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#etankRefillModal">
 <i class="bi bi-question-circle"></i>
 </button>
 
 <!-- Modal -->
-<div class="modal" id="disableEtankRefillModal" tabindex="-1">
+<div class="modal" id="etankRefillModal" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
@@ -14,8 +14,9 @@
       <div class="modal-body">
       <p>This option affects the refill that E-Tanks give when collected:
       <ul>
-      <li><b>Vanilla</b>: E-Tanks behave as in the vanilla game, refilling regular energy but not reserve energy.
       <li><b>Disabled</b>: E-Tanks do not provide an energy refill.
+      <li><b>Vanilla</b>: E-Tanks behave as in the vanilla game, refilling regular energy but not reserve energy.
+      <li><b>Full</b>: E-Tanks also refill reserves, on top of regular energy.
       </ul>
       </p>
       </div>

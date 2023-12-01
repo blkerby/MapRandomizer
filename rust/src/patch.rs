@@ -9,7 +9,7 @@ use std::path::Path;
 use crate::{
     customize::vanilla_music::override_music,
     game_data::{DoorPtr, DoorPtrPair, GameData, Item, Map, NodePtr, RoomGeometryDoor, RoomPtr},
-    randomize::{DoorType, LockedDoor, MotherBrainFight, Objectives, Randomization, SaveAnimals, AreaAssignment, WallJump},
+    randomize::{DoorType, LockedDoor, MotherBrainFight, Objectives, Randomization, SaveAnimals, AreaAssignment, WallJump, EtankRefill},
 };
 use anyhow::{ensure, Context, Result};
 use hashbrown::{HashMap, HashSet};
@@ -450,6 +450,16 @@ impl<'a> Patcher<'a> {
             }
         }
 
+        match self.randomization.difficulty.etank_refill {
+            EtankRefill::Disabled => {
+                patches.push("etank_refill_disabled");
+            }
+            EtankRefill::Vanilla => {}
+            EtankRefill::Full => {
+                patches.push("etank_refill_full");
+            }
+        }
+
         if self.randomization.difficulty.respin {
             patches.push("spinjumprestart");
         }
@@ -464,10 +474,6 @@ impl<'a> Patcher<'a> {
 
         if !self.randomization.difficulty.vanilla_map {
             patches.push("zebes_asleep_music");
-        }
-
-        if self.randomization.difficulty.disable_etank_refill {
-            patches.push("disable_etank_refill");
         }
 
         for patch_name in patches {
