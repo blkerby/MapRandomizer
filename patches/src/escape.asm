@@ -9,6 +9,8 @@ arch snes.cpu
 
 !bank_84_free_space_start = $84F380
 !bank_84_free_space_end = $84F600
+!bank_8b_free_space_start = $8BF900
+!bank_8b_free_space_end = $8BF940
 !bank_a7_free_space_start = $A7FF82
 !bank_a7_free_space_end = $A7FFC0
 
@@ -552,3 +554,18 @@ dachora_hit_top:
     rts
 
 warnpc !bank_a7_free_space_end
+
+
+; Include walljump boots in item collection count post-credits
+org $8BE65B
+    LDX #$0016
+
+org $8BE661
+    BIT item_bits,x
+
+org !bank_8b_free_space_start
+item_bits:
+;    dw $0001, $0020, $0004, $1000, $0002, $0008, $0100, $0200, $2000, $4000, $8000, $0400
+;
+;warnpc !bank_8b_free_space_end
+;

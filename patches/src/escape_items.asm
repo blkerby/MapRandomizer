@@ -36,7 +36,7 @@ fix_item_percent:
 
     ldx #$0008  ; run hi-jacked instruction
     rts
-warnpc $8BF800
+warnpc $8BF770
 
 org $848902
     jsr escape_collect_item
