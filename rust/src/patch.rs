@@ -9,7 +9,7 @@ use std::path::Path;
 use crate::{
     customize::vanilla_music::override_music,
     game_data::{DoorPtr, DoorPtrPair, GameData, Item, Map, NodePtr, RoomGeometryDoor, RoomPtr},
-    randomize::{DoorType, LockedDoor, MotherBrainFight, Objectives, Randomization, SaveAnimals, AreaAssignment, WallJump},
+    randomize::{DoorType, LockedDoor, MotherBrainFight, Objectives, Randomization, SaveAnimals, AreaAssignment, WallJump, EtankRefill},
 };
 use anyhow::{ensure, Context, Result};
 use hashbrown::{HashMap, HashSet};
@@ -447,6 +447,16 @@ impl<'a> Patcher<'a> {
             }
             WallJump::Disabled => {
                 patches.push("disable_walljump");
+            }
+        }
+
+        match self.randomization.difficulty.etank_refill {
+            EtankRefill::Disabled => {
+                patches.push("etank_refill_disabled");
+            }
+            EtankRefill::Vanilla => {}
+            EtankRefill::Full => {
+                patches.push("etank_refill_full");
             }
         }
 

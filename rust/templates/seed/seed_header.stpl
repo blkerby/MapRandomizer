@@ -84,6 +84,15 @@
             }
             _ => {}
         }
+        match difficulty.etank_refill {
+            EtankRefill::Disabled => {
+                game_variations.push("E-Tank refill disabled");
+            }
+            EtankRefill::Full => {
+                game_variations.push("E-Tanks refill reserves");
+            }
+            _ => {}
+        }
         if maps_revealed {
             game_variations.push("Maps revealed from start");
         }
