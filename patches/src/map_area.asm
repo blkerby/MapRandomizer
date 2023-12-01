@@ -405,18 +405,17 @@ area_palettes_explored:
     dw $6c12  ; Crateria
     dw $0240  ; Brinstar
     dw $0017  ; Norfair
-    dw $0250  ; Wrecked Ship
-    dw $7d83  ; Maridia
+    dw $0230  ; Wrecked Ship
+    dw $7583  ; Maridia
     dw $0195  ; Tourian
 
 area_palettes_explored_light:
-    dw $7e1b  ; Crateria
-    dw $3b2e  ; Brinstar
-    dw $39df  ; Norfair
-    dw $3317  ; Wrecked Ship
-    dw $7ece  ; Maridia
-    dw $3a5f  ; Tourian
-
+    dw $7dfb  ; Crateria
+    dw $332c  ; Brinstar
+    dw $319f  ; Norfair
+    dw $2ef7  ; Wrecked Ship
+    dw $7e8c  ; Maridia
+    dw $323d  ; Tourian
 
 next_area:
     lda $1F5B
