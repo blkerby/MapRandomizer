@@ -1,5 +1,5 @@
 v100:
-- fix how ignored_notable_strats show in logic pages.
+- DONE: fix how ignored_notable_strats show in logic pages.
 - DONE: scale back some of the heated map tile brightness a bit? 
   - contrast between faded vs. non-faded dots seems a bit less than ideal, for some areas
 - DONE?: include walljump boots in item percentage post-credits
@@ -12,6 +12,7 @@ v99:
 - fix logic bug in Etecoon ETank room: add back Base strat [2, 3]
 
 priority:
+- add door lock bypass strats to logic
 - adjust heat damage multipliers?
 - add physics/heated override to runway geometry
 - fix toilet to restore x position on exit?
@@ -20,7 +21,6 @@ priority:
 - clear SRAM more fully when saved seed does not match:
   - save slot position is apparently being retained (e.g. starting with cursor on slot 3)
 - add door flags to refine logic
-- add door lock bypass strats to logic
 - help finish the cross-room strat migration
 - proper saving/loading of custom presets
 - revamp strat page: 

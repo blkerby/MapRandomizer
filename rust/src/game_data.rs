@@ -792,8 +792,6 @@ impl LinksDataGroup {
 
 fn get_ignored_notable_strats() -> HashSet<String> {
     [
-        "Suitless Botwoon Kill",
-        "Maridia Bug Room Frozen Menu Bridge",
         "Breaking the Maridia Tube Gravity Jump",
         "Metroid Room 1 PB Dodge Kill (Left to Right)",
         "Metroid Room 1 PB Dodge Kill (Right to Left)",
@@ -803,8 +801,8 @@ fn get_ignored_notable_strats() -> HashSet<String> {
         "Metroid Room 4 Three PB Kill (Top to Bottom)",
         "Metroid Room 4 Six PB Dodge Kill (Bottom to Top)",
         "Metroid Room 4 Three PB Dodge Kill (Bottom to Top)",
-        "Partial Covern Ice Clip",
-        "Mickey Mouse Crumble Jump IBJ",
+        "Partial Covern Ice Clip", // not usable because of canRiskPermanentLossOfAccess
+        "Mickey Mouse Crumble Jump IBJ",  // only useful with CF clip strat, or if we change item progression rules
         "G-Mode Morph Breaking the Maridia Tube Gravity Jump", // not usable because of canRiskPermanentLossOfAccess
         "Mt. Everest Cross Room Jump through Top Door", // currently unusable because of obstacleCleared requirement
         "Halfie Climb Room Xray Climb Grapple Clip",    // currently unusable because of door bypass
