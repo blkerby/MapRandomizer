@@ -1,19 +1,8 @@
 v100:
-- walljump boots:
-  - ROM patch:
-    - DONE: PLM graphics: $899100?
-    - DONE: message box (bank $85))
-    - DONE: make walljump activation be conditional on the item being collected
-    - DONE: PLM instruction list, etc. (bank $84)
-      - DONE: make separate instruction lists for chozo/scenery PLMs
-  - DONE: add WallJump collectible option
-    - DONE: make applying the patch be conditional on the setting
-  - DONE: add WallJump to item list, for item progression options
-  - DONE: integrate into logic: replace canWalljump with item requirement
-  - DONE: add to stats/credits
-  - DONE: add to spoiler map icons
-- fix some issue with logic:
-  - Precious Room Delayed Walljump is Extreme for some reason.
+- scale back some of the heated map tile brightness a bit? 
+  - contrast between faded vs. non-faded dots seems a bit less than ideal, for some areas
+- include walljump boots in item percentage post-credits
+- implement bit in the ROM to indicate if walljump boots option is enabled (for item tracking)
 
 v99:
 - ETank/Reserve item progression settings:

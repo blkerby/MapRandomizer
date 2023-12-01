@@ -1,1 +1,4 @@
-DF1B-end: credits.asm
+d4df-d91b: credits.asm
+ff00-ff04: seed_hash_display.asm
+ff05: randomizer settings:
+  - bit $0001: walljump-boots item enabled

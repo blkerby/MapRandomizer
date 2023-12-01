@@ -470,6 +470,15 @@ impl<'a> Patcher<'a> {
             let patch_path = patches_dir.join(patch_name.to_string() + ".ips");
             apply_ips_patch(&mut self.rom, &patch_path)?;
         }
+
+        // Write settings flags, e.g. for use by auto-tracking tools:
+        // For now this is just to indicate if walljump-boots exists as an item.
+        let mut settings_flag = 0x0000;
+        if self.randomization.difficulty.wall_jump == WallJump::Collectible {
+            settings_flag |= 0x0001;
+        }
+        self.rom.write_u16(snes2pc(0xdfff05), settings_flag)?;
+
         Ok(())
     }
 
