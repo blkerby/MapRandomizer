@@ -20,6 +20,12 @@ document.getElementById("navigation-releases").classList.add("active");
     <ul>
     <li>When enabled, a "Wall-jump boots" item is placed, and wall jumping is possible only after collecting it.
     </ul>
+<li>New setting "E-Tank energy refill" (under "Other options"):
+    <ul>
+    <li>Disabled: E-Tanks do not provide an energy refill.
+    <li>Vanilla: E-Tanks behave as in the vanilla game, refilling regular energy but not reserve energy.
+    <li>Full: E-Tanks also refill reserves, on top of regular energy.
+    </ul>
 <li>Logic updates:
     <ul>
     <li>Notable strat "Lower Norfair Pillar Room with Power Bombs" is moved from Hard to Very Hard.
