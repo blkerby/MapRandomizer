@@ -13,6 +13,11 @@ v99:
 
 priority:
 - add door lock bypass strats to logic
+  - no longer ignored_notable_strat: Halfie Climb Room Xray Climb Grapple Clip
+  - Butterfly Room left side?
+  - very deep stuck x-ray climbs
+  - ice clips up through vertical doors
+  - moonfalls down through vertical doors
 - adjust heat damage multipliers?
 - add physics/heated override to runway geometry
 - fix toilet to restore x position on exit?
