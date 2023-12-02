@@ -287,6 +287,7 @@ fn apply_ridley_requirement(
 ) -> Option<LocalState> {
     let mut boss_hp: f32 = 18000.0;
     let mut time: f32 = 0.0; // Cumulative time in seconds for the fight
+    let charge_damage = get_charge_damage(&global);
 
     // Assume an ammo accuracy rate of between 50% (on lowest difficulty) to 100% (on highest):
     let accuracy = 0.5 + 0.5 * proficiency;
@@ -303,6 +304,17 @@ fn apply_ridley_requirement(
     local.supers_used += supers_to_use;
     boss_hp -= supers_to_use as f32 * 600.0 * accuracy;
     time += supers_to_use as f32 * 0.5 / firing_rate; // Assumes max average rate of 2 supers per second
+
+    // Use Charge Beam if it's powerful enough
+    // 500 is the point at which Charge Beam has better DPS than Missiles, this happens with Charge + Plasma + (Ice and/or Wave)
+    if charge_damage >= 500.0 {
+        let powerful_charge_shots_to_use = max(
+            0,
+            f32::ceil(boss_hp / (charge_damage * accuracy)) as Capacity,
+        );
+        boss_hp = 0.0;
+        time += powerful_charge_shots_to_use as f32 * 1.5 / firing_rate; // Assume max 1 charge shot per 1.5 seconds
+    }
 
     // Then use available missiles:
     let missiles_available = global.max_missiles - local.missiles_used;
@@ -321,7 +333,6 @@ fn apply_ridley_requirement(
         // Then finish with Charge shots:
         // (TODO: it would be a little better to prioritize Charge shots over Supers/Missiles in
         // some cases).
-        let charge_damage = get_charge_damage(&global);
         let charge_shots_to_use = max(
             0,
             f32::ceil(boss_hp / (charge_damage * accuracy)) as Capacity,
