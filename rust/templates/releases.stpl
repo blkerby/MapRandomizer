@@ -29,6 +29,7 @@ document.getElementById("navigation-releases").classList.add("active");
 <li>Logic updates:
     <ul>
     <li>Notable strat "Lower Norfair Pillar Room with Power Bombs" is moved from Hard to Very Hard.
+    <li>Notable strat "Cacatac Alley Springball Spike Boost" is moved from Expert to Extreme.
     </ul>
 </ul>
 
