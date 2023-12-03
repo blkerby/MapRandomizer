@@ -178,6 +178,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         area_assignment: AreaAssignment::Standard,
         early_save: false,
         wall_jump: maprando::randomize::WallJump::Collectible,
+        etank_refill: maprando::randomize::EtankRefill::Vanilla,
         maps_revealed: true,
         vanilla_map: false,
         ultra_low_qol: false,

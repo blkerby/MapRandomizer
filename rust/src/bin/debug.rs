@@ -138,6 +138,7 @@ fn main() -> Result<()> {
         early_save: false,
         area_assignment: AreaAssignment::Standard,
         wall_jump: WallJump::Vanilla,
+        etank_refill: maprando::randomize::EtankRefill::Vanilla,
         maps_revealed: false,
         vanilla_map: false,
         ultra_low_qol: false,

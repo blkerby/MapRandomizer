@@ -5,7 +5,7 @@ use crate::{
         get_effective_runway_length, Capacity, DoorPosition, DoorPtrPair, EntranceCondition,
         ExitCondition, FlagId, GModeMobility, GModeMode, HubLocation, Item, ItemId, ItemLocationId,
         Link, LinkIdx, LinksDataGroup, Map, NodeId, Physics, Requirement, RoomGeometryRoomIdx,
-        RoomId, StartLocation, VertexId,
+        RoomId, StartLocation, VertexId, SparkPosition,
     },
     traverse::{
         apply_requirement, get_bireachable_idxs, get_spoiler_route, traverse, GlobalState,
@@ -693,9 +693,16 @@ impl<'a> Preprocessor<'a> {
         &self,
         exit_link: &Link,
         exit_condition: &ExitCondition,
+        come_in_position: SparkPosition
     ) -> Option<Requirement> {
         match exit_condition {
-            ExitCondition::LeaveWithSpark {} => Some(Requirement::Free),
+            ExitCondition::LeaveWithSpark { position } => {
+                if *position == come_in_position || *position == SparkPosition::Any || come_in_position == SparkPosition::Any {
+                    Some(Requirement::Free)
+                } else {
+                    None
+                }
+            }
             ExitCondition::LeaveShinecharged { .. } => Some(Requirement::Free),
             ExitCondition::LeaveWithRunway {
                 effective_length,
@@ -985,8 +992,8 @@ impl<'a> Preprocessor<'a> {
             EntranceCondition::ComeInShinecharged { frames_required } => {
                 self.get_come_in_shinecharged_reqs(exit_link, exit_condition, *frames_required)
             }
-            EntranceCondition::ComeInWithSpark {} => {
-                self.get_come_in_with_spark_reqs(exit_link, exit_condition)
+            EntranceCondition::ComeInWithSpark { position } => {
+                self.get_come_in_with_spark_reqs(exit_link, exit_condition, *position)
             }
             EntranceCondition::ComeInStutterShinecharging { min_tiles } => {
                 self.get_come_in_stutter_shinecharging_reqs(exit_link, exit_condition, *min_tiles)

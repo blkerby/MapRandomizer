@@ -519,6 +519,13 @@ fn parse_door_position(door_position: &str) -> Result<DoorPosition> {
 #[derive(Clone, Debug)]
 pub struct GModeRegainMobility {}
 
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum SparkPosition {
+    Top,
+    Bottom,
+    Any,
+}
+
 #[derive(Clone, Debug)]
 pub enum ExitCondition {
     LeaveWithRunway {
@@ -529,7 +536,9 @@ pub enum ExitCondition {
     LeaveShinecharged {
         frames_remaining: i32,
     },
-    LeaveWithSpark {},
+    LeaveWithSpark {
+        position: SparkPosition,
+    },
     LeaveWithGModeSetup {
         knockback: bool,
     },
@@ -539,6 +548,15 @@ pub enum ExitCondition {
     LeaveWithStoredFallSpeed {
         fall_speed_in_tiles: i32,
     },
+}
+
+fn parse_spark_position(s: Option<&str>) -> Result<SparkPosition> {
+    Ok(match s {
+        Some("top") => SparkPosition::Top,
+        Some("bottom") => SparkPosition::Bottom,
+        None => SparkPosition::Any,
+        _ => bail!("Unrecognized spark position: {}", s.unwrap())
+    })
 }
 
 fn parse_exit_condition(
@@ -565,7 +583,9 @@ fn parse_exit_condition(
                 .as_i32()
                 .context("Expecting integer 'framesRemaining'")?,
         }),
-        "leaveWithSpark" => Ok(ExitCondition::LeaveWithSpark {}),
+        "leaveWithSpark" => Ok(ExitCondition::LeaveWithSpark {
+            position: parse_spark_position(value["position"].as_str())?,
+        }),
         "leaveWithGModeSetup" => Ok(ExitCondition::LeaveWithGModeSetup {
             knockback: value["knockback"].as_bool().unwrap_or(true),
         }),
@@ -618,7 +638,9 @@ pub enum EntranceCondition {
     ComeInShinecharged {
         frames_required: i32,
     },
-    ComeInWithSpark {},
+    ComeInWithSpark {
+        position: SparkPosition,
+    },
     ComeInStutterShinecharging {
         min_tiles: f32,
     },
@@ -711,7 +733,9 @@ fn parse_entrance_condition(entrance_json: &JsonValue, heated: bool) -> Result<E
                 .as_i32()
                 .context("Expecting integer 'framesRequired'")?,
         }),
-        "comeInWithSpark" => Ok(EntranceCondition::ComeInWithSpark {}),
+        "comeInWithSpark" => Ok(EntranceCondition::ComeInWithSpark {
+            position: parse_spark_position(value["position"].as_str())?,
+        }),
         "comeInStutterShinecharging" => Ok(EntranceCondition::ComeInStutterShinecharging {
             min_tiles: value["minTiles"]
                 .as_f32()
@@ -2474,7 +2498,9 @@ impl GameData {
                                 frames_remaining: can_leave_charged.frames_remaining,
                             }
                         } else {
-                            ExitCondition::LeaveWithSpark {}
+                            ExitCondition::LeaveWithSpark {
+                                position: SparkPosition::Any,
+                            }
                         };
                         self.node_exits
                             .entry((room_id, node_id))
