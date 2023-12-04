@@ -487,6 +487,9 @@ impl<'a> Patcher<'a> {
         if self.randomization.difficulty.wall_jump == WallJump::Collectible {
             settings_flag |= 0x0001;
         }
+        if self.randomization.difficulty.wall_jump == WallJump::Disabled {
+            settings_flag |= 0x0002;
+        }
         self.rom.write_u16(snes2pc(0xdfff05), settings_flag)?;
 
         Ok(())

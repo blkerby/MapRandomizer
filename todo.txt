@@ -1,5 +1,10 @@
 v100:
-- implement `position` property of `leaveWithSpark`/`comeInWithSpark`.
+- add implicit tech requirement "canSkipDoorLock" on applicable strats.
+- implement "resetsObstacles".
+- implement "autoReserveTrigger".
+- in logic pages, indicate if strat bypasses door shell.
+  - also indicate g-mode regain mobility.
+- DONE: implement `position` property of `leaveWithSpark`/`comeInWithSpark`.
 - DONE: fix how ignored_notable_strats show in logic pages.
 - DONE: scale back some of the heated map tile brightness a bit? 
   - contrast between faded vs. non-faded dots seems a bit less than ideal, for some areas
