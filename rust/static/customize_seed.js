@@ -71,3 +71,20 @@ function checkOtherOptions() {
         document.getElementById("collapseOtherOptions").classList.add("show");
     }
 }
+function swapButtonAssignment(clickedEl) {
+    var action = null;
+    var actionIdx = null;
+    var actions = ["control_shot", "control_jump", "control_dash", "control_item_select", "control_item_cancel", "control_angle_up", "control_angle_down"];
+    var formEl = document.getElementById(clickedEl.getAttribute("for"));
+    var newButton = formEl.value;
+    var oldButton = formEl.form.elements[formEl.name].value;
+    for (actionIdx in actions) {
+        action = actions[actionIdx];
+        if (action == formEl.name) {
+            continue;
+        }
+        if (formEl.form.elements[action].value == newButton) {
+            formEl.form.elements[action].value = oldButton;
+        }
+    }
+}
