@@ -206,7 +206,7 @@ window.spoilerTokenPrefix = "<%- spoiler_token_prefix %>";
                                                         let checked = if button == &default { " checked" } else { "" };
                                                     %>
                                                     <input type="radio" class="btn-check" id="<%- form_name%><%- button %>" name="<%- form_name %>" value="<%- button %>"<%- checked%>>
-                                                    <label class="btn btn-outline-primary" for="<%- form_name %><%- button %>" onmouseup="swapButtonAssignment(this)"><%= button %></label>
+                                                    <label class="btn btn-outline-primary" for="<%- form_name %><%- button %>" onclick="swapButtonAssignment(this)"><%= button %></label>
                                                     <% } %>
                                                 </div>
                                             </div>
