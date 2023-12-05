@@ -42,6 +42,7 @@ document.getElementById("navigation-releases").classList.add("active");
     <li>Notable strat "Lower Norfair Pillar Room with Power Bombs" is moved from Hard to Very Hard.
     <li>Notable strat "Cacatac Alley Springball Spike Boost" is moved from Expert to Extreme.
     </ul>
+<li>A new tile theme option "Wrecked Ship" is available.
 </ul>
 
 <p><a id="release99">Version 99 (2023-11-29)</a>:
