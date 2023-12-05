@@ -97,15 +97,10 @@ let item_plm = {
 	"ReserveTank": 20,
 	"WallJump": 21,
 };
-let change_item = (old_plm,id) => {
-	let old_id = ((old_plm - 0xEED7) / 4) % 21;
-	return old_plm + (id - old_id) * 4;
-}
 let item_addrs;
 fetch(`item_addrs.json`).then(c => c.json()).then(c => {
 	item_addrs = c;
 })
-let plando_changes = {};
 let doors;
 fetch(`doors.json`).then(c => c.json()).then(c => {
 	doors = c;
@@ -195,38 +190,6 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 			}
 			el.classList.add("hidden")
 		}
-	}
-	window.generate_rom = async () => {
-		const rom_data = await localforage.getItem("baseRomData") ?? await localforage.getItem("vanillaRomData");
-		if (!rom_data) {
-			alert("Please set the ROM on the previous page.");
-			return;
-		}
-		const form = new FormData();
-		form.append("room_palettes", "vanilla");
-		const rom = new Blob([rom_data], { type: "" });
-		form.append("rom", rom);
-		let c = await fetch("../../customize", { body: form, method: "post" });
-		let blob = await c.blob();
-		// change up the item locations
-		let ab = await blob.arrayBuffer();
-		let bytes = new Uint8Array(ab);
-		for (let i in plando_changes) {
-			let offset = +item_addrs[i];
-			console.log(offset, item_addrs[i]);
-			let value = item_plm[plando_changes[i]];
-			let orig = bytes[offset] | (bytes[offset+1]<<8)
-			let n = change_item(orig, value);
-			console.log(orig, value, n);
-			bytes[offset] = n;
-			bytes[offset+1] = n>>8;
-			console.log(bytes[offset] | (bytes[offset+1]<<8));
-		}
-		blob = new Blob([ab]);
-		let a = document.createElement("a");
-		a.href = URL.createObjectURL(blob);
-		a.setAttribute("download", "plando.sfc");
-		a.click();
 	}
 	let icon = id => `<div class="ui-icon" style="background-position-x: -${id*16}px"></div>`;
 	let print_route = () => {
@@ -427,19 +390,6 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 					f(k);
 				}
 			}
-			si.innerHTML += `<div class="category">CHANGE ITEM</div>`;
-			let out = "";
-			out += `<select onchange="changeItem(this)">`;
-			for (let i of Object.keys(item_plm)) {
-				out += `<option ${i == v.item ? "selected" : ""}>${i}</option>`
-			}
-			out += `</select>`;
-			window.changeItem = sel => {
-				v.item = sel.value;
-				icon_el.style.backgroundPositionX = `-${item_plm[sel.value] * 16}px`;
-				plando_changes[v.location.node] = sel.value;
-			}
-			si.innerHTML += out;
 		};
 		document.getElementById("overlay").appendChild(el);
 		el = document.createElement("div");
