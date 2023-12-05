@@ -148,7 +148,6 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 			}
 		}
 		ctx.putImageData(img, 0, 0);
-		// TODO: hide items and unfuck overlay
 	}
 	gen_obscurity(null);
 	let el = document.getElementById("room-info");
@@ -208,7 +207,6 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 			out += `</div>`;
 		}
 		out += `<div onclick="gen_obscurity(null)"><div class="category">OTHER ITEMS</div></div>`;
-		out += `<button onclick="generate_rom()">Download ROM</button>`;
 		si.innerHTML = out;
 	}
 	print_route();
@@ -258,6 +256,7 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 		} else {
 			// deselect
 			print_route();
+			document.getElementById("path-overlay").innerHTML = ""
 		}
 	}
 	document.getElementById("map").ondblclick = ev => {
@@ -272,7 +271,6 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 		}
 		let el = document.createElement("div");
 		el.className = "icon";
-		//console.log(v);
 		el.style.left = v.location.coords[0] * 24 + 24 + 4 + "px";
 		el.style.top = v.location.coords[1] * 24 + 24 + 4 + "px";
 		el.style.backgroundPositionX = `-${item_plm[v.item] * 16}px`;
@@ -287,7 +285,6 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 				}
 			}
 		}
-		let icon_el = el;
 		el.onclick = ev => {
 			if (j) {
 				let path = "";
@@ -332,7 +329,7 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 			let si = document.getElementById("sidebar-info");
 			si.innerHTML = `<div class="sidebar-title">${v.item}</div><div class="category">LOCATION</div>${v.location.room}<br><small>${v.location.node}</small>`;
 			if (j) {
-				si.innerHTML += `<div class="category">PREREQUISITES</div>`;
+				si.innerHTML += `<div class="category">STARTING ITEMS</div>`;
 				let ss = c.details[i].start_state;
 				let s = [ss.max_missiles, ss.max_supers, ss.max_power_bombs, ss.max_energy, ss.max_reserves];
 				let ic = [1, 2, 3, 0, 20];
@@ -401,28 +398,6 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 			for (let j of c.details[i].items) {
 				if (j.location.node == v.location.node) {
 					el.innerHTML += `Step: ${c.details[i].step}<br>`;
-					let strats = new Set();
-					let energy = null;
-					let reserves = null;
-					for (let k of j.obtain_route) {
-						if (k.strat_name != "Base" && k.strat_name != "(Door transition)") {
-							strats.add(k.strat_name);
-						}
-						if (k.energy_remaining) {
-							energy = k.energy_remaining;
-							reserves = k.reserves_remaining;
-						}
-					}
-					if (energy) {
-						let en = c.details[i].start_state.max_energy - energy;
-						if (reserves) {
-							en += c.details[i].start_state.max_reserves - reserves;
-						}
-						el.innerHTML += `Energy used: ${en}<br>`;
-					}
-					/*if (strats.size != 0) {
-						el.innerHTML += `Strats: <br><small>${[...strats].join("<br>")}</small>`;
-					}*/
 					fin = true;
 					break out;
 				}
