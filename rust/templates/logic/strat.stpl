@@ -61,3 +61,8 @@ Notable: true<br>
       let obstacle_list = strat.clears_obstacles.join(", "); %>
     Clears obstacles: <%= obstacle_list %>
 <% } %>
+<% if strat.bypasses_door_shell { %>
+<p>
+Bypasses door shell: true<br>
+</p>
+<% } %>

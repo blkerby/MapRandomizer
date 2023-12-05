@@ -1,9 +1,8 @@
 v100:
-- add implicit tech requirement "canSkipDoorLock" on applicable strats.
 - implement "resetsObstacles".
 - implement "autoReserveTrigger".
-- in logic pages, indicate if strat bypasses door shell.
-  - also indicate g-mode regain mobility.
+- DONE: in logic pages, indicate if strat bypasses door shell.
+- DONE: add implicit tech requirement "canSkipDoorLock" on applicable strats.
 - DONE: implement `position` property of `leaveWithSpark`/`comeInWithSpark`.
 - DONE: fix how ignored_notable_strats show in logic pages.
 - DONE: scale back some of the heated map tile brightness a bit? 
@@ -11,13 +10,9 @@ v100:
 - DONE?: include walljump boots in item percentage post-credits
 - DONE: implement bit in the ROM to indicate if walljump boots option is enabled (for item tracking)
 
-v99:
-- ETank/Reserve item progression settings:
-  - new filler option: rename "No" to "Semi", and make "No" mean never filler
-  - new option to group ETanks/Reserve Tanks for key item progression
-- fix logic bug in Etecoon ETank room: add back Base strat [2, 3]
-
 priority:
+- indicate g-mode regain mobility in logic pages. 
+  - wait until after g-mode migration has made substantial progress.
 - add door lock bypass strats to logic
   - no longer ignored_notable_strat: Halfie Climb Room Xray Climb Grapple Clip
   - Butterfly Room left side?
