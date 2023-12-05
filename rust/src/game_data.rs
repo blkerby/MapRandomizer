@@ -829,7 +829,6 @@ fn get_ignored_notable_strats() -> HashSet<String> {
         "Mickey Mouse Crumble Jump IBJ",  // only useful with CF clip strat, or if we change item progression rules
         "G-Mode Morph Breaking the Maridia Tube Gravity Jump", // not usable because of canRiskPermanentLossOfAccess
         "Mt. Everest Cross Room Jump through Top Door", // currently unusable because of obstacleCleared requirement
-        "Halfie Climb Room Xray Climb Grapple Clip",    // currently unusable because of door bypass
     ]
     .iter()
     .map(|x| x.to_string())
@@ -2847,6 +2846,11 @@ impl GameData {
                     }
                 }
 
+                let bypasses_door_shell = strat_json["bypassesDoorShell"].as_bool().unwrap_or(false);
+                if bypasses_door_shell {
+                    requires_vec.push(Requirement::Tech(self.tech_isv.index_by_key["canSkipDoorLock"]));
+                }
+
                 let requirement = Requirement::make_and(requires_vec);
                 if let Requirement::Never = requirement {
                     continue;
@@ -2860,7 +2864,7 @@ impl GameData {
                     to_vertex_id,
                     requirement: requirement.clone(),
                     entrance_condition: entrance_condition.clone(),
-                    bypasses_door_shell: strat_json["bypassesDoorShell"].as_bool().unwrap_or(false),
+                    bypasses_door_shell,
                     notable_strat_name: if notable {
                         Some(notable_strat_name)
                     } else {

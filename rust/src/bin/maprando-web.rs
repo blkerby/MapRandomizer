@@ -1712,7 +1712,7 @@ fn build_app_data() -> AppData {
     )
     .unwrap();
 
-    info!("Loading logic data");
+    info!("Loading logic preset data");
     // let samus_customizer = SamusSpriteCustomizer::new(samus_spritesheet_layout_path).unwrap();
     let tech_gif_listing = list_tech_gif_files();
     let notable_gif_listing = list_notable_gif_files();

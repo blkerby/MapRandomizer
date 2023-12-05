@@ -196,6 +196,9 @@ fn make_tech_templates<'a>(
             let mut tech_set: HashSet<usize> = HashSet::new();
             for req in strat_json["requires"].members() {
                 extract_tech_rec(req, &mut tech_set, game_data);
+                if strat_json["bypassesDoorShell"].as_bool() == Some(true) {
+                    tech_set.insert(game_data.tech_isv.index_by_key["canSkipDoorLock"]);
+                }
             }
             for tech_idx in tech_set {
                 tech_strat_ids[tech_idx].insert(ids.clone());

@@ -218,7 +218,7 @@
       
       "Bubble Mountain Right Side Delayed Walljumps",
       "Cathedral Entrance Left Door Frozen Sova Step",
-      "Double Chamber Shinespark to Wave Beam Door",
+      "Double Chamber Shinespark through Wave Beam Door",      
       "Frog Speedway Shot Block Overload (Speedless Speedway)",
       "Spiky Acid Snake Frozen Platforms",
 
@@ -347,6 +347,8 @@
       "Etecoon Shaft Moonfall Spark",
  
       "Big Pink Speedball into Raised Bomb Blocks",
+      "Big Pink Super Block Speedball",
+      "Big Pink Fast Mockball Leave With Spark",
       "Big Pink Zeb Ice Clip",
       "Dachora Room Shinespark No Etanks No HiJump",
       "Mission Impossible",
@@ -430,6 +432,7 @@
       "canArtificialMorph",
       "canOffScreenMovement",
       "canUpwardGModeSetup",
+      "canSkipDoorLock",
       "canRightSideDoorStuckFromWater",
       "canDiagonalBombJump",
       "canInsaneWalljump",
@@ -488,11 +491,13 @@
 
       "Aqueduct Left-Side X-Ray Climb (Upper)",
       "Aqueduct G-Mode Overload PLMs - PB the Items",
+      "Cacatac Alley Springball Spike Boost",
+      "Crab Shaft Sciser Ice Clip Door Lock Skip",
       "East Sand Hole Sandfall Bounce to Power Bombs",
-      "East Sand Hole Underwater Walljumps", 
+      "East Sand Hole Underwater Walljumps",
 
       "Butterfly Room Door Lock Wall Ice Clip",
-      "Cacatac Alley Springball Spike Boost",
+      "Plasma Spark X-Ray Climb Into Fake Kassiuz Room",
 
       "West Sand Hall Suitless Damage Boost (Center to Left)",
       "West Sand Hall Ice Only (Center to Right)",
@@ -528,14 +533,16 @@
       "Climb G-Mode Morph Insane IBJ to Top",
       "Climb G-Mode Morph Blind Climb to the Top",
       "Climb Morph Tunnel SpeedBall",
+      "Crateria Kihunter Room Ice Moonfall Door Lock Skip",
       "Crateria Supers G-Mode Morph Long Ceiling Bomb Jump",
       "Crateria Supers G-Mode Up with PBs",
       "Crateria Supers In-Room X-Mode BlueSuit",
       "Climb Supers In-Room SpeedKeep for Temporary Blue",
+      "East Ocean Speedy Springball Bounce to the Door",    
       "Green Pirate Shaft Beetom Xray Climb",
       "Green Pirate Shaft Beetom Moondance",
       "Green Pirate Shaft Beetom Stuck Moonfall",
-      "East Ocean Speedy Springball Bounce to the Door",       
+      "Parlor Ice Moonfall Door Lock Skip Without Supers",
 
       "Taco Tank in Blue Brinstar Energy Tank Room",
 
@@ -565,6 +572,8 @@
       "Colosseum with no Equipment",
       "East Cac Alley G-Mode Morph, IBJ, HBJ",
       "East Sand Hole Insane Walljump Morph",
+      "Halfie Climb Stored Moonfall Grapple Door Lock Skip",
+      "Halfie Climb Very Deep Stuck X-Ray Climb",
 
       "West Sand Hall Insane Bomb Jump",
       "Oasis Cross Room Jump with Screw Attack and Speed through the Top Door",
@@ -573,7 +582,7 @@
       "Bowling Alley Ceiling Bomb Jump",
       "WS East Supers Robot Clip Run-In-Place",
 
-      "Baby Skip With Nothing"
+      "Baby Skip With Nothing"      
     ]
   },
   {
@@ -590,7 +599,7 @@
     "tech": [],
     "notable_strats": [
       "Sporespawn Moondance Clip",
-      "TAS Dance",
+      "Green Brinstar Main Shaft TAS Dance",
       "Big Pink Extended Moondance Clip",
       "Cacatac Alley HiJumpless Double SpringBall Jump and Bomb-Grapple-Jump",
       "Everest Double Crab Bomb-Grapple-Jump"
