@@ -1793,6 +1793,11 @@ impl GameData {
             } else if key == "itemNotCollectedAtNode" {
                 // TODO: implement this
                 return Ok(Requirement::Free);
+            } else if key == "autoReserveTrigger" {
+                return Ok(Requirement::ReserveTrigger { 
+                    min_reserve_energy: value["minReserveEnergy"].as_i32().unwrap_or(1),
+                    max_reserve_energy:  value["maxReserveEnergy"].as_i32().unwrap_or(400),
+                })
             }
         }
         bail!("Unable to parse requirement: {}", req_json);

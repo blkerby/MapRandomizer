@@ -2682,7 +2682,7 @@ impl<'r> Randomizer<'r> {
             new_state.global_state.collect(item, self.game_data);
         }
 
-        info!("Trying placing {:?}", key_items);
+        // info!("Trying placing {:?}", key_items);
 
         self.update_reachability(new_state);
         let num_bireachable = new_state

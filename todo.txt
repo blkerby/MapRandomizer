@@ -1,11 +1,6 @@
 v100:
 - implement "autoReserveTrigger".
-- use consistent set of filler items, when trying different key items:
-  - should help cut back on the frequency of crystal flash progression
-  - also cut out cases of unnecessary key items (with slow progression)
-- assume filler items are collected, when determining hard locations for key items.
-- for key items, skip options that are filler (including already-placed semi-filler)
-- define filler more strictly: don't mix in key items into filler, just reduce number of filler items in that case.
+- DONE: use consistent set of filler items, when trying different key items:
 - DONE: implement "resetsObstacles".
 - DONE: in logic pages, indicate if strat bypasses door shell.
 - DONE: add implicit tech requirement "canSkipDoorLock" on applicable strats.
@@ -17,6 +12,8 @@ v100:
 - DONE: implement bit in the ROM to indicate if walljump boots option is enabled (for item tracking)
 
 priority:
+- assume filler items are collected, when determining hard locations for key items?
+- for key items, skip options that are filler (including already-placed semi-filler)?
 - link to twin room in logic room pages.
 - indicate g-mode regain mobility in logic pages. 
   - wait until after g-mode migration has made substantial progress.
