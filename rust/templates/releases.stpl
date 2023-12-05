@@ -28,13 +28,13 @@ document.getElementById("navigation-releases").classList.add("active");
     </ul>
 <li>Logic updates:
     <ul>
+    <li>Many strats to bypass door locks are added:
+        <ul>
+        <li>Ice moonfalls, ice ceiling clips, very deep stuck X-ray climbs, and grapple clips.
+        <li>To be enabled, these now require a new general tech "canSkipDoorLock" (Extreme).
+        </ul>
     <li>Notable strat "Lower Norfair Pillar Room with Power Bombs" is moved from Hard to Very Hard.
     <li>Notable strat "Cacatac Alley Springball Spike Boost" is moved from Expert to Extreme.
-    <li>New tech "canSkipDoorLock" (Extreme).
-    <li>New notable strats:
-        <ul>
-                
-        </ul>
     </ul>
 </ul>
 

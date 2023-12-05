@@ -11,14 +11,12 @@ v100:
 - DONE: implement bit in the ROM to indicate if walljump boots option is enabled (for item tracking)
 
 priority:
+- link to twin room in logic room pages.  
+- use consistent set of filler items, when trying different key items:
+  - should help cut back on the frequency of crystal flash progression
+  - also cut out cases of unnecessary key items (with slow progression)
 - indicate g-mode regain mobility in logic pages. 
   - wait until after g-mode migration has made substantial progress.
-- add door lock bypass strats to logic
-  - no longer ignored_notable_strat: Halfie Climb Room Xray Climb Grapple Clip
-  - Butterfly Room left side?
-  - very deep stuck x-ray climbs
-  - ice clips up through vertical doors
-  - moonfalls down through vertical doors
 - adjust heat damage multipliers?
 - add physics/heated override to runway geometry
 - fix toilet to restore x position on exit?
@@ -27,7 +25,6 @@ priority:
 - clear SRAM more fully when saved seed does not match:
   - save slot position is apparently being retained (e.g. starting with cursor on slot 3)
 - add door flags to refine logic
-- help finish the cross-room strat migration
 - proper saving/loading of custom presets
 - revamp strat page: 
   - embed the video directly near the top? 
