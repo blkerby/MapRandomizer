@@ -9,7 +9,6 @@ use urlencoding;
 use crate::game_data::{GameData, Link, NodeId, Requirement, RoomId};
 use crate::randomize::{DebugOptions, DifficultyConfig, SaveAnimals, AreaAssignment, WallJump, EtankRefill};
 use crate::traverse::{apply_requirement, GlobalState, LocalState};
-use crate::web::VERSION;
 
 use super::{PresetData, VersionInfo, HQ_VIDEO_URL_ROOT};
 

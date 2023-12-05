@@ -150,7 +150,7 @@ async fn about(app_data: web::Data<AppData>) -> impl Responder {
 
 #[get("/generate")]
 async fn generate(app_data: web::Data<AppData>) -> impl Responder {
-    let mut prioritizable_items: Vec<String> = [
+    let prioritizable_items: Vec<String> = [
         "ETank",
         "ReserveTank",
         "Super",
@@ -298,6 +298,7 @@ struct SeedData {
     http_headers: serde_json::Map<String, serde_json::Value>,
     random_seed: usize,
     map_seed: usize,
+    door_randomization_seed: usize,
     item_placement_seed: usize,
     race_mode: bool,
     preset: Option<String>,
@@ -384,9 +385,7 @@ struct SeedHeaderTemplate<'a> {
     save_animals: String,
     early_save: bool,
     area_assignment: String,
-    etank_refill: String,
     maps_revealed: bool,
-    vanilla_map: bool,
     ultra_low_qol: bool,
     preset_data: &'a [PresetData],
     enabled_tech: HashSet<String>,
@@ -412,15 +411,6 @@ struct CustomizeSeedTemplate {
     seed_footer: String,
     samus_sprite_categories: Vec<SamusSpriteCategory>,
     etank_colors: Vec<Vec<String>>,
-}
-
-struct Attempt<'a> {
-    attempt_num: usize,
-    thread_handle:
-        Option<thread::ScopedJoinHandle<'a, Result<(Randomization, Rom), anyhow::Error>>>,
-    map_seed: usize,
-    door_randomization_seed: usize,
-    item_placement_seed: usize,
 }
 
 fn render_seed(
@@ -497,9 +487,7 @@ fn render_seed(
         save_animals: seed_data.save_animals.clone(),
         early_save: seed_data.early_save,
         area_assignment: seed_data.area_assignment.clone(),
-        etank_refill: seed_data.etank_refill.clone(),
         maps_revealed: seed_data.maps_revealed,
-        vanilla_map: seed_data.vanilla_map,
         ultra_low_qol: seed_data.ultra_low_qol,
         preset_data: &app_data.preset_data,
         enabled_tech,
@@ -1442,6 +1430,7 @@ async fn randomize(
         http_headers: format_http_headers(&http_req),
         random_seed: random_seed,
         map_seed: output.map_seed,
+        door_randomization_seed: output.door_randomization_seed,
         item_placement_seed: output.item_placement_seed,
         race_mode,
         preset: req.preset.as_ref().map(|x| x.0.clone()),

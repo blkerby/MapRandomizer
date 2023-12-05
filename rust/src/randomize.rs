@@ -233,6 +233,7 @@ pub struct LockedDoor {
     pub bidirectional: bool, // if true, the door is locked on both sides, with a shared state
 }
 
+#[derive(Clone)]
 // State that changes over the course of item placement attempts
 struct RandomizationState {
     step_num: usize,
@@ -263,7 +264,6 @@ pub struct Randomization {
 struct SelectItemsOutput {
     key_items: Vec<Item>,
     other_items: Vec<Item>,
-    new_items_remaining: Vec<usize>,
 }
 
 struct VertexInfo {
@@ -2302,14 +2302,12 @@ impl<'r> Randomizer<'r> {
         });
     }
 
-    fn select_items<R: Rng>(
-        &self,
+    // Determine how many key items vs. filler items to place on this step.
+    fn determine_item_split(&self,
         state: &RandomizationState,
         num_bireachable: usize,
-        num_oneway_reachable: usize,
-        attempt_num: usize,
-        rng: &mut R,
-    ) -> Option<SelectItemsOutput> {
+        num_oneway_reachable: usize
+    ) -> (usize, usize) {
         let num_items_to_place = match self.difficulty_tiers[0].progression_rate {
             ProgressionRate::Slow => num_bireachable + num_oneway_reachable,
             ProgressionRate::Uniform => num_bireachable,
@@ -2334,43 +2332,31 @@ impl<'r> Randomizer<'r> {
                     * (num_items_to_place as f32),
             ) as usize,
         };
+
+        // If there are fewer than 20 item locations remaining to be filled, then we're at the end,
+        // so dump as many key items as possible:
         if num_items_remaining < num_items_to_place + 20 {
             num_key_items_to_place = num_key_items_remaining;
         }
+
+        // But we can't place more key items than we have unfilled bireachable item locations:
         num_key_items_to_place = min(
             num_key_items_to_place,
             min(num_bireachable, num_key_items_remaining),
         );
-        let mut key_items_to_place: Vec<Item> = vec![];
 
-        if num_key_items_to_place >= 1 {
-            if num_key_items_to_place - 1 + attempt_num >= num_key_items_remaining {
-                return None;
-            }
+        let num_filler_items_to_place = num_items_to_place - num_key_items_to_place;
 
-            // If we will be placing `k` key items, we let the first `k - 1` items to place remain fixed based on the
-            // item precedence order, while we vary the last key item across attempts (to try to find some choice that
-            // will expand the set of bireachable item locations).
-            key_items_to_place
-                .extend(filtered_item_precedence[0..(num_key_items_to_place - 1)].iter());
-            key_items_to_place
-                .push(filtered_item_precedence[num_key_items_to_place - 1 + attempt_num]);
-            assert!(key_items_to_place.len() == num_key_items_to_place);
-        } else {
-            if attempt_num > 0 {
-                return None;
-            }
-        }
+        // println!("{} {}: {} {}", num_bireachable, num_oneway_reachable, num_key_items_remaining, num_filler_items_to_place);
+        (num_key_items_to_place, num_filler_items_to_place)
+    }
 
-        // println!("key items to place: {:?}", key_items_to_place);
-
-        let mut new_items_remaining = state.items_remaining.clone();
-        for &item in &key_items_to_place {
-            new_items_remaining[item as usize] -= 1;
-        }
-
-        let num_other_items_to_place = num_items_to_place - num_key_items_to_place;
-
+    fn select_filler_items<R: Rng>(
+        &self,
+        state: &RandomizationState,
+        num_filler_items_to_select: usize,
+        rng: &mut R,
+    ) -> Vec<Item> {
         let expansion_item_set: HashSet<Item> =
             [Item::ETank, Item::ReserveTank, Item::Super, Item::PowerBomb]
                 .into_iter()
@@ -2381,11 +2367,11 @@ impl<'r> Randomizer<'r> {
         let mut item_types_to_extra_delay: Vec<Item> = vec![];
 
         for &item in &state.item_precedence {
-            if item == Item::Missile || new_items_remaining[item as usize] == 0 {
+            if item == Item::Missile || state.items_remaining[item as usize] == 0 {
                 continue;
             }
             if self.difficulty_tiers[0].early_filler_items.contains(&item)
-                && new_items_remaining[item as usize] == self.initial_items_remaining[item as usize]
+                && state.items_remaining[item as usize] == self.initial_items_remaining[item as usize]
             {
                 item_types_to_prioritize.push(item);
                 item_types_to_mix.push(item);
@@ -2401,14 +2387,10 @@ impl<'r> Randomizer<'r> {
                 item_types_to_extra_delay.push(item);
             }
         }
-        // println!("prioritize: {:?}, mix: {:?}, delay: {:?}, extra: {:?}",
-        //     item_types_to_prioritize, item_types_to_mix, item_types_to_delay, item_types_to_extra_delay);
-
         let mut items_to_mix: Vec<Item> = Vec::new();
         for &item in &item_types_to_mix {
-            let mut cnt = new_items_remaining[item as usize];
+            let mut cnt = state.items_remaining[item as usize];
             if item_types_to_prioritize.contains(&item) {
-                // println!("{:?}: {} {}", item, new_items_remaining[item as usize], self.initial_items_remaining[item as usize]);
                 cnt -= 1;
             }
             for _ in 0..cnt {
@@ -2417,33 +2399,71 @@ impl<'r> Randomizer<'r> {
         }
         let mut items_to_delay: Vec<Item> = Vec::new();
         for &item in &item_types_to_delay {
-            for _ in 0..new_items_remaining[item as usize] {
+            for _ in 0..state.items_remaining[item as usize] {
                 items_to_delay.push(item);
             }
         }
         let mut items_to_extra_delay: Vec<Item> = Vec::new();
         for &item in &item_types_to_extra_delay {
-            for _ in 0..new_items_remaining[item as usize] {
+            for _ in 0..state.items_remaining[item as usize] {
                 items_to_extra_delay.push(item);
             }
         }
         items_to_mix.shuffle(rng);
-        let mut other_items_to_place: Vec<Item> = item_types_to_prioritize;
-        other_items_to_place.extend(items_to_mix);
-        other_items_to_place.extend(items_to_delay);
-        other_items_to_place.extend(items_to_extra_delay);
-        other_items_to_place = other_items_to_place[0..num_other_items_to_place].to_vec();
+        let mut items_to_place: Vec<Item> = item_types_to_prioritize;
+        items_to_place.extend(items_to_mix);
+        items_to_place.extend(items_to_delay);
+        items_to_place.extend(items_to_extra_delay);
+        items_to_place = items_to_place[0..num_filler_items_to_select].to_vec();
+        items_to_place
+    }
 
-        // println!("other items to place: {:?}", other_items_to_place);
+    fn select_key_items(
+        &self,
+        state: &RandomizationState,
+        num_key_items_to_select: usize,
+        attempt_num: usize,
+    ) -> Option<Vec<Item>> {
+        if num_key_items_to_select >= 1 {
+            let mut remaining_items: Vec<Item> = vec![];
+            let mut cnt_different_items_remaining = 0;
 
-        for &item in &other_items_to_place {
-            new_items_remaining[item as usize] -= 1;
+            for &item in &state.item_precedence {
+                if state.items_remaining[item as usize] > 0 {
+                    remaining_items.push(item);
+                    cnt_different_items_remaining += 1;
+                }
+            }
+            for &item in &state.item_precedence {
+                if state.items_remaining[item as usize] > 0 {
+                    let cnt = state.items_remaining[item as usize] - 1;
+                    for _ in 0..cnt {
+                        remaining_items.push(item);
+                    }
+                }
+            }
+
+            if attempt_num > 0 && num_key_items_to_select - 1 + attempt_num >= cnt_different_items_remaining {
+                return None;
+            }
+
+            // If we will be placing `k` key items, we let the first `k - 1` items to place remain fixed based on the
+            // item precedence order, while we vary the last key item across attempts (to try to find some choice that
+            // will expand the set of bireachable item locations).
+            let mut key_items_to_place: Vec<Item> = vec![];
+            key_items_to_place
+                .extend(remaining_items[0..(num_key_items_to_select - 1)].iter());
+            key_items_to_place
+                .push(remaining_items[num_key_items_to_select - 1 + attempt_num]);
+            assert!(key_items_to_place.len() == num_key_items_to_select);
+            return Some(key_items_to_place);
+        } else {
+            if attempt_num > 0 {
+                return None;
+            } else {
+                return Some(vec![]);
+            }
         }
-        Some(SelectItemsOutput {
-            key_items: key_items_to_place,
-            other_items: other_items_to_place,
-            new_items_remaining,
-        })
     }
 
     fn get_init_traverse(
@@ -2642,7 +2662,8 @@ impl<'r> Randomizer<'r> {
         &self,
         old_state: &RandomizationState,
         new_state: &mut RandomizationState,
-        select: &SelectItemsOutput,
+        key_items: &[Item],
+        filler_items: &[Item],
         placed_uncollected_bireachable_items: &[Item],
         num_unplaced_bireachable: usize,
     ) -> bool {
@@ -2653,16 +2674,15 @@ impl<'r> Randomizer<'r> {
         // 2) Key items,
         // 3) Other items
         for &item in placed_uncollected_bireachable_items.iter().chain(
-            select
-                .key_items
+            key_items
                 .iter()
-                .chain(select.other_items.iter())
+                .chain(filler_items.iter())
                 .take(num_unplaced_bireachable),
         ) {
             new_state.global_state.collect(item, self.game_data);
         }
 
-        // info!("Trying placing {:?}", key_items_to_place);
+        info!("Trying placing {:?}", key_items);
 
         self.update_reachability(new_state);
         let num_bireachable = new_state
@@ -2680,7 +2700,6 @@ impl<'r> Randomizer<'r> {
         // Maximum acceptable number of one-way-reachable items. This is to try to avoid extreme
         // cases where the player would gain access to very large areas that they cannot return from:
         let one_way_reachable_limit = 20;
-        // let one_way_reachable_limit = 100;
 
         // Check if all items are already bireachable. It isn't necessary for correctness to check this case,
         // but it speeds up the last step, where no further progress is possible (meaning there is no point
@@ -2715,54 +2734,60 @@ impl<'r> Randomizer<'r> {
         num_unplaced_oneway_reachable: usize,
         rng: &mut R,
     ) -> (SelectItemsOutput, RandomizationState) {
+        let (num_key_items_to_select, num_filler_items_to_select) = self.determine_item_split(
+            state, num_unplaced_bireachable, num_unplaced_oneway_reachable);
+        let selected_filler_items = self.select_filler_items(state, num_filler_items_to_select, rng);
+
+        let mut new_state_filler: RandomizationState = RandomizationState {
+            step_num: state.step_num,
+            start_location: state.start_location.clone(),
+            hub_location: state.hub_location.clone(),
+            item_precedence: state.item_precedence.clone(),
+            item_location_state: state.item_location_state.clone(),
+            flag_location_state: state.flag_location_state.clone(),
+            save_location_state: state.save_location_state.clone(),
+            items_remaining: state.items_remaining.clone(),
+            global_state: state.global_state.clone(),
+            debug_data: None,
+            previous_debug_data: None,
+            key_visited_vertices: HashSet::new(),
+        };
+        for &item in &selected_filler_items {
+            new_state_filler.items_remaining[item as usize] -= 1;
+        }
+
         let mut attempt_num = 0;
-        let mut selection = self
-            .select_items(
-                state,
-                num_unplaced_bireachable,
-                num_unplaced_oneway_reachable,
-                attempt_num,
-                rng,
-            )
-            .unwrap();
+        let mut selected_key_items = self.select_key_items(&new_state_filler, num_key_items_to_select, attempt_num).unwrap();
 
         loop {
-            let mut new_state: RandomizationState = RandomizationState {
-                step_num: state.step_num,
-                start_location: state.start_location.clone(),
-                hub_location: state.hub_location.clone(),
-                item_precedence: state.item_precedence.clone(),
-                item_location_state: state.item_location_state.clone(),
-                flag_location_state: state.flag_location_state.clone(),
-                save_location_state: state.save_location_state.clone(),
-                items_remaining: selection.new_items_remaining.clone(),
-                global_state: state.global_state.clone(),
-                debug_data: None,
-                previous_debug_data: None,
-                key_visited_vertices: HashSet::new(),
-            };
-
+            let mut new_state: RandomizationState = new_state_filler.clone();
+            for &item in &selected_key_items {
+                new_state.items_remaining[item as usize] -= 1;
+            }
+    
             if self.provides_progression(
                 &state,
                 &mut new_state,
-                &selection,
+                &selected_key_items,
+                &selected_filler_items,
                 &placed_uncollected_bireachable_items,
                 num_unplaced_bireachable,
             ) {
+                let selection = SelectItemsOutput {
+                    key_items: selected_key_items,
+                    other_items: selected_filler_items,
+                };
                 return (selection, new_state);
             }
-
-            let new_selection = self.select_items(
-                state,
-                num_unplaced_bireachable,
-                num_unplaced_oneway_reachable,
-                attempt_num,
-                rng,
-            );
-            if let Some(s) = new_selection {
-                selection = s;
+    
+            if let Some(new_selected_key_items) = self.select_key_items(&new_state_filler, num_key_items_to_select, attempt_num) {
+                selected_key_items = new_selected_key_items;
             } else {
                 info!("[attempt {attempt_num_rando}] Exhausted key item placement attempts");
+                let selection = SelectItemsOutput {
+                    key_items: selected_key_items,
+                    other_items: selected_filler_items,
+                };
                 return (selection, new_state);
             }
             attempt_num += 1;

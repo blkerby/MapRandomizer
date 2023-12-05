@@ -19,7 +19,7 @@ use rand::{Rng, SeedableRng};
 use log::info;
 use std::iter;
 
-use self::{title::read_image, map_tiles::write_tile_4bpp};
+use self::map_tiles::write_tile_4bpp;
 
 const NUM_AREAS: usize = 6;
 

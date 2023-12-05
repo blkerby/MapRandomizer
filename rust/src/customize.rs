@@ -16,7 +16,7 @@ use retiling::apply_retiling;
 use room_palettes::apply_area_themed_palettes;
 
 struct AllocatorBlock {
-    start_addr: usize,
+    _start_addr: usize,
     end_addr: usize,
     current_addr: usize,
 }
@@ -31,7 +31,7 @@ impl Allocator {
             blocks: blocks
                 .into_iter()
                 .map(|(start, end)| AllocatorBlock {
-                    start_addr: start,
+                    _start_addr: start,
                     end_addr: end,
                     current_addr: start,
                 })
@@ -309,13 +309,13 @@ pub fn customize_rom(
         ShakingSetting::Reduced => {
             // Limit BG shaking to 1-pixel displacements:
             for i in 0..144 {
-                let mut x = rom.read_u16(snes2pc(0xA0872D + i * 2))?;
+                let x = rom.read_u16(snes2pc(0xA0872D + i * 2))?;
                 rom.write_u16(snes2pc(0xA0872D + i * 2), min(x, 1))?;
             }
             // (Enemies already only shake up to 1 pixel)
             // Limit enemy projectile shaking to 1-pixel displacements:
             for i in 0..72 {
-                let mut x = rom.read_u16(snes2pc(0x86846B + i * 2))?;
+                let x = rom.read_u16(snes2pc(0x86846B + i * 2))?;
                 rom.write_u16(snes2pc(0x86846B + i * 2), min(x, 1))?;
             }
         },

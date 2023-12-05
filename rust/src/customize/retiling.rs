@@ -83,7 +83,7 @@ pub fn apply_retiling(rom: &mut Rom, game_data: &GameData, theme_name: &str) -> 
     let mut level_data_map: HashMap<Vec<u8>, usize> = HashMap::new();
     let mut fx_data_map: HashMap<Vec<u8>, usize> = HashMap::new();
 
-    let base_theme = &retiled_theme_data.themes["Base"];
+    // let base_theme = &retiled_theme_data.themes["Base"];
     let num_tilesets = retiled_theme_data.sce_tilesets.keys().max().unwrap() + 1;
     assert!(new_tile_pointers_snes + 2 * num_tilesets <= tile_pointers_free_space_end);
 
