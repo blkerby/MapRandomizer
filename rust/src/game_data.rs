@@ -2203,6 +2203,13 @@ impl GameData {
                 to_obstacles_bitmask |= 1 << obstacle_idx;
             }
         }
+        if strat_json.has_key("resetsObstacles") {
+            ensure!(strat_json["resetsObstacles"].is_array());
+            for obstacle_id in strat_json["resetsObstacles"].members() {
+                let obstacle_idx = obstacles_idx_map[obstacle_id.as_str().unwrap()];
+                to_obstacles_bitmask &= !(1 << obstacle_idx);
+            }
+        }
         Ok(to_obstacles_bitmask)
     }
 

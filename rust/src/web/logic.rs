@@ -32,6 +32,7 @@ struct RoomStrat<'a> {
     requires: String, // new-line separated requirements
     exit_condition: Option<String>,
     clears_obstacles: Vec<String>,
+    resets_obstacles: Vec<String>,
     difficulty_idx: usize,
     difficulty_name: String,
     notable_gif_listing: &'a HashSet<String>,
@@ -495,6 +496,14 @@ fn make_room_template<'a>(
         } else {
             vec![]
         };
+        let resets_obstacles: Vec<String> = if strat_json.has_key("resetsObstacles") {
+            strat_json["resetsObstacles"]
+                .members()
+                .map(|x| x.as_str().unwrap().to_string())
+                .collect()
+        } else {
+            vec![]
+        };
         let entrance_condition: Option<String> = if strat_json.has_key("entranceCondition") {
             Some(strat_json["entranceCondition"].pretty(2))
         } else {
@@ -527,6 +536,7 @@ fn make_room_template<'a>(
             requires: make_requires(&strat_json["requires"]),
             exit_condition,
             clears_obstacles,
+            resets_obstacles,
             difficulty_idx,
             difficulty_name,
             notable_gif_listing,

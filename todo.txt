@@ -1,6 +1,6 @@
 v100:
-- implement "resetsObstacles".
 - implement "autoReserveTrigger".
+- DONE: implement "resetsObstacles".
 - DONE: in logic pages, indicate if strat bypasses door shell.
 - DONE: add implicit tech requirement "canSkipDoorLock" on applicable strats.
 - DONE: implement `position` property of `leaveWithSpark`/`comeInWithSpark`.

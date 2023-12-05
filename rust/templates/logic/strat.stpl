@@ -59,10 +59,12 @@ Notable: true<br>
 <% } %>
 <% if strat.clears_obstacles.len() > 0 {
       let obstacle_list = strat.clears_obstacles.join(", "); %>
-    Clears obstacles: <%= obstacle_list %>
+    <p>Clears obstacles: <%= obstacle_list %></p>
+<% } %>
+<% if strat.resets_obstacles.len() > 0 {
+      let obstacle_list = strat.resets_obstacles.join(", "); %>
+    <p>Resets obstacles: <%= obstacle_list %></p>
 <% } %>
 <% if strat.bypasses_door_shell { %>
-<p>
-Bypasses door shell: true<br>
-</p>
+    <p>Bypasses door shell: true</p>
 <% } %>
