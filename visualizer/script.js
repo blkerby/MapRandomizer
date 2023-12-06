@@ -120,13 +120,8 @@ let item_rank = {
 	"Super": 20,
 	"PowerBomb": 21,
 	"Missile": 22,
-
 }
 
-let item_addrs;
-fetch(`item_addrs.json`).then(c => c.json()).then(c => {
-	item_addrs = c;
-})
 let doors;
 fetch(`doors.json`).then(c => c.json()).then(c => {
 	doors = c;
@@ -154,26 +149,51 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 			document.getElementById(`step-${step_limit}`).classList.add("selected");	
 		}
 	}
-	let print_route = () => {
+	let show_overview = () => {
 		let si = document.getElementById("sidebar-info");
-		let out = "";
+		si.innerHTML = "";
 		let seen = new Set();
 		for (let i of c.summary) {
-			out += `<div id="step-${i.step}" class="step-panel" onclick="gen_obscurity(${i.step})">`;
-			out += `<span class="step-number">${i.step}</span>`;
+			step_div = document.createElement("div");
+			step_div.id = `step-${i.step}`;
+			step_div.className = "step-panel";
+			step_div.onclick = () => gen_obscurity(i.step);
+			
+			step_number = document.createElement("span");
+			step_number.className = "step-number";
+			step_number.innerHTML = `${i.step}`;
+			step_div.appendChild(step_number);
+
 			for (let j of i.items) {
 				if (!seen.has(j.item)) {
-					out += icon(item_plm[j.item]);
+					let el = document.createElement("span");
+					el.className = "ui-icon";
+					el.style.backgroundPositionX = `-${item_plm[j.item] * 16}px`;
+					// el.onclick = ev => {
+					// 	show_item_details()
+					// }
+					step_div.appendChild(el);
+
 					seen.add(j.item);
 				}
 			}
-			out += `</div>`;
+			si.appendChild(step_div);
 		}
-		out += `<div id="step-null" class="step-panel" onclick="gen_obscurity(null)"><span class="step-whole-map">WHOLE MAP</span></div>`;
-		si.innerHTML = out;
+
+		step_div = document.createElement("div");
+		step_div.id = `step-null`;
+		step_div.className = "step-panel";
+		step_div.onclick = () => gen_obscurity(null);
+		
+		step_number = document.createElement("span");
+		step_number.className = "step-whole-map";
+		step_number.innerHTML = "WHOLE MAP";
+		step_div.appendChild(step_number);
+
+		si.appendChild(step_div);
 		update_selected();
 	}
-	print_route();
+	show_overview();
 	window.gen_obscurity = (sl) => {
 		step_limit = sl;
 		update_selected();
@@ -294,7 +314,7 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 			document.getElementById("path-overlay").innerHTML += `<path d="${path}" stroke="cyan" fill="none" stroke-linejoin="round" stroke-width="2"/>`
 		} else {
 			// deselect
-			print_route();
+			show_overview();
 			document.getElementById("path-overlay").innerHTML = ""
 		}
 	}
@@ -302,6 +322,159 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 		if (!el.classList.contains("hidden")) {
 			window.open("/logic/room/" + el.dataset.shortName.replace(/\s+/g, ''))
 		}
+	}
+	let show_item_details = (item_name, loc, i, j) => {
+		if (j !== null) {
+			let path = "";
+			for (let k of j.return_route) {
+				let xl = k.coords[0];
+				let yl = k.coords[1];
+				let o = doors.find(c => c.name == k.node);
+				if (offsets[k.node]) {
+					xl += offsets[k.node][0];
+					yl += offsets[k.node][1];
+				} else if (o && o.nodeAddress) {
+					if (o.x !== undefined && o.y !== undefined) {
+						xl += o.x; yl += o.y;
+					}
+				} else { continue; }
+				let x = xl * 24 + 24 + 12;
+				let y = yl * 24 + 24 + 12;
+				path += `${path == "" ? "M" : "L"}${x} ${y} `;
+			}
+			document.getElementById("path-overlay").innerHTML = `<path d="${path}" stroke="black" fill="none" stroke-linejoin="round" stroke-width="4"/>`
+			document.getElementById("path-overlay").innerHTML += `<path d="${path}" stroke="yellow" fill="none" stroke-linejoin="round" stroke-width="2"/>`
+			path = "";
+			for (let k of j.obtain_route) {
+				let xl = k.coords[0];
+				let yl = k.coords[1];
+				let o = doors.find(c => c.name == k.node);
+				if (offsets[k.node]) {
+					xl += offsets[k.node][0];
+					yl += offsets[k.node][1];
+				} else if (o && o.nodeAddress) {
+					if (o.x !== undefined && o.y !== undefined) {
+						xl += o.x; yl += o.y;
+					}
+				} else { continue; }
+				let x = xl * 24 + 24 + 12;
+				let y = yl * 24 + 24 + 12;
+				path += `${path == "" ? "M" : "L"}${x} ${y} `;
+			}
+			document.getElementById("path-overlay").innerHTML += `<path d="${path}" stroke="black" fill="none" stroke-linejoin="round" stroke-width="4"/>`
+			document.getElementById("path-overlay").innerHTML += `<path d="${path}" stroke="white" fill="none" stroke-linejoin="round" stroke-width="2"/>`
+		}
+		let si = document.getElementById("sidebar-info");
+		si.innerHTML = "";
+		if (j !== null) {
+			step_limit = c.details[i].step;
+			si.innerHTML += `<div class="sidebar-title">STEP ${step_limit}</div>`;
+		}
+
+		if (j !== null) {
+			gen_obscurity(step_limit);
+			si.innerHTML += `<div class="category">PREVIOUSLY COLLECTIBLE</div>`;
+			let ss = c.details[i].start_state;
+			let s = [ss.max_missiles, ss.max_supers, ss.max_power_bombs, Math.floor(ss.max_energy / 100), ss.max_reserves / 100];
+			let ic = [1, 2, 3, 0, 20];
+			for (let i in s) {
+				if (s[i] > 0) {
+					si.innerHTML += icon(ic[i]);
+					si.innerHTML += s[i] + " ";
+				}
+			}
+			for (let i of ss.items) {
+				if (!ic.includes(item_plm[i])) {
+					si.innerHTML += icon(item_plm[i]);
+				}
+			}
+
+			si.innerHTML += `<div class="category">COLLECTIBLE ON THIS STEP</div>`;
+			itemHTML = "";
+			sortedItems = c.summary[i].items.sort((a, b) => item_rank[a.item] - item_rank[b.item]);
+			for (item of sortedItems) {
+				itemHTML += icon(item_plm[item.item]);
+			}
+			si.innerHTML += `<div class="item-list">${itemHTML}</div>`;
+		}
+		si.innerHTML += `<div class="sidebar-item-name">${item_name}</div><div class="category">LOCATION</div>${loc.room}<br><small>${loc.node}</small>`;
+		if (j !== null) {
+			let ss = c.details[i].start_state;
+			si.innerHTML += `<div class="category">OBTAIN ROUTE</div>`;
+			for (let k of j.obtain_route) {
+				si.innerHTML += `${k.node}<br>`;
+				let out = "";
+				if (k.strat_name != "Base" && k.strat_name != "(Door transition)") {
+					let strat_url = `/logic/room/${k.short_room}/${k.from_node_id}/${k.to_node_id}/${k.short_strat_name}`;
+					if (k.strat_notes) {
+						let title = "";
+						for (let i of k.strat_notes) {
+							title += `${i} `;
+						}
+						out += `Strat: <a href=${strat_url}><abbr title="${title}">${k.strat_name}</abbr></a><br>`;
+					} else {
+						out += `Strat: <a href=${strat_url}>${k.strat_name}</a><br>`;
+					}
+				}
+				if (k.energy_used !== undefined) {
+					out += `Energy remaining: ${ss.max_energy - k.energy_used}<br>`;
+				}
+				if (k.reserves_used !== undefined) {
+					out += `Reserves remaining: ${ss.max_reserves - k.reserves_used}<br>`;
+				}
+				if (k.missiles_used !== undefined) {
+					out += `Missiles remaining: ${ss.max_missiles - k.missiles_used}<br>`;
+				}
+				if (k.supers_used !== undefined) {
+					out += `Supers remaining: ${ss.max_supers - k.supers_used}<br>`;
+				}
+				if (k.power_bombs_used !== undefined) {
+					out += `PBs remaining: ${ss.max_power_bombs - k.power_bombs_used}<br>`;
+				}
+				if (out != "") {
+					si.innerHTML += `<small>${out}</small>`;
+				}
+			}
+			si.innerHTML += `<div class="category">RETURN ROUTE</div>`;
+			for (let k of j.return_route) {
+				let out = "";
+				if (k.energy_used !== undefined) {
+					out += `Energy needed: ${k.energy_used + 1}<br>`;
+				}
+				if (k.reserves_used !== undefined) {
+					out += `Reserves needed: ${k.reserves_used}<br>`;
+				}
+				if (k.missiles_used !== undefined) {
+					out += `Missiles needed: ${k.missiles_used}<br>`;
+				}
+				if (k.supers_used !== undefined) {
+					out += `Supers needed: ${k.supers_used}<br>`;
+				}
+				if (k.power_bombs_used !== undefined) {
+					out += `PBs needed: ${k.power_bombs_used}<br>`;
+				}
+				if (out != "") {
+					si.innerHTML += `<small>${out}</small>`;
+				}
+				si.innerHTML += `${k.node}<br>`;
+				out = "";
+				if (k.strat_name != "Base" && k.strat_name != "(Door transition)") {
+					let strat_url = `/logic/room/${k.short_room}/${k.from_node_id}/${k.to_node_id}/${k.short_strat_name}`;
+					if (k.strat_notes) {
+						let title = "";
+						for (let i of k.strat_notes) {
+							title += `${i} `;
+						}
+						out += `Strat: <a href=${strat_url}><abbr title="${title}">${k.strat_name}</abbr></a><br>`;
+					} else {
+						out += `Strat: <a href=${strat_url}>${k.strat_name}</a><br>`;
+					}
+				}
+				if (out != "") {
+					si.innerHTML += `<small>${out}</small>`;
+				}
+			}
+		}	
 	}
 	items: for (let v of c.all_items) {
 		if (v.location.node in offsets) {
@@ -325,157 +498,7 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 			}
 		}
 		el.onclick = ev => {
-			if (j) {
-				let path = "";
-				for (let k of j.return_route) {
-					let xl = k.coords[0];
-					let yl = k.coords[1];
-					let o = doors.find(c => c.name == k.node);
-					if (offsets[k.node]) {
-						xl += offsets[k.node][0];
-						yl += offsets[k.node][1];
-					} else if (o && o.nodeAddress) {
-						if (o.x !== undefined && o.y !== undefined) {
-							xl += o.x; yl += o.y;
-						}
-					} else { continue; }
-					let x = xl * 24 + 24 + 12;
-					let y = yl * 24 + 24 + 12;
-					path += `${path == "" ? "M" : "L"}${x} ${y} `;
-				}
-				document.getElementById("path-overlay").innerHTML = `<path d="${path}" stroke="black" fill="none" stroke-linejoin="round" stroke-width="4"/>`
-				document.getElementById("path-overlay").innerHTML += `<path d="${path}" stroke="yellow" fill="none" stroke-linejoin="round" stroke-width="2"/>`
-				path = "";
-				for (let k of j.obtain_route) {
-					let xl = k.coords[0];
-					let yl = k.coords[1];
-					let o = doors.find(c => c.name == k.node);
-					if (offsets[k.node]) {
-						xl += offsets[k.node][0];
-						yl += offsets[k.node][1];
-					} else if (o && o.nodeAddress) {
-						if (o.x !== undefined && o.y !== undefined) {
-							xl += o.x; yl += o.y;
-						}
-					} else { continue; }
-					let x = xl * 24 + 24 + 12;
-					let y = yl * 24 + 24 + 12;
-					path += `${path == "" ? "M" : "L"}${x} ${y} `;
-				}
-				document.getElementById("path-overlay").innerHTML += `<path d="${path}" stroke="black" fill="none" stroke-linejoin="round" stroke-width="4"/>`
-				document.getElementById("path-overlay").innerHTML += `<path d="${path}" stroke="white" fill="none" stroke-linejoin="round" stroke-width="2"/>`
-			}
-			let si = document.getElementById("sidebar-info");
-			si.innerHTML = "";
-			if (j) {
-				step_limit = c.details[i].step;
-				si.innerHTML += `<div class="sidebar-title">STEP ${step_limit}</div>`;
-			}
-
-			if (j) {
-				gen_obscurity(step_limit);
-				si.innerHTML += `<div class="category">PREVIOUSLY COLLECTIBLE</div>`;
-				let ss = c.details[i].start_state;
-				let s = [ss.max_missiles, ss.max_supers, ss.max_power_bombs, Math.floor(ss.max_energy / 100), ss.max_reserves / 100];
-				let ic = [1, 2, 3, 0, 20];
-				for (let i in s) {
-					if (s[i] > 0) {
-						si.innerHTML += icon(ic[i]);
-						si.innerHTML += s[i] + " ";
-					}
-				}
-				for (let i of ss.items) {
-					if (!ic.includes(item_plm[i])) {
-						si.innerHTML += icon(item_plm[i]);
-					}
-				}
-
-				si.innerHTML += `<div class="category">COLLECTIBLE ON THIS STEP</div>`;
-				itemHTML = "";
-				sortedItems = c.summary[i].items.sort((a, b) => item_rank[a.item] - item_rank[b.item]);
-				for (item of sortedItems) {
-					itemHTML += icon(item_plm[item.item]);
-				}
-				si.innerHTML += `<div class="item-list">${itemHTML}</div>`;
-			}
-			si.innerHTML += `<div class="sidebar-item-name">${v.item}</div><div class="category">LOCATION</div>${v.location.room}<br><small>${v.location.node}</small>`;
-			if (j) {
-				let ss = c.details[i].start_state;
-				si.innerHTML += `<div class="category">OBTAIN ROUTE</div>`;
-				for (let k of j.obtain_route) {
-					si.innerHTML += `${k.node}<br>`;
-					let out = "";
-					if (k.strat_name != "Base" && k.strat_name != "(Door transition)") {
-						let strat_url = `/logic/room/${k.short_room}/${k.from_node_id}/${k.to_node_id}/${k.short_strat_name}`;
-						if (k.strat_notes) {
-							let title = "";
-							for (let i of k.strat_notes) {
-								title += `${i} `;
-							}
-							out += `Strat: <a href=${strat_url}><abbr title="${title}">${k.strat_name}</abbr></a><br>`;
-						} else {
-							out += `Strat: <a href=${strat_url}>${k.strat_name}</a><br>`;
-						}
-					}
-					if (k.energy_used !== undefined) {
-						out += `Energy remaining: ${ss.max_energy - k.energy_used}<br>`;
-					}
-					if (k.reserves_used !== undefined) {
-						out += `Reserves remaining: ${ss.max_reserves - k.reserves_used}<br>`;
-					}
-					if (k.missiles_used !== undefined) {
-						out += `Missiles remaining: ${ss.max_missiles - k.missiles_used}<br>`;
-					}
-					if (k.supers_used !== undefined) {
-						out += `Supers remaining: ${ss.max_supers - k.supers_used}<br>`;
-					}
-					if (k.power_bombs_used !== undefined) {
-						out += `PBs remaining: ${ss.max_power_bombs - k.power_bombs_used}<br>`;
-					}
-					if (out != "") {
-						si.innerHTML += `<small>${out}</small>`;
-					}
-				}
-				si.innerHTML += `<div class="category">RETURN ROUTE</div>`;
-				for (let k of j.return_route) {
-					let out = "";
-					if (k.energy_used !== undefined) {
-						out += `Energy needed: ${k.energy_used + 1}<br>`;
-					}
-					if (k.reserves_used !== undefined) {
-						out += `Reserves needed: ${k.reserves_used}<br>`;
-					}
-					if (k.missiles_used !== undefined) {
-						out += `Missiles needed: ${k.missiles_used}<br>`;
-					}
-					if (k.supers_used !== undefined) {
-						out += `Supers needed: ${k.supers_used}<br>`;
-					}
-					if (k.power_bombs_used !== undefined) {
-						out += `PBs needed: ${k.power_bombs_used}<br>`;
-					}
-					if (out != "") {
-						si.innerHTML += `<small>${out}</small>`;
-					}
-					si.innerHTML += `${k.node}<br>`;
-					out = "";
-					if (k.strat_name != "Base" && k.strat_name != "(Door transition)") {
-						let strat_url = `/logic/room/${k.short_room}/${k.from_node_id}/${k.to_node_id}/${k.short_strat_name}`;
-						if (k.strat_notes) {
-							let title = "";
-							for (let i of k.strat_notes) {
-								title += `${i} `;
-							}
-							out += `Strat: <a href=${strat_url}><abbr title="${title}">${k.strat_name}</abbr></a><br>`;
-						} else {
-							out += `Strat: <a href=${strat_url}>${k.strat_name}</a><br>`;
-						}
-					}
-					if (out != "") {
-						si.innerHTML += `<small>${out}</small>`;
-					}
-				}
-			}
+			show_item_details(v.item, v.location, i, j);
 		};
 		document.getElementById("overlay").appendChild(el);
 		el = document.createElement("div");
