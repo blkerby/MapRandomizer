@@ -32,6 +32,14 @@ document.getElementById("navigation-releases").classList.add("active");
     <li>This reduces the bias toward filler items giving progression (e.g. Crystal Flash ammo).
     <li>On Slow progression, it prevents unneeded unique items being placed when filler provides progression.
     </ul>
+<li>Improvements to the spoiler map:
+    <ul>
+    <li>Clicking away from a spoiler route now makes the highlighted path disappear.
+    <li>Return routes now indicate resources needed instead of resources remaining.
+        <ul>
+        <li>This leads to greater accuracy as it aligns better with how the randomizer logic works.
+        </ul>
+    </ul>
 <li>Logic updates:
     <ul>
     <li>Many strats to bypass door locks are added:

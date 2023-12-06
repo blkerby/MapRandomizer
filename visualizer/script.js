@@ -345,7 +345,7 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 					}
 				}
 				si.innerHTML += `<div class="category">OBTAIN ROUTE</div>`;
-				let f = k => {
+				for (let k of j.obtain_route) {
 					si.innerHTML += `${k.node}<br>`;
 					let out = "";
 					if (k.strat_name != "Base" && k.strat_name != "(Door transition)") {
@@ -360,31 +360,63 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 							out += `Strat: <a href=${strat_url}>${k.strat_name}</a><br>`;
 						}
 					}
-					if (k.energy_remaining) {
-						out += `Energy remaining: ${k.energy_remaining}<br>`;
+					if (k.energy_used !== undefined) {
+						out += `Energy remaining: ${ss.max_energy - k.energy_used}<br>`;
 					}
-					if (k.reserves_remaining) {
-						out += `Reserves remaining: ${k.reserves_remaining}<br>`;
+					if (k.reserves_used !== undefined) {
+						out += `Reserves remaining: ${ss.max_reserves - k.reserves_used}<br>`;
 					}
-					if (k.missiles_remaining) {
-						out += `Missiles remaining: ${k.missiles_remaining}<br>`;
+					if (k.missiles_used !== undefined) {
+						out += `Missiles remaining: ${ss.max_missiles - k.missiles_used}<br>`;
 					}
-					if (k.supers_remaining) {
-						out += `Supers remaining: ${k.supers_remaining}<br>`;
+					if (k.supers_used !== undefined) {
+						out += `Supers remaining: ${ss.max_supers - k.supers_used}<br>`;
 					}
-					if (k.power_bombs_remaining) {
-						out += `PBs remaining: ${k.power_bombs_remaining}<br>`;
+					if (k.power_bombs_used !== undefined) {
+						out += `PBs remaining: ${ss.max_power_bombs - k.power_bombs_used}<br>`;
 					}
 					if (out != "") {
 						si.innerHTML += `<small>${out}</small>`;
 					}
-				};
-				for (let k of j.obtain_route) {
-					f(k);
 				}
 				si.innerHTML += `<div class="category">RETURN ROUTE</div>`;
 				for (let k of j.return_route) {
-					f(k);
+					let out = "";
+					if (k.energy_used !== undefined) {
+						out += `Energy needed: ${k.energy_used + 1}<br>`;
+					}
+					if (k.reserves_used !== undefined) {
+						out += `Reserves needed: ${k.reserves_used}<br>`;
+					}
+					if (k.missiles_used !== undefined) {
+						out += `Missiles needed: ${k.missiles_used}<br>`;
+					}
+					if (k.supers_used !== undefined) {
+						out += `Supers needed: ${k.supers_used}<br>`;
+					}
+					if (k.power_bombs_used !== undefined) {
+						out += `PBs needed: ${k.power_bombs_used}<br>`;
+					}
+					if (out != "") {
+						si.innerHTML += `<small>${out}</small>`;
+					}
+					si.innerHTML += `${k.node}<br>`;
+					out = "";
+					if (k.strat_name != "Base" && k.strat_name != "(Door transition)") {
+						let strat_url = `/logic/room/${k.short_room}/${k.from_node_id}/${k.to_node_id}/${k.short_strat_name}`;
+						if (k.strat_notes) {
+							let title = "";
+							for (let i of k.strat_notes) {
+								title += `${i} `;
+							}
+							out += `Strat: <a href=${strat_url}><abbr title="${title}">${k.strat_name}</abbr></a><br>`;
+						} else {
+							out += `Strat: <a href=${strat_url}>${k.strat_name}</a><br>`;
+						}
+					}
+					if (out != "") {
+						si.innerHTML += `<small>${out}</small>`;
+					}
 				}
 			}
 		};
