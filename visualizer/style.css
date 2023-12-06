@@ -46,7 +46,7 @@ a {
 	left: 0;
 	z-index: 2;
 }
-.popup, #room-info, #sidebar-info {
+.popup, #room-info, #sidebar-info, #sidebar-route {
 	position: relative;
 	color: #eee;
 	background-color: #222222e0;
@@ -59,7 +59,7 @@ a {
 }
 #sidebar-info {
 	position: fixed;
-	max-height: 600px;
+	max-height: 400px;
 	overflow-y: auto;
 	pointer-events: auto;
 	top: 16px;
@@ -74,10 +74,15 @@ a {
 	margin-top: 8px;
 }
 .step-panel {
-	margin-top: 6px;
-	margin-bottom: 6px;
+	padding: 3px;
 	display: flex;
 	align-items: center;
+}
+.step-panel:hover {
+	background-color: #333333e0;
+}
+.step-panel.selected {
+	background-color: #444480e0;
 }
 .step-number {
 	font-size: small;
@@ -86,6 +91,10 @@ a {
 	width: 16px;
 	height: 16px;
 	margin-right: 8px;
+}
+.step-whole-map {
+	font-size: small;
+	font-weight: bold;
 }
 .hidden {
 	display: none;

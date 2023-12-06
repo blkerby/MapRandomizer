@@ -118,12 +118,43 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 		}
 	}
 	let step_limit = null;
+	let icon = id => `<span class="ui-icon" style="background-position-x: -${id*16}px"></span>`;
+	let update_selected = () => {
+		document.getElementById(`step-null`).classList.remove("selected");
+		for (let i of c.summary) {
+			document.getElementById(`step-${i.step}`).classList.remove("selected");
+		}
+		document.getElementById(`step-${step_limit}`).classList.add("selected");
+	}
+	let print_route = () => {
+		let si = document.getElementById("sidebar-info");
+		let out = "";
+		let seen = new Set();
+		for (let i of c.summary) {
+			out += `<div id="step-${i.step}" class="step-panel" onclick="gen_obscurity(${i.step})">`;
+			out += `<span class="step-number">${i.step}</span>`;
+			for (let j of i.items) {
+				if (!seen.has(j.item)) {
+					out += icon(item_plm[j.item]);
+					seen.add(j.item);
+				}
+			}
+			out += `</div>`;
+		}
+		out += `<div id="step-null" class="step-panel" onclick="gen_obscurity(null)"><span class="step-whole-map">WHOLE MAP</span></div>`;
+		si.innerHTML = out;
+		update_selected();
+	}
+	print_route();
 	window.gen_obscurity = (sl) => {
 		step_limit = sl;
+		update_selected();
+
 		// generate obscurity overlay
 		let ov = document.getElementById("obscure-overlay");
 		let ctx = ov.getContext("2d");
 		let img = ctx.createImageData(72,72);
+
 		if (step_limit === null) {
 			ctx.putImageData(img, 0, 0);
 			return;
@@ -190,26 +221,6 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 			el.classList.add("hidden")
 		}
 	}
-	let icon = id => `<span class="ui-icon" style="background-position-x: -${id*16}px"></span>`;
-	let print_route = () => {
-		let si = document.getElementById("sidebar-info");
-		let out = "";
-		let seen = new Set();
-		for (let i of c.summary) {
-			out += `<div class="step-panel" onclick="gen_obscurity(${i.step})">`;
-			out += `<span class="step-number">${i.step}</span>`;
-			for (let j of i.items) {
-				if (!seen.has(j.item)) {
-					out += icon(item_plm[j.item]);
-					seen.add(j.item);
-				}
-			}
-			out += `</div>`;
-		}
-		out += `<div onclick="gen_obscurity(null)"><div class="category">WHOLE MAP</div></div>`;
-		si.innerHTML = out;
-	}
-	print_route();
 	document.getElementById("map").onclick = ev => {
 		if (el.innerText == "Mother Brain Room") {
 			let path = "";
