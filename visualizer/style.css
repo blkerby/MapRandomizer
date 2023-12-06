@@ -68,6 +68,13 @@ a {
 .sidebar-title {
 	font-size: x-large;
 }
+.sidebar-item-name {
+	font-size: x-large;
+	margin-top: 12px;
+}
+.item-list {
+	width: 400px;
+}
 .category {
 	font-size: small;
 	font-weight: bold;

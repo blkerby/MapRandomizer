@@ -97,6 +97,32 @@ let item_plm = {
 	"ReserveTank": 20,
 	"WallJump": 21,
 };
+let item_rank = {
+	"Varia": 1,
+	"Gravity": 2,
+	"Morph": 3,
+	"SpaceJump": 4,
+	"ScrewAttack": 5,
+	"WallJump": 6,
+	"Bombs": 7,
+	"HiJump": 8,
+	"SpeedBooster": 9,
+	"SpringBall": 10,
+	"Grapple": 11,
+	"XRayScope": 12,
+	"Charge": 13,
+	"Ice": 14,
+	"Wave": 15,
+	"Spazer": 16,
+	"Plasma": 17,
+	"ETank": 18,
+	"ReserveTank": 19,
+	"Super": 20,
+	"PowerBomb": 21,
+	"Missile": 22,
+
+}
+
 let item_addrs;
 fetch(`item_addrs.json`).then(c => c.json()).then(c => {
 	item_addrs = c;
@@ -120,11 +146,13 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 	let step_limit = null;
 	let icon = id => `<span class="ui-icon" style="background-position-x: -${id*16}px"></span>`;
 	let update_selected = () => {
-		document.getElementById(`step-null`).classList.remove("selected");
-		for (let i of c.summary) {
-			document.getElementById(`step-${i.step}`).classList.remove("selected");
+		if (document.getElementById(`step-null`) !== null) {
+			document.getElementById(`step-null`).classList.remove("selected");
+			for (let i of c.summary) {
+				document.getElementById(`step-${i.step}`).classList.remove("selected");
+			}
+			document.getElementById(`step-${step_limit}`).classList.add("selected");	
 		}
-		document.getElementById(`step-${step_limit}`).classList.add("selected");
 	}
 	let print_route = () => {
 		let si = document.getElementById("sidebar-info");
@@ -338,9 +366,15 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 				document.getElementById("path-overlay").innerHTML += `<path d="${path}" stroke="white" fill="none" stroke-linejoin="round" stroke-width="2"/>`
 			}
 			let si = document.getElementById("sidebar-info");
-			si.innerHTML = `<div class="sidebar-title">${v.item}</div><div class="category">LOCATION</div>${v.location.room}<br><small>${v.location.node}</small>`;
+			si.innerHTML = "";
 			if (j) {
-				si.innerHTML += `<div class="category">STARTING ITEMS</div>`;
+				step_limit = c.details[i].step;
+				si.innerHTML += `<div class="sidebar-title">STEP ${step_limit}</div>`;
+			}
+
+			if (j) {
+				gen_obscurity(step_limit);
+				si.innerHTML += `<div class="category">PREVIOUSLY COLLECTIBLE</div>`;
 				let ss = c.details[i].start_state;
 				let s = [ss.max_missiles, ss.max_supers, ss.max_power_bombs, Math.floor(ss.max_energy / 100), ss.max_reserves / 100];
 				let ic = [1, 2, 3, 0, 20];
@@ -355,6 +389,18 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 						si.innerHTML += icon(item_plm[i]);
 					}
 				}
+
+				si.innerHTML += `<div class="category">COLLECTIBLE ON THIS STEP</div>`;
+				itemHTML = "";
+				sortedItems = c.summary[i].items.sort((a, b) => item_rank[a.item] - item_rank[b.item]);
+				for (item of sortedItems) {
+					itemHTML += icon(item_plm[item.item]);
+				}
+				si.innerHTML += `<div class="item-list">${itemHTML}</div>`;
+			}
+			si.innerHTML += `<div class="sidebar-item-name">${v.item}</div><div class="category">LOCATION</div>${v.location.room}<br><small>${v.location.node}</small>`;
+			if (j) {
+				let ss = c.details[i].start_state;
 				si.innerHTML += `<div class="category">OBTAIN ROUTE</div>`;
 				for (let k of j.obtain_route) {
 					si.innerHTML += `${k.node}<br>`;
