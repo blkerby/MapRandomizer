@@ -3618,14 +3618,14 @@ impl<'a> Randomizer<'a> {
                     strat_name: link.strat_name.clone(),
                     short_strat_name: strip_name(&link.strat_name),
                     strat_notes: link.strat_notes.clone(),
-                    energy_used: if last { Some(new_local_state.energy_used) } else { None },
-                    reserves_used: if last { Some(new_local_state.reserves_used) } else { None },
-                    missiles_used: if last { Some(new_local_state.missiles_used) } else { None },
-                    supers_used: if last { Some(new_local_state.supers_used) } else { None },
+                    energy_used: if last { Some(new_local_state.energy_used) } else { Some(local_state.energy_used) },
+                    reserves_used: if last { Some(new_local_state.reserves_used) } else { Some(local_state.reserves_used) },
+                    missiles_used: if last { Some(new_local_state.missiles_used) } else { Some(local_state.missiles_used) },
+                    supers_used: if last { Some(new_local_state.supers_used) } else { Some(local_state.supers_used) },
                     power_bombs_used: if last {
                         Some(new_local_state.power_bombs_used)
                     } else {
-                        None
+                        Some(local_state.power_bombs_used)
                     },
                 };
                 // info!("spoiler: {:?}", spoiler_entry);
@@ -3638,6 +3638,7 @@ impl<'a> Randomizer<'a> {
             route.reverse();
         }
 
+        // Remove repeated resource values, to reduce clutter in the spoiler view:
         for i in (0..(route.len() - 1)).rev() {
             if route[i + 1].energy_used == route[i].energy_used {
                 route[i + 1].energy_used = None;

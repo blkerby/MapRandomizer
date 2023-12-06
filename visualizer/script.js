@@ -190,14 +190,14 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 			el.classList.add("hidden")
 		}
 	}
-	let icon = id => `<div class="ui-icon" style="background-position-x: -${id*16}px"></div>`;
+	let icon = id => `<span class="ui-icon" style="background-position-x: -${id*16}px"></span>`;
 	let print_route = () => {
 		let si = document.getElementById("sidebar-info");
 		let out = "";
 		let seen = new Set();
 		for (let i of c.summary) {
-			out += `<div onclick="gen_obscurity(${i.step})">`;
-			out += `<div class="category">STEP ${i.step}</div>`;
+			out += `<div class="step-panel" onclick="gen_obscurity(${i.step})">`;
+			out += `<span class="step-number">${i.step}</span>`;
 			for (let j of i.items) {
 				if (!seen.has(j.item)) {
 					out += icon(item_plm[j.item]);
@@ -206,7 +206,7 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 			}
 			out += `</div>`;
 		}
-		out += `<div onclick="gen_obscurity(null)"><div class="category">OTHER ITEMS</div></div>`;
+		out += `<div onclick="gen_obscurity(null)"><div class="category">WHOLE MAP</div></div>`;
 		si.innerHTML = out;
 	}
 	print_route();
@@ -331,7 +331,7 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 			if (j) {
 				si.innerHTML += `<div class="category">STARTING ITEMS</div>`;
 				let ss = c.details[i].start_state;
-				let s = [ss.max_missiles, ss.max_supers, ss.max_power_bombs, ss.max_energy, ss.max_reserves];
+				let s = [ss.max_missiles, ss.max_supers, ss.max_power_bombs, Math.floor(ss.max_energy / 100), ss.max_reserves / 100];
 				let ic = [1, 2, 3, 0, 20];
 				for (let i in s) {
 					if (s[i] > 0) {

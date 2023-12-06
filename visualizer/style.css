@@ -49,7 +49,7 @@ a {
 .popup, #room-info, #sidebar-info {
 	position: relative;
 	color: #eee;
-	background-color: #222222aa;
+	background-color: #222222e0;
 	z-index: 3;
 	border: 2px solid #222;
 	border-radius: 2px;
@@ -59,8 +59,8 @@ a {
 }
 #sidebar-info {
 	position: fixed;
-	max-height: 300px;
-	overflow-y: scroll;
+	max-height: 600px;
+	overflow-y: auto;
 	pointer-events: auto;
 	top: 16px;
 	left: 16px;
@@ -72,6 +72,20 @@ a {
 	font-size: small;
 	font-weight: bold;
 	margin-top: 8px;
+}
+.step-panel {
+	margin-top: 6px;
+	margin-bottom: 6px;
+	display: flex;
+	align-items: center;
+}
+.step-number {
+	font-size: small;
+	font-weight: bold;
+	text-align: right;
+	width: 16px;
+	height: 16px;
+	margin-right: 8px;
 }
 .hidden {
 	display: none;
@@ -97,6 +111,10 @@ a {
 }
 .ui-icon {
 	display: inline-block;
+	margin-top: 1px;
+	margin-bottom: 1px;
+	margin-left: 1px;
+	margin-right: 1px;
 }
 .icon:hover {
 	transform: scale(2);
