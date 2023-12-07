@@ -1,6 +1,4 @@
 v100:
-- double-click step in step overview should open route (to first item)
-  - important in case of ammo-collection steps, which have no item icon to click on.
 - help button
 - DONE: implement "autoReserveTrigger".
 - DONE: use consistent set of filler items, when trying different key items:

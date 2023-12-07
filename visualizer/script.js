@@ -162,7 +162,9 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 			let step_div = document.createElement("div");
 			step_div.id = `step-${c.summary[i].step}`;
 			step_div.className = "step-panel";
-			step_div.onclick = () => gen_obscurity(c.summary[i].step);
+			step_div.onclick = () => {
+				gen_obscurity(c.summary[i].step);
+			}
 			
 			let step_number = document.createElement("span");
 			step_number.className = "step-number";
@@ -208,8 +210,23 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 		
 		step_number = document.createElement("span");
 		step_number.className = "step-whole-map";
-		step_number.innerHTML = "WHOLE MAP";
+		step_number.innerHTML = 'WHOLE MAP';
+		help_button = document.createElement("i");
+		help_button.className = "bi bi-question-circle-fill help-button";
+		help_button.setAttribute("data-bs-theme", "dark");
+		help_button.style = "margin-left:auto;";
+		help_button.onclick = (e) => {
+			document.getElementById("msg-wrap").style.display = "flex";
+			e.stopPropagation();
+		}
+		// help_button.onmouseup = () => {
+		// 	return true;
+		// }
+		// help_button.onclick = () => {
+		// 	return false;
+		// }
 		step_div.appendChild(step_number);
+		step_div.appendChild(help_button);
 
 		si.appendChild(step_div);
 		update_selected();

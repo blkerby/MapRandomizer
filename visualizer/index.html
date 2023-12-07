@@ -2,6 +2,7 @@
 <head>
 	<title>Map Rando Spoiler Map Viewer</title>
 	<link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.4/font/bootstrap-icons.css">
 	<script src="/static/localforage.js"></script>
 </head>
 <body>
@@ -13,14 +14,17 @@
 		<div id="room-info"></div>
 	</div>
 	<div id="sidebar-info"></div>
-	<div id="msg-wrap" onclick="this.remove()">
+	<div id="msg-wrap" style="display:none;" onclick="this.style.display = 'none';">
 		<div class="msg">
-			<h1 class="msg-title">Map randomizer info</h1>
+			<h1 class="msg-title">Spoiler map info</h1>
 			<ul>
-				<li>Select a step in the top-left corner to focus on areas that are logically reachable on that step. One-way-reachable areas are darker.
-				<li>Select an item on the map to show a path to reach it (white) and return to the Ship (yellow).
+				<li>Select a step in the overview (top-left corner) to focus on areas that are logically reachable on that step.
+				<li>One-way-reachable areas appear darker.
+				<li>Only the first instance of each item is shown in the overview.
+				<li>Double-click a step to show details, including all items collectible on that step.
+				<li>Click an item to show a path to reach it (white) and return to the Ship (yellow).
+				<li>Double-click a room to pull up the logic for that room.
 				<li>Click on the Mother Brain Room to show the intended escape route.
-				<li>Double-click a room to pull up the Wiki page for that room.
 			</ul>
 			<div class="button">DISMISS</div>
 		</div>
