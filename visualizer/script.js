@@ -436,6 +436,9 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 				icon_el.onclick = ev => {
 					show_item_details(item.item, item.location, i, item);
 				}
+				if (item == j) {
+					icon_el.classList.add("selected")
+				}
 				item_list.appendChild(icon_el);
 			}
 			si.appendChild(item_list);

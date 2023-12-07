@@ -140,6 +140,9 @@ a {
 	transform: scale(2);
 	z-index: 2;
 }
+.ui-icon-hoverable.selected {
+	transform: scale(1.5);
+}
 .button {
 	background-color: #36f;
 	border-radius: 2px;
