@@ -159,17 +159,21 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 		si.innerHTML = "";
 		let seen = new Set();
 		for (let i in c.summary) {
-			step_div = document.createElement("div");
+			let step_div = document.createElement("div");
 			step_div.id = `step-${c.summary[i].step}`;
 			step_div.className = "step-panel";
 			step_div.onclick = () => gen_obscurity(c.summary[i].step);
 			
-			step_number = document.createElement("span");
+			let step_number = document.createElement("span");
 			step_number.className = "step-number";
 			step_number.innerHTML = `${c.summary[i].step}`;
 			step_div.appendChild(step_number);
 
-			for (let j of c.details[i].items) {
+			let items = c.details[i].items;
+			let sortedItemIdxs = Array.from(items.keys()).sort((a, b) => item_rank[items[a].item] - item_rank[items[b].item]);
+			let first = true;
+			for (item_idx of sortedItemIdxs) {
+				let j = items[item_idx];
 				if (!seen.has(j.item)) {
 					let el = icon(item_plm[j.item]);
 					el.className = "ui-icon-hoverable";
@@ -178,7 +182,20 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 					}
 					step_div.appendChild(el);
 
+					if (first) {
+						step_div.ondblclick = () => {
+							show_item_details(j.item, j.location, i, j);
+						}
+					}
+					first=false;
+
 					seen.add(j.item);
+				}
+			}
+			if (first && sortedItemIdxs.length > 0) {
+				j = items[sortedItemIdxs[0]];
+				step_div.ondblclick = () => {
+					show_item_details(j.item, j.location, i, j);
 				}
 			}
 			si.appendChild(step_div);

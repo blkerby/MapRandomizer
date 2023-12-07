@@ -1,4 +1,7 @@
 v100:
+- double-click step in step overview should open route (to first item)
+  - important in case of ammo-collection steps, which have no item icon to click on.
+- help button
 - DONE: implement "autoReserveTrigger".
 - DONE: use consistent set of filler items, when trying different key items:
 - DONE: implement "resetsObstacles".
@@ -12,6 +15,15 @@ v100:
 - DONE: implement bit in the ROM to indicate if walljump boots option is enabled (for item tracking)
 
 priority:
+- logic:
+  - mama turtle right item is basic with no items. is this ok?
+  - post croc farm room with ice to get to top left is basic. should be "canTrickyUseFrozenEnemies" or "canCameraManip"?
+- look at area-themed palettes again:
+  - seaweed in main street with norfair palette
+  - platforms in climb with brinstar palette
+- add more hazard doors when walljump is turned off (or collectible)?:
+  - left door to ridley
+  - left door to West Ocean (gravity suit door)
 - assume filler items are collected, when determining hard locations for key items?
 - for key items, skip options that are filler (including already-placed semi-filler)?
 - link to twin room in logic room pages.

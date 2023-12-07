@@ -29,7 +29,7 @@ document.getElementById("navigation-releases").classList.add("active");
 <li>Change to how filler items are randomized:
     <ul>
     <li>Filler items are randomized only once per step, instead of being rerolled for each possible key item.
-    <li>This reduces the bias toward filler items giving progression (e.g. Crystal Flash ammo).
+    <li>This reduces the bias of filler items giving progression (e.g. Crystal Flash ammo).
     <li>On Slow progression, it prevents unneeded unique items being placed when filler provides progression.
     </ul>
 <li>Improvements to the spoiler map:
