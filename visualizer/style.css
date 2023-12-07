@@ -114,7 +114,7 @@ a {
 	display: block;
 	width: auto;
 }
-.icon, .ui-icon {
+.icon, .ui-icon, .ui-icon-hoverable {
 	background-image: url("items.png");
 	width: 16px;
 	height: 16px;
@@ -125,7 +125,7 @@ a {
 .icon {
 	position: absolute;
 }
-.ui-icon {
+.ui-icon, .ui-icon-hoverable {
 	display: inline-block;
 	margin-top: 1px;
 	margin-bottom: 1px;
@@ -133,6 +133,10 @@ a {
 	margin-right: 1px;
 }
 .icon:hover {
+	transform: scale(2);
+	z-index: 2;
+}
+.ui-icon-hoverable:hover {
 	transform: scale(2);
 	z-index: 2;
 }

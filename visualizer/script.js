@@ -139,7 +139,12 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 		}
 	}
 	let step_limit = null;
-	let icon = id => `<span class="ui-icon" style="background-position-x: -${id*16}px"></span>`;
+	let icon = id => {
+		let el = document.createElement("span");
+		el.className = "ui-icon";
+		el.style.backgroundPositionX = `-${id * 16}px`;
+		return el;
+	}
 	let update_selected = () => {
 		if (document.getElementById(`step-null`) !== null) {
 			document.getElementById(`step-null`).classList.remove("selected");
@@ -153,25 +158,24 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 		let si = document.getElementById("sidebar-info");
 		si.innerHTML = "";
 		let seen = new Set();
-		for (let i of c.summary) {
+		for (let i in c.summary) {
 			step_div = document.createElement("div");
-			step_div.id = `step-${i.step}`;
+			step_div.id = `step-${c.summary[i].step}`;
 			step_div.className = "step-panel";
-			step_div.onclick = () => gen_obscurity(i.step);
+			step_div.onclick = () => gen_obscurity(c.summary[i].step);
 			
 			step_number = document.createElement("span");
 			step_number.className = "step-number";
-			step_number.innerHTML = `${i.step}`;
+			step_number.innerHTML = `${c.summary[i].step}`;
 			step_div.appendChild(step_number);
 
-			for (let j of i.items) {
+			for (let j of c.details[i].items) {
 				if (!seen.has(j.item)) {
-					let el = document.createElement("span");
-					el.className = "ui-icon";
-					el.style.backgroundPositionX = `-${item_plm[j.item] * 16}px`;
-					// el.onclick = ev => {
-					// 	show_item_details()
-					// }
+					let el = icon(item_plm[j.item]);
+					el.className = "ui-icon-hoverable";
+					el.onclick = ev => {
+						show_item_details(j.item, j.location, i, j);
+					}
 					step_div.appendChild(el);
 
 					seen.add(j.item);
@@ -368,41 +372,65 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 		si.innerHTML = "";
 		if (j !== null) {
 			step_limit = c.details[i].step;
-			si.innerHTML += `<div class="sidebar-title">STEP ${step_limit}</div>`;
+			let title = document.createElement("div");
+			title.className = "sidebar-title";
+			title.innerHTML = `STEP ${step_limit}`;
+			si.appendChild(title);
 		}
 
 		if (j !== null) {
 			gen_obscurity(step_limit);
-			si.innerHTML += `<div class="category">PREVIOUSLY COLLECTIBLE</div>`;
+
+			let previous_header = document.createElement("div");
+			previous_header.className = "category";
+			previous_header.innerHTML = "PREVIOUSLY COLLECTIBLE";
+			si.appendChild(previous_header);
+
 			let ss = c.details[i].start_state;
 			let s = [ss.max_missiles, ss.max_supers, ss.max_power_bombs, Math.floor(ss.max_energy / 100), ss.max_reserves / 100];
 			let ic = [1, 2, 3, 0, 20];
 			for (let i in s) {
 				if (s[i] > 0) {
-					si.innerHTML += icon(ic[i]);
-					si.innerHTML += s[i] + " ";
+					si.appendChild(icon(ic[i]));
+					let count = document.createElement("span");
+					count.innerHTML = s[i] + " ";
+					si.appendChild(count);
 				}
 			}
 			for (let i of ss.items) {
 				if (!ic.includes(item_plm[i])) {
-					si.innerHTML += icon(item_plm[i]);
+					si.appendChild(icon(item_plm[i]));
 				}
 			}
 
-			si.innerHTML += `<div class="category">COLLECTIBLE ON THIS STEP</div>`;
-			itemHTML = "";
-			sortedItems = c.summary[i].items.sort((a, b) => item_rank[a.item] - item_rank[b.item]);
-			for (item of sortedItems) {
-				itemHTML += icon(item_plm[item.item]);
+			let collectible_header = document.createElement("div");
+			collectible_header.className = "category";
+			collectible_header.innerHTML = "COLLECTIBLE ON THIS STEP";
+			si.appendChild(collectible_header);
+
+			let item_list = document.createElement("div");
+			item_list.className = "item-list";
+			let items = c.details[i].items;
+			sortedItemIdxs = Array.from(items.keys()).sort((a, b) => item_rank[items[a].item] - item_rank[items[b].item]);
+			for (item_idx of sortedItemIdxs) {
+				let item = items[item_idx];
+				let icon_el = icon(item_plm[item.item]);
+				icon_el.className = "ui-icon-hoverable";
+				icon_el.onclick = ev => {
+					show_item_details(item.item, item.location, i, item);
+				}
+				item_list.appendChild(icon_el);
 			}
-			si.innerHTML += `<div class="item-list">${itemHTML}</div>`;
+			si.appendChild(item_list);
 		}
-		si.innerHTML += `<div class="sidebar-item-name">${item_name}</div><div class="category">LOCATION</div>${loc.room}<br><small>${loc.node}</small>`;
+
+		let item_info = document.createElement("div");
+		item_info.innerHTML += `<div class="sidebar-item-name">${item_name}</div><div class="category">LOCATION</div>${loc.room}<br><small>${loc.node}</small>`;
 		if (j !== null) {
 			let ss = c.details[i].start_state;
-			si.innerHTML += `<div class="category">OBTAIN ROUTE</div>`;
+			item_info.innerHTML += `<div class="category">OBTAIN ROUTE</div>`;
 			for (let k of j.obtain_route) {
-				si.innerHTML += `${k.node}<br>`;
+				item_info.innerHTML += `${k.node}<br>`;
 				let out = "";
 				if (k.strat_name != "Base" && k.strat_name != "(Door transition)") {
 					let strat_url = `/logic/room/${k.short_room}/${k.from_node_id}/${k.to_node_id}/${k.short_strat_name}`;
@@ -432,10 +460,10 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 					out += `PBs remaining: ${ss.max_power_bombs - k.power_bombs_used}<br>`;
 				}
 				if (out != "") {
-					si.innerHTML += `<small>${out}</small>`;
+					item_info.innerHTML += `<small>${out}</small>`;
 				}
 			}
-			si.innerHTML += `<div class="category">RETURN ROUTE</div>`;
+			item_info.innerHTML += `<div class="category">RETURN ROUTE</div>`;
 			for (let k of j.return_route) {
 				let out = "";
 				if (k.energy_used !== undefined) {
@@ -454,9 +482,9 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 					out += `PBs needed: ${k.power_bombs_used}<br>`;
 				}
 				if (out != "") {
-					si.innerHTML += `<small>${out}</small>`;
+					item_info.innerHTML += `<small>${out}</small>`;
 				}
-				si.innerHTML += `${k.node}<br>`;
+				item_info.innerHTML += `${k.node}<br>`;
 				out = "";
 				if (k.strat_name != "Base" && k.strat_name != "(Door transition)") {
 					let strat_url = `/logic/room/${k.short_room}/${k.from_node_id}/${k.to_node_id}/${k.short_strat_name}`;
@@ -471,10 +499,11 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 					}
 				}
 				if (out != "") {
-					si.innerHTML += `<small>${out}</small>`;
+					item_info.innerHTML += `<small>${out}</small>`;
 				}
 			}
-		}	
+		}
+		si.appendChild(item_info);
 	}
 	items: for (let v of c.all_items) {
 		if (v.location.node in offsets) {

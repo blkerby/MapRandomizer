@@ -1,5 +1,5 @@
 v100:
-- implement "autoReserveTrigger".
+- DONE: implement "autoReserveTrigger".
 - DONE: use consistent set of filler items, when trying different key items:
 - DONE: implement "resetsObstacles".
 - DONE: in logic pages, indicate if strat bypasses door shell.
