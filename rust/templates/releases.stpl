@@ -14,7 +14,7 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release100">Version 100 (2023-12-05)</a>:
+<p><a id="release100">Version 100 (2023-12-06)</a>:
 <ul>
 <li>New "Wall jump" option "Collectible" (under "Other options").
     <ul>
@@ -34,7 +34,8 @@ document.getElementById("navigation-releases").classList.add("active");
     </ul>
 <li>Improvements to the spoiler map:
     <ul>
-    <li>Clicking away from a spoiler route now makes the highlighted path disappear.
+    <li>Step overview now has a more compact layout, and clicking an item icon opens its route.
+    <li>Clicking away from a route now makes the highlighted path disappear.
     <li>Return routes now indicate resources needed instead of resources remaining.
         <ul>
         <li>This leads to greater accuracy as it aligns better with how the randomizer logic works.
