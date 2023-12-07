@@ -14,7 +14,7 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release100">Version 100 (2023-12-06)</a>:
+<p><a id="release100">Version 100 (2023-12-07)</a>:
 <ul>
 <li>New "Wall jump" option "Collectible" (under "Other options").
     <ul>
@@ -29,12 +29,14 @@ document.getElementById("navigation-releases").classList.add("active");
 <li>Change to how filler items are randomized:
     <ul>
     <li>Filler items are randomized only once per step, instead of being rerolled for each possible key item.
-    <li>This reduces the bias of filler items giving progression (e.g. Crystal Flash ammo).
+    <li>This reduces the bias for filler items to give progression (e.g. Crystal Flash ammo).
     <li>On Slow progression, it prevents unneeded unique items being placed when filler provides progression.
     </ul>
 <li>Improvements to the spoiler map:
     <ul>
-    <li>Step overview now has a more compact layout, and clicking an item icon opens its route.
+    <li>The logic overview now has a more compact layout.
+    <li>In the logic overview, double-clicking a step shows step details, including all collectible items on that step.
+    <li>Clicking an item icon in the logic overview or step details shows a route to the item.
     <li>Clicking away from a route now makes the highlighted path disappear.
     <li>Return routes now indicate resources needed instead of resources remaining.
         <ul>
