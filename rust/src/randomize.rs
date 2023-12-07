@@ -2321,6 +2321,7 @@ impl<'r> Randomizer<'r> {
             .collect();
         let num_key_items_remaining = filtered_item_precedence.len();
         let num_items_remaining: usize = state.items_remaining.iter().sum();
+        // println!("num_items_to_place={num_items_to_place}, num_items_remaining={num_items_remaining}");
         let mut num_key_items_to_place = match self.difficulty_tiers[0].progression_rate {
             ProgressionRate::Slow => 1,
             ProgressionRate::Uniform => f32::ceil(
@@ -2446,6 +2447,8 @@ impl<'r> Randomizer<'r> {
             if attempt_num > 0 && num_key_items_to_select - 1 + attempt_num >= cnt_different_items_remaining {
                 return None;
             }
+
+            info!("remaining_items={}", remaining_items.len());
 
             // If we will be placing `k` key items, we let the first `k - 1` items to place remain fixed based on the
             // item precedence order, while we vary the last key item across attempts (to try to find some choice that
@@ -2752,11 +2755,16 @@ impl<'r> Randomizer<'r> {
             previous_debug_data: None,
             key_visited_vertices: HashSet::new(),
         };
+        let selected_filler_items_len = selected_filler_items.len();
+        // println!("filler items len={selected_filler_items_len}");
         for &item in &selected_filler_items {
             new_state_filler.items_remaining[item as usize] -= 1;
         }
+        // let num_items_remaining: usize = new_state_filler.items_remaining.iter().sum();
+        // println!("post filler num_items_remaining={num_items_remaining}");
 
         let mut attempt_num = 0;
+        // info!("num_key_items_to_select={num_key_items_to_select}, num_filler_items_to_select={num_filler_items_to_select}");
         let mut selected_key_items = self.select_key_items(&new_state_filler, num_key_items_to_select, attempt_num).unwrap();
 
         loop {
@@ -3097,6 +3105,10 @@ impl<'r> Randomizer<'r> {
                 let item_idx = self.game_data.item_isv.index_by_key[item_name];
                 item_precedence.push(Item::try_from(item_idx).unwrap());
             }
+        }
+        if self.difficulty_tiers[0].progression_rate != ProgressionRate::Slow {
+            // With Normal and Uniform progression, prioritize all other key items over Missiles.
+            item_precedence.push(Item::Missile);
         }
         item_precedence
     }
