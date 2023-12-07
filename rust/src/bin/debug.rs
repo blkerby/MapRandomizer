@@ -92,6 +92,7 @@ fn main() -> Result<()> {
         power_bombs_used: 0,
     };
     let difficulty = DifficultyConfig {
+        name: None,
         tech: vec![],
         notable_strats: vec![],
         shine_charge_tiles: 16.0,

@@ -920,6 +920,12 @@ fn get_random_seed() -> usize {
     (rand::rngs::StdRng::from_entropy().next_u64() & 0xFFFFFFFF) as usize
 }
 
+// A simplified measure of "equivalence" in difficulty for the purposes of Forced mode logic, to reduce 
+// the amount of tiers the randomizer has to consider:
+fn is_equivalent_difficulty(a: &DifficultyConfig, b: &DifficultyConfig) -> bool {
+    return a.tech == b.tech && a.notable_strats == b.notable_strats
+}
+
 // Computes the intersection of the selected difficulty with each preset. This
 // gives a set of difficulty tiers below the selected difficulty. These are
 // used in "forced mode" to try to identify locations at which to place
@@ -957,6 +963,7 @@ fn get_difficulty_tiers(
 
         // TODO: move some fields out of here so we don't have clone as much irrelevant stuff:
         let new_difficulty = DifficultyConfig {
+            name: Some(preset.name.clone()),
             tech: tech_vec,
             notable_strats: strat_vec,
             shine_charge_tiles: f32::max(
@@ -1031,9 +1038,10 @@ fn get_difficulty_tiers(
             quality_of_life_preset: difficulty.quality_of_life_preset.clone(),
             debug_options: difficulty.debug_options.clone(),
         };
-        if Some(&new_difficulty) != out.last() {
-            out.push(new_difficulty);
+        if is_equivalent_difficulty(&new_difficulty, out.last().as_ref().unwrap()) {
+            out.pop();
         }
+        out.push(new_difficulty);
     }
     out
 }
@@ -1158,6 +1166,7 @@ async fn randomize(
     info!("Early filler items: {:?}", early_filler_items);
 
     let difficulty = DifficultyConfig {
+        name: None,
         tech: tech_vec,
         notable_strats: strat_vec,
         shine_charge_tiles: req.shinespark_tiles.0,

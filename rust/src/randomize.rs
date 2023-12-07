@@ -121,6 +121,7 @@ pub struct ItemPriorityGroup {
 
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
 pub struct DifficultyConfig {
+    pub name: Option<String>,
     pub tech: Vec<String>,
     pub notable_strats: Vec<String>,
     // pub notable_strats: Vec<String>,
@@ -198,6 +199,7 @@ struct ItemLocationState {
     pub reachable: bool,
     pub bireachable: bool,
     pub bireachable_vertex_id: Option<VertexId>,
+    pub difficulty_tier: Option<usize>,
 }
 
 #[derive(Clone)]
@@ -2448,7 +2450,7 @@ impl<'r> Randomizer<'r> {
                 return None;
             }
 
-            info!("remaining_items={}", remaining_items.len());
+            // info!("remaining_items={}", remaining_items.len());
 
             // If we will be placing `k` key items, we let the first `k - 1` items to place remain fixed based on the
             // item precedence order, while we vary the last key item across attempts (to try to find some choice that
@@ -2551,11 +2553,11 @@ impl<'r> Randomizer<'r> {
                     }
                 }
                 if !is_reachable {
-                    return (i, tier);
+                    return (i, tier - 1);
                 }
             }
         }
-        return (0, self.difficulty_tiers.len());
+        return (0, self.difficulty_tiers.len() - 1);
     }
 
     fn place_items(
@@ -2611,6 +2613,7 @@ impl<'r> Randomizer<'r> {
                 let hard_vertex_id = state.item_location_state[hard_loc]
                     .bireachable_vertex_id
                     .unwrap();
+                new_state.item_location_state[hard_loc].difficulty_tier = Some(tier);
                 let forward = &state.debug_data.as_ref().unwrap().forward;
                 let reverse = &state.debug_data.as_ref().unwrap().reverse;
                 let (forward_cost_idx, _) =
@@ -3280,6 +3283,7 @@ impl<'r> Randomizer<'r> {
             reachable: false,
             bireachable: false,
             bireachable_vertex_id: None,
+            difficulty_tier: None,
         };
         let initial_flag_location_state = FlagLocationState {
             bireachable: false,
@@ -3462,6 +3466,7 @@ pub struct SpoilerStartState {
 pub struct SpoilerItemDetails {
     item: String,
     location: SpoilerLocation,
+    difficulty: Option<String>,
     obtain_route: Vec<SpoilerRouteEntry>,
     return_route: Vec<SpoilerRouteEntry>,
 }
@@ -3728,6 +3733,7 @@ impl<'a> Randomizer<'a> {
         state: &RandomizationState,
         item_vertex_id: usize,
         item: Item,
+        tier: Option<usize>,
     ) -> SpoilerItemDetails {
         let (obtain_route, return_route) =
             self.get_spoiler_route_birectional(state, item_vertex_id);
@@ -3740,6 +3746,7 @@ impl<'a> Randomizer<'a> {
                 node: item_vertex_info.node_name,
                 coords: item_vertex_info.room_coords,
             },
+            difficulty: if let Some(tier) = tier { self.difficulty_tiers[tier].name.clone() } else { None },
             obtain_route: obtain_route,
             return_route: return_route,
         }
@@ -3813,7 +3820,8 @@ impl<'a> Randomizer<'a> {
                     // info!("Item: {item:?}");
                     let item_vertex_id =
                         state.item_location_state[i].bireachable_vertex_id.unwrap();
-                    items.push(self.get_spoiler_item_details(state, item_vertex_id, item));
+                    let tier = new_state.item_location_state[i].difficulty_tier;
+                    items.push(self.get_spoiler_item_details(state, item_vertex_id, item, tier));
                 }
             }
         }

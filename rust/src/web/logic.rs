@@ -308,6 +308,7 @@ fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
     }
     // It's annoying how much irrelevant stuff we have to fill in here. TODO: restructure to make things cleaner
     DifficultyConfig {
+        name: None,
         tech: tech_vec,
         notable_strats: strat_vec,
         shine_charge_tiles: preset.preset.shinespark_tiles as f32,

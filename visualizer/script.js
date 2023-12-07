@@ -462,7 +462,11 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 		}
 
 		let item_info = document.createElement("div");
-		item_info.innerHTML += `<div class="sidebar-item-name">${item_name}</div><div class="category">LOCATION</div>${loc.room}<br><small>${loc.node}</small>`;
+		let item_difficulty = "";
+		if (j.difficulty !== null) {
+			item_difficulty = ` (${j.difficulty})`
+		}
+		item_info.innerHTML += `<div class="sidebar-item-name">${item_name}${item_difficulty}</div><div class="category">LOCATION</div>${loc.room}<br><small>${loc.node}</small>`;
 		if (j !== null) {
 			let ss = c.details[i].start_state;
 			item_info.innerHTML += `<div class="category">OBTAIN ROUTE</div>`;

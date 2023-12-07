@@ -35,10 +35,11 @@ document.getElementById("navigation-releases").classList.add("active");
 <li>Improvements to the spoiler map:
     <ul>
     <li>The logic overview now has a more compact layout.
-    <li>In the logic overview, double-clicking a step shows step details, including all collectible items on that step.
+    <li>Double-clicking a step shows step details, including all collectible items on that step.
     <li>Clicking an item icon in the logic overview or step details shows a route to the item.
-    <li>Clicking away from a route now makes the highlighted path disappear.
-    <li>Return routes now indicate resources needed instead of resources remaining.
+    <li>Step details show the logical difficulty of reaching key items (only with Forced mode).
+    <li>Clicking away from a route makes the highlighted path disappear.
+    <li>Return routes indicate resources needed instead of resources remaining.
         <ul>
         <li>This leads to greater accuracy as it aligns better with how the randomizer logic works.
         </ul>

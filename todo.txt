@@ -1,5 +1,4 @@
 v100:
-- help button
 - DONE: implement "autoReserveTrigger".
 - DONE: use consistent set of filler items, when trying different key items:
 - DONE: implement "resetsObstacles".
