@@ -1538,6 +1538,8 @@ impl<'a> Patcher<'a> {
             stats_table_addr + idx * 8,
             (item_time_addr + 4 * item_idx) as isize,
         )?;
+        // Write stats type (2 = Time):
+        self.rom.write_u16(stats_table_addr + idx * 8 + 6, 2)?;
         Ok(())
     }
 

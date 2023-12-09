@@ -859,30 +859,30 @@ warnpc !stats_table_address
 
 org !stats_table_address
 stats:
-    ;; STAT DATA ADDRESS, STAT DATA BANK, TILEMAP ADDRESS, TYPE (1 = Number, 2 = Time)
-    ;; Item collection times (stat data address will be overridden in patch.rs, based on the progression order of items)
-    dw !stat_item_collection_times, $007E,  !row*164, 2
-    dw !stat_item_collection_times, $007E,  !row*166, 2
-    dw !stat_item_collection_times, $007E,  !row*168, 2
-    dw !stat_item_collection_times, $007E,  !row*170, 2
-    dw !stat_item_collection_times, $007E,  !row*172, 2
-    dw !stat_item_collection_times, $007E,  !row*174, 2
-    dw !stat_item_collection_times, $007E,  !row*176, 2
-    dw !stat_item_collection_times, $007E,  !row*178, 2
-    dw !stat_item_collection_times, $007E,  !row*180, 2
-    dw !stat_item_collection_times, $007E,  !row*182, 2
-    dw !stat_item_collection_times, $007E,  !row*184, 2
-    dw !stat_item_collection_times, $007E,  !row*186, 2
-    dw !stat_item_collection_times, $007E,  !row*188, 2
-    dw !stat_item_collection_times, $007E,  !row*190, 2
-    dw !stat_item_collection_times, $007E,  !row*192, 2
-    dw !stat_item_collection_times, $007E,  !row*194, 2
-    dw !stat_item_collection_times, $007E,  !row*196, 2
-    dw !stat_item_collection_times, $007E,  !row*198, 2
-    dw !stat_item_collection_times, $007E,  !row*200, 2
-    dw !stat_item_collection_times, $007E,  !row*202, 2
-    dw !stat_item_collection_times, $007E,  !row*204, 2
-    dw !stat_item_collection_times, $007E,  !row*206, 2
+    ;; STAT DATA ADDRESS, STAT DATA BANK, TILEMAP ADDRESS, TYPE (1 = Number, 2 = Time, 3 = Skip)
+    ;; Item collection times (stat data address & type will be overridden in patch.rs, based on the progression order of items)
+    dw !stat_item_collection_times, $007E,  !row*164, 3
+    dw !stat_item_collection_times, $007E,  !row*166, 3
+    dw !stat_item_collection_times, $007E,  !row*168, 3
+    dw !stat_item_collection_times, $007E,  !row*170, 3
+    dw !stat_item_collection_times, $007E,  !row*172, 3
+    dw !stat_item_collection_times, $007E,  !row*174, 3
+    dw !stat_item_collection_times, $007E,  !row*176, 3
+    dw !stat_item_collection_times, $007E,  !row*178, 3
+    dw !stat_item_collection_times, $007E,  !row*180, 3
+    dw !stat_item_collection_times, $007E,  !row*182, 3
+    dw !stat_item_collection_times, $007E,  !row*184, 3
+    dw !stat_item_collection_times, $007E,  !row*186, 3
+    dw !stat_item_collection_times, $007E,  !row*188, 3
+    dw !stat_item_collection_times, $007E,  !row*190, 3
+    dw !stat_item_collection_times, $007E,  !row*192, 3
+    dw !stat_item_collection_times, $007E,  !row*194, 3
+    dw !stat_item_collection_times, $007E,  !row*196, 3
+    dw !stat_item_collection_times, $007E,  !row*198, 3
+    dw !stat_item_collection_times, $007E,  !row*200, 3
+    dw !stat_item_collection_times, $007E,  !row*202, 3
+    dw !stat_item_collection_times, $007E,  !row*204, 3
+    dw !stat_item_collection_times, $007E,  !row*206, 3
     dw !stat_saves,     $0070, !row*209,  1    ;; Saves
     dw !stat_deaths,    $0070, !row*211,  1    ;; Deaths
     dw !stat_reloads,   $0070, !row*213,  1    ;; Reloads
