@@ -269,11 +269,13 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 	gen_obscurity(null);
 	let el = document.getElementById("room-info");
 	let dragging = false;
+	let dragged = false;
 	document.getElementById("map").ondragstart = ev => {
 		return false;
 	}
 	document.body.onmousedown = ev => {
 		dragging = true;
+		dragged = false;
 	}
 	document.body.onmouseup = ev => {
 		dragging = false;
@@ -286,6 +288,7 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 	let page_y = 0;
 	document.body.onmousemove = ev => {
 		if (dragging) {
+			dragged = true;
 			page_x += ev.movementX
 			page_y += ev.movementY;
 			document.body.style.setProperty("--tx", page_x + "px");
@@ -351,9 +354,11 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 			document.getElementById("path-overlay").innerHTML = `<path d="${path}" stroke="black" fill="none" stroke-linejoin="round" stroke-width="4"/>`
 			document.getElementById("path-overlay").innerHTML += `<path d="${path}" stroke="cyan" fill="none" stroke-linejoin="round" stroke-width="2"/>`
 		} else {
-			// deselect
-			show_overview();
-			document.getElementById("path-overlay").innerHTML = ""
+			if (!dragged) {
+				// deselect
+				show_overview();
+				document.getElementById("path-overlay").innerHTML = ""
+			}
 		}
 	}
 	document.getElementById("map").ondblclick = ev => {
