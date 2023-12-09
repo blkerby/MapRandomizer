@@ -1117,6 +1117,18 @@ pub fn traverse(
     };
 
     while modified_vertices.len() > 0 {
+        // let mut cnt = 0;
+        // let mut total_cost = 0.0;
+        // for v in 0..result.cost.len() {
+        //     for k in 0..NUM_COST_METRICS {
+        //         if f32::is_finite(result.cost[v][k]) {
+        //             cnt += 1;
+        //             total_cost += result.cost[v][k];
+        //         }
+        //     }
+        // }
+        // println!("modified vertices: {}, cnt_finite: {}, cost={}", modified_vertices.len(), cnt, total_cost);
+
         let mut new_modified_vertices: HashMap<usize, [bool; NUM_COST_METRICS]> = HashMap::new();
         for (&src_id, &modified_costs) in &modified_vertices {
             let src_local_state_arr = result.local_states[src_id];
@@ -1142,6 +1154,15 @@ pub fn traverse(
                         game_data,
                     ) {
                         let dst_new_cost_arr = compute_cost(dst_new_local_state, global);
+
+                        // for k in dst_new_cost_arr {
+                        //     if k < 0.0 {
+                        //         println!("{:?}", link);
+                        //         println!("{:?} {:?}", game_data.vertex_isv.keys[link.from_vertex_id], game_data.vertex_isv.keys[link.to_vertex_id]);
+                        //         panic!("negative cost");
+                        //     }
+                        // }
+
                         let new_step_trail = StepTrail {
                             prev_trail_id: src_trail_id,
                             link_idx,

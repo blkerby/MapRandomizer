@@ -374,6 +374,7 @@ fn add_door_links(
 }
 
 fn compute_run_frames(tiles: f32) -> i32 {
+    assert!(tiles >= 0.0);
     let frames = if tiles <= 7.0 {
         9.0 + 4.0 * tiles
     } else if tiles <= 16.0 {
@@ -546,17 +547,23 @@ impl<'a> Preprocessor<'a> {
         &self,
         exit_link: &Link,
         exit_condition: &ExitCondition,
-        runway_length: f32,
+        mut runway_length: f32,
         runway_heated: bool,
     ) -> Option<Requirement> {
         match exit_condition {
             ExitCondition::LeaveWithRunway {
-                effective_length,
+                mut effective_length,
                 heated,
                 physics,
             } => {
+                if runway_length < 0.0 {
+                    // TODO: remove this hack once we have a proper alternative to comeInSpeedballing.
+                    effective_length -= runway_length;
+                    runway_length = 0.0;
+                }
+
                 let mut reqs: Vec<Requirement> = vec![];
-                let combined_runway_length = *effective_length + runway_length;
+                let combined_runway_length = effective_length + runway_length;
                 reqs.push(Requirement::make_shinecharge(combined_runway_length));
                 if *physics != Some(Physics::Air) {
                     reqs.push(Requirement::Item(Item::Gravity as ItemId));
@@ -568,7 +575,7 @@ impl<'a> Preprocessor<'a> {
                         // But since the shortcharge difficulty is not known here, we conservatively assume up to 33 tiles
                         // of the combined runway may need to be used. (TODO: Instead add a Requirement enum case to handle this more accurately.)
                         let other_runway_length =
-                            f32::max(0.0, f32::min(*effective_length, 33.0 - runway_length));
+                            f32::max(0.0, f32::min(effective_length, 33.0 - runway_length));
                         let heat_frames_1 = compute_run_frames(other_runway_length) + 20;
                         let heat_frames_2 =
                             i32::max(85, compute_run_frames(other_runway_length + runway_length));
@@ -578,13 +585,13 @@ impl<'a> Preprocessor<'a> {
                         // Only the destination room is heated. Heat frames are optimized by using the full runway in
                         // the source room.
                         let (_, heat_frames) =
-                            compute_shinecharge_frames(*effective_length, runway_length);
+                            compute_shinecharge_frames(effective_length, runway_length);
                         reqs.push(Requirement::HeatFrames(heat_frames + 5));
                     } else if runway_heated && !*heated {
                         // Only the source room is heated. As in the first case above, heat frames are optimized by
                         // minimizing runway usage in the source room. (TODO: Use new Requirement enum case.)
                         let other_runway_length =
-                            f32::max(0.0, f32::min(*effective_length, 33.0 - runway_length));
+                            f32::max(0.0, f32::min(effective_length, 33.0 - runway_length));
                         let heat_frames_1 = compute_run_frames(other_runway_length) + 20;
                         let (heat_frames_2, _) =
                             compute_shinecharge_frames(other_runway_length, runway_length);
@@ -594,7 +601,7 @@ impl<'a> Preprocessor<'a> {
                     // Runway in the other room starts at a different node and runs toward the door. The full combined
                     // runway is used.
                     let (frames_1, frames_2) =
-                        compute_shinecharge_frames(*effective_length, runway_length);
+                        compute_shinecharge_frames(effective_length, runway_length);
                     let mut heat_frames = 5;
                     if *heated {
                         // Heat frames for source room
@@ -2688,7 +2695,7 @@ impl<'r> Randomizer<'r> {
             new_state.global_state.collect(item, self.game_data);
         }
 
-        // info!("Trying placing {:?}", key_items);
+        info!("Trying placing {:?}", key_items);
 
         self.update_reachability(new_state);
         let num_bireachable = new_state
