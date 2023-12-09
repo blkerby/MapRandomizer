@@ -5,6 +5,8 @@ v101:
 - DONE: spoiler dragging shouldn't dismiss route
 
 priority:
+- "None" objective mode (MB open from start)
+- add door flags to refine logic
 - logic:
   - mama turtle right item is basic with no items. is this ok?
   - post croc farm room with ice to get to top left is basic. should be "canTrickyUseFrozenEnemies" or "canCameraManip"?
@@ -26,7 +28,6 @@ priority:
 - add robots.txt for dev service
 - clear SRAM more fully when saved seed does not match:
   - save slot position is apparently being retained (e.g. starting with cursor on slot 3)
-- add door flags to refine logic
 - proper saving/loading of custom presets
 - revamp strat page: 
   - embed the video directly near the top? 

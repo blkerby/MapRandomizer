@@ -3,6 +3,7 @@
     <head>
     <% include!("common/header.stpl"); %>
     <meta name="keywords" content="Super Metroid, Map Randomizer, Map Rando, Map, Randomizer">
+    <meta name="description" content="After planet Zebes exploded, Mother Brain put it back together again but arranged it differently this time.">
     <title>Super Metroid Map Rando</title>
     </head>
     <body>
