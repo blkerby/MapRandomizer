@@ -243,7 +243,6 @@ fn make_tech_templates<'a>(
         };
 
         for strat_ids in tech_ids {
-            // Infinitely-spawning farm strats aren't included (TODO: fix that?)
             if room_strat_map.contains_key(strat_ids) {
                 strats.push(room_strat_map[strat_ids].clone());
             }
@@ -259,7 +258,6 @@ fn make_tech_templates<'a>(
         });
         let mut difficulty_names: Vec<String> =
             presets.iter().map(|x| x.preset.name.clone()).collect();
-        difficulty_names.push("Beyond".to_string());
         let template = TechTemplate {
             version_info: version_info.clone(),
             difficulty_names,

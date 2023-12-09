@@ -1,15 +1,8 @@
-v100:
-- DONE: implement "autoReserveTrigger".
-- DONE: use consistent set of filler items, when trying different key items:
-- DONE: implement "resetsObstacles".
-- DONE: in logic pages, indicate if strat bypasses door shell.
-- DONE: add implicit tech requirement "canSkipDoorLock" on applicable strats.
-- DONE: implement `position` property of `leaveWithSpark`/`comeInWithSpark`.
-- DONE: fix how ignored_notable_strats show in logic pages.
-- DONE: scale back some of the heated map tile brightness a bit? 
-  - contrast between faded vs. non-faded dots seems a bit less than ideal, for some areas
-- DONE?: include walljump boots in item percentage post-credits
-- DONE: implement bit in the ROM to indicate if walljump boots option is enabled (for item tracking)
+v101:
+- NEEDS TESTING: fix garbage item time in credits
+- DONE: fix double Beyond in tech pages
+- DONE: canGrappleClip shouldn't be ignored
+- DONE: spoiler dragging shouldn't dismiss route
 
 priority:
 - logic:

@@ -435,6 +435,7 @@
       "canOffScreenMovement",
       "canUpwardGModeSetup",
       "canSkipDoorLock",
+      "canGrappleClip",
       "canRightSideDoorStuckFromWater",
       "canDiagonalBombJump",
       "canInsaneWalljump",
