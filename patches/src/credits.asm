@@ -171,17 +171,18 @@ draw_full_time:
     bne .non_zero
     lda $16
     bne .non_zero
-    ; show blanks in place of time separators (colons)
-    lda #$007F  ; space
-    sta !credits_tilemap_offset-2, y
-    sta !credits_tilemap_offset-2+!row, y
-    sta !credits_tilemap_offset+4, y
-    sta !credits_tilemap_offset+4+!row, y
     plb
     plx
     rtl
 
 .non_zero:
+    ; draw colons for time separators
+    lda #$005A  ; space
+    sta !credits_tilemap_offset-2, y
+    sta !credits_tilemap_offset-2+!row, y
+    sta !credits_tilemap_offset+4, y
+    sta !credits_tilemap_offset+4+!row, y
+
     lda #$003c
     sta $12
     lda #$ffff
@@ -951,50 +952,50 @@ credits:
     !blue
     dw " ITEM LOCATION AND COLLECT TIME " ;; 163
     !big
-    dw "                         .  .   " ;; 164
-    dw "                         .  .   " ;; 165
-    dw "                         .  .   " ;; 166
-    dw "                         .  .   " ;; 167
-    dw "                         .  .   " ;; 168
-    dw "                         .  .   " ;; 169
-    dw "                         .  .   " ;; 170
-    dw "                         .  .   " ;; 171
-    dw "                         .  .   " ;; 172
-    dw "                         .  .   " ;; 173
-    dw "                         .  .   " ;; 174
-    dw "                         .  .   " ;; 175
-    dw "                         .  .   " ;; 176
-    dw "                         .  .   " ;; 177
-    dw "                         .  .   " ;; 178
-    dw "                         .  .   " ;; 179
-    dw "                         .  .   " ;; 180
-    dw "                         .  .   " ;; 181
-    dw "                         .  .   " ;; 182
-    dw "                         .  .   " ;; 183
-    dw "                         .  .   " ;; 184
-    dw "                         .  .   " ;; 185
-    dw "                         .  .   " ;; 186
-    dw "                         .  .   " ;; 187
-    dw "                         .  .   " ;; 188
-    dw "                         .  .   " ;; 189
-    dw "                         .  .   " ;; 190
-    dw "                         .  .   " ;; 191
-    dw "                         .  .   " ;; 192
-    dw "                         .  .   " ;; 193
-    dw "                         .  .   " ;; 194
-    dw "                         .  .   " ;; 195
-    dw "                         .  .   " ;; 196
-    dw "                         .  .   " ;; 197
-    dw "                         .  .   " ;; 198
-    dw "                         .  .   " ;; 199
-    dw "                         .  .   " ;; 200
-    dw "                         .  .   " ;; 201
-    dw "                         .  .   " ;; 202
-    dw "                         .  .   " ;; 203
-    dw "                         .  .   " ;; 204
-    dw "                         .  .   " ;; 205
-    dw "                         .  .   " ;; 206
-    dw "                         .  .   " ;; 207
+    dw "                                " ;; 164
+    dw "                                " ;; 165
+    dw "                                " ;; 166
+    dw "                                " ;; 167
+    dw "                                " ;; 168
+    dw "                                " ;; 169
+    dw "                                " ;; 170
+    dw "                                " ;; 171
+    dw "                                " ;; 172
+    dw "                                " ;; 173
+    dw "                                " ;; 174
+    dw "                                " ;; 175
+    dw "                                " ;; 176
+    dw "                                " ;; 177
+    dw "                                " ;; 178
+    dw "                                " ;; 179
+    dw "                                " ;; 180
+    dw "                                " ;; 181
+    dw "                                " ;; 182
+    dw "                                " ;; 183
+    dw "                                " ;; 184
+    dw "                                " ;; 185
+    dw "                                " ;; 186
+    dw "                                " ;; 187
+    dw "                                " ;; 188
+    dw "                                " ;; 189
+    dw "                                " ;; 190
+    dw "                                " ;; 191
+    dw "                                " ;; 192
+    dw "                                " ;; 193
+    dw "                                " ;; 194
+    dw "                                " ;; 195
+    dw "                                " ;; 196
+    dw "                                " ;; 197
+    dw "                                " ;; 198
+    dw "                                " ;; 199
+    dw "                                " ;; 200
+    dw "                                " ;; 201
+    dw "                                " ;; 202
+    dw "                                " ;; 203
+    dw "                                " ;; 204
+    dw "                                " ;; 205
+    dw "                                " ;; 206
+    dw "                                " ;; 207
     !blue
     dw "      GAMEPLAY STATISTICS       " ;; 208
     !big
