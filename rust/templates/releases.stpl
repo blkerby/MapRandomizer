@@ -14,9 +14,16 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release101">Version 101 (2023-12-08)</a>:
+<p><a id="release101">Version 101 (2023-12-09)</a>:
 <ul>
-<li>Fix several minor bugs.
+<li>Fixes to several bugs:
+    <ul>
+    <li>Incorrect logic in Plasma Spark Room.
+    <li>"canGrappleClip" did not show up as a tech that could be enabled.
+    <li>Extraneous item collection time showed in credits when not using Collectible wall-jump.
+    <li>In spoiler map, route would close when dragging the map.
+    <li>Second "Beyond" appeared in tech logic pages.
+    </ul>
 </ul>
 
 <p><a id="release100">Version 100 (2023-12-08)</a>:
