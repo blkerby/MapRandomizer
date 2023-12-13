@@ -15,13 +15,11 @@
         <p>Each map is partitioned into six connected regions, which are assigned to in-game areas in different
         ways depending on this setting:
         <ul>
-        <li><strong>Standard</strong>: The Ship is always in Crateria. The other areas are assigned based on their
+        <li><strong>Standard</strong>: Landing Site is always in Crateria. The other areas are assigned based on their
         size (in number of map tiles), in order from largest to smallest: Norfair, Brinstar, Maridia, Tourian, Wrecked Ship.
-        <li><strong>Random</strong>: The areas are assigned randomly. In particular, the Ship can be in any area.
+        <li><strong>Random</strong>: The areas are assigned randomly. In particular, Landing Site can be in any area.
         </ul>
         </p>
-        <p>Regardless of this setting, the Ship is always in the same room, Landing Site. This setting 
-        controls whether the area containing Landing Site is required to be Crateria or not.</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

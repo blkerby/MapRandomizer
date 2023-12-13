@@ -19,10 +19,6 @@ arch snes.cpu
 ; lava animation: $9081C0
 
 
-;; full heat protection with varia instead of varia or gravity
-;org $8de37d
-;	db $01
-
 
 ; hook heat protection check
 org $8DE379
@@ -30,8 +26,10 @@ org $8DE379
 	nop : nop
 	bcs $2A
 
-
-
+; hook heat damage calculation
+org $8DE381
+	jsl compute_heat_damage
+	nop : nop : nop
 
 ;;; periodic damage modification (environmental damage)
 org $90E9CE
@@ -45,11 +43,8 @@ env_damage:
 	LDA $09A2
 	BIT #$0020
 	BEQ .no_gravity
-	LDA $0A4E
-	CMP #$4000    ; Is this heat damage? (subdamage=$4000)
-	BEQ .no_gravity
 	LDA $0A4F     ;\ 
-	LSR A         ;|  Cut non-heat damage in half if Gravity is equipped
+	LSR A         ;|  Cut damage in half if Gravity is equipped
 	STA $0A4F     ;/
 .no_gravity:
 	LDA $09A2
@@ -102,6 +97,20 @@ check_heat_protection:
 	rtl
 .protected:
 	sec
+	rtl
+
+compute_heat_damage:
+	lda $09A2
+	and #$0020       ; check if gravity suit equipped
+	beq .no_gravity
+	lda $0A4E
+	clc
+	adc #$8000       ; double heat damage if gravity suit is equipped, since it will get cut in half later
+	rtl
+.no_gravity:
+	lda $0A4E
+	clc
+	adc #$4000       ; normal heat damage otherwise
 	rtl
 
 warnpc $90F700

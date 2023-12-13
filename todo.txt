@@ -1,11 +1,15 @@
-v101:
-- NEEDS TESTING: fix garbage item time in credits
-- DONE: fix double Beyond in tech pages
-- DONE: canGrappleClip shouldn't be ignored
-- DONE: spoiler dragging shouldn't dismiss route
+v102:
+- fix item collection time (101%), probably some issue with wj boots
+- DONE: fix suit behavior with lava, heated elevators, etc.
 
 priority:
+- map pools with movable toilet
 - "None" objective mode (MB open from start)
+- look into possible quicksave/load patch (like save states but not emulator-dependent)
+  - could work better with music: continue playing same song or start from beginning if different
+  - could retain game timer shown in credits
+  - could retain map progress
+  - could get overwritten when using a save station, to prevent accidental quickloads from losing lots of progress
 - add door flags to refine logic
 - logic:
   - mama turtle right item is basic with no items. is this ok?
