@@ -16,7 +16,11 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <p><a id="release101">Version 102 (2023-12-13)</a>:
 <ul>
-<li>Fixed issue where Gravity incorrectly gave partial heat protection when combined with lava, acid, etc.
+<li>Fixes to bugs:
+    <ul>
+    <li>Gravity incorrectly gave partial heat protection when combined with lava, acid, etc.
+    <li>Item collection rate (shown after the credits) was incorrect.
+    </ul>
 </ul>
 
 <p><a id="release101">Version 101 (2023-12-09)</a>:

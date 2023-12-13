@@ -565,7 +565,6 @@ org $8BE661
 
 org !bank_8b_free_space_start
 item_bits:
-;    dw $0001, $0020, $0004, $1000, $0002, $0008, $0100, $0200, $2000, $4000, $8000, $0400
-;
-;warnpc !bank_8b_free_space_end
-;
+    dw $0001, $0020, $0004, $1000, $0002, $0008, $0100, $0200, $2000, $4000, $8000, $0400
+
+warnpc !bank_8b_free_space_end
