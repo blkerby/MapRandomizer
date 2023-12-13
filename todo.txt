@@ -1,5 +1,6 @@
 v102:
-- fix item collection time (101%), probably some issue with wj boots
+- fix logic problems relating to walljumpless strats.
+- DONE: fix item collection time (101%), probably some issue with wj boots
 - DONE: fix suit behavior with lava, heated elevators, etc.
 
 priority:

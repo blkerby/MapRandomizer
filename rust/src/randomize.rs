@@ -60,6 +60,7 @@ pub enum ItemDotChange {
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
 pub enum Objectives {
+    None,
     Bosses,
     Minibosses,
     Metroids,
@@ -1903,6 +1904,9 @@ fn get_randomizable_doors(
 
     // Avoid placing an ammo door on a tile with an objective "X", as it looks bad.
     match difficulty.objectives {
+        Objectives::None => {
+            
+        }
         Objectives::Bosses => {
             // The boss doors are all gray and were already excluded above.
         }

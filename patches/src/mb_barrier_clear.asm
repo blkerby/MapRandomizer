@@ -122,8 +122,8 @@ golden_torizo:
 
 
 ; OBJECTIVE: Metroids (must match address in patch.rs)
-warnpc $8FEBC0
-org $8FEBC0
+warnpc $8FEBB0
+org $8FEBB0
     ; clear barriers in mother brain room based on Metroid rooms cleared:
 metroid_1:
     lda $7ed822
@@ -173,8 +173,8 @@ metroid_4:
 
 
 ; OBJECTIVE: Chozos (must match address in patch.rs)
-warnpc $8FEC20
-org $8FEC20
+warnpc $8FEC00
+org $8FEC00
     ; clear barriers in mother brain room based on Chozos defeated/activated:
 
 bomb_torizo:
@@ -225,8 +225,8 @@ golden_torizo_chozo:
 
 
 ; OBJECTIVE: Pirates (must match address in patch.rs)
-warnpc $8FEC80
-org $8FEC80
+warnpc $8FEC50
+org $8FEC50
     ; clear barriers in mother brain room based on enemies defeated (gray doors unlocked) in Space Pirates rooms:
 
 pit_room:
@@ -275,7 +275,35 @@ metal_pirates_room:
 
     jmp motherbrain
 
+; OBJECTIVE: None (must match address in patch.rs)
+warnpc $8FECA0
+org $8FECA0
+
+    jsl $8483D7
+    db $39
+    db $04
+    dw clear_barrier_plm
+
+    jsl $8483D7
+    db $38
+    db $04
+    dw clear_barrier_plm
+
+    jsl $8483D7
+    db $37
+    db $04
+    dw clear_barrier_plm
+
+    jsl $8483D7
+    db $36
+    db $04
+    dw clear_barrier_plm
+
+    jmp motherbrain
+
 warnpc $8FED00
+
+
 
 org $83AAEA
     dw $EE00  ; Set door ASM for Tourian Escape Room 1 toward Mother Brain

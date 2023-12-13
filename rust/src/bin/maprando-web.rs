@@ -177,7 +177,7 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         version_info: app_data.version_info.clone(),
         progression_rates: vec!["Fast", "Uniform", "Slow"],
         item_placement_styles: vec!["Neutral", "Forced"],
-        objectives: vec!["Bosses", "Minibosses", "Metroids", "Chozos", "Pirates"],
+        objectives: vec!["None", "Bosses", "Minibosses", "Metroids", "Chozos", "Pirates"],
         item_priorities: vec!["Early", "Default", "Late"]
             .iter()
             .map(|x| x.to_string())
@@ -1251,6 +1251,7 @@ async fn randomize(
         infinite_space_jump: req.infinite_space_jump.0,
         momentum_conservation: req.momentum_conservation.0,
         objectives: match req.objectives.0.as_str() {
+            "None" => Objectives::None,
             "Bosses" => Objectives::Bosses,
             "Minibosses" => Objectives::Minibosses,
             "Metroids" => Objectives::Metroids,

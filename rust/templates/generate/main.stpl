@@ -139,17 +139,17 @@
                     <% include!("help/objectives.stpl"); %>
                     <label for="objective">Objectives</label>
                 </div>
-                <div class="col-lg-6 btn-group my-2" role="group">
+                <div class="col-lg-7 btn-group my-2" role="group">
                 <% for (i, name) in objectives.iter().enumerate() { 
                     let name_no_space = &name.replace(" ", "");
-                    let checked = if i == 0 { "checked" } else { "" }; 
+                    let checked = if i == 1 { "checked" } else { "" }; 
                     %>
                     <input type="radio" class="btn-check" name="objectives" value="<%- name %>"
                         id="objectives<%- name_no_space%>" autocomplete="off" <%- checked %>>
                     <label class="btn btn-outline-primary p-2" for="objectives<%- name_no_space %>"><%= name %></label>
                 <% } %>
                 </div>
-            </div>            
+            </div>
 
             <div class="form-group row">
                 <div class="col-lg-3 my-2 pt-1">

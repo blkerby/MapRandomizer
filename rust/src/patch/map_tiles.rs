@@ -1106,6 +1106,7 @@ impl<'a> MapPatcher<'a> {
         })?;
 
         match self.randomization.difficulty.objectives {
+            Objectives::None => {}
             Objectives::Bosses => {
                 self.indicate_boss_tiles(boss_tile, heated_boss_tile)?;
             }

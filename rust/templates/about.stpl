@@ -301,6 +301,8 @@
         <li>In the vanilla game, when running with Speedbooster it is easy to unintentionally dip out-of-bounds there
         (and possible to fall all the way through the floor).
         </ul>
+    <li>Objective barriers are added in Mother Brain's room. Several slope tiles are also changed to solid, to prevent Samus from
+    clipping through the floor when running into the room.
     </ul>
 
     <h5 id="other_changes">Other changes</h5>

@@ -14,6 +14,7 @@
       <div class="modal-body">
         <p>This setting determines the conditions needed to open the way to Mother Brain:</p>
         <ul>
+        <li><p><strong>None</strong>: The way is already open from the start of the game.</p>
         <li><p><strong>Bosses</strong>: Defeat Kraid, Phantoon, Draygon, and Ridley.</p>
         <li><p><strong>Minibosses</strong>: Defeat Spore Spawn, Crocomire, Botwoon, and Golden Torizo.</p>
         <li><p><strong>Metroids</strong>: Defeat all the Metroids in the four Metroid rooms.</p>
