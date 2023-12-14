@@ -14,9 +14,13 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release101">Version 102 (2023-12-13)</a>:
+<p><a id="release101">Version 102 (2023-12-14)</a>:
 <ul>
 <li>A new objective option "None" is added.
+<li>A new customization setting "Reserve tank HUD style" is added.
+    <ul>
+    <li>The "Revamped" option adds bars to the HUD to show how full the reserve tanks are.
+    </ul>
 <li>Fixes to bugs:
     <ul>
     <li>Gravity incorrectly gave partial heat protection when combined with lava, acid, etc.
