@@ -1,0 +1,27 @@
+<!-- Button trigger modal -->
+<button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#reserveHudStyleModal">
+<i class="bi bi-question-circle"></i>
+</button>
+
+<!-- Modal -->
+<div class="modal" id="reserveHudStyleModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">Reserve HUD style</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Choose which style the reserve tank HUD should have.</p>
+        <ul>
+        <li><p><strong>Vanilla</strong>: If reserve mode is AUTO, the text with two arrows is shown and is either blue when reserves are completely empty, or yellow when reserves have any energy.</p>
+        
+        <li><p><strong>Revamped</strong>: For each reserve tank there's a thin bar that shows how much energy it has. These are always shown, independant of reserve mode. The AUTO text is moved below these and work the same as in vanilla.</p>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -266,6 +266,7 @@ struct CustomizeRequest {
     samus_sprite: Text<String>,
     custom_etank_color: Text<bool>,
     etank_color: Text<String>,
+    reserve_hud_style: Text<bool>,
     vanilla_screw_attack_animation: Text<bool>,
     room_palettes: Text<String>,
     tile_theme: Text<String>,
@@ -803,6 +804,7 @@ async fn customize_seed(
         } else {
             None
         },
+        reserve_hud_style: req.reserve_hud_style.0,
         vanilla_screw_attack_animation: req.vanilla_screw_attack_animation.0,
         area_theming: if req.tile_theme.0 != "none" {
             AreaTheming::Tiles(req.tile_theme.0.to_owned())
