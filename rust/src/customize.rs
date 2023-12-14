@@ -104,6 +104,7 @@ pub enum ShakingSetting {
 pub struct CustomizeSettings {
     pub samus_sprite: Option<String>,
     pub etank_color: Option<(u8, u8, u8)>,
+    pub reserve_hud_style: bool,
     pub vanilla_screw_attack_animation: bool,
     pub area_theming: AreaTheming,
     pub music: MusicSettings,
@@ -287,6 +288,9 @@ pub fn customize_rom(
                                                   // rom.write_u16(snes2pc(0xB6F01A), color)?;
         rom.write_u16(snes2pc(0x8EE416), color)?; // Main menu
         rom.write_u16(snes2pc(0xA7CA7B), color)?; // During Phantoon power-on
+    }
+    if settings.reserve_hud_style {
+        apply_ips_patch(rom, Path::new("../patches/ips/reserve_hud.ips"))?;
     }
     match settings.music {
         MusicSettings::Vanilla => {
