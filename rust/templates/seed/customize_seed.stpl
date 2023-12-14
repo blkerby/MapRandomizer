@@ -93,7 +93,7 @@ window.spoilerTokenPrefix = "<%- spoiler_token_prefix %>";
 
                         <div class="form-group row my-3">
                             <div class="col-md-4">
-                            <label class="col-form-label" for="reserve_hud_style"><% include!("help/reserve_hud.stpl"); %>Reserve HUD style</label>
+                            <label class="col-form-label" for="reserve_hud_style"><% include!("help/reserve_hud.stpl"); %>Reserve tank HUD style</label>
                             </div>
                             <div class="col-md-6 col-lg-4 btn-group p-0" role="group">
                                 <input type="radio" class="btn-check" name="reserve_hud_style" id="reserveHudStyleVanilla" value=false>

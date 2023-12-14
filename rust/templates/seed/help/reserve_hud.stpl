@@ -8,15 +8,15 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5">Reserve HUD style</h1>
+        <h1 class="modal-title fs-5">Reserve tank HUD style</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <p>Choose which style the reserve tank HUD should have.</p>
+        <p>The setting affects how reserve tanks are displayed on the HUD.</p>
         <ul>
-        <li><p><strong>Vanilla</strong>: If reserve mode is AUTO, the text with two arrows is shown and is either blue when reserves are completely empty, or yellow when reserves have any energy.</p>
+        <li><p><strong>Vanilla</strong>: A reserve tank indicator is shown on the HUD only if reserve mode is AUTO, and its color indicates whether reserves have any energy or not.</p>
         
-        <li><p><strong>Revamped</strong>: For each reserve tank there's a thin bar that shows how much energy it has. These are always shown, independant of reserve mode. The AUTO text is moved below these and work the same as in vanilla.</p>
+        <li><p><strong>Revamped</strong>: Each reserve tank is indicated with a bar showing how full it is. If reserve mode is AUTO, then the AUTO text also appears, and its color indicates whether reserves have any energy or not.</p>
         </ul>
       </div>
       <div class="modal-footer">
