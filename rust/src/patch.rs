@@ -1761,8 +1761,9 @@ impl<'a> Patcher<'a> {
         ];
         if self.randomization.difficulty.wall_jump != WallJump::Vanilla {
             door_ptr_pairs.extend(vec![
-                (Some(0x18A06), Some(0x1A300)),
-                (Some(0x198BE), Some(0x198CA)),
+                (Some(0x18A06), Some(0x1A300)),  // West Ocean Gravity Suit door
+                (Some(0x198BE), Some(0x198CA)),  // Ridley's Room top door
+                (Some(0x193EA), Some(0x193D2)),  // Crocomire's Room top door
             ]);
         }
         for pair in door_ptr_pairs {

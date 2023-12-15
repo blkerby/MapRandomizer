@@ -1,16 +1,17 @@
 lorom
 
 ;;;
-; Shorten Big Boy cutscene: 
+; Shorten Big Boy cutscene:
 ;;;
 
 ; Delay before Big Boy attacks Dead Sidehopper
 org $A9F031
-    LDA #$0060          ; replaces: LDA #$01D0
+    LDA #$002C          ; replaces: LDA #$01D0
 
-;; Dead Sidehopper initial position
-;org $A9D7F9
-;    LDA #$01E8          ; replaces: LDA #$01E8
+; Hop initial velocities (make the first hop bigger, to effective skip a hop)
+org $A9D951
+    dw $FE00, $FE00, $FC00, $FE00
+    dw $0120, $0250, $0300, $01C0
 
 ; Delay between Dead Sidehopper hops
 org $A9D916

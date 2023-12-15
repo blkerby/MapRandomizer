@@ -21,10 +21,16 @@ document.getElementById("navigation-releases").classList.add("active");
     <ul>
     <li>The "Revamped" option adds bars to the HUD to show how full the reserve tanks are.
     </ul>
-<li>Two additional doors are given hazard markings when using "Collectible" or "Disabled" wall jump.
+<li>Three additional doors are given hazard markings when using "Collectible" or "Disabled" wall jump.
     <ul>
-    <li>Door leading to the top of Ridley's Room.
-    <li>Door leading to the drop-off in West Ocean (e.g. from Gravity Suit Room in vanilla).
+    <li>Door leading left to the top of Ridley's Room.
+    <li>Door leading left to the drop-off in West Ocean (e.g. from Gravity Suit Room in vanilla).
+    <li>Door leading down to Crocomire's Room.
+    </ul>
+<li>Improvements to the fast Big Boy cutscene:
+    <ul>
+    <li>The start of the cutscene is accelerated slightly more (~1 additional second).
+    <li>The timing of when Sidehopper becomes a corpse (relative to when Big Boy rises up from it) now aligns with vanilla.
     </ul>
 <li>Fixes to bugs:
     <ul>
