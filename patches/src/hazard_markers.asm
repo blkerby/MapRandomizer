@@ -69,6 +69,9 @@ down_hazard_plm:
 down_hazard_transition_plm:
     dw $B3D0, down_hazard_transition_inst
 
+left_hazard_transition_plm:
+    dw $B3D0, left_hazard_transition_inst
+
 load_hazard_tiles:
     jsl $80B271  ; run hi-jacked instruction (Decompress [tileset tiles pointer] to VRAM $0000)
 
@@ -133,6 +136,13 @@ right_hazard_transition_inst:
 
 right_hazard_transition_draw:
     dw $8004, $90E0, $90E1, $98E1, $98E0, $0000
+
+left_hazard_transition_inst:
+    dw $0001, left_hazard_transition_draw
+    dw $86BC
+
+left_hazard_transition_draw:
+    dw $8004, $94E0, $94E1, $9CE1, $9CE0, $0000
 
 down_hazard_inst:
     dw $0001, down_hazard_draw

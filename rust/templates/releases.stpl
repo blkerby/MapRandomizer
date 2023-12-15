@@ -14,12 +14,17 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release101">Version 102 (2023-12-14)</a>:
+<p><a id="release101">Version 102 (2023-12-15)</a>:
 <ul>
 <li>A new objective option "None" is added.
 <li>A new customization setting "Reserve tank HUD style" is added.
     <ul>
     <li>The "Revamped" option adds bars to the HUD to show how full the reserve tanks are.
+    </ul>
+<li>Two additional doors are given hazard markings when using "Collectible" or "Disabled" wall jump.
+    <ul>
+    <li>Door leading to the top of Ridley's Room.
+    <li>Door leading to the drop-off in West Ocean (e.g. from Gravity Suit Room in vanilla).
     </ul>
 <li>Fixes to bugs:
     <ul>

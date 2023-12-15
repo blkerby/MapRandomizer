@@ -1692,6 +1692,10 @@ impl<'a> Patcher<'a> {
             plm_id = 0xF800; // must match address in hazard_markers.asm
             tile_x = door.x * 16 + 15;
             tile_y = door.y * 16 + 6;
+        } else if door.direction == "left" {
+            plm_id = 0xF80C; // must match address in hazard_markers.asm
+            tile_x = door.x * 16;
+            tile_y = door.y * 16 + 6;
         } else if door.direction == "down" {
             if door.offset == Some(0) {
                 plm_id = 0xF808; // hazard marking overlaid on transition tiles
@@ -1745,7 +1749,7 @@ impl<'a> Patcher<'a> {
     }
 
     fn apply_hazard_markers(&mut self) -> Result<()> {
-        let door_ptr_pairs = vec![
+        let mut door_ptr_pairs = vec![
             (Some(0x1A42C), Some(0x1A474)), // Mt. Everest (top)
             (Some(0x1A678), Some(0x1A600)), // Oasis (top)
             (Some(0x1A3F0), Some(0x1A444)), // Fish Tank (top left)
@@ -1755,6 +1759,12 @@ impl<'a> Patcher<'a> {
             (Some(0x18DDE), Some(0x18E6E)), // Big Pink crumble blocks (left),
             (Some(0x19312), Some(0x1934E)), // Ice Beam Gate Room crumbles (top left)
         ];
+        if self.randomization.difficulty.wall_jump != WallJump::Vanilla {
+            door_ptr_pairs.extend(vec![
+                (Some(0x18A06), Some(0x1A300)),
+                (Some(0x198BE), Some(0x198CA)),
+            ]);
+        }
         for pair in door_ptr_pairs {
             self.apply_door_hazard_marker(pair)?;
         }

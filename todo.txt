@@ -1,5 +1,6 @@
 v102:
 - fix logic problems relating to walljumpless strats.
+- DONE: add hazard markings for Ridley and West Ocean Gravity Suit door
 - DONE: fix item collection time (101%), probably some issue with wj boots
 - DONE: fix suit behavior with lava, heated elevators, etc.
 
@@ -92,6 +93,13 @@ priority:
 - logic simulator
 
 later:
+- "fast cutscenes" QoL option?: 
+  - fast big boy cutscene
+  - fast MB
+  - fast saves, refills, maps?
+  - item collection
+- "item fanfare" option?
+- QoL preset "Minimal" above "Off"?
 - consider "Other option" for shinespark not to drain energy
 - bug reported by somerando: on vanilla MB, escape sequence starts immediately on reload, instead of waiting for you to move.
   - also, death by waiting the escape timer out will load to previous save
