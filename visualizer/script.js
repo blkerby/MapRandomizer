@@ -127,10 +127,7 @@ function lookupOffset(room, node) {
 	return offsets[key];
 }
 
-let doors;
-fetch(`doors.json`).then(c => c.json()).then(c => {
-	doors = c;
-}).then(_ => fetch(`../spoiler.json`)).then(c => c.json()).then(c => {
+fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	// generate map
 	let map = new Array(72*72).fill(-1);
 	for (let i in c.all_rooms) {
