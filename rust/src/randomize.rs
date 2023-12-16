@@ -3438,7 +3438,8 @@ pub struct SpoilerRouteEntry {
     from_node_id: usize,
     to_node_id: usize,
     obstacles_bitmask: usize,
-    coords: (f32, f32),
+    #[serde(skip_serializing_if = "Option::is_none")]
+    coords: Option<(usize, usize)>,
     strat_name: String,
     short_strat_name: String,
     #[serde(skip_serializing_if = "Vec::is_empty")]
@@ -3628,14 +3629,16 @@ impl<'a> Randomizer<'a> {
                 self.game_data,
             );
             let new_local_state = new_local_state_opt.unwrap();
-            for (i, link) in sublinks.iter().enumerate() {
+            let sublinks_ordered: Vec<&Link> = if reverse { sublinks.iter().rev().collect() } else { sublinks.iter().collect() };
+            for (i, link) in sublinks_ordered.iter().enumerate() {
                 let last = i == sublinks.len() - 1;
                 let from_vertex_info = self.get_vertex_info(link.from_vertex_id);
                 let to_vertex_info = self.get_vertex_info(link.to_vertex_id);
                 let (_, _, to_obstacles_mask) = self.game_data.vertex_isv.keys[link.to_vertex_id];
                 // info!("local: {:?}", local_state);
                 // info!("{:?}", link);
-                let coords = self.game_data.node_center_coords[&(to_vertex_info.room_id, to_vertex_info.node_id)];
+                let door_coords = self.game_data.node_coords.get(&(to_vertex_info.room_id, to_vertex_info.node_id)).map(|x| *x);
+                let coords = door_coords.map(|(x, y)| (x + to_vertex_info.room_coords.0, y + to_vertex_info.room_coords.1));
 
                 let spoiler_entry = SpoilerRouteEntry {
                     area: to_vertex_info.area_name,

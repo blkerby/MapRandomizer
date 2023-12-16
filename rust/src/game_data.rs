@@ -46,6 +46,7 @@ pub type ItemLocationId = usize; // Index into GameData.item_locations: 100 node
 pub type ObstacleMask = usize; // Bitmask where `i`th bit (from least significant) indicates `i`th obstacle cleared within a room
 pub type WeaponMask = usize; // Bitmask where `i`th bit indicates availability of (or vulnerability to) `i`th weapon.
 pub type Capacity = i32; // Data type used to represent quantities of energy, ammo, etc.
+pub type ItemPtr = usize; // PC address of item in PLM list
 pub type DoorPtr = usize; // PC address of door data for exiting given door
 pub type DoorPtrPair = (Option<DoorPtr>, Option<DoorPtr>); // PC addresses of door data for exiting & entering given door (from vanilla door connection)
 pub type TilesetIdx = usize; // Tileset index
@@ -880,6 +881,7 @@ pub struct GameData {
     pub node_leave_with_gmode_map: HashMap<(RoomId, NodeId), Vec<LeaveWithGMode>>,
     pub node_leave_with_gmode_setup_map: HashMap<(RoomId, NodeId), Vec<LeaveWithGModeSetup>>,
     pub node_gmode_immobile_map: HashMap<(RoomId, NodeId), GModeImmobile>,
+    pub reverse_node_ptr_map: HashMap<NodePtr, (RoomId, NodeId)>,
     pub node_ptr_map: HashMap<(RoomId, NodeId), NodePtr>,
     pub node_exits: HashMap<(RoomId, NodeId), Vec<(Link, ExitCondition)>>,
     pub node_gmode_regain_mobility: HashMap<(RoomId, NodeId), Vec<(Link, GModeRegainMobility)>>,
@@ -910,7 +912,7 @@ pub struct GameData {
     pub room_idx_by_ptr: HashMap<RoomPtr, RoomGeometryRoomIdx>,
     pub room_idx_by_name: HashMap<String, RoomGeometryRoomIdx>,
     pub node_tile_coords: HashMap<(RoomId, NodeId), Vec<(usize, usize)>>,
-    pub node_center_coords: HashMap<(RoomId, NodeId), (f32, f32)>,
+    pub node_coords: HashMap<(RoomId, NodeId), (usize, usize)>,
     pub room_shape: HashMap<RoomId, (usize, usize)>,
     pub area_names: Vec<String>,
     pub area_map_ptrs: Vec<isize>,
@@ -2317,6 +2319,7 @@ impl GameData {
                     node_ptr = 0x1A7A4;
                 }
                 self.node_ptr_map.insert((room_id, node_id), node_ptr);
+                self.reverse_node_ptr_map.insert(node_ptr, (room_id, node_id));
             }
             for obstacle_bitmask in 0..(1 << num_obstacles) {
                 self.vertex_isv.add(&(room_id, node_id, obstacle_bitmask));
@@ -3173,47 +3176,6 @@ impl GameData {
         Ok(())
     }
 
-    fn load_node_tiles(&mut self, room_id: usize, node_tiles: &[(usize, Vec<(usize, usize)>)]) -> Result<()> {
-        let mut node_id_set: HashSet<usize> = HashSet::new();
-
-        for (node_id, tiles) in node_tiles {
-            node_id_set.insert(*node_id);
-            self.node_tile_coords.insert((room_id, *node_id), tiles.clone());
-
-            // Find tile(s) belonging to the node and having minimum mean-squared distance to the other tiles
-            // belonging to the node:
-            let mut best_centers: Vec<(usize, usize)> = vec![];
-            let mut best_val: f32 = f32::INFINITY;
-            for center_tile in tiles {
-                let mut val = 0.0;
-                for t in tiles {
-                    val += f32::powi(t.0 as f32 - center_tile.0 as f32, 2) + f32::powi(t.1 as f32 - center_tile.1 as f32, 2);
-                }
-                if val < best_val {
-                    best_val = val;
-                    best_centers.clear();
-                }
-                if val == best_val {
-                    best_centers.push(*center_tile);
-                }
-            }
-            let center_x = best_centers.iter().map(|c| c.0 as f32).sum::<f32>() / (best_centers.len() as f32);
-            let center_y = best_centers.iter().map(|c| c.1 as f32).sum::<f32>() / (best_centers.len() as f32);
-            self.node_center_coords.insert((room_id, *node_id), (center_x as f32, center_y as f32));
-        }
-
-        // Check if any nodes are missing node_tiles data:
-        let room_json = &self.room_json_map[&room_id];
-        for node_json in room_json["nodes"].members() {
-            let node_id = node_json["id"].as_usize().unwrap();
-            if !node_id_set.contains(&node_id) {
-                error!("Missing node_tiles for room {} node {}: {}", room_json["name"], node_id, node_json["name"]);
-            }
-        }
-
-        Ok(())
-    }
-
     fn load_room_geometry(&mut self, path: &Path) -> Result<()> {
         let room_geometry_str = std::fs::read_to_string(path)
             .with_context(|| format!("Unable to load room geometry at {}", path.display()))?;
@@ -3228,6 +3190,12 @@ impl GameData {
                 let door_ptr_pair = (door.exit_ptr, door.entrance_ptr);
                 self.room_and_door_idxs_by_door_ptr_pair
                     .insert(door_ptr_pair, (room_idx, door_idx));
+                let (room_id, node_id) = self.door_ptr_pair_map[&door_ptr_pair];
+                self.node_coords.insert((room_id, node_id), (door.x, door.y));
+            }
+            for item in &room.items {
+                let (room_id, node_id) = self.reverse_node_ptr_map[&item.addr];
+                self.node_coords.insert((room_id, node_id), (item.x, item.y));
             }
 
             let room_id = self.room_id_by_ptr[&room.rom_address];
@@ -3246,11 +3214,12 @@ impl GameData {
                 }
             }
             self.room_shape.insert(room_id, (max_x + 1, max_y + 1));
-            self.load_node_tiles(room_id, &room.node_tiles)?;
 
             if let Some(twin_rom_address) = room.twin_rom_address {
                 let room_id = self.raw_room_id_by_ptr[&twin_rom_address];
-                self.load_node_tiles(room_id, &room.twin_node_tiles.as_ref().unwrap())?;
+                for (node_id, tiles) in room.twin_node_tiles.as_ref().unwrap() {
+                    self.node_tile_coords.insert((room_id, *node_id), tiles.clone());
+                }
             }
         }
         self.room_geometry = room_geometry;

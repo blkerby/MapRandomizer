@@ -377,41 +377,21 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 		if (j !== null) {
 			let path = "";
 			for (let k of j.return_route) {
-				let xl = k.coords[0];
-				let yl = k.coords[1];
-				let o = doors.find(c => c.name == k.node);
-				let os = lookupOffset(k.room, k.node);
-				if (os) {
-					xl += os[0];
-					yl += os[1];
-				} else if (o && o.nodeAddress) {
-					if (o.x !== undefined && o.y !== undefined) {
-						xl += o.x; yl += o.y;
-					}
-				} else { continue; }
-				let x = xl * 24 + 24 + 12;
-				let y = yl * 24 + 24 + 12;
-				path += `${path == "" ? "M" : "L"}${x} ${y} `;
+				if (k.coords) {
+					let x = k.coords[0] * 24 + 24 + 12;
+					let y = k.coords[1] * 24 + 24 + 12;
+					path += `${path == "" ? "M" : "L"}${x} ${y} `;			
+				}
 			}
 			document.getElementById("path-overlay").innerHTML = `<path d="${path}" stroke="black" fill="none" stroke-linejoin="round" stroke-width="4"/>`
 			document.getElementById("path-overlay").innerHTML += `<path d="${path}" stroke="yellow" fill="none" stroke-linejoin="round" stroke-width="2"/>`
 			path = "";
 			for (let k of j.obtain_route) {
-				let xl = k.coords[0];
-				let yl = k.coords[1];
-				let o = doors.find(c => c.name == k.node);
-				let os = lookupOffset(k.room, k.node);
-				if (os) {
-					xl += os[0];
-					yl += os[1];
-				} else if (o && o.nodeAddress) {
-					if (o.x !== undefined && o.y !== undefined) {
-						xl += o.x; yl += o.y;
-					}
-				} else { continue; }
-				let x = xl * 24 + 24 + 12;
-				let y = yl * 24 + 24 + 12;
-				path += `${path == "" ? "M" : "L"}${x} ${y} `;
+				if (k.coords) {
+					let x = k.coords[0] * 24 + 24 + 12;
+					let y = k.coords[1] * 24 + 24 + 12;
+					path += `${path == "" ? "M" : "L"}${x} ${y} `;
+				}
 			}
 			document.getElementById("path-overlay").innerHTML += `<path d="${path}" stroke="black" fill="none" stroke-linejoin="round" stroke-width="4"/>`
 			document.getElementById("path-overlay").innerHTML += `<path d="${path}" stroke="white" fill="none" stroke-linejoin="round" stroke-width="2"/>`
@@ -480,12 +460,12 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 		if (j.difficulty !== null) {
 			item_difficulty = ` (${j.difficulty})`
 		}
-		item_info.innerHTML += `<div class="sidebar-item-name">${item_name}${item_difficulty}</div><div class="category">LOCATION</div>${loc.room}<br><small>${loc.node}</small>`;
+		item_info.innerHTML += `<div class="sidebar-item-name">${item_name}${item_difficulty}</div><div class="category">LOCATION</div>${loc.room}: ${loc.node}<br><small>${loc.area}</small>`;
 		if (j !== null) {
 			let ss = c.details[i].start_state;
 			item_info.innerHTML += `<div class="category">OBTAIN ROUTE</div>`;
 			for (let k of j.obtain_route) {
-				item_info.innerHTML += `${k.node}<br>`;
+				item_info.innerHTML += `${k.room}: ${k.node}<br>`;
 				let out = "";
 				if (k.strat_name != "Base" && k.strat_name != "(Door transition)") {
 					let strat_url = `/logic/room/${k.short_room}/${k.from_node_id}/${k.to_node_id}/${k.short_strat_name}`;
@@ -539,7 +519,7 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 				if (out != "") {
 					item_info.innerHTML += `<small>${out}</small>`;
 				}
-				item_info.innerHTML += `${k.node}<br>`;
+				item_info.innerHTML += `${k.room}: ${k.node}<br>`;
 				out = "";
 				if (k.strat_name != "Base" && k.strat_name != "(Door transition)") {
 					let strat_url = `/logic/room/${k.short_room}/${k.from_node_id}/${k.to_node_id}/${k.short_strat_name}`;
@@ -575,7 +555,7 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 		let j = null;
 		for (let l in c.details) {
 			for (let k of c.details[l].items) {
-				if (k.location.node == v.location.node) {
+				if (k.location.room == v.location.room && k.location.node == v.location.node) {
 					i = l;
 					j = k;
 					break;

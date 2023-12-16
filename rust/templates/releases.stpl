@@ -37,6 +37,7 @@ document.getElementById("navigation-releases").classList.add("active");
     <li>Gravity incorrectly gave partial heat protection when combined with lava, acid, etc.
     <li>Item collection rate was shown incorrectly (a bug introduced in v100).
     </ul>
+<li>In the logic pages and spoiler routes, node names are now shorter and more consistent.
 <li>Logic updates:
     <ul>
     <li>New notable strats:
