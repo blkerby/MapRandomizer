@@ -325,27 +325,31 @@ HOOK_HUD_INIT:
     LDA #$FFFF : STA !samus_previous_reserves
     RTS
 
+; Hook: Door transition
+HOOK_DOOR_TRANSITION:
+    STA $2100 ; Original code
+    REP #$30
+    LDA #$FFFF : STA !samus_previous_reserves
+    JMP FUNCTION_DRAW_RESERVE_HUD
+
 ; REPAINTS: Rewrite tiles in VRAM immediately after tileset is reloaded
 FUNCTION_REPAINT:
     LDA #$FFFF : STA !samus_previous_reserves
     JSR FUNCTION_DRAW_RESERVE_HUD
     RTL
 
-org $828D4E
-    JMP FUNCTION_PAUSE_REPAINT_HELPER
+org $809668
+    JMP HOOK_DOOR_TRANSITION
 
-org $82E4A5
-    JMP FUNCTION_DOOR_REPAINT_HELPER
+org $828D4B ; Pause
+    JSR FUNCTION_PAUSE_REPAINT_HELPER
+
+org $82939C ; Unpause
+    JSR FUNCTION_PAUSE_REPAINT_HELPER
 
 org $82FF00
 FUNCTION_PAUSE_REPAINT_HELPER:
-    ;INC $0998 ; Already done by map_area.asm
-    JSL FUNCTION_REPAINT
-    PLB
-    PLP
-    RTS
-FUNCTION_DOOR_REPAINT_HELPER:
-    STA $099C
+    INC $0998
     JSL FUNCTION_REPAINT
     RTS
 
