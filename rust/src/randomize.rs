@@ -271,6 +271,7 @@ struct SelectItemsOutput {
 
 struct VertexInfo {
     area_name: String,
+    room_id: usize,
     room_name: String,
     room_coords: (usize, usize),
     node_name: String,
@@ -3437,7 +3438,7 @@ pub struct SpoilerRouteEntry {
     from_node_id: usize,
     to_node_id: usize,
     obstacles_bitmask: usize,
-    coords: (usize, usize),
+    coords: (f32, f32),
     strat_name: String,
     short_strat_name: String,
     #[serde(skip_serializing_if = "Vec::is_empty")]
@@ -3566,6 +3567,7 @@ impl<'a> Randomizer<'a> {
                 .as_str()
                 .unwrap()
                 .to_string(),
+            room_id,
             room_coords,
             node_name: self.game_data.node_json_map[&(room_id, node_id)]["name"]
                 .as_str()
@@ -3633,6 +3635,7 @@ impl<'a> Randomizer<'a> {
                 let (_, _, to_obstacles_mask) = self.game_data.vertex_isv.keys[link.to_vertex_id];
                 // info!("local: {:?}", local_state);
                 // info!("{:?}", link);
+                let coords = self.game_data.node_center_coords[&(to_vertex_info.room_id, to_vertex_info.node_id)];
 
                 let spoiler_entry = SpoilerRouteEntry {
                     area: to_vertex_info.area_name,
@@ -3642,7 +3645,7 @@ impl<'a> Randomizer<'a> {
                     from_node_id: from_vertex_info.node_id,
                     to_node_id: to_vertex_info.node_id,
                     obstacles_bitmask: to_obstacles_mask,
-                    coords: to_vertex_info.room_coords,
+                    coords,
                     strat_name: link.strat_name.clone(),
                     short_strat_name: strip_name(&link.strat_name),
                     strat_notes: link.strat_notes.clone(),

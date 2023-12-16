@@ -16,7 +16,7 @@ use std::hash::Hash;
 use std::path::{Path, PathBuf};
 use strum::VariantNames;
 use strum_macros::{EnumString, EnumVariantNames};
-use log::info;
+use log::{info, error};
 
 use self::themed_retiling::RetiledThemeData;
 
@@ -910,6 +910,7 @@ pub struct GameData {
     pub room_idx_by_ptr: HashMap<RoomPtr, RoomGeometryRoomIdx>,
     pub room_idx_by_name: HashMap<String, RoomGeometryRoomIdx>,
     pub node_tile_coords: HashMap<(RoomId, NodeId), Vec<(usize, usize)>>,
+    pub node_center_coords: HashMap<(RoomId, NodeId), (f32, f32)>,
     pub room_shape: HashMap<RoomId, (usize, usize)>,
     pub area_names: Vec<String>,
     pub area_map_ptrs: Vec<isize>,
@@ -3172,11 +3173,52 @@ impl GameData {
         Ok(())
     }
 
+    fn load_node_tiles(&mut self, room_id: usize, node_tiles: &[(usize, Vec<(usize, usize)>)]) -> Result<()> {
+        let mut node_id_set: HashSet<usize> = HashSet::new();
+
+        for (node_id, tiles) in node_tiles {
+            node_id_set.insert(*node_id);
+            self.node_tile_coords.insert((room_id, *node_id), tiles.clone());
+
+            // Find tile(s) belonging to the node and having minimum mean-squared distance to the other tiles
+            // belonging to the node:
+            let mut best_centers: Vec<(usize, usize)> = vec![];
+            let mut best_val: f32 = f32::INFINITY;
+            for center_tile in tiles {
+                let mut val = 0.0;
+                for t in tiles {
+                    val += f32::powi(t.0 as f32 - center_tile.0 as f32, 2) + f32::powi(t.1 as f32 - center_tile.1 as f32, 2);
+                }
+                if val < best_val {
+                    best_val = val;
+                    best_centers.clear();
+                }
+                if val == best_val {
+                    best_centers.push(*center_tile);
+                }
+            }
+            let center_x = best_centers.iter().map(|c| c.0 as f32).sum::<f32>() / (best_centers.len() as f32);
+            let center_y = best_centers.iter().map(|c| c.1 as f32).sum::<f32>() / (best_centers.len() as f32);
+            self.node_center_coords.insert((room_id, *node_id), (center_x as f32, center_y as f32));
+        }
+
+        // Check if any nodes are missing node_tiles data:
+        let room_json = &self.room_json_map[&room_id];
+        for node_json in room_json["nodes"].members() {
+            let node_id = node_json["id"].as_usize().unwrap();
+            if !node_id_set.contains(&node_id) {
+                error!("Missing node_tiles for room {} node {}: {}", room_json["name"], node_id, node_json["name"]);
+            }
+        }
+
+        Ok(())
+    }
+
     fn load_room_geometry(&mut self, path: &Path) -> Result<()> {
         let room_geometry_str = std::fs::read_to_string(path)
             .with_context(|| format!("Unable to load room geometry at {}", path.display()))?;
-        self.room_geometry = serde_json::from_str(&room_geometry_str)?;
-        for (room_idx, room) in self.room_geometry.iter().enumerate() {
+        let room_geometry: Vec<RoomGeometry> = serde_json::from_str(&room_geometry_str)?;
+        for (room_idx, room) in room_geometry.iter().enumerate() {
             self.room_idx_by_name.insert(room.name.clone(), room_idx);
             self.room_idx_by_ptr.insert(room.rom_address, room_idx);
             if let Some(twin_rom_address) = room.twin_rom_address {
@@ -3204,15 +3246,14 @@ impl GameData {
                 }
             }
             self.room_shape.insert(room_id, (max_x + 1, max_y + 1));
+            self.load_node_tiles(room_id, &room.node_tiles)?;
 
             if let Some(twin_rom_address) = room.twin_rom_address {
                 let room_id = self.raw_room_id_by_ptr[&twin_rom_address];
-                for (node_id, tiles) in room.twin_node_tiles.as_ref().unwrap() {
-                    self.node_tile_coords
-                        .insert((room_id, *node_id), tiles.clone());
-                }
+                self.load_node_tiles(room_id, &room.twin_node_tiles.as_ref().unwrap())?;
             }
         }
+        self.room_geometry = room_geometry;
         Ok(())
     }
 

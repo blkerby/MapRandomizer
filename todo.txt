@@ -1,6 +1,5 @@
 v102:
-- fix logic problems relating to walljumpless strats.
-- add conditional hazard marking for crocomire room
+- update spoiler route for short node names.
 - DONE: add hazard markings for Ridley and West Ocean Gravity Suit door
 - DONE: fix item collection time (101%), probably some issue with wj boots
 - DONE: fix suit behavior with lava, heated elevators, etc.

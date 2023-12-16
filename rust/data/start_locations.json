@@ -1787,7 +1787,8 @@
         "room_id": 214,
         "node_id": 1,
         "x": 53,
-        "y": 9
+        "y": 9,
+        "requires": ["canCarefulJump"]
     },
     {
         "name": "Watering Hole",

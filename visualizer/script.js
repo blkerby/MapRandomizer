@@ -1,77 +1,77 @@
 const offsets = {
-	"Power Bomb (blue Brinstar) (unlocked)": [2,2],
-	"Morphing Ball": [4,2],
-	"Missile (lava room)": [2,1],
-	"Missile (Draygon)": [1,0],
-	"Missile (green Maridia tatori)": [2,1],
-	"Energy Tank, Mama turtle": [1,0],
-	"Missile (green Brinstar behind reserve tank)": [0.75,0],
-	"Missile (green Brinstar behind missile)": [1.25,0],
-	"Reserve Tank, Brinstar": [0,0],
-	"Energy Tank, Firefleas": [2,5],
-	"Super Missile (green Maridia)": [1,2],
-	"Missile (green Maridia shinespark)": [0,3],
-	"Energy Tank, Gauntlet": [5,0],
-	"Missile (Wrecked Ship middle)": [0,5],
-	"Missile (yellow Maridia false wall)": [2,2],
-	"Missile (Wrecked Ship top) (unlocked)": [2,0],
-	"Missile (Kraid)": [2,0],
-	"Missile (blue Brinstar top)": [0.25,0],
-	"Missile (blue Brinstar behind missile)": [-0.25,0],
-	"Missile (Norfair Reserve Tank)": [0.5,0],
-	"Missile (green Brinstar pipe)": [3,1],
-	"Energy Tank, Crocomire": [7,0],
-	"Energy Tank, Brinstar Ceiling": [1,2],
-	"Missile (blue Brinstar middle)": [2,2],
-	"Missile (lower Norfair near Wave Beam)": [0,2],
-	"Power Bomb (red Brinstar spike room)": [1,0],
-	"Missile (red Brinstar spike room)": [0,0],
-	"Super Missile (pink Maridia)": [5,4],
-	"Missile (pink Maridia)": [4,4],
-	"Screw Attack": [0,2],
-	"Missile (bubble Norfair)": [1,3],
-	"Missile (yellow Maridia super missile)": [-0.25,2],
-	"Super Missile (yellow Maridia)": [0.25,2],
-	"Missile (Speed Booster)": [11,1],
-	"Reserve Tank, Maridia": [0.25,0],
-	"Missile (left Maridia sand pit room)": [-0.25,0],
-	"Missile (right Maridia sand pit room)": [0,0],
-	"Power Bomb (right Maridia sand pit room)": [1,1],
-	"Missile (below Crocomire)": [3,0],
-	"Missile (Wave Beam)": [1,0],
-	"Power Bomb (red Brinstar sidehopper room)": [0,1],
-	"Missile (outside Wrecked Ship bottom)": [0,5],
-	"Missile (outside Wrecked Ship middle)": [0,2],
-	"Missile (outside Wrecked Ship top)": [1,0],
-	"Missile (green Brinstar below super missile)": [1,1],
-	"Super Missile (green Brinstar top)": [0,0],
-	"Plasma Beam": [1,2],
-	"Missile (Crateria gauntlet left)": [-0.25,1],
-	"Missile (Crateria gauntlet right)": [0.25,1],
-	"Spring Ball": [1,1],
-	"Power Bomb (pink Brinstar)": [0,1],
-	"Missile (Crateria bottom) (unlocked)": [0,1],
-	"Missile (Mickey Mouse Room)": [2,1],
-	"Grapple Beam": [0,2],
-	"Super Missile (Golden Torizo)": [1,0],
-	"Missile (Golden Torizo)": [0,0],
-	"Right Super, Wrecked Ship (unlocked)": [3,0],
-	"Energy Tank, Botwoon": [3,0],
-	"Energy Tank, Terminator": [0,2],
-	"Missile (Grapple Beam)": [4,0],
-	"Missile (bubble Norfair green door)": [1,0],
-	"Missile (lower Norfair above fire flea room)": [2,0],
-	"Power Bomb (Crateria surface)": [1,0],
-	"Power Bomb (green Brinstar bottom)": [3,7],
-	"Super Missile (Crateria)": [3,0],
-	"Super Missile (pink Brinstar)": [1,8],
-	"Energy Tank (Hi-Jump Boots)": [1,0],
-	"Missile (Hi-Jump Boots)": [0,0],
-	"Missile (pink Brinstar top)": [2,3],
-	"Missile (pink Brinstar bottom)": [2,6],
-	"Charge Beam": [2,7],
-	"Missile (Gravity Suit) (unlocked)": [3,2],
-	"Reserve Tank, Wrecked Ship (unlocked)": [5,0],
+	"Morph Ball Room: Left Item (unlocked)": [2,2],
+	"Morph Ball Room: Right Item": [4,2],
+	"Cathedral: Hidden Item": [2,1],
+	"The Precious Room: Top Right Hidden Item": [1,0],
+	"Mama Turtle Room: Hidden Right Item": [2,1],
+	"Mama Turtle Room: Top Item": [1,0],
+	"Brinstar Reserve Tank Room: Middle Visible Item": [0.75,0],
+	"Brinstar Reserve Tank Room: Right Hidden Item": [1.25,0],
+	"Brinstar Reserve Tank Room: Chozo Item": [0,0],
+	"Lower Norfair Fireflea Room: Firefleas Item": [2,5],
+	"Main Street: Morph Tunnel Item": [1,2],
+	"Main Street: Speed Blocked Item": [0,3],
+	"Gauntlet Energy Tank Room: Item": [5,0],
+	"Wrecked Ship Main Shaft: Item": [0,5],
+	"Pseudo Plasma Spark Room: Hidden Item": [2,2],
+	"Assembly Line: Item (unlocked)": [2,0],
+	"Warehouse Kihunter Room: Hidden Item": [2,0],
+	"Billy Mays Room: Pedestal Item": [0.25,0],
+	"Billy Mays Room: Hidden Item": [-0.25,0],
+	"Norfair Reserve Tank Room: Hidden Platform Item": [0.5,0],
+	"Green Hill Zone: Item (Through the Pipe)": [3,1],
+	"Crocomire's Room: Item": [7,0],
+	"Blue Brinstar Energy Tank Room: Hidden Ceiling Item": [1,2],
+	"Blue Brinstar Energy Tank Room: Right Item": [2,2],
+	"Three Musketeers' Room: Hidden Item": [0,2],
+	"Alpha Power Bomb Room: Chozo Item": [1,0],
+	"Alpha Power Bomb Room: Hidden Left Item": [0,0],
+	"Aqueduct: Top Right Right Item": [5,4],
+	"Aqueduct: Top Right Left Item": [4,4],
+	"Screw Attack Room: Item": [0,2],
+	"Bubble Mountain: Bottom Right Item": [1,3],
+	"Watering Hole: Left Item": [-0.25,2],
+	"Watering Hole: Right Item": [0.25,2],
+	"Speed Booster Hall: Hidden Item": [11,1],
+	"West Sand Hole: Top Left Right Item": [0.25,0],
+	"West Sand Hole: Top Left Left Item": [-0.25,0],
+	"East Sand Hole: Top Left Item": [0,0],
+	"East Sand Hole: Right Item": [1,1],
+	"Post Crocomire Missile Room: Item": [3,0],
+	"Double Chamber: Item": [1,0],
+	"Beta Power Bomb Room: Item": [0,1],
+	"West Ocean: Bottom Left Underwater Item": [0,5],
+	"West Ocean: Left Morph Maze Item": [0,2],
+	"West Ocean: Top Hidden Item (Above Trippers)": [1,0],
+	"Early Supers Room: Lower Item": [1,1],
+	"Early Supers Room: Top Left Item": [0,0],
+	"Plasma Room: Item": [1,2],
+	"Green Pirates Shaft: Left Item": [-0.25,1],
+	"Green Pirates Shaft: Right Item": [0.25,1],
+	"Spring Ball Room: Item": [1,1],
+	"Pink Brinstar Power Bomb Room: Item": [0,1],
+	"Pit Room: Item (unlocked)": [0,1],
+	"Mickey Mouse Room: Item": [2,1],
+	"Grapple Beam Room: Item": [0,2],
+	"Golden Torizo's Room: Hidden Right Item": [1,0],
+	"Golden Torizo's Room: Top Left Item": [0,0],
+	"Wrecked Ship East Super Room: Item (Behind the Bomb Wall) (unlocked)": [3,0],
+	"Botwoon Energy Tank Room: Item": [3,0],
+	"Terminator Room: Item": [0,2],
+	"Post Crocomire Jump Room: Item": [4,0],
+	"Green Bubbles Missile Room: Item": [1,0],
+	"Lower Norfair Spring Ball Maze Room: Item": [2,0],
+	"Crateria Power Bomb Room: Item": [1,0],
+	"Green Brinstar Main Shaft: Right Etecoon Shaft - Item": [3,7],
+	"Crateria Super Room: Item": [3,0],
+	"Spore Spawn Super Room: Item": [1,8],
+	"Hi Jump Energy Tank Room: Top Right Item": [1,0],
+	"Hi Jump Energy Tank Room: Top Left Item": [0,0],
+	"Big Pink: Top Item (Above Hopper Pit)": [2,3],
+	"Big Pink: Middle Item": [2,6],
+	"Big Pink: Bottom Chozo Item": [2,7],
+	"Bowling Alley: Bottom Chozo Item (unlocked)": [3,2],
+	"Bowling Alley: Top Right Item (unlocked)": [5,0],
 };
 let item_plm = {
 	"ETank": 0,
@@ -120,6 +120,11 @@ let item_rank = {
 	"Super": 20,
 	"PowerBomb": 21,
 	"Missile": 22,
+}
+
+function lookupOffset(room, node) {
+	key = room + ": " + node
+	return offsets[key];
 }
 
 let doors;
@@ -319,9 +324,10 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 					let xl = r.coords[0];
 					let yl = r.coords[1];
 					let o = doors.find(c => c.name == k.node);
-					if (offsets[k.node]) {
-						xl += offsets[k.node][0];
-						yl += offsets[k.node][1];
+					let os = lookupOffset(k.room, k.node);
+					if (os) {
+						xl += os[0];
+						yl += os[1];
 					} else if (o && o.nodeAddress) {
 						if (o.x !== undefined && o.y !== undefined) {
 							xl += o.x; yl += o.y;
@@ -338,9 +344,10 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 					let xl = r.coords[0];
 					let yl = r.coords[1];
 					let o = doors.find(c => c.name == k.node);
-					if (offsets[k.node]) {
-						xl += offsets[k.node][0];
-						yl += offsets[k.node][1];
+					let os = lookupOffset(k.room, k.node);
+					if (os) {
+						xl += os[0];
+						yl += os[1];
 					} else if (o && o.nodeAddress) {
 						if (o.x !== undefined && o.y !== undefined) {
 							xl += o.x; yl += o.y;
@@ -373,9 +380,10 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 				let xl = k.coords[0];
 				let yl = k.coords[1];
 				let o = doors.find(c => c.name == k.node);
-				if (offsets[k.node]) {
-					xl += offsets[k.node][0];
-					yl += offsets[k.node][1];
+				let os = lookupOffset(k.room, k.node);
+				if (os) {
+					xl += os[0];
+					yl += os[1];
 				} else if (o && o.nodeAddress) {
 					if (o.x !== undefined && o.y !== undefined) {
 						xl += o.x; yl += o.y;
@@ -392,9 +400,10 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 				let xl = k.coords[0];
 				let yl = k.coords[1];
 				let o = doors.find(c => c.name == k.node);
-				if (offsets[k.node]) {
-					xl += offsets[k.node][0];
-					yl += offsets[k.node][1];
+				let os = lookupOffset(k.room, k.node);
+				if (os) {
+					xl += os[0];
+					yl += os[1];
 				} else if (o && o.nodeAddress) {
 					if (o.x !== undefined && o.y !== undefined) {
 						xl += o.x; yl += o.y;
@@ -552,9 +561,10 @@ fetch(`doors.json`).then(c => c.json()).then(c => {
 		si.appendChild(item_info);
 	}
 	items: for (let v of c.all_items) {
-		if (v.location.node in offsets) {
-			v.location.coords[0] += offsets[v.location.node][0];
-			v.location.coords[1] += offsets[v.location.node][1];
+		let os = lookupOffset(v.location.room, v.location.node);
+		if (os) {
+			v.location.coords[0] += os[0];
+			v.location.coords[1] += os[1];
 		}
 		let el = document.createElement("div");
 		el.className = "icon";

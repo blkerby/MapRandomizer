@@ -21,7 +21,7 @@ document.getElementById("navigation-releases").classList.add("active");
     <ul>
     <li>The "Revamped" option adds bars to the HUD to show how full the reserve tanks are.
     </ul>
-<li>Three additional doors are given hazard markings when using "Collectible" or "Disabled" wall jump.
+<li>Three more doors are given hazard markings when using "Collectible" or "Disabled" wall jump.
     <ul>
     <li>Door leading left to the top of Ridley's Room.
     <li>Door leading left to the drop-off in West Ocean (e.g. from Gravity Suit Room in vanilla).
@@ -36,6 +36,16 @@ document.getElementById("navigation-releases").classList.add("active");
     <ul>
     <li>Gravity incorrectly gave partial heat protection when combined with lava, acid, etc.
     <li>Item collection rate was shown incorrectly (a bug introduced in v100).
+    </ul>
+<li>Logic updates:
+    <ul>
+    <li>New notable strats:
+        <ul>
+        <li>Ice Beam Gate Room Frozen Sova Platform (Very Hard)
+        <li>Mt. Everest SpringBall out of Morph Tunnel (Extreme)
+        <li>West Ocean - Enemy Stuck Moonfall Super Block Clip (Insane)
+        <li>Blue Brinstar Energy Tank Room - Geemer Ice Stuck XRay Climb (Insane)
+        </ul>
     </ul>
 </ul>
 
