@@ -15,8 +15,7 @@ lorom
 !samus_previous_reserves = $0A1A ; Previously unused
 
 ; Stores 16 bytes of the special tile while painting. (Bank 7E)
-;The address is also used in DMA, so if changed here, change down too!
-!special_tile_loc = $F500
+!special_tile_loc = $F4A0
 
 ; Reserve HUD tile info
 !rhud_i_bl = #$2033 ; Previously end of reserve arrow
@@ -25,10 +24,10 @@ lorom
 !rhud_i_tr = #$204D
 
 ; Reserve HUD tile addresses (VRAM)
-!rhud_v_bl = #$4198 ; Previously end of reserve arrow
-!rhud_v_br = #$4230 ; Previously start of reserve arrow
-!rhud_v_tl = #$4260
-!rhud_v_tr = #$4268
+!rhud_v_bl = #$0198 ; Previously end of reserve arrow
+!rhud_v_br = #$0230 ; Previously start of reserve arrow
+!rhud_v_tl = #$0260
+!rhud_v_tr = #$0268
 
 ; Variables helpers
 tile_info = $C1         ; The tile that should be drawn
@@ -95,7 +94,7 @@ FDRH_CHECK_PREV:
 FDRH_DRAW_TILES:
     ; Bottom left
     LDA !rhud_i_bl : STA tile_info
-    LDA !rhud_v_bl : STA vram_target
+    JSR FUNCTION_GET_BG3_BASE : CLC : ADC !rhud_v_bl : STA vram_target
     LDA #$0000 : STA affect_right_tile
     LDA #$0000 : STA healthCheck_Lower  ; 0
     LDA #$0064 : STA healthCheck_Upper  ; 100
@@ -103,7 +102,7 @@ FDRH_DRAW_TILES:
     STA $7EC658
     ; Bottom right
     LDA !rhud_i_br : STA tile_info
-    LDA !rhud_v_br : STA vram_target
+    JSR FUNCTION_GET_BG3_BASE : CLC : ADC !rhud_v_br : STA vram_target
     LDA #$0001 : STA affect_right_tile
     LDA #$0032 : STA healthCheck_Lower  ; 50
     LDA #$0096 : STA healthCheck_Upper  ; 150
@@ -111,7 +110,7 @@ FDRH_DRAW_TILES:
     STA $7EC65A
     ; Top left
     LDA !rhud_i_tl : STA tile_info
-    LDA !rhud_v_tl : STA vram_target
+    JSR FUNCTION_GET_BG3_BASE : CLC : ADC !rhud_v_tl : STA vram_target
     LDA #$0000 : STA affect_right_tile
     LDA #$00C8 : STA healthCheck_Lower  ; 200
     LDA #$012C : STA healthCheck_Upper  ; 300
@@ -119,12 +118,17 @@ FDRH_DRAW_TILES:
     STA $7EC618
     ; Top right
     LDA !rhud_i_tr : STA tile_info
-    LDA !rhud_v_tr : STA vram_target
+    JSR FUNCTION_GET_BG3_BASE : CLC : ADC !rhud_v_tr : STA vram_target
     LDA #$0001 : STA affect_right_tile
     LDA #$00FA : STA healthCheck_Lower  ; 250
     LDA #$015E : STA healthCheck_Upper  ; 350
     JSR FUNCTION_DRAW_TILE
     STA $7EC61A
+    RTS
+
+; Return BG3 base VRAM address in the accumulator
+FUNCTION_GET_BG3_BASE:
+    LDA $005D : AND #$0F00 : ASL #4
     RTS
 
 ; Queues the tile to be used to the VRAM write table and returns the tile info. Arguments:
@@ -217,9 +221,9 @@ FCST_DECIDE_FILL_LOWER_BAR:
     LDA special_helper : CLC : ADC #$0020 : STA special_helper
 FCST_MEMCPY:
     PHB
-    LDA #$000F          ; Copy 16 bytes
-    LDX special_helper  ; Source
-    LDY #$F500          ; Destination
+    LDA #$000F             ; Copy 16 bytes
+    LDX special_helper     ; Source
+    LDY #!special_tile_loc ; Destination
     MVN $807E
     PLB
 FCST_PAINT_BAR:
@@ -306,10 +310,10 @@ FCST_PAINT_COLUMN_7:
 FCST_DMA_SPECIAL_TILE:
     ; Step 3: Get the data over to the VRAM
     LDX $0330
-    LDA #$0010 : STA $00D0,x ; Number of bytes
-    LDA #$0000 : STA $00D2,x ;\
-    LDA #$7EF5 : STA $00D3,x ;}Source address
-    LDA vram_target : STA $00D5,x ; Destination in Vram
+    LDA #$0010             : STA $00D0,x ; Number of bytes
+    LDA #$7E00             : STA $00D3,x ;\
+    LDA #!special_tile_loc : STA $00D2,x ;}Source address
+    LDA vram_target        : STA $00D5,x ; Destination in Vram
     TXA : CLC : ADC #$0007 : STA $0330 ; Update the stack pointer
     PLB ; Restore data bank
     LDA tile_info
@@ -321,27 +325,31 @@ HOOK_HUD_INIT:
     LDA #$FFFF : STA !samus_previous_reserves
     RTS
 
+; Hook: Door transition
+HOOK_DOOR_TRANSITION:
+    STA $2100 ; Original code
+    REP #$30
+    LDA #$FFFF : STA !samus_previous_reserves
+    JMP FUNCTION_DRAW_RESERVE_HUD
+
 ; REPAINTS: Rewrite tiles in VRAM immediately after tileset is reloaded
 FUNCTION_REPAINT:
     LDA #$FFFF : STA !samus_previous_reserves
     JSR FUNCTION_DRAW_RESERVE_HUD
     RTL
 
-org $828D4E
-    JMP FUNCTION_PAUSE_REPAINT_HELPER
+org $809668
+    JMP HOOK_DOOR_TRANSITION
 
-org $82E4A5
-    JMP FUNCTION_DOOR_REPAINT_HELPER
+org $828D4B ; Pause
+    JSR FUNCTION_PAUSE_REPAINT_HELPER
+
+org $82939C ; Unpause
+    JSR FUNCTION_PAUSE_REPAINT_HELPER
 
 org $82FF00
 FUNCTION_PAUSE_REPAINT_HELPER:
-    ;INC $0998 ; Already done by map_area.asm
-    JSL FUNCTION_REPAINT
-    PLB
-    PLP
-    RTS
-FUNCTION_DOOR_REPAINT_HELPER:
-    STA $099C
+    INC $0998
     JSL FUNCTION_REPAINT
     RTS
 
@@ -354,3 +362,52 @@ HOOK_RESERVE_PICKUP:
     LDA #$FFFF : STA !samus_previous_reserves
     LDA $09D4 ; Original code
     RTS
+
+; When enterng and leaving Kraid's room, the original tiles are drawn for a few frames, so make them empty
+org $E2C330
+    db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+org $E2C460
+    db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+org $E2C4C0
+    db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+    db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+
+org $E3C330
+    db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+org $E3C460
+    db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+org $E3C4C0
+    db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+    db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+
+org $E4C330
+    db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+org $E4C460
+    db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+org $E4C4C0
+    db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+    db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+
+org $E5C330
+    db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+org $E5C460
+    db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+org $E5C4C0
+    db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+    db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+
+org $E6C330
+    db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+org $E6C460
+    db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+org $E6C4C0
+    db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+    db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+
+org $E7C330
+    db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+org $E7C460
+    db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+org $E7C4C0
+    db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+    db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00

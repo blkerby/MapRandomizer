@@ -83,7 +83,8 @@ org $82DE80
 warnpc $82DE89
 
 ;org $828D08
-org $828D4B
+;org $828D4B
+org $828D44
     jsr pause_start_hook
 
 org $82936A
@@ -277,7 +278,8 @@ pause_start_hook:
     ;jsr remove_samus_hud_indicator
     jsl $8085C6  ; save current map explored bits
     ;jsr $8D51  ; run hi-jacked instruction
-    inc $0998  ; run hi-jacked instruction
+    ;inc $0998  ; run hi-jacked instruction
+    stz $05FF  ; run hi-jacked instruction
     rts
 
 pause_end_hook:
