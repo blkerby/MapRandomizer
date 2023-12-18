@@ -385,6 +385,7 @@ impl<'a> Patcher<'a> {
             "rng_fix",
             "intro_song",
             "msu1",
+            "escape_timer",
         ];
 
         if self.randomization.difficulty.ultra_low_qol {
