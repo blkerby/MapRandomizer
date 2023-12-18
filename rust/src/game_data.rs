@@ -3171,6 +3171,9 @@ impl GameData {
                 let req_list = self.parse_requires_list(&req_json_list, &ctx)?;
                 loc.requires_parsed = Some(Requirement::make_and(req_list));
             }
+            if !self.vertex_isv.index_by_key.contains_key(&(loc.room_id, loc.node_id, 0)) {
+                panic!("Bad hub location: {:?}", loc);
+            }
         }
         self.hub_locations = hub_locations;
         Ok(())
