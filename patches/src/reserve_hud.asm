@@ -30,13 +30,13 @@ lorom
 !rhud_v_tr = #$0268
 
 ; Variables helpers
-tile_info = $C1         ; The tile that should be drawn
-vram_target = $C3       ; The address in VRAM that the tile should be written to
-affect_right_tile = $C5 ; Bool: If set, draw the right column of the bars
-affect_upper_bar = $C7  ; Bool: If set, the top bar of the tile is affected
-healthCheck_Lower = $C9 ; Is compared with reserves and max reserves ...
-healthCheck_Upper = $CB ; ... to determine what to draw
-special_helper = $CD    ; Used to store various info to help draw the special tile correct
+!tile_info = $C1         ; The tile that should be drawn
+!vram_target = $C3       ; The address in VRAM that the tile should be written to
+!affect_right_tile = $C5 ; Bool: If set, draw the right column of the bars
+!affect_upper_bar = $C7  ; Bool: If set, the top bar of the tile is affected
+!healthCheck_Lower = $C9 ; Is compared with reserves and max reserves ...
+!healthCheck_Upper = $CB ; ... to determine what to draw
+!special_helper = $CD    ; Used to store various info to help draw the special tile correct
 
 
 
@@ -93,35 +93,35 @@ FDRH_CHECK_PREV:
     RTS
 FDRH_DRAW_TILES:
     ; Bottom left
-    LDA !rhud_i_bl : STA tile_info
-    JSR FUNCTION_GET_BG3_BASE : CLC : ADC !rhud_v_bl : STA vram_target
-    LDA #$0000 : STA affect_right_tile
-    LDA #$0000 : STA healthCheck_Lower  ; 0
-    LDA #$0064 : STA healthCheck_Upper  ; 100
+    LDA !rhud_i_bl : STA !tile_info
+    JSR FUNCTION_GET_BG3_BASE : CLC : ADC !rhud_v_bl : STA !vram_target
+    LDA #$0000 : STA !affect_right_tile
+    LDA #$0000 : STA !healthCheck_Lower  ; 0
+    LDA #$0064 : STA !healthCheck_Upper  ; 100
     JSR FUNCTION_DRAW_TILE
     STA $7EC658
     ; Bottom right
-    LDA !rhud_i_br : STA tile_info
-    JSR FUNCTION_GET_BG3_BASE : CLC : ADC !rhud_v_br : STA vram_target
-    LDA #$0001 : STA affect_right_tile
-    LDA #$0032 : STA healthCheck_Lower  ; 50
-    LDA #$0096 : STA healthCheck_Upper  ; 150
+    LDA !rhud_i_br : STA !tile_info
+    JSR FUNCTION_GET_BG3_BASE : CLC : ADC !rhud_v_br : STA !vram_target
+    LDA #$0001 : STA !affect_right_tile
+    LDA #$0032 : STA !healthCheck_Lower  ; 50
+    LDA #$0096 : STA !healthCheck_Upper  ; 150
     JSR FUNCTION_DRAW_TILE
     STA $7EC65A
     ; Top left
-    LDA !rhud_i_tl : STA tile_info
-    JSR FUNCTION_GET_BG3_BASE : CLC : ADC !rhud_v_tl : STA vram_target
-    LDA #$0000 : STA affect_right_tile
-    LDA #$00C8 : STA healthCheck_Lower  ; 200
-    LDA #$012C : STA healthCheck_Upper  ; 300
+    LDA !rhud_i_tl : STA !tile_info
+    JSR FUNCTION_GET_BG3_BASE : CLC : ADC !rhud_v_tl : STA !vram_target
+    LDA #$0000 : STA !affect_right_tile
+    LDA #$00C8 : STA !healthCheck_Lower  ; 200
+    LDA #$012C : STA !healthCheck_Upper  ; 300
     JSR FUNCTION_DRAW_TILE
     STA $7EC618
     ; Top right
-    LDA !rhud_i_tr : STA tile_info
-    JSR FUNCTION_GET_BG3_BASE : CLC : ADC !rhud_v_tr : STA vram_target
-    LDA #$0001 : STA affect_right_tile
-    LDA #$00FA : STA healthCheck_Lower  ; 250
-    LDA #$015E : STA healthCheck_Upper  ; 350
+    LDA !rhud_i_tr : STA !tile_info
+    JSR FUNCTION_GET_BG3_BASE : CLC : ADC !rhud_v_tr : STA !vram_target
+    LDA #$0001 : STA !affect_right_tile
+    LDA #$00FA : STA !healthCheck_Lower  ; 250
+    LDA #$015E : STA !healthCheck_Upper  ; 350
     JSR FUNCTION_DRAW_TILE
     STA $7EC61A
     RTS
@@ -132,41 +132,41 @@ FUNCTION_GET_BG3_BASE:
     RTS
 
 ; Queues the tile to be used to the VRAM write table and returns the tile info. Arguments:
-; - tile_info (Function returns this if enough max reserves, otherwise empty tile)
-; - vram_target
-; - affect_right_tile
-; - healthCheck_Lower
-; - healthCheck_Upper
+; - !tile_info (Function returns this if enough max reserves, otherwise empty tile)
+; - !vram_target
+; - !affect_right_tile
+; - !healthCheck_Lower
+; - !healthCheck_Upper
 FUNCTION_DRAW_TILE:
     ; First check if the max reserves even reach this amount
     LDA !samus_max_reserves
-    CMP healthCheck_Lower       ; Example: If (100 - 0 > 0) { DRAW! }
+    CMP !healthCheck_Lower       ; Example: If (100 - 0 > 0) { DRAW! }
     BEQ FDT_RETURN_EMPTY_TILE
     BPL FDT_UPPER_BAR_CHECK
 FDT_RETURN_EMPTY_TILE:
     LDA #$2C0F
     RTS
 FDT_UPPER_BAR_CHECK:
-    STZ affect_upper_bar
-    LDA healthCheck_Upper
+    STZ !affect_upper_bar
+    LDA !healthCheck_Upper
     CMP !samus_reserves
     BPL FDT_SPECIAL_TILE_CHECK_LOWER
-    LDA #$0001 : STA affect_upper_bar
+    LDA #$0001 : STA !affect_upper_bar
 FDT_SPECIAL_TILE_CHECK_LOWER:
     ; if reserves are between (lower and lower + 50) or (upper and upper + 50) { special tile }
-    LDA healthCheck_Lower : CLC : ADC #$0032 : STA special_helper ; special_helper = Lower+50
+    LDA !healthCheck_Lower : CLC : ADC #$0032 : STA !special_helper ; !special_helper = Lower+50
     LDA !samus_reserves
-    CMP healthCheck_Lower
+    CMP !healthCheck_Lower
     BEQ FDT_SPECIAL_TILE_CHECK_UPPER : BMI FDT_SPECIAL_TILE_CHECK_UPPER ; if (reserves <= 0) { Continue } else { Check upper limit }
-    CMP special_helper
+    CMP !special_helper
     BPL FDT_SPECIAL_TILE_CHECK_UPPER ; Continue
     BMI FDT_RETURN_SPECIAL_TILE
 FDT_SPECIAL_TILE_CHECK_UPPER:
-    LDA healthCheck_Upper : CLC : ADC #$0032 : STA special_helper
+    LDA !healthCheck_Upper : CLC : ADC #$0032 : STA !special_helper
     LDA !samus_reserves
-    CMP healthCheck_Upper
+    CMP !healthCheck_Upper
     BEQ FDT_PREPARE_Y : BMI FDT_PREPARE_Y ; Continue
-    CMP special_helper
+    CMP !special_helper
     BPL FDT_PREPARE_Y ; Continue
     ;BMI FDT_RETURN_SPECIAL_TILE
 FDT_RETURN_SPECIAL_TILE:
@@ -174,20 +174,20 @@ FDT_RETURN_SPECIAL_TILE:
 FDT_PREPARE_Y:
     ; Store current tile offset in Y
     LDY #TABLE_NEW_TILES
-    LDA affect_right_tile
+    LDA !affect_right_tile
     BEQ FDT_CALC_START
     TYA : CLC : ADC #$0010 : TAY ; If right column
 FDT_CALC_START:
-    LDA healthCheck_Upper
+    LDA !healthCheck_Upper
     CMP !samus_max_reserves
     BPL FDT_HAS_HEALTH_FIRST_RESERVE
     TYA : CLC : ADC #$0040 : TAY ; If there are at least TWO reserves
-    LDA healthCheck_Upper
+    LDA !healthCheck_Upper
     CMP !samus_reserves
     BPL FDT_HAS_HEALTH_FIRST_RESERVE
     TYA : CLC : ADC #$0020 : TAY ; If the 2nd reserve has ANY health
 FDT_HAS_HEALTH_FIRST_RESERVE:
-    LDA healthCheck_Lower
+    LDA !healthCheck_Lower
     CMP !samus_reserves
     BPL FDT_RETURN_TILE
     TYA : CLC : ADC #$0020 : TAY ; If the 1st reserve has ANY health
@@ -196,33 +196,33 @@ FDT_RETURN_TILE:
     LDA #$0010      : STA $00D0,x ; Number of bytes
     LDA #$8000      : STA $00D3,x ;\ (Write bank first)
     TYA             : STA $00D2,x ;} Source address
-    LDA vram_target : STA $00D5,x ; Destination in Vram
+    LDA !vram_target : STA $00D5,x ; Destination in Vram
     TXA : CLC : ADC #$0007 : STA $0330 ; Update the stack pointer
-    LDA tile_info
+    LDA !tile_info
     RTS
 
 ; Creates the sub-tile progress tile in VRAM
 FUNCTION_CREATE_SPECIAL_TILE:
     ; Step 1: Copy the data of the tile that the special tile should be based on
-    LDA #TABLE_NEW_TILES : STA special_helper
+    LDA #TABLE_NEW_TILES : STA !special_helper
 FCST_DECIDE_RIGHT_TILE:
-    LDA affect_right_tile
+    LDA !affect_right_tile
     BEQ FCST_DECIDE_TWO_BARS
-    LDA special_helper : CLC : ADC #$0010 : STA special_helper
+    LDA !special_helper : CLC : ADC #$0010 : STA !special_helper
 FCST_DECIDE_TWO_BARS:
-    LDA healthCheck_Upper
+    LDA !healthCheck_Upper
     CMP !samus_max_reserves
     BPL FCST_MEMCPY
-    LDA special_helper : CLC : ADC #$0040 : STA special_helper
+    LDA !special_helper : CLC : ADC #$0040 : STA !special_helper
 FCST_DECIDE_FILL_LOWER_BAR:
-    LDA healthCheck_Upper
+    LDA !healthCheck_Upper
     CMP !samus_reserves
     BPL FCST_MEMCPY
-    LDA special_helper : CLC : ADC #$0020 : STA special_helper
+    LDA !special_helper : CLC : ADC #$0020 : STA !special_helper
 FCST_MEMCPY:
     PHB
     LDA #$000F             ; Copy 16 bytes
-    LDX special_helper     ; Source
+    LDX !special_helper     ; Source
     LDY #!special_tile_loc ; Destination
     MVN $807E
     PLB
@@ -230,29 +230,29 @@ FCST_PAINT_BAR:
     ; Step 2: Paint over the columns of the bar that should be filled
     ; First change data bank to 7E
     PHB : PEA $7E00 : PLB : PLB
-    LDX healthCheck_Upper
+    LDX !healthCheck_Upper
     LDY #!special_tile_loc
 FCST_PAINT_BAR_DECIDE_OFFSET:
     ; When painting top bar, the first 8 bytes are affected
     ; When painting bottom bar, the last 8 bytes are affected
-    LDA affect_upper_bar
+    LDA !affect_upper_bar
     BNE FCST_PAINT_COLUMNS
     INY #8
-    LDX healthCheck_Lower
+    LDX !healthCheck_Lower
 FCST_PAINT_COLUMNS:
     ; X has health test
     ; Y has address
-    LDA affect_right_tile
+    LDA !affect_right_tile
     BNE FCST_PAINT_COLUMN_0
     ; Draw the unique left side first bar, always
 FCST_PAINT_COLUMN_LEFT:
-    LDA affect_upper_bar
+    LDA !affect_upper_bar
     BNE FCST_PAINT_COLUMN_LEFT_HIGHLIGHT_UPPER
 FCST_PAINT_COLUMN_LEFT_HIGHLIGHT_LOWER:
-    LDA healthCheck_Lower ; If we reach here, we're checking the bottom bar
+    LDA !healthCheck_Lower ; If we reach here, we're checking the bottom bar
     BRA FCST_PAINT_COLUMN_LEFT_HIGHLIGHT_CHECK
 FCST_PAINT_COLUMN_LEFT_HIGHLIGHT_UPPER:
-    LDA healthCheck_Upper
+    LDA !healthCheck_Upper
     ; BRA FCST_PAINT_COLUMN_LEFT_HIGHLIGHT_CHECK
 FCST_PAINT_COLUMN_LEFT_HIGHLIGHT_CHECK:
     CLC : ADC #$0008
@@ -290,7 +290,7 @@ FCST_PAINT_COLUMN_4:
     LDA $0000,y : AND #$F7F7 : ORA #$0800 : STA $0000,y
     LDA $0002,y : AND #$F7F7 : ORA #$0008 : STA $0002,y
     LDA $0004,y : AND #$F7F7 : ORA #$0008 : STA $0004,y
-    LDA affect_right_tile : BEQ FCST_PAINT_COLUMN_5 ; Right side tiles stop here
+    LDA !affect_right_tile : BEQ FCST_PAINT_COLUMN_5 ; Right side tiles stop here
     JMP FCST_DMA_SPECIAL_TILE
 FCST_PAINT_COLUMN_5:
     INX #8 : CPX !samus_reserves : BPL FCST_PAINT_COLUMN_6
@@ -313,10 +313,10 @@ FCST_DMA_SPECIAL_TILE:
     LDA #$0010             : STA $00D0,x ; Number of bytes
     LDA #$7E00             : STA $00D3,x ;\
     LDA #!special_tile_loc : STA $00D2,x ;}Source address
-    LDA vram_target        : STA $00D5,x ; Destination in Vram
+    LDA !vram_target        : STA $00D5,x ; Destination in Vram
     TXA : CLC : ADC #$0007 : STA $0330 ; Update the stack pointer
     PLB ; Restore data bank
-    LDA tile_info
+    LDA !tile_info
     RTS
 
 ; Hook: HUD init
