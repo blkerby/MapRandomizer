@@ -14,7 +14,7 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release102">Version 102 (2023-12-15)</a>:
+<p><a id="release102">Version 102 (2023-12-18)</a>:
 <ul>
 <li>A new objective option "None" is added.
 <li>A new customization setting "Reserve tank HUD style" is added.
@@ -27,6 +27,7 @@ document.getElementById("navigation-releases").classList.add("active");
     <li>Door leading left to the drop-off in West Ocean (e.g. from Gravity Suit Room in vanilla).
     <li>Door leading down to Crocomire's Room.
     </ul>
+<li>The escape timer now shows the final time remaining during the escape cutscene.
 <li>Improvements to the fast Big Boy cutscene:
     <ul>
     <li>The start of the cutscene is accelerated slightly more (~1 additional second).
