@@ -5,7 +5,7 @@ use crate::{
         get_effective_runway_length, Capacity, DoorPosition, DoorPtrPair, EntranceCondition,
         ExitCondition, FlagId, GModeMobility, GModeMode, HubLocation, Item, ItemId, ItemLocationId,
         Link, LinkIdx, LinksDataGroup, Map, NodeId, Physics, Requirement, RoomGeometryRoomIdx,
-        RoomId, StartLocation, VertexId, SparkPosition,
+        RoomId, SparkPosition, StartLocation, VertexId,
     },
     traverse::{
         apply_requirement, get_bireachable_idxs, get_spoiler_route, traverse, GlobalState,
@@ -704,11 +704,14 @@ impl<'a> Preprocessor<'a> {
         &self,
         exit_link: &Link,
         exit_condition: &ExitCondition,
-        come_in_position: SparkPosition
+        come_in_position: SparkPosition,
     ) -> Option<Requirement> {
         match exit_condition {
             ExitCondition::LeaveWithSpark { position } => {
-                if *position == come_in_position || *position == SparkPosition::Any || come_in_position == SparkPosition::Any {
+                if *position == come_in_position
+                    || *position == SparkPosition::Any
+                    || come_in_position == SparkPosition::Any
+                {
                     Some(Requirement::Free)
                 } else {
                     None
@@ -961,6 +964,69 @@ impl<'a> Preprocessor<'a> {
         }
     }
 
+    fn get_come_in_with_wall_jump_below_reqs(
+        &self,
+        exit_condition: &ExitCondition,
+        min_height: f32,
+    ) -> Option<Requirement> {
+        match exit_condition {
+            ExitCondition::LeaveWithDoorFrameBelow { height, .. } => {
+                if *height < min_height {
+                    return None;
+                }
+                return Some(Requirement::Tech(
+                    self.game_data.tech_isv.index_by_key["canWalljump"],
+                ));
+            }
+            _ => None,
+        }
+    }
+
+    fn get_come_in_with_space_jump_below_reqs(
+        &self,
+        exit_condition: &ExitCondition,
+    ) -> Option<Requirement> {
+        match exit_condition {
+            ExitCondition::LeaveWithDoorFrameBelow { heated, .. } => {
+                let mut reqs_and_vec = vec![];
+
+                reqs_and_vec.push(Requirement::Item(
+                    self.game_data.item_isv.index_by_key["SpaceJump"],
+                ));
+                if *heated {
+                    reqs_and_vec.push(Requirement::HeatFrames(30));
+                }
+                return Some(Requirement::make_and(reqs_and_vec));
+            }
+            _ => None,
+        }
+    }
+
+    fn get_come_in_with_platform_below_reqs(
+        &self,
+        exit_condition: &ExitCondition,
+        min_height: f32,
+        max_height: f32,
+        max_left_position: f32,
+        min_right_position: f32,
+    ) -> Option<Requirement> {
+        match exit_condition {
+            ExitCondition::LeaveWithPlatformBelow { height, left_position, right_position } => {
+                if *height < min_height || *height > max_height {
+                    return None;
+                }
+                if *left_position > max_left_position {
+                    return None;
+                }
+                if *right_position < min_right_position {
+                    return None;
+                }
+                return Some(Requirement::Free);
+            }
+            _ => None,
+        }
+    }
+
     fn get_cross_room_reqs(
         &self,
         exit_link: &Link,
@@ -1044,10 +1110,8 @@ impl<'a> Preprocessor<'a> {
                     None
                 } else {
                     Some(Requirement::make_and(vec![
-                        Requirement::Tech(
-                            self.game_data.tech_isv.index_by_key["canSpeedball"],
-                        ),
-                        Requirement::make_or(req_or)
+                        Requirement::Tech(self.game_data.tech_isv.index_by_key["canSpeedball"]),
+                        Requirement::make_or(req_or),
                     ]))
                 }
             }
@@ -1068,6 +1132,15 @@ impl<'a> Preprocessor<'a> {
             EntranceCondition::ComeInWithStoredFallSpeed {
                 fall_speed_in_tiles,
             } => self.get_come_in_with_stored_fall_speed_reqs(exit_condition, *fall_speed_in_tiles),
+            EntranceCondition::ComeInWithWallJumpBelow { min_height } => {
+                self.get_come_in_with_wall_jump_below_reqs(exit_condition, *min_height)
+            }
+            EntranceCondition::ComeInWithSpaceJumpBelow {} => {
+                self.get_come_in_with_space_jump_below_reqs(exit_condition)
+            },
+            EntranceCondition::ComeInWithPlatformBelow { min_height, max_height, max_left_position, min_right_position } => {
+                self.get_come_in_with_platform_below_reqs(exit_condition, *min_height, *max_height, *max_left_position, *min_right_position)
+            },
         }
     }
 
@@ -1905,9 +1978,7 @@ fn get_randomizable_doors(
 
     // Avoid placing an ammo door on a tile with an objective "X", as it looks bad.
     match difficulty.objectives {
-        Objectives::None => {
-            
-        }
+        Objectives::None => {}
         Objectives::Bosses => {
             // The boss doors are all gray and were already excluded above.
         }
@@ -2317,10 +2388,11 @@ impl<'r> Randomizer<'r> {
     }
 
     // Determine how many key items vs. filler items to place on this step.
-    fn determine_item_split(&self,
+    fn determine_item_split(
+        &self,
         state: &RandomizationState,
         num_bireachable: usize,
-        num_oneway_reachable: usize
+        num_oneway_reachable: usize,
     ) -> (usize, usize) {
         let num_items_to_place = match self.difficulty_tiers[0].progression_rate {
             ProgressionRate::Slow => num_bireachable + num_oneway_reachable,
@@ -2386,7 +2458,8 @@ impl<'r> Randomizer<'r> {
                 continue;
             }
             if self.difficulty_tiers[0].early_filler_items.contains(&item)
-                && state.items_remaining[item as usize] == self.initial_items_remaining[item as usize]
+                && state.items_remaining[item as usize]
+                    == self.initial_items_remaining[item as usize]
             {
                 item_types_to_prioritize.push(item);
                 item_types_to_mix.push(item);
@@ -2458,7 +2531,9 @@ impl<'r> Randomizer<'r> {
                 }
             }
 
-            if attempt_num > 0 && num_key_items_to_select - 1 + attempt_num >= cnt_different_items_remaining {
+            if attempt_num > 0
+                && num_key_items_to_select - 1 + attempt_num >= cnt_different_items_remaining
+            {
                 return None;
             }
 
@@ -2468,10 +2543,8 @@ impl<'r> Randomizer<'r> {
             // item precedence order, while we vary the last key item across attempts (to try to find some choice that
             // will expand the set of bireachable item locations).
             let mut key_items_to_place: Vec<Item> = vec![];
-            key_items_to_place
-                .extend(remaining_items[0..(num_key_items_to_select - 1)].iter());
-            key_items_to_place
-                .push(remaining_items[num_key_items_to_select - 1 + attempt_num]);
+            key_items_to_place.extend(remaining_items[0..(num_key_items_to_select - 1)].iter());
+            key_items_to_place.push(remaining_items[num_key_items_to_select - 1 + attempt_num]);
             assert!(key_items_to_place.len() == num_key_items_to_select);
             return Some(key_items_to_place);
         } else {
@@ -2700,7 +2773,7 @@ impl<'r> Randomizer<'r> {
             new_state.global_state.collect(item, self.game_data);
         }
 
-        info!("Trying placing {:?}", key_items);
+        // info!("Trying placing {:?}", key_items);
 
         self.update_reachability(new_state);
         let num_bireachable = new_state
@@ -2753,8 +2826,12 @@ impl<'r> Randomizer<'r> {
         rng: &mut R,
     ) -> (SelectItemsOutput, RandomizationState) {
         let (num_key_items_to_select, num_filler_items_to_select) = self.determine_item_split(
-            state, num_unplaced_bireachable, num_unplaced_oneway_reachable);
-        let selected_filler_items = self.select_filler_items(state, num_filler_items_to_select, rng);
+            state,
+            num_unplaced_bireachable,
+            num_unplaced_oneway_reachable,
+        );
+        let selected_filler_items =
+            self.select_filler_items(state, num_filler_items_to_select, rng);
 
         let mut new_state_filler: RandomizationState = RandomizationState {
             step_num: state.step_num,
@@ -2780,14 +2857,16 @@ impl<'r> Randomizer<'r> {
 
         let mut attempt_num = 0;
         // info!("num_key_items_to_select={num_key_items_to_select}, num_filler_items_to_select={num_filler_items_to_select}");
-        let mut selected_key_items = self.select_key_items(&new_state_filler, num_key_items_to_select, attempt_num).unwrap();
+        let mut selected_key_items = self
+            .select_key_items(&new_state_filler, num_key_items_to_select, attempt_num)
+            .unwrap();
 
         loop {
             let mut new_state: RandomizationState = new_state_filler.clone();
             for &item in &selected_key_items {
                 new_state.items_remaining[item as usize] -= 1;
             }
-    
+
             if self.provides_progression(
                 &state,
                 &mut new_state,
@@ -2802,8 +2881,10 @@ impl<'r> Randomizer<'r> {
                 };
                 return (selection, new_state);
             }
-    
-            if let Some(new_selected_key_items) = self.select_key_items(&new_state_filler, num_key_items_to_select, attempt_num) {
+
+            if let Some(new_selected_key_items) =
+                self.select_key_items(&new_state_filler, num_key_items_to_select, attempt_num)
+            {
                 selected_key_items = new_selected_key_items;
             } else {
                 info!("[attempt {attempt_num_rando}] Exhausted key item placement attempts");
@@ -3128,16 +3209,18 @@ impl<'r> Randomizer<'r> {
         item_precedence
     }
 
-    fn rerandomize_tank_precedence<R: Rng>(
-        &self,
-        item_precedence: &mut [Item],
-        rng: &mut R,
-    ) {
+    fn rerandomize_tank_precedence<R: Rng>(&self, item_precedence: &mut [Item], rng: &mut R) {
         if rng.gen_bool(0.5) {
             return;
         }
-        let etank_idx = item_precedence.iter().position(|&x| x == Item::ETank).unwrap();
-        let reserve_idx = item_precedence.iter().position(|&x| x == Item::ReserveTank).unwrap();
+        let etank_idx = item_precedence
+            .iter()
+            .position(|&x| x == Item::ETank)
+            .unwrap();
+        let reserve_idx = item_precedence
+            .iter()
+            .position(|&x| x == Item::ReserveTank)
+            .unwrap();
         item_precedence[etank_idx] = Item::ReserveTank;
         item_precedence[reserve_idx] = Item::ETank;
     }
@@ -3629,7 +3712,11 @@ impl<'a> Randomizer<'a> {
                 self.game_data,
             );
             let new_local_state = new_local_state_opt.unwrap();
-            let sublinks_ordered: Vec<&Link> = if reverse { sublinks.iter().rev().collect() } else { sublinks.iter().collect() };
+            let sublinks_ordered: Vec<&Link> = if reverse {
+                sublinks.iter().rev().collect()
+            } else {
+                sublinks.iter().collect()
+            };
             for (i, link) in sublinks_ordered.iter().enumerate() {
                 let last = i == sublinks.len() - 1;
                 let from_vertex_info = self.get_vertex_info(link.from_vertex_id);
@@ -3637,8 +3724,17 @@ impl<'a> Randomizer<'a> {
                 let (_, _, to_obstacles_mask) = self.game_data.vertex_isv.keys[link.to_vertex_id];
                 // info!("local: {:?}", local_state);
                 // info!("{:?}", link);
-                let door_coords = self.game_data.node_coords.get(&(to_vertex_info.room_id, to_vertex_info.node_id)).map(|x| *x);
-                let coords = door_coords.map(|(x, y)| (x + to_vertex_info.room_coords.0, y + to_vertex_info.room_coords.1));
+                let door_coords = self
+                    .game_data
+                    .node_coords
+                    .get(&(to_vertex_info.room_id, to_vertex_info.node_id))
+                    .map(|x| *x);
+                let coords = door_coords.map(|(x, y)| {
+                    (
+                        x + to_vertex_info.room_coords.0,
+                        y + to_vertex_info.room_coords.1,
+                    )
+                });
 
                 let spoiler_entry = SpoilerRouteEntry {
                     area: to_vertex_info.area_name,
@@ -3652,10 +3748,26 @@ impl<'a> Randomizer<'a> {
                     strat_name: link.strat_name.clone(),
                     short_strat_name: strip_name(&link.strat_name),
                     strat_notes: link.strat_notes.clone(),
-                    energy_used: if last { Some(new_local_state.energy_used) } else { Some(local_state.energy_used) },
-                    reserves_used: if last { Some(new_local_state.reserves_used) } else { Some(local_state.reserves_used) },
-                    missiles_used: if last { Some(new_local_state.missiles_used) } else { Some(local_state.missiles_used) },
-                    supers_used: if last { Some(new_local_state.supers_used) } else { Some(local_state.supers_used) },
+                    energy_used: if last {
+                        Some(new_local_state.energy_used)
+                    } else {
+                        Some(local_state.energy_used)
+                    },
+                    reserves_used: if last {
+                        Some(new_local_state.reserves_used)
+                    } else {
+                        Some(local_state.reserves_used)
+                    },
+                    missiles_used: if last {
+                        Some(new_local_state.missiles_used)
+                    } else {
+                        Some(local_state.missiles_used)
+                    },
+                    supers_used: if last {
+                        Some(new_local_state.supers_used)
+                    } else {
+                        Some(local_state.supers_used)
+                    },
                     power_bombs_used: if last {
                         Some(new_local_state.power_bombs_used)
                     } else {
@@ -3689,7 +3801,7 @@ impl<'a> Randomizer<'a> {
             if route[i + 1].power_bombs_used == route[i].power_bombs_used {
                 route[i + 1].power_bombs_used = None;
             }
-        }    
+        }
         if route[0].energy_used == Some(0) {
             route[0].energy_used = None;
         }
@@ -3763,7 +3875,11 @@ impl<'a> Randomizer<'a> {
                 node: item_vertex_info.node_name,
                 coords: item_vertex_info.room_coords,
             },
-            difficulty: if let Some(tier) = tier { self.difficulty_tiers[tier].name.clone() } else { None },
+            difficulty: if let Some(tier) = tier {
+                self.difficulty_tiers[tier].name.clone()
+            } else {
+                None
+            },
             obtain_route: obtain_route,
             return_route: return_route,
         }

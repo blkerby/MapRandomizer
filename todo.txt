@@ -1,6 +1,5 @@
 v102:
 - implement new jumpway schema
-- rename map folders (and tar files)
 - make start locations and hub locations only use door nodes
   - that way much less risk of getting broken (or made unsound) by logic changes
 - DONE: update spoiler route for short node names.

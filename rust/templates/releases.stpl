@@ -44,7 +44,9 @@ document.getElementById("navigation-releases").classList.add("active");
     <li>New notable strats:
         <ul>
         <li>Ice Beam Gate Room Frozen Sova Platform (Very Hard)
+        <li>Ice Beam Gate Room Sova Boost (Expert)
         <li>Mt. Everest SpringBall out of Morph Tunnel (Extreme)
+        <li>Gauntlet E-Tank R-Mode Blue Suit (Insane)
         <li>West Ocean - Enemy Stuck Moonfall Super Block Clip (Insane)
         <li>Blue Brinstar Energy Tank Room - Geemer Ice Stuck XRay Climb (Insane)
         </ul>

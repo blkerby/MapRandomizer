@@ -549,6 +549,15 @@ pub enum ExitCondition {
     LeaveWithStoredFallSpeed {
         fall_speed_in_tiles: i32,
     },
+    LeaveWithDoorFrameBelow {
+        height: f32,
+        heated: bool,
+    },
+    LeaveWithPlatformBelow {
+        height: f32,
+        left_position: f32,
+        right_position: f32,
+    },
 }
 
 fn parse_spark_position(s: Option<&str>) -> Result<SparkPosition> {
@@ -599,6 +608,15 @@ fn parse_exit_condition(
             fall_speed_in_tiles: value["fallSpeedInTiles"]
                 .as_i32()
                 .context("Expecting integer 'fallSpeedInTiles")?,
+        }),
+        "leaveWithDoorFrameBelow" => Ok(ExitCondition::LeaveWithDoorFrameBelow { 
+            height: value["height"].as_f32().context("Expecting number 'height'")?,
+            heated,
+        }),
+        "leaveWithPlatformBelow" => Ok(ExitCondition::LeaveWithPlatformBelow { 
+            height: value["height"].as_f32().context("Expecting number 'height'")?,
+            left_position: value["leftPosition"].as_f32().context("Expecting number 'leftPosition'")?,
+            right_position: value["rightPosition"].as_f32().context("Expecting number 'rightPosition'")?,
         }),
         _ => {
             bail!(format!("Unrecognized exit condition: {}", key));
@@ -660,6 +678,16 @@ pub enum EntranceCondition {
     },
     ComeInWithStoredFallSpeed {
         fall_speed_in_tiles: i32,
+    },
+    ComeInWithWallJumpBelow {
+        min_height: f32,
+    },
+    ComeInWithSpaceJumpBelow {},
+    ComeInWithPlatformBelow {
+        min_height: f32,
+        max_height: f32,
+        max_left_position: f32,
+        min_right_position: f32,
     },
 }
 
@@ -778,6 +806,16 @@ fn parse_entrance_condition(entrance_json: &JsonValue, heated: bool) -> Result<E
             fall_speed_in_tiles: value["fallSpeedInTiles"]
                 .as_i32()
                 .context("Expecting integer 'fallSpeedInTiles")?,
+        }),
+        "comeInWithWallJumpBelow" => Ok(EntranceCondition::ComeInWithWallJumpBelow {
+            min_height: value["minHeight"].as_f32().context("Expecting number 'minHeight'")?,
+        }),
+        "comeInWithSpaceJumpBelow" => Ok(EntranceCondition::ComeInWithSpaceJumpBelow {}),
+        "comeInWithPlatformBelow" => Ok(EntranceCondition::ComeInWithPlatformBelow {
+            min_height: value["minHeight"].as_f32().unwrap_or(0.0),
+            max_height: value["maxHeight"].as_f32().unwrap_or(f32::INFINITY),
+            max_left_position: value["maxLeftPosition"].as_f32().unwrap_or(f32::INFINITY),
+            min_right_position: value["minRightPosition"].as_f32().unwrap_or(f32::NEG_INFINITY),
         }),
         _ => {
             bail!(format!("Unrecognized entrance condition: {}", key));
