@@ -16,9 +16,9 @@ RUN rm /rust/src/*.rs
 WORKDIR /maps
 
 RUN wget https://storage.googleapis.com/super-metroid-map-rando/maps/v93-tame.tgz
-RUN tar xfz v93-tame.tar.gz --directory /maps && rm v93-tame.tar.gz
+RUN tar xfz v93-tame.tgz --directory /maps && rm v93-tame.tgz
 RUN wget https://storage.googleapis.com/super-metroid-map-rando/maps/v90-wild.tgz
-RUN tar xfz v90-wild.tar.gz --directory /maps && rm v90-wild.tar.gz
+RUN tar xfz v90-wild.tgz --directory /maps && rm v90-wild.tgz
 
 # Now copy over the source code and build the real binary
 COPY rust /rust
