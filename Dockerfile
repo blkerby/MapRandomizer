@@ -14,12 +14,11 @@ RUN rm /rust/src/*.rs
 
 # Download the map datasets, extraction will occur in-container to reduce image size
 WORKDIR /maps
-RUN wget https://storage.googleapis.com/super-metroid-map-rando/maps/session-2023-06-08T14:55:16.779895.pkl-small-64-subarea-balance-2.tgz \
-    -O wild-maps.tar.gz
-RUN tar xfz wild-maps.tar.gz --directory /maps && rm wild-maps.tar.gz
-RUN wget https://storage.googleapis.com/super-metroid-map-rando/maps/session-2023-06-08T14:55:16.779895.pkl-small-71-subarea-balance-2.tgz \
-    -O tame-maps.tar.gz
-RUN tar xfz tame-maps.tar.gz --directory /maps && rm tame-maps.tar.gz
+
+RUN wget https://storage.googleapis.com/super-metroid-map-rando/maps/v93-tame.tgz
+RUN tar xfz v93-tame.tar.gz --directory /maps && rm v93-tame.tar.gz
+RUN wget https://storage.googleapis.com/super-metroid-map-rando/maps/v90-wild.tgz
+RUN tar xfz v90-wild.tar.gz --directory /maps && rm v90-wild.tar.gz
 
 # Now copy over the source code and build the real binary
 COPY rust /rust
