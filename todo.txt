@@ -1,15 +1,18 @@
+v103:
+- handle West Ocean bridge connections.
+
+
 v102:
-- implement new jumpway schema
-- make start locations and hub locations only use door nodes
-  - that way much less risk of getting broken (or made unsound) by logic changes
+- DONE: implement new jumpway schema
 - DONE: update spoiler route for short node names.
 - DONE: add hazard markings for Ridley and West Ocean Gravity Suit door
 - DONE: fix item collection time (101%), probably some issue with wj boots
 - DONE: fix suit behavior with lava, heated elevators, etc.
 
 priority:
+- make start locations and hub locations only use door nodes
+  - that way much less risk of getting broken (or made unsound) by logic changes
 - map pools with movable toilet
-- "None" objective mode (MB open from start)
 - look into possible quicksave/load patch (like save states but not emulator-dependent)
   - could work better with music: continue playing same song or start from beginning if different
   - could retain game timer shown in credits
