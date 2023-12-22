@@ -59,7 +59,7 @@ a {
 }
 #sidebar-info {
 	position: fixed;
-	max-height: 480px;
+	max-height: 500px;
 	overflow-y: auto;
 	pointer-events: auto;
 	top: 16px;

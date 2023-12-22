@@ -463,11 +463,6 @@ impl<'a> Preprocessor<'a> {
         for &((src_exit_ptr, src_entrance_ptr), (dst_exit_ptr, dst_entrance_ptr), bidirectional) in
             &map.doors
         {
-            if !bidirectional {
-                // For now we omit sand connections from cross-room strats, because the fact that you can't
-                // go back up would make the strats unsound (with the current way cross-room strats are interpreted)
-                continue;
-            }
             let (src_room_id, src_node_id) =
                 game_data.door_ptr_pair_map[&(src_exit_ptr, src_entrance_ptr)];
             let (_, unlocked_src_node_id) =

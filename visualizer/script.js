@@ -197,7 +197,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				}
 			}
 			if (first && sortedItemIdxs.length > 0) {
-				j = items[sortedItemIdxs[0]];
+				let j = items[sortedItemIdxs[0]];
 				step_div.ondblclick = () => {
 					show_item_details(j.item, j.location, i, j);
 				}

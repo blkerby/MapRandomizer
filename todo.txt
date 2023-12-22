@@ -1,18 +1,17 @@
+v104:
+- handle framesRemaining: "auto".
+- handle `unlocksDoors`?
+- heated shinespark tiles, update preset shinespark tiles
+- main street shinespark frames need some looking into: "frames": 35 doesn't make sense?
+- spoiler map: fix escape route
+
 v103:
 - handle West Ocean bridge connections.
-- handle `unlocksDoors`
 - migrate sand g-mode strats
 - updates for renamed rooms (e.g. spoiler map item locations)
-- main street shinespark frames need some looking into: "frames": 35 doesn't make sense?
-
-v102:
-- DONE: implement new jumpway schema
-- DONE: update spoiler route for short node names.
-- DONE: add hazard markings for Ridley and West Ocean Gravity Suit door
-- DONE: fix item collection time (101%), probably some issue with wj boots
-- DONE: fix suit behavior with lava, heated elevators, etc.
 
 priority:
+- refine GT logic: not in logic with 7E+4R and 5 Supers, Grapple.
 - clean up how door locks are modeled (including gray doors)
 - clean up how cross-room strats are implemented
 - proposal: eliminate implicit strats that cross through a door: exit/entrance conditions become only way to cross rooms.

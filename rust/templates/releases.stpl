@@ -16,7 +16,18 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <p><a id="release103">Version 103 (2023-12-22)</a>:
 <ul>
-<li>Fix to a logic issue where a cross-room walljump could be required when walljump is not available (a bug introduced in v102).
+<li>Fixed a logic issue where a cross-room walljump could be required when walljump is not available (a bug introduced in v102).
+<li>Fixed a couple spoiler map issues:
+    <ul>
+    <li>Double-clicking a step would sometimes show a route for an item on a different step.
+    <li>Hovering over an item would sometimes show an incorrect step number for the item.
+    </ul>
+<li>New notable strats:
+    <ul>
+    <li>Pink Hoppers Shot Clip to Ride the Elevator (Very Hard)
+    <li>West Ocean: Get Inside the Bridge (Extreme)
+    <li>Mt. Everest Cross Room Jump through Top Door (Insane)
+    </ul>
 </ul>
 
 <p><a id="release102">Version 102 (2023-12-20)</a>:

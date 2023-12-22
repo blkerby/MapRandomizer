@@ -591,7 +591,8 @@ fn parse_exit_condition(
         "leaveShinecharged" => Ok(ExitCondition::LeaveShinecharged {
             frames_remaining: value["framesRemaining"]
                 .as_i32()
-                .context("Expecting integer 'framesRemaining'")?,
+                .unwrap_or(0),  // Quick hack until supporting "auto" special value.
+                // .context("Expecting integer 'framesRemaining'")?,
         }),
         "leaveWithSpark" => Ok(ExitCondition::LeaveWithSpark {
             position: parse_spark_position(value["position"].as_str())?,
@@ -867,7 +868,6 @@ fn get_ignored_notable_strats() -> HashSet<String> {
         "Partial Covern Ice Clip", // not usable because of canRiskPermanentLossOfAccess
         "Mickey Mouse Crumble Jump IBJ",  // only useful with CF clip strat, or if we change item progression rules
         "G-Mode Morph Breaking the Maridia Tube Gravity Jump", // not usable because of canRiskPermanentLossOfAccess
-        "Mt. Everest Cross Room Jump through Top Door", // currently unusable because of obstacleCleared requirement
     ]
     .iter()
     .map(|x| x.to_string())
