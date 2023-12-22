@@ -352,6 +352,10 @@ fn add_door_links(
     links: &mut Vec<Link>,
     locked_doors: &[LockedDoor],
 ) {
+    // if (src_room_id, src_node_id) == (32, 7) || (dst_room_id, dst_node_id) == (32, 7) || (src_room_id, src_node_id) == (32, 8) || (dst_room_id, dst_node_id) == (32, 8){
+    //     println!("({src_room_id}, {src_node_id}) -> ({dst_room_id}, {dst_node_id})");
+    // }
+
     for obstacle_bitmask in 0..(1 << game_data.room_num_obstacles[&src_room_id]) {
         let from_vertex_id =
             game_data.vertex_isv.index_by_key[&(src_room_id, src_node_id, obstacle_bitmask)];
@@ -483,9 +487,9 @@ impl<'a> Preprocessor<'a> {
                 locked_node_map.insert((dst_room_id, unlocked_dst_node_id), idx);
             }
 
-            if (src_room_id, src_node_id) == (32, 1) {
+            if (dst_room_id, dst_node_id) == (32, 1) {
                 // West Ocean bottom left door, West Ocean Bridge left door
-                door_map.insert((32, 7), (dst_room_id, dst_node_id));
+                door_map.insert((32, 7), (src_room_id, src_node_id));
                 if let Some(&idx) = locked_door_map.get(&(Some(0x18B26), Some(0x18A1E))) {
                     locked_node_map.insert((32, 7), idx);
                 }
@@ -2215,6 +2219,11 @@ impl<'r> Randomizer<'r> {
                 .get(&(dst_exit_ptr, dst_entrance_ptr))
                 .map(|x| *x);
 
+            
+            // if src_exit_ptr == Some(0x189ca) || dst_exit_ptr == Some(0x189ca) {
+            //     println!("new: ({src_room_id}, {src_node_id}, {unlocked_src_node_id}) -> ({dst_room_id}, {dst_node_id}, {unlocked_dst_node_id}");
+            // }
+
             add_door_links(
                 src_room_id,
                 unlocked_src_node_id,
@@ -2225,15 +2234,20 @@ impl<'r> Randomizer<'r> {
                 &mut preprocessed_seed_links,
                 locked_doors,
             );
-            // if (src_room_id, unlocked_src_node_id) == (220, 2) {
-            //     println!("pants");
-            // }
-            // if src_room_id == 220 || dst_room_id == 220 || src_room_id == 322 || dst_room_id == 322 {
-            //     println!("({:x}, {:x}) ({:x}, {:x}) ({}, {})  ({}, {}) {}",
-            //     src_exit_ptr.unwrap(), src_entrance_ptr.unwrap(),
-            //     dst_exit_ptr.unwrap(), dst_entrance_ptr.unwrap(),
-            //     src_room_id, src_node_id, dst_room_id, dst_node_id, bidirectional);
-            // }
+            if bidirectional {
+                add_door_links(
+                    dst_room_id,
+                    unlocked_dst_node_id,
+                    src_room_id,
+                    src_node_id,
+                    dst_locked_door_idx,
+                    game_data,
+                    &mut preprocessed_seed_links,
+                    locked_doors,
+                );
+            }
+
+            // Special case to handle Pants Room and West Ocean Bridge:
             let extra_door_links: Vec<((usize, usize), (usize, usize), (usize, usize))> = vec![
                 ((322, 2), (220, 2), (0x1A798, 0x1A8C4)),  // East Pants Room right door, Pants Room right door
                 ((32, 1), (32, 7), (0x18B26, 0x18A1E)),  // West Ocean bottom left door, West Ocean Bridge left door
@@ -2256,19 +2270,22 @@ impl<'r> Randomizer<'r> {
                         locked_doors,
                     );
     
+                } else if (dst_room_id, unlocked_dst_node_id) == main_node_src {
+                    let locked_door_idx = locked_door_map
+                        .get(&(Some(door_lock_ptr_pair.0), Some(door_lock_ptr_pair.1)))
+                        .map(|x| *x);
+
+                    add_door_links(
+                        extra_node_src.0,
+                        extra_node_src.1,
+                        src_room_id,
+                        src_node_id,
+                        locked_door_idx,
+                        game_data,
+                        &mut preprocessed_seed_links,
+                        locked_doors,
+                    );
                 }
-            }
-            if bidirectional {
-                add_door_links(
-                    dst_room_id,
-                    unlocked_dst_node_id,
-                    src_room_id,
-                    src_node_id,
-                    dst_locked_door_idx,
-                    game_data,
-                    &mut preprocessed_seed_links,
-                    locked_doors,
-                );
             }
         }
 
@@ -3504,6 +3521,7 @@ impl<'r> Randomizer<'r> {
                         phantoon_defeated = true;
                     }
                 }
+
                 if !phantoon_defeated {
                     bail!("[attempt {attempt_num_rando}] Attempt failed: Phantoon not defeated");
                 }

@@ -65,12 +65,6 @@ function changeEnergyTankColor(btn) {
     document.getElementById("etankColor").value = color;
     updateEnergyTankColor();
 }
-function checkOtherOptions() {
-    if (document.getElementById("tileTheme").value != "none") {
-        document.getElementById("collapseOtherOptions").classList.remove("collapse");
-        document.getElementById("collapseOtherOptions").classList.add("show");
-    }
-}
 function swapButtonAssignment(clickedEl) {
     var action = null;
     var actionIdx = null;

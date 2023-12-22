@@ -278,7 +278,6 @@ window.onload = (event) => {
   loadForm(document.getElementById("customization-form"));
   changeSamusSprite();
   updateEnergyTankColor();
-  checkOtherOptions();
 };
 </script>
 

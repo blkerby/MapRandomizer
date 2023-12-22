@@ -14,6 +14,11 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
+<p><a id="release103">Version 103 (2023-12-22)</a>:
+<ul>
+<li>Fix to a logic issue where a cross-room walljump could be required when walljump is not available (a bug introduced in v102).
+</ul>
+
 <p><a id="release102">Version 102 (2023-12-20)</a>:
 <ul>
 <li>A new objective option "None" is added.

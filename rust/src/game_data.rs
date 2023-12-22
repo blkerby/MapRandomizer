@@ -1905,7 +1905,7 @@ impl GameData {
 
     fn override_shaktool_room(&mut self, room_json: &mut JsonValue) {
         for node_json in room_json["nodes"].members_mut() {
-            if node_json["name"] == "f_ShaktoolDoneDigging" {
+            if node_json["id"].as_i32().unwrap() == 3 {
                 // Adding a dummy lock on Shaktool done digging event, so that the code in `preprocess_room`
                 // can pick it up and construct a corresponding obstacle for the flag (as it expects there
                 // to be a lock).
@@ -2354,7 +2354,9 @@ impl GameData {
                     node_ptr = 0x1A7A4;
                 }
                 self.node_ptr_map.insert((room_id, node_id), node_ptr);
-                self.reverse_node_ptr_map.insert(node_ptr, (room_id, node_id));
+                if (room_id, node_id) != (32, 7) && (room_id, node_id) != (32, 8) {
+                    self.reverse_node_ptr_map.insert(node_ptr, (room_id, node_id));
+                }
             }
             for obstacle_bitmask in 0..(1 << num_obstacles) {
                 self.vertex_isv.add(&(room_id, node_id, obstacle_bitmask));
@@ -3014,10 +3016,6 @@ impl GameData {
                 connection["nodes"][1]["roomid"].as_usize().unwrap(),
                 connection["nodes"][1]["nodeid"].as_usize().unwrap(),
             );
-            if src_pair == (32, 7) || src_pair == (32, 8) {
-                // Skip the West Ocean doors from the Bridge
-                continue;
-            }
             self.add_connection(src_pair, dst_pair, &connection["nodes"][0]);
             self.add_connection(dst_pair, src_pair, &connection["nodes"][1]);
         }
@@ -3032,18 +3030,23 @@ impl GameData {
     ) {
         let src_ptr = self.node_ptr_map.get(&src).map(|x| *x);
         let dst_ptr = self.node_ptr_map.get(&dst).map(|x| *x);
+        let is_bridge = src == (32, 7) || src == (32, 8);
         if src_ptr.is_some() || dst_ptr.is_some() {
-            self.door_ptr_pair_map.insert((src_ptr, dst_ptr), src);
-            self.reverse_door_ptr_pair_map
-                .insert(src, (src_ptr, dst_ptr));
+            if !is_bridge {
+                self.door_ptr_pair_map.insert((src_ptr, dst_ptr), src);
+                self.reverse_door_ptr_pair_map
+                    .insert(src, (src_ptr, dst_ptr));    
+            }
             let pos = parse_door_position(conn["position"].as_str().unwrap()).unwrap();
             self.door_position.insert(src, pos);
             if self.unlocked_node_map.contains_key(&src) {
                 let src_room_id = src.0;
                 src = (src_room_id, self.unlocked_node_map[&src])
             }
-            self.unlocked_door_ptr_pair_map
-                .insert((src_ptr, dst_ptr), src);
+            if !is_bridge {
+                self.unlocked_door_ptr_pair_map
+                    .insert((src_ptr, dst_ptr), src);
+            }
             self.door_position.insert(src, pos);
         }
     }
