@@ -570,7 +570,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		out:
 		for (let i in c.details) {
 			for (let j of c.details[i].items) {
-				if (j.location.node == v.location.node) {
+				if (j.location.room == v.location.room && j.location.node == v.location.node) {
 					el.innerHTML += `Step: ${c.details[i].step}<br>`;
 					fin = true;
 					break out;
