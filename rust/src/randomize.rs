@@ -31,6 +31,11 @@ use crate::game_data::GameData;
 
 use self::escape_timer::SpoilerEscape;
 
+// Once there are fewer than 20 item locations remaining to be filled, remaining key items will be
+// placed as quickly as possible.
+const KEY_ITEM_FINISH_THRESHOLD: usize = 20;
+
+
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
 pub enum ProgressionRate {
     Slow,
@@ -2460,9 +2465,8 @@ impl<'r> Randomizer<'r> {
             ) as usize,
         };
 
-        // If there are fewer than 20 item locations remaining to be filled, then we're at the end,
-        // so dump as many key items as possible:
-        if num_items_remaining < num_items_to_place + 20 {
+        // If we're at the end, dump as many key items as possible:
+        if num_items_remaining < num_items_to_place + KEY_ITEM_FINISH_THRESHOLD {
             num_key_items_to_place = num_key_items_remaining;
         }
 
@@ -2699,9 +2703,14 @@ impl<'r> Randomizer<'r> {
             "[attempt {attempt_num_rando}] Placing {:?}, {:?}",
             key_items_to_place, other_items_to_place
         );
+
+        let num_items_remaining: usize = state.items_remaining.iter().sum();
+        let num_items_to_place: usize = key_items_to_place.len() + other_items_to_place.len();
+        let skip_hard_placement = num_items_remaining < num_items_to_place + KEY_ITEM_FINISH_THRESHOLD;
+
         // println!("[attempt {attempt_num_rando}] # bireachable = {}", bireachable_locations.len());
         let mut new_bireachable_locations: Vec<ItemLocationId> = bireachable_locations.to_vec();
-        if self.difficulty_tiers.len() > 1 {
+        if self.difficulty_tiers.len() > 1 && !skip_hard_placement {
             let traverse_result = match state.previous_debug_data.as_ref() {
                 Some(x) => Some(&x.forward),
                 None => None,
