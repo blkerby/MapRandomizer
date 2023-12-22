@@ -1929,9 +1929,6 @@ impl GameData {
         let mut found = false;
         for node_json in room_json["nodes"].members_mut() {
             if node_json["id"].as_i32().unwrap() == 2 {
-                // Adding a dummy lock on Shaktool done digging event, so that the code in `preprocess_room`
-                // can pick it up and construct a corresponding obstacle for the flag (as it expects there
-                // to be a lock).
                 found = true;
                 node_json["locks"] = json::array![
                   {
@@ -3017,6 +3014,10 @@ impl GameData {
                 connection["nodes"][1]["roomid"].as_usize().unwrap(),
                 connection["nodes"][1]["nodeid"].as_usize().unwrap(),
             );
+            if src_pair == (32, 7) || src_pair == (32, 8) {
+                // Skip the West Ocean doors from the Bridge
+                continue;
+            }
             self.add_connection(src_pair, dst_pair, &connection["nodes"][0]);
             self.add_connection(dst_pair, src_pair, &connection["nodes"][1]);
         }

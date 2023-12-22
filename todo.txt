@@ -1,6 +1,9 @@
 v103:
 - handle West Ocean bridge connections.
-
+- handle `unlocksDoors`
+- migrate sand g-mode strats
+- updates for renamed rooms (e.g. spoiler map item locations)
+- main street shinespark frames need some looking into: "frames": 35 doesn't make sense?
 
 v102:
 - DONE: implement new jumpway schema
@@ -10,6 +13,10 @@ v102:
 - DONE: fix suit behavior with lava, heated elevators, etc.
 
 priority:
+- clean up how door locks are modeled (including gray doors)
+- clean up how cross-room strats are implemented
+- proposal: eliminate implicit strats that cross through a door: exit/entrance conditions become only way to cross rooms.
+- consider options to start with Wrecked Ship powered on, and/or Zebes awake (maybe in Max QoL)
 - make start locations and hub locations only use door nodes
   - that way much less risk of getting broken (or made unsound) by logic changes
 - map pools with movable toilet
@@ -99,6 +106,7 @@ priority:
 - logic simulator
 
 later:
+- handle sba attacks in "enemyKill"
 - "fast cutscenes" QoL option?: 
   - fast big boy cutscene
   - fast MB

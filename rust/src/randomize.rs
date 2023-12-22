@@ -476,12 +476,26 @@ impl<'a> Preprocessor<'a> {
                 (dst_room_id, unlocked_dst_node_id),
                 (src_room_id, src_node_id),
             );
-
             if let Some(&idx) = locked_door_map.get(&(src_exit_ptr, src_entrance_ptr)) {
                 locked_node_map.insert((src_room_id, unlocked_src_node_id), idx);
             }
             if let Some(&idx) = locked_door_map.get(&(dst_exit_ptr, dst_entrance_ptr)) {
                 locked_node_map.insert((dst_room_id, unlocked_dst_node_id), idx);
+            }
+
+            if (src_room_id, src_node_id) == (32, 1) {
+                // West Ocean bottom left door, West Ocean Bridge left door
+                door_map.insert((32, 7), (dst_room_id, dst_node_id));
+                if let Some(&idx) = locked_door_map.get(&(Some(0x18B26), Some(0x18A1E))) {
+                    locked_node_map.insert((32, 7), idx);
+                }
+            }
+            if (src_room_id, src_node_id) == (32, 5) {
+                // West Ocean bottom right door, West Ocean Bridge right door
+                door_map.insert((32, 8), (dst_room_id, dst_node_id));
+                if let Some(&idx) = locked_door_map.get(&(Some(0x18B32), Some(0x1A198))) {
+                    locked_node_map.insert((32, 8), idx);
+                }
             }
         }
         Preprocessor {
@@ -974,9 +988,7 @@ impl<'a> Preprocessor<'a> {
                 if *height < min_height {
                     return None;
                 }
-                return Some(Requirement::Tech(
-                    self.game_data.tech_isv.index_by_key["canWalljump"],
-                ));
+                return Some(Requirement::Walljump);
             }
             _ => None,
         }
@@ -2222,18 +2234,29 @@ impl<'r> Randomizer<'r> {
             //     dst_exit_ptr.unwrap(), dst_entrance_ptr.unwrap(),
             //     src_room_id, src_node_id, dst_room_id, dst_node_id, bidirectional);
             // }
-            if (src_room_id, unlocked_src_node_id) == (322, 2) {
-                // For East Pants Room right door, add a corresponding (one-way) link for Pants Room too:
-                add_door_links(
-                    220,
-                    2,
-                    dst_room_id,
-                    dst_node_id,
-                    src_locked_door_idx,
-                    game_data,
-                    &mut preprocessed_seed_links,
-                    locked_doors,
-                );
+            let extra_door_links: Vec<((usize, usize), (usize, usize), (usize, usize))> = vec![
+                ((322, 2), (220, 2), (0x1A798, 0x1A8C4)),  // East Pants Room right door, Pants Room right door
+                ((32, 1), (32, 7), (0x18B26, 0x18A1E)),  // West Ocean bottom left door, West Ocean Bridge left door
+                ((32, 5), (32, 8), (0x18B32, 0x1A198)),  // West Ocean bottom right door, West Ocean Bridge right door
+            ];
+            for (main_node_src, extra_node_src, door_lock_ptr_pair) in extra_door_links {
+                if (src_room_id, unlocked_src_node_id) == main_node_src {
+                    let locked_door_idx = locked_door_map
+                        .get(&(Some(door_lock_ptr_pair.0), Some(door_lock_ptr_pair.1)))
+                        .map(|x| *x);
+
+                    add_door_links(
+                        extra_node_src.0,
+                        extra_node_src.1,
+                        dst_room_id,
+                        dst_node_id,
+                        locked_door_idx,
+                        game_data,
+                        &mut preprocessed_seed_links,
+                        locked_doors,
+                    );
+    
+                }
             }
             if bidirectional {
                 add_door_links(
