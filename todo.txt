@@ -5,11 +5,6 @@ v104:
 - main street shinespark frames need some looking into: "frames": 35 doesn't make sense?
 - spoiler map: fix escape route
 
-v103:
-- handle West Ocean bridge connections.
-- migrate sand g-mode strats
-- updates for renamed rooms (e.g. spoiler map item locations)
-
 priority:
 - refine GT logic: not in logic with 7E+4R and 5 Supers, Grapple.
 - clean up how door locks are modeled (including gray doors)
