@@ -324,6 +324,7 @@ pub struct Link {
     pub to_vertex_id: VertexId,
     pub requirement: Requirement,
     pub entrance_condition: Option<EntranceCondition>,
+    pub exit_condition: Option<ExitCondition>,
     pub bypasses_door_shell: bool,
     pub notable_strat_name: Option<String>,
     pub strat_name: String,
@@ -921,7 +922,7 @@ pub struct GameData {
     pub node_gmode_immobile_map: HashMap<(RoomId, NodeId), GModeImmobile>,
     pub reverse_node_ptr_map: HashMap<NodePtr, (RoomId, NodeId)>,
     pub node_ptr_map: HashMap<(RoomId, NodeId), NodePtr>,
-    pub node_exits: HashMap<(RoomId, NodeId), Vec<(Link, ExitCondition)>>,
+    pub node_exits: HashMap<(RoomId, NodeId), Vec<Link>>,
     pub node_gmode_regain_mobility: HashMap<(RoomId, NodeId), Vec<(Link, GModeRegainMobility)>>,
     pub node_lock_req_json: HashMap<(RoomId, NodeId), JsonValue>,
     pub unlocked_node_map: HashMap<(RoomId, NodeId), NodeId>,
@@ -2285,7 +2286,7 @@ impl GameData {
     pub fn all_links(&self) -> impl Iterator<Item = &Link> {
         self.links
             .iter()
-            .chain(self.node_exits.values().flatten().map(|x| &x.0))
+            .chain(self.node_exits.values().flatten())
     }
 
     fn process_room(&mut self, room_json: &JsonValue) -> Result<()> {
@@ -2396,17 +2397,6 @@ impl GameData {
                                 Requirement::Free
                             };
 
-                            let link = Link {
-                                from_vertex_id: vertex_id,
-                                to_vertex_id: vertex_id,
-                                requirement: lock_req,
-                                entrance_condition: None,
-                                bypasses_door_shell: false,
-                                notable_strat_name: None,
-                                strat_name: strat_json["name"].as_str().unwrap().to_string(),
-                                strat_notes: vec![],
-                                sublinks: vec![],
-                            };
                             let runway_geometry = parse_runway_geometry(runway_json)?;
                             let effective_length =
                                 compute_runway_effective_length(&runway_geometry);
@@ -2415,10 +2405,23 @@ impl GameData {
                                 heated,
                                 physics: Some(parse_physics(&physics)?),
                             };
+
+                            let link = Link {
+                                from_vertex_id: vertex_id,
+                                to_vertex_id: vertex_id,
+                                requirement: lock_req,
+                                entrance_condition: None,
+                                exit_condition: Some(exit_condition),
+                                bypasses_door_shell: false,
+                                notable_strat_name: None,
+                                strat_name: strat_json["name"].as_str().unwrap().to_string(),
+                                strat_notes: vec![],
+                                sublinks: vec![],
+                            };
                             self.node_exits
                                 .entry((room_id, node_id))
                                 .or_insert(vec![])
-                                .push((link, exit_condition));
+                                .push(link);
                         } else {
                             // info!("Invalid physics in runway: {} - {}", room_json["name"], runway_json["name"])
                         }
@@ -2518,17 +2521,6 @@ impl GameData {
                                 used_tiles: effective_length,
                             },
                         ]);
-                        let link = Link {
-                            from_vertex_id: vertex_id,
-                            to_vertex_id: vertex_id,
-                            requirement: req,
-                            entrance_condition: None,
-                            bypasses_door_shell: false,
-                            notable_strat_name: None,
-                            strat_name: strat_json["name"].as_str().unwrap().to_string(),
-                            strat_notes: vec![],
-                            sublinks: vec![],
-                        };
                         let exit_condition = if can_leave_charged.frames_remaining > 0 {
                             ExitCondition::LeaveShinecharged {
                                 frames_remaining: can_leave_charged.frames_remaining,
@@ -2538,10 +2530,22 @@ impl GameData {
                                 position: SparkPosition::Any,
                             }
                         };
+                        let link = Link {
+                            from_vertex_id: vertex_id,
+                            to_vertex_id: vertex_id,
+                            requirement: req,
+                            entrance_condition: None,
+                            exit_condition: Some(exit_condition),
+                            bypasses_door_shell: false,
+                            notable_strat_name: None,
+                            strat_name: strat_json["name"].as_str().unwrap().to_string(),
+                            strat_notes: vec![],
+                            sublinks: vec![],
+                        };
                         self.node_exits
                             .entry((room_id, node_id))
                             .or_insert(vec![])
-                            .push((link, exit_condition));
+                            .push(link);
                     }
                 }
                 self.node_can_leave_charged_map
@@ -2586,22 +2590,23 @@ impl GameData {
                         } else {
                             Requirement::Free
                         };
+                        let exit_condition = ExitCondition::LeaveWithGModeSetup { knockback };
                         let link = Link {
                             from_vertex_id: vertex_id,
                             to_vertex_id: vertex_id,
                             requirement: Requirement::make_and(vec![requirement, lock_req]),
                             entrance_condition: None,
+                            exit_condition: Some(exit_condition),
                             bypasses_door_shell: false,
                             notable_strat_name: None,
                             strat_name: strat_json["name"].as_str().unwrap().to_string(),
                             strat_notes: vec![],
                             sublinks: vec![],
                         };
-                        let exit_condition = ExitCondition::LeaveWithGModeSetup { knockback };
                         self.node_exits
                             .entry((room_id, node_id))
                             .or_insert(vec![])
-                            .push((link, exit_condition));
+                            .push(link);
                     }
                 }
                 self.node_leave_with_gmode_setup_map
@@ -2647,24 +2652,25 @@ impl GameData {
                         } else {
                             Requirement::Free
                         };
+                        let exit_condition = ExitCondition::LeaveWithGMode {
+                            morphed: artificial_morph,
+                        };
                         let link = Link {
                             from_vertex_id: vertex_id,
                             to_vertex_id: vertex_id,
                             requirement: Requirement::make_and(vec![requirement, lock_req]),
                             entrance_condition: None,
+                            exit_condition: Some(exit_condition),
                             bypasses_door_shell: false,
                             notable_strat_name: None,
                             strat_name: strat_json["name"].as_str().unwrap().to_string(),
                             strat_notes: vec![],
                             sublinks: vec![],
                         };
-                        let exit_condition = ExitCondition::LeaveWithGMode {
-                            morphed: artificial_morph,
-                        };
                         self.node_exits
                             .entry((room_id, node_id))
                             .or_insert(vec![])
-                            .push((link, exit_condition));
+                            .push(link);
                     }
                 }
                 self.node_leave_with_gmode_map
@@ -2696,6 +2702,7 @@ impl GameData {
                 // New style of cross-room strat:
                 let vertex_id = self.vertex_isv.index_by_key[&(room_id, node_id, 0)];
                 for morphed in [false, true] {
+                    let exit_condition = ExitCondition::LeaveWithGMode { morphed };
                     let link = Link {
                         from_vertex_id: vertex_id,
                         to_vertex_id: vertex_id,
@@ -2705,17 +2712,17 @@ impl GameData {
                             morphed,
                             mobility: GModeMobility::Any,
                         }),
+                        exit_condition: Some(exit_condition),
                         bypasses_door_shell: false,
                         notable_strat_name: None,
                         strat_name: "G-Mode Go Back Through Door".to_string(),
                         strat_notes: vec![],
                         sublinks: vec![],
                     };
-                    let exit_condition = ExitCondition::LeaveWithGMode { morphed };
                     self.node_exits
                         .entry((room_id, node_id))
                         .or_insert(vec![])
-                        .push((link, exit_condition));
+                        .push(link);
                 }
             }
 
@@ -2743,6 +2750,7 @@ impl GameData {
                     to_vertex_id: vertex_id,
                     requirement: requirement,
                     entrance_condition: None,
+                    exit_condition: None,
                     bypasses_door_shell: false,
                     notable_strat_name: None,
                     strat_name: "G-Mode Immobile".to_string(),
@@ -2901,6 +2909,7 @@ impl GameData {
                     to_vertex_id,
                     requirement: requirement.clone(),
                     entrance_condition: entrance_condition.clone(),
+                    exit_condition: exit_condition.clone(),
                     bypasses_door_shell,
                     notable_strat_name: if notable {
                         Some(notable_strat_name)
@@ -2926,7 +2935,7 @@ impl GameData {
                     self.node_exits
                         .entry((room_id, to_node_id))
                         .or_insert(vec![])
-                        .push((link, exit_condition.clone().unwrap()));
+                        .push(link);
                 } else {
                     self.links.push(link);
                 }

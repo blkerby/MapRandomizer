@@ -375,6 +375,7 @@ fn add_door_links(
             to_vertex_id,
             requirement: get_door_requirement(locked_door_idx, locked_doors, game_data),
             entrance_condition: None,
+            exit_condition: None,
             bypasses_door_shell: false,
             notable_strat_name: None,
             strat_name: "(Door transition)".to_string(),
@@ -1046,10 +1047,10 @@ impl<'a> Preprocessor<'a> {
     fn get_cross_room_reqs(
         &self,
         exit_link: &Link,
-        exit_condition: &ExitCondition,
         entrance_link: &Link,
         entrance_condition: &EntranceCondition,
     ) -> Option<Requirement> {
+        let exit_condition = exit_link.exit_condition.as_ref().unwrap();
         match entrance_condition {
             EntranceCondition::ComeInRunning {
                 speed_booster,
@@ -1229,12 +1230,11 @@ impl<'a> Preprocessor<'a> {
                             self.game_data,
                         );
 
-                        for (raw_exit_link, exit_condition) in exits {
+                        for raw_exit_link in exits {
                             let exit_links = self.preprocess_link(raw_exit_link);
                             for exit_link in &exit_links {
                                 let cross_req_opt = self.get_cross_room_reqs(
                                     exit_link,
-                                    exit_condition,
                                     link,
                                     entrance_condition,
                                 );
@@ -1265,6 +1265,7 @@ impl<'a> Preprocessor<'a> {
                                         to_vertex_id,
                                         requirement: req,
                                         entrance_condition: None,
+                                        exit_condition: link.exit_condition.clone(),  // TODO: update this
                                         bypasses_door_shell: false, // any door shell bypass has already been processed by replacing to_vertex_id with other side of door
                                         notable_strat_name: None, // TODO: Replace with list of notable strats and use them
                                         strat_name: format!(
@@ -1290,6 +1291,7 @@ impl<'a> Preprocessor<'a> {
                 to_vertex_id,
                 requirement: self.preprocess_requirement(&link.requirement, link),
                 entrance_condition: None,
+                exit_condition: link.exit_condition.clone(),
                 bypasses_door_shell: false, // any door shell bypass has already been processed by replacing to_vertex_id with other side of door
                 notable_strat_name: link.notable_strat_name.clone(),
                 strat_name: link.strat_name.clone(),
