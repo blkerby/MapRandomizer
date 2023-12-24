@@ -5,8 +5,10 @@ v104:
 - main street shinespark frames need some looking into: "frames": 35 doesn't make sense?
 - spoiler map: fix escape route
 - make sure cross-room notable strats actually check the setting for the notable
+- make "f_DefeatedBombTorizo" free
 
 priority:
+- add leaveRunningBlue exit condition (matching with comeInShinecharging)
 - refine GT logic: not in logic with 7E+4R and 5 Supers, Grapple.
 - clean up how door locks are modeled (including gray doors)
 - clean up how cross-room strats are implemented

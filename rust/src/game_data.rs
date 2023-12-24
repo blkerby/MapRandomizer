@@ -536,7 +536,7 @@ pub enum ExitCondition {
         physics: Option<Physics>,
     },
     LeaveShinecharged {
-        frames_remaining: i32,
+        frames_remaining: Option<i32>,
     },
     LeaveWithSpark {
         position: SparkPosition,
@@ -590,10 +590,7 @@ fn parse_exit_condition(
             })
         }
         "leaveShinecharged" => Ok(ExitCondition::LeaveShinecharged {
-            frames_remaining: value["framesRemaining"]
-                .as_i32()
-                .unwrap_or(0),  // Quick hack until supporting "auto" special value.
-                // .context("Expecting integer 'framesRemaining'")?,
+            frames_remaining: value["framesRemaining"].as_i32()
         }),
         "leaveWithSpark" => Ok(ExitCondition::LeaveWithSpark {
             position: parse_spark_position(value["position"].as_str())?,
@@ -2523,7 +2520,7 @@ impl GameData {
                         ]);
                         let exit_condition = if can_leave_charged.frames_remaining > 0 {
                             ExitCondition::LeaveShinecharged {
-                                frames_remaining: can_leave_charged.frames_remaining,
+                                frames_remaining: Some(can_leave_charged.frames_remaining),
                             }
                         } else {
                             ExitCondition::LeaveWithSpark {

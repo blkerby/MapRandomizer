@@ -648,7 +648,8 @@ impl<'a> Preprocessor<'a> {
     ) -> Option<Requirement> {
         match exit_condition {
             ExitCondition::LeaveShinecharged { frames_remaining } => {
-                if *frames_remaining < frames_required {
+                let frames_remaining = frames_remaining.expect("Missing frames_remaining should have been resolved in preprocessing");
+                if frames_remaining < frames_required {
                     None
                 } else {
                     Some(Requirement::Free)
@@ -1161,6 +1162,41 @@ impl<'a> Preprocessor<'a> {
         }
     }
 
+    fn preprocess_exit_condition(
+        &self,
+        exit_link: &Link,
+        entrance_link: &Link,
+        entrance_condition: &EntranceCondition,
+    ) -> Option<ExitCondition> {
+        if entrance_link.exit_condition.is_none() {
+            return None;
+        }
+        match entrance_link.exit_condition.as_ref().unwrap() {
+            ExitCondition::LeaveShinecharged { frames_remaining } => {
+                if frames_remaining.is_none() {
+                    match entrance_condition {
+                        EntranceCondition::ComeInShinecharged { frames_required } => {
+                            match exit_link.exit_condition.as_ref().expect("Strat with leaveShinecharged 'auto' frames: expecting exit_condition in other room") {
+                                ExitCondition::LeaveShinecharged { frames_remaining } => {
+                                    let final_frames_remaining = frames_remaining.unwrap() - frames_required;
+                                    return Some(ExitCondition::LeaveShinecharged { frames_remaining: Some(final_frames_remaining) })
+                                },
+                                ExitCondition::LeaveWithRunway { .. } => {
+                                    let final_frames_remaining = 179 - frames_required;
+                                    return Some(ExitCondition::LeaveShinecharged { frames_remaining: Some(final_frames_remaining) })
+                                },
+                                _ => panic!("leaveShinecharged 'auto' framesRequired: unexpected exit_condition in other room: {:?}", exit_link.exit_condition)
+                            }        
+                        }
+                        _ => panic!("leaveShinecharged 'auto' framesRequired should be paired with comeInShinecharged entranceCondition")
+                    }
+                }
+            }
+            _ => {}
+        }
+        entrance_link.exit_condition.clone()
+    }
+
     fn preprocess_link(&mut self, link: &'a Link) -> Vec<Link> {
         let to_vertex_id = if link.bypasses_door_shell {
             let (room_id, node_id, _) = self.game_data.vertex_isv.keys[link.to_vertex_id];
@@ -1260,12 +1296,20 @@ impl<'a> Preprocessor<'a> {
                                         sublinks.push(exit_link.clone());
                                     }
                                     sublinks.push(link.clone());
+                                    let new_exit_condition = self.preprocess_exit_condition(
+                                        exit_link,
+                                        link,
+                                        entrance_condition,
+                                    );
+                                    if link.exit_condition.is_some() && new_exit_condition.is_none() {
+                                        continue;
+                                    }
                                     new_links.push(Link {
                                         from_vertex_id: exit_link.from_vertex_id,
                                         to_vertex_id,
                                         requirement: req,
                                         entrance_condition: None,
-                                        exit_condition: link.exit_condition.clone(),  // TODO: update this
+                                        exit_condition: new_exit_condition,
                                         bypasses_door_shell: false, // any door shell bypass has already been processed by replacing to_vertex_id with other side of door
                                         notable_strat_name: None, // TODO: Replace with list of notable strats and use them
                                         strat_name: format!(

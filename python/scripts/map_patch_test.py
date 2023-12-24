@@ -27,7 +27,7 @@ patches = [
     # 'new_game_extra',
     # 'disable_walljump'
     # 'holes',
-    'oob_death',
+    # 'oob_death',
     # 'spinjumprestart',
     # 'new_game_extra',
     'door_hurt',
