@@ -499,19 +499,19 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			for (let k of j.return_route) {
 				let out = "";
 				if (k.energy_used !== undefined) {
-					out += `Energy needed: ${k.energy_used + 1}<br>`;
+					out += `Energy still needed: ${k.energy_used + 1}<br>`;
 				}
 				if (k.reserves_used !== undefined) {
-					out += `Reserves needed: ${k.reserves_used}<br>`;
+					out += `Reserves still needed: ${k.reserves_used}<br>`;
 				}
 				if (k.missiles_used !== undefined) {
-					out += `Missiles needed: ${k.missiles_used}<br>`;
+					out += `Missiles still needed: ${k.missiles_used}<br>`;
 				}
 				if (k.supers_used !== undefined) {
-					out += `Supers needed: ${k.supers_used}<br>`;
+					out += `Supers still needed: ${k.supers_used}<br>`;
 				}
 				if (k.power_bombs_used !== undefined) {
-					out += `PBs needed: ${k.power_bombs_used}<br>`;
+					out += `PBs still needed: ${k.power_bombs_used}<br>`;
 				}
 				if (out != "") {
 					item_info.innerHTML += `<small>${out}</small>`;
