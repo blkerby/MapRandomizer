@@ -229,34 +229,30 @@ fn apply_draygon_requirement(
     // Assume a firing rate of between 60% (on lowest difficulty) to 100% (on highest).
     let firing_rate = 0.6 + 0.4 * proficiency;
 
-    let mut possible_kill_times: Vec<f32> = vec![];
-    if charge_damage > 0.0 {
-        let charge_shots_to_use = f32::ceil(boss_hp / charge_damage / accuracy);
-        // Assume max 1 charge shot per 3 seconds.
-        let time = charge_shots_to_use as f32 * 3.0 / firing_rate;
-        possible_kill_times.push(time);
-    }
-    if global.max_missiles > 0 {
-        // We don't worry about ammo quantity since they can be farmed from the goops.
-        let missiles_to_use = f32::ceil(boss_hp / 100.0 / accuracy);
-        // Assume max average rate of 1 missiles per second:
-        let time = missiles_to_use as f32 * 1.0 / firing_rate;
-        possible_kill_times.push(time);
-    }
-    // We ignore the possibility of using Supers since farming them is very slow and the
-    // potential benefit over using Missiles is limited.
+    // Tuning parameters, for drop farming:
+    // This value tunes the "baseline" Energy/second rate, used at Expert (1.0 proficiency) and full ammo (so only energy drops). Used to calculate the farm rates under less optimal conditions,
+    // as well as calculate missile and super-missile farm rates.
+    // Note: this is also the energy farming rate when "health-bombed" which might come up in ammo fights at low energy.
+    const BASE_ENERGY_FARM_RATE : f32 = 3.0;
 
-    let kill_time = match possible_kill_times.iter().min_by(|x, y| x.total_cmp(y)) {
-        Some(&t) => t,
-        None => {
-            return None;
-        }
+    // Calculated rate of drops collection
+    const BASE_FARMING_RATE : f32 = BASE_ENERGY_FARM_RATE / ( (5.0 * (9.0 / 255.0)) + (20.0 * (56.0 / 255.0)) );
+    // Energy farm rate when we are using missiles
+    const MISSILES_ENERGY_FARM_RATE : f32 = BASE_FARMING_RATE * ((5.0 * (5.0 / 255.0)) + (20.0 * (31.0 / 255.0)));
+    // Misisle drops/second
+    const MISSILES_DROP_RATE : f32 = BASE_FARMING_RATE * 2.0 * (114.0 / 255.0);
+
+    // Farming rate factor based on proficiency (used to adjust the above FARM_RATE values).
+    // The farming rate scales a bit differently depending on available beams. Beams that make it easier to hit goops means we can farm more efficiently even on lower difficulty.
+    let farming_proficiency = match (global.items[Item::Plasma as usize], global.items[Item::Spazer as usize], global.items[Item::Wave] as usize, global.items[Item::Ice] as usize) {
+        (false, false, false, false) => 0.5 + (0.5 * proficiency), // Basic power beam
+        (false, false, false, true) => 0.6 + (0.4 * proficiency), // Ice Beam particle is slightly bigger
+        (false, false, true, _) => 0.6 + (0.4 * proficiency), // Wave beam is wider, but can swoop around goops. Ice beam size increase isn't as relevant.
+        (false, true, _, _) => 0.7 + (0.3 * proficiency), // Spazer has a wide shot and doesn't have the swopping factor, even with Wave. Ice has no effect on beam size now.
+        (true, _, false, _) => 0.65 + (0.35 * proficiency), // Plasma is about as "big" as ice beam shot, but can hit multiple goops. Ice beam has no effect on shot size.
+        (true, _, true, _) => 0.9 + (0.1 * proficiency), // Wave+Plasma is wide and can sweep many goops. Ice has no effect on shot size.
     };
 
-    if kill_time >= 180.0 && !global.tech[can_be_very_patient_tech_id] {
-        // We don't have enough patience to finish the fight:
-        return None;
-    }
 
     // Assumed rate of damage to Samus per second.
     let base_hit_dps = 20.0 * (1.0 - 0.9 * proficiency);
@@ -264,20 +260,99 @@ fn apply_draygon_requirement(
     // TODO: we should take into account key items like Morph, Gravity, and Screw Attack.
     // We ignore this for now; the strats already ensure either Morph or Gravity is available.
 
-    // Assumed average energy per second gained from farming goops:
-    let farm_rate = 3.0 * (0.5 + 0.5 * proficiency);
+    let mut possible_kills: Vec<LocalState> = vec![];
 
-    // Net damage taken by Samus per second, taking into account suit protection and farms:
-    let mut net_dps = base_hit_dps / suit_damage_factor(global) as f32 - farm_rate;
-    if net_dps < 0.0 {
-        // We could assume we could refill on energy or ammo using farms, but by omitting this for now
-        // we're just making the logic a little more conservative in favor of the player.
-        net_dps = 0.0;
+    // Supers are not currently considered. Their value over Missiles in this fight is limited (150 DPS vs 100) and farming them is very slow.
+    if charge_damage > 0.0 {
+        // This model covers a pure-Charge Beam fight, using no Missiles.
+        let charge_shots_to_use = f32::ceil(boss_hp / charge_damage / accuracy);
+        // Max 1 charge shot per 3 seconds
+        let time = charge_shots_to_use as f32 * 3.0 / firing_rate;
+        // Does it take too long (and do we care)?
+        if time < 180.0 || global.tech[can_be_very_patient_tech_id] {
+            // No, so now find out if we have enough energy to do it this way.
+            // Assume we need only to farm energy. TODO: consider early fight where energy drop rate may be reduced due to ammo usage earlier in the route
+            let en_farm_rate = BASE_ENERGY_FARM_RATE * farming_proficiency;
+            let mut net_dps = base_hit_dps / suit_damage_factor(global) as f32 - en_farm_rate;
+            if net_dps < 0.0 {
+                net_dps = 0.0;
+            }
+            let result = LocalState{energy_used: local.energy_used - (net_dps * time) as Capacity, .. local};
+            // TODO: if the player can get behind Draygon during goop phase, it can be possible to safely Crystal Flash. Consider using one if validate_energy fails and
+            // Crystal Flashes are in logic.
+            match validate_energy(result, global) {
+                Some(ls) => possible_kills.push(ls),
+                None => {},
+            }
+        }
+    }
+    if global.max_missiles > 0 {
+        const BASE_MISSILE_RATE : f32 = 1.0; // Base missile firing rate of 1 Missile/second, used during "fight opener" when we are not yet farming missiles.
+        // Initial, optimistic, time estimate, assuming we don't run out of missiles and can just spam them full-tilt.
+        // Assumes average rate of 1 missile per second (could possibly be tuned faster for up-front missile usage).
+        let missile_spam = f32::ceil(boss_hp / 100.0 / accuracy);
+        let mut time : f32 = 0.0;
+        let missile_farm_rate = MISSILES_DROP_RATE * farming_proficiency;
+        let farm_vs_use_rate = (missile_farm_rate) - (1.0 / firing_rate);
+        let initial_missile_time = (local.missiles_used - global.max_missiles) / farm_vs_use_rate; // Will be positive if farm_vs_use_rate is negative
+        let initial_missiles = initial_missile_time * (1.0 / firing_rate);
+        if missile_spam <= (global.max_missiles - local.missiles_used) {
+            // Initial missile load is enough to kill
+            time = missile_spam as f32 * 1.0 / firing_rate;
+        }
+        // Initial missile load is not enough, must farm some.
+        else if farm_vs_used_rate >= 0.0 {
+            // Net farming rate is zero or positive - missiles can be farmed as fast - or faster - than they are used, so missile spam the entire fight.
+            time = missile_spam as f32 * 1.0 / firing_rate;
+        }
+        // Net farming rate is negative (and therefore initial_missile_time will be positive), but can we farm enough to finish without slowing down?
+        else if initial_missiles >= missile_spam {
+            // Can farm enough missiles to win without having to slow down
+            time = missile_spam as f32 * 1.0 / firing_rate;
+        }
+        // Can't finish without slowing down.
+        else {
+            // Part of the fight will have to be done at farming speed.
+            // Remove the initial full-speed damage from the boss HP, use what's left to calculate the "farming time".
+            let remaining_hp = boss_hp - (100.0 * initial_missiles / accuracy); // Should be > 0.0
+            // Empty time can be filled with charge beam shots, if Charge Beam exists.
+            // (The case of Charge Beam being better than Missile spam is handled by the other branch that models pure Charge Beam.)
+            // Note: charge_damage will be 0 if we don't have Charge Beam, so it'll automatically drop out of the calculation and into pure missiles.
+            // We would nominally fire 1 missile per second, so the difference between this and the farming rate
+            // is "dead time" to fill with charge beams, which can fire 1 per 3 seconds.
+            // So our DPS is Missile (100) * "live time" (farming rate) + Charge (charge_damage) * "empty time"/3 (1 - farming_rate)
+            let missile_farm_rate = MISSILES_DROP_RATE * farming_proficiency;
+            let cycle_dps = ((100 * missile_farm_rate) + (charge_damage * (1 - missile_farm_rate) / 3)) / accuracy;
+            let cycles_to_use = f32::ceil(remaining_hp / cycle_dps);
+            // Our cycle is modeled as 1 second, but not adjusted for firing rate.
+            time = initial_missile_time + (cycles_to_use as f32 * 1.0 / firing_rate);
+        }
+        // Now that fight time is determined, how much energy does it cost?
+        // Also: does it take too long, and do we care?
+        if time < 180.0 || global.tech[can_be_very_patient_tech_id] {
+            // No, so now find out if we have enough energy to do it this way.
+            // This time we must farm energy AND missiles, which lowers the energy farming rate.
+            let en_farm_rate = MISSILES_ENERGY_FARM_RATE * farming_proficiency;
+            let mut net_dps = base_hit_dps / suit_damage_factor(global) as f32 - en_farm_rate;
+            if net_dps < 0.0 {
+                net_dps = 0.0;
+            }
+            let result = LocalState{energy_used: local.energy_used - (net_dps * time) as Capacity, .. local};
+            // TODO: if the player can get behind Draygon during goop phase, it can be possible to safely Crystal Flash. Consider using one if validate_energy fails and
+            // Crystal Flashes are in logic. This will need to factor CF missile use into the above math too.
+            match validate_energy(result, global) {
+                Some(ls) => possible_kills.push(ls),
+                None => {},
+            }
+        }
     }
 
-    local.energy_used += (net_dps * kill_time) as Capacity;
-
-    validate_energy(local, global)
+    // Okay all models have been queried, and have potentially put out a result. Choose the one that uses up the least amount of energy.
+    match possible_kills.iter().min_by(|x, y| x.energy_used.total_cmp(y.energy_used)) {
+        Some(&k) => { return k; }
+        None => { return None; }
+    }
+    
 }
 
 fn apply_ridley_requirement(
