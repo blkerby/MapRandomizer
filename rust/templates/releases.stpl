@@ -14,15 +14,16 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release104">Version 104 (2023-12-29)</a>:
+<p><a id="release104">Version 104 (2023-12-30)</a>:
 <ul>
+<li>Revamped Reserve HUD now shows greater contrast between filled and unfilled bars.
 <li>A new setting "Heated shinecharge tiles" is added under "Skill assumptions".
     <ul>
     <li>More difficult short-charges can be required in unheated rooms (or with Varia).
     </ul>
 <li>Fixed several bugs:
     <ul>
-    <li>Certain cross-room speedball strats were wrongly in logic without Morph.
+    <li>Certain cross-room speedball strats were wrongly in logic without Morph or with too short of runway.
     <li>G-mode strats showed up in logic pages for lower difficulties (though not in logic).
     <li>Hazard markings could appear on the left side of Mother Brain Room.
     <li>The escape route was not working in the spoiler map.

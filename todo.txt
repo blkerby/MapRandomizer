@@ -114,6 +114,7 @@ priority:
 - logic simulator
 
 later:
+- consider marking last save (and backup saves) with map icons in pause map.
 - consider inverting the two colors of not-filled reserve tank in HUD?
 - handle sba attacks in "enemyKill"
 - "fast cutscenes" QoL option?: 
