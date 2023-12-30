@@ -27,6 +27,7 @@ document.getElementById("navigation-releases").classList.add("active");
     <li>Hazard markings could appear on the left side of Mother Brain Room.
     <li>The escape route was not working in the spoiler map.
     </ul>
+<li>The tech "canCrystalFlash" is moved from Hard to Very Hard.
 <li>New notable strats:
     <ul>
     <li>Pink Hoppers Shinespark into the Wall to Ride the Elevator (Very Hard)

@@ -78,7 +78,6 @@
       "canCrossRoomJumpIntoWater",
       "canPlayInSand",
       "canDodgeWhileShooting",
-      "canCrystalFlash",
       "canTrickyUseFrozenEnemies",
       "canTrickySpringBallJump",
       "canIframeSpikeJump",
@@ -153,6 +152,7 @@
     "ridley_proficiency": 0.7,
     "botwoon_proficiency": 0.7,
     "tech": [
+      "canCrystalFlash",
       "canTrickyJump",
       "canPrepareForNextRoom",
       "canMomentumConservingTurnaround",
