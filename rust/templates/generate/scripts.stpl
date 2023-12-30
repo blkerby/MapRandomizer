@@ -7,6 +7,7 @@ function presetChanged() {
         let name_no_space = p.preset.name.replace(" ", ""); %>
         if (document.getElementById("preset<%- name_no_space %>").checked) {
             document.getElementById("shinesparkTiles").value = <%= p.preset.shinespark_tiles %>;
+            document.getElementById("heatedShinesparkTiles").value = <%= p.preset.heated_shinespark_tiles %>;
             document.getElementById("resourceMultiplier").value = <%= p.preset.resource_multiplier %>;
             document.getElementById("escapeTimerMultiplier").value = <%= p.preset.escape_timer_multiplier %>;
             document.getElementById("gateGlitchLeniency").value = <%= p.preset.gate_glitch_leniency %>;

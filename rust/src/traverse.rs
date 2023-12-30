@@ -27,6 +27,7 @@ pub struct GlobalState {
     pub max_power_bombs: Capacity,
     pub weapon_mask: WeaponMask,
     pub shine_charge_tiles: f32,
+    pub heated_shine_charge_tiles: f32,
 }
 
 impl GlobalState {
@@ -910,8 +911,13 @@ pub fn apply_requirement(
         Requirement::BotwoonFight { second_phase } => {
             apply_botwoon_requirement(global, local, difficulty.botwoon_proficiency, *second_phase)
         }
-        Requirement::ShineCharge { used_tiles } => {
-            if global.items[Item::SpeedBooster as usize] && *used_tiles >= global.shine_charge_tiles
+        Requirement::ShineCharge { used_tiles, heated } => {
+            let tiles_limit = if *heated && !global.items[Item::Varia as usize] {
+                global.heated_shine_charge_tiles
+            } else {
+                global.shine_charge_tiles
+            };
+            if global.items[Item::SpeedBooster as usize] && *used_tiles >= tiles_limit
             {
                 Some(local)
             } else {

@@ -15,6 +15,15 @@
                 </div>
             </div>
 
+            <div class="form-group row m-2">
+                <label for="heatedShinesparkTiles" class="col-sm-6 col-form-label">Heated shinecharge tiles<br>
+                <small>(Smaller values assume ability to short-charge over shorter distances)</small>
+                </label>
+                <div class="col-sm-2 my-2">
+                    <input type="text" class="form-control" name="heated_shinespark_tiles" id="heatedShinesparkTiles" value="33" onchange="techChanged()">
+                </div>
+            </div>
+
             <div class="card m-3">
                 <div class="card-header">
                     Leniency

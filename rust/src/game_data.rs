@@ -124,6 +124,7 @@ pub enum Requirement {
     Walljump,
     ShineCharge {
         used_tiles: f32,
+        heated: bool,
     },
     Shinespark {
         shinespark_tech_id: usize,
@@ -256,16 +257,15 @@ impl Requirement {
         }
     }
 
-    pub fn make_shinecharge(tiles: f32) -> Requirement {
-        if tiles < 12.0 {
-            // An effective runway length of 12 is the minimum possible length of shortcharge supported in the logic.
+    pub fn make_shinecharge(tiles: f32, heated: bool) -> Requirement {
+        if tiles < 11.0 {
+            // An effective runway length of 11 is the minimum possible length of shortcharge supported in the logic.
             // Strats requiring shorter runways than this are discarded to save processing time during generation.
-            // Technically it is humanly viable to go as low as about 10.5, but below 12 the precision needed is so much
-            // that it would not be reasonable to require on any settings (especially considering that it could
-            // involve heated rooms so a first try success could be required).
+            // Technically it is humanly viable to go as low as about 10.5, but below 11 the precision needed is so much
+            // that it would not be reasonable to require on any settings.
             Requirement::Never
         } else {
-            Requirement::ShineCharge { used_tiles: tiles }
+            Requirement::ShineCharge { used_tiles: tiles, heated }
         }
     }
 }
@@ -343,7 +343,7 @@ pub struct RoomGeometryDoor {
     pub offset: Option<usize>,
 }
 
-#[derive(Deserialize, Default, Clone)]
+#[derive(Deserialize, Default, Clone, Debug)]
 pub struct RoomGeometryItem {
     pub x: usize,
     pub y: usize,
@@ -354,7 +354,7 @@ pub type RoomGeometryRoomIdx = usize;
 pub type RoomGeometryDoorIdx = usize;
 pub type RoomGeometryPartIdx = usize;
 
-#[derive(Deserialize, Default, Clone)]
+#[derive(Deserialize, Default, Clone, Debug)]
 pub struct RoomGeometry {
     pub name: String,
     pub area: usize,
@@ -999,6 +999,7 @@ pub fn get_effective_runway_length(used_tiles: f32, open_end: f32) -> f32 {
 struct RequirementContext<'a> {
     room_id: RoomId,
     _from_node_id: NodeId, // Usable for debugging
+    room_heated: bool,
     from_obstacles_bitmask: ObstacleMask,
     obstacles_idx_map: Option<&'a HashMap<String, usize>>,
 }
@@ -1412,9 +1413,9 @@ impl GameData {
             } else if key == "canShineCharge" {
                 let runway_geometry = parse_runway_geometry_shinecharge(value)?;
                 let effective_length = compute_runway_effective_length(&runway_geometry);
-                return Ok(Requirement::make_shinecharge(effective_length));
+                return Ok(Requirement::make_shinecharge(effective_length, ctx.room_heated));
             } else if key == "heatFrames" {
-                let frames = value
+                let frames = value  
                     .as_i32()
                     .expect(&format!("invalid heatFrames in {}", req_json));
                 return Ok(Requirement::HeatFrames(frames));
@@ -2516,6 +2517,7 @@ impl GameData {
                             lock_req,
                             Requirement::ShineCharge {
                                 used_tiles: effective_length,
+                                heated: true,  // treat runway as heated, to be conservative (for deprecated old-style cross-room strats, to be removed soon)
                             },
                         ]);
                         let exit_condition = if can_leave_charged.frames_remaining > 0 {
@@ -2837,6 +2839,7 @@ impl GameData {
                 let ctx = RequirementContext {
                     room_id,
                     _from_node_id: from_node_id,
+                    room_heated: from_heated || to_heated,
                     from_obstacles_bitmask,
                     obstacles_idx_map: Some(&obstacles_idx_map),
                 };

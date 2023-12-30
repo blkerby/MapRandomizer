@@ -1677,6 +1677,12 @@ impl<'a> Patcher<'a> {
 
     fn apply_door_hazard_marker(&mut self, door_ptr_pair: DoorPtrPair) -> Result<()> {
         let mut other_door_ptr_pair = self.other_door_ptr_pair_map[&door_ptr_pair];
+
+        if other_door_ptr_pair == (Some(0x1AA8C), Some(0x1AAE0)) {
+            // Don't draw hazard marker on left side of Mother Brain Room:
+            return Ok(());
+        }
+
         if other_door_ptr_pair == (Some(0x1A600), Some(0x1A678)) {
             // For the Toilet, pass through to room above:
             other_door_ptr_pair = self.other_door_ptr_pair_map[&(Some(0x1A60C), Some(0x1A5AC))];

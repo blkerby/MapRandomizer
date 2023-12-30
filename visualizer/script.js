@@ -317,41 +317,15 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			let path = "";
 			for (let i of c.escape.animals_route ?? []) {
 				for (let k of [i.from, i.to]) {
-					let r = c.all_rooms.find(c => c.room == k.room);
-					let xl = r.coords[0];
-					let yl = r.coords[1];
-					let o = doors.find(c => c.name == k.node);
-					let os = lookupOffset(k.room, k.node);
-					if (os) {
-						xl += os[0];
-						yl += os[1];
-					} else if (o && o.nodeAddress) {
-						if (o.x !== undefined && o.y !== undefined) {
-							xl += o.x; yl += o.y;
-						}
-					} else { continue; }
-					let x = xl * 24 + 24 + 12;
-					let y = yl * 24 + 24 + 12;
+					let x = k.x * 24 + 24 + 12;
+					let y = k.y * 24 + 24 + 12;
 					path += `${path == "" ? "M" : "L"}${x} ${y} `;
 				}
 			}
 			for (let i of c.escape.ship_route) {
 				for (let k of [i.from, i.to]) {
-					let r = c.all_rooms.find(c => c.room == k.room);
-					let xl = r.coords[0];
-					let yl = r.coords[1];
-					let o = doors.find(c => c.name == k.node);
-					let os = lookupOffset(k.room, k.node);
-					if (os) {
-						xl += os[0];
-						yl += os[1];
-					} else if (o && o.nodeAddress) {
-						if (o.x !== undefined && o.y !== undefined) {
-							xl += o.x; yl += o.y;
-						}
-					} else { continue; }
-					let x = xl * 24 + 24 + 12;
-					let y = yl * 24 + 24 + 12;
+					let x = k.x * 24 + 24 + 12;
+					let y = k.y * 24 + 24 + 12;
 					path += `${path == "" ? "M" : "L"}${x} ${y} `;
 				}
 			}

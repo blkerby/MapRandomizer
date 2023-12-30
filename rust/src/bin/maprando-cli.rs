@@ -6,7 +6,7 @@ use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::Rom;
 use maprando::randomize::{
     DebugOptions, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, MotherBrainFight, Objectives,
-    ProgressionRate, Randomization, Randomizer, ItemDotChange, DoorsMode, randomize_doors, SaveAnimals, AreaAssignment,
+    ProgressionRate, Randomization, Randomizer, ItemDotChange, DoorsMode, randomize_doors, SaveAnimals, AreaAssignment, LockedDoor,
 };
 use maprando::spoiler_map;
 use maprando::web::{SamusSpriteInfo, SamusSpriteCategory};
@@ -122,6 +122,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         notable_strats: vec![],
         // tech,
         shine_charge_tiles: 16.0,
+        heated_shine_charge_tiles: 16.0,
         // shine_charge_tiles: 32,
         progression_rate: ProgressionRate::Fast,
         random_tank: true,
@@ -240,7 +241,14 @@ fn main() -> Result<()> {
     )?;
 
     // Perform randomization (map selection & item placement):
-    let randomization = get_randomization(&args, &game_data)?;
+    let mut randomization = get_randomization(&args, &game_data)?;
+
+    // Override locked doors:
+    randomization.locked_doors.push(LockedDoor { 
+        src_ptr_pair: (Some(0x19012), Some(0x18F52)), 
+        dst_ptr_pair: (Some(0x18F52), Some(0x19012)), 
+        door_type: maprando::randomize::DoorType::Yellow, 
+        bidirectional: true });
 
     // Override start location:
     // randomization.start_location = game_data.start_locations.last().unwrap().clone();

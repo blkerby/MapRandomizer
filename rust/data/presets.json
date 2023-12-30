@@ -2,6 +2,7 @@
   {
     "name": "Basic",
     "shinespark_tiles": 33,
+    "heated_shinespark_tiles": 33,
     "resource_multiplier": 3.0,
     "gate_glitch_leniency": 14,
     "door_stuck_leniency": 2,
@@ -21,7 +22,8 @@
   },
   {
     "name": "Medium",
-    "shinespark_tiles": 32,
+    "shinespark_tiles": 26,
+    "heated_shinespark_tiles": 33,
     "gate_glitch_leniency": 14,
     "door_stuck_leniency": 2,
     "resource_multiplier": 2.0,
@@ -62,7 +64,8 @@
   },
   {
     "name": "Hard",
-    "shinespark_tiles": 26,
+    "shinespark_tiles": 18,
+    "heated_shinespark_tiles": 26,
     "gate_glitch_leniency": 14,
     "door_stuck_leniency": 2,
     "resource_multiplier": 1.5,
@@ -139,7 +142,8 @@
   },
   {
     "name": "Very Hard",
-    "shinespark_tiles": 20,
+    "shinespark_tiles": 16,
+    "heated_shinespark_tiles": 20,
     "gate_glitch_leniency": 7,
     "door_stuck_leniency": 2,
     "resource_multiplier": 1.2,
@@ -208,16 +212,19 @@
       "Big Pink Crystal Flash Standup - Super Block",
       "Pink Hopper Reverse Gate Glitch",
       "Pink Hoppers Shot Clip to Ride the Elevator",
+      "Pink Hoppers Shinespark into the Wall to Ride the Elevator",
+      "Pink Hoppers Screw and Kago to Ride the Elevator",
       "Pink Brinstar Power Bombs Crystal Flash Clip",
       
       "Below Spazer Jump Shot Speedball",
       "X-Ray Exit Damage Boost",
-      "Red Tower Spark",
+      "Red Tower Hero Shot Shinespark",
 
       "Warehouse Kihunter Room Tunnel Charge",
       "Warehouse Kihunter Room Bottom Spark Out",
       
       "Bubble Mountain Right Side Delayed Walljumps",
+      "Bubble Mountain Tricky Spring Ball Jump with Grapple",
       "Cathedral Entrance Left Door Frozen Sova Step",
       "Double Chamber Shinespark through Wave Beam Door",      
       "Frog Speedway Shot Block Overload (Speedless Speedway)",
@@ -297,7 +304,8 @@
   },
   {
     "name": "Expert",
-    "shinespark_tiles": 17,
+    "shinespark_tiles": 15,
+    "heated_shinespark_tiles": 18,
     "gate_glitch_leniency": 2,
     "door_stuck_leniency": 2,
     "resource_multiplier": 1.1,
@@ -336,6 +344,7 @@
     "notable_strats": [
       "Landing Site Big Jump Blue Suit Bounce",
       "Landing Site Blue Space Jump (Top)",
+      "Parlor Carry Shinecharge From Right to Bottom",
 
       "Gauntlet Entrance Blue SpaceJump",
       
@@ -420,7 +429,8 @@
   },
   {
     "name": "Extreme",
-    "shinespark_tiles": 16,
+    "shinespark_tiles": 14,
+    "heated_shinespark_tiles": 17,
     "gate_glitch_leniency": 1,
     "door_stuck_leniency": 1,
     "resource_multiplier": 1.05,
@@ -523,7 +533,8 @@
   },
   {
     "name": "Insane",
-    "shinespark_tiles": 14,
+    "shinespark_tiles": 13,
+    "heated_shinespark_tiles": 15,
     "gate_glitch_leniency": 0,
     "door_stuck_leniency": 0,
     "resource_multiplier": 1.0,
@@ -583,6 +594,7 @@
       "Mt. Everest Right Crab Climb with Only 2 Supers",
       "Mt. Everest Right Crab Climb with Only 1 Super",
       "Mt. Everest Cross Room Jump through Top Door",
+      "Mt. Everest Top Left Shinecharge",
 
       "Aqueduct Snail Stuck Moonfall",
       "Back-Side Botwoon Super Only Fight",
@@ -605,7 +617,8 @@
   },
   {
     "name": "Beyond",
-    "shinespark_tiles": 14,
+    "shinespark_tiles": 13,
+    "heated_shinespark_tiles": 15,
     "gate_glitch_leniency": 0,
     "door_stuck_leniency": 0,
     "resource_multiplier": 1.0,

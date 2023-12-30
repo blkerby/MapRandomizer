@@ -6,7 +6,7 @@ use json::JsonValue;
 use sailfish::TemplateOnce;
 use urlencoding;
 
-use crate::game_data::{GameData, Link, NodeId, Requirement, RoomId};
+use crate::game_data::{GameData, Link, NodeId, Requirement, RoomId, ExitCondition, EntranceCondition};
 use crate::randomize::{DebugOptions, DifficultyConfig, SaveAnimals, AreaAssignment, WallJump, EtankRefill};
 use crate::traverse::{apply_requirement, GlobalState, LocalState};
 
@@ -197,9 +197,18 @@ fn make_tech_templates<'a>(
             let mut tech_set: HashSet<usize> = HashSet::new();
             for req in strat_json["requires"].members() {
                 extract_tech_rec(req, &mut tech_set, game_data);
-                if strat_json["bypassesDoorShell"].as_bool() == Some(true) {
-                    tech_set.insert(game_data.tech_isv.index_by_key["canSkipDoorLock"]);
-                }
+            }
+            if strat_json["bypassesDoorShell"].as_bool() == Some(true) {
+                tech_set.insert(game_data.tech_isv.index_by_key["canSkipDoorLock"]);
+            }
+            if strat_json["entranceCondition"].has_key("comeInWithGMode") {
+                tech_set.insert(game_data.tech_isv.index_by_key["canEnterGMode"]);
+            }
+            if strat_json["exitCondition"].has_key("leaveWithGModeSetup") {
+                tech_set.insert(game_data.tech_isv.index_by_key["canEnterGMode"]);
+            }
+            if strat_json["exitCondition"].has_key("leaveWithGMode") {
+                tech_set.insert(game_data.tech_isv.index_by_key["canEnterGMode"]);
             }
             for tech_idx in tech_set {
                 tech_strat_ids[tech_idx].insert(ids.clone());
@@ -310,6 +319,7 @@ fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
         tech: tech_vec,
         notable_strats: strat_vec,
         shine_charge_tiles: preset.preset.shinespark_tiles as f32,
+        heated_shine_charge_tiles: preset.preset.heated_shinespark_tiles as f32,
         progression_rate: crate::randomize::ProgressionRate::Fast,
         random_tank: true,
         item_placement_style: crate::randomize::ItemPlacementStyle::Forced,
@@ -362,6 +372,30 @@ fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
             extended_spoiler: false,
         }),
     }
+}
+
+fn get_cross_room_reqs(link: &Link, game_data: &GameData) -> Requirement {
+    let mut reqs: Vec<Requirement> = vec![];
+    if link.bypasses_door_shell {
+        reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canSkipDoorLock"]));
+    }
+    if let Some(entrance_condition) = &link.entrance_condition {
+        if let EntranceCondition::ComeInWithGMode { .. } = entrance_condition {
+            reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canEnterGMode"]));
+        }
+        if let EntranceCondition::ComeInWithRMode { .. } = entrance_condition {
+            reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canEnterRMode"]));
+        }
+    }
+    if let Some(exit_condition) = &link.exit_condition {
+        if let ExitCondition::LeaveWithGMode { .. } = exit_condition {
+            reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canEnterGMode"]));
+        }
+        if let ExitCondition::LeaveWithGModeSetup { .. } = exit_condition {
+            reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canEnterGMode"]));
+        }
+    }
+    Requirement::make_and(reqs)
 }
 
 fn strip_cross_room_reqs(req: Requirement, game_data: &GameData) -> Requirement {
@@ -422,8 +456,10 @@ fn get_strat_difficulty(
             return difficulty_configs.len();
         }
         for link in &links_by_ids[&key] {
-            let req = strip_cross_room_reqs(link.requirement.clone(), game_data);
-            let new_local = apply_requirement(&req, &global, local, false, difficulty, game_data);
+            let extra_req = get_cross_room_reqs(link, game_data);
+            let main_req = strip_cross_room_reqs(link.requirement.clone(), game_data);
+            let combined_req = Requirement::make_and(vec![extra_req, main_req]);
+            let new_local = apply_requirement(&combined_req, &global, local, false, difficulty, game_data);
             if new_local.is_some() {
                 return i;
             }
@@ -654,6 +690,7 @@ impl LogicData {
                 max_power_bombs: 50,
                 weapon_mask: weapon_mask,
                 shine_charge_tiles: difficulty.shine_charge_tiles,
+                heated_shine_charge_tiles: difficulty.heated_shine_charge_tiles,
             };
 
             global_states.push(global);

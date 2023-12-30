@@ -18,6 +18,7 @@ pub const HQ_VIDEO_URL_ROOT: &'static str = "https://storage.googleapis.com/supe
 pub struct Preset {
     pub name: String,
     pub shinespark_tiles: usize,
+    pub heated_shinespark_tiles: usize,
     pub resource_multiplier: f32,
     pub escape_timer_multiplier: f32,
     pub gate_glitch_leniency: usize,

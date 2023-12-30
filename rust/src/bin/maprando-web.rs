@@ -203,6 +203,7 @@ struct RandomizeRequest {
     rom: Bytes,
     preset: Option<Text<String>>,
     shinespark_tiles: Text<f32>,
+    heated_shinespark_tiles: Text<f32>,
     resource_multiplier: Text<f32>,
     gate_glitch_leniency: Text<i32>,
     door_stuck_leniency: Text<i32>,
@@ -972,6 +973,10 @@ fn get_difficulty_tiers(
                 difficulty.shine_charge_tiles,
                 preset.shinespark_tiles as f32,
             ),
+            heated_shine_charge_tiles: f32::max(
+                difficulty.heated_shine_charge_tiles,
+                preset.heated_shinespark_tiles as f32,
+            ),
             progression_rate: difficulty.progression_rate,
             random_tank: difficulty.random_tank,
             item_placement_style: difficulty.item_placement_style,
@@ -1172,6 +1177,7 @@ async fn randomize(
         tech: tech_vec,
         notable_strats: strat_vec,
         shine_charge_tiles: req.shinespark_tiles.0,
+        heated_shine_charge_tiles: req.heated_shinespark_tiles.0,
         progression_rate: match req.progression_rate.0.as_str() {
             "Slow" => maprando::randomize::ProgressionRate::Slow,
             "Uniform" => maprando::randomize::ProgressionRate::Uniform,

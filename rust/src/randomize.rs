@@ -132,6 +132,7 @@ pub struct DifficultyConfig {
     pub notable_strats: Vec<String>,
     // pub notable_strats: Vec<String>,
     pub shine_charge_tiles: f32,
+    pub heated_shine_charge_tiles: f32,
     pub progression_rate: ProgressionRate,
     pub random_tank: bool,
     pub item_placement_style: ItemPlacementStyle,
@@ -579,13 +580,13 @@ impl<'a> Preprocessor<'a> {
             } => {
                 if runway_length < 0.0 {
                     // TODO: remove this hack once we have a proper alternative to comeInSpeedballing.
-                    effective_length -= runway_length;
+                    effective_length += runway_length;
                     runway_length = 0.0;
                 }
 
                 let mut reqs: Vec<Requirement> = vec![];
                 let combined_runway_length = effective_length + runway_length;
-                reqs.push(Requirement::make_shinecharge(combined_runway_length));
+                reqs.push(Requirement::make_shinecharge(combined_runway_length, runway_heated || *heated));
                 if *physics != Some(Physics::Air) {
                     reqs.push(Requirement::Item(Item::Gravity as ItemId));
                 }
@@ -661,7 +662,7 @@ impl<'a> Preprocessor<'a> {
                 physics,
             } => {
                 let mut reqs: Vec<Requirement> = vec![];
-                reqs.push(Requirement::make_shinecharge(*effective_length));
+                reqs.push(Requirement::make_shinecharge(*effective_length, *heated));
                 if *physics != Some(Physics::Air) {
                     reqs.push(Requirement::Item(Item::Gravity as ItemId));
                 }
@@ -744,7 +745,7 @@ impl<'a> Preprocessor<'a> {
                 physics,
             } => {
                 let mut reqs: Vec<Requirement> = vec![];
-                reqs.push(Requirement::make_shinecharge(*effective_length));
+                reqs.push(Requirement::make_shinecharge(*effective_length, *heated));
                 if *physics != Some(Physics::Air) {
                     reqs.push(Requirement::Item(Item::Gravity as ItemId));
                 }
@@ -1129,6 +1130,7 @@ impl<'a> Preprocessor<'a> {
                 } else {
                     Some(Requirement::make_and(vec![
                         Requirement::Tech(self.game_data.tech_isv.index_by_key["canSpeedball"]),
+                        Requirement::Item(self.game_data.item_isv.index_by_key["Morph"]),
                         Requirement::make_or(req_or),
                     ]))
                 }
@@ -1498,7 +1500,7 @@ impl<'a> Preprocessor<'a> {
                 let effective_length =
                     get_effective_runway_length(runway.length as f32, runway.open_end as f32)
                         - unusable_tiles as f32;
-                let req = Requirement::make_shinecharge(effective_length);
+                let req = Requirement::make_shinecharge(effective_length, runway.heated);
                 req_vec.push(Requirement::make_and(vec![
                     req,
                     self.preprocess_requirement(&runway.requirement, _link),
@@ -1510,7 +1512,7 @@ impl<'a> Preprocessor<'a> {
                 let effective_length =
                     get_effective_runway_length(runway.length as f32, runway.open_end as f32)
                         - unusable_tiles as f32;
-                let req = Requirement::make_shinecharge(effective_length);
+                let req = Requirement::make_shinecharge(effective_length, runway.heated);
                 req_vec.push(Requirement::make_and(vec![
                     door_req.clone(),
                     req,
@@ -1534,7 +1536,7 @@ impl<'a> Preprocessor<'a> {
                         + other_room_effective_length
                         - 1.0
                         - unusable_tiles as f32;
-                    let req = Requirement::make_shinecharge(total_effective_length);
+                    let req = Requirement::make_shinecharge(total_effective_length, runway.heated || other_runway.heated);
                     req_vec.push(Requirement::make_and(vec![
                         door_req.clone(),
                         req,
@@ -1556,6 +1558,7 @@ impl<'a> Preprocessor<'a> {
                 );
                 let req = Requirement::ShineCharge {
                     used_tiles: effective_length,
+                    heated: true,  // treat runway as heated to be conservative (for deprecated old-style cross-room strats, to be removed soon)
                 };
                 req_vec.push(Requirement::make_and(vec![
                     door_req.clone(),
@@ -3449,6 +3452,7 @@ impl<'r> Randomizer<'r> {
             max_power_bombs: 0,
             weapon_mask: weapon_mask,
             shine_charge_tiles: self.difficulty_tiers[0].shine_charge_tiles,
+            heated_shine_charge_tiles: self.difficulty_tiers[0].heated_shine_charge_tiles,
         }
     }
 

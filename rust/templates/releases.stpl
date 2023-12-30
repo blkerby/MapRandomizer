@@ -14,6 +14,29 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
+<p><a id="release104">Version 104 (2023-12-29)</a>:
+<ul>
+<li>A new setting "Heated shinecharge tiles" is added under "Skill assumptions".
+    <ul>
+    <li>More difficult short-charges can be required in unheated rooms (or with Varia).
+    </ul>
+<li>Fixed several bugs:
+    <ul>
+    <li>Certain cross-room speedball strats were wrongly in logic without Morph.
+    <li>G-mode strats showed up in logic pages for lower difficulties (though not in logic).
+    <li>Hazard markings could appear on the left side of Mother Brain Room.
+    <li>The escape route was not working in the spoiler map.
+    </ul>
+<li>New notable strats:
+    <ul>
+    <li>Pink Hoppers Shinespark into the Wall to Ride the Elevator (Very Hard)
+    <li>Pink Hoppers Screw and Kago to Ride the Elevator (Very Hard)
+    <li>Bubble Mountain Tricky Spring Ball Jump with Grapple (Very Hard)
+    <li>Parlor Carry Shinecharge From Right to Bottom (Expert)
+    <li>Mt. Everest Top Left Shinecharge (Insane)
+    </ul>
+</ul>
+
 <p><a id="release103">Version 103 (2023-12-22)</a>:
 <ul>
 <li>Fixed a logic issue where a cross-room walljump could be required when walljump is not available (a bug introduced in v102).
