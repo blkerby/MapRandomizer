@@ -28,13 +28,19 @@ use std::path::Path;
 fn run_scenario(
     proficiency: f32,
     missile_cnt: i32,
-    beam_loadout: &[&'static str],
+    item_loadout: &[&'static str],
     patience: bool,
     game_data: &GameData,
 ) {
     let mut items = vec![false; game_data.item_isv.keys.len()];
-    for &beam in beam_loadout {
-        match beam {
+    for &item in item_loadout {
+        match item {
+            "V" => {
+                items[Item::Varia as usize] = true;
+            }
+            "G" => {
+                items[Item::Gravity as usize] = true;
+            }
             "C" => {
                 items[Item::Charge as usize] = true;
             }
@@ -50,7 +56,7 @@ fn run_scenario(
             "P" => {
                 items[Item::Plasma as usize] = true;
             }
-            _ => panic!("unrecognized beam {}", beam),
+            _ => panic!("unrecognized beam {}", item),
         }
     }
 
@@ -154,7 +160,7 @@ fn run_scenario(
     let outcome = new_local_state_opt.map(|x| format!("{}", x.energy_used)).unwrap_or("n/a".to_string());
     println!(
         "proficiency={}, items={:?}, missiles={}, patience={}: {}",
-        proficiency, beam_loadout, missile_cnt, patience, outcome
+        proficiency, item_loadout, missile_cnt, patience, outcome
     );
 
     // println!(
@@ -194,22 +200,29 @@ fn main() -> Result<()> {
 
     let proficiencies = vec![0.0, 0.3, 0.5, 0.7, 1.0];
     let missile_counts = vec![0, 5, 30, 60, 120];
-    let beam_loadouts = vec![
+    let super_counts = vec![0, 5, 30];
+    let item_loadouts = vec![
         vec![],
         vec!["C"],
         vec!["C", "I"],
-        vec!["C", "I", "W"],
-        vec!["C", "I", "P"],
+        vec!["C", "I", "W", "S"],
+        vec!["C", "P"],
         vec!["C", "I", "W", "P"],
+        vec!["G"],
+        vec!["G", "C"], 
+        vec!["G", "C", "I", "W", "P"],
+        vec!["V", "G"],
+        vec!["V", "G", "C"],
+        vec!["V", "G", "C", "I", "W", "P"],
     ];
 
     for &proficiency in &proficiencies {
         for &missile_cnt in &missile_counts {
-            for beam_loadout in &beam_loadouts {
+            for beam_loadout in &item_loadouts {
                 for patience in [true, false] {
                     run_scenario(proficiency, missile_cnt, beam_loadout, patience, &game_data);
                 }
-            }
+            }    
         }
     }
 
