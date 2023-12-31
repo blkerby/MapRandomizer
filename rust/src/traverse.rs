@@ -13,6 +13,8 @@ use crate::{
     randomize::{DifficultyConfig, WallJump},
 };
 
+use log::info;
+
 // TODO: move tech and notable_strats out of this struct, since these do not change from step to step.
 #[derive(Clone, Debug)]
 pub struct GlobalState {
@@ -216,68 +218,105 @@ fn apply_phantoon_requirement(
 
 fn apply_draygon_requirement(
     global: &GlobalState,
-    mut local: LocalState,
+    local: LocalState,
     proficiency: f32,
     can_be_very_patient_tech_id: usize,
 ) -> Option<LocalState> {
-    let boss_hp: f32 = 6000.0;
+    let mut boss_hp: f32 = 6000.0;
     let charge_damage = get_charge_damage(&global);
 
-    // Assume an accuracy of between 60% (on lowest difficulty) to 100% (on highest).
-    let accuracy = 0.6 + 0.4 * proficiency;
+    // Assume an accuracy of between 40% (on lowest difficulty) to 80% (on highest).
+    // Even with high skill, it is normal to spend some Missiles on clearing goops.
+    let accuracy = 0.4 + 0.4 * proficiency;
 
     // Assume a firing rate of between 60% (on lowest difficulty) to 100% (on highest).
     let firing_rate = 0.6 + 0.4 * proficiency;
 
-    let mut possible_kill_times: Vec<f32> = vec![];
-    if charge_damage > 0.0 {
-        let charge_shots_to_use = f32::ceil(boss_hp / charge_damage / accuracy);
-        // Assume max 1 charge shot per 3 seconds.
-        let time = charge_shots_to_use as f32 * 3.0 / firing_rate;
-        possible_kill_times.push(time);
-    }
-    if global.max_missiles > 0 {
-        // We don't worry about ammo quantity since they can be farmed from the goops.
-        let missiles_to_use = f32::ceil(boss_hp / 100.0 / accuracy);
-        // Assume max average rate of 1 missiles per second:
-        let time = missiles_to_use as f32 * 1.0 / firing_rate;
-        possible_kill_times.push(time);
-    }
-    // We ignore the possibility of using Supers since farming them is very slow and the
-    // potential benefit over using Missiles is limited.
+    const GOOP_CYCLES_PER_SECOND: f32 = 1.0 / 15.0;
+    const SWOOP_CYCLES_PER_SECOND: f32 = GOOP_CYCLES_PER_SECOND * 2.0;
 
-    let kill_time = match possible_kill_times.iter().min_by(|x, y| x.total_cmp(y)) {
-        Some(&t) => t,
-        None => {
-            return None;
-        }
+    // Assume a maximum of 1 charge shot per goop phase, and 1 charge shot per swoop.
+    let charge_firing_rate = (SWOOP_CYCLES_PER_SECOND + GOOP_CYCLES_PER_SECOND) * firing_rate;
+    let charge_damage_rate = charge_firing_rate * charge_damage * accuracy;
+
+    let farm_proficiency = 0.2 + 0.8 * proficiency;
+    let base_goop_farms_per_cycle = match (
+        global.items[Item::Plasma as usize],
+        global.items[Item::Wave as usize],
+    ) {
+        (false, _) => 6.0,     // Basic beam
+        (true, false) => 9.0, // Plasma can hit multiple goops at once.
+        (true, true) => 12.0,  // Wave+Plasma can hit even more goops at once.
+    };
+    let goop_farms_per_cycle = if global.items[Item::Gravity as usize] {
+        farm_proficiency * base_goop_farms_per_cycle
+    } else {
+        // Without Gravity you can't farm as many goops since you have to spend more time avoiding Draygon.
+        0.5 * farm_proficiency * base_goop_farms_per_cycle
+    };
+    let energy_farm_rate =
+        GOOP_CYCLES_PER_SECOND * goop_farms_per_cycle * (5.0 * 0.02 + 20.0 * 0.12);
+    let missile_farm_rate = GOOP_CYCLES_PER_SECOND * goop_farms_per_cycle * (2.0 * 0.44);
+
+    let base_hit_dps = if global.items[Item::Gravity as usize] {
+        // With Gravity, assume one Draygon hit per two cycles as the maximum rate of damage to Samus:
+        160.0 * 0.5 * (GOOP_CYCLES_PER_SECOND + SWOOP_CYCLES_PER_SECOND) * (1.0 - proficiency)
+    } else {
+        // Without Gravity, assume one Draygon hit per cycle as the maximum rate of damage to Samus:
+        160.0 * (GOOP_CYCLES_PER_SECOND + SWOOP_CYCLES_PER_SECOND) * (1.0 - proficiency)
     };
 
-    if kill_time >= 180.0 && !global.tech[can_be_very_patient_tech_id] {
-        // We don't have enough patience to finish the fight:
+    let missiles_available = global.max_missiles - local.missiles_used;
+    let missile_firing_rate =
+        20.0 * GOOP_CYCLES_PER_SECOND * firing_rate;
+    let net_missile_use_rate = missile_firing_rate - missile_farm_rate;
+
+
+    let initial_missile_damage_rate = 100.0 * missile_firing_rate * accuracy;
+    let overall_damage_rate = initial_missile_damage_rate + charge_damage_rate;
+    let time_boss_dead = f32::ceil(boss_hp / overall_damage_rate);
+    let time_missiles_exhausted = if global.max_missiles == 0 {
+        0.0
+    } else if net_missile_use_rate > 0.0 {
+        (missiles_available as f32) / net_missile_use_rate
+    } else {
+        f32::INFINITY
+    };
+    let mut time = f32::min(time_boss_dead, time_missiles_exhausted);
+    if time_missiles_exhausted < time_boss_dead {
+        // Boss is not dead yet after exhausting all Missiles (if any).
+        // Continue the fight using Missiles only at the lower rate at which they can be farmed (if available).
+        boss_hp -= time * overall_damage_rate;
+
+        let farming_missile_damage_rate = if global.max_missiles > 0 {
+            100.0 * missile_farm_rate * accuracy 
+        } else {
+            0.0
+        };
+        let overall_damage_rate = farming_missile_damage_rate + charge_damage_rate;
+        if overall_damage_rate == 0.0 {
+            return None;
+        }
+        time += boss_hp / overall_damage_rate;
+    }
+
+    if time < 180.0 || global.tech[can_be_very_patient_tech_id] {
+        let mut net_dps = base_hit_dps / suit_damage_factor(global) as f32 - energy_farm_rate;
+        if net_dps < 0.0 {
+            net_dps = 0.0;
+        }
+        // We don't account for Missiles used, since they can be farmed or picked up after the fight, and we don't
+        // want the fight to go out of logic due to not saving enough Missiles to open some red doors for example.
+        let result = LocalState {
+            energy_used: local.energy_used + (net_dps * time) as Capacity,
+            ..local
+        };
+        // TODO: if the player can get behind Draygon during goop phase, it can be possible to safely Crystal Flash. Consider using one if validate_energy fails and
+        // Crystal Flashes are in logic.
+        return validate_energy(result, global);
+    } else {
         return None;
     }
-
-    // Assumed rate of damage to Samus per second.
-    let base_hit_dps = 20.0 * (1.0 - 0.9 * proficiency);
-
-    // TODO: we should take into account key items like Morph, Gravity, and Screw Attack.
-    // We ignore this for now; the strats already ensure either Morph or Gravity is available.
-
-    // Assumed average energy per second gained from farming goops:
-    let farm_rate = 3.0 * (0.5 + 0.5 * proficiency);
-
-    // Net damage taken by Samus per second, taking into account suit protection and farms:
-    let mut net_dps = base_hit_dps / suit_damage_factor(global) as f32 - farm_rate;
-    if net_dps < 0.0 {
-        // We could assume we could refill on energy or ammo using farms, but by omitting this for now
-        // we're just making the logic a little more conservative in favor of the player.
-        net_dps = 0.0;
-    }
-
-    local.energy_used += (net_dps * kill_time) as Capacity;
-
-    validate_energy(local, global)
 }
 
 fn apply_ridley_requirement(
@@ -535,7 +574,7 @@ fn compute_cost(local: LocalState, global: &GlobalState) -> [f32; NUM_COST_METRI
     let missiles_cost = (local.missiles_used as f32) / (global.max_missiles as f32 + eps);
     let supers_cost = (local.supers_used as f32) / (global.max_supers as f32 + eps);
     let power_bombs_cost = (local.power_bombs_used as f32) / (global.max_power_bombs as f32 + eps);
-    
+
     let ammo_sensitive_cost_metric =
         energy_cost + reserve_cost + 10.0 * (missiles_cost + supers_cost + power_bombs_cost);
     let energy_sensitive_cost_metric =
@@ -674,27 +713,24 @@ pub fn apply_requirement(
             //     None
             // }
         }
-        Requirement::Walljump => {
-            match difficulty.wall_jump {
-                WallJump::Vanilla => {
-                    if global.tech[game_data.wall_jump_tech_id] {
-                        Some(local)
-                    } else {
-                        None
-                    }        
-                }
-                WallJump::Collectible => {
-                    if global.tech[game_data.wall_jump_tech_id] && global.items[Item::WallJump as usize] {
-                        Some(local)
-                    } else {
-                        None
-                    }        
-                },
-                WallJump::Disabled => {
+        Requirement::Walljump => match difficulty.wall_jump {
+            WallJump::Vanilla => {
+                if global.tech[game_data.wall_jump_tech_id] {
+                    Some(local)
+                } else {
                     None
                 }
             }
-        }
+            WallJump::Collectible => {
+                if global.tech[game_data.wall_jump_tech_id] && global.items[Item::WallJump as usize]
+                {
+                    Some(local)
+                } else {
+                    None
+                }
+            }
+            WallJump::Disabled => None,
+        },
         Requirement::HeatFrames(frames) => {
             let varia = global.items[Item::Varia as usize];
             let mut new_local = local;
@@ -917,8 +953,7 @@ pub fn apply_requirement(
             } else {
                 global.shine_charge_tiles
             };
-            if global.items[Item::SpeedBooster as usize] && *used_tiles >= tiles_limit
-            {
+            if global.items[Item::SpeedBooster as usize] && *used_tiles >= tiles_limit {
                 Some(local)
             } else {
                 None
@@ -1231,7 +1266,11 @@ impl GlobalState {
     }
 }
 
-pub fn get_spoiler_route(traverse_result: &TraverseResult, vertex_id: usize, cost_idx: usize) -> Vec<LinkIdx> {
+pub fn get_spoiler_route(
+    traverse_result: &TraverseResult,
+    vertex_id: usize,
+    cost_idx: usize,
+) -> Vec<LinkIdx> {
     let mut trail_id = traverse_result.start_trail_ids[vertex_id][cost_idx];
     let mut steps: Vec<LinkIdx> = Vec::new();
     while trail_id != -1 {
