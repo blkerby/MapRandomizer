@@ -6,7 +6,9 @@ v105:
 - set up functional testing to check seed generation succeeds in reasonable time across random settings.
 
 v104:
-- heated/non-retriable shinespark tiles, update preset shinespark tiles
+- review/merge aquanight's draygon logic.
+- robo-tiling West Maridia
+- DONE: heated/non-retriable shinespark tiles, update preset shinespark tiles
 - DONE: add Morph requirement for "comeInSpeedballing"
 - DONE?: handle framesRemaining: "auto".
 - DONE?: don't put hazard tape on left side of Mother Brain room.
@@ -114,6 +116,7 @@ priority:
 - logic simulator
 
 later:
+- consider marking last save (and backup saves) with map icons in pause map.
 - consider inverting the two colors of not-filled reserve tank in HUD?
 - handle sba attacks in "enemyKill"
 - "fast cutscenes" QoL option?: 

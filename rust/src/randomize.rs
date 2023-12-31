@@ -672,7 +672,7 @@ impl<'a> Preprocessor<'a> {
                         let run_frames = compute_run_frames(runway_length);
                         let heat_frames_1 = run_frames + 20;
                         let heat_frames_2 = i32::max(85, run_frames);
-                        reqs.push(Requirement::HeatFrames(heat_frames_1 + heat_frames_2 + 5));
+                        reqs.push(Requirement::HeatFrames(heat_frames_1 + heat_frames_2 + 15));
                     } else {
                         let heat_frames = i32::max(85, compute_run_frames(*effective_length));
                         reqs.push(Requirement::HeatFrames(heat_frames + 5));
@@ -1184,7 +1184,7 @@ impl<'a> Preprocessor<'a> {
                                     return Some(ExitCondition::LeaveShinecharged { frames_remaining: Some(final_frames_remaining) })
                                 },
                                 ExitCondition::LeaveWithRunway { .. } => {
-                                    let final_frames_remaining = 179 - frames_required;
+                                    let final_frames_remaining = 170 - frames_required;
                                     return Some(ExitCondition::LeaveShinecharged { frames_remaining: Some(final_frames_remaining) })
                                 },
                                 _ => panic!("leaveShinecharged 'auto' framesRequired: unexpected exit_condition in other room: {:?}", exit_link.exit_condition)
