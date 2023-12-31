@@ -49,10 +49,6 @@ struct Args {
 }
 
 fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization> {
-    let map_string = std::fs::read_to_string(&args.map)
-        .with_context(|| format!("Unable to read map file at {}", args.map.display()))?;
-    let map: Map = serde_json::from_str(&map_string)
-        .with_context(|| format!("Unable to parse map file at {}", args.map.display()))?;
 
     // let ignored_tech: Vec<String> = ["canWallIceClip", "canGrappleClip", "canUseSpeedEchoes"].iter().map(|x| x.to_string()).collect();
     // let tech: Vec<String> = game_data.tech_isv.keys.iter().filter(|&x| !ignored_tech.contains(&x)).cloned().collect();
@@ -200,6 +196,22 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
             extended_spoiler: true,
         }),
     };
+    let mut single_map : Option<Map>;
+    let mut filenames : Vec<String> = Vec::new();
+    if args.map.is_dir() {
+        for path in std::fs::read_dir(&args.map).with_context(|| format!("Unable to read maps in directory {}", args.map.display()))? {
+            filenames.push(path?.file_name().into_string().unwrap());
+        }
+        filenames.sort();
+        info!("{} maps available ({})", filenames.len(), args.map.display());
+        single_map = None;
+    }
+    else {
+        let map_string = std::fs::read_to_string(&args.map)
+            .with_context(|| format!("Unable to read map file at {}", args.map.display()))?;
+        single_map = Some(serde_json::from_str(&map_string)
+            .with_context(|| format!("Unable to parse map file at {}", args.map.display()))?);
+    }
     let difficulty_tiers = [difficulty];
     let root_seed = match args.random_seed {
         Some(s) => s,
@@ -222,6 +234,17 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
     let mut attempt_num = 0;
     for _ in 0..max_map_attempts {
         let map_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
+        let map = match single_map {
+            Some(ref m) => m.clone(),
+            None => {
+                let idx = map_seed % filenames.len();
+                let path = args.map.join(&filenames[idx]);
+                let map_string = std::fs::read_to_string(&path)
+                    .with_context(|| format!("Unable to read map file at {}", path.display()))?;
+                info!("[attempt {attempt_num}] Map: {}", path.display());
+                serde_json::from_str(&map_string).with_context(|| format!("Unable to parse map file at {}", args.map.display()))?
+            }
+        };
         let door_seed = match args.item_placement_seed {
             Some(s) => s,
             None => (rng.next_u64() & 0xFFFFFFFF) as usize,
@@ -236,14 +259,13 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
                 None => (rng.next_u64() & 0xFFFFFFFF) as usize,
             };
             info!("Attempt {attempt_num}/{max_attempts}: Map seed={map_seed}, door randomization seed={door_seed}, item placement seed={item_seed}");
-            if let Ok(randomization) = randomizer.randomize(attempt_num, item_seed, 1) {
-                return Ok(randomization);
-            } else {
-                info!("Failed randomization attempt");
+            match randomizer.randomize(attempt_num, item_seed, 1) {
+                Ok(randomization) => { return Ok(randomization); }
+                Err(e) => {
+                    info!("Attempt {attempt_num}/{max_attempts}: Randomization failed: {}", e);
+                }
             }
         }
-    }
-    for attempt_num in 1..(max_attempts+1) {
     }
     bail!("Exhausted randomization attempts");
 }
