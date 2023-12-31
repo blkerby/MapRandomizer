@@ -1,5 +1,6 @@
 use anyhow::{bail, Context, Result};
 use clap::Parser;
+use log::info;
 use maprando::customize::{customize_rom, CustomizeSettings, MusicSettings, ControllerConfig};
 use maprando::game_data::{Item, Map};
 use maprando::patch::ips_write::create_ips_patch;
@@ -11,6 +12,7 @@ use maprando::randomize::{
 use maprando::spoiler_map;
 use maprando::web::{SamusSpriteInfo, SamusSpriteCategory};
 use maprando::{game_data::GameData, patch::make_rom, randomize::DifficultyConfig};
+use rand::{RngCore, SeedableRng};
 use std::path::{Path, PathBuf};
 
 #[derive(Parser)]
@@ -19,7 +21,13 @@ struct Args {
     map: PathBuf,
 
     #[arg(long)]
+    random_seed: Option<usize>,
+
+    #[arg(long)]
     item_placement_seed: Option<usize>,
+
+    #[arg(long)]
+    max_attempts: Option<usize>,
 
     #[arg(long)]
     input_rom: PathBuf,
@@ -193,24 +201,49 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         }),
     };
     let difficulty_tiers = [difficulty];
+    let root_seed = match args.random_seed {
+        Some(s) => s,
+        None => (rand::rngs::StdRng::from_entropy().next_u64() & 0xFFFFFFFF) as usize,
+    };
+    let mut rng_seed = [0u8; 32];
+    rng_seed[..8].copy_from_slice(&root_seed.to_le_bytes());
+    rng_seed[9] = 0; // Not race-mode
+    let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
     let max_attempts = if args.item_placement_seed.is_some() {
         1
     } else {
-        10
+        match args.max_attempts {
+            Some(ma) => ma,
+            None => 10000, // Same as maprando-web.
+        }
     };
-    for attempt_num in 0..max_attempts {
-        let seed = match args.item_placement_seed {
+    let max_attempts_per_map = if difficulty_tiers[0].randomized_start { 10 } else { 1 };
+    let max_map_attempts = max_attempts / max_attempts_per_map;
+    let mut attempt_num = 0;
+    for _ in 0..max_map_attempts {
+        let map_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
+        let door_seed = match args.item_placement_seed {
             Some(s) => s,
-            None => attempt_num,
+            None => (rng.next_u64() & 0xFFFFFFFF) as usize,
         };
-        let locked_doors = randomize_doors(game_data, &map, &difficulty_tiers[0], seed);
+        let locked_doors = randomize_doors(game_data, &map, &difficulty_tiers[0], door_seed);
         let randomizer = Randomizer::new(&map, &locked_doors, &difficulty_tiers, &game_data,
             &game_data.base_links_data, &game_data.seed_links);
-        if let Ok(randomization) = randomizer.randomize(attempt_num, seed, 1) {
-            return Ok(randomization);
-        } else {
-            println!("Failed randomization attempt");
+        for _ in 0..max_attempts_per_map {
+            attempt_num += 1;
+            let item_seed = match args.item_placement_seed {
+                Some(s) => s,
+                None => (rng.next_u64() & 0xFFFFFFFF) as usize,
+            };
+            info!("Attempt {attempt_num}/{max_attempts}: Map seed={map_seed}, door randomization seed={door_seed}, item placement seed={item_seed}");
+            if let Ok(randomization) = randomizer.randomize(attempt_num, item_seed, 1) {
+                return Ok(randomization);
+            } else {
+                info!("Failed randomization attempt");
+            }
         }
+    }
+    for attempt_num in 1..(max_attempts+1) {
     }
     bail!("Exhausted randomization attempts");
 }
@@ -244,11 +277,11 @@ fn main() -> Result<()> {
     let mut randomization = get_randomization(&args, &game_data)?;
 
     // Override locked doors:
-    randomization.locked_doors.push(LockedDoor { 
-        src_ptr_pair: (Some(0x19012), Some(0x18F52)), 
-        dst_ptr_pair: (Some(0x18F52), Some(0x19012)), 
-        door_type: maprando::randomize::DoorType::Yellow, 
-        bidirectional: true });
+    //randomization.locked_doors.push(LockedDoor { 
+    //    src_ptr_pair: (Some(0x19012), Some(0x18F52)), 
+    //    dst_ptr_pair: (Some(0x18F52), Some(0x19012)), 
+    //    door_type: maprando::randomize::DoorType::Yellow, 
+    //    bidirectional: true });
 
     // Override start location:
     // randomization.start_location = game_data.start_locations.last().unwrap().clone();
