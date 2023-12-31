@@ -6,7 +6,8 @@ v105:
 - set up functional testing to check seed generation succeeds in reasonable time across random settings.
 
 v104:
-- heated/non-retriable shinespark tiles, update preset shinespark tiles
+- review/merge aquanight's draygon logic.
+- DONE: heated/non-retriable shinespark tiles, update preset shinespark tiles
 - DONE: add Morph requirement for "comeInSpeedballing"
 - DONE?: handle framesRemaining: "auto".
 - DONE?: don't put hazard tape on left side of Mother Brain room.
