@@ -14,7 +14,7 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release104">Version 104 (2023-12-30)</a>:
+<p><a id="release104">Version 104 (2023-12-31)</a>:
 <ul>
 <li>Revamped Reserve HUD now shows greater contrast between filled and unfilled bars.
 <li>A new setting "Heated shinecharge tiles" is added under "Skill assumptions".
@@ -29,6 +29,7 @@ document.getElementById("navigation-releases").classList.add("active");
     <li>The escape route was not working in the spoiler map.
     </ul>
 <li>The tech "canCrystalFlash" is moved from Hard to Very Hard.
+<li>The Draygon logic is now more lenient in situations with low Missile count.
 <li>New notable strats:
     <ul>
     <li>Pink Hoppers Shinespark into the Wall to Ride the Elevator (Very Hard)

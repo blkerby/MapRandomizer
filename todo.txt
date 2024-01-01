@@ -6,7 +6,7 @@ v105:
 - set up functional testing to check seed generation succeeds in reasonable time across random settings.
 
 v104:
-- review/merge aquanight's draygon logic.
+- DONE: review/merge aquanight's draygon logic.
 - robo-tiling West Maridia
 - DONE: heated/non-retriable shinespark tiles, update preset shinespark tiles
 - DONE: add Morph requirement for "comeInSpeedballing"
