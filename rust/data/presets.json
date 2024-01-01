@@ -64,7 +64,7 @@
   },
   {
     "name": "Hard",
-    "shinespark_tiles": 18,
+    "shinespark_tiles": 20,
     "heated_shinespark_tiles": 26,
     "gate_glitch_leniency": 14,
     "door_stuck_leniency": 2,
@@ -305,7 +305,7 @@
   {
     "name": "Expert",
     "shinespark_tiles": 15,
-    "heated_shinespark_tiles": 18,
+    "heated_shinespark_tiles": 16,
     "gate_glitch_leniency": 2,
     "door_stuck_leniency": 2,
     "resource_multiplier": 1.1,
@@ -430,7 +430,7 @@
   {
     "name": "Extreme",
     "shinespark_tiles": 14,
-    "heated_shinespark_tiles": 17,
+    "heated_shinespark_tiles": 15,
     "gate_glitch_leniency": 1,
     "door_stuck_leniency": 1,
     "resource_multiplier": 1.05,
@@ -534,7 +534,7 @@
   {
     "name": "Insane",
     "shinespark_tiles": 13,
-    "heated_shinespark_tiles": 15,
+    "heated_shinespark_tiles": 14,
     "gate_glitch_leniency": 0,
     "door_stuck_leniency": 0,
     "resource_multiplier": 1.0,
@@ -618,7 +618,7 @@
   {
     "name": "Beyond",
     "shinespark_tiles": 13,
-    "heated_shinespark_tiles": 15,
+    "heated_shinespark_tiles": 14,
     "gate_glitch_leniency": 0,
     "door_stuck_leniency": 0,
     "resource_multiplier": 1.0,
