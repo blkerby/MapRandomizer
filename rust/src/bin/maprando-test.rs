@@ -23,6 +23,9 @@ struct Args {
     test_cycles: usize,
 
     #[arg(long)]
+    rng_seed: Option<u64>,
+
+    #[arg(long)]
     input_rom: PathBuf,
 
     #[arg(long)]
@@ -299,6 +302,7 @@ fn set_ultra_low_qol(mut diff: &mut DifficultyConfig) -> () {
 
 // Reduced version of web::AppData for test tool
 struct TestAppData {
+    rng_seed: Option<u64>,
     input_rom: Rom,
     output_dir: PathBuf,
     game_data: GameData,
@@ -381,9 +385,11 @@ fn get_difficulty_tiers(app: &TestAppData, diff: &DifficultyConfig) -> Vec<Diffi
     out
 }
 
-fn get_randomization(app: &TestAppData) -> Result<(Randomization, String)> {
+fn get_randomization(app: &TestAppData, seed: u64) -> Result<(Randomization, String)> {
     let game_data = &app.game_data;
-    let mut rng = rand::rngs::StdRng::from_entropy();
+    let mut rng_seed = [0u8; 32];
+    rng_seed[..8].copy_from_slice(&seed.to_le_bytes());
+    let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
 
     let preset_idx = rng.next_u64() as usize % app.presets.len();
     let progression_idx = rng.next_u64() as usize % app.progressions.len();
@@ -502,10 +508,15 @@ fn make_random_customization(app : &TestAppData) -> CustomizeSettings {
 }
 
 fn perform_test_cycle(app : &TestAppData, cycle_count: usize) -> Result<()> {
-    info!("Test cycle {cycle_count} Start");
+    let seed: u64 = app.rng_seed.unwrap_or_else(|| {
+        let mut rng = rand::rngs::StdRng::from_entropy();
+        rng.next_u64()
+    });
+
+    info!("Test cycle {cycle_count} Start: seed={}", seed);
 
     // Perform randomization (map selection & item placement):
-    let (randomization, output_file_prefix) = get_randomization(&app)?;
+    let (randomization, output_file_prefix) = get_randomization(&app, seed)?;
 
     // Generate the patched ROM:
     let game_rom = make_rom(&app.input_rom, &randomization, &app.game_data)?;
@@ -707,6 +718,7 @@ fn main() -> Result<()> {
     }
 
     let app = TestAppData {
+        rng_seed: args.rng_seed,
         input_rom,
         output_dir: args.output_seeds,
         game_data,
