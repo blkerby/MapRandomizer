@@ -4,8 +4,8 @@
 lorom
 arch 65816
 
-!bank_80_free_space_start = $80D240
-!bank_80_free_space_end = $80D340
+!bank_80_free_space_start = $80DA00
+!bank_80_free_space_end = $80DD00
 
 ;;; MSU memory map I/O
 !MSU_STATUS = $2000
@@ -117,18 +117,13 @@ MSU_Main:
 	beq OriginalCode
 PlayMusic:
 	tay
-	sta.w !MSU_AUDIO_TRACK_LO
-	stz.w !MSU_AUDIO_TRACK_HI
-	
-CheckAudioStatus:
-	lda.w !MSU_STATUS
-	and.b #!MSU_STATUS_AUDIO_BUSY
-	bne CheckAudioStatus
-	
-	;; Check if track is missing
-	lda.w !MSU_STATUS
-	and.b #!MSU_STATUS_TRACK_MISSING
-	bne StopMSUMusic
+    jsr TryExtended
+    ; If extended track does not exist
+    beq +
+        tya
+        jsr TryToPlayMusic
+        bne StopMSUMusic
+    +
 	
 	;; Play the song and add repeat if needed
 	jsr TrackNeedLooping
@@ -164,7 +159,71 @@ OriginalCode:
 	plp
 	sta.w !SPC_COMM_0
 	rts
+
+; Attempts to play the extended track
+; Returns 0 in A on success
+TryExtended:
+    jsr .GetExtendedIndex
+    ; If no extended track index exists
+    bne +
+        lda #1
+        rts
+    +
+    jmp TryToPlayMusic
+; Returns 0 if there is no extension
+.GetExtendedIndex:
+    ldx #0
+    rep #$20
+    lda $079B ; Get room pointer
+    cpy #10 : beq ..SamusTheme
+    cpy #19 : beq ..BossThemeOne
+    cpy #22 : beq ..BossThemeTwo
+    cpy #23 : beq ..BossTensionTheme
+..Return
+    sep #$20
+    txa
+    rts
+..SamusTheme
+    ; Mother Brain's room
+    cmp #$DD58 : bne +
+        ldx.b #39
+    +
+    jmp ..Return
+..BossThemeOne
+    ; Draygon's room
+    cmp #$DA60 : bne +
+        ldx.b #35
+    +
+    ; Ridley's room
+    cmp #$B32E : bne +
+        ldx.b #36
+    +
+    jmp ..Return
+..BossThemeTwo
+    lda $079F : tax
+    lda BossTwoExtendedThemes,x : tax
+    jmp ..Return
+..BossTensionTheme
+    lda $079F : tax
+    lda TensionExtendedThemes,x : tax
+    jmp ..Return
+
+; Tries to play track at index of A
+; Returns 0 in A if success
+TryToPlayMusic:
+	sta !MSU_AUDIO_TRACK_LO
+	stz !MSU_AUDIO_TRACK_HI
+    
+-
+	lda !MSU_STATUS
+	and #!MSU_STATUS_AUDIO_BUSY
+	bne -
 	
+	;; Check if track is missing
+	lda !MSU_STATUS
+	and #!MSU_STATUS_TRACK_MISSING
+    rts
+
 MusicMappingPointers:
 	dw bank_00
 	dw bank_03
@@ -245,6 +304,11 @@ bank_45: ;; Big Boss Battle 2
 bank_48: ;; Samus's Ship (Mother Brain)
 	db 10
 
+BossTwoExtendedThemes:
+db #00,#32,#00,#34,#00,#38
+
+TensionExtendedThemes:
+db #00,#31,#00,#33,#00,#37
 
 TrackNeedLooping:
 ;; Samus Aran's Appearance fanfare
