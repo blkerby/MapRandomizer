@@ -14,6 +14,11 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
+<p><a id="release104">Version 105 (2024-01-02)</a>:
+<ul>
+<li>MSU now supports extended tracks (e.g. boss-specific music).
+</ul>
+
 <p><a id="release104">Version 104 (2024-01-01)</a>:
 <ul>
 <li>Revamped Reserve HUD now shows greater contrast between filled and unfilled bars.
