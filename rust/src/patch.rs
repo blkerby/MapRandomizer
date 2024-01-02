@@ -1885,10 +1885,12 @@ impl<'a> Patcher<'a> {
         // extra setup ASM pointer.
         self.rom.write_u16(snes2pc(0x8f985f), 0x0000)?;
 
-        let mut next_addr = snes2pc(0xB5F800);
+        // let mut next_addr = snes2pc(0xB5F800);
+        let mut next_addr = snes2pc(0xE99000);
 
         for (&room_ptr, asm) in &self.extra_setup_asm {
             for (_, state_ptr) in get_room_state_ptrs(&self.rom, room_ptr)? {
+                println!("next_addr: {:x}", next_addr);
                 let mut asm = asm.clone();
                 asm.push(0x60); // RTS
                 self.rom.write_n(next_addr, &asm)?;
@@ -1897,7 +1899,8 @@ impl<'a> Patcher<'a> {
                 next_addr += asm.len();
             }
         }
-        assert!(next_addr <= snes2pc(0xB5FF00));
+        assert!(next_addr <= snes2pc(0xE9FFFF));
+        // assert!(next_addr <= snes2pc(0xB5FF00));
 
         Ok(())
     }
@@ -1945,6 +1948,34 @@ impl<'a> Patcher<'a> {
                     addr += 32;
                 }
             }
+        }
+        Ok(())
+    }
+
+    fn apply_room_outline(&mut self) -> Result<()> {
+        for (room_idx, room) in self.game_data.room_geometry.iter().enumerate() {
+            let room_ptr = room.rom_address;
+            let room_x = self.rom.read_u8(room_ptr + 2)?;
+            let room_y = self.rom.read_u8(room_ptr + 3)?;
+            let area = self.map.area[room_idx];
+            let mut asm: Vec<u8> = vec![];
+            for y in 0..room.map.len() {
+                for x in 0..room.map[0].len() {
+                    if room.map[y][x] == 0 {
+                        continue;
+                    }
+                    let (offset, bitmask) = xy_to_explored_bit_ptr(room_x + x as isize, room_y + y as isize);
+
+                    // Mark as revealed (which will persist after deaths/reloads):
+                    let addr = 0x2000 + (area as isize) * 0x100 + offset;
+                    asm.extend([0xAF, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // LDA $70:{addr}
+                    asm.extend([0x09, bitmask, 0x00]); // ORA #{bitmask}
+                    asm.extend([0x8F, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // STA $70:{addr}
+                    // println!("{:x} {} {}", room_ptr, x, y);
+                }
+            }
+            asm.extend([0xEE, 0xC8, 0x09]);  // for testing: inc max missiles
+            self.extra_setup_asm.entry(room_ptr).or_insert(vec![]).extend(asm);
         }
         Ok(())
     }
@@ -2017,6 +2048,7 @@ pub fn make_rom(
     patcher.apply_seed_hash()?;
     patcher.apply_credits()?;
     patcher.apply_hazard_markers()?;
+    patcher.apply_room_outline()?;
     patcher.apply_extra_setup_asm()?;
     Ok(rom)
 }

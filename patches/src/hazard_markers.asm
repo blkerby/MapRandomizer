@@ -5,8 +5,8 @@ lorom
 !bank_8f_free_space_start = $8FFE80
 !bank_8f_free_space_end = $8FFF00
 
-!bank_b5_free_space_start = $B5F700
-!bank_b5_free_space_end = $B5F800
+!bank_e9_free_space_start = $E98300
+!bank_e9_free_space_end = $E98400
 
 
 
@@ -30,7 +30,7 @@ org $82E42E
 org $8FE893
     jsr run_extra_setup_asm_wrapper
 
-org !bank_b5_free_space_start
+org !bank_e9_free_space_start
 
 run_extra_setup_asm:
     ; get extra setup ASM pointer to run in bank B5 (using pointer in room state almost completely unused by vanilla, only for X-ray override in BT Room in escape)
@@ -39,14 +39,16 @@ run_extra_setup_asm:
     beq .skip
     sta $1F68         ; write setup ASM pointer temporarily to $1F68, so we can jump to it with JSR. (Is there a less awkward way to do this?)
     ldx #$0000
-    jsr ($1F68,x)
+    pea .skip-1
+    jmp ($1F68)
+
 .skip:
     ; run hi-jacked instructions
     LDX $07BB
     LDA $0018,x
     rtl
 
-warnpc !bank_b5_free_space_end
+warnpc !bank_e9_free_space_end
 
 org !bank_8f_free_space_start
 
