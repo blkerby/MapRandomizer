@@ -258,7 +258,7 @@ bank_00: ;; Opening
 bank_03: ;; Opening
 	db 04,05
 bank_06: ;; Crateria (First Landing)
-	db 06,00,07
+	db 06,41,07
 bank_09: ;; Crateria
 	db 08,09
 bank_0C: ;; Samus's Ship
