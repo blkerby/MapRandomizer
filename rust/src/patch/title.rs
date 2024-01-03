@@ -11,7 +11,7 @@ use slice_of_array::prelude::*;
 
 pub struct TitlePatcher<'a> {
     rom: &'a mut Rom,
-    next_free_space_pc: usize,
+    pub next_free_space_pc: usize,
 }
 
 pub fn read_image(path: &Path) -> Result<Array3<u8>> {
@@ -155,7 +155,7 @@ impl<'a> TitlePatcher<'a> {
     pub fn new(rom: &'a mut Rom) -> Self {
         Self {
             rom,
-            next_free_space_pc: snes2pc(0xB88000),
+            next_free_space_pc: snes2pc(0xE99000),
         }
     }
 

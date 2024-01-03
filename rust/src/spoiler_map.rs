@@ -67,34 +67,34 @@ fn get_rgb(r: isize, g: isize, b: isize)-> Rgb<u8> {
 }
 
 fn get_color(value: u8, area: usize) -> Rgb<u8> {
+    let cool_area_color = match area {
+        0 => get_rgb(18, 0, 27), // Crateria
+        1 => get_rgb(0, 18, 0), // Brinstar
+        2 => get_rgb(23, 0, 0), // Norfair
+        3 => get_rgb(16, 17, 0), // Wrecked Ship
+        4 => get_rgb(3, 12, 29), // Maridia
+        5 => get_rgb(21, 12, 0), // Tourian
+        _ => panic!("Unexpected area {}", area),
+    };
+    let hot_area_color = match area {
+        0 => get_rgb(27, 15, 31), // Crateria
+        1 => get_rgb(12, 25, 12), // Brinstar
+        2 => get_rgb(31, 12, 12), // Norfair
+        3 => get_rgb(23, 23, 11), // Wrecked Ship
+        4 => get_rgb(12, 20, 31), // Maridia
+        5 => get_rgb(29, 17, 12), // Tourian
+        _ => panic!("Unexpected area {}", area),
+    };
     match value {
         0 => get_rgb(0, 0, 0),
-        1 => {
-            match area {
-                0 => get_rgb(18, 0, 27), // Crateria
-                1 => get_rgb(0, 18, 0), // Brinstar
-                2 => get_rgb(23, 0, 0), // Norfair
-                3 => get_rgb(16, 17, 0), // Wrecked Ship
-                4 => get_rgb(3, 12, 29), // Maridia
-                5 => get_rgb(21, 12, 0), // Tourian
-                _ => panic!("Unexpected area {}", area),
-            }
-        }
-        2 => {
-            match area {
-                0 => get_rgb(27, 15, 31), // Crateria
-                1 => get_rgb(12, 25, 12), // Brinstar
-                2 => get_rgb(31, 12, 12), // Norfair
-                3 => get_rgb(23, 23, 11), // Wrecked Ship
-                4 => get_rgb(12, 20, 31), // Maridia
-                5 => get_rgb(29, 17, 12), // Tourian
-                _ => panic!("Unexpected area {}", area),
-            }
-        }
+        1 => cool_area_color,
+        2 => hot_area_color,
         3 => get_rgb(31, 31, 31), // Wall/passage (white)
         4 => get_rgb(0, 0, 0), // Opaque black (used in elevators, covers up dotted grid background)
         6 => get_rgb(29, 15, 0), // Yellow (orange) door
         7 => get_rgb(27, 7, 18), // Red (pink) door
+        12 => get_rgb(0, 0, 0), // Door lock shadow covering wall (black)
+        13 => cool_area_color, // Item dots (show as cool area color, will get mostly covered by item icons once loaded)
         14 => get_rgb(0, 24, 0), // Green door
         15 => get_rgb(18, 12, 14), // Gray door
         _ => panic!("Unexpected color value {}", value),

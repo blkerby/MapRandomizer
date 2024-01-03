@@ -7,6 +7,10 @@
     <div class="col-4 col-sm-3"><%= if mark_map_stations { "Yes" } else { "No" }%></div>
 </div>
 <div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Room outline revealed on entry:</div>
+    <div class="col-4 col-sm-3"><%= if difficulty.room_outline_revealed { "Yes" } else { "No" }%></div>
+</div>
+<div class="row">
     <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Guaranteed early save station:</div>
     <div class="col-4 col-sm-3"><%= if early_save { "Yes" } else { "No" }%></div>
 </div>

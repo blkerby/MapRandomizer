@@ -1417,6 +1417,7 @@ impl<'a> Patcher<'a> {
             title_patcher.patch_title_foreground()?;
             title_patcher.patch_title_gradient()?;
             title_patcher.patch_title_blue_light()?;
+            println!("Title screen data end: {:x}", title_patcher.next_free_space_pc);
             return Ok(());
         }
     }
@@ -1885,7 +1886,8 @@ impl<'a> Patcher<'a> {
         // extra setup ASM pointer.
         self.rom.write_u16(snes2pc(0x8f985f), 0x0000)?;
 
-        let mut next_addr = snes2pc(0xB5F800);
+        let mut next_addr = snes2pc(0xB88100);
+        // let mut next_addr = snes2pc(0xE98400);
 
         for (&room_ptr, asm) in &self.extra_setup_asm {
             for (_, state_ptr) in get_room_state_ptrs(&self.rom, room_ptr)? {
@@ -1893,11 +1895,13 @@ impl<'a> Patcher<'a> {
                 asm.push(0x60); // RTS
                 self.rom.write_n(next_addr, &asm)?;
                 self.rom
-                    .write_u16(state_ptr + 16, (next_addr & 0xFFFF) as isize)?;
+                    .write_u16(state_ptr + 16, (pc2snes(next_addr) & 0xFFFF) as isize)?;
                 next_addr += asm.len();
             }
         }
-        assert!(next_addr <= snes2pc(0xB5FF00));
+        println!("extra setup ASM end: {:x}", next_addr);
+        assert!(next_addr <= snes2pc(0xB8FFFF));
+        // assert!(next_addr <= snes2pc(0xB5FF00));
 
         Ok(())
     }
@@ -1944,6 +1948,42 @@ impl<'a> Patcher<'a> {
                     write_tile_4bpp(self.rom, addr, tile)?;
                     addr += 32;
                 }
+            }
+        }
+        Ok(())
+    }
+
+    fn apply_room_outline(&mut self) -> Result<()> {
+        for (room_idx, room) in self.game_data.room_geometry.iter().enumerate() {
+            let room_ptr = room.rom_address;
+            let room_x = self.rom.read_u8(room_ptr + 2)?;
+            let mut room_y = self.rom.read_u8(room_ptr + 3)?;
+            if room.rom_address == 0x7D5A7 {
+                // Aqueduct
+                room_y -= 4;
+            }
+            let area = self.map.area[room_idx];
+            let mut asm: Vec<u8> = vec![];
+            for y in 0..room.map.len() {
+                for x in 0..room.map[0].len() {
+                    if room.map[y][x] == 0 {
+                        continue;
+                    }
+                    let (offset, bitmask) = xy_to_explored_bit_ptr(room_x + x as isize, room_y + y as isize);
+
+                    // Mark as partially revealed (which will persist after deaths/reloads):
+                    let addr = 0x2700 + (area as isize) * 0x100 + offset;
+                    asm.extend([0xAF, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // LDA $70:{addr}
+                    asm.extend([0x09, bitmask, 0x00]); // ORA #{bitmask}
+                    asm.extend([0x8F, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // STA $70:{addr}
+                    // println!("{:x} {} {}", room_ptr, x, y);
+                }
+            }
+
+            self.extra_setup_asm.entry(room_ptr).or_insert(vec![]).extend(asm.clone());
+            if let Some(twin_rom_address) = room.twin_rom_address {
+                // Apply same setup ASM to twin rooms (Homing Geemer Room and East Pants Room):
+                self.extra_setup_asm.entry(twin_rom_address).or_insert(vec![]).extend(asm);
             }
         }
         Ok(())
@@ -2017,6 +2057,9 @@ pub fn make_rom(
     patcher.apply_seed_hash()?;
     patcher.apply_credits()?;
     patcher.apply_hazard_markers()?;
+    if randomization.difficulty.room_outline_revealed {
+        patcher.apply_room_outline()?;
+    }
     patcher.apply_extra_setup_asm()?;
     Ok(rom)
 }

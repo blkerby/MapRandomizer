@@ -318,10 +318,10 @@ impl<'a> MapPatcher<'a> {
         };
         for y in 0..8 {
             for x in 0..8 {
-                if data[y][x] > 4 {
-                    data[y][x] = 3;
-                } else if data[y][x] == 4 {
+                if data[y][x] == 4 || data[y][x] == 12 {
                     data[y][x] = 0;
+                } else if data[y][x] > 4 {
+                    data[y][x] = 3;
                 }
             }
         }
@@ -602,7 +602,7 @@ impl<'a> MapPatcher<'a> {
                 2
             }
         } else {
-            3
+            13
         };
         match tile.interior {
             Interior::Empty => {}
@@ -706,17 +706,15 @@ impl<'a> MapPatcher<'a> {
         if door_edges.contains(&tile.left) {
             let color = self.get_door_color(tile.left);
             data[0][0] = 3;
-            data[1][0] = 4;
-            data[2][0] = color;
+            data[1][0] = 3;
+            data[2][0] = 12;
             data[3][0] = color;
             data[4][0] = color;
-            data[5][0] = color;
-            data[6][0] = 4;
+            data[5][0] = 12;    
+            data[6][0] = 3;
             data[7][0] = 3;
-            data[2][1] = 4;
             data[3][1] = 4;
             data[4][1] = 4;
-            data[5][1] = 4;
         } else {
             for &i in &self.edge_pixels_map[&tile.left] {
                 data[i][0] = 3;
@@ -726,17 +724,16 @@ impl<'a> MapPatcher<'a> {
         if door_edges.contains(&tile.right) {
             let color = self.get_door_color(tile.right);
             data[0][7] = 3;
-            data[1][7] = 4;
-            data[2][7] = color;
+            data[1][7] = 3;
+            data[2][7] = 12;
             data[3][7] = color;
             data[4][7] = color;
-            data[5][7] = color;
-            data[6][7] = 4;
+            data[5][7] = 12;
+            data[6][7] = 3;
             data[7][7] = 3;
-            data[2][6] = 4;
             data[3][6] = 4;
             data[4][6] = 4;
-            data[5][6] = 4;
+
         } else {
             for &i in &self.edge_pixels_map[&tile.right] {
                 data[i][7] = 3;
@@ -746,17 +743,15 @@ impl<'a> MapPatcher<'a> {
         if door_edges.contains(&tile.up) {
             let color = self.get_door_color(tile.up);
             data[0][0] = 3;
-            data[0][1] = 4;
-            data[0][2] = color;
+            data[0][1] = 3;
+            data[0][2] = 12;
             data[0][3] = color;
             data[0][4] = color;
-            data[0][5] = color;
-            data[0][6] = 4;
+            data[0][5] = 12;    
+            data[0][6] = 3;
             data[0][7] = 3;
-            data[1][2] = 4;
             data[1][3] = 4;
             data[1][4] = 4;
-            data[1][5] = 4;
         } else {
             for &i in &self.edge_pixels_map[&tile.up] {
                 data[0][i] = 3;
@@ -766,17 +761,15 @@ impl<'a> MapPatcher<'a> {
         if door_edges.contains(&tile.down) {
             let color = self.get_door_color(tile.down);
             data[7][0] = 3;
-            data[7][1] = 4;
-            data[7][2] = color;
+            data[7][1] = 3;
+            data[7][2] = 12;
             data[7][3] = color;
             data[7][4] = color;
-            data[7][5] = color;
-            data[7][6] = 4;
+            data[7][5] = 12;    
+            data[7][6] = 3;
             data[7][7] = 3;
-            data[6][2] = 4;
             data[6][3] = 4;
             data[6][4] = 4;
-            data[6][5] = 4;
         } else {
             for &i in &self.edge_pixels_map[&tile.down] {
                 data[7][i] = 3;
@@ -1940,6 +1933,8 @@ impl<'a> MapPatcher<'a> {
             (6, rgb(29, 15, 0)),   // Tourian,
             (15, rgb(18, 12, 14)), // Gray door
             (7, rgb(27, 7, 18)),   // Red (pink) door
+            (12, rgb(0, 0, 0)),    // Black (door lock shadows covering wall)
+            (13, rgb(31, 31, 31)), // White (item dots)
         ];
         // Dotted grid lines
         let i = 12;
@@ -1952,6 +1947,15 @@ impl<'a> MapPatcher<'a> {
                 .write_u16(snes2pc(0xB6F000) + 2 * (0x20 + i as usize), color as isize)?;
             self.rom
                 .write_u16(snes2pc(0xB6F000) + 2 * (0x60 + i as usize), color as isize)?;
+        }
+
+        // In partially revealed palette, hide room interior, item dots, and door locks setting them all to black:
+        for i in [1, 2, 4, 6, 7, 13, 14, 15] {
+            self.rom.write_u16(snes2pc(0xB6F000) + 2 * (0x30 + i as usize), rgb(0, 0, 0) as isize)?;
+        }
+        // In partially revealed palette, show walls/passage, and replace door lock shadows with white:
+        for i in [3, 12] {
+            self.rom.write_u16(snes2pc(0xB6F000) + 2 * (0x30 + i as usize), rgb(31, 31, 31) as isize)?;
         }
 
         // Set up arrows of different colors (one per area):

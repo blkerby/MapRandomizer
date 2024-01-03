@@ -112,6 +112,7 @@ fn run_scenario(
         escape_refill: true,
         escape_movement_items: true,
         mark_map_stations: true,
+        room_outline_revealed: true,
         transition_letters: false,
         item_markers: ItemMarkers::ThreeTiered,
         item_dot_change: ItemDotChange::Fade,
