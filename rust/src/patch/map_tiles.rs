@@ -1949,6 +1949,15 @@ impl<'a> MapPatcher<'a> {
                 .write_u16(snes2pc(0xB6F000) + 2 * (0x60 + i as usize), color as isize)?;
         }
 
+        // In partially revealed palette, hide room interior, item dots
+        for i in [1, 2, 4, 13] {
+            self.rom.write_u16(snes2pc(0xB6F000) + 2 * (0x30 + i as usize), rgb(0, 0, 0) as isize)?;
+        }
+        // In partially revealed palette, show walls/passage, and replace door lock shadows with white:
+        for i in [3, 12] {
+            self.rom.write_u16(snes2pc(0xB6F000) + 2 * (0x30 + 12 as usize), rgb(31, 31, 31) as isize)?;
+        }
+
         // Set up arrows of different colors (one per area):
         let area_arrow_colors: Vec<usize> = vec![
             11, // Crateria: purple (defined above)

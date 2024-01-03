@@ -236,6 +236,10 @@ fix_map_palette:
     sta $7EC0DE
     sta $7EC05E
 
+    ; Partially revealed tiles: black item dot color
+    lda #$0000
+    sta $7EC07A
+
     lda #$0000  ; run hi-jacked instruction
     rts
 
@@ -250,6 +254,10 @@ fix_equipment_palette:
     lda #$318C
     sta $7EC0DE
     sta $7EC05E
+
+    ; Fix colors used for partially revealed tiles on map screen
+    lda #$7FFF
+    sta $7EC07A
 
     lda #$0001 ; run hi-jacked instruction
     rts
