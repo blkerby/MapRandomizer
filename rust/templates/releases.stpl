@@ -14,9 +14,10 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release104">Version 105 (2024-01-02)</a>:
+<p><a id="release105">Version 105 (2024-01-03)</a>:
 <ul>
-<li>MSU now supports extended tracks (e.g. boss-specific music).
+<li>New quality-of-life option "Room outline revealed on entry" is added (enabled by default).
+<li>For MSU-1, extended tracks are now supported (e.g. boss-specific music).
 </ul>
 
 <p><a id="release104">Version 104 (2024-01-01)</a>:

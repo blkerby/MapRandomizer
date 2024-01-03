@@ -81,6 +81,7 @@ fn create_difficulty_from_preset(preset : &Preset) -> DifficultyConfig {
         // QoL (Default)
         item_markers: ItemMarkers::ThreeTiered,
         mark_map_stations: true,
+        room_outline_revealed: true,
         early_save: true,
         mother_brain_fight: MotherBrainFight::Short,
         supers_double: true,
@@ -205,6 +206,7 @@ fn set_item_progression_challenge(diff: &mut DifficultyConfig) -> () {
 fn set_qol_default(diff: &mut DifficultyConfig) -> () {
     diff.item_markers = ItemMarkers::ThreeTiered;
     diff.mark_map_stations = true;
+    diff.room_outline_revealed = true;
     diff.early_save = true;
     diff.mother_brain_fight = MotherBrainFight::Short;
     diff.supers_double = true;
@@ -228,6 +230,7 @@ fn set_qol_default(diff: &mut DifficultyConfig) -> () {
 fn set_qol_max(diff: &mut DifficultyConfig) -> () {
     diff.item_markers = ItemMarkers::ThreeTiered;
     diff.mark_map_stations = true;
+    diff.room_outline_revealed = true;
     diff.early_save = true;
     diff.mother_brain_fight = MotherBrainFight::Skip;
     diff.supers_double = true;
@@ -251,6 +254,7 @@ fn set_qol_max(diff: &mut DifficultyConfig) -> () {
 fn set_qol_low(diff: &mut DifficultyConfig) -> () {
     diff.item_markers = ItemMarkers::Uniques;
     diff.mark_map_stations = true;
+    diff.room_outline_revealed = false;
     diff.early_save = false;
     diff.mother_brain_fight = MotherBrainFight::Short;
     diff.supers_double = true;
@@ -274,6 +278,7 @@ fn set_qol_low(diff: &mut DifficultyConfig) -> () {
 fn set_qol_off(diff: &mut DifficultyConfig) -> () {
     diff.item_markers = ItemMarkers::Simple;
     diff.mark_map_stations = false;
+    diff.room_outline_revealed = false;
     diff.early_save = false;
     diff.mother_brain_fight = MotherBrainFight::Vanilla;
     diff.supers_double = false;

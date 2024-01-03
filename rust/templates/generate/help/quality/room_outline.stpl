@@ -15,7 +15,9 @@
         <p>If enabled, entering a room causes the outline of the room to be revealed in the pause map. 
         Tiles which have only been revealed in this way are shown in the pause map with a black interior.
         Room details such as item dots or door locks are not shown. This feature is limited to the pause map 
-        and has no effect on the HUD mini-map.
+        and has no effect on the HUD mini-map.</p>
+        <p>This option can make it easier for players to remember the rooms they have visited and to see
+        how they connect.
         </p>
       </div>
       <div class="modal-footer">
