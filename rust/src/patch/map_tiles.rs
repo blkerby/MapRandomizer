@@ -318,10 +318,10 @@ impl<'a> MapPatcher<'a> {
         };
         for y in 0..8 {
             for x in 0..8 {
-                if data[y][x] > 4 {
-                    data[y][x] = 3;
-                } else if data[y][x] == 4 {
+                if data[y][x] == 4 || data[y][x] == 12 {
                     data[y][x] = 0;
+                } else if data[y][x] > 4 {
+                    data[y][x] = 3;
                 }
             }
         }
@@ -602,7 +602,7 @@ impl<'a> MapPatcher<'a> {
                 2
             }
         } else {
-            3
+            13
         };
         match tile.interior {
             Interior::Empty => {}
@@ -707,10 +707,10 @@ impl<'a> MapPatcher<'a> {
             let color = self.get_door_color(tile.left);
             data[0][0] = 3;
             data[1][0] = 3;
-            data[2][0] = 4;
+            data[2][0] = 12;
             data[3][0] = color;
             data[4][0] = color;
-            data[5][0] = 4;
+            data[5][0] = 12;
             data[6][0] = 3;
             data[7][0] = 3;
             data[3][1] = 4;
@@ -725,10 +725,10 @@ impl<'a> MapPatcher<'a> {
             let color = self.get_door_color(tile.right);
             data[0][7] = 3;
             data[1][7] = 3;
-            data[2][7] = 4;
+            data[2][7] = 12;
             data[3][7] = color;
             data[4][7] = color;
-            data[5][7] = 4;
+            data[5][7] = 12;
             data[6][7] = 3;
             data[7][7] = 3;
             data[3][6] = 4;
@@ -744,10 +744,10 @@ impl<'a> MapPatcher<'a> {
             let color = self.get_door_color(tile.up);
             data[0][0] = 3;
             data[0][1] = 3;
-            data[0][2] = 4;
+            data[0][2] = 12;
             data[0][3] = color;
             data[0][4] = color;
-            data[0][5] = 4;
+            data[0][5] = 12;
             data[0][6] = 3;
             data[0][7] = 3;
             data[1][3] = 4;
@@ -762,10 +762,10 @@ impl<'a> MapPatcher<'a> {
             let color = self.get_door_color(tile.down);
             data[7][0] = 3;
             data[7][1] = 3;
-            data[7][2] = 4;
+            data[7][2] = 12;
             data[7][3] = color;
             data[7][4] = color;
-            data[7][5] = 4;
+            data[7][5] = 12;
             data[7][6] = 3;
             data[7][7] = 3;
             data[6][3] = 4;
@@ -1933,6 +1933,8 @@ impl<'a> MapPatcher<'a> {
             (6, rgb(29, 15, 0)),   // Tourian,
             (15, rgb(18, 12, 14)), // Gray door
             (7, rgb(27, 7, 18)),   // Red (pink) door
+            (12, rgb(0, 0, 0)),    // Black (door lock shadows covering wall)
+            (13, rgb(31, 31, 31)), // White (item dots)
         ];
         // Dotted grid lines
         let i = 12;

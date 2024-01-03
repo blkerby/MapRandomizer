@@ -37,7 +37,7 @@ lorom
 ; 10: red: norfair arrow
 ; 11: purple: crateria arrow
 ; 12: white (item dots)
-; 13: black (door lock shadows)
+; 13: black (door lock shadows covering wall)
 ; 14: green door, brinstar arrows
 ; 15: gray door
 

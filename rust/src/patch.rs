@@ -1417,6 +1417,7 @@ impl<'a> Patcher<'a> {
             title_patcher.patch_title_foreground()?;
             title_patcher.patch_title_gradient()?;
             title_patcher.patch_title_blue_light()?;
+            println!("Title screen data end: {:x}", title_patcher.next_free_space_pc);
             return Ok(());
         }
     }
@@ -1890,7 +1891,6 @@ impl<'a> Patcher<'a> {
 
         for (&room_ptr, asm) in &self.extra_setup_asm {
             for (_, state_ptr) in get_room_state_ptrs(&self.rom, room_ptr)? {
-                println!("next_addr: {:x}", next_addr);
                 let mut asm = asm.clone();
                 asm.push(0x60); // RTS
                 self.rom.write_n(next_addr, &asm)?;
@@ -1899,6 +1899,7 @@ impl<'a> Patcher<'a> {
                 next_addr += asm.len();
             }
         }
+        println!("extra setup ASM end: {:x}", next_addr);
         assert!(next_addr <= snes2pc(0xB8FFFF));
         // assert!(next_addr <= snes2pc(0xB5FF00));
 
