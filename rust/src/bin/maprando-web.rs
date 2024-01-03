@@ -230,6 +230,7 @@ struct RandomizeRequest {
     escape_refill: Text<bool>,
     escape_movement_items: Text<bool>,
     mark_map_stations: Text<bool>,
+    room_outline_revealed: Text<bool>,
     transition_letters: Text<bool>,
     item_markers: Text<String>,
     item_dot_change: Text<String>,
@@ -1019,6 +1020,7 @@ fn get_difficulty_tiers(
             escape_refill: difficulty.escape_refill,
             escape_movement_items: difficulty.escape_movement_items,
             mark_map_stations: difficulty.mark_map_stations,
+            room_outline_revealed: difficulty.room_outline_revealed,
             transition_letters: difficulty.transition_letters,
             item_markers: difficulty.item_markers,
             item_dot_change: difficulty.item_dot_change,
@@ -1236,6 +1238,7 @@ async fn randomize(
         escape_refill: req.escape_refill.0,
         escape_movement_items: req.escape_movement_items.0,
         mark_map_stations: req.mark_map_stations.0,
+        room_outline_revealed: req.room_outline_revealed.0,
         transition_letters: req.transition_letters.0,
         item_markers: match req.item_markers.0.as_str() {
             "Simple" => ItemMarkers::Simple,

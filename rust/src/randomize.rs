@@ -155,6 +155,7 @@ pub struct DifficultyConfig {
     pub escape_refill: bool,
     pub escape_enemies_cleared: bool,
     pub mark_map_stations: bool,
+    pub room_outline_revealed: bool,
     pub transition_letters: bool,
     pub item_markers: ItemMarkers,
     pub item_dot_change: ItemDotChange,

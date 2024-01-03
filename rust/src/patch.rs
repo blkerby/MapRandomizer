@@ -1956,7 +1956,7 @@ impl<'a> Patcher<'a> {
     fn apply_room_outline(&mut self) -> Result<()> {
         for (room_idx, room) in self.game_data.room_geometry.iter().enumerate() {
             let room_ptr = room.rom_address;
-            let mut room_x = self.rom.read_u8(room_ptr + 2)?;
+            let room_x = self.rom.read_u8(room_ptr + 2)?;
             let mut room_y = self.rom.read_u8(room_ptr + 3)?;
             if room.rom_address == 0x7D5A7 {
                 // Aqueduct
@@ -1971,8 +1971,8 @@ impl<'a> Patcher<'a> {
                     }
                     let (offset, bitmask) = xy_to_explored_bit_ptr(room_x + x as isize, room_y + y as isize);
 
-                    // Mark as revealed (which will persist after deaths/reloads):
-                    let addr = 0x2000 + (area as isize) * 0x100 + offset;
+                    // Mark as partially revealed (which will persist after deaths/reloads):
+                    let addr = 0x2700 + (area as isize) * 0x100 + offset;
                     asm.extend([0xAF, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // LDA $70:{addr}
                     asm.extend([0x09, bitmask, 0x00]); // ORA #{bitmask}
                     asm.extend([0x8F, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // STA $70:{addr}
@@ -2057,7 +2057,9 @@ pub fn make_rom(
     patcher.apply_seed_hash()?;
     patcher.apply_credits()?;
     patcher.apply_hazard_markers()?;
-    patcher.apply_room_outline()?;
+    if randomization.difficulty.room_outline_revealed {
+        patcher.apply_room_outline()?;
+    }
     patcher.apply_extra_setup_asm()?;
     Ok(rom)
 }

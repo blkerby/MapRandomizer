@@ -341,6 +341,7 @@ fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
         escape_refill: true,
         escape_enemies_cleared: true,
         mark_map_stations: true,
+        room_outline_revealed: true,
         transition_letters: false,
         item_markers: crate::randomize::ItemMarkers::ThreeTiered,
         item_dot_change: crate::randomize::ItemDotChange::Fade,

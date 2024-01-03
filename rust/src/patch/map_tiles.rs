@@ -710,7 +710,7 @@ impl<'a> MapPatcher<'a> {
             data[2][0] = 12;
             data[3][0] = color;
             data[4][0] = color;
-            data[5][0] = 12;
+            data[5][0] = 12;    
             data[6][0] = 3;
             data[7][0] = 3;
             data[3][1] = 4;
@@ -747,7 +747,7 @@ impl<'a> MapPatcher<'a> {
             data[0][2] = 12;
             data[0][3] = color;
             data[0][4] = color;
-            data[0][5] = 12;
+            data[0][5] = 12;    
             data[0][6] = 3;
             data[0][7] = 3;
             data[1][3] = 4;
@@ -765,7 +765,7 @@ impl<'a> MapPatcher<'a> {
             data[7][2] = 12;
             data[7][3] = color;
             data[7][4] = color;
-            data[7][5] = 12;
+            data[7][5] = 12;    
             data[7][6] = 3;
             data[7][7] = 3;
             data[6][3] = 4;
@@ -1949,13 +1949,13 @@ impl<'a> MapPatcher<'a> {
                 .write_u16(snes2pc(0xB6F000) + 2 * (0x60 + i as usize), color as isize)?;
         }
 
-        // In partially revealed palette, hide room interior, item dots
-        for i in [1, 2, 4, 13] {
+        // In partially revealed palette, hide room interior, item dots, and door locks setting them all to black:
+        for i in [1, 2, 4, 6, 7, 13, 14, 15] {
             self.rom.write_u16(snes2pc(0xB6F000) + 2 * (0x30 + i as usize), rgb(0, 0, 0) as isize)?;
         }
         // In partially revealed palette, show walls/passage, and replace door lock shadows with white:
         for i in [3, 12] {
-            self.rom.write_u16(snes2pc(0xB6F000) + 2 * (0x30 + 12 as usize), rgb(31, 31, 31) as isize)?;
+            self.rom.write_u16(snes2pc(0xB6F000) + 2 * (0x30 + i as usize), rgb(31, 31, 31) as isize)?;
         }
 
         // Set up arrows of different colors (one per area):

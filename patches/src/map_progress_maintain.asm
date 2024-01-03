@@ -83,6 +83,11 @@ mark_tile_explored_hook:
     ora $AC04,y
     sta $702000,x
 
+    ; Also mark tile partial revealed (persists after deaths/reloads)
+    lda $702700,x
+    ora $AC04,y
+    sta $702700,x
+
     rts
 
 warnpc !bank_90_freespace_end
@@ -136,6 +141,8 @@ org $82945C      ; We keep this instruction in the same place so that item_dots_
     STA $06
     LDA $702000, x         ; load first set of map tile revealed bits (persisted across deaths/reloads)
     STA $26
+    LDA $702700, x         ; load first set of map tile partial revealed bits (persisted across deaths/reloads)
+    STA $28
 
     CLC
 
@@ -145,6 +152,9 @@ org $82945C      ; We keep this instruction in the same place so that item_dots_
     BCS .BRANCH_EXPLORED_MAP_TILE ;} If [$07F7 + [X]] & 80h >> [$12] != 0: go to BRANCH_EXPLORED_MAP_TILE
     ROL $26
     BCS .BRANCH_REVEALED_MAP_TILE
+    ROL $28
+    BCS .BRANCH_PARTIAL_REVEALED_MAP_TILE
+
     REP #$20
     LDA #$001F             ;\
     STA [$03],y            ;} [$03] + [Y] = 001Fh (blank tile)
@@ -163,21 +173,33 @@ org $82945C      ; We keep this instruction in the same place so that item_dots_
     sta $06
     lda $702000, x         ; load next set of map tile revealed bits (persisted across deaths/reloads)
     sta $26
+    lda $702700, x         ; load next set of map tile partial revealed bits (persisted across deaths/reloads)
+    sta $28
     txa
     bne .LOOP_WITHOUT_MAP_DATA     ;} If [X] % $100 != 0: go to LOOP
     PLP
     RTS                    ; Return
 
 .BRANCH_REVEALED_MAP_TILE:
+    ROL $28
     REP #$30
     LDA [$00],y            ;\
     STA [$03],y            ;/
     BRA .BRANCH_NEXT_WITHOUT_MAP_DATA     ; Go to BRANCH_NEXT_WITHOUT_MAP_DATA
 
-.BRANCH_EXPLORED_MAP_TILE:
-    ROL $26
+.BRANCH_PARTIAL_REVEALED_MAP_TILE:
     REP #$30
     LDA [$00],y            ;\
+    AND #$EFFF             ; Use palette 3 (instead of 6)
+    ORA #$0400             ; 
+    STA [$03],y            ;/
+    BRA .BRANCH_NEXT_WITHOUT_MAP_DATA     ; Go to BRANCH_NEXT_WITHOUT_MAP_DATA
+
+.BRANCH_EXPLORED_MAP_TILE:
+    ROL $26
+    ROL $28
+    REP #$30
+    LDA [$00],y            ;\ Use palette 2 (instead of 6)
     AND #$EFFF             ;} [$03] + [Y] = [[$00] + [Y]] & ~1000h
     STA [$03],y            ;/
     BRA .BRANCH_NEXT_WITHOUT_MAP_DATA     ; Go to BRANCH_NEXT_WITHOUT_MAP_DATA
@@ -248,12 +270,12 @@ org $90AAAC : BRA $03   ; Row 0
 org $90AAD3 : BRA $03   ; Row 1
 org $90AB10 : BRA $03   ; Row 2
 
-; Patch "Determine map scroll limits" to be based on map revealed bits instead of map explored bits:
+; Patch "Determine map scroll limits" to be based on map partial revealed bits instead of map explored bits:
 org $829EC6
     lda $1F5B
     clc
     xba
-    adc #$2000
+    adc #$2700
     sta $06
     lda #$0070
     sta $08         ; $06 <- $702000 + area index * $100

@@ -88,6 +88,7 @@ startup:
     dex
     lda $B5F000, X
     sta $702000, X
+    sta $702700, X  ; partially revealed tiles
     txa
     bne .copy_revealed
 

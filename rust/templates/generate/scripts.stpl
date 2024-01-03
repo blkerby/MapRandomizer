@@ -129,6 +129,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("escapeRefillNo").checked = true;
         document.getElementById("escapeEnemiesClearedNo").checked = true;
         document.getElementById("markMapStationsNo").checked = true;
+        document.getElementById("roomOutlineRevealedNo").checked = true;
         document.getElementById("itemMarkersSimple").checked = true;
         document.getElementById("earlySaveNo").checked = true;
         document.getElementById("allItemsSpawnNo").checked = true;
@@ -150,6 +151,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("escapeRefillNo").checked = true;
         document.getElementById("escapeEnemiesClearedNo").checked = true;
         document.getElementById("markMapStationsYes").checked = true;
+        document.getElementById("roomOutlineRevealedNo").checked = true;
         document.getElementById("itemMarkersUniques").checked = true;
         document.getElementById("earlySaveNo").checked = true;
         document.getElementById("allItemsSpawnNo").checked = true;
@@ -169,6 +171,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("escapeRefillYes").checked = true;
         document.getElementById("escapeEnemiesClearedYes").checked = true;
         document.getElementById("markMapStationsYes").checked = true;
+        document.getElementById("roomOutlineRevealedYes").checked = true;
         document.getElementById("itemMarkersThreeTiered").checked = true;
         document.getElementById("earlySaveYes").checked = true;
         document.getElementById("allItemsSpawnYes").checked = true;
@@ -188,6 +191,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("escapeRefillYes").checked = true;
         document.getElementById("escapeEnemiesClearedYes").checked = true;
         document.getElementById("markMapStationsYes").checked = true;
+        document.getElementById("roomOutlineRevealedYes").checked = true;
         document.getElementById("itemMarkersThreeTiered").checked = true;
         document.getElementById("earlySaveYes").checked = true;
         document.getElementById("allItemsSpawnYes").checked = true;

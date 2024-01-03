@@ -35,6 +35,19 @@
 
                 <div class="form-group row align-items-center">
                     <div class="col-lg-6 col-xl-5 m-2">
+                        <% include!("help/quality/room_outline.stpl"); %>
+                        <label for="preset">Room outline revealed on entry</label>
+                    </div>
+                    <div class="col-2 btn-group m-2" role="group">
+                        <input type="radio" class="btn-check" name="room_outline_revealed" id="roomOutlineRevealedNo" value="false">
+                        <label class="btn btn-outline-primary" for="roomOutlineRevealedNo">No</label>
+                        <input type="radio" class="btn-check" name="room_outline_revealed" id="roomOutlineRevealedYes" value="true" checked>
+                        <label class="btn btn-outline-primary" for="roomOutlineRevealedYes">Yes</label>
+                    </div>
+                </div>
+
+                <div class="form-group row align-items-center">
+                    <div class="col-lg-6 col-xl-5 m-2">
                         <% include!("help/quality/early_save.stpl"); %>
                         <label for="preset">Guaranteed early save station</label>
                     </div>
