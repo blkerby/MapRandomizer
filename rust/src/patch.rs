@@ -1885,8 +1885,8 @@ impl<'a> Patcher<'a> {
         // extra setup ASM pointer.
         self.rom.write_u16(snes2pc(0x8f985f), 0x0000)?;
 
-        // let mut next_addr = snes2pc(0xB5F800);
-        let mut next_addr = snes2pc(0xE99000);
+        let mut next_addr = snes2pc(0xB88100);
+        // let mut next_addr = snes2pc(0xE98400);
 
         for (&room_ptr, asm) in &self.extra_setup_asm {
             for (_, state_ptr) in get_room_state_ptrs(&self.rom, room_ptr)? {
@@ -1895,11 +1895,11 @@ impl<'a> Patcher<'a> {
                 asm.push(0x60); // RTS
                 self.rom.write_n(next_addr, &asm)?;
                 self.rom
-                    .write_u16(state_ptr + 16, (next_addr & 0xFFFF) as isize)?;
+                    .write_u16(state_ptr + 16, (pc2snes(next_addr) & 0xFFFF) as isize)?;
                 next_addr += asm.len();
             }
         }
-        assert!(next_addr <= snes2pc(0xE9FFFF));
+        assert!(next_addr <= snes2pc(0xB8FFFF));
         // assert!(next_addr <= snes2pc(0xB5FF00));
 
         Ok(())
@@ -1955,8 +1955,12 @@ impl<'a> Patcher<'a> {
     fn apply_room_outline(&mut self) -> Result<()> {
         for (room_idx, room) in self.game_data.room_geometry.iter().enumerate() {
             let room_ptr = room.rom_address;
-            let room_x = self.rom.read_u8(room_ptr + 2)?;
-            let room_y = self.rom.read_u8(room_ptr + 3)?;
+            let mut room_x = self.rom.read_u8(room_ptr + 2)?;
+            let mut room_y = self.rom.read_u8(room_ptr + 3)?;
+            if room.rom_address == 0x7D5A7 {
+                // Aqueduct
+                room_y -= 4;
+            }
             let area = self.map.area[room_idx];
             let mut asm: Vec<u8> = vec![];
             for y in 0..room.map.len() {
@@ -1974,8 +1978,12 @@ impl<'a> Patcher<'a> {
                     // println!("{:x} {} {}", room_ptr, x, y);
                 }
             }
-            asm.extend([0xEE, 0xC8, 0x09]);  // for testing: inc max missiles
-            self.extra_setup_asm.entry(room_ptr).or_insert(vec![]).extend(asm);
+
+            self.extra_setup_asm.entry(room_ptr).or_insert(vec![]).extend(asm.clone());
+            if let Some(twin_rom_address) = room.twin_rom_address {
+                // Apply same setup ASM to twin rooms (Homing Geemer Room and East Pants Room):
+                self.extra_setup_asm.entry(twin_rom_address).or_insert(vec![]).extend(asm);
+            }
         }
         Ok(())
     }

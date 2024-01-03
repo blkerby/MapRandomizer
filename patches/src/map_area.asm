@@ -21,6 +21,27 @@ lorom
 !unexplored_light_gray = #$4631
 !area_explored_mask = $702600
 
+
+; pause map colors for palettes 2 (explored) and 6 (unexplored):
+; 
+; 0: transparent (black, but grid lines from layer 2 can show through)
+; 1: cool room color (dark gray for unexplored, or dark area-themed color for explored)
+; 2: hot room color (ligh gray for unexplored, or light area-themed color for explored)
+; 3: white (walls/passages)
+; 4: black
+; 5: unused
+; 6: orange door, tourian arrow
+; 7: pink door
+; 8: blue: maridia arrow
+; 9: yellow: wrecked ship arrow
+; 10: red: norfair arrow
+; 11: purple: crateria arrow
+; 12: white (item dots)
+; 13: black (door lock shadows)
+; 14: green door, brinstar arrows
+; 15: gray door
+
+
 ;;; Hijack map usages of area ($079F) with new area ($1F5B)
 org $8085A7  ; Load mirror of current area's map explored
     ldx $1F5B

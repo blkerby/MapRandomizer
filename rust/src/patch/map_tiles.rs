@@ -706,17 +706,15 @@ impl<'a> MapPatcher<'a> {
         if door_edges.contains(&tile.left) {
             let color = self.get_door_color(tile.left);
             data[0][0] = 3;
-            data[1][0] = 4;
-            data[2][0] = color;
+            data[1][0] = 3;
+            data[2][0] = 4;
             data[3][0] = color;
             data[4][0] = color;
-            data[5][0] = color;
-            data[6][0] = 4;
+            data[5][0] = 4;
+            data[6][0] = 3;
             data[7][0] = 3;
-            data[2][1] = 4;
             data[3][1] = 4;
             data[4][1] = 4;
-            data[5][1] = 4;
         } else {
             for &i in &self.edge_pixels_map[&tile.left] {
                 data[i][0] = 3;
@@ -726,17 +724,16 @@ impl<'a> MapPatcher<'a> {
         if door_edges.contains(&tile.right) {
             let color = self.get_door_color(tile.right);
             data[0][7] = 3;
-            data[1][7] = 4;
-            data[2][7] = color;
+            data[1][7] = 3;
+            data[2][7] = 4;
             data[3][7] = color;
             data[4][7] = color;
-            data[5][7] = color;
-            data[6][7] = 4;
+            data[5][7] = 4;
+            data[6][7] = 3;
             data[7][7] = 3;
-            data[2][6] = 4;
             data[3][6] = 4;
             data[4][6] = 4;
-            data[5][6] = 4;
+
         } else {
             for &i in &self.edge_pixels_map[&tile.right] {
                 data[i][7] = 3;
@@ -746,17 +743,15 @@ impl<'a> MapPatcher<'a> {
         if door_edges.contains(&tile.up) {
             let color = self.get_door_color(tile.up);
             data[0][0] = 3;
-            data[0][1] = 4;
-            data[0][2] = color;
+            data[0][1] = 3;
+            data[0][2] = 4;
             data[0][3] = color;
             data[0][4] = color;
-            data[0][5] = color;
-            data[0][6] = 4;
+            data[0][5] = 4;
+            data[0][6] = 3;
             data[0][7] = 3;
-            data[1][2] = 4;
             data[1][3] = 4;
             data[1][4] = 4;
-            data[1][5] = 4;
         } else {
             for &i in &self.edge_pixels_map[&tile.up] {
                 data[0][i] = 3;
@@ -766,17 +761,15 @@ impl<'a> MapPatcher<'a> {
         if door_edges.contains(&tile.down) {
             let color = self.get_door_color(tile.down);
             data[7][0] = 3;
-            data[7][1] = 4;
-            data[7][2] = color;
+            data[7][1] = 3;
+            data[7][2] = 4;
             data[7][3] = color;
             data[7][4] = color;
-            data[7][5] = color;
-            data[7][6] = 4;
+            data[7][5] = 4;
+            data[7][6] = 3;
             data[7][7] = 3;
-            data[6][2] = 4;
             data[6][3] = 4;
             data[6][4] = 4;
-            data[6][5] = 4;
         } else {
             for &i in &self.edge_pixels_map[&tile.down] {
                 data[7][i] = 3;
