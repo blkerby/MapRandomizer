@@ -63,6 +63,7 @@ activate_map_station_hook:
 .loop    
     lda #$FFFF
     sta $702000, x
+    sta $702700, x
     inx
     inx
     dey

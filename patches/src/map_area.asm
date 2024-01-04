@@ -40,6 +40,10 @@ lorom
 ; 13: black (door lock shadows covering wall)
 ; 14: green door, brinstar arrows
 ; 15: gray door
+;
+; Palette 3 is used for partially revealed tiles (i.e. showing outline of visited rooms),
+; and essentially replaces all colors with black except for 3 (which remains white) and
+; 13, which becomes white in order to not give away the presence of a door lock.
 
 
 ;;; Hijack map usages of area ($079F) with new area ($1F5B)
