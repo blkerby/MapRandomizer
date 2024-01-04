@@ -1953,9 +1953,9 @@ impl<'a> MapPatcher<'a> {
         for i in [1, 2, 4, 6, 7, 13, 14, 15] {
             self.rom.write_u16(snes2pc(0xB6F000) + 2 * (0x30 + i as usize), rgb(0, 0, 0) as isize)?;
         }
-        // In partially revealed palette, show walls/passage, and replace door lock shadows with white:
+        // In partially revealed palette, show walls/passages (as gray), and eliminate the door lock shadows covering walls:
         for i in [3, 12] {
-            self.rom.write_u16(snes2pc(0xB6F000) + 2 * (0x30 + i as usize), rgb(31, 31, 31) as isize)?;
+            self.rom.write_u16(snes2pc(0xB6F000) + 2 * (0x30 + i as usize), rgb(16, 16, 16) as isize)?;
         }
 
         // Set up arrows of different colors (one per area):
