@@ -18,14 +18,14 @@ document.getElementById("navigation-releases").classList.add("active");
 <ul>
 <li>New quality-of-life option "Room outline revealed on entry" is added (enabled by default).
     <ul>
-    <li>When enabled, entering a room causes all tiles in the room to be partially revealed in the pause map.
+    <li>When enabled, entering a room partially reveals all its tiles in the pause map.
     <li>Partially revealed tiles show the room outline but not details such as item dots or door locks.
     </ul>
 <li>Map behavior in boss rooms is cleaned up:
     <ul>
-    <li>Entering boss rooms no longer causes other tiles in the room to become automatically explored.
-    <li>As with other rooms, they will still be partially revealed if the option "Room outline revealed on entry" is enabled.
-    <li>Tiles in a boss room can now become explored by entering them, even when the mini-map is disabled.
+    <li>Entering boss rooms no longer causes other tiles in the room to become auto-explored.
+    <li>They will still be partially revealed if the option "Room outline revealed on entry" is enabled.
+    <li>Boss room tiles become explored by entering them, even if the mini-map is disabled.
     </ul>
 <li>Locked doors are drawn using using smaller markers on the map.
     <ul>
