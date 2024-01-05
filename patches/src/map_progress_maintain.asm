@@ -23,13 +23,19 @@ org $848CA6
     jsl activate_map_station_hook
     nop : nop
 
-; Hook for normal routine to mark tiles explored (at current Samus location)
-org $90A98B
-    jsr mark_progress
+; Continue marking map tiles revealed/explored even if mini-map is disabled:
+org $90A923
+    nop : nop
 
-; Hook for special routine to mark tiles (used when entering boss rooms)
-org $90A8E8
-    jsr mark_tile_explored_hook
+; Hook for normal routine to mark tiles explored (at current Samus location)
+; This will also check if mini-map is disabled, and if so, skip the rest of the mini-map drawing routine.
+org $90A98B
+    jmp mark_progress
+
+; Disable routine that marks tiles explored (used in vanilla game when entering boss rooms)
+; It's obsoleted by the randomizer's more general "room outline" option
+org $90A8A6
+    rts
 
 org !bank_90_freespace_start
 mark_progress:
@@ -48,9 +54,19 @@ mark_progress:
     ora $AC04,y         ; A |= $80 >> Y
     sta $702000,x
 
+    lda $702700,x
+    ora $AC04,y         ; A |= $80 >> Y
+    sta $702700,x
+
     plx
     rep #$30 : dex  ; run hi-jacked instructions
-    rts
+
+    lda $05F7
+    bne .minimap_disabled
+    jmp $A98E
+.minimap_disabled:
+    plp
+    rtl
 
 ; When map station is activated, fill all map revealed bits for the area:
 activate_map_station_hook:
@@ -70,26 +86,6 @@ activate_map_station_hook:
     bne .loop
     
     rtl
-
-
-mark_tile_explored_hook:
-    STA $07F7,x   ; run hi-jacked instruction (mark tile explored)
-
-    ; Also mark tile revealed (persists after deaths/reloads)
-    lda $1F5B  ; load current area
-    xba
-    txa  ; only low 8-bits of X transferred to low 8 bits of A
-    tax  ; full 16-bits of A transferred to X:  X <- area * $100 + offset
-    lda $702000,x
-    ora $AC04,y
-    sta $702000,x
-
-    ; Also mark tile partial revealed (persists after deaths/reloads)
-    lda $702700,x
-    ora $AC04,y
-    sta $702700,x
-
-    rts
 
 warnpc !bank_90_freespace_end
 
