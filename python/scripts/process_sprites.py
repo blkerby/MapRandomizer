@@ -1,8 +1,8 @@
+import logging
 import json
 import argparse
 import os
 import ips_util
-import logging
 from PIL import Image
 
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
@@ -79,6 +79,7 @@ def create_patches():
         sprite_sheet_filename = sprite_json['name'] + '.png'
         output_patch_filename = sprite_json['name'] + '.ips'
         tmpfile = "/tmp/out.sfc"
+        logging.info("Processing {}".format(sprite_sheet_filename))
         os.system("python SpriteSomething.py "
                   "--cli=1 --mode=inject-new "
                   f"--sprite=../{sprite_path}/{sprite_sheet_filename} "
@@ -89,7 +90,7 @@ def create_patches():
     os.chdir("..")
 
 
-# create_static_thumbnails()
-# create_animated_thumbnails()
-create_patches()
+create_static_thumbnails()
+create_animated_thumbnails()
+# create_patches()
 logging.info("Done!")
