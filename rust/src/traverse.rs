@@ -959,6 +959,13 @@ pub fn apply_requirement(
                 None
             }
         }
+        Requirement::ShineChargeLeniencyFrames(frames) => {
+            if difficulty.shinecharge_leniency_frames <= *frames {
+                Some(local)
+            } else {
+                None
+            }
+        }
         Requirement::Shinespark {
             frames,
             excess_frames,

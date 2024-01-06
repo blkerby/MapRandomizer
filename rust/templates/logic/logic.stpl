@@ -37,7 +37,10 @@ document.getElementById("navigation-logic").classList.add("active");
         </div>
 
         <div class="col-lg-6">
-            <% for (tech_difficulty_idx, tech_difficulty_name) in tech_difficulties.iter().enumerate() { %>
+            <% for (tech_difficulty_idx, tech_difficulty_name) in tech_difficulties.iter().enumerate() {
+                if tech_difficulty_name == "Beyond" {
+                    continue;
+                } %>
                 <div class="card my-2" id="<%= tech_difficulty_name.replace(" ", "") %>Tech">
                     <div class="card-header">
                     <%= tech_difficulty_name %> Tech

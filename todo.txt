@@ -6,7 +6,8 @@ v106:
 
 v105:
 - DONE: room outline option
-- drop boss room behavior that explores 
+- DONE: drop boss room behavior that explores 
+- DONE: add lenience for cross-room shinecharge frames
 
 priority:
 - set up functional testing to check seed generation succeeds in reasonable time across random settings. (aquanight is working on this)

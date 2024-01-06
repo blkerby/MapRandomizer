@@ -24,6 +24,15 @@
                 </div>
             </div>
 
+            <div class="form-group row m-2">
+                <label for="shinechargeLeniencyFrames" class="col-sm-6 col-form-label">Shinecharge leniency frames<br>
+                <small>(Extra time assumed needed to position to activate a shinespark)</small>
+                </label>
+                <div class="col-sm-2 my-2">
+                    <input type="text" class="form-control" name="shinecharge_leniency_frames" id="shinechargeLeniencyFrames" value="120" onchange="techChanged()">
+                </div>
+            </div>
+
             <div class="card m-3">
                 <div class="card-header">
                     Leniency

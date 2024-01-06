@@ -14,7 +14,7 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release105">Version 105 (2024-01-04)</a>:
+<p><a id="release105">Version 105 (2024-01-05)</a>:
 <ul>
 <li>New quality-of-life option "Room outline revealed on entry" is added (enabled by default).
     <ul>
@@ -33,6 +33,10 @@ document.getElementById("navigation-releases").classList.add("active");
     <li>The size is now consistent with the normal size of doors on the map.
     </ul>
 <li>For MSU-1, extended tracks are now supported (e.g. boss-specific music).
+<li>New setting "Shinecharge leniency frames" is added (under "Skill Assumptions"):
+    <ul>
+    <li>This applies to strats that gain a shinecharge and use it in another room.
+    </ul>
 </ul>
 
 <p><a id="release104">Version 104 (2024-01-01)</a>:

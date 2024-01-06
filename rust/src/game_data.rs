@@ -126,6 +126,7 @@ pub enum Requirement {
         used_tiles: f32,
         heated: bool,
     },
+    ShineChargeLeniencyFrames(i32),
     Shinespark {
         shinespark_tech_id: usize,
         frames: i32,

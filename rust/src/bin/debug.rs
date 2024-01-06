@@ -88,6 +88,7 @@ fn run_scenario(
         notable_strats: vec![],
         shine_charge_tiles: 16.0,
         heated_shine_charge_tiles: 16.0,
+        shinecharge_leniency_frames: 15,
         progression_rate: ProgressionRate::Uniform,
         random_tank: true,
         semi_filler_items: vec![],

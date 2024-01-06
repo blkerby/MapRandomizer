@@ -3,6 +3,14 @@
     <div class="col-5 col-sm-6 col-md-7 col-lg-8"><%= difficulty.shine_charge_tiles %></div>
 </div>
 <div class="row">
+    <div class="col-7 col-sm-6 col-md-5 col-lg-4">Heated shinecharge tiles:</div>
+    <div class="col-5 col-sm-6 col-md-7 col-lg-8"><%= difficulty.heated_shine_charge_tiles %></div>
+</div>
+<div class="row">
+    <div class="col-7 col-sm-6 col-md-5 col-lg-4">Shinecharge leniency frames:</div>
+    <div class="col-5 col-sm-6 col-md-7 col-lg-8"><%= difficulty.shinecharge_leniency_frames %></div>
+</div>
+<div class="row">
     <div class="col-7 col-sm-6 col-md-5 col-lg-4">Heat damage multiplier:</div>
     <div class="col-5 col-sm-6 col-md-7 col-lg-8"><%= difficulty.resource_multiplier %></div>
 </div>

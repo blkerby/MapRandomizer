@@ -133,6 +133,7 @@ pub struct DifficultyConfig {
     // pub notable_strats: Vec<String>,
     pub shine_charge_tiles: f32,
     pub heated_shine_charge_tiles: f32,
+    pub shinecharge_leniency_frames: i32,
     pub progression_rate: ProgressionRate,
     pub random_tank: bool,
     pub item_placement_style: ItemPlacementStyle,
@@ -654,7 +655,7 @@ impl<'a> Preprocessor<'a> {
                 if frames_remaining < frames_required {
                     None
                 } else {
-                    Some(Requirement::Free)
+                    Some(Requirement::ShineChargeLeniencyFrames(frames_remaining - frames_required))
                 }
             }
             ExitCondition::LeaveWithRunway {
@@ -679,6 +680,7 @@ impl<'a> Preprocessor<'a> {
                         reqs.push(Requirement::HeatFrames(heat_frames + 5));
                     }
                 }
+                reqs.push(Requirement::ShineChargeLeniencyFrames(170 - frames_required));
                 Some(Requirement::make_and(reqs))
             }
             _ => None,

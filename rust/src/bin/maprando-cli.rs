@@ -127,7 +127,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         // tech,
         shine_charge_tiles: 16.0,
         heated_shine_charge_tiles: 16.0,
-        // shine_charge_tiles: 32,
+        shinecharge_leniency_frames: 15,
         progression_rate: ProgressionRate::Fast,
         random_tank: true,
         semi_filler_items: vec![],

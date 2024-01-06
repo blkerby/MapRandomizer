@@ -320,6 +320,7 @@ fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
         notable_strats: strat_vec,
         shine_charge_tiles: preset.preset.shinespark_tiles as f32,
         heated_shine_charge_tiles: preset.preset.heated_shinespark_tiles as f32,
+        shinecharge_leniency_frames: preset.preset.shinecharge_leniency_frames as i32,
         progression_rate: crate::randomize::ProgressionRate::Fast,
         random_tank: true,
         item_placement_style: crate::randomize::ItemPlacementStyle::Forced,
