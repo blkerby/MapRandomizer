@@ -14,7 +14,7 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release105">Version 105 (2024-01-05)</a>:
+<p><a id="release105">Version 105 (2024-01-06)</a>:
 <ul>
 <li>New quality-of-life option "Room outline revealed on entry" is added (enabled by default).
     <ul>
@@ -23,9 +23,8 @@ document.getElementById("navigation-releases").classList.add("active");
     </ul>
 <li>Map behavior in boss rooms is cleaned up:
     <ul>
-    <li>Entering boss rooms no longer causes other tiles in the room to become auto-explored.
-    <li>They will still be partially revealed if the option "Room outline revealed on entry" is enabled.
     <li>Boss room tiles become explored by entering them, even if the mini-map is disabled.
+    <li>If "Room outline revealed on entry" is enabled, then the vanilla game's quirky auto-exploration of boss room tiles does not happen.
     </ul>
 <li>Locked doors are drawn using using smaller markers on the map.
     <ul>
@@ -33,9 +32,22 @@ document.getElementById("navigation-releases").classList.add("active");
     <li>The size is now consistent with the normal size of doors on the map.
     </ul>
 <li>For MSU-1, extended tracks are now supported (e.g. boss-specific music).
-<li>New setting "Shinecharge leniency frames" is added (under "Skill Assumptions"):
+<li>Logic updates:
     <ul>
-    <li>This applies to strats that gain a shinecharge and use it in another room.
+    <li>New setting "Shinecharge leniency frames" is added (under "Skill Assumptions"):
+        <ul>
+        <li>This applies to strats that gain a shinecharge and use it in another room.
+        </ul>
+    <li>New tech "canShinechargeMovementTricky" is added (Expert).
+    <li>The tech "canWaterShineCharge" is moved from Very Hard to Hard.
+    <li>New notable strats:
+        <ul>
+        <li>Shaktool Room Reverse (Basic)
+        <li>Red Tower Climb with Space Jump (Very Hard)
+        <li>Final Missile Bombway Shinespark (Extreme)
+        <li>WS East Supers R-Mode Standup Clip (Extreme)
+        <li>Basement G-mode Morph Workrobot Ride (Insane)
+        </ul>
     </ul>
 </ul>
 

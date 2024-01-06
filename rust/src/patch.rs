@@ -1954,6 +1954,10 @@ impl<'a> Patcher<'a> {
     }
 
     fn apply_room_outline(&mut self) -> Result<()> {
+        // Disable routine that marks tiles explored (used in vanilla game when entering boss rooms)
+        // It's obsoleted by this more general "room outline" option.
+        self.rom.write_u8(snes2pc(0x90A8A6), 0x60)?;  // RTS
+
         for (room_idx, room) in self.game_data.room_geometry.iter().enumerate() {
             let room_ptr = room.rom_address;
             let room_x = self.rom.read_u8(room_ptr + 2)?;

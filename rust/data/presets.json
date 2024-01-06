@@ -19,7 +19,9 @@
       "canUseFrozenEnemies",
       "canUseEnemies"
     ],
-    "notable_strats": []
+    "notable_strats": [
+      "Shaktool Room Reverse"      
+    ]
   },
   {
     "name": "Medium",
@@ -79,6 +81,7 @@
     "botwoon_proficiency": 0.5,
     "tech": [
       "canCrossRoomJumpIntoWater",
+      "canWaterShineCharge",
       "canPlayInSand",
       "canDodgeWhileShooting",
       "canTrickyUseFrozenEnemies",
@@ -163,7 +166,6 @@
       "canSpringBallBombJump",
       "canSpeedball",
       "canShinechargeMovementComplex",
-      "canWaterShineCharge",
       "canTemporaryBlue",
       "canXRayStandUp",
       "canXRayTurnaround",
@@ -223,6 +225,7 @@
       "Below Spazer Jump Shot Speedball",
       "X-Ray Exit Damage Boost",
       "Red Tower Hero Shot Shinespark",
+      "Red Tower Climb with Space Jump",
 
       "Warehouse Kihunter Room Tunnel Charge",
       "Warehouse Kihunter Room Bottom Spark Out",
@@ -324,6 +327,7 @@
       "canRightSideDoorStuck",
       "canTrickyDashJump",
       "canDoubleBombJump",
+      "canShinechargeMovementTricky",
       "canStutterWaterShineCharge",
       "canSlowShortCharge",      
       "canDoubleSpringBallJumpMidAir",
@@ -471,6 +475,7 @@
     "notable_strats": [
       "Landing Site Crystal Flash X-Ray Climb",
       "Climb Temporary Blue Chain Through Bomb Blocks",
+      "Final Missile Bombway Shinespark",
       "Golden Four Underwater Walljumps",
       "West Ocean G-mode Overload PLMs by PBing Missile Item",
       "West Ocean Grapple Clip Door Lock Skip",
@@ -534,7 +539,9 @@
       "East Sand Hall Cross Room Jump with Ice or Damage Boost",
       "East Sand Hall Right Door G-Mode Setup Suitless HiJump",
       "East Pants Room Suitless Puyo Clip",
-      "G-Mode Morph Reverse Shaktool"
+      "G-Mode Morph Reverse Shaktool",
+
+      "WS East Supers R-Mode Standup Clip (Right to Left)"
     ]
   },
   {
@@ -618,6 +625,7 @@
  
       "Bowling Alley Ceiling Bomb Jump",
       "WS East Supers Robot Clip Run-In-Place",
+      "Basement G-mode Morph Workrobot Ride",
 
       "Baby Skip With Nothing"
     ]

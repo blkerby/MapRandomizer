@@ -10,6 +10,8 @@ v105:
 - DONE: add lenience for cross-room shinecharge frames
 
 priority:
+- consider making shaktool room one-way in map generation (so Reverse Shaktool strat could be moved up to Medium)
+- in credits, show time spent in pause map
 - set up functional testing to check seed generation succeeds in reasonable time across random settings. (aquanight is working on this)
 - have pause map show outline of visited rooms
 - have pause map mark most recent save (like in vanilla)
