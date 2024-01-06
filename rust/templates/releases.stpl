@@ -34,12 +34,10 @@ document.getElementById("navigation-releases").classList.add("active");
 <li>For MSU-1, extended tracks are now supported (e.g. boss-specific music).
 <li>Logic updates:
     <ul>
-    <li>New setting "Shinecharge leniency frames" is added (under "Skill Assumptions"):
-        <ul>
-        <li>This applies to strats that gain a shinecharge and use it in another room.
-        </ul>
-    <li>New tech "canShinechargeMovementTricky" is added (Expert).
+    <li>Many more strats are added for carrying a shinecharge/shinespark across multiple rooms.
+    <li>New setting "Shinecharge leniency frames" is added (under "Skill Assumptions").
     <li>The tech "canWaterShineCharge" is moved from Very Hard to Hard.
+    <li>New tech "canShinechargeMovementTricky" is added (Expert).
     <li>New notable strats:
         <ul>
         <li>Shaktool Room Reverse (Basic)
