@@ -136,6 +136,7 @@ pub struct DifficultyConfig {
     pub shinecharge_leniency_frames: i32,
     pub progression_rate: ProgressionRate,
     pub random_tank: bool,
+    pub spazer_before_plasma: bool,
     pub item_placement_style: ItemPlacementStyle,
     pub item_priorities: Vec<ItemPriorityGroup>,
     pub semi_filler_items: Vec<Item>,
@@ -2593,6 +2594,9 @@ impl<'r> Randomizer<'r> {
         items_to_place.extend(items_to_mix);
         items_to_place.extend(items_to_delay);
         items_to_place.extend(items_to_extra_delay);
+        if self.difficulty_tiers[0].spazer_before_plasma {
+            self.apply_spazer_plasma_priority(&mut items_to_place);
+        }
         items_to_place = items_to_place[0..num_filler_items_to_select].to_vec();
         items_to_place
     }
@@ -3321,6 +3325,24 @@ impl<'r> Randomizer<'r> {
         item_precedence[reserve_idx] = Item::ETank;
     }
 
+    fn apply_spazer_plasma_priority(&self, item_precedence: &mut [Item]) {
+        let spazer_idx_opt = item_precedence
+            .iter()
+            .position(|&x| x == Item::Spazer);
+        let plasma_idx_opt = item_precedence
+            .iter()
+            .position(|&x| x == Item::Plasma);
+        if spazer_idx_opt.is_none() || plasma_idx_opt.is_none() {
+            return;
+        }
+        let spazer_idx = spazer_idx_opt.unwrap();
+        let plasma_idx = plasma_idx_opt.unwrap();
+        if plasma_idx < spazer_idx {
+            item_precedence[plasma_idx] = Item::Spazer;
+            item_precedence[spazer_idx] = Item::Plasma;
+        }
+    }
+
     pub fn determine_start_location<R: Rng>(
         &self,
         attempt_num_rando: usize,
@@ -3488,8 +3510,11 @@ impl<'r> Randomizer<'r> {
             num_attempts_start_location,
             &mut rng,
         )?;
-        let item_precedence: Vec<Item> =
+        let mut item_precedence: Vec<Item> =
             self.get_item_precedence(&self.difficulty_tiers[0].item_priorities, &mut rng);
+        if self.difficulty_tiers[0].spazer_before_plasma {
+            self.apply_spazer_plasma_priority(&mut item_precedence);
+        }
         info!(
             "[attempt {attempt_num_rando}] Item precedence: {:?}",
             item_precedence

@@ -218,6 +218,7 @@ function itemProgressionPresetChanged() {
         document.getElementById("progressionRateFast").checked = true;
         document.getElementById("itemPlacementStyleNeutral").checked = true;
         document.getElementById("randomTankYes").checked = true;
+        document.getElementById("spazerBeforePlasmaYes").checked = true;
         <% for item in &prioritizable_items { %>
         document.getElementById("itemPriority<%- item %>Default").checked = true;
         <% } %>
@@ -239,11 +240,14 @@ function itemProgressionPresetChanged() {
         document.getElementById("fillerItemsIceYes").checked = true;
         document.getElementById("fillerItemsWaveYes").checked = true;
         document.getElementById("fillerItemsSpazerYes").checked = true;
+        document.getElementById("fillerItemsPlasmaYes").checked = true;
+        document.getElementById("fillerItemsXRayScopeYes").checked = true;
     }
     if (document.getElementById("itemProgressionPresetTricky").checked) {
         document.getElementById("progressionRateUniform").checked = true;
         document.getElementById("itemPlacementStyleForced").checked = true;
         document.getElementById("randomTankYes").checked = true;
+        document.getElementById("spazerBeforePlasmaYes").checked = true;
         <% for item in &prioritizable_items { %>
         document.getElementById("itemPriority<%- item %>Default").checked = true;
         <% } %>
@@ -262,11 +266,14 @@ function itemProgressionPresetChanged() {
         document.getElementById("fillerItemsIceYes").checked = true;
         document.getElementById("fillerItemsWaveYes").checked = true;
         document.getElementById("fillerItemsSpazerYes").checked = true;
+        document.getElementById("fillerItemsPlasmaYes").checked = true;
+        document.getElementById("fillerItemsXRayScopeYes").checked = true;
     }
     if (document.getElementById("itemProgressionPresetChallenge").checked) {
         document.getElementById("progressionRateSlow").checked = true;
         document.getElementById("itemPlacementStyleForced").checked = true;
         document.getElementById("randomTankYes").checked = true;
+        document.getElementById("spazerBeforePlasmaYes").checked = true;
         <% for item in &prioritizable_items { %>
         document.getElementById("itemPriority<%- item %>Default").checked = true;
         <% } %>

@@ -130,6 +130,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         shinecharge_leniency_frames: 15,
         progression_rate: ProgressionRate::Fast,
         random_tank: true,
+        spazer_before_plasma: true,
         semi_filler_items: vec![],
         filler_items: vec![Item::Missile],
         early_filler_items: vec![],

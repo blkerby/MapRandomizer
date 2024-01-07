@@ -43,7 +43,7 @@
         <% include!("help/progression/random_tank.stpl"); %>
         <label for="preset">Random tank priority</label>
     </div>
-    <div class="col-lg-3 btn-group m-2" role="group">
+    <div class="col-lg-2 btn-group m-2" role="group">
     <% for &name in &["No", "Yes"] {
             let checked = if name == "Yes" { "checked" } else { "" };
             %>
@@ -56,6 +56,28 @@
             autocomplete="off"
             <%- checked %>>
         <label class="btn btn-outline-primary" for="randomTank<%- name%>"><%= name %></label>
+    <% } %>
+    </div>
+</div>
+
+<div class="form-group row">
+    <div class="col-lg-3 m-2">
+        <% include!("help/progression/spazer_before_plasma.stpl"); %>
+        <label for="preset">Spazer before Plasma</label>
+    </div>
+    <div class="col-lg-2 btn-group m-2" role="group">
+    <% for &name in &["No", "Yes"] {
+            let checked = if name == "Yes" { "checked" } else { "" };
+            %>
+        <input type="radio"
+            class="btn-check" 
+            name="spazer_before_plasma" 
+            id="spazerBeforePlasma<%- name %>"
+            value="<%- name %>"
+            onclick="itemProgressionChanged()"
+            autocomplete="off"
+            <%- checked %>>
+        <label class="btn btn-outline-primary" for="spazerBeforePlasma<%- name%>"><%= name %></label>
     <% } %>
     </div>
 </div>

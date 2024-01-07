@@ -16,6 +16,11 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <p><a id="release105">Version 105 (2024-01-06)</a>:
 <ul>
+<li>Update to item progression settings:
+    <ul>
+    <li>Plasma and XRayScope are added as filler items on "Normal" and "Tricky" presets.
+    <li>A new option "Spazer before Plasma" is added and enabled on all presets.
+    </ul>
 <li>New quality-of-life option "Room outline revealed on entry" is added (enabled by default).
     <ul>
     <li>When enabled, entering a room partially reveals all its tiles in the pause map.
@@ -26,7 +31,7 @@ document.getElementById("navigation-releases").classList.add("active");
     <li>Boss room tiles become explored by entering them, even if the mini-map is disabled.
     <li>If "Room outline revealed on entry" is enabled, then the vanilla game's quirky auto-exploration of boss room tiles does not happen.
     </ul>
-<li>Locked doors are drawn using using smaller markers on the map.
+<li>Locked doors are drawn using smaller markers on the map.
     <ul>
     <li>Previously the door markers covered the entire wall, which could obscure room boundaries.
     <li>The size is now consistent with the normal size of doors on the map.

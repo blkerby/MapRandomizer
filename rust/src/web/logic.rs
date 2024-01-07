@@ -323,6 +323,7 @@ fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
         shinecharge_leniency_frames: preset.preset.shinecharge_leniency_frames as i32,
         progression_rate: crate::randomize::ProgressionRate::Fast,
         random_tank: true,
+        spazer_before_plasma: true,
         item_placement_style: crate::randomize::ItemPlacementStyle::Forced,
         item_priorities: vec![],
         filler_items: vec![],

@@ -91,6 +91,7 @@ fn run_scenario(
         shinecharge_leniency_frames: 15,
         progression_rate: ProgressionRate::Uniform,
         random_tank: true,
+        spazer_before_plasma: true,
         semi_filler_items: vec![],
         filler_items: vec![Item::Missile],
         early_filler_items: vec![],
