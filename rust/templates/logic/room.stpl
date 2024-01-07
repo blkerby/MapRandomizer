@@ -51,29 +51,36 @@ document.getElementById("navigation-logic").classList.add("active");
     </div>
     </form>
     <div class="row">
-        <div class="col-lg-2 my-2 d-flex align-items-center">
-            <label for="fromNode">From node</label>
+        <div class="col-md-8">
+            <div class="row">
+                <div class="col-lg-3 my-2 d-flex align-items-center">
+                    <label for="fromNode">From node</label>
+                </div>
+                <div class="col-sm my-2">
+                    <select id="fromNode" name="fromNode" class="form-select" onchange="updateSelect();">
+                    <option value="any" selected>Any</option>
+                    <% for (node_id, node_name) in &nodes { %>
+                        <option class="from-node-option" value="<%= node_id %>"><%= node_id %>: <%= node_name %></option>
+                    <% } %>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3 my-2 d-flex align-items-center">
+                    <label for="toNode">To node</label>
+                </div>
+                <div class="col-sm my-2">
+                    <select id="toNode" name="toNode" class="form-select" onchange="updateSelect();">
+                    <option value="any" selected>Any</option>
+                    <% for (node_id, node_name) in &nodes { %>
+                        <option class="to-node-option" value="<%= node_id %>"><%= node_id %>: <%= node_name %></option>
+                    <% } %>
+                    </select>
+                </div>
+            </div>
         </div>
-        <div class="col-sm-6 my-2">
-            <select id="fromNode" name="fromNode" class="form-select" onchange="updateSelect();">
-            <option value="any" selected>Any</option>
-            <% for (node_id, node_name) in &nodes { %>
-                <option class="from-node-option" value="<%= node_id %>"><%= node_id %>: <%= node_name %></option>
-            <% } %>
-            </select>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-lg-2 my-2 d-flex align-items-center">
-            <label for="toNode">To node</label>
-        </div>
-        <div class="col-sm-6 my-2">
-            <select id="toNode" name="toNode" class="form-select" onchange="updateSelect();">
-            <option value="any" selected>Any</option>
-            <% for (node_id, node_name) in &nodes { %>
-                <option class="to-node-option" value="<%= node_id %>"><%= node_id %>: <%= node_name %></option>
-            <% } %>
-            </select>
+        <div class="col-md-1 p-0 d-flex align-items-center">
+            <button class="btn btn-secondary" onclick="swapNodes()"><i class="bi bi-arrow-down-up"></i></button>
         </div>
     </div>
 
@@ -144,6 +151,16 @@ function getDifficultyFilter() {
         }
     }
     return -1;
+}
+function swapNodes() {
+    var fromNode = document.getElementById("fromNode");
+    var toNode = document.getElementById("toNode");
+    
+    var temp = fromNode.value;
+    fromNode.value = toNode.value;
+    toNode.value = temp;
+    
+    updateSelect();
 }
 function updateSelect() {
     var rows = document.getElementsByClassName("strat-row");
