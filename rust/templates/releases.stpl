@@ -32,15 +32,16 @@ document.getElementById("navigation-releases").classList.add("active");
     <li>The size is now consistent with the normal size of doors on the map.
     </ul>
 <li>For MSU-1, extended tracks are now supported (e.g. boss-specific music).
+<li>New Samus sprite: "Agender Samus" by Abyss.
 <li>Logic updates:
     <ul>
     <li>Many more strats are added for carrying a shinecharge/shinespark across multiple rooms.
     <li>New setting "Shinecharge leniency frames" is added (under "Skill Assumptions").
     <li>The tech "canWaterShineCharge" is moved from Very Hard to Hard.
+    <li>Riding Mama Turtle without taking damage now requires "canCarefulJump" (Medium).
     <li>New tech "canShinechargeMovementTricky" is added (Expert).
     <li>New notable strats:
         <ul>
-        <li>Shaktool Room Reverse (Basic)
         <li>Red Tower Climb with Space Jump (Very Hard)
         <li>Final Missile Bombway Shinespark (Extreme)
         <li>WS East Supers R-Mode Standup Clip (Extreme)
