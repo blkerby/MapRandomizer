@@ -28,6 +28,7 @@
       <table class="table w-auto table-striped table-bordered mx-auto">
       <thead>
         <tr>
+        <th scope="col"></th>
         <th scope="col">Enemy</th>
         <th scope="col">Nothing</th>
         <th scope="col">Small Energy</th>
@@ -38,12 +39,12 @@
         </tr>
       </thead>
       <tbody>
-          <tr><td>Gamet</td><td>2%</td><td>24%</td><td>24%</td><td>20%</td><td>24%</td><td>8%</td></tr>
-          <tr><td>Zeb</td><td>2%</td><td>24%</td><td>24%</td><td>20%</td><td>24%</td><td>8%</td></tr>
-          <tr><td>Geega</td><td>2%</td><td>24%</td><td>24%</td><td>20%</td><td>24%</td><td>8%</td></tr>
-          <tr><td>Zebbo</td><td>0%</td><td>0%</td><td>56%</td><td>2%</td><td>40%</td><td>4%</td></tr>
-          <tr><td>Zoa</td><td>2%</td><td>0%</td><td>40%</td><td>24%</td><td>28%</td><td>8%</td></tr>
-          <tr><td>Covern</td><td>0%</td><td>20%</td><td>38%</td><td>20%</td><td>8%</td><td>16%</td></tr>
+          <tr><td align="center"><img src="/static/modal_img/Gamet.png"></td><td>Gamet</td><td>2%</td><td>24%</td><td>24%</td><td>20%</td><td>24%</td><td>8%</td></tr>
+          <tr><td align="center"><img src="/static/modal_img/Zeb.png"></td><td>Zeb</td><td>2%</td><td>24%</td><td>24%</td><td>20%</td><td>24%</td><td>8%</td></tr>
+          <tr><td align="center"><img src="/static/modal_img/Geega.png"></td><td>Geega</td><td>2%</td><td>24%</td><td>24%</td><td>20%</td><td>24%</td><td>8%</td></tr>
+          <tr><td align="center"><img src="/static/modal_img/Zebbo.png"></td><td>Zebbo</td><td>0%</td><td>0%</td><td>56%</td><td>2%</td><td>40%</td><td>4%</td></tr>
+          <tr><td align="center"><img src="/static/modal_img/Zoa.png"></td><td>Zoa</td><td>2%</td><td>0%</td><td>40%</td><td>24%</td><td>28%</td><td>8%</td></tr>
+          <tr><td align="center"><img src="/static/modal_img/Covern.png"></td><td>Covern</td><td>0%</td><td>20%</td><td>38%</td><td>20%</td><td>8%</td><td>16%</td></tr>
       </tbody>
       </table>
   
