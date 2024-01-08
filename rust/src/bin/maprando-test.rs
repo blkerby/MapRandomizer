@@ -132,7 +132,8 @@ fn create_difficulty_from_preset(preset : &Preset) -> DifficultyConfig {
 fn set_item_progression_normal(diff: &mut DifficultyConfig) -> () {
     diff.progression_rate = ProgressionRate::Fast;
     diff.random_tank = true;
-    diff.filler_items = vec![ Item::Missile, Item::ETank, Item::ReserveTank, Item::Super, Item::PowerBomb, Item::Charge, Item::Ice, Item::Wave, Item::Spazer ];
+    diff.spazer_before_plasma = true;
+    diff.filler_items = vec![ Item::Missile, Item::ETank, Item::ReserveTank, Item::Super, Item::PowerBomb, Item::Charge, Item::Ice, Item::Wave, Item::Spazer, Item::Plasma, Item::XRayScope];
     diff.semi_filler_items = vec![ ];
     diff.early_filler_items = vec![ Item::ETank ];
     diff.item_placement_style = ItemPlacementStyle::Neutral;
@@ -157,7 +158,8 @@ fn set_item_progression_normal(diff: &mut DifficultyConfig) -> () {
 fn set_item_progression_tricky(diff: &mut DifficultyConfig) -> () {
     diff.progression_rate = ProgressionRate::Uniform;
     diff.random_tank = true;
-    diff.filler_items = vec![ Item::Missile, Item::ETank, Item::ReserveTank, Item::Super, Item::PowerBomb, Item::Charge, Item::Ice, Item::Wave, Item::Spazer ];
+    diff.spazer_before_plasma = true;
+    diff.filler_items = vec![ Item::Missile, Item::ETank, Item::ReserveTank, Item::Super, Item::PowerBomb, Item::Charge, Item::Ice, Item::Wave, Item::Spazer, Item::Plasma, Item::XRayScope];
     diff.semi_filler_items = vec![ ];
     diff.early_filler_items = vec![ ];
     diff.item_placement_style = ItemPlacementStyle::Forced;
@@ -182,6 +184,7 @@ fn set_item_progression_tricky(diff: &mut DifficultyConfig) -> () {
 fn set_item_progression_challenge(diff: &mut DifficultyConfig) -> () {
     diff.progression_rate = ProgressionRate::Slow;
     diff.random_tank = true;
+    diff.spazer_before_plasma = true;
     diff.filler_items = vec![ Item::Missile ];
     diff.semi_filler_items = vec![ Item::Super, Item::PowerBomb ];
     diff.early_filler_items = vec![ ];
