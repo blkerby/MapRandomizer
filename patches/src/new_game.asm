@@ -86,9 +86,12 @@ startup:
 .copy_revealed
     dex
     dex
+    ; revealed tiles:
     lda $B5F000, X
     sta $702000, X
-    sta $702700, X  ; partially revealed tiles
+    ; partially revealed tiles:
+    lda $B5F800, X
+    sta $702700, X
     txa
     bne .copy_revealed
 

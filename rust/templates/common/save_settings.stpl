@@ -37,8 +37,6 @@ function loadForm(form) {
         if (element.type == "radio") {
             if (data[element.name] == element.value) {
                 element.checked = true;
-            } else if (data[element.name] !== undefined){
-                element.checked = false;
             }
         } else if (data[element.name] !== undefined) {
             if (element.type == "checkbox") {

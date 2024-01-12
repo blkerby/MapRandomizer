@@ -100,6 +100,13 @@ pub enum EtankRefill {
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
+pub enum MapsRevealed {
+    No,
+    Partial,
+    Yes,
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
 pub enum SaveAnimals {
     No,
     Maybe,
@@ -179,7 +186,7 @@ pub struct DifficultyConfig {
     pub area_assignment: AreaAssignment,
     pub wall_jump: WallJump,
     pub etank_refill: EtankRefill,
-    pub maps_revealed: bool,
+    pub maps_revealed: MapsRevealed,
     pub vanilla_map: bool,
     pub ultra_low_qol: bool,
     // Presets:

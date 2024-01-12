@@ -113,7 +113,7 @@ fn create_difficulty_from_preset(preset : &Preset) -> DifficultyConfig {
         area_assignment: AreaAssignment::Standard,
         item_dot_change: ItemDotChange::Fade,
         transition_letters: false,
-        maps_revealed: false,
+        maps_revealed: maprando::randomize::MapsRevealed::No,
         ultra_low_qol: false,
 
         skill_assumptions_preset: Some(preset.name.clone()),

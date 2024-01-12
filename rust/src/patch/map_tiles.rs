@@ -2,8 +2,8 @@ use hashbrown::{HashMap, HashSet};
 use log::info;
 
 use crate::{
-    game_data::{GameData, Item, ItemIdx, Map, RoomGeometryDoor, RoomGeometryItem},
-    randomize::{DoorType, ItemDotChange, ItemMarkers, Objectives, Randomization},
+    game_data::{GameData, Item, ItemIdx, Map, RoomGeometryDoor, RoomGeometryItem, AreaIdx},
+    randomize::{DoorType, ItemDotChange, ItemMarkers, Objectives, Randomization, MapsRevealed},
 };
 
 use super::{snes2pc, xy_to_explored_bit_ptr, xy_to_map_offset, Rom};
@@ -72,6 +72,7 @@ pub struct MapPatcher<'a> {
     edge_pixels_map: HashMap<Edge, Vec<usize>>,
     locked_door_state_indices: &'a [usize],
     area_data: Vec<Vec<(ItemIdx, TilemapOffset, TilemapWord, Interior)>>,
+    transition_tile_coords: Vec<(AreaIdx, isize, isize)>,
 }
 
 const VANILLA_ELEVATOR_TILE: TilemapWord = 0xCE; // Index of elevator tile in vanilla game
@@ -146,6 +147,7 @@ impl<'a> MapPatcher<'a> {
             edge_pixels_map: pixels_map,
             locked_door_state_indices,
             area_data: vec![vec![]; 6],
+            transition_tile_coords: vec![],
         }
     }
 
@@ -1891,29 +1893,23 @@ impl<'a> MapPatcher<'a> {
         let dir = &door.direction;
         let x = door.x as isize;
         let y = door.y as isize;
-        if dir == "right" {
-            self.patch_room(
-                &self.game_data.room_geometry[room_idx].name,
-                vec![(x + 1, y, letter_tile)],
-            )?;
-        } else if dir == "left" {
-            self.patch_room(
-                &self.game_data.room_geometry[room_idx].name,
-                vec![(x - 1, y, letter_tile)],
-            )?;
-        } else if dir == "down" {
-            self.patch_room(
-                &self.game_data.room_geometry[room_idx].name,
-                vec![(x, y + 1, letter_tile)],
-            )?;
-        } else if dir == "up" {
-            self.patch_room(
-                &self.game_data.room_geometry[room_idx].name,
-                vec![(x, y - 1, letter_tile)],
-            )?;
-        } else {
-            bail!("Unrecognized door direction: {dir}");
-        }
+        let coords = match dir.as_str() {
+            "right" => (x + 1, y),
+            "left" => (x - 1, y),
+            "down" => (x, y + 1),
+            "up" => (x, y - 1),
+            _ => bail!("Unrecognized door direction: {dir}")
+        };
+        self.patch_room(
+            &self.game_data.room_geometry[room_idx].name,
+            vec![(coords.0, coords.1, letter_tile)],
+        )?;
+
+        let room = &self.game_data.room_geometry[room_idx];
+        let room_x = self.rom.read_u8(room.rom_address + 2)? as isize;
+        let room_y = self.rom.read_u8(room.rom_address + 3)? as isize;
+        let area_idx = self.map.area[room_idx];
+        self.transition_tile_coords.push((area_idx, room_x + coords.0, room_y + coords.1));
         Ok(())
     }
 
@@ -2149,28 +2145,51 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
-    fn set_map_stations_explored(&mut self) -> Result<()> {
-        if self.randomization.difficulty.maps_revealed {
-            self.rom.write_n(snes2pc(0xB5F000), &vec![0xFF; 0x600])?;
-            self.rom.write_u16(snes2pc(0xB5F600), 0x003F)?;
-            return Ok(());
-        }
-        self.rom.write_n(snes2pc(0xB5F000), &vec![0; 0x600])?;
-        self.rom.write_u16(snes2pc(0xB5F600), 0x0000)?;
-        if !self.randomization.difficulty.mark_map_stations {
-            return Ok(());
-        }
-        for (room_idx, room) in self.game_data.room_geometry.iter().enumerate() {
-            if !room.name.contains(" Map Room") {
-                continue;
+    fn set_initial_map(&mut self) -> Result<()> {
+        let revealed_addr = snes2pc(0xB5F000);
+        let partially_revealed_addr = snes2pc(0xB5F800);
+        let area_seen_addr = snes2pc(0xB5F600);
+        match self.randomization.difficulty.maps_revealed {
+            MapsRevealed::Yes => {
+                self.rom.write_n(revealed_addr, &vec![0xFF; 0x600])?;  // whole map revealed bits: true
+                self.rom.write_n(partially_revealed_addr, &vec![0xFF; 0x600])?;  // whole map partially revealed bits: true
+                self.rom.write_u16(area_seen_addr, 0x003F)?;  // area seen bits: true (for pause map area switching)    
+            },
+            MapsRevealed::Partial => {
+                self.rom.write_n(revealed_addr, &vec![0; 0x600])?;  // whole map revealed bits: false
+                self.rom.write_n(partially_revealed_addr, &vec![0xFF; 0x600])?;  // whole map partially revealed bits: true
+                self.rom.write_u16(area_seen_addr, 0x003F)?;  // area seen bits: true (for pause map area switching)
+
+                // Show area-transition markers (arrows or letters) as revealed:
+                for &(area, x, y) in &self.transition_tile_coords {
+                    let (offset, bitmask) = xy_to_explored_bit_ptr(x, y);
+                    let ptr_revealed = revealed_addr + area * 0x100 + offset as usize;
+                    self.rom.write_u8(ptr_revealed, self.rom.read_u8(ptr_revealed)? | bitmask as isize)?;
+                }
+            },
+            MapsRevealed::No => {
+                self.rom.write_n(revealed_addr, &vec![0; 0x600])?;
+                self.rom.write_n(partially_revealed_addr, &vec![0; 0x600])?;
+                self.rom.write_u16(area_seen_addr, 0x0000)?;
             }
-            let area = self.map.area[room_idx];
-            let x = self.rom.read_u8(room.rom_address + 2)?;
-            let y = self.rom.read_u8(room.rom_address + 3)?;
-            let (offset, bitmask) = xy_to_explored_bit_ptr(x, y);
-            let base_ptr = 0xB5F000 + area * 0x100;
-            self.rom
-                .write_u8(snes2pc(base_ptr + offset as usize), bitmask as isize)?;
+        }
+
+        if self.randomization.difficulty.mark_map_stations {
+            for (room_idx, room) in self.game_data.room_geometry.iter().enumerate() {
+                if !room.name.contains(" Map Room") {
+                    continue;
+                }
+                let area = self.map.area[room_idx];
+                let x = self.rom.read_u8(room.rom_address + 2)?;
+                let y = self.rom.read_u8(room.rom_address + 3)?;
+                let (offset, bitmask) = xy_to_explored_bit_ptr(x, y);
+
+                let ptr_revealed = revealed_addr + area * 0x100 + offset as usize;
+                self.rom.write_u8(ptr_revealed, self.rom.read_u8(ptr_revealed)? | bitmask as isize)?;
+
+                let ptr_partial = partially_revealed_addr + area * 0x100 + offset as usize;
+                self.rom.write_u8(ptr_partial, self.rom.read_u8(ptr_partial)? | bitmask as isize)?;
+            }        
         }
         Ok(())
     }
@@ -2692,7 +2711,7 @@ impl<'a> MapPatcher<'a> {
         self.indicate_liquid()?;
         self.indicate_locked_doors()?;
         self.add_cross_area_arrows()?;
-        self.set_map_stations_explored()?;
+        self.set_initial_map()?;
         self.indicate_major_items()?;
         self.write_map_tiles()?;
         self.write_hazard_tiles()?;

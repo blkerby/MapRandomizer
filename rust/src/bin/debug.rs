@@ -5,7 +5,7 @@ use maprando::{
     randomize::{
         AreaAssignment, DifficultyConfig, DoorsMode, ItemDotChange, ItemMarkers,
         ItemPlacementStyle, ItemPriorityGroup, MotherBrainFight, Objectives, ProgressionRate,
-        SaveAnimals, WallJump,
+        SaveAnimals, WallJump, MapsRevealed,
     },
     traverse::{apply_requirement, GlobalState, LocalState},
 };
@@ -135,7 +135,7 @@ fn run_scenario(
         area_assignment: AreaAssignment::Standard,
         wall_jump: WallJump::Vanilla,
         etank_refill: maprando::randomize::EtankRefill::Vanilla,
-        maps_revealed: false,
+        maps_revealed: MapsRevealed::Yes,
         vanilla_map: false,
         ultra_low_qol: false,
         skill_assumptions_preset: None,

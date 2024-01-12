@@ -187,7 +187,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         early_save: false,
         wall_jump: maprando::randomize::WallJump::Collectible,
         etank_refill: maprando::randomize::EtankRefill::Vanilla,
-        maps_revealed: true,
+        maps_revealed: maprando::randomize::MapsRevealed::Yes,
         vanilla_map: false,
         ultra_low_qol: false,
         skill_assumptions_preset: Some("None".to_string()),
