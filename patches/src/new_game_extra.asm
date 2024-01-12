@@ -119,10 +119,12 @@ start_game:
 .copy_revealed
     dex
     dex
+    ; revealed tiles:
     lda $B5F000, X
     sta $702000, X
+    ; partially revealed tiles:
+    lda $B5F800, X
     sta $702700, X
-    ;sta $7ECD52, X   ; also mark explored
     txa
     bne .copy_revealed
 

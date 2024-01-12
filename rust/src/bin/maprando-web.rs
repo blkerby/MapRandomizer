@@ -254,7 +254,7 @@ struct RandomizeRequest {
     area_assignment: Text<String>,
     wall_jump: Text<String>,
     etank_refill: Text<String>,
-    maps_revealed: Text<bool>,
+    maps_revealed: Text<String>,
     ultra_low_qol: Text<bool>,
 }
 
@@ -336,7 +336,7 @@ struct SeedData {
     area_assignment: String,
     wall_jump: String,
     etank_refill: String,
-    maps_revealed: bool,
+    maps_revealed: String,
     vanilla_map: bool,
     ultra_low_qol: bool,
 }
@@ -390,7 +390,7 @@ struct SeedHeaderTemplate<'a> {
     save_animals: String,
     early_save: bool,
     area_assignment: String,
-    maps_revealed: bool,
+    maps_revealed: String,
     ultra_low_qol: bool,
     preset_data: &'a [PresetData],
     enabled_tech: HashSet<String>,
@@ -492,7 +492,7 @@ fn render_seed(
         save_animals: seed_data.save_animals.clone(),
         early_save: seed_data.early_save,
         area_assignment: seed_data.area_assignment.clone(),
-        maps_revealed: seed_data.maps_revealed,
+        maps_revealed: seed_data.maps_revealed.clone(),
         ultra_low_qol: seed_data.ultra_low_qol,
         preset_data: &app_data.preset_data,
         enabled_tech,
@@ -1312,7 +1312,15 @@ async fn randomize(
                 req.etank_refill.0.as_str()
             ),
         },
-        maps_revealed: req.maps_revealed.0,
+        maps_revealed: match req.maps_revealed.0.as_str() {
+            "No" => maprando::randomize::MapsRevealed::No,
+            "Partial" => maprando::randomize::MapsRevealed::Partial,
+            "Yes" => maprando::randomize::MapsRevealed::Yes,
+            _ => panic!(
+                "Unrecognized maps_revealed setting {}",
+                req.maps_revealed.0.as_str()
+            ),
+        },
         vanilla_map,
         ultra_low_qol: req.ultra_low_qol.0,
         skill_assumptions_preset: req.preset.as_ref().map(|x| x.0.clone()),
@@ -1497,7 +1505,7 @@ async fn randomize(
         area_assignment: req.area_assignment.0.clone(),
         wall_jump: req.wall_jump.0.clone(),
         etank_refill: req.etank_refill.0.clone(),
-        maps_revealed: req.maps_revealed.0,
+        maps_revealed: req.maps_revealed.0.clone(),
         vanilla_map,
         ultra_low_qol: req.ultra_low_qol.0,
     };

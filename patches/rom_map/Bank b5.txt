@@ -1,5 +1,5 @@
 0000-F000: Used by vanilla game
-F000-F5FF: Initial explored tile bitmask, copied to $7E:CD52-D351 (used to set map stations as initially explored)
+F000-F5FF: Initial revealed tile bitmask, copied to SRAM at $702000
 F600-F602: Initial area explored bitmask, copied to SRAM at $702600
 F700-F780: hazard_markers.asm
-F800-FB00: extra setup ASM
+F800-FE00: Initial partially revealed tile bitmask, copied to SRAM at $702700

@@ -93,7 +93,10 @@
             }
             _ => {}
         }
-        if maps_revealed {
+        if maps_revealed == "Partial" {
+            game_variations.push("Maps partially revealed from start");
+        }
+        if maps_revealed == "Yes" {
             game_variations.push("Maps revealed from start");
         }
         if ultra_low_qol {

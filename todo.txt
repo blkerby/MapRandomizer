@@ -1,21 +1,23 @@
-v106:
+v107?:
 - add more "carry shinecharge" strats.
 - handle `unlocksDoors`?
 - make sure cross-room notable strats actually check the setting for the notable
 - make "f_DefeatedBombTorizo" free
 
-v105:
-- DONE: room outline option
-- DONE: drop boss room behavior that explores 
-- DONE: add lenience for cross-room shinecharge frames
+v106:
+- option for map partially revealed from start.
+- escape-only mode
+- refine escape timer calculation
+  - remove base leniency
+  - make rounding conditional on the multiplier
+- maybe: fix issue with pause map scrolling beyond bounds
 
 priority:
+- rework QoL presets?:
+  - keep same map options between Low and Default?
 - consider making shaktool room one-way in map generation (so Reverse Shaktool strat could be moved up to Medium)
 - in credits, show time spent in pause map
-- set up functional testing to check seed generation succeeds in reasonable time across random settings. (aquanight is working on this)
-- have pause map show outline of visited rooms
 - have pause map mark most recent save (like in vanilla)
-- fix issue with pause map scrolling beyond bounds
 - fix OOB when leaving Kraid Room from right during fight
 - main street shinespark frames need some looking into: "frames": 35 doesn't make sense?
 - convert area arrows vs. letters to customization option
@@ -33,7 +35,9 @@ priority:
   - could work better with music: continue playing same song or start from beginning if different
   - could retain game timer shown in credits
   - could retain map progress
-  - could get overwritten when using a save station, to prevent accidental quickloads from losing lots of progress
+  - could expire after a certain number of door transitions (e.g. 4?) or when using a save station
+     - prevent accidental quickloads from losing lots of progress
+     - retain incentive to use real save stations
 - add door flags to refine logic
 - logic:
   - mama turtle right item is basic with no items. is this ok?

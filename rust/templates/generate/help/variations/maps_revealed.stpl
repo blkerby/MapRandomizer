@@ -12,7 +12,12 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-      <p>When enabled, all maps are fully revealed from the beginning of the game, without needing to activate the map stations.</p>
+      <p>This setting affects to what extent the map is already revealed when starting the game:
+      <ul>
+      <li><strong>No</strong>: Maps are not initially revealed. Map stations must be activated in order to reveal the maps.
+      <li><strong>Partial</strong>: Room outlines and area transitions are shown. Details such as item dots or door locks are not shown. Activating map stations will reveal those details.
+      <li><strong>Yes</strong>: Maps are revealed, as though all the map stations were already activated.
+      </p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
