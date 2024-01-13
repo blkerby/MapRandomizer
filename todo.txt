@@ -5,12 +5,13 @@ v107?:
 - make "f_DefeatedBombTorizo" free
 
 v106:
-- option for map partially revealed from start.
+- DONE: option for map partially revealed from start.
 - escape-only mode
-  - skip item placement logic
-  - fill item locations with nothing
-  - show on map as already collected small dots
-  - spoiler map shouldn't have any steps
+  - DONE: skip item placement logic
+  - DONE: fill item locations with nothing
+  - DONE: show on map as already collected small dots
+  - DONE: spoiler map shouldn't have any steps
+  - figure out what to do with item collection stats in credits
 - refine escape timer calculation
   - remove base leniency
   - make rounding conditional on the multiplier

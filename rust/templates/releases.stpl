@@ -17,6 +17,10 @@ document.getElementById("navigation-releases").classList.add("active");
 <p><a id="release105">Version 106 (2024-01-11)</a>:
 <ul>
 <li>A new setting "Partial" is added for "Maps revealed from start" (under "Other options").
+<li>A new setting "Escape" is added for "Start location".
+    <ul>
+    <li>When enabled, the game begins in the escape sequence, and the only goal is to complete it.
+    </ul>
 </ul>
 
 <p><a id="release105">Version 105 (2024-01-07)</a>:
