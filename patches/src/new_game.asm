@@ -118,6 +118,10 @@ startup:
     dex
     bne .item_bits_loop
 
+    ; Set items collected for escape (to make item collection rate show 100%, only applicable for "Escape" start):
+    lda #$F32F
+    sta $1F5D
+
     ; Unlock Tourian statues room (to avoid camera glitching when entering from bottom, and also to ensure game is
     ; beatable since we don't take it into account as an obstacle in the item randomization logic)
     lda #$0004

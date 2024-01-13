@@ -102,6 +102,7 @@ a {
 .step-whole-map {
 	font-size: small;
 	font-weight: bold;
+	margin-right: 8px;
 }
 .hidden {
 	display: none;

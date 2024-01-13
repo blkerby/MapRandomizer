@@ -3495,12 +3495,64 @@ impl<'r> Randomizer<'r> {
         }
     }
 
+    pub fn dummy_randomize(&self, seed: usize, display_seed: usize) -> Result<Randomization> {
+        // For the "Escape" start location mode, item placement is irrelevant since you start
+        // with all items collected.
+        let spoiler_escape =
+            escape_timer::compute_escape_data(self.game_data, self.map, &self.difficulty_tiers[0])?;
+            let spoiler_all_rooms = self
+            .map
+            .rooms
+            .iter()
+            .enumerate()
+            .zip(self.game_data.room_geometry.iter())
+            .map(|((room_idx, c), g)| {
+                let room = self.game_data.room_id_by_ptr[&g.rom_address];
+                let room = g.name.clone();
+                let short_name = strip_name(&room);
+                let height = g.map.len();
+                let width = g.map[0].len();
+                let map_reachable_step: Vec<Vec<u8>> = vec![vec![255; width]; height];
+                let map_bireachable_step: Vec<Vec<u8>> = vec![vec![255; width]; height];
+                SpoilerRoomLoc {
+                    room,
+                    short_name,
+                    map: g.map.clone(),
+                    map_reachable_step,
+                    map_bireachable_step,
+                    coords: *c,
+                }
+            })
+            .collect();
+
+        let spoiler_log = SpoilerLog {
+            summary: vec![],
+            escape: spoiler_escape,
+            details: vec![],
+            all_items: vec![],
+            all_rooms: spoiler_all_rooms,
+        };
+        Ok(Randomization {
+            difficulty: self.difficulty_tiers[0].clone(),
+            map: self.map.clone(),
+            locked_doors: self.locked_doors.to_vec(),
+            item_placement: vec![Item::Missile; 100],  // Draw the non-existent items like Missile dots
+            spoiler_log,
+            seed,
+            display_seed,
+            start_location: StartLocation::default(),
+        })
+    }
+
     pub fn randomize(
         &self,
         attempt_num_rando: usize,
         seed: usize,
         display_seed: usize,
     ) -> Result<Randomization> {
+        if self.difficulty_tiers[0].start_location_mode == StartLocationMode::Escape {
+            return self.dummy_randomize(seed, display_seed);
+        }
         let mut rng_seed = [0u8; 32];
         rng_seed[..8].copy_from_slice(&seed.to_le_bytes());
         let mut rng = rand::rngs::StdRng::from_seed(rng_seed);

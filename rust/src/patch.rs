@@ -1666,7 +1666,7 @@ impl<'a> Patcher<'a> {
             // Set all non-beam items collected/equipped:
             self.rom.write_u16(initial_items_collected, 0xF32F)?;
             self.rom.write_u16(initial_items_equipped, 0xF32F)?;
-            self.rom.write_u16(initial_beams_collected, 0)?;
+            self.rom.write_u16(initial_beams_collected, 0x100F)?;
             self.rom.write_u16(initial_beams_equipped, 0)?;
             self.rom.write_u16(initial_energy, 1499)?;
             self.rom.write_u16(initial_max_energy, 1499)?;

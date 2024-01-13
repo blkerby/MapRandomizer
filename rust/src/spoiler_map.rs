@@ -94,7 +94,7 @@ fn get_color(value: u8, area: usize) -> Rgb<u8> {
         6 => get_rgb(29, 15, 0), // Yellow (orange) door
         7 => get_rgb(27, 7, 18), // Red (pink) door
         12 => get_rgb(0, 0, 0), // Door lock shadow covering wall (black)
-        13 => cool_area_color, // Item dots (show as cool area color, will get mostly covered by item icons once loaded)
+        13 => get_rgb(31, 31, 31), // Item dots (white)
         14 => get_rgb(0, 24, 0), // Green door
         15 => get_rgb(18, 12, 14), // Gray door
         _ => panic!("Unexpected color value {}", value),
