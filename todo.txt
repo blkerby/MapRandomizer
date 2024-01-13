@@ -12,6 +12,7 @@ v106:
   - DONE: show on map as already collected small dots
   - DONE: spoiler map shouldn't have any steps
   - figure out what to do with item collection stats in credits
+  - fix death count
 - refine escape timer calculation
   - remove base leniency
   - make rounding conditional on the multiplier

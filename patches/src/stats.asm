@@ -19,6 +19,10 @@ org $A2AB3C
 org $82DC95
     jsl hook_death : nop : nop
 
+; Increment deaths count when escape timer runs out
+org $90E0F2
+    jsl hook_timeout : nop : nop
+
 ; Increment reset count on boot-up
 org $808455
     jsl hook_boot
@@ -307,6 +311,15 @@ hook_death:
     ; run hi-jacked instructions:
     LDX #$017E
     LDA #$0000
+    rtl
+
+hook_timeout:
+    lda !stat_deaths
+    inc
+    sta !stat_deaths
+    ; run hi-jacked instructions:
+    LDX #$01FE             ;\
+    LDA #$7FFF 
     rtl
 
 hook_boot:
