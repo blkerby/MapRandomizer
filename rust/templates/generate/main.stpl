@@ -181,14 +181,16 @@
 
             <div class="form-group row">
                 <div class="col-lg-3 my-2 pt-1">
-                    <% include!("help/randomized_start.stpl"); %>
-                    <label for="randomized_start">Start location</label>
+                    <% include!("help/start_location.stpl"); %>
+                    <label for="start_location">Start location</label>
                 </div>
-                <div class="col-lg-3 btn-group my-2" role="group">
-                    <input type="radio" class="btn-check" name="randomized_start" id="randomizedStartNo" value="false" checked=true>
-                    <label class="btn btn-outline-primary" for="randomizedStartNo">Ship</label>
-                    <input type="radio" class="btn-check" name="randomized_start" id="randomizedStartYes" value="true">
-                    <label class="btn btn-outline-primary" for="randomizedStartYes">Random</label>
+                <div class="col-lg-4 btn-group my-2" role="group">
+                    <input type="radio" class="btn-check" name="start_location" id="startLocationShip" value="Ship" checked=true>
+                    <label class="btn btn-outline-primary" for="startLocationShip">Ship</label>
+                    <input type="radio" class="btn-check" name="start_location" id="startLocationRandom" value="Random">
+                    <label class="btn btn-outline-primary" for="startLocationRandom">Random</label>
+                    <input type="radio" class="btn-check" name="start_location" id="startLocationEscape" value="Escape">
+                    <label class="btn btn-outline-primary" for="startLocationEscape">Escape</label>
                 </div>
             </div>
 

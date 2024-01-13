@@ -9,7 +9,7 @@ use std::path::Path;
 use crate::{
     customize::vanilla_music::override_music,
     game_data::{DoorPtr, DoorPtrPair, GameData, Item, Map, NodePtr, RoomGeometryDoor, RoomPtr},
-    randomize::{DoorType, LockedDoor, MotherBrainFight, Objectives, Randomization, SaveAnimals, AreaAssignment, WallJump, EtankRefill},
+    randomize::{DoorType, LockedDoor, MotherBrainFight, Objectives, Randomization, SaveAnimals, AreaAssignment, WallJump, EtankRefill, StartLocationMode},
 };
 use anyhow::{ensure, Context, Result};
 use hashbrown::{HashMap, HashSet};
@@ -1638,6 +1638,80 @@ impl<'a> Patcher<'a> {
     }
 
     fn set_start_location(&mut self) -> Result<()> {
+        let initial_area_addr = snes2pc(0xB5FE00);
+        let initial_load_station_addr = snes2pc(0xB5FE02);
+        let initial_items_collected = snes2pc(0xB5FE04);
+        let initial_items_equipped = snes2pc(0xB5FE06);
+        let initial_beams_collected = snes2pc(0xB5FE08);
+        let initial_beams_equipped = snes2pc(0xB5FE0A);
+        let initial_boss_bits = snes2pc(0xB5FE0C);
+        let initial_item_bits = snes2pc(0xB5FE12);
+        let initial_energy = snes2pc(0xB5FE52);
+        let initial_max_energy = snes2pc(0xB5FE54);
+        let initial_reserve_energy = snes2pc(0xB5FE56);
+        let initial_max_reserve_energy = snes2pc(0xB5FE58);
+        let initial_reserve_mode = snes2pc(0xB5FE5A);
+        let initial_missiles = snes2pc(0xB5FE5C);
+        let initial_max_missiles = snes2pc(0xB5FE5E);
+        let initial_supers = snes2pc(0xB5FE60);
+        let initial_max_supers = snes2pc(0xB5FE62);
+        let initial_power_bombs = snes2pc(0xB5FE64);
+        let initial_max_power_bombs = snes2pc(0xB5FE66);
+                
+        if self.randomization.difficulty.start_location_mode == StartLocationMode::Escape {
+            // Use Tourian load station 2, set up in escape_autosave.asm
+            self.rom.write_u16(initial_area_addr, 5)?;
+            self.rom.write_u16(initial_load_station_addr, 2)?;
+
+            // Set all non-beam items collected/equipped:
+            self.rom.write_u16(initial_items_collected, 0xF32F)?;
+            self.rom.write_u16(initial_items_equipped, 0xF32F)?;
+            self.rom.write_u16(initial_beams_collected, 0)?;
+            self.rom.write_u16(initial_beams_equipped, 0)?;
+            self.rom.write_u16(initial_energy, 1499)?;
+            self.rom.write_u16(initial_max_energy, 1499)?;
+            self.rom.write_u16(initial_reserve_energy, 400)?;
+            self.rom.write_u16(initial_max_reserve_energy, 400)?;
+            self.rom.write_u16(initial_reserve_mode, 1)?;  // 1 = AUTO
+            self.rom.write_u16(initial_missiles, 0)?;
+            self.rom.write_u16(initial_max_missiles, 230)?;
+            self.rom.write_u16(initial_supers, 0)?;
+            self.rom.write_u16(initial_max_supers, 50)?;
+            self.rom.write_u16(initial_power_bombs, 0)?;
+            self.rom.write_u16(initial_max_power_bombs, 50)?;
+
+            // Set all bosses defeated:
+            self.rom.write_n(initial_boss_bits, &[7, 7, 7, 7, 7, 7])?;
+
+            return Ok(());
+            // !initial_area = $B5FE00
+            // !initial_load_station = $B5FE02
+        }
+
+        // Use Crateria load station 2, used for random start
+        self.rom.write_u16(initial_area_addr, 0)?;
+        self.rom.write_u16(initial_load_station_addr, 2)?;
+
+        // Set no items collected/equipped:
+        self.rom.write_u16(initial_items_collected, 0)?;
+        self.rom.write_u16(initial_items_equipped, 0)?;
+        self.rom.write_u16(initial_beams_collected, 0)?;
+        self.rom.write_u16(initial_beams_equipped, 0)?;
+        self.rom.write_u16(initial_energy, 99)?;
+        self.rom.write_u16(initial_max_energy, 99)?;
+        self.rom.write_u16(initial_reserve_energy, 0)?;
+        self.rom.write_u16(initial_max_reserve_energy, 0)?;
+        self.rom.write_u16(initial_reserve_mode, 0)?;  // 0 = Not obtained
+        self.rom.write_u16(initial_missiles, 0)?;
+        self.rom.write_u16(initial_max_missiles, 0)?;
+        self.rom.write_u16(initial_supers, 0)?;
+        self.rom.write_u16(initial_max_supers, 0)?;
+        self.rom.write_u16(initial_power_bombs, 0)?;
+        self.rom.write_u16(initial_max_power_bombs, 0)?;
+
+        // Set no bosses defeated:
+        self.rom.write_n(initial_boss_bits, &[0; 6])?;
+
         // let start_locations: Vec<StartLocation> =
         //     serde_json::from_str(&std::fs::read_to_string(&"data/start_locations.json").unwrap()).unwrap();
         // let loc = start_locations.last().unwrap();

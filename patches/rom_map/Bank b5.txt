@@ -3,3 +3,22 @@ F000-F5FF: Initial revealed tile bitmask, copied to SRAM at $702000
 F600-F602: Initial area explored bitmask, copied to SRAM at $702600
 F700-F780: hazard_markers.asm
 F800-FE00: Initial partially revealed tile bitmask, copied to SRAM at $702700
+FE00-FE02: Initial area
+FE02-FE04: Initial load station
+FE04-FE06: Initial items collected (to be copied to $09A4)
+FE06-FE08: Initial items equipped (to be copied to $09A2)
+FE08-FE0A: Initial beams collected (to be copied to $09A8)
+FE0A-FE0C: Initial beams equipped (to be copied to $09A6)
+FE0C-FE12: Initial boss bits (to be copied to $7ED828-2E)
+FE12-FE52: Initial item bits (to be copied to $7ED870-B0)
+FE52-FE54: Initial energy (to be copied to $09C2)
+FE54-FE56: Initial max energy (to be copied to $09C4)
+FE56-FE58: Initial reserves (to be copied to $09D6)
+FE58-FE5A: Initial max reserves (to be copied to $09D4)
+FE5A-FE5C: Initial reserve mode (to be copied to $09C0)
+FE5C-FE5E: Initial missiles (to be copied to $09C6)
+FE5E-FE60: Initial max missiles (to be copied to $09C8)
+FE60-FE62: Initial super missiles (to be copied to $09CA)
+FE62-FE64: Initial max super missiles (to be copied to $09CC)
+FE64-FE66: Initial power bombs (to be copied to $09CE)
+FE66-FE68: Initial max power bombs (to be copied to $09D0)

@@ -12,7 +12,25 @@ incsrc "constants.asm"
 !current_save_slot = $7e0952
 !area_explored_mask = $702600
 !initial_area_explored_mask = $B5F600  ; must match address in patch/map_tiles.rs
-
+!initial_area = $B5FE00
+!initial_load_station = $B5FE02
+!initial_items_collected = $B5FE04
+!initial_items_equipped = $B5FE06
+!initial_beams_collected = $B5FE08
+!initial_beams_equipped = $B5FE0A
+!initial_boss_bits = $B5FE0C
+!initial_item_bits = $B5FE12
+!initial_energy = $B5FE52
+!initial_max_energy = $B5FE54
+!initial_reserve_energy = $B5FE56
+!initial_max_reserve_energy = $B5FE58
+!initial_reserve_mode = $B5FE5A
+!initial_missiles = $B5FE5C
+!initial_max_missiles = $B5FE5E
+!initial_supers = $B5FE60
+!initial_max_supers = $B5FE62
+!initial_power_bombs = $B5FE64
+!initial_max_power_bombs = $B5FE66
 
 ;;; Hijack code that runs during initialization
 org $82801d
@@ -40,14 +58,57 @@ org $80C4E1
 org $a1f210
 
 startup:
-    jsl check_new_game      : bne .end
+    jsl check_new_game 
+    beq .init
+    jmp .end
 
+.init:
     ; Initialize the load station and area:
-    lda #$0002
+    lda !initial_load_station 
     sta $078B
     sta $7ED916
-    stz $079f
-    stz $1F5B
+    lda !initial_area
+    sta $079f
+    sta $1F5B
+
+    ; Initialize items/flags collected/equipped:
+    lda !initial_items_collected
+    sta $09A4
+    lda !initial_items_equipped
+    sta $09A2
+    lda !initial_beams_collected
+    sta $09A8
+    lda !initial_beams_equipped
+    sta $09A6
+    lda !initial_boss_bits
+    sta $7ED828
+    lda !initial_boss_bits+2
+    sta $7ED82A
+    lda !initial_boss_bits+4
+    sta $7ED82C
+
+    lda !initial_energy
+    sta $09C2
+    lda !initial_max_energy
+    sta $09C4
+    lda !initial_reserve_energy
+    sta $09D6
+    lda !initial_max_reserve_energy
+    sta $09D4
+    lda !initial_reserve_mode
+    sta $09C0
+    lda !initial_missiles
+    sta $09C6
+    lda !initial_max_missiles
+    sta $09C8
+    lda !initial_supers
+    sta $09CA
+    lda !initial_max_supers
+    sta $09CC
+    lda !initial_power_bombs
+    sta $09CE
+    lda !initial_max_power_bombs
+    sta $09D0
 
     ; Unlock Tourian statues room (to avoid camera glitching when entering from bottom, and also to ensure game is
     ; beatable since we don't take it into account as an obstacle in the item randomization logic)

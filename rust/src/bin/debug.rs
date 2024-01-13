@@ -129,7 +129,7 @@ fn run_scenario(
         momentum_conservation: false,
         objectives: Objectives::Bosses,
         doors_mode: DoorsMode::Ammo,
-        randomized_start: false,
+        start_location_mode: maprando::randomize::StartLocationMode::Ship,
         save_animals: SaveAnimals::No,
         early_save: false,
         area_assignment: AreaAssignment::Standard,

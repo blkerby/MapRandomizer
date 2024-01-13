@@ -9,7 +9,7 @@ use maprando::patch::Rom;
 use maprando::randomize::{
     DebugOptions, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, MotherBrainFight, Objectives,
     ProgressionRate, Randomization, Randomizer, ItemDotChange, DoorsMode, randomize_doors, SaveAnimals, AreaAssignment,
-    randomize_map_areas
+    randomize_map_areas, StartLocationMode
 };
 use maprando::spoiler_map;
 use maprando::web::{MapRepository, Preset, SamusSpriteCategory};
@@ -104,7 +104,7 @@ fn create_difficulty_from_preset(preset : &Preset) -> DifficultyConfig {
         objectives: Objectives::Bosses,
         vanilla_map: false,
         doors_mode: DoorsMode::Blue,
-        randomized_start: false,
+        start_location_mode: StartLocationMode::Ship,
         save_animals: SaveAnimals::No,
 
         // Other options
@@ -446,7 +446,7 @@ fn get_randomization(app: &TestAppData, seed: u64) -> Result<(Randomization, Str
     rng = rand::rngs::StdRng::from_seed(rng_seed);
 
     let max_attempts = 10000;
-    let max_attempts_per_map = if diff.randomized_start { 10 } else { 1 };
+    let max_attempts_per_map = if diff.start_location_mode == StartLocationMode::Random { 10 } else { 1 };
     let max_map_attempts = max_attempts / max_attempts_per_map;
     let mut attempt_num = 0;
 

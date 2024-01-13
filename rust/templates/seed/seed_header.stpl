@@ -56,9 +56,7 @@
         </div>
         <div class="row">
             <div class="col-5 col-sm-4 col-md-3">Start location:</div>
-            <div class="col-7 col-sm-8 col-md-9">
-                <%= if difficulty.randomized_start { "Random" } else { "Ship" } %>
-            </div>
+            <div class="col-7 col-sm-8 col-md-9"><%= start_location_mode %></div>
         </div>
         <div class="row">
             <div class="col-5 col-sm-4 col-md-3">Save the animals:</div>

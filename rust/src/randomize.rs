@@ -80,6 +80,13 @@ pub enum DoorsMode {
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
+pub enum StartLocationMode {
+    Ship,
+    Random,
+    Escape
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
 pub enum AreaAssignment {
     Standard,
     Random,
@@ -180,7 +187,7 @@ pub struct DifficultyConfig {
     // Game variations:
     pub objectives: Objectives,
     pub doors_mode: DoorsMode,
-    pub randomized_start: bool,
+    pub start_location_mode: StartLocationMode,
     pub save_animals: SaveAnimals,
     pub early_save: bool,
     pub area_assignment: AreaAssignment,
@@ -3356,7 +3363,7 @@ impl<'r> Randomizer<'r> {
         num_attempts: usize,
         rng: &mut R,
     ) -> Result<(StartLocation, HubLocation)> {
-        if !self.difficulty_tiers[0].randomized_start {
+        if self.difficulty_tiers[0].start_location_mode == StartLocationMode::Ship {
             let mut ship_start = StartLocation::default();
             ship_start.name = "Ship".to_string();
             ship_start.room_id = 8;

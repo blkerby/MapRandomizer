@@ -22,7 +22,7 @@ use maprando::patch::{make_rom, Rom};
 use maprando::randomize::{
     filter_links, randomize_doors, DebugOptions, DifficultyConfig, DoorsMode, ItemDotChange,
     ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, MotherBrainFight, Objectives,
-    Randomization, Randomizer, SaveAnimals, AreaAssignment, WallJump, EtankRefill, randomize_map_areas,
+    Randomization, Randomizer, SaveAnimals, AreaAssignment, WallJump, EtankRefill, randomize_map_areas, StartLocationMode,
 };
 use maprando::seed_repository::{Seed, SeedFile, SeedRepository};
 use maprando::spoiler_map;
@@ -247,7 +247,7 @@ struct RandomizeRequest {
     momentum_conservation: Text<bool>,
     objectives: Text<String>,
     doors: Text<String>,
-    randomized_start: Text<bool>,
+    start_location: Text<String>,
     map_layout: Text<String>,
     save_animals: Text<String>,
     early_save: Text<bool>,
@@ -330,6 +330,7 @@ struct SeedData {
     momentum_conservation: bool,
     objectives: String,
     doors: String,
+    start_location_mode: String,
     map_layout: String,
     save_animals: String,
     early_save: bool,
@@ -386,6 +387,7 @@ struct SeedHeaderTemplate<'a> {
     momentum_conservation: bool,
     objectives: String,
     doors: String,
+    start_location_mode: String,
     map_layout: String,
     save_animals: String,
     early_save: bool,
@@ -488,6 +490,7 @@ fn render_seed(
         momentum_conservation: seed_data.momentum_conservation,
         objectives: seed_data.objectives.clone(),
         doors: seed_data.doors.clone(),
+        start_location_mode: seed_data.start_location_mode.clone(),
         map_layout: seed_data.map_layout.clone(),
         save_animals: seed_data.save_animals.clone(),
         early_save: seed_data.early_save,
@@ -1005,7 +1008,7 @@ fn get_difficulty_tiers(
                 preset.door_stuck_leniency as i32,
             ),
             escape_timer_multiplier: difficulty.escape_timer_multiplier,
-            randomized_start: difficulty.randomized_start,
+            start_location_mode: difficulty.start_location_mode,
             save_animals: difficulty.save_animals,
             phantoon_proficiency: f32::min(
                 difficulty.phantoon_proficiency,
@@ -1223,7 +1226,12 @@ async fn randomize(
         escape_timer_multiplier: req.escape_timer_multiplier.0,
         gate_glitch_leniency: req.gate_glitch_leniency.0,
         door_stuck_leniency: req.door_stuck_leniency.0,
-        randomized_start: req.randomized_start.0,
+        start_location_mode: match req.start_location.0.as_str() {
+            "Ship" => maprando::randomize::StartLocationMode::Ship,
+            "Random" => maprando::randomize::StartLocationMode::Random,
+            "Escape" => maprando::randomize::StartLocationMode::Escape,
+            _ => panic!("Unrecognized start_location: {}", req.start_location.0),
+        },
         save_animals: match req.save_animals.0.as_str() {
             "No" => SaveAnimals::No,
             "Maybe" => SaveAnimals::Maybe,
@@ -1363,7 +1371,7 @@ async fn randomize(
     rng_seed[9] = if race_mode { 1 } else { 0 };
     let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
     let max_attempts = 10000;
-    let max_attempts_per_map = if req.randomized_start.0 { 10 } else { 1 };
+    let max_attempts_per_map = if difficulty.start_location_mode == StartLocationMode::Random { 10 } else { 1 };
     let max_map_attempts = max_attempts / max_attempts_per_map;
     info!(
         "Random seed={random_seed}, max_attempts_per_map={max_attempts_per_map}, max_map_attempts={max_map_attempts}, difficulty={:?}",
@@ -1499,6 +1507,7 @@ async fn randomize(
         momentum_conservation: req.momentum_conservation.0,
         objectives: req.objectives.0.clone(),
         doors: req.doors.0.clone(),
+        start_location_mode: req.start_location.0.clone(),
         map_layout: req.map_layout.0.clone(),
         save_animals: req.save_animals.0.clone(),
         early_save: req.early_save.0,

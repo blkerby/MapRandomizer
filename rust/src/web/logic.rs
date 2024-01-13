@@ -7,7 +7,7 @@ use sailfish::TemplateOnce;
 use urlencoding;
 
 use crate::game_data::{GameData, Link, NodeId, Requirement, RoomId, ExitCondition, EntranceCondition};
-use crate::randomize::{DebugOptions, DifficultyConfig, SaveAnimals, AreaAssignment, WallJump, EtankRefill, MapsRevealed};
+use crate::randomize::{DebugOptions, DifficultyConfig, SaveAnimals, AreaAssignment, WallJump, EtankRefill, MapsRevealed, StartLocationMode};
 use crate::traverse::{apply_requirement, GlobalState, LocalState};
 
 use super::{PresetData, VersionInfo, HQ_VIDEO_URL_ROOT};
@@ -359,7 +359,7 @@ fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
         objectives: crate::randomize::Objectives::Bosses,
         doors_mode: crate::randomize::DoorsMode::Ammo,
         save_animals: SaveAnimals::No,
-        randomized_start: false,
+        start_location_mode: StartLocationMode::Ship,
         early_save: false,
         area_assignment: AreaAssignment::Standard,
         wall_jump: WallJump::Vanilla,

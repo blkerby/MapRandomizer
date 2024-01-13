@@ -1,1 +1,2 @@
-Whole bank: extra setup ASM
+0000-0100: hazard_markers.asm
+0100-end: extra setup ASM

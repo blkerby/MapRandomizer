@@ -7,12 +7,17 @@ v107?:
 v106:
 - option for map partially revealed from start.
 - escape-only mode
+  - skip item placement logic
+  - fill item locations with nothing
+  - show on map as already collected small dots
+  - spoiler map shouldn't have any steps
 - refine escape timer calculation
   - remove base leniency
   - make rounding conditional on the multiplier
 - maybe: fix issue with pause map scrolling beyond bounds
 
 priority:
+- everest 2 -> 7 and 3 -> 7 gravity jump
 - add more leaveWithSpark strats in elevator rooms (including vertical?)
 - add test in sm-json-data to check that "shinespark" occurs in requires for "leaveWithSpark" strats.
 - set up offline script to generate BPS patch for each mosaic room/theme combination

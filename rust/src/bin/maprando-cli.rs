@@ -7,7 +7,7 @@ use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::Rom;
 use maprando::randomize::{
     DebugOptions, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, MotherBrainFight, Objectives,
-    ProgressionRate, Randomization, Randomizer, ItemDotChange, DoorsMode, randomize_doors, SaveAnimals, AreaAssignment, LockedDoor,
+    ProgressionRate, Randomization, Randomizer, ItemDotChange, DoorsMode, randomize_doors, SaveAnimals, AreaAssignment, LockedDoor, StartLocationMode,
 };
 use maprando::spoiler_map;
 use maprando::web::{SamusSpriteInfo, SamusSpriteCategory};
@@ -181,7 +181,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         objectives: Objectives::Pirates,
         // objectives: Objectives::Bosses,
         doors_mode: DoorsMode::Ammo,
-        randomized_start: false,
+        start_location_mode: StartLocationMode::Ship,
         save_animals: SaveAnimals::No,
         area_assignment: AreaAssignment::Standard,
         early_save: false,
@@ -231,7 +231,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
             None => 10000, // Same as maprando-web.
         }
     };
-    let max_attempts_per_map = if difficulty_tiers[0].randomized_start { 10 } else { 1 };
+    let max_attempts_per_map = if difficulty_tiers[0].start_location_mode == StartLocationMode::Random { 10 } else { 1 };
     let max_map_attempts = max_attempts / max_attempts_per_map;
     let mut attempt_num = 0;
     for _ in 0..max_map_attempts {

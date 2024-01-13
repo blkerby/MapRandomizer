@@ -1,14 +1,14 @@
 <!-- Button trigger modal -->
-<button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#randomizedStartModal">
+<button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#startLocationModal">
 <i class="bi bi-question-circle"></i>
 </button>
 
 <!-- Modal -->
-<div class="modal" id="randomizedStartModal" tabindex="-1">
+<div class="modal" id="startLocationModal" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5">Randomized start location</h1>
+        <h1 class="modal-title fs-5">Start location</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -16,13 +16,18 @@
       <ul>
       <li><strong>Ship</strong>: Samus begins in Landing Site at the Ship.
       <li><strong>Random</strong>: Samus begins in a random room somewhere on Zebes.
+      <li><strong>Escape</strong>: Samus begins in Mother Brain Room at the start of the escape sequence.
       </ul></p>
       
-      <p>If Random start is used, generally Samus will not be able to save or refill at the starting location. 
-      The player will need to find the Ship in order to complete the escape sequence.</p>
+      <p>If "Random" start is used, generally Samus will not be able to save or refill at the starting location. 
+      The player will need to find the Ship in order to complete the escape sequence. In some cases, reaching an 
+      initial save station could be challenging, though the quality-of-life option "Guaranteed early save station" 
+      limits how bad it could be.</p>
 
-      <p>In some cases, reaching an initial save station could be challenging, though the quality-of-life option
-      "Guaranteed early save station" limits how bad it could be.</p>
+      <p>With the "Escape" option, Samus will start with all items, and all that is required to beat the game is 
+      to make it back to the Ship in time (possibly after saving the animals). Save stations do not work during the
+      escape, but map stations do. This option can be combined with the "Maps revealed from start" option (under "Other options");
+      otherwise it will likely take many escape attempts in order to find the Ship.
 
       <h5>Details</h5>
       <p>
