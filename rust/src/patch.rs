@@ -1501,22 +1501,24 @@ impl<'a> Patcher<'a> {
     fn write_item_credits(
         &mut self,
         idx: usize,
-        step: usize,
+        step: Option<usize>,
         item: &str,
         item_idx: usize,
         area: &str,
     ) -> Result<()> {
         let base_addr = snes2pc(0xceb240 + (164 - 128 + idx * 2) * 0x40);
 
-        // Write step number
-        if step >= 10 {
-            write_credits_big_digit(self.rom, step / 10, base_addr + 2)?;
+        if let Some(step) = step {
+            // Write step number
+            if step >= 10 {
+                write_credits_big_digit(self.rom, step / 10, base_addr + 2)?;
+            }
+            write_credits_big_digit(self.rom, step % 10, base_addr + 4)?;
+            
+            // Write colon after step number:
+            self.rom.write_u16(base_addr + 6, 0x5A)?;
+            self.rom.write_u16(base_addr + 6 + 0x40, 0x5A)?;
         }
-        write_credits_big_digit(self.rom, step % 10, base_addr + 4)?;
-        
-        // Write colon after step number:
-        self.rom.write_u16(base_addr + 6, 0x5A)?;
-        self.rom.write_u16(base_addr + 6 + 0x40, 0x5A)?;
 
         // Write item text
         for (i, c) in item.chars().enumerate() {
@@ -1625,13 +1627,32 @@ impl<'a> Patcher<'a> {
                     let item_idx = item_name_index[&item_info.item];
                     self.write_item_credits(
                         items_set.len(),
-                        step + 1,
+                        Some(step + 1),
                         &item_name,
                         item_idx,
                         &item_info.location.area,
                     )?;
                     items_set.insert(item_info.item.clone());
                 }
+            }
+        }
+
+        // Show unplaced items at the bottom:
+        for (name, display_name) in &item_name_pairs {
+            if self.randomization.difficulty.wall_jump != WallJump::Collectible && name == "WallJump" {
+                // Don't show "WallJump" item unless using Collectible mode.
+                continue;
+            }
+            if !items_set.contains(name) {
+                let item_idx = item_name_index[name];
+                self.write_item_credits(
+                    items_set.len(),
+                    None,
+                    &display_name,
+                    item_idx,
+                    "not placed",
+                )?;
+                items_set.insert(name.clone());
             }
         }
         Ok(())
