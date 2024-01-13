@@ -12,7 +12,7 @@ incsrc "constants.asm"
 !current_save_slot = $7e0952
 !area_explored_mask = $702600
 !initial_area_explored_mask = $B5F600  ; must match address in patch/map_tiles.rs
-!initial_area = $B5FE00
+!initial_area = $B5FE00  ; area used for the load station, not the map area
 !initial_load_station = $B5FE02
 !initial_items_collected = $B5FE04
 !initial_items_equipped = $B5FE06
@@ -69,6 +69,7 @@ startup:
     sta $7ED916
     lda !initial_area
     sta $079f
+    sta $7ED918
     sta $1F5B
 
     ; Initialize items/flags collected/equipped:
@@ -86,7 +87,6 @@ startup:
     sta $7ED82A
     lda !initial_boss_bits+4
     sta $7ED82C
-
     lda !initial_energy
     sta $09C2
     lda !initial_max_energy
@@ -109,6 +109,14 @@ startup:
     sta $09CE
     lda !initial_max_power_bombs
     sta $09D0
+    ; item bits:
+    ldx #$0040
+.item_bits_loop:
+    lda !initial_item_bits-2,x
+    sta $7ED870-2,x
+    dex
+    dex
+    bne .item_bits_loop
 
     ; Unlock Tourian statues room (to avoid camera glitching when entering from bottom, and also to ensure game is
     ; beatable since we don't take it into account as an obstacle in the item randomization logic)
@@ -200,7 +208,8 @@ gameplay_start:
     lda $079f
     pha
 
-    stz $079f  ; use save slot for area 0, regardless of what the starting area is
+    lda !initial_area
+    sta $079f
     lda !current_save_slot
     jsl $818000  ; save new game
 

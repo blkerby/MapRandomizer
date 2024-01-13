@@ -1679,13 +1679,12 @@ impl<'a> Patcher<'a> {
             self.rom.write_u16(initial_max_supers, 50)?;
             self.rom.write_u16(initial_power_bombs, 0)?;
             self.rom.write_u16(initial_max_power_bombs, 50)?;
+            self.rom.write_n(initial_item_bits, &[0xFF; 0x40])?;
 
             // Set all bosses defeated:
             self.rom.write_n(initial_boss_bits, &[7, 7, 7, 7, 7, 7])?;
 
             return Ok(());
-            // !initial_area = $B5FE00
-            // !initial_load_station = $B5FE02
         }
 
         // Use Crateria load station 2, used for random start
@@ -1708,6 +1707,7 @@ impl<'a> Patcher<'a> {
         self.rom.write_u16(initial_max_supers, 0)?;
         self.rom.write_u16(initial_power_bombs, 0)?;
         self.rom.write_u16(initial_max_power_bombs, 0)?;
+        self.rom.write_n(initial_item_bits, &[0x00; 0x40])?;
 
         // Set no bosses defeated:
         self.rom.write_n(initial_boss_bits, &[0; 6])?;
