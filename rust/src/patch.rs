@@ -464,6 +464,10 @@ impl<'a> Patcher<'a> {
             }
         }
 
+        if self.randomization.difficulty.energy_free_shinesparks {
+            patches.push("energy_free_shinesparks");
+        }
+
         if self.randomization.difficulty.respin {
             patches.push("spinjumprestart");
         }

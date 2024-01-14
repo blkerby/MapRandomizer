@@ -136,6 +136,7 @@ fn run_scenario(
         wall_jump: WallJump::Vanilla,
         etank_refill: maprando::randomize::EtankRefill::Vanilla,
         maps_revealed: MapsRevealed::Yes,
+        energy_free_shinesparks: false,
         vanilla_map: false,
         ultra_low_qol: false,
         skill_assumptions_preset: None,

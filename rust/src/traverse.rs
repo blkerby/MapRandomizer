@@ -972,6 +972,9 @@ pub fn apply_requirement(
             shinespark_tech_id,
         } => {
             if global.tech[*shinespark_tech_id] {
+                if difficulty.energy_free_shinesparks {
+                    return Some(local);
+                }
                 let mut new_local = local;
                 if reverse {
                     if new_local.energy_used <= 28 {

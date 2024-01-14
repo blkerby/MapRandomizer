@@ -255,6 +255,7 @@ struct RandomizeRequest {
     wall_jump: Text<String>,
     etank_refill: Text<String>,
     maps_revealed: Text<String>,
+    energy_free_shinesparks: Text<bool>,
     ultra_low_qol: Text<bool>,
 }
 
@@ -1050,6 +1051,7 @@ fn get_difficulty_tiers(
             wall_jump: difficulty.wall_jump,
             etank_refill: difficulty.etank_refill,
             maps_revealed: difficulty.maps_revealed,
+            energy_free_shinesparks: difficulty.energy_free_shinesparks,
             vanilla_map: difficulty.vanilla_map,
             ultra_low_qol: difficulty.ultra_low_qol,
             skill_assumptions_preset: difficulty.skill_assumptions_preset.clone(),
@@ -1330,6 +1332,7 @@ async fn randomize(
             ),
         },
         vanilla_map,
+        energy_free_shinesparks: req.energy_free_shinesparks.0,
         ultra_low_qol: req.ultra_low_qol.0,
         skill_assumptions_preset: req.preset.as_ref().map(|x| x.0.clone()),
         item_progression_preset: req.item_progression_preset.as_ref().map(|x| x.0.clone()),

@@ -114,6 +114,7 @@ fn create_difficulty_from_preset(preset : &Preset) -> DifficultyConfig {
         item_dot_change: ItemDotChange::Fade,
         transition_letters: false,
         maps_revealed: maprando::randomize::MapsRevealed::No,
+        energy_free_shinesparks: false,
         ultra_low_qol: false,
 
         skill_assumptions_preset: Some(preset.name.clone()),

@@ -319,6 +319,7 @@ function checkOtherOptions() {
         document.getElementById("wallJumpDisabled").checked ||
         document.getElementById("etankRefillDisabled").checked ||
         document.getElementById("etankRefillFull").checked ||
+        document.getElementById("energyFreeShinesparksYes").checked ||
         document.getElementById("areaAssignmentRandom").checked ||
         document.getElementById("itemDotChangeDisappear").checked ||
         document.getElementById("transitionLettersYes").checked ||

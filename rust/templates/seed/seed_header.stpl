@@ -97,6 +97,9 @@
         if maps_revealed == "Yes" {
             game_variations.push("Maps revealed from start");
         }
+        if difficulty.energy_free_shinesparks {
+            game_variations.push("Energy-free shinesparks");
+        }
         if ultra_low_qol {
             game_variations.push("Ultra-low quality of life");
         }

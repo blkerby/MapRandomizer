@@ -194,6 +194,7 @@ pub struct DifficultyConfig {
     pub wall_jump: WallJump,
     pub etank_refill: EtankRefill,
     pub maps_revealed: MapsRevealed,
+    pub energy_free_shinesparks: bool,
     pub vanilla_map: bool,
     pub ultra_low_qol: bool,
     // Presets:
