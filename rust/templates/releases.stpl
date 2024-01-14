@@ -14,7 +14,7 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release105">Version 106 (2024-01-12)</a>:
+<p><a id="release105">Version 106 (2024-01-13)</a>:
 <ul>
 <li>A new setting "Partial" is added for "Maps revealed from start" (under "Other options").
 <li>A new option "Energy-free shinesparks" is added (under "Other options").
