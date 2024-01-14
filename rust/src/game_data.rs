@@ -538,6 +538,7 @@ pub enum ExitCondition {
     },
     LeaveShinecharged {
         frames_remaining: Option<i32>,
+        physics: Option<Physics>,
     },
     LeaveWithSpark {
         position: SparkPosition,
@@ -591,7 +592,8 @@ fn parse_exit_condition(
             })
         }
         "leaveShinecharged" => Ok(ExitCondition::LeaveShinecharged {
-            frames_remaining: value["framesRemaining"].as_i32()
+            frames_remaining: value["framesRemaining"].as_i32(),
+            physics,
         }),
         "leaveWithSpark" => Ok(ExitCondition::LeaveWithSpark {
             position: parse_spark_position(value["position"].as_str())?,
@@ -640,6 +642,7 @@ pub enum GModeMobility {
 
 #[derive(Clone, Debug)]
 pub enum EntranceCondition {
+    ComeInNormally {},
     ComeInRunning {
         speed_booster: Option<bool>,
         min_tiles: f32,
@@ -657,18 +660,22 @@ pub enum EntranceCondition {
     ComeInShinecharged {
         frames_required: i32,
     },
+    ComeInShinechargedJumping {
+        frames_required: i32,
+    },
     ComeInWithSpark {
         position: SparkPosition,
     },
+    ComeInSpeedballing {
+        effective_runway_length: f32,
+    },
+    ComeInWithTemporaryBlue {},
     ComeInStutterShinecharging {
         min_tiles: f32,
     },
     ComeInWithBombBoost {},
     ComeInWithDoorStuckSetup {
         heated: bool,
-    },
-    ComeInSpeedballing {
-        effective_runway_length: f32,
     },
     ComeInWithRMode {},
     ComeInWithGMode {
@@ -734,6 +741,7 @@ fn parse_entrance_condition(entrance_json: &JsonValue, heated: bool) -> Result<E
     let (key, value) = entrance_json.entries().next().unwrap();
     ensure!(value.is_object());
     match key {
+        "comeInNormally" => Ok(EntranceCondition::ComeInNormally {}),
         "comeInRunning" => Ok(EntranceCondition::ComeInRunning {
             speed_booster: value["speedBooster"].as_bool(),
             min_tiles: value["minTiles"]
@@ -762,6 +770,11 @@ fn parse_entrance_condition(entrance_json: &JsonValue, heated: bool) -> Result<E
                 .as_i32()
                 .context("Expecting integer 'framesRequired'")?,
         }),
+        "comeInShinechargedJumping" => Ok(EntranceCondition::ComeInShinechargedJumping {
+            frames_required: value["framesRequired"]
+                .as_i32()
+                .context("Expecting integer 'framesRequired'")?,
+        }),
         "comeInWithSpark" => Ok(EntranceCondition::ComeInWithSpark {
             position: parse_spark_position(value["position"].as_str())?,
         }),
@@ -779,6 +792,7 @@ fn parse_entrance_condition(entrance_json: &JsonValue, heated: bool) -> Result<E
                 effective_runway_length,
             })
         }
+        "comeInWithTemporaryBlue" => Ok(EntranceCondition::ComeInWithTemporaryBlue {}),
         "comeInWithRMode" => Ok(EntranceCondition::ComeInWithRMode {}),
         "comeInWithGMode" => {
             let mode = match value["mode"].as_str().context("Expected string 'mode'")? {
@@ -2460,100 +2474,6 @@ impl GameData {
                     .insert((room_id, node_id), jumpway_vec);
             } else {
                 self.node_jumpways_map.insert((room_id, node_id), vec![]);
-            }
-
-            if node_json.has_key("canLeaveCharged") {
-                ensure!(node_json["canLeaveCharged"].is_array());
-                let mut can_leave_charged_vec: Vec<CanLeaveCharged> = vec![];
-                for can_leave_charged_json in node_json["canLeaveCharged"].members() {
-                    if can_leave_charged_json.has_key("initiateRemotely") {
-                        // TODO: handle case with initiateRemotely
-                        continue;
-                    }
-                    ensure!(can_leave_charged_json["strats"].is_array());
-                    for strat_json in can_leave_charged_json["strats"].members() {
-                        ensure!(strat_json["requires"].is_array());
-                        let requires_json: Vec<JsonValue> = strat_json["requires"]
-                            .members()
-                            .map(|x| x.clone())
-                            .collect();
-                        let mut ctx = RequirementContext::default();
-                        ctx.room_id = room_id;
-                        let requirement =
-                            Requirement::make_and(self.parse_requires_list(&requires_json, &ctx)?);
-                        if strat_json.has_key("obstacles") {
-                            // TODO: handle obstacles
-                            continue;
-                        }
-                        let can_leave_charged = CanLeaveCharged {
-                            used_tiles: can_leave_charged_json["usedTiles"]
-                                .as_i32()
-                                .context("Expecting integer usedTiles")?,
-                            open_end: can_leave_charged_json["openEnd"]
-                                .as_i32()
-                                .context("Expecting integer openEnd")?,
-                            frames_remaining: can_leave_charged_json["framesRemaining"]
-                                .as_i32()
-                                .context("Expecting integer framesRemaining")?,
-                            requirement: requirement.clone(),
-                        };
-                        can_leave_charged_vec.push(can_leave_charged.clone());
-
-                        // Temporary while migration is in process -- Create new-style exit-condition strat:
-                        let vertex_id = self.vertex_isv.index_by_key[&(room_id, node_id, 0)];
-                        let effective_length = get_effective_runway_length(
-                            can_leave_charged.used_tiles as f32,
-                            can_leave_charged.open_end as f32,
-                        );
-                        let lock_req = if let Some(lock_req_json) =
-                            self.node_lock_req_json.get(&(room_id, node_id))
-                        {
-                            // This accounts for requirements to unlock a gray door before performing a cross-room
-                            // strat through it:
-                            self.parse_requirement(&lock_req_json.clone(), &ctx)?
-                        } else {
-                            Requirement::Free
-                        };
-                        let req = Requirement::make_and(vec![
-                            requirement,
-                            lock_req,
-                            Requirement::ShineCharge {
-                                used_tiles: effective_length,
-                                heated: true,  // treat runway as heated, to be conservative (for deprecated old-style cross-room strats, to be removed soon)
-                            },
-                        ]);
-                        let exit_condition = if can_leave_charged.frames_remaining > 0 {
-                            ExitCondition::LeaveShinecharged {
-                                frames_remaining: Some(can_leave_charged.frames_remaining),
-                            }
-                        } else {
-                            ExitCondition::LeaveWithSpark {
-                                position: SparkPosition::Any,
-                            }
-                        };
-                        let link = Link {
-                            from_vertex_id: vertex_id,
-                            to_vertex_id: vertex_id,
-                            requirement: req,
-                            entrance_condition: None,
-                            exit_condition: Some(exit_condition),
-                            bypasses_door_shell: false,
-                            notable_strat_name: None,
-                            strat_name: strat_json["name"].as_str().unwrap().to_string(),
-                            strat_notes: vec![],
-                            sublinks: vec![],
-                        };
-                        self.node_exits
-                            .entry((room_id, node_id))
-                            .or_insert(vec![])
-                            .push(link);
-                    }
-                }
-                self.node_can_leave_charged_map
-                    .insert((room_id, node_id), can_leave_charged_vec);
-            } else {
-                self.node_can_leave_charged_map
-                    .insert((room_id, node_id), vec![]);
             }
 
             if node_json.has_key("leaveWithGModeSetup") {

@@ -532,6 +532,22 @@ impl<'a> Preprocessor<'a> {
         }
     }
 
+    fn get_come_in_normally_reqs(
+        &self,
+        exit_link: &Link,
+        exit_condition: &ExitCondition,
+    ) -> Option<Requirement> {
+        match exit_condition {
+            ExitCondition::LeaveWithRunway { .. } => {
+                if exit_link.from_vertex_id != exit_link.to_vertex_id {
+                    return None;
+                }
+                Some(Requirement::Free)
+            }
+            _ => None,
+        }
+    }
+
     fn get_come_in_running_reqs(
         &self,
         exit_link: &Link,
@@ -666,7 +682,54 @@ impl<'a> Preprocessor<'a> {
         frames_required: i32,
     ) -> Option<Requirement> {
         match exit_condition {
-            ExitCondition::LeaveShinecharged { frames_remaining } => {
+            ExitCondition::LeaveShinecharged { frames_remaining, .. } => {
+                let frames_remaining = frames_remaining.expect("Missing frames_remaining should have been resolved in preprocessing");
+                if frames_remaining < frames_required {
+                    None
+                } else {
+                    Some(Requirement::ShineChargeLeniencyFrames(frames_remaining - frames_required))
+                }
+            }
+            ExitCondition::LeaveWithRunway {
+                effective_length,
+                heated,
+                physics,
+            } => {
+                let mut reqs: Vec<Requirement> = vec![];
+                reqs.push(Requirement::make_shinecharge(*effective_length, *heated));
+                if *physics != Some(Physics::Air) {
+                    reqs.push(Requirement::Item(Item::Gravity as ItemId));
+                }
+                if *heated {
+                    if exit_link.from_vertex_id == exit_link.to_vertex_id {
+                        let runway_length = f32::min(33.0, *effective_length);
+                        let run_frames = compute_run_frames(runway_length);
+                        let heat_frames_1 = run_frames + 20;
+                        let heat_frames_2 = i32::max(85, run_frames);
+                        reqs.push(Requirement::HeatFrames(heat_frames_1 + heat_frames_2 + 15));
+                    } else {
+                        let heat_frames = i32::max(85, compute_run_frames(*effective_length));
+                        reqs.push(Requirement::HeatFrames(heat_frames + 5));
+                    }
+                }
+                reqs.push(Requirement::ShineChargeLeniencyFrames(170 - frames_required));
+                Some(Requirement::make_and(reqs))
+            }
+            _ => None,
+        }
+    }
+
+    fn get_come_in_shinecharged_jumping_reqs(
+        &self,
+        exit_link: &Link,
+        exit_condition: &ExitCondition,
+        frames_required: i32,
+    ) -> Option<Requirement> {
+        match exit_condition {
+            ExitCondition::LeaveShinecharged { frames_remaining, physics } => {
+                if *physics != Some(Physics::Air) {
+                    return None;
+                }
                 let frames_remaining = frames_remaining.expect("Missing frames_remaining should have been resolved in preprocessing");
                 if frames_remaining < frames_required {
                     None
@@ -778,6 +841,41 @@ impl<'a> Preprocessor<'a> {
                     } else {
                         let heat_frames = i32::max(85, compute_run_frames(*effective_length));
                         reqs.push(Requirement::HeatFrames(heat_frames + 5));
+                    }
+                }
+                Some(Requirement::make_and(reqs))
+            }
+            _ => None,
+        }
+    }
+
+    fn get_come_in_with_temporary_blue_reqs(
+        &self,
+        exit_link: &Link,
+        exit_condition: &ExitCondition,
+    ) -> Option<Requirement> {
+        match exit_condition {
+            ExitCondition::LeaveWithRunway {
+                effective_length,
+                heated,
+                physics,
+            } => {
+                let mut reqs: Vec<Requirement> = vec![];
+                reqs.push(Requirement::make_shinecharge(*effective_length, *heated));
+                if *physics != Some(Physics::Air) {
+                    reqs.push(Requirement::Item(Item::Gravity as ItemId));
+                }
+                if *heated {
+                    let heat_frames_temp_blue = 200;
+                    if exit_link.from_vertex_id == exit_link.to_vertex_id {
+                        let runway_length = f32::min(33.0, *effective_length);
+                        let run_frames = compute_run_frames(runway_length);
+                        let heat_frames_1 = run_frames + 20;
+                        let heat_frames_2 = i32::max(85, run_frames);
+                        reqs.push(Requirement::HeatFrames(heat_frames_1 + heat_frames_2 + heat_frames_temp_blue + 15));
+                    } else {
+                        let heat_frames = i32::max(85, compute_run_frames(*effective_length));
+                        reqs.push(Requirement::HeatFrames(heat_frames + heat_frames_temp_blue + 5));
                     }
                 }
                 Some(Requirement::make_and(reqs))
@@ -1073,6 +1171,9 @@ impl<'a> Preprocessor<'a> {
     ) -> Option<Requirement> {
         let exit_condition = exit_link.exit_condition.as_ref().unwrap();
         match entrance_condition {
+            EntranceCondition::ComeInNormally {} => {
+                self.get_come_in_normally_reqs(exit_link, exit_condition)
+            },
             EntranceCondition::ComeInRunning {
                 speed_booster,
                 min_tiles,
@@ -1106,6 +1207,9 @@ impl<'a> Preprocessor<'a> {
             ),
             EntranceCondition::ComeInShinecharged { frames_required } => {
                 self.get_come_in_shinecharged_reqs(exit_link, exit_condition, *frames_required)
+            }
+            EntranceCondition::ComeInShinechargedJumping { frames_required } => {
+                self.get_come_in_shinecharged_jumping_reqs(exit_link, exit_condition, *frames_required)
             }
             EntranceCondition::ComeInWithSpark { position } => {
                 self.get_come_in_with_spark_reqs(exit_link, exit_condition, *position)
@@ -1154,6 +1258,9 @@ impl<'a> Preprocessor<'a> {
                     ]))
                 }
             }
+            EntranceCondition::ComeInWithTemporaryBlue { } => {
+                self.get_come_in_with_temporary_blue_reqs(exit_link, exit_condition)
+            }
             EntranceCondition::ComeInWithRMode {} => {
                 self.get_come_in_with_r_mode_reqs(exit_condition)
             }
@@ -1193,18 +1300,24 @@ impl<'a> Preprocessor<'a> {
             return None;
         }
         match entrance_link.exit_condition.as_ref().unwrap() {
-            ExitCondition::LeaveShinecharged { frames_remaining } => {
+            ExitCondition::LeaveShinecharged { frames_remaining, physics } => {
                 if frames_remaining.is_none() {
                     match entrance_condition {
                         EntranceCondition::ComeInShinecharged { frames_required } => {
                             match exit_link.exit_condition.as_ref().expect("Strat with leaveShinecharged 'auto' frames: expecting exit_condition in other room") {
-                                ExitCondition::LeaveShinecharged { frames_remaining } => {
+                                ExitCondition::LeaveShinecharged { frames_remaining, .. } => {
                                     let final_frames_remaining = frames_remaining.unwrap() - frames_required;
-                                    return Some(ExitCondition::LeaveShinecharged { frames_remaining: Some(final_frames_remaining) })
+                                    return Some(ExitCondition::LeaveShinecharged { 
+                                        frames_remaining: Some(final_frames_remaining),
+                                        physics: *physics
+                                    })
                                 },
                                 ExitCondition::LeaveWithRunway { .. } => {
                                     let final_frames_remaining = 170 - frames_required;
-                                    return Some(ExitCondition::LeaveShinecharged { frames_remaining: Some(final_frames_remaining) })
+                                    return Some(ExitCondition::LeaveShinecharged {
+                                        frames_remaining: Some(final_frames_remaining),
+                                        physics: *physics
+                                    })
                                 },
                                 _ => panic!("leaveShinecharged 'auto' framesRequired: unexpected exit_condition in other room: {:?}", exit_link.exit_condition)
                             }        

@@ -268,8 +268,8 @@
 
       "Fish Tank Entry Fall onto Frozen Fish",
       "Fish Tank Entry Reset Fall Speed",
-      "Fish Tank Top Left Flatley Jump",
       "Fish Tank Wall Jump Entry", 
+      "Fish Tank Top Left Direct Jump", 
       "Glass Tunnel Maridia Tube Clip",
       "Mt. Everest Bottom Right Charged Drop",
       "Mt. Everest Shinespark Down-Grab to the Grapple Blocks (Left to Top)",
@@ -379,6 +379,7 @@
       "Red Tower IBJ Between the Bottom Rippers",
       "Red Tower Midair HBJ",
 
+      "Warehouse Kihunter Room Bottom Leave Shinecharged",      
       "Warehouse Kihunter Speedball",
 
       "Cathedral Entrance Sova Morph Only Boost",
@@ -416,6 +417,7 @@
       "Mama Turtle Wall Jump Bomb Boost",
 
       "Colosseum Spike Platforming with Move Assist (Left to Right)",
+      "Colosseum Spike Platforming with SpringBall (Left to Right)",
       "Draygon Turret Grapple Jump",
       "West Sand Hole Suitless Wall Jump Break Free",
       "West Sand Hole Bootless Suitless IBJ",
@@ -433,7 +435,8 @@
       "Blue Hopper Dodge",
       "Blue Hopper Room Roll Under Hoppers",
       "Tourian Blue Hopper Crystal Flash",
-      "Baby Skip Without Wave or Speed"
+      "Baby Skip Without Wave or Speed",
+      "Tourian Escape Room 4 Acid Bath Shinespark"      
     ]
   },
   {
@@ -541,7 +544,9 @@
       "East Pants Room Suitless Puyo Clip",
       "G-Mode Morph Reverse Shaktool",
 
-      "WS East Supers R-Mode Standup Clip (Right to Left)"
+      "WS East Supers R-Mode Standup Clip (Right to Left)",
+
+      "Tourian Escape Room 4 IBJ and Acid Bath"
     ]
   },
   {

@@ -14,10 +14,13 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release105">Version 106 (2024-01-13)</a>:
+<p><a id="release106">Version 106 (2024-01-14)</a>:
 <ul>
 <li>A new setting "Partial" is added for "Maps revealed from start" (under "Other options").
 <li>A new option "Energy-free shinesparks" is added (under "Other options").
+    <ul>
+    <li>The logic takes into account if this is enabled.
+    </ul>
 <li>A new setting "Escape" is added for "Start location".
     <ul>
     <li>When enabled, the game begins in the escape sequence, and the only goal is to complete it.
@@ -29,6 +32,12 @@ document.getElementById("navigation-releases").classList.add("active");
     <li>The default multipliers are updated.
     <li>When using a low multiplier (1.05 or less), the escape timer now rounds up to the nearest 
     second instead of to a multiple of 5 seconds.
+    </ul>
+<li>New notable strats:
+    <ul>
+    <li>Warehouse Kihunter Room Bottom Leave Shinecharged (Expert)
+    <li>Tourian Escape Room 4 Acid Bath Shinespark (Expert)
+    <li>Tourian Escape Room 4 IBJ and Acid Bath (Extreme)
     </ul>
 </ul>
 
