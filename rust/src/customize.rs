@@ -21,7 +21,7 @@ struct AllocatorBlock {
     current_addr: usize,
 }
 
-struct Allocator {
+pub struct Allocator {
     blocks: Vec<AllocatorBlock>,
 }
 

@@ -11,15 +11,15 @@ v106:
   - DONE: fill item locations with nothing
   - DONE: show on map as already collected small dots
   - DONE: spoiler map shouldn't have any steps
-  - figure out what to do with item collection stats in credits
-  - fix death count
+  - DONE: figure out what to do with item collection stats in credits
+  - DONE: fix death count
 - refine escape timer calculation
   - remove base leniency
   - make rounding conditional on the multiplier
-- maybe: fix issue with pause map scrolling beyond bounds
 
 priority:
-- everest 2 -> 7 and 3 -> 7 gravity jump
+- fix issue with pause map scrolling beyond bounds
+- adjust elevator heatFrames when fast elevators enabled
 - add more leaveWithSpark strats in elevator rooms (including vertical?)
 - add test in sm-json-data to check that "shinespark" occurs in requires for "leaveWithSpark" strats.
 - set up offline script to generate BPS patch for each mosaic room/theme combination
@@ -204,9 +204,6 @@ later:
 - enforce tech dependencies:
   - e.g. enabling "canPreciseWalljump" should enable dependency "canWalljump"
   - disabling "canWalljump" should disable dependent "canPreciseWalljump"
-- gravity seems to provide 50% heat reduction on elevator ride? (Remove this.)
-   - https://clips.twitch.tv/RepleteShyManateeTBTacoLeft-Ip5vQynrc0SQYQUj
-   - maybe during acid chozo drain too?
 - change how cross-room logic works?:
   - unify cross-room strats to go under links, with annotations on the cross-room state (in new strat properties)
   - replaces "initiateRemotely", allows obstacles and one-way cross-room paths to be handled properly
@@ -295,7 +292,6 @@ later:
   - then for the item placement, have the graph traversal treat that flag not as free but as whatever difficulty it was.
 - fix graphics in door transitions?
 - fix (sometimes?) glitched right door in GT. X-Ray showed a plasma beam inside it
-- adjust elevator heatFrames when fast elevators enabled
 - make quick reload work while in pause menu?
 - refine cross room shinesparks:
     - slopes
