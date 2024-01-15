@@ -4,15 +4,16 @@ use crypto_hash;
 use flips;
 use hashbrown::hash_map::Entry;
 use hashbrown::HashMap;
+use json::JsonValue;
 use log::info;
+use std::fs::File;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
+use smart_xml::{Screen, Layer2Type};
 use maprando::customize::Allocator;
 use maprando::game_data::smart_xml;
-use maprando::game_data::themed_retiling::extract_uncompressed_level_data;
-use maprando::patch::ips_write::create_ips_patch;
-use maprando::patch::{pc2snes, snes2pc, Rom};
+use maprando::patch::{pc2snes, snes2pc, Rom, get_room_state_ptrs};
 
 #[derive(Parser)]
 struct Args {
@@ -32,6 +33,95 @@ struct MosaicBuilder {
     main_allocator: Allocator,
     fx_allocator: Allocator,
 }
+
+
+fn extract_screen_words(screen: &Screen, out: &mut [u8], width: usize, _height: usize) {
+    let base_pos = (screen.y * width * 256 + screen.x * 16) * 2;
+    assert!(screen.data.len() == 256);
+    for y in 0..16 {
+        for x in 0..16 {
+            let c = screen.data[y * 16 + x];
+            let pos = base_pos + (y * width * 16 + x) * 2;
+            out[pos] = (c & 0xFF) as u8;
+            out[pos + 1] = (c >> 8) as u8;
+        }
+    }
+}
+
+fn extract_screen_bytes(screen: &Screen, out: &mut [u8], width: usize, _height: usize) {
+    let base_pos = screen.y * width * 256 + screen.x * 16;
+    assert!(screen.data.len() == 256);
+    for y in 0..16 {
+        for x in 0..16 {
+            let c = screen.data[y * 16 + x];
+            let pos = base_pos + y * width * 16 + x;
+            out[pos] = c as u8;
+        }
+    }
+}
+
+fn extract_all_screen_words(screens: &[Screen], out: &mut [u8], width: usize, height: usize) {
+    for screen in screens {
+        extract_screen_words(screen, out, width, height);
+    }
+}
+
+fn extract_all_screen_bytes(screens: &[Screen], out: &mut [u8], width: usize, height: usize) {
+    for screen in screens {
+        extract_screen_bytes(screen, out, width, height);
+    }
+}
+
+pub fn extract_uncompressed_level_data(state_xml: &smart_xml::RoomState) -> Vec<u8> {
+    let height = state_xml.level_data.height;
+    let width = state_xml.level_data.width;
+    let num_tiles = height * width * 256;
+    let level_data_size = if state_xml.layer2_type == Layer2Type::Layer2 {
+        2 + num_tiles * 5
+    } else {
+        2 + num_tiles * 3
+    };
+    let mut level_data = vec![0u8; level_data_size];
+    level_data[0] = ((num_tiles * 2) & 0xFF) as u8;
+    level_data[1] = ((num_tiles * 2) >> 8) as u8;
+    extract_all_screen_words(
+        &state_xml.level_data.layer_1.screen,
+        &mut level_data[2..],
+        width,
+        height,
+    );
+    extract_all_screen_bytes(
+        &state_xml.level_data.bts.screen,
+        &mut level_data[2 + num_tiles * 2..],
+        width,
+        height,
+    );
+    if state_xml.layer2_type == Layer2Type::Layer2 {
+        extract_all_screen_words(
+            &state_xml.level_data.layer_2.screen,
+            &mut level_data[2 + num_tiles * 3..],
+            width,
+            height,
+        );
+    }
+    level_data
+}
+
+// fn make_fx1(fx1: &smart_xml::FX1) -> FX1 {
+//     FX1 {
+//         fx1_reference: None,
+//         fx1_door: if fx1.default {
+//             None
+//         } else {
+//             Some(FX1Door {
+//                 room_area: fx1.roomarea,
+//                 room_index: fx1.roomindex,
+//                 door_index: fx1.fromdoor,
+//             })
+//         },
+//         fx1_data: fx1.clone(),
+//     }
+// }
 
 impl MosaicBuilder {
     fn get_compressed_data(&self, data: &[u8]) -> Result<Vec<u8>> {
@@ -192,34 +282,100 @@ impl MosaicBuilder {
         Ok(())
     }
 
-    fn make_room_patches(&mut self) -> Result<()> {
+    fn make_all_room_patches(&mut self) -> Result<()> {
+        let projects_dir = self.mosaic_dir.join("Projects");
+        let mut project_names = vec![];
+        for project_dir in std::fs::read_dir(projects_dir)? {
+            let project_dir = project_dir?;
+            let project_name = project_dir.file_name().to_str().unwrap().to_owned();
+            if project_name == "Base" {
+                continue;
+            }
+            project_names.push(project_name);
+        }
+
         let base_rooms_dir = self.mosaic_dir.join("Projects/Base/Export/Rooms/");
         for room_path in std::fs::read_dir(base_rooms_dir)? {
             let room_filename = room_path?.file_name().to_str().unwrap().to_owned();
             info!("Processing {}", room_filename);
-
-            let mut new_rom = self.rom.clone();
-            self.apply_room(&room_filename, &mut new_rom)?;
-            let patch = flips::BpsDeltaBuilder::new()
-                .source(&self.rom.data)
-                .target(&new_rom.data)
-                .build()?;
-            let output_path = self.output_patches_dir.join(".bps");
-            std::fs::write(&output_path, &patch)?;
-
+            self.make_room_patch(&room_filename, &project_names)?;
         }
         Ok(())
-        // for project_dir in std::fs::read_dir(projects_path)? {
-        //     let project_dir = project_dir?;
-        //     let project_name = project_dir.file_name().to_str().unwrap();
-        //     if project_name ==
-        //     println!("Project: {}", project_dir.file_name().to_str().unwrap());
-        // }
     }
 
-    fn apply_room(&mut self, room_filename: &str, new_rom: &mut Rom) -> Result<()> {
+    fn make_room_patch(&mut self, room_filename: &str, project_names: &[String]) -> Result<()> {
+        let base_room_path = self.mosaic_dir.join("Projects/Base/Export/Rooms").join(room_filename);
+        let base_room_str = std::fs::read_to_string(&base_room_path)
+            .with_context(|| format!("Unable to load room at {}", base_room_path.display()))?;
+        let base_room: smart_xml::Room = serde_xml_rs::from_str(base_room_str.as_str())
+            .with_context(|| format!("Unable to parse XML in {}", base_room_path.display()))?;
+
+        
+        // let state_ptrs = get_room_state_ptrs(&self.rom, room_ptr)?;
+
+        // for state_xml in &base_room.states.state {
+        //     let level_data_vec = vec![];
+        //     for project in project_names {
+        //         let project_path = self.mosaic_dir.join("Projects").join(project);
+        //         let room_path = project_path.join("Export/Rooms").join(room_filename);
+        //         let room_str = std::fs::read_to_string(&room_path)
+        //             .with_context(|| format!("Unable to load room at {}", room_path.display()))?;
+        //         let room: smart_xml::Room = serde_xml_rs::from_str(room_str.as_str())
+        //             .with_context(|| format!("Unable to parse XML in {}", room_path.display()))?;
+
+        //         let level_data = extract_uncompressed_level_data(state_xml);
+        //         let compressed_level_data = self.get_compressed_data(&level_data)?;
+        //         level_data_vec.push(compressed_level_data);
+        //     }
+        //     let max_level_data_size = level_data_vec.iter().map(|x| x.len()).max().unwrap_or(0);
+        //     let level_data_addr = self.main_allocator.allocate(max_level_data_size);
+
+        //     for (, project) in project_names.iter().enumerate() {
+        //         let mut new_rom = self.rom.clone();
+
+        //         new_rom.write_n(level_data_addr, &level_data)?;
+        //         new_rom.write_u24(state_ptr, pc2snes(level_data_addr) as isize)?;
+
+        //         let patch = flips::BpsDeltaBuilder::new()
+        //             .source(&self.rom.data)
+        //             .target(&new_rom.data)
+        //             .build()?;
+        //         let output_path = self.output_patches_dir.join(format!("{}.bps"));
+        //         std::fs::write(&output_path, &patch)?;
+        //     }
+        // }
         Ok(())
+    }        
+}
+
+fn read_json(path: &Path) -> Result<JsonValue> {
+    let file = File::open(path).with_context(|| format!("unable to open {}", path.display()))?;
+    let json_str = std::io::read_to_string(file)
+        .with_context(|| format!("unable to read {}", path.display()))?;
+    let json_data =
+        json::parse(&json_str).with_context(|| format!("unable to parse {}", path.display()))?;
+    Ok(json_data)
+}
+
+// Returns a mapping from (area_id, room_id) to room pointer.
+fn load_room_ptrs(sm_json_data_path: &Path) -> Result<Vec<usize>> {
+    let room_pattern = sm_json_data_path.to_str().unwrap().to_string() + "/region/**/*.json";
+    let mut out: Vec<usize> = vec![];
+    for entry in glob::glob(&room_pattern).unwrap() {
+        if let Ok(path) = entry {
+            let path_str = path.to_str().with_context(|| {
+                format!("Unable to convert path to string: {}", path.display())
+            })?;
+            if path_str.contains("ceres") || path_str.contains("roomDiagrams") {
+                continue;
+            }
+            let room_json = read_json(&path)?;
+            let room_ptr =
+                parse_int::parse::<usize>(room_json["roomAddress"].as_str().unwrap()).unwrap();
+            out.push(room_ptr);
+        }
     }
+    Ok(out)
 }
 
 fn main() -> Result<()> {
@@ -227,6 +383,10 @@ fn main() -> Result<()> {
         .format_timestamp_millis()
         .init();
     let args = Args::parse();
+
+    let sm_json_data_path = Path::new("../sm-json-data");
+    let room_ptrs = load_room_ptrs(sm_json_data_path)?;
+
     let main_allocator = Allocator::new(vec![
         // (snes2pc(0xBAC629), snes2pc(0xC2C2BB)), // Vanilla tile GFX, tilemaps, and palettes, which we overwrite
         (snes2pc(0xBAC629), snes2pc(0xCF8000)), // Vanilla tile GFX, tilemaps, palettes, and level data, which we overwrite
@@ -262,7 +422,7 @@ fn main() -> Result<()> {
     std::fs::create_dir_all(&mosaic_builder.output_patches_dir)?;
 
     mosaic_builder.make_tileset_patch()?;
-    mosaic_builder.make_room_patches()?;
+    mosaic_builder.make_all_room_patches()?;
     // let projects_path = mosaic_dir.join("Projects");
     // for project_dir in std::fs::read_dir(projects_path)? {
     //     let project_dir = project_dir?;
