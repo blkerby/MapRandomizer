@@ -53,7 +53,6 @@ function loadForm(form) {
         }
         if (element.type == "radio") {
             var value = migrateValue(element.name, data[element.name]);
-            console.log(element.name + ": " + data[element.name] + " -> " + value);
             if (value == element.value) {
                 element.checked = true;
             } else if (value !== undefined){
