@@ -5,6 +5,7 @@ v107?:
 - make "f_DefeatedBombTorizo" free
 
 v106:
+- fix bug where it doesn't give you wall-jump boots in Escape (if Collectible)
 - DONE: option for map partially revealed from start.
 - escape-only mode
   - DONE: skip item placement logic
@@ -19,6 +20,10 @@ v106:
 - maybe: fix issue with pause map scrolling beyond bounds
 
 priority:
+- consider building SOCD resolution into the randomizer (possibly with options for how it should work?)
+  - maybe also a way to toggle between two controller layouts
+  - maybe a way to bind directions to other inputs
+  - maybe a way to bind diagonal to individual button
 - everest 2 -> 7 and 3 -> 7 gravity jump
 - add more leaveWithSpark strats in elevator rooms (including vertical?)
 - add test in sm-json-data to check that "shinespark" occurs in requires for "leaveWithSpark" strats.
