@@ -54,7 +54,7 @@ pub struct FX1 {
     pub paletteblend: usize,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct FX1List {
     #[serde(rename="FX1", default)]
     pub fx1: Vec<FX1>,
@@ -66,7 +66,7 @@ pub enum Layer2Type {
     BGData,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Screen {
     #[serde(rename="X", deserialize_with="from_hex")]
     pub x: usize,
@@ -76,25 +76,25 @@ pub struct Screen {
     pub data: Vec<u16>,
 }
 
-#[derive(Debug, Deserialize, Default)]
+#[derive(Debug, Deserialize, Default, Clone)]
 pub struct Layer1 {
     #[serde(rename="Screen")]
     pub screen: Vec<Screen>
 }
 
-#[derive(Debug, Deserialize, Default)]
+#[derive(Debug, Deserialize, Default, Clone)]
 pub struct Layer2 {
     #[serde(rename="Screen")]
     pub screen: Vec<Screen>
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct BTS {
     #[serde(rename="Screen")]
     pub screen: Vec<Screen>
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct LevelData {
     #[serde(rename="Width", deserialize_with="from_hex")]
     pub width: usize,
@@ -126,7 +126,7 @@ pub struct BGData {
     pub data: Vec<BGDataData>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct RoomState {
     pub condition: String,
     #[serde(rename="Arg", deserialize_with="from_hex", default)]
@@ -150,13 +150,13 @@ pub struct RoomState {
     pub layer1_2: usize,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct RoomStateList {
     #[serde(rename="State")]
     pub state: Vec<RoomState>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Room {
     #[serde(deserialize_with="from_hex")]
     pub area: usize,

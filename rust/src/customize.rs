@@ -16,7 +16,7 @@ use retiling::apply_retiling;
 use room_palettes::apply_area_themed_palettes;
 
 struct AllocatorBlock {
-    _start_addr: usize,
+    start_addr: usize,
     end_addr: usize,
     current_addr: usize,
 }
@@ -31,7 +31,7 @@ impl Allocator {
             blocks: blocks
                 .into_iter()
                 .map(|(start, end)| AllocatorBlock {
-                    _start_addr: start,
+                    start_addr: start,
                     end_addr: end,
                     current_addr: start,
                 })
@@ -49,6 +49,20 @@ impl Allocator {
             }
         }
         bail!("Failed to allocate {} bytes", size);
+    }
+
+    pub fn get_stats(&self) -> (usize, usize, usize) {
+        let mut min_free = 0; // only count completely free blocks
+        let mut max_free = 0; // include partially free blocks
+        let mut total_capacity = 0;
+        for block in &self.blocks {
+            total_capacity += block.end_addr - block.start_addr;
+            if block.current_addr == block.start_addr {
+                min_free += block.end_addr - block.start_addr;
+            }
+            max_free += block.end_addr - block.current_addr;
+        }
+        (min_free, max_free, total_capacity)
     }
 }
 

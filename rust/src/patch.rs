@@ -1,6 +1,7 @@
 pub mod compress;
 pub mod decompress;
 pub mod ips_write;
+pub mod bps;
 pub mod map_tiles;
 pub mod title;
 
