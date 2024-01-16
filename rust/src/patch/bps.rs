@@ -2,6 +2,10 @@ use anyhow::{bail, Result};
 
 #[derive(Debug)]
 enum BPSBlock {
+    Unchanged {
+        dst_start: usize,
+        length: usize,
+    },
     SourceCopy {
         src_start: usize,
         dst_start: usize,
@@ -32,47 +36,35 @@ impl BPSPatch {
         })
     }
 
-    fn apply_byte(&self, source: &[u8], output: &mut [u8], idx: usize, b: u8) {
-        // With this method of applying BPS patches, we are careful to only apply changes to bytes that different from the source.
-        // This is important because otherwise when we layer multiple patches on top of each other, they could overwrite each other
-        // even if they are disjoint, because the Flips encoder that we're using does not guarantee that unchanged bytes won't 
-        // be touched by the patch.
-        if b != source[idx] {
-            output[idx] = b;
-        }
-    }
-
     pub fn apply(&self, source: &[u8], output: &mut [u8]) {
         for block in &self.blocks {
             match block {
+                &BPSBlock::Unchanged { .. } => {
+                    // These blocks won't be loaded and wouldn't do anything anyway.
+                }
                 &BPSBlock::SourceCopy { src_start, dst_start, length } => {
-                    if src_start == dst_start {
-                        // Skip copying over from the source to the destination, since it has no change.
-                        // This allows us to efficiently and correctly apply hundreds of small patches on top of each other.
-                    } else {
-                        for i in 0..length {
-                            self.apply_byte(source, output, dst_start + i, source[src_start + i]);
-                        }
-                    }
+                    let src_slice = &source[src_start..(src_start+length)];
+                    let dst_slice = &mut output[dst_start..(dst_start+length)];
+                    dst_slice.copy_from_slice(src_slice);
                 },
                 &BPSBlock::TargetCopy { src_start, dst_start, length } => {
                     for i in 0..length {
-                        self.apply_byte(source, output, dst_start + i, output[src_start + i]);
+                        output[dst_start + i] = output[src_start + i];
                     }
                 },
                 BPSBlock::Data { dst_start, data } => {
-                    for i in 0..data.len() {
-                        self.apply_byte(source, output, dst_start + i, data[i]);
-                    }
+                    output[*dst_start..(*dst_start + data.len())].copy_from_slice(data);
                 }
             }           
         }
     }
 
+    // This function isn't used now, but could be useful later, so keeping it around.
     pub fn get_modified_ranges(&self) -> Vec<(usize, usize)> {
         let mut out: Vec<(usize, usize)> = vec![];
         for block in &self.blocks {
             match block {
+                &BPSBlock::Unchanged { .. } => {}
                 &BPSBlock::SourceCopy { src_start, dst_start, length } => {
                     if src_start != dst_start {
                         out.push((dst_start, dst_start + length));
@@ -119,7 +111,11 @@ impl BPSPatchDecoder {
         self.patch_pos += metadata_size;
         while self.patch_pos < self.patch_bytes.len() - 12 {
             let block = self.decode_block()?;
-            self.blocks.push(block);
+            if let BPSBlock::Unchanged { .. } = block {
+                // Skip blocks that do not change the output.
+            } else {
+                self.blocks.push(block);
+            }
         }
         assert!(self.patch_pos == self.patch_bytes.len() - 12);
         // Ignore the checksums at the end of the file.
@@ -150,8 +146,7 @@ impl BPSPatchDecoder {
         let length = (cmd >> 2) + 1;
         match action {
             0 => {
-                let block = BPSBlock::SourceCopy { 
-                    src_start: self.output_pos,
+                let block = BPSBlock::Unchanged {
                     dst_start: self.output_pos,
                     length, 
                 };
@@ -216,3 +211,13 @@ impl BPSPatchDecoder {
     }
 }
 
+
+// struct BPSPatchEncoder {
+//     source_prefix_tree: PrefixTree,
+//     patch_bytes: Vec<u8>,
+//     src_pos: usize,
+//     dst_pos: usize,
+//     input_pos: usize,
+// }
+
+// struct BPSPatch

@@ -1,6 +1,7 @@
 pub mod compress;
 pub mod decompress;
 pub mod ips_write;
+pub mod suffix_tree;
 pub mod bps;
 pub mod map_tiles;
 pub mod title;
@@ -38,7 +39,8 @@ pub fn pc2snes(addr: usize) -> usize {
 #[derive(Clone)]
 pub struct Rom {
     pub data: Vec<u8>,
-    touched: Vec<bool>,
+    track_touched: bool,
+    touched: HashSet<usize>,
 }
 
 impl Rom {
@@ -46,13 +48,18 @@ impl Rom {
         let len = data.len();
         Rom {
             data,
-            touched: vec![false; len],
+            track_touched: false,
+            touched: HashSet::new(),
         }
+    }
+
+    pub fn enable_tracking(&mut self) {
+        self.track_touched = true;
+        self.touched.clear();
     }
 
     pub fn resize(&mut self, new_size: usize) {
         self.data.resize(new_size, 0xFF);
-        self.touched.resize(new_size, false);
     }
 
     pub fn load(path: &Path) -> Result<Self> {
@@ -105,6 +112,9 @@ impl Rom {
         );
         ensure!(x >= 0 && x <= 0xFF, "write_u8 data does not fit");
         self.data[addr] = x as u8;
+        if self.track_touched {
+            self.touched.insert(addr);
+        }
         Ok(())
     }
 
@@ -116,6 +126,10 @@ impl Rom {
         ensure!(x >= 0 && x <= 0xFFFF, "write_u16 data does not fit");
         self.write_u8(addr, x & 0xFF)?;
         self.write_u8(addr + 1, x >> 8)?;
+        if self.track_touched {
+            self.touched.insert(addr);
+            self.touched.insert(addr + 1);
+        }
         Ok(())
     }
 
@@ -128,6 +142,11 @@ impl Rom {
         self.write_u8(addr, x & 0xFF)?;
         self.write_u8(addr + 1, (x >> 8) & 0xFF)?;
         self.write_u8(addr + 2, x >> 16)?;
+        if self.track_touched {
+            self.touched.insert(addr);
+            self.touched.insert(addr + 1);
+            self.touched.insert(addr + 2);
+        }
         Ok(())
     }
 
@@ -139,7 +158,18 @@ impl Rom {
         for i in 0..x.len() {
             self.write_u8(addr + i, x[i] as isize)?;
         }
+        if self.track_touched {
+            for i in 0..x.len() {
+                self.touched.insert(addr + i);
+            }
+        }
         Ok(())
+    }
+
+    pub fn get_modified_addresses(&self) -> Vec<usize> {
+        let mut addresses: Vec<usize> = self.touched.iter().copied().collect();
+        addresses.sort();
+        addresses
     }
 }
 
