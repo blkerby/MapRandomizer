@@ -30,7 +30,7 @@ document.getElementById("navigation-releases").classList.add("active");
     <li>The base leniency factor (previously 1.05) is removed.
     <li>With the new scale, 1.0 is now the minimum multiplier guaranteed to be beatable.
     <li>The default multipliers are updated.
-    <li>When using a low multiplier (1.05 or less), the escape timer now rounds up to the nearest 
+    <li>When using a low multiplier (1.0 or less), the escape timer now rounds up to the nearest 
     second instead of to a multiple of 5 seconds.
     </ul>
 <li>New notable strats:
