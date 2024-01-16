@@ -444,31 +444,6 @@ impl MosaicPatchBuilder {
         }
         Ok(())
     }
-
-    fn check_patch_overlap(&self) -> Result<()> {
-        // This is to make sure that there is no overlap between patches for different rooms.
-        info!("Checking patch overlap");
-        // Map from ROM byte address to index into self.room_modified_ranges (identifying the room state).
-        let mut modified_bytes: HashMap<usize, usize> = HashMap::new();
-        for (r, ((room_name, state_idx), modified_ranges)) in self.room_modified_ranges.iter().enumerate() {
-            let mut room_state_modified_bytes: HashSet<usize> = HashSet::new();
-            for &(start, end) in modified_ranges {
-                for i in start..end {
-                    room_state_modified_bytes.insert(i);
-                }
-            }
-            for i in room_state_modified_bytes {
-                if modified_bytes.contains_key(&i) {
-                    let prior_idx = modified_bytes[&i];
-                    let (prior_room, prior_state) = self.room_modified_ranges[prior_idx].0.clone();
-                    panic!("Patch for room {} state {} conflicts with room {} state {}", room_name, state_idx, prior_room, prior_state);
-                } else {
-                    modified_bytes.insert(i, r);
-                }
-            }
-        }
-        Ok(())
-    }
 }
 
 fn read_json(path: &Path) -> Result<JsonValue> {
@@ -560,6 +535,5 @@ fn main() -> Result<()> {
     mosaic_builder.make_tileset_patch()?;
     mosaic_builder.make_all_room_patches()?;
     mosaic_builder.check_patch_decoding()?;
-    mosaic_builder.check_patch_overlap()?;
     Ok(())
 }

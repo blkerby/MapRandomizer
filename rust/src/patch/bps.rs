@@ -32,6 +32,16 @@ impl BPSPatch {
         })
     }
 
+    fn apply_byte(&self, source: &[u8], output: &mut [u8], idx: usize, b: u8) {
+        // With this method of applying BPS patches, we are careful to only apply changes to bytes that different from the source.
+        // This is important because otherwise when we layer multiple patches on top of each other, they could overwrite each other
+        // even if they are disjoint, because the Flips encoder that we're using does not guarantee that unchanged bytes won't 
+        // be touched by the patch.
+        if b != source[idx] {
+            output[idx] = b;
+        }
+    }
+
     pub fn apply(&self, source: &[u8], output: &mut [u8]) {
         for block in &self.blocks {
             match block {
@@ -40,18 +50,20 @@ impl BPSPatch {
                         // Skip copying over from the source to the destination, since it has no change.
                         // This allows us to efficiently and correctly apply hundreds of small patches on top of each other.
                     } else {
-                        let src_slice = &source[src_start..(src_start+length)];
-                        let dst_slice = &mut output[dst_start..(dst_start+length)];
-                        dst_slice.copy_from_slice(src_slice);
+                        for i in 0..length {
+                            self.apply_byte(source, output, dst_start + i, source[src_start + i]);
+                        }
                     }
                 },
                 &BPSBlock::TargetCopy { src_start, dst_start, length } => {
                     for i in 0..length {
-                        output[dst_start + i] = output[src_start + i];
+                        self.apply_byte(source, output, dst_start + i, output[src_start + i]);
                     }
                 },
                 BPSBlock::Data { dst_start, data } => {
-                    output[*dst_start..(*dst_start + data.len())].copy_from_slice(data);
+                    for i in 0..data.len() {
+                        self.apply_byte(source, output, dst_start + i, data[i]);
+                    }
                 }
             }           
         }
