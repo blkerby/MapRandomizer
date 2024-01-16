@@ -15,6 +15,7 @@
       <p>If enabled, then certain enemy drops are improved:
       <ul>
       <li>Small energy drops give 10 energy.
+      <li>Power Bomb drops give 2 Power Bombs.
       <li>Respawning enemies drop Power Bombs at double the normal rate.
       </ul>
       </p>

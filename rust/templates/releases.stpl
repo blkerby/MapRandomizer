@@ -25,6 +25,10 @@ document.getElementById("navigation-releases").classList.add("active");
     <ul>
     <li>When enabled, the game begins in the escape sequence, and the only goal is to complete it.
     </ul>
+<li>The quality-of-life option "Enemy drops are buffed" now has an additional effect:
+    <ul>
+    <li>Power Bomb drops give 2 Power Bombs.
+    </ul>
 <li>Adjustments to how escape timer multipliers work:
     <ul>
     <li>The base leniency factor (previously 1.05) is removed.
