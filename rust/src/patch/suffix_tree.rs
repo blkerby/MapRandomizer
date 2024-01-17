@@ -28,6 +28,7 @@ impl Tree {
     pub fn new(data: &[u8]) -> Self {
         let mut tree = Tree::Leaf(0);
         for i in 1..data.len() {
+            println!("{}", i);
             Self::add_suffix(&mut tree, data, i);
         }
         tree

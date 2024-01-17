@@ -31,7 +31,7 @@ pub struct BPSPatch {
 
 impl BPSPatch {
     pub fn new(data: Vec<u8>) -> Result<Self> {
-        let mut decoder = BPSPatchDecoder::new(data);
+        let mut decoder = BPSDecoder::new(data);
         decoder.decode()?;
         Ok(BPSPatch {
             blocks: decoder.blocks,
@@ -84,7 +84,7 @@ impl BPSPatch {
     }
 }
 
-struct BPSPatchDecoder {
+struct BPSDecoder {
     patch_bytes: Vec<u8>,
     patch_pos: usize,
     output_pos: usize,
@@ -93,9 +93,9 @@ struct BPSPatchDecoder {
     blocks: Vec<BPSBlock>,
 }
 
-impl BPSPatchDecoder {
+impl BPSDecoder {
     fn new(patch_bytes: Vec<u8>) -> Self {
-        BPSPatchDecoder {
+        BPSDecoder {
             patch_bytes,
             patch_pos: 0,
             output_pos: 0,
@@ -214,11 +214,11 @@ impl BPSPatchDecoder {
 }
 
 
-struct BPSPatchEncoder<'a> {
-    source_prefix_tree: &'a SuffixTree,
+pub struct BPSEncoder<'a> {
+    source_suffix_tree: &'a SuffixTree,
     target: &'a [u8],
     modified_ranges: &'a [(usize, usize)],
-    patch_bytes: Vec<u8>,
+    pub patch_bytes: Vec<u8>,
     src_pos: usize,
     input_pos: usize,
 }
@@ -237,10 +237,10 @@ fn compute_crc32(data: &[u8]) -> u32 {
 // and efficiently layer multiple patches on top of each other (assuming they affect disjoint sets of 
 // bytes). For a similar reason, this encoder also doesn't create blocks that copy from the target
 // (i.e. previously output data).
-impl<'a> BPSPatchEncoder<'a> {
-    pub fn new(source_prefix_tree: &'a SuffixTree, target: &'a [u8], modified_ranges: &'a [(usize, usize)]) -> Self {
+impl<'a> BPSEncoder<'a> {
+    pub fn new(source_suffix_tree: &'a SuffixTree, target: &'a [u8], modified_ranges: &'a [(usize, usize)]) -> Self {
         Self {
-            source_prefix_tree,
+            source_suffix_tree,
             target,
             modified_ranges,
             patch_bytes: vec![],
@@ -249,15 +249,15 @@ impl<'a> BPSPatchEncoder<'a> {
         }       
     }
 
-    fn encode(&mut self) {
+    pub fn encode(&mut self) {
         self.write_n("BPS1".as_bytes());
-        self.encode_number(self.source_prefix_tree.data.len());
+        self.encode_number(self.source_suffix_tree.data.len());
         self.encode_number(self.target.len());
         self.encode_number(0); // metadata size
         for r in self.modified_ranges {
             self.encode_range(r.0, r.1);
         }
-        self.write_n(&compute_crc32(&self.source_prefix_tree.data).to_le_bytes());
+        self.write_n(&compute_crc32(&self.source_suffix_tree.data).to_le_bytes());
         self.write_n(&compute_crc32(&self.target).to_le_bytes());
         self.write_n(&compute_crc32(&self.patch_bytes).to_le_bytes());
     }
@@ -272,10 +272,10 @@ impl<'a> BPSPatchEncoder<'a> {
 
         // Data and source copy blocks:
         while start_addr < end_addr {
-            let (source_start, match_length) = self.source_prefix_tree.lookup(&self.target[start_addr..end_addr]);
+            let (source_start, match_length) = self.source_suffix_tree.lookup(&self.target[start_addr..end_addr]);
             if match_length >= 3 {
                 if start_addr > self.input_pos {
-                    self.encode_data(&self.source_prefix_tree.data[self.input_pos..start_addr]);
+                    self.encode_data(&self.source_suffix_tree.data[self.input_pos..start_addr]);
                     self.encode_source_copy(source_start, match_length);
                     self.input_pos = start_addr + match_length;
                     start_addr = start_addr + match_length;
@@ -285,7 +285,7 @@ impl<'a> BPSPatchEncoder<'a> {
             }    
         }
         if end_addr > self.input_pos {
-            self.encode_data(&self.source_prefix_tree.data[self.input_pos..end_addr]);
+            self.encode_data(&self.source_suffix_tree.data[self.input_pos..end_addr]);
             self.input_pos = end_addr;
         }
     }

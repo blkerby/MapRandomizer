@@ -6,6 +6,8 @@ use hashbrown::hash_map::Entry;
 use hashbrown::{HashMap, HashSet};
 use json::JsonValue;
 use log::{info, error};
+use maprando::patch::bps::BPSEncoder;
+use maprando::patch::suffix_tree::SuffixTree;
 use std::fs::File;
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -25,6 +27,7 @@ struct Args {
 
 struct MosaicPatchBuilder {
     rom: Rom,
+    source_suffix_tree: SuffixTree,
     room_ptr_map: HashMap<(usize, usize), usize>,
     // list of ((room name, state idx), list of start/end ROM byte indexes):
     room_modified_ranges: Vec<((String, usize), Vec<(usize, usize)>)>,
@@ -171,12 +174,20 @@ impl MosaicPatchBuilder {
         let mut new_rom = self.rom.clone();
         self.apply_cre_tileset(&mut new_rom)?;
         self.apply_sce_tilesets(&mut new_rom)?;
-        let patch = flips::BpsDeltaBuilder::new()
-            .source(&self.rom.data)
-            .target(&new_rom.data)
-            .build()?;
+
+        // let patch = flips::BpsDeltaBuilder::new()
+        //     .source(&self.rom.data)
+        //     .target(&new_rom.data)
+        //     .build()?;
+        // let output_path = self.output_patches_dir.join("tilesets.bps");
+        // std::fs::write(&output_path, &patch)?;
+        let modified_ranges = new_rom.get_modified_ranges();
+        let mut encoder = BPSEncoder::new(&self.source_suffix_tree, &new_rom.data, &modified_ranges);
+        encoder.encode();
         let output_path = self.output_patches_dir.join("tilesets.bps");
-        std::fs::write(&output_path, &patch)?;
+        std::fs::write(&output_path, &encoder.patch_bytes)?;
+        
+        
         Ok(())
     }
 
@@ -513,9 +524,13 @@ fn main() -> Result<()> {
         let idx = rom.read_u8(room_ptr)?;
         room_ptr_map.insert((area as usize, idx as usize), room_ptr);
     }
+    info!("Building vanilla ROM suffix tree");
+    let source_suffix_tree = SuffixTree::new(rom.data.clone());
+    info!("Done building vanilla ROM suffix tree");
 
     let mut mosaic_builder = MosaicPatchBuilder {
         rom,
+        source_suffix_tree,
         room_ptr_map,
         room_modified_ranges: vec![],
         bgdata_mapping: HashMap::new(),
@@ -531,9 +546,9 @@ fn main() -> Result<()> {
     std::fs::create_dir_all(&mosaic_builder.compressed_data_cache_dir)?;
     std::fs::create_dir_all(&mosaic_builder.output_patches_dir)?;
 
-    mosaic_builder.build_bgdata_map()?;
     mosaic_builder.make_tileset_patch()?;
-    mosaic_builder.make_all_room_patches()?;
-    mosaic_builder.check_patch_decoding()?;
+    // mosaic_builder.build_bgdata_map()?;
+    // mosaic_builder.make_all_room_patches()?;
+    // mosaic_builder.check_patch_decoding()?;
     Ok(())
 }
