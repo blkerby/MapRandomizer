@@ -17,9 +17,8 @@
       <li><strong>Vanilla</strong>: Wall jumping behaves like in the vanilla game.
       <li><strong>Collectible</strong>: A special new "WallJump" item is added to the game (replacing one "Missile" pack), and
       wall jumping is only possible after collecting this item.
-      <li><strong>Disabled</strong>: The ability to wall jump is removed from the game.
       </ul>
-      <p>This setting is taken into account in the logic. Selections other than "Vanilla" may significantly increase the difficulty of the game, by requiring the player to know how to perform many tricks to avoid wall jumping (using frozen enemies, Speed Booster, Bombs, etc.), depending on the Skill Assumption settings.
+      <p>This setting is taken into account in the logic. The "Collectible" option may significantly increase the difficulty of the game, by requiring the player to know how to perform many tricks to avoid wall jumping (using frozen enemies, Speed Booster, Bombs, etc.), depending on the Skill Assumption settings.
       <p>Regardless of this setting, it is always possible to get a wall-jump check (the pose that Samus makes when moving away
       from a nearby wall), even if pressing jump during the check will not trigger a wall jump.</p>
       </div>

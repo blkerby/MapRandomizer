@@ -1310,7 +1310,6 @@ async fn randomize(
             match req.wall_jump.0.as_str() {
                 "Vanilla" => maprando::randomize::WallJump::Vanilla,
                 "Collectible" => maprando::randomize::WallJump::Collectible,
-                "Disabled" => maprando::randomize::WallJump::Disabled,
                 _ => panic!(
                     "Unrecognized wall_jump setting {}",
                     req.wall_jump.0.as_str()
