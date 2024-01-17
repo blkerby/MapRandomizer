@@ -166,10 +166,26 @@ impl Rom {
         Ok(())
     }
 
-    pub fn get_modified_addresses(&self) -> Vec<usize> {
+    // Returns a list of [start, end) ranges.
+    pub fn get_modified_ranges(&self) -> Vec<(usize, usize)> {
         let mut addresses: Vec<usize> = self.touched.iter().copied().collect();
         addresses.sort();
-        addresses
+        let mut ranges: Vec<(usize, usize)> = vec![];
+
+        let mut i = 0;
+        'r: while i < addresses.len() {
+            for j in i..addresses.len() - 1 {
+                if addresses[j + 1] != addresses[j] + 1 {
+                    ranges.push((addresses[i], addresses[j] + 1));
+                    i = j + 1;
+                    continue 'r;
+                }
+            }
+            ranges.push((addresses[i], addresses[addresses.len() - 1] + 1));
+            break;
+        }
+        assert!(ranges.iter().map(|x| x.1 - x.0).sum::<usize>() == addresses.len());
+        ranges
     }
 }
 

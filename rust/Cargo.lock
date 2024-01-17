@@ -1639,6 +1639,7 @@ dependencies = [
  "base64",
  "by_address",
  "clap",
+ "crc32fast",
  "crypto-hash",
  "env_logger",
  "flips",

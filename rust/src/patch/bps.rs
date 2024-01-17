@@ -1,5 +1,7 @@
 use anyhow::{bail, Result};
 
+use super::suffix_tree::SuffixTree;
+
 #[derive(Debug)]
 enum BPSBlock {
     Unchanged {
@@ -212,12 +214,125 @@ impl BPSPatchDecoder {
 }
 
 
-// struct BPSPatchEncoder {
-//     source_prefix_tree: PrefixTree,
-//     patch_bytes: Vec<u8>,
-//     src_pos: usize,
-//     dst_pos: usize,
-//     input_pos: usize,
-// }
+struct BPSPatchEncoder<'a> {
+    source_prefix_tree: &'a SuffixTree,
+    target: &'a [u8],
+    modified_ranges: &'a [(usize, usize)],
+    patch_bytes: Vec<u8>,
+    src_pos: usize,
+    input_pos: usize,
+}
 
-// struct BPSPatch
+fn compute_crc32(data: &[u8]) -> u32 {
+    let mut hasher = crc32fast::Hasher::new();
+    hasher.update(data);
+    hasher.finalize()
+}
+
+// This is a simplified BPS encoder that is not overly concerned with minimizing patch size,
+// mainly just with capturing dependencies on the source data (even when relocated) to avoid 
+// source data being copied into the patch. The key difference from other encoders (and the reason
+// we rolled a custom one here) is that this encoder enforces that only bytes that differ from the source
+// will get touched by the patch; this is important in order to ensure that we can correctly 
+// and efficiently layer multiple patches on top of each other (assuming they affect disjoint sets of 
+// bytes). For a similar reason, this encoder also doesn't create blocks that copy from the target
+// (i.e. previously output data).
+impl<'a> BPSPatchEncoder<'a> {
+    pub fn new(source_prefix_tree: &'a SuffixTree, target: &'a [u8], modified_ranges: &'a [(usize, usize)]) -> Self {
+        Self {
+            source_prefix_tree,
+            target,
+            modified_ranges,
+            patch_bytes: vec![],
+            src_pos: 0,
+            input_pos: 0,
+        }       
+    }
+
+    fn encode(&mut self) {
+        self.write_n("BPS1".as_bytes());
+        self.encode_number(self.source_prefix_tree.data.len());
+        self.encode_number(self.target.len());
+        self.encode_number(0); // metadata size
+        for r in self.modified_ranges {
+            self.encode_range(r.0, r.1);
+        }
+        self.write_n(&compute_crc32(&self.source_prefix_tree.data).to_le_bytes());
+        self.write_n(&compute_crc32(&self.target).to_le_bytes());
+        self.write_n(&compute_crc32(&self.patch_bytes).to_le_bytes());
+    }
+
+    fn encode_range(&mut self, mut start_addr: usize, end_addr: usize) {
+        // Unchanged block:
+        if self.input_pos < start_addr {
+            let length = start_addr - self.input_pos;
+            self.encode_unchanged(length);
+            self.input_pos += length;
+        }
+
+        // Data and source copy blocks:
+        while start_addr < end_addr {
+            let (source_start, match_length) = self.source_prefix_tree.lookup(&self.target[start_addr..end_addr]);
+            if match_length >= 3 {
+                if start_addr > self.input_pos {
+                    self.encode_data(&self.source_prefix_tree.data[self.input_pos..start_addr]);
+                    self.encode_source_copy(source_start, match_length);
+                    self.input_pos = start_addr + match_length;
+                    start_addr = start_addr + match_length;
+                }
+            } else {
+                start_addr += 1;
+            }    
+        }
+        if end_addr > self.input_pos {
+            self.encode_data(&self.source_prefix_tree.data[self.input_pos..end_addr]);
+            self.input_pos = end_addr;
+        }
+    }
+
+    fn encode_block_header(&mut self, action: usize, length: usize) {
+        let x = action | ((length - 1) << 2);
+        self.encode_number(x);
+    }
+
+    fn encode_unchanged(&mut self, length: usize) {
+        self.encode_block_header(0, length);
+    }
+
+    fn encode_data(&mut self, data: &[u8]) {
+        self.encode_block_header(1, data.len());
+        self.write_n(data);
+    }
+
+    fn encode_source_copy(&mut self, idx: usize, length: usize) {
+        self.encode_block_header(2, length);
+        let relative_idx = (idx as isize) - (self.src_pos as isize);
+        if relative_idx < 0 {
+            self.encode_number(1 | (((-relative_idx) as usize) << 1));
+        } else {
+            self.encode_number(1 | ((relative_idx as usize) << 1));
+        }
+        self.src_pos = idx + length;
+    }
+
+    fn write(&mut self, b: u8) {
+        self.patch_bytes.push(b);
+    }
+
+    fn write_n(&mut self, data: &[u8]) {
+        self.patch_bytes.extend(data);
+    }
+
+    fn encode_number(&mut self, mut x: usize) {
+        for _ in 0..10 {
+            let b = (x & 0x7f) as u8;
+            x >>= 7;
+            if x == 0 {
+              self.write(0x80 | b);
+              break;
+            }
+            self.write(b);
+            x -= 1;
+        }
+    }
+}
