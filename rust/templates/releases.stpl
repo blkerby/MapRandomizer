@@ -37,6 +37,7 @@ document.getElementById("navigation-releases").classList.add("active");
     <li>When using a low multiplier (1.0 or less), the escape timer now rounds up to the nearest 
     second instead of to a multiple of 5 seconds.
     </ul>
+<li>New Samus sprites: "Buffed Eggplant" and "Buffed Pug", by Fredz00z.
 <li>New notable strats:
     <ul>
     <li>Warehouse Kihunter Room Bottom Leave Shinecharged (Expert)
