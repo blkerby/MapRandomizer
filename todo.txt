@@ -1,25 +1,16 @@
-v107?:
+v107:
+- mosaic overhaul
+- canWakePlanet tech
+- reduced items: new item progression preset & options
+
+priority:
 - add more "carry shinecharge" strats.
 - handle `unlocksDoors`?
 - make sure cross-room notable strats actually check the setting for the notable
 - make "f_DefeatedBombTorizo" free
-
-v106:
-- fix bug where it doesn't give you wall-jump boots in Escape (if Collectible)
-- DONE: option for map partially revealed from start.
-- escape-only mode
-  - DONE: skip item placement logic
-  - DONE: fill item locations with nothing
-  - DONE: show on map as already collected small dots
-  - DONE: spoiler map shouldn't have any steps
-  - DONE: figure out what to do with item collection stats in credits
-  - DONE: fix death count
-- refine escape timer calculation
-  - remove base leniency
-  - make rounding conditional on the multiplier
-- maybe: fix issue with pause map scrolling beyond bounds
-
-priority:
+- spoiler map: show pop-up when hovering over step, to show additional collectible items (with their quantities) and instructions
+  to double-click for details.
+- fix issue with pause map scrolling beyond bounds
 - add lower-detail partial map option, that hides more room-internal details including passages, doorways, elevator platforms
 - consider putting reverse croc speedway into escape logic (using runway data from sm-json-data)
 - consider building SOCD resolution into the randomizer (possibly with options for how it should work?)
