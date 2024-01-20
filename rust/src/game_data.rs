@@ -36,6 +36,7 @@ pub type ItemIdx = usize; // Index into the game's item bit array (in RAM at 7E:
 pub type FlagId = usize; // Index into GameData.flag_isv.keys: distinct game flag names from sm-json-data
 pub type RoomId = usize; // Room ID from sm-json-data
 pub type RoomPtr = usize; // Room pointer (PC address of room header)
+pub type RoomStateIdx = usize; // Room state index
 pub type NodeId = usize; // Node ID from sm-json-data (only unique within a room)
 pub type NodePtr = usize; // nodeAddress from sm-json-data: for items this is the PC address of PLM, for doors it is PC address of door data
 pub type VertexId = usize; // Index into GameData.vertex_isv.keys: (room_id, node_id, obstacle_bitmask) combinations

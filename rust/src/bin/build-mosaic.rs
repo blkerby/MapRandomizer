@@ -14,7 +14,7 @@ use std::process::Command;
 
 use smart_xml::{Screen, Layer2Type};
 use maprando::customize::Allocator;
-use maprando::game_data::smart_xml;
+use maprando::game_data::{smart_xml, DoorPtr};
 use maprando::patch::{pc2snes, snes2pc, Rom, get_room_state_ptrs, self};
 
 #[derive(Parser)]
@@ -23,6 +23,13 @@ struct Args {
     compressor: PathBuf,
     #[arg(long)]
     input_rom: PathBuf,
+}
+
+#[derive(Debug, PartialEq, Eq, Hash, Clone)]
+pub struct FXDoor {
+    pub room_area: usize,
+    pub room_index: usize,
+    pub door_index: usize,
 }
 
 struct MosaicPatchBuilder {
@@ -34,7 +41,8 @@ struct MosaicPatchBuilder {
     tmp_dir: PathBuf,
     mosaic_dir: PathBuf,
     output_patches_dir: PathBuf,
-    bgdata_mapping: HashMap<smart_xml::BGData, isize>, // Mapping from BGData to pointer
+    bgdata_map: HashMap<smart_xml::BGData, isize>, // Mapping from BGData to pointer
+    fx_door_map: HashMap<FXDoor, DoorPtr>,
     main_allocator: Allocator,
     fx_allocator: Allocator,
 }
@@ -132,8 +140,18 @@ impl MosaicPatchBuilder {
         let mut out: Vec<u8> = vec![];
 
         for fx in &state_xml.fx1s.fx1 {
-            // Door pointer (for non-default FX) is map-specific and so will be populated during customization.
-            out.extend(0u16.to_le_bytes());  
+            // Door pointer (for non-default FX) is map-specific and will be substituted during customization.
+            if fx.default {
+                out.extend(0u16.to_le_bytes());
+            } else {
+                let fx_door = FXDoor {
+                    room_area: fx.roomarea,
+                    room_index: fx.roomindex,
+                    door_index: fx.fromdoor,
+                };
+                let door_ptr = self.fx_door_map[&fx_door] as u16;
+                out.extend(door_ptr.to_le_bytes());      
+            }
 
             out.extend((fx.surfacestart as u16).to_le_bytes());
             out.extend((fx.surfacenew as u16).to_le_bytes());
@@ -171,7 +189,38 @@ impl MosaicPatchBuilder {
             for (state_idx, state_xml) in room_xml.states.state.into_iter().enumerate() {
                 let (_event_ptr, state_ptr) = state_ptrs[state_idx];
                 let bg_ptr = self.rom.read_u16(state_ptr + 22)?;
-                self.bgdata_mapping.insert(state_xml.bg_data, bg_ptr);
+                self.bgdata_map.insert(state_xml.bg_data, bg_ptr);
+            }
+        }
+        Ok(())
+    }
+
+    fn build_fx_door_map(&mut self) -> Result<()> {
+        info!("Processing FX doors");
+        let base_rooms_dir = self.mosaic_dir.join("Projects/Base/Export/Rooms/");
+        for room_path in std::fs::read_dir(base_rooms_dir)? {
+            let room_path = room_path?.path();
+            let room_str = std::fs::read_to_string(&room_path)
+                .with_context(|| format!("Unable to load room at {}", room_path.display()))?;
+            let room_xml: smart_xml::Room = serde_xml_rs::from_str(room_str.as_str())
+                .with_context(|| format!("Unable to parse XML in {}", room_path.display()))?;
+            let room_ptr = self.room_ptr_map.get(&(room_xml.area, room_xml.index)).map(|x| *x).unwrap_or(0);
+            if room_ptr == 0 {
+                continue;
+            }
+            let state_ptrs = get_room_state_ptrs(&self.rom, room_ptr)?;
+            for (state_idx, state_xml) in room_xml.states.state.into_iter().enumerate() {
+                let (_event_ptr, state_ptr) = state_ptrs[state_idx];
+                let fx_ptr = self.rom.read_u16(state_ptr + 6)? as usize;    
+                for (i, fx) in state_xml.fx1s.fx1.iter().enumerate() {
+                    let fx_door = FXDoor {
+                        room_area: fx.roomarea,
+                        room_index: fx.roomindex,
+                        door_index: fx.fromdoor,
+                    };
+                    let door_ptr = self.rom.read_u16(snes2pc(0x830000 + fx_ptr + i * 16))? as DoorPtr;
+                    self.fx_door_map.insert(fx_door, door_ptr);
+                }
             }
         }
         Ok(())
@@ -408,7 +457,7 @@ impl MosaicPatchBuilder {
 
                 // Write (or clear) the BGData pointer:
                 if state_xml.layer2_type == Layer2Type::BGData {
-                    let bg_ptr = self.bgdata_mapping.get(&state_xml.bg_data).map(|x| *x).unwrap_or(0);
+                    let bg_ptr = self.bgdata_map.get(&state_xml.bg_data).map(|x| *x).unwrap_or(0);
                     if bg_ptr == 0 {
                         error!("Unrecognized BGData in {}", project);
                     }
@@ -541,7 +590,8 @@ fn main() -> Result<()> {
         rom,
         source_suffix_tree,
         room_ptr_map,
-        bgdata_mapping: HashMap::new(),
+        bgdata_map: HashMap::new(),
+        fx_door_map: HashMap::new(),
         compressed_data_cache_dir: Path::new("../compressed_data").to_owned(),
         compressor_path: args.compressor.clone(),
         tmp_dir: Path::new("../tmp").to_owned(),
@@ -556,6 +606,7 @@ fn main() -> Result<()> {
 
     mosaic_builder.make_tileset_patch()?;
     mosaic_builder.build_bgdata_map()?;
+    mosaic_builder.build_fx_door_map()?;
     mosaic_builder.make_all_room_patches()?;
     Ok(())
 }
