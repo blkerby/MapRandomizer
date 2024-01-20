@@ -77,9 +77,6 @@
             WallJump::Collectible => {
                 game_variations.push("Collectible wall jump");
             }
-            WallJump::Disabled => {
-                game_variations.push("Disabled wall jump");
-            }
             _ => {}
         }
         match difficulty.etank_refill {

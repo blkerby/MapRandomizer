@@ -729,7 +729,6 @@ pub fn apply_requirement(
                     None
                 }
             }
-            WallJump::Disabled => None,
         },
         Requirement::HeatFrames(frames) => {
             let varia = global.items[Item::Varia as usize];

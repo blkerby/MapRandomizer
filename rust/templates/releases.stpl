@@ -14,7 +14,7 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release106">Version 106 (2024-01-14)</a>:
+<p><a id="release106">Version 106 (2024-01-17)</a>:
 <ul>
 <li>A new setting "Partial" is added for "Maps revealed from start" (under "Other options").
 <li>A new option "Energy-free shinesparks" is added (under "Other options").
@@ -25,14 +25,19 @@ document.getElementById("navigation-releases").classList.add("active");
     <ul>
     <li>When enabled, the game begins in the escape sequence, and the only goal is to complete it.
     </ul>
+<li>The quality-of-life option "Enemy drops are buffed" now has an additional effect:
+    <ul>
+    <li>Power Bomb drops give 2 Power Bombs.
+    </ul>
 <li>Adjustments to how escape timer multipliers work:
     <ul>
     <li>The base leniency factor (previously 1.05) is removed.
     <li>With the new scale, 1.0 is now the minimum multiplier guaranteed to be beatable.
     <li>The default multipliers are updated.
-    <li>When using a low multiplier (1.05 or less), the escape timer now rounds up to the nearest 
+    <li>When using a low multiplier (1.0 or less), the escape timer now rounds up to the nearest 
     second instead of to a multiple of 5 seconds.
     </ul>
+<li>New Samus sprites: "Buffed Eggplant" and "Buffed Pug", by Fredz00z.
 <li>New notable strats:
     <ul>
     <li>Warehouse Kihunter Room Bottom Leave Shinecharged (Expert)

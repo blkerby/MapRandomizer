@@ -290,7 +290,7 @@ pub fn compute_escape_data(
     let raw_time_seconds =
         base_igt_seconds * base_leniency_factor * difficulty.escape_timer_multiplier;
 
-    let mut final_time_seconds = if difficulty.escape_timer_multiplier <= 1.05 {
+    let mut final_time_seconds = if difficulty.escape_timer_multiplier <= 1.0 {
         f32::ceil(raw_time_seconds)
     } else {
         f32::ceil(raw_time_seconds / 5.0) * 5.0

@@ -96,7 +96,6 @@ pub enum AreaAssignment {
 pub enum WallJump {
     Vanilla,
     Collectible,
-    Disabled,
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]

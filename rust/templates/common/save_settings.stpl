@@ -22,6 +22,23 @@ function saveForm(form) {
     }
     localStorage[form.id] = JSON.stringify(data);
 }
+
+function migrateValue(name, value) {
+    var migrationMapping = {
+        "maps_revealed": {
+            "false": "No",
+            "true": "Yes"
+        }
+    };
+    if (migrationMapping[name] !== undefined) {
+        var newValue = migrationMapping[name][value];
+        if (newValue !== undefined) {
+            return newValue;
+        }
+    }
+    return value;
+}
+
 function loadForm(form) {
     if (localStorage[form.id] === undefined) {
         return;
@@ -35,8 +52,11 @@ function loadForm(form) {
             continue;
         }
         if (element.type == "radio") {
-            if (data[element.name] == element.value) {
+            var value = migrateValue(element.name, data[element.name]);
+            if (value == element.value) {
                 element.checked = true;
+            } else if (value !== undefined){
+                element.checked = false;
             }
         } else if (data[element.name] !== undefined) {
             if (element.type == "checkbox") {

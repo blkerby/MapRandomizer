@@ -8,8 +8,6 @@
         <label class="btn btn-outline-primary" for="wallJumpVanilla">Vanilla</label>
         <input type="radio" class="btn-check" name="wall_jump" id="wallJumpCollectible" value="Collectible">
         <label class="btn btn-outline-primary" for="wallJumpCollectible">Collectible</label>
-        <input type="radio" class="btn-check" name="wall_jump" id="wallJumpDisabled" value="Disabled">
-        <label class="btn btn-outline-primary" for="wallJumpDisabled">Disabled</label>
     </div>
 </div>
 

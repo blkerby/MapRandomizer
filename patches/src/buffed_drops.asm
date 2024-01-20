@@ -21,13 +21,13 @@ org $B4F254 : db $00, $8C, $05, $00, $64, $0A  ; Zebbo (enemy $F1D3)
 org $B4F260 : db $00, $64, $3C, $05, $46, $14  ; Zoa (enemy $DA7F)
 org $B4F266 : db $32, $5F, $32, $00, $14, $28  ; Covern (enemy $E77F)
 
-; (Changes we considered but didn't go forward with:)
+; Make Power Bomb drop give 2 Power Bombs:
+org $86F0D9
+    LDA #$0002
+
+; (Change we considered but didn't go forward with:)
 ;
 ;; Make Super Missile drop give 2 Super Missiles:
 ;org $86F0F7
-;    LDA #$0002
-;
-;; Make Power Bomb drop give 2 Power Bombs:
-;org $86F0D9
 ;    LDA #$0002
 ;

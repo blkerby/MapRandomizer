@@ -496,9 +496,6 @@ impl<'a> Patcher<'a> {
             WallJump::Collectible => {
                 patches.push("walljump_item");
             }
-            WallJump::Disabled => {
-                patches.push("disable_walljump");
-            }
         }
 
         match self.randomization.difficulty.etank_refill {
@@ -541,9 +538,6 @@ impl<'a> Patcher<'a> {
         let mut settings_flag = 0x0000;
         if self.randomization.difficulty.wall_jump == WallJump::Collectible {
             settings_flag |= 0x0001;
-        }
-        if self.randomization.difficulty.wall_jump == WallJump::Disabled {
-            settings_flag |= 0x0002;
         }
         self.rom.write_u16(snes2pc(0xdfff05), settings_flag)?;
 

@@ -1306,14 +1306,17 @@ async fn randomize(
             "Random" => AreaAssignment::Random,
             _ => panic!("Unrecognized ship area option: {}", req.area_assignment.0),
         },
-        wall_jump: match req.wall_jump.0.as_str() {
-            "Vanilla" => maprando::randomize::WallJump::Vanilla,
-            "Collectible" => maprando::randomize::WallJump::Collectible,
-            "Disabled" => maprando::randomize::WallJump::Disabled,
-            _ => panic!(
-                "Unrecognized wall_jump setting {}",
-                req.wall_jump.0.as_str()
-            ),
+        wall_jump: if req.start_location.0.as_str() == "Escape" {
+            maprando::randomize::WallJump::Vanilla
+        } else {
+            match req.wall_jump.0.as_str() {
+                "Vanilla" => maprando::randomize::WallJump::Vanilla,
+                "Collectible" => maprando::randomize::WallJump::Collectible,
+                _ => panic!(
+                    "Unrecognized wall_jump setting {}",
+                    req.wall_jump.0.as_str()
+                ),
+            }
         },
         etank_refill: match req.etank_refill.0.as_str() {
             "Disabled" => maprando::randomize::EtankRefill::Disabled,

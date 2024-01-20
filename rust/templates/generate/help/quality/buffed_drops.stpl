@@ -15,15 +15,16 @@
       <p>If enabled, then certain enemy drops are improved:
       <ul>
       <li>Small energy drops give 10 energy.
+      <li>Power Bomb drops give 2 Power Bombs.
       <li>Respawning enemies drop Power Bombs at double the normal rate.
       </ul>
       </p>
 
       <h5>Details</h5>
       <p>
-      The enemies with improved Power Bomb drop rate are Gamets, Zebs, Geegas, Zebbos, Zoas, and Coverns.
-      Drop rates of enemy projectiles are not affected. The increased Power Bomb drop rate comes out of the
-      Missile drop rate. The resulting drop rates are shown in the following table:
+      The enemies with improved Power Bomb drop probability are Gamets, Zebs, Geegas, Zebbos, Zoas, and Coverns.
+      Drop probabilities of enemy projectiles are not affected. The increased Power Bomb drop probability comes out of the
+      Missile drop probability. The resulting drop probabilities are shown in the following table:
 
       <table class="table w-auto table-striped table-bordered mx-auto">
       <thead>
@@ -47,7 +48,10 @@
           <tr><td align="center"><img src="/static/modal_img/Covern.png"></td><td>Covern</td><td>0%</td><td>20%</td><td>38%</td><td>20%</td><td>8%</td><td>16%</td></tr>
       </tbody>
       </table>
+      </p>
   
+      <p>For these respawning enemies, the doubled Power Bomb drop probability combines with the increased drop value (each Power Bomb 
+      drop giving 2 Power Bombs) to result in an overall quadrupled rate of Power Bomb farming.
       </p>
       </div>
       <div class="modal-footer">
