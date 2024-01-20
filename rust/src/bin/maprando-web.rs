@@ -789,13 +789,14 @@ async fn customize_seed(
         .get_file(seed_name, "patch.ips")
         .await
         .unwrap();
-    let mut rom = Rom::new(req.rom.data.to_vec());
+    let orig_rom = Rom::new(req.rom.data.to_vec());
+    let mut rom = orig_rom.clone();
 
-    if rom.data.len() < 0x300000 {
-        return HttpResponse::BadRequest().body("Invalid base ROM.");
+    let rom_digest = crypto_hash::hex_digest(crypto_hash::Algorithm::SHA256, &rom.data);
+    info!("Rom digest: {rom_digest}");
+    if rom_digest != "12b77c4bc9c1832cee8881244659065ee1d84c70c3d29e6eaf92e6798cc2ca72" {
+        return HttpResponse::BadRequest().body(InvalidRomTemplate {}.render_once().unwrap());
     }
-    let rom_digest = crypto_hash::hex_digest(crypto_hash::Algorithm::MD5, &rom.data);
-    info!("MD5 digest: {rom_digest}");
 
     let settings = CustomizeSettings {
         samus_sprite: if req.custom_samus_sprite.0 && req.samus_sprite.0 != "" {
@@ -849,6 +850,7 @@ async fn customize_seed(
     info!("CustomizeSettings: {:?}", settings);
     match customize_rom(
         &mut rom,
+        &orig_rom,
         &patch_ips,
         &settings,
         &app_data.game_data,

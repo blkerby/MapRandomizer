@@ -271,6 +271,7 @@ fn apply_controller_config(rom: &mut Rom, controller_config: &ControllerConfig) 
 
 pub fn customize_rom(
     rom: &mut Rom,
+    orig_rom: &Rom,
     seed_patch: &[u8],
     settings: &CustomizeSettings,
     game_data: &GameData,
@@ -290,7 +291,7 @@ pub fn customize_rom(
             apply_area_themed_palettes(rom, game_data)?;
         }
         AreaTheming::Tiles(theme) => {
-            apply_retiling(rom, game_data, &theme)?;
+            apply_retiling(rom, orig_rom, game_data, &theme)?;
             // // Failed attempt to put Dachora further back, e.g. so it doesn't go in front of Crateria tube:
             // rom.write_u8(snes2pc(0xA0E5FF + 0x39), 0x06)?;
         }

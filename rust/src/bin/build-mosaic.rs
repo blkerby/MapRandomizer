@@ -111,22 +111,6 @@ pub fn extract_uncompressed_level_data(state_xml: &smart_xml::RoomState) -> Vec<
     level_data
 }
 
-// fn make_fx1(fx1: &smart_xml::FX1) -> FX1 {
-//     FX1 {
-//         fx1_reference: None,
-//         fx1_door: if fx1.default {
-//             None
-//         } else {
-//             Some(FX1Door {
-//                 room_area: fx1.roomarea,
-//                 room_index: fx1.roomindex,
-//                 door_index: fx1.fromdoor,
-//             })
-//         },
-//         fx1_data: fx1.clone(),
-//     }
-// }
-
 impl MosaicPatchBuilder {
     fn get_compressed_data(&self, data: &[u8]) -> Result<Vec<u8>> {
         let digest = crypto_hash::hex_digest(crypto_hash::Algorithm::SHA256, &data);
@@ -239,8 +223,9 @@ impl MosaicPatchBuilder {
                 gfx16x16_path.display()
             )
         })?;
+        let compressed_gfx16x16 = self.get_compressed_data(&gfx16x16_bytes)?;
         let gfx16x16_addr = self.main_allocator.allocate(gfx16x16_bytes.len())?;
-        new_rom.write_n(gfx16x16_addr, &gfx16x16_bytes)?;
+        new_rom.write_n(gfx16x16_addr, &compressed_gfx16x16)?;
         new_rom.write_u8(snes2pc(0x82E83D), (pc2snes(gfx16x16_addr) >> 16) as isize)?;
         new_rom.write_u16(
             snes2pc(0x82E841),
@@ -341,6 +326,11 @@ impl MosaicPatchBuilder {
             )?;
             assert!(new_tile_pointers_snes + 2 * tileset_idx < tile_pointers_free_space_end);
         }
+
+        new_rom.write_u16(
+            snes2pc(0x82DF03),
+            (new_tile_pointers_snes & 0xFFFF) as isize,
+        )?;
         Ok(())
     }
 
@@ -471,36 +461,6 @@ impl MosaicPatchBuilder {
                 let output_path = self.output_patches_dir.join(output_filename);
                 std::fs::write(&output_path, &encoder.patch_bytes)?;
             }
-        }
-        Ok(())
-    }
-
-    fn check_patch_decoding(&self) -> Result<()> {
-        // For each BPS patch, determine the ranges of bytes that it modifies.
-        // This is used in the randomizer to efficiently combine the patches.
-        for patch_path in std::fs::read_dir(&self.output_patches_dir)? {
-            let patch_path = patch_path?.path();
-            if patch_path.extension().unwrap().to_str().unwrap() != "bps" {
-                continue;
-            }
-            info!("Validating {}", patch_path.display());
-            let patch_bytes = std::fs::read(&patch_path)?;
-            let reference_patch = BpsPatch::new(patch_bytes.clone());
-            let reference_output = reference_patch.apply(&self.rom.data)?;
-            let patch = maprando::patch::bps::BPSPatch::new(patch_bytes)?;
-            let mut output = self.rom.data.clone();
-            patch.apply(&self.rom.data, &mut output);
-            if &output != reference_output.as_bytes() {
-                println!("{} {}", output.len(), reference_output.len());
-                println!("{:?}", patch);
-                for i in 0..self.rom.data.len() {
-                    if reference_output[i] != output[i] {
-                        println!("i={}, vanilla={}, ref={}, out={}", i, self.rom.data[i], reference_output[i], output[i]);
-                    }
-                }
-                panic!("Incorrect patch application: {}", patch_path.display());
-            }
-            // let patch = Bps
         }
         Ok(())
     }

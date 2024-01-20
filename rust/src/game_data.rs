@@ -1,5 +1,4 @@
 pub mod smart_xml;
-pub mod themed_retiling;
 
 use anyhow::{bail, ensure, Context, Result};
 // use log::info;
@@ -17,8 +16,6 @@ use std::path::{Path, PathBuf};
 use strum::VariantNames;
 use strum_macros::{EnumString, EnumVariantNames};
 use log::{info, error};
-
-use self::themed_retiling::RetiledThemeData;
 
 #[derive(Deserialize, Clone)]
 pub struct Map {
@@ -975,7 +972,6 @@ pub struct GameData {
     pub strat_room: HashMap<String, String>,
     pub strat_description: HashMap<String, String>,
     pub tileset_palette_themes: Vec<HashMap<TilesetIdx, ThemedPaletteTileset>>,
-    pub retiled_theme_data: Option<RetiledThemeData>,
     pub escape_timings: Vec<EscapeTimingRoom>,
     pub start_locations: Vec<StartLocation>,
     pub hub_locations: Vec<HubLocation>,
@@ -3530,7 +3526,6 @@ impl GameData {
         ];
         // game_data.load_palette(palette_path)?;
         game_data.load_themes(palette_theme_path)?;
-        game_data.retiled_theme_data = Some(themed_retiling::load_theme_data(mosaic_path)?);
         game_data.load_title_screens(title_screen_path)?;
 
         Ok(game_data)
