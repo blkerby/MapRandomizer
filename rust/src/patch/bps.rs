@@ -2,6 +2,9 @@ use anyhow::{bail, Result};
 
 use super::suffix_tree::SuffixTree;
 
+// Threshold for minimum matching chunk size (bytes) to encode a source copy block:
+const SOURCE_MATCH_THRESHOLD: usize = 4;
+
 #[derive(Debug)]
 enum BPSBlock {
     Unchanged {
@@ -221,6 +224,8 @@ pub struct BPSEncoder<'a> {
     pub patch_bytes: Vec<u8>,
     src_pos: usize,
     input_pos: usize,
+    count_data_bytes: usize,
+    count_copy_bytes: usize,
 }
 
 fn compute_crc32(data: &[u8]) -> u32 {
@@ -246,6 +251,8 @@ impl<'a> BPSEncoder<'a> {
             patch_bytes: vec![],
             src_pos: 0,
             input_pos: 0,
+            count_copy_bytes: 0,
+            count_data_bytes: 0,
         }       
     }
 
@@ -257,12 +264,20 @@ impl<'a> BPSEncoder<'a> {
         for r in self.modified_ranges {
             self.encode_range(r.0, r.1);
         }
+        if self.input_pos < self.source_suffix_tree.data.len() {
+            self.encode_unchanged(self.source_suffix_tree.data.len() - self.input_pos);
+        }
         self.write_n(&compute_crc32(&self.source_suffix_tree.data).to_le_bytes());
         self.write_n(&compute_crc32(&self.target).to_le_bytes());
         self.write_n(&compute_crc32(&self.patch_bytes).to_le_bytes());
+        self.check_encoding();
+        // let count_total_bytes = self.count_copy_bytes + self.count_data_bytes;
+        // let data_frac = (self.count_data_bytes as f32) / (count_total_bytes as f32 + 1e-12);
+        // println!("{}/{} data bytes ({:.1}%)", self.count_data_bytes, count_total_bytes, data_frac * 100.0);
     }
 
     fn encode_range(&mut self, mut start_addr: usize, end_addr: usize) {
+        // println!("range: {} {}", start_addr, end_addr);
         // Unchanged block:
         if self.input_pos < start_addr {
             let length = start_addr - self.input_pos;
@@ -272,20 +287,21 @@ impl<'a> BPSEncoder<'a> {
 
         // Data and source copy blocks:
         while start_addr < end_addr {
-            let (source_start, match_length) = self.source_suffix_tree.lookup(&self.target[start_addr..end_addr]);
-            if match_length >= 3 {
+            let (source_start, match_length) = self.source_suffix_tree.find_longest_prefix(&self.target[start_addr..end_addr]);
+            // println!("start_addr={start_addr}, match_length={match_length}, end_addr={end_addr}");
+            if match_length as usize >= SOURCE_MATCH_THRESHOLD {
                 if start_addr > self.input_pos {
-                    self.encode_data(&self.source_suffix_tree.data[self.input_pos..start_addr]);
-                    self.encode_source_copy(source_start, match_length);
-                    self.input_pos = start_addr + match_length;
-                    start_addr = start_addr + match_length;
+                    self.encode_data(&self.target[self.input_pos..start_addr]);
                 }
+                self.encode_source_copy(source_start as usize, match_length as usize);
+                self.input_pos = start_addr + match_length as usize;
+                start_addr = start_addr + match_length as usize;
             } else {
                 start_addr += 1;
             }    
         }
         if end_addr > self.input_pos {
-            self.encode_data(&self.source_suffix_tree.data[self.input_pos..end_addr]);
+            self.encode_data(&self.target[self.input_pos..end_addr]);
             self.input_pos = end_addr;
         }
     }
@@ -300,19 +316,23 @@ impl<'a> BPSEncoder<'a> {
     }
 
     fn encode_data(&mut self, data: &[u8]) {
+        // println!("data: dst={}, length={}: {:?}", self.input_pos, data.len(), data);
         self.encode_block_header(1, data.len());
         self.write_n(data);
+        self.count_data_bytes += data.len();
     }
 
     fn encode_source_copy(&mut self, idx: usize, length: usize) {
+        // println!("source copy: dst={}, src={}, length={}", self.input_pos, idx, length);
         self.encode_block_header(2, length);
         let relative_idx = (idx as isize) - (self.src_pos as isize);
         if relative_idx < 0 {
             self.encode_number(1 | (((-relative_idx) as usize) << 1));
         } else {
-            self.encode_number(1 | ((relative_idx as usize) << 1));
+            self.encode_number((relative_idx as usize) << 1);
         }
         self.src_pos = idx + length;
+        self.count_copy_bytes += length;
     }
 
     fn write(&mut self, b: u8) {
@@ -334,5 +354,24 @@ impl<'a> BPSEncoder<'a> {
             self.write(b);
             x -= 1;
         }
+    }
+
+    fn check_encoding(&self) {
+        // Check decoding using our decoder:
+        let patch = BPSPatch::new(self.patch_bytes.clone()).unwrap();
+        // println!("{:?}", patch);
+        let mut output = self.source_suffix_tree.data.clone();
+        patch.apply(&self.source_suffix_tree.data, &mut output);
+        // for i in 0..self.target.len() {
+        //     if self.target[i] != output[i] {
+        //         println!("at {}: source={}, target={}, output={}", i, self.source_suffix_tree.data[i], self.target[i], output[i]);
+        //     }
+        // }
+        assert!(&self.target == &output);
+
+        // // Check decoding using Flips:
+        // let patch = flips::BpsPatch::new(&self.patch_bytes);
+        // let output = patch.apply(&self.source_suffix_tree.data).unwrap();
+        // assert_eq!(output.as_bytes(), self.target);
     }
 }

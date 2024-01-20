@@ -2,7 +2,7 @@ pub mod compress;
 pub mod decompress;
 pub mod ips_write;
 pub mod suffix_tree;
-// pub mod bps;
+pub mod bps;
 pub mod map_tiles;
 pub mod title;
 

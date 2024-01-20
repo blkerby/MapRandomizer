@@ -26,7 +26,7 @@ const EDGE_UNDEFINED: EdgeId = EdgeId::MAX;  // Note: This is not a distinct val
 //    the node for data[(i + 1)..j].
 #[derive(Debug)]
 pub struct SuffixTree {
-    data: Vec<u8>,
+    pub data: Vec<u8>,
     nodes: Vec<Node>,
     // position of smallest suffix data[i..] such that for all j < i, the substring data[j..] occurs nowhere else in data:
     // Note we don't track the index "i" explicitly (as it is not needed), only the position in the tree.
