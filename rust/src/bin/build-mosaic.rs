@@ -29,8 +29,6 @@ struct MosaicPatchBuilder {
     rom: Rom,
     source_suffix_tree: SuffixTree,
     room_ptr_map: HashMap<(usize, usize), usize>,
-    // list of ((room name, state idx), list of start/end ROM byte indexes):
-    room_modified_ranges: Vec<((String, usize), Vec<(usize, usize)>)>,
     compressed_data_cache_dir: PathBuf,
     compressor_path: PathBuf,
     tmp_dir: PathBuf,
@@ -144,6 +142,32 @@ impl MosaicPatchBuilder {
                 .context("error running compressor")?;
         }
         return Ok(std::fs::read(output_path)?);
+    }
+
+    fn get_fx_data(&self, state_xml: &smart_xml::RoomState) -> Vec<u8> {
+        let mut out: Vec<u8> = vec![];
+
+        for fx in &state_xml.fx1s.fx1 {
+            // Door pointer (for non-default FX) is map-specific and so will be populated during customization.
+            out.extend(0u16.to_le_bytes());  
+
+            out.extend((fx.surfacestart as u16).to_le_bytes());
+            out.extend((fx.surfacenew as u16).to_le_bytes());
+            out.extend((fx.surfacespeed as u16).to_le_bytes());
+            out.extend([fx.surfacedelay as u8]);
+            out.extend([fx.type_ as u8]);
+            out.extend([fx.transparency1_a as u8]);
+            out.extend([fx.transparency2_b as u8]);
+            out.extend([fx.liquidflags_c as u8]);
+            out.extend([fx.paletteflags as u8]);
+            out.extend([fx.animationflags as u8]);
+            out.extend([fx.paletteblend as u8]);
+        }
+        if out.len() == 0 {
+            out.extend(vec![0xFF, 0xFF]);
+        }
+    
+        out
     }
 
     fn build_bgdata_map(&mut self) -> Result<()> {
@@ -353,10 +377,11 @@ impl MosaicPatchBuilder {
             return Ok(());
         }
         
-        info!("Processing {}: main allocator {:?}", room_filename, self.main_allocator.get_stats());
+        info!("Processing {}: main alloc {:?}, FX alloc {:?}", room_name, self.main_allocator.get_stats(), self.fx_allocator.get_stats());
         let state_ptrs = get_room_state_ptrs(&self.rom, room_ptr)?;
         for (state_idx, &(_event_ptr, state_ptr)) in state_ptrs.iter().enumerate() {
             let mut compressed_level_data_vec = vec![];
+            let mut fx_data_vec = vec![];
             let mut state_xml_vec = vec![];
             for project in project_names {
                 let project_path = self.mosaic_dir.join("Projects").join(project);
@@ -369,6 +394,8 @@ impl MosaicPatchBuilder {
                 let level_data = extract_uncompressed_level_data(state_xml);
                 let compressed_level_data = self.get_compressed_data(&level_data)?;
                 compressed_level_data_vec.push(compressed_level_data);
+                let fx_data = self.get_fx_data(&state_xml);
+                fx_data_vec.push(fx_data);
                 state_xml_vec.push(state_xml.clone());
             }
 
@@ -376,7 +403,10 @@ impl MosaicPatchBuilder {
             // This approach can duplicate level data across room states, but we're not going to worry about that now.
             let max_level_data_size = compressed_level_data_vec.iter().map(|x| x.len()).max().unwrap_or(0);
             let level_data_addr = self.main_allocator.allocate(max_level_data_size)?;
-            let mut modified_ranges: Vec<(usize, usize)> = vec![];
+
+            // Similarly, allocate enough space for FX data to fit whichever theme has the largest:
+            let max_fx_data_size = fx_data_vec.iter().map(|x| x.len()).max().unwrap_or(0);
+            let fx_data_addr = self.fx_allocator.allocate(max_fx_data_size)?;
 
             for (i, project) in project_names.iter().enumerate() {
                 let mut new_rom = self.rom.clone();
@@ -412,19 +442,35 @@ impl MosaicPatchBuilder {
                 new_rom.write_n(level_data_addr, level_data)?;
                 new_rom.write_u24(state_ptr, pc2snes(level_data_addr) as isize)?;
 
-                // let patch = flips::BpsDeltaBuilder::new()
-                //     .source(&self.rom.data)
-                //     .target(&new_rom.data)
-                //     .build()?;
+                // Write FX:
+                if pc2snes(room_ptr) & 0xFFFF == 0xDD58 {
+                    // Skip for Mother Brain Room, which has special FX not in the FX list.
+                } else {
+                    new_rom.write_n(fx_data_addr, &fx_data_vec[i])?;
+                    new_rom.write_u16(state_ptr + 6, (pc2snes(fx_data_addr) & 0xFFFF) as isize)?;    
+                }
+
+                // Write setup & main ASM pointers:
+                if pc2snes(state_ptr) & 0xFFFF == 0xDDA2 {
+                    // Don't overwrite ASM for special Mother Brain Room state used by randomizer for escape sequence.
+                } else {
+                    // Main ASM:
+                    new_rom.write_u16(state_ptr + 18, state_xml.fx2 as isize)?;
+
+                    // Setup ASM:
+                    new_rom.write_u16(state_ptr + 24, state_xml.layer1_2 as isize)?;
+                }
+
+                // Encode the BPS patch:
                 let modified_ranges = new_rom.get_modified_ranges();
                 let mut encoder = BPSEncoder::new(&self.source_suffix_tree, &new_rom.data, &modified_ranges);
                 encoder.encode();
         
-                let output_filename = format!("{}-{}-{}.bps", project, room_name, state_idx);
+                // Save the BPS patch to a file:
+                let output_filename = format!("{}-{:X}-{}.bps", project, room_ptr, state_idx);
                 let output_path = self.output_patches_dir.join(output_filename);
                 std::fs::write(&output_path, &encoder.patch_bytes)?;
             }
-            self.room_modified_ranges.push(((room_name.to_string(), state_idx), modified_ranges));
         }
         Ok(())
     }
@@ -535,13 +581,12 @@ fn main() -> Result<()> {
         rom,
         source_suffix_tree,
         room_ptr_map,
-        room_modified_ranges: vec![],
         bgdata_mapping: HashMap::new(),
         compressed_data_cache_dir: Path::new("../compressed_data").to_owned(),
         compressor_path: args.compressor.clone(),
         tmp_dir: Path::new("../tmp").to_owned(),
         mosaic_dir: Path::new("../Mosaic").to_owned(),
-        output_patches_dir: Path::new("../patches/bps").to_owned(),
+        output_patches_dir: Path::new("../patches/mosaic").to_owned(),
         main_allocator,
         fx_allocator,
     };

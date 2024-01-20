@@ -3,3 +3,5 @@ AD66 - AD72: escape_autosave.asm
 B000 - B700: items_disappear.asm
 B700 - B800: rng_fix.asm
 B800 - BA00: Mosaic (Area FX.asm)
+BA00 - F000: free space
+F000 - end:  Mosaic (FX data)
