@@ -71,9 +71,9 @@ impl SuffixTree {
             cut: Position { node_id: 0, edge_id: EDGE_UNDEFINED, length: 0 },
         };
         for &b in data {
-            println!("data: {:?}", tree.data);
+            // println!("data: {:?}", tree.data);
             tree.push_byte(b);
-            println!("end: {:?}", tree);
+            // println!("end: {:?}", tree);
         }
         tree
     }
@@ -103,6 +103,9 @@ impl SuffixTree {
                 // Entire edge matched, so continue.
                 pos += edge.end - edge.start;
                 node_id = edge.node_id;
+                if pos == query.len() as DataIdx {
+                    return (edge.end - query.len() as DataIdx, query.len() as DataIdx);
+                }
             } else {
                 // No further bytes match, so we're done.
                 if node.edges.len() == 0 {
@@ -161,7 +164,6 @@ impl SuffixTree {
             let node_suffix_link = node.suffix_link;
             if cut.length == 0 {
                 if node.edge_lookup.contains_key(&b) {
-                    println!("finish A");
                     // data[cut..] already existed in the tree. This means data[i..] also already existed for i > cut.
                     // So we only have to update the cut position, and we're done.
                     self.cut.edge_id = node.edge_lookup[&b];
@@ -174,7 +176,6 @@ impl SuffixTree {
                     }
                     return;
                 } else {
-                    println!("new leaf");
                     // Add a new leaf edge containing the single new byte:
                     let edge_id = node.edges.len() as EdgeId;
                     let edge = Edge {
@@ -206,7 +207,6 @@ impl SuffixTree {
                 let edge = &mut node.edges[cut.edge_id as usize];
                 let edge_start = edge.start;
                 if edge.start + cut.length == (self.data.len() - 1) as DataIdx {
-                    println!("existing leaf");
                     // We're at the end of a leaf node, which will be implicitly extended by the new byte.
                     assert!(edge.end == DATA_END);
 
@@ -228,7 +228,6 @@ impl SuffixTree {
                 } else {
                     let c = self.data[(edge.start + cut.length) as usize];
                     if c == b {
-                        println!("finish B");
                         // data[cut..] already existed in the tree. This means data[i..] also already existed for i > cut.
                         // So we only have to update the cut position, and we're done.
                         self.cut.length += 1;
@@ -239,7 +238,6 @@ impl SuffixTree {
                         }
                         return;
                     } else {
-                        println!("split");
                         // The edge must be split and a new node created in the middle:
                         let tail_edge = Edge {
                             start: edge.start + cut.length,
@@ -310,18 +308,42 @@ mod tests {
         assert_eq!(tree.find_longest_prefix(&[20, 10, 40]), (1, 2));
     }
 
+    // Check if query appears as substring in data:
+    fn check_query(data: &[u8], query: &[u8]) -> bool {
+        for w in data.windows(query.len()) {
+            if w == query {
+                return true;
+            }
+        }
+        return false;
+    }
+
     #[test]
-    fn test_long() {
+    fn test_random() {
         let mut rng = rand::rngs::StdRng::from_seed([0u8; 32]);
         for i in 0..100 {
             let mut data = vec![];
-            let length = 100;
+            let length = 1000;
             for _ in 0..length {
                 data.push(rng.gen_range(0..4) as u8);
             }
             data.push(5);
-            println!("iteration {}", i);
-            let tree = SuffixTree::new(&data);    
+            let tree = SuffixTree::new(&data);
+            for query_length in 1..10 {
+                let num_queries = 100;
+                for _ in 0..num_queries {
+                    let mut query = vec![];
+                    for _ in 0..query_length {
+                        query.push(rng.gen_range(0..4) as u8);
+                    }
+                    let (start, match_length) = tree.find_longest_prefix(&query);
+                    let has_match = check_query(&data, &query);
+                    assert_eq!(match_length == query_length, has_match);
+                    let data_slice = &data[start as usize..(start as usize + match_length as usize)];
+                    let query_slice = &query[..match_length as usize];
+                    assert_eq!(data_slice, query_slice);
+                }
+            }
         }
     }
 }
