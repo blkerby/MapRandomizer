@@ -24,6 +24,7 @@ const EDGE_UNDEFINED: EdgeId = EdgeId::MAX;  // Note: This is not a distinct val
 //    substring anywhere else in the data (which means it is represented by a leaf).
 // 5. For every (non-leaf) non-root node representing data[i..j] (for i < j), a "suffix link" is maintained, which is a pointer to
 //    the node for data[(i + 1)..j].
+#[derive(Debug)]
 pub struct SuffixTree {
     data: Vec<u8>,
     nodes: Vec<Node>,
@@ -33,18 +34,21 @@ pub struct SuffixTree {
 }
 
 // Identifies a position in the tree by a node and (optionally) a prefix of a leaf child edge belonging to it
+#[derive(Debug)]
 struct Position {
     node_id: NodeId,
     edge_id: EdgeId,  // index of child edge below this node (ignored if length == 0).
     length: DataIdx,  // length of prefix of the child edge label to follow
 }
 
+#[derive(Debug)]
 struct Node {
     edges: Vec<Edge>,  // Child edges below this node
     edge_lookup: HashMap<u8, u8>,  // Mapping from first byte of edge label to index in `edges`.
     suffix_link: NodeId,
 }
 
+#[derive(Debug)]
 struct Edge {
     // Edge label references data indirectly, so that it takes constant space regardless of its length.
     // If the edge ends in a leaf (if `node_id == NODE_UNDEFINED`), then it references data[start..].
@@ -56,7 +60,7 @@ struct Edge {
 
 impl SuffixTree {
     pub fn new(data: &[u8]) -> Self {
-        let mut root_node = Node {
+        let root_node = Node {
             edges: Vec::new(),
             edge_lookup: HashMap::new(),
             suffix_link: NODE_UNDEFINED,
@@ -67,9 +71,49 @@ impl SuffixTree {
             cut: Position { node_id: 0, edge_id: EDGE_UNDEFINED, length: 0 },
         };
         for &b in data {
+            println!("data: {:?}", tree.data);
             tree.push_byte(b);
+            println!("end: {:?}", tree);
         }
         tree
+    }
+
+    // Returns the index (into `self.data`) and length of a longest-matching prefix of `query`.
+    pub fn find_longest_prefix(&self, query: &[u8]) -> (DataIdx, DataIdx) {
+        let mut node_id = 0;  // Start at root node
+        let mut pos: DataIdx = 0;  // Length of prefix of query that has been matched so far
+        if query.len() == 0 {
+            // Handle trivial edge case:
+            return (0, 0);
+        }
+        loop {
+            let node = &self.nodes[node_id as usize];
+            let b = query[pos as usize];
+            if let Some(&edge_id) = node.edge_lookup.get(&b) {
+                let edge = &node.edges[edge_id as usize];
+                for i in 0..edge.end - edge.start {
+                    let whole_query_match = pos + i == query.len() as DataIdx;
+                    let reached_data_end = edge.start + i == self.data.len() as DataIdx;
+                    if whole_query_match || reached_data_end || self.data[(edge.start + i) as usize] != query[(pos + i) as usize] {
+                        // We are done: either the whole query matched, or we reached the data end or a point where it doesn't match.
+                        return (edge.start - pos, pos + i);
+                    }
+                }
+
+                // Entire edge matched, so continue.
+                pos += edge.end - edge.start;
+                node_id = edge.node_id;
+            } else {
+                // No further bytes match, so we're done.
+                if node.edges.len() == 0 {
+                    // Node has no child edges. The only way this should happen is at the root node, with self.data is empty.
+                    assert!(node_id == 0 && self.data.len() == 0);
+                    return (0, 0);
+                }
+                let edge = &node.edges[0];  // Pick an arbitrary edge
+                return (edge.start - pos, pos);
+            }
+        }
     }
 
     // Follow data[start..(start + length)] starting from given node, and return the resulting position.
@@ -100,7 +144,7 @@ impl SuffixTree {
         }
     }
 
-    fn push_byte(&mut self, b: u8) {
+    pub fn push_byte(&mut self, b: u8) {
         // Append the byte to the data vector:
         self.data.push(b);
 
@@ -109,14 +153,28 @@ impl SuffixTree {
         // For i less than the cut position, this is already taken care of automatically, since in such cases
         // data[i..] is represented by a leaf, which has an implicit end position (DATA_END).
         loop {
+            // println!("tree: {:?}", self);
+
             let cut = &self.cut;
+            let num_nodes = self.nodes.len();
             let node = &mut self.nodes[cut.node_id as usize];
+            let node_suffix_link = node.suffix_link;
             if cut.length == 0 {
-                if let Some(&edge_id) = node.edge_lookup.get(&b) {
+                if node.edge_lookup.contains_key(&b) {
+                    println!("finish A");
                     // data[cut..] already existed in the tree. This means data[i..] also already existed for i > cut.
-                    // So we are done.
+                    // So we only have to update the cut position, and we're done.
+                    self.cut.edge_id = node.edge_lookup[&b];
+                    self.cut.length = 1;
+                    let edge = &node.edges[self.cut.edge_id as usize];
+                    if edge.end - edge.start == 1 {
+                        self.cut.length = 0;
+                        self.cut.node_id = edge.node_id;
+                        self.cut.edge_id = EDGE_UNDEFINED;
+                    }
                     return;
                 } else {
+                    println!("new leaf");
                     // Add a new leaf edge containing the single new byte:
                     let edge_id = node.edges.len() as EdgeId;
                     let edge = Edge {
@@ -131,67 +189,139 @@ impl SuffixTree {
                     if node.suffix_link == NODE_UNDEFINED {
                         // The node doesn't have a suffix link; this should only happen at the root node.
                         assert!(cut.node_id == 0);  // Check that this is in fact the root node.
-                        if cut.length == 0 {
-                            // data[cut..] is the empty string, so we are done.
-                            return;
-                        } else {
-                            // Locate the new cut position directly, by stripping off the first byte of data and
-                            // following a path down the tree, starting from the root.
-                            let edge = &node.edges[cut.edge_id as usize];
-                            self.cut = self.follow_data(0, edge.start + 1, cut.length - 1);
-                        }
+                        // Since cut.length == 0, the cut position is at the end (representing the empty string), so we are done.
+                        self.cut.edge_id = edge_id;
+                        self.cut.length = 1;
+                        return;
                     } else {
                         // Follow the suffix link.
                         self.cut = Position {
                             node_id: node.suffix_link,
                             edge_id: EDGE_UNDEFINED,
                             length: 0,
-                        }
+                        };
                     }
                 }
             } else {
                 let edge = &mut node.edges[cut.edge_id as usize];
-                let c = self.data[(edge.start + cut.length) as usize];
-                if c == b {
-                    // data[cut..] already existed in the tree. This means data[i..] also already existed for i > cut.
-                    // So we are done.
-                    return;
-                } else {
-                    // The edge must be split and a new node created in the middle:
-                    let tail_edge = Edge {
-                        start: cut.length,
-                        end: edge.end,
-                        node_id: edge.node_id,
-                    };
-                    let leaf_edge = Edge {
-                        start: (self.data.len() - 1) as DataIdx,
-                        end: DATA_END,
-                        node_id: NODE_UNDEFINED
-                    };
-                    let mut new_node = Node {
-                        edges: vec![tail_edge, leaf_edge],
-                        edge_lookup: vec![(c, 0), (b, 1)].into_iter().collect(),
-                        suffix_link: NODE_UNDEFINED,
-                    };
-                    let new_node_id = self.nodes.len() as NodeId;
-                    edge.end = cut.length;
-                    edge.node_id = new_node_id;
-                    self.nodes.push(new_node);
+                let edge_start = edge.start;
+                if edge.start + cut.length == (self.data.len() - 1) as DataIdx {
+                    println!("existing leaf");
+                    // We're at the end of a leaf node, which will be implicitly extended by the new byte.
+                    assert!(edge.end == DATA_END);
 
                     // With the new byte, data[cut..] now becomes a leaf, so advance the cut position
                     // by following the suffix link, and populate the suffix link of the newly created node.
-                    let new_cut = self.follow_data(node.suffix_link, edge.start, cut.length);
-                    if new_cut.length == 0 {
-                        // A node for the new node's suffix link already exists.
-                        new_node.suffix_link = new_cut.node_id;
+                    self.cut = if node_suffix_link == NODE_UNDEFINED {
+                        // The node doesn't have a suffix link; this should only happen at the root node.
+                        assert!(cut.node_id == 0);  // Check that this is in fact the root node.
+                        // Locate the new cut position directly, by stripping off the first byte of data and
+                        // following a path down the tree, starting from the root.
+                        let edge = &node.edges[cut.edge_id as usize];
+                        let new_start = edge.start + 1;
+                        let new_length = cut.length - 1;
+                        self.follow_data(0, new_start, new_length)
                     } else {
-                        // A node for the new node's suffix link doesn't yet exist but will be created on the next loop iteration.
-                        // We already know what its ID will be.
-                        new_node.suffix_link = self.nodes.len() as NodeId;
-                    }
-                    self.cut = new_cut;
+                        self.follow_data(node_suffix_link, edge_start, cut.length)
+                    };
+
+                } else {
+                    let c = self.data[(edge.start + cut.length) as usize];
+                    if c == b {
+                        println!("finish B");
+                        // data[cut..] already existed in the tree. This means data[i..] also already existed for i > cut.
+                        // So we only have to update the cut position, and we're done.
+                        self.cut.length += 1;
+                        if self.cut.length == edge.end - edge.start {
+                            self.cut.length = 0;
+                            self.cut.node_id = edge.node_id;
+                            self.cut.edge_id = EDGE_UNDEFINED;
+                        }
+                        return;
+                    } else {
+                        println!("split");
+                        // The edge must be split and a new node created in the middle:
+                        let tail_edge = Edge {
+                            start: edge.start + cut.length,
+                            end: edge.end,
+                            node_id: edge.node_id,
+                        };
+                        let leaf_edge = Edge {
+                            start: (self.data.len() - 1) as DataIdx,
+                            end: DATA_END,
+                            node_id: NODE_UNDEFINED
+                        };
+                        let mut new_node = Node {
+                            edges: vec![tail_edge, leaf_edge],
+                            edge_lookup: vec![(c, 0), (b, 1)].into_iter().collect(),
+                            suffix_link: NODE_UNDEFINED,
+                        };
+                        let new_node_id = num_nodes as NodeId;
+                        edge.end = edge.start + cut.length;
+                        edge.node_id = new_node_id;
+    
+                        // With the new byte, data[cut..] now becomes a leaf, so advance the cut position
+                        // by following the suffix link, and populate the suffix link of the newly created node.
+                        let new_cut = if node_suffix_link == NODE_UNDEFINED {
+                            // The node doesn't have a suffix link; this should only happen at the root node.
+                            assert!(cut.node_id == 0);  // Check that this is in fact the root node.
+                            // Locate the new cut position directly, by stripping off the first byte of data and
+                            // following a path down the tree, starting from the root.
+                            let edge = &node.edges[cut.edge_id as usize];
+                            let new_start = edge.start + 1;
+                            let new_length = cut.length - 1;
+                            self.follow_data(0, new_start, new_length)
+                        } else {
+                            self.follow_data(node_suffix_link, edge_start, cut.length)
+                        };
+    
+                        if new_cut.length == 0 {
+                            // A node for the new node's suffix link already exists.
+                            new_node.suffix_link = new_cut.node_id;
+                        } else {
+                            // A node for the new node's suffix link doesn't yet exist but will be created on the next loop iteration.
+                            // We already know what its ID will be.
+                            new_node.suffix_link = (num_nodes + 1) as NodeId;
+                        }
+                        self.nodes.push(new_node);
+                        self.cut = new_cut;
+                    }    
                 }
             }
+        }
+    }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use rand::{SeedableRng, Rng};
+
+    use super::*;
+
+    #[test]
+    fn test_simple() {
+        let data = [10, 20, 10, 20, 30, 10, 20];
+        let tree = SuffixTree::new(&data);
+        assert_eq!(tree.find_longest_prefix(&[10, 20, 30]), (2, 3));
+        assert_eq!(tree.find_longest_prefix(&[20, 30]), (3, 2));
+        assert_eq!(tree.find_longest_prefix(&[30, 50]), (4, 1));
+        assert_eq!(tree.find_longest_prefix(&[10, 20, 10]), (0, 3));
+        assert_eq!(tree.find_longest_prefix(&[20, 10, 40]), (1, 2));
+    }
+
+    #[test]
+    fn test_long() {
+        let mut rng = rand::rngs::StdRng::from_seed([0u8; 32]);
+        for i in 0..100 {
+            let mut data = vec![];
+            let length = 100;
+            for _ in 0..length {
+                data.push(rng.gen_range(0..4) as u8);
+            }
+            data.push(5);
+            println!("iteration {}", i);
+            let tree = SuffixTree::new(&data);    
         }
     }
 }
