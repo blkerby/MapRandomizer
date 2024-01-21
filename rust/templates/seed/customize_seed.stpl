@@ -138,6 +138,7 @@ window.spoilerTokenPrefix = "<%- spoiler_token_prefix %>";
                                     <option value="InnerCrateria">Inner Crateria</option>
                                     <option value="GreenBrinstar">Green Brinstar</option>
                                     <option value="UpperNorfair">Upper Norfair</option>
+                                    <option value="WreckedShip">Wrecked Ship</option>
                                 </select>
                             </div>
                         </div>

@@ -18,3 +18,4 @@ patches/ips/items_test*.ips
 **/FlameGraph/
 **/perf.data
 **/out.perf-folded
+compressed_data/
