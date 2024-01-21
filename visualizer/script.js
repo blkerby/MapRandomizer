@@ -512,6 +512,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		si.appendChild(item_info);
 	}
 	items: for (let v of c.all_items) {
+		if (v.item == "Nothing") { continue; }
 		let os = lookupOffset(v.location.room, v.location.node);
 		if (os) {
 			v.location.coords[0] += os[0];

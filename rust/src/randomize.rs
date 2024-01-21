@@ -2470,6 +2470,7 @@ impl<'r> Randomizer<'r> {
         }
 
         let mut initial_items_remaining: Vec<usize> = vec![1; game_data.item_isv.keys.len()];
+        initial_items_remaining[Item::Nothing as usize] = 0;
         initial_items_remaining[Item::WallJump as usize] = 0;
         initial_items_remaining[Item::Missile as usize] = 46;
         initial_items_remaining[Item::Super as usize] = 10;
@@ -2480,7 +2481,9 @@ impl<'r> Randomizer<'r> {
             initial_items_remaining[Item::Missile as usize] -= 1;
             initial_items_remaining[Item::WallJump as usize] = 1;
         }
-        assert!(initial_items_remaining.iter().sum::<usize>() == game_data.item_locations.len());
+
+        assert!(initial_items_remaining.iter().sum::<usize>() <= game_data.item_locations.len());
+        initial_items_remaining[Item::Nothing as usize] = game_data.item_locations.len() - initial_items_remaining.iter().sum::<usize>();
 
         Randomizer {
             map,
@@ -2668,12 +2671,12 @@ impl<'r> Randomizer<'r> {
                 .into_iter()
                 .collect();
         let mut item_types_to_prioritize: Vec<Item> = vec![];
-        let mut item_types_to_mix: Vec<Item> = vec![Item::Missile];
+        let mut item_types_to_mix: Vec<Item> = vec![Item::Missile, Item::Nothing];
         let mut item_types_to_delay: Vec<Item> = vec![];
         let mut item_types_to_extra_delay: Vec<Item> = vec![];
 
         for &item in &state.item_precedence {
-            if item == Item::Missile || state.items_remaining[item as usize] == 0 {
+            if item == Item::Missile || item == Item::Nothing || state.items_remaining[item as usize] == 0 {
                 continue;
             }
             if self.difficulty_tiers[0].early_filler_items.contains(&item)
@@ -2963,13 +2966,13 @@ impl<'r> Randomizer<'r> {
             }
         }
         info!(
-            "[attempt {attempt_num_rando}] Finishing with {:?}",
+            "[attempt {attempt_num_rando}] Finishing without {:?}",
             remaining_items
         );
         let mut idx = 0;
         for item_loc_state in &mut state.item_location_state {
             if item_loc_state.placed_item.is_none() {
-                item_loc_state.placed_item = Some(remaining_items[idx]);
+                item_loc_state.placed_item = Some(Item::Nothing);
                 idx += 1;
             }
         }
@@ -3418,7 +3421,8 @@ impl<'r> Randomizer<'r> {
     ) -> Vec<Item> {
         let mut item_precedence: Vec<Item> = Vec::new();
         if self.difficulty_tiers[0].progression_rate == ProgressionRate::Slow {
-            // With slow progression, prioritize placing a missile over other key items.
+            // With slow progression, prioritize placing nothing and missiles over other key items.
+            item_precedence.push(Item::Nothing);
             item_precedence.push(Item::Missile);
         }
         for priority_group in item_priorities {
@@ -3430,8 +3434,10 @@ impl<'r> Randomizer<'r> {
             }
         }
         if self.difficulty_tiers[0].progression_rate != ProgressionRate::Slow {
-            // With Normal and Uniform progression, prioritize all other key items over Missiles.
+            // With Normal and Uniform progression, prioritize all other key items over missiles
+            // and nothing.
             item_precedence.push(Item::Missile);
+            item_precedence.push(Item::Nothing);
         }
         item_precedence
     }
@@ -4249,6 +4255,7 @@ impl<'a> Randomizer<'a> {
         let mut items: Vec<SpoilerItemDetails> = Vec::new();
         for i in 0..self.game_data.item_locations.len() {
             if let Some(item) = new_state.item_location_state[i].placed_item {
+                if item == Item::Nothing { continue; }
                 if !state.item_location_state[i].collected
                     && new_state.item_location_state[i].collected
                 {
@@ -4278,6 +4285,7 @@ impl<'a> Randomizer<'a> {
         let mut items: Vec<SpoilerItemSummary> = Vec::new();
         for i in 0..self.game_data.item_locations.len() {
             if let Some(item) = new_state.item_location_state[i].placed_item {
+                if item == Item::Nothing { continue; }
                 if !state.item_location_state[i].collected
                     && new_state.item_location_state[i].collected
                 {
