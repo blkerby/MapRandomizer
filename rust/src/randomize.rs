@@ -2972,7 +2972,7 @@ impl<'r> Randomizer<'r> {
         let mut idx = 0;
         for item_loc_state in &mut state.item_location_state {
             if item_loc_state.placed_item.is_none() {
-                item_loc_state.placed_item = Some(Item::Nothing);
+                item_loc_state.placed_item = Some(remaining_items[idx]);
                 idx += 1;
             }
         }
@@ -3655,7 +3655,7 @@ impl<'r> Randomizer<'r> {
             difficulty: self.difficulty_tiers[0].clone(),
             map: self.map.clone(),
             locked_doors: self.locked_doors.to_vec(),
-            item_placement: vec![Item::Missile; 100],  // Draw the non-existent items like Missile dots
+            item_placement: vec![Item::Nothing; 100],
             spoiler_log,
             seed,
             display_seed,
