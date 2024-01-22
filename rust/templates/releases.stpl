@@ -14,6 +14,11 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
+<p><a id="release106">Version 107 (2024-01-21)</a>:
+<ul>
+<li>A new tile theme option "Wrecked Ship" is available.
+</ul>
+
 <p><a id="release106">Version 106 (2024-01-17)</a>:
 <ul>
 <li>A new setting "Partial" is added for "Maps revealed from start" (under "Other options").
