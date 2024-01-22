@@ -198,6 +198,7 @@ pub struct Patcher<'a> {
     pub other_door_ptr_pair_map: HashMap<DoorPtrPair, DoorPtrPair>,
     pub extra_setup_asm: HashMap<RoomPtr, Vec<u8>>,
     pub locked_door_state_indices: Vec<usize>,
+    pub removed_items: [u8; 0x40],
 }
 
 pub fn xy_to_map_offset(x: isize, y: isize) -> isize {
@@ -230,7 +231,7 @@ fn item_to_plm_type(item: Item, orig_plm_type: isize) -> isize {
 
     // let plm_table: [[isize; 22]; 3] = [[0xF608; 22]; 3];
 
-    let plm_table: [[isize; 22]; 3] = [
+    let plm_table: [[isize; 23]; 3] = [
         [
             0xEED7, // Energy tank
             0xEEDB, // Missile tank
@@ -254,6 +255,7 @@ fn item_to_plm_type(item: Item, orig_plm_type: isize) -> isize {
             0xEF23, // Morph ball
             0xEF27, // Reserve tank   
             0xF600, // Wall-jump boots         
+            0xEEDB, // Missile tank (nothing)
         ],
         [
             0xEF2B, // Energy tank, chozo orb
@@ -278,6 +280,7 @@ fn item_to_plm_type(item: Item, orig_plm_type: isize) -> isize {
             0xEF77, // Morph ball, chozo orb
             0xEF7B, // Reserve tank, chozo orb            
             0xF604, // Wall-jump boots, chozo orb
+            0xEEDB, // Missile tank (nothing)
         ],
         [
             0xEF7F, // Energy tank, shot block
@@ -302,6 +305,7 @@ fn item_to_plm_type(item: Item, orig_plm_type: isize) -> isize {
             0xEFCB, // Morph ball, shot block
             0xEFCF, // Reserve tank, shot block            
             0xF608, // Wall-jump boots, shot block       
+            0xEEDB, // Missile tank (nothing)
         ]
     ];
     
@@ -553,8 +557,16 @@ impl<'a> Patcher<'a> {
             let orig_plm_type = self.orig_rom.read_u16(item_plm_ptr)?;
             let new_plm_type = item_to_plm_type(item, orig_plm_type);
             self.rom.write_u16(item_plm_ptr, new_plm_type)?;
+            if item == Item::Nothing {
+                let idx = self.rom.read_u16(item_plm_ptr+4).unwrap() as _;
+                self.remove_item(idx);
+            }
         }
         Ok(())
+    }
+
+    fn remove_item(&mut self, idx: usize) {
+        self.removed_items[idx>>3] |= 1 << (idx&7);
     }
 
     fn write_one_door_data(
@@ -1773,7 +1785,7 @@ impl<'a> Patcher<'a> {
         self.rom.write_u16(initial_max_supers, 0)?;
         self.rom.write_u16(initial_power_bombs, 0)?;
         self.rom.write_u16(initial_max_power_bombs, 0)?;
-        self.rom.write_n(initial_item_bits, &[0x00; 0x40])?;
+        self.rom.write_n(initial_item_bits, &self.removed_items)?;
 
         // Set no bosses defeated:
         self.rom.write_n(initial_boss_bits, &[0; 6])?;
@@ -2171,6 +2183,7 @@ pub fn make_rom(
         other_door_ptr_pair_map: get_other_door_ptr_pair_map(&randomization.map),
         extra_setup_asm: HashMap::new(),
         locked_door_state_indices: vec![],
+        removed_items: [0; 0x40],
         // door_room_map: get_door_room_map(&self.game_data.)
     };
     patcher.apply_ips_patches()?;

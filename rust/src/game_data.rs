@@ -95,6 +95,7 @@ pub enum Item {
     Morph,        // 19
     ReserveTank,  // 20
     WallJump,     // 21
+    Nothing,      // 22
 }
 
 impl Item {
@@ -105,6 +106,7 @@ impl Item {
             Item::PowerBomb,
             Item::ETank,
             Item::ReserveTank,
+            Item::Nothing,
         ]
         .contains(&self)
     }
