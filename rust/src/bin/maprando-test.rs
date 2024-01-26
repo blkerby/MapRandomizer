@@ -545,7 +545,7 @@ fn perform_test_cycle(app : &TestAppData, cycle_count: usize) -> Result<()> {
         shaking: maprando::customize::ShakingSetting::Vanilla,
         controller_config: ControllerConfig::default(),        
     };
-    customize_rom(&mut output_rom, &ips_patch, &basic_customize_settings, &app.game_data, &app.samus_sprite_categories)?;
+    customize_rom(&mut output_rom, &app.input_rom, &ips_patch, &basic_customize_settings, &app.game_data, &app.samus_sprite_categories)?;
 
     std::fs::write(
         Path::join(&app.output_dir, format!("{output_file_prefix}-basic-customize.txt")),
@@ -560,7 +560,7 @@ fn perform_test_cycle(app : &TestAppData, cycle_count: usize) -> Result<()> {
         let custom_rom_path = Path::join(&app.output_dir, format!("{output_file_prefix}-custom-{}.smc", custom + 1));
         output_rom = app.input_rom.clone();
         let customize_settings = make_random_customization(&app);
-        customize_rom(&mut output_rom, &ips_patch, &customize_settings, &app.game_data, &app.samus_sprite_categories)?;
+        customize_rom(&mut output_rom, &app.input_rom, &ips_patch, &customize_settings, &app.game_data, &app.samus_sprite_categories)?;
         info!("Writing customization #{0} to {1}", custom + 1, custom_rom_path.display());
         output_rom.save(&custom_rom_path)?;
         std::fs::write(

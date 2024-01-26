@@ -312,7 +312,8 @@ fn main() -> Result<()> {
     // randomization.start_location = game_data.start_locations.last().unwrap().clone();
 
     // Generate the patched ROM:
-    let mut input_rom = Rom::load(&args.input_rom)?;
+    let orig_rom = Rom::load(&args.input_rom)?;
+    let mut input_rom = orig_rom.clone();
     input_rom.data.resize(0x400000, 0);
     let game_rom = make_rom(&input_rom, &randomization, &game_data)?;
     let ips_patch = create_ips_patch(&input_rom.data, &game_rom.data);
@@ -331,7 +332,7 @@ fn main() -> Result<()> {
         shaking: maprando::customize::ShakingSetting::Vanilla,
         controller_config: ControllerConfig::default(),        
     };
-    customize_rom(&mut output_rom, &ips_patch, &customize_settings, &game_data, &[
+    customize_rom(&mut output_rom, &orig_rom, &ips_patch, &customize_settings, &game_data, &[
         SamusSpriteCategory {
             category_name: "category".to_string(),
             sprites: vec![
