@@ -180,6 +180,12 @@ env.room_mask = room_mask
 env.render(0)
 env.map_display.image.show()
 
+
+# env.room_position_x[:] = session.envs[0].room_position_x[17]
+# env.room_position_y[:] = session.envs[0].room_position_y[17]
+# env.room_mask[:] = session.envs[0].room_mask[17]
+
+
 # A = env.compute_part_adjacency_matrix(room_mask, room_position_x, room_position_y)
 # D = env.compute_distance_matrix(A)
 # S = env.compute_save_distances(D)
@@ -218,6 +224,33 @@ env.map_display.image.show()
 # print(end_time - start_time)
 # print(len(env.single_tile_idxs))
 
-# session.envs[0].init_toilet_data()
-# # session.envs[0].good_toilet_positions
+session.envs[0].init_toilet_data()
+# session.envs[0].good_toilet_positions
 # session.envs[0].bad_toilet_positions
+
+# session.replay_buffer.episode_data.action
+env = session.envs[0]
+toilet_idx = env.toilet_idx
+toilet_x = env.room_position_x[:, toilet_idx].view(-1, 1)
+toilet_y = env.room_position_y[:, toilet_idx].view(-1, 1)
+toilet_mask = env.room_mask[:, toilet_idx].view(-1, 1)
+
+good_toilet_room_idx = env.good_toilet_positions[:, 0]
+good_toilet_x = env.good_toilet_positions[:, 1].view(1, -1)
+good_toilet_y = env.good_toilet_positions[:, 2].view(1, -1)
+good_room_x = env.room_position_x[:, good_toilet_room_idx]
+good_room_y = env.room_position_y[:, good_toilet_room_idx]
+good_room_mask = env.room_mask[:, good_toilet_room_idx]
+good_match = (toilet_x == good_room_x + good_toilet_x) & (toilet_y == good_room_y + good_toilet_y) & toilet_mask & good_room_mask
+num_good_match = torch.sum(good_match, dim=1)
+
+bad_toilet_x = env.bad_toilet_positions[:, 1].view(1, -1)
+bad_toilet_y = env.bad_toilet_positions[:, 2].view(1, -1)
+bad_toilet_room_idx = env.bad_toilet_positions[:, 0]
+bad_room_x = env.room_position_x[:, bad_toilet_room_idx]
+bad_room_y = env.room_position_y[:, bad_toilet_room_idx]
+bad_room_mask = env.room_mask[:, bad_toilet_room_idx]
+bad_match = (toilet_x == bad_room_x + bad_toilet_x) & (toilet_y == bad_room_y + bad_toilet_y) & toilet_mask & bad_room_mask
+num_bad_match = torch.sum(bad_match, dim=1)
+
+satisfied = (num_good_match == 1) & (num_bad_match == 0)

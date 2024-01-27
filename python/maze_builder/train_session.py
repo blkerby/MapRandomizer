@@ -384,6 +384,7 @@ class TrainingSession():
             save_distances = env.compute_save_distances(distance_matrix).to('cpu')
             graph_diameter = env.compute_graph_diameter(distance_matrix).to('cpu')
             mc_distances = env.compute_mc_distances(distance_matrix).to('cpu')
+            toilet_good = env.compute_toilet_good(env.room_mask, env.room_position_x, env.room_position_y).to('cpu')
             reward_tensor = self.compute_reward(door_connects_tensor, missing_connects_tensor, use_connectivity=True)
             selected_raw_logodds_tensor = torch.stack(selected_raw_logodds_list, dim=1)
             action_tensor = torch.stack(action_list, dim=1)
@@ -415,6 +416,7 @@ class TrainingSession():
                 save_distances=save_distances,
                 graph_diameter=graph_diameter,
                 mc_distances=mc_distances,
+                toilet_good=toilet_good,
                 cycle_cost=None,  # populated later in generate_round_model
                 action=action_tensor.to(torch.uint8),
                 prob=prob_tensor,
@@ -467,6 +469,7 @@ class TrainingSession():
             save_distances=torch.cat([d.save_distances for d in episode_data_list], dim=0),
             graph_diameter=torch.cat([d.graph_diameter for d in episode_data_list], dim=0),
             mc_distances=torch.cat([d.mc_distances for d in episode_data_list], dim=0),
+            toilet_good=torch.cat([d.toilet_good for d in episode_data_list], dim=0),
             cycle_cost=torch.cat([d.cycle_cost for d in episode_data_list], dim=0),
             action=torch.cat([d.action for d in episode_data_list], dim=0),
             prob=torch.cat([d.prob for d in episode_data_list], dim=0),

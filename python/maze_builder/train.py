@@ -214,7 +214,7 @@ pickle_name = 'models/session-2023-11-08T16:16:55.811707.pkl'
 # session = Unpickler(open(pickle_name + '-bk43', 'rb')).load()
 # session = Unpickler(open(pickle_name + '-bk54', 'rb')).load()  # After backfilling graph diameter data
 # old_session = Unpickler(open(pickle_name + '-bk72', 'rb')).load()
-session = Unpickler(open(pickle_name + '-bk40', 'rb')).load()
+session = Unpickler(open(pickle_name + '-bk42', 'rb')).load()
 
 
 # # Perform model surgery to add Toilet as decoupled room:
@@ -259,34 +259,38 @@ session.envs = envs
 # session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
 # session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=0.995)
 
-#
-# # Backfill new output data:
-# batch_size = 64
-# num_batches = session.replay_buffer.capacity // batch_size
-# out_list = []
-# for i in range(num_batches):
-#     if i % 100 == 0:
-#         print("{}/{}".format(i, num_batches))
-#     batch_start = i * batch_size
-#     batch_end = (i + 1) * batch_size
-#     batch_action = session.replay_buffer.episode_data.action[batch_start:batch_end]
-#     num_rooms = len(envs[0].rooms)
-#     step_indices = torch.tensor([num_rooms])
-#     room_mask, room_position_x, room_position_y = reconstruct_room_data(batch_action, step_indices, num_rooms)
-#     with torch.no_grad():
-#         A = session.envs[0].compute_part_adjacency_matrix(room_mask.to(device), room_position_x.to(device), room_position_y.to(device))
-#         D = session.envs[0].compute_distance_matrix(A)
-#         # S = session.envs[0].compute_save_distances(D)
-#         # graph_diameter = session.envs[0].compute_graph_diameter(D)
-#         out = session.envs[0].compute_mc_distances(D)
-#         out_list.append(out)
-# # save_distances = torch.cat(save_distances_list, dim=0)
-# # graph_diameter = torch.cat(graph_diameter_list, dim=0)
-# out = torch.cat(out_list, dim=0)
-# # session.replay_buffer.episode_data.save_distances = save_distances.to('cpu')
-# # session.replay_buffer.episode_data.graph_diameter = graph_diameter.to('cpu')
+
+# Backfill new output data:
+batch_size = 1024
+num_batches = session.replay_buffer.capacity // batch_size
+out_list = []
+session.envs[0].init_toilet_data()
+session.envs[1].init_toilet_data()
+for i in range(num_batches):
+    if i % 100 == 0:
+        print("{}/{}".format(i, num_batches))
+    batch_start = i * batch_size
+    batch_end = (i + 1) * batch_size
+    batch_action = session.replay_buffer.episode_data.action[batch_start:batch_end]
+    num_rooms = len(envs[0].rooms)
+    step_indices = torch.tensor([num_rooms])
+    room_mask, room_position_x, room_position_y = reconstruct_room_data(batch_action, step_indices, num_rooms)
+    with torch.no_grad():
+        # A = session.envs[0].compute_part_adjacency_matrix(room_mask.to(device), room_position_x.to(device), room_position_y.to(device))
+        # D = session.envs[0].compute_distance_matrix(A)
+        # S = session.envs[0].compute_save_distances(D)
+        # graph_diameter = session.envs[0].compute_graph_diameter(D)
+        # out = session.envs[0].compute_mc_distances(D)
+        out = session.envs[0].compute_toilet_good(room_mask.to(device), room_position_x.to(device), room_position_y.to(device))
+        out_list.append(out)
+# save_distances = torch.cat(save_distances_list, dim=0)
+# graph_diameter = torch.cat(graph_diameter_list, dim=0)
+out = torch.cat(out_list, dim=0)
+# session.replay_buffer.episode_data.save_distances = save_distances.to('cpu')
+# session.replay_buffer.episode_data.graph_diameter = graph_diameter.to('cpu')
 # session.replay_buffer.episode_data.mc_distances = out.to('cpu')
 # session.replay_buffer.episode_data.mc_dist_coef = torch.zeros([session.replay_buffer.capacity])
+session.replay_buffer.episode_data.toilet_good = out.to('cpu')
 # ind = torch.nonzero(session.replay_buffer.episode_data.reward == 0)
 
 
@@ -406,6 +410,7 @@ total_min_door_frac = 0
 total_save_distances = 0.0
 total_graph_diameter = 0.0
 total_mc_distances = 0.0
+total_toilet_good = 0.0
 total_cycle_cost = 0.0
 save_freq = 256
 summary_freq = 256
@@ -583,6 +588,7 @@ for i in range(1000000):
         total_graph_diameter += torch.mean(data.graph_diameter.to(torch.float))
         S = data.mc_distances.to(torch.float)
         total_mc_distances += torch.nanmean(torch.where(S == 255.0, float('nan'), S))
+        total_toilet_good += torch.mean(data.toilet_good.to(torch.float))
         total_cycle_cost += torch.nanmean(data.cycle_cost)
         total_round_cnt += 1
 
@@ -691,6 +697,7 @@ for i in range(1000000):
         new_save_distances = total_save_distances / total_round_cnt
         new_graph_diameter = total_graph_diameter / total_round_cnt
         new_mc_distances = total_mc_distances / total_round_cnt
+        new_toilet_good = total_toilet_good / total_round_cnt
         new_test_loss = total_test_loss / total_round_cnt
         new_prob = total_prob / total_round_cnt
         new_prob0 = total_prob0 / total_round_cnt
@@ -700,6 +707,7 @@ for i in range(1000000):
         total_save_distances = 0.0
         total_graph_diameter = 0.0
         total_mc_distances = 0.0
+        total_toilet_good = 0.0
         total_cycle_cost = 0.0
         total_test_loss = 0.0
         total_prob = 0.0
@@ -714,7 +722,7 @@ for i in range(1000000):
         # buffer_mean_rooms_missing = buffer_mean_pass * len(rooms)
 
         logging.info(
-            "{}: loss={:.4f}, ({:.4f}, {:.4f}, {:.4f}, {:.4f}), cost={:.2f} (min={:d}, frac={:.4f}), ent={:.4f}, save={:.4f}, diam={:.3f}, mc={:.3f}, p={:.4f}, p0={:.4f}, frac={:.4f}".format(
+            "{}: loss={:.4f}, ({:.4f}, {:.4f}, {:.4f}, {:.4f}), cost={:.2f} (min={:d}, frac={:.4f}), ent={:.4f}, save={:.4f}, diam={:.3f}, mc={:.3f}, tube={:.4f}, p={:.4f}, frac={:.4f}".format(
                 session.num_rounds,
                 new_loss,
                 new_binary_loss,
@@ -729,8 +737,9 @@ for i in range(1000000):
                 new_save_distances,
                 new_graph_diameter,
                 new_mc_distances,
+                new_toilet_good,
                 new_prob,
-                new_prob0,
+                # new_prob0,
                 frac,
             ))
         total_loss = 0.0
@@ -748,7 +757,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk41')
+            # save_session(session, pickle_name + '-bk42')
             # session.replay_buffer.resize(2 ** 20)
             # pickle.dump(session, open(pickle_name + '-small-40', 'wb'))
     if session.num_rounds % summary_freq == 0:

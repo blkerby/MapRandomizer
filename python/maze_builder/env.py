@@ -420,6 +420,8 @@ class MazeBuilderEnv:
         good_positions = []
         bad_positions = []
         for room_idx, room in enumerate(self.rooms):
+            if room.name == 'Toilet':
+                self.toilet_idx = room_idx
             height = len(room.map)
             width = len(room.map[0])
             r = toilet_room_dict.get(room.name)
@@ -437,11 +439,11 @@ class MazeBuilderEnv:
                         continue
                     if has_good_intersect:
                         if r is not None and x in r["x"]:
-                            good_positions.append((room.name, room_idx, x, y))
+                            good_positions.append((room_idx, x, y))
                         else:
-                            bad_positions.append((room.name, room_idx, x, y))
-        self.good_toilet_positions = good_positions
-        self.bad_toilet_positions = bad_positions
+                            bad_positions.append((room_idx, x, y))
+        self.good_toilet_positions = torch.tensor(good_positions, dtype=torch.int64, device=self.device)
+        self.bad_toilet_positions = torch.tensor(bad_positions, dtype=torch.int64, device=self.device)
 
     def get_all_action_candidates(self, room_mask, room_position_x, room_position_y):
         # map = self.compute_map(self.room_mask, self.room_position_x, self.room_position_y)
@@ -919,6 +921,35 @@ class MazeBuilderEnv:
 
     def compute_mc_distances(self, distance_matrix):
         return distance_matrix[:, self.missing_connection_src, self.missing_connection_dst]
+
+    def compute_toilet_good(self, room_mask, room_position_x, room_position_y):
+        toilet_idx = self.toilet_idx
+        toilet_x = room_position_x[:, toilet_idx].view(-1, 1)
+        toilet_y = room_position_y[:, toilet_idx].view(-1, 1)
+        toilet_mask = room_mask[:, toilet_idx].view(-1, 1)
+
+        good_toilet_room_idx = self.good_toilet_positions[:, 0]
+        good_toilet_x = self.good_toilet_positions[:, 1].view(1, -1)
+        good_toilet_y = self.good_toilet_positions[:, 2].view(1, -1)
+        good_room_x = room_position_x[:, good_toilet_room_idx]
+        good_room_y = room_position_y[:, good_toilet_room_idx]
+        good_room_mask = room_mask[:, good_toilet_room_idx]
+        good_match = (toilet_x == good_room_x + good_toilet_x) & (
+                    toilet_y == good_room_y + good_toilet_y) & toilet_mask & good_room_mask
+        num_good_match = torch.sum(good_match, dim=1)
+
+        bad_toilet_room_idx = self.bad_toilet_positions[:, 0]
+        bad_toilet_x = self.bad_toilet_positions[:, 1].view(1, -1)
+        bad_toilet_y = self.bad_toilet_positions[:, 2].view(1, -1)
+        bad_room_x = room_position_x[:, bad_toilet_room_idx]
+        bad_room_y = room_position_y[:, bad_toilet_room_idx]
+        bad_room_mask = room_mask[:, bad_toilet_room_idx]
+        bad_match = (toilet_x == bad_room_x + bad_toilet_x) & (
+                    toilet_y == bad_room_y + bad_toilet_y) & toilet_mask & bad_room_mask
+        num_bad_match = torch.sum(bad_match, dim=1)
+
+        satisfied = (num_good_match == 1) & (num_bad_match == 0)
+        return satisfied
 
     def compute_component_matrices(self, adjacency_matrix):
         component_matrix = adjacency_matrix

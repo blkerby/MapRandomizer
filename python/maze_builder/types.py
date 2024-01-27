@@ -137,6 +137,7 @@ class EpisodeData:
     save_distances: torch.tensor  # 2D bool: (num_episodes, num_non_potential_save_idxs)
     graph_diameter: torch.tensor  # 1D bool: (num_episodes)
     mc_distances: torch.tensor  # 2D bool: (num_episodes, num_non_potential_save_idxs)
+    toilet_good: torch.tensor  # 1D bool: (num_episodes)
     cycle_cost: torch.tensor  # 1D float32: num_episodes
     reward: torch.tensor  # 1D int64: num_episodes
     temperature: torch.tensor  # 1D float32: num_episodes
@@ -183,6 +184,7 @@ class TrainingData:
     save_distances: torch.tensor  # 2D bool: (num_transitions, num_non_potential_save_idxs)
     graph_diameter: torch.tensor  # 1D bool: (num_transitions)
     mc_distances: torch.tensor  # 2D bool: (num_transitions, num_non_potential_save_idxs)
+    toilet_good: torch.tensor  # 1D bool: (num_transitions)
     cycle_cost: torch.tensor  # 1D float32: num_transitions
     steps_remaining: torch.tensor  # 1D uint64: num_transitions
     round_frac: torch.tensor  # 1D float32: num_transitions
