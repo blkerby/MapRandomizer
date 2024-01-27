@@ -2,6 +2,7 @@ import time
 import networkx as nx
 import numpy as np
 from logic.areas import Area, SubArea
+from logic.tube import toilet_rooms
 from typing import List
 from logic.areas import SubArea
 from maze_builder.types import Room, Direction
@@ -71,6 +72,7 @@ class MazeBuilderEnv:
 
         self.init_room_data()
         self.init_part_data()
+        self.init_toilet_data()
         # Index single-tile rooms that have the same shape as a save station room (so no up or down doors).
         # Include Landing Site as well since the Ship can be used as a save.
         def is_potential_save_room(room):
@@ -411,6 +413,35 @@ class MazeBuilderEnv:
     #     chosen_map_door_up = chosen_map_door_all[chosen_map_door_all[:, 3] == 2, :3]
     #     chosen_map_door_down = chosen_map_door_all[chosen_map_door_all[:, 3] == 3, :3]
     #     return chosen_map_door_left, chosen_map_door_right, chosen_map_door_up, chosen_map_door_down
+
+    def init_toilet_data(self):
+        toilet_room_dict = {r["name"]: r for r in toilet_rooms}
+
+        good_positions = []
+        bad_positions = []
+        for room_idx, room in enumerate(self.rooms):
+            height = len(room.map)
+            width = len(room.map[0])
+            r = toilet_room_dict.get(room.name)
+            for y in range(-7, height - 2):
+                for x in range(width):
+                    has_good_intersect = False
+                    has_bad_intersect = False
+                    for i in range(10):
+                        y1 = y + i
+                        if i in [0, 1, 8, 9] and 0 <= y1 < height and room.map[y1][x] == 1:
+                            has_bad_intersect = True
+                        if 2 <= i <= 7 and 0 <= y1 < height and room.map[y1][x] == 1:
+                            has_good_intersect = True
+                    if has_bad_intersect:
+                        continue
+                    if has_good_intersect:
+                        if r is not None and x in r["x"]:
+                            good_positions.append((room.name, room_idx, x, y))
+                        else:
+                            bad_positions.append((room.name, room_idx, x, y))
+        self.good_toilet_positions = good_positions
+        self.bad_toilet_positions = bad_positions
 
     def get_all_action_candidates(self, room_mask, room_position_x, room_position_y):
         # map = self.compute_map(self.room_mask, self.room_position_x, self.room_position_y)

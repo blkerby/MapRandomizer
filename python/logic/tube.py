@@ -63,13 +63,3 @@ toilet_rooms = [
     {"name": "West Ocean", "x": [0, 1, 2, 5]},
     {"name": "Wrecked Ship Energy Tank Room", "x": [1, 2]},
 ]
-
-#
-# from logic.rooms.all_rooms import rooms
-# room_idx_by_name = {}
-# for i, room in enumerate(rooms):
-#     room_idx_by_name[room.name] = i
-#
-# for loc in toilet_rooms:
-#     room_name = loc["name"]
-#     idx = room_idx_by_name[room_name]

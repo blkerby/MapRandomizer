@@ -217,3 +217,7 @@ env.map_display.image.show()
 # end_time = time.perf_counter()
 # print(end_time - start_time)
 # print(len(env.single_tile_idxs))
+
+# session.envs[0].init_toilet_data()
+# # session.envs[0].good_toilet_positions
+# session.envs[0].bad_toilet_positions
