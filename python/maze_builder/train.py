@@ -173,7 +173,7 @@ session = TrainingSession(envs,
 # logging.info("Constructed {} eval batches".format(num_eval_batches))
 # pickle.dump(eval_batches, open("eval_batches_zebes.pkl", "wb"))
 
-eval_batches = pickle.load(open("eval_batches_zebes.pkl", "rb"))
+# eval_batches = pickle.load(open("eval_batches_zebes.pkl", "rb"))
 
 # for i in range(len(eval_batches)):
 #     i = 0
@@ -214,7 +214,7 @@ pickle_name = 'models/session-2023-11-08T16:16:55.811707.pkl'
 # session = Unpickler(open(pickle_name + '-bk43', 'rb')).load()
 # session = Unpickler(open(pickle_name + '-bk54', 'rb')).load()  # After backfilling graph diameter data
 # old_session = Unpickler(open(pickle_name + '-bk72', 'rb')).load()
-session = Unpickler(open(pickle_name + '-bk24', 'rb')).load()  # After backfilling graph diameter data
+session = Unpickler(open(pickle_name + '-bk40', 'rb')).load()
 
 
 # # Perform model surgery to add Toilet as decoupled room:
@@ -289,22 +289,41 @@ session.envs = envs
 # session.replay_buffer.episode_data.mc_dist_coef = torch.zeros([session.replay_buffer.capacity])
 # ind = torch.nonzero(session.replay_buffer.episode_data.reward == 0)
 
-new_layer_idxs = list(range(len(session.model.attn_layers)))
-logging.info("Inserting new layers at positions {}".format(new_layer_idxs))
-for i in reversed(new_layer_idxs):
-    session.model.attn_layers.insert(i, AttentionLayer(
-        input_width=embedding_width,
-        key_width=key_width,
-        value_width=value_width,
-        num_heads=attn_heads,
-        dropout=0.0).to(device))
-    session.model.ff_layers.insert(i, FeedforwardLayer(
-        input_width=embedding_width,
-        hidden_width=hidden_width,
-        arity=1,
-        dropout=0.0).to(device))
-session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
-session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=0.995)
+
+# # Rip out the elementwise_affine params from the layer norms:
+# # session.model.ff_layers[0].lin1.weight.data *= session.model.attn_layers[0].layer_norm.weight
+# # session.model.attn_layers[1].query.weight.data *= session.model.ff_layers[0].layer_norm.weight
+# # session.model.attn_layers[1].key.weight.data *= session.model.ff_layers[0].layer_norm.weight
+# # session.model.attn_layers[1].value.weight.data *= session.model.ff_layers[0].layer_norm.weight
+# # session.model.ff_layers[1].lin1.weight.data *= session.model.attn_layers[1].layer_norm.weight
+# # session.model.global_query.data *= session.model.ff_layers[1].layer_norm.weight
+# # session.model.global_value.data *= session.model.ff_layers[1].layer_norm.weight
+# for i in range(2):
+#     session.model.attn_layers[i].layer_norm = torch.nn.LayerNorm([embedding_width], elementwise_affine=False)
+#     session.model.ff_layers[i].layer_norm = torch.nn.LayerNorm([embedding_width], elementwise_affine=False)
+# session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
+# session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=0.995)
+
+
+# # # Add new Transformer layers
+# new_layer_idxs = list(range(1, len(session.model.attn_layers) + 1))
+# logging.info("Inserting new layers at positions {}".format(new_layer_idxs))
+# for i in reversed(new_layer_idxs):
+#     attn_layer = AttentionLayer(
+#         input_width=embedding_width,
+#         key_width=key_width,
+#         value_width=value_width,
+#         num_heads=attn_heads,
+#         dropout=0.0).to(device)
+#     session.model.attn_layers.insert(i, attn_layer)
+#     ff_layer = FeedforwardLayer(
+#         input_width=embedding_width,
+#         hidden_width=hidden_width,
+#         arity=1,
+#         dropout=0.0).to(device)
+#     session.model.ff_layers.insert(i, ff_layer)
+# session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
+# session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=0.995)
 
 
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
@@ -319,8 +338,8 @@ lr0 = 0.00005
 lr1 = lr0
 # lr_warmup_time = 16
 # lr_cooldown_time = 100
-num_candidates_min0 = 63.5
-num_candidates_max0 = 65.5
+num_candidates_min0 = 255.5
+num_candidates_max0 = 256.5
 num_candidates_min1 = 255.5
 num_candidates_max1 = 256.5
 
@@ -329,17 +348,17 @@ num_candidates_max1 = 256.5
 explore_eps_factor = 0.0
 # temperature_min = 0.02
 # temperature_max = 2.0
-save_loss_weight = 0.005
+save_loss_weight = 0.002
 save_dist_coef = 0.02
 
-mc_dist_weight = 0.001
+mc_dist_weight = 0.0002
 mc_dist_coef_tame = 0.2
 mc_dist_coef_wild = 0.0
 
-graph_diam_weight = 0.0001
-graph_diam_coef = 0.02
+graph_diam_weight = 0.00002
+graph_diam_coef = 0.2
 
-door_connect_bound = 10.0
+door_connect_bound = 20.0
 # door_connect_bound = 0.0
 door_connect_alpha = 0.02
 # door_connect_alpha = door_connect_alpha0 / math.sqrt(1 + session.num_rounds / lr_cooldown_time)
@@ -347,10 +366,10 @@ door_connect_beta = door_connect_bound / (door_connect_bound + door_connect_alph
 # door_connect_bound = 0.0
 # door_connect_alpha = 1e-15
 
-temperature_min0 = 0.02
-temperature_max0 = 2.0
-temperature_min1 = 0.02
-temperature_max1 = 2.0
+temperature_min0 = 0.01
+temperature_max0 = 1.0
+temperature_min1 = 0.01
+temperature_max1 = 1.0
 # temperature_min0 = 0.01
 # temperature_max0 = 10.0
 # temperature_min1 = 0.01
@@ -361,11 +380,11 @@ temperature_frac_min0 = 0.5
 temperature_frac_min1 = 0.5
 temperature_decay = 1.0
 
-annealing_start = 47072
+annealing_start = 74368
 annealing_time = session.replay_buffer.capacity // (num_envs * num_devices) // 8
 
-pass_factor0 = 0.5
-pass_factor1 = 0.5
+pass_factor0 = 1.0
+pass_factor1 = pass_factor0
 print_freq = 16
 total_reward = 0
 total_loss = 0.0
@@ -399,6 +418,9 @@ ema_beta1 = 0.999
 session.average_parameters.beta = ema_beta0
 use_connectivity = True
 # use_connectivity = False
+
+# layer_norm_param_decay = 0.9998
+layer_norm_param_decay = 0.999
 
 def compute_door_connect_counts(only_success: bool, ind=None):
     batch_size = 1024
@@ -620,6 +642,17 @@ for i in range(1000000):
             total_graph_diam_loss += graph_diam_loss
             total_mc_loss += mc_loss
             total_loss_cnt += 1
+
+            # # Drive down the LayerNorm `elementwise_affine` parameters to zero so we can get rid of them.
+            # ln_sq_weight = 0.0
+            # ln_sq_bias = 0.0
+            # for mod in session.model.modules():
+            #     if isinstance(mod, torch.nn.LayerNorm):
+            #         ln_sq_weight += torch.sum((mod.weight - 1.0) ** 2)
+            #         ln_sq_bias += torch.sum(mod.bias ** 2)
+            #         mod.weight.data = (mod.weight.data - 1.0) * layer_norm_param_decay + 1.0
+            #         mod.bias.data = mod.bias.data * layer_norm_param_decay
+
                 # prof.step()
         # logging.info("Done")
     # end_training_time = time.perf_counter()
@@ -715,9 +748,9 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk26')
+            # save_session(session, pickle_name + '-bk41')
             # session.replay_buffer.resize(2 ** 20)
-            # pickle.dump(session, open(pickle_name + '-small-22', 'wb'))
+            # pickle.dump(session, open(pickle_name + '-small-40', 'wb'))
     if session.num_rounds % summary_freq == 0:
         if num_candidates_max == 1:
             total_eval_loss = 0.0
@@ -840,7 +873,7 @@ for i in range(1000000):
             torch.sum(tame_mask).item(), torch.sum(wild_mask).item(), ent1,
                 save1, graph_diam1, tame1, wild1))
         display_counts(counts1, 16, verbose=False)
-        # # display_counts(counts1, 5000000, verbose=True)
+        # display_counts(counts1, 64, verbose=True)
 
         # logging.info(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects, dim=0)))
 

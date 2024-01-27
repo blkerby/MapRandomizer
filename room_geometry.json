@@ -1894,33 +1894,20 @@
         "name": "Aqueduct",
         "area": 4,
         "rom_address": 513447,
-        "twin_rom_address": 513032,
-        "map": [
-            [0, 0, 1, 0, 0, 0],
-            [0, 0, 1, 0, 0, 0],
-            [0, 0, 1, 0, 0, 0],
-            [0, 0, 1, 0, 0, 0],
-            [1, 1, 1, 1, 1, 1],
-            [1, 1, 1, 1, 1, 1],
-            [1, 1, 1, 1, 1, 1],
-            [0, 0, 1, 0, 0, 0],
-            [0, 0, 1, 0, 0, 0],
-            [0, 0, 1, 0, 0, 0]
-        ],
+        "twin_rom_address": null,
+        "map": [[1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1], [1, 1, 1, 1, 1, 1]],
         "doors": [
-            {"direction": "left", "x": 0, "y": 5, "exit_ptr": 108296, "entrance_ptr": 107720, "subtype": "normal", "offset": 0},
-            {"direction": "left", "x": 0, "y": 6, "exit_ptr": 108356, "entrance_ptr": 108584, "subtype": "normal", "offset": 0},
-            {"direction": "right", "x": 5, "y": 5, "exit_ptr": 108344, "entrance_ptr": 108500, "subtype": "normal", "offset": 0},
-            {"direction": "down", "x": 2, "y": 9, "exit_ptr": 108032, "entrance_ptr": 108152, "subtype": "normal", "offset": null},
-            {"direction": "down", "x": 1, "y": 6, "exit_ptr": 108308, "entrance_ptr": 108248, "subtype": "sand", "offset": null},
-            {"direction": "down", "x": 3, "y": 6, "exit_ptr": 108320, "entrance_ptr": 108272, "subtype": "sand", "offset": null},
-            {"direction": "up", "x": 0, "y": 4, "exit_ptr": 108332, "entrance_ptr": 108392, "subtype": "normal", "offset": 1},
-            {"direction": "up", "x": 2, "y": 0, "exit_ptr": 108044, "entrance_ptr": 107948, "subtype": "normal", "offset": null}
+            {"direction": "left", "x": 0, "y": 1, "exit_ptr": 108296, "entrance_ptr": 107720, "subtype": "normal", "offset": 0},
+            {"direction": "left", "x": 0, "y": 2, "exit_ptr": 108356, "entrance_ptr": 108584, "subtype": "normal", "offset": 0},
+            {"direction": "right", "x": 5, "y": 1, "exit_ptr": 108344, "entrance_ptr": 108500, "subtype": "normal", "offset": 0},
+            {"direction": "down", "x": 1, "y": 2, "exit_ptr": 108308, "entrance_ptr": 108248, "subtype": "sand", "offset": null},
+            {"direction": "down", "x": 3, "y": 2, "exit_ptr": 108320, "entrance_ptr": 108272, "subtype": "sand", "offset": null},
+            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 108332, "entrance_ptr": 108392, "subtype": "normal", "offset": 1}
         ],
-        "parts": [[0, 1, 2, 6], [4], [5], [3, 7]],
+        "parts": [[0, 1, 2, 5], [3], [4]],
         "durable_part_connections": [],
         "transient_part_connections": [[0, 1], [0, 2]],
-        "items": [{"x": 4, "y": 4, "addr": 509443}, {"x": 5, "y": 4, "addr": 509449}],
+        "items": [{"x": 4, "y": 0, "addr": 509443}, {"x": 5, "y": 0, "addr": 509449}],
         "node_tiles": [
             [1, [[0, 5]]],
             [2, [[0, 6], [1, 6], [2, 6], [3, 6], [4, 6], [5, 6]]],
@@ -1932,10 +1919,25 @@
             [8, [[5, 4]]],
             [9, [[0, 4], [1, 4], [2, 4], [1, 5], [2, 5], [2, 5]]]
         ],
-        "twin_node_tiles": [
-            [1, [[2, 0], [2, 1], [2, 2], [2, 3], [2, 4], [2, 5], [2, 6], [2, 7], [2, 8], [2, 9]]],
-            [2, [[2, 0], [2, 1], [2, 2], [2, 3], [2, 4], [2, 5], [2, 6], [2, 7], [2, 8], [2, 9]]]
+        "twin_node_tiles": null,
+        "heated": false
+    },
+    {
+        "name": "Toilet",
+        "area": 4,
+        "rom_address": 513032,
+        "twin_rom_address": null,
+        "map": [[1], [1], [0], [0], [0], [0], [0], [0], [1], [1]],
+        "doors": [
+            {"direction": "down", "x": 0, "y": 9, "exit_ptr": 108032, "entrance_ptr": 108152, "subtype": "normal", "offset": null},
+            {"direction": "up", "x": 0, "y": 0, "exit_ptr": 108044, "entrance_ptr": 107948, "subtype": "normal", "offset": null}
         ],
+        "parts": [[0, 1]],
+        "durable_part_connections": [],
+        "transient_part_connections": [],
+        "items": [],
+        "node_tiles": [[1, [[0, 0], [0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7], [0, 8], [0, 9]]], [2, [[0, 0], [0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6], [0, 7], [0, 8], [0, 9]]]],
+        "twin_node_tiles": null,
         "heated": false
     },
     {

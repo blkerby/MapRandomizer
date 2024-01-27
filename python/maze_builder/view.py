@@ -43,8 +43,9 @@ device = torch.device('cpu')
 # session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-63', 'rb')).load()
 # session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-70', 'rb')).load()
 # session = CPU_Unpickler(open('models/session-2023-11-08T16:16:55.811707.pkl-small-1', 'rb')).load()
-session = CPU_Unpickler(open('models/session-2023-11-08T16:16:55.811707.pkl-small-22', 'rb')).load()
-#
+# session = CPU_Unpickler(open('models/session-2023-11-08T16:16:55.811707.pkl-small-22', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2023-11-08T16:16:55.811707.pkl-small-31', 'rb')).load()
+session = CPU_Unpickler(open('models/session-2023-11-08T16:16:55.811707.pkl-small-40', 'rb')).load()
 
 print(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects.to(torch.float32), dim=0)))
 min_reward = torch.min(session.replay_buffer.episode_data.reward)
@@ -68,10 +69,11 @@ M = torch.nanmean(M, dim=1)
 num_feasible = torch.nonzero((session.replay_buffer.episode_data.reward == min_reward)).shape[0]
 
 ind = torch.nonzero(
-    (session.replay_buffer.episode_data.reward == 0) #&
-    # (S < 3.90) &
-    # (session.replay_buffer.episode_data.graph_diameter <= 45) &
+    (session.replay_buffer.episode_data.reward == 0) &
+    (S < 4.00) &
+    (session.replay_buffer.episode_data.graph_diameter <= 45) &
     # (session.replay_buffer.episode_data.mc_dist_coef > 0.0)
+    (session.replay_buffer.episode_data.mc_dist_coef == 0.0)
 )
 
 # ind = torch.nonzero(
@@ -90,7 +92,7 @@ ind = torch.nonzero(
 
 # print("success rate: ", ind.shape[0] / num_feasible)
 i = int(random.randint(0, ind.shape[0] - 1))
-i = 5
+# i = 26
 print(len(ind), i)
 # i = 389
 num_rooms = len(session.envs[0].rooms)

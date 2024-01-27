@@ -9,12 +9,12 @@ import os
 
 # input_rom_path = '/home/kerby/Downloads/Super Metroid (JU) [!].smc'
 # input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.5.3-tinystates-ntsc.sfc'
-input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.5.8.1-tinystates-ntsc.sfc'
+input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.5.9-tinystates-ntsc.sfc'
 # input_rom_path = '/home/kerby/Downloads/Practice-v2.5.1-suits.sfc'
 # input_rom_path = '/home/kerby/Downloads/smmr-v8-66-115673117270825932886574167490559/smmr-v8-66-115673117270825932886574167490559.sfc'
 # input_rom_path = '/home/kerby/Downloads/smmr-v0-30-115673117270825932886574167490559.sfc'
 # input_rom_path = '/home/kerby/Downloads/smmr-v0-5-115673117270825932886574167490559.sfc'
-output_rom_path = '/home/kerby/Downloads/roms/maptest.smc'
+output_rom_path = '/home/kerby/Downloads/maptest.smc'
 orig_rom = Rom(open(input_rom_path, 'rb'))
 rom = Rom(open(input_rom_path, 'rb'))
 
@@ -33,10 +33,10 @@ patches = [
     # 'new_game_extra',
     # 'disable_walljump'
     # 'holes',
-    # 'oob_death',
+    'oob_death',
     # 'spinjumprestart',
     # 'new_game_extra',
-    'door_hurt',
+    # 'door_hurt',
     # "everest_tube",
     # 'complementary_suits',
     # 'complementary_suits_noheat',
@@ -278,24 +278,24 @@ for room_obj in rooms:
 # # for i in range(32):
 # #     map_patcher.write_tile_2bpp(i + 256, data)
 # #
-import numpy as np
-image = np.zeros([256, 128])
-for i in range(512):
-    data = map_patcher.read_tile_2bpp(i)
-    x = i // 16
-    y = i % 16
-    x0 = x * 8
-    x1 = (x + 1) * 8
-    y0 = y * 8
-    y1 = (y + 1) * 8
-    image[x0:x1, y0:y1] = data
-    # for row in data:
-    #     print(''.join('{:x}'.format(x) for x in row))
-    # data = read_tile_4bpp(rom, snes2pc(0xB68000), i)
-    # for row in data:
-    #     print(''.join('{:x}'.format(x) for x in row))
-from matplotlib import pyplot as plt
-plt.imshow(image)
+# import numpy as np
+# image = np.zeros([256, 128])
+# for i in range(512):
+#     data = map_patcher.read_tile_2bpp(i)
+#     x = i // 16
+#     y = i % 16
+#     x0 = x * 8
+#     x1 = (x + 1) * 8
+#     y0 = y * 8
+#     y1 = (y + 1) * 8
+#     image[x0:x1, y0:y1] = data
+#     # for row in data:
+#     #     print(''.join('{:x}'.format(x) for x in row))
+#     # data = read_tile_4bpp(rom, snes2pc(0xB68000), i)
+#     # for row in data:
+#     #     print(''.join('{:x}'.format(x) for x in row))
+# from matplotlib import pyplot as plt
+# plt.imshow(image)
 
 # # rom.write_u16(snes2pc(0x819124), 0x0009)   # File select index 9 - load
 #

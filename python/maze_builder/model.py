@@ -634,7 +634,7 @@ class AttentionLayer(torch.nn.Module):
         self.post = torch.nn.Linear(num_heads * value_width, input_width, bias=False)
         self.post.weight.data.zero_()
         self.dropout = torch.nn.Dropout(p=dropout)
-        self.layer_norm = torch.nn.LayerNorm(input_width)
+        self.layer_norm = torch.nn.LayerNorm(input_width, elementwise_affine=False)
 
     def forward(self, X):
         assert len(X.shape) == 3
@@ -666,7 +666,7 @@ class FeedforwardLayer(torch.nn.Module):
         self.lin2.weight.data.zero_()
         # self.arity = arity
         self.dropout = torch.nn.Dropout(p=dropout)
-        self.layer_norm = torch.nn.LayerNorm(input_width)
+        self.layer_norm = torch.nn.LayerNorm(input_width, elementwise_affine=False)
 
     def forward(self, X):
         A = self.lin1(X)
