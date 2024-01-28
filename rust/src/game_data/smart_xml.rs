@@ -8,7 +8,7 @@ where
     usize::from_str_radix(&s, 16).map_err(D::Error::custom)
 }
 
-fn from_hex_words<'de, D>(deserializer: D) -> Result<Vec<u16>, D::Error>
+pub fn from_hex_words<'de, D>(deserializer: D) -> Result<Vec<u16>, D::Error>
 where
     D: Deserializer<'de>,
 {
@@ -164,6 +164,10 @@ pub struct Room {
     pub index: usize,
     #[serde(rename="specialGFX", deserialize_with="from_hex")]
     pub special_gfx: usize,
+    #[serde(deserialize_with="from_hex")]
+    pub width: usize,
+    #[serde(deserialize_with="from_hex")]
+    pub height: usize,
     #[serde(rename="States")]
     pub states: RoomStateList,
 }
