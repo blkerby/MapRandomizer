@@ -14,9 +14,10 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release106">Version 107 (2024-01-21)</a>:
+<p><a id="release107">Version 107 (2024-01-29)</a>:
 <ul>
 <li>A new tile theme option "Wrecked Ship" is available.
+<li>Lag is reduced when reloading into the escape sequence.
 </ul>
 
 <p><a id="release106">Version 106 (2024-01-17)</a>:

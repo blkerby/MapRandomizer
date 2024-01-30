@@ -105,6 +105,9 @@ org $A986EE
 org $A9873A
     JSR brain_init
 
+; When loading escape auto-save (playing elevator room music), use escape music song set to reduce lag when switching tracks:
+org $8FDDA6
+    db $FF, $03
 
 ; Free space in bank $8F
 org $8FF800
@@ -125,10 +128,10 @@ main_asm:
     LDA #$FF24             ;\
     JSL $808FC1            ;/ Queue escape music
 
-    LDA #$B211             ; Mother Brain's body function = $B211 (20 frame delay))
+    LDA #$B211             ; Mother Brain's body function = $B211 (32 frame delay))
     STA $0FA8 
-    LDA #$0014             ;\
-    STA $0FB2              ;} Mother Brain's body function timer = 14h
+    LDA #$0020             ;\
+    STA $0FB2              ;} Mother Brain's body function timer = 20h
 
 .skip
     RTS

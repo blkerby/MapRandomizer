@@ -2,6 +2,8 @@ v107:
 - mosaic overhaul
 - canWakePlanet tech
 - reduced items: new item progression preset & options
+- make canHorizontalSpark be implicit in comeInWithSpark strats
+- fix lag when starting escape from autosave?
 
 priority:
 - fix vanilla map music when "Random" start puts you in room with no music change (plays title screen music).
