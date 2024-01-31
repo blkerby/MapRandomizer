@@ -2213,7 +2213,9 @@ pub fn make_rom(
     patcher.write_walljump_item_graphics()?;
     patcher.apply_seed_hash()?;
     patcher.apply_credits()?;
-    patcher.apply_hazard_markers()?;
+    if !randomization.difficulty.ultra_low_qol {
+        patcher.apply_hazard_markers()?;
+    }
     if randomization.difficulty.room_outline_revealed {
         patcher.apply_room_outline()?;
     }

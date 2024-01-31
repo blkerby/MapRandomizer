@@ -14,10 +14,17 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release107">Version 107 (2024-01-29)</a>:
+<p><a id="release107">Version 107 (2024-01-30)</a>:
 <ul>
 <li>A new tile theme option "Wrecked Ship" is available.
-<li>Lag is reduced when reloading into the escape sequence.
+<li>Lag is reduced when the escape sequence music restarts after reloading.
+<li>Heat damage multipliers for Basic and Medium are adjusted to be more lenient.
+<li>"Ultra-low quality-of-life" behaves even more like the vanilla game:
+    <ul>
+    <li>Enhanced map details are removed, including markers for doors, heat, water, and refills.
+    <li>Hazard markers ("caution tape") on doors are removed.
+    <li>Item dots no longer fade (or disappear) after collection.
+    </ul>
 </ul>
 
 <p><a id="release106">Version 106 (2024-01-17)</a>:

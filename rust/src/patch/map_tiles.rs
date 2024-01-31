@@ -1061,22 +1061,29 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
-    fn indicate_special_tiles(&mut self) -> Result<()> {
+    fn indicate_refill_station_tiles(&mut self) -> Result<()> {
         let refill_tile_desc = vec![(0, 0, E, E, E, E, Interior::Refill)];
-        let map_tile_desc = vec![(0, 0, E, E, E, E, Interior::MapStation)];
-        self.patch_room_basic("Landing Site", vec![(4, 4, E, E, E, E, Interior::Refill)])?;
         for room in &self.game_data.room_geometry {
             if room.name.contains("Refill") || room.name.contains("Recharge") {
                 self.patch_room_basic(&room.name, refill_tile_desc.clone())?;
             }
         }
+        self.patch_room_basic("Landing Site", vec![(4, 4, E, E, E, E, Interior::Refill)])?;
+        Ok(())
+    }
+
+    fn indicate_map_station_tiles(&mut self) -> Result<()> {
+        let map_tile_desc = vec![(0, 0, E, E, E, E, Interior::MapStation)];
 
         for room in &self.game_data.room_geometry {
             if room.name.contains(" Map Room") {
                 self.patch_room_basic(&room.name, map_tile_desc.clone())?;
             }
         }
+        Ok(())
+    }
 
+    fn indicate_objective_tiles(&mut self) -> Result<()> {
         let boss_tile = self.get_basic_tile(BasicTile { 
             left: E, 
             right: E, 
@@ -2299,7 +2306,9 @@ impl<'a> MapPatcher<'a> {
             basic_tile.interior = interior;
             let tile1 = self.get_basic_tile(basic_tile)?;
             self.area_data[area].push((item_idx, offset as TilemapOffset, tile1 | 0x0C00, interior));
-            if self.randomization.difficulty.item_dot_change == ItemDotChange::Fade {
+            if self.randomization.difficulty.ultra_low_qol {
+                self.rom.write_u16(base_ptr + offset, (tile1 | 0x0C00) as isize)?;
+            } else if self.randomization.difficulty.item_dot_change == ItemDotChange::Fade {
                 if interior == Interior::MajorItem
                     || (interior == Interior::MediumItem
                         && orig_basic_tile.interior != Interior::MajorItem)
@@ -2702,14 +2711,20 @@ impl<'a> MapPatcher<'a> {
         self.fix_elevators()?;
         self.fix_item_dots()?;
         self.fix_walls()?;
-        self.indicate_passages()?;
-        self.indicate_doors()?;
-        self.indicate_gray_doors()?;
-        self.indicate_sand()?;
-        self.indicate_heat()?;
-        self.indicate_special_tiles()?;
-        self.indicate_liquid()?;
-        self.indicate_locked_doors()?;
+        if !self.randomization.difficulty.ultra_low_qol {
+            self.indicate_passages()?;
+            self.indicate_doors()?;
+            self.indicate_gray_doors()?;
+            self.indicate_sand()?;
+            self.indicate_heat()?;
+            self.indicate_map_station_tiles()?;
+            self.indicate_refill_station_tiles()?;
+        }
+        self.indicate_objective_tiles()?;
+        if !self.randomization.difficulty.ultra_low_qol {
+            self.indicate_liquid()?;
+            self.indicate_locked_doors()?;
+        }
         self.add_cross_area_arrows()?;
         self.set_initial_map()?;
         self.indicate_major_items()?;

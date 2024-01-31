@@ -14,6 +14,9 @@
       <div class="modal-body">
       <p>This disables many quality-of-life changes that are normally built into the randomizer, including:</p>
       <p><ul>
+      <li>Enhanced map details, including markings for doors, heated rooms, water rooms, refill stations, etc.
+      <li>Hazard markers indicating a potential risk of death or softlock on the other side of a door
+      <li>Item dots fading (or disappearing) after collection
       <li>Faster cutscenes (e.g., involving Baby Metroid, Mother Brain, save & refill stations)
       <li>Refill stations giving Supers and Power Bombs in addition to Missiles
       <li>The auto-save before the escape sequence
