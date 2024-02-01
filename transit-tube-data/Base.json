@@ -26,13 +26,13 @@
     {
         "name": "Bubble Mountain",
         "x": [1],
-        "top": "Bubbles",
+        "top": "Norfair Bubbles",
         "bottom": "Magenta Norfair"
     },
     {
         "name": "Bat Cave",
         "x": [0],
-        "top": "Bubbles",
+        "top": "Norfair Bubbles",
         "bottom": "Magenta Norfair"
     },
     {
@@ -110,8 +110,8 @@
     {
         "name": "Etecoon Energy Tank Room",
         "x": [0],
-        "top": "Wrecked Ship",
-        "bottom": "Wrecked Ship"
+        "top": "Green Brinstar",
+        "bottom": "Green Brinstar"
     },
     {
         "name": "Fast Pillars Setup Room",
