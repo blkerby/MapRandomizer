@@ -44,7 +44,7 @@
       "canCrouchJump",
       "canDownGrab",
       "canConsecutiveWalljump",
-      "canMidairShinespark",
+      "canHorizontalShinespark",
       "canPreciseWalljump",
       "canShinechargeMovement",
       "canGravityJump",
@@ -54,6 +54,7 @@
       "canPseudoScrew",
       "canDisableEquipment",
       "canCameraManip",
+      "canAwakenZebes",
       "canHyperGateShot"
     ],
     "notable_strats": [
@@ -82,6 +83,7 @@
     "tech": [
       "canCrossRoomJumpIntoWater",
       "canWaterShineCharge",
+      "canMidairShinespark",
       "canPlayInSand",
       "canDodgeWhileShooting",
       "canTrickyUseFrozenEnemies",
@@ -255,12 +257,13 @@
       "Screw Attack Room Transition Screwjump",
       "Screw Attack Room Transition Speedjump with Bombs",
 
-      "Lower Norfair Pillar Room with Power Bombs",
+      "Lower Norfair Pillar Room with Two Power Bombs",
       "LN Firefleas Ice Bridge",
       "LN Fireflea Room Damage Boost Over the Fune",
       "LN Spring Ball Maze Air Speedball",
       "Reverse Spring Ball Maze Crystal Flash Clip",
       "Mickey Mouse Crumble Speedjump",
+      "Metal Pirates Speed Echoes Kill",
       "KiHunter Shaft KiHunter Dodge",
       "Dodge the Three Musketeers Going Down",
       "Writg Frozen Pirate Platforms",
@@ -348,7 +351,8 @@
       "canBabyMetroidAvoid",
       "canSandIBJ",
       "canCWJ",
-      "canSandfallBounce"
+      "canSandfallBounce",
+      "canEnemyExtendRunway"
     ],
     "notable_strats": [
       "Landing Site Big Jump Blue Suit Bounce",
@@ -365,7 +369,8 @@
       "Brinstar Reserve Temporary Blue",
       "Green Hill Zone X-Ray Wiggle",
       "Etecoon Shaft Moonfall Spark",
- 
+      "Green Brinstar Beetom Room Frozen Beetom Bridge",
+
       "Big Pink Speedball into Raised Bomb Blocks",
       "Big Pink Super Block Speedball",
       "Big Pink Fast Mockball Leave With Spark",
@@ -408,6 +413,8 @@
       "Writg New Low Ice Pirate Freeze", 
       "Writg Low Ice Pirate Freeze",
       "WRITG with PowerBombs and a Jump Assist",
+      "Wasteland Avoid Dessgeegas by Rolling",
+      "Wasteland Statue Clip Damage Boost",
 
       "Main Street Climb with Ice and Spring Ball",
       "Crab Hole Suitless Crab Climb No Jump Assist",
@@ -436,7 +443,7 @@
       "Blue Hopper Room Roll Under Hoppers",
       "Tourian Blue Hopper Crystal Flash",
       "Baby Skip Without Wave or Speed",
-      "Tourian Escape Room 4 Acid Bath Shinespark"      
+      "Tourian Escape Room 4 Acid Bath Shinespark"
     ]
   },
   {
@@ -493,6 +500,7 @@
 
       "Early Supers Crouch Gate Clip Damage Boost",
       "Early Supers Leave With Spark To The Left",
+      "Early Supers Right Door Frozen Zeb Runway",
       "Green Hill Zone Tunnel Crawl",
       "Green Hills Grapple Gate Glitch",
       "Etecoon Spikeway Aim Cancel Wiggle",
@@ -503,6 +511,9 @@
       "Big Pink Wall Ice Clip the Mission Impossible Crumble Blocks",
 
       "Red Tower R-Mode Frozen Beetom X-Ray Climb",
+      "Hellway Frozen Zeb Runway",
+
+      "Warehouse Energy Tank Frozen Beetom Runway",
 
       "Double Chamber HiJumpless Wall Jump",
       "Lava Dive Diagonal Bomb Jump",
@@ -515,6 +526,7 @@
       "Writg HiJump and Only Screw", 
       "Writg Power Bomb Diagonal Bomb Jump",
       "Writg X-Ray Climb",
+      "Wasteland HiJumpless Statue Clip Damage Boost",
 
       "Main Street G-Mode Overload Speed Blocks then use Frozen Crab",
       "Main Street Underwater Walljumps",
@@ -595,6 +607,7 @@
 
       "Green Brinstar Shaft Zeela Stuck Moonfall",
  
+      "Dachora Room G-Mode Setup: Lure the Zeela Down Below",
       "Dachora Room Reo Zeela Stuck Moonfall",
       "Dachora Room Blockade Extended Moondance",
       "Big Pink Reo Ice Clip Without Morph and X-Ray",
@@ -605,6 +618,7 @@
  
       "Golden Torizo Missiles Only",
       "Screw Attack Room Doorway CWJ",
+      "Lower Norfair Pillar Room with Bombs",
       "Lower Norfair Jail Crystal Flash Clip",
       
       "Main Street Crab Climb with Only Ice",
@@ -621,6 +635,7 @@
       "Colosseum with no Equipment",
       "East Cac Alley G-Mode Morph, IBJ, HBJ",
       "East Sand Hole Insane Walljump Morph",
+      "East Sand Hole Suitless HiJump Perfect Bomb Boost",
       "Halfie Climb Stored Moonfall Grapple Door Lock Skip",
       "Halfie Climb Very Deep Stuck X-Ray Climb",
 

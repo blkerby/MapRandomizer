@@ -841,6 +841,20 @@ pub fn apply_requirement(
                 None
             }
         }
+        Requirement::RegularEnergyCapacity(count) => {
+            if global.max_energy >= *count {
+                Some(local)
+            } else {
+                None
+            }
+        }
+        Requirement::ReserveEnergyCapacity(count) => {
+            if global.max_reserves >= *count {
+                Some(local)
+            } else {
+                None
+            }
+        }
         Requirement::EnergyRefill => {
             let mut new_local = local;
             new_local.energy_used = 0;

@@ -143,6 +143,8 @@ pub enum Requirement {
     MissilesCapacity(i32),
     SupersCapacity(i32),
     PowerBombsCapacity(i32),
+    RegularEnergyCapacity(i32),
+    ReserveEnergyCapacity(i32),
     Supers(i32),
     PowerBombs(i32),
     EnergyRefill,
@@ -869,7 +871,7 @@ impl LinksDataGroup {
 
 fn get_ignored_notable_strats() -> HashSet<String> {
     [
-        "Breaking the Maridia Tube Gravity Jump",
+        "Breaking the Maridia Tube Gravity Jump", // not usable because of canRiskPermanentLossOfAccess
         "Metroid Room 1 PB Dodge Kill (Left to Right)",
         "Metroid Room 1 PB Dodge Kill (Right to Left)",
         "Metroid Room 2 PB Dodge Kill (Bottom to Top)",
@@ -880,7 +882,6 @@ fn get_ignored_notable_strats() -> HashSet<String> {
         "Metroid Room 4 Three PB Dodge Kill (Bottom to Top)",
         "Wrecked Ship Main Shaft Partial Covern Ice Clip", // not usable because of canRiskPermanentLossOfAccess
         "Mickey Mouse Crumble Jump IBJ",  // only useful with CF clip strat, or if we change item progression rules
-        "G-Mode Morph Breaking the Maridia Tube Gravity Jump", // not usable because of canRiskPermanentLossOfAccess
         "Green Brinstar Main Shaft Moonfall Spark",  // does not seem to be viable with the vanilla door connection
     ]
     .iter()
@@ -1387,6 +1388,10 @@ impl GameData {
                     return Ok(Requirement::SupersCapacity(count as Capacity));
                 } else if resource_type == "PowerBomb" {
                     return Ok(Requirement::PowerBombsCapacity(count as Capacity));
+                } else if resource_type == "RegularEnergy" {
+                    return Ok(Requirement::RegularEnergyCapacity(count as Capacity));
+                } else if resource_type == "ReserveEnergy" {
+                    return Ok(Requirement::ReserveEnergyCapacity(count as Capacity));
                 } else {
                     bail!("Unexpected ammo type in {}", req_json);
                 }

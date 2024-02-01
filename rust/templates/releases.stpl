@@ -25,7 +25,38 @@ document.getElementById("navigation-releases").classList.add("active");
     <li>Hazard markers ("caution tape") on doors are removed.
     <li>Item dots no longer fade (or disappear) after collection.
     </ul>
+<li>Logic updates:
+    <ul>
+    <li>New tech:
+        <ul>
+        <li>canHorizontalShinespark (Medium)
+        <li>canAwakenZebes (Medium)
+        <li>canEnemyExtendRunway (Expert)
+        </ul>
+    <li>The tech "canMidairShinespark" is moved from Medium to Hard.
+    <li>New notable strats:
+        <ul>
+        <li>Metal Pirates Speed Echoes Kill (Very Hard)
+        <li>Lower Norfair Pillar Room with Two Power Bombs (Very Hard)
+        <li>Green Brinstar Beetom Room Frozen Beetom Bridge (Expert)
+        <li>Wasteland Avoid Dessgeegas by Rolling (Expert)
+        <li>Wasteland Statue Clip Damage Boost (Expert)
+        <li>Wasteland HiJumpless Statue Clip Damage Boost (Extreme)
+        <li>Warehouse Energy Tank Frozen Beetom Runway (Extreme)
+        <li>Hellway Frozen Zeb Runway (Extreme)
+        <li>Early Supers Right Door Frozen Zeb Runway (Extreme)
+        <li>East Sand Hole Suitless HiJump Perfect Bomb Boost (Insane)
+        <li>Dachora Room G-Mode Setup: Lure the Zeela Down Below (Insane)
+        <li>Lower Norfair Pillar Room with Bombs (Insane)
+        </ul>
+    </ul>
 </ul>
+
+
+
+- canHorizontalShinespark (Medium)
+- canAwakenZebes (Medium)
+- canEnemyExtendRunway (Expert)
 
 <p><a id="release106">Version 106 (2024-01-17)</a>:
 <ul>
