@@ -14,7 +14,7 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release107">Version 107 (2024-01-30)</a>:
+<p><a id="release107">Version 107 (2024-02-01)</a>:
 <ul>
 <li>A new tile theme option "Wrecked Ship" is available.
 <li>Lag is reduced when the escape sequence music restarts after reloading.
@@ -51,12 +51,6 @@ document.getElementById("navigation-releases").classList.add("active");
         </ul>
     </ul>
 </ul>
-
-
-
-- canHorizontalShinespark (Medium)
-- canAwakenZebes (Medium)
-- canEnemyExtendRunway (Expert)
 
 <p><a id="release106">Version 106 (2024-01-17)</a>:
 <ul>
