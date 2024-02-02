@@ -251,9 +251,7 @@
       "Indy Jones Mella Ice Clip",
 
       "Golden Torizo Safe Spot",
-      "Golden Torizo Supers Springwall with Bombs",
       "Golden Torizo Supers Double Shinespark",
-      "Screw Attack Room Springwall with Bombs",
       "Screw Attack Room Transition Screwjump",
       "Screw Attack Room Transition Speedjump with Bombs",
 
@@ -300,7 +298,6 @@
       "Oasis Cross Room Jump with Screw Attack",
       "Pants Room Gravity Jump",
       "Pants Room Shinespark",
-      "Pants Room Suitless MidAir SpringBall Jump with HiJump",
       "Pants Room Suitless Flatley Turnaround Climb",
       "East Pants Room Puyo Clip",
 
@@ -342,6 +339,7 @@
       "canFastWalljumpClimb",
       "canQuickCrumbleEscape",
       "canHBJ",
+      "canSpringFling",
       "canChainTemporaryBlue",
       "canBombIntoCrystalFlashClip",
       "canUnmorphBombBoost",
@@ -381,6 +379,7 @@
       "X-Ray Access Damage Boost",
       "X-Ray Access Ice Bridge",
       "X-Ray Access SpikeJumps with HiJump",
+      "X-Ray Access Tricky SpringBall Jump",
       "Red Tower IBJ Between the Bottom Rippers",
       "Red Tower Midair HBJ",
 
@@ -436,6 +435,7 @@
       "West Sand Hall Suitless Bootless Spring Ball",
       "West Sand Hall Ice Beam Only (Center to Left)",
       "East Sand Hall Spring Ball HiJump",
+      "East Sand Hall Cross-Room SpringBall Jump",
       "Spring Ball Room Escape - Suitless, Bootless, Space Jump",
 
       "Metroid Room 4 Bottom Metroid Avoid",
@@ -638,6 +638,8 @@
       "East Sand Hole Suitless HiJump Perfect Bomb Boost",
       "Halfie Climb Stored Moonfall Grapple Door Lock Skip",
       "Halfie Climb Very Deep Stuck X-Ray Climb",
+
+      "Plasma Spark Room SpringFling into Top Right Door",
 
       "West Sand Hall Insane Bomb Jump",
       "Oasis Cross Room Jump with Screw Attack and Speed through the Top Door",

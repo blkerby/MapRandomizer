@@ -31,6 +31,7 @@ document.getElementById("navigation-releases").classList.add("active");
         <ul>
         <li>canHorizontalShinespark (Medium)
         <li>canAwakenZebes (Medium)
+        <li>canSpringFling (Expert)
         <li>canEnemyExtendRunway (Expert), in progress, currently only in Brinstar rooms
         </ul>
     <li>The tech "canMidairShinespark" is moved from Medium to Hard.
