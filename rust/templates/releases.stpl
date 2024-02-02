@@ -31,8 +31,7 @@ document.getElementById("navigation-releases").classList.add("active");
         <ul>
         <li>canHorizontalShinespark (Medium)
         <li>canAwakenZebes (Medium)
-        <li>canEnemyExtendRunway (Expert)
-        <li>canInsaneJump (Extreme)
+        <li>canEnemyExtendRunway (Expert), in progress, currently only in Brinstar rooms
         </ul>
     <li>The tech "canMidairShinespark" is moved from Medium to Hard.
     <li>The tech "can3HighMidAirMorph" is renamed to "can4HighMidAirMorph" and moved from Very Hard to Hard.

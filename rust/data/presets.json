@@ -471,7 +471,6 @@
       "canGrappleClip",
       "canRightSideDoorStuckFromWater",
       "canDiagonalBombJump",
-      "canInsaneJump",
       "canInsaneWalljump",
       "canUnderwaterWalljump",
       "canShinesparkDeepStuck",
