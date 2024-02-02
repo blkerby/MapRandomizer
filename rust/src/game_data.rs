@@ -1038,7 +1038,7 @@ impl GameData {
             "requires": [],
             "devNote": "A special internal tech that is auto-enabled when using vanilla map, to ensure there is at least one bireachable item."
         })?;
-
+        Self::override_can_awaken_zebes_tech_note(&mut full_tech_json)?;
         for tech_category in full_tech_json["techCategories"].members_mut() {
             ensure!(tech_category["techs"].is_array());
             for tech_json in tech_category["techs"].members() {
@@ -1047,6 +1047,26 @@ impl GameData {
         }
         self.heat_run_tech_id = *self.tech_isv.index_by_key.get("canHeatRun").unwrap();
         self.wall_jump_tech_id = *self.tech_isv.index_by_key.get("canWalljump").unwrap();
+        Ok(())
+    }
+
+    fn override_can_awaken_zebes_tech_note(full_tech_json: &mut JsonValue) -> Result<()> {
+        let tech_category = full_tech_json["techCategories"].members_mut().find(|x| x["name"] == "Meta").unwrap();
+        let tech = tech_category["techs"].members_mut().find(|x| x["name"] == "canAwakenZebes").unwrap();
+        let tech_notes = &mut tech["note"];
+        let notes = vec![
+            "Understanding game behavior related to how the planet is awakened.",
+            "The planet is awakened by unlocking any gray door locked by killing enemies in the room (not including bosses or minibosses).",
+            "Pit Room, Baby Kraid Room, Metal Pirates Room, and Plasma Room are the places where this can be done in the randomizer.",
+            "Awakening the planet causes enemies to spawn in Parlor, Climb, Morph Ball Room, Construction Zone, and Blue Brinstar Energy Tank Room.",
+            "It also causes the item in the left side of Morph Ball Room and in The Final Missile to spawn.",
+            "The item and enemies in Pit Room do not spawn until entering with Morph and Missiles collected, regardless of whether the planet is awake.",
+            "If the quality-of-life option 'All items spawn from start' is enabled, as it is by default, then the items will already be spawned anyway, but awakening the planet can still matter because of its effects on enemies.",
+        ];
+        tech_notes.clear();
+        for note in notes {
+            tech_notes.push(JsonValue::String(note.to_owned()))?;
+        }
         Ok(())
     }
 
