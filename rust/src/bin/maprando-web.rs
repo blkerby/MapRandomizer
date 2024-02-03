@@ -1217,7 +1217,7 @@ async fn randomize(
         .filter(|(_k, v)| v.as_str().unwrap() == "Semi")
         .map(|(k, _v)| Item::try_from(app_data.game_data.item_isv.index_by_key[k]).unwrap())
         .collect();
-    let mut filler_items = vec![Item::Missile];
+    let mut filler_items = vec![Item::Missile, Item::Nothing];
     filler_items.extend(
         filler_items_json
             .as_object()

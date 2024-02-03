@@ -1,8 +1,8 @@
 v108:
 - starting items:
   - DONE: UI
-  - patch start game
-  - logic
+  - DONE: patch start game
+  - DONE: logic
   - credits
   - spoiler map
 - reduced items?: new item progression preset & options

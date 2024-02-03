@@ -2472,15 +2472,20 @@ impl<'r> Randomizer<'r> {
 
         let mut initial_items_remaining: Vec<usize> = vec![1; game_data.item_isv.keys.len()];
         initial_items_remaining[Item::Nothing as usize] = 0;
+        initial_items_remaining[Item::WallJump as usize] = if difficulty_tiers[0].wall_jump == WallJump::Collectible {
+            1
+        } else { 
+            0
+        };
         initial_items_remaining[Item::WallJump as usize] = 0;
-        initial_items_remaining[Item::Missile as usize] = 46;
         initial_items_remaining[Item::Super as usize] = 10;
         initial_items_remaining[Item::PowerBomb as usize] = 10;
         initial_items_remaining[Item::ETank as usize] = 14;
         initial_items_remaining[Item::ReserveTank as usize] = 4;
-        if difficulty_tiers[0].wall_jump == WallJump::Collectible {
-            initial_items_remaining[Item::Missile as usize] -= 1;
-            initial_items_remaining[Item::WallJump as usize] = 1;
+        initial_items_remaining[Item::Missile as usize] = game_data.item_locations.len() - initial_items_remaining.iter().sum::<usize>();
+        
+        for &(item, cnt) in &difficulty_tiers[0].starting_items {
+            initial_items_remaining[item as usize] -= usize::min(cnt, initial_items_remaining[item as usize]);
         }
 
         assert!(initial_items_remaining.iter().sum::<usize>() <= game_data.item_locations.len());
@@ -3599,7 +3604,7 @@ impl<'r> Randomizer<'r> {
     fn get_initial_global_state(&self) -> GlobalState {
         let items = vec![false; self.game_data.item_isv.keys.len()];
         let weapon_mask = self.game_data.get_weapon_mask(&items);
-        GlobalState {
+        let mut global = GlobalState {
             tech: get_tech_vec(&self.game_data, &self.difficulty_tiers[0]),
             notable_strats: get_strat_vec(&self.game_data, &self.difficulty_tiers[0]),
             items: items,
@@ -3612,7 +3617,13 @@ impl<'r> Randomizer<'r> {
             weapon_mask: weapon_mask,
             shine_charge_tiles: self.difficulty_tiers[0].shine_charge_tiles,
             heated_shine_charge_tiles: self.difficulty_tiers[0].heated_shine_charge_tiles,
+        };
+        for &(item, cnt) in &self.difficulty_tiers[0].starting_items {
+            for _ in 0..cnt {
+                global.collect(item, self.game_data);
+            }
         }
+        global
     }
 
     pub fn dummy_randomize(&self, seed: usize, display_seed: usize) -> Result<Randomization> {
