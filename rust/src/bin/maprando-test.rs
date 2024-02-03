@@ -62,6 +62,7 @@ fn create_difficulty_from_preset(preset : &Preset) -> DifficultyConfig {
         progression_rate: ProgressionRate::Fast,
         random_tank: true,
         spazer_before_plasma: true,
+        starting_items: vec![],
         filler_items: vec![ Item::Missile, Item::ETank, Item::ReserveTank, Item::Super, Item::PowerBomb, Item::Charge, Item::Ice, Item::Wave, Item::Spazer ],
         semi_filler_items: vec![ ],
         early_filler_items: vec![ Item::ETank ],
@@ -351,6 +352,7 @@ fn get_difficulty_tiers(app: &TestAppData, diff: &DifficultyConfig) -> Vec<Diffi
                 p.heated_shinespark_tiles as f32
                 ),
             item_priorities: diff.item_priorities.clone(),
+            starting_items: vec![],
             semi_filler_items: diff.semi_filler_items.clone(),
             filler_items: diff.filler_items.clone(),
             early_filler_items: diff.early_filler_items.clone(),

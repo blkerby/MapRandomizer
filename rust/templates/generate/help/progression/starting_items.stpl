@@ -1,0 +1,35 @@
+<!-- Button trigger modal -->
+<button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#startingItemsModal">
+<i class="bi bi-question-circle"></i>
+</button>
+
+<!-- Modal -->
+<div class="modal" id="startingItemsModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">Starting items</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>This setting affects which items Samus starts with at the beginning of the game:</p>
+
+        <ul>
+        <li><p><strong>None</strong>: Samus doesn't start with any items. This is the default behavior.</p>
+        <li><p><strong>All</strong>: Samus starts with all items already collected.</p>
+        </ul>
+
+        <p>Specific items can be selected as starting items by expanding the "Customize" section below.</p>
+
+        <p><strong>Note</strong>: If using "Escape" start location, Samus will always start with all items collected, regardless of this setting.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+

@@ -198,7 +198,7 @@ pub struct Patcher<'a> {
     pub other_door_ptr_pair_map: HashMap<DoorPtrPair, DoorPtrPair>,
     pub extra_setup_asm: HashMap<RoomPtr, Vec<u8>>,
     pub locked_door_state_indices: Vec<usize>,
-    pub removed_items: [u8; 0x40],
+    pub starting_item_bitmask: [u8; 0x40],
 }
 
 pub fn xy_to_map_offset(x: isize, y: isize) -> isize {
@@ -558,15 +558,11 @@ impl<'a> Patcher<'a> {
             let new_plm_type = item_to_plm_type(item, orig_plm_type);
             self.rom.write_u16(item_plm_ptr, new_plm_type)?;
             if item == Item::Nothing {
-                let idx = self.rom.read_u16(item_plm_ptr+4).unwrap() as _;
-                self.remove_item(idx);
+                let idx = self.rom.read_u16(item_plm_ptr + 4).unwrap() as usize;
+                self.starting_item_bitmask[idx>>3] |= 1 << (idx & 7);
             }
         }
         Ok(())
-    }
-
-    fn remove_item(&mut self, idx: usize) {
-        self.removed_items[idx>>3] |= 1 << (idx&7);
     }
 
     fn write_one_door_data(
@@ -1785,7 +1781,7 @@ impl<'a> Patcher<'a> {
         self.rom.write_u16(initial_max_supers, 0)?;
         self.rom.write_u16(initial_power_bombs, 0)?;
         self.rom.write_u16(initial_max_power_bombs, 0)?;
-        self.rom.write_n(initial_item_bits, &self.removed_items)?;
+        self.rom.write_n(initial_item_bits, &self.starting_item_bitmask)?;
 
         // Set no bosses defeated:
         self.rom.write_n(initial_boss_bits, &[0; 6])?;
@@ -2183,7 +2179,7 @@ pub fn make_rom(
         other_door_ptr_pair_map: get_other_door_ptr_pair_map(&randomization.map),
         extra_setup_asm: HashMap::new(),
         locked_door_state_indices: vec![],
-        removed_items: [0; 0x40],
+        starting_item_bitmask: [0; 0x40],
         // door_room_map: get_door_room_map(&self.game_data.)
     };
     patcher.apply_ips_patches()?;

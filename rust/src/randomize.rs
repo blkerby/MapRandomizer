@@ -150,6 +150,7 @@ pub struct DifficultyConfig {
     pub progression_rate: ProgressionRate,
     pub random_tank: bool,
     pub spazer_before_plasma: bool,
+    pub starting_items: Vec<(Item, usize)>,
     pub item_placement_style: ItemPlacementStyle,
     pub item_priorities: Vec<ItemPriorityGroup>,
     pub semi_filler_items: Vec<Item>,
