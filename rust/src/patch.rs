@@ -1765,22 +1765,73 @@ impl<'a> Patcher<'a> {
         self.rom.write_u16(initial_area_addr, 0)?;
         self.rom.write_u16(initial_load_station_addr, 2)?;
 
+
+        let mut item_mask = 0;
+        let mut beam_mask = 0;
+        let mut starting_missiles = 0;
+        let mut starting_energy = 99;
+        let mut starting_reserves = 0;
+        let mut starting_supers = 0;
+        let mut starting_powerbombs = 0;
+        let item_bitmask_map: HashMap<Item, u16> = vec![
+            (Item::Varia, 0x0001),
+            (Item::SpringBall, 0x0002),
+            (Item::Morph, 0x0004),
+            (Item::Gravity, 0x0020),
+            (Item::HiJump, 0x0100),
+            (Item::SpaceJump, 0x0100),
+            (Item::Bombs, 0x1000),
+            (Item::SpeedBooster, 0x2000),
+            (Item::Grapple, 0x4000),
+            (Item::XRayScope, 0x8000),
+        ].into_iter().collect();
+        let beam_bitmask_map: HashMap<Item, u16> = vec![
+            (Item::Wave, 0x0001),
+            (Item::Ice, 0x0002),
+            (Item::Spazer, 0x0004),
+            (Item::Plasma, 0x0008),
+            (Item::Charge, 0x1000),
+        ].into_iter().collect();    
+        for &(item, cnt) in &self.randomization.difficulty.starting_items {
+            if item_bitmask_map.contains_key(&item) {
+                item_mask |= item_bitmask_map[&item];
+            } else if beam_bitmask_map.contains_key(&item) {
+                beam_mask |= beam_bitmask_map[&item];
+            } else if item == Item::Missile {
+                starting_missiles += (cnt as isize) * 5;
+            } else if item == Item::ETank {
+                starting_energy += (cnt as isize) * 100;
+            } else if item == Item::ReserveTank {
+                starting_reserves += (cnt as isize) * 100;
+            } else if item == Item::Super {
+                starting_supers += (cnt as isize) * 5;
+            } else if item == Item::PowerBomb {
+                starting_powerbombs += (cnt as isize) * 5;
+            }
+        }
+        let beam_equipped_mask = if beam_mask & 0x000C == 0x000C {
+            // Don't equip Spazer if Plasma equipped
+            beam_mask & !0x0004
+        } else {
+            beam_mask
+        };
+
         // Set no items collected/equipped:
-        self.rom.write_u16(initial_items_collected, 0)?;
-        self.rom.write_u16(initial_items_equipped, 0)?;
-        self.rom.write_u16(initial_beams_collected, 0)?;
-        self.rom.write_u16(initial_beams_equipped, 0)?;
-        self.rom.write_u16(initial_energy, 99)?;
-        self.rom.write_u16(initial_max_energy, 99)?;
-        self.rom.write_u16(initial_reserve_energy, 0)?;
-        self.rom.write_u16(initial_max_reserve_energy, 0)?;
-        self.rom.write_u16(initial_reserve_mode, 0)?;  // 0 = Not obtained
-        self.rom.write_u16(initial_missiles, 0)?;
-        self.rom.write_u16(initial_max_missiles, 0)?;
-        self.rom.write_u16(initial_supers, 0)?;
-        self.rom.write_u16(initial_max_supers, 0)?;
-        self.rom.write_u16(initial_power_bombs, 0)?;
-        self.rom.write_u16(initial_max_power_bombs, 0)?;
+        self.rom.write_u16(initial_items_collected, item_mask as isize)?;
+        self.rom.write_u16(initial_items_equipped, item_mask as isize)?;
+        self.rom.write_u16(initial_beams_collected, beam_mask as isize)?;
+        self.rom.write_u16(initial_beams_equipped, beam_equipped_mask as isize)?;
+        self.rom.write_u16(initial_energy, starting_energy)?;
+        self.rom.write_u16(initial_max_energy, starting_energy)?;
+        self.rom.write_u16(initial_reserve_energy, starting_reserves)?;
+        self.rom.write_u16(initial_max_reserve_energy, starting_reserves)?;
+        self.rom.write_u16(initial_reserve_mode, if starting_reserves > 0 { 1 } else { 0 })?;  // 0 = Not obtained, 1 = Auto
+        self.rom.write_u16(initial_missiles, starting_missiles)?;
+        self.rom.write_u16(initial_max_missiles, starting_missiles)?;
+        self.rom.write_u16(initial_supers, starting_supers)?;
+        self.rom.write_u16(initial_max_supers, starting_supers)?;
+        self.rom.write_u16(initial_power_bombs, starting_powerbombs)?;
+        self.rom.write_u16(initial_max_power_bombs, starting_powerbombs)?;
         self.rom.write_n(initial_item_bits, &self.starting_item_bitmask)?;
 
         // Set no bosses defeated:
