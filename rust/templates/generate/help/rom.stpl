@@ -13,9 +13,6 @@
       </div>
       <div class="modal-body">
         <p>Please provide an original Super Metroid ROM: NTSC, USA/JU version, unheadered.</p>
-
-        <p>The vanilla ROM is needed on this step in order to generate the randomized game. In the next step you
-        will have the opportunity to switch to a customized base ROM if you would like.</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
