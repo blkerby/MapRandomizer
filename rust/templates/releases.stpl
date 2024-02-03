@@ -14,7 +14,7 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release107">Version 107 (2024-02-02)</a>:
+<p><a id="release107">Version 107 (2024-02-03)</a>:
 <ul>
 <li>A new tile theme option "Wrecked Ship" is available.
 <li>Lag is reduced when the escape sequence music restarts after reloading.
@@ -33,6 +33,7 @@ document.getElementById("navigation-releases").classList.add("active");
         <li>canAwakenZebes (Medium)
         <li>canSpringFling (Expert)
         <li>canEnemyExtendRunway (Expert), in progress, currently only in Brinstar rooms
+        <li>canInsaneJump (Extreme)
         </ul>
     <li>The tech "canMidairShinespark" is moved from Medium to Hard.
     <li>The tech "can3HighMidAirMorph" is renamed to "can4HighMidAirMorph" and moved from Very Hard to Hard.
