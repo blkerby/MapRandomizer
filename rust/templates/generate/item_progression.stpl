@@ -82,6 +82,61 @@
     </div>
 </div>
 
+<div class="form-group row border rounded-3 m-3 p-0">
+    <div class="col-lg-3 ml-0 mt-1 mb-1 align-items-center">
+        <% include!("help/progression/starting_items.stpl"); %>
+        <label for="preset">Starting items</label>
+    </div>
+    <div class="col-lg-2 btn-group mt-0" role="group">
+        <input type="radio" class="btn-check" name="starting_items_preset" value="None"
+            id="startingItemsPresetNone" autocomplete="off" 
+            onclick="startingItemsPresetChanged()" checked>
+        <label class="btn btn-outline-primary" for="startingItemsPresetNone">None</label>
+
+        <input type="radio" class="btn-check" name="starting_items_preset" value="All"
+            id="startingItemsPresetAll" autocomplete="off" 
+            onclick="startingItemsPresetChanged()">
+        <label class="btn btn-outline-primary" for="startingItemsPresetAll">All</label>
+    </div>
+    <div class="accordion m-0 p-0" id="accordionStartingItems">
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed my-0 d-block text-center customize-button" style="padding-top:10px;padding-bottom:10px;" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStartingItems">
+                Customize
+                </button>
+            </h2>
+            <div id="collapseStartingItems" class="accordion-collapse collapse">
+                <input type="hidden" id="json-starting-items" name="starting_item_json">
+                <% for item in &starting_items_multiple { %>
+                    <div class="form-group row my-2">
+                        <label class="col-sm-2 col-form-label text-end" for="starting_item_<%- item %>"><%= item %></label>
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control starting-item-input-multiple" name="starting_item_<%- item %>" id="startingItem<%- item %>" 
+                            value="0" onchange="startingItemsChanged()">
+                        </div>
+                    </div>
+                <% }%>
+                <% for item in &starting_items_single { %>
+                    <div class="form-group row my-2">
+                        <label class="col-sm-2 col-form-label text-end" for="starting_item_<%- item %>"><%= item %></label>
+                        <div class="col-sm-3 btn-group" role="group">
+                            <input type="radio" class="btn-check starting-item-input-single" name="starting_item_<%- item %>" value="No"
+                                id="startingItem<%- item %>No" autocomplete="off" 
+                                onclick="startingItemsChanged()" checked>
+                            <label class="btn btn-outline-primary" for="startingItem<%- item %>No">No</label>
+                            <input type="radio" class="btn-check starting-item-input-single" name="starting_item_<%- item %>" value="Yes"
+                                id="startingItem<%- item %>Yes" autocomplete="off" 
+                                onclick="startingItemsChanged()">
+                            <label class="btn btn-outline-primary" for="startingItem<%- item %>Yes">Yes</label>
+                        </div>
+                    </div>
+                <% }%>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <div class="row m-2">
     <div class="col-lg-6">
         <div class="card">

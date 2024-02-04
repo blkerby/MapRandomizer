@@ -97,6 +97,8 @@ struct GenerateTemplate<'a> {
     objectives: Vec<&'static str>,
     preset_data: &'a [PresetData],
     item_priorities: Vec<String>,
+    starting_items_multiple: Vec<String>,
+    starting_items_single: Vec<String>,
     prioritizable_items: Vec<String>,
     tech_description: &'a HashMap<String, String>,
     tech_dependencies: &'a HashMap<String, Vec<String>>,
@@ -150,6 +152,33 @@ async fn about(app_data: web::Data<AppData>) -> impl Responder {
 
 #[get("/generate")]
 async fn generate(app_data: web::Data<AppData>) -> impl Responder {
+    let starting_items_multiple: Vec<String> = [
+        "Missile",
+        "ETank",
+        "ReserveTank",
+        "Super",
+        "PowerBomb",
+    ].into_iter().map(|x| x.to_string()).collect();
+
+    let starting_items_single: Vec<String> = [
+        "Charge",
+        "Ice",
+        "Wave",
+        "Spazer",
+        "Plasma",
+        "XRayScope",
+        "Morph",
+        "Bombs",
+        "Grapple",
+        "HiJump",
+        "SpeedBooster",
+        "SpringBall",
+        "SpaceJump",
+        "ScrewAttack",
+        "Varia",
+        "Gravity",
+    ].into_iter().map(|x| x.to_string()).collect();
+
     let prioritizable_items: Vec<String> = [
         "ETank",
         "ReserveTank",
@@ -178,6 +207,8 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         progression_rates: vec!["Fast", "Uniform", "Slow"],
         item_placement_styles: vec!["Neutral", "Forced"],
         objectives: vec!["None", "Bosses", "Minibosses", "Metroids", "Chozos", "Pirates"],
+        starting_items_multiple,
+        starting_items_single,
         item_priorities: vec!["Early", "Default", "Late"]
             .iter()
             .map(|x| x.to_string())
@@ -220,6 +251,7 @@ struct RandomizeRequest {
     random_tank: Text<String>,
     spazer_before_plasma: Text<String>,
     item_progression_preset: Option<Text<String>>,
+    starting_item_json: Text<String>,
     item_priority_json: Text<String>,
     filler_items_json: Text<String>,
     race_mode: Text<String>,
@@ -995,6 +1027,7 @@ fn get_difficulty_tiers(
             spazer_before_plasma: difficulty.spazer_before_plasma,
             item_placement_style: difficulty.item_placement_style,
             item_priorities: difficulty.item_priorities.clone(),
+            starting_items: difficulty.starting_items.clone(),
             semi_filler_items: difficulty.semi_filler_items.clone(),
             filler_items: difficulty.filler_items.clone(),
             early_filler_items: difficulty.early_filler_items.clone(),
@@ -1154,7 +1187,24 @@ async fn randomize(
         }
     }
 
-    info!("raw json: {}", req.item_priority_json.0);
+    let starting_item_json: serde_json::Value = serde_json::from_str(&req.starting_item_json).unwrap();
+    info!("starting_item_json: {:?}", starting_item_json);
+    let mut starting_items: Vec<(Item, usize)> = vec![];
+    for (k, cnt_json) in starting_item_json.as_object().unwrap().iter() {
+        let cnt_str = cnt_json.as_str().unwrap();
+        let cnt = if cnt_str == "Yes" {
+            1
+        } else if cnt_str == "No" {
+            0
+        } else {
+            usize::from_str_radix(cnt_str, 10).unwrap()
+        };
+        if cnt > 0 {
+            starting_items.push((Item::try_from(app_data.game_data.item_isv.index_by_key[k]).unwrap(), cnt));
+        }
+    }
+    info!("Starting items: {:?}", starting_items);
+
     let item_priority_json: serde_json::Value =
         serde_json::from_str(&req.item_priority_json.0).unwrap();
 
@@ -1167,7 +1217,7 @@ async fn randomize(
         .filter(|(_k, v)| v.as_str().unwrap() == "Semi")
         .map(|(k, _v)| Item::try_from(app_data.game_data.item_isv.index_by_key[k]).unwrap())
         .collect();
-    let mut filler_items = vec![Item::Missile];
+    let mut filler_items = vec![Item::Missile, Item::Nothing];
     filler_items.extend(
         filler_items_json
             .as_object()
@@ -1214,9 +1264,10 @@ async fn randomize(
             "Yes" => true,
             _ => panic!("Unrecognized spazer_before_plasma {}", req.spazer_before_plasma.0.as_str())
         },
-        filler_items: filler_items,
-        semi_filler_items: semi_filler_items,
-        early_filler_items: early_filler_items,
+        starting_items,
+        filler_items,
+        semi_filler_items,
+        early_filler_items,
         item_placement_style: match req.item_placement_style.0.as_str() {
             "Neutral" => maprando::randomize::ItemPlacementStyle::Neutral,
             "Forced" => maprando::randomize::ItemPlacementStyle::Forced,

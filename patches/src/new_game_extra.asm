@@ -12,6 +12,25 @@ incsrc "constants.asm"
 !current_save_slot = $7e0952
 !area_explored_mask = $702600
 !initial_area_explored_mask = $B5F600  ; must match address in patch/map_tiles.rs
+!initial_area = $B5FE00  ; area used for the load station, not the map area
+!initial_load_station = $B5FE02
+!initial_items_collected = $B5FE04
+!initial_items_equipped = $B5FE06
+!initial_beams_collected = $B5FE08
+!initial_beams_equipped = $B5FE0A
+!initial_boss_bits = $B5FE0C
+!initial_item_bits = $B5FE12
+!initial_energy = $B5FE52
+!initial_max_energy = $B5FE54
+!initial_reserve_energy = $B5FE56
+!initial_max_reserve_energy = $B5FE58
+!initial_reserve_mode = $B5FE5A
+!initial_missiles = $B5FE5C
+!initial_max_missiles = $B5FE5E
+!initial_supers = $B5FE60
+!initial_max_supers = $B5FE62
+!initial_power_bombs = $B5FE64
+!initial_max_power_bombs = $B5FE66
 
 ;;; Hijack code that runs during initialization
 org $82801d
@@ -39,21 +58,75 @@ org $80C4E1
 org $a1f210
 
 startup:
-    jsl check_new_game      : bne .end
-    jsr start_game
-.end
-    lda !GameStartState
-    rtl
+    jsl check_new_game 
+    beq .init
+    jmp .end
 
-start_game:
-    ; Initialize the load station and area/map-area:
-    ;    stz $078B : stz $079f : stz $1f5b
+.init:
     ; Initialize the load station and area:
-    lda #$0002
+    lda !initial_load_station 
     sta $078B
     sta $7ED916
-    stz $079f
-    stz $1F5B
+    lda !initial_area
+    sta $079f
+    sta $7ED918
+    sta $1F5B
+
+    ; Initialize items/flags collected/equipped:
+    lda !initial_items_collected
+    sta $09A4
+    lda !initial_items_equipped
+    sta $09A2
+    lda !initial_beams_collected
+    sta $09A8
+    lda !initial_beams_equipped
+    sta $09A6
+    lda !initial_boss_bits
+    sta $7ED828
+    lda !initial_boss_bits+2
+    sta $7ED82A
+    lda !initial_boss_bits+4
+    sta $7ED82C
+    lda !initial_energy
+    sta $09C2
+    lda !initial_max_energy
+    sta $09C4
+    lda !initial_reserve_energy
+    sta $09D6
+    lda !initial_max_reserve_energy
+    sta $09D4
+    lda !initial_reserve_mode
+    sta $09C0
+    lda !initial_missiles
+    sta $09C6
+    lda !initial_max_missiles
+    sta $09C8
+    lda !initial_supers
+    sta $09CA
+    lda !initial_max_supers
+    sta $09CC
+    lda !initial_power_bombs
+    sta $09CE
+    lda !initial_max_power_bombs
+    sta $09D0
+    ; item bits:
+    ldx #$0040
+.item_bits_loop:
+    lda !initial_item_bits-2,x
+    sta $7ED870-2,x
+    dex
+    dex
+    bne .item_bits_loop
+
+    ; Set items collected for escape (to make item collection rate show 100%, only applicable for "Escape" start):
+    lda #$F32F
+    sta $1F5D
+
+    ; Unlock Tourian statues room (to avoid camera glitching when entering from bottom, and also to ensure game is
+    ; beatable since we don't take it into account as an obstacle in the item randomization logic)
+;    lda #$0004
+    lda #$0044   ; set escape flag
+    sta $7ED821
 
     ; Initialize item collection times:
     lda #$0000
@@ -63,38 +136,6 @@ start_game:
     dex
     dex
     bne .clear_item_times
-
-    ; temporary extra stuff:
-    lda #$F32F
-;    lda #$F12F  ; (except Space Jump)
-;    lda #$E32F  ; (except Bombs)
-;    lda #$332F  ; (except Grapple and XRay)
-    sta $09A2   ; all items equipped
-    sta $09A4   ; all items collected
-    lda #$100b
-    sta $09a6  ; all beams equipped except spazer
-    lda #$100f
-    sta $09a8   ; all beams collected
-    lda #$05DB
-    sta $09C2  ; health
-    sta $09C4  ; max health
-
-    lda #400    ; full reserves
-    sta $09D4  
-    sta $09D6
-
-    lda #$00E6
-    sta $09C6   ; missiles
-    sta $09C8   ; max missiles
-    lda #$0032
-    sta $09CA   ; supers
-    sta $09CC   ; max supers    
-    sta $09CE   ; power bombs
-    sta $09D0   ; max power bombs
-
-;    lda #$0101     ; set G4 bosses defeated
-;    sta $7ED829
-;    sta $7ED82B
 
     ; If there are no existing save files, then perform global initialization:
     lda $0954
@@ -130,15 +171,11 @@ start_game:
 
 .skip_init:
 
-    ; Unlock Tourian statues room (to avoid camera glitching when entering from bottom, and also to ensure game is
-    ; beatable since we don't take it into account as an obstacle in the item randomization logic)
-    lda #$0004
-;    lda #$0044   ; set escape flag
-    sta $7ED821
-
     lda #$0006  ; Start in game state 6 (Loading game data) instead of 0 (Intro) or 5 (File select map)
     sta !GameStartState
-    rts
+.end
+    lda !GameStartState
+    rtl
 
 ;;; zero flag set if we're starting a new game
 check_new_game:
@@ -171,20 +208,21 @@ gameplay_start:
 .skip:
 
     jsl check_new_game  : bne .end
-
+    
     ; Keep track of the vanilla area for the starting room
     lda $079f
     pha
 
-    stz $079f  ; use save slot for area 0, regardless of what the starting area is
+    lda !initial_area
+    sta $079f
     lda !current_save_slot
     jsl $818000  ; save new game
 
     ; Restore the vanilla area for the starting room
     pla
     sta $079f
+
 .end:
     rtl
-
 
 warnpc $a1f400

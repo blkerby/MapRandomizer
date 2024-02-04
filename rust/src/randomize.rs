@@ -150,6 +150,7 @@ pub struct DifficultyConfig {
     pub progression_rate: ProgressionRate,
     pub random_tank: bool,
     pub spazer_before_plasma: bool,
+    pub starting_items: Vec<(Item, usize)>,
     pub item_placement_style: ItemPlacementStyle,
     pub item_priorities: Vec<ItemPriorityGroup>,
     pub semi_filler_items: Vec<Item>,
@@ -282,6 +283,7 @@ pub struct Randomization {
     pub locked_doors: Vec<LockedDoor>,
     pub item_placement: Vec<Item>,
     pub start_location: StartLocation,
+    pub starting_items: Vec<(Item, usize)>,  // (item type, count), only for non-zero counts
     pub spoiler_log: SpoilerLog,
     pub seed: usize,
     pub display_seed: usize,
@@ -2471,15 +2473,20 @@ impl<'r> Randomizer<'r> {
 
         let mut initial_items_remaining: Vec<usize> = vec![1; game_data.item_isv.keys.len()];
         initial_items_remaining[Item::Nothing as usize] = 0;
+        initial_items_remaining[Item::WallJump as usize] = if difficulty_tiers[0].wall_jump == WallJump::Collectible {
+            1
+        } else { 
+            0
+        };
         initial_items_remaining[Item::WallJump as usize] = 0;
-        initial_items_remaining[Item::Missile as usize] = 46;
         initial_items_remaining[Item::Super as usize] = 10;
         initial_items_remaining[Item::PowerBomb as usize] = 10;
         initial_items_remaining[Item::ETank as usize] = 14;
         initial_items_remaining[Item::ReserveTank as usize] = 4;
-        if difficulty_tiers[0].wall_jump == WallJump::Collectible {
-            initial_items_remaining[Item::Missile as usize] -= 1;
-            initial_items_remaining[Item::WallJump as usize] = 1;
+        initial_items_remaining[Item::Missile as usize] = game_data.item_locations.len() - initial_items_remaining.iter().sum::<usize>();
+        
+        for &(item, cnt) in &difficulty_tiers[0].starting_items {
+            initial_items_remaining[item as usize] -= usize::min(cnt, initial_items_remaining[item as usize]);
         }
 
         assert!(initial_items_remaining.iter().sum::<usize>() <= game_data.item_locations.len());
@@ -3411,6 +3418,7 @@ impl<'r> Randomizer<'r> {
             display_seed,
             // start_location: loc.clone(),
             start_location: state.start_location.clone(),
+            starting_items: self.difficulty_tiers[0].starting_items.clone(),
         })
     }
 
@@ -3598,7 +3606,7 @@ impl<'r> Randomizer<'r> {
     fn get_initial_global_state(&self) -> GlobalState {
         let items = vec![false; self.game_data.item_isv.keys.len()];
         let weapon_mask = self.game_data.get_weapon_mask(&items);
-        GlobalState {
+        let mut global = GlobalState {
             tech: get_tech_vec(&self.game_data, &self.difficulty_tiers[0]),
             notable_strats: get_strat_vec(&self.game_data, &self.difficulty_tiers[0]),
             items: items,
@@ -3611,7 +3619,13 @@ impl<'r> Randomizer<'r> {
             weapon_mask: weapon_mask,
             shine_charge_tiles: self.difficulty_tiers[0].shine_charge_tiles,
             heated_shine_charge_tiles: self.difficulty_tiers[0].heated_shine_charge_tiles,
+        };
+        for &(item, cnt) in &self.difficulty_tiers[0].starting_items {
+            for _ in 0..cnt {
+                global.collect(item, self.game_data);
+            }
         }
+        global
     }
 
     pub fn dummy_randomize(&self, seed: usize, display_seed: usize) -> Result<Randomization> {
@@ -3644,6 +3658,30 @@ impl<'r> Randomizer<'r> {
             })
             .collect();
 
+        let starting_items: Vec<(Item, usize)> = vec![
+            (Item::ETank, 14),
+            (Item::Missile, 46),
+            (Item::Super, 10),
+            (Item::PowerBomb, 10),
+            (Item::Bombs, 1),
+            (Item::Charge, 1),
+            (Item::Ice, 1),
+            (Item::HiJump, 1),
+            (Item::SpeedBooster, 1),
+            (Item::Wave, 1),
+            (Item::Spazer, 1),
+            (Item::SpringBall, 1),
+            (Item::Varia, 1),
+            (Item::Gravity, 1),
+            (Item::XRayScope, 1),
+            (Item::Plasma, 1),
+            (Item::Grapple, 1),
+            (Item::SpaceJump, 1),
+            (Item::ScrewAttack, 1),
+            (Item::Morph, 1),
+            (Item::ReserveTank, 4),
+        ];
+
         let spoiler_log = SpoilerLog {
             summary: vec![],
             escape: spoiler_escape,
@@ -3660,6 +3698,7 @@ impl<'r> Randomizer<'r> {
             seed,
             display_seed,
             start_location: StartLocation::default(),
+            starting_items
         })
     }
 
