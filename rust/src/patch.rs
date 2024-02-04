@@ -199,7 +199,7 @@ pub struct Patcher<'a> {
     pub other_door_ptr_pair_map: HashMap<DoorPtrPair, DoorPtrPair>,
     pub extra_setup_asm: HashMap<RoomPtr, Vec<u8>>,
     pub locked_door_state_indices: Vec<usize>,
-    pub starting_item_bitmask: [u8; 0x40],
+    pub nothing_item_bitmask: [u8; 0x40],
 }
 
 pub fn xy_to_map_offset(x: isize, y: isize) -> isize {
@@ -560,7 +560,7 @@ impl<'a> Patcher<'a> {
             self.rom.write_u16(item_plm_ptr, new_plm_type)?;
             if item == Item::Nothing {
                 let idx = self.rom.read_u16(item_plm_ptr + 4).unwrap() as usize;
-                self.starting_item_bitmask[idx>>3] |= 1 << (idx & 7);
+                self.nothing_item_bitmask[idx>>3] |= 1 << (idx & 7);
             }
         }
         Ok(())
@@ -1814,7 +1814,7 @@ impl<'a> Patcher<'a> {
         self.rom.write_u16(initial_max_supers, starting_supers)?;
         self.rom.write_u16(initial_power_bombs, starting_powerbombs)?;
         self.rom.write_u16(initial_max_power_bombs, starting_powerbombs)?;
-        self.rom.write_n(initial_item_bits, &self.starting_item_bitmask)?;
+        self.rom.write_n(initial_item_bits, &self.nothing_item_bitmask)?;
 
         Ok(())        
     }
@@ -2225,7 +2225,7 @@ pub fn make_rom(
         other_door_ptr_pair_map: get_other_door_ptr_pair_map(&randomization.map),
         extra_setup_asm: HashMap::new(),
         locked_door_state_indices: vec![],
-        starting_item_bitmask: [0; 0x40],
+        nothing_item_bitmask: [0; 0x40],
         // door_room_map: get_door_room_map(&self.game_data.)
     };
     patcher.apply_ips_patches()?;
