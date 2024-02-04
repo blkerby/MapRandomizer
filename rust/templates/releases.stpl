@@ -14,6 +14,11 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
+<p><a id="release108">Version 108 (2024-02-04)</a>:
+<ul>
+<li>New option "Starting items" under "Item progression" > "Customize".
+</ul>
+
 <p><a id="release107">Version 107 (2024-02-03)</a>:
 <ul>
 <li>A new tile theme option "Wrecked Ship" is available.
