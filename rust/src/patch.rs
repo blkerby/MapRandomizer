@@ -20,6 +20,7 @@ use ndarray::Array3;
 use rand::{Rng, SeedableRng};
 use log::info;
 use std::iter;
+use strum::VariantNames;
 
 use self::map_tiles::write_tile_4bpp;
 
@@ -1556,7 +1557,7 @@ impl<'a> Patcher<'a> {
         idx: usize,
         step: Option<usize>,
         item: &str,
-        item_idx: usize,
+        item_idx: Option<usize>,
         area: &str,
     ) -> Result<()> {
         let base_addr = snes2pc(0xceb240 + (164 - 128 + idx * 2) * 0x40);
@@ -1591,15 +1592,17 @@ impl<'a> Patcher<'a> {
             }
         }
 
-        // Write stats address for collection time
-        let stats_table_addr = snes2pc(0xdfdf80);
-        let item_time_addr = 0xfe06;
-        self.rom.write_u16(
-            stats_table_addr + idx * 8,
-            (item_time_addr + 4 * item_idx) as isize,
-        )?;
-        // Write stats type (2 = Time):
-        self.rom.write_u16(stats_table_addr + idx * 8 + 6, 2)?;
+        if let Some(item_idx) = item_idx {
+            // Write stats address for collection time
+            let stats_table_addr = snes2pc(0xdfdf80);
+            let item_time_addr = 0xfe06;
+            self.rom.write_u16(
+                stats_table_addr + idx * 8,
+                (item_time_addr + 4 * item_idx) as isize,
+            )?;
+            // Write stats type (2 = Time):
+            self.rom.write_u16(stats_table_addr + idx * 8 + 6, 2)?;
+        }
         Ok(())
     }
 
@@ -1636,6 +1639,7 @@ impl<'a> Patcher<'a> {
             self.randomization.difficulty.quality_of_life_preset.clone(),
         )?;
 
+        // Write item locations in credits tilemap
         let item_name_pairs: Vec<(String, String)> = [
             ("ETank", "Energy Tank"),
             ("Missile", "Missile"),
@@ -1670,9 +1674,23 @@ impl<'a> Patcher<'a> {
             .enumerate()
             .map(|(i, x)| (x.0.clone(), i))
             .collect();
-
-        // Write item locations in credits tilemap
         let mut items_set: HashSet<String> = HashSet::new();
+
+        // Show starting items at the top:
+        for &(item, _cnt) in &self.randomization.starting_items {
+            let raw_name = Item::VARIANTS[item as usize].to_string();
+            let item_name = item_display_name_map[&raw_name].clone();
+            self.write_item_credits(
+                items_set.len(),
+                None,
+                &item_name,
+                None,
+                "starting item",
+            )?;
+            items_set.insert(raw_name.clone());
+        }
+
+        // Show collectible items in the middle:
         for (step, step_summary) in self.randomization.spoiler_log.summary.iter().enumerate() {
             for item_info in step_summary.items.iter() {
                 if !items_set.contains(&item_info.item) {
@@ -1682,7 +1700,7 @@ impl<'a> Patcher<'a> {
                         items_set.len(),
                         Some(step + 1),
                         &item_name,
-                        item_idx,
+                        Some(item_idx),
                         &item_info.location.area,
                     )?;
                     items_set.insert(item_info.item.clone());
@@ -1697,12 +1715,11 @@ impl<'a> Patcher<'a> {
                 continue;
             }
             if !items_set.contains(name) {
-                let item_idx = item_name_index[name];
                 self.write_item_credits(
                     items_set.len(),
                     None,
                     &display_name,
-                    item_idx,
+                    None,
                     "not placed",
                 )?;
                 items_set.insert(name.clone());
@@ -1711,14 +1728,12 @@ impl<'a> Patcher<'a> {
         Ok(())
     }
 
-    fn set_start_location(&mut self) -> Result<()> {
-        let initial_area_addr = snes2pc(0xB5FE00);
-        let initial_load_station_addr = snes2pc(0xB5FE02);
+    fn set_starting_items(&mut self) -> Result<()> {
+        // Addresses used in new_game.asm:
         let initial_items_collected = snes2pc(0xB5FE04);
         let initial_items_equipped = snes2pc(0xB5FE06);
         let initial_beams_collected = snes2pc(0xB5FE08);
         let initial_beams_equipped = snes2pc(0xB5FE0A);
-        let initial_boss_bits = snes2pc(0xB5FE0C);
         let initial_item_bits = snes2pc(0xB5FE12);
         let initial_energy = snes2pc(0xB5FE52);
         let initial_max_energy = snes2pc(0xB5FE54);
@@ -1731,40 +1746,6 @@ impl<'a> Patcher<'a> {
         let initial_max_supers = snes2pc(0xB5FE62);
         let initial_power_bombs = snes2pc(0xB5FE64);
         let initial_max_power_bombs = snes2pc(0xB5FE66);
-                
-        if self.randomization.difficulty.start_location_mode == StartLocationMode::Escape {
-            // Use Tourian load station 2, set up in escape_autosave.asm
-            self.rom.write_u16(initial_area_addr, 5)?;
-            self.rom.write_u16(initial_load_station_addr, 2)?;
-
-            // Set all non-beam items collected/equipped:
-            self.rom.write_u16(initial_items_collected, 0xF32F)?;
-            self.rom.write_u16(initial_items_equipped, 0xF32F)?;
-            self.rom.write_u16(initial_beams_collected, 0x100F)?;
-            self.rom.write_u16(initial_beams_equipped, 0)?;
-            self.rom.write_u16(initial_energy, 1499)?;
-            self.rom.write_u16(initial_max_energy, 1499)?;
-            self.rom.write_u16(initial_reserve_energy, 400)?;
-            self.rom.write_u16(initial_max_reserve_energy, 400)?;
-            self.rom.write_u16(initial_reserve_mode, 1)?;  // 1 = AUTO
-            self.rom.write_u16(initial_missiles, 0)?;
-            self.rom.write_u16(initial_max_missiles, 230)?;
-            self.rom.write_u16(initial_supers, 0)?;
-            self.rom.write_u16(initial_max_supers, 50)?;
-            self.rom.write_u16(initial_power_bombs, 0)?;
-            self.rom.write_u16(initial_max_power_bombs, 50)?;
-            self.rom.write_n(initial_item_bits, &[0xFF; 0x40])?;
-
-            // Set all bosses defeated:
-            self.rom.write_n(initial_boss_bits, &[7, 7, 7, 7, 7, 7])?;
-
-            return Ok(());
-        }
-
-        // Use Crateria load station 2, used for random start
-        self.rom.write_u16(initial_area_addr, 0)?;
-        self.rom.write_u16(initial_load_station_addr, 2)?;
-
 
         let mut item_mask = 0;
         let mut beam_mask = 0;
@@ -1793,7 +1774,7 @@ impl<'a> Patcher<'a> {
             (Item::Plasma, 0x0008),
             (Item::Charge, 0x1000),
         ].into_iter().collect();    
-        for &(item, cnt) in &self.randomization.difficulty.starting_items {
+        for &(item, cnt) in &self.randomization.starting_items {
             if item_bitmask_map.contains_key(&item) {
                 item_mask |= item_bitmask_map[&item];
             } else if beam_bitmask_map.contains_key(&item) {
@@ -1817,7 +1798,7 @@ impl<'a> Patcher<'a> {
             beam_mask
         };
 
-        // Set no items collected/equipped:
+        // Set items collected/equipped:
         self.rom.write_u16(initial_items_collected, item_mask as isize)?;
         self.rom.write_u16(initial_items_equipped, item_mask as isize)?;
         self.rom.write_u16(initial_beams_collected, beam_mask as isize)?;
@@ -1835,31 +1816,44 @@ impl<'a> Patcher<'a> {
         self.rom.write_u16(initial_max_power_bombs, starting_powerbombs)?;
         self.rom.write_n(initial_item_bits, &self.starting_item_bitmask)?;
 
+        Ok(())        
+    }
+
+    fn set_start_location(&mut self) -> Result<()> {
+        let initial_area_addr = snes2pc(0xB5FE00);
+        let initial_load_station_addr = snes2pc(0xB5FE02);
+        let initial_boss_bits = snes2pc(0xB5FE0C);
+                
+        if self.randomization.difficulty.start_location_mode == StartLocationMode::Escape {
+            // Use Tourian load station 2, set up in escape_autosave.asm
+            self.rom.write_u16(initial_area_addr, 5)?;
+            self.rom.write_u16(initial_load_station_addr, 2)?;
+
+            // Set all bosses defeated:
+            self.rom.write_n(initial_boss_bits, &[7, 7, 7, 7, 7, 7])?;
+
+            return Ok(());
+        }
+
+        // Use Crateria load station 2, to support random start (also used for Ship start)
+        self.rom.write_u16(initial_area_addr, 0)?;
+        self.rom.write_u16(initial_load_station_addr, 2)?;
+
         // Set no bosses defeated:
         self.rom.write_n(initial_boss_bits, &[0; 6])?;
 
-        // let start_locations: Vec<StartLocation> =
-        //     serde_json::from_str(&std::fs::read_to_string(&"data/start_locations.json").unwrap()).unwrap();
-        // let loc = start_locations.last().unwrap();
+        // Set starting room and Samus and camera starting location:
         let loc = self.randomization.start_location.clone();
         let room_addr = self.game_data.room_ptr_by_id[&loc.room_id];
         let door_node_id = loc.door_load_node_id.unwrap_or(loc.node_id);
         let (_, entrance_ptr) =
             self.game_data.reverse_door_ptr_pair_map[&(loc.room_id, door_node_id)];
-        // let room_width_screens = self.rom.read_u8(room_addr + 4)?;
-        // let room_height_screens = self.rom.read_u8(room_addr + 5)?;
-        // let room_width_pixels = room_width_screens * 256;
-        // let room_height_pixels = room_height_screens * 256;
         let x_pixels = (loc.x * 16.0) as isize;
         let y_pixels = (loc.y * 16.0) as isize - 24;
         let mut screen_x = x_pixels & 0xFF00;
         let mut screen_y = y_pixels & 0xFF00;
         screen_x += (loc.camera_offset_x.unwrap_or(0.0) * 16.0) as isize;
         screen_y += (loc.camera_offset_y.unwrap_or(0.0) * 16.0) as isize;
-        // screen_x = max(screen_x, 0);
-        // screen_x = min(screen_x, room_width_pixels - 0x100);
-        // screen_y = max(screen_y, 0);
-        // screen_y = min(screen_y, room_height_pixels - 0x100);
         let samus_x = x_pixels - (screen_x + 0x80);
         let samus_y = y_pixels - screen_y;
         let station_addr = snes2pc(0x80C4E1);
@@ -2237,6 +2231,7 @@ pub fn make_rom(
     patcher.apply_ips_patches()?;
     patcher.place_items()?;
     patcher.set_start_location()?;
+    patcher.set_starting_items()?;
     patcher.fix_save_stations()?;
     patcher.write_map_tilemaps()?;
     patcher.write_map_areas()?;
