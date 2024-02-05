@@ -55,6 +55,9 @@ for old_project_name, new_project_name in project_mapping:
     os.mkdir(new_project_path + "Export/Tileset")
     os.symlink("..\\..\\..\\Base\\Export\\Tileset\\CRE", new_project_path + "Export/Tileset/CRE", True)
     os.mkdir(new_project_path + "Export/Tileset/SCE")
+    shutil.rmtree(new_project_path + "Export/Rooms")
+    os.symlink("..\\..\\Base\\Export\\Rooms", new_project_path + "Export/Rooms", True)
+
     for old_tileset_str, new_tileset_str in tileset_mapping:
         os.mkdir(new_project_path + "Export/Tileset/SCE/" + new_tileset_str);
         base_tileset_path = "..\\..\\..\\..\\..\\Base\\Export\\Tileset\\SCE\\" + new_tileset_str + "\\"
