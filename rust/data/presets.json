@@ -20,7 +20,7 @@
       "canUseEnemies"
     ],
     "notable_strats": [
-      "Shaktool Room Reverse"      
+      "Shaktool Room Reverse"
     ]
   },
   {
@@ -203,18 +203,18 @@
       "Gauntlet Entrance Shinecharge Under Yapping Maw",
       
       "East Ocean Space Jump Water Escape with Ice (Left to Right)",
-      "East Ocean Space Jump Water Escape with Ice and XRay Standup", 
+      "East Ocean Space Jump Water Escape with Ice and XRay Standup",
       "East Ocean Suitless Damage Boost Water Escape",
       "East Ocean Suitless Damage Boost Underwater Pillar",
-      "East Ocean Floor Shinespark Left", 
+      "East Ocean Floor Shinespark Left",
 
       "West Ocean Bug Boost with Ice",
       "West Ocean Bug Boost with Wave or Spazer",
       "West Ocean Bug Ice Clip",
-      "West Ocean Floor Shinecharge, Fast Spacejump Wallclimb to Gravity Door", 
+      "West Ocean Floor Shinecharge, Fast Spacejump Wallclimb to Gravity Door",
 
       "Brinstar Reserve Hole-in-One",
-      "Etecoon E-Tank Beetom Clip", 
+      "Etecoon E-Tank Beetom Clip",
       "Etecoon Beetom Tricky Dodge",
 
       "Big Pink Crystal Flash Standup - Super Block",
@@ -235,7 +235,7 @@
       "Bubble Mountain Right Side Delayed Walljumps",
       "Bubble Mountain Tricky Spring Ball Jump with Grapple",
       "Cathedral Entrance Left Door Frozen Sova Step",
-      "Double Chamber Shinespark through Wave Beam Door",      
+      "Double Chamber Shinespark through Wave Beam Door",
       "Frog Speedway Shot Block Overload (Speedless Speedway)",
       "Spiky Acid Snake Frozen Platforms",
 
@@ -269,8 +269,8 @@
 
       "Fish Tank Entry Fall onto Frozen Fish",
       "Fish Tank Entry Reset Fall Speed",
-      "Fish Tank Wall Jump Entry", 
-      "Fish Tank Top Left Direct Jump", 
+      "Fish Tank Wall Jump Entry",
+      "Fish Tank Top Left Direct Jump",
       "Glass Tunnel Maridia Tube Clip",
       "Mt. Everest Bottom Right Charged Drop",
       "Mt. Everest Shinespark Down-Grab to the Grapple Blocks (Left to Top)",
@@ -329,7 +329,7 @@
       "canDoubleBombJump",
       "canShinechargeMovementTricky",
       "canStutterWaterShineCharge",
-      "canSlowShortCharge",      
+      "canSlowShortCharge",
       "canDoubleSpringBallJumpMidAir",
       "canStationaryLateralMidAirMorph",
       "canRJump",
@@ -360,9 +360,9 @@
       "Gauntlet Entrance Blue SpaceJump",
       
       "West Ocean Bug Boost",
-      "West Ocean Shinespark, Morph Tunnel Rush", 
-      "West Ocean Floor Shinecharge, Fast Wallclimb to Gravity Door", 
-      "East Ocean Shinespark Water Escape", 
+      "West Ocean Shinespark, Morph Tunnel Rush",
+      "West Ocean Floor Shinecharge, Fast Wallclimb to Gravity Door",
+      "East Ocean Shinespark Water Escape",
 
       "Brinstar Reserve Temporary Blue",
       "Green Hill Zone X-Ray Wiggle",
@@ -383,7 +383,7 @@
       "Red Tower IBJ Between the Bottom Rippers",
       "Red Tower Midair HBJ",
 
-      "Warehouse Kihunter Room Bottom Leave Shinecharged",      
+      "Warehouse Kihunter Room Bottom Leave Shinecharged",
       "Warehouse Kihunter Speedball",
 
       "Cathedral Entrance Sova Morph Only Boost",
@@ -409,7 +409,7 @@
 
       "LN Fireflea Room Morph Over the Fune",
       "Kihunter Shaft Manipulation from Save Room",
-      "Writg New Low Ice Pirate Freeze", 
+      "Writg New Low Ice Pirate Freeze",
       "Writg Low Ice Pirate Freeze",
       "WRITG with PowerBombs and a Jump Assist",
       "Wasteland Avoid Dessgeegas by Rolling",
@@ -423,7 +423,6 @@
       "Mama Turtle Wall Jump Bomb Boost",
 
       "Colosseum Spike Platforming with Move Assist (Left to Right)",
-      "Colosseum Spike Platforming with SpringBall (Left to Right)",
       "Draygon Turret Grapple Jump",
       "West Sand Hole Suitless Wall Jump Break Free",
       "West Sand Hole Bootless Suitless IBJ",
@@ -524,7 +523,7 @@
       "Mickey Mouse Viola Ice Clip",
       "Mickey Mouse Temporary Blue Crumble Jump without SpringBall",
       "Dodge the 3 Musketeers Going Up",
-      "Writg HiJump and Only Screw", 
+      "Writg HiJump and Only Screw",
       "Writg Power Bomb Diagonal Bomb Jump",
       "Writg X-Ray Climb",
       "Wasteland HiJumpless Statue Clip Damage Boost",
@@ -539,6 +538,7 @@
       "Aqueduct Left-Side X-Ray Climb (Upper)",
       "Aqueduct G-Mode Overload PLMs - PB the Items",
       "Cacatac Alley Springball Spike Boost",
+      "Colosseum Spike Platforming with SpringBall (Left to Right)",
       "Colosseum Grapple Clip Door Lock Skip",
       "Crab Shaft Sciser Ice Clip Door Lock Skip",
       "East Sand Hole Sandfall Bounce to Power Bombs",
@@ -593,14 +593,14 @@
       "Crateria Supers G-Mode Up with PBs",
       "Crateria Supers In-Room X-Mode BlueSuit",
       "Climb Supers In-Room SpeedKeep for Temporary Blue",
-      "East Ocean Speedy Springball Bounce to the Door", 
-      "Gauntlet E-Tank R-Mode Blue Suit",   
+      "East Ocean Speedy Springball Bounce to the Door",
+      "Gauntlet E-Tank R-Mode Blue Suit",
       "Green Pirate Shaft Beetom Xray Climb",
       "Green Pirate Shaft Beetom Moondance",
       "Green Pirate Shaft Beetom Stuck Moonfall",
       "G-Mode Setup - Parlor Downward G-Mode Setup with Ice",
       "Parlor Ice Moonfall Door Lock Skip Without Supers",
-      "West Ocean - Enemy Stuck Moonfall Super Block Clip",            
+      "West Ocean - Enemy Stuck Moonfall Super Block Clip",
 
       "Taco Tank in Blue Brinstar Energy Tank Room",
       "Blue Brinstar Energy Tank Room - Geemer Ice Stuck XRay Climb",
