@@ -335,7 +335,7 @@ fn apply_ridley_requirement(
     // Assume a firing rate of between 30% (on lowest difficulty) to 100% (on highest):
     let firing_rate = 0.3 + 0.7 * proficiency;
 
-    let charge_time = 1.5;  // minimum of 1.5 seconds between charge shots
+    let charge_time = 1.4;  // minimum of 1.4 seconds between charge shots
 
     // Prioritize using supers:
     let supers_available = global.max_supers - local.supers_used;
