@@ -17,7 +17,7 @@ document.getElementById("navigation-releases").classList.add("active");
 <p><a id="release108">Version 108 (2024-02-06)</a>:
 <ul>
 <li>New option "Starting items" under "Item progression" > "Customize".
-<li>Ridley logic is adjusted and made more lenient (except on Insane).
+<li>Ridley logic is adjusted and is now generally more lenient (except on Insane).
 </ul>
 
 <p><a id="release107">Version 107 (2024-02-03)</a>:
