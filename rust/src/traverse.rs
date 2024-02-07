@@ -335,7 +335,7 @@ fn apply_ridley_requirement(
     // Assume a firing rate of between 30% (on lowest difficulty) to 100% (on highest):
     let firing_rate = 0.3 + 0.7 * proficiency;
 
-    let charge_time = 1.2;  // minimum of 1.2 seconds between charge shots
+    let charge_time = 1.5;  // minimum of 1.5 seconds between charge shots
 
     // Prioritize using supers:
     let supers_available = global.max_supers - local.supers_used;
@@ -369,7 +369,7 @@ fn apply_ridley_requirement(
     );
     local.missiles_used += missiles_to_use;
     boss_hp -= missiles_to_use as f32 * 100.0 * accuracy;
-    time += missiles_to_use as f32 * 0.35 / firing_rate; // Assume max average rate of 1 missile per 0.35 seconds
+    time += missiles_to_use as f32 * 0.34 / firing_rate; // Assume max average rate of 1 missile per 0.34 seconds
 
     if global.items[Item::Charge as usize] {
         // Then finish with Charge shots:
