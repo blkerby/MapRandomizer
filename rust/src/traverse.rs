@@ -329,11 +329,11 @@ fn apply_ridley_requirement(
     let mut time: f32 = 0.0; // Cumulative time in seconds for the fight
     let charge_damage = get_charge_damage(&global);
 
-    // Assume an ammo accuracy rate of between 50% (on lowest difficulty) to 100% (on highest):
-    let accuracy = 0.5 + 0.5 * proficiency;
+    // Assume an ammo accuracy rate of between 60% (on lowest difficulty) to 100% (on highest):
+    let accuracy = 0.6 + 0.4 * proficiency;
 
-    // Assume a firing rate of between 50% (on lowest difficulty) to 100% (on highest):
-    let firing_rate = 0.5 + 0.5 * proficiency;
+    // Assume a firing rate of between 30% (on lowest difficulty) to 100% (on highest):
+    let firing_rate = 0.3 + 0.7 * proficiency;
 
     // Prioritize using supers:
     let supers_available = global.max_supers - local.supers_used;
@@ -408,17 +408,17 @@ fn apply_ridley_requirement(
     let screw = global.items[Item::ScrewAttack as usize];
 
     // Assumed rate of Ridley damage to Samus (per second), given minimal dodging skill:
-    let base_ridley_attack_dps = 40.0;
+    let base_ridley_attack_dps = 50.0;
 
     // Multiplier to Ridley damage based on items (Morph and Screw) and proficiency (in dodging).
     // This is a rough guess which could be refined. We could also take into account other items
-    // (HiJump and SpaceJump). We assume that at Expert level (proficiency=1.0) it is possible
+    // (HiJump and SpaceJump). We assume that at Insane level (proficiency=1.0) it is possible
     // to avoid all damage from Ridley using either Morph or Screw.
     let hit_rate = match (morph, screw) {
         (false, false) => 1.0 - 0.8 * proficiency,
-        (false, true) => 0.5 - 0.5 * proficiency,
+        (false, true) => 1.0 - 1.0 * proficiency,
         (true, false) => 0.5 - 0.5 * proficiency,
-        (true, true) => 0.3 - 0.3 * proficiency,
+        (true, true) => 0.5 - 0.5 * proficiency,
     };
     let damage = base_ridley_attack_dps * hit_rate * time;
     local.energy_used += (damage / suit_damage_factor(global) as f32) as Capacity;

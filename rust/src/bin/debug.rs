@@ -28,6 +28,7 @@ use std::path::Path;
 fn run_scenario(
     proficiency: f32,
     missile_cnt: i32,
+    super_cnt: i32,
     item_loadout: &[&'static str],
     patience: bool,
     game_data: &GameData,
@@ -56,6 +57,12 @@ fn run_scenario(
             "P" => {
                 items[Item::Plasma as usize] = true;
             }
+            "M" => {
+                items[Item::Morph as usize] = true;
+            }
+            "R" => {
+                items[Item::ScrewAttack as usize] = true;
+            }
             _ => panic!("unrecognized beam {}", item),
         }
     }
@@ -69,7 +76,7 @@ fn run_scenario(
         max_energy: 1899,
         max_missiles: missile_cnt,
         max_reserves: 0,
-        max_supers: 0,
+        max_supers: super_cnt,
         max_power_bombs: 0,
         shine_charge_tiles: 16.0,
         heated_shine_charge_tiles: 16.0,
@@ -105,10 +112,10 @@ fn run_scenario(
         escape_timer_multiplier: 1.0,
         gate_glitch_leniency: 0,
         door_stuck_leniency: 0,
-        phantoon_proficiency: 0.0,
+        phantoon_proficiency: proficiency,
         draygon_proficiency: proficiency,
-        ridley_proficiency: 0.0,
-        botwoon_proficiency: 1.0,
+        ridley_proficiency: proficiency,
+        botwoon_proficiency: proficiency,
         supers_double: true,
         mother_brain_fight: MotherBrainFight::Short,
         escape_enemies_cleared: true,
@@ -151,15 +158,26 @@ fn run_scenario(
     //     apply_requirement(&Requirement::PhantoonFight {  }, &global_state, local_state, false, &difficulty, &game_data)
     // );
 
+    // let new_local_state_opt = apply_requirement(
+    //     &Requirement::DraygonFight {
+    //         can_be_very_patient_tech_id: game_data.tech_isv.index_by_key["canBeVeryPatient"],
+    //     },
+    //     &global_state,
+    //     local_state,
+    //     false,
+    //     &difficulty,
+    //     game_data,
+    // );
+
     let new_local_state_opt = apply_requirement(
-        &Requirement::DraygonFight {
-            can_be_very_patient_tech_id: game_data.tech_isv.index_by_key["canBeVeryPatient"],
-        },
-        &global_state,
-        local_state,
-        false,
-        &difficulty,
-        game_data,
+            &Requirement::RidleyFight {
+                can_be_very_patient_tech_id: game_data.tech_isv.index_by_key["canBeVeryPatient"]
+            },
+            &global_state,
+            local_state,
+            false,
+            &difficulty,
+            game_data
     );
 
     let outcome = new_local_state_opt.map(|x| format!("{}", x.energy_used)).unwrap_or("n/a".to_string());
@@ -168,18 +186,6 @@ fn run_scenario(
         proficiency, item_loadout, missile_cnt, patience, outcome
     );
 
-    // println!(
-    //     "{:?}",
-    //     apply_requirement(
-    //         &Requirement::RidleyFight {
-    //             can_be_patient_tech_id: game_data.tech_isv.index_by_key["canBePatient"]
-    //         },
-    //         &global_state,
-    //         local_state,
-    //         false,
-    //         &difficulty
-    //     )
-    // );
 }
 
 fn main() -> Result<()> {
@@ -203,29 +209,39 @@ fn main() -> Result<()> {
         title_screen_path,
     )?;
 
-    let proficiencies = vec![0.0, 0.3, 0.5, 0.7, 1.0];
-    let missile_counts = vec![0, 5, 30, 60, 120];
-    let super_counts = vec![0, 5, 30];
+    // let proficiencies = vec![0.0, 0.3, 0.5, 0.7, 1.0];
+    // let missile_counts = vec![0, 5, 30, 60, 120];
+    // let super_counts = vec![0, 5, 30];
+    // let item_loadouts = vec![
+    //     vec![],
+    //     vec!["C"],
+    //     vec!["C", "I"],
+    //     vec!["C", "I", "W", "S"],
+    //     vec!["C", "P"],
+    //     vec!["C", "I", "W", "P"],
+    //     vec!["G"],
+    //     vec!["G", "C"], 
+    //     vec!["G", "C", "I", "W", "P"],
+    //     vec!["V", "G"],
+    //     vec!["V", "G", "C"],
+    //     vec!["V", "G", "C", "I", "W", "P"],
+    // ];
+
+    let proficiencies = vec![0.0, 0.3, 0.5, 0.7, 0.8, 0.9, 1.0];
+    let missile_counts = vec![230];
+    let super_counts = vec![15];
     let item_loadouts = vec![
-        vec![],
-        vec!["C"],
-        vec!["C", "I"],
-        vec!["C", "I", "W", "S"],
-        vec!["C", "P"],
-        vec!["C", "I", "W", "P"],
-        vec!["G"],
-        vec!["G", "C"], 
-        vec!["G", "C", "I", "W", "P"],
-        vec!["V", "G"],
-        vec!["V", "G", "C"],
-        vec!["V", "G", "C", "I", "W", "P"],
+        vec!["M", "R", "V"],
     ];
+
 
     for &proficiency in &proficiencies {
         for &missile_cnt in &missile_counts {
-            for beam_loadout in &item_loadouts {
-                for patience in [true, false] {
-                    run_scenario(proficiency, missile_cnt, beam_loadout, patience, &game_data);
+            for &super_cnt in &super_counts {
+                for beam_loadout in &item_loadouts {
+                    for patience in [true, false] {
+                        run_scenario(proficiency, missile_cnt, super_cnt, beam_loadout, patience, &game_data);
+                    }
                 }
             }    
         }

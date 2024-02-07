@@ -320,7 +320,7 @@
     "escape_timer_multiplier": 1.1,
     "phantoon_proficiency": 1.0,
     "draygon_proficiency": 1.0,
-    "ridley_proficiency": 1.0,
+    "ridley_proficiency": 0.8,
     "botwoon_proficiency": 1.0,
     "tech": [
       "canXRayClimb",
@@ -456,7 +456,7 @@
     "escape_timer_multiplier": 1.05,
     "phantoon_proficiency": 1.0,
     "draygon_proficiency": 1.0,
-    "ridley_proficiency": 1.0,
+    "ridley_proficiency": 0.9,
     "botwoon_proficiency": 1.0,
     "tech": [
       "canBePatient",
