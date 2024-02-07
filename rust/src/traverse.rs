@@ -70,7 +70,7 @@ fn get_charge_damage(global: &GlobalState) -> f32 {
     let plasma = global.items[Item::Plasma as usize];
     let spazer = global.items[Item::Spazer as usize];
     let wave = global.items[Item::Wave as usize];
-    let ice = global.items[Item::Spazer as usize];
+    let ice = global.items[Item::Ice as usize];
     return match (plasma, spazer, wave, ice) {
         (false, false, false, false) => 20.0,
         (false, false, false, true) => 30.0,
@@ -335,6 +335,8 @@ fn apply_ridley_requirement(
     // Assume a firing rate of between 30% (on lowest difficulty) to 100% (on highest):
     let firing_rate = 0.3 + 0.7 * proficiency;
 
+    let charge_time = 1.2;  // minimum of 1.2 seconds between charge shots
+
     // Prioritize using supers:
     let supers_available = global.max_supers - local.supers_used;
     let supers_to_use = min(
@@ -353,7 +355,7 @@ fn apply_ridley_requirement(
             f32::ceil(boss_hp / (charge_damage * accuracy)) as Capacity,
         );
         boss_hp = 0.0;
-        time += powerful_charge_shots_to_use as f32 * 1.5 / firing_rate; // Assume max 1 charge shot per 1.5 seconds
+        time += powerful_charge_shots_to_use as f32 * charge_time / firing_rate;
     }
 
     // Then use available missiles:
@@ -367,7 +369,7 @@ fn apply_ridley_requirement(
     );
     local.missiles_used += missiles_to_use;
     boss_hp -= missiles_to_use as f32 * 100.0 * accuracy;
-    time += missiles_to_use as f32 * 0.3 / firing_rate; // Assume max average rate of 1 missile per 0.3 seconds
+    time += missiles_to_use as f32 * 0.35 / firing_rate; // Assume max average rate of 1 missile per 0.35 seconds
 
     if global.items[Item::Charge as usize] {
         // Then finish with Charge shots:
@@ -378,7 +380,7 @@ fn apply_ridley_requirement(
             f32::ceil(boss_hp / (charge_damage * accuracy)) as Capacity,
         );
         boss_hp = 0.0;
-        time += charge_shots_to_use as f32 * 1.5 / firing_rate; // Assume max 1 charge shot per 1.5 seconds
+        time += charge_shots_to_use as f32 * charge_time / firing_rate;
     } else if global.items[Item::Morph as usize] {
         // Only use Power Bombs if Charge is not available:
         let pbs_available = global.max_power_bombs - local.power_bombs_used;
