@@ -2478,7 +2478,6 @@ impl<'r> Randomizer<'r> {
         } else { 
             0
         };
-        initial_items_remaining[Item::WallJump as usize] = 0;
         initial_items_remaining[Item::Super as usize] = 10;
         initial_items_remaining[Item::PowerBomb as usize] = 10;
         initial_items_remaining[Item::ETank as usize] = 14;

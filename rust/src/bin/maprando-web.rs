@@ -488,6 +488,7 @@ fn render_seed(
             .difficulty
             .filler_items
             .iter()
+            .filter(|&&x| x != Item::Nothing)
             .map(|x| format!("{:?}", x))
             .collect(),
         early_filler_items: seed_data
