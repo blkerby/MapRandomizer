@@ -806,8 +806,8 @@ impl<'a> Patcher<'a> {
             ((Some(0x1A69C), Some(0x1A6CC)), 0x165, 0x19B),  // East Sand Hall
             ((None, Some(0x1A624)), 0x45, 0xBB),  // Plasma Beach Quicksand Room
             ((None, Some(0x1A8A0)), 0x65, 0x9B),  // Butterfly Room
-            ((None, Some(0x1A858)), 0x85, 0xDB),  // Botwoon Quicksand Room (left)
-            ((None, Some(0x1A864)), 0x125, 0x19B),  // Botwoon Quicksand Room (right)
+            ((None, Some(0x1A864)), 0x85, 0xDB),  // Botwoon Quicksand Room (left)
+            ((None, Some(0x1A858)), 0x125, 0x19B),  // Botwoon Quicksand Room (right)
             ((None, Some(0x1A8AC)), 0x265, 0x2BB),  // Below Botwoon Energy Tank (left)
             ((None, Some(0x1A8B8)), 0x345, 0x3BB),  // Below Botwoon Energy Tank (right)
         ];
@@ -819,7 +819,7 @@ impl<'a> Patcher<'a> {
                 // Check if Samus X position is less than min_position, and if so set it to min_position:
                 0xA9, (min_position & 0xFF) as u8, (min_position >> 8) as u8,  // LDA #min_position
                 0xCD, 0xF6, 0x0A,  // CMP $0AF6
-                0x90, 0x03,  // BCC .no_clamp_min
+                0x90, 0x06,  // BCC .no_clamp_min
                 0x8D, 0xF6, 0x0A,  // STA $0AF6
                 0x8D, 0x10, 0x0B,  // STA $0B10  ; also set samus previous X position (to prevent camera glitching)
                 // .no_clamp_min:
@@ -827,7 +827,7 @@ impl<'a> Patcher<'a> {
                 // Check if Samus X position is greater than max_position, and if so set it to max_position:
                 0xA9, (max_position & 0xFF) as u8, (max_position >> 8) as u8,  // LDA #max_position
                 0xCD, 0xF6, 0x0A,  // CMP $0AF6
-                0xB0, 0x03,  // BCS .no_clamp_max            
+                0xB0, 0x06,  // BCS .no_clamp_max            
                 0x8D, 0xF6, 0x0A,  // STA $0AF6
                 0x8D, 0x10, 0x0B,  // STA $0B10  ; also set samus previous X position (to prevent camera glitching)
                 // .no_clamp_max:
