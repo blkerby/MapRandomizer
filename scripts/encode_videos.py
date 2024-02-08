@@ -10,8 +10,8 @@ client = storage.Client(project="super-metroid-map-randomizer")
 src_bucket = client.get_bucket('super-metroid-map-rando-videos')
 dst_bucket = client.get_bucket('super-metroid-map-rando-videos-webm')
 
-# old_checksums = json.loads(dst_bucket.blob(checksums_blob_name).download_as_string())
-old_checksums = {}
+old_checksums = json.loads(dst_bucket.blob(checksums_blob_name).download_as_string())
+# old_checksums = {}
 new_checksums = {**old_checksums}
 
 for blob in src_bucket.list_blobs():
