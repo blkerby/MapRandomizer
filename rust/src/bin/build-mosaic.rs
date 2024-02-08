@@ -384,17 +384,14 @@ impl MosaicPatchBuilder {
     }
 
     fn make_all_room_patches(&mut self) -> Result<()> {
-        let projects_dir = self.mosaic_dir.join("Projects");
-        let mut project_names = vec![];
-        for project_dir in std::fs::read_dir(projects_dir)? {
-            let project_dir = project_dir?;
-            let project_name = project_dir.file_name().to_str().unwrap().to_owned();
-            if project_name == "Base" {
-                continue;
-            }
-            project_names.push(project_name);
-        }
-
+        let project_names: Vec<String> = vec![
+            "Base",
+            "OuterCrateria",
+            "InnerCrateria",
+            "GreenBrinstar",
+            "UpperNorfair",
+            "WreckedShip",
+        ].into_iter().map(|x| x.to_string()).collect();
         let base_rooms_dir = self.mosaic_dir.join("Projects/Base/Export/Rooms/");
         for room_path in std::fs::read_dir(base_rooms_dir)? {
             let room_filename = room_path?.file_name().to_str().unwrap().to_owned();
