@@ -410,8 +410,6 @@ impl<'a> Patcher<'a> {
         self.rom.data.resize(0x400000, 0);
         let patches_dir = Path::new("../patches/ips/");
         let mut patches = vec![
-            "everest_tube",
-            "sandfalls3",
             "complementary_suits",
             "disable_map_icons",
             "escape",
@@ -797,6 +795,48 @@ impl<'a> Patcher<'a> {
         Ok(())
     }
 
+    fn clamp_samus_position(&mut self, extra_door_asm: &mut HashMap<DoorPtr, Vec<u8>>) -> Result<()> {
+        let sand_entrances = vec![
+            // (door_pair, min_position_x, max_position_x)
+            ((Some(0x1A6C0), Some(0x1A6FC)), 0x65, 0x9B),  // East Sand Hole
+            ((Some(0x1A6A8), Some(0x1A6E4)), 0x165, 0x19B),  // West Sand Hole
+            ((Some(0x1A654), Some(0x1A6B4)), 0x265, 0x29B),  // West Sand Hall
+            ((Some(0x1A69C), Some(0x1A6CC)), 0x165, 0x19B),  // East Sand Hall
+            ((None, Some(0x1A624)), 0x45, 0xBB),  // Plasma Beach Quicksand Room
+            ((None, Some(0x1A8A0)), 0x65, 0x9B),  // Butterfly Room
+            ((None, Some(0x1A858)), 0x85, 0xDB),  // Botwoon Quicksand Room (left)
+            ((None, Some(0x1A864)), 0x125, 0x19B),  // Botwoon Quicksand Room (right)
+            ((None, Some(0x1A8AC)), 0x265, 0x2BB),  // Below Botwoon Energy Tank (left)
+            ((None, Some(0x1A8B8)), 0x345, 0x3BB),  // Below Botwoon Energy Tank (right)
+        ];
+        for (door_pair, min_position, max_position) in sand_entrances {
+            let other_door_pair = self.other_door_ptr_pair_map[&door_pair];
+
+            // Note: we don't bother with adjusting subpixels.
+            let asm = vec![
+                // Check if Samus X position is less than min_position, and if so set it to min_position:
+                0xA9, (min_position & 0xFF) as u8, (min_position >> 8) as u8,  // LDA #min_position
+                0xCD, 0xF6, 0x0A,  // CMP $0AF6
+                0x90, 0x03,  // BCC .no_clamp_min
+                0x8D, 0xF6, 0x0A,  // STA $0AF6
+                0x8D, 0x10, 0x0B,  // STA $0B10  ; also set samus previous X position (to prevent camera glitching)
+                // .no_clamp_min:
+    
+                // Check if Samus X position is greater than max_position, and if so set it to max_position:
+                0xA9, (max_position & 0xFF) as u8, (max_position >> 8) as u8,  // LDA #max_position
+                0xCD, 0xF6, 0x0A,  // CMP $0AF6
+                0xB0, 0x03,  // BCS .no_clamp_max            
+                0x8D, 0xF6, 0x0A,  // STA $0AF6
+                0x8D, 0x10, 0x0B,  // STA $0B10  ; also set samus previous X position (to prevent camera glitching)
+                // .no_clamp_max:
+            ];
+
+            extra_door_asm.entry(other_door_pair.0.unwrap()).or_default().extend(asm);    
+        }
+        Ok(())
+    }
+    
+
     // Returns map from door data PC address to 1) new custom door ASM pointer, 2) end of custom door ASM
     // where an RTS or JMP instruction must be added (based on the connecting door).
     fn prepare_extra_door_asm(&mut self) -> Result<HashMap<DoorPtr, (AsmPtr, AsmPtr)>> {
@@ -817,6 +857,7 @@ impl<'a> Patcher<'a> {
         self.auto_explore_elevators(&mut extra_door_asm)?;
         self.auto_reveal_arrows(&mut extra_door_asm)?;
         self.block_escape_return(&mut extra_door_asm)?;
+        self.clamp_samus_position(&mut extra_door_asm)?;
         // self.fix_tourian_blue_hopper(&mut extra_door_asm)?;
 
         let mut door_asm_free_space = 0xEE10; // in bank 0x8F

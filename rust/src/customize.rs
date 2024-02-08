@@ -286,14 +286,14 @@ pub fn customize_rom(
 
     remove_mother_brain_flashing(rom)?;
     match &settings.area_theming {
-        AreaTheming::Vanilla => {}
+        AreaTheming::Vanilla => {
+            apply_retiling(rom, orig_rom, game_data, "Base")?;
+        }
         AreaTheming::Palettes => {
             apply_area_themed_palettes(rom, game_data)?;
         }
         AreaTheming::Tiles(theme) => {
             apply_retiling(rom, orig_rom, game_data, &theme)?;
-            // // Failed attempt to put Dachora further back, e.g. so it doesn't go in front of Crateria tube:
-            // rom.write_u8(snes2pc(0xA0E5FF + 0x39), 0x06)?;
         }
     }
     apply_custom_samus_sprite(rom, settings, samus_sprite_categories)?;
