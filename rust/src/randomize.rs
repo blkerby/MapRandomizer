@@ -2482,6 +2482,7 @@ impl<'r> Randomizer<'r> {
         initial_items_remaining[Item::PowerBomb as usize] = 10;
         initial_items_remaining[Item::ETank as usize] = 14;
         initial_items_remaining[Item::ReserveTank as usize] = 4;
+        initial_items_remaining[Item::Missile as usize] = 0;
         initial_items_remaining[Item::Missile as usize] = game_data.item_locations.len() - initial_items_remaining.iter().sum::<usize>();
         
         for &(item, cnt) in &difficulty_tiers[0].starting_items {
