@@ -1,13 +1,7 @@
-v108:
-- starting items:
-  - DONE: UI
-  - DONE: patch start game
-  - DONE: logic
-  - DONE: credits
-  - spoiler map
-- reduced items?: new item progression preset & options
-
 priority:
+- reduced items?: new item progression preset & options
+- investigate possible respin bug: turnaround spin-jump doesn't work after shooting up?: 
+  - https://discord.com/channels/1053421401354285129/1073621773184159764/1205894290350407700
 - fix vanilla map music when "Random" start puts you in room with no music change (plays title screen music).
 - add more "carry shinecharge" strats.
 - handle `unlocksDoors`?

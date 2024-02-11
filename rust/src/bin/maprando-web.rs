@@ -1611,9 +1611,6 @@ fn init_presets(
     let ignored_tech: HashSet<String> = [
         "canShinesparkWithReserve",
         "canRiskPermanentLossOfAccess",
-        "canIceZebetitesSkip",
-        "canSpeedZebetitesSkip",
-        "canRemorphZebetiteSkip",
         "canEscapeMorphLocation", // Special internal tech for "vanilla map" option
     ]
     .iter()

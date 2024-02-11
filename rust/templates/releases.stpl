@@ -14,11 +14,28 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release108">Version 108 (2024-02-08)</a>:
+<p><a id="release108">Version 108 (2024-02-11)</a>:
 <ul>
 <li>New option "Starting items" under "Item progression" > "Customize".
 <li>Ridley logic is adjusted and is now generally more lenient (except on Insane).
 <li>Videos are added for many tech and notable strats.
+<li>Logic updates:
+    <ul>
+    <li>New tech "canDeepTransition" (Extreme)
+    <li>New notable strats:
+        <ul>
+        <li>Pink Brinstar Hopper X-Ray Climb (Expert)
+        <li>Mission Impossible Walljumpless (Extreme)
+        <li>Mission Impossible Shinespark (Extreme)
+        <li>Alcatraz Escape with Grapple X-Ray Ceiling Clip (Extreme)
+        <li>Alcatraz Escape with HiJump Ceiling Clip (Insane)
+        <li>Alcatraz Escape Double Damage Boost (Insane)
+        <li>Everest Crab HiJump Bomb-Grapple-Jump (Insane)
+        <li>Wrecked Ship Main Shaft Spooky Missiles Temporary Blue with Frozen Enemy Runway (Insane)
+        <li>Alcatraz Escape G-Mode Crystal Flash Then Forced Standup (Beyond)
+        </ul>
+    <li>Notable strats "Climb G-Mode Morph Insane IBJ to Top" and "Climb G-Mode Morph Blind Climb to the Top" are moved from Insane to Beyond.
+    </ul>
 </ul>
 
 <p><a id="release107">Version 107 (2024-02-03)</a>:

@@ -883,6 +883,8 @@ fn get_ignored_notable_strats() -> HashSet<String> {
         "Wrecked Ship Main Shaft Partial Covern Ice Clip", // not usable because of canRiskPermanentLossOfAccess
         "Mickey Mouse Crumble Jump IBJ",  // only useful with CF clip strat, or if we change item progression rules
         "Green Brinstar Main Shaft Moonfall Spark",  // does not seem to be viable with the vanilla door connection
+        "Mother Brain Speed Zebetite Skip",
+        "Mother Brain Ice Zebetite Skip",
     ]
     .iter()
     .map(|x| x.to_string())
@@ -2224,6 +2226,16 @@ impl GameData {
                 }
                 strat_json["notable"] = JsonValue::Boolean(false);
             }
+
+            if let Some(reusable_name) = strat_json["reusableRoomwideNotable"].as_str() {
+                if ignored_notable_strats.contains(reusable_name) {
+                    if strat_json["notable"].as_bool() == Some(true) {
+                        self.ignored_notable_strats.insert(reusable_name.to_string());
+                    }
+                    strat_json["notable"] = JsonValue::Boolean(false);
+                }
+            }
+
         }
         Ok(new_room_json)
     }

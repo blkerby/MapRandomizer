@@ -373,6 +373,7 @@
       "Big Pink Super Block Speedball",
       "Big Pink Fast Mockball Leave With Spark",
       "Big Pink Zeb Ice Clip",
+      "Pink Brinstar Hopper X-Ray Climb",
       "Dachora Room Shinespark No Etanks No HiJump",
       "Mission Impossible",
 
@@ -474,6 +475,7 @@
       "canInsaneWalljump",
       "canUnderwaterWalljump",
       "canShinesparkDeepStuck",
+      "canDeepTransition",
       "canCrazyCrabClimb",
       "canJumpIntoCrystalFlashClip",
       "canXMode",
@@ -484,6 +486,7 @@
     ],
     "notable_strats": [
       "Landing Site Crystal Flash X-Ray Climb",
+      "Alcatraz Escape with Grapple X-Ray Ceiling Clip",
       "Climb Temporary Blue Chain Through Bomb Blocks",
       "Final Missile Bombway Shinespark",
       "Golden Four Underwater Walljumps",
@@ -509,6 +512,8 @@
 
       "Big Pink Reo Ice Clip With Morph and X-Ray",
       "Big Pink Wall Ice Clip the Mission Impossible Crumble Blocks",
+      "Mission Impossible Walljumpless",
+      "Mission Impossible Shinespark",
 
       "Red Tower R-Mode Frozen Beetom X-Ray Climb",
       "Hellway Frozen Zeb Runway",
@@ -585,8 +590,6 @@
       "canUnderwaterBombIntoSpringBallJump"
     ],
     "notable_strats": [
-      "Climb G-Mode Morph Insane IBJ to Top",
-      "Climb G-Mode Morph Blind Climb to the Top",
       "Climb Morph Tunnel SpeedBall",
       "Crateria Kihunter Room Ice Moonfall Door Lock Skip",
       "Crateria Supers G-Mode Morph Long Ceiling Bomb Jump",
@@ -600,6 +603,8 @@
       "Green Pirate Shaft Beetom Stuck Moonfall",
       "G-Mode Setup - Parlor Downward G-Mode Setup with Ice",
       "Parlor Ice Moonfall Door Lock Skip Without Supers",
+      "Alcatraz Escape with HiJump Ceiling Clip",
+      "Alcatraz Escape Double Damage Boost",
       "West Ocean - Enemy Stuck Moonfall Super Block Clip",
 
       "Taco Tank in Blue Brinstar Energy Tank Room",
@@ -628,6 +633,7 @@
       "Mt. Everest Right Crab Climb with Only 1 Super",
       "Mt. Everest Cross Room Jump through Top Door",
       "Mt. Everest Top Left Shinecharge",
+      "Everest Crab HiJump Bomb-Grapple-Jump",
 
       "Aqueduct Snail Stuck Moonfall",
       "Back-Side Botwoon Super Only Fight",
@@ -648,6 +654,7 @@
       "Bowling Alley Ceiling Bomb Jump",
       "WS East Supers Robot Clip Run-In-Place",
       "Basement G-mode Morph Workrobot Ride",
+      "Wrecked Ship Main Shaft Spooky Missiles Temporary Blue with Frozen Enemy Runway",
 
       "Baby Skip With Nothing"
     ]
@@ -667,11 +674,18 @@
     "botwoon_proficiency": 1.0,
     "tech": [],
     "notable_strats": [
+      "Alcatraz Escape G-Mode Crystal Flash Then Forced Standup",
+      "Climb G-Mode Morph Insane IBJ to Top",
+      "Climb G-Mode Morph Blind Climb to the Top",
+
       "Sporespawn Moondance Clip",
       "Green Brinstar Main Shaft TAS Dance",
+
       "Big Pink Extended Moondance Clip",
+
       "Cacatac Alley HiJumpless Double SpringBall Jump and Bomb-Grapple-Jump",
+
       "Everest Double Crab Bomb-Grapple-Jump"
-    ]
+   ]
   }
 ]
