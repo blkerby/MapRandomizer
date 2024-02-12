@@ -34,7 +34,12 @@ document.getElementById("navigation-releases").classList.add("active");
         <li>Wrecked Ship Main Shaft Spooky Missiles Temporary Blue with Frozen Enemy Runway (Insane)
         <li>Alcatraz Escape G-Mode Crystal Flash Then Forced Standup (Beyond)
         </ul>
-    <li>Notable strats "Climb G-Mode Morph Insane IBJ to Top" and "Climb G-Mode Morph Blind Climb to the Top" are moved from Insane to Beyond.
+    <li>Some notable strats are moved to a different difficulty:
+        <ul>
+        <li>"Ridley without Heat Protection" is moved from Hard to Very Hard.
+        <li>"Climb G-Mode Morph Insane IBJ to Top" is moved from Insane to Beyond.
+        <li>"Climb G-Mode Morph Blind Climb to the Top" is moved from Insane to Beyond.
+        </ul>
     </ul>
 </ul>
 

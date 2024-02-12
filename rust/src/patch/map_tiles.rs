@@ -1865,29 +1865,33 @@ impl<'a> MapPatcher<'a> {
         let dir = &door.direction;
         let x = door.x as isize;
         let y = door.y as isize;
-        if dir == "right" {
-            self.patch_room(
-                &self.game_data.room_geometry[room_idx].name,
-                vec![(x + 1, y, right_arrow_tile)],
-            )?;
-        } else if dir == "left" {
-            self.patch_room(
-                &self.game_data.room_geometry[room_idx].name,
-                vec![(x - 1, y, right_arrow_tile | FLIP_X)],
-            )?;
-        } else if dir == "down" {
-            self.patch_room(
-                &self.game_data.room_geometry[room_idx].name,
-                vec![(x, y + 1, down_arrow_tile)],
-            )?;
-        } else if dir == "up" {
-            self.patch_room(
-                &self.game_data.room_geometry[room_idx].name,
-                vec![(x, y - 1, down_arrow_tile | FLIP_Y)],
-            )?;
-        } else {
-            bail!("Unrecognized door direction: {dir}");
-        }
+
+        let coords = match dir.as_str() {
+            "right" => (x + 1, y),
+            "left" => (x - 1, y),
+            "down" => (x, y + 1),
+            "up" => (x, y - 1),
+            _ => bail!("Unrecognized door direction: {dir}")
+        };
+        let tile_word = match dir.as_str() {
+            "right" => right_arrow_tile,
+            "left" => right_arrow_tile | FLIP_X,
+            "down" => down_arrow_tile,
+            "up" => down_arrow_tile | FLIP_Y,
+            _ => bail!("Unrecognized door direction: {dir}")
+        };
+
+        self.patch_room(
+            &self.game_data.room_geometry[room_idx].name,
+            vec![(coords.0, coords.1, tile_word)],
+        )?;
+
+        let room = &self.game_data.room_geometry[room_idx];
+        let room_x = self.rom.read_u8(room.rom_address + 2)? as isize;
+        let room_y = self.rom.read_u8(room.rom_address + 3)? as isize;
+        let area_idx = self.map.area[room_idx];
+        self.transition_tile_coords.push((area_idx, room_x + coords.0, room_y + coords.1));
+
         Ok(())
     }
 
