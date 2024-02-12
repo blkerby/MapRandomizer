@@ -17,10 +17,10 @@ document.getElementById("navigation-releases").classList.add("active");
 <p><a id="release108">Version 108 (2024-02-12)</a>:
 <ul>
 <li>New option "Starting items" under "Item progression" > "Customize".
-<li>Ridley logic is adjusted and is now generally more lenient (except on Insane).
 <li>Videos are added for many tech and notable strats.
 <li>Logic updates:
     <ul>
+    <li>Ridley logic is adjusted and is now generally more lenient (except on Insane).
     <li>Slow Kihunter farms are removed from logic.
     <li>Shortcharges across a door transition now have an extra tile of leniency.
     <li>New tech:
