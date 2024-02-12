@@ -873,7 +873,7 @@ impl<'a> Patcher<'a> {
             // Reserve 3 bytes for the JMP instruction to the original ASM (if applicable, or RTS otherwise):
             door_asm_free_space += asm.len() + 3;
         }
-        assert!(door_asm_free_space <= 0xF500);
+        assert!(door_asm_free_space <= 0xF600);
         Ok(extra_door_asm_map)
     }
 
