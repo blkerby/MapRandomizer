@@ -52,7 +52,6 @@
       "canSpaceJumpWaterBounce",
       "canBombHorizontally",
       "canPseudoScrew",
-      "canCeilingClip",
       "canDisableEquipment",
       "canCameraManip",
       "canAwakenZebes",
@@ -63,7 +62,6 @@
       "Green Hill Zone Wall Jump to Top Right Door",
       "Double Chamber Walljump Climb Using the Kamer",
       "Golden Torizo Horizontal Bomb Jump",
-      "Botwoon Hallway Mochtroid Ice Clip",
       "Suitless Botwoon Kill",
       "Back-Side Botwoon Fight with Charge and Wave",
       "Draygon Grapple Kill"
@@ -113,6 +111,7 @@
       "canHeroShot",
       "canXRayWaitForIFrames",
       "canXRayStandUp",
+      "canCeilingClip",
       "canXRayCeilingClip",
       "canSnailClimb",
       "canBounceBall",
@@ -143,6 +142,7 @@
 
       "Amphitheatre Reverse Acid Dive",
 
+      "Botwoon Hallway Mochtroid Ice Clip",
       "Aqueduct Snail Clip", 
 
       "Maridia Bug Room Frozen Menu Bridge",
@@ -196,8 +196,7 @@
       "canMoonfall",
       "canAutoCancelWeapon",
       "canSamusEaterStandUp",
-      "canWrapAroundShot",
-      "can10PowerBombCrystalFlash"
+      "canWrapAroundShot"
     ],
     "notable_strats": [
       "Climb Behemoth Shinespark",
@@ -352,7 +351,8 @@
       "canSandIBJ",
       "canCWJ",
       "canSandfallBounce",
-      "canEnemyExtendRunway"
+      "canEnemyExtendRunway",
+      "can10PowerBombCrystalFlash"
     ],
     "notable_strats": [
       "Landing Site Big Jump Blue Suit Bounce",
@@ -479,6 +479,7 @@
       "canUnderwaterWalljump",
       "canShinesparkDeepStuck",
       "canDeepTransition",
+      "canTrickyEnemyExtendRunway",
       "canCrazyCrabClimb",
       "canJumpIntoCrystalFlashClip",
       "canXMode",
@@ -497,6 +498,7 @@
       "West Ocean Grapple Clip Door Lock Skip",
       "West Ocean - G-Mode Setup Lure Zeb from Below",
       "West Ocean - Get Inside the Bridge",
+      "Bowling Alley Path Double Frozen Choot Runway",
 
       "East Ocean Space Jump Water Escape (Left to Right)",
       "East Ocean Shinespark Water Escape With Lower Choot Alive",
@@ -506,7 +508,6 @@
 
       "Early Supers Crouch Gate Clip Damage Boost",
       "Early Supers Leave With Spark To The Left",
-      "Early Supers Right Door Frozen Zeb Runway",
       "Green Hill Zone Tunnel Crawl",
       "Green Hills Grapple Gate Glitch",
       "Etecoon Spikeway Aim Cancel Wiggle",
@@ -610,6 +611,7 @@
       "Alcatraz Escape with HiJump Ceiling Clip",
       "Alcatraz Escape Double Damage Boost",
       "West Ocean - Enemy Stuck Moonfall Super Block Clip",
+      "Bowling Alley Path Triple Frozen Choot Runway", 
 
       "Taco Tank in Blue Brinstar Energy Tank Room",
       "Blue Brinstar Energy Tank Room - Geemer Ice Stuck XRay Climb",

@@ -22,7 +22,12 @@ document.getElementById("navigation-releases").classList.add("active");
 <li>Logic updates:
     <ul>
     <li>Slow Kihunter farms are removed from logic.
-    <li>New tech "canDeepTransition" (Extreme)
+    <li>Shortcharges across a door transition now have an extra tile of leniency.
+    <li>New tech:
+        <ul>
+        <li>"canDeepTransition" (Extreme)
+        <li>"canTrickyEnemyExtendRunway" (Extreme)
+        </ul>
     <li>New notable strats:
         <ul>
         <li>Red Fish Space Jump Spring Ball Jump (Very Hard)
@@ -30,9 +35,11 @@ document.getElementById("navigation-releases").classList.add("active");
         <li>Mission Impossible Walljumpless (Extreme)
         <li>Mission Impossible Shinespark (Extreme)
         <li>Cathedral Entrance 10 Power Bomb Crystal Flash (Extreme)
+        <li>Bowling Alley Path Double Frozen Choot Runway (Extreme)
         <li>Alcatraz Escape with Grapple X-Ray Ceiling Clip (Extreme)
         <li>Alcatraz Escape with HiJump Ceiling Clip (Insane)
         <li>Alcatraz Escape Double Damage Boost (Insane)
+        <li>Bowling Alley Path Triple Frozen Choot Runway (Insane)
         <li>Everest Crab HiJump Bomb-Grapple-Jump (Insane)
         <li>Red Fish Space Jump Escape (Insane)
         <li>Wrecked Ship Main Shaft Spooky Missiles Temporary Blue with Frozen Enemy Runway (Insane)
@@ -40,8 +47,8 @@ document.getElementById("navigation-releases").classList.add("active");
         </ul>
     <li>Some tech and notable strats are moved to a different difficulty:
         <ul>
-        <li>"canCeilingClip" and "Botwoon Hallway Mochtroid Ice Clip" are moved from Hard to Medium.
-        <li>"canXRayStandUp", "canXRayCeilingClip", "Etecoon E-Tank Beetom Clip", and "East Pants Room Puyo Clip" are moved from Very Hard to Hard.
+        <li>"canXRayStandUp" and "canXRayCeilingClip", "Etecoon E-Tank Beetom Clip", and "East Pants Room Puyo Clip" are moved from Very Hard to Hard.
+        <li>"can10PowerBombCrystalFlash" is moved from Very Hard to Expert.
         <li>"Ridley without Heat Protection" is moved from Hard to Very Hard.
         <li>"Climb G-Mode Morph Insane IBJ to Top" and "Climb G-Mode Morph Blind Climb to the Top" are moved from Insane to Beyond.
         </ul>

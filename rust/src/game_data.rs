@@ -760,8 +760,9 @@ fn parse_entrance_condition(entrance_json: &JsonValue, heated: bool) -> Result<E
         }),
         "comeInShinecharging" => {
             let runway_geometry = parse_runway_geometry(value)?;
-            // Subtract 0.25 tiles since the door transition skips over approximately that much distance beyond the door shell tile:
-            let runway_effective_length = compute_runway_effective_length(&runway_geometry) - 0.25;
+            // Subtract 0.25 tiles since the door transition skips over approximately that much distance beyond the door shell tile,
+            // Subtract another 1 tile for leniency since taps are harder to time across a door transition:
+            let runway_effective_length = (compute_runway_effective_length(&runway_geometry) - 1.25).max(0.0);
             Ok(EntranceCondition::ComeInShinecharging {
                 effective_length: runway_effective_length,
                 heated,
@@ -789,7 +790,9 @@ fn parse_entrance_condition(entrance_json: &JsonValue, heated: bool) -> Result<E
         "comeInWithDoorStuckSetup" => Ok(EntranceCondition::ComeInWithDoorStuckSetup { heated }),
         "comeInSpeedballing" => {
             let runway_geometry = parse_runway_geometry(&value["runway"])?;
-            let effective_runway_length = compute_runway_effective_length(&runway_geometry);
+            // Subtract 0.25 tiles since the door transition skips over approximately that much distance beyond the door shell tile,
+            // Subtract another 1 tile for leniency since taps and/or speedball are harder to time across a door transition:
+            let effective_runway_length = (compute_runway_effective_length(&runway_geometry) - 1.25).max(0.0);
             Ok(EntranceCondition::ComeInSpeedballing {
                 effective_runway_length,
             })
