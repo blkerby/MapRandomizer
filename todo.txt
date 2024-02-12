@@ -1,3 +1,7 @@
+v108:
+- move ice clip tech
+- check main hall basic reqs
+
 - in logic pages From/To node selections, improve contrast for grayed-out nodes.
 - reduced items?: new item progression preset & options
 - investigate possible respin bug: turnaround spin-jump doesn't work after shooting up?: 

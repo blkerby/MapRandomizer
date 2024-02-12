@@ -52,6 +52,7 @@
       "canSpaceJumpWaterBounce",
       "canBombHorizontally",
       "canPseudoScrew",
+      "canCeilingClip",
       "canDisableEquipment",
       "canCameraManip",
       "canAwakenZebes",
@@ -62,6 +63,7 @@
       "Green Hill Zone Wall Jump to Top Right Door",
       "Double Chamber Walljump Climb Using the Kamer",
       "Golden Torizo Horizontal Bomb Jump",
+      "Botwoon Hallway Mochtroid Ice Clip",
       "Suitless Botwoon Kill",
       "Back-Side Botwoon Fight with Charge and Wave",
       "Draygon Grapple Kill"
@@ -110,7 +112,8 @@
       "canMochtroidIceClimb",
       "canHeroShot",
       "canXRayWaitForIFrames",
-      "canCeilingClip",
+      "canXRayStandUp",
+      "canXRayCeilingClip",
       "canSnailClimb",
       "canBounceBall",
       "canOffScreenSuperShot"
@@ -122,6 +125,7 @@
       "Blue Brin E-Tank Return Through Crumble Blocks",
 
       "Early Supers Mockball",
+      "Etecoon E-Tank Beetom Clip",
 
       "Big Pink Return Through Crumble Blocks", 
       "Big Pink Off Screen Super Block",
@@ -139,10 +143,12 @@
 
       "Amphitheatre Reverse Acid Dive",
 
-      "Botwoon Hallway Mochtroid Ice Clip",
+      "Aqueduct Snail Clip", 
 
       "Maridia Bug Room Frozen Menu Bridge",
       "Plasma Spark Fish Climb",
+
+      "East Pants Room Puyo Clip",
 
       "Reverse Tourian Escape Room 4 Dodge While Climbing"
     ]
@@ -169,11 +175,9 @@
       "canSpeedball",
       "canShinechargeMovementComplex",
       "canTemporaryBlue",
-      "canXRayStandUp",
       "canXRayTurnaround",
       "canMetroidAvoid",
       "canBlueSpaceJump",
-      "canXRayCeilingClip",
       "canStationarySpinJump",
       "canFlatleyJump",
       "canPartialFloorClip",
@@ -213,7 +217,6 @@
       "West Ocean Floor Shinecharge, Fast Spacejump Wallclimb to Gravity Door",
 
       "Brinstar Reserve Hole-in-One",
-      "Etecoon E-Tank Beetom Clip",
       "Etecoon Beetom Tricky Dodge",
 
       "Big Pink Crystal Flash Standup - Super Block",
@@ -275,7 +278,6 @@
       "Mt. Everest Bottom Right Charged Drop",
       "Mt. Everest Shinespark Down-Grab to the Grapple Blocks (Left to Top)",
 
-      "Aqueduct Snail Clip", 
       "Aqueduct Bootless Suitless Snail Climb",
       "Botwoon Hallway Reverse Shinespark",
       "Back-Side Botwoon Magic Pixel Beam Fight",
@@ -299,7 +301,6 @@
       "Pants Room Gravity Jump",
       "Pants Room Shinespark",
       "Pants Room Suitless Flatley Turnaround Climb",
-      "East Pants Room Puyo Clip",
 
       "Bowling Alley Missile Chozo Camera Unlock",
       "Sponge Bath Bull Boost",
