@@ -397,6 +397,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				}
 			}
 			for (let i of ss.items) {
+				if (i == "Nothing") { continue; }
 				if (!ic.includes(item_plm[i])) {
 					si.appendChild(icon(item_plm[i]));
 				}
