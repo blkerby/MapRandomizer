@@ -3571,7 +3571,6 @@ impl<'r> Randomizer<'r> {
             // 2) The starting node (not the actual start location) must be bireachable from the hub location
             // (ie. there must be a logical round-trip path from the hub to the starting node and back)
             // 3) Any logical requirements on the hub must be satisfied.
-            // 4) The Ship must not be bireachable from the hub.
             for hub in &self.game_data.hub_locations {
                 let hub_vertex_id =
                     self.game_data.vertex_isv.index_by_key[&(hub.room_id, hub.node_id, 0)];
@@ -3580,12 +3579,6 @@ impl<'r> Randomizer<'r> {
                     .any(|&x| f32::is_finite(x))
                     && get_bireachable_idxs(&global, hub_vertex_id, &forward0, &reverse).is_some()
                 {
-                    if hub.room_id == 8 {
-                        // Reject starting location if the Ship is initially bireachable from it.
-                        // (Note: The Ship is first in hub_locations.json, so this check happens before other hubs are considered.)
-                        continue 'attempt;
-                    }
-
                     let local = apply_requirement(
                         &hub.requires_parsed.as_ref().unwrap(),
                         &global,
