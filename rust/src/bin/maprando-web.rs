@@ -395,6 +395,7 @@ struct SeedHeaderTemplate<'a> {
     progression_rate: String,
     random_tank: bool,
     filler_items: Vec<String>,
+    semi_filler_items: Vec<String>,
     early_filler_items: Vec<String>,
     item_placement_style: String,
     difficulty: &'a DifficultyConfig,
@@ -489,6 +490,13 @@ fn render_seed(
             .filler_items
             .iter()
             .filter(|&&x| x != Item::Nothing)
+            .map(|x| format!("{:?}", x))
+            .collect(),
+        semi_filler_items: seed_data
+            .difficulty
+            .semi_filler_items
+            .iter()
+            // .filter(|&&x| x != Item::Nothing)
             .map(|x| format!("{:?}", x))
             .collect(),
         early_filler_items: seed_data
