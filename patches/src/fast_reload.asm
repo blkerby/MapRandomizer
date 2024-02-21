@@ -8,7 +8,8 @@
 ;free space: make sure it doesnt override anything you have
 !freespace82_start = $82FE00
 !freespace82_end = $82FE80
-!button_combo = $82FE7E   ; This should be inside free space, and also consistent with reference in customize.rs
+!spin_lock_button_combo = $82FE7C   ; This should be inside free space, and also consistent with reference in customize.rs
+!reload_button_combo = $82FE7E   ; This should be inside free space, and also consistent with reference in customize.rs
 !freespacea0 = $a0fe00 ;$A0 used for instant save reload
 
 !QUICK_RELOAD = $1f60 ;dont need to touch this
@@ -83,18 +84,36 @@ check_reload:
     REP #$30
     PHA
 
+    ; Check newly pressed shot (to disable spin lock):
+    lda $8F
+    bit $09B2
+    beq .no_shot
+    lda #$0000
+    sta !spin_lock_enabled  ; shot button is newly pressed, so disable spin lock
+.no_shot:
+
+    ; Check spin-lock input combination (to enable spin lock):
+    lda $8B
+    and !spin_lock_button_combo
+    cmp !spin_lock_button_combo
+    bne .no_spin_lock
+    lda #$0001
+    sta !spin_lock_enabled  ; spin lock button combination was pressed, so enable spin lock
+.no_spin_lock
+
+
     ; Disable quick reload during the Samus fanfare at the start of the game (or when loading game from menu)
     lda $0A44
     cmp #$E86A
     beq .noreset
 
     lda $8B      ; Controller 1 input
-    and !button_combo   ; L + R + Select + Start (or customized reset inputs)
-    cmp !button_combo
+    and !reload_button_combo   ; L + R + Select + Start (or customized reset inputs)
+    cmp !reload_button_combo
     bne .noreset ; If any of the inputs are not currently held, then do not reset.
 
     lda $8F      ; Newly pressed controller 1 input
-    and !button_combo   ; L + R + Select + Start
+    and !reload_button_combo   ; L + R + Select + Start
     bne .reset   ; Reset only if at least one of the inputs is newly pressed
 .noreset
     PLA
@@ -106,8 +125,10 @@ check_reload:
     jsr deathhook
     RTL
 
+org !spin_lock_button_combo
+    dw $0870
 
-org !button_combo
+org !reload_button_combo
     dw $0303  ; L + R + Select + Start  (overridable by the customizer)
 
 warnpc !freespace82_end

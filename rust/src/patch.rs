@@ -463,6 +463,7 @@ impl<'a> Patcher<'a> {
                 "boss_exit",
                 "oob_death",
                 "jam_vertical_doors_fix",
+                "spin_lock",
             ]);
         }
 

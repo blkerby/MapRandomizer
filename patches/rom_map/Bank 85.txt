@@ -1,2 +1,3 @@
 $9643 - $96B0: hud_expansion_opaque.asm
 $96B0 - $9800: walljump_item.asm
+$9800 - $9880: spin_lock.asm

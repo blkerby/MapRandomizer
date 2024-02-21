@@ -31,6 +31,7 @@ incsrc "constants.asm"
 !initial_max_supers = $B5FE62
 !initial_power_bombs = $B5FE64
 !initial_max_power_bombs = $B5FE66
+!spin_lock_enabled = $1F70
 
 ;;; Hijack code that runs during initialization
 org $82801d
@@ -126,6 +127,10 @@ startup:
     ; beatable since we don't take it into account as an obstacle in the item randomization logic)
     lda #$0004
     sta $7ED821
+
+    ; Set spin-lock to disabled
+    lda #$0000
+    sta !spin_lock_enabled
 
     ; Initialize item collection times:
     lda #$0000

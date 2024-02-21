@@ -9,3 +9,5 @@
 
 ; Local stats (stored to normal RAM that goes into save files)
 !stat_item_collection_times = $7efe06  ; must match address in patch.rs
+
+!spin_lock_enabled = $1F70

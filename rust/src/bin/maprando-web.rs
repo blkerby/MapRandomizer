@@ -317,6 +317,22 @@ struct CustomizeRequest {
     control_item_cancel: Text<String>,
     control_angle_up: Text<String>,
     control_angle_down: Text<String>,
+    spin_lock_left: Option<Text<String>>,
+    spin_lock_right: Option<Text<String>>,
+    spin_lock_up: Option<Text<String>>,
+    spin_lock_down: Option<Text<String>>,
+    spin_lock_x: Option<Text<String>>,
+    spin_lock_y: Option<Text<String>>,
+    spin_lock_a: Option<Text<String>>,
+    spin_lock_b: Option<Text<String>>,
+    spin_lock_l: Option<Text<String>>,
+    spin_lock_r: Option<Text<String>>,
+    spin_lock_select: Option<Text<String>>,
+    spin_lock_start: Option<Text<String>>,
+    quick_reload_left: Option<Text<String>>,
+    quick_reload_right: Option<Text<String>>,
+    quick_reload_up: Option<Text<String>>,
+    quick_reload_down: Option<Text<String>>,
     quick_reload_x: Option<Text<String>>,
     quick_reload_y: Option<Text<String>>,
     quick_reload_a: Option<Text<String>>,
@@ -795,9 +811,40 @@ async fn unlock_seed(
         .finish()
 }
 
+fn get_spin_lock_buttons(req: &CustomizeRequest) -> Vec<ControllerButton> {
+    let mut spin_lock_buttons = vec![];
+    let setting_button_mapping = vec![
+        (&req.spin_lock_left, ControllerButton::Left),
+        (&req.spin_lock_right, ControllerButton::Right),
+        (&req.spin_lock_up, ControllerButton::Up),
+        (&req.spin_lock_down, ControllerButton::Down),
+        (&req.spin_lock_a, ControllerButton::A),
+        (&req.spin_lock_b, ControllerButton::B),
+        (&req.spin_lock_x, ControllerButton::X),
+        (&req.spin_lock_y, ControllerButton::Y),
+        (&req.spin_lock_l, ControllerButton::L),
+        (&req.spin_lock_r, ControllerButton::R),
+        (&req.spin_lock_select, ControllerButton::Select),
+        (&req.spin_lock_start, ControllerButton::Start),
+    ];
+
+    for (setting, button) in setting_button_mapping {
+        if let Some(x) = setting {
+            if x.0 == "on" {
+                spin_lock_buttons.push(button);    
+            }
+        }    
+    }
+    spin_lock_buttons
+}
+
 fn get_quick_reload_buttons(req: &CustomizeRequest) -> Vec<ControllerButton> {
     let mut quick_reload_buttons = vec![];
     let setting_button_mapping = vec![
+        (&req.quick_reload_left, ControllerButton::Left),
+        (&req.quick_reload_right, ControllerButton::Right),
+        (&req.quick_reload_up, ControllerButton::Up),
+        (&req.quick_reload_down, ControllerButton::Down),
         (&req.quick_reload_a, ControllerButton::A),
         (&req.quick_reload_b, ControllerButton::B),
         (&req.quick_reload_x, ControllerButton::X),
@@ -884,6 +931,7 @@ async fn customize_seed(
             item_cancel: parse_controller_button(&req.control_item_cancel.0).unwrap(),
             angle_up: parse_controller_button(&req.control_angle_up.0).unwrap(),
             angle_down: parse_controller_button(&req.control_angle_down.0).unwrap(),
+            spin_lock_buttons: get_spin_lock_buttons(&req),
             quick_reload_buttons: get_quick_reload_buttons(&req),
             moonwalk: req.moonwalk.0,
         },
