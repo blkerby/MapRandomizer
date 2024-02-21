@@ -2256,7 +2256,14 @@
         "camera_offset_x": 2,
         "camera_offset_y": -6,
         "requires": [
-            "canPreciseWalljump"
+            {"or": [
+                "canPreciseWalljump",
+                {"and": [
+                    "h_canBackIntoCorner",
+                    "canInsaneJump",
+                    "canDownGrab"
+                ]}
+            ]}
         ]
     },
     {
