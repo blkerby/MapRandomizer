@@ -116,6 +116,7 @@ fn run_scenario(
         draygon_proficiency: proficiency,
         ridley_proficiency: proficiency,
         botwoon_proficiency: proficiency,
+        mother_brain_proficiency: proficiency,
         supers_double: true,
         mother_brain_fight: MotherBrainFight::Short,
         escape_enemies_cleared: true,

@@ -28,6 +28,7 @@ pub struct Preset {
     pub draygon_proficiency: f32,
     pub ridley_proficiency: f32,
     pub botwoon_proficiency: f32,
+    pub mother_brain_proficiency: f32,
     pub tech: Vec<String>,
     pub notable_strats: Vec<String>,
 }

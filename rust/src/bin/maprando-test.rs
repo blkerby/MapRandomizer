@@ -58,6 +58,7 @@ fn create_difficulty_from_preset(preset : &Preset) -> DifficultyConfig {
         draygon_proficiency: preset.draygon_proficiency,
         ridley_proficiency: preset.ridley_proficiency,
         botwoon_proficiency: preset.botwoon_proficiency,
+        mother_brain_proficiency: preset.mother_brain_proficiency,
         // Progression options, Normal preset
         progression_rate: ProgressionRate::Fast,
         random_tank: true,

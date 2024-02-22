@@ -42,6 +42,10 @@
     <div class="col-7 col-sm-6 col-md-5 col-lg-4">Botwoon proficiency:</div>
     <div class="col-5 col-sm-6 col-md-7 col-lg-8"><%= difficulty.botwoon_proficiency %></div>
 </div>
+<div class="row">
+    <div class="col-7 col-sm-6 col-md-5 col-lg-4">Mother Brain proficiency:</div>
+    <div class="col-5 col-sm-6 col-md-7 col-lg-8"><%= difficulty.mother_brain_proficiency %></div>
+</div>
 
 <div class="accordion mt-3">
 <% for p in preset_data.iter() {

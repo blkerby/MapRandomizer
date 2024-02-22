@@ -281,7 +281,7 @@ fn item_to_plm_type(item: Item, orig_plm_type: isize) -> isize {
             0xEF77, // Morph ball, chozo orb
             0xEF7B, // Reserve tank, chozo orb            
             0xF604, // Wall-jump boots, chozo orb
-            0xEEDB, // Missile tank (nothing)
+            0xEF2F, // Missile tank (nothing)
         ],
         [
             0xEF7F, // Energy tank, shot block
@@ -306,7 +306,7 @@ fn item_to_plm_type(item: Item, orig_plm_type: isize) -> isize {
             0xEFCB, // Morph ball, shot block
             0xEFCF, // Reserve tank, shot block            
             0xF608, // Wall-jump boots, shot block       
-            0xEEDB, // Missile tank (nothing)
+            0xEF83, // Missile tank (nothing)
         ]
     ];
     

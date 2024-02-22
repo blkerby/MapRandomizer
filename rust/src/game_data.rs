@@ -155,6 +155,7 @@ pub enum Requirement {
     SuperRefill,
     PowerBombRefill,
     AmmoStationRefill,
+    SupersDoubleDamageMotherBrain,
     GateGlitchLeniency {
         green: bool,
         heated: bool,
@@ -180,6 +181,9 @@ pub enum Requirement {
     },
     BotwoonFight {
         second_phase: bool,
+    },
+    MotherBrain2Fight {
+        can_be_very_patient_tech_id: usize,
     },
     AdjacentRunway {
         room_id: RoomId,
@@ -1342,6 +1346,8 @@ impl GameData {
                 return Ok(Requirement::Walljump);
             } else if value == "i_ammoRefill" {
                 return Ok(Requirement::AmmoStationRefill);
+            } else if value == "i_SupersDoubleDamageMotherBrain" {
+                return Ok(Requirement::SupersDoubleDamageMotherBrain);
             } else if value == "i_BlueGateGlitchLeniency" {
                 return Ok(Requirement::GateGlitchLeniency {
                     green: false,
@@ -1582,6 +1588,10 @@ impl GameData {
                     });
                 } else if enemy_set.contains("Botwoon 2") {
                     return Ok(Requirement::BotwoonFight { second_phase: true });
+                } else if enemy_set.contains("Mother Brain 2") {
+                    return Ok(Requirement::MotherBrain2Fight {
+                        can_be_very_patient_tech_id: self.tech_isv.index_by_key["canBeVeryPatient"],
+                    });
                 }
 
                 let mut allowed_weapons: WeaponMask = if value.has_key("explicitWeapons") {
@@ -2075,6 +2085,28 @@ impl GameData {
                 found = true;
             }
         }
+
+        // Add a link from 4 -> 3 so the flag `f_DefeatedMotherBrain` can be two-way reachable.
+        room_json["strats"].push(json::object!{
+            "link": [4, 3],
+            "name": "Base",
+            "requires": [],
+        }).unwrap();
+
+        // Override the MB2 boss fight requirements
+        let mut found = false;
+        for node_json in room_json["nodes"].members_mut() {
+            if node_json["id"].as_i32().unwrap() == 4 {
+                node_json["locks"][0]["unlockStrats"] = json::array![{
+                    "name": "Base",
+                    "notable": false,
+                    "requires": [
+                        {"enemyKill": {"enemies": [["Mother Brain 2"]]}}
+                    ]
+                }];
+                found = true;
+            }
+        }
         assert!(found);
     }
 
@@ -2198,12 +2230,6 @@ impl GameData {
 
                 unlocked_node_json["id"] = next_node_id.into();
 
-                // Make exception for rooms with doors that can be freely opened: Pit Room and Metroid rooms.
-                // Don't use the unlocked nodes in the door edges in these cases.
-                if [12, 226, 227, 228, 229].contains(&room_id) {
-                    self.unlocked_node_map
-                        .insert((room_id, node_id), next_node_id.into());
-                }
                 // Adding spawnAt helps shorten/clean spoiler log but interferes with the implicit leaveWithGMode:
                 // unlocked_node_json["spawnAt"] = node_id.into();
                 unlocked_node_json["name"] =
@@ -2213,7 +2239,8 @@ impl GameData {
                 }
 
                 let mut unlock_strats = lock["unlockStrats"].clone();
-                if lock["name"].as_str().unwrap() == "Phantoon Fight" {
+                if (room_id, node_id) == (158, 2) {
+                    // Override Phantoon fight requirement
                     unlock_strats = json::array![
                         {
                             "name": "Base",
@@ -2235,8 +2262,11 @@ impl GameData {
                             .map(|x| json::object!{"and": x["requires"].clone()})
                             .collect::<Vec<JsonValue>>()
                 };
-                if room_id != 12 {
-                    // Exclude lock requirements in Pit Room since with randomizer changes these become free
+                // Make exception for rooms with doors that can be freely opened: Pit Room and Metroid rooms.
+                // Don't use the unlocked nodes in the door edges in these cases.
+                if [12, 226, 227, 228, 229].contains(&room_id) {
+                    self.unlocked_node_map
+                        .insert((room_id, node_id), next_node_id.into());
                     self.node_lock_req_json
                         .insert((room_id, node_id), unlock_reqs);
                 }
@@ -3585,16 +3615,17 @@ impl GameData {
             .helper_json_map
             .get_mut("h_HeatedBlueGateGlitchLeniency")
             .unwrap() = json::object! {
-            "name": "h_BlueGateGlitchLeniency",
+            "name": "h_HeatedBlueGateGlitchLeniency",
             "requires": ["i_HeatedBlueGateGlitchLeniency"],
         };
         *game_data
             .helper_json_map
             .get_mut("h_HeatedGreenGateGlitchLeniency")
             .unwrap() = json::object! {
-            "name": "h_GreenGateGlitchLeniency",
+            "name": "h_HeatedGreenGateGlitchLeniency",
             "requires": ["i_HeatedGreenGateGlitchLeniency"],
         };
+        
         // Other:
         *game_data
             .helper_json_map
@@ -3639,6 +3670,13 @@ impl GameData {
             .unwrap() = json::object! {
             "name": "h_KraidCameraFix",
             "requires": [],
+        };
+        *game_data
+            .helper_json_map
+            .get_mut("h_SupersDoubleDamageMotherBrain")
+            .unwrap() = json::object! {
+            "name": "h_SupersDoubleDamageMotherBrain",
+            "requires": ["i_SupersDoubleDamageMotherBrain"],
         };
         // Ammo station refill
         *game_data

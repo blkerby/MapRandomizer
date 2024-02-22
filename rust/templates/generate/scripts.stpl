@@ -17,6 +17,7 @@ function presetChanged() {
             document.getElementById("draygonProficiency").value = <%= p.preset.draygon_proficiency %>;
             document.getElementById("ridleyProficiency").value = <%= p.preset.ridley_proficiency %>;
             document.getElementById("botwoonProficiency").value = <%= p.preset.botwoon_proficiency %>;
+            document.getElementById("motherBrainProficiency").value = <%= p.preset.botwoon_proficiency %>;
             <% for (tech, is_enabled) in &p.tech_setting { 
                 if p.implicit_tech.contains(tech) {
                     continue;

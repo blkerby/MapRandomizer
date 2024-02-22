@@ -164,6 +164,7 @@ pub struct DifficultyConfig {
     pub draygon_proficiency: f32,
     pub ridley_proficiency: f32,
     pub botwoon_proficiency: f32,
+    pub mother_brain_proficiency: f32,
     // Quality-of-life options:
     pub supers_double: bool,
     pub mother_brain_fight: MotherBrainFight,

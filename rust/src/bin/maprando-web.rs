@@ -243,6 +243,7 @@ struct RandomizeRequest {
     draygon_proficiency: Text<f32>,
     ridley_proficiency: Text<f32>,
     botwoon_proficiency: Text<f32>,
+    mother_brain_proficiency: Text<f32>,
     escape_timer_multiplier: Text<f32>,
     tech_json: Text<String>,
     strat_json: Text<String>,
@@ -1116,6 +1117,10 @@ fn get_difficulty_tiers(
                 difficulty.botwoon_proficiency,
                 preset.botwoon_proficiency,
             ),
+            mother_brain_proficiency: f32::min(
+                difficulty.mother_brain_proficiency,
+                preset.mother_brain_proficiency,
+            ),
             // Quality-of-life options:
             supers_double: difficulty.supers_double,
             mother_brain_fight: difficulty.mother_brain_fight,
@@ -1357,6 +1362,7 @@ async fn randomize(
         draygon_proficiency: req.draygon_proficiency.0,
         ridley_proficiency: req.ridley_proficiency.0,
         botwoon_proficiency: req.botwoon_proficiency.0,
+        mother_brain_proficiency: req.mother_brain_proficiency.0,
         supers_double: req.supers_double.0,
         mother_brain_fight: match req.mother_brain_fight.0.as_str() {
             "Vanilla" => MotherBrainFight::Vanilla,

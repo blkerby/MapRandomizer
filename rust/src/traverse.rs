@@ -559,6 +559,99 @@ fn apply_botwoon_requirement(
     validate_energy(local, global)
 }
 
+fn apply_mother_brain_2_requirement(
+    global: &GlobalState,
+    mut local: LocalState,
+    difficulty: &DifficultyConfig,
+    can_be_very_patient_tech_id: usize,
+) -> Option<LocalState> {
+    let proficiency = difficulty.mother_brain_proficiency;
+    let mut boss_hp: f32 = 18000.0;
+    let mut time: f32 = 0.0; // Cumulative time in seconds for the fight
+    let charge_damage = get_charge_damage(&global);
+
+    // Assume an ammo accuracy rate of between 75% (on lowest difficulty) to 100% (on highest):
+    let accuracy = 0.75 + 0.25 * proficiency;
+
+    // Assume a firing rate of between 60% (on lowest difficulty) to 100% (on highest):
+    let firing_rate = 0.6 + 0.4 * proficiency;
+
+    let charge_time = 1.1;  // minimum of 1.1 seconds between charge shots
+    let super_time = 0.35;  // minimum of 0.35 seconds between Super shots
+    let missile_time = 0.17;
+
+    // Prioritize using supers:
+    let supers_available = global.max_supers - local.supers_used;
+    let super_damage = if difficulty.supers_double { 600.0 } else { 300.0 };
+    let supers_to_use = min(
+        supers_available,
+        f32::ceil(boss_hp / (super_damage * accuracy)) as Capacity,
+    );
+    local.supers_used += supers_to_use;
+    boss_hp -= supers_to_use as f32 * super_damage * accuracy;
+    time += supers_to_use as f32 * super_time / firing_rate;
+
+    // Use Charge Beam if it's powerful enough
+    // 500 is the point at which Charge Beam has better DPS than Missiles, this happens with Charge + Plasma + (Ice and/or Wave)
+    if charge_damage >= 500.0 {
+        let powerful_charge_shots_to_use = max(
+            0,
+            f32::ceil(boss_hp / (charge_damage * accuracy)) as Capacity,
+        );
+        boss_hp = 0.0;
+        time += powerful_charge_shots_to_use as f32 * charge_time / firing_rate;
+    }
+
+    // Then use available missiles:
+    let missiles_available = global.max_missiles - local.missiles_used;
+    let missiles_to_use = max(
+        0,
+        min(
+            missiles_available,
+            f32::ceil(boss_hp / (100.0 * accuracy)) as Capacity,
+        ),
+    );
+    local.missiles_used += missiles_to_use;
+    boss_hp -= missiles_to_use as f32 * 100.0 * accuracy;
+    time += missiles_to_use as f32 * missile_time / firing_rate;
+
+    if global.items[Item::Charge as usize] {
+        // Then finish with Charge shots:
+        let charge_shots_to_use = max(
+            0,
+            f32::ceil(boss_hp / (charge_damage * accuracy)) as Capacity,
+        );
+        boss_hp = 0.0;
+        time += charge_shots_to_use as f32 * charge_time / firing_rate;
+    }
+
+    if boss_hp > 0.0 {
+        // We don't have enough ammo to finish the fight:
+        return None;
+    }
+
+    if time >= 180.0 && !global.tech[can_be_very_patient_tech_id] {
+        // We don't have enough patience to finish the fight:
+        return None;
+    }
+
+    // Assumed rate of Mother Brain damage to Samus (per second), given minimal dodging skill:
+    // For simplicity we assume a uniform rate of damage (even though the ketchup phase has the highest risk of damage).
+    let base_mb_attack_dps = 20.0;
+    let hit_rate = 1.0 - proficiency;
+    let damage = base_mb_attack_dps * hit_rate * time;
+    local.energy_used += (damage / suit_damage_factor(global) as f32) as Capacity;
+
+    // Account for Rainbow beam damage:
+    if global.items[Item::Varia as usize] {
+        local.energy_used += 300;
+    } else {
+        local.energy_used += 600;
+    }
+
+    validate_energy(local, global)
+}
+
 pub const IMPOSSIBLE_LOCAL_STATE: LocalState = LocalState {
     energy_used: 0x3FFF,
     reserves_used: 0x3FFF,
@@ -924,6 +1017,13 @@ pub fn apply_requirement(
             }
             Some(new_local)
         }
+        Requirement::SupersDoubleDamageMotherBrain => {
+            if difficulty.supers_double {
+                Some(local)
+            } else {
+                None
+            }
+        }
         Requirement::EnergyDrain => {
             if reverse {
                 let mut new_local = local;
@@ -994,6 +1094,11 @@ pub fn apply_requirement(
         ),
         Requirement::BotwoonFight { second_phase } => {
             apply_botwoon_requirement(global, local, difficulty.botwoon_proficiency, *second_phase)
+        }
+        Requirement::MotherBrain2Fight {
+            can_be_very_patient_tech_id,
+        }=> {
+            apply_mother_brain_2_requirement(global, local, difficulty, *can_be_very_patient_tech_id)
         }
         Requirement::ShineCharge { used_tiles, heated } => {
             let tiles_limit = if *heated && !global.items[Item::Varia as usize] {

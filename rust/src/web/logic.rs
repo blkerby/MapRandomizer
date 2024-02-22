@@ -338,6 +338,7 @@ fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
         draygon_proficiency: preset.preset.draygon_proficiency,
         ridley_proficiency: preset.preset.ridley_proficiency,
         botwoon_proficiency: preset.preset.botwoon_proficiency,
+        mother_brain_proficiency: preset.preset.mother_brain_proficiency,
         supers_double: true,
         mother_brain_fight: crate::randomize::MotherBrainFight::Short,
         escape_movement_items: true,

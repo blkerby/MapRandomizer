@@ -12,6 +12,7 @@
     "draygon_proficiency": 0.0,
     "ridley_proficiency": 0.0,
     "botwoon_proficiency": 0.0,
+    "mother_brain_proficiency": 0.0,
     "tech": [
       "canHeatRun",
       "canWalljump",
@@ -36,6 +37,7 @@
     "draygon_proficiency": 0.3,
     "ridley_proficiency": 0.3,
     "botwoon_proficiency": 0.3,
+    "mother_brain_proficiency": 0.3,
     "tech": [
       "canSuitlessMaridia",
       "canSpringBallJumpMidAir",
@@ -80,6 +82,7 @@
     "draygon_proficiency": 0.5,
     "ridley_proficiency": 0.5,
     "botwoon_proficiency": 0.5,
+    "mother_brain_proficiency": 0.5,
     "tech": [
       "canCrossRoomJumpIntoWater",
       "canWaterShineCharge",
@@ -166,6 +169,7 @@
     "draygon_proficiency": 0.7,
     "ridley_proficiency": 0.7,
     "botwoon_proficiency": 0.7,
+    "mother_brain_proficiency": 0.7,
     "tech": [
       "canCrystalFlash",
       "canTrickyJump",
@@ -323,6 +327,7 @@
     "draygon_proficiency": 1.0,
     "ridley_proficiency": 0.8,
     "botwoon_proficiency": 1.0,
+    "mother_brain_proficiency": 1.0,
     "tech": [
       "canXRayClimb",
       "canRightSideDoorStuck",
@@ -462,6 +467,7 @@
     "draygon_proficiency": 1.0,
     "ridley_proficiency": 0.9,
     "botwoon_proficiency": 1.0,
+    "mother_brain_proficiency": 1.0,
     "tech": [
       "canBePatient",
       "canEnterRMode",
@@ -584,6 +590,7 @@
     "draygon_proficiency": 1.0,
     "ridley_proficiency": 1.0,
     "botwoon_proficiency": 1.0,
+    "mother_brain_proficiency": 1.0,
     "tech": [
       "canBeVeryPatient",
       "canMoondance",
@@ -679,6 +686,7 @@
     "draygon_proficiency": 1.0,
     "ridley_proficiency": 1.0,
     "botwoon_proficiency": 1.0,
+    "mother_brain_proficiency": 1.0,
     "tech": [],
     "notable_strats": [
       "Alcatraz Escape G-Mode Crystal Flash Then Forced Standup",
