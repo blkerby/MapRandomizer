@@ -12,6 +12,7 @@ use serde_derive::Deserialize;
 use std::borrow::ToOwned;
 use std::fs::File;
 use std::hash::Hash;
+use std::ops::IndexMut;
 use std::path::{Path, PathBuf};
 use strum::VariantNames;
 use strum_macros::{EnumString, EnumVariantNames};
@@ -121,6 +122,7 @@ pub enum Requirement {
     Item(ItemId),
     Flag(FlagId),
     NotFlag(FlagId),
+    Objective(usize),
     Walljump,
     ShineCharge {
         used_tiles: f32,
@@ -1165,6 +1167,11 @@ impl GameData {
         // Add randomizer-specific flags:
         self.flag_isv.add("f_AllItemsSpawn");
         self.flag_isv.add("f_AcidChozoWithoutSpaceJump");
+        self.flag_isv.add("f_UsedBowlingStatue");
+        self.flag_isv.add("f_ClearedPitRoom");
+        self.flag_isv.add("f_ClearedBabyKraidRoom");
+        self.flag_isv.add("f_ClearedPlasmaRoom");
+        self.flag_isv.add("f_ClearedMetalPiratesRoom");
 
         Ok(())
     }
@@ -1355,6 +1362,14 @@ impl GameData {
                     green: true,
                     heated: true,
                 });
+            } else if value == "i_Objective1Complete" {
+                return Ok(Requirement::Objective(0));
+            } else if value == "i_Objective2Complete" {
+                return Ok(Requirement::Objective(1));
+            } else if value == "i_Objective3Complete" {
+                return Ok(Requirement::Objective(2));
+            } else if value == "i_Objective4Complete" {
+                return Ok(Requirement::Objective(3));
             } else if let Some(&item_id) = self.item_isv.index_by_key.get(value) {
                 return Ok(Requirement::Item(item_id as ItemId));
             } else if let Some(&flag_id) = self.flag_isv.index_by_key.get(value) {
@@ -1968,8 +1983,42 @@ impl GameData {
         }
     }
 
+    fn override_pit_room(&mut self, room_json: &mut JsonValue) {
+        // Add yielded flag "f_ClearedPitRoom" to gray door unlocks:
+        for node_json in room_json["nodes"].members_mut() {
+            if [1, 2].contains(&node_json["id"].as_i32().unwrap()) {
+                node_json["locks"][0]["yields"] = json::array!["f_ZebesAwake", "f_ClearedPitRoom"]
+            }
+        }
+    }
+
+    fn override_baby_kraid_room(&mut self, room_json: &mut JsonValue) {
+        // Add yielded flag "f_ClearedBabyKraidRoom" to gray door unlocks:
+        for node_json in room_json["nodes"].members_mut() {
+            if [1, 2].contains(&node_json["id"].as_i32().unwrap()) {
+                node_json["locks"][0]["yields"] = json::array!["f_ZebesAwake", "f_ClearedBabyKraidRoom"]
+            }
+        }
+    }
+
+    fn override_plasma_room(&mut self, room_json: &mut JsonValue) {
+        // Add yielded flag "f_ClearedBabyKraidRoom" to gray door unlocks:
+        for node_json in room_json["nodes"].members_mut() {
+            if node_json["id"].as_i32().unwrap() == 1 {
+                node_json["locks"][0]["yields"] = json::array!["f_ZebesAwake", "f_ClearedPlasmaRoom"]
+            }
+        }
+    }
+
     fn override_metal_pirates_room(&mut self, room_json: &mut JsonValue) {
-        // Add lock on right door of Metal Pirates Room:
+        // Add yielded flag "f_ClearedMetalPiratesRoom" to gray door unlock:
+        for node_json in room_json["nodes"].members_mut() {
+            if node_json["id"].as_i32().unwrap() == 1 {
+                node_json["locks"][0]["yields"] = json::array!["f_ZebesAwake", "f_ClearedMetalPiratesRoom"]
+            }
+        }
+
+        // Add lock on right door:
         let mut found = false;
         for node_json in room_json["nodes"].members_mut() {
             if node_json["id"].as_i32().unwrap() == 2 {
@@ -1985,7 +2034,7 @@ impl GameData {
                         "requires": [ {"obstaclesCleared": ["A"]} ]
                       }
                     ],
-                    "yields": [ "f_ZebesAwake" ]
+                    "yields": ["f_ZebesAwake", "f_ClearedMetalPiratesRoom"]
                   }
                 ];
             }
@@ -2000,6 +2049,51 @@ impl GameData {
             if node_json["id"].as_i32().unwrap() == 2 {
                 node_json.remove("utility");
                 found = true;
+            }
+        }
+        assert!(found);
+    }
+
+    fn override_mother_brain_room(&mut self, room_json: &mut JsonValue) {
+        // Add a requirement for objectives to be completed in order to cross the barriers
+        let mut found = false;
+        for x in room_json["strats"].members_mut() {
+            if x["link"][0].as_i32().unwrap() == 2 && x["link"][1].as_i32().unwrap() == 8 {
+                if found {
+                    panic!("Unexpected multiple 2 -> 8 strats in Mother Brain Room");
+                }
+                x.insert(
+                    "requires",
+                    json::array![
+                        "i_Objective1Complete",
+                        "i_Objective2Complete",
+                        "i_Objective3Complete",
+                        "i_Objective4Complete",
+                    ],
+                )
+                .unwrap();
+                found = true;
+            }
+        }
+        assert!(found);
+    }
+
+    fn override_bowling_alley(&mut self, room_json: &mut JsonValue) {
+        // Add flag on Bowling Statue node
+        let mut found = false;
+        for node_json in room_json["nodes"].members_mut() {
+            if node_json["id"].as_i32().unwrap() == 6 {
+                found = true;
+                node_json["yields"] = json::array!["f_UsedBowlingStatue"];
+                node_json["locks"] = json::array![{
+                    "name": "Use Statue",
+                    "lockType": "gameFlag",
+                    "unlockStrats": [{
+                        "name": "Base",
+                        "notable": false,
+                        "requires": []
+                    }]   
+                }];
             }
         }
         assert!(found);
@@ -2038,6 +2132,7 @@ impl GameData {
             150, // Golden Torizo Room
             193, // Draygon's Room
             219, // Plasma Room
+            226, 227, 228, 229,  // Metroid Rooms (only included to track their flags; they don't actually have gray doors.)
         ];
 
         // Flags for which we want to add an obstacle in the room, to allow progression through (or back out of) the room
@@ -2060,10 +2155,20 @@ impl GameData {
             self.override_shaktool_room(&mut new_room_json);
         } else if room_id == 38 {
             self.override_morph_ball_room(&mut new_room_json);
-        } else if room_id == 139 {
-            self.override_metal_pirates_room(&mut new_room_json);
         } else if room_id == 225 {
             self.override_tourian_save_room(&mut new_room_json);
+        } else if room_id == 238 {
+            self.override_mother_brain_room(&mut new_room_json);
+        } else if room_id == 161 {
+            self.override_bowling_alley(&mut new_room_json);
+        } else if room_id == 12 {
+            self.override_pit_room(&mut new_room_json);
+        } else if room_id == 82 {
+            self.override_baby_kraid_room(&mut new_room_json);
+        } else if room_id == 139 {
+            self.override_metal_pirates_room(&mut new_room_json);
+        } else if room_id == 219 {
+            self.override_plasma_room(&mut new_room_json);
         }
 
         let mut obstacle_flag: Option<String> = None;
@@ -2093,9 +2198,9 @@ impl GameData {
 
                 unlocked_node_json["id"] = next_node_id.into();
 
-                // Pit Room is a special case: since the doors can always be freely opened, we don't use
-                // the unlocked nodes in the door edges.
-                if room_json["name"] != "Pit Room" {
+                // Make exception for rooms with doors that can be freely opened: Pit Room and Metroid rooms.
+                // Don't use the unlocked nodes in the door edges in these cases.
+                if [12, 226, 227, 228, 229].contains(&room_id) {
                     self.unlocked_node_map
                         .insert((room_id, node_id), next_node_id.into());
                 }
@@ -3012,6 +3117,12 @@ impl GameData {
             "f_MaridiaTubeBroken",
             "f_ShaktoolDoneDigging",
             "f_UsedAcidChozoStatue",
+            "f_UsedBowlingStatue",
+            "f_ClearedPitRoom",
+            "f_ClearedBabyKraidRoom",
+            "f_ClearedPlasmaRoom",
+            "f_ClearedMetalPiratesRoom",
+            "f_DefeatedBombTorizo",
             "f_DefeatedBotwoon",
             "f_DefeatedCrocomire",
             "f_DefeatedSporeSpawn",
@@ -3020,7 +3131,17 @@ impl GameData {
             "f_DefeatedPhantoon",
             "f_DefeatedDraygon",
             "f_DefeatedRidley",
-        ]
+            "f_KilledMetroidRoom1",
+            "f_KilledMetroidRoom2",
+            "f_KilledMetroidRoom3",
+            "f_KilledMetroidRoom4",
+            "f_KilledZebetites1",
+            "f_KilledZebetites2",
+            "f_KilledZebetites3",
+            "f_KilledZebetites4",
+            "f_MotherBrainGlassBroken",
+            "f_DefeatedMotherBrain",
+            ]
         .iter()
         .map(|x| x.to_string())
         .collect();
@@ -3040,15 +3161,18 @@ impl GameData {
             }
             if node_json.has_key("yields") {
                 ensure!(node_json["yields"].len() >= 1);
-                let flag_id = self.flag_isv.index_by_key[node_json["yields"][0].as_str().unwrap()];
-                if flag_set.contains(&self.flag_isv.keys[flag_id]) {
-                    let mut unlocked_node_id = node_id;
-                    if self.unlocked_node_map.contains_key(&(room_id, node_id)) {
-                        unlocked_node_id = self.unlocked_node_map[&(room_id, node_id)];
+                for flag_json in node_json["yields"].members() {
+                    let flag_name = flag_json.as_str().unwrap();
+                    let flag_id = self.flag_isv.index_by_key[flag_name];
+                    if flag_set.contains(&self.flag_isv.keys[flag_id]) {
+                        let mut unlocked_node_id = node_id;
+                        if self.unlocked_node_map.contains_key(&(room_id, node_id)) {
+                            unlocked_node_id = self.unlocked_node_map[&(room_id, node_id)];
+                        }
+                        self.flag_locations
+                            .push((room_id, unlocked_node_id, flag_id));
                     }
-                    self.flag_locations
-                        .push((room_id, unlocked_node_id, flag_id));
-                }
+                }                
             }
         }
 
