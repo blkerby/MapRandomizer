@@ -2012,7 +2012,7 @@ impl GameData {
     }
 
     fn override_plasma_room(&mut self, room_json: &mut JsonValue) {
-        // Add yielded flag "f_ClearedBabyKraidRoom" to gray door unlocks:
+        // Add yielded flag "f_ClearedPlasmaRoom" to gray door unlocks:
         for node_json in room_json["nodes"].members_mut() {
             if node_json["id"].as_i32().unwrap() == 1 {
                 node_json["locks"][0]["yields"] = json::array!["f_ZebesAwake", "f_ClearedPlasmaRoom"]
@@ -2264,7 +2264,7 @@ impl GameData {
                 };
                 // Make exception for rooms with doors that can be freely opened: Pit Room and Metroid rooms.
                 // Don't use the unlocked nodes in the door edges in these cases.
-                if [12, 226, 227, 228, 229].contains(&room_id) {
+                if ![12, 226, 227, 228, 229].contains(&room_id) {
                     self.unlocked_node_map
                         .insert((room_id, node_id), next_node_id.into());
                     self.node_lock_req_json
