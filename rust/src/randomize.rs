@@ -150,6 +150,7 @@ pub struct DifficultyConfig {
     pub progression_rate: ProgressionRate,
     pub random_tank: bool,
     pub spazer_before_plasma: bool,
+    pub stop_item_placement_early: bool,
     pub item_pool: Vec<(Item, usize)>,
     pub starting_items: Vec<(Item, usize)>,
     pub item_placement_style: ItemPlacementStyle,
@@ -2664,7 +2665,7 @@ impl<'r> Randomizer<'r> {
         };
 
         // If we're at the end, dump as many key items as possible:
-        if num_items_remaining < num_items_to_place + KEY_ITEM_FINISH_THRESHOLD {
+        if !self.difficulty_tiers[0].stop_item_placement_early && num_items_remaining < num_items_to_place + KEY_ITEM_FINISH_THRESHOLD {
             num_key_items_to_place = num_key_items_remaining;
         }
 
@@ -2985,18 +2986,30 @@ impl<'r> Randomizer<'r> {
                 remaining_items.push(Item::try_from(item_id).unwrap());
             }
         }
-        info!(
-            "[attempt {attempt_num_rando}] Finishing without {:?}",
-            remaining_items
-        );
-        let mut idx = 0;
-        for item_loc_state in &mut state.item_location_state {
-            if item_loc_state.placed_item.is_none() {
-                item_loc_state.placed_item = Some(remaining_items[idx]);
-                idx += 1;
+        if self.difficulty_tiers[0].stop_item_placement_early {
+            info!(
+                "[attempt {attempt_num_rando}] Finishing without {:?}",
+                remaining_items
+            );    
+            for item_loc_state in &mut state.item_location_state {
+                if item_loc_state.placed_item.is_none() {
+                    item_loc_state.placed_item = Some(Item::Nothing);
+                }
             }
+        } else {
+            info!(
+                "[attempt {attempt_num_rando}] Finishing with {:?}",
+                remaining_items
+            );
+            let mut idx = 0;
+            for item_loc_state in &mut state.item_location_state {
+                if item_loc_state.placed_item.is_none() {
+                    item_loc_state.placed_item = Some(remaining_items[idx]);
+                    idx += 1;
+                }
+            }
+            assert!(idx == remaining_items.len());    
         }
-        assert!(idx == remaining_items.len());
     }
 
     fn provides_progression(
@@ -3153,7 +3166,7 @@ impl<'r> Randomizer<'r> {
         attempt_num_rando: usize,
         state: &mut RandomizationState,
         rng: &mut R,
-    ) -> (SpoilerSummary, SpoilerDetails) {
+    ) -> (SpoilerSummary, SpoilerDetails, bool) {
         let orig_global_state = state.global_state.clone();
         let mut spoiler_flag_summaries: Vec<SpoilerFlagSummary> = Vec::new();
         let mut spoiler_flag_details: Vec<SpoilerFlagDetails> = Vec::new();
@@ -3186,6 +3199,21 @@ impl<'r> Randomizer<'r> {
             } else {
                 break;
             }
+        }
+
+        if self.difficulty_tiers[0].stop_item_placement_early && self.is_game_beatable(state) {
+            info!("Stopping early");
+            self.update_reachability(state);
+            let spoiler_summary = self.get_spoiler_summary(
+                &orig_global_state,
+                state,
+                &state,
+                spoiler_flag_summaries,
+            );
+            let spoiler_details =
+                self.get_spoiler_details(&orig_global_state, state, &state, spoiler_flag_details);
+            state.previous_debug_data = state.debug_data.clone();
+            return (spoiler_summary, spoiler_details, true);
         }
 
         let mut placed_uncollected_bireachable_loc: Vec<ItemLocationId> = Vec::new();
@@ -3268,7 +3296,7 @@ impl<'r> Randomizer<'r> {
         let spoiler_details =
             self.get_spoiler_details(&orig_global_state, state, &new_state, spoiler_flag_details);
         *state = new_state;
-        (spoiler_summary, spoiler_details)
+        (spoiler_summary, spoiler_details, false)
     }
 
     fn get_randomization(
@@ -3288,7 +3316,7 @@ impl<'r> Randomizer<'r> {
             HashMap::new();
 
         for (step, debug_data) in debug_data_vec.iter_mut().enumerate() {
-            // println!("step={}, global_state={:?}", step, debug_data.global_state);
+            println!("step={}", step);
             for (v, (room_id, node_id, _obstacle_bitmask)) in
                 self.game_data.vertex_isv.keys.iter().enumerate()
             {
@@ -3708,6 +3736,16 @@ impl<'r> Randomizer<'r> {
         })
     }
 
+    fn is_game_beatable(&self, state: &RandomizationState) -> bool {
+        let mut mother_brain_defeated = false;
+        for (i, (_, _, flag_id)) in self.game_data.flag_locations.iter().enumerate() {
+            if *flag_id == self.game_data.mother_brain_defeated_flag_id && state.flag_location_state[i].reachable {
+                mother_brain_defeated = true;
+            }
+        }
+        mother_brain_defeated
+    }
+
     pub fn randomize(
         &self,
         attempt_num_rando: usize,
@@ -3784,7 +3822,7 @@ impl<'r> Randomizer<'r> {
             if self.difficulty_tiers[0].random_tank {
                 self.rerandomize_tank_precedence(&mut state.item_precedence, &mut rng);
             }
-            let (spoiler_summary, spoiler_details) =
+            let (spoiler_summary, spoiler_details, is_early_stop) =
                 self.step(attempt_num_rando, &mut state, &mut rng);
             let cnt_collected = state
                 .item_location_state
@@ -3808,13 +3846,16 @@ impl<'r> Randomizer<'r> {
                 .count();
             info!("[attempt {attempt_num_rando}] step={0}, bireachable={cnt_bireachable}, reachable={cnt_reachable}, placed={cnt_placed}, collected={cnt_collected}", state.step_num);
 
-            if spoiler_summary.items.len() > 0 || spoiler_summary.flags.len() > 0 {
-                // If we gained anything on this step (an item or a flag), generate a spoiler step:
-                spoiler_summary_vec.push(spoiler_summary);
-                spoiler_details_vec.push(spoiler_details);
-                // Append `debug_data`
-                debug_data_vec.push(state.previous_debug_data.as_ref().unwrap().clone());
-            } else {
+            let any_progress = spoiler_summary.items.len() > 0 || spoiler_summary.flags.len() > 0;
+            spoiler_summary_vec.push(spoiler_summary);
+            spoiler_details_vec.push(spoiler_details);
+            debug_data_vec.push(state.previous_debug_data.as_ref().unwrap().clone());
+
+            if is_early_stop {
+                break;
+            }
+
+            if !any_progress {
                 // No further progress was made on the last step. So we are done with this attempt: either we have
                 // succeeded or we have failed.
 

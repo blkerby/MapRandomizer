@@ -261,6 +261,7 @@ struct RandomizeRequest {
     item_placement_style: Text<String>,
     random_tank: Text<String>,
     spazer_before_plasma: Text<String>,
+    stop_item_placement_early: Text<String>,
     item_progression_preset: Option<Text<String>>,
     item_pool_json: Text<String>,
     starting_item_json: Text<String>,
@@ -1094,6 +1095,7 @@ fn get_difficulty_tiers(
             progression_rate: difficulty.progression_rate,
             random_tank: difficulty.random_tank,
             spazer_before_plasma: difficulty.spazer_before_plasma,
+            stop_item_placement_early: difficulty.stop_item_placement_early,
             item_placement_style: difficulty.item_placement_style,
             item_priorities: difficulty.item_priorities.clone(),
             item_pool: difficulty.item_pool.clone(),
@@ -1347,6 +1349,11 @@ async fn randomize(
             "No" => false,
             "Yes" => true,
             _ => panic!("Unrecognized spazer_before_plasma {}", req.spazer_before_plasma.0.as_str())
+        },
+        stop_item_placement_early: match req.stop_item_placement_early.0.as_str() {
+            "No" => false,
+            "Yes" => true,
+            _ => panic!("Unrecognized stop_item_placement_early {}", req.stop_item_placement_early.0.as_str())
         },
         item_pool,
         starting_items,

@@ -254,6 +254,7 @@ function itemProgressionPresetChanged() {
         document.getElementById("itemPlacementStyleNeutral").checked = true;
         document.getElementById("randomTankYes").checked = true;
         document.getElementById("spazerBeforePlasmaYes").checked = true;
+        document.getElementById("stopItemPlacementEarlyNo").checked = true;
         document.getElementById("itemPoolPresetFull").checked = true;
         document.getElementById("startingItemsPresetNone").checked = true;
         <% for item in &prioritizable_items { %>
@@ -285,6 +286,7 @@ function itemProgressionPresetChanged() {
         document.getElementById("itemPlacementStyleForced").checked = true;
         document.getElementById("randomTankYes").checked = true;
         document.getElementById("spazerBeforePlasmaYes").checked = true;
+        document.getElementById("stopItemPlacementEarlyNo").checked = true;
         document.getElementById("itemPoolPresetFull").checked = true;
         document.getElementById("startingItemsPresetNone").checked = true;
         <% for item in &prioritizable_items { %>
@@ -313,6 +315,7 @@ function itemProgressionPresetChanged() {
         document.getElementById("itemPlacementStyleForced").checked = true;
         document.getElementById("randomTankYes").checked = true;
         document.getElementById("spazerBeforePlasmaYes").checked = true;
+        document.getElementById("stopItemPlacementEarlyNo").checked = true;
         document.getElementById("itemPoolPresetFull").checked = true;
         document.getElementById("startingItemsPresetNone").checked = true;
         <% for item in &prioritizable_items { %>
