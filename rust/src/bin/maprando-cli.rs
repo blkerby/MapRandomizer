@@ -196,10 +196,11 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         skill_assumptions_preset: Some("None".to_string()),
         item_progression_preset: Some("None".to_string()),
         quality_of_life_preset: Some("None".to_string()),
-        debug_options: Some(DebugOptions {
-            new_game_extra: true,
-            extended_spoiler: true,
-        }),
+        debug_options: None,
+        // debug_options: Some(DebugOptions {
+        //     new_game_extra: true,
+        //     extended_spoiler: true,
+        // }),
     };
     let mut single_map : Option<Map>;
     let mut filenames : Vec<String> = Vec::new();
