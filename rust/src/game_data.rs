@@ -2086,13 +2086,6 @@ impl GameData {
             }
         }
 
-        // Add a link from 4 -> 3 so the flag `f_DefeatedMotherBrain` can be two-way reachable.
-        room_json["strats"].push(json::object!{
-            "link": [4, 3],
-            "name": "Base",
-            "requires": [],
-        }).unwrap();
-
         // Override the MB2 boss fight requirements
         let mut found = false;
         for node_json in room_json["nodes"].members_mut() {

@@ -230,6 +230,7 @@ struct ItemLocationState {
 
 #[derive(Clone)]
 struct FlagLocationState {
+    pub reachable: bool,
     pub bireachable: bool,
     pub bireachable_vertex_id: Option<VertexId>,
 }
@@ -2590,12 +2591,15 @@ impl<'r> Randomizer<'r> {
             state.flag_location_state[i].bireachable_vertex_id = None;
 
             for &v in vertex_ids {
-                if !state.flag_location_state[i].bireachable
-                    && get_bireachable_idxs(&state.global_state, v, &mut forward, &mut reverse)
-                        .is_some()
-                {
-                    state.flag_location_state[i].bireachable = true;
-                    state.flag_location_state[i].bireachable_vertex_id = Some(v);
+                if forward.cost[v].iter().any(|&x| f32::is_finite(x)) {
+                    state.flag_location_state[i].reachable = true;
+                    if !state.flag_location_state[i].bireachable
+                        && get_bireachable_idxs(&state.global_state, v, &mut forward, &mut reverse)
+                            .is_some()
+                    {
+                        state.flag_location_state[i].bireachable = true;
+                        state.flag_location_state[i].bireachable_vertex_id = Some(v);
+                    }
                 }
             }
         }
@@ -3718,6 +3722,7 @@ impl<'r> Randomizer<'r> {
             difficulty_tier: None,
         };
         let initial_flag_location_state = FlagLocationState {
+            reachable: false,
             bireachable: false,
             bireachable_vertex_id: None,
         };
