@@ -150,6 +150,7 @@ pub struct DifficultyConfig {
     pub progression_rate: ProgressionRate,
     pub random_tank: bool,
     pub spazer_before_plasma: bool,
+    pub item_pool: Vec<(Item, usize)>,
     pub starting_items: Vec<(Item, usize)>,
     pub item_placement_style: ItemPlacementStyle,
     pub item_priorities: Vec<ItemPriorityGroup>,
@@ -2484,9 +2485,16 @@ impl<'r> Randomizer<'r> {
         initial_items_remaining[Item::PowerBomb as usize] = 10;
         initial_items_remaining[Item::ETank as usize] = 14;
         initial_items_remaining[Item::ReserveTank as usize] = 4;
-        initial_items_remaining[Item::Missile as usize] = 0;
         initial_items_remaining[Item::Missile as usize] = game_data.item_locations.len() - initial_items_remaining.iter().sum::<usize>();
-        
+
+        for &(item, cnt) in &difficulty_tiers[0].item_pool {
+            initial_items_remaining[item as usize] = cnt;
+        }
+
+        if initial_items_remaining.iter().sum::<usize>() > game_data.item_locations.len() {
+            initial_items_remaining[Item::Missile as usize] -= initial_items_remaining.iter().sum::<usize>() - game_data.item_locations.len();
+        }
+
         for &(item, cnt) in &difficulty_tiers[0].starting_items {
             initial_items_remaining[item as usize] -= usize::min(cnt, initial_items_remaining[item as usize]);
         }

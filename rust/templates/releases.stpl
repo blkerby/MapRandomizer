@@ -14,13 +14,20 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release109">Version 109 (2024-02-21)</a>:
+<p><a id="release109">Version 109 (2024-02-23)</a>:
 <ul>
 <li>Spin Lock (L + R + Up + X) can be used to temporarily prevent up or down from breaking spin.
     <ul>
     <li>This can make it easier to perform chains of wall jumps on a controller/D-pad.
     <li>The input combination can be customized (or disabled) on the seed page.
     <li>Spin lock is canceled by pressing shot.
+    </ul>
+<li>New item progression setting "Item pool" to modify the amount of available ammo and tanks.
+    <ul>
+    <li>"Reduced" item pool preset places roughly half the vanilla quantities:
+        <ul>
+        <li>24 Missile packs, 6 Super packs, 6 Power Bomb packs, 7 Energy Tanks, 2 Reserve Tanks
+        </ul>
     </ul>
 </ul>
 

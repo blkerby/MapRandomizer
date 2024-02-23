@@ -99,6 +99,7 @@ fn run_scenario(
         progression_rate: ProgressionRate::Uniform,
         random_tank: true,
         spazer_before_plasma: true,
+        item_pool: vec![],
         starting_items: vec![],
         semi_filler_items: vec![],
         filler_items: vec![Item::Missile],

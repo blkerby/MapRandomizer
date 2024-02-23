@@ -94,6 +94,16 @@ function updateStratJSON() {
     });
     document.getElementById("json-strat").value = JSON.stringify(stratSelection);
 }
+function updateItemPoolJSON() {
+    itemPool = {}
+    document.querySelectorAll('.item-pool-input-multiple')
+    .forEach(function (x) { 
+        // remove prefix: "item_pool_"
+        name = x.name.substring(10);
+        itemPool[name] = x.value;
+    });
+    document.getElementById("json-item-pool").value = JSON.stringify(itemPool);
+}
 function updateStartingItemJSON() {
     startingItems = {}
     document.querySelectorAll('.starting-item-input-multiple')
@@ -141,6 +151,7 @@ submitModal = new bootstrap.Modal('#submitModal', {})
 function prepareSubmit() {
     updateTechJSON();
     updateStratJSON();
+    updateItemPoolJSON();
     updateStartingItemJSON();
     updateItemPriorityJSON();
     updateFillerItemsJSON();
@@ -243,6 +254,7 @@ function itemProgressionPresetChanged() {
         document.getElementById("itemPlacementStyleNeutral").checked = true;
         document.getElementById("randomTankYes").checked = true;
         document.getElementById("spazerBeforePlasmaYes").checked = true;
+        document.getElementById("itemPoolPresetFull").checked = true;
         document.getElementById("startingItemsPresetNone").checked = true;
         <% for item in &prioritizable_items { %>
         document.getElementById("itemPriority<%- item %>Default").checked = true;
@@ -273,6 +285,7 @@ function itemProgressionPresetChanged() {
         document.getElementById("itemPlacementStyleForced").checked = true;
         document.getElementById("randomTankYes").checked = true;
         document.getElementById("spazerBeforePlasmaYes").checked = true;
+        document.getElementById("itemPoolPresetFull").checked = true;
         document.getElementById("startingItemsPresetNone").checked = true;
         <% for item in &prioritizable_items { %>
         document.getElementById("itemPriority<%- item %>Default").checked = true;
@@ -300,6 +313,7 @@ function itemProgressionPresetChanged() {
         document.getElementById("itemPlacementStyleForced").checked = true;
         document.getElementById("randomTankYes").checked = true;
         document.getElementById("spazerBeforePlasmaYes").checked = true;
+        document.getElementById("itemPoolPresetFull").checked = true;
         document.getElementById("startingItemsPresetNone").checked = true;
         <% for item in &prioritizable_items { %>
         document.getElementById("itemPriority<%- item %>Default").checked = true;
@@ -314,6 +328,7 @@ function itemProgressionPresetChanged() {
         document.getElementById("fillerItemsSuperSemi").checked = true;
         document.getElementById("fillerItemsPowerBombSemi").checked = true;
     }
+    processItemPoolPreset();
     processStartingItemsPreset();
 }
 function itemProgressionChanged() {
@@ -368,6 +383,67 @@ function startingItemsChanged() {
     validateStartingItems();
     itemProgressionChanged();
 }
+
+function processItemPoolPreset() {
+    if (document.getElementById("itemPoolPresetFull").checked) {
+        document.getElementById("itemPoolMissile").value = "46";
+        document.getElementById("itemPoolETank").value = "14";
+        document.getElementById("itemPoolReserveTank").value = "4";
+        document.getElementById("itemPoolSuper").value = "10";
+        document.getElementById("itemPoolPowerBomb").value = "10";
+    }
+    if (document.getElementById("itemPoolPresetReduced").checked) {
+        document.getElementById("itemPoolMissile").value = "24";
+        document.getElementById("itemPoolETank").value = "7";
+        document.getElementById("itemPoolReserveTank").value = "2";
+        document.getElementById("itemPoolSuper").value = "6";
+        document.getElementById("itemPoolPowerBomb").value = "6";
+    }
+}
+function validateItemPool() {
+    if (parseInt(document.getElementById("itemPoolMissile").value) > 46) {
+        document.getElementById("itemPoolMissile").value = "46";
+    }
+    if (parseInt(document.getElementById("itemPoolETank").value) > 14) {
+        document.getElementById("itemPoolETank").value = "14";
+    }
+    if (parseInt(document.getElementById("itemPoolReserveTank").value) > 4) {
+        document.getElementById("itemPoolReserveTank").value = "4";
+    }
+    if (parseInt(document.getElementById("itemPoolSuper").value) > 19) {
+        document.getElementById("itemPoolSuper").value = "19";
+    }
+    if (parseInt(document.getElementById("itemPoolPowerBomb").value) > 19) {
+        document.getElementById("itemPoolPowerBomb").value = "19";
+    }
+
+    if (parseInt(document.getElementById("itemPoolMissile").value) < 2) {
+        document.getElementById("itemPoolMissile").value = "2";
+    }
+    if (parseInt(document.getElementById("itemPoolETank").value) < 2) {
+        document.getElementById("itemPoolETank").value = "2";
+    }
+    if (parseInt(document.getElementById("itemPoolReserveTank").value) < 1) {
+        document.getElementById("itemPoolReserveTank").value = "1";
+    }
+    if (parseInt(document.getElementById("itemPoolSuper").value) < 2) {
+        document.getElementById("itemPoolSuper").value = "2";
+    }
+    if (parseInt(document.getElementById("itemPoolPowerBomb").value) < 1) {
+        document.getElementById("itemPoolPowerBomb").value = "1";
+    }
+}
+function itemPoolPresetChanged() {
+    processItemPoolPreset();
+    itemProgressionChanged();
+}
+function itemPoolChanged() {
+    document.getElementById("itemPoolPresetFull").checked = false;
+    document.getElementById("itemPoolPresetReduced").checked = false;
+    validateItemPool();
+    itemProgressionChanged();
+}
+
 function gameVariationChanged() {
     if (document.getElementById("ultraLowQoLYes").checked) {
         document.getElementById("qualityOfLifeOff").checked = true;

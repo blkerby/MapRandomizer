@@ -97,6 +97,7 @@ struct GenerateTemplate<'a> {
     objectives: Vec<&'static str>,
     preset_data: &'a [PresetData],
     item_priorities: Vec<String>,
+    item_pool_multiple: Vec<String>,
     starting_items_multiple: Vec<String>,
     starting_items_single: Vec<String>,
     prioritizable_items: Vec<String>,
@@ -152,6 +153,14 @@ async fn about(app_data: web::Data<AppData>) -> impl Responder {
 
 #[get("/generate")]
 async fn generate(app_data: web::Data<AppData>) -> impl Responder {
+    let item_pool_multiple: Vec<String> = [
+        "Missile",
+        "ETank",
+        "ReserveTank",
+        "Super",
+        "PowerBomb",
+    ].into_iter().map(|x| x.to_string()).collect();
+
     let starting_items_multiple: Vec<String> = [
         "Missile",
         "ETank",
@@ -207,6 +216,7 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         progression_rates: vec!["Fast", "Uniform", "Slow"],
         item_placement_styles: vec!["Neutral", "Forced"],
         objectives: vec!["None", "Bosses", "Minibosses", "Metroids", "Chozos", "Pirates"],
+        item_pool_multiple,
         starting_items_multiple,
         starting_items_single,
         item_priorities: vec!["Early", "Default", "Late"]
@@ -252,6 +262,7 @@ struct RandomizeRequest {
     random_tank: Text<String>,
     spazer_before_plasma: Text<String>,
     item_progression_preset: Option<Text<String>>,
+    item_pool_json: Text<String>,
     starting_item_json: Text<String>,
     item_priority_json: Text<String>,
     filler_items_json: Text<String>,
@@ -1085,6 +1096,7 @@ fn get_difficulty_tiers(
             spazer_before_plasma: difficulty.spazer_before_plasma,
             item_placement_style: difficulty.item_placement_style,
             item_priorities: difficulty.item_priorities.clone(),
+            item_pool: difficulty.item_pool.clone(),
             starting_items: difficulty.starting_items.clone(),
             semi_filler_items: difficulty.semi_filler_items.clone(),
             filler_items: difficulty.filler_items.clone(),
@@ -1267,6 +1279,16 @@ async fn randomize(
     }
     info!("Starting items: {:?}", starting_items);
 
+    let item_pool_json: serde_json::Value = serde_json::from_str(&req.item_pool_json).unwrap();
+    info!("item_pool_json: {:?}", item_pool_json);
+    let mut item_pool: Vec<(Item, usize)> = vec![];
+    for (k, cnt_json) in item_pool_json.as_object().unwrap().iter() {
+        let cnt_str = cnt_json.as_str().unwrap();
+        let cnt = usize::from_str_radix(cnt_str, 10).unwrap();
+        item_pool.push((Item::try_from(app_data.game_data.item_isv.index_by_key[k]).unwrap(), cnt));
+    }
+    info!("Item pool: {:?}", item_pool);
+
     let item_priority_json: serde_json::Value =
         serde_json::from_str(&req.item_priority_json.0).unwrap();
 
@@ -1326,6 +1348,7 @@ async fn randomize(
             "Yes" => true,
             _ => panic!("Unrecognized spazer_before_plasma {}", req.spazer_before_plasma.0.as_str())
         },
+        item_pool,
         starting_items,
         filler_items,
         semi_filler_items,

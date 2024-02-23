@@ -324,6 +324,7 @@ fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
         progression_rate: crate::randomize::ProgressionRate::Fast,
         random_tank: true,
         spazer_before_plasma: true,
+        item_pool: vec![],
         starting_items: vec![],
         item_placement_style: crate::randomize::ItemPlacementStyle::Forced,
         item_priorities: vec![],

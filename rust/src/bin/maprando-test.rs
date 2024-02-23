@@ -63,6 +63,7 @@ fn create_difficulty_from_preset(preset : &Preset) -> DifficultyConfig {
         progression_rate: ProgressionRate::Fast,
         random_tank: true,
         spazer_before_plasma: true,
+        item_pool: vec![],
         starting_items: vec![],
         filler_items: vec![ Item::Missile, Item::ETank, Item::ReserveTank, Item::Super, Item::PowerBomb, Item::Charge, Item::Ice, Item::Wave, Item::Spazer ],
         semi_filler_items: vec![ ],
