@@ -480,7 +480,7 @@ impl<'a> Patcher<'a> {
             patches.push("all_items_spawn");
         }
 
-        if self.randomization.difficulty.escape_movement_items {
+        if self.randomization.difficulty.escape_movement_items || self.randomization.difficulty.stop_item_placement_early {
             patches.push("escape_items");
             // patches.push("mother_brain_no_drain");
         }

@@ -1,4 +1,8 @@
 - count MB accessibility as progression in item placement
+- strip away unnecessary items in last step.
+- new preset "Stingy"
+- Charge/Wave/Spazer filler in "Challenge" and "Stingy"
+- DONE: override escape behavior to enable "hyper beam gives all movement items"
 
 
 - fix randomizer failing with all starting items.

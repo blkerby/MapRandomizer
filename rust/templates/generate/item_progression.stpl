@@ -82,28 +82,6 @@
     </div>
 </div>
 
-<div class="form-group row">
-    <div class="col-lg-3 m-2">
-        <% include!("help/progression/stop_item_placement_early.stpl"); %>
-        <label for="preset">Stop item placement early</label>
-    </div>
-    <div class="col-lg-2 btn-group m-2" role="group">
-    <% for &name in &["No", "Yes"] {
-            let checked = if name == "No" { "checked" } else { "" };
-            %>
-        <input type="radio"
-            class="btn-check" 
-            name="stop_item_placement_early"
-            id="stopItemPlacementEarly<%- name %>"
-            value="<%- name %>"
-            onclick="itemProgressionChanged()"
-            autocomplete="off"
-            <%- checked %>>
-        <label class="btn btn-outline-primary" for="stopItemPlacementEarly<%- name%>"><%= name %></label>
-    <% } %>
-    </div>
-</div>
-
 <div class="form-group row border rounded-3 m-3 p-0">
     <div class="col-lg-3 ml-0 mt-1 mb-1 align-items-center">
         <% include!("help/progression/item_pool.stpl"); %>
@@ -129,14 +107,64 @@
             </h2>
             <div id="collapseItemPool" class="accordion-collapse collapse">
                 <input type="hidden" id="json-item-pool" name="item_pool_json">
+                <div class="form-group row">
+                    <div class="col-lg-3 m-2">
+                        <% include!("help/progression/pool_size_randomization.stpl"); %>
+                        <label for="preset">Pool size randomization</label>
+                    </div>
+                    <div class="col-lg-2 btn-group m-2" role="group">
+                    <% for &name in &["Uniform", "Bimodal"] {
+                            let checked = if name == "Bimodal" { "checked" } else { "" };
+                            %>
+                        <input type="radio"
+                            class="btn-check" 
+                            name="pool_size_randomization"
+                            id="poolSizeRandomization<%- name %>"
+                            value="<%- name %>"
+                            onclick="itemPoolChanged()"
+                            autocomplete="off"
+                            <%- checked %>>
+                        <label class="btn btn-outline-primary" for="poolSizeRandomization<%- name%>"><%= name %></label>
+                    <% } %>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <div class="col-lg-3 m-2">
+                        <% include!("help/progression/stop_item_placement_early.stpl"); %>
+                        <label for="preset">Stop item placement early</label>
+                    </div>
+                    <div class="col-lg-2 btn-group m-2" role="group">
+                    <% for &name in &["No", "Yes"] {
+                            let checked = if name == "No" { "checked" } else { "" };
+                            %>
+                        <input type="radio"
+                            class="btn-check" 
+                            name="stop_item_placement_early"
+                            id="stopItemPlacementEarly<%- name %>"
+                            value="<%- name %>"
+                            onclick="itemPoolChanged()"
+                            autocomplete="off"
+                            <%- checked %>>
+                        <label class="btn btn-outline-primary" for="stopItemPlacementEarly<%- name%>"><%= name %></label>
+                    <% } %>
+                    </div>
+                </div>
                 <% for item in &item_pool_multiple { %>
-                    <div class="form-group row my-2">
-                        <label class="col-sm-2 col-form-label text-end" for="item_pool_<%- item %>"><%= item %></label>
-                        <div class="col-sm-2">
-                            <input type="text" class="form-control item-pool-input-multiple" name="item_pool_<%- item %>" id="itemPool<%- item %>" 
+                    <div class="form-group row m-2">
+                        <label class="col-lg-3 col-form-label text-end" for="item_pool_min_<%- item %>">Min <%= item %></label>
+                        <div class="col-lg-2">
+                            <input type="text" class="form-control item-pool-input-multiple" name="item_pool_min_<%- item %>" id="itemPoolMin<%- item %>" 
                             value="0" onchange="itemPoolChanged()">
                         </div>
                     </div>
+                    <div class="form-group row m-2">
+                        <label class="col-lg-3 col-form-label text-end" for="item_pool_max_<%- item %>">Max <%= item %></label>
+                        <div class="col-lg-2">
+                            <input type="text" class="form-control item-pool-input-multiple" name="item_pool_max_<%- item %>" id="itemPoolMax<%- item %>" 
+                            value="0" onchange="itemPoolChanged()">
+                        </div>
+                    </div>
+
                 <% }%>
             </div>
         </div>

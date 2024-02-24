@@ -83,6 +83,11 @@
                             id="itemProgressionPresetChallenge" autocomplete="off" 
                             onclick="itemProgressionPresetChanged()">
                         <label class="btn btn-outline-primary" for="itemProgressionPresetChallenge">Challenge</label>
+
+                        <input type="radio" class="btn-check" name="item_progression_preset" value="Desolate"
+                            id="itemProgressionPresetDesolate" autocomplete="off" 
+                            onclick="itemProgressionPresetChanged()">
+                        <label class="btn btn-outline-primary" for="itemProgressionPresetDesolate">Desolate</label>
                     </div>
                 </div>
                 <div class="accordion m-0 p-0" id="accordionItemPriority">

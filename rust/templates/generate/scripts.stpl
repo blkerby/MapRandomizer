@@ -254,7 +254,6 @@ function itemProgressionPresetChanged() {
         document.getElementById("itemPlacementStyleNeutral").checked = true;
         document.getElementById("randomTankYes").checked = true;
         document.getElementById("spazerBeforePlasmaYes").checked = true;
-        document.getElementById("stopItemPlacementEarlyNo").checked = true;
         document.getElementById("itemPoolPresetFull").checked = true;
         document.getElementById("startingItemsPresetNone").checked = true;
         <% for item in &prioritizable_items { %>
@@ -275,9 +274,9 @@ function itemProgressionPresetChanged() {
         document.getElementById("fillerItemsETankEarly").checked = true;
         document.getElementById("fillerItemsReserveTankYes").checked = true;
         document.getElementById("fillerItemsChargeYes").checked = true;
-        document.getElementById("fillerItemsIceYes").checked = true;
         document.getElementById("fillerItemsWaveYes").checked = true;
         document.getElementById("fillerItemsSpazerYes").checked = true;
+        document.getElementById("fillerItemsIceYes").checked = true;
         document.getElementById("fillerItemsPlasmaYes").checked = true;
         document.getElementById("fillerItemsXRayScopeYes").checked = true;
     }
@@ -286,7 +285,6 @@ function itemProgressionPresetChanged() {
         document.getElementById("itemPlacementStyleForced").checked = true;
         document.getElementById("randomTankYes").checked = true;
         document.getElementById("spazerBeforePlasmaYes").checked = true;
-        document.getElementById("stopItemPlacementEarlyNo").checked = true;
         document.getElementById("itemPoolPresetFull").checked = true;
         document.getElementById("startingItemsPresetNone").checked = true;
         <% for item in &prioritizable_items { %>
@@ -315,7 +313,6 @@ function itemProgressionPresetChanged() {
         document.getElementById("itemPlacementStyleForced").checked = true;
         document.getElementById("randomTankYes").checked = true;
         document.getElementById("spazerBeforePlasmaYes").checked = true;
-        document.getElementById("stopItemPlacementEarlyNo").checked = true;
         document.getElementById("itemPoolPresetFull").checked = true;
         document.getElementById("startingItemsPresetNone").checked = true;
         <% for item in &prioritizable_items { %>
@@ -328,6 +325,32 @@ function itemProgressionPresetChanged() {
         <% for item in &prioritizable_items { %>
         document.getElementById("fillerItems<%- item %>No").checked = true;
         <% } %>
+        document.getElementById("fillerItemsChargeYes").checked = true;
+        document.getElementById("fillerItemsWaveYes").checked = true;
+        document.getElementById("fillerItemsSpazerYes").checked = true;
+        document.getElementById("fillerItemsSuperSemi").checked = true;
+        document.getElementById("fillerItemsPowerBombSemi").checked = true;
+    }
+    if (document.getElementById("itemProgressionPresetDesolate").checked) {
+        document.getElementById("progressionRateSlow").checked = true;
+        document.getElementById("itemPlacementStyleForced").checked = true;
+        document.getElementById("randomTankYes").checked = true;
+        document.getElementById("spazerBeforePlasmaYes").checked = true;
+        document.getElementById("itemPoolPresetReduced").checked = true;
+        document.getElementById("startingItemsPresetNone").checked = true;
+        <% for item in &prioritizable_items { %>
+        document.getElementById("itemPriority<%- item %>Default").checked = true;
+        <% } %>
+        document.getElementById("itemPrioritySpaceJumpLate").checked = true;
+        document.getElementById("itemPriorityScrewAttackLate").checked = true;
+        document.getElementById("itemPriorityVariaLate").checked = true;
+        document.getElementById("itemPriorityGravityLate").checked = true;
+        <% for item in &prioritizable_items { %>
+        document.getElementById("fillerItems<%- item %>No").checked = true;
+        <% } %>
+        document.getElementById("fillerItemsChargeYes").checked = true;
+        document.getElementById("fillerItemsWaveYes").checked = true;
+        document.getElementById("fillerItemsSpazerYes").checked = true;
         document.getElementById("fillerItemsSuperSemi").checked = true;
         document.getElementById("fillerItemsPowerBombSemi").checked = true;
     }
@@ -389,18 +412,32 @@ function startingItemsChanged() {
 
 function processItemPoolPreset() {
     if (document.getElementById("itemPoolPresetFull").checked) {
-        document.getElementById("itemPoolMissile").value = "46";
-        document.getElementById("itemPoolETank").value = "14";
-        document.getElementById("itemPoolReserveTank").value = "4";
-        document.getElementById("itemPoolSuper").value = "10";
-        document.getElementById("itemPoolPowerBomb").value = "10";
+        document.getElementById("poolSizeRandomizationUniform").checked = true;
+        document.getElementById("stopItemPlacementEarlyNo").checked = true;
+        document.getElementById("itemPoolMinMissile").value = "46";
+        document.getElementById("itemPoolMinSuper").value = "10";
+        document.getElementById("itemPoolMinPowerBomb").value = "10";
+        document.getElementById("itemPoolMinETank").value = "14";
+        document.getElementById("itemPoolMinReserveTank").value = "4";
+        document.getElementById("itemPoolMaxMissile").value = "46";
+        document.getElementById("itemPoolMaxSuper").value = "10";
+        document.getElementById("itemPoolMaxPowerBomb").value = "10";
+        document.getElementById("itemPoolMaxETank").value = "14";
+        document.getElementById("itemPoolMaxReserveTank").value = "4";
     }
     if (document.getElementById("itemPoolPresetReduced").checked) {
-        document.getElementById("itemPoolMissile").value = "24";
-        document.getElementById("itemPoolETank").value = "7";
-        document.getElementById("itemPoolReserveTank").value = "2";
-        document.getElementById("itemPoolSuper").value = "6";
-        document.getElementById("itemPoolPowerBomb").value = "6";
+        document.getElementById("poolSizeRandomizationBimodal").checked = true;
+        document.getElementById("stopItemPlacementEarlyYes").checked = true;
+        document.getElementById("itemPoolMinMissile").value = "6";
+        document.getElementById("itemPoolMinSuper").value = "3";
+        document.getElementById("itemPoolMinPowerBomb").value = "3";
+        document.getElementById("itemPoolMinETank").value = "3";
+        document.getElementById("itemPoolMinReserveTank").value = "1";
+        document.getElementById("itemPoolMaxMissile").value = "12";
+        document.getElementById("itemPoolMaxSuper").value = "6";
+        document.getElementById("itemPoolMaxPowerBomb").value = "6";
+        document.getElementById("itemPoolMaxETank").value = "6";
+        document.getElementById("itemPoolMaxReserveTank").value = "2";
     }
 }
 function validateItemPool() {
