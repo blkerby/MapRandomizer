@@ -14,7 +14,7 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release109">Version 109 (2024-02-23)</a>:
+<p><a id="release109">Version 109 (2024-02-24)</a>:
 <ul>
 <li>Spin Lock (L + R + Up + X) can be used to temporarily prevent up or down from breaking spin.
     <ul>
@@ -22,12 +22,21 @@ document.getElementById("navigation-releases").classList.add("active");
     <li>The input combination can be customized (or disabled) on the seed page.
     <li>Spin lock is canceled by pressing shot.
     </ul>
-<li>New item progression setting "Item pool" to modify the amount of available ammo and tanks.
+<li>Charge, Wave, and Spazer are now filler items on "Challenge" item progression.
+<li>New group of settings "Item pool" (under Item progression > Customize):
     <ul>
-    <li>"Reduced" item pool preset places roughly half the vanilla quantities:
+    <li>"Reduced" item pool preset uses a small amount of ammo/tanks:
         <ul>
-        <li>24 Missile packs, 6 Super packs, 6 Power Bomb packs, 7 Energy Tanks, 2 Reserve Tanks
+        <li>12 Missile packs, 6 Super packs, 6 Power Bomb packs, 7 Energy Tanks, 2 Reserve Tanks
         </ul>
+    </ul>
+<li>New option "Stop item placement early" (under Item progression > Customize > Item pool).
+    <ul>
+    <li>If enabled, no more items are placed after the game becomes logically beatable.
+    </ul>
+<li>New item progression preset "Desolate" is added:
+    <ul>
+    <li>This is like "Challenge" but also enables the "Reduced" item pool and "Stop item placement early".
     </ul>
 </ul>
 

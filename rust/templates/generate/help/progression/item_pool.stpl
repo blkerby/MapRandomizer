@@ -16,10 +16,10 @@
 
         <ul>
         <li><strong>Full</strong>: 46 Missile packs, 10 Super packs, 10 Power Bomb packs, 14 Energy Tanks, 4 Reserve Tanks
-        <li><strong>Reduced</strong>: 24 Missile packs, 6 Super packs, 6 Power Bomb packs, 7 Energy Tanks, 2 Reserve Tanks
+        <li><strong>Reduced</strong>: 12 Missile packs, 6 Super packs, 6 Power Bomb packs, 7 Energy Tanks, 2 Reserve Tanks
         </ul>
 
-        <p>Using a reduced amount of ammo and tanks causes some item locations to be missing an item.</p>
+        <p>Using a reduced amount of ammo and tanks causes some item locations to be missing an item. Regardless of the item pool settings, extra Super packs and Energy Tanks may be added to ensure the game is beatable based on selected difficulty settings.</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

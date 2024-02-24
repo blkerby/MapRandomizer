@@ -2,14 +2,10 @@ pub mod escape_timer;
 
 use crate::{
     game_data::{
-        get_effective_runway_length, Capacity, DoorPosition, DoorPtrPair, EntranceCondition,
-        ExitCondition, FlagId, GModeMobility, GModeMode, HubLocation, Item, ItemId, ItemLocationId,
-        Link, LinkIdx, LinksDataGroup, Map, NodeId, Physics, Requirement, RoomGeometryRoomIdx,
-        RoomId, SparkPosition, StartLocation, VertexId,
+        self, get_effective_runway_length, Capacity, DoorPosition, DoorPtrPair, EntranceCondition, ExitCondition, FlagId, GModeMobility, GModeMode, HubLocation, Item, ItemId, ItemLocationId, Link, LinkIdx, LinksDataGroup, Map, NodeId, Physics, Requirement, RoomGeometryRoomIdx, RoomId, SparkPosition, StartLocation, VertexId
     },
     traverse::{
-        apply_requirement, get_bireachable_idxs, get_spoiler_route, traverse, GlobalState,
-        LocalState, TraverseResult, IMPOSSIBLE_LOCAL_STATE, NUM_COST_METRICS,
+        apply_requirement, apply_ridley_requirement, get_bireachable_idxs, get_spoiler_route, traverse, GlobalState, LocalState, TraverseResult, IMPOSSIBLE_LOCAL_STATE, NUM_COST_METRICS
     },
     web::logic::strip_name,
 };
@@ -31,8 +27,9 @@ use crate::game_data::GameData;
 
 use self::escape_timer::SpoilerEscape;
 
-// Once there are fewer than 20 item locations remaining to be filled, remaining key items will be
-// placed as quickly as possible.
+// Once there are fewer than 20 item locations remaining to be filled, key items will be
+// placed as quickly as possible. This helps prevent generation failures particularly on lower 
+// difficulty settings where some item locations may never be accessible (e.g. Main Street Missile).
 const KEY_ITEM_FINISH_THRESHOLD: usize = 20;
 
 
@@ -2361,6 +2358,50 @@ fn get_strat_vec(game_data: &GameData, difficulty: &DifficultyConfig) -> Vec<boo
         .collect()
 }
 
+fn ensure_enough_tanks(initial_items_remaining: &mut [usize], game_data: &GameData, difficulty: &DifficultyConfig) {
+    if difficulty.ridley_proficiency < 0.3 {
+        // Give a couple more tanks than may be needed for Ridley, to reduce generation failures:
+        while initial_items_remaining[Item::ETank as usize] + initial_items_remaining[Item::ReserveTank as usize] < 11 {
+            initial_items_remaining[Item::ETank as usize] += 1;
+        }
+    } else {
+        // Give enough tanks for Mother Brain:
+        while initial_items_remaining[Item::ETank as usize] + initial_items_remaining[Item::ReserveTank as usize] < 3 {
+            initial_items_remaining[Item::ETank as usize] += 1;
+        }
+    }
+    // // let mut global = GlobalState {
+    //     tech: vec![true; game_data.tech_isv.keys.len()],
+    //     notable_strats: vec![true; game_data.notable_strat_isv.keys.len()],
+    //     items: vec![true; game_data.item_isv.keys.len()],
+    //     flags: vec![true; game_data.flag_isv.keys.len()],
+    //     max_energy: 99,
+    //     max_reserves: 0,
+    //     max_missiles: 0,
+    //     max_supers: 0,
+    //     max_power_bombs: 0,
+    //     weapon_mask: 0,
+    //     shine_charge_tiles: 32.0,
+    //     heated_shine_charge_tiles: 32.0,
+    // };
+    // for (item_idx, &cnt) in initial_items_remaining.iter().enumerate() {
+    //     for _ in 0..cnt {
+    //         global.collect(Item::try_from(item_idx).unwrap(), game_data);
+    //     }
+    // }
+    // let local = LocalState::new();
+    // while initial_items_remaining[Item::ETank as usize] <= 14 {
+    //     let result = apply_ridley_requirement(&global, local, difficulty.ridley_proficiency, 0);
+    //     if result.is_some() {
+    //         return;
+    //     }
+    //     println!("Adding extra tank to ensure Ridley is beatable");
+    //     initial_items_remaining[Item::ETank as usize] += 1;
+    //     global.collect(Item::ETank, game_data);
+    // }
+    // panic!("Not able to ensure Ridley beatable")
+}
+
 impl<'r> Randomizer<'r> {
     pub fn new(
         map: &'r Map,
@@ -2491,6 +2532,8 @@ impl<'r> Randomizer<'r> {
         for &(item, cnt) in &difficulty_tiers[0].item_pool {
             initial_items_remaining[item as usize] = cnt;
         }
+
+        ensure_enough_tanks(&mut initial_items_remaining, game_data, &difficulty_tiers[0]);
 
         if initial_items_remaining.iter().sum::<usize>() > game_data.item_locations.len() {
             initial_items_remaining[Item::Missile as usize] -= initial_items_remaining.iter().sum::<usize>() - game_data.item_locations.len();
@@ -2908,7 +2951,8 @@ impl<'r> Randomizer<'r> {
 
         let num_items_remaining: usize = state.items_remaining.iter().sum();
         let num_items_to_place: usize = key_items_to_place.len() + other_items_to_place.len();
-        let skip_hard_placement = num_items_remaining < num_items_to_place + KEY_ITEM_FINISH_THRESHOLD;
+        let skip_hard_placement = !self.difficulty_tiers[0].stop_item_placement_early 
+            && num_items_remaining < num_items_to_place + KEY_ITEM_FINISH_THRESHOLD;
 
         // println!("[attempt {attempt_num_rando}] # bireachable = {}", bireachable_locations.len());
         let mut new_bireachable_locations: Vec<ItemLocationId> = bireachable_locations.to_vec();
@@ -3316,7 +3360,6 @@ impl<'r> Randomizer<'r> {
             HashMap::new();
 
         for (step, debug_data) in debug_data_vec.iter_mut().enumerate() {
-            println!("step={}", step);
             for (v, (room_id, node_id, _obstacle_bitmask)) in
                 self.game_data.vertex_isv.keys.iter().enumerate()
             {
@@ -3737,13 +3780,12 @@ impl<'r> Randomizer<'r> {
     }
 
     fn is_game_beatable(&self, state: &RandomizationState) -> bool {
-        let mut mother_brain_defeated = false;
         for (i, (_, _, flag_id)) in self.game_data.flag_locations.iter().enumerate() {
             if *flag_id == self.game_data.mother_brain_defeated_flag_id && state.flag_location_state[i].reachable {
-                mother_brain_defeated = true;
+                return true;
             }
         }
-        mother_brain_defeated
+        return false;
     }
 
     pub fn randomize(

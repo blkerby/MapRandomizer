@@ -319,7 +319,7 @@ fn apply_draygon_requirement(
     }
 }
 
-fn apply_ridley_requirement(
+pub fn apply_ridley_requirement(
     global: &GlobalState,
     mut local: LocalState,
     proficiency: f32,

@@ -361,6 +361,7 @@ function itemProgressionChanged() {
     document.getElementById("itemProgressionPresetNormal").checked = false;
     document.getElementById("itemProgressionPresetTricky").checked = false;
     document.getElementById("itemProgressionPresetChallenge").checked = false;
+    document.getElementById("itemProgressionPresetDesolate").checked = false;
 }
 function processStartingItemsPreset() {
     if (document.getElementById("startingItemsPresetNone").checked) {
@@ -412,32 +413,20 @@ function startingItemsChanged() {
 
 function processItemPoolPreset() {
     if (document.getElementById("itemPoolPresetFull").checked) {
-        document.getElementById("poolSizeRandomizationUniform").checked = true;
         document.getElementById("stopItemPlacementEarlyNo").checked = true;
-        document.getElementById("itemPoolMinMissile").value = "46";
-        document.getElementById("itemPoolMinSuper").value = "10";
-        document.getElementById("itemPoolMinPowerBomb").value = "10";
-        document.getElementById("itemPoolMinETank").value = "14";
-        document.getElementById("itemPoolMinReserveTank").value = "4";
-        document.getElementById("itemPoolMaxMissile").value = "46";
-        document.getElementById("itemPoolMaxSuper").value = "10";
-        document.getElementById("itemPoolMaxPowerBomb").value = "10";
-        document.getElementById("itemPoolMaxETank").value = "14";
-        document.getElementById("itemPoolMaxReserveTank").value = "4";
+        document.getElementById("itemPoolMissile").value = "46";
+        document.getElementById("itemPoolSuper").value = "10";
+        document.getElementById("itemPoolPowerBomb").value = "10";
+        document.getElementById("itemPoolETank").value = "14";
+        document.getElementById("itemPoolReserveTank").value = "4";
     }
     if (document.getElementById("itemPoolPresetReduced").checked) {
-        document.getElementById("poolSizeRandomizationBimodal").checked = true;
         document.getElementById("stopItemPlacementEarlyYes").checked = true;
-        document.getElementById("itemPoolMinMissile").value = "6";
-        document.getElementById("itemPoolMinSuper").value = "3";
-        document.getElementById("itemPoolMinPowerBomb").value = "3";
-        document.getElementById("itemPoolMinETank").value = "3";
-        document.getElementById("itemPoolMinReserveTank").value = "1";
-        document.getElementById("itemPoolMaxMissile").value = "12";
-        document.getElementById("itemPoolMaxSuper").value = "6";
-        document.getElementById("itemPoolMaxPowerBomb").value = "6";
-        document.getElementById("itemPoolMaxETank").value = "6";
-        document.getElementById("itemPoolMaxReserveTank").value = "2";
+        document.getElementById("itemPoolMissile").value = "12";
+        document.getElementById("itemPoolSuper").value = "6";
+        document.getElementById("itemPoolPowerBomb").value = "6";
+        document.getElementById("itemPoolETank").value = "7";
+        document.getElementById("itemPoolReserveTank").value = "2";
     }
 }
 function validateItemPool() {
