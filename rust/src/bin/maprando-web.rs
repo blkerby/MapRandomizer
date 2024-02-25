@@ -1217,23 +1217,16 @@ async fn randomize(
     }
 
     let race_mode = req.race_mode.0 == "Yes";
-    // let random_seed = if &req.random_seed.0 == "" || race_mode {
-    //     get_random_seed()
-    // } else {
-    //     match req.random_seed.0.parse::<usize>() {
-    //         Ok(x) => x,
-    //         Err(_) => {
-    //             return HttpResponse::BadRequest().body("Invalid random seed");
-    //         }
-    //     }
-    // };
-    let random_seed = 
+    let random_seed = if &req.random_seed.0 == "" || race_mode {
+        get_random_seed()
+    } else {
         match req.random_seed.0.parse::<usize>() {
             Ok(x) => x,
             Err(_) => {
                 return HttpResponse::BadRequest().body("Invalid random seed");
             }
-        };
+        }
+    };
     let display_seed = if race_mode {
         get_random_seed()
     } else {
@@ -1527,7 +1520,6 @@ async fn randomize(
                 
     let mut rng_seed = [0u8; 32];
     rng_seed[..8].copy_from_slice(&random_seed.to_le_bytes());
-    rng_seed[9] = if race_mode { 1 } else { 0 };
     let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
     let max_attempts = 10000;
     let max_attempts_per_map = if difficulty.start_location_mode == StartLocationMode::Random { 10 } else { 1 };
