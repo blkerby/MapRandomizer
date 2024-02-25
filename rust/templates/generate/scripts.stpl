@@ -326,7 +326,6 @@ function itemProgressionPresetChanged() {
         document.getElementById("fillerItems<%- item %>No").checked = true;
         <% } %>
         document.getElementById("fillerItemsChargeYes").checked = true;
-        document.getElementById("fillerItemsWaveYes").checked = true;
         document.getElementById("fillerItemsSpazerYes").checked = true;
         document.getElementById("fillerItemsSuperSemi").checked = true;
         document.getElementById("fillerItemsPowerBombSemi").checked = true;
@@ -349,7 +348,6 @@ function itemProgressionPresetChanged() {
         document.getElementById("fillerItems<%- item %>No").checked = true;
         <% } %>
         document.getElementById("fillerItemsChargeYes").checked = true;
-        document.getElementById("fillerItemsWaveYes").checked = true;
         document.getElementById("fillerItemsSpazerYes").checked = true;
         document.getElementById("fillerItemsSuperSemi").checked = true;
         document.getElementById("fillerItemsPowerBombSemi").checked = true;

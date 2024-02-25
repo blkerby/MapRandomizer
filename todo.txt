@@ -1,5 +1,11 @@
 v109:
-- remove unnecessary unique items on last step
+- remove unnecessary items on last step
+- fix credits to properly show placed but logically unreachable items (no step number, but still show area)
+- adjust cost metrics?
+  - make energy/ammo metrics prioritize energy/ammo even harder
+- troubleshoot osse seed:
+  - https://dev.maprando.com/seed/YwbSxrwB1dM3_eWOoI00sQ/data/visualizer/index.html
+- undo race mode debugging; stop modifying race mode seed byte 9.  
 
 TODO:
 - fix randomizer failing with all starting items.

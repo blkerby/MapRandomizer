@@ -1751,6 +1751,25 @@ impl<'a> Patcher<'a> {
             }
         }
 
+        // Show logically uncollectible items:
+        for loc in &self.randomization.spoiler_log.all_items {
+            if loc.item == "Nothing" {
+                continue;
+            }
+            if !items_set.contains(&loc.item) {
+                let item_name = item_display_name_map[&loc.item].clone();
+                let item_idx = item_name_index[&loc.item];
+                self.write_item_credits(
+                    items_set.len(),
+                    None,
+                    &item_name,
+                    Some(item_idx),
+                    &loc.location.area,
+                )?;
+                items_set.insert(loc.item.clone());
+            }
+        }
+
         // Show unplaced items at the bottom:
         for (name, display_name) in &item_name_pairs {
             if self.randomization.difficulty.wall_jump != WallJump::Collectible && name == "WallJump" {

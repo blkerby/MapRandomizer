@@ -671,9 +671,9 @@ fn compute_cost(local: LocalState, global: &GlobalState) -> [f32; NUM_COST_METRI
     let power_bombs_cost = (local.power_bombs_used as f32) / (global.max_power_bombs as f32 + eps);
 
     let ammo_sensitive_cost_metric =
-        energy_cost + reserve_cost + 10.0 * (missiles_cost + supers_cost + power_bombs_cost);
+        energy_cost + reserve_cost + 100.0 * (missiles_cost + supers_cost + power_bombs_cost);
     let energy_sensitive_cost_metric =
-        10.0 * (energy_cost + reserve_cost) + missiles_cost + supers_cost + power_bombs_cost;
+        100.0 * (energy_cost + reserve_cost) + missiles_cost + supers_cost + power_bombs_cost;
     [ammo_sensitive_cost_metric, energy_sensitive_cost_metric]
 }
 

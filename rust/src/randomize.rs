@@ -4022,8 +4022,8 @@ pub struct SpoilerDetails {
 
 #[derive(Serialize, Deserialize)]
 pub struct SpoilerItemLoc {
-    item: String,
-    location: SpoilerLocation,
+    pub item: String,
+    pub location: SpoilerLocation,
 }
 #[derive(Serialize, Deserialize)]
 pub struct SpoilerRoomLoc {

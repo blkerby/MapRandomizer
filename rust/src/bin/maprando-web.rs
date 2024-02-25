@@ -1217,16 +1217,23 @@ async fn randomize(
     }
 
     let race_mode = req.race_mode.0 == "Yes";
-    let random_seed = if &req.random_seed.0 == "" || race_mode {
-        get_random_seed()
-    } else {
+    // let random_seed = if &req.random_seed.0 == "" || race_mode {
+    //     get_random_seed()
+    // } else {
+    //     match req.random_seed.0.parse::<usize>() {
+    //         Ok(x) => x,
+    //         Err(_) => {
+    //             return HttpResponse::BadRequest().body("Invalid random seed");
+    //         }
+    //     }
+    // };
+    let random_seed = 
         match req.random_seed.0.parse::<usize>() {
             Ok(x) => x,
             Err(_) => {
                 return HttpResponse::BadRequest().body("Invalid random seed");
             }
-        }
-    };
+        };
     let display_seed = if race_mode {
         get_random_seed()
     } else {
