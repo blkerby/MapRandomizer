@@ -1,7 +1,7 @@
 v109:
-- update tests to include Desolate
 - pull in new logic
   - finish Business Center PR
+- DONE: update tests to include Desolate
 - DONE: remove unnecessary items on last step
 - DONE: fix credits to properly show placed but logically unreachable items (no step number, but still show area)
 - DONE: adjust cost metrics?
@@ -15,6 +15,8 @@ v109:
 
 
 TODO:
+- debug door lock logic:
+  - door requiring heat frames to unlock from unheated side: http://localhost:8080/seed/UCp7ZDC5H6ZSmDlKOtYBXw/data/visualizer/index.html
 - fix randomizer failing with all starting items.
 - in logic pages From/To node selections, improve contrast for grayed-out nodes.
 - reduced items?: new item progression preset & options

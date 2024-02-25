@@ -3126,8 +3126,10 @@ impl<'r> Randomizer<'r> {
             )
             .any(|(n, o)| n.bireachable && !o.bireachable)
         };
+        
+        let is_beatable = self.is_game_beatable(&new_state);
 
-        num_one_way_reachable < one_way_reachable_limit && gives_expansion
+        (num_one_way_reachable < one_way_reachable_limit && gives_expansion) || is_beatable
     }
 
     fn multi_attempt_select_items<R: Rng + Clone>(
