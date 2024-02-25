@@ -2813,7 +2813,7 @@ impl<'r> Randomizer<'r> {
             let mut cnt_different_items_remaining = 0;
 
             for &item in &state.item_precedence {
-                if state.items_remaining[item as usize] > 0 || item == Item::Nothing {
+                if state.items_remaining[item as usize] > 0 || (self.difficulty_tiers[0].stop_item_placement_early && item == Item::Nothing) {
                     remaining_items.push(item);
                     cnt_different_items_remaining += 1;
                 }
@@ -3208,6 +3208,11 @@ impl<'r> Randomizer<'r> {
                 selected_key_items = new_selected_key_items;
             } else {
                 info!("[attempt {attempt_num_rando}] Exhausted key item placement attempts");
+                if self.difficulty_tiers[0].stop_item_placement_early {
+                    for x in &mut selected_key_items {
+                        *x = Item::Nothing;
+                    }
+                }
                 let selection = SelectItemsOutput {
                     key_items: selected_key_items,
                     other_items: selected_filler_items,
