@@ -10,7 +10,7 @@ use crate::{
         Capacity, EnemyVulnerabilities, GameData, Item, Link, LinkIdx, LinksDataGroup, Requirement,
         WeaponMask,
     },
-    randomize::{DifficultyConfig, Objectives, WallJump},
+    randomize::{DifficultyConfig, MotherBrainFight, Objectives, WallJump},
 };
 
 use log::info;
@@ -565,6 +565,10 @@ fn apply_mother_brain_2_requirement(
     difficulty: &DifficultyConfig,
     can_be_very_patient_tech_id: usize,
 ) -> Option<LocalState> {
+    if difficulty.mother_brain_fight == MotherBrainFight::Skip {
+        return Some(local);
+    }
+
     let proficiency = difficulty.mother_brain_proficiency;
     let mut boss_hp: f32 = 18000.0;
     let mut time: f32 = 0.0; // Cumulative time in seconds for the fight
