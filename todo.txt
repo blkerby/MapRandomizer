@@ -1,4 +1,7 @@
 v109:
+- update tests to include Desolate
+- pull in new logic
+  - finish Business Center PR
 - DONE: remove unnecessary items on last step
 - DONE: fix credits to properly show placed but logically unreachable items (no step number, but still show area)
 - DONE: adjust cost metrics?
@@ -7,7 +10,7 @@ v109:
   - https://dev.maprando.com/seed/YwbSxrwB1dM3_eWOoI00sQ/data/visualizer/index.html
 - DONE: undo race mode debugging; stop modifying race mode seed byte 9.  
 - DONE: show last step as "reachable map"
-- troubleshoot:
+- DONE: troubleshoot:
   - why ScrewAttack in last step: http://localhost:8080/seed/yjoMxOUJdtHbmvu2y3HUug/data/visualizer/index.html
 
 

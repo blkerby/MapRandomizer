@@ -190,9 +190,10 @@ fn set_item_progression_challenge(diff: &mut DifficultyConfig) -> () {
     diff.progression_rate = ProgressionRate::Slow;
     diff.random_tank = true;
     diff.spazer_before_plasma = true;
-    diff.filler_items = vec![ Item::Missile ];
-    diff.semi_filler_items = vec![ Item::Super, Item::PowerBomb ];
-    diff.early_filler_items = vec![ ];
+    diff.stop_item_placement_early = false;
+    diff.filler_items = vec![Item::Missile, Item::Charge, Item::Spazer];
+    diff.semi_filler_items = vec![Item::Super, Item::PowerBomb];
+    diff.early_filler_items = vec![];
     diff.item_placement_style = ItemPlacementStyle::Forced;
     diff.item_priorities = vec![
             ItemPriorityGroup {
@@ -210,7 +211,34 @@ fn set_item_progression_challenge(diff: &mut DifficultyConfig) -> () {
             ];
     diff.item_progression_preset = Some("Challenge".to_string());
     ();
+}
 
+fn set_item_progression_desolate(diff: &mut DifficultyConfig) -> () {
+    diff.progression_rate = ProgressionRate::Slow;
+    diff.random_tank = true;
+    diff.spazer_before_plasma = true;
+    diff.stop_item_placement_early = true;
+    diff.item_pool = vec![(Item::Missile, 12), (Item::Super, 6), (Item::PowerBomb, 6), (Item::ETank, 7), (Item::ReserveTank, 2)];
+    diff.filler_items = vec![Item::Missile, Item::Charge, Item::Spazer];
+    diff.semi_filler_items = vec![Item::Super, Item::PowerBomb];
+    diff.early_filler_items = vec![];
+    diff.item_placement_style = ItemPlacementStyle::Forced;
+    diff.item_priorities = vec![
+            ItemPriorityGroup {
+                name: "Early".to_string(),
+                items: vec![ ],
+            },
+            ItemPriorityGroup {
+                name: "Default".to_string(),
+                items: vec![ "ETank", "ReserveTank", "Super", "PowerBomb", "Charge", "Ice", "Wave", "Spazer", "Plasma", "Morph", "Bombs", "Grapple", "HiJump", "SpeedBooster", "SpringBall", "XRayScope", "WallJump" ].into_iter().map(|x| x.to_string()).collect(),
+            },
+            ItemPriorityGroup {
+                name: "Late".to_string(),
+                items: vec![ "SpaceJump", "ScrewAttack", "Varia", "Gravity" ].into_iter().map(|x| x.to_string()).collect(),
+            },
+            ];
+    diff.item_progression_preset = Some("Desolate".to_string());
+    ();
 }
 
 fn set_qol_default(diff: &mut DifficultyConfig) -> () {
@@ -696,12 +724,16 @@ fn main() -> Result<()> {
         Some("Challenge") => {
             vec![set_item_progression_challenge]
         },
+        Some("Desolate") => {
+            vec![set_item_progression_desolate]
+        },
         Some(other) => { bail!("Unknown progression preset {other}"); }
         None => {
             vec![
                 set_item_progression_normal,
                 set_item_progression_tricky,
                 set_item_progression_challenge,
+                set_item_progression_desolate,
             ]
         }
     };

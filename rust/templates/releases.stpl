@@ -38,6 +38,14 @@ document.getElementById("navigation-releases").classList.add("active");
     <ul>
     <li>This is like "Challenge" but also enables the "Reduced" item pool.
     </ul>
+<li>Logic updates:
+    <ul>
+    <li>New notable strats:
+        <ul>
+        <li>Mother Brain Speed Zebetite Skip (Hard)
+        <li>Mother Brain Ice Zebetite Skip (Hard)  
+        </ul>
+    </ul>
 </ul>
 
 <p><a id="release108">Version 108 (2024-02-12)</a>:
