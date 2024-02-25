@@ -2780,7 +2780,14 @@ impl<'r> Randomizer<'r> {
         let mut items_to_extra_delay: Vec<Item> = Vec::new();
         for &item in &item_types_to_extra_delay {
             for _ in 0..state.items_remaining[item as usize] {
-                items_to_extra_delay.push(item);
+                if self.difficulty_tiers[0].stop_item_placement_early {
+                    // When using "Stop item placement early", place extra Nothing items rather than dumping key items.
+                    // It could sometimes result in failure due to not leaving enough places to put needed key items,
+                    // but this is an acceptable risk and shouldn't happen too often.
+                    items_to_extra_delay.push(Item::Nothing);
+                } else {
+                    items_to_extra_delay.push(item);
+                }
             }
         }
         items_to_mix.shuffle(rng);
@@ -2806,7 +2813,7 @@ impl<'r> Randomizer<'r> {
             let mut cnt_different_items_remaining = 0;
 
             for &item in &state.item_precedence {
-                if state.items_remaining[item as usize] > 0 {
+                if state.items_remaining[item as usize] > 0 || item == Item::Nothing {
                     remaining_items.push(item);
                     cnt_different_items_remaining += 1;
                 }
@@ -3157,7 +3164,11 @@ impl<'r> Randomizer<'r> {
         let selected_filler_items_len = selected_filler_items.len();
         // println!("filler items len={selected_filler_items_len}");
         for &item in &selected_filler_items {
-            new_state_filler.items_remaining[item as usize] -= 1;
+            // We check if items_remaining is positive, only because with "Stop item placement early" there
+            // could be extra (unplanned) Nothing items placed.
+            if new_state_filler.items_remaining[item as usize] > 0 {
+                new_state_filler.items_remaining[item as usize] -= 1;
+            }
         }
         // let num_items_remaining: usize = new_state_filler.items_remaining.iter().sum();
         // println!("post filler num_items_remaining={num_items_remaining}");
@@ -3171,7 +3182,9 @@ impl<'r> Randomizer<'r> {
         loop {
             let mut new_state: RandomizationState = new_state_filler.clone();
             for &item in &selected_key_items {
-                new_state.items_remaining[item as usize] -= 1;
+                if new_state_filler.items_remaining[item as usize] > 0 {
+                    new_state.items_remaining[item as usize] -= 1;
+                }
             }
 
             if self.provides_progression(
@@ -3314,7 +3327,9 @@ impl<'r> Randomizer<'r> {
         } else {
             // In Uniform and Fast progression, only place items at bireachable locations. We defer placing items at
             // one-way-reachable locations so that they may get key items placed there later after
-            // becoming bireachable.
+            // becoming bireachable. This is to maintain a higher degree of randomness and also to reduce how
+            // much the game will punish players for diving into a rabbit hole; this way leaves more possibility open that
+            // they could find something to get themselves out.
             self.place_items(
                 attempt_num_rando,
                 &state,

@@ -22,7 +22,7 @@ document.getElementById("navigation-releases").classList.add("active");
     <li>The input combination can be customized (or disabled) on the seed page.
     <li>Spin lock is canceled by pressing shot.
     </ul>
-<li>Charge, Wave, and Spazer are now filler items on "Challenge" item progression.
+<li>Charge and Spazer are now filler items on "Challenge" item progression.
 <li>New group of settings "Item pool" (under Item progression > Customize):
     <ul>
     <li>"Reduced" item pool preset uses a small amount of ammo/tanks:
@@ -36,7 +36,7 @@ document.getElementById("navigation-releases").classList.add("active");
     </ul>
 <li>New item progression preset "Desolate" is added:
     <ul>
-    <li>This is like "Challenge" but also enables the "Reduced" item pool and "Stop item placement early".
+    <li>This is like "Challenge" but also enables the "Reduced" item pool.
     </ul>
 </ul>
 

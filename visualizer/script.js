@@ -170,7 +170,12 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			
 			let step_number = document.createElement("span");
 			step_number.className = "step-number";
-			step_number.innerHTML = `${c.summary[i].step}`;
+			if (i == c.summary.length - 1 && c.summary[i].items.length == 0) {
+				step_number.className = "step-whole-map";
+				step_number.innerHTML = `FINAL MAP`;
+			} else {
+				step_number.innerHTML = `${c.summary[i].step}`;
+			}
 			step_div.appendChild(step_number);
 
 			let items = c.details[i].items;

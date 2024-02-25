@@ -6,6 +6,7 @@ v109:
 - troubleshoot osse seed:
   - https://dev.maprando.com/seed/YwbSxrwB1dM3_eWOoI00sQ/data/visualizer/index.html
 - undo race mode debugging; stop modifying race mode seed byte 9.  
+- show last step as "reachable map"
 
 TODO:
 - fix randomizer failing with all starting items.
