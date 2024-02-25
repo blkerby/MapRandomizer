@@ -1870,12 +1870,19 @@ impl<'a> Patcher<'a> {
         self.rom.write_u16(initial_reserve_energy, starting_reserves)?;
         self.rom.write_u16(initial_max_reserve_energy, starting_reserves)?;
         self.rom.write_u16(initial_reserve_mode, if starting_reserves > 0 { 1 } else { 0 })?;  // 0 = Not obtained, 1 = Auto
-        self.rom.write_u16(initial_missiles, starting_missiles)?;
         self.rom.write_u16(initial_max_missiles, starting_missiles)?;
-        self.rom.write_u16(initial_supers, starting_supers)?;
         self.rom.write_u16(initial_max_supers, starting_supers)?;
-        self.rom.write_u16(initial_power_bombs, starting_powerbombs)?;
         self.rom.write_u16(initial_max_power_bombs, starting_powerbombs)?;
+        if self.randomization.difficulty.start_location_mode == StartLocationMode::Escape 
+                && self.randomization.difficulty.mother_brain_fight != MotherBrainFight::Skip {
+            self.rom.write_u16(initial_missiles, 0)?;
+            self.rom.write_u16(initial_supers, 0)?;
+            self.rom.write_u16(initial_power_bombs, 0)?;
+        } else {
+            self.rom.write_u16(initial_missiles, starting_missiles)?;
+            self.rom.write_u16(initial_supers, starting_supers)?;
+            self.rom.write_u16(initial_power_bombs, starting_powerbombs)?;    
+        }
         self.rom.write_n(initial_item_bits, &self.nothing_item_bitmask)?;
 
         Ok(())        

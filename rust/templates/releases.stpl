@@ -25,14 +25,15 @@ document.getElementById("navigation-releases").classList.add("active");
 <li>Charge and Spazer are now filler items on "Challenge" item progression.
 <li>New group of settings "Item pool" (under Item progression > Customize):
     <ul>
-    <li>"Reduced" item pool preset uses a small amount of ammo/tanks:
+    <li>Adjustable amount of Missiles, Supers, Power Bombs, ETanks, and Reserve Tanks.
+    <li>Option "Stop item placement early" (under Item progression > Customize > Item pool):
+        <ul>
+        <li>If enabled, no more items are placed after the game becomes logically beatable.
+        </ul>
+    <li>"Reduced" item pool preset uses "Stop item placement early" and a small amount of ammo/tanks:
         <ul>
         <li>12 Missile packs, 6 Super packs, 6 Power Bomb packs, 7 Energy Tanks, 2 Reserve Tanks
         </ul>
-    </ul>
-<li>New option "Stop item placement early" (under Item progression > Customize > Item pool).
-    <ul>
-    <li>If enabled, no more items are placed after the game becomes logically beatable.
     </ul>
 <li>New item progression preset "Desolate" is added:
     <ul>
