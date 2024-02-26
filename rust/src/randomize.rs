@@ -3072,7 +3072,7 @@ impl<'r> Randomizer<'r> {
                 remaining_items
             );    
             for item_loc_state in &mut state.item_location_state {
-                if item_loc_state.placed_item.is_none() {
+                if item_loc_state.placed_item.is_none() || !item_loc_state.bireachable {
                     item_loc_state.placed_item = Some(Item::Nothing);
                 }
             }
