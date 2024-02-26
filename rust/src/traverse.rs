@@ -573,6 +573,12 @@ fn apply_mother_brain_2_requirement(
         return Some(local);
     }
 
+    if global.max_energy < 199 {
+        // Need at least one ETank to survive rainbow beam.
+        // TODO: Light pillar could be added to logic, which would be a separate strat instead of using this function.
+        return None;
+    }
+
     let proficiency = difficulty.mother_brain_proficiency;
     let mut boss_hp: f32 = 18000.0;
     let mut time: f32 = 0.0; // Cumulative time in seconds for the fight
