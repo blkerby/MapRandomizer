@@ -7,8 +7,7 @@ use hashbrown::{HashMap, HashSet};
 
 use crate::{
     game_data::{
-        Capacity, EnemyVulnerabilities, GameData, Item, Link, LinkIdx, LinksDataGroup, Requirement,
-        WeaponMask,
+        self, Capacity, EnemyVulnerabilities, GameData, Item, Link, LinkIdx, LinksDataGroup, Requirement, WeaponMask
     },
     randomize::{DifficultyConfig, MotherBrainFight, Objectives, WallJump},
 };
@@ -154,6 +153,7 @@ fn apply_phantoon_requirement(
     global: &GlobalState,
     mut local: LocalState,
     proficiency: f32,
+    game_data: &GameData,
 ) -> Option<LocalState> {
     // We only consider simple, safer strats here, where we try to damage Phantoon as much as possible
     // as soon as he opens his eye. Faster or more complex strats are not relevant, since at
@@ -213,7 +213,7 @@ fn apply_phantoon_requirement(
 
     local.energy_used += (net_dps * kill_time) as Capacity;
 
-    validate_energy(local, global)
+    validate_energy(local, global, game_data)
 }
 
 fn apply_draygon_requirement(
@@ -221,6 +221,7 @@ fn apply_draygon_requirement(
     local: LocalState,
     proficiency: f32,
     can_be_very_patient_tech_id: usize,
+    game_data: &GameData,
 ) -> Option<LocalState> {
     let mut boss_hp: f32 = 6000.0;
     let charge_damage = get_charge_damage(&global);
@@ -313,7 +314,7 @@ fn apply_draygon_requirement(
         };
         // TODO: if the player can get behind Draygon during goop phase, it can be possible to safely Crystal Flash. Consider using one if validate_energy fails and
         // Crystal Flashes are in logic.
-        return validate_energy(result, global);
+        return validate_energy(result, global, game_data);
     } else {
         return None;
     }
@@ -324,6 +325,7 @@ pub fn apply_ridley_requirement(
     mut local: LocalState,
     proficiency: f32,
     can_be_very_patient_tech_id: usize,
+    game_data: &GameData,
 ) -> Option<LocalState> {
     let mut boss_hp: f32 = 18000.0;
     let mut time: f32 = 0.0; // Cumulative time in seconds for the fight
@@ -442,7 +444,7 @@ pub fn apply_ridley_requirement(
     // TODO: We could add back some energy and/or ammo by assuming we get drops.
     // By omitting this for now we're just making the logic a little more conservative in favor of
     // the player.
-    validate_energy(local, global)
+    validate_energy(local, global, game_data)
 }
 
 fn apply_botwoon_requirement(
@@ -450,6 +452,7 @@ fn apply_botwoon_requirement(
     mut local: LocalState,
     proficiency: f32,
     second_phase: bool,
+    game_data: &GameData,
 ) -> Option<LocalState> {
     // We aim to be a little lenient here. For example, we don't take SBAs (e.g. X-factors) into account,
     // assuming instead the player just uses ammo and/or regular charged shots.
@@ -556,7 +559,7 @@ fn apply_botwoon_requirement(
     // TODO: We could add back some energy and/or ammo by assuming we get drops.
     // By omitting this for now we're just making the logic a little more conservative in favor of
     // the player.
-    validate_energy(local, global)
+    validate_energy(local, global, game_data)
 }
 
 fn apply_mother_brain_2_requirement(
@@ -564,6 +567,7 @@ fn apply_mother_brain_2_requirement(
     mut local: LocalState,
     difficulty: &DifficultyConfig,
     can_be_very_patient_tech_id: usize,
+    game_data: &GameData,
 ) -> Option<LocalState> {
     if difficulty.mother_brain_fight == MotherBrainFight::Skip {
         return Some(local);
@@ -653,7 +657,7 @@ fn apply_mother_brain_2_requirement(
         local.energy_used += 600;
     }
 
-    validate_energy(local, global)
+    validate_energy(local, global, game_data)
 }
 
 pub const IMPOSSIBLE_LOCAL_STATE: LocalState = LocalState {
@@ -681,7 +685,7 @@ fn compute_cost(local: LocalState, global: &GlobalState) -> [f32; NUM_COST_METRI
     [ammo_sensitive_cost_metric, energy_sensitive_cost_metric]
 }
 
-fn validate_energy(mut local: LocalState, global: &GlobalState) -> Option<LocalState> {
+fn validate_energy(mut local: LocalState, global: &GlobalState, game_data: &GameData) -> Option<LocalState> {
     if local.energy_used >= global.max_energy {
         local.reserves_used += local.energy_used - (global.max_energy - 1);
         local.energy_used = global.max_energy - 1;
@@ -738,11 +742,12 @@ fn apply_gate_glitch_leniency(
     green: bool,
     heated: bool,
     difficulty: &DifficultyConfig,
+    game_data: &GameData,
 ) -> Option<LocalState> {
     if heated && !global.items[Item::Varia as usize] {
         local.energy_used +=
             (difficulty.gate_glitch_leniency as f32 * difficulty.resource_multiplier * 60.0) as i32;
-        local = match validate_energy(local, global) {
+        local = match validate_energy(local, global, game_data) {
             Some(x) => x,
             None => return None,
         };
@@ -872,7 +877,7 @@ pub fn apply_requirement(
                     None
                 } else {
                     new_local.energy_used += multiply(frames / 4, difficulty);
-                    validate_energy(new_local, global)
+                    validate_energy(new_local, global, game_data)
                 }
             }
         }
@@ -885,10 +890,10 @@ pub fn apply_requirement(
                 Some(new_local)
             } else if gravity || varia {
                 new_local.energy_used += multiply(frames / 4, difficulty);
-                validate_energy(new_local, global)
+                validate_energy(new_local, global, game_data)
             } else {
                 new_local.energy_used += multiply(frames / 2, difficulty);
-                validate_energy(new_local, global)
+                validate_energy(new_local, global, game_data)
             }
         }
         Requirement::GravitylessLavaFrames(frames) => {
@@ -899,24 +904,24 @@ pub fn apply_requirement(
             } else {
                 new_local.energy_used += multiply(frames / 2, difficulty);
             }
-            validate_energy(new_local, global)
+            validate_energy(new_local, global, game_data)
         }
         Requirement::AcidFrames(frames) => {
             let mut new_local = local;
             new_local.energy_used +=
                 multiply(3 * frames / 2, difficulty) / suit_damage_factor(global);
-            validate_energy(new_local, global)
+            validate_energy(new_local, global, game_data)
         }
         Requirement::MetroidFrames(frames) => {
             let mut new_local = local;
             new_local.energy_used +=
                 multiply(3 * frames / 4, difficulty) / suit_damage_factor(global);
-            validate_energy(new_local, global)
+            validate_energy(new_local, global, game_data)
         }
         Requirement::Damage(base_energy) => {
             let mut new_local = local;
             new_local.energy_used += base_energy / suit_damage_factor(global);
-            validate_energy(new_local, global)
+            validate_energy(new_local, global, game_data)
         }
         // Requirement::Energy(count) => {
         //     let mut new_local = local;
@@ -939,7 +944,7 @@ pub fn apply_requirement(
             validate_power_bombs(new_local, global)
         }
         Requirement::GateGlitchLeniency { green, heated } => {
-            apply_gate_glitch_leniency(local, global, *green, *heated, difficulty)
+            apply_gate_glitch_leniency(local, global, *green, *heated, difficulty, game_data)
         }
         Requirement::HeatedDoorStuckLeniency { heat_frames } => {
             if !global.items[Item::Varia as usize] {
@@ -947,7 +952,7 @@ pub fn apply_requirement(
                 new_local.energy_used += (difficulty.door_stuck_leniency as f32
                     * difficulty.resource_multiplier
                     * *heat_frames as f32) as i32;
-                validate_energy(new_local, global)
+                validate_energy(new_local, global, game_data)
             } else {
                 Some(local)
             }
@@ -1078,7 +1083,7 @@ pub fn apply_requirement(
             apply_enemy_kill_requirement(global, local, *count, vul)
         }
         Requirement::PhantoonFight {} => {
-            apply_phantoon_requirement(global, local, difficulty.phantoon_proficiency)
+            apply_phantoon_requirement(global, local, difficulty.phantoon_proficiency, game_data)
         }
         Requirement::DraygonFight {
             can_be_very_patient_tech_id,
@@ -1087,6 +1092,7 @@ pub fn apply_requirement(
             local,
             difficulty.draygon_proficiency,
             *can_be_very_patient_tech_id,
+            game_data,
         ),
         Requirement::RidleyFight {
             can_be_very_patient_tech_id,
@@ -1095,14 +1101,15 @@ pub fn apply_requirement(
             local,
             difficulty.ridley_proficiency,
             *can_be_very_patient_tech_id,
+            game_data,
         ),
         Requirement::BotwoonFight { second_phase } => {
-            apply_botwoon_requirement(global, local, difficulty.botwoon_proficiency, *second_phase)
+            apply_botwoon_requirement(global, local, difficulty.botwoon_proficiency, *second_phase, game_data)
         }
         Requirement::MotherBrain2Fight {
             can_be_very_patient_tech_id,
         }=> {
-            apply_mother_brain_2_requirement(global, local, difficulty, *can_be_very_patient_tech_id)
+            apply_mother_brain_2_requirement(global, local, difficulty, *can_be_very_patient_tech_id, game_data)
         }
         Requirement::ShineCharge { used_tiles, heated } => {
             let tiles_limit = if *heated && !global.items[Item::Varia as usize] {
@@ -1139,10 +1146,10 @@ pub fn apply_requirement(
                     } else {
                         new_local.energy_used += frames;
                     }
-                    validate_energy(new_local, global)
+                    validate_energy(new_local, global, game_data)
                 } else {
                     new_local.energy_used += frames - excess_frames + 28;
-                    if let Some(mut new_local) = validate_energy(new_local, global) {
+                    if let Some(mut new_local) = validate_energy(new_local, global, game_data) {
                         let energy_remaining = global.max_energy - new_local.energy_used - 1;
                         new_local.energy_used += std::cmp::min(*excess_frames, energy_remaining);
                         new_local.energy_used -= 28;
