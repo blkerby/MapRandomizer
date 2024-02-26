@@ -32,7 +32,8 @@ document.getElementById("navigation-releases").classList.add("active");
         </ul>
     <li>"Reduced" item pool preset uses "Stop item placement early" and a small amount of ammo/tanks:
         <ul>
-        <li>12 Missile packs, 6 Super packs, 6 Power Bomb packs, 7 Energy Tanks, 2 Reserve Tanks
+        <li>12 Missile packs, 6 Super packs, 6 Power Bomb packs, 3 Energy Tanks, 3 Reserve Tanks
+        <li>More tanks may be placed depending on difficulty settings.
         </ul>
     </ul>
 <li>New item progression preset "Desolate" is added:
