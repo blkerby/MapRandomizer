@@ -204,12 +204,34 @@ fn make_tech_templates<'a>(
             if strat_json["entranceCondition"].has_key("comeInWithGMode") {
                 tech_set.insert(game_data.tech_isv.index_by_key["canEnterGMode"]);
             }
+            if strat_json["entranceCondition"].has_key("comeInWithRMode") {
+                tech_set.insert(game_data.tech_isv.index_by_key["canEnterRMode"]);
+            }
+            if strat_json["entranceCondition"].has_key("comeInSpeedballing") {
+                tech_set.insert(game_data.tech_isv.index_by_key["canSpeedball"]);
+            }
+            if strat_json["entranceCondition"].has_key("comeInStutterShinecharging") {
+                tech_set.insert(game_data.tech_isv.index_by_key["canStutterWaterShineCharge"]);
+            }
+            if strat_json["entranceCondition"].has_key("comeInWithTemporaryBlue") {
+                tech_set.insert(game_data.tech_isv.index_by_key["canTemporaryBlue"]);
+            }
+            if strat_json["entranceCondition"].has_key("comeInWithBombBoost") {
+                tech_set.insert(game_data.tech_isv.index_by_key["canBombHorizontally"]);
+            }
+            if strat_json["entranceCondition"].has_key("comeInWithGrappleTeleport") {
+                tech_set.insert(game_data.tech_isv.index_by_key["canGrappleTeleport"]);
+            }
             if strat_json["exitCondition"].has_key("leaveWithGModeSetup") {
                 tech_set.insert(game_data.tech_isv.index_by_key["canEnterGMode"]);
             }
             if strat_json["exitCondition"].has_key("leaveWithGMode") {
                 tech_set.insert(game_data.tech_isv.index_by_key["canEnterGMode"]);
             }
+            if strat_json["exitCondition"].has_key("leaveWithGrappleTeleport") {
+                tech_set.insert(game_data.tech_isv.index_by_key["canGrappleTeleport"]);
+            }
+
             for tech_idx in tech_set {
                 tech_strat_ids[tech_idx].insert(ids.clone());
             }
