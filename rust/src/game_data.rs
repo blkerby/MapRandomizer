@@ -1006,6 +1006,7 @@ pub struct GameData {
     pub hub_locations: Vec<HubLocation>,
     pub heat_run_tech_id: TechId, // Cached since it is used frequently in graph traversal, and to avoid needing to store it in every HeatFrames req.
     pub wall_jump_tech_id: TechId,
+    pub manage_reserves_tech_id: TechId,
     pub mother_brain_defeated_flag_id: usize,
     pub title_screen_data: TitleScreenData,
 }
@@ -1073,6 +1074,7 @@ impl GameData {
         }
         self.heat_run_tech_id = *self.tech_isv.index_by_key.get("canHeatRun").unwrap();
         self.wall_jump_tech_id = *self.tech_isv.index_by_key.get("canWalljump").unwrap();
+        self.manage_reserves_tech_id = *self.tech_isv.index_by_key.get("canManageReserves").unwrap();
         self.mother_brain_defeated_flag_id = self.flag_isv.index_by_key["f_DefeatedMotherBrain"];
         Ok(())
     }

@@ -693,8 +693,36 @@ fn compute_cost(local: LocalState, global: &GlobalState) -> [f32; NUM_COST_METRI
 
 fn validate_energy(mut local: LocalState, global: &GlobalState, game_data: &GameData) -> Option<LocalState> {
     if local.energy_used >= global.max_energy {
-        local.reserves_used += local.energy_used - (global.max_energy - 1);
-        local.energy_used = global.max_energy - 1;
+        if global.tech[game_data.manage_reserves_tech_id] {
+            // Assume that just enough reserve energy is manually converted to regular energy.
+            local.reserves_used += local.energy_used - (global.max_energy - 1);
+            local.energy_used = global.max_energy - 1;    
+        } else {
+            // Assume that reserves auto-trigger, leaving reserves empty.
+            let reserves_available = global.max_reserves - local.reserves_used;
+            local.reserves_used = global.max_reserves;
+            local.energy_used = std::cmp::max(0, local.energy_used - reserves_available);
+            if local.energy_used >= global.max_energy {
+                return None;
+            }
+        }
+    }
+    if local.reserves_used > global.max_reserves {
+        return None;
+    }
+    Some(local)
+}
+
+fn validate_energy_no_auto_reserve(mut local: LocalState, global: &GlobalState, game_data: &GameData) -> Option<LocalState> {
+    if local.energy_used >= global.max_energy {
+        if global.tech[game_data.manage_reserves_tech_id] {
+            // Assume that just enough reserve energy is manually converted to regular energy.
+            local.reserves_used += local.energy_used - (global.max_energy - 1);
+            local.energy_used = global.max_energy - 1;    
+        } else {
+            // Assume that reserves cannot be used (e.g. during a shinespark or enemy hit).
+            return None;
+        }
     }
     if local.reserves_used > global.max_reserves {
         return None;
@@ -927,7 +955,7 @@ pub fn apply_requirement(
         Requirement::Damage(base_energy) => {
             let mut new_local = local;
             new_local.energy_used += base_energy / suit_damage_factor(global);
-            validate_energy(new_local, global, game_data)
+            validate_energy_no_auto_reserve(new_local, global, game_data)
         }
         // Requirement::Energy(count) => {
         //     let mut new_local = local;
@@ -1152,10 +1180,10 @@ pub fn apply_requirement(
                     } else {
                         new_local.energy_used += frames;
                     }
-                    validate_energy(new_local, global, game_data)
+                    validate_energy_no_auto_reserve(new_local, global, game_data)
                 } else {
                     new_local.energy_used += frames - excess_frames + 28;
-                    if let Some(mut new_local) = validate_energy(new_local, global, game_data) {
+                    if let Some(mut new_local) = validate_energy_no_auto_reserve(new_local, global, game_data) {
                         let energy_remaining = global.max_energy - new_local.energy_used - 1;
                         new_local.energy_used += std::cmp::min(*excess_frames, energy_remaining);
                         new_local.energy_used -= 28;

@@ -161,27 +161,27 @@ fn run_scenario(
     //     apply_requirement(&Requirement::PhantoonFight {  }, &global_state, local_state, false, &difficulty, &game_data)
     // );
 
-    // let new_local_state_opt = apply_requirement(
-    //     &Requirement::DraygonFight {
-    //         can_be_very_patient_tech_id: game_data.tech_isv.index_by_key["canBeVeryPatient"],
-    //     },
-    //     &global_state,
-    //     local_state,
-    //     false,
-    //     &difficulty,
-    //     game_data,
-    // );
-
     let new_local_state_opt = apply_requirement(
-            &Requirement::RidleyFight {
-                can_be_very_patient_tech_id: game_data.tech_isv.index_by_key["canBeVeryPatient"]
-            },
-            &global_state,
-            local_state,
-            false,
-            &difficulty,
-            game_data
+        &Requirement::DraygonFight {
+            can_be_very_patient_tech_id: game_data.tech_isv.index_by_key["canBeVeryPatient"],
+        },
+        &global_state,
+        local_state,
+        false,
+        &difficulty,
+        game_data,
     );
+
+    // let new_local_state_opt = apply_requirement(
+    //         &Requirement::RidleyFight {
+    //             can_be_very_patient_tech_id: game_data.tech_isv.index_by_key["canBeVeryPatient"]
+    //         },
+    //         &global_state,
+    //         local_state,
+    //         false,
+    //         &difficulty,
+    //         game_data
+    // );
 
     let outcome = new_local_state_opt.map(|x| format!("{}", x.energy_used)).unwrap_or("n/a".to_string());
     println!(
@@ -231,8 +231,8 @@ fn main() -> Result<()> {
     // ];
 
     let proficiencies = vec![0.0, 0.3, 0.5, 0.7, 0.8, 0.825, 0.85, 0.9, 0.95, 1.0];
-    let missile_counts = vec![60];
-    let super_counts = vec![30];
+    let missile_counts = vec![75];
+    let super_counts = vec![20];
     let item_loadouts = vec![
         vec!["M"],
     ];

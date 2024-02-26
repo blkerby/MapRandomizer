@@ -1716,7 +1716,16 @@
         "durable_part_connections": [],
         "transient_part_connections": [],
         "items": [],
-        "node_tiles": [[1, [[0, 2]]], [2, [[1, 2], [2, 2], [3, 2]]], [3, [[3, 0]]], [4, [[0, 0], [0, 1]]], [5, [[0, 0]]], [6, [[1, 0], [1, 1], [2, 0], [2, 1], [3, 1]]], [7, [[3, 0]]]],
+        "node_tiles": [
+            [1, [[0, 2]]],
+            [2, [[1, 2], [2, 2], [3, 2]]],
+            [3, [[3, 0]]],
+            [4, [[0, 0], [0, 1]]],
+            [5, [[0, 0]]],
+            [6, [[1, 0], [1, 1], [2, 0], [2, 1], [3, 1]]],
+            [7, [[3, 0]]],
+            [8, [[0, 0], [0, 1]]]
+        ],
         "twin_node_tiles": null,
         "heated": false
     },
@@ -1983,8 +1992,8 @@
         "doors": [
             {"direction": "left", "x": 0, "y": 0, "exit_ptr": 108620, "entrance_ptr": 108824, "subtype": "normal", "offset": 0},
             {"direction": "right", "x": 6, "y": 0, "exit_ptr": 108656, "entrance_ptr": 108764, "subtype": "normal", "offset": 0},
-            {"direction": "down", "x": 2, "y": 0, "exit_ptr": 108632, "entrance_ptr": null, "subtype": "sand", "offset": null},
-            {"direction": "down", "x": 3, "y": 0, "exit_ptr": 108644, "entrance_ptr": null, "subtype": "sand", "offset": null}
+            {"direction": "down", "x": 2, "y": 0, "exit_ptr": 108644, "entrance_ptr": null, "subtype": "sand", "offset": null},
+            {"direction": "down", "x": 3, "y": 0, "exit_ptr": 108632, "entrance_ptr": null, "subtype": "sand", "offset": null}
         ],
         "parts": [[0, 1], [2], [3]],
         "durable_part_connections": [],
@@ -2268,8 +2277,8 @@
         "doors": [
             {"direction": "down", "x": 0, "y": 0, "exit_ptr": 108716, "entrance_ptr": null, "subtype": "sand", "offset": null},
             {"direction": "down", "x": 1, "y": 0, "exit_ptr": 108728, "entrance_ptr": null, "subtype": "sand", "offset": null},
-            {"direction": "up", "x": 0, "y": 0, "exit_ptr": null, "entrance_ptr": 108632, "subtype": "sand", "offset": null},
-            {"direction": "up", "x": 1, "y": 0, "exit_ptr": null, "entrance_ptr": 108644, "subtype": "sand", "offset": null}
+            {"direction": "up", "x": 0, "y": 0, "exit_ptr": null, "entrance_ptr": 108644, "subtype": "sand", "offset": null},
+            {"direction": "up", "x": 1, "y": 0, "exit_ptr": null, "entrance_ptr": 108632, "subtype": "sand", "offset": null}
         ],
         "parts": [[0], [1], [2], [3]],
         "durable_part_connections": [],
