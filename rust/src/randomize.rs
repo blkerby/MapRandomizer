@@ -1140,6 +1140,24 @@ impl<'a> Preprocessor<'a> {
         }
     }
 
+    fn get_come_in_with_grapple_teleport_reqs(
+        &self,
+        exit_condition: &ExitCondition,
+        entrance_block_positions: &[(u16, u16)],
+    ) -> Option<Requirement> {
+        match exit_condition {
+            ExitCondition::LeaveWithGrappleTeleport { block_positions } => {
+                let entrance_block_positions_set: HashSet<(u16, u16)> = entrance_block_positions.iter().copied().collect();
+                if block_positions.iter().any(|x| entrance_block_positions_set.contains(x)) {
+                    Some(Requirement::Tech(self.game_data.tech_isv.index_by_key["canGrappleTeleport"]))
+                } else {
+                    None
+                }
+            },
+            _ => None
+        }
+    }
+
     fn get_come_in_with_platform_below_reqs(
         &self,
         exit_condition: &ExitCondition,
@@ -1289,6 +1307,9 @@ impl<'a> Preprocessor<'a> {
             EntranceCondition::ComeInWithPlatformBelow { min_height, max_height, max_left_position, min_right_position } => {
                 self.get_come_in_with_platform_below_reqs(exit_condition, *min_height, *max_height, *max_left_position, *min_right_position)
             },
+            EntranceCondition::ComeInWithGrappleTeleport { block_positions } => {
+                self.get_come_in_with_grapple_teleport_reqs(exit_condition, block_positions)
+            }
         }
     }
 
@@ -2359,9 +2380,17 @@ fn get_strat_vec(game_data: &GameData, difficulty: &DifficultyConfig) -> Vec<boo
 }
 
 fn ensure_enough_tanks(initial_items_remaining: &mut [usize], game_data: &GameData, difficulty: &DifficultyConfig) {
+    // Give an extra tank to two, compared to what may be needed for Ridley, for lenience:
     if difficulty.ridley_proficiency < 0.3 {
-        // Give a couple more tanks than may be needed for Ridley, to reduce generation failures:
         while initial_items_remaining[Item::ETank as usize] + initial_items_remaining[Item::ReserveTank as usize] < 11 {
+            initial_items_remaining[Item::ETank as usize] += 1;
+        }
+    } else if difficulty.ridley_proficiency < 0.8 {
+        while initial_items_remaining[Item::ETank as usize] + initial_items_remaining[Item::ReserveTank as usize] < 9 {
+            initial_items_remaining[Item::ETank as usize] += 1;
+        }
+    } else if difficulty.ridley_proficiency < 0.9 {
+        while initial_items_remaining[Item::ETank as usize] + initial_items_remaining[Item::ReserveTank as usize] < 7 {
             initial_items_remaining[Item::ETank as usize] += 1;
         }
     } else {

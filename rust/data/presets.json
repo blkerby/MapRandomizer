@@ -118,7 +118,8 @@
       "canXRayCeilingClip",
       "canSnailClimb",
       "canBounceBall",
-      "canOffScreenSuperShot"
+      "canOffScreenSuperShot",
+      "canManageReserves"
     ],
     "notable_strats": [
       "Alcatraz Escape",
@@ -359,7 +360,8 @@
       "canCWJ",
       "canSandfallBounce",
       "canEnemyExtendRunway",
-      "can10PowerBombCrystalFlash"
+      "can10PowerBombCrystalFlash",
+      "canGrappleTeleport"
     ],
     "notable_strats": [
       "Landing Site Big Jump Blue Suit Bounce",
@@ -446,6 +448,7 @@
       "West Sand Hall Ice Beam Only (Center to Left)",
       "East Sand Hall Spring Ball HiJump",
       "East Sand Hall Cross-Room SpringBall Jump",
+      "East Sand Hall Cross-Room Speed Jump",
       "Spring Ball Room Escape - Suitless, Bootless, Space Jump",
 
       "Metroid Room 4 Bottom Metroid Avoid",
@@ -516,6 +519,7 @@
 
       "Early Supers Crouch Gate Clip Damage Boost",
       "Early Supers Leave With Spark To The Left",
+      "Green Brinstar Main Shaft Bottom Ice Clip",
       "Green Hill Zone Tunnel Crawl",
       "Green Hills Grapple Gate Glitch",
       "Etecoon Spikeway Aim Cancel Wiggle",
@@ -528,8 +532,11 @@
       "Mission Impossible Shinespark",
 
       "Red Tower R-Mode Frozen Beetom X-Ray Climb",
+      "Red Tower Frozen Beetom Ice Climb",
+
       "Hellway Frozen Zeb Runway",
 
+      "Warehouse Entrance Arm Pump Jump",
       "Warehouse Energy Tank Frozen Beetom Runway",
 
       "Cathedral Entrance 10 Power Bomb Crystal Flash",
@@ -564,6 +571,7 @@
 
       "Butterfly Room Door Lock Wall Ice Clip",
       "Plasma Spark X-Ray Climb Into Fake Kassiuz Room",
+      "Watering Hole Double Frozen Zeb Runway",
 
       "West Sand Hall Suitless Damage Boost (Center to Left)",
       "West Sand Hall Ice Only (Center to Right)",
@@ -626,6 +634,7 @@
       "Blue Brinstar Energy Tank Room - Geemer Ice Stuck XRay Climb",
 
       "Green Brinstar Shaft Zeela Stuck Moonfall",
+      "Green Hills Grapple Teleport into Grapple Jump",
  
       "Dachora Room G-Mode Setup - Lure the Zeela Down Below",
       "Dachora Room Reo Zeela Stuck Moonfall",
@@ -650,6 +659,8 @@
       "Mt. Everest Top Left Shinecharge",
       "Everest Crab HiJump Bomb-Grapple-Jump",
       "Red Fish Space Jump Escape",
+      "Fish Tank Grapple Teleport into Grapple Jump",
+      "Glass Tunnel Grapple Teleport into Grapple Jump (or Tube Intact)",
 
       "Aqueduct Snail Stuck Moonfall",
       "Back-Side Botwoon Super Only Fight",

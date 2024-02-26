@@ -234,7 +234,7 @@ fn main() -> Result<()> {
     let missile_counts = vec![60];
     let super_counts = vec![30];
     let item_loadouts = vec![
-        vec!["M"],
+        vec!["G", "M"],
     ];
 
 

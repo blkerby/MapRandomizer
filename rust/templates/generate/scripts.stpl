@@ -423,8 +423,8 @@ function processItemPoolPreset() {
         document.getElementById("itemPoolMissile").value = "12";
         document.getElementById("itemPoolSuper").value = "6";
         document.getElementById("itemPoolPowerBomb").value = "6";
-        document.getElementById("itemPoolETank").value = "7";
-        document.getElementById("itemPoolReserveTank").value = "2";
+        document.getElementById("itemPoolETank").value = "3";
+        document.getElementById("itemPoolReserveTank").value = "3";
     }
 }
 function validateItemPool() {

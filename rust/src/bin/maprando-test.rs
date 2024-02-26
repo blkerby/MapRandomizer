@@ -218,7 +218,7 @@ fn set_item_progression_desolate(diff: &mut DifficultyConfig) -> () {
     diff.random_tank = true;
     diff.spazer_before_plasma = true;
     diff.stop_item_placement_early = true;
-    diff.item_pool = vec![(Item::Missile, 12), (Item::Super, 6), (Item::PowerBomb, 6), (Item::ETank, 7), (Item::ReserveTank, 2)];
+    diff.item_pool = vec![(Item::Missile, 12), (Item::Super, 6), (Item::PowerBomb, 6), (Item::ETank, 3), (Item::ReserveTank, 3)];
     diff.filler_items = vec![Item::Missile, Item::Charge, Item::Spazer];
     diff.semi_filler_items = vec![Item::Super, Item::PowerBomb];
     diff.early_filler_items = vec![];

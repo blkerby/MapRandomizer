@@ -569,6 +569,9 @@ pub enum ExitCondition {
         left_position: f32,
         right_position: f32,
     },
+    LeaveWithGrappleTeleport {
+        block_positions: Vec<(u16, u16)>,
+    }
 }
 
 fn parse_spark_position(s: Option<&str>) -> Result<SparkPosition> {
@@ -627,6 +630,11 @@ fn parse_exit_condition(
             height: value["height"].as_f32().context("Expecting number 'height'")?,
             left_position: value["leftPosition"].as_f32().context("Expecting number 'leftPosition'")?,
             right_position: value["rightPosition"].as_f32().context("Expecting number 'rightPosition'")?,
+        }),
+        "leaveWithGrappleTeleport" => Ok(ExitCondition::LeaveWithGrappleTeleport { 
+            block_positions: value["blockPositions"].members()
+                .map(|x| (x[0].as_u16().unwrap(), x[1].as_u16().unwrap()))
+                .collect(),
         }),
         _ => {
             bail!(format!("Unrecognized exit condition: {}", key));
@@ -704,6 +712,9 @@ pub enum EntranceCondition {
         max_left_position: f32,
         min_right_position: f32,
     },
+    ComeInWithGrappleTeleport {
+        block_positions: Vec<(u16, u16)>,
+    }
 }
 
 fn parse_runway_geometry(runway: &JsonValue) -> Result<RunwayGeometry> {
@@ -841,6 +852,11 @@ fn parse_entrance_condition(entrance_json: &JsonValue, heated: bool) -> Result<E
             max_height: value["maxHeight"].as_f32().unwrap_or(f32::INFINITY),
             max_left_position: value["maxLeftPosition"].as_f32().unwrap_or(f32::INFINITY),
             min_right_position: value["minRightPosition"].as_f32().unwrap_or(f32::NEG_INFINITY),
+        }),
+        "comeInWithGrappleTeleport" => Ok(EntranceCondition::ComeInWithGrappleTeleport { 
+            block_positions: value["blockPositions"].members()
+                .map(|x| (x[0].as_u16().unwrap(), x[1].as_u16().unwrap()))
+                .collect(),
         }),
         _ => {
             bail!(format!("Unrecognized entrance condition: {}", key));

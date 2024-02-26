@@ -394,6 +394,21 @@ fn get_cross_room_reqs(link: &Link, game_data: &GameData) -> Requirement {
         if let EntranceCondition::ComeInWithRMode { .. } = entrance_condition {
             reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canEnterRMode"]));
         }
+        if let EntranceCondition::ComeInSpeedballing { .. } = entrance_condition {
+            reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canSpeedball"]));
+        }
+        if let EntranceCondition::ComeInStutterShinecharging { .. } = entrance_condition {
+            reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canStutterWaterShineCharge"]));
+        }
+        if let EntranceCondition::ComeInWithTemporaryBlue {  } = entrance_condition {
+            reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canTemporaryBlue"]));
+        }
+        if let EntranceCondition::ComeInWithBombBoost {  } = entrance_condition {
+            reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canBombHorizontally"]));
+        }
+        if let EntranceCondition::ComeInWithGrappleTeleport { .. } = entrance_condition {
+            reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canGrappleTeleport"]));
+        }
     }
     if let Some(exit_condition) = &link.exit_condition {
         if let ExitCondition::LeaveWithGMode { .. } = exit_condition {
@@ -401,6 +416,9 @@ fn get_cross_room_reqs(link: &Link, game_data: &GameData) -> Requirement {
         }
         if let ExitCondition::LeaveWithGModeSetup { .. } = exit_condition {
             reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canEnterGMode"]));
+        }
+        if let ExitCondition::LeaveWithGrappleTeleport { .. } = exit_condition {
+            reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canGrappleTeleport"]));
         }
     }
     Requirement::make_and(reqs)
