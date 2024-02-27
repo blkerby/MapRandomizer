@@ -155,6 +155,10 @@ pub enum Requirement {
     SuperRefill,
     PowerBombRefill,
     AmmoStationRefill,
+    AmmoStationRefillAll,
+    LowerNorfairElevatorDownFrames,
+    LowerNorfairElevatorUpFrames,
+    MainHallElevatorFrames,
     SupersDoubleDamageMotherBrain,
     GateGlitchLeniency {
         green: bool,
@@ -1364,6 +1368,8 @@ impl GameData {
                 return Ok(Requirement::Walljump);
             } else if value == "i_ammoRefill" {
                 return Ok(Requirement::AmmoStationRefill);
+            } else if value == "i_ammoRefillAll" {
+                return Ok(Requirement::AmmoStationRefillAll);
             } else if value == "i_SupersDoubleDamageMotherBrain" {
                 return Ok(Requirement::SupersDoubleDamageMotherBrain);
             } else if value == "i_BlueGateGlitchLeniency" {
@@ -1394,6 +1400,12 @@ impl GameData {
                 return Ok(Requirement::Objective(2));
             } else if value == "i_Objective4Complete" {
                 return Ok(Requirement::Objective(3));
+            } else if value == "i_LowerNorfairElevatorDownwardFrames" {
+                return Ok(Requirement::LowerNorfairElevatorDownFrames)
+            } else if value == "i_LowerNorfairElevatorUpwardFrames" {
+                return Ok(Requirement::LowerNorfairElevatorUpFrames)
+            } else if value == "i_MainHallElevatorFrames" {
+                return Ok(Requirement::MainHallElevatorFrames)
             } else if let Some(&item_id) = self.item_isv.index_by_key.get(value) {
                 return Ok(Requirement::Item(item_id as ItemId));
             } else if let Some(&flag_id) = self.flag_isv.index_by_key.get(value) {
@@ -3673,6 +3685,20 @@ impl GameData {
         };
         *game_data
             .helper_json_map
+            .get_mut("h_CrocomireCameraFix")
+            .unwrap() = json::object! {
+            "name": "h_CrocomireCameraFix",
+            "requires": [],
+        };
+        *game_data
+            .helper_json_map
+            .get_mut("h_EtecoonDoorSpawnFix")
+            .unwrap() = json::object! {
+            "name": "h_EtecoonDoorSpawnFix",
+            "requires": [],
+        };
+        *game_data
+            .helper_json_map
             .get_mut("h_SupersDoubleDamageMotherBrain")
             .unwrap() = json::object! {
             "name": "h_SupersDoubleDamageMotherBrain",
@@ -3686,6 +3712,14 @@ impl GameData {
             "name": "h_useMissileRefillStation",
             "requires": ["i_ammoRefill"],
         };
+        *game_data
+            .helper_json_map
+            .get_mut("h_MissileRefillStationAllAmmo")
+            .unwrap() = json::object! {
+            "name": "h_MissileRefillStationAllAmmo",
+            "requires": ["i_ammoRefillAll"],
+        };
+        
         // Wall on right side of Tourian Escape Room 1 does not spawn in the randomizer:
         *game_data
             .helper_json_map
@@ -3694,6 +3728,37 @@ impl GameData {
             "name": "h_AccessTourianEscape1RightDoor",
             "requires": [],
         };
+
+        // Elevator heat frames depend on if "Fast elevator" quality-of-life option is enabled; tech can also affect
+        // the downward heat frames in Lower Norfair Elevator Room since there is a pause trick to reduce them.
+        *game_data
+            .helper_json_map
+            .get_mut("h_LowerNorfairElevatorDownwardFrames")
+            .unwrap() = json::object! {
+            "name": "h_LowerNorfairElevatorDownwardFrames",
+            "requires": ["i_LowerNorfairElevatorDownwardFrames"],
+        };
+        *game_data
+            .helper_json_map
+            .get_mut("h_LowerNorfairElevatorUpwardFrames")
+            .unwrap() = json::object! {
+            "name": "h_LowerNorfairElevatorUpwardFrames",
+            "requires": ["i_LowerNorfairElevatorUpwardFrames"],
+        };
+        *game_data
+            .helper_json_map
+            .get_mut("h_MainHallElevatorFrames")
+            .unwrap() = json::object! {
+            "name": "h_MainHallElevatorFrames",
+            "requires": [
+                "i_MainHallElevatorFrames",
+                {"or":[
+                    "h_heatResistant",
+                    {"resourceCapacity": [{"type": "RegularEnergy", "count": 149}]}
+                ]}                
+            ],
+        };
+        
 
         game_data.load_weapons()?;
         game_data.load_enemies()?;

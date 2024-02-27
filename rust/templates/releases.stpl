@@ -14,7 +14,7 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release109">Version 109 (2024-02-26)</a>:
+<p><a id="release109">Version 109 (2024-02-27)</a>:
 <ul>
 <li>Spin Lock (L + R + Up + X) can be used to temporarily prevent up or down from breaking spin.
     <ul>
@@ -46,6 +46,7 @@ document.getElementById("navigation-releases").classList.add("active");
         <ul>
         <li>canManageReserves (Hard)
         <li>canGrappleTeleport (Expert)
+        <li>canTrickyGrappleJump (Insane)
         </ul>
     <li>New notable strats:
         <ul>
@@ -60,6 +61,7 @@ document.getElementById("navigation-releases").classList.add("active");
         <li>Glass Tunnel Grapple Teleport into Grapple Jump (or Tube Intact) (Insane)
         <li>Green Hills Grapple Teleport into Grapple Jump (Insane)
         </ul>
+    <li>Notable strat "Green Hills Grapple Gate Glitch" is moved from Extreme to Expert.
     </ul>
 </ul>
 

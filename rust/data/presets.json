@@ -377,6 +377,7 @@
 
       "Brinstar Reserve Temporary Blue",
       "Green Hill Zone X-Ray Wiggle",
+      "Green Hills Grapple Gate Glitch",
       "Etecoon Shaft Moonfall Spark",
       "Green Brinstar Beetom Room Frozen Beetom Bridge",
 
@@ -521,7 +522,6 @@
       "Early Supers Leave With Spark To The Left",
       "Green Brinstar Main Shaft Bottom Ice Clip",
       "Green Hill Zone Tunnel Crawl",
-      "Green Hills Grapple Gate Glitch",
       "Etecoon Spikeway Aim Cancel Wiggle",
       "Etecoon Spikeway Tunnel Crawl",
       "Etecoon Spikeway Xray Wiggle",
@@ -609,7 +609,8 @@
       "canBombGrappleJump",
       "canEnemyStuckMoonfall",
       "canDownwardGModeSetup",
-      "canUnderwaterBombIntoSpringBallJump"
+      "canUnderwaterBombIntoSpringBallJump",
+      "canTrickyGrappleJump"
     ],
     "notable_strats": [
       "Climb Morph Tunnel SpeedBall",
