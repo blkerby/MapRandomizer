@@ -2,7 +2,7 @@ use std::path::Path;
 
 use crate::{
     game_data::{AreaIdx, GameData, TilesetIdx},
-    patch::{apply_ips_patch, compress::compress, pc2snes, snes2pc, Rom},
+    patch::{apply_ips_patch, compress::compress, decompress::decompress, pc2snes, snes2pc, Rom},
 };
 use super::Allocator;
 use anyhow::{Result, bail};
@@ -99,6 +99,14 @@ fn make_palette_blends_gray(rom: &mut Rom) -> Result<()> {
     Ok(())
 }
 
+fn get_palette(rom: &Rom, area: usize, tileset_idx: usize) -> Result<Vec<u8>> {
+    let main_palette_table_addr = snes2pc(0x80DD00);
+    let area_palette_table_addr = snes2pc((rom.read_u16(main_palette_table_addr + 2 * area)? | 0x800000) as usize);
+    let palette_addr = rom.read_u24(area_palette_table_addr + 3 * tileset_idx)? as usize;
+    let pal = decompress(rom, snes2pc(palette_addr))?;
+    Ok(pal)
+}
+
 fn fix_phantoon_power_on(rom: &mut Rom, game_data: &GameData) -> Result<()> {
     // Fix palette transition that happens in Phantoon's Room after defeating Phantoon.
     let phantoon_room_ptr = 0x7CD13;
@@ -107,8 +115,7 @@ fn fix_phantoon_power_on(rom: &mut Rom, game_data: &GameData) -> Result<()> {
         bail!("Invalid Phantoon area: {phantoon_area}")
     }
     if phantoon_area != 3 {
-        let powered_on_palette = &game_data.tileset_palette_themes[phantoon_area][&4].palette;
-        let encoded_palette = encode_palette(powered_on_palette);
+        let encoded_palette = get_palette(rom, phantoon_area, 4)?;
         rom.write_n(snes2pc(0xA7CA61), &encoded_palette[0..224])?;
         rom.write_u16(snes2pc(0xA7CA7B), 0x48FB)?; // 2bpp palette 3, color 1: pink color for E-tanks (instead of black)
         rom.write_u16(snes2pc(0xA7CA97), 0x7FFF)?; // 2bpp palette 6, color 3: white color for HUD text/digits
@@ -132,12 +139,13 @@ fn fix_mother_brain(rom: &mut Rom, game_data: &GameData) -> Result<()> {
     let mother_brain_room_ptr = 0x7DD58;
     let area = get_room_map_area(rom, mother_brain_room_ptr)?;
     if area != 5 {
-        let theme = &game_data.tileset_palette_themes[area][&14];
+        let encoded_pal = get_palette(rom, area, 14)?;  // tileset index = 14 (Mother Brain)
+        let pal = decode_palette(&encoded_pal);
         // let encoded_palette = encode_palette(palette);
         // rom.write_n(snes2pc(0xA9D082), &encoded_palette[104..128])?;
     
         for i in 0..6 {
-            let faded_palette: Vec<[u8; 3]> = theme.palette
+            let faded_palette: Vec<[u8; 3]> = pal
                 .iter()
                 .map(|&c| c.map(|x| (x as usize * (6 - i as usize) / 6) as u8))
                 .collect();

@@ -478,10 +478,6 @@ pub struct EnemyVulnerabilities {
     pub power_bomb_damage: i32,
 }
 
-pub struct ThemedPaletteTileset {
-    pub palette: [[u8; 3]; 128],
-}
-
 #[derive(Clone, Debug)]
 pub struct RunwayGeometry {
     pub length: f32,
@@ -1002,7 +998,6 @@ pub struct GameData {
     pub strat_area: HashMap<String, String>,
     pub strat_room: HashMap<String, String>,
     pub strat_description: HashMap<String, String>,
-    pub tileset_palette_themes: Vec<HashMap<TilesetIdx, ThemedPaletteTileset>>,
     pub escape_timings: Vec<EscapeTimingRoom>,
     pub start_locations: Vec<StartLocation>,
     pub hub_locations: Vec<HubLocation>,
@@ -3419,58 +3414,6 @@ impl GameData {
     //     Ok(())
     // }
 
-    fn load_palette_themes(&mut self, base_path: &Path) -> Result<()> {
-        let ignored_tileset_idxs = vec![
-            1, // Red Crateria
-            15, 16, 17, 18, 19, 20, // Ceres
-        ];
-        for (_area_idx, area) in [
-            "CrateriaPalette",
-            "BrinstarPalette",
-            "NorfairPalette",
-            "WreckedShipPalette",
-            "MaridiaPalette",
-            "TourianPalette",
-        ]
-        .into_iter()
-        .enumerate()
-        {
-            let sce_path = base_path.join(area).join("Export/Tileset/SCE");
-            let mut pal_map: HashMap<TilesetIdx, ThemedPaletteTileset> = HashMap::new();
-            let tilesets_it = std::fs::read_dir(&sce_path).with_context(|| {
-                format!("Unable to read Mosaic tilesets at {}", sce_path.display())
-            })?;
-            for tileset_dir in tilesets_it {
-                let tileset_dir = tileset_dir?;
-                let tileset_idx =
-                    usize::from_str_radix(tileset_dir.file_name().to_str().unwrap(), 16)?;
-                // if !tileset_idxs[area_idx].contains(&tileset_idx) {
-                //     continue;
-                // }
-                if ignored_tileset_idxs.contains(&tileset_idx) {
-                    continue;
-                }
-                let tileset_path = tileset_dir.path();
-                let palette_path = tileset_path.join("palette.snes");
-                let palette_bytes = std::fs::read(&palette_path).with_context(|| {
-                    format!(
-                        "Unable to load Mosaic palette at {}",
-                        palette_path.display()
-                    )
-                })?;
-                let palette = decode_palette(&palette_bytes);
-                pal_map.insert(
-                    tileset_idx,
-                    ThemedPaletteTileset {
-                        palette,
-                    },
-                );
-            }
-            self.tileset_palette_themes.push(pal_map);
-        }
-        Ok(())
-    }
-
     fn extract_all_tech_dependencies(&mut self) -> Result<()> {
         let tech_vec = self.tech_isv.keys.clone();
         for tech in &tech_vec {
@@ -3776,7 +3719,6 @@ impl GameData {
             0x1AC000, // Maridia
             0x1AD000, // Tourian
         ];
-        game_data.load_palette_themes(palette_theme_path)?;
         game_data.load_title_screens(title_screen_path)?;
 
         Ok(game_data)
