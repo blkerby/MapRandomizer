@@ -99,6 +99,8 @@ fn run_scenario(
         progression_rate: ProgressionRate::Uniform,
         random_tank: true,
         spazer_before_plasma: true,
+        stop_item_placement_early: false,
+        item_pool: vec![],
         starting_items: vec![],
         semi_filler_items: vec![],
         filler_items: vec![Item::Missile],
@@ -116,6 +118,7 @@ fn run_scenario(
         draygon_proficiency: proficiency,
         ridley_proficiency: proficiency,
         botwoon_proficiency: proficiency,
+        mother_brain_proficiency: proficiency,
         supers_double: true,
         mother_brain_fight: MotherBrainFight::Short,
         escape_enemies_cleared: true,
@@ -158,27 +161,27 @@ fn run_scenario(
     //     apply_requirement(&Requirement::PhantoonFight {  }, &global_state, local_state, false, &difficulty, &game_data)
     // );
 
-    // let new_local_state_opt = apply_requirement(
-    //     &Requirement::DraygonFight {
-    //         can_be_very_patient_tech_id: game_data.tech_isv.index_by_key["canBeVeryPatient"],
-    //     },
-    //     &global_state,
-    //     local_state,
-    //     false,
-    //     &difficulty,
-    //     game_data,
-    // );
-
     let new_local_state_opt = apply_requirement(
-            &Requirement::RidleyFight {
-                can_be_very_patient_tech_id: game_data.tech_isv.index_by_key["canBeVeryPatient"]
-            },
-            &global_state,
-            local_state,
-            false,
-            &difficulty,
-            game_data
+        &Requirement::DraygonFight {
+            can_be_very_patient_tech_id: game_data.tech_isv.index_by_key["canBeVeryPatient"],
+        },
+        &global_state,
+        local_state,
+        false,
+        &difficulty,
+        game_data,
     );
+
+    // let new_local_state_opt = apply_requirement(
+    //         &Requirement::RidleyFight {
+    //             can_be_very_patient_tech_id: game_data.tech_isv.index_by_key["canBeVeryPatient"]
+    //         },
+    //         &global_state,
+    //         local_state,
+    //         false,
+    //         &difficulty,
+    //         game_data
+    // );
 
     let outcome = new_local_state_opt.map(|x| format!("{}", x.energy_used)).unwrap_or("n/a".to_string());
     println!(
@@ -227,11 +230,11 @@ fn main() -> Result<()> {
     //     vec!["V", "G", "C", "I", "W", "P"],
     // ];
 
-    let proficiencies = vec![0.0, 0.3, 0.5, 0.7, 0.8, 0.9, 1.0];
-    let missile_counts = vec![0];
-    let super_counts = vec![0];
+    let proficiencies = vec![0.0, 0.3, 0.5, 0.7, 0.8, 0.825, 0.85, 0.9, 0.95, 1.0];
+    let missile_counts = vec![75];
+    let super_counts = vec![20];
     let item_loadouts = vec![
-        vec!["M", "R", "C", "I", "W", "P"],
+        vec!["M"],
     ];
 
 

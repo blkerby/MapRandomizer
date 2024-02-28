@@ -6,9 +6,13 @@
 !deathhook82 = $82DDC7 ;$82 used for death hook (game state $19)
 
 ;free space: make sure it doesnt override anything you have
-!freespace82_start = $82FE00
-!freespace82_end = $82FE80
-!button_combo = $82FE7E   ; This should be inside free space, and also consistent with reference in customize.rs
+!bank_85_free_space_start = $859880
+!bank_85_free_space_end = $859980
+!bank_82_free_space_start = $82FE00
+!bank_82_free_space_end = $82FE80
+
+!spin_lock_button_combo = $82FE7C   ; This should be inside free space, and also consistent with reference in customize.rs
+!reload_button_combo = $82FE7E   ; This should be inside free space, and also consistent with reference in customize.rs
 !freespacea0 = $a0fe00 ;$A0 used for instant save reload
 
 !QUICK_RELOAD = $1f60 ;dont need to touch this
@@ -46,7 +50,7 @@ org $82897A
 
 ; $08, $14, $15, $16, $17
 
-org !freespace82_start
+org !bank_85_free_space_start
 
 hook_main:
     lda $0998
@@ -88,13 +92,30 @@ check_reload:
     cmp #$E86A
     beq .noreset
 
+    ; Check newly pressed shot (to disable spin lock):
+    lda $8F
+    bit $09B2
+    beq .no_shot
+    lda #$0000
+    sta !spin_lock_enabled  ; shot button is newly pressed, so disable spin lock
+.no_shot:
+
+    ; Check spin-lock input combination (to enable spin lock):
+    lda $8B
+    and !spin_lock_button_combo
+    cmp !spin_lock_button_combo
+    bne .no_spin_lock
+    lda #$0001
+    sta !spin_lock_enabled  ; spin lock button combination was pressed, so enable spin lock
+.no_spin_lock:
+
     lda $8B      ; Controller 1 input
-    and !button_combo   ; L + R + Select + Start (or customized reset inputs)
-    cmp !button_combo
+    and !reload_button_combo   ; L + R + Select + Start (or customized reset inputs)
+    cmp !reload_button_combo
     bne .noreset ; If any of the inputs are not currently held, then do not reset.
 
     lda $8F      ; Newly pressed controller 1 input
-    and !button_combo   ; L + R + Select + Start
+    and !reload_button_combo   ; L + R + Select + Start
     bne .reset   ; Reset only if at least one of the inputs is newly pressed
 .noreset
     PLA
@@ -103,14 +124,24 @@ check_reload:
 .reset:
     PLA
     PLP
-    jsr deathhook
+    jsl deathhook_wrapper
     RTL
 
+warnpc !bank_85_free_space_end
 
-org !button_combo
+org !bank_82_free_space_start
+
+deathhook_wrapper:
+    jsr deathhook
+    rtl
+
+warnpc !spin_lock_button_combo
+
+org !spin_lock_button_combo
+    dw $0870
+
+org !reload_button_combo
     dw $0303  ; L + R + Select + Start  (overridable by the customizer)
-
-warnpc !freespace82_end
 
 ; Hook setting up game
 org $80a088

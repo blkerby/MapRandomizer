@@ -131,6 +131,8 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         progression_rate: ProgressionRate::Fast,
         random_tank: true,
         spazer_before_plasma: true,
+        stop_item_placement_early: false,
+        item_pool: vec![],
         starting_items: vec![],
         semi_filler_items: vec![],
         filler_items: vec![Item::Missile],
@@ -160,6 +162,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         draygon_proficiency: 1.0,
         ridley_proficiency: 1.0,
         botwoon_proficiency: 1.0,
+        mother_brain_proficiency: 1.0,
         supers_double: true,
         mother_brain_fight: MotherBrainFight::Skip,
         escape_enemies_cleared: true,
@@ -182,11 +185,11 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         objectives: Objectives::Pirates,
         // objectives: Objectives::Bosses,
         doors_mode: DoorsMode::Ammo,
-        start_location_mode: StartLocationMode::Ship,
+        start_location_mode: StartLocationMode::Random,
         save_animals: SaveAnimals::No,
         area_assignment: AreaAssignment::Standard,
         early_save: false,
-        wall_jump: maprando::randomize::WallJump::Collectible,
+        wall_jump: maprando::randomize::WallJump::Vanilla,
         etank_refill: maprando::randomize::EtankRefill::Vanilla,
         maps_revealed: maprando::randomize::MapsRevealed::Yes,
         energy_free_shinesparks: false,
@@ -195,10 +198,11 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         skill_assumptions_preset: Some("None".to_string()),
         item_progression_preset: Some("None".to_string()),
         quality_of_life_preset: Some("None".to_string()),
-        debug_options: Some(DebugOptions {
-            new_game_extra: true,
-            extended_spoiler: true,
-        }),
+        debug_options: None,
+        // debug_options: Some(DebugOptions {
+        //     new_game_extra: true,
+        //     extended_spoiler: true,
+        // }),
     };
     let mut single_map : Option<Map>;
     let mut filenames : Vec<String> = Vec::new();

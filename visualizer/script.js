@@ -33,8 +33,8 @@ const offsets = {
 	"Watering Hole: Left Item": [-0.25,2],
 	"Watering Hole: Right Item": [0.25,2],
 	"Speed Booster Hall: Hidden Item": [11,1],
-	"West Sand Hole: Top Left Right Item": [0.25,0],
-	"West Sand Hole: Top Left Left Item": [-0.25,0],
+	"West Sand Hole: Top Left - Right Item": [0.25,0],
+	"West Sand Hole: Top Left - Left Item": [-0.25,0],
 	"East Sand Hole: Top Left Item": [0,0],
 	"East Sand Hole: Right Item": [1,1],
 	"Post Crocomire Missile Room: Item": [3,0],
@@ -170,7 +170,12 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			
 			let step_number = document.createElement("span");
 			step_number.className = "step-number";
-			step_number.innerHTML = `${c.summary[i].step}`;
+			if (i == c.summary.length - 1 && c.summary[i].items.length == 0) {
+				step_number.className = "step-whole-map";
+				step_number.innerHTML = `FINAL MAP`;
+			} else {
+				step_number.innerHTML = `${c.summary[i].step}`;
+			}
 			step_div.appendChild(step_number);
 
 			let items = c.details[i].items;
@@ -397,6 +402,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				}
 			}
 			for (let i of ss.items) {
+				if (i == "Nothing") { continue; }
 				if (!ic.includes(item_plm[i])) {
 					si.appendChild(icon(item_plm[i]));
 				}

@@ -118,8 +118,8 @@ rooms = [
         door_ids=[
             DoorIdentifier(LEFT, 0, 0, 0x1A84C, 0x1A918, 0),  # Botwoon's Room
             DoorIdentifier(RIGHT, 6, 0, 0x1A870, 0x1A8DC, 0),  # Halfie Climb Room
-            DoorIdentifier(DOWN, 2, 0, 0x1A858, None, None, SAND),  # Botwoon Quicksand Room (left)
-            DoorIdentifier(DOWN, 3, 0, 0x1A864, None, None, SAND),  # Botwoon Quicksand Room (right)
+            DoorIdentifier(DOWN, 2, 0, 0x1A864, None, None, SAND),  # Botwoon Quicksand Room (left)
+            DoorIdentifier(DOWN, 3, 0, 0x1A858, None, None, SAND),  # Botwoon Quicksand Room (right)
         ],
         parts=[[0, 1], [2], [3]],
         transient_part_connections=[(0, 1), (0, 2)],  # sand
@@ -411,8 +411,8 @@ rooms = [
         door_ids=[
             DoorIdentifier(DOWN, 0, 0, 0x1A8AC, None, None, SAND),  # Below Botwoon Energy Tank (left)
             DoorIdentifier(DOWN, 1, 0, 0x1A8B8, None, None, SAND),  # Below Botwoon Energy Tank (right)
-            DoorIdentifier(UP, 0, 0, None, 0x1A858, None, SAND),  # Botwoon Energy Tank Room (left)
-            DoorIdentifier(UP, 1, 0, None, 0x1A864, None, SAND),  # Botwoon Energy Tank Room (right)
+            DoorIdentifier(UP, 0, 0, None, 0x1A864, None, SAND),  # Botwoon Energy Tank Room (left)
+            DoorIdentifier(UP, 1, 0, None, 0x1A858, None, SAND),  # Botwoon Energy Tank Room (right)
         ],
         parts=[[0], [1], [2], [3]],
         transient_part_connections=[(2, 0), (3, 1)],  # sand

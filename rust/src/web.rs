@@ -11,7 +11,7 @@ use crate::seed_repository::SeedRepository;
 
 use self::logic::LogicData;
 
-pub const VERSION: usize = 108;
+pub const VERSION: usize = 109;
 pub const HQ_VIDEO_URL_ROOT: &'static str = "https://storage.googleapis.com/super-metroid-map-rando-videos-webm";
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -28,6 +28,7 @@ pub struct Preset {
     pub draygon_proficiency: f32,
     pub ridley_proficiency: f32,
     pub botwoon_proficiency: f32,
+    pub mother_brain_proficiency: f32,
     pub tech: Vec<String>,
     pub notable_strats: Vec<String>,
 }

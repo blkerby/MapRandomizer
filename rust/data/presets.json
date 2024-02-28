@@ -12,6 +12,7 @@
     "draygon_proficiency": 0.0,
     "ridley_proficiency": 0.0,
     "botwoon_proficiency": 0.0,
+    "mother_brain_proficiency": 0.0,
     "tech": [
       "canHeatRun",
       "canWalljump",
@@ -36,6 +37,7 @@
     "draygon_proficiency": 0.3,
     "ridley_proficiency": 0.3,
     "botwoon_proficiency": 0.3,
+    "mother_brain_proficiency": 0.3,
     "tech": [
       "canSuitlessMaridia",
       "canSpringBallJumpMidAir",
@@ -80,6 +82,7 @@
     "draygon_proficiency": 0.5,
     "ridley_proficiency": 0.5,
     "botwoon_proficiency": 0.5,
+    "mother_brain_proficiency": 0.5,
     "tech": [
       "canCrossRoomJumpIntoWater",
       "canWaterShineCharge",
@@ -110,10 +113,13 @@
       "canMochtroidIceClimb",
       "canHeroShot",
       "canXRayWaitForIFrames",
+      "canXRayStandUp",
       "canCeilingClip",
+      "canXRayCeilingClip",
       "canSnailClimb",
       "canBounceBall",
-      "canOffScreenSuperShot"
+      "canOffScreenSuperShot",
+      "canManageReserves"
     ],
     "notable_strats": [
       "Alcatraz Escape",
@@ -122,6 +128,7 @@
       "Blue Brin E-Tank Return Through Crumble Blocks",
 
       "Early Supers Mockball",
+      "Etecoon E-Tank Beetom Clip",
 
       "Big Pink Return Through Crumble Blocks", 
       "Big Pink Off Screen Super Block",
@@ -138,13 +145,17 @@
       "Golden Torizo Crumble Jump",
 
       "Amphitheatre Reverse Acid Dive",
-      "Ridley without Heat Protection",
 
       "Botwoon Hallway Mochtroid Ice Clip",
+      "Aqueduct Snail Clip", 
 
       "Maridia Bug Room Frozen Menu Bridge",
       "Plasma Spark Fish Climb",
 
+      "East Pants Room Puyo Clip",
+
+      "Mother Brain Speed Zebetite Skip",
+      "Mother Brain Ice Zebetite Skip",
       "Reverse Tourian Escape Room 4 Dodge While Climbing"
     ]
   },
@@ -161,6 +172,7 @@
     "draygon_proficiency": 0.7,
     "ridley_proficiency": 0.7,
     "botwoon_proficiency": 0.7,
+    "mother_brain_proficiency": 0.7,
     "tech": [
       "canCrystalFlash",
       "canTrickyJump",
@@ -170,11 +182,9 @@
       "canSpeedball",
       "canShinechargeMovementComplex",
       "canTemporaryBlue",
-      "canXRayStandUp",
       "canXRayTurnaround",
       "canMetroidAvoid",
       "canBlueSpaceJump",
-      "canXRayCeilingClip",
       "canStationarySpinJump",
       "canFlatleyJump",
       "canPartialFloorClip",
@@ -193,8 +203,7 @@
       "canMoonfall",
       "canAutoCancelWeapon",
       "canSamusEaterStandUp",
-      "canWrapAroundShot",
-      "can10PowerBombCrystalFlash"
+      "canWrapAroundShot"
     ],
     "notable_strats": [
       "Climb Behemoth Shinespark",
@@ -214,7 +223,6 @@
       "West Ocean Floor Shinecharge, Fast Spacejump Wallclimb to Gravity Door",
 
       "Brinstar Reserve Hole-in-One",
-      "Etecoon E-Tank Beetom Clip",
       "Etecoon Beetom Tricky Dodge",
 
       "Big Pink Crystal Flash Standup - Super Block",
@@ -266,6 +274,7 @@
       "Dodge the Three Musketeers Going Down",
       "Writg Frozen Pirate Platforms",
       "Writg New Route with HiJump, Speed, and PowerBombs",
+      "Ridley without Heat Protection",
 
       "Fish Tank Entry Fall onto Frozen Fish",
       "Fish Tank Entry Reset Fall Speed",
@@ -274,8 +283,8 @@
       "Glass Tunnel Maridia Tube Clip",
       "Mt. Everest Bottom Right Charged Drop",
       "Mt. Everest Shinespark Down-Grab to the Grapple Blocks (Left to Top)",
+      "Red Fish Space Jump Spring Ball Jump",
 
-      "Aqueduct Snail Clip", 
       "Aqueduct Bootless Suitless Snail Climb",
       "Botwoon Hallway Reverse Shinespark",
       "Back-Side Botwoon Magic Pixel Beam Fight",
@@ -299,7 +308,6 @@
       "Pants Room Gravity Jump",
       "Pants Room Shinespark",
       "Pants Room Suitless Flatley Turnaround Climb",
-      "East Pants Room Puyo Clip",
 
       "Bowling Alley Missile Chozo Camera Unlock",
       "Sponge Bath Bull Boost",
@@ -320,8 +328,9 @@
     "escape_timer_multiplier": 1.1,
     "phantoon_proficiency": 1.0,
     "draygon_proficiency": 1.0,
-    "ridley_proficiency": 0.8,
+    "ridley_proficiency": 0.825,
     "botwoon_proficiency": 1.0,
+    "mother_brain_proficiency": 1.0,
     "tech": [
       "canXRayClimb",
       "canRightSideDoorStuck",
@@ -350,7 +359,9 @@
       "canSandIBJ",
       "canCWJ",
       "canSandfallBounce",
-      "canEnemyExtendRunway"
+      "canEnemyExtendRunway",
+      "can10PowerBombCrystalFlash",
+      "canGrappleTeleport"
     ],
     "notable_strats": [
       "Landing Site Big Jump Blue Suit Bounce",
@@ -366,6 +377,7 @@
 
       "Brinstar Reserve Temporary Blue",
       "Green Hill Zone X-Ray Wiggle",
+      "Green Hills Grapple Gate Glitch",
       "Etecoon Shaft Moonfall Spark",
       "Green Brinstar Beetom Room Frozen Beetom Bridge",
 
@@ -373,6 +385,7 @@
       "Big Pink Super Block Speedball",
       "Big Pink Fast Mockball Leave With Spark",
       "Big Pink Zeb Ice Clip",
+      "Pink Brinstar Hopper X-Ray Climb",
       "Dachora Room Shinespark No Etanks No HiJump",
       "Mission Impossible",
 
@@ -431,10 +444,12 @@
 
       "Maridia Bug Room Spark Out Left HiJumpless",
 
+      "East Pants Room Puyo Clip Precise Freeze",      
       "West Sand Hall Suitless Bootless Spring Ball",
       "West Sand Hall Ice Beam Only (Center to Left)",
       "East Sand Hall Spring Ball HiJump",
       "East Sand Hall Cross-Room SpringBall Jump",
+      "East Sand Hall Cross-Room Speed Jump",
       "Spring Ball Room Escape - Suitless, Bootless, Space Jump",
 
       "Metroid Room 4 Bottom Metroid Avoid",
@@ -458,6 +473,7 @@
     "draygon_proficiency": 1.0,
     "ridley_proficiency": 0.9,
     "botwoon_proficiency": 1.0,
+    "mother_brain_proficiency": 1.0,
     "tech": [
       "canBePatient",
       "canEnterRMode",
@@ -474,6 +490,8 @@
       "canInsaneWalljump",
       "canUnderwaterWalljump",
       "canShinesparkDeepStuck",
+      "canDeepTransition",
+      "canTrickyEnemyExtendRunway",
       "canCrazyCrabClimb",
       "canJumpIntoCrystalFlashClip",
       "canXMode",
@@ -484,13 +502,15 @@
     ],
     "notable_strats": [
       "Landing Site Crystal Flash X-Ray Climb",
+      "Alcatraz Escape with Grapple X-Ray Ceiling Clip",
       "Climb Temporary Blue Chain Through Bomb Blocks",
       "Final Missile Bombway Shinespark",
       "Golden Four Underwater Walljumps",
       "West Ocean G-mode Overload PLMs by PBing Missile Item",
       "West Ocean Grapple Clip Door Lock Skip",
-      "West Ocean: G-Mode Setup Lure Zeb from Below",
-      "West Ocean: Get Inside the Bridge",
+      "West Ocean - G-Mode Setup Lure Zeb from Below",
+      "West Ocean - Get Inside the Bridge",
+      "Bowling Alley Path Double Frozen Choot Runway",
 
       "East Ocean Space Jump Water Escape (Left to Right)",
       "East Ocean Shinespark Water Escape With Lower Choot Alive",
@@ -500,21 +520,26 @@
 
       "Early Supers Crouch Gate Clip Damage Boost",
       "Early Supers Leave With Spark To The Left",
-      "Early Supers Right Door Frozen Zeb Runway",
+      "Green Brinstar Main Shaft Bottom Ice Clip",
       "Green Hill Zone Tunnel Crawl",
-      "Green Hills Grapple Gate Glitch",
       "Etecoon Spikeway Aim Cancel Wiggle",
       "Etecoon Spikeway Tunnel Crawl",
       "Etecoon Spikeway Xray Wiggle",
 
       "Big Pink Reo Ice Clip With Morph and X-Ray",
       "Big Pink Wall Ice Clip the Mission Impossible Crumble Blocks",
+      "Mission Impossible Walljumpless",
+      "Mission Impossible Shinespark",
 
       "Red Tower R-Mode Frozen Beetom X-Ray Climb",
+      "Red Tower Frozen Beetom Ice Climb",
+
       "Hellway Frozen Zeb Runway",
 
+      "Warehouse Entrance Arm Pump Jump",
       "Warehouse Energy Tank Frozen Beetom Runway",
 
+      "Cathedral Entrance 10 Power Bomb Crystal Flash",
       "Double Chamber HiJumpless Wall Jump",
       "Lava Dive Diagonal Bomb Jump",
 
@@ -546,6 +571,7 @@
 
       "Butterfly Room Door Lock Wall Ice Clip",
       "Plasma Spark X-Ray Climb Into Fake Kassiuz Room",
+      "Watering Hole Double Frozen Zeb Runway",
 
       "West Sand Hall Suitless Damage Boost (Center to Left)",
       "West Sand Hall Ice Only (Center to Right)",
@@ -574,6 +600,7 @@
     "draygon_proficiency": 1.0,
     "ridley_proficiency": 1.0,
     "botwoon_proficiency": 1.0,
+    "mother_brain_proficiency": 1.0,
     "tech": [
       "canBeVeryPatient",
       "canMoondance",
@@ -582,11 +609,10 @@
       "canBombGrappleJump",
       "canEnemyStuckMoonfall",
       "canDownwardGModeSetup",
-      "canUnderwaterBombIntoSpringBallJump"
+      "canUnderwaterBombIntoSpringBallJump",
+      "canTrickyGrappleJump"
     ],
     "notable_strats": [
-      "Climb G-Mode Morph Insane IBJ to Top",
-      "Climb G-Mode Morph Blind Climb to the Top",
       "Climb Morph Tunnel SpeedBall",
       "Crateria Kihunter Room Ice Moonfall Door Lock Skip",
       "Crateria Supers G-Mode Morph Long Ceiling Bomb Jump",
@@ -600,14 +626,18 @@
       "Green Pirate Shaft Beetom Stuck Moonfall",
       "G-Mode Setup - Parlor Downward G-Mode Setup with Ice",
       "Parlor Ice Moonfall Door Lock Skip Without Supers",
+      "Alcatraz Escape with HiJump Ceiling Clip",
+      "Alcatraz Escape Double Damage Boost",
       "West Ocean - Enemy Stuck Moonfall Super Block Clip",
+      "Bowling Alley Path Triple Frozen Choot Runway", 
 
       "Taco Tank in Blue Brinstar Energy Tank Room",
       "Blue Brinstar Energy Tank Room - Geemer Ice Stuck XRay Climb",
 
       "Green Brinstar Shaft Zeela Stuck Moonfall",
+      "Green Hills Grapple Teleport into Grapple Jump",
  
-      "Dachora Room G-Mode Setup: Lure the Zeela Down Below",
+      "Dachora Room G-Mode Setup - Lure the Zeela Down Below",
       "Dachora Room Reo Zeela Stuck Moonfall",
       "Dachora Room Blockade Extended Moondance",
       "Big Pink Reo Ice Clip Without Morph and X-Ray",
@@ -628,6 +658,10 @@
       "Mt. Everest Right Crab Climb with Only 1 Super",
       "Mt. Everest Cross Room Jump through Top Door",
       "Mt. Everest Top Left Shinecharge",
+      "Everest Crab HiJump Bomb-Grapple-Jump",
+      "Red Fish Space Jump Escape",
+      "Fish Tank Grapple Teleport into Grapple Jump",
+      "Glass Tunnel Grapple Teleport into Grapple Jump (or Tube Intact)",
 
       "Aqueduct Snail Stuck Moonfall",
       "Back-Side Botwoon Super Only Fight",
@@ -648,6 +682,7 @@
       "Bowling Alley Ceiling Bomb Jump",
       "WS East Supers Robot Clip Run-In-Place",
       "Basement G-mode Morph Workrobot Ride",
+      "Wrecked Ship Main Shaft Spooky Missiles Temporary Blue with Frozen Enemy Runway",
 
       "Baby Skip With Nothing"
     ]
@@ -665,13 +700,21 @@
     "draygon_proficiency": 1.0,
     "ridley_proficiency": 1.0,
     "botwoon_proficiency": 1.0,
+    "mother_brain_proficiency": 1.0,
     "tech": [],
     "notable_strats": [
+      "Alcatraz Escape G-Mode Crystal Flash Then Forced Standup",
+      "Climb G-Mode Morph Insane IBJ to Top",
+      "Climb G-Mode Morph Blind Climb to the Top",
+
       "Sporespawn Moondance Clip",
       "Green Brinstar Main Shaft TAS Dance",
+
       "Big Pink Extended Moondance Clip",
+
       "Cacatac Alley HiJumpless Double SpringBall Jump and Bomb-Grapple-Jump",
+
       "Everest Double Crab Bomb-Grapple-Jump"
-    ]
+   ]
   }
 ]

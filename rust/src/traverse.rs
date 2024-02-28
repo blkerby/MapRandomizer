@@ -7,10 +7,10 @@ use hashbrown::{HashMap, HashSet};
 
 use crate::{
     game_data::{
-        Capacity, EnemyVulnerabilities, GameData, Item, Link, LinkIdx, LinksDataGroup, Requirement,
-        WeaponMask,
+        self, Capacity, EnemyVulnerabilities, GameData, Item, Link, LinkIdx, LinksDataGroup,
+        Requirement, WeaponMask,
     },
-    randomize::{DifficultyConfig, WallJump},
+    randomize::{DifficultyConfig, MotherBrainFight, Objectives, WallJump},
 };
 
 use log::info;
@@ -154,6 +154,7 @@ fn apply_phantoon_requirement(
     global: &GlobalState,
     mut local: LocalState,
     proficiency: f32,
+    game_data: &GameData,
 ) -> Option<LocalState> {
     // We only consider simple, safer strats here, where we try to damage Phantoon as much as possible
     // as soon as he opens his eye. Faster or more complex strats are not relevant, since at
@@ -213,7 +214,7 @@ fn apply_phantoon_requirement(
 
     local.energy_used += (net_dps * kill_time) as Capacity;
 
-    validate_energy(local, global)
+    validate_energy(local, global, game_data)
 }
 
 fn apply_draygon_requirement(
@@ -221,6 +222,7 @@ fn apply_draygon_requirement(
     local: LocalState,
     proficiency: f32,
     can_be_very_patient_tech_id: usize,
+    game_data: &GameData,
 ) -> Option<LocalState> {
     let mut boss_hp: f32 = 6000.0;
     let charge_damage = get_charge_damage(&global);
@@ -244,9 +246,9 @@ fn apply_draygon_requirement(
         global.items[Item::Plasma as usize],
         global.items[Item::Wave as usize],
     ) {
-        (false, _) => 6.0,     // Basic beam
+        (false, _) => 6.0,    // Basic beam
         (true, false) => 9.0, // Plasma can hit multiple goops at once.
-        (true, true) => 12.0,  // Wave+Plasma can hit even more goops at once.
+        (true, true) => 12.0, // Wave+Plasma can hit even more goops at once.
     };
     let goop_farms_per_cycle = if global.items[Item::Gravity as usize] {
         farm_proficiency * base_goop_farms_per_cycle
@@ -267,10 +269,8 @@ fn apply_draygon_requirement(
     };
 
     let missiles_available = global.max_missiles - local.missiles_used;
-    let missile_firing_rate =
-        20.0 * GOOP_CYCLES_PER_SECOND * firing_rate;
+    let missile_firing_rate = 20.0 * GOOP_CYCLES_PER_SECOND * firing_rate;
     let net_missile_use_rate = missile_firing_rate - missile_farm_rate;
-
 
     let initial_missile_damage_rate = 100.0 * missile_firing_rate * accuracy;
     let overall_damage_rate = initial_missile_damage_rate + charge_damage_rate;
@@ -289,7 +289,7 @@ fn apply_draygon_requirement(
         boss_hp -= time * overall_damage_rate;
 
         let farming_missile_damage_rate = if global.max_missiles > 0 {
-            100.0 * missile_farm_rate * accuracy 
+            100.0 * missile_farm_rate * accuracy
         } else {
             0.0
         };
@@ -313,17 +313,18 @@ fn apply_draygon_requirement(
         };
         // TODO: if the player can get behind Draygon during goop phase, it can be possible to safely Crystal Flash. Consider using one if validate_energy fails and
         // Crystal Flashes are in logic.
-        return validate_energy(result, global);
+        return validate_energy(result, global, game_data);
     } else {
         return None;
     }
 }
 
-fn apply_ridley_requirement(
+pub fn apply_ridley_requirement(
     global: &GlobalState,
     mut local: LocalState,
     proficiency: f32,
     can_be_very_patient_tech_id: usize,
+    game_data: &GameData,
 ) -> Option<LocalState> {
     let mut boss_hp: f32 = 18000.0;
     let mut time: f32 = 0.0; // Cumulative time in seconds for the fight
@@ -335,7 +336,7 @@ fn apply_ridley_requirement(
     // Assume a firing rate of between 30% (on lowest difficulty) to 100% (on highest):
     let firing_rate = 0.3 + 0.7 * proficiency;
 
-    let charge_time = 1.4;  // minimum of 1.4 seconds between charge shots
+    let charge_time = 1.4; // minimum of 1.4 seconds between charge shots
 
     // Prioritize using supers:
     let supers_available = global.max_supers - local.supers_used;
@@ -442,7 +443,7 @@ fn apply_ridley_requirement(
     // TODO: We could add back some energy and/or ammo by assuming we get drops.
     // By omitting this for now we're just making the logic a little more conservative in favor of
     // the player.
-    validate_energy(local, global)
+    validate_energy(local, global, game_data)
 }
 
 fn apply_botwoon_requirement(
@@ -450,6 +451,7 @@ fn apply_botwoon_requirement(
     mut local: LocalState,
     proficiency: f32,
     second_phase: bool,
+    game_data: &GameData,
 ) -> Option<LocalState> {
     // We aim to be a little lenient here. For example, we don't take SBAs (e.g. X-factors) into account,
     // assuming instead the player just uses ammo and/or regular charged shots.
@@ -556,7 +558,115 @@ fn apply_botwoon_requirement(
     // TODO: We could add back some energy and/or ammo by assuming we get drops.
     // By omitting this for now we're just making the logic a little more conservative in favor of
     // the player.
-    validate_energy(local, global)
+    validate_energy(local, global, game_data)
+}
+
+fn apply_mother_brain_2_requirement(
+    global: &GlobalState,
+    mut local: LocalState,
+    difficulty: &DifficultyConfig,
+    can_be_very_patient_tech_id: usize,
+    game_data: &GameData,
+) -> Option<LocalState> {
+    if difficulty.mother_brain_fight == MotherBrainFight::Skip {
+        return Some(local);
+    }
+
+    if global.max_energy < 199 {
+        // Need at least one ETank to survive rainbow beam.
+        // TODO: Light pillar could be added to logic, which would be a separate strat instead of using this function.
+        return None;
+    }
+
+    let proficiency = difficulty.mother_brain_proficiency;
+    let mut boss_hp: f32 = 18000.0;
+    let mut time: f32 = 0.0; // Cumulative time in seconds for the fight
+    let charge_damage = get_charge_damage(&global);
+
+    // Assume an ammo accuracy rate of between 75% (on lowest difficulty) to 100% (on highest):
+    let accuracy = 0.75 + 0.25 * proficiency;
+
+    // Assume a firing rate of between 60% (on lowest difficulty) to 100% (on highest):
+    let firing_rate = 0.6 + 0.4 * proficiency;
+
+    let charge_time = 1.1; // minimum of 1.1 seconds between charge shots
+    let super_time = 0.35; // minimum of 0.35 seconds between Super shots
+    let missile_time = 0.17;
+
+    // Prioritize using supers:
+    let supers_available = global.max_supers - local.supers_used;
+    let super_damage = if difficulty.supers_double {
+        600.0
+    } else {
+        300.0
+    };
+    let supers_to_use = min(
+        supers_available,
+        f32::ceil(boss_hp / (super_damage * accuracy)) as Capacity,
+    );
+    local.supers_used += supers_to_use;
+    boss_hp -= supers_to_use as f32 * super_damage * accuracy;
+    time += supers_to_use as f32 * super_time / firing_rate;
+
+    // Use Charge Beam if it's powerful enough
+    // 500 is the point at which Charge Beam has better DPS than Missiles, this happens with Charge + Plasma + (Ice and/or Wave)
+    if charge_damage >= 500.0 {
+        let powerful_charge_shots_to_use = max(
+            0,
+            f32::ceil(boss_hp / (charge_damage * accuracy)) as Capacity,
+        );
+        boss_hp = 0.0;
+        time += powerful_charge_shots_to_use as f32 * charge_time / firing_rate;
+    }
+
+    // Then use available missiles:
+    let missiles_available = global.max_missiles - local.missiles_used;
+    let missiles_to_use = max(
+        0,
+        min(
+            missiles_available,
+            f32::ceil(boss_hp / (100.0 * accuracy)) as Capacity,
+        ),
+    );
+    local.missiles_used += missiles_to_use;
+    boss_hp -= missiles_to_use as f32 * 100.0 * accuracy;
+    time += missiles_to_use as f32 * missile_time / firing_rate;
+
+    if global.items[Item::Charge as usize] {
+        // Then finish with Charge shots:
+        let charge_shots_to_use = max(
+            0,
+            f32::ceil(boss_hp / (charge_damage * accuracy)) as Capacity,
+        );
+        boss_hp = 0.0;
+        time += charge_shots_to_use as f32 * charge_time / firing_rate;
+    }
+
+    if boss_hp > 0.0 {
+        // We don't have enough ammo to finish the fight:
+        return None;
+    }
+
+    if time >= 180.0 && !global.tech[can_be_very_patient_tech_id] {
+        // We don't have enough patience to finish the fight:
+        return None;
+    }
+
+    // Assumed rate of Mother Brain damage to Samus (per second), given minimal dodging skill:
+    // For simplicity we assume a uniform rate of damage (even though the ketchup phase has the highest risk of damage).
+    let base_mb_attack_dps = 20.0;
+    let hit_rate = 1.0 - proficiency;
+    let damage = base_mb_attack_dps * hit_rate * time;
+    local.energy_used += (damage / suit_damage_factor(global) as f32) as Capacity;
+
+    // Account for Rainbow beam damage:
+    if global.items[Item::Varia as usize] {
+        local.energy_used += 300;
+    } else {
+        local.energy_used += 600;
+    }
+
+    validate_energy(local, global, game_data)
 }
 
 pub const IMPOSSIBLE_LOCAL_STATE: LocalState = LocalState {
@@ -578,16 +688,52 @@ fn compute_cost(local: LocalState, global: &GlobalState) -> [f32; NUM_COST_METRI
     let power_bombs_cost = (local.power_bombs_used as f32) / (global.max_power_bombs as f32 + eps);
 
     let ammo_sensitive_cost_metric =
-        energy_cost + reserve_cost + 10.0 * (missiles_cost + supers_cost + power_bombs_cost);
+        energy_cost + reserve_cost + 100.0 * (missiles_cost + supers_cost + power_bombs_cost);
     let energy_sensitive_cost_metric =
-        10.0 * (energy_cost + reserve_cost) + missiles_cost + supers_cost + power_bombs_cost;
+        100.0 * (energy_cost + reserve_cost) + missiles_cost + supers_cost + power_bombs_cost;
     [ammo_sensitive_cost_metric, energy_sensitive_cost_metric]
 }
 
-fn validate_energy(mut local: LocalState, global: &GlobalState) -> Option<LocalState> {
+fn validate_energy(
+    mut local: LocalState,
+    global: &GlobalState,
+    game_data: &GameData,
+) -> Option<LocalState> {
     if local.energy_used >= global.max_energy {
-        local.reserves_used += local.energy_used - (global.max_energy - 1);
-        local.energy_used = global.max_energy - 1;
+        if global.tech[game_data.manage_reserves_tech_id] {
+            // Assume that just enough reserve energy is manually converted to regular energy.
+            local.reserves_used += local.energy_used - (global.max_energy - 1);
+            local.energy_used = global.max_energy - 1;
+        } else {
+            // Assume that reserves auto-trigger, leaving reserves empty.
+            let reserves_available = global.max_reserves - local.reserves_used;
+            local.reserves_used = global.max_reserves;
+            local.energy_used = std::cmp::max(0, local.energy_used - reserves_available);
+            if local.energy_used >= global.max_energy {
+                return None;
+            }
+        }
+    }
+    if local.reserves_used > global.max_reserves {
+        return None;
+    }
+    Some(local)
+}
+
+fn validate_energy_no_auto_reserve(
+    mut local: LocalState,
+    global: &GlobalState,
+    game_data: &GameData,
+) -> Option<LocalState> {
+    if local.energy_used >= global.max_energy {
+        if global.tech[game_data.manage_reserves_tech_id] {
+            // Assume that just enough reserve energy is manually converted to regular energy.
+            local.reserves_used += local.energy_used - (global.max_energy - 1);
+            local.energy_used = global.max_energy - 1;
+        } else {
+            // Assume that reserves cannot be used (e.g. during a shinespark or enemy hit).
+            return None;
+        }
     }
     if local.reserves_used > global.max_reserves {
         return None;
@@ -641,11 +787,12 @@ fn apply_gate_glitch_leniency(
     green: bool,
     heated: bool,
     difficulty: &DifficultyConfig,
+    game_data: &GameData,
 ) -> Option<LocalState> {
     if heated && !global.items[Item::Varia as usize] {
         local.energy_used +=
             (difficulty.gate_glitch_leniency as f32 * difficulty.resource_multiplier * 60.0) as i32;
-        local = match validate_energy(local, global) {
+        local = match validate_energy(local, global, game_data) {
             Some(x) => x,
             None => return None,
         };
@@ -662,6 +809,73 @@ fn apply_gate_glitch_leniency(
             local.missiles_used = global.max_missiles;
             local.supers_used += difficulty.gate_glitch_leniency - missiles_available;
             return validate_supers(local, global);
+        }
+    }
+}
+
+fn is_objective_complete(
+    global: &GlobalState,
+    difficulty: &DifficultyConfig,
+    game_data: &GameData,
+    obj_id: usize,
+) -> bool {
+    let flag_names = match difficulty.objectives {
+        Objectives::None => {
+            return true;
+        }
+        Objectives::Bosses => [
+            "f_DefeatedKraid",
+            "f_DefeatedPhantoon",
+            "f_DefeatedDraygon",
+            "f_DefeatedRidley",
+        ],
+        Objectives::Minibosses => [
+            "f_DefeatedSporeSpawn",
+            "f_DefeatedCrocomire",
+            "f_DefeatedBotwoon",
+            "f_DefeatedGoldenTorizo",
+        ],
+        Objectives::Metroids => [
+            "f_KilledMetroidRoom1",
+            "f_KilledMetroidRoom2",
+            "f_KilledMetroidRoom3",
+            "f_KilledMetroidRoom4",
+        ],
+        Objectives::Chozos => [
+            "f_DefeatedBombTorizo",
+            "f_UsedBowlingStatue",
+            "f_UsedAcidChozoStatue",
+            "f_DefeatedGoldenTorizo",
+        ],
+        Objectives::Pirates => [
+            "f_ClearedPitRoom",
+            "f_ClearedBabyKraidRoom",
+            "f_ClearedPlasmaRoom",
+            "f_ClearedMetalPiratesRoom",
+        ],
+    };
+    let flag_name = flag_names[obj_id];
+    let flag_idx = game_data.flag_isv.index_by_key[flag_name];
+    global.flags[flag_idx]
+}
+
+fn apply_heat_frames(
+    frames: Capacity,
+    local: LocalState,
+    global: &GlobalState,
+    game_data: &GameData,
+    difficulty: &DifficultyConfig,
+) -> Option<LocalState> {
+    let varia = global.items[Item::Varia as usize];
+    let mut new_local = local;
+    if varia {
+        Some(new_local)
+    } else {
+        if !global.tech[game_data.heat_run_tech_id] {
+            None
+        } else {
+            new_local.energy_used += (multiply(frames, difficulty) + 3) / 4;
+            validate_energy(new_local, global, game_data)
         }
     }
 }
@@ -715,6 +929,13 @@ pub fn apply_requirement(
             //     None
             // }
         }
+        Requirement::Objective(obj_id) => {
+            if is_objective_complete(global, difficulty, game_data, *obj_id) {
+                Some(local)
+            } else {
+                None
+            }
+        }
         Requirement::Walljump => match difficulty.wall_jump {
             WallJump::Vanilla => {
                 if global.tech[game_data.wall_jump_tech_id] {
@@ -733,17 +954,27 @@ pub fn apply_requirement(
             }
         },
         Requirement::HeatFrames(frames) => {
-            let varia = global.items[Item::Varia as usize];
-            let mut new_local = local;
-            if varia {
-                Some(new_local)
+            apply_heat_frames(*frames, local, global, game_data, difficulty)
+        }
+        Requirement::MainHallElevatorFrames => {
+            if difficulty.fast_elevators {
+                apply_heat_frames(160, local, global, game_data, difficulty)
             } else {
-                if !global.tech[game_data.heat_run_tech_id] {
-                    None
-                } else {
-                    new_local.energy_used += multiply(frames / 4, difficulty);
-                    validate_energy(new_local, global)
-                }
+                apply_heat_frames(436, local, global, game_data, difficulty)
+            }
+        }
+        Requirement::LowerNorfairElevatorDownFrames => {
+            if difficulty.fast_elevators {
+                apply_heat_frames(24, local, global, game_data, difficulty)
+            } else {
+                apply_heat_frames(60, local, global, game_data, difficulty)
+            }
+        }
+        Requirement::LowerNorfairElevatorUpFrames => {
+            if difficulty.fast_elevators {
+                apply_heat_frames(40, local, global, game_data, difficulty)
+            } else {
+                apply_heat_frames(108, local, global, game_data, difficulty)
             }
         }
         Requirement::LavaFrames(frames) => {
@@ -754,39 +985,39 @@ pub fn apply_requirement(
             if gravity && varia {
                 Some(new_local)
             } else if gravity || varia {
-                new_local.energy_used += multiply(frames / 4, difficulty);
-                validate_energy(new_local, global)
+                new_local.energy_used += (multiply(*frames, difficulty) + 3) / 4;
+                validate_energy(new_local, global, game_data)
             } else {
-                new_local.energy_used += multiply(frames / 2, difficulty);
-                validate_energy(new_local, global)
+                new_local.energy_used += (multiply(*frames, difficulty) + 1) / 2;
+                validate_energy(new_local, global, game_data)
             }
         }
         Requirement::GravitylessLavaFrames(frames) => {
             let varia = global.items[Item::Varia as usize];
             let mut new_local = local;
             if varia {
-                new_local.energy_used += multiply(frames / 4, difficulty);
+                new_local.energy_used += (multiply(*frames, difficulty) + 3) / 4;
             } else {
-                new_local.energy_used += multiply(frames / 2, difficulty);
+                new_local.energy_used += (multiply(*frames, difficulty) + 1) / 2;
             }
-            validate_energy(new_local, global)
+            validate_energy(new_local, global, game_data)
         }
         Requirement::AcidFrames(frames) => {
             let mut new_local = local;
             new_local.energy_used +=
-                multiply(3 * frames / 2, difficulty) / suit_damage_factor(global);
-            validate_energy(new_local, global)
+                multiply((3 * frames + 1) / 2, difficulty) / suit_damage_factor(global);
+            validate_energy(new_local, global, game_data)
         }
         Requirement::MetroidFrames(frames) => {
             let mut new_local = local;
             new_local.energy_used +=
-                multiply(3 * frames / 4, difficulty) / suit_damage_factor(global);
-            validate_energy(new_local, global)
+                multiply((3 * frames + 3) / 4, difficulty) / suit_damage_factor(global);
+            validate_energy(new_local, global, game_data)
         }
         Requirement::Damage(base_energy) => {
             let mut new_local = local;
             new_local.energy_used += base_energy / suit_damage_factor(global);
-            validate_energy(new_local, global)
+            validate_energy_no_auto_reserve(new_local, global, game_data)
         }
         // Requirement::Energy(count) => {
         //     let mut new_local = local;
@@ -809,7 +1040,7 @@ pub fn apply_requirement(
             validate_power_bombs(new_local, global)
         }
         Requirement::GateGlitchLeniency { green, heated } => {
-            apply_gate_glitch_leniency(local, global, *green, *heated, difficulty)
+            apply_gate_glitch_leniency(local, global, *green, *heated, difficulty, game_data)
         }
         Requirement::HeatedDoorStuckLeniency { heat_frames } => {
             if !global.items[Item::Varia as usize] {
@@ -817,7 +1048,7 @@ pub fn apply_requirement(
                 new_local.energy_used += (difficulty.door_stuck_leniency as f32
                     * difficulty.resource_multiplier
                     * *heat_frames as f32) as i32;
-                validate_energy(new_local, global)
+                validate_energy(new_local, global, game_data)
             } else {
                 Some(local)
             }
@@ -891,6 +1122,20 @@ pub fn apply_requirement(
             }
             Some(new_local)
         }
+        Requirement::AmmoStationRefillAll => {
+            if difficulty.ultra_low_qol {
+                None
+            } else {
+                Some(local)
+            }
+        }
+        Requirement::SupersDoubleDamageMotherBrain => {
+            if difficulty.supers_double {
+                Some(local)
+            } else {
+                None
+            }
+        }
         Requirement::EnergyDrain => {
             if reverse {
                 let mut new_local = local;
@@ -941,7 +1186,7 @@ pub fn apply_requirement(
             apply_enemy_kill_requirement(global, local, *count, vul)
         }
         Requirement::PhantoonFight {} => {
-            apply_phantoon_requirement(global, local, difficulty.phantoon_proficiency)
+            apply_phantoon_requirement(global, local, difficulty.phantoon_proficiency, game_data)
         }
         Requirement::DraygonFight {
             can_be_very_patient_tech_id,
@@ -950,6 +1195,7 @@ pub fn apply_requirement(
             local,
             difficulty.draygon_proficiency,
             *can_be_very_patient_tech_id,
+            game_data,
         ),
         Requirement::RidleyFight {
             can_be_very_patient_tech_id,
@@ -958,10 +1204,24 @@ pub fn apply_requirement(
             local,
             difficulty.ridley_proficiency,
             *can_be_very_patient_tech_id,
+            game_data,
         ),
-        Requirement::BotwoonFight { second_phase } => {
-            apply_botwoon_requirement(global, local, difficulty.botwoon_proficiency, *second_phase)
-        }
+        Requirement::BotwoonFight { second_phase } => apply_botwoon_requirement(
+            global,
+            local,
+            difficulty.botwoon_proficiency,
+            *second_phase,
+            game_data,
+        ),
+        Requirement::MotherBrain2Fight {
+            can_be_very_patient_tech_id,
+        } => apply_mother_brain_2_requirement(
+            global,
+            local,
+            difficulty,
+            *can_be_very_patient_tech_id,
+            game_data,
+        ),
         Requirement::ShineCharge { used_tiles, heated } => {
             let tiles_limit = if *heated && !global.items[Item::Varia as usize] {
                 global.heated_shine_charge_tiles
@@ -997,10 +1257,12 @@ pub fn apply_requirement(
                     } else {
                         new_local.energy_used += frames;
                     }
-                    validate_energy(new_local, global)
+                    validate_energy_no_auto_reserve(new_local, global, game_data)
                 } else {
                     new_local.energy_used += frames - excess_frames + 28;
-                    if let Some(mut new_local) = validate_energy(new_local, global) {
+                    if let Some(mut new_local) =
+                        validate_energy_no_auto_reserve(new_local, global, game_data)
+                    {
                         let energy_remaining = global.max_energy - new_local.energy_used - 1;
                         new_local.energy_used += std::cmp::min(*excess_frames, energy_remaining);
                         new_local.energy_used -= 28;

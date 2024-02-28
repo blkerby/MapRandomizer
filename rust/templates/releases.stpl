@@ -14,10 +14,96 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release108">Version 108 (2024-02-06)</a>:
+<p><a id="release109">Version 109 (2024-02-27)</a>:
+<ul>
+<li>Spin Lock (L + R + Up + X) can be used to temporarily prevent up or down from breaking spin.
+    <ul>
+    <li>This can make it easier to perform chains of wall jumps on a controller/D-pad.
+    <li>The input combination can be customized (or disabled) on the seed page.
+    <li>Spin lock is canceled by pressing shot.
+    </ul>
+<li>Charge and Spazer are now filler items on "Challenge" item progression.
+<li>New group of settings "Item pool" (under Item progression > Customize):
+    <ul>
+    <li>Adjustable amount of Missiles, Supers, Power Bombs, ETanks, and Reserve Tanks.
+    <li>Option "Stop item placement early" (under Item progression > Customize > Item pool):
+        <ul>
+        <li>If enabled, no more items are placed after the game becomes logically beatable.
+        </ul>
+    <li>"Reduced" item pool preset uses "Stop item placement early" and a small amount of ammo/tanks:
+        <ul>
+        <li>12 Missile packs, 6 Super packs, 6 Power Bomb packs, 3 Energy Tanks, 3 Reserve Tanks
+        <li>More tanks may be placed depending on difficulty settings.
+        </ul>
+    </ul>
+<li>New item progression preset "Desolate" is added:
+    <ul>
+    <li>This is like "Challenge" but also enables the "Reduced" item pool.
+    </ul>
+<li>Logic updates:
+    <ul>
+    <li>New tech:
+        <ul>
+        <li>canManageReserves (Hard)
+        <li>canGrappleTeleport (Expert)
+        <li>canTrickyGrappleJump (Insane)
+        </ul>
+    <li>New notable strats:
+        <ul>
+        <li>Mother Brain Speed Zebetite Skip (Hard)
+        <li>Mother Brain Ice Zebetite Skip (Hard)
+        <li>East Sand Hall Cross-Room Speed Jump (Expert)
+        <li>Red Tower Frozen Beetom Ice Climb (Extreme)
+        <li>Warehouse Entrance Arm Pump Jump (Extreme)
+        <li>Watering Hole Double Frozen Zeb Runway (Extreme)
+        <li>Green Brinstar Main Shaft Bottom Ice Clip (Extreme)
+        <li>Fish Tank Grapple Teleport into Grapple Jump (Insane)
+        <li>Glass Tunnel Grapple Teleport into Grapple Jump (or Tube Intact) (Insane)
+        <li>Green Hills Grapple Teleport into Grapple Jump (Insane)
+        </ul>
+    <li>Notable strat "Green Hills Grapple Gate Glitch" is moved from Extreme to Expert.
+    </ul>
+</ul>
+
+<p><a id="release108">Version 108 (2024-02-12)</a>:
 <ul>
 <li>New option "Starting items" under "Item progression" > "Customize".
-<li>Ridley logic is adjusted and is now generally more lenient (except on Insane).
+<li>Videos are added for many tech and notable strats.
+<li>Logic updates:
+    <ul>
+    <li>Ridley logic is adjusted and is now generally more lenient (except on Insane).
+    <li>Slow Kihunter farms are removed from logic.
+    <li>Shortcharges across a door transition now have an extra tile of leniency.
+    <li>New tech:
+        <ul>
+        <li>"canDeepTransition" (Extreme)
+        <li>"canTrickyEnemyExtendRunway" (Extreme)
+        </ul>
+    <li>New notable strats:
+        <ul>
+        <li>Red Fish Space Jump Spring Ball Jump (Very Hard)
+        <li>Pink Brinstar Hopper X-Ray Climb (Expert)
+        <li>Mission Impossible Walljumpless (Extreme)
+        <li>Mission Impossible Shinespark (Extreme)
+        <li>Cathedral Entrance 10 Power Bomb Crystal Flash (Extreme)
+        <li>Bowling Alley Path Double Frozen Choot Runway (Extreme)
+        <li>Alcatraz Escape with Grapple X-Ray Ceiling Clip (Extreme)
+        <li>Alcatraz Escape with HiJump Ceiling Clip (Insane)
+        <li>Alcatraz Escape Double Damage Boost (Insane)
+        <li>Bowling Alley Path Triple Frozen Choot Runway (Insane)
+        <li>Everest Crab HiJump Bomb-Grapple-Jump (Insane)
+        <li>Red Fish Space Jump Escape (Insane)
+        <li>Wrecked Ship Main Shaft Spooky Missiles Temporary Blue with Frozen Enemy Runway (Insane)
+        <li>Alcatraz Escape G-Mode Crystal Flash Then Forced Standup (Beyond)
+        </ul>
+    <li>Some tech and notable strats are moved to a different difficulty:
+        <ul>
+        <li>"canXRayStandUp" and "canXRayCeilingClip", "Etecoon E-Tank Beetom Clip", and "East Pants Room Puyo Clip" are moved from Very Hard to Hard.
+        <li>"can10PowerBombCrystalFlash" is moved from Very Hard to Expert.
+        <li>"Ridley without Heat Protection" is moved from Hard to Very Hard.
+        <li>"Climb G-Mode Morph Insane IBJ to Top" and "Climb G-Mode Morph Blind Climb to the Top" are moved from Insane to Beyond.
+        </ul>
+    </ul>
 </ul>
 
 <p><a id="release107">Version 107 (2024-02-03)</a>:

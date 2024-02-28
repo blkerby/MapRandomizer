@@ -204,12 +204,34 @@ fn make_tech_templates<'a>(
             if strat_json["entranceCondition"].has_key("comeInWithGMode") {
                 tech_set.insert(game_data.tech_isv.index_by_key["canEnterGMode"]);
             }
+            if strat_json["entranceCondition"].has_key("comeInWithRMode") {
+                tech_set.insert(game_data.tech_isv.index_by_key["canEnterRMode"]);
+            }
+            if strat_json["entranceCondition"].has_key("comeInSpeedballing") {
+                tech_set.insert(game_data.tech_isv.index_by_key["canSpeedball"]);
+            }
+            if strat_json["entranceCondition"].has_key("comeInStutterShinecharging") {
+                tech_set.insert(game_data.tech_isv.index_by_key["canStutterWaterShineCharge"]);
+            }
+            if strat_json["entranceCondition"].has_key("comeInWithTemporaryBlue") {
+                tech_set.insert(game_data.tech_isv.index_by_key["canTemporaryBlue"]);
+            }
+            if strat_json["entranceCondition"].has_key("comeInWithBombBoost") {
+                tech_set.insert(game_data.tech_isv.index_by_key["canBombHorizontally"]);
+            }
+            if strat_json["entranceCondition"].has_key("comeInWithGrappleTeleport") {
+                tech_set.insert(game_data.tech_isv.index_by_key["canGrappleTeleport"]);
+            }
             if strat_json["exitCondition"].has_key("leaveWithGModeSetup") {
                 tech_set.insert(game_data.tech_isv.index_by_key["canEnterGMode"]);
             }
             if strat_json["exitCondition"].has_key("leaveWithGMode") {
                 tech_set.insert(game_data.tech_isv.index_by_key["canEnterGMode"]);
             }
+            if strat_json["exitCondition"].has_key("leaveWithGrappleTeleport") {
+                tech_set.insert(game_data.tech_isv.index_by_key["canGrappleTeleport"]);
+            }
+
             for tech_idx in tech_set {
                 tech_strat_ids[tech_idx].insert(ids.clone());
             }
@@ -324,6 +346,8 @@ fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
         progression_rate: crate::randomize::ProgressionRate::Fast,
         random_tank: true,
         spazer_before_plasma: true,
+        stop_item_placement_early: false,
+        item_pool: vec![],
         starting_items: vec![],
         item_placement_style: crate::randomize::ItemPlacementStyle::Forced,
         item_priorities: vec![],
@@ -338,6 +362,7 @@ fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
         draygon_proficiency: preset.preset.draygon_proficiency,
         ridley_proficiency: preset.preset.ridley_proficiency,
         botwoon_proficiency: preset.preset.botwoon_proficiency,
+        mother_brain_proficiency: preset.preset.mother_brain_proficiency,
         supers_double: true,
         mother_brain_fight: crate::randomize::MotherBrainFight::Short,
         escape_movement_items: true,
@@ -391,6 +416,21 @@ fn get_cross_room_reqs(link: &Link, game_data: &GameData) -> Requirement {
         if let EntranceCondition::ComeInWithRMode { .. } = entrance_condition {
             reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canEnterRMode"]));
         }
+        if let EntranceCondition::ComeInSpeedballing { .. } = entrance_condition {
+            reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canSpeedball"]));
+        }
+        if let EntranceCondition::ComeInStutterShinecharging { .. } = entrance_condition {
+            reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canStutterWaterShineCharge"]));
+        }
+        if let EntranceCondition::ComeInWithTemporaryBlue {  } = entrance_condition {
+            reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canTemporaryBlue"]));
+        }
+        if let EntranceCondition::ComeInWithBombBoost {  } = entrance_condition {
+            reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canBombHorizontally"]));
+        }
+        if let EntranceCondition::ComeInWithGrappleTeleport { .. } = entrance_condition {
+            reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canGrappleTeleport"]));
+        }
     }
     if let Some(exit_condition) = &link.exit_condition {
         if let ExitCondition::LeaveWithGMode { .. } = exit_condition {
@@ -398,6 +438,9 @@ fn get_cross_room_reqs(link: &Link, game_data: &GameData) -> Requirement {
         }
         if let ExitCondition::LeaveWithGModeSetup { .. } = exit_condition {
             reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canEnterGMode"]));
+        }
+        if let ExitCondition::LeaveWithGrappleTeleport { .. } = exit_condition {
+            reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canGrappleTeleport"]));
         }
     }
     Requirement::make_and(reqs)

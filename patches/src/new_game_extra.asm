@@ -193,19 +193,9 @@ check_new_game:
 
 
 gameplay_start:
-    ; Fix BG2 size if starting in an ocean room:
-    ; (not sure exactly how this gets messed up, probably something to do with the scrolling sky)
-    lda $079B
-    cmp #$93FE  ; west ocean
-    beq .ocean
-    cmp #$968F  ; homing geemer room
-    beq .ocean
-    cmp #$94FD  ; east ocean
-    bne .skip
-.ocean:
+    ; Fix BG2 size (which would be wrong if starting in certain rooms):
     lda #$0800
     sta $098E   ; set BG2 size to $800
-.skip:
 
     jsl check_new_game  : bne .end
     

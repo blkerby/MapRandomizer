@@ -21,16 +21,18 @@
         <li><p><strong>Normal</strong>: Key items are placed generously: by the time 50% of items are obtainable, all 
         key items should be obtainable. Morph and an ETank are placed early. Key items have no specific tendency to 
         be in harder or easier locations to reach. Beams, additional tanks, and ammo are spread out uniformly. 
-        Multiple progression paths are generally possible from relatively early in the game.</p>
+        Multiple progression options are generally possible from relatively early in the game.</p>
         <li><p><strong>Tricky</strong>: Key items are spread out at a roughly uniform pace but tend to be placed in 
-        harder-to-reach locations. Beams, tanks, and ammo are spread out uniformly. Multiple progression paths are 
+        harder-to-reach locations. Beams, tanks, and ammo are spread out uniformly. Multiple progression options are 
         generally possible by the middle of the game.</p>
         <li><p><strong>Challenge</strong>: Key items are delayed and tend to be placed in harder-to-reach locations. A single progression 
-        path may be forced until late in the game. Access to beams, tanks, and ammo other than Missiles is often delayed.</p>
+        sequence may be forced until late in the game. Access to tanks and ammo other than Missiles is often delayed.</p>
+        <li><p><strong>Desolate</strong>: A single progression sequence may be forced through almost the entire game. Some key items may not be placed at all, and the amount of ammo and tanks is greatly reduced.</p>
+        
         </ul></p>
 
         <p>For players new to this randomizer, the "Normal" preset is highly recommended. The "Tricky" preset
-        tends to make the game quite a bit more difficult. For "Challenge" expect it to be much, much more difficult.
+        tends to make the game quite a bit more difficult. For "Challenge" and "Desolate" it can be much, much more difficult.
         </p>
 
         <p>"Item progression" and "Skill assumptions" synergize with one another: harder item progression settings increase the

@@ -97,6 +97,7 @@ struct GenerateTemplate<'a> {
     objectives: Vec<&'static str>,
     preset_data: &'a [PresetData],
     item_priorities: Vec<String>,
+    item_pool_multiple: Vec<String>,
     starting_items_multiple: Vec<String>,
     starting_items_single: Vec<String>,
     prioritizable_items: Vec<String>,
@@ -152,6 +153,14 @@ async fn about(app_data: web::Data<AppData>) -> impl Responder {
 
 #[get("/generate")]
 async fn generate(app_data: web::Data<AppData>) -> impl Responder {
+    let item_pool_multiple: Vec<String> = [
+        "Missile",
+        "ETank",
+        "ReserveTank",
+        "Super",
+        "PowerBomb",
+    ].into_iter().map(|x| x.to_string()).collect();
+
     let starting_items_multiple: Vec<String> = [
         "Missile",
         "ETank",
@@ -207,6 +216,7 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         progression_rates: vec!["Fast", "Uniform", "Slow"],
         item_placement_styles: vec!["Neutral", "Forced"],
         objectives: vec!["None", "Bosses", "Minibosses", "Metroids", "Chozos", "Pirates"],
+        item_pool_multiple,
         starting_items_multiple,
         starting_items_single,
         item_priorities: vec!["Early", "Default", "Late"]
@@ -243,6 +253,7 @@ struct RandomizeRequest {
     draygon_proficiency: Text<f32>,
     ridley_proficiency: Text<f32>,
     botwoon_proficiency: Text<f32>,
+    mother_brain_proficiency: Text<f32>,
     escape_timer_multiplier: Text<f32>,
     tech_json: Text<String>,
     strat_json: Text<String>,
@@ -250,7 +261,9 @@ struct RandomizeRequest {
     item_placement_style: Text<String>,
     random_tank: Text<String>,
     spazer_before_plasma: Text<String>,
+    stop_item_placement_early: Text<String>,
     item_progression_preset: Option<Text<String>>,
+    item_pool_json: Text<String>,
     starting_item_json: Text<String>,
     item_priority_json: Text<String>,
     filler_items_json: Text<String>,
@@ -317,6 +330,22 @@ struct CustomizeRequest {
     control_item_cancel: Text<String>,
     control_angle_up: Text<String>,
     control_angle_down: Text<String>,
+    spin_lock_left: Option<Text<String>>,
+    spin_lock_right: Option<Text<String>>,
+    spin_lock_up: Option<Text<String>>,
+    spin_lock_down: Option<Text<String>>,
+    spin_lock_x: Option<Text<String>>,
+    spin_lock_y: Option<Text<String>>,
+    spin_lock_a: Option<Text<String>>,
+    spin_lock_b: Option<Text<String>>,
+    spin_lock_l: Option<Text<String>>,
+    spin_lock_r: Option<Text<String>>,
+    spin_lock_select: Option<Text<String>>,
+    spin_lock_start: Option<Text<String>>,
+    quick_reload_left: Option<Text<String>>,
+    quick_reload_right: Option<Text<String>>,
+    quick_reload_up: Option<Text<String>>,
+    quick_reload_down: Option<Text<String>>,
     quick_reload_x: Option<Text<String>>,
     quick_reload_y: Option<Text<String>>,
     quick_reload_a: Option<Text<String>>,
@@ -395,6 +424,7 @@ struct SeedHeaderTemplate<'a> {
     progression_rate: String,
     random_tank: bool,
     filler_items: Vec<String>,
+    semi_filler_items: Vec<String>,
     early_filler_items: Vec<String>,
     item_placement_style: String,
     difficulty: &'a DifficultyConfig,
@@ -488,6 +518,14 @@ fn render_seed(
             .difficulty
             .filler_items
             .iter()
+            .filter(|&&x| x != Item::Nothing)
+            .map(|x| format!("{:?}", x))
+            .collect(),
+        semi_filler_items: seed_data
+            .difficulty
+            .semi_filler_items
+            .iter()
+            // .filter(|&&x| x != Item::Nothing)
             .map(|x| format!("{:?}", x))
             .collect(),
         early_filler_items: seed_data
@@ -786,9 +824,40 @@ async fn unlock_seed(
         .finish()
 }
 
+fn get_spin_lock_buttons(req: &CustomizeRequest) -> Vec<ControllerButton> {
+    let mut spin_lock_buttons = vec![];
+    let setting_button_mapping = vec![
+        (&req.spin_lock_left, ControllerButton::Left),
+        (&req.spin_lock_right, ControllerButton::Right),
+        (&req.spin_lock_up, ControllerButton::Up),
+        (&req.spin_lock_down, ControllerButton::Down),
+        (&req.spin_lock_a, ControllerButton::A),
+        (&req.spin_lock_b, ControllerButton::B),
+        (&req.spin_lock_x, ControllerButton::X),
+        (&req.spin_lock_y, ControllerButton::Y),
+        (&req.spin_lock_l, ControllerButton::L),
+        (&req.spin_lock_r, ControllerButton::R),
+        (&req.spin_lock_select, ControllerButton::Select),
+        (&req.spin_lock_start, ControllerButton::Start),
+    ];
+
+    for (setting, button) in setting_button_mapping {
+        if let Some(x) = setting {
+            if x.0 == "on" {
+                spin_lock_buttons.push(button);    
+            }
+        }    
+    }
+    spin_lock_buttons
+}
+
 fn get_quick_reload_buttons(req: &CustomizeRequest) -> Vec<ControllerButton> {
     let mut quick_reload_buttons = vec![];
     let setting_button_mapping = vec![
+        (&req.quick_reload_left, ControllerButton::Left),
+        (&req.quick_reload_right, ControllerButton::Right),
+        (&req.quick_reload_up, ControllerButton::Up),
+        (&req.quick_reload_down, ControllerButton::Down),
         (&req.quick_reload_a, ControllerButton::A),
         (&req.quick_reload_b, ControllerButton::B),
         (&req.quick_reload_x, ControllerButton::X),
@@ -875,6 +944,7 @@ async fn customize_seed(
             item_cancel: parse_controller_button(&req.control_item_cancel.0).unwrap(),
             angle_up: parse_controller_button(&req.control_angle_up.0).unwrap(),
             angle_down: parse_controller_button(&req.control_angle_down.0).unwrap(),
+            spin_lock_buttons: get_spin_lock_buttons(&req),
             quick_reload_buttons: get_quick_reload_buttons(&req),
             moonwalk: req.moonwalk.0,
         },
@@ -1025,8 +1095,10 @@ fn get_difficulty_tiers(
             progression_rate: difficulty.progression_rate,
             random_tank: difficulty.random_tank,
             spazer_before_plasma: difficulty.spazer_before_plasma,
+            stop_item_placement_early: difficulty.stop_item_placement_early,
             item_placement_style: difficulty.item_placement_style,
             item_priorities: difficulty.item_priorities.clone(),
+            item_pool: difficulty.item_pool.clone(),
             starting_items: difficulty.starting_items.clone(),
             semi_filler_items: difficulty.semi_filler_items.clone(),
             filler_items: difficulty.filler_items.clone(),
@@ -1058,6 +1130,10 @@ fn get_difficulty_tiers(
             botwoon_proficiency: f32::min(
                 difficulty.botwoon_proficiency,
                 preset.botwoon_proficiency,
+            ),
+            mother_brain_proficiency: f32::min(
+                difficulty.mother_brain_proficiency,
+                preset.mother_brain_proficiency,
             ),
             // Quality-of-life options:
             supers_double: difficulty.supers_double,
@@ -1205,6 +1281,16 @@ async fn randomize(
     }
     info!("Starting items: {:?}", starting_items);
 
+    let item_pool_json: serde_json::Value = serde_json::from_str(&req.item_pool_json).unwrap();
+    info!("item_pool_json: {:?}", item_pool_json);
+    let mut item_pool: Vec<(Item, usize)> = vec![];
+    for (k, cnt_json) in item_pool_json.as_object().unwrap().iter() {
+        let cnt_str = cnt_json.as_str().unwrap();
+        let cnt = usize::from_str_radix(cnt_str, 10).unwrap();
+        item_pool.push((Item::try_from(app_data.game_data.item_isv.index_by_key[k]).unwrap(), cnt));
+    }
+    info!("Item pool: {:?}", item_pool);
+
     let item_priority_json: serde_json::Value =
         serde_json::from_str(&req.item_priority_json.0).unwrap();
 
@@ -1264,6 +1350,12 @@ async fn randomize(
             "Yes" => true,
             _ => panic!("Unrecognized spazer_before_plasma {}", req.spazer_before_plasma.0.as_str())
         },
+        stop_item_placement_early: match req.stop_item_placement_early.0.as_str() {
+            "No" => false,
+            "Yes" => true,
+            _ => panic!("Unrecognized stop_item_placement_early {}", req.stop_item_placement_early.0.as_str())
+        },
+        item_pool,
         starting_items,
         filler_items,
         semi_filler_items,
@@ -1300,6 +1392,7 @@ async fn randomize(
         draygon_proficiency: req.draygon_proficiency.0,
         ridley_proficiency: req.ridley_proficiency.0,
         botwoon_proficiency: req.botwoon_proficiency.0,
+        mother_brain_proficiency: req.mother_brain_proficiency.0,
         supers_double: req.supers_double.0,
         mother_brain_fight: match req.mother_brain_fight.0.as_str() {
             "Vanilla" => MotherBrainFight::Vanilla,
@@ -1427,7 +1520,6 @@ async fn randomize(
                 
     let mut rng_seed = [0u8; 32];
     rng_seed[..8].copy_from_slice(&random_seed.to_le_bytes());
-    rng_seed[9] = if race_mode { 1 } else { 0 };
     let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
     let max_attempts = 10000;
     let max_attempts_per_map = if difficulty.start_location_mode == StartLocationMode::Random { 10 } else { 1 };
@@ -1608,11 +1700,7 @@ fn init_presets(
 
     // Tech which is currently not used by any strat in logic, so we avoid showing on the website:
     let ignored_tech: HashSet<String> = [
-        "canShinesparkWithReserve",
         "canRiskPermanentLossOfAccess",
-        "canIceZebetitesSkip",
-        "canSpeedZebetitesSkip",
-        "canRemorphZebetiteSkip",
         "canEscapeMorphLocation", // Special internal tech for "vanilla map" option
     ]
     .iter()

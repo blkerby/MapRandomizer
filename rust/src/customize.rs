@@ -84,6 +84,10 @@ pub enum AreaTheming {
 pub enum ControllerButton {
     #[default]
     Default,
+    Left,
+    Right,
+    Up,
+    Down,
     X,
     Y,
     A,
@@ -103,6 +107,7 @@ pub struct ControllerConfig {
     pub item_cancel: ControllerButton,
     pub angle_up: ControllerButton,
     pub angle_down: ControllerButton,
+    pub spin_lock_buttons: Vec<ControllerButton>,
     pub quick_reload_buttons: Vec<ControllerButton>,
     pub moonwalk: bool,
 }
@@ -207,6 +212,10 @@ fn apply_custom_samus_sprite(
 
 pub fn parse_controller_button(s: &str) -> Result<ControllerButton> {
     Ok(match s {
+        "Left" => ControllerButton::Left,
+        "Right" => ControllerButton::Right,
+        "Up" => ControllerButton::Up,
+        "Down" => ControllerButton::Down,
         "X" => ControllerButton::X,
         "Y" => ControllerButton::Y,
         "A" => ControllerButton::A,
@@ -223,6 +232,10 @@ fn get_button_mask(mut controller_button: ControllerButton, default: ControllerB
         controller_button = default;
     }
     match controller_button {
+        ControllerButton::Left => 0x0200,
+        ControllerButton::Right => 0x0100,
+        ControllerButton::Up => 0x0800,
+        ControllerButton::Down => 0x0400,
         ControllerButton::X => 0x0040,
         ControllerButton::Y => 0x4000,
         ControllerButton::A => 0x0080,
@@ -233,6 +246,19 @@ fn get_button_mask(mut controller_button: ControllerButton, default: ControllerB
         ControllerButton::Start => 0x1000,
         _ => panic!("Unexpected controller button: {:?}", controller_button)
     }
+}
+
+fn get_button_list_mask(buttons: &[ControllerButton]) -> isize {
+    let mut mask = 0x0000;
+    for &button in buttons {
+        mask |= get_button_mask(button, ControllerButton::Default);
+    }
+    if mask == 0x0000 {
+        // If no button are specified, assume this input combination (e.g. quick reload or spin lock)
+        // is disabled, rather than being activated with no inputs held.
+        mask = 0xFFFF;
+    }
+    mask
 }
 
 fn apply_controller_config(rom: &mut Rom, controller_config: &ControllerConfig) -> Result<()> {
@@ -250,15 +276,10 @@ fn apply_controller_config(rom: &mut Rom, controller_config: &ControllerConfig) 
         rom.write_u16(snes2pc(addr), mask)?;
     }
     
-    let mut quick_reload_mask = 0x0000;
-    for &button in &controller_config.quick_reload_buttons {
-        quick_reload_mask |= get_button_mask(button, ControllerButton::Default);
-    }
-    if quick_reload_mask == 0x0000 {
-        // The user probably intended to disable quick-reload entirely (rather than having quick reload trigger
-        // when not holding any buttons), so that's what we do, effectively, by requiring all 12 buttons to be pressed:
-        quick_reload_mask = 0xFFFF;
-    }
+    let spin_lock_mask = get_button_list_mask(&controller_config.spin_lock_buttons);
+    rom.write_u16(snes2pc(0x82FE7C), spin_lock_mask)?;
+
+    let quick_reload_mask = get_button_list_mask(&controller_config.quick_reload_buttons);
     rom.write_u16(snes2pc(0x82FE7E), quick_reload_mask)?;
 
     if controller_config.moonwalk {

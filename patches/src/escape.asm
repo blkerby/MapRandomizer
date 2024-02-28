@@ -11,6 +11,8 @@ arch snes.cpu
 !bank_84_free_space_end = $84F600
 !bank_8b_free_space_start = $8BF900
 !bank_8b_free_space_end = $8BF940
+!bank_8f_free_space_start = $8FF600
+!bank_8f_free_space_end = $8FF700
 !bank_a7_free_space_start = $A7FF82
 !bank_a7_free_space_end = $A7FFC0
 
@@ -188,7 +190,7 @@ escape_setup:
 
     rts
 
-org $8ff500
+org !bank_8f_free_space_start
 ;;; CODE (in bank 8F free space)
 
 room_setup:
@@ -313,7 +315,7 @@ post_kraid_music:
 ;    dw  $B7B7
 ;    rts
 
-warnpc $8ff700
+warnpc !bank_8f_free_space_end
 
 ; hi-jack post-kraid elevator music (so that it won't play during the escape)
 org $A7C81E

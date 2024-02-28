@@ -281,7 +281,7 @@ fn item_to_plm_type(item: Item, orig_plm_type: isize) -> isize {
             0xEF77, // Morph ball, chozo orb
             0xEF7B, // Reserve tank, chozo orb            
             0xF604, // Wall-jump boots, chozo orb
-            0xEEDB, // Missile tank (nothing)
+            0xEF2F, // Missile tank (nothing)
         ],
         [
             0xEF7F, // Energy tank, shot block
@@ -306,7 +306,7 @@ fn item_to_plm_type(item: Item, orig_plm_type: isize) -> isize {
             0xEFCB, // Morph ball, shot block
             0xEFCF, // Reserve tank, shot block            
             0xF608, // Wall-jump boots, shot block       
-            0xEEDB, // Missile tank (nothing)
+            0xEF83, // Missile tank (nothing)
         ]
     ];
     
@@ -461,6 +461,7 @@ impl<'a> Patcher<'a> {
                 "boss_exit",
                 "oob_death",
                 "jam_vertical_doors_fix",
+                "spin_lock",
             ]);
         }
 
@@ -477,7 +478,7 @@ impl<'a> Patcher<'a> {
             patches.push("all_items_spawn");
         }
 
-        if self.randomization.difficulty.escape_movement_items {
+        if self.randomization.difficulty.escape_movement_items || self.randomization.difficulty.stop_item_placement_early {
             patches.push("escape_items");
             // patches.push("mother_brain_no_drain");
         }
@@ -804,8 +805,8 @@ impl<'a> Patcher<'a> {
             ((Some(0x1A69C), Some(0x1A6CC)), 0x165, 0x19B),  // East Sand Hall
             ((None, Some(0x1A624)), 0x45, 0xBB),  // Plasma Beach Quicksand Room
             ((None, Some(0x1A8A0)), 0x65, 0x9B),  // Butterfly Room
-            ((None, Some(0x1A858)), 0x85, 0xDB),  // Botwoon Quicksand Room (left)
-            ((None, Some(0x1A864)), 0x125, 0x19B),  // Botwoon Quicksand Room (right)
+            ((None, Some(0x1A864)), 0x85, 0xDB),  // Botwoon Quicksand Room (left)
+            ((None, Some(0x1A858)), 0x125, 0x19B),  // Botwoon Quicksand Room (right)
             ((None, Some(0x1A8AC)), 0x265, 0x2BB),  // Below Botwoon Energy Tank (left)
             ((None, Some(0x1A8B8)), 0x345, 0x3BB),  // Below Botwoon Energy Tank (right)
         ];
@@ -817,7 +818,7 @@ impl<'a> Patcher<'a> {
                 // Check if Samus X position is less than min_position, and if so set it to min_position:
                 0xA9, (min_position & 0xFF) as u8, (min_position >> 8) as u8,  // LDA #min_position
                 0xCD, 0xF6, 0x0A,  // CMP $0AF6
-                0x90, 0x03,  // BCC .no_clamp_min
+                0x90, 0x06,  // BCC .no_clamp_min
                 0x8D, 0xF6, 0x0A,  // STA $0AF6
                 0x8D, 0x10, 0x0B,  // STA $0B10  ; also set samus previous X position (to prevent camera glitching)
                 // .no_clamp_min:
@@ -825,7 +826,7 @@ impl<'a> Patcher<'a> {
                 // Check if Samus X position is greater than max_position, and if so set it to max_position:
                 0xA9, (max_position & 0xFF) as u8, (max_position >> 8) as u8,  // LDA #max_position
                 0xCD, 0xF6, 0x0A,  // CMP $0AF6
-                0xB0, 0x03,  // BCS .no_clamp_max            
+                0xB0, 0x06,  // BCS .no_clamp_max            
                 0x8D, 0xF6, 0x0A,  // STA $0AF6
                 0x8D, 0x10, 0x0B,  // STA $0B10  ; also set samus previous X position (to prevent camera glitching)
                 // .no_clamp_max:
@@ -835,7 +836,6 @@ impl<'a> Patcher<'a> {
         }
         Ok(())
     }
-    
 
     // Returns map from door data PC address to 1) new custom door ASM pointer, 2) end of custom door ASM
     // where an RTS or JMP instruction must be added (based on the connecting door).
@@ -872,7 +872,7 @@ impl<'a> Patcher<'a> {
             // Reserve 3 bytes for the JMP instruction to the original ASM (if applicable, or RTS otherwise):
             door_asm_free_space += asm.len() + 3;
         }
-        assert!(door_asm_free_space <= 0xF500);
+        assert!(door_asm_free_space <= 0xF600);
         Ok(extra_door_asm_map)
     }
 
@@ -1749,6 +1749,25 @@ impl<'a> Patcher<'a> {
             }
         }
 
+        // Show logically uncollectible items:
+        for loc in &self.randomization.spoiler_log.all_items {
+            if loc.item == "Nothing" {
+                continue;
+            }
+            if !items_set.contains(&loc.item) {
+                let item_name = item_display_name_map[&loc.item].clone();
+                let item_idx = item_name_index[&loc.item];
+                self.write_item_credits(
+                    items_set.len(),
+                    None,
+                    &item_name,
+                    Some(item_idx),
+                    &loc.location.area,
+                )?;
+                items_set.insert(loc.item.clone());
+            }
+        }
+
         // Show unplaced items at the bottom:
         for (name, display_name) in &item_name_pairs {
             if self.randomization.difficulty.wall_jump != WallJump::Collectible && name == "WallJump" {
@@ -1849,12 +1868,19 @@ impl<'a> Patcher<'a> {
         self.rom.write_u16(initial_reserve_energy, starting_reserves)?;
         self.rom.write_u16(initial_max_reserve_energy, starting_reserves)?;
         self.rom.write_u16(initial_reserve_mode, if starting_reserves > 0 { 1 } else { 0 })?;  // 0 = Not obtained, 1 = Auto
-        self.rom.write_u16(initial_missiles, starting_missiles)?;
         self.rom.write_u16(initial_max_missiles, starting_missiles)?;
-        self.rom.write_u16(initial_supers, starting_supers)?;
         self.rom.write_u16(initial_max_supers, starting_supers)?;
-        self.rom.write_u16(initial_power_bombs, starting_powerbombs)?;
         self.rom.write_u16(initial_max_power_bombs, starting_powerbombs)?;
+        if self.randomization.difficulty.start_location_mode == StartLocationMode::Escape 
+                && self.randomization.difficulty.mother_brain_fight != MotherBrainFight::Skip {
+            self.rom.write_u16(initial_missiles, 0)?;
+            self.rom.write_u16(initial_supers, 0)?;
+            self.rom.write_u16(initial_power_bombs, 0)?;
+        } else {
+            self.rom.write_u16(initial_missiles, starting_missiles)?;
+            self.rom.write_u16(initial_supers, starting_supers)?;
+            self.rom.write_u16(initial_power_bombs, starting_powerbombs)?;    
+        }
         self.rom.write_n(initial_item_bits, &self.nothing_item_bitmask)?;
 
         Ok(())        

@@ -2,14 +2,10 @@ pub mod escape_timer;
 
 use crate::{
     game_data::{
-        get_effective_runway_length, Capacity, DoorPosition, DoorPtrPair, EntranceCondition,
-        ExitCondition, FlagId, GModeMobility, GModeMode, HubLocation, Item, ItemId, ItemLocationId,
-        Link, LinkIdx, LinksDataGroup, Map, NodeId, Physics, Requirement, RoomGeometryRoomIdx,
-        RoomId, SparkPosition, StartLocation, VertexId,
+        self, get_effective_runway_length, Capacity, DoorPosition, DoorPtrPair, EntranceCondition, ExitCondition, FlagId, GModeMobility, GModeMode, HubLocation, Item, ItemId, ItemLocationId, Link, LinkIdx, LinksDataGroup, Map, NodeId, Physics, Requirement, RoomGeometryRoomIdx, RoomId, SparkPosition, StartLocation, VertexId
     },
     traverse::{
-        apply_requirement, get_bireachable_idxs, get_spoiler_route, traverse, GlobalState,
-        LocalState, TraverseResult, IMPOSSIBLE_LOCAL_STATE, NUM_COST_METRICS,
+        apply_requirement, apply_ridley_requirement, get_bireachable_idxs, get_spoiler_route, traverse, GlobalState, LocalState, TraverseResult, IMPOSSIBLE_LOCAL_STATE, NUM_COST_METRICS
     },
     web::logic::strip_name,
 };
@@ -31,8 +27,9 @@ use crate::game_data::GameData;
 
 use self::escape_timer::SpoilerEscape;
 
-// Once there are fewer than 20 item locations remaining to be filled, remaining key items will be
-// placed as quickly as possible.
+// Once there are fewer than 20 item locations remaining to be filled, key items will be
+// placed as quickly as possible. This helps prevent generation failures particularly on lower 
+// difficulty settings where some item locations may never be accessible (e.g. Main Street Missile).
 const KEY_ITEM_FINISH_THRESHOLD: usize = 20;
 
 
@@ -150,6 +147,8 @@ pub struct DifficultyConfig {
     pub progression_rate: ProgressionRate,
     pub random_tank: bool,
     pub spazer_before_plasma: bool,
+    pub stop_item_placement_early: bool,
+    pub item_pool: Vec<(Item, usize)>,
     pub starting_items: Vec<(Item, usize)>,
     pub item_placement_style: ItemPlacementStyle,
     pub item_priorities: Vec<ItemPriorityGroup>,
@@ -164,6 +163,7 @@ pub struct DifficultyConfig {
     pub draygon_proficiency: f32,
     pub ridley_proficiency: f32,
     pub botwoon_proficiency: f32,
+    pub mother_brain_proficiency: f32,
     // Quality-of-life options:
     pub supers_double: bool,
     pub mother_brain_fight: MotherBrainFight,
@@ -229,6 +229,7 @@ struct ItemLocationState {
 
 #[derive(Clone)]
 struct FlagLocationState {
+    pub reachable: bool,
     pub bireachable: bool,
     pub bireachable_vertex_id: Option<VertexId>,
 }
@@ -1139,6 +1140,24 @@ impl<'a> Preprocessor<'a> {
         }
     }
 
+    fn get_come_in_with_grapple_teleport_reqs(
+        &self,
+        exit_condition: &ExitCondition,
+        entrance_block_positions: &[(u16, u16)],
+    ) -> Option<Requirement> {
+        match exit_condition {
+            ExitCondition::LeaveWithGrappleTeleport { block_positions } => {
+                let entrance_block_positions_set: HashSet<(u16, u16)> = entrance_block_positions.iter().copied().collect();
+                if block_positions.iter().any(|x| entrance_block_positions_set.contains(x)) {
+                    Some(Requirement::Tech(self.game_data.tech_isv.index_by_key["canGrappleTeleport"]))
+                } else {
+                    None
+                }
+            },
+            _ => None
+        }
+    }
+
     fn get_come_in_with_platform_below_reqs(
         &self,
         exit_condition: &ExitCondition,
@@ -1288,6 +1307,9 @@ impl<'a> Preprocessor<'a> {
             EntranceCondition::ComeInWithPlatformBelow { min_height, max_height, max_left_position, min_right_position } => {
                 self.get_come_in_with_platform_below_reqs(exit_condition, *min_height, *max_height, *max_left_position, *min_right_position)
             },
+            EntranceCondition::ComeInWithGrappleTeleport { block_positions } => {
+                self.get_come_in_with_grapple_teleport_reqs(exit_condition, block_positions)
+            }
         }
     }
 
@@ -2357,6 +2379,58 @@ fn get_strat_vec(game_data: &GameData, difficulty: &DifficultyConfig) -> Vec<boo
         .collect()
 }
 
+fn ensure_enough_tanks(initial_items_remaining: &mut [usize], game_data: &GameData, difficulty: &DifficultyConfig) {
+    // Give an extra tank to two, compared to what may be needed for Ridley, for lenience:
+    if difficulty.ridley_proficiency < 0.3 {
+        while initial_items_remaining[Item::ETank as usize] + initial_items_remaining[Item::ReserveTank as usize] < 11 {
+            initial_items_remaining[Item::ETank as usize] += 1;
+        }
+    } else if difficulty.ridley_proficiency < 0.8 {
+        while initial_items_remaining[Item::ETank as usize] + initial_items_remaining[Item::ReserveTank as usize] < 9 {
+            initial_items_remaining[Item::ETank as usize] += 1;
+        }
+    } else if difficulty.ridley_proficiency < 0.9 {
+        while initial_items_remaining[Item::ETank as usize] + initial_items_remaining[Item::ReserveTank as usize] < 7 {
+            initial_items_remaining[Item::ETank as usize] += 1;
+        }
+    } else {
+        // Give enough tanks for Mother Brain:
+        while initial_items_remaining[Item::ETank as usize] + initial_items_remaining[Item::ReserveTank as usize] < 3 {
+            initial_items_remaining[Item::ETank as usize] += 1;
+        }
+    }
+    // // let mut global = GlobalState {
+    //     tech: vec![true; game_data.tech_isv.keys.len()],
+    //     notable_strats: vec![true; game_data.notable_strat_isv.keys.len()],
+    //     items: vec![true; game_data.item_isv.keys.len()],
+    //     flags: vec![true; game_data.flag_isv.keys.len()],
+    //     max_energy: 99,
+    //     max_reserves: 0,
+    //     max_missiles: 0,
+    //     max_supers: 0,
+    //     max_power_bombs: 0,
+    //     weapon_mask: 0,
+    //     shine_charge_tiles: 32.0,
+    //     heated_shine_charge_tiles: 32.0,
+    // };
+    // for (item_idx, &cnt) in initial_items_remaining.iter().enumerate() {
+    //     for _ in 0..cnt {
+    //         global.collect(Item::try_from(item_idx).unwrap(), game_data);
+    //     }
+    // }
+    // let local = LocalState::new();
+    // while initial_items_remaining[Item::ETank as usize] <= 14 {
+    //     let result = apply_ridley_requirement(&global, local, difficulty.ridley_proficiency, 0);
+    //     if result.is_some() {
+    //         return;
+    //     }
+    //     println!("Adding extra tank to ensure Ridley is beatable");
+    //     initial_items_remaining[Item::ETank as usize] += 1;
+    //     global.collect(Item::ETank, game_data);
+    // }
+    // panic!("Not able to ensure Ridley beatable")
+}
+
 impl<'r> Randomizer<'r> {
     pub fn new(
         map: &'r Map,
@@ -2478,13 +2552,22 @@ impl<'r> Randomizer<'r> {
         } else { 
             0
         };
-        initial_items_remaining[Item::WallJump as usize] = 0;
         initial_items_remaining[Item::Super as usize] = 10;
         initial_items_remaining[Item::PowerBomb as usize] = 10;
         initial_items_remaining[Item::ETank as usize] = 14;
         initial_items_remaining[Item::ReserveTank as usize] = 4;
         initial_items_remaining[Item::Missile as usize] = game_data.item_locations.len() - initial_items_remaining.iter().sum::<usize>();
-        
+
+        for &(item, cnt) in &difficulty_tiers[0].item_pool {
+            initial_items_remaining[item as usize] = cnt;
+        }
+
+        ensure_enough_tanks(&mut initial_items_remaining, game_data, &difficulty_tiers[0]);
+
+        if initial_items_remaining.iter().sum::<usize>() > game_data.item_locations.len() {
+            initial_items_remaining[Item::Missile as usize] -= initial_items_remaining.iter().sum::<usize>() - game_data.item_locations.len();
+        }
+
         for &(item, cnt) in &difficulty_tiers[0].starting_items {
             initial_items_remaining[item as usize] -= usize::min(cnt, initial_items_remaining[item as usize]);
         }
@@ -2589,12 +2672,15 @@ impl<'r> Randomizer<'r> {
             state.flag_location_state[i].bireachable_vertex_id = None;
 
             for &v in vertex_ids {
-                if !state.flag_location_state[i].bireachable
-                    && get_bireachable_idxs(&state.global_state, v, &mut forward, &mut reverse)
-                        .is_some()
-                {
-                    state.flag_location_state[i].bireachable = true;
-                    state.flag_location_state[i].bireachable_vertex_id = Some(v);
+                if forward.cost[v].iter().any(|&x| f32::is_finite(x)) {
+                    state.flag_location_state[i].reachable = true;
+                    if !state.flag_location_state[i].bireachable
+                        && get_bireachable_idxs(&state.global_state, v, &mut forward, &mut reverse)
+                            .is_some()
+                    {
+                        state.flag_location_state[i].bireachable = true;
+                        state.flag_location_state[i].bireachable_vertex_id = Some(v);
+                    }
                 }
             }
         }
@@ -2651,7 +2737,7 @@ impl<'r> Randomizer<'r> {
         };
 
         // If we're at the end, dump as many key items as possible:
-        if num_items_remaining < num_items_to_place + KEY_ITEM_FINISH_THRESHOLD {
+        if !self.difficulty_tiers[0].stop_item_placement_early && num_items_remaining < num_items_to_place + KEY_ITEM_FINISH_THRESHOLD {
             num_key_items_to_place = num_key_items_remaining;
         }
 
@@ -2723,7 +2809,14 @@ impl<'r> Randomizer<'r> {
         let mut items_to_extra_delay: Vec<Item> = Vec::new();
         for &item in &item_types_to_extra_delay {
             for _ in 0..state.items_remaining[item as usize] {
-                items_to_extra_delay.push(item);
+                if self.difficulty_tiers[0].stop_item_placement_early {
+                    // When using "Stop item placement early", place extra Nothing items rather than dumping key items.
+                    // It could sometimes result in failure due to not leaving enough places to put needed key items,
+                    // but this is an acceptable risk and shouldn't happen too often.
+                    items_to_extra_delay.push(Item::Nothing);
+                } else {
+                    items_to_extra_delay.push(item);
+                }
             }
         }
         items_to_mix.shuffle(rng);
@@ -2749,7 +2842,7 @@ impl<'r> Randomizer<'r> {
             let mut cnt_different_items_remaining = 0;
 
             for &item in &state.item_precedence {
-                if state.items_remaining[item as usize] > 0 {
+                if state.items_remaining[item as usize] > 0 || (self.difficulty_tiers[0].stop_item_placement_early && item == Item::Nothing) {
                     remaining_items.push(item);
                     cnt_different_items_remaining += 1;
                 }
@@ -2894,7 +2987,8 @@ impl<'r> Randomizer<'r> {
 
         let num_items_remaining: usize = state.items_remaining.iter().sum();
         let num_items_to_place: usize = key_items_to_place.len() + other_items_to_place.len();
-        let skip_hard_placement = num_items_remaining < num_items_to_place + KEY_ITEM_FINISH_THRESHOLD;
+        let skip_hard_placement = !self.difficulty_tiers[0].stop_item_placement_early 
+            && num_items_remaining < num_items_to_place + KEY_ITEM_FINISH_THRESHOLD;
 
         // println!("[attempt {attempt_num_rando}] # bireachable = {}", bireachable_locations.len());
         let mut new_bireachable_locations: Vec<ItemLocationId> = bireachable_locations.to_vec();
@@ -2972,18 +3066,30 @@ impl<'r> Randomizer<'r> {
                 remaining_items.push(Item::try_from(item_id).unwrap());
             }
         }
-        info!(
-            "[attempt {attempt_num_rando}] Finishing without {:?}",
-            remaining_items
-        );
-        let mut idx = 0;
-        for item_loc_state in &mut state.item_location_state {
-            if item_loc_state.placed_item.is_none() {
-                item_loc_state.placed_item = Some(remaining_items[idx]);
-                idx += 1;
+        if self.difficulty_tiers[0].stop_item_placement_early {
+            info!(
+                "[attempt {attempt_num_rando}] Finishing without {:?}",
+                remaining_items
+            );    
+            for item_loc_state in &mut state.item_location_state {
+                if item_loc_state.placed_item.is_none() || !item_loc_state.bireachable {
+                    item_loc_state.placed_item = Some(Item::Nothing);
+                }
             }
+        } else {
+            info!(
+                "[attempt {attempt_num_rando}] Finishing with {:?}",
+                remaining_items
+            );
+            let mut idx = 0;
+            for item_loc_state in &mut state.item_location_state {
+                if item_loc_state.placed_item.is_none() {
+                    item_loc_state.placed_item = Some(remaining_items[idx]);
+                    idx += 1;
+                }
+            }
+            assert!(idx == remaining_items.len());    
         }
-        assert!(idx == remaining_items.len());
     }
 
     fn provides_progression(
@@ -3049,8 +3155,10 @@ impl<'r> Randomizer<'r> {
             )
             .any(|(n, o)| n.bireachable && !o.bireachable)
         };
+        
+        let is_beatable = self.is_game_beatable(&new_state);
 
-        num_one_way_reachable < one_way_reachable_limit && gives_expansion
+        (num_one_way_reachable < one_way_reachable_limit && gives_expansion) || is_beatable
     }
 
     fn multi_attempt_select_items<R: Rng + Clone>(
@@ -3087,7 +3195,11 @@ impl<'r> Randomizer<'r> {
         let selected_filler_items_len = selected_filler_items.len();
         // println!("filler items len={selected_filler_items_len}");
         for &item in &selected_filler_items {
-            new_state_filler.items_remaining[item as usize] -= 1;
+            // We check if items_remaining is positive, only because with "Stop item placement early" there
+            // could be extra (unplanned) Nothing items placed.
+            if new_state_filler.items_remaining[item as usize] > 0 {
+                new_state_filler.items_remaining[item as usize] -= 1;
+            }
         }
         // let num_items_remaining: usize = new_state_filler.items_remaining.iter().sum();
         // println!("post filler num_items_remaining={num_items_remaining}");
@@ -3101,7 +3213,9 @@ impl<'r> Randomizer<'r> {
         loop {
             let mut new_state: RandomizationState = new_state_filler.clone();
             for &item in &selected_key_items {
-                new_state.items_remaining[item as usize] -= 1;
+                if new_state_filler.items_remaining[item as usize] > 0 {
+                    new_state.items_remaining[item as usize] -= 1;
+                }
             }
 
             if self.provides_progression(
@@ -3125,6 +3239,11 @@ impl<'r> Randomizer<'r> {
                 selected_key_items = new_selected_key_items;
             } else {
                 info!("[attempt {attempt_num_rando}] Exhausted key item placement attempts");
+                if self.difficulty_tiers[0].stop_item_placement_early {
+                    for x in &mut selected_key_items {
+                        *x = Item::Nothing;
+                    }
+                }
                 let selection = SelectItemsOutput {
                     key_items: selected_key_items,
                     other_items: selected_filler_items,
@@ -3140,7 +3259,7 @@ impl<'r> Randomizer<'r> {
         attempt_num_rando: usize,
         state: &mut RandomizationState,
         rng: &mut R,
-    ) -> (SpoilerSummary, SpoilerDetails) {
+    ) -> (SpoilerSummary, SpoilerDetails, bool) {
         let orig_global_state = state.global_state.clone();
         let mut spoiler_flag_summaries: Vec<SpoilerFlagSummary> = Vec::new();
         let mut spoiler_flag_details: Vec<SpoilerFlagDetails> = Vec::new();
@@ -3173,6 +3292,21 @@ impl<'r> Randomizer<'r> {
             } else {
                 break;
             }
+        }
+
+        if self.difficulty_tiers[0].stop_item_placement_early && self.is_game_beatable(state) {
+            info!("Stopping early");
+            self.update_reachability(state);
+            let spoiler_summary = self.get_spoiler_summary(
+                &orig_global_state,
+                state,
+                &state,
+                spoiler_flag_summaries,
+            );
+            let spoiler_details =
+                self.get_spoiler_details(&orig_global_state, state, &state, spoiler_flag_details);
+            state.previous_debug_data = state.debug_data.clone();
+            return (spoiler_summary, spoiler_details, true);
         }
 
         let mut placed_uncollected_bireachable_loc: Vec<ItemLocationId> = Vec::new();
@@ -3229,7 +3363,9 @@ impl<'r> Randomizer<'r> {
         } else {
             // In Uniform and Fast progression, only place items at bireachable locations. We defer placing items at
             // one-way-reachable locations so that they may get key items placed there later after
-            // becoming bireachable.
+            // becoming bireachable. This is to maintain a higher degree of randomness and also to reduce how
+            // much the game will punish players for diving into a rabbit hole; this way leaves more possibility open that
+            // they could find something to get themselves out.
             self.place_items(
                 attempt_num_rando,
                 &state,
@@ -3255,7 +3391,7 @@ impl<'r> Randomizer<'r> {
         let spoiler_details =
             self.get_spoiler_details(&orig_global_state, state, &new_state, spoiler_flag_details);
         *state = new_state;
-        (spoiler_summary, spoiler_details)
+        (spoiler_summary, spoiler_details, false)
     }
 
     fn get_randomization(
@@ -3275,7 +3411,6 @@ impl<'r> Randomizer<'r> {
             HashMap::new();
 
         for (step, debug_data) in debug_data_vec.iter_mut().enumerate() {
-            // println!("step={}, global_state={:?}", step, debug_data.global_state);
             for (v, (room_id, node_id, _obstacle_bitmask)) in
                 self.game_data.vertex_isv.keys.iter().enumerate()
             {
@@ -3571,7 +3706,6 @@ impl<'r> Randomizer<'r> {
             // 2) The starting node (not the actual start location) must be bireachable from the hub location
             // (ie. there must be a logical round-trip path from the hub to the starting node and back)
             // 3) Any logical requirements on the hub must be satisfied.
-            // 4) The Ship must not be bireachable from the hub.
             for hub in &self.game_data.hub_locations {
                 let hub_vertex_id =
                     self.game_data.vertex_isv.index_by_key[&(hub.room_id, hub.node_id, 0)];
@@ -3580,12 +3714,6 @@ impl<'r> Randomizer<'r> {
                     .any(|&x| f32::is_finite(x))
                     && get_bireachable_idxs(&global, hub_vertex_id, &forward0, &reverse).is_some()
                 {
-                    if hub.room_id == 8 {
-                        // Reject starting location if the Ship is initially bireachable from it.
-                        // (Note: The Ship is first in hub_locations.json, so this check happens before other hubs are considered.)
-                        continue 'attempt;
-                    }
-
                     let local = apply_requirement(
                         &hub.requires_parsed.as_ref().unwrap(),
                         &global,
@@ -3702,6 +3830,15 @@ impl<'r> Randomizer<'r> {
         })
     }
 
+    fn is_game_beatable(&self, state: &RandomizationState) -> bool {
+        for (i, (_, _, flag_id)) in self.game_data.flag_locations.iter().enumerate() {
+            if *flag_id == self.game_data.mother_brain_defeated_flag_id && state.flag_location_state[i].reachable {
+                return true;
+            }
+        }
+        return false;
+    }
+
     pub fn randomize(
         &self,
         attempt_num_rando: usize,
@@ -3724,6 +3861,7 @@ impl<'r> Randomizer<'r> {
             difficulty_tier: None,
         };
         let initial_flag_location_state = FlagLocationState {
+            reachable: false,
             bireachable: false,
             bireachable_vertex_id: None,
         };
@@ -3777,7 +3915,7 @@ impl<'r> Randomizer<'r> {
             if self.difficulty_tiers[0].random_tank {
                 self.rerandomize_tank_precedence(&mut state.item_precedence, &mut rng);
             }
-            let (spoiler_summary, spoiler_details) =
+            let (spoiler_summary, spoiler_details, is_early_stop) =
                 self.step(attempt_num_rando, &mut state, &mut rng);
             let cnt_collected = state
                 .item_location_state
@@ -3801,13 +3939,16 @@ impl<'r> Randomizer<'r> {
                 .count();
             info!("[attempt {attempt_num_rando}] step={0}, bireachable={cnt_bireachable}, reachable={cnt_reachable}, placed={cnt_placed}, collected={cnt_collected}", state.step_num);
 
-            if spoiler_summary.items.len() > 0 || spoiler_summary.flags.len() > 0 {
-                // If we gained anything on this step (an item or a flag), generate a spoiler step:
-                spoiler_summary_vec.push(spoiler_summary);
-                spoiler_details_vec.push(spoiler_details);
-                // Append `debug_data`
-                debug_data_vec.push(state.previous_debug_data.as_ref().unwrap().clone());
-            } else {
+            let any_progress = spoiler_summary.items.len() > 0 || spoiler_summary.flags.len() > 0;
+            spoiler_summary_vec.push(spoiler_summary);
+            spoiler_details_vec.push(spoiler_details);
+            debug_data_vec.push(state.previous_debug_data.as_ref().unwrap().clone());
+
+            if is_early_stop {
+                break;
+            }
+
+            if !any_progress {
                 // No further progress was made on the last step. So we are done with this attempt: either we have
                 // succeeded or we have failed.
 
@@ -3932,8 +4073,8 @@ pub struct SpoilerDetails {
 
 #[derive(Serialize, Deserialize)]
 pub struct SpoilerItemLoc {
-    item: String,
-    location: SpoilerLocation,
+    pub item: String,
+    pub location: SpoilerLocation,
 }
 #[derive(Serialize, Deserialize)]
 pub struct SpoilerRoomLoc {
