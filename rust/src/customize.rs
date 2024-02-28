@@ -311,6 +311,7 @@ pub fn customize_rom(
             apply_retiling(rom, orig_rom, game_data, "Base")?;
         }
         AreaTheming::Palettes => {
+            apply_retiling(rom, orig_rom, game_data, "Base")?;
             apply_area_themed_palettes(rom, game_data)?;
         }
         AreaTheming::Tiles(theme) => {

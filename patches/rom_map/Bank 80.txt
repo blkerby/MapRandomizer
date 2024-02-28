@@ -7,3 +7,5 @@ D200 - D240: vanilla_bugfixes.asm
 D240 - D340: [FREE]
 D340 - DA00: reserve_hud.asm
 DA00 - DD00: msu1.asm
+DD00 - E100: Palette pointer table for Mosaic
+E100 - E180: area_palette.asm

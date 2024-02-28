@@ -480,8 +480,6 @@ pub struct EnemyVulnerabilities {
 
 pub struct ThemedPaletteTileset {
     pub palette: [[u8; 3]; 128],
-    pub gfx8x8: Vec<u8>,
-    pub gfx16x16: Vec<u8>,
 }
 
 #[derive(Clone, Debug)]
@@ -3421,18 +3419,18 @@ impl GameData {
     //     Ok(())
     // }
 
-    fn load_themes(&mut self, base_path: &Path) -> Result<()> {
+    fn load_palette_themes(&mut self, base_path: &Path) -> Result<()> {
         let ignored_tileset_idxs = vec![
             1, // Red Crateria
             15, 16, 17, 18, 19, 20, // Ceres
         ];
         for (_area_idx, area) in [
-            "crateria",
-            "brinstar",
-            "norfair",
-            "wrecked_ship",
-            "maridia",
-            "tourian",
+            "CrateriaPalette",
+            "BrinstarPalette",
+            "NorfairPalette",
+            "WreckedShipPalette",
+            "MaridiaPalette",
+            "TourianPalette",
         ]
         .into_iter()
         .enumerate()
@@ -3461,26 +3459,10 @@ impl GameData {
                     )
                 })?;
                 let palette = decode_palette(&palette_bytes);
-
-                let gfx8x8_path = tileset_path.join("8x8tiles.gfx");
-                let gfx8x8_bytes = std::fs::read(&gfx8x8_path).with_context(|| {
-                    format!("Unable to load Mosaic 8x8 gfx at {}", gfx8x8_path.display())
-                })?;
-
-                let gfx16x16_path = tileset_path.join("16x16tiles.ttb");
-                let gfx16x16_bytes = std::fs::read(&gfx16x16_path).with_context(|| {
-                    format!(
-                        "Unable to load Mosaic 16x16 gfx at {}",
-                        gfx16x16_path.display()
-                    )
-                })?;
-
                 pal_map.insert(
                     tileset_idx,
                     ThemedPaletteTileset {
                         palette,
-                        gfx8x8: gfx8x8_bytes,
-                        gfx16x16: gfx16x16_bytes,
                     },
                 );
             }
@@ -3794,8 +3776,7 @@ impl GameData {
             0x1AC000, // Maridia
             0x1AD000, // Tourian
         ];
-        // game_data.load_palette(palette_path)?;
-        game_data.load_themes(palette_theme_path)?;
+        game_data.load_palette_themes(palette_theme_path)?;
         game_data.load_title_screens(title_screen_path)?;
 
         Ok(game_data)

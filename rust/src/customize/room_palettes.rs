@@ -1,6 +1,8 @@
+use std::path::Path;
+
 use crate::{
     game_data::{AreaIdx, GameData, TilesetIdx},
-    patch::{compress::compress, snes2pc, pc2snes, Rom},
+    patch::{apply_ips_patch, compress::compress, pc2snes, snes2pc, Rom},
 };
 use super::Allocator;
 use anyhow::{Result, bail};
@@ -97,44 +99,6 @@ fn make_palette_blends_gray(rom: &mut Rom) -> Result<()> {
     Ok(())
 }
 
-fn replace_room_tilesets(
-    rom: &mut Rom,
-    game_data: &GameData,
-    tile_map: &HashMap<(AreaIdx, TilesetIdx), TilesetIdx>,
-) -> Result<()> {
-    for room_json in game_data.room_json_map.values() {
-        let room_ptr =
-            parse_int::parse::<usize>(room_json["roomAddress"].as_str().unwrap()).unwrap();
-        let vanilla_area = rom.read_u8(room_ptr + 1)? as usize;
-        let map_area = get_room_map_area(rom, room_ptr)?;
-        for (_event_ptr, state_ptr) in get_room_state_ptrs(rom, room_ptr)? {
-            let old_tileset_idx = rom.read_u8(state_ptr + 3)? as usize;
-            if tile_map.contains_key(&(map_area, old_tileset_idx)) {
-                let new_tileset_idx = tile_map[&(map_area, old_tileset_idx)];
-                rom.write_u8(state_ptr + 3, new_tileset_idx as isize)?;
-            }
-
-            if vanilla_area != map_area {
-                // Remove palette glows for non-vanilla rooms:
-                let fx_ptr_snes = rom.read_u16(state_ptr + 6)? as usize + 0x830000;
-                let fx_door_select = rom.read_u16(snes2pc(fx_ptr_snes))?;
-
-                if fx_door_select != 0xFFFF {
-                    let mut pal_fx_bitflags = rom.read_u8(snes2pc(fx_ptr_snes + 13))?;
-
-                    if vanilla_area == 2 {
-                        pal_fx_bitflags &= 1;  // Norfair room: only keep the heat FX bit
-                    } else if vanilla_area != 4 {  // Keep palette FX for Maridia rooms (e.g. waterfalls)
-                        pal_fx_bitflags = 0;
-                    }
-                    rom.write_u8(snes2pc(fx_ptr_snes + 13), pal_fx_bitflags)?;    
-                }
-            }
-        }
-    }
-    Ok(())
-}
-
 fn fix_phantoon_power_on(rom: &mut Rom, game_data: &GameData) -> Result<()> {
     // Fix palette transition that happens in Phantoon's Room after defeating Phantoon.
     let phantoon_room_ptr = 0x7CD13;
@@ -196,110 +160,7 @@ fn fix_mother_brain(rom: &mut Rom, game_data: &GameData) -> Result<()> {
 }
 
 pub fn apply_area_themed_palettes(rom: &mut Rom, game_data: &GameData) -> Result<()> {
-    let new_tile_table_snes = 0x8FF900;
-    let new_tile_pointers_snes = 0x8FFD00;
-    let tile_pointers_free_space_end = 0x8FFE00;
-
-    let mut allocator = Allocator::new(vec![
-        (snes2pc(0xBAC629), snes2pc(0xC2C2BB)),  // Vanilla tile GFX, tilemaps, and palettes, which we overwrite
-        (snes2pc(0xE18000), snes2pc(0xE20000)),
-        (snes2pc(0xEA8000), snes2pc(0xF00000)),
-    ]);
-
-    let mut pal_map: HashMap<Vec<u8>, usize> = HashMap::new();
-    let mut gfx8_map: HashMap<Vec<u8>, usize> = HashMap::new();
-    let mut gfx16_map: HashMap<Vec<u8>, usize> = HashMap::new();
-    let mut tile_idx_map: HashMap<(usize, usize, usize), usize> = HashMap::new();
-
-    let mut next_tile_idx = 0;
-    let mut tile_table: Vec<u8> = rom.read_n(snes2pc(0x8FE6A2), next_tile_idx * 9)?.to_vec();
-    let mut tile_map: HashMap<(AreaIdx, TilesetIdx), TilesetIdx> = HashMap::new();
-    for (area_idx, area_theme_data) in game_data.tileset_palette_themes.iter().enumerate() {
-        for (&tileset_idx, theme) in area_theme_data {
-            let encoded_pal = encode_palette(&theme.palette);
-            let compressed_pal = compress(&encoded_pal);
-            let pal_addr = match pal_map.entry(encoded_pal.clone()) {
-                Entry::Occupied(x) => {
-                    *x.get()
-                },
-                Entry::Vacant(view) => {
-                    let addr = allocator.allocate(compressed_pal.len())?;
-                    view.insert(addr);
-                    addr
-                }
-            };
-            rom.write_n(pal_addr, &compressed_pal)?;
-
-            let compressed_gfx8 = compress(&theme.gfx8x8);
-            let gfx8_addr = match gfx8_map.entry(theme.gfx8x8.clone()) {
-                Entry::Occupied(x) => {
-                    *x.get()
-                },
-                Entry::Vacant(view) => {
-                    let addr = allocator.allocate(compressed_gfx8.len())?;
-                    view.insert(addr);
-                    addr
-                }
-            };
-            rom.write_n(gfx8_addr, &compressed_gfx8)?;
-
-            let compressed_gfx16 = compress(&theme.gfx16x16);
-            let gfx16_addr = match gfx16_map.entry(theme.gfx16x16.clone()) {
-                Entry::Occupied(x) => {
-                    *x.get()
-                }
-                Entry::Vacant(view) => {
-                    let addr = allocator.allocate(compressed_gfx16.len())?;
-                    view.insert(addr);
-                    addr
-                }
-            };
-            rom.write_n(gfx16_addr, &compressed_gfx16)?;
-
-
-            // let data = tile_table[(tileset_idx * 9)..(tileset_idx * 9 + 6)].to_vec();
-            // tile_table.extend(&data);
-            let tile_idx = match tile_idx_map.entry((gfx16_addr, gfx8_addr, pal_addr)) {
-                Entry::Occupied(x) => {
-                    *x.get()
-                }
-                Entry::Vacant(view) => {
-                    let idx = next_tile_idx;
-                    view.insert(idx);
-                    tile_table.extend(&pc2snes(gfx16_addr).to_le_bytes()[0..3]);
-                    tile_table.extend(&pc2snes(gfx8_addr).to_le_bytes()[0..3]);
-                    tile_table.extend(&pc2snes(pal_addr).to_le_bytes()[0..3]);     
-                    next_tile_idx += 1;
-                    idx
-                }
-            };
-            tile_map.insert((area_idx, tileset_idx), tile_idx);
-        }
-    }
-    println!("Number of unique pal: {}", pal_map.len());
-    println!("Number of unique gfx8: {}", gfx8_map.len());
-    println!("Number of unique gfx16: {}", gfx16_map.len());
-    println!("Number of unique tile_idx: {}", tile_idx_map.len());
-    println!(
-        "Tileset table size: {}, next_tile_idx={next_tile_idx}",
-        tile_table.len()
-    );
-    assert!(tile_table.len() <= new_tile_pointers_snes - new_tile_table_snes);
-    assert!(new_tile_pointers_snes + 2 * tile_table.len() / 9 <= tile_pointers_free_space_end);
-
-    rom.write_n(snes2pc(new_tile_table_snes), &tile_table)?;
-    for i in 0..tile_table.len() / 9 {
-        rom.write_u16(
-            snes2pc(new_tile_pointers_snes + 2 * i),
-            ((new_tile_table_snes + 9 * i) & 0xFFFF) as isize,
-        )?;
-    }
-
-    rom.write_u16(
-        snes2pc(0x82DF03),
-        (new_tile_pointers_snes & 0xFFFF) as isize,
-    )?;
-    replace_room_tilesets(rom, game_data, &tile_map)?;
+    apply_ips_patch(rom, Path::new(&"../patches/ips/area_palettes.ips"))?;
     make_palette_blends_gray(rom)?;
     fix_phantoon_power_on(rom, game_data)?;
     lighten_firefleas(rom)?;
