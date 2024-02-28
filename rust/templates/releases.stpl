@@ -14,6 +14,15 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
+<p><a id="release110">Version 110 (2024-02-28)</a>:
+<ul>
+<li>Sand exits are restored to their vanilla layout:
+    <ul>
+    <li>This affects Bug Sand Hole, Aqueduct, and Botwoon Energy Tank Room.
+    <li>Through sand transitions, Samus' X position is clamped to fit the entrance in the room below.
+    </ul>
+</ul>
+
 <p><a id="release109">Version 109 (2024-02-27)</a>:
 <ul>
 <li>Spin Lock (L + R + Up + X) can be used to temporarily prevent up or down from breaking spin.
