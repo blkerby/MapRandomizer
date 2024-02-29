@@ -165,6 +165,7 @@ class TrainingSession():
                              steps_remaining, temperature,
                              env_id, save_dist_coef: float, graph_diam_coef: float,
                             mc_dist_coef: torch.tensor,
+                            toilet_good_coef: float,
                             adjust_left_right,
                             adjust_down_up,
                              executor):
@@ -264,6 +265,9 @@ class TrainingSession():
         num_mc_dist = env.num_missing_connects
         pred_mc_dist = raw_preds_valid[:, (num_logodds + num_save_dist + 1):(num_logodds + num_save_dist + 1 + num_mc_dist)]
 
+        pred_toilet_good_logodds = raw_preds_valid[:, -1]
+        pred_toilet_good_logprobs = -torch.logaddexp(-pred_toilet_good_logodds, torch.zeros_like(pred_toilet_good_logodds))
+
         # print("score idx: ", num_logodds + num_save_dist, "num_logodds =", num_logodds, "num_save_dist =", num_save_dist)
 
         # Note: for steps with no valid candidates (i.e. when no more rooms can be placed), we won't generate any
@@ -282,7 +286,7 @@ class TrainingSession():
             adjust_left_right, adjust_down_up)
         save_dist_cost = torch.sum(pred_save_dist, dim=1)
         mc_dist_cost = torch.sum(pred_mc_dist, dim=1)
-        expected_valid = expected_valid - door_connect_cost - save_dist_cost * save_dist_coef - pred_graph_diam * graph_diam_coef - mc_dist_cost * mc_dist_coef_valid
+        expected_valid = expected_valid - door_connect_cost - save_dist_cost * save_dist_coef - pred_graph_diam * graph_diam_coef - mc_dist_cost * mc_dist_coef_valid + pred_toilet_good_logprobs * toilet_good_coef
 
         expected_flat = torch.full([num_envs * num_candidates], -1e15, device=logodds_valid.device)
         expected_flat[valid_flat_ind] = expected_valid
@@ -295,6 +299,7 @@ class TrainingSession():
                              temperature_decay: float, explore_eps: torch.tensor,
                              env_id, save_dist_coef: float, graph_diam_coef: float,
                              mc_dist_coef: torch.tensor,
+                             toilet_good_coef: float,
                              render, executor) -> EpisodeData:
         with (torch.no_grad()):
             device = self.envs[env_id].device
@@ -344,7 +349,7 @@ class TrainingSession():
                     action_expected, raw_logodds = self.forward_action(
                         model, env.room_mask, env.room_position_x, env.room_position_y,
                         action_candidates, steps_remaining, temperature, env_id, save_dist_coef, graph_diam_coef,
-                        mc_dist_coef, adjust_left_right, adjust_down_up, executor)
+                        mc_dist_coef, toilet_good_coef, adjust_left_right, adjust_down_up, executor)
                     curr_temperature = temperature * temperature_decay ** (j / (episode_length - 1))
                     probs = torch.softmax(action_expected / torch.unsqueeze(curr_temperature, 1), dim=1)
                     action_index = _rand_choice(probs)
@@ -435,6 +440,7 @@ class TrainingSession():
                              save_dist_coef: float,
                              graph_diam_coef: float,
                              mc_dist_coef: torch.tensor,
+                             toilet_good_coef: float,
                              executor: concurrent.futures.ThreadPoolExecutor,
                              cpu_executor: concurrent.futures.ProcessPoolExecutor,
                              render=False) -> EpisodeData:
@@ -445,7 +451,8 @@ class TrainingSession():
             # print("gen", i, env.device, model.state_value_lin.weight.device)
             future = executor.submit(lambda i=i, model=model: self.generate_round_inner(
                 model, episode_length, num_candidates_min, num_candidates_max, temperature, temperature_decay, explore_eps, render=render,
-                env_id=i, save_dist_coef=save_dist_coef, graph_diam_coef=graph_diam_coef, mc_dist_coef=mc_dist_coef, executor=executor))
+                env_id=i, save_dist_coef=save_dist_coef, graph_diam_coef=graph_diam_coef, mc_dist_coef=mc_dist_coef,
+                toilet_good_coef=toilet_good_coef, executor=executor))
             futures_list.append(future)
 
         episode_data_list = []
@@ -487,6 +494,7 @@ class TrainingSession():
                        save_dist_coef: float,
                        graph_diam_coef: float,
                        mc_dist_coef: torch.tensor,
+                       toilet_good_coef: float,
                        executor: Optional[concurrent.futures.ThreadPoolExecutor],
                        cpu_executor: concurrent.futures.ProcessPoolExecutor,
                        render=False) -> EpisodeData:
@@ -502,11 +510,12 @@ class TrainingSession():
                                              save_dist_coef=save_dist_coef,
                                              graph_diam_coef=graph_diam_coef,
                                              mc_dist_coef=mc_dist_coef,
+                                             toilet_good_coef=toilet_good_coef,
                                              executor=executor,
                                              cpu_executor=cpu_executor,
                                              render=render)
 
-    def compute_losses(self, data: TrainingData, save_dist_weight: float, graph_diam_weight: float, mc_dist_weight: float):
+    def compute_losses(self, data: TrainingData, save_dist_weight: float, graph_diam_weight: float, mc_dist_weight: float, toilet_weight: float):
         env = self.envs[0]
         # map = env.compute_map(data.room_mask, data.room_position_x, data.room_position_y)
         raw_preds = self.model.forward_multiclass(
@@ -521,11 +530,14 @@ class TrainingSession():
         pred_save_dist = raw_preds[:, num_binary_outputs:(num_binary_outputs + num_save_dist_outputs)]
         pred_graph_diam = raw_preds[:, num_binary_outputs + num_save_dist_outputs]
         pred_mc_dist = raw_preds[:, (num_binary_outputs + num_save_dist_outputs + 1):(num_binary_outputs + num_save_dist_outputs + 1 + num_mc_outputs)]
+        pred_toilet_good = raw_preds[:, -1]
         # print("train idx: ", num_binary_outputs + num_save_dist_outputs, "num_binary_outputs =", num_binary_outputs, "num_save_dist_outputs =", num_save_dist_outputs)
 
-        all_binary_outputs = torch.cat([data.door_connects, data.missing_connects], dim=1)
         binary_loss = torch.nn.functional.binary_cross_entropy_with_logits(state_value_raw_logodds,
                                                                     all_binary_outputs.to(state_value_raw_logodds.dtype))
+
+        toilet_loss = torch.nn.functional.binary_cross_entropy_with_logits(pred_toilet_good,
+                                                                    data.toilet_good.to(pred_toilet_good.dtype))
 
         save_dist_mask = (data.save_distances != 255)
         save_dist_loss = torch.mean(torch.where(save_dist_mask, (pred_save_dist - data.save_distances.to(torch.float)) ** 2, torch.zeros_like(pred_save_dist)))
@@ -535,13 +547,13 @@ class TrainingSession():
         mc_dist_mask = (data.mc_distances != 255)
         mc_dist_loss = torch.mean(torch.where(mc_dist_mask, (pred_mc_dist - data.mc_distances.to(torch.float)) ** 2, torch.zeros_like(pred_mc_dist)))
 
-        loss = binary_loss + save_dist_loss * save_dist_weight + graph_diam_loss * graph_diam_weight + mc_dist_loss * mc_dist_weight
-        return loss, binary_loss.item(), save_dist_loss.item(), graph_diam_loss.item(), mc_dist_loss.item()
+        loss = binary_loss + save_dist_loss * save_dist_weight + graph_diam_loss * graph_diam_weight + mc_dist_loss * mc_dist_weight + toilet_loss * toilet_weight
+        return loss, binary_loss.item(), save_dist_loss.item(), graph_diam_loss.item(), mc_dist_loss.item(), toilet_loss.item()
 
 
-    def train_batch(self, data: TrainingData, save_dist_weight: float, graph_diam_weight: float, mc_dist_weight: float):
+    def train_batch(self, data: TrainingData, save_dist_weight: float, graph_diam_weight: float, mc_dist_weight: float, toilet_weight: float):
         self.model.train()
-        losses = self.compute_losses(data, save_dist_weight, graph_diam_weight, mc_dist_weight)
+        losses = self.compute_losses(data, save_dist_weight, graph_diam_weight, mc_dist_weight, toilet_weight)
         overall_loss = losses[0]
 
         self.optimizer.zero_grad()
