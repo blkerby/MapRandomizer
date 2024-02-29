@@ -75,8 +75,8 @@ pub struct MapPatcher<'a> {
     transition_tile_coords: Vec<(AreaIdx, isize, isize)>,
 }
 
-const VANILLA_ELEVATOR_TILE: TilemapWord = 0xCE; // Index of elevator tile in vanilla game
-const ELEVATOR_TILE: TilemapWord = 0x12; // Index of elevator tile with TR's map patch
+pub const VANILLA_ELEVATOR_TILE: TilemapWord = 0xCE; // Index of elevator tile in vanilla game
+pub const ELEVATOR_TILE: TilemapWord = 0x12; // Index of elevator tile with TR's map patch
 pub const TILE_GFX_ADDR_4BPP: usize = 0xE28000; // Where to store area-specific tile graphics (must agree with map_area.asm)
 pub const TILE_GFX_ADDR_2BPP: usize = 0xE2C000; // Where to store area-specific tile graphics (must agree with map_area.asm)
 

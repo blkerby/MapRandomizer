@@ -209,6 +209,7 @@ pub struct DifficultyConfig {
 // Includes preprocessing specific to the map:
 pub struct Randomizer<'a> {
     pub map: &'a Map,
+    pub toilet_intersections: Vec<RoomGeometryRoomIdx>,
     pub locked_doors: &'a [LockedDoor], // Locked doors (not including gray doors)
     pub game_data: &'a GameData,
     pub difficulty_tiers: &'a [DifficultyConfig],
@@ -2575,8 +2576,11 @@ impl<'r> Randomizer<'r> {
         assert!(initial_items_remaining.iter().sum::<usize>() <= game_data.item_locations.len());
         initial_items_remaining[Item::Nothing as usize] = game_data.item_locations.len() - initial_items_remaining.iter().sum::<usize>();
 
+        let toilet_intersections = Self::get_toilet_intersections(map, game_data);
+
         Randomizer {
             map,
+            toilet_intersections,
             locked_doors,
             initial_items_remaining,
             game_data,
@@ -2588,6 +2592,30 @@ impl<'r> Randomizer<'r> {
             ),
             difficulty_tiers,
         }
+    }
+
+    fn get_toilet_intersections(map: &Map, game_data: &GameData) -> Vec<RoomGeometryRoomIdx> {
+        let mut out = vec![];
+        let toilet_pos = map.rooms[game_data.toilet_room_idx];
+        for room_idx in 0..map.rooms.len() {
+            let room_map = &game_data.room_geometry[room_idx].map;
+            let room_pos = map.rooms[room_idx];
+            let room_height = room_map.len() as isize;
+            let room_width = room_map[0].len() as isize;
+            let rel_pos_x = (toilet_pos.0 as isize) - (room_pos.0 as isize);
+            let rel_pos_y = (toilet_pos.1 as isize) - (room_pos.1 as isize);
+            
+            if rel_pos_x >= 0 && rel_pos_x < room_width {
+                for y in 2..8 {
+                    let y1 = rel_pos_y + y;
+                    if y1 >= 0 && y1 < room_height && room_map[y1 as usize][rel_pos_x as usize] == 1 {
+                        out.push(room_idx);
+                        break;
+                    }
+                }
+            }
+        }
+        out
     }
 
     pub fn get_link(&self, idx: usize) -> &Link {

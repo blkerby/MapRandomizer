@@ -9,9 +9,7 @@ pub mod title;
 use std::path::Path;
 
 use crate::{
-    customize::vanilla_music::override_music,
-    game_data::{DoorPtr, DoorPtrPair, GameData, Item, Map, NodePtr, RoomGeometryDoor, RoomPtr},
-    randomize::{DoorType, LockedDoor, MotherBrainFight, Objectives, Randomization, SaveAnimals, AreaAssignment, WallJump, EtankRefill, StartLocationMode},
+    customize::vanilla_music::override_music, game_data::{DoorPtr, DoorPtrPair, GameData, Item, Map, NodePtr, RoomGeometryDoor, RoomPtr}, patch::map_tiles::{ELEVATOR_TILE, VANILLA_ELEVATOR_TILE}, randomize::{AreaAssignment, DoorType, EtankRefill, LockedDoor, MotherBrainFight, Objectives, Randomization, SaveAnimals, StartLocationMode, WallJump}
 };
 use anyhow::{ensure, Context, Result};
 use hashbrown::{HashMap, HashSet};
@@ -980,6 +978,26 @@ impl<'a> Patcher<'a> {
             for i in 0..(64 * 32) {
                 self.rom.write_u16((area_ptr + i * 2) as usize, 0x001F)?;
             }
+        }
+
+        // First write map tilemap for Toilet, which may be partially overwritten later by the intersecting room(s)
+        // TODO: simplify/refactor this
+        let toilet_idx = self.game_data.toilet_room_idx;
+        for y in 0..10 {
+            let new_area = self.map.area[toilet_idx];
+            let new_base_ptr = self.game_data.area_map_ptrs[new_area];
+            let new_margin_x = (64 - (area_map_max_x[new_area] - area_map_min_x[new_area])) / 2;
+            let new_margin_y = (32 - (area_map_max_y[new_area] - area_map_min_y[new_area])) / 2 - 1;
+            let new_base_x = self.map.rooms[toilet_idx].0 as isize - area_map_min_x[new_area] + new_margin_x;
+            let new_base_y = self.map.rooms[toilet_idx].1 as isize - area_map_min_y[new_area] + new_margin_y;
+            assert!(new_base_x >= 2);
+            assert!(new_base_y >= 0);
+
+            let new_x = new_base_x as isize;
+            let new_y = new_base_y + y as isize;
+            let new_offset = xy_to_map_offset(new_x, new_y);
+            let new_ptr = (new_base_ptr + new_offset) as usize;
+            self.rom.write_u16(new_ptr, (0x0C00 | VANILLA_ELEVATOR_TILE) as isize)?;
         }
 
         // Write new map tilemap data (and room X & Y map position) by room:

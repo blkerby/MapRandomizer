@@ -231,10 +231,10 @@ fn main() -> Result<()> {
     // ];
 
     let proficiencies = vec![0.0, 0.3, 0.5, 0.7, 0.8, 0.825, 0.85, 0.9, 0.95, 1.0];
-    let missile_counts = vec![75];
-    let super_counts = vec![20];
+    let missile_counts = vec![25];
+    let super_counts = vec![0];
     let item_loadouts = vec![
-        vec!["M"],
+        vec!["C", "M"],
     ];
 
 

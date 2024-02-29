@@ -154,12 +154,12 @@ pub fn get_spoiler_map(
         let map_area = map.area[room_idx];
         let vanilla_area = rom.read_u8(room_ptr + 1)? as usize;
         let area_room_x = rom.read_u8(room_ptr + 2)?;
-        let mut area_room_y = rom.read_u8(room_ptr + 3)?;
+        let area_room_y = rom.read_u8(room_ptr + 3)?;
         let global_room_x = map.rooms[room_idx].0;
         let global_room_y = map.rooms[room_idx].1;
         for (local_y, row) in room.map.iter().enumerate() {
             for (local_x, &cell) in row.iter().enumerate() {
-                if cell == 0 {
+                if cell == 0 && room_idx != game_data.toilet_room_idx {
                     continue;
                 }
                 let cell_x = area_room_x + local_x as isize;
@@ -170,6 +170,7 @@ pub fn get_spoiler_map(
                 if let Some(new_word) = map_overrides.get(&(map_area, offset as TilemapOffset)) {
                     tilemap_word = *new_word;
                 }
+                println!("spoiler {}: {} {} {:x}", room.name, local_x, local_y, tilemap_word);
                 let tile = render_tile(rom, tilemap_word, map_area)?;
                 for y in 0..8 {
                     for x in 0..8 {

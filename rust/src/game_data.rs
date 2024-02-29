@@ -987,6 +987,7 @@ pub struct GameData {
     pub raw_room_id_by_ptr: HashMap<RoomPtr, RoomId>, // Does not replace twin room pointer with corresponding main room pointer
     pub room_idx_by_ptr: HashMap<RoomPtr, RoomGeometryRoomIdx>,
     pub room_idx_by_name: HashMap<String, RoomGeometryRoomIdx>,
+    pub toilet_room_idx: usize,
     pub node_tile_coords: HashMap<(RoomId, NodeId), Vec<(usize, usize)>>,
     pub node_coords: HashMap<(RoomId, NodeId), (usize, usize)>,
     pub room_shape: HashMap<RoomId, (usize, usize)>,
@@ -3337,6 +3338,9 @@ impl GameData {
             .with_context(|| format!("Unable to load room geometry at {}", path.display()))?;
         let room_geometry: Vec<RoomGeometry> = serde_json::from_str(&room_geometry_str)?;
         for (room_idx, room) in room_geometry.iter().enumerate() {
+            if room.name == "Toilet" {
+                self.toilet_room_idx = room_idx;
+            }
             self.room_idx_by_name.insert(room.name.clone(), room_idx);
             self.room_idx_by_ptr.insert(room.rom_address, room_idx);
             if let Some(twin_rom_address) = room.twin_rom_address {
