@@ -410,14 +410,14 @@ def balance_utilities(map):
     return map
 
 
-import json
-map = json.load(open('maps/session-2023-06-08T14:55:16.779895.pkl-bk24-subarea-balance-2/10006.json', 'rb'))
-map = balance_utilities(map)
-from maze_builder.display import MapDisplay
-display = MapDisplay(72, 72, 20)
-# display.display_assigned_areas_with_saves(map)
-display.display_assigned_areas_with_maps(map)
-# # display.display_assigned_areas(map)
-# # display.display_assigned_areas_with_ws(map)
-# # # display.display_vanilla_areas(map)
-display.image.show()
+# import json
+# map = json.load(open('maps/session-2023-06-08T14:55:16.779895.pkl-bk24-subarea-balance-2/10006.json', 'rb'))
+# map = balance_utilities(map)
+# from maze_builder.display import MapDisplay
+# display = MapDisplay(72, 72, 20)
+# # display.display_assigned_areas_with_saves(map)
+# display.display_assigned_areas_with_maps(map)
+# # # display.display_assigned_areas(map)
+# # # display.display_assigned_areas_with_ws(map)
+# # # # display.display_vanilla_areas(map)
+# display.image.show()

@@ -10,6 +10,11 @@ import pickle
 import concurrent.futures
 import random
 
+
+for i, room in enumerate(logic.rooms.all_rooms.rooms):
+    print(i, room.name)
+
+
 logging.basicConfig(format='%(asctime)s %(message)s',
                     level=logging.INFO,
                     handlers=[logging.FileHandler("train.log"),
@@ -45,12 +50,16 @@ device = torch.device('cpu')
 # session = CPU_Unpickler(open('models/session-2023-11-08T16:16:55.811707.pkl-small-1', 'rb')).load()
 # session = CPU_Unpickler(open('models/session-2023-11-08T16:16:55.811707.pkl-small-22', 'rb')).load()
 # session = CPU_Unpickler(open('models/session-2023-11-08T16:16:55.811707.pkl-small-31', 'rb')).load()
-session = CPU_Unpickler(open('models/session-2023-11-08T16:16:55.811707.pkl-small-40', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2023-11-08T16:16:55.811707.pkl-small-40', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2023-11-08T16:16:55.811707.pkl-small-44', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2023-11-08T16:16:55.811707.pkl-small-46', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2023-11-08T16:16:55.811707.pkl-small-47', 'rb')).load()
+session = CPU_Unpickler(open('models/session-2023-11-08T16:16:55.811707.pkl-small-48', 'rb')).load()
 
 print(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects.to(torch.float32), dim=0)))
-min_reward = torch.min(session.replay_buffer.episode_data.reward)
-print(min_reward, torch.mean((session.replay_buffer.episode_data.reward == min_reward).to(torch.float32)),
-      session.replay_buffer.episode_data.reward.shape[0])
+# min_reward = torch.min(session.replay_buffer.episode_data.reward)
+# print(min_reward, torch.mean((session.replay_buffer.episode_data.reward == min_reward).to(torch.float32)),
+#       session.replay_buffer.episode_data.reward.shape[0])
 
 S = session.replay_buffer.episode_data.save_distances.to(torch.float32)
 S = torch.where(S == 255, torch.full_like(S, float('nan')), S)
@@ -66,14 +75,15 @@ M = torch.nanmean(M, dim=1)
 # ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 343)
 # ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 0)
 # ind = ind[(ind >= 200000) & (ind < 262144)].view(-1, 1)
-num_feasible = torch.nonzero((session.replay_buffer.episode_data.reward == min_reward)).shape[0]
+# num_feasible = torch.nonzero((session.replay_buffer.episode_data.reward == min_reward)).shape[0]
 
 ind = torch.nonzero(
     (session.replay_buffer.episode_data.reward == 0) &
     (S < 4.00) &
     (session.replay_buffer.episode_data.graph_diameter <= 45) &
     # (session.replay_buffer.episode_data.mc_dist_coef > 0.0)
-    (session.replay_buffer.episode_data.mc_dist_coef == 0.0)
+    (session.replay_buffer.episode_data.mc_dist_coef == 0.0) &
+    session.replay_buffer.episode_data.toilet_good
 )
 
 # ind = torch.nonzero(
@@ -180,77 +190,18 @@ env.room_mask = room_mask
 env.render(0)
 env.map_display.image.show()
 
+self = env
+toilet_idx = self.toilet_idx
+toilet_x = room_position_x[:, toilet_idx].view(-1, 1)
+toilet_y = room_position_y[:, toilet_idx].view(-1, 1)
+toilet_mask = room_mask[:, toilet_idx].view(-1, 1)
 
-# env.room_position_x[:] = session.envs[0].room_position_x[17]
-# env.room_position_y[:] = session.envs[0].room_position_y[17]
-# env.room_mask[:] = session.envs[0].room_mask[17]
-
-
-# A = env.compute_part_adjacency_matrix(room_mask, room_position_x, room_position_y)
-# D = env.compute_distance_matrix(A)
-# S = env.compute_save_distances(D)
-
-
-
-
-# for i in range(num_rooms + 1):
-#     step_indices = torch.tensor([i])
-#     room_mask, room_position_x, room_position_y = reconstruct_room_data(action, step_indices, num_rooms)
-#     env.room_position_x = room_position_x
-#     env.room_position_y = room_position_y
-#     env.room_mask = room_mask
-#     env.render(0)
-#     time.sleep(0.5)
-
-
-#
-#
-# session.envs = [env]
-# num_candidates = 32
-# temperature = torch.full([num_envs], 0.005)
-# torch.manual_seed(0)
-# max_possible_reward = env.max_reward
-# start_time = time.perf_counter()
-# executor = concurrent.futures.ThreadPoolExecutor(1)
-# # for i in range(10000):
-# data = session.generate_round(
-#     episode_length=episode_length,
-#     num_candidates=num_candidates,
-#     temperature=temperature,
-#     executor=executor,
-#     render=False)
-#     # render=True)
-# end_time = time.perf_counter()
-# print(end_time - start_time)
-# print(len(env.single_tile_idxs))
-
-session.envs[0].init_toilet_data()
-# session.envs[0].good_toilet_positions
-# session.envs[0].bad_toilet_positions
-
-# session.replay_buffer.episode_data.action
-env = session.envs[0]
-toilet_idx = env.toilet_idx
-toilet_x = env.room_position_x[:, toilet_idx].view(-1, 1)
-toilet_y = env.room_position_y[:, toilet_idx].view(-1, 1)
-toilet_mask = env.room_mask[:, toilet_idx].view(-1, 1)
-
-good_toilet_room_idx = env.good_toilet_positions[:, 0]
-good_toilet_x = env.good_toilet_positions[:, 1].view(1, -1)
-good_toilet_y = env.good_toilet_positions[:, 2].view(1, -1)
-good_room_x = env.room_position_x[:, good_toilet_room_idx]
-good_room_y = env.room_position_y[:, good_toilet_room_idx]
-good_room_mask = env.room_mask[:, good_toilet_room_idx]
-good_match = (toilet_x == good_room_x + good_toilet_x) & (toilet_y == good_room_y + good_toilet_y) & toilet_mask & good_room_mask
+good_toilet_room_idx = self.good_toilet_positions[:, 0]
+good_toilet_x = self.good_toilet_positions[:, 1].view(1, -1)
+good_toilet_y = self.good_toilet_positions[:, 2].view(1, -1)
+good_room_x = room_position_x[:, good_toilet_room_idx]
+good_room_y = room_position_y[:, good_toilet_room_idx]
+good_room_mask = room_mask[:, good_toilet_room_idx]
+good_match = (toilet_x == good_room_x + good_toilet_x) & (
+toilet_y == good_room_y + good_toilet_y) & toilet_mask & good_room_mask
 num_good_match = torch.sum(good_match, dim=1)
-
-bad_toilet_x = env.bad_toilet_positions[:, 1].view(1, -1)
-bad_toilet_y = env.bad_toilet_positions[:, 2].view(1, -1)
-bad_toilet_room_idx = env.bad_toilet_positions[:, 0]
-bad_room_x = env.room_position_x[:, bad_toilet_room_idx]
-bad_room_y = env.room_position_y[:, bad_toilet_room_idx]
-bad_room_mask = env.room_mask[:, bad_toilet_room_idx]
-bad_match = (toilet_x == bad_room_x + bad_toilet_x) & (toilet_y == bad_room_y + bad_toilet_y) & toilet_mask & bad_room_mask
-num_bad_match = torch.sum(bad_match, dim=1)
-
-satisfied = (num_good_match == 1) & (num_bad_match == 0)
