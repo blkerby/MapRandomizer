@@ -1,8 +1,8 @@
-v109:
-- pull in new logic
-- implement canManageReserves
-- with "Stop item placement early", remove items that are only one-way-reachable at the end
-
+v110:
+- Debug eddie desolate seed:
+  - https://maprando.com/seed/tPRO8Krh2LxvnQvA0HZzaw/
+  - Why placed Grapple and Wasteland ETank?
+- Make sure BT has item.
 
 TODO:
 - debug door lock logic:
