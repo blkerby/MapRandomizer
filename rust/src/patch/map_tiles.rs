@@ -849,8 +849,8 @@ impl<'a> MapPatcher<'a> {
         // final length of the elevator on the map, which already has variations across rooms). We skip Lower Norfair Elevator
         // and Main Hall because these have no arrows on the vanilla map (since these don't cross regions in vanilla).
 
-        // Patch map tile in Aqueduct to replace Botwoon Hallway with tube/elevator tile
-        self.patch_room("Aqueduct", vec![(2, 3, ELEVATOR_TILE)])?;
+        // // Patch map tile in Aqueduct to replace Botwoon Hallway with tube/elevator tile
+        // self.patch_room("Aqueduct", vec![(2, 3, ELEVATOR_TILE)])?;
 
         Ok(())
     }
@@ -1834,7 +1834,7 @@ impl<'a> MapPatcher<'a> {
 
         self.patch_room_basic(
             "Aqueduct",
-            vec![(1, 6, E, E, E, P, O), (3, 6, E, E, E, P, O)],
+            vec![(1, 2, E, E, E, P, O), (3, 2, E, E, E, P, O)],
         )?;
 
         self.patch_room_basic("West Aqueduct Quicksand Room", vec![(0, 1, W, W, E, P, O)])?;

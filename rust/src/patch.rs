@@ -948,11 +948,6 @@ impl<'a> Patcher<'a> {
     }
 
     fn write_map_tilemaps(&mut self) -> Result<()> {
-        // Patch Aqueduct map Y position to include the toilet, for the purposes of determining
-        // the map. We change it back later in `fix_twin_rooms`.
-        self.orig_rom
-            .write_u8(0x7D5A7 + 3, self.orig_rom.read_u8(0x7D5A7 + 3)? - 4)?;
-
         // Determine upper-left corner of each area:
         let mut area_map_min_x = [isize::MAX; NUM_AREAS];
         let mut area_map_max_x = [0; NUM_AREAS];
@@ -1025,13 +1020,6 @@ impl<'a> Patcher<'a> {
     }
 
     fn fix_twin_rooms(&mut self) -> Result<()> {
-        // Fix map X & Y of Aqueduct and twin rooms:
-        let old_aqueduct_x = self.rom.read_u8(0x7D5A7 + 2)?;
-        let old_aqueduct_y = self.rom.read_u8(0x7D5A7 + 3)?;
-        self.rom.write_u8(0x7D5A7 + 3, old_aqueduct_y + 4)?;
-        // Toilet:
-        self.rom.write_u8(0x7D408 + 2, old_aqueduct_x + 2)?;
-        self.rom.write_u8(0x7D408 + 3, old_aqueduct_y)?;
         // East Pants Room:
         let pants_room_x = self.rom.read_u8(0x7D646 + 2)?;
         let pants_room_y = self.rom.read_u8(0x7D646 + 3)?;
@@ -1057,8 +1045,8 @@ impl<'a> Patcher<'a> {
         }
 
         // Handle twin rooms:
-        let aqueduct_room_idx = self.game_data.room_idx_by_name["Aqueduct"];
-        room_index_area_hashmaps[4].insert(0x18, self.map.area[aqueduct_room_idx]); // Set Toilet to same map area as Aqueduct
+        // let aqueduct_room_idx = self.game_data.room_idx_by_name["Aqueduct"];
+        // room_index_area_hashmaps[4].insert(0x18, self.map.area[aqueduct_room_idx]); // Set Toilet to same map area as Aqueduct
         let pants_room_idx = self.game_data.room_idx_by_name["Pants Room"];
         room_index_area_hashmaps[4].insert(0x25, self.map.area[pants_room_idx]); // Set East Pants Room to same area as Pants Room
         let west_ocean_room_idx = self.game_data.room_idx_by_name["West Ocean"];
@@ -1251,10 +1239,6 @@ impl<'a> Patcher<'a> {
                     // Set music for Homing Geemer Room:
                     self.rom
                         .write_u16(snes2pc(0x8F969C + 4), new_song as isize)?;
-                } else if room.name == "Aqueduct" {
-                    // Set music for Toilet:
-                    self.rom
-                        .write_u16(snes2pc(0x8FD415 + 4), new_song as isize)?;
                 }
             }
         }
@@ -1993,12 +1977,7 @@ impl<'a> Patcher<'a> {
                 ]);
         };
 
-        if room.rom_address == 0x7D5A7 {
-            // Aqueduct
-            write_asm(room.rom_address, tile_x, tile_y - 64);
-        } else {
-            write_asm(room.rom_address, tile_x, tile_y);
-        }
+        write_asm(room.rom_address, tile_x, tile_y);
         if room.rom_address == 0x793FE && door.x == 5 && door.y == 2 {
             // Homing Geemer Room
             write_asm(room.twin_rom_address.unwrap(), tile_x % 16, tile_y % 16);
@@ -2084,12 +2063,7 @@ impl<'a> Patcher<'a> {
                     0x00, // PLM argument (index for door unlock state)
                 ]);
         };
-        if room.rom_address == 0x7D5A7 {
-            // Aqueduct
-            write_asm(room.rom_address, x, y - 64);
-        } else {
-            write_asm(room.rom_address, x, y);
-        }
+        write_asm(room.rom_address, x, y);
         if room.rom_address == 0x793FE && door.x == 5 && door.y == 2 {
             // Homing Geemer Room
             write_asm(room.twin_rom_address.unwrap(), x % 16, y % 16);
@@ -2220,10 +2194,6 @@ impl<'a> Patcher<'a> {
             let room_ptr = room.rom_address;
             let room_x = self.rom.read_u8(room_ptr + 2)?;
             let mut room_y = self.rom.read_u8(room_ptr + 3)?;
-            if room.rom_address == 0x7D5A7 {
-                // Aqueduct
-                room_y -= 4;
-            }
             let area = self.map.area[room_idx];
             let mut asm: Vec<u8> = vec![];
             for y in 0..room.map.len() {

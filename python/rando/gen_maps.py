@@ -49,6 +49,7 @@ mean_mc_dist = torch.mean(session.replay_buffer.episode_data.mc_distances.to(tor
 
 common_mask = (
     (session.replay_buffer.episode_data.reward == 0) &
+    session.replay_buffer.episode_data.toilet_good &
     (torch.mean(session.replay_buffer.episode_data.save_distances.to(torch.float), dim=1) < 4.00) &
     (session.replay_buffer.episode_data.graph_diameter <= 45)
 )

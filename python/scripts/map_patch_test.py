@@ -27,11 +27,11 @@ patches = [
     # 'new_game_extra',
     # 'disable_walljump'
     # 'holes',
-    # 'oob_death',
+    'oob_death',
     # 'spinjumprestart',
     # 'new_game_extra',
-    'door_hurt',
-    "everest_tube",
+    # 'door_hurt',
+    # "everest_tube",
     # 'complementary_suits',
     # 'complementary_suits_noheat',
     # 'escape',
@@ -100,23 +100,23 @@ def write_colors(addr, colors):
         x = r | (g << 5) | (b << 10)
         rom.write_u16(addr + i * 2, x)
 
-
-power_suit_colors = read_colors(snes2pc(0x9B9400), 32)
-varia_suit_colors = read_colors(snes2pc(0x9B9520), 32)
-combined_suit_colors = read_colors(snes2pc(0x9B9800), 32)
-
-gravity_suit_colors = []
-for i in range(32):
-    p = power_suit_colors[i]
-    v = varia_suit_colors[i]
-    c = combined_suit_colors[i]
-    g = []
-    for j in range(3):
-        x = max(0, min(31, p[j] + c[j] - v[j]))
-        # x = p[j] + c[j] - v[j]
-        g.append(x)
-    print(g)
-    gravity_suit_colors.append(g)
+#
+# power_suit_colors = read_colors(snes2pc(0x9B9400), 32)
+# varia_suit_colors = read_colors(snes2pc(0x9B9520), 32)
+# combined_suit_colors = read_colors(snes2pc(0x9B9800), 32)
+#
+# gravity_suit_colors = []
+# for i in range(32):
+#     p = power_suit_colors[i]
+#     v = varia_suit_colors[i]
+#     c = combined_suit_colors[i]
+#     g = []
+#     for j in range(3):
+#         x = max(0, min(31, p[j] + c[j] - v[j]))
+#         # x = p[j] + c[j] - v[j]
+#         g.append(x)
+#     print(g)
+#     gravity_suit_colors.append(g)
 
 # write_colors(snes2pc(0x9BFF00), gravity_suit_colors)
 
@@ -315,6 +315,8 @@ for room_obj in rooms:
 
 # Shaktool camera
 # rom.write_u8(snes2pc(0x84B8DC), 0x60)  # RTS
+
+# rom.write_n(snes2pc(0xA0872D), 288, bytes(288 * [0]))
 
 rom.save(output_rom_path)
 print("Wrote to", output_rom_path)

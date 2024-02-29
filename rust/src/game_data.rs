@@ -2489,9 +2489,7 @@ impl GameData {
         let mut room_ptr =
             parse_int::parse::<usize>(room_json["roomAddress"].as_str().unwrap()).unwrap();
         self.raw_room_id_by_ptr.insert(room_ptr, room_id);
-        if room_ptr == 0x7D408 {
-            room_ptr = 0x7D5A7; // Treat Toilet Bowl as part of Aqueduct
-        } else if room_ptr == 0x7D69A {
+        if room_ptr == 0x7D69A {
             room_ptr = 0x7D646; // Treat East Pants Room as part of Pants Room
         } else if room_ptr == 0x7968F {
             room_ptr = 0x793FE; // Treat Homing Geemer Room as part of West Ocean
@@ -3356,7 +3354,8 @@ impl GameData {
                 self.node_coords.insert((room_id, node_id), (item.x, item.y));
             }
 
-            let room_id = self.room_id_by_ptr[&room.rom_address];
+            let room_id = *self.room_id_by_ptr.get(&room.rom_address)
+                .context(format!("room_id_by_ptr missing entry {:x}", room.rom_address))?;
             let mut max_x = 0;
             let mut max_y = 0;
             for (node_id, tiles) in &room.node_tiles {

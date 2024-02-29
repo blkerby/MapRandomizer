@@ -3,7 +3,7 @@ from maze_builder.types import Area, SubArea, DoorSubtype, Direction
 from rando.rom import Rom, RomRoom, snes2pc, pc2snes
 import json
 
-input_rom_path = '/home/kerby/Downloads/Super Metroid (JU) [!].smc'
+input_rom_path = '/home/kerby/Downloads/super_metroid_vanilla.smc'
 rom = Rom(open(input_rom_path, 'rb'))
 
 area_offsets = [
@@ -53,8 +53,6 @@ for room in rooms:
 
     if room.name in ["East Ocean", "Forgotten Highway Kago Room", "Crab Maze", "Forgotten Highway Elevator", "Forgotten Highway Elbow"]:
         x += 7
-    if room.name == "Aqueduct":
-        y -= 4
     output_rooms.append([x, y])
     for door in room.door_ids:
         exit_ptr = door.exit_ptr
@@ -74,4 +72,4 @@ output_json = {
     'subarea': output_subareas,
 }
 
-json.dump(output_json, open('rust/data/vanilla_map.json', 'w'))
+json.dump(output_json, open('maps/vanilla/vanilla_map.json', 'w'))

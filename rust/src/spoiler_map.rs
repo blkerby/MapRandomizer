@@ -155,9 +155,6 @@ pub fn get_spoiler_map(
         let vanilla_area = rom.read_u8(room_ptr + 1)? as usize;
         let area_room_x = rom.read_u8(room_ptr + 2)?;
         let mut area_room_y = rom.read_u8(room_ptr + 3)?;
-        if room.name == "Aqueduct" {
-            area_room_y -= 4;
-        }
         let global_room_x = map.rooms[room_idx].0;
         let global_room_y = map.rooms[room_idx].1;
         for (local_y, row) in room.map.iter().enumerate() {

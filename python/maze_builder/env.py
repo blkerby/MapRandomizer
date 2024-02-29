@@ -2,6 +2,7 @@ import time
 import networkx as nx
 import numpy as np
 from logic.areas import Area, SubArea
+from logic.tube import toilet_rooms
 from typing import List
 from logic.areas import SubArea
 from maze_builder.types import Room, Direction
@@ -43,7 +44,7 @@ class DoorData:
 class MazeBuilderEnv:
     def __init__(self, rooms: List[Room], map_x: int, map_y: int, num_envs: int, must_areas_be_connected: bool, starting_room_name: str, device):
         self.device = device
-        rooms = rooms + [Room(name='Dummy room', map=[[]], door_ids=[], sub_area=SubArea.CRATERIA_AND_BLUE_BRINSTAR)]
+        rooms = rooms + [Room(name='Dummy room', map=[[]], door_ids=[], sub_area=SubArea.WEST_CRATERIA)]
         for room in rooms:
             room.populate()
         room_names = [room.name for room in rooms]
@@ -71,6 +72,7 @@ class MazeBuilderEnv:
 
         self.init_room_data()
         self.init_part_data()
+        self.init_toilet_data()
         # Index single-tile rooms that have the same shape as a save station room (so no up or down doors).
         # Include Landing Site as well since the Ship can be used as a save.
         def is_potential_save_room(room):
@@ -86,21 +88,32 @@ class MazeBuilderEnv:
         self.num_doors = int(torch.sum(self.room_door_count))
         self.num_missing_connects = self.missing_connection_src.shape[0]
         self.num_save_dist = self.potential_save_idxs.shape[0]
+        self.num_non_save_dist = self.non_potential_save_idxs.shape[0]
         # self.num_missing_connects = self.num_parts * 2
         self.max_reward = self.num_doors // 2 + self.num_missing_connects
         self.reset()
 
         self.map_display = None
         self.color_map = {
-            SubArea.CRATERIA_AND_BLUE_BRINSTAR: (0x80, 0x80, 0x80),
-            SubArea.GREEN_AND_PINK_BRINSTAR: (0x80, 0xff, 0x80),
-            SubArea.RED_BRINSTAR_AND_WAREHOUSE: (0x60, 0xc0, 0x60),
+            SubArea.WEST_CRATERIA: (0x80, 0x80, 0x80),
+            SubArea.SOUTH_CRATERIA: (0x80, 0x80, 0x80),
+            SubArea.CENTRAL_CRATERIA: (0x80, 0x80, 0x80),
+            SubArea.EAST_CRATERIA: (0x80, 0x80, 0x80),
+            SubArea.BLUE_BRINSTAR: (0x80, 0x80, 0x80),
+            SubArea.GREEN_BRINSTAR: (0x80, 0xff, 0x80),
+            SubArea.PINK_BRINSTAR: (0x80, 0xff, 0x80),
+            SubArea.RED_BRINSTAR: (0x60, 0xc0, 0x60),
+            SubArea.WAREHOUSE_BRINSTAR: (0x60, 0xc0, 0x60),
             SubArea.UPPER_NORFAIR: (0xff, 0x80, 0x80),
             SubArea.LOWER_NORFAIR: (0xc0, 0x60, 0x60),
             SubArea.OUTER_MARIDIA: (0x80, 0x80, 0xff),
-            SubArea.INNER_MARIDIA: (0x60, 0x60, 0xc0),
+            SubArea.GREEN_MARIDIA: (0x60, 0x60, 0xc0),
+            SubArea.PINK_MARIDIA: (0x60, 0x60, 0xc0),
+            SubArea.YELLOW_MARIDIA: (0x60, 0x60, 0xc0),
             SubArea.WRECKED_SHIP: (0xff, 0xff, 0x80),
-            SubArea.TOURIAN: (0xc0, 0xc0, 0xc0),
+            SubArea.UPPER_TOURIAN: (0xc0, 0xc0, 0xc0),
+            SubArea.LOWER_TOURIAN: (0xc0, 0xc0, 0xc0),
+            SubArea.ESCAPE_TOURIAN: (0xc0, 0xc0, 0xc0),
         }
 
     def init_cpu_data(self):
@@ -400,6 +413,37 @@ class MazeBuilderEnv:
     #     chosen_map_door_up = chosen_map_door_all[chosen_map_door_all[:, 3] == 2, :3]
     #     chosen_map_door_down = chosen_map_door_all[chosen_map_door_all[:, 3] == 3, :3]
     #     return chosen_map_door_left, chosen_map_door_right, chosen_map_door_up, chosen_map_door_down
+
+    def init_toilet_data(self):
+        toilet_room_dict = {r["name"]: r for r in toilet_rooms}
+
+        good_positions = []
+        bad_positions = []
+        for room_idx, room in enumerate(self.rooms):
+            if room.name == 'Toilet':
+                self.toilet_idx = room_idx
+            height = len(room.map)
+            width = len(room.map[0])
+            r = toilet_room_dict.get(room.name)
+            for y in range(-7, height - 2):
+                for x in range(width):
+                    has_good_intersect = False
+                    has_bad_intersect = False
+                    for i in range(10):
+                        y1 = y + i
+                        if i in [0, 1, 8, 9] and 0 <= y1 < height and room.map[y1][x] == 1:
+                            has_bad_intersect = True
+                        if 2 <= i <= 7 and 0 <= y1 < height and room.map[y1][x] == 1:
+                            has_good_intersect = True
+                    if has_bad_intersect:
+                        continue
+                    if has_good_intersect:
+                        if r is not None and x in r["x"]:
+                            good_positions.append((room_idx, x, y))
+                        else:
+                            bad_positions.append((room_idx, x, y))
+        self.good_toilet_positions = torch.tensor(good_positions, dtype=torch.int64, device=self.device)
+        self.bad_toilet_positions = torch.tensor(bad_positions, dtype=torch.int64, device=self.device)
 
     def get_all_action_candidates(self, room_mask, room_position_x, room_position_y):
         # map = self.compute_map(self.room_mask, self.room_position_x, self.room_position_y)
@@ -839,7 +883,7 @@ class MazeBuilderEnv:
 
         return adjacency_matrix
 
-    def compute_distance_matrix(self, adjacency_matrix):
+    def compute_distance_matrix_batch(self, adjacency_matrix):
         A = adjacency_matrix.to(torch.int16)
         n = adjacency_matrix.shape[0]
         k = adjacency_matrix.shape[1]
@@ -853,6 +897,18 @@ class MazeBuilderEnv:
         # print(torch.amax(A[:, :-1, :-1], dim=[1, 2]))
         return A
 
+    def compute_distance_matrix(self, adjacency_matrix):
+        n = adjacency_matrix.shape[0]
+        batch_size = 32
+        out_list = []
+        for i in range((n + batch_size - 1) // batch_size):
+            start = i * batch_size
+            end = (i + 1) * batch_size
+            batch_adjacency_matrix = adjacency_matrix[start:end]
+            batch_out = self.compute_distance_matrix_batch(batch_adjacency_matrix)
+            out_list.append(batch_out)
+        return torch.cat(out_list, dim=0)
+
     def compute_save_distances(self, distance_matrix):
         n = distance_matrix.shape[0]
         A1 = distance_matrix[torch.arange(n).view(-1, 1, 1), self.non_potential_save_idxs.view(1, -1, 1), self.potential_save_idxs.view(1, 1, -1)]
@@ -865,6 +921,35 @@ class MazeBuilderEnv:
 
     def compute_mc_distances(self, distance_matrix):
         return distance_matrix[:, self.missing_connection_src, self.missing_connection_dst]
+
+    def compute_toilet_good(self, room_mask, room_position_x, room_position_y):
+        toilet_idx = self.toilet_idx
+        toilet_x = room_position_x[:, toilet_idx].view(-1, 1)
+        toilet_y = room_position_y[:, toilet_idx].view(-1, 1)
+        toilet_mask = room_mask[:, toilet_idx].view(-1, 1)
+
+        good_toilet_room_idx = self.good_toilet_positions[:, 0]
+        good_toilet_x = self.good_toilet_positions[:, 1].view(1, -1)
+        good_toilet_y = self.good_toilet_positions[:, 2].view(1, -1)
+        good_room_x = room_position_x[:, good_toilet_room_idx]
+        good_room_y = room_position_y[:, good_toilet_room_idx]
+        good_room_mask = room_mask[:, good_toilet_room_idx]
+        good_match = (toilet_x == good_room_x + good_toilet_x) & (
+                    toilet_y == good_room_y + good_toilet_y) & toilet_mask & good_room_mask
+        num_good_match = torch.sum(good_match, dim=1)
+
+        bad_toilet_room_idx = self.bad_toilet_positions[:, 0]
+        bad_toilet_x = self.bad_toilet_positions[:, 1].view(1, -1)
+        bad_toilet_y = self.bad_toilet_positions[:, 2].view(1, -1)
+        bad_room_x = room_position_x[:, bad_toilet_room_idx]
+        bad_room_y = room_position_y[:, bad_toilet_room_idx]
+        bad_room_mask = room_mask[:, bad_toilet_room_idx]
+        bad_match = (toilet_x == bad_room_x + bad_toilet_x) & (
+                    toilet_y == bad_room_y + bad_toilet_y) & toilet_mask & bad_room_mask
+        num_bad_match = torch.sum(bad_match, dim=1)
+
+        satisfied = (num_good_match == 1) & (num_bad_match == 0)
+        return satisfied
 
     def compute_component_matrices(self, adjacency_matrix):
         component_matrix = adjacency_matrix

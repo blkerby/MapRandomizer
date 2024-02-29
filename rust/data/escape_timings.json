@@ -10028,7 +10028,7 @@
               "x": 0,
               "y": 4,
               "part_idx": 0,
-              "door_idx": 6,
+              "door_idx": 5,
               "node_id": 6
             },
             "in_game_time": 5.47
@@ -10040,7 +10040,7 @@
               "x": 1,
               "y": 6,
               "part_idx": 1,
-              "door_idx": 4,
+              "door_idx": 3,
               "node_id": 3
             },
             "in_game_time": 8.13
@@ -10052,7 +10052,7 @@
               "x": 3,
               "y": 6,
               "part_idx": 2,
-              "door_idx": 5,
+              "door_idx": 4,
               "node_id": 4
             },
             "in_game_time": 7.00
@@ -10101,7 +10101,7 @@
               "x": 0,
               "y": 4,
               "part_idx": 0,
-              "door_idx": 6,
+              "door_idx": 5,
               "node_id": 6
             },
             "in_game_time": 4.09
@@ -10113,7 +10113,7 @@
               "x": 1,
               "y": 6,
               "part_idx": 1,
-              "door_idx": 4,
+              "door_idx": 3,
               "node_id": 3
             },
             "in_game_time": 6.34
@@ -10125,7 +10125,7 @@
               "x": 3,
               "y": 6,
               "part_idx": 2,
-              "door_idx": 5,
+              "door_idx": 4,
               "node_id": 4
             },
             "in_game_time": 5.20
@@ -10175,7 +10175,7 @@
               "x": 0,
               "y": 4,
               "part_idx": 0,
-              "door_idx": 6,
+              "door_idx": 5,
               "node_id": 6
             },
             "in_game_time": 8.03
@@ -10187,7 +10187,7 @@
               "x": 1,
               "y": 6,
               "part_idx": 1,
-              "door_idx": 4,
+              "door_idx": 3,
               "node_id": 3
             },
             "in_game_time": 8.59
@@ -10199,7 +10199,7 @@
               "x": 3,
               "y": 6,
               "part_idx": 2,
-              "door_idx": 5,
+              "door_idx": 4,
               "node_id": 4
             },
             "in_game_time": 7.31
@@ -10213,7 +10213,7 @@
           "x": 0,
           "y": 4,
           "part_idx": 0,
-          "door_idx": 6,
+          "door_idx": 5,
           "node_id": 6
         },
         "to": [
@@ -10267,7 +10267,7 @@
               "x": 1,
               "y": 6,
               "part_idx": 1,
-              "door_idx": 4,
+              "door_idx": 3,
               "node_id": 3
             },
             "in_game_time": 9.18
@@ -10279,7 +10279,7 @@
               "x": 3,
               "y": 6,
               "part_idx": 2,
-              "door_idx": 5,
+              "door_idx": 4,
               "node_id": 4
             },
             "in_game_time": 8.01
@@ -10293,7 +10293,7 @@
           "x": 1,
           "y": 6,
           "part_idx": 1,
-          "door_idx": 4,
+          "door_idx": 3,
           "node_id": 3
         },
         "to": []
@@ -10305,31 +10305,36 @@
           "x": 3,
           "y": 6,
           "part_idx": 2,
-          "door_idx": 5,
+          "door_idx": 4,
           "node_id": 4
         },
         "to": []
-      },
+      }
+    ]
+  },
+  {
+    "room_name": "Toilet",
+    "timings": [
       {
         "from_door": {
-          "name": "Toilet Bowl Bottom Door (to Oasis)",
-          "direction": "down",
-          "x": 2,
-          "y": 9,
-          "part_idx": 3,
-          "door_idx": 3,
-          "node_id": 2
+          "name": "Toilet Bowl Top Door (to Plasma Spark)",
+          "direction": "up",
+          "x": 0,
+          "y": 0,
+          "part_idx": 0,
+          "door_idx": 1,
+          "node_id": 1
         },
         "to": [
           {
             "to_door": {
-              "name": "Toilet Bowl Top Door (to Plasma Spark)",
-              "direction": "up",
-              "x": 2,
-              "y": 0,
-              "part_idx": 3,
-              "door_idx": 7,
-              "node_id": 1
+              "name": "Toilet Bowl Bottom Door (to Oasis)",
+              "direction": "down",
+              "x": 0,
+              "y": 9,
+              "part_idx": 0,
+              "door_idx": 0,
+              "node_id": 2
             },
             "in_game_time": 0.0,
             "note": "Escape timer is paused during toilet transition"
@@ -10338,24 +10343,24 @@
       },
       {
         "from_door": {
-          "name": "Toilet Bowl Top Door (to Plasma Spark)",
-          "direction": "up",
-          "x": 2,
-          "y": 0,
-          "part_idx": 3,
-          "door_idx": 7,
-          "node_id": 1
+          "name": "Toilet Bowl Bottom Door (to Oasis)",
+          "direction": "down",
+          "x": 0,
+          "y": 9,
+          "part_idx": 0,
+          "door_idx": 0,
+          "node_id": 2
         },
         "to": [
           {
             "to_door": {
-              "name": "Toilet Bowl Bottom Door (to Oasis)",
-              "direction": "down",
-              "x": 2,
-              "y": 9,
-              "part_idx": 3,
-              "door_idx": 3,
-              "node_id": 2
+              "name": "Toilet Bowl Top Door (to Plasma Spark)",
+              "direction": "up",
+              "x": 0,
+              "y": 0,
+              "part_idx": 0,
+              "door_idx": 1,
+              "node_id": 1
             },
             "in_game_time": 0.0,
             "note": "Escape timer is paused during toilet transition"
