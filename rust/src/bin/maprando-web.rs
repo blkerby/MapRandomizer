@@ -16,7 +16,7 @@ use log::{error, info};
 use maprando::customize::{
     customize_rom, AreaTheming, ControllerConfig, CustomizeSettings, MusicSettings, parse_controller_button, ControllerButton, ShakingSetting,
 };
-use maprando::game_data::{GameData, IndexedVec, Item, LinksDataGroup};
+use maprando::game_data::{self, GameData, IndexedVec, Item, LinksDataGroup};
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::{make_rom, Rom};
 use maprando::randomize::{
@@ -1549,7 +1549,7 @@ async fn randomize(
             panic!("Unrecognized map layout option: {}", map_layout);
         }
         let mut map = app_data.map_repositories[&map_layout]
-            .get_map(attempt_num, map_seed)
+            .get_map(attempt_num, map_seed, &app_data.game_data)
             .unwrap();
         if difficulty.area_assignment == AreaAssignment::Random {
             randomize_map_areas(&mut map, map_seed);

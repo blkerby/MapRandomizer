@@ -282,6 +282,7 @@ struct RandomizationState {
 pub struct Randomization {
     pub difficulty: DifficultyConfig,
     pub map: Map,
+    pub toilet_intersections: Vec<RoomGeometryRoomIdx>,
     pub locked_doors: Vec<LockedDoor>,
     pub item_placement: Vec<Item>,
     pub start_location: StartLocation,
@@ -2594,7 +2595,7 @@ impl<'r> Randomizer<'r> {
         }
     }
 
-    fn get_toilet_intersections(map: &Map, game_data: &GameData) -> Vec<RoomGeometryRoomIdx> {
+    pub fn get_toilet_intersections(map: &Map, game_data: &GameData) -> Vec<RoomGeometryRoomIdx> {
         let mut out = vec![];
         let toilet_pos = map.rooms[game_data.toilet_room_idx];
         for room_idx in 0..map.rooms.len() {
@@ -3529,13 +3530,18 @@ impl<'r> Randomizer<'r> {
                 //     .to_string();
                 let room = g.name.clone();
                 let short_name = strip_name(&room);
-                let height = g.map.len();
-                let width = g.map[0].len();
+                let map = if room_idx == self.game_data.toilet_room_idx {
+                    vec![vec![1; 1]; 10]
+                } else {
+                    g.map.clone()
+                };
+                let height = map.len();
+                let width = map[0].len();
                 let mut map_reachable_step: Vec<Vec<u8>> = vec![vec![255; width]; height];
                 let mut map_bireachable_step: Vec<Vec<u8>> = vec![vec![255; width]; height];
                 for y in 0..height {
                     for x in 0..width {
-                        if g.map[y][x] != 0 {
+                        if map[y][x] != 0 {
                             let key = (room_idx, (x, y));
                             if let Some(step) = map_tile_reachable_step.get(&key) {
                                 map_reachable_step[y][x] = *step as u8;
@@ -3549,7 +3555,7 @@ impl<'r> Randomizer<'r> {
                 SpoilerRoomLoc {
                     room,
                     short_name,
-                    map: g.map.clone(),
+                    map,
                     map_reachable_step,
                     map_bireachable_step,
                     coords: *c,
@@ -3574,6 +3580,7 @@ impl<'r> Randomizer<'r> {
         Ok(Randomization {
             difficulty: self.difficulty_tiers[0].clone(),
             map: self.map.clone(),
+            toilet_intersections: self.toilet_intersections.clone(),
             locked_doors: self.locked_doors.to_vec(),
             item_placement,
             spoiler_log,
@@ -3848,6 +3855,7 @@ impl<'r> Randomizer<'r> {
         Ok(Randomization {
             difficulty: self.difficulty_tiers[0].clone(),
             map: self.map.clone(),
+            toilet_intersections: self.toilet_intersections.clone(),
             locked_doors: self.locked_doors.to_vec(),
             item_placement: vec![Item::Nothing; 100],
             spoiler_log,

@@ -2203,38 +2203,48 @@ impl<'a> Patcher<'a> {
         Ok(())
     }
 
-    fn apply_room_outline(&mut self) -> Result<()> {
+    fn apply_room_outline(&mut self, room_idx: usize, room_ptr: usize) -> Result<()> {
+        let room = &self.game_data.room_geometry[room_idx];
+        let room_x = self.rom.read_u8(room.rom_address + 2)?;
+        let room_y = self.rom.read_u8(room.rom_address + 3)?;
+        let area = self.map.area[room_idx];
+        let mut asm: Vec<u8> = vec![];
+        for y in 0..room.map.len() {
+            for x in 0..room.map[0].len() {
+                if room.map[y][x] == 0 && room_idx != self.game_data.toilet_room_idx {
+                    continue;
+                }
+                let (offset, bitmask) = xy_to_explored_bit_ptr(room_x + x as isize, room_y + y as isize);
+
+                // Mark as partially revealed (which will persist after deaths/reloads):
+                let addr = 0x2700 + (area as isize) * 0x100 + offset;
+                asm.extend([0xAF, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // LDA $70:{addr}
+                asm.extend([0x09, bitmask, 0x00]); // ORA #{bitmask}
+                asm.extend([0x8F, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // STA $70:{addr}
+                // println!("{:x} {} {}", room_ptr, x, y);
+            }
+        }
+        self.extra_setup_asm.entry(room_ptr).or_insert(vec![]).extend(asm.clone());
+        Ok(())
+    }
+
+    fn apply_all_room_outlines(&mut self) -> Result<()> {
         // Disable routine that marks tiles explored (used in vanilla game when entering boss rooms)
         // It's obsoleted by this more general "room outline" option.
         self.rom.write_u8(snes2pc(0x90A8A6), 0x60)?;  // RTS
 
         for (room_idx, room) in self.game_data.room_geometry.iter().enumerate() {
             let room_ptr = room.rom_address;
-            let room_x = self.rom.read_u8(room_ptr + 2)?;
-            let mut room_y = self.rom.read_u8(room_ptr + 3)?;
-            let area = self.map.area[room_idx];
-            let mut asm: Vec<u8> = vec![];
-            for y in 0..room.map.len() {
-                for x in 0..room.map[0].len() {
-                    if room.map[y][x] == 0 {
-                        continue;
-                    }
-                    let (offset, bitmask) = xy_to_explored_bit_ptr(room_x + x as isize, room_y + y as isize);
-
-                    // Mark as partially revealed (which will persist after deaths/reloads):
-                    let addr = 0x2700 + (area as isize) * 0x100 + offset;
-                    asm.extend([0xAF, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // LDA $70:{addr}
-                    asm.extend([0x09, bitmask, 0x00]); // ORA #{bitmask}
-                    asm.extend([0x8F, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // STA $70:{addr}
-                    // println!("{:x} {} {}", room_ptr, x, y);
-                }
-            }
-
-            self.extra_setup_asm.entry(room_ptr).or_insert(vec![]).extend(asm.clone());
+            self.apply_room_outline(room_idx, room_ptr)?;
             if let Some(twin_rom_address) = room.twin_rom_address {
-                // Apply same setup ASM to twin rooms (Homing Geemer Room and East Pants Room):
-                self.extra_setup_asm.entry(twin_rom_address).or_insert(vec![]).extend(asm);
+                self.apply_room_outline(room_idx, twin_rom_address)?;
             }
+        }
+
+        // For the Toilet, apply room outlines for the intersecting room(s) and vice versa:
+        for &room_idx in &self.randomization.toilet_intersections {
+            self.apply_room_outline(room_idx, 0x7D408)?;
+            self.apply_room_outline(self.game_data.toilet_room_idx, self.game_data.room_geometry[room_idx].rom_address)?;
         }
         Ok(())
     }
@@ -2312,7 +2322,7 @@ pub fn make_rom(
         patcher.apply_hazard_markers()?;
     }
     if randomization.difficulty.room_outline_revealed {
-        patcher.apply_room_outline()?;
+        patcher.apply_all_room_outlines()?;
     }
     patcher.apply_extra_setup_asm()?;
     Ok(rom)

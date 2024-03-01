@@ -34,6 +34,9 @@
 
         <p><b>Note</b>: Regardless of this setting, in this randomizer Hyper Beam always breaks bomb blocks, Super blocks, and Power Bomb blocks
         and can open blue/green gates from either side.
+
+        <p>If the item progression option "Stop item placement early" is enabled (for example in "Desolate"), then all movement items will be given 
+        during the escape, regardless of the option "Hyper Beam gives all movement items" is enabled or not.</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

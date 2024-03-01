@@ -495,7 +495,7 @@ fn get_randomization(app: &TestAppData, seed: u64) -> Result<(Randomization, Str
     for _ in 0..max_map_attempts {
         let map_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
         let door_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
-        let mut map = repo.get_map(attempt_num, map_seed)?;
+        let mut map = repo.get_map(attempt_num, map_seed, game_data)?;
         if diff.area_assignment == AreaAssignment::Random {
             randomize_map_areas(&mut map, map_seed);
         }

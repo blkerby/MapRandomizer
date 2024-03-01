@@ -7,6 +7,7 @@ v110
     - passing through Toilet should show the outline of the intersecting room 
     - passing through intersecting room probably shouldn't show Toilet (for now at least)
   - draw PLMs of intersecting room in the Toilet (e.g. door locks, items, etc.)
+  - touch up the tiling of the intersecting rooms to look good with Toilet
 - Make sure BT has item (e.g. for Chozo objective).
 
 TODO:

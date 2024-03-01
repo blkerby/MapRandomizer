@@ -170,7 +170,6 @@ pub fn get_spoiler_map(
                 if let Some(new_word) = map_overrides.get(&(map_area, offset as TilemapOffset)) {
                     tilemap_word = *new_word;
                 }
-                println!("spoiler {}: {} {} {:x}", room.name, local_x, local_y, tilemap_word);
                 let tile = render_tile(rom, tilemap_word, map_area)?;
                 for y in 0..8 {
                     for x in 0..8 {

@@ -361,11 +361,6 @@ def place_phantoon_and_friends(map):
         logging.info("Failed to place Phantoon's Room")
         return None
 
-    # Filter to the candidate(s) with smallest distance from Ship.
-    ship_dist = dist[landing_site_idx, eligible_phantoon_idxs]
-    min_ship_dist = np.min(ship_dist)
-    eligible_phantoon_idxs = eligible_phantoon_idxs[ship_dist == min_ship_dist]
-
     new_phantoon_idx = np.random.choice(list(eligible_phantoon_idxs))
 
     # Randomly select a candidate for Wrecked Ship Map Room:
