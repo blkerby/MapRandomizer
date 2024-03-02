@@ -23,3 +23,6 @@ FE62-FE64: Initial max super missiles (to be copied to $09CC)
 FE64-FE66: Initial power bombs (to be copied to $09CE)
 FE66-FE68: Initial max power bombs (to be copied to $09D0)
 FE68-FE70: Spin lock input bitmask (spin_lock.asm)
+FE70-FE72: Toilet intersecting room pointer
+FE72-FE73: Toilet X position relative to intersecting room
+FE73-FE74: Toilet X position relative to intersecting room

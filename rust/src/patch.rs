@@ -1013,6 +1013,7 @@ impl<'a> Patcher<'a> {
             let new_base_x = self.map.rooms[i].0 as isize - area_map_min_x[new_area] + new_margin_x;
             let new_base_y = self.map.rooms[i].1 as isize - area_map_min_y[new_area] + new_margin_y;
             assert!(new_base_x >= 2);
+            println!("map: {} {} {} {} {} {}", new_area, area_map_min_y[new_area], area_map_max_y[new_area], self.map.rooms[i].1, new_margin_y, new_base_y);
             assert!(new_base_y >= 0);
             self.rom.write_u8(room.rom_address + 2, new_base_x)?;
             self.rom.write_u8(room.rom_address + 3, new_base_y)?;
@@ -2248,6 +2249,23 @@ impl<'a> Patcher<'a> {
         }
         Ok(())
     }
+
+    fn apply_toilet_data(&mut self) -> Result<()> {
+        let toilet_intersecting_room_ptr_addr = snes2pc(0xB5FE70);
+        let toilet_rel_x_addr = snes2pc(0xB5FE72);
+        let toilet_rel_y_addr = snes2pc(0xB5FE73);
+
+        if self.randomization.toilet_intersections.len() == 1 {
+            let room_idx = self.randomization.toilet_intersections[0];
+            let room_ptr = self.game_data.room_geometry[room_idx].rom_address;
+            let room_pos = self.map.rooms[room_idx];
+            let toilet_pos = self.map.rooms[self.game_data.toilet_room_idx];
+            self.rom.write_u16(toilet_intersecting_room_ptr_addr, ((room_ptr & 0x7FFF) | 0x8000) as isize)?;
+            self.rom.write_u8(toilet_rel_x_addr, (toilet_pos.0 as isize - room_pos.0 as isize) as u8 as isize)?;
+            self.rom.write_u8(toilet_rel_y_addr, (toilet_pos.1 as isize - room_pos.1 as isize) as u8 as isize)?;
+        }
+        Ok(())
+    }
 }
 
 fn get_other_door_ptr_pair_map(map: &Map) -> HashMap<DoorPtrPair, DoorPtrPair> {
@@ -2324,6 +2342,7 @@ pub fn make_rom(
     if randomization.difficulty.room_outline_revealed {
         patcher.apply_all_room_outlines()?;
     }
+    patcher.apply_toilet_data()?;
     patcher.apply_extra_setup_asm()?;
     Ok(rom)
 }

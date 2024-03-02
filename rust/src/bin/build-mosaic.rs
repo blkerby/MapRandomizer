@@ -5,7 +5,7 @@ use flips::{self, BpsPatch};
 use hashbrown::hash_map::Entry;
 use hashbrown::{HashMap, HashSet};
 use json::JsonValue;
-use log::{info, error};
+use log::{error, info};
 use maprando::game_data::smart_xml::RoomState;
 use maprando::patch::bps::BPSEncoder;
 use maprando::patch::suffix_tree::SuffixTree;
@@ -14,10 +14,10 @@ use std::fs::File;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-use smart_xml::{Screen, Layer2Type};
 use maprando::customize::Allocator;
 use maprando::game_data::{smart_xml, DoorPtr, RoomGeometry};
-use maprando::patch::{pc2snes, snes2pc, Rom, get_room_state_ptrs, self};
+use maprando::patch::{self, get_room_state_ptrs, pc2snes, snes2pc, Rom};
+use smart_xml::{Layer2Type, Screen};
 
 #[derive(Parser)]
 struct Args {
@@ -160,7 +160,7 @@ impl MosaicPatchBuilder {
                     door_index: fx.fromdoor,
                 };
                 let door_ptr = self.fx_door_map[&fx_door] as u16;
-                out.extend(door_ptr.to_le_bytes());      
+                out.extend(door_ptr.to_le_bytes());
             }
 
             out.extend((fx.surfacestart as u16).to_le_bytes());
@@ -178,7 +178,7 @@ impl MosaicPatchBuilder {
         if out.len() == 0 {
             out.extend(vec![0xFF, 0xFF]);
         }
-    
+
         out
     }
 
@@ -191,7 +191,11 @@ impl MosaicPatchBuilder {
                 .with_context(|| format!("Unable to load room at {}", room_path.display()))?;
             let room_xml: smart_xml::Room = serde_xml_rs::from_str(room_str.as_str())
                 .with_context(|| format!("Unable to parse XML in {}", room_path.display()))?;
-            let room_ptr = self.room_ptr_map.get(&(room_xml.area, room_xml.index)).map(|x| *x).unwrap_or(0);
+            let room_ptr = self
+                .room_ptr_map
+                .get(&(room_xml.area, room_xml.index))
+                .map(|x| *x)
+                .unwrap_or(0);
             if room_ptr == 0 {
                 continue;
             }
@@ -214,21 +218,26 @@ impl MosaicPatchBuilder {
                 .with_context(|| format!("Unable to load room at {}", room_path.display()))?;
             let room_xml: smart_xml::Room = serde_xml_rs::from_str(room_str.as_str())
                 .with_context(|| format!("Unable to parse XML in {}", room_path.display()))?;
-            let room_ptr = self.room_ptr_map.get(&(room_xml.area, room_xml.index)).map(|x| *x).unwrap_or(0);
+            let room_ptr = self
+                .room_ptr_map
+                .get(&(room_xml.area, room_xml.index))
+                .map(|x| *x)
+                .unwrap_or(0);
             if room_ptr == 0 {
                 continue;
             }
             let state_ptrs = get_room_state_ptrs(&self.rom, room_ptr)?;
             for (state_idx, state_xml) in room_xml.states.state.into_iter().enumerate() {
                 let (_event_ptr, state_ptr) = state_ptrs[state_idx];
-                let fx_ptr = self.rom.read_u16(state_ptr + 6)? as usize;    
+                let fx_ptr = self.rom.read_u16(state_ptr + 6)? as usize;
                 for (i, fx) in state_xml.fx1s.fx1.iter().enumerate() {
                     let fx_door = FXDoor {
                         room_area: fx.roomarea,
                         room_index: fx.roomindex,
                         door_index: fx.fromdoor,
                     };
-                    let door_ptr = self.rom.read_u16(snes2pc(0x830000 + fx_ptr + i * 16))? as DoorPtr;
+                    let door_ptr =
+                        self.rom.read_u16(snes2pc(0x830000 + fx_ptr + i * 16))? as DoorPtr;
                     self.fx_door_map.insert(fx_door, door_ptr);
                 }
             }
@@ -251,12 +260,12 @@ impl MosaicPatchBuilder {
         // let output_path = self.output_patches_dir.join("tilesets.bps");
         // std::fs::write(&output_path, &patch)?;
         let modified_ranges = new_rom.get_modified_ranges();
-        let mut encoder = BPSEncoder::new(&self.source_suffix_tree, &new_rom.data, &modified_ranges);
+        let mut encoder =
+            BPSEncoder::new(&self.source_suffix_tree, &new_rom.data, &modified_ranges);
         encoder.encode();
         let output_path = self.output_patches_dir.join("tilesets.bps");
         std::fs::write(&output_path, &encoder.patch_bytes)?;
-        
-        
+
         Ok(())
     }
 
@@ -403,8 +412,11 @@ impl MosaicPatchBuilder {
             "WreckedShipPalette",
             "MaridiaPalette",
             "TourianPalette",
-        ].into_iter().map(|x| x.to_string()).collect();
-        
+        ]
+        .into_iter()
+        .map(|x| x.to_string())
+        .collect();
+
         let main_palette_table_addr = snes2pc(0x80DD00); // Must match address used in area_palettes.asm
         let palette_table_end = snes2pc(0x80E100);
         let max_tilesets = 55;
@@ -412,21 +424,31 @@ impl MosaicPatchBuilder {
         for i in 0..6 {
             let area_table_addr = main_palette_table_addr + 12 + i * max_tilesets * 3;
             area_palette_table_addrs.push(area_table_addr);
-            new_rom.write_u16(main_palette_table_addr + 2 * i, (pc2snes(area_table_addr) & 0xFFFF) as isize)?;
+            new_rom.write_u16(
+                main_palette_table_addr + 2 * i,
+                (pc2snes(area_table_addr) & 0xFFFF) as isize,
+            )?;
         }
 
         for (area_idx, project) in project_names.iter().enumerate() {
-            let tilesets_path = self.mosaic_dir.join("Projects").join(project).join("Export/Tileset/SCE");
-            let tileset_it = std::fs::read_dir(&tilesets_path)
-                .with_context(|| format!("Unable to list tilesets at {}", tilesets_path.display()))?;
+            let tilesets_path = self
+                .mosaic_dir
+                .join("Projects")
+                .join(project)
+                .join("Export/Tileset/SCE");
+            let tileset_it = std::fs::read_dir(&tilesets_path).with_context(|| {
+                format!("Unable to list tilesets at {}", tilesets_path.display())
+            })?;
             for tileset_dir in tileset_it {
                 let tileset_dir = tileset_dir?;
-                let tileset_idx = usize::from_str_radix(tileset_dir.file_name().to_str().unwrap(), 16)?;
+                let tileset_idx =
+                    usize::from_str_radix(tileset_dir.file_name().to_str().unwrap(), 16)?;
                 let tileset_path = tileset_dir.path();
 
                 let palette_path = tileset_path.join("palette.snes");
-                let palette_bytes = std::fs::read(&palette_path)
-                    .with_context(|| format!("Unable to read palette at {}", palette_path.display()))?;
+                let palette_bytes = std::fs::read(&palette_path).with_context(|| {
+                    format!("Unable to read palette at {}", palette_path.display())
+                })?;
                 let compressed_pal = self.get_compressed_data(&palette_bytes)?;
 
                 // Write SCE palette:
@@ -458,7 +480,10 @@ impl MosaicPatchBuilder {
             "GreenBrinstar",
             "UpperNorfair",
             "WreckedShip",
-        ].into_iter().map(|x| x.to_string()).collect();
+        ]
+        .into_iter()
+        .map(|x| x.to_string())
+        .collect();
         let base_rooms_dir = self.mosaic_dir.join("Projects/Base/Export/Rooms/");
         for room_path in std::fs::read_dir(base_rooms_dir)? {
             let room_filename = room_path?.file_name().to_str().unwrap().to_owned();
@@ -468,19 +493,33 @@ impl MosaicPatchBuilder {
     }
 
     fn make_room_patch(&mut self, room_filename: &str, project_names: &[String]) -> Result<()> {
-        let room_name = room_filename.strip_suffix(".xml").context("Expecting room filename to end in .xml")?;
-        let base_room_path = self.mosaic_dir.join("Projects/Base/Export/Rooms").join(room_filename);
+        let room_name = room_filename
+            .strip_suffix(".xml")
+            .context("Expecting room filename to end in .xml")?;
+        let base_room_path = self
+            .mosaic_dir
+            .join("Projects/Base/Export/Rooms")
+            .join(room_filename);
         let base_room_str = std::fs::read_to_string(&base_room_path)
             .with_context(|| format!("Unable to load room at {}", base_room_path.display()))?;
         let base_room: smart_xml::Room = serde_xml_rs::from_str(base_room_str.as_str())
             .with_context(|| format!("Unable to parse XML in {}", base_room_path.display()))?;
-        let room_ptr = self.room_ptr_map.get(&(base_room.area, base_room.index)).map(|x| *x).unwrap_or(0);
+        let room_ptr = self
+            .room_ptr_map
+            .get(&(base_room.area, base_room.index))
+            .map(|x| *x)
+            .unwrap_or(0);
         if room_ptr == 0 {
             info!("Skipping {}", room_filename);
             return Ok(());
         }
-        
-        info!("Processing {}: main alloc {:?}, FX alloc {:?}", room_name, self.main_allocator.get_stats(), self.fx_allocator.get_stats());
+
+        info!(
+            "Processing {}: main alloc {:?}, FX alloc {:?}",
+            room_name,
+            self.main_allocator.get_stats(),
+            self.fx_allocator.get_stats()
+        );
         let state_ptrs = get_room_state_ptrs(&self.rom, room_ptr)?;
         for (state_idx, &(_event_ptr, state_ptr)) in state_ptrs.iter().enumerate() {
             println!("{}: {:x}", room_name, state_ptr);
@@ -505,7 +544,11 @@ impl MosaicPatchBuilder {
 
             // For a given room state, allocate enough space for the level data to fit whichever theme has the largest.
             // This approach can duplicate level data across room states, but we're not going to worry about that now.
-            let max_level_data_size = compressed_level_data_vec.iter().map(|x| x.len()).max().unwrap_or(0);
+            let max_level_data_size = compressed_level_data_vec
+                .iter()
+                .map(|x| x.len())
+                .max()
+                .unwrap_or(0);
             let level_data_addr = self.main_allocator.allocate(max_level_data_size)?;
 
             // Similarly, allocate enough space for FX data to fit whichever theme has the largest:
@@ -522,7 +565,11 @@ impl MosaicPatchBuilder {
 
                 // Write (or clear) the BGData pointer:
                 if state_xml.layer2_type == Layer2Type::BGData {
-                    let bg_ptr = self.bgdata_map.get(&state_xml.bg_data).map(|x| *x).unwrap_or(0);
+                    let bg_ptr = self
+                        .bgdata_map
+                        .get(&state_xml.bg_data)
+                        .map(|x| *x)
+                        .unwrap_or(0);
                     if bg_ptr == 0 {
                         error!("Unrecognized BGData in {}", project);
                     }
@@ -534,7 +581,7 @@ impl MosaicPatchBuilder {
                 // Write BG scroll speeds:
                 let mut speed_x = state_xml.layer2_xscroll;
                 let mut speed_y = state_xml.layer2_yscroll;
-                if state_xml.layer2_type == Layer2Type::BGData { 
+                if state_xml.layer2_type == Layer2Type::BGData {
                     speed_x |= 0x01;
                     speed_y |= 0x01;
                 }
@@ -551,7 +598,7 @@ impl MosaicPatchBuilder {
                     // Skip for Mother Brain Room, which has special FX not in the FX list.
                 } else {
                     new_rom.write_n(fx_data_addr, &fx_data_vec[i])?;
-                    new_rom.write_u16(state_ptr + 6, (pc2snes(fx_data_addr) & 0xFFFF) as isize)?;    
+                    new_rom.write_u16(state_ptr + 6, (pc2snes(fx_data_addr) & 0xFFFF) as isize)?;
                 }
 
                 // Write setup & main ASM pointers:
@@ -567,9 +614,10 @@ impl MosaicPatchBuilder {
 
                 // Encode the BPS patch:
                 let modified_ranges = new_rom.get_modified_ranges();
-                let mut encoder = BPSEncoder::new(&self.source_suffix_tree, &new_rom.data, &modified_ranges);
+                let mut encoder =
+                    BPSEncoder::new(&self.source_suffix_tree, &new_rom.data, &modified_ranges);
                 encoder.encode();
-        
+
                 // Save the BPS patch to a file:
                 let output_filename = format!("{}-{:X}-{}.bps", project, room_ptr, state_idx);
                 let output_path = self.output_patches_dir.join(output_filename);
@@ -580,7 +628,8 @@ impl MosaicPatchBuilder {
     }
 
     fn load_room_state(project_path: &Path, room_name: &str) -> Result<RoomState> {
-        let room_path = project_path.join("Export/Rooms")
+        let room_path = project_path
+            .join("Export/Rooms")
             .join(format!("{}.xml", room_name));
         let room_str = std::fs::read_to_string(&room_path)
             .with_context(|| format!("Unable to load room at {}", room_path.display()))?;
@@ -591,9 +640,19 @@ impl MosaicPatchBuilder {
     }
 
     fn copy_screen(
-        dst_level_data: &mut [u8], dst_screen_x: usize, dst_screen_y: usize, dst_width: usize,
-        src_level_data: &[u8], src_screen_x: usize, src_screen_y: usize, src_width: usize,
+        dst_level_data: &mut [u8],
+        dst_screen_x: usize,
+        dst_screen_y: usize,
+        dst_width: usize,
+        src_level_data: &[u8],
+        src_screen_x: usize,
+        src_screen_y: usize,
+        src_width: usize,
     ) {
+        // println!(
+        //     "dst: {} {} {}, src: {} {} {}",
+        //     dst_screen_x, dst_screen_y, dst_width, src_screen_x, src_screen_y, src_width
+        // );
         for y in 0..16 {
             for x in 0..16 {
                 let src_x = src_screen_x * 16 + x;
@@ -602,20 +661,24 @@ impl MosaicPatchBuilder {
                 let dst_x = dst_screen_x * 16 + x;
                 let dst_y = dst_screen_y * 16 + y;
                 let dst_i = dst_y * dst_width * 16 + dst_x;
+                // if (x == 0 && y == 0) || (x == 15 && y == 15) {
+                //     println!("dst_i={:x}, src_i: {:x}", dst_i, src_i);
+                // }
                 dst_level_data[2 + dst_i * 2] = src_level_data[2 + src_i * 2];
-                dst_level_data[2 + dst_i * 2 + 1] = src_level_data[2 + src_i * 2 + 1];
+                dst_level_data[2 + dst_i * 2 + 1] = (dst_level_data[2 + dst_i * 2 + 1] & 0xF0)
+                    | (src_level_data[2 + src_i * 2 + 1] & 0x0F);
             }
         }
     }
 
     fn get_canonical_tileset(tileset_idx: usize) -> usize {
         if tileset_idx == 5 {
-            4  // Wrecked Ship Powered Off -> Wrecked Ship Powered On
+            4 // Wrecked Ship Powered Off -> Wrecked Ship Powered On
         } else if tileset_idx == 9 {
-            10  // Norfair Hot -> Norfair Cool
+            10 // Norfair Hot -> Norfair Cool
         } else if tileset_idx == 12 {
             // This one is a little risky because these tilesets overlap but are not fully compatible.
-            11  // East Maridia -> West Maridia
+            11 // East Maridia -> West Maridia
         } else {
             tileset_idx
         }
@@ -625,7 +688,11 @@ impl MosaicPatchBuilder {
         Self::get_canonical_tileset(tileset_idx_1) == Self::get_canonical_tileset(tileset_idx_2)
     }
 
-    fn make_toilet_patches(&mut self, dry_run: bool, max_compressed_level_data: &mut usize) -> Result<()> {    
+    fn make_toilet_patches(
+        &mut self,
+        dry_run: bool,
+        max_compressed_level_data: &mut usize,
+    ) -> Result<()> {
         let level_data_addr = if !dry_run {
             self.main_allocator.allocate(*max_compressed_level_data)?
         } else {
@@ -660,18 +727,19 @@ impl MosaicPatchBuilder {
         for (i, room) in room_geometry.iter().enumerate() {
             room_idx_by_name.insert(room.name.clone(), i);
         }
-    
+
         let transit_tube_data_path = Path::new("../transit-tube-data");
         let theme_name = "Base";
         let theme_transit_data_path = transit_tube_data_path.join(format!("{}.json", theme_name));
-        let theme_transit_data_str =
-            std::fs::read_to_string(&theme_transit_data_path).with_context(|| {
+        let theme_transit_data_str = std::fs::read_to_string(&theme_transit_data_path)
+            .with_context(|| {
                 format!(
                     "Unable to load transit tube data at {}",
                     theme_transit_data_path.display()
                 )
             })?;
-        let theme_transit_data_vec: Vec<TransitData> = serde_json::from_str(&theme_transit_data_str)?;
+        let theme_transit_data_vec: Vec<TransitData> =
+            serde_json::from_str(&theme_transit_data_str)?;
 
         let transit_project_path = self.mosaic_dir.join("Projects/TransitTube");
         let theme_project_path = self.mosaic_dir.join("Projects").join(theme_name);
@@ -690,12 +758,19 @@ impl MosaicPatchBuilder {
             let tube_theme_bottom = transit_data.bottom.to_ascii_uppercase();
 
             let top_state_xml = Self::load_room_state(&transit_project_path, &tube_theme_top)?;
-            let bottom_state_xml = Self::load_room_state(&transit_project_path, &tube_theme_bottom)?;
+            let bottom_state_xml =
+                Self::load_room_state(&transit_project_path, &tube_theme_bottom)?;
             let middle_state_xml = Self::load_room_state(&theme_project_path, &smart_room_name)?;
 
             let tileset_idx = middle_state_xml.gfx_set;
-            assert!(Self::is_compatible_tileset(top_state_xml.gfx_set, tileset_idx));
-            assert!(Self::is_compatible_tileset(bottom_state_xml.gfx_set, tileset_idx));
+            assert!(Self::is_compatible_tileset(
+                top_state_xml.gfx_set,
+                tileset_idx
+            ));
+            assert!(Self::is_compatible_tileset(
+                bottom_state_xml.gfx_set,
+                tileset_idx
+            ));
 
             let top_level_data = extract_uncompressed_level_data(&top_state_xml);
             let bottom_level_data = extract_uncompressed_level_data(&bottom_state_xml);
@@ -728,7 +803,16 @@ impl MosaicPatchBuilder {
 
                     // Intersecting room
                     for sy in y_min..=y_max {
-                        Self::copy_screen(&mut level_data, 0, (y + sy) as usize, 1, &middle_level_data, 0, sy as usize, room_width);
+                        Self::copy_screen(
+                            &mut level_data,
+                            0,
+                            (y + sy) as usize,
+                            1,
+                            &middle_level_data,
+                            x,
+                            sy as usize,
+                            room_width,
+                        );
                     }
 
                     // Tube screen immediately below the intersecting room:
@@ -761,7 +845,7 @@ impl MosaicPatchBuilder {
                         // // Write BG scroll speeds:
                         // let mut speed_x = state_xml.layer2_xscroll;
                         // let mut speed_y = state_xml.layer2_yscroll;
-                        // if state_xml.layer2_type == Layer2Type::BGData { 
+                        // if state_xml.layer2_type == Layer2Type::BGData {
                         //     speed_x |= 0x01;
                         //     speed_y |= 0x01;
                         // }
@@ -777,7 +861,7 @@ impl MosaicPatchBuilder {
                         //     // Skip for Mother Brain Room, which has special FX not in the FX list.
                         // } else {
                         //     new_rom.write_n(fx_data_addr, &fx_data_vec[i])?;
-                        //     new_rom.write_u16(state_ptr + 6, (pc2snes(fx_data_addr) & 0xFFFF) as isize)?;    
+                        //     new_rom.write_u16(state_ptr + 6, (pc2snes(fx_data_addr) & 0xFFFF) as isize)?;
                         // }
 
                         // // Write setup & main ASM pointers:
@@ -793,14 +877,20 @@ impl MosaicPatchBuilder {
 
                         // Encode the BPS patch:
                         let modified_ranges = new_rom.get_modified_ranges();
-                        let mut encoder = BPSEncoder::new(&self.source_suffix_tree, &new_rom.data, &modified_ranges);
+                        let mut encoder = BPSEncoder::new(
+                            &self.source_suffix_tree,
+                            &new_rom.data,
+                            &modified_ranges,
+                        );
                         encoder.encode();
-                
+
                         // Save the BPS patch to a file:
-                        let output_filename = format!("{}-{:X}-Transit-{}-{}.bps", theme_name, room_ptr, x, y);
+                        let output_filename =
+                            format!("{}-{:X}-Transit-{}-{}.bps", theme_name, room_ptr, x, -y);
+                        info!("writing {}", output_filename);
                         let output_path = self.output_patches_dir.join(output_filename);
                         std::fs::write(&output_path, &encoder.patch_bytes)?;
-                    }    
+                    }
                 }
             }
         }
@@ -824,9 +914,9 @@ fn load_room_ptrs(sm_json_data_path: &Path) -> Result<Vec<usize>> {
     let mut out: Vec<usize> = vec![];
     for entry in glob::glob(&room_pattern).unwrap() {
         if let Ok(path) = entry {
-            let path_str = path.to_str().with_context(|| {
-                format!("Unable to convert path to string: {}", path.display())
-            })?;
+            let path_str = path
+                .to_str()
+                .with_context(|| format!("Unable to convert path to string: {}", path.display()))?;
             if path_str.contains("ceres") || path_str.contains("roomDiagrams") {
                 continue;
             }
@@ -898,11 +988,11 @@ fn main() -> Result<()> {
     std::fs::create_dir_all(&mosaic_builder.compressed_data_cache_dir)?;
     std::fs::create_dir_all(&mosaic_builder.output_patches_dir)?;
 
-    // mosaic_builder.make_tileset_patch()?;
-    // mosaic_builder.build_bgdata_map()?;
-    // mosaic_builder.build_fx_door_map()?;
-    // mosaic_builder.make_all_room_patches()?;
-    
+    mosaic_builder.make_tileset_patch()?;
+    mosaic_builder.build_bgdata_map()?;
+    mosaic_builder.build_fx_door_map()?;
+    mosaic_builder.make_all_room_patches()?;
+
     // For Toilet, do a dry run first to determine size of allocate for level data
     // (based on max possible size across all possible themes and intersecting rooms):
     let mut max_compressed_level_data = 0;

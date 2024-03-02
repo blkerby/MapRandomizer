@@ -1,8 +1,8 @@
 use std::path::Path;
 
 use crate::{
-    game_data::{GameData, RoomPtr, DoorPtr, RoomStateIdx},
-    patch::{snes2pc, pc2snes, Rom, get_room_state_ptrs, apply_ips_patch, bps::BPSPatch},
+    game_data::{DoorPtr, GameData, RoomPtr, RoomStateIdx},
+    patch::{self, apply_ips_patch, bps::BPSPatch, get_room_state_ptrs, pc2snes, snes2pc, Rom},
 };
 use anyhow::{Result, Context};
 use hashbrown::HashMap;
@@ -15,6 +15,22 @@ fn apply_bps_patch(rom: &mut Rom, orig_rom: &Rom, filename: &str) -> Result<()> 
     let patch_bytes = std::fs::read(path)?;
     let patch = BPSPatch::new(patch_bytes)?;
     patch.apply(&orig_rom.data, &mut rom.data);
+    Ok(())
+}
+
+fn apply_toilet(rom: &mut Rom, orig_rom: &Rom, theme_name: &str) -> Result<()> {
+    let toilet_intersecting_room_ptr_addr = snes2pc(0xB5FE70);
+    let toilet_rel_x_addr = snes2pc(0xB5FE72);
+    let toilet_rel_y_addr = snes2pc(0xB5FE73);
+
+    let room_ptr = rom.read_u16(toilet_intersecting_room_ptr_addr)? + 0x70000;
+    let x = rom.read_u8(toilet_rel_x_addr)? as i8 as isize;
+    let y = rom.read_u8(toilet_rel_y_addr)? as i8 as isize;
+    let patch_filename = format!("{}-{:X}-Transit-{}-{}.bps", theme_name, room_ptr, x, y);
+    println!("toilet patch: {}", patch_filename);
+    apply_bps_patch(rom, orig_rom, &patch_filename)
+        .context(format!("Applying Toilet patch: {}", patch_filename))?;
+    
     Ok(())
 }
 
@@ -56,18 +72,20 @@ pub fn apply_retiling(rom: &mut Rom, orig_rom: &Rom, game_data: &GameData, theme
             let patch_filename = format!("{}-{:X}-{}.bps", theme_name, room_ptr, state_idx);
             apply_bps_patch(rom, orig_rom, &patch_filename)?;
 
-            let fx_ptr = rom.read_u16(state_ptr + 6)? as usize;
-            for i in 0..4 {
-                let door_ptr_addr = snes2pc(0x830000 + fx_ptr + i * 16);
-                let door_ptr = rom.read_u16(door_ptr_addr)? as DoorPtr;
-                if door_ptr == 0 || door_ptr == 0xffff {
-                    break;
-                }
-                let new_door_ptr = fx_door_ptr_map[&(room_ptr, state_idx, door_ptr)];
-                rom.write_u16(door_ptr_addr, new_door_ptr as isize)?;
-            }
+            // let fx_ptr = rom.read_u16(state_ptr + 6)? as usize;
+            // for i in 0..4 {
+            //     let door_ptr_addr = snes2pc(0x830000 + fx_ptr + i * 16);
+            //     let door_ptr = rom.read_u16(door_ptr_addr)? as DoorPtr;
+            //     if door_ptr == 0 || door_ptr == 0xffff {
+            //         break;
+            //     }
+            //     let new_door_ptr = fx_door_ptr_map[&(room_ptr, state_idx, door_ptr)];
+            //     rom.write_u16(door_ptr_addr, new_door_ptr as isize)?;
+            // }
         }
     }
+
+    apply_toilet(rom, orig_rom, theme_name)?;
 
     Ok(())
 }
