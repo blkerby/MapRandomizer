@@ -6,15 +6,17 @@ use hashbrown::hash_map::Entry;
 use hashbrown::{HashMap, HashSet};
 use json::JsonValue;
 use log::{info, error};
+use maprando::game_data::smart_xml::RoomState;
 use maprando::patch::bps::BPSEncoder;
 use maprando::patch::suffix_tree::SuffixTree;
+use serde::Deserialize;
 use std::fs::File;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use smart_xml::{Screen, Layer2Type};
 use maprando::customize::Allocator;
-use maprando::game_data::{smart_xml, DoorPtr};
+use maprando::game_data::{smart_xml, DoorPtr, RoomGeometry};
 use maprando::patch::{pc2snes, snes2pc, Rom, get_room_state_ptrs, self};
 
 #[derive(Parser)]
@@ -23,6 +25,14 @@ struct Args {
     compressor: PathBuf,
     #[arg(long)]
     input_rom: PathBuf,
+}
+
+#[derive(Deserialize, Default, Clone, Debug)]
+struct TransitData {
+    name: String, // Intersecting room name (matching room geometry)
+    x: Vec<usize>,
+    top: String, // Transit tube theme above room (matching room name in TransitTube SMART project)
+    bottom: String, // Transit tube theme below room (matching room name in TransitTube SMART project)
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]
@@ -473,6 +483,7 @@ impl MosaicPatchBuilder {
         info!("Processing {}: main alloc {:?}, FX alloc {:?}", room_name, self.main_allocator.get_stats(), self.fx_allocator.get_stats());
         let state_ptrs = get_room_state_ptrs(&self.rom, room_ptr)?;
         for (state_idx, &(_event_ptr, state_ptr)) in state_ptrs.iter().enumerate() {
+            println!("{}: {:x}", room_name, state_ptr);
             let mut compressed_level_data_vec = vec![];
             let mut fx_data_vec = vec![];
             let mut state_xml_vec = vec![];
@@ -567,6 +578,235 @@ impl MosaicPatchBuilder {
         }
         Ok(())
     }
+
+    fn load_room_state(project_path: &Path, room_name: &str) -> Result<RoomState> {
+        let room_path = project_path.join("Export/Rooms")
+            .join(format!("{}.xml", room_name));
+        let room_str = std::fs::read_to_string(&room_path)
+            .with_context(|| format!("Unable to load room at {}", room_path.display()))?;
+        let room: smart_xml::Room = serde_xml_rs::from_str(room_str.as_str())
+            .with_context(|| format!("Unable to parse XML in {}", room_path.display()))?;
+        let state_xml = room.states.state[0].clone();
+        Ok(state_xml)
+    }
+
+    fn copy_screen(
+        dst_level_data: &mut [u8], dst_screen_x: usize, dst_screen_y: usize, dst_width: usize,
+        src_level_data: &[u8], src_screen_x: usize, src_screen_y: usize, src_width: usize,
+    ) {
+        for y in 0..16 {
+            for x in 0..16 {
+                let src_x = src_screen_x * 16 + x;
+                let src_y = src_screen_y * 16 + y;
+                let src_i = src_y * src_width * 16 + src_x;
+                let dst_x = dst_screen_x * 16 + x;
+                let dst_y = dst_screen_y * 16 + y;
+                let dst_i = dst_y * dst_width * 16 + dst_x;
+                dst_level_data[2 + dst_i * 2] = src_level_data[2 + src_i * 2];
+                dst_level_data[2 + dst_i * 2 + 1] = src_level_data[2 + src_i * 2 + 1];
+            }
+        }
+    }
+
+    fn get_canonical_tileset(tileset_idx: usize) -> usize {
+        if tileset_idx == 5 {
+            4  // Wrecked Ship Powered Off -> Wrecked Ship Powered On
+        } else if tileset_idx == 9 {
+            10  // Norfair Hot -> Norfair Cool
+        } else if tileset_idx == 12 {
+            // This one is a little risky because these tilesets overlap but are not fully compatible.
+            11  // East Maridia -> West Maridia
+        } else {
+            tileset_idx
+        }
+    }
+
+    fn is_compatible_tileset(tileset_idx_1: usize, tileset_idx_2: usize) -> bool {
+        Self::get_canonical_tileset(tileset_idx_1) == Self::get_canonical_tileset(tileset_idx_2)
+    }
+
+    fn make_toilet_patches(&mut self, dry_run: bool, max_compressed_level_data: &mut usize) -> Result<()> {    
+        let level_data_addr = if !dry_run {
+            self.main_allocator.allocate(*max_compressed_level_data)?
+        } else {
+            0
+        };
+
+        // Index SMART project rooms:
+        let mut room_name_by_pair: HashMap<(usize, usize), String> = HashMap::new();
+        for room_path in std::fs::read_dir(self.mosaic_dir.join("Projects/Base/Export/Rooms"))? {
+            let room_path = room_path?.path();
+            let room_filename = room_path.file_name().unwrap().to_str().unwrap().to_owned();
+            let room_name = room_filename
+                .strip_suffix(".xml")
+                .context("Expecting room filename to end in .xml")?;
+            // println!("Room: {}", room_name);
+            let room_str = std::fs::read_to_string(&room_path)
+                .with_context(|| format!("Unable to load room at {}", room_path.display()))?;
+            let room: smart_xml::Room = serde_xml_rs::from_str(room_str.as_str())
+                .with_context(|| format!("Unable to parse XML in {}", room_path.display()))?;
+            room_name_by_pair.insert((room.area, room.index), room_name.to_string());
+        }
+
+        let room_geometry_path = Path::new("../room_geometry.json");
+        let room_geometry_str = std::fs::read_to_string(room_geometry_path).with_context(|| {
+            format!(
+                "Unable to load room geometry at {}",
+                room_geometry_path.display()
+            )
+        })?;
+        let room_geometry: Vec<RoomGeometry> = serde_json::from_str(&room_geometry_str)?;
+        let mut room_idx_by_name: HashMap<String, usize> = HashMap::new();
+        for (i, room) in room_geometry.iter().enumerate() {
+            room_idx_by_name.insert(room.name.clone(), i);
+        }
+    
+        let transit_tube_data_path = Path::new("../transit-tube-data");
+        let theme_name = "Base";
+        let theme_transit_data_path = transit_tube_data_path.join(format!("{}.json", theme_name));
+        let theme_transit_data_str =
+            std::fs::read_to_string(&theme_transit_data_path).with_context(|| {
+                format!(
+                    "Unable to load transit tube data at {}",
+                    theme_transit_data_path.display()
+                )
+            })?;
+        let theme_transit_data_vec: Vec<TransitData> = serde_json::from_str(&theme_transit_data_str)?;
+
+        let transit_project_path = self.mosaic_dir.join("Projects/TransitTube");
+        let theme_project_path = self.mosaic_dir.join("Projects").join(theme_name);
+
+        for transit_data in &theme_transit_data_vec {
+            println!("{}", transit_data.name);
+            let room_idx = room_idx_by_name[&transit_data.name];
+            let room_geometry = &room_geometry[room_idx];
+            let room_ptr = room_geometry.rom_address;
+            let room_area = self.rom.read_u8(room_ptr + 1)? as usize;
+            let room_index = self.rom.read_u8(room_ptr)? as usize;
+            let room_width = self.rom.read_u8(room_ptr + 4)? as usize;
+            let smart_room_name = &room_name_by_pair[&(room_area, room_index)];
+
+            let tube_theme_top = transit_data.top.to_ascii_uppercase();
+            let tube_theme_bottom = transit_data.bottom.to_ascii_uppercase();
+
+            let top_state_xml = Self::load_room_state(&transit_project_path, &tube_theme_top)?;
+            let bottom_state_xml = Self::load_room_state(&transit_project_path, &tube_theme_bottom)?;
+            let middle_state_xml = Self::load_room_state(&theme_project_path, &smart_room_name)?;
+
+            let tileset_idx = middle_state_xml.gfx_set;
+            assert!(Self::is_compatible_tileset(top_state_xml.gfx_set, tileset_idx));
+            assert!(Self::is_compatible_tileset(bottom_state_xml.gfx_set, tileset_idx));
+
+            let top_level_data = extract_uncompressed_level_data(&top_state_xml);
+            let bottom_level_data = extract_uncompressed_level_data(&bottom_state_xml);
+            let middle_level_data = extract_uncompressed_level_data(&middle_state_xml);
+
+            for &x in &transit_data.x {
+                let mut y_min = isize::MAX;
+                let mut y_max = 0 as isize;
+                for y in 0..(room_geometry.map.len() as isize) {
+                    if room_geometry.map[y as usize][x as usize] == 1 {
+                        if y < y_min {
+                            y_min = y;
+                        }
+                        if y > y_max {
+                            y_max = y;
+                        }
+                    }
+                }
+                assert!(2 - y_min < 8 - y_max);
+                for y in (2 - y_min)..(8 - y_max) {
+                    let mut level_data = bottom_level_data.clone();
+
+                    // Top part of the tube:
+                    for sy in 0..(y + y_min - 1) {
+                        Self::copy_screen(&mut level_data, 0, sy as usize, 1, &top_level_data, 0, sy as usize, 1);
+                    }
+
+                    // Tube screen immediately above the intersecting room:
+                    Self::copy_screen(&mut level_data, 0, (y + y_min - 1) as usize, 1, &top_level_data, 0, 4, 1);
+
+                    // Intersecting room
+                    for sy in y_min..=y_max {
+                        Self::copy_screen(&mut level_data, 0, (y + sy) as usize, 1, &middle_level_data, 0, sy as usize, room_width);
+                    }
+
+                    // Tube screen immediately below the intersecting room:
+                    Self::copy_screen(&mut level_data, 0, (y + y_max + 1) as usize, 1, &bottom_level_data, 0, 5, 1);
+
+                    let compressed_level_data = self.get_compressed_data(&level_data)?;
+                    if dry_run {
+                        if compressed_level_data.len() > *max_compressed_level_data {
+                            *max_compressed_level_data = compressed_level_data.len();
+                        }
+                    } else {
+                        let mut new_rom = self.rom.clone();
+                        new_rom.enable_tracking();
+                        let state_ptr = 0x7D415;
+
+                        // Write the tileset index
+                        new_rom.write_u8(state_ptr + 3, tileset_idx as isize)?;
+
+                        // // Write (or clear) the BGData pointer:
+                        // if state_xml.layer2_type == Layer2Type::BGData {
+                        //     let bg_ptr = self.bgdata_map.get(&state_xml.bg_data).map(|x| *x).unwrap_or(0);
+                        //     if bg_ptr == 0 {
+                        //         error!("Unrecognized BGData in {}", project);
+                        //     }
+                        //     new_rom.write_u16(state_ptr + 22, bg_ptr)?;
+                        // } else {
+                        //     new_rom.write_u16(state_ptr + 22, 0)?;
+                        // }
+
+                        // // Write BG scroll speeds:
+                        // let mut speed_x = state_xml.layer2_xscroll;
+                        // let mut speed_y = state_xml.layer2_yscroll;
+                        // if state_xml.layer2_type == Layer2Type::BGData { 
+                        //     speed_x |= 0x01;
+                        //     speed_y |= 0x01;
+                        // }
+                        // new_rom.write_u8(state_ptr + 12, speed_x as isize)?;
+                        // new_rom.write_u8(state_ptr + 13, speed_y as isize)?;
+
+                        // Write the level data and the pointer to it:
+                        new_rom.write_n(level_data_addr, &compressed_level_data)?;
+                        new_rom.write_u24(state_ptr, pc2snes(level_data_addr) as isize)?;
+
+                        // // Write FX:
+                        // if pc2snes(room_ptr) & 0xFFFF == 0xDD58 {
+                        //     // Skip for Mother Brain Room, which has special FX not in the FX list.
+                        // } else {
+                        //     new_rom.write_n(fx_data_addr, &fx_data_vec[i])?;
+                        //     new_rom.write_u16(state_ptr + 6, (pc2snes(fx_data_addr) & 0xFFFF) as isize)?;    
+                        // }
+
+                        // // Write setup & main ASM pointers:
+                        // if pc2snes(state_ptr) & 0xFFFF == 0xDDA2 {
+                        //     // Don't overwrite ASM for special Mother Brain Room state used by randomizer for escape sequence.
+                        // } else {
+                        //     // Main ASM:
+                        //     new_rom.write_u16(state_ptr + 18, state_xml.fx2 as isize)?;
+
+                        //     // Setup ASM:
+                        //     new_rom.write_u16(state_ptr + 24, state_xml.layer1_2 as isize)?;
+                        // }
+
+                        // Encode the BPS patch:
+                        let modified_ranges = new_rom.get_modified_ranges();
+                        let mut encoder = BPSEncoder::new(&self.source_suffix_tree, &new_rom.data, &modified_ranges);
+                        encoder.encode();
+                
+                        // Save the BPS patch to a file:
+                        let output_filename = format!("{}-{:X}-Transit-{}-{}.bps", theme_name, room_ptr, x, y);
+                        let output_path = self.output_patches_dir.join(output_filename);
+                        std::fs::write(&output_path, &encoder.patch_bytes)?;
+                    }    
+                }
+            }
+        }
+
+        Ok(())
+    }
 }
 
 fn read_json(path: &Path) -> Result<JsonValue> {
@@ -658,9 +898,15 @@ fn main() -> Result<()> {
     std::fs::create_dir_all(&mosaic_builder.compressed_data_cache_dir)?;
     std::fs::create_dir_all(&mosaic_builder.output_patches_dir)?;
 
-    mosaic_builder.make_tileset_patch()?;
-    mosaic_builder.build_bgdata_map()?;
-    mosaic_builder.build_fx_door_map()?;
-    mosaic_builder.make_all_room_patches()?;
+    // mosaic_builder.make_tileset_patch()?;
+    // mosaic_builder.build_bgdata_map()?;
+    // mosaic_builder.build_fx_door_map()?;
+    // mosaic_builder.make_all_room_patches()?;
+    
+    // For Toilet, do a dry run first to determine size of allocate for level data
+    // (based on max possible size across all possible themes and intersecting rooms):
+    let mut max_compressed_level_data = 0;
+    mosaic_builder.make_toilet_patches(true, &mut max_compressed_level_data)?;
+    mosaic_builder.make_toilet_patches(false, &mut max_compressed_level_data)?;
     Ok(())
 }
