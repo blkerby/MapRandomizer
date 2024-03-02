@@ -648,11 +648,10 @@ impl MosaicPatchBuilder {
         src_screen_x: usize,
         src_screen_y: usize,
         src_width: usize,
+        src_layer_2: &[u8],
     ) {
-        // println!(
-        //     "dst: {} {} {}, src: {} {} {}",
-        //     dst_screen_x, dst_screen_y, dst_width, src_screen_x, src_screen_y, src_width
-        // );
+        let dst_size = dst_level_data[0] as usize + ((dst_level_data[1] as usize) << 8);
+
         for y in 0..16 {
             for x in 0..16 {
                 let src_x = src_screen_x * 16 + x;
@@ -661,12 +660,11 @@ impl MosaicPatchBuilder {
                 let dst_x = dst_screen_x * 16 + x;
                 let dst_y = dst_screen_y * 16 + y;
                 let dst_i = dst_y * dst_width * 16 + dst_x;
-                // if (x == 0 && y == 0) || (x == 15 && y == 15) {
-                //     println!("dst_i={:x}, src_i: {:x}", dst_i, src_i);
-                // }
                 dst_level_data[2 + dst_i * 2] = src_level_data[2 + src_i * 2];
                 dst_level_data[2 + dst_i * 2 + 1] = (dst_level_data[2 + dst_i * 2 + 1] & 0xF0)
                     | (src_level_data[2 + src_i * 2 + 1] & 0x0F);
+                dst_level_data[2 + 3 * dst_size / 2 + dst_i * 2] = src_layer_2[src_i * 2];
+                dst_level_data[2 + 3 * dst_size / 2 + dst_i * 2 + 1] = src_layer_2[src_i * 2 + 1];
             }
         }
     }
@@ -686,6 +684,42 @@ impl MosaicPatchBuilder {
 
     fn is_compatible_tileset(tileset_idx_1: usize, tileset_idx_2: usize) -> bool {
         Self::get_canonical_tileset(tileset_idx_1) == Self::get_canonical_tileset(tileset_idx_2)
+    }
+
+    fn get_layer_2_data(state_xml: &RoomState, level_data: &[u8], room_width: usize, room_height: usize) -> Vec<u8> {
+        let size = level_data[0] as usize + ((level_data[1] as usize) << 8);
+        if state_xml.layer2_type == Layer2Type::Layer2 {
+            let mut out = level_data[(2 + size * 3 / 2)..(2 + size * 5 / 2)].to_vec();
+            if state_xml.layer1_2 == 0x91C9 {
+                // Scrolling sky BG: replicate first column of screens
+                println!("Scrolling sky: {} {}", room_width, room_height);
+                for sy in 0..room_height {
+                    for sx in 1..room_width {
+                        for y in 0..16 {
+                            for x in 0..16 {
+                                let src_i = (y + sy * 16) * room_width * 16 + x;
+                                let dst_i = (y + sy * 16) * room_width * 16 + x + sx * 16;
+                                out[dst_i * 2] = out[src_i * 2];
+                                out[dst_i * 2 + 1] = out[src_i * 2 + 1];
+                            }
+                        }
+                    }
+                }
+            }
+            out
+        } else {
+            vec![0; size]
+        }
+    }
+
+    fn draw_tube(layer2: &mut [u8], room_width: usize, room_height: usize, screen_x: usize) {
+        for screen_y in 0..room_height {
+            for y in 0..16 {
+                let i = (screen_y * 16 + y) * room_width * 16 + screen_x * 16 + 7;
+                (layer2[i * 2], layer2[i * 2 + 1]) = (0xEF, 0x04);
+                (layer2[i * 2 + 2], layer2[i * 2 + 3]) = (0xEF, 0x00);
+            }
+        }
     }
 
     fn make_toilet_patches(
@@ -752,6 +786,7 @@ impl MosaicPatchBuilder {
             let room_area = self.rom.read_u8(room_ptr + 1)? as usize;
             let room_index = self.rom.read_u8(room_ptr)? as usize;
             let room_width = self.rom.read_u8(room_ptr + 4)? as usize;
+            let room_height = self.rom.read_u8(room_ptr + 5)? as usize;
             let smart_room_name = &room_name_by_pair[&(room_area, room_index)];
 
             let tube_theme_top = transit_data.top.to_ascii_uppercase();
@@ -776,9 +811,17 @@ impl MosaicPatchBuilder {
             let bottom_level_data = extract_uncompressed_level_data(&bottom_state_xml);
             let middle_level_data = extract_uncompressed_level_data(&middle_state_xml);
 
+            let top_layer_2 = Self::get_layer_2_data(&top_state_xml, &top_level_data, 1, 10);
+            let bottom_layer_2 = Self::get_layer_2_data(&bottom_state_xml, &bottom_level_data, 1, 10);
+            let orig_middle_layer_2 = Self::get_layer_2_data(&middle_state_xml, &middle_level_data, room_width, room_height);
+
             for &x in &transit_data.x {
                 let mut y_min = isize::MAX;
                 let mut y_max = 0 as isize;
+
+                let mut middle_layer_2 = orig_middle_layer_2.clone();
+                Self::draw_tube(&mut middle_layer_2, room_width, room_height, x);
+
                 for y in 0..(room_geometry.map.len() as isize) {
                     if room_geometry.map[y as usize][x as usize] == 1 {
                         if y < y_min {
@@ -795,11 +838,11 @@ impl MosaicPatchBuilder {
 
                     // Top part of the tube:
                     for sy in 0..(y + y_min - 1) {
-                        Self::copy_screen(&mut level_data, 0, sy as usize, 1, &top_level_data, 0, sy as usize, 1);
+                        Self::copy_screen(&mut level_data, 0, sy as usize, 1, &top_level_data, 0, sy as usize, 1, &top_layer_2);
                     }
 
                     // Tube screen immediately above the intersecting room:
-                    Self::copy_screen(&mut level_data, 0, (y + y_min - 1) as usize, 1, &top_level_data, 0, 4, 1);
+                    Self::copy_screen(&mut level_data, 0, (y + y_min - 1) as usize, 1, &top_level_data, 0, 4, 1, &top_layer_2);
 
                     // Intersecting room
                     for sy in y_min..=y_max {
@@ -812,11 +855,12 @@ impl MosaicPatchBuilder {
                             x,
                             sy as usize,
                             room_width,
+                            &middle_layer_2,
                         );
                     }
 
                     // Tube screen immediately below the intersecting room:
-                    Self::copy_screen(&mut level_data, 0, (y + y_max + 1) as usize, 1, &bottom_level_data, 0, 5, 1);
+                    Self::copy_screen(&mut level_data, 0, (y + y_max + 1) as usize, 1, &bottom_level_data, 0, 5, 1, &bottom_layer_2);
 
                     let compressed_level_data = self.get_compressed_data(&level_data)?;
                     if dry_run {
@@ -830,6 +874,10 @@ impl MosaicPatchBuilder {
 
                         // Write the tileset index
                         new_rom.write_u8(state_ptr + 3, tileset_idx as isize)?;
+
+                        // Set enemy list to empty:
+                        new_rom.write_u16(state_ptr + 8, 0x85a9)?;
+                        new_rom.write_u16(state_ptr + 10, 0x80eb)?;                    
 
                         // // Write (or clear) the BGData pointer:
                         // if state_xml.layer2_type == Layer2Type::BGData {
